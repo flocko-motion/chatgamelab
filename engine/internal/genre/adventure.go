@@ -28,10 +28,16 @@ func NewAdventure(status map[string]string) *Wiring {
 	outProps := blocks.NewPlayerOutputProps("out-props")
 	props := blocks.NewPropsStore("props-store", status)
 
-	gate := blocks.NewGate("start-game")
+	// No opening line yet: Adventure begins when the player acts. v1 generates
+	// an opening scene from an init prompt, and this is where that goes.
+	gate := blocks.NewGate("start-game", "")
 
 	g := ports.NewGraph("adventure")
 	g.Track(gate)
+	// Adventure prepares nothing yet, so its gate opens at once — but the edge
+	// is wired, so the lifecycle is the same shape in every genre and adding a
+	// preparation step later changes one line rather than the design.
+	g.ConnectState(gate, player)
 	g.ConnectTextOut(player, rephrase)
 	g.ConnectTextOut(rephrase, outline)
 

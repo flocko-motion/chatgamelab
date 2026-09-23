@@ -16,8 +16,14 @@ import (
 // not, so a slow picture never holds up a conversation.
 type Gate struct {
 	name string
+	// initPrompt is sent once the gate opens, which is how a genre starts the
+	// game rather than waiting to be spoken to. Empty means the gate only
+	// releases and says nothing.
+	initPrompt string
 
-	in ports.StateInput
+	in    ports.StateInput
+	state ports.StateBroadcast
+	text  ports.TextBroadcast
 
 	mu       sync.Mutex
 	expected int
@@ -29,18 +35,31 @@ type Gate struct {
 	ready    chan struct{}
 }
 
-func NewGate(name string) *Gate {
+// NewGate builds the join between the init stem and the turn loop. The init
+// prompt is the first message it sends when it opens — for a live genre, the
+// cue that makes the character greet whoever arrived.
+func NewGate(name, initPrompt string) *Gate {
 	return &Gate{
-		name:     name,
-		in:       make(ports.StateInput, 16),
-		worked:   map[string]bool{},
-		finished: map[string]bool{},
-		ready:    make(chan struct{}),
+		name:       name,
+		initPrompt: initPrompt,
+		in:         make(ports.StateInput, 16),
+		worked:     map[string]bool{},
+		finished:   map[string]bool{},
+		ready:      make(chan struct{}),
 	}
 }
 
 func (b *Gate) NodeName() string                { return b.name }
 func (b *Gate) StateInPort() chan<- ports.State { return b.in }
+
+// TextOutPort carries the init prompt. Wiring it is what turns "the game may
+// begin" into "the game begins".
+func (b *Gate) TextOutPort() <-chan string { return b.text.Subscribe() }
+
+// StateOutPort is how the gate releases the game. It reports working while it
+// waits and ready once it opens, so whatever must not act early listens for
+// that rather than being told out of band.
+func (b *Gate) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 // ExpectReporters is called by the graph, which is the only thing that knows how
 // many blocks were wired to report here.
@@ -69,9 +88,24 @@ func (b *Gate) openLocked() {
 	}
 	b.open = true
 	close(b.ready)
+	go func() {
+		// Released first, so a player who was already typing is not beaten to
+		// the conversation by the character's greeting.
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+		if b.initPrompt != "" {
+			b.text.Send(b.initPrompt)
+		}
+	}()
 }
 
 func (b *Gate) Start(ctx context.Context) {
+	// Waiting is work, and showing it as such is what makes a preparation phase
+	// visible on a graph rather than a pause nobody can account for.
+	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
+	if b.IsOpen() {
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+	}
+
 	go func() {
 		for {
 			select {

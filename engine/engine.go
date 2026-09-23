@@ -76,6 +76,12 @@ type SessionSpec struct {
 	// lever on youth protection.
 	Scenario string `json:"scenario,omitempty"`
 
+	// InitPrompt is the first message sent once preparation is done — what v1
+	// calls the initialization prompt. It kicks the game off: for a live genre
+	// the character greets whoever arrived instead of waiting to be spoken to.
+	// Empty means a sensible default.
+	InitPrompt string `json:"initPrompt,omitempty"`
+
 	// Platform selects which implementations back the adapter roles. An empty
 	// Platform means mock: no key, no network, no cost.
 	Platform Platform `json:"platform,omitempty"`
@@ -190,8 +196,9 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 				Voice:        spec.Voice,
 				Instructions: spec.Scenario + "\n" + spec.Guardrail,
 			},
-			Guardrail: spec.Guardrail,
-			Scenario:  spec.Scenario,
+			Guardrail:  spec.Guardrail,
+			Scenario:   spec.Scenario,
+			InitPrompt: spec.initPrompt(),
 			Script: blocks.InputScript{
 				Lines:    spec.Script,
 				Interval: time.Duration(spec.ScriptIntervalMs) * time.Millisecond,
@@ -378,6 +385,16 @@ func (s *Session) Close() { s.once.Do(s.cancel) }
 // tierSigil marks a Model* value as a reference to a tier rather than a model
 // name. No model name begins with it, so the two never have to be guessed apart.
 const tierSigil = "$"
+
+// initPrompt is what the gate sends to begin the game. The default asks the
+// character to speak first without telling it what to say, which is the
+// scenario's job.
+func (spec SessionSpec) initPrompt() string {
+	if spec.InitPrompt != "" {
+		return spec.InitPrompt
+	}
+	return "Begin. Greet whoever has arrived, in character, in one or two sentences."
+}
 
 func (spec SessionSpec) modelTier() Tier {
 	if spec.ModelTier == "" {
