@@ -52,17 +52,28 @@ func (b *DummyToolCall) Start(ctx context.Context) {
 // its turn number so a wiring test can see the thread is actually continuous.
 type DummyThreaded struct {
 	name, role string
-	turn       int
+
+	// Guarded because ExportState is called from the caller's goroutine while
+	// the block's own loop is writing — the checkpoint never stops the graph.
+	mu   sync.Mutex
+	turn int
 	// thread stands in for the provider's continuation token — the thing that
 	// makes this role threaded, and the thing a resumed session needs back.
 	thread string
-	in     chan string
-	out    ports.TextBroadcast
+
+	in  chan string
+	out ports.TextBroadcast
 }
 
-func (b *DummyThreaded) ExportState() string { return b.thread }
+func (b *DummyThreaded) ExportState() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.thread
+}
 
 func (b *DummyThreaded) RestoreState(s string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	b.thread = s
 	// A restored thread continues its numbering rather than restarting, which
 	// is how a test can tell a real resume from a fresh session.
@@ -91,9 +102,12 @@ func (b *DummyThreaded) Start(ctx context.Context) {
 				if !ok {
 					return
 				}
+				b.mu.Lock()
 				b.turn++
-				b.thread = fmt.Sprintf("resp-%d", b.turn)
-				b.out.Send(fmt.Sprintf("[%s turn %d] %s", b.role, b.turn, v))
+				turn := b.turn
+				b.thread = fmt.Sprintf("resp-%d", turn)
+				b.mu.Unlock()
+				b.out.Send(fmt.Sprintf("[%s turn %d] %s", b.role, turn, v))
 			}
 		}
 	}()
@@ -141,6 +155,25 @@ func (b *DummyExtraction) RequiredInputs() []ports.Kind {
 func (b *DummyExtraction) Start(ctx context.Context) {
 	go func() {
 		defer func() { b.out.Close(); b.secondary.Close(); b.props.Close() }()
+
+		// A required input is required: process nothing until the first
+		// snapshot of the current values has arrived. Without this the block
+		// can handle a player action before the seeded values reach it, decide
+		// from defaults, and overwrite the real values on the way out.
+		select {
+		case <-ctx.Done():
+			return
+		case initial, ok := <-b.propsIn:
+			if !ok {
+				return
+			}
+			b.mu.Lock()
+			for k, v := range initial {
+				b.current[k] = v
+			}
+			b.mu.Unlock()
+		}
+
 		for {
 			select {
 			case <-ctx.Done():

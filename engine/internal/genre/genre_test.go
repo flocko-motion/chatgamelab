@@ -143,3 +143,37 @@ func TestExtractionRequiresPropsEdge(t *testing.T) {
 		t.Fatalf("expected a missing props edge to be caught, got: %v", err)
 	}
 }
+
+// A block whose props input is required must not act on a player action before
+// the current values have reached it. Without that guarantee it decides from
+// defaults and then overwrites the real values on the way out — which shows up
+// as a status bar that resets on the first turn, intermittently.
+func TestSeededStatusSurvivesTheFirstTurn(t *testing.T) {
+	for i := 0; i < 50; i++ {
+		ctx, cancel := context.WithCancel(context.Background())
+
+		a := NewAdventure(map[string]string{"Health": "Wounded", "Gold": "12"})
+		a.Graph.Start(ctx)
+		a.Say("I press on")
+
+		deadline := time.After(2 * time.Second)
+		var sawTurn bool
+		for !sawTurn {
+			select {
+			case v := <-a.Sinks["props"]:
+				if !strings.Contains(v, "Turn:1") {
+					continue
+				}
+				sawTurn = true
+				if !strings.Contains(v, "Health:Wounded") {
+					cancel()
+					t.Fatalf("run %d: seeded value lost on the first turn: %s", i, v)
+				}
+			case <-deadline:
+				cancel()
+				t.Fatalf("run %d: no turn-1 props", i)
+			}
+		}
+		cancel()
+	}
+}
