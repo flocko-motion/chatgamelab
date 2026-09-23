@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -259,5 +260,46 @@ func TestNodeDetailListsAreNeverNull(t *testing.T) {
 		if strings.Contains(string(body), `"inputs":null`) || strings.Contains(string(body), `"outputs":null`) {
 			t.Errorf("%s serialised a null list: %s", node.Name, body)
 		}
+	}
+}
+
+// A wire is clickable too, and reports what it last carried. One the wiring
+// does not have is a 404 rather than an empty reading.
+func TestEdgeInspection(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "edges",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "edges", session)
+
+	for _, edge := range session.Topology().Edges {
+		url := fmt.Sprintf("%s/sessions/edges/edge?from=%s&to=%s&kind=%s",
+			srv.URL, edge.From, edge.To, edge.Kind)
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("%s → %s (%s): status %d", edge.From, edge.To, edge.Kind, resp.StatusCode)
+		}
+	}
+
+	resp, err := http.Get(srv.URL + "/sessions/edges/edge?from=observer&to=out-text&kind=text")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("an edge the wiring lacks: status %d, want 404", resp.StatusCode)
 	}
 }

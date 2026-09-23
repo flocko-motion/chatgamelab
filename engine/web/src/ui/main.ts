@@ -42,7 +42,8 @@ const view = new View({
   talk: required<HTMLButtonElement>("#talk"),
   typed,
 }, (name) => void details.show(name),
-   () => details.clear(player.state));
+   () => details.clear(player.state),
+   (from, to, kind) => void details.showEdge(from, to, kind));
 
 player.subscribe((state) => {
   view.render(state);

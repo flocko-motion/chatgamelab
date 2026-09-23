@@ -205,6 +205,25 @@ func (a *API) SessionNode(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(detail)
 }
 
+// SessionEdge is what one wire has carried, for a reader who clicked it.
+func (a *API) SessionEdge(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+
+	q := r.URL.Query()
+	detail, found := s.InspectEdge(q.Get("from"), q.Get("to"), q.Get("kind"))
+	if !found {
+		http.Error(w, "no such edge", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(detail)
+}
+
 // Handler is the engine's whole HTTP subtree, mounted at one prefix by whoever
 // runs it. Owning the subtree is what lets the embedded player address the
 // engine with relative URLs — the same ones in the monolith and standalone —
@@ -221,6 +240,7 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("GET /sessions/{id}/state", a.SessionSnapshot)
 	mux.HandleFunc("GET /sessions/{id}/history", a.SessionHistory)
 	mux.HandleFunc("GET /sessions/{id}/nodes/{node}", a.SessionNode)
+	mux.HandleFunc("GET /sessions/{id}/edge", a.SessionEdge)
 	mux.HandleFunc("GET /sessions/{id}/flowchart", a.SessionFlowchart)
 	mux.HandleFunc("GET /sessions/{id}/live", a.SessionLive)
 	mux.Handle("GET /player/", http.StripPrefix("/player/", http.FileServerFS(web.FS())))

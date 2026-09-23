@@ -37,10 +37,21 @@ type inspector struct {
 	mu      sync.Mutex
 	inputs  map[any][]Sample
 	outputs map[any][]Sample
+	// edges is keyed by the triple that identifies one, rather than by position:
+	// an index would shift the moment a genre gains a wire.
+	edges map[edgeKey][]Sample
+}
+
+type edgeKey struct {
+	from, to, kind string
 }
 
 func newInspector() *inspector {
-	return &inspector{inputs: map[any][]Sample{}, outputs: map[any][]Sample{}}
+	return &inspector{
+		inputs:  map[any][]Sample{},
+		outputs: map[any][]Sample{},
+		edges:   map[edgeKey][]Sample{},
+	}
 }
 
 func (i *inspector) observe(src, dst any, kind Kind, value any) {
@@ -56,6 +67,9 @@ func (i *inspector) observe(src, dst any, kind Kind, value any) {
 	in := sample
 	in.Peer = NodeName(src)
 	i.inputs[dst] = appendRecent(i.inputs[dst], in)
+
+	key := edgeKey{from: NodeName(src), to: NodeName(dst), kind: kind.String()}
+	i.edges[key] = appendRecent(i.edges[key], sample)
 }
 
 func appendRecent(samples []Sample, sample Sample) []Sample {
@@ -117,4 +131,36 @@ func (g *Graph) Inspect(name string) (NodeDetail, bool) {
 		return detail, true
 	}
 	return NodeDetail{}, false
+}
+
+// EdgeDetail is what one wire has carried.
+type EdgeDetail struct {
+	From   string   `json:"from"`
+	To     string   `json:"to"`
+	Kind   string   `json:"kind"`
+	Recent []Sample `json:"recent"`
+}
+
+// InspectEdge reports the last few values a wire carried, or false if the
+// wiring has no such edge.
+func (g *Graph) InspectEdge(from, to, kind string) (EdgeDetail, bool) {
+	known := false
+	for _, e := range g.edges {
+		if NodeName(e.From) == from && NodeName(e.To) == to && e.Kind.String() == kind {
+			known = true
+			break
+		}
+	}
+	if !known {
+		return EdgeDetail{}, false
+	}
+
+	g.inspector.mu.Lock()
+	defer g.inspector.mu.Unlock()
+	return EdgeDetail{
+		From:   from,
+		To:     to,
+		Kind:   kind,
+		Recent: append(make([]Sample, 0, recentPerPort), g.inspector.edges[edgeKey{from, to, kind}]...),
+	}, true
 }
