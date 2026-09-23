@@ -21,6 +21,7 @@ import { useWorkshopMode } from "../providers/WorkshopModeProvider";
 import { RegistrationForm } from "../features/auth";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
+import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
 import {
   isAdmin,
   getUserInstitutionId,
@@ -74,6 +75,7 @@ function RootComponent() {
     pathname.startsWith(ROUTES.AUTH_LOGOUT) ||
     pathname.startsWith(ROUTES.INVITES) ||
     pathname === ROUTES.CODE ||
+    pathname.startsWith(PUBLIC_WORKSHOP_PREFIX) ||
     isGuestPlayRoute;
 
   // Routes that participants are allowed to access

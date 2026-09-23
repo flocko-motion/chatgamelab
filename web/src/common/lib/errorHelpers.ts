@@ -98,6 +98,18 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.validation",
     messageKey: "errors:nameProfane",
   },
+  [ErrorCodes.PUBLIC_SLUG_TAKEN]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicSlugTaken",
+  },
+  [ErrorCodes.PUBLIC_SLUG_INVALID]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicSlugInvalid",
+  },
+  [ErrorCodes.PUBLIC_DESCRIPTION_TOO_LONG]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicDescriptionTooLong",
+  },
   [ErrorCodes.INVALID_JSON_SCHEMA]: {
     titleKey: "errors:titles.gameConfig",
     messageKey: "errors:invalidJsonSchema",

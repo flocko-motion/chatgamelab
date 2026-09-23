@@ -58,6 +58,7 @@ import { ShareLinkModal } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { ParticipantLinkModal } from "./ParticipantLinkModal";
+import { PublicPageSettings } from "./PublicPageSettings";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
@@ -524,6 +525,12 @@ export function SingleWorkshopSettings({
               }
             />
           </Stack >
+
+          <PublicPageSettings
+            key={workshop.publicSlug}
+            workshop={workshop}
+            onSaved={retryBackendFetch}
+          />
 
           {/* Participants Section */}
           < Stack gap="xs" >

@@ -537,7 +537,8 @@
         "publicDescription": "Öffentliche Spiele sind für alle Nutzer dieser Plattform sichtbar und spielbar.",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "submit": "Spiel erstellen",
-        "title": "Neues Spiel erstellen"
+        "title": "Neues Spiel erstellen",
+        "publicOwnerOnly": "Nur wer das Spiel erstellt hat, kann es öffentlich machen."
       },
       "deleteModal": {
         "adminActionTitle": "Admin-Aktion",
@@ -646,7 +647,8 @@
         "publicSponsoring": "Öffentliches Sponsoring",
         "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten.",
         "sectionTitle": "Freigabeoptionen",
-        "sectionTitleShareOnly": "Freigabeoptionen"
+        "sectionTitleShareOnly": "Freigabeoptionen",
+        "workshopShareRequiresPublic": "Das Spiel muss öffentlich sein, bevor es im Workshop geteilt werden kann."
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",
@@ -806,7 +808,9 @@
       "visibility": {
         "private": "Privat",
         "public": "Öffentlich"
-      }
+      },
+      "privacyHint": "Name und Beschreibung eines Spiels können öffentlich sichtbar werden. Bitte keine Klarnamen verwenden.",
+      "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen."
     },
     "guestPlay": {
       "welcome": {
@@ -1143,6 +1147,27 @@
         "unpause": "Workshop fortsetzen",
         "usedCount": "{{count}} Nutzungen",
         "viewInviteLink": "Einladungslink anzeigen"
+      },
+      "publicPage": {
+        "title": "Öffentliche Seite",
+        "description": "Eine Seite ohne Anmeldung, die zeigt, worum es im Workshop ging, und die öffentlichen Spiele der Gruppe auflistet. Wer ein Spiel erstellt hat, steht nirgends.",
+        "enabled": "Öffentliche Seite anzeigen",
+        "enabledHint": "Ausgeschaltet zeigt der Link nur einen Hinweis. Spiel-Links der Seite werden dabei ungültig.",
+        "link": "Link",
+        "linkHint": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "slugTaken": "Dieser Link ist schon vergeben.",
+        "slugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "text": "Beschreibung",
+        "textHint": "Worum ging es im Workshop? Höchstens 2000 Zeichen.",
+        "descriptionError": "Die Beschreibung konnte nicht gespeichert werden.",
+        "showLink": "Link \u0026 QR-Code anzeigen",
+        "open": "Seite öffnen",
+        "offHint": "Die Seite ist ausgeschaltet. Link und QR-Code kannst du trotzdem schon vorbereiten.",
+        "changeLinkTitle": "Link ändern?",
+        "changeLinkMessage": "Die Seite ist danach unter {{url}} erreichbar.",
+        "changeLinkWarning": "Der alte Link funktioniert danach nicht mehr – auch bereits ausgedruckte oder verschickte QR-Codes nicht.",
+        "shareTitle": "Öffentliche Seite",
+        "shareDescription": "Diesen Link kannst du verschicken oder als QR-Code zeigen."
       }
     },
     "name": "Name",
@@ -1288,7 +1313,22 @@
       "role-desc": "Rolle (Z-A)"
     },
     "unnamed": "Unbenannt",
-    "viewGame": "Spiel ansehen"
+    "viewGame": "Spiel ansehen",
+    "publicWorkshop": {
+      "unavailable": {
+        "title": "Diese Seite ist nicht verfügbar",
+        "message": "Der Link ist nicht (mehr) gültig oder die Workshop-Seite wurde ausgeschaltet.",
+        "home": "Zur Startseite"
+      },
+      "gamesTitle": "Spiele aus diesem Workshop",
+      "noGames": "Hier wurden noch keine Spiele freigegeben.",
+      "play": "Ausprobieren",
+      "playRemaining": "Noch {{remaining}} von {{limit}} Spielrunden frei",
+      "playExhausted": "Kontingent aufgebraucht",
+      "download": "Herunterladen",
+      "copy": "Kopieren",
+      "copyLogin": "Anmelden \u0026 kopieren"
+    }
   },
   "dashboard": {
     "cards": {
@@ -1394,7 +1434,10 @@
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
     "userNotRegistered": "Du musst die Registrierung abschließen, bevor du fortfahren kannst.",
     "validation": "Bitte überprüfe deine Eingabe und versuche es erneut.",
-    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator."
+    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
+    "publicSlugTaken": "Dieser Link ist schon vergeben.",
+    "publicSlugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+    "publicDescriptionTooLong": "Die Beschreibung darf höchstens 2000 Zeichen lang sein."
   },
   "myWorkshop": {
     "empty": {
