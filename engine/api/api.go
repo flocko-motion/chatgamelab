@@ -161,6 +161,30 @@ func (a *API) SessionFlowchart(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, s.Mermaid())
 }
 
+// SessionSnapshot is where the session stands now. A reloading page fetches
+// this and the history rather than replaying the live stream, which keeps the
+// socket for what is happening and REST for what has happened.
+func (a *API) SessionSnapshot(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(s.Snapshot())
+}
+
+// SessionHistory is the conversation so far, in order.
+func (a *API) SessionHistory(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(s.History())
+}
+
 // Handler is the engine's whole HTTP subtree, mounted at one prefix by whoever
 // runs it. Owning the subtree is what lets the embedded player address the
 // engine with relative URLs — the same ones in the monolith and standalone —
@@ -174,6 +198,8 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("POST /sessions/{id}/input", a.SessionInput)
 	mux.HandleFunc("GET /sessions/{id}/graph", a.SessionGraph)
 	mux.HandleFunc("GET /sessions/{id}/topology", a.SessionTopology)
+	mux.HandleFunc("GET /sessions/{id}/state", a.SessionSnapshot)
+	mux.HandleFunc("GET /sessions/{id}/history", a.SessionHistory)
 	mux.HandleFunc("GET /sessions/{id}/flowchart", a.SessionFlowchart)
 	mux.HandleFunc("GET /sessions/{id}/live", a.SessionLive)
 	mux.Handle("GET /player/", http.StripPrefix("/player/", http.FileServerFS(web.FS())))

@@ -11,7 +11,7 @@ import {
   type SessionEvent,
   type UsageReport,
 } from "./protocol.js";
-import type { Topology } from "./state.js";
+import type { Snapshot, Topology } from "./state.js";
 import { emptyState, type PlayerState } from "./state.js";
 import type { Transport, TransportMessage } from "./transport.js";
 
@@ -138,7 +138,11 @@ export class Player {
   #apply(event: SessionEvent): void {
     switch (event.Stream) {
       case "text":
-        this.#extend(event.Value);
+        // An empty delta closes the utterance rather than adding to it: the
+        // boundary rides the same stream as the text so that it is ordered
+        // against it.
+        if (event.Value === "") this.takeFloor();
+        else this.#extend(event.Value);
         break;
       case "flag":
         this.state.flags.push(event.Value);
@@ -162,6 +166,41 @@ export class Player {
         this.state.notes.push(`${event.Stream}: ${event.Value}`);
     }
     this.#notify();
+  }
+
+  /**
+   * Rebuilds everything a reloaded page missed: the wiring, where the session
+   * stands, and the conversation so far. The socket carries what is happening;
+   * this carries what has happened.
+   */
+  async restore(base: string | URL): Promise<void> {
+    await this.loadTopology(base);
+    await this.#loadSnapshot(base);
+    await this.#loadHistory(base);
+  }
+
+  async #loadSnapshot(base: string | URL): Promise<void> {
+    const response = await fetch(new URL("state", base));
+    if (!response.ok) return;
+    const snapshot = (await response.json()) as Snapshot;
+    this.state.phases = snapshot.phases;
+    this.state.props = snapshot.props;
+    this.state.usage = snapshot.usage;
+    this.state.started = snapshot.started;
+    this.#notify();
+  }
+
+  /**
+   * Replayed events go through exactly the same path as live ones, so there is
+   * no second way to render a conversation and no second place for it to be
+   * wrong.
+   */
+  async #loadHistory(base: string | URL): Promise<void> {
+    const response = await fetch(new URL("history", base));
+    if (!response.ok) return;
+    for (const event of (await response.json()) as SessionEvent[]) {
+      this.#apply(event);
+    }
   }
 
   /**
@@ -197,6 +236,7 @@ export class Player {
     }
     const report = parsed as Partial<BlockState>;
     if (typeof report.node !== "string" || typeof report.phase !== "string") return;
+
     this.state.phases[report.node] = report.phase;
     this.#recomputeStarted();
   }

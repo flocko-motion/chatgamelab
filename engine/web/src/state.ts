@@ -35,6 +35,14 @@ export interface Topology {
   readonly edges: TopologyEdge[];
 }
 
+/** Where a session stands, for a client that was not watching it happen. */
+export interface Snapshot {
+  readonly started: boolean;
+  readonly phases: Record<string, Phase>;
+  readonly props: Record<string, string>;
+  readonly usage: UsageReport;
+}
+
 export interface PlayerState {
   connection: ConnectionState;
   /** The conversation so far, oldest first. */
