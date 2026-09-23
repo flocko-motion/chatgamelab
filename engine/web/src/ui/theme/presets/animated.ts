@@ -300,7 +300,8 @@ const hackerPreset: PresetDefinition = {
 const playfulPreset: PresetDefinition = {
   theme: {
     corners: { style: "dots", color: "orange" },
-    background: { tint: "blue", animation: "confetti" },
+    // No particles: the playful skin draws its own crayon sky.
+    background: { tint: "blue", animation: "none" },
     player: {
       color: "orange",
       indicator: "star",

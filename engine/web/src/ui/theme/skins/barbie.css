@@ -151,8 +151,9 @@ main[data-preset="barbie"] .narrative {
 }
 
 main[data-preset="barbie"][data-drop-cap] .narrative::first-letter {
-  margin: 0.05em 0.14em 0 0;
-  font: 400 3.1em/0.95 var(--skin-script);
+  /* Pacifico's metrics sit low, so it is lifted to meet the first line. */
+  margin: -0.12em 0.14em 0 0;
+  font: 400 3.1em/1.05 var(--skin-script);
   color: var(--skin-hot);
   text-shadow: 2px 2px 0 #ffffff, 4px 4px 0 #ffb3d4;
 }

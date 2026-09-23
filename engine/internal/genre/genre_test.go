@@ -500,6 +500,59 @@ func TestStandingFollowsTheConversation(t *testing.T) {
 	waitForStanding(t, n, blocks.StandingPaused)
 }
 
+// How a game's pictures look is the designer's to say, and the genre's job is
+// to put it where an image model reads it as the treatment of everything before
+// it: last, after the character being painted.
+func TestTheImageStyleReachesThePortraitPrompt(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	cfg := mockNPCConfig("refuse passage")
+	cfg.ImageStyle = "woodcut, heavy black lines"
+	n := mustNPCLive(t, cfg)
+	n.Graph.Start(ctx)
+
+	prompt := portraitPrompt(t, n)
+	if !strings.Contains(prompt, cfg.Scenario) {
+		t.Errorf("the portrait was asked for without the character: %q", prompt)
+	}
+	if !strings.HasSuffix(prompt, "Style: "+cfg.ImageStyle) {
+		t.Errorf("the game's style is not the last word in the prompt: %q", prompt)
+	}
+}
+
+// A game naming no style still gets one. With nothing asked for the model
+// chooses, and chooses differently every time — so a session's pictures would
+// not look like each other, let alone like the game.
+func TestAPortraitWithNoStyleStillAsksForOne(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	n := mustNPCLive(t, mockNPCConfig("refuse passage"))
+	n.Graph.Start(ctx)
+
+	if prompt := portraitPrompt(t, n); !strings.HasSuffix(prompt, DefaultImageStyle) {
+		t.Errorf("a game that named no style was given none: %q", prompt)
+	}
+}
+
+// portraitPrompt is what the stem actually asked the image model for, read back
+// off the graph rather than rebuilt here — where a test rebuilding it would
+// agree with itself whatever the genre did.
+func portraitPrompt(t *testing.T, w *Wiring) string {
+	t.Helper()
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		detail, found := w.Graph.Inspect("portrait-prompt")
+		if found && len(detail.Outputs) > 0 {
+			return detail.Outputs[0].Value
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	t.Fatal("the portrait prompt was never emitted")
+	return ""
+}
+
 // A character with nobody to answer has to speak first, or a player arrives at
 // a portrait and a silence. The gate carries the cue that starts them off, and
 // this is the whole of what makes a live game begin.

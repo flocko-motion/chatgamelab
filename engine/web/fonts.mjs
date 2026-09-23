@@ -3,7 +3,7 @@
 // referenced woff2 into dist/assets, so the player asks no third party for
 // anything. Latin and Latin Extended only, which cover the languages the
 // platform plays in. Every family is under the SIL Open Font License 1.1,
-// except Special Elite, which is Apache 2.0.
+// except Special Elite and Chewy, which are Apache 2.0.
 import { readFile, writeFile } from "node:fs/promises";
 
 /** [package, family, faces as "weight" or "weight-italic"] */
@@ -50,6 +50,8 @@ const FONTS = [
   ["limelight", "Limelight", ["400"]],
   ["josefin-sans", "Josefin Sans", ["600", "700"]],
   ["pirata-one", "Pirata One", ["400"]],
+  ["patrick-hand", "Patrick Hand", ["400"]],
+  ["chewy", "Chewy", ["400"]],
 ];
 
 const SUBSETS = new Set(["latin", "latin-ext"]);

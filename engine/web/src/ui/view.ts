@@ -89,6 +89,21 @@ const AUDIO_ACTION: Record<AudioState, string> = {
   resuming: "Resuming the conversation",
 };
 
+/**
+ * Why the game cannot be played, and whether that is a wait or a stop.
+ *
+ * The difference is the whole of what a spinner promises. One says something is
+ * on its way and the page is still in the game; the other says nothing more is
+ * coming, and turning a wheel beside it would be a lie told once a second.
+ */
+interface Unavailable {
+  readonly text: string;
+  readonly waiting: boolean;
+}
+
+const waiting = (text: string): Unavailable => ({ text, waiting: true });
+const stopped = (text: string): Unavailable => ({ text, waiting: false });
+
 /** A piece of text on screen, and whatever is painting it. */
 interface Painted {
   readonly element: HTMLElement;
@@ -166,7 +181,10 @@ export class View {
     // the foot of the scene, and swapping it out moves everything above it.
     const blocked = this.#unavailable(state);
     show(this.elements.notice, blocked !== null);
-    if (blocked !== null) this.elements.noticeText.textContent = blocked;
+    if (blocked !== null) {
+      this.elements.noticeText.textContent = blocked.text;
+      this.elements.notice.classList.toggle("waiting", blocked.waiting);
+    }
 
     const audio = audioState(state);
     // The bar holds one thing at a time: the controls, or the reason there are
@@ -421,7 +439,7 @@ export class View {
    * reason and in the same place. One that does not is a notice instead, and
    * this stays out of its way.
    */
-  #renderThinking(state: PlayerState, blocked: string | null): void {
+  #renderThinking(state: PlayerState, blocked: Unavailable | null): void {
     const fault = blocked === null ? state.problem : null;
     this.elements.thinking.hidden = blocked !== null || !(fault || this.#awaiting);
     this.elements.thinking.classList.toggle("fault", fault !== null);
@@ -436,13 +454,13 @@ export class View {
    * whether the controls would work: a conversation that has been let go is not
    * on this list, because picking it up is exactly what the microphone is for.
    */
-  #unavailable(state: PlayerState): string | null {
+  #unavailable(state: PlayerState): Unavailable | null {
     const audio = audioState(state);
     // A fault outranks whatever the game would otherwise be waiting for — but
     // not a control that is still there to press. A resume that failed says so
     // beside the microphone rather than taking away the one thing that would
     // fix it.
-    if (state.problem && audio === null) return state.problem;
+    if (state.problem && audio === null) return stopped(state.problem);
 
     // The socket's own trouble is said here, because here is the only place
     // anything is said: a player watching for their turn is looking at the
@@ -451,19 +469,19 @@ export class View {
     switch (state.connection) {
       case "idle":
       case "connecting":
-        return "Connecting…";
+        return waiting("Connecting…");
       case "reconnecting":
-        return "Reconnecting…";
+        return waiting("Reconnecting…");
       case "failed":
-        return "Lost the connection to the game. Reload to try again.";
+        return stopped("Lost the connection to the game. Reload to try again.");
       case "closed":
-        return "The game has ended.";
+        return stopped("The game has ended.");
     }
-    if (!state.started) return "Setting the scene…";
+    if (!state.started) return waiting("Setting the scene…");
     // A live genre is not playable until the player's own audio connection is
     // up, which takes a moment and can fail on its own. Once there is a control
     // for it, the control says so instead.
-    if (voiceMode(state) === "full-duplex" && audio === null) return "Waking the character…";
+    if (voiceMode(state) === "full-duplex" && audio === null) return waiting("Waking the character…");
     return null;
   }
 
