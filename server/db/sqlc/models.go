@@ -160,6 +160,7 @@ type GameShare struct {
 	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
+	PublicPage    bool
 }
 
 type GameTag struct {
@@ -261,6 +262,8 @@ type Workshop struct {
 	DesignEditingEnabled       bool
 	IsPaused                   bool
 	AllowGameSharing           bool
+	PublicSlug                 sql.NullString
+	PublicDescription          sql.NullString
 }
 
 type WorkshopParticipant struct {

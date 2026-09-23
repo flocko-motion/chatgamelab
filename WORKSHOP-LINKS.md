@@ -1,10 +1,11 @@
 # Workshop links: status and follow-up
 
-Branch `feat/memorable-workshop-links` implements Part A of the concept
-'Workshop-Links merkbar machen + öffentliche Workshop-Seite'. This file records
-what the branch contains, where it departs from the concept, and what remains.
+This file covers the concept 'Workshop-Links merkbar machen + öffentliche
+Workshop-Seite'. Branch `feat/memorable-workshop-links` (PR #306) built Part A;
+branch `feat/public-workshop-page` builds Parts B and C. For each part the file
+records what exists, where it departs from the concept, and what remains.
 
-## Built
+## Part A: built
 
 - **Word tokens.** Invite links carry three German words, re-login links four
   (`server/functional/wordtoken`). The list is dys2p `de-2048-v1` (CC0) with 34
@@ -32,7 +33,7 @@ what the branch contains, where it departs from the concept, and what remains.
   opens full screen, always black on white. Heads and staff get a QR button next
   to 'Organisator' in the workshop header.
 
-## Departures from the concept
+## Part A: departures from the concept
 
 - The lock counts failures site-wide instead of per IP, as decided in review.
   Everyone in a classroom shares one IP behind the school's NAT, and the server
@@ -51,7 +52,7 @@ what the branch contains, where it departs from the concept, and what remains.
 - Deleting a workshop already deletes its participant accounts
   (`db.DeleteWorkshop`), so no change was needed there.
 
-## Before the first real workshop
+## Part A: before the first real workshop
 
 1. Have the word list read aloud and typed in once, as the concept asks. The
    replacement pool is dys2p `de-7776-v1`, same licence;
@@ -71,39 +72,82 @@ what the branch contains, where it departs from the concept, and what remains.
 
 ## Open decisions
 
-- **Who may make a game public.** Only its creator can switch `public` on; heads
-  and staff can only switch it off (`server/db/game_writes.go:163`). The concept
-  assumed heads and staff could publish participants' games. Decided in review:
-  leave this rule alone for now.
 - **Scaling the backend.** The lock lives in memory, which suits the single
   backend container in `docker-compose.yml`. More than one instance would need
-  the counter in Postgres or a shared cache.
+  the counter in Postgres or a shared cache. The same holds for the mutex that
+  serialises the public page's share links (`server/db/workshop_public.go`).
 
-## Part B: public workshop page (not started)
+## Parts B and C: built
 
-Everything in the concept's Part B is open. Facts established while reviewing
-it:
+- **Publishing workshop games.** Whoever may edit a workshop game may switch
+  `public` on: its creator, admins, and heads and staff of the workshop's
+  institution (`db.UpdateGame`). A game outside a workshop stays with the old
+  rule: only its creator. The switch acts at once, because the leader
+  decides what the participants want.
+- **The page.** `/w/<slug>` exists while `workshop.public` is on, which is off
+  by default. It shows the workshop's name, its description (plain text with
+  line breaks, up to 2000 characters), and the workshop's public games with name
+  and description. It names no creator and no institution. Paused and inactive
+  workshops keep their page. A slug that was never issued, was renamed, belongs
+  to a switched-off page or to a deleted workshop gives the same 404, and the
+  page shows one friendly message for all four.
+- **The slug.** Migration 033 adds `workshop.public_slug` (unique) and
+  `public_description`. A new workshop gets `<name>-<word>-<word>`: the name
+  transliterated, lowercase, cut at a word boundary to 30 characters. Workshops
+  created before the migration get theirs from `db.BackfillWorkshopPublicSlugs`
+  when the backend starts, because the word list lives in Go. Leaders may edit
+  the slug (`a-z`, `0-9`, single hyphens, 3 to 60 characters, unique across the
+  site); the old slug then stops working, which the settings warn about before
+  saving. Deleted workshops keep their slug, so an old link never leads to a
+  different workshop.
+- **Settings.** Both workshop settings views carry an 'Öffentliche Seite'
+  section: the on/off switch, the slug editor, the description, and the link
+  with its QR code in the existing share popup. Participants cannot change it.
+- **Download.** `GET /api/public/workshops/{slug}/games/{id}/yaml` serves the
+  existing YAML export without login, for public games on a page that is on.
+- **Copy.** Logged-in visitors copy through the same prefilled create dialogue
+  as 'All games'. Visitors without an account go through login, and registration
+  if needed, and return to the page (`web/src/common/lib/returnTo.ts`); they then
+  click 'Kopieren' again.
+- **Play.** Each playable public game gets a share link of its own, created on
+  the first page visit, paid by the workshop's key and limited to 50 sessions.
+  The card shows the sessions left. Without a workshop key the page offers no
+  play. These links carry `game_share.public_page`: a leader's hand-made
+  workshop share never reuses them, and the game's list of workshop shares leaves
+  them out. The key owner's overview of game shares does list them. Switching the page off, unpublishing a game, changing the workshop
+  key, and deleting the workshop revoke them; the next visit creates fresh ones
+  with a fresh count.
+- **Youth protection.** The page's links carry the workshop and its institution,
+  so guests get the workshop's constraint, then the institution's, as for any
+  workshop share (JUGENDSCHUTZ.md, 'Gäste'). The recorded author, used when
+  neither sets one, is the workshop's creator, or else whoever assigned the
+  workshop its key.
+- **Privacy notes.** A short note that a game's name and description may become
+  public, and should hold no real names, appears at both fields when a game is
+  created, at the `public` switch, and in 'Öffentliche Seite'.
 
-- `workshop.public` exists with the intended meaning, but nothing lists public
-  workshops and no screen sets the flag (`server/db/schema.sql:61`).
-- The next migration number is 033. New columns go into both a migration and
-  `server/db/schema.sql`, because a fresh database starts from the schema file.
-- The YAML export (`server/api/routes/games_yaml.go`) contains no API key IDs,
-  sponsor IDs or creators. It does contain both system prompts, which is the
-  game itself; decide whether a public download should include them.
-- 'Spiel kopieren' needs a return path after login. `/auth/login` accepts no
-  `redirect` parameter today, and production logs in through Auth0.
-- `POST /api/games/{id}/clone` exists and clones public games.
-- `game_share.remaining` already counts down on every session
-  (`server/db/game_shares.go`), so a finite quota for public play links needs no
-  new table.
-- `/w/` collides with no existing route. It must join `isPublicRoute` in
-  `web/src/routes/__root.tsx`, which also exempts it from the participant
-  redirect.
-- The word generator is in place for slug suffixes, and the share popup for the
-  page's link and QR code.
+## Parts B and C: departures from the concept
+
+- The page shows no game icons. The app displays icons nowhere else either.
+- 'Kopieren' uses the create dialogue that 'All games' uses, not
+  `POST /api/games/{id}/clone`, so the copy looks the same wherever it starts.
+
+## Parts B and C: before the first real workshop
+
+1. Walk through the screens in a browser: the 'Öffentliche Seite' section in
+   both settings views, the page itself logged in and logged out, 'Ausprobieren'
+   until the count runs out, 'Herunterladen', and 'Kopieren' through a real
+   Auth0 login and registration. The branch passed type checks, lint on the
+   changed files, the build, and the Go unit and integration suites, but nobody
+   has looked at the screens yet.
+2. Start the backend once against a copy of the production database and check
+   that every workshop received a slug.
+3. Run `./run-translate.sh` for the other languages.
 
 ## Small items
+
+- A visitor who opens a revoked page link counts as a guess for the token lock,
+  like any other share token that no longer exists.
 
 - `en.json` spells 'Organizator: {{name}}'; the German text is correct.
 - The keys `myOrganization.workshops.linkCopied` and `linkCopiedMessage` are no

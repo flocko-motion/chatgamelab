@@ -16,6 +16,10 @@ export const ErrorCodes = {
   DUPLICATE_NAME: "duplicate_name",
   NAME_TOO_LONG: "name_too_long",
   PROFANE_NAME: "profane_name",
+  // Public workshop page link and text
+  PUBLIC_SLUG_TAKEN: "public_slug_taken",
+  PUBLIC_SLUG_INVALID: "public_slug_invalid",
+  PUBLIC_DESCRIPTION_TOO_LONG: "public_description_too_long",
   // Auth-related error codes
   AUTH_WORKSHOP_INACTIVE: "auth_workshop_inactive",
   // Site-wide lock after too many guessed invite/re-login codes (server: tokenlock)

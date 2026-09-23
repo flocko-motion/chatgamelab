@@ -23,6 +23,7 @@ import { Route as MyOrganizationIndexRouteImport } from './routes/my-organizatio
 import { Route as MyGamesIndexRouteImport } from './routes/my-games/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as CreationsIndexRouteImport } from './routes/creations/index'
+import { Route as WSlugRouteImport } from './routes/w/$slug'
 import { Route as SessionsNewRouteImport } from './routes/sessions/new'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions/$sessionId'
 import { Route as PlayTokenRouteImport } from './routes/play/$token'
@@ -110,6 +111,11 @@ const GamesIndexRoute = GamesIndexRouteImport.update({
 const CreationsIndexRoute = CreationsIndexRouteImport.update({
   id: '/creations/',
   path: '/creations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WSlugRoute = WSlugRouteImport.update({
+  id: '/w/$slug',
+  path: '/w/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionsNewRoute = SessionsNewRouteImport.update({
@@ -220,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
+  '/w/$slug': typeof WSlugRoute
   '/creations': typeof CreationsIndexRoute
   '/games': typeof GamesIndexRoute
   '/my-games': typeof MyGamesIndexRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
+  '/w/$slug': typeof WSlugRoute
   '/creations': typeof CreationsIndexRoute
   '/games': typeof GamesIndexRoute
   '/my-games': typeof MyGamesIndexRoute
@@ -289,6 +297,7 @@ export interface FileRoutesById {
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
+  '/w/$slug': typeof WSlugRoute
   '/creations/': typeof CreationsIndexRoute
   '/games/': typeof GamesIndexRoute
   '/my-games/': typeof MyGamesIndexRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
+    | '/w/$slug'
     | '/creations'
     | '/games'
     | '/my-games'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
+    | '/w/$slug'
     | '/creations'
     | '/games'
     | '/my-games'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
+    | '/w/$slug'
     | '/creations/'
     | '/games/'
     | '/my-games/'
@@ -428,6 +440,7 @@ export interface RootRouteChildren {
   PlayTokenRoute: typeof PlayTokenRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRoute
   SessionsNewRoute: typeof SessionsNewRoute
+  WSlugRoute: typeof WSlugRoute
   CreationsIndexRoute: typeof CreationsIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
   MyGamesIndexRoute: typeof MyGamesIndexRoute
@@ -545,6 +558,13 @@ declare module '@tanstack/react-router' {
       path: '/creations'
       fullPath: '/creations'
       preLoaderRoute: typeof CreationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$slug': {
+      id: '/w/$slug'
+      path: '/w/$slug'
+      fullPath: '/w/$slug'
+      preLoaderRoute: typeof WSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sessions/new': {
@@ -692,6 +712,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlayTokenRoute: PlayTokenRoute,
   SessionsSessionIdRoute: SessionsSessionIdRoute,
   SessionsNewRoute: SessionsNewRoute,
+  WSlugRoute: WSlugRoute,
   CreationsIndexRoute: CreationsIndexRoute,
   GamesIndexRoute: GamesIndexRoute,
   MyGamesIndexRoute: MyGamesIndexRoute,

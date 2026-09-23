@@ -316,9 +316,10 @@ func (s *GamePermissionsTestSuite) TestGameDeletionCleansUpSessions() {
 	s.T().Logf("Session correctly cleaned up")
 }
 
-// TestOnlyCreatorCanSetGamePublic tests that only the game creator can set
-// a game's public flag to true. Head/staff can unset it but never set it.
-func (s *GamePermissionsTestSuite) TestOnlyCreatorCanSetGamePublic() {
+// TestWhoCanSetGamePublic tests who may switch a game's public flag on: for a
+// workshop game its creator and whoever may edit it (head, staff, admin); for a
+// game outside a workshop only its creator.
+func (s *GamePermissionsTestSuite) TestWhoCanSetGamePublic() {
 	admin := s.DevUser()
 
 	// Setup: institution + head + workshop + participant
@@ -340,32 +341,49 @@ func (s *GamePermissionsTestSuite) TestOnlyCreatorCanSetGamePublic() {
 	s.False(game.Public, "game should be private by default")
 	s.T().Logf("Participant created game: %s (public=%v)", game.ID, game.Public)
 
-	// Head tries to set public=true — should FAIL
-	_, err = head.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	})
-	s.Error(err, "head should NOT be able to set another user's game to public")
-	s.Contains(err.Error(), "403", "should be a 403 forbidden error")
-	s.T().Logf("Head correctly rejected from setting public: %v", err)
+	setPublic := func(u *testutil.UserClient, gameID, name string, public bool) (obj.Game, error) {
+		return u.UpdateGame(gameID, map[string]interface{}{"name": name, "public": public})
+	}
 
-	// Participant (creator) sets public=true — should SUCCEED
-	updated, err := participant.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	})
-	s.NoError(err, "creator should be able to set their own game to public")
-	s.True(updated.Public, "game should now be public")
-	s.T().Logf("Creator set game to public: %v", updated.Public)
+	// Head sets public on a participant's workshop game.
+	updated, err := setPublic(head, game.ID.String(), game.Name, true)
+	s.NoError(err, "head should be able to publish a workshop game")
+	s.True(updated.Public)
 
-	// Head unsets public=false — should SUCCEED
-	updated, err = head.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": false,
-	})
-	s.NoError(err, "head should be able to unset public on a workshop game")
-	s.False(updated.Public, "game should now be private again")
-	s.T().Logf("Head unset public: %v", updated.Public)
+	updated, err = setPublic(head, game.ID.String(), game.Name, false)
+	s.NoError(err, "head should be able to unpublish a workshop game")
+	s.False(updated.Public)
+
+	// Admin sets it too.
+	updated, err = setPublic(admin, game.ID.String(), game.Name, true)
+	s.NoError(err, "admin should be able to publish a workshop game")
+	s.True(updated.Public)
+	Must(setPublic(head, game.ID.String(), game.Name, false))
+
+	// The creator sets it.
+	updated, err = setPublic(participant, game.ID.String(), game.Name, true)
+	s.NoError(err, "creator should be able to publish their own game")
+	s.True(updated.Public)
+
+	// Another participant of the same workshop cannot touch it.
+	resp2, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
+	s.NoError(err)
+	other := s.CreateUserWithToken(*resp2.AuthToken)
+	Must(setPublic(head, game.ID.String(), game.Name, false))
+	_, err = setPublic(other, game.ID.String(), game.Name, true)
+	s.Error(err, "another participant must not publish someone else's game")
+	s.Contains(err.Error(), "403")
+
+	// Outside a workshop only the creator may publish, admins included.
+	individual := s.CreateUser("pub-individual")
+	personal := Must(individual.UploadGame("alien-first-contact"))
+	s.Nil(personal.WorkshopID)
+	_, err = setPublic(admin, personal.ID.String(), personal.Name, true)
+	s.Error(err, "admin must not publish someone else's personal game")
+	s.Contains(err.Error(), "403")
+	updated, err = setPublic(individual, personal.ID.String(), personal.Name, true)
+	s.NoError(err)
+	s.True(updated.Public)
 }
 
 // TestWorkshopShareRequiresPublicGame tests that workshop shares can only

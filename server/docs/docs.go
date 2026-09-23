@@ -3333,6 +3333,83 @@ const docTemplate = `{
                 }
             }
         },
+        "/public/workshops/{slug}": {
+            "get": {
+                "description": "Returns a public workshop's name, description and public games. No authentication.\nUnknown slugs and switched-off pages both return 404.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get public workshop page",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Public page slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.PublicWorkshopPage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/workshops/{slug}/games/{id}/yaml": {
+            "get": {
+                "description": "Exports a game listed on a public workshop page as YAML. No authentication.",
+                "produces": [
+                    "application/x-yaml"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Download a game from a public workshop page",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Public page slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Game"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/restart": {
             "post": {
                 "security": [
@@ -5795,6 +5872,59 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.PublicWorkshopGame": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "play": {
+                    "description": "nil when the workshop has no working key",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.PublicWorkshopPlay"
+                        }
+                    ]
+                }
+            }
+        },
+        "obj.PublicWorkshopPage": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopGame"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.PublicWorkshopPlay": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "remaining": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "obj.Role": {
             "type": "string",
             "enum": [
@@ -6067,6 +6197,13 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "publicDescription": {
+                    "type": "string"
+                },
+                "publicSlug": {
+                    "description": "Public page /w/\u003cPublicSlug\u003e, visible while Public is on",
+                    "type": "string"
                 },
                 "showOtherParticipantsGames": {
                     "type": "boolean"
@@ -7079,6 +7216,14 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "publicDescription": {
+                    "description": "omitted keeps the current text, \"\" clears it",
+                    "type": "string"
+                },
+                "publicSlug": {
+                    "description": "omitted keeps the current link",
+                    "type": "string"
                 },
                 "showOtherParticipantsGames": {
                     "type": "boolean"

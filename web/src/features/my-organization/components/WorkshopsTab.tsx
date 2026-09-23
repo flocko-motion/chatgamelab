@@ -75,6 +75,7 @@ import { inviteLinkPath, speakableCode } from "@/common/lib/wordToken";
 import { ShareLinkModal } from "@components/share";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { ParticipantLinkModal } from "./ParticipantLinkModal";
+import { PublicPageSettings } from "./PublicPageSettings";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
@@ -1001,6 +1002,12 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                           }
                         />
                       </Stack >
+
+                      <PublicPageSettings
+                        key={workshop.publicSlug}
+                        workshop={workshop}
+                        onSaved={retryBackendFetch}
+                      />
 
                       {/* Participants Section */}
                       < Stack gap="xs" >

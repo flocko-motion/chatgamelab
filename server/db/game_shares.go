@@ -138,6 +138,11 @@ func ClearGamePublicSponsorshipByShareID(ctx context.Context, gameID uuid.UUID, 
 // CreateGameShare creates a game share link with a game-scoped API key share.
 // The sourceShareID is the user's personal/workshop share that will be cloned into a game-scoped share.
 func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {
+	return createGameShare(ctx, userID, gameID, sourceShareID, institutionID, workshopID, maxSessions, aiQualityTier, false)
+}
+
+// createGameShare is CreateGameShare with publicPage marking a link of the public workshop page.
+func createGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string, publicPage bool) (*obj.GameShare, error) {
 	// Verify the source share exists and the user is authorized to use it
 	share, err := queries().GetApiKeyShareByID(ctx, sourceShareID)
 	if err != nil {
@@ -165,6 +170,7 @@ func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 	// Generate a secure token for the share link
 	token, err := functional.GenerateSecureToken(20)
 	if err != nil {
+		_ = queries().DeleteApiKeyShare(ctx, *gameScopedShareID)
 		return nil, obj.ErrServerError("failed to generate share token")
 	}
 
@@ -178,8 +184,10 @@ func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 		Remaining:     intPtrToNullInt32(maxSessions),
 		AiQualityTier: stringPtrToNullString(aiQualityTier),
 		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
+		PublicPage:    publicPage,
 	})
 	if err != nil {
+		_ = queries().DeleteApiKeyShare(ctx, *gameScopedShareID)
 		return nil, obj.ErrServerError("failed to create game share")
 	}
 

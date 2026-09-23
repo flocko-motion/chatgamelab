@@ -24,6 +24,9 @@ const (
 	ErrCodeNoApiKey                  = "no_api_key"
 	ErrCodeSponsoredApiKeyNotWorking = "sponsored_api_key_not_working"
 	ErrCodeLastHead                  = "last_head"
+	ErrCodePublicSlugTaken           = "public_slug_taken"
+	ErrCodePublicSlugInvalid         = "public_slug_invalid"
+	ErrCodePublicDescriptionTooLong  = "public_description_too_long"
 
 	// AI-specific error codes
 	ErrCodeAiError                  = "ai_error"
@@ -92,6 +95,21 @@ func ErrServerErrorf(format string, args ...any) *AppError {
 // ErrDuplicateNamef returns a duplicate-name AppError with a formatted message.
 func ErrDuplicateNamef(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeDuplicateName, fmt.Sprintf(format, args...))
+}
+
+// ErrPublicSlugTaken returns an AppError for a public page link another workshop holds.
+func ErrPublicSlugTaken(message string) *AppError {
+	return NewAppError(ErrCodePublicSlugTaken, message)
+}
+
+// ErrPublicSlugInvalid returns an AppError for a public page link that breaks the format rules.
+func ErrPublicSlugInvalid(message string) *AppError {
+	return NewAppError(ErrCodePublicSlugInvalid, message)
+}
+
+// ErrPublicDescriptionTooLong returns an AppError for an over-long public page text.
+func ErrPublicDescriptionTooLong(message string) *AppError {
+	return NewAppError(ErrCodePublicDescriptionTooLong, message)
 }
 
 // ErrNameTooLong returns a name-too-long AppError with the given message.

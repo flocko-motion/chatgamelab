@@ -12,6 +12,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { ROUTES } from "@/common/routes/routes";
+import { takeReturnTo } from "@/common/lib/returnTo";
 
 export const Route = createFileRoute("/auth/login/")({
   component: LoginComponent,
@@ -86,7 +87,9 @@ function LoginComponent() {
                 color={role.color}
                 onClick={async () => {
                   await loginWithRole(role.key);
-                  router.navigate({ to: ROUTES.DASHBOARD });
+                  router.navigate({
+                    to: (takeReturnTo() ?? ROUTES.DASHBOARD) as "/",
+                  });
                 }}
                 fullWidth
               >

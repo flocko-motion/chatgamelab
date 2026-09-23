@@ -116,8 +116,13 @@ export function useUpdateWorkshop() {
       promptConstraints?: string;
       isPaused?: boolean;
       allowGameSharing?: boolean;
+      // Omitted keeps the current value on the server.
+      publicSlug?: string;
+      publicDescription?: string;
     }) => {
       const response = await api.workshops.workshopsPartialUpdate(id, {
+        publicSlug: data.publicSlug,
+        publicDescription: data.publicDescription,
         name: data.name,
         active: data.active ?? true,
         public: data.public ?? false,

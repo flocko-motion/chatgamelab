@@ -102,7 +102,8 @@ func WriteHTTPError(w http.ResponseWriter, err *obj.HTTPError) {
 // ErrorCodeToStatus maps error codes to HTTP status codes
 func ErrorCodeToStatus(code string) int {
 	switch code {
-	case obj.ErrCodeValidation, obj.ErrCodeInvalidInput, obj.ErrCodeInvalidPlatform, obj.ErrCodeNameTooLong, obj.ErrCodeProfaneName:
+	case obj.ErrCodeValidation, obj.ErrCodeInvalidInput, obj.ErrCodeInvalidPlatform, obj.ErrCodeNameTooLong, obj.ErrCodeProfaneName,
+		obj.ErrCodePublicSlugInvalid, obj.ErrCodePublicDescriptionTooLong:
 		return http.StatusBadRequest
 	case obj.ErrCodeUnauthorized:
 		return http.StatusUnauthorized
@@ -110,7 +111,7 @@ func ErrorCodeToStatus(code string) int {
 		return http.StatusForbidden
 	case obj.ErrCodeNotFound:
 		return http.StatusNotFound
-	case obj.ErrCodeConflict, obj.ErrCodeDuplicateName, obj.ErrCodeLastHead:
+	case obj.ErrCodeConflict, obj.ErrCodeDuplicateName, obj.ErrCodeLastHead, obj.ErrCodePublicSlugTaken:
 		return http.StatusConflict
 	case obj.ErrCodeServerError:
 		return http.StatusInternalServerError

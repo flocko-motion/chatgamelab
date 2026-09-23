@@ -26,8 +26,8 @@ func (q *Queries) CountGuestUsersByShareID(ctx context.Context, privateShareID u
 
 const createGameShare = `-- name: CreateGameShare :one
 
-INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, public_page)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page
 `
 
 type CreateGameShareParams struct {
@@ -39,6 +39,7 @@ type CreateGameShareParams struct {
 	Remaining     sql.NullInt32
 	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
+	PublicPage    bool
 }
 
 // game_share queries
@@ -52,6 +53,7 @@ func (q *Queries) CreateGameShare(ctx context.Context, arg CreateGameShareParams
 		arg.Remaining,
 		arg.AiQualityTier,
 		arg.CreatedBy,
+		arg.PublicPage,
 	)
 	var i GameShare
 	err := row.Scan(
@@ -65,6 +67,7 @@ func (q *Queries) CreateGameShare(ctx context.Context, arg CreateGameShareParams
 		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.PublicPage,
 	)
 	return i, err
 }
@@ -74,7 +77,7 @@ UPDATE game_share SET remaining = CASE
   WHEN remaining IS NULL THEN NULL
   ELSE remaining - 1
 END
-WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at
+WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page
 `
 
 // Atomically decrements the remaining counter. Returns the share if successful.
@@ -93,6 +96,7 @@ func (q *Queries) DecrementGameShareRemaining(ctx context.Context, id uuid.UUID)
 		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.PublicPage,
 	)
 	return i, err
 }
@@ -161,7 +165,7 @@ func (q *Queries) DeleteGuestUsersByShareID(ctx context.Context, privateShareID 
 }
 
 const getGameShareByID = `-- name: GetGameShareByID :one
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE id = $1
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE id = $1
 `
 
 func (q *Queries) GetGameShareByID(ctx context.Context, id uuid.UUID) (GameShare, error) {
@@ -178,12 +182,13 @@ func (q *Queries) GetGameShareByID(ctx context.Context, id uuid.UUID) (GameShare
 		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.PublicPage,
 	)
 	return i, err
 }
 
 const getGameShareByToken = `-- name: GetGameShareByToken :one
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE token = $1
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE token = $1
 `
 
 func (q *Queries) GetGameShareByToken(ctx context.Context, token string) (GameShare, error) {
@@ -200,6 +205,7 @@ func (q *Queries) GetGameShareByToken(ctx context.Context, token string) (GameSh
 		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.PublicPage,
 	)
 	return i, err
 }
@@ -263,7 +269,7 @@ func (q *Queries) GetGameShareIDsByApiKeyShareID(ctx context.Context, apiKeyShar
 }
 
 const getGameSharesByGameID = `-- name: GetGameSharesByGameID :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 ORDER BY created_at
 `
 
 func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) ([]GameShare, error) {
@@ -286,6 +292,7 @@ func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) (
 			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
+			&i.PublicPage,
 		); err != nil {
 			return nil, err
 		}
@@ -301,7 +308,7 @@ func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) (
 }
 
 const getGameSharesByGameIDAndCreator = `-- name: GetGameSharesByGameIDAndCreator :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND created_by = $2 AND workshop_id IS NULL ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 AND created_by = $2 AND workshop_id IS NULL ORDER BY created_at
 `
 
 type GetGameSharesByGameIDAndCreatorParams struct {
@@ -330,6 +337,7 @@ func (q *Queries) GetGameSharesByGameIDAndCreator(ctx context.Context, arg GetGa
 			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
+			&i.PublicPage,
 		); err != nil {
 			return nil, err
 		}
@@ -345,7 +353,7 @@ func (q *Queries) GetGameSharesByGameIDAndCreator(ctx context.Context, arg GetGa
 }
 
 const getGameSharesByGameIDAndInstitution = `-- name: GetGameSharesByGameIDAndInstitution :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop_id IS NULL ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop_id IS NULL ORDER BY created_at
 `
 
 type GetGameSharesByGameIDAndInstitutionParams struct {
@@ -374,6 +382,7 @@ func (q *Queries) GetGameSharesByGameIDAndInstitution(ctx context.Context, arg G
 			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
+			&i.PublicPage,
 		); err != nil {
 			return nil, err
 		}
@@ -389,7 +398,7 @@ func (q *Queries) GetGameSharesByGameIDAndInstitution(ctx context.Context, arg G
 }
 
 const getGameSharesByGameIDAndWorkshop = `-- name: GetGameSharesByGameIDAndWorkshop :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2 ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 AND workshop_id = $2 AND NOT public_page ORDER BY created_at
 `
 
 type GetGameSharesByGameIDAndWorkshopParams struct {
@@ -417,6 +426,7 @@ func (q *Queries) GetGameSharesByGameIDAndWorkshop(ctx context.Context, arg GetG
 			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
+			&i.PublicPage,
 		); err != nil {
 			return nil, err
 		}
@@ -432,7 +442,7 @@ func (q *Queries) GetGameSharesByGameIDAndWorkshop(ctx context.Context, arg GetG
 }
 
 const getGameSharesWithGameByApiKeyID = `-- name: GetGameSharesWithGameByApiKeyID :many
-SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.ai_quality_tier, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
+SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.ai_quality_tier, gs.created_by, gs.created_at, gs.public_page, g.name as game_name FROM game_share gs
 JOIN game g ON g.id = gs.game_id
 JOIN api_key_share aks ON aks.id = gs.api_key_share_id
 WHERE aks.api_key_id = $1 ORDER BY gs.created_at
@@ -449,6 +459,7 @@ type GetGameSharesWithGameByApiKeyIDRow struct {
 	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
+	PublicPage    bool
 	GameName      string
 }
 
@@ -473,6 +484,7 @@ func (q *Queries) GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID 
 			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
+			&i.PublicPage,
 			&i.GameName,
 		); err != nil {
 			return nil, err
@@ -489,7 +501,7 @@ func (q *Queries) GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID 
 }
 
 const getGameSharesWithGameByApiKeyShareID = `-- name: GetGameSharesWithGameByApiKeyShareID :many
-SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.ai_quality_tier, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
+SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.ai_quality_tier, gs.created_by, gs.created_at, gs.public_page, g.name as game_name FROM game_share gs
 JOIN game g ON g.id = gs.game_id
 WHERE gs.api_key_share_id = $1 ORDER BY gs.created_at
 `
@@ -505,6 +517,7 @@ type GetGameSharesWithGameByApiKeyShareIDRow struct {
 	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
+	PublicPage    bool
 	GameName      string
 }
 
@@ -529,6 +542,7 @@ func (q *Queries) GetGameSharesWithGameByApiKeyShareID(ctx context.Context, apiK
 			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
+			&i.PublicPage,
 			&i.GameName,
 		); err != nil {
 			return nil, err
@@ -544,8 +558,86 @@ func (q *Queries) GetGameSharesWithGameByApiKeyShareID(ctx context.Context, apiK
 	return items, nil
 }
 
+const getPublicPageGameSharesByGame = `-- name: GetPublicPageGameSharesByGame :many
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 AND public_page
+`
+
+func (q *Queries) GetPublicPageGameSharesByGame(ctx context.Context, gameID uuid.UUID) ([]GameShare, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicPageGameSharesByGame, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameShare
+	for rows.Next() {
+		var i GameShare
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.ApiKeyShareID,
+			&i.InstitutionID,
+			&i.WorkshopID,
+			&i.Remaining,
+			&i.AiQualityTier,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.PublicPage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPublicPageGameSharesByWorkshop = `-- name: GetPublicPageGameSharesByWorkshop :many
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE workshop_id = $1 AND public_page
+`
+
+func (q *Queries) GetPublicPageGameSharesByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]GameShare, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicPageGameSharesByWorkshop, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameShare
+	for rows.Next() {
+		var i GameShare
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.ApiKeyShareID,
+			&i.InstitutionID,
+			&i.WorkshopID,
+			&i.Remaining,
+			&i.AiQualityTier,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.PublicPage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWorkshopGameShare = `-- name: GetWorkshopGameShare :one
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 AND workshop_id = $2 AND NOT public_page
 `
 
 type GetWorkshopGameShareParams struct {
@@ -568,12 +660,13 @@ func (q *Queries) GetWorkshopGameShare(ctx context.Context, arg GetWorkshopGameS
 		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.PublicPage,
 	)
 	return i, err
 }
 
 const updateGameShare = `-- name: UpdateGameShare :one
-UPDATE game_share SET remaining = $2, ai_quality_tier = $3 WHERE id = $1 RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at
+UPDATE game_share SET remaining = $2, ai_quality_tier = $3 WHERE id = $1 RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page
 `
 
 type UpdateGameShareParams struct {
@@ -596,6 +689,7 @@ func (q *Queries) UpdateGameShare(ctx context.Context, arg UpdateGameShareParams
 		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.PublicPage,
 	)
 	return i, err
 }
