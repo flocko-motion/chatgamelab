@@ -34,6 +34,30 @@ export interface BlockState {
   readonly phase: Phase;
 }
 
+/** What one block spent on one model, cumulatively. */
+export interface UsageRecord {
+  readonly audioSeconds?: number;
+  readonly cachedInputTokens?: number;
+  readonly cost: number;
+  readonly images?: number;
+  readonly inputTokens?: number;
+  readonly model: string;
+  readonly node?: string;
+  readonly outputTokens?: number;
+  readonly priced: boolean;
+}
+
+/**
+ * The session's spending, both ways round: per block for a graph view's
+ * labels, and per model because that is what prices attach to.
+ */
+export interface UsageReport {
+  readonly byModel: UsageRecord[];
+  readonly byNode: UsageRecord[];
+  readonly complete: boolean;
+  readonly totalCost: number;
+}
+
 export function isSessionEvent(value: unknown): value is SessionEvent {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Partial<SessionEvent>;

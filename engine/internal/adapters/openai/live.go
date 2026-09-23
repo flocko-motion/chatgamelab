@@ -91,6 +91,28 @@ func (c *liveConn) Send(audio []byte) error {
 	})
 }
 
+// SendText submits typed input and asks for a spoken reply. Two events: the
+// message, then the request — the model does not answer until asked.
+func (c *liveConn) SendText(text string) error {
+	ctx := context.Background()
+	if err := c.write(ctx, map[string]any{
+		"type": "conversation.item.create",
+		"item": map[string]any{
+			"type": "message",
+			"role": "user",
+			"content": []map[string]any{
+				{"type": "input_text", "text": text},
+			},
+		},
+	}); err != nil {
+		return err
+	}
+	return c.write(ctx, map[string]any{
+		"type":     "response.create",
+		"response": map[string]any{"output_modalities": []string{"audio", "text"}},
+	})
+}
+
 // Instruct replaces the standing instructions mid-conversation. It steers what
 // the character says next.
 func (c *liveConn) Instruct(text string) error {

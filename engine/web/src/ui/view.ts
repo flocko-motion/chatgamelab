@@ -1,50 +1,125 @@
 /**
  * Dumb visualisation: paints whatever the state says and decides nothing.
- * Layout follows the old player — status line, scene image, transcript feed,
- * controls at the top — without any of its theming.
+ *
+ * Split screen — the conversation on the left, the instrumentation on the
+ * right. What the engine is doing and what it costs are part of the subject on
+ * this platform, so they get a panel rather than a developer console.
  */
 import type { PlayerState } from "../state.js";
+import type { UsageRecord } from "../protocol.js";
+
+export interface ViewElements {
+  status: HTMLElement;
+  props: HTMLElement;
+  usage: HTMLElement;
+  graph: HTMLElement;
+  image: HTMLImageElement;
+  feed: HTMLElement;
+  talk: HTMLButtonElement;
+  typed: HTMLInputElement;
+}
 
 export class View {
   #renderedUtterances = 0;
   #renderedFlags = 0;
   #renderedNotes = 0;
   #shownImage: string | null = null;
-  #pipelineNodes = new Map<string, HTMLElement>();
+  #nodes = new Map<string, HTMLElement>();
 
-  constructor(
-    private readonly elements: {
-      status: HTMLElement;
-      props: HTMLElement;
-      image: HTMLImageElement;
-      feed: HTMLElement;
-      talk: HTMLButtonElement;
-      pipeline: HTMLElement;
-    },
-  ) {}
+  constructor(private readonly elements: ViewElements) {}
 
   render(state: PlayerState): void {
+    const live = state.connection === "open";
     this.elements.status.textContent = state.connection;
-    this.#renderPipeline(state);
-    this.elements.talk.disabled = state.connection !== "open";
+    this.elements.talk.disabled = !live;
+    this.elements.typed.disabled = !live;
 
-    const props = Object.entries(state.props);
-    this.elements.props.textContent = props.map(([k, v]) => `${k}: ${v}`).join("   ");
+    this.#renderGraph(state);
+    this.#renderProps(state);
+    this.#renderUsage(state);
+    this.#renderImage(state);
+    this.#renderFeed(state);
+  }
 
-    if (state.image && state.image !== this.#shownImage) {
-      this.#shownImage = state.image;
-      // A placeholder adapter returns text rather than bytes, so show whichever
-      // arrived instead of a broken image.
-      if (state.image.startsWith("data:") || state.image.startsWith("http")) {
-        this.elements.image.src = state.image;
-        this.elements.image.hidden = false;
-      } else {
-        this.#append("meta", state.image);
+  /** Echoes what the player typed, which the engine never sends back. */
+  echo(text: string): void {
+    this.#append("you", text);
+  }
+
+  #renderGraph(state: PlayerState): void {
+    const topology = state.topology;
+    if (!topology) return;
+
+    if (this.#nodes.size === 0) {
+      for (const node of topology.nodes) {
+        const row = document.createElement("div");
+        row.className = "node";
+        row.innerHTML =
+          `<span class="name"></span><span class="role"></span><span class="cost"></span>`;
+        row.querySelector<HTMLElement>(".name")!.textContent = node.name;
+        row.querySelector<HTMLElement>(".role")!.textContent = node.role;
+        this.elements.graph.append(row);
+        this.#nodes.set(node.name, row);
+
+        const leaving = topology.edges.filter((edge) => edge.from === node.name);
+        if (leaving.length === 0) continue;
+        const edges = document.createElement("div");
+        edges.className = "edges";
+        edges.textContent = leaving.map((e) => `↳ ${e.kind} → ${e.to}`).join("   ");
+        this.elements.graph.append(edges);
       }
     }
 
+    for (const [name, row] of this.#nodes) {
+      row.dataset["phase"] = state.phases[name] ?? "ready";
+      const spent = state.usage?.byNode.find((record) => record.node === name);
+      row.querySelector<HTMLElement>(".cost")!.textContent = spent ? money(spent) : "";
+    }
+  }
+
+  #renderProps(state: PlayerState): void {
+    const entries = Object.entries(state.props);
+    this.elements.props.replaceChildren(
+      ...entries.flatMap(([key, value]) => [
+        span("k", key),
+        span("v", value),
+      ]),
+    );
+  }
+
+  #renderUsage(state: PlayerState): void {
+    const usage = state.usage;
+    if (!usage) return;
+
+    const rows = usage.byModel.flatMap((record) => [
+      span("k", record.model),
+      span("v", `${amount(record)} · ${money(record)}`),
+    ]);
+
+    const totalCost = money({ cost: usage.totalCost });
+    const total = span("v", usage.complete ? totalCost : `${totalCost}+`);
+    total.classList.add("total");
+    const label = span("k", usage.complete ? "total" : "total (partly unpriced)");
+    label.classList.add("total");
+
+    this.elements.usage.replaceChildren(...rows, label, total);
+  }
+
+  #renderImage(state: PlayerState): void {
+    if (!state.image || state.image === this.#shownImage) return;
+    this.#shownImage = state.image;
+    if (state.image.startsWith("data:") || state.image.startsWith("http")) {
+      this.elements.image.src = state.image;
+      this.elements.image.hidden = false;
+    } else {
+      // A placeholder adapter returns text where a real one returns bytes.
+      this.#append("meta", state.image);
+    }
+  }
+
+  #renderFeed(state: PlayerState): void {
     // Append-only: the feed is a timeline, so it is extended rather than
-    // rebuilt from state on every change.
+    // rebuilt on every change.
     for (let i = this.#renderedUtterances; i < state.utterances.length; i++) {
       const utterance = state.utterances[i];
       if (!utterance) continue;
@@ -72,29 +147,6 @@ export class View {
     this.#renderedNotes = state.notes.length;
   }
 
-  /**
-   * The pipeline panel: every block in the wiring, lit while it works. This is
-   * the debugging surface — seeing which block is busy, and for how long, is how
-   * you read what a turn actually did.
-   */
-  #renderPipeline(state: PlayerState): void {
-    if (!state.topology) return;
-
-    if (this.#pipelineNodes.size === 0) {
-      for (const node of state.topology.nodes) {
-        const element = document.createElement("span");
-        element.className = `node ${node.role}`;
-        element.textContent = node.name;
-        this.elements.pipeline.append(element);
-        this.#pipelineNodes.set(node.name, element);
-      }
-    }
-
-    for (const [name, element] of this.#pipelineNodes) {
-      element.dataset["phase"] = state.phases[name] ?? "ready";
-    }
-  }
-
   #append(className: string, text: string): HTMLElement {
     const element = document.createElement("div");
     element.className = `line ${className}`;
@@ -103,4 +155,27 @@ export class View {
     this.elements.feed.scrollTop = this.elements.feed.scrollHeight;
     return element;
   }
+}
+
+function span(className: string, text: string): HTMLElement {
+  const element = document.createElement("span");
+  element.className = className;
+  element.textContent = text;
+  return element;
+}
+
+/** Cost is an estimate from a hand-maintained table, so it is shown coarsely. */
+function money(record: { cost: number }): string {
+  if (record.cost === 0) return "—";
+  if (record.cost < 0.01) return `<$0.01`;
+  return `$${record.cost.toFixed(2)}`;
+}
+
+function amount(record: UsageRecord): string {
+  const parts: string[] = [];
+  if (record.images) parts.push(`${record.images} img`);
+  if (record.audioSeconds) parts.push(`${record.audioSeconds.toFixed(0)}s`);
+  const tokens = (record.inputTokens ?? 0) + (record.cachedInputTokens ?? 0) + (record.outputTokens ?? 0);
+  if (tokens) parts.push(`${tokens} tok`);
+  return parts.join(" ") || "—";
 }

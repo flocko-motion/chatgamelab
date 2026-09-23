@@ -84,6 +84,15 @@ func generate() []byte {
 	}
 	b.WriteString("}\n\n")
 
+	b.WriteString("/** What one block spent on one model, cumulatively. */\n")
+	writeInterface(&b, "UsageRecord", reflect.TypeOf(engine.UsageRecord{}))
+
+	b.WriteString("/**\n")
+	b.WriteString(" * The session's spending, both ways round: per block for a graph view's\n")
+	b.WriteString(" * labels, and per model because that is what prices attach to.\n")
+	b.WriteString(" */\n")
+	writeInterface(&b, "UsageReport", reflect.TypeOf(engine.UsageReport{}))
+
 	b.WriteString("export function isSessionEvent(value: unknown): value is SessionEvent {\n")
 	b.WriteString("  if (typeof value !== \"object\" || value === null) return false;\n")
 	b.WriteString("  const candidate = value as Partial<SessionEvent>;\n")
@@ -100,6 +109,14 @@ func generate() []byte {
 	b.WriteString("}\n")
 
 	return []byte(b.String())
+}
+
+func writeInterface(b *strings.Builder, name string, t reflect.Type) {
+	fmt.Fprintf(b, "export interface %s {\n", name)
+	for _, field := range tsFields(t) {
+		fmt.Fprintf(b, "  readonly %s: %s;\n", field.name, field.tsType)
+	}
+	b.WriteString("}\n\n")
 }
 
 type tsField struct {
@@ -126,6 +143,10 @@ func tsFields(t reflect.Type) []tsField {
 		if name == "Stream" {
 			ts = "StreamName"
 		}
+		// Optional in Go's JSON sense means optional in TypeScript's.
+		if strings.Contains(f.Tag.Get("json"), ",omitempty") {
+			name += "?"
+		}
 		out = append(out, tsField{name: name, tsType: ts})
 	}
 	sort.SliceStable(out, func(i, j int) bool { return out[i].name < out[j].name })
@@ -134,6 +155,10 @@ func tsFields(t reflect.Type) []tsField {
 
 func tsType(t reflect.Type) string {
 	switch t.Kind() {
+	case reflect.Slice:
+		return tsType(t.Elem()) + "[]"
+	case reflect.Struct:
+		return t.Name()
 	case reflect.String:
 		return "string"
 	case reflect.Bool:

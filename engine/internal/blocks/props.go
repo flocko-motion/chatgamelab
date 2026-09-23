@@ -19,14 +19,14 @@ type PropsStore struct {
 	mu      sync.Mutex
 	current ports.PropMap
 
-	in  chan ports.PropMap
+	in  ports.PropsInput
 	out ports.PropsBroadcast
 }
 
 func NewPropsStore(name string, initial map[string]string) *PropsStore {
 	seed := ports.PropMap{}
 	maps.Copy(seed, initial)
-	return &PropsStore{name: name, current: seed, in: make(chan ports.PropMap, 16)}
+	return &PropsStore{name: name, current: seed, in: make(ports.PropsInput, 16)}
 }
 
 func (b *PropsStore) NodeName() string                   { return b.name }

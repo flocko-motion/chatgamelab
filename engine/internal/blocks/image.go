@@ -15,7 +15,7 @@ type Image struct {
 	name  string
 	image adapters.Image
 
-	in    chan string
+	in    ports.TextInput
 	out   ports.ImageBroadcast
 	state ports.StateBroadcast
 	usage ports.UsageBroadcast
@@ -30,7 +30,7 @@ func NewImage(name string, image adapters.Image) *Image {
 	if image == nil {
 		panic("blocks: " + name + " needs an image adapter")
 	}
-	return &Image{name: name, image: image, in: make(chan string, 16)}
+	return &Image{name: name, image: image, in: make(ports.TextInput, 16)}
 }
 
 func (b *Image) NodeName() string                     { return b.name }

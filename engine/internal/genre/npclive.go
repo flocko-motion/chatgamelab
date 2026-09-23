@@ -70,15 +70,21 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 		scripted := blocks.NewDummyInputAudio("dummy-input-audio", cfg.Script)
 		g.ConnectAudioOut(scripted, live)
 	} else {
-		player := blocks.NewPlayerInputAudio("player-input-audio")
-		g.ConnectAudioOut(player, live)
-		w.Speak = func(b []byte) { player.Speak(b) }
+		// Both inputs are wired, because a live session accepts both. Typing is
+		// how the genre is tested without a microphone, and how someone who
+		// would rather not speak can still play.
+		mic := blocks.NewPlayerInputAudio("player-input-audio")
+		keyboard := blocks.NewPlayerInputText("player-input-text")
+		g.ConnectAudioOut(mic, live)
+		g.ConnectTextOut(keyboard, live)
+		w.Speak = func(b []byte) { mic.Speak(b) }
+		w.Say = keyboard.Say
 	}
 
-	g.ConnectAudioOut(live, outAudio) // speech to the player
-	g.ConnectTextOut(live, outText)   // transcript as chat history
-	g.ConnectTextOut(live, observer)  // same source, independent stream
-	g.ConnectTextOut(observer, live)  // the back edge
+	g.ConnectAudioOut(live, outAudio)           // speech to the player
+	g.ConnectTextOut(live, outText)             // transcript as chat history
+	g.ConnectTextOut(live, observer)            // same source, independent stream
+	g.ConnectTextOutToSecondary(observer, live) // the back edge
 
 	w.Observer = observer
 	w.Gate = gate

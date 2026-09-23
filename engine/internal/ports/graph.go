@@ -91,6 +91,15 @@ func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 	})
 }
 
+// ConnectTextOutToSecondary wires a text source to a block's second text input.
+// Where ConnectSecondaryTextOut qualifies the source, this qualifies the sink.
+func (g *Graph) ConnectTextOutToSecondary(src TextOut, dst SecondaryTextIn) {
+	stream := src.TextOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.SecondaryTextInPort())
+	})
+}
+
 func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	stream := src.ImageOutPort()
 	g.connect(src, dst, KindImage, func(ctx context.Context) {

@@ -96,27 +96,25 @@ func TestInputAndStream(t *testing.T) {
 	}
 }
 
-// A genre that takes no typed input must refuse it over HTTP too, rather than
-// accepting and discarding.
+// An unsupported input kind is refused over HTTP too, rather than accepted and
+// discarded.
 func TestInputKindRefusedOverHTTP(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	api := api.New()
-	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "voice", Guardrail: "refuse passage",
-	})
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typed"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	api.Register("voice", s)
+	api.Register("typed", s)
 
 	srv := httptest.NewServer(api.Handler())
 	defer srv.Close()
 
-	resp, err := http.Post(srv.URL+"/sessions/voice/input", "application/json",
-		strings.NewReader(`{"text":"typing at a voice genre"}`))
+	resp, err := http.Post(srv.URL+"/sessions/typed/input", "application/json",
+		strings.NewReader(`{"audio":"c3Bva2Vu"}`))
 	if err != nil {
 		t.Fatal(err)
 	}

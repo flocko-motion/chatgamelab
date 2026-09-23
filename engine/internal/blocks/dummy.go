@@ -16,12 +16,12 @@ import (
 // body and keeps the ports.
 type DummyToolCall struct {
 	name, role string
-	in         chan string
+	in         ports.TextInput
 	out        ports.TextBroadcast
 }
 
 func NewDummyToolCall(name, role string) *DummyToolCall {
-	return &DummyToolCall{name: name, role: role, in: make(chan string, 16)}
+	return &DummyToolCall{name: name, role: role, in: make(ports.TextInput, 16)}
 }
 
 func (b *DummyToolCall) NodeName() string           { return b.name }
@@ -61,7 +61,7 @@ type DummyThreaded struct {
 	// makes this role threaded, and the thing a resumed session needs back.
 	thread string
 
-	in  chan string
+	in  ports.TextInput
 	out ports.TextBroadcast
 }
 
@@ -83,7 +83,7 @@ func (b *DummyThreaded) RestoreState(s string) {
 }
 
 func NewDummyThreaded(name, role string) *DummyThreaded {
-	return &DummyThreaded{name: name, role: role, in: make(chan string, 16)}
+	return &DummyThreaded{name: name, role: role, in: make(ports.TextInput, 16)}
 }
 
 func (b *DummyThreaded) NodeName() string             { return b.name }
@@ -118,8 +118,8 @@ func (b *DummyThreaded) Start(ctx context.Context) {
 // strings, and they must not be interchangeable at a call site.
 type DummyExtraction struct {
 	name      string
-	in        chan string
-	propsIn   chan ports.PropMap
+	in        ports.TextInput
+	propsIn   ports.PropsInput
 	out       ports.TextBroadcast
 	secondary ports.TextBroadcast
 	props     ports.PropsBroadcast
@@ -132,8 +132,8 @@ type DummyExtraction struct {
 func NewDummyExtraction(name string) *DummyExtraction {
 	return &DummyExtraction{
 		name:    name,
-		in:      make(chan string, 16),
-		propsIn: make(chan ports.PropMap, 16),
+		in:      make(ports.TextInput, 16),
+		propsIn: make(ports.PropsInput, 16),
 		current: ports.PropMap{},
 	}
 }
@@ -215,12 +215,12 @@ func (b *DummyExtraction) Start(ctx context.Context) {
 
 type DummyImage struct {
 	name string
-	in   chan string
+	in   ports.TextInput
 	out  ports.ImageBroadcast
 }
 
 func NewDummyImage(name string) *DummyImage {
-	return &DummyImage{name: name, in: make(chan string, 16)}
+	return &DummyImage{name: name, in: make(ports.TextInput, 16)}
 }
 
 func (b *DummyImage) NodeName() string                     { return b.name }
@@ -247,11 +247,11 @@ func (b *DummyImage) Start(ctx context.Context) {
 
 type DummyTTS struct {
 	name string
-	in   chan string
+	in   ports.TextInput
 	out  ports.AudioBroadcast
 }
 
-func NewDummyTTS(name string) *DummyTTS { return &DummyTTS{name: name, in: make(chan string, 16)} }
+func NewDummyTTS(name string) *DummyTTS { return &DummyTTS{name: name, in: make(ports.TextInput, 16)} }
 
 func (b *DummyTTS) NodeName() string                      { return b.name }
 func (b *DummyTTS) TextInPort() chan<- string             { return b.in }
