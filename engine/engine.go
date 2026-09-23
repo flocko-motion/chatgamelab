@@ -361,10 +361,8 @@ func (s *Session) Snapshot() Snapshot {
 // NodeDetail is everything the engine knows about one block: what it is, what
 // it is doing, what recently passed through it, and what it has cost.
 //
-// The API key is deliberately absent. It is never stored — the engine holds a
-// function that resolves one at the moment of use — so there is nothing here to
-// redact, and calling the resolver to display a secret would create the exposure
-// the design avoids.
+// A key lives for the length of one call, produced by the injected resolver at
+// the moment it is needed, so a session has none to report.
 type NodeDetail struct {
 	ports.NodeDetail
 	Phase string       `json:"phase"`

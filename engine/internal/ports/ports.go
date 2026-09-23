@@ -145,3 +145,14 @@ type Resumable interface {
 type Gatekeeper interface {
 	ExpectReporters(n int)
 }
+
+// Releasable is a node that waits to be let go — a player's input, held until
+// the game starts.
+//
+// The graph tells it how many releases lead in, because whether something is
+// held is a property of the wiring rather than of the block. A source with no
+// release edge is not held at all, which is what stops a genre that never wired
+// a gate from deadlocking on one.
+type Releasable interface {
+	ExpectReleases(n int)
+}
