@@ -45,6 +45,24 @@ type State struct {
 }
 
 type StateOut interface{ StateOutPort() <-chan State }
+
+// Usage is a block reporting what it has spent, cumulatively for the session.
+// Totals rather than deltas: a dropped event then costs accuracy for an instant
+// rather than permanently.
+//
+// Units differ because providers bill differently, and the engine aggregates by
+// model because that is what prices attach to.
+type Usage struct {
+	Node              string  `json:"node"`
+	Model             string  `json:"model"`
+	InputTokens       int64   `json:"inputTokens,omitempty"`
+	CachedInputTokens int64   `json:"cachedInputTokens,omitempty"`
+	OutputTokens      int64   `json:"outputTokens,omitempty"`
+	AudioSeconds      float64 `json:"audioSeconds,omitempty"`
+	Images            int64   `json:"images,omitempty"`
+}
+
+type UsageOut interface{ UsageOutPort() <-chan Usage }
 type StateIn interface{ StateInPort() chan<- State }
 
 type (

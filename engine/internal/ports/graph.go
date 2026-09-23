@@ -387,6 +387,46 @@ func (g *Graph) Mermaid() string {
 
 func id(name string) string { return strings.ReplaceAll(name, "-", "_") }
 
+// ObserveUsage merges every block's spending reports into one stream, by the
+// same introspection as ObserveStates: what a session costs is a property of
+// the whole graph, not of any one edge.
+func (g *Graph) ObserveUsage(ctx context.Context) <-chan Usage {
+	out := make(chan Usage, 128)
+
+	var wg sync.WaitGroup
+	for _, n := range g.nodes {
+		reporter, ok := n.(UsageOut)
+		if !ok {
+			continue
+		}
+		wg.Add(1)
+		go func(stream <-chan Usage) {
+			defer wg.Done()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case used, alive := <-stream:
+					if !alive {
+						return
+					}
+					select {
+					case out <- used:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}(reporter.UsageOutPort())
+	}
+
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+	return out
+}
+
 // ObserveStates merges every block's state reports into one stream.
 //
 // This is introspection rather than wiring: the gate consumes selected reports

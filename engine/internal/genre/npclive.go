@@ -36,17 +36,20 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	outAudio := blocks.NewPlayerOutputAudio("out-audio")
 	outImage := blocks.NewPlayerOutputImage("out-image")
 
-	// One portrait of the character, made once and never again. It takes no
-	// input edge: its prompt is configuration, and nothing flowing through the
-	// graph triggers it.
+	// One portrait of the character, made once and never again — and once
+	// because the prompt arrives once, from a source that fires at startup and
+	// closes. The image block itself is the plain mechanism, so nothing in the
+	// turn loop can ask it for a second picture.
 	//
-	// Its done signal is deliberately not wired to the gate. A conversation can
-	// start before the picture exists, and holding a player in silence while an
-	// image renders would be the wrong trade.
-	portrait := blocks.NewImageOnce("portrait", cfg.Image, cfg.Scenario)
+	// The portrait's done signal is deliberately not wired to the gate. A
+	// conversation can start before the picture exists, and holding a player in
+	// silence while an image renders would be the wrong trade.
+	scenarioPrompt := blocks.NewOnceText("scenario-prompt", cfg.Scenario)
+	portrait := blocks.NewImage("portrait", cfg.Image)
 	gate := blocks.NewGate("start-game")
 
 	g := ports.NewGraph("npc-live")
+	g.ConnectTextOut(scenarioPrompt, portrait)
 	g.ConnectImageOut(portrait, outImage)
 
 	// The observer's flags ride the same event stream. That also makes them the

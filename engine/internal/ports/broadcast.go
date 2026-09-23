@@ -54,4 +54,5 @@ type (
 	ImageBroadcast = Broadcast[ImageData]
 	PropsBroadcast = Broadcast[PropMap]
 	StateBroadcast = Broadcast[State]
+	UsageBroadcast = Broadcast[Usage]
 )

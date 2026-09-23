@@ -25,6 +25,9 @@ type LiveSession struct {
 	audio ports.AudioBroadcast
 	text  ports.TextBroadcast
 	state ports.StateBroadcast
+	usage ports.UsageBroadcast
+
+	spent adapters.Usage
 }
 
 func NewLiveSession(name string, live adapters.Live, cfg adapters.LiveConfig) *LiveSession {
@@ -43,6 +46,10 @@ func (b *LiveSession) TextInPort() chan<- string             { return b.steer }
 func (b *LiveSession) AudioOutPort() <-chan ports.AudioChunk { return b.audio.Subscribe() }
 func (b *LiveSession) TextOutPort() <-chan string            { return b.text.Subscribe() }
 func (b *LiveSession) RequiredInputs() []ports.Kind          { return []ports.Kind{ports.KindAudio} }
+
+// UsageOutPort reports audio time as it accrues, because a live session is
+// billed by the minute rather than at the end of a call.
+func (b *LiveSession) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe() }
 
 // StateOutPort reports the connection's life. A live session is working for as
 // long as the conversation lasts, which is what distinguishes it on a graph
@@ -69,6 +76,7 @@ func (b *LiveSession) Start(ctx context.Context) {
 			b.audio.Close()
 			b.text.Close()
 			b.state.Close()
+			b.usage.Close()
 			conn.Close()
 		}()
 		for {
@@ -82,8 +90,15 @@ func (b *LiveSession) Start(ctx context.Context) {
 				switch e.Kind {
 				case adapters.EventAudio:
 					b.audio.Send(ports.AudioChunk(e.Audio))
-				case adapters.EventTranscript:
+				case adapters.EventText:
 					b.text.Send(e.Text)
+				case adapters.EventUsage:
+					b.spent.Add(e.Usage)
+					b.usage.Send(ports.Usage{
+						Node:         b.name,
+						Model:        b.spent.Model,
+						AudioSeconds: b.spent.AudioSeconds,
+					})
 				case adapters.EventError:
 					b.text.Send("[engine] live error: " + e.Err.Error())
 				}

@@ -3,9 +3,11 @@ package genre
 import (
 	"context"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
+	"engine/internal/adapters"
 	"engine/internal/adapters/mock"
 	"engine/internal/blocks"
 	"engine/internal/ports"
@@ -177,4 +179,68 @@ func TestSeededStatusSurvivesTheFirstTurn(t *testing.T) {
 		}
 		cancel()
 	}
+}
+
+// The portrait is made once because the prompt is emitted once. Once-ness is a
+// property of the wiring rather than of the image block, so play can run for as
+// many turns as it likes without a second picture being bought.
+func TestPortraitIsMadeOnceHoweverLongPlayRuns(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	cfg := mockNPCConfig("refuse passage", blocks.InputScript{
+		Lines:    []string{"persuade", "persuade harder", "persuade hardest"},
+		Interval: 20 * time.Millisecond,
+	})
+	counter := &countingImage{}
+	cfg.Image = counter
+
+	n := NewNPCLive(cfg)
+	if err := n.Graph.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	n.Graph.Start(ctx)
+
+	select {
+	case <-n.Sinks["image"]:
+	case <-time.After(3 * time.Second):
+		t.Fatal("no portrait, and nobody spoke to trigger one")
+	}
+
+	// Several turns of play, so a block generating per input would have been
+	// caught by now.
+	for turns := 0; turns < 3; turns++ {
+		select {
+		case <-n.Sinks["text"]:
+		case <-time.After(3 * time.Second):
+			t.Fatalf("the conversation stopped after %d turns", turns)
+		}
+	}
+
+	if got := counter.calls(); got != 1 {
+		t.Errorf("the image adapter was called %d times, want 1", got)
+	}
+	select {
+	case v := <-n.Sinks["image"]:
+		t.Errorf("a second portrait arrived: %q", v)
+	default:
+	}
+}
+
+type countingImage struct {
+	mu sync.Mutex
+	n  int
+}
+
+func (c *countingImage) Generate(ctx context.Context, prompt string) ([]byte, adapters.Usage, error) {
+	c.mu.Lock()
+	c.n++
+	c.mu.Unlock()
+	return mock.Image{}.Generate(ctx, prompt)
+}
+
+func (c *countingImage) calls() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.n
 }
