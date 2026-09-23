@@ -229,3 +229,35 @@ func TestNodeDetailCarriesNoSecret(t *testing.T) {
 		}
 	}
 }
+
+// A sink has no outputs and a source has no inputs, and both must serialise as
+// empty lists. A null there crashed the panel reading them, which showed up as a
+// modal stuck on "loading" rather than as an error.
+func TestNodeDetailListsAreNeverNull(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "lists",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "lists", session)
+
+	for _, node := range session.Topology().Nodes {
+		resp, err := http.Get(srv.URL + "/sessions/lists/nodes/" + node.Name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if strings.Contains(string(body), `"inputs":null`) || strings.Contains(string(body), `"outputs":null`) {
+			t.Errorf("%s serialised a null list: %s", node.Name, body)
+		}
+	}
+}

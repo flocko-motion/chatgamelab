@@ -104,12 +104,14 @@ func (g *Graph) Inspect(name string) (NodeDetail, bool) {
 		}
 
 		g.inspector.mu.Lock()
+		// Empty rather than nil: a sink has no outputs and a source has no
+		// inputs, and a client that reads a list should be handed a list.
 		detail := NodeDetail{
 			Name:    name,
 			Role:    g.role(n),
 			Type:    strings.TrimPrefix(fmt.Sprintf("%T", n), "*blocks."),
-			Inputs:  append([]Sample(nil), g.inspector.inputs[n]...),
-			Outputs: append([]Sample(nil), g.inspector.outputs[n]...),
+			Inputs:  append(make([]Sample, 0, recentPerPort), g.inspector.inputs[n]...),
+			Outputs: append(make([]Sample, 0, recentPerPort), g.inspector.outputs[n]...),
 		}
 		g.inspector.mu.Unlock()
 		return detail, true
