@@ -104,6 +104,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PUT /api/workshops/{id}/api-key", httpx.RequireAuth(SetWorkshopApiKey))
 	mux.Handle("GET /api/workshops/{id}/events", httpx.RequireAuth(WorkshopEvents))
 	mux.Handle("GET /api/workshops/participants/{participantId}/token", httpx.RequireAuth(GetParticipantToken))
+	mux.Handle("POST /api/workshops/participants/{participantId}/token/reset", httpx.RequireAuth(ResetParticipantToken))
 
 	// Invites
 	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))

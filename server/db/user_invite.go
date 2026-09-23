@@ -7,6 +7,7 @@ package db
 import (
 	db "cgl/db/sqlc"
 	"cgl/functional"
+	"cgl/functional/wordtoken"
 	"cgl/obj"
 	"context"
 	"database/sql"
@@ -304,18 +305,29 @@ func CreateWorkshopInvite(
 		return obj.UserRoleInvite{}, err
 	}
 
-	// Check if there's already a pending invite for this workshop - return it instead of creating a new one
+	// Check if there's already a pending invite for this workshop - return it instead of creating a new one.
+	// A pending invite that is expired or used up is marked expired so a fresh one replaces it.
 	existingInvites, err := queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
 	if err == nil {
 		for _, inv := range existingInvites {
-			if inv.Status == string(obj.InviteStatusPending) && inv.InviteToken.Valid {
-				return dbInviteToObj(inv), nil
+			if inv.Status != string(obj.InviteStatusPending) || !inv.InviteToken.Valid {
+				continue
 			}
+			expired := inv.ExpiresAt.Valid && inv.ExpiresAt.Time.Before(time.Now())
+			usedUp := inv.MaxUses.Valid && inv.UsesCount >= inv.MaxUses.Int32
+			if expired || usedUp {
+				_ = updateInviteStatusUnchecked(ctx, inv.ID, obj.InviteStatusExpired)
+				continue
+			}
+			return dbInviteToObj(inv), nil
 		}
 	}
 
-	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
-	inviteToken := "ws-" + functional.First(functional.GenerateSecureToken(32))
+	// 3 words = 33 bits; brute force is bounded by the token lock (httpx.TokenLock).
+	inviteToken, err := wordtoken.GenerateUnique(ctx, 3, inviteTokenExists)
+	if err != nil {
+		return obj.UserRoleInvite{}, obj.ErrServerError("failed to generate invite token")
+	}
 
 	arg := db.CreateOpenInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
@@ -403,4 +415,26 @@ func CreateWorkshopEmailInvite(
 	}
 
 	return dbInviteToObj(result), nil
+}
+
+func inviteTokenExists(ctx context.Context, token string) (bool, error) {
+	return queries().InviteTokenExists(ctx, sql.NullString{String: token, Valid: true})
+}
+
+// ResolveInviteToken returns the stored form of a typed invite token: the token
+// itself if it exists, else its wordtoken.Normalize form if that exists.
+// Old base64 tokens are case-sensitive, hence the exact match first.
+func ResolveInviteToken(ctx context.Context, token string) (string, bool) {
+	if ok, _ := inviteTokenExists(ctx, token); ok {
+		return token, true
+	}
+	normalized := wordtoken.Normalize(token)
+	if normalized == token {
+		return token, false
+	}
+	ok, _ := inviteTokenExists(ctx, normalized)
+	if ok {
+		return normalized, true
+	}
+	return token, false
 }

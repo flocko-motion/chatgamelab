@@ -13,6 +13,7 @@ import (
 	"cgl/api/httpx"
 	"cgl/constants"
 	"cgl/db"
+	"cgl/functional/wordtoken"
 	"cgl/log"
 	"cgl/obj"
 )
@@ -223,6 +224,11 @@ func ParticipantLogin(w http.ResponseWriter, r *http.Request) {
 	if req.Token == "" {
 		httpx.WriteError(w, http.StatusBadRequest, "Token is required")
 		return
+	}
+
+	// Links and typed codes carry the words without the prefix.
+	if !strings.HasPrefix(req.Token, db.ParticipantTokenPrefix) {
+		req.Token = db.ParticipantTokenPrefix + wordtoken.Normalize(req.Token)
 	}
 
 	// Validate the token by looking up the user

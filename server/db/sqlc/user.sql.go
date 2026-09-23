@@ -1710,6 +1710,17 @@ func (q *Queries) IncrementInviteUses(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const inviteTokenExists = `-- name: InviteTokenExists :one
+SELECT EXISTS(SELECT 1 FROM user_role_invite WHERE invite_token = $1) AS taken
+`
+
+func (q *Queries) InviteTokenExists(ctx context.Context, inviteToken sql.NullString) (bool, error) {
+	row := q.db.QueryRowContext(ctx, inviteTokenExists, inviteToken)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
 const isEmailTakenByOther = `-- name: IsEmailTakenByOther :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE email = $1 AND id != $2 AND deleted_at IS NULL) AS taken
 `
@@ -1775,6 +1786,18 @@ func (q *Queries) IsUserInWorkshop(ctx context.Context, arg IsUserInWorkshopPara
 	var is_member bool
 	err := row.Scan(&is_member)
 	return is_member, err
+}
+
+const participantTokenExists = `-- name: ParticipantTokenExists :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE participant_token = $1) AS taken
+`
+
+// Unfiltered: soft-deleted users keep their token, so it must never be reissued.
+func (q *Queries) ParticipantTokenExists(ctx context.Context, participantToken sql.NullString) (bool, error) {
+	row := q.db.QueryRowContext(ctx, participantTokenExists, participantToken)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
 }
 
 const setDefaultApiKey = `-- name: SetDefaultApiKey :exec
@@ -1910,6 +1933,22 @@ type UpdateInviteStatusParams struct {
 
 func (q *Queries) UpdateInviteStatus(ctx context.Context, arg UpdateInviteStatusParams) error {
 	_, err := q.db.ExecContext(ctx, updateInviteStatus, arg.ID, arg.Status)
+	return err
+}
+
+const updateParticipantToken = `-- name: UpdateParticipantToken :exec
+UPDATE app_user SET participant_token = $2, modified_by = $3, modified_at = now()
+WHERE id = $1 AND participant_token IS NOT NULL
+`
+
+type UpdateParticipantTokenParams struct {
+	ID               uuid.UUID
+	ParticipantToken sql.NullString
+	ModifiedBy       uuid.NullUUID
+}
+
+func (q *Queries) UpdateParticipantToken(ctx context.Context, arg UpdateParticipantTokenParams) error {
+	_, err := q.db.ExecContext(ctx, updateParticipantToken, arg.ID, arg.ParticipantToken, arg.ModifiedBy)
 	return err
 }
 

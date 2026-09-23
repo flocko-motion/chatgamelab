@@ -6,6 +6,7 @@ package db
 
 import (
 	db "cgl/db/sqlc"
+	"cgl/functional/wordtoken"
 	"cgl/log"
 	"cgl/obj"
 	"context"
@@ -217,6 +218,32 @@ type ParticipantAuthError struct {
 // Error returns the participant authentication error message.
 func (e *ParticipantAuthError) Error() string {
 	return e.Message
+}
+
+// ParticipantTokenPrefix marks participant tokens; the auth middleware routes on it.
+const ParticipantTokenPrefix = "participant-"
+
+// newParticipantToken returns the prefix plus 4 words (44 bits); brute force is
+// bounded by the token lock (httpx.TokenLock).
+func newParticipantToken(ctx context.Context) (string, error) {
+	words, err := wordtoken.GenerateUnique(ctx, 4, func(ctx context.Context, w string) (bool, error) {
+		return participantTokenExists(ctx, ParticipantTokenPrefix+w)
+	})
+	if err != nil {
+		return "", err
+	}
+	return ParticipantTokenPrefix + words, nil
+}
+
+func participantTokenExists(ctx context.Context, token string) (bool, error) {
+	return queries().ParticipantTokenExists(ctx, sql.NullString{String: token, Valid: true})
+}
+
+// ParticipantTokenKnown reports whether a token was ever issued, including
+// tokens of deleted users or workshops. Unknown tokens are guesses.
+func ParticipantTokenKnown(ctx context.Context, token string) bool {
+	ok, err := participantTokenExists(ctx, token)
+	return ok || err != nil
 }
 
 // GetUserByParticipantToken gets a user by their participant token

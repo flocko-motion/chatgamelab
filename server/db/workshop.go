@@ -501,3 +501,27 @@ func GetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUI
 
 	return userRecord.ParticipantToken.String, nil
 }
+
+// ResetWorkshopParticipantToken replaces a participant's access token, which
+// invalidates every re-login link handed out before. Same permissions as
+// GetWorkshopParticipantToken.
+func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
+	if err := canAccessWorkshopParticipantTokens(ctx, requestingUserID, uuid.Nil, &participantUserID); err != nil {
+		return "", err
+	}
+
+	token, err := newParticipantToken(ctx)
+	if err != nil {
+		return "", obj.ErrServerError("failed to generate participant token")
+	}
+
+	err = queries().UpdateParticipantToken(ctx, db.UpdateParticipantTokenParams{
+		ID:               participantUserID,
+		ParticipantToken: sql.NullString{String: token, Valid: true},
+		ModifiedBy:       uuid.NullUUID{UUID: requestingUserID, Valid: true},
+	})
+	if err != nil {
+		return "", obj.ErrServerError("failed to reset participant token")
+	}
+	return token, nil
+}

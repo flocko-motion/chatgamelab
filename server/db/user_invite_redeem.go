@@ -482,8 +482,10 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	)
 	anonymousName := nameGenerator.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
 
-	// Generate participant token for this participant (prefixed to distinguish from JWT)
-	participantToken := "participant-" + functional.First(functional.GenerateSecureToken(32))
+	participantToken, err := newParticipantToken(ctx)
+	if err != nil {
+		return nil, "", obj.ErrServerError("failed to generate participant token")
+	}
 
 	// Use a transaction to ensure atomicity (create user + create role + increment uses)
 	tx, err := sqlDb.BeginTx(ctx, nil)
