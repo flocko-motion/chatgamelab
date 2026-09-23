@@ -27,8 +27,11 @@ export class View {
   #shownImage: string | null = null;
   #flowchart: Flowchart;
 
-  constructor(private readonly elements: ViewElements) {
-    this.#flowchart = new Flowchart(elements.graph);
+  constructor(
+    private readonly elements: ViewElements,
+    onNodeClick: (name: string) => void,
+  ) {
+    this.#flowchart = new Flowchart(elements.graph, onNodeClick);
   }
 
   render(state: PlayerState): void {

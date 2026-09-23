@@ -18,6 +18,8 @@ function token(name: string, fallback: string): string {
   return value || fallback;
 }
 
+export type NodeClickHandler = (name: string) => void;
+
 export class Flowchart {
   #cy: cytoscape.Core | null = null;
   #drawn = false;
@@ -30,7 +32,10 @@ export class Flowchart {
    */
   static readonly afterglowMs = 700;
 
-  constructor(private readonly container: HTMLElement) {}
+  constructor(
+    private readonly container: HTMLElement,
+    private readonly onNodeClick: NodeClickHandler,
+  ) {}
 
   /**
    * Draws the graph once. The wiring does not change during a session, so
@@ -78,6 +83,9 @@ export class Flowchart {
             color: fg,
             "text-valign": "center",
             "text-halign": "center",
+            // The cost goes on its own line under the name rather than beside
+            // it, so a long model name never pushes a node wide.
+            "text-wrap": "wrap",
             shape: "round-rectangle",
             width: "label",
             height: 22,
@@ -151,6 +159,7 @@ export class Flowchart {
       } as cytoscape.LayoutOptions,
     });
 
+    this.#cy.on("tap", "node", (event) => this.onNodeClick(event.target.id()));
     this.#cy.fit(undefined, 12);
   }
 
@@ -172,7 +181,8 @@ export class Flowchart {
         }
 
         const record = spent.find((entry) => entry.node === id);
-        node.data("label", record ? `${id}  ${cost(record)}` : id);
+        const price = record ? cost(record) : "";
+        node.data("label", price ? `${id}\n${price}` : id);
       }
     });
   }
