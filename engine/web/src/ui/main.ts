@@ -34,7 +34,6 @@ const details = new Details(
 const view = new View({
   status: required<HTMLElement>("#state"),
   props: required<HTMLElement>("#props"),
-  propsSection: required<HTMLElement>("#status-section"),
   details: required<HTMLElement>("#details"),
   detailsTitle: required<HTMLElement>("#details-title"),
   graph: required<HTMLElement>("#graph"),
