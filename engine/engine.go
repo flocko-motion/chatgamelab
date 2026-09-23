@@ -18,7 +18,6 @@ import (
 	"engine/internal/adapters"
 	"engine/internal/adapters/mock"
 	"engine/internal/adapters/openai"
-	"engine/internal/blocks"
 	"engine/internal/genre"
 	"engine/internal/ports"
 )
@@ -61,6 +60,12 @@ type SessionSpec struct {
 
 	// ID identifies the session to whatever Persist was injected.
 	ID string `json:"id,omitempty"`
+
+	// Title is what this game is called, for a client with a header to put it
+	// in. The engine does nothing with it but hand it back on the topology:
+	// naming a game is the author's business, and a player asking what they are
+	// playing is not answered by the name of the genre.
+	Title string `json:"title,omitempty"`
 
 	// Persist is injected by whoever embeds the engine, never read from a spec
 	// file: it is behaviour, not configuration.
@@ -108,15 +113,43 @@ type SessionSpec struct {
 	ModelAudio    string `json:"modelAudio,omitempty"`
 
 	// Voice is a parameter of the live and audio models rather than a model of
-	// its own, which is why it sits outside the Model* family.
+	// its own, which is why it sits outside the Model* family. One of the
+	// provider's built-in names; empty takes the provider's default. It cannot
+	// change once a session exists.
 	Voice string `json:"voice,omitempty"`
+
+	// PromptOverride replaces one of a genre's own prompts by name, so a
+	// session can be retuned without a new build. The names a genre has are
+	// reported by Prompts; an unknown one is an error rather than ignored,
+	// because a misspelling would otherwise run the default silently.
+	PromptOverride map[string]string `json:"promptOverride,omitempty"`
+
+	// MuteObserver runs a genre's observer as a node that judges nothing. The
+	// voice path is worth proving before a second model is added to it.
+	MuteObserver bool `json:"muteObserver,omitempty"`
 
 	// Status seeds the property values a genre tracks — Adventure's status
 	// fields. The engine neither invents nor interprets them.
 	Status map[string]string `json:"status,omitempty"`
 
-	// Script replaces live player input with canned utterances, for a dev
-	// launcher or a test.
+	// IdleSeconds is how long a live conversation may go unspoken before it is
+	// closed and the game paused. It costs money for every second it stays
+	// open, so an abandoned one is let go rather than left running; a player
+	// picks it up again and the character remembers.
+	//
+	// Zero takes a sensible default. Negative never pauses.
+	IdleSeconds int `json:"idleSeconds,omitempty"`
+
+	// MockPaceMs slows the mock platform down to something a person can watch.
+	// Zero is instant, which is what a test wants; a dev run showing how a turn
+	// is assembled wants blocks that visibly take time. It reaches nothing but
+	// the mock platform.
+	MockPaceMs int `json:"mockPaceMs,omitempty"`
+
+	// Script replaces player input with canned utterances, for a dev launcher
+	// or a test. It reaches a turn-based genre only: a live conversation's
+	// audio never passes through the engine, so there is no stream for a script
+	// to stand in for.
 	Script []string `json:"script,omitempty"`
 	// ScriptIntervalMs is milliseconds, spelled out because a time.Duration
 	// field would silently read a JSON number as nanoseconds.
@@ -142,7 +175,7 @@ type BlockState struct {
 // TypeScript union is built from, so adding an output block here is what makes
 // the client aware of it.
 func StreamNames() []string {
-	return []string{"text", "audio", "image", "props", "flag", "state", "usage", "error"}
+	return []string{"text", "audio", "image", "props", "state", "usage", "connect", "pause", "error"}
 }
 
 type Session struct {
@@ -189,22 +222,21 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 		if err != nil {
 			return nil, err
 		}
-		w = genre.NewNPCLive(genre.NPCLiveConfig{
-			Live:  live,
-			Tool:  tool,
-			Image: image,
-			LiveCfg: adapters.LiveConfig{
-				Voice:        spec.Voice,
-				Instructions: spec.Scenario + "\n" + spec.Guardrail,
-			},
-			Guardrail:  spec.Guardrail,
-			Scenario:   spec.Scenario,
-			InitPrompt: spec.initPrompt(),
-			Script: blocks.InputScript{
-				Lines:    spec.Script,
-				Interval: time.Duration(spec.ScriptIntervalMs) * time.Millisecond,
-			},
+		w, err = genre.NewNPCLive(genre.NPCLiveConfig{
+			Live:           live,
+			Tool:           tool,
+			Image:          image,
+			Voice:          spec.Voice,
+			Guardrail:      spec.Guardrail,
+			Scenario:       spec.Scenario,
+			InitPrompt:     spec.initPrompt(),
+			MuteObserver:   spec.MuteObserver,
+			PromptOverride: spec.PromptOverride,
+			IdleAfter:      spec.idleAfter(),
 		})
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("unknown genre %q", spec.Genre)
 	}
@@ -244,17 +276,28 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 	states := w.Graph.ObserveStates(ctx)
 	usage := w.Graph.ObserveUsage(ctx)
 
+	// Subscribed before the graph starts, for the same reason as the others: the
+	// invitation is one event, and a subscriber attached afterwards would miss
+	// the only one there is.
+	var invitations, pauses <-chan ports.State
+	if w.Live != nil {
+		invitations = w.Live.Invitations()
+		pauses = w.Live.Pauses()
+	}
+
 	w.Graph.Start(ctx)
 	s.merge(ctx)
 	s.forwardStates(ctx, states)
 	s.forwardUsage(ctx, usage)
+	s.forwardInvitations(ctx, invitations)
+	s.forwardSignal(ctx, pauses, "pause")
 	return s, nil
 }
 
 // merge folds every wired sink into one session-scoped stream. A turn is a
 // bracketed span of these events rather than a stream of its own.
 func (s *Session) merge(ctx context.Context) {
-	for name, ch := range s.wiring.Sinks {
+	for name, ch := range s.wiring.Sinks() {
 		go func(name string, ch chan string) {
 			for {
 				select {
@@ -343,8 +386,64 @@ func (s *Session) forwardUsage(ctx context.Context, usage <-chan ports.Usage) {
 	}()
 }
 
+// forwardInvitations puts "a player may connect now" on the session stream.
+// The client waits for it rather than connecting when its page loads, so the
+// game has begun — and the portrait is on screen — before anyone is asked to
+// speak. It carries nothing: the moment is the whole message.
+func (s *Session) forwardInvitations(ctx context.Context, invitations <-chan ports.State) {
+	s.forwardSignal(ctx, invitations, "connect")
+}
+
+// forwardSignal puts a session lifecycle moment on the stream.
+//
+// These carry nothing: the moment is the whole message. They are the third kind
+// of thing the stream holds — beside what reached a sink, and what the graph
+// reports about itself — and like the second they come from introspection
+// rather than from an edge, because their reader is the client rather than
+// another block.
+func (s *Session) forwardSignal(ctx context.Context, signal <-chan ports.State, stream string) {
+	if signal == nil {
+		return
+	}
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case _, alive := <-signal:
+				if !alive {
+					return
+				}
+				select {
+				case s.events <- Event{Stream: stream}:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+}
+
 // Usage is what the session has spent so far, per block and per model.
 func (s *Session) Usage() UsageReport { return s.usage.report() }
+
+// Prompts are the genre's own prompts, after any the spec replaced. A session
+// runs on text somebody wrote, and on a platform that teaches how AI works that
+// text is the subject rather than an implementation detail.
+func (s *Session) Prompts() map[string]string { return s.wiring.Prompts }
+
+// Connect brokers a browser's offer to talk to the character directly. The
+// conversation runs between the player and the provider; what comes back here
+// is only what the browser needs to complete it.
+//
+// It reports an error on a genre that holds no conversation, rather than
+// leaving a caller waiting for an answer that will never come.
+func (s *Session) Connect(ctx context.Context, offer string) (string, error) {
+	if s.wiring.Live == nil {
+		return "", fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
+	}
+	return s.wiring.Live.Connect(ctx, offer)
+}
 
 // Snapshot is where the session stands now, for a client that was not watching
 // — a reloaded page, or one opened halfway through.
@@ -355,7 +454,16 @@ func (s *Session) Snapshot() Snapshot {
 		started = true
 	default:
 	}
-	return s.recorder.snapshot(started, s.usage.report())
+	return s.recorder.snapshot(started, s.usage.report(), s.conversation())
+}
+
+// conversation is where the live block stands, or empty for a genre with no
+// live block at all.
+func (s *Session) conversation() string {
+	if s.wiring.Live == nil {
+		return ""
+	}
+	return s.wiring.Live.Standing()
 }
 
 // NodeDetail is everything the engine knows about one block: what it is, what
@@ -374,7 +482,7 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 	}
 
 	detail := NodeDetail{NodeDetail: base, Phase: "ready"}
-	snapshot := s.recorder.snapshot(false, UsageReport{})
+	snapshot := s.recorder.snapshot(false, UsageReport{}, "")
 	if phase, known := snapshot.Phases[name]; known {
 		detail.Phase = phase
 	}
@@ -420,6 +528,17 @@ func (s *Session) Speak(audio []byte) error {
 	return nil
 }
 
+// Pause lets a live conversation go now. The session stays; what ends is the
+// part that costs money by the second, and a resume picks it up again with the
+// character remembering what was said.
+func (s *Session) Pause() error {
+	if s.wiring.Live == nil {
+		return fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
+	}
+	s.wiring.Live.Pause()
+	return nil
+}
+
 // Ready closes when every block the first turn depends on has reported done.
 // A genre with nothing to prepare is ready at once, so a caller never has to
 // ask which kind it got.
@@ -428,8 +547,18 @@ func (s *Session) Ready() <-chan struct{} { return s.wiring.Gate.Ready() }
 // Describe renders the running wiring, so a launcher can show the graph it got.
 func (s *Session) Describe() string { return s.wiring.Graph.Describe() }
 
-// Topology is the wiring in a form a view can draw.
-func (s *Session) Topology() ports.Topology { return s.wiring.Graph.Topology() }
+// Topology is the wiring in a form a view can draw, together with what a player
+// may do with it.
+func (s *Session) Topology() ports.Topology {
+	t := s.wiring.Graph.Topology()
+	t.Title = s.spec.Title
+	t.Imagery = string(s.wiring.Imagery)
+	t.Inputs = make([]string, 0, len(s.wiring.Inputs))
+	for _, mode := range s.wiring.Inputs {
+		t.Inputs = append(t.Inputs, string(mode))
+	}
+	return t
+}
 
 // Mermaid is the wiring as a flowchart.
 func (s *Session) Mermaid() string { return s.wiring.Graph.Mermaid() }
@@ -470,6 +599,22 @@ func (spec SessionSpec) initPrompt() string {
 		return spec.InitPrompt
 	}
 	return "Begin. Greet whoever has arrived, in character, in one or two sentences."
+}
+
+// defaultIdle is long enough not to interrupt somebody reading the scene, and
+// well past the point where closing is worth it: creating a conversation bills
+// fifteen seconds up front, so pausing pays only for silences longer than that.
+const defaultIdle = time.Minute
+
+func (spec SessionSpec) idleAfter() time.Duration {
+	switch {
+	case spec.IdleSeconds < 0:
+		return 0
+	case spec.IdleSeconds == 0:
+		return defaultIdle
+	default:
+		return time.Duration(spec.IdleSeconds) * time.Second
+	}
 }
 
 func (spec SessionSpec) modelTier() Tier {
@@ -526,7 +671,8 @@ func (spec SessionSpec) resolveModels(byTier func(Tier) (adapters.ModelSet, erro
 func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image, error) {
 	switch spec.Platform {
 	case "", PlatformMock:
-		return mock.Live{}, mock.Tool{}, mock.Image{}, nil
+		pace := time.Duration(spec.MockPaceMs) * time.Millisecond
+		return mock.Live{Pace: pace}, mock.Tool{Pace: pace}, mock.Image{Pace: pace}, nil
 	case PlatformOpenAI:
 		if spec.Keys == nil {
 			return nil, nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
@@ -539,10 +685,14 @@ func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image
 			return nil, nil, nil, fmt.Errorf("tier %q generates no images, which this genre needs", spec.modelTier())
 		}
 
+		if spec.Voice != "" && !openai.ValidVoice(spec.Voice) {
+			return nil, nil, nil, fmt.Errorf("unknown voice %q", spec.Voice)
+		}
+
 		keys := adapters.KeyFunc(spec.Keys)
 		return openai.NewLive(keys, models.Live),
 			openai.NewTool(keys, models.Tool),
-			openai.NewImage(keys, models.Image), nil
+			openai.NewImage(keys, models.Image, models.ImageQuality, models.ImageSize), nil
 	default:
 		return nil, nil, nil, fmt.Errorf("unknown platform %q", spec.Platform)
 	}

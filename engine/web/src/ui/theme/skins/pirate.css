@@ -1,0 +1,266 @@
+/* Pirate: the captain's cabin at night. Lantern light on tarred timber, the
+   stern windows showing a moonlit sea with a sail on the horizon, and the whole
+   cabin rocking gently with the swell; the story is drawn on scorched treasure
+   maps, doubloons keep the score, and the player's orders are carved in wood. */
+
+main[data-preset="pirate"] {
+  --skin-band: rgba(30, 18, 10, 0.55);
+  --skin-timber: #3b2414;
+  --skin-map: #e8d3a2;
+  --skin-ink: #3a2410;
+  --skin-blood: #9a1f16;
+  --skin-gold: #e3b23c;
+  --skin-gold-deep: #9c7418;
+  --skin-title: "Pirata One", "UnifrakturMaguntia", serif;
+  --skin-text: "IM Fell English", Georgia, serif;
+  --skin-torn: polygon(0% 1.2%, 3% 1.4%, 6% 2.1%, 9% 0.7%, 12% 0.8%, 15% 0.4%, 18% 0.5%, 21% 0.3%, 24% 0.6%, 27% 1.4%, 30% 2.4%, 33% 1.8%, 36% 1.1%, 39% 1.2%, 42% 1.8%, 45% 1.0%, 48% 0.5%, 51% 2.1%, 54% 1.6%, 57% 0.5%, 60% 0.4%, 63% 0.5%, 66% 2.3%, 69% 0.5%, 72% 1.6%, 75% 2.3%, 78% 0.4%, 81% 1.1%, 84% 1.3%, 87% 2.2%, 90% 0.7%, 93% 0.8%, 96% 0.8%, 99% 0.4%, 99.3% 5%, 99.2% 10%, 99.6% 15%, 100.0% 20%, 99.3% 25%, 99.3% 30%, 99.3% 35%, 99.7% 40%, 99.2% 45%, 99.4% 50%, 99.4% 55%, 99.5% 60%, 99.8% 65%, 99.5% 70%, 99.2% 75%, 99.3% 80%, 99.7% 85%, 99.2% 90%, 99.2% 95%, 100% 99.6%, 97% 99.4%, 94% 99.2%, 91% 99.7%, 88% 98.1%, 85% 98.3%, 82% 98.6%, 79% 97.6%, 76% 99.0%, 73% 99.3%, 70% 99.5%, 67% 99.0%, 64% 97.9%, 61% 98.4%, 58% 99.6%, 55% 98.8%, 52% 99.6%, 49% 98.4%, 46% 99.4%, 43% 99.3%, 40% 98.4%, 37% 97.9%, 34% 98.4%, 31% 99.1%, 28% 98.3%, 25% 99.1%, 22% 99.7%, 19% 99.1%, 16% 98.3%, 13% 98.4%, 10% 99.3%, 7% 97.9%, 4% 98.0%, 1% 99.1%, 1.0% 95%, 0.3% 90%, 0.1% 85%, 0.5% 80%, 0.9% 75%, 0.6% 70%, 0.5% 65%, 0.5% 60%, 0.3% 55%, 0.3% 50%, 0.4% 45%, 0.5% 40%, 0.9% 35%, 0.1% 30%, 0.3% 25%, 0.9% 20%, 0.7% 15%, 0.1% 10%, 0.4% 5%);
+  --skin-stain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015' numOctaves='3' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.25 0 0 0 0 0.1 0 0 0 0.8 -0.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="pirate"] .game-header {
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 13px),
+    linear-gradient(#2a180c, #1d1008);
+  color: var(--skin-gold);
+  border-bottom: 2px solid #120a04;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+}
+
+main[data-preset="pirate"] .game-title strong {
+  font: 400 1.5rem/1 var(--skin-title);
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 0 #120a04, 0 0 12px rgba(227, 178, 60, 0.35);
+}
+
+main[data-preset="pirate"] .badge { font-family: var(--skin-text); background: rgba(227, 178, 60, 0.12); color: #d9c18a; }
+main[data-preset="pirate"] .badge[data-state="ready"] { background: var(--skin-gold); color: #1d1008; }
+
+/* The cabin: planked wall, lantern warmth, the stern windows. */
+main[data-preset="pirate"] .scene-area {
+  background:
+    radial-gradient(ellipse 55% 45% at 18% 30%, rgba(255, 180, 90, 0.28), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0, 0, 0, 0.6)),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 64px),
+    repeating-linear-gradient(90deg, rgba(255, 220, 170, 0.03) 0 1px, transparent 1px 9px),
+    linear-gradient(90deg, #3b2414, #452a17 30%, #3a2313 60%, #432816);
+}
+
+/* The view through the stern windows, rocking with the swell. */
+main[data-preset="pirate"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  right: 4%;
+  top: 6%;
+  width: 300px;
+  height: 208px;
+  background: url("./art/pirate-window.svg") center / contain no-repeat;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+  transform-origin: 50% 100%;
+  animation: skin-pirate-rock 7s ease-in-out infinite alternate;
+}
+
+/* The lantern swings from its hook. */
+main[data-preset="pirate"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: 11%;
+  top: 0;
+  width: 54px;
+  height: 135px;
+  background: url("./art/pirate-lantern.svg") center / contain no-repeat;
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 0 14px rgba(255, 170, 70, 0.6));
+  animation: skin-pirate-swing 7s ease-in-out infinite alternate;
+}
+
+@keyframes skin-pirate-rock {
+  from { transform: rotate(-2deg) translateY(2px); }
+  to { transform: rotate(2deg) translateY(-2px); }
+}
+
+@keyframes skin-pirate-swing {
+  from { transform: rotate(7deg); }
+  to { transform: rotate(-7deg); }
+}
+
+main[data-preset="pirate"] .statusbar {
+  background: linear-gradient(#24150a, #1d1008);
+  border-bottom: 1px solid rgba(227, 178, 60, 0.3);
+}
+
+/* Each value stamped beside a doubloon. */
+main[data-preset="pirate"] .field {
+  padding-left: 2.3rem;
+  background: rgba(20, 12, 6, 0.6);
+  border: 1px solid rgba(227, 178, 60, 0.45);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 230, 170, 0.08);
+}
+
+main[data-preset="pirate"] .field::before {
+  left: 5px;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: url("./art/pirate-coin.svg") center / contain no-repeat;
+}
+
+main[data-preset="pirate"] .field-name { font: 400 0.8rem var(--skin-text); color: #d9c18a; text-transform: none; letter-spacing: 0.03em; }
+main[data-preset="pirate"] .field-value { font: 400 1.2rem var(--skin-title); color: var(--skin-gold); }
+
+/* ── Treasure maps ──────────────────────────────────────────────────── */
+
+main[data-preset="pirate"] .scene-card { filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.65)); }
+main[data-preset="pirate"] .scene-card:nth-of-type(even) .game-scene { transform: rotate(0.5deg); }
+main[data-preset="pirate"] .scene-card:nth-of-type(odd) .game-scene { transform: rotate(-0.4deg); }
+
+main[data-preset="pirate"] .game-scene {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(90, 45, 10, 0.55) 100%),
+    var(--skin-stain) center / 100% 100% no-repeat,
+    var(--skin-map);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: var(--skin-torn);
+  padding: 2.4rem 2.7rem 2.3rem;
+}
+
+main[data-preset="pirate"] .narrative {
+  font: 400 1.14rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="pirate"][data-drop-cap] .narrative::first-letter {
+  margin: 0.02em 0.12em 0 0;
+  font: 400 3.2em/0.85 var(--skin-title);
+  color: var(--skin-blood);
+}
+
+/* X marks the spot, in the lower right of every map. */
+main[data-preset="pirate"] .game-scene .corner { display: none !important; }
+
+main[data-preset="pirate"] .game-scene .corner.br {
+  display: block !important;
+  right: 18px;
+  bottom: 14px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  background: url("./art/pirate-x.svg") center / contain no-repeat;
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="pirate"] .game-scene .corner.br::before { content: none !important; }
+
+main[data-preset="pirate"] .scene-image {
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px #5a3510, 0 6px 14px rgba(40, 20, 5, 0.45);
+  margin: 3px;
+}
+
+main[data-preset="pirate"] .scene-image img { filter: sepia(0.35) saturate(0.9); }
+main[data-preset="pirate"] .scene-image::before { border-radius: 0; border-color: rgba(255, 240, 200, 0.2); }
+main[data-preset="pirate"] .scene-image::after { border-radius: 2px; box-shadow: inset 0 0 30px rgba(60, 25, 5, 0.55); }
+
+main[data-preset="pirate"] .game-scene.streaming .narrative::after { color: var(--skin-blood); }
+
+/* ── A doubloon between the maps ────────────────────────────────────── */
+
+main[data-preset="pirate"] .divider::before,
+main[data-preset="pirate"] .divider::after {
+  height: 1px;
+  max-width: 120px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--skin-gold));
+}
+
+main[data-preset="pirate"] .divider::after { background: linear-gradient(90deg, var(--skin-gold), transparent); }
+
+main[data-preset="pirate"] .divider-symbol {
+  width: 28px;
+  height: 28px;
+  opacity: 1;
+  background: url("./art/pirate-coin.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(227, 178, 60, 0.5));
+}
+
+main[data-preset="pirate"] .divider-symbol::before { content: none; }
+
+/* ── The player: orders carved in a plank ───────────────────────────── */
+
+main[data-preset="pirate"] .bubble {
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 6px),
+    linear-gradient(#7a4a26, #5e381c);
+  color: #f6dfb0;
+  border: 0;
+  border-radius: 3px;
+  font: italic 400 1.08rem var(--skin-text);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4), 0 6px 12px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="pirate"] .bubble::before { content: "☠"; color: #f6dfb0; font: 1rem serif; text-shadow: none; }
+
+main[data-preset="pirate"] .typing {
+  background: var(--skin-map);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 2px;
+  font: italic 400 1.08rem var(--skin-text);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="pirate"] .dots i { background: var(--skin-gold); box-shadow: 0 0 5px rgba(227, 178, 60, 0.6); }
+
+main[data-preset="pirate"] .inline-input {
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 12px),
+    linear-gradient(#3b2414, #2d1b0e);
+  color: #f6dfb0;
+  border: 1px solid #120a04;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 220, 160, 0.08), 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="pirate"] .input-wrap input {
+  font: italic 400 1.1rem var(--skin-text);
+  color: #3a2410;
+  background: var(--skin-map);
+  border: 1px solid #7a5a2a;
+}
+
+main[data-preset="pirate"] .input-wrap input::placeholder { color: #7a5a2a; opacity: 1; }
+main[data-preset="pirate"] .input-wrap input:focus { border-color: var(--skin-gold); }
+main[data-preset="pirate"] .send { background: var(--skin-gold); color: #1d1008; border: 0; }
+main[data-preset="pirate"] .icon-button { color: #d9c18a; }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="pirate"] .system-message {
+  background: rgba(20, 12, 6, 0.8);
+  border: 1px dashed rgba(227, 178, 60, 0.5);
+  color: #d9c18a;
+  font: italic 400 0.98rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="pirate"] .standing-image img {
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px #5a3510, 0 6px 14px rgba(40, 20, 5, 0.45);
+  filter: sepia(0.35) saturate(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="pirate"] .scene-bg::before,
+  main[data-preset="pirate"] .scene-bg::after { animation: none; }
+}

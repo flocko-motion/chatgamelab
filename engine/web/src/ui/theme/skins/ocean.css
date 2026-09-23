@@ -1,0 +1,227 @@
+/* Ocean: a lagoon at midday, seen from above. Clear turquoise water deepening
+   away from the shore, sunlight caustics shimmering over the sand beneath it,
+   and surf washing up the beach and back where shells and a starfish lie; the
+   story floats on frosted sea glass, and a shell marks each passage. */
+
+main[data-preset="ocean"] {
+  --skin-band: rgba(160, 230, 235, 0.45);
+  --skin-deep: #0b7fa6;
+  --skin-lagoon: #1fb5c9;
+  --skin-shallow: #7fe0e0;
+  --skin-foam: #fffdf6;
+  --skin-sand: #efd9a8;
+  --skin-coral: #f08a55;
+  --skin-ink: #0d3b4a;
+  --skin-glass: rgba(236, 252, 252, 0.72);
+  --skin-title: "Josefin Sans", "Quicksand", sans-serif;
+  --skin-text: "Quicksand", Inter, sans-serif;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="ocean"] .game-header {
+  background: linear-gradient(90deg, #0b7fa6, #1fb5c9);
+  color: #ffffff;
+  border-bottom: 0;
+  box-shadow: 0 2px 12px rgba(10, 90, 120, 0.3);
+}
+
+main[data-preset="ocean"] .game-title strong {
+  font: 700 1.1rem var(--skin-title);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+main[data-preset="ocean"] .badge { font-family: var(--skin-title); background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+main[data-preset="ocean"] .badge[data-state="ready"] { background: var(--skin-foam); color: var(--skin-deep); }
+
+/* The water deepening away from the beach, the sand along the bottom. */
+main[data-preset="ocean"] .scene-area {
+  background:
+    url("./art/ocean-sand.svg") 0 100% / 360px 200px repeat-x,
+    linear-gradient(#0a6f97 0%, #1398b8 35%, #22b7c7 62%, #6fd8d6 calc(100% - 190px), #b8e6d2 calc(100% - 160px), var(--skin-sand) calc(100% - 140px));
+}
+
+/* Sunlight on the bottom: two webs of caustics drifting past each other. */
+main[data-preset="ocean"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 130px 0;
+  background:
+    url("./art/ocean-caustics.svg") 0 0 / 320px 320px,
+    url("./art/ocean-caustics.svg") 140px 90px / 440px 440px;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  -webkit-mask: linear-gradient(transparent, #000 30%);
+  mask: linear-gradient(transparent, #000 30%);
+  animation: skin-ocean-caustics 24s linear infinite;
+}
+
+@keyframes skin-ocean-caustics {
+  from { background-position: 0 0, 140px 90px; }
+  to { background-position: 320px 320px, -300px 530px; }
+}
+
+/* The surf washing up the sand and sliding back. */
+main[data-preset="ocean"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 118px;
+  height: 60px;
+  background: url("./art/ocean-surf.svg") 0 0 / 300px 60px repeat-x;
+  animation: skin-ocean-wash 7s ease-in-out infinite;
+}
+
+@keyframes skin-ocean-wash {
+  0%, 100% { transform: translateY(0); background-position: 0 0; opacity: 0.95; }
+  45% { transform: translateY(26px); background-position: 40px 0; opacity: 0.8; }
+  70% { transform: translateY(18px); opacity: 0.55; }
+}
+
+main[data-preset="ocean"] .statusbar {
+  background: linear-gradient(90deg, #d8f6f6, #eafbfa);
+  border-bottom: 1px solid rgba(11, 127, 166, 0.2);
+}
+
+/* Smooth pebbles. */
+main[data-preset="ocean"] .field {
+  background: radial-gradient(ellipse at 35% 30%, #ffffff, #d7eeee 70%);
+  border: 0;
+  border-radius: 48% 52% 50% 50% / 60% 58% 42% 40%;
+  box-shadow: 0 3px 6px rgba(10, 90, 120, 0.25), inset 0 -2px 3px rgba(10, 90, 120, 0.12);
+}
+
+main[data-preset="ocean"] .field::before { content: none; }
+main[data-preset="ocean"] .field-name { font: 700 0.72rem var(--skin-title); color: var(--skin-deep); letter-spacing: 0.1em; }
+main[data-preset="ocean"] .field-value { font: 700 1.05rem var(--skin-text); color: var(--skin-ink); }
+
+/* ── Sea glass ──────────────────────────────────────────────────────── */
+
+main[data-preset="ocean"] .game-scene {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.6), transparent 55%),
+    var(--skin-glass);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px 30px 26px 28px;
+  padding: 2.3rem 2.5rem 2.2rem;
+  box-shadow: inset 0 0 0 1px rgba(31, 181, 201, 0.25), 0 12px 28px rgba(8, 70, 100, 0.3);
+}
+
+main[data-preset="ocean"] .narrative {
+  font: 500 1.1rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="ocean"][data-drop-cap] .narrative::first-letter { color: var(--skin-deep); }
+
+main[data-preset="ocean"] .corner { color: var(--skin-lagoon); border-color: var(--skin-lagoon); opacity: 0.6; }
+
+main[data-preset="ocean"] .scene-image {
+  border-radius: 18px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 0 3px rgba(31, 181, 201, 0.35), 0 10px 20px rgba(8, 70, 100, 0.3);
+  margin: 3px;
+}
+
+main[data-preset="ocean"] .scene-image::before { border-radius: 16px; }
+main[data-preset="ocean"] .scene-image::after { border-radius: 18px; }
+
+main[data-preset="ocean"] .game-scene.streaming .narrative::after { color: var(--skin-lagoon); }
+
+/* ── A shell between the panels ─────────────────────────────────────── */
+
+main[data-preset="ocean"] .divider::before,
+main[data-preset="ocean"] .divider::after {
+  height: 2px;
+  max-width: 120px;
+  opacity: 1;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85));
+}
+
+main[data-preset="ocean"] .divider::after { background: linear-gradient(90deg, rgba(255, 255, 255, 0.85), transparent); }
+
+main[data-preset="ocean"] .divider-symbol {
+  width: 32px;
+  height: 29px;
+  opacity: 1;
+  background: url("./art/ocean-shell.svg") center / contain no-repeat;
+  filter: drop-shadow(0 2px 3px rgba(8, 70, 100, 0.35));
+}
+
+main[data-preset="ocean"] .divider-symbol::before { content: none; }
+
+/* ── The player: a coral float ──────────────────────────────────────── */
+
+main[data-preset="ocean"] .bubble {
+  background: linear-gradient(135deg, #ff9f6e, var(--skin-coral));
+  color: #ffffff;
+  border: 0;
+  border-radius: 22px 22px 6px 22px;
+  font: 700 1rem var(--skin-text);
+  box-shadow: inset 0 -2px 0 rgba(150, 60, 20, 0.2), 0 6px 14px rgba(8, 70, 100, 0.3);
+}
+
+main[data-preset="ocean"] .bubble::before { content: "〰"; color: #ffffff; font: 1rem var(--skin-text); text-shadow: none; }
+
+main[data-preset="ocean"] .typing {
+  background: var(--skin-glass);
+  backdrop-filter: blur(10px);
+  color: var(--skin-deep);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  font: 600 1rem var(--skin-text);
+}
+
+/* Bubbles rising for the thinking dots. */
+main[data-preset="ocean"] .dots i {
+  background: transparent;
+  border: 1.5px solid var(--skin-lagoon);
+}
+
+main[data-preset="ocean"] .inline-input {
+  background: rgba(236, 252, 252, 0.9);
+  backdrop-filter: blur(10px);
+  color: var(--skin-ink);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 28px;
+  box-shadow: 0 12px 28px rgba(8, 70, 100, 0.3);
+}
+
+main[data-preset="ocean"] .input-wrap input {
+  font: 600 1.02rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #ffffff;
+  border: 1.5px solid rgba(31, 181, 201, 0.45);
+}
+
+main[data-preset="ocean"] .input-wrap input:focus { border-color: var(--skin-deep); }
+main[data-preset="ocean"] .send { background: var(--skin-coral); color: #ffffff; border: 0; }
+main[data-preset="ocean"] .icon-button { color: var(--skin-deep); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="ocean"] .system-message {
+  background: rgba(236, 252, 252, 0.85);
+  border: 1.5px dashed var(--skin-lagoon);
+  color: var(--skin-deep);
+  font: 600 0.92rem var(--skin-text);
+  font-style: normal;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="ocean"] .standing-image img {
+  border-radius: 18px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 0 3px rgba(31, 181, 201, 0.35), 0 10px 20px rgba(8, 70, 100, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="ocean"] .scene-bg::before,
+  main[data-preset="ocean"] .scene-bg::after { animation: none; }
+}

@@ -26,6 +26,9 @@ import (
 type API struct {
 	mu       sync.RWMutex
 	sessions map[string]*engine.Session
+	// only names the session a server holds when it holds exactly one, so a
+	// request that names none — or names a stale one — still reaches it.
+	only string
 }
 
 func New() *API { return &API{sessions: map[string]*engine.Session{}} }
@@ -40,12 +43,36 @@ func (a *API) Register(id string, s *engine.Session) {
 	a.sessions[id] = s
 }
 
+// RegisterOnly registers the one session this server has, and says so: every
+// request reaches it, whether or not it names the right id or any id. It is
+// what a standalone launcher calls — a server serving a single game should not
+// make anybody quote a session id back to it, in a link, a bookmark or a
+// address typed by hand.
+//
+// The platform never calls this. It holds many sessions and an id there is the
+// only thing saying which one a request means.
+func (a *API) RegisterOnly(id string, s *engine.Session) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.sessions[id] = s
+	a.only = id
+}
+
 func (a *API) lookup(r *http.Request) (*engine.Session, string, bool) {
 	id := r.PathValue("id")
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	s, ok := a.sessions[id]
-	return s, id, ok
+	if s, ok := a.sessions[id]; ok {
+		return s, id, true
+	}
+	// A server holding one game can say which one a request meant, whatever it
+	// asked for: the page's default name, a link from a previous run, nothing
+	// at all. A platform holds many and registers no such session, so an
+	// unknown id there is still unknown.
+	if a.only != "" {
+		return a.sessions[a.only], id, true
+	}
+	return nil, id, false
 }
 
 // SessionStream is the session-scoped event stream. A turn is a bracketed span
@@ -122,6 +149,77 @@ func (a *API) SessionInput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusAccepted)
+}
+
+type connectRequest struct {
+	// SDP is the browser's offer. Answering it is what creates the
+	// conversation, so this arrives when a player is actually there.
+	SDP string `json:"sdp"`
+}
+
+type connectResponse struct {
+	SDP string `json:"sdp"`
+}
+
+// SessionConnect brokers the browser's offer to talk to the character. The
+// audio then runs between the player and the provider; the engine keeps a
+// control connection of its own.
+//
+// The engine's own session id is the only handle a browser ever holds. The
+// provider's id stays inside, which is what keeps a spendable key and a
+// steerable conversation out of client-side code.
+func (a *API) SessionConnect(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+
+	var req connectRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	if req.SDP == "" {
+		http.Error(w, "body carries no SDP offer", http.StatusBadRequest)
+		return
+	}
+
+	answer, err := s.Connect(r.Context(), req.SDP)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(connectResponse{SDP: answer})
+}
+
+// SessionPause lets a live conversation go at the player's request. It is the
+// same ending an idle one reaches on its own, taken early.
+func (a *API) SessionPause(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	if err := s.Pause(); err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
+}
+
+// SessionPrompts is the text a session is running on. On a platform that
+// teaches how AI works, what was actually asked of a model is the subject.
+func (a *API) SessionPrompts(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(s.Prompts())
 }
 
 // SessionGraph renders the running wiring. Useful to a dev launcher, and the
@@ -235,6 +333,9 @@ func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /sessions/{id}/stream", a.SessionStream)
 	mux.HandleFunc("POST /sessions/{id}/input", a.SessionInput)
+	mux.HandleFunc("POST /sessions/{id}/connect", a.SessionConnect)
+	mux.HandleFunc("POST /sessions/{id}/pause", a.SessionPause)
+	mux.HandleFunc("GET /sessions/{id}/prompts", a.SessionPrompts)
 	mux.HandleFunc("GET /sessions/{id}/graph", a.SessionGraph)
 	mux.HandleFunc("GET /sessions/{id}/topology", a.SessionTopology)
 	mux.HandleFunc("GET /sessions/{id}/state", a.SessionSnapshot)

@@ -61,8 +61,15 @@ func TestFlagBeatsConfig(t *testing.T) {
 	if err != nil || got != "sk-flag" {
 		t.Fatalf("got %q, %v", got, err)
 	}
-	if source != "--api-key flag" {
-		t.Errorf("source %q", source)
+	// Where it came from, and enough of it to recognise — never the whole key.
+	if !strings.Contains(source, "--api-key flag") {
+		t.Errorf("source %q does not say where the key came from", source)
+	}
+	if !strings.Contains(source, "…flag") {
+		t.Errorf("source %q does not show the key's tail", source)
+	}
+	if strings.Contains(source, "sk-flag") {
+		t.Errorf("source %q contains the whole key", source)
 	}
 }
 
@@ -96,5 +103,31 @@ func TestNoKeyAnywhereIsRefused(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	if _, _, err := keyFunc(engine.PlatformOpenAI, ""); err == nil {
 		t.Fatal("expected a missing-key error")
+	}
+}
+
+// A key is what a session spends, so the launcher says which one it found. Four
+// characters is enough to recognise an account and not enough to use it.
+func TestFingerprint(t *testing.T) {
+	for _, tc := range []struct{ key, want string }{
+		{"sk-proj-abcdefghijkl3f9Q", "…3f9Q"},
+		{"short", "…hort"},
+		{"abcd", "…"},
+		{"", "…"},
+	} {
+		if got := fingerprint(tc.key); got != tc.want {
+			t.Errorf("fingerprint(%q) = %q, want %q", tc.key, got, tc.want)
+		}
+	}
+
+	// Whatever it prints must not be enough to make a call with: at most four
+	// characters of the key itself, and never the part that identifies it.
+	const key = "sk-proj-averylongsecretvalue"
+	shown := strings.TrimPrefix(fingerprint(key), "…")
+	if len([]rune(shown)) > 4 {
+		t.Errorf("fingerprint reveals %q, which is more of the key than it should", shown)
+	}
+	if strings.HasPrefix(key, shown) {
+		t.Errorf("fingerprint reveals %q, the start of the key rather than its tail", shown)
 	}
 }

@@ -1,0 +1,272 @@
+/* Fire: a forge in volcanic rock. Charcoal basalt split by glowing lava
+   cracks, flames licking along the bottom and the preset's embers rising; the
+   story is struck on blackened iron plates, riveted, their edges still hot. */
+
+main[data-preset="fire"] {
+  --skin-band: rgba(20, 10, 6, 0.6);
+  --skin-coal: #120906;
+  --skin-iron: #1d130e;
+  --skin-heat: #f97316;
+  --skin-heat-deep: #b91c1c;
+  --skin-spark: #fde047;
+  --skin-ink: #fbe7d3;
+  --skin-mute: #d4a98a;
+  --skin-title: "Metamorphous", "Cinzel", serif;
+  --skin-text: "Signika", Inter, sans-serif;
+  /* Hammered iron: a fine dark grain. */
+  --skin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.32 0 0 0 0 0.2 0 0 0 0.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --skin-bar: linear-gradient(90deg, var(--skin-heat-deep), var(--skin-heat) 45%, var(--skin-spark) 60%, var(--skin-heat) 75%, var(--skin-heat-deep));
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="fire"] .game-header {
+  background: var(--skin-grain), linear-gradient(#1f120c, #140a06);
+  color: var(--skin-ink);
+  border-bottom: 2px solid transparent;
+  border-image: var(--skin-bar) 1;
+  box-shadow: 0 3px 16px rgba(249, 115, 22, 0.3);
+}
+
+main[data-preset="fire"] .game-title strong {
+  font: 400 1.2rem var(--skin-title);
+  letter-spacing: 0.08em;
+  color: #ffd9a8;
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.8), 0 0 2px var(--skin-spark);
+}
+
+main[data-preset="fire"] .badge { font-family: var(--skin-text); background: rgba(249, 115, 22, 0.14); color: var(--skin-mute); }
+main[data-preset="fire"] .badge[data-state="ready"] { background: var(--skin-heat); color: var(--skin-coal); box-shadow: 0 0 10px rgba(249, 115, 22, 0.6); }
+
+/* Basalt split by lava, glowing brighter towards the fire below. */
+main[data-preset="fire"] .scene-area {
+  background:
+    url("./art/fire-cracks.svg") 0 0 / 400px 400px,
+    radial-gradient(ellipse 80% 45% at 50% 105%, rgba(249, 115, 22, 0.4), rgba(185, 28, 28, 0.15) 55%, transparent 75%),
+    var(--skin-grain),
+    linear-gradient(#0c0605, #1a0d08 60%, #2a1008);
+}
+
+/* Flames along the bottom, in two rows flickering out of step. */
+main[data-preset="fire"] .scene-bg::before,
+main[data-preset="fire"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 120px;
+  background: url("./art/fire-flames.svg") 0 100% / 200px 120px repeat-x;
+  transform-origin: 50% 100%;
+  /* Soft and fading at the tips, the way real flames lose their edge. */
+  filter: blur(1.6px) drop-shadow(0 -6px 14px rgba(249, 115, 22, 0.6));
+  -webkit-mask: linear-gradient(to top, #000 35%, transparent);
+  mask: linear-gradient(to top, #000 35%, transparent);
+  animation: skin-fire-flicker 1.3s ease-in-out infinite alternate;
+  opacity: 0.85;
+}
+
+main[data-preset="fire"] .scene-bg::after {
+  background-position: 97px 100%;
+  height: 90px;
+  animation-duration: 0.9s;
+  animation-delay: -0.4s;
+  opacity: 0.7;
+}
+
+@keyframes skin-fire-flicker {
+  0% { transform: scaleY(0.88) skewX(-2deg); }
+  50% { transform: scaleY(1.06) skewX(1.5deg); }
+  100% { transform: scaleY(0.95) skewX(-1deg); }
+}
+
+main[data-preset="fire"] .statusbar {
+  background: var(--skin-grain), #140a06;
+  border-bottom: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+/* Heat gauges: iron pills with a glowing reading. */
+main[data-preset="fire"] .field {
+  background: var(--skin-grain), var(--skin-iron);
+  border: 1px solid rgba(249, 115, 22, 0.45);
+  border-radius: 4px;
+  box-shadow: inset 0 0 10px rgba(249, 115, 22, 0.15), 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="fire"] .field::before { background: var(--skin-bar); width: 3px; }
+main[data-preset="fire"] .field-name { font: 400 0.72rem var(--skin-title); color: var(--skin-mute); letter-spacing: 0.08em; }
+main[data-preset="fire"] .field-value { font: 600 1.05rem var(--skin-text); color: #ffd9a8; text-shadow: 0 0 6px rgba(249, 115, 22, 0.7); }
+
+/* ── Iron plates ────────────────────────────────────────────────────── */
+
+main[data-preset="fire"] .game-scene {
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(249, 115, 22, 0.14), transparent 60%),
+    var(--skin-grain),
+    var(--skin-iron);
+  border: 1px solid rgba(249, 115, 22, 0.55);
+  border-radius: 4px;
+  padding: 2.4rem 2.6rem 2.2rem;
+  /* The edges still hot from the forge. */
+  box-shadow:
+    inset 0 0 18px rgba(249, 115, 22, 0.28),
+    inset 0 0 2px rgba(253, 224, 71, 0.4),
+    0 0 20px rgba(249, 115, 22, 0.2),
+    0 14px 28px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="fire"] .narrative {
+  font: 400 1.08rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+/* A rivet in each corner of the plate. */
+main[data-preset="fire"] .game-scene .corner {
+  display: block !important;
+  width: 9px;
+  height: 9px;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #8a6a58 0 1px, #4a3226 2.5px, #20140e 5px);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.8), 0 0 4px rgba(249, 115, 22, 0.35);
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="fire"] .game-scene .corner::before { content: none !important; }
+main[data-preset="fire"] .game-scene .corner.tl { top: 10px; left: 10px; }
+main[data-preset="fire"] .game-scene .corner.tr { top: 10px; right: 10px; }
+main[data-preset="fire"] .game-scene .corner.bl { bottom: 10px; left: 10px; }
+main[data-preset="fire"] .game-scene .corner.br { bottom: 10px; right: 10px; }
+
+main[data-preset="fire"] .scene-image {
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #3a2418, 0 0 0 3px rgba(249, 115, 22, 0.6), 0 0 16px rgba(249, 115, 22, 0.35), 0 10px 22px rgba(0, 0, 0, 0.6);
+  margin: 3px;
+}
+
+main[data-preset="fire"] .scene-image::before { border-radius: 2px; border-color: rgba(255, 210, 160, 0.18); }
+main[data-preset="fire"] .scene-image::after { border-radius: 3px; box-shadow: inset 0 0 26px rgba(40, 10, 0, 0.5); }
+main[data-preset="fire"] .scene-image:hover { box-shadow: 0 0 0 2px #3a2418, 0 0 0 3px var(--skin-spark), 0 0 22px rgba(249, 115, 22, 0.6); }
+
+/* The cursor while a line is spoken: a spark that flickers. */
+main[data-preset="fire"] .game-scene.streaming .narrative::after {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  margin-left: 0.35em;
+  border-radius: 50%;
+  background: var(--skin-spark);
+  box-shadow: 0 0 8px var(--skin-heat), 0 0 14px var(--skin-heat-deep);
+  animation: typing-pulse 0.8s ease-in-out infinite;
+}
+
+/* ── A flame between two bars of glowing metal ──────────────────────── */
+
+/* The preset asks for a plain line, which hides the symbol and one half;
+   this skin draws both. */
+main[data-preset="fire"] .divider::after,
+main[data-preset="fire"] .divider-symbol { display: block; }
+
+main[data-preset="fire"] .divider::before,
+main[data-preset="fire"] .divider::after {
+  height: 3px;
+  max-width: 140px;
+  opacity: 1;
+  border-radius: 2px;
+  background: var(--skin-bar);
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.7);
+}
+
+main[data-preset="fire"] .divider-symbol {
+  width: 22px;
+  height: 30px;
+  opacity: 1;
+  background: url("./art/fire-flame.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.8));
+  transform-origin: 50% 100%;
+  animation: skin-fire-flicker 0.7s ease-in-out infinite alternate;
+}
+
+main[data-preset="fire"] .divider-symbol::before { content: none; }
+
+/* ── The player: a heated iron bar ──────────────────────────────────── */
+
+main[data-preset="fire"] .bubble {
+  background: linear-gradient(90deg, rgba(249, 115, 22, 0.22), rgba(249, 115, 22, 0.05) 40%), var(--skin-grain), #24160f;
+  color: #ffe2c2;
+  border: 1px solid rgba(249, 115, 22, 0.6);
+  border-radius: 4px;
+  font: 600 1rem var(--skin-text);
+  box-shadow: inset 0 0 10px rgba(249, 115, 22, 0.2), 0 0 14px rgba(249, 115, 22, 0.25);
+}
+
+main[data-preset="fire"] .bubble::before {
+  content: "›";
+  color: var(--skin-spark);
+  font: 700 1.1rem var(--skin-text);
+  text-shadow: 0 0 6px var(--skin-heat);
+}
+
+main[data-preset="fire"] .typing {
+  background: var(--skin-grain), var(--skin-iron);
+  color: var(--skin-mute);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  border-radius: 4px;
+  font: 400 1rem var(--skin-title);
+  box-shadow: inset 0 0 14px rgba(249, 115, 22, 0.18);
+}
+
+/* Sparks for the thinking dots. */
+main[data-preset="fire"] .dots i {
+  width: 6px;
+  height: 6px;
+  background: var(--skin-spark);
+  box-shadow: 0 0 6px var(--skin-heat), 0 0 12px var(--skin-heat-deep);
+}
+
+main[data-preset="fire"] .inline-input {
+  background: var(--skin-grain), #170d09;
+  color: var(--skin-ink);
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  border-radius: 4px;
+  box-shadow: inset 0 0 16px rgba(249, 115, 22, 0.2), 0 14px 28px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="fire"] .input-wrap input {
+  font: 400 1.05rem var(--skin-text);
+  color: var(--skin-ink);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  border-radius: 4px;
+}
+
+main[data-preset="fire"] .input-wrap input::placeholder { color: var(--skin-mute); opacity: 0.7; }
+main[data-preset="fire"] .input-wrap input:focus { border-color: var(--skin-heat); box-shadow: 0 0 10px rgba(249, 115, 22, 0.45); }
+main[data-preset="fire"] .send { background: linear-gradient(var(--skin-heat), var(--skin-heat-deep)); color: #fff4e6; border: 0; border-radius: 4px; }
+main[data-preset="fire"] .icon-button { color: var(--skin-mute); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="fire"] .system-message {
+  background: rgba(29, 19, 14, 0.9);
+  border: 1px dashed rgba(249, 115, 22, 0.5);
+  color: var(--skin-mute);
+  font: 400 0.9rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="fire"] .standing-image img {
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #3a2418, 0 0 0 3px rgba(249, 115, 22, 0.6), 0 0 16px rgba(249, 115, 22, 0.35), 0 10px 22px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="fire"] .scene-bg::before,
+  main[data-preset="fire"] .scene-bg::after,
+  main[data-preset="fire"] .divider-symbol { animation: none; }
+}

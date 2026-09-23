@@ -51,12 +51,12 @@ func TestModelTierSetsEveryUnpinnedRole(t *testing.T) {
 func TestLiteralPinOverridesOneRole(t *testing.T) {
 	got, err := SessionSpec{
 		ModelTier: TierEconomy,
-		ModelLive: "gpt-realtime-2.1",
+		ModelLive: "gpt-live-1",
 	}.resolveModels(fakeTiers)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Live != "gpt-realtime-2.1" {
+	if got.Live != "gpt-live-1" {
 		t.Errorf("live = %q, want the literal", got.Live)
 	}
 	if got.Tool != "tool-eco" {

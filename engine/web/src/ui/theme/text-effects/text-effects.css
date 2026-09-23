@@ -1,0 +1,307 @@
+/*
+ * The theme's text effects, ported from the platform's player
+ * (game-player-v2/components/text-effects). Painted by ./index.ts.
+ */
+
+/* Retro: CRT monitor with scanlines, phosphor glow and a slight flicker. */
+.fx-retro {
+  position: relative;
+  display: inline;
+}
+
+.fx-retro-text {
+  text-shadow: 0 0 4px currentColor, 0 0 8px currentColor;
+  animation: fx-retro-flicker 4s infinite;
+}
+
+.fx-retro-scanlines {
+  position: absolute;
+  inset: -4px -2px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 2px;
+}
+
+@keyframes fx-retro-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.85; }
+  94% { opacity: 1; }
+  96% { opacity: 0.90; }
+  97% { opacity: 1; }
+}
+
+/* Ink bleed: blurry and spread at first, then sharp, like ink drying. */
+.fx-ink-bleed {
+  animation: fx-ink-bleed 1.2s ease-out forwards;
+}
+
+@keyframes fx-ink-bleed {
+  0% {
+    filter: blur(2px);
+    opacity: 0.6;
+    letter-spacing: 0.05em;
+  }
+  100% {
+    filter: blur(0);
+    opacity: 1;
+    letter-spacing: normal;
+  }
+}
+
+/* Fade in: words rise into view one after another. */
+.fx-fade-in {
+  display: inline-block;
+  opacity: 0;
+  animation: fx-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes fx-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Parchment burn: revealed from the centre outward, lit by candlelight. */
+.fx-parchment-burn {
+  text-shadow: 0 0 8px rgba(255, 170, 50, 0.4), 0 0 16px rgba(255, 120, 20, 0.15);
+  -webkit-mask-image: linear-gradient(90deg, black, black 50%, transparent 50%, transparent);
+  mask-image: linear-gradient(90deg, black, black 50%, transparent 50%, transparent);
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: fx-parchment-reveal 1.5s ease-out forwards;
+}
+
+@keyframes fx-parchment-reveal {
+  0% {
+    mask-size: 0% 100%;
+    -webkit-mask-size: 0% 100%;
+  }
+  100% {
+    mask-size: 200% 100%;
+    -webkit-mask-size: 200% 100%;
+  }
+}
+
+/* Flicker: the letters a tick has dimmed. */
+.fx-flicker-off,
+.fx-flicker-dim {
+  transition: opacity 0.2s ease;
+}
+
+.fx-flicker-off {
+  opacity: 0;
+}
+
+.fx-flicker-dim {
+  opacity: 0.3;
+}
+
+/* Rainbow: a gradient over whole words that sweeps across the text. */
+.fx-rainbow {
+  background-image: linear-gradient(
+    90deg,
+    #dc2626,
+    #c2410c,
+    #a16207,
+    #15803d,
+    #0e7490,
+    #1d4ed8,
+    #7c3aed,
+    #be185d,
+    #dc2626
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: fx-rainbow-sweep 6s linear infinite;
+}
+
+@keyframes fx-rainbow-sweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Frost: text crystallises with an icy glow, holds, then thaws, and repeats. */
+.fx-frost {
+  animation: fx-frost-breathe 8s ease-in-out infinite;
+}
+
+@keyframes fx-frost-breathe {
+  0%, 100% {
+    filter: blur(0);
+    text-shadow:
+      0 0 3px rgba(147, 197, 253, 0.3),
+      0 0 1px rgba(255, 255, 255, 0.3);
+  }
+  40%, 60% {
+    filter: blur(0.5px);
+    text-shadow:
+      0 0 12px rgba(96, 165, 250, 0.8),
+      0 0 24px rgba(147, 197, 253, 0.5),
+      0 0 40px rgba(186, 230, 253, 0.3),
+      0 0 4px rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Ember glow: a warm glow pulsing on the letters' edges. */
+.fx-ember-glow {
+  animation: fx-ember-pulse 10s ease-in-out infinite;
+  display: inline;
+  padding: 0 2px;
+}
+
+@keyframes fx-ember-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 4px rgba(251, 146, 60, 0.4),
+      0 0 8px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 8px rgba(251, 146, 60, 0.6),
+      0 0 16px rgba(239, 68, 68, 0.3),
+      0 0 24px rgba(234, 179, 8, 0.15);
+  }
+}
+
+/* Shadow pulse: a shadow that grows and shrinks, like light from a swinging lamp. */
+.fx-shadow-pulse {
+  animation: fx-shadow-pulse 5s ease-in-out infinite;
+}
+
+@keyframes fx-shadow-pulse {
+  0%, 100% {
+    text-shadow:
+      2px 2px 4px rgba(0, 0, 0, 0.8),
+      -1px -1px 3px rgba(0, 0, 0, 0.4);
+    opacity: 0.92;
+  }
+  50% {
+    text-shadow:
+      4px 4px 12px rgba(0, 0, 0, 0.9),
+      -2px -2px 8px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(0, 0, 0, 0.3);
+    opacity: 1;
+  }
+}
+
+/* Blood drip: a red glow beating like a heart, with the odd spike. */
+.fx-blood-drip {
+  animation: fx-blood-pulse 4s ease-in-out infinite;
+  color: inherit;
+}
+
+@keyframes fx-blood-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 4px rgba(220, 38, 38, 0.3),
+      0 2px 4px rgba(127, 29, 29, 0.2);
+    filter: brightness(1);
+  }
+  25% {
+    text-shadow:
+      0 0 8px rgba(220, 38, 38, 0.5),
+      0 3px 6px rgba(127, 29, 29, 0.3),
+      0 0 20px rgba(185, 28, 28, 0.15);
+    filter: brightness(1.05);
+  }
+  30% {
+    text-shadow:
+      0 0 12px rgba(220, 38, 38, 0.7),
+      0 4px 8px rgba(127, 29, 29, 0.5),
+      0 0 30px rgba(185, 28, 28, 0.25);
+    filter: brightness(1.1);
+  }
+  35% {
+    text-shadow:
+      0 0 6px rgba(220, 38, 38, 0.4),
+      0 2px 5px rgba(127, 29, 29, 0.3);
+    filter: brightness(0.95);
+  }
+  50% {
+    text-shadow:
+      0 0 3px rgba(220, 38, 38, 0.25),
+      0 2px 3px rgba(127, 29, 29, 0.15);
+    filter: brightness(0.92);
+  }
+  75% {
+    text-shadow:
+      0 0 6px rgba(220, 38, 38, 0.4),
+      0 3px 6px rgba(127, 29, 29, 0.25),
+      0 0 16px rgba(185, 28, 28, 0.1);
+    filter: brightness(1);
+  }
+}
+
+/*
+ * Reduced motion: the final text, holding each looping effect at its first
+ * frame. The JS-driven effects fall back to plain text in ./index.ts.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .fx-retro-text,
+  .fx-ink-bleed,
+  .fx-rainbow,
+  .fx-frost,
+  .fx-ember-glow,
+  .fx-shadow-pulse,
+  .fx-blood-drip {
+    animation: none;
+  }
+
+  .fx-fade-in {
+    animation: none;
+    opacity: 1;
+  }
+
+  .fx-parchment-burn {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .fx-flicker-off,
+  .fx-flicker-dim {
+    opacity: 1;
+  }
+
+  .fx-frost {
+    text-shadow:
+      0 0 3px rgba(147, 197, 253, 0.3),
+      0 0 1px rgba(255, 255, 255, 0.3);
+  }
+
+  .fx-ember-glow {
+    text-shadow:
+      0 0 4px rgba(251, 146, 60, 0.4),
+      0 0 8px rgba(239, 68, 68, 0.2);
+  }
+
+  .fx-shadow-pulse {
+    text-shadow:
+      2px 2px 4px rgba(0, 0, 0, 0.8),
+      -1px -1px 3px rgba(0, 0, 0, 0.4);
+    opacity: 0.92;
+  }
+
+  .fx-blood-drip {
+    text-shadow:
+      0 0 4px rgba(220, 38, 38, 0.3),
+      0 2px 4px rgba(127, 29, 29, 0.2);
+  }
+}

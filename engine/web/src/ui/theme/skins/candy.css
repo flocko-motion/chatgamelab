@@ -1,0 +1,299 @@
+/* Candy: a sweet shop. Pink frosting strewn with sprinkles under a drip of
+   icing, iced biscuits for the story, sprinkled icing around the picture, a wrapped
+   sweet between scenes, and candy-cane stripes on top. */
+
+main[data-preset="candy"] {
+  --skin-band: rgba(255, 211, 226, 0.55);
+  --skin-coral: #ff6f91;
+  --skin-lavender: #b69cff;
+  --skin-mint: #9ae6c9;
+  --skin-lemon: #ffc75f;
+  --skin-sky: #8ecbff;
+  --skin-icing: #f6f0ff;
+  --skin-biscuit: #eab676;
+  --skin-bake: #cf8f4c;
+  --skin-choc: #5b3a29;
+  --skin-round: "Fredoka", "Quicksand", sans-serif;
+  --skin-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 50%);
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="candy"] .game-header {
+  background:
+    var(--skin-gloss),
+    repeating-linear-gradient(-45deg, var(--skin-coral) 0 14px, #fff5f8 14px 28px);
+  color: var(--skin-choc);
+  border-bottom: 3px solid #d94d73;
+  box-shadow: 0 3px 10px rgba(217, 77, 115, 0.3);
+}
+
+/* The title in a white sugar coating, so it reads on the stripes. */
+main[data-preset="candy"] .game-title strong {
+  font: 600 1.25rem var(--skin-round);
+  color: #d94d73;
+  text-shadow:
+    -2px -2px 0 #ffffff, 2px -2px 0 #ffffff, -2px 2px 0 #ffffff, 2px 2px 0 #ffffff,
+    0 3px 0 #ffffff, 0 5px 4px rgba(217, 77, 115, 0.35);
+}
+
+main[data-preset="candy"] .badge { font-family: var(--skin-round); border-radius: 999px; background: #ffffff; color: #d94d73; }
+main[data-preset="candy"] .badge[data-state="ready"] { background: var(--skin-mint); color: #1f5c48; }
+
+main[data-preset="candy"] .scene-area {
+  background:
+    url("./art/candy-sprinkles.svg") 0 0 / 240px 240px,
+    radial-gradient(ellipse at 50% 0%, #ffe3ee, transparent 65%),
+    linear-gradient(#ffd3e2, #ffc4d8);
+}
+
+main[data-preset="candy"] .statusbar {
+  background: #ffbfd4;
+  border-bottom: 0;
+}
+
+/* Jelly beans, each in the next flavour. */
+main[data-preset="candy"] .field {
+  background: var(--skin-gloss), var(--skin-lemon);
+  border: 0;
+  border-radius: 999px / 70%;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.12), 0 3px 6px rgba(200, 80, 120, 0.3);
+}
+
+main[data-preset="candy"] .field:nth-child(5n + 2) { background: var(--skin-gloss), var(--skin-mint); }
+main[data-preset="candy"] .field:nth-child(5n + 3) { background: var(--skin-gloss), var(--skin-sky); }
+main[data-preset="candy"] .field:nth-child(5n + 4) { background: var(--skin-gloss), var(--skin-lavender); }
+main[data-preset="candy"] .field:nth-child(5n + 5) { background: var(--skin-gloss), #ffa3b8; }
+
+main[data-preset="candy"] .field::before { content: none; }
+main[data-preset="candy"] .field-name { font-family: var(--skin-round); color: rgba(91, 58, 41, 0.75); }
+main[data-preset="candy"] .field-value { font: 600 1.05rem var(--skin-round); color: var(--skin-choc); }
+
+/* ── Iced biscuits ──────────────────────────────────────────────────── */
+
+main[data-preset="candy"] .game-scene {
+  background:
+    var(--skin-gloss),
+    radial-gradient(circle at 100% 100%, rgba(182, 156, 255, 0.25), transparent 45%),
+    var(--skin-icing);
+  border: 0;
+  border-radius: 30px;
+  padding: 3.4rem 2.5rem 2.3rem;
+  /* The icing sits on a baked biscuit, golden with a darker rim. */
+  box-shadow:
+    0 0 0 5px var(--skin-biscuit),
+    0 0 0 7px var(--skin-bake),
+    0 14px 26px 4px rgba(160, 60, 90, 0.28);
+  margin: 7px;
+}
+
+main[data-preset="candy"] .game-scene::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: url("./art/candy-drip.svg") 20px 0 / 240px 64px repeat-x;
+  pointer-events: none;
+}
+
+main[data-preset="candy"] .narrative {
+  font: 500 1.12rem/1.75 var(--skin-round);
+  color: var(--skin-choc);
+}
+
+main[data-preset="candy"][data-drop-cap] .narrative::first-letter {
+  margin: 0.02em 0.1em 0 0;
+  font: 600 3em/0.95 var(--skin-round);
+  color: var(--skin-lavender);
+  -webkit-text-stroke: 2px #ffffff;
+  text-shadow: 3px 3px 0 var(--skin-coral);
+}
+
+/* A little heap of sprinkles in the lower corners of each biscuit. */
+main[data-preset="candy"] .game-scene .corner { display: none !important; }
+
+main[data-preset="candy"] .game-scene .corner.bl,
+main[data-preset="candy"] .game-scene .corner.br {
+  display: block !important;
+  bottom: 10px;
+  width: 64px;
+  height: 34px;
+  border: 0;
+  background: url("./art/candy-sprinkles.svg") 0 0 / 120px 120px;
+  -webkit-mask: radial-gradient(closest-side, #000 60%, transparent);
+  mask: radial-gradient(closest-side, #000 60%, transparent);
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="candy"] .game-scene .corner.bl { left: 12px; }
+main[data-preset="candy"] .game-scene .corner.br { right: 12px; background-position: 40px 30px; }
+main[data-preset="candy"] .game-scene .corner::before { content: none !important; }
+
+/* The picture framed in sprinkled pink icing on a biscuit rim. The frame is
+   added outside the picture, which keeps its full size. */
+main[data-preset="candy"] .scene-image {
+  width: 294px;
+  height: 294px;
+  padding: 7px;
+  border-radius: 28px;
+  background: url("./art/candy-sprinkles.svg") 0 0 / 90px 90px, #ffb3cc;
+  box-shadow:
+    0 0 0 3px var(--skin-biscuit),
+    0 0 0 4px var(--skin-bake),
+    0 10px 20px rgba(160, 60, 90, 0.3);
+  margin: 4px;
+  align-self: flex-start;
+}
+
+main[data-preset="candy"] .scene-image img { border-radius: 22px; box-shadow: 0 0 0 1.5px #e88aa9; }
+main[data-preset="candy"] .scene-image::before { inset: 7px; border: 0; border-radius: 22px; background: var(--skin-gloss); opacity: 0.35; }
+main[data-preset="candy"] .scene-image::after { inset: 7px; border-radius: 22px; }
+main[data-preset="candy"] .scene-image:hover { transform: rotate(-1.5deg) scale(1.03); }
+
+@container (max-width: 40rem) {
+  main[data-preset="candy"] .scene-image { width: calc(100% - 8px); height: 214px; }
+}
+
+/* The cursor while a line is spoken: a gumball changing flavour. */
+main[data-preset="candy"] .game-scene.streaming .narrative::after {
+  content: "";
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-left: 0.35em;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--skin-coral);
+  animation: skin-candy-flavour 1.6s steps(1) infinite;
+}
+
+@keyframes skin-candy-flavour {
+  0% { background: var(--skin-coral); }
+  25% { background: var(--skin-lemon); }
+  50% { background: var(--skin-mint); }
+  75% { background: var(--skin-lavender); }
+}
+
+/* ── A wrapped sweet between scenes ─────────────────────────────────── */
+
+main[data-preset="candy"] .divider { gap: 0.6rem; }
+
+main[data-preset="candy"] .divider::before,
+main[data-preset="candy"] .divider::after {
+  height: 8px;
+  max-width: 120px;
+  opacity: 1;
+  background: url("./art/candy-sprinkles.svg") 0 -40px / 120px 120px;
+}
+
+main[data-preset="candy"] .divider-symbol {
+  width: 72px;
+  height: 32px;
+  opacity: 1;
+  background: url("./art/candy-sweet.svg") center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(160, 60, 90, 0.3));
+}
+
+main[data-preset="candy"] .divider-symbol::before { content: none; }
+
+/* ── The player ─────────────────────────────────────────────────────── */
+
+/* A sugar pill with a coral rim: light enough for the preset's rainbow text,
+   which colours the player's words as well. */
+main[data-preset="candy"] .bubble {
+  background: var(--skin-gloss), #fffafc;
+  color: var(--skin-choc);
+  border: 0;
+  border-radius: 999px;
+  padding: 0.65rem 1.3rem 0.65rem 1rem;
+  font: 600 1rem var(--skin-round);
+  margin-right: 3px;
+  box-shadow:
+    0 0 0 3px var(--skin-coral),
+    inset 0 -3px 0 rgba(255, 111, 145, 0.18),
+    0 7px 14px rgba(217, 77, 115, 0.35);
+}
+
+main[data-preset="candy"] .bubble::before {
+  content: "★";
+  color: var(--skin-lemon);
+  font: 1.05rem var(--skin-round);
+  text-shadow: 0 1px 0 #d94d73;
+}
+
+main[data-preset="candy"] .typing {
+  background: var(--skin-gloss), var(--skin-icing);
+  color: var(--skin-choc);
+  border: 0;
+  border-radius: 999px;
+  font: 500 1.02rem var(--skin-round);
+  box-shadow: 0 0 0 5px var(--skin-biscuit), 0 0 0 7px var(--skin-bake), 0 10px 20px rgba(160, 60, 90, 0.25);
+  margin: 7px;
+}
+
+/* Gumballs for the thinking dots. */
+main[data-preset="candy"] .dots i {
+  width: 11px;
+  height: 11px;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.8) 0 2px, transparent 3px), var(--skin-coral);
+}
+
+main[data-preset="candy"] .dots i:nth-child(2) { background-color: var(--skin-lemon); }
+main[data-preset="candy"] .dots i:nth-child(3) { background-color: var(--skin-mint); }
+
+main[data-preset="candy"] .inline-input {
+  background: var(--skin-gloss), var(--skin-icing);
+  color: var(--skin-choc);
+  border: 0;
+  border-radius: 30px;
+  box-shadow:
+    0 0 0 5px var(--skin-biscuit),
+    0 0 0 7px var(--skin-bake),
+    0 14px 26px 4px rgba(160, 60, 90, 0.28);
+  margin: 0 7px;
+}
+
+main[data-preset="candy"] .input-wrap input {
+  font: 500 1.05rem var(--skin-round);
+  color: var(--skin-choc);
+  background: #ffffff;
+  border: 2px solid #ffc4d8;
+}
+
+main[data-preset="candy"] .input-wrap input::placeholder { color: #c77c96; opacity: 1; }
+main[data-preset="candy"] .input-wrap input:focus { border-color: var(--skin-coral); }
+
+main[data-preset="candy"] .send {
+  background: var(--skin-gloss), var(--skin-coral);
+  color: #ffffff;
+  border: 0;
+}
+
+main[data-preset="candy"] .icon-button { color: #d94d73; }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="candy"] .system-message {
+  background: rgba(255, 250, 252, 0.85);
+  border: 2px dashed var(--skin-coral);
+  color: var(--skin-choc);
+  font: 500 0.95rem var(--skin-round);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="candy"] .standing-image img {
+  padding: 7px;
+  border-radius: 28px;
+  background: url("./art/candy-sprinkles.svg") 0 0 / 90px 90px, #ffb3cc;
+  box-shadow:
+    0 0 0 3px var(--skin-biscuit),
+    0 0 0 4px var(--skin-bake),
+    0 10px 20px rgba(160, 60, 90, 0.3);
+}

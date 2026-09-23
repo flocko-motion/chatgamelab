@@ -1,0 +1,248 @@
+/* Mystic: an astrologer's grimoire. A violet night strung with constellations,
+   a great arcane circle of rings, houses and sigils turning slowly behind the
+   story, and glints of starlight flaring and fading; the story is written on
+   pages bordered in gold foil, and the phases of the moon divide them. */
+
+main[data-preset="mystic"] {
+  --skin-band: rgba(24, 12, 48, 0.55);
+  --skin-night: #140a2c;
+  --skin-violet: #8b5cf6;
+  --skin-lilac: #c9b6ff;
+  --skin-gold: #e7c979;
+  --skin-gold-deep: #a8863c;
+  --skin-page: #f3eee4;
+  --skin-ink: #2a1d45;
+  --skin-title: "Cinzel Decorative", "Cinzel", serif;
+  --skin-text: "Cormorant Garamond", "EB Garamond", Georgia, serif;
+  --skin-foil: linear-gradient(135deg, #b8913f, #f1dc97 30%, #c29a45 50%, #f6e3a4 70%, #a8863c);
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="mystic"] .game-header {
+  background: linear-gradient(#1c0f3a, #140a2c);
+  color: var(--skin-gold);
+  border-bottom: 1px solid rgba(231, 201, 121, 0.45);
+  box-shadow: 0 2px 16px rgba(139, 92, 246, 0.25);
+}
+
+main[data-preset="mystic"] .game-title strong {
+  font: 700 1.1rem var(--skin-title);
+  letter-spacing: 0.06em;
+  background: var(--skin-foil);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+main[data-preset="mystic"] .badge { font-family: var(--skin-text); font-weight: 600; background: rgba(201, 182, 255, 0.12); color: var(--skin-lilac); }
+main[data-preset="mystic"] .badge[data-state="ready"] { background: var(--skin-foil); color: var(--skin-night); }
+
+/* The night: constellations over a violet depth, glowing towards the circle. */
+main[data-preset="mystic"] .scene-area {
+  background:
+    url("./art/mystic-stars.svg") 0 0 / 400px 400px,
+    radial-gradient(circle at 50% 55%, rgba(139, 92, 246, 0.35), transparent 60%),
+    linear-gradient(#0e0620, #1a0d38 55%, #120828);
+}
+
+/* The arcane circle, turning once every few minutes. */
+main[data-preset="mystic"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: min(120%, 760px);
+  aspect-ratio: 1;
+  background: url("./art/mystic-circle.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(231, 201, 121, 0.35));
+  transform: translate(-50%, -50%);
+  animation: skin-mystic-turn 240s linear infinite;
+}
+
+@keyframes skin-mystic-turn {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Glints of starlight, two layers flaring out of step. */
+main[data-preset="mystic"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("./art/mystic-glints-a.svg") 0 0 / 340px 340px,
+    url("./art/mystic-glints-b.svg") 170px 120px / 340px 340px;
+  animation: skin-mystic-glint 4.2s ease-in-out infinite;
+}
+
+@keyframes skin-mystic-glint {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.85; }
+}
+
+main[data-preset="mystic"] .statusbar {
+  background: #140a2c;
+  border-bottom: 1px solid rgba(231, 201, 121, 0.3);
+}
+
+/* Small tarot-like tiles with a gold line. */
+main[data-preset="mystic"] .field {
+  background: linear-gradient(#24124a, #1a0d38);
+  border: 1px solid rgba(231, 201, 121, 0.5);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px #1a0d38, inset 0 0 0 3px rgba(231, 201, 121, 0.25), 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+main[data-preset="mystic"] .field::before { content: none; }
+main[data-preset="mystic"] .field-name { font: 400 0.75rem var(--skin-title); color: var(--skin-lilac); text-transform: none; letter-spacing: 0.04em; }
+main[data-preset="mystic"] .field-value { font: 600 1.1rem var(--skin-text); color: var(--skin-gold); }
+
+/* ── Grimoire pages ─────────────────────────────────────────────────── */
+
+main[data-preset="mystic"] .game-scene {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(120, 90, 160, 0.18)),
+    var(--skin-page);
+  border: 0;
+  border-radius: 4px;
+  /* Gold foil at the edge, a thin inner rule, the page lifted off the night. */
+  outline: 1px solid rgba(168, 134, 60, 0.55);
+  outline-offset: -7px;
+  padding: 2.5rem 2.6rem 2.3rem;
+  box-shadow: 0 0 0 1.5px #d8b866, 0 0 22px rgba(139, 92, 246, 0.35), 0 16px 30px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="mystic"] .narrative {
+  font: 500 1.2rem/1.7 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="mystic"][data-drop-cap] .narrative::first-letter {
+  margin: 0.04em 0.12em 0 0;
+  font: 700 3.1em/0.85 var(--skin-title);
+  background: var(--skin-foil);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+}
+
+/* A small eight-pointed star in each corner of the page. */
+main[data-preset="mystic"] .game-scene .corner {
+  display: block !important;
+  width: 12px;
+  height: 12px;
+  border: 0;
+  background: var(--skin-gold-deep);
+  clip-path: polygon(50% 0, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0 50%, 40% 35%);
+  opacity: 0.85;
+  animation: none;
+}
+
+main[data-preset="mystic"] .game-scene .corner::before { content: none !important; }
+main[data-preset="mystic"] .game-scene .corner.tl { top: 14px; left: 14px; }
+main[data-preset="mystic"] .game-scene .corner.tr { top: 14px; right: 14px; }
+main[data-preset="mystic"] .game-scene .corner.bl { bottom: 14px; left: 14px; }
+main[data-preset="mystic"] .game-scene .corner.br { bottom: 14px; right: 14px; }
+
+main[data-preset="mystic"] .scene-image {
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #d8b866, 0 0 0 3px #7a5d22, 0 8px 18px rgba(40, 20, 70, 0.4);
+  margin: 3px;
+}
+
+main[data-preset="mystic"] .scene-image::before { border-radius: 1px; border-color: rgba(255, 245, 210, 0.25); }
+main[data-preset="mystic"] .scene-image::after { border-radius: 3px; }
+
+main[data-preset="mystic"] .game-scene.streaming .narrative::after { content: "✦"; color: var(--skin-violet); animation: typing-pulse 1.5s ease-in-out infinite; }
+
+/* ── The moon's phases between pages ────────────────────────────────── */
+
+main[data-preset="mystic"] .divider::before,
+main[data-preset="mystic"] .divider::after {
+  height: 1px;
+  max-width: 110px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--skin-gold));
+}
+
+main[data-preset="mystic"] .divider::after { background: linear-gradient(90deg, var(--skin-gold), transparent); }
+
+main[data-preset="mystic"] .divider-symbol {
+  width: 76px;
+  height: 19px;
+  opacity: 1;
+  background: url("./art/mystic-moons.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 5px rgba(231, 201, 121, 0.55));
+}
+
+main[data-preset="mystic"] .divider-symbol::before { content: none; }
+
+/* ── The player: words in a crystal ─────────────────────────────────── */
+
+main[data-preset="mystic"] .bubble {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.45), rgba(76, 29, 149, 0.6));
+  backdrop-filter: blur(4px);
+  color: #f3ecff;
+  border: 1px solid rgba(201, 182, 255, 0.55);
+  border-radius: 14px 14px 4px 14px;
+  font: italic 500 1.12rem var(--skin-text);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
+}
+
+main[data-preset="mystic"] .bubble::before { content: "✧"; color: var(--skin-gold); font: 1rem serif; text-shadow: 0 0 6px var(--skin-gold); }
+
+main[data-preset="mystic"] .typing {
+  background: var(--skin-page);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 4px;
+  font: italic 500 1.12rem var(--skin-text);
+  box-shadow: 0 0 0 2px #d8b866, 0 0 16px rgba(139, 92, 246, 0.35);
+}
+
+main[data-preset="mystic"] .dots i { background: var(--skin-violet); box-shadow: 0 0 6px var(--skin-violet); }
+
+main[data-preset="mystic"] .inline-input {
+  background: linear-gradient(#20103f, #170a30);
+  color: #f3ecff;
+  border: 1px solid rgba(231, 201, 121, 0.5);
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25), 0 12px 26px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="mystic"] .input-wrap input {
+  font: italic 500 1.12rem var(--skin-text);
+  color: #f3ecff;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(201, 182, 255, 0.35);
+}
+
+main[data-preset="mystic"] .input-wrap input::placeholder { color: var(--skin-lilac); opacity: 0.7; }
+main[data-preset="mystic"] .input-wrap input:focus { border-color: var(--skin-gold); box-shadow: 0 0 10px rgba(231, 201, 121, 0.35); }
+main[data-preset="mystic"] .send { background: var(--skin-foil); color: var(--skin-night); border: 0; }
+main[data-preset="mystic"] .icon-button { color: var(--skin-lilac); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="mystic"] .system-message {
+  background: rgba(20, 10, 44, 0.8);
+  border: 1px dashed rgba(231, 201, 121, 0.45);
+  color: var(--skin-lilac);
+  font: italic 500 1rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="mystic"] .standing-image img {
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #d8b866, 0 0 0 3px #7a5d22, 0 0 22px rgba(139, 92, 246, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="mystic"] .scene-bg::before,
+  main[data-preset="mystic"] .scene-bg::after { animation: none; }
+}

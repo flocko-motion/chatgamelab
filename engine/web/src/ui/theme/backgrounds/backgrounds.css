@@ -1,0 +1,170 @@
+/* The animated layer behind the scene; see backgrounds/index.ts. */
+
+.bg-fill {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* tsParticles */
+
+.bg-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.bg-particles,
+.bg-particles canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Matrix rain */
+
+.bg-matrix {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Waves: confined to the bottom third */
+
+.bg-waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 33%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* The duration is set per band. */
+.bg-wave {
+  position: absolute;
+  inset: 0;
+  animation: bg-wave-scroll 14s linear infinite;
+}
+
+.bg-wave svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+}
+
+@keyframes bg-wave-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Sun */
+
+.bg-sun {
+  position: absolute;
+  top: 5%;
+  left: 0;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(253, 224, 71, 0.9) 0%,
+    rgba(250, 204, 21, 0.6) 30%,
+    rgba(234, 179, 8, 0.2) 60%,
+    transparent 75%
+  );
+  box-shadow:
+    0 0 40px rgba(253, 224, 71, 0.5),
+    0 0 80px rgba(250, 204, 21, 0.3),
+    0 0 120px rgba(234, 179, 8, 0.15);
+  animation: bg-sun-arc 60s ease-in-out infinite;
+}
+
+@keyframes bg-sun-arc {
+  0% {
+    transform: translate(-10%, 60%) scale(0.9);
+    opacity: 0.4;
+  }
+  15% {
+    transform: translate(10%, 20%) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(50%, 5%) scale(1.1);
+    opacity: 0.9;
+  }
+  85% {
+    transform: translate(90%, 20%) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(110%, 60%) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+/* Tumbleweed: size, height, opacity and animation are set per weed. */
+
+.bg-tumbleweed {
+  position: absolute;
+  left: -10vw;
+  will-change: transform;
+}
+
+.bg-tumbleweed svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes bg-tw1 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  8%   { transform: translateX(0vw)   translateY(-35px) rotate(60deg); }
+  16%  { transform: translateX(10vw)  translateY(0px)   rotate(130deg); }
+  28%  { transform: translateX(22vw)  translateY(-50px) rotate(230deg); }
+  38%  { transform: translateX(34vw)  translateY(0px)   rotate(340deg); }
+  50%  { transform: translateX(48vw)  translateY(-25px) rotate(450deg); }
+  60%  { transform: translateX(58vw)  translateY(0px)   rotate(530deg); }
+  72%  { transform: translateX(70vw)  translateY(-40px) rotate(640deg); }
+  84%  { transform: translateX(84vw)  translateY(0px)   rotate(740deg); }
+  92%  { transform: translateX(96vw)  translateY(-15px) rotate(810deg); }
+  100% { transform: translateX(110vw) translateY(0px)   rotate(900deg); }
+}
+
+@keyframes bg-tw2 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  10%  { transform: translateX(5vw)   translateY(-20px) rotate(-80deg); }
+  20%  { transform: translateX(16vw)  translateY(0px)   rotate(-160deg); }
+  35%  { transform: translateX(30vw)  translateY(-45px) rotate(-300deg); }
+  48%  { transform: translateX(44vw)  translateY(0px)   rotate(-420deg); }
+  58%  { transform: translateX(55vw)  translateY(-30px) rotate(-520deg); }
+  70%  { transform: translateX(68vw)  translateY(0px)   rotate(-620deg); }
+  82%  { transform: translateX(80vw)  translateY(-20px) rotate(-720deg); }
+  100% { transform: translateX(110vw) translateY(0px)   rotate(-880deg); }
+}
+
+@keyframes bg-tw3 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  12%  { transform: translateX(4vw)   translateY(-55px) rotate(100deg); }
+  22%  { transform: translateX(14vw)  translateY(0px)   rotate(190deg); }
+  38%  { transform: translateX(32vw)  translateY(-20px) rotate(320deg); }
+  50%  { transform: translateX(46vw)  translateY(0px)   rotate(440deg); }
+  62%  { transform: translateX(58vw)  translateY(-40px) rotate(560deg); }
+  74%  { transform: translateX(72vw)  translateY(0px)   rotate(660deg); }
+  88%  { transform: translateX(88vw)  translateY(-15px) rotate(780deg); }
+  100% { transform: translateX(110vw) translateY(0px)   rotate(860deg); }
+}
+
+@keyframes bg-tw4 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  15%  { transform: translateX(8vw)   translateY(-15px) rotate(-120deg); }
+  30%  { transform: translateX(24vw)  translateY(0px)   rotate(-240deg); }
+  50%  { transform: translateX(46vw)  translateY(-30px) rotate(-400deg); }
+  68%  { transform: translateX(64vw)  translateY(0px)   rotate(-540deg); }
+  85%  { transform: translateX(86vw)  translateY(-10px) rotate(-680deg); }
+  100% { transform: translateX(110vw) translateY(0px)   rotate(-800deg); }
+}

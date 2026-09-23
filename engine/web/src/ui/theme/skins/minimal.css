@@ -1,0 +1,237 @@
+/* Minimal: restraint as craft. A soft grey canvas, white surfaces lifted on
+   long, faint shadows, one blue for everything that acts, generous space and
+   tight, confident type. Nothing decorates; every edge, weight and interval is
+   chosen. */
+
+main[data-preset="minimal"] {
+  --skin-band: rgba(245, 245, 247, 0.72);
+  --skin-canvas: #f5f5f7;
+  --skin-surface: #ffffff;
+  --skin-ink: #1d1d1f;
+  --skin-secondary: #6e6e73;
+  --skin-hairline: rgba(0, 0, 0, 0.08);
+  --skin-blue: #0071e3;
+  --skin-blue-hover: #0077ed;
+  --skin-text: Inter, system-ui, -apple-system, sans-serif;
+  --skin-lift: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+/* A translucent bar the content passes behind. */
+main[data-preset="minimal"] .game-header {
+  background: rgba(251, 251, 253, 0.8);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  color: var(--skin-ink);
+  border-bottom: 1px solid var(--skin-hairline);
+  box-shadow: none;
+  padding: 0.85rem 1.4rem;
+}
+
+main[data-preset="minimal"] .game-title strong {
+  font: 600 0.95rem var(--skin-text);
+  letter-spacing: -0.01em;
+}
+
+main[data-preset="minimal"] .game-tools select {
+  border: 0;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 7px;
+  padding: 0.2rem 0.55rem;
+  opacity: 1;
+  color: var(--skin-ink);
+}
+
+main[data-preset="minimal"] .badge {
+  font: 500 0.7rem var(--skin-text);
+  letter-spacing: 0;
+  text-transform: none;
+  border-radius: 999px;
+  padding: 0.05rem 0.6rem;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--skin-secondary);
+}
+
+main[data-preset="minimal"] .badge[data-state="ready"] { background: rgba(52, 199, 89, 0.12); color: #1e8e3e; }
+
+main[data-preset="minimal"] .scene-area { background: var(--skin-canvas); }
+
+main[data-preset="minimal"] .scenes { gap: 1.5rem; padding: 2rem 1.5rem; max-width: 760px; }
+main[data-preset="minimal"] .feed { gap: 1.5rem; }
+
+/* Status as a quiet row of values, the way a spec sheet sets them. */
+main[data-preset="minimal"] .statusbar {
+  gap: 2.5rem;
+  padding: 0.9rem 1.5rem;
+  background: rgba(251, 251, 253, 0.8);
+  border-bottom: 1px solid var(--skin-hairline);
+}
+
+main[data-preset="minimal"] .field {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+main[data-preset="minimal"] .field::before { content: none; }
+main[data-preset="minimal"] .field-name { font: 500 0.7rem var(--skin-text); color: var(--skin-secondary); letter-spacing: 0; text-transform: none; }
+main[data-preset="minimal"] .field-value { font: 600 1.35rem/1.15 var(--skin-text); color: var(--skin-ink); letter-spacing: -0.02em; }
+
+/* A changed value only brightens to the accent and settles. */
+main[data-preset="minimal"] .field.changed { animation: none; }
+main[data-preset="minimal"] .field.changed .field-value { animation: skin-minimal-changed 1.6s ease-out; }
+
+@keyframes skin-minimal-changed {
+  0% { color: var(--skin-blue); }
+  100% { color: var(--skin-ink); }
+}
+
+/* ── Surfaces ───────────────────────────────────────────────────────── */
+
+main[data-preset="minimal"] .scene-card:hover { transform: none; }
+
+main[data-preset="minimal"] .game-scene {
+  background: var(--skin-surface);
+  border: 0;
+  border-radius: 18px;
+  padding: 2rem 2.25rem;
+  box-shadow: var(--skin-lift);
+  gap: 1.75rem;
+}
+
+main[data-preset="minimal"] .game-scene.with-image { padding: 1.25rem 2rem 1.25rem 1.25rem; }
+
+main[data-preset="minimal"] .narrative {
+  font: 400 1.06rem/1.65 var(--skin-text);
+  color: var(--skin-ink);
+  letter-spacing: -0.005em;
+  animation: skin-minimal-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes skin-minimal-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+main[data-preset="minimal"] .corner { display: none !important; }
+
+main[data-preset="minimal"] .scene-image {
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+main[data-preset="minimal"] .scene-image::before { content: none; }
+main[data-preset="minimal"] .scene-image::after { border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06); }
+main[data-preset="minimal"] .scene-image:hover { transform: scale(1.015); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); }
+main[data-preset="minimal"] .scene-image img { border-radius: 12px; }
+
+main[data-preset="minimal"] .game-scene.streaming .narrative::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--skin-blue);
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* ── Between surfaces: space alone ──────────────────────────────────── */
+
+main[data-preset="minimal"] .divider { display: none; }
+
+/* ── The player: set to the right, in the one accent ────────────────── */
+
+main[data-preset="minimal"] .bubble {
+  padding: 0.6rem 1.05rem;
+  background: var(--skin-blue);
+  color: #ffffff;
+  border: 0;
+  border-radius: 20px;
+  font: 400 1rem/1.4 var(--skin-text);
+  box-shadow: none;
+}
+
+main[data-preset="minimal"] .bubble::before { content: none; }
+
+main[data-preset="minimal"] .typing {
+  align-self: flex-start;
+  padding: 0.75rem 1.1rem;
+  background: var(--skin-surface);
+  color: var(--skin-secondary);
+  border: 0;
+  border-radius: 20px;
+  font: 400 0.9rem var(--skin-text);
+  box-shadow: var(--skin-lift);
+}
+
+main[data-preset="minimal"] .dots { gap: 5px; }
+main[data-preset="minimal"] .dots i { width: 6px; height: 6px; background: #aeaeb2; }
+
+/* The field floats on the canvas like a search bar. */
+main[data-preset="minimal"] .inline-input {
+  padding: 0.5rem 0.6rem 0.5rem 0.9rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  color: var(--skin-ink);
+  border: 1px solid var(--skin-hairline);
+  border-radius: 999px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+main[data-preset="minimal"] .input-wrap input {
+  height: 2.5rem;
+  font: 400 1rem var(--skin-text);
+  color: var(--skin-ink);
+  background: transparent;
+  border: 0;
+  padding-left: 0.3rem;
+}
+
+main[data-preset="minimal"] .input-wrap input::placeholder { color: #a1a1a6; opacity: 1; }
+main[data-preset="minimal"] .input-wrap input:focus { box-shadow: none; }
+
+main[data-preset="minimal"] .send {
+  width: 2rem;
+  height: 2rem;
+  background: var(--skin-blue);
+  color: #ffffff;
+  border: 0;
+}
+
+main[data-preset="minimal"] .send:hover:not([disabled]) { background: var(--skin-blue-hover); }
+main[data-preset="minimal"] .send[disabled] { background: #d2d2d7; opacity: 1; }
+main[data-preset="minimal"] .icon-button { color: var(--skin-secondary); }
+main[data-preset="minimal"] .icon-button:hover:not([disabled]) { background: rgba(0, 0, 0, 0.05); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="minimal"] .system-message {
+  background: none;
+  border: 0;
+  color: var(--skin-secondary);
+  font: 400 0.8rem var(--skin-text);
+  font-style: normal;
+  padding: 0.25rem 1rem;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="minimal"] .standing-image img {
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+main[data-preset="minimal"] .standing-image { box-shadow: 0 1px 0 var(--skin-hairline); }
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="minimal"] .narrative { animation: none; }
+}

@@ -1,0 +1,230 @@
+/* Nature: a national-park poster. Morning light over layered ridges fading
+   into haze, pine forest to the water's edge and a still lake, a V of birds
+   and flat clouds drifting by; the story is printed on cream poster panels,
+   and the player's moves stand on wooden trail signs. */
+
+main[data-preset="nature"] {
+  --skin-band: rgba(246, 222, 190, 0.5);
+  --skin-cream: #f6eedb;
+  --skin-forest: #2f4d45;
+  --skin-forest-deep: #1f3a33;
+  --skin-lake: #6f8aa3;
+  --skin-sun: #e98a3b;
+  --skin-ink: #243631;
+  --skin-wood: #a8743e;
+  --skin-title: "Bree Serif", Georgia, serif;
+  --skin-label: "Alegreya Sans SC", "Bree Serif", sans-serif;
+  --skin-text: "Alegreya", Georgia, serif;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="nature"] .game-header {
+  background: var(--skin-forest);
+  color: var(--skin-cream);
+  border-bottom: 3px solid var(--skin-sun);
+  box-shadow: none;
+}
+
+main[data-preset="nature"] .game-title strong {
+  font: 400 1.25rem var(--skin-title);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+main[data-preset="nature"] .badge { font-family: var(--skin-label); background: rgba(246, 238, 219, 0.15); color: var(--skin-cream); }
+main[data-preset="nature"] .badge[data-state="ready"] { background: var(--skin-sun); color: var(--skin-forest-deep); }
+
+/* The landscape: a sunrise sky over the ridges, the lake and the pines. */
+main[data-preset="nature"] .scene-area {
+  background:
+    url("./art/nature-landscape.svg") 0 100% / 800px 420px repeat-x,
+    radial-gradient(circle at 72% 30%, #ffe3a8 0 34px, rgba(255, 210, 140, 0.5) 36px, rgba(255, 190, 120, 0.18) 110px, transparent 220px),
+    linear-gradient(#f6c98e 0%, #f7dcb4 35%, #efe2cf 60%, #d9d6d8 100%);
+}
+
+/* Flat poster clouds, drifting slowly. */
+main[data-preset="nature"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  background:
+    url("./art/nature-cloud-a.svg") 0 40px / 220px 40px repeat-x,
+    url("./art/nature-cloud-b.svg") 90px 120px / 160px 40px repeat-x;
+  background-size: 660px 40px, 480px 40px;
+  background-repeat: repeat-x;
+  opacity: 0.85;
+  animation: skin-nature-clouds 120s linear infinite;
+}
+
+@keyframes skin-nature-clouds {
+  from { background-position: 0 40px, 90px 120px; }
+  to { background-position: 660px 40px, 1050px 120px; }
+}
+
+/* A loose flock crossing the sky. Each bird follows its own undulating path at
+   its own pace and beats its wings on its own rhythm, some pausing to glide;
+   the animation lives in the drawing itself. */
+main[data-preset="nature"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 0;
+  width: 900px;
+  height: 220px;
+  background: url("./art/nature-flock.svg") 0 0 / 900px 220px no-repeat;
+  opacity: 0.85;
+}
+
+main[data-preset="nature"] .statusbar {
+  background: var(--skin-forest-deep);
+  border-bottom: 0;
+}
+
+/* Park badges: rounded, with a sun-orange rim. */
+main[data-preset="nature"] .field {
+  background: var(--skin-cream);
+  border: 2px solid var(--skin-sun);
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+main[data-preset="nature"] .field::before { content: none; }
+main[data-preset="nature"] .field-name { font: 700 0.72rem var(--skin-label); color: var(--skin-forest); letter-spacing: 0.06em; }
+main[data-preset="nature"] .field-value { font: 400 1.05rem var(--skin-title); color: var(--skin-ink); }
+
+/* ── Poster panels ──────────────────────────────────────────────────── */
+
+main[data-preset="nature"] .scene-card:hover { transform: none; }
+
+main[data-preset="nature"] .game-scene {
+  background: var(--skin-cream);
+  border: 0;
+  border-radius: 10px;
+  padding: 2.4rem 2.5rem 2.2rem;
+  /* A printed border: a forest line inside the edge, the poster flat on the wall. */
+  outline: 2px solid var(--skin-forest);
+  outline-offset: -8px;
+  box-shadow: 0 10px 22px rgba(60, 50, 40, 0.28);
+}
+
+main[data-preset="nature"] .narrative {
+  font: 400 1.12rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="nature"][data-drop-cap] .narrative::first-letter {
+  margin: 0.04em 0.1em 0 0;
+  font: 400 3em/0.9 var(--skin-title);
+  color: var(--skin-sun);
+}
+
+main[data-preset="nature"] .corner { display: none !important; }
+
+main[data-preset="nature"] .scene-image {
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--skin-forest), 0 8px 16px rgba(60, 50, 40, 0.25);
+  margin: 2px;
+}
+
+main[data-preset="nature"] .scene-image::before { border-radius: 4px; }
+main[data-preset="nature"] .scene-image::after { border-radius: 6px; }
+
+main[data-preset="nature"] .game-scene.streaming .narrative::after { color: var(--skin-sun); }
+
+/* ── An emblem between the panels ───────────────────────────────────── */
+
+main[data-preset="nature"] .divider::before,
+main[data-preset="nature"] .divider::after {
+  height: 2px;
+  max-width: 120px;
+  opacity: 1;
+  background: var(--skin-forest);
+}
+
+main[data-preset="nature"] .divider-symbol {
+  width: 34px;
+  height: 34px;
+  opacity: 1;
+  background: url("./art/nature-emblem.svg") center / contain no-repeat;
+}
+
+main[data-preset="nature"] .divider-symbol::before { content: none; }
+
+/* ── The player: a wooden trail sign ────────────────────────────────── */
+
+main[data-preset="nature"] .player-action { filter: drop-shadow(0 4px 4px rgba(50, 35, 20, 0.35)); }
+
+main[data-preset="nature"] .bubble {
+  padding: 0.55rem 2rem 0.55rem 1rem;
+  background:
+    repeating-linear-gradient(0deg, rgba(60, 30, 10, 0.08) 0 2px, transparent 2px 7px),
+    linear-gradient(#b98450, var(--skin-wood));
+  color: #fdf3df;
+  border: 0;
+  border-radius: 3px 0 0 3px;
+  font: 400 1.02rem var(--skin-title);
+  text-shadow: 0 1px 0 rgba(60, 30, 10, 0.5);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+  box-shadow: none;
+}
+
+main[data-preset="nature"] .bubble::before { content: "▲"; color: #fdf3df; font: 0.7rem var(--skin-title); text-shadow: none; }
+
+main[data-preset="nature"] .typing {
+  background: var(--skin-cream);
+  color: var(--skin-forest);
+  border: 0;
+  border-radius: 10px;
+  outline: 2px solid var(--skin-forest);
+  outline-offset: -6px;
+  font: italic 400 1.05rem var(--skin-text);
+}
+
+main[data-preset="nature"] .dots i { background: var(--skin-forest); }
+main[data-preset="nature"] .dots i:nth-child(2) { background: var(--skin-lake); }
+main[data-preset="nature"] .dots i:nth-child(3) { background: var(--skin-sun); }
+
+main[data-preset="nature"] .inline-input {
+  background: var(--skin-cream);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 10px;
+  outline: 2px solid var(--skin-forest);
+  outline-offset: -7px;
+  box-shadow: 0 10px 22px rgba(60, 50, 40, 0.3);
+}
+
+main[data-preset="nature"] .input-wrap input {
+  font: 400 1.05rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #fffaf0;
+  border: 1.5px solid rgba(47, 77, 69, 0.4);
+}
+
+main[data-preset="nature"] .input-wrap input:focus { border-color: var(--skin-sun); }
+main[data-preset="nature"] .send { background: var(--skin-sun); color: #fffaf0; border: 0; }
+main[data-preset="nature"] .icon-button { color: var(--skin-forest); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="nature"] .system-message {
+  background: rgba(246, 238, 219, 0.9);
+  border: 2px dashed var(--skin-sun);
+  color: var(--skin-forest);
+  font: italic 400 0.98rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="nature"] .standing-image img {
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--skin-forest), 0 8px 16px rgba(60, 50, 40, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="nature"] .scene-bg::before { animation: none; }
+  main[data-preset="nature"] .scene-bg::after { display: none; }
+}

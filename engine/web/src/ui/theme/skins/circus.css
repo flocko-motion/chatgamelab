@@ -1,0 +1,310 @@
+/* Circus: a vintage big-top poster. The canopy radiates red and cream under a
+   string of bunting and a spotlight; the header is a marquee whose bulbs chase;
+   the story is printed on show bills, status on tickets, and the picture is
+   framed in circus-pole stripes. The confetti is the preset's own. */
+
+main[data-preset="circus"] {
+  --skin-band: rgba(120, 10, 30, 0.45);
+  --skin-red: #c8102e;
+  --skin-red-deep: #8e0b20;
+  --skin-cream: #fff3d9;
+  --skin-gold: #e0a100;
+  --skin-gold-light: #ffd23f;
+  --skin-navy: #1b2a5c;
+  --skin-ink: #3a1f14;
+  --skin-show: "Rye", "Bree Serif", serif;
+  --skin-text: "Bree Serif", Georgia, serif;
+  --skin-bulb-on: radial-gradient(circle, #fffbe0 0 2px, var(--skin-gold-light) 3px, rgba(255, 210, 63, 0.35) 5px, transparent 6px);
+  --skin-bulb-off: radial-gradient(circle, #b98a2a 0 2px, #8a6418 3px, transparent 4px);
+}
+
+/* ── The marquee ────────────────────────────────────────────────────── */
+
+main[data-preset="circus"] .game-header {
+  position: relative;
+  padding: 1rem 1.1rem;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.18), transparent 70%),
+    linear-gradient(#b3142c, var(--skin-red-deep));
+  color: var(--skin-gold-light);
+  border-bottom: 3px solid var(--skin-gold);
+  box-shadow: 0 3px 12px rgba(60, 0, 10, 0.5);
+}
+
+/* Two rows of bulbs along the marquee's edges, lit alternately so the light
+   runs along them. */
+main[data-preset="circus"] .game-header::before,
+main[data-preset="circus"] .game-header::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 10px;
+  background: var(--skin-bulb-on) 0 0 / 20px 10px repeat-x, var(--skin-bulb-off) 10px 0 / 20px 10px repeat-x;
+  animation: skin-circus-chase 0.9s steps(1) infinite;
+  pointer-events: none;
+}
+
+main[data-preset="circus"] .game-header::before { top: 2px; }
+main[data-preset="circus"] .game-header::after { bottom: 2px; animation-delay: -0.45s; }
+
+@keyframes skin-circus-chase {
+  0% { background: var(--skin-bulb-on) 0 0 / 20px 10px repeat-x, var(--skin-bulb-off) 10px 0 / 20px 10px repeat-x; }
+  50% { background: var(--skin-bulb-off) 0 0 / 20px 10px repeat-x, var(--skin-bulb-on) 10px 0 / 20px 10px repeat-x; }
+}
+
+main[data-preset="circus"] .game-title strong {
+  font: 400 1.3rem var(--skin-show);
+  letter-spacing: 0.06em;
+  text-shadow: 2px 2px 0 var(--skin-red-deep), 0 0 14px rgba(255, 210, 63, 0.45);
+}
+
+main[data-preset="circus"] .badge { font-family: var(--skin-text); }
+main[data-preset="circus"] .badge[data-state="ready"] { background: var(--skin-gold-light); color: var(--skin-red-deep); }
+
+/* ── The tent ───────────────────────────────────────────────────────── */
+
+main[data-preset="circus"] .scene-area {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 38%, rgba(255, 240, 200, 0.35), transparent 70%),
+    linear-gradient(transparent 55%, rgba(60, 0, 10, 0.45)),
+    repeating-conic-gradient(from 180deg at 50% -12%, #b50f2a 0 5deg, #f7e6c4 5deg 10deg);
+}
+
+main[data-preset="circus"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: url("./art/circus-bunting.svg") 0 0 / 240px 52px repeat-x;
+  filter: drop-shadow(0 3px 2px rgba(60, 0, 10, 0.35));
+}
+
+main[data-preset="circus"] .statusbar {
+  background: var(--skin-navy);
+  border-bottom: 2px solid var(--skin-gold);
+}
+
+/* Tickets: notched ends, a red stub and a perforation. The body stays cream,
+   since the preset's rainbow effect colours the status text as well. */
+main[data-preset="circus"] .field {
+  padding: 0.5rem 1.2rem 0.5rem 2.1rem;
+  background: linear-gradient(90deg, var(--skin-red) 0 1.15rem, var(--skin-cream) 1.15rem);
+  border: 0;
+  border-radius: 3px;
+  box-shadow: none;
+  -webkit-mask:
+    radial-gradient(circle at 0 50%, transparent 6px, #000 6.5px) left / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 50%, transparent 6px, #000 6.5px) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 0 50%, transparent 6px, #000 6.5px) left / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 50%, transparent 6px, #000 6.5px) right / 51% 100% no-repeat;
+}
+
+main[data-preset="circus"] .field::before {
+  left: 1.15rem;
+  top: 10%;
+  width: 0;
+  height: 80%;
+  background: none;
+  border-left: 2px dashed rgba(200, 16, 46, 0.6);
+  border-radius: 0;
+}
+
+main[data-preset="circus"] .field-name { font: 400 0.72rem var(--skin-show); color: var(--skin-red); letter-spacing: 0.08em; }
+main[data-preset="circus"] .field-value { font: 400 1.05rem var(--skin-text); color: var(--skin-ink); }
+
+/* ── Show bills ─────────────────────────────────────────────────────── */
+
+main[data-preset="circus"] .feed { padding-top: 1.5rem; }
+
+main[data-preset="circus"] .game-scene {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.6), transparent 70%),
+    var(--skin-cream);
+  border: 4px solid var(--skin-red);
+  border-radius: 10px;
+  padding: 2.3rem 2.5rem 2.1rem;
+  box-shadow:
+    inset 0 0 0 4px var(--skin-cream),
+    inset 0 0 0 6px var(--skin-gold),
+    0 16px 30px rgba(60, 0, 10, 0.5);
+}
+
+main[data-preset="circus"] .narrative {
+  font: 400 1.1rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="circus"][data-drop-cap] .narrative::first-letter {
+  margin: 0.02em 0.12em 0 0;
+  font: 400 3.3em/0.9 var(--skin-show);
+  color: var(--skin-red);
+  text-shadow: 3px 3px 0 var(--skin-gold-light);
+}
+
+/* A gold star in each corner of the bill. */
+main[data-preset="circus"] .game-scene .corner {
+  display: block !important;
+  width: auto;
+  height: auto;
+  border: 0;
+  background: none;
+  color: var(--skin-gold);
+  font: 1.05rem/1 serif;
+  opacity: 1;
+  animation: none;
+  box-shadow: none;
+}
+
+main[data-preset="circus"] .game-scene .corner::before { content: "★" !important; }
+main[data-preset="circus"] .game-scene .corner.tl { top: 13px; left: 14px; }
+main[data-preset="circus"] .game-scene .corner.tr { top: 13px; right: 14px; }
+main[data-preset="circus"] .game-scene .corner.bl { bottom: 13px; left: 14px; }
+main[data-preset="circus"] .game-scene .corner.br { bottom: 13px; right: 14px; }
+
+/* The picture in a frame striped red and cream like a circus pole, on a gold
+   rim. The frame is added outside the picture, which keeps its full size. */
+main[data-preset="circus"] .scene-image {
+  width: 294px;
+  height: 294px;
+  padding: 7px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(45deg, var(--skin-red) 0 7px, var(--skin-cream) 7px 14px);
+  box-shadow: 0 0 0 2px var(--skin-gold), 0 0 0 3px var(--skin-red-deep), 0 10px 20px rgba(60, 0, 10, 0.4);
+  margin: 3px;
+  align-self: flex-start;
+}
+
+main[data-preset="circus"] .scene-image img { border-radius: 3px; box-shadow: 0 0 0 1.5px var(--skin-gold); }
+main[data-preset="circus"] .scene-image::before { inset: 7px; border: 0; border-radius: 3px; }
+main[data-preset="circus"] .scene-image::after { inset: 7px; border-radius: 3px; }
+main[data-preset="circus"] .scene-image:hover { transform: rotate(-1deg) scale(1.03); }
+
+@container (max-width: 40rem) {
+  main[data-preset="circus"] .scene-image { width: calc(100% - 6px); height: 214px; }
+}
+
+main[data-preset="circus"] .game-scene.streaming .narrative::after {
+  content: "★";
+  color: var(--skin-gold);
+  animation: cursor-blink 0.8s step-end infinite;
+}
+
+/* ── Three stars between the acts ───────────────────────────────────── */
+
+main[data-preset="circus"] .divider::before,
+main[data-preset="circus"] .divider::after {
+  height: 3px;
+  max-width: 110px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--skin-gold-light));
+  box-shadow: 0 1px 0 var(--skin-red-deep);
+}
+
+main[data-preset="circus"] .divider::after { background: linear-gradient(90deg, var(--skin-gold-light), transparent); }
+
+main[data-preset="circus"] .divider-symbol {
+  color: var(--skin-gold-light);
+  font-size: 1.15rem;
+  letter-spacing: 0.25em;
+  opacity: 1;
+  text-shadow: 0 2px 0 var(--skin-red-deep);
+}
+
+main[data-preset="circus"] .divider-symbol::before { content: "★★★"; }
+
+/* ── The player: a gold ribbon banner ───────────────────────────────── */
+
+main[data-preset="circus"] .player-action { filter: drop-shadow(0 5px 6px rgba(60, 0, 10, 0.45)); }
+
+main[data-preset="circus"] .bubble {
+  padding: 0.7rem 2rem;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.45), transparent 50%, rgba(140, 90, 0, 0.18)),
+    var(--skin-gold-light);
+  color: var(--skin-red-deep);
+  border: 0;
+  border-radius: 0;
+  font: 400 1.02rem var(--skin-text);
+  box-shadow: none;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%);
+}
+
+main[data-preset="circus"] .bubble::before {
+  content: "★";
+  color: var(--skin-red);
+  font: 1rem serif;
+  text-shadow: none;
+}
+
+main[data-preset="circus"] .typing {
+  background: var(--skin-cream);
+  color: var(--skin-red);
+  border: 4px solid var(--skin-red);
+  border-radius: 10px;
+  font: 400 1rem var(--skin-show);
+  letter-spacing: 0.04em;
+  box-shadow: inset 0 0 0 3px var(--skin-cream), inset 0 0 0 5px var(--skin-gold), 0 12px 24px rgba(60, 0, 10, 0.4);
+}
+
+/* The thinking dots are marquee bulbs lighting in turn. */
+main[data-preset="circus"] .dots i {
+  width: 11px;
+  height: 11px;
+  background: radial-gradient(circle, #fffbe0 0 2px, var(--skin-gold-light) 4px, var(--skin-gold) 6px);
+  box-shadow: 0 0 8px rgba(255, 210, 63, 0.8);
+}
+
+main[data-preset="circus"] .inline-input {
+  background: var(--skin-cream);
+  color: var(--skin-ink);
+  border: 4px solid var(--skin-red);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 4px var(--skin-cream), inset 0 0 0 6px var(--skin-gold), 0 16px 30px rgba(60, 0, 10, 0.5);
+}
+
+main[data-preset="circus"] .input-wrap input {
+  font: 400 1.05rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #ffffff;
+  border: 2px solid rgba(200, 16, 46, 0.35);
+}
+
+main[data-preset="circus"] .input-wrap input::placeholder { color: var(--skin-red); opacity: 0.55; }
+main[data-preset="circus"] .input-wrap input:focus { border-color: var(--skin-red); }
+
+main[data-preset="circus"] .send {
+  background: var(--skin-red);
+  color: var(--skin-gold-light);
+  border: 0;
+}
+
+main[data-preset="circus"] .icon-button { color: var(--skin-red); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="circus"] .system-message {
+  background: var(--skin-cream);
+  border: 2px dashed var(--skin-red);
+  color: var(--skin-red-deep);
+  font: 400 0.95rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="circus"] .standing-image img {
+  padding: 7px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(45deg, var(--skin-red) 0 7px, var(--skin-cream) 7px 14px);
+  box-shadow: 0 0 0 2px var(--skin-gold), 0 0 0 3px var(--skin-red-deep), 0 10px 20px rgba(60, 0, 10, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="circus"] .game-header::before,
+  main[data-preset="circus"] .game-header::after { animation: none; }
+}

@@ -1,0 +1,275 @@
+/* Green fantasy: an ancient druid grove. Twisted trunks frame the scene and
+   shafts of green light fall between them; the story is carved on moss-grown
+   runestones whose runes still glow, and a triquetra marks each passage. The
+   fireflies are the preset's own. */
+
+main[data-preset="greenFantasy"] {
+  --skin-band: rgba(10, 29, 20, 0.55);
+  --skin-glow: #7dffa8;
+  --skin-glow-soft: rgba(125, 255, 168, 0.3);
+  --skin-moss: #3b7d45;
+  --skin-stone: #16241d;
+  --skin-stone-light: #203429;
+  --skin-bronze: #9c8b4a;
+  --skin-ink: #e3f1e4;
+  --skin-mute: #a3c2a7;
+  --skin-title: "Uncial Antiqua", "Cinzel", serif;
+  --skin-text: "Spectral", Georgia, serif;
+  --skin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.75 0 0 0 0 0.6 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="greenFantasy"] .game-header {
+  background: var(--skin-grain), linear-gradient(#0d1c15, #091510);
+  color: var(--skin-ink);
+  border-bottom: 1px solid rgba(156, 139, 74, 0.6);
+  box-shadow: 0 2px 14px rgba(125, 255, 168, 0.1);
+}
+
+main[data-preset="greenFantasy"] .game-title strong {
+  font: 400 1.25rem var(--skin-title);
+  color: #cfeccf;
+  text-shadow: 0 0 8px var(--skin-glow-soft);
+}
+
+main[data-preset="greenFantasy"] .badge { font-family: var(--skin-text); background: rgba(125, 255, 168, 0.1); color: var(--skin-mute); }
+main[data-preset="greenFantasy"] .badge[data-state="ready"] { background: rgba(125, 255, 168, 0.2); color: var(--skin-glow); box-shadow: 0 0 10px var(--skin-glow-soft); }
+
+/* The grove: trunks at either side, light falling between them. */
+main[data-preset="greenFantasy"] .scene-area {
+  background:
+    url("./art/greenfantasy-trunk-left.svg") left top / 110px 100% no-repeat,
+    url("./art/greenfantasy-trunk-right.svg") right top / 110px 100% no-repeat,
+    linear-gradient(105deg, transparent 30%, rgba(160, 255, 190, 0.07) 36%, transparent 42%),
+    linear-gradient(98deg, transparent 52%, rgba(160, 255, 190, 0.06) 57%, transparent 63%),
+    linear-gradient(110deg, transparent 66%, rgba(160, 255, 190, 0.05) 70%, transparent 75%),
+    radial-gradient(ellipse 60% 45% at 50% 0%, rgba(110, 200, 130, 0.3), transparent 70%),
+    linear-gradient(#17392b, #0f2a1d 55%, #0a1d14);
+}
+
+/* The shafts of light brighten and dim slowly, as leaves move overhead. */
+main[data-preset="greenFantasy"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(103deg, transparent 40%, rgba(180, 255, 200, 0.06) 46%, transparent 52%),
+    linear-gradient(96deg, transparent 18%, rgba(180, 255, 200, 0.05) 23%, transparent 28%);
+  animation: skin-gf-rays 9s ease-in-out infinite alternate;
+}
+
+@keyframes skin-gf-rays {
+  from { opacity: 0.3; }
+  to { opacity: 1; }
+}
+
+main[data-preset="greenFantasy"] .statusbar {
+  background: var(--skin-grain), #0b1811;
+  border-bottom: 1px solid rgba(156, 139, 74, 0.4);
+}
+
+/* Small runestones. */
+main[data-preset="greenFantasy"] .field {
+  padding-left: 1.5rem;
+  background: var(--skin-grain), linear-gradient(var(--skin-stone-light), var(--skin-stone));
+  border: 1px solid rgba(125, 255, 168, 0.25);
+  border-radius: 10px 14px 9px 13px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="greenFantasy"] .field::before {
+  left: 0.6rem;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 0;
+  background: var(--skin-glow);
+  box-shadow: 0 0 6px var(--skin-glow);
+}
+
+main[data-preset="greenFantasy"] .field-name { font: 400 0.8rem var(--skin-title); color: var(--skin-mute); text-transform: none; }
+main[data-preset="greenFantasy"] .field-value { font: 600 1.05rem var(--skin-text); color: #d9f7de; }
+
+/* ── Runestones ─────────────────────────────────────────────────────── */
+
+main[data-preset="greenFantasy"] .game-scene {
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(125, 255, 168, 0.06), transparent 60%),
+    var(--skin-grain),
+    linear-gradient(var(--skin-stone-light), var(--skin-stone));
+  border: 1px solid rgba(156, 139, 74, 0.5);
+  border-radius: 14px 18px 12px 16px;
+  padding: 2.6rem 2.6rem 2.8rem;
+  /* A carved line just inside the edge. */
+  box-shadow:
+    inset 0 0 0 6px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 7px rgba(125, 255, 168, 0.16),
+    0 16px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* Moss along the top of every stone. */
+main[data-preset="greenFantasy"] .game-scene::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 10px;
+  right: 10px;
+  height: 20px;
+  background: url("./art/greenfantasy-moss.svg") 0 0 / 160px 20px repeat-x;
+  pointer-events: none;
+}
+
+main[data-preset="greenFantasy"] .narrative {
+  font: 400 1.1rem/1.8 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="greenFantasy"][data-drop-cap] .narrative::first-letter {
+  margin: 0.05em 0.14em 0 0;
+  font: 400 3em/0.9 var(--skin-title);
+  color: var(--skin-glow);
+  text-shadow: 0 0 12px var(--skin-glow-soft);
+}
+
+main[data-preset="greenFantasy"] .corner { color: var(--skin-bronze); opacity: 0.7; }
+main[data-preset="greenFantasy"] .corner.tl { top: 22px; }
+main[data-preset="greenFantasy"] .corner.br { display: none !important; }
+
+/* Runes carved along the foot of the stone, still faintly alight. */
+main[data-preset="greenFantasy"] .game-scene .corner.bl {
+  display: block !important;
+  left: 2.6rem;
+  right: 2.6rem;
+  bottom: 0.8rem;
+  width: auto;
+  height: 18px;
+  background: url("./art/greenfantasy-runes.svg") center / 288px 18px repeat-x;
+  opacity: 0.55;
+  filter: drop-shadow(0 0 3px var(--skin-glow));
+  animation: skin-gf-runes 5s ease-in-out infinite alternate;
+}
+
+main[data-preset="greenFantasy"] .game-scene .corner.bl::before { content: none !important; }
+
+@keyframes skin-gf-runes {
+  from { opacity: 0.3; }
+  to { opacity: 0.7; }
+}
+
+main[data-preset="greenFantasy"] .scene-image {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px rgba(156, 139, 74, 0.8), 0 0 0 3px rgba(0, 0, 0, 0.4), 0 0 16px var(--skin-glow-soft), 0 12px 24px rgba(0, 0, 0, 0.5);
+  margin: 3px;
+}
+
+main[data-preset="greenFantasy"] .scene-image::before { border-radius: 6px; border-color: rgba(200, 255, 215, 0.15); }
+main[data-preset="greenFantasy"] .scene-image::after { border-radius: 8px; box-shadow: inset 0 0 30px rgba(0, 20, 8, 0.5); }
+
+main[data-preset="greenFantasy"] .game-scene.streaming .narrative::after {
+  content: "✦";
+  color: var(--skin-glow);
+  text-shadow: 0 0 8px var(--skin-glow);
+  animation: typing-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── A triquetra between the stones ─────────────────────────────────── */
+
+main[data-preset="greenFantasy"] .divider::before,
+main[data-preset="greenFantasy"] .divider::after {
+  height: 1px;
+  max-width: 130px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--skin-bronze));
+}
+
+main[data-preset="greenFantasy"] .divider::after { background: linear-gradient(90deg, var(--skin-bronze), transparent); }
+
+main[data-preset="greenFantasy"] .divider-symbol {
+  width: 32px;
+  height: 32px;
+  opacity: 1;
+  background: url("./art/greenfantasy-triquetra.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 5px var(--skin-glow));
+}
+
+main[data-preset="greenFantasy"] .divider-symbol::before { content: none; }
+
+/* ── The player ─────────────────────────────────────────────────────── */
+
+main[data-preset="greenFantasy"] .bubble {
+  background: var(--skin-grain), linear-gradient(90deg, rgba(125, 255, 168, 0.12), transparent 50%), var(--skin-stone);
+  color: #d9f7de;
+  border: 1px solid rgba(125, 255, 168, 0.4);
+  border-radius: 14px 14px 4px 14px;
+  font: italic 400 1.05rem var(--skin-text);
+  box-shadow: 0 0 14px rgba(125, 255, 168, 0.12), 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+main[data-preset="greenFantasy"] .bubble::before {
+  content: "✦";
+  color: var(--skin-glow);
+  font: 0.95rem serif;
+  text-shadow: 0 0 8px var(--skin-glow);
+}
+
+main[data-preset="greenFantasy"] .typing {
+  background: var(--skin-grain), var(--skin-stone);
+  color: var(--skin-mute);
+  border: 1px solid rgba(156, 139, 74, 0.45);
+  border-radius: 14px;
+  font: 400 1.05rem var(--skin-title);
+}
+
+main[data-preset="greenFantasy"] .dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 0;
+  transform: rotate(45deg);
+  background: var(--skin-glow);
+  box-shadow: 0 0 8px var(--skin-glow);
+}
+
+main[data-preset="greenFantasy"] .inline-input {
+  background: var(--skin-grain), linear-gradient(var(--skin-stone-light), var(--skin-stone));
+  color: var(--skin-ink);
+  border: 1px solid rgba(156, 139, 74, 0.5);
+  border-radius: 14px 18px 12px 16px;
+  box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.18), 0 16px 32px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="greenFantasy"] .input-wrap input {
+  font: 400 1.08rem var(--skin-text);
+  color: var(--skin-ink);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(125, 255, 168, 0.3);
+}
+
+main[data-preset="greenFantasy"] .input-wrap input::placeholder { color: var(--skin-mute); font-style: italic; opacity: 0.8; }
+main[data-preset="greenFantasy"] .input-wrap input:focus { border-color: var(--skin-glow); box-shadow: 0 0 10px var(--skin-glow-soft); }
+main[data-preset="greenFantasy"] .send { background: var(--skin-moss); color: #e3f1e4; border: 1px solid rgba(125, 255, 168, 0.5); }
+main[data-preset="greenFantasy"] .icon-button { color: var(--skin-mute); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="greenFantasy"] .system-message {
+  background: rgba(22, 36, 29, 0.85);
+  border: 1px dashed rgba(156, 139, 74, 0.5);
+  color: var(--skin-mute);
+  font: italic 400 0.98rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="greenFantasy"] .standing-image img {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px rgba(156, 139, 74, 0.8), 0 0 0 3px rgba(0, 0, 0, 0.4), 0 0 16px var(--skin-glow-soft), 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="greenFantasy"] .scene-bg::before,
+  main[data-preset="greenFantasy"] .game-scene .corner.bl { animation: none; }
+}

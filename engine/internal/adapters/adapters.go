@@ -5,82 +5,150 @@ package adapters
 
 import "context"
 
-// EventKind distinguishes what arrived on a live connection. Audio and text
-// arrive interleaved and continuously, and the text is the model's own output
-// rather than a guess at what it said.
+// EventKind distinguishes what arrived on a live connection.
 //
 // Named for the mechanism, not the use case: a live adapter emits text beside
-// audio, which is a transcript only when the model is narrating its own speech.
+// audio, and which speaker it belongs to is a separate field because GPT-Live
+// transcribes both halves of the conversation.
 type EventKind int
 
 const (
-	EventAudio EventKind = iota
+	// EventStarted says the session is running and will accept commands.
+	EventStarted EventKind = iota
+	// EventConnect carries what the browser needs to open its own audio
+	// connection. The engine never holds that connection.
+	EventConnect
+	EventAudio
 	EventText
-	EventTurnComplete
 	EventUsage
+	EventClosed
 	EventError
 )
 
 func (k EventKind) String() string {
 	switch k {
+	case EventStarted:
+		return "started"
+	case EventConnect:
+		return "connect"
 	case EventAudio:
 		return "audio"
 	case EventText:
 		return "text"
-	case EventTurnComplete:
-		return "turn-complete"
 	case EventUsage:
 		return "usage"
+	case EventClosed:
+		return "closed"
 	case EventError:
 		return "error"
 	}
 	return "unknown"
 }
 
+// Speaker says whose half of the conversation a transcript fragment belongs to.
+// GPT-Live transcribes both, and they are not interchangeable: one is what the
+// character said, the other what the player said.
+type Speaker int
+
+const (
+	SpeakerCharacter Speaker = iota
+	SpeakerPlayer
+)
+
+// LiveEvent is one thing that happened on a live conversation.
+//
+// StartMs and EndMs place a transcript fragment on the session timeline. They
+// are the only ordering the API provides — there is no turn bracket and no
+// event marking the end of an utterance — so anything reconstructing a
+// conversation reads these rather than arrival order.
 type LiveEvent struct {
-	Kind  EventKind
-	Audio []byte
-	Text  string
-	Usage Usage
-	Err   error
+	Kind    EventKind
+	Speaker Speaker
+	Audio   []byte
+	Text    string
+	StartMs int64
+	EndMs   int64
+	Usage   Usage
+	// CloseReason says why a session ended. "content" means the provider's own
+	// safety filter stopped it, which is youth protection firing inside the
+	// model and deserves to be seen as itself.
+	CloseReason string
+	Err         error
 }
 
-// LiveConfig is what a live connection needs at open time. Instructions carry
-// the character and the platform's resolved guardrail; both can be replaced
-// mid-session through Instruct.
+// LiveConfig is what a live conversation needs at creation.
+//
+// Scenario and Guardrail stay separate all the way to the wire: the scenario
+// becomes the model's standing instructions, the guardrail a developer message.
+// Collapsing them into one string would make their separation a matter of
+// discipline, where keeping them in different fields makes it structural — no
+// scenario text, whatever it contains, can reach the field the guardrail holds.
 type LiveConfig struct {
-	Voice        string
-	Instructions string
+	Voice     string
+	Scenario  string
+	Guardrail string
+
+	// Offer is the browser's SDP offer. Creating the session is the exchange
+	// that answers it, which is why a live conversation cannot be opened until
+	// a player has actually arrived.
+	Offer string
+
+	// ResumeFrom continues a conversation that was closed, named by the id of
+	// the one it continues. A conversation costs money for every second it
+	// stays open, so an idle one is closed rather than left running — and
+	// picking it back up must not cost the character its memory.
+	//
+	// Empty starts a fresh conversation.
+	ResumeFrom string
+
+	// History is what was said, oldest first, for continuing a conversation
+	// whose recording the provider does not have. It is the fallback path and
+	// the one that has to work: a recording finalises only on a graceful close,
+	// which a dropped connection is not.
+	History []Utterance
 }
 
-// LiveConn is one open speech-to-speech conversation. It is full-duplex:
-// Send and Events run concurrently for the connection's lifetime.
+// Utterance is one thing somebody said, for restoring a conversation.
+type Utterance struct {
+	Speaker Speaker
+	Text    string
+}
+
+// LiveConn is one open conversation. The engine holds a control connection to
+// it; the audio runs between the player's browser and the provider.
 type LiveConn interface {
-	Send(audio []byte) error
-	// SendText submits typed input. A live session takes both, which matters
-	// for testing without a microphone and for anyone who would rather type.
-	SendText(text string) error
-	// Instruct replaces the session's standing instructions mid-conversation,
-	// which is how the observer steers a drifting character.
-	Instruct(text string) error
+	// ID names this conversation to the provider. Continuing it later means
+	// naming it, so whoever may want to resume has to keep this.
+	ID() string
+	// Answer is the SDP answer the browser needs to complete its connection.
+	Answer() string
+	// Instruct appends to the session's standing instructions, which is how the
+	// observer steers a drifting character and how the gate opens the game. It
+	// appends rather than replaces, so re-injecting the guardrail never
+	// discards the character along with it.
+	Instruct(ctx context.Context, text string) error
 	Events() <-chan LiveEvent
 	Close() error
 }
 
+// Live creates conversations. Open brokers the browser's offer for an answer
+// and attaches the engine's own control connection.
 type Live interface {
 	Open(ctx context.Context, cfg LiveConfig) (LiveConn, error)
 }
 
 // Usage is what a call cost, in the units the provider bills. Tokens and
 // seconds both appear because they are billed differently: text models charge
-// per token, and a live audio session charges per minute of audio.
+// per token, and a live conversation charges for the time it stays open.
 //
 // Cached input is separate because it is priced separately — the game flow hits
 // the prompt cache from the second turn onwards.
 type Usage struct {
 	Model string `json:"model"`
 	// Three units, because providers bill in three ways: text per token, live
-	// audio per minute, and pictures per picture.
+	// conversation per second of session duration, and pictures per picture.
+	// AudioSeconds therefore counts an open session rather than speech: a
+	// silent minute costs a minute.
 	InputTokens       int64   `json:"inputTokens,omitempty"`
 	CachedInputTokens int64   `json:"cachedInputTokens,omitempty"`
 	OutputTokens      int64   `json:"outputTokens,omitempty"`
@@ -124,10 +192,17 @@ func (p Price) Cost(u Usage) float64 {
 		float64(u.Images)*p.PerImage
 }
 
-// Image generates one picture from a prompt. Single-shot by nature: nothing
-// about an image is continued.
+// ImageRequest is one picture to make. Only the prompt varies per call: what
+// size and quality a session buys is settled with its tier, before any block
+// asks for anything.
+type ImageRequest struct {
+	Prompt string
+}
+
+// Image generates one picture. Single-shot by nature: nothing about an image is
+// continued.
 type Image interface {
-	Generate(ctx context.Context, prompt string) ([]byte, Usage, error)
+	Generate(ctx context.Context, req ImageRequest) ([]byte, Usage, error)
 }
 
 // KeyFunc yields the API key at the moment it is needed, rather than holding a
@@ -166,4 +241,9 @@ type ModelSet struct {
 	Threaded string
 	Image    string
 	Audio    string
+	// ImageQuality and ImageSize ride with the image model because they are
+	// priced with it: a tier buys its place on the ladder with how good the
+	// picture is rather than by dropping the feature.
+	ImageQuality string
+	ImageSize    string
 }

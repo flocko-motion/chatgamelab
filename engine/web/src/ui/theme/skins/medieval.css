@@ -1,0 +1,278 @@
+/* Medieval: a manuscript on a dark oak lectern. Parchment leaves in iron-gall
+   ink, an illuminated blackletter initial on gold leaf, Roman capitals for
+   everything that labels rather than tells. */
+
+main[data-preset="medieval"] {
+  --skin-band: rgba(42, 27, 15, 0.55);
+  --skin-ink: #3b2412;
+  --skin-rubric: #8b1a1a;
+  --skin-gold: #c9a03c;
+  --skin-gold-light: #f1d98a;
+  --skin-rule: #7a4a1a;
+  /* Fractal noise, tinted brown: the fibre of the skin the page is made of. */
+  --skin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.22 0 0 0 0 0.08 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --skin-parchment:
+    radial-gradient(ellipse at 50% 40%, rgba(255, 248, 225, 0.55), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(122, 74, 26, 0.28) 100%),
+    var(--skin-grain),
+    #efdcae;
+}
+
+main[data-preset="medieval"] .game-header {
+  background: linear-gradient(#2e1f12, #24180d);
+  color: var(--skin-gold-light);
+  border-bottom: 2px solid var(--skin-gold);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="medieval"] .game-title strong {
+  font: 700 1rem "Cinzel", serif;
+  letter-spacing: 0.12em;
+}
+
+main[data-preset="medieval"] .scene-area {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(90, 60, 30, 0.55), transparent 70%),
+    repeating-linear-gradient(92deg, rgba(0, 0, 0, 0.06) 0 3px, transparent 3px 11px),
+    #2a1b0f;
+}
+
+/* Light falling through a tall arched window onto the lectern: a slanted
+   shaft with the window's tracery in it, fading as it reaches the floor. */
+main[data-preset="medieval"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  right: 4%;
+  width: 46%;
+  height: 120%;
+  background:
+    linear-gradient(90deg, transparent 0 47%, rgba(20, 10, 4, 0.5) 47% 53%, transparent 53%),
+    linear-gradient(transparent 0 38%, rgba(20, 10, 4, 0.5) 38% 41%, transparent 41%),
+    linear-gradient(rgba(255, 214, 140, 0.22), rgba(255, 200, 120, 0.08) 70%, transparent);
+  transform: skewX(-16deg);
+  -webkit-mask: radial-gradient(ellipse 60% 70% at 50% 25%, #000 40%, transparent 80%);
+  mask: radial-gradient(ellipse 60% 70% at 50% 25%, #000 40%, transparent 80%);
+  filter: blur(3px);
+}
+
+/* Dust drifting slowly in the light. */
+main[data-preset="medieval"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60%;
+  height: 100%;
+  background: url("./art/medieval-dust.svg") 0 0 / 360px 480px;
+  -webkit-mask: linear-gradient(100deg, transparent 10%, #000 35%, #000 70%, transparent 90%);
+  mask: linear-gradient(100deg, transparent 10%, #000 35%, #000 70%, transparent 90%);
+  opacity: 0.7;
+  animation: skin-medieval-dust 70s linear infinite;
+}
+
+@keyframes skin-medieval-dust {
+  from { background-position: 0 0; }
+  to { background-position: -360px 480px; }
+}
+
+/* A candle somewhere to the left, its glow wavering on the wood. */
+main[data-preset="medieval"] .scene-area::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: radial-gradient(ellipse 45% 40% at 8% 70%, rgba(255, 170, 80, 0.2), transparent 70%);
+  pointer-events: none;
+  animation: skin-medieval-candle 3.7s steps(1) infinite;
+}
+
+@keyframes skin-medieval-candle {
+  0% { opacity: 1; }
+  17% { opacity: 0.82; }
+  21% { opacity: 1; }
+  48% { opacity: 0.9; }
+  52% { opacity: 0.7; }
+  55% { opacity: 1; }
+  80% { opacity: 0.88; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="medieval"] .scene-bg::after,
+  main[data-preset="medieval"] .scene-area::before { animation: none; }
+}
+
+main[data-preset="medieval"] .statusbar {
+  background: #22160c;
+  border-bottom: 1px solid rgba(201, 160, 60, 0.4);
+}
+
+main[data-preset="medieval"] .field {
+  background: var(--skin-parchment);
+  border: 1px solid var(--skin-rule);
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="medieval"] .field::before { background: var(--skin-rubric); }
+
+main[data-preset="medieval"] .field-name {
+  font-family: "Cinzel", serif;
+  color: var(--skin-rubric);
+}
+
+main[data-preset="medieval"] .field-value {
+  font: 600 1rem "EB Garamond", serif;
+  color: var(--skin-ink);
+}
+
+/* ── The leaf ───────────────────────────────────────────────────────── */
+
+main[data-preset="medieval"] .game-scene {
+  background: var(--skin-parchment);
+  border: 0;
+  border-radius: 3px;
+  /* A double rule inside the edge, the way a scribe ruled the text block. */
+  outline: 1px solid var(--skin-rule);
+  outline-offset: -10px;
+  box-shadow:
+    inset 0 0 0 5px rgba(239, 220, 174, 0.9),
+    inset 0 0 0 6px var(--skin-rule),
+    inset 0 0 40px rgba(122, 74, 26, 0.35),
+    0 8px 28px rgba(0, 0, 0, 0.55);
+  padding: 2.25rem 2.5rem;
+}
+
+main[data-preset="medieval"] .game-scene.with-image { padding: 1.75rem; }
+
+main[data-preset="medieval"] .narrative {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: var(--skin-ink);
+  text-shadow: 0 0 0.6px rgba(59, 36, 18, 0.4);
+}
+
+/* The illuminated initial: a blackletter capital in vermilion on a square of
+   gold leaf, set into the first lines. */
+main[data-preset="medieval"][data-drop-cap] .narrative::first-letter {
+  float: left;
+  margin: 0.2rem 0.6rem 0 0;
+  padding: 0.12em 0.14em 0.02em;
+  font: 400 3.4em/0.85 "UnifrakturMaguntia", "Cinzel", serif;
+  color: var(--skin-rubric);
+  text-shadow: none;
+  background:
+    radial-gradient(circle at 30% 25%, var(--skin-gold-light), transparent 60%),
+    linear-gradient(135deg, #b8862b, var(--skin-gold) 45%, #8a6420);
+  border: 2px solid #5a3510;
+  box-shadow: inset 0 0 0 2px rgba(241, 217, 138, 0.8), 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+main[data-preset="medieval"] .corner { color: var(--skin-rubric); opacity: 0.85; }
+main[data-preset="medieval"] .corner.tl { top: 14px; left: 16px; }
+main[data-preset="medieval"] .corner.br { bottom: 14px; right: 16px; }
+
+main[data-preset="medieval"] .scene-image {
+  border-radius: 2px;
+  box-shadow: 0 0 0 3px var(--skin-gold), 0 0 0 5px #5a3510, 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+main[data-preset="medieval"] .scene-image::before,
+main[data-preset="medieval"] .scene-image::after { border-radius: 0; }
+
+/* ── Between leaves ─────────────────────────────────────────────────── */
+
+main[data-preset="medieval"] .divider { color: var(--skin-gold); }
+
+main[data-preset="medieval"] .divider::before,
+main[data-preset="medieval"] .divider::after {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--skin-gold));
+  opacity: 0.7;
+}
+
+main[data-preset="medieval"] .divider::after {
+  background: linear-gradient(90deg, var(--skin-gold), transparent);
+}
+
+main[data-preset="medieval"] .divider-symbol { font-size: 1.4rem; opacity: 1; }
+main[data-preset="medieval"] .divider-symbol::before { content: "❦"; }
+
+/* ── The player's hand ──────────────────────────────────────────────── */
+
+main[data-preset="medieval"] .bubble {
+  background: var(--skin-parchment);
+  color: var(--skin-ink);
+  border: 1px solid var(--skin-rule);
+  border-radius: 2px;
+  font: italic 400 1.05rem "EB Garamond", Georgia, serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+main[data-preset="medieval"] .bubble::before {
+  content: "✒";
+  color: var(--skin-rubric);
+  font: 1rem serif;
+  text-shadow: none;
+}
+
+main[data-preset="medieval"] .typing {
+  background: var(--skin-parchment);
+  color: var(--skin-ink);
+  border: 1px solid var(--skin-rule);
+  border-radius: 3px;
+  font: italic 1.05rem "EB Garamond", Georgia, serif;
+}
+
+main[data-preset="medieval"] .inline-input {
+  background: var(--skin-parchment);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 0 1px var(--skin-rule),
+    inset 0 0 0 5px rgba(239, 220, 174, 0.9),
+    inset 0 0 0 6px var(--skin-rule),
+    0 8px 28px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="medieval"] .input-wrap input {
+  font: italic 1.1rem "EB Garamond", Georgia, serif;
+  color: var(--skin-ink);
+  border: 0;
+  border-bottom: 1px solid var(--skin-rule);
+  border-radius: 0;
+  background: transparent;
+}
+
+main[data-preset="medieval"] .input-wrap input:focus { border-bottom-color: var(--skin-rubric); }
+
+main[data-preset="medieval"] .send {
+  background: var(--skin-rubric);
+  color: var(--skin-gold-light);
+  border: 1px solid #5a1010;
+}
+
+main[data-preset="medieval"] .badge[data-state="ready"] {
+  background: var(--skin-gold);
+  color: #24180d;
+}
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="medieval"] .system-message {
+  background: var(--skin-parchment);
+  border: 1px dashed var(--skin-rule);
+  color: var(--skin-rubric);
+  font: italic 400 1rem "EB Garamond", serif;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="medieval"] .standing-image img {
+  border-radius: 2px;
+  box-shadow: 0 0 0 3px var(--skin-gold), 0 0 0 5px #5a3510, 0 6px 16px rgba(0, 0, 0, 0.45);
+}

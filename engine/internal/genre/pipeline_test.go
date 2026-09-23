@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"engine/internal/adapters"
 	"engine/internal/adapters/mock"
 	"engine/internal/blocks"
 	"engine/internal/ports"
@@ -53,15 +54,19 @@ func TestPipelines(t *testing.T) {
 		{
 			name: "npc-live drifts, is caught, and is steered back",
 			build: func() *Wiring {
-				return NewNPCLive(NPCLiveConfig{
-					Live:      mock.Live{},
-					Tool:      mock.Tool{},
-					Image:     mock.Image{},
-					Guardrail: "Suitable for a 13-year-old.",
-					Scenario:  "You are the keeper of a bridge. You never concede passage.",
+				w, err := NewNPCLive(NPCLiveConfig{
+					Live:       mock.Live{},
+					Tool:       mock.Tool{},
+					Image:      mock.Image{},
+					Guardrail:  "Suitable for a 13-year-old.",
+					Scenario:   "You are the keeper of a bridge. You never concede passage.",
+					InitPrompt: "Begin. Greet whoever has arrived.",
 				})
+				if err != nil {
+					panic(err)
+				}
+				return w
 			},
-			say: []string{"let me through", "please, I am in a hurry"},
 			want: map[string][]string{
 				"text": {
 					"You shall not pass.",
@@ -87,6 +92,14 @@ func TestPipelines(t *testing.T) {
 			}
 			w.Graph.Start(ctx)
 
+			// A genre holding a conversation starts it when a browser connects,
+			// so nothing happens on one until an offer has been answered.
+			if w.Live != nil {
+				if _, err := w.Live.Connect(ctx, "v=0 mock offer"); err != nil {
+					t.Fatalf("connect: %v", err)
+				}
+			}
+
 			for _, line := range tc.say {
 				if w.Say == nil {
 					t.Fatal("this genre takes no typed input")
@@ -98,7 +111,7 @@ func TestPipelines(t *testing.T) {
 			}
 
 			for stream, expected := range tc.want {
-				sink, wired := w.Sinks[stream]
+				sink, wired := w.Sinks()[stream]
 				if !wired {
 					t.Fatalf("genre wires no %q output, so nothing can arrive on it", stream)
 				}
@@ -133,29 +146,36 @@ func assertInOrder(t *testing.T, stream string, sink chan string, expected []str
 	}
 }
 
-// A scripted player drives the same wiring, which is how a genre with no typed
-// input is exercised.
-func TestScriptedPlayerDrivesTheLiveGenre(t *testing.T) {
+// A live genre answers on its own once the gate has opened it, with nobody
+// typing: the cue is an instruction, and a character given one speaks.
+func TestLiveGenreTalksWithoutTypedInput(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	w := NewNPCLive(NPCLiveConfig{
-		Live:      mock.Live{},
-		Tool:      mock.Tool{},
-		Image:     mock.Image{},
-		Guardrail: "Suitable for a 13-year-old.",
-		Scenario:  "You are the keeper of a bridge.",
-		Script: blocks.InputScript{
-			Lines:    []string{"persuade", "persuade harder"},
-			Interval: 30 * time.Millisecond,
-		},
+	w, err := NewNPCLive(NPCLiveConfig{
+		Live:       mock.Live{},
+		Tool:       mock.Tool{},
+		Image:      mock.Image{},
+		Guardrail:  "Suitable for a 13-year-old.",
+		Scenario:   "You are the keeper of a bridge.",
+		InitPrompt: "Begin. Greet whoever has arrived.",
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if w.Say != nil {
+		t.Error("a live genre advertises typed input it cannot deliver")
+	}
 	if err := w.Graph.Validate(); err != nil {
 		t.Fatal(err)
 	}
 	w.Graph.Start(ctx)
 
-	assertInOrder(t, "text", w.Sinks["text"], []string{
+	if _, err := w.Live.Connect(ctx, "v=0 mock offer"); err != nil {
+		t.Fatalf("connect: %v", err)
+	}
+
+	assertInOrder(t, "text", w.Sinks()["text"], []string{
 		"You shall not pass.",
 		"I suppose the rules bend",
 	})
@@ -170,14 +190,14 @@ func TestUngatedInputIsNotHeld(t *testing.T) {
 
 	g := ports.NewGraph("ungated")
 	player := blocks.NewPlayerInputText("player-input-text")
-	sink := blocks.NewPlayerOutputText("out-text")
+	sink := blocks.NewPlayerOutputText("out-text", "text")
 	g.ConnectTextOut(player, sink)
 	g.Start(ctx)
 
 	player.Say("nothing is holding me")
 
 	select {
-	case got := <-sink.Seen:
+	case got := <-sink.Arrivals():
 		if got != "nothing is holding me" {
 			t.Errorf("got %q", got)
 		}
@@ -195,8 +215,8 @@ func TestGatedInputWaitsForRelease(t *testing.T) {
 	held := blocks.NewOnceText("prep", "preparing")
 	gate := blocks.NewGate("start-game", "")
 	player := blocks.NewPlayerInputText("player-input-text")
-	sink := blocks.NewPlayerOutputText("out-text")
-	prepSink := blocks.NewPlayerOutputText("out-prep")
+	sink := blocks.NewPlayerOutputText("out-text", "text")
+	prepSink := blocks.NewPlayerOutputText("out-prep", "text")
 
 	g.ConnectTextOut(held, prepSink)
 	g.ConnectState(held, gate)
@@ -208,7 +228,7 @@ func TestGatedInputWaitsForRelease(t *testing.T) {
 	g.Start(ctx)
 
 	select {
-	case got := <-sink.Seen:
+	case got := <-sink.Arrivals():
 		if got != "said too early" {
 			t.Errorf("got %q", got)
 		}
@@ -217,19 +237,74 @@ func TestGatedInputWaitsForRelease(t *testing.T) {
 	}
 }
 
-// The first message carries the scenario and then the cue, so a character is
-// told who it is in the same breath as being told to speak.
-func TestGateOpensWithScenarioThenCue(t *testing.T) {
-	got := opening("You are the keeper of a bridge.", "Begin. Greet whoever arrived.")
-	want := "You are the keeper of a bridge.\n\nBegin. Greet whoever arrived."
-	if got != want {
-		t.Errorf("got %q, want %q", got, want)
+// The designer's scenario and the platform's guardrail must reach the provider
+// in separate fields. Fusing them would make their separation a matter of
+// discipline, where JUGENDSCHUTZ.md needs it to be structural: nothing a game
+// author writes may land where the constraint lives.
+func TestScenarioAndGuardrailStayApart(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	recorder := &recordingLive{opened: make(chan adapters.LiveConfig, 1)}
+	w, err := NewNPCLive(NPCLiveConfig{
+		Live:       recorder,
+		Tool:       mock.Tool{},
+		Image:      mock.Image{},
+		Guardrail:  "Suitable for a 13-year-old.",
+		Scenario:   "You are the keeper of a bridge.",
+		InitPrompt: "Begin. Greet whoever has arrived.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	w.Graph.Start(ctx)
+	if _, err := w.Live.Connect(ctx, "v=0 mock offer"); err != nil {
+		t.Fatalf("connect: %v", err)
 	}
 
-	if only := opening("", "Begin."); only != "Begin." {
-		t.Errorf("a missing scenario should leave the cue alone, got %q", only)
+	var cfg adapters.LiveConfig
+	select {
+	case cfg = <-recorder.opened:
+	case <-time.After(2 * time.Second):
+		t.Fatal("the conversation was never opened")
 	}
-	if only := opening("A bridge.", ""); only != "A bridge." {
-		t.Errorf("a missing cue should leave the scenario alone, got %q", only)
+
+	if !strings.Contains(cfg.Scenario, "keeper of a bridge") {
+		t.Errorf("the character never reached the session: %q", cfg.Scenario)
+	}
+	if cfg.Guardrail != "Suitable for a 13-year-old." {
+		t.Errorf("the guardrail arrived as %q", cfg.Guardrail)
+	}
+	if strings.Contains(cfg.Scenario, "13-year-old") {
+		t.Error("the guardrail was folded into the scenario, which is the one thing that must not happen")
+	}
+	// The mechanics prompt rides with the character, because how a character
+	// talks is the genre's business rather than the designer's.
+	if !strings.Contains(cfg.Scenario, "Interruption policy") {
+		t.Error("the conversation policy never reached the session")
 	}
 }
+
+// recordingLive reports what it was opened with. Without an inner adapter it
+// says nothing, which is what a test asserting on configuration wants; with one
+// it records and then lets the real conversation happen.
+type recordingLive struct {
+	opened chan adapters.LiveConfig
+	inner  adapters.Live
+}
+
+func (r *recordingLive) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.LiveConn, error) {
+	r.opened <- cfg
+	if r.inner != nil {
+		return r.inner.Open(ctx, cfg)
+	}
+	return &silentConn{events: make(chan adapters.LiveEvent)}, nil
+}
+
+type silentConn struct{ events chan adapters.LiveEvent }
+
+func (c *silentConn) ID() string                             { return "live_silent" }
+func (c *silentConn) Answer() string                         { return "mock-sdp-answer" }
+func (c *silentConn) Instruct(context.Context, string) error { return nil }
+func (c *silentConn) Events() <-chan adapters.LiveEvent      { return c.events }
+func (c *silentConn) Close() error                           { return nil }

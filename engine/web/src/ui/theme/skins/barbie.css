@@ -1,0 +1,279 @@
+/* Barbie: a pink dream house. Polka-dot wallpaper that sparkles, glossy
+   blush cards tied with a satin bow, an arched vanity mirror for the picture,
+   strings of pearls between scenes, and hearts wherever a mark is wanted. */
+
+main[data-preset="barbie"] {
+  --skin-band: rgba(255, 179, 212, 0.5);
+  --skin-hot: #e8237f;
+  --skin-bubble: #ff5fa8;
+  --skin-blush: #ffd9ea;
+  --skin-cream: #fff6fa;
+  --skin-berry: #5c1036;
+  --skin-pearl: #fffaf3;
+  --skin-script: "Pacifico", "Quicksand", cursive;
+  --skin-text: "Quicksand", Inter, sans-serif;
+  /* A plastic sheen across the top of anything glossy. */
+  --skin-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0) 45%);
+  /* A row of pearls: white beads with a rosy shadow, on a transparent string. */
+  --skin-pearls:
+    radial-gradient(circle at 35% 35%, #ffffff 0 1.5px, var(--skin-pearl) 2.5px, #f3c7d9 4.5px, transparent 5px)
+    0 50% / 11px 11px repeat-x;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="barbie"] .game-header {
+  background: var(--skin-gloss), linear-gradient(90deg, #ff4fa3, var(--skin-hot) 50%, #ff4fa3);
+  color: #ffffff;
+  border-bottom: 3px solid #b0125f;
+  box-shadow: 0 3px 12px rgba(176, 18, 95, 0.35);
+}
+
+main[data-preset="barbie"] .game-title strong {
+  font: 400 1.35rem/1.1 var(--skin-script);
+  text-shadow: 0 2px 0 #b0125f, 0 0 12px rgba(255, 255, 255, 0.6);
+}
+
+main[data-preset="barbie"] .badge { font-family: var(--skin-text); border-radius: 999px; }
+main[data-preset="barbie"] .badge[data-state="ready"] { background: #ffffff; color: var(--skin-hot); }
+
+/* The wallpaper: white dots on a pink wash, and two layers of sparkles
+   twinkling out of step. */
+main[data-preset="barbie"] .scene-area {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.55) 2.5px, transparent 3px) 0 0 / 28px 28px,
+    radial-gradient(circle, rgba(255, 255, 255, 0.55) 2.5px, transparent 3px) 14px 14px / 28px 28px,
+    radial-gradient(ellipse at 50% 0%, #ffd1e6, transparent 70%),
+    linear-gradient(#ffb3d4, #ff9cc8);
+}
+
+main[data-preset="barbie"] .scene-bg::before,
+main[data-preset="barbie"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("./art/barbie-sparkles-a.svg") 0 0 / 360px 360px;
+  animation: skin-barbie-twinkle 3.2s ease-in-out infinite;
+}
+
+main[data-preset="barbie"] .scene-bg::after {
+  background-image: url("./art/barbie-sparkles-b.svg");
+  background-position: 170px 90px;
+  animation-delay: -1.6s;
+}
+
+@keyframes skin-barbie-twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.95; }
+}
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="barbie"] .system-message {
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px dashed var(--skin-bubble);
+  color: var(--skin-hot);
+  font: italic 500 0.95rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="barbie"] .standing-image img {
+  border-radius: 120px 120px 16px 16px;
+  outline: 3px dotted #ffffff;
+  outline-offset: 1px;
+  box-shadow:
+    0 0 0 5px var(--skin-bubble),
+    0 0 0 7px #ffffff,
+    0 10px 22px rgba(176, 18, 95, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="barbie"] .scene-bg::before,
+  main[data-preset="barbie"] .scene-bg::after { animation: none; opacity: 0.6; }
+}
+
+main[data-preset="barbie"] .statusbar {
+  background: linear-gradient(#ffe3ef, #ffd2e6);
+  border-bottom: 2px solid #ffb3d4;
+}
+
+main[data-preset="barbie"] .field {
+  background: var(--skin-gloss), linear-gradient(#ffffff, var(--skin-blush));
+  border: 2px solid var(--skin-bubble);
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(232, 35, 127, 0.25);
+}
+
+main[data-preset="barbie"] .field::before { content: none; }
+main[data-preset="barbie"] .field-name { font-family: var(--skin-text); color: var(--skin-hot); }
+main[data-preset="barbie"] .field-value { font: 700 1rem var(--skin-text); color: var(--skin-berry); }
+
+/* ── Cards ──────────────────────────────────────────────────────────── */
+
+main[data-preset="barbie"] .scene-card { position: relative; }
+
+/* A satin bow tied over the top edge of every card. */
+main[data-preset="barbie"] .scene-card::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -30px;
+  left: 50%;
+  width: 92px;
+  height: 57px;
+  transform: translateX(-50%);
+  background: url("./art/barbie-bow.svg") center / contain no-repeat;
+  filter: drop-shadow(0 3px 3px rgba(176, 18, 95, 0.3));
+}
+
+main[data-preset="barbie"] .feed { gap: 2.75rem; padding-top: 1.25rem; }
+
+main[data-preset="barbie"] .game-scene {
+  background: var(--skin-gloss), linear-gradient(var(--skin-cream), var(--skin-blush));
+  border: 3px solid var(--skin-bubble);
+  border-radius: 26px;
+  padding: 2.4rem 2.5rem 2.2rem;
+  box-shadow:
+    inset 0 0 0 4px #ffffff,
+    inset 0 0 0 5px #ffc2dc,
+    0 12px 28px rgba(176, 18, 95, 0.28);
+}
+
+main[data-preset="barbie"] .narrative {
+  font-family: var(--skin-text);
+  font-weight: 500;
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: var(--skin-berry);
+}
+
+main[data-preset="barbie"][data-drop-cap] .narrative::first-letter {
+  margin: 0.05em 0.14em 0 0;
+  font: 400 3.1em/0.95 var(--skin-script);
+  color: var(--skin-hot);
+  text-shadow: 2px 2px 0 #ffffff, 4px 4px 0 #ffb3d4;
+}
+
+main[data-preset="barbie"] .corner { color: var(--skin-hot); }
+
+/* The picture in an arched vanity mirror: a hot-pink frame ringed with pearls.
+   Only the arch clips it, at the two top corners. */
+main[data-preset="barbie"] .scene-image {
+  border-radius: 120px 120px 16px 16px;
+  outline: 3px dotted #ffffff;
+  outline-offset: 1px;
+  box-shadow:
+    0 0 0 5px var(--skin-bubble),
+    0 0 0 7px #ffffff,
+    0 10px 22px rgba(176, 18, 95, 0.3);
+  margin: 7px;
+}
+
+main[data-preset="barbie"] .scene-image:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 0 5px var(--skin-hot), 0 0 0 7px #ffffff, 0 12px 26px rgba(176, 18, 95, 0.4);
+}
+
+main[data-preset="barbie"] .scene-image::before { inset: 0; border: 0; border-radius: inherit; background: var(--skin-gloss); opacity: 0.55; }
+main[data-preset="barbie"] .scene-image::after { border-radius: inherit; }
+
+@container (max-width: 40rem) {
+  main[data-preset="barbie"] .scene-image { width: calc(100% - 14px); border-radius: 60px 60px 12px 12px; }
+}
+
+main[data-preset="barbie"] .game-scene.streaming .narrative::after {
+  content: "✦";
+  color: var(--skin-hot);
+  animation: skin-barbie-twinkle 1.1s ease-in-out infinite;
+}
+
+/* ── Pearls between scenes, with a heart at the clasp ───────────────── */
+
+/* Lifted towards the card above, leaving the bow below it room to sit. */
+main[data-preset="barbie"] .divider { margin: -1.6rem 0 -0.4rem; }
+
+main[data-preset="barbie"] .divider::before,
+main[data-preset="barbie"] .divider::after {
+  height: 11px;
+  max-width: 132px;
+  opacity: 1;
+  background: var(--skin-pearls);
+  filter: drop-shadow(0 1px 1px rgba(176, 18, 95, 0.3));
+}
+
+main[data-preset="barbie"] .divider-symbol {
+  width: 22px;
+  height: 22px;
+  opacity: 1;
+  background: linear-gradient(var(--skin-bubble), var(--skin-hot));
+  -webkit-mask: url("./art/barbie-heart.svg") center / contain no-repeat;
+  mask: url("./art/barbie-heart.svg") center / contain no-repeat;
+}
+
+main[data-preset="barbie"] .divider-symbol::before { content: none; }
+
+/* ── The player ─────────────────────────────────────────────────────── */
+
+main[data-preset="barbie"] .bubble {
+  background: var(--skin-gloss), linear-gradient(#ff72b3, var(--skin-hot));
+  color: #ffffff;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.65rem 1.3rem 0.65rem 1rem;
+  font: 700 0.98rem var(--skin-text);
+  box-shadow: 0 6px 16px rgba(176, 18, 95, 0.4), inset 0 -2px 0 rgba(120, 0, 60, 0.25);
+}
+
+main[data-preset="barbie"] .bubble::before {
+  content: "♥";
+  color: #ffffff;
+  font: 1rem var(--skin-text);
+  text-shadow: none;
+}
+
+main[data-preset="barbie"] .typing {
+  background: var(--skin-gloss), linear-gradient(var(--skin-cream), var(--skin-blush));
+  color: var(--skin-hot);
+  border: 3px solid var(--skin-bubble);
+  border-radius: 999px;
+  font: 400 1.05rem var(--skin-script);
+}
+
+/* The thinking dots become hearts that beat in turn. */
+main[data-preset="barbie"] .dots i {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: var(--skin-hot);
+  -webkit-mask: url("./art/barbie-heart.svg") center / contain no-repeat;
+  mask: url("./art/barbie-heart.svg") center / contain no-repeat;
+}
+
+main[data-preset="barbie"] .inline-input {
+  background: var(--skin-gloss), linear-gradient(var(--skin-cream), var(--skin-blush));
+  color: var(--skin-berry);
+  border: 3px solid var(--skin-bubble);
+  border-radius: 26px;
+  box-shadow: inset 0 0 0 4px #ffffff, 0 12px 28px rgba(176, 18, 95, 0.28);
+}
+
+main[data-preset="barbie"] .input-wrap input {
+  font: 500 1.05rem var(--skin-text);
+  color: var(--skin-berry);
+  background: #ffffff;
+  border: 2px solid #ffb3d4;
+}
+
+main[data-preset="barbie"] .input-wrap input::placeholder { color: var(--skin-hot); opacity: 0.55; }
+main[data-preset="barbie"] .input-wrap input:focus { border-color: var(--skin-hot); }
+
+main[data-preset="barbie"] .send {
+  background: linear-gradient(#ff72b3, var(--skin-hot));
+  color: #ffffff;
+  border: 0;
+}
+
+main[data-preset="barbie"] .icon-button { color: var(--skin-hot); }

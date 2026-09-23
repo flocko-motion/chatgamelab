@@ -1,0 +1,290 @@
+/* Horror: a haunted house by candlelight. Faded damask on the walls,
+   cobwebs in the corners, fog along the floor and a candle's unsteady glow;
+   the story is written on torn diary pages, pale in the dark, with a scratched
+   pentagram between them, and now and then a pair of eyes opens somewhere in
+   the gloom. Eerie, never gory. */
+
+main[data-preset="horror"] {
+  --skin-band: rgba(13, 9, 11, 0.6);
+  --skin-dark: #0d090b;
+  --skin-rose: #c2334f;
+  --skin-rose-soft: rgba(194, 51, 79, 0.35);
+  --skin-page: #d6ccb2;
+  --skin-ink: #241611;
+  --skin-mute: #9e8f86;
+  --skin-flame: rgba(255, 190, 110, 0.9);
+  --skin-text: "IM Fell English", Georgia, serif;
+  --skin-title: "IM Fell English SC", "IM Fell English", serif;
+  --skin-torn: polygon(0% 0.0%, 4% 0.2%, 8% 0.9%, 12% 1.5%, 16% 0.3%, 20% 0.2%, 24% 0.5%, 28% 1.7%, 32% 0.3%, 36% 1.6%, 40% 1.5%, 44% 0.3%, 48% 1.2%, 52% 1.0%, 56% 0.9%, 60% 2.2%, 64% 0.2%, 68% 0.0%, 72% 2.1%, 76% 0.9%, 80% 0.4%, 84% 0.7%, 88% 0.8%, 92% 2.1%, 96% 0.5%, 100% 0.5%, 99.5% 5%, 99.5% 10%, 99.1% 15%, 99.2% 20%, 99.7% 25%, 99.8% 30%, 99.2% 35%, 99.1% 40%, 100.0% 45%, 99.3% 50%, 99.2% 55%, 99.4% 60%, 99.8% 65%, 99.3% 70%, 99.3% 75%, 99.8% 80%, 99.4% 85%, 99.8% 90%, 100.0% 95%, 100% 99.3%, 96% 99.3%, 92% 99.1%, 88% 98.6%, 84% 98.2%, 80% 97.9%, 76% 97.9%, 72% 97.8%, 68% 98.3%, 64% 99.3%, 60% 99.6%, 56% 98.6%, 52% 98.8%, 48% 98.5%, 44% 99.8%, 40% 99.6%, 36% 98.0%, 32% 98.7%, 28% 98.5%, 24% 99.8%, 20% 99.1%, 16% 98.0%, 12% 98.6%, 8% 97.8%, 4% 99.6%, 0% 99.0%, 0.7% 95%, 0.4% 90%, 0.7% 85%, 0.5% 80%, 0.1% 75%, 0.1% 70%, 0.9% 65%, 0.1% 60%, 0.2% 55%, 0.3% 50%, 0.6% 45%, 0.8% 40%, 0.4% 35%, 0.4% 30%, 0.7% 25%, 0.3% 20%, 0.3% 15%, 0.6% 10%, 0.6% 5%);
+  --skin-stain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.12 0 0 0 0.9 -0.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="horror"] .game-header {
+  background: linear-gradient(#140d10, #0b0709);
+  color: #d9cfc4;
+  border-bottom: 1px solid rgba(194, 51, 79, 0.4);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.7);
+}
+
+main[data-preset="horror"] .game-title strong {
+  font: 400 1.25rem var(--skin-title);
+  letter-spacing: 0.08em;
+  color: #e6ddd2;
+  text-shadow: 0 0 10px var(--skin-rose-soft);
+}
+
+main[data-preset="horror"] .badge { font-family: var(--skin-text); background: rgba(194, 51, 79, 0.12); color: var(--skin-mute); }
+main[data-preset="horror"] .badge[data-state="ready"] { background: var(--skin-rose); color: #f5ece4; }
+
+/* The room: damask in the dark, cobwebs in the corners, a vignette closing in. */
+main[data-preset="horror"] .scene-area {
+  background:
+    url("./art/horror-cobweb.svg") left top / 200px 200px no-repeat,
+    url("./art/horror-cobweb-right.svg") right top / 170px 170px no-repeat,
+    radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(0, 0, 0, 0.85) 95%),
+    url("./art/horror-damask.svg") 0 0 / 120px 160px,
+    linear-gradient(#1a1216, #0d090b);
+}
+
+/* The candle's glow, unsteady. */
+main[data-preset="horror"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 55% 45% at 22% 30%, rgba(255, 170, 90, 0.16), transparent 70%);
+  animation: skin-horror-flicker 3.1s steps(1) infinite;
+}
+
+@keyframes skin-horror-flicker {
+  0% { opacity: 1; }
+  11% { opacity: 0.8; }
+  14% { opacity: 1; }
+  37% { opacity: 0.9; }
+  39% { opacity: 0.65; }
+  41% { opacity: 1; }
+  68% { opacity: 0.85; }
+  83% { opacity: 1; }
+  91% { opacity: 0.7; }
+  93% { opacity: 1; }
+}
+
+/* Fog creeping along the floor. */
+main[data-preset="horror"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  bottom: 0;
+  height: 32%;
+  background:
+    radial-gradient(ellipse 30% 55% at 20% 100%, rgba(190, 185, 200, 0.16), transparent 70%),
+    radial-gradient(ellipse 35% 60% at 60% 100%, rgba(190, 185, 200, 0.13), transparent 70%),
+    radial-gradient(ellipse 25% 50% at 90% 100%, rgba(190, 185, 200, 0.15), transparent 70%);
+  animation: skin-horror-fog 30s ease-in-out infinite alternate;
+}
+
+@keyframes skin-horror-fog {
+  from { transform: translateX(-8%); }
+  to { transform: translateX(8%); }
+}
+
+/* Eyes in the dark: absent most of the time, then open, blink, and are gone. */
+main[data-preset="horror"] .scene-area::before,
+main[data-preset="horror"] .scene-area::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 54px;
+  height: 17px;
+  background: url("./art/horror-eyes.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(255, 180, 60, 0.6));
+  opacity: 0;
+  pointer-events: none;
+  animation: skin-horror-eyes 23s ease-in-out infinite;
+}
+
+main[data-preset="horror"] .scene-area::before { right: 3%; top: 58%; }
+main[data-preset="horror"] .scene-area::after { left: 2.5%; top: 22%; width: 40px; height: 13px; animation-duration: 31s; animation-delay: -12s; }
+
+@keyframes skin-horror-eyes {
+  0%, 84%, 100% { opacity: 0; transform: scaleY(1); }
+  87% { opacity: 0.9; transform: scaleY(1); }
+  90% { opacity: 0.9; transform: scaleY(0.1); }
+  91% { opacity: 0.9; transform: scaleY(1); }
+  95% { opacity: 0; }
+}
+
+main[data-preset="horror"] .statusbar {
+  background: #0f0a0c;
+  border-bottom: 1px solid rgba(194, 51, 79, 0.25);
+}
+
+/* Tarnished plaques. */
+main[data-preset="horror"] .field {
+  background: linear-gradient(#211619, #150d10);
+  border: 1px solid rgba(158, 143, 134, 0.3);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="horror"] .field::before { background: var(--skin-rose); }
+main[data-preset="horror"] .field-name { font: 400 0.8rem var(--skin-title); color: var(--skin-mute); letter-spacing: 0.08em; text-transform: none; }
+main[data-preset="horror"] .field-value { font: 400 1.05rem var(--skin-text); color: #e6ddd2; }
+
+/* ── Torn diary pages ───────────────────────────────────────────────── */
+
+/* The shadow belongs to the wrapper: the page itself is cut to a torn edge. */
+main[data-preset="horror"] .scene-card { filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.8)); }
+main[data-preset="horror"] .scene-card:nth-of-type(even) .game-scene { transform: rotate(0.4deg); }
+main[data-preset="horror"] .scene-card:nth-of-type(odd) .game-scene { transform: rotate(-0.3deg); }
+
+main[data-preset="horror"] .game-scene {
+  background:
+    radial-gradient(ellipse 60% 70% at 25% 20%, rgba(255, 220, 160, 0.3), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(60, 35, 20, 0.45)),
+    /* One stain stretched over the whole page: coarse noise cannot tile without seams. */
+    var(--skin-stain) center / 100% 100% no-repeat,
+    var(--skin-page);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: var(--skin-torn);
+  padding: 2.4rem 2.6rem 2.3rem;
+}
+
+main[data-preset="horror"] .narrative {
+  font: 400 1.14rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="horror"] .corner { display: none !important; }
+
+main[data-preset="horror"] .scene-image {
+  border-radius: 1px;
+  box-shadow: 0 0 0 2px #2b1d16, 0 0 0 3px rgba(214, 204, 178, 0.4), 0 8px 16px rgba(0, 0, 0, 0.5);
+  margin: 3px;
+}
+
+main[data-preset="horror"] .scene-image img { border-radius: 0; filter: sepia(0.45) grayscale(0.3) contrast(1.1); }
+main[data-preset="horror"] .scene-image::before { border-radius: 0; border-color: rgba(214, 204, 178, 0.15); }
+main[data-preset="horror"] .scene-image::after { border-radius: 0; box-shadow: inset 0 0 40px rgba(20, 8, 4, 0.7); }
+
+/* The cursor while a line is written: a drop of red ink. */
+main[data-preset="horror"] .game-scene.streaming .narrative::after {
+  content: "";
+  display: inline-block;
+  width: 0.42em;
+  height: 0.42em;
+  margin-left: 0.4em;
+  border-radius: 0 50% 50% 50%;
+  transform: rotate(45deg);
+  background: var(--skin-rose);
+  animation: typing-pulse 1.4s ease-in-out infinite;
+}
+
+/* ── A pentagram between the pages ──────────────────────────────────── */
+
+/* The preset draws no divider at all; this skin scratches a small ward there,
+   tight between the pages. */
+main[data-preset="horror"] .divider { display: flex; margin: -1.35rem 0; }
+
+main[data-preset="horror"] .divider::before,
+main[data-preset="horror"] .divider::after {
+  height: 1px;
+  max-width: 110px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, rgba(194, 51, 79, 0.45));
+}
+
+main[data-preset="horror"] .divider::after { background: linear-gradient(90deg, rgba(194, 51, 79, 0.45), transparent); }
+
+main[data-preset="horror"] .divider-symbol {
+  width: 22px;
+  height: 22px;
+  opacity: 0.75;
+  background: url("./art/horror-pentagram.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 4px rgba(194, 51, 79, 0.6));
+  animation: skin-horror-flicker 4.3s steps(1) infinite;
+}
+
+main[data-preset="horror"] .divider-symbol::before { content: none; }
+
+/* ── The player ─────────────────────────────────────────────────────── */
+
+main[data-preset="horror"] .bubble {
+  background: linear-gradient(#1c1215, #120b0d);
+  color: #e6ddd2;
+  border: 1px solid rgba(194, 51, 79, 0.45);
+  border-radius: 2px;
+  font: italic 400 1.08rem var(--skin-text);
+  box-shadow: 0 0 14px rgba(194, 51, 79, 0.15), 0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+/* The thinking line trembles. */
+main[data-preset="horror"] .typing {
+  background: linear-gradient(#1c1215, #120b0d);
+  color: var(--skin-mute);
+  border: 1px solid rgba(158, 143, 134, 0.25);
+  border-radius: 2px;
+  font: italic 400 1.08rem var(--skin-text);
+}
+
+main[data-preset="horror"] .typing #thinking-text { display: inline-block; animation: skin-horror-tremble 0.25s steps(2) infinite; }
+
+@keyframes skin-horror-tremble {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(0.6px, -0.4px); }
+  100% { transform: translate(-0.4px, 0.5px); }
+}
+
+main[data-preset="horror"] .dots i { background: var(--skin-rose); }
+
+main[data-preset="horror"] .inline-input {
+  background: linear-gradient(#1c1215, #0f0a0c);
+  color: #e6ddd2;
+  border: 1px solid rgba(158, 143, 134, 0.3);
+  border-radius: 2px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.7);
+}
+
+main[data-preset="horror"] .input-wrap input {
+  font: italic 400 1.08rem var(--skin-text);
+  color: #e6ddd2;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(194, 51, 79, 0.35);
+}
+
+main[data-preset="horror"] .input-wrap input::placeholder { color: var(--skin-mute); opacity: 0.8; }
+main[data-preset="horror"] .input-wrap input:focus { border-color: var(--skin-rose); box-shadow: 0 0 10px var(--skin-rose-soft); }
+main[data-preset="horror"] .send { background: var(--skin-rose); color: #f5ece4; border: 0; }
+main[data-preset="horror"] .icon-button { color: var(--skin-mute); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="horror"] .system-message {
+  background: rgba(20, 13, 16, 0.9);
+  border: 1px dashed rgba(194, 51, 79, 0.45);
+  color: #d9cfc4;
+  font: italic 400 1rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="horror"] .standing-image img {
+  border-radius: 1px;
+  box-shadow: 0 0 0 2px #2b1d16, 0 0 0 3px rgba(214, 204, 178, 0.4), 0 8px 16px rgba(0, 0, 0, 0.5);
+  filter: sepia(0.45) grayscale(0.3) contrast(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="horror"] .scene-bg::before,
+  main[data-preset="horror"] .scene-bg::after,
+  main[data-preset="horror"] .scene-area::before,
+  main[data-preset="horror"] .scene-area::after,
+  main[data-preset="horror"] .divider-symbol,
+  main[data-preset="horror"] .typing #thinking-text { animation: none; }
+}

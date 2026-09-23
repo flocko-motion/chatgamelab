@@ -17,12 +17,12 @@ func TestOnceTextFiresExactlyOnce(t *testing.T) {
 
 	g := ports.NewGraph("stem")
 	source := blocks.NewOnceText("scenario-prompt", "a bridge keeper")
-	sink := blocks.NewPlayerOutputText("out-text")
+	sink := blocks.NewPlayerOutputText("out-text", "text")
 	g.ConnectTextOut(source, sink)
 	g.Start(ctx)
 
 	select {
-	case got := <-sink.Seen:
+	case got := <-sink.Arrivals():
 		if got != "a bridge keeper" {
 			t.Fatalf("got %q, want %q", got, "a bridge keeper")
 		}
@@ -31,7 +31,7 @@ func TestOnceTextFiresExactlyOnce(t *testing.T) {
 	}
 
 	select {
-	case got := <-sink.Seen:
+	case got := <-sink.Arrivals():
 		t.Fatalf("the source fired twice, second time %q", got)
 	case <-time.After(150 * time.Millisecond):
 	}
@@ -47,12 +47,12 @@ func TestRestoredOnceTextStaysSilentAndStillReportsDone(t *testing.T) {
 
 	first := ports.NewGraph("stem")
 	fired := blocks.NewOnceText("scenario-prompt", "a bridge keeper")
-	firstSink := blocks.NewPlayerOutputText("out-text")
+	firstSink := blocks.NewPlayerOutputText("out-text", "text")
 	first.ConnectTextOut(fired, firstSink)
 	first.Start(ctx)
 
 	select {
-	case <-firstSink.Seen:
+	case <-firstSink.Arrivals():
 	case <-time.After(2 * time.Second):
 		t.Fatal("the source never fired")
 	}
@@ -64,7 +64,7 @@ func TestRestoredOnceTextStaysSilentAndStillReportsDone(t *testing.T) {
 
 	resumed := ports.NewGraph("stem")
 	source := blocks.NewOnceText("scenario-prompt", "a bridge keeper")
-	sink := blocks.NewPlayerOutputText("out-text")
+	sink := blocks.NewPlayerOutputText("out-text", "text")
 	gate := blocks.NewGate("start-game", "")
 	resumed.ConnectTextOut(source, sink)
 	resumed.ConnectState(source, gate)
@@ -80,7 +80,7 @@ func TestRestoredOnceTextStaysSilentAndStillReportsDone(t *testing.T) {
 	}
 
 	select {
-	case got := <-sink.Seen:
+	case got := <-sink.Arrivals():
 		t.Fatalf("a restored source fired again, sending %q", got)
 	case <-time.After(150 * time.Millisecond):
 	}

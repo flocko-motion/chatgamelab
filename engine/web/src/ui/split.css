@@ -1,0 +1,108 @@
+/* The handle between the game and the instrumentation.
+
+   The split itself lives on <body> as --split, so dragging writes one custom
+   property and the grid does the rest. */
+
+#split {
+  cursor: col-resize;
+  background: var(--gray-2);
+  /* A one-pixel line is the right thing to look at and the wrong thing to aim
+     at, so the hit area is widened with padding the border does not fill. */
+  width: 1px;
+  border-inline: 5px solid transparent;
+  background-clip: content-box;
+  touch-action: none;
+}
+
+#split:hover,
+#split[data-dragging] {
+  background-color: var(--gray-4);
+}
+
+/* While dragging, the pointer owns the page: a text selection started mid-drag
+   would leave the feed highlighted, and an iframe or canvas would swallow the
+   moves that are meant to be resizing the column. */
+body[data-dragging] {
+  user-select: none;
+  cursor: col-resize;
+}
+
+/* Stacked below a laptop width, where there are no columns to divide. */
+@media (max-width: 60rem) {
+  #split { display: none; }
+}
+
+/* The conversation is a band between two fixed things: the character's portrait
+   above it and the controls below. Both are siblings of the scrolling box
+   rather than contents of it, so neither can be scrolled away — and the cards
+   pass beneath both as the conversation grows.
+
+   Structural only. How either is dressed belongs with the theme. */
+.scene-area {
+  --standing-height: 0px;
+  --dock-height: 0px;
+}
+
+.standing-image {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  height: var(--standing-height);
+  padding: 0.75rem 0;
+  /* Deliberately unpainted: the scene's own background runs the full height of
+     the area behind this, and a flat panel here would cut it off in a band
+     across the top. What hides the cards passing underneath is the mask on the
+     scroll, not a colour on top of them. */
+  background: none;
+  pointer-events: none;
+}
+
+.standing-image img {
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  pointer-events: auto;
+}
+
+.scene-dock {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  /* Unpainted, like the portrait: the bar inside it brings its own surface, and
+     a second one here would put a band across the scene's background. */
+  padding: 0 1rem 1rem;
+  /* Held to the column width the conversation uses, so the controls line up
+     with the cards above them rather than spanning a wide screen. */
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* The scroll fills the whole area and is masked to the band between them, so a
+   card slides out of sight rather than over the portrait or the controls. The
+   short ramps at each end make it a fade rather than a cut. */
+.scene-scroll {
+  padding-top: var(--standing-height);
+  padding-bottom: var(--dock-height);
+  --fade: 18px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent var(--standing-height),
+    #000 calc(var(--standing-height) + var(--fade)),
+    #000 calc(100% - var(--dock-height) - var(--fade)),
+    transparent calc(100% - var(--dock-height))
+  );
+}
+
+/* A bar with nowhere to type holds only its buttons, and a pair of icons pushed
+   against the left edge of a wide bar reads as the leftovers of a row rather
+   than as the controls. Centred, they are what the bar is for.
+
+   A modifier rather than a change to .inline-input itself, because a genre that
+   does have a text box still wants that filling the row with the microphone
+   beside it. */
+.inline-input.no-typing {
+  justify-content: center;
+}

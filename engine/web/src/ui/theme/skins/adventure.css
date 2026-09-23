@@ -1,0 +1,328 @@
+/* Adventure: an explorer's journal laid open on a survey map. The story is
+   written up on graph-paper pages taped to the map and numbered like journal
+   entries; the player's own moves are pencilled on slips beside them. */
+
+main[data-preset="adventure"] {
+  --skin-band: rgba(230, 220, 192, 0.55);
+  --skin-map: #e6dcc0;
+  --skin-paper: #f8f3e3;
+  --skin-ink: #2b2418;
+  --skin-pencil: #3b3a36;
+  --skin-green: #0f5c3f;
+  --skin-green-light: #2f8a5f;
+  --skin-red: #a4281b;
+  --skin-kraft: #c8a46a;
+  --skin-text: "Alegreya", Georgia, serif;
+  --skin-label: "Alegreya Sans SC", "Alegreya", sans-serif;
+  --skin-hand: "Caveat", "Alegreya", cursive;
+  --skin-tape:
+    linear-gradient(rgba(255, 255, 255, 0.25), transparent 40%, rgba(120, 90, 30, 0.08)),
+    rgba(222, 204, 140, 0.72);
+  /* Faint graph paper, the ruling of a field notebook. */
+  --skin-grid:
+    linear-gradient(rgba(47, 138, 95, 0.09) 1px, transparent 1px) 0 0 / 18px 18px,
+    linear-gradient(90deg, rgba(47, 138, 95, 0.09) 1px, transparent 1px) 0 0 / 18px 18px;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="adventure"] .game-header {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 5px),
+    linear-gradient(#1f4432, #17362a);
+  color: #f1e9d2;
+  border-bottom: 3px solid #0d2a1f;
+  box-shadow: 0 2px 8px rgba(20, 30, 20, 0.35);
+}
+
+main[data-preset="adventure"] .game-title strong {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font: 700 1.05rem var(--skin-label);
+  letter-spacing: 0.08em;
+}
+
+main[data-preset="adventure"] .game-title strong::before {
+  content: "";
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: url("./art/adventure-compass.svg") center / 118% no-repeat, #f1e6c8;
+  box-shadow: 0 0 0 2px #b9975a;
+}
+
+main[data-preset="adventure"] .badge { font-family: var(--skin-label); letter-spacing: 0.06em; }
+main[data-preset="adventure"] .badge[data-state="ready"] { background: #b9975a; color: #17362a; }
+
+/* The map: contours of two hills, a survey grid, and the compass rose in its
+   corner, all on aged paper darkening towards the edges. */
+main[data-preset="adventure"] .scene-area {
+  background:
+    url("./art/adventure-compass.svg") right 1.5rem bottom 1.5rem / 190px no-repeat,
+    url("./art/adventure-contours.svg") 0 0 / 640px 640px,
+    linear-gradient(rgba(107, 79, 42, 0.12) 1px, transparent 1px) 0 0 / 160px 160px,
+    linear-gradient(90deg, rgba(107, 79, 42, 0.12) 1px, transparent 1px) 0 0 / 160px 160px,
+    radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(107, 79, 42, 0.28)),
+    var(--skin-map);
+}
+
+main[data-preset="adventure"] .statusbar {
+  background: linear-gradient(#d8cba7, #d2c49e);
+  border-bottom: 1px solid rgba(107, 79, 42, 0.35);
+}
+
+/* Status as luggage tags: kraft card, a punched hole, a pointed end. */
+main[data-preset="adventure"] .field {
+  padding: 0.45rem 1rem 0.45rem 1.6rem;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.12), transparent),
+    var(--skin-kraft);
+  border: 0;
+  border-radius: 0 4px 4px 0;
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%);
+  box-shadow: none;
+  filter: drop-shadow(0 2px 2px rgba(60, 40, 10, 0.35));
+}
+
+main[data-preset="adventure"] .field::before {
+  left: 9px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #d2c49e;
+  box-shadow: inset 0 1px 1px rgba(60, 40, 10, 0.5);
+}
+
+main[data-preset="adventure"] .field-name { font-family: var(--skin-label); color: #4a3417; letter-spacing: 0.04em; }
+main[data-preset="adventure"] .field-value { font: 700 1.25rem/1 var(--skin-hand); color: var(--skin-ink); }
+
+/* ── Journal pages ──────────────────────────────────────────────────── */
+
+main[data-preset="adventure"] .feed { counter-reset: entry; }
+
+main[data-preset="adventure"] .scene-card {
+  position: relative;
+  counter-increment: entry;
+}
+
+/* A strip of tape holding each page to the map. */
+main[data-preset="adventure"] .scene-card::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -11px;
+  left: 50%;
+  width: 110px;
+  height: 26px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: var(--skin-tape);
+  box-shadow: inset 0 0 0 1px rgba(150, 120, 60, 0.18);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 88% 0, 92% 10%, 96% 0, 100% 8%, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%);
+}
+
+main[data-preset="adventure"] .game-scene {
+  background: var(--skin-grid), var(--skin-paper);
+  border: 0;
+  border-radius: 2px;
+  padding: 2.4rem 2.6rem 2.2rem;
+  transform: rotate(-0.35deg);
+  box-shadow:
+    0 1px 0 #e3d8bb,
+    0 2px 0 #d9ceb0,
+    0 14px 26px -8px rgba(60, 40, 10, 0.4);
+}
+
+main[data-preset="adventure"] .scene-card:nth-of-type(even) .game-scene { transform: rotate(0.3deg); }
+main[data-preset="adventure"] .scene-card:nth-of-type(even)::before { transform: translateX(-50%) rotate(1.5deg); left: 44%; }
+
+main[data-preset="adventure"] .narrative {
+  font-family: var(--skin-text);
+  font-size: 1.14rem;
+  line-height: 1.75;
+  color: var(--skin-ink);
+}
+
+/* Only the top right corner is used: it carries the entry number, stamped. */
+main[data-preset="adventure"] .game-scene .corner { display: none !important; }
+
+main[data-preset="adventure"] .game-scene .corner.tr {
+  display: block !important;
+  top: 12px;
+  right: 16px;
+  width: auto;
+  height: auto;
+  padding: 0.05rem 0.45rem;
+  border: 1.5px solid var(--skin-red);
+  border-radius: 3px;
+  color: var(--skin-red);
+  opacity: 0.8;
+  transform: rotate(3deg);
+  font: 700 0.72rem/1.4 var(--skin-label);
+  letter-spacing: 0.1em;
+  animation: none;
+}
+
+main[data-preset="adventure"] .game-scene .corner.tr::before {
+  content: "№ " counter(entry, decimal-leading-zero);
+}
+
+/* The picture as an expedition photograph: a white print, taped on. */
+main[data-preset="adventure"] .scene-image {
+  overflow: visible;
+  padding: 8px 8px 24px;
+  background: #fdfcf7;
+  border-radius: 1px;
+  transform: rotate(-1.6deg);
+  box-shadow: 0 6px 14px rgba(60, 40, 10, 0.35);
+}
+
+main[data-preset="adventure"] .scene-image:hover {
+  transform: rotate(-0.6deg) scale(1.02);
+  box-shadow: 0 10px 20px rgba(60, 40, 10, 0.4);
+}
+
+main[data-preset="adventure"] .scene-image img { border-radius: 0; filter: sepia(0.22) contrast(1.05); }
+
+main[data-preset="adventure"] .scene-image::before {
+  inset: auto;
+  top: -10px;
+  left: 50%;
+  width: 70px;
+  height: 22px;
+  border: 0;
+  border-radius: 0;
+  transform: translateX(-50%) rotate(4deg);
+  background: var(--skin-tape);
+  z-index: 3;
+}
+
+main[data-preset="adventure"] .scene-image::after { content: none; }
+
+main[data-preset="adventure"] .game-scene.streaming .narrative::after {
+  content: "✎";
+  color: var(--skin-pencil);
+  animation: typing-pulse 1.4s ease-in-out infinite;
+}
+
+/* ── The trail between entries: a dashed route ending in a red cross ─ */
+
+main[data-preset="adventure"] .divider { gap: 0.4rem; }
+
+main[data-preset="adventure"] .divider::before,
+main[data-preset="adventure"] .divider::after {
+  height: 2px;
+  max-width: 140px;
+  opacity: 1;
+  background: repeating-linear-gradient(90deg, var(--skin-red) 0 7px, transparent 7px 13px);
+}
+
+/* The route arrives from the left; the right half keeps its room so the cross
+   stays centred. */
+main[data-preset="adventure"] .divider::after { visibility: hidden; }
+
+main[data-preset="adventure"] .divider-symbol {
+  font: 700 1.5rem/1 var(--skin-hand);
+  color: var(--skin-red);
+  opacity: 1;
+}
+
+main[data-preset="adventure"] .divider-symbol::before { content: "✕"; }
+
+/* ── The player's pencil ────────────────────────────────────────────── */
+
+main[data-preset="adventure"] .bubble {
+  align-items: center;
+  padding: 0.55rem 1.1rem 0.55rem 0.9rem;
+  background:
+    linear-gradient(rgba(70, 110, 150, 0.14) 1px, transparent 1px) 0 0.35rem / 100% 1.35rem,
+    #fbf5cf;
+  color: var(--skin-pencil);
+  border: 0;
+  border-radius: 1px;
+  transform: rotate(1deg);
+  font: 500 1.4rem/1.3 var(--skin-hand);
+  box-shadow: 0 6px 12px -4px rgba(60, 40, 10, 0.4);
+}
+
+main[data-preset="adventure"] .bubble::before {
+  content: "→";
+  color: var(--skin-green);
+  font: 700 1.4rem/1 var(--skin-hand);
+  text-shadow: none;
+}
+
+main[data-preset="adventure"] .typing {
+  background: var(--skin-grid), var(--skin-paper);
+  color: var(--skin-pencil);
+  border: 0;
+  border-radius: 2px;
+  font: 500 1.35rem var(--skin-hand);
+  box-shadow: 0 10px 20px -8px rgba(60, 40, 10, 0.4);
+}
+
+/* Footprints for the thinking dots. */
+main[data-preset="adventure"] .dots i {
+  width: 7px;
+  height: 11px;
+  border-radius: 50% 50% 45% 45%;
+  background: var(--skin-green);
+}
+
+main[data-preset="adventure"] .dots i:nth-child(even) { transform: translateY(4px); }
+
+main[data-preset="adventure"] .inline-input {
+  background: var(--skin-grid), var(--skin-paper);
+  color: var(--skin-pencil);
+  border: 0;
+  border-radius: 2px;
+  box-shadow:
+    0 1px 0 #e3d8bb,
+    0 14px 26px -8px rgba(60, 40, 10, 0.45);
+}
+
+main[data-preset="adventure"] .input-wrap input {
+  font: 500 1.45rem var(--skin-hand);
+  color: var(--skin-pencil);
+  background: transparent;
+  border: 0;
+  border-bottom: 1.5px solid rgba(59, 58, 54, 0.45);
+  border-radius: 0;
+}
+
+main[data-preset="adventure"] .input-wrap input:focus { border-bottom-color: var(--skin-green); }
+
+main[data-preset="adventure"] .send {
+  background: var(--skin-green);
+  color: #f1e9d2;
+  border: 0;
+}
+
+main[data-preset="adventure"] .send:hover:not([disabled]) { background: var(--skin-green-light); }
+main[data-preset="adventure"] .icon-button { color: var(--skin-green); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="adventure"] .system-message {
+  background: #fbf5cf;
+  border: 0;
+  color: var(--skin-pencil);
+  font: 500 1.2rem var(--skin-hand);
+  transform: rotate(-0.6deg);
+  box-shadow: 0 6px 12px -4px rgba(60, 40, 10, 0.4);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="adventure"] .standing-image img {
+  padding: 8px 8px 24px;
+  background: #fdfcf7;
+  border-radius: 1px;
+  box-shadow: 0 6px 14px rgba(60, 40, 10, 0.35);
+  filter: sepia(0.22) contrast(1.05);
+}

@@ -1,0 +1,294 @@
+/* Hacker: a quiet intrusion into a hostile system. A dim hex dump scrolls
+   behind the preset's falling bits; the system speaks from dark terminal
+   panes, labelled and addressed like memory, in a restrained crimson, and the
+   player answers from a green shell. Pictures come in as surveillance feeds. */
+
+/* Memory addresses: four hexadecimal digits. */
+@counter-style skin-hacker-hex {
+  system: numeric;
+  symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "a" "b" "c" "d" "e" "f";
+  pad: 4 "0";
+}
+
+main[data-preset="hacker"] {
+  --skin-band: rgba(5, 3, 5, 0.7);
+  --skin-red: #d9304a;
+  --skin-red-deep: #6e0c1a;
+  --skin-green: #39ff6a;
+  --skin-void: #050305;
+  --skin-console: #09070a;
+  --skin-ink: #ffd6da;
+  --skin-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+/* The header is the intruder's own tool, so it is green. */
+main[data-preset="hacker"] .game-header {
+  background: #070608;
+  color: var(--skin-green);
+  border-bottom: 1px solid rgba(57, 255, 106, 0.25);
+  box-shadow: none;
+}
+
+main[data-preset="hacker"] .game-title strong {
+  font: 700 0.9rem var(--skin-mono);
+  letter-spacing: 0.06em;
+}
+
+main[data-preset="hacker"] .game-title strong::before { content: "["; color: rgba(57, 255, 106, 0.5); }
+main[data-preset="hacker"] .game-title strong::after { content: "]"; color: rgba(57, 255, 106, 0.5); }
+
+@keyframes skin-hacker-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+main[data-preset="hacker"] .badge { font: 700 0.62rem var(--skin-mono); border-radius: 0; background: #0d140f; color: rgba(57, 255, 106, 0.7); }
+main[data-preset="hacker"] .badge[data-state="ready"] { background: var(--skin-green); color: var(--skin-void); }
+
+/* A hex dump scrolling up the dark, one tile height per cycle. */
+main[data-preset="hacker"] .scene-area {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.8)),
+    var(--skin-void);
+}
+
+main[data-preset="hacker"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("./art/hacker-hexdump.svg") 0 0 / 460px 360px;
+  opacity: 0.09;
+  animation: skin-hacker-dump 40s linear infinite;
+}
+
+@keyframes skin-hacker-dump {
+  to { background-position: 0 -360px; }
+}
+
+main[data-preset="hacker"] .statusbar {
+  background: #070608;
+  border-bottom: 1px solid rgba(217, 48, 74, 0.2);
+}
+
+main[data-preset="hacker"] .field {
+  background: var(--skin-console);
+  border: 1px solid rgba(217, 48, 74, 0.35);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+main[data-preset="hacker"] .field::before { content: none; }
+main[data-preset="hacker"] .field-name { font: 400 0.68rem var(--skin-mono); color: rgba(255, 214, 218, 0.55); letter-spacing: 0.08em; }
+main[data-preset="hacker"] .field-value { font: 700 1rem var(--skin-mono); color: var(--skin-red); }
+
+/* ── The system's panes ─────────────────────────────────────────────── */
+
+main[data-preset="hacker"] .feed { counter-reset: address; padding-top: 0.5rem; }
+main[data-preset="hacker"] .scene-card { counter-increment: address; }
+
+main[data-preset="hacker"] .game-scene {
+  background:
+    repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.22) 2px 3px),
+    var(--skin-console);
+  border: 1px solid rgba(217, 48, 74, 0.45);
+  border-radius: 0;
+  padding: 2.2rem 2.3rem 1.9rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+  overflow: visible;
+}
+
+/* The pane's label, set into its top border the way a terminal multiplexer
+   titles a pane. */
+main[data-preset="hacker"] .game-scene::before {
+  content: "┌─[ ai@target ]";
+  position: absolute;
+  top: -0.7em;
+  left: 0.9rem;
+  padding: 0 0.4rem;
+  background: var(--skin-void);
+  color: var(--skin-red);
+  font: 700 0.74rem var(--skin-mono);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+main[data-preset="hacker"] .narrative {
+  font: 400 1rem/1.75 var(--skin-mono);
+  color: #e6d8db;
+}
+
+/* The pane's address, dim in the upper right. */
+main[data-preset="hacker"] .game-scene .corner { display: none !important; }
+
+main[data-preset="hacker"] .game-scene .corner.tr {
+  display: block !important;
+  top: 0.55rem;
+  right: 0.9rem;
+  width: auto;
+  height: auto;
+  border: 0;
+  color: rgba(217, 48, 74, 0.6);
+  font: 400 0.68rem var(--skin-mono);
+  letter-spacing: 0.06em;
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="hacker"] .game-scene .corner.tr::before { content: "0x" counter(address, skin-hacker-hex) !important; }
+
+/* The picture as a surveillance feed: brackets, a camera number, the
+   recording light. The frame sits outside the picture. */
+main[data-preset="hacker"] .scene-image {
+  overflow: visible;
+  border-radius: 0;
+  box-shadow: 0 0 0 1px rgba(217, 48, 74, 0.45);
+  margin: 6px;
+}
+
+main[data-preset="hacker"] .scene-image img { border-radius: 0; filter: saturate(0.7) contrast(1.1); }
+
+main[data-preset="hacker"] .scene-image::before {
+  inset: -6px;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(var(--skin-red), var(--skin-red)) 0 0 / 14px 2px no-repeat,
+    linear-gradient(var(--skin-red), var(--skin-red)) 0 0 / 2px 14px no-repeat,
+    linear-gradient(var(--skin-red), var(--skin-red)) 100% 0 / 14px 2px no-repeat,
+    linear-gradient(var(--skin-red), var(--skin-red)) 100% 0 / 2px 14px no-repeat,
+    linear-gradient(var(--skin-red), var(--skin-red)) 0 100% / 14px 2px no-repeat,
+    linear-gradient(var(--skin-red), var(--skin-red)) 0 100% / 2px 14px no-repeat,
+    linear-gradient(var(--skin-red), var(--skin-red)) 100% 100% / 14px 2px no-repeat,
+    linear-gradient(var(--skin-red), var(--skin-red)) 100% 100% / 2px 14px no-repeat;
+}
+
+main[data-preset="hacker"] .scene-image::after {
+  content: "● CAM " counter(address, skin-hacker-hex);
+  inset: auto;
+  top: 8px;
+  left: 10px;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0;
+  box-shadow: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--skin-red);
+  font: 700 0.62rem var(--skin-mono);
+  letter-spacing: 0.08em;
+  animation: skin-hacker-pulse 1.4s steps(2) infinite;
+}
+
+main[data-preset="hacker"] .scene-image:hover { transform: none; box-shadow: 0 0 0 1px var(--skin-red); }
+
+main[data-preset="hacker"] .game-scene.streaming .narrative::after { color: var(--skin-red); }
+
+/* ── Between consoles ───────────────────────────────────────────────── */
+
+main[data-preset="hacker"] .divider::before,
+main[data-preset="hacker"] .divider::after {
+  height: 1px;
+  max-width: 150px;
+  opacity: 1;
+  background: repeating-linear-gradient(90deg, rgba(217, 48, 74, 0.45) 0 4px, transparent 4px 7px);
+}
+
+main[data-preset="hacker"] .divider-symbol { font: 400 0.68rem var(--skin-mono); color: rgba(217, 48, 74, 0.7); opacity: 1; letter-spacing: 0.1em; }
+main[data-preset="hacker"] .divider-symbol::before { content: "0101 ▮▮▯ 1010"; }
+
+/* ── The player: a green shell ──────────────────────────────────────── */
+
+main[data-preset="hacker"] .bubble {
+  background: rgba(3, 20, 8, 0.95);
+  color: var(--skin-green);
+  border: 1px solid rgba(57, 255, 106, 0.6);
+  border-radius: 0;
+  font: 400 0.95rem var(--skin-mono);
+  box-shadow: none;
+}
+
+main[data-preset="hacker"] .bubble::before {
+  content: "root@⌁:~$";
+  color: rgba(57, 255, 106, 0.6);
+  font: 700 0.85rem var(--skin-mono);
+  text-shadow: none;
+  animation: none;
+}
+
+main[data-preset="hacker"] .typing {
+  position: relative;
+  overflow: hidden;
+  background: var(--skin-console);
+  color: rgba(217, 48, 74, 0.85);
+  border: 1px solid rgba(217, 48, 74, 0.35);
+  border-radius: 0;
+  font: 400 0.85rem var(--skin-mono);
+  letter-spacing: 0.1em;
+}
+
+/* A progress bar filling in steps under the thinking line. */
+main[data-preset="hacker"] .typing::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: repeating-linear-gradient(90deg, rgba(217, 48, 74, 0.7) 0 10px, transparent 10px 13px);
+  transform-origin: left;
+  animation: skin-hacker-progress 2.4s steps(12) infinite;
+}
+
+@keyframes skin-hacker-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+main[data-preset="hacker"] .dots i { border-radius: 0; background: var(--skin-red); }
+
+main[data-preset="hacker"] .inline-input {
+  background: #030a05;
+  color: var(--skin-green);
+  border: 1px solid rgba(57, 255, 106, 0.5);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+main[data-preset="hacker"] .input-wrap input {
+  font: 400 1rem var(--skin-mono);
+  color: var(--skin-green);
+  background: #000;
+  border: 1px solid rgba(57, 255, 106, 0.35);
+  border-radius: 0;
+}
+
+main[data-preset="hacker"] .input-wrap input::placeholder { color: var(--skin-green); opacity: 0.4; }
+main[data-preset="hacker"] .input-wrap input:focus { border-color: var(--skin-green); box-shadow: 0 0 10px rgba(57, 255, 106, 0.35); }
+main[data-preset="hacker"] .send { border-radius: 0; background: var(--skin-green); color: var(--skin-void); border: 0; }
+main[data-preset="hacker"] .icon-button { color: var(--skin-green); border-radius: 0; }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="hacker"] .system-message {
+  background: var(--skin-console);
+  border: 1px dashed rgba(217, 48, 74, 0.45);
+  color: var(--skin-red);
+  font: 400 0.85rem var(--skin-mono);
+  border-radius: 0;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="hacker"] .standing-image img {
+  border-radius: 0;
+  box-shadow: 0 0 0 1px rgba(217, 48, 74, 0.45);
+  filter: saturate(0.7) contrast(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="hacker"] .scene-bg::before,
+  main[data-preset="hacker"] .scene-image::after,
+  main[data-preset="hacker"] .typing::after { animation: none; }
+}

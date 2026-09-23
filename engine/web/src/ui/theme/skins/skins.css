@@ -1,0 +1,37 @@
+/* Hand-drawn skins: the detail a preset's configuration cannot express,
+   keyed on main[data-preset]. A preset without one looks exactly as the
+   platform's player draws it.
+
+   A scene picture carries the story, so a frame goes around it: a skin may
+   round or clip its corners, and a frame's width is added outside the
+   picture, never taken from it. Frames stay slim, a few pixels on pictures
+   and cards alike, since every pixel of frame is taken from the content. */
+@import "./standing.css";
+@import "./abstract.css";
+@import "./adventure.css";
+@import "./barbie.css";
+@import "./candy.css";
+@import "./circus.css";
+@import "./cyberpunk.css";
+@import "./default.css";
+@import "./desert.css";
+@import "./detective.css";
+@import "./educational.css";
+@import "./fairy.css";
+@import "./fire.css";
+@import "./garden.css";
+@import "./glitch.css";
+@import "./greenFantasy.css";
+@import "./hacker.css";
+@import "./horror.css";
+@import "./jungle.css";
+@import "./matrix.css";
+@import "./medieval.css";
+@import "./minimal.css";
+@import "./mystery.css";
+@import "./mystic.css";
+@import "./nature.css";
+@import "./nautical.css";
+@import "./noir.css";
+@import "./ocean.css";
+@import "./pirate.css";

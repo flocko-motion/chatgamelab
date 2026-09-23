@@ -1,0 +1,289 @@
+/* Educational: a science lab. A dark resin bench with molecules sketched on
+   it and a flask bubbling in the corner; the story is written up in a
+   spiral-bound lab notebook, one numbered experiment per page; status sits in
+   element tiles as on the periodic table, and a molecule divides the pages. */
+
+main[data-preset="educational"] {
+  --skin-band: rgba(19, 32, 29, 0.6);
+  --skin-emerald: #047857;
+  --skin-emerald-light: #10b981;
+  --skin-glow: #34d399;
+  --skin-bench: #13201d;
+  --skin-paper: #f4faf6;
+  --skin-ink: #1c2b27;
+  --skin-muted: #4d635c;
+  --skin-text: "IBM Plex Sans", Inter, sans-serif;
+  --skin-mono: "IBM Plex Mono", "Fira Code", monospace;
+  /* Engineering paper: a fine green grid, heavier every fifth line. */
+  --skin-grid:
+    linear-gradient(rgba(4, 120, 87, 0.16) 1px, transparent 1px) 0 0 / 60px 60px,
+    linear-gradient(90deg, rgba(4, 120, 87, 0.16) 1px, transparent 1px) 0 0 / 60px 60px,
+    linear-gradient(rgba(4, 120, 87, 0.07) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(90deg, rgba(4, 120, 87, 0.07) 1px, transparent 1px) 0 0 / 12px 12px;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="educational"] .game-header {
+  background: linear-gradient(#17302a, #10231e);
+  color: #d1fae5;
+  border-bottom: 2px solid var(--skin-emerald-light);
+  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.25);
+}
+
+main[data-preset="educational"] .game-title strong {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font: 600 0.95rem var(--skin-text);
+  letter-spacing: 0.04em;
+}
+
+main[data-preset="educational"] .game-title strong::before {
+  content: "";
+  width: 1.1rem;
+  height: 1.3rem;
+  background: url("./art/educational-flask.svg") center / contain no-repeat;
+}
+
+main[data-preset="educational"] .badge { font-family: var(--skin-mono); border-radius: 4px; background: rgba(52, 211, 153, 0.12); color: #a7f3d0; }
+main[data-preset="educational"] .badge[data-state="ready"] { background: var(--skin-emerald-light); color: #052e22; }
+
+/* The bench: dark resin under an overhead lamp, molecules sketched on it,
+   and a flask bubbling in the corner. */
+main[data-preset="educational"] .scene-area {
+  background:
+    url("./art/educational-flask.svg") right 1.5rem bottom 1rem / 110px 128px no-repeat,
+    url("./art/educational-molecules.svg") 0 0 / 420px 420px,
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(167, 243, 208, 0.12), transparent 70%),
+    var(--skin-bench);
+}
+
+main[data-preset="educational"] .statusbar {
+  counter-reset: element;
+  background: #0e1a17;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+/* Element tiles: a number in the corner, the value large, the name small. */
+main[data-preset="educational"] .field {
+  counter-increment: element;
+  flex-direction: column-reverse;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 4.6rem;
+  min-height: 4.2rem;
+  padding: 1rem 0.7rem 0.4rem;
+  background: linear-gradient(160deg, #ecfdf5, #c9f2df);
+  border: 1.5px solid var(--skin-emerald);
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+main[data-preset="educational"] .field::before {
+  content: counter(element);
+  left: 5px;
+  top: 3px;
+  width: auto;
+  height: auto;
+  background: none;
+  border-radius: 0;
+  color: var(--skin-emerald);
+  font: 500 0.6rem var(--skin-mono);
+}
+
+main[data-preset="educational"] .field-name { font: 500 0.55rem var(--skin-mono); color: var(--skin-muted); letter-spacing: 0.06em; }
+main[data-preset="educational"] .field-value { font: 600 1.25rem/1 var(--skin-text); color: var(--skin-ink); }
+
+/* ── The lab notebook ───────────────────────────────────────────────── */
+
+main[data-preset="educational"] .feed { counter-reset: experiment; padding-top: 0.6rem; }
+
+main[data-preset="educational"] .scene-card {
+  position: relative;
+  counter-increment: experiment;
+}
+
+/* The spiral binding: wire loops over the top edge, through punched holes. */
+main[data-preset="educational"] .scene-card::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -8px;
+  left: 14px;
+  right: 14px;
+  height: 18px;
+  background:
+    radial-gradient(ellipse 5px 8px at 50% 55%, transparent 3.5px, #c7d2cf 4px, #8c9a96 5.5px, transparent 6px) 0 0 / 22px 18px repeat-x;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+main[data-preset="educational"] .game-scene {
+  background:
+    radial-gradient(circle at 50% 12px, var(--skin-bench) 0 3px, transparent 3.5px) 3px 0 / 22px 22px repeat-x,
+    var(--skin-grid),
+    var(--skin-paper);
+  border: 0;
+  border-radius: 3px;
+  padding: 2.4rem 2.5rem 2.1rem;
+  box-shadow: 0 1px 0 #cfe6da, 0 16px 28px -8px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="educational"] .narrative {
+  font: 400 1.06rem/1.8 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+/* The experiment number, top right, as on a protocol sheet. */
+main[data-preset="educational"] .game-scene .corner { display: none !important; }
+
+main[data-preset="educational"] .game-scene .corner.tr {
+  display: block !important;
+  top: 1.1rem;
+  right: 1.2rem;
+  width: auto;
+  height: auto;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid rgba(4, 120, 87, 0.5);
+  border-radius: 2px;
+  background: #ffffff;
+  color: var(--skin-emerald);
+  font: 500 0.66rem var(--skin-mono);
+  letter-spacing: 0.1em;
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="educational"] .game-scene .corner.tr::before { content: "EXP. " counter(experiment, decimal-leading-zero) !important; }
+
+main[data-preset="educational"] .scene-image {
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(4, 120, 87, 0.4), 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+main[data-preset="educational"] .scene-image::before { border-radius: 2px; }
+main[data-preset="educational"] .scene-image::after { border-radius: 3px; }
+
+main[data-preset="educational"] .game-scene.streaming .narrative::after {
+  content: "▍";
+  color: var(--skin-emerald);
+  animation: cursor-blink 0.9s step-end infinite;
+}
+
+/* ── A molecule between pages ───────────────────────────────────────── */
+
+/* The preset asks for a plain line, which hides the symbol and one half;
+   this skin draws both. */
+main[data-preset="educational"] .divider::after,
+main[data-preset="educational"] .divider-symbol { display: block; }
+
+main[data-preset="educational"] .divider::before,
+main[data-preset="educational"] .divider::after {
+  height: 1.5px;
+  max-width: 130px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--skin-glow));
+}
+
+main[data-preset="educational"] .divider::after { background: linear-gradient(90deg, var(--skin-glow), transparent); }
+
+main[data-preset="educational"] .divider-symbol {
+  width: 64px;
+  height: 40px;
+  opacity: 1;
+  background: url("./art/educational-molecule.svg") center / contain no-repeat;
+  filter: brightness(1.6) drop-shadow(0 0 4px rgba(52, 211, 153, 0.5));
+}
+
+main[data-preset="educational"] .divider-symbol::before { content: none; }
+
+/* ── The player: a label on a flask ─────────────────────────────────── */
+
+main[data-preset="educational"] .bubble {
+  padding: 0.75rem 1.1rem 0.6rem 0.9rem;
+  background: linear-gradient(var(--skin-emerald-light), var(--skin-emerald-light)) 0 0 / 100% 4px no-repeat, #ffffff;
+  color: var(--skin-ink);
+  border: 1px solid rgba(4, 120, 87, 0.35);
+  border-radius: 4px;
+  font: 500 0.98rem var(--skin-mono);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+main[data-preset="educational"] .bubble::before {
+  content: "▸";
+  color: var(--skin-emerald);
+  font: 1rem var(--skin-mono);
+  text-shadow: none;
+}
+
+main[data-preset="educational"] .typing {
+  background: var(--skin-grid), var(--skin-paper);
+  color: var(--skin-muted);
+  border: 0;
+  border-radius: 3px;
+  font: 500 0.88rem var(--skin-mono);
+  box-shadow: 0 12px 22px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* Bubbles rising for the thinking dots. */
+main[data-preset="educational"] .dots { align-items: flex-end; height: 16px; }
+
+main[data-preset="educational"] .dots i {
+  width: 7px;
+  height: 7px;
+  background: transparent;
+  border: 1.5px solid var(--skin-emerald-light);
+  animation: skin-edu-bubble 1.6s ease-in infinite;
+}
+
+main[data-preset="educational"] .dots i:nth-child(2) { width: 5px; height: 5px; animation-delay: 0.5s; }
+main[data-preset="educational"] .dots i:nth-child(3) { animation-delay: 1s; }
+
+@keyframes skin-edu-bubble {
+  0% { opacity: 0; transform: translateY(4px); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-12px); }
+}
+
+main[data-preset="educational"] .inline-input {
+  background: var(--skin-grid), var(--skin-paper);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 #cfe6da, 0 16px 28px -8px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="educational"] .input-wrap input {
+  font: 400 1.02rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #ffffff;
+  border: 1px solid rgba(4, 120, 87, 0.35);
+  border-radius: 4px;
+}
+
+main[data-preset="educational"] .input-wrap input:focus { border-color: var(--skin-emerald-light); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+main[data-preset="educational"] .send { background: var(--skin-emerald); color: #ffffff; border: 0; border-radius: 4px; }
+main[data-preset="educational"] .icon-button { color: var(--skin-emerald); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="educational"] .system-message {
+  background: #ffffff;
+  border: 1px dashed rgba(4, 120, 87, 0.45);
+  color: var(--skin-muted);
+  font: 500 0.85rem var(--skin-mono);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="educational"] .standing-image img {
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(4, 120, 87, 0.4), 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="educational"] .dots i { animation: none; }
+}
