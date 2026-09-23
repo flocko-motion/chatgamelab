@@ -25,8 +25,8 @@ func TestGateWaitsForEveryReportingBlock(t *testing.T) {
 
 	g.ConnectImageOut(first, sink)
 	g.ConnectImageOut(second, sink)
-	g.ConnectSignal(first, gate)
-	g.ConnectSignal(second, gate)
+	g.ConnectState(first, gate)
+	g.ConnectState(second, gate)
 
 	g.Start(ctx)
 
@@ -73,7 +73,7 @@ func TestFailedBlockStillReportsDone(t *testing.T) {
 	sink := blocks.NewPlayerOutputImage("out-image")
 
 	g.ConnectImageOut(broken, sink)
-	g.ConnectSignal(broken, gate)
+	g.ConnectState(broken, gate)
 	g.Start(ctx)
 
 	select {
@@ -105,3 +105,73 @@ var errNoImage = &imageError{}
 type imageError struct{}
 
 func (*imageError) Error() string { return "no image today" }
+
+// A block in the turn loop reports done on every pass. The gate counts
+// reporters by name, so a chatty one cannot stand in for a silent one — which
+// would open the game before the other block had finished.
+func TestGateCountsReportersNotMessages(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	g := ports.NewGraph("repeating-init")
+	gate := blocks.NewGate("start-game")
+	chatty := &repeatingReporter{name: "chatty", out: make(chan ports.State, 8)}
+	silent := &repeatingReporter{name: "silent", out: make(chan ports.State, 8)}
+
+	g.ConnectState(chatty, gate)
+	g.ConnectState(silent, gate)
+	g.Start(ctx)
+
+	// One block reports done three times; the gate must still be waiting.
+	for i := 0; i < 3; i++ {
+		chatty.out <- ports.State{Node: chatty.name, Phase: ports.PhaseDone}
+	}
+	select {
+	case <-gate.Ready():
+		t.Fatal("one reporter's repeats opened a gate waiting on two blocks")
+	case <-time.After(150 * time.Millisecond):
+	}
+
+	silent.out <- ports.State{Node: silent.name, Phase: ports.PhaseDone}
+	select {
+	case <-gate.Ready():
+	case <-time.After(2 * time.Second):
+		t.Fatal("the gate never opened after every reporter finished")
+	}
+}
+
+// Working is not done: a gate waiting on a block that is still going must stay
+// shut.
+func TestGateIgnoresWorking(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	g := ports.NewGraph("working-init")
+	gate := blocks.NewGate("start-game")
+	busy := &repeatingReporter{name: "busy", out: make(chan ports.State, 8)}
+
+	g.ConnectState(busy, gate)
+	g.Start(ctx)
+
+	busy.out <- ports.State{Node: busy.name, Phase: ports.PhaseWorking}
+	select {
+	case <-gate.Ready():
+		t.Fatal("a working report opened the gate")
+	case <-time.After(150 * time.Millisecond):
+	}
+
+	busy.out <- ports.State{Node: busy.name, Phase: ports.PhaseDone}
+	select {
+	case <-gate.Ready():
+	case <-time.After(2 * time.Second):
+		t.Fatal("the gate never opened")
+	}
+}
+
+type repeatingReporter struct {
+	name string
+	out  chan ports.State
+}
+
+func (r *repeatingReporter) NodeName() string                 { return r.name }
+func (r *repeatingReporter) StateOutPort() <-chan ports.State { return r.out }

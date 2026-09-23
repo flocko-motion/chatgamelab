@@ -17,25 +17,32 @@ import (
 type Gate struct {
 	name string
 
-	in chan ports.Signal
+	in chan ports.State
 
 	mu       sync.Mutex
 	expected int
-	seen     int
-	open     bool
-	ready    chan struct{}
+	// Counted by name, not by message: a block in the turn loop reports done on
+	// every pass, and one chatty reporter must not stand in for a silent one.
+	seen  map[string]bool
+	open  bool
+	ready chan struct{}
 }
 
 func NewGate(name string) *Gate {
-	return &Gate{name: name, in: make(chan ports.Signal, 8), ready: make(chan struct{})}
+	return &Gate{
+		name:  name,
+		in:    make(chan ports.State, 16),
+		seen:  map[string]bool{},
+		ready: make(chan struct{}),
+	}
 }
 
-func (b *Gate) NodeName() string                  { return b.name }
-func (b *Gate) SignalInPort() chan<- ports.Signal { return b.in }
+func (b *Gate) NodeName() string                { return b.name }
+func (b *Gate) StateInPort() chan<- ports.State { return b.in }
 
-// ExpectSignals is called by the graph, which is the only thing that knows how
+// ExpectReporters is called by the graph, which is the only thing that knows how
 // many blocks were wired to report here.
-func (b *Gate) ExpectSignals(n int) {
+func (b *Gate) ExpectReporters(n int) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.expected = n
@@ -68,18 +75,21 @@ func (b *Gate) Start(ctx context.Context) {
 			select {
 			case <-ctx.Done():
 				return
-			case _, alive := <-b.in:
+			case state, alive := <-b.in:
 				if !alive {
 					return
 				}
+				if state.Phase != ports.PhaseDone {
+					continue
+				}
 				b.mu.Lock()
-				b.seen++
-				if b.seen >= b.expected {
+				b.seen[state.Node] = true
+				if len(b.seen) >= b.expected {
 					b.openLocked()
 				}
-				done := b.open
+				open := b.open
 				b.mu.Unlock()
-				if done {
+				if open {
 					return
 				}
 			}

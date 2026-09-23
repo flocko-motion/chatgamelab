@@ -21,8 +21,8 @@ type ImageOnce struct {
 	image  adapters.Image
 	prompt string
 
-	out  ports.ImageBroadcast
-	done ports.SignalBroadcast
+	out   ports.ImageBroadcast
+	state ports.StateBroadcast
 
 	mu        sync.Mutex
 	data      ports.ImageData
@@ -42,9 +42,9 @@ func NewImageOnce(name string, image adapters.Image, prompt string) *ImageOnce {
 func (b *ImageOnce) NodeName() string                     { return b.name }
 func (b *ImageOnce) ImageOutPort() <-chan ports.ImageData { return b.out.Subscribe() }
 
-// SignalOutPort reports that the picture exists. Wire it to the gate only if
-// the game should wait for it; a portrait usually should not.
-func (b *ImageOnce) SignalOutPort() <-chan ports.Signal { return b.done.Subscribe() }
+// StateOutPort reports what this block is doing. Wire it to the gate only if the
+// game should wait for the picture; a portrait usually should not.
+func (b *ImageOnce) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 // ExportState records that the picture exists, not the picture itself. The
 // image is persisted as the session's one durable artifact and re-served from
@@ -69,11 +69,15 @@ func (b *ImageOnce) RestoreState(s string) {
 // stage in the loop.
 func (b *ImageOnce) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.out.Close(); b.done.Close() }()
+		defer func() { b.out.Close(); b.state.Close() }()
 
 		b.mu.Lock()
 		already := b.generated
 		b.mu.Unlock()
+
+		if !already {
+			b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
+		}
 
 		// A resumed session skips generation: the image already exists in
 		// storage, and paying again would produce a different picture. The
@@ -100,6 +104,6 @@ func (b *ImageOnce) Start(ctx context.Context) {
 		if has {
 			b.out.Send(data)
 		}
-		b.done.Send(ports.Signal{})
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseDone})
 	}()
 }
