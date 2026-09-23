@@ -40,6 +40,16 @@ export class Inspector {
     this.body.replaceChildren(text("p", "meta", "loading…"));
     this.dialog.showModal();
 
+    try {
+      await this.#fill(name);
+    } catch (error) {
+      // Anything unhandled here used to leave the panel saying "loading…"
+      // indefinitely, which reads as a hang rather than as a failure.
+      this.body.replaceChildren(text("p", "meta", `could not read ${name}: ${String(error)}`));
+    }
+  }
+
+  async #fill(name: string): Promise<void> {
     const response = await fetch(new URL(`nodes/${encodeURIComponent(name)}`, this.base));
     if (!response.ok) {
       this.body.replaceChildren(text("p", "meta", `no detail for ${name}`));
@@ -52,8 +62,9 @@ export class Inspector {
       facts(detail),
     ];
 
-    if (detail.outputs.length) parts.push(samples("last outputs", detail.outputs));
-    if (detail.inputs.length) parts.push(samples("last inputs", detail.inputs));
+    // A sink has no outputs and a source has no inputs, so neither is assumed.
+    if (detail.outputs?.length) parts.push(samples("last outputs", detail.outputs));
+    if (detail.inputs?.length) parts.push(samples("last inputs", detail.inputs));
 
     // Said rather than omitted: a reader looking for the key should learn why
     // there isn't one rather than assume it was hidden.
