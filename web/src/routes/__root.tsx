@@ -73,6 +73,7 @@ function RootComponent() {
     pathname.startsWith(ROUTES.AUTH_REGISTER) ||
     pathname.startsWith(ROUTES.AUTH_LOGOUT) ||
     pathname.startsWith(ROUTES.INVITES) ||
+    pathname === ROUTES.CODE ||
     isGuestPlayRoute;
 
   // Routes that participants are allowed to access

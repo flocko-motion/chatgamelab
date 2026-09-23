@@ -388,6 +388,14 @@
     "email": "Email",
     "emailPlaceholder": "Enter email address",
     "empty": "No members in this organization.",
+    "enterCode": {
+      "description": "Did you get a code of three or four words? Enter it here.",
+      "placeholder": "e.g. apfel otter turm",
+      "submit": "Continue",
+      "title": "Enter code",
+      "unknown": "This code does not exist. Please check the spelling.",
+      "wrongLength": "A code has three or four words."
+    },
     "error": "Error",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -829,6 +837,7 @@
     },
     "help": "Help",
     "home": {
+      "codeCta": "Enter code",
       "features": {
         "create": {
           "description": "Design interactive text adventures powered by AI",
@@ -876,7 +885,8 @@
         "acceptFailed": "Failed to accept invite. Please try again.",
         "expired": "This invite link has expired.",
         "loadFailed": "Failed to load invite details. Please try again.",
-        "notFound": "This invite link is invalid or has been revoked."
+        "notFound": "This invite link is invalid or has been revoked.",
+        "tokenLocked": "Too many failed attempts – please try again later."
       },
       "goHome": "Go to Home",
       "participant": {
@@ -1092,6 +1102,9 @@
         "notAuthorized": "You don't have permission to manage workshops. Only heads and teachers can access this page.",
         "participantGames": "{{count}} games",
         "participantJoined": "Joined {{date}}",
+        "participantLinkDescription": "With this link or code the participant gets back into their account. It works like a password – give it only to them.",
+        "participantLinkTitle": "Re-login link",
+        "participantLinkTitleNamed": "Re-login link for {{name}}",
         "participantName": "Participant name",
         "participants": "Participants",
         "promptConstraintsFallbackOrg": "Using organization constraint as default: {{constraint}}",
@@ -1103,6 +1116,12 @@
         "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
         "removeParticipantMessage": "Are you sure you want to remove \"{{name}}\" from this workshop? This action cannot be undone.",
         "removeParticipantTitle": "Remove Participant",
+        "resetAccess": "Reset access",
+        "resetAccessDone": "New access created. The old link no longer works.",
+        "resetAccessError": "Access could not be reset. Please try again.",
+        "resetAccessMessage": "A new link with a new code will be created.",
+        "resetAccessTitle": "Reset access?",
+        "resetAccessWarning": "The previous link and code stop working – including on devices where the participant is currently logged in.",
         "revokeInvite": "Revoke Invite Link",
         "selectApiKey": "Select an API key",
         "settings": "Settings",
@@ -1253,6 +1272,13 @@
       "untitledGame": "Untitled Game"
     },
     "settings": "Settings",
+    "share": {
+      "codeHint": "Or enter the code at {{url}}:",
+      "copied": "Copied",
+      "copyLink": "Copy link",
+      "fullscreenHint": "Click anywhere or press Esc to close",
+      "qrHint": "Tap to enlarge"
+    },
     "showing": "{{count}} members",
     "sort": {
       "label": "Sort by",
@@ -1359,9 +1385,11 @@
       "notFound": "Not Found",
       "permission": "Permission Denied",
       "server": "Server Error",
+      "tokenLocked": "Temporarily locked",
       "validation": "Validation Error",
       "workshopInactive": "Workshop Inactive"
     },
+    "tokenLocked": "Too many failed attempts – please try again later.",
     "unauthorized": "Please log in to continue.",
     "unexpected": "An unexpected error occurred.",
     "userNotRegistered": "You need to complete registration before continuing.",
@@ -1402,6 +1430,7 @@
       "notInWorkshopMode": "You are not in workshop mode. Please enter a workshop first.",
       "title": "Workshop Settings"
     },
+    "showInviteLink": "Show invite link",
     "title": "My Workshop",
     "you": "You"
   },

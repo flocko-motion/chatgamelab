@@ -388,6 +388,14 @@
     "email": "E-Mail",
     "emailPlaceholder": "E-Mail-Adresse eingeben",
     "empty": "Keine Mitglieder in dieser Organisation.",
+    "enterCode": {
+      "description": "Du hast einen Code aus drei oder vier Wörtern bekommen? Gib ihn hier ein.",
+      "placeholder": "z. B. apfel otter turm",
+      "submit": "Weiter",
+      "title": "Code eingeben",
+      "unknown": "Diesen Code gibt es nicht. Bitte prüfe die Schreibweise.",
+      "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
+    },
     "error": "Fehler",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -829,6 +837,7 @@
     },
     "help": "Hilfe",
     "home": {
+      "codeCta": "Code eingeben",
       "features": {
         "create": {
           "description": "Entwirf interaktive Text-Adventures mit KI",
@@ -876,7 +885,8 @@
         "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut.",
         "expired": "Dieser Einladungslink ist abgelaufen.",
         "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
-        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen."
+        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
+        "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen."
       },
       "goHome": "Zur Startseite",
       "participant": {
@@ -1092,6 +1102,9 @@
         "notAuthorized": "Sie haben keine Berechtigung, Workshops zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
         "participantGames": "{{count}} Spiele",
         "participantJoined": "Beigetreten am {{date}}",
+        "participantLinkDescription": "Mit diesem Link oder Code kommt die Person zurück in ihr Konto. Er funktioniert wie ein Passwort – gib ihn nur ihr selbst.",
+        "participantLinkTitle": "Link zum erneuten Anmelden",
+        "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
         "promptConstraintsFallbackOrg": "Organisations-Einschränkung wird als Standard verwendet: {{constraint}}",
@@ -1103,6 +1116,12 @@
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
         "removeParticipantMessage": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
         "removeParticipantTitle": "Teilnehmer entfernen",
+        "resetAccess": "Zugang zurücksetzen",
+        "resetAccessDone": "Neuer Zugang erstellt. Der alte Link funktioniert nicht mehr.",
+        "resetAccessError": "Der Zugang konnte nicht zurückgesetzt werden. Bitte versuche es erneut.",
+        "resetAccessMessage": "Es wird ein neuer Link mit neuem Code erzeugt.",
+        "resetAccessTitle": "Zugang zurücksetzen?",
+        "resetAccessWarning": "Der bisherige Link und Code funktionieren danach nicht mehr – auch nicht auf Geräten, auf denen die Person gerade angemeldet ist.",
         "revokeInvite": "Einladungslink widerrufen",
         "selectApiKey": "API-Schlüssel auswählen",
         "settings": "Einstellungen",
@@ -1253,6 +1272,13 @@
       "untitledGame": "Unbenanntes Spiel"
     },
     "settings": "Einstellungen",
+    "share": {
+      "codeHint": "Oder den Code unter {{url}} eingeben:",
+      "copied": "Kopiert",
+      "copyLink": "Link kopieren",
+      "fullscreenHint": "Zum Schließen irgendwo klicken oder Esc drücken",
+      "qrHint": "Zum Vergrößern antippen"
+    },
     "showing": "{{count}} Mitglieder",
     "sort": {
       "label": "Sortieren nach",
@@ -1359,9 +1385,11 @@
       "notFound": "Nicht gefunden",
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",
+      "tokenLocked": "Vorübergehend gesperrt",
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv"
     },
+    "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen.",
     "unauthorized": "Bitte melde dich an, um fortzufahren.",
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
     "userNotRegistered": "Du musst die Registrierung abschließen, bevor du fortfahren kannst.",
@@ -1402,6 +1430,7 @@
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",
       "title": "Workshop-Einstellungen"
     },
+    "showInviteLink": "Einladungslink anzeigen",
     "title": "Mein Workshop",
     "you": "Du"
   },

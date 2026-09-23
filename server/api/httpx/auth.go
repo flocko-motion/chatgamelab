@@ -260,6 +260,11 @@ func Authenticate(next http.Handler) http.Handler {
 			if err != nil {
 				if !db.ParticipantTokenKnown(r.Context(), tokenString) {
 					tokenlock.Fail()
+					// A reset token lives on in the HttpOnly cookie; drop it so
+					// it stops counting on every request.
+					if tokenSource == "cookie" {
+						ClearSessionCookie(w)
+					}
 				}
 				// Check for specific error codes
 				if authErr, ok := err.(*db.ParticipantAuthError); ok {

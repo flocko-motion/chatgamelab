@@ -70,6 +70,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.billing",
     messageKey: "errors:billingNotActive",
   },
+  [ErrorCodes.TOKEN_LOCKED]: {
+    titleKey: "errors:titles.tokenLocked",
+    messageKey: "errors:tokenLocked",
+  },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:rateLimitExceeded",

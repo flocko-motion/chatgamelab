@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LandingRouteImport } from './routes/landing'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CodeRouteImport } from './routes/code'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
@@ -59,6 +60,11 @@ const LandingRoute = LandingRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CodeRoute = CodeRouteImport.update({
+  id: '/code',
+  path: '/code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiKeysRoute = ApiKeysRouteImport.update({
@@ -201,6 +207,7 @@ const AuthLoginAuth0CallbackRoute = AuthLoginAuth0CallbackRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
+  '/code': typeof CodeRoute
   '/dashboard': typeof DashboardRoute
   '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
@@ -234,6 +241,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
+  '/code': typeof CodeRoute
   '/dashboard': typeof DashboardRoute
   '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
@@ -268,6 +276,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
+  '/code': typeof CodeRoute
   '/dashboard': typeof DashboardRoute
   '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/api-keys'
+    | '/code'
     | '/dashboard'
     | '/landing'
     | '/profile'
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api-keys'
+    | '/code'
     | '/dashboard'
     | '/landing'
     | '/profile'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/api-keys'
+    | '/code'
     | '/dashboard'
     | '/landing'
     | '/profile'
@@ -403,6 +415,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiKeysRoute: typeof ApiKeysRoute
+  CodeRoute: typeof CodeRoute
   DashboardRoute: typeof DashboardRoute
   LandingRoute: typeof LandingRoute
   ProfileRoute: typeof ProfileRoute
@@ -462,6 +475,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/code': {
+      id: '/code'
+      path: '/code'
+      fullPath: '/code'
+      preLoaderRoute: typeof CodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-keys': {
@@ -659,6 +679,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
+  CodeRoute: CodeRoute,
   DashboardRoute: DashboardRoute,
   LandingRoute: LandingRoute,
   ProfileRoute: ProfileRoute,

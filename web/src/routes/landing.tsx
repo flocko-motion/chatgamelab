@@ -23,6 +23,7 @@ import {
   IconSparkles,
   IconRocket,
   IconLogin,
+  IconKeyboard,
 } from "@tabler/icons-react";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 import { ROUTES } from "@/common/routes/routes";
@@ -134,6 +135,16 @@ function LandingPage() {
                   color="gray"
                 >
                   {t("home.loginCta", "Log in")}
+                </ActionButton>
+                <ActionButton
+                  onClick={() => {
+                    router.navigate({ to: ROUTES.CODE });
+                  }}
+                  leftSection={<IconKeyboard size={20} />}
+                  size="md"
+                  color="gray"
+                >
+                  {t("home.codeCta")}
                 </ActionButton>
               </Group>
             </Stack>

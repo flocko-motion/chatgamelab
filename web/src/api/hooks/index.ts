@@ -86,7 +86,7 @@ export {
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
-  useGetParticipantToken,
+  useResetParticipantToken,
   useCreateWorkshopEmailInvite,
   useAddMemberToWorkshop,
 } from "./useWorkshops";
