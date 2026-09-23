@@ -32,16 +32,24 @@ export class View {
   }
 
   render(state: PlayerState): void {
-    const live = state.connection === "open";
-    this.elements.status.textContent = state.connection;
-    this.elements.talk.disabled = !live;
-    this.elements.typed.disabled = !live;
+    // Playable, not merely connected: the gate holds the player's inputs until
+    // the init stem has finished, so the controls follow the gate rather than
+    // the socket.
+    const playable = state.connection === "open" && state.started;
+    this.elements.status.textContent = this.#statusLabel(state);
+    this.elements.talk.disabled = !playable;
+    this.elements.typed.disabled = !playable;
 
     this.#renderGraph(state);
     this.#renderProps(state);
     this.#renderUsage(state);
     this.#renderImage(state);
     this.#renderFeed(state);
+  }
+
+  #statusLabel(state: PlayerState): string {
+    if (state.connection !== "open") return state.connection;
+    return state.started ? "ready" : "preparing…";
   }
 
   /** Echoes what the player typed, which the engine never sends back. */

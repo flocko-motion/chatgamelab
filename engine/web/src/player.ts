@@ -172,7 +172,20 @@ export class Player {
     const response = await fetch(new URL("topology", base));
     if (!response.ok) return;
     this.state.topology = (await response.json()) as Topology;
+    // A gate that opened before the wiring arrived would otherwise leave the
+    // game looking unstarted.
+    this.#recomputeStarted();
     this.#notify();
+  }
+
+  /**
+   * The game has begun once the gate reports ready. The gate is found by its
+   * role rather than by name, so the core does not have to know what a genre
+   * calls it.
+   */
+  #recomputeStarted(): void {
+    const gate = this.state.topology?.nodes.find((node) => node.role === "gate");
+    this.state.started = gate ? this.state.phases[gate.name] === "ready" : false;
   }
 
   #applyBlockState(value: string): void {
@@ -185,6 +198,7 @@ export class Player {
     const report = parsed as Partial<BlockState>;
     if (typeof report.node !== "string" || typeof report.phase !== "string") return;
     this.state.phases[report.node] = report.phase;
+    this.#recomputeStarted();
   }
 
   #applyUsage(value: string): void {

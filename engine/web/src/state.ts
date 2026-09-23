@@ -55,6 +55,12 @@ export interface PlayerState {
   phases: Record<string, Phase>;
   /** What the session has spent, per block and per model. Null until reported. */
   usage: UsageReport | null;
+  /**
+   * Whether the game has begun. False while the init stem is still running:
+   * the gate holds the player's inputs until preparation finishes, so a control
+   * that looks usable before then is lying about what will happen.
+   */
+  started: boolean;
 }
 
 export function emptyState(): PlayerState {
@@ -69,6 +75,7 @@ export function emptyState(): PlayerState {
     topology: null,
     phases: {},
     usage: null,
+    started: false,
   };
 }
 

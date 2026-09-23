@@ -249,3 +249,75 @@ func TestBlocksReportTheirPhases(t *testing.T) {
 		t.Error("the live session never reported working")
 	}
 }
+
+// The gate holds the player's inputs until preparation finishes, and reports
+// that it has opened — which is what a client needs before offering a control
+// that will actually work.
+func TestGateOpeningIsVisibleOnTheStream(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "gated",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	deadline := time.After(3 * time.Second)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream != "state" {
+				continue
+			}
+			var report engine.BlockState
+			if err := json.Unmarshal([]byte(e.Value), &report); err != nil {
+				t.Fatal(err)
+			}
+			if report.Node == "start-game" && report.Phase == "ready" {
+				return
+			}
+		case <-deadline:
+			t.Fatal("the gate never reported opening, so a client cannot know when to let anyone play")
+		}
+	}
+}
+
+// Words typed while the game is still preparing are kept and delivered when it
+// starts, because someone who typed while a portrait rendered meant to say it.
+func TestInputDuringPreparationIsNotLost(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "early",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	if err := s.Say("hello?"); err != nil {
+		t.Fatal(err)
+	}
+
+	// The character answers, which it can only do if the held line was
+	// delivered once the gate opened.
+	deadline := time.After(3 * time.Second)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream == "text" && strings.Contains(e.Value, "shall not pass") {
+				return
+			}
+		case <-deadline:
+			t.Fatal("nothing typed before the gate opened ever reached the game")
+		}
+	}
+}
