@@ -9,6 +9,7 @@ package engine
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -123,11 +124,19 @@ type Event struct {
 	Value  string
 }
 
+// BlockState is a block reporting on itself, as it appears on the wire. It is
+// declared here rather than reusing the internal type so the public surface —
+// and the generated client — does not depend on internals.
+type BlockState struct {
+	Node  string `json:"node"`
+	Phase string `json:"phase"`
+}
+
 // StreamNames is every stream a genre can wire. It is the source the generated
 // TypeScript union is built from, so adding an output block here is what makes
 // the client aware of it.
 func StreamNames() []string {
-	return []string{"text", "audio", "image", "props", "flag", "error"}
+	return []string{"text", "audio", "image", "props", "flag", "state", "error"}
 }
 
 type Session struct {
@@ -213,8 +222,14 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 	ctx, cancel := context.WithCancel(ctx)
 
 	s := &Session{spec: spec, wiring: w, events: make(chan Event, 256), cancel: cancel}
+
+	// Subscribed before anything starts: a block reports its opening phase as it
+	// starts, and a subscriber attached afterwards would never see it.
+	states := w.Graph.ObserveStates(ctx)
+
 	w.Graph.Start(ctx)
 	s.merge(ctx)
+	s.forwardStates(ctx, states)
 	return s, nil
 }
 
@@ -242,6 +257,35 @@ func (s *Session) merge(ctx context.Context) {
 			}
 		}(name, ch)
 	}
+}
+
+// observeStates puts every block's own report on the session stream. It is a
+// debugging surface first — watching which block is working, and for how long,
+// is how you see what a turn actually did — and the data a graph view draws.
+func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case state, alive := <-states:
+				if !alive {
+					return
+				}
+				blob, err := json.Marshal(BlockState{Node: state.Node, Phase: string(state.Phase)})
+				if err != nil {
+					continue
+				}
+				ev := Event{Stream: "state", Value: string(blob)}
+				_ = s.spec.Persist.Save(ctx, s.spec.ID, ev)
+				select {
+				case s.events <- ev:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
 }
 
 // Events is the session-scoped stream the transport serialises.

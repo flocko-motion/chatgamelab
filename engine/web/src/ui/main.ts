@@ -27,6 +27,7 @@ const view = new View({
   image: required<HTMLImageElement>("#scene"),
   feed: required<HTMLElement>("#feed"),
   talk: required<HTMLButtonElement>("#talk"),
+  pipeline: required<HTMLElement>("#pipeline"),
 });
 
 player.subscribe((state) => view.render(state));
@@ -41,5 +42,9 @@ talk.addEventListener("pointerdown", () => {
 const release = () => audio.stopCapture();
 talk.addEventListener("pointerup", release);
 talk.addEventListener("pointerleave", release);
+
+// The wiring does not change during a session, so it is fetched once and then
+// only its phases are updated.
+void player.loadTopology(new URL(`../sessions/${sessionID}/`, location.href));
 
 player.connect();

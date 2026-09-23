@@ -4,6 +4,8 @@
  * This is what makes the player headless: everything the UI could draw is here,
  * so a test can play a full game and assert on this object without a DOM.
  */
+import type { Phase } from "./protocol.js";
+
 export type ConnectionState = "idle" | "connecting" | "open" | "closed" | "failed";
 
 export interface Utterance {
@@ -13,6 +15,24 @@ export interface Utterance {
   text: string;
   /** Set once the utterance is known to be finished. */
   complete: boolean;
+}
+
+/** A node in the session's wiring, as fetched once at startup. */
+export interface TopologyNode {
+  readonly name: string;
+  readonly role: "source" | "block" | "sink";
+}
+
+export interface TopologyEdge {
+  readonly from: string;
+  readonly to: string;
+  readonly kind: string;
+}
+
+export interface Topology {
+  readonly name: string;
+  readonly nodes: TopologyNode[];
+  readonly edges: TopologyEdge[];
 }
 
 export interface PlayerState {
@@ -29,6 +49,10 @@ export interface PlayerState {
   audioChunks: number;
   /** Anything the client did not recognise, kept rather than dropped. */
   notes: string[];
+  /** The wiring, fetched once. Null until it arrives. */
+  topology: Topology | null;
+  /** What each block is doing right now, keyed by node name. */
+  phases: Record<string, Phase>;
 }
 
 export function emptyState(): PlayerState {
@@ -40,6 +64,8 @@ export function emptyState(): PlayerState {
     image: null,
     audioChunks: 0,
     notes: [],
+    topology: null,
+    phases: {},
   };
 }
 

@@ -12,6 +12,7 @@ export type StreamName =
   | "image"
   | "props"
   | "flag"
+  | "state"
   | "error"
   ;
 
@@ -19,6 +20,17 @@ export type StreamName =
 export interface SessionEvent {
   readonly Stream: StreamName;
   readonly Value: string;
+}
+
+/**
+ * A block reporting on itself, carried as JSON in a `state` event's value.
+ * Two phases are enough: a block in the turn loop is never finished.
+ */
+export type Phase = "ready" | "working";
+
+export interface BlockState {
+  readonly node: string;
+  readonly phase: Phase;
 }
 
 export function isSessionEvent(value: unknown): value is SessionEvent {

@@ -69,6 +69,21 @@ func generate() []byte {
 	}
 	b.WriteString("}\n\n")
 
+	b.WriteString("/**\n")
+	b.WriteString(" * A block reporting on itself, carried as JSON in a `state` event's value.\n")
+	b.WriteString(" * Two phases are enough: a block in the turn loop is never finished.\n")
+	b.WriteString(" */\n")
+	b.WriteString("export type Phase = \"ready\" | \"working\";\n\n")
+	b.WriteString("export interface BlockState {\n")
+	for _, field := range tsFields(reflect.TypeOf(engine.BlockState{})) {
+		ts := field.tsType
+		if field.name == "phase" {
+			ts = "Phase"
+		}
+		fmt.Fprintf(&b, "  readonly %s: %s;\n", field.name, ts)
+	}
+	b.WriteString("}\n\n")
+
 	b.WriteString("export function isSessionEvent(value: unknown): value is SessionEvent {\n")
 	b.WriteString("  if (typeof value !== \"object\" || value === null) return false;\n")
 	b.WriteString("  const candidate = value as Partial<SessionEvent>;\n")

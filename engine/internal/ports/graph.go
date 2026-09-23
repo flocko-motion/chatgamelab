@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 )
 
 // Graph is a genre's wiring: nodes of three kinds (inputs, blocks, output
@@ -385,3 +386,46 @@ func (g *Graph) Mermaid() string {
 }
 
 func id(name string) string { return strings.ReplaceAll(name, "-", "_") }
+
+// ObserveStates merges every block's state reports into one stream.
+//
+// This is introspection rather than wiring: the gate consumes selected reports
+// through edges because what gates is a deliberate choice, while an observer of
+// the whole graph wants all of them and should not need ten edges drawn into a
+// collector node to get them.
+func (g *Graph) ObserveStates(ctx context.Context) <-chan State {
+	out := make(chan State, 128)
+
+	var wg sync.WaitGroup
+	for _, n := range g.nodes {
+		reporter, ok := n.(StateOut)
+		if !ok {
+			continue
+		}
+		wg.Add(1)
+		go func(stream <-chan State) {
+			defer wg.Done()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case state, alive := <-stream:
+					if !alive {
+						return
+					}
+					select {
+					case out <- state:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}(reporter.StateOutPort())
+	}
+
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+	return out
+}

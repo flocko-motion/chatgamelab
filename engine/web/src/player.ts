@@ -5,7 +5,8 @@
  *
  * Integration tests drive this directly against a running engine.
  */
-import { isSessionEvent, type SessionEvent } from "./protocol.js";
+import { isSessionEvent, type BlockState, type SessionEvent } from "./protocol.js";
+import type { Topology } from "./state.js";
 import { emptyState, type PlayerState } from "./state.js";
 import type { Transport, TransportMessage } from "./transport.js";
 
@@ -138,10 +139,36 @@ export class Player {
       case "props":
         this.state.props = parseProps(event.Value);
         break;
+      case "state":
+        this.#applyBlockState(event.Value);
+        break;
       default:
         this.state.notes.push(`${event.Stream}: ${event.Value}`);
     }
     this.#notify();
+  }
+
+  /**
+   * Fetches the wiring once. It does not change during a session, so it is a
+   * plain GET rather than something the live stream has to carry.
+   */
+  async loadTopology(base: string | URL): Promise<void> {
+    const response = await fetch(new URL("topology", base));
+    if (!response.ok) return;
+    this.state.topology = (await response.json()) as Topology;
+    this.#notify();
+  }
+
+  #applyBlockState(value: string): void {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      return;
+    }
+    const report = parsed as Partial<BlockState>;
+    if (typeof report.node !== "string" || typeof report.phase !== "string") return;
+    this.state.phases[report.node] = report.phase;
   }
 
   #extend(delta: string): void {

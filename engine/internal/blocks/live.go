@@ -24,6 +24,7 @@ type LiveSession struct {
 
 	audio ports.AudioBroadcast
 	text  ports.TextBroadcast
+	state ports.StateBroadcast
 }
 
 func NewLiveSession(name string, live adapters.Live, cfg adapters.LiveConfig) *LiveSession {
@@ -43,18 +44,33 @@ func (b *LiveSession) AudioOutPort() <-chan ports.AudioChunk { return b.audio.Su
 func (b *LiveSession) TextOutPort() <-chan string            { return b.text.Subscribe() }
 func (b *LiveSession) RequiredInputs() []ports.Kind          { return []ports.Kind{ports.KindAudio} }
 
+// StateOutPort reports the connection's life. A live session is working for as
+// long as the conversation lasts, which is what distinguishes it on a graph
+// view from a block that flickers once per turn.
+func (b *LiveSession) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
+
 func (b *LiveSession) Start(ctx context.Context) {
+	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 	conn, err := b.live.Open(ctx, b.cfg)
 	if err != nil {
+		b.state.Close()
 		b.text.Send("[engine] live session failed to open: " + err.Error())
 		b.audio.Close()
 		b.text.Close()
 		return
 	}
 
+	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
+
 	// Inbound: whatever the model produces, split onto the two output ports.
 	go func() {
-		defer func() { b.audio.Close(); b.text.Close(); conn.Close() }()
+		defer func() {
+			b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+			b.audio.Close()
+			b.text.Close()
+			b.state.Close()
+			conn.Close()
+		}()
 		for {
 			select {
 			case <-ctx.Done():
