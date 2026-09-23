@@ -66,19 +66,22 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 		"flag":  observer.Flags,
 	}}
 
+	// Both player inputs are always wired, because a live session accepts both.
+	// Typing is how the genre is played without a microphone, and how someone
+	// who would rather not speak can still play.
+	mic := blocks.NewPlayerInputAudio("player-input-audio")
+	keyboard := blocks.NewPlayerInputText("player-input-text")
+	g.ConnectAudioOut(mic, live)
+	g.ConnectTextOut(keyboard, live)
+	w.Speak = func(b []byte) { mic.Speak(b) }
+	w.Say = keyboard.Say
+
+	// A script drives the conversation in addition to the player rather than
+	// instead of them: a self-playing session that ignores whoever is watching
+	// is only useful to a test, and even a test may want to interject.
 	if len(cfg.Script.Lines) > 0 {
-		scripted := blocks.NewDummyInputAudio("dummy-input-audio", cfg.Script)
+		scripted := blocks.NewDummyInputAudio("scripted-input-audio", cfg.Script)
 		g.ConnectAudioOut(scripted, live)
-	} else {
-		// Both inputs are wired, because a live session accepts both. Typing is
-		// how the genre is tested without a microphone, and how someone who
-		// would rather not speak can still play.
-		mic := blocks.NewPlayerInputAudio("player-input-audio")
-		keyboard := blocks.NewPlayerInputText("player-input-text")
-		g.ConnectAudioOut(mic, live)
-		g.ConnectTextOut(keyboard, live)
-		w.Speak = func(b []byte) { mic.Speak(b) }
-		w.Say = keyboard.Say
 	}
 
 	g.ConnectAudioOut(live, outAudio)           // speech to the player
