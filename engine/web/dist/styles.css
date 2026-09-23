@@ -141,6 +141,8 @@ aside > section:last-child {
   flex-direction: column;
   flex: 1 1 45%;
   min-height: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line);
 }
 
 @media (max-width: 60rem) {
@@ -181,6 +183,8 @@ aside h2 {
   overflow-y: auto;
   min-height: 0;
   flex: 1;
+  /* Room under the heading, so the first line is not glued to the graph. */
+  padding-top: 0.35rem;
 }
 
 #details h4 {

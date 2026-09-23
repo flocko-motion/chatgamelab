@@ -388,6 +388,11 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 	return detail, true
 }
 
+// InspectEdge reports what one wire has carried.
+func (s *Session) InspectEdge(from, to, kind string) (ports.EdgeDetail, bool) {
+	return s.wiring.Graph.InspectEdge(from, to, kind)
+}
+
 // History is the conversation so far, in order. A client applies these through
 // exactly the same path as live events, so there is no second way to render a
 // session.

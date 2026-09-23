@@ -31,8 +31,9 @@ export class View {
     private readonly elements: ViewElements,
     onNodeClick: (name: string) => void,
     onBackgroundClick: () => void,
+    onEdgeClick: (from: string, to: string, kind: string) => void,
   ) {
-    this.#flowchart = new Flowchart(elements.graph, onNodeClick, onBackgroundClick);
+    this.#flowchart = new Flowchart(elements.graph, onNodeClick, onBackgroundClick, onEdgeClick);
   }
 
   render(state: PlayerState): void {

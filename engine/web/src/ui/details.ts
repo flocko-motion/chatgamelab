@@ -14,6 +14,13 @@ export interface Sample {
   readonly peer: string;
 }
 
+export interface EdgeDetail {
+  readonly from: string;
+  readonly to: string;
+  readonly kind: string;
+  readonly recent: Sample[];
+}
+
 export interface NodeDetail {
   readonly name: string;
   readonly role: string;
@@ -38,6 +45,36 @@ export class Details {
     this.#selected = null;
     this.title.textContent = "usage";
     this.#renderSession(state);
+  }
+
+  /** Shows what one wire has carried. */
+  async showEdge(from: string, to: string, kind: string): Promise<void> {
+    this.#selected = `${from}→${to}`;
+    this.title.textContent = `${from} → ${to}`;
+    this.body.replaceChildren(text("p", "meta", "loading…"));
+
+    try {
+      const query = new URLSearchParams({ from, to, kind });
+      const response = await fetch(new URL(`edge?${query}`, this.base));
+      if (!response.ok) {
+        this.body.replaceChildren(text("p", "meta", "no detail for this wire"));
+        return;
+      }
+
+      const detail = (await response.json()) as EdgeDetail;
+      const parts: HTMLElement[] = [];
+      const facts = document.createElement("div");
+      facts.className = "kv";
+      facts.append(text("span", "k", "carries"), text("span", "v", detail.kind));
+      parts.push(facts);
+
+      if (detail.recent.length) parts.push(samples("last carried", detail.recent));
+      else parts.push(text("p", "meta", "nothing has crossed this wire yet"));
+
+      this.body.replaceChildren(...parts);
+    } catch (error) {
+      this.body.replaceChildren(text("p", "meta", `could not read this wire: ${String(error)}`));
+    }
   }
 
   /** Shows one block, fetched fresh so its recent values are current. */
@@ -127,7 +164,8 @@ function samples(title: string, entries: Sample[]): HTMLElement {
     const row = document.createElement("div");
     row.className = "sample";
     row.append(
-      text("span", "sample-kind", `${entry.kind} · ${entry.peer}`),
+      // An edge sample needs no peer: both ends are already in the heading.
+      text("span", "sample-kind", entry.peer ? `${entry.kind} · ${entry.peer}` : entry.kind),
       // An empty value is the marker closing an utterance, which is worth
       // naming rather than rendering as a blank line.
       text("span", "sample-value", entry.value || "(end of utterance)"),

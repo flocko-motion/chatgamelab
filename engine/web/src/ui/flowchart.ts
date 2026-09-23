@@ -20,6 +20,7 @@ function token(name: string, fallback: string): string {
 
 export type NodeClickHandler = (name: string) => void;
 export type BackgroundClickHandler = () => void;
+export type EdgeClickHandler = (from: string, to: string, kind: string) => void;
 
 export class Flowchart {
   #cy: cytoscape.Core | null = null;
@@ -37,6 +38,7 @@ export class Flowchart {
     private readonly container: HTMLElement,
     private readonly onNodeClick: NodeClickHandler,
     private readonly onBackgroundClick: BackgroundClickHandler,
+    private readonly onEdgeClick: EdgeClickHandler,
   ) {}
 
   /**
@@ -175,6 +177,11 @@ export class Flowchart {
       this.select(event.target.id());
       this.onNodeClick(event.target.id());
     });
+    this.#cy.on("tap", "edge", (event) => {
+      const edge = event.target;
+      this.selectEdge(edge.id());
+      this.onEdgeClick(edge.data("source"), edge.data("target"), edge.data("label"));
+    });
     this.#cy.on("tap", (event) => {
       // A tap on the background rather than on a block clears the selection,
       // which is how a reader gets back to the whole session's figures.
@@ -198,6 +205,20 @@ export class Flowchart {
       if (node.empty()) return;
       node.addClass("selected");
       node.connectedEdges().addClass("incident");
+    });
+  }
+
+  /** Marks one wire and the blocks it joins. */
+  selectEdge(id: string): void {
+    const cy = this.#cy;
+    if (!cy) return;
+
+    cy.batch(() => {
+      cy.elements().removeClass("selected incident");
+      const edge = cy.getElementById(id);
+      if (edge.empty()) return;
+      edge.addClass("incident");
+      edge.connectedNodes().addClass("selected");
     });
   }
 
