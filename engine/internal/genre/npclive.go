@@ -10,6 +10,7 @@ import (
 type NPCLiveConfig struct {
 	Live      adapters.Live
 	Tool      adapters.Tool
+	Image     adapters.Image
 	LiveCfg   adapters.LiveConfig
 	Guardrail string
 	Scenario  string
@@ -33,8 +34,18 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 
 	outText := blocks.NewPlayerOutputText("out-text")
 	outAudio := blocks.NewPlayerOutputAudio("out-audio")
+	outImage := blocks.NewPlayerOutputImage("out-image")
+
+	// One portrait of the character, made at the start from the scenario and
+	// never again. A one-shot source feeds it: the prompt arrives once because
+	// the input emits once, and the block refuses a second anyway.
+	portraitPrompt := blocks.NewDummyInputText("portrait-prompt",
+		blocks.InputScript{Lines: []string{cfg.Scenario}})
+	portrait := blocks.NewImageOnce("portrait", cfg.Image)
 
 	g := ports.NewGraph("npc-live")
+	g.ConnectTextOut(portraitPrompt, portrait)
+	g.ConnectImageOut(portrait, outImage)
 
 	// The observer's flags ride the same event stream. That also makes them the
 	// one thing worth persisting from an otherwise ephemeral conversation:
@@ -42,6 +53,7 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	w := &Wiring{Graph: g, Sinks: map[string]chan string{
 		"text":  outText.Seen,
 		"audio": outAudio.Seen,
+		"image": outImage.Seen,
 		"flag":  observer.Flags,
 	}}
 

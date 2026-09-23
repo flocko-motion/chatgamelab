@@ -139,3 +139,14 @@ func TestUnknownSessionIs404(t *testing.T) {
 		t.Errorf("status %d, want 404", resp.StatusCode)
 	}
 }
+
+// newServer mounts the engine subtree and registers one launched session, which
+// is what every test here needs before it can do anything.
+func newServer(t *testing.T, id string, session *engine.Session) *httptest.Server {
+	t.Helper()
+	a := api.New()
+	a.Register(id, session)
+	srv := httptest.NewServer(a.Handler())
+	t.Cleanup(srv.Close)
+	return srv
+}

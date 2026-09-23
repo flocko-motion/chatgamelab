@@ -1,0 +1,15 @@
+{
+  "name": "chatgamelab-engine-player",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "bundle": "node build.mjs",
+    "build": "npm run typecheck && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.0"
+  }
+}

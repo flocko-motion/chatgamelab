@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"engine"
-	"engine/internal/player"
+	"engine/web"
 )
 
 // Package api is the engine's HTTP transport: ordinary handler methods the
@@ -136,6 +136,31 @@ func (a *API) SessionGraph(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, s.Describe())
 }
 
+// SessionTopology is the wiring as data, for a view that draws it. Teaching how
+// a turn is assembled is part of what this platform is for, so the shape of the
+// graph is a first-class response rather than a debug dump.
+func (a *API) SessionTopology(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(s.Topology())
+}
+
+// SessionFlowchart is the same wiring as mermaid, which the project's own
+// documentation already speaks.
+func (a *API) SessionFlowchart(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	fmt.Fprint(w, s.Mermaid())
+}
+
 // Handler is the engine's whole HTTP subtree, mounted at one prefix by whoever
 // runs it. Owning the subtree is what lets the embedded player address the
 // engine with relative URLs — the same ones in the monolith and standalone —
@@ -148,7 +173,9 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("GET /sessions/{id}/stream", a.SessionStream)
 	mux.HandleFunc("POST /sessions/{id}/input", a.SessionInput)
 	mux.HandleFunc("GET /sessions/{id}/graph", a.SessionGraph)
+	mux.HandleFunc("GET /sessions/{id}/topology", a.SessionTopology)
+	mux.HandleFunc("GET /sessions/{id}/flowchart", a.SessionFlowchart)
 	mux.HandleFunc("GET /sessions/{id}/live", a.SessionLive)
-	mux.Handle("GET /player/", http.StripPrefix("/player/", http.FileServerFS(player.FS())))
+	mux.Handle("GET /player/", http.StripPrefix("/player/", http.FileServerFS(web.FS())))
 	return mux
 }

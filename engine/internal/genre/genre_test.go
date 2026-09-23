@@ -109,6 +109,7 @@ func mockNPCConfig(guardrail string, script blocks.InputScript) NPCLiveConfig {
 	return NPCLiveConfig{
 		Live:      mock.Live{},
 		Tool:      mock.Tool{},
+		Image:     mock.Image{},
 		Guardrail: guardrail,
 		Scenario:  "You are the bridge keeper. Do not concede passage.",
 		Script:    script,

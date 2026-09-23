@@ -61,6 +61,12 @@ type Live interface {
 	Open(ctx context.Context, cfg LiveConfig) (LiveConn, error)
 }
 
+// Image generates one picture from a prompt. Single-shot by nature: nothing
+// about an image is continued.
+type Image interface {
+	Generate(ctx context.Context, prompt string) ([]byte, error)
+}
+
 // KeyFunc yields the API key at the moment it is needed, rather than holding a
 // copy. An adapter calls it per connection or per request, so nothing here ever
 // stores a secret.

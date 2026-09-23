@@ -9,4 +9,5 @@ package openai
 const (
 	realtimeURL  = "wss://api.openai.com/v1/realtime"
 	responsesURL = "https://api.openai.com/v1/responses"
+	imagesURL    = "https://api.openai.com/v1/images/generations"
 )

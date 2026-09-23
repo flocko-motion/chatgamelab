@@ -77,6 +77,14 @@ func (c *liveConn) Close() error {
 	return nil
 }
 
+// Image returns a recognisable placeholder rather than bytes, so a test can
+// assert on what was asked for.
+type Image struct{}
+
+func (Image) Generate(_ context.Context, prompt string) ([]byte, error) {
+	return []byte("<image of " + prompt + ">"), nil
+}
+
 // Tool classifies by keyword, which is enough to drive the observer loop
 // deterministically in a test.
 type Tool struct{}

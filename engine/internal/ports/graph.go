@@ -277,3 +277,75 @@ func (g *Graph) RestoreState(state map[string]string) error {
 	}
 	return nil
 }
+
+// Topology is the wiring in a form something can draw. The engine ships it
+// because ChatGameLab is an educational platform: showing how a turn is
+// actually assembled is the product, not a debug afterthought.
+type Topology struct {
+	Name  string         `json:"name"`
+	Nodes []TopologyNode `json:"nodes"`
+	Edges []TopologyEdge `json:"edges"`
+}
+
+type TopologyNode struct {
+	Name string `json:"name"`
+	// Role is what a reader needs to tell a source from a sink at a glance.
+	Role string `json:"role"`
+}
+
+type TopologyEdge struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+	Kind string `json:"kind"`
+}
+
+func (g *Graph) Topology() Topology {
+	t := Topology{Name: g.Name}
+	for _, n := range g.nodes {
+		t.Nodes = append(t.Nodes, TopologyNode{Name: NodeName(n), Role: g.role(n)})
+	}
+	for _, e := range g.edges {
+		t.Edges = append(t.Edges, TopologyEdge{
+			From: NodeName(e.From),
+			To:   NodeName(e.To),
+			Kind: e.Kind.String(),
+		})
+	}
+	return t
+}
+
+func (g *Graph) role(n any) string {
+	in, out := g.hasAnyIncoming(n), g.hasAnyOutgoing(n)
+	switch {
+	case !in && out:
+		return "source"
+	case in && !out:
+		return "sink"
+	default:
+		return "block"
+	}
+}
+
+// Mermaid renders the wiring as a flowchart, which is what the project's own
+// documentation already speaks.
+func (g *Graph) Mermaid() string {
+	var b strings.Builder
+	b.WriteString("graph LR\n")
+	for _, n := range g.nodes {
+		name := NodeName(n)
+		switch g.role(n) {
+		case "source":
+			fmt.Fprintf(&b, "  %s[/%s/]\n", id(name), name)
+		case "sink":
+			fmt.Fprintf(&b, "  %s[\\%s\\]\n", id(name), name)
+		default:
+			fmt.Fprintf(&b, "  %s([%s])\n", id(name), name)
+		}
+	}
+	for _, e := range g.edges {
+		fmt.Fprintf(&b, "  %s -- %s --> %s\n", id(NodeName(e.From)), e.Kind, id(NodeName(e.To)))
+	}
+	return b.String()
+}
+
+func id(name string) string { return strings.ReplaceAll(name, "-", "_") }
