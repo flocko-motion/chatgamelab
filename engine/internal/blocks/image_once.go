@@ -8,45 +8,51 @@ import (
 	"engine/internal/ports"
 )
 
-// ImageOnce generates a single picture for the whole session and then never
-// again. NPC-Live needs exactly this: one portrait of the character the player
-// is talking to, made at the start, while the conversation itself is ephemeral.
+// ImageOnce generates a single picture for the whole session, during the
+// preparation phase, and then never again. NPC-Live needs exactly this: one
+// portrait of the character, made before the conversation starts, while the
+// conversation itself stays ephemeral.
 //
-// It is stateful on purpose — "have I already done this" is the whole block —
-// which also makes it the one thing a live session has worth persisting.
+// It takes no input edge. Its prompt is configuration, and the work happens in
+// Prepare rather than in response to something flowing through the graph — which
+// is what makes it an init block rather than a stage.
 type ImageOnce struct {
-	name  string
-	image adapters.Image
+	name   string
+	image  adapters.Image
+	prompt string
 
-	in  chan string
-	out ports.ImageBroadcast
+	out  ports.ImageBroadcast
+	done ports.SignalBroadcast
 
-	mu   sync.Mutex
-	done bool
+	mu        sync.Mutex
+	data      ports.ImageData
+	generated bool
 }
 
-func NewImageOnce(name string, image adapters.Image) *ImageOnce {
+func NewImageOnce(name string, image adapters.Image, prompt string) *ImageOnce {
 	// A missing adapter is a wiring mistake, and it should surface where the
 	// graph is built rather than as a nil dereference inside a goroutine three
 	// turns into someone's conversation.
 	if image == nil {
 		panic("blocks: " + name + " needs an image adapter")
 	}
-	return &ImageOnce{name: name, image: image, in: make(chan string, 4)}
+	return &ImageOnce{name: name, image: image, prompt: prompt}
 }
 
 func (b *ImageOnce) NodeName() string                     { return b.name }
-func (b *ImageOnce) TextInPort() chan<- string            { return b.in }
 func (b *ImageOnce) ImageOutPort() <-chan ports.ImageData { return b.out.Subscribe() }
-func (b *ImageOnce) RequiredInputs() []ports.Kind         { return []ports.Kind{ports.KindText} }
 
-// ExportState records that the picture exists, not the picture itself. A
-// resumed session re-serves the stored image rather than paying to make a
-// second one — which would also be a different picture.
+// SignalOutPort reports that the picture exists. Wire it to the gate only if
+// the game should wait for it; a portrait usually should not.
+func (b *ImageOnce) SignalOutPort() <-chan ports.Signal { return b.done.Subscribe() }
+
+// ExportState records that the picture exists, not the picture itself. The
+// image is persisted as the session's one durable artifact and re-served from
+// there.
 func (b *ImageOnce) ExportState() string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	if b.done {
+	if b.generated {
 		return "generated"
 	}
 	return ""
@@ -55,45 +61,45 @@ func (b *ImageOnce) ExportState() string {
 func (b *ImageOnce) RestoreState(s string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	b.done = s == "generated"
+	b.generated = s == "generated"
 }
 
-// claim reports whether this call is the one that gets to generate.
-func (b *ImageOnce) claim() bool {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	if b.done {
-		return false
-	}
-	b.done = true
-	return true
-}
-
+// Start does the one-time work and then reports done. Nothing triggers it: the
+// prompt is configuration, which is what makes this an init block rather than a
+// stage in the loop.
 func (b *ImageOnce) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case prompt, open := <-b.in:
-				if !open {
-					return
-				}
-				if !b.claim() {
-					continue
-				}
-				data, err := b.image.Generate(ctx, prompt)
-				if err != nil {
-					// A missing portrait is not worth ending a conversation
-					// over, so the failure is reported and the session runs on.
-					b.mu.Lock()
-					b.done = false
-					b.mu.Unlock()
-					continue
-				}
-				b.out.Send(ports.ImageData(data))
+		defer func() { b.out.Close(); b.done.Close() }()
+
+		b.mu.Lock()
+		already := b.generated
+		b.mu.Unlock()
+
+		// A resumed session skips generation: the image already exists in
+		// storage, and paying again would produce a different picture. The
+		// client fetches the stored one, and the gate is still told we are done.
+		if !already {
+			data, err := b.image.Generate(ctx, b.prompt)
+			if err == nil {
+				b.mu.Lock()
+				b.data = ports.ImageData(data)
+				b.generated = true
+				b.mu.Unlock()
 			}
 		}
+
+		b.mu.Lock()
+		data, has := b.data, len(b.data) > 0
+		b.mu.Unlock()
+
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+		if has {
+			b.out.Send(data)
+		}
+		b.done.Send(ports.Signal{})
 	}()
 }

@@ -31,6 +31,10 @@ func NodeName(n any) string {
 	return fmt.Sprintf("%T", n)
 }
 
+// Track registers a node that has no edges yet, so the graph can still start it
+// and tell it what it is waiting for.
+func (g *Graph) Track(n any) { g.track(n) }
+
 func (g *Graph) track(n any) {
 	for _, existing := range g.nodes {
 		if existing == n {
@@ -93,6 +97,15 @@ func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	})
 }
 
+// ConnectSignal wires a block's done signal. It is what makes the init stem
+// visible: everything signalling the gate runs once before play begins.
+func (g *Graph) ConnectSignal(src SignalOut, dst SignalIn) {
+	stream := src.SignalOutPort()
+	g.connect(src, dst, KindSignal, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.SignalInPort())
+	})
+}
+
 func (g *Graph) ConnectPropsOut(src PropsOut, dst PropsIn) {
 	stream := src.PropsOutPort()
 	g.connect(src, dst, KindProps, func(ctx context.Context) {
@@ -104,6 +117,21 @@ func (g *Graph) ConnectPropsOut(src PropsOut, dst PropsIn) {
 // already happened at Connect time, so a source that emits immediately on Start
 // cannot outrun its consumers.
 func (g *Graph) Start(ctx context.Context) {
+	// A gate has to know what it is waiting for before any of it can arrive.
+	for _, n := range g.nodes {
+		gate, ok := n.(Gatekeeper)
+		if !ok {
+			continue
+		}
+		incoming := 0
+		for _, e := range g.edges {
+			if e.To == n && e.Kind == KindSignal {
+				incoming++
+			}
+		}
+		gate.ExpectSignals(incoming)
+	}
+
 	for _, n := range g.nodes {
 		if s, ok := n.(Starter); ok {
 			s.Start(ctx)
@@ -137,10 +165,18 @@ func (g *Graph) Validate() error {
 		if g.hasAnyIncoming(n) || g.hasAnyOutgoing(n) {
 			continue
 		}
+		// A gate with nothing to wait for is a genre that needs no preparation,
+		// which is legitimate.
+		if _, isGate := n.(Gatekeeper); isGate {
+			continue
+		}
 		problems = append(problems, fmt.Sprintf("%s is connected to nothing", NodeName(n)))
 	}
 
 	for _, n := range g.nodes {
+		if _, isGate := n.(Gatekeeper); isGate {
+			continue
+		}
 		if !g.reachable(n) {
 			problems = append(problems,
 				fmt.Sprintf("%s is unreachable from any source", NodeName(n)))

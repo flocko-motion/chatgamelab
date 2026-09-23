@@ -36,20 +36,26 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	outAudio := blocks.NewPlayerOutputAudio("out-audio")
 	outImage := blocks.NewPlayerOutputImage("out-image")
 
-	// One portrait of the character, made at the start from the scenario and
-	// never again. A one-shot source feeds it: the prompt arrives once because
-	// the input emits once, and the block refuses a second anyway.
-	portraitPrompt := blocks.NewDummyInputText("portrait-prompt",
-		blocks.InputScript{Lines: []string{cfg.Scenario}})
-	portrait := blocks.NewImageOnce("portrait", cfg.Image)
+	// One portrait of the character, made once and never again. It takes no
+	// input edge: its prompt is configuration, and nothing flowing through the
+	// graph triggers it.
+	//
+	// Its done signal is deliberately not wired to the gate. A conversation can
+	// start before the picture exists, and holding a player in silence while an
+	// image renders would be the wrong trade.
+	portrait := blocks.NewImageOnce("portrait", cfg.Image, cfg.Scenario)
+	gate := blocks.NewGate("start-game")
 
 	g := ports.NewGraph("npc-live")
-	g.ConnectTextOut(portraitPrompt, portrait)
 	g.ConnectImageOut(portrait, outImage)
 
 	// The observer's flags ride the same event stream. That also makes them the
 	// one thing worth persisting from an otherwise ephemeral conversation:
 	// what was flagged, without keeping the dialogue.
+	// The gate has no gating inputs for this genre, so it opens at once. It is
+	// still wired so the lifecycle is the same shape in every genre.
+	g.Track(gate)
+
 	w := &Wiring{Graph: g, Sinks: map[string]chan string{
 		"text":  outText.Seen,
 		"audio": outAudio.Seen,
@@ -72,5 +78,6 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	g.ConnectTextOut(observer, live)  // the back edge
 
 	w.Observer = observer
+	w.Gate = gate
 	return w
 }

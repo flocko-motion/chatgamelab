@@ -394,6 +394,40 @@ A `SessionSpec` can be assembled two ways, and the engine can't distinguish whic
    raw key and directly-specified prompt/constraint values with no ChatGameLab account involved at
    all. Same spec shape, assembled by hand instead of by a cascade.
 
+## The graph is P-shaped: init, then loop
+
+A genre's wiring has a **stem and a bowl**. The stem runs once — v1 does this already, fusing its
+system message, translating the image style and generating the theme before the first turn — and
+the bowl is the turn loop, which cycles.
+
+They join at a **gate**. Every block whose result the first turn depends on reports *done* to it,
+and play begins when the last one has.
+
+The init stem is a pipeline, not a set of independent tasks, which is why it is expressed as graph
+rather than as a lifecycle hook. v1's preparation already has chains: condense the scenario, then
+translate it, then fuse it into the system message. Edges express that; parallel callbacks cannot.
+It also means init products reach play blocks through ordinary edges — the fused system message is
+an input to the outline block, not something handed over out of band — so there is no second
+mechanism for moving values around.
+
+**Done is its own signal**, a port kind carrying no payload. Inferring completion from a block's
+data output would conflate two different things: the first value on an edge says a block has
+*started* producing, which for anything streaming is not the same as having finished. A separate
+signal also decouples "I am done" from where the data went, so a block can report to the gate while
+its output goes somewhere else entirely.
+
+**What gates is a wiring decision, not a policy.** NPC-Live's portrait is init work whose signal is
+deliberately *not* wired to the gate: a conversation can start before the picture exists, and
+holding a player in silence while an image renders is the wrong trade. A failing block still
+reports done, because one broken optional step must not hold the gate shut forever.
+
+A genre with nothing to prepare has a gate with no inputs, which opens immediately — so a caller
+never has to ask which kind of genre it got.
+
+Making "before play" a real point in time also removes a class of ordering bug: a block acting on a
+player's input before the values it needs have arrived, which otherwise resolves correctly most of
+the time and not always.
+
 ## Session & persistence model
 
 **Auth authorizes launching a session, not playing one.** Once launched, the session id is a
@@ -409,10 +443,20 @@ blob:
 | Table | Columns |
 |---|---|
 | `sessions` | `id`, `schema_version`, `spec` (JSON blob), `state` (JSON blob) |
-| `turns` | `session_id`, `turn` (counter), `content` (blob) |
+| `events` | `session_id`, `seq`, `stream`, `value` |
 
 `spec` and `state` are separate because they change at different rates: the spec is fixed at
 launch, while `state` is rewritten as the session runs.
+
+**A game's history is the ordered log of everything that reached an output sink.** There is nothing
+else to record: whatever the player saw, they saw because it arrived at a sink, so appending each
+event as it passes is both the persistence mechanism and the history. That is already how the
+engine works — the session folds its sinks into one stream and hands every event to `Persist`.
+
+Two things fall out. The history endpoint is that log replayed in order, and **the client applies a
+replayed event through exactly the same code as a live one**, so there is no second rendering path
+to keep in step. And a turn needs no bracket in storage: a sequence is enough, and whether the UI
+groups events into turns is a display decision rather than a schema one.
 
 Nothing here is a column the platform can query by user, workshop or game — and it doesn't need to
 be. Attaching a session to a user is platform-side bookkeeping, so the platform keeps its own
@@ -437,11 +481,10 @@ unlike a `Game` (a teacher's authored scenario) or a `User`, nobody loses anythi
 when an old session can't be read after an engine upgrade; they start a new one. Games and Users
 keep real migrations; sessions don't need them.
 
-**Adventure fills the `turns` table; NPC-Live may barely touch it.** Adventure's turn is obvious:
-one action in, one bracketed response out, one row. A live conversation is ephemeral by default —
-the likely shape is turn 0 only, holding the one generated image of the character, with the
-dialogue itself never stored. That is deliberately unsettled while the genre is an experiment, and
-nothing above depends on settling it.
+**Adventure fills the event log; NPC-Live barely touches it.** A live conversation is ephemeral by
+default: the one thing worth keeping is the portrait made during preparation, and whatever the
+observer flagged. The dialogue itself is not stored. That is deliberately unsettled while the genre
+is an experiment, and nothing above depends on settling it.
 
 An ephemeral conversation is better for data protection and worse for incident review: nothing
 about a child's dialogue is retained, and equally nothing is available when someone asks what the
