@@ -1,0 +1,279 @@
+/* Playful: a child's crayon drawing. A sky-blue page with a smiling sun,
+   fluffy clouds, a kite dancing on its string, a paper plane gliding past and
+   grass with flowers along the bottom; the story is written on sheets of paper
+   with a wobbly crayon outline, status sits on wooden toy blocks, and the
+   player's words are stickers. */
+
+main[data-preset="playful"] {
+  --skin-band: rgba(165, 216, 255, 0.5);
+  --skin-sky: #a5d8ff;
+  --skin-paper: #fffdf5;
+  --skin-ink: #343a40;
+  --skin-red: #ff6b6b;
+  --skin-yellow: #ffd43b;
+  --skin-blue: #4dabf7;
+  --skin-green: #51cf66;
+  --skin-purple: #9775fa;
+  --skin-title: "Chewy", "Fredoka", sans-serif;
+  --skin-text: "Patrick Hand", "Quicksand", sans-serif;
+  /* A crayon line: slightly uneven, so a box does not look drawn with a ruler. */
+  --skin-crayon: 3px solid;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="playful"] .game-header {
+  background:
+    repeating-linear-gradient(90deg, var(--skin-red) 0 40px, var(--skin-yellow) 40px 80px, var(--skin-green) 80px 120px, var(--skin-blue) 120px 160px, var(--skin-purple) 160px 200px) bottom / 100% 6px no-repeat,
+    #ffffff;
+  color: var(--skin-ink);
+  border-bottom: 0;
+  box-shadow: none;
+  padding-bottom: calc(0.75rem + 6px);
+}
+
+main[data-preset="playful"] .game-title strong {
+  font: 400 1.45rem var(--skin-title);
+  letter-spacing: 0.03em;
+  color: var(--skin-blue);
+  text-shadow: 2px 2px 0 var(--skin-yellow);
+}
+
+main[data-preset="playful"] .badge { font-family: var(--skin-text); font-size: 0.85rem; text-transform: none; background: #fff3bf; color: var(--skin-ink); }
+main[data-preset="playful"] .badge[data-state="ready"] { background: var(--skin-green); color: #ffffff; }
+
+/* The drawing: sun and clouds in the sky, grass and flowers along the bottom,
+   and the grain of the paper it is drawn on. */
+main[data-preset="playful"] .scene-area {
+  background:
+    url("./art/playful-sun.svg") right 1.5rem top 1rem / 110px 110px no-repeat,
+    url("./art/playful-grass.svg") 0 100% / 400px 100px repeat-x,
+    radial-gradient(circle, rgba(255, 255, 255, 0.35) 0.7px, transparent 1px) 0 0 / 5px 5px,
+    linear-gradient(#8fcbff, var(--skin-sky) 60%, #c5e6ff);
+}
+
+/* Clouds drifting across. */
+main[data-preset="playful"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 55% 0;
+  background:
+    url("./art/playful-cloud.svg") 0 30px / 180px 90px repeat-x,
+    url("./art/playful-cloud.svg") 120px 120px / 130px 65px repeat-x;
+  background-size: 540px 90px, 460px 65px;
+  background-repeat: repeat-x;
+  animation: skin-playful-clouds 80s linear infinite;
+}
+
+@keyframes skin-playful-clouds {
+  from { background-position: 0 30px, 120px 120px; }
+  to { background-position: 540px 30px, 1040px 120px; }
+}
+
+/* The kite, dancing on the wind. */
+main[data-preset="playful"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  top: 12%;
+  width: 70px;
+  height: 134px;
+  background: url("./art/playful-kite.svg") center / contain no-repeat;
+  transform-origin: 50% 100%;
+  animation: skin-playful-kite 4s ease-in-out infinite alternate;
+}
+
+@keyframes skin-playful-kite {
+  0% { transform: rotate(-8deg) translate(0, 0); }
+  50% { transform: rotate(4deg) translate(10px, -8px); }
+  100% { transform: rotate(10deg) translate(-4px, 4px); }
+}
+
+/* A paper plane gliding across now and then, dipping and rising. */
+main[data-preset="playful"] .scene-area::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 32%;
+  left: -90px;
+  width: 64px;
+  height: 40px;
+  background: url("./art/playful-plane.svg") center / contain no-repeat;
+  pointer-events: none;
+  animation: skin-playful-plane 22s ease-in-out infinite;
+}
+
+@keyframes skin-playful-plane {
+  0%, 50% { transform: translate(0, 0) rotate(8deg); opacity: 0; }
+  52% { opacity: 1; }
+  65% { transform: translate(35vw, 30px) rotate(-4deg); }
+  80% { transform: translate(70vw, -10px) rotate(10deg); }
+  97% { transform: translate(110vw, 20px) rotate(-2deg); opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+
+main[data-preset="playful"] .statusbar {
+  background: #fff9db;
+  border-bottom: 0;
+  padding: 0.8rem 1rem;
+}
+
+/* Wooden toy blocks, each painted another colour. */
+main[data-preset="playful"] .field {
+  background: linear-gradient(rgba(255, 255, 255, 0.35), transparent 40%), var(--skin-red);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.15), 0 3px 0 rgba(0, 0, 0, 0.2);
+  transform: rotate(-1.5deg);
+}
+
+main[data-preset="playful"] .field:nth-child(4n + 2) { background: linear-gradient(rgba(255, 255, 255, 0.35), transparent 40%), var(--skin-blue); transform: rotate(1.5deg); }
+main[data-preset="playful"] .field:nth-child(4n + 3) { background: linear-gradient(rgba(255, 255, 255, 0.35), transparent 40%), var(--skin-green); transform: rotate(-0.8deg); }
+main[data-preset="playful"] .field:nth-child(4n + 4) { background: linear-gradient(rgba(255, 255, 255, 0.35), transparent 40%), var(--skin-purple); transform: rotate(1deg); }
+
+main[data-preset="playful"] .field::before { content: none; }
+main[data-preset="playful"] .field-name { font: 400 0.9rem var(--skin-text); color: rgba(255, 255, 255, 0.9); text-transform: none; letter-spacing: 0; }
+main[data-preset="playful"] .field-value { font: 400 1.2rem var(--skin-title); color: #ffffff; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); }
+
+/* ── Sheets of paper with a crayon outline ──────────────────────────── */
+
+main[data-preset="playful"] .scene-card:nth-of-type(odd) .game-scene { transform: rotate(-0.6deg); }
+main[data-preset="playful"] .scene-card:nth-of-type(even) .game-scene { transform: rotate(0.5deg); }
+
+main[data-preset="playful"] .game-scene {
+  background:
+    repeating-linear-gradient(transparent 0 1.85rem, rgba(77, 171, 247, 0.22) 1.85rem calc(1.85rem + 1px)) 0 1.6rem,
+    var(--skin-paper);
+  border: var(--skin-crayon) var(--skin-blue);
+  /* Uneven corners: drawn by hand. */
+  border-radius: 14px 22px 16px 26px / 22px 14px 26px 16px;
+  padding: 1.9rem 2.2rem 1.8rem;
+  box-shadow: 4px 5px 0 rgba(52, 58, 64, 0.12);
+}
+
+main[data-preset="playful"] .scene-card:nth-of-type(3n + 2) .game-scene { border-color: var(--skin-red); }
+main[data-preset="playful"] .scene-card:nth-of-type(3n + 3) .game-scene { border-color: var(--skin-green); }
+
+main[data-preset="playful"] .narrative {
+  font: 400 1.3rem/1.85rem var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="playful"][data-drop-cap] .narrative::first-letter {
+  margin: 0.05em 0.12em 0 0;
+  font: 400 2.6em/1 var(--skin-title);
+  color: var(--skin-red);
+  text-shadow: 3px 3px 0 var(--skin-yellow);
+}
+
+main[data-preset="playful"] .corner { display: none !important; }
+
+main[data-preset="playful"] .scene-image {
+  border-radius: 10px 16px 12px 18px;
+  box-shadow: 0 0 0 3px var(--skin-yellow), 4px 5px 0 3px rgba(52, 58, 64, 0.12);
+  margin: 3px;
+}
+
+main[data-preset="playful"] .scene-image::before { border-radius: 8px; }
+main[data-preset="playful"] .scene-image::after { border-radius: 10px; }
+main[data-preset="playful"] .scene-image:hover { transform: rotate(-2deg) scale(1.03); }
+
+main[data-preset="playful"] .game-scene.streaming .narrative::after { color: var(--skin-blue); }
+
+/* ── A star between the sheets ──────────────────────────────────────── */
+
+main[data-preset="playful"] .divider::before,
+main[data-preset="playful"] .divider::after {
+  height: 4px;
+  max-width: 110px;
+  opacity: 1;
+  border-radius: 4px;
+  background: repeating-linear-gradient(90deg, var(--skin-red) 0 10px, transparent 10px 16px, var(--skin-blue) 16px 26px, transparent 26px 32px);
+}
+
+main[data-preset="playful"] .divider-symbol {
+  width: 34px;
+  height: 34px;
+  opacity: 1;
+  background: url("./art/playful-star.svg") center / contain no-repeat;
+  animation: skin-playful-wiggle 2.4s ease-in-out infinite;
+}
+
+main[data-preset="playful"] .divider-symbol::before { content: none; }
+
+@keyframes skin-playful-wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg) scale(1.08); }
+}
+
+/* ── The player: stickers ───────────────────────────────────────────── */
+
+main[data-preset="playful"] .bubble {
+  background: var(--skin-yellow);
+  color: var(--skin-ink);
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font: 400 1.2rem var(--skin-text);
+  transform: rotate(1.2deg);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 3px 4px 0 rgba(52, 58, 64, 0.18);
+}
+
+main[data-preset="playful"] .bubble::before { content: "★"; color: var(--skin-red); font: 1.1rem serif; text-shadow: none; }
+
+main[data-preset="playful"] .typing {
+  background: var(--skin-paper);
+  color: var(--skin-ink);
+  border: var(--skin-crayon) var(--skin-purple);
+  border-radius: 14px 22px 16px 26px / 22px 14px 26px 16px;
+  font: 400 1.2rem var(--skin-text);
+}
+
+main[data-preset="playful"] .dots i { background: var(--skin-red); }
+main[data-preset="playful"] .dots i:nth-child(2) { background: var(--skin-yellow); }
+main[data-preset="playful"] .dots i:nth-child(3) { background: var(--skin-blue); }
+
+main[data-preset="playful"] .inline-input {
+  background: var(--skin-paper);
+  color: var(--skin-ink);
+  border: var(--skin-crayon) var(--skin-purple);
+  border-radius: 18px 26px 20px 28px / 26px 18px 28px 20px;
+  box-shadow: 4px 5px 0 rgba(52, 58, 64, 0.14);
+}
+
+main[data-preset="playful"] .input-wrap input {
+  font: 400 1.25rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #ffffff;
+  border: 2px dashed var(--skin-blue);
+}
+
+main[data-preset="playful"] .input-wrap input:focus { border-style: solid; border-color: var(--skin-purple); }
+main[data-preset="playful"] .send { background: var(--skin-green); color: #ffffff; border: 0; }
+main[data-preset="playful"] .icon-button { color: var(--skin-purple); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="playful"] .system-message {
+  background: #fff9db;
+  border: 2px dashed var(--skin-yellow);
+  color: var(--skin-ink);
+  font: 400 1.05rem var(--skin-text);
+  font-style: normal;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="playful"] .standing-image img {
+  border-radius: 10px 16px 12px 18px;
+  box-shadow: 0 0 0 3px var(--skin-yellow), 4px 5px 0 3px rgba(52, 58, 64, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="playful"] .scene-bg::before,
+  main[data-preset="playful"] .scene-bg::after,
+  main[data-preset="playful"] .scene-area::before,
+  main[data-preset="playful"] .divider-symbol { animation: none; }
+}

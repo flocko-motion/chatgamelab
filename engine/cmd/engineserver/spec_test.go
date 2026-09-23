@@ -29,6 +29,13 @@ func TestExampleSpecsLoad(t *testing.T) {
 			if spec.Scenario == "" || spec.Guardrail == "" {
 				t.Error("a spec wants both a scenario and a guardrail")
 			}
+			// What a game is called is what a player sees in the header, and
+			// an example is where somebody writing a game learns the fields
+			// there are. One that leaves this out teaches the genre's name in
+			// its place.
+			if spec.Title == "" {
+				t.Error("a game wants a title; without one the header shows the genre")
+			}
 		})
 	}
 }

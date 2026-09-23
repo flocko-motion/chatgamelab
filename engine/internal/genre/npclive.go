@@ -1,6 +1,7 @@
 package genre
 
 import (
+	"strings"
 	"time"
 
 	"engine/internal/adapters"
@@ -20,6 +21,11 @@ type NPCLiveConfig struct {
 	Scenario  string
 	Guardrail string
 	Voice     string
+
+	// ImageStyle is how this game's pictures look, which is the designer's
+	// business and not the genre's. The genre says what is in the frame — a
+	// portrait, head and shoulders — and this says how it is painted.
+	ImageStyle string
 
 	// InitPrompt is the cue the gate sends, which starts the game.
 	InitPrompt string
@@ -53,7 +59,7 @@ var NPCLivePrompts = Prompts{
 	// Turns a scenario into a request for a picture. The image block knows
 	// nothing about portraits, because Adventure's illustrations are scenes.
 	PromptPortrait: "Paint a portrait of the character described below. " +
-		"Head and shoulders, facing the viewer, painterly, no text or lettering.\n\n",
+		"Head and shoulders, facing the viewer, no text or lettering.\n\n",
 
 	// What the provider's prompting guide asks every live character to be
 	// given. It shapes how a character talks rather than who they are, which is
@@ -70,6 +76,20 @@ var NPCLivePrompts = Prompts{
 		"Answer VIOLATION followed by a short reason, or OK.\n" +
 		"Judge three things: does the line breach the constraint below, is the character " +
 		"drifting out of the role the scenario gives them, and is it turning sycophantic.",
+}
+
+// DefaultImageStyle is what a game that names no style gets. A style is asked
+// for either way: without one the model chooses, and chooses differently every
+// time — so the default is a stated look rather than an absence.
+const DefaultImageStyle = "painterly, warm light, soft brushwork"
+
+// styleClause puts the look last, where an image model reads it as the
+// treatment of everything before it rather than as part of the description.
+func styleClause(style string) string {
+	if strings.TrimSpace(style) == "" {
+		style = DefaultImageStyle
+	}
+	return "\n\nStyle: " + style
 }
 
 // NewNPCLive puts nothing in the conversation's path. Control comes from the
@@ -111,7 +131,8 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	// The head of the init stem. Its value is constant, but what follows it is
 	// a flow — a prompt becomes a picture — and that processing is why the
 	// stem is drawn as a pipeline rather than folded into configuration.
-	portraitPrompt := blocks.NewOnceText("portrait-prompt", prompts[PromptPortrait]+cfg.Scenario)
+	portraitPrompt := blocks.NewOnceText("portrait-prompt",
+		prompts[PromptPortrait]+cfg.Scenario+styleClause(cfg.ImageStyle))
 	portrait := blocks.NewImage("portrait", cfg.Image)
 
 	// The gate both releases the player and sends the first cue. It gates on

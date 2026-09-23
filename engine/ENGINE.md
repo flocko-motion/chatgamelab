@@ -492,6 +492,12 @@ platform data to resolve anything — everything it needs arrives already resolv
 - **Title** — what the game is called. The engine does nothing with it but hand it back on the
   topology, for a client with a header to put it in: naming a game is the author's business, and a
   player asking what they are playing is not answered by the name of the genre.
+- **Image style** — how this game's pictures look, held apart from the scenario because they answer
+  different questions: the scenario says who is in the frame, and this says how it is painted. It is
+  a designer's field rather than a genre's prompt, since two games on one genre should be able to
+  look nothing like each other. A game naming no style is given a default one rather than none: with
+  nothing asked for the model chooses, and chooses differently every time, so a session's pictures
+  would not look like each other, let alone like the game.
 - **AI configuration** — platform and tier resolution for each of the five adapter roles, plus the
   voice, which sits outside the `Model*` family because it is a parameter of a model rather than a
   model. One of GPT-Live's twenty-two built-in names; a custom voice trained from a recording is a

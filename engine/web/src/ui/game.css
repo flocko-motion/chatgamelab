@@ -693,11 +693,44 @@ main[data-indicator-blink] .bubble::before { animation: cursor-blink 1s step-end
 .notice {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   margin: 0;
   font-family: var(--platform-font);
   font-size: 0.9375rem;
   text-align: center;
   overflow: hidden;
+}
+
+/* A turning ring for a message that is waiting on something, and none for one
+   that reports a stop: a dropped connection and a game that has ended are not
+   coming back, and a wheel turning beside them is a lie told once a second. */
+.notice .spinner { display: none; }
+
+.notice.waiting .spinner {
+  display: block;
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 2px solid currentColor;
+  /* A quarter left open, because a complete ring turning looks like a ring
+     standing still. */
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: notice-spin 0.9s linear infinite;
+}
+
+@keyframes notice-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Slowed rather than stopped: a still ring with a gap in it reads as a broken
+   shape rather than as a wait. */
+@media (prefers-reduced-motion: reduce) {
+  .notice.waiting .spinner { animation-duration: 3.5s; }
 }
 
 .send svg, .audio-button svg {

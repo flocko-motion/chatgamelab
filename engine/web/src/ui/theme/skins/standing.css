@@ -18,3 +18,7 @@ main[data-preset] .standing-image {
 }
 
 main[data-preset] .standing-image img { box-sizing: border-box; }
+
+/* A drop cap is a capital: a lowercase first letter has no ascender, so as an
+   initial it would sit low beside the first line. */
+main[data-preset][data-drop-cap] .narrative::first-letter { text-transform: uppercase; }

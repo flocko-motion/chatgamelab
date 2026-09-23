@@ -81,6 +81,15 @@ type SessionSpec struct {
 	// lever on youth protection.
 	Scenario string `json:"scenario,omitempty"`
 
+	// ImageStyle is how a game's pictures should look — "a woodcut", "flat
+	// vector with heavy outlines", "oil on canvas, candlelit". A game
+	// designer's text, like the scenario, and held apart from it because they
+	// answer different questions: the scenario says who is in the picture and
+	// this says how it is painted. Empty takes the genre's default, since a
+	// portrait with no style asked for is not a portrait with no style — the
+	// model picks one, and picks a different one next time.
+	ImageStyle string `json:"imageStyle,omitempty"`
+
 	// InitPrompt is the first message sent once preparation is done — what v1
 	// calls the initialization prompt. It kicks the game off: for a live genre
 	// the character greets whoever arrived instead of waiting to be spoken to.
@@ -229,6 +238,7 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 			Voice:          spec.Voice,
 			Guardrail:      spec.Guardrail,
 			Scenario:       spec.Scenario,
+			ImageStyle:     spec.ImageStyle,
 			InitPrompt:     spec.initPrompt(),
 			MuteObserver:   spec.MuteObserver,
 			PromptOverride: spec.PromptOverride,
