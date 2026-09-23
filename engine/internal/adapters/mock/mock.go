@@ -28,11 +28,12 @@ func (Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.LiveCon
 }
 
 type liveConn struct {
-	mu     sync.Mutex
-	drift  int
-	events chan adapters.LiveEvent
-	done   chan struct{}
-	closed bool
+	mu         sync.Mutex
+	drift      int
+	utterances int
+	events     chan adapters.LiveEvent
+	done       chan struct{}
+	closed     bool
 }
 
 func (c *liveConn) Send(_ []byte) error {
@@ -53,6 +54,7 @@ func (c *liveConn) Instruct(text string) error {
 }
 
 func (c *liveConn) emit(text string) {
+	c.utterances++
 	// A live session bills by audio time, so usage arrives as it accrues rather
 	// than once at the end of a call.
 	c.send(adapters.LiveEvent{
@@ -60,7 +62,11 @@ func (c *liveConn) emit(text string) {
 		Usage: adapters.Usage{Model: "mock-live", AudioSeconds: 1},
 	})
 	c.send(adapters.LiveEvent{Kind: adapters.EventText, Text: text})
-	c.send(adapters.LiveEvent{Kind: adapters.EventAudio, Audio: []byte("<speech: " + text + ">")})
+	// Streamed frame by frame rather than as one blob, so the player's playback
+	// scheduling is exercised the way real audio will exercise it.
+	for _, frame := range speech(c.utterances) {
+		c.send(adapters.LiveEvent{Kind: adapters.EventAudio, Audio: frame})
+	}
 	c.send(adapters.LiveEvent{Kind: adapters.EventTurnComplete})
 }
 
