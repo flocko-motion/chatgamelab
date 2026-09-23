@@ -360,9 +360,6 @@ func (s *Session) Snapshot() Snapshot {
 
 // NodeDetail is everything the engine knows about one block: what it is, what
 // it is doing, what recently passed through it, and what it has cost.
-//
-// A key lives for the length of one call, produced by the injected resolver at
-// the moment it is needed, so a session has none to report.
 type NodeDetail struct {
 	ports.NodeDetail
 	Phase string       `json:"phase"`
