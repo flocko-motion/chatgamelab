@@ -1125,7 +1125,7 @@
         "revokeInvite": "Revoke Invite Link",
         "selectApiKey": "Select an API key",
         "settings": "Settings",
-        "shareParticipantLink": "Copy individual invite link for this participant",
+        "shareParticipantLink": "Show re-login link",
         "showOtherParticipantsGames": "Show other participants' games",
         "showOtherParticipantsGamesHint": "Head and staff can always see all participants' games for moderation",
         "showPublicGames": "Show public games to participants",
