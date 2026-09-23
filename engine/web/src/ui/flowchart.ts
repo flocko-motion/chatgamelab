@@ -100,6 +100,9 @@ export class Flowchart {
         // are findable without reading every label.
         { selector: 'node[role = "source"]', style: { shape: "round-tag" } },
         { selector: 'node[role = "sink"]', style: { shape: "round-diamond", height: 28 } },
+        // The gate is where the stem joins the loop, so it is shaped like a
+        // join rather than like the blocks on either side of it.
+        { selector: 'node[role = "gate"]', style: { shape: "round-hexagon", height: 26 } },
         {
           selector: "node.working",
           style: {
@@ -137,9 +140,11 @@ export class Flowchart {
       ],
       layout: {
         name: "dagre",
-        rankDir: "LR",
-        nodeSep: 14,
-        rankSep: 40,
+        // Top down, so the P reads the way the document draws it: the init
+        // stem above, the turn loop below.
+        rankDir: "TB",
+        nodeSep: 18,
+        rankSep: 34,
         // The observer's correction makes the graph cyclic on purpose, which
         // the layout has to tolerate rather than reject.
         acyclicer: "greedy",

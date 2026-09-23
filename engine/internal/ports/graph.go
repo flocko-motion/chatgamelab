@@ -360,8 +360,31 @@ func (g *Graph) Topology() Topology {
 	return t
 }
 
+// role reads what a node is from its data edges alone. A control edge does not
+// change what something is: a player's microphone is still a source after the
+// gate wires a release into it, and drawing it as a block would say the game
+// takes its input from the gate.
 func (g *Graph) role(n any) string {
-	in, out := g.hasAnyIncoming(n), g.hasAnyOutgoing(n)
+	// A gate is neither a source nor a block, whatever its edges look like: it
+	// is where the init stem joins the turn loop, and a drawing that hides that
+	// hides the shape of the genre.
+	if _, isGate := n.(Gatekeeper); isGate {
+		return "gate"
+	}
+
+	in, out := false, false
+	for _, e := range g.edges {
+		if e.Kind == KindState {
+			continue
+		}
+		if e.To == n {
+			in = true
+		}
+		if e.From == n {
+			out = true
+		}
+	}
+
 	switch {
 	case !in && out:
 		return "source"
@@ -376,7 +399,7 @@ func (g *Graph) role(n any) string {
 // documentation already speaks.
 func (g *Graph) Mermaid() string {
 	var b strings.Builder
-	b.WriteString("graph LR\n")
+	b.WriteString("graph TB\n")
 	for _, n := range g.nodes {
 		name := NodeName(n)
 		switch g.role(n) {
@@ -384,6 +407,8 @@ func (g *Graph) Mermaid() string {
 			fmt.Fprintf(&b, "  %s[/%s/]\n", id(name), name)
 		case "sink":
 			fmt.Fprintf(&b, "  %s[\\%s\\]\n", id(name), name)
+		case "gate":
+			fmt.Fprintf(&b, "  %s{{%s}}\n", id(name), name)
 		default:
 			fmt.Fprintf(&b, "  %s([%s])\n", id(name), name)
 		}

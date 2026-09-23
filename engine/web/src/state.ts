@@ -20,7 +20,7 @@ export interface Utterance {
 /** A node in the session's wiring, as fetched once at startup. */
 export interface TopologyNode {
   readonly name: string;
-  readonly role: "source" | "block" | "sink";
+  readonly role: "source" | "block" | "sink" | "gate";
 }
 
 export interface TopologyEdge {

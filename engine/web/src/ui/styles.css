@@ -150,7 +150,8 @@ aside h2 {
    makes a multi-stage pipeline readable rather than cramped. */
 #graph {
   flex: 1;
-  min-height: 20rem;
+  /* A top-down layout is taller than it is wide, so it wants the room. */
+  min-height: 28rem;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--bg);
