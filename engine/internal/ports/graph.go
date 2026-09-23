@@ -97,12 +97,12 @@ func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	})
 }
 
-// ConnectSignal wires a block's done signal. It is what makes the init stem
-// visible: everything signalling the gate runs once before play begins.
-func (g *Graph) ConnectSignal(src SignalOut, dst SignalIn) {
-	stream := src.SignalOutPort()
-	g.connect(src, dst, KindSignal, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.SignalInPort())
+// ConnectState wires a block's own report on itself. It is what makes the init
+// stem visible: everything reporting to the gate runs once before play begins.
+func (g *Graph) ConnectState(src StateOut, dst StateIn) {
+	stream := src.StateOutPort()
+	g.connect(src, dst, KindState, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.StateInPort())
 	})
 }
 
@@ -125,11 +125,11 @@ func (g *Graph) Start(ctx context.Context) {
 		}
 		incoming := 0
 		for _, e := range g.edges {
-			if e.To == n && e.Kind == KindSignal {
+			if e.To == n && e.Kind == KindState {
 				incoming++
 			}
 		}
-		gate.ExpectSignals(incoming)
+		gate.ExpectReporters(incoming)
 	}
 
 	for _, n := range g.nodes {

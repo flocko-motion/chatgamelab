@@ -23,11 +23,27 @@ type (
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
 )
 
-// Signal carries no payload: it says a block has finished, nothing more.
-type Signal struct{}
+// Phase is what a block is doing. In the init stem a block runs idle → working
+// → done once; in the turn loop it oscillates, and a long-lived block like a
+// live session stays working for as long as the conversation lasts.
+type Phase string
 
-type SignalOut interface{ SignalOutPort() <-chan Signal }
-type SignalIn interface{ SignalInPort() chan<- Signal }
+const (
+	PhaseIdle    Phase = "idle"
+	PhaseWorking Phase = "working"
+	PhaseDone    Phase = "done"
+)
+
+// State is a block reporting on itself. It names the block because a gate has
+// to tell one reporter from another — and because a view drawing the graph
+// needs to know which node lit up.
+type State struct {
+	Node  string `json:"node"`
+	Phase Phase  `json:"phase"`
+}
+
+type StateOut interface{ StateOutPort() <-chan State }
+type StateIn interface{ StateInPort() chan<- State }
 
 type (
 	AudioIn interface{ AudioInPort() chan<- AudioChunk }
@@ -43,7 +59,7 @@ const (
 	KindText
 	KindImage
 	KindProps
-	KindSignal
+	KindState
 )
 
 func (k Kind) String() string {
@@ -56,8 +72,8 @@ func (k Kind) String() string {
 		return "image"
 	case KindProps:
 		return "props"
-	case KindSignal:
-		return "done"
+	case KindState:
+		return "state"
 	}
 	return "unknown"
 }
@@ -93,8 +109,8 @@ type Resumable interface {
 // Gatekeeper is a node that waits for every block feeding it to report done
 // before the game may begin. It is where the init stem joins the game loop.
 //
-// The graph tells it how many signal edges lead in, because only the graph
-// knows the wiring.
+// The graph tells it how many state edges lead in, because only the graph knows
+// the wiring.
 type Gatekeeper interface {
-	ExpectSignals(n int)
+	ExpectReporters(n int)
 }
