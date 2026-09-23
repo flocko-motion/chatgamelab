@@ -96,3 +96,31 @@ button[disabled] {
   color: var(--dim);
   font-size: 0.8rem;
 }
+
+/* The pipeline panel. A block is dimmed at rest and lit while it works, so a
+   turn can be read as it happens. */
+#pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.75rem;
+}
+
+.node {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--dim);
+  transition: color 120ms, border-color 120ms, background-color 120ms;
+}
+
+.node[data-phase="working"] {
+  color: var(--bg);
+  background: var(--flag);
+  border-color: var(--flag);
+}
+
+.node.source { border-style: dashed; }
+.node.sink { border-style: dotted; }

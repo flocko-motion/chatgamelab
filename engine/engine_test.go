@@ -177,3 +177,51 @@ func TestPortraitArrivesWithoutBeingTriggered(t *testing.T) {
 		}
 	}
 }
+
+// Every block reports what it is doing on the session stream. This is the
+// debugging surface: which block is busy, and for how long, is how a turn is
+// read — and the same data a graph view draws.
+func TestBlocksReportTheirPhases(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "phases",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	if err := s.Speak([]byte("persuasion")); err != nil {
+		t.Fatal(err)
+	}
+
+	working := map[string]bool{}
+	deadline := time.After(3 * time.Second)
+	for !working["observer"] {
+		select {
+		case e := <-s.Events():
+			if e.Stream != "state" {
+				continue
+			}
+			var report engine.BlockState
+			if err := json.Unmarshal([]byte(e.Value), &report); err != nil {
+				t.Fatalf("state event was not a block report: %q", e.Value)
+			}
+			if report.Phase == "working" {
+				working[report.Node] = true
+			}
+		case <-deadline:
+			t.Fatalf("no observer working report; saw %v", working)
+		}
+	}
+
+	// The live session is busy for the whole conversation, which is what
+	// distinguishes it on a graph view from a block that flickers per turn.
+	if !working["live-session"] {
+		t.Error("the live session never reported working")
+	}
+}

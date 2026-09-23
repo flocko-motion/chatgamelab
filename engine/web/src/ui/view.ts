@@ -10,6 +10,7 @@ export class View {
   #renderedFlags = 0;
   #renderedNotes = 0;
   #shownImage: string | null = null;
+  #pipelineNodes = new Map<string, HTMLElement>();
 
   constructor(
     private readonly elements: {
@@ -18,11 +19,13 @@ export class View {
       image: HTMLImageElement;
       feed: HTMLElement;
       talk: HTMLButtonElement;
+      pipeline: HTMLElement;
     },
   ) {}
 
   render(state: PlayerState): void {
     this.elements.status.textContent = state.connection;
+    this.#renderPipeline(state);
     this.elements.talk.disabled = state.connection !== "open";
 
     const props = Object.entries(state.props);
@@ -67,6 +70,29 @@ export class View {
       this.#append("meta", String(state.notes[i]));
     }
     this.#renderedNotes = state.notes.length;
+  }
+
+  /**
+   * The pipeline panel: every block in the wiring, lit while it works. This is
+   * the debugging surface — seeing which block is busy, and for how long, is how
+   * you read what a turn actually did.
+   */
+  #renderPipeline(state: PlayerState): void {
+    if (!state.topology) return;
+
+    if (this.#pipelineNodes.size === 0) {
+      for (const node of state.topology.nodes) {
+        const element = document.createElement("span");
+        element.className = `node ${node.role}`;
+        element.textContent = node.name;
+        this.elements.pipeline.append(element);
+        this.#pipelineNodes.set(node.name, element);
+      }
+    }
+
+    for (const [name, element] of this.#pipelineNodes) {
+      element.dataset["phase"] = state.phases[name] ?? "ready";
+    }
   }
 
   #append(className: string, text: string): HTMLElement {

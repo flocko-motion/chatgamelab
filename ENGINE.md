@@ -427,6 +427,15 @@ finds it has nothing to do**. A resumed session skipping its image generation st
 the game never starts. A block whose work fails reports one too, or a single broken optional step
 holds the gate shut forever.
 
+**Every report reaches the client**, not only the ones wired to a gate. The engine subscribes to
+every block's state port by introspection and puts the changes on the session stream, so a client
+fetches the wiring once from `/topology` and then only tracks phases. Gating stays a wiring
+decision made with edges; observing the whole graph is not, and should not need ten edges drawn
+into a collector node to work.
+
+Volume is not a concern, because blocks report *changes* rather than activity: two events per piece
+of work, against thousands of audio chunks.
+
 The report names its block for two reasons. A gate has to tell one reporter from another — a block
 in the loop works repeatedly, and a busy one must not stand in for a silent one — and a view
 drawing the graph has to know which node lit up. That second reason is the substance of the
@@ -744,12 +753,6 @@ Noted so they aren't silently forgotten, not because they're expected soon:
 - **What a live session persists** — ephemeral for now, possibly a single turn 0 holding the
   character's generated image. Settling this also settles whether the event stream needs turn
   brackets at all, which nothing currently requires.
-- **A live view of the graph.** The wiring is already available as data and as
-  mermaid, so a page can draw it. The interesting version carries node activity on the session
-  stream — this block started, this one produced something — and lights the graph up as a turn
-  flows through it. For a platform whose selling point is showing how the AI actually works, that
-  is closer to the product than to a debug panel. Not being built now; the cost to think about is
-  event volume, since audio chunks would flood a per-value activity stream and want coalescing.
 - **Player speech as observer input** — dropped for display and for the record, but a classifier
   judging whether the NPC capitulated is reading one half of a dialogue without it: "fine, you may
   pass" only scores as a concession if the player just demanded passage. Rough-guide transcript

@@ -23,6 +23,7 @@ const player = new Player(new WebSocketTransport(url));
 const frame = new Int16Array(2400).buffer;
 
 try {
+  await player.loadTopology(new URL(`/sessions/${session}/`, base));
   player.connect();
   await player.whenReady();
 
@@ -41,6 +42,10 @@ try {
   console.log(`image:       ${state.image ?? "(none)"}`);
   console.log(`audio chunks: ${state.audioChunks}`);
   console.log(`utterances:  ${state.utterances.length}`);
+  console.log("--- pipeline ---");
+  for (const node of state.topology?.nodes ?? []) {
+    console.log(`  ${node.role.padEnd(6)} ${node.name.padEnd(20)} ${state.phases[node.name] ?? "ready"}`);
+  }
 
   if (state.utterances.length === 0) {
     throw new Error("no reply from the engine");

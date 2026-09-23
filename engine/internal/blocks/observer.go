@@ -27,8 +27,9 @@ type Observer struct {
 	maxInARow   int
 	consecutive int
 
-	in  chan string
-	out ports.TextBroadcast
+	in    chan string
+	out   ports.TextBroadcast
+	state ports.StateBroadcast
 
 	Flags chan string
 }
@@ -50,6 +51,10 @@ func (b *Observer) TextInPort() chan<- string    { return b.in }
 func (b *Observer) TextOutPort() <-chan string   { return b.out.Subscribe() }
 func (b *Observer) RequiredInputs() []ports.Kind { return []ports.Kind{ports.KindText} }
 
+// StateOutPort reports each judgement. An observer is input-driven, so it
+// flickers once per line rather than staying busy.
+func (b *Observer) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
+
 func (b *Observer) systemPrompt() string {
 	return strings.Join([]string{
 		"You judge one line spoken by a character in a game.",
@@ -63,7 +68,8 @@ func (b *Observer) systemPrompt() string {
 
 func (b *Observer) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
+		defer func() { b.out.Close(); b.state.Close() }()
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 		for {
 			select {
 			case <-ctx.Done():
@@ -72,7 +78,9 @@ func (b *Observer) Start(ctx context.Context) {
 				if !open {
 					return
 				}
+				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 				verdict, err := b.tool.Query(ctx, b.systemPrompt(), line)
+				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 				if err != nil {
 					b.flag("classifier failed: " + err.Error())
 					continue
