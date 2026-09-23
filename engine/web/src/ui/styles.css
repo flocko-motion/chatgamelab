@@ -124,11 +124,22 @@ aside {
   min-width: 0;
 }
 
-/* The pipeline takes the slack; status and usage take what they need. */
+/* The column itself does not scroll: the graph must stay in view while the
+   panel beneath it is read, so each half is given its own room and the detail
+   scrolls inside its own box. */
+aside { overflow: hidden; }
+
 aside > section:first-child {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 55%;
+  min-height: 12rem;
+}
+
+aside > section:last-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 45%;
   min-height: 0;
 }
 
@@ -166,7 +177,11 @@ aside h2 {
 /* The details panel: the whole session's figures, or one block's. Fixed width
    comes from the column, so switching between the two never reflows the graph
    above it. */
-#details { min-height: 9rem; }
+#details {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
 
 #details h4 {
   margin: 0.9rem 0 0.35rem;
