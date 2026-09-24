@@ -358,7 +358,7 @@ export interface ObjPublicWorkshopGame {
   description?: string;
   id?: string;
   name?: string;
-  /** nil when the workshop has no working key */
+  /** nil without a workshop key or while the game is not playable */
   play?: ObjPublicWorkshopPlay;
 }
 
@@ -366,6 +366,8 @@ export interface ObjPublicWorkshopPage {
   description?: string;
   games?: ObjPublicWorkshopGame[];
   name?: string;
+  /** PlayAvailable is false when the workshop has no key: no game on the page can be played. */
+  playAvailable?: boolean;
 }
 
 export interface ObjPublicWorkshopPlay {

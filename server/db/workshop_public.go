@@ -157,9 +157,10 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 	}
 
 	page := &obj.PublicWorkshopPage{
-		Name:        ws.Name,
-		Description: ws.PublicDescription.String,
-		Games:       make([]obj.PublicWorkshopGame, 0, len(games)),
+		Name:          ws.Name,
+		Description:   ws.PublicDescription.String,
+		PlayAvailable: ws.DefaultApiKeyShareID.Valid,
+		Games:         make([]obj.PublicWorkshopGame, 0, len(games)),
 	}
 	for _, g := range games {
 		game := obj.PublicWorkshopGame{
