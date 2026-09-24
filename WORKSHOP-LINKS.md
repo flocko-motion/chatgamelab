@@ -28,10 +28,12 @@ records what exists, where it departs from the concept, and what remains.
   `TOKEN_LOCK_WINDOW` and `TOKEN_LOCK_DURATION` override the defaults. Tokens of
   deleted users, deleted workshops or reset access never count, and the backend
   drops a session cookie whose token no longer exists.
-- **Share popup.** One component (`web/src/common/components/share`) for invite
-  and re-login links: copyable link, the words in large type, a QR code that
-  opens full screen, always black on white. Heads and staff get a QR button next
-  to 'Organisator' in the workshop header.
+- **Share view.** One full-screen component
+  (`web/src/common/components/share/FullscreenQrOverlay.tsx`) for invite,
+  re-login and public-page links: a coloured title bar, the QR code, always
+  black on white, and the copyable link. See 'Parts B and C: built' for the
+  short links it shows. Heads and staff get a QR button next to 'Organisator'
+  in the workshop header.
 
 ## Part A: departures from the concept
 
@@ -102,17 +104,35 @@ records what exists, where it departs from the concept, and what remains.
   different workshop.
 - **Settings.** Both workshop settings views carry an 'Öffentliche Seite'
   section: the on/off switch, the slug editor, the description, and the link
-  with its QR code in the existing share popup. Participants cannot change it.
+  with its QR code in the full-screen view. Participants cannot change it.
+  While the page is on, heads and staff find a second QR button for it next to
+  'Organisator' in the workshop header.
+- **Short links.** Invite and re-login views show `/code/<words>`: three words
+  lead to the invite, four log the participant in as `/code` does
+  (`web/src/routes/code/$code.tsx`). Any other count opens the `/code` form
+  prefilled, with its error. Old `ws-…` and `participant-…` tokens keep their
+  long links.
+- **Full-screen views.** Invite and re-login links open straight in the
+  full-screen view with a blue title bar and the buttons 'Einladungslink
+  widerrufen' or 'Zugang zurücksetzen'; the public page's link has a green bar.
+  Each view closes through 'Schließen' or Esc only, so a click on the projector
+  screen leaves it open.
+- **Header.** Visitors who are not logged in see the guest header of guest
+  play on a light page, with the footer on desktop. Logged-in visitors keep the
+  normal layout.
 - **Download.** `GET /api/public/workshops/{slug}/games/{id}/yaml` serves the
   existing YAML export without login, for public games on a page that is on.
 - **Copy.** Logged-in visitors copy through the same prefilled create dialogue
   as 'All games'. Visitors without an account go through login, and registration
-  if needed, and return to the page (`web/src/common/lib/returnTo.ts`); they then
-  click 'Kopieren' again.
+  if needed, and return to the page (`web/src/common/lib/returnTo.ts`). A second
+  sessionStorage entry names the game; the page reads and deletes it once and
+  opens the prefilled dialogue. Saving opens the new game's editor.
 - **Play.** Each playable public game gets a share link of its own, created on
   the first page visit, paid by the workshop's key and limited to 50 sessions.
-  The card shows the sessions left. Without a workshop key the page offers no
-  play. These links carry `game_share.public_page`: a leader's hand-made
+  The card shows the sessions left. Without a workshop key every card shows a
+  disabled 'Spielen' with a note that no API key is set; the page response
+  carries `playAvailable` for this. A game that is not ready to play shows no
+  button. These links carry `game_share.public_page`: a leader's hand-made
   workshop share never reuses them, and the game's list of workshop shares leaves
   them out. The key owner's overview of game shares does list them. Switching the page off, unpublishing a game, changing the workshop
   key, and deleting the workshop revoke them; the next visit creates fresh ones
@@ -135,7 +155,7 @@ records what exists, where it departs from the concept, and what remains.
 ## Parts B and C: before the first real workshop
 
 1. Walk through the screens in a browser: the 'Öffentliche Seite' section in
-   both settings views, the page itself logged in and logged out, 'Ausprobieren'
+   both settings views, the page itself logged in and logged out, 'Spielen'
    until the count runs out, 'Herunterladen', and 'Kopieren' through a real
    Auth0 login and registration. The branch passed type checks, lint on the
    changed files, the build, and the Go unit and integration suites, but nobody
