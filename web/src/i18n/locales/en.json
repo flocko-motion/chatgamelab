@@ -1083,11 +1083,9 @@
         "inviteByEmailSuccessMessage": "An invite has been created. The user will see it in their pending invites.",
         "inviteByEmailTitle": "Invite User to Workshop",
         "inviteCreatedAt": "Created",
-        "inviteDescription": "Generate an invite link that participants can use to join this workshop.",
         "inviteExpiresAt": "Expires",
         "inviteLink": "Invite Link",
-        "inviteLinkDescription": "Share this link with participants to let them join the workshop.",
-        "inviteLinkTitle": "Invite Link for {{name}}",
+        "inviteLinkTitle": "Invite link for participants – {{name}}",
         "inviteUsage": "Usage",
         "isPaused": "Pause workshop",
         "isPausedHint": "When paused, participants see a locked overlay and cannot interact with games",
@@ -1106,7 +1104,6 @@
         "notAuthorized": "You don't have permission to manage workshops. Only heads and teachers can access this page.",
         "participantGames": "{{count}} games",
         "participantJoined": "Joined {{date}}",
-        "participantLinkDescription": "With this link or code the participant gets back into their account. It works like a password – give it only to them.",
         "participantLinkTitle": "Re-login link",
         "participantLinkTitleNamed": "Re-login link for {{name}}",
         "participantName": "Participant name",
@@ -1298,11 +1295,8 @@
     },
     "settings": "Settings",
     "share": {
-      "codeHint": "Or enter the code at {{url}}:",
       "copied": "Copied",
-      "copyLink": "Copy link",
-      "fullscreenHint": "Click anywhere or press Esc to close",
-      "qrHint": "Tap to enlarge"
+      "copyLink": "Copy link"
     },
     "showing": "{{count}} members",
     "sort": {
@@ -1322,12 +1316,13 @@
       },
       "gamesTitle": "Games from this workshop",
       "noGames": "No games have been published here yet.",
-      "play": "Try it",
+      "play": "Play",
       "playRemaining": "{{remaining}} of {{limit}} play sessions left",
       "playExhausted": "No play sessions left",
       "download": "Download",
       "copy": "Copy",
-      "copyLogin": "Log in to copy"
+      "copyLogin": "Log in to copy",
+      "playNoKey": "This workshop has no API key, so its games can't be played here."
     }
   },
   "dashboard": {
@@ -1475,7 +1470,8 @@
     },
     "showInviteLink": "Show invite link",
     "title": "My Workshop",
-    "you": "You"
+    "you": "You",
+    "showPublicPageLink": "Show public page link"
   },
   "navigation": {
     "adminPanel": "Admin Panel",

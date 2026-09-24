@@ -53,3 +53,30 @@ export function inviteLinkPath(inviteToken: string): string {
 export function participantLinkPath(participantToken: string): string {
   return `/invites/participant/${speakableCode(participantToken) ?? participantToken}`;
 }
+
+export const CODE_LINK_PREFIX = "/code/";
+
+function wordLinkPath(
+  token: string,
+  words: number,
+  fallback: (token: string) => string,
+): string {
+  const code = speakableCode(token);
+  return code && wordCount(code) === words
+    ? CODE_LINK_PREFIX + code
+    : fallback(token);
+}
+
+/** /code/<three words>; old ws-… tokens keep their accept link. */
+export function inviteShareLinkPath(inviteToken: string): string {
+  return wordLinkPath(inviteToken, INVITE_WORD_COUNT, inviteLinkPath);
+}
+
+/** /code/<four words>; old long tokens keep their re-login link. */
+export function participantShareLinkPath(participantToken: string): string {
+  return wordLinkPath(
+    participantToken,
+    PARTICIPANT_WORD_COUNT,
+    participantLinkPath,
+  );
+}

@@ -12,20 +12,21 @@ import {
   IconUsers,
   IconPlayerPause,
   IconPlayerPlay,
+  IconLink,
   IconQrcode,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "@components/typography";
-import { ShareLinkModal } from "@components/share";
+import { FullscreenQrOverlay, PublicPageQrOverlay } from "@components/share";
 import {
   useWorkshop,
   useUpdateWorkshop,
   useCreateWorkshopInvite,
 } from "@/api/hooks";
 import { buildShareUrl } from "@/common/lib/url";
-import { inviteLinkPath, speakableCode } from "@/common/lib/wordToken";
+import { inviteShareLinkPath } from "@/common/lib/wordToken";
 import { useAuth } from "@/providers/AuthProvider";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 
@@ -52,6 +53,9 @@ export function WorkshopHeader({
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const [inviteOpened, { open: openInvite, close: closeInvite }] =
     useDisclosure(false);
+  const [publicPageOpened, { open: openPublicPage, close: closePublicPage }] =
+    useDisclosure(false);
+  const publicSlug = workshop?.public ? workshop.publicSlug : undefined;
 
   const participants = workshop?.participants ?? [];
   const memberCount = participants.length;
@@ -196,11 +200,24 @@ export function WorkshopHeader({
             <Tooltip label={t("showInviteLink")}>
               <ActionIcon
                 variant="subtle"
-                color="gray"
+                color="blue"
                 size="sm"
                 onClick={handleShowInvite}
                 loading={createInvite.isPending}
                 aria-label={t("showInviteLink")}
+              >
+                <IconLink size={16} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+          {showMembers && publicSlug && (
+            <Tooltip label={t("showPublicPageLink")}>
+              <ActionIcon
+                variant="subtle"
+                color="green"
+                size="sm"
+                onClick={openPublicPage}
+                aria-label={t("showPublicPageLink")}
               >
                 <IconQrcode size={16} />
               </ActionIcon>
@@ -209,15 +226,22 @@ export function WorkshopHeader({
         </Group>
       )}
       {inviteToken && (
-        <ShareLinkModal
+        <FullscreenQrOverlay
           opened={inviteOpened}
           onClose={closeInvite}
           title={tCommon("myOrganization.workshops.inviteLinkTitle", {
             name: workshopName,
           })}
-          description={tCommon("myOrganization.workshops.inviteLinkDescription")}
-          url={buildShareUrl(inviteLinkPath(inviteToken))}
-          code={speakableCode(inviteToken)}
+          icon={<IconLink size={28} />}
+          color="blue"
+          url={buildShareUrl(inviteShareLinkPath(inviteToken))}
+        />
+      )}
+      {publicSlug && (
+        <PublicPageQrOverlay
+          opened={publicPageOpened}
+          onClose={closePublicPage}
+          slug={publicSlug}
         />
       )}
     </>

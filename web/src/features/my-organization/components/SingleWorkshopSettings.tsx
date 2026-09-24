@@ -50,11 +50,10 @@ import {
   useRemoveParticipant,
   useCreateWorkshopEmailInvite,
 } from "@/api/hooks";
-import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
 import { isUsableInvite } from "@/common/lib/invite";
-import { inviteLinkPath, speakableCode } from "@/common/lib/wordToken";
-import { ShareLinkModal } from "@components/share";
+import { inviteShareLinkPath } from "@/common/lib/wordToken";
+import { FullscreenQrOverlay } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { ParticipantLinkModal } from "./ParticipantLinkModal";
@@ -317,7 +316,7 @@ export function SingleWorkshopSettings({
   // shows what it answered.
   const shownInvite = newlyCreatedInvite ?? existingInvite;
   const inviteLink = shownInvite?.inviteToken
-    ? buildShareUrl(inviteLinkPath(shownInvite.inviteToken))
+    ? buildShareUrl(inviteShareLinkPath(shownInvite.inviteToken))
     : null;
 
   return (
@@ -886,13 +885,24 @@ export function SingleWorkshopSettings({
 
       {/* Invite Link Modal */}
       {inviteLink && shownInvite?.inviteToken ? (
-        <ShareLinkModal
+        <FullscreenQrOverlay
           opened={inviteLinkModalOpened}
           onClose={closeInviteLinkModal}
-          title={t("myOrganization.workshops.inviteLinkTitle")}
-          description={t("myOrganization.workshops.inviteLinkDescription")}
+          title={t("myOrganization.workshops.inviteLinkTitle", {
+            name: workshop.name,
+          })}
+          icon={<IconLink size={28} />}
+          color="blue"
           url={inviteLink}
-          code={speakableCode(shownInvite.inviteToken)}
+          actions={
+            <DangerButton
+              size="md"
+              onClick={() => handleRevokeInviteAndClose(shownInvite.id || "")}
+              loading={revokeInvite.isPending}
+            >
+              {t("myOrganization.workshops.revokeInvite")}
+            </DangerButton>
+          }
         >
           {shownInvite.expiresAt && (
             <Group gap="xs">
@@ -904,21 +914,14 @@ export function SingleWorkshopSettings({
               </Text>
             </Group>
           )}
-          <Group justify="space-between" mt="md">
-            <DangerButton
-              onClick={() => handleRevokeInviteAndClose(shownInvite.id || "")}
-              loading={revokeInvite.isPending}
-            >
-              {t("myOrganization.workshops.revokeInvite")}
-            </DangerButton>
-            <TextButton onClick={closeInviteLinkModal}>{t("close")}</TextButton>
-          </Group>
-        </ShareLinkModal>
+        </FullscreenQrOverlay>
       ) : (
         <Modal
           opened={inviteLinkModalOpened}
           onClose={closeInviteLinkModal}
-          title={t("myOrganization.workshops.inviteLinkTitle")}
+          title={t("myOrganization.workshops.inviteLinkTitle", {
+            name: workshop.name,
+          })}
           size="md"
         >
           <Text size="sm" c="dimmed">

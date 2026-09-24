@@ -71,8 +71,8 @@ import { PlusIconButton } from "@/common/components/buttons";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { isUsableInvite } from "@/common/lib/invite";
-import { inviteLinkPath, speakableCode } from "@/common/lib/wordToken";
-import { ShareLinkModal } from "@components/share";
+import { inviteShareLinkPath } from "@/common/lib/wordToken";
+import { FullscreenQrOverlay } from "@components/share";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { ParticipantLinkModal } from "./ParticipantLinkModal";
 import { PublicPageSettings } from "./PublicPageSettings";
@@ -1505,15 +1505,26 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
           : null;
 
         return (
-          <ShareLinkModal
+          <FullscreenQrOverlay
             opened={inviteLinkModalOpened}
             onClose={closeInviteLinkModal}
             title={title}
-            description={t("myOrganization.workshops.inviteDescription")}
-            url={buildShareUrl(inviteLinkPath(shownInvite.inviteToken))}
-            code={speakableCode(shownInvite.inviteToken)}
+            icon={<IconLink size={28} />}
+            color="blue"
+            url={buildShareUrl(inviteShareLinkPath(shownInvite.inviteToken))}
+            actions={
+              <DangerButton
+                size="md"
+                onClick={() => {
+                  if (shownInvite.id) handleRevokeInviteAndClose(shownInvite.id);
+                }}
+                loading={revokeInvite.isPending}
+              >
+                {t("myOrganization.workshops.revokeInvite")}
+              </DangerButton>
+            }
           >
-            <Group gap="xl">
+            <Group gap="xl" justify="center">
               {createdAt && (
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed">
@@ -1550,21 +1561,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                   </Stack>
                 )}
             </Group>
-
-            <Group justify="space-between" mt="md">
-              <DangerButton
-                onClick={() => {
-                  if (shownInvite.id) handleRevokeInviteAndClose(shownInvite.id);
-                }}
-                loading={revokeInvite.isPending}
-              >
-                {t("myOrganization.workshops.revokeInvite")}
-              </DangerButton>
-              <TextButton onClick={closeInviteLinkModal}>
-                {t("close")}
-              </TextButton>
-            </Group>
-          </ShareLinkModal>
+          </FullscreenQrOverlay>
         );
       })()}
 

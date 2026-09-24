@@ -23,7 +23,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useUpdateWorkshop } from "@/api/hooks";
 import type { ObjWorkshop } from "@/api/generated";
-import { ShareLinkModal } from "@components/share";
+import { PublicPageQrOverlay } from "@components/share";
 import { buildShareUrl } from "@/common/lib/url";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
 import {
@@ -252,12 +252,10 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
         isLoading={updateWorkshop.isPending}
       />
 
-      <ShareLinkModal
+      <PublicPageQrOverlay
         opened={shareOpen}
         onClose={() => setShareOpen(false)}
-        title={t("myOrganization.publicPage.shareTitle")}
-        description={t("myOrganization.publicPage.shareDescription")}
-        url={url}
+        slug={savedSlug}
       />
     </Card>
   );

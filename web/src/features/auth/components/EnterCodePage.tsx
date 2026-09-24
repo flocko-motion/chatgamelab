@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Alert,
   Card,
@@ -10,7 +10,7 @@ import {
   Title,
 } from "@mantine/core";
 import { IconAlertCircle, IconArrowRight } from "@tabler/icons-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
@@ -28,26 +28,27 @@ import {
   wordCount,
 } from "@/common/lib/wordToken";
 
-export const Route = createFileRoute("/code")({
-  component: EnterCodePage,
-});
+interface EnterCodePageProps {
+  /** From a short link /code/<words>: submitted once on arrival. */
+  initialCode?: string;
+}
 
 /** One field for both codes: 3 words join a workshop, 4 words log back in. */
-function EnterCodePage() {
+export function EnterCodePage({ initialCode }: EnterCodePageProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(initialCode ?? "");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const submittedInitial = useRef(false);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const code = normalizeWordToken(input);
+  const submitCode = async (raw: string) => {
+    const code = normalizeWordToken(raw);
     const words = wordCount(code);
     setError(null);
 
     if (words === INVITE_WORD_COUNT) {
-      navigate({ to: inviteLinkPath(code) });
+      navigate({ to: inviteLinkPath(code), replace: !!initialCode });
       return;
     }
     if (words !== PARTICIPANT_WORD_COUNT) {
@@ -83,6 +84,18 @@ function EnterCodePage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  useEffect(() => {
+    if (!initialCode || submittedInitial.current) return;
+    submittedInitial.current = true;
+    void submitCode(initialCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per arrival
+  }, [initialCode]);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    void submitCode(input);
   };
 
   return (
