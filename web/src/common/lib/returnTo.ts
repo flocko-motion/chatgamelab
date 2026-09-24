@@ -38,3 +38,33 @@ export function takeReturnTo(): string | null {
   }
   return path;
 }
+
+const COPY_INTENT_KEY = "cgl_public_copy";
+
+interface CopyIntent {
+  slug: string;
+  gameId: string;
+}
+
+/** The game a visitor of /w/<slug> wanted to copy before logging in. */
+export function rememberCopyIntent(intent: CopyIntent) {
+  try {
+    sessionStorage.setItem(COPY_INTENT_KEY, JSON.stringify(intent));
+  } catch {
+    // Storage blocked: the visitor clicks "Kopieren" again.
+  }
+}
+
+/** Reads the game to copy on this page and forgets any remembered one. */
+export function takeCopyIntent(slug: string): string | null {
+  try {
+    const raw = sessionStorage.getItem(COPY_INTENT_KEY);
+    sessionStorage.removeItem(COPY_INTENT_KEY);
+    const intent = raw ? (JSON.parse(raw) as Partial<CopyIntent>) : null;
+    return intent?.slug === slug && typeof intent.gameId === "string"
+      ? intent.gameId
+      : null;
+  } catch {
+    return null;
+  }
+}

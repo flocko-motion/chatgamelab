@@ -1083,11 +1083,9 @@
         "inviteByEmailSuccessMessage": "Eine Einladung wurde erstellt. Der Benutzer sieht sie in seinen ausstehenden Einladungen.",
         "inviteByEmailTitle": "Benutzer zum Workshop einladen",
         "inviteCreatedAt": "Erstellt",
-        "inviteDescription": "Generieren Sie einen Einladungslink, den Teilnehmer verwenden können, um diesem Workshop beizutreten.",
         "inviteExpiresAt": "Läuft ab",
         "inviteLink": "Einladungslink",
-        "inviteLinkDescription": "Teilen Sie diesen Link mit Teilnehmern, um sie zum Workshop einzuladen.",
-        "inviteLinkTitle": "Einladungslink für {{name}}",
+        "inviteLinkTitle": "Einladungslink für Teilnehmer*innen – {{name}}",
         "inviteUsage": "Nutzung",
         "isPaused": "Workshop pausieren",
         "isPausedHint": "Wenn pausiert, sehen Teilnehmer eine gesperrte Ansicht und können nicht mit Spielen interagieren",
@@ -1106,7 +1104,6 @@
         "notAuthorized": "Sie haben keine Berechtigung, Workshops zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
         "participantGames": "{{count}} Spiele",
         "participantJoined": "Beigetreten am {{date}}",
-        "participantLinkDescription": "Mit diesem Link oder Code kommt die Person zurück in ihr Konto. Er funktioniert wie ein Passwort – gib ihn nur ihr selbst.",
         "participantLinkTitle": "Link zum erneuten Anmelden",
         "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmername",
@@ -1298,11 +1295,8 @@
     },
     "settings": "Einstellungen",
     "share": {
-      "codeHint": "Oder den Code unter {{url}} eingeben:",
       "copied": "Kopiert",
-      "copyLink": "Link kopieren",
-      "fullscreenHint": "Zum Schließen irgendwo klicken oder Esc drücken",
-      "qrHint": "Zum Vergrößern antippen"
+      "copyLink": "Link kopieren"
     },
     "showing": "{{count}} Mitglieder",
     "sort": {
@@ -1322,12 +1316,13 @@
       },
       "gamesTitle": "Spiele aus diesem Workshop",
       "noGames": "Hier wurden noch keine Spiele freigegeben.",
-      "play": "Ausprobieren",
+      "play": "Spielen",
       "playRemaining": "Noch {{remaining}} von {{limit}} Spielrunden frei",
       "playExhausted": "Kontingent aufgebraucht",
       "download": "Herunterladen",
       "copy": "Kopieren",
-      "copyLogin": "Anmelden \u0026 kopieren"
+      "copyLogin": "Anmelden \u0026 kopieren",
+      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden."
     }
   },
   "dashboard": {
@@ -1475,7 +1470,8 @@
     },
     "showInviteLink": "Einladungslink anzeigen",
     "title": "Mein Workshop",
-    "you": "Du"
+    "you": "Du",
+    "showPublicPageLink": "Link zur öffentlichen Seite anzeigen"
   },
   "navigation": {
     "adminPanel": "Admin-Bereich",

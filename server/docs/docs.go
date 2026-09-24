@@ -5885,7 +5885,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "play": {
-                    "description": "nil when the workshop has no working key",
+                    "description": "nil without a workshop key or while the game is not playable",
                     "allOf": [
                         {
                             "$ref": "#/definitions/obj.PublicWorkshopPlay"
@@ -5908,6 +5908,10 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "playAvailable": {
+                    "description": "PlayAvailable is false when the workshop has no key: no game on the page can be played.",
+                    "type": "boolean"
                 }
             }
         },

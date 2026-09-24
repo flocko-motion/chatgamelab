@@ -196,9 +196,11 @@ type Workshop struct {
 
 // PublicWorkshopPage is what a visitor of /w/<slug> sees. It names no creators and no institution.
 type PublicWorkshopPage struct {
-	Name        string               `json:"name"`
-	Description string               `json:"description"`
-	Games       []PublicWorkshopGame `json:"games"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	// PlayAvailable is false when the workshop has no key: no game on the page can be played.
+	PlayAvailable bool                 `json:"playAvailable"`
+	Games         []PublicWorkshopGame `json:"games"`
 }
 
 // PublicWorkshopGame is one public game on a workshop's public page.
@@ -206,7 +208,7 @@ type PublicWorkshopGame struct {
 	ID          uuid.UUID           `json:"id"`
 	Name        string              `json:"name"`
 	Description string              `json:"description"`
-	Play        *PublicWorkshopPlay `json:"play,omitempty"` // nil when the workshop has no working key
+	Play        *PublicWorkshopPlay `json:"play,omitempty"` // nil without a workshop key or while the game is not playable
 }
 
 // PublicWorkshopPlay is the share link through which visitors play a game from the public page.

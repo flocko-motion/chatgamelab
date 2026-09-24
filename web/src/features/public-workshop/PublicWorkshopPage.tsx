@@ -5,7 +5,7 @@ import {
   Card,
   Center,
   Container,
-  Group,
+  Flex,
   Loader,
   SimpleGrid,
   Stack,
@@ -31,7 +31,12 @@ import type { ObjPublicWorkshopGame } from "@/api/generated";
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { publicWorkshopPath } from "@/common/lib/publicWorkshop";
-import { rememberReturnTo, takeReturnTo } from "@/common/lib/returnTo";
+import {
+  rememberCopyIntent,
+  rememberReturnTo,
+  takeCopyIntent,
+  takeReturnTo,
+} from "@/common/lib/returnTo";
 import { GameEditModal } from "@/features/games/components/GameEditModal";
 import {
   createGameWithExtraFields,
@@ -51,7 +56,7 @@ interface PublicWorkshopPageProps {
 export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
-  const { isAuthenticated, isParticipant } = useAuth();
+  const { isAuthenticated, isParticipant, backendUser } = useAuth();
   const authApi = useAuthenticatedApi();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
@@ -87,6 +92,7 @@ export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
     if (!game.id) return;
     if (!isAuthenticated || !authApi) {
       rememberReturnTo(publicWorkshopPath(slug));
+      rememberCopyIntent({ slug, gameId: game.id });
       navigate({ to: ROUTES.AUTH_LOGIN });
       return;
     }
@@ -99,6 +105,16 @@ export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
       setCopyingId(null);
     }
   };
+
+  // Back from login or registration with a game to copy: open its dialogue once.
+  // Waiting for backendUser lets the root layout settle before the modal opens.
+  useEffect(() => {
+    if (!page || !backendUser || !authApi) return;
+    const gameId = takeCopyIntent(slug);
+    const game = page.games?.find((g) => g.id === gameId);
+    if (game) void handleCopy(game);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- consumed once
+  }, [page, backendUser, authApi, slug]);
 
   const handleCreateCopy = async (data: CreateGameFormData) => {
     try {
@@ -171,6 +187,7 @@ export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
                   key={game.id}
                   game={game}
                   isAuthenticated={isAuthenticated}
+                  playAvailable={page.playAvailable ?? false}
                   copying={copyingId === game.id}
                   onDownload={() => handleDownload(game)}
                   onCopy={() => handleCopy(game)}
@@ -198,6 +215,8 @@ export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
 interface PublicGameCardProps {
   game: ObjPublicWorkshopGame;
   isAuthenticated: boolean;
+  /** False when the workshop has no key: no game here can be played. */
+  playAvailable: boolean;
   copying: boolean;
   onDownload: () => void;
   onCopy: () => void;
@@ -206,6 +225,7 @@ interface PublicGameCardProps {
 function PublicGameCard({
   game,
   isAuthenticated,
+  playAvailable,
   copying,
   onDownload,
   onCopy,
@@ -249,11 +269,23 @@ function PublicGameCard({
               </Text>
             </>
           )}
-          <Group grow gap="xs">
+          {!playAvailable && (
+            <>
+              <Button leftSection={<IconPlayerPlay size={16} />} disabled>
+                {t("publicWorkshop.play")}
+              </Button>
+              <Text size="xs" c="dimmed" ta="center">
+                {t("publicWorkshop.playNoKey")}
+              </Text>
+            </>
+          )}
+          {/* Side by side while both fit, else one full-width row each. */}
+          <Flex gap="xs" wrap="wrap">
             <Button
               variant="light"
               leftSection={<IconDownload size={16} />}
               onClick={onDownload}
+              style={{ flex: "1 1 auto" }}
             >
               {t("publicWorkshop.download")}
             </Button>
@@ -268,12 +300,13 @@ function PublicGameCard({
               }
               onClick={onCopy}
               loading={copying}
+              style={{ flex: "1 1 auto" }}
             >
               {isAuthenticated
                 ? t("publicWorkshop.copy")
                 : t("publicWorkshop.copyLogin")}
             </Button>
-          </Group>
+          </Flex>
         </Stack>
       </Stack>
     </Card>

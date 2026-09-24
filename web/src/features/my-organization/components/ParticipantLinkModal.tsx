@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { Alert, Center, Group, Loader, Modal } from "@mantine/core";
-import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
+import { Alert, Center, Loader, Modal } from "@mantine/core";
+import { IconAlertCircle, IconLink, IconRefresh } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useResetParticipantToken } from "@/api/hooks";
-import { ShareLinkModal } from "@components/share";
+import { FullscreenQrOverlay } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
-import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
-import { participantLinkPath, speakableCode } from "@/common/lib/wordToken";
+import { participantShareLinkPath } from "@/common/lib/wordToken";
 import { ConfirmationModal } from "./ConfirmationModal";
 
 interface ParticipantLinkModalProps {
@@ -88,29 +87,29 @@ export function ParticipantLinkModal({
 
   return (
     <>
-      <ShareLinkModal
+      <FullscreenQrOverlay
         opened={!confirmReset}
         onClose={handleClose}
         title={title}
-        description={t("myOrganization.workshops.participantLinkDescription")}
-        url={buildShareUrl(participantLinkPath(token))}
-        code={speakableCode(token)}
+        icon={<IconLink size={28} />}
+        color="blue"
+        url={buildShareUrl(participantShareLinkPath(token))}
+        actions={
+          <DangerButton
+            size="md"
+            leftSection={<IconRefresh size={16} />}
+            onClick={() => setConfirmReset(true)}
+          >
+            {t("myOrganization.workshops.resetAccess")}
+          </DangerButton>
+        }
       >
         {justReset && (
           <Alert color="green">
             {t("myOrganization.workshops.resetAccessDone")}
           </Alert>
         )}
-        <Group justify="space-between" mt="md">
-          <DangerButton
-            leftSection={<IconRefresh size={16} />}
-            onClick={() => setConfirmReset(true)}
-          >
-            {t("myOrganization.workshops.resetAccess")}
-          </DangerButton>
-          <TextButton onClick={handleClose}>{t("close")}</TextButton>
-        </Group>
-      </ShareLinkModal>
+      </FullscreenQrOverlay>
       <ConfirmationModal
         opened={confirmReset}
         onClose={() => setConfirmReset(false)}

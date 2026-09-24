@@ -131,6 +131,7 @@ func (s *WorkshopPublicPageTestSuite) TestListsOnlyPublicGamesWithoutCreators() 
 	s.setGamePublic(other.participant, foreign.ID.String(), true)
 
 	page := Must(s.page(f.slug))
+	s.True(page.PlayAvailable)
 	s.Require().Len(page.Games, 1)
 	s.Equal(shown.ID, page.Games[0].ID)
 	s.Equal(shown.Name, page.Games[0].Name)
@@ -162,6 +163,7 @@ func (s *WorkshopPublicPageTestSuite) TestNoPlayWithoutWorkshopKey() {
 	s.setGamePublic(f.participant, game.ID.String(), true)
 
 	page := Must(s.page(f.slug))
+	s.False(page.PlayAvailable)
 	s.Require().Len(page.Games, 1)
 	s.Nil(page.Games[0].Play)
 }
