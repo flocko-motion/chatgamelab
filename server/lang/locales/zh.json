@@ -58,6 +58,12 @@
       "noRole": "未分配角色",
       "organization": "组织",
       "organizationSection": "组织与角色",
+      "participantCode": {
+        "error": "无法加载您的访问码。",
+        "hint": "请拍下此代码或记下来，并妥善保管。您可以随时在任何设备上使用它重新登录您的账户：在主页“输入代码”下方输入这些单词，或扫描二维码。",
+        "longTokenHint": "请拍下二维码或保存链接，并妥善保管。您可以随时使用它重新登录您的账户。您的工作坊负责人可以通过重置访问权限，为您提供一个由四个单词组成的短代码。",
+        "title": "您的访问码"
+      },
       "role": "角色",
       "roles": {
         "admin": "管理员",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "统计",
       "title": "个人资料",
-      "totalPlaysOnGames": "我的游戏总游玩次数"
+      "totalPlaysOnGames": "我的游戏总游玩次数",
+      "workshopSection": "工作坊与组织"
     },
     "register": {
       "ageGroupLabel": "年龄组",
@@ -403,6 +410,14 @@
     "email": "邮箱",
     "emailPlaceholder": "输入邮箱地址",
     "empty": "该组织暂无成员。",
+    "enterCode": {
+      "description": "您获得的是由三个或四个单词组成的代码吗？请在此输入。",
+      "placeholder": "例如：apfel otter turm",
+      "submit": "继续",
+      "title": "输入代码",
+      "unknown": "此代码不存在。请检查拼写。",
+      "wrongLength": "代码由三个或四个单词组成。"
+    },
     "error": "错误",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "工作坊"
         },
         "sections": {
+          "constraintReasoning": "此限制适用的原因",
           "constraintText": "生效中的青少年保护限制",
           "expandStory": "写出故事的 AI 指令",
           "imageGeneration": "AI 的图像生成指令",
@@ -542,6 +558,7 @@
         "namePlaceholder": "例如：太空冒险",
         "publicDescription": "公开游戏在此平台上对所有用户可见且可游玩。",
         "publicLabel": "将此游戏设为公开",
+        "publicOwnerOnly": "只有游戏创建者可以将游戏设为公开。",
         "submit": "创建游戏",
         "title": "创建新游戏"
       },
@@ -603,6 +620,8 @@
         "importButton": "导入游戏"
       },
       "playNow": "立即游玩",
+      "privacyHint": "游戏名称和描述可能会公开显示。请不要使用真实姓名。",
+      "privacyHintShort": "可能会公开显示——请勿使用真实姓名。",
       "privateShare": {
         "active": "私人分享已启用。持有以下链接的任何人都可匿名游玩此游戏。",
         "aiQualityTier": "AI 质量",
@@ -639,7 +658,7 @@
         "unlimitedSessions": "无限次会话",
         "update": "更新分享链接",
         "workshopCreateHint": "为此游戏创建分享链接。系统将自动选择工作坊的 API 密钥并承担费用。",
-        "workshopDescription": "为此游戏创建一个分享链接。访客会话将自动使用该工作坊的默认 API 密钥。",
+        "workshopDescription": "此链接创建于工作坊“{{name}}”中——访客将使用该工作坊的 API 密钥和提示限制进行游戏。",
         "workshopShare": "工作坊分享",
         "workshopShareDescription": "此链接创建于工作坊「{{name}}」，访客将使用该工作坊的 API 密钥进行游玩。",
         "workshopSubsection": "工作坊分享链接"
@@ -652,7 +671,8 @@
         "publicSponsoring": "公共赞助",
         "publicSponsoringDescription": "平台上的所有用户都可以免费游玩此游戏——你指定的 API 密钥将承担费用。",
         "sectionTitle": "分享选项",
-        "sectionTitleShareOnly": "分享选项"
+        "sectionTitleShareOnly": "分享选项",
+        "workshopShareRequiresPublic": "此游戏必须先设为公开，才能在工作坊中分享。"
       },
       "sort": {
         "createdAt-asc": "创建时间（最早）",
@@ -843,6 +863,7 @@
     },
     "help": "帮助",
     "home": {
+      "codeCta": "输入代码",
       "features": {
         "create": {
           "description": "设计由 AI 驱动的互动文本冒险",
@@ -890,7 +911,8 @@
         "acceptFailed": "接受邀请失败，请重试。",
         "expired": "该邀请链接已过期。",
         "loadFailed": "加载邀请详情失败，请重试。",
-        "notFound": "邀请链接无效或已被撤销。"
+        "notFound": "邀请链接无效或已被撤销。",
+        "tokenLocked": "失败次数过多——请稍后再试。"
       },
       "goHome": "返回首页",
       "participant": {
@@ -1028,6 +1050,27 @@
       "promptConstraintsHint": "组织中所有会话的额外 AI 指令。若未设置工作坊级约束，并对通过链接分享的游戏生效。",
       "promptConstraintsLabel": "组织提示约束",
       "promptConstraintsPlaceholder": "例如：让故事适合相应年龄，避免暴力内容。",
+      "publicPage": {
+        "changeLinkMessage": "之后页面地址将变为 {{url}}。",
+        "changeLinkTitle": "更改链接？",
+        "changeLinkWarning": "旧链接将停止工作，包括已经打印或发送的二维码。",
+        "description": "这是一个无需登录即可访问的页面，用于展示工作坊的主题并列出小组的公开游戏。页面不会显示游戏创建者的姓名。",
+        "descriptionError": "无法保存描述。",
+        "enabled": "显示公开页面",
+        "enabledHint": "关闭后，链接只会显示一则通知，页面上的游戏链接也将停止工作。",
+        "link": "链接",
+        "linkHint": "请使用 a–z、0–9 和单个连字符，长度为 3 至 60 个字符。",
+        "offHint": "页面已关闭。您仍可以准备其链接和二维码。",
+        "open": "打开页面",
+        "shareDescription": "发送此链接，或将其显示为二维码。",
+        "shareTitle": "公开页面",
+        "showLink": "显示链接和二维码",
+        "slugInvalid": "请使用 a–z、0–9 和单个连字符，长度为 3 至 60 个字符。",
+        "slugTaken": "此链接已被占用。",
+        "text": "描述",
+        "textHint": "工作坊的主题是什么？最多 2000 个字符。",
+        "title": "公开页面"
+      },
       "removeConfirm": "确定要将“{{name}}”移出组织吗？",
       "removeMember": "移除成员",
       "removeTitle": "移除成员",
@@ -1087,7 +1130,7 @@
         "inviteExpiresAt": "过期时间",
         "inviteLink": "邀请链接",
         "inviteLinkDescription": "将此链接分享给参与者，让他们加入工作坊。",
-        "inviteLinkTitle": "{{name}} 的邀请链接",
+        "inviteLinkTitle": "参与者邀请链接——{{name}}",
         "inviteUsage": "使用次数",
         "isPaused": "暂停工作坊",
         "isPausedHint": "暂停后，参与者会看到锁定覆盖层并无法操作游戏",
@@ -1106,6 +1149,8 @@
         "notAuthorized": "你无权管理工作坊，只有负责人和教师可以访问此页面。",
         "participantGames": "{{count}} 个游戏",
         "participantJoined": "加入于 {{date}}",
+        "participantLinkTitle": "重新登录链接",
+        "participantLinkTitleNamed": "{{name}} 的重新登录链接",
         "participantName": "参与者姓名",
         "participants": "参与者",
         "promptConstraintsFallbackOrg": "使用组织约束作为默认值：{{constraint}}",
@@ -1117,10 +1162,16 @@
         "removeParticipantConfirm": "确定要将“{{name}}”移出该工作坊吗？",
         "removeParticipantMessage": "确定要将“{{name}}”移出该工作坊吗？该操作无法撤销。",
         "removeParticipantTitle": "移除参与者",
+        "resetAccess": "重置访问权限",
+        "resetAccessDone": "已创建新的访问权限。旧链接不再有效。",
+        "resetAccessError": "无法重置访问权限。请重试。",
+        "resetAccessMessage": "将创建一个包含新代码的新链接。",
+        "resetAccessTitle": "重置访问权限？",
+        "resetAccessWarning": "之前的链接和代码将停止工作，包括参与者当前已登录的设备。",
         "revokeInvite": "撤销邀请链接",
         "selectApiKey": "选择一把 API 密钥",
         "settings": "设置",
-        "shareParticipantLink": "复制该参与者的个人邀请链接",
+        "shareParticipantLink": "显示重新登录链接",
         "showOtherParticipantsGames": "向参与者展示他人的游戏",
         "showOtherParticipantsGamesHint": "负责人和职员始终可以查看所有参与者的游戏以便审核",
         "showPublicGames": "向参与者展示公开游戏",
@@ -1184,6 +1235,22 @@
     "promoteTitle": "提升为负责人",
     "promoteToHead": "提升为负责人",
     "promoteWarning": "该用户将获得管理组织成员和邀请教师的权限。",
+    "publicWorkshop": {
+      "copy": "复制",
+      "copyLogin": "登录后复制",
+      "download": "下载",
+      "gamesTitle": "此工作坊中的游戏",
+      "noGames": "这里还没有发布任何游戏。",
+      "play": "开始游戏",
+      "playExhausted": "没有剩余游戏次数",
+      "playNoKey": "此工作坊没有 API 密钥，因此无法在此运行其游戏。",
+      "playRemaining": "还剩 {{remaining}} / {{limit}} 次游戏机会",
+      "unavailable": {
+        "home": "前往主页",
+        "message": "链接已失效，或工作坊页面已被关闭。",
+        "title": "此页面不可用"
+      }
+    },
     "removeConfirm": "确定要将“{{name}}”移出组织吗？",
     "removeMember": "移除成员",
     "removeTitle": "移除成员",
@@ -1267,6 +1334,10 @@
       "untitledGame": "未命名游戏"
     },
     "settings": "设置",
+    "share": {
+      "copied": "已复制",
+      "copyLink": "复制链接"
+    },
     "showing": "共 {{count}} 名成员",
     "sort": {
       "label": "排序方式",
@@ -1360,6 +1431,9 @@
     "notFound": "未找到请求的资源。",
     "orgVerificationRequired": "你的 OpenAI 组织需要验证才能使用图像生成功能。请前往 https://platform.openai.com/settings/organization/general 验证。",
     "previousResponseNotFound": "AI 丢失了对话上下文。会话长时间未活动时可能发生此情况，请重新开始会话。",
+    "publicDescriptionTooLong": "描述最多只能包含 2000 个字符。",
+    "publicSlugInvalid": "请使用 a–z、0–9 和单个连字符，长度为 3 至 60 个字符。",
+    "publicSlugTaken": "此链接已被占用。",
     "rateLimitExceeded": "请求过多，请稍后再试。",
     "server": "服务器错误，请稍后再试。",
     "titles": {
@@ -1373,9 +1447,11 @@
       "notFound": "未找到",
       "permission": "权限不足",
       "server": "服务器错误",
+      "tokenLocked": "暂时锁定",
       "validation": "校验错误",
       "workshopInactive": "工作坊未启用"
     },
+    "tokenLocked": "失败次数过多——请稍后再试。",
     "unauthorized": "请先登录。",
     "unexpected": "发生意外错误。",
     "userNotRegistered": "继续之前需要完成注册。",
@@ -1416,6 +1492,8 @@
       "notInWorkshopMode": "你尚未进入工作坊模式，请先进入工作坊。",
       "title": "工作坊设置"
     },
+    "showInviteLink": "显示邀请链接",
+    "showPublicPageLink": "显示公开页面链接",
     "title": "我的工作坊",
     "you": "你"
   },

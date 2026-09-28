@@ -58,6 +58,12 @@
       "noRole": "Geen rol toegewezen",
       "organization": "Organisatie",
       "organizationSection": "Organisatie \u0026 rol",
+      "participantCode": {
+        "error": "Je toegangscode kon niet worden geladen.",
+        "hint": "Maak een foto van deze code of schrijf hem op en houd hem voor jezelf. Zo krijg je op elk moment en op elk apparaat weer toegang tot je account: voer de woorden onder ‘Code invoeren’ op de startpagina in of scan de QR-code.",
+        "longTokenHint": "Maak een foto van de QR-code of bewaar de link en houd hem voor jezelf. Zo krijg je op elk moment weer toegang tot je account. De workshopbegeleider kan je een korte code van vier woorden geven door je toegang opnieuw in te stellen.",
+        "title": "Je toegangscode"
+      },
       "role": "Rol",
       "roles": {
         "admin": "Beheerder",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statistieken",
       "title": "Profiel",
-      "totalPlaysOnGames": "Totaal aantal spellen gespeeld op mijn games"
+      "totalPlaysOnGames": "Totaal aantal spellen gespeeld op mijn games",
+      "workshopSection": "Workshop \u0026 organisatie"
     },
     "register": {
       "ageGroupLabel": "Leeftijdsgroep",
@@ -403,6 +410,14 @@
     "email": "E-mail",
     "emailPlaceholder": "Voer e-mailadres in",
     "empty": "Geen leden in deze organisatie.",
+    "enterCode": {
+      "description": "Heb je een code van drie of vier woorden gekregen? Voer hem hier in.",
+      "placeholder": "bijv. apfel otter turm",
+      "submit": "Doorgaan",
+      "title": "Code invoeren",
+      "unknown": "Deze code bestaat niet. Controleer de spelling.",
+      "wrongLength": "Een code bestaat uit drie of vier woorden."
+    },
     "error": "Fout",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Waarom deze beperking van toepassing is",
           "constraintText": "Actieve jeugdbeschermingsbeperking",
           "expandStory": "Instructies aan de AI om het verhaal uit te werken",
           "imageGeneration": "Instructies van de AI voor beeldgeneratie",
@@ -542,6 +558,7 @@
         "namePlaceholder": "bijv. Ruimteavontuur",
         "publicDescription": "Openbare games zijn zichtbaar en speelbaar voor alle gebruikers op dit platform.",
         "publicLabel": "Maak deze game openbaar",
+        "publicOwnerOnly": "Alleen de maker van het spel kan een spel openbaar maken.",
         "submit": "Game aanmaken",
         "title": "Nieuwe game maken"
       },
@@ -603,6 +620,8 @@
         "importButton": "Game importeren"
       },
       "playNow": "Nu spelen",
+      "privacyHint": "De naam en beschrijving van een spel kunnen openbaar zichtbaar worden. Gebruik daarom geen echte namen.",
+      "privacyHintShort": "Kan openbaar zichtbaar worden – gebruik geen echte namen.",
       "privateShare": {
         "active": "Privédelen is actief. Iedereen met de onderstaande link kan deze game anoniem spelen.",
         "aiQualityTier": "AI-kwaliteit",
@@ -639,7 +658,7 @@
         "unlimitedSessions": "Onbeperkte sessies",
         "update": "Deellink bijwerken",
         "workshopCreateHint": "Maak een deellink voor dit spel. De API-sleutel van de workshop wordt automatisch geselecteerd en dekt de kosten.",
-        "workshopDescription": "Maak een deellink voor dit spel. De standaard API-sleutel van de workshop wordt automatisch gebruikt voor sessies van gasten.",
+        "workshopDescription": "Deze link is aangemaakt binnen de workshop \"{{name}}\" – gasten spelen met de API-sleutel van de workshop en de beperkingen voor prompts.",
         "workshopShare": "Workshopdeel",
         "workshopShareDescription": "Deze link is aangemaakt in workshop \"{{name}}\" - gasten spelen met de API-sleutel van de workshop.",
         "workshopSubsection": "Workshop-deellink"
@@ -652,7 +671,8 @@
         "publicSponsoring": "Openbare sponsoring",
         "publicSponsoringDescription": "Alle gebruikers op het platform kunnen dit spel gratis spelen - jouw toegewezen API-sleutel betaalt de kosten.",
         "sectionTitle": "Deelopties",
-        "sectionTitleShareOnly": "Deelopties"
+        "sectionTitleShareOnly": "Deelopties",
+        "workshopShareRequiresPublic": "Dit spel moet openbaar zijn voordat het in de workshop kan worden gedeeld."
       },
       "sort": {
         "createdAt-asc": "Aangemaakt (oudste eerst)",
@@ -843,6 +863,7 @@
     },
     "help": "Help",
     "home": {
+      "codeCta": "Code invoeren",
       "features": {
         "create": {
           "description": "Ontwerp interactieve tekstavonturen met AI",
@@ -890,7 +911,8 @@
         "acceptFailed": "Uitnodiging accepteren is mislukt. Probeer het opnieuw.",
         "expired": "Deze uitnodigingslink is verlopen.",
         "loadFailed": "Uitnodigingsgegevens laden mislukt. Probeer het opnieuw.",
-        "notFound": "Deze uitnodigingslink is ongeldig of ingetrokken."
+        "notFound": "Deze uitnodigingslink is ongeldig of ingetrokken.",
+        "tokenLocked": "Te veel mislukte pogingen – probeer het later opnieuw."
       },
       "goHome": "Ga naar home",
       "participant": {
@@ -1028,6 +1050,27 @@
       "promptConstraintsHint": "Aanvullende AI-instructies voor alle sessies in deze organisatie. Van toepassing wanneer er geen workshopniveau-beperking is ingesteld, en op games die via een link worden gedeeld.",
       "promptConstraintsLabel": "Organisatiepromptbeperkingen",
       "promptConstraintsPlaceholder": "bijv. Zorg dat het verhaal leeftijdsgebonden blijft en vermijd gewelddadige inhoud.",
+      "publicPage": {
+        "changeLinkMessage": "De pagina is dan te vinden op {{url}}.",
+        "changeLinkTitle": "De link wijzigen?",
+        "changeLinkWarning": "De oude link werkt niet meer – ook QR-codes die al zijn afgedrukt of verstuurd niet.",
+        "description": "Een pagina waarvoor je niet hoeft in te loggen, met informatie over de workshop en een lijst van de openbare spellen van de groep. Er wordt nooit vermeld wie een spel heeft gemaakt.",
+        "descriptionError": "De beschrijving kon niet worden opgeslagen.",
+        "enabled": "Openbare pagina tonen",
+        "enabledHint": "Als dit uitstaat, toont de link alleen een melding en werken de speellinks van de pagina niet meer.",
+        "link": "Link",
+        "linkHint": "Gebruik a–z, 0–9 en enkele streepjes, 3 tot 60 tekens.",
+        "offHint": "De pagina staat uit. Je kunt de link en QR-code nog wel voorbereiden.",
+        "open": "Pagina openen",
+        "shareDescription": "Stuur deze link of toon hem als QR-code.",
+        "shareTitle": "Openbare pagina",
+        "showLink": "Link \u0026 QR-code tonen",
+        "slugInvalid": "Gebruik a–z, 0–9 en enkele streepjes, 3 tot 60 tekens.",
+        "slugTaken": "Deze link is al in gebruik.",
+        "text": "Beschrijving",
+        "textHint": "Waar ging de workshop over? Maximaal 2000 tekens.",
+        "title": "Openbare pagina"
+      },
       "removeConfirm": "Weet je zeker dat je \"{{name}}\" uit de organisatie wilt verwijderen?",
       "removeMember": "Lid verwijderen",
       "removeTitle": "Lid verwijderen",
@@ -1087,7 +1130,7 @@
         "inviteExpiresAt": "Verloopt",
         "inviteLink": "Uitnodigingslink",
         "inviteLinkDescription": "Deel deze link met deelnemers zodat ze de workshop kunnen joinen.",
-        "inviteLinkTitle": "Uitnodigingslink voor {{name}}",
+        "inviteLinkTitle": "Uitnodigingslink voor deelnemers – {{name}}",
         "inviteUsage": "Gebruik",
         "isPaused": "Workshop pauzeren",
         "isPausedHint": "Wanneer gepauzeerd zien deelnemers een vergrendeld scherm en kunnen ze niet met games interactie hebben",
@@ -1106,6 +1149,8 @@
         "notAuthorized": "Je hebt geen toestemming om workshops te beheren. Alleen hoofden en docenten hebben toegang.",
         "participantGames": "{{count}} games",
         "participantJoined": "Toegetreden {{date}}",
+        "participantLinkTitle": "Link om opnieuw in te loggen",
+        "participantLinkTitleNamed": "Link om opnieuw in te loggen voor {{name}}",
         "participantName": "Deelnemersnaam",
         "participants": "Deelnemers",
         "promptConstraintsFallbackOrg": "Organisatiebeperking wordt standaard gebruikt: {{constraint}}",
@@ -1117,10 +1162,16 @@
         "removeParticipantConfirm": "Weet je zeker dat je \"{{name}}\" uit deze workshop wilt verwijderen?",
         "removeParticipantMessage": "Weet je zeker dat je \"{{name}}\" uit deze workshop wilt verwijderen? Dit kan niet ongedaan worden gemaakt.",
         "removeParticipantTitle": "Deelnemer verwijderen",
+        "resetAccess": "Toegang opnieuw instellen",
+        "resetAccessDone": "Nieuwe toegang aangemaakt. De oude link werkt niet meer.",
+        "resetAccessError": "De toegang kon niet opnieuw worden ingesteld. Probeer het opnieuw.",
+        "resetAccessMessage": "Er wordt een nieuwe link met een nieuwe code aangemaakt.",
+        "resetAccessTitle": "Toegang opnieuw instellen?",
+        "resetAccessWarning": "De vorige link en code werken niet meer – ook niet op apparaten waarop de deelnemer momenteel is ingelogd.",
         "revokeInvite": "Uitnodigingslink intrekken",
         "selectApiKey": "Selecteer een API-sleutel",
         "settings": "Instellingen",
-        "shareParticipantLink": "Persoonlijke uitnodigingslink voor deze deelnemer kopiëren",
+        "shareParticipantLink": "Link om opnieuw in te loggen tonen",
         "showOtherParticipantsGames": "Games van andere deelnemers tonen",
         "showOtherParticipantsGamesHint": "Hoofd en staf kunnen altijd alle games van deelnemers zien voor moderatie",
         "showPublicGames": "Openbare games tonen aan deelnemers",
@@ -1184,6 +1235,22 @@
     "promoteTitle": "Promoveren tot hoofd",
     "promoteToHead": "Promoveren tot hoofd",
     "promoteWarning": "Deze gebruiker kan voortaan organisatieleden beheren en docenten uitnodigen.",
+    "publicWorkshop": {
+      "copy": "Kopiëren",
+      "copyLogin": "Log in om te kopiëren",
+      "download": "Downloaden",
+      "gamesTitle": "Spellen van deze workshop",
+      "noGames": "Er zijn hier nog geen spellen gepubliceerd.",
+      "play": "Spelen",
+      "playExhausted": "Geen speelsessies meer over",
+      "playNoKey": "Deze workshop heeft geen API-sleutel, dus de spellen kunnen hier niet worden gespeeld.",
+      "playRemaining": "{{remaining}} van {{limit}} speelsessies over",
+      "unavailable": {
+        "home": "Ga naar de startpagina",
+        "message": "De link is niet (meer) geldig of de workshoppagina is uitgeschakeld.",
+        "title": "Deze pagina is niet beschikbaar"
+      }
+    },
     "removeConfirm": "Weet je zeker dat je \"{{name}}\" uit de organisatie wilt verwijderen?",
     "removeMember": "Lid verwijderen",
     "removeTitle": "Lid verwijderen",
@@ -1267,6 +1334,10 @@
       "untitledGame": "Naamloze game"
     },
     "settings": "Instellingen",
+    "share": {
+      "copied": "Gekopieerd",
+      "copyLink": "Link kopiëren"
+    },
     "showing": "{{count}} leden",
     "sort": {
       "label": "Sorteren op",
@@ -1360,6 +1431,9 @@
     "notFound": "De gevraagde resource is niet gevonden.",
     "orgVerificationRequired": "Je OpenAI-organisatie moet worden geverifieerd om de beeldgeneratiefunctie te gebruiken. Verifieer via https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "De AI is de draad van dit gesprek kwijt. Dit kan gebeuren na langere inactiviteit. Start een nieuwe sessie om verder te spelen.",
+    "publicDescriptionTooLong": "De beschrijving mag maximaal 2000 tekens lang zijn.",
+    "publicSlugInvalid": "Gebruik a–z, 0–9 en enkele streepjes, 3 tot 60 tekens.",
+    "publicSlugTaken": "Deze link is al in gebruik.",
     "rateLimitExceeded": "Te veel verzoeken. Wacht even en probeer het opnieuw.",
     "server": "Serverfout. Probeer het later opnieuw.",
     "titles": {
@@ -1373,9 +1447,11 @@
       "notFound": "Niet gevonden",
       "permission": "Toestemming geweigerd",
       "server": "Serverfout",
+      "tokenLocked": "Tijdelijk vergrendeld",
       "validation": "Validatiefout",
       "workshopInactive": "Workshop niet actief"
     },
+    "tokenLocked": "Te veel mislukte pogingen – probeer het later opnieuw.",
     "unauthorized": "Log in om door te gaan.",
     "unexpected": "Er trad een onverwachte fout op.",
     "userNotRegistered": "Je moet eerst de registratie voltooien.",
@@ -1416,6 +1492,8 @@
       "notInWorkshopMode": "Je zit niet in de workshopmodus. Ga eerst een workshop binnen.",
       "title": "Workshopinstellingen"
     },
+    "showInviteLink": "Uitnodigingslink tonen",
+    "showPublicPageLink": "Link naar openbare pagina tonen",
     "title": "Mijn workshop",
     "you": "Jij"
   },

@@ -75,9 +75,9 @@ records what exists, where it departs from the concept, and what remains.
    landing-page button. The branch passed type checks, lint on the changed
    files, the build, and the Go unit and integration suites, but nobody has
    looked at the screens yet.
-5. Run `./run-translate.sh` for the 36 languages beyond German and English. It
-   also refreshes `server/lang/locales`, which was already out of step with the
-   web copy before this branch.
+5. Done on `feat/participant-profile-code`: `./run-translate.sh` translated the
+   new texts into the other 35 languages and brought `server/lang/locales` back
+   in step with the web copy.
 
 ## Open decisions
 
@@ -169,7 +169,7 @@ records what exists, where it departs from the concept, and what remains.
    has looked at the screens yet.
 2. Start the backend once against a copy of the production database and check
    that every workshop received a slug.
-3. Run `./run-translate.sh` for the other languages.
+3. Done, see Part A item 5.
 
 ## Small items
 
