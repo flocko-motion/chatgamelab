@@ -56,6 +56,7 @@ export {
 export {
   useCurrentUser,
   useUserStats,
+  useOwnParticipantCode,
   useUpdateUser,
 } from "./useUsers";
 

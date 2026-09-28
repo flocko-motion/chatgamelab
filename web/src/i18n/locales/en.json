@@ -63,7 +63,14 @@
       },
       "statisticsSection": "Statistics",
       "title": "Profile",
-      "totalPlaysOnGames": "Total Plays on My Games"
+      "totalPlaysOnGames": "Total Plays on My Games",
+      "workshopSection": "Workshop \u0026 Organization",
+      "participantCode": {
+        "title": "Your access code",
+        "hint": "Take a photo of this code or write it down, and keep it to yourself. It gets you back into your account at any time, on any device: enter the words under “Enter code” on the home page or scan the QR code.",
+        "longTokenHint": "Take a photo of the QR code or save the link, and keep it to yourself. It gets you back into your account at any time. Your workshop leader can give you a short four-word code by resetting your access.",
+        "error": "Your access code could not be loaded."
+      }
     },
     "register": {
       "cancelButton": "Cancel",

@@ -63,7 +63,14 @@
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
-      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
+      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele",
+      "workshopSection": "Workshop \u0026 Organisation",
+      "participantCode": {
+        "title": "Dein Zugangscode",
+        "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter „Code eingeben“ ein oder scanne den QR-Code.",
+        "longTokenHint": "Fotografiere den QR-Code oder speichere den Link und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto. Einen kurzen Code aus vier Wörtern bekommst du von deiner Workshopleitung, wenn sie deinen Zugang zurücksetzt.",
+        "error": "Dein Zugangscode konnte nicht geladen werden."
+      }
     },
     "register": {
       "cancelButton": "Abbrechen",

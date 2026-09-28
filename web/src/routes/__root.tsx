@@ -83,6 +83,7 @@ function RootComponent() {
   // Routes that participants are allowed to access
   const isParticipantAllowedRoute =
     pathname === ROUTES.MY_WORKSHOP ||
+    pathname === ROUTES.PROFILE ||
     pathname.startsWith("/sessions/") ||
     pathname.includes("/play");
 
