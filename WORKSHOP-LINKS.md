@@ -18,6 +18,13 @@ records what exists, where it departs from the concept, and what remains.
 - **Reset access.** `POST /api/workshops/participants/{id}/token/reset`, with the
   permissions of reading the token. The re-login popup offers it behind a
   confirmation.
+- **Own code in the profile.** Participants open 'Profil' from the avatar menu
+  or the phone menu. The profile starts with their access code: the words, a
+  QR code and the `/code` link, laid out for one photo
+  (`GET /api/users/me/participant-code`). A participant with an old long token
+  sees QR code and link, and a hint that the workshop leader can issue a short
+  code through 'Zugang zurücksetzen'. Participants never see the age group
+  switch, because it would let them loosen their own youth protection.
 - **Dead invites.** Asking for the invite link of a workshop whose pending
   invite has expired or is used up now marks that invite expired and creates a
   fresh one (`db.CreateWorkshopInvite`).
