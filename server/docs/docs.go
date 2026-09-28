@@ -4144,6 +4144,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/me/participant-code": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the re-login code of the authenticated participant; both fields are null for other users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get own participant code",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.ParticipantCodeResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me/stats": {
             "get": {
                 "security": [
@@ -6744,6 +6775,19 @@ const docTemplate = `{
                 "textDone": {
                     "description": "True when text streaming is complete (Stream=false in DB)",
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.ParticipantCodeResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "description": "Token is the full login token that the /code link and QR code carry.",
+                    "type": "string"
+                },
+                "words": {
+                    "description": "Words is the token's word code, or null for the long tokens issued before word tokens.",
+                    "type": "string"
                 }
             }
         },

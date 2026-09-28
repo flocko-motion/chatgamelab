@@ -10,7 +10,9 @@ import {
 import { useModals } from "@mantine/modals";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../providers/AuthProvider";
-import { IconMessage, IconLogout } from "@tabler/icons-react";
+import { IconMessage, IconLogout, IconUser } from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ROUTES } from "@/common/routes/routes";
 import { LanguageSwitcher } from "../../../LanguageSwitcher";
 import { VersionDisplay } from "../../../VersionDisplay";
 import { EXTERNAL_LINKS } from "../../../../../config/externalLinks";
@@ -23,7 +25,7 @@ export interface ParticipantMobileNavigationProps {
 
 /**
  * Simplified mobile navigation for workshop participants.
- * Shows only: My Workshop, Contact, Language, Workshop info, Leave Workshop
+ * Shows only: My Workshop, Contact, Profile, Language, Workshop info, Leave Workshop
  */
 export function ParticipantMobileNavigation({
   items,
@@ -34,6 +36,7 @@ export function ParticipantMobileNavigation({
   const { logout: authLogout, backendUser } = useAuth();
   const theme = useMantineTheme();
   const modals = useModals();
+  const navigate = useNavigate();
 
   const handleLeaveWorkshop = () => {
     modals.openConfirmModal({
@@ -144,6 +147,27 @@ export function ParticipantMobileNavigation({
             <IconMessage size={18} />
             <Text size="sm" fw={500}>
               {t("header.contact")}
+            </Text>
+          </UnstyledButton>
+
+          <UnstyledButton
+            onClick={() => {
+              navigate({ to: ROUTES.PROFILE });
+              onClose();
+            }}
+            py="sm"
+            px="md"
+            style={{
+              borderRadius: "var(--mantine-radius-md)",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <IconUser size={18} />
+            <Text size="sm" fw={500}>
+              {t("header.profile")}
             </Text>
           </UnstyledButton>
 

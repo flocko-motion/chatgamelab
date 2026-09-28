@@ -20,6 +20,14 @@ var wordsDE string
 
 var words = strings.Fields(wordsDE)
 
+var wordSet = func() map[string]bool {
+	set := make(map[string]bool, len(words))
+	for _, w := range words {
+		set[w] = true
+	}
+	return set
+}()
+
 const maxAttempts = 5
 
 // Generate joins n uniformly random words with "-".
@@ -57,6 +65,20 @@ func GenerateUnique(ctx context.Context, n int, exists func(context.Context, str
 		}
 	}
 	return "", fmt.Errorf("no free word token after %d attempts", maxAttempts+1)
+}
+
+// IsWords reports whether token is at least two hyphen-joined words from the list.
+func IsWords(token string) bool {
+	parts := strings.Split(token, "-")
+	if len(parts) < 2 {
+		return false
+	}
+	for _, p := range parts {
+		if !wordSet[p] {
+			return false
+		}
+	}
+	return true
 }
 
 var transliterate = strings.NewReplacer("ä", "ae", "ö", "oe", "ü", "ue", "ß", "ss")

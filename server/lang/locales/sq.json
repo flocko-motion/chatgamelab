@@ -58,6 +58,12 @@
       "noRole": "Pa rol të caktuar",
       "organization": "Organizata",
       "organizationSection": "Organizata \u00026 Roli",
+      "participantCode": {
+        "error": "Kodi yt i aksesit nuk mund të ngarkohej.",
+        "hint": "Bëj një foto të këtij kodi ose shënoje dhe mbaje për vete. Ai të rikthen në llogarinë tënde në çdo kohë dhe në çdo pajisje: fut fjalët te “Fut kodin” në faqen kryesore ose skano kodin QR.",
+        "longTokenHint": "Bëj një foto të kodit QR ose ruaje lidhjen dhe mbaje për vete. Ajo të rikthen në llogarinë tënde në çdo kohë. Drejtuesi i punëtorisë mund të të japë një kod të shkurtër me katër fjalë duke rivendosur aksesin tënd.",
+        "title": "Kodi yt i aksesit"
+      },
       "role": "Roli",
       "roles": {
         "admin": "Administrator",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statistika",
       "title": "Profili",
-      "totalPlaysOnGames": "Totali i lojërave të mia të luajtura"
+      "totalPlaysOnGames": "Totali i lojërave të mia të luajtura",
+      "workshopSection": "Punëtoria dhe organizata"
     },
     "register": {
       "ageGroupLabel": "Grupi i moshës",
@@ -403,6 +410,14 @@
     "email": "Email",
     "emailPlaceholder": "Shkruani adresën e emailit",
     "empty": "Nuk ka anëtarë në këtë organizatë.",
+    "enterCode": {
+      "description": "A more një kod me tre ose katër fjalë? Fute këtu.",
+      "placeholder": "p.sh. apfel otter turm",
+      "submit": "Vazhdo",
+      "title": "Fut kodin",
+      "unknown": "Ky kod nuk ekziston. Kontrollo drejtshkrimin.",
+      "wrongLength": "Një kod ka tre ose katër fjalë."
+    },
     "error": "Gabim",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Punëtori"
         },
         "sections": {
+          "constraintReasoning": "Pse zbatohet kjo kufizë",
           "constraintText": "Kufizim aktiv për mbrojtjen e të rinjve",
           "expandStory": "Udhëzime për AI-në për shkrimin e historisë",
           "imageGeneration": "Udhëzime nga AI për gjenerimin e imazheve",
@@ -557,6 +573,7 @@
         "namePlaceholder": "p.sh., Aventurë në hapësirë",
         "publicDescription": "Lojërat publike janë të dukshme dhe të luajtshme nga të gjithë përdoruesit në këtë platformë.",
         "publicLabel": "Bëje këtë lojë publike",
+        "publicOwnerOnly": "Vetëm krijuesi i lojës mund ta bëjë lojën publike.",
         "submit": "Krijo lojë",
         "title": "Krijo lojë të re"
       },
@@ -618,6 +635,8 @@
         "importButton": "Importo lojën"
       },
       "playNow": "Luaj tani",
+      "privacyHint": "Emri dhe përshkrimi i një loje mund të bëhen publikisht të dukshme. Mos përdor emra të vërtetë.",
+      "privacyHintShort": "Mund të bëhet publikisht e dukshme – ju lutemi, mos përdorni emra të vërtetë.",
       "privateShare": {
         "active": "Ndarja private është aktive. Kushdo me lidhjen më poshtë mund ta luajë këtë lojë në mënyrë anonime.",
         "aiQualityTier": "Cilësia e AI",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "Sesionet e pakufizuara",
         "update": "Përditëso lidhjen e ndarjes",
         "workshopCreateHint": "Krijoni një lidhje shpërndarjeje për këtë lojë. Çelësi API i punëtorisë zgjidhet automatikisht dhe mbulon kostot.",
-        "workshopDescription": "Krijoni një lidhje shpërndarjeje për këtë lojë. Çelësi parazgjedhur i punëtorisë do të përdoret automatikisht për sesionet e të ftuarve.",
+        "workshopDescription": "Kjo lidhje krijohet brenda punëtorisë \"{{name}}\" – të ftuarit luajnë me çelësin API të punëtorisë dhe kufizimet e kërkesave.",
         "workshopShare": "Shpërndarje punëtorie",
         "workshopShareDescription": "Kjo lidhje është krijuar në punëtorinë \"{{name}}\" - të ftuarit luajnë duke përdorur çelësin API të punëtorisë.",
         "workshopSubsection": "Lidhje Shpërndarjeje e Punëtorisë"
@@ -667,7 +686,8 @@
         "publicSponsoring": "Sponsorizim Publik",
         "publicSponsoringDescription": "Të gjithë përdoruesit në platformë mund ta luajnë këtë lojë falas - çelësi juaj API i caktuar mbulon koston.",
         "sectionTitle": "Opsionet e shpërndarjes",
-        "sectionTitleShareOnly": "Opsionet e shpërndarjes"
+        "sectionTitleShareOnly": "Opsionet e shpërndarjes",
+        "workshopShareRequiresPublic": "Kjo lojë duhet të jetë publike përpara se të mund të ndahet në punëtori."
       },
       "sort": {
         "createdAt-asc": "Krijuar (më e vjetra)",
@@ -858,6 +878,7 @@
     },
     "help": "Ndihmë",
     "home": {
+      "codeCta": "Fut kodin",
       "features": {
         "create": {
           "description": "Dizajnoni aventura tekstuale interaktive të fuqizuara nga AI",
@@ -905,7 +926,8 @@
         "acceptFailed": "Dështoi pranimi i ftesës. Ju lutemi provoni përsëri.",
         "expired": "Kjo lidhje ftese ka skaduar.",
         "loadFailed": "Dështoi ngarkimi i detajeve të ftesës. Ju lutemi provoni përsëri.",
-        "notFound": "Kjo lidhje ftese është e pavlefshme ose është revokuar."
+        "notFound": "Kjo lidhje ftese është e pavlefshme ose është revokuar.",
+        "tokenLocked": "Shumë përpjekje të pasuksesshme – provo përsëri më vonë."
       },
       "goHome": "Shko në faqen kryesore",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë organizatë. Zbatohen kur nuk ka vendosur kufizim në nivel punëtorie dhe për lojërat e ndara me lidhje.",
       "promptConstraintsLabel": "Kufizimet e prompt-it të organizatës",
       "promptConstraintsPlaceholder": "p.sh. Mbajeni historinë të përshtatshme për moshën dhe shmangni përmbajtjen e dhunshme.",
+      "publicPage": {
+        "changeLinkMessage": "Më pas faqja do të jetë te {{url}}.",
+        "changeLinkTitle": "Të ndryshohet lidhja?",
+        "changeLinkWarning": "Lidhja e vjetër nuk do të funksionojë më – përfshirë kodet QR që janë printuar ose dërguar tashmë.",
+        "description": "Një faqe pa hyrje që tregon se për çfarë bëhej fjalë në punëtori dhe rendit lojërat publike të grupit. Ajo nuk tregon kurrë se kush e ka krijuar një lojë.",
+        "descriptionError": "Përshkrimi nuk mund të ruhej.",
+        "enabled": "Shfaq faqen publike",
+        "enabledHint": "Kur çaktivizohet, lidhja shfaq vetëm një njoftim dhe lidhjet e lojës në faqe nuk funksionojnë më.",
+        "link": "Lidhja",
+        "linkHint": "Përdor a–z, 0–9 dhe viza të vetme, nga 3 deri në 60 karaktere.",
+        "offHint": "Faqja është çaktivizuar. Megjithatë, mund të përgatitësh lidhjen dhe kodin QR të saj.",
+        "open": "Hap faqen",
+        "shareDescription": "Dërgoje këtë lidhje ose shfaqe si kod QR.",
+        "shareTitle": "Faqe publike",
+        "showLink": "Shfaq lidhjen dhe kodin QR",
+        "slugInvalid": "Përdor a–z, 0–9 dhe viza të vetme, nga 3 deri në 60 karaktere.",
+        "slugTaken": "Kjo lidhje është zënë tashmë.",
+        "text": "Përshkrimi",
+        "textHint": "Për çfarë bëhej fjalë në punëtori? Maksimumi 2000 karaktere.",
+        "title": "Faqe publike"
+      },
       "removeConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga organizata?",
       "removeMember": "Hiq anëtarin",
       "removeTitle": "Hiq anëtarin",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "Skadon",
         "inviteLink": "Lidhja e ftesës",
         "inviteLinkDescription": "Ndajeni këtë lidhje me pjesëmarrësit për t'i lejuar të bashkohen me punëtorinë.",
-        "inviteLinkTitle": "Lidhja e ftesës për {{name}}",
+        "inviteLinkTitle": "Lidhja e ftesës për pjesëmarrësit – {{name}}",
         "inviteUsage": "Përdorimi",
         "isPaused": "Pusho punëtorinë",
         "isPausedHint": "Kur është në pauzë, pjesëmarrësit shohin një mbulim të bllokuar dhe nuk mund të ndërveprojnë me lojërat",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "Nuk keni leje të menaxhoni punëtoritë. Vetëm krerët dhe mësuesit kanë akses në këtë faqe.",
         "participantGames": "{{count}} lojëra",
         "participantJoined": "U bashkua më {{date}}",
+        "participantLinkTitle": "Lidhja për hyrje përsëri",
+        "participantLinkTitleNamed": "Lidhja për hyrje përsëri për {{name}}",
         "participantName": "Emri i pjesëmarrësit",
         "participants": "Pjesëmarrësit",
         "promptConstraintsFallbackOrg": "Duke përdorur kufizimin e organizatës si parazgjedhje: {{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori?",
         "removeParticipantMessage": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori? Ky veprim nuk mund të zhbëhet.",
         "removeParticipantTitle": "Hiq pjesëmarrësin",
+        "resetAccess": "Rivendos aksesin",
+        "resetAccessDone": "U krijua aksesi i ri. Lidhja e vjetër nuk funksionon më.",
+        "resetAccessError": "Aksesi nuk mund të rivendosej. Provo përsëri.",
+        "resetAccessMessage": "Do të krijohet një lidhje e re me një kod të ri.",
+        "resetAccessTitle": "Të rivendoset aksesi?",
+        "resetAccessWarning": "Lidhja dhe kodi i mëparshëm nuk do të funksionojnë më – përfshirë në pajisjet ku pjesëmarrësi është aktualisht i identifikuar.",
         "revokeInvite": "Revoko lidhjen e ftesës",
         "selectApiKey": "Zgjidh një çelës API",
         "serverDefault": "Server Default",
         "settings": "Cilësimet",
-        "shareParticipantLink": "Kopjo lidhjen individuale të ftesës për këtë pjesëmarrës",
+        "shareParticipantLink": "Shfaq lidhjen për hyrje përsëri",
         "showOtherParticipantsGames": "Shfaq lojërat e pjesëmarrësve të tjerë",
         "showOtherParticipantsGamesHint": "Drejtuesit dhe stafi mund të shohin gjithmonë të gjitha lojërat e pjesëmarrësve për moderim",
         "showPublicGames": "Shfaq lojërat publike për pjesëmarrësit",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "Promovo në Kreu",
     "promoteToHead": "Promovo në Kreu",
     "promoteWarning": "Ky përdorues do të fitojë aftësinë për të menaxhuar anëtarët e organizatës dhe për të ftuar mësues.",
+    "publicWorkshop": {
+      "copy": "Kopjo",
+      "copyLogin": "Hyr për ta kopjuar",
+      "download": "Shkarko",
+      "gamesTitle": "Lojërat e kësaj punëtorie",
+      "noGames": "Asnjë lojë nuk është publikuar këtu ende.",
+      "play": "Luaj",
+      "playExhausted": "Nuk kanë mbetur seanca loje",
+      "playNoKey": "Kjo punëtori nuk ka çelës API, ndaj lojërat e saj nuk mund të luhen këtu.",
+      "playRemaining": "Kanë mbetur {{remaining}} nga {{limit}} seanca loje",
+      "unavailable": {
+        "home": "Shko në faqen kryesore",
+        "message": "Lidhja nuk është më e vlefshme ose faqja e punëtorisë është çaktivizuar.",
+        "title": "Kjo faqe nuk është e disponueshme"
+      }
+    },
     "removeConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga organizata?",
     "removeMember": "Hiq anëtarin",
     "removeTitle": "Hiq anëtarin",
@@ -1287,6 +1354,10 @@
       "untitledGame": "Lojë pa emër"
     },
     "settings": "Cilësimet",
+    "share": {
+      "copied": "U kopjua",
+      "copyLink": "Kopjo lidhjen"
+    },
     "showing": "{{count}} anëtarë",
     "sort": {
       "label": "Rendit sipas",
@@ -1381,6 +1452,9 @@
     "notFound": "Burimi i kërkuar nuk u gjet.",
     "orgVerificationRequired": "Organizata juaj OpenAI ka nevojë për verifikim për të përdorur funksionin e gjenerimit të imazheve. Ju lutemi verifikoni në https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "AI humbi gjurmët e kësaj bisede. Kjo mund të ndodhë kur një sesion ka qenë joaktiv për një kohë. Ju lutemi nisni një sesion të ri për të vazhduar lojën.",
+    "publicDescriptionTooLong": "Përshkrimi mund të ketë maksimumi 2000 karaktere.",
+    "publicSlugInvalid": "Përdor a–z, 0–9 dhe viza të vetme, nga 3 deri në 60 karaktere.",
+    "publicSlugTaken": "Kjo lidhje është zënë tashmë.",
     "rateLimitExceeded": "Shumë kërkesa. Ju lutemi prisni pak dhe provoni përsëri.",
     "server": "Gabim serveri. Ju lutemi provoni më vonë.",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "Nuk u gjet",
       "permission": "Leja u refuzua",
       "server": "Gabim serveri",
+      "tokenLocked": "Bllokuar përkohësisht",
       "validation": "Gabim validimi",
       "workshopInactive": "Punëtoria joaktive"
     },
+    "tokenLocked": "Shumë përpjekje të pasuksesshme – provo përsëri më vonë.",
     "unauthorized": "Ju lutemi hyni për të vazhduar.",
     "unexpected": "Ndodhi një gabim i papritur.",
     "userNotRegistered": "Duhet të plotësoni regjistrimin përpara se të vazhdoni.",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "Nuk jeni në modalitetin e punëtorisë. Ju lutemi hyni së pari në një punëtori.",
       "title": "Cilësimet e punëtorisë"
     },
+    "showInviteLink": "Shfaq lidhjen e ftesës",
+    "showPublicPageLink": "Shfaq lidhjen e faqes publike",
     "title": "Punëtoria ime",
     "you": "Ju"
   },

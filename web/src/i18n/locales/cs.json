@@ -58,6 +58,12 @@
       "noRole": "Není přiřazena žádná role",
       "organization": "Organizace",
       "organizationSection": "Organizace \u00026 role",
+      "participantCode": {
+        "error": "Přístupový kód se nepodařilo načíst.",
+        "hint": "Vyfoťte si tento kód nebo si ho zapište a nikomu ho neukazujte. Kdykoli a na jakémkoli zařízení se s ním můžete vrátit ke svému účtu: na domovské stránce zadejte slova pod „Zadat kód“ nebo naskenujte QR kód.",
+        "longTokenHint": "Vyfoťte si QR kód nebo si uložte odkaz a nikomu ho neukazujte. Kdykoli se s ním můžete vrátit ke svému účtu. Vedoucí workshopu vám může po obnovení přístupu poskytnout krátký čtyřslovný kód.",
+        "title": "Váš přístupový kód"
+      },
       "role": "Role",
       "roles": {
         "admin": "Administrátor",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statistiky",
       "title": "Profil",
-      "totalPlaysOnGames": "Celkový počet odehrání mých her"
+      "totalPlaysOnGames": "Celkový počet odehrání mých her",
+      "workshopSection": "Workshop a organizace"
     },
     "register": {
       "ageGroupLabel": "Věková skupina",
@@ -403,6 +410,14 @@
     "email": "E-mail",
     "emailPlaceholder": "Zadejte e-mailovou adresu",
     "empty": "V této organizaci nejsou žádní členové.",
+    "enterCode": {
+      "description": "Dostali jste kód o třech nebo čtyřech slovech? Zadejte ho zde.",
+      "placeholder": "např. jablko vydra věž",
+      "submit": "Pokračovat",
+      "title": "Zadat kód",
+      "unknown": "Tento kód neexistuje. Zkontrolujte prosím jeho pravopis.",
+      "wrongLength": "Kód se skládá ze tří nebo čtyř slov."
+    },
     "error": "Chyba",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Proč se toto omezení uplatňuje",
           "constraintText": "Aktivní omezení ochrany mládeže",
           "expandStory": "Instrukce pro AI k rozepsání příběhu",
           "imageGeneration": "Instrukce AI pro generování obrázků",
@@ -542,6 +558,7 @@
         "namePlaceholder": "např. Vesmírné dobrodružství",
         "publicDescription": "Veřejné hry jsou viditelné a hratelné pro všechny uživatele na této platformě.",
         "publicLabel": "Zpřístupnit hru veřejně",
+        "publicOwnerOnly": "Hru může zveřejnit pouze její tvůrce.",
         "submit": "Vytvořit hru",
         "title": "Vytvořit novou hru"
       },
@@ -603,6 +620,8 @@
         "importButton": "Importovat hru"
       },
       "playNow": "Hrát hned",
+      "privacyHint": "Název a popis hry se mohou stát veřejně viditelnými. Nepoužívejte prosím skutečná jména.",
+      "privacyHintShort": "Může se stát veřejně viditelným – nepoužívejte prosím skutečná jména.",
       "privateShare": {
         "active": "Soukromé sdílení je aktivní. Každý s následujícím odkazem může tuto hru hrát anonymně.",
         "aiQualityTier": "Kvalita AI",
@@ -639,7 +658,7 @@
         "unlimitedSessions": "Neomezený počet relací",
         "update": "Aktualizovat odkaz",
         "workshopCreateHint": "Vytvořte pro tuto hru odkaz ke sdílení. Klíč API workshopu se vybere automaticky a pokryje náklady.",
-        "workshopDescription": "Vytvořte pro tuto hru odkaz ke sdílení. Výchozí klíč API workshopu se pro relace hostů použije automaticky.",
+        "workshopDescription": "Tento odkaz byl vytvořen v rámci workshopu „{{name}}“ – hosté hrají s API klíčem workshopu a omezeními zadání.",
         "workshopShare": "Workshopový odkaz ke sdílení",
         "workshopShareDescription": "Tento odkaz byl vytvořen ve workshopu „{{name}}“ – hosté hrají s využitím klíče API workshopu.",
         "workshopSubsection": "Workshopový odkaz ke sdílení"
@@ -652,7 +671,8 @@
         "publicSponsoring": "Veřejné sponzorování",
         "publicSponsoringDescription": "Všichni uživatelé na platformě mohou tuto hru hrát zdarma – náklady pokrývá vámi přiřazený klíč API.",
         "sectionTitle": "Možnosti sdílení",
-        "sectionTitleShareOnly": "Možnosti sdílení"
+        "sectionTitleShareOnly": "Možnosti sdílení",
+        "workshopShareRequiresPublic": "Tato hra musí být před sdílením ve workshopu veřejná."
       },
       "sort": {
         "createdAt-asc": "Vytvořeno (nejstarší)",
@@ -843,6 +863,7 @@
     },
     "help": "Nápověda",
     "home": {
+      "codeCta": "Zadat kód",
       "features": {
         "create": {
           "description": "Navrhujte interaktivní textová dobrodružství poháněná AI",
@@ -890,7 +911,8 @@
         "acceptFailed": "Pozvánku se nepodařilo přijmout. Zkuste to prosím znovu.",
         "expired": "Odkaz na pozvánku vypršel.",
         "loadFailed": "Nepodařilo se načíst detaily pozvánky. Zkuste to prosím znovu.",
-        "notFound": "Odkaz na pozvánku je neplatný nebo byl zrušen."
+        "notFound": "Odkaz na pozvánku je neplatný nebo byl zrušen.",
+        "tokenLocked": "Příliš mnoho neúspěšných pokusů – zkuste to prosím později."
       },
       "goHome": "Přejít domů",
       "participant": {
@@ -1028,6 +1050,27 @@
       "promptConstraintsHint": "Dodatečné pokyny pro AI pro všechny relace v této organizaci. Platí, pokud není nastaveno omezení na úrovni workshopu, a pro hry sdílené prostřednictvím odkazu.",
       "promptConstraintsLabel": "Organizační omezení promptů",
       "promptConstraintsPlaceholder": "např. Udržujte příběh vhodný pro daný věk a vyhýbejte se násilnému obsahu.",
+      "publicPage": {
+        "changeLinkMessage": "Stránka pak bude dostupná na adrese {{url}}.",
+        "changeLinkTitle": "Změnit odkaz?",
+        "changeLinkWarning": "Starý odkaz přestane fungovat – včetně QR kódů, které již byly vytištěny nebo odeslány.",
+        "description": "Stránka bez přihlášení, která ukazuje, čemu se workshop věnoval, a uvádí veřejné hry skupiny. Nikdy neuvádí, kdo hru vytvořil.",
+        "descriptionError": "Popis se nepodařilo uložit.",
+        "enabled": "Zobrazit veřejnou stránku",
+        "enabledHint": "Když je tato možnost vypnutá, odkaz zobrazí pouze oznámení a odkazy pro hraní na stránce přestanou fungovat.",
+        "link": "Odkaz",
+        "linkHint": "Použijte a–z, 0–9 a jednotlivé pomlčky, 3 až 60 znaků.",
+        "offHint": "Stránka je vypnutá. Stále můžete připravit její odkaz a QR kód.",
+        "open": "Otevřít stránku",
+        "shareDescription": "Pošlete tento odkaz nebo ho zobrazte jako QR kód.",
+        "shareTitle": "Veřejná stránka",
+        "showLink": "Zobrazit odkaz a QR kód",
+        "slugInvalid": "Použijte a–z, 0–9 a jednotlivé pomlčky, 3 až 60 znaků.",
+        "slugTaken": "Tento odkaz je již obsazený.",
+        "text": "Popis",
+        "textHint": "Čemu se workshop věnoval? Maximálně 2000 znaků.",
+        "title": "Veřejná stránka"
+      },
       "removeConfirm": "Opravdu chcete odstranit „{{name}}“ z organizace?",
       "removeMember": "Odebrat člena",
       "removeTitle": "Odebrat člena",
@@ -1087,7 +1130,7 @@
         "inviteExpiresAt": "Platnost do",
         "inviteLink": "Odkaz s pozvánkou",
         "inviteLinkDescription": "Sdílejte tento odkaz s účastníky, aby se mohli připojit k workshopu.",
-        "inviteLinkTitle": "Odkaz s pozvánkou pro {{name}}",
+        "inviteLinkTitle": "Pozvánkový odkaz pro účastníky – {{name}}",
         "inviteUsage": "Využití",
         "isPaused": "Pozastavit workshop",
         "isPausedHint": "Při pozastavení účastníci vidí uzamčenou vrstvu a nemohou s hrami pracovat",
@@ -1106,6 +1149,8 @@
         "notAuthorized": "Nemáte oprávnění spravovat workshopy. Přístup mají pouze vedoucí a učitelé.",
         "participantGames": "{{count}} her",
         "participantJoined": "Připojen {{date}}",
+        "participantLinkTitle": "Odkaz pro opětovné přihlášení",
+        "participantLinkTitleNamed": "Odkaz pro opětovné přihlášení pro {{name}}",
         "participantName": "Jméno účastníka",
         "participants": "Účastníci",
         "promptConstraintsFallbackOrg": "Používá se organizační omezení jako výchozí: {{constraint}}",
@@ -1117,10 +1162,16 @@
         "removeParticipantConfirm": "Opravdu chcete odstranit „{{name}}“ z tohoto workshopu?",
         "removeParticipantMessage": "Opravdu chcete odstranit „{{name}}“ z tohoto workshopu? Tuto akci nelze vrátit.",
         "removeParticipantTitle": "Odebrat účastníka",
+        "resetAccess": "Obnovit přístup",
+        "resetAccessDone": "Byl vytvořen nový přístup. Starý odkaz již nefunguje.",
+        "resetAccessError": "Přístup se nepodařilo obnovit. Zkuste to prosím znovu.",
+        "resetAccessMessage": "Bude vytvořen nový odkaz s novým kódem.",
+        "resetAccessTitle": "Obnovit přístup?",
+        "resetAccessWarning": "Předchozí odkaz a kód přestanou fungovat – včetně zařízení, na kterých je účastník právě přihlášen.",
         "revokeInvite": "Zrušit odkaz s pozvánkou",
         "selectApiKey": "Vyberte API klíč",
         "settings": "Nastavení",
-        "shareParticipantLink": "Zkopírovat individuální odkaz s pozvánkou pro tohoto účastníka",
+        "shareParticipantLink": "Zobrazit odkaz pro opětovné přihlášení",
         "showOtherParticipantsGames": "Zobrazit hry ostatních účastníků",
         "showOtherParticipantsGamesHint": "Vedoucí a personál vždy vidí všechny hry účastníků kvůli moderování",
         "showPublicGames": "Zobrazit účastníkům veřejné hry",
@@ -1184,6 +1235,22 @@
     "promoteTitle": "Povýšit na vedoucího",
     "promoteToHead": "Povýšit na vedoucího",
     "promoteWarning": "Tento uživatel získá možnost spravovat členy organizace a zvát učitele.",
+    "publicWorkshop": {
+      "copy": "Kopírovat",
+      "copyLogin": "Pro kopírování se přihlaste",
+      "download": "Stáhnout",
+      "gamesTitle": "Hry z tohoto workshopu",
+      "noGames": "Zatím zde nebyly zveřejněny žádné hry.",
+      "play": "Hrát",
+      "playExhausted": "Nezbývají žádné herní relace",
+      "playNoKey": "Tento workshop nemá API klíč, takže jeho hry zde nelze hrát.",
+      "playRemaining": "Zbývá {{remaining}} z {{limit}} herních relací",
+      "unavailable": {
+        "home": "Přejít na domovskou stránku",
+        "message": "Odkaz již není platný nebo byla stránka workshopu vypnuta.",
+        "title": "Tato stránka není dostupná"
+      }
+    },
     "removeConfirm": "Opravdu chcete odstranit „{{name}}“ z organizace?",
     "removeMember": "Odebrat člena",
     "removeTitle": "Odebrat člena",
@@ -1267,6 +1334,10 @@
       "untitledGame": "Hra bez názvu"
     },
     "settings": "Nastavení",
+    "share": {
+      "copied": "Zkopírováno",
+      "copyLink": "Kopírovat odkaz"
+    },
     "showing": "{{count}} členů",
     "sort": {
       "label": "Řadit podle",
@@ -1360,6 +1431,9 @@
     "notFound": "Požadovaný zdroj nebyl nalezen.",
     "orgVerificationRequired": "Vaše organizace OpenAI musí být ověřena pro použití funkce generování obrázků. Ověřte ji na https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "AI ztratila přehled o této konverzaci. Může se to stát, když bylo sezení delší dobu neaktivní. Začněte nové sezení, abyste mohli pokračovat ve hře.",
+    "publicDescriptionTooLong": "Popis může mít nejvýše 2000 znaků.",
+    "publicSlugInvalid": "Použijte a–z, 0–9 a jednotlivé pomlčky, 3 až 60 znaků.",
+    "publicSlugTaken": "Tento odkaz je již obsazený.",
     "rateLimitExceeded": "Příliš mnoho požadavků. Chvíli počkejte a zkuste to znovu.",
     "server": "Chyba serveru. Zkuste to prosím později.",
     "titles": {
@@ -1373,9 +1447,11 @@
       "notFound": "Nenalezeno",
       "permission": "Přístup zamítnut",
       "server": "Chyba serveru",
+      "tokenLocked": "Dočasně uzamčeno",
       "validation": "Chyba validace",
       "workshopInactive": "Workshop je neaktivní"
     },
+    "tokenLocked": "Příliš mnoho neúspěšných pokusů – zkuste to prosím později.",
     "unauthorized": "Pokračujte prosím po přihlášení.",
     "unexpected": "Došlo k neočekávané chybě.",
     "userNotRegistered": "Musíte dokončit registraci, než budete pokračovat.",
@@ -1416,6 +1492,8 @@
       "notInWorkshopMode": "Nejste v režimu workshopu. Nejprve vstupte do nějakého workshopu.",
       "title": "Nastavení workshopu"
     },
+    "showInviteLink": "Zobrazit pozvánkový odkaz",
+    "showPublicPageLink": "Zobrazit odkaz na veřejnou stránku",
     "title": "Můj workshop",
     "you": "Vy"
   },

@@ -13,6 +13,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -237,6 +238,26 @@ func newParticipantToken(ctx context.Context) (string, error) {
 
 func participantTokenExists(ctx context.Context, token string) (bool, error) {
 	return queries().ParticipantTokenExists(ctx, sql.NullString{String: token, Valid: true})
+}
+
+// GetOwnParticipantToken returns the user's participant token, or "" for users
+// without one (Auth0 accounts).
+func GetOwnParticipantToken(ctx context.Context, userID uuid.UUID) (string, error) {
+	userRecord, err := queries().GetUserByID(ctx, userID)
+	if err != nil {
+		return "", obj.ErrNotFound("user not found")
+	}
+	return userRecord.ParticipantToken.String, nil
+}
+
+// ParticipantTokenWords returns the words of a word token, or "" for the
+// long random tokens issued before word tokens.
+func ParticipantTokenWords(token string) string {
+	words, ok := strings.CutPrefix(token, ParticipantTokenPrefix)
+	if !ok || !wordtoken.IsWords(words) {
+		return ""
+	}
+	return words
 }
 
 // ParticipantTokenKnown reports whether a token was ever issued, including
