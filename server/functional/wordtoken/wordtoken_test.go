@@ -121,3 +121,18 @@ func TestNormalize(t *testing.T) {
 		}
 	}
 }
+
+func TestIsWords(t *testing.T) {
+	token, err := Generate(4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !IsWords(token) {
+		t.Errorf("IsWords(%q) = false for a generated token", token)
+	}
+	for _, s := range []string{"", words[0], words[0] + "-", words[0] + "-xq", "xK9_mQ-vR8nLpZ2w"} {
+		if IsWords(s) {
+			t.Errorf("IsWords(%q) = true", s)
+		}
+	}
+}

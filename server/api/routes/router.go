@@ -71,6 +71,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
 	mux.Handle("GET /api/users/me", httpx.RequireAuth(GetCurrentUser))
 	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
+	mux.Handle("GET /api/users/me/participant-code", httpx.RequireAuth(GetCurrentUserParticipantCode))
 	mux.Handle("PATCH /api/users/me/language", httpx.RequireAuth(UpdateUserLanguage))
 	mux.Handle("PUT /api/users/me/active-workshop", httpx.RequireAuth(SetActiveWorkshop))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))

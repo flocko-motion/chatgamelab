@@ -722,6 +722,13 @@ export interface RoutesMessageStatusResponse {
   textDone?: boolean;
 }
 
+export interface RoutesParticipantCodeResponse {
+  /** Token is the full login token that the /code link and QR code carry. */
+  token?: string;
+  /** Words is the token's word code, or null for the long tokens issued before word tokens. */
+  words?: string;
+}
+
 export interface RoutesParticipantLoginRequest {
   token?: string;
 }
@@ -2897,6 +2904,24 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the re-login code of the authenticated participant; both fields are null for other users
+     *
+     * @tags users
+     * @name MeParticipantCodeList
+     * @summary Get own participant code
+     * @request GET:/users/me/participant-code
+     * @secure
+     */
+    meParticipantCodeList: (params: RequestParams = {}) =>
+      this.request<RoutesParticipantCodeResponse, HttpxErrorResponse>({
+        path: `/users/me/participant-code`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),

@@ -1,6 +1,7 @@
 package testing
 
 import (
+	"cgl/api/routes"
 	"cgl/obj"
 	"cgl/testing/testutil"
 	"net/url"
@@ -109,4 +110,32 @@ func (s *WorkshopWordTokensTestSuite) TestUsedUpInviteIsReplaced() {
 	second := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
 	s.NotEqual(first.ID, second.ID, "a used-up invite must be replaced")
 	s.Equal(obj.InviteStatusPending, second.Status)
+}
+
+func (s *WorkshopWordTokensTestSuite) TestOwnParticipantCode() {
+	head, wsID := s.workshopSetup("word-own")
+	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
+	resp := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
+	participant := s.CreateUserWithToken(*resp.AuthToken)
+
+	var code routes.ParticipantCodeResponse
+	s.Require().NoError(participant.Get("users/me/participant-code", &code))
+	s.Require().NotNil(code.Token)
+	s.Require().NotNil(code.Words)
+	s.Equal(*resp.AuthToken, *code.Token)
+	s.Equal("participant-"+*code.Words, *code.Token)
+
+	// After a reset the participant sees the new code.
+	var reset map[string]string
+	s.Require().NoError(head.Post("workshops/participants/"+participant.ID+"/token/reset", nil, &reset))
+	s.Require().NoError(s.CreateUserWithToken(reset["token"]).Get("users/me/participant-code", &code))
+	s.Equal(reset["token"], *code.Token)
+
+	// Users without a participant token get an explicit empty answer.
+	var none routes.ParticipantCodeResponse
+	s.Require().NoError(head.Get("users/me/participant-code", &none))
+	s.Nil(none.Token)
+	s.Nil(none.Words)
+
+	s.Error(s.Public().Get("users/me/participant-code", nil))
 }
