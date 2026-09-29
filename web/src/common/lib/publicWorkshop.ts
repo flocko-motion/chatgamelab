@@ -6,6 +6,8 @@ export const PUBLIC_WORKSHOP_PREFIX = "/w/";
 export const PUBLIC_SLUG_MIN_LENGTH = 3;
 export const PUBLIC_SLUG_MAX_LENGTH = 60;
 export const PUBLIC_DESCRIPTION_MAX_LENGTH = 2000;
+/** Mirrors db.PublicLinksMax. */
+export const PUBLIC_LINKS_MAX = 10;
 /** Sessions each game's play link on the page allows (server: db.PublicPageSessions). */
 export const PUBLIC_PAGE_SESSIONS = 50;
 

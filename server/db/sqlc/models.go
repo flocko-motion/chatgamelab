@@ -264,6 +264,7 @@ type Workshop struct {
 	AllowGameSharing           bool
 	PublicSlug                 sql.NullString
 	PublicDescription          sql.NullString
+	PublicLinks                pqtype.NullRawMessage
 }
 
 type WorkshopParticipant struct {

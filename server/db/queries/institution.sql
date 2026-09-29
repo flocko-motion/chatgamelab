@@ -146,7 +146,8 @@ UPDATE workshop SET
   is_paused = $16,
   allow_game_sharing = $17,
   public_slug = $18,
-  public_description = $19
+  public_description = $19,
+  public_links = $20
 WHERE id = $1
 RETURNING *;
 

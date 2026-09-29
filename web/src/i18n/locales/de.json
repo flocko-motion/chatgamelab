@@ -820,6 +820,10 @@
       "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen."
     },
     "guestPlay": {
+      "copyGame": "Dieses Spiel kopieren",
+      "copyGameLogin": "Anmelden & Spiel kopieren",
+      "copyLeaveTitle": "Spiel verlassen?",
+      "copyLeaveMessage": "Zum Kopieren musst du dich anmelden. Die laufende Runde geht dabei verloren.",
       "welcome": {
         "backToHome": "Zu ChatGameLab",
         "continueGame": "Spiel fortsetzen",
@@ -1153,6 +1157,19 @@
         "viewInviteLink": "Einladungslink anzeigen"
       },
       "publicPage": {
+        "links": {
+          "title": "Weiterf\u00fchrende Links",
+          "hint": "Erscheinen auf der Seite unter den Spielen. H\u00f6chstens 10.",
+          "linkTitle": "Titel",
+          "linkDescription": "Beschreibung (optional)",
+          "url": "Adresse",
+          "add": "Link hinzuf\u00fcgen",
+          "remove": "Entfernen",
+          "up": "Nach oben",
+          "down": "Nach unten",
+          "save": "Links speichern",
+          "error": "Die Links konnten nicht gespeichert werden. Jeder Link braucht einen Titel, und jede Adresse muss mit http:// oder https:// beginnen."
+        },
         "title": "Öffentliche Seite",
         "description": "Eine Seite ohne Anmeldung, die zeigt, worum es im Workshop ging, und die öffentlichen Spiele der Gruppe auflistet. Wer ein Spiel erstellt hat, steht nirgends.",
         "enabled": "Öffentliche Seite anzeigen",
@@ -1303,7 +1320,8 @@
     "settings": "Einstellungen",
     "share": {
       "copied": "Kopiert",
-      "copyLink": "Link kopieren"
+      "copyLink": "Link kopieren",
+      "visitLink": "Link besuchen"
     },
     "showing": "{{count}} Mitglieder",
     "sort": {
@@ -1316,6 +1334,16 @@
     "unnamed": "Unbenannt",
     "viewGame": "Spiel ansehen",
     "publicWorkshop": {
+      "links": {
+        "title": "Mehr zu diesem Workshop"
+      },
+      "about": {
+        "oneLiner": "Diese Textabenteuer sind mit dem ChatGameLab entstanden: selbst gebaut, ohne Programmieren, live erz\u00e4hlt von einer KI.",
+        "details": "Die Macher*innen beschreiben Welt, Figuren und Regeln in eigenen Worten. Beim Spielen erz\u00e4hlt eine KI die Geschichte daraus live weiter: Sie reagiert auf jede Eingabe und erfindet dazu passende Bilder \u2014 zwei Runden laufen deshalb nie gleich ab. Wer selbst eines baut, merkt schnell, wie stark die eigenen Anweisungen das Ergebnis pr\u00e4gen und wo eine KI an ihre Grenzen st\u00f6\u00dft. Genau darum geht es: KI nicht erkl\u00e4rt bekommen, sondern ausprobieren.",
+        "more": "Mehr erfahren",
+        "less": "Weniger",
+        "link": "Mehr \u00fcber das ChatGameLab"
+      },
       "unavailable": {
         "title": "Diese Seite ist nicht verfügbar",
         "message": "Der Link ist nicht (mehr) gültig oder die Workshop-Seite wurde ausgeschaltet.",
@@ -1329,7 +1357,12 @@
       "download": "Herunterladen",
       "copy": "Kopieren",
       "copyLogin": "Anmelden \u0026 kopieren",
-      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden."
+      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden.",
+      "cta": {
+        "title": "Erstelle selbst ein ChatGameLab-Spiel",
+        "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten.",
+        "button": "Kostenlos loslegen"
+      }
     }
   },
   "dashboard": {

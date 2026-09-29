@@ -11,12 +11,16 @@ import (
 	"cgl/obj"
 	"context"
 	"database/sql"
+	"encoding/json"
+	"net/url"
 	"regexp"
 	"strings"
 	"sync"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -29,6 +33,11 @@ const (
 	PublicDescriptionMaxLength = 2000
 	publicSlugNameMaxLength    = 30
 	publicSlugWords            = 2
+
+	PublicLinksMax                 = 10
+	PublicLinkTitleMaxLength       = 100
+	PublicLinkDescriptionMaxLength = 300
+	PublicLinkURLMaxLength         = 500
 )
 
 var publicSlugPattern = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
@@ -100,6 +109,80 @@ func validatePublicSlug(slug string) error {
 }
 
 // BackfillWorkshopPublicSlugs gives every workshop created before migration 033 its slug.
+// ValidatePublicLinks checks the further reading a leader entered. The scheme
+// check is the point of this function: the page renders these as links, so a
+// "javascript:" address would run a stranger's code in every visitor's browser.
+func ValidatePublicLinks(links []obj.PublicWorkshopLink) ([]obj.PublicWorkshopLink, error) {
+	if len(links) > PublicLinksMax {
+		return nil, obj.ErrPublicLinksInvalid("A workshop may show at most 10 links")
+	}
+
+	cleaned := make([]obj.PublicWorkshopLink, 0, len(links))
+	for _, link := range links {
+		title := strings.TrimSpace(link.Title)
+		description := strings.TrimSpace(link.Description)
+		raw := strings.TrimSpace(link.URL)
+
+		// A row the leader left blank is dropped, not rejected.
+		if title == "" && description == "" && raw == "" {
+			continue
+		}
+		if title == "" {
+			return nil, obj.ErrPublicLinksInvalid("Every link needs a title")
+		}
+		if utf8.RuneCountInString(title) > PublicLinkTitleMaxLength {
+			return nil, obj.ErrPublicLinksInvalid("A link title may be at most 100 characters long")
+		}
+		if utf8.RuneCountInString(description) > PublicLinkDescriptionMaxLength {
+			return nil, obj.ErrPublicLinksInvalid("A link description may be at most 300 characters long")
+		}
+		if len(raw) > PublicLinkURLMaxLength {
+			return nil, obj.ErrPublicLinksInvalid("The address is too long")
+		}
+		parsed, err := url.Parse(raw)
+		if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
+			return nil, obj.ErrPublicLinksInvalid("An address must start with http:// or https://")
+		}
+
+		cleaned = append(cleaned, obj.PublicWorkshopLink{
+			Title:       title,
+			Description: description,
+			URL:         raw,
+		})
+	}
+
+	if len(cleaned) == 0 {
+		return nil, nil
+	}
+	return cleaned, nil
+}
+
+// marshalPublicLinks turns validated links into the jsonb column value.
+func marshalPublicLinks(links []obj.PublicWorkshopLink) (pqtype.NullRawMessage, error) {
+	if len(links) == 0 {
+		return pqtype.NullRawMessage{}, nil
+	}
+	raw, err := json.Marshal(links)
+	if err != nil {
+		return pqtype.NullRawMessage{}, obj.ErrServerError("failed to store the workshop links")
+	}
+	return pqtype.NullRawMessage{RawMessage: raw, Valid: true}, nil
+}
+
+// unmarshalPublicLinks reads the jsonb column. Unreadable content is treated as
+// no links rather than breaking every read of the workshop.
+func unmarshalPublicLinks(raw pqtype.NullRawMessage) []obj.PublicWorkshopLink {
+	if !raw.Valid {
+		return nil
+	}
+	var links []obj.PublicWorkshopLink
+	if err := json.Unmarshal(raw.RawMessage, &links); err != nil {
+		log.Error("failed to read workshop public links", "error", err)
+		return nil
+	}
+	return links
+}
+
 func BackfillWorkshopPublicSlugs(ctx context.Context) error {
 	rows, err := queries().ListWorkshopsWithoutPublicSlug(ctx)
 	if err != nil {
@@ -161,6 +244,7 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 		Description:   ws.PublicDescription.String,
 		PlayAvailable: ws.DefaultApiKeyShareID.Valid,
 		Games:         make([]obj.PublicWorkshopGame, 0, len(games)),
+		Links:         unmarshalPublicLinks(ws.PublicLinks),
 	}
 	for _, g := range games {
 		game := obj.PublicWorkshopGame{

@@ -255,6 +255,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				AllowGameSharing:           r.AllowGameSharing,
 				PublicSlug:                 nullStringToPtr(r.PublicSlug),
 				PublicDescription:          nullStringToPtr(r.PublicDescription),
+				PublicLinks:                unmarshalPublicLinks(r.PublicLinks),
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -318,6 +319,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				AllowGameSharing:           r.AllowGameSharing,
 				PublicSlug:                 nullStringToPtr(r.PublicSlug),
 				PublicDescription:          nullStringToPtr(r.PublicDescription),
+				PublicLinks:                unmarshalPublicLinks(r.PublicLinks),
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,

@@ -27,6 +27,7 @@ export function PublicPageQrOverlay({
       icon={<IconQrcode size={28} />}
       color="green"
       url={buildShareUrl(publicWorkshopPath(slug))}
+      visitable
     />
   );
 }
