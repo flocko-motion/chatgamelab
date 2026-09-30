@@ -11,6 +11,8 @@ import (
 	"cgl/db"
 	"cgl/game"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 // ── Guest Play Endpoints ────────────────────────────────────────────────────
@@ -34,9 +36,13 @@ func authorizeShareSession(r *http.Request, session *obj.GameSession) *obj.HTTPE
 
 // GuestGameInfo is the public game info returned for the welcome screen.
 type GuestGameInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Remaining   *int   `json:"remaining"` // null = unlimited, 0 = exhausted
+	// GameID and Public let the welcome screen offer a copy. Only a public game
+	// may be copied: a share link alone does not release its AI instructions.
+	GameID      uuid.UUID `json:"gameId"`
+	Public      bool      `json:"public"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Remaining   *int      `json:"remaining"` // null = unlimited, 0 = exhausted
 }
 
 // PlayGuestGetGameInfo godoc
@@ -64,6 +70,8 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, GuestGameInfo{
+		GameID:      gameObj.ID,
+		Public:      gameObj.Public,
 		Name:        gameObj.Name,
 		Description: gameObj.Description,
 		Remaining:   gameShare.Remaining,

@@ -47,7 +47,9 @@ export function WorkshopHeader({
   const { t: tCommon } = useTranslation("common");
   const { retryBackendFetch } = useAuth();
   const { isMobile } = useResponsiveDesign();
-  const { data: workshop } = useWorkshop(showMembers ? workshopId : undefined);
+  // Fetched for everyone, not just staff: participants may read their own
+  // workshop, and they need its slug to reach the public page link.
+  const { data: workshop } = useWorkshop(workshopId);
   const updateWorkshop = useUpdateWorkshop();
   const createInvite = useCreateWorkshopInvite();
   const [inviteToken, setInviteToken] = useState<string | null>(null);
@@ -189,7 +191,7 @@ export function WorkshopHeader({
           </HoverCard>
         )}
       </Group>
-      {(organizationName || showMembers) && (
+      {(organizationName || showMembers || publicSlug) && (
         <Group gap="xs" align="center">
           {organizationName && (
             <Text size="sm" c="dimmed">
@@ -210,7 +212,7 @@ export function WorkshopHeader({
               </ActionIcon>
             </Tooltip>
           )}
-          {showMembers && publicSlug && (
+          {publicSlug && (
             <Tooltip label={t("showPublicPageLink")}>
               <ActionIcon
                 variant="subtle"

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Alert,
+  Anchor,
   Button,
   Card,
   Center,
@@ -8,16 +9,17 @@ import {
   Flex,
   Loader,
   SimpleGrid,
+  Spoiler,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import {
   IconCopy,
   IconDownload,
   IconLogin,
   IconPlayerPlay,
+  IconSparkles,
   IconWorldOff,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -25,52 +27,45 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { apiClient } from "@/api/client";
 import { config } from "@/config/env";
-import { useAuthenticatedApi } from "@/api/useAuthenticatedApi";
-import { useCreateGame, useUpdateGame } from "@/api/hooks";
-import type { ObjPublicWorkshopGame } from "@/api/generated";
+import type {
+  ObjPublicWorkshopGame,
+  ObjPublicWorkshopLink,
+} from "@/api/generated";
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
+import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
+import { EXTERNAL_LINKS } from "@/config/externalLinks";
 import { publicWorkshopPath } from "@/common/lib/publicWorkshop";
-import {
-  rememberCopyIntent,
-  rememberReturnTo,
-  takeCopyIntent,
-  takeReturnTo,
-} from "@/common/lib/returnTo";
+import { buildShareUrl } from "@/common/lib/url";
+import { takeReturnTo } from "@/common/lib/returnTo";
 import { GameEditModal } from "@/features/games/components/GameEditModal";
-import {
-  createGameWithExtraFields,
-  downloadYamlFile,
-  gameToFormData,
-} from "@/features/games/lib";
-import type { CreateGameFormData } from "@/features/games/types";
+import { downloadYamlFile } from "@/features/games/lib";
 
 interface PublicWorkshopPageProps {
   slug: string;
+  /** From ?copy=<id>: the "Kopieren" link opens this page in a new tab. */
+  copyGameId?: string;
 }
 
 /**
  * The page a workshop shows the world at /w/<slug>. It never names who made a
  * game; the server leaves creators out of the response.
  */
-export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
+export function PublicWorkshopPage({
+  slug,
+  copyGameId,
+}: PublicWorkshopPageProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
-  const { isAuthenticated, isParticipant, backendUser } = useAuth();
-  const authApi = useAuthenticatedApi();
-  const createGame = useCreateGame();
-  const updateGame = useUpdateGame();
-  const [copyData, setCopyData] = useState<Partial<CreateGameFormData> | null>(
-    null,
-  );
-  const [copyingId, setCopyingId] = useState<string | null>(null);
-  const [copyModalOpened, { open: openCopyModal, close: closeCopyModal }] =
-    useDisclosure(false);
+  const { isAuthenticated, backendUser } = useAuth();
+  const copy = useCopyGameIntent(publicWorkshopPath(slug));
 
-  // Back from login or registration: the visitor has arrived.
+  // Back from login or registration: the visitor has arrived. Waiting for
+  // backendUser matters — a new account is authenticated at Auth0 before the
+  // registration form appears, and that form still needs the remembered path.
   useEffect(() => {
-    if (isAuthenticated) takeReturnTo();
-  }, [isAuthenticated]);
+    if (backendUser) takeReturnTo();
+  }, [backendUser]);
 
   const { data: page, isLoading, isError } = useQuery({
     queryKey: ["publicWorkshop", slug],
@@ -88,52 +83,20 @@ export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
     }
   };
 
-  const handleCopy = async (game: ObjPublicWorkshopGame) => {
-    if (!game.id) return;
-    if (!isAuthenticated || !authApi) {
-      rememberReturnTo(publicWorkshopPath(slug));
-      rememberCopyIntent({ slug, gameId: game.id });
-      navigate({ to: ROUTES.AUTH_LOGIN });
-      return;
-    }
-    setCopyingId(game.id);
-    try {
-      const full = (await authApi.games.gamesDetail(game.id)).data;
-      setCopyData(gameToFormData(full));
-      openCopyModal();
-    } finally {
-      setCopyingId(null);
-    }
-  };
-
   // Back from login or registration with a game to copy: open its dialogue once.
-  // Waiting for backendUser lets the root layout settle before the modal opens.
   useEffect(() => {
-    if (!page || !backendUser || !authApi) return;
-    const gameId = takeCopyIntent(slug);
-    const game = page.games?.find((g) => g.id === gameId);
-    if (game) void handleCopy(game);
+    if (page && copy.ready) copy.resume();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- consumed once
-  }, [page, backendUser, authApi, slug]);
+  }, [page, copy.ready, slug]);
 
-  const handleCreateCopy = async (data: CreateGameFormData) => {
-    try {
-      const newGame = await createGameWithExtraFields(
-        data,
-        createGame.mutateAsync,
-        updateGame.mutateAsync,
-      );
-      closeCopyModal();
-      setCopyData(null);
-      if (isParticipant) {
-        navigate({ to: ROUTES.MY_WORKSHOP as "/" });
-      } else if (newGame.id) {
-        navigate({ to: `/my-games/${newGame.id}` as "/" });
-      }
-    } catch {
-      // Error handled by mutation
-    }
-  };
+  // Arrived through the "Kopieren" link in a fresh tab. The parameter is
+  // dropped from the address first, so a reload does not repeat the dialogue.
+  useEffect(() => {
+    if (!copyGameId || !page || !copy.ready) return;
+    void navigate({ to: ".", search: {}, replace: true });
+    void copy.start(copyGameId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- consumed once
+  }, [copyGameId, page, copy.ready]);
 
   if (isLoading) {
     return (
@@ -169,6 +132,7 @@ export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
       <Stack gap="xl">
         <Stack gap="xs">
           <Title order={1}>{page.name}</Title>
+          <AboutChatGameLab />
           {page.description && (
             <Text style={{ whiteSpace: "pre-line" }}>{page.description}</Text>
           )}
@@ -188,27 +152,112 @@ export function PublicWorkshopPage({ slug }: PublicWorkshopPageProps) {
                   game={game}
                   isAuthenticated={isAuthenticated}
                   playAvailable={page.playAvailable ?? false}
-                  copying={copyingId === game.id}
+                  copyUrl={buildShareUrl(
+                    `${publicWorkshopPath(slug)}?copy=${game.id}`,
+                  )}
                   onDownload={() => handleDownload(game)}
-                  onCopy={() => handleCopy(game)}
                 />
               ))}
             </SimpleGrid>
           )}
         </Stack>
+
+        <FurtherReading links={page.links ?? []} />
+
+        <CallToAction />
       </Stack>
 
       <GameEditModal
-        opened={copyModalOpened}
-        onClose={() => {
-          closeCopyModal();
-          setCopyData(null);
-        }}
-        onCreate={handleCreateCopy}
-        createLoading={createGame.isPending}
-        initialData={copyData}
+        opened={copy.modal.opened}
+        onClose={copy.modal.close}
+        onCreate={copy.modal.onCreate}
+        createLoading={copy.modal.createLoading}
+        initialData={copy.modal.initialData}
       />
     </Container>
+  );
+}
+
+/** One line on what ChatGameLab is, for visitors who have never heard of it. */
+function AboutChatGameLab() {
+  const { t } = useTranslation("common");
+
+  return (
+    <Stack gap={2}>
+      <Text size="sm" c="dimmed">
+        {t("publicWorkshop.about.oneLiner")}
+      </Text>
+      <Spoiler
+        maxHeight={0}
+        showLabel={t("publicWorkshop.about.more")}
+        hideLabel={t("publicWorkshop.about.less")}
+        styles={{ control: { fontSize: "var(--mantine-font-size-sm)" } }}
+      >
+        <Text size="sm" c="dimmed" mt="xs">
+          {t("publicWorkshop.about.details")}{" "}
+          <Anchor
+            href={EXTERNAL_LINKS.CHATGAMELAB.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="sm"
+          >
+            {t("publicWorkshop.about.link")}
+          </Anchor>
+        </Text>
+      </Spoiler>
+    </Stack>
+  );
+}
+
+/** Links the workshop's leaders added, shown below the games. */
+function FurtherReading({ links }: { links: ObjPublicWorkshopLink[] }) {
+  const { t } = useTranslation("common");
+
+  if (links.length === 0) return null;
+
+  return (
+    <Stack gap="sm">
+      <Title order={3}>{t("publicWorkshop.links.title")}</Title>
+      <Stack gap="xs">
+        {links.map((link) => (
+          <Card key={link.url} withBorder radius="md" padding="md">
+            <Anchor
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              fw={500}
+            >
+              {link.title}
+            </Anchor>
+            {link.description && (
+              <Text size="sm" c="dimmed">
+                {link.description}
+              </Text>
+            )}
+          </Card>
+        ))}
+      </Stack>
+    </Stack>
+  );
+}
+
+/** Closing invitation to build a game of one's own. */
+function CallToAction() {
+  const { t } = useTranslation("common");
+
+  return (
+    <Card withBorder radius="md" padding="lg">
+      <Stack gap="xs" align="center" ta="center">
+        <IconSparkles size={28} />
+        <Title order={3}>{t("publicWorkshop.cta.title")}</Title>
+        <Text size="sm" c="dimmed">
+          {t("publicWorkshop.cta.text")}
+        </Text>
+        <Button component={Link} to={ROUTES.AUTH_REGISTER} mt="xs">
+          {t("publicWorkshop.cta.button")}
+        </Button>
+      </Stack>
+    </Card>
   );
 }
 
@@ -217,18 +266,17 @@ interface PublicGameCardProps {
   isAuthenticated: boolean;
   /** False when the workshop has no key: no game here can be played. */
   playAvailable: boolean;
-  copying: boolean;
+  /** This page with ?copy=<id>, opened in a new tab. */
+  copyUrl: string;
   onDownload: () => void;
-  onCopy: () => void;
 }
 
 function PublicGameCard({
   game,
   isAuthenticated,
   playAvailable,
-  copying,
+  copyUrl,
   onDownload,
-  onCopy,
 }: PublicGameCardProps) {
   const { t } = useTranslation("common");
   const play = game.play;
@@ -252,8 +300,10 @@ function PublicGameCard({
                 </Button>
               ) : (
                 <Button
-                  component={Link}
-                  to={`/play/${play.token}` as "/"}
+                  component="a"
+                  href={buildShareUrl(`/play/${play.token}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   leftSection={<IconPlayerPlay size={16} />}
                 >
                   {t("publicWorkshop.play")}
@@ -291,6 +341,10 @@ function PublicGameCard({
             </Button>
             <Button
               variant="light"
+              component="a"
+              href={copyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               leftSection={
                 isAuthenticated ? (
                   <IconCopy size={16} />
@@ -298,8 +352,6 @@ function PublicGameCard({
                   <IconLogin size={16} />
                 )
               }
-              onClick={onCopy}
-              loading={copying}
               style={{ flex: "1 1 auto" }}
             >
               {isAuthenticated

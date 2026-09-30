@@ -820,6 +820,10 @@
       "privacyHintShort": "May become publicly visible – please no real names."
     },
     "guestPlay": {
+      "copyGame": "Copy this game",
+      "copyGameLogin": "Log in & copy game",
+      "copyLeaveTitle": "Leave the game?",
+      "copyLeaveMessage": "Copying requires a login. The round you are playing will be lost.",
       "welcome": {
         "backToHome": "Go to ChatGameLab",
         "continueGame": "Continue Game",
@@ -1153,6 +1157,19 @@
         "viewInviteLink": "View Invite Link"
       },
       "publicPage": {
+        "links": {
+          "title": "Further reading",
+          "hint": "Shown on the page below the games. Ten at most.",
+          "linkTitle": "Title",
+          "linkDescription": "Description (optional)",
+          "url": "Address",
+          "add": "Add link",
+          "remove": "Remove",
+          "up": "Move up",
+          "down": "Move down",
+          "save": "Save links",
+          "error": "The links could not be saved. Every link needs a title, and every address must start with http:// or https://."
+        },
         "title": "Public page",
         "description": "A page without login that shows what the workshop was about and lists the group's public games. It never names who made a game.",
         "enabled": "Show public page",
@@ -1303,7 +1320,8 @@
     "settings": "Settings",
     "share": {
       "copied": "Copied",
-      "copyLink": "Copy link"
+      "copyLink": "Copy link",
+      "visitLink": "Visit link"
     },
     "showing": "{{count}} members",
     "sort": {
@@ -1316,6 +1334,16 @@
     "unnamed": "Unnamed",
     "viewGame": "View Game",
     "publicWorkshop": {
+      "links": {
+        "title": "More about this workshop"
+      },
+      "about": {
+        "oneLiner": "These text adventures were made with ChatGameLab: built by hand, without programming, told live by an AI.",
+        "details": "Their makers describe the world, the characters and the rules in their own words. While you play, an AI keeps telling the story from there: it reacts to whatever you type and invents matching pictures \u2014 so no two rounds play out the same way. Building one yourself quickly shows how strongly your own instructions shape the result, and where an AI reaches its limits. That is the whole point: not having AI explained to you, but trying it out.",
+        "more": "Learn more",
+        "less": "Less",
+        "link": "More about ChatGameLab"
+      },
       "unavailable": {
         "title": "This page is not available",
         "message": "The link is not valid (any more), or the workshop page has been switched off.",
@@ -1329,7 +1357,12 @@
       "download": "Download",
       "copy": "Copy",
       "copyLogin": "Log in to copy",
-      "playNoKey": "This workshop has no API key, so its games can't be played here."
+      "playNoKey": "This workshop has no API key, so its games can't be played here.",
+      "cta": {
+        "title": "Make your own ChatGameLab game",
+        "text": "Building your own text adventure is free and takes only a few minutes.",
+        "button": "Start for free"
+      }
     }
   },
   "dashboard": {

@@ -42,11 +42,12 @@ export function takeReturnTo(): string | null {
 const COPY_INTENT_KEY = "cgl_public_copy";
 
 interface CopyIntent {
-  slug: string;
+  /** Page the visitor started from, e.g. "/w/<slug>" or "/play/<token>". */
+  scope: string;
   gameId: string;
 }
 
-/** The game a visitor of /w/<slug> wanted to copy before logging in. */
+/** The game a visitor wanted to copy before logging in. */
 export function rememberCopyIntent(intent: CopyIntent) {
   try {
     sessionStorage.setItem(COPY_INTENT_KEY, JSON.stringify(intent));
@@ -56,12 +57,12 @@ export function rememberCopyIntent(intent: CopyIntent) {
 }
 
 /** Reads the game to copy on this page and forgets any remembered one. */
-export function takeCopyIntent(slug: string): string | null {
+export function takeCopyIntent(scope: string): string | null {
   try {
     const raw = sessionStorage.getItem(COPY_INTENT_KEY);
     sessionStorage.removeItem(COPY_INTENT_KEY);
     const intent = raw ? (JSON.parse(raw) as Partial<CopyIntent>) : null;
-    return intent?.slug === slug && typeof intent.gameId === "string"
+    return intent?.scope === scope && typeof intent.gameId === "string"
       ? intent.gameId
       : null;
   } catch {

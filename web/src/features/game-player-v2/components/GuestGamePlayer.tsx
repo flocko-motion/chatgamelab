@@ -1,7 +1,7 @@
 import { Box } from "@mantine/core";
 import { GamePlayerProvider } from "../context";
 import type { GamePlayerContextValue } from "../context";
-import type { GuestStartMode } from "./GuestWelcome";
+import type { GuestCopyInfo, GuestStartMode } from "./GuestWelcome";
 import { useGuestSessionLifecycle } from "../hooks/useGuestSessionLifecycle";
 import { useGamePlayerSettings } from "../hooks/useGamePlayerSettings";
 import { useGameThemeResolution } from "../hooks/useGameThemeResolution";
@@ -14,6 +14,11 @@ import { ImageLightbox } from "./ImageLightbox";
 import { BackgroundAnimation } from "./BackgroundAnimation";
 import { FONT_SIZE_MAP } from "./SceneCard";
 import classes from "./GamePlayer.module.css";
+import { modals } from "@mantine/modals";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "@/providers/AuthProvider";
+import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
+import { GameEditModal } from "@/features/games/components/GameEditModal";
 
 /** Scene area with theme-aware background animation (shared with GamePlayer) */
 interface SceneAreaProps {
@@ -56,6 +61,8 @@ function SceneArea({
 interface GuestGamePlayerProps {
   token: string;
   mode?: GuestStartMode;
+  /** Set for a public game: lets the player copy it while playing. */
+  copyInfo?: GuestCopyInfo | null;
   onBack?: () => void;
 }
 
@@ -67,9 +74,28 @@ interface GuestGamePlayerProps {
 export function GuestGamePlayer({
   token,
   mode = "new",
+  copyInfo,
   onBack,
 }: GuestGamePlayerProps) {
+  const { t } = useTranslation("common");
+  const { isAuthenticated } = useAuth();
+  const copy = useCopyGameIntent(`/play/${token}`);
   const lifecycle = useGuestSessionLifecycle(token, mode, onBack);
+
+  // Copying while signed in opens a dialogue right here. Without an account it
+  // means leaving for the login, which abandons the round — so ask first.
+  const startCopy = (gameId: string) => {
+    if (isAuthenticated) {
+      void copy.start(gameId);
+      return;
+    }
+    modals.openConfirmModal({
+      title: t("guestPlay.copyLeaveTitle"),
+      children: t("guestPlay.copyLeaveMessage"),
+      labels: { confirm: t("guestPlay.copyGameLogin"), cancel: t("cancel") },
+      onConfirm: () => void copy.start(gameId),
+    });
+  };
   const settings = useGamePlayerSettings();
   const themeResolution = useGameThemeResolution({
     sessionId: lifecycle.state.sessionId,
@@ -157,6 +183,11 @@ export function GuestGamePlayer({
             useNeutralTheme={settings.useNeutralTheme}
             onToggleNeutralTheme={themeResolution.handleNeutralThemeToggle}
             onBack={lifecycle.handleBack}
+            onCopyGame={
+              copyInfo?.public
+                ? () => startCopy(copyInfo.gameId)
+                : undefined
+            }
             currentTheme={themeResolution.effectiveTheme}
             onThemeChange={themeResolution.handleThemeChange}
           />
@@ -179,6 +210,14 @@ export function GuestGamePlayer({
           </SceneArea>
 
           <ImageLightbox />
+
+          <GameEditModal
+            opened={copy.modal.opened}
+            onClose={copy.modal.close}
+            onCreate={copy.modal.onCreate}
+            createLoading={copy.modal.createLoading}
+            initialData={copy.modal.initialData}
+          />
         </Box>
       </GamePlayerProvider>
     </GameThemeProvider>
