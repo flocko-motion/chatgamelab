@@ -193,6 +193,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
       if (storedToken) {
+        // No modal here on purpose: showErrorModal during app start sets the store
+        // but never paints - measured, and it affects any error raised this early,
+        // not just this one. The explanation lives on /code instead, which is where
+        // the participant goes next and where it can actually be acted on.
         authLogger.debug("Stored participant token invalid, clearing");
         clearParticipantToken();
       }

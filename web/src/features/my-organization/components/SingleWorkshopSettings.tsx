@@ -949,6 +949,11 @@ export function SingleWorkshopSettings({
               participantToRemove?.name ||
               t("myOrganization.workshops.anonymousParticipant"),
           })}
+        warning={t(
+          participantToRemove?.permanent !== false
+            ? "myOrganization.workshops.removeParticipantWarningPermanent"
+            : "myOrganization.workshops.removeParticipantWarningVisiting",
+        )}
         confirmIcon={< IconTrash size={16} />}
         confirmColor="red"
         isLoading={removeParticipant.isPending}

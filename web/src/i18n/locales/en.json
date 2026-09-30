@@ -400,7 +400,7 @@
       "placeholder": "e.g. apfel otter turm",
       "submit": "Continue",
       "title": "Enter code",
-      "unknown": "This code does not exist. Please check the spelling.",
+      "unknown": "That did not get you in. First check the spelling, word by word. Hyphens or spaces do not matter. If the code is right, it may not be valid any more: codes can be replaced, and access ends after the workshop. Then ask your workshop leader for a new code.",
       "wrongLength": "A code has three or four words."
     },
     "error": "Error",
@@ -1122,7 +1122,9 @@
         "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
         "removeParticipant": "Remove participant",
         "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
-        "removeParticipantMessage": "Are you sure you want to remove \"{{name}}\" from this workshop? This action cannot be undone.",
+        "removeParticipantMessage": "Do you really want to remove \"{{name}}\" from this workshop?",
+        "removeParticipantWarningPermanent": "This permanently deletes the account of this person and every game they created, along with all play sessions and any shared links to them. It cannot be undone. If the games should be kept, download them as YAML first.",
+        "removeParticipantWarningVisiting": "This person keeps their account and their games. Only their access to this workshop ends.",
         "removeParticipantTitle": "Remove Participant",
         "resetAccess": "Reset access",
         "resetAccessDone": "New access created. The old link no longer works.",
@@ -1315,6 +1317,15 @@
     },
     "unnamed": "Unnamed",
     "viewGame": "View Game",
+    "workshop": {
+      "inactive": {
+        "title": "Workshop is not active",
+        "description": "This workshop is not active right now. Wait until your workshop leader switches it on again.",
+        "photoFirst": "If you log out, your code is gone from this device. Take a photo of it first.",
+        "noCode": "No code is stored on this device. Your workshop leader can tell you yours.",
+        "showCode": "Show my access code"
+      }
+    },
     "publicWorkshop": {
       "unavailable": {
         "title": "This page is not available",

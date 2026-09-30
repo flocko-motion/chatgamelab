@@ -400,7 +400,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "Diesen Code gibt es nicht. Bitte prüfe die Schreibweise.",
+      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, und nach dem Workshop wird der Zugang beendet. Frag dann deine Workshop-Leitung nach einem neuen Code.",
       "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
     },
     "error": "Fehler",
@@ -1122,7 +1122,9 @@
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
         "removeParticipant": "Teilnehmer entfernen",
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
-        "removeParticipantMessage": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "removeParticipantMessage": "Möchten Sie \"{{name}}\" wirklich aus diesem Workshop entfernen?",
+        "removeParticipantWarningPermanent": "Dabei werden das Konto dieser Person und alle Spiele, die sie erstellt hat, endgültig gelöscht – mit allen Spielständen und geteilten Links darauf. Das lässt sich nicht rückgängig machen. Sollen die Spiele erhalten bleiben, laden Sie sie vorher als YAML herunter.",
+        "removeParticipantWarningVisiting": "Diese Person behält ihr Konto und ihre Spiele. Nur der Zugang zu diesem Workshop endet.",
         "removeParticipantTitle": "Teilnehmer entfernen",
         "resetAccess": "Zugang zurücksetzen",
         "resetAccessDone": "Neuer Zugang erstellt. Der alte Link funktioniert nicht mehr.",
@@ -1315,6 +1317,15 @@
     },
     "unnamed": "Unbenannt",
     "viewGame": "Spiel ansehen",
+    "workshop": {
+      "inactive": {
+        "title": "Workshop ist nicht aktiv",
+        "description": "Dieser Workshop ist gerade nicht aktiv. Warte, bis deine Workshop-Leitung ihn wieder einschaltet.",
+        "photoFirst": "Wenn du dich abmeldest, ist dein Code von diesem Gerät weg. Mach vorher ein Foto davon.",
+        "noCode": "Auf diesem Gerät ist kein Code gespeichert. Deine Workshop-Leitung kann dir deinen Code nennen.",
+        "showCode": "Meinen Zugangscode anzeigen"
+      }
+    },
     "publicWorkshop": {
       "unavailable": {
         "title": "Diese Seite ist nicht verfügbar",
