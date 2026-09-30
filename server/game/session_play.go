@@ -260,7 +260,12 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
-	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language, session.PromptConstraints))
+	// The platform sends exactly this prompt in ExpandStory, so the opening scene gets its own narration prompt here.
+	narratePrompt := templates.PromptNarratePlotOutline(session.Language, session.PromptConstraints)
+	if isOpeningScene {
+		narratePrompt = templates.PromptNarrateOpeningScene(session.Language, session.PromptConstraints)
+	}
+	response.PromptExpandStory = functional.Ptr(narratePrompt)
 	if response.ImagePrompt != nil {
 		scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
 		plotOutline := ""

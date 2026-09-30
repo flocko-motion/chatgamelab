@@ -559,13 +559,13 @@
       "editFields": {
         "description": "Gib dem Spiel eine kurze Beschreibung. Diese hat keinen Einfluss auf das Spiel.",
         "gameStart": "Wie beginnt das Spiel?",
-        "gameStartHint": "Wie soll das Spiel beginnen? Was ist die erste Szene? Wie wird die Spielfigur begrüßt?",
+        "gameStartHint": "Wie soll das Spiel beginnen? Was ist die erste Szene? Wie wird die Spielfigur begrüßt? Woher weiß die spielende Person, was sie tun soll?",
         "gameStartPlaceholder": "Die Spielfigur erwacht am Rand eines dunklen Waldes. Ein schmaler Pfad führt tiefer in die Bäume...",
         "imageStyle": "Welchen Stil sollen die Bilder haben?",
         "imageStyleHint": "Zum Beispiel: Comic, realistisch, Pixel-Art, Aquarell...",
         "name": "Spielname",
         "scenario": "Worum geht es im Spiel",
-        "scenarioHint": "Beschreibe kurz: Wie funktioniert das Spiel? Wie sieht die Spielwelt aus? Sprache \u0026 Tonfall (z. B. Spanisch für Sechstklässler*innen)?\nWelche Rolle hat die Spielfigur? Schreibe \"Die Spielfigur ...\".\nWenn die KI die Rolle einer bestimmten Person übernehmen soll, schreibe \"Du bist ...\".",
+        "scenarioHint": "Beschreibe kurz: Wie funktioniert das Spiel? Wie sieht die Spielwelt aus? Sprache \u0026 Tonfall (z. B. Spanisch für Sechstklässler*innen)?\nWelche Rolle hat die Spielfigur? Schreibe \"Die Spielfigur ...\".\nWenn die KI die Rolle einer bestimmten Person übernehmen soll, schreibe \"Du bist ...\".\nWas ist das Ziel? Woran merkt die Spielfigur, dass sie gewonnen hat?",
         "scenarioPlaceholder": "Die Spielfigur ist ein Entdecker in einem geheimnisvollen Wald. Das Ziel ist es, den versteckten Schatz zu finden...",
         "statusFields": "Spielwerte",
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch."
