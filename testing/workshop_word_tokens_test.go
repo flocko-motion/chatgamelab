@@ -139,3 +139,39 @@ func (s *WorkshopWordTokensTestSuite) TestOwnParticipantCode() {
 
 	s.Error(s.Public().Get("users/me/participant-code", nil))
 }
+
+// TestAuthenticatedAcceptKeepsIdentity pins the contract the invite-accept page
+// relies on: a recognised participant who accepts another workshop's invite keeps
+// their account and moves. Sent anonymously, the very same call mints a second
+// account instead - which is correct for a genuinely new participant, and was the
+// bug when the page forgot to send the caller's token.
+func (s *WorkshopWordTokensTestSuite) TestAuthenticatedAcceptKeepsIdentity() {
+	headA, wsA := s.workshopSetup("ident-a")
+	headB, wsB := s.workshopSetup("ident-b")
+	inviteA := Must(headA.CreateWorkshopInvite(wsA, string(obj.RoleParticipant)))
+	inviteB := Must(headB.CreateWorkshopInvite(wsB, string(obj.RoleParticipant)))
+
+	joined := Must(s.AcceptWorkshopInviteAnonymously(*inviteA.InviteToken))
+	participant := s.CreateUserWithToken(*joined.AuthToken)
+
+	// Recognised: one account, workshop moved.
+	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
+	me := Must(participant.GetMe())
+	s.Equal(participant.ID, me.ID.String(), "the account must survive the switch")
+	s.Require().NotNil(me.Role)
+	s.Require().NotNil(me.Role.Workshop)
+	s.Equal(wsB, me.Role.Workshop.ID.String(), "the workshop must have changed")
+
+	// The same code still logs the same person in - nothing was reissued.
+	s.Equal(*joined.AuthToken, *Must(headB.GetParticipantToken(participant.ID)))
+
+	// Accepting the invite of the workshop they are already in is a conflict, not a
+	// silent second account. The page turns this into "you are already in".
+	participant.FailPost("invites/"+*inviteB.InviteToken+"/accept", nil,
+		testutil.ErrorContains("409"))
+
+	// Anonymously, the same invite still creates a separate account.
+	second := Must(s.AcceptWorkshopInviteAnonymously(*inviteB.InviteToken))
+	s.NotEqual(*joined.AuthToken, *second.AuthToken,
+		"an anonymous join must remain a new participant")
+}
