@@ -586,13 +586,19 @@ func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.U
 		return "", obj.ErrServerError("failed to generate participant token")
 	}
 
-	err = queries().UpdateParticipantToken(ctx, db.UpdateParticipantTokenParams{
+	rows, err := queries().UpdateParticipantToken(ctx, db.UpdateParticipantTokenParams{
 		ID:               participantUserID,
 		ParticipantToken: sql.NullString{String: token, Valid: true},
 		ModifiedBy:       uuid.NullUUID{UUID: requestingUserID, Valid: true},
 	})
 	if err != nil {
 		return "", obj.ErrServerError("failed to reset participant token")
+	}
+	if rows == 0 {
+		// Nothing to replace: the account has no word code, so the token just
+		// generated was never stored. Saying so beats handing the leader a code
+		// that will never work - same answer as the read above.
+		return "", obj.ErrNotFound("participant has no access token")
 	}
 	return token, nil
 }

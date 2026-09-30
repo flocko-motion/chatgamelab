@@ -1936,7 +1936,7 @@ func (q *Queries) UpdateInviteStatus(ctx context.Context, arg UpdateInviteStatus
 	return err
 }
 
-const updateParticipantToken = `-- name: UpdateParticipantToken :exec
+const updateParticipantToken = `-- name: UpdateParticipantToken :execrows
 UPDATE app_user SET participant_token = $2, modified_by = $3, modified_at = now()
 WHERE id = $1 AND participant_token IS NOT NULL
 `
@@ -1947,9 +1947,15 @@ type UpdateParticipantTokenParams struct {
 	ModifiedBy       uuid.NullUUID
 }
 
-func (q *Queries) UpdateParticipantToken(ctx context.Context, arg UpdateParticipantTokenParams) error {
-	_, err := q.db.ExecContext(ctx, updateParticipantToken, arg.ID, arg.ParticipantToken, arg.ModifiedBy)
-	return err
+// Only replaces an existing token, never mints one: a registered participant has a
+// real login, and a word code would be a second, weaker credential for it. The row
+// count tells the caller whether there was anything to replace.
+func (q *Queries) UpdateParticipantToken(ctx context.Context, arg UpdateParticipantTokenParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateParticipantToken, arg.ID, arg.ParticipantToken, arg.ModifiedBy)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const updateUser = `-- name: UpdateUser :exec

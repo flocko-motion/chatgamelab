@@ -1578,11 +1578,16 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
         onConfirm={handleConfirmRemoveParticipant}
         title={t("myOrganization.workshops.removeParticipantTitle")}
         message={
-          t("myOrganization.workshops.removeParticipantConfirm", {
+          t("myOrganization.workshops.removeParticipantMessage", {
             name:
               participantToRemove?.name ||
               t("myOrganization.workshops.anonymousParticipant"),
           })}
+        warning={t(
+          participantToRemove?.permanent !== false
+            ? "myOrganization.workshops.removeParticipantWarningPermanent"
+            : "myOrganization.workshops.removeParticipantWarningVisiting",
+        )}
         confirmIcon={< IconTrash size={16} />}
         confirmColor="red"
         isLoading={removeParticipant.isPending}

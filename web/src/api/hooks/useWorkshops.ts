@@ -271,7 +271,8 @@ export function useResetParticipantToken() {
 
 /**
  * Hook to remove a member from a workshop.
- * Permanent members (participants) are soft-deleted.
+ * Permanent members (participants) are HARD-deleted: db.DeleteUser removes the
+ * account row and every game they created, with its sessions and shared links.
  * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
  */
 export function useRemoveParticipant() {
