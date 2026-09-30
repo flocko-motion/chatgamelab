@@ -8,6 +8,7 @@ import { useResetParticipantToken } from "@/api/hooks";
 import { FullscreenQrOverlay } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { buildShareUrl } from "@/common/lib/url";
+import { ErrorCodes } from "@/common/types/errorCodes";
 import { participantShareLinkPath } from "@/common/lib/wordToken";
 import { ConfirmationModal } from "./ConfirmationModal";
 
@@ -45,6 +46,13 @@ export function ParticipantLinkModal({
     gcTime: 0,
   });
 
+  // A reset of an account without a word code answers not_found: the update matched
+  // no row. That deserves a different message from a failed attempt. Reads the code
+  // the way MembersTab does, not the status, so it survives a route change.
+  const resetErrorIsNotFound =
+    (resetToken.error as { error?: { code?: string } } | null)?.error?.code ===
+    ErrorCodes.NOT_FOUND;
+
   const handleClose = () => {
     setJustReset(false);
     resetToken.reset();
@@ -53,12 +61,18 @@ export function ParticipantLinkModal({
 
   const handleReset = async () => {
     if (!participantId) return;
-    const result = await resetToken.mutateAsync(participantId);
-    if (result?.token) {
-      queryClient.setQueryData(queryKey, result.token);
-      setJustReset(true);
+    try {
+      const result = await resetToken.mutateAsync(participantId);
+      if (result?.token) {
+        queryClient.setQueryData(queryKey, result.token);
+        setJustReset(true);
+      }
+      setConfirmReset(false);
+    } catch {
+      // The rejection is rendered from resetToken.isError below; swallowing it
+      // here only keeps it from becoming an unhandled promise rejection. The
+      // dialogue stays open so the message is visible.
     }
-    setConfirmReset(false);
   };
 
   const title = participantName
@@ -122,7 +136,11 @@ export function ParticipantLinkModal({
         isLoading={resetToken.isPending}
         error={
           resetToken.isError
-            ? t("myOrganization.workshops.resetAccessError")
+            ? resetErrorIsNotFound
+              ? // Nothing to reset: this account has no word code. Retrying cannot
+                // help, so say what the read side says instead of "try again".
+                t("myOrganization.workshops.noParticipantToken")
+              : t("myOrganization.workshops.resetAccessError")
             : null
         }
       />

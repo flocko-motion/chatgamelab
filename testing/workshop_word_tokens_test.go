@@ -175,3 +175,35 @@ func (s *WorkshopWordTokensTestSuite) TestAuthenticatedAcceptKeepsIdentity() {
 	s.NotEqual(*joined.AuthToken, *second.AuthToken,
 		"an anonymous join must remain a new participant")
 }
+
+// TestResetFailsWhenThereIsNoCode covers the reset of someone who joined with a real
+// account: role participant, but no word code, because only an anonymous join issues
+// one. The update matches no row, and a reset that answered 200 there would hand the
+// leader four words to read out that nothing would ever accept.
+func (s *WorkshopWordTokensTestSuite) TestResetFailsWhenThereIsNoCode() {
+	head, wsID := s.workshopSetup("word-nocode")
+	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
+
+	registered := s.CreateUser("word-nocode-registered")
+	s.Require().NoError(registered.AcceptWorkshopInviteByToken(*invite.InviteToken))
+
+	// The read side already said so; the reset must now agree.
+	head.FailGet("workshops/participants/"+registered.ID+"/token",
+		testutil.ErrorContains("404"))
+	head.FailPost("workshops/participants/"+registered.ID+"/token/reset", nil,
+		testutil.ErrorContains("404"))
+
+	// And it wrote nothing: still no token afterwards.
+	head.FailGet("workshops/participants/"+registered.ID+"/token",
+		testutil.ErrorContains("404"))
+
+	// A real anonymous participant still gets a fresh code, and the old one dies.
+	joined := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
+	anonymous := s.CreateUserWithToken(*joined.AuthToken)
+	var reset map[string]string
+	s.Require().NoError(head.Post(
+		"workshops/participants/"+anonymous.ID+"/token/reset", nil, &reset))
+	s.Regexp(fourWords, reset["token"])
+	s.NotEqual(*joined.AuthToken, reset["token"])
+	s.Error(anonymous.Get("users/me", nil), "the old code must stop working")
+}
