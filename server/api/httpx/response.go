@@ -103,7 +103,7 @@ func WriteHTTPError(w http.ResponseWriter, err *obj.HTTPError) {
 func ErrorCodeToStatus(code string) int {
 	switch code {
 	case obj.ErrCodeValidation, obj.ErrCodeInvalidInput, obj.ErrCodeInvalidPlatform, obj.ErrCodeNameTooLong, obj.ErrCodeProfaneName,
-		obj.ErrCodePublicSlugInvalid, obj.ErrCodePublicDescriptionTooLong:
+		obj.ErrCodePublicSlugInvalid, obj.ErrCodePublicDescriptionTooLong, obj.ErrCodePublicLinksInvalid:
 		return http.StatusBadRequest
 	case obj.ErrCodeUnauthorized:
 		return http.StatusUnauthorized

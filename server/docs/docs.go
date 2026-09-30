@@ -5925,6 +5925,20 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.PublicWorkshopLink": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "obj.PublicWorkshopPage": {
             "type": "object",
             "properties": {
@@ -5935,6 +5949,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/obj.PublicWorkshopGame"
+                    }
+                },
+                "links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopLink"
                     }
                 },
                 "name": {
@@ -6235,6 +6255,13 @@ const docTemplate = `{
                 },
                 "publicDescription": {
                     "type": "string"
+                },
+                "publicLinks": {
+                    "description": "PublicLinks is the further reading listed below the games; nil means none.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopLink"
+                    }
                 },
                 "publicSlug": {
                     "description": "Public page /w/\u003cPublicSlug\u003e, visible while Public is on",
@@ -6543,8 +6570,15 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "gameId": {
+                    "description": "GameID and Public let the welcome screen offer a copy. Only a public game\nmay be copied: a share link alone does not release its AI instructions.",
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
+                },
+                "public": {
+                    "type": "boolean"
                 },
                 "remaining": {
                     "description": "null = unlimited, 0 = exhausted",
@@ -7268,6 +7302,13 @@ const docTemplate = `{
                 "publicDescription": {
                     "description": "omitted keeps the current text, \"\" clears it",
                     "type": "string"
+                },
+                "publicLinks": {
+                    "description": "PublicLinks: omitted keeps the current further reading, an empty list clears it",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopLink"
+                    }
                 },
                 "publicSlug": {
                     "description": "omitted keeps the current link",

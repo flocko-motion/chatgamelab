@@ -27,6 +27,7 @@ const (
 	ErrCodePublicSlugTaken           = "public_slug_taken"
 	ErrCodePublicSlugInvalid         = "public_slug_invalid"
 	ErrCodePublicDescriptionTooLong  = "public_description_too_long"
+	ErrCodePublicLinksInvalid        = "public_links_invalid"
 
 	// AI-specific error codes
 	ErrCodeAiError                  = "ai_error"
@@ -105,6 +106,11 @@ func ErrPublicSlugTaken(message string) *AppError {
 // ErrPublicSlugInvalid returns an AppError for a public page link that breaks the format rules.
 func ErrPublicSlugInvalid(message string) *AppError {
 	return NewAppError(ErrCodePublicSlugInvalid, message)
+}
+
+// ErrPublicLinksInvalid returns an AppError for further reading the public page may not show.
+func ErrPublicLinksInvalid(message string) *AppError {
+	return NewAppError(ErrCodePublicLinksInvalid, message)
 }
 
 // ErrPublicDescriptionTooLong returns an AppError for an over-long public page text.
