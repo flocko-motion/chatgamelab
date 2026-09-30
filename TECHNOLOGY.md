@@ -331,7 +331,8 @@ The system message is the foundation of every game session. It's assembled from 
 > RESPONSE PHASES:
 > We communicate in alternating phases:
 > 1. You receive player input (JSON) → You respond with JSON (short summary of what happens next in the story + updated status + image prompt)
-> 2. I ask you to NARRATE → You turn the summary into prose
+> 2. I ask you to NARRATE → *(narration prompt, see below)*
+>    (For the very first scene of the game, the NARRATE command asks you to orient the player instead: who they are, where they are and what they can do right now.)
 >
 > PHASE 1: JSON RESPONSE
 >
@@ -355,18 +356,19 @@ The system message is the foundation of every game session. It's assembled from 
 >
 > The scenario:
 > *(game scenario inserted here)*
+>
+> How to start the game:
+> *(game start inserted here — omitted if the author left the field empty)*
 
 If the game has workshop constraints set by a teacher, they are appended:
 
-> ⚠️ MANDATORY WORKSHOP RULES (set by your teacher/facilitator) ⚠️
-> You MUST follow these rules in EVERY response throughout the entire game:
-> *(workshop constraints inserted here)*
+> NARRATION RULES must be respected: *(workshop constraints inserted here)*
 
 ### Initialization Prompt
 
-Sent as the first message to kick off the game:
+Sent as the first message to kick off the game. The summary keeps its usual length limit, but is spent on orientation instead of scenery:
 
-> Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario.
+> Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario. Keep the summary as short as in any other turn, but spend it on orientation: who the player character is, and 2-4 concrete things they could do right now. Skip scenery and mood - the narration adds those. If the scenario asks you to explain the player's task or goal, include it.
 
 ### Rephrase Prompt
 
@@ -388,13 +390,19 @@ Injected with every player action to reinforce brevity (the AI tends to get verb
 
 Turns the plot outline into narrative prose:
 
-> NARRATE the summary into prose in the player's language (*(language name)*). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Be brief and atmospheric. End on an open note, asking the player what they want to do next.
+> NARRATE the summary into prose in the players language (*(language name)*). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next.
 
 If workshop constraints exist, they are appended:
 
-> ⚠️ MANDATORY RULES ⚠️
-> You MUST respect these constraints:
-> *(workshop constraints)*
+> NARRATION RULES must be respected: *(workshop constraints)*
+
+### Expand Opening Scene to Prose Prompt
+
+Used instead of the prompt above for the very first scene of a game. Same length (3-6 sentences), but the sentences go to orientation instead of mood, and an explicit request in the game's scenario ("explain the task") wins over the brevity rules:
+
+> NARRATE the opening scene into prose in the players language (*(language name)*). This is the first thing the player reads - they know nothing yet. STRICT RULES: 3-6 sentences, no longer than any other turn. No headers, no markdown, no lists. Do NOT repeat status fields. Use these sentences for orientation rather than mood: establish who the player character is and where they are, and name 2-4 concrete options the player can choose right now, woven into the prose. Cut atmospheric description to make room. Hint at what is at stake without spelling the goal out as an instruction. If the scenario explicitly asks you to explain the task, explain it plainly. End by asking the player what they want to do.
+
+Workshop constraints are appended the same way as above.
 
 ### Image Generation Prompt
 

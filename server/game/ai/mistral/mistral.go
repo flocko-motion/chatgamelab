@@ -184,7 +184,7 @@ func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSess
 	// Must explicitly set response_format to text to override the inherited json_schema from ExecuteAction
 	req := ConversationsAppendRequest{
 		Inputs: []InputMessage{
-			{Role: "user", Content: templates.PromptNarratePlotOutline(session.Language, session.PromptConstraints)},
+			{Role: "user", Content: functional.Deref(response.PromptExpandStory, templates.PromptNarratePlotOutline(session.Language, session.PromptConstraints))},
 		},
 		Store:  true,
 		Stream: true,

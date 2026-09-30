@@ -559,13 +559,13 @@
       "editFields": {
         "description": "Give the game a short description. This is just for you and won't affect gameplay.",
         "gameStart": "How does the game begin?",
-        "gameStartHint": "What happens at the start? Describe the first scene that the player sees. How is the player welcomed?",
+        "gameStartHint": "What happens at the start? Describe the first scene that the player sees. How is the player welcomed? How does the player know what to do?",
         "gameStartPlaceholder": "You wake up at the edge of a dark forest. A narrow path leads deeper into the trees...",
         "imageStyle": "What style should the game's images have?",
         "imageStyleHint": "For example: cartoon, realistic, pixel art, watercolor...",
         "name": "Game Name",
         "scenario": "What is the game about?",
-        "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language \u0026 Tone (e.g. Spanisch for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".",
+        "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language \u0026 Tone (e.g. Spanisch for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".\nWhat is the goal? How does the player know they have won?",
         "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "statusFields": "Game values",
         "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
