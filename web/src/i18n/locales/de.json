@@ -400,7 +400,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "Diesen Code gibt es nicht. Bitte prüfe die Schreibweise.",
+      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, und nach dem Workshop wird der Zugang beendet. Frag dann deine Workshop-Leitung nach einem neuen Code.",
       "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
     },
     "error": "Fehler",
@@ -820,6 +820,10 @@
       "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen."
     },
     "guestPlay": {
+      "copyGame": "Dieses Spiel kopieren",
+      "copyGameLogin": "Anmelden & Spiel kopieren",
+      "copyLeaveTitle": "Spiel verlassen?",
+      "copyLeaveMessage": "Zum Kopieren musst du dich anmelden. Die laufende Runde geht dabei verloren.",
       "welcome": {
         "backToHome": "Zu ChatGameLab",
         "continueGame": "Spiel fortsetzen",
@@ -1122,7 +1126,9 @@
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
         "removeParticipant": "Teilnehmer entfernen",
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
-        "removeParticipantMessage": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "removeParticipantMessage": "Möchten Sie \"{{name}}\" wirklich aus diesem Workshop entfernen?",
+        "removeParticipantWarningPermanent": "Dabei werden das Konto dieser Person und alle Spiele, die sie erstellt hat, endgültig gelöscht – mit allen Spielständen und geteilten Links darauf. Das lässt sich nicht rückgängig machen. Sollen die Spiele erhalten bleiben, laden Sie sie vorher als YAML herunter.",
+        "removeParticipantWarningVisiting": "Diese Person behält ihr Konto und ihre Spiele. Nur der Zugang zu diesem Workshop endet.",
         "removeParticipantTitle": "Teilnehmer entfernen",
         "resetAccess": "Zugang zurücksetzen",
         "resetAccessDone": "Neuer Zugang erstellt. Der alte Link funktioniert nicht mehr.",
@@ -1153,6 +1159,19 @@
         "viewInviteLink": "Einladungslink anzeigen"
       },
       "publicPage": {
+        "links": {
+          "title": "Weiterf\u00fchrende Links",
+          "hint": "Erscheinen auf der Seite unter den Spielen. H\u00f6chstens 10.",
+          "linkTitle": "Titel",
+          "linkDescription": "Beschreibung (optional)",
+          "url": "Adresse",
+          "add": "Link hinzuf\u00fcgen",
+          "remove": "Entfernen",
+          "up": "Nach oben",
+          "down": "Nach unten",
+          "save": "Links speichern",
+          "error": "Die Links konnten nicht gespeichert werden. Jeder Link braucht einen Titel, und jede Adresse muss mit http:// oder https:// beginnen."
+        },
         "title": "Öffentliche Seite",
         "description": "Eine Seite ohne Anmeldung, die zeigt, worum es im Workshop ging, und die öffentlichen Spiele der Gruppe auflistet. Wer ein Spiel erstellt hat, steht nirgends.",
         "enabled": "Öffentliche Seite anzeigen",
@@ -1303,7 +1322,8 @@
     "settings": "Einstellungen",
     "share": {
       "copied": "Kopiert",
-      "copyLink": "Link kopieren"
+      "copyLink": "Link kopieren",
+      "visitLink": "Link besuchen"
     },
     "showing": "{{count}} Mitglieder",
     "sort": {
@@ -1315,7 +1335,26 @@
     },
     "unnamed": "Unbenannt",
     "viewGame": "Spiel ansehen",
+    "workshop": {
+      "inactive": {
+        "title": "Workshop ist nicht aktiv",
+        "description": "Dieser Workshop ist gerade nicht aktiv. Warte, bis deine Workshop-Leitung ihn wieder einschaltet.",
+        "photoFirst": "Wenn du dich abmeldest, ist dein Code von diesem Gerät weg. Mach vorher ein Foto davon.",
+        "noCode": "Auf diesem Gerät ist kein Code gespeichert. Deine Workshop-Leitung kann dir deinen Code nennen.",
+        "showCode": "Meinen Zugangscode anzeigen"
+      }
+    },
     "publicWorkshop": {
+      "links": {
+        "title": "Mehr zu diesem Workshop"
+      },
+      "about": {
+        "oneLiner": "Diese Textabenteuer sind mit dem ChatGameLab entstanden: selbst gebaut, ohne Programmieren, live erz\u00e4hlt von einer KI.",
+        "details": "Die Macher*innen beschreiben Welt, Figuren und Regeln in eigenen Worten. Beim Spielen erz\u00e4hlt eine KI die Geschichte daraus live weiter: Sie reagiert auf jede Eingabe und erfindet dazu passende Bilder \u2014 zwei Runden laufen deshalb nie gleich ab. Wer selbst eines baut, merkt schnell, wie stark die eigenen Anweisungen das Ergebnis pr\u00e4gen und wo eine KI an ihre Grenzen st\u00f6\u00dft. Genau darum geht es: KI nicht erkl\u00e4rt bekommen, sondern ausprobieren.",
+        "more": "Mehr erfahren",
+        "less": "Weniger",
+        "link": "Mehr \u00fcber das ChatGameLab"
+      },
       "unavailable": {
         "title": "Diese Seite ist nicht verfügbar",
         "message": "Der Link ist nicht (mehr) gültig oder die Workshop-Seite wurde ausgeschaltet.",
@@ -1329,7 +1368,12 @@
       "download": "Herunterladen",
       "copy": "Kopieren",
       "copyLogin": "Anmelden \u0026 kopieren",
-      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden."
+      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden.",
+      "cta": {
+        "title": "Erstelle selbst ein ChatGameLab-Spiel",
+        "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten.",
+        "button": "Kostenlos loslegen"
+      }
     }
   },
   "dashboard": {

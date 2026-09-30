@@ -260,6 +260,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		AllowGameSharing:           result.AllowGameSharing,
 		PublicSlug:                 nullStringToPtr(result.PublicSlug),
 		PublicDescription:          nullStringToPtr(result.PublicDescription),
+		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -283,6 +284,8 @@ type UpdateWorkshopParams struct {
 	AllowGameSharing           bool
 	PublicSlug                 *string // nil keeps the current link
 	PublicDescription          *string // nil keeps the current text, "" clears it
+	// PublicLinks: nil keeps the current further reading, an empty slice clears it
+	PublicLinks *[]obj.PublicWorkshopLink
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
@@ -364,6 +367,16 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		}
 		arg.PublicDescription = sql.NullString{String: description, Valid: description != ""}
 	}
+	arg.PublicLinks = existing.PublicLinks
+	if params.PublicLinks != nil {
+		links, err := ValidatePublicLinks(*params.PublicLinks)
+		if err != nil {
+			return nil, err
+		}
+		if arg.PublicLinks, err = marshalPublicLinks(links); err != nil {
+			return nil, err
+		}
+	}
 
 	result, err := queries().UpdateWorkshop(ctx, arg)
 	if err != nil {
@@ -408,6 +421,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		AllowGameSharing:           result.AllowGameSharing,
 		PublicSlug:                 nullStringToPtr(result.PublicSlug),
 		PublicDescription:          nullStringToPtr(result.PublicDescription),
+		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -487,6 +501,7 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		AllowGameSharing:           result.AllowGameSharing,
 		PublicSlug:                 nullStringToPtr(result.PublicSlug),
 		PublicDescription:          nullStringToPtr(result.PublicDescription),
+		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -571,13 +586,19 @@ func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.U
 		return "", obj.ErrServerError("failed to generate participant token")
 	}
 
-	err = queries().UpdateParticipantToken(ctx, db.UpdateParticipantTokenParams{
+	rows, err := queries().UpdateParticipantToken(ctx, db.UpdateParticipantTokenParams{
 		ID:               participantUserID,
 		ParticipantToken: sql.NullString{String: token, Valid: true},
 		ModifiedBy:       uuid.NullUUID{UUID: requestingUserID, Valid: true},
 	})
 	if err != nil {
 		return "", obj.ErrServerError("failed to reset participant token")
+	}
+	if rows == 0 {
+		// Nothing to replace: the account has no word code, so the token just
+		// generated was never stored. Saying so beats handing the leader a code
+		// that will never work - same answer as the read above.
+		return "", obj.ErrNotFound("participant has no access token")
 	}
 	return token, nil
 }

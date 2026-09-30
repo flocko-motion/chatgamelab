@@ -192,6 +192,15 @@ type Workshop struct {
 	// Public page /w/<PublicSlug>, visible while Public is on
 	PublicSlug        *string `json:"publicSlug,omitempty"`
 	PublicDescription *string `json:"publicDescription,omitempty"`
+	// PublicLinks is the further reading listed below the games; nil means none.
+	PublicLinks []PublicWorkshopLink `json:"publicLinks,omitempty"`
+}
+
+// PublicWorkshopLink is one piece of further reading on a workshop's public page.
+type PublicWorkshopLink struct {
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	URL         string `json:"url"`
 }
 
 // PublicWorkshopPage is what a visitor of /w/<slug> sees. It names no creators and no institution.
@@ -201,6 +210,7 @@ type PublicWorkshopPage struct {
 	// PlayAvailable is false when the workshop has no key: no game on the page can be played.
 	PlayAvailable bool                 `json:"playAvailable"`
 	Games         []PublicWorkshopGame `json:"games"`
+	Links         []PublicWorkshopLink `json:"links,omitempty"`
 }
 
 // PublicWorkshopGame is one public game on a workshop's public page.

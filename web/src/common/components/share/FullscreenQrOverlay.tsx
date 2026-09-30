@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Anchor,
   Box,
   Button,
   CopyButton,
@@ -10,7 +11,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { IconCheck, IconCopy } from "@tabler/icons-react";
+import { IconCheck, IconCopy, IconExternalLink } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { QrCode } from "./QrCode";
@@ -28,6 +29,12 @@ interface FullscreenQrOverlayProps {
   children?: ReactNode;
   /** Buttons placed before "Schließen". */
   actions?: ReactNode;
+  /**
+   * Offers opening the link. Off by default: following an invite or re-login
+   * link would make the leader join their own workshop, or sign in as the
+   * participant whose link is on screen.
+   */
+  visitable?: boolean;
 }
 
 /** A link as QR code for the projector; closes only through its button or Esc. */
@@ -41,6 +48,7 @@ export function FullscreenQrOverlay({
   description,
   children,
   actions,
+  visitable = false,
 }: FullscreenQrOverlayProps) {
   const { t } = useTranslation("common");
 
@@ -87,18 +95,36 @@ export function FullscreenQrOverlay({
         )}
         <QrCode value={url} size="min(55vh, 80vw)" />
         <Group gap="xs" justify="center" wrap="nowrap" maw="100%">
-          <Text
-            ff="monospace"
-            fw={700}
-            ta="center"
-            c="#000000"
-            style={{
-              fontSize: "clamp(1rem, 3vw, 2.2rem)",
-              wordBreak: "break-all",
-            }}
-          >
-            {url}
-          </Text>
+          {visitable ? (
+            <Anchor
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              ff="monospace"
+              fw={700}
+              ta="center"
+              c="#000000"
+              style={{
+                fontSize: "clamp(1rem, 3vw, 2.2rem)",
+                wordBreak: "break-all",
+              }}
+            >
+              {url}
+            </Anchor>
+          ) : (
+            <Text
+              ff="monospace"
+              fw={700}
+              ta="center"
+              c="#000000"
+              style={{
+                fontSize: "clamp(1rem, 3vw, 2.2rem)",
+                wordBreak: "break-all",
+              }}
+            >
+              {url}
+            </Text>
+          )}
           <CopyButton value={url}>
             {({ copied, copy }) => (
               <Tooltip label={copied ? t("share.copied") : t("share.copyLink")}>
@@ -119,6 +145,21 @@ export function FullscreenQrOverlay({
       <Box px="lg" pb="lg">
         <Group justify="center" gap="md">
           {actions}
+          {visitable && (
+            <Button
+              component="a"
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="light"
+              color="green"
+              size="md"
+              radius="md"
+              leftSection={<IconExternalLink size={18} />}
+            >
+              {t("share.visitLink")}
+            </Button>
+          )}
           <Button onClick={onClose} variant="default" size="md" radius="md">
             {t("close")}
           </Button>

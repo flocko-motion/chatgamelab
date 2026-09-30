@@ -362,9 +362,16 @@ export interface ObjPublicWorkshopGame {
   play?: ObjPublicWorkshopPlay;
 }
 
+export interface ObjPublicWorkshopLink {
+  description?: string;
+  title?: string;
+  url?: string;
+}
+
 export interface ObjPublicWorkshopPage {
   description?: string;
   games?: ObjPublicWorkshopGame[];
+  links?: ObjPublicWorkshopLink[];
   name?: string;
   /** PlayAvailable is false when the workshop has no key: no game on the page can be played. */
   playAvailable?: boolean;
@@ -483,6 +490,8 @@ export interface ObjWorkshop {
   promptConstraints?: string;
   public?: boolean;
   publicDescription?: string;
+  /** PublicLinks is the further reading listed below the games; nil means none. */
+  publicLinks?: ObjPublicWorkshopLink[];
   /** Public page /w/<PublicSlug>, visible while Public is on */
   publicSlug?: string;
   showOtherParticipantsGames?: boolean;
@@ -609,7 +618,13 @@ export interface RoutesGameShareResponse {
 
 export interface RoutesGuestGameInfo {
   description?: string;
+  /**
+   * GameID and Public let the welcome screen offer a copy. Only a public game
+   * may be copied: a share link alone does not release its AI instructions.
+   */
+  gameId?: string;
   name?: string;
+  public?: boolean;
   /** null = unlimited, 0 = exhausted */
   remaining?: number;
 }
@@ -956,6 +971,8 @@ export interface RoutesUpdateWorkshopRequest {
   public?: boolean;
   /** omitted keeps the current text, "" clears it */
   publicDescription?: string;
+  /** PublicLinks: omitted keeps the current further reading, an empty list clears it */
+  publicLinks?: ObjPublicWorkshopLink[];
   /** omitted keeps the current link */
   publicSlug?: string;
   showOtherParticipantsGames?: boolean;

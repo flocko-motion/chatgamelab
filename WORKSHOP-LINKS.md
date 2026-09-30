@@ -32,9 +32,23 @@ records what exists, where it departs from the concept, and what remains.
   issued count as guesses (`server/tokenlock`). More than 300 within ten minutes
   lock every token check, correct ones included, for five minutes: `429`,
   `Retry-After`, code `token_locked`. `TOKEN_LOCK_MAX_FAILURES`,
-  `TOKEN_LOCK_WINDOW` and `TOKEN_LOCK_DURATION` override the defaults. Tokens of
-  deleted users, deleted workshops or reset access never count, and the backend
+  `TOKEN_LOCK_WINDOW` and `TOKEN_LOCK_DURATION` override the defaults. The backend
   drops a session cookie whose token no longer exists.
+- **Retired codes do count.** An earlier version of this file claimed tokens of
+  deleted users, deleted workshops or reset access never count. They do.
+  `ParticipantTokenExists` compares against the *current* column value, a reset
+  overwrites it, and `db.DeleteUser` removes the row outright, so
+  `db.ParticipantTokenKnown` is false for a code that was once real and
+  `httpx.Authenticate` counts it. Only *invite* tokens behave as that sentence
+  described, because the used-up row is kept with status `expired` and
+  `InviteTokenExists` is status-blind. In a classroom this costs a few failures
+  per stale device, not a stream: the backend clears a session cookie carrying a
+  retired token, and the frontend clears localStorage on failure. Reaching 300 in
+  ten minutes takes a script, which is the point of the lock.
+- **Deliberate non-goal.** The answer must never reveal whether a code once
+  existed. Distinguishing "reset" from "never issued" would turn the lock into an
+  oracle for a 44-bit code. That is why the text on `/code` lists what may have
+  happened instead of naming it.
 - **Share view.** One full-screen component
   (`web/src/common/components/share/FullscreenQrOverlay.tsx`) for invite,
   re-login and public-page links: a coloured title bar, the QR code, always
@@ -78,6 +92,68 @@ records what exists, where it departs from the concept, and what remains.
 5. Done on `feat/participant-profile-code`: `./run-translate.sh` translated the
    new texts into the other 35 languages and brought `server/lang/locales` back
    in step with the web copy.
+
+## Part E: not locking participants out
+
+- **The accept call carries the caller's credential.** `handleAccept` in
+  `web/src/routes/invites/$token.accept.tsx` deleted the session cookie from
+  JavaScript, which cannot work on an HttpOnly cookie, and then posted without an
+  Authorization header. A participant the backend could not recognise was treated
+  as a newcomer: a second anonymous account, and `storeParticipantToken`
+  overwriting the code of the first. Measured in the dev environment: same person,
+  cookie cleared, account `a40de2ff` became `3b28cec7` and the code changed. The
+  first account keeps its membership and games, and its old code still works - so
+  whoever photographed it can return, which is luck, not design. It now sends the
+  token like its sibling `handleEnterWorkshop`, and two answers that only a
+  recognised caller can get are handled: 409 means "you are already in" and
+  navigates there, and anything from 500 up falls back to the translated text
+  instead of showing a raw English server sentence.
+- **A reset with nothing to reset fails.** `UpdateParticipantToken` keeps its
+  `AND participant_token IS NOT NULL` guard on purpose - a registered participant
+  has a real login, and minting a word code for them would add a second, weaker
+  credential - but the query was `:exec`, so zero rows looked like success and the
+  endpoint answered 200 with a code it had never stored. It is `:execrows` now and
+  answers 404, the same as the read side. Reachable for anyone who joined with
+  their own account, and for an admin naming any user id, since the admin branch
+  returns before the target is loaded.
+- **The inactive screen keeps the code.** Its only action used to be a logout that
+  erases the stored code, on a screen where the code cannot be fetched back: the
+  middleware answers 403 before any handler runs, and `/auth/participant-login`
+  refuses while the workshop is off. It now offers the code first, read straight
+  from localStorage with no request at all, and warns before the logout. Without a
+  stored code it says the leader can look it up, which is true - the leader-side
+  read does not check `workshop.active`. The cookie-only participant still depends
+  on the leader; letting the code endpoint through the middleware for
+  `workshop_inactive` would cover them and is the open follow-up.
+- **The screen was English.** `common.workshop.inactive.title` and `.description`
+  existed in neither locale, so German participants read the component's inline
+  fallbacks.
+- **Removing a participant says what it does.** It hard-deletes the account and
+  every game they created; the dialogue promised only removal from the workshop.
+  The behaviour is unchanged - see 'Bigger rebuilds' - but the warning is honest
+  now, and distinguishes the visiting individual, who keeps both.
+- **No modal at app start.** `showErrorModal` called while the app is still
+  booting sets its store but never paints. Measured while building the above; it
+  affects any error raised that early, not just participant auth. Worth fixing at
+  the source rather than working around it per call site.
+
+## Bigger rebuilds, for the week of 2026-11-20
+
+Found while hardening the above. All pre-existing, all larger than a fix:
+
+- `DELETE /api/users/{id}` hard-deletes a participant **and every game they
+  created**. A leader can erase a registered user's games this way.
+- `db.DeleteWorkshop` deletes every participant account and their games, while
+  explicitly sparing the games of non-participant members.
+- `db.AcceptOpenInvite` deletes **all** of a user's roles, not just the one for the
+  workshop being left. Afterwards `getGamesVisibleToUser` filters the games of the
+  former workshop out - for their own creator. The data is there, unreachable.
+- `db.RemoveMemberFromWorkshop` accepts real participants and removes only the
+  role, leaving an account whose token can never authenticate again.
+- `PATCH /api/workshops/{id}` replaces rather than merges, and `active` is a plain
+  bool: a caller that omits it deactivates the workshop and locks out the cohort.
+- The single-role invariant is the root of three of these. Loosening it is the
+  actual rebuild.
 
 ## Open decisions
 

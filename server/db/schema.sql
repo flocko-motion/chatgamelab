@@ -86,6 +86,7 @@ CREATE TABLE workshop (
     allow_game_sharing boolean NOT NULL DEFAULT false,  -- If true, participants can create share links for workshop games
     public_slug     text NULL UNIQUE,  -- Path of the public page /w/<public_slug>, shown while public is on
     public_description text NULL,  -- Text of the public page, plain text with line breaks
+    public_links jsonb NULL,  -- Further reading on the public page: [{"title","description","url"}], http/https only
 
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );

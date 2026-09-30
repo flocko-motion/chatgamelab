@@ -36,6 +36,8 @@ type UpdateWorkshopRequest struct {
 	AllowGameSharing           bool    `json:"allowGameSharing"`
 	PublicSlug                 *string `json:"publicSlug,omitempty"`        // omitted keeps the current link
 	PublicDescription          *string `json:"publicDescription,omitempty"` // omitted keeps the current text, "" clears it
+	// PublicLinks: omitted keeps the current further reading, an empty list clears it
+	PublicLinks *[]obj.PublicWorkshopLink `json:"publicLinks,omitempty"`
 }
 
 // CreateWorkshop godoc
@@ -229,6 +231,7 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		AllowGameSharing:           req.AllowGameSharing,
 		PublicSlug:                 req.PublicSlug,
 		PublicDescription:          req.PublicDescription,
+		PublicLinks:                req.PublicLinks,
 	}
 
 	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, params)

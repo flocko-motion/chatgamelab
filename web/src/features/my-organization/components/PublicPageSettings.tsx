@@ -22,7 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useUpdateWorkshop } from "@/api/hooks";
-import type { ObjWorkshop } from "@/api/generated";
+import type { ObjPublicWorkshopLink, ObjWorkshop } from "@/api/generated";
 import { PublicPageQrOverlay } from "@components/share";
 import { buildShareUrl } from "@/common/lib/url";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
@@ -35,6 +35,7 @@ import {
   publicWorkshopPath,
 } from "@/common/lib/publicWorkshop";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { PublicPageLinksEditor } from "./PublicPageLinksEditor";
 
 interface PublicPageSettingsProps {
   workshop: ObjWorkshop;
@@ -62,6 +63,7 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
       public: boolean;
       publicSlug: string;
       publicDescription: string;
+      publicLinks: ObjPublicWorkshopLink[];
     }>,
   ) => {
     if (!workshop.id) return;
@@ -79,6 +81,7 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
       allowGameSharing: workshop.allowGameSharing ?? false,
       publicSlug: changes.publicSlug,
       publicDescription: changes.publicDescription,
+      publicLinks: changes.publicLinks,
     });
     onSaved?.();
   };
@@ -210,6 +213,13 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
           disabled={updateWorkshop.isPending}
           error={descriptionError}
           onBlur={(e) => saveDescription(e.currentTarget.value)}
+        />
+
+        <PublicPageLinksEditor
+          links={workshop.publicLinks ?? []}
+          saving={updateWorkshop.isPending}
+          onSave={(links) => save({ publicLinks: links })}
+          key={`public-links-${workshop.id}-${JSON.stringify(workshop.publicLinks ?? [])}`}
         />
 
         <Group gap="sm">

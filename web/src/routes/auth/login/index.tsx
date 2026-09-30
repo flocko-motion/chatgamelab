@@ -12,7 +12,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { ROUTES } from "@/common/routes/routes";
-import { takeReturnTo } from "@/common/lib/returnTo";
+import { peekReturnTo } from "@/common/lib/returnTo";
 
 export const Route = createFileRoute("/auth/login/")({
   component: LoginComponent,
@@ -23,10 +23,14 @@ function LoginComponent() {
   const { loginWithAuth0, loginWithRole, isDevMode, user } = useAuth();
   const router = useRouter();
 
-  // Redirect authenticated users — routing hub decides where to go
+  // Redirect authenticated users. This is the single place that decides where
+  // to go after a dev login too — the role buttons below only sign in.
+  // It only reads the remembered page: this component remounts while the auth
+  // state settles, and consuming here would leave the later runs with nothing
+  // and send the visitor to the hub instead. The page reached clears it.
   useEffect(() => {
     if (user) {
-      router.navigate({ to: ROUTES.HOME });
+      router.navigate({ to: (peekReturnTo() ?? ROUTES.HOME) as "/" });
     }
   }, [user, router]);
 
@@ -85,12 +89,7 @@ function LoginComponent() {
                 key={role.key}
                 variant={role.key === "admin-1" ? "filled" : "outline"}
                 color={role.color}
-                onClick={async () => {
-                  await loginWithRole(role.key);
-                  router.navigate({
-                    to: (takeReturnTo() ?? ROUTES.DASHBOARD) as "/",
-                  });
-                }}
+                onClick={() => void loginWithRole(role.key)}
                 fullWidth
               >
                 {role.label}
