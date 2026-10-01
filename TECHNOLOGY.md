@@ -332,7 +332,7 @@ The system message is the foundation of every game session. It's assembled from 
 > We communicate in alternating phases:
 > 1. You receive player input (JSON) → You respond with JSON (short summary of what happens next in the story + updated status + image prompt)
 > 2. I ask you to NARRATE → *(narration prompt, see below)*
->    (For the very first scene of the game, the NARRATE command asks you to orient the player instead: who they are, where they are and what they can do right now.)
+>    (For the very first scene of the game, the NARRATE command asks you to make clear who the player character is and what situation they are in.)
 >
 > PHASE 1: JSON RESPONSE
 >
@@ -366,9 +366,9 @@ If the game has workshop constraints set by a teacher, they are appended:
 
 ### Initialization Prompt
 
-Sent as the first message to kick off the game. The summary keeps its usual length limit, but is spent on orientation instead of scenery:
+Sent as the first message to kick off the game. The summary keeps its usual length limit and must establish the player's role and situation; it names only one or two things to engage with, so the opening does not turn into a menu:
 
-> Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario. Keep the summary as short as in any other turn, but spend it on orientation: who the player character is, and 2-4 concrete things they could do right now. Skip scenery and mood - the narration adds those. If the scenario asks you to explain the player's task or goal, include it.
+> Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario. The summary must make clear who the player character is and what situation they are in, and mention one or two things in the scene the player could engage with. If the scenario asks you to explain the player's task or goal, include it.
 
 ### Rephrase Prompt
 
@@ -398,9 +398,9 @@ If workshop constraints exist, they are appended:
 
 ### Expand Opening Scene to Prose Prompt
 
-Used instead of the prompt above for the very first scene of a game. Same length (3-6 sentences), but the sentences go to orientation instead of mood, and an explicit request in the game's scenario ("explain the task") wins over the brevity rules:
+Used instead of the prompt above for the very first scene of a game. It stays a scene with the usual atmosphere (4-6 sentences, the same upper limit as any other turn), but makes the player's role and situation clear. What the player could do shows through people, objects and paths in the scene, never as a list of choices. An explicit request in the game's scenario ("explain the task") wins over the hint-only rule:
 
-> NARRATE the opening scene into prose in the players language (*(language name)*). This is the first thing the player reads - they know nothing yet. STRICT RULES: 3-6 sentences, no longer than any other turn. No headers, no markdown, no lists. Do NOT repeat status fields. Use these sentences for orientation rather than mood: establish who the player character is and where they are, and name 2-4 concrete options the player can choose right now, woven into the prose. Cut atmospheric description to make room. Hint at what is at stake without spelling the goal out as an instruction. If the scenario explicitly asks you to explain the task, explain it plainly. End by asking the player what they want to do.
+> NARRATE the opening scene into prose in the players language (*(language name)*). This is the first thing the player reads - they know nothing yet. STRICT RULES: 4-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Tell it as a scene, with the same atmosphere as any other turn. Within the scene, make clear who the player character is and what situation they are in. Do not list choices: let people, objects and paths in the scene show what the player could do. Hint at what is at stake without spelling the goal out as an instruction. If the scenario explicitly asks you to explain the task, explain it plainly. End with an open question to the player.
 
 Workshop constraints are appended the same way as above.
 

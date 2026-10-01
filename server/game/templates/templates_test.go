@@ -29,7 +29,7 @@ func TestPromptNarrateOpeningScene(t *testing.T) {
 	rules := "keine Gewalt"
 	got := PromptNarrateOpeningScene("de", &rules)
 
-	for _, want := range []string{"Deutsch", "3-6 sentences", "explain it plainly", "NARRATION RULES must be respected: keine Gewalt"} {
+	for _, want := range []string{"Deutsch", "4-6 sentences", "Do not list choices", "explain it plainly", "NARRATION RULES must be respected: keine Gewalt"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("opening prompt missing %q:\n%s", want, got)
 		}
