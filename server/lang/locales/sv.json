@@ -58,6 +58,12 @@
       "noRole": "Ingen roll tilldelad",
       "organization": "Organisation",
       "organizationSection": "Organisation \u000026 roll",
+      "participantCode": {
+        "error": "Din åtkomstkod kunde inte läsas in.",
+        "hint": "Fotografera den här koden eller skriv ner den och håll den för dig själv. Den ger dig tillgång till ditt konto igen när som helst, på vilken enhet som helst: skriv in orden under ”Ange kod” på startsidan eller skanna QR-koden.",
+        "longTokenHint": "Fotografera QR-koden eller spara länken och håll den för dig själv. Den ger dig tillgång till ditt konto igen när som helst. Din workshopledare kan ge dig en kort kod med fyra ord genom att återställa din åtkomst.",
+        "title": "Din åtkomstkod"
+      },
       "role": "Roll",
       "roles": {
         "admin": "Administratör",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statistik",
       "title": "Profil",
-      "totalPlaysOnGames": "Totalt antal spelningar på mina spel"
+      "totalPlaysOnGames": "Totalt antal spelningar på mina spel",
+      "workshopSection": "Workshop och organisation"
     },
     "register": {
       "ageGroupLabel": "Åldersgrupp",
@@ -403,6 +410,14 @@
     "email": "E-post",
     "emailPlaceholder": "Ange e-postadress",
     "empty": "Inga medlemmar i den här organisationen.",
+    "enterCode": {
+      "description": "Har du fått en kod med tre eller fyra ord? Ange den här.",
+      "placeholder": "t.ex. äpple utter torn",
+      "submit": "Fortsätt",
+      "title": "Ange kod",
+      "unknown": "Den här koden finns inte. Kontrollera stavningen.",
+      "wrongLength": "En kod består av tre eller fyra ord."
+    },
     "error": "Fel",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Varför den här begränsningen gäller",
           "constraintText": "Aktiv begränsning för ungdomsskydd",
           "expandStory": "Instruktioner till AI:n för att skriva ut berättelsen",
           "imageGeneration": "Instruktioner från AI:n för bildgenerering",
@@ -557,6 +573,7 @@
         "namePlaceholder": "t.ex. Rymdäventyr",
         "publicDescription": "Offentliga spel är synliga och spelbara för alla användare på denna plattform.",
         "publicLabel": "Gör det här spelet publikt",
+        "publicOwnerOnly": "Det är bara den som skapade spelet som kan göra det offentligt.",
         "submit": "Skapa spel",
         "title": "Skapa nytt spel"
       },
@@ -618,6 +635,8 @@
         "importButton": "Importera spel"
       },
       "playNow": "Spela nu",
+      "privacyHint": "Ett spels namn och beskrivning kan bli offentligt synliga. Använd inte riktiga namn.",
+      "privacyHintShort": "Kan bli offentligt synligt – använd inga riktiga namn.",
       "privateShare": {
         "active": "Privat delning är aktiv. Alla med länken nedan kan spela detta spel anonymt.",
         "aiQualityTier": "AI-kvalitet",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "Obegränsade sessioner",
         "update": "Uppdatera delningslänk",
         "workshopCreateHint": "Skapa en delningslänk för detta spel. Workshopens API-nyckel väljs automatiskt och täcker kostnaderna.",
-        "workshopDescription": "Skapa en delningslänk för detta spel. Workshopens standard-API-nyckel används automatiskt för gästsessioner.",
+        "workshopDescription": "Den här länken skapades inom workshopen \"{{name}}\" – gäster spelar med workshoppens API-nyckel och promptbegränsningar.",
         "workshopShare": "Workshopdelning",
         "workshopShareDescription": "Denna länk skapades i workshopen \"{{name}}\" – gäster spelar med workshopens API-nyckel.",
         "workshopSubsection": "Delningslänk för workshop"
@@ -667,7 +686,8 @@
         "publicSponsoring": "Offentlig sponsring",
         "publicSponsoringDescription": "Alla användare på plattformen kan spela det här spelet gratis – din tilldelade API-nyckel står för kostnaden.",
         "sectionTitle": "Delningsalternativ",
-        "sectionTitleShareOnly": "Delningsalternativ"
+        "sectionTitleShareOnly": "Delningsalternativ",
+        "workshopShareRequiresPublic": "Det här spelet måste vara offentligt innan det kan delas i workshopen."
       },
       "sort": {
         "createdAt-asc": "Skapad (äldst)",
@@ -858,6 +878,7 @@
     },
     "help": "Hjälp",
     "home": {
+      "codeCta": "Ange kod",
       "features": {
         "create": {
           "description": "Designa interaktiva textäventyr drivna av AI",
@@ -905,7 +926,8 @@
         "acceptFailed": "Det gick inte att acceptera inbjudan. Försök igen.",
         "expired": "Denna inbjudningslänk har löpt ut.",
         "loadFailed": "Det gick inte att ladda inbjudningsdetaljer. Försök igen.",
-        "notFound": "Denna inbjudningslänk är ogiltig eller har återkallats."
+        "notFound": "Denna inbjudningslänk är ogiltig eller har återkallats.",
+        "tokenLocked": "För många misslyckade försök – försök igen senare."
       },
       "goHome": "Gå till startsidan",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "Ytterligare AI-instruktioner för alla sessioner i denna organisation. Gäller när ingen workshopnivå-begränsning är satt och för spel som delas via länk.",
       "promptConstraintsLabel": "Organisationens promptbegränsningar",
       "promptConstraintsPlaceholder": "t.ex. Håll berättelsen åldersanpassad och undvik våldsamt innehåll.",
+      "publicPage": {
+        "changeLinkMessage": "Sidan kommer då att finnas på {{url}}.",
+        "changeLinkTitle": "Ändra länken?",
+        "changeLinkWarning": "Den gamla länken slutar fungera – inklusive QR-koder som redan har skrivits ut eller skickats.",
+        "description": "En sida utan inloggning som visar vad workshopen handlade om och listar gruppens offentliga spel. Den anger aldrig vem som skapade ett spel.",
+        "descriptionError": "Beskrivningen kunde inte sparas.",
+        "enabled": "Visa offentlig sida",
+        "enabledHint": "När den är avstängd visar länken endast ett meddelande och sidans spellänkar slutar fungera.",
+        "link": "Länk",
+        "linkHint": "Använd a–z, 0–9 och enkla bindestreck, 3 till 60 tecken.",
+        "offHint": "Sidan är avstängd. Du kan fortfarande förbereda dess länk och QR-kod.",
+        "open": "Öppna sidan",
+        "shareDescription": "Skicka den här länken eller visa den som en QR-kod.",
+        "shareTitle": "Offentlig sida",
+        "showLink": "Visa länk och QR-kod",
+        "slugInvalid": "Använd a–z, 0–9 och enkla bindestreck, 3 till 60 tecken.",
+        "slugTaken": "Den här länken är redan tagen.",
+        "text": "Beskrivning",
+        "textHint": "Vad handlade workshopen om? Högst 2000 tecken.",
+        "title": "Offentlig sida"
+      },
       "removeConfirm": "Är du säker på att du vill ta bort \"{{name}}\" från organisationen?",
       "removeMember": "Ta bort medlem",
       "removeTitle": "Ta bort medlem",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "Går ut",
         "inviteLink": "Inbjudningslänk",
         "inviteLinkDescription": "Dela denna länk med deltagare för att låta dem gå med i workshopen.",
-        "inviteLinkTitle": "Inbjudningslänk för {{name}}",
+        "inviteLinkTitle": "Inbjudningslänk för deltagare – {{name}}",
         "inviteUsage": "Användning",
         "isPaused": "Pausa workshop",
         "isPausedHint": "När pausad ser deltagarna ett låst lager och kan inte interagera med spel",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "Du har inte behörighet att hantera workshops. Endast chefer och lärare har tillgång hit.",
         "participantGames": "{{count}} spel",
         "participantJoined": "Gick med {{date}}",
+        "participantLinkTitle": "Länk för återinloggning",
+        "participantLinkTitleNamed": "Länk för återinloggning för {{name}}",
         "participantName": "Deltagarnamn",
         "participants": "Deltagare",
         "promptConstraintsFallbackOrg": "Använder organisationens begränsning som standard: {{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop?",
         "removeParticipantMessage": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop? Detta kan inte ångras.",
         "removeParticipantTitle": "Ta bort deltagare",
+        "resetAccess": "Återställ åtkomst",
+        "resetAccessDone": "Ny åtkomst har skapats. Den gamla länken fungerar inte längre.",
+        "resetAccessError": "Åtkomsten kunde inte återställas. Försök igen.",
+        "resetAccessMessage": "En ny länk med en ny kod kommer att skapas.",
+        "resetAccessTitle": "Återställa åtkomst?",
+        "resetAccessWarning": "Den tidigare länken och koden slutar fungera – även på enheter där deltagaren för närvarande är inloggad.",
         "revokeInvite": "Återkalla inbjudningslänk",
         "selectApiKey": "Välj en API-nyckel",
         "serverDefault": "Server Default",
         "settings": "Inställningar",
-        "shareParticipantLink": "Kopiera individuell inbjudningslänk för denna deltagare",
+        "shareParticipantLink": "Visa länk för återinloggning",
         "showOtherParticipantsGames": "Visa andra deltagares spel",
         "showOtherParticipantsGamesHint": "Ansvariga och personal kan alltid se alla deltagares spel för moderering",
         "showPublicGames": "Visa publika spel för deltagare",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "Befordra till chef",
     "promoteToHead": "Befordra till chef",
     "promoteWarning": "Denna användare får möjlighet att hantera organisationsmedlemmar och bjuda in lärare.",
+    "publicWorkshop": {
+      "copy": "Kopiera",
+      "copyLogin": "Logga in för att kopiera",
+      "download": "Ladda ner",
+      "gamesTitle": "Spel från den här workshopen",
+      "noGames": "Inga spel har publicerats här ännu.",
+      "play": "Spela",
+      "playExhausted": "Inga spelsessioner kvar",
+      "playNoKey": "Den här workshopen har ingen API-nyckel, så dess spel kan inte spelas här.",
+      "playRemaining": "{{remaining}} av {{limit}} spelsessioner kvar",
+      "unavailable": {
+        "home": "Gå till startsidan",
+        "message": "Länken är inte längre giltig eller så har workshopsidan stängts av.",
+        "title": "Den här sidan är inte tillgänglig"
+      }
+    },
     "removeConfirm": "Är du säker på att du vill ta bort \"{{name}}\" från organisationen?",
     "removeMember": "Ta bort medlem",
     "removeTitle": "Ta bort medlem",
@@ -1287,6 +1354,10 @@
       "untitledGame": "Namnlöst spel"
     },
     "settings": "Inställningar",
+    "share": {
+      "copied": "Kopierad",
+      "copyLink": "Kopiera länk"
+    },
     "showing": "{{count}} medlemmar",
     "sort": {
       "label": "Sortera efter",
@@ -1381,6 +1452,9 @@
     "notFound": "Resursen hittades inte.",
     "orgVerificationRequired": "Din OpenAI-organisation behöver verifieras för att använda bildgenerering. Verifiera på https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "AI:n tappade bort denna konversation. Det kan hända om sessionen varit inaktiv ett tag. Starta en ny session för att fortsätta spela.",
+    "publicDescriptionTooLong": "Beskrivningen får vara högst 2000 tecken lång.",
+    "publicSlugInvalid": "Använd a–z, 0–9 och enkla bindestreck, 3 till 60 tecken.",
+    "publicSlugTaken": "Den här länken är redan tagen.",
     "rateLimitExceeded": "För många förfrågningar. Vänta en stund och försök igen.",
     "server": "Serverfel. Försök igen senare.",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "Hittades inte",
       "permission": "Åtkomst nekad",
       "server": "Serverfel",
+      "tokenLocked": "Tillfälligt låst",
       "validation": "Valideringsfel",
       "workshopInactive": "Workshop inaktiv"
     },
+    "tokenLocked": "För många misslyckade försök – försök igen senare.",
     "unauthorized": "Logga in för att fortsätta.",
     "unexpected": "Ett oväntat fel inträffade.",
     "userNotRegistered": "Du måste slutföra registreringen innan du fortsätter.",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "Du är inte i workshop-läge. Gå in i en workshop först.",
       "title": "Workshopinställningar"
     },
+    "showInviteLink": "Visa inbjudningslänk",
+    "showPublicPageLink": "Visa länk till offentlig sida",
     "title": "Min workshop",
     "you": "Du"
   },

@@ -12,10 +12,21 @@ import {
   IconUsers,
   IconPlayerPause,
   IconPlayerPlay,
+  IconLink,
+  IconQrcode,
 } from "@tabler/icons-react";
+import { useState } from "react";
+import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "@components/typography";
-import { useWorkshop, useUpdateWorkshop } from "@/api/hooks";
+import { FullscreenQrOverlay, PublicPageQrOverlay } from "@components/share";
+import {
+  useWorkshop,
+  useUpdateWorkshop,
+  useCreateWorkshopInvite,
+} from "@/api/hooks";
+import { buildShareUrl } from "@/common/lib/url";
+import { inviteShareLinkPath } from "@/common/lib/wordToken";
 import { useAuth } from "@/providers/AuthProvider";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 
@@ -36,8 +47,17 @@ export function WorkshopHeader({
   const { t: tCommon } = useTranslation("common");
   const { retryBackendFetch } = useAuth();
   const { isMobile } = useResponsiveDesign();
-  const { data: workshop } = useWorkshop(showMembers ? workshopId : undefined);
+  // Fetched for everyone, not just staff: participants may read their own
+  // workshop, and they need its slug to reach the public page link.
+  const { data: workshop } = useWorkshop(workshopId);
   const updateWorkshop = useUpdateWorkshop();
+  const createInvite = useCreateWorkshopInvite();
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteOpened, { open: openInvite, close: closeInvite }] =
+    useDisclosure(false);
+  const [publicPageOpened, { open: openPublicPage, close: closePublicPage }] =
+    useDisclosure(false);
+  const publicSlug = workshop?.public ? workshop.publicSlug : undefined;
 
   const participants = workshop?.participants ?? [];
   const memberCount = participants.length;
@@ -57,6 +77,14 @@ export function WorkshopHeader({
       isPaused: !isPaused,
     });
     retryBackendFetch();
+  };
+
+  // Returns the workshop's open invite, or a fresh one if it expired.
+  const handleShowInvite = async () => {
+    if (!workshopId) return;
+    const invite = await createInvite.mutateAsync({ workshopId });
+    setInviteToken(invite?.inviteToken ?? null);
+    openInvite();
   };
 
   return (
@@ -163,10 +191,60 @@ export function WorkshopHeader({
           </HoverCard>
         )}
       </Group>
-      {organizationName && (
-        <Text size="sm" c="dimmed">
-          {t("organizator", { name: organizationName })}
-        </Text>
+      {(organizationName || showMembers || publicSlug) && (
+        <Group gap="xs" align="center">
+          {organizationName && (
+            <Text size="sm" c="dimmed">
+              {t("organizator", { name: organizationName })}
+            </Text>
+          )}
+          {showMembers && workshopId && (
+            <Tooltip label={t("showInviteLink")}>
+              <ActionIcon
+                variant="subtle"
+                color="blue"
+                size="sm"
+                onClick={handleShowInvite}
+                loading={createInvite.isPending}
+                aria-label={t("showInviteLink")}
+              >
+                <IconLink size={16} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+          {publicSlug && (
+            <Tooltip label={t("showPublicPageLink")}>
+              <ActionIcon
+                variant="subtle"
+                color="green"
+                size="sm"
+                onClick={openPublicPage}
+                aria-label={t("showPublicPageLink")}
+              >
+                <IconQrcode size={16} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+        </Group>
+      )}
+      {inviteToken && (
+        <FullscreenQrOverlay
+          opened={inviteOpened}
+          onClose={closeInvite}
+          title={tCommon("myOrganization.workshops.inviteLinkTitle", {
+            name: workshopName,
+          })}
+          icon={<IconLink size={28} />}
+          color="blue"
+          url={buildShareUrl(inviteShareLinkPath(inviteToken))}
+        />
+      )}
+      {publicSlug && (
+        <PublicPageQrOverlay
+          opened={publicPageOpened}
+          onClose={closePublicPage}
+          slug={publicSlug}
+        />
       )}
     </>
   );

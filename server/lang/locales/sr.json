@@ -58,6 +58,12 @@
       "noRole": "Није додељена улога",
       "organization": "Организација",
       "organizationSection": "Организација \u00026 улога",
+      "participantCode": {
+        "error": "Код за приступ није могао да се учита.",
+        "hint": "Фотографишите овај код или га запишите и чувајте га за себе. Он вам омогућава да се у било ком тренутку, на било ком уређају, вратите на свој налог: унесите речи у одељак „Унесите код“ на почетној страници или скенирајте QR код.",
+        "longTokenHint": "Фотографишите QR код или сачувајте везу и чувајте је за себе. Она вам омогућава да се у било ком тренутку вратите на свој налог. Водитељ радионице може да вам да кратак код од четири речи тако што ће ресетовати ваш приступ.",
+        "title": "Ваш код за приступ"
+      },
       "role": "Улога",
       "roles": {
         "admin": "Администратор",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Статистика",
       "title": "Профил",
-      "totalPlaysOnGames": "Укупно одиграно мојих игара"
+      "totalPlaysOnGames": "Укупно одиграно мојих игара",
+      "workshopSection": "Радионица \u00026 организација"
     },
     "register": {
       "ageGroupLabel": "Starosna grupa",
@@ -403,6 +410,14 @@
     "email": "Имејл",
     "emailPlaceholder": "Унесите имејл адресу",
     "empty": "Нема чланова у овој организацији.",
+    "enterCode": {
+      "description": "Да ли сте добили код од три или четири речи? Унесите га овде.",
+      "placeholder": "нпр. јабука видра кула",
+      "submit": "Настави",
+      "title": "Унесите код",
+      "unknown": "Овај код не постоји. Проверите правопис.",
+      "wrongLength": "Код има три или четири речи."
+    },
     "error": "Грешка",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Radionica"
         },
         "sections": {
+          "constraintReasoning": "Зашто се ово ограничење примењује",
           "constraintText": "Aktivno ograničenje zaštite mladih",
           "expandStory": "Упутства АИ-ју за проширење приче",
           "imageGeneration": "Упутства АИ-ја за генерисање слика",
@@ -557,6 +573,7 @@
         "namePlaceholder": "нпр. Свемирска авантура",
         "publicDescription": "Javne igre su vidljive i igrive svim korisnicima na ovoj platformi.",
         "publicLabel": "Учини ову игру јавном",
+        "publicOwnerOnly": "Само творац игре може да учини игру јавном.",
         "submit": "Креирај игру",
         "title": "Креирај нову игру"
       },
@@ -618,6 +635,8 @@
         "importButton": "Увези игру"
       },
       "playNow": "Играј сада",
+      "privacyHint": "Назив и опис игре могу постати јавно видљиви. Немојте користити права имена.",
+      "privacyHintShort": "Може постати јавно видљиво – немојте користити права имена.",
       "privateShare": {
         "active": "Приватно дељење је активно. Сви који имају линк могу анонимно играти ову игру.",
         "aiQualityTier": "Kvalitet AI",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "Neograničene sesije",
         "update": "Ажурирај линк",
         "workshopCreateHint": "Kreirajte link za deljenje ove igre. API ključ radionice se automatski bira i pokriva troškove.",
-        "workshopDescription": "Kreirajte link za deljenje ove igre. Podrazumevani API ključ radionice automatski će se koristiti za sesije gostiju.",
+        "workshopDescription": "Ова веза је направљена у оквиру радионице „{{name}}“ – гости играју користећи API кључ радионице и ограничења упита.",
         "workshopShare": "Radioničko deljenje",
         "workshopShareDescription": "Ovaj link je kreiran u radionici „{{name}}“ – gosti igraju koristeći API ključ radionice.",
         "workshopSubsection": "Link za deljenje radionice"
@@ -667,7 +686,8 @@
         "publicSponsoring": "Javno sponzorisanje",
         "publicSponsoringDescription": "Svi korisnici na platformi mogu igrati ovu igru besplatno – dodeljeni API ključ pokriva troškove.",
         "sectionTitle": "Opcije deljenja",
-        "sectionTitleShareOnly": "Opcije deljenja"
+        "sectionTitleShareOnly": "Opcije deljenja",
+        "workshopShareRequiresPublic": "Ова игра мора бити јавна пре него што може да се дели у радионици."
       },
       "sort": {
         "createdAt-asc": "Креирано (најстарије)",
@@ -858,6 +878,7 @@
     },
     "help": "Pomoć",
     "home": {
+      "codeCta": "Унесите код",
       "features": {
         "create": {
           "description": "Дизајнирајте интерактивне текстуалне авантуре покренуте АИ-јем",
@@ -905,7 +926,8 @@
         "acceptFailed": "Прихватање позивнице није успело. Покушајте поново.",
         "expired": "Овај позивни линк је истекао.",
         "loadFailed": "Учитавање детаља позивнице није успело. Покушајте поново.",
-        "notFound": "Овај позивни линк је неважећи или је опозван."
+        "notFound": "Овај позивни линк је неважећи или је опозван.",
+        "tokenLocked": "Превише неуспешних покушаја – покушајте поново касније."
       },
       "goHome": "Иди на почетну",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "Dodatna AI uputstva za sve sesije u ovoj organizaciji. Primeniće se kada nije postavljeno ograničenje na nivou radionice i na igre koje se dele putem linka.",
       "promptConstraintsLabel": "Organizaciona AI ograničenja",
       "promptConstraintsPlaceholder": "npr. Održavajte priču primerenom uzrastu i izbegavajte nasilan sadržaj.",
+      "publicPage": {
+        "changeLinkMessage": "Страница ће се убудуће налазити на адреси {{url}}.",
+        "changeLinkTitle": "Променити везу?",
+        "changeLinkWarning": "Стара веза ће престати да ради – укључујући већ одштампане или послате QR кодове.",
+        "description": "Страница без пријављивања која приказује тему радионице и наводи јавне игре групе. Никада не открива ко је направио игру.",
+        "descriptionError": "Опис није могао да се сачува.",
+        "enabled": "Прикажи јавну страницу",
+        "enabledHint": "Када је искључено, веза приказује само обавештење, а везе за играње на страници престају да раде.",
+        "link": "Веза",
+        "linkHint": "Користите a–z, 0–9 и појединачне цртице, од 3 до 60 знакова.",
+        "offHint": "Страница је искључена. И даље можете припремити њену везу и QR код.",
+        "open": "Отвори страницу",
+        "shareDescription": "Пошаљите ову везу или је прикажите као QR код.",
+        "shareTitle": "Јавна страница",
+        "showLink": "Прикажи везу и QR код",
+        "slugInvalid": "Користите a–z, 0–9 и појединачне цртице, од 3 до 60 знакова.",
+        "slugTaken": "Ова веза је већ заузета.",
+        "text": "Опис",
+        "textHint": "О чему је била радионица? Највише 2000 знакова.",
+        "title": "Јавна страница"
+      },
       "removeConfirm": "Да ли сте сигурни да желите да уклоните „{{name}}“ из организације?",
       "removeMember": "Уклони члана",
       "removeTitle": "Уклони члана",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "Истиче",
         "inviteLink": "Позивни линк",
         "inviteLinkDescription": "Поделите овај линк са учесницима како би се придружили радионици.",
-        "inviteLinkTitle": "Позивни линк за {{name}}",
+        "inviteLinkTitle": "Веза за позивање учесника – {{name}}",
         "inviteUsage": "Употреба",
         "isPaused": "Паузирај радионицу",
         "isPausedHint": "Када је паузирано, учесници виде закључан екран и не могу да интерагују са играма",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "Немате дозволу да управљате радионицама. Само руководиоци и наставници имају приступ.",
         "participantGames": "{{count}} игара",
         "participantJoined": "Придружен {{date}}",
+        "participantLinkTitle": "Веза за поновну пријаву",
+        "participantLinkTitleNamed": "Веза за поновну пријаву за {{name}}",
         "participantName": "Име учесника",
         "participants": "Учесници",
         "promptConstraintsFallbackOrg": "Korišćenje organizacionog ograničenja kao podrazumevanog: {{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "Да ли сте сигурни да желите да уклоните „{{name}}“ из ове радионице?",
         "removeParticipantMessage": "Да ли сте сигурни да желите да уклоните „{{name}}“ из ове радионице? Ова радња је неповратна.",
         "removeParticipantTitle": "Уклони учесника",
+        "resetAccess": "Ресетуј приступ",
+        "resetAccessDone": "Креиран је нови приступ. Стара веза више не ради.",
+        "resetAccessError": "Приступ није могао да се ресетује. Покушајте поново.",
+        "resetAccessMessage": "Биће креирана нова веза са новим кодом.",
+        "resetAccessTitle": "Ресетовати приступ?",
+        "resetAccessWarning": "Претходна веза и код ће престати да раде – укључујући и на уређајима на којима је учесник тренутно пријављен.",
         "revokeInvite": "Опозови позивни линк",
         "selectApiKey": "Изаберите API кључ",
         "serverDefault": "Server Default",
         "settings": "Подешавања",
-        "shareParticipantLink": "Копирај индивидуални позивни линк за овог учесника",
+        "shareParticipantLink": "Прикажи везу за поновну пријаву",
         "showOtherParticipantsGames": "Прикажи игре других учесника",
         "showOtherParticipantsGamesHint": "Rukovodioci i osoblje uvek mogu videti sve igre učesnika radi moderacije",
         "showPublicGames": "Прикажи јавне игре учесницима",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "Унапреди у руководиоца",
     "promoteToHead": "Унапреди у руководиоца",
     "promoteWarning": "Овај корисник ће моћи да управља члановима организације и позива наставнике.",
+    "publicWorkshop": {
+      "copy": "Копирај",
+      "copyLogin": "Пријавите се да бисте копирали",
+      "download": "Преузми",
+      "gamesTitle": "Игре из ове радионице",
+      "noGames": "Овде још нема објављених игара.",
+      "play": "Играј",
+      "playExhausted": "Нема преосталих сесија за играње",
+      "playNoKey": "Ова радионица нема API кључ, па њене игре овде не могу да се играју.",
+      "playRemaining": "Преостало је {{remaining}} од {{limit}} сесија за играње",
+      "unavailable": {
+        "home": "Идите на почетну страницу",
+        "message": "Веза више није важећа или је страница радионице искључена.",
+        "title": "Ова страница није доступна"
+      }
+    },
     "removeConfirm": "Да ли сте сигурни да желите да уклоните „{{name}}“ из организације?",
     "removeMember": "Уклони члана",
     "removeTitle": "Уклони члана",
@@ -1287,6 +1354,10 @@
       "untitledGame": "Играна без назива"
     },
     "settings": "Подешавања",
+    "share": {
+      "copied": "Копирано",
+      "copyLink": "Копирај везу"
+    },
     "showing": "{{count}} чланова",
     "sort": {
       "label": "Сортирај по",
@@ -1381,6 +1452,9 @@
     "notFound": "Тражени ресурс није пронађен.",
     "orgVerificationRequired": "Ваш OpenAI налог мора бити верификован да користи функцију генерисања слика. Верификујте на https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "АИ је изгубио ток разговора. То се дешава ако је сесија дуже неактивна. Покрените нову сесију да наставите.",
+    "publicDescriptionTooLong": "Опис може имати највише 2000 знакова.",
+    "publicSlugInvalid": "Користите a–z, 0–9 и појединачне цртице, од 3 до 60 знакова.",
+    "publicSlugTaken": "Ова веза је већ заузета.",
     "rateLimitExceeded": "Превише захтева. Сачекајте и покушајте поново.",
     "server": "Грешка на серверу. Покушајте касније.",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "Није пронађено",
       "permission": "Приступ одбијен",
       "server": "Серверска грешка",
+      "tokenLocked": "Привремено закључано",
       "validation": "Грешка валидације",
       "workshopInactive": "Радионица неактивна"
     },
+    "tokenLocked": "Превише неуспешних покушаја – покушајте поново касније.",
     "unauthorized": "Пријавите се да бисте наставили.",
     "unexpected": "Дошло је до неочекиване грешке.",
     "userNotRegistered": "Морате довршити регистрацију пре наставка.",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "Нисте у режиму радионице. Придружите се радионици прво.",
       "title": "Подешавања радионице"
     },
+    "showInviteLink": "Прикажи везу за позивање",
+    "showPublicPageLink": "Прикажи везу јавне странице",
     "title": "Моја радионица",
     "you": "Ви"
   },

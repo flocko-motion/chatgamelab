@@ -20,6 +20,7 @@ import { IconUser, IconMail, IconCheck, IconX, IconAlertCircle } from '@tabler/i
 import { useTranslation } from 'react-i18next';
 import { useDebouncedValue } from '@mantine/hooks';
 import { authLogger } from '@/config/logger';
+import { takeReturnTo } from '@/common/lib/returnTo';
 
 import { useAuth, type RegistrationData } from '@/providers/AuthProvider';
 import { Api } from '@/api/generated';
@@ -122,7 +123,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
 
     try {
       await registerUser(data.name.trim(), data.email.trim(), ageGroup);
-      navigate({ to: '/dashboard' });
+      navigate({ to: (takeReturnTo() ?? '/dashboard') as '/' });
     } catch (error: unknown) {
       authLogger.error('Registration failed', { error });
       // Check for profane_name error code from backend

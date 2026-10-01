@@ -56,6 +56,10 @@ services:
       BACKUP_ENABLED: ${BACKUP_ENABLED:-false}
       BACKUP_MAX_AGE_HOURS: ${BACKUP_MAX_AGE_HOURS:-48}
       SESSION_RETENTION_HOURS: ${SESSION_RETENTION_HOURS:-48}
+      # Site-wide lock on guessed invite/participant/play tokens (empty = built-in default)
+      TOKEN_LOCK_MAX_FAILURES: ${TOKEN_LOCK_MAX_FAILURES:-}
+      TOKEN_LOCK_WINDOW: ${TOKEN_LOCK_WINDOW:-}
+      TOKEN_LOCK_DURATION: ${TOKEN_LOCK_DURATION:-}
     depends_on:
       db:
         condition: service_healthy

@@ -1,8 +1,8 @@
 -- game_share queries
 
 -- name: CreateGameShare :one
-INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, public_page)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;
 
 -- name: GetGameShareByToken :one
 SELECT * FROM game_share WHERE token = $1;
@@ -14,7 +14,7 @@ SELECT * FROM game_share WHERE id = $1;
 SELECT * FROM game_share WHERE game_id = $1 ORDER BY created_at;
 
 -- name: GetGameSharesByGameIDAndWorkshop :many
-SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2 ORDER BY created_at;
+SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2 AND NOT public_page ORDER BY created_at;
 
 -- name: GetGameSharesByGameIDAndCreator :many
 -- Personal context: only non-workshop shares (workshop shares belong to their workshop context)
@@ -26,7 +26,13 @@ SELECT * FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop
 
 -- name: GetWorkshopGameShare :one
 -- Find existing workshop share for a game (reuse instead of creating duplicates)
-SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2;
+SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2 AND NOT public_page;
+
+-- name: GetPublicPageGameSharesByWorkshop :many
+SELECT * FROM game_share WHERE workshop_id = $1 AND public_page;
+
+-- name: GetPublicPageGameSharesByGame :many
+SELECT * FROM game_share WHERE game_id = $1 AND public_page;
 
 -- name: UpdateGameShare :one
 UPDATE game_share SET remaining = $2, ai_quality_tier = $3 WHERE id = $1 RETURNING *;

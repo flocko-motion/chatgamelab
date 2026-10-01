@@ -160,10 +160,9 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	now := time.Now()
 
-	// Only the game creator can set Public to true.
-	// Head/staff may unset it (set to false) but never enable it on another user's game.
+	// Whoever may edit a workshop game may publish it; a game outside a workshop only its creator.
 	isOwner := existingGame.Meta.CreatedBy.Valid && existingGame.Meta.CreatedBy.UUID == userID
-	if game.Public && !existingGame.Public && !isOwner {
+	if game.Public && !existingGame.Public && !isOwner && existingGame.WorkshopID == nil {
 		return obj.ErrForbidden("only the game creator can make a game public")
 	}
 
@@ -210,6 +209,10 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 			return obj.ErrDuplicateNamef("A game with the name %q already exists", game.Name)
 		}
 		return err
+	}
+
+	if existingGame.Public && !game.Public {
+		deleteGamePublicPageShares(ctx, game.ID)
 	}
 
 	// Publish game_updated event if game belongs to a workshop

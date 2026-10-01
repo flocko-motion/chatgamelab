@@ -38,10 +38,10 @@ func (s *WorkshopInviteValidationSuite) workshopSetup(prefix string) (*testutil.
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 
 	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":             prefix + " Workshop",
-		"active":           true,
-		"public":           false,
-		"isPaused":         false,
+		"name":     prefix + " Workshop",
+		"active":   true,
+		"public":   false,
+		"isPaused": false,
 	}))
 
 	return head, inst.ID.String(), wsIDStr

@@ -618,3 +618,7 @@ WITH expired AS (
   DELETE FROM game_session_message m WHERE m.game_session_id IN (SELECT e.id FROM expired e)
 )
 DELETE FROM game_session s WHERE s.id IN (SELECT e.id FROM expired e);
+
+-- name: GetPublicGamesByWorkshop :many
+-- Games shown on a workshop's public page.
+SELECT * FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC;

@@ -63,7 +63,14 @@
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
-      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
+      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele",
+      "workshopSection": "Workshop \u0026 Organisation",
+      "participantCode": {
+        "title": "Dein Zugangscode",
+        "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter „Code eingeben“ ein oder scanne den QR-Code.",
+        "longTokenHint": "Fotografiere den QR-Code oder speichere den Link und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto. Einen kurzen Code aus vier Wörtern bekommst du von deiner Workshopleitung, wenn sie deinen Zugang zurücksetzt.",
+        "error": "Dein Zugangscode konnte nicht geladen werden."
+      }
     },
     "register": {
       "cancelButton": "Abbrechen",
@@ -388,6 +395,14 @@
     "email": "E-Mail",
     "emailPlaceholder": "E-Mail-Adresse eingeben",
     "empty": "Keine Mitglieder in dieser Organisation.",
+    "enterCode": {
+      "description": "Du hast einen Code aus drei oder vier Wörtern bekommen? Gib ihn hier ein.",
+      "placeholder": "z. B. apfel otter turm",
+      "submit": "Weiter",
+      "title": "Code eingeben",
+      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, und nach dem Workshop wird der Zugang beendet. Frag dann deine Workshop-Leitung nach einem neuen Code.",
+      "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
+    },
     "error": "Fehler",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -529,7 +544,8 @@
         "publicDescription": "Öffentliche Spiele sind für alle Nutzer dieser Plattform sichtbar und spielbar.",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "submit": "Spiel erstellen",
-        "title": "Neues Spiel erstellen"
+        "title": "Neues Spiel erstellen",
+        "publicOwnerOnly": "Nur wer das Spiel erstellt hat, kann es öffentlich machen."
       },
       "deleteModal": {
         "adminActionTitle": "Admin-Aktion",
@@ -543,13 +559,13 @@
       "editFields": {
         "description": "Gib dem Spiel eine kurze Beschreibung. Diese hat keinen Einfluss auf das Spiel.",
         "gameStart": "Wie beginnt das Spiel?",
-        "gameStartHint": "Wie soll das Spiel beginnen? Was ist die erste Szene? Wie wird die Spielfigur begrüßt?",
+        "gameStartHint": "Wie soll das Spiel beginnen? Was ist die erste Szene? Wie wird die Spielfigur begrüßt? Woher weiß die spielende Person, was sie tun soll?",
         "gameStartPlaceholder": "Die Spielfigur erwacht am Rand eines dunklen Waldes. Ein schmaler Pfad führt tiefer in die Bäume...",
         "imageStyle": "Welchen Stil sollen die Bilder haben?",
         "imageStyleHint": "Zum Beispiel: Comic, realistisch, Pixel-Art, Aquarell...",
         "name": "Spielname",
         "scenario": "Worum geht es im Spiel",
-        "scenarioHint": "Beschreibe kurz: Wie funktioniert das Spiel? Wie sieht die Spielwelt aus? Sprache \u0026 Tonfall (z. B. Spanisch für Sechstklässler*innen)?\nWelche Rolle hat die Spielfigur? Schreibe \"Die Spielfigur ...\".\nWenn die KI die Rolle einer bestimmten Person übernehmen soll, schreibe \"Du bist ...\".",
+        "scenarioHint": "Beschreibe kurz: Wie funktioniert das Spiel? Wie sieht die Spielwelt aus? Sprache \u0026 Tonfall (z. B. Spanisch für Sechstklässler*innen)?\nWelche Rolle hat die Spielfigur? Schreibe \"Die Spielfigur ...\".\nWenn die KI die Rolle einer bestimmten Person übernehmen soll, schreibe \"Du bist ...\".\nWas ist das Ziel? Woran merkt die Spielfigur, dass sie gewonnen hat?",
         "scenarioPlaceholder": "Die Spielfigur ist ein Entdecker in einem geheimnisvollen Wald. Das Ziel ist es, den versteckten Schatz zu finden...",
         "statusFields": "Spielwerte",
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch."
@@ -638,7 +654,8 @@
         "publicSponsoring": "Öffentliches Sponsoring",
         "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten.",
         "sectionTitle": "Freigabeoptionen",
-        "sectionTitleShareOnly": "Freigabeoptionen"
+        "sectionTitleShareOnly": "Freigabeoptionen",
+        "workshopShareRequiresPublic": "Das Spiel muss öffentlich sein, bevor es im Workshop geteilt werden kann."
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",
@@ -798,9 +815,15 @@
       "visibility": {
         "private": "Privat",
         "public": "Öffentlich"
-      }
+      },
+      "privacyHint": "Name und Beschreibung eines Spiels können öffentlich sichtbar werden. Bitte keine Klarnamen verwenden.",
+      "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen."
     },
     "guestPlay": {
+      "copyGame": "Dieses Spiel kopieren",
+      "copyGameLogin": "Anmelden & Spiel kopieren",
+      "copyLeaveTitle": "Spiel verlassen?",
+      "copyLeaveMessage": "Zum Kopieren musst du dich anmelden. Die laufende Runde geht dabei verloren.",
       "welcome": {
         "backToHome": "Zu ChatGameLab",
         "continueGame": "Spiel fortsetzen",
@@ -829,6 +852,7 @@
     },
     "help": "Hilfe",
     "home": {
+      "codeCta": "Code eingeben",
       "features": {
         "create": {
           "description": "Entwirf interaktive Text-Adventures mit KI",
@@ -876,7 +900,8 @@
         "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut.",
         "expired": "Dieser Einladungslink ist abgelaufen.",
         "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
-        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen."
+        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
+        "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen."
       },
       "goHome": "Zur Startseite",
       "participant": {
@@ -1069,11 +1094,9 @@
         "inviteByEmailSuccessMessage": "Eine Einladung wurde erstellt. Der Benutzer sieht sie in seinen ausstehenden Einladungen.",
         "inviteByEmailTitle": "Benutzer zum Workshop einladen",
         "inviteCreatedAt": "Erstellt",
-        "inviteDescription": "Generieren Sie einen Einladungslink, den Teilnehmer verwenden können, um diesem Workshop beizutreten.",
         "inviteExpiresAt": "Läuft ab",
         "inviteLink": "Einladungslink",
-        "inviteLinkDescription": "Teilen Sie diesen Link mit Teilnehmern, um sie zum Workshop einzuladen.",
-        "inviteLinkTitle": "Einladungslink für {{name}}",
+        "inviteLinkTitle": "Einladungslink für Teilnehmer*innen – {{name}}",
         "inviteUsage": "Nutzung",
         "isPaused": "Workshop pausieren",
         "isPausedHint": "Wenn pausiert, sehen Teilnehmer eine gesperrte Ansicht und können nicht mit Spielen interagieren",
@@ -1092,6 +1115,8 @@
         "notAuthorized": "Sie haben keine Berechtigung, Workshops zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
         "participantGames": "{{count}} Spiele",
         "participantJoined": "Beigetreten am {{date}}",
+        "participantLinkTitle": "Link zum erneuten Anmelden",
+        "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
         "promptConstraintsFallbackOrg": "Organisations-Einschränkung wird als Standard verwendet: {{constraint}}",
@@ -1101,12 +1126,20 @@
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
         "removeParticipant": "Teilnehmer entfernen",
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
-        "removeParticipantMessage": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "removeParticipantMessage": "Möchten Sie \"{{name}}\" wirklich aus diesem Workshop entfernen?",
+        "removeParticipantWarningPermanent": "Dabei werden das Konto dieser Person und alle Spiele, die sie erstellt hat, endgültig gelöscht – mit allen Spielständen und geteilten Links darauf. Das lässt sich nicht rückgängig machen. Sollen die Spiele erhalten bleiben, laden Sie sie vorher als YAML herunter.",
+        "removeParticipantWarningVisiting": "Diese Person behält ihr Konto und ihre Spiele. Nur der Zugang zu diesem Workshop endet.",
         "removeParticipantTitle": "Teilnehmer entfernen",
+        "resetAccess": "Zugang zurücksetzen",
+        "resetAccessDone": "Neuer Zugang erstellt. Der alte Link funktioniert nicht mehr.",
+        "resetAccessError": "Der Zugang konnte nicht zurückgesetzt werden. Bitte versuche es erneut.",
+        "resetAccessMessage": "Es wird ein neuer Link mit neuem Code erzeugt.",
+        "resetAccessTitle": "Zugang zurücksetzen?",
+        "resetAccessWarning": "Der bisherige Link und Code funktionieren danach nicht mehr – auch nicht auf Geräten, auf denen die Person gerade angemeldet ist.",
         "revokeInvite": "Einladungslink widerrufen",
         "selectApiKey": "API-Schlüssel auswählen",
         "settings": "Einstellungen",
-        "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
+        "shareParticipantLink": "Link zum erneuten Anmelden anzeigen",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
         "showOtherParticipantsGamesHint": "Leitung und Mitarbeitende können zur Moderation immer alle Spiele der Teilnehmer sehen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
@@ -1124,6 +1157,40 @@
         "unpause": "Workshop fortsetzen",
         "usedCount": "{{count}} Nutzungen",
         "viewInviteLink": "Einladungslink anzeigen"
+      },
+      "publicPage": {
+        "links": {
+          "title": "Weiterf\u00fchrende Links",
+          "hint": "Erscheinen auf der Seite unter den Spielen. H\u00f6chstens 10.",
+          "linkTitle": "Titel",
+          "linkDescription": "Beschreibung (optional)",
+          "url": "Adresse",
+          "add": "Link hinzuf\u00fcgen",
+          "remove": "Entfernen",
+          "up": "Nach oben",
+          "down": "Nach unten",
+          "save": "Links speichern",
+          "error": "Die Links konnten nicht gespeichert werden. Jeder Link braucht einen Titel, und jede Adresse muss mit http:// oder https:// beginnen."
+        },
+        "title": "Öffentliche Seite",
+        "description": "Eine Seite ohne Anmeldung, die zeigt, worum es im Workshop ging, und die öffentlichen Spiele der Gruppe auflistet. Wer ein Spiel erstellt hat, steht nirgends.",
+        "enabled": "Öffentliche Seite anzeigen",
+        "enabledHint": "Ausgeschaltet zeigt der Link nur einen Hinweis. Spiel-Links der Seite werden dabei ungültig.",
+        "link": "Link",
+        "linkHint": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "slugTaken": "Dieser Link ist schon vergeben.",
+        "slugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "text": "Beschreibung",
+        "textHint": "Worum ging es im Workshop? Höchstens 2000 Zeichen.",
+        "descriptionError": "Die Beschreibung konnte nicht gespeichert werden.",
+        "showLink": "Link \u0026 QR-Code anzeigen",
+        "open": "Seite öffnen",
+        "offHint": "Die Seite ist ausgeschaltet. Link und QR-Code kannst du trotzdem schon vorbereiten.",
+        "changeLinkTitle": "Link ändern?",
+        "changeLinkMessage": "Die Seite ist danach unter {{url}} erreichbar.",
+        "changeLinkWarning": "Der alte Link funktioniert danach nicht mehr – auch bereits ausgedruckte oder verschickte QR-Codes nicht.",
+        "shareTitle": "Öffentliche Seite",
+        "shareDescription": "Diesen Link kannst du verschicken oder als QR-Code zeigen."
       }
     },
     "name": "Name",
@@ -1253,6 +1320,11 @@
       "untitledGame": "Unbenanntes Spiel"
     },
     "settings": "Einstellungen",
+    "share": {
+      "copied": "Kopiert",
+      "copyLink": "Link kopieren",
+      "visitLink": "Link besuchen"
+    },
     "showing": "{{count}} Mitglieder",
     "sort": {
       "label": "Sortieren nach",
@@ -1262,7 +1334,47 @@
       "role-desc": "Rolle (Z-A)"
     },
     "unnamed": "Unbenannt",
-    "viewGame": "Spiel ansehen"
+    "viewGame": "Spiel ansehen",
+    "workshop": {
+      "inactive": {
+        "title": "Workshop ist nicht aktiv",
+        "description": "Dieser Workshop ist gerade nicht aktiv. Warte, bis deine Workshop-Leitung ihn wieder einschaltet.",
+        "photoFirst": "Wenn du dich abmeldest, ist dein Code von diesem Gerät weg. Mach vorher ein Foto davon.",
+        "noCode": "Auf diesem Gerät ist kein Code gespeichert. Deine Workshop-Leitung kann dir deinen Code nennen.",
+        "showCode": "Meinen Zugangscode anzeigen"
+      }
+    },
+    "publicWorkshop": {
+      "links": {
+        "title": "Mehr zu diesem Workshop"
+      },
+      "about": {
+        "oneLiner": "Diese Textabenteuer sind mit dem ChatGameLab entstanden: selbst gebaut, ohne Programmieren, live erz\u00e4hlt von einer KI.",
+        "details": "Die Macher*innen beschreiben Welt, Figuren und Regeln in eigenen Worten. Beim Spielen erz\u00e4hlt eine KI die Geschichte daraus live weiter: Sie reagiert auf jede Eingabe und erfindet dazu passende Bilder \u2014 zwei Runden laufen deshalb nie gleich ab. Wer selbst eines baut, merkt schnell, wie stark die eigenen Anweisungen das Ergebnis pr\u00e4gen und wo eine KI an ihre Grenzen st\u00f6\u00dft. Genau darum geht es: KI nicht erkl\u00e4rt bekommen, sondern ausprobieren.",
+        "more": "Mehr erfahren",
+        "less": "Weniger",
+        "link": "Mehr \u00fcber das ChatGameLab"
+      },
+      "unavailable": {
+        "title": "Diese Seite ist nicht verfügbar",
+        "message": "Der Link ist nicht (mehr) gültig oder die Workshop-Seite wurde ausgeschaltet.",
+        "home": "Zur Startseite"
+      },
+      "gamesTitle": "Spiele aus diesem Workshop",
+      "noGames": "Hier wurden noch keine Spiele freigegeben.",
+      "play": "Spielen",
+      "playRemaining": "Noch {{remaining}} von {{limit}} Spielrunden frei",
+      "playExhausted": "Kontingent aufgebraucht",
+      "download": "Herunterladen",
+      "copy": "Kopieren",
+      "copyLogin": "Anmelden \u0026 kopieren",
+      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden.",
+      "cta": {
+        "title": "Erstelle selbst ein ChatGameLab-Spiel",
+        "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten.",
+        "button": "Kostenlos loslegen"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1359,14 +1471,19 @@
       "notFound": "Nicht gefunden",
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",
+      "tokenLocked": "Vorübergehend gesperrt",
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv"
     },
+    "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen.",
     "unauthorized": "Bitte melde dich an, um fortzufahren.",
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
     "userNotRegistered": "Du musst die Registrierung abschließen, bevor du fortfahren kannst.",
     "validation": "Bitte überprüfe deine Eingabe und versuche es erneut.",
-    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator."
+    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
+    "publicSlugTaken": "Dieser Link ist schon vergeben.",
+    "publicSlugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+    "publicDescriptionTooLong": "Die Beschreibung darf höchstens 2000 Zeichen lang sein."
   },
   "myWorkshop": {
     "empty": {
@@ -1402,8 +1519,10 @@
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",
       "title": "Workshop-Einstellungen"
     },
+    "showInviteLink": "Einladungslink anzeigen",
     "title": "Mein Workshop",
-    "you": "Du"
+    "you": "Du",
+    "showPublicPageLink": "Link zur öffentlichen Seite anzeigen"
   },
   "navigation": {
     "adminPanel": "Admin-Bereich",

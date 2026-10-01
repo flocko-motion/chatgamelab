@@ -58,6 +58,12 @@
       "noRole": "Brak przypisanej roli",
       "organization": "Organizacja",
       "organizationSection": "Organizacja \u00026 rola",
+      "participantCode": {
+        "error": "Nie udało się wczytać Twojego kodu dostępu.",
+        "hint": "Zrób zdjęcie tego kodu lub zapisz go i zachowaj dla siebie. Dzięki niemu możesz w każdej chwili i na dowolnym urządzeniu wrócić do swojego konta: wpisz słowa w sekcji „Wpisz kod” na stronie głównej lub zeskanuj kod QR.",
+        "longTokenHint": "Zrób zdjęcie kodu QR lub zapisz link i zachowaj go dla siebie. Dzięki niemu możesz w każdej chwili wrócić do swojego konta. Prowadzący warsztat może wygenerować krótki, czterowyrazowy kod, resetując Twój dostęp.",
+        "title": "Twój kod dostępu"
+      },
       "role": "Rola",
       "roles": {
         "admin": "Administrator",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statystyki",
       "title": "Profil",
-      "totalPlaysOnGames": "Łączna liczba rozgrywek w moich grach"
+      "totalPlaysOnGames": "Łączna liczba rozgrywek w moich grach",
+      "workshopSection": "Warsztat i organizacja"
     },
     "register": {
       "ageGroupLabel": "Grupa wiekowa",
@@ -403,6 +410,14 @@
     "email": "E-mail",
     "emailPlaceholder": "Wpisz adres e-mail",
     "empty": "Brak członków w tej organizacji.",
+    "enterCode": {
+      "description": "Otrzymałeś kod składający się z trzech lub czterech słów? Wpisz go tutaj.",
+      "placeholder": "np. apfel otter turm",
+      "submit": "Dalej",
+      "title": "Wpisz kod",
+      "unknown": "Ten kod nie istnieje. Sprawdź pisownię.",
+      "wrongLength": "Kod składa się z trzech lub czterech słów."
+    },
     "error": "Błąd",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Warsztat"
         },
         "sections": {
+          "constraintReasoning": "Dlaczego to ograniczenie ma zastosowanie",
           "constraintText": "Aktywne ograniczenie ochrony młodzieży",
           "expandStory": "Instrukcje dla AI dotyczące rozwijania historii",
           "imageGeneration": "Instrukcje od AI do generowania obrazów",
@@ -557,6 +573,7 @@
         "namePlaceholder": "np. Kosmiczna przygoda",
         "publicDescription": "Gry publiczne są widoczne i dostępne dla wszystkich użytkowników na tej platformie.",
         "publicLabel": "Uczyń tę grę publiczną",
+        "publicOwnerOnly": "Tylko twórca gry może ustawić ją jako publiczną.",
         "submit": "Utwórz grę",
         "title": "Utwórz nową grę"
       },
@@ -618,6 +635,8 @@
         "importButton": "Importuj grę"
       },
       "playNow": "Graj teraz",
+      "privacyHint": "Nazwa i opis gry mogą stać się publicznie widoczne. Nie używaj prawdziwych imion i nazwisk.",
+      "privacyHintShort": "Może stać się publicznie widoczne – nie używaj prawdziwych imion i nazwisk.",
       "privateShare": {
         "active": "Udostępnianie prywatne jest aktywne. Każdy z poniższym linkiem może anonimowo zagrać w tę grę.",
         "aiQualityTier": "Jakość AI",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "Nielimitowane sesje",
         "update": "Zaktualizuj link udostępniania",
         "workshopCreateHint": "Utwórz link udostępniania dla tej gry. Klucz API warsztatu zostanie automatycznie wybrany i pokryje koszty.",
-        "workshopDescription": "Utwórz link udostępniania dla tej gry. Domyślny klucz API warsztatu będzie automatycznie używany dla sesji gości.",
+        "workshopDescription": "Ten link został utworzony w ramach warsztatu „{{name}}” – goście grają przy użyciu klucza API warsztatu i określonych ograniczeń promptu.",
         "workshopShare": "Udostępnienie warsztatowe",
         "workshopShareDescription": "Ten link został utworzony w warsztacie „{{name}}” – goście grają, używając klucza API warsztatu.",
         "workshopSubsection": "Link udostępniania warsztatowego"
@@ -667,7 +686,8 @@
         "publicSponsoring": "Publiczne sponsorowanie",
         "publicSponsoringDescription": "Wszyscy użytkownicy platformy mogą grać w tę grę za darmo – przypisany klucz API pokrywa koszt.",
         "sectionTitle": "Opcje udostępniania",
-        "sectionTitleShareOnly": "Opcje udostępniania"
+        "sectionTitleShareOnly": "Opcje udostępniania",
+        "workshopShareRequiresPublic": "Gra musi być publiczna, zanim będzie można udostępnić ją w ramach warsztatu."
       },
       "sort": {
         "createdAt-asc": "Utworzono (najstarsze)",
@@ -858,6 +878,7 @@
     },
     "help": "Pomoc",
     "home": {
+      "codeCta": "Wpisz kod",
       "features": {
         "create": {
           "description": "Projektuj interaktywne przygody tekstowe zasilane przez AI",
@@ -905,7 +926,8 @@
         "acceptFailed": "Nie udało się przyjąć zaproszenia. Spróbuj ponownie.",
         "expired": "Link zaproszeniowy wygasł.",
         "loadFailed": "Nie udało się wczytać szczegółów zaproszenia. Spróbuj ponownie.",
-        "notFound": "Link zaproszeniowy jest nieprawidłowy lub został odwołany."
+        "notFound": "Link zaproszeniowy jest nieprawidłowy lub został odwołany.",
+        "tokenLocked": "Zbyt wiele nieudanych prób – spróbuj ponownie później."
       },
       "goHome": "Przejdź do strony głównej",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "Dodatkowe instrukcje AI dla wszystkich sesji w tej organizacji. Stosowane, gdy nie ustawiono ograniczenia na poziomie warsztatu oraz w grach udostępnianych poprzez link.",
       "promptConstraintsLabel": "Organizacyjne ograniczenia promptów",
       "promptConstraintsPlaceholder": "np. Utrzymuj historię odpowiednią dla wieku i unikaj przemocy.",
+      "publicPage": {
+        "changeLinkMessage": "Strona będzie wtedy dostępna pod adresem {{url}}.",
+        "changeLinkTitle": "Zmienić link?",
+        "changeLinkWarning": "Stary link przestanie działać – dotyczy to również wydrukowanych lub wysłanych wcześniej kodów QR.",
+        "description": "Strona bez logowania, która pokazuje, czego dotyczył warsztat, i zawiera listę publicznych gier grupy. Nigdy nie podaje, kto utworzył daną grę.",
+        "descriptionError": "Nie udało się zapisać opisu.",
+        "enabled": "Pokaż stronę publiczną",
+        "enabledHint": "Po wyłączeniu link będzie wyświetlać tylko komunikat, a linki do rozgrywki na stronie przestaną działać.",
+        "link": "Link",
+        "linkHint": "Użyj znaków a–z, cyfr 0–9 i pojedynczych łączników; od 3 do 60 znaków.",
+        "offHint": "Strona jest wyłączona. Nadal możesz przygotować jej link i kod QR.",
+        "open": "Otwórz stronę",
+        "shareDescription": "Wyślij ten link lub pokaż go jako kod QR.",
+        "shareTitle": "Strona publiczna",
+        "showLink": "Pokaż link i kod QR",
+        "slugInvalid": "Użyj znaków a–z, cyfr 0–9 i pojedynczych łączników; od 3 do 60 znaków.",
+        "slugTaken": "Ten link jest już zajęty.",
+        "text": "Opis",
+        "textHint": "Czego dotyczył warsztat? Maksymalnie 2000 znaków.",
+        "title": "Strona publiczna"
+      },
       "removeConfirm": "Czy na pewno chcesz usunąć \"{{name}}\" z organizacji?",
       "removeMember": "Usuń członka",
       "removeTitle": "Usuń członka",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "Wygasa",
         "inviteLink": "Link zaproszeniowy",
         "inviteLinkDescription": "Udostępnij ten link uczestnikom, aby dołączyli do warsztatu.",
-        "inviteLinkTitle": "Link zaproszeniowy dla {{name}}",
+        "inviteLinkTitle": "Link zaproszenia dla uczestników – {{name}}",
         "inviteUsage": "Użycia",
         "isPaused": "Wstrzymaj warsztat",
         "isPausedHint": "Podczas pauzy uczestnicy widzą blokadę i nie mogą wchodzić w interakcję z grami",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "Nie masz uprawnień do zarządzania warsztatami. Dostęp mają jedynie kierownicy i nauczyciele.",
         "participantGames": "{{count}} gier",
         "participantJoined": "Dołączył {{date}}",
+        "participantLinkTitle": "Link do ponownego logowania",
+        "participantLinkTitleNamed": "Link do ponownego logowania dla {{name}}",
         "participantName": "Nazwa uczestnika",
         "participants": "Uczestnicy",
         "promptConstraintsFallbackOrg": "Domyślne użycie ograniczenia organizacji: {{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "Czy na pewno chcesz usunąć \"{{name}}\" z tego warsztatu?",
         "removeParticipantMessage": "Czy na pewno chcesz usunąć \"{{name}}\" z tego warsztatu? Tej operacji nie można cofnąć.",
         "removeParticipantTitle": "Usuń uczestnika",
+        "resetAccess": "Zresetuj dostęp",
+        "resetAccessDone": "Utworzono nowy dostęp. Stary link już nie działa.",
+        "resetAccessError": "Nie udało się zresetować dostępu. Spróbuj ponownie.",
+        "resetAccessMessage": "Zostanie utworzony nowy link z nowym kodem.",
+        "resetAccessTitle": "Zresetować dostęp?",
+        "resetAccessWarning": "Poprzedni link i kod przestaną działać – również na urządzeniach, na których uczestnik jest obecnie zalogowany.",
         "revokeInvite": "Odwołaj link zaproszenia",
         "selectApiKey": "Wybierz klucz API",
         "serverDefault": "Server Default",
         "settings": "Ustawienia",
-        "shareParticipantLink": "Skopiuj indywidualny link zaproszeniowy tego uczestnika",
+        "shareParticipantLink": "Pokaż link do ponownego logowania",
         "showOtherParticipantsGames": "Pokazuj gry innych uczestników",
         "showOtherParticipantsGamesHint": "Kierownicy i personel zawsze mogą widzieć wszystkie gry uczestników do celów moderacji",
         "showPublicGames": "Pokazuj uczestnikom gry publiczne",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "Awansuj na kierownika",
     "promoteToHead": "Awansuj na kierownika",
     "promoteWarning": "Ten użytkownik zyska możliwość zarządzania członkami organizacji i zapraszania nauczycieli.",
+    "publicWorkshop": {
+      "copy": "Kopiuj",
+      "copyLogin": "Zaloguj się, aby skopiować",
+      "download": "Pobierz",
+      "gamesTitle": "Gry z tego warsztatu",
+      "noGames": "Nie opublikowano tu jeszcze żadnych gier.",
+      "play": "Graj",
+      "playExhausted": "Brak pozostałych sesji gry",
+      "playNoKey": "Ten warsztat nie ma klucza API, więc nie można tutaj grać w jego gry.",
+      "playRemaining": "Pozostało {{remaining}} z {{limit}} sesji gry",
+      "unavailable": {
+        "home": "Przejdź na stronę główną",
+        "message": "Link nie jest już prawidłowy lub strona warsztatu została wyłączona.",
+        "title": "Ta strona jest niedostępna"
+      }
+    },
     "removeConfirm": "Czy na pewno chcesz usunąć \"{{name}}\" z organizacji?",
     "removeMember": "Usuń członka",
     "removeTitle": "Usuń członka",
@@ -1287,6 +1354,10 @@
       "untitledGame": "Gra bez tytułu"
     },
     "settings": "Ustawienia",
+    "share": {
+      "copied": "Skopiowano",
+      "copyLink": "Kopiuj link"
+    },
     "showing": "Wyświetlono {{count}} członków",
     "sort": {
       "label": "Sortuj według",
@@ -1381,6 +1452,9 @@
     "notFound": "Nie znaleziono żądanego zasobu.",
     "orgVerificationRequired": "Twoja organizacja OpenAI wymaga weryfikacji, aby używać funkcji generowania obrazów. Zweryfikuj ją na https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "AI straciła kontekst rozmowy. Może się tak zdarzyć po dłuższej bezczynności sesji. Rozpocznij nową sesję, aby kontynuować.",
+    "publicDescriptionTooLong": "Opis może mieć maksymalnie 2000 znaków.",
+    "publicSlugInvalid": "Użyj znaków a–z, cyfr 0–9 i pojedynczych łączników; od 3 do 60 znaków.",
+    "publicSlugTaken": "Ten link jest już zajęty.",
     "rateLimitExceeded": "Zbyt wiele żądań. Odczekaj chwilę i spróbuj ponownie.",
     "server": "Błąd serwera. Spróbuj ponownie później.",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "Nie znaleziono",
       "permission": "Odmowa dostępu",
       "server": "Błąd serwera",
+      "tokenLocked": "Tymczasowo zablokowano",
       "validation": "Błąd walidacji",
       "workshopInactive": "Warsztat nieaktywny"
     },
+    "tokenLocked": "Zbyt wiele nieudanych prób – spróbuj ponownie później.",
     "unauthorized": "Zaloguj się, aby kontynuować.",
     "unexpected": "Wystąpił nieoczekiwany błąd.",
     "userNotRegistered": "Musisz dokończyć rejestrację, zanim przejdziesz dalej.",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "Nie jesteś w trybie warsztatowym. Najpierw wejdź do warsztatu.",
       "title": "Ustawienia warsztatu"
     },
+    "showInviteLink": "Pokaż link zaproszenia",
+    "showPublicPageLink": "Pokaż link do strony publicznej",
     "title": "Mój warsztat",
     "you": "Ty"
   },

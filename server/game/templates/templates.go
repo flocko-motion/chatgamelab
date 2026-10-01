@@ -21,7 +21,9 @@ const (
 	DefaultImageStyle = "simple illustration, minimalist"
 
 	// PromptMessageStart is sent as the first player input to kick off the game
-	PromptMessageStart = "Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario."
+	// The player knows nothing yet, so the summary must establish role and situation. It names only
+	// one or two things in the scene to engage with - a list of options turns the opening into a menu.
+	PromptMessageStart = "Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario. The summary must make clear who the player character is and what situation they are in, and mention one or two things in the scene the player could engage with. If the scenario asks you to explain the player's task or goal, include it."
 
 	// PromptObjectivizePlayerInput rephrases player input in third person with uncertain outcome.
 	// Used via ToolQuery with a fast model. The %s placeholder is the raw player input.
@@ -48,6 +50,13 @@ const (
 	// The %s placeholder is replaced with the target language name.
 	promptNarratePlotOutlineTemplate = "NARRATE the summary into prose in the players language (%s). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next."
 
+	// promptNarrateOpeningSceneTemplate is the narration prompt for the very first scene of a game.
+	// It stays a scene with the usual atmosphere, but makes role and situation clear. What the player
+	// could do shows through people, objects and paths in the scene, never as a list of choices.
+	// An explicit request in the scenario ("explain the task") wins over the hint-only rule.
+	// The %s placeholder is replaced with the target language name.
+	promptNarrateOpeningSceneTemplate = "NARRATE the opening scene into prose in the players language (%s). This is the first thing the player reads - they know nothing yet. STRICT RULES: 4-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Tell it as a scene, with the same atmosphere as any other turn. Within the scene, make clear who the player character is and what situation they are in. Do not list choices: let people, objects and paths in the scene show what the player could do. Hint at what is at stake without spelling the goal out as an instruction. If the scenario explicitly asks you to explain the task, explain it plainly. End with an open question to the player."
+
 	// Schema field descriptions and max lengths for BuildResponseSchema
 	SchemaMessageMaxLength       = 400
 	SchemaMessageDescription     = "Plot outline, just the raw plot - no coloring'"
@@ -69,6 +78,13 @@ func appendConstraints(prompt string, constraints *string) string {
 // languageCode is an ISO 639-1 code (e.g. "en", "de").
 func PromptNarratePlotOutline(languageCode string, constraints *string) string {
 	prompt := fmt.Sprintf(promptNarratePlotOutlineTemplate, lang.GetLanguageName(languageCode))
+	return appendConstraints(prompt, constraints)
+}
+
+// PromptNarrateOpeningScene returns the narration prompt for the first scene of a game.
+// languageCode is an ISO 639-1 code (e.g. "en", "de").
+func PromptNarrateOpeningScene(languageCode string, constraints *string) string {
+	prompt := fmt.Sprintf(promptNarrateOpeningSceneTemplate, lang.GetLanguageName(languageCode))
 	return appendConstraints(prompt, constraints)
 }
 
@@ -124,6 +140,7 @@ RESPONSE PHASES:
 We communicate in alternating phases:
 1. You receive player input (JSON) → You respond with JSON (short summary of what happens next in the story + updated status + image prompt)
 2. I ask you to NARRATE → {{NARRATE_PROMPT}}
+   (For the very first scene of the game, the NARRATE command asks you to make clear who the player character is and what situation they are in.)
 
 ---
 PHASE 1: JSON RESPONSE
@@ -191,11 +208,12 @@ func GetTemplate(game *obj.Game, languageCode string) (string, error) {
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.SystemMessageScenario)
 	instructions = strings.ReplaceAll(instructions, "{{NARRATE_PROMPT}}", PromptNarratePlotOutline(languageCode, nil))
 
-	// Append game start instructions if provided by the game creator
+	// Append game start instructions if provided by the game creator; otherwise drop the placeholder
+	gameStart := ""
 	if game.SystemMessageGameStart != "" {
-		instructions = strings.ReplaceAll(instructions, "{{GAME_START}}",
-			fmt.Sprintf("\nHow to start the game:\n%s", game.SystemMessageGameStart))
+		gameStart = fmt.Sprintf("\nHow to start the game:\n%s", game.SystemMessageGameStart)
 	}
+	instructions = strings.ReplaceAll(instructions, "{{GAME_START}}", gameStart)
 
 	return instructions, nil
 }

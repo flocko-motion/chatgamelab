@@ -13,8 +13,10 @@ import (
 	"cgl/api/httpx"
 	"cgl/constants"
 	"cgl/db"
+	"cgl/functional/wordtoken"
 	"cgl/log"
 	"cgl/obj"
+	"cgl/tokenlock"
 )
 
 // RegisterRequest is the request body for user registration
@@ -225,9 +227,17 @@ func ParticipantLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Links and typed codes carry the words without the prefix.
+	if !strings.HasPrefix(req.Token, db.ParticipantTokenPrefix) {
+		req.Token = db.ParticipantTokenPrefix + wordtoken.Normalize(req.Token)
+	}
+
 	// Validate the token by looking up the user
 	user, err := db.GetUserByParticipantToken(r.Context(), req.Token)
 	if err != nil {
+		if !db.ParticipantTokenKnown(r.Context(), req.Token) {
+			tokenlock.Fail()
+		}
 		log.Debug("participant login failed: invalid token", "error", err)
 		httpx.WriteError(w, http.StatusUnauthorized, "Invalid or expired token")
 		return

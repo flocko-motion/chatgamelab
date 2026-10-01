@@ -189,6 +189,43 @@ type Workshop struct {
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 	IsPaused                   bool    `json:"isPaused"`
 	AllowGameSharing           bool    `json:"allowGameSharing"`
+	// Public page /w/<PublicSlug>, visible while Public is on
+	PublicSlug        *string `json:"publicSlug,omitempty"`
+	PublicDescription *string `json:"publicDescription,omitempty"`
+	// PublicLinks is the further reading listed below the games; nil means none.
+	PublicLinks []PublicWorkshopLink `json:"publicLinks,omitempty"`
+}
+
+// PublicWorkshopLink is one piece of further reading on a workshop's public page.
+type PublicWorkshopLink struct {
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	URL         string `json:"url"`
+}
+
+// PublicWorkshopPage is what a visitor of /w/<slug> sees. It names no creators and no institution.
+type PublicWorkshopPage struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	// PlayAvailable is false when the workshop has no key: no game on the page can be played.
+	PlayAvailable bool                 `json:"playAvailable"`
+	Games         []PublicWorkshopGame `json:"games"`
+	Links         []PublicWorkshopLink `json:"links,omitempty"`
+}
+
+// PublicWorkshopGame is one public game on a workshop's public page.
+type PublicWorkshopGame struct {
+	ID          uuid.UUID           `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Play        *PublicWorkshopPlay `json:"play,omitempty"` // nil without a workshop key or while the game is not playable
+}
+
+// PublicWorkshopPlay is the share link through which visitors play a game from the public page.
+type PublicWorkshopPlay struct {
+	Token     string `json:"token"`
+	Remaining int    `json:"remaining"`
+	Limit     int    `json:"limit"`
 }
 
 // WorkshopParticipant represents a participant enrolled in a workshop.

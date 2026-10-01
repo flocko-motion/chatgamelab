@@ -37,6 +37,8 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 	isToken := err != nil
 
 	if isToken {
+		idOrToken, _ = db.ResolveInviteToken(r.Context(), idOrToken)
+
 		// It's a token - check if it's a workshop invite that can be accepted anonymously
 		if user == nil {
 			// Anonymous user accepting workshop invite

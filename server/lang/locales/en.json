@@ -63,7 +63,14 @@
       },
       "statisticsSection": "Statistics",
       "title": "Profile",
-      "totalPlaysOnGames": "Total Plays on My Games"
+      "totalPlaysOnGames": "Total Plays on My Games",
+      "workshopSection": "Workshop \u0026 Organization",
+      "participantCode": {
+        "title": "Your access code",
+        "hint": "Take a photo of this code or write it down, and keep it to yourself. It gets you back into your account at any time, on any device: enter the words under “Enter code” on the home page or scan the QR code.",
+        "longTokenHint": "Take a photo of the QR code or save the link, and keep it to yourself. It gets you back into your account at any time. Your workshop leader can give you a short four-word code by resetting your access.",
+        "error": "Your access code could not be loaded."
+      }
     },
     "register": {
       "cancelButton": "Cancel",
@@ -388,6 +395,14 @@
     "email": "Email",
     "emailPlaceholder": "Enter email address",
     "empty": "No members in this organization.",
+    "enterCode": {
+      "description": "Did you get a code of three or four words? Enter it here.",
+      "placeholder": "e.g. apfel otter turm",
+      "submit": "Continue",
+      "title": "Enter code",
+      "unknown": "This code does not exist. Please check the spelling.",
+      "wrongLength": "A code has three or four words."
+    },
     "error": "Error",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -405,6 +420,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Why this constraint applies",
           "constraintText": "Active youth-protection constraint",
           "expandStory": "Instructions to the AI for writing out the story",
           "imageGeneration": "Instructions from the AI for image generation",
@@ -528,7 +544,8 @@
         "publicDescription": "Public games are visible and playable by all users on this platform.",
         "publicLabel": "Make this game public",
         "submit": "Create Game",
-        "title": "Create New Game"
+        "title": "Create New Game",
+        "publicOwnerOnly": "Only the game creator can make a game public."
       },
       "deleteModal": {
         "adminActionTitle": "Admin action",
@@ -624,7 +641,7 @@
         "unlimitedSessions": "Unlimited sessions",
         "update": "Update Share Link",
         "workshopCreateHint": "Create a share link for this game. The workshop's API key is automatically selected and covers the costs.",
-        "workshopDescription": "Create a share link for this game. The workshop's default API key will be used automatically for guest sessions.",
+        "workshopDescription": "This link is created within the workshop \"{{name}}\" – guests play with the workshop's API key and prompt constraints.",
         "workshopShare": "Workshop share",
         "workshopShareDescription": "This link was created in workshop \"{{name}}\" - guests play using the workshop's API key.",
         "workshopSubsection": "Workshop Share Link"
@@ -637,7 +654,8 @@
         "publicSponsoring": "Public Sponsoring",
         "publicSponsoringDescription": "All users on the platform can play this game for free - your assigned API key covers the cost.",
         "sectionTitle": "Sharing Options",
-        "sectionTitleShareOnly": "Sharing Options"
+        "sectionTitleShareOnly": "Sharing Options",
+        "workshopShareRequiresPublic": "This game must be public before it can be shared in the workshop."
       },
       "sort": {
         "createdAt-asc": "Created (Oldest)",
@@ -797,7 +815,9 @@
       "visibility": {
         "private": "Private",
         "public": "Public"
-      }
+      },
+      "privacyHint": "A game's name and description can become publicly visible. Please don't use real names.",
+      "privacyHintShort": "May become publicly visible – please no real names."
     },
     "guestPlay": {
       "welcome": {
@@ -828,6 +848,7 @@
     },
     "help": "Help",
     "home": {
+      "codeCta": "Enter code",
       "features": {
         "create": {
           "description": "Design interactive text adventures powered by AI",
@@ -875,7 +896,8 @@
         "acceptFailed": "Failed to accept invite. Please try again.",
         "expired": "This invite link has expired.",
         "loadFailed": "Failed to load invite details. Please try again.",
-        "notFound": "This invite link is invalid or has been revoked."
+        "notFound": "This invite link is invalid or has been revoked.",
+        "tokenLocked": "Too many failed attempts – please try again later."
       },
       "goHome": "Go to Home",
       "participant": {
@@ -1068,11 +1090,9 @@
         "inviteByEmailSuccessMessage": "An invite has been created. The user will see it in their pending invites.",
         "inviteByEmailTitle": "Invite User to Workshop",
         "inviteCreatedAt": "Created",
-        "inviteDescription": "Generate an invite link that participants can use to join this workshop.",
         "inviteExpiresAt": "Expires",
         "inviteLink": "Invite Link",
-        "inviteLinkDescription": "Share this link with participants to let them join the workshop.",
-        "inviteLinkTitle": "Invite Link for {{name}}",
+        "inviteLinkTitle": "Invite link for participants – {{name}}",
         "inviteUsage": "Usage",
         "isPaused": "Pause workshop",
         "isPausedHint": "When paused, participants see a locked overlay and cannot interact with games",
@@ -1091,6 +1111,8 @@
         "notAuthorized": "You don't have permission to manage workshops. Only heads and teachers can access this page.",
         "participantGames": "{{count}} games",
         "participantJoined": "Joined {{date}}",
+        "participantLinkTitle": "Re-login link",
+        "participantLinkTitleNamed": "Re-login link for {{name}}",
         "participantName": "Participant name",
         "participants": "Participants",
         "promptConstraintsFallbackOrg": "Using organization constraint as default: {{constraint}}",
@@ -1102,10 +1124,16 @@
         "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
         "removeParticipantMessage": "Are you sure you want to remove \"{{name}}\" from this workshop? This action cannot be undone.",
         "removeParticipantTitle": "Remove Participant",
+        "resetAccess": "Reset access",
+        "resetAccessDone": "New access created. The old link no longer works.",
+        "resetAccessError": "Access could not be reset. Please try again.",
+        "resetAccessMessage": "A new link with a new code will be created.",
+        "resetAccessTitle": "Reset access?",
+        "resetAccessWarning": "The previous link and code stop working – including on devices where the participant is currently logged in.",
         "revokeInvite": "Revoke Invite Link",
         "selectApiKey": "Select an API key",
         "settings": "Settings",
-        "shareParticipantLink": "Copy individual invite link for this participant",
+        "shareParticipantLink": "Show re-login link",
         "showOtherParticipantsGames": "Show other participants' games",
         "showOtherParticipantsGamesHint": "Head and staff can always see all participants' games for moderation",
         "showPublicGames": "Show public games to participants",
@@ -1123,6 +1151,27 @@
         "unpause": "Unpause workshop",
         "usedCount": "{{count}} uses",
         "viewInviteLink": "View Invite Link"
+      },
+      "publicPage": {
+        "title": "Public page",
+        "description": "A page without login that shows what the workshop was about and lists the group's public games. It never names who made a game.",
+        "enabled": "Show public page",
+        "enabledHint": "When off, the link shows only a notice, and the page's play links stop working.",
+        "link": "Link",
+        "linkHint": "Use a–z, 0–9 and single hyphens, 3 to 60 characters.",
+        "slugTaken": "This link is already taken.",
+        "slugInvalid": "Use a–z, 0–9 and single hyphens, 3 to 60 characters.",
+        "text": "Description",
+        "textHint": "What was the workshop about? At most 2000 characters.",
+        "descriptionError": "The description could not be saved.",
+        "showLink": "Show link \u0026 QR code",
+        "open": "Open page",
+        "offHint": "The page is switched off. You can still prepare its link and QR code.",
+        "changeLinkTitle": "Change the link?",
+        "changeLinkMessage": "The page will then be at {{url}}.",
+        "changeLinkWarning": "The old link stops working – including QR codes already printed or sent.",
+        "shareTitle": "Public page",
+        "shareDescription": "Send this link or show it as a QR code."
       }
     },
     "name": "Name",
@@ -1252,6 +1301,10 @@
       "untitledGame": "Untitled Game"
     },
     "settings": "Settings",
+    "share": {
+      "copied": "Copied",
+      "copyLink": "Copy link"
+    },
     "showing": "{{count}} members",
     "sort": {
       "label": "Sort by",
@@ -1261,7 +1314,23 @@
       "role-desc": "Role (Z-A)"
     },
     "unnamed": "Unnamed",
-    "viewGame": "View Game"
+    "viewGame": "View Game",
+    "publicWorkshop": {
+      "unavailable": {
+        "title": "This page is not available",
+        "message": "The link is not valid (any more), or the workshop page has been switched off.",
+        "home": "Go to the home page"
+      },
+      "gamesTitle": "Games from this workshop",
+      "noGames": "No games have been published here yet.",
+      "play": "Play",
+      "playRemaining": "{{remaining}} of {{limit}} play sessions left",
+      "playExhausted": "No play sessions left",
+      "download": "Download",
+      "copy": "Copy",
+      "copyLogin": "Log in to copy",
+      "playNoKey": "This workshop has no API key, so its games can't be played here."
+    }
   },
   "dashboard": {
     "cards": {
@@ -1358,14 +1427,19 @@
       "notFound": "Not Found",
       "permission": "Permission Denied",
       "server": "Server Error",
+      "tokenLocked": "Temporarily locked",
       "validation": "Validation Error",
       "workshopInactive": "Workshop Inactive"
     },
+    "tokenLocked": "Too many failed attempts – please try again later.",
     "unauthorized": "Please log in to continue.",
     "unexpected": "An unexpected error occurred.",
     "userNotRegistered": "You need to complete registration before continuing.",
     "validation": "Please check your input and try again.",
-    "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer."
+    "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer.",
+    "publicSlugTaken": "This link is already taken.",
+    "publicSlugInvalid": "Use a–z, 0–9 and single hyphens, 3 to 60 characters.",
+    "publicDescriptionTooLong": "The description may be at most 2000 characters long."
   },
   "myWorkshop": {
     "empty": {
@@ -1401,8 +1475,10 @@
       "notInWorkshopMode": "You are not in workshop mode. Please enter a workshop first.",
       "title": "Workshop Settings"
     },
+    "showInviteLink": "Show invite link",
     "title": "My Workshop",
-    "you": "You"
+    "you": "You",
+    "showPublicPageLink": "Show public page link"
   },
   "navigation": {
     "adminPanel": "Admin Panel",

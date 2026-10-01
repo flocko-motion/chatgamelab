@@ -354,6 +354,35 @@ export interface ObjMeta {
   modifiedBy?: UuidNullUUID;
 }
 
+export interface ObjPublicWorkshopGame {
+  description?: string;
+  id?: string;
+  name?: string;
+  /** nil without a workshop key or while the game is not playable */
+  play?: ObjPublicWorkshopPlay;
+}
+
+export interface ObjPublicWorkshopLink {
+  description?: string;
+  title?: string;
+  url?: string;
+}
+
+export interface ObjPublicWorkshopPage {
+  description?: string;
+  games?: ObjPublicWorkshopGame[];
+  links?: ObjPublicWorkshopLink[];
+  name?: string;
+  /** PlayAvailable is false when the workshop has no key: no game on the page can be played. */
+  playAvailable?: boolean;
+}
+
+export interface ObjPublicWorkshopPlay {
+  limit?: number;
+  remaining?: number;
+  token?: string;
+}
+
 export interface ObjStatusField {
   name?: string;
   value?: string;
@@ -460,6 +489,11 @@ export interface ObjWorkshop {
   participants?: ObjWorkshopParticipant[];
   promptConstraints?: string;
   public?: boolean;
+  publicDescription?: string;
+  /** PublicLinks is the further reading listed below the games; nil means none. */
+  publicLinks?: ObjPublicWorkshopLink[];
+  /** Public page /w/<PublicSlug>, visible while Public is on */
+  publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
 }
@@ -584,7 +618,13 @@ export interface RoutesGameShareResponse {
 
 export interface RoutesGuestGameInfo {
   description?: string;
+  /**
+   * GameID and Public let the welcome screen offer a copy. Only a public game
+   * may be copied: a share link alone does not release its AI instructions.
+   */
+  gameId?: string;
   name?: string;
+  public?: boolean;
   /** null = unlimited, 0 = exhausted */
   remaining?: number;
 }
@@ -695,6 +735,13 @@ export interface RoutesMessageStatusResponse {
   text?: string;
   /** True when text streaming is complete (Stream=false in DB) */
   textDone?: boolean;
+}
+
+export interface RoutesParticipantCodeResponse {
+  /** Token is the full login token that the /code link and QR code carry. */
+  token?: string;
+  /** Words is the token's word code, or null for the long tokens issued before word tokens. */
+  words?: string;
 }
 
 export interface RoutesParticipantLoginRequest {
@@ -922,6 +969,12 @@ export interface RoutesUpdateWorkshopRequest {
   name?: string;
   promptConstraints?: string;
   public?: boolean;
+  /** omitted keeps the current text, "" clears it */
+  publicDescription?: string;
+  /** PublicLinks: omitted keeps the current further reading, an empty list clears it */
+  publicLinks?: ObjPublicWorkshopLink[];
+  /** omitted keeps the current link */
+  publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
 }
@@ -2509,6 +2562,42 @@ export class Api<
         ...params,
       }),
   };
+  public = {
+    /**
+     * @description Returns a public workshop's name, description and public games. No authentication. Unknown slugs and switched-off pages both return 404.
+     *
+     * @tags public
+     * @name WorkshopsDetail
+     * @summary Get public workshop page
+     * @request GET:/public/workshops/{slug}
+     */
+    workshopsDetail: (slug: string, params: RequestParams = {}) =>
+      this.request<ObjPublicWorkshopPage, HttpxErrorResponse>({
+        path: `/public/workshops/${slug}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Exports a game listed on a public workshop page as YAML. No authentication.
+     *
+     * @tags public
+     * @name WorkshopsGamesYamlList
+     * @summary Download a game from a public workshop page
+     * @request GET:/public/workshops/{slug}/games/{id}/yaml
+     */
+    workshopsGamesYamlList: (
+      slug: string,
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/public/workshops/${slug}/games/${id}/yaml`,
+        method: "GET",
+        ...params,
+      }),
+  };
   restart = {
     /**
      * @description Admin-only endpoint that triggers a server restart.
@@ -2837,6 +2926,24 @@ export class Api<
       }),
 
     /**
+     * @description Returns the re-login code of the authenticated participant; both fields are null for other users
+     *
+     * @tags users
+     * @name MeParticipantCodeList
+     * @summary Get own participant code
+     * @request GET:/users/me/participant-code
+     * @secure
+     */
+    meParticipantCodeList: (params: RequestParams = {}) =>
+      this.request<RoutesParticipantCodeResponse, HttpxErrorResponse>({
+        path: `/users/me/participant-code`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Returns statistics for the authenticated user
      *
      * @tags users
@@ -3081,6 +3188,27 @@ export class Api<
       this.request<Record<string, string>, HttpxErrorResponse>({
         path: `/workshops/participants/${participantId}/token`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Replaces a participant's access token; all earlier re-login links stop working (staff/heads only)
+     *
+     * @tags workshops
+     * @name ParticipantsTokenResetCreate
+     * @summary Reset participant token
+     * @request POST:/workshops/participants/{participantId}/token/reset
+     * @secure
+     */
+    participantsTokenResetCreate: (
+      participantId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/participants/${participantId}/token/reset`,
+        method: "POST",
         secure: true,
         format: "json",
         ...params,

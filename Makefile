@@ -1,4 +1,11 @@
-.PHONY: rebase pr release sync check-clean-tree check-on-feature
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature
+
+# First target, so a bare `make` prints this instead of force-pushing.
+help:
+	@echo "make rebase           rebase onto origin/development and force-push (own feature branch only)"
+	@echo "make pr [MERGE=1]     merge development in, push, open the pull request; MERGE=1 waits for checks and merges"
+	@echo "make release [YES=1]  development -> main, then main back into development; YES=1 skips the prompt"
+	@echo "make sync             merge main back into development through a pull request"
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:

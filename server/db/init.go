@@ -5,6 +5,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"errors"
@@ -62,6 +63,10 @@ func Init() {
 		if err := runPendingMigrations(); err != nil {
 			log.Fatal("failed to run migrations", "error", err)
 		}
+	}
+
+	if err := BackfillWorkshopPublicSlugs(context.Background()); err != nil {
+		log.Error("failed to give workshops their public page slug", "error", err)
 	}
 
 	log.Info("database connection initialized")

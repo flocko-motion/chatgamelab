@@ -21,6 +21,8 @@ import { useWorkshopMode } from "../providers/WorkshopModeProvider";
 import { RegistrationForm } from "../features/auth";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
+import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
+import { CODE_LINK_PREFIX } from "../common/lib/wordToken";
 import {
   isAdmin,
   getUserInstitutionId,
@@ -73,11 +75,15 @@ function RootComponent() {
     pathname.startsWith(ROUTES.AUTH_REGISTER) ||
     pathname.startsWith(ROUTES.AUTH_LOGOUT) ||
     pathname.startsWith(ROUTES.INVITES) ||
+    pathname === ROUTES.CODE ||
+    pathname.startsWith(CODE_LINK_PREFIX) ||
+    pathname.startsWith(PUBLIC_WORKSHOP_PREFIX) ||
     isGuestPlayRoute;
 
   // Routes that participants are allowed to access
   const isParticipantAllowedRoute =
     pathname === ROUTES.MY_WORKSHOP ||
+    pathname === ROUTES.PROFILE ||
     pathname.startsWith("/sessions/") ||
     pathname.includes("/play");
 
@@ -296,6 +302,27 @@ function RootComponent() {
         background="#e8e8ec"
         darkMode={true}
         withContainer={false}
+        navItems={[]}
+        headerProps={{
+          isGuest: true,
+        }}
+      >
+        <Outlet />
+      </AppLayout>
+    );
+  }
+
+  // A visitor of a public workshop page who is not logged in gets the guest
+  // header on a light page, also while auth is still initializing.
+  if (
+    pathname.startsWith(PUBLIC_WORKSHOP_PREFIX) &&
+    !isFullyAuthenticated &&
+    !needsRegistration
+  ) {
+    return (
+      <AppLayout
+        variant="authenticated"
+        background={theme.other.colors.bgLandingGradient}
         navItems={[]}
         headerProps={{
           isGuest: true,

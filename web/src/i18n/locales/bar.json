@@ -58,6 +58,12 @@
       "noRole": "Koane Roll zuaweist",
       "organization": "Organisation",
       "organizationSection": "Organisation \nmp; Roll",
+      "participantCode": {
+        "error": "Dei Zugangscode hod ned geladen werdn kenna.",
+        "hint": "Mach a Foto vo dem Code oder schreib eam auf und heb eam guad auf. Damit kummst jederzeit auf jedem Gerät wieda in dei Konto: Gib d'Wörter auf da Startseitn unter „Code eingeben“ ei oder scan den QR-Code.",
+        "longTokenHint": "Mach a Foto vom QR-Code oder speicher den Link und heb eam guad auf. Damit kummst jederzeit wieda in dei Konto. Dei Workshop-Leitung ko dir an kurzen Code aus vier Wörtern gebn, wenn sie dein Zugang zurücksetzt.",
+        "title": "Dei Zugangscode"
+      },
       "role": "Roll",
       "roles": {
         "admin": "Administrator/in",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
-      "totalPlaysOnGames": "Gsamte Spuidurchgänge auf meine Spiele"
+      "totalPlaysOnGames": "Gsamte Spuidurchgänge auf meine Spiele",
+      "workshopSection": "Workshop \u0026 Organisation"
     },
     "register": {
       "ageGroupLabel": "Altersgruppn",
@@ -403,6 +410,14 @@
     "email": "E-Mail",
     "emailPlaceholder": "E-Mail-Adress eigebn",
     "empty": "Koane Mitglida in dera Organisation.",
+    "enterCode": {
+      "description": "Hast an Code aus drei oder vier Wörtern kriagt? Gib eam do ei.",
+      "placeholder": "z. B. apfel otter turm",
+      "submit": "Weiter",
+      "title": "Code eingeben",
+      "unknown": "Den Code gibt's ned. Bitte schau nach, ob du eam richtig gschriebn hast.",
+      "wrongLength": "A Code hod drei oder vier Wörter."
+    },
     "error": "Fehler",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Warum de Einschränkung gilt",
           "constraintText": "Aktive Jugendschutz-Einschränkung",
           "expandStory": "Anweisungen an d'KI, wia d'Gschicht ausformuliert werd",
           "imageGeneration": "Anweisungen vo da KI fia d'Bilderstellung",
@@ -557,6 +573,7 @@
         "namePlaceholder": "z. B. Weltraum-Abentea",
         "publicDescription": "Öffentliche Spuin san fia alle Nutzer auf dera Plattform sichtbar und spielbar.",
         "publicLabel": "Spui öffentlich macha",
+        "publicOwnerOnly": "Nur wer des Spiel erstellt hod, ko's öffentlich macha.",
         "submit": "Spui erstellen",
         "title": "Neies Spui erstellen"
       },
@@ -618,6 +635,8 @@
         "importButton": "Spui importiern"
       },
       "playNow": "Glei spuin",
+      "privacyHint": "Der Name und de Beschreibung von am Spiel kenna öffentlich sichtbar werdn. Bitte nimm koa echte Namen.",
+      "privacyHintShort": "Ko öffentlich sichtbar werdn – bitte koa echte Namen.",
       "privateShare": {
         "active": "Privates Teilen is aktiv. Wer den Link hod, ko des Spui anonym spuin.",
         "aiQualityTier": "KI-Qualität",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzunga",
         "update": "Teil-Link aktualisieren",
         "workshopCreateHint": "Erstell an Share-Link fia des Spui. Da Workshop-API-Schlissl werd automatisch gnomma und deckt d'Kosten.",
-        "workshopDescription": "Erstell an Share-Link fia des Spui. Da Standard-API-Schlissl vom Workshop werd automatisch fia Gästesitzunga verwendet.",
+        "workshopDescription": "Der Link wird innerhalb vom Workshop „{{name}}“ erstellt – Gäste spuin mitm API-Schlüssel vom Workshop und dessen Vorgabn.",
         "workshopShare": "Workshop-Share",
         "workshopShareDescription": "Daa Link is im Workshop \"{{name}}\" erstellt worn – Gäsdn spuin mit dem API-Schlissl vom Workshop.",
         "workshopSubsection": "Workshop-Share-Link"
@@ -667,7 +686,8 @@
         "publicSponsoring": "Öffentliches Sponsoring",
         "publicSponsoringDescription": "Alle Nutzer auf da Plattform kenna des Spui gratis spuin – dei zuagwiesener API-Schlissl übernimmt d'Kosten.",
         "sectionTitle": "Sharing-Optionen",
-        "sectionTitleShareOnly": "Sharing-Optionen"
+        "sectionTitleShareOnly": "Sharing-Optionen",
+        "workshopShareRequiresPublic": "Des Spiel muaß öffentlich sei, bevor ma's im Workshop teilen ko."
       },
       "sort": {
         "createdAt-asc": "Erstellt (oideste)",
@@ -858,6 +878,7 @@
     },
     "help": "Hilf",
     "home": {
+      "codeCta": "Code eingeben",
       "features": {
         "create": {
           "description": "Gestalt interaktive Textabenteuer mit KI-Unterstützung",
@@ -905,7 +926,8 @@
         "acceptFailed": "Einladung konnt ned angenommen werdn. Probier's no amoi.",
         "expired": "Diesen Einladungslink is abglaufn.",
         "loadFailed": "Einladungsdetails ham si ned laden lassn. Probier's no amoi.",
-        "notFound": "Dieser Link is ungültig oder widerrufen."
+        "notFound": "Dieser Link is ungültig oder widerrufen.",
+        "tokenLocked": "Z'vui fehlgschlagene Versuach – probier's später no amoi."
       },
       "goHome": "Zur Startseitn",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "Zusätzliche KI-Vorgaben fia olle Sitzunga in dera Organisation. Gilt, wenn koan Workshop-Level-Vorgab da is, und fia Spuin, de per Link gteil wern.",
       "promptConstraintsLabel": "Organisations-Prompt-Vorgabn",
       "promptConstraintsPlaceholder": "z.B. Gschicht altersgerecht hoitn und koane g'walttätign Inhalte.",
+      "publicPage": {
+        "changeLinkMessage": "D'Seitn is dann unter {{url}} erreichbar.",
+        "changeLinkTitle": "Link ändern?",
+        "changeLinkWarning": "Der oide Link funktioniert dann nimma – aa QR-Codes, de scho ausgedruckt oder verschickt worn san.",
+        "description": "A Seitn ohne Anmeldung, de zeigt, worum's im Workshop ganga is, und de öffentlichen Spiele von da Gruppe auflistet. Es wird nia dazugschriebn, wer a Spiel gmacht hod.",
+        "descriptionError": "De Beschreibung hod ned gspeichert werdn kenna.",
+        "enabled": "Öffentliche Seitn anzeigen",
+        "enabledHint": "Wenn's aus is, zeigt da Link nur an Hinweis und de Spiellinks auf da Seitn funktionieren nimma.",
+        "link": "Link",
+        "linkHint": "Nimm a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "offHint": "De Seitn is ausgeschaltet. Du kannst ihren Link und QR-Code trotzdem vorbereiten.",
+        "open": "Seitn öffnen",
+        "shareDescription": "Schick den Link her oder zeig eam als QR-Code.",
+        "shareTitle": "Öffentliche Seitn",
+        "showLink": "Link \u0026 QR-Code anzeigen",
+        "slugInvalid": "Nimm a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "slugTaken": "Den Link gibt's scho.",
+        "text": "Beschreibung",
+        "textHint": "Worum is's im Workshop ganga? Höchstens 2000 Zeichen.",
+        "title": "Öffentliche Seitn"
+      },
       "removeConfirm": "Bist da sicha, dassd \"{{name}}\" aus da Organisation entfernst?",
       "removeMember": "Mitglied entfern",
       "removeTitle": "Mitglied entfern",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "Lauft ab",
         "inviteLink": "Einladungslink",
         "inviteLinkDescription": "Teil den Link, damit Teilnehmer/innen beitretn kennan.",
-        "inviteLinkTitle": "Einladungslink fia {{name}}",
+        "inviteLinkTitle": "Einladungslink für Teilnehmer – {{name}}",
         "inviteUsage": "Nutzung",
         "isPaused": "Workshop pausiern",
         "isPausedHint": "Wenn pausiert, seng Teilnehmer/innen a Sperroverlay und kennan nix macha",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "Du derfst Workshops ned verwalten. Nua Leitungen und Lehrer/innen habn Zugriff.",
         "participantGames": "{{count}} Spui",
         "participantJoined": "Dabei seit {{date}}",
+        "participantLinkTitle": "Link zum erneuten Anmelden",
+        "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmer-Nam",
         "participants": "Teilnehmer/innen",
         "promptConstraintsFallbackOrg": "Organisations-Vorgab ois Standard: {{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst?",
         "removeParticipantMessage": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst? Des laßt si ned rückgängig macha.",
         "removeParticipantTitle": "Teilnehmer/in entferna",
+        "resetAccess": "Zugang zurücksetzen",
+        "resetAccessDone": "Neier Zugang erstellt. Der oide Link funktioniert nimma.",
+        "resetAccessError": "Der Zugang hod ned zurückgesetzt werdn kenna. Bitte probier's no amoi.",
+        "resetAccessMessage": "Es wird a neier Link mit am neien Code erstellt.",
+        "resetAccessTitle": "Zugang zurücksetzen?",
+        "resetAccessWarning": "Der vorige Link und Code funktionieren nimma – aa auf Geräten, auf denen der Teilnehmer grad angmeldet is.",
         "revokeInvite": "Einladungslink sperrn",
         "selectApiKey": "API-Schlüssl auswähln",
         "serverDefault": "Server Default",
         "settings": "Einstellungen",
-        "shareParticipantLink": "Individuellen Einladungslink kopiern",
+        "shareParticipantLink": "Link zum erneuten Anmelden anzeigen",
         "showOtherParticipantsGames": "Spui vo andern Teilnehmer/innen anzeigen",
         "showOtherParticipantsGamesHint": "Leitung und Staff seng sowieso olle Spuin vo de Teilnehmenden zur Moderation",
         "showPublicGames": "Öffentliche Spiele anzeigen",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "Zur Leitn befördern",
     "promoteToHead": "Zur Leitn machn",
     "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
+    "publicWorkshop": {
+      "copy": "Kopieren",
+      "copyLogin": "Zum Kopieren anmelden",
+      "download": "Herunterladen",
+      "gamesTitle": "Spiele aus dem Workshop",
+      "noGames": "Da san no koa Spiele veröffentlicht worn.",
+      "play": "Spuin",
+      "playExhausted": "Koa Spielrunden mehr übrig",
+      "playNoKey": "Der Workshop hod koan API-Schlüssel, drum kenna seine Spiele do ned gspuit werdn.",
+      "playRemaining": "{{remaining}} von {{limit}} Spielrunden übrig",
+      "unavailable": {
+        "home": "Zur Startseitn",
+        "message": "Der Link is nimma gültig oder de Workshop-Seitn is ausgeschaltet worn.",
+        "title": "De Seitn is ned verfügbar"
+      }
+    },
     "removeConfirm": "Bist da sicha, dassd \"{{name}}\" aus da Organisation entfernst?",
     "removeMember": "Mitglied entfern",
     "removeTitle": "Mitglied entfern",
@@ -1287,6 +1354,10 @@
       "untitledGame": "Spui ohne Nam"
     },
     "settings": "Einstellungen",
+    "share": {
+      "copied": "Kopiert",
+      "copyLink": "Link kopieren"
+    },
     "showing": "{{count}} Mitglida",
     "sort": {
       "label": "Sortiern noch",
@@ -1381,6 +1452,9 @@
     "notFound": "Des gwünschte Objekt hod si ned findn lassn.",
     "orgVerificationRequired": "Dei OpenAI-Organisation braucht a Verifizierung fia d'Bildfunktion. Mach des auf https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "D'KI hod den Gesprächsverlauf valorn. Passiert bei längerer Pause. Fang a neie Session o.",
+    "publicDescriptionTooLong": "De Beschreibung derf höchstens 2000 Zeichen lang sei.",
+    "publicSlugInvalid": "Nimm a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+    "publicSlugTaken": "Den Link gibt's scho.",
     "rateLimitExceeded": "Z'vü Anfrogn. Wart a bissl und versuch's wieda.",
     "server": "Serverfehler. Probier's späder no amoi.",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "Ned gfundn",
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",
+      "tokenLocked": "Vorübergehend g sperrt",
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv"
     },
+    "tokenLocked": "Z'vui fehlgschlagene Versuach – probier's später no amoi.",
     "unauthorized": "Bitte log di ei, damitst weidermacha kannst.",
     "unexpected": "A unerwarteter Fehler is passiert.",
     "userNotRegistered": "Vervollständig zuerst dei Registrierung.",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "Du bist ned im Workshop-Modus. Bitte tritt zerscht a Workshop bei.",
       "title": "Workshop-Einstellungen"
     },
+    "showInviteLink": "Einladungslink anzeigen",
+    "showPublicPageLink": "Link zur öffentlichen Seitn anzeigen",
     "title": "Mein Workshop",
     "you": "Du"
   },

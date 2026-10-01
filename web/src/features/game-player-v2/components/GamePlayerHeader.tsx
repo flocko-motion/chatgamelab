@@ -71,6 +71,9 @@ interface GamePlayerHeaderProps {
   // Navigation
   onBack: () => void;
 
+  /** Offers copying this game; only set where copying is allowed. */
+  onCopyGame?: () => void;
+
   // Dev theme panel
   currentTheme?: PartialGameTheme;
   onThemeChange: (theme: PartialGameTheme) => void;
@@ -111,6 +114,7 @@ export function GamePlayerHeader({
   useNeutralTheme,
   onToggleNeutralTheme,
   onBack,
+  onCopyGame,
   currentTheme,
   onThemeChange,
 }: GamePlayerHeaderProps) {
@@ -163,6 +167,19 @@ export function GamePlayerHeader({
           </Box>
         </Group>
         <Group gap="xs" wrap="nowrap">
+          {onCopyGame && (
+            <Tooltip label={t("guestPlay.copyGame")} position="bottom">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={onCopyGame}
+                aria-label={t("guestPlay.copyGame")}
+                size="lg"
+              >
+                <IconCopy size={20} />
+              </ActionIcon>
+            </Tooltip>
+          )}
           {sessionLanguageLabel && (
             <Badge
               variant="light"

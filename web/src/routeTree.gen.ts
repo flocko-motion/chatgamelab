@@ -22,6 +22,8 @@ import { Route as MyOrganizationIndexRouteImport } from './routes/my-organizatio
 import { Route as MyGamesIndexRouteImport } from './routes/my-games/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as CreationsIndexRouteImport } from './routes/creations/index'
+import { Route as CodeIndexRouteImport } from './routes/code/index'
+import { Route as WSlugRouteImport } from './routes/w/$slug'
 import { Route as SessionsNewRouteImport } from './routes/sessions/new'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions/$sessionId'
 import { Route as PlayTokenRouteImport } from './routes/play/$token'
@@ -30,6 +32,7 @@ import { Route as MyGamesCreateRouteImport } from './routes/my-games/create'
 import { Route as MyGamesGameIdRouteImport } from './routes/my-games/$gameId'
 import { Route as CreationsCreateRouteImport } from './routes/creations/create'
 import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
+import { Route as CodeCodeRouteImport } from './routes/code/$code'
 import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
@@ -106,6 +109,16 @@ const CreationsIndexRoute = CreationsIndexRouteImport.update({
   path: '/creations/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CodeIndexRoute = CodeIndexRouteImport.update({
+  id: '/code/',
+  path: '/code/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WSlugRoute = WSlugRouteImport.update({
+  id: '/w/$slug',
+  path: '/w/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SessionsNewRoute = SessionsNewRouteImport.update({
   id: '/sessions/new',
   path: '/sessions/new',
@@ -144,6 +157,11 @@ const CreationsCreateRoute = CreationsCreateRouteImport.update({
 const CreationsGameIdRoute = CreationsGameIdRouteImport.update({
   id: '/creations/$gameId',
   path: '/creations/$gameId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CodeCodeRoute = CodeCodeRouteImport.update({
+  id: '/code/$code',
+  path: '/code/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterIndexRoute = AuthRegisterIndexRouteImport.update({
@@ -205,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
+  '/code/$code': typeof CodeCodeRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
@@ -213,6 +232,8 @@ export interface FileRoutesByFullPath {
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
+  '/w/$slug': typeof WSlugRoute
+  '/code': typeof CodeIndexRoute
   '/creations': typeof CreationsIndexRoute
   '/games': typeof GamesIndexRoute
   '/my-games': typeof MyGamesIndexRoute
@@ -238,6 +259,7 @@ export interface FileRoutesByTo {
   '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
+  '/code/$code': typeof CodeCodeRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
@@ -246,6 +268,8 @@ export interface FileRoutesByTo {
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
+  '/w/$slug': typeof WSlugRoute
+  '/code': typeof CodeIndexRoute
   '/creations': typeof CreationsIndexRoute
   '/games': typeof GamesIndexRoute
   '/my-games': typeof MyGamesIndexRoute
@@ -272,6 +296,7 @@ export interface FileRoutesById {
   '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
+  '/code/$code': typeof CodeCodeRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
@@ -280,6 +305,8 @@ export interface FileRoutesById {
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
+  '/w/$slug': typeof WSlugRoute
+  '/code/': typeof CodeIndexRoute
   '/creations/': typeof CreationsIndexRoute
   '/games/': typeof GamesIndexRoute
   '/my-games/': typeof MyGamesIndexRoute
@@ -307,6 +334,7 @@ export interface FileRouteTypes {
     | '/landing'
     | '/profile'
     | '/settings'
+    | '/code/$code'
     | '/creations/$gameId'
     | '/creations/create'
     | '/my-games/$gameId'
@@ -315,6 +343,8 @@ export interface FileRouteTypes {
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
+    | '/w/$slug'
+    | '/code'
     | '/creations'
     | '/games'
     | '/my-games'
@@ -340,6 +370,7 @@ export interface FileRouteTypes {
     | '/landing'
     | '/profile'
     | '/settings'
+    | '/code/$code'
     | '/creations/$gameId'
     | '/creations/create'
     | '/my-games/$gameId'
@@ -348,6 +379,8 @@ export interface FileRouteTypes {
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
+    | '/w/$slug'
+    | '/code'
     | '/creations'
     | '/games'
     | '/my-games'
@@ -373,6 +406,7 @@ export interface FileRouteTypes {
     | '/landing'
     | '/profile'
     | '/settings'
+    | '/code/$code'
     | '/creations/$gameId'
     | '/creations/create'
     | '/my-games/$gameId'
@@ -381,6 +415,8 @@ export interface FileRouteTypes {
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
+    | '/w/$slug'
+    | '/code/'
     | '/creations/'
     | '/games/'
     | '/my-games/'
@@ -407,6 +443,7 @@ export interface RootRouteChildren {
   LandingRoute: typeof LandingRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
+  CodeCodeRoute: typeof CodeCodeRoute
   CreationsGameIdRoute: typeof CreationsGameIdRoute
   CreationsCreateRoute: typeof CreationsCreateRoute
   MyGamesGameIdRoute: typeof MyGamesGameIdRoute
@@ -415,6 +452,8 @@ export interface RootRouteChildren {
   PlayTokenRoute: typeof PlayTokenRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRoute
   SessionsNewRoute: typeof SessionsNewRoute
+  WSlugRoute: typeof WSlugRoute
+  CodeIndexRoute: typeof CodeIndexRoute
   CreationsIndexRoute: typeof CreationsIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
   MyGamesIndexRoute: typeof MyGamesIndexRoute
@@ -527,6 +566,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/code/': {
+      id: '/code/'
+      path: '/code'
+      fullPath: '/code'
+      preLoaderRoute: typeof CodeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$slug': {
+      id: '/w/$slug'
+      path: '/w/$slug'
+      fullPath: '/w/$slug'
+      preLoaderRoute: typeof WSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sessions/new': {
       id: '/sessions/new'
       path: '/sessions/new'
@@ -581,6 +634,13 @@ declare module '@tanstack/react-router' {
       path: '/creations/$gameId'
       fullPath: '/creations/$gameId'
       preLoaderRoute: typeof CreationsGameIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/code/$code': {
+      id: '/code/$code'
+      path: '/code/$code'
+      fullPath: '/code/$code'
+      preLoaderRoute: typeof CodeCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register/': {
@@ -663,6 +723,7 @@ const rootRouteChildren: RootRouteChildren = {
   LandingRoute: LandingRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
+  CodeCodeRoute: CodeCodeRoute,
   CreationsGameIdRoute: CreationsGameIdRoute,
   CreationsCreateRoute: CreationsCreateRoute,
   MyGamesGameIdRoute: MyGamesGameIdRoute,
@@ -671,6 +732,8 @@ const rootRouteChildren: RootRouteChildren = {
   PlayTokenRoute: PlayTokenRoute,
   SessionsSessionIdRoute: SessionsSessionIdRoute,
   SessionsNewRoute: SessionsNewRoute,
+  WSlugRoute: WSlugRoute,
+  CodeIndexRoute: CodeIndexRoute,
   CreationsIndexRoute: CreationsIndexRoute,
   GamesIndexRoute: GamesIndexRoute,
   MyGamesIndexRoute: MyGamesIndexRoute,

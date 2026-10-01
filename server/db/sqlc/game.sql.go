@@ -2682,6 +2682,59 @@ func (q *Queries) GetPublicGames(ctx context.Context) ([]Game, error) {
 	return items, nil
 }
 
+const getPublicGamesByWorkshop = `-- name: GetPublicGamesByWorkshop :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC
+`
+
+// Games shown on a workshop's public page.
+func (q *Queries) GetPublicGamesByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicGamesByWorkshop, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.WorkshopID,
+			&i.Public,
+			&i.PublicSponsoredApiKeyShareID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.Theme,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+			&i.OriginallyCreatedBy,
+			&i.PlayCount,
+			&i.CloneCount,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPublicGamesSortedByCreatedAt = `-- name: GetPublicGamesSortedByCreatedAt :many
 SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at ASC
 `
