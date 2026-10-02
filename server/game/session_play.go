@@ -322,8 +322,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
 
-		// Phase 4: Generate audio narration (after text is finalized)
-		if !response.HasAudioOut || len(response.Message) == 0 {
+		// Phase 4: Generate audio narration (after text is finalized).
+		// Only when the player has narration switched on - TTS is costly. Scenes without audio
+		// can still be narrated later on demand (GenerateMessageAudio).
+		if !response.HasAudioOut || !action.NarrationRequested || len(response.Message) == 0 {
 			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
 		} else {
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)

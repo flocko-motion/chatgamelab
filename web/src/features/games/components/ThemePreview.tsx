@@ -157,6 +157,7 @@ export function ThemePreview({ apiTheme }: ThemePreviewProps) {
       loadExistingSession: asyncNoop,
       retryLastAction: noop,
       resetGame: noop,
+      loadMessageAudio: () => Promise.reject(new Error("No audio in preview")),
       openLightbox: noop,
       closeLightbox: noop,
       lightboxImage: null,

@@ -515,6 +515,11 @@
         "starting": "Starting game session...",
         "startingHint": "The AI is preparing your adventure"
       },
+      "narration": {
+        "generating": "Narration is being generated…",
+        "play": "Play narration",
+        "stop": "Stop narration"
+      },
       "needsApiKey": {
         "description": "The API key used for this session is no longer available.",
         "title": "API Key Required"

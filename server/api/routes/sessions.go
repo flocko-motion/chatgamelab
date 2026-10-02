@@ -24,6 +24,7 @@ type SessionActionRequest struct {
 	StatusFields  []obj.StatusField `json:"statusFields,omitempty"`  // Current status to pass to AI
 	AudioBase64   string            `json:"audioBase64,omitempty"`   // Base64-encoded audio from voice input
 	AudioMimeType string            `json:"audioMimeType,omitempty"` // MIME type of the audio (e.g. "audio/webm;codecs=opus")
+	Narration     bool              `json:"narration,omitempty"`     // Player has narration switched on: generate audio (TTS) for the response
 }
 
 // SessionResponse wraps a game session together with its messages.
@@ -184,12 +185,13 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	action := obj.GameSessionMessage{
-		GameSessionID: session.ID,
-		Type:          messageType,
-		Message:       req.Message,
-		StatusFields:  currentStatus,
-		AudioBase64:   req.AudioBase64,
-		AudioMimeType: req.AudioMimeType,
+		GameSessionID:      session.ID,
+		Type:               messageType,
+		Message:            req.Message,
+		StatusFields:       currentStatus,
+		AudioBase64:        req.AudioBase64,
+		AudioMimeType:      req.AudioMimeType,
+		NarrationRequested: req.Narration,
 	}
 
 	// Re-resolve API key and execute action with fallback retry logic
@@ -204,6 +206,52 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 	response.Image = nil
 	response.Audio = nil
 	httpx.WriteJSON(w, http.StatusOK, response)
+}
+
+// PostMessageAudio godoc
+//
+//	@Summary		Get or generate message audio
+//	@Description	Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.
+//	@Description	Used when the player switches narration on or plays a scene that was played while muted.
+//	@Tags			sessions
+//	@Produce		audio/mpeg
+//	@Param			id			path		string	true	"Session ID (UUID)"
+//	@Param			messageId	path		string	true	"Message ID (UUID)"
+//	@Success		200			{file}		binary
+//	@Failure		400			{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		404			{object}	httpx.ErrorResponse	"Session, message or narration not found"
+//	@Failure		500			{object}	httpx.ErrorResponse
+//	@Router			/sessions/{id}/messages/{messageId}/audio [post]
+func PostMessageAudio(w http.ResponseWriter, r *http.Request) {
+	sessionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid session ID")
+		return
+	}
+	messageID, err := httpx.PathParamUUID(r, "messageId")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid message ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+	session, err := db.GetGameSessionByID(r.Context(), &user.ID, sessionID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Session not found")
+		return
+	}
+
+	if httpErr := game.ResolveSessionApiKey(r.Context(), session); httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+
+	audio, httpErr := game.GenerateMessageAudio(r.Context(), session, messageID)
+	if httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+	writeAudio(w, audio)
 }
 
 // GetGameSessions godoc

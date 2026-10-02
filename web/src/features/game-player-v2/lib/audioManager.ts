@@ -5,10 +5,14 @@
  * sources are stopped first. Components register a stop callback via
  * `registerAudioSource` and call `stopAllAudio` before starting their own.
  *
+ * Register right after `stopAllAudio`, before awaiting anything (loading audio,
+ * `audio.play()`): otherwise several sources starting at the same time do not
+ * see each other and all play at once.
+ *
  * Usage (playback):
  *   stopAllAudio();
  *   const unregister = registerAudioSource(() => { audio.pause(); });
- *   audio.play();
+ *   await audio.play();
  *   // later: unregister();
  *
  * Usage (recording):

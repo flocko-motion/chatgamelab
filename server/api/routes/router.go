@@ -141,6 +141,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/play/{token}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestCreateSession)))
 	mux.Handle("POST /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestSendAction)))
 	mux.Handle("GET /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestGetSession)))
+	mux.Handle("POST /api/play/{token}/sessions/{id}/messages/{messageId}/audio", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestPostMessageAudio)))
 
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
@@ -148,6 +149,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/sessions/{id}", httpx.RequireAuth(PostSessionAction))
 	mux.Handle("PATCH /api/sessions/{id}", httpx.RequireAuth(UpdateSession))
 	mux.Handle("DELETE /api/sessions/{id}", httpx.RequireAuth(DeleteSession))
+	mux.Handle("POST /api/sessions/{id}/messages/{messageId}/audio", httpx.RequireAuth(PostMessageAudio))
 
 	// Messages
 	mux.HandleFunc("GET /api/messages/{id}/stream", GetMessageStream)

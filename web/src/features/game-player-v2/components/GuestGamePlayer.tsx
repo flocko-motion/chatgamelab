@@ -80,7 +80,13 @@ export function GuestGamePlayer({
   const { t } = useTranslation("common");
   const { isAuthenticated } = useAuth();
   const copy = useCopyGameIntent(`/play/${token}`);
-  const lifecycle = useGuestSessionLifecycle(token, mode, onBack);
+  const settings = useGamePlayerSettings();
+  const lifecycle = useGuestSessionLifecycle(
+    token,
+    mode,
+    onBack,
+    !settings.isAudioMuted,
+  );
 
   // Copying while signed in opens a dialogue right here. Without an account it
   // means leaving for the login, which abandons the round — so ask first.
@@ -96,7 +102,6 @@ export function GuestGamePlayer({
       onConfirm: () => void copy.start(gameId),
     });
   };
-  const settings = useGamePlayerSettings();
   const themeResolution = useGameThemeResolution({
     sessionId: lifecycle.state.sessionId,
     apiTheme: lifecycle.state.theme,
@@ -131,6 +136,7 @@ export function GuestGamePlayer({
     retryLastAction: lifecycle.retryLastAction,
     loadExistingSession: lifecycle.loadExistingSession,
     resetGame: lifecycle.resetGame,
+    loadMessageAudio: lifecycle.loadMessageAudio,
     openLightbox: settings.openLightbox,
     closeLightbox: settings.closeLightbox,
     lightboxImage: settings.lightboxImage,

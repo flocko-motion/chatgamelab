@@ -60,8 +60,12 @@ interface GamePlayerProps {
 
 export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   // ── Hooks ──────────────────────────────────────────────────────────────
-  const lifecycle = useSessionLifecycle({ gameId, sessionId });
   const settings = useGamePlayerSettings();
+  const lifecycle = useSessionLifecycle({
+    gameId,
+    sessionId,
+    narration: !settings.isAudioMuted,
+  });
   const themeResolution = useGameThemeResolution({
     sessionId: lifecycle.state.sessionId,
     apiTheme: lifecycle.state.theme,
@@ -97,6 +101,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     retryLastAction: lifecycle.retryLastAction,
     loadExistingSession: lifecycle.loadExistingSession,
     resetGame: lifecycle.resetGame,
+    loadMessageAudio: lifecycle.loadMessageAudio,
     openLightbox: settings.openLightbox,
     closeLightbox: settings.closeLightbox,
     lightboxImage: settings.lightboxImage,
