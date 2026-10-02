@@ -566,6 +566,9 @@ type GameSessionMessage struct {
 	// Voice input: base64-encoded audio from the player (not persisted, used for transcription)
 	AudioBase64   string `json:"-"`
 	AudioMimeType string `json:"-"`
+	// Narration requested by the player for this action (not persisted). Audio narration (TTS) is
+	// generated only when this is set, so muted players cause no TTS costs.
+	NarrationRequested bool `json:"-"`
 
 	// Transcription holds the text result of audio-to-text conversion (transient, not persisted).
 	// Returned in the action response so the client can display what was recognized.

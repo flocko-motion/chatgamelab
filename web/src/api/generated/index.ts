@@ -774,6 +774,8 @@ export interface RoutesSessionActionRequest {
   /** MIME type of the audio (e.g. "audio/webm;codecs=opus") */
   audioMimeType?: string;
   message?: string;
+  /** Player has narration switched on: generate audio (TTS) for the response */
+  narration?: boolean;
   /** Current status to pass to AI */
   statusFields?: ObjStatusField[];
   /** Message type: "player" or "system" (defaults to "player") */
@@ -2561,6 +2563,26 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.
+     *
+     * @tags play
+     * @name SessionsMessagesAudioCreate
+     * @summary Get or generate message audio via share token
+     * @request POST:/play/{token}/sessions/{id}/messages/{messageId}/audio
+     */
+    sessionsMessagesAudioCreate: (
+      token: string,
+      id: string,
+      messageId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, HttpxErrorResponse>({
+        path: `/play/${token}/sessions/${id}/messages/${messageId}/audio`,
+        method: "POST",
+        ...params,
+      }),
   };
   public = {
     /**
@@ -2743,6 +2765,25 @@ export class Api<
         method: "PATCH",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet. Used when the player switches narration on or plays a scene that was played while muted.
+     *
+     * @tags sessions
+     * @name MessagesAudioCreate
+     * @summary Get or generate message audio
+     * @request POST:/sessions/{id}/messages/{messageId}/audio
+     */
+    messagesAudioCreate: (
+      id: string,
+      messageId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, HttpxErrorResponse>({
+        path: `/sessions/${id}/messages/${messageId}/audio`,
+        method: "POST",
         ...params,
       }),
   };

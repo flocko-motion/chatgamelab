@@ -249,6 +249,11 @@ func GetMessageAudio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	writeAudio(w, audio)
+}
+
+// writeAudio writes MP3 narration audio. Audio of a message never changes once generated.
+func writeAudio(w http.ResponseWriter, audio []byte) {
 	w.Header().Set("Content-Type", "audio/mpeg")
 	w.Header().Set("Cache-Control", "public, max-age=31536000")
 	w.WriteHeader(http.StatusOK)

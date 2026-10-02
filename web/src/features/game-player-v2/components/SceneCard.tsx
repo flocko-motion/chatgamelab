@@ -15,6 +15,8 @@ interface SceneCardProps {
   message: SceneMessage;
   showImages: boolean;
   isAudioMuted: boolean;
+  /** Whether this is the latest scene, which is narrated automatically */
+  isLatestScene?: boolean;
   previousStatusFields?: ObjStatusField[];
   /** System prompt text to show on the first game message */
   systemPrompt?: string;
@@ -36,6 +38,7 @@ export function SceneCard({
   message,
   showImages,
   isAudioMuted,
+  isLatestScene,
   previousStatusFields,
   systemPrompt,
   isFirstGameMessage,
@@ -149,6 +152,7 @@ export function SceneCard({
               audioStatus={message.audioStatus}
               audioBlobUrl={message.audioBlobUrl}
               isAudioMuted={isAudioMuted}
+              autoPlay={isLatestScene && !isStreaming}
             />
           </div>
         )}

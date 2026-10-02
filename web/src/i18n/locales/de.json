@@ -515,6 +515,11 @@
         "starting": "Spielsitzung wird gestartet...",
         "startingHint": "Die KI bereitet dein Abenteuer vor"
       },
+      "narration": {
+        "generating": "Erzählton wird erzeugt…",
+        "play": "Erzählton abspielen",
+        "stop": "Erzählton stoppen"
+      },
       "needsApiKey": {
         "description": "Der API-Schlüssel für diese Sitzung ist nicht mehr verfügbar.",
         "title": "API-Schlüssel erforderlich"

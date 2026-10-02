@@ -60,7 +60,11 @@ export interface SessionAdapter {
     statusFields: SceneMessage["statusFields"],
     audio?: { base64: string; mimeType: string },
     type?: string, // Message type: "player" or "system" (defaults to "player")
+    narration?: boolean, // Generate audio narration (TTS) for the response
   ) => Promise<GameMessageResult>;
+
+  /** Get a scene's narration audio, generating it on the backend if it does not exist yet. */
+  loadMessageAudio: (sessionId: string, messageId: string) => Promise<Blob>;
 
   /** Load an existing session by ID. Return the raw session response. */
   loadSession: (sessionId: string) => Promise<SessionLoadResult>;
@@ -121,7 +125,11 @@ export interface RawMessage {
 
 // ── Hook ─────────────────────────────────────────────────────────────────
 
-export function useStreamingSession(adapter: SessionAdapter) {
+/**
+ * @param narration Whether the player has narration switched on. Audio (TTS) is only
+ *   generated for actions sent while it is on, as it is costly.
+ */
+export function useStreamingSession(adapter: SessionAdapter, narration = false) {
   const [state, setState] = useState<GamePlayerState>(INITIAL_STATE);
   const abortControllerRef = useRef<AbortController | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -137,6 +145,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
   // Keep adapter in a ref so callbacks don't depend on it
   const adapterRef = useRef(adapter);
   adapterRef.current = adapter;
+  const narrationRef = useRef(narration);
+  narrationRef.current = narration;
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -454,26 +464,31 @@ export function useStreamingSession(adapter: SessionAdapter) {
 
                 if (chunk.audioDone) {
                   audioDone = true;
-                  // Decode accumulated base64 chunks into a blob URL
-                  try {
-                    const binaryStr = audioChunks
-                      .map((b64) => atob(b64))
-                      .join("");
-                    const bytes = new Uint8Array(binaryStr.length);
-                    for (let i = 0; i < binaryStr.length; i++) {
-                      bytes[i] = binaryStr.charCodeAt(i);
+                  if (audioChunks.length === 0) {
+                    // No audio generated (narration off or TTS failed): it can be loaded on demand
+                    updateMessage(messageId, { audioStatus: undefined });
+                  } else {
+                    // Decode accumulated base64 chunks into a blob URL
+                    try {
+                      const binaryStr = audioChunks
+                        .map((b64) => atob(b64))
+                        .join("");
+                      const bytes = new Uint8Array(binaryStr.length);
+                      for (let i = 0; i < binaryStr.length; i++) {
+                        bytes[i] = binaryStr.charCodeAt(i);
+                      }
+                      const blob = new Blob([bytes], { type: "audio/mpeg" });
+                      const blobUrl = URL.createObjectURL(blob);
+                      updateMessage(messageId, {
+                        audioStatus: "ready",
+                        audioBlobUrl: blobUrl,
+                      });
+                    } catch (e) {
+                      apiLogger.error("Failed to create audio blob", {
+                        error: e,
+                      });
+                      updateMessage(messageId, { audioStatus: "ready" });
                     }
-                    const blob = new Blob([bytes], { type: "audio/mpeg" });
-                    const blobUrl = URL.createObjectURL(blob);
-                    updateMessage(messageId, {
-                      audioStatus: "ready",
-                      audioBlobUrl: blobUrl,
-                    });
-                  } catch (e) {
-                    apiLogger.error("Failed to create audio blob", {
-                      error: e,
-                    });
-                    updateMessage(messageId, { audioStatus: "ready" });
                   }
                 }
 
@@ -617,12 +632,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
             : undefined;
         // Determine message type - system for init action, otherwise player (default)
         const messageType = input.message === "init" && input.isInternal ? "system" : undefined;
+        const withNarration = narrationRef.current;
         const gameResponse = await adapterRef.current.sendAction(
           state.sessionId,
           input.message || "",
           state.statusFields,
           audio,
           messageType,
+          withNarration,
         );
 
         const sceneMessage = mapApiMessageToScene(gameResponse);
@@ -641,7 +658,11 @@ export function useStreamingSession(adapter: SessionAdapter) {
               text: "",
               isStreaming: true,
               isImageLoading: !!gameResponse.hasImage,
-              audioStatus: gameResponse.hasAudioOut ? "loading" : undefined,
+              // Audio is only generated when narration was on; otherwise it can be loaded on demand
+              audioStatus:
+                gameResponse.hasAudioOut && withNarration
+                  ? "loading"
+                  : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -732,6 +753,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
       sendAction({ message: failedMessage.text });
     }, 0);
   }, [state.messages, sendAction]);
+
+  const loadMessageAudio = useCallback(
+    async (messageId: string): Promise<Blob> => {
+      if (!state.sessionId) throw new Error("No active session");
+      return adapterRef.current.loadMessageAudio(state.sessionId, messageId);
+    },
+    [state.sessionId],
+  );
 
   const loadExistingSession = useCallback(
     async (sessionId: string) => {
@@ -853,6 +882,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     clearStreamError,
     resetGame,
   };
