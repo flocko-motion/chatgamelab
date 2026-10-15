@@ -17,7 +17,7 @@ const SESSION_STORAGE_KEY_PREFIX = "cgl-guest-session-";
  * to the token-gated /api/play/{token}/* endpoints.
  * No authentication required.
  */
-export function useGuestGameSession(token: string) {
+export function useGuestGameSession(token: string, narration = false) {
   const baseUrl = `${config.API_BASE_URL}/play/${token}`;
   const { getAccessToken } = useAuth();
 
@@ -89,8 +89,10 @@ export function useGuestGameSession(token: string) {
         message: string,
         statusFields,
         audio,
+        _type,
+        narration,
       ): Promise<GameMessageResult> => {
-        const body: Record<string, unknown> = { message, statusFields };
+        const body: Record<string, unknown> = { message, statusFields, narration };
         if (audio) {
           body.audioBase64 = audio.base64;
           body.audioMimeType = audio.mimeType;
@@ -112,6 +114,17 @@ export function useGuestGameSession(token: string) {
           };
         }
         return response.json();
+      },
+
+      loadMessageAudio: async (sessionId: string, messageId: string) => {
+        const response = await fetch(
+          `${baseUrl}/sessions/${sessionId}/messages/${messageId}/audio`,
+          { method: "POST", headers: await authHeaders() },
+        );
+        if (!response.ok) {
+          throw new Error(`Audio request failed (${response.status})`);
+        }
+        return response.blob();
       },
 
       loadSession: async (sessionId: string): Promise<SessionLoadResult> => {
@@ -137,9 +150,10 @@ export function useGuestGameSession(token: string) {
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     clearStreamError,
     resetGame,
-  } = useStreamingSession(adapter);
+  } = useStreamingSession(adapter, narration);
 
   return {
     state,
@@ -147,6 +161,7 @@ export function useGuestGameSession(token: string) {
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     clearStreamError,
     resetGame,
     getSavedSessionId,

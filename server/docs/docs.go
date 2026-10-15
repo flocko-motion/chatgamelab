@@ -3333,6 +3333,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/{token}/sessions/{id}/messages/{messageId}/audio": {
+            "post": {
+                "description": "Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.",
+                "produces": [
+                    "audio/mpeg"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get or generate message audio via share token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Private share token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Token/session mismatch",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session, message or narration not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/public/workshops/{slug}": {
             "get": {
                 "description": "Returns a public workshop's name, description and public games. No authentication.\nUnknown slugs and switched-off pages both return 404.",
@@ -3756,6 +3823,60 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Session not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{id}/messages/{messageId}/audio": {
+            "post": {
+                "description": "Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.\nUsed when the player switches narration on or plays a scene that was played while muted.",
+                "produces": [
+                    "audio/mpeg"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Get or generate message audio",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session, message or narration not found",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -6887,6 +7008,10 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "narration": {
+                    "description": "Player has narration switched on: generate audio (TTS) for the response",
+                    "type": "boolean"
                 },
                 "statusFields": {
                     "description": "Current status to pass to AI",

@@ -281,13 +281,14 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	}
 
 	msg := &obj.GameSessionMessage{
-		ID:          m.ID,
-		Type:        m.Type,
-		Message:     m.Message,
-		Image:       m.Image,
-		Audio:       m.Audio,
-		HasImage:    m.HasImage,
-		HasAudioOut: m.HasAudio,
+		ID:            m.ID,
+		GameSessionID: m.GameSessionID,
+		Type:          m.Type,
+		Message:       m.Message,
+		Image:         m.Image,
+		Audio:         m.Audio,
+		HasImage:      m.HasImage,
+		HasAudioOut:   m.HasAudio,
 	}
 
 	// Parse status fields from JSON

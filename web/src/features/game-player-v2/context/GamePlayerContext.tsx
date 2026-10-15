@@ -17,6 +17,8 @@ export interface GamePlayerContextValue {
   loadExistingSession: (sessionId: string) => Promise<void>;
   retryLastAction: () => void;
   resetGame: () => void;
+  /** Get a scene's narration audio, generating it if needed (costs TTS once per scene) */
+  loadMessageAudio: (messageId: string) => Promise<Blob>;
 
   // Image lightbox
   openLightbox: (imageUrl: string, alt?: string) => void;
