@@ -5828,6 +5828,10 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
+                "imageHash": {
+                    "description": "content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag",
+                    "type": "string"
+                },
                 "imagePrompt": {
                     "type": "string"
                 },
@@ -7062,6 +7066,10 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "imageHash": {
+                    "description": "content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag",
+                    "type": "string"
                 },
                 "imagePrompt": {
                     "type": "string"

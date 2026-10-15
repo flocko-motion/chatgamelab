@@ -118,6 +118,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.aiError",
     messageKey: "errors:previousResponseNotFound",
   },
+  [ErrorCodes.IMAGE_GENERATION_UNAVAILABLE]: {
+    titleKey: "errors:titles.aiError",
+    messageKey: "errors:imageGenerationUnavailable",
+  },
   [ErrorCodes.AI_ERROR]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:aiError",
@@ -155,6 +159,7 @@ function getErrorColor(errorCode: string | null): "red" | "orange" {
     case ErrorCodes.DUPLICATE_NAME:
     case ErrorCodes.NO_API_KEY:
     case ErrorCodes.INVALID_JSON_SCHEMA:
+    case ErrorCodes.IMAGE_GENERATION_UNAVAILABLE:
       return "orange";
     default:
       return "red";

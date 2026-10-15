@@ -5,17 +5,29 @@
 package routes
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/game"
 	"cgl/game/imagecache"
 	"cgl/game/stream"
 	"cgl/log"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
+
+// maxAutoImageRetries caps how many times GetSession will re-trigger image
+// generation for a message whose image never persisted. Beyond this the message
+// is reported with an "image_generation_unavailable" error instead of silently
+// re-rolling a different picture on every load.
+const maxAutoImageRetries = 2
 
 // MessageStatusResponse is the unified response for polling message completion.
 // Frontend polls this to catch up after SSE drops, on reload, or for image progress.
@@ -87,14 +99,24 @@ func GetMessageStatus(w http.ResponseWriter, r *http.Request) {
 				resp.ImageHash = imgStatus.Hash
 			}
 		} else if len(msg.Image) > 0 {
-			// Image already persisted to DB
+			// Image already persisted to DB - address it by its content hash so
+			// the client can cache ?v=<hash> and revalidate against the ETag.
 			resp.ImageStatus = "complete"
-			resp.ImageHash = "persisted"
+			resp.ImageHash = msg.ImageHash
+			if resp.ImageHash == "" {
+				resp.ImageHash = obj.ImageHash(msg.Image) // legacy rows persisted before image_hash existed
+			}
 		} else if textStreaming {
 			// Stream still active, image generation hasn't started yet
 			resp.ImageStatus = "generating"
+		} else if msg.ImageGenAttempts >= maxAutoImageRetries {
+			// Automatic retry budget exhausted and still no image - stop the
+			// client from waiting on a generation that will not happen again.
+			resp.ImageStatus = "error"
+			resp.ImageError = obj.ErrCodeImageGenerationUnavailable
 		} else {
-			// Stream finished but no image - generation failed silently or was skipped
+			// Stream finished but no image - generation failed silently or was
+			// skipped; a retry-on-load may still catch up.
 			resp.ImageStatus = "none"
 		}
 	}
@@ -157,8 +179,12 @@ func GetMessageImageStatus(w http.ResponseWriter, r *http.Request) {
 	// Check if image exists in DB (already completed)
 	msg, err := db.GetGameSessionMessageImageByID(r.Context(), messageID)
 	if err == nil && len(msg.Image) > 0 {
+		hash := msg.ImageHash
+		if hash == "" {
+			hash = obj.ImageHash(msg.Image) // legacy rows persisted before image_hash existed
+		}
 		httpx.WriteJSON(w, http.StatusOK, ImageStatusResponse{
-			Hash:       "persisted",
+			Hash:       hash,
 			IsComplete: true,
 			Exists:     true,
 		})
@@ -191,13 +217,22 @@ func GetMessageImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check cache first for in-progress/partial images
+	// Check cache first for in-progress images
 	cache := imagecache.Get()
 	if imageData, exists := cache.GetImage(messageID); exists {
-		w.Header().Set("Content-Type", "image/png")
-		w.Header().Set("Cache-Control", "no-cache") // Don't cache partial images
-		w.WriteHeader(http.StatusOK)
-		w.Write(imageData)
+		status := cache.GetStatus(messageID)
+		if !status.IsComplete {
+			// Partial/WIP frame - never cache it, the client must always pick up
+			// the newest frame while generation is still running.
+			w.Header().Set("Content-Type", "image/png")
+			w.Header().Set("Cache-Control", "no-store")
+			w.WriteHeader(http.StatusOK)
+			w.Write(imageData)
+			return
+		}
+		// Final image, still warm in the cache before it is evicted - serve it
+		// with the same long-lived caching as the persisted copy.
+		serveCompletedImage(w, r, messageID, imageData, status.Hash, time.Time{})
 		return
 	}
 
@@ -213,10 +248,38 @@ func GetMessageImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	modTime := time.Time{}
+	if msg.Meta.ModifiedAt != nil {
+		modTime = *msg.Meta.ModifiedAt
+	}
+	hash := msg.ImageHash
+	if hash == "" {
+		hash = obj.ImageHash(msg.Image) // legacy rows persisted before image_hash existed
+	}
+	serveCompletedImage(w, r, messageID, msg.Image, hash, modTime)
+}
+
+// serveCompletedImage writes a finished image with content-addressed caching:
+// a strong ETag (the content hash) + immutable max-age so a given ?v=<hash> URL
+// is fetched once and never again, plus a human-readable download filename.
+// http.ServeContent adds Content-Length, Range support and If-None-Match → 304.
+func serveCompletedImage(w http.ResponseWriter, r *http.Request, messageID uuid.UUID, data []byte, hash string, modTime time.Time) {
 	w.Header().Set("Content-Type", "image/png")
-	w.Header().Set("Cache-Control", "public, max-age=31536000") // Cache for 1 year
-	w.WriteHeader(http.StatusOK)
-	w.Write(msg.Image)
+	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	if hash != "" {
+		etag := strconv.Quote(hash)
+		w.Header().Set("ETag", etag)
+		// Fast path for the (rare) revalidation: skip the filename lookup below.
+		if r.Header.Get("If-None-Match") == etag {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+	}
+	if meta, err := db.GetImageDownloadMeta(r.Context(), messageID); err == nil {
+		name := game.BuildImageDownloadName(meta.GameName, meta.ImageIndex, meta.ImagePrompt)
+		w.Header().Set("Content-Disposition", "inline; filename="+strconv.Quote(name))
+	}
+	http.ServeContent(w, r, "", modTime, bytes.NewReader(data))
 }
 
 // GetMessageAudio godoc

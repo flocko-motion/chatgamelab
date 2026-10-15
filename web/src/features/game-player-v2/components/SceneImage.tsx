@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGamePlayerContext } from "../context";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
+import { ErrorCodes } from "@/common/types/errorCodes";
 import { config } from "@/config/env";
 import type { ImageStatus } from "../types";
 import classes from "./GamePlayer.module.css";
@@ -31,19 +32,32 @@ export function SceneImage({
   const [loadFailed, setLoadFailed] = useState(false);
 
   // Build image URL:
-  // - During generation: stable URL (no hash) so the <img> element stays mounted
-  //   and the browser just refreshes it without restarting CSS animations.
-  // - On complete: use hash for cache-busting to ensure final image is shown.
+  // - While generating: bare URL, but only once a partial frame exists
+  //   (imageHash is the "partial" marker). The server serves partials with
+  //   Cache-Control: no-store, so each fetch is the newest frame.
+  // - On complete: content-addressed `?v=<hash>` so the browser caches one
+  //   stable URL for the life of the image (identical live and after reload).
+  //   For rows persisted before image hashes existed, a constant `?v=legacy`
+  //   still differs from the bare generating URL (so the final image loads) and
+  //   stays stable across reloads (so it is cached once).
   const baseImageUrl = `${config.API_BASE_URL}/messages/${messageId}/image`;
-  const imageUrl = imageHash
-    ? imageStatus === "generating"
-      ? baseImageUrl
-      : `${baseImageUrl}?v=${imageHash}`
-    : null;
+  let imageUrl: string | null = null;
+  if (imageStatus === "complete") {
+    imageUrl = `${baseImageUrl}?v=${imageHash || "legacy"}`;
+  } else if (imageStatus === "generating" && imageHash) {
+    imageUrl = baseImageUrl;
+  }
 
-  // Notify context of image error
+  // Notify context of image error. A per-scene "couldn't generate this image"
+  // (retry budget exhausted) is NOT a session-wide blocker, so it only renders
+  // the inline notice below - it must not disable image generation for the whole
+  // session or pop the blocking error modal.
   useEffect(() => {
-    if (imageStatus === "error" && imageErrorCode) {
+    if (
+      imageStatus === "error" &&
+      imageErrorCode &&
+      imageErrorCode !== ErrorCodes.IMAGE_GENERATION_UNAVAILABLE
+    ) {
       disableImageGeneration(imageErrorCode);
     }
   }, [imageStatus, imageErrorCode, disableImageGeneration]);
