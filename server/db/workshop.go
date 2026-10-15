@@ -10,9 +10,12 @@ import (
 	"cgl/obj"
 	"context"
 	"database/sql"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // CreateWorkshop creates a new workshop (admin or head/staff of institution)
@@ -44,6 +47,11 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 		return nil, err
 	}
 
+	slug, err := newPublicSlug(ctx, name)
+	if err != nil {
+		return nil, obj.ErrServerError("failed to create workshop link")
+	}
+
 	now := time.Now()
 	id := uuid.New()
 
@@ -58,6 +66,7 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 		Active:           active,
 		Public:           public,
 		AllowGameSharing: false,
+		PublicSlug:       sql.NullString{String: slug, Valid: true},
 	}
 
 	result, err := queries().CreateWorkshop(ctx, arg)
@@ -71,6 +80,7 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 		Institution: &obj.Institution{ID: result.InstitutionID},
 		Active:      result.Active,
 		Public:      result.Public,
+		PublicSlug:  nullStringToPtr(result.PublicSlug),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -248,6 +258,9 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
 		AllowGameSharing:           result.AllowGameSharing,
+		PublicSlug:                 nullStringToPtr(result.PublicSlug),
+		PublicDescription:          nullStringToPtr(result.PublicDescription),
+		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -269,6 +282,10 @@ type UpdateWorkshopParams struct {
 	DesignEditingEnabled       bool
 	IsPaused                   bool
 	AllowGameSharing           bool
+	PublicSlug                 *string // nil keeps the current link
+	PublicDescription          *string // nil keeps the current text, "" clears it
+	// PublicLinks: nil keeps the current further reading, an empty slice clears it
+	PublicLinks *[]obj.PublicWorkshopLink
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
@@ -327,9 +344,50 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		arg.PromptConstraints = existing.PromptConstraints
 	}
 
+	arg.PublicSlug = existing.PublicSlug
+	if params.PublicSlug != nil {
+		slug := NormalizePublicSlug(*params.PublicSlug)
+		if slug != existing.PublicSlug.String {
+			if err := validatePublicSlug(slug); err != nil {
+				return nil, err
+			}
+			if taken, err := publicSlugExists(ctx, slug); err != nil {
+				return nil, obj.ErrServerError("failed to check workshop link")
+			} else if taken {
+				return nil, obj.ErrPublicSlugTaken("This link is already taken")
+			}
+		}
+		arg.PublicSlug = sql.NullString{String: slug, Valid: true}
+	}
+	arg.PublicDescription = existing.PublicDescription
+	if params.PublicDescription != nil {
+		description := strings.TrimSpace(*params.PublicDescription)
+		if utf8.RuneCountInString(description) > PublicDescriptionMaxLength {
+			return nil, obj.ErrPublicDescriptionTooLong("The description may be at most 2000 characters long")
+		}
+		arg.PublicDescription = sql.NullString{String: description, Valid: description != ""}
+	}
+	arg.PublicLinks = existing.PublicLinks
+	if params.PublicLinks != nil {
+		links, err := ValidatePublicLinks(*params.PublicLinks)
+		if err != nil {
+			return nil, err
+		}
+		if arg.PublicLinks, err = marshalPublicLinks(links); err != nil {
+			return nil, err
+		}
+	}
+
 	result, err := queries().UpdateWorkshop(ctx, arg)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" && pqErr.Constraint == "workshop_public_slug_key" {
+			return nil, obj.ErrPublicSlugTaken("This link is already taken")
+		}
 		return nil, obj.ErrServerError("failed to update workshop")
+	}
+
+	if existing.Public && !result.Public {
+		deleteWorkshopPublicPageShares(ctx, id)
 	}
 
 	var updateDefaultApiKeyShareID *uuid.UUID
@@ -361,6 +419,9 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
 		AllowGameSharing:           result.AllowGameSharing,
+		PublicSlug:                 nullStringToPtr(result.PublicSlug),
+		PublicDescription:          nullStringToPtr(result.PublicDescription),
+		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -404,6 +465,11 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		return nil, obj.ErrServerError("failed to set workshop API key")
 	}
 
+	// The public page's links pay with a copy of the old key; the page makes new ones on its next visit.
+	if existing.DefaultApiKeyShareID != result.DefaultApiKeyShareID {
+		deleteWorkshopPublicPageShares(ctx, workshopID)
+	}
+
 	var setDefaultApiKeyShareID *uuid.UUID
 	if result.DefaultApiKeyShareID.Valid {
 		setDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
@@ -433,6 +499,9 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
 		AllowGameSharing:           result.AllowGameSharing,
+		PublicSlug:                 nullStringToPtr(result.PublicSlug),
+		PublicDescription:          nullStringToPtr(result.PublicDescription),
+		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -470,6 +539,8 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 		_ = DeleteUser(ctx, uid)
 	}
 
+	deleteWorkshopPublicPageShares(ctx, id)
+
 	// Unlink remaining games from this workshop (member games stay with their creator)
 	_ = queries().UnlinkGamesFromWorkshop(ctx, wsNullUUID)
 
@@ -500,4 +571,34 @@ func GetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUI
 	}
 
 	return userRecord.ParticipantToken.String, nil
+}
+
+// ResetWorkshopParticipantToken replaces a participant's access token, which
+// invalidates every re-login link handed out before. Same permissions as
+// GetWorkshopParticipantToken.
+func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
+	if err := canAccessWorkshopParticipantTokens(ctx, requestingUserID, uuid.Nil, &participantUserID); err != nil {
+		return "", err
+	}
+
+	token, err := newParticipantToken(ctx)
+	if err != nil {
+		return "", obj.ErrServerError("failed to generate participant token")
+	}
+
+	rows, err := queries().UpdateParticipantToken(ctx, db.UpdateParticipantTokenParams{
+		ID:               participantUserID,
+		ParticipantToken: sql.NullString{String: token, Valid: true},
+		ModifiedBy:       uuid.NullUUID{UUID: requestingUserID, Valid: true},
+	})
+	if err != nil {
+		return "", obj.ErrServerError("failed to reset participant token")
+	}
+	if rows == 0 {
+		// Nothing to replace: the account has no word code, so the token just
+		// generated was never stored. Saying so beats handing the leader a code
+		// that will never work - same answer as the read above.
+		return "", obj.ErrNotFound("participant has no access token")
+	}
+	return token, nil
 }

@@ -1,0 +1,31 @@
+name: Merge policy
+
+# main is what production deploys, and it is reached only by releasing
+# development. A pull request from anywhere else would put a commit into
+# production that never sat in development for a day first.
+on:
+  pull_request_target:
+    branches:
+      - main
+    types: [opened, reopened, synchronize, edited]
+
+permissions: {}
+
+jobs:
+  source-is-development:
+    name: source-is-development
+    runs-on: ubuntu-latest
+    steps:
+      # pull_request_target runs main's copy of this file, which a pull request
+      # cannot edit. A fork can still call its own branch "development", which
+      # is what the repository comparison catches.
+      - name: main takes development and nothing else
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$HEAD_REF" != "development" ]; then
+            echo "main takes pull requests from development only;"
+            echo "this one comes from $HEAD_REPO:$HEAD_REF"
+            exit 1
+          fi

@@ -60,7 +60,11 @@ export interface SessionAdapter {
     statusFields: SceneMessage["statusFields"],
     audio?: { base64: string; mimeType: string },
     type?: string, // Message type: "player" or "system" (defaults to "player")
+    narration?: boolean, // Generate audio narration (TTS) for the response
   ) => Promise<GameMessageResult>;
+
+  /** Get a scene's narration audio, generating it on the backend if it does not exist yet. */
+  loadMessageAudio: (sessionId: string, messageId: string) => Promise<Blob>;
 
   /** Load an existing session by ID. Return the raw session response. */
   loadSession: (sessionId: string) => Promise<SessionLoadResult>;
@@ -121,7 +125,11 @@ export interface RawMessage {
 
 // ── Hook ─────────────────────────────────────────────────────────────────
 
-export function useStreamingSession(adapter: SessionAdapter) {
+/**
+ * @param narration Whether the player has narration switched on. Audio (TTS) is only
+ *   generated for actions sent while it is on, as it is costly.
+ */
+export function useStreamingSession(adapter: SessionAdapter, narration = false) {
   const [state, setState] = useState<GamePlayerState>(INITIAL_STATE);
   const abortControllerRef = useRef<AbortController | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -137,6 +145,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
   // Keep adapter in a ref so callbacks don't depend on it
   const adapterRef = useRef(adapter);
   adapterRef.current = adapter;
+  const narrationRef = useRef(narration);
+  narrationRef.current = narration;
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -151,6 +161,24 @@ export function useStreamingSession(adapter: SessionAdapter) {
     },
     [],
   );
+
+  // Mark a message's image as still generating - but never resurrect one that
+  // already reached a terminal state. On a throttled connection a buffered
+  // partial-image chunk can arrive after the status poll set "complete" and
+  // stopped polling; without this guard that late chunk would flip the message
+  // back to "generating" and the WIP pulse would stay forever.
+  const markImageGenerating = useCallback((messageId: string) => {
+    setState((prev) => ({
+      ...prev,
+      messages: prev.messages.map((msg) => {
+        if (msg.id !== messageId) return msg;
+        if (msg.imageStatus === "complete" || msg.imageStatus === "error") {
+          return msg;
+        }
+        return { ...msg, imageStatus: "generating", imageHash: "partial" };
+      }),
+    }));
+  }, []);
 
   const appendTextToMessage = useCallback((messageId: string, text: string) => {
     setState((prev) => ({
@@ -431,10 +459,13 @@ export function useStreamingSession(adapter: SessionAdapter) {
                     PARTIAL_IMAGE_THROTTLE
                   ) {
                     lastImageThrottleRef.current = now;
-                    updateMessage(messageId, {
-                      imageStatus: "generating",
-                      imageHash: `partial-${now}`,
-                    });
+                    // "partial" is a constant marker (not a timestamp): it only
+                    // flips SceneImage from placeholder to <img>. The generating
+                    // <img> uses the bare URL, which the server serves with
+                    // Cache-Control: no-store, so every fetch is the newest
+                    // frame. markImageGenerating ignores this once the image has
+                    // already completed (guards against a late buffered chunk).
+                    markImageGenerating(messageId);
                   }
                 }
 
@@ -454,26 +485,31 @@ export function useStreamingSession(adapter: SessionAdapter) {
 
                 if (chunk.audioDone) {
                   audioDone = true;
-                  // Decode accumulated base64 chunks into a blob URL
-                  try {
-                    const binaryStr = audioChunks
-                      .map((b64) => atob(b64))
-                      .join("");
-                    const bytes = new Uint8Array(binaryStr.length);
-                    for (let i = 0; i < binaryStr.length; i++) {
-                      bytes[i] = binaryStr.charCodeAt(i);
+                  if (audioChunks.length === 0) {
+                    // No audio generated (narration off or TTS failed): it can be loaded on demand
+                    updateMessage(messageId, { audioStatus: undefined });
+                  } else {
+                    // Decode accumulated base64 chunks into a blob URL
+                    try {
+                      const binaryStr = audioChunks
+                        .map((b64) => atob(b64))
+                        .join("");
+                      const bytes = new Uint8Array(binaryStr.length);
+                      for (let i = 0; i < binaryStr.length; i++) {
+                        bytes[i] = binaryStr.charCodeAt(i);
+                      }
+                      const blob = new Blob([bytes], { type: "audio/mpeg" });
+                      const blobUrl = URL.createObjectURL(blob);
+                      updateMessage(messageId, {
+                        audioStatus: "ready",
+                        audioBlobUrl: blobUrl,
+                      });
+                    } catch (e) {
+                      apiLogger.error("Failed to create audio blob", {
+                        error: e,
+                      });
+                      updateMessage(messageId, { audioStatus: "ready" });
                     }
-                    const blob = new Blob([bytes], { type: "audio/mpeg" });
-                    const blobUrl = URL.createObjectURL(blob);
-                    updateMessage(messageId, {
-                      audioStatus: "ready",
-                      audioBlobUrl: blobUrl,
-                    });
-                  } catch (e) {
-                    apiLogger.error("Failed to create audio blob", {
-                      error: e,
-                    });
-                    updateMessage(messageId, { audioStatus: "ready" });
                   }
                 }
 
@@ -486,7 +522,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   updateMessage(messageId, {
                     isImageLoading: false,
                     imageStatus: isFailed ? "error" : "complete",
-                    imageHash: isFailed ? undefined : `sse-${Date.now()}`,
+                    // Real content hash from the backend: the same value the
+                    // status poll and a page reload produce, so the final image
+                    // resolves to one stable ?v=<hash> URL and is cached once.
+                    imageHash: isFailed ? undefined : chunk.imageHash || undefined,
                     imageErrorCode: chunk.imageError,
                   });
                 }
@@ -527,6 +566,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
     [
       appendTextToMessage,
       updateMessage,
+      markImageGenerating,
       startPolling,
       stopPolling,
       resetSilenceTimer,
@@ -617,12 +657,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
             : undefined;
         // Determine message type - system for init action, otherwise player (default)
         const messageType = input.message === "init" && input.isInternal ? "system" : undefined;
+        const withNarration = narrationRef.current;
         const gameResponse = await adapterRef.current.sendAction(
           state.sessionId,
           input.message || "",
           state.statusFields,
           audio,
           messageType,
+          withNarration,
         );
 
         const sceneMessage = mapApiMessageToScene(gameResponse);
@@ -641,7 +683,11 @@ export function useStreamingSession(adapter: SessionAdapter) {
               text: "",
               isStreaming: true,
               isImageLoading: !!gameResponse.hasImage,
-              audioStatus: gameResponse.hasAudioOut ? "loading" : undefined,
+              // Audio is only generated when narration was on; otherwise it can be loaded on demand
+              audioStatus:
+                gameResponse.hasAudioOut && withNarration
+                  ? "loading"
+                  : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -732,6 +778,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
       sendAction({ message: failedMessage.text });
     }, 0);
   }, [state.messages, sendAction]);
+
+  const loadMessageAudio = useCallback(
+    async (messageId: string): Promise<Blob> => {
+      if (!state.sessionId) throw new Error("No active session");
+      return adapterRef.current.loadMessageAudio(state.sessionId, messageId);
+    },
+    [state.sessionId],
+  );
 
   const loadExistingSession = useCallback(
     async (sessionId: string) => {
@@ -853,6 +907,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     clearStreamError,
     resetGame,
   };

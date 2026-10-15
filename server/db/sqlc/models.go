@@ -131,6 +131,8 @@ type GameSessionMessage struct {
 	Plot                       sql.NullString
 	ImagePrompt                sql.NullString
 	Image                      []byte
+	ImageHash                  sql.NullString
+	ImageGenAttempts           int32
 	Audio                      []byte
 	HasImage                   bool
 	HasAudio                   bool
@@ -160,6 +162,7 @@ type GameShare struct {
 	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
+	PublicPage    bool
 }
 
 type GameTag struct {
@@ -261,6 +264,9 @@ type Workshop struct {
 	DesignEditingEnabled       bool
 	IsPaused                   bool
 	AllowGameSharing           bool
+	PublicSlug                 sql.NullString
+	PublicDescription          sql.NullString
+	PublicLinks                pqtype.NullRawMessage
 }
 
 type WorkshopParticipant struct {

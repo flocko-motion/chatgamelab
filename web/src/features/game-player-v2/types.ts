@@ -79,6 +79,7 @@ export interface StreamChunk {
   textDone?: boolean;
   imageData?: string; // Base64-encoded partial/WIP image data
   imageDone?: boolean;
+  imageHash?: string; // content hash of the final image, sent with imageDone
   imageError?: string; // Image generation error reason (e.g. "rate limit reached")
   audioData?: string; // Base64-encoded audio chunk
   audioDone?: boolean;
@@ -180,9 +181,11 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
       // Still streaming - polling will determine actual status
       imageStatus = "generating";
     } else {
-      // Completed message - image is persisted
+      // Completed message - address the persisted image by its content hash so
+      // the browser caches one stable ?v=<hash> URL (live + after reload) and
+      // re-fetches only when the bytes actually change.
       imageStatus = "complete";
-      imageHash = "persisted";
+      imageHash = msg.imageHash || undefined;
     }
   }
 

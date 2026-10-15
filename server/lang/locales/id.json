@@ -58,6 +58,12 @@
       "noRole": "Tidak ada peran yang ditetapkan",
       "organization": "Organisasi",
       "organizationSection": "Organisasi \u00026 Peran",
+      "participantCode": {
+        "error": "Kode akses Anda tidak dapat dimuat.",
+        "hint": "Ambil foto kode ini atau catat, dan simpan untuk diri sendiri. Kode ini memungkinkan Anda kembali ke akun kapan saja, di perangkat apa pun: masukkan kata-kata tersebut di bawah “Masukkan kode” pada halaman beranda atau pindai kode QR.",
+        "longTokenHint": "Ambil foto kode QR atau simpan tautannya, dan simpan untuk diri sendiri. Kode ini memungkinkan Anda kembali ke akun kapan saja. Pemimpin lokakarya Anda dapat memberikan kode singkat yang terdiri dari empat kata dengan mengatur ulang akses Anda.",
+        "title": "Kode akses Anda"
+      },
       "role": "Peran",
       "roles": {
         "admin": "Administrator",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statistik",
       "title": "Profil",
-      "totalPlaysOnGames": "Total Main pada Gim Saya"
+      "totalPlaysOnGames": "Total Main pada Gim Saya",
+      "workshopSection": "Lokakarya \u0026 Organisasi"
     },
     "register": {
       "ageGroupLabel": "Kelompok Usia",
@@ -403,6 +410,14 @@
     "email": "Email",
     "emailPlaceholder": "Masukkan alamat email",
     "empty": "Tidak ada anggota dalam organisasi ini.",
+    "enterCode": {
+      "description": "Apakah Anda mendapatkan kode yang terdiri dari tiga atau empat kata? Masukkan di sini.",
+      "placeholder": "mis. apfel otter turm",
+      "submit": "Lanjutkan",
+      "title": "Masukkan kode",
+      "unknown": "Kode ini tidak ada. Silakan periksa ejaannya.",
+      "wrongLength": "Kode terdiri dari tiga atau empat kata."
+    },
     "error": "Kesalahan",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Lokakarya"
         },
         "sections": {
+          "constraintReasoning": "Mengapa batasan ini berlaku",
           "constraintText": "Pembatasan perlindungan anak yang aktif",
           "expandStory": "Instruksi kepada AI untuk menuliskan cerita",
           "imageGeneration": "Instruksi dari AI untuk pembuatan gambar",
@@ -542,6 +558,7 @@
         "namePlaceholder": "mis., Petualangan Luar Angkasa",
         "publicDescription": "Gim publik dapat terlihat dan dimainkan oleh semua pengguna di platform ini.",
         "publicLabel": "Jadikan gim ini publik",
+        "publicOwnerOnly": "Hanya pembuat permainan yang dapat menjadikan permainan ini publik.",
         "submit": "Buat Gim",
         "title": "Buat Gim Baru"
       },
@@ -603,6 +620,8 @@
         "importButton": "Impor Gim"
       },
       "playNow": "Mainkan Sekarang",
+      "privacyHint": "Nama dan deskripsi permainan dapat terlihat oleh publik. Harap jangan gunakan nama asli.",
+      "privacyHintShort": "Dapat terlihat oleh publik – harap jangan gunakan nama asli.",
       "privateShare": {
         "active": "Berbagi privat aktif. Siapa pun dengan tautan di bawah dapat memainkan gim ini secara anonim.",
         "aiQualityTier": "Kualitas AI",
@@ -639,7 +658,7 @@
         "unlimitedSessions": "Sesi tanpa batas",
         "update": "Perbarui Tautan Berbagi",
         "workshopCreateHint": "Buat tautan berbagi untuk gim ini. Kunci API lokakarya akan dipilih secara otomatis dan menanggung biayanya.",
-        "workshopDescription": "Buat tautan berbagi untuk gim ini. Kunci API bawaan lokakarya akan digunakan secara otomatis untuk sesi tamu.",
+        "workshopDescription": "Tautan ini dibuat dalam lokakarya \"{{name}}\" – tamu bermain menggunakan kunci API lokakarya dan batasan prompt.",
         "workshopShare": "Berbagi lokakarya",
         "workshopShareDescription": "Tautan ini dibuat di lokakarya \"{{name}}\" - para tamu bermain menggunakan kunci API lokakarya.",
         "workshopSubsection": "Tautan Berbagi Lokakarya"
@@ -652,7 +671,8 @@
         "publicSponsoring": "Sponsorship Publik",
         "publicSponsoringDescription": "Semua pengguna di platform ini dapat memainkan gim ini secara gratis - kunci API yang Anda tetapkan menanggung biayanya.",
         "sectionTitle": "Opsi Berbagi",
-        "sectionTitleShareOnly": "Opsi Berbagi"
+        "sectionTitleShareOnly": "Opsi Berbagi",
+        "workshopShareRequiresPublic": "Permainan ini harus bersifat publik sebelum dapat dibagikan dalam lokakarya."
       },
       "sort": {
         "createdAt-asc": "Dibuat (Terlama)",
@@ -843,6 +863,7 @@
     },
     "help": "Bantuan",
     "home": {
+      "codeCta": "Masukkan kode",
       "features": {
         "create": {
           "description": "Rancang petualangan teks interaktif bertenaga AI",
@@ -890,7 +911,8 @@
         "acceptFailed": "Gagal menerima undangan. Silakan coba lagi.",
         "expired": "Tautan undangan ini telah kedaluwarsa.",
         "loadFailed": "Gagal memuat detail undangan. Silakan coba lagi.",
-        "notFound": "Tautan undangan ini tidak valid atau telah dicabut."
+        "notFound": "Tautan undangan ini tidak valid atau telah dicabut.",
+        "tokenLocked": "Terlalu banyak percobaan gagal – silakan coba lagi nanti."
       },
       "goHome": "Pergi ke Beranda",
       "participant": {
@@ -1028,6 +1050,27 @@
       "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di organisasi ini. Berlaku ketika tidak ada batasan tingkat lokakarya yang ditetapkan, dan untuk gim yang dibagikan melalui tautan.",
       "promptConstraintsLabel": "Batasan prompt organisasi",
       "promptConstraintsPlaceholder": "mis. Jaga cerita tetap sesuai usia dan hindari konten kekerasan.",
+      "publicPage": {
+        "changeLinkMessage": "Halaman tersebut nantinya akan berada di {{url}}.",
+        "changeLinkTitle": "Ubah tautan?",
+        "changeLinkWarning": "Tautan lama akan berhenti berfungsi – termasuk kode QR yang sudah dicetak atau dikirim.",
+        "description": "Halaman tanpa login yang menampilkan topik lokakarya dan mencantumkan permainan publik grup. Halaman ini tidak pernah mencantumkan nama pembuat permainan.",
+        "descriptionError": "Deskripsi tidak dapat disimpan.",
+        "enabled": "Tampilkan halaman publik",
+        "enabledHint": "Jika dinonaktifkan, tautan hanya menampilkan pemberitahuan, dan tautan untuk memainkan halaman tersebut berhenti berfungsi.",
+        "link": "Tautan",
+        "linkHint": "Gunakan a–z, 0–9, dan tanda hubung tunggal, 3 hingga 60 karakter.",
+        "offHint": "Halaman ini dinonaktifkan. Anda tetap dapat menyiapkan tautan dan kode QR-nya.",
+        "open": "Buka halaman",
+        "shareDescription": "Kirim tautan ini atau tampilkan sebagai kode QR.",
+        "shareTitle": "Halaman publik",
+        "showLink": "Tampilkan tautan \u0026 kode QR",
+        "slugInvalid": "Gunakan a–z, 0–9, dan tanda hubung tunggal, 3 hingga 60 karakter.",
+        "slugTaken": "Tautan ini sudah digunakan.",
+        "text": "Deskripsi",
+        "textHint": "Apa topik lokakaryanya? Maksimal 2000 karakter.",
+        "title": "Halaman publik"
+      },
       "removeConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari organisasi?",
       "removeMember": "Hapus anggota",
       "removeTitle": "Hapus Anggota",
@@ -1087,7 +1130,7 @@
         "inviteExpiresAt": "Kedaluwarsa",
         "inviteLink": "Tautan Undangan",
         "inviteLinkDescription": "Bagikan tautan ini dengan peserta agar mereka dapat bergabung dengan lokakarya.",
-        "inviteLinkTitle": "Tautan Undangan untuk {{name}}",
+        "inviteLinkTitle": "Tautan undangan untuk peserta – {{name}}",
         "inviteUsage": "Penggunaan",
         "isPaused": "Jeda lokakarya",
         "isPausedHint": "Saat dijeda, peserta akan melihat lapisan terkunci dan tidak dapat berinteraksi dengan gim",
@@ -1106,6 +1149,8 @@
         "notAuthorized": "Anda tidak memiliki izin untuk mengelola lokakarya. Hanya kepala dan guru yang dapat mengakses halaman ini.",
         "participantGames": "{{count}} gim",
         "participantJoined": "Bergabung {{date}}",
+        "participantLinkTitle": "Tautan login ulang",
+        "participantLinkTitleNamed": "Tautan login ulang untuk {{name}}",
         "participantName": "Nama peserta",
         "participants": "Peserta",
         "promptConstraintsFallbackOrg": "Menggunakan batasan organisasi sebagai bawaan: {{constraint}}",
@@ -1117,10 +1162,16 @@
         "removeParticipantConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari lokakarya ini?",
         "removeParticipantMessage": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari lokakarya ini? Tindakan ini tidak dapat dibatalkan.",
         "removeParticipantTitle": "Hapus Peserta",
+        "resetAccess": "Atur ulang akses",
+        "resetAccessDone": "Akses baru telah dibuat. Tautan lama tidak lagi berfungsi.",
+        "resetAccessError": "Akses tidak dapat diatur ulang. Silakan coba lagi.",
+        "resetAccessMessage": "Tautan baru dengan kode baru akan dibuat.",
+        "resetAccessTitle": "Atur ulang akses?",
+        "resetAccessWarning": "Tautan dan kode sebelumnya akan berhenti berfungsi – termasuk pada perangkat tempat peserta sedang login.",
         "revokeInvite": "Cabut Tautan Undangan",
         "selectApiKey": "Pilih kunci API",
         "settings": "Pengaturan",
-        "shareParticipantLink": "Salin tautan undangan individual untuk peserta ini",
+        "shareParticipantLink": "Tampilkan tautan login ulang",
         "showOtherParticipantsGames": "Tampilkan gim peserta lain",
         "showOtherParticipantsGamesHint": "Kepala dan staf selalu dapat melihat semua gim peserta untuk keperluan moderasi",
         "showPublicGames": "Tampilkan gim publik kepada peserta",
@@ -1184,6 +1235,22 @@
     "promoteTitle": "Promosikan menjadi Kepala",
     "promoteToHead": "Promosikan menjadi Kepala",
     "promoteWarning": "Pengguna ini akan mendapatkan kemampuan untuk mengelola anggota organisasi dan mengundang guru.",
+    "publicWorkshop": {
+      "copy": "Salin",
+      "copyLogin": "Login untuk menyalin",
+      "download": "Unduh",
+      "gamesTitle": "Permainan dari lokakarya ini",
+      "noGames": "Belum ada permainan yang dipublikasikan di sini.",
+      "play": "Mainkan",
+      "playExhausted": "Tidak ada sesi bermain yang tersisa",
+      "playNoKey": "Lokakarya ini tidak memiliki kunci API, sehingga permainannya tidak dapat dimainkan di sini.",
+      "playRemaining": "{{remaining}} dari {{limit}} sesi bermain tersisa",
+      "unavailable": {
+        "home": "Buka halaman beranda",
+        "message": "Tautan ini tidak valid (lagi), atau halaman lokakarya telah dinonaktifkan.",
+        "title": "Halaman ini tidak tersedia"
+      }
+    },
     "removeConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari organisasi?",
     "removeMember": "Hapus anggota",
     "removeTitle": "Hapus Anggota",
@@ -1267,6 +1334,10 @@
       "untitledGame": "Gim Tanpa Judul"
     },
     "settings": "Pengaturan",
+    "share": {
+      "copied": "Disalin",
+      "copyLink": "Salin tautan"
+    },
     "showing": "{{count}} anggota",
     "sort": {
       "label": "Urutkan berdasarkan",
@@ -1360,6 +1431,9 @@
     "notFound": "Sumber daya yang diminta tidak ditemukan.",
     "orgVerificationRequired": "Organisasi OpenAI Anda memerlukan verifikasi untuk menggunakan fitur pembuatan gambar. Silakan verifikasi di https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "AI kehilangan jejak percakapan ini. Ini dapat terjadi saat sesi tidak aktif cukup lama. Silakan mulai sesi baru untuk melanjutkan bermain.",
+    "publicDescriptionTooLong": "Deskripsi maksimal 2000 karakter.",
+    "publicSlugInvalid": "Gunakan a–z, 0–9, dan tanda hubung tunggal, 3 hingga 60 karakter.",
+    "publicSlugTaken": "Tautan ini sudah digunakan.",
     "rateLimitExceeded": "Terlalu banyak permintaan. Silakan tunggu sebentar dan coba lagi.",
     "server": "Kesalahan server. Silakan coba lagi nanti.",
     "titles": {
@@ -1373,9 +1447,11 @@
       "notFound": "Tidak Ditemukan",
       "permission": "Izin Ditolak",
       "server": "Kesalahan Server",
+      "tokenLocked": "Dikunci sementara",
       "validation": "Kesalahan Validasi",
       "workshopInactive": "Lokakarya Tidak Aktif"
     },
+    "tokenLocked": "Terlalu banyak percobaan gagal – silakan coba lagi nanti.",
     "unauthorized": "Silakan masuk untuk melanjutkan.",
     "unexpected": "Terjadi kesalahan tak terduga.",
     "userNotRegistered": "Anda perlu menyelesaikan pendaftaran sebelum melanjutkan.",
@@ -1416,6 +1492,8 @@
       "notInWorkshopMode": "Anda tidak berada dalam mode lokakarya. Silakan masuk ke lokakarya terlebih dahulu.",
       "title": "Pengaturan Lokakarya"
     },
+    "showInviteLink": "Tampilkan tautan undangan",
+    "showPublicPageLink": "Tampilkan tautan halaman publik",
     "title": "Lokakarya Saya",
     "you": "Anda"
   },

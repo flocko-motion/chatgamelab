@@ -56,6 +56,7 @@ export {
 export {
   useCurrentUser,
   useUserStats,
+  useOwnParticipantCode,
   useUpdateUser,
 } from "./useUsers";
 
@@ -86,7 +87,7 @@ export {
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
-  useGetParticipantToken,
+  useResetParticipantToken,
   useCreateWorkshopEmailInvite,
   useAddMemberToWorkshop,
 } from "./useWorkshops";

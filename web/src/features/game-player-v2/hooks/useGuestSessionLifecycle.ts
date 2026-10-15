@@ -19,6 +19,7 @@ export function useGuestSessionLifecycle(
   token: string,
   mode: GuestStartMode = "new",
   onBack?: () => void,
+  narration = false,
 ): SessionLifecycle {
   const sceneEndRef = useRef<HTMLDivElement>(null);
 
@@ -28,10 +29,11 @@ export function useGuestSessionLifecycle(
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     clearStreamError,
     resetGame,
     getSavedSessionId,
-  } = useGuestGameSession(token);
+  } = useGuestGameSession(token, narration);
 
   // After startSession() creates a session, load it (guests have no URL navigation to trigger this)
   const loadAttemptedRef = useRef<string | null>(null);
@@ -135,6 +137,7 @@ export function useGuestSessionLifecycle(
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     resetGame,
     gameLoading: false,
     gameError: null,

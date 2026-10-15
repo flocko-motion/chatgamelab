@@ -70,6 +70,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.billing",
     messageKey: "errors:billingNotActive",
   },
+  [ErrorCodes.TOKEN_LOCKED]: {
+    titleKey: "errors:titles.tokenLocked",
+    messageKey: "errors:tokenLocked",
+  },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:rateLimitExceeded",
@@ -94,6 +98,18 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.validation",
     messageKey: "errors:nameProfane",
   },
+  [ErrorCodes.PUBLIC_SLUG_TAKEN]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicSlugTaken",
+  },
+  [ErrorCodes.PUBLIC_SLUG_INVALID]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicSlugInvalid",
+  },
+  [ErrorCodes.PUBLIC_DESCRIPTION_TOO_LONG]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicDescriptionTooLong",
+  },
   [ErrorCodes.INVALID_JSON_SCHEMA]: {
     titleKey: "errors:titles.gameConfig",
     messageKey: "errors:invalidJsonSchema",
@@ -101,6 +117,10 @@ const ERROR_CODE_I18N_MAP: Record<
   [ErrorCodes.PREVIOUS_RESPONSE_NOT_FOUND]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:previousResponseNotFound",
+  },
+  [ErrorCodes.IMAGE_GENERATION_UNAVAILABLE]: {
+    titleKey: "errors:titles.aiError",
+    messageKey: "errors:imageGenerationUnavailable",
   },
   [ErrorCodes.AI_ERROR]: {
     titleKey: "errors:titles.aiError",
@@ -139,6 +159,7 @@ function getErrorColor(errorCode: string | null): "red" | "orange" {
     case ErrorCodes.DUPLICATE_NAME:
     case ErrorCodes.NO_API_KEY:
     case ErrorCodes.INVALID_JSON_SCHEMA:
+    case ErrorCodes.IMAGE_GENERATION_UNAVAILABLE:
       return "orange";
     default:
       return "red";

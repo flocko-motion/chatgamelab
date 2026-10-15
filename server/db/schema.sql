@@ -61,7 +61,7 @@ CREATE TABLE institution (
 -- Workshop
 -- A workshop belongs to an institution; the owner is defined by created_by.
 -- If not active, the workshop cannot be joined by participants.
--- If public, it can be discovered by visitors, but they only see games marked public.
+-- If public, its page /w/<public_slug> shows visitors the workshop's games marked public.
 CREATE TABLE workshop (
     id              uuid PRIMARY KEY,
     created_by      uuid NULL,
@@ -84,6 +84,9 @@ CREATE TABLE workshop (
     design_editing_enabled boolean NOT NULL DEFAULT false,  -- If true, workshop members can edit game design (theme); default: no
     is_paused boolean NOT NULL DEFAULT false,  -- If true, participants/individuals see a paused overlay and cannot interact
     allow_game_sharing boolean NOT NULL DEFAULT false,  -- If true, participants can create share links for workshop games
+    public_slug     text NULL UNIQUE,  -- Path of the public page /w/<public_slug>, shown while public is on
+    public_description text NULL,  -- Text of the public page, plain text with line breaks
+    public_links jsonb NULL,  -- Further reading on the public page: [{"title","description","url"}], http/https only
 
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
@@ -355,6 +358,12 @@ CREATE TABLE game_session_message (
     plot                text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
+    -- Content hash (see obj.ImageHash) of the persisted image bytes. Drives the
+    -- content-addressed ?v=<hash> image URL and the ETag on GET /messages/{id}/image.
+    image_hash          text NULL,
+    -- Number of image-generation attempts made for this message. Caps the
+    -- automatic retry-on-load so a permanently failing scene stops re-rolling.
+    image_gen_attempts  integer NOT NULL DEFAULT 0,
     audio               bytea NULL,
     has_image           boolean NOT NULL DEFAULT false,
     has_audio           boolean NOT NULL DEFAULT false,
@@ -443,8 +452,10 @@ CREATE TABLE game_share (
     remaining           integer NULL,  -- NULL = unlimited, 0 = exhausted
     ai_quality_tier     text NULL,    -- NULL = use source default (workshop tier or system default)
     created_by          uuid NULL REFERENCES app_user(id),
-    created_at          timestamptz NOT NULL DEFAULT now()
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    public_page         boolean NOT NULL DEFAULT false  -- Created by the public workshop page; never reused for hand-made links
 );
+CREATE UNIQUE INDEX game_share_public_page_uniq ON game_share (game_id, workshop_id) WHERE public_page;
 
 -- Backup Log
 -- One row per run of docker/db/backup.sh, written by the script itself from inside

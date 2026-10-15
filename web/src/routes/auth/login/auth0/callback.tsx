@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Center, Loader, Text, Button, Stack } from '@mantine/core';
 import { ROUTES } from '@/common/routes/routes';
 import { authLogger } from '@/config/logger';
+import { peekReturnTo } from '@/common/lib/returnTo';
 
 export const Route = createFileRoute('/auth/login/auth0/callback')({
   component: Auth0Callback,
@@ -31,8 +32,10 @@ function Auth0Callback() {
 
     if (isAuthenticated) {
       hasNavigated.current = true;
-      authLogger.debug('Auth0 callback: authenticated, redirecting to dashboard');
-      navigate({ to: ROUTES.DASHBOARD });
+      // Peek only: a new user still has to register, and the form takes it afterwards.
+      const returnTo = peekReturnTo();
+      authLogger.debug('Auth0 callback: authenticated, redirecting', { returnTo });
+      navigate({ to: (returnTo ?? ROUTES.DASHBOARD) as '/' });
     }
     // If not authenticated and not loading, Auth0Provider is still processing
     // the callback (exchanging code for tokens). Wait for the next render.

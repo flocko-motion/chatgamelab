@@ -11,6 +11,8 @@ import (
 	"cgl/db"
 	"cgl/game"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 // ── Guest Play Endpoints ────────────────────────────────────────────────────
@@ -34,9 +36,13 @@ func authorizeShareSession(r *http.Request, session *obj.GameSession) *obj.HTTPE
 
 // GuestGameInfo is the public game info returned for the welcome screen.
 type GuestGameInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Remaining   *int   `json:"remaining"` // null = unlimited, 0 = exhausted
+	// GameID and Public let the welcome screen offer a copy. Only a public game
+	// may be copied: a share link alone does not release its AI instructions.
+	GameID      uuid.UUID `json:"gameId"`
+	Public      bool      `json:"public"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Remaining   *int      `json:"remaining"` // null = unlimited, 0 = exhausted
 }
 
 // PlayGuestGetGameInfo godoc
@@ -64,6 +70,8 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, GuestGameInfo{
+		GameID:      gameObj.ID,
+		Public:      gameObj.Public,
 		Name:        gameObj.Name,
 		Description: gameObj.Description,
 		Remaining:   gameShare.Remaining,
@@ -174,12 +182,13 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	action := obj.GameSessionMessage{
-		GameSessionID: session.ID,
-		Type:          obj.GameSessionMessageTypePlayer,
-		Message:       req.Message,
-		StatusFields:  currentStatus,
-		AudioBase64:   req.AudioBase64,
-		AudioMimeType: req.AudioMimeType,
+		GameSessionID:      session.ID,
+		Type:               obj.GameSessionMessageTypePlayer,
+		Message:            req.Message,
+		StatusFields:       currentStatus,
+		AudioBase64:        req.AudioBase64,
+		AudioMimeType:      req.AudioMimeType,
+		NarrationRequested: req.Narration,
 	}
 
 	// Re-resolve constraints live via the single canonical resolver. Passing the session
@@ -207,6 +216,64 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	response.Image = nil
 	response.Audio = nil
 	httpx.WriteJSON(w, http.StatusOK, response)
+}
+
+// PlayGuestPostMessageAudio godoc
+//
+//	@Summary		Get or generate message audio via share token
+//	@Description	Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.
+//	@Tags			play
+//	@Produce		audio/mpeg
+//	@Param			token		path		string	true	"Private share token"
+//	@Param			id			path		string	true	"Session ID (UUID)"
+//	@Param			messageId	path		string	true	"Message ID (UUID)"
+//	@Success		200			{file}		binary
+//	@Failure		400			{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		403			{object}	httpx.ErrorResponse	"Token/session mismatch"
+//	@Failure		404			{object}	httpx.ErrorResponse	"Session, message or narration not found"
+//	@Failure		500			{object}	httpx.ErrorResponse
+//	@Router			/play/{token}/sessions/{id}/messages/{messageId}/audio [post]
+func PlayGuestPostMessageAudio(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+	sessionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil || token == "" {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request")
+		return
+	}
+	messageID, err := httpx.PathParamUUID(r, "messageId")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid message ID")
+		return
+	}
+
+	gameShare, gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	if httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+
+	session, err := db.GetGameSessionByIDForGuest(r.Context(), sessionID, gameObj.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Session not found")
+		return
+	}
+
+	if httpErr := authorizeShareSession(r, session); httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+
+	if httpErr := game.ResolveGuestSessionApiKey(r.Context(), session, gameShare); httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+
+	audio, httpErr := game.GenerateMessageAudio(r.Context(), session, messageID)
+	if httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+	writeAudio(w, audio)
 }
 
 // PlayGuestGetSession godoc

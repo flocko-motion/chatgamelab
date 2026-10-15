@@ -277,6 +277,8 @@ export interface ObjGameSessionMessage {
   hasImage?: boolean;
   id?: string;
   image?: number[];
+  /** content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag */
+  imageHash?: string;
   imagePrompt?: string;
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;
@@ -352,6 +354,35 @@ export interface ObjMeta {
   createdBy?: UuidNullUUID;
   modifiedAt?: string;
   modifiedBy?: UuidNullUUID;
+}
+
+export interface ObjPublicWorkshopGame {
+  description?: string;
+  id?: string;
+  name?: string;
+  /** nil without a workshop key or while the game is not playable */
+  play?: ObjPublicWorkshopPlay;
+}
+
+export interface ObjPublicWorkshopLink {
+  description?: string;
+  title?: string;
+  url?: string;
+}
+
+export interface ObjPublicWorkshopPage {
+  description?: string;
+  games?: ObjPublicWorkshopGame[];
+  links?: ObjPublicWorkshopLink[];
+  name?: string;
+  /** PlayAvailable is false when the workshop has no key: no game on the page can be played. */
+  playAvailable?: boolean;
+}
+
+export interface ObjPublicWorkshopPlay {
+  limit?: number;
+  remaining?: number;
+  token?: string;
 }
 
 export interface ObjStatusField {
@@ -460,6 +491,11 @@ export interface ObjWorkshop {
   participants?: ObjWorkshopParticipant[];
   promptConstraints?: string;
   public?: boolean;
+  publicDescription?: string;
+  /** PublicLinks is the further reading listed below the games; nil means none. */
+  publicLinks?: ObjPublicWorkshopLink[];
+  /** Public page /w/<PublicSlug>, visible while Public is on */
+  publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
 }
@@ -584,7 +620,13 @@ export interface RoutesGameShareResponse {
 
 export interface RoutesGuestGameInfo {
   description?: string;
+  /**
+   * GameID and Public let the welcome screen offer a copy. Only a public game
+   * may be copied: a share link alone does not release its AI instructions.
+   */
+  gameId?: string;
   name?: string;
+  public?: boolean;
   /** null = unlimited, 0 = exhausted */
   remaining?: number;
 }
@@ -697,6 +739,13 @@ export interface RoutesMessageStatusResponse {
   textDone?: boolean;
 }
 
+export interface RoutesParticipantCodeResponse {
+  /** Token is the full login token that the /code link and QR code carry. */
+  token?: string;
+  /** Words is the token's word code, or null for the long tokens issued before word tokens. */
+  words?: string;
+}
+
 export interface RoutesParticipantLoginRequest {
   token?: string;
 }
@@ -727,6 +776,8 @@ export interface RoutesSessionActionRequest {
   /** MIME type of the audio (e.g. "audio/webm;codecs=opus") */
   audioMimeType?: string;
   message?: string;
+  /** Player has narration switched on: generate audio (TTS) for the response */
+  narration?: boolean;
   /** Current status to pass to AI */
   statusFields?: ObjStatusField[];
   /** Message type: "player" or "system" (defaults to "player") */
@@ -746,6 +797,8 @@ export interface RoutesSessionMessageResponse {
   hasImage?: boolean;
   id?: string;
   image?: number[];
+  /** content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag */
+  imageHash?: string;
   imagePrompt?: string;
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;
@@ -922,6 +975,12 @@ export interface RoutesUpdateWorkshopRequest {
   name?: string;
   promptConstraints?: string;
   public?: boolean;
+  /** omitted keeps the current text, "" clears it */
+  publicDescription?: string;
+  /** PublicLinks: omitted keeps the current further reading, an empty list clears it */
+  publicLinks?: ObjPublicWorkshopLink[];
+  /** omitted keeps the current link */
+  publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
 }
@@ -2508,6 +2567,62 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.
+     *
+     * @tags play
+     * @name SessionsMessagesAudioCreate
+     * @summary Get or generate message audio via share token
+     * @request POST:/play/{token}/sessions/{id}/messages/{messageId}/audio
+     */
+    sessionsMessagesAudioCreate: (
+      token: string,
+      id: string,
+      messageId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, HttpxErrorResponse>({
+        path: `/play/${token}/sessions/${id}/messages/${messageId}/audio`,
+        method: "POST",
+        ...params,
+      }),
+  };
+  public = {
+    /**
+     * @description Returns a public workshop's name, description and public games. No authentication. Unknown slugs and switched-off pages both return 404.
+     *
+     * @tags public
+     * @name WorkshopsDetail
+     * @summary Get public workshop page
+     * @request GET:/public/workshops/{slug}
+     */
+    workshopsDetail: (slug: string, params: RequestParams = {}) =>
+      this.request<ObjPublicWorkshopPage, HttpxErrorResponse>({
+        path: `/public/workshops/${slug}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Exports a game listed on a public workshop page as YAML. No authentication.
+     *
+     * @tags public
+     * @name WorkshopsGamesYamlList
+     * @summary Download a game from a public workshop page
+     * @request GET:/public/workshops/{slug}/games/{id}/yaml
+     */
+    workshopsGamesYamlList: (
+      slug: string,
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/public/workshops/${slug}/games/${id}/yaml`,
+        method: "GET",
+        ...params,
+      }),
   };
   restart = {
     /**
@@ -2654,6 +2769,25 @@ export class Api<
         method: "PATCH",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet. Used when the player switches narration on or plays a scene that was played while muted.
+     *
+     * @tags sessions
+     * @name MessagesAudioCreate
+     * @summary Get or generate message audio
+     * @request POST:/sessions/{id}/messages/{messageId}/audio
+     */
+    messagesAudioCreate: (
+      id: string,
+      messageId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, HttpxErrorResponse>({
+        path: `/sessions/${id}/messages/${messageId}/audio`,
+        method: "POST",
         ...params,
       }),
   };
@@ -2832,6 +2966,24 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the re-login code of the authenticated participant; both fields are null for other users
+     *
+     * @tags users
+     * @name MeParticipantCodeList
+     * @summary Get own participant code
+     * @request GET:/users/me/participant-code
+     * @secure
+     */
+    meParticipantCodeList: (params: RequestParams = {}) =>
+      this.request<RoutesParticipantCodeResponse, HttpxErrorResponse>({
+        path: `/users/me/participant-code`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -3081,6 +3233,27 @@ export class Api<
       this.request<Record<string, string>, HttpxErrorResponse>({
         path: `/workshops/participants/${participantId}/token`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Replaces a participant's access token; all earlier re-login links stop working (staff/heads only)
+     *
+     * @tags workshops
+     * @name ParticipantsTokenResetCreate
+     * @summary Reset participant token
+     * @request POST:/workshops/participants/{participantId}/token/reset
+     * @secure
+     */
+    participantsTokenResetCreate: (
+      participantId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/participants/${participantId}/token/reset`,
+        method: "POST",
         secure: true,
         format: "json",
         ...params,

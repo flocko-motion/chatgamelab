@@ -1,4 +1,11 @@
-.PHONY: rebase pr release sync check-clean-tree check-on-development check-on-feature
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature
+
+# First target, so a bare `make` prints this instead of force-pushing.
+help:
+	@echo "make rebase           rebase onto origin/development and force-push (own feature branch only)"
+	@echo "make pr [MERGE=1]     merge development in, push, open the pull request; MERGE=1 waits for checks and merges"
+	@echo "make release [YES=1]  development -> main, then main back into development; YES=1 skips the prompt"
+	@echo "make sync             merge main back into development through a pull request"
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
@@ -8,11 +15,89 @@ rebase:
 	git push --force-with-lease
 	@echo "✅ Rebased successfully."
 
+# Whether a pull request may merge is GitHub's question, and mergeStateStatus
+# answers it in one word for two situations: BLOCKED is both "a required check
+# has yet to report" and "the base branch policy refuses this merge", and only
+# the first clears by waiting. So the wait is on the required checks named by
+# the base branch's own rules, which says immediately when there is nothing
+# left to wait for. `gh pr checks` is watched for the eye and trusted for
+# nothing: it reports what sits on the head commit, which for the back-merge is
+# main's own release build, green before the pull request existed.
+#
+# A base branch can still refuse the merge for a rule no amount of waiting will
+# satisfy — one that restricts who may update the ref, say. gh names the rule,
+# and that is where the run stops.
+define wait_and_merge
+passed_checks() { \
+	gh pr view "$$1" --json statusCheckRollup \
+		--jq '.statusCheckRollup[]? | select((.conclusion // .state) == "SUCCESS") | .name // .context' \
+		2>/dev/null; \
+}; \
+broken_checks() { \
+	gh pr view "$$1" --json statusCheckRollup \
+		--jq '.statusCheckRollup[]? | select(.conclusion == "FAILURE" or .conclusion == "ERROR" or .conclusion == "TIMED_OUT" or .conclusion == "CANCELLED" or .conclusion == "STARTUP_FAILURE" or .state == "FAILURE" or .state == "ERROR") | .name // .context' \
+		2>/dev/null; \
+}; \
+required_checks() { \
+	gh api "repos/{owner}/{repo}/rules/branches/$$1" \
+		--jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context' \
+		2>/dev/null | sort -u; \
+}; \
+unmet_checks() { \
+	passed="$$(passed_checks "$$1")"; \
+	required_checks "$$2" | while read -r ctx; do \
+		[ -n "$$ctx" ] || continue; \
+		printf '%s\n' "$$passed" | grep -qxF "$$ctx" || printf '%s\n' "$$ctx"; \
+	done; \
+}; \
+wait_and_merge() { \
+	pr="$$1"; \
+	base="$$(gh pr view "$$pr" --json baseRefName --jq .baseRefName)"; \
+	echo ">> watching #$$pr's checks…"; \
+	: "a check run takes a moment to register on a freshly pushed head, and"; \
+	: "--watch returns at once while none has"; \
+	for i in $$(seq 1 12); do \
+		n="$$(gh pr view "$$pr" --json statusCheckRollup \
+			--jq '.statusCheckRollup | length' 2>/dev/null)"; \
+		[ "$${n:-0}" -gt 0 ] && break; \
+		sleep 5; \
+	done; \
+	gh pr checks "$$pr" --watch --fail-fast || true; \
+	echo ">> waiting for #$$pr's required checks to pass…"; \
+	for i in $$(seq 1 180); do \
+		broken="$$(broken_checks "$$pr")"; \
+		if [ -n "$$broken" ]; then \
+			echo "#$$pr has checks that did not pass:"; \
+			printf '%s\n' "$$broken" | sed 's/^/     /'; \
+			return 1; \
+		fi; \
+		if [ "$$(gh pr view "$$pr" --json mergeStateStatus \
+			--jq .mergeStateStatus)" = DIRTY ]; then \
+			echo "#$$pr has conflicts — resolve them, then re-run"; \
+			return 1; \
+		fi; \
+		unmet="$$(unmet_checks "$$pr" "$$base")"; \
+		[ -z "$$unmet" ] && break; \
+		sleep 10; \
+	done; \
+	if [ -n "$$unmet" ]; then \
+		echo "#$$pr is still waiting on these required checks after 30 minutes:"; \
+		printf '%s\n' "$$unmet" | sed 's/^/     /'; \
+		return 1; \
+	fi; \
+	echo ">> merging #$$pr…"; \
+	gh pr merge "$$pr" --merge --delete-branch=false \
+		|| { echo "$$base refused #$$pr — the message above names the rule"; \
+		     return 1; }; \
+}
+endef
+
 # ── pr ───────────────────────────────────────────────────────────────────────
 #
 # feature branch -> development: merge development in, push, open the pull
-# request, wait for its checks, merge. Getting development onto main is
-# `make release`.
+# request, and stop there, which leaves room for a review. `make pr MERGE=1`
+# carries on and waits for the checks and merges. Getting development onto main
+# is `make release`.
 #
 # The first step is `sync` pointed the other way. origin/development is made an
 # ancestor before the pull request opens, so its checks run over the code that
@@ -47,18 +132,15 @@ pr: check-clean-tree check-on-feature
 	git -c color.ui=never log --oneline --no-merges origin/development..HEAD | cat; \
 	gh pr list --head "$$branch" --base development --state open --json number \
 		--jq '.[0].number' | grep -q . \
-		|| gh pr create --base development --head "$$branch" --fill; \
-	echo ">> waiting for the pull request's checks…"; \
-	: "gh reports no checks both where a base requires none and in the"; \
-	: "seconds before checks register, so probe before watching"; \
-	for i in 1 2 3 4 5; do \
-		gh pr checks "$$branch" >/dev/null 2>&1 && break; \
-		sleep 3; \
-	done; \
-	gh pr checks "$$branch" --watch --fail-fast \
-		|| { echo "a check is failing — fix it, then re-run"; exit 1; }; \
-	echo ">> merging…"; \
-	gh pr merge "$$branch" --merge --delete-branch=false; \
+		|| gh pr create --base development --head "$$branch" --fill \
+		|| { echo "could not open the pull request"; exit 1; }; \
+	if [ -z "$(MERGE)" ]; then \
+		echo "✅ open for review: $$(gh pr view "$$branch" --json url --jq .url)"; \
+		echo "   to wait for its checks and merge it:  make pr MERGE=1"; \
+		exit 0; \
+	fi; \
+	$(wait_and_merge); \
+	wait_and_merge "$$branch" || exit 1; \
 	echo "✅ merged into development — 'make release' puts it on main"
 
 # ── release ──────────────────────────────────────────────────────────────────
@@ -87,38 +169,50 @@ check-clean-tree:
 	@git diff --quiet && git diff --cached --quiet \
 		|| { echo "working tree is dirty — commit or stash first"; exit 1; }
 
-check-on-development:
-	@test "$$(git rev-parse --abbrev-ref HEAD)" = development || { \
-		echo "this runs on development, not $$(git rev-parse --abbrev-ref HEAD)"; \
-		exit 1; }
-
 # Resumable: a run whose merge landed and whose back-merge did not can be
 # re-run, and picks up where it stopped rather than trying to open a pull
 # request with nothing in it.
-release: check-clean-tree check-on-development
+#
+# Every ref here is an origin/ ref, so this runs from whatever branch you have
+# out, mid-edit, and leaves your tree alone. The one thing a checkout of
+# development would lend it is somewhere to make the back-merge commit, and
+# `sync` brings its own.
+#
+# It lists what would enter main and asks before opening anything. `make
+# release YES=1` answers that prompt, for a run with no terminal to ask at.
+release:
 	git fetch origin
-	@git merge-base --is-ancestor origin/development HEAD \
-		|| { echo "origin/development has commits you lack — pull first"; exit 1; }
-	@if git merge-base --is-ancestor HEAD origin/main; then \
+	@if git rev-parse --verify --quiet refs/heads/development >/dev/null \
+		&& ! git merge-base --is-ancestor development origin/development; then \
+		echo "your local development has commits origin lacks — push them first"; \
+		exit 1; \
+	fi
+	@if git merge-base --is-ancestor origin/development origin/main; then \
 		echo ">> already merged into main — going straight to the back-merge"; \
 	else \
-		git push origin development; \
-		echo ">> what this release takes to main:"; \
-		git -c color.ui=never log --oneline --no-merges origin/main..HEAD | cat; \
+		notes="$$(git -c color.ui=never log --pretty='%h %s' --no-merges \
+			origin/main..origin/development)"; \
+		echo ">> these commits enter main:"; \
+		echo "$$notes" | sed 's/^/     /'; \
+		echo ">> merging them publishes: semantic-release tags main and cuts a"; \
+		echo "   GitHub release, and CI pushes the images production deploys."; \
+		if [ -z "$(YES)" ]; then \
+			printf ">> really release to main? [y/N] "; \
+			read -r reply < /dev/tty || reply=""; \
+			case "$$reply" in \
+				[yY]|[yY][eE][sS]) ;; \
+				*) echo "aborted"; exit 1;; \
+			esac; \
+		fi; \
+		: "--fill reads the local development branch, which this target never"; \
+		: "checks out or updates, so the range it sees can be empty"; \
 		gh pr list --head development --base main --state open --json number \
 			--jq '.[0].number' | grep -q . \
-			|| gh pr create --base main --head development --fill; \
-		echo ">> waiting for the pull request's checks…"; \
-		: "gh reports no checks reported both where a base requires none and"; \
-		: "in the seconds before checks register, so probe before watching"; \
-		for i in 1 2 3 4 5; do \
-			gh pr checks development >/dev/null 2>&1 && break; \
-			sleep 3; \
-		done; \
-		gh pr checks development --watch --fail-fast \
-			|| { echo "a check is failing — fix it, then re-run"; exit 1; }; \
-		echo ">> merging…"; \
-		gh pr merge development --merge --delete-branch=false; \
+			|| gh pr create --base main --head development \
+				--title "release $$(date +%Y-%m-%d)" --body "$$notes" \
+			|| { echo "could not open the pull request"; exit 1; }; \
+		$(wait_and_merge); \
+		wait_and_merge development || exit 1; \
 	fi
 	@$(MAKE) --no-print-directory sync
 	@echo "✅ released — CI tags main and builds both branches"
@@ -126,13 +220,36 @@ release: check-clean-tree check-on-development
 # The back-merge on its own: for a release whose pull request someone else
 # merged, or which was merged in the browser. Safe to run at any time, and a
 # no-op when main is already an ancestor.
-sync: check-on-development
-	git fetch origin main
-	@if git merge-base --is-ancestor origin/main HEAD; then \
+#
+# development takes no direct push — a repository ruleset requires a pull
+# request and passing checks — so the back-merge arrives as one too, opened
+# from main into development. GitHub makes the merge commit, which is why
+# nothing here is checked out or merged locally and why this runs from any
+# branch, mid-edit, without touching the tree.
+sync:
+	git fetch origin main development
+	@if git merge-base --is-ancestor origin/main origin/development; then \
 		echo "✅ main is already an ancestor — nothing to merge back"; \
-	else \
-		git merge origin/main \
-			-m "chore: merge main back, so release tags stay reachable" \
-		&& git push origin development \
-		&& echo "✅ merged main back — release tags are reachable from development"; \
+		exit 0; \
+	fi; \
+	gh pr list --head main --base development --state open --json number \
+		--jq '.[0].number' | grep -q . \
+		|| gh pr create --base development --head main \
+			--title "chore: merge main back, so release tags stay reachable" \
+			--body "Carries no file changes. Puts the release tags on main where git describe on development can reach them." \
+		|| { echo "could not open the back-merge pull request"; exit 1; }; \
+	num="$$(gh pr list --head main --base development --state open --json number \
+		--jq '.[0].number')"; \
+	: "--delete-branch=false, which wait_and_merge passes, matters more here"; \
+	: "than anywhere else: the head of this pull request is main"; \
+	$(wait_and_merge); \
+	wait_and_merge "$$num" || exit 1; \
+	echo "✅ merged main back — release tags are reachable from development"; \
+	: "git refuses this one while development is the branch you have out, which"; \
+	: "is the case the hint below is for"; \
+	git fetch --quiet origin development development:development 2>/dev/null \
+		|| git fetch --quiet origin development; \
+	if git rev-parse --verify --quiet refs/heads/development >/dev/null \
+		&& ! git merge-base --is-ancestor origin/development development; then \
+		echo "   your development checkout is behind it — git pull to catch up"; \
 	fi

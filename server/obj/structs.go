@@ -189,6 +189,43 @@ type Workshop struct {
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 	IsPaused                   bool    `json:"isPaused"`
 	AllowGameSharing           bool    `json:"allowGameSharing"`
+	// Public page /w/<PublicSlug>, visible while Public is on
+	PublicSlug        *string `json:"publicSlug,omitempty"`
+	PublicDescription *string `json:"publicDescription,omitempty"`
+	// PublicLinks is the further reading listed below the games; nil means none.
+	PublicLinks []PublicWorkshopLink `json:"publicLinks,omitempty"`
+}
+
+// PublicWorkshopLink is one piece of further reading on a workshop's public page.
+type PublicWorkshopLink struct {
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	URL         string `json:"url"`
+}
+
+// PublicWorkshopPage is what a visitor of /w/<slug> sees. It names no creators and no institution.
+type PublicWorkshopPage struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	// PlayAvailable is false when the workshop has no key: no game on the page can be played.
+	PlayAvailable bool                 `json:"playAvailable"`
+	Games         []PublicWorkshopGame `json:"games"`
+	Links         []PublicWorkshopLink `json:"links,omitempty"`
+}
+
+// PublicWorkshopGame is one public game on a workshop's public page.
+type PublicWorkshopGame struct {
+	ID          uuid.UUID           `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Play        *PublicWorkshopPlay `json:"play,omitempty"` // nil without a workshop key or while the game is not playable
+}
+
+// PublicWorkshopPlay is the share link through which visitors play a game from the public page.
+type PublicWorkshopPlay struct {
+	Token     string `json:"token"`
+	Remaining int    `json:"remaining"`
+	Limit     int    `json:"limit"`
 }
 
 // WorkshopParticipant represents a participant enrolled in a workshop.
@@ -529,6 +566,9 @@ type GameSessionMessage struct {
 	// Voice input: base64-encoded audio from the player (not persisted, used for transcription)
 	AudioBase64   string `json:"-"`
 	AudioMimeType string `json:"-"`
+	// Narration requested by the player for this action (not persisted). Audio narration (TTS) is
+	// generated only when this is set, so muted players cause no TTS costs.
+	NarrationRequested bool `json:"-"`
 
 	// Transcription holds the text result of audio-to-text conversion (transient, not persisted).
 	// Returned in the action response so the client can display what was recognized.
@@ -546,6 +586,8 @@ type GameSessionMessage struct {
 	Plot                       *string       `json:"plot,omitempty"`
 	ImagePrompt                *string       `json:"imagePrompt,omitempty"`
 	Image                      []byte        `json:"image,omitempty"`
+	ImageHash                  string        `json:"imageHash,omitempty"`  // content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag
+	ImageGenAttempts           int           `json:"-"`                     // internal: number of image-generation attempts; caps retry-on-load
 	Audio                      []byte        `json:"audio,omitempty"`
 	HasImage                   bool          `json:"hasImage"`    // true when image generation is active for this message
 	HasAudioIn                 bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
@@ -564,6 +606,7 @@ type GameSessionMessageChunk struct {
 	TextDone   bool   `json:"textDone,omitempty"`   // True when text streaming is complete
 	ImageData  []byte `json:"imageData,omitempty"`  // Partial/final image data
 	ImageDone  bool   `json:"imageDone,omitempty"`  // True when image streaming is complete
+	ImageHash  string `json:"imageHash,omitempty"`  // content hash of the final image, sent alongside ImageDone
 	ImageError string `json:"imageError,omitempty"` // Human-readable image error (e.g. "rate limit reached")
 	AudioData  []byte `json:"audioData,omitempty"`  // Partial/final audio data (opus)
 	AudioDone  bool   `json:"audioDone,omitempty"`  // True when audio streaming is complete

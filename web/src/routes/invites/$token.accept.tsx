@@ -24,7 +24,8 @@ import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
 import { config } from "@/config/env";
 import { useAuth, storeParticipantToken } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
-import { buildShareUrl, getCookiePath } from "@/common/lib/url";
+import { ErrorCodes } from "@/common/types/errorCodes";
+import { buildShareUrl } from "@/common/lib/url";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 export const Route = createFileRoute("/invites/$token/accept")({
@@ -105,6 +106,21 @@ function AcceptInvitePage() {
   const [error, setError] = useState<string | null>(null);
   const [isAccepting, setIsAccepting] = useState(false);
 
+  // status >= 500 carries a raw English server sentence; never show that to a
+  // participant, who may be a teenager on a phone.
+  const acceptErrorMessage = (
+    errorData: { code?: string; message?: string },
+    status?: number,
+  ) => {
+    if (errorData.code === ErrorCodes.TOKEN_LOCKED) {
+      return t("invites.errors.tokenLocked");
+    }
+    if (status !== undefined && status >= 500) {
+      return t("invites.errors.acceptFailed");
+    }
+    return errorData.message || t("invites.errors.acceptFailed");
+  };
+
   // Get current workshop info if user is a participant
   const currentWorkshopId = backendUser?.role?.workshop?.id;
   const currentWorkshopName = backendUser?.role?.workshop?.name;
@@ -120,7 +136,9 @@ function AcceptInvitePage() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          if (response.status === 404) {
+          if (errorData.code === ErrorCodes.TOKEN_LOCKED) {
+            setError(t("invites.errors.tokenLocked"));
+          } else if (response.status === 404) {
             setError(t("invites.errors.notFound"));
           } else if (errorData.code === "invite_expired") {
             setError(t("invites.errors.expired"));
@@ -150,16 +168,15 @@ function AcceptInvitePage() {
             if (accessToken) {
               headers["Authorization"] = `Bearer ${accessToken}`;
             }
-            await fetch(
-              `${config.API_BASE_URL}/invites/${token}/accept`,
-              {
-                method: "POST",
-                credentials: "include",
-                headers,
-                body: JSON.stringify({}),
-              },
-            );
-            try { sessionStorage.setItem("cgl_workshop_mode_pending", "true"); } catch {}
+            await fetch(`${config.API_BASE_URL}/invites/${token}/accept`, {
+              method: "POST",
+              credentials: "include",
+              headers,
+              body: JSON.stringify({}),
+            });
+            try {
+              sessionStorage.setItem("cgl_workshop_mode_pending", "true");
+            } catch {}
             window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
           } catch {
             // Fallback to showing the enter button
@@ -220,28 +237,38 @@ function AcceptInvitePage() {
     setState("accepting");
 
     try {
-      // Clear old session cookie first to prevent 401 from invalid token
-      document.cookie = `cgl_session=; path=${getCookiePath()}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      // Send who is asking, exactly as handleEnterWorkshop does. Without it the
+      // backend sees an anonymous caller and mints a SECOND account, orphaning the
+      // first one and its games - and storeParticipantToken below then overwrites
+      // the old code. The session cookie alone is not enough: anyone who arrived
+      // through /invites/participant/<token> never got one.
+      const accessToken = await getAccessToken();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
 
-      // Small delay to ensure cookie deletion is processed
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      // Now accept with credentials so browser saves the new cookie
       const response = await fetch(
         `${config.API_BASE_URL}/invites/${token}/accept`,
         {
           method: "POST",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify({}),
         },
       );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || t("invites.errors.acceptFailed"));
+        // Being recognised makes a new answer possible: "you are already in this
+        // workshop". That is not a failure - send them where they wanted to go.
+        if (errorData.code === ErrorCodes.CONFLICT) {
+          navigate({ to: ROUTES.MY_WORKSHOP as "/" });
+          return;
+        }
+        setError(acceptErrorMessage(errorData, response.status));
         setState("error");
         return;
       }
@@ -249,8 +276,8 @@ function AcceptInvitePage() {
       const result = await response.json();
 
       // Store participant token in localStorage so tryParticipantAuth() can use it
-      // on page reload. The HttpOnly cookie (SameSite=Lax) won't be sent on
-      // cross-origin fetch requests, so localStorage is the reliable auth path.
+      // on page reload. Only an anonymous join returns one; a recognised caller
+      // keeps the account and the code they already have.
       if (result.authToken) {
         storeParticipantToken(result.authToken);
       }
@@ -346,13 +373,15 @@ function AcceptInvitePage() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          setError(errorData.message || t("invites.errors.acceptFailed"));
+          setError(acceptErrorMessage(errorData, response.status));
           setState("error");
           return;
         }
 
         // Force page reload to refresh auth state and workshop context
-        try { sessionStorage.setItem("cgl_workshop_mode_pending", "true"); } catch {}
+        try {
+          sessionStorage.setItem("cgl_workshop_mode_pending", "true");
+        } catch {}
         window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
       } catch {
         setError(t("invites.errors.acceptFailed"));

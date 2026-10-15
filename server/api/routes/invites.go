@@ -251,7 +251,8 @@ func GetInvite(w http.ResponseWriter, r *http.Request) {
 		if user != nil {
 			userID = user.ID
 		}
-		invite, err = db.GetInviteByToken(r.Context(), userID, idOrToken)
+		token, _ := db.ResolveInviteToken(r.Context(), idOrToken)
+		invite, err = db.GetInviteByToken(r.Context(), userID, token)
 	}
 
 	if err != nil {

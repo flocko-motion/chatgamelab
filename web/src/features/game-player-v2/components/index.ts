@@ -1,6 +1,10 @@
 export { GamePlayer } from "./GamePlayer";
 export { GuestGamePlayer } from "./GuestGamePlayer";
-export { GuestWelcome, type GuestStartMode } from "./GuestWelcome";
+export {
+  GuestWelcome,
+  type GuestStartMode,
+  type GuestCopyInfo,
+} from "./GuestWelcome";
 
 export { SceneCard } from "./SceneCard";
 export { SceneImage } from "./SceneImage";

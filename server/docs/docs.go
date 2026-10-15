@@ -3333,6 +3333,150 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/{token}/sessions/{id}/messages/{messageId}/audio": {
+            "post": {
+                "description": "Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.",
+                "produces": [
+                    "audio/mpeg"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get or generate message audio via share token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Private share token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Token/session mismatch",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session, message or narration not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/workshops/{slug}": {
+            "get": {
+                "description": "Returns a public workshop's name, description and public games. No authentication.\nUnknown slugs and switched-off pages both return 404.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get public workshop page",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Public page slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.PublicWorkshopPage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/workshops/{slug}/games/{id}/yaml": {
+            "get": {
+                "description": "Exports a game listed on a public workshop page as YAML. No authentication.",
+                "produces": [
+                    "application/x-yaml"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Download a game from a public workshop page",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Public page slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Game"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/restart": {
             "post": {
                 "security": [
@@ -3679,6 +3823,60 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Session not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{id}/messages/{messageId}/audio": {
+            "post": {
+                "description": "Returns the audio narration for a scene (MP3 format), generating it first if it does not exist yet.\nUsed when the player switches narration on or plays a scene that was played while muted.",
+                "produces": [
+                    "audio/mpeg"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Get or generate message audio",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session, message or narration not found",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -4056,6 +4254,37 @@ const docTemplate = `{
                         "description": "Invalid request",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/participant-code": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the re-login code of the authenticated participant; both fields are null for other users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get own participant code",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.ParticipantCodeResponse"
                         }
                     },
                     "401": {
@@ -4631,6 +4860,55 @@ const docTemplate = `{
                     "workshops"
                 ],
                 "summary": "Get participant token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Participant ID",
+                        "name": "participantId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workshops/participants/{participantId}/token/reset": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Replaces a participant's access token; all earlier re-login links stop working (staff/heads only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Reset participant token",
                 "parameters": [
                     {
                         "type": "string",
@@ -5550,6 +5828,10 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
+                "imageHash": {
+                    "description": "content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag",
+                    "type": "string"
+                },
                 "imagePrompt": {
                     "type": "string"
                 },
@@ -5743,6 +6025,83 @@ const docTemplate = `{
                 },
                 "modifiedBy": {
                     "$ref": "#/definitions/uuid.NullUUID"
+                }
+            }
+        },
+        "obj.PublicWorkshopGame": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "play": {
+                    "description": "nil without a workshop key or while the game is not playable",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.PublicWorkshopPlay"
+                        }
+                    ]
+                }
+            }
+        },
+        "obj.PublicWorkshopLink": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.PublicWorkshopPage": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopGame"
+                    }
+                },
+                "links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopLink"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "playAvailable": {
+                    "description": "PlayAvailable is false when the workshop has no key: no game on the page can be played.",
+                    "type": "boolean"
+                }
+            }
+        },
+        "obj.PublicWorkshopPlay": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "remaining": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -6018,6 +6377,20 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "publicDescription": {
+                    "type": "string"
+                },
+                "publicLinks": {
+                    "description": "PublicLinks is the further reading listed below the games; nil means none.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopLink"
+                    }
+                },
+                "publicSlug": {
+                    "description": "Public page /w/\u003cPublicSlug\u003e, visible while Public is on",
+                    "type": "string"
                 },
                 "showOtherParticipantsGames": {
                     "type": "boolean"
@@ -6322,8 +6695,15 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "gameId": {
+                    "description": "GameID and Public let the welcome screen offer a copy. Only a public game\nmay be copied: a share link alone does not release its AI instructions.",
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
+                },
+                "public": {
+                    "type": "boolean"
                 },
                 "remaining": {
                     "description": "null = unlimited, 0 = exhausted",
@@ -6557,6 +6937,19 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.ParticipantCodeResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "description": "Token is the full login token that the /code link and QR code carry.",
+                    "type": "string"
+                },
+                "words": {
+                    "description": "Words is the token's word code, or null for the long tokens issued before word tokens.",
+                    "type": "string"
+                }
+            }
+        },
         "routes.ParticipantLoginRequest": {
             "type": "object",
             "properties": {
@@ -6620,6 +7013,10 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
+                "narration": {
+                    "description": "Player has narration switched on: generate audio (TTS) for the response",
+                    "type": "boolean"
+                },
                 "statusFields": {
                     "description": "Current status to pass to AI",
                     "type": "array",
@@ -6669,6 +7066,10 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "imageHash": {
+                    "description": "content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag",
+                    "type": "string"
                 },
                 "imagePrompt": {
                     "type": "string"
@@ -7030,6 +7431,21 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "publicDescription": {
+                    "description": "omitted keeps the current text, \"\" clears it",
+                    "type": "string"
+                },
+                "publicLinks": {
+                    "description": "PublicLinks: omitted keeps the current further reading, an empty list clears it",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.PublicWorkshopLink"
+                    }
+                },
+                "publicSlug": {
+                    "description": "omitted keeps the current link",
+                    "type": "string"
                 },
                 "showOtherParticipantsGames": {
                     "type": "boolean"

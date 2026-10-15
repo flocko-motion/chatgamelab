@@ -36,6 +36,15 @@ type UsersNewRequest struct {
 	Email *string `json:"email,omitempty"`
 }
 
+// ParticipantCodeResponse is the current user's own re-login code; both fields
+// are null for users without one.
+type ParticipantCodeResponse struct {
+	// Token is the full login token that the /code link and QR code carry.
+	Token *string `json:"token"`
+	// Words is the token's word code, or null for the long tokens issued before word tokens.
+	Words *string `json:"words"`
+}
+
 // UsersJwtResponse holds a dev-issued JWT along with the user and Auth0 identifiers.
 type UsersJwtResponse struct {
 	UserID  string `json:"userId"`
@@ -120,6 +129,34 @@ func GetCurrentUserStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, stats)
+}
+
+// GetCurrentUserParticipantCode godoc
+//
+//	@Summary		Get own participant code
+//	@Description	Returns the re-login code of the authenticated participant; both fields are null for other users
+//	@Tags			users
+//	@Produce		json
+//	@Success		200	{object}	ParticipantCodeResponse
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Security		BearerAuth
+//	@Router			/users/me/participant-code [get]
+func GetCurrentUserParticipantCode(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	token, err := db.GetOwnParticipantToken(r.Context(), user.ID)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrServerError("failed to get participant code"))
+		return
+	}
+	var resp ParticipantCodeResponse
+	if token != "" {
+		resp.Token = &token
+		if words := db.ParticipantTokenWords(token); words != "" {
+			resp.Words = &words
+		}
+	}
+	httpx.WriteJSON(w, http.StatusOK, resp)
 }
 
 // UpdateUserLanguage godoc

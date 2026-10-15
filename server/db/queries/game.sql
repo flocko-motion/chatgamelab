@@ -573,9 +573,37 @@ RETURNING *;
 -- name: UpdateGameSessionMessageImage :one
 UPDATE game_session_message SET
   image = $2,
+  image_hash = $3,
   modified_at = now()
 WHERE id = $1
 RETURNING *;
+
+-- name: IncrementImageGenAttempts :exec
+UPDATE game_session_message SET
+  image_gen_attempts = image_gen_attempts + 1,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: GetGameSessionMessageImageMeta :one
+-- Fields needed to build a human-readable download filename for an image.
+-- image_index is this image's 1-based position among the image-bearing messages
+-- of the same session, ordered by seq.
+SELECT
+  m.image_prompt AS image_prompt,
+  m.game_session_id AS game_session_id,
+  g.name AS game_name,
+  (
+    SELECT count(*)
+    FROM game_session_message x
+    WHERE x.game_session_id = m.game_session_id
+      AND x.has_image = true
+      AND x.deleted_at IS NULL
+      AND x.seq <= m.seq
+  )::int AS image_index
+FROM game_session_message m
+JOIN game_session s ON s.id = m.game_session_id
+JOIN game g ON g.id = s.game_id
+WHERE m.id = $1;
 
 -- name: UpdateGameSessionMessageAudio :one
 UPDATE game_session_message SET
@@ -618,3 +646,7 @@ WITH expired AS (
   DELETE FROM game_session_message m WHERE m.game_session_id IN (SELECT e.id FROM expired e)
 )
 DELETE FROM game_session s WHERE s.id IN (SELECT e.id FROM expired e);
+
+-- name: GetPublicGamesByWorkshop :many
+-- Games shown on a workshop's public page.
+SELECT * FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC;
