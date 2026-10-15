@@ -58,6 +58,12 @@
       "noRole": "Niciun rol atribuit",
       "organization": "Organizație",
       "organizationSection": "Organizație \u000e Rol",
+      "participantCode": {
+        "error": "Codul tău de acces nu a putut fi încărcat.",
+        "hint": "Fă o fotografie a acestui cod sau notează-l și păstrează-l doar pentru tine. Te ajută să revii în contul tău oricând, de pe orice dispozitiv: introdu cuvintele la „Introdu codul” pe pagina principală sau scanează codul QR.",
+        "longTokenHint": "Fă o fotografie a codului QR sau salvează linkul și păstrează-l doar pentru tine. Te ajută să revii în contul tău oricând. Coordonatorul atelierului îți poate oferi un cod scurt din patru cuvinte resetându-ți accesul.",
+        "title": "Codul tău de acces"
+      },
       "role": "Rol",
       "roles": {
         "admin": "Administrator",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Statistici",
       "title": "Profil",
-      "totalPlaysOnGames": "Număr total de sesiuni în jocurile mele"
+      "totalPlaysOnGames": "Număr total de sesiuni în jocurile mele",
+      "workshopSection": "Atelier \u000026 Organizație"
     },
     "register": {
       "ageGroupLabel": "Grupă de vârstă",
@@ -403,6 +410,14 @@
     "email": "Email",
     "emailPlaceholder": "Introdu adresa de email",
     "empty": "Nu există membri în această organizație.",
+    "enterCode": {
+      "description": "Ai primit un cod format din trei sau patru cuvinte? Introdu-l aici.",
+      "placeholder": "de ex. măr vidră turn",
+      "submit": "Continuă",
+      "title": "Introdu codul",
+      "unknown": "Acest cod nu există. Verifică ortografia.",
+      "wrongLength": "Un cod are trei sau patru cuvinte."
+    },
     "error": "Eroare",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Atelier"
         },
         "sections": {
+          "constraintReasoning": "De ce se aplică această restricție",
           "constraintText": "Restricție activă de protecție a tinerilor",
           "expandStory": "Instrucțiuni pentru AI pentru a extinde povestea",
           "imageGeneration": "Instrucțiunile AI pentru generarea imaginilor",
@@ -542,6 +558,7 @@
         "namePlaceholder": "ex.: Aventură în spațiu",
         "publicDescription": "Jocurile publice sunt vizibile și jucabile de toți utilizatorii de pe această platformă.",
         "publicLabel": "Fă acest joc public",
+        "publicOwnerOnly": "Doar creatorul jocului poate face un joc public.",
         "submit": "Creează joc",
         "title": "Creează joc nou"
       },
@@ -603,6 +620,8 @@
         "importButton": "Importă joc"
       },
       "playNow": "Joacă acum",
+      "privacyHint": "Numele și descrierea unui joc pot deveni vizibile public. Te rugăm să nu folosești nume reale.",
+      "privacyHintShort": "Poate deveni vizibil public – te rugăm să nu folosești nume reale.",
       "privateShare": {
         "active": "Partajarea privată este activă. Oricine are linkul de mai jos poate juca acest joc anonim.",
         "aiQualityTier": "Calitate AI",
@@ -639,7 +658,7 @@
         "unlimitedSessions": "Sesiuni nelimitate",
         "update": "Actualizează linkul de partajare",
         "workshopCreateHint": "Creează un link de partajare pentru acest joc. Cheia API a atelierului este selectată automat și acoperă costurile.",
-        "workshopDescription": "Creează un link de partajare pentru acest joc. Cheia API implicită a atelierului va fi folosită automat pentru sesiunile invitaților.",
+        "workshopDescription": "Acest link este creat în cadrul atelierului „{{name}}” – invitații se joacă folosind cheia API a atelierului și restricțiile pentru solicitări.",
         "workshopShare": "Partajare atelier",
         "workshopShareDescription": "Acest link a fost creat în atelierul „{{name}}” - invitații joacă folosind cheia API a atelierului.",
         "workshopSubsection": "Link de partajare al atelierului"
@@ -652,7 +671,8 @@
         "publicSponsoring": "Sponsorizare publică",
         "publicSponsoringDescription": "Toți utilizatorii de pe platformă pot juca acest joc gratuit - cheia API alocată de tine acoperă costul.",
         "sectionTitle": "Opțiuni de partajare",
-        "sectionTitleShareOnly": "Opțiuni de partajare"
+        "sectionTitleShareOnly": "Opțiuni de partajare",
+        "workshopShareRequiresPublic": "Acest joc trebuie să fie public înainte de a putea fi distribuit în cadrul atelierului."
       },
       "sort": {
         "createdAt-asc": "Create (cele mai vechi)",
@@ -846,6 +866,7 @@
     },
     "help": "Ajutor",
     "home": {
+      "codeCta": "Introdu codul",
       "features": {
         "create": {
           "description": "Proiectează aventuri text interactive alimentate de IA",
@@ -893,7 +914,8 @@
         "acceptFailed": "Invitația nu a putut fi acceptată. Te rugăm să încerci din nou.",
         "expired": "Acest link de invitație a expirat.",
         "loadFailed": "Nu s-au putut încărca detaliile invitației. Te rugăm să încerci din nou.",
-        "notFound": "Acest link de invitație este invalid sau a fost revocat."
+        "notFound": "Acest link de invitație este invalid sau a fost revocat.",
+        "tokenLocked": "Prea multe încercări eșuate – încearcă din nou mai târziu."
       },
       "goHome": "Mergi la pagina principală",
       "participant": {
@@ -1031,6 +1053,27 @@
       "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din această organizație. Se aplică atunci când nu este setată o constrângere la nivel de atelier și pentru jocurile partajate prin link.",
       "promptConstraintsLabel": "Constrângeri de prompt ale organizației",
       "promptConstraintsPlaceholder": "ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
+      "publicPage": {
+        "changeLinkMessage": "Pagina va fi apoi disponibilă la {{url}}.",
+        "changeLinkTitle": "Schimbi linkul?",
+        "changeLinkWarning": "Linkul vechi nu va mai funcționa – inclusiv codurile QR deja tipărite sau trimise.",
+        "description": "O pagină fără autentificare care arată despre ce a fost atelierul și enumeră jocurile publice ale grupului. Nu menționează niciodată cine a creat un joc.",
+        "descriptionError": "Descrierea nu a putut fi salvată.",
+        "enabled": "Afișează pagina publică",
+        "enabledHint": "Când este dezactivată, linkul afișează doar o notificare, iar linkurile de joc ale paginii nu mai funcționează.",
+        "link": "Link",
+        "linkHint": "Folosește a–z, 0–9 și cratime simple, între 3 și 60 de caractere.",
+        "offHint": "Pagina este dezactivată. Poți în continuare să-i pregătești linkul și codul QR.",
+        "open": "Deschide pagina",
+        "shareDescription": "Trimite acest link sau afișează-l ca un cod QR.",
+        "shareTitle": "Pagină publică",
+        "showLink": "Afișează linkul \u000026 codul QR",
+        "slugInvalid": "Folosește a–z, 0–9 și cratime simple, între 3 și 60 de caractere.",
+        "slugTaken": "Acest link este deja folosit.",
+        "text": "Descriere",
+        "textHint": "Despre ce a fost atelierul? Cel mult 2000 de caractere.",
+        "title": "Pagină publică"
+      },
       "removeConfirm": "Sigur vrei să îl elimini pe „{{name}}” din organizație?",
       "removeMember": "Elimină membrul",
       "removeTitle": "Elimină membrul",
@@ -1090,7 +1133,7 @@
         "inviteExpiresAt": "Expiră",
         "inviteLink": "Link de invitație",
         "inviteLinkDescription": "Distribuie acest link participanților pentru a-i lăsa să se alăture atelierului.",
-        "inviteLinkTitle": "Link de invitație pentru {{name}}",
+        "inviteLinkTitle": "Link de invitație pentru participanți – {{name}}",
         "inviteUsage": "Utilizare",
         "isPaused": "Pauză atelier",
         "isPausedHint": "Când este pe pauză, participanții văd un ecran blocat și nu pot interacționa cu jocurile",
@@ -1109,6 +1152,8 @@
         "notAuthorized": "Nu ai permisiunea de a gestiona atelierele. Doar conducătorii și profesorii pot accesa această pagină.",
         "participantGames": "{{count}} jocuri",
         "participantJoined": "S-a alăturat la {{date}}",
+        "participantLinkTitle": "Link de reconectare",
+        "participantLinkTitleNamed": "Link de reconectare pentru {{name}}",
         "participantName": "Numele participantului",
         "participants": "Participanți",
         "promptConstraintsFallbackOrg": "Se folosește constrângerea organizației ca implicită: {{constraint}}",
@@ -1120,10 +1165,16 @@
         "removeParticipantConfirm": "Sigur vrei să îl elimini pe „{{name}}” din acest atelier?",
         "removeParticipantMessage": "Sigur vrei să îl elimini pe „{{name}}” din acest atelier? Această acțiune nu poate fi anulată.",
         "removeParticipantTitle": "Elimină participantul",
+        "resetAccess": "Resetează accesul",
+        "resetAccessDone": "A fost creat un acces nou. Linkul vechi nu mai funcționează.",
+        "resetAccessError": "Accesul nu a putut fi resetat. Încearcă din nou.",
+        "resetAccessMessage": "Va fi creat un link nou cu un cod nou.",
+        "resetAccessTitle": "Resetezi accesul?",
+        "resetAccessWarning": "Linkul și codul anterior nu mai funcționează – inclusiv pe dispozitivele pe care participantul este conectat în prezent.",
         "revokeInvite": "Revocă linkul de invitație",
         "selectApiKey": "Selectează o cheie API",
         "settings": "Setări",
-        "shareParticipantLink": "Copiază linkul individual de invitație pentru acest participant",
+        "shareParticipantLink": "Afișează linkul de reconectare",
         "showOtherParticipantsGames": "Arată jocurile celorlalți participanți",
         "showOtherParticipantsGamesHint": "Responsabilii și personalul pot vedea oricând toate jocurile participanților pentru moderare",
         "showPublicGames": "Arată jocurile publice participanților",
@@ -1187,6 +1238,22 @@
     "promoteTitle": "Promovează la conducător",
     "promoteToHead": "Promovează la conducător",
     "promoteWarning": "Acest utilizator va putea gestiona membrii organizației și invita profesorii.",
+    "publicWorkshop": {
+      "copy": "Copiază",
+      "copyLogin": "Autentifică-te pentru a copia",
+      "download": "Descarcă",
+      "gamesTitle": "Jocurile acestui atelier",
+      "noGames": "Niciun joc nu a fost publicat aici încă.",
+      "play": "Joacă",
+      "playExhausted": "Nu mai există sesiuni de joc disponibile",
+      "playNoKey": "Acest atelier nu are o cheie API, așa că jocurile sale nu pot fi jucate aici.",
+      "playRemaining": "{{remaining}} din {{limit}} sesiuni de joc rămase",
+      "unavailable": {
+        "home": "Mergi la pagina principală",
+        "message": "Linkul nu este valid (sau nu mai este valid) ori pagina atelierului a fost dezactivată.",
+        "title": "Această pagină nu este disponibilă"
+      }
+    },
     "removeConfirm": "Sigur vrei să îl elimini pe „{{name}}” din organizație?",
     "removeMember": "Elimină membrul",
     "removeTitle": "Elimină membrul",
@@ -1270,6 +1337,10 @@
       "untitledGame": "Joc fără nume"
     },
     "settings": "Setări",
+    "share": {
+      "copied": "Copiat",
+      "copyLink": "Copiază linkul"
+    },
     "showing": "{{count}} membri",
     "sort": {
       "label": "Sortează după",
@@ -1363,6 +1434,9 @@
     "notFound": "Resursa solicitată nu a fost găsită.",
     "orgVerificationRequired": "Organizația ta OpenAI trebuie verificată pentru a folosi funcția de generare a imaginilor. Verifică la https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "IA a pierdut firul conversației. Se poate întâmpla după o pauză lungă. Începe o sesiune nouă pentru a continua.",
+    "publicDescriptionTooLong": "Descrierea poate avea cel mult 2000 de caractere.",
+    "publicSlugInvalid": "Folosește a–z, 0–9 și cratime simple, între 3 și 60 de caractere.",
+    "publicSlugTaken": "Acest link este deja folosit.",
     "rateLimitExceeded": "Prea multe cereri. Așteaptă puțin și încearcă din nou.",
     "server": "Eroare de server. Te rugăm să încerci mai târziu.",
     "titles": {
@@ -1376,9 +1450,11 @@
       "notFound": "Negăsit",
       "permission": "Acces refuzat",
       "server": "Eroare de server",
+      "tokenLocked": "Blocat temporar",
       "validation": "Eroare de validare",
       "workshopInactive": "Atelier inactiv"
     },
+    "tokenLocked": "Prea multe încercări eșuate – încearcă din nou mai târziu.",
     "unauthorized": "Autentifică-te pentru a continua.",
     "unexpected": "A apărut o eroare neașteptată.",
     "userNotRegistered": "Trebuie să finalizezi înregistrarea înainte de a continua.",
@@ -1419,6 +1495,8 @@
       "notInWorkshopMode": "Nu ești în modul atelier. Intră mai întâi într-un atelier.",
       "title": "Setări atelier"
     },
+    "showInviteLink": "Afișează linkul de invitație",
+    "showPublicPageLink": "Afișează linkul paginii publice",
     "title": "Atelierul meu",
     "you": "Tu"
   },

@@ -70,6 +70,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.billing",
     messageKey: "errors:billingNotActive",
   },
+  [ErrorCodes.TOKEN_LOCKED]: {
+    titleKey: "errors:titles.tokenLocked",
+    messageKey: "errors:tokenLocked",
+  },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:rateLimitExceeded",
@@ -93,6 +97,18 @@ const ERROR_CODE_I18N_MAP: Record<
   [ErrorCodes.PROFANE_NAME]: {
     titleKey: "errors:titles.validation",
     messageKey: "errors:nameProfane",
+  },
+  [ErrorCodes.PUBLIC_SLUG_TAKEN]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicSlugTaken",
+  },
+  [ErrorCodes.PUBLIC_SLUG_INVALID]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicSlugInvalid",
+  },
+  [ErrorCodes.PUBLIC_DESCRIPTION_TOO_LONG]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:publicDescriptionTooLong",
   },
   [ErrorCodes.INVALID_JSON_SCHEMA]: {
     titleKey: "errors:titles.gameConfig",

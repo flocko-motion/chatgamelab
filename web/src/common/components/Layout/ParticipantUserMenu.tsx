@@ -10,11 +10,18 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
-import { IconDoorExit, IconSchool, IconBuilding } from "@tabler/icons-react";
+import {
+  IconDoorExit,
+  IconSchool,
+  IconBuilding,
+  IconUser,
+} from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../providers/AuthProvider";
 import { UserAvatar } from "../UserAvatar";
 import { getUserAvatarColor } from "@/common/lib/userUtils";
+import { ROUTES } from "@/common/routes/routes";
 
 interface ParticipantUserMenuProps {
   workshopName?: string;
@@ -23,7 +30,7 @@ interface ParticipantUserMenuProps {
 
 /**
  * Simplified user menu for workshop participants.
- * Shows name, workshop, organization info and logout only.
+ * Shows name, workshop, organization info, the profile link and logout.
  */
 export function ParticipantUserMenu({
   workshopName,
@@ -35,6 +42,7 @@ export function ParticipantUserMenu({
   const theme = useMantineTheme();
   const modals = useModals();
   const [opened, { close, toggle }] = useDisclosure(false);
+  const navigate = useNavigate();
 
   const userName = backendUser?.name || "Participant";
 
@@ -43,9 +51,7 @@ export function ParticipantUserMenu({
     modals.openConfirmModal({
       title: tAuth("participant.leaveConfirm.title"),
       children: (
-        <Text size="sm">
-          {tAuth("participant.leaveConfirm.message")}
-        </Text>
+        <Text size="sm">{tAuth("participant.leaveConfirm.message")}</Text>
       ),
       labels: {
         confirm: tAuth("participant.leaveConfirm.confirm"),
@@ -153,6 +159,34 @@ export function ParticipantUserMenu({
           )}
 
           <Divider />
+
+          <UnstyledButton
+            onClick={() => {
+              close();
+              navigate({ to: ROUTES.PROFILE });
+            }}
+            py="xs"
+            px="sm"
+            style={{
+              borderRadius: "var(--mantine-radius-sm)",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              transition: "background-color 150ms ease",
+            }}
+            styles={{
+              root: {
+                "&:hover": {
+                  backgroundColor: theme.other.layout.bgHover,
+                },
+              },
+            }}
+          >
+            <IconUser size={16} />
+            <Text size="sm" fw={500}>
+              {t("header.profile")}
+            </Text>
+          </UnstyledButton>
 
           {/* Leave workshop button */}
           <UnstyledButton

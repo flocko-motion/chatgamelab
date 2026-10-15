@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { storeParticipantToken } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { buildShareUrl } from "@/common/lib/url";
+import { toParticipantToken } from "@/common/lib/wordToken";
 
 export const Route = createFileRoute("/invites/participant/$token")({
   component: ParticipantLoginPage,
@@ -17,7 +18,7 @@ function ParticipantLoginPage() {
   useEffect(() => {
     // Store the participant token and navigate to workshop
     // The AuthProvider will validate the token and handle authentication
-    storeParticipantToken(token);
+    storeParticipantToken(toParticipantToken(token));
 
     // Navigate to workshop - AuthProvider will pick up the stored token
     window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);

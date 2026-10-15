@@ -12,7 +12,7 @@ import {
   type GameMessageResult,
 } from "./useStreamingSession";
 
-export function useGameSession(gameId: string) {
+export function useGameSession(gameId: string, narration = false) {
   const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
   const { getAccessToken } = useAuth();
@@ -39,8 +39,9 @@ export function useGameSession(gameId: string) {
         statusFields,
         audio,
         type,
+        narration,
       ): Promise<GameMessageResult> => {
-        const body: Record<string, unknown> = { message, statusFields };
+        const body: Record<string, unknown> = { message, statusFields, narration };
         if (audio) {
           body.audioBase64 = audio.base64;
           body.audioMimeType = audio.mimeType;
@@ -49,6 +50,13 @@ export function useGameSession(gameId: string) {
           body.type = type;
         }
         const response = await api.sessions.sessionsCreate(sessionId, body as never);
+        return response.data;
+      },
+
+      loadMessageAudio: async (sessionId: string, messageId: string) => {
+        const response = await api.sessions.messagesAudioCreate(sessionId, messageId, {
+          format: "blob",
+        });
         return response.data;
       },
 
@@ -79,9 +87,10 @@ export function useGameSession(gameId: string) {
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     clearStreamError,
     resetGame,
-  } = useStreamingSession(adapter);
+  } = useStreamingSession(adapter, narration);
 
   // ── Authenticated-only: update session API key ──────────────────────
 
@@ -106,6 +115,7 @@ export function useGameSession(gameId: string) {
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     updateSessionApiKey,
     clearStreamError,
     resetGame,

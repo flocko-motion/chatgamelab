@@ -1,4 +1,5 @@
-import { Text, Tooltip, Divider, Alert, Group } from '@mantine/core';
+import { Text, Popover, Divider, Alert, Group, UnstyledButton } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useVersion } from '../../api/hooks';
@@ -18,6 +19,7 @@ interface VersionDisplayProps {
 export function VersionDisplay({ darkMode = false }: VersionDisplayProps) {
   const { t } = useTranslation('dashboard');
   const { data: backendData, isError } = useVersion();
+  const [opened, { toggle, close }] = useDisclosure(false);
 
   const backendInfo: BackendVersionInfo | null =
     backendData && backendData.version && backendData.buildTime && backendData.gitCommit
@@ -135,43 +137,53 @@ export function VersionDisplay({ darkMode = false }: VersionDisplayProps) {
   ) : null;
 
   return (
-    <Tooltip
-      label={
+    <Popover
+      opened={opened}
+      onChange={(o) => !o && close()}
+      withArrow
+      position="top"
+      radius="md"
+      width="max-content"
+      shadow="md"
+    >
+      <Popover.Target>
+        <UnstyledButton
+          onClick={toggle}
+          aria-haspopup="dialog"
+          aria-expanded={opened}
+          aria-label={`Version v${frontendVersion}`}
+          style={{ cursor: 'pointer' }}
+        >
+          <Group gap="xs" style={{ alignItems: 'center' }}>
+            <Text size="sm" c={darkMode ? 'gray.6' : 'dimmed'} span>
+              v{frontendVersion}
+            </Text>
+            {hasVersionMismatch && (
+              <IconAlertTriangle
+                size={14}
+                color="red"
+                style={{
+                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                }}
+              />
+            )}
+          </Group>
+        </UnstyledButton>
+      </Popover.Target>
+      <Popover.Dropdown bg="dark.8" c="white" maw="min(400px, calc(100vw - 32px))">
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--mantine-spacing-md)',
           padding: 'var(--mantine-spacing-sm)',
-          minWidth: '280px'
+          minWidth: '240px'
         }}>
           {frontendLabel}
           <Divider color="gray.7" />
           {backendLabel}
           {versionMismatchAlert}
         </div>
-      }
-      withArrow
-      position="top"
-      multiline
-      bg="dark.8"
-      c="white"
-      radius="md"
-      maw={400}
-    >
-      <Group gap="xs" style={{ cursor: 'help', alignItems: 'center' }}>
-        <Text size="sm" c={darkMode ? 'gray.6' : 'dimmed'} span>
-          v{frontendVersion}
-        </Text>
-        {hasVersionMismatch && (
-          <IconAlertTriangle
-            size={14}
-            color="red"
-            style={{
-              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-            }}
-          />
-        )}
-      </Group>
-    </Tooltip>
+      </Popover.Dropdown>
+    </Popover>
   );
 }

@@ -11,6 +11,8 @@ import {
 } from "@mantine/core";
 import {
   IconAlertCircle,
+  IconCopy,
+  IconLogin,
   IconPlayerPlay,
   IconRefresh,
 } from "@tabler/icons-react";
@@ -19,9 +21,15 @@ import { useState, useEffect } from "react";
 import { ActionButton } from "@components/buttons";
 import { TextButton } from "@components/buttons";
 import { config } from "@/config/env";
+import { useAuth } from "@/providers/AuthProvider";
+import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
+import { GameEditModal } from "@/features/games/components/GameEditModal";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 interface GuestGameInfo {
+  gameId: string;
+  /** Only a public game may be copied; a share link alone does not release it. */
+  public: boolean;
   name: string;
   description?: string;
   remaining?: number | null; // null = unlimited, 0 = exhausted
@@ -33,12 +41,23 @@ export type GuestStartMode = "new" | "continue";
 
 const SESSION_STORAGE_KEY_PREFIX = "cgl-guest-session-";
 
+export interface GuestCopyInfo {
+  gameId: string;
+  public: boolean;
+}
+
 interface GuestWelcomeProps {
   token: string;
   onStart: (mode: GuestStartMode) => void;
+  /** Lets the player screen offer the same copy action while playing. */
+  onInfoLoaded?: (info: GuestCopyInfo) => void;
 }
 
-export function GuestWelcome({ token, onStart }: GuestWelcomeProps) {
+export function GuestWelcome({
+  token,
+  onStart,
+  onInfoLoaded,
+}: GuestWelcomeProps) {
   const hasExistingSession = (() => {
     try {
       return !!sessionStorage.getItem(SESSION_STORAGE_KEY_PREFIX + token);
@@ -47,6 +66,8 @@ export function GuestWelcome({ token, onStart }: GuestWelcomeProps) {
     }
   })();
   const { t } = useTranslation("common");
+  const { isAuthenticated } = useAuth();
+  const copy = useCopyGameIntent(`/play/${token}`);
   const [gameInfo, setGameInfo] = useState<GuestGameInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<ErrorType | null>(null);
@@ -77,6 +98,7 @@ export function GuestWelcome({ token, onStart }: GuestWelcomeProps) {
             return;
           }
           setGameInfo(data);
+          onInfoLoaded?.({ gameId: data.gameId, public: data.public });
           setLoading(false);
         }
       } catch {
@@ -92,7 +114,14 @@ export function GuestWelcome({ token, onStart }: GuestWelcomeProps) {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetched once per token
   }, [token, t]);
+
+  // Back from login with a game to copy: open its dialogue once.
+  useEffect(() => {
+    if (gameInfo && copy.ready) copy.resume();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- consumed once
+  }, [gameInfo, copy.ready]);
 
   if (loading) {
     return (
@@ -184,11 +213,32 @@ export function GuestWelcome({ token, onStart }: GuestWelcomeProps) {
                 {t("guestPlay.welcome.startPlaying")}
               </ActionButton>
             )}
+
+            {gameInfo?.public && (
+              <TextButton
+                onClick={() => void copy.start(gameInfo.gameId)}
+                leftSection={
+                  isAuthenticated ? <IconCopy size={16} /> : <IconLogin size={16} />
+                }
+              >
+                {isAuthenticated
+                  ? t("guestPlay.copyGame")
+                  : t("guestPlay.copyGameLogin")}
+              </TextButton>
+            )}
           </Stack>
         </Card>
 
         <Branding />
       </Stack>
+
+      <GameEditModal
+        opened={copy.modal.opened}
+        onClose={copy.modal.close}
+        onCreate={copy.modal.onCreate}
+        createLoading={copy.modal.createLoading}
+        initialData={copy.modal.initialData}
+      />
     </Container>
   );
 }

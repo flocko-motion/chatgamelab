@@ -58,6 +58,12 @@
       "noRole": "Roolia ei ole asetettu",
       "organization": "Organisaatio",
       "organizationSection": "Organisaatio p rooli",
+      "participantCode": {
+        "error": "Käyttökoodiasi ei voitu ladata.",
+        "hint": "Ota tästä koodista kuva tai kirjoita se muistiin ja pidä se omana tietonasi. Sen avulla pääset takaisin tilillesi milloin tahansa ja millä tahansa laitteella: syötä sanat etusivun kohtaan ”Syötä koodi” tai skannaa QR-koodi.",
+        "longTokenHint": "Ota QR-koodista kuva tai tallenna linkki ja pidä se omana tietonasi. Sen avulla pääset takaisin tilillesi milloin tahansa. Työpajan ohjaaja voi antaa sinulle lyhyen nelisanaisen koodin nollaamalla käyttöoikeutesi.",
+        "title": "Käyttökoodisi"
+      },
       "role": "Rooli",
       "roles": {
         "admin": "Ylläpitäjä",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "Tilastot",
       "title": "Profiili",
-      "totalPlaysOnGames": "Peleihini kohdistuneet pelikerrat yhteensä"
+      "totalPlaysOnGames": "Peleihini kohdistuneet pelikerrat yhteensä",
+      "workshopSection": "Työpaja ja organisaatio"
     },
     "register": {
       "ageGroupLabel": "Ikäryhmä",
@@ -403,6 +410,14 @@
     "email": "Sähköposti",
     "emailPlaceholder": "Anna sähköpostiosoite",
     "empty": "Tässä organisaatiossa ei ole jäseniä.",
+    "enterCode": {
+      "description": "Saitko kolmi- tai nelisanaisen koodin? Syötä se tähän.",
+      "placeholder": "esim. omena saukko torni",
+      "submit": "Jatka",
+      "title": "Syötä koodi",
+      "unknown": "Tätä koodia ei ole olemassa. Tarkista oikeinkirjoitus.",
+      "wrongLength": "Koodissa on kolme tai neljä sanaa."
+    },
     "error": "Virhe",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "Työpaja"
         },
         "sections": {
+          "constraintReasoning": "Miksi tämä rajoite koskee",
           "constraintText": "Aktiivinen nuorisuojarajoitus",
           "expandStory": "Ohjeet AI:lle tarinan kirjoittamista varten",
           "imageGeneration": "AI:n antamat ohjeet kuvien luontiin",
@@ -557,6 +573,7 @@
         "namePlaceholder": "esim. Avaruusseikkailu",
         "publicDescription": "Julkiset pelit ovat näkyvissä ja pelattavissa kaikille tämän alustan käyttäjille.",
         "publicLabel": "Tee pelistä julkinen",
+        "publicOwnerOnly": "Vain pelin luoja voi tehdä pelistä julkisen.",
         "submit": "Luo peli",
         "title": "Luo uusi peli"
       },
@@ -618,6 +635,8 @@
         "importButton": "Tuo peli"
       },
       "playNow": "Pelaa nyt",
+      "privacyHint": "Pelin nimi ja kuvaus voivat tulla julkisesti näkyviin. Älä käytä oikeita nimiä.",
+      "privacyHintShort": "Voi tulla julkisesti näkyviin – älä käytä oikeita nimiä.",
       "privateShare": {
         "active": "Yksityinen jakaminen on aktiivinen. Kuka tahansa alla olevan linkin saava voi pelata tätä peliä anonyymisti.",
         "aiQualityTier": "Tekoälyn laatu",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "Rajattomasti istuntoja",
         "update": "Päivitä jakolinkki",
         "workshopCreateHint": "Luo tälle pelille jakolinkki. Työpajan API-avain valitaan automaattisesti ja kattaa kulut.",
-        "workshopDescription": "Luo tälle pelille jakolinkki. Työpajan oletusarvoista API-avainta käytetään automaattisesti vieraiden istunnoissa.",
+        "workshopDescription": "Tämä linkki on luotu työpajan ”{{name}}” sisällä – vieraat pelaavat työpajan API-avaimella ja kehoterajoitteilla.",
         "workshopShare": "Työpajan jakolinkki",
         "workshopShareDescription": "Tämä linkki luotiin työpajassa \"{{name}}\" – vieraat pelaavat työpajan API-avainta käyttäen.",
         "workshopSubsection": "Työpajan jakolinkki"
@@ -667,7 +686,8 @@
         "publicSponsoring": "Julkinen sponsorointi",
         "publicSponsoringDescription": "Kaikki alustan käyttäjät voivat pelata tätä peliä ilmaiseksi – sinulle osoitettu API-avain kattaa kulut.",
         "sectionTitle": "Jakovaihtoehdot",
-        "sectionTitleShareOnly": "Jakovaihtoehdot"
+        "sectionTitleShareOnly": "Jakovaihtoehdot",
+        "workshopShareRequiresPublic": "Pelin on oltava julkinen, ennen kuin sen voi jakaa työpajassa."
       },
       "sort": {
         "createdAt-asc": "Luotu (vanhin)",
@@ -858,6 +878,7 @@
     },
     "help": "Ohje",
     "home": {
+      "codeCta": "Syötä koodi",
       "features": {
         "create": {
           "description": "Suunnittele AI:n voimin toimivia interaktiivisia tekstiseikkailuja",
@@ -905,7 +926,8 @@
         "acceptFailed": "Kutsun hyväksyminen epäonnistui. Yritä uudelleen.",
         "expired": "Tämä kutsulinkki on vanhentunut.",
         "loadFailed": "Kutsun tietojen lataus epäonnistui. Yritä uudelleen.",
-        "notFound": "Tämä kutsulinkki on virheellinen tai peruttu."
+        "notFound": "Tämä kutsulinkki on virheellinen tai peruttu.",
+        "tokenLocked": "Liian monta epäonnistunutta yritystä – yritä myöhemmin uudelleen."
       },
       "goHome": "Siirry etusivulle",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "Lisäohjeet tekoälylle kaikkiin tämän organisaation istuntoihin. Käytetään, kun työpajatasolla ei ole rajoitetta, sekä linkin kautta jaettuihin peleihin.",
       "promptConstraintsLabel": "Organisaation kehotusrajoitteet",
       "promptConstraintsPlaceholder": "esim. Pidä tarina ikätasolle sopivana ja vältä väkivaltaista sisältöä.",
+      "publicPage": {
+        "changeLinkMessage": "Sivu löytyy jatkossa osoitteesta {{url}}.",
+        "changeLinkTitle": "Vaihdetaanko linkki?",
+        "changeLinkWarning": "Vanha linkki lakkaa toimimasta – myös jo tulostetut tai lähetetyt QR-koodit.",
+        "description": "Kirjautumista edellyttämätön sivu, joka kertoo, mistä työpajassa oli kyse, ja listaa ryhmän julkiset pelit. Se ei koskaan kerro, kuka pelin loi.",
+        "descriptionError": "Kuvausta ei voitu tallentaa.",
+        "enabled": "Näytä julkinen sivu",
+        "enabledHint": "Kun tämä on pois käytöstä, linkki näyttää vain ilmoituksen ja sivun pelilinkit lakkaavat toimimasta.",
+        "link": "Linkki",
+        "linkHint": "Käytä merkkejä a–z, numeroita 0–9 ja yksittäisiä yhdysmerkkejä, 3–60 merkkiä.",
+        "offHint": "Sivu on poistettu käytöstä. Voit silti valmistella sen linkin ja QR-koodin.",
+        "open": "Avaa sivu",
+        "shareDescription": "Lähetä tämä linkki tai näytä se QR-koodina.",
+        "shareTitle": "Julkinen sivu",
+        "showLink": "Näytä linkki ja QR-koodi",
+        "slugInvalid": "Käytä merkkejä a–z, numeroita 0–9 ja yksittäisiä yhdysmerkkejä, 3–60 merkkiä.",
+        "slugTaken": "Tämä linkki on jo käytössä.",
+        "text": "Kuvaus",
+        "textHint": "Mistä työpajassa oli kyse? Enintään 2000 merkkiä.",
+        "title": "Julkinen sivu"
+      },
       "removeConfirm": "Haluatko varmasti poistaa käyttäjän \"{{name}}\" organisaatiosta?",
       "removeMember": "Poista jäsen",
       "removeTitle": "Poista jäsen",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "Vanhenee",
         "inviteLink": "Kutsulinkki",
         "inviteLinkDescription": "Jaa tämä linkki, jotta osallistujat voivat liittyä työpajaan.",
-        "inviteLinkTitle": "Kutsulinkki työpajalle {{name}}",
+        "inviteLinkTitle": "Osallistujien kutsulinkki – {{name}}",
         "inviteUsage": "Käytöt",
         "isPaused": "Keskeytä työpaja",
         "isPausedHint": "Kun keskeytetty, osallistujat näkevät lukitun näkymän eivätkä voi olla vuorovaikutuksessa pelien kanssa",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "Sinulla ei ole oikeutta hallita työpajoja. Vain johtajat ja opettajat voivat käyttää tätä sivua.",
         "participantGames": "{{count}} peliä",
         "participantJoined": "Liittynyt {{date}}",
+        "participantLinkTitle": "Uudelleenkirjautumislinkki",
+        "participantLinkTitleNamed": "Käyttäjän {{name}} uudelleenkirjautumislinkki",
         "participantName": "Osallistujan nimi",
         "participants": "Osallistujat",
         "promptConstraintsFallbackOrg": "Käytetään organisaation rajoitetta oletuksena: {{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "Haluatko varmasti poistaa käyttäjän \"{{name}}\" tästä työpajasta?",
         "removeParticipantMessage": "Haluatko varmasti poistaa käyttäjän \"{{name}}\" tästä työpajasta? Tätä ei voi perua.",
         "removeParticipantTitle": "Poista osallistuja",
+        "resetAccess": "Nollaa käyttöoikeus",
+        "resetAccessDone": "Uusi käyttöoikeus luotiin. Vanha linkki ei enää toimi.",
+        "resetAccessError": "Käyttöoikeutta ei voitu nollata. Yritä uudelleen.",
+        "resetAccessMessage": "Luodaan uusi linkki ja uusi koodi.",
+        "resetAccessTitle": "Nollataanko käyttöoikeus?",
+        "resetAccessWarning": "Edellinen linkki ja koodi lakkaavat toimimasta – myös laitteilla, joilla osallistuja on parhaillaan kirjautuneena.",
         "revokeInvite": "Peru kutsulinkki",
         "selectApiKey": "Valitse API-avain",
         "serverDefault": "Server Default",
         "settings": "Asetukset",
-        "shareParticipantLink": "Kopioi tämän osallistujan yksilöllinen kutsulinkki",
+        "shareParticipantLink": "Näytä uudelleenkirjautumislinkki",
         "showOtherParticipantsGames": "Näytä muiden osallistujien pelit",
         "showOtherParticipantsGamesHint": "Vastuuhenkilöt ja henkilökunta voivat aina nähdä kaikkien osallistujien pelit valvontaa varten",
         "showPublicGames": "Näytä julkiset pelit osallistujille",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "Ylennä johtajaksi",
     "promoteToHead": "Ylennä johtajaksi",
     "promoteWarning": "Tämä käyttäjä saa oikeuden hallita organisaation jäseniä ja kutsua opettajia.",
+    "publicWorkshop": {
+      "copy": "Kopioi",
+      "copyLogin": "Kirjaudu sisään kopioidaksesi",
+      "download": "Lataa",
+      "gamesTitle": "Tämän työpajan pelit",
+      "noGames": "Tänne ei ole vielä julkaistu pelejä.",
+      "play": "Pelaa",
+      "playExhausted": "Pelíkertoja ei ole jäljellä",
+      "playNoKey": "Tällä työpajalla ei ole API-avainta, joten sen pelejä ei voi pelata täällä.",
+      "playRemaining": "{{remaining}}/{{limit}} pelikertaa jäljellä",
+      "unavailable": {
+        "home": "Siirry etusivulle",
+        "message": "Linkki ei ole enää kelvollinen tai työpajan sivu on poistettu käytöstä.",
+        "title": "Sivu ei ole käytettävissä"
+      }
+    },
     "removeConfirm": "Haluatko varmasti poistaa käyttäjän \"{{name}}\" organisaatiosta?",
     "removeMember": "Poista jäsen",
     "removeTitle": "Poista jäsen",
@@ -1287,6 +1354,10 @@
       "untitledGame": "Nimetön peli"
     },
     "settings": "Asetukset",
+    "share": {
+      "copied": "Kopioitu",
+      "copyLink": "Kopioi linkki"
+    },
     "showing": "{{count}} jäsentä",
     "sort": {
       "label": "Järjestä",
@@ -1381,6 +1452,9 @@
     "notFound": "Pyydettyä resurssia ei löytynyt.",
     "orgVerificationRequired": "OpenAI-organisaatiosi tarvitsee vahvistuksen käyttääksesi kuvanluontia. Vahvista osoitteessa https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "AI kadotti keskustelun aikaisemman vastauksen. Näin voi tapahtua, jos sessio on ollut pitkään toimettomana. Aloita uusi sessio jatkaaksesi.",
+    "publicDescriptionTooLong": "Kuvauksessa saa olla enintään 2000 merkkiä.",
+    "publicSlugInvalid": "Käytä merkkejä a–z, numeroita 0–9 ja yksittäisiä yhdysmerkkejä, 3–60 merkkiä.",
+    "publicSlugTaken": "Tämä linkki on jo käytössä.",
     "rateLimitExceeded": "Liikaa pyyntöjä. Odota hetki ja yritä uudelleen.",
     "server": "Palvelinvirhe. Yritä myöhemmin uudelleen.",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "Ei löydy",
       "permission": "Lupa evätty",
       "server": "Palvelinvirhe",
+      "tokenLocked": "Tilapäisesti lukittu",
       "validation": "Validointivirhe",
       "workshopInactive": "Työpaja ei ole aktiivinen"
     },
+    "tokenLocked": "Liian monta epäonnistunutta yritystä – yritä myöhemmin uudelleen.",
     "unauthorized": "Jatkaaksesi kirjaudu sisään.",
     "unexpected": "Tapahtui odottamaton virhe.",
     "userNotRegistered": "Sinun on viimeisteltävä rekisteröinti ennen jatkamista.",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "Et ole työpajatilassa. Siirry ensin johonkin työpajaan.",
       "title": "Työpajan asetukset"
     },
+    "showInviteLink": "Näytä kutsulinkki",
+    "showPublicPageLink": "Näytä julkisen sivun linkki",
     "title": "Oma työpaja",
     "you": "Sinä"
   },

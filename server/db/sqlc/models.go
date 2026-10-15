@@ -59,6 +59,16 @@ type AppUser struct {
 	AgeGroup             sql.NullString
 }
 
+type BackupLog struct {
+	ID         uuid.UUID
+	StartedAt  time.Time
+	FinishedAt time.Time
+	Success    bool
+	Filename   sql.NullString
+	SizeBytes  sql.NullInt64
+	Error      sql.NullString
+}
+
 type Game struct {
 	ID                           uuid.UUID
 	CreatedBy                    uuid.NullUUID
@@ -152,6 +162,7 @@ type GameShare struct {
 	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
+	PublicPage    bool
 }
 
 type GameTag struct {
@@ -253,6 +264,9 @@ type Workshop struct {
 	DesignEditingEnabled       bool
 	IsPaused                   bool
 	AllowGameSharing           bool
+	PublicSlug                 sql.NullString
+	PublicDescription          sql.NullString
+	PublicLinks                pqtype.NullRawMessage
 }
 
 type WorkshopParticipant struct {

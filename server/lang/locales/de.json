@@ -63,7 +63,14 @@
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
-      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
+      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele",
+      "workshopSection": "Workshop \u0026 Organisation",
+      "participantCode": {
+        "title": "Dein Zugangscode",
+        "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter „Code eingeben“ ein oder scanne den QR-Code.",
+        "longTokenHint": "Fotografiere den QR-Code oder speichere den Link und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto. Einen kurzen Code aus vier Wörtern bekommst du von deiner Workshopleitung, wenn sie deinen Zugang zurücksetzt.",
+        "error": "Dein Zugangscode konnte nicht geladen werden."
+      }
     },
     "register": {
       "cancelButton": "Abbrechen",
@@ -388,6 +395,14 @@
     "email": "E-Mail",
     "emailPlaceholder": "E-Mail-Adresse eingeben",
     "empty": "Keine Mitglieder in dieser Organisation.",
+    "enterCode": {
+      "description": "Du hast einen Code aus drei oder vier Wörtern bekommen? Gib ihn hier ein.",
+      "placeholder": "z. B. apfel otter turm",
+      "submit": "Weiter",
+      "title": "Code eingeben",
+      "unknown": "Diesen Code gibt es nicht. Bitte prüfe die Schreibweise.",
+      "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
+    },
     "error": "Fehler",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -405,6 +420,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Warum diese Einschränkung gilt",
           "constraintText": "Aktive Jugendschutz-Einschränkung",
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung",
@@ -528,7 +544,8 @@
         "publicDescription": "Öffentliche Spiele sind für alle Nutzer dieser Plattform sichtbar und spielbar.",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "submit": "Spiel erstellen",
-        "title": "Neues Spiel erstellen"
+        "title": "Neues Spiel erstellen",
+        "publicOwnerOnly": "Nur wer das Spiel erstellt hat, kann es öffentlich machen."
       },
       "deleteModal": {
         "adminActionTitle": "Admin-Aktion",
@@ -624,7 +641,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
         "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
-        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der Standard-API-Schlüssel des Workshops wird automatisch für Gastsitzungen verwendet.",
+        "workshopDescription": "Dieser Link wird im Rahmen des Workshops „{{name}}“ erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
         "workshopShare": "Workshop-Freigabe",
         "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
         "workshopSubsection": "Workshop-Freigabelink"
@@ -637,7 +654,8 @@
         "publicSponsoring": "Öffentliches Sponsoring",
         "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten.",
         "sectionTitle": "Freigabeoptionen",
-        "sectionTitleShareOnly": "Freigabeoptionen"
+        "sectionTitleShareOnly": "Freigabeoptionen",
+        "workshopShareRequiresPublic": "Das Spiel muss öffentlich sein, bevor es im Workshop geteilt werden kann."
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",
@@ -797,7 +815,9 @@
       "visibility": {
         "private": "Privat",
         "public": "Öffentlich"
-      }
+      },
+      "privacyHint": "Name und Beschreibung eines Spiels können öffentlich sichtbar werden. Bitte keine Klarnamen verwenden.",
+      "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen."
     },
     "guestPlay": {
       "welcome": {
@@ -828,6 +848,7 @@
     },
     "help": "Hilfe",
     "home": {
+      "codeCta": "Code eingeben",
       "features": {
         "create": {
           "description": "Entwirf interaktive Text-Adventures mit KI",
@@ -875,7 +896,8 @@
         "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut.",
         "expired": "Dieser Einladungslink ist abgelaufen.",
         "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
-        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen."
+        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
+        "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen."
       },
       "goHome": "Zur Startseite",
       "participant": {
@@ -1068,11 +1090,9 @@
         "inviteByEmailSuccessMessage": "Eine Einladung wurde erstellt. Der Benutzer sieht sie in seinen ausstehenden Einladungen.",
         "inviteByEmailTitle": "Benutzer zum Workshop einladen",
         "inviteCreatedAt": "Erstellt",
-        "inviteDescription": "Generieren Sie einen Einladungslink, den Teilnehmer verwenden können, um diesem Workshop beizutreten.",
         "inviteExpiresAt": "Läuft ab",
         "inviteLink": "Einladungslink",
-        "inviteLinkDescription": "Teilen Sie diesen Link mit Teilnehmern, um sie zum Workshop einzuladen.",
-        "inviteLinkTitle": "Einladungslink für {{name}}",
+        "inviteLinkTitle": "Einladungslink für Teilnehmer*innen – {{name}}",
         "inviteUsage": "Nutzung",
         "isPaused": "Workshop pausieren",
         "isPausedHint": "Wenn pausiert, sehen Teilnehmer eine gesperrte Ansicht und können nicht mit Spielen interagieren",
@@ -1091,6 +1111,8 @@
         "notAuthorized": "Sie haben keine Berechtigung, Workshops zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
         "participantGames": "{{count}} Spiele",
         "participantJoined": "Beigetreten am {{date}}",
+        "participantLinkTitle": "Link zum erneuten Anmelden",
+        "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
         "promptConstraintsFallbackOrg": "Organisations-Einschränkung wird als Standard verwendet: {{constraint}}",
@@ -1102,10 +1124,16 @@
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
         "removeParticipantMessage": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
         "removeParticipantTitle": "Teilnehmer entfernen",
+        "resetAccess": "Zugang zurücksetzen",
+        "resetAccessDone": "Neuer Zugang erstellt. Der alte Link funktioniert nicht mehr.",
+        "resetAccessError": "Der Zugang konnte nicht zurückgesetzt werden. Bitte versuche es erneut.",
+        "resetAccessMessage": "Es wird ein neuer Link mit neuem Code erzeugt.",
+        "resetAccessTitle": "Zugang zurücksetzen?",
+        "resetAccessWarning": "Der bisherige Link und Code funktionieren danach nicht mehr – auch nicht auf Geräten, auf denen die Person gerade angemeldet ist.",
         "revokeInvite": "Einladungslink widerrufen",
         "selectApiKey": "API-Schlüssel auswählen",
         "settings": "Einstellungen",
-        "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
+        "shareParticipantLink": "Link zum erneuten Anmelden anzeigen",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
         "showOtherParticipantsGamesHint": "Leitung und Mitarbeitende können zur Moderation immer alle Spiele der Teilnehmer sehen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
@@ -1123,6 +1151,27 @@
         "unpause": "Workshop fortsetzen",
         "usedCount": "{{count}} Nutzungen",
         "viewInviteLink": "Einladungslink anzeigen"
+      },
+      "publicPage": {
+        "title": "Öffentliche Seite",
+        "description": "Eine Seite ohne Anmeldung, die zeigt, worum es im Workshop ging, und die öffentlichen Spiele der Gruppe auflistet. Wer ein Spiel erstellt hat, steht nirgends.",
+        "enabled": "Öffentliche Seite anzeigen",
+        "enabledHint": "Ausgeschaltet zeigt der Link nur einen Hinweis. Spiel-Links der Seite werden dabei ungültig.",
+        "link": "Link",
+        "linkHint": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "slugTaken": "Dieser Link ist schon vergeben.",
+        "slugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "text": "Beschreibung",
+        "textHint": "Worum ging es im Workshop? Höchstens 2000 Zeichen.",
+        "descriptionError": "Die Beschreibung konnte nicht gespeichert werden.",
+        "showLink": "Link \u0026 QR-Code anzeigen",
+        "open": "Seite öffnen",
+        "offHint": "Die Seite ist ausgeschaltet. Link und QR-Code kannst du trotzdem schon vorbereiten.",
+        "changeLinkTitle": "Link ändern?",
+        "changeLinkMessage": "Die Seite ist danach unter {{url}} erreichbar.",
+        "changeLinkWarning": "Der alte Link funktioniert danach nicht mehr – auch bereits ausgedruckte oder verschickte QR-Codes nicht.",
+        "shareTitle": "Öffentliche Seite",
+        "shareDescription": "Diesen Link kannst du verschicken oder als QR-Code zeigen."
       }
     },
     "name": "Name",
@@ -1252,6 +1301,10 @@
       "untitledGame": "Unbenanntes Spiel"
     },
     "settings": "Einstellungen",
+    "share": {
+      "copied": "Kopiert",
+      "copyLink": "Link kopieren"
+    },
     "showing": "{{count}} Mitglieder",
     "sort": {
       "label": "Sortieren nach",
@@ -1261,7 +1314,23 @@
       "role-desc": "Rolle (Z-A)"
     },
     "unnamed": "Unbenannt",
-    "viewGame": "Spiel ansehen"
+    "viewGame": "Spiel ansehen",
+    "publicWorkshop": {
+      "unavailable": {
+        "title": "Diese Seite ist nicht verfügbar",
+        "message": "Der Link ist nicht (mehr) gültig oder die Workshop-Seite wurde ausgeschaltet.",
+        "home": "Zur Startseite"
+      },
+      "gamesTitle": "Spiele aus diesem Workshop",
+      "noGames": "Hier wurden noch keine Spiele freigegeben.",
+      "play": "Spielen",
+      "playRemaining": "Noch {{remaining}} von {{limit}} Spielrunden frei",
+      "playExhausted": "Kontingent aufgebraucht",
+      "download": "Herunterladen",
+      "copy": "Kopieren",
+      "copyLogin": "Anmelden \u0026 kopieren",
+      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden."
+    }
   },
   "dashboard": {
     "cards": {
@@ -1358,14 +1427,19 @@
       "notFound": "Nicht gefunden",
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",
+      "tokenLocked": "Vorübergehend gesperrt",
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv"
     },
+    "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen.",
     "unauthorized": "Bitte melde dich an, um fortzufahren.",
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
     "userNotRegistered": "Du musst die Registrierung abschließen, bevor du fortfahren kannst.",
     "validation": "Bitte überprüfe deine Eingabe und versuche es erneut.",
-    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator."
+    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
+    "publicSlugTaken": "Dieser Link ist schon vergeben.",
+    "publicSlugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+    "publicDescriptionTooLong": "Die Beschreibung darf höchstens 2000 Zeichen lang sein."
   },
   "myWorkshop": {
     "empty": {
@@ -1401,8 +1475,10 @@
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",
       "title": "Workshop-Einstellungen"
     },
+    "showInviteLink": "Einladungslink anzeigen",
     "title": "Mein Workshop",
-    "you": "Du"
+    "you": "Du",
+    "showPublicPageLink": "Link zur öffentlichen Seite anzeigen"
   },
   "navigation": {
     "adminPanel": "Admin-Bereich",

@@ -58,6 +58,12 @@
       "noRole": "役割なし",
       "organization": "組織",
       "organizationSection": "組織と役割",
+      "participantCode": {
+        "error": "アクセスコードを読み込めませんでした。",
+        "hint": "このコードを写真に撮るか書き留めて、自分だけで保管してください。いつでも、どのデバイスからでもアカウントに戻るために使えます。ホームページで「コードを入力」の下にある欄に単語を入力するか、QRコードをスキャンしてください。",
+        "longTokenHint": "QRコードを写真に撮るかリンクを保存して、自分だけで保管してください。いつでもアカウントに戻るために使えます。ワークショップのリーダーは、アクセスをリセットして短い4単語のコードを発行できます。",
+        "title": "アクセスコード"
+      },
       "role": "役割",
       "roles": {
         "admin": "管理者",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "統計",
       "title": "プロフィール",
-      "totalPlaysOnGames": "自分のゲームの総プレイ数"
+      "totalPlaysOnGames": "自分のゲームの総プレイ数",
+      "workshopSection": "ワークショップと組織"
     },
     "register": {
       "ageGroupLabel": "年齢層",
@@ -403,6 +410,14 @@
     "email": "メール",
     "emailPlaceholder": "メールアドレスを入力",
     "empty": "この組織にはメンバーがいません。",
+    "enterCode": {
+      "description": "3語または4語のコードを受け取りましたか？ここに入力してください。",
+      "placeholder": "例：apfel otter turm",
+      "submit": "続行",
+      "title": "コードを入力",
+      "unknown": "このコードは存在しません。スペルを確認してください。",
+      "wrongLength": "コードは3語または4語です。"
+    },
     "error": "エラー",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "ワークショップ"
         },
         "sections": {
+          "constraintReasoning": "この制約が適用される理由",
           "constraintText": "有効な青少年保護制限",
           "expandStory": "物語を展開するためのAIへの指示",
           "imageGeneration": "画像生成用にAIが作成した指示",
@@ -557,6 +573,7 @@
         "namePlaceholder": "例：Space Adventure",
         "publicDescription": "公開ゲームは、このプラットフォーム上のすべてのユーザーが閲覧・プレイできます。",
         "publicLabel": "このゲームを公開する",
+        "publicOwnerOnly": "ゲームを公開できるのは、ゲームの作成者だけです。",
         "submit": "ゲームを作成",
         "title": "新しいゲームを作成"
       },
@@ -618,6 +635,8 @@
         "importButton": "ゲームをインポート"
       },
       "playNow": "今すぐプレイ",
+      "privacyHint": "ゲームの名前と説明は公開される可能性があります。実名は使用しないでください。",
+      "privacyHintShort": "公開される可能性があります。実名は使用しないでください。",
       "privateShare": {
         "active": "プライベート共有が有効です。以下のリンクを持つ人は匿名でこのゲームをプレイできます。",
         "aiQualityTier": "AI品質",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "無制限のセッション",
         "update": "共有リンクを更新",
         "workshopCreateHint": "このゲームの共有リンクを作成します。ワークショップのAPIキーが自動的に選択され、費用を負担します。",
-        "workshopDescription": "このゲームの共有リンクを作成します。ワークショップのデフォルトAPIキーがゲストのセッションに自動で使用されます。",
+        "workshopDescription": "このリンクはワークショップ「{{name}}」内で作成されています。ゲストはワークショップのAPIキーとプロンプトの制約を使ってプレイします。",
         "workshopShare": "ワークショップ共有",
         "workshopShareDescription": "このリンクはワークショップ「{{name}}」で作成されました。ゲストはワークショップのAPIキーでプレイします。",
         "workshopSubsection": "ワークショップ共有リンク"
@@ -667,7 +686,8 @@
         "publicSponsoring": "公開スポンサリング",
         "publicSponsoringDescription": "プラットフォーム上の全ユーザーが無料でこのゲームをプレイできます。割り当てられたAPIキーが費用を負担します。",
         "sectionTitle": "共有オプション",
-        "sectionTitleShareOnly": "共有オプション"
+        "sectionTitleShareOnly": "共有オプション",
+        "workshopShareRequiresPublic": "ワークショップで共有するには、このゲームを公開する必要があります。"
       },
       "sort": {
         "createdAt-asc": "作成日（古い順）",
@@ -858,6 +878,7 @@
     },
     "help": "ヘルプ",
     "home": {
+      "codeCta": "コードを入力",
       "features": {
         "create": {
           "description": "AI搭載のインタラクティブなテキストアドベンチャーを設計",
@@ -905,7 +926,8 @@
         "acceptFailed": "招待を承諾できませんでした。もう一度お試しください。",
         "expired": "この招待リンクは期限切れです。",
         "loadFailed": "招待の詳細を読み込めませんでした。もう一度お試しください。",
-        "notFound": "この招待リンクは無効か取り消されています。"
+        "notFound": "この招待リンクは無効か取り消されています。",
+        "tokenLocked": "失敗した試行が多すぎます。しばらくしてからもう一度お試しください。"
       },
       "goHome": "ホームへ",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "この組織内のすべてのセッションに適用される追加のAI指示。ワークショップレベルの制約が設定されていない場合、およびリンク共有されたゲームに適用されます。",
       "promptConstraintsLabel": "組織プロンプト制約",
       "promptConstraintsPlaceholder": "例：物語を年齢相応に保ち、暴力的な内容を避けてください。",
+      "publicPage": {
+        "changeLinkMessage": "変更後のページのURLは{{url}}になります。",
+        "changeLinkTitle": "リンクを変更しますか？",
+        "changeLinkWarning": "以前のリンクは、すでに印刷または送信されたQRコードを含め、使用できなくなります。",
+        "description": "ログインなしでアクセスでき、ワークショップの内容とグループの公開ゲームを表示するページです。ゲームを作成した人の名前が表示されることはありません。",
+        "descriptionError": "説明を保存できませんでした。",
+        "enabled": "公開ページを表示",
+        "enabledHint": "オフにすると、リンクには通知だけが表示され、ページのプレイ用リンクは機能しなくなります。",
+        "link": "リンク",
+        "linkHint": "a～z、0～9、単独のハイフンを使用し、3～60文字で入力してください。",
+        "offHint": "ページはオフになっています。リンクとQRコードの準備は引き続き行えます。",
+        "open": "ページを開く",
+        "shareDescription": "このリンクを送信するか、QRコードとして表示してください。",
+        "shareTitle": "公開ページ",
+        "showLink": "リンクとQRコードを表示",
+        "slugInvalid": "a～z、0～9、単独のハイフンを使用し、3～60文字で入力してください。",
+        "slugTaken": "このリンクはすでに使用されています。",
+        "text": "説明",
+        "textHint": "ワークショップの内容を説明してください。最大2000文字です。",
+        "title": "公開ページ"
+      },
       "removeConfirm": "「{{name}}」を組織から削除してもよろしいですか？",
       "removeMember": "メンバーを削除",
       "removeTitle": "メンバーを削除",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "有効期限",
         "inviteLink": "招待リンク",
         "inviteLinkDescription": "このリンクを参加者と共有して、ワークショップに参加してもらいます。",
-        "inviteLinkTitle": "{{name}}の招待リンク",
+        "inviteLinkTitle": "参加者への招待リンク – {{name}}",
         "inviteUsage": "使用回数",
         "isPaused": "ワークショップを一時停止",
         "isPausedHint": "一時停止中、参加者にはロックされたオーバーレイが表示され、ゲームを操作できません",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "ワークショップを管理する権限がありません。代表と教師のみがアクセスできます。",
         "participantGames": "{{count}}ゲーム",
         "participantJoined": "{{date}}に参加",
+        "participantLinkTitle": "再ログインリンク",
+        "participantLinkTitleNamed": "{{name}}の再ログインリンク",
         "participantName": "参加者名",
         "participants": "参加者",
         "promptConstraintsFallbackOrg": "組織の制約をデフォルトとして使用：{{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "「{{name}}」をこのワークショップから削除してもよろしいですか？",
         "removeParticipantMessage": "「{{name}}」をこのワークショップから削除してもよろしいですか？この操作は取り消せません。",
         "removeParticipantTitle": "参加者を削除",
+        "resetAccess": "アクセスをリセット",
+        "resetAccessDone": "新しいアクセスが作成されました。以前のリンクは使用できなくなります。",
+        "resetAccessError": "アクセスをリセットできませんでした。もう一度お試しください。",
+        "resetAccessMessage": "新しいコードが設定された新しいリンクを作成します。",
+        "resetAccessTitle": "アクセスをリセットしますか？",
+        "resetAccessWarning": "以前のリンクとコードは、参加者が現在ログインしているデバイスを含め、使用できなくなります。",
         "revokeInvite": "招待リンクを無効化",
         "selectApiKey": "APIキーを選択",
         "serverDefault": "Server Default",
         "settings": "設定",
-        "shareParticipantLink": "この参加者用の個別招待リンクをコピー",
+        "shareParticipantLink": "再ログインリンクを表示",
         "showOtherParticipantsGames": "他の参加者のゲームを表示",
         "showOtherParticipantsGamesHint": "責任者とスタッフは常に全参加者のゲームを閲覧でき、モデレーションに利用できます",
         "showPublicGames": "公開ゲームを参加者に表示",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "代表に昇格",
     "promoteToHead": "代表に昇格",
     "promoteWarning": "このユーザーは組織メンバーの管理と教師の招待ができるようになります。",
+    "publicWorkshop": {
+      "copy": "コピー",
+      "copyLogin": "ログインしてコピー",
+      "download": "ダウンロード",
+      "gamesTitle": "このワークショップのゲーム",
+      "noGames": "ここではまだゲームが公開されていません。",
+      "play": "プレイ",
+      "playExhausted": "プレイセッションの残りがありません",
+      "playNoKey": "このワークショップにはAPIキーがないため、ここではゲームをプレイできません。",
+      "playRemaining": "プレイセッションの残り：{{remaining}}／{{limit}}",
+      "unavailable": {
+        "home": "ホームページへ移動",
+        "message": "リンクが無効になったか、ワークショップのページがオフになっています。",
+        "title": "このページは利用できません"
+      }
+    },
     "removeConfirm": "「{{name}}」を組織から削除してもよろしいですか？",
     "removeMember": "メンバーを削除",
     "removeTitle": "メンバーを削除",
@@ -1287,6 +1354,10 @@
       "untitledGame": "無題のゲーム"
     },
     "settings": "設定",
+    "share": {
+      "copied": "コピーしました",
+      "copyLink": "リンクをコピー"
+    },
     "showing": "{{count}}名を表示",
     "sort": {
       "label": "並び替え",
@@ -1381,6 +1452,9 @@
     "notFound": "要求されたリソースが見つかりません。",
     "orgVerificationRequired": "画像生成機能を使用するにはOpenAI組織の認証が必要です。https://platform.openai.com/settings/organization/general で認証してください。",
     "previousResponseNotFound": "AIが会話を追跡できなくなりました。しばらくセッションが空いた場合に発生します。新しいセッションを開始してください。",
+    "publicDescriptionTooLong": "説明は最大2000文字までです。",
+    "publicSlugInvalid": "a～z、0～9、単独のハイフンを使用し、3～60文字で入力してください。",
+    "publicSlugTaken": "このリンクはすでに使用されています。",
     "rateLimitExceeded": "リクエストが多すぎます。しばらく待ってから再試行してください。",
     "server": "サーバーエラーです。後ほどお試しください。",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "見つかりません",
       "permission": "権限がありません",
       "server": "サーバーエラー",
+      "tokenLocked": "一時的にロックされています",
       "validation": "入力エラー",
       "workshopInactive": "ワークショップ停止中"
     },
+    "tokenLocked": "失敗した試行が多すぎます。しばらくしてからもう一度お試しください。",
     "unauthorized": "続行するにはログインしてください。",
     "unexpected": "予期しないエラーが発生しました。",
     "userNotRegistered": "続行する前に登録を完了してください。",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "ワークショップモードではありません。先にワークショップに入ってください。",
       "title": "ワークショップ設定"
     },
+    "showInviteLink": "招待リンクを表示",
+    "showPublicPageLink": "公開ページのリンクを表示",
     "title": "私のワークショップ",
     "you": "あなた"
   },

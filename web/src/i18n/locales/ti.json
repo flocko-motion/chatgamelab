@@ -58,6 +58,12 @@
       "noRole": "ሚና ኣይተመደበን",
       "organization": "ማሕበር",
       "organizationSection": "ማሕበር እና ሚና",
+      "participantCode": {
+        "error": "ኮድ መእተዊኻ ክጽዓን ኣይከኣለን።",
+        "hint": "ነዚ ኮድ ስእሊ ኣንስኦ ወይ ጽሒፍካ ሓዞ፣ ንኻ ጥራይ ድማ ኣቆይዎ። ኣብ ዝኾነ ግዜን ኣብ ዝኾነ መሳርሒን ናብ ሕሳብካ ክትኣቱ ይሕግዘካ፦ ኣብ መእተዊ ገጽ ኣብ ትሕቲ “ኮድ ኣእቱ” ዘለዉ ቃላት ኣእትዎ ወይ ኮድ QR ስካን ግበር።",
+        "longTokenHint": "ነቲ ኮድ QR ስእሊ ኣንስኦ ወይ ነቲ ሊንክ ኣቐምጦ፣ ንኻ ጥራይ ድማ ኣቆይዎ። ኣብ ዝኾነ ግዜ ናብ ሕሳብካ ክትኣቱ ይሕግዘካ። መራሒ ዎርክሾፕካ ናይ ምእታው ፍቓድካ ብምምላስ ሓጺር ናይ ኣርባዕተ ቃላት ኮድ ክህበካ ይኽእል።",
+        "title": "ኮድ መእተዊኻ"
+      },
       "role": "ሚና",
       "roles": {
         "admin": "ኣስመራን",
@@ -68,7 +74,8 @@
       },
       "statisticsSection": "ስታቲስቲክስ",
       "title": "ፕሮፋይል",
-      "totalPlaysOnGames": "አጠቃላይ ስኬታት ናይ ጨዋታታይ"
+      "totalPlaysOnGames": "አጠቃላይ ስኬታት ናይ ጨዋታታይ",
+      "workshopSection": "ዎርክሾፕን ውድብን"
     },
     "register": {
       "ageGroupLabel": "ቡድን ዕድመ",
@@ -403,6 +410,14 @@
     "email": "ኢ-መይል",
     "emailPlaceholder": "ኢ-መይል ኣእቱ",
     "empty": "ኣባል ኣብዚ ማሕበር የለን።",
+    "enterCode": {
+      "description": "ካብ ሰለስተ ወይ ኣርባዕተ ቃላት ዝተዳለወ ኮድ ተቐቢልካዶ? ኣብዚ ኣእትዎ።",
+      "placeholder": "ንኣብነት፦ apfel otter turm",
+      "submit": "ቀጽል",
+      "title": "ኮድ ኣእቱ",
+      "unknown": "እዚ ኮድ ኣይነበረን። እባክኻ ኣጻራርፉ መርምር።",
+      "wrongLength": "ኮድ ሰለስተ ወይ ኣርባዕተ ቃላት ኣለዎ።"
+    },
     "error": "ጌጋ",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -420,6 +435,7 @@
           "workshop": "ወርክሾፕ"
         },
         "sections": {
+          "constraintReasoning": "እዚ ገደብ ስለምንታይ ይምልከት",
           "constraintText": "ተንቀሳቓሲ ጥበቃ ናይ ወጣት ግደታ",
           "expandStory": "ተሪፊ ትምህርቲ ንAI ናይ ታሪክ ምጽሓፍ",
           "imageGeneration": "ትምህርታት ካብ AI ንምስል ምፍጣር",
@@ -557,6 +573,7 @@
         "namePlaceholder": "ለ.ዝ., Space Adventure",
         "publicDescription": "ዕውታታዊ ጨዋታት እቲ ፕላትፎርም ተጠቃሚ ኩሉ ክረክቡን ክጫውቱን ይኽእሉ።",
         "publicLabel": "እዚ ጨዋታ ሕቡራዊ ኣድርግ",
+        "publicOwnerOnly": "ጥራይ ፈጣሪ እቲ ጸወታ ንህዝቢ ክኸውን ክገብሮ ይኽእል።",
         "submit": "ጨዋታ ፍጠር",
         "title": "ሓዱሽ ጨዋታ ፍጠር"
       },
@@ -618,6 +635,8 @@
         "importButton": "ጨዋታ ኣቕብል"
       },
       "playNow": "ሕጂ ጫውታ",
+      "privacyHint": "ስምን መግለጺን ናይ ጸወታ ብዓይኒ ህዝቢ ክረአ ይኽእል። እባክኻ ሓቀኛ ስማት ኣይትጠቀም።",
+      "privacyHintShort": "ብዓይኒ ህዝቢ ክረአ ይኽእል – እባክኻ ሓቀኛ ስማት ኣይትጠቀም።",
       "privateShare": {
         "active": "ብዝፈለጠ ኣካፍሊ ንቅልጡፍ ኣብ ሓላፊ እዩ። ሊንኩ ዘይተሰናየ ዝለኣለ ኣንድ ይጫወታ ይኽእል።",
         "aiQualityTier": "ጥራይ ኤ.ኣይ",
@@ -654,7 +673,7 @@
         "unlimitedSessions": "ዘይተወሰኑ ክፍለ-ግብር",
         "update": "ሊንክ ኣዳምጥ",
         "workshopCreateHint": "እዚ ጨዋታ ንምካፈል ሊንክ ፍጠር። ኤፒአይ ቁልፊ ናይ ስልጠና ብራእዩ ይመረጽ ወናኒ ወገን ይኽፈል።",
-        "workshopDescription": "እዚ ጨዋታ ንምካፈል ሊንክ ፍጠር። ዘይተሻለ ኤፒአይ ቁልፊ ናይ ስልጠና ብበጃኡ ንኣታን ጉዳያት ይጥቀም።",
+        "workshopDescription": "እዚ ሊንክ ኣብ ውሽጢ ዎርክሾፕ \"{{name}}\" ተፈጢሩ እዩ – ኣጋይሽ ብቁልፊ API ናይቲ ዎርክሾፕን ብገደባት መምርሒን ይጻወቱ።",
         "workshopShare": "ስልጠና ማካፈሊ",
         "workshopShareDescription": "እዚ ሊንክ ኣብ ስልጠና \"{{name}}\" ተፈጢሩ እዩ - ኣታን ተሳታፊታት ቁልፊ ኤፒአይ ናይ ስልጠና ይጥቀሙ።",
         "workshopSubsection": "ማካፈሊ ሊንክ ስልጠና"
@@ -667,7 +686,8 @@
         "publicSponsoring": "ዕውታታዊ ስፖንሰሪንግ",
         "publicSponsoringDescription": "ፕላትፎርሙ ላዕለዋይ ተጠቃሚ ኩሉ እዚ ጨዋታ ነፃ ክጫውት ይኽእል። ዝተመደበሉ ኤፒአይ ቁልፊ ዋጋ ይኽፈል።",
         "sectionTitle": "ኣማራጺ ምካፈል",
-        "sectionTitleShareOnly": "ኣማራጺ ምካፈል"
+        "sectionTitleShareOnly": "ኣማራጺ ምካፈል",
+        "workshopShareRequiresPublic": "እዚ ጸወታ ኣብ ዎርክሾፕ ክካፈል ቅድሚኡ ንህዝቢ ክፉት ክኸውን ኣለዎ።"
       },
       "sort": {
         "createdAt-asc": "ተፈጢሩ (ድሕሪቱ)",
@@ -858,6 +878,7 @@
     },
     "help": "ሓገዝ",
     "home": {
+      "codeCta": "ኮድ ኣእቱ",
       "features": {
         "create": {
           "description": "ብAI ዝተደገፈ ጽሑፋዊ መንበር ኣተሓሳስሩ",
@@ -905,7 +926,8 @@
         "acceptFailed": "እቶት ምቕባል ኣይተኻኣለን። ንደገና ፈትኑ።",
         "expired": "እዚ እቶት ሊንክ ግዜ ውሑስ ኣሎ።",
         "loadFailed": "ዝርዝር እቶት ምምጻት ኣይተኻኣለን። ንደገና ፈትኑ።",
-        "notFound": "እዚ እቶት ሊንክ ዘይተረጋገጸ ወይ ተደምስሰ።"
+        "notFound": "እዚ እቶት ሊንክ ዘይተረጋገጸ ወይ ተደምስሰ።",
+        "tokenLocked": "ብዙሓት ዘይተዓወቱ ፈተነታት – እባክኻ ድሕሪ ገለ ግዜ እንደገና ፈትን።"
       },
       "goHome": "ናብ መነሻ ሂድ",
       "participant": {
@@ -1043,6 +1065,27 @@
       "promptConstraintsHint": "ኣብዚ ተቋም ኩሉ ክፍለ-ግብሪ ላዕለዋይ ተጨማሪ መምሪያታት ኤ.ኣይ። ናይ ስልጠና ደረጃ መገዲ ዘይተተኻኸለ እንተ ኮይኑ እናኮይኑ ብሊንክ ዝተካፈሉ ጨዋታት ላዕለዋይ ይኣፍልጥ።",
       "promptConstraintsLabel": "የተቋም መገዲ ፕሮምፕት",
       "promptConstraintsPlaceholder": "ለምሳሌ፡ ታሕቲ ዕድመ ዘለዎም ተጠቃሚታት ትሕዝቶ ንምርግጋዝ፣ ግድለት እና ሓሳዊ ትሕዝቶ ኣብ ጨዋታት ኣይክፍል።",
+      "publicPage": {
+        "changeLinkMessage": "ድሕሪኡ እቲ ገጽ ኣብ {{url}} ክርከብ እዩ።",
+        "changeLinkTitle": "እቲ ሊንክ ክቕየርዶ?",
+        "changeLinkWarning": "እቲ ናይ ቀደም ሊንክ ስራሕ ክገብር ኣይክእልን – ድሮ ተሓቲሞም ወይ ዝተላእኩ ኮዳት QR እውን ይርከብዎም።",
+        "description": "ብዘይ መእተዊ ዝርአ ገጽ እዩ፣ እቲ ዎርክሾፕ ብዛዕባ ምንታይ ከም ዝነበረ ይገልጽ፣ ከምኡውን ናይ ጉጅለ ህዝባዊ ጸወታታት ይዝርዝር። መን ከም ዝሰርሖ ፈጺሙ ኣይጠቅስን።",
+        "descriptionError": "እቲ መግለጺ ክዕቀብ ኣይከኣለን።",
+        "enabled": "ህዝባዊ ገጽ ኣርኢ",
+        "enabledHint": "እንተ ተዓጽዩ፣ እቲ ሊንክ ሓበሬታ ጥራይ የርኢ፣ ናይቲ ገጽ መጻወቲ ሊንክታት ድማ ስራሕ ይቋረጽ።",
+        "link": "ሊንክ",
+        "linkHint": "a–z፣ 0–9 ን ንጽል ሰረዝን ተጠቐም፣ ካብ 3 ክሳብ 60 ቁምፊታት።",
+        "offHint": "እቲ ገጽ ተዓጽዩ ኣሎ። ነቲ ሊንክን ኮድ QRን ክትዳሎ ግን ትኽእል።",
+        "open": "ገጽ ክፈት",
+        "shareDescription": "ነዚ ሊንክ ስደዶ ወይ ከም ኮድ QR ኣርእዮ።",
+        "shareTitle": "ህዝባዊ ገጽ",
+        "showLink": "ሊንክን ኮድ QRን ኣርኢ",
+        "slugInvalid": "a–z፣ 0–9 ን ንጽል ሰረዝን ተጠቐም፣ ካብ 3 ክሳብ 60 ቁምፊታት።",
+        "slugTaken": "እዚ ሊንክ ድሮ ተወሲዱ ኣሎ።",
+        "text": "መግለጺ",
+        "textHint": "እቲ ዎርክሾፕ ብዛዕባ ምንታይ እዩ ነይሩ? ብዝሒ 2000 ቁምፊታት።",
+        "title": "ህዝባዊ ገጽ"
+      },
       "removeConfirm": "\"{{name}}\" ካብ ማሕበር ክትወግድ ትደሊ ዶ?",
       "removeMember": "ኣባል ኣውጽእ",
       "removeTitle": "ኣባል ኣወግድ",
@@ -1106,7 +1149,7 @@
         "inviteExpiresAt": "ይወድስ",
         "inviteLink": "ሊንክ እቶት",
         "inviteLinkDescription": "እዚ ሊንክ ተሳታፊታት ንምውሳኽ ኣካፍል።",
-        "inviteLinkTitle": "ሊንክ እቶት ን{{name}}",
+        "inviteLinkTitle": "ናይ ተሳተፍቲ ዕድመ ሊንክ – {{name}}",
         "inviteUsage": "ተጠቃሚነት",
         "isPaused": "ወርክሾፕ ምሕላው",
         "isPausedHint": "እቲ ወርክሾፕ ምሕላው እንተኮይኑ ተሳታፊታት ኣብ ላሕሊ ተዓባብሉ ጨዋታታት ኣይንበሩን።",
@@ -1125,6 +1168,8 @@
         "notAuthorized": "ወርክሾፕ ምሕዳር ፍቓድ የብልካን። ሓላፊን መምህራንን ብቻ ይፈቱ።",
         "participantGames": "{{count}} ጨዋታታት",
         "participantJoined": "ተቐማጢ {{date}}",
+        "participantLinkTitle": "ናይ ዳግማይ መእተዊ ሊንክ",
+        "participantLinkTitleNamed": "ናይ {{name}} ዳግማይ መእተዊ ሊንክ",
         "participantName": "ስም ተሳታፊ",
         "participants": "ተሳታፊታት",
         "promptConstraintsFallbackOrg": "መገዲ ተቋም እንተሞላን እዩ ዝተጠቀሙ: {{constraint}}",
@@ -1136,11 +1181,17 @@
         "removeParticipantConfirm": "\"{{name}}\" ካብዚ ወርክሾፕ ክትወግድ ትደሊ ዶ?",
         "removeParticipantMessage": "\"{{name}}\" ካብዚ ወርክሾፕ ክትወግድ ትደሊ ዶ? እዚ ተግባር ኣይተመለሰን።",
         "removeParticipantTitle": "ተሳታፊ ኣወግድ",
+        "resetAccess": "መእተዊ ፍቓድ ዳግማይ ኣዳልው",
+        "resetAccessDone": "ሓድሽ መእተዊ ተፈጢሩ። እቲ ናይ ቀደም ሊንክ ደጊም ኣይሰርሕን።",
+        "resetAccessError": "መእተዊ ፍቓድ ዳግማይ ክዳሎ ኣይከኣለን። እባክኻ እንደገና ፈትን።",
+        "resetAccessMessage": "ሓድሽ ሊንክ ምስ ሓድሽ ኮድ ክፍጠር እዩ።",
+        "resetAccessTitle": "መእተዊ ፍቓድ ዳግማይ ክዳሎዶ?",
+        "resetAccessWarning": "እቲ ናይ ቀደም ሊንክን ኮድን ስራሕ ክገብሩ ኣይክእሉን – እቲ ተሳታፊ ኣብዚ ሕጂ ተመዝጊቡሉ ዘሎ መሳርሒታት እውን ይርከብዎም።",
         "revokeInvite": "ሊንክ እቶት ሰርዝ",
         "selectApiKey": "API ቁልፊ ምረፅ",
         "serverDefault": "Server Default",
         "settings": "ቅንብሮም",
-        "shareParticipantLink": "እዚ ተሳታፊ ስለ ዝዳለ ብቻውን ሊንክ ኮፒ ግበር",
+        "shareParticipantLink": "ናይ ዳግማይ መእተዊ ሊንክ ኣርኢ",
         "showOtherParticipantsGames": "ጨዋታታት ሓዳሕዳ ተሳታፊታት ኣሳይ",
         "showOtherParticipantsGamesHint": "ራሕብን ሰራሕተኛታትን ናይ ተሳታፊ ኩሉ ጨዋታታት ንምምርማር ምርኣይ ይኽእሉ",
         "showPublicGames": "ሕቡራዊ ጨዋታ ንተሳታፊታት ኣሳይ",
@@ -1204,6 +1255,22 @@
     "promoteTitle": "ናብ ሓላፊ ኣምር",
     "promoteToHead": "ናብ ሓላፊ ኣምር",
     "promoteWarning": "እዚ ተጠቃሚ ኣባላት ማሕበር ምሕዳርን መምህራን ምእታው ስልጣን ይገናእ።",
+    "publicWorkshop": {
+      "copy": "ቅዳሕ",
+      "copyLogin": "ንምቕዳሕ እቶ",
+      "download": "ኣውርድ",
+      "gamesTitle": "ካብዚ ዎርክሾፕ ዝመጹ ጸወታታት",
+      "noGames": "ክሳብ ሕጂ ኣብዚ ዝተሓትመ ጸወታ የለን።",
+      "play": "ተጻወት",
+      "playExhausted": "ዝተረፈ ናይ መጻወቲ ክፍለ-ግዜ የለን",
+      "playNoKey": "እዚ ዎርክሾፕ ቁልፊ API የብሉን፣ ስለዚ ጸወታታቱ ኣብዚ ክጻወቱ ኣይክእሉን።",
+      "playRemaining": "ካብ {{limit}} ናይ መጻወቲ ክፍለ-ግዜታት {{remaining}} ተሪፉ",
+      "unavailable": {
+        "home": "ናብ መእተዊ ገጽ ኪድ",
+        "message": "እቲ ሊንክ ደጊም ቅኑዕ ኣይኮነን፣ ወይ እቲ ናይ ዎርክሾፕ ገጽ ተዓጽዩ ኣሎ።",
+        "title": "እዚ ገጽ ኣይርከብን"
+      }
+    },
     "removeConfirm": "\"{{name}}\" ካብ ማሕበር ክትወግድ ትደሊ ዶ?",
     "removeMember": "ኣባል ኣውጽእ",
     "removeTitle": "ኣባል ኣወግድ",
@@ -1287,6 +1354,10 @@
       "untitledGame": "ጨዋታ ዘይተሰማምዐ"
     },
     "settings": "ቅንብሮም",
+    "share": {
+      "copied": "ተቐዲሑ",
+      "copyLink": "ሊንክ ቅዳሕ"
+    },
     "showing": "{{count}} ኣባላት",
     "sort": {
       "label": "ኣብ ምንባር ደርስ",
@@ -1381,6 +1452,9 @@
     "notFound": "ዝተፈለጠ ነገር ኣይተረኸበን።",
     "orgVerificationRequired": "ናይ OpenAI ማሕበርካ ማረጋገጺ ንምስራሕ ምስል መፍጣር ይደሊ። ናብ https://platform.openai.com/settings/organization/general ኣረጋግጽ።",
     "previousResponseNotFound": "AI ናይ ዝሓለፈ ሓተታ ረኺቡ ኣይኮነን። እዚ ጊዜ ረጅዕ ክፍሊ ኣብ ዳግም እንተነበረ ይከኣል። ሓዱሽ ክፍሊ ጀምሩ ንዜ ቀጽል።",
+    "publicDescriptionTooLong": "እቲ መግለጺ ካብ 2000 ቁምፊታት ክበዝሕ የብሉን።",
+    "publicSlugInvalid": "a–z፣ 0–9 ን ንጽል ሰረዝን ተጠቐም፣ ካብ 3 ክሳብ 60 ቁምፊታት።",
+    "publicSlugTaken": "እዚ ሊንክ ድሮ ተወሲዱ ኣሎ።",
     "rateLimitExceeded": "ብዙሕ ሕቶታት ተላእኩም። ቕሩብ ጊዜ ተጸዒኑ ንደገና ፈትኑ።",
     "server": "ሰርቨር ጌጋ። ተወሳኺ ግዜ ንኸኣ ፈትኑ።",
     "titles": {
@@ -1394,9 +1468,11 @@
       "notFound": "ኣይተረኸበን",
       "permission": "ፍቓድ ተኣንግዶ",
       "server": "ሰርቨር ጌጋ",
+      "tokenLocked": "ብግዜያዊ ተዓጽዩ",
       "validation": "ምርመራ ጌጋ",
       "workshopInactive": "ወርክሾፕ ዘይንብሩ"
     },
+    "tokenLocked": "ብዙሓት ዘይተዓወቱ ፈተነታት – እባክኻ ድሕሪ ገለ ግዜ እንደገና ፈትን።",
     "unauthorized": "ቀጽል ንምግባር ግባ።",
     "unexpected": "ድንገታዊ ጌጋ ተፈጥሮ።",
     "userNotRegistered": "ቀጸሉ ምእታው ቅድሚ መመዝገብ ሙሉእ ክትጨርስ ይደሊ።",
@@ -1437,6 +1513,8 @@
       "notInWorkshopMode": "ኣብ ሞድ ወርክሾፕ ኣይኮነካን። ቀዳም ናብ ወርክሾፕ ግባ።",
       "title": "ቅንብሮም ወርክሾፕ"
     },
+    "showInviteLink": "ዕድመ ሊንክ ኣርኢ",
+    "showPublicPageLink": "ናይ ህዝባዊ ገጽ ሊንክ ኣርኢ",
     "title": "ወርክሾፕይ",
     "you": "ንስኻ"
   },

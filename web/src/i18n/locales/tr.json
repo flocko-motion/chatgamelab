@@ -59,6 +59,12 @@
       "noRole": "Rol atanmamış",
       "organization": "Organizasyon",
       "organizationSection": "Organizasyon \u0026 Rol",
+      "participantCode": {
+        "error": "Erişim kodunuz yüklenemedi.",
+        "hint": "Bu kodun fotoğrafını çekin veya bir yere not edin ve kimseyle paylaşmayın. Bu kod, istediğiniz zaman ve herhangi bir cihazdan hesabınıza yeniden erişmenizi sağlar: ana sayfadaki “Kodu girin” bölümünün altına bu kelimeleri girin veya QR kodunu tarayın.",
+        "longTokenHint": "QR kodunun fotoğrafını çekin veya bağlantıyı kaydedin ve kimseyle paylaşmayın. Bu, istediğiniz zaman hesabınıza yeniden erişmenizi sağlar. Atölye yöneticiniz, erişiminizi sıfırlayarak size dört kelimelik kısa bir kod verebilir.",
+        "title": "Erişim kodunuz"
+      },
       "role": "Rol",
       "roles": {
         "admin": "Yönetici",
@@ -69,7 +75,8 @@
       },
       "statisticsSection": "İstatistikler",
       "title": "Profil",
-      "totalPlaysOnGames": "Oyunlarımın Toplam Oynanma Sayısı"
+      "totalPlaysOnGames": "Oyunlarımın Toplam Oynanma Sayısı",
+      "workshopSection": "Atölye ve Kuruluş"
     },
     "register": {
       "ageGroupLabel": "Yaş Grubu",
@@ -405,6 +412,14 @@
     "email": "E-posta",
     "emailPlaceholder": "E-posta adresi girin",
     "empty": "Bu organizasyonda üye yok.",
+    "enterCode": {
+      "description": "Üç veya dört kelimeden oluşan bir kod mu aldınız? Buraya girin.",
+      "placeholder": "örn. apfel otter turm",
+      "submit": "Devam et",
+      "title": "Kodu girin",
+      "unknown": "Bu kod mevcut değil. Lütfen yazımını kontrol edin.",
+      "wrongLength": "Kodlar üç veya dört kelimeden oluşur."
+    },
     "error": "Hata",
     "footer": {
       "copyright": "JFF - Medya Pedagojisi Enstitüsü",
@@ -422,6 +437,7 @@
           "workshop": "Atölye"
         },
         "sections": {
+          "constraintReasoning": "Bu kısıt neden geçerli?",
           "constraintText": "Aktif gençlik koruma kısıtlaması",
           "expandStory": "Hikâyeyi yazması için yapay zekâya verilen talimatlar",
           "imageGeneration": "Görsel üretimi için yapay zekâdan gelen talimatlar",
@@ -544,6 +560,7 @@
         "namePlaceholder": "örn. Uzay Macerası",
         "publicDescription": "Genel oyunlar bu platformdaki tüm kullanıcılar tarafından görülebilir ve oynanabilir.",
         "publicLabel": "Bu oyunu herkese açık yap",
+        "publicOwnerOnly": "Bir oyunu yalnızca oyunun oluşturucusu herkese açık hâle getirebilir.",
         "submit": "Oyun Oluştur",
         "title": "Yeni Oyun Oluştur"
       },
@@ -605,6 +622,8 @@
         "importButton": "Oyunu İçe Aktar"
       },
       "playNow": "Hemen Oyna",
+      "privacyHint": "Bir oyunun adı ve açıklaması herkese açık şekilde görünür olabilir. Lütfen gerçek isimler kullanmayın.",
+      "privacyHintShort": "Herkese açık şekilde görünebilir – lütfen gerçek isim kullanmayın.",
       "privateShare": {
         "active": "Özel paylaşım aktif. Aşağıdaki bağlantıya sahip olan herkes oyunu anonim olarak oynayabilir.",
         "aiQualityTier": "Yapay Zekâ Kalitesi",
@@ -641,7 +660,7 @@
         "unlimitedSessions": "Sınırsız oturum",
         "update": "Paylaşım Bağlantısını Güncelle",
         "workshopCreateHint": "Bu oyun için bir paylaşım bağlantısı oluşturun. Atölyenin API anahtarı otomatik olarak seçilir ve maliyeti karşılar.",
-        "workshopDescription": "Bu oyun için bir paylaşım bağlantısı oluşturun. Atölyenin varsayılan API anahtarı misafir oturumları için otomatik olarak kullanılacak.",
+        "workshopDescription": "Bu bağlantı \"{{name}}\" atölyesi içinde oluşturuldu – konuklar atölyenin API anahtarı ve istem kısıtlamalarıyla oynar.",
         "workshopShare": "Atölye paylaşımı",
         "workshopShareDescription": "Bu bağlantı \"{{name}}\" atölyesinde oluşturuldu - misafirler atölyenin API anahtarını kullanarak oynar.",
         "workshopSubsection": "Atölye Paylaşım Bağlantısı"
@@ -654,7 +673,8 @@
         "publicSponsoring": "Genel Sponsorlu",
         "publicSponsoringDescription": "Platformdaki tüm kullanıcılar bu oyunu ücretsiz oynayabilir - atanan API anahtarınız maliyeti karşılar.",
         "sectionTitle": "Paylaşım Seçenekleri",
-        "sectionTitleShareOnly": "Paylaşım Seçenekleri"
+        "sectionTitleShareOnly": "Paylaşım Seçenekleri",
+        "workshopShareRequiresPublic": "Bu oyun, atölyede paylaşılabilmesi için herkese açık olmalıdır."
       },
       "sort": {
         "createdAt-asc": "Oluşturma (En eski)",
@@ -845,6 +865,7 @@
     },
     "help": "Yardım",
     "home": {
+      "codeCta": "Kodu girin",
       "features": {
         "create": {
           "description": "Yapay zekâ destekli etkileşimli metin maceraları tasarlayın",
@@ -892,7 +913,8 @@
         "acceptFailed": "Davet kabul edilemedi. Lütfen tekrar deneyin.",
         "expired": "Bu davet bağlantısının süresi dolmuş.",
         "loadFailed": "Davet detayları yüklenemedi. Lütfen tekrar deneyin.",
-        "notFound": "Bu davet bağlantısı geçersiz veya iptal edilmiş."
+        "notFound": "Bu davet bağlantısı geçersiz veya iptal edilmiş.",
+        "tokenLocked": "Çok fazla başarısız deneme yapıldı – lütfen daha sonra tekrar deneyin."
       },
       "goHome": "Ana sayfaya git",
       "participant": {
@@ -1030,6 +1052,27 @@
       "promptConstraintsHint": "Bu kuruluşta tüm oturumlar için ek yapay zekâ talimatları. Atölye düzeyinde bir kısıtlama ayarlanmadığında ve bağlantı yoluyla paylaşılan oyunlarda geçerlidir.",
       "promptConstraintsLabel": "Kuruluş istem kısıtlamaları",
       "promptConstraintsPlaceholder": "ör. Hikâyeyi yaşa uygun tut ve şiddet içeriğinden kaçın.",
+      "publicPage": {
+        "changeLinkMessage": "Sayfa bundan sonra {{url}} adresinde olacaktır.",
+        "changeLinkTitle": "Bağlantı değiştirilsin mi?",
+        "changeLinkWarning": "Eski bağlantı, daha önce basılmış veya gönderilmiş QR kodları da dâhil olmak üzere çalışmayı durdurur.",
+        "description": "Atölyenin ne hakkında olduğunu gösteren ve grubun herkese açık oyunlarını listeleyen, giriş gerektirmeyen bir sayfa. Oyunu kimin oluşturduğu hiçbir zaman belirtilmez.",
+        "descriptionError": "Açıklama kaydedilemedi.",
+        "enabled": "Herkese açık sayfayı göster",
+        "enabledHint": "Kapalı olduğunda bağlantı yalnızca bir bildirim gösterir ve sayfanın oyun bağlantıları çalışmaz.",
+        "link": "Bağlantı",
+        "linkHint": "a–z, 0–9 ve tekli tireler kullanın; 3 ila 60 karakter olmalıdır.",
+        "offHint": "Sayfa kapalı. Bağlantısını ve QR kodunu yine de hazırlayabilirsiniz.",
+        "open": "Sayfayı aç",
+        "shareDescription": "Bu bağlantıyı gönderin veya QR kodu olarak gösterin.",
+        "shareTitle": "Herkese açık sayfa",
+        "showLink": "Bağlantıyı ve QR kodunu göster",
+        "slugInvalid": "a–z, 0–9 ve tekli tireler kullanın; 3 ila 60 karakter olmalıdır.",
+        "slugTaken": "Bu bağlantı zaten kullanılıyor.",
+        "text": "Açıklama",
+        "textHint": "Atölye ne hakkındaydı? En fazla 2000 karakter.",
+        "title": "Herkese açık sayfa"
+      },
       "removeConfirm": "\"{{name}}\" adlı kişiyi organizasyondan çıkarmak istediğinizden emin misiniz?",
       "removeMember": "Üyeyi kaldır",
       "removeTitle": "Üyeyi Kaldır",
@@ -1089,7 +1132,7 @@
         "inviteExpiresAt": "Bitiş",
         "inviteLink": "Davet Bağlantısı",
         "inviteLinkDescription": "Katılımcıları davet etmek için bu bağlantıyı paylaşın.",
-        "inviteLinkTitle": "{{name}} için Davet Bağlantısı",
+        "inviteLinkTitle": "Katılımcılar için davet bağlantısı – {{name}}",
         "inviteUsage": "Kullanım",
         "isPaused": "Atölyeyi duraklat",
         "isPausedHint": "Duraklatıldığında katılımcılar kilitli bir ekran görür ve oyunlarla etkileşime giremez",
@@ -1108,6 +1151,8 @@
         "notAuthorized": "Atölyeleri yönetme izniniz yok. Bu sayfaya yalnızca başkanlar ve öğretmenler erişebilir.",
         "participantGames": "{{count}} oyun",
         "participantJoined": "{{date}} tarihinde katıldı",
+        "participantLinkTitle": "Yeniden giriş bağlantısı",
+        "participantLinkTitleNamed": "{{name}} için yeniden giriş bağlantısı",
         "participantName": "Katılımcı adı",
         "participants": "Katılımcılar",
         "promptConstraintsFallbackOrg": "Varsayılan olarak kuruluş kısıtlaması kullanılıyor: {{constraint}}",
@@ -1119,10 +1164,16 @@
         "removeParticipantConfirm": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz?",
         "removeParticipantMessage": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz? Bu işlem geri alınamaz.",
         "removeParticipantTitle": "Katılımcıyı Kaldır",
+        "resetAccess": "Erişimi sıfırla",
+        "resetAccessDone": "Yeni erişim oluşturuldu. Eski bağlantı artık çalışmıyor.",
+        "resetAccessError": "Erişim sıfırlanamadı. Lütfen tekrar deneyin.",
+        "resetAccessMessage": "Yeni bir kod içeren yeni bir bağlantı oluşturulacak.",
+        "resetAccessTitle": "Erişim sıfırlansın mı?",
+        "resetAccessWarning": "Katılımcının şu anda giriş yapmış olduğu cihazlar da dâhil olmak üzere önceki bağlantı ve kod çalışmayı durdurur.",
         "revokeInvite": "Davet Bağlantısını İptal Et",
         "selectApiKey": "Bir API anahtarı seçin",
         "settings": "Ayarlar",
-        "shareParticipantLink": "Bu katılımcı için bireysel davet bağlantısını kopyala",
+        "shareParticipantLink": "Yeniden giriş bağlantısını göster",
         "showOtherParticipantsGames": "Diğer katılımcıların oyunlarını göster",
         "showOtherParticipantsGamesHint": "Yönetici ve personel moderasyon için her zaman tüm katılımcıların oyunlarını görebilir",
         "showPublicGames": "Katılımcılara herkese açık oyunları göster",
@@ -1186,6 +1237,22 @@
     "promoteTitle": "Başkan Yap",
     "promoteToHead": "Başkan Yap",
     "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
+    "publicWorkshop": {
+      "copy": "Kopyala",
+      "copyLogin": "Kopyalamak için giriş yapın",
+      "download": "İndir",
+      "gamesTitle": "Bu atölyedeki oyunlar",
+      "noGames": "Burada henüz hiç oyun yayımlanmadı.",
+      "play": "Oyna",
+      "playExhausted": "Kalan oyun oturumu yok",
+      "playNoKey": "Bu atölyenin API anahtarı yok, bu nedenle oyunları burada oynanamaz.",
+      "playRemaining": "{{limit}} oyun oturumundan {{remaining}} tanesi kaldı",
+      "unavailable": {
+        "home": "Ana sayfaya git",
+        "message": "Bağlantı artık geçerli değil veya atölye sayfası kapatıldı.",
+        "title": "Bu sayfa kullanılamıyor"
+      }
+    },
     "removeConfirm": "\"{{name}}\" adlı kişiyi organizasyondan çıkarmak istediğinizden emin misiniz?",
     "removeMember": "Üyeyi kaldır",
     "removeTitle": "Üyeyi Kaldır",
@@ -1269,6 +1336,10 @@
       "untitledGame": "Adsız Oyun"
     },
     "settings": "Ayarlar",
+    "share": {
+      "copied": "Kopyalandı",
+      "copyLink": "Bağlantıyı kopyala"
+    },
     "showing": "{{count}} üye",
     "sort": {
       "label": "Sırala",
@@ -1362,6 +1433,9 @@
     "notFound": "İstenen kaynak bulunamadı.",
     "orgVerificationRequired": "OpenAI organizasyonunuzun görsel üretimi kullanabilmesi için doğrulanması gerekiyor. Lütfen https://platform.openai.com/settings/organization/general adresinden doğrulayın.",
     "previousResponseNotFound": "Yapay zekâ bu konuşmanın geçmişini kaybetti. Bu, oturum uzun süre aktif olmadığında olabilir. Devam etmek için lütfen yeni bir oturum başlatın.",
+    "publicDescriptionTooLong": "Açıklama en fazla 2000 karakter uzunluğunda olabilir.",
+    "publicSlugInvalid": "a–z, 0–9 ve tekli tireler kullanın; 3 ila 60 karakter olmalıdır.",
+    "publicSlugTaken": "Bu bağlantı zaten kullanılıyor.",
     "rateLimitExceeded": "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
     "server": "Sunucu hatası. Lütfen daha sonra tekrar deneyin.",
     "titles": {
@@ -1375,9 +1449,11 @@
       "notFound": "Bulunamadı",
       "permission": "İzin Reddedildi",
       "server": "Sunucu Hatası",
+      "tokenLocked": "Geçici olarak kilitlendi",
       "validation": "Doğrulama Hatası",
       "workshopInactive": "Atölye Pasif"
     },
+    "tokenLocked": "Çok fazla başarısız deneme yapıldı – lütfen daha sonra tekrar deneyin.",
     "unauthorized": "Devam etmek için lütfen giriş yapın.",
     "unexpected": "Beklenmeyen bir hata oluştu.",
     "userNotRegistered": "Devam etmeden önce kaydı tamamlamanız gerekir.",
@@ -1418,6 +1494,8 @@
       "notInWorkshopMode": "Atölye modunda değilsiniz. Lütfen önce bir atölyeye girin.",
       "title": "Atölye Ayarları"
     },
+    "showInviteLink": "Davet bağlantısını göster",
+    "showPublicPageLink": "Herkese açık sayfa bağlantısını göster",
     "title": "Atölyem",
     "you": "Sen"
   },

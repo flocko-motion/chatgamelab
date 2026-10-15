@@ -6,6 +6,7 @@ import type {
   ObjUser,
   ObjUserStats,
   HttpxErrorResponse,
+  RoutesParticipantCodeResponse,
   RoutesUserUpdateRequest,
 } from "../generated";
 
@@ -24,6 +25,16 @@ export function useUserStats() {
   return useQuery<ObjUserStats, HttpxErrorResponse>({
     queryKey: [...queryKeys.currentUser, "stats"],
     queryFn: () => api.users.meStatsList().then((response) => response.data),
+  });
+}
+
+export function useOwnParticipantCode() {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery<RoutesParticipantCodeResponse, HttpxErrorResponse>({
+    queryKey: [...queryKeys.currentUser, "participantCode"],
+    queryFn: () =>
+      api.users.meParticipantCodeList().then((response) => response.data),
   });
 }
 
@@ -47,4 +58,3 @@ export function useUpdateUser() {
     onError: handleApiError,
   });
 }
-

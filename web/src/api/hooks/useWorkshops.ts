@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
-import type { ObjWorkshop } from "../generated";
+import type { ObjPublicWorkshopLink, ObjWorkshop } from "../generated";
 
 /**
  * Parameters for listing workshops with filtering and sorting
@@ -116,8 +116,15 @@ export function useUpdateWorkshop() {
       promptConstraints?: string;
       isPaused?: boolean;
       allowGameSharing?: boolean;
+      // Omitted keeps the current value on the server.
+      publicSlug?: string;
+      publicDescription?: string;
+      publicLinks?: ObjPublicWorkshopLink[];
     }) => {
       const response = await api.workshops.workshopsPartialUpdate(id, {
+        publicSlug: data.publicSlug,
+        publicDescription: data.publicDescription,
+        publicLinks: data.publicLinks,
         name: data.name,
         active: data.active ?? true,
         public: data.public ?? false,
@@ -248,14 +255,15 @@ export function useUpdateParticipant() {
 }
 
 /**
- * Hook to get a participant's login token (for creating individual share links)
+ * Hook to replace a participant's login token; earlier re-login links stop working.
  */
-export function useGetParticipantToken() {
+export function useResetParticipantToken() {
   const api = useRequiredAuthenticatedApi();
 
   return useMutation({
     mutationFn: async (participantId: string) => {
-      const response = await api.workshops.participantsTokenList(participantId);
+      const response =
+        await api.workshops.participantsTokenResetCreate(participantId);
       return response.data;
     },
   });
@@ -263,7 +271,8 @@ export function useGetParticipantToken() {
 
 /**
  * Hook to remove a member from a workshop.
- * Permanent members (participants) are soft-deleted.
+ * Permanent members (participants) are HARD-deleted: db.DeleteUser removes the
+ * account row and every game they created, with its sessions and shared links.
  * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
  */
 export function useRemoveParticipant() {

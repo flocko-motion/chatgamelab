@@ -42,6 +42,8 @@ export interface StartingProgress {
 interface UseSessionLifecycleOptions {
   gameId?: string;
   sessionId?: string;
+  /** Whether narration is switched on (audio is only generated then) */
+  narration?: boolean;
 }
 
 export interface SessionLifecycle {
@@ -51,6 +53,7 @@ export interface SessionLifecycle {
   sendAction: ReturnType<typeof useGameSession>["sendAction"];
   retryLastAction: ReturnType<typeof useGameSession>["retryLastAction"];
   loadExistingSession: ReturnType<typeof useGameSession>["loadExistingSession"];
+  loadMessageAudio: ReturnType<typeof useGameSession>["loadMessageAudio"];
   resetGame: ReturnType<typeof useGameSession>["resetGame"];
 
   // Game data
@@ -85,6 +88,7 @@ export interface SessionLifecycle {
 export function useSessionLifecycle({
   gameId,
   sessionId,
+  narration,
 }: UseSessionLifecycleOptions): SessionLifecycle {
   const router = useRouter();
   const navigate = useNavigate();
@@ -131,10 +135,11 @@ export function useSessionLifecycle({
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     updateSessionApiKey,
     clearStreamError,
     resetGame,
-  } = useGameSession(gameId || "");
+  } = useGameSession(gameId || "", narration);
 
   // Load existing session (continuation or after creation)
   // Only load when we're actually on the /sessions/{id} route
@@ -372,6 +377,7 @@ export function useSessionLifecycle({
     sendAction,
     retryLastAction,
     loadExistingSession,
+    loadMessageAudio,
     resetGame,
     gameLoading,
     gameError,

@@ -5,6 +5,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"errors"
@@ -62,6 +63,10 @@ func Init() {
 		if err := runPendingMigrations(); err != nil {
 			log.Fatal("failed to run migrations", "error", err)
 		}
+	}
+
+	if err := BackfillWorkshopPublicSlugs(context.Background()); err != nil {
+		log.Error("failed to give workshops their public page slug", "error", err)
 	}
 
 	log.Info("database connection initialized")
@@ -135,6 +140,13 @@ func sqlNullStringToMaybeString(ns sql.NullString) *string {
 func sqlNullBoolToMaybeBool(nb sql.NullBool) *bool {
 	if nb.Valid {
 		return &nb.Bool
+	}
+	return nil
+}
+
+func sqlNullInt64ToMaybeInt64(ni sql.NullInt64) *int64 {
+	if ni.Valid {
+		return &ni.Int64
 	}
 	return nil
 }

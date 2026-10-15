@@ -11,14 +11,12 @@ import {
   TextInput,
   Switch,
   Alert,
-  CopyButton,
   ActionIcon,
   Tooltip,
   Text,
   Collapse,
   Checkbox,
   Select,
-  Code,
   Table,
   Textarea,
 } from "@mantine/core";
@@ -27,7 +25,6 @@ import { notifications } from "@mantine/notifications";
 import {
   IconPlus,
   IconTrash,
-  IconCopy,
   IconCheck,
   IconAlertCircle,
   IconPlayerPause,
@@ -62,7 +59,6 @@ import {
   useShareApiKeyWithInstitution,
   useUpdateParticipant,
   useRemoveParticipant,
-  useGetParticipantToken,
   useCreateWorkshopEmailInvite,
 } from "@/api/hooks";
 import {
@@ -74,7 +70,12 @@ import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { PlusIconButton } from "@/common/components/buttons";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
+import { isUsableInvite } from "@/common/lib/invite";
+import { inviteShareLinkPath } from "@/common/lib/wordToken";
+import { FullscreenQrOverlay } from "@components/share";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { ParticipantLinkModal } from "./ParticipantLinkModal";
+import { PublicPageSettings } from "./PublicPageSettings";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
@@ -160,6 +161,10 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
   const [participantNewName, setParticipantNewName] = useState("");
   const [participantToRemove, setParticipantToRemove] =
     useState<ObjWorkshopParticipant | null>(null);
+  const [linkParticipant, setLinkParticipant] = useState<{
+    id: string;
+    name?: string;
+  } | null>(null);
 
   // Search, filter, and sort state
   const [searchQuery, setSearchQuery] = useState("");
@@ -201,7 +206,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
   const shareApiKeyWithInstitution = useShareApiKeyWithInstitution();
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
-  const getParticipantToken = useGetParticipantToken();
   const createEmailInvite = useCreateWorkshopEmailInvite();
   // Auto-share confirmation state
   const [autoSharePending, setAutoSharePending] = useState<{
@@ -233,12 +237,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
       active: !workshop.active,
       public: workshop.public,
     });
-  };
-
-  const handleViewInviteLink = (workshop: ObjWorkshop) => {
-    setNewlyCreatedInvite(null);
-    setSelectedWorkshop(workshop);
-    openInviteLinkModal();
   };
 
   const handleCreateAndViewInvite = async (workshop: ObjWorkshop) => {
@@ -359,25 +357,11 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     setParticipantNewName("");
   };
 
-  const handleGetParticipantShareLink = async (participantId: string) => {
-    try {
-      const result = await getParticipantToken.mutateAsync(participantId);
-      if (result?.token) {
-        const shareUrl = buildShareUrl(`/invites/participant/${result.token}`);
-        await navigator.clipboard.writeText(shareUrl);
-        notifications.show({
-          title: t("myOrganization.workshops.linkCopied"),
-          message: t("myOrganization.workshops.linkCopiedMessage"),
-          color: "green",
-        });
-      }
-    } catch {
-      notifications.show({
-        title: t("error"),
-        message: t("myOrganization.workshops.noParticipantToken"),
-        color: "red",
-      });
-    }
+  const handleGetParticipantShareLink = (
+    participantId: string,
+    name?: string,
+  ) => {
+    setLinkParticipant({ id: participantId, name });
   };
 
   const handleConfirmRemoveParticipant = async () => {
@@ -628,10 +612,8 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                         )}
                         <Group gap="xs" wrap="nowrap">
                           {(() => {
-                            const existingInvite = workshop.invites?.find(
-                              (inv) =>
-                                inv.status === "pending" && inv.inviteToken,
-                            );
+                            const existingInvite =
+                              workshop.invites?.find(isUsableInvite);
                             return (
                               <Tooltip
                                 label={
@@ -648,9 +630,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                   variant="subtle"
                                   color={existingInvite ? "blue" : "gray"}
                                   onClick={() =>
-                                    existingInvite
-                                      ? handleViewInviteLink(workshop)
-                                      : handleCreateAndViewInvite(workshop)
+                                    handleCreateAndViewInvite(workshop)
                                   }
                                   loading={createInvite.isPending}
                                 >
@@ -774,10 +754,8 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                           </ActionButton>
                         )}
                         {(() => {
-                          const existingInvite = workshop.invites?.find(
-                            (inv) =>
-                              inv.status === "pending" && inv.inviteToken,
-                          );
+                          const existingInvite =
+                            workshop.invites?.find(isUsableInvite);
                           return (
                             <Tooltip
                               label={
@@ -792,9 +770,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                 variant="subtle"
                                 color={existingInvite ? "blue" : "gray"}
                                 onClick={() =>
-                                  existingInvite
-                                    ? handleViewInviteLink(workshop)
-                                    : handleCreateAndViewInvite(workshop)
+                                  handleCreateAndViewInvite(workshop)
                                 }
                                 loading={createInvite.isPending}
                               >
@@ -1027,6 +1003,12 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                         />
                       </Stack >
 
+                      <PublicPageSettings
+                        key={workshop.publicSlug}
+                        workshop={workshop}
+                        onSaved={retryBackendFetch}
+                      />
+
                       {/* Participants Section */}
                       < Stack gap="xs" >
                         <Text size="sm" fw={500}>
@@ -1174,14 +1156,12 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                                       variant="subtle"
                                                       color="blue"
                                                       size="sm"
-                                                      loading={
-                                                        getParticipantToken.isPending
-                                                      }
                                                       onClick={(e) => {
                                                         e.stopPropagation();
                                                         if (participant.id) {
                                                           handleGetParticipantShareLink(
                                                             participant.id,
+                                                            participant.name,
                                                           );
                                                         }
                                                       }}
@@ -1352,14 +1332,12 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                                         variant="subtle"
                                                         color="blue"
                                                         size="sm"
-                                                        loading={
-                                                          getParticipantToken.isPending
-                                                        }
                                                         onClick={(e) => {
                                                           e.stopPropagation();
                                                           if (participant.id) {
                                                             handleGetParticipantShareLink(
                                                               participant.id,
+                                                              participant.name,
                                                             );
                                                           }
                                                         }}
@@ -1498,140 +1476,100 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
       />
 
       {/* View Invite Link Modal */}
-      < Modal
-        opened={inviteLinkModalOpened}
-        onClose={closeInviteLinkModal}
-        title={
-          t("myOrganization.workshops.inviteLinkTitle", {
-            name: selectedWorkshop?.name,
-          })
-        }
-        size="md"
-      >
-        {(() => {
-          // Use newly created invite if available, otherwise look for existing one
-          const existingInvite =
-            newlyCreatedInvite ||
-            selectedWorkshop?.invites?.find(
-              (inv) => inv.status === "pending" && inv.inviteToken,
-            );
-          if (!existingInvite?.inviteToken) {
-            return (
+      {(() => {
+        // The server returns the open invite or replaces a dead one.
+        const shownInvite =
+          newlyCreatedInvite ?? selectedWorkshop?.invites?.find(isUsableInvite);
+        const title = t("myOrganization.workshops.inviteLinkTitle", {
+          name: selectedWorkshop?.name,
+        });
+        if (!shownInvite?.inviteToken) {
+          return (
+            <Modal
+              opened={inviteLinkModalOpened}
+              onClose={closeInviteLinkModal}
+              title={title}
+              size="md"
+            >
               <Text c="dimmed">
                 {t("myOrganization.workshops.noActiveInvite")}
               </Text>
-            );
-          }
-          const inviteLink = buildShareUrl(
-            `/invites/${existingInvite.inviteToken}/accept`,
+            </Modal>
           );
-          const createdAt = existingInvite.meta?.createdAt
-            ? new Date(existingInvite.meta.createdAt)
-            : null;
-          const expiresAt = existingInvite.expiresAt
-            ? new Date(existingInvite.expiresAt)
-            : null;
+        }
+        const createdAt = shownInvite.meta?.createdAt
+          ? new Date(shownInvite.meta.createdAt)
+          : null;
+        const expiresAt = shownInvite.expiresAt
+          ? new Date(shownInvite.expiresAt)
+          : null;
 
-          return (
-            <Stack gap="md">
-              <Text size="sm" c="dimmed">
-                {t("myOrganization.workshops.inviteDescription")}
-              </Text>
-
-              <Stack gap="xs">
-                <Text size="sm" fw={500}>
-                  {t("myOrganization.workshops.inviteLink")}
-                </Text>
-                <Group gap="xs">
-                  <Code
-                    style={{
-                      flex: 1,
-                      padding: "8px 12px",
-                      wordBreak: "break-all",
-                    }}
-                  >
-                    {inviteLink}
-                  </Code>
-                  <CopyButton value={inviteLink}>
-                    {({ copied, copy }) => (
-                      <Tooltip label={copied ? t("copied") : t("copy")}>
-                        <ActionIcon
-                          color={copied ? "teal" : "gray"}
-                          onClick={copy}
-                          size="lg"
-                        >
-                          {copied ? (
-                            <IconCheck size={18} />
-                          ) : (
-                            <IconCopy size={18} />
-                          )}
-                        </ActionIcon>
-                      </Tooltip>
-                    )}
-                  </CopyButton>
-                </Group>
-              </Stack>
-
-              <Group gap="xl">
-                {createdAt && (
+        return (
+          <FullscreenQrOverlay
+            opened={inviteLinkModalOpened}
+            onClose={closeInviteLinkModal}
+            title={title}
+            icon={<IconLink size={28} />}
+            color="blue"
+            url={buildShareUrl(inviteShareLinkPath(shownInvite.inviteToken))}
+            actions={
+              <DangerButton
+                size="md"
+                onClick={() => {
+                  if (shownInvite.id) handleRevokeInviteAndClose(shownInvite.id);
+                }}
+                loading={revokeInvite.isPending}
+              >
+                {t("myOrganization.workshops.revokeInvite")}
+              </DangerButton>
+            }
+          >
+            <Group gap="xl" justify="center">
+              {createdAt && (
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">
+                    {t("myOrganization.workshops.inviteCreatedAt")}
+                  </Text>
+                  <Group gap="xs">
+                    <IconCalendar size={14} />
+                    <Text size="sm">{createdAt.toLocaleDateString()}</Text>
+                  </Group>
+                </Stack>
+              )}
+              {expiresAt && (
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">
+                    {t("myOrganization.workshops.inviteExpiresAt")}
+                  </Text>
+                  <Group gap="xs">
+                    <IconClock size={14} />
+                    <Text size="sm">{expiresAt.toLocaleDateString()}</Text>
+                  </Group>
+                </Stack>
+              )}
+              {shownInvite.usesCount !== undefined &&
+                shownInvite.usesCount > 0 && (
                   <Stack gap={2}>
                     <Text size="xs" c="dimmed">
-                      {t("myOrganization.workshops.inviteCreatedAt")}
+                      {t("myOrganization.workshops.inviteUsage")}
                     </Text>
-                    <Group gap="xs">
-                      <IconCalendar size={14} />
-                      <Text size="sm">{createdAt.toLocaleDateString()}</Text>
-                    </Group>
+                    <Badge size="sm" variant="light">
+                      {t("myOrganization.workshops.usedCount", {
+                        count: shownInvite.usesCount,
+                      })}
+                    </Badge>
                   </Stack>
                 )}
-                {expiresAt && (
-                  <Stack gap={2}>
-                    <Text size="xs" c="dimmed">
-                      {t("myOrganization.workshops.inviteExpiresAt")}
-                    </Text>
-                    <Group gap="xs">
-                      <IconClock size={14} />
-                      <Text size="sm">{expiresAt.toLocaleDateString()}</Text>
-                    </Group>
-                  </Stack>
-                )}
-                {existingInvite.usesCount !== undefined &&
-                  existingInvite.usesCount > 0 && (
-                    <Stack gap={2}>
-                      <Text size="xs" c="dimmed">
-                        {t("myOrganization.workshops.inviteUsage")}
-                      </Text>
-                      <Badge size="sm" variant="light">
-                        {t("myOrganization.workshops.usedCount", {
-                          count: existingInvite.usesCount,
-                        })}
-                      </Badge>
-                    </Stack>
-                  )}
-              </Group>
+            </Group>
+          </FullscreenQrOverlay>
+        );
+      })()}
 
-              <Group justify="space-between" mt="md">
-                <DangerButton
-                  onClick={() => {
-                    const invite =
-                      newlyCreatedInvite ||
-                      selectedWorkshop?.invites?.find(
-                        (inv) => inv.status === "pending" && inv.inviteToken,
-                      );
-                    if (invite?.id) handleRevokeInviteAndClose(invite.id);
-                  }}
-                  loading={revokeInvite.isPending}
-                >
-                  {t("myOrganization.workshops.revokeInvite")}
-                </DangerButton>
-                <TextButton onClick={closeInviteLinkModal}>
-                  {t("close")}
-                </TextButton>
-              </Group>
-            </Stack>
-          );
-        })()}
-      </Modal >
+      <ParticipantLinkModal
+        participantId={linkParticipant?.id ?? null}
+        participantName={linkParticipant?.name}
+        onClose={() => setLinkParticipant(null)}
+      />
 
       {/* Remove Participant Confirmation Modal */}
       < ConfirmationModal
@@ -1640,11 +1578,16 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
         onConfirm={handleConfirmRemoveParticipant}
         title={t("myOrganization.workshops.removeParticipantTitle")}
         message={
-          t("myOrganization.workshops.removeParticipantConfirm", {
+          t("myOrganization.workshops.removeParticipantMessage", {
             name:
               participantToRemove?.name ||
               t("myOrganization.workshops.anonymousParticipant"),
           })}
+        warning={t(
+          participantToRemove?.permanent !== false
+            ? "myOrganization.workshops.removeParticipantWarningPermanent"
+            : "myOrganization.workshops.removeParticipantWarningVisiting",
+        )}
         confirmIcon={< IconTrash size={16} />}
         confirmColor="red"
         isLoading={removeParticipant.isPending}

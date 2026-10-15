@@ -11,28 +11,23 @@ Create your own text adventure games and play them with your friends.
 
 For a detailed explanation of how the AI game engine works, see [TECHNOLOGY.md](TECHNOLOGY.md).
 
-## Rules for working on this project
+## Contributing
 
-If you're working on ChatGameLab (including web designers), you **must learn Git basics first**. There are user-friendly Git clients for Mac like [GitHub Desktop](https://desktop.github.com/) or [Sourcetree](https://www.sourcetreeapp.com/) that make this easier.
+Work happens on `development`; `main` is what the public uses. You branch off
+`development`, open a pull request against it, automated checks run, a human
+reviews, and once it is merged the development server deploys itself from it.
+Releasing to `main` — and so to production — is a separate step performed by
+the project lead.
 
-**Essential Rules:**
+**[CONTRIBUTING.md](CONTRIBUTING.md) is the full path**, written for someone
+doing it here for the first time. Read it before your first pull request; it
+covers the branches, the checks, what review is for, and the commands
+(`make rebase`, `make pr`, `make release`) that drive each step.
 
-1. **`main` branch** = Published/live website (don't touch!)
-2. **`development` branch** = Current development work
-3. **Your workflow**: Fork `development` → make changes → create Pull Request to `development`→ wait for review
-4. **Never** change `main` directly or make PRs to `main` alone
-5. **Work in small chunks** - when you finish a feature, make a PR right away. Don't work alone for weeks!
-
-This keeps everyone in sync and prevents the project from breaking apart.
-
-**Keeping your branch up to date:**
-
-```bash
-make rebase
-```
-
-This replays your branch on top of the latest `origin/development` and force-pushes it. Only run it on your own feature branch.
-
+If you are working on ChatGameLab in any capacity, including as a web designer,
+you need Git basics first. There are friendly clients for Mac such as
+[GitHub Desktop](https://desktop.github.com/) and
+[Sourcetree](https://www.sourcetreeapp.com/).
 
 ## Requirements
 
@@ -224,6 +219,7 @@ Environment="API_BASE_URL=https://yourdomain.com/api" # configure this according
 Environment="PUBLIC_URL=https://yourdomain.com" # configure this according to your domain
 Environment="PORT_FRONTEND=8000" # port internal to webserver for exposing webapp
 Environment="PORT_BACKEND=8001" # port internal to webserver for exposing backend
+Environment="SESSION_RETENTION_HOURS=48" # game sessions are deleted this long after their last activity (0 = keep forever)
 
 # Commands
 ExecStartPre=/usr/bin/docker compose pull

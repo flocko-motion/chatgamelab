@@ -110,6 +110,18 @@ type InstitutionMember struct {
 	Role   Role      `json:"role"`
 }
 
+// BackupLog is one entry of the database backup logbook, written by docker/db/backup.sh
+// after each run. The server only reads these; it never triggers a backup itself.
+type BackupLog struct {
+	ID         uuid.UUID `json:"id"`
+	StartedAt  time.Time `json:"startedAt"`
+	FinishedAt time.Time `json:"finishedAt"`
+	Success    bool      `json:"success"`
+	Filename   *string   `json:"filename,omitempty"`
+	SizeBytes  *int64    `json:"sizeBytes,omitempty"`
+	Error      *string   `json:"error,omitempty"` // failure reason, nil on success
+}
+
 // SystemSettings holds server-wide configuration such as default AI tiers and prompt constraints.
 type SystemSettings struct {
 	ID                    uuid.UUID  `json:"id"`
@@ -177,6 +189,43 @@ type Workshop struct {
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 	IsPaused                   bool    `json:"isPaused"`
 	AllowGameSharing           bool    `json:"allowGameSharing"`
+	// Public page /w/<PublicSlug>, visible while Public is on
+	PublicSlug        *string `json:"publicSlug,omitempty"`
+	PublicDescription *string `json:"publicDescription,omitempty"`
+	// PublicLinks is the further reading listed below the games; nil means none.
+	PublicLinks []PublicWorkshopLink `json:"publicLinks,omitempty"`
+}
+
+// PublicWorkshopLink is one piece of further reading on a workshop's public page.
+type PublicWorkshopLink struct {
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	URL         string `json:"url"`
+}
+
+// PublicWorkshopPage is what a visitor of /w/<slug> sees. It names no creators and no institution.
+type PublicWorkshopPage struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	// PlayAvailable is false when the workshop has no key: no game on the page can be played.
+	PlayAvailable bool                 `json:"playAvailable"`
+	Games         []PublicWorkshopGame `json:"games"`
+	Links         []PublicWorkshopLink `json:"links,omitempty"`
+}
+
+// PublicWorkshopGame is one public game on a workshop's public page.
+type PublicWorkshopGame struct {
+	ID          uuid.UUID           `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Play        *PublicWorkshopPlay `json:"play,omitempty"` // nil without a workshop key or while the game is not playable
+}
+
+// PublicWorkshopPlay is the share link through which visitors play a game from the public page.
+type PublicWorkshopPlay struct {
+	Token     string `json:"token"`
+	Remaining int    `json:"remaining"`
+	Limit     int    `json:"limit"`
 }
 
 // WorkshopParticipant represents a participant enrolled in a workshop.
@@ -517,6 +566,9 @@ type GameSessionMessage struct {
 	// Voice input: base64-encoded audio from the player (not persisted, used for transcription)
 	AudioBase64   string `json:"-"`
 	AudioMimeType string `json:"-"`
+	// Narration requested by the player for this action (not persisted). Audio narration (TTS) is
+	// generated only when this is set, so muted players cause no TTS costs.
+	NarrationRequested bool `json:"-"`
 
 	// Transcription holds the text result of audio-to-text conversion (transient, not persisted).
 	// Returned in the action response so the client can display what was recognized.
