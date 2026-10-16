@@ -5,10 +5,10 @@
 package imagecache
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"sync"
 	"time"
+
+	"cgl/obj"
 
 	"github.com/google/uuid"
 )
@@ -208,10 +208,8 @@ func (c *Cache) cleanup() {
 	}
 }
 
+// computeHash is the single content-hash used everywhere an image is addressed
+// (cache status, ?v= URL, ETag). Delegates to obj.ImageHash so all layers agree.
 func computeHash(data []byte) string {
-	if len(data) == 0 {
-		return ""
-	}
-	h := md5.Sum(data)
-	return hex.EncodeToString(h[:8]) // First 8 bytes = 16 hex chars, enough for change detection
+	return obj.ImageHash(data)
 }

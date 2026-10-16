@@ -566,6 +566,9 @@ type GameSessionMessage struct {
 	// Voice input: base64-encoded audio from the player (not persisted, used for transcription)
 	AudioBase64   string `json:"-"`
 	AudioMimeType string `json:"-"`
+	// Narration requested by the player for this action (not persisted). Audio narration (TTS) is
+	// generated only when this is set, so muted players cause no TTS costs.
+	NarrationRequested bool `json:"-"`
 
 	// Transcription holds the text result of audio-to-text conversion (transient, not persisted).
 	// Returned in the action response so the client can display what was recognized.
@@ -583,6 +586,8 @@ type GameSessionMessage struct {
 	Plot                       *string       `json:"plot,omitempty"`
 	ImagePrompt                *string       `json:"imagePrompt,omitempty"`
 	Image                      []byte        `json:"image,omitempty"`
+	ImageHash                  string        `json:"imageHash,omitempty"`  // content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag
+	ImageGenAttempts           int           `json:"-"`                     // internal: number of image-generation attempts; caps retry-on-load
 	Audio                      []byte        `json:"audio,omitempty"`
 	HasImage                   bool          `json:"hasImage"`    // true when image generation is active for this message
 	HasAudioIn                 bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
@@ -601,6 +606,7 @@ type GameSessionMessageChunk struct {
 	TextDone   bool   `json:"textDone,omitempty"`   // True when text streaming is complete
 	ImageData  []byte `json:"imageData,omitempty"`  // Partial/final image data
 	ImageDone  bool   `json:"imageDone,omitempty"`  // True when image streaming is complete
+	ImageHash  string `json:"imageHash,omitempty"`  // content hash of the final image, sent alongside ImageDone
 	ImageError string `json:"imageError,omitempty"` // Human-readable image error (e.g. "rate limit reached")
 	AudioData  []byte `json:"audioData,omitempty"`  // Partial/final audio data (opus)
 	AudioDone  bool   `json:"audioDone,omitempty"`  // True when audio streaming is complete

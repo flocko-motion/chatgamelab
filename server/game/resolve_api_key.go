@@ -243,6 +243,17 @@ func ResolveSessionApiKeyCandidates(ctx context.Context, session *obj.GameSessio
 	return resolveApiKeyCandidates(ctx, session.UserID, session.GameID, session.AiPlatform)
 }
 
+// ResolveSessionApiKey re-resolves the highest-priority API key for an existing session and applies it.
+// Used for single AI calls outside a turn (e.g. on-demand narration) that need no fallback retries.
+func ResolveSessionApiKey(ctx context.Context, session *obj.GameSession) *obj.HTTPError {
+	candidates, httpErr := ResolveSessionApiKeyCandidates(ctx, session)
+	if httpErr != nil {
+		return httpErr
+	}
+	applyResolvedKey(session, &candidates[0])
+	return nil
+}
+
 // applyResolvedKey updates session fields from a resolved key candidate.
 func applyResolvedKey(session *obj.GameSession, resolved *resolvedKey) {
 	session.ApiKey = resolved.Share.ApiKey

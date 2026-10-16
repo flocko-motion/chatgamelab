@@ -230,10 +230,35 @@ func Recover(next http.Handler) http.Handler {
 	})
 }
 
-// NoCache returns a middleware that sets no-cache headers
+// NoCache returns a middleware that sets no-cache headers on API responses.
+// Immutable per-message media (image/audio) is exempt: those handlers set their
+// own long-lived, content-addressed cache headers, and a stray Pragma/Expires
+// left here would make some browsers and proxies re-download them every time.
 func NoCache(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		SetNoCacheHeaders(w)
+		if !isImmutableMediaPath(r.URL.Path) {
+			SetNoCacheHeaders(w)
+		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+// isImmutableMediaPath reports whether the path serves per-message media that is
+// safe to cache forever: /api/messages/{id}/image and /api/messages/{id}/audio
+// (but not the .../image/status sub-route).
+func isImmutableMediaPath(path string) bool {
+	rest, ok := strings.CutPrefix(path, "/api/messages/")
+	if !ok {
+		return false
+	}
+	slash := strings.IndexByte(rest, '/')
+	if slash < 0 {
+		return false
+	}
+	switch rest[slash+1:] {
+	case "image", "audio":
+		return true
+	default:
+		return false
+	}
 }

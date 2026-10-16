@@ -58,7 +58,17 @@ export function NotificationBell() {
   ] = useDisclosure(false);
   const [inviteToDecline, setInviteToDecline] =
     useState<RoutesInviteResponse | null>(null);
+  const [
+    acceptModalOpened,
+    { open: openAcceptModal, close: closeAcceptModal },
+  ] = useDisclosure(false);
+  const [inviteToAccept, setInviteToAccept] =
+    useState<RoutesInviteResponse | null>(null);
   const hasAutoOpened = useRef(false);
+
+  // Name of the organization the user currently belongs to (if any).
+  // Accepting an organization invite replaces this membership (#277).
+  const currentOrgName = backendUser?.role?.institution?.name;
 
   // Admins don't have invites - disable query and hide the bell
   const isAdmin = backendUser?.role?.role === "admin";
@@ -94,6 +104,8 @@ export function NotificationBell() {
       queryClient.refetchQueries({ queryKey: queryKeys.invites });
       queryClient.refetchQueries({ queryKey: queryKeys.currentUser });
       retryBackendFetch(); // Refresh user's organization data
+      closeAcceptModal();
+      setInviteToAccept(null);
       close(); // Close the notifications modal
 
       const isWorkshopInvite = !!acceptingInvite?.workshopId;
@@ -107,6 +119,11 @@ export function NotificationBell() {
           navigate({ to: "/my-organization" });
         }
       }, 100);
+    },
+    onError: () => {
+      closeAcceptModal();
+      setInviteToAccept(null);
+      setAcceptingInvite(null);
     },
   });
 
@@ -184,8 +201,23 @@ export function NotificationBell() {
   };
 
   const handleAccept = (invite: RoutesInviteResponse) => {
+    // Accepting an organization invite replaces the user's current role and
+    // silently removes them from the organization they are already in (#277).
+    // Warn first when that would actually happen.
+    if (!isWorkshopInvite(invite) && currentOrgName) {
+      setInviteToAccept(invite);
+      openAcceptModal();
+      return;
+    }
     setAcceptingInvite(invite);
     acceptMutation.mutate(invite.id!);
+  };
+
+  const confirmAccept = () => {
+    if (inviteToAccept?.id) {
+      setAcceptingInvite(inviteToAccept);
+      acceptMutation.mutate(inviteToAccept.id);
+    }
   };
 
   const handleDecline = (invite: RoutesInviteResponse) => {
@@ -323,6 +355,44 @@ export function NotificationBell() {
               loading={declineMutation.isPending}
             >
               {t("notifications.decline")}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Accept Confirmation Modal - warns about leaving the current org (#277) */}
+      <Modal
+        opened={acceptModalOpened}
+        onClose={() => {
+          closeAcceptModal();
+          setInviteToAccept(null);
+        }}
+        title={t("notifications.acceptTitle")}
+        size="sm"
+      >
+        <Stack gap="md">
+          <Text>
+            {t("notifications.acceptWarning", {
+              organization: currentOrgName,
+            })}
+          </Text>
+          <Text>{t("notifications.acceptConfirm")}</Text>
+          <Group justify="flex-end" gap="xs">
+            <Button
+              variant="subtle"
+              onClick={() => {
+                closeAcceptModal();
+                setInviteToAccept(null);
+              }}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              color="red"
+              onClick={confirmAccept}
+              loading={acceptMutation.isPending}
+            >
+              {t("notifications.accept")}
             </Button>
           </Group>
         </Stack>

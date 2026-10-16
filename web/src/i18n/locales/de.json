@@ -515,6 +515,11 @@
         "starting": "Spielsitzung wird gestartet...",
         "startingHint": "Die KI bereitet dein Abenteuer vor"
       },
+      "narration": {
+        "generating": "Erzählton wird erzeugt…",
+        "play": "Erzählton abspielen",
+        "stop": "Erzählton stoppen"
+      },
       "needsApiKey": {
         "description": "Der API-Schlüssel für diese Sitzung ist nicht mehr verfügbar.",
         "title": "API-Schlüssel erforderlich"
@@ -1201,6 +1206,9 @@
     "noRole": "Keine Rolle",
     "notifications": {
       "accept": "Annehmen",
+      "acceptConfirm": "Möchten Sie fortfahren?",
+      "acceptTitle": "Organisation wechseln?",
+      "acceptWarning": "Sie können nur Mitglied einer Organisation gleichzeitig sein. Wenn Sie diese Einladung annehmen, verlassen Sie Ihre aktuelle Organisation „{{organization}}“.",
       "decline": "Ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?",
       "declineTitle": "Einladung ablehnen",
@@ -1446,6 +1454,7 @@
     "duplicateName": "Der Name für dieses Spiel wird bereits verwendet. Bitte wähle einen anderen Namen.",
     "forbidden": "Du hast keine Berechtigung, diese Aktion durchzuführen.",
     "generic": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
+    "imageGenerationUnavailable": "Das Bild für diese Szene konnte nicht erzeugt werden. Die Geschichte geht ohne Bild weiter.",
     "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
     "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
     "invalidJsonSchema": "Die Spielkonfiguration hat ein ungültiges Schema für die KI erzeugt. Dies ist ein Problem mit der Spieleinrichtung, nicht mit dem API-Schlüssel. Bitte überprüfe die Statusfelder des Spiels und versuche es erneut.",

@@ -515,6 +515,11 @@
         "starting": "Starting game session...",
         "startingHint": "The AI is preparing your adventure"
       },
+      "narration": {
+        "generating": "Narration is being generated…",
+        "play": "Play narration",
+        "stop": "Stop narration"
+      },
       "needsApiKey": {
         "description": "The API key used for this session is no longer available.",
         "title": "API Key Required"
@@ -1201,6 +1206,9 @@
     "noRole": "No role",
     "notifications": {
       "accept": "Accept",
+      "acceptConfirm": "Do you want to continue?",
+      "acceptTitle": "Switch organization?",
+      "acceptWarning": "You can only be a member of one organization at a time. Accepting this invitation removes you from your current organization \"{{organization}}\".",
       "decline": "Decline",
       "declineConfirm": "Are you sure you want to decline this invitation?",
       "declineTitle": "Decline Invitation",
@@ -1446,6 +1454,7 @@
     "duplicateName": "The name for this game is already in use. Please choose a different name.",
     "forbidden": "You don't have permission to perform this action.",
     "generic": "Something went wrong. Please try again.",
+    "imageGenerationUnavailable": "The image for this scene couldn't be generated. The story continues without it.",
     "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
     "invalidJsonSchema": "The game configuration produced an invalid schema for the AI. This is a game setup issue, not an API key problem. Please check the game's status fields and try again.",

@@ -39,6 +39,10 @@ export function MessageList({
 
   // Filter out internal messages (like "init" action)
   const visibleMessages = messages.filter(msg => !msg.isInternal);
+  // Only the latest scene is narrated automatically
+  const latestSceneId = [...visibleMessages]
+    .reverse()
+    .find((msg) => msg.type === "game")?.id;
 
   // Track previous game message's status fields for showing changes
   let previousGameStatusFields: SceneMessage["statusFields"] = undefined;
@@ -83,6 +87,7 @@ export function MessageList({
           message={message}
           showImages={showImages}
           isAudioMuted={isAudioMuted}
+          isLatestScene={message.id === latestSceneId}
           previousStatusFields={previousGameStatusFields}
           systemPrompt={isFirstGameMessage ? systemPromptText : undefined}
           isFirstGameMessage={isFirstGameMessage}

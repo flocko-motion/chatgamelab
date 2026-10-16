@@ -6,6 +6,37 @@ on:
       - development
 
 jobs:
+  migration-numbers:
+    name: Migration Numbers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # The server tracks migrations by version number alone (db/init.go), so a
+      # second file with an already used number never runs on a database that
+      # is past it, and a file without a numeric prefix is skipped with a warning.
+      # pull_request checks out the merge with development, which catches two
+      # branches that each picked the same next number.
+      - name: Every migration has a unique number
+        working-directory: ./server/db/migrations
+        run: |
+          status=0
+          for f in *.sql; do
+            if ! [[ "$f" =~ ^[0-9]+_.+\.sql$ ]]; then
+              echo "::error file=server/db/migrations/$f::migration name must start with a number followed by an underscore"
+              status=1
+            fi
+          done
+          dupes=$(ls *.sql | grep -E '^[0-9]+_' | awk -F_ '{print $1+0}' | sort -n | uniq -d)
+          for n in $dupes; do
+            files=$(ls *.sql | awk -F_ -v n="$n" '$1+0 == n' | tr '\n' ' ')
+            echo "::error::migration number $n is used more than once: $files"
+            status=1
+          done
+          exit $status
+
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
@@ -92,13 +123,13 @@ jobs:
 
   test:
     name: Run Tests
-    needs: [backend-tests, frontend-checks]
+    needs: [migration-numbers, backend-tests, frontend-checks]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check results
         run: |
-          if [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ]; then
+          if [ "${{ needs.migration-numbers.result }}" == "success" ] && [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ]; then
             echo "✅ All checks passed!"
             exit 0
           else

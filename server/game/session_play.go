@@ -322,8 +322,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
 
-		// Phase 4: Generate audio narration (after text is finalized)
-		if !response.HasAudioOut || len(response.Message) == 0 {
+		// Phase 4: Generate audio narration (after text is finalized).
+		// Only when the player has narration switched on - TTS is costly. Scenes without audio
+		// can still be narrated later on demand (GenerateMessageAudio).
+		if !response.HasAudioOut || !action.NarrationRequested || len(response.Message) == 0 {
 			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
 		} else {
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)
@@ -463,6 +465,12 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 	}
 
 	log.Info("retrying image generation for message", "session_id", session.ID, "message_id", message.ID)
+
+	// Count this attempt so a permanently failing scene stops re-rolling on every
+	// session load (see the guard in routes.GetSession).
+	if err := db.IncrementImageGenAttempts(context.Background(), message.ID); err != nil {
+		log.Warn("failed to bump image_gen_attempts", "message_id", message.ID, "error", err)
+	}
 
 	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
