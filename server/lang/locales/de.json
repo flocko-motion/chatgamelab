@@ -67,7 +67,7 @@
       "workshopSection": "Workshop \u0026 Organisation",
       "participantCode": {
         "title": "Dein Zugangscode",
-        "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter „Code eingeben“ ein oder scanne den QR-Code.",
+        "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter \"Code eingeben\" ein oder scanne den QR-Code.",
         "longTokenHint": "Fotografiere den QR-Code oder speichere den Link und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto. Einen kurzen Code aus vier Wörtern bekommst du von deiner Workshopleitung, wenn sie deinen Zugang zurücksetzt.",
         "error": "Dein Zugangscode konnte nicht geladen werden."
       }
@@ -400,7 +400,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "Diesen Code gibt es nicht. Bitte prüfe die Schreibweise.",
+      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, oder die Workshop-Leitung hat den Workshop beendet (das kann jederzeit nach dem Workshop passieren). Frag dann deine Workshop-Leitung nach einem neuen Code.",
       "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
     },
     "error": "Fehler",
@@ -515,6 +515,11 @@
         "starting": "Spielsitzung wird gestartet...",
         "startingHint": "Die KI bereitet dein Abenteuer vor"
       },
+      "narration": {
+        "generating": "Erzählton wird erzeugt…",
+        "play": "Erzählton abspielen",
+        "stop": "Erzählton stoppen"
+      },
       "needsApiKey": {
         "description": "Der API-Schlüssel für diese Sitzung ist nicht mehr verfügbar.",
         "title": "API-Schlüssel erforderlich"
@@ -559,13 +564,13 @@
       "editFields": {
         "description": "Gib dem Spiel eine kurze Beschreibung. Diese hat keinen Einfluss auf das Spiel.",
         "gameStart": "Wie beginnt das Spiel?",
-        "gameStartHint": "Wie soll das Spiel beginnen? Was ist die erste Szene? Wie wird die Spielfigur begrüßt?",
+        "gameStartHint": "Wie soll das Spiel beginnen? Was ist die erste Szene? Wie wird die Spielfigur begrüßt? Woher weiß die spielende Person, was sie tun soll?",
         "gameStartPlaceholder": "Die Spielfigur erwacht am Rand eines dunklen Waldes. Ein schmaler Pfad führt tiefer in die Bäume...",
         "imageStyle": "Welchen Stil sollen die Bilder haben?",
         "imageStyleHint": "Zum Beispiel: Comic, realistisch, Pixel-Art, Aquarell...",
         "name": "Spielname",
         "scenario": "Worum geht es im Spiel",
-        "scenarioHint": "Beschreibe kurz: Wie funktioniert das Spiel? Wie sieht die Spielwelt aus? Sprache \u0026 Tonfall (z. B. Spanisch für Sechstklässler*innen)?\nWelche Rolle hat die Spielfigur? Schreibe \"Die Spielfigur ...\".\nWenn die KI die Rolle einer bestimmten Person übernehmen soll, schreibe \"Du bist ...\".",
+        "scenarioHint": "Beschreibe kurz: Wie funktioniert das Spiel? Wie sieht die Spielwelt aus? Sprache \u0026 Tonfall (z. B. Spanisch für Sechstklässler*innen)?\nWelche Rolle hat die Spielfigur? Schreibe \"Die Spielfigur ...\".\nWenn die KI die Rolle einer bestimmten Person übernehmen soll, schreibe \"Du bist ...\".\nWas ist das Ziel? Woran merkt die Spielfigur, dass sie gewonnen hat?",
         "scenarioPlaceholder": "Die Spielfigur ist ein Entdecker in einem geheimnisvollen Wald. Das Ziel ist es, den versteckten Schatz zu finden...",
         "statusFields": "Spielwerte",
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch."
@@ -641,7 +646,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
         "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
-        "workshopDescription": "Dieser Link wird im Rahmen des Workshops „{{name}}“ erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
+        "workshopDescription": "Dieser Link wird im Rahmen des Workshops \"{{name}}\" erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
         "workshopShare": "Workshop-Freigabe",
         "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
         "workshopSubsection": "Workshop-Freigabelink"
@@ -820,6 +825,10 @@
       "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen."
     },
     "guestPlay": {
+      "copyGame": "Dieses Spiel kopieren",
+      "copyGameLogin": "Anmelden & Spiel kopieren",
+      "copyLeaveTitle": "Spiel verlassen?",
+      "copyLeaveMessage": "Zum Kopieren musst du dich anmelden. Die laufende Runde geht dabei verloren.",
       "welcome": {
         "backToHome": "Zu ChatGameLab",
         "continueGame": "Spiel fortsetzen",
@@ -1122,7 +1131,9 @@
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
         "removeParticipant": "Teilnehmer entfernen",
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
-        "removeParticipantMessage": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "removeParticipantMessage": "Möchten Sie \"{{name}}\" wirklich aus diesem Workshop entfernen?",
+        "removeParticipantWarningPermanent": "Dabei werden das Konto dieser Person und alle Spiele, die sie erstellt hat, endgültig gelöscht – mit allen Spielständen und geteilten Links darauf. Das lässt sich nicht rückgängig machen. Sollen die Spiele erhalten bleiben, laden Sie sie vorher als YAML herunter.",
+        "removeParticipantWarningVisiting": "Diese Person behält ihr Konto und ihre Spiele. Nur der Zugang zu diesem Workshop endet.",
         "removeParticipantTitle": "Teilnehmer entfernen",
         "resetAccess": "Zugang zurücksetzen",
         "resetAccessDone": "Neuer Zugang erstellt. Der alte Link funktioniert nicht mehr.",
@@ -1153,6 +1164,19 @@
         "viewInviteLink": "Einladungslink anzeigen"
       },
       "publicPage": {
+        "links": {
+          "title": "Weiterf\u00fchrende Links",
+          "hint": "Erscheinen auf der Seite unter den Spielen. H\u00f6chstens 10.",
+          "linkTitle": "Titel",
+          "linkDescription": "Beschreibung (optional)",
+          "url": "Adresse",
+          "add": "Link hinzuf\u00fcgen",
+          "remove": "Entfernen",
+          "up": "Nach oben",
+          "down": "Nach unten",
+          "save": "Links speichern",
+          "error": "Die Links konnten nicht gespeichert werden. Jeder Link braucht einen Titel, und jede Adresse muss mit http:// oder https:// beginnen."
+        },
         "title": "Öffentliche Seite",
         "description": "Eine Seite ohne Anmeldung, die zeigt, worum es im Workshop ging, und die öffentlichen Spiele der Gruppe auflistet. Wer ein Spiel erstellt hat, steht nirgends.",
         "enabled": "Öffentliche Seite anzeigen",
@@ -1182,6 +1206,9 @@
     "noRole": "Keine Rolle",
     "notifications": {
       "accept": "Annehmen",
+      "acceptConfirm": "Möchten Sie fortfahren?",
+      "acceptTitle": "Organisation wechseln?",
+      "acceptWarning": "Sie können nur Mitglied einer Organisation gleichzeitig sein. Wenn Sie diese Einladung annehmen, verlassen Sie Ihre aktuelle Organisation \"{{organization}}\".",
       "decline": "Ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?",
       "declineTitle": "Einladung ablehnen",
@@ -1303,7 +1330,8 @@
     "settings": "Einstellungen",
     "share": {
       "copied": "Kopiert",
-      "copyLink": "Link kopieren"
+      "copyLink": "Link kopieren",
+      "visitLink": "Link besuchen"
     },
     "showing": "{{count}} Mitglieder",
     "sort": {
@@ -1315,7 +1343,26 @@
     },
     "unnamed": "Unbenannt",
     "viewGame": "Spiel ansehen",
+    "workshop": {
+      "inactive": {
+        "title": "Workshop ist nicht aktiv",
+        "description": "Dieser Workshop ist gerade nicht aktiv. Warte, bis deine Workshop-Leitung ihn wieder einschaltet.",
+        "photoFirst": "Wenn du dich abmeldest, ist dein Code von diesem Gerät weg. Mach vorher ein Foto davon.",
+        "noCode": "Auf diesem Gerät ist kein Code gespeichert. Deine Workshop-Leitung kann dir deinen Code nennen.",
+        "showCode": "Meinen Zugangscode anzeigen"
+      }
+    },
     "publicWorkshop": {
+      "links": {
+        "title": "Mehr zu diesem Workshop"
+      },
+      "about": {
+        "oneLiner": "Diese Textabenteuer sind mit dem ChatGameLab entstanden: selbst gebaut, ohne Programmieren, live erz\u00e4hlt von einer KI.",
+        "details": "Die Macher*innen beschreiben Welt, Figuren und Regeln in eigenen Worten. Beim Spielen erz\u00e4hlt eine KI die Geschichte daraus live weiter: Sie reagiert auf jede Eingabe und erfindet dazu passende Bilder - zwei Runden laufen deshalb nie gleich ab. Wer selbst eines baut, merkt schnell, wie stark die eigenen Anweisungen das Ergebnis pr\u00e4gen und wo eine KI an ihre Grenzen st\u00f6\u00dft. Genau darum geht es: KI nicht erkl\u00e4rt bekommen, sondern ausprobieren.",
+        "more": "Mehr erfahren",
+        "less": "Weniger",
+        "link": "Mehr \u00fcber das ChatGameLab"
+      },
       "unavailable": {
         "title": "Diese Seite ist nicht verfügbar",
         "message": "Der Link ist nicht (mehr) gültig oder die Workshop-Seite wurde ausgeschaltet.",
@@ -1329,7 +1376,12 @@
       "download": "Herunterladen",
       "copy": "Kopieren",
       "copyLogin": "Anmelden \u0026 kopieren",
-      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden."
+      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden.",
+      "cta": {
+        "title": "Erstelle selbst ein ChatGameLab-Spiel",
+        "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten.",
+        "button": "Kostenlos loslegen"
+      }
     }
   },
   "dashboard": {
@@ -1402,6 +1454,7 @@
     "duplicateName": "Der Name für dieses Spiel wird bereits verwendet. Bitte wähle einen anderen Namen.",
     "forbidden": "Du hast keine Berechtigung, diese Aktion durchzuführen.",
     "generic": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
+    "imageGenerationUnavailable": "Das Bild für diese Szene konnte nicht erzeugt werden. Die Geschichte geht ohne Bild weiter.",
     "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
     "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
     "invalidJsonSchema": "Die Spielkonfiguration hat ein ungültiges Schema für die KI erzeugt. Dies ist ein Problem mit der Spieleinrichtung, nicht mit dem API-Schlüssel. Bitte überprüfe die Statusfelder des Spiels und versuche es erneut.",
