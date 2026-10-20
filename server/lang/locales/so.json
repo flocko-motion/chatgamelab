@@ -60,7 +60,7 @@
       "organizationSection": "Urur \u0026 Doorka",
       "participantCode": {
         "error": "Koodhkaaga gelitaanka lama soo dejin karin.",
-        "hint": "Sawir ka qaad koodhkan ama qor, oo adiga keligaa hayso. Wuxuu kuu saamaxayaa inaad mar kasta iyo qalab kasta dib ugu gasho akoonkaaga: geli erayada ku hoos qoran “Geli koodhka” bogga hore ama iskaanka QR-ka.",
+        "hint": "Sawir ka qaad koodhkan ama qoro, oo naftaada uun ku hay. Waxay kuu saamaxaysaa inaad mar kasta, qalab kasta, dib ugu gasho akoonkaaga: ku qor erayada hoosta “Geli koodhka” ee bogga hore ama iskaanka ku samee koodhka QR.",
         "longTokenHint": "Sawir ka qaad koodhka QR-ka ama kaydi xiriirka, oo adiga keligaa hayso. Wuxuu kuu saamaxayaa inaad mar kasta dib ugu gasho akoonkaaga. Hoggaamiyaha aqoon-is-weydaarsiga ayaa ku siin kara koodh gaaban oo afar eray ah isagoo dib u dejinaya gelitaankaaga.",
         "title": "Koodhkaaga gelitaanka"
       },
@@ -472,7 +472,7 @@
       "placeholder": "tusaale, apfel otter turm",
       "submit": "Sii wad",
       "title": "Geli koodhka",
-      "unknown": "Koodhkani ma jiro. Fadlan hubi higgaadda.",
+      "unknown": "Taasi ma shaqayn. Marka hore hubi higgaadda, eray eray. Jiitinnada ama meelaha bannaan waxba kama beddelaan. Haddii koodhku sax yahay, waxaa laga yaabaa inaanu mar dambe ansax ahayn: koodhadhka waa la beddeli karaa, ama hoggaamiyaha aqoon-is-weydaarsigu wuu soo afjari karaa aqoon-is-weydaarsiga (tani waxay dhici kartaa wakhti kasta ka dib aqoon-is-weydaarsiga). Markaas hoggaamiyaha aqoon-is-weydaarsiga ka codso koodh cusub.",
       "wrongLength": "Koodhku wuxuu ka kooban yahay saddex ama afar eray."
     },
     "error": "Khalad",
@@ -629,6 +629,11 @@
         "resolvingKey": "Furaha API ayaa la xaqiijinayaa...",
         "starting": "Kal-fadhiga ciyaarta waa bilaabmayaa...",
         "startingHint": "AI-gu wuxuu diyaarinayaa tacaburkaaga"
+      },
+      "narration": {
+        "generating": "Sheekaynta ayaa la diyaarinayaa…",
+        "play": "Daar sheekaynta",
+        "stop": "Jooji sheekaynta"
       },
       "needsApiKey": {
         "description": "Furaha API ee kal-fadhigan loo isticmaalay hadda ma jiro.",
@@ -921,13 +926,13 @@
       "editFields": {
         "description": "Sii ciyaarta sharaxaad gaaban. Tani waa adiga oo keliya mana saamayn doonto ciyaarta.",
         "gameStart": "Sidee ayuu ciyaartu ku bilaabmaa?",
-        "gameStartHint": "Sidee ayuu ciyaartu ku bilaabmaa? Waa maxay muuqaalka ugu horreeya? Sidee ciyaartoyga loo soo dhaweeyaa?",
+        "gameStartHint": "Maxaa dhacaya bilowga? Si kooban u sharax muuqaalka ugu horreeya ee ciyaaryahanku arko. Sidee ayaa ciyaaryahanka loo soo dhawaynayaa? Sidee ayuu ciyaaryahanku ku ogaanayaa waxa uu samaynayo?",
         "gameStartPlaceholder": "Waad soo toosaysaa agagaarka keyd mugdi ah. Jid cidhiidhi ah ayaa ku hogaaminaya gudaha geedaha...",
         "imageStyle": "Noocee qaab ahaan sawirrada ciyaarta lagu rabaa?",
         "imageStyleHint": "Tusaale: kartuun, xaqiiqo ah, farshaxan pixel, biyo rinji...",
         "name": "Magaca Ciyaarta",
         "scenario": "Waa maxay ciyaartu?",
-        "scenarioHint": "Si kooban u sharax: Sidee ayuu ciyaartu u shaqeeyaa? Sidee ayay aduunka ciyaartu u egyahay? Luqadda \u00026 Codka (tusaale Isbaanish loogu talagalay ardayda fasalka 6aad)?\nWaa maxay doorka ciyaartoyga? Qor \"Ciyaartoygu ...\".\nHaddii aad rabto in AI ay qaadato doorka qof gaar ah qor \"Adigu waxaad tahay ...\".",
+        "scenarioHint": "Si kooban u sharax: Sidee ayay ciyaartu u shaqaysaa? Dunidu sidee tahay? Luqadda iyo codka (tusaale, Isbaanish loogu talagalay ardayda fasalka lixaad)?\nDoor noocee ah ayuu ciyaaryahanku leeyahay? Qor \"Ciyaaryahanku ...\". \nHaddii aad rabto in AI-gu qaato doorka qof gaar ah, qor \"Waxaad tahay ...\".\nWaa maxay yoolku? Sidee ayuu ciyaaryahanku ku ogaanayaa inuu guulaystay?",
         "scenarioPlaceholder": "Adigu waxaad tahay sahmiyaha keyn qarsoon. Himiladaadu waa inaad hesho khasnad qarsoon...",
         "statusFields": "Qiimayaasha Ciyaarta",
         "statusFieldsHint": "Waa maxay qiimayaasha uu ciyaartu xafidi doono? Tusaale nolosha, dhibcaha, ama rasaasta. Ciyaartu way xasuusan doontaa qiimayaashan oo way cusbooneysiin doontaa inta lagu jiro ciyaarta."
@@ -1309,7 +1314,7 @@
         "sourceWorkshop": "Aqoon-is-weydaarsi",
         "unlimitedSessions": "Fadhiyaal aan xad lahayn",
         "workshopCreateHint": "Abuur isku-xir wadaag oo loogu talagalay ciyaartan. Furaha API ee aqoon-is-weydaarsiga ayaa si toos ah loo doortaa oo daboolaya kharashaadka.",
-        "workshopDescription": "Xiriirkan waxaa lagu abuuray gudaha aqoon-is-weydaarsiga \"{{name}}\" – martidu waxay ku ciyaarayaan furaha API-ga aqoon-is-weydaarsiga iyo xaddidaadaha tilmaamaha.",
+        "workshopDescription": "Xiriirkan waxaa lagu sameeyay gudaha aqoon-is-weydaarsiga \"{{name}}\" – martidu waxay ku ciyaaraan furaha API-ga iyo xaddidaadaha tilmaamaha aqoon-is-weydaarsiga.",
         "workshopShare": "Wadaagga aqoon-is-weydaarsi",
         "workshopShareDescription": "Isku-xirkan waxa laga abuuray aqoon-is-weydaarsi \"{{name}}\" - martidu waxay ciyaaraan iyagoo isticmaalaya furaha API ee aqoon-is-weydaarsiga.",
         "workshopSubsection": "Isku-xir Wadaag Aqoon-is-weydaarsi"
@@ -1433,7 +1438,7 @@
         "basicInfo": "Macluumaad guud oo ku saabsan ciyaarta. Tani waa adiga oo keliya mana saameyn doonto ciyaarta.",
         "importExport": "Import/Export",
         "quickStart": "Bilow Degdeg ah",
-        "story": "Sheeko \u00026 AI",
+        "story": "Sheeko iyo AI",
         "storyInfo": "Wax kasta halkan waxaa loo diraa AI-ga si loo qaabeeyo adduunkaaga ciyaarta iyo sheekada.",
         "style": "Naqshad",
         "styleInfo": "Dejimo ikhtiyaari ah oo loogu talagalay muuqaalka ciyaarta inta lagu jiro ciyaarista."
@@ -1449,6 +1454,12 @@
         "private": "Gaar ah",
         "public": "Guud"
       }
+    },
+    "guestPlay": {
+      "copyGame": "Koobiye ciyaartan",
+      "copyGameLogin": "Soo gal oo koobiyee ciyaarta",
+      "copyLeaveMessage": "Koobiyeyntu waxay u baahan tahay soo-galid. Wareegga aad ciyaarayso wuu lumi doonaa.",
+      "copyLeaveTitle": "Ma ka tagaysaa ciyaarta?"
     },
     "header": {
       "apiKeys": "Furayaasha API",
@@ -1474,7 +1485,7 @@
         },
         "learn": {
           "description": "Ku habboon aqoon-is-weydaarsiyo waxbarasho iyo hawlo fasalka",
-          "title": "Baro \u00026 Bar"
+          "title": "Baro oo Bar"
         },
         "play": {
           "description": "Ku biir asxaabta sheeko wadaag wadajir ah",
@@ -1640,6 +1651,19 @@
         "enabledHint": "Marka la damiyo, xiriirku wuxuu muujinayaa oo keliya ogeysiis, xiriirrada ciyaarta ee bogguna way shaqayn waayaan.",
         "link": "Xiriir",
         "linkHint": "Isticmaal a–z, 0–9 iyo xarriiqooyin hal ah, 3 ilaa 60 xaraf.",
+        "links": {
+          "add": "Ku dar xiriir",
+          "down": "Hoos u dhaqaaji",
+          "error": "Xiriirrada lama kaydin karin. Xiriir kastaa wuxuu u baahan yahay cinwaan, ciwaan kastana waa inuu ku bilaabmaa http:// ama https://.",
+          "hint": "Waxaa lagu muujinayaa bogga, ciyaaraha hoostooda. Ugu badnaan toban.",
+          "linkDescription": "Sharaxaad (ikhtiyaari)",
+          "linkTitle": "Cinwaan",
+          "remove": "Ka saar",
+          "save": "Kaydi xiriirrada",
+          "title": "Akhris dheeraad ah",
+          "up": "Kor u dhaqaaji",
+          "url": "Cinwaan"
+        },
         "offHint": "Boggu wuu dansan yahay. Weli waad diyaarin kartaa xiriirkiisa iyo koodhkiisa QR.",
         "open": "Fur bogga",
         "shareDescription": "Dir xiriirkan ama u muuji inuu yahay koodh QR.",
@@ -1741,8 +1765,10 @@
         "promptConstraintsPlaceholder": "tusaale ahaan. Ka dhig sheekada mid ku habboon carruurta oo ka fogow waxyaabaha rabshadaha ah.",
         "removeParticipant": "Ka saar kaqaybgalaha",
         "removeParticipantConfirm": "Ma hubtaa inaad ka saari rabto \"{{name}}\" workshop-kan?",
-        "removeParticipantMessage": "Ma hubtaa inaad ka saari rabto \"{{name}}\" workshop-kan? Ficilkan lama celin karo.",
+        "removeParticipantMessage": "Runtii ma doonaysaa inaad \"{{name}}\" ka saarto aqoon-is-weydaarsigan?",
         "removeParticipantTitle": "Ka saar Ka-qaybgal",
+        "removeParticipantWarningPermanent": "Tani waxay si joogto ah u tirtiraysaa akoonka qofkan iyo ciyaar kasta oo uu abuuray, oo ay weheliyaan dhammaan kulamadii ciyaarta iyo xiriir kasta oo lala wadaagay. Lama soo celin karo. Haddii ciyaaraha la doonayo in la hayo, marka hore u soo dejiso YAML ahaan.",
+        "removeParticipantWarningVisiting": "Qofkani wuxuu haynayaa akoonkiisa iyo ciyaarihiisa. Keliya gelitaankiisa aqoon-is-weydaarsigan ayaa dhammaanaya.",
         "resetAccess": "Dib u deji gelitaanka",
         "resetAccessDone": "Gelitaan cusub ayaa la sameeyay. Xiriirkii hore mar dambe ma shaqaynayo.",
         "resetAccessError": "Gelitaanka dib looma dejin karin. Fadlan mar kale isku day.",
@@ -1824,6 +1850,9 @@
     },
     "notifications": {
       "accept": "Aqbal",
+      "acceptConfirm": "Ma doonaysaa inaad sii waddo?",
+      "acceptTitle": "Ma beddelaysaa ururka?",
+      "acceptWarning": "Hal mar waxaad xubin ka noqon kartaa hal urur oo keliya. Aqbalidda casuumaddan waxay kaa saari doontaa ururkaaga hadda \"{{organization}}\".",
       "decline": "Diid",
       "declineConfirm": "Ma hubtaa inaad diidi rabto casuumaddan?",
       "declineTitle": "Diid Casuumaad",
@@ -1857,10 +1886,25 @@
     },
     "profile": "Xogta",
     "publicWorkshop": {
+      "about": {
+        "details": "Abuurayaashoodu waxay erayadooda ku sharxaan dunida, jilayaasha iyo xeerarka. Inta aad ciyaarayso, AI-gu halkaas ayuu ka sii wadaa sheekada: wuxuu ka falceliyaa wax kasta oo aad qorto, wuxuuna abuuraa sawirro ku habboon — sidaas darteed laba wareeg isku si uma dhacaan. Inaad adigu mid samaysato waxay si dhakhso ah kuu tusaysaa sida tilmaamahaaga gaarka ahi si xooggan u qaabeeyaan natiijada, iyo halka ay AI-gu xadkeedu gaadho. Taasi waa ujeeddada oo dhan: ma aha in laguu sharxo AI, balse waa inaad adigu tijaabiso.",
+        "less": "Ka yar",
+        "link": "Wax badan oo ku saabsan ChatGameLab",
+        "more": "Wax badan baro",
+        "oneLiner": "Tacaburradan qoraalka ah waxaa lagu sameeyay ChatGameLab: abuurayaashoodu ayay sameeyeen, iyaga oo aan barnaamij qorayn, AI-na si toos ah ayuu ugu sheekeeyaa."
+      },
       "copy": "Koobiye",
       "copyLogin": "Gal si aad u koobiyeato",
+      "cta": {
+        "button": "Bilaaw bilaash",
+        "text": "Samaynta tacabur qoraal ah oo adiga kuu gaar ah waa bilaash waxayna qaadataa dhowr daqiiqo oo keliya.",
+        "title": "Samee ciyaartaada ChatGameLab"
+      },
       "download": "Soo dejiso",
       "gamesTitle": "Ciyaaraha aqoon-is-weydaarsigan",
+      "links": {
+        "title": "Wax badan oo ku saabsan aqoon-is-weydaarsigan"
+      },
       "noGames": "Weli wax ciyaaro ah halkan laguma daabicin.",
       "play": "Ciyaar",
       "playExhausted": "Kulamo ciyaareed oo hadhay ma jiraan",
@@ -1922,10 +1966,20 @@
     "settings": "Dejimaha",
     "share": {
       "copied": "La koobiyeeyay",
-      "copyLink": "Koobiye xiriirka"
+      "copyLink": "Koobiye xiriirka",
+      "visitLink": "Booqo xiriirka"
     },
     "unnamed": "Aan magac lahayn",
-    "viewGame": "Daawo Ciyaarta"
+    "viewGame": "Daawo Ciyaarta",
+    "workshop": {
+      "inactive": {
+        "description": "Aqoon-is-weydaarsigan hadda ma shaqaynayo. Sug ilaa hoggaamiyaha aqoon-is-weydaarsigu mar kale shido.",
+        "noCode": "Qalabkan wax koodh ah laguma kaydin. Hoggaamiyaha aqoon-is-weydaarsiga ayaa kuu sheegi kara koodhkaaga.",
+        "photoFirst": "Haddii aad ka baxdo, koodhkaagu wuu ka tirmayaa qalabkan. Marka hore sawir ka qaad.",
+        "showCode": "Muuji koodhka gelitaankayga",
+        "title": "Aqoon-is-weydaarsigu ma shaqaynayo"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1995,6 +2049,7 @@
     "contentFiltered": "Codsigaaga waxaa shaandheeyay siyaasadda nuxurka ee AI. Fadlan dib u habee codsigaaga.",
     "forbidden": "Ma haysid oggolaansho aad ficilkan ku fuliso.",
     "generic": "Wax qaldamay. Fadlan isku day mar kale.",
+    "imageGenerationUnavailable": "Sawirka muuqaalkan lama abuuri karin. Sheekadu way sii soconaysaa isaga la'aantiis.",
     "insufficientQuota": "Furahaaga API-ga wuxuu ka dhamaaday credit-ka. Fadlan ku dar credit ama isticmaal fure kale.",
     "invalidApiKey": "Furahaaga API-ga waa mid aan sax ahayn ama dhacay. Fadlan hubi furahaaga Settings.",
     "invalidPlatform": "Madal aan sax ahayn ayaa la doortay. Fadlan dooro ikhtiyaar sax ah.",

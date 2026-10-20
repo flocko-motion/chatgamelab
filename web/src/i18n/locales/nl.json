@@ -60,7 +60,7 @@
       "organizationSection": "Organisatie \u0026 rol",
       "participantCode": {
         "error": "Je toegangscode kon niet worden geladen.",
-        "hint": "Maak een foto van deze code of schrijf hem op en houd hem voor jezelf. Zo krijg je op elk moment en op elk apparaat weer toegang tot je account: voer de woorden onder ‘Code invoeren’ op de startpagina in of scan de QR-code.",
+        "hint": "Maak een foto van deze code of schrijf hem op en houd hem voor jezelf. Hiermee krijg je op elk moment en op elk apparaat weer toegang tot je account: voer de woorden in onder ‘Code invoeren’ op de startpagina of scan de QR-code.",
         "longTokenHint": "Maak een foto van de QR-code of bewaar de link en houd hem voor jezelf. Zo krijg je op elk moment weer toegang tot je account. De workshopbegeleider kan je een korte code van vier woorden geven door je toegang opnieuw in te stellen.",
         "title": "Je toegangscode"
       },
@@ -415,7 +415,7 @@
       "placeholder": "bijv. apfel otter turm",
       "submit": "Doorgaan",
       "title": "Code invoeren",
-      "unknown": "Deze code bestaat niet. Controleer de spelling.",
+      "unknown": "Dat werkte niet. Controleer eerst de spelling, woord voor woord. Koppeltekens of spaties maken niet uit. Als de code klopt, is deze misschien niet meer geldig: codes kunnen worden vervangen of de workshopleider heeft de workshop beëindigd (dit kan op elk moment na de workshop gebeuren). Vraag je workshopleider dan om een nieuwe code.",
       "wrongLength": "Een code bestaat uit drie of vier woorden."
     },
     "error": "Fout",
@@ -530,6 +530,11 @@
         "starting": "Gamesessie starten...",
         "startingHint": "De AI bereidt je avontuur voor"
       },
+      "narration": {
+        "generating": "De vertelling wordt gegenereerd…",
+        "play": "Vertelling afspelen",
+        "stop": "Vertelling stoppen"
+      },
       "needsApiKey": {
         "description": "De API-sleutel voor deze sessie is niet meer beschikbaar.",
         "title": "API-sleutel vereist"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Geef de game een korte beschrijving. Dit is alleen voor jou en heeft geen invloed op het spel.",
         "gameStart": "Hoe begint de game?",
-        "gameStartHint": "Wat gebeurt er aan het begin? Beschrijf de eerste scène die de speler ziet. Hoe wordt de speler verwelkomd?",
+        "gameStartHint": "Wat gebeurt er aan het begin? Beschrijf de eerste scène die de speler ziet. Hoe wordt de speler verwelkomd? Hoe weet de speler wat hij of zij moet doen?",
         "gameStartPlaceholder": "Je wordt wakker aan de rand van een donker bos. Een smal pad leidt dieper de bomen in...",
         "imageStyle": "Welke stijl moeten de afbeeldingen van de game hebben?",
         "imageStyleHint": "Bijvoorbeeld: cartoon, realistisch, pixel art, aquarel...",
         "name": "Gamenaam",
         "scenario": "Waar gaat de game over?",
-        "scenarioHint": "Beschrijf kort: Hoe werkt de game? Hoe ziet de wereld eruit? Taal \u0026 toon (bijv. Spaans voor zesdeklassers)?\nWelke rol heeft de speler? Schrijf \"De speler ...\".\nAls je wilt dat de AI de rol van een specifiek persoon aanneemt, schrijf \"Jij bent ...\".",
+        "scenarioHint": "Beschrijf kort: Hoe werkt het spel? Hoe ziet de wereld eruit? Taal en toon (bijv. Spaans voor leerlingen uit groep 8)?\nWelke rol heeft de speler? Schrijf \"De speler ...\". \nAls je wilt dat de AI de rol van een specifiek persoon op zich neemt, schrijf dan \"Je bent ...\".\nWat is het doel? Hoe weet de speler dat hij of zij heeft gewonnen?",
         "scenarioPlaceholder": "Je bent een ontdekkingsreiziger in een mysterieus bos. Je doel is om de verborgen schat te vinden...",
         "statusFields": "Gamewaarden",
         "statusFieldsHint": "Wat moet de game bijhouden? Bijvoorbeeld gezondheid, punten of munitie. De game onthoudt deze waarden en werkt ze bij tijdens het spelen."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Onbeperkte sessies",
         "update": "Deellink bijwerken",
         "workshopCreateHint": "Maak een deellink voor dit spel. De API-sleutel van de workshop wordt automatisch geselecteerd en dekt de kosten.",
-        "workshopDescription": "Deze link is aangemaakt binnen de workshop \"{{name}}\" – gasten spelen met de API-sleutel van de workshop en de beperkingen voor prompts.",
+        "workshopDescription": "Deze link is aangemaakt binnen de workshop ‘{{name}}’ – gasten spelen met de API-sleutel van de workshop en de promptbeperkingen.",
         "workshopShare": "Workshopdeel",
         "workshopShareDescription": "Deze link is aangemaakt in workshop \"{{name}}\" - gasten spelen met de API-sleutel van de workshop.",
         "workshopSubsection": "Workshop-deellink"
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Dit spel kopiëren",
+      "copyGameLogin": "Inloggen en spel kopiëren",
+      "copyLeaveMessage": "Kopiëren vereist inloggen. De ronde die je speelt gaat verloren.",
+      "copyLeaveTitle": "Het spel verlaten?",
       "welcome": {
         "backToHome": "Ga naar ChatGameLab",
         "continueGame": "Game hervatten",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Als dit uitstaat, toont de link alleen een melding en werken de speellinks van de pagina niet meer.",
         "link": "Link",
         "linkHint": "Gebruik a–z, 0–9 en enkele streepjes, 3 tot 60 tekens.",
+        "links": {
+          "add": "Link toevoegen",
+          "down": "Omlaag verplaatsen",
+          "error": "De links konden niet worden opgeslagen. Elke link heeft een titel nodig en elk adres moet beginnen met http:// of https://.",
+          "hint": "Wordt op de pagina onder de spellen weergegeven. Maximaal tien.",
+          "linkDescription": "Beschrijving (optioneel)",
+          "linkTitle": "Titel",
+          "remove": "Verwijderen",
+          "save": "Links opslaan",
+          "title": "Verder lezen",
+          "up": "Omhoog verplaatsen",
+          "url": "Adres"
+        },
         "offHint": "De pagina staat uit. Je kunt de link en QR-code nog wel voorbereiden.",
         "open": "Pagina openen",
         "shareDescription": "Stuur deze link of toon hem als QR-code.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "bijv. Houd het verhaal geschikt voor de leeftijd en vermijd gewelddadige inhoud.",
         "removeParticipant": "Deelnemer verwijderen",
         "removeParticipantConfirm": "Weet je zeker dat je \"{{name}}\" uit deze workshop wilt verwijderen?",
-        "removeParticipantMessage": "Weet je zeker dat je \"{{name}}\" uit deze workshop wilt verwijderen? Dit kan niet ongedaan worden gemaakt.",
+        "removeParticipantMessage": "Wil je ‘{{name}}’ echt uit deze workshop verwijderen?",
         "removeParticipantTitle": "Deelnemer verwijderen",
+        "removeParticipantWarningPermanent": "Hiermee verwijder je definitief het account van deze persoon en elk spel dat deze persoon heeft gemaakt, samen met alle speelsessies en gedeelde links ernaartoe. Dit kan niet ongedaan worden gemaakt. Als de spellen behouden moeten blijven, download ze dan eerst als YAML.",
+        "removeParticipantWarningVisiting": "Deze persoon behoudt het account en de spellen. Alleen de toegang tot deze workshop wordt beëindigd.",
         "resetAccess": "Toegang opnieuw instellen",
         "resetAccessDone": "Nieuwe toegang aangemaakt. De oude link werkt niet meer.",
         "resetAccessError": "De toegang kon niet opnieuw worden ingesteld. Probeer het opnieuw.",
@@ -1199,6 +1223,9 @@
     "noRole": "Geen rol",
     "notifications": {
       "accept": "Accepteren",
+      "acceptConfirm": "Wil je doorgaan?",
+      "acceptTitle": "Van organisatie wisselen?",
+      "acceptWarning": "Je kunt maar van één organisatie tegelijk lid zijn. Als je deze uitnodiging accepteert, word je verwijderd uit je huidige organisatie ‘{{organization}}’.",
       "decline": "Afwijzen",
       "declineConfirm": "Weet je zeker dat je deze uitnodiging wilt afwijzen?",
       "declineTitle": "Uitnodiging afwijzen",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Promoveren tot hoofd",
     "promoteWarning": "Deze gebruiker kan voortaan organisatieleden beheren en docenten uitnodigen.",
     "publicWorkshop": {
+      "about": {
+        "details": "De makers beschrijven de wereld, de personages en de regels in hun eigen woorden. Terwijl je speelt, blijft een AI het verhaal vanaf daar vertellen: de AI reageert op wat je typt en bedenkt passende afbeeldingen — daardoor verloopt geen enkele ronde hetzelfde. Zelf een spel maken laat al snel zien hoeveel invloed je eigen instructies hebben op het resultaat en waar een AI zijn grenzen bereikt. Daar gaat het om: niet dat AI aan je wordt uitgelegd, maar dat je het zelf uitprobeert.",
+        "less": "Minder",
+        "link": "Meer over ChatGameLab",
+        "more": "Meer informatie",
+        "oneLiner": "Deze tekstavonturen zijn gemaakt met ChatGameLab: door hun makers, zonder programmeren, live verteld door een AI."
+      },
       "copy": "Kopiëren",
       "copyLogin": "Log in om te kopiëren",
+      "cta": {
+        "button": "Gratis beginnen",
+        "text": "Je eigen tekstavontuur maken is gratis en duurt maar een paar minuten.",
+        "title": "Maak je eigen ChatGameLab-spel"
+      },
       "download": "Downloaden",
       "gamesTitle": "Spellen van deze workshop",
+      "links": {
+        "title": "Meer over deze workshop"
+      },
       "noGames": "Er zijn hier nog geen spellen gepubliceerd.",
       "play": "Spelen",
       "playExhausted": "Geen speelsessies meer over",
@@ -1336,7 +1378,8 @@
     "settings": "Instellingen",
     "share": {
       "copied": "Gekopieerd",
-      "copyLink": "Link kopiëren"
+      "copyLink": "Link kopiëren",
+      "visitLink": "Link bezoeken"
     },
     "showing": "{{count}} leden",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Rol (Z-A)"
     },
     "unnamed": "Naamloos",
-    "viewGame": "Game bekijken"
+    "viewGame": "Game bekijken",
+    "workshop": {
+      "inactive": {
+        "description": "Deze workshop is momenteel niet actief. Wacht totdat je workshopleider hem weer inschakelt.",
+        "noCode": "Er is geen code op dit apparaat opgeslagen. Je workshopleider kan je de code vertellen.",
+        "photoFirst": "Als je uitlogt, verdwijnt je code van dit apparaat. Maak er eerst een foto van.",
+        "showCode": "Mijn toegangscode tonen",
+        "title": "Workshop is niet actief"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1419,6 +1471,7 @@
     "duplicateName": "De naam voor deze game is al in gebruik. Kies een andere naam.",
     "forbidden": "Je hebt geen toestemming voor deze actie.",
     "generic": "Er ging iets mis. Probeer het opnieuw.",
+    "imageGenerationUnavailable": "De afbeelding voor deze scène kon niet worden gegenereerd. Het verhaal gaat zonder afbeelding verder.",
     "insufficientQuota": "Je API-sleutel heeft geen tegoed meer. Voeg meer tegoed toe of gebruik een andere sleutel.",
     "invalidApiKey": "Je API-sleutel is ongeldig of verlopen. Controleer je API-sleutel in Instellingen.",
     "invalidJsonSchema": "De gameconfiguratie leverde een ongeldig schema voor de AI op. Dit is een game-setup-probleem, geen API-sleutelmankement. Controleer de statusvelden van de game en probeer het opnieuw.",

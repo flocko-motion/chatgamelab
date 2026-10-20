@@ -57,10 +57,10 @@
       "noOrganization": "Ingen organisation",
       "noRole": "Ingen roll tilldelad",
       "organization": "Organisation",
-      "organizationSection": "Organisation \u000026 roll",
+      "organizationSection": "Organisation och roll",
       "participantCode": {
         "error": "Din åtkomstkod kunde inte läsas in.",
-        "hint": "Fotografera den här koden eller skriv ner den och håll den för dig själv. Den ger dig tillgång till ditt konto igen när som helst, på vilken enhet som helst: skriv in orden under ”Ange kod” på startsidan eller skanna QR-koden.",
+        "hint": "Ta ett foto av den här koden eller skriv ner den och håll den för dig själv. Den ger dig tillgång till ditt konto igen när som helst och på vilken enhet som helst: skriv in orden under ”Ange kod” på startsidan eller skanna QR-koden.",
         "longTokenHint": "Fotografera QR-koden eller spara länken och håll den för dig själv. Den ger dig tillgång till ditt konto igen när som helst. Din workshopledare kan ge dig en kort kod med fyra ord genom att återställa din åtkomst.",
         "title": "Din åtkomstkod"
       },
@@ -375,7 +375,7 @@
         "revokeGameShare": "Återkalla delningslänk",
         "revokePrivateShare": "Återkalla delningslänk",
         "sponsorships": "Spelsponsringar",
-        "toggle": "Delningar \u000026 sponsringar",
+        "toggle": "Delningar och sponsring",
         "unknownGame": "Okänt spel",
         "unknownOrg": "Okänd organisation",
         "unknownUser": "Okänd användare",
@@ -415,7 +415,7 @@
       "placeholder": "t.ex. äpple utter torn",
       "submit": "Fortsätt",
       "title": "Ange kod",
-      "unknown": "Den här koden finns inte. Kontrollera stavningen.",
+      "unknown": "Det fungerade inte. Kontrollera först stavningen, ord för ord. Bindestreck och mellanslag spelar ingen roll. Om koden stämmer kan den ha slutat gälla: koder kan ersättas, eller så har workshopledaren avslutat workshopen (det kan hända när som helst efter workshopen). Be då din workshopledare om en ny kod.",
       "wrongLength": "En kod består av tre eller fyra ord."
     },
     "error": "Fel",
@@ -530,6 +530,11 @@
         "starting": "Startar spelsession...",
         "startingHint": "AI:n förbereder ditt äventyr"
       },
+      "narration": {
+        "generating": "Berättarröst skapas…",
+        "play": "Spela upp berättarröst",
+        "stop": "Stoppa berättarröst"
+      },
       "needsApiKey": {
         "description": "API-nyckeln som användes för denna session är inte längre tillgänglig.",
         "reason": "Din tidigare API-nyckel är inte längre tillgänglig. För att fortsätta ditt spel, välj en ny.",
@@ -589,13 +594,13 @@
       "editFields": {
         "description": "Ge spelet en kort beskrivning. Den är bara för dig och påverkar inte spelupplevelsen.",
         "gameStart": "Hur börjar spelet?",
-        "gameStartHint": "Vad händer i början? Beskriv den första scenen som spelaren ser. Hur välkomnas spelaren?",
+        "gameStartHint": "Vad händer i början? Beskriv den första scenen som spelaren ser. Hur välkomnas spelaren? Hur vet spelaren vad hen ska göra?",
         "gameStartPlaceholder": "Du vaknar vid kanten av en mörk skog. En smal stig leder djupare in bland träden...",
         "imageStyle": "Vilken stil ska spelets bilder ha?",
         "imageStyleHint": "Till exempel: tecknad, realistisk, pixelart, akvarell...",
         "name": "Spelnamn",
         "scenario": "Vad handlar spelet om?",
-        "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser världen ut? Språk \u000026 ton (t.ex. spanska för sjätteklassare)?\nVilken roll har spelaren? Skriv \"Spelaren ...\".\nOm du vill att AI:n ska anta en specifik roll, skriv \"Du är ...\".",
+        "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser världen ut? Språk och ton (t.ex. spanska för elever i årskurs 6)?\nVilken roll har spelaren? Skriv ”Spelaren …”.\nOm du vill att AI:n ska spela rollen som en specifik person, skriv ”Du är …”.\nVad är målet? Hur vet spelaren att hen har vunnit?",
         "scenarioPlaceholder": "Du är en upptäcktsresande i en mystisk skog. Ditt mål är att hitta den gömda skatten...",
         "statusFields": "Spelvärden",
         "statusFieldsHint": "Vad ska spelet hålla reda på? Till exempel hälsa, poäng eller ammunition. Spelet minns dessa värden och uppdaterar dem under spelets gång."
@@ -673,7 +678,7 @@
         "unlimitedSessions": "Obegränsade sessioner",
         "update": "Uppdatera delningslänk",
         "workshopCreateHint": "Skapa en delningslänk för detta spel. Workshopens API-nyckel väljs automatiskt och täcker kostnaderna.",
-        "workshopDescription": "Den här länken skapades inom workshopen \"{{name}}\" – gäster spelar med workshoppens API-nyckel och promptbegränsningar.",
+        "workshopDescription": "Den här länken skapades inom workshopen ”{{name}}” – gäster spelar med workshopens API-nyckel och begränsningar för instruktioner.",
         "workshopShare": "Workshopdelning",
         "workshopShareDescription": "Denna länk skapades i workshopen \"{{name}}\" – gäster spelar med workshopens API-nyckel.",
         "workshopSubsection": "Delningslänk för workshop"
@@ -742,7 +747,7 @@
         "basicInfo": "Allmän info om spelet. Detta är bara för dig och påverkar inte spelandet.",
         "importExport": "Importera/exportera",
         "quickStart": "Snabbstart",
-        "story": "Berättelse \u000026 AI",
+        "story": "Berättelse och AI",
         "storyInfo": "Allt här skickas till AI:n för att forma din spelvärld och berättelse.",
         "style": "Design",
         "styleInfo": "Valfria inställningar för spelets utseende under spelandet."
@@ -850,6 +855,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Kopiera det här spelet",
+      "copyGameLogin": "Logga in och kopiera spelet",
+      "copyLeaveMessage": "Du måste vara inloggad för att kopiera. Omgången du spelar kommer att gå förlorad.",
+      "copyLeaveTitle": "Lämna spelet?",
       "welcome": {
         "backToHome": "Gå till ChatGameLab",
         "continueGame": "Fortsätt spel",
@@ -886,7 +895,7 @@
         },
         "learn": {
           "description": "Perfekt för utbildningsworkshops och klassrumsaktiviteter",
-          "title": "Lär \u000026 undervisa"
+          "title": "Lär dig och undervisa"
         },
         "play": {
           "description": "Gå med vänner i samarbetande berättelsestunder",
@@ -1075,6 +1084,19 @@
         "enabledHint": "När den är avstängd visar länken endast ett meddelande och sidans spellänkar slutar fungera.",
         "link": "Länk",
         "linkHint": "Använd a–z, 0–9 och enkla bindestreck, 3 till 60 tecken.",
+        "links": {
+          "add": "Lägg till länk",
+          "down": "Flytta ned",
+          "error": "Länkarna kunde inte sparas. Varje länk måste ha en titel och varje adress måste börja med http:// eller https://.",
+          "hint": "Visas på sidan under spelen. Högst tio.",
+          "linkDescription": "Beskrivning (valfritt)",
+          "linkTitle": "Titel",
+          "remove": "Ta bort",
+          "save": "Spara länkar",
+          "title": "Läs mer",
+          "up": "Flytta upp",
+          "url": "Adress"
+        },
         "offHint": "Sidan är avstängd. Du kan fortfarande förbereda dess länk och QR-kod.",
         "open": "Öppna sidan",
         "shareDescription": "Skicka den här länken eller visa den som en QR-kod.",
@@ -1179,8 +1201,10 @@
         "promptConstraintsPlaceholder": "t.ex. Håll berättelsen åldersanpassad och undvik våldsamt innehåll.",
         "removeParticipant": "Ta bort deltagare",
         "removeParticipantConfirm": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop?",
-        "removeParticipantMessage": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop? Detta kan inte ångras.",
+        "removeParticipantMessage": "Vill du verkligen ta bort ”{{name}}” från den här workshopen?",
         "removeParticipantTitle": "Ta bort deltagare",
+        "removeParticipantWarningPermanent": "Detta raderar permanent den här personens konto och alla spel som personen har skapat, tillsammans med alla spelsessioner och delade länkar till dem. Det går inte att ångra. Om spelen ska sparas, ladda ner dem som YAML först.",
+        "removeParticipantWarningVisiting": "Den här personen behåller sitt konto och sina spel. Endast åtkomsten till den här workshopen upphör.",
         "resetAccess": "Återställ åtkomst",
         "resetAccessDone": "Ny åtkomst har skapats. Den gamla länken fungerar inte längre.",
         "resetAccessError": "Åtkomsten kunde inte återställas. Försök igen.",
@@ -1219,6 +1243,9 @@
     "noRole": "Ingen roll",
     "notifications": {
       "accept": "Acceptera",
+      "acceptConfirm": "Vill du fortsätta?",
+      "acceptTitle": "Byta organisation?",
+      "acceptWarning": "Du kan bara vara medlem i en organisation åt gången. Om du accepterar den här inbjudan tas du bort från din nuvarande organisation ”{{organization}}”.",
       "decline": "Avböj",
       "declineConfirm": "Är du säker på att du vill avböja denna inbjudan?",
       "declineTitle": "Avböj inbjudan",
@@ -1256,10 +1283,25 @@
     "promoteToHead": "Befordra till chef",
     "promoteWarning": "Denna användare får möjlighet att hantera organisationsmedlemmar och bjuda in lärare.",
     "publicWorkshop": {
+      "about": {
+        "details": "Deras skapare beskriver världen, karaktärerna och reglerna med sina egna ord. När du spelar fortsätter en AI att berätta historien därifrån: den reagerar på allt du skriver och hittar på bilder som passar – så ingen omgång blir likadan. Att bygga ett eget spel visar snabbt hur starkt dina egna instruktioner formar resultatet och var en AI når sina gränser. Det är hela poängen: att inte få AI förklarat för sig, utan att prova själv.",
+        "less": "Mindre",
+        "link": "Mer om ChatGameLab",
+        "more": "Läs mer",
+        "oneLiner": "De här textäventyren skapades med ChatGameLab: gjorda av sina skapare, utan programmering, och berättade live av en AI."
+      },
       "copy": "Kopiera",
       "copyLogin": "Logga in för att kopiera",
+      "cta": {
+        "button": "Börja gratis",
+        "text": "Det är gratis att bygga ett eget textäventyr och tar bara några minuter.",
+        "title": "Skapa ditt eget ChatGameLab-spel"
+      },
       "download": "Ladda ner",
       "gamesTitle": "Spel från den här workshopen",
+      "links": {
+        "title": "Mer om den här workshopen"
+      },
       "noGames": "Inga spel har publicerats här ännu.",
       "play": "Spela",
       "playExhausted": "Inga spelsessioner kvar",
@@ -1356,7 +1398,8 @@
     "settings": "Inställningar",
     "share": {
       "copied": "Kopierad",
-      "copyLink": "Kopiera länk"
+      "copyLink": "Kopiera länk",
+      "visitLink": "Besök länk"
     },
     "showing": "{{count}} medlemmar",
     "sort": {
@@ -1367,7 +1410,16 @@
       "role-desc": "Roll (Ö-A)"
     },
     "unnamed": "Namnlös",
-    "viewGame": "Visa spel"
+    "viewGame": "Visa spel",
+    "workshop": {
+      "inactive": {
+        "description": "Den här workshopen är inte aktiv just nu. Vänta tills workshopledaren aktiverar den igen.",
+        "noCode": "Ingen kod finns sparad på den här enheten. Din workshopledare kan berätta vilken kod som är din.",
+        "photoFirst": "Om du loggar ut försvinner din kod från den här enheten. Ta ett foto av den först.",
+        "showCode": "Visa min åtkomstkod",
+        "title": "Workshopen är inte aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1426,7 +1478,7 @@
     "untitledGame": "Namnlöst spel",
     "version": {
       "mismatch": {
-        "message": "Frontend-version \u00003cfrontendVersion\u00003e{{frontendVersion}}\u00003c/frontendVersion\u00003e matchar inte backend-version \u00003cbackendVersion\u00003e{{backendVersion}}\u00003c/backendVersion\u00003e. Detta kan orsaka oväntat beteende. Kontakta support om problemet kvarstår.",
+        "message": "Frontendversionen \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e överensstämmer inte med backendversionen \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Detta kan orsaka oväntat beteende. Kontakta supporten om problemen kvarstår.",
         "title": "Version avvikelse upptäckt"
       }
     }
@@ -1440,6 +1492,7 @@
     "duplicateName": "Namnet för detta spel används redan. Välj ett annat namn.",
     "forbidden": "Du har inte behörighet att utföra denna åtgärd.",
     "generic": "Något gick fel. Försök igen.",
+    "imageGenerationUnavailable": "Bilden för den här scenen kunde inte skapas. Berättelsen fortsätter utan den.",
     "insufficientQuota": "Din API-nyckel har slut på krediter. Lägg till fler krediter eller använd en annan API-nyckel.",
     "invalidApiKey": "Din API-nyckel är ogiltig eller har löpt ut. Kontrollera din API-nyckel i inställningarna.",
     "invalidJsonSchema": "Spelkonfigurationen skapade ett ogiltigt schema för AI:n. Detta är ett speluppläggsproblem, inte en API-nyckelfråga. Kontrollera spelets statusfält och försök igen.",

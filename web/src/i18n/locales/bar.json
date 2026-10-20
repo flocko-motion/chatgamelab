@@ -60,7 +60,7 @@
       "organizationSection": "Organisation \nmp; Roll",
       "participantCode": {
         "error": "Dei Zugangscode hod ned geladen werdn kenna.",
-        "hint": "Mach a Foto vo dem Code oder schreib eam auf und heb eam guad auf. Damit kummst jederzeit auf jedem Gerät wieda in dei Konto: Gib d'Wörter auf da Startseitn unter „Code eingeben“ ei oder scan den QR-Code.",
+        "hint": "Mach a Foto von dem Code oder schreib eam auf und behalt eam für di. Damit kummst jederzeit und auf jedem Gerät wieder in dei Konto: Gib d’Wörter auf da Startseitn unter „Code eingeben“ ei oder scann den QR-Code.",
         "longTokenHint": "Mach a Foto vom QR-Code oder speicher den Link und heb eam guad auf. Damit kummst jederzeit wieda in dei Konto. Dei Workshop-Leitung ko dir an kurzen Code aus vier Wörtern gebn, wenn sie dein Zugang zurücksetzt.",
         "title": "Dei Zugangscode"
       },
@@ -375,7 +375,7 @@
         "revokeGameShare": "Share-Link zruckziang",
         "revokePrivateShare": "Teil-Link zurückzieh",
         "sponsorships": "Spui-Sponsoringe",
-        "toggle": "Teilungen \u00026 Sponsoring",
+        "toggle": "Shares \u0026 Sponsoring",
         "unknownGame": "Unbekannts Spui",
         "unknownOrg": "Unbekannte Organisation",
         "unknownUser": "Unbekannte Person",
@@ -415,7 +415,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "Den Code gibt's ned. Bitte schau nach, ob du eam richtig gschriebn hast.",
+      "unknown": "Des hod ned funktioniert. Schau zuerst d’Schreibweise Wort für Wort nach. Bindestriche oder Leerzeichen san wurscht. Wenn da Code stimmt, is er vielleicht nimmer gültig: Codes kenna ersetzt werdn, oder d’Workshop-Leitung hod den Workshop beendet (des kann jederzeit nach’m Workshop passiern). Frag dann dei Workshop-Leitung nach am neuen Code.",
       "wrongLength": "A Code hod drei oder vier Wörter."
     },
     "error": "Fehler",
@@ -530,6 +530,11 @@
         "starting": "Spui-Session startet...",
         "startingHint": "D'KI bereitet dei Abenteuer vor"
       },
+      "narration": {
+        "generating": "D’Erzählung wird grad erstellt …",
+        "play": "Erzählung abspieln",
+        "stop": "Erzählung anhalten"
+      },
       "needsApiKey": {
         "description": "Da API-Schlüssl, der fia diese Session nutzt wor, is nimma verfiegbar.",
         "reason": "Dein vorheriger API-Schlüssal is ned mehr verfügbar. Um wida z'spui'n, wähl bitt an neien.",
@@ -589,13 +594,13 @@
       "editFields": {
         "description": "Gib am Spui a kurze Beschreibung. Des is nua fia di und beeinflusst's Spui ned.",
         "gameStart": "Wia fangt des Spui o?",
-        "gameStartHint": "Was passiert am Anfang? Beschreib die erschte Szene, de Spieler/innen seng. Wia werd da Spieler begrüßt?",
+        "gameStartHint": "Wos passiert am Anfang? Beschreib de erste Szene, de da Spieler sieht. Wie wird da Spieler begrüßt? Woher woaß da Spieler, wos er doa soll?",
         "gameStartPlaceholder": "Du wachst am Rand vo am finstarn Woid auf. A schmoier Steig führt tiefer in de Bäum...",
         "imageStyle": "In welchem Stoi sölln d'Bilder sei?",
         "imageStyleHint": "Zum Beispui: Cartoon, realistisch, Pixel-Art, Aquarell...",
         "name": "Spuinam",
         "scenario": "Um was geht's im Spui?",
-        "scenarioHint": "Beschreib kurz: Wia funktioniert des Spui? Wia schaut d'Welt aus? Sprach \u00026 Ton (z. B. Spanisch fia Sechsklassler)?\nWelche Roll hod da Spieler? Schreib \"Da Spieler ...\".\nWenn d'KI a bestimmte Person spuin soi, schreib \"Du bist ...\".",
+        "scenarioHint": "Beschreib kurz: Wia funktioniert des Spiel? Wia schaut de Welt aus? Sprache und Ton (z. B. Spanisch für Sechstklässler)?\nWelche Roll hod da Spieler? Schreib „Da Spieler …“.\nWenn d’KI de Roll von einer bestimmten Person übernehmen soll, schreib „Du bist …“.\nWos is des Ziel? Woher woaß da Spieler, dass er gwunna hod?",
         "scenarioPlaceholder": "Du bist a Entdecker in am geheimnisvollen Woid. Dei Ziel is, den versteckten Schatz zu findn...",
         "statusFields": "Spui-Werte",
         "statusFieldsHint": "Was soi des Spui im Blick behaltn? Z. B. Gsundheit, Punkte oder Munition. Des Spui merkt si de Werte und aktualisiert's während dem Spuin."
@@ -673,7 +678,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzunga",
         "update": "Teil-Link aktualisieren",
         "workshopCreateHint": "Erstell an Share-Link fia des Spui. Da Workshop-API-Schlissl werd automatisch gnomma und deckt d'Kosten.",
-        "workshopDescription": "Der Link wird innerhalb vom Workshop „{{name}}“ erstellt – Gäste spuin mitm API-Schlüssel vom Workshop und dessen Vorgabn.",
+        "workshopDescription": "Der Link wird innerhalb vom Workshop „{{name}}“ erstellt – Gäste spuin mit’m API-Schlüssel vom Workshop und unter Einhaltung der Prompt-Vorgaben.",
         "workshopShare": "Workshop-Share",
         "workshopShareDescription": "Daa Link is im Workshop \"{{name}}\" erstellt worn – Gäsdn spuin mit dem API-Schlissl vom Workshop.",
         "workshopSubsection": "Workshop-Share-Link"
@@ -742,7 +747,7 @@
         "basicInfo": "Allgemeine Infos zum Spui. Nua fia di, beeinflusst ned's Gameplay.",
         "importExport": "Import/Export",
         "quickStart": "Schnellstart",
-        "story": "Gschicht \u00026 KI",
+        "story": "Gschicht \u0026 KI",
         "storyInfo": "Ois da drin geht an d'KI und formt dei Spuiwelt.",
         "style": "Design",
         "styleInfo": "Optionale Einstellungen fia's Aussehn währendm Spuin."
@@ -850,6 +855,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Des Spiel kopiern",
+      "copyGameLogin": "Anmelden und Spiel kopiern",
+      "copyLeaveMessage": "Zum Kopiern musst du angemeldet sein. Die Runde, de du grad spielst, geht verloren.",
+      "copyLeaveTitle": "Spiel verlassen?",
       "welcome": {
         "backToHome": "Zur ChatGameLab-Startseitn",
         "continueGame": "Spui fortsetzn",
@@ -886,7 +895,7 @@
         },
         "learn": {
           "description": "Perfekt fia Workshops und Unterricht",
-          "title": "Lerna \u00026 Lehrn"
+          "title": "Lerna \u0026 Beibringa"
         },
         "play": {
           "description": "Erlebs gemeinsame Gschichtn mit Freind",
@@ -1075,6 +1084,19 @@
         "enabledHint": "Wenn's aus is, zeigt da Link nur an Hinweis und de Spiellinks auf da Seitn funktionieren nimma.",
         "link": "Link",
         "linkHint": "Nimm a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "links": {
+          "add": "Link hinzufügen",
+          "down": "Nach unten verschieben",
+          "error": "D’Links konnten ned gspeichert werdn. Jeder Link braucht an Titel, und jede Adress muss mit http:// oder https:// anfangen.",
+          "hint": "Wird auf da Seitn unter de Spiele angezeigt. Höchstens zehn.",
+          "linkDescription": "Beschreibung (optional)",
+          "linkTitle": "Titel",
+          "remove": "Entfernen",
+          "save": "Links speichern",
+          "title": "Mehr zum Weiterlesen",
+          "up": "Nach oben verschieben",
+          "url": "Adress"
+        },
         "offHint": "De Seitn is ausgeschaltet. Du kannst ihren Link und QR-Code trotzdem vorbereiten.",
         "open": "Seitn öffnen",
         "shareDescription": "Schick den Link her oder zeig eam als QR-Code.",
@@ -1179,8 +1201,10 @@
         "promptConstraintsPlaceholder": "z. B. Schaug, dass d'Gschicht altersgerecht bleibt und vermeid g'waltige Inhalte.",
         "removeParticipant": "Teilnehmer/in entfern",
         "removeParticipantConfirm": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst?",
-        "removeParticipantMessage": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst? Des laßt si ned rückgängig macha.",
+        "removeParticipantMessage": "Wuißt du „{{name}}“ wirklich aus dem Workshop entfernen?",
         "removeParticipantTitle": "Teilnehmer/in entferna",
+        "removeParticipantWarningPermanent": "Des löscht des Konto von dera Person und alle Spiele, de sie erstellt hod, endgültig – mitsamt allen Spielrunden und allen geteilten Links dorthin. Des kann ned rückgängig gmacht werdn. Wenn de Spiele behalten werdn sollen, lad sie vorher als YAML runter.",
+        "removeParticipantWarningVisiting": "Die Person behält ihr Konto und ihre Spiele. Nur ihr Zugang zu dem Workshop endet.",
         "resetAccess": "Zugang zurücksetzen",
         "resetAccessDone": "Neier Zugang erstellt. Der oide Link funktioniert nimma.",
         "resetAccessError": "Der Zugang hod ned zurückgesetzt werdn kenna. Bitte probier's no amoi.",
@@ -1219,6 +1243,9 @@
     "noRole": "Koane Roll",
     "notifications": {
       "accept": "Annehmen",
+      "acceptConfirm": "Wüst du weitermacha?",
+      "acceptTitle": "Organisation wechseln?",
+      "acceptWarning": "Du kannst immer nur Mitglied von einer Organisation gleichzeitig sein. Wennst diese Einladung annimmst, wirst du aus deiner aktuellen Organisation „{{organization}}“ entfernt.",
       "decline": "Ablehnen",
       "declineConfirm": "Bist da sicha, dassd diese Einladung ablehnst?",
       "declineTitle": "Einladung ablehnen",
@@ -1256,10 +1283,25 @@
     "promoteToHead": "Zur Leitn machn",
     "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
     "publicWorkshop": {
+      "about": {
+        "details": "D’Ersteller beschreiben de Welt, de Figuren und de Regeln mit ihren eigenen Worten. Während du spielst, erzählt a KI de Gschicht von do aus weiter: Sie reagiert auf alles, wos du eintippst, und erfindet passende Bilder – drum läuft koa Runde genau gleich ab. Wennst selber oans baust, merkst schnell, wie stark deine eigenen Anweisungen des Ergebnis prägen und wo a KI an ihre Grenzen kummt. Genau des is da Sinn: Dir KI ned bloß erklären zu lassen, sondern sie selber auszuprobiern.",
+        "less": "Weniger",
+        "link": "Mehr über ChatGameLab",
+        "more": "Mehr erfahren",
+        "oneLiner": "Diese Textabenteuer san mit ChatGameLab erstellt worn: von ihren Erstellern gmacht, ohne Programmieren, und live von einer KI erzählt."
+      },
       "copy": "Kopieren",
       "copyLogin": "Zum Kopieren anmelden",
+      "cta": {
+        "button": "Kostenlos starten",
+        "text": "Dei eigenes Textabenteuer zu bauen is kostenlos und dauert nur a paar Minuten.",
+        "title": "Bau dei eigenes ChatGameLab-Spiel"
+      },
       "download": "Herunterladen",
       "gamesTitle": "Spiele aus dem Workshop",
+      "links": {
+        "title": "Mehr über diesen Workshop"
+      },
       "noGames": "Da san no koa Spiele veröffentlicht worn.",
       "play": "Spuin",
       "playExhausted": "Koa Spielrunden mehr übrig",
@@ -1356,7 +1398,8 @@
     "settings": "Einstellungen",
     "share": {
       "copied": "Kopiert",
-      "copyLink": "Link kopieren"
+      "copyLink": "Link kopieren",
+      "visitLink": "Link aufrufen"
     },
     "showing": "{{count}} Mitglida",
     "sort": {
@@ -1367,7 +1410,16 @@
       "role-desc": "Roll (Z-A)"
     },
     "unnamed": "Unbenannt",
-    "viewGame": "Spui anschaugn"
+    "viewGame": "Spui anschaugn",
+    "workshop": {
+      "inactive": {
+        "description": "Der Workshop is grad ned aktiv. Wart, bis dei Workshop-Leitung eam wieder einschaltet.",
+        "noCode": "Auf dem Gerät is koa Code gespeichert. Dei Workshop-Leitung kann dir deinen sagen.",
+        "photoFirst": "Wennst di abmeldest, is dei Code von dem Gerät weg. Mach vorher a Foto davon.",
+        "showCode": "Meinen Zugangscode anzeigen",
+        "title": "Workshop is ned aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1426,7 +1478,7 @@
     "untitledGame": "Spui ohne Titel",
     "version": {
       "mismatch": {
-        "message": "Frontend-Version \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e passt ned zur Backend-Version \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Des kann z'komischen Effekten führn. Meld di beim Support, wenn's ned weggeht.",
+        "message": "Frontend-Version \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e passt ned zur Backend-Version \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Des ko zu unerwartetem Verhalten führn. Meld di beim Support, wenn de Probleme bleibn.",
         "title": "Versionskonflikt entdeckt"
       }
     }
@@ -1440,6 +1492,7 @@
     "duplicateName": "Diesen Spuinam is scho vergeban. Bitte andern auswählen.",
     "forbidden": "Du host koa Berechtigung fia de Aktion.",
     "generic": "Da is wos schief ganga. Probier's no amoi.",
+    "imageGenerationUnavailable": "Das Bild für diese Szene konnte ned erstellt werdn. D’Gschicht geht ohne des Bild weiter.",
     "insufficientQuota": "Dei API-Schlüssl hod koane Guthaben mehr. Lad was nach oder nutz an andern.",
     "invalidApiKey": "Dei API-Schlüssl is ungültig oder abglaufn. Schau in den Einstellungen noch.",
     "invalidJsonSchema": "D'Spui-Konfiguration hod a ungültigs Schema fia d'KI erzeugt. Des liegt am Spui-Aufbau, ned am API-Schlüssl. Überprüf d'Status-Felder und probier's no amoi.",

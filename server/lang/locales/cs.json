@@ -57,10 +57,10 @@
       "noOrganization": "Žádná organizace",
       "noRole": "Není přiřazena žádná role",
       "organization": "Organizace",
-      "organizationSection": "Organizace \u00026 role",
+      "organizationSection": "Organizace a role",
       "participantCode": {
         "error": "Přístupový kód se nepodařilo načíst.",
-        "hint": "Vyfoťte si tento kód nebo si ho zapište a nikomu ho neukazujte. Kdykoli a na jakémkoli zařízení se s ním můžete vrátit ke svému účtu: na domovské stránce zadejte slova pod „Zadat kód“ nebo naskenujte QR kód.",
+        "hint": "Vyfoťte si tento kód nebo si ho zapište a nikomu ho nesdělujte. Kdykoli a na jakémkoli zařízení se díky němu dostanete zpět ke svému účtu: na domovské stránce zadejte slova pod „Zadat kód“ nebo naskenujte QR kód.",
         "longTokenHint": "Vyfoťte si QR kód nebo si uložte odkaz a nikomu ho neukazujte. Kdykoli se s ním můžete vrátit ke svému účtu. Vedoucí workshopu vám může po obnovení přístupu poskytnout krátký čtyřslovný kód.",
         "title": "Váš přístupový kód"
       },
@@ -375,7 +375,7 @@
         "revokeGameShare": "Zrušit odkaz ke sdílení",
         "revokePrivateShare": "Zrušit odkaz ke sdílení",
         "sponsorships": "Sponzorování her",
-        "toggle": "Sdílení \u00026 sponzorování",
+        "toggle": "Sdílení a sponzorství",
         "unknownGame": "Neznámá hra",
         "unknownOrg": "Neznámá organizace",
         "unknownUser": "Neznámý uživatel",
@@ -415,7 +415,7 @@
       "placeholder": "např. jablko vydra věž",
       "submit": "Pokračovat",
       "title": "Zadat kód",
-      "unknown": "Tento kód neexistuje. Zkontrolujte prosím jeho pravopis.",
+      "unknown": "To nefungovalo. Nejprve zkontrolujte pravopis, slovo po slovu. Na pomlčkách ani mezerách nezáleží. Pokud je kód správně, možná už není platný: kódy lze nahradit nebo lektor workshopu workshop ukončil (k tomu může dojít kdykoli po workshopu). Poté požádejte lektora workshopu o nový kód.",
       "wrongLength": "Kód se skládá ze tří nebo čtyř slov."
     },
     "error": "Chyba",
@@ -530,6 +530,11 @@
         "starting": "Spouštění herního sezení...",
         "startingHint": "AI připravuje vaše dobrodružství"
       },
+      "narration": {
+        "generating": "Generuje se vyprávění…",
+        "play": "Přehrát vyprávění",
+        "stop": "Zastavit vyprávění"
+      },
       "needsApiKey": {
         "description": "API klíč použitý pro toto sezení už není dostupný.",
         "title": "Vyžadován API klíč"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Dejte hře krátký popis. Je jen pro vás a neovlivní hraní.",
         "gameStart": "Jak hra začíná?",
-        "gameStartHint": "Co se stane na začátku? Popište první scénu, kterou hráč uvidí. Jak je hráč uvítán?",
+        "gameStartHint": "Co se stane na začátku? Popište první scénu, kterou hráč uvidí. Jak je hráč přivítán? Jak hráč pozná, co má dělat?",
         "gameStartPlaceholder": "Probouzíte se na kraji temného lesa. Úzká stezka vede hlouběji mezi stromy...",
         "imageStyle": "Jakým stylem mají být obrázky ve hře?",
         "imageStyleHint": "Například: kreslený, realistický, pixel art, akvarel...",
         "name": "Název hry",
         "scenario": "O čem je hra?",
-        "scenarioHint": "Stručně popište: Jak hra funguje? Jaký je svět? Jazyk \u00026 tón (např. španělsky pro šestou třídu)?\nJakou roli má hráč? Napište „Hráč ...“. \nPokud chcete, aby AI hrála konkrétní postavu, napište „Jsi ...“.",
+        "scenarioHint": "Stručně popište: Jak hra funguje? Jaký je svět? Jazyk a tón (např. španělština pro žáky šesté třídy)?\nJakou roli má hráč? Napište „Hráč …“. \nPokud chcete, aby AI hrála roli konkrétní osoby, napište „Jsi …“.\nJaký je cíl? Jak hráč pozná, že vyhrál?",
         "scenarioPlaceholder": "Jste průzkumník v tajemném lese. Vaším cílem je najít ukrytý poklad...",
         "statusFields": "Hodnoty hry",
         "statusFieldsHint": "Co má hra sledovat? Například zdraví, body nebo munici. Hra si tyto hodnoty pamatuje a během hraní je aktualizuje."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Neomezený počet relací",
         "update": "Aktualizovat odkaz",
         "workshopCreateHint": "Vytvořte pro tuto hru odkaz ke sdílení. Klíč API workshopu se vybere automaticky a pokryje náklady.",
-        "workshopDescription": "Tento odkaz byl vytvořen v rámci workshopu „{{name}}“ – hosté hrají s API klíčem workshopu a omezeními zadání.",
+        "workshopDescription": "Tento odkaz byl vytvořen v rámci workshopu „{{name}}“ – hosté hrají s API klíčem workshopu a s omezeními zadanými v promptu.",
         "workshopShare": "Workshopový odkaz ke sdílení",
         "workshopShareDescription": "Tento odkaz byl vytvořen ve workshopu „{{name}}“ – hosté hrají s využitím klíče API workshopu.",
         "workshopSubsection": "Workshopový odkaz ke sdílení"
@@ -727,7 +732,7 @@
         "basicInfo": "Obecné informace o hře. Jsou jen pro vás a neovlivní hraní.",
         "importExport": "Import/Export",
         "quickStart": "Rychlý start",
-        "story": "Příběh \u00026 AI",
+        "story": "Příběh a AI",
         "storyInfo": "Vše zde se posílá AI, aby utvářela svět a příběh hry.",
         "style": "Design",
         "styleInfo": "Volitelná nastavení vzhledu hry během hraní."
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Kopírovat tuto hru",
+      "copyGameLogin": "Přihlásit se a zkopírovat hru",
+      "copyLeaveMessage": "Kopírování vyžaduje přihlášení. Rozehrané kolo bude ztraceno.",
+      "copyLeaveTitle": "Opustit hru?",
       "welcome": {
         "backToHome": "Přejít na ChatGameLab",
         "continueGame": "Pokračovat ve hře",
@@ -871,7 +880,7 @@
         },
         "learn": {
           "description": "Ideální pro vzdělávací workshopy a školní aktivity",
-          "title": "Učte \u00026 vzdělávejte"
+          "title": "Učení a výuka"
         },
         "play": {
           "description": "Přidejte se k přátelům při společném vyprávění příběhů",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Když je tato možnost vypnutá, odkaz zobrazí pouze oznámení a odkazy pro hraní na stránce přestanou fungovat.",
         "link": "Odkaz",
         "linkHint": "Použijte a–z, 0–9 a jednotlivé pomlčky, 3 až 60 znaků.",
+        "links": {
+          "add": "Přidat odkaz",
+          "down": "Přesunout dolů",
+          "error": "Odkazy se nepodařilo uložit. Každý odkaz musí mít název a každá adresa musí začínat na http:// nebo https://.",
+          "hint": "Zobrazí se na stránce pod hrami. Maximálně deset.",
+          "linkDescription": "Popis (volitelné)",
+          "linkTitle": "Název",
+          "remove": "Odstranit",
+          "save": "Uložit odkazy",
+          "title": "Další informace",
+          "up": "Přesunout nahoru",
+          "url": "Adresa"
+        },
         "offHint": "Stránka je vypnutá. Stále můžete připravit její odkaz a QR kód.",
         "open": "Otevřít stránku",
         "shareDescription": "Pošlete tento odkaz nebo ho zobrazte jako QR kód.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "např. Udržuj příběh vhodný pro daný věk a vyhýbej se násilnému obsahu.",
         "removeParticipant": "Odebrat účastníka",
         "removeParticipantConfirm": "Opravdu chcete odstranit „{{name}}“ z tohoto workshopu?",
-        "removeParticipantMessage": "Opravdu chcete odstranit „{{name}}“ z tohoto workshopu? Tuto akci nelze vrátit.",
+        "removeParticipantMessage": "Opravdu chcete odebrat osobu „{{name}}“ z tohoto workshopu?",
         "removeParticipantTitle": "Odebrat účastníka",
+        "removeParticipantWarningPermanent": "Účet této osoby a každá hra, kterou vytvořila, budou trvale odstraněny spolu se všemi herními relacemi a všemi sdílenými odkazy na ně. Tuto akci nelze vrátit zpět. Pokud chcete hry zachovat, nejprve je stáhněte ve formátu YAML.",
+        "removeParticipantWarningVisiting": "Tato osoba si ponechá svůj účet i hry. Skončí pouze její přístup k tomuto workshopu.",
         "resetAccess": "Obnovit přístup",
         "resetAccessDone": "Byl vytvořen nový přístup. Starý odkaz již nefunguje.",
         "resetAccessError": "Přístup se nepodařilo obnovit. Zkuste to prosím znovu.",
@@ -1199,6 +1223,9 @@
     "noRole": "Žádná role",
     "notifications": {
       "accept": "Přijmout",
+      "acceptConfirm": "Chcete pokračovat?",
+      "acceptTitle": "Přepnout organizaci?",
+      "acceptWarning": "Současně můžete být členem pouze jedné organizace. Přijetím tohoto pozvání přestanete být členem své současné organizace „{{organization}}“.",
       "decline": "Odmítnout",
       "declineConfirm": "Opravdu chcete odmítnout tuto pozvánku?",
       "declineTitle": "Odmítnout pozvánku",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Povýšit na vedoucího",
     "promoteWarning": "Tento uživatel získá možnost spravovat členy organizace a zvát učitele.",
     "publicWorkshop": {
+      "about": {
+        "details": "Jejich tvůrci vlastními slovy popisují svět, postavy a pravidla. Během hraní AI pokračuje ve vyprávění příběhu: reaguje na cokoli, co napíšete, a vymýšlí k tomu odpovídající obrázky — takže žádná dvě kola neproběhnou stejně. Vytvořit si vlastní hru rychle ukáže, jak silně vaše vlastní pokyny ovlivňují výsledek a kde AI naráží na své limity. A právě o to jde: nenechat si AI vysvětlovat, ale vyzkoušet si ji.",
+        "less": "Méně",
+        "link": "Více o ChatGameLab",
+        "more": "Zjistit více",
+        "oneLiner": "Tato textová dobrodružství byla vytvořena pomocí ChatGameLab: jejich tvůrci je vytvořili bez programování a AI je vypráví živě."
+      },
       "copy": "Kopírovat",
       "copyLogin": "Pro kopírování se přihlaste",
+      "cta": {
+        "button": "Začít zdarma",
+        "text": "Vytvořit vlastní textové dobrodružství je zdarma a zabere jen několik minut.",
+        "title": "Vytvořte si vlastní hru v ChatGameLab"
+      },
       "download": "Stáhnout",
       "gamesTitle": "Hry z tohoto workshopu",
+      "links": {
+        "title": "Více o tomto workshopu"
+      },
       "noGames": "Zatím zde nebyly zveřejněny žádné hry.",
       "play": "Hrát",
       "playExhausted": "Nezbývají žádné herní relace",
@@ -1336,7 +1378,8 @@
     "settings": "Nastavení",
     "share": {
       "copied": "Zkopírováno",
-      "copyLink": "Kopírovat odkaz"
+      "copyLink": "Kopírovat odkaz",
+      "visitLink": "Navštívit odkaz"
     },
     "showing": "{{count}} členů",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Role (Z–A)"
     },
     "unnamed": "Nepojmenovaný",
-    "viewGame": "Zobrazit hru"
+    "viewGame": "Zobrazit hru",
+    "workshop": {
+      "inactive": {
+        "description": "Tento workshop právě není aktivní. Počkejte, až ho lektor workshopu znovu zapne.",
+        "noCode": "Na tomto zařízení není uložen žádný kód. Váš kód vám sdělí lektor workshopu.",
+        "photoFirst": "Pokud se odhlásíte, váš kód z tohoto zařízení zmizí. Nejprve si ho vyfoťte.",
+        "showCode": "Zobrazit můj přístupový kód",
+        "title": "Workshop není aktivní"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1405,7 +1457,7 @@
     "untitledGame": "Hra bez názvu",
     "version": {
       "mismatch": {
-        "message": "Verze frontendu \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e neodpovídá verzi backendu \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. To může způsobit neočekávané chování. Pokud problémy přetrvávají, kontaktujte podporu.",
+        "message": "Verze frontendu \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e neodpovídá verzi backendu \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. To může způsobit neočekávané chování. Pokud problémy přetrvávají, kontaktujte podporu.",
         "title": "Zjištěna nekompatibilita verzí"
       }
     }
@@ -1419,6 +1471,7 @@
     "duplicateName": "Název této hry se již používá. Zvolte prosím jiný název.",
     "forbidden": "Nemáte oprávnění provést tuto akci.",
     "generic": "Něco se pokazilo. Zkuste to prosím znovu.",
+    "imageGenerationUnavailable": "Obrázek pro tuto scénu se nepodařilo vytvořit. Příběh pokračuje bez něj.",
     "insufficientQuota": "Vašemu API klíči došly kredity. Přidejte další kredity nebo použijte jiný API klíč.",
     "invalidApiKey": "Váš API klíč je neplatný nebo mu vypršela platnost. Zkontrolujte svůj API klíč v Nastavení.",
     "invalidJsonSchema": "Konfigurace hry vytvořila neplatné schéma pro AI. Jedná se o problém nastavení hry, nikoli API klíče. Zkontrolujte stavová pole hry a zkuste to znovu.",
