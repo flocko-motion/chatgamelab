@@ -60,7 +60,7 @@
       "organizationSection": "组织与角色",
       "participantCode": {
         "error": "无法加载您的访问码。",
-        "hint": "请拍下此代码或记下来，并妥善保管。您可以随时在任何设备上使用它重新登录您的账户：在主页“输入代码”下方输入这些单词，或扫描二维码。",
+        "hint": "请拍下此代码或将其记下来，并妥善保管。无论何时、使用任何设备，你都可以凭此代码重新登录账户：在主页“输入代码”下方输入这些词，或扫描二维码。",
         "longTokenHint": "请拍下二维码或保存链接，并妥善保管。您可以随时使用它重新登录您的账户。您的工作坊负责人可以通过重置访问权限，为您提供一个由四个单词组成的短代码。",
         "title": "您的访问码"
       },
@@ -415,7 +415,7 @@
       "placeholder": "例如：apfel otter turm",
       "submit": "继续",
       "title": "输入代码",
-      "unknown": "此代码不存在。请检查拼写。",
+      "unknown": "操作未成功。请先逐词检查拼写。连字符或空格不会影响结果。如果代码正确，它可能已经失效：代码可以被替换，或者工作坊负责人已经结束了工作坊（工作坊结束后随时都可能发生这种情况）。请向工作坊负责人索要新代码。",
       "wrongLength": "代码由三个或四个单词组成。"
     },
     "error": "错误",
@@ -530,6 +530,11 @@
         "starting": "正在启动游戏会话...",
         "startingHint": "AI 正在准备你的冒险"
       },
+      "narration": {
+        "generating": "正在生成旁白……",
+        "play": "播放旁白",
+        "stop": "停止旁白"
+      },
       "needsApiKey": {
         "description": "此会话使用的 API 密钥已不可用。",
         "title": "需要 API 密钥"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "给游戏写一个简短描述，仅供自己查看，不影响玩法。",
         "gameStart": "游戏如何开始？",
-        "gameStartHint": "开场发生什么？描述玩家看到的第一幕，以及如何迎接玩家。",
+        "gameStartHint": "开头会发生什么？请描述玩家看到的第一个场景。玩家会受到怎样的欢迎？玩家如何知道该做什么？",
         "gameStartPlaceholder": "你在一片黑暗森林的边缘醒来。一条狭窄的小路通向更深处……",
         "imageStyle": "游戏的图像应是什么风格？",
         "imageStyleHint": "例如：卡通、写实、像素、水彩……",
         "name": "游戏名称",
         "scenario": "游戏内容是什么？",
-        "scenarioHint": "简要描述：游戏如何进行？世界观如何？语言与语气（例如西班牙语，适合六年级）。\n玩家扮演什么角色？写“玩家……”。\n如果希望 AI 扮演特定人物，可写“你是……”。",
+        "scenarioHint": "请简要描述：游戏如何运作？这是一个怎样的世界？语言和语气（例如：面向六年级学生的西班牙语）？\n玩家扮演什么角色？请以“玩家……”开头。\n如果你希望 AI 扮演某个特定人物，请写上“你是……”。\n目标是什么？玩家如何知道自己已经获胜？",
         "scenarioPlaceholder": "你是一名神秘森林中的探险家，目标是找到隐藏的宝藏……",
         "statusFields": "游戏数值",
         "statusFieldsHint": "需要追踪哪些数值？例如生命值、积分或弹药。游戏会在游玩时记住并更新这些数值。"
@@ -658,7 +663,7 @@
         "unlimitedSessions": "无限次会话",
         "update": "更新分享链接",
         "workshopCreateHint": "为此游戏创建分享链接。系统将自动选择工作坊的 API 密钥并承担费用。",
-        "workshopDescription": "此链接创建于工作坊“{{name}}”中——访客将使用该工作坊的 API 密钥和提示限制进行游戏。",
+        "workshopDescription": "此链接创建于“{{name}}”工作坊中——访客将使用工作坊的 API 密钥和提示词限制进行游戏。",
         "workshopShare": "工作坊分享",
         "workshopShareDescription": "此链接创建于工作坊「{{name}}」，访客将使用该工作坊的 API 密钥进行游玩。",
         "workshopSubsection": "工作坊分享链接"
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "复制此游戏",
+      "copyGameLogin": "登录并复制游戏",
+      "copyLeaveMessage": "复制游戏需要登录。你正在进行的这一轮游戏将会丢失。",
+      "copyLeaveTitle": "要离开游戏吗？",
       "welcome": {
         "backToHome": "前往 ChatGameLab",
         "continueGame": "继续游戏",
@@ -1060,6 +1069,19 @@
         "enabledHint": "关闭后，链接只会显示一则通知，页面上的游戏链接也将停止工作。",
         "link": "链接",
         "linkHint": "请使用 a–z、0–9 和单个连字符，长度为 3 至 60 个字符。",
+        "links": {
+          "add": "添加链接",
+          "down": "下移",
+          "error": "无法保存链接。每个链接都需要标题，并且每个地址都必须以 http:// 或 https:// 开头。",
+          "hint": "显示在页面上游戏的下方。最多十个。",
+          "linkDescription": "描述（可选）",
+          "linkTitle": "标题",
+          "remove": "移除",
+          "save": "保存链接",
+          "title": "延伸阅读",
+          "up": "上移",
+          "url": "地址"
+        },
         "offHint": "页面已关闭。您仍可以准备其链接和二维码。",
         "open": "打开页面",
         "shareDescription": "发送此链接，或将其显示为二维码。",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "例如：保持故事适合相应年龄，避免暴力内容。",
         "removeParticipant": "移除参与者",
         "removeParticipantConfirm": "确定要将“{{name}}”移出该工作坊吗？",
-        "removeParticipantMessage": "确定要将“{{name}}”移出该工作坊吗？该操作无法撤销。",
+        "removeParticipantMessage": "你确定要将“{{name}}”从此工作坊中移除吗？",
         "removeParticipantTitle": "移除参与者",
+        "removeParticipantWarningPermanent": "这将永久删除此人的账户及其创建的所有游戏，以及所有游戏过程和指向这些内容的共享链接。此操作无法撤销。如果需要保留这些游戏，请先将其下载为 YAML 文件。",
+        "removeParticipantWarningVisiting": "此人会保留其账户和游戏。只有他们参加此工作坊的权限会被终止。",
         "resetAccess": "重置访问权限",
         "resetAccessDone": "已创建新的访问权限。旧链接不再有效。",
         "resetAccessError": "无法重置访问权限。请重试。",
@@ -1199,6 +1223,9 @@
     "noRole": "无角色",
     "notifications": {
       "accept": "接受",
+      "acceptConfirm": "你要继续吗？",
+      "acceptTitle": "切换组织？",
+      "acceptWarning": "你同时只能是一个组织的成员。接受此邀请后，你将退出当前组织“{{organization}}”。",
       "decline": "拒绝",
       "declineConfirm": "确定要拒绝这条邀请吗？",
       "declineTitle": "拒绝邀请",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "提升为负责人",
     "promoteWarning": "该用户将获得管理组织成员和邀请教师的权限。",
     "publicWorkshop": {
+      "about": {
+        "details": "游戏创作者会用自己的话描述世界、角色和规则。在你进行游戏时，AI 会从这里继续讲述故事：它会回应你输入的任何内容，并创作相匹配的图片——因此没有两轮游戏会完全相同。亲自制作一个游戏，很快就能看出你的指令对结果有多大的影响，以及 AI 的能力边界在哪里。这正是重点：不是听别人解释 AI，而是亲自尝试。",
+        "less": "收起",
+        "link": "进一步了解 ChatGameLab",
+        "more": "了解更多",
+        "oneLiner": "这些文字冒险游戏使用 ChatGameLab 创建：由创作者制作，无需编程，并由 AI 实时讲述。"
+      },
       "copy": "复制",
       "copyLogin": "登录后复制",
+      "cta": {
+        "button": "免费开始",
+        "text": "制作属于你自己的文字冒险游戏完全免费，只需几分钟。",
+        "title": "制作你自己的 ChatGameLab 游戏"
+      },
       "download": "下载",
       "gamesTitle": "此工作坊中的游戏",
+      "links": {
+        "title": "进一步了解此工作坊"
+      },
       "noGames": "这里还没有发布任何游戏。",
       "play": "开始游戏",
       "playExhausted": "没有剩余游戏次数",
@@ -1336,7 +1378,8 @@
     "settings": "设置",
     "share": {
       "copied": "已复制",
-      "copyLink": "复制链接"
+      "copyLink": "复制链接",
+      "visitLink": "访问链接"
     },
     "showing": "共 {{count}} 名成员",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "角色（Z-A）"
     },
     "unnamed": "未命名",
-    "viewGame": "查看游戏"
+    "viewGame": "查看游戏",
+    "workshop": {
+      "inactive": {
+        "description": "此工作坊目前未启用。请等待工作坊负责人再次将其开启。",
+        "noCode": "此设备上没有保存代码。工作坊负责人可以告诉你代码。",
+        "photoFirst": "如果你退出登录，代码就会从此设备上消失。请先拍下代码。",
+        "showCode": "显示我的访问代码",
+        "title": "工作坊未启用"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1419,6 +1471,7 @@
     "duplicateName": "该游戏名称已被使用，请选择其他名称。",
     "forbidden": "你没有执行此操作的权限。",
     "generic": "出现问题，请重试。",
+    "imageGenerationUnavailable": "无法生成此场景的图片。故事将在没有图片的情况下继续。",
     "insufficientQuota": "你的 API 密钥余额不足，请充值或使用其他密钥。",
     "invalidApiKey": "你的 API 密钥无效或已过期，请在设置中检查。",
     "invalidJsonSchema": "游戏配置生成了无效的 AI 模式，这属于游戏设置问题，请检查状态字段后重试。",

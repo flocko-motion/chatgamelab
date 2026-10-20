@@ -61,7 +61,7 @@
       "organizationSection": "Organizasyon \u0026 Rol",
       "participantCode": {
         "error": "Erişim kodunuz yüklenemedi.",
-        "hint": "Bu kodun fotoğrafını çekin veya bir yere not edin ve kimseyle paylaşmayın. Bu kod, istediğiniz zaman ve herhangi bir cihazdan hesabınıza yeniden erişmenizi sağlar: ana sayfadaki “Kodu girin” bölümünün altına bu kelimeleri girin veya QR kodunu tarayın.",
+        "hint": "Bu kodun fotoğrafını çekin veya bir yere yazın ve kimseyle paylaşmayın. Bu kod, istediğiniz zaman ve istediğiniz cihazdan hesabınıza tekrar girmenizi sağlar: ana sayfadaki “Kodu girin” bölümünün altına kelimeleri girin veya QR kodunu tarayın.",
         "longTokenHint": "QR kodunun fotoğrafını çekin veya bağlantıyı kaydedin ve kimseyle paylaşmayın. Bu, istediğiniz zaman hesabınıza yeniden erişmenizi sağlar. Atölye yöneticiniz, erişiminizi sıfırlayarak size dört kelimelik kısa bir kod verebilir.",
         "title": "Erişim kodunuz"
       },
@@ -377,7 +377,7 @@
         "revokeGameShare": "Paylaşım bağlantısını iptal et",
         "revokePrivateShare": "Paylaşım bağlantısını iptal et",
         "sponsorships": "Oyun Sponsorlukları",
-        "toggle": "Paylaşımlar \u0006 Sponsorluklar",
+        "toggle": "Paylaşımlar ve Sponsorluklar",
         "unknownGame": "Bilinmeyen oyun",
         "unknownOrg": "Bilinmeyen organizasyon",
         "unknownUser": "Bilinmeyen kullanıcı",
@@ -417,7 +417,7 @@
       "placeholder": "örn. apfel otter turm",
       "submit": "Devam et",
       "title": "Kodu girin",
-      "unknown": "Bu kod mevcut değil. Lütfen yazımını kontrol edin.",
+      "unknown": "Bu işe yaramadı. Önce kelimeleri tek tek kontrol ederek yazımını denetleyin. Tirelerin veya boşlukların önemi yoktur. Kod doğruysa artık geçerli olmayabilir: kodlar değiştirilebilir veya atölye yöneticisi atölyeyi sonlandırmış olabilir (bu, atölyeden sonra herhangi bir zamanda gerçekleşebilir). Ardından atölye yöneticinizden yeni bir kod isteyin.",
       "wrongLength": "Kodlar üç veya dört kelimeden oluşur."
     },
     "error": "Hata",
@@ -532,6 +532,11 @@
         "starting": "Oyun oturumu başlatılıyor...",
         "startingHint": "Yapay zekâ maceranızı hazırlıyor"
       },
+      "narration": {
+        "generating": "Anlatım oluşturuluyor…",
+        "play": "Anlatımı oynat",
+        "stop": "Anlatımı durdur"
+      },
       "needsApiKey": {
         "description": "Bu oturumda kullanılan API anahtarı artık mevcut değil.",
         "title": "API Anahtarı Gerekli"
@@ -576,13 +581,13 @@
       "editFields": {
         "description": "Oyuna kısa bir açıklama verin. Sadece size özeldir, oynanışı etkilemez.",
         "gameStart": "Oyun nasıl başlıyor?",
-        "gameStartHint": "Başlangıçta neler olur? Oyuncunun gördüğü ilk sahneyi anlatın. Nasıl karşılanıyor?",
+        "gameStartHint": "Başlangıçta ne oluyor? Oyuncunun gördüğü ilk sahneyi açıklayın. Oyuncu nasıl karşılanıyor? Oyuncu ne yapması gerektiğini nasıl anlıyor?",
         "gameStartPlaceholder": "Karanlık bir ormanın kenarında uyanıyorsun. Dar bir patika ağaçların içine doğru uzanıyor...",
         "imageStyle": "Oyun görselleri hangi tarzda olmalı?",
         "imageStyleHint": "Örneğin: çizgi film, gerçekçi, piksel art, suluboya...",
         "name": "Oyun Adı",
         "scenario": "Oyun ne hakkında?",
-        "scenarioHint": "Kısaca açıklayın: Oyun nasıl ilerliyor? Dünya nasıl? Dil \u0006 Ton (örn. altıncı sınıflar için İspanyolca)?\nOyuncunun rolü nedir? \"Oyuncu ...\" diye yazın.\nYapay zekânın belirli bir kişiyi canlandırmasını istiyorsanız \"Sen ...\" diye yazın.",
+        "scenarioHint": "Kısaca açıklayın: Oyun nasıl işliyor? Dünya nasıl bir yer? Dil ve üslup (ör. altıncı sınıf öğrencileri için İspanyolca)?\nOyuncunun rolü nedir? \"Oyuncu ...\" diye yazın. \nYapay zekânın belirli bir kişinin rolünü üstlenmesini istiyorsanız \"Siz ...\" diye yazın.\nAmaç nedir? Oyuncu kazandığını nasıl anlıyor?",
         "scenarioPlaceholder": "Sen gizemli bir ormanda keşif yapan bir kaşifsin. Amacın saklı hazinenin yerini bulmak...",
         "statusFields": "Oyun değerleri",
         "statusFieldsHint": "Oyun hangi değerleri takip etmeli? Örneğin can, puan veya cephane. Oyun bu değerleri hatırlar ve oynarken günceller."
@@ -660,7 +665,7 @@
         "unlimitedSessions": "Sınırsız oturum",
         "update": "Paylaşım Bağlantısını Güncelle",
         "workshopCreateHint": "Bu oyun için bir paylaşım bağlantısı oluşturun. Atölyenin API anahtarı otomatik olarak seçilir ve maliyeti karşılar.",
-        "workshopDescription": "Bu bağlantı \"{{name}}\" atölyesi içinde oluşturuldu – konuklar atölyenin API anahtarı ve istem kısıtlamalarıyla oynar.",
+        "workshopDescription": "Bu bağlantı \"{{name}}\" atölyesinde oluşturulmuştur – konuklar atölyenin API anahtarı ve istem kısıtlamalarıyla oynar.",
         "workshopShare": "Atölye paylaşımı",
         "workshopShareDescription": "Bu bağlantı \"{{name}}\" atölyesinde oluşturuldu - misafirler atölyenin API anahtarını kullanarak oynar.",
         "workshopSubsection": "Atölye Paylaşım Bağlantısı"
@@ -729,7 +734,7 @@
         "basicInfo": "Oyuna dair genel bilgiler. Sadece size gösterilir ve oyunu etkilemez.",
         "importExport": "İçe/Dışa Aktar",
         "quickStart": "Hızlı Başlangıç",
-        "story": "Hikâye \u0006 Yapay Zekâ",
+        "story": "Hikâye ve Yapay Zekâ",
         "storyInfo": "Buradaki her şey yapay zekâya gönderilir ve oyun dünyanızı şekillendirir.",
         "style": "Tasarım",
         "styleInfo": "Oyun oynanırken görünümü için isteğe bağlı ayarlar."
@@ -837,6 +842,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Bu oyunu kopyala",
+      "copyGameLogin": "Giriş yap ve oyunu kopyala",
+      "copyLeaveMessage": "Kopyalamak için giriş yapmanız gerekir. Oynamakta olduğunuz tur kaybolacaktır.",
+      "copyLeaveTitle": "Oyundan ayrılmak istiyor musunuz?",
       "welcome": {
         "backToHome": "ChatGameLab'e git",
         "continueGame": "Oyuna Devam Et",
@@ -873,7 +882,7 @@
         },
         "learn": {
           "description": "Eğitim atölyeleri ve sınıf etkinlikleri için mükemmel",
-          "title": "Öğrenin \u0006 Öğretin"
+          "title": "Öğren ve Öğret"
         },
         "play": {
           "description": "Arkadaşlarınızla birlikte hikâye anlatımına katılın",
@@ -1062,6 +1071,19 @@
         "enabledHint": "Kapalı olduğunda bağlantı yalnızca bir bildirim gösterir ve sayfanın oyun bağlantıları çalışmaz.",
         "link": "Bağlantı",
         "linkHint": "a–z, 0–9 ve tekli tireler kullanın; 3 ila 60 karakter olmalıdır.",
+        "links": {
+          "add": "Bağlantı ekle",
+          "down": "Aşağı taşı",
+          "error": "Bağlantılar kaydedilemedi. Her bağlantının bir başlığı olmalı ve her adres http:// veya https:// ile başlamalıdır.",
+          "hint": "Oyunların altındaki sayfada gösterilir. En fazla on tane.",
+          "linkDescription": "Açıklama (isteğe bağlı)",
+          "linkTitle": "Başlık",
+          "remove": "Kaldır",
+          "save": "Bağlantıları kaydet",
+          "title": "Daha fazla okuma",
+          "up": "Yukarı taşı",
+          "url": "Adres"
+        },
         "offHint": "Sayfa kapalı. Bağlantısını ve QR kodunu yine de hazırlayabilirsiniz.",
         "open": "Sayfayı aç",
         "shareDescription": "Bu bağlantıyı gönderin veya QR kodu olarak gösterin.",
@@ -1162,8 +1184,10 @@
         "promptConstraintsPlaceholder": "örn. Hikayeyi yaşa uygun tutun ve şiddet içeriğinden kaçının.",
         "removeParticipant": "Katılımcıyı kaldır",
         "removeParticipantConfirm": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz?",
-        "removeParticipantMessage": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "removeParticipantMessage": "\"{{name}}\" adlı kişiyi bu atölyeden gerçekten kaldırmak istiyor musunuz?",
         "removeParticipantTitle": "Katılımcıyı Kaldır",
+        "removeParticipantWarningPermanent": "Bu işlem, ilgili kişinin hesabını ve oluşturduğu tüm oyunları, bunlarla birlikte tüm oyun oturumlarını ve paylaşılan bağlantıları kalıcı olarak siler. Geri alınamaz. Oyunların saklanması gerekiyorsa önce YAML olarak indirin.",
+        "removeParticipantWarningVisiting": "Bu kişi hesabını ve oyunlarını korur. Yalnızca bu atölyeye erişimi sona erer.",
         "resetAccess": "Erişimi sıfırla",
         "resetAccessDone": "Yeni erişim oluşturuldu. Eski bağlantı artık çalışmıyor.",
         "resetAccessError": "Erişim sıfırlanamadı. Lütfen tekrar deneyin.",
@@ -1201,6 +1225,9 @@
     "noRole": "Rol yok",
     "notifications": {
       "accept": "Kabul Et",
+      "acceptConfirm": "Devam etmek istiyor musunuz?",
+      "acceptTitle": "Kuruluş değiştirilsin mi?",
+      "acceptWarning": "Aynı anda yalnızca bir kuruluşun üyesi olabilirsiniz. Bu daveti kabul etmek, mevcut kuruluşunuz olan \"{{organization}}\" üyeliğinizi sona erdirir.",
       "decline": "Reddet",
       "declineConfirm": "Bu daveti reddetmek istediğinizden emin misiniz?",
       "declineTitle": "Daveti Reddet",
@@ -1238,10 +1265,25 @@
     "promoteToHead": "Başkan Yap",
     "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
     "publicWorkshop": {
+      "about": {
+        "details": "Oyunların yaratıcıları dünyayı, karakterleri ve kuralları kendi kelimeleriyle anlatır. Siz oynarken bir yapay zekâ hikâyeyi kaldığı yerden anlatmaya devam eder: yazdığınız her şeye tepki verir ve buna uygun görseller icat eder — bu nedenle hiçbir iki tur aynı şekilde ilerlemez. Kendi oyununuzu oluşturmak, verdiğiniz talimatların sonucu ne kadar güçlü biçimde şekillendirdiğini ve yapay zekânın sınırlarına nerede ulaştığını kısa sürede gösterir. Asıl amaç da budur: yapay zekânın size açıklanması değil, onu deneyerek öğrenmeniz.",
+        "less": "Daha az",
+        "link": "ChatGameLab hakkında daha fazla bilgi",
+        "more": "Daha fazla bilgi edin",
+        "oneLiner": "Bu metin maceraları ChatGameLab ile oluşturuldu: yaratıcıları tarafından programlama yapılmadan hazırlandı ve bir yapay zekâ tarafından canlı olarak anlatılıyor."
+      },
       "copy": "Kopyala",
       "copyLogin": "Kopyalamak için giriş yapın",
+      "cta": {
+        "button": "Ücretsiz başla",
+        "text": "Kendi metin maceranızı oluşturmak ücretsizdir ve yalnızca birkaç dakikanızı alır.",
+        "title": "Kendi ChatGameLab oyununuzu oluşturun"
+      },
       "download": "İndir",
       "gamesTitle": "Bu atölyedeki oyunlar",
+      "links": {
+        "title": "Bu atölye hakkında daha fazla bilgi"
+      },
       "noGames": "Burada henüz hiç oyun yayımlanmadı.",
       "play": "Oyna",
       "playExhausted": "Kalan oyun oturumu yok",
@@ -1338,7 +1380,8 @@
     "settings": "Ayarlar",
     "share": {
       "copied": "Kopyalandı",
-      "copyLink": "Bağlantıyı kopyala"
+      "copyLink": "Bağlantıyı kopyala",
+      "visitLink": "Bağlantıyı ziyaret et"
     },
     "showing": "{{count}} üye",
     "sort": {
@@ -1349,7 +1392,16 @@
       "role-desc": "Rol (Z-A)"
     },
     "unnamed": "Adsız",
-    "viewGame": "Oyunu Görüntüle"
+    "viewGame": "Oyunu Görüntüle",
+    "workshop": {
+      "inactive": {
+        "description": "Bu atölye şu anda etkin değil. Atölye yöneticiniz yeniden etkinleştirene kadar bekleyin.",
+        "noCode": "Bu cihazda kayıtlı bir kod yok. Atölye yöneticiniz kodunuzu söyleyebilir.",
+        "photoFirst": "Çıkış yaparsanız kodunuz bu cihazdan silinir. Önce fotoğrafını çekin.",
+        "showCode": "Erişim kodumu göster",
+        "title": "Atölye etkin değil"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1407,7 +1459,7 @@
     "untitledGame": "Adsız Oyun",
     "version": {
       "mismatch": {
-        "message": "Ön uç sürümü \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 arka uç sürümü \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 ile eşleşmiyor. Bu beklenmeyen davranışlara yol açabilir. Sorun devam ederse destekle iletişime geçin.",
+        "message": "Ön yüz sürümü \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e, arka uç sürümü \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e ile eşleşmiyor. Bu, beklenmeyen davranışlara neden olabilir. Sorunlar devam ederse destek ekibiyle iletişime geçin.",
         "title": "Sürüm Uyumsuzluğu Tespit Edildi"
       }
     }
@@ -1421,6 +1473,7 @@
     "duplicateName": "Bu oyun adı zaten kullanılıyor. Lütfen farklı bir ad seçin.",
     "forbidden": "Bu işlemi gerçekleştirmek için izniniz yok.",
     "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
+    "imageGenerationUnavailable": "Bu sahne için görsel oluşturulamadı. Hikâye görsel olmadan devam ediyor.",
     "insufficientQuota": "API anahtarınızın kredisi bitti. Lütfen kredi ekleyin veya başka bir API anahtarı kullanın.",
     "invalidApiKey": "API anahtarınız geçersiz veya süresi dolmuş. Lütfen Ayarlar'dan kontrol edin.",
     "invalidJsonSchema": "Oyun yapılandırması yapay zekâ için geçersiz bir şema üretti. Bu bir oyun ayarı sorunudur, API anahtarı değil. Lütfen oyun değerlerini kontrol edip tekrar deneyin.",

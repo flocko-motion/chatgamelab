@@ -60,7 +60,7 @@
       "organizationSection": "Organización y rol",
       "participantCode": {
         "error": "No se pudo cargar tu código de acceso.",
-        "hint": "Haz una foto de este código o anótalo, y no se lo muestres a nadie. Te permite volver a entrar en tu cuenta en cualquier momento y desde cualquier dispositivo: introduce las palabras en «Introducir código» en la página de inicio o escanea el código QR.",
+        "hint": "Haz una foto de este código o anótalo, y guárdalo en privado. Te permite volver a acceder a tu cuenta en cualquier momento y desde cualquier dispositivo: introduce las palabras en «Introducir código» en la página de inicio o escanea el código QR.",
         "longTokenHint": "Haz una foto del código QR o guarda el enlace, y no se lo muestres a nadie. Te permite volver a entrar en tu cuenta en cualquier momento. La persona responsable del taller puede darte un código corto de cuatro palabras restableciendo tu acceso.",
         "title": "Tu código de acceso"
       },
@@ -415,7 +415,7 @@
       "placeholder": "p. ej., apfel otter turm",
       "submit": "Continuar",
       "title": "Introducir código",
-      "unknown": "Este código no existe. Comprueba la ortografía.",
+      "unknown": "No ha funcionado. Primero comprueba la ortografía, palabra por palabra. Los guiones o los espacios no importan. Si el código es correcto, puede que ya no sea válido: los códigos se pueden sustituir o la persona responsable del taller puede haber finalizado el taller (esto puede ocurrir en cualquier momento después del taller). Pide entonces un código nuevo a la persona responsable del taller.",
       "wrongLength": "Un código tiene tres o cuatro palabras."
     },
     "error": "Error",
@@ -530,6 +530,11 @@
         "starting": "Iniciando sesión de juego...",
         "startingHint": "La IA está preparando tu aventura"
       },
+      "narration": {
+        "generating": "Generando narración…",
+        "play": "Reproducir narración",
+        "stop": "Detener narración"
+      },
       "needsApiKey": {
         "description": "La clave API usada en esta sesión ya no está disponible.",
         "title": "Se requiere clave API"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Escribe una breve descripción del juego. Solo es para ti y no afecta la jugabilidad.",
         "gameStart": "¿Cómo comienza el juego?",
-        "gameStartHint": "¿Qué sucede al inicio? Describe la primera escena que ve el jugador. ¿Cómo se le da la bienvenida?",
+        "gameStartHint": "¿Qué ocurre al principio? Describe la primera escena que ve el jugador. ¿Cómo se recibe al jugador? ¿Cómo sabe el jugador qué tiene que hacer?",
         "gameStartPlaceholder": "Te despiertas al borde de un bosque oscuro. Un sendero estrecho se adentra entre los árboles...",
         "imageStyle": "¿Qué estilo deberían tener las imágenes del juego?",
         "imageStyleHint": "Por ejemplo: caricatura, realista, pixel art, acuarela...",
         "name": "Nombre del juego",
         "scenario": "¿De qué trata el juego?",
-        "scenarioHint": "Describe brevemente: ¿Cómo funciona el juego? ¿Cómo es el mundo? Idioma y tono (p. ej., español para sexto grado).\n¿Qué rol tiene el jugador? Escribe «El jugador ...».\nSi quieres que la IA adopte el rol de alguien específico, escribe «Tú eres ...».",
+        "scenarioHint": "Describe brevemente: ¿Cómo funciona el juego? ¿Cómo es el mundo? Idioma y tono (por ejemplo, español para estudiantes de sexto curso)?\n¿Qué papel desempeña el jugador? Escribe «El jugador…».\nSi quieres que la IA adopte el papel de una persona concreta, escribe «Eres…».\n¿Cuál es el objetivo? ¿Cómo sabe el jugador que ha ganado?",
         "scenarioPlaceholder": "Eres un explorador en un bosque misterioso. Tu objetivo es encontrar el tesoro escondido...",
         "statusFields": "Valores del juego",
         "statusFieldsHint": "¿Qué debería registrar el juego? Por ejemplo salud, puntos o munición. El juego recuerda estos valores y los actualiza mientras juegas."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Sesiones ilimitadas",
         "update": "Actualizar enlace de compartición",
         "workshopCreateHint": "Crea un enlace para compartir este juego. La clave API del taller se selecciona automáticamente y cubre los costos.",
-        "workshopDescription": "Este enlace se ha creado dentro del taller «{{name}}»; las personas invitadas juegan con la clave API del taller y sus restricciones de instrucciones.",
+        "workshopDescription": "Este enlace se ha creado dentro del taller «{{name}}»: los invitados juegan con la clave API y las restricciones del prompt del taller.",
         "workshopShare": "Enlace del taller",
         "workshopShareDescription": "Este enlace se creó en el taller \"{{name}}\"; los invitados juegan usando la clave API del taller.",
         "workshopSubsection": "Enlace compartido del taller"
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Copiar este juego",
+      "copyGameLogin": "Iniciar sesión y copiar el juego",
+      "copyLeaveMessage": "Para copiarlo es necesario iniciar sesión. Se perderá la partida que estás jugando.",
+      "copyLeaveTitle": "¿Salir del juego?",
       "welcome": {
         "backToHome": "Ir a ChatGameLab",
         "continueGame": "Continuar juego",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Cuando está desactivado, el enlace solo muestra un aviso y los enlaces de juego de la página dejan de funcionar.",
         "link": "Enlace",
         "linkHint": "Usa a–z, 0–9 y guiones simples, entre 3 y 60 caracteres.",
+        "links": {
+          "add": "Añadir enlace",
+          "down": "Mover hacia abajo",
+          "error": "No se han podido guardar los enlaces. Todos necesitan un título y todas las direcciones deben empezar por http:// o https://.",
+          "hint": "Se muestran en la página, debajo de los juegos. Diez como máximo.",
+          "linkDescription": "Descripción (opcional)",
+          "linkTitle": "Título",
+          "remove": "Eliminar",
+          "save": "Guardar enlaces",
+          "title": "Para saber más",
+          "up": "Mover hacia arriba",
+          "url": "Dirección"
+        },
         "offHint": "La página está desactivada. Aun así, puedes preparar su enlace y código QR.",
         "open": "Abrir página",
         "shareDescription": "Envía este enlace o muéstralo como código QR.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "p. ej., mantén la historia adecuada para la edad y evita contenido violento.",
         "removeParticipant": "Eliminar participante",
         "removeParticipantConfirm": "¿Seguro que quieres eliminar a «{{name}}» de este taller?",
-        "removeParticipantMessage": "¿Seguro que quieres eliminar a «{{name}}» de este taller? Esta acción no se puede deshacer.",
+        "removeParticipantMessage": "¿De verdad quieres eliminar a «{{name}}» de este taller?",
         "removeParticipantTitle": "Eliminar participante",
+        "removeParticipantWarningPermanent": "Esto elimina de forma permanente la cuenta de esta persona y todos los juegos que ha creado, junto con todas las sesiones de juego y los enlaces compartidos con ellos. No se puede deshacer. Si quieres conservar los juegos, descárgalos primero como YAML.",
+        "removeParticipantWarningVisiting": "Esta persona conservará su cuenta y sus juegos. Solo finalizará su acceso a este taller.",
         "resetAccess": "Restablecer acceso",
         "resetAccessDone": "Se ha creado un nuevo acceso. El enlace antiguo ya no funciona.",
         "resetAccessError": "No se pudo restablecer el acceso. Inténtalo de nuevo.",
@@ -1199,6 +1223,9 @@
     "noRole": "Sin rol",
     "notifications": {
       "accept": "Aceptar",
+      "acceptConfirm": "¿Quieres continuar?",
+      "acceptTitle": "¿Cambiar de organización?",
+      "acceptWarning": "Solo puedes pertenecer a una organización a la vez. Si aceptas esta invitación, dejarás de pertenecer a tu organización actual «{{organization}}».",
       "decline": "Rechazar",
       "declineConfirm": "¿Seguro que quieres rechazar esta invitación?",
       "declineTitle": "Rechazar invitación",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Ascender a responsable",
     "promoteWarning": "Este usuario podrá gestionar miembros e invitar docentes.",
     "publicWorkshop": {
+      "about": {
+        "details": "Sus creadores describen el mundo, los personajes y las reglas con sus propias palabras. Mientras juegas, una IA continúa contando la historia: reacciona a todo lo que escribes e inventa imágenes adecuadas, por lo que ninguna partida se desarrolla igual. Crear uno tú mismo muestra rápidamente hasta qué punto tus propias instrucciones moldean el resultado y dónde alcanza sus límites una IA. Ese es precisamente el objetivo: no que te expliquen la IA, sino probarla.",
+        "less": "Menos",
+        "link": "Más información sobre ChatGameLab",
+        "more": "Saber más",
+        "oneLiner": "Estas aventuras de texto se han creado con ChatGameLab: hechas por sus creadores, sin programación y narradas en directo por una IA."
+      },
       "copy": "Copiar",
       "copyLogin": "Inicia sesión para copiar",
+      "cta": {
+        "button": "Empezar gratis",
+        "text": "Crear tu propia aventura de texto es gratis y solo lleva unos minutos.",
+        "title": "Crea tu propio juego de ChatGameLab"
+      },
       "download": "Descargar",
       "gamesTitle": "Juegos de este taller",
+      "links": {
+        "title": "Más información sobre este taller"
+      },
       "noGames": "Todavía no se ha publicado ningún juego aquí.",
       "play": "Jugar",
       "playExhausted": "No quedan sesiones de juego",
@@ -1336,7 +1378,8 @@
     "settings": "Configuración",
     "share": {
       "copied": "Copiado",
-      "copyLink": "Copiar enlace"
+      "copyLink": "Copiar enlace",
+      "visitLink": "Visitar enlace"
     },
     "showing": "{{count}} miembros",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Rol (Z-A)"
     },
     "unnamed": "Sin nombre",
-    "viewGame": "Ver juego"
+    "viewGame": "Ver juego",
+    "workshop": {
+      "inactive": {
+        "description": "Este taller no está activo en este momento. Espera hasta que la persona responsable del taller lo vuelva a activar.",
+        "noCode": "No hay ningún código guardado en este dispositivo. La persona responsable del taller puede decirte cuál es el tuyo.",
+        "photoFirst": "Si cierras sesión, tu código desaparecerá de este dispositivo. Hazle una foto antes.",
+        "showCode": "Mostrar mi código de acceso",
+        "title": "El taller no está activo"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1419,6 +1471,7 @@
     "duplicateName": "El nombre de este juego ya está en uso. Elige uno diferente.",
     "forbidden": "No tienes permiso para realizar esta acción.",
     "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "imageGenerationUnavailable": "No se ha podido generar la imagen de esta escena. La historia continúa sin ella.",
     "insufficientQuota": "Tu clave API se quedó sin créditos. Añade más créditos o usa otra clave API.",
     "invalidApiKey": "Tu clave API es inválida o caducó. Revisa tu clave en Configuración.",
     "invalidJsonSchema": "La configuración del juego generó un esquema inválido para la IA. Es un problema de configuración del juego, no de la clave API. Revisa los valores de estado del juego y vuelve a intentarlo.",
