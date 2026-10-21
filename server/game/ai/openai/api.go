@@ -16,6 +16,8 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -187,7 +189,7 @@ func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStre
 // Note: Uses direct HTTP instead of apiclient because it requires SSE streaming with custom buffer sizes
 // for large base64-encoded image data and incremental partial image previews
 func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel string, imageQuality string, partialImages int, prompt string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
-	imageGenURL := openaiBaseURL + imageGenEndpoint
+	imageGenURL := imageBaseURL + imageGenEndpoint
 
 	reqBody := map[string]interface{}{
 		"model":          imageModel,
@@ -231,6 +233,10 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel strin
 	buf := make([]byte, 0, 64*1024)
 	scanner.Buffer(buf, 10*1024*1024) // 10MB max
 
+	eventCount := 0
+	lastEventType := ""
+
+scan:
 	for scanner.Scan() {
 		line := scanner.Text()
 		if !strings.HasPrefix(line, "data: ") {
@@ -243,32 +249,73 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel strin
 
 		var event map[string]interface{}
 		if err := json.Unmarshal([]byte(data), &event); err != nil {
+			log.Debug("image stream: unparsable event", "error", err, "bytes", len(data))
 			continue
 		}
 
 		eventType, _ := event["type"].(string)
 		b64Json, _ := event["b64_json"].(string)
+		eventCount++
+		lastEventType = eventType
 
-		if b64Json != "" {
-			imageData, err := base64.StdEncoding.DecodeString(b64Json)
-			if err != nil {
-				continue
-			}
+		// OpenAI reports failures as stream events ("error" / "*.failed"); surface them
+		// instead of silently ending up without a final image.
+		if eventType == "error" || strings.HasSuffix(eventType, ".failed") {
+			return nil, obj.ErrAiErrorf("image stream error event %q: %s", eventType, imageEventErrorText(event))
+		}
 
-			// Update cache for polling-based frontend
-			cache := imagecache.Get()
+		if b64Json == "" {
+			log.Debug("image stream: event without image data", "type", eventType)
+			continue
+		}
 
-			switch eventType {
-			case "image_generation.partial_image":
-				cache.Update(messageID, imageData, false)
-				responseStream.SendImage(imageData, false)
-			case "image_generation.completed":
-				finalImageData = imageData
-				cache.Update(messageID, imageData, true) // This also persists to DB
-				responseStream.SendImage(imageData, true)
-			}
+		imageData, err := base64.StdEncoding.DecodeString(b64Json)
+		if err != nil {
+			log.Warn("image stream: invalid base64 image data", "type", eventType, "error", err)
+			continue
+		}
+
+		// Update cache for polling-based frontend
+		cache := imagecache.Get()
+
+		switch eventType {
+		case "image_generation.partial_image":
+			cache.Update(messageID, imageData, false)
+			responseStream.SendImage(imageData, false)
+		case "image_generation.completed":
+			finalImageData = imageData
+			cache.Update(messageID, imageData, true) // This also persists to DB
+			responseStream.SendImage(imageData, true)
+			break scan
+		default:
+			log.Debug("image stream: unknown event type with image data", "type", eventType)
 		}
 	}
 
+	if err := scanner.Err(); err != nil && finalImageData == nil {
+		log.Warn("image stream read failed", "error", err, "events", eventCount, "last_event", lastEventType)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "image stream read failed", errors.Join(obj.ErrImageStreamIncomplete, err))
+	}
+	if finalImageData == nil {
+		log.Warn("image stream ended without final image", "events", eventCount, "last_event", lastEventType)
+		return nil, obj.WrapError(obj.ErrCodeAiError,
+			fmt.Sprintf("image stream ended without final image (%d events, last %q)", eventCount, lastEventType),
+			obj.ErrImageStreamIncomplete)
+	}
+
 	return finalImageData, nil
+}
+
+// imageEventErrorText pulls a readable message (with code) out of an error event of the image stream.
+func imageEventErrorText(event map[string]interface{}) string {
+	if e, ok := event["error"].(map[string]interface{}); ok {
+		msg, _ := e["message"].(string)
+		code, _ := e["code"].(string)
+		return strings.TrimSpace(code + " " + msg)
+	}
+	if msg, ok := event["message"].(string); ok {
+		return msg
+	}
+	raw, _ := json.Marshal(event)
+	return string(raw)
 }
