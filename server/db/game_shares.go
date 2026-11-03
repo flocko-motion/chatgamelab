@@ -161,8 +161,26 @@ func createGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 		return nil, obj.ErrValidation("api key must be working before it can be used for sharing")
 	}
 
+	return createGameShareForKey(ctx, userID, gameID, share.ApiKeyID, institutionID, workshopID, maxSessions, aiQualityTier, publicPage)
+}
+
+// CreateSystemFreeUseGameShare creates a workshop share link paid by the system free-use key.
+// The route handler uses it when the workshop has no default key; it has already checked workshop access.
+func CreateSystemFreeUseGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {
+	settings, err := GetSystemSettings(ctx)
+	if err != nil || settings.FreeUseApiKeyID == nil {
+		return nil, obj.ErrValidation("Workshop has no default API key configured and no free server key is set")
+	}
+	if settings.FreeUseApiKeyWorking != nil && !*settings.FreeUseApiKeyWorking {
+		return nil, obj.ErrValidation("api key must be working before it can be used for sharing")
+	}
+	return createGameShareForKey(ctx, userID, gameID, *settings.FreeUseApiKeyID, institutionID, workshopID, maxSessions, aiQualityTier, false)
+}
+
+// createGameShareForKey creates the game-scoped key share and the game_share row for an already authorized key.
+func createGameShareForKey(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string, publicPage bool) (*obj.GameShare, error) {
 	// Create a game-scoped API key share (accessible by uuid.Nil in guest play flow)
-	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID)
+	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, apiKeyID, &userID, nil, nil, &gameID)
 	if err != nil {
 		return nil, obj.ErrServerError("failed to create game-scoped share")
 	}
