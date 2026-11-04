@@ -1,10 +1,16 @@
 name: Merge policy
 
-# Which branches the 1.X line takes pull requests from.
+# Which branches each release line takes pull requests from.
 #
-# main is what production deploys, and it is reached only by releasing
+# This one file decides for every line. pull_request_target runs the copy on
+# the default branch (development), whatever the pull request's base, so a
+# copy of this file on another branch never runs. If the default branch ever
+# moves to a newer line, this file has to move with it.
+#
+# main is what 1.X production deploys, and it is reached only by releasing
 # development. A pull request from anywhere else would put a commit into
-# production that never sat in development for a day first.
+# production that never sat in development first. The same holds for every
+# newer line: vN/main takes vN/development and nothing else.
 #
 # development takes anything except another release line's branches
 # (v2/main, v2/development, ...). Changes flow forward, from 1.X into newer
@@ -15,31 +21,41 @@ on:
     branches:
       - main
       - development
+      - 'v[0-9]*/main'
     types: [opened, reopened, synchronize, edited]
 
 permissions: {}
 
 jobs:
   merge-policy:
-    # One name on every line, so a ruleset can require it once for all of them.
+    # One name for every line, so a ruleset can require it once for all of them.
     name: merge-policy
     runs-on: ubuntu-latest
     steps:
-      # pull_request_target runs the base branch's copy of this file, which a
-      # pull request cannot edit. A fork can still name its own branch
-      # "development", which is what the repository comparison catches.
+      # A pull request cannot edit the copy that runs, since it comes from the
+      # default branch. A fork can still name its own branch "development",
+      # which is what the repository comparison catches.
       - name: the base branch takes this source
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
+          refuse() {
+            echo "$BASE_REF takes pull requests from $1 only;"
+            echo "this one comes from $HEAD_REPO:$HEAD_REF"
+            exit 1
+          }
           case "$BASE_REF" in
             main)
               if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$HEAD_REF" != "development" ]; then
-                echo "main takes pull requests from development only;"
-                echo "this one comes from $HEAD_REPO:$HEAD_REF"
-                exit 1
+                refuse development
+              fi
+              ;;
+            v[0-9]*/main)
+              source="${BASE_REF%/main}/development"
+              if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$HEAD_REF" != "$source" ]; then
+                refuse "$source"
               fi
               ;;
             development)
