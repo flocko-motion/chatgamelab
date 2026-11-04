@@ -12,8 +12,9 @@ on:
 permissions: {}
 
 jobs:
-  source-is-development:
-    name: source-is-development
+  merge-policy:
+    # One name on every line, so a ruleset can require it once for all of them.
+    name: merge-policy
     runs-on: ubuntu-latest
     steps:
       # pull_request_target runs v2/main's copy of this file, which a pull
