@@ -1,31 +1,54 @@
 name: Merge policy
 
+# Which branches the 1.X line takes pull requests from.
+#
 # main is what production deploys, and it is reached only by releasing
 # development. A pull request from anywhere else would put a commit into
 # production that never sat in development for a day first.
+#
+# development takes anything except another release line's branches
+# (v2/main, v2/development, ...). Changes flow forward, from 1.X into newer
+# lines, and never back: merging a 2.X branch here would put breaking changes
+# into 1.X.
 on:
   pull_request_target:
     branches:
       - main
+      - development
     types: [opened, reopened, synchronize, edited]
 
 permissions: {}
 
 jobs:
-  source-is-development:
-    name: source-is-development
+  merge-policy:
+    # One name on every line, so a ruleset can require it once for all of them.
+    name: merge-policy
     runs-on: ubuntu-latest
     steps:
-      # pull_request_target runs main's copy of this file, which a pull request
-      # cannot edit. A fork can still call its own branch "development", which
-      # is what the repository comparison catches.
-      - name: main takes development and nothing else
+      # pull_request_target runs the base branch's copy of this file, which a
+      # pull request cannot edit. A fork can still name its own branch
+      # "development", which is what the repository comparison catches.
+      - name: the base branch takes this source
         env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$HEAD_REF" != "development" ]; then
-            echo "main takes pull requests from development only;"
-            echo "this one comes from $HEAD_REPO:$HEAD_REF"
-            exit 1
-          fi
+          case "$BASE_REF" in
+            main)
+              if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$HEAD_REF" != "development" ]; then
+                echo "main takes pull requests from development only;"
+                echo "this one comes from $HEAD_REPO:$HEAD_REF"
+                exit 1
+              fi
+              ;;
+            development)
+              case "$HEAD_REF" in
+                v[0-9]*/*)
+                  echo "development is the 1.X line and takes nothing from $HEAD_REF;"
+                  echo "changes flow forward into newer lines, never back"
+                  exit 1
+                  ;;
+              esac
+              ;;
+          esac
