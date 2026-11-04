@@ -60,7 +60,7 @@
       "organizationSection": "Szervezet és szerepkör",
       "participantCode": {
         "error": "A hozzáférési kód nem tölthető be.",
-        "hint": "Készíts fényképet erről a kódról, vagy írd le, és tartsd titokban. Segítségével bármikor, bármilyen eszközön visszajuthatsz a fiókodba: írd be a kezdőlapon a „Kód megadása” alatt található mezőbe, vagy olvasd be a QR-kódot.",
+        "hint": "Fényképezd le ezt a kódot, vagy írd le, és tartsd meg magadnak. Bármikor, bármilyen eszközön visszajuttat a fiókodba: a kezdőlapon írd be a szavakat a „Kód megadása” mezőbe, vagy olvasd be a QR-kódot.",
         "longTokenHint": "Készíts fényképet a QR-kódról, vagy mentsd el a hivatkozást, és tartsd titokban. Segítségével bármikor visszajuthatsz a fiókodba. A műhelyvezető egy rövid, négy szóból álló kódot adhat a hozzáférés visszaállításával.",
         "title": "A hozzáférési kódod"
       },
@@ -415,7 +415,7 @@
       "placeholder": "pl. alma vidra torony",
       "submit": "Folytatás",
       "title": "Kód megadása",
-      "unknown": "Ez a kód nem létezik. Ellenőrizd a helyesírást.",
+      "unknown": "Ez nem sikerült. Először ellenőrizd a helyesírást szavanként. A kötőjelek és a szóközök nem számítanak. Ha a kód helyes, lehet, hogy már nem érvényes: a kódokat lecserélhetik, vagy a foglalkozásvezető befejezhette a foglalkozást (ez a foglalkozás után bármikor megtörténhet). Ezután kérj új kódot a foglalkozásvezetődtől.",
       "wrongLength": "A kód három- vagy négyszavas."
     },
     "error": "Hiba",
@@ -530,6 +530,11 @@
         "starting": "Játékmenet indítása...",
         "startingHint": "Az MI előkészíti a kalandodat"
       },
+      "narration": {
+        "generating": "A narráció létrehozása folyamatban…",
+        "play": "Narráció lejátszása",
+        "stop": "Narráció leállítása"
+      },
       "needsApiKey": {
         "description": "Az ehhez a munkamenethez használt API-kulcs már nem elérhető.",
         "title": "API-kulcs szükséges"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Adj rövid leírást a játékról. Csak neked szól, nem befolyásolja a játékmenetet.",
         "gameStart": "Hogyan kezdődik a játék?",
-        "gameStartHint": "Mi történik a kezdéskor? Írd le az első jelenetet, amit a játékos lát. Hogyan üdvözlöd a játékost?",
+        "gameStartHint": "Mi történik a kezdéskor? Írd le az első jelenetet, amelyet a játékos lát. Hogyan üdvözlöd a játékost? Honnan tudja a játékos, hogy mit kell tennie?",
         "gameStartPlaceholder": "Egy sötét erdő szélén ébredsz. Egy keskeny ösvény vezet a fák mélyére...",
         "imageStyle": "Milyen stílusúak legyenek a játék képei?",
         "imageStyleHint": "Például: rajzfilm, realisztikus, pixel art, akvarell...",
         "name": "Játék neve",
         "scenario": "Miről szól a játék?",
-        "scenarioHint": "Röviden írd le: hogyan működik a játék? Milyen a világ? Nyelv és hangnem (pl. spanyol hatodikosoknak)?\nMi a játékos szerepe? Írd: „A játékos ...”.\nHa szeretnéd, hogy az MI egy konkrét személy szerepét vegye fel, írd: „Te ... vagy.”",
+        "scenarioHint": "Röviden írd le: Hogyan működik a játék? Milyen a világ? Nyelv és hangnem (például spanyol hatodikosoknak)?\nMilyen szerepe van a játékosnak? Írd azt, hogy „A játékos …”. \nHa azt szeretnéd, hogy az MI egy konkrét személy szerepét játssza, írd azt, hogy „Te … vagy”.\nMi a cél? Honnan tudja a játékos, hogy nyert?",
         "scenarioPlaceholder": "Egy titokzatos erdő felfedezője vagy. A célod, hogy megtaláld a rejtett kincset...",
         "statusFields": "Játékértékek",
         "statusFieldsHint": "Mit kövessen a játék? Például élet, pontok vagy lőszer. A játék megjegyzi és frissíti ezeket az értékeket játék közben."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Korlátlan számú munkamenet",
         "update": "Megosztási link frissítése",
         "workshopCreateHint": "Hozz létre megosztási linket ehhez a játékhoz. A műhely API-kulcsa automatikusan kiválasztásra kerül és fedezi a költségeket.",
-        "workshopDescription": "Ez a hivatkozás a(z) „{{name}}” műhelyen belül jött létre – a vendégek a műhely API-kulcsával és promptkorlátozásaival játszanak.",
+        "workshopDescription": "Ez a hivatkozás a(z) „{{name}}” foglalkozáson belül jött létre – a vendégek a foglalkozás API-kulcsával és a promptokra vonatkozó korlátozásokkal játszanak.",
         "workshopShare": "Műhelymegosztás",
         "workshopShareDescription": "Ezt a linket a(z) \"{{name}}\" műhelyben hozták létre – a vendégek a műhely API-kulcsával játszanak.",
         "workshopSubsection": "Műhelymegosztási link"
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Játék másolása",
+      "copyGameLogin": "Bejelentkezés és játék másolása",
+      "copyLeaveMessage": "A másoláshoz be kell jelentkezned. Az éppen játszott kör el fog veszni.",
+      "copyLeaveTitle": "Elhagyod a játékot?",
       "welcome": {
         "backToHome": "Ugrás a ChatGameLab oldalára",
         "continueGame": "Játék folytatása",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Kikapcsolt állapotban a hivatkozás csak egy értesítést jelenít meg, és az oldal játékra szolgáló hivatkozásai nem működnek.",
         "link": "Hivatkozás",
         "linkHint": "Használj a–z betűket, 0–9 számokat és önálló kötőjeleket, 3–60 karakterben.",
+        "links": {
+          "add": "Hivatkozás hozzáadása",
+          "down": "Lejjebb helyezés",
+          "error": "A hivatkozásokat nem sikerült menteni. Minden hivatkozásnak kell címet adni, és minden címnek http:// vagy https:// előtaggal kell kezdődnie.",
+          "hint": "A játékok alatti oldalon jelenik meg. Legfeljebb tíz.",
+          "linkDescription": "Leírás (nem kötelező)",
+          "linkTitle": "Cím",
+          "remove": "Eltávolítás",
+          "save": "Hivatkozások mentése",
+          "title": "További olvasnivaló",
+          "up": "Feljjebb helyezés",
+          "url": "Cím"
+        },
         "offHint": "Az oldal ki van kapcsolva. A hivatkozását és QR-kódját ettől még előkészítheted.",
         "open": "Oldal megnyitása",
         "shareDescription": "Küldd el ezt a hivatkozást, vagy jelenítsd meg QR-kódként.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "pl. Tartsd a történetet korosztálynak megfelelően, és kerüld az erőszakos tartalmat.",
         "removeParticipant": "Résztvevő eltávolítása",
         "removeParticipantConfirm": "Biztosan eltávolítod „{{name}}” résztvevőt ebből a műhelyből?",
-        "removeParticipantMessage": "Biztosan eltávolítod „{{name}}” résztvevőt ebből a műhelyből? Ez a művelet nem vonható vissza.",
+        "removeParticipantMessage": "Biztosan eltávolítod „{{name}}” személyt erről a foglalkozásról?",
         "removeParticipantTitle": "Résztvevő eltávolítása",
+        "removeParticipantWarningPermanent": "Ez véglegesen törli az illető fiókját és minden általa létrehozott játékot, valamint az összes játékmenetet és a hozzájuk tartozó megosztott hivatkozásokat. A művelet nem vonható vissza. Ha meg szeretnéd tartani a játékokat, előbb töltsd le őket YAML formátumban.",
+        "removeParticipantWarningVisiting": "Az illető megtartja a fiókját és a játékait. Csak a foglalkozáshoz való hozzáférése szűnik meg.",
         "resetAccess": "Hozzáférés visszaállítása",
         "resetAccessDone": "Új hozzáférés létrehozva. A régi hivatkozás már nem működik.",
         "resetAccessError": "A hozzáférés nem állítható vissza. Próbáld újra.",
@@ -1199,6 +1223,9 @@
     "noRole": "Nincs szerepkör",
     "notifications": {
       "accept": "Elfogadás",
+      "acceptConfirm": "Szeretnéd folytatni?",
+      "acceptTitle": "Szervezetváltás?",
+      "acceptWarning": "Egyszerre csak egy szervezet tagja lehetsz. A meghívás elfogadása eltávolít a jelenlegi „{{organization}}” szervezetből.",
       "decline": "Elutasítás",
       "declineConfirm": "Biztosan elutasítod ezt a meghívót?",
       "declineTitle": "Meghívó elutasítása",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Előléptetés vezetővé",
     "promoteWarning": "A felhasználó jogosultságot kap a szervezeti tagok kezelésére és tanárok meghívására.",
     "publicWorkshop": {
+      "about": {
+        "details": "Alkotóik a saját szavaikkal írják le a világot, a szereplőket és a szabályokat. Játék közben egy MI innen folytatja a történetet: reagál mindenre, amit beírsz, és hozzá illő képeket talál ki – így nincs két egyforma játékmenet. Ha magad építesz egyet, gyorsan megmutatkozik, milyen erősen formálják a saját utasításaid az eredményt, és hol éri el az MI a határait. Pont ez a lényeg: nem az, hogy elmagyarázzák neked az MI működését, hanem hogy kipróbáld.",
+        "less": "Kevesebb",
+        "link": "További információ a ChatGameLabről",
+        "more": "Tudj meg többet",
+        "oneLiner": "Ezek a szöveges kalandok a ChatGameLabbal készültek: alkotóik programozás nélkül hozták létre őket, a történetet pedig élőben egy MI meséli."
+      },
       "copy": "Másolás",
       "copyLogin": "Jelentkezz be a másoláshoz",
+      "cta": {
+        "button": "Kezdd el ingyen",
+        "text": "Saját szöveges kalandot létrehozni ingyenes, és csak néhány percet vesz igénybe.",
+        "title": "Készítsd el saját ChatGameLab-játékodat"
+      },
       "download": "Letöltés",
       "gamesTitle": "A műhely játékai",
+      "links": {
+        "title": "További információ erről a foglalkozásról"
+      },
       "noGames": "Itt még nem tettek közzé játékokat.",
       "play": "Játék",
       "playExhausted": "Nincs több játékmenet",
@@ -1336,7 +1378,8 @@
     "settings": "Beállítások",
     "share": {
       "copied": "Másolva",
-      "copyLink": "Hivatkozás másolása"
+      "copyLink": "Hivatkozás másolása",
+      "visitLink": "Hivatkozás megnyitása"
     },
     "showing": "{{count}} tag",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Szerepkör (Z–A)"
     },
     "unnamed": "Névtelen",
-    "viewGame": "Játék megtekintése"
+    "viewGame": "Játék megtekintése",
+    "workshop": {
+      "inactive": {
+        "description": "Ez a foglalkozás jelenleg nem aktív. Várj, amíg a foglalkozásvezetőd újra bekapcsolja.",
+        "noCode": "Ezen az eszközön nincs mentett kód. A foglalkozásvezetőd meg tudja mondani a kódodat.",
+        "photoFirst": "Ha kijelentkezel, a kódod eltűnik erről az eszközről. Előbb fényképezd le.",
+        "showCode": "Hozzáférési kódom megjelenítése",
+        "title": "A foglalkozás nem aktív"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1405,7 +1457,7 @@
     "untitledGame": "Névtelen játék",
     "version": {
       "mismatch": {
-        "message": "A kliens verziója \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e nem egyezik a szerver verziójával \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Ez váratlan működést okozhat. Ha a probléma fennáll, fordulj a támogatáshoz.",
+        "message": "A frontend verziója (\u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e) nem egyezik a backend verziójával (\u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e). Ez váratlan működést okozhat. Ha a probléma továbbra is fennáll, lépjen kapcsolatba az ügyfélszolgálattal.",
         "title": "Verzióeltérés észlelve"
       }
     }
@@ -1419,6 +1471,7 @@
     "duplicateName": "Ezt a játéknevet már használják. Válassz másikat.",
     "forbidden": "Nincs jogosultságod a művelet végrehajtásához.",
     "generic": "Valami hiba történt. Próbáld újra.",
+    "imageGenerationUnavailable": "Ehhez a jelenethez nem sikerült képet létrehozni. A történet kép nélkül folytatódik.",
     "insufficientQuota": "Az API-kulcsod kerete elfogyott. Töltsd fel vagy használj másik kulcsot.",
     "invalidApiKey": "Az API-kulcsod érvénytelen vagy lejárt. Ellenőrizd a Beállításokban.",
     "invalidJsonSchema": "A játékbeállítás érvénytelen sémát hozott létre az MI számára. Ez játékbeállítási probléma, nem API-kulcs hiba. Ellenőrizd a játék állapotmezőit, majd próbáld újra.",

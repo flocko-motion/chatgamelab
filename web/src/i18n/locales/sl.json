@@ -60,7 +60,7 @@
       "organizationSection": "Organizacija in vloga",
       "participantCode": {
         "error": "Vaše dostopne kode ni bilo mogoče naložiti.",
-        "hint": "Fotografirajte to kodo ali si jo zapišite in je ne pokažite drugim. Kadar koli in v kateri koli napravi vam omogoči ponovni dostop do računa: na domači strani vnesite besede pod »Vnesite kodo« ali skenirajte kodo QR.",
+        "hint": "Fotografirajte to kodo ali si jo zapišite in jo obdržite zase. Z njo lahko kadar koli in v kateri koli napravi znova dostopate do svojega računa: na domači strani vnesite besede pod »Vnesite kodo« ali optično preberite kodo QR.",
         "longTokenHint": "Fotografirajte kodo QR ali shranite povezavo in je ne pokažite drugim. Kadar koli vam omogoči ponovni dostop do računa. Vodja delavnice vam lahko z vnovično ponastavitvijo dostopa posreduje kratko štiribesedno kodo.",
         "title": "Vaša dostopna koda"
       },
@@ -415,7 +415,7 @@
       "placeholder": "npr. jabolko vidra stolp",
       "submit": "Nadaljuj",
       "title": "Vnesite kodo",
-      "unknown": "Ta koda ne obstaja. Preverite črkovanje.",
+      "unknown": "To ni delovalo. Najprej preverite črkovanje, besedo za besedo. Vezaji ali presledki niso pomembni. Če je koda pravilna, morda ni več veljavna: kode je mogoče zamenjati ali pa je vodja delavnice končal delavnico (to se lahko zgodi kadar koli po delavnici). Nato prosite vodjo delavnice za novo kodo.",
       "wrongLength": "Koda ima tri ali štiri besede."
     },
     "error": "Napaka",
@@ -530,6 +530,11 @@
         "starting": "Zagon seje igre...",
         "startingHint": "AI pripravlja tvojo pustolovščino"
       },
+      "narration": {
+        "generating": "Pripoved se ustvarja …",
+        "play": "Predvajaj pripoved",
+        "stop": "Ustavi pripoved"
+      },
       "needsApiKey": {
         "description": "Ključ API, uporabljen za to sejo, ni več na voljo.",
         "title": "Potreben je ključ API"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Igro na kratko opišite. To je samo za vas in ne vpliva na igranje.",
         "gameStart": "Kako se igra začne?",
-        "gameStartHint": "Kaj se zgodi na začetku? Opišite prvi prizor, ki ga vidi igralec. Kako je igralec pozdravljen?",
+        "gameStartHint": "Kaj se zgodi na začetku? Opišite prvi prizor, ki ga vidi igralec. Kako je igralec sprejet? Kako igralec ve, kaj mora storiti?",
         "gameStartPlaceholder": "Zbudite se na robu temnega gozda. Ozka pot vodi globlje med drevesa...",
         "imageStyle": "Kakšen slog naj imajo slike igre?",
         "imageStyleHint": "Na primer: risanka, realistično, piksel art, akvarel...",
         "name": "Ime igre",
         "scenario": "O čem govori igra?",
-        "scenarioHint": "Na kratko opišite: kako igra deluje? Kakšen je svet? Jezik in ton (npr. španščina za šestošolce)?\nKakšno vlogo ima igralec? Napišite »Igralec ...«. \nČe želite, da AI prevzame vlogo določene osebe, napišite »Ti si ...«.",
+        "scenarioHint": "Na kratko opišite: Kako igra deluje? Kakšen je njen svet? Jezik in ton (npr. španščina za šestošolce)?\nKakšno vlogo ima igralec? Napišite »Igralec …«. \nČe želite, da AI prevzame vlogo določene osebe, napišite »Vi ste …«.\nKaj je cilj? Kako igralec ve, da je zmagal?",
         "scenarioPlaceholder": "Ste raziskovalec v skrivnostnem gozdu. Vaš cilj je najti skriti zaklad...",
         "statusFields": "Vrednosti igre",
         "statusFieldsHint": "Kaj naj igra spremlja? Na primer zdravje, točke ali strelivo. Igra si te vrednosti zapomni in jih med igranjem posodablja."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Neomejeno sej",
         "update": "Posodobi povezavo za deljenje",
         "workshopCreateHint": "Ustvari povezavo za deljenje te igre. API ključ delavnice je samodejno izbran in krije stroške.",
-        "workshopDescription": "Ta povezava je ustvarjena v okviru delavnice »{{name}}« – gostje igrajo z API-ključem delavnice in omejitvami pozivov.",
+        "workshopDescription": "Ta povezava je bila ustvarjena v okviru delavnice »{{name}}« – gostje igrajo z API-ključi delavnice in omejitvami poziva.",
         "workshopShare": "Delavniško deljenje",
         "workshopShareDescription": "Ta povezava je bila ustvarjena v delavnici »{{name}}« – gostje igrajo z API ključem delavnice.",
         "workshopSubsection": "Povezava za deljenje delavnice"
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Kopiraj to igro",
+      "copyGameLogin": "Prijavite se in kopirajte igro",
+      "copyLeaveMessage": "Za kopiranje je potrebna prijava. Krog, ki ga igrate, bo izgubljen.",
+      "copyLeaveTitle": "Želite zapustiti igro?",
       "welcome": {
         "backToHome": "Pojdi na ChatGameLab",
         "continueGame": "Nadaljuj igro",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Ko je možnost izklopljena, povezava prikazuje le obvestilo, povezave za igranje na strani pa prenehajo delovati.",
         "link": "Povezava",
         "linkHint": "Uporabite a–z, 0–9 in posamezne vezaje, od 3 do 60 znakov.",
+        "links": {
+          "add": "Dodaj povezavo",
+          "down": "Premakni navzdol",
+          "error": "Povezav ni bilo mogoče shraniti. Vsaka povezava potrebuje naslov, vsak naslov pa se mora začeti z http:// ali https://.",
+          "hint": "Prikazano na strani pod igrami. Največ deset.",
+          "linkDescription": "Opis (neobvezno)",
+          "linkTitle": "Naslov",
+          "remove": "Odstrani",
+          "save": "Shrani povezave",
+          "title": "Nadaljnje branje",
+          "up": "Premakni navzgor",
+          "url": "Naslov"
+        },
         "offHint": "Stran je izklopljena. Še vedno lahko pripravite njeno povezavo in kodo QR.",
         "open": "Odpri stran",
         "shareDescription": "Pošljite to povezavo ali jo prikažite kot kodo QR.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "npr. Naj bo zgodba primerna starosti in se izogibaj nasilni vsebini.",
         "removeParticipant": "Odstrani udeleženca",
         "removeParticipantConfirm": "Ali ste prepričani, da želite odstraniti »{{name}}« iz te delavnice?",
-        "removeParticipantMessage": "Ali ste prepričani, da želite odstraniti »{{name}}« iz te delavnice? Tega dejanja ni mogoče razveljaviti.",
+        "removeParticipantMessage": "Ali res želite odstraniti osebo »{{name}}« iz te delavnice?",
         "removeParticipantTitle": "Odstrani udeleženca",
+        "removeParticipantWarningPermanent": "S tem boste trajno izbrisali račun te osebe in vse igre, ki jih je ustvarila, skupaj z vsemi igralnimi sejami in morebitnimi povezavami do njih. Tega ni mogoče razveljaviti. Če želite igre obdržati, jih najprej prenesite kot YAML.",
+        "removeParticipantWarningVisiting": "Ta oseba obdrži svoj račun in svoje igre. Konča se le njen dostop do te delavnice.",
         "resetAccess": "Ponastavi dostop",
         "resetAccessDone": "Ustvarjen je bil nov dostop. Stara povezava ne deluje več.",
         "resetAccessError": "Dostopa ni bilo mogoče ponastaviti. Poskusite znova.",
@@ -1199,6 +1223,9 @@
     "noRole": "Brez vloge",
     "notifications": {
       "accept": "Sprejmi",
+      "acceptConfirm": "Ali želite nadaljevati?",
+      "acceptTitle": "Želite zamenjati organizacijo?",
+      "acceptWarning": "Hkrati ste lahko član samo ene organizacije. Če sprejmete to povabilo, boste odstranjeni iz trenutne organizacije »{{organization}}«.",
       "decline": "Zavrni",
       "declineConfirm": "Ali ste prepričani, da želite zavrniti to povabilo?",
       "declineTitle": "Zavrni povabilo",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Povišaj v vodjo",
     "promoteWarning": "Ta uporabnik bo lahko upravljal člane organizacije in vabil učitelje.",
     "publicWorkshop": {
+      "about": {
+        "details": "Njihovi ustvarjalci z lastnimi besedami opišejo svet, like in pravila. Med igranjem AI od tam naprej pripoveduje zgodbo: odziva se na vse, kar vnesete, in ustvarja ustrezne slike – zato se noben krog ne odvije enako. Ko eno ustvarite sami, hitro vidite, kako močno vaša navodila oblikujejo rezultat in kje AI doseže svoje meje. To je bistvo: ne poslušati razlage o AI, temveč ga preizkusiti.",
+        "less": "Manj",
+        "link": "Več o ChatGameLabu",
+        "more": "Izvedite več",
+        "oneLiner": "Te besedilne pustolovščine so bile ustvarjene s ChatGameLabom: njihovi ustvarjalci so jih izdelali brez programiranja, AI pa jih pripoveduje v živo."
+      },
       "copy": "Kopiraj",
       "copyLogin": "Za kopiranje se prijavite",
+      "cta": {
+        "button": "Začnite brezplačno",
+        "text": "Ustvarjanje lastne besedilne pustolovščine je brezplačno in traja le nekaj minut.",
+        "title": "Ustvarite svojo igro ChatGameLab"
+      },
       "download": "Prenesi",
       "gamesTitle": "Igre iz te delavnice",
+      "links": {
+        "title": "Več o tej delavnici"
+      },
       "noGames": "Tukaj še ni bila objavljena nobena igra.",
       "play": "Igraj",
       "playExhausted": "Seje za igranje so porabljene",
@@ -1336,7 +1378,8 @@
     "settings": "Nastavitve",
     "share": {
       "copied": "Kopirano",
-      "copyLink": "Kopiraj povezavo"
+      "copyLink": "Kopiraj povezavo",
+      "visitLink": "Obiščite povezavo"
     },
     "showing": "{{count}} članov",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Vloga (Ž-A)"
     },
     "unnamed": "Neimenovano",
-    "viewGame": "Ogled igre"
+    "viewGame": "Ogled igre",
+    "workshop": {
+      "inactive": {
+        "description": "Ta delavnica trenutno ni aktivna. Počakajte, da jo vodja delavnice znova vklopi.",
+        "noCode": "V tej napravi ni shranjena nobena koda. Vodja delavnice vam lahko pove vašo kodo.",
+        "photoFirst": "Če se odjavite, bo vaša koda izginila iz te naprave. Najprej jo fotografirajte.",
+        "showCode": "Prikaži mojo dostopno kodo",
+        "title": "Delavnica ni aktivna"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1405,7 +1457,7 @@
     "untitledGame": "Neimenovana igra",
     "version": {
       "mismatch": {
-        "message": "Različica sprednjega dela \u001cfrontendVersion\u001d{{frontendVersion}}\u001c/frontendVersion\u001d se ne ujema z različico zaledja \u001cbackendVersion\u001d{{backendVersion}}\u001c/backendVersion\u001d. To lahko povzroči nepričakovano obnašanje. Če težave ostanejo, kontaktirajte podporo.",
+        "message": "Različica vmesnika \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e se ne ujema z različico zaledja \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. To lahko povzroči nepričakovano delovanje. Če težave ne odpravite, se obrnite na podporo.",
         "title": "Zaznano neskladje različic"
       }
     }
@@ -1419,6 +1471,7 @@
     "duplicateName": "Ime te igre je že v uporabi. Izberite drugo ime.",
     "forbidden": "Nimate dovoljenja za izvedbo tega dejanja.",
     "generic": "Nekaj je šlo narobe. Poskusite znova.",
+    "imageGenerationUnavailable": "Slike za ta prizor ni bilo mogoče ustvariti. Zgodba se nadaljuje brez nje.",
     "insufficientQuota": "Vaš ključ API je porabil kredite. Dodajte več kreditov ali uporabite drug ključ API.",
     "invalidApiKey": "Vaš ključ API je neveljaven ali potekel. Preverite ga v nastavitvah.",
     "invalidJsonSchema": "Konfiguracija igre je ustvarila neveljavno shemo za AI. To je težava nastavitve igre, ne ključa API. Preverite vrednosti stanja igre in poskusite znova.",

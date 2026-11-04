@@ -415,7 +415,7 @@
       "placeholder": "f.eks. æble odder tårn",
       "submit": "Fortsæt",
       "title": "Indtast kode",
-      "unknown": "Denne kode findes ikke. Kontrollér stavningen.",
+      "unknown": "Det virkede ikke. Tjek først stavningen ord for ord. Bindestreger og mellemrum er ligegyldige. Hvis koden er korrekt, er den måske ikke længere gyldig: Koder kan blive udskiftet, eller workshoplederen kan have afsluttet workshoppen (det kan ske når som helst efter workshoppen). Spørg derefter din workshopleder efter en ny kode.",
       "wrongLength": "En kode består af tre eller fire ord."
     },
     "error": "Fejl",
@@ -530,6 +530,11 @@
         "starting": "Starter spilsession...",
         "startingHint": "AI'en forbereder dit eventyr"
       },
+      "narration": {
+        "generating": "Fortællingen genereres…",
+        "play": "Afspil fortælling",
+        "stop": "Stop fortælling"
+      },
       "needsApiKey": {
         "description": "API-nøglen brugt til denne session er ikke længere tilgængelig.",
         "title": "API-nøgle kræves"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Giv spillet en kort beskrivelse. Den er kun til dig og påvirker ikke spillet.",
         "gameStart": "Hvordan begynder spillet?",
-        "gameStartHint": "Hvad sker der i starten? Beskriv den første scene, spilleren ser. Hvordan bliver spilleren budt velkommen?",
+        "gameStartHint": "Hvad sker der i starten? Beskriv den første scene, som spilleren ser. Hvordan bliver spilleren budt velkommen? Hvordan ved spilleren, hvad vedkommende skal gøre?",
         "gameStartPlaceholder": "Du vågner ved kanten af en mørk skov. En smal sti fører dybere ind mellem træerne...",
         "imageStyle": "Hvilken stil skal spillets billeder have?",
         "imageStyleHint": "For eksempel: tegnefilm, realistisk, pixelart, akvarel...",
         "name": "Spilnavn",
         "scenario": "Hvad handler spillet om?",
-        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan er verden? Sprog og tone (f.eks. spansk for elever i sjette klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\".\nHvis du vil have AI'en til at tage rollen som en bestemt person, så skriv \"Du er ...\".",
+        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan er verdenen? Sprog og tone (f.eks. spansk for elever i sjette klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\".\nHvis du vil have AI'en til at indtage rollen som en bestemt person, så skriv \"Du er ...\".\nHvad er målet? Hvordan ved spilleren, at vedkommende har vundet?",
         "scenarioPlaceholder": "Du er en opdagelsesrejsende i en mystisk skov. Dit mål er at finde den skjulte skat...",
         "statusFields": "Spilværdier",
         "statusFieldsHint": "Hvad skal spillet holde styr på? For eksempel liv, point eller ammunition. Spillet husker disse værdier og opdaterer dem undervejs."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Ubegrænsede sessioner",
         "update": "Opdater delingslink",
         "workshopCreateHint": "Opret et delingslink til dette spil. Workshopens API-nøgle vælges automatisk og dækker omkostningerne.",
-        "workshopDescription": "Dette link er oprettet i workshoppen \"{{name}}\" – gæster spiller med workshopens API-nøgle og begrænsninger for prompts.",
+        "workshopDescription": "Dette link er oprettet i workshoppen \"{{name}}\" – gæster spiller med workshoppen's API-nøgle og promptbegrænsninger.",
         "workshopShare": "Workshopdelingslink",
         "workshopShareDescription": "Dette link blev oprettet i workshoppen \"{{name}}\" – gæster spiller med workshopens API-nøgle.",
         "workshopSubsection": "Workshopdelingslink"
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Kopiér dette spil",
+      "copyGameLogin": "Log ind og kopiér spillet",
+      "copyLeaveMessage": "Det kræver login at kopiere. Den runde, du spiller, går tabt.",
+      "copyLeaveTitle": "Forlad spillet?",
       "welcome": {
         "backToHome": "Gå til ChatGameLab",
         "continueGame": "Fortsæt spil",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Når den er slået fra, viser linket kun en meddelelse, og sidens spillinks holder op med at virke.",
         "link": "Link",
         "linkHint": "Brug a–z, 0–9 og enkelte bindestreger, 3 til 60 tegn.",
+        "links": {
+          "add": "Tilføj link",
+          "down": "Flyt ned",
+          "error": "Linkene kunne ikke gemmes. Alle links skal have en titel, og alle adresser skal begynde med http:// eller https://.",
+          "hint": "Vises på siden under spillene. Højst ti.",
+          "linkDescription": "Beskrivelse (valgfrit)",
+          "linkTitle": "Titel",
+          "remove": "Fjern",
+          "save": "Gem links",
+          "title": "Yderligere læsning",
+          "up": "Flyt op",
+          "url": "Adresse"
+        },
         "offHint": "Siden er slået fra. Du kan stadig forberede dens link og QR-kode.",
         "open": "Åbn side",
         "shareDescription": "Send dette link, eller vis det som en QR-kode.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "f.eks. Sørg for, at historien er alderssvarende og undgå voldeligt indhold.",
         "removeParticipant": "Fjern deltager",
         "removeParticipantConfirm": "Er du sikker på, at du vil fjerne \"{{name}}\" fra denne workshop?",
-        "removeParticipantMessage": "Er du sikker på, at du vil fjerne \"{{name}}\" fra denne workshop? Denne handling kan ikke fortrydes.",
+        "removeParticipantMessage": "Vil du virkelig fjerne \"{{name}}\" fra denne workshop?",
         "removeParticipantTitle": "Fjern deltager",
+        "removeParticipantWarningPermanent": "Dette sletter permanent denne persons konto og alle spil, som personen har oprettet, samt alle spilsessioner og delte links til dem. Det kan ikke fortrydes. Hvis spillene skal bevares, skal du først downloade dem som YAML.",
+        "removeParticipantWarningVisiting": "Denne person beholder sin konto og sine spil. Kun adgangen til denne workshop ophører.",
         "resetAccess": "Nulstil adgang",
         "resetAccessDone": "Ny adgang oprettet. Det gamle link virker ikke længere.",
         "resetAccessError": "Adgangen kunne ikke nulstilles. Prøv igen.",
@@ -1199,6 +1223,9 @@
     "noRole": "Ingen rolle",
     "notifications": {
       "accept": "Accepter",
+      "acceptConfirm": "Vil du fortsætte?",
+      "acceptTitle": "Skift organisation?",
+      "acceptWarning": "Du kan kun være medlem af én organisation ad gangen. Hvis du accepterer denne invitation, bliver du fjernet fra din nuværende organisation \"{{organization}}\".",
       "decline": "Afvis",
       "declineConfirm": "Er du sikker på, at du vil afvise denne invitation?",
       "declineTitle": "Afvis invitation",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Forfrem til leder",
     "promoteWarning": "Denne bruger får mulighed for at administrere organisationsmedlemmer og invitere lærere.",
     "publicWorkshop": {
+      "about": {
+        "details": "Skaberne beskriver verdenen, karaktererne og reglerne med deres egne ord. Mens du spiller, fortsætter en AI med at fortælle historien derfra: Den reagerer på alt, hvad du skriver, og opfinder passende billeder — så ikke to runder forløber på samme måde. Når du selv bygger et spil, bliver det hurtigt tydeligt, hvor stærkt dine egne instruktioner former resultatet, og hvor AI'en når sine grænser. Det er hele pointen: ikke at få AI forklaret, men at prøve det af.",
+        "less": "Mindre",
+        "link": "Mere om ChatGameLab",
+        "more": "Læs mere",
+        "oneLiner": "Disse teksteventyr er skabt med ChatGameLab: lavet af deres skabere uden programmering og fortalt live af en AI."
+      },
       "copy": "Kopiér",
       "copyLogin": "Log ind for at kopiere",
+      "cta": {
+        "button": "Kom gratis i gang",
+        "text": "Det er gratis at bygge dit eget teksteventyr og tager kun få minutter.",
+        "title": "Lav dit eget ChatGameLab-spil"
+      },
       "download": "Download",
       "gamesTitle": "Spil fra denne workshop",
+      "links": {
+        "title": "Mere om denne workshop"
+      },
       "noGames": "Der er endnu ikke blevet offentliggjort nogen spil her.",
       "play": "Spil",
       "playExhausted": "Ingen spilsessioner tilbage",
@@ -1336,7 +1378,8 @@
     "settings": "Indstillinger",
     "share": {
       "copied": "Kopieret",
-      "copyLink": "Kopiér link"
+      "copyLink": "Kopiér link",
+      "visitLink": "Besøg link"
     },
     "showing": "{{count}} medlemmer",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Rolle (Å-A)"
     },
     "unnamed": "Uden navn",
-    "viewGame": "Vis spil"
+    "viewGame": "Vis spil",
+    "workshop": {
+      "inactive": {
+        "description": "Denne workshop er ikke aktiv lige nu. Vent, indtil din workshopleder aktiverer den igen.",
+        "noCode": "Der er ikke gemt nogen kode på denne enhed. Din workshopleder kan fortælle dig din kode.",
+        "photoFirst": "Hvis du logger ud, forsvinder din kode fra denne enhed. Tag et billede af den først.",
+        "showCode": "Vis min adgangskode",
+        "title": "Workshoppen er ikke aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1405,7 +1457,7 @@
     "untitledGame": "Spil uden titel",
     "version": {
       "mismatch": {
-        "message": "Frontend-version \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 matcher ikke backend-version \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. Det kan give uventet adfærd. Kontakt support, hvis problemet fortsætter.",
+        "message": "Frontendversionen \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e stemmer ikke overens med backendversionen \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Dette kan medføre uventet adfærd. Kontakt support, hvis problemerne fortsætter.",
         "title": "Versionskonflikt registreret"
       }
     }
@@ -1419,6 +1471,7 @@
     "duplicateName": "Navnet på dette spil er allerede i brug. Vælg et andet navn.",
     "forbidden": "Du har ikke tilladelse til at udføre denne handling.",
     "generic": "Noget gik galt. Prøv igen.",
+    "imageGenerationUnavailable": "Billedet til denne scene kunne ikke genereres. Historien fortsætter uden det.",
     "insufficientQuota": "Din API-nøgle er løbet tør for credits. Tilføj flere credits eller brug en anden API-nøgle.",
     "invalidApiKey": "Din API-nøgle er ugyldig eller udløbet. Kontrollér din API-nøgle i indstillinger.",
     "invalidJsonSchema": "Spilkonfigurationen genererede et ugyldigt skema til AI'en. Dette er et spilopsætningsproblem, ikke et API-nøgleproblem. Kontrollér spillets statusfelter og prøv igen.",

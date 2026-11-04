@@ -5,6 +5,7 @@
 package functional
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -334,12 +335,17 @@ func ExtractFieldsByPaths(jsonStr string, includePaths map[string]bool) (string,
 		return "{}", nil
 	}
 
-	out, err := json.MarshalIndent(result, "", "  ")
-	if err != nil {
+	// Keep &, < and > literal: this text goes to an AI for translation, and models
+	// garble escapes like & into control characters ("Story \x026 AI").
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(result); err != nil {
 		return "", fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
-	return string(out) + "\n", nil
+	return buf.String(), nil
 }
 
 // extractFields recursively extracts only the fields whose paths are in the includePaths set

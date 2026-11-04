@@ -60,7 +60,7 @@
       "organizationSection": "Organizácia a rola",
       "participantCode": {
         "error": "Váš prístupový kód sa nepodarilo načítať.",
-        "hint": "Odfoťte si tento kód alebo si ho zapíšte a uchovajte ho v tajnosti. Kedykoľvek a na akomkoľvek zariadení vám umožní znova sa prihlásiť do účtu: na domovskej stránke zadajte slová pod položkou „Zadať kód“ alebo naskenujte QR kód.",
+        "hint": "Odfotografujte si tento kód alebo si ho zapíšte a uchovajte ho v tajnosti. Kedykoľvek a na akomkoľvek zariadení vám umožní znovu sa prihlásiť do účtu: na domovskej stránke zadajte slová pod položkou „Zadať kód“ alebo naskenujte QR kód.",
         "longTokenHint": "Odfoťte si QR kód alebo si uložte odkaz a uchovajte ho v tajnosti. Kedykoľvek vám umožní znova sa prihlásiť do účtu. Vedúci workshopu vám môže vytvoriť krátky štvorslovný kód obnovením prístupu.",
         "title": "Váš prístupový kód"
       },
@@ -415,7 +415,7 @@
       "placeholder": "napr. apfel otter turm",
       "submit": "Pokračovať",
       "title": "Zadať kód",
-      "unknown": "Tento kód neexistuje. Skontrolujte jeho správnosť.",
+      "unknown": "To nefungovalo. Najprv skontrolujte pravopis, slovo po slove. Pomlčky ani medzery nevadia. Ak je kód správny, možno už nie je platný: kódy sa dajú nahradiť alebo vedúci workshopu workshop ukončil (môže sa to stať kedykoľvek po workshope). Potom požiadajte vedúceho workshopu o nový kód.",
       "wrongLength": "Kód má tri alebo štyri slová."
     },
     "error": "Chyba",
@@ -530,6 +530,11 @@
         "starting": "Spúšťa sa herná relácia...",
         "startingHint": "AI pripravuje vaše dobrodružstvo"
       },
+      "narration": {
+        "generating": "Rozprávanie sa generuje…",
+        "play": "Prehrať rozprávanie",
+        "stop": "Zastaviť rozprávanie"
+      },
       "needsApiKey": {
         "description": "API kľúč použitý pre túto reláciu už nie je dostupný.",
         "title": "Vyžaduje sa API kľúč"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Dajte hre krátky popis. Je iba pre vás a neovplyvní hrateľnosť.",
         "gameStart": "Ako hra začína?",
-        "gameStartHint": "Čo sa deje na začiatku? Opíšte prvú scénu, ktorú hráč uvidí. Ako je hráč privítaný?",
+        "gameStartHint": "Čo sa stane na začiatku? Opíšte prvú scénu, ktorú hráč uvidí. Ako je hráč privítaný? Ako hráč vie, čo má robiť?",
         "gameStartPlaceholder": "Prebudíte sa na okraji tmavého lesa. Úzka cestička vedie hlbšie medzi stromy...",
         "imageStyle": "Aký štýl majú mať obrázky hry?",
         "imageStyleHint": "Napríklad: kreslený, realistický, pixel art, akvarel...",
         "name": "Názov hry",
         "scenario": "O čom je hra?",
-        "scenarioHint": "Stručne opíšte: Ako hra funguje? Aký je svet? Jazyk a tón (napr. španielčina pre šiestakov)?\nAkú rolu má hráč? Napíšte „Hráč ...“. \nAk chcete, aby AI prevzala rolu konkrétnej osoby, napíšte „Ty si ...“.",
+        "scenarioHint": "Stručne opíšte: Ako hra funguje? Aký je svet? Jazyk a tón (napr. španielčina pre žiakov šiesteho ročníka)?\nAkú úlohu má hráč? Napíšte „Hráč ...“. \nAk chcete, aby AI prevzala úlohu konkrétnej osoby, napíšte „Ste ...“.\nAký je cieľ? Ako hráč zistí, že vyhral?",
         "scenarioPlaceholder": "Ste prieskumník v tajomnom lese. Vaším cieľom je nájsť ukrytý poklad...",
         "statusFields": "Hodnoty hry",
         "statusFieldsHint": "Čo má hra sledovať? Napríklad zdravie, body alebo muníciu. Hra si tieto hodnoty pamätá a pri hraní ich aktualizuje."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Neobmedzené relácie",
         "update": "Aktualizovať zdieľací odkaz",
         "workshopCreateHint": "Vytvorte zdieľací odkaz pre túto hru. Kľúč API workshopu sa vyberie automaticky a pokryje náklady.",
-        "workshopDescription": "Tento odkaz bol vytvorený v rámci workshopu „{{name}}“ – hostia hrajú s API kľúčom workshopu a jeho obmedzeniami promptov.",
+        "workshopDescription": "Tento odkaz bol vytvorený v rámci workshopu „{{name}}“ – hostia hrajú s API kľúčom workshopu a s obmedzeniami zadania.",
         "workshopShare": "Workshopové zdieľanie",
         "workshopShareDescription": "Tento odkaz bol vytvorený vo workshope „{{name}}“ – hostia hrajú s použitím kľúča API workshopu.",
         "workshopSubsection": "Workshopový zdieľací odkaz"
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Skopírovať túto hru",
+      "copyGameLogin": "Prihlásiť sa a skopírovať hru",
+      "copyLeaveMessage": "Kopírovanie vyžaduje prihlásenie. Rozohrané kolo sa stratí.",
+      "copyLeaveTitle": "Opustiť hru?",
       "welcome": {
         "backToHome": "Prejsť na ChatGameLab",
         "continueGame": "Pokračovať v hre",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Keď je táto možnosť vypnutá, odkaz zobrazí iba oznámenie a odkazy na hranie na stránke prestanú fungovať.",
         "link": "Odkaz",
         "linkHint": "Použite a–z, 0–9 a samostatné spojovníky, 3 až 60 znakov.",
+        "links": {
+          "add": "Pridať odkaz",
+          "down": "Posunúť nadol",
+          "error": "Odkazy sa nepodarilo uložiť. Každý odkaz musí mať názov a každá adresa musí začínať na http:// alebo https://.",
+          "hint": "Zobrazí sa na stránke pod hrami. Maximálne desať.",
+          "linkDescription": "Opis (voliteľné)",
+          "linkTitle": "Názov",
+          "remove": "Odstrániť",
+          "save": "Uložiť odkazy",
+          "title": "Ďalšie čítanie",
+          "up": "Posunúť nahor",
+          "url": "Adresa"
+        },
         "offHint": "Stránka je vypnutá. Stále môžete pripraviť jej odkaz a QR kód.",
         "open": "Otvoriť stránku",
         "shareDescription": "Pošlite tento odkaz alebo ho zobrazte ako QR kód.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "napr. Udržujte príbeh primeraný veku a vyhnite sa násilnému obsahu.",
         "removeParticipant": "Odstrániť účastníka",
         "removeParticipantConfirm": "Naozaj chcete odstrániť „{{name}}“ z tohto workshopu?",
-        "removeParticipantMessage": "Naozaj chcete odstrániť „{{name}}“ z tohto workshopu? Táto akcia je nevratná.",
+        "removeParticipantMessage": "Naozaj chcete odstrániť osobu „{{name}}“ z tohto workshopu?",
         "removeParticipantTitle": "Odstrániť účastníka",
+        "removeParticipantWarningPermanent": "Týmto natrvalo odstránite účet tejto osoby aj všetky hry, ktoré vytvorila, spolu so všetkými hernými reláciami a zdieľanými odkazmi na ne. Túto akciu nemožno vrátiť späť. Ak chcete hry zachovať, najprv ich stiahnite vo formáte YAML.",
+        "removeParticipantWarningVisiting": "Táto osoba si ponechá svoj účet aj hry. Skončí sa iba jej prístup k tomuto workshopu.",
         "resetAccess": "Obnoviť prístup",
         "resetAccessDone": "Bol vytvorený nový prístup. Starý odkaz už nefunguje.",
         "resetAccessError": "Prístup sa nepodarilo obnoviť. Skúste to znova.",
@@ -1199,6 +1223,9 @@
     "noRole": "Žiadna rola",
     "notifications": {
       "accept": "Prijať",
+      "acceptConfirm": "Chcete pokračovať?",
+      "acceptTitle": "Prepnúť organizáciu?",
+      "acceptWarning": "Naraz môžete byť členom iba jednej organizácie. Prijatím tohto pozvania budete odstránení zo svojej súčasnej organizácie „{{organization}}“.",
       "decline": "Odmietnuť",
       "declineConfirm": "Naozaj chcete odmietnuť túto pozvánku?",
       "declineTitle": "Odmietnuť pozvánku",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Povýšiť na vedúceho",
     "promoteWarning": "Tento používateľ získa možnosť spravovať členov organizácie a pozývať učiteľov.",
     "publicWorkshop": {
+      "about": {
+        "details": "Ich tvorcovia vlastnými slovami opisujú svet, postavy a pravidlá. Počas hrania AI odtiaľto ďalej rozpráva príbeh: reaguje na všetko, čo napíšete, a vymýšľa k tomu zodpovedajúce obrázky — preto žiadne dve kolá neprebiehajú rovnako. Keď si jednu hru vytvoríte sami, rýchlo uvidíte, ako výrazne vaše vlastné pokyny ovplyvňujú výsledok a kde naráža AI na svoje limity. A práve o to ide: nie nechať si AI vysvetliť, ale vyskúšať si ju.",
+        "less": "Menej",
+        "link": "Viac o ChatGameLab",
+        "more": "Zistiť viac",
+        "oneLiner": "Tieto textové dobrodružstvá boli vytvorené pomocou ChatGameLab: ich tvorcovia ich vytvorili bez programovania a AI ich naživo rozpráva."
+      },
       "copy": "Kopírovať",
       "copyLogin": "Prihláste sa a skopírujte",
+      "cta": {
+        "button": "Začať zadarmo",
+        "text": "Vytvorenie vlastného textového dobrodružstva je bezplatné a trvá len niekoľko minút.",
+        "title": "Vytvorte si vlastnú hru v ChatGameLab"
+      },
       "download": "Stiahnuť",
       "gamesTitle": "Hry z tohto workshopu",
+      "links": {
+        "title": "Viac o tomto workshope"
+      },
       "noGames": "Zatiaľ tu neboli zverejnené žiadne hry.",
       "play": "Hrať",
       "playExhausted": "Nezostali žiadne herné relácie",
@@ -1336,7 +1378,8 @@
     "settings": "Nastavenia",
     "share": {
       "copied": "Skopírované",
-      "copyLink": "Kopírovať odkaz"
+      "copyLink": "Kopírovať odkaz",
+      "visitLink": "Navštíviť odkaz"
     },
     "showing": "{{count}} členovia",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Rola (Z-A)"
     },
     "unnamed": "Nepomenované",
-    "viewGame": "Zobraziť hru"
+    "viewGame": "Zobraziť hru",
+    "workshop": {
+      "inactive": {
+        "description": "Tento workshop momentálne nie je aktívny. Počkajte, kým ho vedúci workshopu znova zapne.",
+        "noCode": "Na tomto zariadení nie je uložený žiadny kód. Váš kód vám môže povedať vedúci workshopu.",
+        "photoFirst": "Ak sa odhlásite, kód z tohto zariadenia zmizne. Najprv si ho odfoťte.",
+        "showCode": "Zobraziť môj prístupový kód",
+        "title": "Workshop nie je aktívny"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1405,7 +1457,7 @@
     "untitledGame": "Hra bez názvu",
     "version": {
       "mismatch": {
-        "message": "Verzia frontendu \u0003cbcfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e sa nezhoduje s verziou backendu \u0003cbcbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Môže to spôsobovať neočakávané správanie. Ak problém pretrváva, kontaktujte podporu.",
+        "message": "Verzia frontendu \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e sa nezhoduje s verziou backendu \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. To môže spôsobiť neočakávané správanie. Ak problémy pretrvávajú, kontaktujte podporu.",
         "title": "Zistená nezhoda verzií"
       }
     }
@@ -1419,6 +1471,7 @@
     "duplicateName": "Názov tejto hry sa už používa. Vyberte iný názov.",
     "forbidden": "Nemáte oprávnenie vykonať túto akciu.",
     "generic": "Niečo sa pokazilo. Skúste to znova.",
+    "imageGenerationUnavailable": "Obrázok pre túto scénu sa nepodarilo vygenerovať. Príbeh pokračuje bez neho.",
     "insufficientQuota": "Váš API kľúč nemá dostatok kreditov. Pridajte ďalšie kredity alebo použite iný API kľúč.",
     "invalidApiKey": "Váš API kľúč je neplatný alebo expiroval. Skontrolujte ho v nastaveniach.",
     "invalidJsonSchema": "Konfigurácia hry vytvorila neplatnú schému pre AI. Ide o problém s nastavením hry, nie s API kľúčom. Skontrolujte stavové polia hry a skúste znova.",

@@ -57,10 +57,10 @@
       "noOrganization": "Ingen organisasjon",
       "noRole": "Ingen rolle tildelt",
       "organization": "Organisasjon",
-      "organizationSection": "Organisasjon \u001f Rolle",
+      "organizationSection": "Organisasjon og rolle",
       "participantCode": {
         "error": "Tilgangskoden din kunne ikke lastes inn.",
-        "hint": "Ta et bilde av denne koden eller skriv den ned, og hold den for deg selv. Den gir deg tilgang til kontoen din igjen når som helst, på hvilken som helst enhet: skriv inn ordene under «Skriv inn kode» på startsiden, eller skann QR-koden.",
+        "hint": "Ta et bilde av denne koden eller skriv den ned, og hold den for deg selv. Den gir deg tilgang til kontoen din igjen når som helst og på hvilken som helst enhet: skriv inn ordene under «Skriv inn kode» på startsiden, eller skann QR-koden.",
         "longTokenHint": "Ta et bilde av QR-koden eller lagre lenken, og hold den for deg selv. Den gir deg tilgang til kontoen din igjen når som helst. Workshop-lederen din kan gi deg en kort kode på fire ord ved å tilbakestille tilgangen din.",
         "title": "Tilgangskoden din"
       },
@@ -375,7 +375,7 @@
         "revokeGameShare": "Opphev delingslenke",
         "revokePrivateShare": "Trekk tilbake delelenke",
         "sponsorships": "Spillsponsorater",
-        "toggle": "Delinger \u001f sponsorater",
+        "toggle": "Delinger og sponsing",
         "unknownGame": "Ukjent spill",
         "unknownOrg": "Ukjent organisasjon",
         "unknownUser": "Ukjent bruker",
@@ -415,7 +415,7 @@
       "placeholder": "f.eks. apfel otter turm",
       "submit": "Fortsett",
       "title": "Skriv inn kode",
-      "unknown": "Denne koden finnes ikke. Kontroller stavemåten.",
+      "unknown": "Det fungerte ikke. Sjekk først stavemåten, ord for ord. Bindestreker eller mellomrom har ingen betydning. Hvis koden er riktig, er den kanskje ikke gyldig lenger: Koder kan erstattes, eller workshop-lederen har avsluttet workshopen (dette kan skje når som helst etter workshopen). Spør deretter workshop-lederen om en ny kode.",
       "wrongLength": "En kode består av tre eller fire ord."
     },
     "error": "Feil",
@@ -530,6 +530,11 @@
         "starting": "Starter spillsesjon...",
         "startingHint": "AI-en forbereder eventyret ditt"
       },
+      "narration": {
+        "generating": "Fortellingen genereres …",
+        "play": "Spill av fortellingen",
+        "stop": "Stopp fortellingen"
+      },
       "needsApiKey": {
         "description": "API-nøkkelen som ble brukt for denne sesjonen er ikke lenger tilgjengelig.",
         "title": "API-nøkkel kreves"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Gi spillet en kort beskrivelse. Dette er bare for deg og påvirker ikke spillingen.",
         "gameStart": "Hvordan begynner spillet?",
-        "gameStartHint": "Hva skjer i starten? Beskriv den første scenen spilleren ser. Hvordan blir spilleren tatt imot?",
+        "gameStartHint": "Hva skjer i begynnelsen? Beskriv den første scenen spilleren ser. Hvordan blir spilleren ønsket velkommen? Hvordan vet spilleren hva han eller hun skal gjøre?",
         "gameStartPlaceholder": "Du våkner ved kanten av en mørk skog. En smal sti leder dypere inn mellom trærne...",
         "imageStyle": "Hvilken stil skal spillets bilder ha?",
         "imageStyleHint": "For eksempel: tegneserie, realistisk, pikselkunst, akvarell...",
         "name": "Spillnavn",
         "scenario": "Hva handler spillet om?",
-        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan er verden? Språk \u001f tone (f.eks. spansk for sjetteklassinger)?\nHvilken rolle har spilleren? Skriv «Spilleren ...».\nHvis du vil at AI-en skal ta rollen til en bestemt person, skriv «Du er ...».",
+        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan er verdenen? Språk og tone (f.eks. spansk for sjetteklassinger)?\nHvilken rolle har spilleren? Skriv «Spilleren …».\nHvis du vil at KI-en skal spille rollen som en bestemt person, skriver du «Du er …».\nHva er målet? Hvordan vet spilleren at han eller hun har vunnet?",
         "scenarioPlaceholder": "Du er en utforsker i en mystisk skog. Målet ditt er å finne den skjulte skatten...",
         "statusFields": "Spillverdier",
         "statusFieldsHint": "Hva skal spillet holde styr på? For eksempel liv, poeng eller ammunisjon. Spillet husker disse verdiene og oppdaterer dem under spillingen."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Ubegrensede økter",
         "update": "Oppdater delelenke",
         "workshopCreateHint": "Opprett en delingslenke for dette spillet. Workshopens API-nøkkel velges automatisk og dekker kostnadene.",
-        "workshopDescription": "Denne lenken er opprettet i workshopen «{{name}}» – gjester spiller med workshoppens API-nøkkel og begrensninger for ledetekster.",
+        "workshopDescription": "Denne lenken er opprettet i workshopen «{{name}}» – gjester spiller med workshopens API-nøkkel og begrensninger for ledetekster.",
         "workshopShare": "Workshop-deling",
         "workshopShareDescription": "Denne lenken ble opprettet i workshopen «{{name}}» – gjester spiller med workshopens API-nøkkel.",
         "workshopSubsection": "Delingslenke for workshop"
@@ -727,7 +732,7 @@
         "basicInfo": "Generell info om spillet. Dette er bare for deg og påvirker ikke spillingen.",
         "importExport": "Importer/Eksporter",
         "quickStart": "Hurtigstart",
-        "story": "Historie \u001f AI",
+        "story": "Historie og KI",
         "storyInfo": "Alt her sendes til AI-en for å forme spillverdenen og historien din.",
         "style": "Design",
         "styleInfo": "Valgfrie innstillinger for spillets utseende under spilling."
@@ -835,6 +840,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Kopier dette spillet",
+      "copyGameLogin": "Logg inn og kopier spillet",
+      "copyLeaveMessage": "Du må være innlogget for å kopiere. Runden du spiller, går tapt.",
+      "copyLeaveTitle": "Forlate spillet?",
       "welcome": {
         "backToHome": "Gå til ChatGameLab",
         "continueGame": "Fortsett spill",
@@ -871,7 +880,7 @@
         },
         "learn": {
           "description": "Perfekt for pedagogiske workshops og aktiviteter i klasserommet",
-          "title": "Lær \u001f undervis"
+          "title": "Lær og undervis"
         },
         "play": {
           "description": "Bli med venner i samarbeidsbaserte historiefortellingsøkter",
@@ -1060,6 +1069,19 @@
         "enabledHint": "Når dette er deaktivert, viser lenken bare en melding, og sidens spill-lenker slutter å virke.",
         "link": "Lenke",
         "linkHint": "Bruk a–z, 0–9 og enkle bindestreker, 3 til 60 tegn.",
+        "links": {
+          "add": "Legg til lenke",
+          "down": "Flytt ned",
+          "error": "Lenkene kunne ikke lagres. Alle lenker må ha en tittel, og alle adresser må begynne med http:// eller https://.",
+          "hint": "Vises på siden under spillene. Høyst ti.",
+          "linkDescription": "Beskrivelse (valgfritt)",
+          "linkTitle": "Tittel",
+          "remove": "Fjern",
+          "save": "Lagre lenker",
+          "title": "Mer å lese",
+          "up": "Flytt opp",
+          "url": "Adresse"
+        },
         "offHint": "Siden er slått av. Du kan fortsatt klargjøre lenken og QR-koden.",
         "open": "Åpne siden",
         "shareDescription": "Send denne lenken eller vis den som en QR-kode.",
@@ -1160,8 +1182,10 @@
         "promptConstraintsPlaceholder": "f.eks. Hold historien passende for alder og unngå voldelig innhold.",
         "removeParticipant": "Fjern deltaker",
         "removeParticipantConfirm": "Er du sikker på at du vil fjerne \"{{name}}\" fra denne workshopen?",
-        "removeParticipantMessage": "Er du sikker på at du vil fjerne \"{{name}}\" fra denne workshopen? Denne handlingen kan ikke angres.",
+        "removeParticipantMessage": "Vil du virkelig fjerne «{{name}}» fra denne workshopen?",
         "removeParticipantTitle": "Fjern deltaker",
+        "removeParticipantWarningPermanent": "Dette sletter kontoen til denne personen og alle spillene personen har laget, sammen med alle spilløkter og eventuelle delte lenker til dem, permanent. Det kan ikke angres. Hvis spillene skal beholdes, må du først laste dem ned som YAML.",
+        "removeParticipantWarningVisiting": "Denne personen beholder kontoen og spillene sine. Bare tilgangen til denne workshopen avsluttes.",
         "resetAccess": "Tilbakestill tilgang",
         "resetAccessDone": "Ny tilgang er opprettet. Den gamle lenken virker ikke lenger.",
         "resetAccessError": "Tilgangen kunne ikke tilbakestilles. Prøv igjen.",
@@ -1199,6 +1223,9 @@
     "noRole": "Ingen rolle",
     "notifications": {
       "accept": "Godta",
+      "acceptConfirm": "Vil du fortsette?",
+      "acceptTitle": "Bytte organisasjon?",
+      "acceptWarning": "Du kan bare være medlem av én organisasjon om gangen. Hvis du godtar denne invitasjonen, fjernes du fra den nåværende organisasjonen «{{organization}}».",
       "decline": "Avslå",
       "declineConfirm": "Er du sikker på at du vil avslå denne invitasjonen?",
       "declineTitle": "Avslå invitasjon",
@@ -1236,10 +1263,25 @@
     "promoteToHead": "Forfrem til leder",
     "promoteWarning": "Denne brukeren får muligheten til å administrere organisasjonsmedlemmer og invitere lærere.",
     "publicWorkshop": {
+      "about": {
+        "details": "Skaperne deres beskriver verdenen, figurene og reglene med egne ord. Mens du spiller, fortsetter en KI å fortelle historien derfra: Den reagerer på alt du skriver og finner på bilder som passer – derfor blir ingen runder helt like. Når du lager et spill selv, ser du raskt hvor sterkt dine egne instruksjoner former resultatet, og hvor grensene til en KI går. Det er hele poenget: ikke å få KI forklart, men å prøve det ut.",
+        "less": "Mindre",
+        "link": "Mer om ChatGameLab",
+        "more": "Finn ut mer",
+        "oneLiner": "Disse teksteventyrene ble laget med ChatGameLab: skapt av skaperne sine uten programmering og fortalt direkte av en KI."
+      },
       "copy": "Kopier",
       "copyLogin": "Logg inn for å kopiere",
+      "cta": {
+        "button": "Start gratis",
+        "text": "Det er gratis å lage ditt eget teksteventyr, og det tar bare noen få minutter.",
+        "title": "Lag ditt eget ChatGameLab-spill"
+      },
       "download": "Last ned",
       "gamesTitle": "Spill fra denne workshopen",
+      "links": {
+        "title": "Mer om denne workshopen"
+      },
       "noGames": "Ingen spill er publisert her ennå.",
       "play": "Spill",
       "playExhausted": "Ingen spilløkter igjen",
@@ -1336,7 +1378,8 @@
     "settings": "Innstillinger",
     "share": {
       "copied": "Kopiert",
-      "copyLink": "Kopier lenke"
+      "copyLink": "Kopier lenke",
+      "visitLink": "Besøk lenken"
     },
     "showing": "{{count}} medlemmer",
     "sort": {
@@ -1347,7 +1390,16 @@
       "role-desc": "Rolle (Å-A)"
     },
     "unnamed": "Uten navn",
-    "viewGame": "Vis spill"
+    "viewGame": "Vis spill",
+    "workshop": {
+      "inactive": {
+        "description": "Denne workshopen er ikke aktiv akkurat nå. Vent til workshop-lederen slår den på igjen.",
+        "noCode": "Ingen kode er lagret på denne enheten. Workshop-lederen kan fortelle deg din.",
+        "photoFirst": "Hvis du logger ut, forsvinner koden fra denne enheten. Ta et bilde av den først.",
+        "showCode": "Vis tilgangskoden min",
+        "title": "Workshopen er ikke aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1419,6 +1471,7 @@
     "duplicateName": "Navnet for dette spillet er allerede i bruk. Velg et annet navn.",
     "forbidden": "Du har ikke tillatelse til å utføre denne handlingen.",
     "generic": "Noe gikk galt. Prøv igjen.",
+    "imageGenerationUnavailable": "Bildet for denne scenen kunne ikke genereres. Historien fortsetter uten det.",
     "insufficientQuota": "API-nøkkelen din har ikke flere kreditter. Legg til flere kreditter eller bruk en annen API-nøkkel.",
     "invalidApiKey": "API-nøkkelen din er ugyldig eller utløpt. Sjekk API-nøkkelen i Innstillinger.",
     "invalidJsonSchema": "Spillkonfigurasjonen produserte et ugyldig skjema for AI-en. Dette er et spilloppsettproblem, ikke et API-nøkkelproblem. Kontroller spillets statusfelt og prøv igjen.",
