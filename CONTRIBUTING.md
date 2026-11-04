@@ -52,15 +52,47 @@ and create your personal branch in which you will do your changes. That is calle
 
 When you work on changes, you do that on a branch that you create yourself. You 
 branch it off from the `development` branch using the command: 
-`git checkoug -b yourbranchname`
+`git checkout -b yourbranchname development`
 
-Branchnames should start with `fix/` for bugfixes, `feat/` for newly added features 
-or `doc/` when working on documentation only. Those prefixes help others to 
-quickly understand, what your branch is about. So e.g. `fix/broken-upload` would 
-be the perfect branch name for fixing a broken upload function. 
+A branch name starts with a prefix that says what the branch is about:
+
+| Prefix | For |
+|---|---|
+| `feat/` | a new feature |
+| `fix/` | a bugfix |
+| `docs/` | documentation only |
+| `refactor/` | restructuring code without changing what it does |
+| `ci/` | the build, test and deploy pipeline |
+| `chore/` | housekeeping, such as dependency updates |
+| `claude/` | reserved for Claude Code on the web, which names its own branches |
+
+After the prefix comes a short description in lowercase words joined by
+hyphens. So e.g. `fix/broken-upload` would be the perfect branch name for
+fixing a broken upload function.
+
+GitHub enforces this: pushing a new branch with any other name is rejected
+with "push declined due to repository rule violations". If that happens,
+rename the branch with `git branch -m fix/your-name` and push again. Apart
+from the prefixes, the only branch names allowed are the release lines below.
+
+### Release lines
+
+Each major version has its own pair of long-lived branches:
+
+| Version | Development | Main |
+|---|---|---|
+| 1.X | `development` | `main` |
+| 2.X | `v2/development` | `v2/main` |
+| 3.X and later | `v3/development` | `v3/main` |
+
+A major version brings breaking changes. Each line can therefore carry its
+own CI, deployment and test setup without affecting the others. Branch your
+work off the `development` of the line it is for, and open the pull request
+against that same branch. A fix that several lines need is made on the oldest
+of them and then merged forward into the newer ones.
 
 Before you start working on your branch, run `make rebase` once. That syncs 
-your banch against the current state of the project, so that you don't  
+your branch against the current state of the project, so that you don't  
 work on an old version. 
 
 ### Pull Request

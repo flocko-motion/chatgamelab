@@ -3,7 +3,7 @@ name: Tests
 on:
   pull_request:
     branches:
-      - development
+      - v2/development
 
 jobs:
   backend-tests:
