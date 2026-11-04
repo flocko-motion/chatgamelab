@@ -1,17 +1,23 @@
 .PHONY: help rebase pr release sync check-clean-tree check-on-feature
 
+# The release line this copy of the file belongs to. Each major version keeps
+# its own copy, so these two lines are what differs from one line to the next:
+# 1.X uses development and main, 2.X uses v2/development and v2/main.
+DEV  := v2/development
+MAIN := v2/main
+
 # First target, so a bare `make` prints this instead of force-pushing.
 help:
-	@echo "make rebase           rebase onto origin/development and force-push (own feature branch only)"
-	@echo "make pr [MERGE=1]     merge development in, push, open the pull request; MERGE=1 waits for checks and merges"
-	@echo "make release [YES=1]  development -> main, then main back into development; YES=1 skips the prompt"
-	@echo "make sync             merge main back into development through a pull request"
+	@echo "make rebase           rebase onto origin/$(DEV) and force-push (own feature branch only)"
+	@echo "make pr [MERGE=1]     merge $(DEV) in, push, open the pull request; MERGE=1 waits for checks and merges"
+	@echo "make release [YES=1]  $(DEV) -> $(MAIN), then $(MAIN) back into $(DEV); YES=1 skips the prompt"
+	@echo "make sync             merge $(MAIN) back into $(DEV) through a pull request"
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
-	@echo "Rebasing to origin/development..."
-	git fetch origin development
-	git rebase origin/development
+	@echo "Rebasing to origin/$(DEV)..."
+	git fetch origin $(DEV)
+	git rebase origin/$(DEV)
 	git push --force-with-lease
 	@echo "✅ Rebased successfully."
 
@@ -108,31 +114,31 @@ endef
 
 check-on-feature:
 	@branch="$$(git rev-parse --abbrev-ref HEAD)"; \
-	case "$$branch" in development|main|HEAD) \
+	case "$$branch" in $(DEV)|$(MAIN)|HEAD) \
 		echo "this runs on a feature branch, not $$branch"; exit 1;; esac
 
 # Resumable: a branch whose pull request is already merged says so and stops,
 # rather than opening a second one.
 pr: check-clean-tree check-on-feature
-	git fetch origin development
+	git fetch origin $(DEV)
 	@branch="$$(git rev-parse --abbrev-ref HEAD)"; \
-	if git merge-base --is-ancestor HEAD origin/development; then \
-		echo "✅ $$branch is already in development — nothing to open"; \
+	if git merge-base --is-ancestor HEAD origin/$(DEV); then \
+		echo "✅ $$branch is already in $(DEV) — nothing to open"; \
 		exit 0; \
 	fi; \
-	if git merge-base --is-ancestor origin/development HEAD; then \
-		echo ">> origin/development is already an ancestor"; \
+	if git merge-base --is-ancestor origin/$(DEV) HEAD; then \
+		echo ">> origin/$(DEV) is already an ancestor"; \
 	else \
-		echo ">> merging origin/development in…"; \
-		git merge origin/development -m "chore: merge development into $$branch" \
+		echo ">> merging origin/$(DEV) in…"; \
+		git merge origin/$(DEV) -m "chore: merge $(DEV) into $$branch" \
 			|| { echo "resolve the conflicts, commit, then re-run"; exit 1; }; \
 	fi; \
 	git push --set-upstream origin "$$branch"; \
-	echo ">> what this pull request takes to development:"; \
-	git -c color.ui=never log --oneline --no-merges origin/development..HEAD | cat; \
-	gh pr list --head "$$branch" --base development --state open --json number \
+	echo ">> what this pull request takes to $(DEV):"; \
+	git -c color.ui=never log --oneline --no-merges origin/$(DEV)..HEAD | cat; \
+	gh pr list --head "$$branch" --base $(DEV) --state open --json number \
 		--jq '.[0].number' | grep -q . \
-		|| gh pr create --base development --head "$$branch" --fill \
+		|| gh pr create --base $(DEV) --head "$$branch" --fill \
 		|| { echo "could not open the pull request"; exit 1; }; \
 	if [ -z "$(MERGE)" ]; then \
 		echo "✅ open for review: $$(gh pr view "$$branch" --json url --jq .url)"; \
@@ -141,7 +147,7 @@ pr: check-clean-tree check-on-feature
 	fi; \
 	$(wait_and_merge); \
 	wait_and_merge "$$branch" || exit 1; \
-	echo "✅ merged into development — 'make release' puts it on main"
+	echo "✅ merged into $(DEV) — 'make release' puts it on $(MAIN)"
 
 # ── release ──────────────────────────────────────────────────────────────────
 #
@@ -182,40 +188,40 @@ check-clean-tree:
 # release YES=1` answers that prompt, for a run with no terminal to ask at.
 release:
 	git fetch origin
-	@if git rev-parse --verify --quiet refs/heads/development >/dev/null \
-		&& ! git merge-base --is-ancestor development origin/development; then \
-		echo "your local development has commits origin lacks — push them first"; \
+	@if git rev-parse --verify --quiet refs/heads/$(DEV) >/dev/null \
+		&& ! git merge-base --is-ancestor $(DEV) origin/$(DEV); then \
+		echo "your local $(DEV) has commits origin lacks — push them first"; \
 		exit 1; \
 	fi
-	@if git merge-base --is-ancestor origin/development origin/main; then \
-		echo ">> already merged into main — going straight to the back-merge"; \
+	@if git merge-base --is-ancestor origin/$(DEV) origin/$(MAIN); then \
+		echo ">> already merged into $(MAIN) — going straight to the back-merge"; \
 	else \
 		notes="$$(git -c color.ui=never log --pretty='%h %s' --no-merges \
-			origin/main..origin/development)"; \
-		echo ">> these commits enter main:"; \
+			origin/$(MAIN)..origin/$(DEV))"; \
+		echo ">> these commits enter $(MAIN):"; \
 		echo "$$notes" | sed 's/^/     /'; \
-		echo ">> merging them publishes: semantic-release tags main and cuts a"; \
-		echo "   GitHub release, and CI pushes the images production deploys."; \
+		echo ">> the 2.X line publishes nothing yet: no release tag, no images, no"; \
+		echo "   deploy. Merging only moves $(MAIN)."; \
 		if [ -z "$(YES)" ]; then \
-			printf ">> really release to main? [y/N] "; \
+			printf ">> really release to $(MAIN)? [y/N] "; \
 			read -r reply < /dev/tty || reply=""; \
 			case "$$reply" in \
 				[yY]|[yY][eE][sS]) ;; \
 				*) echo "aborted"; exit 1;; \
 			esac; \
 		fi; \
-		: "--fill reads the local development branch, which this target never"; \
+		: "--fill reads the local $(DEV) branch, which this target never"; \
 		: "checks out or updates, so the range it sees can be empty"; \
-		gh pr list --head development --base main --state open --json number \
+		gh pr list --head $(DEV) --base $(MAIN) --state open --json number \
 			--jq '.[0].number' | grep -q . \
-			|| gh pr create --base main --head development \
+			|| gh pr create --base $(MAIN) --head $(DEV) \
 				--title "release $$(date +%Y-%m-%d)" --body "$$notes" \
 			|| { echo "could not open the pull request"; exit 1; }; \
 		$(wait_and_merge); \
-		wait_and_merge development || exit 1; \
+		wait_and_merge $(DEV) || exit 1; \
 	fi
 	@$(MAKE) --no-print-directory sync
-	@echo "✅ released — CI tags main and builds both branches"
+	@echo "✅ released — $(MAIN) is up to date"
 
 # The back-merge on its own: for a release whose pull request someone else
 # merged, or which was merged in the browser. Safe to run at any time, and a
@@ -227,29 +233,29 @@ release:
 # nothing here is checked out or merged locally and why this runs from any
 # branch, mid-edit, without touching the tree.
 sync:
-	git fetch origin main development
-	@if git merge-base --is-ancestor origin/main origin/development; then \
-		echo "✅ main is already an ancestor — nothing to merge back"; \
+	git fetch origin $(MAIN) $(DEV)
+	@if git merge-base --is-ancestor origin/$(MAIN) origin/$(DEV); then \
+		echo "✅ $(MAIN) is already an ancestor — nothing to merge back"; \
 		exit 0; \
 	fi; \
-	gh pr list --head main --base development --state open --json number \
+	gh pr list --head $(MAIN) --base $(DEV) --state open --json number \
 		--jq '.[0].number' | grep -q . \
-		|| gh pr create --base development --head main \
-			--title "chore: merge main back, so release tags stay reachable" \
-			--body "Carries no file changes. Puts the release tags on main where git describe on development can reach them." \
+		|| gh pr create --base $(DEV) --head $(MAIN) \
+			--title "chore: merge $(MAIN) back, so release tags stay reachable" \
+			--body "Carries no file changes. Puts the release tags on $(MAIN) where git describe on $(DEV) can reach them." \
 		|| { echo "could not open the back-merge pull request"; exit 1; }; \
-	num="$$(gh pr list --head main --base development --state open --json number \
+	num="$$(gh pr list --head $(MAIN) --base $(DEV) --state open --json number \
 		--jq '.[0].number')"; \
 	: "--delete-branch=false, which wait_and_merge passes, matters more here"; \
-	: "than anywhere else: the head of this pull request is main"; \
+	: "than anywhere else: the head of this pull request is $(MAIN)"; \
 	$(wait_and_merge); \
 	wait_and_merge "$$num" || exit 1; \
-	echo "✅ merged main back — release tags are reachable from development"; \
-	: "git refuses this one while development is the branch you have out, which"; \
+	echo "✅ merged $(MAIN) back — release tags are reachable from $(DEV)"; \
+	: "git refuses this one while $(DEV) is the branch you have out, which"; \
 	: "is the case the hint below is for"; \
-	git fetch --quiet origin development development:development 2>/dev/null \
-		|| git fetch --quiet origin development; \
-	if git rev-parse --verify --quiet refs/heads/development >/dev/null \
-		&& ! git merge-base --is-ancestor origin/development development; then \
-		echo "   your development checkout is behind it — git pull to catch up"; \
+	git fetch --quiet origin $(DEV) $(DEV):$(DEV) 2>/dev/null \
+		|| git fetch --quiet origin $(DEV); \
+	if git rev-parse --verify --quiet refs/heads/$(DEV) >/dev/null \
+		&& ! git merge-base --is-ancestor origin/$(DEV) $(DEV); then \
+		echo "   your $(DEV) checkout is behind it — git pull to catch up"; \
 	fi
