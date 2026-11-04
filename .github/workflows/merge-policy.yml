@@ -1,12 +1,12 @@
 name: Merge policy
 
-# main is what production deploys, and it is reached only by releasing
-# development. A pull request from anywhere else would put a commit into
-# production that never sat in development for a day first.
+# v2/main is the 2.X release line, and it is reached only by releasing
+# v2/development. A pull request from anywhere else would put a commit onto
+# the release line that never sat in v2/development first.
 on:
   pull_request_target:
     branches:
-      - main
+      - v2/main
     types: [opened, reopened, synchronize, edited]
 
 permissions: {}
@@ -16,16 +16,16 @@ jobs:
     name: source-is-development
     runs-on: ubuntu-latest
     steps:
-      # pull_request_target runs main's copy of this file, which a pull request
-      # cannot edit. A fork can still call its own branch "development", which
-      # is what the repository comparison catches.
-      - name: main takes development and nothing else
+      # pull_request_target runs v2/main's copy of this file, which a pull
+      # request cannot edit. A fork can still call its own branch
+      # "v2/development", which is what the repository comparison catches.
+      - name: v2/main takes v2/development and nothing else
         env:
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$HEAD_REF" != "development" ]; then
-            echo "main takes pull requests from development only;"
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$HEAD_REF" != "v2/development" ]; then
+            echo "v2/main takes pull requests from v2/development only;"
             echo "this one comes from $HEAD_REPO:$HEAD_REF"
             exit 1
           fi
