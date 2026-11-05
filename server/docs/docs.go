@@ -1378,7 +1378,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a share link for a game. For workshop shares, the workshop default key is used automatically.",
+                "description": "Creates a share link for a game. For workshop shares, the workshop default key is used automatically, or the free server key if the workshop has none.",
                 "consumes": [
                     "application/json"
                 ],
@@ -6529,7 +6529,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "description": "set to create a workshop share (uses workshop default key)",
+                    "description": "set to create a workshop share (uses workshop default key, else the free server key)",
                     "type": "string"
                 }
             }
