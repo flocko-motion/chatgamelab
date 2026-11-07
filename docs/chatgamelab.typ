@@ -30,13 +30,14 @@ the ChatGameLab platform, or embedded in another website on their own.
 == Games
 
 A *game* is a title, a genre, a scenario, an image style and a theme. Playing it
-opens a *session*.
+opens a *session*. A session is played in the *playback-engine* by person 
+called the *player*.
 
 - *Genre* picks one of the engine's ways to play.
 - *Scenario* fills in what that genre needs, such as an adventure's background
   story.
 - *Image style* describes how the game's pictures look.
-- *Theme* picks the look of the player around the game.
+- *Theme* picks the look of the playback-engine around the game.
 
 == Sessions
 
@@ -128,7 +129,7 @@ session keeps for its lifetime.
 == Seeing how it works
 
 Transparency is one of ChatGameLab's main goals, as its games are educational.
-The player has a view showing the inner workings of the game:
+The playback-engine has a view showing the inner workings of the game:
 
 - *The steps of a turn* — which AI calls run, in which order, with which
   prompts and results, and which are working right now.
