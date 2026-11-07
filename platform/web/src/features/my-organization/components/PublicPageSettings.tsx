@@ -74,7 +74,6 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
       public: changes.public ?? workshop.public ?? false,
       showPublicGames: workshop.showPublicGames ?? false,
       showOtherParticipantsGames: workshop.showOtherParticipantsGames ?? true,
-      designEditingEnabled: workshop.designEditingEnabled ?? false,
       aiQualityTier: workshop.aiQualityTier ?? undefined,
       promptConstraints: workshop.promptConstraints ?? undefined,
       isPaused: workshop.isPaused ?? false,

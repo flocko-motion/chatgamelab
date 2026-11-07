@@ -383,7 +383,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     settings: Partial<{
       showPublicGames: boolean;
       showOtherParticipantsGames: boolean;
-      designEditingEnabled: boolean;
       aiQualityTier: string;
       promptConstraints: string;
       isPaused: boolean;
@@ -402,8 +401,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
         settings.showOtherParticipantsGames ??
         workshop.showOtherParticipantsGames ??
         true,
-      designEditingEnabled:
-        settings.designEditingEnabled ?? workshop.designEditingEnabled ?? false,
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
       promptConstraints:
@@ -960,18 +957,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                             handleUpdateWorkshopSettings(workshop, {
                               showOtherParticipantsGames:
                                 e.currentTarget.checked,
-                            })
-                          }
-                        />
-                        <Switch
-                          size="xs"
-                          label={t(
-                            "myOrganization.workshops.designEditingEnabled",
-                          )}
-                          checked={workshop.designEditingEnabled || false}
-                          onChange={(e) =>
-                            handleUpdateWorkshopSettings(workshop, {
-                              designEditingEnabled: e.currentTarget.checked,
                             })
                           }
                         />

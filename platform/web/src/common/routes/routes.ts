@@ -52,10 +52,6 @@ export const ROUTES = {
   // Guest play via private share token (anonymous, no auth)
   GUEST_PLAY: "/play",
 
-  // Sessions (kept for direct session access)
-  SESSIONS: "/sessions",
-  SESSION_DETAIL: "/sessions/$sessionId",
-
   // Room routes
   ROOMS: "/rooms",
   ROOM_CREATE: "/rooms/create",

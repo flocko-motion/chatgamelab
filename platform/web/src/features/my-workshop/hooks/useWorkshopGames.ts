@@ -7,9 +7,7 @@ import {
   useUpdateGame,
   useDeleteGame,
   useExportGameYaml,
-  useDeleteSession,
 } from "@/api/hooks";
-import { useGameSessionState } from "@/features/games/hooks";
 import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
 import {
@@ -71,11 +69,9 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     search: debouncedSearch || undefined,
   });
 
-  const { sessionsLoading, getSessionState } = useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
-  const deleteSession = useDeleteSession();
   const exportGameYaml = useExportGameYaml();
 
   // Apply filters
@@ -151,13 +147,6 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     [rawGames],
   );
 
-  const handleDeleteSession = useCallback(
-    async (sessionId: string) => {
-      await deleteSession.mutateAsync(sessionId);
-    },
-    [deleteSession],
-  );
-
   const triggerImportClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
@@ -190,7 +179,6 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     // Loading states
     isLoading,
     isFetching,
-    sessionsLoading,
     error,
 
     // Mutation states
@@ -199,7 +187,6 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
 
     // Helpers
     getPermissions,
-    getSessionState,
     fileInputRef,
 
     // Operations
@@ -207,7 +194,6 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     handleDeleteGame,
     handleExportGame,
     getGameFormDataForCopy,
-    handleDeleteSession,
     triggerImportClick,
     parseImportFile,
 

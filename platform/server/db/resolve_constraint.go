@@ -14,8 +14,8 @@ import (
 )
 
 // This file is the single, canonical home for Jugendschutz (youth-protection)
-// constraint resolution. It is the code counterpart of JUGENDSCHUTZ.md, section
-// "Wer bekommt welchen Constraint?". Keep the two in lockstep: the public
+// constraint resolution. It is the code counterpart of the spec (docs/chatgamelab.typ),
+// Jugendschutz, "Which rules apply". Keep the two in lockstep: the public
 // ResolveConstraint below is the ONLY entry point callers should use, and the two
 // private cascades map one-to-one onto the spec's two rule sets.
 
@@ -35,7 +35,7 @@ type ConstraintResolution struct {
 // situation. It is the canonical entry point — no caller outside this file should
 // resolve constraints any other way.
 //
-// The discriminator is WHO is playing, never how they arrived (JUGENDSCHUTZ.md):
+// The discriminator is WHO is playing, never how they arrived (spec, Jugendschutz):
 //
 //   - Anonymous guest (a user created for a share link — marked by PrivateShareID —
 //     or no user at all) → the "Gäste" cascade (resolveGuestShareConstraint):
@@ -78,7 +78,7 @@ func IsGuestUser(ctx context.Context, userID uuid.UUID) bool {
 	return err == nil && appUser.PrivateShareID.Valid
 }
 
-// resolveAuthenticatedConstraint implements the JUGENDSCHUTZ.md "Angemeldete Nutzer"
+// resolveAuthenticatedConstraint implements the spec's "Angemeldete Nutzer"
 // cascade for a known (non-guest) player. First non-empty stage wins:
 //  1. Workshop from the share (if `share` references a workshop)
 //  2. Organisation from the share (if `share` references an org)
@@ -129,7 +129,7 @@ func resolveAuthenticatedConstraint(ctx context.Context, user *obj.User, share *
 		reason(skipped, "falling back to the site default for age group "+ageGroupLabel(user.AgeGroup))}
 }
 
-// resolveGuestShareConstraint implements the JUGENDSCHUTZ.md "Gäste" cascade for an
+// resolveGuestShareConstraint implements the spec's "Gäste" cascade for an
 // anonymous guest playing via a shared link. First non-empty stage wins:
 //  1. Workshop from the share
 //  2. Organisation from the share

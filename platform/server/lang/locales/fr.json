@@ -51,9 +51,7 @@
       "ageGroupU13": "13-17 ans",
       "ageGroupU18": "18+",
       "gamesCreated": "Jeux créés",
-      "gamesPlayed": "Jeux joués",
       "memberSince": "Inscrit depuis",
-      "messagesSent": "Messages envoyés",
       "noOrganization": "Aucune organisation",
       "noRole": "Aucun rôle attribué",
       "organization": "Organisation",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Élevé (Premium)",
+      "high": "Élevée",
       "label": "Niveau de qualité IA",
-      "low": "Faible (Économique)",
+      "low": "Économique",
       "max": "Max (Premium + Audio)",
-      "medium": "Moyen (Équilibré)",
+      "medium": "Équilibrée",
       "newSessionsOnly": "Ce niveau s'applique uniquement aux nouvelles sessions. Les sessions existantes conservent le niveau avec lequel elles ont commencé.",
       "serverDefault": "Par défaut du serveur"
     },
     "allGames": {
-      "continue": "Jouer",
       "copyConfirm": {
         "confirm": "Copier le jeu",
         "message": "Cela créera une copie de « {{name}} » dans vos jeux.",
@@ -306,12 +303,6 @@
       },
       "play": "Jouer",
       "reportGame": "Signaler le jeu",
-      "restart": "Recommencer",
-      "restartConfirm": {
-        "confirm": "Recommencer",
-        "message": "Voulez-vous vraiment recommencer « {{game}} » ? Votre progression actuelle sera perdue.",
-        "title": "Recommencer le jeu"
-      },
       "title": "Tous les jeux",
       "unfavorite": "Retirer des favoris",
       "workshop": "Atelier / Org."
@@ -391,8 +382,8 @@
       "title": "Gestion des clés API",
       "unnamed": "Clé sans nom",
       "unsupportedPlatform": {
-        "badge": "non prise en charge",
-        "hint": "Cette plateforme n’est actuellement pas prise en charge. Vous ne pouvez que supprimer les clés existantes."
+        "badge": "pas encore pris en charge",
+        "hint": "Cette plateforme n’est pas encore prise en charge. Ses clés restent enregistrées, mais ne sont pas utilisées. Vous pouvez les supprimer."
       }
     },
     "back": "Retour",
@@ -415,7 +406,7 @@
       "placeholder": "p. ex. pomme loutre tour",
       "submit": "Continuer",
       "title": "Saisir le code",
-      "unknown": "Ce code n’existe pas. Vérifiez l’orthographe.",
+      "unknown": "Cela ne vous permet pas d’accéder à l’atelier. Vérifiez d’abord l’orthographe, mot par mot. Les tirets et les espaces n’ont pas d’importance. Si le code est correct, il n’est peut-être plus valide : les codes peuvent être remplacés et l’accès prend fin après l’atelier. Demandez alors un nouveau code à la personne responsable de votre atelier.",
       "wrongLength": "Un code comporte trois ou quatre mots."
     },
     "error": "Erreur",
@@ -425,119 +416,10 @@
       "programmedBy": "Développé par"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Clé API utilisée modifiée",
-        "constraintSource": {
-          "organisation": "Organisation",
-          "site13": "Site par défaut (13–17, sans consentement parental)",
-          "site13p": "Site par défaut (13–17, avec consentement parental)",
-          "site18": "Site par défaut (18+)",
-          "workshop": "Atelier"
-        },
-        "sections": {
-          "constraintReasoning": "Pourquoi cette contrainte s’applique",
-          "constraintText": "Contrainte de protection de la jeunesse active",
-          "expandStory": "Instructions données à l’IA pour développer l’histoire",
-          "imageGeneration": "Instructions de l’IA pour la génération d’images",
-          "rawResponse": "Réponse brute de l’IA",
-          "responseSchema": "Structure requise de la réponse de l’IA",
-          "statusUpdate": "Invite envoyée à l’IA",
-          "systemPrompt": "Instructions du jeu pour l’IA"
-        },
-        "title": "Requête / réponse IA",
-        "toggle": "Vue IA",
-        "tokens": {
-          "received": "jetons reçus",
-          "sent": "jetons envoyés"
-        },
-        "usedApiKey": {
-          "institution_free_use": "La clé d'utilisation gratuite de votre organisation a été utilisée",
-          "label": "Clé API utilisée",
-          "personal": "Votre clé personnelle a été utilisée",
-          "private_share": "La clé du lien de partage a été utilisée",
-          "sponsor": "Une clé de sponsor a été utilisée",
-          "system_free_use": "Une clé d'utilisation gratuite globale a été utilisée",
-          "workshop": "La clé de votre atelier a été utilisée"
-        },
-        "usedConstraint": {
-          "label": "Contrainte utilisée"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "ID du message",
-          "imagePrompt": "Invite d’image",
-          "isStreaming": "En cours de diffusion",
-          "seq": "Séquence",
-          "statusFields": "Champs d’état",
-          "timestamp": "Horodatage",
-          "type": "Type"
-        },
-        "hints": {
-          "id": "Identifiant unique pour ce message",
-          "imagePrompt": "Invite envoyée à l’IA de génération d’images",
-          "isStreaming": "Indique si le contenu arrive encore",
-          "seq": "Ordre dans la conversation",
-          "statusFields": "Variables d’état du jeu suivies par l’IA",
-          "timestamp": "Moment de création du message",
-          "type": "player = entrée utilisateur, game = réponse IA, system = contexte"
-        },
-        "title": "Infos de débogage"
-      },
-      "error": {
-        "backToGames": "Retour aux jeux",
-        "gameNotFound": "Jeu introuvable",
-        "missingFields": "Le jeu n’a pas les champs requis :",
-        "noApiKey": {
-          "banner": "Aucune clé API utilisable trouvée pour la plateforme {{platform}}. Pour continuer à jouer, ajoutez votre propre clé API dans les paramètres de votre compte.",
-          "goToSettings": "Paramètres des clés API",
-          "personal": "Vous devez configurer une clé API avant de pouvoir jouer. Rendez-vous dans vos paramètres de clé API pour en ajouter une.",
-          "title": "Aucune clé API disponible",
-          "workshop": "Aucune clé API n’est configurée pour cet atelier. Veuillez contacter votre administrateur d’atelier."
-        },
-        "retry": "Réessayer",
-        "sendFailed": "Échec de l’envoi du message. Veuillez réessayer.",
-        "sessionFailed": "Échec du lancement de la session de jeu"
-      },
-      "header": {
-        "back": "Retour aux jeux",
-        "debug": "Débogage",
-        "decreaseFont": "Plus petit",
-        "disableAnimations": "Désactiver les animations",
-        "disableTextEffects": "Désactiver les effets de texte",
-        "fontSize": "Taille de police",
-        "increaseFont": "Plus grand",
-        "muteAudio": "Couper la narration",
-        "resetFont": "Réinitialiser",
-        "settings": "Paramètres",
-        "unmuteAudio": "Rétablir la narration",
-        "useNeutralTheme": "Utiliser un thème neutre"
-      },
-      "input": {
-        "audioCancel": "Annuler l’enregistrement",
-        "audioProcessing": "Traitement…",
-        "audioRecording": "Enregistrement…",
-        "audioStart": "Enregistrer un message vocal",
-        "audioStop": "Envoyer l’enregistrement",
-        "audioUnavailableMessage": "La saisie vocale n’est pas disponible avec les paramètres actuels de clé API. Pour l’utiliser, passez à un niveau de qualité supérieur (Premium ou Max).",
-        "audioUnavailableTitle": "Saisie vocale non disponible",
-        "placeholder": "Que faites-vous ?",
-        "send": "Envoyer l’action"
-      },
-      "loading": {
-        "game": "Chargement du jeu...",
-        "resolvingKey": "Résolution de la clé API...",
-        "starting": "Démarrage de la session...",
-        "startingHint": "L’IA prépare votre aventure"
-      },
-      "needsApiKey": {
-        "description": "La clé API utilisée pour cette session n’est plus disponible.",
-        "title": "Clé API requise"
-      },
-      "statusChange": {
-        "effect": "Effet :"
-      },
-      "unnamed": "Sans nom"
+      "rebuilding": {
+        "description": "Vous pourrez bientôt rejouer ici.",
+        "title": "Le lecteur de jeu est en cours de reconstruction"
+      }
     },
     "games": {
       "actions": {
@@ -574,13 +456,13 @@
       "editFields": {
         "description": "Donnez une courte description du jeu. Cela ne concerne que vous et n’affectera pas le gameplay.",
         "gameStart": "Comment commence le jeu ?",
-        "gameStartHint": "Que se passe-t-il au début ? Décrivez la première scène que le joueur voit. Comment est-il accueilli ?",
+        "gameStartHint": "Que se passe-t-il au début ? Décrivez la première scène que voit le joueur. Comment le joueur est-il accueilli ? Comment sait-il quoi faire ?",
         "gameStartPlaceholder": "Vous vous réveillez au bord d’une forêt sombre. Un sentier étroit s’enfonce entre les arbres...",
         "imageStyle": "Quel style doivent avoir les images du jeu ?",
         "imageStyleHint": "Par exemple : dessin animé, réaliste, pixel art, aquarelle...",
         "name": "Nom du jeu",
         "scenario": "Quel est le thème du jeu ?",
-        "scenarioHint": "Décrivez brièvement : Comment fonctionne le jeu ? À quoi ressemble le monde ? Langue \u00026 ton (par ex. espagnol pour des élèves de sixième) ?\nQuel rôle a le joueur ? Écrivez « Le joueur ... ». \nSi vous voulez que l’IA incarne une personne spécifique, écrivez « Tu es ... ».",
+        "scenarioHint": "Décrivez brièvement : Comment le jeu fonctionne-t-il ? À quoi ressemble l’univers ? Langue et ton (par exemple, en espagnol pour des élèves de sixième) ?\nQuel rôle le joueur joue-t-il ? Écrivez « Le joueur… ».\nSi vous voulez que l’IA joue le rôle d’une personne précise, écrivez « Vous êtes… ».\nQuel est l’objectif ? Comment le joueur sait-il qu’il a gagné ?",
         "scenarioPlaceholder": "Vous êtes un explorateur dans une forêt mystérieuse. Votre objectif est de trouver le trésor caché...",
         "statusFields": "Valeurs du jeu",
         "statusFieldsHint": "Que doit suivre le jeu ? Par exemple santé, points ou munitions. Le jeu mémorise et met à jour ces valeurs pendant la partie."
@@ -732,98 +614,6 @@
         "style": "Design",
         "styleInfo": "Paramètres optionnels pour l’apparence du jeu pendant la partie."
       },
-      "theme": {
-        "animation": "Animation d’arrière-plan",
-        "animationDefault": "Préréglage par défaut",
-        "animationDescription": "Remplacer l’animation par défaut du préréglage",
-        "animations": {
-          "bits": "1-0-Bits",
-          "bubbles": "Bulles",
-          "circuits": "Circuits",
-          "confetti": "Confettis",
-          "confettiExplosion": "Explosion de confettis",
-          "embers": "Braises",
-          "fireflies": "Luciolettes",
-          "geometric": "Géométrique",
-          "glitch": "Glitch",
-          "glowworm": "Feux follets",
-          "hearts": "Cœurs",
-          "hyperspace": "Hyperespace",
-          "leaves": "Feuilles",
-          "matrixRain": "Pluie Matrix",
-          "none": "Aucune",
-          "snow": "Neige",
-          "sparkles": "Étincelles",
-          "stars": "Étoiles",
-          "sun": "Soleil",
-          "tumbleweed": "Virevoltant",
-          "waves": "Vagues"
-        },
-        "apply": "Appliquer le thème",
-        "button": "Thème",
-        "changeDesign": "Changer de design",
-        "currentTheme": "Thème : {{preset}}",
-        "modalTitle": "Thème du jeu",
-        "noTheme": "Aucun thème sélectionné. L’IA générera un thème pour chaque session.",
-        "preset": "Préréglage",
-        "presetDescription": "Choisissez un style visuel pour votre jeu",
-        "presets": {
-          "abstract": "Abstrait",
-          "adventure": "Aventure",
-          "barbie": "Barbie",
-          "candy": "Bonbon",
-          "circus": "Cirque",
-          "cyberpunk": "Cyberpunk",
-          "default": "Par défaut",
-          "desert": "Désert",
-          "detective": "Détective",
-          "educational": "Éducatif",
-          "fairy": "Féerique",
-          "fire": "Feu",
-          "garden": "Jardin",
-          "glitch": "Glitch",
-          "greenFantasy": "Fantaisie verte",
-          "hacker": "Hacker",
-          "horror": "Horreur",
-          "jungle": "Jungle",
-          "matrix": "Matrix",
-          "medieval": "Médiéval",
-          "minimal": "Minimal",
-          "mystery": "Mystère",
-          "mystic": "Mystique",
-          "nature": "Nature",
-          "nautical": "Nautique",
-          "noir": "Noir",
-          "ocean": "Océan",
-          "pirate": "Pirate",
-          "playful": "Ludique",
-          "retro": "Rétro",
-          "romance": "Romance",
-          "school": "École",
-          "scifi": "Sci-Fi",
-          "snowy": "Neigeux",
-          "space": "Espace",
-          "steampunk": "Steampunk",
-          "storybook": "Conte",
-          "sunshine": "Ensoleillé",
-          "superhero": "Super-héros",
-          "tech": "Technologique",
-          "terminal": "Terminal",
-          "underwater": "Sous-marin",
-          "western": "Western",
-          "zombie": "Zombie"
-        },
-        "preview": "Aperçu",
-        "remove": "Supprimer le thème",
-        "removeConfirm": "Supprimer le thème personnalisé ? L’IA en générera un par session.",
-        "sampleGame": "La porte grince en s’ouvrant, dévoilant une salle faiblement éclairée. Des runes anciennes brillent sur les murs de pierre. Un coffre mystérieux trône au centre.",
-        "sampleGame2": "Vous vous approchez prudemment du coffre. Quand vos doigts touchent le loquet froid, les runes se mettent à pulser d’une lumière plus vive. Un bourdonnement grave emplit la pièce.",
-        "samplePlayer": "J’ouvre la vieille porte en bois...",
-        "sampleStatus": "Santé",
-        "thinkingText": "Texte pendant la réflexion",
-        "thinkingTextDescription": "Texte affiché pendant que l’IA réfléchit",
-        "thinkingTextPlaceholder": "ex. : L’histoire se déploie..."
-      },
       "title": "Mes jeux créés",
       "viewModal": {
         "readOnlyNotice": "Ce jeu a été créé par un autre utilisateur. Vous pouvez consulter les détails mais pas les modifier. Utilisez « Copier » pour créer votre propre version modifiable.",
@@ -832,19 +622,6 @@
       "visibility": {
         "private": "Privé",
         "public": "Public"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Aller sur ChatGameLab",
-        "continueGame": "Continuer le jeu",
-        "expired": "Ce lien de partage a atteint sa limite de parties. Plus aucune session n’est disponible.",
-        "headline": "Vous avez été invité à jouer à une aventure textuelle IA gratuite !",
-        "invalidLink": "Ce lien de partage est invalide ou n’existe plus.",
-        "loadError": "Impossible de charger les informations du jeu. Veuillez réessayer.",
-        "restartGame": "Recommencer",
-        "sessionExists": "Vous avez déjà une partie en cours. Vous pouvez reprendre où vous vous êtes arrêté ou commencer un nouveau jeu.",
-        "startPlaying": "Commencer à jouer"
       }
     },
     "header": {
@@ -946,7 +723,6 @@
     "logout": "Se déconnecter",
     "me": "Moi",
     "myGames": {
-      "continue": "Jouer",
       "copyConfirm": {
         "confirm": "Copier le jeu",
         "message": "Cela créera une copie de « {{name}} » dans vos jeux.",
@@ -963,12 +739,6 @@
         "favorites": "Favoris"
       },
       "play": "Jouer",
-      "restart": "Recommencer",
-      "restartConfirm": {
-        "confirm": "Recommencer",
-        "message": "Voulez-vous vraiment recommencer « {{game}} » ? Votre progression actuelle sera perdue.",
-        "title": "Recommencer le jeu"
-      },
       "title": "Mes jeux",
       "unfavorite": "Retirer des favoris"
     },
@@ -1060,6 +830,19 @@
         "enabledHint": "Lorsqu’elle est désactivée, le lien n’affiche qu’un avis et les liens de jeu de la page cessent de fonctionner.",
         "link": "Lien",
         "linkHint": "Utilisez a–z, 0–9 et des traits d’union simples, de 3 à 60 caractères.",
+        "links": {
+          "add": "Ajouter un lien",
+          "down": "Déplacer vers le bas",
+          "error": "Les liens n’ont pas pu être enregistrés. Chaque lien doit avoir un titre et chaque adresse doit commencer par http:// ou https://.",
+          "hint": "Affichés sur la page, sous les jeux. Dix au maximum.",
+          "linkDescription": "Description (facultatif)",
+          "linkTitle": "Titre",
+          "remove": "Supprimer",
+          "save": "Enregistrer les liens",
+          "title": "Pour aller plus loin",
+          "up": "Déplacer vers le haut",
+          "url": "Adresse"
+        },
         "offHint": "La page est désactivée. Vous pouvez tout de même préparer son lien et son code QR.",
         "open": "Ouvrir la page",
         "shareDescription": "Envoyez ce lien ou affichez-le sous forme de code QR.",
@@ -1113,7 +896,6 @@
         "deleteConfirm": "Voulez-vous vraiment supprimer « {{name}} » ?",
         "deleteTitle": "Supprimer l’atelier",
         "deleteWarning": "Tous les jeux et sessions de cet atelier seront supprimés. Ceci est irréversible.",
-        "designEditingEnabled": "Autoriser les participants à modifier le design du jeu (thème)",
         "editParticipant": "Modifier le nom",
         "empty": "Pas encore d’ateliers.",
         "enterWorkshop": "Entrer en mode atelier",
@@ -1160,8 +942,10 @@
         "promptConstraintsPlaceholder": "p. ex., Veillez à ce que l’histoire soit adaptée à l’âge et évitez le contenu violent.",
         "removeParticipant": "Retirer le participant",
         "removeParticipantConfirm": "Voulez-vous vraiment retirer « {{name}} » de cet atelier ?",
-        "removeParticipantMessage": "Voulez-vous vraiment retirer « {{name}} » de cet atelier ? Cette action est irréversible.",
+        "removeParticipantMessage": "Voulez-vous vraiment retirer « {{name}} » de cet atelier ?",
         "removeParticipantTitle": "Retirer un participant",
+        "removeParticipantWarningPermanent": "Cela supprimera définitivement le compte de cette personne ainsi que tous les jeux qu’elle a créés, avec toutes les sessions de jeu et tous les liens partagés qui y renvoient. Cette action est irréversible. Si les jeux doivent être conservés, téléchargez-les d’abord au format YAML.",
+        "removeParticipantWarningVisiting": "Cette personne conserve son compte et ses jeux. Seul son accès à cet atelier prend fin.",
         "resetAccess": "Réinitialiser l’accès",
         "resetAccessDone": "Un nouvel accès a été créé. L’ancien lien ne fonctionne plus.",
         "resetAccessError": "L’accès n’a pas pu être réinitialisé. Veuillez réessayer.",
@@ -1236,10 +1020,25 @@
     "promoteToHead": "Promouvoir en responsable",
     "promoteWarning": "Cet utilisateur pourra gérer les membres de l’organisation et inviter des enseignants.",
     "publicWorkshop": {
+      "about": {
+        "details": "Leurs créateurs décrivent le monde, les personnages et les règles avec leurs propres mots. Pendant que vous jouez, une IA poursuit l’histoire en direct : elle réagit à tout ce que vous écrivez et invente des images adaptées — deux parties ne se déroulent donc jamais de la même manière. En créer un soi-même permet rapidement de voir à quel point ses propres instructions influencent le résultat et où l’IA atteint ses limites. C’est tout l’objectif : non pas vous expliquer l’IA, mais vous permettre de l’expérimenter.",
+        "less": "Moins",
+        "link": "En savoir plus sur ChatGameLab",
+        "more": "En savoir plus",
+        "oneLiner": "Ces aventures textuelles ont été créées avec ChatGameLab : conçues à la main, sans programmation, et racontées en direct par une IA."
+      },
       "copy": "Copier",
       "copyLogin": "Connectez-vous pour copier",
+      "cta": {
+        "button": "Commencer gratuitement",
+        "text": "Créer sa propre aventure textuelle est gratuit et ne prend que quelques minutes.",
+        "title": "Créez votre propre jeu ChatGameLab"
+      },
       "download": "Télécharger",
       "gamesTitle": "Jeux de cet atelier",
+      "links": {
+        "title": "En savoir plus sur cet atelier"
+      },
       "noGames": "Aucun jeu n’a encore été publié ici.",
       "play": "Jouer",
       "playExhausted": "Plus aucune session de jeu disponible",
@@ -1296,47 +1095,11 @@
       "notAuthorized": "Vous n’avez pas l’autorisation d’accéder aux paramètres du serveur. Accès administrateur requis.",
       "title": "Paramètres du serveur"
     },
-    "sessions": {
-      "continueGame": "Continuer le jeu",
-      "deleteConfirm": {
-        "message": "Voulez-vous vraiment supprimer cette session pour « {{game}} » ? Cette action est irréversible.",
-        "title": "Supprimer la session"
-      },
-      "empty": {
-        "description": "Commencez un nouveau jeu pour débuter votre aventure !",
-        "noResults": "Aucun jeu correspondant",
-        "title": "Aucun jeu joué pour l’instant"
-      },
-      "errors": {
-        "loadFailed": "Échec du chargement de vos jeux. Veuillez réessayer."
-      },
-      "fields": {
-        "game": "Jeu",
-        "lastPlayed": "Dernière partie",
-        "model": "Modèle"
-      },
-      "freeUseKey": {
-        "description": "Définissez une clé en libre accès pour permettre à tous les membres de jouer sans leur propre clé API. Seules les clés déjà partagées avec cette organisation peuvent être sélectionnées.",
-        "remove": "Retirer",
-        "selectPlaceholder": "Sélectionnez une clé partagée...",
-        "title": "Clé en libre accès",
-        "unknownKey": "Clé inconnue"
-      },
-      "noDescription": "Aucune description",
-      "sort": {
-        "game": "Jeu",
-        "label": "Trier par",
-        "lastPlayed": "Dernière partie",
-        "model": "Modèle"
-      },
-      "startNewGame": "Commencer un nouveau jeu",
-      "title": "Continuer à jouer",
-      "untitledGame": "Jeu sans titre"
-    },
     "settings": "Paramètres",
     "share": {
       "copied": "Copié",
-      "copyLink": "Copier le lien"
+      "copyLink": "Copier le lien",
+      "visitLink": "Visiter le lien"
     },
     "showing": "{{count}} membres",
     "sort": {
@@ -1347,7 +1110,16 @@
       "role-desc": "Rôle (Z-A)"
     },
     "unnamed": "Sans nom",
-    "viewGame": "Voir le jeu"
+    "viewGame": "Voir le jeu",
+    "workshop": {
+      "inactive": {
+        "description": "Cet atelier n’est pas actif pour le moment. Attendez que la personne responsable de votre atelier le réactive.",
+        "noCode": "Aucun code n’est enregistré sur cet appareil. La personne responsable de votre atelier peut vous communiquer le vôtre.",
+        "photoFirst": "Si vous vous déconnectez, votre code disparaîtra de cet appareil. Prenez-le d’abord en photo.",
+        "showCode": "Afficher mon code d’accès",
+        "title": "L’atelier n’est pas actif"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1365,11 +1137,6 @@
           "title": "Projet ChatGameLab"
         },
         "title": "À propos de ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Aucun historique pour l’instant. Lancez un jeu !",
-        "title": "Dernières parties",
-        "viewAll": "Tous les jeux"
       },
       "myGames": {
         "empty": "Pas encore de jeux. Créez votre premier jeu !",
@@ -1402,7 +1169,6 @@
       "title": "Actions rapides"
     },
     "untitled": "Sans titre",
-    "untitledGame": "Jeu sans titre",
     "version": {
       "mismatch": {
         "message": "La version frontend \u001cfrontendVersion\u001e{{frontendVersion}}\u001c/frontendVersion\u001e ne correspond pas à la version backend \u001cbackendVersion\u001e{{backendVersion}}\u001c/backendVersion\u001e. Cela peut provoquer un comportement inattendu. Contactez le support si le problème persiste.",

@@ -51,9 +51,7 @@
       "ageGroupU13": "13-17 vjeç",
       "ageGroupU18": "18+",
       "gamesCreated": "Lojëra të krijuara",
-      "gamesPlayed": "Lojëra të luajtura",
       "memberSince": "I regjistruar që nga",
-      "messagesSent": "Mesazhe të dërguara",
       "noOrganization": "Pa organizatë",
       "noRole": "Pa rol të caktuar",
       "organization": "Organizata",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "E lartë (Premium)",
+      "high": "E lartë",
       "label": "Niveli i cilësisë së AI",
-      "low": "E ulët (Ekonomi)",
+      "low": "Ekonomike",
       "max": "Maks (Premium + Audio)",
-      "medium": "Mesatare (E balancuar)",
+      "medium": "E balancuar",
       "newSessionsOnly": "Ky nivel zbatohet vetëm për sesionet e reja. Sesionet ekzistuese mbajnë nivelin me të cilin kanë startuar.",
       "serverDefault": "Parazgjedhja e serverit"
     },
     "allGames": {
-      "continue": "Luaj",
       "copyConfirm": {
         "confirm": "Kopjo lojën",
         "message": "Kjo do të krijojë një kopje të \"{{name}}\" te lojërat tuaja.",
@@ -306,12 +303,6 @@
       },
       "play": "Luaj",
       "reportGame": "Raporto lojën",
-      "restart": "Rifillo",
-      "restartConfirm": {
-        "confirm": "Rifillo",
-        "message": "Jeni i sigurt që doni të rifilloni \"{{game}}\"? Progresi aktual do të humbasë.",
-        "title": "Rifillo lojën"
-      },
       "title": "Të gjitha lojërat",
       "unfavorite": "Hiq nga të preferuarat",
       "workshop": "Punëtori / Org"
@@ -391,8 +382,8 @@
       "title": "Menaxhimi i çelësave API",
       "unnamed": "Çelës pa emër",
       "unsupportedPlatform": {
-        "badge": "i pasuportuar",
-        "hint": "Kjo platformë aktualisht nuk suportohet. Mund të hiqni vetëm çelësat ekzistues."
+        "badge": "ende nuk mbështetet",
+        "hint": "Kjo platformë ende nuk mbështetet. Çelësat e saj mbeten të ruajtur, por nuk përdoren. Mund t'i hiqni."
       }
     },
     "back": "Kthehu",
@@ -415,7 +406,7 @@
       "placeholder": "p.sh. apfel otter turm",
       "submit": "Vazhdo",
       "title": "Fut kodin",
-      "unknown": "Ky kod nuk ekziston. Kontrollo drejtshkrimin.",
+      "unknown": "Kjo nuk të lejoi të hysh. Së pari kontrollo drejtshkrimin, fjalë për fjalë. Vizat lidhëse ose hapësirat nuk kanë rëndësi. Nëse kodi është i saktë, mund të mos jetë më i vlefshëm: kodet mund të zëvendësohen dhe qasja përfundon pas workshop-it. Pastaj kërko një kod të ri nga drejtuesi i workshop-it.",
       "wrongLength": "Një kod ka tre ose katër fjalë."
     },
     "error": "Gabim",
@@ -425,134 +416,10 @@
       "programmedBy": "Programuar nga"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Çelësi API i përdorur u ndryshua",
-        "constraintSource": {
-          "organisation": "Organizata",
-          "site13": "Parazgjedhja e faqes (13–17, pa pëlqim prindëror)",
-          "site13p": "Parazgjedhja e faqes (13–17, me pëlqim prindëror)",
-          "site18": "Parazgjedhja e faqes (18+)",
-          "workshop": "Punëtori"
-        },
-        "sections": {
-          "constraintReasoning": "Pse zbatohet kjo kufizë",
-          "constraintText": "Kufizim aktiv për mbrojtjen e të rinjve",
-          "expandStory": "Udhëzime për AI-në për shkrimin e historisë",
-          "imageGeneration": "Udhëzime nga AI për gjenerimin e imazheve",
-          "rawResponse": "Përgjigje e papërpunuar e AI",
-          "responseSchema": "Struktura e kërkuar e përgjigjes së AI",
-          "statusUpdate": "Prompt i dërguar te AI",
-          "systemPrompt": "Udhëzimet e lojës për AI-në"
-        },
-        "title": "Kërkesë / Përgjigje AI",
-        "toggle": "Vështrim AI",
-        "tokens": {
-          "received": "token-a të marrë",
-          "sent": "token-a të dërguar"
-        },
-        "usedApiKey": {
-          "institution_free_use": "U përdor çelësi i përdorimit falas i organizatës suaj",
-          "label": "Çelësi API i përdorur",
-          "personal": "U përdor çelësi juaj personal",
-          "private_share": "U përdor çelësi i lidhjes së shpërndarjes",
-          "sponsor": "U përdor një çelës sponsori",
-          "system_free_use": "U përdor një çelës global i përdorimit falas",
-          "workshop": "U përdor çelësi i punëtorisë suaj"
-        },
-        "usedConstraint": {
-          "label": "Kufizim i përdorur"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "ID e mesazhit",
-          "imagePrompt": "Prompti i imazhit",
-          "isStreaming": "Streaming",
-          "seq": "Renditja",
-          "statusFields": "Fushat e statusit",
-          "timestamp": "Kohëshenjë",
-          "type": "Lloji"
-        },
-        "hints": {
-          "id": "Identifikues unik për këtë mesazh",
-          "imagePrompt": "Prompti i dërguar te AI për gjenerimin e imazhit",
-          "isStreaming": "Nëse përmbajtja ende po merret",
-          "seq": "Rendi në bisedë",
-          "statusFields": "Variablat e gjendjes së lojës që ndiqen nga AI",
-          "timestamp": "Kur u krijua ky mesazh",
-          "type": "player = input i përdoruesit, game = përgjigje AI, system = kontekst"
-        },
-        "title": "Informacione debug"
-      },
-      "error": {
-        "backToGames": "Kthehu te lojërat",
-        "gameNotFound": "Lojë e pagjetur",
-        "missingFields": "Lojë mungojnë fusha të nevojshme:",
-        "noApiKey": {
-          "banner": "Nuk u gjet asnjë çelës API i përdorshëm për platformën {{platform}}. Për të vazhduar lojën, shtoni çelësin tuaj API në cilësimet e llogarisë.",
-          "goToSettings": "Cilësimet e çelësit API",
-          "personal": "Duhet të konfiguroni një çelës API përpara se të luani. Shkoni te cilësimet e çelësave API për të shtuar një.",
-          "title": "Nuk ka çelës API të disponueshëm",
-          "workshop": "Nuk ka çelës API të konfiguruar për këtë punëtori. Ju lutemi kontaktoni administratorin e punëtorisë."
-        },
-        "retry": "Provoni përsëri",
-        "sendFailed": "Dështoi dërgimi i mesazhit. Ju lutemi provoni përsëri.",
-        "sessionFailed": "Dështoi nisja e sesionit të lojës"
-      },
-      "header": {
-        "back": "Kthehu te lojërat",
-        "debug": "Debug",
-        "decreaseFont": "Më e vogël",
-        "disableAnimations": "Çaktivizo animacionet",
-        "disableTextEffects": "Çaktivizo efektet e tekstit",
-        "fontSize": "Madhësia e shkronjave",
-        "increaseFont": "Më e madhe",
-        "muteAudio": "Fik zërin e rrëfimit",
-        "resetFont": "Rivendos",
-        "settings": "Cilësimet",
-        "unmuteAudio": "Aktivizo zërin e rrëfimit",
-        "useNeutralTheme": "Përdor temë neutrale"
-      },
-      "input": {
-        "audioCancel": "Anulo regjistrimin",
-        "audioProcessing": "Duke përpunuar…",
-        "audioRecording": "Duke regjistruar…",
-        "audioStart": "Regjistro mesazh zanor",
-        "audioStop": "Dërgo regjistrimin",
-        "audioUnavailableMessage": "Hyrja me zë nuk është e disponueshme me cilësimet aktuale të çelësit API. Për të përdorur hyrjen me zë, kaloni në një nivel më të lartë cilësie (Premium ose Maks).",
-        "audioUnavailableTitle": "Hyrja me zë nuk është e disponueshme",
-        "placeholder": "Çfarë bëni?",
-        "send": "Dërgo veprimin"
-      },
-      "loading": {
-        "game": "Duke ngarkuar lojën...",
-        "resolvingKey": "Duke zgjidhur çelësin API...",
-        "starting": "Duke nisur sesionin e lojës...",
-        "startingHint": "AI po përgatit aventurën tuaj"
-      },
-      "needsApiKey": {
-        "description": "Çelësi API i përdorur për këtë sesion nuk është më i disponueshëm.",
-        "reason": "Çelësi juaj API i mëparshëm nuk është më i disponueshëm. Për të vazhduar lojën tuaj, ju lutemi zgjidhni një të ri.",
-        "title": "Kërkohet çelës API"
-      },
-      "selectApiKey": {
-        "keyDescription": "Zgjidhni çelësin API për t'u përdorur në këtë seancë loje",
-        "keyLabel": "Çelësi API",
-        "keyPlaceholder": "Zgjidhni një çelës API",
-        "loadError": "Ngarkimi i çelësave API dështoi",
-        "mine": "I imi",
-        "modelDescription": "Opsionalisht zgjidhni një model specifik AI",
-        "modelLabel": "Modeli AI",
-        "modelPlaceholder": "Modeli parazgjedhje",
-        "noKeys": "Ju nevojitet të paktën një çelës API për të luajtur. Shto një në Cilësimet → Çelësat API.",
-        "playing": "Duke luajtur",
-        "startGame": "Nis lojën",
-        "title": "Zgjidh çelësin API"
-      },
-      "statusChange": {
-        "effect": "Efekti:"
-      },
-      "unnamed": "Pa emër"
+      "rebuilding": {
+        "description": "Së shpejti do të mund të luash përsëri këtu.",
+        "title": "Pamja e lojës po rindërtohet"
+      }
     },
     "games": {
       "actions": {
@@ -589,13 +456,13 @@
       "editFields": {
         "description": "Jepni një përshkrim të shkurtër të lojës. Kjo është vetëm për ju dhe nuk ndikon në lojë.",
         "gameStart": "Si fillon loja?",
-        "gameStartHint": "Çfarë ndodh në fillim? Përshkruani skenën e parë që sheh lojtari. Si pritet lojtari?",
+        "gameStartHint": "Si duhet të fillojë loja? Cila është skena e parë? Si përshëndetet personazhi i lojës? Si e kupton lojtari se çfarë duhet të bëjë?",
         "gameStartPlaceholder": "Zgjoheni në buzë të një pylli të errët. Një shteg i ngushtë të çon më thellë në pemë...",
         "imageStyle": "Çfarë stili duhet të kenë imazhet e lojës?",
         "imageStyleHint": "Për shembull: vizatim, realist, art piksel, akvarel...",
         "name": "Emri i lojës",
         "scenario": "Për çfarë është loja?",
-        "scenarioHint": "Përshkruani shkurtimisht: Si funksionon loja? Si është bota? Gjuha \u00026 Toni (p.sh. spanjisht për të klasës së gjashtë)?\nÇfarë roli ka lojtari? Shkruani \"Lojtari ...\".\nNëse dëshironi që AI të marrë rolin e një personi specifik shkruani \"Ti je ...\".",
+        "scenarioHint": "Përshkruaj shkurt: Si funksionon loja? Si është bota e lojës? Gjuha dhe toni (p.sh. spanjisht për nxënësit e klasës së gjashtë)?\nÇfarë roli ka personazhi i lojës? Shkruaj \"Personazhi i lojës ...\".\nNëse dëshiron që AI-ja të marrë rolin e një personi të caktuar, shkruaj \"Ti je ...\".\nCili është qëllimi? Si e kupton lojtari se ka fituar?",
         "scenarioPlaceholder": "Ju jeni një eksplorues në një pyll misterioz. Qëllimi juaj është të gjeni thesarin e fshehur...",
         "statusFields": "Vlerat e lojës",
         "statusFieldsHint": "Çfarë duhet të mbajë shënim loja? Për shembull shëndeti, pikët ose municioni. Loja i mban mend këto vlera dhe i përditëson gjatë lojës."
@@ -747,98 +614,6 @@
         "style": "Dizajni",
         "styleInfo": "Cilësime opsionale për pamjen e lojës gjatë lojës."
       },
-      "theme": {
-        "animation": "Animacioni i sfondit",
-        "animationDefault": "Parazgjedhje e preset-it",
-        "animationDescription": "Mbishkruaj animacionin parazgjedhës të preset-it",
-        "animations": {
-          "bits": "1-0-Bits",
-          "bubbles": "Flluska",
-          "circuits": "Qarku",
-          "confetti": "Konfeti",
-          "confettiExplosion": "Shpërthim konfeti",
-          "embers": "Shkëndija",
-          "fireflies": "Xixëllonja",
-          "geometric": "Gjeometrik",
-          "glitch": "Glitch",
-          "glowworm": "Shpirtrat e dritës",
-          "hearts": "Zemra",
-          "hyperspace": "Hapësirë hiper",
-          "leaves": "Gjethe",
-          "matrixRain": "Shi Matrix",
-          "none": "Asnjë",
-          "snow": "Borë",
-          "sparkles": "Shkëlqime",
-          "stars": "Yje",
-          "sun": "Diell",
-          "tumbleweed": "Top barishte",
-          "waves": "Valë"
-        },
-        "apply": "Apliko temën",
-        "button": "Tema",
-        "changeDesign": "Ndrysho dizajnin",
-        "currentTheme": "Tema: {{preset}}",
-        "modalTitle": "Tema e lojës",
-        "noTheme": "Nuk është zgjedhur asnjë temë. AI do të gjenerojë temën për çdo sesion loje.",
-        "preset": "Preset",
-        "presetDescription": "Zgjidhni një stil vizual për lojën tuaj",
-        "presets": {
-          "abstract": "Abstrakte",
-          "adventure": "Aventurë",
-          "barbie": "Barbie",
-          "candy": "Karamele",
-          "circus": "Cirk",
-          "cyberpunk": "Cyberpunk",
-          "default": "Parazgjedhur",
-          "desert": "Shkretëtirë",
-          "detective": "Detektiv",
-          "educational": "Edukative",
-          "fairy": "Përrallore",
-          "fire": "Zjarr",
-          "garden": "Kopsht",
-          "glitch": "Glitch",
-          "greenFantasy": "Fantazi e gjelbër",
-          "hacker": "Haker",
-          "horror": "Horror",
-          "jungle": "Xhungël",
-          "matrix": "Matrix",
-          "medieval": "Mesjetare",
-          "minimal": "Minimaliste",
-          "mystery": "Mister",
-          "mystic": "Mistik",
-          "nature": "Natyrë",
-          "nautical": "Nautik",
-          "noir": "Noir",
-          "ocean": "Oqeanik",
-          "pirate": "Pirate",
-          "playful": "Lojcake",
-          "retro": "Retro",
-          "romance": "Romancë",
-          "school": "Shkollë",
-          "scifi": "Sci-Fi",
-          "snowy": "Me borë",
-          "space": "Hapësirë",
-          "steampunk": "Steampunk",
-          "storybook": "Libër përrallash",
-          "sunshine": "Rrezet e diellit",
-          "superhero": "Superhero",
-          "tech": "Tech",
-          "terminal": "Terminal",
-          "underwater": "Nën ujë",
-          "western": "Perëndimore",
-          "zombie": "Zombi"
-        },
-        "preview": "Parapamje",
-        "remove": "Hiq temën",
-        "removeConfirm": "Ta heq temën e personalizuar? AI do të gjenerojë një për çdo sesion.",
-        "sampleGame": "Dera kërcet duke u hapur, duke zbuluar një dhomë të zbehtë. Runa të lashta ndriçojnë lehtë muret prej guri. Një arkë misterioze ndodhet në qendër të dhomës.",
-        "sampleGame2": "Ju afroheni me kujdes arkës. Teksa gishtat prekin grykën metalike të ftohtë, runat në mure fillojnë të pulsojnë me dritë më të ndritshme. Një zhurmë e ulët mbush dhomën.",
-        "samplePlayer": "E hap derën e vjetër prej druri...",
-        "sampleStatus": "Shëndeti",
-        "thinkingText": "Teksti i mendimit",
-        "thinkingTextDescription": "Teksti që shfaqet ndërsa AI po mendon",
-        "thinkingTextPlaceholder": "p.sh., Historia po shpaloset..."
-      },
       "title": "Lojërat e mia të krijuara",
       "viewModal": {
         "readOnlyNotice": "Kjo lojë është krijuar nga një përdorues tjetër. Mund të shihni detajet por nuk mund ta modifikoni. Përdorni \"Kopjo\" për të krijuar versionin tuaj të redaktueshëm.",
@@ -847,19 +622,6 @@
       "visibility": {
         "private": "Private",
         "public": "Publike"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Shko te ChatGameLab",
-        "continueGame": "Vazhdo lojën",
-        "expired": "Kjo lidhje ndarjeje ka arritur kufirin e luajtjeve. Nuk ka më sesione të disponueshme.",
-        "headline": "Jeni ftuar të luani një aventurë tekstuale me AI falas!",
-        "invalidLink": "Kjo lidhje ndarjeje është e pavlefshme ose nuk ekziston më.",
-        "loadError": "Nuk u ngarkuan informacionet e lojës. Ju lutemi provoni përsëri.",
-        "restartGame": "Fillo nga fillimi",
-        "sessionExists": "Tashmë keni një lojë në progres. Mund të vazhdoni nga aty ku e latë ose të nisni një lojë të re.",
-        "startPlaying": "Filloni lojën"
       }
     },
     "header": {
@@ -961,7 +723,6 @@
     "logout": "Dil",
     "me": "Unë",
     "myGames": {
-      "continue": "Luaj",
       "copyConfirm": {
         "confirm": "Kopjo lojën",
         "message": "Kjo do të krijojë një kopje të \"{{name}}\" te lojërat tuaja.",
@@ -978,12 +739,6 @@
         "favorites": "Të preferuarat"
       },
       "play": "Luaj",
-      "restart": "Rifillo",
-      "restartConfirm": {
-        "confirm": "Rifillo",
-        "message": "Jeni i sigurt që doni të rifilloni \"{{game}}\"? Progresi aktual do të humbasë.",
-        "title": "Rifillo lojën"
-      },
       "title": "Lojërat e mia",
       "unfavorite": "Hiq nga të preferuarat"
     },
@@ -1075,6 +830,19 @@
         "enabledHint": "Kur çaktivizohet, lidhja shfaq vetëm një njoftim dhe lidhjet e lojës në faqe nuk funksionojnë më.",
         "link": "Lidhja",
         "linkHint": "Përdor a–z, 0–9 dhe viza të vetme, nga 3 deri në 60 karaktere.",
+        "links": {
+          "add": "Shto lidhje",
+          "down": "Zhvendos poshtë",
+          "error": "Lidhjet nuk mund të ruheshin. Çdo lidhje duhet të ketë një titull dhe çdo adresë duhet të fillojë me http:// ose https://.",
+          "hint": "Shfaqen në faqe, poshtë lojërave. Jo më shumë se 10.",
+          "linkDescription": "Përshkrimi (opsional)",
+          "linkTitle": "Titulli",
+          "remove": "Hiq",
+          "save": "Ruaj lidhjet",
+          "title": "Lidhje për lexim të mëtejshëm",
+          "up": "Zhvendos lart",
+          "url": "Adresa"
+        },
         "offHint": "Faqja është çaktivizuar. Megjithatë, mund të përgatitësh lidhjen dhe kodin QR të saj.",
         "open": "Hap faqen",
         "shareDescription": "Dërgoje këtë lidhje ose shfaqe si kod QR.",
@@ -1132,7 +900,6 @@
         "deleteConfirm": "Jeni i sigurt që doni të fshini \"{{name}}\"?",
         "deleteTitle": "Fshi punëtorinë",
         "deleteWarning": "Të gjitha lojërat dhe sesionet në këtë punëtori do të fshihen. Kjo nuk mund të zhbëhet.",
-        "designEditingEnabled": "Lejo pjesëmarrësit të modifikojnë dizajnin e lojës (temën)",
         "editParticipant": "Përpuno emrin",
         "empty": "Ende nuk ka punëtori.",
         "enterWorkshop": "Hyr në modalitetin e punëtorisë",
@@ -1179,8 +946,10 @@
         "promptConstraintsPlaceholder": "p.sh. Mbaje historinë të përshtatshme për moshën dhe shmang përmbajtjen e dhunshme.",
         "removeParticipant": "Hiq pjesëmarrësin",
         "removeParticipantConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori?",
-        "removeParticipantMessage": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori? Ky veprim nuk mund të zhbëhet.",
+        "removeParticipantMessage": "A dëshironi vërtet ta hiqni \"{{name}}\" nga ky workshop?",
         "removeParticipantTitle": "Hiq pjesëmarrësin",
+        "removeParticipantWarningPermanent": "Kjo do të fshijë përgjithmonë llogarinë e këtij personi dhe të gjitha lojërat që ka krijuar, së bashku me të gjitha sesionet e lojës dhe lidhjet e përbashkëta me to. Ky veprim nuk mund të zhbëhet. Nëse lojërat duhet të ruhen, shkarkojini fillimisht si YAML.",
+        "removeParticipantWarningVisiting": "Ky person e ruan llogarinë dhe lojërat e tij. Përfundon vetëm qasja e tij në këtë workshop.",
         "resetAccess": "Rivendos aksesin",
         "resetAccessDone": "U krijua aksesi i ri. Lidhja e vjetër nuk funksionon më.",
         "resetAccessError": "Aksesi nuk mund të rivendosej. Provo përsëri.",
@@ -1256,10 +1025,25 @@
     "promoteToHead": "Promovo në Kreu",
     "promoteWarning": "Ky përdorues do të fitojë aftësinë për të menaxhuar anëtarët e organizatës dhe për të ftuar mësues.",
     "publicWorkshop": {
+      "about": {
+        "details": "Krijuesit e përshkruajnë botën, personazhet dhe rregullat me fjalët e tyre. Gjatë lojës, një AI e vazhdon drejtpërdrejt tregimin: ajo reagon ndaj çdo gjëje që shkruan dhe krijon imazhe që përputhen me të — prandaj asnjëra nga dy rundet nuk zhvillohet njësoj. Kur ndërton një të tillë vetë, e kupton shpejt se sa shumë udhëzimet e tua ndikojnë në rezultat dhe ku AI-ja arrin kufijtë e saj. Pikërisht për këtë bëhet fjalë: jo të të shpjegohet AI-ja, por ta provosh vetë.",
+        "less": "Më pak",
+        "link": "Më shumë për ChatGameLab",
+        "more": "Mëso më shumë",
+        "oneLiner": "Këto aventura me tekst u krijuan me ChatGameLab: të ndërtuara vetë, pa programim, dhe të treguara drejtpërdrejt nga një AI."
+      },
       "copy": "Kopjo",
       "copyLogin": "Hyr për ta kopjuar",
+      "cta": {
+        "button": "Fillo falas",
+        "text": "Krijimi i aventurës tënde me tekst është falas dhe zgjat vetëm disa minuta.",
+        "title": "Krijo lojën tënde në ChatGameLab"
+      },
       "download": "Shkarko",
       "gamesTitle": "Lojërat e kësaj punëtorie",
+      "links": {
+        "title": "Më shumë për këtë workshop"
+      },
       "noGames": "Asnjë lojë nuk është publikuar këtu ende.",
       "play": "Luaj",
       "playExhausted": "Nuk kanë mbetur seanca loje",
@@ -1316,47 +1100,11 @@
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
       "title": "Cilësimet e serverit"
     },
-    "sessions": {
-      "continueGame": "Vazhdo lojën",
-      "deleteConfirm": {
-        "message": "A jeni i sigurt që doni të fshini këtë sesion për \"{{game}}\"? Ky veprim nuk mund të zhbëhet.",
-        "title": "Fshi sesionin"
-      },
-      "empty": {
-        "description": "Filloni një lojë të re për të nisur aventurën!",
-        "noResults": "Nuk u gjetën lojëra të përshtatshme",
-        "title": "Ende nuk është luajtur asnjë lojë"
-      },
-      "errors": {
-        "loadFailed": "Dështoi ngarkimi i lojërave tuaja. Ju lutemi provoni përsëri."
-      },
-      "fields": {
-        "game": "Lojë",
-        "lastPlayed": "Luajtur së fundi",
-        "model": "Modeli"
-      },
-      "freeUseKey": {
-        "description": "Vendosni një çelës përdorimi falas që të gjithë anëtarët e organizatës të luajnë pa çelësin e tyre API. Mund të zgjidhen vetëm çelësa që tashmë janë ndarë me këtë organizatë.",
-        "remove": "Hiq",
-        "selectPlaceholder": "Zgjidh një çelës të ndarë...",
-        "title": "Çelësi i përdorimit falas",
-        "unknownKey": "Çelës i panjohur"
-      },
-      "noDescription": "Pa përshkrim",
-      "sort": {
-        "game": "Lojë",
-        "label": "Rendit sipas",
-        "lastPlayed": "Luajtur së fundi",
-        "model": "Modeli"
-      },
-      "startNewGame": "Fillo lojë të re",
-      "title": "Vazhdo lojën",
-      "untitledGame": "Lojë pa emër"
-    },
     "settings": "Cilësimet",
     "share": {
       "copied": "U kopjua",
-      "copyLink": "Kopjo lidhjen"
+      "copyLink": "Kopjo lidhjen",
+      "visitLink": "Vizito lidhjen"
     },
     "showing": "{{count}} anëtarë",
     "sort": {
@@ -1367,7 +1115,16 @@
       "role-desc": "Roli (Z-A)"
     },
     "unnamed": "Pa emër",
-    "viewGame": "Shiko lojën"
+    "viewGame": "Shiko lojën",
+    "workshop": {
+      "inactive": {
+        "description": "Ky workshop nuk është aktiv për momentin. Prit derisa drejtuesi i workshop-it ta aktivizojë përsëri.",
+        "noCode": "Në këtë pajisje nuk është ruajtur asnjë kod. Drejtuesi i workshop-it mund të të tregojë kodin tënd.",
+        "photoFirst": "Nëse del nga llogaria, kodi yt do të fshihet nga kjo pajisje. Bëj më parë një foto të tij.",
+        "showCode": "Shfaq kodin tim të qasjes",
+        "title": "Workshop-i nuk është aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1385,11 +1142,6 @@
           "title": "Projekti ChatGameLab"
         },
         "title": "Rreth ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Ende nuk ka histori loje. Filloni të luani një lojë!",
-        "title": "Luajtur së fundi",
-        "viewAll": "Të gjitha lojërat"
       },
       "myGames": {
         "empty": "Nuk ka ende lojëra. Krijoni lojën tuaj të parë!",
@@ -1423,7 +1175,6 @@
       "title": "Veprime të shpejta"
     },
     "untitled": "Pa titull",
-    "untitledGame": "Lojë pa emër",
     "version": {
       "mismatch": {
         "message": "Versioni i frontend-it \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e nuk përputhet me versionin e backend-it \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Kjo mund të shkaktojë sjellje të papritura. Kontaktoni mbështetjen nëse problemi vazhdon.",

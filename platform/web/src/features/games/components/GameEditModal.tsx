@@ -18,22 +18,19 @@ import {
   IconCopy,
   IconDeviceGamepad2,
   IconHeartFilled,
-  IconPalette,
   IconShare,
 } from "@tabler/icons-react";
-import { useMediaQuery, useDisclosure } from "@mantine/hooks";
+import { useMediaQuery } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAdmin } from "@/common/hooks/useAdmin";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
+import { ActionButton, CancelButton } from "@components/buttons";
 import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
 import { useGame, useUpdateGame } from "@/api/hooks";
-import type { ObjGameTheme } from "@/api/generated";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
-import { ThemePickerModal } from "./ThemePickerModal";
 import { PrivateShareSection } from "./PrivateShareSection";
 import type { CreateGameFormData } from "../types";
 
@@ -67,8 +64,6 @@ interface GameEditModalProps {
   showShareSection?: boolean;
   /** Workshop ID for workshop share mode (auto-uses workshop key) */
   workshopId?: string;
-  /** If true, the Design (theme) section is hidden (e.g. workshop setting) */
-  hideDesign?: boolean;
   /** Whether the current user owns this game (used to show admin action warning) */
   isOwner?: boolean;
 }
@@ -86,7 +81,6 @@ export function GameEditModal({
   onSponsor,
   showShareSection = false,
   workshopId,
-  hideDesign = false,
   isOwner = true,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
@@ -108,15 +102,6 @@ export function GameEditModal({
   const [imageStyle, setImageStyle] = useState("");
   const [statusFields, setStatusFields] = useState("");
 
-  // Theme state (only used in edit/view mode)
-  const [theme, setTheme] = useState<ObjGameTheme | null>(null);
-  const [
-    themePickerOpened,
-    { open: openThemePicker, close: closeThemePicker },
-  ] = useDisclosure(false);
-  // Track whether theme was changed from initial value
-  const initialThemeRef = useRef<ObjGameTheme | null>(null);
-
   // Validation
   const [nameError, setNameError] = useState("");
 
@@ -126,8 +111,6 @@ export function GameEditModal({
   // Check if form has unsaved changes
   const isDirty = useCallback(() => {
     if (!initialValues.current) return false;
-    const themeChanged =
-      JSON.stringify(theme) !== JSON.stringify(initialThemeRef.current);
     return (
       name !== initialValues.current.name ||
       description !== initialValues.current.description ||
@@ -135,8 +118,7 @@ export function GameEditModal({
       systemMessageScenario !== initialValues.current.systemMessageScenario ||
       systemMessageGameStart !== initialValues.current.systemMessageGameStart ||
       imageStyle !== initialValues.current.imageStyle ||
-      statusFields !== initialValues.current.statusFields ||
-      themeChanged
+      statusFields !== initialValues.current.statusFields
     );
   }, [
     name,
@@ -146,7 +128,6 @@ export function GameEditModal({
     systemMessageGameStart,
     imageStyle,
     statusFields,
-    theme,
   ]);
 
   // Track if we've initialized form values
@@ -174,9 +155,6 @@ export function GameEditModal({
       setSystemMessageGameStart(values.systemMessageGameStart);
       setImageStyle(values.imageStyle);
       setStatusFields(values.statusFields);
-      const gameTheme = game.theme ?? null;
-      setTheme(gameTheme);
-      initialThemeRef.current = gameTheme;
     }
     // Initialize for create mode (optionally with pre-populated data)
     if (isCreateMode && opened && !hasInitialized.current) {
@@ -213,8 +191,6 @@ export function GameEditModal({
         setImageStyle("");
         setStatusFields("");
         setNameError("");
-        setTheme(null);
-        initialThemeRef.current = null;
       }
     }
   }, [isCreateMode, game, isLoading, opened, initialData]);
@@ -254,7 +230,6 @@ export function GameEditModal({
             systemMessageGameStart: systemMessageGameStart.trim() || undefined,
             imageStyle: imageStyle.trim() || undefined,
             statusFields: statusFields.trim() || undefined,
-            theme: theme ?? undefined,
           },
         });
         onClose();
@@ -407,36 +382,6 @@ export function GameEditModal({
             readOnly={readOnly}
           />
 
-          {/* Theme - only in edit/view mode, hidden when design editing is disabled */}
-          {!isCreateMode && !hideDesign && (
-            <Group gap="sm" align="center">
-              <ActionButton
-                leftSection={<IconPalette size={16} />}
-                onClick={openThemePicker}
-              >
-                {t("games.theme.button")}
-              </ActionButton>
-              {theme ? (
-                <>
-                  <Badge size="sm" color="violet" variant="light">
-                    {t("games.theme.currentTheme", { preset: theme.preset })}
-                  </Badge>
-                  {!readOnly && (
-                    <DangerButton
-                      leftSection={<IconPalette size={16} />}
-                      onClick={() => setTheme(null)}
-                    >
-                      {t("games.theme.remove")}
-                    </DangerButton>
-                  )}
-                </>
-              ) : (
-                <Text size="xs" c="dimmed">
-                  {t("games.theme.noTheme")}
-                </Text>
-              )}
-            </Group>
-          )}
 
           {/* Description - moved to end */}
           <Textarea
@@ -467,85 +412,73 @@ export function GameEditModal({
   };
 
   return (
-    <>
-      <Modal
-        opened={opened}
-        onClose={handleModalClose}
-        title={
-          <Group gap="sm">
-            <Text fw={600}>
-              {isCreateMode
-                ? t("games.createModal.title")
-                : readOnly
-                  ? t("games.viewModal.title")
-                  : t("games.editModal.title")}
-            </Text>
-            <HelpLink href={HELP_LINKS.GAME_TIPS} />
-            {!isCreateMode && game?.publicSponsoredApiKeyShareId && (
-              <Badge
-                size="sm"
-                color="pink"
-                variant="light"
-                leftSection={<IconHeartFilled size={12} />}
-              >
-                {t("games.sponsor.sponsored")}
-              </Badge>
-            )}
-          </Group>
-        }
-        size={isMobile ? "100%" : rem(1000)}
-        fullScreen={isMobile}
-        centered={!isMobile}
-        styles={{
-          content: {
-            maxHeight: isMobile ? undefined : "85vh",
-            ...(isAdminAction ? { outline: "3px solid var(--mantine-color-red-6)" } : {}),
-          },
-          body: { maxHeight: isMobile ? undefined : "calc(85vh - 60px)" },
-        }}
-      >
-        <Stack gap="md">
-          {modalContent()}
+    <Modal
+      opened={opened}
+      onClose={handleModalClose}
+      title={
+        <Group gap="sm">
+          <Text fw={600}>
+            {isCreateMode
+              ? t("games.createModal.title")
+              : readOnly
+                ? t("games.viewModal.title")
+                : t("games.editModal.title")}
+          </Text>
+          <HelpLink href={HELP_LINKS.GAME_TIPS} />
+          {!isCreateMode && game?.publicSponsoredApiKeyShareId && (
+            <Badge
+              size="sm"
+              color="pink"
+              variant="light"
+              leftSection={<IconHeartFilled size={12} />}
+            >
+              {t("games.sponsor.sponsored")}
+            </Badge>
+          )}
+        </Group>
+      }
+      size={isMobile ? "100%" : rem(1000)}
+      fullScreen={isMobile}
+      centered={!isMobile}
+      styles={{
+        content: {
+          maxHeight: isMobile ? undefined : "85vh",
+          ...(isAdminAction ? { outline: "3px solid var(--mantine-color-red-6)" } : {}),
+        },
+        body: { maxHeight: isMobile ? undefined : "calc(85vh - 60px)" },
+      }}
+    >
+      <Stack gap="md">
+        {modalContent()}
 
-          <Group justify="flex-end" mt="md" gap="sm">
-            {readOnly ? (
-              <>
-                <CancelButton onClick={onClose}>{t("close")}</CancelButton>
-                {onCopy && (
-                  <ActionButton
-                    onClick={onCopy}
-                    loading={copyLoading}
-                    size="sm"
-                    leftSection={<IconCopy size={16} />}
-                  >
-                    {t("copyGame")}
-                  </ActionButton>
-                )}
-              </>
-            ) : (
-              <>
-                <CancelButton onClick={handleModalClose} disabled={isSaving}>
-                  {t("cancel")}
-                </CancelButton>
-                <ActionButton onClick={handleSave} loading={isSaving} size="sm">
-                  {isCreateMode ? t("games.createModal.submit") : t("save")}
+        <Group justify="flex-end" mt="md" gap="sm">
+          {readOnly ? (
+            <>
+              <CancelButton onClick={onClose}>{t("close")}</CancelButton>
+              {onCopy && (
+                <ActionButton
+                  onClick={onCopy}
+                  loading={copyLoading}
+                  size="sm"
+                  leftSection={<IconCopy size={16} />}
+                >
+                  {t("copyGame")}
                 </ActionButton>
-              </>
-            )}
-          </Group>
-        </Stack>
-      </Modal>
-
-      {!isCreateMode && (
-        <ThemePickerModal
-          opened={themePickerOpened}
-          onClose={closeThemePicker}
-          value={theme}
-          onChange={setTheme}
-          readOnly={readOnly}
-        />
-      )}
-    </>
+              )}
+            </>
+          ) : (
+            <>
+              <CancelButton onClick={handleModalClose} disabled={isSaving}>
+                {t("cancel")}
+              </CancelButton>
+              <ActionButton onClick={handleSave} loading={isSaving} size="sm">
+                {isCreateMode ? t("games.createModal.submit") : t("save")}
+              </ActionButton>
+            </>
+          )}
+        </Group>
+      </Stack>
+    </Modal>
   );
 }
 

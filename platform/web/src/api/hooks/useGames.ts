@@ -107,12 +107,8 @@ export function useDeleteGame() {
   return useMutation<ObjGame, HttpxErrorResponse, string>({
     mutationFn: (id) =>
       api.games.gamesDelete(id).then((response) => response.data),
-    onSuccess: (_, id) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
-      queryClient.invalidateQueries({
-        queryKey: [...queryKeys.gameSessions, id],
-      });
-      queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
     },
     onError: handleApiError,
   });

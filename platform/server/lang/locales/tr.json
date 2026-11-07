@@ -52,9 +52,7 @@
       "ageGroupU13": "13-17 yaş",
       "ageGroupU18": "18+",
       "gamesCreated": "Oluşturulan Oyunlar",
-      "gamesPlayed": "Oynanan Oyunlar",
       "memberSince": "Kayıt tarihi",
-      "messagesSent": "Gönderilen Mesajlar",
       "noOrganization": "Organizasyon yok",
       "noRole": "Rol atanmamış",
       "organization": "Organizasyon",
@@ -278,16 +276,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Yüksek (Premium)",
+      "high": "Yüksek",
       "label": "Yapay Zekâ Kalite Seviyesi",
-      "low": "Düşük (Ekonomi)",
+      "low": "Ekonomik",
       "max": "Maks (Premium + Ses)",
-      "medium": "Orta (Dengeli)",
+      "medium": "Dengeli",
       "newSessionsOnly": "Bu katman yalnızca yeni oturumlar için geçerlidir. Mevcut oturumlar başladıkları katmanı korur.",
       "serverDefault": "Sunucu Varsayılanı"
     },
     "allGames": {
-      "continue": "Oyna",
       "copyConfirm": {
         "confirm": "Oyunu Kopyala",
         "message": "\"{{name}}\" oyununun bir kopyası oyunlarınıza eklenecek.",
@@ -308,12 +305,6 @@
       },
       "play": "Oyna",
       "reportGame": "Oyunu bildir",
-      "restart": "Yeniden başlat",
-      "restartConfirm": {
-        "confirm": "Yeniden başlat",
-        "message": "\"{{game}}\" oyununu yeniden başlatmak istediğinizden emin misiniz? Mevcut ilerlemeniz silinecek.",
-        "title": "Oyunu Yeniden Başlat"
-      },
       "title": "Tüm Oyunlar",
       "unfavorite": "Favorilerden çıkar",
       "workshop": "Atölye / Kuruluş"
@@ -393,8 +384,8 @@
       "title": "API Anahtarı Yönetimi",
       "unnamed": "Adsız Anahtar",
       "unsupportedPlatform": {
-        "badge": "desteklenmiyor",
-        "hint": "Bu platform şu anda desteklenmiyor. Yalnızca mevcut anahtarları kaldırabilirsiniz."
+        "badge": "henüz desteklenmiyor",
+        "hint": "Bu platform henüz desteklenmiyor. Anahtarları kayıtlı kalır ancak kullanılmaz. Bunları kaldırabilirsiniz."
       }
     },
     "back": "Geri",
@@ -417,7 +408,7 @@
       "placeholder": "örn. apfel otter turm",
       "submit": "Devam et",
       "title": "Kodu girin",
-      "unknown": "Bu kod mevcut değil. Lütfen yazımını kontrol edin.",
+      "unknown": "Bu kodla giriş yapılamadı. Önce yazımı kelime kelime kontrol edin. Tireler veya boşluklar önemli değildir. Kod doğruysa artık geçerli olmayabilir: kodlar değiştirilebilir ve atölye sona erdiğinde erişim sonlandırılır. Bu durumda atölye yürütücünüzden yeni bir kod isteyin.",
       "wrongLength": "Kodlar üç veya dört kelimeden oluşur."
     },
     "error": "Hata",
@@ -427,119 +418,10 @@
       "programmedBy": "Programlayan"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Kullanılan API Anahtarı değişti",
-        "constraintSource": {
-          "organisation": "Kuruluş",
-          "site13": "Site varsayılanı (13–17, ebeveyn izni yok)",
-          "site13p": "Site varsayılanı (13–17, ebeveyn izniyle)",
-          "site18": "Site varsayılanı (18+)",
-          "workshop": "Atölye"
-        },
-        "sections": {
-          "constraintReasoning": "Bu kısıt neden geçerli?",
-          "constraintText": "Aktif gençlik koruma kısıtlaması",
-          "expandStory": "Hikâyeyi yazması için yapay zekâya verilen talimatlar",
-          "imageGeneration": "Görsel üretimi için yapay zekâdan gelen talimatlar",
-          "rawResponse": "İşlenmemiş yapay zekâ yanıtı",
-          "responseSchema": "Yapay zekâ yanıtının olması gereken yapı",
-          "statusUpdate": "Yapay zekâya gönderilen istem",
-          "systemPrompt": "Yapay zekâ için oyun talimatları"
-        },
-        "title": "Yapay Zekâ İsteği / Yanıtı",
-        "toggle": "Yapay Zekâ İçgörüsü",
-        "tokens": {
-          "received": "alınan token",
-          "sent": "gönderilen token"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Kuruluşunuzun ücretsiz kullanım anahtarı kullanıldı",
-          "label": "Kullanılan API Anahtarı",
-          "personal": "Kişisel anahtarınız kullanıldı",
-          "private_share": "Paylaşım bağlantısı anahtarı kullanıldı",
-          "sponsor": "Sponsor anahtarı kullanıldı",
-          "system_free_use": "Küresel ücretsiz kullanım anahtarı kullanıldı",
-          "workshop": "Atölyenizin anahtarı kullanıldı"
-        },
-        "usedConstraint": {
-          "label": "Kullanılan kısıtlama"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "Mesaj Kimliği",
-          "imagePrompt": "Görsel Komutu",
-          "isStreaming": "Canlı Akış",
-          "seq": "Sıra",
-          "statusFields": "Durum Alanları",
-          "timestamp": "Zaman Damgası",
-          "type": "Tür"
-        },
-        "hints": {
-          "id": "Bu mesaj için benzersiz kimlik",
-          "imagePrompt": "Görsel üretim yapay zekâsına gönderilen komut",
-          "isStreaming": "İçerik alımı devam ediyor mu",
-          "seq": "Konuşmadaki sırası",
-          "statusFields": "Yapay zekânın takip ettiği oyun durum değişkenleri",
-          "timestamp": "Bu mesajın oluşturulduğu zaman",
-          "type": "player = oyuncu girdisi, game = yapay zekâ yanıtı, system = bağlam"
-        },
-        "title": "Hata Ayıklama Bilgisi"
-      },
-      "error": {
-        "backToGames": "Oyunlara geri dön",
-        "gameNotFound": "Oyun bulunamadı",
-        "missingFields": "Oyunda gerekli alanlar eksik:",
-        "noApiKey": {
-          "banner": "{{platform}} platformu için kullanılabilir API anahtarı bulunamadı. Oynamaya devam etmek için hesap ayarlarınızdan kendi API anahtarınızı ekleyin.",
-          "goToSettings": "API Anahtarı Ayarları",
-          "personal": "Oynamadan önce bir API anahtarı ayarlamanız gerekiyor. Bir anahtar eklemek için API Anahtarı ayarlarına gidin.",
-          "title": "API Anahtarı Yok",
-          "workshop": "Bu atölye için API anahtarı yapılandırılmamış. Lütfen atölye yöneticinizle iletişime geçin."
-        },
-        "retry": "Tekrar dene",
-        "sendFailed": "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
-        "sessionFailed": "Oyun oturumu başlatılamadı"
-      },
-      "header": {
-        "back": "Oyunlara geri dön",
-        "debug": "Hata Ayıkla",
-        "decreaseFont": "Daha küçük",
-        "disableAnimations": "Animasyonları kapat",
-        "disableTextEffects": "Metin efektlerini kapat",
-        "fontSize": "Yazı tipi boyutu",
-        "increaseFont": "Daha büyük",
-        "muteAudio": "Anlatımı sessize al",
-        "resetFont": "Sıfırla",
-        "settings": "Ayarlar",
-        "unmuteAudio": "Anlatımı aç",
-        "useNeutralTheme": "Nötr tema kullan"
-      },
-      "input": {
-        "audioCancel": "Kaydı iptal et",
-        "audioProcessing": "İşleniyor…",
-        "audioRecording": "Kayıt yapılıyor…",
-        "audioStart": "Sesli mesaj kaydet",
-        "audioStop": "Kaydı gönder",
-        "audioUnavailableMessage": "Geçerli API anahtarı ayarlarıyla sesli giriş kullanılamıyor. Sesli girişi kullanmak için daha yüksek kalite seviyesine (Premium veya Maks) geçin.",
-        "audioUnavailableTitle": "Sesli Giriş Kullanılamıyor",
-        "placeholder": "Ne yapıyorsun?",
-        "send": "Eylemi gönder"
-      },
-      "loading": {
-        "game": "Oyun yükleniyor...",
-        "resolvingKey": "API anahtarı çözümleniyor...",
-        "starting": "Oyun oturumu başlatılıyor...",
-        "startingHint": "Yapay zekâ maceranızı hazırlıyor"
-      },
-      "needsApiKey": {
-        "description": "Bu oturumda kullanılan API anahtarı artık mevcut değil.",
-        "title": "API Anahtarı Gerekli"
-      },
-      "statusChange": {
-        "effect": "Etki:"
-      },
-      "unnamed": "Adsız"
+      "rebuilding": {
+        "description": "Yakında burada tekrar oyun oynayabileceksiniz.",
+        "title": "Oyun oynatıcı yeniden oluşturuluyor"
+      }
     },
     "games": {
       "actions": {
@@ -576,13 +458,13 @@
       "editFields": {
         "description": "Oyuna kısa bir açıklama verin. Sadece size özeldir, oynanışı etkilemez.",
         "gameStart": "Oyun nasıl başlıyor?",
-        "gameStartHint": "Başlangıçta neler olur? Oyuncunun gördüğü ilk sahneyi anlatın. Nasıl karşılanıyor?",
+        "gameStartHint": "Oyun nasıl başlamalı? Oyuncunun göreceği ilk sahneyi açıklayın. Oyuncu nasıl karşılanıyor? Oyuncu ne yapması gerektiğini nasıl anlıyor?",
         "gameStartPlaceholder": "Karanlık bir ormanın kenarında uyanıyorsun. Dar bir patika ağaçların içine doğru uzanıyor...",
         "imageStyle": "Oyun görselleri hangi tarzda olmalı?",
         "imageStyleHint": "Örneğin: çizgi film, gerçekçi, piksel art, suluboya...",
         "name": "Oyun Adı",
         "scenario": "Oyun ne hakkında?",
-        "scenarioHint": "Kısaca açıklayın: Oyun nasıl ilerliyor? Dünya nasıl? Dil \u0006 Ton (örn. altıncı sınıflar için İspanyolca)?\nOyuncunun rolü nedir? \"Oyuncu ...\" diye yazın.\nYapay zekânın belirli bir kişiyi canlandırmasını istiyorsanız \"Sen ...\" diye yazın.",
+        "scenarioHint": "Kısaca açıklayın: Oyun nasıl işliyor? Dünya nasıl bir yer? Dil \u00026 Üslup (ör. altıncı sınıf öğrencileri için İspanyolca)?\nOyuncunun rolü nedir? \"Oyuncu ...\" diye yazın.\nYapay zekânın belirli bir kişinin rolünü üstlenmesini istiyorsanız \"Sen ...\" diye yazın.\nAmaç nedir? Oyuncu kazandığını nasıl anlıyor?",
         "scenarioPlaceholder": "Sen gizemli bir ormanda keşif yapan bir kaşifsin. Amacın saklı hazinenin yerini bulmak...",
         "statusFields": "Oyun değerleri",
         "statusFieldsHint": "Oyun hangi değerleri takip etmeli? Örneğin can, puan veya cephane. Oyun bu değerleri hatırlar ve oynarken günceller."
@@ -734,98 +616,6 @@
         "style": "Tasarım",
         "styleInfo": "Oyun oynanırken görünümü için isteğe bağlı ayarlar."
       },
-      "theme": {
-        "animation": "Arka Plan Animasyonu",
-        "animationDefault": "Hazır ayarın varsayılanı",
-        "animationDescription": "Hazır ayarın varsayılan animasyonunu değiştir",
-        "animations": {
-          "bits": "1-0-Bits",
-          "bubbles": "Baloncuklar",
-          "circuits": "Devreler",
-          "confetti": "Konfeti",
-          "confettiExplosion": "Konfeti Patlaması",
-          "embers": "Közler",
-          "fireflies": "Ateşböcekleri",
-          "geometric": "Geometrik",
-          "glitch": "Bozulma",
-          "glowworm": "Ateş Solucanları",
-          "hearts": "Kalpler",
-          "hyperspace": "Işık Hızı",
-          "leaves": "Yapraklar",
-          "matrixRain": "Matrix Yağmuru",
-          "none": "Yok",
-          "snow": "Kar",
-          "sparkles": "Parıltılar",
-          "stars": "Yıldızlar",
-          "sun": "Güneş",
-          "tumbleweed": "Diken Topu",
-          "waves": "Dalgalar"
-        },
-        "apply": "Temayı Uygula",
-        "button": "Tema",
-        "changeDesign": "Tasarımı Değiştir",
-        "currentTheme": "Tema: {{preset}}",
-        "modalTitle": "Oyun Teması",
-        "noTheme": "Tema seçilmedi. Yapay zekâ her oturum için bir tema oluşturacak.",
-        "preset": "Hazır Ayar",
-        "presetDescription": "Oyununuza görsel bir stil seçin",
-        "presets": {
-          "abstract": "Soyut",
-          "adventure": "Macera",
-          "barbie": "Barbie",
-          "candy": "Şeker",
-          "circus": "Sirk",
-          "cyberpunk": "Siberpunk",
-          "default": "Varsayılan",
-          "desert": "Çöl",
-          "detective": "Dedektif",
-          "educational": "Eğitici",
-          "fairy": "Peri",
-          "fire": "Ateş",
-          "garden": "Bahçe",
-          "glitch": "Bozulma",
-          "greenFantasy": "Yeşil Fantazi",
-          "hacker": "Hacker",
-          "horror": "Korku",
-          "jungle": "Orman",
-          "matrix": "Matrix",
-          "medieval": "Ortaçağ",
-          "minimal": "Minimal",
-          "mystery": "Gizem",
-          "mystic": "Mistik",
-          "nature": "Doğa",
-          "nautical": "Denizcilik",
-          "noir": "Noir",
-          "ocean": "Okyanus",
-          "pirate": "Korsan",
-          "playful": "Neşeli",
-          "retro": "Retro",
-          "romance": "Romantik",
-          "school": "Okul",
-          "scifi": "Bilimkurgu",
-          "snowy": "Karlı",
-          "space": "Uzay",
-          "steampunk": "Steampunk",
-          "storybook": "Masal Kitabı",
-          "sunshine": "Güneş Işığı",
-          "superhero": "Süper Kahraman",
-          "tech": "Teknoloji",
-          "terminal": "Terminal",
-          "underwater": "Sualtı",
-          "western": "Vahşi Batı",
-          "zombie": "Zombi"
-        },
-        "preview": "Önizleme",
-        "remove": "Temayı Kaldır",
-        "removeConfirm": "Özel temayı kaldırmak ister misiniz? Yapay zekâ bunun yerine her oturum için bir tema oluşturur.",
-        "sampleGame": "Kapı gıcırdayarak açılıyor ve loş bir odayı ortaya çıkarıyor. Taş duvarlardaki eski rünler hafifçe parlıyor. Odanın ortasında gizemli bir sandık duruyor.",
-        "sampleGame2": "Sandığa dikkatle yaklaşıyorsun. Parmakların soğuk metal kilide dokunduğunda duvarlardaki rünler daha parlak yanıp sönmeye başlıyor. Oda derin bir uğultuyla doluyor.",
-        "samplePlayer": "Eski ahşap kapıyı açıyorum...",
-        "sampleStatus": "Sağlık",
-        "thinkingText": "Düşünme Metni",
-        "thinkingTextDescription": "Yapay zekâ düşünürken gösterilen metin",
-        "thinkingTextPlaceholder": "örn. Hikâye şekilleniyor..."
-      },
       "title": "Oluşturduğum Oyunlar",
       "viewModal": {
         "readOnlyNotice": "Bu oyun başka bir kullanıcı tarafından oluşturuldu. Ayrıntıları görebilirsiniz ancak düzenleyemezsiniz. Düzenleyebileceğiniz bir sürüm oluşturmak için \"Kopyala\"yı kullanın.",
@@ -834,19 +624,6 @@
       "visibility": {
         "private": "Özel",
         "public": "Herkese Açık"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "ChatGameLab'e git",
-        "continueGame": "Oyuna Devam Et",
-        "expired": "Bu paylaşım bağlantısının oyun limiti doldu. Başka oturum yok.",
-        "headline": "Ücretsiz bir yapay zekâ destekli metin macerası oynamaya davet edildin!",
-        "invalidLink": "Bu paylaşım bağlantısı geçersiz veya artık mevcut değil.",
-        "loadError": "Oyun bilgileri yüklenemedi. Lütfen tekrar deneyin.",
-        "restartGame": "Baştan Başlat",
-        "sessionExists": "Zaten devam eden bir oyunun var. Kaldığın yerden devam edebilir veya yeni bir oyun başlatabilirsin.",
-        "startPlaying": "Oynamaya Başla"
       }
     },
     "header": {
@@ -948,7 +725,6 @@
     "logout": "Çıkış Yap",
     "me": "Ben",
     "myGames": {
-      "continue": "Oyna",
       "copyConfirm": {
         "confirm": "Oyunu Kopyala",
         "message": "\"{{name}}\" oyununun bir kopyası oyunlarınıza eklenecek.",
@@ -965,12 +741,6 @@
         "favorites": "Favoriler"
       },
       "play": "Oyna",
-      "restart": "Yeniden başlat",
-      "restartConfirm": {
-        "confirm": "Yeniden başlat",
-        "message": "\"{{game}}\" oyununu yeniden başlatmak istediğinizden emin misiniz? Mevcut ilerlemeniz silinecek.",
-        "title": "Oyunu Yeniden Başlat"
-      },
       "title": "Oyunlarım",
       "unfavorite": "Favorilerden çıkar"
     },
@@ -1062,6 +832,19 @@
         "enabledHint": "Kapalı olduğunda bağlantı yalnızca bir bildirim gösterir ve sayfanın oyun bağlantıları çalışmaz.",
         "link": "Bağlantı",
         "linkHint": "a–z, 0–9 ve tekli tireler kullanın; 3 ila 60 karakter olmalıdır.",
+        "links": {
+          "add": "Bağlantı ekle",
+          "down": "Aşağı taşı",
+          "error": "Bağlantılar kaydedilemedi. Her bağlantının bir başlığı olmalı ve her adres http:// veya https:// ile başlamalıdır.",
+          "hint": "Oyunların altında, sayfada gösterilir. En fazla 10 bağlantı.",
+          "linkDescription": "Açıklama (isteğe bağlı)",
+          "linkTitle": "Başlık",
+          "remove": "Kaldır",
+          "save": "Bağlantıları kaydet",
+          "title": "Daha fazla bilgi",
+          "up": "Yukarı taşı",
+          "url": "Adres"
+        },
         "offHint": "Sayfa kapalı. Bağlantısını ve QR kodunu yine de hazırlayabilirsiniz.",
         "open": "Sayfayı aç",
         "shareDescription": "Bu bağlantıyı gönderin veya QR kodu olarak gösterin.",
@@ -1115,7 +898,6 @@
         "deleteConfirm": "\"{{name}}\" atölyesini silmek istediğinizden emin misiniz?",
         "deleteTitle": "Atölyeyi Sil",
         "deleteWarning": "Bu atölyedeki tüm oyunlar ve oturumlar silinecek. Bu işlem geri alınamaz.",
-        "designEditingEnabled": "Katılımcıların oyun tasarımını (tema) düzenlemesine izin ver",
         "editParticipant": "İsmi düzenle",
         "empty": "Henüz atölye yok.",
         "enterWorkshop": "Atölye Moduna Gir",
@@ -1162,8 +944,10 @@
         "promptConstraintsPlaceholder": "örn. Hikayeyi yaşa uygun tutun ve şiddet içeriğinden kaçının.",
         "removeParticipant": "Katılımcıyı kaldır",
         "removeParticipantConfirm": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz?",
-        "removeParticipantMessage": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "removeParticipantMessage": "\"{{name}}\" adlı kişiyi bu atölyeden kaldırmak istediğinizden gerçekten emin misiniz?",
         "removeParticipantTitle": "Katılımcıyı Kaldır",
+        "removeParticipantWarningPermanent": "Bu işlem, bu kişinin hesabını ve oluşturduğu tüm oyunları, bunlarla birlikte tüm oyun oturumlarını ve paylaşılan bağlantıları kalıcı olarak siler. Geri alınamaz. Oyunlar korunacaksa önce YAML olarak indirin.",
+        "removeParticipantWarningVisiting": "Bu kişi hesabını ve oyunlarını korur. Yalnızca bu atölyeye erişimi sona erer.",
         "resetAccess": "Erişimi sıfırla",
         "resetAccessDone": "Yeni erişim oluşturuldu. Eski bağlantı artık çalışmıyor.",
         "resetAccessError": "Erişim sıfırlanamadı. Lütfen tekrar deneyin.",
@@ -1238,10 +1022,25 @@
     "promoteToHead": "Başkan Yap",
     "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
     "publicWorkshop": {
+      "about": {
+        "details": "Oyunu oluşturanlar dünyayı, karakterleri ve kuralları kendi kelimeleriyle anlatır. Siz oynarken bir yapay zekâ hikâyeyi buradan canlı olarak sürdürür: yazdığınız her şeye tepki verir ve buna uygun görseller oluşturur — bu yüzden hiçbir iki oyun aynı şekilde ilerlemez. Kendi oyununuzu oluşturmak, verdiğiniz talimatların sonucu ne kadar güçlü biçimde şekillendirdiğini ve yapay zekânın sınırlarına nerede ulaştığını kısa sürede gösterir. Asıl amaç da budur: yapay zekânın size açıklanmasını dinlemek değil, onu deneyerek öğrenmek.",
+        "less": "Daha az",
+        "link": "ChatGameLab hakkında daha fazla bilgi",
+        "more": "Daha fazla bilgi edin",
+        "oneLiner": "Bu metin maceraları ChatGameLab ile oluşturuldu: programlama yapmadan, elle tasarlandı ve bir yapay zekâ tarafından canlı olarak anlatılıyor."
+      },
       "copy": "Kopyala",
       "copyLogin": "Kopyalamak için giriş yapın",
+      "cta": {
+        "button": "Ücretsiz başlayın",
+        "text": "Kendi metin maceranızı oluşturmak ücretsizdir ve yalnızca birkaç dakika sürer.",
+        "title": "Kendi ChatGameLab oyununuzu oluşturun"
+      },
       "download": "İndir",
       "gamesTitle": "Bu atölyedeki oyunlar",
+      "links": {
+        "title": "Bu atölye hakkında daha fazla bilgi"
+      },
       "noGames": "Burada henüz hiç oyun yayımlanmadı.",
       "play": "Oyna",
       "playExhausted": "Kalan oyun oturumu yok",
@@ -1298,47 +1097,11 @@
       "notAuthorized": "Sunucu ayarlarına erişim izniniz yok. Yönetici erişimi gerekir.",
       "title": "Sunucu Ayarları"
     },
-    "sessions": {
-      "continueGame": "Oyuna Devam Et",
-      "deleteConfirm": {
-        "message": "\"{{game}}\" oyunu için bu oturumu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
-        "title": "Oturumu Sil"
-      },
-      "empty": {
-        "description": "Macerana başlamak için yeni bir oyun başlat!",
-        "noResults": "Eşleşen oyun yok",
-        "title": "Henüz oyun oynanmadı"
-      },
-      "errors": {
-        "loadFailed": "Oyunlarınız yüklenemedi. Lütfen tekrar deneyin."
-      },
-      "fields": {
-        "game": "Oyun",
-        "lastPlayed": "Son Oynanma",
-        "model": "Model"
-      },
-      "freeUseKey": {
-        "description": "Tüm organizasyon üyelerinin kendi API anahtarına ihtiyaç duymadan oyun oynayabilmesi için ücretsiz kullanım anahtarı belirleyin. Yalnızca organizasyonla paylaşılmış anahtarlar seçilebilir.",
-        "remove": "Kaldır",
-        "selectPlaceholder": "Paylaşılan anahtar seçin...",
-        "title": "Ücretsiz Kullanım Anahtarı",
-        "unknownKey": "Bilinmeyen anahtar"
-      },
-      "noDescription": "Açıklama yok",
-      "sort": {
-        "game": "Oyun",
-        "label": "Sırala",
-        "lastPlayed": "Son oynanan",
-        "model": "Model"
-      },
-      "startNewGame": "Yeni Oyun Başlat",
-      "title": "Oynamaya Devam Et",
-      "untitledGame": "Adsız Oyun"
-    },
     "settings": "Ayarlar",
     "share": {
       "copied": "Kopyalandı",
-      "copyLink": "Bağlantıyı kopyala"
+      "copyLink": "Bağlantıyı kopyala",
+      "visitLink": "Bağlantıyı ziyaret et"
     },
     "showing": "{{count}} üye",
     "sort": {
@@ -1349,7 +1112,16 @@
       "role-desc": "Rol (Z-A)"
     },
     "unnamed": "Adsız",
-    "viewGame": "Oyunu Görüntüle"
+    "viewGame": "Oyunu Görüntüle",
+    "workshop": {
+      "inactive": {
+        "description": "Bu atölye şu anda etkin değil. Atölye yürütücünüz tekrar etkinleştirene kadar bekleyin.",
+        "noCode": "Bu cihazda kayıtlı bir kod yok. Atölye yürütücünüz size kodunuzu söyleyebilir.",
+        "photoFirst": "Oturumunuzu kapatırsanız kodunuz bu cihazdan silinir. Önce fotoğrafını çekin.",
+        "showCode": "Erişim kodumu göster",
+        "title": "Atölye etkin değil"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1367,11 +1139,6 @@
           "title": "ChatGameLab Projesi"
         },
         "title": "ChatGameLab Hakkında"
-      },
-      "lastPlayed": {
-        "empty": "Henüz oyun oynamadın. Hemen bir oyun başlat!",
-        "title": "Son Oynanan",
-        "viewAll": "Tüm Oyunlar"
       },
       "myGames": {
         "empty": "Henüz oyun yok. İlk oyununuzu oluşturun!",
@@ -1404,7 +1171,6 @@
       "title": "Hızlı Eylemler"
     },
     "untitled": "Adsız",
-    "untitledGame": "Adsız Oyun",
     "version": {
       "mismatch": {
         "message": "Ön uç sürümü \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 arka uç sürümü \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 ile eşleşmiyor. Bu beklenmeyen davranışlara yol açabilir. Sorun devam ederse destekle iletişime geçin.",

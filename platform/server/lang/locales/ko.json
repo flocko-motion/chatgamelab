@@ -51,9 +51,7 @@
       "ageGroupU13": "13~17세",
       "ageGroupU18": "18세 이상",
       "gamesCreated": "제작한 게임",
-      "gamesPlayed": "플레이한 게임",
       "memberSince": "등록일",
-      "messagesSent": "보낸 메시지",
       "noOrganization": "기관 없음",
       "noRole": "역할이 지정되지 않음",
       "organization": "기관",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "높음 (프리미엄)",
+      "high": "높음",
       "label": "AI 품질 등급",
-      "low": "낮음 (이코노미)",
+      "low": "절약형",
       "max": "최대 (프리미엄 + 오디오)",
-      "medium": "중간 (밸런스)",
+      "medium": "균형",
       "newSessionsOnly": "이 등급은 새 세션에만 적용됩니다. 기존 세션은 시작했을 때의 등급을 유지합니다.",
       "serverDefault": "서버 기본값"
     },
     "allGames": {
-      "continue": "플레이",
       "copyConfirm": {
         "confirm": "게임 복사",
         "message": "이 작업을 수행하면 \"{{name}}\"의 복사본이 내 게임에 생성됩니다.",
@@ -306,12 +303,6 @@
       },
       "play": "플레이",
       "reportGame": "게임 신고",
-      "restart": "다시 시작",
-      "restartConfirm": {
-        "confirm": "다시 시작",
-        "message": "정말 \"{{game}}\"을(를) 다시 시작하시겠습니까? 현재 진행 상황이 삭제됩니다.",
-        "title": "게임 다시 시작"
-      },
       "title": "전체 게임",
       "unfavorite": "즐겨찾기 해제",
       "workshop": "워크숍 / 조직"
@@ -391,8 +382,8 @@
       "title": "API 키 관리",
       "unnamed": "이름 없는 키",
       "unsupportedPlatform": {
-        "badge": "지원되지 않음",
-        "hint": "이 플랫폼은 현재 지원되지 않습니다. 기존 키를 제거만 할 수 있습니다."
+        "badge": "아직 지원되지 않음",
+        "hint": "이 플랫폼은 아직 지원되지 않습니다. 해당 키는 저장된 상태로 유지되지만 사용되지는 않습니다. 삭제할 수 있습니다."
       }
     },
     "back": "뒤로",
@@ -415,7 +406,7 @@
       "placeholder": "예: apfel otter turm",
       "submit": "계속",
       "title": "코드 입력",
-      "unknown": "존재하지 않는 코드입니다. 철자를 확인해 주세요.",
+      "unknown": "지금은 입장할 수 없습니다. 먼저 철자를 단어별로 확인해 보세요. 하이픈이나 공백은 상관없습니다. 코드가 맞다면 더 이상 유효하지 않을 수도 있습니다. 코드는 변경될 수 있고, 워크숍이 끝나면 이용 권한이 종료됩니다. 그런 경우 워크숍 진행자에게 새 코드를 요청하세요.",
       "wrongLength": "코드는 세 단어 또는 네 단어로 구성됩니다."
     },
     "error": "오류",
@@ -425,134 +416,10 @@
       "programmedBy": "개발"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "사용된 API 키가 변경되었습니다",
-        "constraintSource": {
-          "organisation": "기관",
-          "site13": "사이트 기본값 (13–17세, 부모 동의 없음)",
-          "site13p": "사이트 기본값 (13–17세, 부모 동의 있음)",
-          "site18": "사이트 기본값 (18세 이상)",
-          "workshop": "워크숍"
-        },
-        "sections": {
-          "constraintReasoning": "이 제약 조건이 적용되는 이유",
-          "constraintText": "활성화된 청소년 보호 제한",
-          "expandStory": "스토리를 작성하기 위한 AI 지침",
-          "imageGeneration": "AI가 제공한 이미지 생성 지침",
-          "rawResponse": "가공되지 않은 AI 응답",
-          "responseSchema": "AI 응답에 필요한 구조",
-          "statusUpdate": "AI에 보낸 프롬프트",
-          "systemPrompt": "AI를 위한 게임 지침"
-        },
-        "title": "AI 요청 / 응답",
-        "toggle": "AI 인사이트",
-        "tokens": {
-          "received": "받은 토큰",
-          "sent": "보낸 토큰"
-        },
-        "usedApiKey": {
-          "institution_free_use": "조직의 무료 사용 키가 사용되었습니다",
-          "label": "사용된 API 키",
-          "personal": "개인 키가 사용되었습니다",
-          "private_share": "공유 링크 키가 사용되었습니다",
-          "sponsor": "스폰서 키가 사용되었습니다",
-          "system_free_use": "글로벌 무료 사용 키가 사용되었습니다",
-          "workshop": "워크숍 키가 사용되었습니다"
-        },
-        "usedConstraint": {
-          "label": "사용된 제한"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "메시지 ID",
-          "imagePrompt": "이미지 프롬프트",
-          "isStreaming": "스트리밍",
-          "seq": "시퀀스",
-          "statusFields": "상태 필드",
-          "timestamp": "타임스탬프",
-          "type": "유형"
-        },
-        "hints": {
-          "id": "이 메시지의 고유 식별자",
-          "imagePrompt": "이미지 생성 AI에 보낸 프롬프트",
-          "isStreaming": "콘텐츠를 아직 수신 중인지 여부",
-          "seq": "대화 순서",
-          "statusFields": "AI가 추적하는 게임 상태 변수",
-          "timestamp": "이 메시지가 생성된 시점",
-          "type": "player = 사용자 입력, game = AI 응답, system = 컨텍스트"
-        },
-        "title": "디버그 정보"
-      },
-      "error": {
-        "backToGames": "게임 목록으로",
-        "gameNotFound": "게임을 찾을 수 없습니다",
-        "missingFields": "게임에 필요한 필드가 없습니다:",
-        "noApiKey": {
-          "banner": "플랫폼 {{platform}}에 사용할 수 있는 API 키가 없습니다. 계속 플레이하려면 계정 설정에서 API 키를 추가하세요.",
-          "goToSettings": "API 키 설정",
-          "personal": "플레이를 시작하기 전에 API 키를 설정해야 합니다. API 키 설정 페이지로 이동해 키를 추가하세요.",
-          "title": "사용 가능한 API 키가 없습니다",
-          "workshop": "이 워크숍에는 설정된 API 키가 없습니다. 워크숍 관리자에게 문의하세요."
-        },
-        "retry": "재시도",
-        "sendFailed": "메시지를 보내지 못했습니다. 다시 시도해 주세요.",
-        "sessionFailed": "게임 세션을 시작하지 못했습니다"
-      },
-      "header": {
-        "back": "게임으로 돌아가기",
-        "debug": "디버그",
-        "decreaseFont": "글자 작게",
-        "disableAnimations": "애니메이션 비활성화",
-        "disableTextEffects": "텍스트 효과 비활성화",
-        "fontSize": "글꼴 크기",
-        "increaseFont": "글자 크게",
-        "muteAudio": "해설 음소거",
-        "resetFont": "초기화",
-        "settings": "설정",
-        "unmuteAudio": "해설 음소거 해제",
-        "useNeutralTheme": "중립 테마 사용"
-      },
-      "input": {
-        "audioCancel": "녹음 취소",
-        "audioProcessing": "처리 중…",
-        "audioRecording": "녹음 중…",
-        "audioStart": "음성 메시지 녹음",
-        "audioStop": "녹음 보내기",
-        "audioUnavailableMessage": "현재 API 키 설정에서는 음성 입력을 사용할 수 없습니다. 음성 입력을 사용하려면 상위 품질 등급(프리미엄 또는 맥스)으로 전환하세요.",
-        "audioUnavailableTitle": "음성 입력을 사용할 수 없습니다",
-        "placeholder": "무엇을 하시겠습니까?",
-        "send": "행동 보내기"
-      },
-      "loading": {
-        "game": "게임 불러오는 중...",
-        "resolvingKey": "API 키 확인 중...",
-        "starting": "게임 세션 시작 중...",
-        "startingHint": "AI가 모험을 준비하고 있어요"
-      },
-      "needsApiKey": {
-        "description": "이 세션에 사용된 API 키가 더 이상 유효하지 않습니다.",
-        "reason": "이전 API 키를 더 이상 사용할 수 없습니다. 게임을 계속하려면 새 키를 선택하세요.",
-        "title": "API 키 필요"
-      },
-      "selectApiKey": {
-        "keyDescription": "이 게임 세션에 사용할 API 키를 선택하세요",
-        "keyLabel": "API 키",
-        "keyPlaceholder": "API 키 선택",
-        "loadError": "API 키를 불러오는 데 실패했습니다",
-        "mine": "내 것",
-        "modelDescription": "선택적으로 특정 AI 모델을 선택하세요",
-        "modelLabel": "AI 모델",
-        "modelPlaceholder": "기본 모델",
-        "noKeys": "플레이하려면 최소 하나의 API 키가 필요합니다. 설정 → API 키에서 추가하세요.",
-        "playing": "플레이 중",
-        "startGame": "게임 시작",
-        "title": "API 키 선택"
-      },
-      "statusChange": {
-        "effect": "효과:"
-      },
-      "unnamed": "이름 없음"
+      "rebuilding": {
+        "description": "곧 여기에서 다시 게임을 플레이할 수 있습니다.",
+        "title": "게임 플레이어를 다시 구축하고 있습니다"
+      }
     },
     "games": {
       "actions": {
@@ -589,13 +456,13 @@
       "editFields": {
         "description": "게임에 대한 짧은 설명을 입력하세요. 이는 본인만 볼 수 있으며 플레이에는 영향을 주지 않습니다.",
         "gameStart": "게임은 어떻게 시작되나요?",
-        "gameStartHint": "시작 시 어떤 일이 일어나나요? 플레이어가 처음 보게 되는 장면을 묘사하세요. 어떻게 환영받나요?",
+        "gameStartHint": "게임은 어떻게 시작되나요? 플레이어가 처음 보는 장면을 설명하세요. 플레이어는 어떻게 환영받나요? 플레이어는 무엇을 해야 하는지 어떻게 알게 되나요?",
         "gameStartPlaceholder": "당신은 어두운 숲 가장자리에서 깨어납니다. 좁은 오솔길이 나무 사이로 더 깊숙이 이어집니다...",
         "imageStyle": "게임의 이미지 스타일은 어떤가요?",
         "imageStyleHint": "예: 만화, 현실적, 픽셀 아트, 수채화...",
         "name": "게임 이름",
         "scenario": "게임은 무엇에 관한가요?",
-        "scenarioHint": "간단히 설명하세요: 게임은 어떻게 진행되나요? 세계관은 어떤가요? 언어 \u00026 톤 (예: 6학년을 위한 스페인어?)\n플레이어의 역할은 무엇인가요? \"플레이어는 ...\"라고 작성하세요.\nAI가 특정 인물의 역할을 맡게 하고 싶다면 \"당신은 ...\"이라고 쓰세요.",
+        "scenarioHint": "간단히 설명하세요. 게임은 어떻게 진행되나요? 세계는 어떤 모습인가요? 언어와 말투는 어떤가요(예: 6학년 학생을 위한 스페인어)?\n플레이어는 어떤 역할을 맡나요? \"플레이어는 ...\"으로 작성하세요.\nAI가 특정 인물의 역할을 맡기를 원한다면 \"당신은 ...입니다\"라고 작성하세요.\n목표는 무엇인가요? 플레이어는 자신이 이겼다는 것을 어떻게 알게 되나요?",
         "scenarioPlaceholder": "당신은 신비한 숲의 탐험가입니다. 목표는 숨겨진 보물을 찾는 것입니다...",
         "statusFields": "게임 수치",
         "statusFieldsHint": "게임이 추적해야 하는 값은 무엇인가요? 예: 체력, 점수, 탄약. 게임은 이 값을 기억하고 플레이 중에 업데이트합니다."
@@ -747,98 +614,6 @@
         "style": "디자인",
         "styleInfo": "플레이 중 게임의 외형을 위한 선택 사항입니다."
       },
-      "theme": {
-        "animation": "배경 애니메이션",
-        "animationDefault": "프리셋 기본값",
-        "animationDescription": "프리셋의 기본 애니메이션을 덮어씁니다",
-        "animations": {
-          "bits": "1-0-비트",
-          "bubbles": "거품",
-          "circuits": "회로",
-          "confetti": "컨페티",
-          "confettiExplosion": "컨페티 폭발",
-          "embers": "잿불",
-          "fireflies": "반딧불",
-          "geometric": "기하학",
-          "glitch": "글리치",
-          "glowworm": "도깨비불",
-          "hearts": "하트",
-          "hyperspace": "하이퍼스페이스",
-          "leaves": "나뭇잎",
-          "matrixRain": "매트릭스 비",
-          "none": "없음",
-          "snow": "눈",
-          "sparkles": "반짝임",
-          "stars": "별",
-          "sun": "태양",
-          "tumbleweed": "텀블위드",
-          "waves": "파도"
-        },
-        "apply": "테마 적용",
-        "button": "테마",
-        "changeDesign": "디자인 변경",
-        "currentTheme": "테마: {{preset}}",
-        "modalTitle": "게임 테마",
-        "noTheme": "선택한 테마가 없습니다. 세션마다 AI가 테마를 생성합니다.",
-        "preset": "프리셋",
-        "presetDescription": "게임에 사용할 시각적 스타일을 선택하세요",
-        "presets": {
-          "abstract": "추상",
-          "adventure": "모험",
-          "barbie": "바비",
-          "candy": "캔디",
-          "circus": "서커스",
-          "cyberpunk": "사이버펑크",
-          "default": "기본",
-          "desert": "사막",
-          "detective": "탐정",
-          "educational": "교육",
-          "fairy": "요정",
-          "fire": "불",
-          "garden": "정원",
-          "glitch": "글리치",
-          "greenFantasy": "그린 판타지",
-          "hacker": "해커",
-          "horror": "호러",
-          "jungle": "정글",
-          "matrix": "매트릭스",
-          "medieval": "중세",
-          "minimal": "미니멀",
-          "mystery": "미스터리",
-          "mystic": "미스틱",
-          "nature": "자연",
-          "nautical": "항해",
-          "noir": "느와르",
-          "ocean": "바다",
-          "pirate": "해적",
-          "playful": "장난기",
-          "retro": "레트로",
-          "romance": "로맨스",
-          "school": "학교",
-          "scifi": "SF",
-          "snowy": "눈 내리는",
-          "space": "우주",
-          "steampunk": "스팀펑크",
-          "storybook": "이야기책",
-          "sunshine": "선샤인",
-          "superhero": "슈퍼히어로",
-          "tech": "테크",
-          "terminal": "터미널",
-          "underwater": "수중",
-          "western": "서부",
-          "zombie": "좀비"
-        },
-        "preview": "미리보기",
-        "remove": "테마 제거",
-        "removeConfirm": "사용자 지정 테마를 제거하시겠습니까? 대신 세션마다 AI가 테마를 생성합니다.",
-        "sampleGame": "문이 삐걱하며 열리고, 희미하게 빛나는 방이 드러납니다. 고대 룬 문자가 돌벽에 희미하게 빛납니다. 방 중앙에는 신비한 상자가 놓여 있습니다.",
-        "sampleGame2": "당신은 조심스럽게 상자에 다가갑니다. 차가운 금속 잠금장을 손가락으로 만지자 벽의 룬이 더 밝게 맥동하기 시작합니다. 낮은 윙윙거림이 방을 가득 채웁니다.",
-        "samplePlayer": "나는 오래된 나무문을 연다...",
-        "sampleStatus": "체력",
-        "thinkingText": "생각 중 텍스트",
-        "thinkingTextDescription": "AI가 생각하는 동안 표시되는 텍스트",
-        "thinkingTextPlaceholder": "예: 이야기가 전개되는 중..."
-      },
       "title": "내가 만든 게임",
       "viewModal": {
         "readOnlyNotice": "이 게임은 다른 사용자가 만들었습니다. 세부 정보는 볼 수 있지만 편집할 수 없습니다. 편집 가능한 버전을 만들려면 \"복사\"를 사용하세요.",
@@ -847,19 +622,6 @@
       "visibility": {
         "private": "비공개",
         "public": "공개"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "ChatGameLab으로 이동",
-        "continueGame": "게임 계속하기",
-        "expired": "이 공유 링크는 플레이 한도에 도달했습니다. 더 이상 세션을 사용할 수 없습니다.",
-        "headline": "무료 AI 텍스트 어드벤처 초대를 받았습니다!",
-        "invalidLink": "이 공유 링크는 유효하지 않거나 더 이상 존재하지 않습니다.",
-        "loadError": "게임 정보를 불러오지 못했습니다. 다시 시도해 주세요.",
-        "restartGame": "처음부터 시작",
-        "sessionExists": "이미 진행 중인 게임이 있습니다. 이어서 할 수도 있고 새 게임을 시작할 수도 있습니다.",
-        "startPlaying": "플레이 시작"
       }
     },
     "header": {
@@ -961,7 +723,6 @@
     "logout": "로그아웃",
     "me": "나",
     "myGames": {
-      "continue": "플레이",
       "copyConfirm": {
         "confirm": "게임 복사",
         "message": "이 작업을 수행하면 \"{{name}}\"의 복사본이 내 게임에 생성됩니다.",
@@ -978,12 +739,6 @@
         "favorites": "즐겨찾기"
       },
       "play": "플레이",
-      "restart": "다시 시작",
-      "restartConfirm": {
-        "confirm": "다시 시작",
-        "message": "정말 \"{{game}}\"을(를) 다시 시작하시겠습니까? 현재 진행 상황이 삭제됩니다.",
-        "title": "게임 다시 시작"
-      },
       "title": "내 게임",
       "unfavorite": "즐겨찾기 해제"
     },
@@ -1075,6 +830,19 @@
         "enabledHint": "끄면 링크에는 안내문만 표시되고 페이지의 플레이 링크는 작동하지 않습니다.",
         "link": "링크",
         "linkHint": "a–z, 0–9 및 단일 하이픈을 사용하여 3~60자로 입력하세요.",
+        "links": {
+          "add": "링크 추가",
+          "down": "아래로 이동",
+          "error": "링크를 저장할 수 없습니다. 모든 링크에는 제목이 있어야 하며, 모든 주소는 http:// 또는 https://로 시작해야 합니다.",
+          "hint": "게임 아래 페이지에 표시됩니다. 최대 10개까지 추가할 수 있습니다.",
+          "linkDescription": "설명(선택 사항)",
+          "linkTitle": "제목",
+          "remove": "삭제",
+          "save": "링크 저장",
+          "title": "추가 자료",
+          "up": "위로 이동",
+          "url": "주소"
+        },
         "offHint": "페이지가 꺼져 있습니다. 페이지 링크와 QR 코드는 계속 준비할 수 있습니다.",
         "open": "페이지 열기",
         "shareDescription": "이 링크를 보내거나 QR 코드로 표시하세요.",
@@ -1132,7 +900,6 @@
         "deleteConfirm": "\"{{name}}\"을(를) 정말 삭제하시겠습니까?",
         "deleteTitle": "워크숍 삭제",
         "deleteWarning": "이 워크숍의 모든 게임과 세션이 삭제됩니다. 되돌릴 수 없습니다.",
-        "designEditingEnabled": "참가자가 게임 디자인(테마)을 편집할 수 있도록 허용",
         "editParticipant": "이름 편집",
         "empty": "아직 워크숍이 없습니다.",
         "enterWorkshop": "워크숍 모드로 들어가기",
@@ -1179,8 +946,10 @@
         "promptConstraintsPlaceholder": "예: 이야기가 연령에 적합하도록 유지하고 폭력적인 내용을 피하세요.",
         "removeParticipant": "참가자 제거",
         "removeParticipantConfirm": "\"{{name}}\"을(를) 이 워크숍에서 제거하시겠습니까?",
-        "removeParticipantMessage": "\"{{name}}\"을(를) 이 워크숍에서 정말 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+        "removeParticipantMessage": "\"{{name}}\" 님을 정말 이 워크숍에서 삭제하시겠습니까?",
         "removeParticipantTitle": "참가자 제거",
+        "removeParticipantWarningPermanent": "이 작업을 수행하면 이 사람의 계정과 이 사람이 만든 모든 게임이 모든 플레이 세션 및 공유 링크와 함께 영구적으로 삭제됩니다. 실행 취소할 수 없습니다. 게임을 보존하려면 먼저 YAML 형식으로 다운로드하세요.",
+        "removeParticipantWarningVisiting": "이 사람의 계정과 게임은 그대로 유지됩니다. 이 워크숍에 대한 접근 권한만 종료됩니다.",
         "resetAccess": "액세스 권한 재설정",
         "resetAccessDone": "새 액세스 권한이 생성되었습니다. 이전 링크는 더 이상 작동하지 않습니다.",
         "resetAccessError": "액세스 권한을 재설정할 수 없습니다. 다시 시도해 주세요.",
@@ -1256,10 +1025,25 @@
     "promoteToHead": "대표로 승격",
     "promoteWarning": "이 사용자는 기관 구성원을 관리하고 교사를 초대할 수 있습니다.",
     "publicWorkshop": {
+      "about": {
+        "details": "게임을 만든 사람들은 자신의 말로 세계, 캐릭터, 규칙을 설명합니다. 게임을 플레이하는 동안 AI는 그 내용을 바탕으로 이야기를 계속 실시간으로 들려줍니다. 여러분이 입력하는 내용에 반응하고 어울리는 그림을 만들어 내므로, 같은 방식으로 진행되는 두 번의 플레이는 없습니다. 직접 하나를 만들어 보면 자신의 지시가 결과에 얼마나 큰 영향을 미치는지, 그리고 AI가 어디에서 한계에 부딪히는지 금방 알 수 있습니다. 이것이 바로 핵심입니다. AI에 대해 설명만 듣는 것이 아니라 직접 시험해 보는 것입니다.",
+        "less": "간단히 보기",
+        "link": "ChatGameLab 더 알아보기",
+        "more": "더 알아보기",
+        "oneLiner": "이 텍스트 어드벤처는 ChatGameLab으로 만들어졌습니다. 프로그래밍 없이 직접 제작하고, AI가 실시간으로 이야기를 들려줍니다."
+      },
       "copy": "복사",
       "copyLogin": "복사하려면 로그인하세요",
+      "cta": {
+        "button": "무료로 시작하기",
+        "text": "나만의 텍스트 어드벤처를 만드는 데는 비용이 들지 않으며 몇 분밖에 걸리지 않습니다.",
+        "title": "나만의 ChatGameLab 게임 만들기"
+      },
       "download": "다운로드",
       "gamesTitle": "이 워크숍의 게임",
+      "links": {
+        "title": "이 워크숍에 대해 더 알아보기"
+      },
       "noGames": "아직 여기에 공개된 게임이 없습니다.",
       "play": "플레이",
       "playExhausted": "남은 플레이 세션이 없습니다",
@@ -1316,47 +1100,11 @@
       "notAuthorized": "서버 설정에 접근할 권한이 없습니다. 관리자 권한이 필요합니다.",
       "title": "서버 설정"
     },
-    "sessions": {
-      "continueGame": "게임 계속하기",
-      "deleteConfirm": {
-        "message": "\"{{game}}\" 세션을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-        "title": "세션 삭제"
-      },
-      "empty": {
-        "description": "새 게임을 시작해 모험을 떠나세요!",
-        "noResults": "일치하는 게임이 없습니다",
-        "title": "아직 플레이한 게임이 없습니다"
-      },
-      "errors": {
-        "loadFailed": "게임을 불러오지 못했습니다. 다시 시도해 주세요."
-      },
-      "fields": {
-        "game": "게임",
-        "lastPlayed": "마지막 플레이",
-        "model": "모델"
-      },
-      "freeUseKey": {
-        "description": "무료 사용 키를 지정하면 기관의 모든 구성원이 자신의 API 키 없이 게임을 플레이할 수 있습니다. 이미 이 기관과 공유한 키만 선택할 수 있습니다.",
-        "remove": "제거",
-        "selectPlaceholder": "공유된 키를 선택하세요...",
-        "title": "무료 사용 키",
-        "unknownKey": "알 수 없는 키"
-      },
-      "noDescription": "설명 없음",
-      "sort": {
-        "game": "게임",
-        "label": "정렬 기준",
-        "lastPlayed": "마지막 플레이",
-        "model": "모델"
-      },
-      "startNewGame": "새 게임 시작",
-      "title": "계속 플레이하기",
-      "untitledGame": "제목 없는 게임"
-    },
     "settings": "설정",
     "share": {
       "copied": "복사됨",
-      "copyLink": "링크 복사"
+      "copyLink": "링크 복사",
+      "visitLink": "링크 방문"
     },
     "showing": "{{count}}명",
     "sort": {
@@ -1367,7 +1115,16 @@
       "role-desc": "역할 (Z-A)"
     },
     "unnamed": "이름 없음",
-    "viewGame": "게임 보기"
+    "viewGame": "게임 보기",
+    "workshop": {
+      "inactive": {
+        "description": "이 워크숍은 현재 활성화되어 있지 않습니다. 워크숍 진행자가 다시 활성화할 때까지 기다리세요.",
+        "noCode": "이 기기에는 저장된 코드가 없습니다. 워크숍 진행자에게 코드를 알려 달라고 하세요.",
+        "photoFirst": "로그아웃하면 이 기기에서 코드가 사라집니다. 먼저 코드를 사진으로 찍어 두세요.",
+        "showCode": "내 액세스 코드 보기",
+        "title": "워크숍이 비활성화되어 있습니다"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1385,11 +1142,6 @@
           "title": "ChatGameLab 프로젝트"
         },
         "title": "ChatGameLab 소개"
-      },
-      "lastPlayed": {
-        "empty": "플레이 기록이 없습니다. 게임을 시작하세요!",
-        "title": "최근 플레이",
-        "viewAll": "전체 게임"
       },
       "myGames": {
         "empty": "아직 게임이 없습니다. 첫 게임을 만들어 보세요!",
@@ -1423,7 +1175,6 @@
       "title": "빠른 작업"
     },
     "untitled": "제목 없음",
-    "untitledGame": "제목 없는 게임",
     "version": {
       "mismatch": {
         "message": "프런트엔드 버전 \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e이(가) 백엔드 버전 \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e과 일치하지 않습니다. 예상치 못한 동작이 발생할 수 있습니다. 문제가 계속되면 지원팀에 문의하세요.",

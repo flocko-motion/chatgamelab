@@ -222,7 +222,7 @@ Found while hardening the above. All pre-existing, all larger than a fix:
   with a fresh count.
 - **Youth protection.** The page's links carry the workshop and its institution,
   so guests get the workshop's constraint, then the institution's, as for any
-  workshop share (JUGENDSCHUTZ.md, 'Gäste'). The recorded author, used when
+  workshop share (spec, Jugendschutz, 'Gäste'). The recorded author, used when
   neither sets one, is the workshop's creator, or else whoever assigned the
   workshop its key.
 - **Privacy notes.** A short note that a game's name and description may become

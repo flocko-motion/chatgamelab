@@ -24,8 +24,20 @@ docs:
 
 # Translation calls OpenAI and costs money, so CI only checks it: a change to
 # en.json or de.json is translated by whoever makes it, before pushing.
+# The key is OPENAI_API_KEY if set, otherwise the macOS Keychain entry
+# "openai-api-key", otherwise the pass entry "openai/api-key".
 translate:
-	go run ./translation
+	@key="$${OPENAI_API_KEY:-$$(security find-generic-password -s openai-api-key -w 2>/dev/null)}"; \
+	key="$${key:-$$(pass show openai/api-key 2>/dev/null)}"; \
+	if [ -z "$$key" ]; then \
+		echo "No OpenAI key found. Store it once, then run make translate again:" >&2; \
+		echo "  macOS Keychain (key copied to the clipboard; the -w prompt cuts keys at 128 characters):" >&2; \
+		echo "                  security add-generic-password -U -a \"\$$USER\" -s openai-api-key -w \"\$$(pbpaste)\"" >&2; \
+		echo "  pass:           pass insert openai/api-key" >&2; \
+		echo "  or export OPENAI_API_KEY for this shell." >&2; \
+		exit 1; \
+	fi; \
+	OPENAI_API_KEY="$$key" go run ./translation
 
 translate-check:
 	go run ./translation --check

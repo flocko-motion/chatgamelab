@@ -60,12 +60,6 @@ function RootComponent() {
   // Guest play route (anonymous access via share token)
   const isGuestPlayRoute = pathname.startsWith("/play/");
 
-  // Game player routes need special dark styling
-  const isGamePlayerRoute =
-    pathname.includes("/play") ||
-    pathname.startsWith("/sessions/") ||
-    isGuestPlayRoute;
-
   // Public routes that don't require authentication
   const isLandingPage = pathname === ROUTES.LANDING;
   const isPublicRoute =
@@ -84,7 +78,6 @@ function RootComponent() {
   const isParticipantAllowedRoute =
     pathname === ROUTES.MY_WORKSHOP ||
     pathname === ROUTES.PROFILE ||
-    pathname.startsWith("/sessions/") ||
     pathname.includes("/play");
 
   // Determine layout variant based on auth state
@@ -153,9 +146,7 @@ function RootComponent() {
       icon: <IconSchool size={18} />,
       onClick: () => navigate({ to: ROUTES.MY_WORKSHOP as "/" }),
       active:
-        pathname === ROUTES.MY_WORKSHOP ||
-        pathname.startsWith("/sessions/") ||
-        pathname.includes("/play"),
+        pathname === ROUTES.MY_WORKSHOP || pathname.includes("/play"),
     },
   ];
 
@@ -214,7 +205,6 @@ function RootComponent() {
           onClick: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
           active:
             pathname.startsWith(ROUTES.ALL_GAMES) ||
-            pathname.startsWith(ROUTES.SESSIONS) ||
             (isAdminUser && pathname.startsWith(ROUTES.MY_GAMES)),
         },
       ];
@@ -299,9 +289,7 @@ function RootComponent() {
     return (
       <AppLayout
         variant="authenticated"
-        background="#e8e8ec"
-        darkMode={true}
-        withContainer={false}
+        background={theme.other.colors.bgLandingGradient}
         navItems={[]}
         headerProps={{
           isGuest: true,
@@ -390,21 +378,14 @@ function RootComponent() {
     );
   }
 
-  // Game player uses dimmed background
-  const layoutBackground = isGamePlayerRoute
-    ? "#e8e8ec"
-    : theme.other.colors.bgLandingGradient;
-
   return (
     <>
       <AppLayout
         variant={useAuthenticatedLayout ? "authenticated" : "public"}
         navItems={useAuthenticatedLayout ? navItems : undefined}
-        background={layoutBackground}
+        background={theme.other.colors.bgLandingGradient}
         transparentFooter={isHomePage || isLandingPage}
         headerProps={headerProps}
-        darkMode={isGamePlayerRoute}
-        withContainer={!isGamePlayerRoute}
       >
         <Outlet />
       </AppLayout>

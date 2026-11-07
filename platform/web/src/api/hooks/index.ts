@@ -44,13 +44,6 @@ export {
   type UseGamesParams,
 } from "./useGames";
 
-// Sessions
-export {
-  useUserSessions,
-  useGameSessionMap,
-  useDeleteSession,
-  type UseUserSessionsParams,
-} from "./useSessions";
 
 // Users
 export {

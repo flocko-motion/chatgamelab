@@ -51,9 +51,7 @@
       "ageGroupU13": "13-17 Joa",
       "ageGroupU18": "18+ Joa",
       "gamesCreated": "Spui erstellt",
-      "gamesPlayed": "Spui gspuit",
       "memberSince": "Registriert seit",
-      "messagesSent": "Nachrichtn gschickt",
       "noOrganization": "Koane Organisation",
       "noRole": "Koane Roll zuaweist",
       "organization": "Organisation",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Hoch (Premium)",
+      "high": "Hoch",
       "label": "KI-Qualitätsstufn",
-      "low": "Niedrig (Sparmodus)",
+      "low": "Sparsam",
       "max": "Max (Premium + Audio)",
-      "medium": "Mittel (Ausgwogn)",
+      "medium": "Ausgwogn",
       "newSessionsOnly": "Daa Tarif gilt bloß fia neie Sitzunga. Laufa Sitzunga bleim beim alten Tarif.",
       "serverDefault": "Server-Standard"
     },
     "allGames": {
-      "continue": "Spuin",
       "copyConfirm": {
         "confirm": "Spui kopiern",
         "message": "Dad erstellt a Kopie vo \"{{name}}\" in deine Spiele.",
@@ -306,12 +303,6 @@
       },
       "play": "Spuin",
       "reportGame": "Spui melden",
-      "restart": "Neistart",
-      "restartConfirm": {
-        "confirm": "Neistart",
-        "message": "Bist da sicha, dassd \"{{game}}\" neu startn mogst? Dei aktueller Fortschritt geht valorn.",
-        "title": "Spui neu startn"
-      },
       "title": "Alle Spiele",
       "unfavorite": "Aus Favoriten entferna",
       "workshop": "Workshop / Org"
@@ -391,8 +382,8 @@
       "title": "API-Schlüssel-Verwaltung",
       "unnamed": "Namenloser Schlüssl",
       "unsupportedPlatform": {
-        "badge": "ned unterstützt",
-        "hint": "Diese Plattform wird aktuell ned unterstützt. Du kannst nua bestehende Schlüssel entfernen."
+        "badge": "no ned unterstützt",
+        "hint": "De Plattform wird no ned unterstützt. De Schlüssel bleibn gspeichert, werdn oba ned verwendet. Du kannst sie löschen."
       }
     },
     "back": "Zruck",
@@ -415,7 +406,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "Den Code gibt's ned. Bitte schau nach, ob du eam richtig gschriebn hast.",
+      "unknown": "Damit kummst grad ned nei. Schau zuerst d Schreibweis nach – Wort für Wort. Bindestriche oder Leerzeichen san wurscht. Wenn da Code stimmt, gilt er vielleicht nimmer: Codes können ersetzt werdn, und nachm Workshop endet da Zugang. Frag dann dei Workshop-Leitung nach am neuen Code.",
       "wrongLength": "A Code hod drei oder vier Wörter."
     },
     "error": "Fehler",
@@ -425,134 +416,10 @@
       "programmedBy": "Programmiert von"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Verwendete API-Schlissl gändert",
-        "constraintSource": {
-          "organisation": "Organisation",
-          "site13": "Standard-Einstellung da Seitn (13–17, koane elterliche Zustimmung)",
-          "site13p": "Standard-Einstellung da Seitn (13–17, mit elterlicher Zustimmung)",
-          "site18": "Standard-Einstellung da Seitn (18+)",
-          "workshop": "Workshop"
-        },
-        "sections": {
-          "constraintReasoning": "Warum de Einschränkung gilt",
-          "constraintText": "Aktive Jugendschutz-Einschränkung",
-          "expandStory": "Anweisungen an d'KI, wia d'Gschicht ausformuliert werd",
-          "imageGeneration": "Anweisungen vo da KI fia d'Bilderstellung",
-          "rawResponse": "Unbearbeitete KI-Antwort",
-          "responseSchema": "Vorgschriebene Struktur fia d'KI-Antwort",
-          "statusUpdate": "Prompt, wos an d'KI gschickt wurd",
-          "systemPrompt": "Spui-Anweisungen fia d'KI"
-        },
-        "title": "KI-Anfrogn / Antwortn",
-        "toggle": "KI-Einblick",
-        "tokens": {
-          "received": "Tokens empfangen",
-          "sent": "Tokens gschickt"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Da Gratis-Schlissl vo da Organisation is nutzt worn",
-          "label": "Verwendeter API-Schlissl",
-          "personal": "Dei persönlicher Schlissl is nutzt worn",
-          "private_share": "Da Share-Link-Schlissl is nutzt worn",
-          "sponsor": "A Sponsor-Schlissl is nutzt worn",
-          "system_free_use": "A globaler Gratis-Schlissl is nutzt worn",
-          "workshop": "Da Schlissl vo deinem Workshop is nutzt worn"
-        },
-        "usedConstraint": {
-          "label": "Gnutze Einschränkung"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "Nachrichten-ID",
-          "imagePrompt": "Bild-Prompt",
-          "isStreaming": "Streaming",
-          "seq": "Reihnfolgn",
-          "statusFields": "Status-Felder",
-          "timestamp": "Zeitstempel",
-          "type": "Typ"
-        },
-        "hints": {
-          "id": "Eindeutige Kennung fia diese Nachricht",
-          "imagePrompt": "Prompt, der an d'Bild-KI gschickt wurd",
-          "isStreaming": "Ob grad no Inhalt eintrudelt",
-          "seq": "Reihnfolgn im Gspräch",
-          "statusFields": "Spui-Variablen, de d'KI nachhält",
-          "timestamp": "Wann de Nachricht entstandn is",
-          "type": "player = Nutzereingabe, game = KI-Antwort, system = Kontext"
-        },
-        "title": "Debug-Infos"
-      },
-      "error": {
-        "backToGames": "Zruck zu de Spiele",
-        "gameNotFound": "Spui ned gfundn",
-        "missingFields": "Beim Spui fehlen Pflichtfelder:",
-        "noApiKey": {
-          "banner": "Koa nutzbarer API-Schlissl fia d'Plattform {{platform}} gfundn. Wennst weida spieln mogst, trag dei eigana API-Schlissl in de Konto-Einstellunga ei.",
-          "goToSettings": "API-Schlüssel-Einstellungen",
-          "personal": "Du brauchst an API-Schlüssl, bevorst spuin kannst. Füg in deine API-Schlüssel-Einstellungen oana dazu.",
-          "title": "Koan API-Schlüssl verfiegbar",
-          "workshop": "Fia diesen Workshop is koa API-Schlüssl konfiguriert. Bitte setz di mit da Workshop-Leitung in Verbindung."
-        },
-        "retry": "No amoi probiern",
-        "sendFailed": "Nachricht hod si ned schicka lassn. Probier's no amoi.",
-        "sessionFailed": "Spui-Session konnt ned gstartet werdn"
-      },
-      "header": {
-        "back": "Zruck zu de Spiele",
-        "debug": "Debug",
-        "decreaseFont": "Kleiner",
-        "disableAnimations": "Animationen deaktiviern",
-        "disableTextEffects": "Texteffekte ausschaltn",
-        "fontSize": "Schriftgröß",
-        "increaseFont": "Größer",
-        "muteAudio": "Erzählsstimm stumm schaltn",
-        "resetFont": "Zurücksetzn",
-        "settings": "Einstellungen",
-        "unmuteAudio": "Erzählsstimm wieda laut macha",
-        "useNeutralTheme": "Neutrales Design nutzn"
-      },
-      "input": {
-        "audioCancel": "Aufnahme abbrecha",
-        "audioProcessing": "Wird verrechnet…",
-        "audioRecording": "Nimmt auf…",
-        "audioStart": "Sprachaufnahme startn",
-        "audioStop": "Aufnahme schicka",
-        "audioUnavailableMessage": "Sprach-Eingabe is mit de aktuelle API-Schlüssel-Einstellungen ned verfiegbar. Wechsel auf a höhere Qualitätsstufn (Premium oder Max), damits geht.",
-        "audioUnavailableTitle": "Sprach-Eingabe ned verfiegbar",
-        "placeholder": "Was mochst du?",
-        "send": "Aktion schicka"
-      },
-      "loading": {
-        "game": "Spui wird glada...",
-        "resolvingKey": "API-Schlüssl wird bestimmt...",
-        "starting": "Spui-Session startet...",
-        "startingHint": "D'KI bereitet dei Abenteuer vor"
-      },
-      "needsApiKey": {
-        "description": "Da API-Schlüssl, der fia diese Session nutzt wor, is nimma verfiegbar.",
-        "reason": "Dein vorheriger API-Schlüssal is ned mehr verfügbar. Um wida z'spui'n, wähl bitt an neien.",
-        "title": "API-Schlüssl nötig"
-      },
-      "selectApiKey": {
-        "keyDescription": "Wähl den API-Schlüssal fia de Spielsitzung",
-        "keyLabel": "API-Schlüssal",
-        "keyPlaceholder": "API-Schlüssal auswähln",
-        "loadError": "API-Schlüssal kinna ned g'ladn werdn",
-        "mine": "Meine",
-        "modelDescription": "Optional a bestimmts KI-Modell auswähln",
-        "modelLabel": "KI-Modell",
-        "modelPlaceholder": "Standard-Modell",
-        "noKeys": "Du brauchst mindestens an API-Schlüssal zum Spui'n. Füg an unter Einstellungen → API-Schlüssal hinzu.",
-        "playing": "Spui",
-        "startGame": "Spui startn",
-        "title": "API-Schlüssal auswähln"
-      },
-      "statusChange": {
-        "effect": "Effekt:"
-      },
-      "unnamed": "Unbenannt"
+      "rebuilding": {
+        "description": "Bald kannst do wieder spuin.",
+        "title": "D Spielansicht wird neu aufbaut"
+      }
     },
     "games": {
       "actions": {
@@ -589,13 +456,13 @@
       "editFields": {
         "description": "Gib am Spui a kurze Beschreibung. Des is nua fia di und beeinflusst's Spui ned.",
         "gameStart": "Wia fangt des Spui o?",
-        "gameStartHint": "Was passiert am Anfang? Beschreib die erschte Szene, de Spieler/innen seng. Wia werd da Spieler begrüßt?",
+        "gameStartHint": "Wia fangt des Spiel o? Beschreib d erste Szene, de d spielende Person sieht. Wia wird de spielende Person begrüßt? Wia woaß de spielende Person, wos sie doa soi?",
         "gameStartPlaceholder": "Du wachst am Rand vo am finstarn Woid auf. A schmoier Steig führt tiefer in de Bäum...",
         "imageStyle": "In welchem Stoi sölln d'Bilder sei?",
         "imageStyleHint": "Zum Beispui: Cartoon, realistisch, Pixel-Art, Aquarell...",
         "name": "Spuinam",
         "scenario": "Um was geht's im Spui?",
-        "scenarioHint": "Beschreib kurz: Wia funktioniert des Spui? Wia schaut d'Welt aus? Sprach \u00026 Ton (z. B. Spanisch fia Sechsklassler)?\nWelche Roll hod da Spieler? Schreib \"Da Spieler ...\".\nWenn d'KI a bestimmte Person spuin soi, schreib \"Du bist ...\".",
+        "scenarioHint": "Beschreib kurz: Wia funktioniert des Spiel? Wia schaut d Welt aus? Sprache \u00026 Tonfall (z. B. Spanisch für Sechstklässler)?\nWelche Roll hod de Spielfigur? Schreib \"De Spielfigur ...\".\nWenn d KI de Roll von am bestimmten Menschen übernehmen soi, schreib \"Du bist ...\".\nWos is des Ziel? Wia merkt de Spielfigur, dass sie gwonna hod?",
         "scenarioPlaceholder": "Du bist a Entdecker in am geheimnisvollen Woid. Dei Ziel is, den versteckten Schatz zu findn...",
         "statusFields": "Spui-Werte",
         "statusFieldsHint": "Was soi des Spui im Blick behaltn? Z. B. Gsundheit, Punkte oder Munition. Des Spui merkt si de Werte und aktualisiert's während dem Spuin."
@@ -747,98 +614,6 @@
         "style": "Design",
         "styleInfo": "Optionale Einstellungen fia's Aussehn währendm Spuin."
       },
-      "theme": {
-        "animation": "Hintergrund-Animation",
-        "animationDefault": "Voreinstellung",
-        "animationDescription": "Überschreib d'Animation vo da Vorlage",
-        "animations": {
-          "bits": "1-0-Bits",
-          "bubbles": "Blasn",
-          "circuits": "Schaltkreise",
-          "confetti": "Konfetti",
-          "confettiExplosion": "Konfetti-Explosion",
-          "embers": "Glutfunken",
-          "fireflies": "Glühwürmchen",
-          "geometric": "Geometrisch",
-          "glitch": "Glitch",
-          "glowworm": "Irrlichter",
-          "hearts": "Herzerl",
-          "hyperspace": "Hyperspace",
-          "leaves": "Blätter",
-          "matrixRain": "Matrix-Regen",
-          "none": "Koane",
-          "snow": "Schnee",
-          "sparkles": "Glitzer",
-          "stars": "Sterne",
-          "sun": "Sunn",
-          "tumbleweed": "Steppenläufer",
-          "waves": "Wön"
-        },
-        "apply": "Design übernehma",
-        "button": "Design",
-        "changeDesign": "Design wechsln",
-        "currentTheme": "Design: {{preset}}",
-        "modalTitle": "Spui-Design",
-        "noTheme": "Koan Design ausgewählt. D'KI generiert pro Session oans.",
-        "preset": "Vorlage",
-        "presetDescription": "Wähl a visuellen Stoi fia dei Spui",
-        "presets": {
-          "abstract": "Abstrakt",
-          "adventure": "Abenteuer",
-          "barbie": "Barbie",
-          "candy": "Zuckerl",
-          "circus": "Zirkus",
-          "cyberpunk": "Cyberpunk",
-          "default": "Standard",
-          "desert": "Wüstn",
-          "detective": "Detektiv",
-          "educational": "Bildung",
-          "fairy": "Feenhaft",
-          "fire": "Feia",
-          "garden": "Garten",
-          "glitch": "Glitch",
-          "greenFantasy": "Grüne Fantasy",
-          "hacker": "Hacker",
-          "horror": "Horror",
-          "jungle": "Dschungel",
-          "matrix": "Matrix",
-          "medieval": "Mittelalter",
-          "minimal": "Minimalistisch",
-          "mystery": "Mystery",
-          "mystic": "Mystisch",
-          "nature": "Natur",
-          "nautical": "Nautisch",
-          "noir": "Noir",
-          "ocean": "Ozean",
-          "pirate": "Piraten",
-          "playful": "Verspuit",
-          "retro": "Retro",
-          "romance": "Romantik",
-          "school": "Schui",
-          "scifi": "Sci-Fi",
-          "snowy": "Schneereich",
-          "space": "Weltall",
-          "steampunk": "Steampunk",
-          "storybook": "Bilderbuch",
-          "sunshine": "Sonnenschein",
-          "superhero": "Superheld",
-          "tech": "Tech",
-          "terminal": "Terminal",
-          "underwater": "Unterwasser",
-          "western": "Western",
-          "zombie": "Zombie"
-        },
-        "preview": "Vorschau",
-        "remove": "Design entfernen",
-        "removeConfirm": "Eigenes Design entfernen? Dann macht d'KI pro Session oans.",
-        "sampleGame": "D'Tia gehn quietschend auf und gebn a dämmrigs Zimmer frei. Uralte Runen glimm'n an da Mauer. In da Mittn steht a geheimnisvolle Kistn.",
-        "sampleGame2": "Du schleicht di zur Kistn. Sobald dei Finger den kaltn Metallriegel berührn, fanga d'Runen stärker z'leuchtn o. A tiefer Summton füllt de Kammer.",
-        "samplePlayer": "I mach d'oi Holzdirn auf...",
-        "sampleStatus": "Gsundheit",
-        "thinkingText": "Denk-Text",
-        "thinkingTextDescription": "Text, der zeigt, dass d'KI grad überlegt",
-        "thinkingTextPlaceholder": "z. B. D'Gschicht nimmt Fahrt auf..."
-      },
       "title": "Mei erstellte Spiele",
       "viewModal": {
         "readOnlyNotice": "Des Spui stammt von wem andern. Du kannst's anschaun, aber ned bearbeitn. Nutz „Kopiern“, wennst a eigene Version brauchst.",
@@ -847,19 +622,6 @@
       "visibility": {
         "private": "Privat",
         "public": "Öffentlich"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Zur ChatGameLab-Startseitn",
-        "continueGame": "Spui fortsetzn",
-        "expired": "Diesen Teil-Link hod sei Limit erreicht. Koane Sessions mehr verfiegbar.",
-        "headline": "Du bist eigladen, a gratis KI-Textabentea z'spuin!",
-        "invalidLink": "Diesen Teil-Link is ungültig oder gibt's nimma.",
-        "loadError": "Spui-Infos ham si ned laden lassn. Probier's no amoi.",
-        "restartGame": "No amoi von vorn",
-        "sessionExists": "Du host scho a Spui am Laufen. Du kannst weiter spuin oder neu startn.",
-        "startPlaying": "Spui starten"
       }
     },
     "header": {
@@ -961,7 +723,6 @@
     "logout": "Ausloggn",
     "me": "I",
     "myGames": {
-      "continue": "Spuin",
       "copyConfirm": {
         "confirm": "Spui kopiern",
         "message": "Dad erstellt a Kopie vo \"{{name}}\" in deine Spiele.",
@@ -978,12 +739,6 @@
         "favorites": "Favoriten"
       },
       "play": "Spuin",
-      "restart": "Neistart",
-      "restartConfirm": {
-        "confirm": "Neistart",
-        "message": "Bist da sicha, dassd \"{{game}}\" neu startst? Dei Fortschritt geht valorn.",
-        "title": "Spui neu startn"
-      },
       "title": "Meine Spiele",
       "unfavorite": "Aus Favoriten entferna"
     },
@@ -1075,6 +830,19 @@
         "enabledHint": "Wenn's aus is, zeigt da Link nur an Hinweis und de Spiellinks auf da Seitn funktionieren nimma.",
         "link": "Link",
         "linkHint": "Nimm a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
+        "links": {
+          "add": "Link hinzufügen",
+          "down": "Nacha",
+          "error": "De Links ham ned gspeichert werdn können. Jeder Link braucht an Titel, und jede Adress muaß mit http:// oder https:// anfangen.",
+          "hint": "Stehen auf da Seitn unter de Spiele. Höchstens zehn.",
+          "linkDescription": "Beschreibung (freiwillig)",
+          "linkTitle": "Titel",
+          "remove": "Entfernen",
+          "save": "Links speichern",
+          "title": "Weitere Links",
+          "up": "Aufi",
+          "url": "Adress"
+        },
         "offHint": "De Seitn is ausgeschaltet. Du kannst ihren Link und QR-Code trotzdem vorbereiten.",
         "open": "Seitn öffnen",
         "shareDescription": "Schick den Link her oder zeig eam als QR-Code.",
@@ -1132,7 +900,6 @@
         "deleteConfirm": "Bist da sicha, dassd \"{{name}}\" löschn mogst?",
         "deleteTitle": "Workshop löschn",
         "deleteWarning": "Ois Spiele und Sessions in dem Workshop werdn gelöscht. Des lasst si ned rückgängig macha.",
-        "designEditingEnabled": "Teilnehmer/innen dörfn s'Design bearbeiten",
         "editParticipant": "Nam bearbeitn",
         "empty": "No koane Workshops.",
         "enterWorkshop": "Workshop-Modus betretn",
@@ -1179,8 +946,10 @@
         "promptConstraintsPlaceholder": "z. B. Schaug, dass d'Gschicht altersgerecht bleibt und vermeid g'waltige Inhalte.",
         "removeParticipant": "Teilnehmer/in entfern",
         "removeParticipantConfirm": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst?",
-        "removeParticipantMessage": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst? Des laßt si ned rückgängig macha.",
+        "removeParticipantMessage": "Wuißt \"{{name}}\" wirklich aus dem Workshop entfernen?",
         "removeParticipantTitle": "Teilnehmer/in entferna",
+        "removeParticipantWarningPermanent": "Dabei werdn des Konto von dera Person und olle Spiele, de sie erstellt hod, endgültig gelöscht – samt olle Spielständen und geteilten Links dorthin. Des kann ned rückgängig gmocht werdn. Wenn de Spiele behalten werdn soin, lad sie vorher als YAML runter.",
+        "removeParticipantWarningVisiting": "De Person behält ihr Konto und ihre Spiele. Nur da Zugang zu dem Workshop endet.",
         "resetAccess": "Zugang zurücksetzen",
         "resetAccessDone": "Neier Zugang erstellt. Der oide Link funktioniert nimma.",
         "resetAccessError": "Der Zugang hod ned zurückgesetzt werdn kenna. Bitte probier's no amoi.",
@@ -1256,10 +1025,25 @@
     "promoteToHead": "Zur Leitn machn",
     "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
     "publicWorkshop": {
+      "about": {
+        "details": "De Macher beschreiben d Welt, de Figuren und d Regeln mit ihre eigenen Worten. Beim Spuin erzählt a KI d Gschicht von do aus live weiter: Sie reagiert auf alles, wos du eintippst, und erfindt passende Bilder dazu — drum lafn zwoa Runden nia genau gleich ab. Wennst selber oans baust, merkst schnell, wia stark deine eigenen Anweisungen des Ergebnis prägen und wo a KI an ihre Grenzen stoßt. Genau darum gehts: Sich KI ned erklären lassen, sondern sie ausprobieren.",
+        "less": "Weniger",
+        "link": "Mehr übers ChatGameLab",
+        "more": "Mehr erfahren",
+        "oneLiner": "De Textabenteuer san mitm ChatGameLab entstanden: selber baut, ohne Programmieren, live erzählt von ana KI."
+      },
       "copy": "Kopieren",
       "copyLogin": "Zum Kopieren anmelden",
+      "cta": {
+        "button": "Kostenlos loslegen",
+        "text": "A eigenes Textabenteuer zu bauen is kostenlos und dauert bloß a paar Minuten.",
+        "title": "Bau dei eigenes ChatGameLab-Spiel"
+      },
       "download": "Herunterladen",
       "gamesTitle": "Spiele aus dem Workshop",
+      "links": {
+        "title": "Mehr über den Workshop"
+      },
       "noGames": "Da san no koa Spiele veröffentlicht worn.",
       "play": "Spuin",
       "playExhausted": "Koa Spielrunden mehr übrig",
@@ -1316,47 +1100,11 @@
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
       "title": "Server-Einstellungen"
     },
-    "sessions": {
-      "continueGame": "Spui fortsetzn",
-      "deleteConfirm": {
-        "message": "Bist da sicha, dassd diese Session von \"{{game}}\" löschn mogst? Des laßt si nimma rückgängig macha.",
-        "title": "Session löschn"
-      },
-      "empty": {
-        "description": "Start a neies Spui und leg los!",
-        "noResults": "Koane passenden Spiele gfundn",
-        "title": "Noch koane Spiele gspuit"
-      },
-      "errors": {
-        "loadFailed": "Deine Spiele ham si ned laden lassn. Probier's no amoi."
-      },
-      "fields": {
-        "game": "Spui",
-        "lastPlayed": "Zuletzt gspuit",
-        "model": "Modell"
-      },
-      "freeUseKey": {
-        "description": "Leg an Gratis-Schlüssl fest, damit ois Organisations-Mitglida ohne eigenen API-Schlüssl spuin kennan. Nua bereits geteilte Schlüssel san auswählbar.",
-        "remove": "Entferna",
-        "selectPlaceholder": "Geteilten Schlüssl auswähln...",
-        "title": "Gratis-Schlüssl",
-        "unknownKey": "Unbekannter Schlüssl"
-      },
-      "noDescription": "Koane Beschreibung",
-      "sort": {
-        "game": "Spui",
-        "label": "Sortiern nach",
-        "lastPlayed": "Zuletzt gspuit",
-        "model": "Modell"
-      },
-      "startNewGame": "Neies Spui starten",
-      "title": "Weiter spuin",
-      "untitledGame": "Spui ohne Nam"
-    },
     "settings": "Einstellungen",
     "share": {
       "copied": "Kopiert",
-      "copyLink": "Link kopieren"
+      "copyLink": "Link kopieren",
+      "visitLink": "Link aufmachn"
     },
     "showing": "{{count}} Mitglida",
     "sort": {
@@ -1367,7 +1115,16 @@
       "role-desc": "Roll (Z-A)"
     },
     "unnamed": "Unbenannt",
-    "viewGame": "Spui anschaugn"
+    "viewGame": "Spui anschaugn",
+    "workshop": {
+      "inactive": {
+        "description": "Der Workshop is grad ned aktiv. Wart, bis dei Workshop-Leitung ihn wieder einschaltet.",
+        "noCode": "Auf dem Gerät is koa Code gspeichert. Dei Workshop-Leitung kann da deinen Code sogn.",
+        "photoFirst": "Wennst di abmeldest, is dei Code von dem Gerät weg. Mach vorher a Foto davon.",
+        "showCode": "Meinen Zugangscode anzeigen",
+        "title": "Workshop is ned aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1385,11 +1142,6 @@
           "title": "ChatGameLab-Projekt"
         },
         "title": "Über ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "No koa Spui gspuit. Fang gleich o!",
-        "title": "Zuletzt gspuit",
-        "viewAll": "Alle Spiele"
       },
       "myGames": {
         "empty": "No koane Spiele. Erstell dei erstes!",
@@ -1423,7 +1175,6 @@
       "title": "Schnellaktionen"
     },
     "untitled": "Ohne Titel",
-    "untitledGame": "Spui ohne Titel",
     "version": {
       "mismatch": {
         "message": "Frontend-Version \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e passt ned zur Backend-Version \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Des kann z'komischen Effekten führn. Meld di beim Support, wenn's ned weggeht.",

@@ -35,13 +35,6 @@ export const queryKeys = {
   }) => ["games", params] as const,
   favoriteGames: ["games", "favorites"] as const,
 
-  // Sessions
-  gameSessions: ["gameSessions"] as const,
-  gameSessionsForGame: (gameId: string) => ["gameSessions", gameId] as const,
-  userSessions: ["userSessions"] as const,
-  userSessionsWithParams: (params: { search?: string; sortBy?: string }) =>
-    ["userSessions", params] as const,
-
   // Users
   users: ["users"] as const,
   user: (id: string) => ["users", id] as const,

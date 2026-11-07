@@ -63,11 +63,7 @@ export function MyWorkshop() {
   const { t } = useTranslation("common");
   const { t: tWorkshop } = useTranslation("myWorkshop");
   const isMobile = useMediaQuery("(max-width: 48em)") ?? false;
-  const {
-    playGame: handlePlayGame,
-    continueGame: handleContinueGame,
-    restartGame: handleRestartGame,
-  } = useGameNavigation();
+  const { playGame: handlePlayGame } = useGameNavigation();
   const { backendUser, retryBackendFetch } = useAuth();
   const { addGameToCache, updateGameInCache, removeGameFromCache } =
     useGamesCacheUpdater();
@@ -85,11 +81,6 @@ export function MyWorkshop() {
     showPublicGames: workshop?.showPublicGames ?? false,
     showOtherParticipantsGames: workshop?.showOtherParticipantsGames ?? true,
   };
-
-  // Hide design editing for workshop members unless enabled by staff/head
-  // Staff/head always see design; only participants are restricted
-  const hideDesign =
-    !canEditAllWorkshopGames && !(workshop?.designEditingEnabled ?? false);
 
   // Workshop is paused for non-staff users (participants and individuals)
   const isPausedForUser =
@@ -126,12 +117,10 @@ export function MyWorkshop() {
     sortField,
     isLoading,
     isFetching,
-    sessionsLoading,
     error,
     isCreating,
     isDeleting,
     getPermissions,
-    getSessionState,
     fileInputRef,
     handleCreateGame,
     handleDeleteGame,
@@ -245,27 +234,14 @@ export function MyWorkshop() {
     event.target.value = "";
   };
 
-  const playLabels = {
-    play: t("myGames.play"),
-    continue: t("myGames.continue"),
-    restart: t("myGames.restart"),
-  };
-
   // Render helpers
-  const renderPlayButton = (game: ObjGame) => {
-    const { hasSession, session } = getSessionState(game);
-    return (
-      <GamePlayButtons
-        game={game}
-        hasSession={hasSession}
-        session={session}
-        onPlay={handlePlayGame}
-        onContinue={handleContinueGame}
-        onRestart={handleRestartGame}
-        labels={playLabels}
-      />
-    );
-  };
+  const renderPlayButton = (game: ObjGame) => (
+    <GamePlayButtons
+      game={game}
+      onPlay={handlePlayGame}
+      label={t("myGames.play")}
+    />
+  );
 
   const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
 
@@ -472,7 +448,7 @@ export function MyWorkshop() {
 
   // Loading states
   const hasData = rawGames !== undefined;
-  const isInitialLoading = !hasData && (isLoading || sessionsLoading);
+  const isInitialLoading = !hasData && isLoading;
   const isRefetching = isFetching && hasData;
 
   if (isInitialLoading) {
@@ -492,7 +468,6 @@ export function MyWorkshop() {
   }
 
   const renderGameCard = (game: ObjGame) => {
-    const { hasSession, session } = getSessionState(game);
     const { isOwner } = getPermissions(game);
     return (
       <GameCard
@@ -501,11 +476,6 @@ export function MyWorkshop() {
         onClick={() => handleViewGame(game)}
         onPlay={() => handlePlayGame(game)}
         playLabel={t("myGames.play")}
-        hasSession={hasSession}
-        onContinue={session ? () => handleContinueGame(session) : undefined}
-        continueLabel={t("myGames.continue")}
-        onRestart={session ? () => handleRestartGame(game, session) : undefined}
-        restartLabel={t("myGames.restart")}
         showCreator
         isOwner={isOwner}
         creatorLabel={tWorkshop("you")}
@@ -606,7 +576,6 @@ export function MyWorkshop() {
         onCreate={onCreateGame}
         createLoading={isCreating}
         initialData={createInitialData}
-        hideDesign={hideDesign}
       />
       <GameEditModal
         gameId={gameToView}
@@ -621,7 +590,6 @@ export function MyWorkshop() {
         showShareSection={canEditAllWorkshopGames || (workshop?.allowGameSharing ?? false)}
         workshopId={workshop?.id}
         onCopy={gameToViewReadOnly ? handleCopyFromModal : undefined}
-        hideDesign={hideDesign}
       />
       <SponsorGameModal
         game={gameToSponsor}

@@ -72,7 +72,6 @@ export function WorkshopHeader({
       public: workshop.public ?? false,
       showPublicGames: workshop.showPublicGames ?? false,
       showOtherParticipantsGames: workshop.showOtherParticipantsGames ?? true,
-      designEditingEnabled: workshop.designEditingEnabled ?? false,
       aiQualityTier: workshop.aiQualityTier ?? undefined,
       isPaused: !isPaused,
     });

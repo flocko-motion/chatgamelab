@@ -51,9 +51,7 @@
       "ageGroupU13": "13-17 år",
       "ageGroupU18": "18+",
       "gamesCreated": "Spil oprettet",
-      "gamesPlayed": "Spil spillet",
       "memberSince": "Registreret siden",
-      "messagesSent": "Beskeder sendt",
       "noOrganization": "Ingen organisation",
       "noRole": "Ingen rolle tildelt",
       "organization": "Organisation",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Høj (Premium)",
+      "high": "Høj",
       "label": "AI-kvalitetsniveau",
-      "low": "Lav (Økonomi)",
+      "low": "Sparsom",
       "max": "Maks (Premium + lyd)",
-      "medium": "Mellem (Balanceret)",
+      "medium": "Afbalanceret",
       "newSessionsOnly": "Dette niveau gælder kun for nye sessioner. Eksisterende sessioner beholder det niveau, de startede med.",
       "serverDefault": "Serverstandard"
     },
     "allGames": {
-      "continue": "Spil",
       "copyConfirm": {
         "confirm": "Kopiér spil",
         "message": "Dette opretter en kopi af \"{{name}}\" i dine spil.",
@@ -306,12 +303,6 @@
       },
       "play": "Spil",
       "reportGame": "Rapportér spil",
-      "restart": "Genstart",
-      "restartConfirm": {
-        "confirm": "Genstart",
-        "message": "Er du sikker på, at du vil genstarte \"{{game}}\"? Din nuværende fremgang går tabt.",
-        "title": "Genstart spil"
-      },
       "title": "Alle spil",
       "unfavorite": "Fjern fra favoritter",
       "workshop": "Workshop / Org"
@@ -391,8 +382,8 @@
       "title": "API-nøgleadministration",
       "unnamed": "Nøgle uden navn",
       "unsupportedPlatform": {
-        "badge": "ikke understøttet",
-        "hint": "Denne platform understøttes ikke i øjeblikket. Du kan kun fjerne eksisterende nøgler."
+        "badge": "ikke understøttet endnu",
+        "hint": "Denne platform understøttes ikke endnu. Dens nøgler forbliver gemt, men bruges ikke. Du kan fjerne dem."
       }
     },
     "back": "Tilbage",
@@ -415,7 +406,7 @@
       "placeholder": "f.eks. æble odder tårn",
       "submit": "Fortsæt",
       "title": "Indtast kode",
-      "unknown": "Denne kode findes ikke. Kontrollér stavningen.",
+      "unknown": "Du kom ikke ind denne gang. Tjek først stavningen – ord for ord. Bindestreger eller mellemrum er ligegyldige. Hvis koden er korrekt, er den måske ikke længere gyldig: Koder kan blive udskiftet, og adgangen ophører efter workshoppen. Spørg derefter din workshopleder efter en ny kode.",
       "wrongLength": "En kode består af tre eller fire ord."
     },
     "error": "Fejl",
@@ -425,119 +416,10 @@
       "programmedBy": "Programmeret af"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Brugt API-nøgle ændret",
-        "constraintSource": {
-          "organisation": "Organisation",
-          "site13": "Standardindstilling for site (13–17, uden forældresamtykke)",
-          "site13p": "Standardindstilling for site (13–17, med forældresamtykke)",
-          "site18": "Standardindstilling for site (18+)",
-          "workshop": "Workshop"
-        },
-        "sections": {
-          "constraintReasoning": "Hvorfor denne begrænsning gælder",
-          "constraintText": "Aktiv ungdomsbeskyttelsesbegrænsning",
-          "expandStory": "Instruktioner til AI'en for at uddybe historien",
-          "imageGeneration": "Instruktioner fra AI'en til billedgenerering",
-          "rawResponse": "Ubehandlet AI-svar",
-          "responseSchema": "Påkrævet struktur for AI-svar",
-          "statusUpdate": "Prompt sendt til AI'en",
-          "systemPrompt": "Spilinstruktioner til AI'en"
-        },
-        "title": "AI-forespørgsel/svar",
-        "toggle": "AI-indblik",
-        "tokens": {
-          "received": "modtagne tokens",
-          "sent": "sendte tokens"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Din organisations gratisnøgle blev brugt",
-          "label": "Brugt API-nøgle",
-          "personal": "Din personlige nøgle blev brugt",
-          "private_share": "Delingslinkets nøgle blev brugt",
-          "sponsor": "En sponsornøgle blev brugt",
-          "system_free_use": "En global gratisnøgle blev brugt",
-          "workshop": "Din workshops nøgle blev brugt"
-        },
-        "usedConstraint": {
-          "label": "Anvendt begrænsning"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "Besked-ID",
-          "imagePrompt": "Billedprompt",
-          "isStreaming": "Streamer",
-          "seq": "Sekvens",
-          "statusFields": "Statusfelter",
-          "timestamp": "Tidsstempel",
-          "type": "Type"
-        },
-        "hints": {
-          "id": "Unik identifikator for denne besked",
-          "imagePrompt": "Prompt sendt til billedgenererende AI",
-          "isStreaming": "Om indhold stadig modtages",
-          "seq": "Rækkefølge i samtalen",
-          "statusFields": "Spiltilstandsvariabler, som AI'en sporer",
-          "timestamp": "Hvornår denne besked blev oprettet",
-          "type": "player = brugerinput, game = AI-svar, system = kontekst"
-        },
-        "title": "Fejlsøgningsinfo"
-      },
-      "error": {
-        "backToGames": "Tilbage til spil",
-        "gameNotFound": "Spil ikke fundet",
-        "missingFields": "Spillet mangler påkrævede felter:",
-        "noApiKey": {
-          "banner": "Der blev ikke fundet en brugbar API-nøgle for platformen {{platform}}. For at fortsætte med at spille skal du tilføje din egen API-nøgle i dine kontoindstillinger.",
-          "goToSettings": "Indstillinger for API-nøgle",
-          "personal": "Du skal konfigurere en API-nøgle, før du kan spille. Gå til dine API-nøgleindstillinger for at tilføje en.",
-          "title": "Ingen API-nøgle tilgængelig",
-          "workshop": "Der er ikke konfigureret nogen API-nøgle til denne workshop. Kontakt din workshopadministrator."
-        },
-        "retry": "Prøv igen",
-        "sendFailed": "Kunne ikke sende beskeden. Prøv igen.",
-        "sessionFailed": "Kunne ikke starte spilsession"
-      },
-      "header": {
-        "back": "Tilbage til spil",
-        "debug": "Debug",
-        "decreaseFont": "Mindre",
-        "disableAnimations": "Deaktiver animationer",
-        "disableTextEffects": "Deaktiver teksteffekter",
-        "fontSize": "Skriftstørrelse",
-        "increaseFont": "Større",
-        "muteAudio": "Slå fortælling fra",
-        "resetFont": "Nulstil",
-        "settings": "Indstillinger",
-        "unmuteAudio": "Slå fortælling til",
-        "useNeutralTheme": "Brug neutralt tema"
-      },
-      "input": {
-        "audioCancel": "Annuller optagelse",
-        "audioProcessing": "Behandler...",
-        "audioRecording": "Optager...",
-        "audioStart": "Optag stemmebesked",
-        "audioStop": "Send optagelse",
-        "audioUnavailableMessage": "Stemmeinput er ikke tilgængeligt med de nuværende API-nøgleindstillinger. For at bruge stemmeinput skal du skifte til et højere kvalitetsniveau (Premium eller Max).",
-        "audioUnavailableTitle": "Stemmeinput ikke tilgængeligt",
-        "placeholder": "Hvad gør du?",
-        "send": "Send handling"
-      },
-      "loading": {
-        "game": "Indlæser spil...",
-        "resolvingKey": "Finder API-nøgle...",
-        "starting": "Starter spilsession...",
-        "startingHint": "AI'en forbereder dit eventyr"
-      },
-      "needsApiKey": {
-        "description": "API-nøglen brugt til denne session er ikke længere tilgængelig.",
-        "title": "API-nøgle kræves"
-      },
-      "statusChange": {
-        "effect": "Effekt:"
-      },
-      "unnamed": "Uden navn"
+      "rebuilding": {
+        "description": "Du kan snart spille spil igen her.",
+        "title": "Spilvisningen bliver bygget om"
+      }
     },
     "games": {
       "actions": {
@@ -574,13 +456,13 @@
       "editFields": {
         "description": "Giv spillet en kort beskrivelse. Den er kun til dig og påvirker ikke spillet.",
         "gameStart": "Hvordan begynder spillet?",
-        "gameStartHint": "Hvad sker der i starten? Beskriv den første scene, spilleren ser. Hvordan bliver spilleren budt velkommen?",
+        "gameStartHint": "Hvad sker der i begyndelsen? Beskriv den første scene, som spilleren ser. Hvordan bliver spilleren budt velkommen? Hvordan ved spilleren, hvad han eller hun skal gøre?",
         "gameStartPlaceholder": "Du vågner ved kanten af en mørk skov. En smal sti fører dybere ind mellem træerne...",
         "imageStyle": "Hvilken stil skal spillets billeder have?",
         "imageStyleHint": "For eksempel: tegnefilm, realistisk, pixelart, akvarel...",
         "name": "Spilnavn",
         "scenario": "Hvad handler spillet om?",
-        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan er verden? Sprog og tone (f.eks. spansk for elever i sjette klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\".\nHvis du vil have AI'en til at tage rollen som en bestemt person, så skriv \"Du er ...\".",
+        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan ser spilverdenen ud? Sprog \u000026 tone (f.eks. spansk for elever i 6. klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\". \nHvis du vil have AI'en til at spille rollen som en bestemt person, skal du skrive \"Du er ...\".\nHvad er målet? Hvordan ved spilleren, at han eller hun har vundet?",
         "scenarioPlaceholder": "Du er en opdagelsesrejsende i en mystisk skov. Dit mål er at finde den skjulte skat...",
         "statusFields": "Spilværdier",
         "statusFieldsHint": "Hvad skal spillet holde styr på? For eksempel liv, point eller ammunition. Spillet husker disse værdier og opdaterer dem undervejs."
@@ -732,98 +614,6 @@
         "style": "Design",
         "styleInfo": "Valgfrie indstillinger for spillets udseende under spillet."
       },
-      "theme": {
-        "animation": "Baggrundsanimation",
-        "animationDefault": "Forudindstillet standard",
-        "animationDescription": "Tilsidesæt forudindstillingens standardanimation",
-        "animations": {
-          "bits": "1-0-bits",
-          "bubbles": "Bobler",
-          "circuits": "Kredsløb",
-          "confetti": "Konfetti",
-          "confettiExplosion": "Konfettieksplosion",
-          "embers": "Gløder",
-          "fireflies": "Ildfluer",
-          "geometric": "Geometrisk",
-          "glitch": "Glitch",
-          "glowworm": "Vejrlys",
-          "hearts": "Hjerter",
-          "hyperspace": "Hyperrum",
-          "leaves": "Blade",
-          "matrixRain": "Matrix-regn",
-          "none": "Ingen",
-          "snow": "Sne",
-          "sparkles": "Glitter",
-          "stars": "Stjerner",
-          "sun": "Sol",
-          "tumbleweed": "Tumbleweed",
-          "waves": "Bølger"
-        },
-        "apply": "Anvend tema",
-        "button": "Tema",
-        "changeDesign": "Skift design",
-        "currentTheme": "Tema: {{preset}}",
-        "modalTitle": "Spiltema",
-        "noTheme": "Intet tema valgt. AI'en genererer temaet for hver spilsession.",
-        "preset": "Forudindstilling",
-        "presetDescription": "Vælg en visuel stil til dit spil",
-        "presets": {
-          "abstract": "Abstrakt",
-          "adventure": "Eventyr",
-          "barbie": "Barbie",
-          "candy": "Slik",
-          "circus": "Cirkus",
-          "cyberpunk": "Cyberpunk",
-          "default": "Standard",
-          "desert": "Ørken",
-          "detective": "Detektiv",
-          "educational": "Pædagogisk",
-          "fairy": "Fe",
-          "fire": "Ild",
-          "garden": "Have",
-          "glitch": "Glitch",
-          "greenFantasy": "Grøn fantasi",
-          "hacker": "Hacker",
-          "horror": "Gyser",
-          "jungle": "Jungle",
-          "matrix": "Matrix",
-          "medieval": "Middelalder",
-          "minimal": "Minimalistisk",
-          "mystery": "Mysterie",
-          "mystic": "Mystisk",
-          "nature": "Natur",
-          "nautical": "Nautisk",
-          "noir": "Noir",
-          "ocean": "Ocean",
-          "pirate": "Pirater",
-          "playful": "Legesyg",
-          "retro": "Retro",
-          "romance": "Romantik",
-          "school": "Skole",
-          "scifi": "Sci-fi",
-          "snowy": "Snefyldt",
-          "space": "Rummet",
-          "steampunk": "Steampunk",
-          "storybook": "Eventyrbog",
-          "sunshine": "Solskin",
-          "superhero": "Superhelt",
-          "tech": "Tekno",
-          "terminal": "Terminal",
-          "underwater": "Under vand",
-          "western": "Western",
-          "zombie": "Zombie"
-        },
-        "preview": "Forhåndsvisning",
-        "remove": "Fjern tema",
-        "removeConfirm": "Fjerne det brugerdefinerede tema? AI'en genererer i stedet et nyt pr. session.",
-        "sampleGame": "Døren knirker, da den åbner og afslører et svagt oplyst kammer. Gamle runer gløder svagt på stenmurene. En mystisk kiste står midt i rummet.",
-        "sampleGame2": "Du nærmer dig forsigtigt kisten. Når dine fingre rører den kolde metallås, begynder runerne på væggene at pulsere med et stærkere lys. En lav summen fylder kammeret.",
-        "samplePlayer": "Jeg åbner den gamle trædør...",
-        "sampleStatus": "Helbred",
-        "thinkingText": "Tænker-tekst",
-        "thinkingTextDescription": "Tekst, der vises, mens AI'en tænker",
-        "thinkingTextPlaceholder": "f.eks. Historien udfolder sig..."
-      },
       "title": "Mine oprettede spil",
       "viewModal": {
         "readOnlyNotice": "Dette spil er oprettet af en anden bruger. Du kan se detaljerne, men ikke redigere. Brug \"Kopiér\" for at lave din egen redigerbare version.",
@@ -832,19 +622,6 @@
       "visibility": {
         "private": "Privat",
         "public": "Offentligt"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Gå til ChatGameLab",
-        "continueGame": "Fortsæt spil",
-        "expired": "Dette delingslink har nået sin spillegrænse. Der er ikke flere sessioner tilgængelige.",
-        "headline": "Du er blevet inviteret til at spille et gratis AI-drevet teksteventyr!",
-        "invalidLink": "Dette delingslink er ugyldigt eller findes ikke længere.",
-        "loadError": "Kunne ikke indlæse spiloplysninger. Prøv igen.",
-        "restartGame": "Start forfra",
-        "sessionExists": "Du har allerede et spil i gang. Du kan fortsætte, hvor du slap, eller starte et nyt spil.",
-        "startPlaying": "Begynd at spille"
       }
     },
     "header": {
@@ -946,7 +723,6 @@
     "logout": "Log ud",
     "me": "Mig",
     "myGames": {
-      "continue": "Spil",
       "copyConfirm": {
         "confirm": "Kopiér spil",
         "message": "Dette opretter en kopi af \"{{name}}\" i dine spil.",
@@ -963,12 +739,6 @@
         "favorites": "Favoritter"
       },
       "play": "Spil",
-      "restart": "Genstart",
-      "restartConfirm": {
-        "confirm": "Genstart",
-        "message": "Er du sikker på, at du vil genstarte \"{{game}}\"? Din nuværende fremgang går tabt.",
-        "title": "Genstart spil"
-      },
       "title": "Mine spil",
       "unfavorite": "Fjern fra favoritter"
     },
@@ -1060,6 +830,19 @@
         "enabledHint": "Når den er slået fra, viser linket kun en meddelelse, og sidens spillinks holder op med at virke.",
         "link": "Link",
         "linkHint": "Brug a–z, 0–9 og enkelte bindestreger, 3 til 60 tegn.",
+        "links": {
+          "add": "Tilføj link",
+          "down": "Flyt ned",
+          "error": "Linkene kunne ikke gemmes. Hvert link skal have en titel, og alle adresser skal begynde med http:// eller https://.",
+          "hint": "Vises på siden under spillene. Højst 10.",
+          "linkDescription": "Beskrivelse (valgfrit)",
+          "linkTitle": "Titel",
+          "remove": "Fjern",
+          "save": "Gem links",
+          "title": "Yderligere læsning",
+          "up": "Flyt op",
+          "url": "Adresse"
+        },
         "offHint": "Siden er slået fra. Du kan stadig forberede dens link og QR-kode.",
         "open": "Åbn side",
         "shareDescription": "Send dette link, eller vis det som en QR-kode.",
@@ -1113,7 +896,6 @@
         "deleteConfirm": "Er du sikker på, at du vil slette \"{{name}}\"?",
         "deleteTitle": "Slet workshop",
         "deleteWarning": "Alle spil og sessioner i denne workshop bliver slettet. Dette kan ikke fortrydes.",
-        "designEditingEnabled": "Tillad deltagere at redigere spildesign (tema)",
         "editParticipant": "Rediger navn",
         "empty": "Ingen workshops endnu.",
         "enterWorkshop": "Gå ind i workshoptilstand",
@@ -1160,8 +942,10 @@
         "promptConstraintsPlaceholder": "f.eks. Sørg for, at historien er alderssvarende og undgå voldeligt indhold.",
         "removeParticipant": "Fjern deltager",
         "removeParticipantConfirm": "Er du sikker på, at du vil fjerne \"{{name}}\" fra denne workshop?",
-        "removeParticipantMessage": "Er du sikker på, at du vil fjerne \"{{name}}\" fra denne workshop? Denne handling kan ikke fortrydes.",
+        "removeParticipantMessage": "Vil du virkelig fjerne \"{{name}}\" fra denne workshop?",
         "removeParticipantTitle": "Fjern deltager",
+        "removeParticipantWarningPermanent": "Dette sletter permanent denne persons konto og alle spil, som personen har oprettet, samt alle spilsessioner og delte links til dem. Det kan ikke fortrydes. Hvis spillene skal bevares, skal du først downloade dem som YAML.",
+        "removeParticipantWarningVisiting": "Denne person beholder sin konto og sine spil. Kun adgangen til denne workshop ophører.",
         "resetAccess": "Nulstil adgang",
         "resetAccessDone": "Ny adgang oprettet. Det gamle link virker ikke længere.",
         "resetAccessError": "Adgangen kunne ikke nulstilles. Prøv igen.",
@@ -1236,10 +1020,25 @@
     "promoteToHead": "Forfrem til leder",
     "promoteWarning": "Denne bruger får mulighed for at administrere organisationsmedlemmer og invitere lærere.",
     "publicWorkshop": {
+      "about": {
+        "details": "Skaberne beskriver verdenen, figurerne og reglerne med deres egne ord. Mens du spiller, fortæller en AI historien videre derfra: Den reagerer på alt, hvad du skriver, og finder på passende billeder — derfor forløber ikke to spilrunder på samme måde. Når du selv bygger et spil, opdager du hurtigt, hvor stærkt dine egne instruktioner former resultatet, og hvor AI'en når sine grænser. Det er hele pointen: Ikke at få AI forklaret, men at prøve den af.",
+        "less": "Mindre",
+        "link": "Mere om ChatGameLab",
+        "more": "Læs mere",
+        "oneLiner": "Disse teksteventyr er lavet med ChatGameLab: bygget i hånden uden programmering og fortalt live af en AI."
+      },
       "copy": "Kopiér",
       "copyLogin": "Log ind for at kopiere",
+      "cta": {
+        "button": "Kom i gang gratis",
+        "text": "Det er gratis at bygge dit eget teksteventyr, og det tager kun få minutter.",
+        "title": "Lav dit eget ChatGameLab-spil"
+      },
       "download": "Download",
       "gamesTitle": "Spil fra denne workshop",
+      "links": {
+        "title": "Mere om denne workshop"
+      },
       "noGames": "Der er endnu ikke blevet offentliggjort nogen spil her.",
       "play": "Spil",
       "playExhausted": "Ingen spilsessioner tilbage",
@@ -1296,47 +1095,11 @@
       "notAuthorized": "Du har ikke tilladelse til at få adgang til serverindstillinger. Adminadgang påkrævet.",
       "title": "Serverindstillinger"
     },
-    "sessions": {
-      "continueGame": "Fortsæt spil",
-      "deleteConfirm": {
-        "message": "Er du sikker på, at du vil slette denne session for \"{{game}}\"? Denne handling kan ikke fortrydes.",
-        "title": "Slet session"
-      },
-      "empty": {
-        "description": "Start et nyt spil for at begynde dit eventyr!",
-        "noResults": "Ingen matchende spil fundet",
-        "title": "Ingen spil spillet endnu"
-      },
-      "errors": {
-        "loadFailed": "Kunne ikke indlæse dine spil. Prøv igen."
-      },
-      "fields": {
-        "game": "Spil",
-        "lastPlayed": "Sidst spillet",
-        "model": "Model"
-      },
-      "freeUseKey": {
-        "description": "Angiv en frit-brugs-nøgle, så alle organisationsmedlemmer kan spille spil uden deres egen API-nøgle. Kun nøgler, der allerede deles med denne organisation, kan vælges.",
-        "remove": "Fjern",
-        "selectPlaceholder": "Vælg en delt nøgle...",
-        "title": "Frit-brugs-nøgle",
-        "unknownKey": "Ukendt nøgle"
-      },
-      "noDescription": "Ingen beskrivelse",
-      "sort": {
-        "game": "Spil",
-        "label": "Sorter efter",
-        "lastPlayed": "Sidst spillet",
-        "model": "Model"
-      },
-      "startNewGame": "Start nyt spil",
-      "title": "Fortsæt med at spille",
-      "untitledGame": "Spil uden titel"
-    },
     "settings": "Indstillinger",
     "share": {
       "copied": "Kopieret",
-      "copyLink": "Kopiér link"
+      "copyLink": "Kopiér link",
+      "visitLink": "Besøg link"
     },
     "showing": "{{count}} medlemmer",
     "sort": {
@@ -1347,7 +1110,16 @@
       "role-desc": "Rolle (Å-A)"
     },
     "unnamed": "Uden navn",
-    "viewGame": "Vis spil"
+    "viewGame": "Vis spil",
+    "workshop": {
+      "inactive": {
+        "description": "Denne workshop er ikke aktiv lige nu. Vent, indtil din workshopleder aktiverer den igen.",
+        "noCode": "Der er ikke gemt nogen kode på denne enhed. Din workshopleder kan fortælle dig din kode.",
+        "photoFirst": "Hvis du logger ud, forsvinder din kode fra denne enhed. Tag et billede af den først.",
+        "showCode": "Vis min adgangskode",
+        "title": "Workshoppen er ikke aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1365,11 +1137,6 @@
           "title": "ChatGameLab-projektet"
         },
         "title": "Om ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Ingen spillehistorik endnu. Begynd at spille et spil!",
-        "title": "Sidst spillet",
-        "viewAll": "Alle spil"
       },
       "myGames": {
         "empty": "Ingen spil endnu. Opret dit første spil!",
@@ -1402,7 +1169,6 @@
       "title": "Hurtige handlinger"
     },
     "untitled": "Uden titel",
-    "untitledGame": "Spil uden titel",
     "version": {
       "mismatch": {
         "message": "Frontend-version \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 matcher ikke backend-version \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. Det kan give uventet adfærd. Kontakt support, hvis problemet fortsætter.",

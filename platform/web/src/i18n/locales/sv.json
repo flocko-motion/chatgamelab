@@ -51,9 +51,7 @@
       "ageGroupU13": "13–17 år",
       "ageGroupU18": "18+",
       "gamesCreated": "Skapade spel",
-      "gamesPlayed": "Spelade spel",
       "memberSince": "Registrerad sedan",
-      "messagesSent": "Skickade meddelanden",
       "noOrganization": "Ingen organisation",
       "noRole": "Ingen roll tilldelad",
       "organization": "Organisation",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Hög (Premium)",
+      "high": "Hög",
       "label": "AI-kvalitetsnivå",
-      "low": "Låg (Ekonomi)",
+      "low": "Sparsam",
       "max": "Max (Premium + ljud)",
-      "medium": "Medel (Balanserad)",
+      "medium": "Balanserad",
       "newSessionsOnly": "Denna nivå gäller endast nya sessioner. Befintliga sessioner behåller nivån de startade med.",
       "serverDefault": "Serverstandard"
     },
     "allGames": {
-      "continue": "Spela",
       "copyConfirm": {
         "confirm": "Kopiera spel",
         "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
@@ -306,12 +303,6 @@
       },
       "play": "Spela",
       "reportGame": "Anmäl spel",
-      "restart": "Starta om",
-      "restartConfirm": {
-        "confirm": "Starta om",
-        "message": "Är du säker på att du vill starta om \"{{game}}\"? Din nuvarande framsteg går förlorad.",
-        "title": "Starta om spel"
-      },
       "title": "Alla spel",
       "unfavorite": "Ta bort från favoriter",
       "workshop": "Workshop / Org"
@@ -391,8 +382,8 @@
       "title": "API-nyckelhantering",
       "unnamed": "Namnlös nyckel",
       "unsupportedPlatform": {
-        "badge": "stöds inte",
-        "hint": "Denna plattform stöds för närvarande inte. Du kan bara ta bort befintliga nycklar."
+        "badge": "stöds inte ännu",
+        "hint": "Den här plattformen stöds inte ännu. Nycklarna för den förblir sparade men används inte. Du kan ta bort dem."
       }
     },
     "back": "Tillbaka",
@@ -415,7 +406,7 @@
       "placeholder": "t.ex. äpple utter torn",
       "submit": "Fortsätt",
       "title": "Ange kod",
-      "unknown": "Den här koden finns inte. Kontrollera stavningen.",
+      "unknown": "Du kom inte in den här gången. Kontrollera först stavningen, ord för ord. Bindestreck eller mellanslag spelar ingen roll. Om koden stämmer kanske den inte längre är giltig: koder kan bytas ut, och åtkomsten upphör efter workshopen. Fråga då din workshopledare efter en ny kod.",
       "wrongLength": "En kod består av tre eller fyra ord."
     },
     "error": "Fel",
@@ -425,134 +416,10 @@
       "programmedBy": "Programmerad av"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Använd API-nyckel har ändrats",
-        "constraintSource": {
-          "organisation": "Organisation",
-          "site13": "Webbplatsstandard (13–17, utan föräldrasamtycke)",
-          "site13p": "Webbplatsstandard (13–17, med föräldrasamtycke)",
-          "site18": "Webbplatsstandard (18+)",
-          "workshop": "Workshop"
-        },
-        "sections": {
-          "constraintReasoning": "Varför den här begränsningen gäller",
-          "constraintText": "Aktiv begränsning för ungdomsskydd",
-          "expandStory": "Instruktioner till AI:n för att skriva ut berättelsen",
-          "imageGeneration": "Instruktioner från AI:n för bildgenerering",
-          "rawResponse": "Obehandlat AI-svar",
-          "responseSchema": "Krav på struktur för AI-svaret",
-          "statusUpdate": "Prompt som skickats till AI:n",
-          "systemPrompt": "Spelinstruktioner till AI:n"
-        },
-        "title": "AI-begäran / svar",
-        "toggle": "AI-insikt",
-        "tokens": {
-          "received": "mottagna tokens",
-          "sent": "skickade tokens"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Organisationens nyckel för kostnadsfri användning användes",
-          "label": "Använd API-nyckel",
-          "personal": "Din personliga nyckel användes",
-          "private_share": "Delningslänkens nyckel användes",
-          "sponsor": "En sponsornyckel användes",
-          "system_free_use": "En global nyckel för kostnadsfri användning användes",
-          "workshop": "Workshopens nyckel användes"
-        },
-        "usedConstraint": {
-          "label": "Använd begränsning"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "Meddelande-ID",
-          "imagePrompt": "Bildprompt",
-          "isStreaming": "Strömmande",
-          "seq": "Sekvens",
-          "statusFields": "Statusfält",
-          "timestamp": "Tidsstämpel",
-          "type": "Typ"
-        },
-        "hints": {
-          "id": "Unikt ID för detta meddelande",
-          "imagePrompt": "Prompt som skickas till bildgenererings-AI",
-          "isStreaming": "Om innehåll fortfarande tas emot",
-          "seq": "Ordning i konversationen",
-          "statusFields": "Spelvariabler som AI:n följer",
-          "timestamp": "När detta meddelande skapades",
-          "type": "player = användarinmatning, game = AI-svar, system = kontext"
-        },
-        "title": "Felsökningsinfo"
-      },
-      "error": {
-        "backToGames": "Tillbaka till spel",
-        "gameNotFound": "Spelet hittades inte",
-        "missingFields": "Spelet saknar obligatoriska fält:",
-        "noApiKey": {
-          "banner": "Ingen användbar API-nyckel hittades för plattformen {{platform}}. För att fortsätta spela, lägg till din egen API-nyckel i dina kontoinställningar.",
-          "goToSettings": "Inställningar för API-nyckel",
-          "personal": "Du måste konfigurera en API-nyckel innan du kan spela. Gå till inställningarna för API-nycklar och lägg till en.",
-          "title": "Ingen API-nyckel tillgänglig",
-          "workshop": "Ingen API-nyckel är konfigurerad för denna workshop. Kontakta din workshopadministratör."
-        },
-        "retry": "Försök igen",
-        "sendFailed": "Det gick inte att skicka meddelandet. Försök igen.",
-        "sessionFailed": "Det gick inte att starta spelsession"
-      },
-      "header": {
-        "back": "Tillbaka till spel",
-        "debug": "Debug",
-        "decreaseFont": "Mindre",
-        "disableAnimations": "Stäng av animationer",
-        "disableTextEffects": "Stäng av texteffekter",
-        "fontSize": "Textstorlek",
-        "increaseFont": "Större",
-        "muteAudio": "Stäng av berättarröst",
-        "resetFont": "Återställ",
-        "settings": "Inställningar",
-        "unmuteAudio": "Slå på berättarröst",
-        "useNeutralTheme": "Använd neutralt tema"
-      },
-      "input": {
-        "audioCancel": "Avbryt inspelning",
-        "audioProcessing": "Bearbetar...",
-        "audioRecording": "Spelar in...",
-        "audioStart": "Spela in röstmeddelande",
-        "audioStop": "Skicka inspelning",
-        "audioUnavailableMessage": "Röstinmatning är inte tillgänglig med nuvarande API-nyckelsinställningar. För att använda röstinmatning, byt till en högre kvalitetsnivå (Premium eller Max).",
-        "audioUnavailableTitle": "Röstinmatning ej tillgänglig",
-        "placeholder": "Vad gör du?",
-        "send": "Skicka handling"
-      },
-      "loading": {
-        "game": "Laddar spel...",
-        "resolvingKey": "Verifierar API-nyckel...",
-        "starting": "Startar spelsession...",
-        "startingHint": "AI:n förbereder ditt äventyr"
-      },
-      "needsApiKey": {
-        "description": "API-nyckeln som användes för denna session är inte längre tillgänglig.",
-        "reason": "Din tidigare API-nyckel är inte längre tillgänglig. För att fortsätta ditt spel, välj en ny.",
-        "title": "API-nyckel krävs"
-      },
-      "selectApiKey": {
-        "keyDescription": "Välj API-nyckeln som ska användas för denna spelsession",
-        "keyLabel": "API-nyckel",
-        "keyPlaceholder": "Välj en API-nyckel",
-        "loadError": "Kunde inte ladda API-nycklar",
-        "mine": "Mina",
-        "modelDescription": "Välj eventuellt en specifik AI-modell",
-        "modelLabel": "AI-modell",
-        "modelPlaceholder": "Standardmodell",
-        "noKeys": "Du behöver minst en API-nyckel för att spela. Lägg till en under Inställningar → API-nycklar.",
-        "playing": "Spelar",
-        "startGame": "Starta spel",
-        "title": "Välj API-nyckel"
-      },
-      "statusChange": {
-        "effect": "Effekt:"
-      },
-      "unnamed": "Namnlös"
+      "rebuilding": {
+        "description": "Du kan snart spela här igen.",
+        "title": "Spelvyn byggs om"
+      }
     },
     "games": {
       "actions": {
@@ -589,13 +456,13 @@
       "editFields": {
         "description": "Ge spelet en kort beskrivning. Den är bara för dig och påverkar inte spelupplevelsen.",
         "gameStart": "Hur börjar spelet?",
-        "gameStartHint": "Vad händer i början? Beskriv den första scenen som spelaren ser. Hur välkomnas spelaren?",
+        "gameStartHint": "Vad händer i början? Beskriv den första scenen som spelaren ser. Hur välkomnas spelaren? Hur vet spelaren vad hen ska göra?",
         "gameStartPlaceholder": "Du vaknar vid kanten av en mörk skog. En smal stig leder djupare in bland träden...",
         "imageStyle": "Vilken stil ska spelets bilder ha?",
         "imageStyleHint": "Till exempel: tecknad, realistisk, pixelart, akvarell...",
         "name": "Spelnamn",
         "scenario": "Vad handlar spelet om?",
-        "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser världen ut? Språk \u000026 ton (t.ex. spanska för sjätteklassare)?\nVilken roll har spelaren? Skriv \"Spelaren ...\".\nOm du vill att AI:n ska anta en specifik roll, skriv \"Du är ...\".",
+        "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser spelvärlden ut? Språk \u0006 Ton (t.ex. spanska för elever i årskurs 6)?\nVilken roll har spelaren? Skriv \"Spelaren ...\".\nOm du vill att AI:n ska spela rollen som en viss person, skriv \"Du är ...\".\nVad är målet? Hur vet spelaren att hen har vunnit?",
         "scenarioPlaceholder": "Du är en upptäcktsresande i en mystisk skog. Ditt mål är att hitta den gömda skatten...",
         "statusFields": "Spelvärden",
         "statusFieldsHint": "Vad ska spelet hålla reda på? Till exempel hälsa, poäng eller ammunition. Spelet minns dessa värden och uppdaterar dem under spelets gång."
@@ -747,98 +614,6 @@
         "style": "Design",
         "styleInfo": "Valfria inställningar för spelets utseende under spelandet."
       },
-      "theme": {
-        "animation": "Bakgrundsanimering",
-        "animationDefault": "Förinställt standardvärde",
-        "animationDescription": "Åsidosätt förinställningens standardanimering",
-        "animations": {
-          "bits": "1-0-Bits",
-          "bubbles": "Bubblor",
-          "circuits": "Kretsar",
-          "confetti": "Konfetti",
-          "confettiExplosion": "Konfettiexplosion",
-          "embers": "Glöd",
-          "fireflies": "Eldflugor",
-          "geometric": "Geometrisk",
-          "glitch": "Glitch",
-          "glowworm": "Irrbloss",
-          "hearts": "Hjärtan",
-          "hyperspace": "Hyperspace",
-          "leaves": "Löv",
-          "matrixRain": "Matrixregn",
-          "none": "Ingen",
-          "snow": "Snö",
-          "sparkles": "Gnistror",
-          "stars": "Stjärnor",
-          "sun": "Sol",
-          "tumbleweed": "Tumbleweed",
-          "waves": "Vågor"
-        },
-        "apply": "Tillämpa tema",
-        "button": "Tema",
-        "changeDesign": "Ändra design",
-        "currentTheme": "Tema: {{preset}}",
-        "modalTitle": "Speltema",
-        "noTheme": "Inget tema valt. AI:n genererar ett för varje spelsession.",
-        "preset": "Förinställning",
-        "presetDescription": "Välj en visuell stil för ditt spel",
-        "presets": {
-          "abstract": "Abstrakt",
-          "adventure": "Äventyr",
-          "barbie": "Barbie",
-          "candy": "Godis",
-          "circus": "Cirkus",
-          "cyberpunk": "Cyberpunk",
-          "default": "Standard",
-          "desert": "Öken",
-          "detective": "Detektiv",
-          "educational": "Pedagogiskt",
-          "fairy": "Fé",
-          "fire": "Eld",
-          "garden": "Trädgård",
-          "glitch": "Glitch",
-          "greenFantasy": "Grön fantasi",
-          "hacker": "Hacker",
-          "horror": "Skräck",
-          "jungle": "Djungel",
-          "matrix": "Matrix",
-          "medieval": "Medeltid",
-          "minimal": "Minimalistiskt",
-          "mystery": "Mystik",
-          "mystic": "Mystiskt",
-          "nature": "Natur",
-          "nautical": "Nautiskt",
-          "noir": "Noir",
-          "ocean": "Ocean",
-          "pirate": "Pirat",
-          "playful": "Lekfullt",
-          "retro": "Retro",
-          "romance": "Romantik",
-          "school": "Skola",
-          "scifi": "Sci-fi",
-          "snowy": "Snöigt",
-          "space": "Rymd",
-          "steampunk": "Steampunk",
-          "storybook": "Sagobok",
-          "sunshine": "Solsken",
-          "superhero": "Superhjälte",
-          "tech": "Teknik",
-          "terminal": "Terminal",
-          "underwater": "Under vatten",
-          "western": "Western",
-          "zombie": "Zombie"
-        },
-        "preview": "Förhandsgranska",
-        "remove": "Ta bort tema",
-        "removeConfirm": "Ta bort det anpassade temat? AI:n genererar i stället ett för varje session.",
-        "sampleGame": "Dörren knarrar upp och avslöjar en svagt upplyst kammare. Uråldriga runor glöder svagt på stenväggarna. En mystisk kista står i rummets mitt.",
-        "sampleGame2": "Du närmar dig försiktigt kistan. När dina fingrar rör vid det kalla metallåsbeslaget börjar runorna på väggarna att pulsera starkare. Ett lågt dån fyller kammaren.",
-        "samplePlayer": "Jag öppnar den gamla trädörren...",
-        "sampleStatus": "Hälsa",
-        "thinkingText": "Tänker-text",
-        "thinkingTextDescription": "Text som visas medan AI:n tänker",
-        "thinkingTextPlaceholder": "t.ex. Berättelsen vecklar ut sig..."
-      },
       "title": "Mina skapade spel",
       "viewModal": {
         "readOnlyNotice": "Detta spel skapades av en annan användare. Du kan visa detaljer men inte redigera. Använd \"Kopiera\" för att skapa en egen redigerbar version.",
@@ -847,19 +622,6 @@
       "visibility": {
         "private": "Privat",
         "public": "Publikt"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Gå till ChatGameLab",
-        "continueGame": "Fortsätt spel",
-        "expired": "Denna delningslänk har nått sin spelgräns. Inga fler sessioner är tillgängliga.",
-        "headline": "Du har bjudits in att spela ett gratis AI-drivet textäventyr!",
-        "invalidLink": "Denna delningslänk är ogiltig eller finns inte längre.",
-        "loadError": "Det gick inte att ladda spelinformationen. Försök igen.",
-        "restartGame": "Börja om",
-        "sessionExists": "Du har redan ett pågående spel. Du kan fortsätta där du slutade eller starta ett nytt.",
-        "startPlaying": "Börja spela"
       }
     },
     "header": {
@@ -961,7 +723,6 @@
     "logout": "Logga ut",
     "me": "Jag",
     "myGames": {
-      "continue": "Spela",
       "copyConfirm": {
         "confirm": "Kopiera spel",
         "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
@@ -978,12 +739,6 @@
         "favorites": "Favoriter"
       },
       "play": "Spela",
-      "restart": "Starta om",
-      "restartConfirm": {
-        "confirm": "Starta om",
-        "message": "Är du säker på att du vill starta om \"{{game}}\"? Din nuvarande framsteg går förlorad.",
-        "title": "Starta om spel"
-      },
       "title": "Mina spel",
       "unfavorite": "Ta bort från favoriter"
     },
@@ -1075,6 +830,19 @@
         "enabledHint": "När den är avstängd visar länken endast ett meddelande och sidans spellänkar slutar fungera.",
         "link": "Länk",
         "linkHint": "Använd a–z, 0–9 och enkla bindestreck, 3 till 60 tecken.",
+        "links": {
+          "add": "Lägg till länk",
+          "down": "Flytta ned",
+          "error": "Länkarna kunde inte sparas. Varje länk måste ha en titel, och varje adress måste börja med http:// eller https://.",
+          "hint": "Visas på sidan under spelen. Högst tio.",
+          "linkDescription": "Beskrivning (valfritt)",
+          "linkTitle": "Titel",
+          "remove": "Ta bort",
+          "save": "Spara länkar",
+          "title": "Vidare läsning",
+          "up": "Flytta upp",
+          "url": "Adress"
+        },
         "offHint": "Sidan är avstängd. Du kan fortfarande förbereda dess länk och QR-kod.",
         "open": "Öppna sidan",
         "shareDescription": "Skicka den här länken eller visa den som en QR-kod.",
@@ -1132,7 +900,6 @@
         "deleteConfirm": "Är du säker på att du vill ta bort \"{{name}}\"?",
         "deleteTitle": "Ta bort workshop",
         "deleteWarning": "Alla spel och sessioner i denna workshop tas bort. Detta kan inte ångras.",
-        "designEditingEnabled": "Tillåt deltagare att redigera spelens design (tema)",
         "editParticipant": "Redigera namn",
         "empty": "Inga workshops ännu.",
         "enterWorkshop": "Gå in i workshop-läge",
@@ -1179,8 +946,10 @@
         "promptConstraintsPlaceholder": "t.ex. Håll berättelsen åldersanpassad och undvik våldsamt innehåll.",
         "removeParticipant": "Ta bort deltagare",
         "removeParticipantConfirm": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop?",
-        "removeParticipantMessage": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop? Detta kan inte ångras.",
+        "removeParticipantMessage": "Vill du verkligen ta bort \"{{name}}\" från den här workshopen?",
         "removeParticipantTitle": "Ta bort deltagare",
+        "removeParticipantWarningPermanent": "Detta raderar permanent den här personens konto och alla spel som hen har skapat, tillsammans med alla spelsessioner och delade länkar till dem. Det går inte att ångra. Om spelen ska sparas, ladda först ned dem som YAML.",
+        "removeParticipantWarningVisiting": "Den här personen behåller sitt konto och sina spel. Endast åtkomsten till den här workshopen upphör.",
         "resetAccess": "Återställ åtkomst",
         "resetAccessDone": "Ny åtkomst har skapats. Den gamla länken fungerar inte längre.",
         "resetAccessError": "Åtkomsten kunde inte återställas. Försök igen.",
@@ -1256,10 +1025,25 @@
     "promoteToHead": "Befordra till chef",
     "promoteWarning": "Denna användare får möjlighet att hantera organisationsmedlemmar och bjuda in lärare.",
     "publicWorkshop": {
+      "about": {
+        "details": "Skaparna beskriver världen, figurerna och reglerna med sina egna ord. När du spelar berättar en AI historien vidare därifrån: den reagerar på allt du skriver och hittar på bilder som passar — därför blir aldrig två spelomgångar likadana. När du bygger ett eget spel märker du snabbt hur starkt dina egna instruktioner formar resultatet och var en AI når sina gränser. Det är hela poängen: att inte bara få AI förklarat för sig, utan att prova själv.",
+        "less": "Mindre",
+        "link": "Mer om ChatGameLab",
+        "more": "Läs mer",
+        "oneLiner": "De här textäventyren skapades med ChatGameLab: byggda för hand, utan programmering, och berättade live av en AI."
+      },
       "copy": "Kopiera",
       "copyLogin": "Logga in för att kopiera",
+      "cta": {
+        "button": "Kom igång gratis",
+        "text": "Det är gratis att bygga ett eget textäventyr och det tar bara några minuter.",
+        "title": "Skapa ditt eget ChatGameLab-spel"
+      },
       "download": "Ladda ner",
       "gamesTitle": "Spel från den här workshopen",
+      "links": {
+        "title": "Mer om den här workshopen"
+      },
       "noGames": "Inga spel har publicerats här ännu.",
       "play": "Spela",
       "playExhausted": "Inga spelsessioner kvar",
@@ -1316,47 +1100,11 @@
       "notAuthorized": "Du har inte behörighet att öppna serverinställningarna. Adminåtkomst krävs.",
       "title": "Serverinställningar"
     },
-    "sessions": {
-      "continueGame": "Fortsätt spel",
-      "deleteConfirm": {
-        "message": "Är du säker på att du vill ta bort denna session för \"{{game}}\"? Detta kan inte ångras.",
-        "title": "Ta bort session"
-      },
-      "empty": {
-        "description": "Starta ett nytt spel för att börja ditt äventyr!",
-        "noResults": "Inga matchande spel hittades",
-        "title": "Inga spel spelade ännu"
-      },
-      "errors": {
-        "loadFailed": "Det gick inte att ladda dina spel. Försök igen."
-      },
-      "fields": {
-        "game": "Spel",
-        "lastPlayed": "Spelades senast",
-        "model": "Modell"
-      },
-      "freeUseKey": {
-        "description": "Ange en fri nyckel så att alla organisationsmedlemmar kan spela utan egen API-nyckel. Endast nycklar som redan delats med organisationen kan väljas.",
-        "remove": "Ta bort",
-        "selectPlaceholder": "Välj en delad nyckel...",
-        "title": "Fri nyckel",
-        "unknownKey": "Okänd nyckel"
-      },
-      "noDescription": "Ingen beskrivning",
-      "sort": {
-        "game": "Spel",
-        "label": "Sortera efter",
-        "lastPlayed": "Spelades senast",
-        "model": "Modell"
-      },
-      "startNewGame": "Starta nytt spel",
-      "title": "Fortsätt spela",
-      "untitledGame": "Namnlöst spel"
-    },
     "settings": "Inställningar",
     "share": {
       "copied": "Kopierad",
-      "copyLink": "Kopiera länk"
+      "copyLink": "Kopiera länk",
+      "visitLink": "Besök länk"
     },
     "showing": "{{count}} medlemmar",
     "sort": {
@@ -1367,7 +1115,16 @@
       "role-desc": "Roll (Ö-A)"
     },
     "unnamed": "Namnlös",
-    "viewGame": "Visa spel"
+    "viewGame": "Visa spel",
+    "workshop": {
+      "inactive": {
+        "description": "Den här workshopen är inte aktiv just nu. Vänta tills din workshopledare aktiverar den igen.",
+        "noCode": "Ingen kod är sparad på den här enheten. Din workshopledare kan berätta vilken kod som gäller för dig.",
+        "photoFirst": "Om du loggar ut försvinner din kod från den här enheten. Ta ett foto av den först.",
+        "showCode": "Visa min åtkomstkod",
+        "title": "Workshopen är inte aktiv"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1385,11 +1142,6 @@
           "title": "ChatGameLab-projektet"
         },
         "title": "Om ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Ingen spelhistorik ännu. Börja spela ett spel!",
-        "title": "Spelade senast",
-        "viewAll": "Alla spel"
       },
       "myGames": {
         "empty": "Inga spel ännu. Skapa ditt första spel!",
@@ -1423,7 +1175,6 @@
       "title": "Snabbåtgärder"
     },
     "untitled": "Namnlös",
-    "untitledGame": "Namnlöst spel",
     "version": {
       "mismatch": {
         "message": "Frontend-version \u00003cfrontendVersion\u00003e{{frontendVersion}}\u00003c/frontendVersion\u00003e matchar inte backend-version \u00003cbackendVersion\u00003e{{backendVersion}}\u00003c/backendVersion\u00003e. Detta kan orsaka oväntat beteende. Kontakta support om problemet kvarstår.",

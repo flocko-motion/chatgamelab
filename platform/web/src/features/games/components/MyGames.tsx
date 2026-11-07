@@ -56,11 +56,7 @@ import {
   useDeleteGame,
   useExportGameYaml,
 } from "@/api/hooks";
-import {
-  useFavoriteState,
-  useGameNavigation,
-  useGameSessionState,
-} from "../hooks";
+import { useFavoriteState, useGameNavigation } from "../hooks";
 import type { ObjGame } from "@/api/generated";
 import { parseSortValue } from "@/common/lib/sort";
 import { type CreateGameFormData } from "../types";
@@ -143,8 +139,6 @@ export function MyGames({
     filter: isAdminUser ? "all" : "own",
     search: debouncedSearch || undefined,
   });
-  const { sessionsLoading, getSessionState: getGameSessionState } =
-    useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
@@ -154,11 +148,7 @@ export function MyGames({
     isFavorite,
     toggleFavorite: handleToggleFavorite,
   } = useFavoriteState();
-  const {
-    playGame: handlePlayGame,
-    continueGame: handleContinueGame,
-    restartGame: handleRestartGame,
-  } = useGameNavigation();
+  const { playGame: handlePlayGame } = useGameNavigation();
 
   // Apply client-side favorites filter
   const games =
@@ -296,26 +286,13 @@ export function MyGames({
     },
   ];
 
-  const playLabels = {
-    play: t("myGames.play"),
-    continue: t("myGames.continue"),
-    restart: t("myGames.restart"),
-  };
-
-  const renderPlayButton = (game: ObjGame) => {
-    const { hasSession, session } = getGameSessionState(game);
-    return (
-      <GamePlayButtons
-        game={game}
-        hasSession={hasSession}
-        session={session}
-        onPlay={handlePlayGame}
-        onContinue={handleContinueGame}
-        onRestart={handleRestartGame}
-        labels={playLabels}
-      />
-    );
-  };
+  const renderPlayButton = (game: ObjGame) => (
+    <GamePlayButtons
+      game={game}
+      onPlay={handlePlayGame}
+      label={t("myGames.play")}
+    />
+  );
 
   const columns: DataTableColumn<ObjGame>[] = [
     {
@@ -509,7 +486,7 @@ export function MyGames({
   ];
 
   const hasData = rawGames !== undefined;
-  const isInitialLoading = !hasData && (isLoading || sessionsLoading);
+  const isInitialLoading = !hasData && isLoading;
   const isRefetching = isFetching && hasData;
 
   if (isInitialLoading) {
@@ -671,7 +648,6 @@ export function MyGames({
               ) : (
                 <SimpleGrid cols={1} spacing="md">
                   {games?.map((game) => {
-                    const { hasSession, session } = getGameSessionState(game);
                     return (
                       <GameCard
                         key={game.id}
@@ -679,19 +655,6 @@ export function MyGames({
                         onClick={() => handleViewGame(game)}
                         onPlay={() => handlePlayGame(game)}
                         playLabel={t("myGames.play")}
-                        hasSession={hasSession}
-                        onContinue={
-                          session
-                            ? () => handleContinueGame(session)
-                            : undefined
-                        }
-                        continueLabel={t("myGames.continue")}
-                        onRestart={
-                          session
-                            ? () => handleRestartGame(game, session)
-                            : undefined
-                        }
-                        restartLabel={t("myGames.restart")}
                         showVisibility
                         isFavorite={isFavorite(game)}
                         onToggleFavorite={() => handleToggleFavorite(game)}
@@ -735,24 +698,12 @@ export function MyGames({
                     : undefined
                 }
                 renderMobileCard={(game) => {
-                  const { hasSession, session } = getGameSessionState(game);
                   return (
                     <GameCard
                       game={game}
                       onClick={() => handleViewGame(game)}
                       onPlay={() => handlePlayGame(game)}
                       playLabel={t("myGames.play")}
-                      hasSession={hasSession}
-                      onContinue={
-                        session ? () => handleContinueGame(session) : undefined
-                      }
-                      continueLabel={t("myGames.continue")}
-                      onRestart={
-                        session
-                          ? () => handleRestartGame(game, session)
-                          : undefined
-                      }
-                      restartLabel={t("myGames.restart")}
                       showVisibility
                       isFavorite={isFavorite(game)}
                       onToggleFavorite={() => handleToggleFavorite(game)}

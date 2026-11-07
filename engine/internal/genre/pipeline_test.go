@@ -239,7 +239,7 @@ func TestGatedInputWaitsForRelease(t *testing.T) {
 
 // The designer's scenario and the platform's guardrail must reach the provider
 // in separate fields. Fusing them would make their separation a matter of
-// discipline, where JUGENDSCHUTZ.md needs it to be structural: nothing a game
+// discipline, where the spec's Jugendschutz needs it to be structural: nothing a game
 // author writes may land where the constraint lives.
 func TestScenarioAndGuardrailStayApart(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())

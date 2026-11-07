@@ -9,6 +9,8 @@
   *About this spec.* It is the source of truth for what ChatGameLab does: a
   feature is specified here before it is built.
 
+  - *Target state.* The spec describes ChatGameLab as it is meant to be. Where
+    the running system differs, the difference is tracked as a GitHub issue.
   - *Behaviour only.* Each feature is described precisely, by what a user can
     do and what they observe in return.
   - *Implementation agnostic.* The system is a black box: no code, components,
@@ -111,9 +113,12 @@ The player talks by voice with one character.
 == Youth protection
 
 Every session plays under exactly one youth-protection rule, on top of the AI
-provider's own safety measures. The rule comes with the session, from whoever
-starts it.
+provider's own safety measures. When the session is created, the platform
+supplies the stack of rules that apply (@jugendschutz); the stack, together
+with the platform's own guidance, is condensed into one concise rule, which the
+session keeps for its lifetime.
 
+- *A designer has no influence on the rule.*
 - *The rule holds whatever the scenario says.* Scenario and rule stay separate.
 - *A live character is held to the rule* as it speaks, and corrected when it
   strays.
@@ -161,13 +166,106 @@ image style, theme and genre.
 A game shows how often it has been played; every session started counts as a
 play.
 
-== Youth protection
+== Jugendschutz <jugendschutz>
 
-The platform supplies each session's rule, resolved live per turn: the first
-rule set among the shared game's workshop, the shared game's organisation, the
-player's own workshop, the player's own organisation, and the site's rule for
-the player's age group. Guests follow their own cascade. A designer has no
-influence on the rule.
+AI providers have their own safety measures. As an educational platform,
+ChatGameLab takes responsibility beyond them with a youth protection of its
+own: a binding rule that goes with every AI interaction.
+
+=== Schutzstufen
+
+There are rules at three levels:
+
+- *Workshop* — set by a workshop's staff, per workshop.
+- *Organisation* — set by an organisation's head, per organisation.
+- *Site* — set by the admin, per age group: *U13*, *U13p* and *U18*. It is set
+  once when the site is installed and is never empty.
+
+The site's defaults:
+
+- *U13*, 13–17 without parental consent: "Erlaube spürbare Konflikte und
+  stärkere Spannung; greife bei realistischer, detaillierter oder eskalierender
+  Gewalt ein und verhindere Verherrlichung und Überforderung."
+- *U13p*, 13–17 with parental consent, and *U18*, 18 and over: "Erlaube
+  realistische, auch deutlich intensivere Inhalte; unterbinde exzessive oder
+  verherrlichte Gewalt sowie extreme, entwürdigende oder diskriminierende
+  Darstellungen konsequent." The two are the same by default; the admin can
+  set them apart.
+- *Under 13*: the strictest rule. Children under 13 cannot have an account of
+  their own; they use ChatGameLab only through a Jugendeinrichtung.
+
+=== Which rules apply
+
+A session's rule is composed when the session is created, from every level
+that applies, in the order below. The order is the priority when the stack is
+condensed. A change of role applies from the player's next session.
+
+==== Angemeldete Nutzer
+
+1. The shared game's workshop rule, when the game belongs to a workshop.
+2. The shared game's organisation rule, when the game belongs to an
+   organisation.
+3. The player's own workshop rule, when the player is in a workshop.
+4. The player's own organisation rule, when the player belongs to one.
+5. The site rule for the player's age group.
+
+The site rule is never empty, so a signed-in player always has a rule. A
+player's own game is not shared, so levels 1 and 2 are empty for it.
+
+- *A shared game brings its protection first.* The organisation that wrote the
+  game shaped its content and knows the right frame for it; the player's own
+  workshop, organisation and age group follow.
+- *An organisation's rule applies whatever the player's age.* The site's age
+  groups are mainly for individuals; for a player in an organisation, the site
+  rule for their age group stays beneath the organisation's.
+
+#table(
+  columns: 2,
+  [Role], [Levels],
+  [Head, Staff], [shared workshop → shared organisation → own workshop → own
+    organisation → site by age],
+  [Participant, also when joined by link], [shared workshop → shared
+    organisation → own workshop → own organisation → site by age],
+  [Individual], [shared workshop → shared organisation → site by age],
+)
+
+==== Gäste
+
+A guest plays a shared game without an account:
+
+1. The shared game's workshop rule, when the game belongs to a workshop.
+2. The shared game's organisation rule, when the game belongs to an
+   organisation.
+3. The rules of the account that created the share, by the levels for a
+   signed-in player: its workshop, its organisation and the site rule for its
+   age group.
+
+The guest is unknown, so the protection the game's publisher chose for
+themselves stands in for theirs; as level 3 ends in a site rule, a guest always
+has a rule. A signed-in player opening a shared link follows the levels for
+signed-in players.
+
+=== Transparency
+
+The view of a game's workings shows which rules went into the session's rule,
+where each came from — a workshop, an organisation, or the site rule for U13,
+U13p or U18 — and the rule the session plays under.
+
+=== Registration
+
+1. *Nutzertyp.* "Anmeldung als Nutzer" leads on to the Altersabfrage.
+   "Anmeldung als Fachkraft / Organisation" explains how an organisation
+   registers, by email, and asks the person to register as a user first.
+2. *Altersabfrage*, by Selbstauskunft:
+   - under 13: no account of their own; ChatGameLab only through a
+     Jugendeinrichtung;
+   - 13–17 without parental consent: U13, the stricter rule;
+   - 13–17 with parental consent: U13p;
+   - 18 or over: U18.
+
+*Age is a Selbstauskunft.* It is the legally sound way: a technical check, such
+as owning an API key, does not hold up legally, and whoever gives a false age
+puts themselves in the wrong.
 
 == Paying
 

@@ -51,9 +51,7 @@
       "ageGroupU13": "13-17 tahun",
       "ageGroupU18": "18+",
       "gamesCreated": "Gim yang Dibuat",
-      "gamesPlayed": "Gim yang Dimainkan",
       "memberSince": "Terdaftar sejak",
-      "messagesSent": "Pesan Terkirim",
       "noOrganization": "Tidak ada organisasi",
       "noRole": "Tidak ada peran yang ditetapkan",
       "organization": "Organisasi",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Tinggi (Premium)",
+      "high": "Tinggi",
       "label": "Tingkat Kualitas AI",
-      "low": "Rendah (Ekonomis)",
+      "low": "Hemat",
       "max": "Maks (Premium + Audio)",
-      "medium": "Sedang (Seimbang)",
+      "medium": "Seimbang",
       "newSessionsOnly": "Tingkat ini hanya berlaku untuk sesi baru. Sesi yang sudah ada mempertahankan tingkat saat mereka dimulai.",
       "serverDefault": "Bawaan Server"
     },
     "allGames": {
-      "continue": "Mainkan",
       "copyConfirm": {
         "confirm": "Salin Gim",
         "message": "Ini akan membuat salinan \"{{name}}\" di gim Anda.",
@@ -306,12 +303,6 @@
       },
       "play": "Mainkan",
       "reportGame": "Laporkan gim",
-      "restart": "Mulai Ulang",
-      "restartConfirm": {
-        "confirm": "Mulai Ulang",
-        "message": "Apakah Anda yakin ingin memulai ulang \"{{game}}\"? Progres Anda saat ini akan hilang.",
-        "title": "Mulai Ulang Gim"
-      },
       "title": "Semua Gim",
       "unfavorite": "Hapus dari favorit",
       "workshop": "Lokakarya / Organisasi"
@@ -391,8 +382,8 @@
       "title": "Manajemen Kunci API",
       "unnamed": "Kunci Tanpa Nama",
       "unsupportedPlatform": {
-        "badge": "tidak didukung",
-        "hint": "Platform ini saat ini tidak didukung. Anda hanya dapat menghapus kunci yang ada."
+        "badge": "belum didukung",
+        "hint": "Platform ini belum didukung. Kuncinya tetap tersimpan, tetapi tidak digunakan. Anda dapat menghapusnya."
       }
     },
     "back": "Kembali",
@@ -415,7 +406,7 @@
       "placeholder": "mis. apfel otter turm",
       "submit": "Lanjutkan",
       "title": "Masukkan kode",
-      "unknown": "Kode ini tidak ada. Silakan periksa ejaannya.",
+      "unknown": "Anda belum bisa masuk. Periksa terlebih dahulu penulisannya, kata demi kata. Tanda hubung atau spasi tidak berpengaruh. Jika kodenya benar, mungkin kode tersebut sudah tidak berlaku: kode dapat diganti, dan akses berakhir setelah workshop. Jika demikian, mintalah kode baru kepada pemimpin workshop Anda.",
       "wrongLength": "Kode terdiri dari tiga atau empat kata."
     },
     "error": "Kesalahan",
@@ -425,119 +416,10 @@
       "programmedBy": "Diprogram oleh"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Kunci API yang digunakan telah berubah",
-        "constraintSource": {
-          "organisation": "Organisasi",
-          "site13": "Default situs (13–17, tanpa persetujuan orang tua)",
-          "site13p": "Default situs (13–17, dengan persetujuan orang tua)",
-          "site18": "Default situs (18+)",
-          "workshop": "Lokakarya"
-        },
-        "sections": {
-          "constraintReasoning": "Mengapa batasan ini berlaku",
-          "constraintText": "Pembatasan perlindungan anak yang aktif",
-          "expandStory": "Instruksi kepada AI untuk menuliskan cerita",
-          "imageGeneration": "Instruksi dari AI untuk pembuatan gambar",
-          "rawResponse": "Respons AI yang belum diproses",
-          "responseSchema": "Struktur yang diperlukan dari respons AI",
-          "statusUpdate": "Prompt yang dikirim ke AI",
-          "systemPrompt": "Instruksi gim untuk AI"
-        },
-        "title": "Permintaan / Respons AI",
-        "toggle": "Wawasan AI",
-        "tokens": {
-          "received": "token diterima",
-          "sent": "token terkirim"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Kunci penggunaan gratis organisasi Anda digunakan",
-          "label": "Kunci API yang Digunakan",
-          "personal": "Kunci pribadi Anda digunakan",
-          "private_share": "Kunci dari tautan berbagi digunakan",
-          "sponsor": "Kunci sponsor digunakan",
-          "system_free_use": "Kunci penggunaan gratis global digunakan",
-          "workshop": "Kunci lokakarya Anda digunakan"
-        },
-        "usedConstraint": {
-          "label": "Pembatasan yang digunakan"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "ID Pesan",
-          "imagePrompt": "Prompt Gambar",
-          "isStreaming": "Streaming",
-          "seq": "Urutan",
-          "statusFields": "Kolom Status",
-          "timestamp": "Cap Waktu",
-          "type": "Jenis"
-        },
-        "hints": {
-          "id": "Pengenal unik untuk pesan ini",
-          "imagePrompt": "Prompt yang dikirim ke AI pembuat gambar",
-          "isStreaming": "Apakah konten masih diterima",
-          "seq": "Urutan dalam percakapan",
-          "statusFields": "Variabel status gim yang dilacak AI",
-          "timestamp": "Kapan pesan ini dibuat",
-          "type": "player = input pengguna, game = respons AI, system = konteks"
-        },
-        "title": "Info Debug"
-      },
-      "error": {
-        "backToGames": "Kembali ke Gim",
-        "gameNotFound": "Gim tidak ditemukan",
-        "missingFields": "Gim kekurangan kolom yang diperlukan:",
-        "noApiKey": {
-          "banner": "Tidak ditemukan kunci API yang dapat digunakan untuk platform {{platform}}. Untuk terus bermain, tambahkan kunci API Anda sendiri di pengaturan akun.",
-          "goToSettings": "Pengaturan Kunci API",
-          "personal": "Anda perlu mengonfigurasi kunci API sebelum dapat bermain. Buka pengaturan Kunci API untuk menambahkannya.",
-          "title": "Tidak Ada Kunci API Tersedia",
-          "workshop": "Tidak ada kunci API yang dikonfigurasi untuk lokakarya ini. Silakan hubungi administrator lokakarya Anda."
-        },
-        "retry": "Coba lagi",
-        "sendFailed": "Gagal mengirim pesan. Silakan coba lagi.",
-        "sessionFailed": "Gagal memulai sesi gim"
-      },
-      "header": {
-        "back": "Kembali ke gim",
-        "debug": "Debug",
-        "decreaseFont": "Lebih kecil",
-        "disableAnimations": "Nonaktifkan animasi",
-        "disableTextEffects": "Nonaktifkan efek teks",
-        "fontSize": "Ukuran font",
-        "increaseFont": "Lebih besar",
-        "muteAudio": "Bisukan narasi",
-        "resetFont": "Atur ulang",
-        "settings": "Pengaturan",
-        "unmuteAudio": "Suara narasi kembali",
-        "useNeutralTheme": "Gunakan tema netral"
-      },
-      "input": {
-        "audioCancel": "Batalkan rekaman",
-        "audioProcessing": "Memproses…",
-        "audioRecording": "Merekam…",
-        "audioStart": "Rekam pesan suara",
-        "audioStop": "Kirim rekaman",
-        "audioUnavailableMessage": "Input suara tidak tersedia dengan pengaturan kunci API saat ini. Untuk menggunakan input suara, beralihlah ke tingkat kualitas yang lebih tinggi (Premium atau Maks).",
-        "audioUnavailableTitle": "Input Suara Tidak Tersedia",
-        "placeholder": "Apa yang kamu lakukan?",
-        "send": "Kirim aksi"
-      },
-      "loading": {
-        "game": "Memuat gim...",
-        "resolvingKey": "Menentukan kunci API...",
-        "starting": "Memulai sesi gim...",
-        "startingHint": "AI sedang menyiapkan petualangan Anda"
-      },
-      "needsApiKey": {
-        "description": "Kunci API yang digunakan untuk sesi ini tidak lagi tersedia.",
-        "title": "Kunci API Diperlukan"
-      },
-      "statusChange": {
-        "effect": "Efek:"
-      },
-      "unnamed": "Tanpa Nama"
+      "rebuilding": {
+        "description": "Sebentar lagi Anda dapat bermain lagi di sini.",
+        "title": "Pemutar game sedang dibangun ulang"
+      }
     },
     "games": {
       "actions": {
@@ -574,13 +456,13 @@
       "editFields": {
         "description": "Berikan gim deskripsi singkat. Ini hanya untuk Anda dan tidak memengaruhi gameplay.",
         "gameStart": "Bagaimana gim dimulai?",
-        "gameStartHint": "Apa yang terjadi di awal? Jelaskan adegan pertama yang dilihat pemain. Bagaimana pemain disambut?",
+        "gameStartHint": "Apa yang terjadi di awal? Jelaskan adegan pertama yang dilihat pemain. Bagaimana pemain disambut? Bagaimana pemain tahu apa yang harus dilakukan?",
         "gameStartPlaceholder": "Kamu terbangun di tepi hutan gelap. Sebuah jalur sempit mengarah lebih dalam ke pepohonan...",
         "imageStyle": "Gaya seperti apa yang harus dimiliki gambar gim?",
         "imageStyleHint": "Misalnya: kartun, realistis, pixel art, cat air...",
         "name": "Nama Gim",
         "scenario": "Tentang apa gim ini?",
-        "scenarioHint": "Jelaskan secara singkat: Bagaimana gim bekerja? Seperti apa dunianya? Bahasa \u00026 nada (mis. Spanyol untuk siswa kelas enam)?\nPeran apa yang dimiliki pemain? Tulis \"Pemain ...\".\nJika Anda ingin AI berperan sebagai seseorang tulis \"Kamu adalah ...\".",
+        "scenarioHint": "Jelaskan secara singkat: Bagaimana cara kerja game ini? Seperti apa dunianya? Bahasa \u0006 Nada (misalnya bahasa Spanyol untuk siswa kelas enam)?\nPeran apa yang dimiliki pemain? Tulis \"Pemain ...\".\nJika Anda ingin AI berperan sebagai orang tertentu, tulis \"Kamu adalah ...\".\nApa tujuannya? Bagaimana pemain tahu bahwa mereka telah menang?",
         "scenarioPlaceholder": "Kamu adalah seorang penjelajah di hutan misterius. Tujuanmu adalah menemukan harta karun tersembunyi...",
         "statusFields": "Nilai gim",
         "statusFieldsHint": "Apa yang harus dilacak gim? Misalnya kesehatan, poin, atau amunisi. Gim mengingat nilai-nilai ini dan memperbaruinya saat bermain."
@@ -732,98 +614,6 @@
         "style": "Desain",
         "styleInfo": "Pengaturan opsional untuk tampilan gim saat bermain."
       },
-      "theme": {
-        "animation": "Animasi Latar",
-        "animationDefault": "Preset bawaan",
-        "animationDescription": "Timpa animasi bawaan preset",
-        "animations": {
-          "bits": "1-0-Bits",
-          "bubbles": "Gelembung",
-          "circuits": "Sirkuit",
-          "confetti": "Konfeti",
-          "confettiExplosion": "Ledakan Konfeti",
-          "embers": "Bara",
-          "fireflies": "Kunang-kunang",
-          "geometric": "Geometris",
-          "glitch": "Glitch",
-          "glowworm": "Will-o'-Wisps",
-          "hearts": "Hati",
-          "hyperspace": "Hiperruang",
-          "leaves": "Daun",
-          "matrixRain": "Hujan Matrix",
-          "none": "Tidak ada",
-          "snow": "Salju",
-          "sparkles": "Kerlap-kerlip",
-          "stars": "Bintang",
-          "sun": "Matahari",
-          "tumbleweed": "Gulma Bergulung",
-          "waves": "Ombak"
-        },
-        "apply": "Terapkan Tema",
-        "button": "Tema",
-        "changeDesign": "Ubah Desain",
-        "currentTheme": "Tema: {{preset}}",
-        "modalTitle": "Tema Gim",
-        "noTheme": "Tidak ada tema yang dipilih. AI akan menghasilkan tema untuk setiap sesi gim.",
-        "preset": "Preset",
-        "presetDescription": "Pilih gaya visual untuk gim Anda",
-        "presets": {
-          "abstract": "Abstrak",
-          "adventure": "Petualangan",
-          "barbie": "Barbie",
-          "candy": "Permen",
-          "circus": "Sirkus",
-          "cyberpunk": "Cyberpunk",
-          "default": "Default",
-          "desert": "Gurun",
-          "detective": "Detektif",
-          "educational": "Edukasi",
-          "fairy": "Peri",
-          "fire": "Api",
-          "garden": "Taman",
-          "glitch": "Glitch",
-          "greenFantasy": "Fantasi Hijau",
-          "hacker": "Peretas",
-          "horror": "Horor",
-          "jungle": "Rimba",
-          "matrix": "Matrix",
-          "medieval": "Abad Pertengahan",
-          "minimal": "Minimal",
-          "mystery": "Misteri",
-          "mystic": "Mistik",
-          "nature": "Alam",
-          "nautical": "Bahari",
-          "noir": "Noir",
-          "ocean": "Samudra",
-          "pirate": "Bajak Laut",
-          "playful": "Ceria",
-          "retro": "Retro",
-          "romance": "Romansa",
-          "school": "Sekolah",
-          "scifi": "Fiksi Ilmiah",
-          "snowy": "Bersalju",
-          "space": "Luar Angkasa",
-          "steampunk": "Steampunk",
-          "storybook": "Buku Cerita",
-          "sunshine": "Cahaya Matahari",
-          "superhero": "Pahlawan Super",
-          "tech": "Tekno",
-          "terminal": "Terminal",
-          "underwater": "Bawah Air",
-          "western": "Koboi",
-          "zombie": "Zombie"
-        },
-        "preview": "Pratinjau",
-        "remove": "Hapus Tema",
-        "removeConfirm": "Hapus tema kustom? AI akan menghasilkan satu per sesi sebagai gantinya.",
-        "sampleGame": "Pintu berderit terbuka, menampakkan ruang redup. Reruntuhan kuno bersinar redup di dinding batu. Sebuah peti misterius berada di tengah ruangan.",
-        "sampleGame2": "Kamu mendekati peti dengan hati-hati. Saat jarimu menyentuh kait logam dingin, rune di dinding mulai berdenyut dengan cahaya lebih terang. Dengung rendah memenuhi ruangan.",
-        "samplePlayer": "Aku membuka pintu kayu tua...",
-        "sampleStatus": "Kesehatan",
-        "thinkingText": "Teks Sedang Berpikir",
-        "thinkingTextDescription": "Teks yang ditampilkan saat AI sedang berpikir",
-        "thinkingTextPlaceholder": "mis., Cerita sedang berkembang..."
-      },
       "title": "Gim Buatan Saya",
       "viewModal": {
         "readOnlyNotice": "Gim ini dibuat oleh pengguna lain. Anda dapat melihat detailnya tetapi tidak dapat mengedit. Gunakan \"Salin\" untuk membuat versi Anda sendiri yang dapat diedit.",
@@ -832,19 +622,6 @@
       "visibility": {
         "private": "Privat",
         "public": "Publik"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Pergi ke ChatGameLab",
-        "continueGame": "Lanjutkan Gim",
-        "expired": "Tautan berbagi ini telah mencapai batas permainan. Tidak ada sesi tersisa.",
-        "headline": "Anda diundang untuk memainkan petualangan teks bertenaga AI secara gratis!",
-        "invalidLink": "Tautan berbagi ini tidak valid atau sudah tidak ada.",
-        "loadError": "Tidak dapat memuat informasi gim. Silakan coba lagi.",
-        "restartGame": "Mulai Lagi",
-        "sessionExists": "Anda sudah memiliki gim yang sedang berlangsung. Anda dapat melanjutkan dari terakhir atau memulai gim baru.",
-        "startPlaying": "Mulai Bermain"
       }
     },
     "header": {
@@ -946,7 +723,6 @@
     "logout": "Keluar",
     "me": "Saya",
     "myGames": {
-      "continue": "Mainkan",
       "copyConfirm": {
         "confirm": "Salin Gim",
         "message": "Ini akan membuat salinan \"{{name}}\" di gim Anda.",
@@ -963,12 +739,6 @@
         "favorites": "Favorit"
       },
       "play": "Mainkan",
-      "restart": "Mulai Ulang",
-      "restartConfirm": {
-        "confirm": "Mulai Ulang",
-        "message": "Apakah Anda yakin ingin memulai ulang \"{{game}}\"? Progres Anda saat ini akan hilang.",
-        "title": "Mulai Ulang Gim"
-      },
       "title": "Gim Saya",
       "unfavorite": "Hapus dari favorit"
     },
@@ -1060,6 +830,19 @@
         "enabledHint": "Jika dinonaktifkan, tautan hanya menampilkan pemberitahuan, dan tautan untuk memainkan halaman tersebut berhenti berfungsi.",
         "link": "Tautan",
         "linkHint": "Gunakan a–z, 0–9, dan tanda hubung tunggal, 3 hingga 60 karakter.",
+        "links": {
+          "add": "Tambah tautan",
+          "down": "Pindahkan ke bawah",
+          "error": "Tautan tidak dapat disimpan. Setiap tautan harus memiliki judul, dan setiap alamat harus diawali dengan http:// atau https://.",
+          "hint": "Ditampilkan di halaman di bawah game. Maksimal sepuluh.",
+          "linkDescription": "Deskripsi (opsional)",
+          "linkTitle": "Judul",
+          "remove": "Hapus",
+          "save": "Simpan tautan",
+          "title": "Bacaan lanjutan",
+          "up": "Pindahkan ke atas",
+          "url": "Alamat"
+        },
         "offHint": "Halaman ini dinonaktifkan. Anda tetap dapat menyiapkan tautan dan kode QR-nya.",
         "open": "Buka halaman",
         "shareDescription": "Kirim tautan ini atau tampilkan sebagai kode QR.",
@@ -1113,7 +896,6 @@
         "deleteConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"?",
         "deleteTitle": "Hapus Lokakarya",
         "deleteWarning": "Semua gim dan sesi di lokakarya ini akan dihapus. Ini tidak dapat dibatalkan.",
-        "designEditingEnabled": "Izinkan peserta mengedit desain gim (tema)",
         "editParticipant": "Edit nama",
         "empty": "Belum ada lokakarya.",
         "enterWorkshop": "Masuk Mode Lokakarya",
@@ -1160,8 +942,10 @@
         "promptConstraintsPlaceholder": "mis. Pastikan cerita sesuai usia dan hindari konten kekerasan.",
         "removeParticipant": "Hapus peserta",
         "removeParticipantConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari lokakarya ini?",
-        "removeParticipantMessage": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari lokakarya ini? Tindakan ini tidak dapat dibatalkan.",
+        "removeParticipantMessage": "Apakah Anda benar-benar ingin menghapus \"{{name}}\" dari workshop ini?",
         "removeParticipantTitle": "Hapus Peserta",
+        "removeParticipantWarningPermanent": "Tindakan ini akan menghapus akun orang tersebut dan semua game yang dibuatnya secara permanen, beserta semua sesi permainan dan tautan yang dibagikan ke game tersebut. Tindakan ini tidak dapat dibatalkan. Jika game tersebut ingin dipertahankan, unduh terlebih dahulu dalam format YAML.",
+        "removeParticipantWarningVisiting": "Orang ini tetap memiliki akun dan game mereka. Hanya akses mereka ke workshop ini yang berakhir.",
         "resetAccess": "Atur ulang akses",
         "resetAccessDone": "Akses baru telah dibuat. Tautan lama tidak lagi berfungsi.",
         "resetAccessError": "Akses tidak dapat diatur ulang. Silakan coba lagi.",
@@ -1236,10 +1020,25 @@
     "promoteToHead": "Promosikan menjadi Kepala",
     "promoteWarning": "Pengguna ini akan mendapatkan kemampuan untuk mengelola anggota organisasi dan mengundang guru.",
     "publicWorkshop": {
+      "about": {
+        "details": "Pembuatnya menjelaskan dunia, karakter, dan aturannya dengan kata-kata mereka sendiri. Saat Anda bermain, AI melanjutkan cerita secara langsung: AI merespons apa pun yang Anda ketik dan menciptakan gambar yang sesuai — sehingga tidak ada dua sesi permainan yang berjalan dengan cara yang sama. Dengan membuatnya sendiri, Anda akan segera melihat betapa kuat instruksi Anda membentuk hasilnya, dan di mana batas kemampuan AI. Itulah intinya: bukan sekadar mendapatkan penjelasan tentang AI, melainkan mencobanya sendiri.",
+        "less": "Lebih sedikit",
+        "link": "Selengkapnya tentang ChatGameLab",
+        "more": "Pelajari selengkapnya",
+        "oneLiner": "Petualangan teks ini dibuat dengan ChatGameLab: dirancang sendiri, tanpa pemrograman, dan diceritakan secara langsung oleh AI."
+      },
       "copy": "Salin",
       "copyLogin": "Login untuk menyalin",
+      "cta": {
+        "button": "Mulai gratis",
+        "text": "Membuat petualangan teks sendiri gratis dan hanya membutuhkan waktu beberapa menit.",
+        "title": "Buat game ChatGameLab Anda sendiri"
+      },
       "download": "Unduh",
       "gamesTitle": "Permainan dari lokakarya ini",
+      "links": {
+        "title": "Selengkapnya tentang workshop ini"
+      },
       "noGames": "Belum ada permainan yang dipublikasikan di sini.",
       "play": "Mainkan",
       "playExhausted": "Tidak ada sesi bermain yang tersisa",
@@ -1296,47 +1095,11 @@
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
       "title": "Pengaturan Server"
     },
-    "sessions": {
-      "continueGame": "Lanjutkan Gim",
-      "deleteConfirm": {
-        "message": "Apakah Anda yakin ingin menghapus sesi ini untuk \"{{game}}\"? Tindakan ini tidak dapat dibatalkan.",
-        "title": "Hapus Sesi"
-      },
-      "empty": {
-        "description": "Mulai gim baru untuk memulai petualangan Anda!",
-        "noResults": "Tidak ada gim yang cocok",
-        "title": "Belum ada gim yang dimainkan"
-      },
-      "errors": {
-        "loadFailed": "Gagal memuat gim Anda. Silakan coba lagi."
-      },
-      "fields": {
-        "game": "Gim",
-        "lastPlayed": "Terakhir Dimainkan",
-        "model": "Model"
-      },
-      "freeUseKey": {
-        "description": "Tetapkan kunci penggunaan gratis agar semua anggota organisasi dapat bermain gim tanpa membutuhkan kunci API sendiri. Hanya kunci yang sudah dibagikan dengan organisasi ini yang dapat dipilih.",
-        "remove": "Hapus",
-        "selectPlaceholder": "Pilih kunci yang dibagikan...",
-        "title": "Kunci Penggunaan Gratis",
-        "unknownKey": "Kunci tidak dikenal"
-      },
-      "noDescription": "Tidak ada deskripsi",
-      "sort": {
-        "game": "Gim",
-        "label": "Urutkan berdasarkan",
-        "lastPlayed": "Terakhir Dimainkan",
-        "model": "Model"
-      },
-      "startNewGame": "Mulai Gim Baru",
-      "title": "Lanjutkan Bermain",
-      "untitledGame": "Gim Tanpa Judul"
-    },
     "settings": "Pengaturan",
     "share": {
       "copied": "Disalin",
-      "copyLink": "Salin tautan"
+      "copyLink": "Salin tautan",
+      "visitLink": "Kunjungi tautan"
     },
     "showing": "{{count}} anggota",
     "sort": {
@@ -1347,7 +1110,16 @@
       "role-desc": "Peran (Z-A)"
     },
     "unnamed": "Tanpa Nama",
-    "viewGame": "Lihat Gim"
+    "viewGame": "Lihat Gim",
+    "workshop": {
+      "inactive": {
+        "description": "Workshop ini sedang tidak aktif. Tunggu sampai pemimpin workshop Anda mengaktifkannya kembali.",
+        "noCode": "Tidak ada kode yang tersimpan di perangkat ini. Pemimpin workshop Anda dapat memberi tahu kodenya.",
+        "photoFirst": "Jika Anda keluar, kode Anda akan hilang dari perangkat ini. Foto kodenya terlebih dahulu.",
+        "showCode": "Tampilkan kode akses saya",
+        "title": "Workshop tidak aktif"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1365,11 +1137,6 @@
           "title": "Proyek ChatGameLab"
         },
         "title": "Tentang ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Belum ada riwayat bermain. Mulailah memainkan gim!",
-        "title": "Terakhir Dimainkan",
-        "viewAll": "Semua Gim"
       },
       "myGames": {
         "empty": "Belum ada gim. Buat gim pertama Anda!",
@@ -1402,7 +1169,6 @@
       "title": "Aksi Cepat"
     },
     "untitled": "Tanpa Judul",
-    "untitledGame": "Gim Tanpa Judul",
     "version": {
       "mismatch": {
         "message": "Versi frontend \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e tidak cocok dengan versi backend \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Ini dapat menyebabkan perilaku tidak terduga. Hubungi dukungan jika masalah berlanjut.",

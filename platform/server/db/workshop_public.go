@@ -334,7 +334,7 @@ func isPlayable(g db.Game) bool {
 
 // publicPageShareAuthor is the account recorded as creator of the page's share
 // links. Guests fall back to the author's youth-protection constraint once the
-// workshop and the organisation set none (JUGENDSCHUTZ.md, "Gäste"), so this is
+// workshop and the organisation set none (spec, Jugendschutz, "Gäste"), so this is
 // the workshop's creator, or else whoever assigned the workshop its key.
 func publicPageShareAuthor(ctx context.Context, ws *db.Workshop) (uuid.UUID, error) {
 	if ws.CreatedBy.Valid {

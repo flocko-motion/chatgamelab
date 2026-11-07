@@ -261,7 +261,6 @@ export function SingleWorkshopSettings({
     settings: Partial<{
       showPublicGames: boolean;
       showOtherParticipantsGames: boolean;
-      designEditingEnabled: boolean;
       aiQualityTier: string;
       promptConstraints: string;
       isPaused: boolean;
@@ -280,8 +279,6 @@ export function SingleWorkshopSettings({
         settings.showOtherParticipantsGames ??
         workshop.showOtherParticipantsGames ??
         true,
-      designEditingEnabled:
-        settings.designEditingEnabled ?? workshop.designEditingEnabled ?? false,
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
       promptConstraints:
@@ -490,16 +487,6 @@ export function SingleWorkshopSettings({
               onChange={(e) =>
                 handleUpdateWorkshopSettings({
                   showOtherParticipantsGames: e.currentTarget.checked,
-                })
-              }
-            />
-            <Switch
-              size="sm"
-              label={t("myOrganization.workshops.designEditingEnabled")}
-              checked={workshop.designEditingEnabled || false}
-              onChange={(e) =>
-                handleUpdateWorkshopSettings({
-                  designEditingEnabled: e.currentTarget.checked,
                 })
               }
             />

@@ -1,4 +1,4 @@
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import type { ObjGame } from "@/api/generated";
 
 export type GameFilter = "all" | "mine" | "workshop" | "public";
 
@@ -6,11 +6,6 @@ export interface WorkshopSettings {
   showPublicGames: boolean;
   showOtherParticipantsGames: boolean;
   aiQualityTier?: string;
-}
-
-export interface GameSessionState {
-  hasSession: boolean;
-  session: DbUserSessionWithGame | undefined;
 }
 
 export interface GamePermissions {

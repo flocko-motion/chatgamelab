@@ -51,9 +51,7 @@
       "ageGroupU13": "13–17 rokov",
       "ageGroupU18": "18+",
       "gamesCreated": "Vytvorené hry",
-      "gamesPlayed": "Odohrané hry",
       "memberSince": "Registrovaný od",
-      "messagesSent": "Odoslané správy",
       "noOrganization": "Žiadna organizácia",
       "noRole": "Žiadna pridelená rola",
       "organization": "Organizácia",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Vysoká (Premium)",
+      "high": "Vysoká",
       "label": "Úroveň kvality AI",
-      "low": "Nízka (Economy)",
+      "low": "Úsporná",
       "max": "Max (Premium + Audio)",
-      "medium": "Stredná (Vyvážená)",
+      "medium": "Vyvážená",
       "newSessionsOnly": "Táto úroveň sa vzťahuje len na nové relácie. Existujúce relácie si ponechajú úroveň, s ktorou začali.",
       "serverDefault": "Predvolené serverom"
     },
     "allGames": {
-      "continue": "Hrať",
       "copyConfirm": {
         "confirm": "Kopírovať hru",
         "message": "Týmto vytvoríte kópiu „{{name}}“ vo svojich hrách.",
@@ -306,12 +303,6 @@
       },
       "play": "Hrať",
       "reportGame": "Nahlásiť hru",
-      "restart": "Reštartovať",
-      "restartConfirm": {
-        "confirm": "Reštartovať",
-        "message": "Naozaj chcete reštartovať „{{game}}“? Vaší aktuálny postup sa stratí.",
-        "title": "Reštartovať hru"
-      },
       "title": "Všetky hry",
       "unfavorite": "Odstrániť z obľúbených",
       "workshop": "Workshop / org."
@@ -391,8 +382,8 @@
       "title": "Správa API kľúčov",
       "unnamed": "Nepomenovaný kľúč",
       "unsupportedPlatform": {
-        "badge": "nepodporované",
-        "hint": "Táto platforma nie je momentálne podporovaná. Môžete iba odstrániť existujúce kľúče."
+        "badge": "zatiaľ nepodporované",
+        "hint": "Táto platforma zatiaľ nie je podporovaná. Jej kľúče zostanú uložené, ale nebudú sa používať. Môžete ich odstrániť."
       }
     },
     "back": "Späť",
@@ -415,7 +406,7 @@
       "placeholder": "napr. apfel otter turm",
       "submit": "Pokračovať",
       "title": "Zadať kód",
-      "unknown": "Tento kód neexistuje. Skontrolujte jeho správnosť.",
+      "unknown": "Takto sa dovnútra nedostanete. Najprv skontrolujte správnosť zápisu – slovo po slove. Pomlčky ani medzery neprekážajú. Ak je kód správny, možno už nie je platný: kódy sa dajú nahradiť a po skončení workshopu prístup zaniká. Potom požiadajte vedúceho workshopu o nový kód.",
       "wrongLength": "Kód má tri alebo štyri slová."
     },
     "error": "Chyba",
@@ -425,119 +416,10 @@
       "programmedBy": "Napísané"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Použitý kľúč API bol zmenený",
-        "constraintSource": {
-          "organisation": "Organizacija",
-          "site13": "Privzeto za spletno mesto (13–17, brez starševske privolitve)",
-          "site13p": "Privzeto za spletno mesto (13–17, s starševsko privolitvijo)",
-          "site18": "Privzeto za spletno mesto (18+)",
-          "workshop": "Delavnica"
-        },
-        "sections": {
-          "constraintReasoning": "Prečo platí toto obmedzenie",
-          "constraintText": "Aktivna omejitev zaščite mladih",
-          "expandStory": "Inštrukcie pre AI na rozpísanie príbehu",
-          "imageGeneration": "Inštrukcie od AI pre generovanie obrázkov",
-          "rawResponse": "Nespracovaná odpoveď AI",
-          "responseSchema": "Požadovaná štruktúra odpovede AI",
-          "statusUpdate": "Prompt odoslaný AI",
-          "systemPrompt": "Inštrukcie hry pre AI"
-        },
-        "title": "Žiadosť/odpoveď AI",
-        "toggle": "AI náhľad",
-        "tokens": {
-          "received": "prijatých tokenov",
-          "sent": "odoslaných tokenov"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Bol použitý kľúč pre bezplatné používanie vašej organizácie",
-          "label": "Použitý kľúč API",
-          "personal": "Bol použitý váš osobný kľúč",
-          "private_share": "Bol použitý kľúč zo zdieľacieho odkazu",
-          "sponsor": "Bol použitý sponzorský kľúč",
-          "system_free_use": "Bol použitý globálny kľúč na bezplatné používanie",
-          "workshop": "Bol použitý kľúč vášho workshopu"
-        },
-        "usedConstraint": {
-          "label": "Uporabljena omejitev"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "ID správy",
-          "imagePrompt": "Prompt obrázka",
-          "isStreaming": "Streamovanie",
-          "seq": "Sekvencia",
-          "statusFields": "Statusové polia",
-          "timestamp": "Časová značka",
-          "type": "Typ"
-        },
-        "hints": {
-          "id": "Jedinečný identifikátor tejto správy",
-          "imagePrompt": "Prompt odoslaný AI na generovanie obrázkov",
-          "isStreaming": "Či sa obsah ešte prijíma",
-          "seq": "Poradie v konverzácii",
-          "statusFields": "Herné stavové premenné, ktoré AI sleduje",
-          "timestamp": "Kedy bola táto správa vytvorená",
-          "type": "player = vstup používateľa, game = odpoveď AI, system = kontext"
-        },
-        "title": "Ladiace informácie"
-      },
-      "error": {
-        "backToGames": "Späť k hrám",
-        "gameNotFound": "Hra sa nenašla",
-        "missingFields": "V hre chýbajú požadované polia:",
-        "noApiKey": {
-          "banner": "Pre platformu {{platform}} sa nenašiel žiadny použiteľný kľúč API. Ak chcete pokračovať v hraní, pridajte si vlastný kľúč API v nastaveniach účtu.",
-          "goToSettings": "Nastavenia API kľúča",
-          "personal": "Pred hraním si musíte nastaviť vlastný API kľúč. Prejdite do nastavení API kľúčov a pridajte ho.",
-          "title": "Nie je dostupný API kľúč",
-          "workshop": "Pre tento workshop nie je nastavený žiadny API kľúč. Kontaktujte prosím administrátora workshopu."
-        },
-        "retry": "Skúsiť znova",
-        "sendFailed": "Odoslanie správy zlyhalo. Skúste to znova.",
-        "sessionFailed": "Nepodarilo sa spustiť hernú reláciu"
-      },
-      "header": {
-        "back": "Späť k hrám",
-        "debug": "Debug",
-        "decreaseFont": "Menšie",
-        "disableAnimations": "Vypnúť animácie",
-        "disableTextEffects": "Vypnúť textové efekty",
-        "fontSize": "Veľkosť písma",
-        "increaseFont": "Väčšie",
-        "muteAudio": "Utišaj pripovedovanje",
-        "resetFont": "Reset",
-        "settings": "Nastavenia",
-        "unmuteAudio": "Vključi pripovedovanje",
-        "useNeutralTheme": "Použiť neutrálnu tému"
-      },
-      "input": {
-        "audioCancel": "Zrušiť nahrávanie",
-        "audioProcessing": "Spracováva sa…",
-        "audioRecording": "Nahráva sa…",
-        "audioStart": "Nahrať hlasovú správu",
-        "audioStop": "Odoslať nahrávku",
-        "audioUnavailableMessage": "Hlasový vstup nie je dostupný s aktuálnym nastavením API kľúča. Ak chcete použiť hlasový vstup, prepnite na vyššiu úroveň kvality (Premium alebo Max).",
-        "audioUnavailableTitle": "Hlasový vstup nie je dostupný",
-        "placeholder": "Čo robíte?",
-        "send": "Poslať akciu"
-      },
-      "loading": {
-        "game": "Načítava sa hra...",
-        "resolvingKey": "Overuje sa API kľúč...",
-        "starting": "Spúšťa sa herná relácia...",
-        "startingHint": "AI pripravuje vaše dobrodružstvo"
-      },
-      "needsApiKey": {
-        "description": "API kľúč použitý pre túto reláciu už nie je dostupný.",
-        "title": "Vyžaduje sa API kľúč"
-      },
-      "statusChange": {
-        "effect": "Efekt:"
-      },
-      "unnamed": "Nepomenované"
+      "rebuilding": {
+        "description": "Čoskoro sa tu budete môcť znova hrať.",
+        "title": "Herný prehrávač sa prestavuje"
+      }
     },
     "games": {
       "actions": {
@@ -574,13 +456,13 @@
       "editFields": {
         "description": "Dajte hre krátky popis. Je iba pre vás a neovplyvní hrateľnosť.",
         "gameStart": "Ako hra začína?",
-        "gameStartHint": "Čo sa deje na začiatku? Opíšte prvú scénu, ktorú hráč uvidí. Ako je hráč privítaný?",
+        "gameStartHint": "Čo sa stane na začiatku? Opíšte prvú scénu, ktorú hráč uvidí. Ako je hráč privítaný? Ako hráč zistí, čo má robiť?",
         "gameStartPlaceholder": "Prebudíte sa na okraji tmavého lesa. Úzka cestička vedie hlbšie medzi stromy...",
         "imageStyle": "Aký štýl majú mať obrázky hry?",
         "imageStyleHint": "Napríklad: kreslený, realistický, pixel art, akvarel...",
         "name": "Názov hry",
         "scenario": "O čom je hra?",
-        "scenarioHint": "Stručne opíšte: Ako hra funguje? Aký je svet? Jazyk a tón (napr. španielčina pre šiestakov)?\nAkú rolu má hráč? Napíšte „Hráč ...“. \nAk chcete, aby AI prevzala rolu konkrétnej osoby, napíšte „Ty si ...“.",
+        "scenarioHint": "Stručne opíšte: Ako hra funguje? Aký je herný svet? Jazyk \u00026 tón (napr. španielčina pre šiestakov)?\nAkú úlohu má hráč? Napíšte „Hráč ...“.\nAk chcete, aby AI prevzala úlohu konkrétnej osoby, napíšte „Si ...“.\nAký je cieľ? Ako hráč zistí, že vyhral?",
         "scenarioPlaceholder": "Ste prieskumník v tajomnom lese. Vaším cieľom je nájsť ukrytý poklad...",
         "statusFields": "Hodnoty hry",
         "statusFieldsHint": "Čo má hra sledovať? Napríklad zdravie, body alebo muníciu. Hra si tieto hodnoty pamätá a pri hraní ich aktualizuje."
@@ -732,98 +614,6 @@
         "style": "Dizajn",
         "styleInfo": "Voliteľné nastavenia vzhľadu hry počas hrania."
       },
-      "theme": {
-        "animation": "Animácia pozadia",
-        "animationDefault": "Predvolený preset",
-        "animationDescription": "Prepísať predvolenú animáciu presetu",
-        "animations": {
-          "bits": "1-0-bity",
-          "bubbles": "Bubliny",
-          "circuits": "Obvody",
-          "confetti": "Konfety",
-          "confettiExplosion": "Výbuch konfet",
-          "embers": "Žeravé uhlíky",
-          "fireflies": "Svetlušky",
-          "geometric": "Geometrické",
-          "glitch": "Glitch",
-          "glowworm": "Bludičky",
-          "hearts": "Srdcia",
-          "hyperspace": "Hyperspace",
-          "leaves": "Listy",
-          "matrixRain": "Matrix Rain",
-          "none": "Žiadna",
-          "snow": "Sneh",
-          "sparkles": "Trblietky",
-          "stars": "Hviezdy",
-          "sun": "Slnko",
-          "tumbleweed": "Kobercový bodliak",
-          "waves": "Vlny"
-        },
-        "apply": "Použiť tému",
-        "button": "Téma",
-        "changeDesign": "Zmeniť dizajn",
-        "currentTheme": "Téma: {{preset}}",
-        "modalTitle": "Téma hry",
-        "noTheme": "Nie je vybraná žiadna téma. AI ju vygeneruje pre každú reláciu.",
-        "preset": "Preset",
-        "presetDescription": "Vyberte vizuálny štýl vašej hry",
-        "presets": {
-          "abstract": "Abstraktná",
-          "adventure": "Dobrodružná",
-          "barbie": "Barbie",
-          "candy": "Cukríková",
-          "circus": "Cirkus",
-          "cyberpunk": "Kyberpunk",
-          "default": "Predvolená",
-          "desert": "Púšť",
-          "detective": "Detektívna",
-          "educational": "Vzdelávacia",
-          "fairy": "Rozprávková",
-          "fire": "Oheň",
-          "garden": "Záhrada",
-          "glitch": "Glitch",
-          "greenFantasy": "Zelená fantasy",
-          "hacker": "Hacker",
-          "horror": "Horor",
-          "jungle": "Džungľa",
-          "matrix": "Matrix",
-          "medieval": "Stredovek",
-          "minimal": "Minimalistická",
-          "mystery": "Záhadná",
-          "mystic": "Mystická",
-          "nature": "Príroda",
-          "nautical": "Námorná",
-          "noir": "Noir",
-          "ocean": "Oceán",
-          "pirate": "Pirátska",
-          "playful": "Hravá",
-          "retro": "Retro",
-          "romance": "Romantická",
-          "school": "Škola",
-          "scifi": "Sci-fi",
-          "snowy": "Snehová",
-          "space": "Vesmír",
-          "steampunk": "Steampunk",
-          "storybook": "Rozprávková kniha",
-          "sunshine": "Slnečná",
-          "superhero": "Superhrdinská",
-          "tech": "Technologická",
-          "terminal": "Terminál",
-          "underwater": "Pod vodou",
-          "western": "Western",
-          "zombie": "Zombie"
-        },
-        "preview": "Náhľad",
-        "remove": "Odstrániť tému",
-        "removeConfirm": "Odstrániť vlastnú tému? AI namiesto toho vygeneruje tému pre každú reláciu.",
-        "sampleGame": "Dvere zavŕzgajú a odhalia slabo osvetlenú sieň. Na kamenných stenách slabo žiaria starodávne runy. Uprostred miestnosti stojí tajomná truhlica.",
-        "sampleGame2": "Opatrne sa približujete k truhlici. Keď sa vaše prsty dotknú studeného kovového zámku, runy na stenách začnú pulzovať jasnejším svetlom. Miestnosťou sa šíri nízke hučanie.",
-        "samplePlayer": "Otvorím staré drevené dvere...",
-        "sampleStatus": "Zdravie",
-        "thinkingText": "Text počas premýšľania",
-        "thinkingTextDescription": "Text zobrazený, keď AI premýšľa",
-        "thinkingTextPlaceholder": "napr. Príbeh sa rozvíja..."
-      },
       "title": "Moje vytvorené hry",
       "viewModal": {
         "readOnlyNotice": "Túto hru vytvoril iný používateľ. Môžete si pozrieť podrobnosti, ale nie upravovať. Pomocou „Kopírovať“ vytvorte vlastnú upraviteľnú verziu.",
@@ -832,19 +622,6 @@
       "visibility": {
         "private": "Súkromná",
         "public": "Verejná"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Prejsť na ChatGameLab",
-        "continueGame": "Pokračovať v hre",
-        "expired": "Tento odkaz na zdieľanie dosiahol svoj limit hrania. Ďalšie relácie nie sú dostupné.",
-        "headline": "Boli ste pozvaní zahrať si bezplatné AI textové dobrodružstvo!",
-        "invalidLink": "Tento zdieľací odkaz je neplatný alebo už neexistuje.",
-        "loadError": "Nepodarilo sa načítať informácie o hre. Skúste to znova.",
-        "restartGame": "Začať odznova",
-        "sessionExists": "Už máte rozbehnutú hru. Môžete pokračovať tam, kde ste skončili, alebo začať novú hru.",
-        "startPlaying": "Začať hrať"
       }
     },
     "header": {
@@ -946,7 +723,6 @@
     "logout": "Odhlásiť sa",
     "me": "Ja",
     "myGames": {
-      "continue": "Hrať",
       "copyConfirm": {
         "confirm": "Kopírovať hru",
         "message": "Týmto vytvoríte kópiu „{{name}}“ vo svojich hrách.",
@@ -963,12 +739,6 @@
         "favorites": "Obľúbené"
       },
       "play": "Hrať",
-      "restart": "Reštartovať",
-      "restartConfirm": {
-        "confirm": "Reštartovať",
-        "message": "Naozaj chcete reštartovať „{{game}}“? Vaší aktuálny postup sa stratí.",
-        "title": "Reštartovať hru"
-      },
       "title": "Moje hry",
       "unfavorite": "Odstrániť z obľúbených"
     },
@@ -1060,6 +830,19 @@
         "enabledHint": "Keď je táto možnosť vypnutá, odkaz zobrazí iba oznámenie a odkazy na hranie na stránke prestanú fungovať.",
         "link": "Odkaz",
         "linkHint": "Použite a–z, 0–9 a samostatné spojovníky, 3 až 60 znakov.",
+        "links": {
+          "add": "Pridať odkaz",
+          "down": "Posunúť nadol",
+          "error": "Odkazy sa nepodarilo uložiť. Každý odkaz musí mať názov a každá adresa musí začínať na http:// alebo https://.",
+          "hint": "Zobrazia sa na stránke pod hrami. Najviac desať.",
+          "linkDescription": "Opis (voliteľný)",
+          "linkTitle": "Názov",
+          "remove": "Odstrániť",
+          "save": "Uložiť odkazy",
+          "title": "Ďalšie odkazy",
+          "up": "Posunúť nahor",
+          "url": "Adresa"
+        },
         "offHint": "Stránka je vypnutá. Stále môžete pripraviť jej odkaz a QR kód.",
         "open": "Otvoriť stránku",
         "shareDescription": "Pošlite tento odkaz alebo ho zobrazte ako QR kód.",
@@ -1113,7 +896,6 @@
         "deleteConfirm": "Naozaj chcete vymazať „{{name}}“?",
         "deleteTitle": "Vymazať workshop",
         "deleteWarning": "Všetky hry a relácie v tomto workshope budú vymazané. Toto nie je možné vrátiť späť.",
-        "designEditingEnabled": "Povoliť účastníkom upravovať dizajn hry (tému)",
         "editParticipant": "Upraviť meno",
         "empty": "Zatiaľ žiadne workshopy.",
         "enterWorkshop": "Vstúpiť do workshop režimu",
@@ -1160,8 +942,10 @@
         "promptConstraintsPlaceholder": "napr. Udržujte príbeh primeraný veku a vyhnite sa násilnému obsahu.",
         "removeParticipant": "Odstrániť účastníka",
         "removeParticipantConfirm": "Naozaj chcete odstrániť „{{name}}“ z tohto workshopu?",
-        "removeParticipantMessage": "Naozaj chcete odstrániť „{{name}}“ z tohto workshopu? Táto akcia je nevratná.",
+        "removeParticipantMessage": "Naozaj chcete odstrániť „{{name}}“ z tohto workshopu?",
         "removeParticipantTitle": "Odstrániť účastníka",
+        "removeParticipantWarningPermanent": "Týmto natrvalo vymažete účet tejto osoby a všetky hry, ktoré vytvorila, spolu so všetkými hernými reláciami a zdieľanými odkazmi na ne. Nedá sa to vrátiť späť. Ak chcete hry zachovať, najprv ich stiahnite vo formáte YAML.",
+        "removeParticipantWarningVisiting": "Táto osoba si ponechá svoj účet aj hry. Skončí sa iba jej prístup k tomuto workshopu.",
         "resetAccess": "Obnoviť prístup",
         "resetAccessDone": "Bol vytvorený nový prístup. Starý odkaz už nefunguje.",
         "resetAccessError": "Prístup sa nepodarilo obnoviť. Skúste to znova.",
@@ -1236,10 +1020,25 @@
     "promoteToHead": "Povýšiť na vedúceho",
     "promoteWarning": "Tento používateľ získa možnosť spravovať členov organizácie a pozývať učiteľov.",
     "publicWorkshop": {
+      "about": {
+        "details": "Ich tvorcovia opisujú svet, postavy a pravidlá vlastnými slovami. Počas hrania AI pokračuje v rozprávaní príbehu: reaguje na všetko, čo napíšete, a vymýšľa k tomu vhodné obrázky — žiadne dve kolá preto neprebiehajú rovnako. Keď si jednu hru vytvoríte sami, rýchlo zistíte, ako výrazne vlastné pokyny ovplyvňujú výsledok a kde AI naráža na svoje hranice. Presne o to ide: nenechať si AI vysvetľovať, ale vyskúšať si ju.",
+        "less": "Menej",
+        "link": "Viac o ChatGameLabe",
+        "more": "Zistiť viac",
+        "oneLiner": "Tieto textové dobrodružstvá vznikli v ChatGameLabe: vytvorené ručne, bez programovania, naživo rozprávané AI."
+      },
       "copy": "Kopírovať",
       "copyLogin": "Prihláste sa a skopírujte",
+      "cta": {
+        "button": "Začať zadarmo",
+        "text": "Vytvoriť si vlastné textové dobrodružstvo je zadarmo a trvá to len pár minút.",
+        "title": "Vytvorte si vlastnú hru v ChatGameLabe"
+      },
       "download": "Stiahnuť",
       "gamesTitle": "Hry z tohto workshopu",
+      "links": {
+        "title": "Viac o tomto workshope"
+      },
       "noGames": "Zatiaľ tu neboli zverejnené žiadne hry.",
       "play": "Hrať",
       "playExhausted": "Nezostali žiadne herné relácie",
@@ -1296,47 +1095,11 @@
       "notAuthorized": "Nemáte oprávnenie pristupovať k nastaveniam servera. Vyžaduje sa prístup administrátora.",
       "title": "Nastavenia servera"
     },
-    "sessions": {
-      "continueGame": "Pokračovať v hre",
-      "deleteConfirm": {
-        "message": "Naozaj chcete vymazať túto reláciu hry „{{game}}“? Táto akcia je nevratná.",
-        "title": "Vymazať reláciu"
-      },
-      "empty": {
-        "description": "Začnite novú hru a vydajte sa na dobrodružstvo!",
-        "noResults": "Nenašli sa žiadne zodpovedajúce hry",
-        "title": "Zatiaľ ste nehrali žiadne hry"
-      },
-      "errors": {
-        "loadFailed": "Nepodarilo sa načítať vaše hry. Skúste to znova."
-      },
-      "fields": {
-        "game": "Hra",
-        "lastPlayed": "Naposledy hrané",
-        "model": "Model"
-      },
-      "freeUseKey": {
-        "description": "Nastavte kľúč na voľné používanie, aby všetci členovia organizácie mohli hrať hry bez vlastného API kľúča. Vybrať možno iba kľúče už zdieľané s touto organizáciou.",
-        "remove": "Odstrániť",
-        "selectPlaceholder": "Vyberte zdieľaný kľúč...",
-        "title": "Kľúč na voľné používanie",
-        "unknownKey": "Neznámy kľúč"
-      },
-      "noDescription": "Bez popisu",
-      "sort": {
-        "game": "Hra",
-        "label": "Triediť podľa",
-        "lastPlayed": "Naposledy hrané",
-        "model": "Model"
-      },
-      "startNewGame": "Začať novú hru",
-      "title": "Pokračovať v hraní",
-      "untitledGame": "Hra bez názvu"
-    },
     "settings": "Nastavenia",
     "share": {
       "copied": "Skopírované",
-      "copyLink": "Kopírovať odkaz"
+      "copyLink": "Kopírovať odkaz",
+      "visitLink": "Navštíviť odkaz"
     },
     "showing": "{{count}} členovia",
     "sort": {
@@ -1347,7 +1110,16 @@
       "role-desc": "Rola (Z-A)"
     },
     "unnamed": "Nepomenované",
-    "viewGame": "Zobraziť hru"
+    "viewGame": "Zobraziť hru",
+    "workshop": {
+      "inactive": {
+        "description": "Tento workshop momentálne nie je aktívny. Počkajte, kým ho vedúci workshopu znova aktivuje.",
+        "noCode": "Na tomto zariadení nie je uložený žiadny kód. Vedúci workshopu vám môže povedať váš kód.",
+        "photoFirst": "Ak sa odhlásite, váš kód z tohto zariadenia zmizne. Najprv si ho odfoťte.",
+        "showCode": "Zobraziť môj prístupový kód",
+        "title": "Workshop nie je aktívny"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1365,11 +1137,6 @@
           "title": "Projekt ChatGameLab"
         },
         "title": "O ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Žiadna história hrania. Začnite hrať hru!",
-        "title": "Naposledy hrané",
-        "viewAll": "Všetky hry"
       },
       "myGames": {
         "empty": "Zatiaľ žiadne hry. Vytvorte svoju prvú hru!",
@@ -1402,7 +1169,6 @@
       "title": "Rýchle akcie"
     },
     "untitled": "Bez názvu",
-    "untitledGame": "Hra bez názvu",
     "version": {
       "mismatch": {
         "message": "Verzia frontendu \u0003cbcfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e sa nezhoduje s verziou backendu \u0003cbcbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Môže to spôsobovať neočakávané správanie. Ak problém pretrváva, kontaktujte podporu.",

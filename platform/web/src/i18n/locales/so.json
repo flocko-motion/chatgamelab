@@ -51,9 +51,7 @@
       "ageGroupU13": "13-17 sano",
       "ageGroupU18": "18+",
       "gamesCreated": "Ciyaaro la abuuray",
-      "gamesPlayed": "Ciyaaro la ciyaaray",
       "memberSince": "Diiwaangashan tan iyo",
-      "messagesSent": "Fariimo la diray",
       "noOrganization": "Urur la'aan",
       "noRole": "Door la'aan",
       "organization": "Urur",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Sare (Premium)",
+      "high": "Sare",
       "label": "Heerka Tayada AI",
-      "low": "Hoose (Economy)",
+      "low": "Dhaqaale",
       "max": "Max (Premium + Cod)",
-      "medium": "Dhexdhexaad (Isu dheelli tiran)",
+      "medium": "Isku dheelli tiran",
       "newSessionsOnly": "Heerkan wuxuu khuseeyaa kaliya fadhiyada cusub. Fadhiyada jira waxay sii wataan heerkii ay ku bilaabmeen.",
       "serverDefault": "Dejinta Server-ka"
     },
     "allGames": {
-      "continue": "Ciyaar",
       "copyConfirm": {
         "confirm": "Nuqul Ciyaarta",
         "message": "Tani waxay abuuri doontaa nuqul ka mid ah \"{{name}}\" ciyaarahaaga.",
@@ -306,12 +303,6 @@
       },
       "play": "Ciyaar",
       "reportGame": "Sheeg ciyaarta",
-      "restart": "Dib u bilow",
-      "restartConfirm": {
-        "confirm": "Dib u bilow",
-        "message": "Ma hubtaa inaad dib u bilowdo \"{{game}}\"? Horumarkaaga hadda waa lumayaa.",
-        "title": "Dib u bilow Ciyaarta"
-      },
       "title": "Ciyaaraha oo dhan",
       "unfavorite": "Ka saar kuwa aad jeceshahay",
       "workshop": "Aqoon-is-weydaarsi / Urur"
@@ -391,8 +382,8 @@
       "title": "Maamulka Furayaasha API",
       "unnamed": "Fure magac la'aan",
       "unsupportedPlatform": {
-        "badge": "aan la taageerin",
-        "hint": "Madalani hadda lama taageero. Waxaad kaliya ka saari kartaa furayaasha jira."
+        "badge": "weli lama taageero",
+        "hint": "Barta tani weli lama taageero. Furayaasheeda waa la kaydinayaa, laakiin lama isticmaalo. Waad ka saari kartaa."
       }
     },
     "back": "Dib u noqo",
@@ -472,7 +463,7 @@
       "placeholder": "tusaale, apfel otter turm",
       "submit": "Sii wad",
       "title": "Geli koodhka",
-      "unknown": "Koodhkani ma jiro. Fadlan hubi higgaadda.",
+      "unknown": "Taasi kuma gelin. Marka hore hubi higgaadda, eray eray. Jiitinno ama meelo bannaan muhiim ma aha. Haddii koodhku sax yahay, waxaa laga yaabaa inuusan mar dambe shaqaynayn: koodhadhka waa la beddeli karaa, gelitaankuna wuxuu dhammaanayaa marka aqoon-is-weydaarsigu dhammaado. Markaas hoggaamiyaha aqoon-is-weydaarsiga ka codso koodh cusub.",
       "wrongLength": "Koodhku wuxuu ka kooban yahay saddex ama afar eray."
     },
     "error": "Khalad",
@@ -525,134 +516,10 @@
       "programmedBy": "Waxa barnaamijiyay"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "Furaha API ee la isticmaalay waa la beddelay",
-        "constraintSource": {
-          "organisation": "Urur",
-          "site13": "Dejinta goobta ee caadiga ah (13–17, oggolaansho waalid la'aan)",
-          "site13p": "Dejinta goobta ee caadiga ah (13–17, iyadoo oggolaansho waalid leh)",
-          "site18": "Dejinta goobta ee caadiga ah (18+)",
-          "workshop": "Aqoon-is-weydaarsi"
-        },
-        "sections": {
-          "constraintReasoning": "Sababta xaddidaaddani u khusayso",
-          "constraintText": "Xadidayn ilaalinta dhallinyarada oo firfircoon",
-          "expandStory": "Tilmaamaha AI-ga loogu qorayo sheekada",
-          "imageGeneration": "Tilmaamaha AI-ga u diray sawir-samaynta",
-          "rawResponse": "Jawaabta AI-ga ee aan la shaqayn",
-          "responseSchema": "Qaab-dhismeedka jawaabta AI-ga ee la rabo",
-          "statusUpdate": "Dalabka loo diray AI",
-          "systemPrompt": "Tilmaamaha ciyaarta ee AI-ga"
-        },
-        "title": "Dalabka / Jawaabta AI",
-        "toggle": "Falanqaynta AI",
-        "tokens": {
-          "received": "token la helay",
-          "sent": "token la diray"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Furaha isticmaalka bilaashka ah ee ururkaaga ayaa la adeegsaday",
-          "label": "Furaha API ee la isticmaalay",
-          "personal": "Furahaaga shakhsiyeed ayaa la adeegsaday",
-          "private_share": "Furaha isku xirka wadaagga ayaa la adeegsaday",
-          "sponsor": "Furaha kafaala-qaadka ayaa la adeegsaday",
-          "system_free_use": "Furaha isticmaalka bilaashka ah ee guud ayaa la adeegsaday",
-          "workshop": "Furaha aqoon-is-weydaarsigaaga ayaa la adeegsaday"
-        },
-        "usedConstraint": {
-          "label": "Xadidayn la adeegsaday"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "Aqoonsiga farriinta",
-          "imagePrompt": "Tilmaanta Sawirka",
-          "isStreaming": "Si toos ah u socda",
-          "seq": "Isdaba-joog",
-          "statusFields": "Goobaha Xaaladda",
-          "timestamp": "Waqtiga",
-          "type": "Nooc"
-        },
-        "hints": {
-          "id": "Aqoonsi gaar ah oo farriintan leedahay",
-          "imagePrompt": "Tilmaanta loo diray AI-ga sawir sameeya",
-          "isStreaming": "In weli nuxur la helayo iyo in kale",
-          "seq": "Kala damabeynta wada hadalka",
-          "statusFields": "Qiimaha xaaladda ciyaarta ee AI-gu la socdo",
-          "timestamp": "Goorta farriintan la abuuray",
-          "type": "player = gelinta isticmaale, game = jawaabta AI, system = macnaha guud"
-        },
-        "title": "Macluumaadka Debug"
-      },
-      "error": {
-        "backToGames": "Ku noqo Ciyaaraha",
-        "gameNotFound": "Ciyaarta lama helin",
-        "missingFields": "Ciyaartu waxay ka maqan tahay goobaha lagama maarmaanka ah:",
-        "noApiKey": {
-          "banner": "Fure API oo la isticmaali karo lagama helin madasha {{platform}}. Si aad u sii ciyaarto, ku dar furahaaga API dejimaha akoonkaaga.",
-          "goToSettings": "Dejinta Furaha API",
-          "personal": "Waa inaad dejisaa fure API kahor intaadan ciyaarin. U tag dejinta Furaha API si aad mid ugu darto.",
-          "title": "Fure API Lama Hayo",
-          "workshop": "Fure API looma dejin aqoon-is-weydaarsigan. Fadlan la xiriir maamulaha aqoon-is-weydaarsiga."
-        },
-        "retry": "Isku day mar kale",
-        "sendFailed": "Ku guuldareystay in la diro farriinta. Fadlan isku day mar kale.",
-        "sessionFailed": "Ku guuldareystay in la bilaabo kal-fadhiga ciyaarta"
-      },
-      "header": {
-        "back": "Ku noqo ciyaaraha",
-        "debug": "Debug",
-        "decreaseFont": "Yaree",
-        "disableAnimations": "Dami firfircoonida",
-        "disableTextEffects": "Dami saameynta qoraalka",
-        "fontSize": "Cabirka farta",
-        "increaseFont": "Weynee",
-        "muteAudio": "Aamus sheekada",
-        "resetFont": "Dib u celi",
-        "settings": "Dejimo",
-        "unmuteAudio": "Fur sheekada",
-        "useNeutralTheme": "Isticmaal mawduuc dhexdhexaad ah"
-      },
-      "input": {
-        "audioCancel": "Jooji duubista",
-        "audioProcessing": "Waxaa la farsameynayaa…",
-        "audioRecording": "Waxaa la duubayaa…",
-        "audioStart": "Duub fariin cod ah",
-        "audioStop": "Dir duubista",
-        "audioUnavailableMessage": "Gelinta codka laguma heli karo dejimaha furaha API ee hadda. Si aad u isticmaasho cod, u beddel heer tayo sare (Premium ama Max).",
-        "audioUnavailableTitle": "Gelinta Codka Lama Hayo",
-        "placeholder": "Maxaad samaynaysaa?",
-        "send": "Dir ficil"
-      },
-      "loading": {
-        "game": "Ciyaarta ayaa soo degaysa...",
-        "resolvingKey": "Furaha API ayaa la xaqiijinayaa...",
-        "starting": "Kal-fadhiga ciyaarta waa bilaabmayaa...",
-        "startingHint": "AI-gu wuxuu diyaarinayaa tacaburkaaga"
-      },
-      "needsApiKey": {
-        "description": "Furaha API ee kal-fadhigan loo isticmaalay hadda ma jiro.",
-        "reason": "Furaha API-gaaga hore ma jiro. Si aad u sii wadato ciyaartaada, fadlan dooro fure cusub.",
-        "title": "Fure API ayaa loo baahan yahay"
-      },
-      "selectApiKey": {
-        "keyDescription": "Dooro furaha API-ga ee loo isticmaali doono kalfadhigan ciyaarta",
-        "keyLabel": "Fure API",
-        "keyPlaceholder": "Dooro fure API",
-        "loadError": "Furayaasha API lama soo dejin karo",
-        "mine": "Aniga",
-        "modelDescription": "Ikhtiyaari ahaan dooro moodel AI gaar ah",
-        "modelLabel": "Moodel AI",
-        "modelPlaceholder": "Moodelka caadiga ah",
-        "noKeys": "Waxaad u baahan tahay ugu yaraan hal fure API si aad u ciyaarto. Ku dar mid Settings → API Keys.",
-        "playing": "Ciyaar",
-        "startGame": "Bilow Ciyaarta",
-        "title": "Dooro Fure API"
-      },
-      "statusChange": {
-        "effect": "Saameyn:"
-      },
-      "unnamed": "Magac la'aan"
+      "rebuilding": {
+        "description": "Dhawaan ayaad halkan mar kale ku ciyaari kartaa.",
+        "title": "Muuqaalka ciyaarta dib ayaa loo dhisayaa"
+      }
     },
     "games": {
       "actions": {
@@ -921,13 +788,13 @@
       "editFields": {
         "description": "Sii ciyaarta sharaxaad gaaban. Tani waa adiga oo keliya mana saamayn doonto ciyaarta.",
         "gameStart": "Sidee ayuu ciyaartu ku bilaabmaa?",
-        "gameStartHint": "Sidee ayuu ciyaartu ku bilaabmaa? Waa maxay muuqaalka ugu horreeya? Sidee ciyaartoyga loo soo dhaweeyaa?",
+        "gameStartHint": "Maxaa dhacaya bilowga? Sharax goobta ugu horreysa ee ciyaartoygu arko. Sidee ciyaartoyga loo soo dhaweynayaa? Sidee ayuu ciyaartoygu ku ogaanayaa waxa uu samaynayo?",
         "gameStartPlaceholder": "Waad soo toosaysaa agagaarka keyd mugdi ah. Jid cidhiidhi ah ayaa ku hogaaminaya gudaha geedaha...",
         "imageStyle": "Noocee qaab ahaan sawirrada ciyaarta lagu rabaa?",
         "imageStyleHint": "Tusaale: kartuun, xaqiiqo ah, farshaxan pixel, biyo rinji...",
         "name": "Magaca Ciyaarta",
         "scenario": "Waa maxay ciyaartu?",
-        "scenarioHint": "Si kooban u sharax: Sidee ayuu ciyaartu u shaqeeyaa? Sidee ayay aduunka ciyaartu u egyahay? Luqadda \u00026 Codka (tusaale Isbaanish loogu talagalay ardayda fasalka 6aad)?\nWaa maxay doorka ciyaartoyga? Qor \"Ciyaartoygu ...\".\nHaddii aad rabto in AI ay qaadato doorka qof gaar ah qor \"Adigu waxaad tahay ...\".",
+        "scenarioHint": "Si kooban u sharax: Sidee ayay ciyaartu u shaqaysaa? Dunidu sidee tahay? Luqadda iyo codka (tusaale, Isbaanish loogu talagalay ardayda fasalka lixaad)?\nDoor noocee ah ayuu ciyaartoygu leeyahay? Qor \"Ciyaartoygu ...\".\nHaddii aad rabto in AI-gu uu qaato doorka qof gaar ah, qor \"Waxaad tahay ...\".\nWaa maxay yoolku? Sidee ayuu ciyaartoygu ku ogaanayaa inuu guulaystay?",
         "scenarioPlaceholder": "Adigu waxaad tahay sahmiyaha keyn qarsoon. Himiladaadu waa inaad hesho khasnad qarsoon...",
         "statusFields": "Qiimayaasha Ciyaarta",
         "statusFieldsHint": "Waa maxay qiimayaasha uu ciyaartu xafidi doono? Tusaale nolosha, dhibcaha, ama rasaasta. Ciyaartu way xasuusan doontaa qiimayaashan oo way cusbooneysiin doontaa inta lagu jiro ciyaarta."
@@ -1531,7 +1398,6 @@
     "loading": "La rarayo...",
     "logout": "Ka bax",
     "myGames": {
-      "continue": "Sii wad",
       "copyConfirm": {
         "confirm": "Nuqul Ciyaarta",
         "message": "Tani waxay abuuri doontaa nuqul ka mid ah \"{{name}}\" ciyaarahaaga.",
@@ -1548,12 +1414,6 @@
         "favorites": "Kuwo la jecel yahay"
       },
       "play": "Ciyaar",
-      "restart": "Bilow mar kale",
-      "restartConfirm": {
-        "confirm": "Bilow Mar Kale",
-        "message": "Ma hubtaa inaad rabto inaad dib u bilowdo \"{{game}}\"? Horumarkaaga hadda wuu lumi doonaa.",
-        "title": "Dib u Bilow Ciyaarta"
-      },
       "title": "Ciyaarayda",
       "unfavorite": "Ka saar kuwa la jecel yahay"
     },
@@ -1640,6 +1500,19 @@
         "enabledHint": "Marka la damiyo, xiriirku wuxuu muujinayaa oo keliya ogeysiis, xiriirrada ciyaarta ee bogguna way shaqayn waayaan.",
         "link": "Xiriir",
         "linkHint": "Isticmaal a–z, 0–9 iyo xarriiqooyin hal ah, 3 ilaa 60 xaraf.",
+        "links": {
+          "add": "Ku dar xiriiriye",
+          "down": "Hoos u dhaqaaji",
+          "error": "Xiriiriyeyaasha lama kaydin karin. Xiriiriye kasta wuxuu u baahan yahay cinwaan, ciwaan kastana waa inuu ku bilaabmaa http:// ama https://.",
+          "hint": "Waxay ka muuqanayaan bogga, ciyaaraha hoostooda. Ugu badnaan toban.",
+          "linkDescription": "Sharaxaad (ikhtiyaari)",
+          "linkTitle": "Cinwaan",
+          "remove": "Ka saar",
+          "save": "Kaydi xiriiriyeyaasha",
+          "title": "Akhris dheeraad ah",
+          "up": "Kor u dhaqaaji",
+          "url": "Cinwaan"
+        },
         "offHint": "Boggu wuu dansan yahay. Weli waad diyaarin kartaa xiriirkiisa iyo koodhkiisa QR.",
         "open": "Fur bogga",
         "shareDescription": "Dir xiriirkan ama u muuji inuu yahay koodh QR.",
@@ -1741,8 +1614,10 @@
         "promptConstraintsPlaceholder": "tusaale ahaan. Ka dhig sheekada mid ku habboon carruurta oo ka fogow waxyaabaha rabshadaha ah.",
         "removeParticipant": "Ka saar kaqaybgalaha",
         "removeParticipantConfirm": "Ma hubtaa inaad ka saari rabto \"{{name}}\" workshop-kan?",
-        "removeParticipantMessage": "Ma hubtaa inaad ka saari rabto \"{{name}}\" workshop-kan? Ficilkan lama celin karo.",
+        "removeParticipantMessage": "Ma hubtaa inaad \"{{name}}\" ka saarayso aqoon-is-weydaarsigan?",
         "removeParticipantTitle": "Ka saar Ka-qaybgal",
+        "removeParticipantWarningPermanent": "Tani waxay si joogto ah u tirtiraysaa akoonka qofkan iyo dhammaan ciyaarihii uu abuuray, oo ay ku jiraan dhammaan kulamadii ciyaarta iyo xiriiriyeyaasha lala wadaagay. Lama soo celin karo. Haddii ciyaaraha la doonayo in la sii hayo, marka hore u soo dejiso YAML ahaan.",
+        "removeParticipantWarningVisiting": "Qofkani wuxuu haynayaa akoonkiisa iyo ciyaarihiisa. Keliya gelitaankiisa aqoon-is-weydaarsigan ayaa dhammaanaya.",
         "resetAccess": "Dib u deji gelitaanka",
         "resetAccessDone": "Gelitaan cusub ayaa la sameeyay. Xiriirkii hore mar dambe ma shaqaynayo.",
         "resetAccessError": "Gelitaanka dib looma dejin karin. Fadlan mar kale isku day.",
@@ -1857,10 +1732,25 @@
     },
     "profile": "Xogta",
     "publicWorkshop": {
+      "about": {
+        "details": "Abuurayaashoodu waxay adduunka, jilayaasha iyo xeerarka ku sharraxaan erayadooda. Inta aad ciyaarayso, AI ayaa sheekada halkaas ka sii waddo si toos ah: waxay ka falcelisaa wax kasta oo aad qorto, waxayna hindistaa sawirro ku habboon — sidaas darteed laba wareeg oo ciyaar ahi marna isku si uma dhacaan. Markaad adigu mid dhisato, si dhakhso ah ayaad u ogaanaysaa sida tilmaamahaagu u qaabeeyaan natiijada, iyo halka ay AI-du xadkeeda gaadho. Taasi waa ujeeddada oo dhan: ma aha in AI laguu sharraxo, balse waa inaad tijaabiso.",
+        "less": "Ka yar",
+        "link": "Wax badan oo ku saabsan ChatGameLab",
+        "more": "Wax badan baro",
+        "oneLiner": "Tacaburradan qoraalka ah waxaa lagu sameeyay ChatGameLab: gacanta ayaa lagu dhisay, barnaamij-qoris la'aan, waxaana si toos ah u sheekaynaysa AI."
+      },
       "copy": "Koobiye",
       "copyLogin": "Gal si aad u koobiyeato",
+      "cta": {
+        "button": "Bilaaw bilaash",
+        "text": "Dhisidda tacabur qoraal oo adiga kuu gaar ah waa bilaash, waxayna qaadataa dhowr daqiiqo oo keliya.",
+        "title": "Samee ciyaartaada ChatGameLab"
+      },
       "download": "Soo dejiso",
       "gamesTitle": "Ciyaaraha aqoon-is-weydaarsigan",
+      "links": {
+        "title": "Wax badan oo ku saabsan aqoon-is-weydaarsigan"
+      },
       "noGames": "Weli wax ciyaaro ah halkan laguma daabicin.",
       "play": "Ciyaar",
       "playExhausted": "Kulamo ciyaareed oo hadhay ma jiraan",
@@ -1889,43 +1779,23 @@
         "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."
       }
     },
-    "sessions": {
-      "continueGame": "Sii wad Ciyaarta",
-      "deleteConfirm": {
-        "message": "Ma hubtaa inaad tirtiri rabto kalfadhigan ee \"{{game}}\"? Ficilkan lama celin karo.",
-        "title": "Tirtir Kalfadhi"
-      },
-      "empty": {
-        "description": "Bilow ciyaar cusub si aad u bilowdo tacabadaada!",
-        "noResults": "Ciyaaro ku habboon lama helin",
-        "title": "Weli ma ciyaarin ciyaaro"
-      },
-      "errors": {
-        "loadFailed": "Ciyaarahaaga lama soo dejin karo. Fadlan isku day mar kale."
-      },
-      "fields": {
-        "game": "Ciyaar",
-        "lastPlayed": "Markii u dambaysay la ciyaaray",
-        "model": "Moodel"
-      },
-      "noDescription": "Sharaxaad ma jirto",
-      "sort": {
-        "game": "Ciyaar",
-        "label": "Kala saar",
-        "lastPlayed": "Markii u dambaysay la ciyaaray",
-        "model": "Moodel"
-      },
-      "startNewGame": "Bilow Ciyaar Cusub",
-      "title": "Sii wad Ciyaarista",
-      "untitledGame": "Ciyaar Aan Magac Lahayn"
-    },
     "settings": "Dejimaha",
     "share": {
       "copied": "La koobiyeeyay",
-      "copyLink": "Koobiye xiriirka"
+      "copyLink": "Koobiye xiriirka",
+      "visitLink": "Booqo xiriiriyaha"
     },
     "unnamed": "Aan magac lahayn",
-    "viewGame": "Daawo Ciyaarta"
+    "viewGame": "Daawo Ciyaarta",
+    "workshop": {
+      "inactive": {
+        "description": "Aqoon-is-weydaarsigani hadda ma shaqaynayo. Sug ilaa hoggaamiyaha aqoon-is-weydaarsigu mar kale shido.",
+        "noCode": "Qalabkan wax koodh ah laguma kaydin. Hoggaamiyaha aqoon-is-weydaarsiga ayaa kuu sheegi kara koodhkaaga.",
+        "photoFirst": "Haddii aad ka baxdo akoonka, koodhkaagu qalabkan wuu ka tirmayaa. Marka hore sawir ka qaad.",
+        "showCode": "Muuji koodhka gelitaankayga",
+        "title": "Aqoon-is-weydaarsigu ma shaqaynayo"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1943,11 +1813,6 @@
           "title": "Mashruuca ChatGameLab"
         },
         "title": "Ku saabsan ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Taariikh ciyaar ma jirto weli. Bilaaw ciyaar!",
-        "title": "Ugu dambeysay la Ciyaaray",
-        "viewAll": "Dhammaan Ciyaaraha"
       },
       "myGames": {
         "empty": "Weli ma jiraan ciyaaro. Abuur ciyaartaada ugu horeysa!",
@@ -1979,7 +1844,6 @@
       "title": "Falal Degdeg ah"
     },
     "untitled": "Aan magac lahayn",
-    "untitledGame": "Ciyaar Aan Magac Lahayn",
     "version": {
       "mismatch": {
         "message": "Nooca frontend {{frontendVersion}} kuma eka nooca backend {{backendVersion}}. Tani waxay keeni kartaa dabeecad aan la filayn. La xiriir taageerada haddii dhibaatooyinku sii socdaan.",

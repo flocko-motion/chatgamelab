@@ -51,9 +51,7 @@
       "ageGroupU13": "13-17 años",
       "ageGroupU18": "18+",
       "gamesCreated": "Juegos creados",
-      "gamesPlayed": "Juegos jugados",
       "memberSince": "Registrado desde",
-      "messagesSent": "Mensajes enviados",
       "noOrganization": "Sin organización",
       "noRole": "Sin rol asignado",
       "organization": "Organización",
@@ -276,16 +274,15 @@
       }
     },
     "aiQualityTier": {
-      "high": "Alta (Premium)",
+      "high": "Alta",
       "label": "Nivel de calidad de IA",
-      "low": "Baja (Económica)",
+      "low": "Económica",
       "max": "Máxima (Premium + Audio)",
-      "medium": "Media (Equilibrada)",
+      "medium": "Equilibrada",
       "newSessionsOnly": "Este nivel se aplica solo a las sesiones nuevas. Las sesiones existentes conservan el nivel con el que comenzaron.",
       "serverDefault": "Predeterminado del servidor"
     },
     "allGames": {
-      "continue": "Jugar",
       "copyConfirm": {
         "confirm": "Copiar juego",
         "message": "Esto creará una copia de «{{name}}» en tus juegos.",
@@ -306,12 +303,6 @@
       },
       "play": "Jugar",
       "reportGame": "Denunciar juego",
-      "restart": "Reiniciar",
-      "restartConfirm": {
-        "confirm": "Reiniciar",
-        "message": "¿Seguro que quieres reiniciar «{{game}}»? Perderás tu progreso actual.",
-        "title": "Reiniciar juego"
-      },
       "title": "Todos los juegos",
       "unfavorite": "Quitar de favoritos",
       "workshop": "Taller / Organización"
@@ -391,8 +382,8 @@
       "title": "Gestión de claves API",
       "unnamed": "Clave sin nombre",
       "unsupportedPlatform": {
-        "badge": "no compatible",
-        "hint": "Esta plataforma no es compatible actualmente. Solo puedes eliminar claves existentes."
+        "badge": "todavía no compatible",
+        "hint": "Esta plataforma todavía no es compatible. Sus claves se mantienen almacenadas, pero no se utilizan. Puedes eliminarlas."
       }
     },
     "back": "Volver",
@@ -415,7 +406,7 @@
       "placeholder": "p. ej., apfel otter turm",
       "submit": "Continuar",
       "title": "Introducir código",
-      "unknown": "Este código no existe. Comprueba la ortografía.",
+      "unknown": "No has podido acceder. Comprueba primero la ortografía, palabra por palabra. Los guiones o espacios no importan. Si el código es correcto, puede que ya no sea válido: los códigos pueden sustituirse y el acceso termina después del taller. En ese caso, pide un código nuevo a la persona responsable del taller.",
       "wrongLength": "Un código tiene tres o cuatro palabras."
     },
     "error": "Error",
@@ -425,119 +416,10 @@
       "programmedBy": "Programado por"
     },
     "gamePlayer": {
-      "aiInsight": {
-        "apiKeyChanged": "La clave API utilizada cambió",
-        "constraintSource": {
-          "organisation": "Organización",
-          "site13": "Predeterminado del sitio (13–17, sin consentimiento parental)",
-          "site13p": "Predeterminado del sitio (13–17, con consentimiento parental)",
-          "site18": "Predeterminado del sitio (18+)",
-          "workshop": "Taller"
-        },
-        "sections": {
-          "constraintReasoning": "Por qué se aplica esta restricción",
-          "constraintText": "Restricción de protección juvenil activa",
-          "expandStory": "Instrucciones para la IA para desarrollar la historia",
-          "imageGeneration": "Instrucciones de la IA para la generación de imágenes",
-          "rawResponse": "Respuesta sin procesar de la IA",
-          "responseSchema": "Estructura requerida de la respuesta de la IA",
-          "statusUpdate": "Solicitud enviada a la IA",
-          "systemPrompt": "Instrucciones del juego para la IA"
-        },
-        "title": "Solicitud / respuesta de la IA",
-        "toggle": "Visión de la IA",
-        "tokens": {
-          "received": "tokens recibidos",
-          "sent": "tokens enviados"
-        },
-        "usedApiKey": {
-          "institution_free_use": "Se usó la clave de uso gratuito de tu organización",
-          "label": "Clave API utilizada",
-          "personal": "Se usó tu clave personal",
-          "private_share": "Se usó la clave del enlace compartido",
-          "sponsor": "Se usó una clave de patrocinador",
-          "system_free_use": "Se usó una clave global de uso gratuito",
-          "workshop": "Se usó la clave de tu taller"
-        },
-        "usedConstraint": {
-          "label": "Restricción utilizada"
-        }
-      },
-      "debug": {
-        "fields": {
-          "id": "ID del mensaje",
-          "imagePrompt": "Indicaciones para la imagen",
-          "isStreaming": "Transmitiendo",
-          "seq": "Secuencia",
-          "statusFields": "Campos de estado",
-          "timestamp": "Marca de tiempo",
-          "type": "Tipo"
-        },
-        "hints": {
-          "id": "Identificador único de este mensaje",
-          "imagePrompt": "Indicaciones enviadas a la IA de imágenes",
-          "isStreaming": "Indica si todavía se está recibiendo contenido",
-          "seq": "Orden en la conversación",
-          "statusFields": "Variables del estado del juego que sigue la IA",
-          "timestamp": "Cuándo se creó este mensaje",
-          "type": "player = entrada del usuario, game = respuesta de la IA, system = contexto"
-        },
-        "title": "Información de depuración"
-      },
-      "error": {
-        "backToGames": "Volver a los juegos",
-        "gameNotFound": "Juego no encontrado",
-        "missingFields": "Al juego le faltan campos obligatorios:",
-        "noApiKey": {
-          "banner": "No se encontró una clave API utilizable para la plataforma {{platform}}. Para seguir jugando, añade tu propia clave API en la configuración de tu cuenta.",
-          "goToSettings": "Configuración de claves API",
-          "personal": "Necesitas configurar una clave API antes de poder jugar. Ve a tu configuración de claves API para añadir una.",
-          "title": "No hay clave API disponible",
-          "workshop": "No hay una clave API configurada para este taller. Comunícate con el administrador de tu taller."
-        },
-        "retry": "Reintentar",
-        "sendFailed": "No se pudo enviar el mensaje. Inténtalo de nuevo.",
-        "sessionFailed": "No se pudo iniciar la sesión de juego"
-      },
-      "header": {
-        "back": "Volver a los juegos",
-        "debug": "Depurar",
-        "decreaseFont": "Más pequeño",
-        "disableAnimations": "Desactivar animaciones",
-        "disableTextEffects": "Desactivar efectos de texto",
-        "fontSize": "Tamaño de fuente",
-        "increaseFont": "Más grande",
-        "muteAudio": "Silenciar narración",
-        "resetFont": "Restablecer",
-        "settings": "Configuración",
-        "unmuteAudio": "Activar narración",
-        "useNeutralTheme": "Usar tema neutral"
-      },
-      "input": {
-        "audioCancel": "Cancelar grabación",
-        "audioProcessing": "Procesando…",
-        "audioRecording": "Grabando…",
-        "audioStart": "Grabar mensaje de voz",
-        "audioStop": "Enviar grabación",
-        "audioUnavailableMessage": "La entrada de voz no está disponible con la configuración actual de tu clave API. Para usar voz, cambia a un nivel de calidad superior (Premium o Máximo).",
-        "audioUnavailableTitle": "Entrada de voz no disponible",
-        "placeholder": "¿Qué haces?",
-        "send": "Enviar acción"
-      },
-      "loading": {
-        "game": "Cargando juego...",
-        "resolvingKey": "Resolviendo clave API...",
-        "starting": "Iniciando sesión de juego...",
-        "startingHint": "La IA está preparando tu aventura"
-      },
-      "needsApiKey": {
-        "description": "La clave API usada en esta sesión ya no está disponible.",
-        "title": "Se requiere clave API"
-      },
-      "statusChange": {
-        "effect": "Efecto:"
-      },
-      "unnamed": "Sin nombre"
+      "rebuilding": {
+        "description": "Aquí podrás volver a jugar pronto.",
+        "title": "La vista del juego se está reconstruyendo"
+      }
     },
     "games": {
       "actions": {
@@ -574,13 +456,13 @@
       "editFields": {
         "description": "Escribe una breve descripción del juego. Solo es para ti y no afecta la jugabilidad.",
         "gameStart": "¿Cómo comienza el juego?",
-        "gameStartHint": "¿Qué sucede al inicio? Describe la primera escena que ve el jugador. ¿Cómo se le da la bienvenida?",
+        "gameStartHint": "¿Qué ocurre al principio? Describe la primera escena que ve la persona que juega. ¿Cómo se le da la bienvenida? ¿Cómo sabe qué tiene que hacer?",
         "gameStartPlaceholder": "Te despiertas al borde de un bosque oscuro. Un sendero estrecho se adentra entre los árboles...",
         "imageStyle": "¿Qué estilo deberían tener las imágenes del juego?",
         "imageStyleHint": "Por ejemplo: caricatura, realista, pixel art, acuarela...",
         "name": "Nombre del juego",
         "scenario": "¿De qué trata el juego?",
-        "scenarioHint": "Describe brevemente: ¿Cómo funciona el juego? ¿Cómo es el mundo? Idioma y tono (p. ej., español para sexto grado).\n¿Qué rol tiene el jugador? Escribe «El jugador ...».\nSi quieres que la IA adopte el rol de alguien específico, escribe «Tú eres ...».",
+        "scenarioHint": "Describe brevemente: ¿Cómo funciona el juego? ¿Cómo es el mundo? Idioma y tono (p. ej., español para estudiantes de sexto)?\n¿Qué papel tiene la persona que juega? Escribe «La persona que juega ...».\nSi quieres que la IA adopte el papel de una persona concreta, escribe «Eres ...».\n¿Cuál es el objetivo? ¿Cómo sabe la persona que juega que ha ganado?",
         "scenarioPlaceholder": "Eres un explorador en un bosque misterioso. Tu objetivo es encontrar el tesoro escondido...",
         "statusFields": "Valores del juego",
         "statusFieldsHint": "¿Qué debería registrar el juego? Por ejemplo salud, puntos o munición. El juego recuerda estos valores y los actualiza mientras juegas."
@@ -732,98 +614,6 @@
         "style": "Diseño",
         "styleInfo": "Opciones para el aspecto del juego durante la partida."
       },
-      "theme": {
-        "animation": "Animación de fondo",
-        "animationDefault": "Predeterminada del preset",
-        "animationDescription": "Sobrescribe la animación predeterminada del preset",
-        "animations": {
-          "bits": "1-0-Bits",
-          "bubbles": "Burbujas",
-          "circuits": "Circuitos",
-          "confetti": "Confeti",
-          "confettiExplosion": "Explosión de confeti",
-          "embers": "Brasas",
-          "fireflies": "Luciérnagas",
-          "geometric": "Geométrico",
-          "glitch": "Glitch",
-          "glowworm": "Fuegos fatuos",
-          "hearts": "Corazones",
-          "hyperspace": "Hip-Espacio",
-          "leaves": "Hojas",
-          "matrixRain": "Lluvia Matrix",
-          "none": "Ninguna",
-          "snow": "Nieve",
-          "sparkles": "Chispas",
-          "stars": "Estrellas",
-          "sun": "Sol",
-          "tumbleweed": "Estepicursores",
-          "waves": "Olas"
-        },
-        "apply": "Aplicar tema",
-        "button": "Tema",
-        "changeDesign": "Cambiar diseño",
-        "currentTheme": "Tema: {{preset}}",
-        "modalTitle": "Tema del juego",
-        "noTheme": "No se seleccionó tema. La IA generará uno por sesión.",
-        "preset": "Preset",
-        "presetDescription": "Elige un estilo visual para tu juego",
-        "presets": {
-          "abstract": "Abstracto",
-          "adventure": "Aventura",
-          "barbie": "Barbie",
-          "candy": "Dulce",
-          "circus": "Circo",
-          "cyberpunk": "Cyberpunk",
-          "default": "Predeterminado",
-          "desert": "Desierto",
-          "detective": "Detective",
-          "educational": "Educativo",
-          "fairy": "Hadas",
-          "fire": "Fuego",
-          "garden": "Jardín",
-          "glitch": "Glitch",
-          "greenFantasy": "Fantasía verde",
-          "hacker": "Hacker",
-          "horror": "Terror",
-          "jungle": "Selva",
-          "matrix": "Matrix",
-          "medieval": "Medieval",
-          "minimal": "Minimalista",
-          "mystery": "Misterio",
-          "mystic": "Místico",
-          "nature": "Naturaleza",
-          "nautical": "Náutico",
-          "noir": "Noir",
-          "ocean": "Océano",
-          "pirate": "Pirata",
-          "playful": "Juguetón",
-          "retro": "Retro",
-          "romance": "Romance",
-          "school": "Escuela",
-          "scifi": "Ciencia ficción",
-          "snowy": "Nevado",
-          "space": "Espacio",
-          "steampunk": "Steampunk",
-          "storybook": "Cuento",
-          "sunshine": "Rayos de sol",
-          "superhero": "Superhéroes",
-          "tech": "Tecnología",
-          "terminal": "Terminal",
-          "underwater": "Submarino",
-          "western": "Oeste",
-          "zombie": "Zombi"
-        },
-        "preview": "Vista previa",
-        "remove": "Quitar tema",
-        "removeConfirm": "¿Quitar el tema personalizado? La IA generará uno diferente por sesión.",
-        "sampleGame": "La puerta se abre chirriando, revelando una cámara tenuemente iluminada. Antiguas runas brillan débilmente en las paredes de piedra. Un cofre misterioso se encuentra en el centro de la sala.",
-        "sampleGame2": "Te acercas con cuidado al cofre. Al tocar el frío pestillo metálico, las runas de las paredes comienzan a latir con una luz más intensa. Un zumbido grave llena la cámara.",
-        "samplePlayer": "Abro la vieja puerta de madera...",
-        "sampleStatus": "Salud",
-        "thinkingText": "Texto de pensamiento",
-        "thinkingTextDescription": "Texto mostrado mientras la IA está pensando",
-        "thinkingTextPlaceholder": "p. ej., La historia se despliega..."
-      },
       "title": "Mis juegos creados",
       "viewModal": {
         "readOnlyNotice": "Este juego fue creado por otro usuario. Puedes ver los detalles, pero no editarlos. Usa «Copiar» para crear tu propia versión editable.",
@@ -832,19 +622,6 @@
       "visibility": {
         "private": "Privado",
         "public": "Público"
-      }
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Ir a ChatGameLab",
-        "continueGame": "Continuar juego",
-        "expired": "Este enlace compartido alcanzó su límite de partidas. No hay más sesiones disponibles.",
-        "headline": "¡Te invitaron a jugar una aventura de texto con IA gratis!",
-        "invalidLink": "Este enlace compartido es inválido o ya no existe.",
-        "loadError": "No se pudo cargar la información del juego. Inténtalo de nuevo.",
-        "restartGame": "Empezar de nuevo",
-        "sessionExists": "Ya tienes un juego en curso. Puedes continuar donde lo dejaste o iniciar uno nuevo.",
-        "startPlaying": "Comenzar a jugar"
       }
     },
     "header": {
@@ -946,7 +723,6 @@
     "logout": "Cerrar sesión",
     "me": "Yo",
     "myGames": {
-      "continue": "Jugar",
       "copyConfirm": {
         "confirm": "Copiar juego",
         "message": "Esto creará una copia de «{{name}}» en tus juegos.",
@@ -963,12 +739,6 @@
         "favorites": "Favoritos"
       },
       "play": "Jugar",
-      "restart": "Reiniciar",
-      "restartConfirm": {
-        "confirm": "Reiniciar",
-        "message": "¿Seguro que quieres reiniciar «{{game}}»? Perderás tu progreso actual.",
-        "title": "Reiniciar juego"
-      },
       "title": "Mis juegos",
       "unfavorite": "Quitar de favoritos"
     },
@@ -1060,6 +830,19 @@
         "enabledHint": "Cuando está desactivado, el enlace solo muestra un aviso y los enlaces de juego de la página dejan de funcionar.",
         "link": "Enlace",
         "linkHint": "Usa a–z, 0–9 y guiones simples, entre 3 y 60 caracteres.",
+        "links": {
+          "add": "Añadir enlace",
+          "down": "Mover hacia abajo",
+          "error": "No se han podido guardar los enlaces. Cada enlace necesita un título y todas las direcciones deben comenzar por http:// o https://.",
+          "hint": "Se muestran en la página, debajo de los juegos. Como máximo, diez.",
+          "linkDescription": "Descripción (opcional)",
+          "linkTitle": "Título",
+          "remove": "Eliminar",
+          "save": "Guardar enlaces",
+          "title": "Más información",
+          "up": "Mover hacia arriba",
+          "url": "Dirección"
+        },
         "offHint": "La página está desactivada. Aun así, puedes preparar su enlace y código QR.",
         "open": "Abrir página",
         "shareDescription": "Envía este enlace o muéstralo como código QR.",
@@ -1113,7 +896,6 @@
         "deleteConfirm": "¿Seguro que quieres eliminar «{{name}}»?",
         "deleteTitle": "Eliminar taller",
         "deleteWarning": "Todos los juegos y sesiones de este taller se eliminarán. Esto no se puede deshacer.",
-        "designEditingEnabled": "Permitir que los participantes editen el diseño del juego (tema)",
         "editParticipant": "Editar nombre",
         "empty": "Aún no hay talleres.",
         "enterWorkshop": "Entrar en modo taller",
@@ -1160,8 +942,10 @@
         "promptConstraintsPlaceholder": "p. ej., mantén la historia adecuada para la edad y evita contenido violento.",
         "removeParticipant": "Eliminar participante",
         "removeParticipantConfirm": "¿Seguro que quieres eliminar a «{{name}}» de este taller?",
-        "removeParticipantMessage": "¿Seguro que quieres eliminar a «{{name}}» de este taller? Esta acción no se puede deshacer.",
+        "removeParticipantMessage": "¿De verdad quieres eliminar a «{{name}}» de este taller?",
         "removeParticipantTitle": "Eliminar participante",
+        "removeParticipantWarningPermanent": "Esto eliminará permanentemente la cuenta de esta persona y todos los juegos que haya creado, junto con todas las partidas y los enlaces compartidos a ellos. No se puede deshacer. Si quieres conservar los juegos, descárgalos primero como YAML.",
+        "removeParticipantWarningVisiting": "Esta persona conservará su cuenta y sus juegos. Solo terminará su acceso a este taller.",
         "resetAccess": "Restablecer acceso",
         "resetAccessDone": "Se ha creado un nuevo acceso. El enlace antiguo ya no funciona.",
         "resetAccessError": "No se pudo restablecer el acceso. Inténtalo de nuevo.",
@@ -1236,10 +1020,25 @@
     "promoteToHead": "Ascender a responsable",
     "promoteWarning": "Este usuario podrá gestionar miembros e invitar docentes.",
     "publicWorkshop": {
+      "about": {
+        "details": "Quienes los crean describen el mundo, los personajes y las reglas con sus propias palabras. Mientras juegas, una IA continúa contando la historia en directo: reacciona a todo lo que escribes e inventa imágenes adecuadas, por lo que nunca hay dos partidas iguales. Crear uno demuestra rápidamente hasta qué punto tus propias instrucciones dan forma al resultado y dónde alcanza sus límites una IA. De eso se trata: no de que te expliquen la IA, sino de probarla.",
+        "less": "Menos",
+        "link": "Más información sobre ChatGameLab",
+        "more": "Saber más",
+        "oneLiner": "Estas aventuras de texto se han creado con ChatGameLab: hechas a mano, sin programar y narradas en directo por una IA."
+      },
       "copy": "Copiar",
       "copyLogin": "Inicia sesión para copiar",
+      "cta": {
+        "button": "Empezar gratis",
+        "text": "Crear tu propia aventura de texto es gratis y solo lleva unos minutos.",
+        "title": "Crea tu propio juego de ChatGameLab"
+      },
       "download": "Descargar",
       "gamesTitle": "Juegos de este taller",
+      "links": {
+        "title": "Más información sobre este taller"
+      },
       "noGames": "Todavía no se ha publicado ningún juego aquí.",
       "play": "Jugar",
       "playExhausted": "No quedan sesiones de juego",
@@ -1296,47 +1095,11 @@
       "notAuthorized": "No tienes permiso para acceder a la configuración del servidor. Se requiere acceso de administrador.",
       "title": "Configuración del servidor"
     },
-    "sessions": {
-      "continueGame": "Continuar juego",
-      "deleteConfirm": {
-        "message": "¿Seguro que quieres eliminar esta sesión de «{{game}}»? Esta acción no se puede deshacer.",
-        "title": "Eliminar sesión"
-      },
-      "empty": {
-        "description": "¡Inicia un juego nuevo para comenzar tu aventura!",
-        "noResults": "No se encontraron juegos coincidentes",
-        "title": "Aún no has jugado juegos"
-      },
-      "errors": {
-        "loadFailed": "No se pudieron cargar tus juegos. Inténtalo de nuevo."
-      },
-      "fields": {
-        "game": "Juego",
-        "lastPlayed": "Última partida",
-        "model": "Modelo"
-      },
-      "freeUseKey": {
-        "description": "Configura una clave de uso gratuito para que todos los miembros de la organización puedan jugar sin su propia clave API. Solo se pueden seleccionar claves ya compartidas con esta organización.",
-        "remove": "Quitar",
-        "selectPlaceholder": "Selecciona una clave compartida...",
-        "title": "Clave de uso gratuito",
-        "unknownKey": "Clave desconocida"
-      },
-      "noDescription": "Sin descripción",
-      "sort": {
-        "game": "Juego",
-        "label": "Ordenar por",
-        "lastPlayed": "Última partida",
-        "model": "Modelo"
-      },
-      "startNewGame": "Iniciar juego nuevo",
-      "title": "Seguir jugando",
-      "untitledGame": "Juego sin título"
-    },
     "settings": "Configuración",
     "share": {
       "copied": "Copiado",
-      "copyLink": "Copiar enlace"
+      "copyLink": "Copiar enlace",
+      "visitLink": "Visitar enlace"
     },
     "showing": "{{count}} miembros",
     "sort": {
@@ -1347,7 +1110,16 @@
       "role-desc": "Rol (Z-A)"
     },
     "unnamed": "Sin nombre",
-    "viewGame": "Ver juego"
+    "viewGame": "Ver juego",
+    "workshop": {
+      "inactive": {
+        "description": "Este taller no está activo en este momento. Espera a que la persona responsable del taller lo vuelva a activar.",
+        "noCode": "No hay ningún código guardado en este dispositivo. La persona responsable del taller puede decirte cuál es.",
+        "photoFirst": "Si cierras sesión, tu código desaparecerá de este dispositivo. Hazle una foto antes.",
+        "showCode": "Mostrar mi código de acceso",
+        "title": "El taller no está activo"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1365,11 +1137,6 @@
           "title": "Proyecto ChatGameLab"
         },
         "title": "Acerca de ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Sin historial todavía. ¡Empieza a jugar!",
-        "title": "Últimos jugados",
-        "viewAll": "Todos los juegos"
       },
       "myGames": {
         "empty": "Sin juegos aún. ¡Crea tu primer juego!",
@@ -1402,7 +1169,6 @@
       "title": "Acciones rápidas"
     },
     "untitled": "Sin título",
-    "untitledGame": "Juego sin título",
     "version": {
       "mismatch": {
         "message": "La versión del frontend \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e no coincide con la versión del backend \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Esto puede causar comportamientos inesperados. Contacta soporte si persisten los problemas.",

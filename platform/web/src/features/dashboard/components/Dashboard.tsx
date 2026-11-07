@@ -10,8 +10,6 @@ import { HELP_LINKS } from "@/config/helpLinks";
 import { formatRelativeTime } from "@/common/lib/formatters";
 import {
   useGames,
-  useUserSessions,
-  useGameSessionMap,
   useCurrentUser,
   useWorkshops,
 } from "@/api/hooks";
@@ -128,38 +126,6 @@ function MyWorkshopsCard() {
   );
 }
 
-// Last Played Card - shows recent play sessions
-function LastPlayedCard() {
-  const { t } = useTranslation("dashboard");
-  const navigate = useNavigate();
-  const { data: sessions, isLoading } = useUserSessions();
-
-  const recentSessions = useMemo(() => {
-    if (!sessions) return [];
-    return sessions.slice(0, 5);
-  }, [sessions]);
-
-  const items: ListItem[] = recentSessions.map((session) => ({
-    id: session.id ?? "",
-    label: session.gameName ?? t("untitledGame"),
-    sublabel: formatRelativeTime(
-      session.meta?.modifiedAt ?? session.meta?.createdAt,
-    ),
-    onClick: () => navigate({ to: `/sessions/${session.id}` as "/" }),
-  }));
-
-  return (
-    <InformationalCard
-      title={t("cards.lastPlayed.title")}
-      items={items}
-      emptyMessage={t("cards.lastPlayed.empty")}
-      viewAllLabel={t("cards.lastPlayed.viewAll")}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
-      isLoading={isLoading}
-    />
-  );
-}
-
 // Popular Games Card - shows top 10 most played games
 function PopularGamesCard() {
   const { t } = useTranslation("dashboard");
@@ -169,7 +135,6 @@ function PopularGamesCard() {
     sortDir: "desc",
     filter: "public",
   });
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
 
   const popularGames = useMemo(() => {
     if (!games) return [];
@@ -177,12 +142,7 @@ function PopularGamesCard() {
   }, [games]);
 
   const handleGameClick = (gameId: string) => {
-    const existingSession = sessionMap.get(gameId);
-    if (existingSession?.id) {
-      navigate({ to: `/sessions/${existingSession.id}` as "/" });
-    } else {
-      navigate({ to: `/games/${gameId}/play` as "/" });
-    }
+    navigate({ to: "/games/$gameId/play", params: { gameId } });
   };
 
   const items: ListItem[] = popularGames.map((game) => ({
@@ -199,7 +159,7 @@ function PopularGamesCard() {
       emptyMessage={t("cards.popularGames.empty")}
       viewAllLabel={t("cards.popularGames.viewAll")}
       onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
-      isLoading={gamesLoading || sessionsLoading}
+      isLoading={gamesLoading}
       maxItems={10}
     />
   );
@@ -214,7 +174,6 @@ function NewGamesCard() {
     sortDir: "desc",
     filter: "public",
   });
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
   const { data: currentUser } = useCurrentUser();
 
   /* eslint-disable react-hooks/preserve-manual-memoization -- Optional chaining limitation */
@@ -228,12 +187,7 @@ function NewGamesCard() {
   /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const handleGameClick = (gameId: string) => {
-    const existingSession = sessionMap.get(gameId);
-    if (existingSession?.id) {
-      navigate({ to: `/sessions/${existingSession.id}` as "/" });
-    } else {
-      navigate({ to: `/games/${gameId}/play` as "/" });
-    }
+    navigate({ to: "/games/$gameId/play", params: { gameId } });
   };
 
   const items: ListItem[] = newGames.map((game) => ({
@@ -250,7 +204,7 @@ function NewGamesCard() {
       emptyMessage={t("cards.newGames.empty")}
       viewAllLabel={t("cards.newGames.viewAll")}
       onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
-      isLoading={gamesLoading || sessionsLoading}
+      isLoading={gamesLoading}
       maxItems={10}
     />
   );
@@ -354,10 +308,9 @@ export function DashboardContent() {
   const { isAdmin: isAdminUser } = useAdmin();
   return (
     <Stack gap="xl">
-      <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
         {!isAdminUser && <MyGamesCard />}
         <MyWorkshopsCard />
-        <LastPlayedCard />
       </SimpleGrid>
 
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
