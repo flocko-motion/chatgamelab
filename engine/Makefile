@@ -3,7 +3,7 @@
 
 .PHONY: help all build test race vet fmt check run dev describe tidy clean \
         port-free web web-dev web-deps web-toolchain web-clean protocol protocol-check \
-        lint lint-md
+        lint lint-md lint-go
 
 # A bare `make` explains itself rather than doing something unasked.
 .DEFAULT_GOAL := help
@@ -45,7 +45,7 @@ vet: ## Report suspicious constructs
 fmt: ## Format the Go sources in place
 	gofmt -l -w .
 
-lint: vet lint-md ## Run every linter: go vet, and markdownlint over the documents
+lint: vet lint-md lint-go ## Run every linter: go vet, markdownlint, and brokkr
 
 # Rules live in .markdownlint.jsonc, which editors read too, so a document that
 # passes here shows no warnings there either.
@@ -59,6 +59,19 @@ ifndef MARKDOWNLINT
 	@exit 1
 endif
 	markdownlint --ignore web/node_modules '**/*.md'
+
+# brokkr's full gate reports as a warning for now; only comment length fails
+# the build.
+BROKKR := $(shell command -v brokkr 2>/dev/null)
+
+lint-go: ## Run brokkr: every linter as a warning, comment length strict
+ifndef BROKKR
+	@echo "brokkr is required to lint the sources, and was not found." >&2
+	@echo "  install it from https://github.com/flocko-motion/sindri"     >&2
+	@exit 1
+endif
+	-@brokkr lint --tail 20
+	brokkr lint comment-length
 
 # --- Running ----------------------------------------------------------------
 
