@@ -12,6 +12,7 @@ import (
 	"cgl/db"
 	"cgl/log"
 	"cgl/obj"
+	"engine"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/google/uuid"
@@ -58,7 +59,7 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 
 	// Load system settings for the default tier fallback
 	settings, _ := db.GetSystemSettings(ctx)
-	defaultTier := obj.AiModelBalanced // hardcoded ultimate fallback
+	defaultTier := string(engine.TierMedium) // hardcoded ultimate fallback
 	if settings != nil && settings.DefaultAiQualityTier != "" {
 		defaultTier = settings.DefaultAiQualityTier
 	}
@@ -77,6 +78,10 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 		}
 		if len(candidates) >= maxCandidates {
 			trace = append(trace, keyTraceStep{Source: keyType, Result: "skipped", Detail: "max candidates reached", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
+			return
+		}
+		if !engine.AcceptsKeys(engine.Platform(share.ApiKey.Platform)) {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "filtered", Detail: "platform not supported yet", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
 			return
 		}
 		// For existing sessions: only accept keys from the same AI platform.

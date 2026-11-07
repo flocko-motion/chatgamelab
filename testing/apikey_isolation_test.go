@@ -41,11 +41,11 @@ func (s *ApiKeyIsolationTestSuite) assertNoForeignKeys(resp routes.ApiKeysRespon
 // TestAdminCannotSeeOtherAdminKeys verifies admin cannot see another admin's keys.
 func (s *ApiKeyIsolationTestSuite) TestAdminCannotSeeOtherAdminKeys() {
 	admin := s.DevUser()
-	Must(admin.AddApiKey("mock-admin-secret", "Admin Secret Key", "mock"))
+	Must(admin.AddApiKey("mock-admin-secret", "Admin Secret Key", "openai"))
 
 	admin2 := s.CreateUser("iso-admin2")
 	s.Role(admin2, "admin")
-	Must(admin2.AddApiKey("mock-admin2-secret", "Admin2 Secret Key", "mock"))
+	Must(admin2.AddApiKey("mock-admin2-secret", "Admin2 Secret Key", "openai"))
 
 	// Admin2 lists keys — should NOT see admin's key
 	resp := Must(admin2.GetApiKeys())
@@ -66,10 +66,10 @@ func (s *ApiKeyIsolationTestSuite) TestHeadCannotSeeIndividualKeys() {
 	head := s.CreateUser("iso-head")
 	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.ID.String()))
-	Must(head.AddApiKey("mock-head-key", "Head Key", "mock"))
+	Must(head.AddApiKey("mock-head-key", "Head Key", "openai"))
 
 	individual := s.CreateUser("iso-individual")
-	Must(individual.AddApiKey("mock-ind-secret", "Individual Secret Key", "mock"))
+	Must(individual.AddApiKey("mock-ind-secret", "Individual Secret Key", "openai"))
 
 	// Head lists keys — should NOT see individual's key
 	resp := Must(head.GetApiKeys())
@@ -91,12 +91,12 @@ func (s *ApiKeyIsolationTestSuite) TestStaffCannotSeeHeadKeys() {
 	head := s.CreateUser("iso-head2")
 	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.ID.String()))
-	Must(head.AddApiKey("mock-head2-key", "Head2 Secret Key", "mock"))
+	Must(head.AddApiKey("mock-head2-key", "Head2 Secret Key", "openai"))
 
 	staff := s.CreateUser("iso-staff")
 	staffInvite := Must(head.InviteToInstitution(inst.ID.String(), "staff", staff.ID))
 	Must(staff.AcceptInvite(staffInvite.ID.String()))
-	Must(staff.AddApiKey("mock-staff-key", "Staff Secret Key", "mock"))
+	Must(staff.AddApiKey("mock-staff-key", "Staff Secret Key", "openai"))
 
 	// Staff lists keys — should NOT see head's key
 	resp := Must(staff.GetApiKeys())
@@ -117,7 +117,7 @@ func (s *ApiKeyIsolationTestSuite) TestAdminCannotSeeHeadKeys() {
 	head := s.CreateUser("iso-head3")
 	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.ID.String()))
-	Must(head.AddApiKey("mock-head3-key", "Head3 Secret Key", "mock"))
+	Must(head.AddApiKey("mock-head3-key", "Head3 Secret Key", "openai"))
 
 	// Admin lists keys — should NOT see head's key
 	resp := Must(admin.GetApiKeys())
@@ -129,10 +129,10 @@ func (s *ApiKeyIsolationTestSuite) TestAdminCannotSeeHeadKeys() {
 // another user's API key share by guessing the share ID.
 func (s *ApiKeyIsolationTestSuite) TestCannotFetchOtherUsersKeyByID() {
 	userA := s.CreateUser("iso-usera")
-	keyA := Must(userA.AddApiKey("mock-usera-key", "UserA Key", "mock"))
+	keyA := Must(userA.AddApiKey("mock-usera-key", "UserA Key", "openai"))
 
 	userB := s.CreateUser("iso-userb")
-	Must(userB.AddApiKey("mock-userb-key", "UserB Key", "mock"))
+	Must(userB.AddApiKey("mock-userb-key", "UserB Key", "openai"))
 
 	// UserB tries to fetch UserA's key share by ID — should fail
 	var info routes.ApiKeyInfoResponse
@@ -144,7 +144,7 @@ func (s *ApiKeyIsolationTestSuite) TestCannotFetchOtherUsersKeyByID() {
 // TestUserSeesOnlyOwnKeys is a sanity check that a user can see their own keys.
 func (s *ApiKeyIsolationTestSuite) TestUserSeesOnlyOwnKeys() {
 	user := s.CreateUser("iso-self")
-	Must(user.AddApiKey("mock-self-key", "My Key", "mock"))
+	Must(user.AddApiKey("mock-self-key", "My Key", "openai"))
 
 	resp := Must(user.GetApiKeys())
 	s.Equal(1, len(resp.ApiKeys), "user should see exactly 1 key")

@@ -34,7 +34,7 @@ func (s *ApiKeyCascadeOrgShareTestSuite) setupHeadWithOrgAndKey(prefix string) (
 	s.Equal("head", user.GetRole())
 
 	// Add API key
-	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
 	selfShareID := keyShare.ID.String()
 
 	// Share key with institution
@@ -72,7 +72,7 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyRemovesOrgShare() {
 	s.T().Logf("No keys or shares remain after deletion")
 
 	// Re-create a new key
-	newKey := Must(user.AddApiKey("mock-cascade-org-new", "New Key", "mock"))
+	newKey := Must(user.AddApiKey("mock-cascade-org-new", "New Key", "openai"))
 	s.NotEmpty(newKey.ID)
 	s.T().Logf("Created new key: shareID=%s", newKey.ID)
 
@@ -133,7 +133,7 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyWithFreeUseKeyThenRecreate
 	s.T().Logf("Deleted API key with free-use reference")
 
 	// Re-create a new key and share with org
-	newKey := Must(user.AddApiKey("mock-cascade-recreate-new", "New Key", "mock"))
+	newKey := Must(user.AddApiKey("mock-cascade-recreate-new", "New Key", "openai"))
 	newShareID := newKey.ID.String()
 	s.T().Logf("Created new key: shareID=%s", newShareID)
 

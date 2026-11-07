@@ -62,6 +62,11 @@ func Platforms() []PlatformInfo {
 	return out
 }
 
+// AcceptsKeys reports whether the engine runs a platform on user API keys.
+func AcceptsKeys(id Platform) bool {
+	return slices.ContainsFunc(Platforms(), func(p PlatformInfo) bool { return p.ID == id && p.UserKeys })
+}
+
 // Genres is every genre the engine runs.
 func Genres() []Genre { return []Genre{GenreAdventure, GenreNPCLive} }
 

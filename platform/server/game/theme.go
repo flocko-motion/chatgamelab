@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"strings"
 
-	"cgl/game/ai"
 )
 
 // ThemeGenerationPrompt is the system prompt for generating game themes
@@ -110,7 +109,7 @@ func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game
 	}
 
 	// Get AI platform
-	platform, err := ai.GetAiPlatform(session.AiPlatform)
+	platform, err := getAiPlatform(session.AiPlatform)
 	if err != nil {
 		return nil, obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to get AI platform", err)
 	}

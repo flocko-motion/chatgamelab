@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"cgl/game/ai"
 	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
@@ -32,7 +31,7 @@ func TranslateGame(ctx context.Context, session *obj.GameSession, game *obj.Game
 	log.Debug("translating game", "game_id", game.ID, "target_lang", targetLang, "lang_name", langName)
 
 	// Get AI platform
-	platform, err := ai.GetAiPlatform(session.AiPlatform)
+	platform, err := getAiPlatform(session.AiPlatform)
 	if err != nil {
 		return nil, nil, obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to get AI platform", err)
 	}

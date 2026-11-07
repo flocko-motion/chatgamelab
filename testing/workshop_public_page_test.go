@@ -48,7 +48,7 @@ func (s *WorkshopPublicPageTestSuite) setup(prefix string, withKey bool) publicP
 	workshop := Must(head.CreateWorkshop(inst.ID.String(), name))
 	wsID := workshop.ID.String()
 	if withKey {
-		keyShare := Must(head.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
+		keyShare := Must(head.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
 		orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 		orgShareID := orgShare.ID.String()
 		Must(head.SetWorkshopApiKey(wsID, &orgShareID))

@@ -1,13 +1,16 @@
 # Build stage for Go server
 FROM golang:1.25 AS build
 
-WORKDIR /app
+# The server's go.mod replaces the engine module with ../../engine, so keep the repo layout.
+WORKDIR /src/platform/server
 
 # Copy go module files first for better caching
+COPY engine/go.mod engine/go.sum /src/engine/
 COPY platform/server/go.mod platform/server/go.sum ./
 RUN go mod download
 
-# Copy the rest of the server source
+# Copy the engine and the rest of the server source
+COPY engine/ /src/engine/
 COPY platform/server/ ./
 
 # Build the server binary with version info
@@ -34,7 +37,7 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /app
 
 # Copy binary
-COPY --from=build /app/cgl /app/cgl
+COPY --from=build /src/platform/server/cgl /app/cgl
 
 # Directory for writable data
 VOLUME ["/app/var"]

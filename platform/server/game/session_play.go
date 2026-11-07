@@ -13,7 +13,6 @@ import (
 
 	"cgl/db"
 	"cgl/functional"
-	"cgl/game/ai"
 	"cgl/game/imagecache"
 	"cgl/game/stream"
 	"cgl/game/templates"
@@ -102,7 +101,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 
 	log.Debug("getting AI platform", "platform", session.AiPlatform, "model", session.AiModel)
-	platform, err := ai.GetAiPlatform(session.AiPlatform)
+	platform, err := getAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Debug("failed to get AI platform", "session_id", session.ID, "error", err)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeInvalidPlatform, fmt.Sprintf("AI platform error: %v", err))
@@ -464,7 +463,7 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 
 	log.Info("retrying image generation for message", "session_id", session.ID, "message_id", message.ID)
 
-	platform, err := ai.GetAiPlatform(session.AiPlatform)
+	platform, err := getAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Warn("skip image retry: failed to get AI platform", "error", err)
 		return
@@ -494,7 +493,7 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 // ApplySessionCapabilities stamps HasAudioIn onto messages loaded from the DB (where it is not
 // persisted). Call this after loading historical messages so the frontend can enable voice input.
 func ApplySessionCapabilities(session *obj.GameSession, msgs []obj.GameSessionMessage) {
-	platform, err := ai.GetAiPlatform(session.AiPlatform)
+	platform, err := getAiPlatform(session.AiPlatform)
 	if err != nil {
 		return
 	}

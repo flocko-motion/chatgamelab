@@ -37,7 +37,7 @@ func (s *WorkshopWordTokensTestSuite) workshopSetup(prefix string) (*testutil.Us
 	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
-	keyShare := Must(head.AddApiKey("mock-word-key-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-word-key-"+prefix, prefix+" Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
 	wsID := workshop.ID.String()

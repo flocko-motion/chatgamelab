@@ -33,7 +33,11 @@ import {
   type EnrichedGameShare,
 } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
-import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import {
+  getAiQualityTierLabel,
+  getAiQualityTierOptions,
+  normalizeAiQualityTier,
+} from "@/common/lib/aiQualityTier";
 
 interface PrivateShareSectionProps {
   gameId: string;
@@ -159,7 +163,7 @@ export function PrivateShareSection({
   const handleOpenEdit = (share: EnrichedGameShare) => {
     setEditingShare(share);
     setEditMaxSessions(share.remaining ?? "");
-    setEditTier(share.aiQualityTier ?? null);
+    setEditTier(normalizeAiQualityTier(share.aiQualityTier) || null);
     openEditModal();
   };
 
@@ -456,7 +460,7 @@ function ShareCard({
         </Badge>
         {share.aiQualityTier && (
           <Badge size="xs" variant="light" color="violet">
-            {t(`aiQualityTier.${share.aiQualityTier}`)}
+            {getAiQualityTierLabel(t, share.aiQualityTier)}
           </Badge>
         )}
         <Text size="xs" c="green" fw={500}>

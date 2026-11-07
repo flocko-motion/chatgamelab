@@ -7,7 +7,6 @@ package cmd
 import (
 	"os"
 
-	"cgl/cmd/ai"
 	"cgl/cmd/apikey"
 	"cgl/cmd/game"
 	"cgl/cmd/healthcheck"
@@ -32,7 +31,6 @@ func init() {
 	_ = godotenv.Load(".env")
 	_ = godotenv.Load("../../.env")
 
-	rootCmd.AddCommand(ai.Cmd)
 	rootCmd.AddCommand(apikey.Cmd)
 	rootCmd.AddCommand(healthcheck.Cmd)
 	rootCmd.AddCommand(server.Cmd)

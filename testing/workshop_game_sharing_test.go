@@ -33,7 +33,7 @@ func (s *WorkshopGameSharingTestSuite) setupWorkshopWithSharing(prefix string, a
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds API key, shares with org
-	keyShare := Must(head.AddApiKey("mock-ws-share-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-ws-share-"+prefix, prefix+" Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	// Head creates workshop and sets API key

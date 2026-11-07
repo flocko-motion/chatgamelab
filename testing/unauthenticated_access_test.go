@@ -91,7 +91,7 @@ func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListWorkshops(
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotCreateSession() {
 	// Create a user and game so we have a valid game ID
 	user := s.CreateUser("unauth-sess")
-	Must(user.AddApiKey("mock-unauth-sess", "Key", "mock"))
+	Must(user.AddApiKey("mock-unauth-sess", "Key", "openai"))
 	game := Must(user.UploadGame("alien-first-contact"))
 
 	pub := s.Public()

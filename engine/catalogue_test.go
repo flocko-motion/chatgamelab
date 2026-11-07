@@ -75,3 +75,17 @@ func TestEveryTierNamesAModelPerEnabledType(t *testing.T) {
 		}
 	}
 }
+
+func TestAcceptsKeys(t *testing.T) {
+	for id, want := range map[Platform]bool{
+		PlatformOpenAI:  true,
+		PlatformMistral: true,
+		PlatformMock:    false,
+		"ionos":         false,
+		"":              false,
+	} {
+		if got := AcceptsKeys(id); got != want {
+			t.Errorf("AcceptsKeys(%q) = %v, want %v", id, got, want)
+		}
+	}
+}

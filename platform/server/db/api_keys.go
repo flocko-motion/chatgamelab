@@ -6,10 +6,10 @@ package db
 
 import (
 	db "cgl/db/sqlc"
-	"cgl/game/ai"
 	"cgl/obj"
 	"context"
 	"database/sql"
+	"engine"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,8 +32,8 @@ func GetApiKeyByID(ctx context.Context, apiKeyID uuid.UUID) (*obj.ApiKey, error)
 }
 
 func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platform, key string) (apiKeyID uuid.UUID, shareID uuid.UUID, err error) {
-	if !ai.IsValidApiKeyPlatform(platform) {
-		return uuid.Nil, uuid.Nil, obj.ErrInvalidPlatformf("unknown platform: %s", platform)
+	if !engine.AcceptsKeys(engine.Platform(platform)) {
+		return uuid.Nil, uuid.Nil, obj.ErrInvalidPlatformf("platform does not take API keys: %s", platform)
 	}
 
 	// Auto-set as default if this is the user's first key

@@ -44,7 +44,7 @@ func (s *FreeUseKeyTestSuite) TestSystemFreeUseKeyAllowsPlayWithoutOwnKey() {
 	s.T().Logf("Admin uploaded game: %s (ID: %s)", game.Name, game.ID)
 
 	// Admin adds a mock API key and sets it as the system free-use key
-	adminKey := Must(admin.AddApiKey("mock-sys-free", "System Free Key", "mock"))
+	adminKey := Must(admin.AddApiKey("mock-sys-free", "System Free Key", "openai"))
 	adminKeyIDStr := adminKey.ApiKeyID.String()
 	settings := Must(admin.SetSystemFreeUseApiKey(&adminKeyIDStr))
 	s.NotNil(settings.FreeUseApiKeyID)
@@ -106,7 +106,7 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyAllowsOrgMembersToPlay() 
 	s.Equal("head", head.GetRole())
 
 	// Head adds API key, shares with institution
-	headKey := Must(head.AddApiKey("mock-org-free", "Org Free Key", "mock"))
+	headKey := Must(head.AddApiKey("mock-org-free", "Org Free Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(headKey.ID.String(), inst.ID.String()))
 	s.T().Logf("Head shared key with institution: orgShareID=%s", orgShare.ID)
 
@@ -169,7 +169,7 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyFallbackInWorkshopWithNoK
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds key, shares with org, sets as institution free-use key
-	headKey := Must(head.AddApiKey("mock-org-fb", "Org Fallback Key", "mock"))
+	headKey := Must(head.AddApiKey("mock-org-fb", "Org Fallback Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(headKey.ID.String(), inst.ID.String()))
 	orgShareIDStr := orgShare.ID.String()
 	Must(head.SetInstitutionFreeUseApiKey(inst.ID.String(), &orgShareIDStr))
@@ -223,7 +223,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyAllowsWorkshopMembersToPlay() {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds key, shares with org
-	headKey := Must(head.AddApiKey("mock-ws-play", "Workshop Play Key", "mock"))
+	headKey := Must(head.AddApiKey("mock-ws-play", "Workshop Play Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(headKey.ID.String(), inst.ID.String()))
 	s.T().Logf("Head shared key with org: %s", orgShare.ID)
 
@@ -282,7 +282,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyDoesNotLeakToOtherWorkshops() {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds key, shares with org
-	headKey := Must(head.AddApiKey("mock-multiws", "Multi WS Key", "mock"))
+	headKey := Must(head.AddApiKey("mock-multiws", "Multi WS Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(headKey.ID.String(), inst.ID.String()))
 
 	// Create workshop A WITH a key
@@ -340,10 +340,10 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyTakesPriorityOverInstitutionFreeUse
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds TWO keys, shares both with org
-	wsKey := Must(head.AddApiKey("mock-ws-prio", "WS Priority Key", "mock"))
+	wsKey := Must(head.AddApiKey("mock-ws-prio", "WS Priority Key", "openai"))
 	wsOrgShare := Must(head.ShareApiKeyWithInstitution(wsKey.ID.String(), inst.ID.String()))
 
-	orgKey := Must(head.AddApiKey("mock-org-prio", "Org Priority Key", "mock"))
+	orgKey := Must(head.AddApiKey("mock-org-prio", "Org Priority Key", "openai"))
 	orgOrgShare := Must(head.ShareApiKeyWithInstitution(orgKey.ID.String(), inst.ID.String()))
 
 	// Set institution free-use key

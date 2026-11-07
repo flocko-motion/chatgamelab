@@ -85,7 +85,10 @@ import {
   type ObjWorkshop,
   type ObjWorkshopParticipant,
 } from "@/api/generated";
-import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import {
+  getAiQualityTierOptions,
+  normalizeAiQualityTier,
+} from "@/common/lib/aiQualityTier";
 import { parseSortValue } from "@/common/lib/sort";
 
 interface WorkshopsTabProps {
@@ -886,7 +889,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                           data={getAiQualityTierOptions(t, {
                             includeEmpty: true,
                           })}
-                          value={workshop.aiQualityTier || ""}
+                          value={normalizeAiQualityTier(workshop.aiQualityTier)}
                           onChange={(value) =>
                             handleUpdateWorkshopSettings(workshop, {
                               aiQualityTier: value || undefined,

@@ -41,7 +41,7 @@ func (s *ApiKeyFallbackTestSuite) TestFallbackFromBrokenUserKeyToSystemFreeUse()
 	admin := s.DevUser()
 
 	// Admin adds a working mock key and sets it as system free-use (priority 5)
-	adminKey := Must(admin.AddApiKey("mock-fallback-sys", "System Fallback Key", "mock"))
+	adminKey := Must(admin.AddApiKey("mock-fallback-sys", "System Fallback Key", "openai"))
 	adminKeyIDStr := adminKey.ApiKeyID.String()
 	Must(admin.SetSystemFreeUseApiKey(&adminKeyIDStr))
 	s.T().Logf("System free-use key set (mock, working)")
@@ -85,7 +85,7 @@ func (s *ApiKeyFallbackTestSuite) TestFallbackFromBrokenUserKeyToInstitutionFree
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds a working mock key, shares with org, sets as institution free-use (priority 3)
-	mockKey := Must(head.AddApiKey("mock-org-fallback", "Org Fallback Key", "mock"))
+	mockKey := Must(head.AddApiKey("mock-org-fallback", "Org Fallback Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(mockKey.ID.String(), inst.ID.String()))
 	orgShareIDStr := orgShare.ID.String()
 	Must(head.SetInstitutionFreeUseApiKey(inst.ID.String(), &orgShareIDStr))
@@ -136,7 +136,7 @@ func (s *ApiKeyFallbackTestSuite) TestFallbackSkipsSamePlatformDuplicates() {
 	admin := s.DevUser()
 
 	// Admin sets a working mock key as system free-use
-	adminKey := Must(admin.AddApiKey("mock-dedup-sys", "System Dedup Key", "mock"))
+	adminKey := Must(admin.AddApiKey("mock-dedup-sys", "System Dedup Key", "openai"))
 	adminKeyIDStr := adminKey.ApiKeyID.String()
 	Must(admin.SetSystemFreeUseApiKey(&adminKeyIDStr))
 	s.T().Logf("System free-use key set (mock)")
@@ -183,7 +183,7 @@ func (s *ApiKeyFallbackTestSuite) TestPlatformLockedOnExistingSession() {
 
 	// Create user with a working mock key as default (priority 4)
 	user := s.CreateUser("user-platform-lock")
-	mockKey := Must(user.AddApiKey("mock-platform-lock-key", "Mock Key", "mock"))
+	mockKey := Must(user.AddApiKey("mock-platform-lock-key", "Mock Key", "openai"))
 	Must(user.SetDefaultApiKey(mockKey.ID.String()))
 	s.T().Logf("User has mock key as default")
 
@@ -219,7 +219,7 @@ func (s *ApiKeyFallbackTestSuite) TestContinueSessionWithFallback() {
 
 	// Create user with a working mock key
 	user := s.CreateUser("user-continue")
-	mockKey := Must(user.AddApiKey("mock-continue-key", "Working Mock Key", "mock"))
+	mockKey := Must(user.AddApiKey("mock-continue-key", "Working Mock Key", "openai"))
 	Must(user.SetDefaultApiKey(mockKey.ID.String()))
 
 	// User uploads a game (must be owner to access it)
@@ -227,7 +227,7 @@ func (s *ApiKeyFallbackTestSuite) TestContinueSessionWithFallback() {
 	s.T().Logf("User uploaded game: %s", game.Name)
 
 	// Admin sets a working mock key as system free-use (fallback)
-	adminKey := Must(admin.AddApiKey("mock-continue-sys", "System Continue Key", "mock"))
+	adminKey := Must(admin.AddApiKey("mock-continue-sys", "System Continue Key", "openai"))
 	adminKeyIDStr := adminKey.ApiKeyID.String()
 	Must(admin.SetSystemFreeUseApiKey(&adminKeyIDStr))
 

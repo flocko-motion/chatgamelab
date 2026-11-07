@@ -24,7 +24,7 @@ func (s *ApiKeyTestSuite) TestDefaultApiKeySwitching() {
 	user := s.CreateUser("key-switcher")
 
 	// Add first key — should become default automatically
-	key1 := Must(user.AddApiKey("mock-key-1", "First Key", "mock"))
+	key1 := Must(user.AddApiKey("mock-key-1", "First Key", "openai"))
 	s.NotEmpty(key1.ID)
 	s.NotEmpty(key1.ApiKeyID)
 	s.T().Logf("Added first key: shareID=%s", key1.ID)
@@ -36,7 +36,7 @@ func (s *ApiKeyTestSuite) TestDefaultApiKeySwitching() {
 	s.T().Logf("First key is default")
 
 	// Add second key — should NOT be default
-	key2 := Must(user.AddApiKey("mock-key-2", "Second Key", "mock"))
+	key2 := Must(user.AddApiKey("mock-key-2", "Second Key", "openai"))
 	s.NotEmpty(key2.ID)
 	s.T().Logf("Added second key: shareID=%s", key2.ID)
 
@@ -101,7 +101,7 @@ func (s *ApiKeyTestSuite) TestMistralKeyLifecycle() {
 	s.T().Logf("Mistral key is default")
 
 	// Add a second key (mock) so we can switch defaults
-	key2 := Must(user.AddApiKey("test-mock-key-456", "My Mock", "mock"))
+	key2 := Must(user.AddApiKey("test-mock-key-456", "My Mock", "openai"))
 	s.T().Logf("Added Mock key: shareID=%s", key2.ID)
 
 	// Switch default to mock key
@@ -148,7 +148,7 @@ func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespace() {
 	user := s.CreateUser("trim-ws")
 
 	// Create a key with whitespace in the key value and name
-	key := Must(user.AddApiKey("  mock-trim-key  ", "  Trimmed Key  ", "  mock  "))
+	key := Must(user.AddApiKey("  mock-trim-key  ", "  Trimmed Key  ", "  openai  "))
 	s.NotEmpty(key.ID)
 	s.T().Logf("Created key with whitespace: shareID=%s", key.ID)
 
@@ -162,7 +162,7 @@ func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespace() {
 	s.Equal("Trimmed Key", apiKey.Name, "key name should be trimmed")
 
 	// Platform should be trimmed
-	s.Equal("mock", apiKey.Platform, "platform should be trimmed")
+	s.Equal("openai", apiKey.Platform, "platform should be trimmed")
 
 	// KeyShortened uses ShortenLeft with length 6: ".." + last 4 chars
 	// "mock-trim-key" → "..-key" (no trailing spaces from original "  mock-trim-key  ")
@@ -178,7 +178,7 @@ func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespaceOnlyFails() {
 	user := s.CreateUser("trim-empty")
 
 	// Key with whitespace-only value should fail
-	_, err := user.AddApiKey("   ", "Some Name", "mock")
+	_, err := user.AddApiKey("   ", "Some Name", "openai")
 	s.Error(err, "whitespace-only key value should be rejected")
 	s.T().Logf("Whitespace-only key correctly rejected: %v", err)
 
@@ -195,8 +195,8 @@ func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {
 	user := s.CreateUser("org-key-user")
 
 	// User adds two API keys, first becomes default
-	key1 := Must(user.AddApiKey("mock-org-key-1", "Personal Key 1", "mock"))
-	key2 := Must(user.AddApiKey("mock-org-key-2", "Personal Key 2", "mock"))
+	key1 := Must(user.AddApiKey("mock-org-key-1", "Personal Key 1", "openai"))
+	key2 := Must(user.AddApiKey("mock-org-key-2", "Personal Key 2", "openai"))
 	s.T().Logf("User added two keys: key1=%s, key2=%s", key1.ID, key2.ID)
 
 	// Verify key1 is default

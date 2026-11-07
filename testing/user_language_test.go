@@ -70,7 +70,7 @@ func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Anonymous joins require an active workshop with a usable API key.
-	keyShare := Must(head.AddApiKey("mock-lang-key-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-lang-key-"+prefix, prefix+" Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))

@@ -23,7 +23,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/languages", GetLanguages)
 	mux.HandleFunc("GET /api/languages/{code}", GetLocaleFile)
 
-	mux.Handle("GET /api/platforms", httpx.RequireAuth(GetPlatforms))
+	mux.Handle("GET /api/platforms", httpx.RequireAuth(Engine.Platforms))
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
 	mux.Handle("GET /api/system/constraints", httpx.RequireAuth(GetSystemConstraints))

@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"cgl/game/ai"
+	"engine"
 
 	"gopkg.in/yaml.v2"
 )
@@ -66,8 +66,6 @@ func GetConfigPath() (string, error) {
 
 // createInitialConfig creates a nicely formatted initial config file
 func createInitialConfig(path string) error {
-	// Get available platforms from AI module
-	platformInfos := ai.GetAiPlatformInfos()
 
 	// Generate YAML content
 	content := "# ChatGameLab Configuration\n"
@@ -78,7 +76,10 @@ func createInitialConfig(path string) error {
 	content += "# Replace 'your-api-key-here' with your actual API key\n"
 	content += "platforms:\n"
 
-	for _, platform := range platformInfos {
+	for _, platform := range engine.Platforms() {
+		if !platform.UserKeys {
+			continue
+		}
 		content += fmt.Sprintf("  %s:\n", platform.ID)
 		content += "    apikey: your-api-key-here\n"
 	}

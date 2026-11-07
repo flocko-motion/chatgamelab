@@ -261,11 +261,10 @@
       }
     },
     "aiQualityTier": {
-      "high": "High (Premium)",
+      "high": "High",
       "label": "AI Quality Tier",
-      "low": "Low (Economy)",
-      "max": "Max (Premium + Audio)",
-      "medium": "Medium (Balanced)",
+      "low": "Economy",
+      "medium": "Balanced",
       "newSessionsOnly": "This tier applies to new sessions only. Existing sessions keep the tier they started with.",
       "serverDefault": "Server Default"
     },
@@ -376,8 +375,8 @@
       "title": "API Key Management",
       "unnamed": "Unnamed Key",
       "unsupportedPlatform": {
-        "badge": "unsupported",
-        "hint": "This platform is currently not supported. You can only remove existing keys."
+        "badge": "not supported yet",
+        "hint": "This platform is not supported yet. Its keys stay stored but are not used. You can remove them."
       }
     },
     "back": "Back",

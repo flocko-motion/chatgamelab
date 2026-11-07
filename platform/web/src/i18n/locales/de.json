@@ -261,11 +261,10 @@
       }
     },
     "aiQualityTier": {
-      "high": "Hoch (Premium)",
+      "high": "Hoch",
       "label": "KI-Qualitätsstufe",
-      "low": "Niedrig (Sparsam)",
-      "max": "Max (Premium + Audio)",
-      "medium": "Mittel (Ausgewogen)",
+      "low": "Sparsam",
+      "medium": "Ausgewogen",
       "newSessionsOnly": "Diese Stufe gilt nur für neue Sitzungen. Bestehende Sitzungen behalten die Stufe, mit der sie gestartet wurden.",
       "serverDefault": "Serverstandard"
     },
@@ -376,8 +375,8 @@
       "title": "API-Schlüssel verwalten",
       "unnamed": "Unbenannter Schlüssel",
       "unsupportedPlatform": {
-        "badge": "nicht unterstützt",
-        "hint": "Diese Plattform wird derzeit nicht unterstützt. Du kannst nur vorhandene Schlüssel entfernen."
+        "badge": "noch nicht unterstützt",
+        "hint": "Diese Plattform wird noch nicht unterstützt. Ihre Schlüssel bleiben gespeichert, werden aber nicht verwendet. Du kannst sie entfernen."
       }
     },
     "back": "Zurück",

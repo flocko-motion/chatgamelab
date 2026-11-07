@@ -26,6 +26,31 @@ export enum ObjInviteStatus {
   InviteStatusRevoked = "revoked",
 }
 
+export enum EnginePlatform {
+  PlatformMock = "mock",
+  PlatformOpenAI = "openai",
+  PlatformMistral = "mistral",
+}
+
+export enum EngineGenre {
+  GenreAdventure = "adventure",
+  GenreNPCLive = "npc-live",
+}
+
+export enum AdaptersTier {
+  TierLow = "low",
+  TierMedium = "medium",
+  TierHigh = "high",
+  TierMax = "max",
+}
+
+export interface AdaptersModel {
+  name?: string;
+  params?: Record<string, string>;
+}
+
+export type AdaptersModelSet = Record<string, AdaptersModel>;
+
 export interface DbUserSessionWithGame {
   aiModel?: string;
   /** AI model used for playing. */
@@ -81,6 +106,28 @@ export interface DbUserSessionWithGame {
   workshopId?: string;
 }
 
+export interface EnginePlatformInfo {
+  genres?: EngineGenre[];
+  id?: EnginePlatform;
+  name?: string;
+  tiers?: EngineTierModels[];
+  toggles?: EngineToggles;
+  userKeys?: boolean;
+}
+
+export interface EngineTierModels {
+  id?: AdaptersTier;
+  label?: string;
+  models?: AdaptersModelSet;
+}
+
+export interface EngineToggles {
+  "audio-in"?: boolean;
+  "audio-live"?: boolean;
+  "audio-out"?: boolean;
+  images?: boolean;
+}
+
 export interface HttpxErrorResponse {
   /** Machine-readable error code */
   code?: string;
@@ -88,37 +135,6 @@ export interface HttpxErrorResponse {
   message?: string;
   /** Deprecated: use Code instead */
   type?: string;
-}
-
-export interface ObjAiModel {
-  /** tier label e.g. "Premium" */
-  description?: string;
-  /** generic tier: "high", "medium", "low", "max" */
-  id?: string;
-  /** model used for image generation (if different from Model) */
-  imageModel?: string;
-  /** image quality: "high", "medium", "low" (default: "low") */
-  imageQuality?: string;
-  /** concrete model ID e.g. "gpt-5.2" */
-  model?: string;
-  /** display name e.g. "GPT-5.2" */
-  name?: string;
-  /** whether this tier supports voice input (STT transcription) */
-  supportsAudioIn?: boolean;
-  /** whether this tier generates audio narration (TTS) */
-  supportsAudioOut?: boolean;
-  /** whether this tier generates images */
-  supportsImage?: boolean;
-}
-
-export interface ObjAiPlatform {
-  /** technical name without spaces, e.g. "openai" */
-  id?: string;
-  models?: ObjAiModel[];
-  /** display name e.g. "OpenAI" */
-  name?: string;
-  /** whether this platform supports user API keys */
-  supportsApiKey?: boolean;
 }
 
 export interface ObjApiKey {
@@ -2466,7 +2482,7 @@ export class Api<
   };
   platforms = {
     /**
-     * @description Returns all available AI platforms with their metadata
+     * @description Returns the engine's AI platforms with their toggles, playable genres and tiers
      *
      * @tags platforms
      * @name PlatformsList
@@ -2474,7 +2490,7 @@ export class Api<
      * @request GET:/platforms
      */
     platformsList: (params: RequestParams = {}) =>
-      this.request<ObjAiPlatform[], HttpxErrorResponse>({
+      this.request<EnginePlatformInfo[], any>({
         path: `/platforms`,
         method: "GET",
         format: "json",

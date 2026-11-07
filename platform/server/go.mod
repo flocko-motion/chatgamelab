@@ -3,9 +3,10 @@ module cgl
 go 1.25
 
 require (
+	engine v0.0.0-00010101000000-000000000000
 	github.com/auth0/go-jwt-middleware/v2 v2.2.2
 	github.com/dillonstreator/go-unique-name-generator v1.0.2
-	github.com/drhodes/golorem v0.0.0-20220328165741-da82e5b29246
+	github.com/getsentry/sentry-go v0.42.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
@@ -14,6 +15,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/sqlc-dev/pqtype v0.3.0
 	github.com/swaggo/swag v1.16.3
+	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -25,9 +27,9 @@ require (
 	github.com/clipperhouse/displaywidth v0.6.0 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
+	github.com/coder/websocket v1.8.15 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/fatih/color v1.15.0 // indirect
-	github.com/getsentry/sentry-go v0.42.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
@@ -49,8 +51,10 @@ require (
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
+
+// The engine is a sibling module in this repository.
+replace engine => ../../engine

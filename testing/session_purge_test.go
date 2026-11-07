@@ -26,7 +26,7 @@ func (s *SessionPurgeTestSuite) TestPurgeRemovesIdleSessionsOnly() {
 	ctx := context.Background()
 
 	user := s.CreateUser("sp-session-user")
-	Must(user.AddApiKey("mock-sp-sess", "Session Key", "mock"))
+	Must(user.AddApiKey("mock-sp-sess", "Session Key", "openai"))
 
 	game := Must(user.UploadGame("alien-first-contact"))
 	session, err := user.CreateGameSession(game.ID.String())

@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"cgl/db"
-	"cgl/game/ai"
 	"cgl/game/templates"
 	"cgl/log"
 	"cgl/obj"
@@ -86,7 +85,7 @@ type sessionSetupResult struct {
 
 // buildScenarioImagePrompt condenses the game scenario for image generation prompts.
 // Uses AI to condense long scenarios (>500 chars) to keep image prompts focused.
-func buildScenarioImagePrompt(ctx context.Context, session *obj.GameSession, platform ai.AiPlatform) string {
+func buildScenarioImagePrompt(ctx context.Context, session *obj.GameSession, platform aiPlatform) string {
 	rawScenario := strings.TrimSpace(session.GameScenario)
 	if rawScenario == "" {
 		return ""
@@ -109,7 +108,7 @@ func buildScenarioImagePrompt(ctx context.Context, session *obj.GameSession, pla
 
 // translateAndAdaptImageStyle translates the image style to English and adapts it based on workshop constraints.
 // Returns the adapted style, or the original if translation fails (non-fatal).
-func translateAndAdaptImageStyle(ctx context.Context, session *obj.GameSession, platform ai.AiPlatform, workshopConstraints *string) string {
+func translateAndAdaptImageStyle(ctx context.Context, session *obj.GameSession, platform aiPlatform, workshopConstraints *string) string {
 	rawStyle := strings.TrimSpace(session.ImageStyle)
 	if rawStyle == "" || rawStyle == templates.ImageStyleNoImage || session.ApiKey == nil {
 		return rawStyle
@@ -195,7 +194,7 @@ func generateSessionSetup(
 		// Still run translation and image style adaptation (no key validation via theme, but best-effort)
 		result.translatedGame, result.fieldNameMap, result.usage = translateIfNeeded(ctx, candidates[0], game, user)
 		// Adapt image style if needed
-		if platform, err := ai.GetAiPlatform(candidates[0].Share.ApiKey.Platform); err == nil {
+		if platform, err := getAiPlatform(candidates[0].Share.ApiKey.Platform); err == nil {
 			tempSession := makeTempSession(candidates[0], game, user.ID)
 			result.adaptedImageStyle = translateAndAdaptImageStyle(ctx, tempSession, platform, promptConstraints)
 		}
@@ -206,7 +205,7 @@ func generateSessionSetup(
 	var lastErr error
 	var lastErrCode string
 	for i, candidate := range candidates {
-		if _, platformErr := ai.GetAiPlatform(candidate.Share.ApiKey.Platform); platformErr != nil {
+		if _, platformErr := getAiPlatform(candidate.Share.ApiKey.Platform); platformErr != nil {
 			log.Debug("candidate has invalid platform, skipping", "index", i, "platform", candidate.Share.ApiKey.Platform)
 			continue
 		}
@@ -244,7 +243,7 @@ func generateSessionSetup(
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			platform, platformErr := ai.GetAiPlatform(tempSession.AiPlatform)
+			platform, platformErr := getAiPlatform(tempSession.AiPlatform)
 			if platformErr != nil {
 				log.Warn("failed to get AI platform for scenario image prompt", "game_id", game.ID, "error", platformErr)
 				return
@@ -259,7 +258,7 @@ func generateSessionSetup(
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			platform, platformErr := ai.GetAiPlatform(tempSession.AiPlatform)
+			platform, platformErr := getAiPlatform(tempSession.AiPlatform)
 			if platformErr != nil {
 				log.Warn("failed to get AI platform for image style adaptation", "game_id", game.ID, "error", platformErr)
 				return

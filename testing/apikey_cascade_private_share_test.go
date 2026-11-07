@@ -24,7 +24,7 @@ func TestApiKeyCascadePrivateShareSuite(t *testing.T) {
 // Returns (user, gameID, shareID, privateShareToken).
 func (s *ApiKeyCascadePrivateShareTestSuite) setupSponsoredGameWithPrivateShare(prefix string) (*testutil.UserClient, string, string, string) {
 	user := s.CreateUser(prefix)
-	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
 	shareID := keyShare.ID.String()
 
 	// Upload game and make it public
@@ -120,7 +120,7 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestGuestSessionFailsAfterSponsorKe
 // share without cascade does NOT affect the private share (the underlying key still exists).
 func (s *ApiKeyCascadePrivateShareTestSuite) TestNonCascadeDeleteDoesNotAffectPrivateShare() {
 	user := s.CreateUser("cascade-noaff")
-	keyShare := Must(user.AddApiKey("mock-cascade-noaff", "Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-cascade-noaff", "Key", "openai"))
 	shareID := keyShare.ID.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))

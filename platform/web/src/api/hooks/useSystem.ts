@@ -4,7 +4,7 @@ import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { apiClient } from "../client";
 import { queryKeys } from "../queryKeys";
 import type {
-  ObjAiPlatform,
+  EnginePlatformInfo,
   ObjSystemSettings,
   HttpxErrorResponse,
   RoutesVersionResponse,
@@ -15,7 +15,7 @@ import type {
 export function usePlatforms() {
   const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjAiPlatform[], HttpxErrorResponse>({
+  return useQuery<EnginePlatformInfo[], HttpxErrorResponse>({
     queryKey: queryKeys.platforms,
     queryFn: () =>
       api.platforms.platformsList().then((response) => response.data),

@@ -289,7 +289,7 @@ func (s *GamePermissionsTestSuite) TestOwnerCanAccessOwnNonPublicGame() {
 func (s *GamePermissionsTestSuite) TestGameDeletionCleansUpSessions() {
 	// Create user with API key, game, and a session
 	user := s.CreateUser("gp-session-user")
-	Must(user.AddApiKey("mock-gp-sess", "Session Key", "mock"))
+	Must(user.AddApiKey("mock-gp-sess", "Session Key", "openai"))
 
 	game := Must(user.UploadGame("alien-first-contact"))
 	s.T().Logf("User created game: %s", game.ID)
@@ -397,7 +397,7 @@ func (s *GamePermissionsTestSuite) TestWorkshopShareRequiresPublicGame() {
 	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
-	keyShare := Must(head.AddApiKey("mock-wspub", "WS Pub Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-wspub", "WS Pub Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	workshop := Must(head.CreateWorkshop(inst.ID.String(), "WS Share Public Workshop"))

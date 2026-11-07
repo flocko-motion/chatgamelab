@@ -46,9 +46,12 @@ import {
   useUpdateUser,
 } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
-import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
-import type { ObjAiPlatform } from "@/api/generated";
-import env from "@/config/env";
+import {
+  getAiQualityTierLabel,
+  getAiQualityTierOptions,
+  normalizeAiQualityTier,
+} from "@/common/lib/aiQualityTier";
+import type { EngineTierModels } from "@/api/generated";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
 import { ApiKeyShares } from "./ApiKeyShares";
 
@@ -76,6 +79,31 @@ export function ApiKeyManagement() {
   const apiKeys = apiKeysData?.apiKeys ?? [];
   const allShares = apiKeysData?.shares ?? [];
   const { data: platforms, isLoading: platformsLoading } = usePlatforms();
+  // A card per platform that takes keys, plus one per platform the engine does
+  // not run keys for yet but which still has stored keys.
+  const platformCards: {
+    id: string;
+    name: string;
+    supported: boolean;
+    tiers: EngineTierModels[];
+  }[] = [
+    ...(platforms ?? [])
+      .filter((p) => p.userKeys)
+      .map((p) => ({
+        id: p.id ?? "",
+        name: p.name ?? p.id ?? "",
+        supported: true,
+        tiers: p.tiers ?? [],
+      })),
+    ...[...new Set(apiKeys.map((k) => k.platform ?? ""))]
+      .filter((id) => id && !platforms?.some((p) => p.id === id && p.userKeys))
+      .map((id) => ({
+        id,
+        name: platforms?.find((p) => p.id === id)?.name ?? id,
+        supported: false,
+        tiers: [],
+      })),
+  ];
   const createApiKey = useCreateApiKey();
   const deleteApiKey = useDeleteApiKey();
   const setDefaultApiKey = useSetDefaultApiKey();
@@ -131,7 +159,7 @@ export function ApiKeyManagement() {
       : `${platform} ${dd}.${mm}.${yy}`;
   };
 
-  const openCreateForPlatform = (platform: ObjAiPlatform) => {
+  const openCreateForPlatform = (platform: { id: string }) => {
     setCreatePlatform(platform.id || "openai");
     setCreateName(formatDefaultKeyName(platform.id || "openai"));
     setCreateKey("");
@@ -304,8 +332,6 @@ export function ApiKeyManagement() {
         const defaultPlatform = platforms?.find(
           (p) => p.id === defaultKey?.platform,
         );
-        const availableTiers =
-          defaultPlatform?.models?.map((m) => m.id ?? "") ?? [];
         return (
           <Card shadow="sm" p="lg" radius="md" withBorder>
             <Stack gap="sm">
@@ -318,10 +344,9 @@ export function ApiKeyManagement() {
               <Select
                 data={getAiQualityTierOptions(t, {
                   includeEmpty: true,
-                  availableTiers:
-                    availableTiers.length > 0 ? availableTiers : undefined,
+                  platform: defaultPlatform,
                 })}
-                value={backendUser?.aiQualityTier || ""}
+                value={normalizeAiQualityTier(backendUser?.aiQualityTier)}
                 onChange={(value) => {
                   if (!backendUser?.id) return;
                   updateUser.mutate(
@@ -361,260 +386,257 @@ export function ApiKeyManagement() {
         </SimpleGrid>
       ) : (
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          {platforms
-            ?.filter(
-              (p) =>
-                (p.id !== "mock" || env.DEV) &&
-                (p.supportsApiKey ||
-                  apiKeys.some((k) => k.platform === p.id) ||
-                  false),
-            )
-            .map((platform) => {
-              const platformKeys = apiKeys
-                .filter((k) => k.platform === platform.id)
-                .sort((a, b) => {
-                  const dateA = a.meta?.createdAt
-                    ? new Date(a.meta.createdAt).getTime()
-                    : 0;
-                  const dateB = b.meta?.createdAt
-                    ? new Date(b.meta.createdAt).getTime()
-                    : 0;
-                  return dateA - dateB;
-                });
-              return (
-                <Card
-                  key={platform.id}
-                  shadow="sm"
-                  p="lg"
-                  radius="md"
-                  withBorder
-                  style={{
-                    borderTop: platform.supportsApiKey
-                      ? "3px solid var(--mantine-color-accent-5)"
-                      : "3px solid var(--mantine-color-red-5)",
-                  }}
-                >
-                  <Stack gap="md">
-                    <Group justify="space-between" align="flex-start">
-                      <Box>
-                        <Group gap="xs" align="center">
-                          <Text size="lg" fw={700}>
-                            {platform.name}
-                          </Text>
-                          {!platform.supportsApiKey && (
-                            <Text size="xs" c="red" fw={600}>
-                              ({t("apiKeys.unsupportedPlatform.badge")})
-                            </Text>
-                          )}
-                        </Group>
-                        <Text size="sm" c="dimmed">
-                          {platformKeys.length}{" "}
-                          {platformKeys.length === 1
-                            ? t("apiKeys.key")
-                            : t("apiKeys.keys")}
+          {platformCards.map((platform) => {
+            const platformKeys = apiKeys
+              .filter((k) => k.platform === platform.id)
+              .sort((a, b) => {
+                const dateA = a.meta?.createdAt
+                  ? new Date(a.meta.createdAt).getTime()
+                  : 0;
+                const dateB = b.meta?.createdAt
+                  ? new Date(b.meta.createdAt).getTime()
+                  : 0;
+                return dateA - dateB;
+              });
+            return (
+              <Card
+                key={platform.id}
+                shadow="sm"
+                p="lg"
+                radius="md"
+                withBorder
+                style={{
+                  borderTop: platform.supported
+                    ? "3px solid var(--mantine-color-accent-5)"
+                    : "3px solid var(--mantine-color-red-5)",
+                }}
+              >
+                <Stack gap="md">
+                  <Group justify="space-between" align="flex-start">
+                    <Box>
+                      <Group gap="xs" align="center">
+                        <Text size="lg" fw={700}>
+                          {platform.name}
                         </Text>
-                        {!platform.supportsApiKey && (
-                          <Text size="xs" c="red" mt={4}>
-                            {t("apiKeys.unsupportedPlatform.hint")}
+                        {!platform.supported && (
+                          <Text size="xs" c="red" fw={600}>
+                            ({t("apiKeys.unsupportedPlatform.badge")})
                           </Text>
                         )}
-                      </Box>
-                    </Group>
+                      </Group>
+                      <Text size="sm" c="dimmed">
+                        {platformKeys.length}{" "}
+                        {platformKeys.length === 1
+                          ? t("apiKeys.key")
+                          : t("apiKeys.keys")}
+                      </Text>
+                      {!platform.supported && (
+                        <Text size="xs" c="red" mt={4}>
+                          {t("apiKeys.unsupportedPlatform.hint")}
+                        </Text>
+                      )}
+                      {platform.tiers.map((tier) => (
+                        <Text key={tier.id} size="xs" c="dimmed">
+                          {getAiQualityTierLabel(t, tier.id ?? "")}:{" "}
+                          {tier.models?.story?.name}
+                        </Text>
+                      ))}
+                    </Box>
+                  </Group>
 
-                    {platformKeys.length > 0 && (
-                      <Stack
-                        gap={0}
-                        style={{
-                          backgroundColor: theme.colors.gray[0],
-                          borderRadius: theme.radius.sm,
-                          border: `1px solid ${theme.colors.gray[2]}`,
-                        }}
-                      >
-                        {platformKeys.map((key, index) => {
-                          const isDefault = key.isDefault;
-                          const usageStatus = key.lastUsageSuccess;
-                          const keyShares = allShares.filter(
-                            (s) => s.apiKeyId === key.id,
-                          );
-                          const selfShare = keyShares.find(
-                            (s) => s.user?.id === backendUser?.id,
-                          );
-                          return (
-                            <Box
-                              key={key.id}
-                              style={{
-                                borderTop:
-                                  index === 0
-                                    ? "none"
-                                    : `1px solid ${theme.colors.gray[2]}`,
-                                ...(isDefault
-                                  ? {
-                                      backgroundColor:
-                                        "var(--mantine-color-accent-0)",
-                                    }
-                                  : {}),
-                              }}
+                  {platformKeys.length > 0 && (
+                    <Stack
+                      gap={0}
+                      style={{
+                        backgroundColor: theme.colors.gray[0],
+                        borderRadius: theme.radius.sm,
+                        border: `1px solid ${theme.colors.gray[2]}`,
+                      }}
+                    >
+                      {platformKeys.map((key, index) => {
+                        const isDefault = key.isDefault;
+                        const usageStatus = key.lastUsageSuccess;
+                        const keyShares = allShares.filter(
+                          (s) => s.apiKeyId === key.id,
+                        );
+                        const selfShare = keyShares.find(
+                          (s) => s.user?.id === backendUser?.id,
+                        );
+                        return (
+                          <Box
+                            key={key.id}
+                            style={{
+                              borderTop:
+                                index === 0
+                                  ? "none"
+                                  : `1px solid ${theme.colors.gray[2]}`,
+                              ...(isDefault
+                                ? {
+                                    backgroundColor:
+                                      "var(--mantine-color-accent-0)",
+                                  }
+                                : {}),
+                            }}
+                          >
+                            <Group
+                              justify="space-between"
+                              align="center"
+                              px="sm"
+                              py="xs"
+                              wrap="nowrap"
                             >
-                              <Group
-                                justify="space-between"
-                                align="center"
-                                px="sm"
-                                py="xs"
-                                wrap="nowrap"
+                              <Box
+                                style={{
+                                  flexShrink: 0,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: 26,
+                                  height: 26,
+                                }}
                               >
-                                <Box
-                                  style={{
-                                    flexShrink: 0,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    width: 26,
-                                    height: 26,
-                                  }}
-                                >
-                                  {isDefault ? (
-                                    <IconCircleCheckFilled
-                                      size={26}
-                                      color="var(--mantine-color-accent-5)"
-                                    />
-                                  ) : (
-                                    <ActionIcon
-                                      variant="transparent"
-                                      color="gray"
-                                      size="md"
-                                      onClick={() =>
-                                        selfShare?.id &&
-                                        setDefaultApiKey.mutate({
-                                          id: selfShare.id,
-                                        })
-                                      }
-                                      loading={setDefaultApiKey.isPending}
-                                      title={t("apiKeys.setDefault")}
-                                    >
-                                      <IconCircle size={22} />
-                                    </ActionIcon>
-                                  )}
-                                </Box>
-                                <Box style={{ flex: 1, minWidth: 0 }}>
-                                  <Text
-                                    size="sm"
-                                    fw={isDefault ? 700 : 600}
-                                    style={{ wordBreak: "break-word" }}
-                                  >
-                                    {key.name || t("apiKeys.unnamed")}
-                                  </Text>
-                                  <Text
-                                    size="xs"
-                                    c="dimmed"
-                                    mt={2}
-                                    title={key.meta?.createdAt || "no date"}
-                                  >
-                                    {t("apiKeys.addedOn")}:{" "}
-                                    {key.meta?.createdAt
-                                      ? new Date(
-                                          key.meta.createdAt,
-                                        ).toLocaleString()
-                                      : "-"}
-                                  </Text>
-                                  {usageStatus === false &&
-                                    key.lastErrorCode && (
-                                      <Text size="xs" c="red.5" mt={2}>
-                                        {translateErrorCode(key.lastErrorCode)
-                                          ?.message || key.lastErrorCode}
-                                      </Text>
-                                    )}
-                                </Box>
-                                <Group
-                                  gap={4}
-                                  align="center"
-                                  wrap="nowrap"
-                                  style={{
-                                    flexShrink: 0,
-                                    justifyContent: "flex-end",
-                                  }}
-                                >
-                                  {usageStatus === true && (
-                                    <Group gap={4} align="center" wrap="nowrap">
-                                      <IconCircleCheck
-                                        size={14}
-                                        color="var(--mantine-color-green-6)"
-                                        style={{ flexShrink: 0 }}
-                                      />
-                                      <Text
-                                        size="xs"
-                                        c="green.7"
-                                        fw={600}
-                                        style={{ whiteSpace: "nowrap" }}
-                                      >
-                                        {t("apiKeys.status.working")}
-                                      </Text>
-                                    </Group>
-                                  )}
-                                  {usageStatus === false && (
-                                    <Group gap={4} align="center" wrap="nowrap">
-                                      <IconCircleX
-                                        size={14}
-                                        color="var(--mantine-color-red-6)"
-                                        style={{ flexShrink: 0 }}
-                                      />
-                                      <Text
-                                        size="xs"
-                                        c="red.7"
-                                        fw={600}
-                                        style={{ whiteSpace: "nowrap" }}
-                                      >
-                                        {t("apiKeys.status.failed")}
-                                      </Text>
-                                    </Group>
-                                  )}
-                                  {usageStatus == null && (
-                                    <Group gap={4} align="center" wrap="nowrap">
-                                      <IconCircleMinus
-                                        size={14}
-                                        color="var(--mantine-color-gray-5)"
-                                        style={{ flexShrink: 0 }}
-                                      />
-                                      <Text
-                                        size="xs"
-                                        c="dimmed"
-                                        fw={600}
-                                        style={{ whiteSpace: "nowrap" }}
-                                      >
-                                        {t("apiKeys.status.unknown")}
-                                      </Text>
-                                    </Group>
-                                  )}
-                                  <DeleteIconButton
-                                    onClick={() =>
-                                      openDelete(
-                                        selfShare?.id || "",
-                                        key.name || t("apiKeys.unnamed"),
-                                      )
-                                    }
-                                    aria-label={t("delete")}
+                                {isDefault ? (
+                                  <IconCircleCheckFilled
+                                    size={26}
+                                    color="var(--mantine-color-accent-5)"
                                   />
-                                </Group>
+                                ) : (
+                                  <ActionIcon
+                                    variant="transparent"
+                                    color="gray"
+                                    size="md"
+                                    onClick={() =>
+                                      selfShare?.id &&
+                                      setDefaultApiKey.mutate({
+                                        id: selfShare.id,
+                                      })
+                                    }
+                                    loading={setDefaultApiKey.isPending}
+                                    title={t("apiKeys.setDefault")}
+                                  >
+                                    <IconCircle size={22} />
+                                  </ActionIcon>
+                                )}
+                              </Box>
+                              <Box style={{ flex: 1, minWidth: 0 }}>
+                                <Text
+                                  size="sm"
+                                  fw={isDefault ? 700 : 600}
+                                  style={{ wordBreak: "break-word" }}
+                                >
+                                  {key.name || t("apiKeys.unnamed")}
+                                </Text>
+                                <Text
+                                  size="xs"
+                                  c="dimmed"
+                                  mt={2}
+                                  title={key.meta?.createdAt || "no date"}
+                                >
+                                  {t("apiKeys.addedOn")}:{" "}
+                                  {key.meta?.createdAt
+                                    ? new Date(
+                                        key.meta.createdAt,
+                                      ).toLocaleString()
+                                    : "-"}
+                                </Text>
+                                {usageStatus === false && key.lastErrorCode && (
+                                  <Text size="xs" c="red.5" mt={2}>
+                                    {translateErrorCode(key.lastErrorCode)
+                                      ?.message || key.lastErrorCode}
+                                  </Text>
+                                )}
+                              </Box>
+                              <Group
+                                gap={4}
+                                align="center"
+                                wrap="nowrap"
+                                style={{
+                                  flexShrink: 0,
+                                  justifyContent: "flex-end",
+                                }}
+                              >
+                                {usageStatus === true && (
+                                  <Group gap={4} align="center" wrap="nowrap">
+                                    <IconCircleCheck
+                                      size={14}
+                                      color="var(--mantine-color-green-6)"
+                                      style={{ flexShrink: 0 }}
+                                    />
+                                    <Text
+                                      size="xs"
+                                      c="green.7"
+                                      fw={600}
+                                      style={{ whiteSpace: "nowrap" }}
+                                    >
+                                      {t("apiKeys.status.working")}
+                                    </Text>
+                                  </Group>
+                                )}
+                                {usageStatus === false && (
+                                  <Group gap={4} align="center" wrap="nowrap">
+                                    <IconCircleX
+                                      size={14}
+                                      color="var(--mantine-color-red-6)"
+                                      style={{ flexShrink: 0 }}
+                                    />
+                                    <Text
+                                      size="xs"
+                                      c="red.7"
+                                      fw={600}
+                                      style={{ whiteSpace: "nowrap" }}
+                                    >
+                                      {t("apiKeys.status.failed")}
+                                    </Text>
+                                  </Group>
+                                )}
+                                {usageStatus == null && (
+                                  <Group gap={4} align="center" wrap="nowrap">
+                                    <IconCircleMinus
+                                      size={14}
+                                      color="var(--mantine-color-gray-5)"
+                                      style={{ flexShrink: 0 }}
+                                    />
+                                    <Text
+                                      size="xs"
+                                      c="dimmed"
+                                      fw={600}
+                                      style={{ whiteSpace: "nowrap" }}
+                                    >
+                                      {t("apiKeys.status.unknown")}
+                                    </Text>
+                                  </Group>
+                                )}
+                                <DeleteIconButton
+                                  onClick={() =>
+                                    openDelete(
+                                      selfShare?.id || "",
+                                      key.name || t("apiKeys.unnamed"),
+                                    )
+                                  }
+                                  aria-label={t("delete")}
+                                />
                               </Group>
-                              <ApiKeyShares shares={keyShares} />
-                            </Box>
-                          );
-                        })}
-                      </Stack>
-                    )}
+                            </Group>
+                            <ApiKeyShares shares={keyShares} />
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                  )}
 
-                    {platform.supportsApiKey && (
-                      <TextButton
-                        size="xs"
-                        leftSection={<IconPlus size={14} />}
-                        onClick={() => openCreateForPlatform(platform)}
-                      >
-                        {t("apiKeys.addKey")}
-                      </TextButton>
-                    )}
-                  </Stack>
-                </Card>
-              );
-            })}
+                  {platform.supported && (
+                    <TextButton
+                      size="xs"
+                      leftSection={<IconPlus size={14} />}
+                      onClick={() => openCreateForPlatform(platform)}
+                    >
+                      {t("apiKeys.addKey")}
+                    </TextButton>
+                  )}
+                </Stack>
+              </Card>
+            );
+          })}
         </SimpleGrid>
       )}
 
@@ -636,12 +658,9 @@ export function ApiKeyManagement() {
           <Select
             label={t("apiKeys.createModal.platformLabel")}
             placeholder={t("apiKeys.createModal.platformPlaceholder")}
-            data={
-              platforms?.map((p) => ({
-                value: p.id || "",
-                label: p.name || "",
-              })) || []
-            }
+            data={platformCards
+              .filter((p) => p.supported)
+              .map((p) => ({ value: p.id, label: p.name }))}
             required
             value={createPlatform}
             onChange={(value) => setCreatePlatform(value || "openai")}

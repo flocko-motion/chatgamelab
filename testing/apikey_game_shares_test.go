@@ -24,7 +24,7 @@ func TestApiKeyGameSharesSuite(t *testing.T) {
 // appears in the API keys response with isPrivateShare=true and correct game name.
 func (s *ApiKeyGameSharesSuite) TestPersonalGameShareVisibleInApiKeys() {
 	user := s.CreateUser("gs-personal")
-	keyShare := Must(user.AddApiKey("mock-gs-personal", "GS Personal Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-gs-personal", "GS Personal Key", "openai"))
 	shareID := keyShare.ID.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
@@ -60,7 +60,7 @@ func (s *ApiKeyGameSharesSuite) TestOrgGameShareVisibleInApiKeys() {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds API key and shares with org
-	keyShare := Must(head.AddApiKey("mock-gs-org", "GS Org Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-gs-org", "GS Org Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 	orgShareID := orgShare.ID.String()
 
@@ -95,7 +95,7 @@ func (s *ApiKeyGameSharesSuite) TestWorkshopGameShareVisibleInApiKeys() {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds API key, shares with org
-	keyShare := Must(head.AddApiKey("mock-gs-ws", "GS WS Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-gs-ws", "GS WS Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	// Create workshop and set API key
@@ -143,7 +143,7 @@ func (s *ApiKeyGameSharesSuite) TestWorkshopGameShareVisibleInApiKeys() {
 // all shares for the key owner.
 func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPersonalContext() {
 	user := s.CreateUser("gs-ctx-personal")
-	keyShare := Must(user.AddApiKey("mock-gs-ctx-personal", "CTX Personal Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-gs-ctx-personal", "CTX Personal Key", "openai"))
 	shareID := keyShare.ID.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
@@ -169,7 +169,7 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointOrgContextFiltersPersonal(
 	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
-	keyShare := Must(head.AddApiKey("mock-gs-ctx-filter", "CTX Filter Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-gs-ctx-filter", "CTX Filter Key", "openai"))
 	selfShareID := keyShare.ID.String()
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 	orgShareID := orgShare.ID.String()
@@ -204,7 +204,7 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPersonalContextDeniedForNo
 	staffInvite := Must(admin.InviteToInstitution(inst.ID.String(), "staff", staff.ID))
 	Must(staff.AcceptInvite(staffInvite.ID.String()))
 
-	keyShare := Must(head.AddApiKey("mock-gs-ctx-deny", "CTX Deny Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-gs-ctx-deny", "CTX Deny Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 	orgShareID := orgShare.ID.String()
 
@@ -223,7 +223,7 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPersonalContextDeniedForNo
 // TestGameSharesEndpointWithRemaining verifies the endpoint returns remaining session count.
 func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointWithRemaining() {
 	user := s.CreateUser("gs-remaining")
-	keyShare := Must(user.AddApiKey("mock-gs-remaining", "GS Remaining Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-gs-remaining", "GS Remaining Key", "openai"))
 	shareID := keyShare.ID.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
@@ -245,7 +245,7 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPermission() {
 	user1 := s.CreateUser("gs-perm-owner")
 	user2 := s.CreateUser("gs-perm-other")
 
-	keyShare := Must(user1.AddApiKey("mock-gs-perm", "GS Perm Key", "mock"))
+	keyShare := Must(user1.AddApiKey("mock-gs-perm", "GS Perm Key", "openai"))
 	shareID := keyShare.ID.String()
 
 	game := Must(user1.UploadGame("alien-first-contact"))
@@ -266,7 +266,7 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointOrgSource() {
 	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
-	keyShare := Must(head.AddApiKey("mock-gs-ep-org", "GS EP Org Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-gs-ep-org", "GS EP Org Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 	orgShareID := orgShare.ID.String()
 

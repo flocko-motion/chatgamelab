@@ -8,6 +8,7 @@ import (
 	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
+	"engine"
 
 	"github.com/google/uuid"
 )
@@ -65,7 +66,7 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 
 	// Load system settings for default tier fallback
 	settings, _ := GetSystemSettings(ctx)
-	defaultTier := obj.AiModelBalanced
+	defaultTier := string(engine.TierMedium)
 	if settings != nil && settings.DefaultAiQualityTier != "" {
 		defaultTier = settings.DefaultAiQualityTier
 	}

@@ -63,7 +63,10 @@ import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
-import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import {
+  getAiQualityTierOptions,
+  normalizeAiQualityTier,
+} from "@/common/lib/aiQualityTier";
 import { useAuth } from "@/providers/AuthProvider";
 
 interface SingleWorkshopSettingsProps {
@@ -432,7 +435,7 @@ export function SingleWorkshopSettings({
               size="sm"
               label={t("aiQualityTier.label")}
               data={aiQualityTierOptions}
-              value={workshop.aiQualityTier || ""}
+              value={normalizeAiQualityTier(workshop.aiQualityTier)}
               onChange={(value) =>
                 handleUpdateWorkshopSettings({
                   aiQualityTier: value || undefined,

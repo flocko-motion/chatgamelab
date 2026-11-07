@@ -66,7 +66,7 @@ func (s *UserDeletionTestSuite) TestAdminCanDeleteIndividualWithGameAndKeys() {
 	s.Equal("individual", individual.GetRole())
 
 	// Add API key
-	keyShare := Must(individual.AddApiKey("mock-del-ind", "Ind Key", "mock"))
+	keyShare := Must(individual.AddApiKey("mock-del-ind", "Ind Key", "openai"))
 	s.NotEmpty(keyShare.ID)
 	s.T().Logf("Individual has API key: %s", keyShare.ID)
 
@@ -122,7 +122,7 @@ func (s *UserDeletionTestSuite) TestAdminCanDeleteStaffWithShares() {
 	s.T().Logf("Head and staff joined institution")
 
 	// Staff creates API key, shares with org, sets as workshop key
-	staffKey := Must(staff.AddApiKey("mock-del-staff", "Staff Key", "mock"))
+	staffKey := Must(staff.AddApiKey("mock-del-staff", "Staff Key", "openai"))
 	orgShare := Must(staff.ShareApiKeyWithInstitution(staffKey.ID.String(), inst.ID.String()))
 	workshop := Must(staff.CreateWorkshop(inst.ID.String(), "Staff Workshop"))
 	wsIDStr := workshop.ID.String()
@@ -197,7 +197,7 @@ func (s *UserDeletionTestSuite) TestAdminCanDeleteHeadWithAnotherHead() {
 	s.T().Logf("Two heads in institution")
 
 	// Head1 creates API key and shares with org
-	head1Key := Must(head1.AddApiKey("mock-del-head1", "Head1 Key", "mock"))
+	head1Key := Must(head1.AddApiKey("mock-del-head1", "Head1 Key", "openai"))
 	Must(head1.ShareApiKeyWithInstitution(head1Key.ID.String(), inst.ID.String()))
 	s.T().Logf("Head1 shared key with org")
 

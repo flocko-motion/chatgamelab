@@ -22,7 +22,7 @@ func TestPrivateShareSuite(t *testing.T) {
 // Returns (user, gameID, personalShareID).
 func (s *PrivateShareTestSuite) setupGameWithKey(prefix string) (*testutil.UserClient, string, string) {
 	user := s.CreateUser(prefix)
-	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
 	game := Must(user.UploadGame("alien-first-contact"))
 	return user, game.ID.String(), keyShare.ID.String()
 }
@@ -82,7 +82,7 @@ func (s *PrivateShareTestSuite) TestDeleteGameShare() {
 func (s *PrivateShareTestSuite) TestOnlyOwnerCanCreateShare() {
 	_, gameID, _ := s.setupGameWithKey("ps-perm-a")
 	bob := s.CreateUser("ps-perm-b")
-	bobKey := Must(bob.AddApiKey("mock-ps-perm-b", "Bob Key", "mock"))
+	bobKey := Must(bob.AddApiKey("mock-ps-perm-b", "Bob Key", "openai"))
 
 	// Bob tries to create share on alice's game -> should fail
 	_, err := bob.CreateGameShare(gameID, bobKey.ID.String(), nil)

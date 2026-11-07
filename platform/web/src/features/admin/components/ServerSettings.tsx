@@ -29,7 +29,10 @@ import {
   useSetSystemFreeUseKey,
   useApiKeys,
 } from "@/api/hooks";
-import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import {
+  getAiQualityTierOptions,
+  normalizeAiQualityTier,
+} from "@/common/lib/aiQualityTier";
 
 export function ServerSettings() {
   const { t } = useTranslation("common");
@@ -93,7 +96,7 @@ export function ServerSettings() {
             </Text>
             <Select
               data={getAiQualityTierOptions(t)}
-              value={settings?.defaultAiQualityTier || "medium"}
+              value={normalizeAiQualityTier(settings?.defaultAiQualityTier) || "medium"}
               onChange={(value) => {
                 if (value) {
                   updateSettings.mutate({ defaultAiQualityTier: value });
@@ -200,7 +203,7 @@ export function ServerSettings() {
             <Select
               label={t("serverSettings.freeUseTier.title")}
               data={getAiQualityTierOptions(t, { includeEmpty: true })}
-              value={settings?.freeUseAiQualityTier || ""}
+              value={normalizeAiQualityTier(settings?.freeUseAiQualityTier)}
               onChange={(value) => {
                 updateSettings.mutate({
                   freeUseAiQualityTier: value || "",

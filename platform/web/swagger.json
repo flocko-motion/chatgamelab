@@ -3080,7 +3080,7 @@
         },
         "/platforms": {
             "get": {
-                "description": "Returns all available AI platforms with their metadata",
+                "description": "Returns the engine's AI platforms with their toggles, playable genres and tiers",
                 "produces": [
                     "application/json"
                 ],
@@ -3094,14 +3094,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/obj.AiPlatform"
+                                "$ref": "#/definitions/engine.PlatformInfo"
                             }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
                         }
                     }
                 }
@@ -5198,6 +5192,41 @@
         }
     },
     "definitions": {
+        "adapters.Model": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "adapters.ModelSet": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/adapters.Model"
+            }
+        },
+        "adapters.Tier": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high",
+                "max"
+            ],
+            "x-enum-varnames": [
+                "TierLow",
+                "TierMedium",
+                "TierHigh",
+                "tierMax"
+            ]
+        },
         "db.UserSessionWithGame": {
             "type": "object",
             "properties": {
@@ -5291,6 +5320,90 @@
                 }
             }
         },
+        "engine.Genre": {
+            "type": "string",
+            "enum": [
+                "adventure",
+                "npc-live"
+            ],
+            "x-enum-varnames": [
+                "GenreAdventure",
+                "GenreNPCLive"
+            ]
+        },
+        "engine.Platform": {
+            "type": "string",
+            "enum": [
+                "mock",
+                "openai",
+                "mistral"
+            ],
+            "x-enum-varnames": [
+                "PlatformMock",
+                "PlatformOpenAI",
+                "PlatformMistral"
+            ]
+        },
+        "engine.PlatformInfo": {
+            "type": "object",
+            "properties": {
+                "genres": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/engine.Genre"
+                    }
+                },
+                "id": {
+                    "$ref": "#/definitions/engine.Platform"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/engine.TierModels"
+                    }
+                },
+                "toggles": {
+                    "$ref": "#/definitions/engine.Toggles"
+                },
+                "userKeys": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "engine.TierModels": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/adapters.Tier"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "models": {
+                    "$ref": "#/definitions/adapters.ModelSet"
+                }
+            }
+        },
+        "engine.Toggles": {
+            "type": "object",
+            "properties": {
+                "audio-in": {
+                    "type": "boolean"
+                },
+                "audio-live": {
+                    "type": "boolean"
+                },
+                "audio-out": {
+                    "type": "boolean"
+                },
+                "images": {
+                    "type": "boolean"
+                }
+            }
+        },
         "httpx.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -5305,70 +5418,6 @@
                 "type": {
                     "description": "Deprecated: use Code instead",
                     "type": "string"
-                }
-            }
-        },
-        "obj.AiModel": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "description": "tier label e.g. \"Premium\"",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "generic tier: \"high\", \"medium\", \"low\", \"max\"",
-                    "type": "string"
-                },
-                "imageModel": {
-                    "description": "model used for image generation (if different from Model)",
-                    "type": "string"
-                },
-                "imageQuality": {
-                    "description": "image quality: \"high\", \"medium\", \"low\" (default: \"low\")",
-                    "type": "string"
-                },
-                "model": {
-                    "description": "concrete model ID e.g. \"gpt-5.2\"",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "display name e.g. \"GPT-5.2\"",
-                    "type": "string"
-                },
-                "supportsAudioIn": {
-                    "description": "whether this tier supports voice input (STT transcription)",
-                    "type": "boolean"
-                },
-                "supportsAudioOut": {
-                    "description": "whether this tier generates audio narration (TTS)",
-                    "type": "boolean"
-                },
-                "supportsImage": {
-                    "description": "whether this tier generates images",
-                    "type": "boolean"
-                }
-            }
-        },
-        "obj.AiPlatform": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "technical name without spaces, e.g. \"openai\"",
-                    "type": "string"
-                },
-                "models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/obj.AiModel"
-                    }
-                },
-                "name": {
-                    "description": "display name e.g. \"OpenAI\"",
-                    "type": "string"
-                },
-                "supportsApiKey": {
-                    "description": "whether this platform supports user API keys",
-                    "type": "boolean"
                 }
             }
         },

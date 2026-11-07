@@ -38,7 +38,7 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyLifecycle() {
 	s.T().Logf("Head joined institution")
 
 	// Head adds an API key
-	keyShare := Must(head.AddApiKey("mock-ws-key", "Workshop Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-ws-key", "Workshop Key", "openai"))
 	s.NotEmpty(keyShare.ID)
 	s.T().Logf("Head added API key: shareID=%s, apiKeyID=%s", keyShare.ID, keyShare.ApiKeyID)
 
@@ -117,7 +117,7 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyRemovedViaOrgShareDeletion() {
 	s.T().Logf("Head joined institution")
 
 	// Head adds API key and shares with org
-	keyShare := Must(head.AddApiKey("mock-ws-key-2", "Workshop Key 2", "mock"))
+	keyShare := Must(head.AddApiKey("mock-ws-key-2", "Workshop Key 2", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 	s.T().Logf("Head added key and shared with org: orgShareID=%s", orgShare.ID)
 
@@ -185,7 +185,7 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyOverwriteByColleague() {
 	s.T().Logf("Head and staff joined institution")
 
 	// Head creates key, shares with org, creates workshop, sets workshop key
-	headKey := Must(head.AddApiKey("mock-head-ow", "Head Key", "mock"))
+	headKey := Must(head.AddApiKey("mock-head-ow", "Head Key", "openai"))
 	headOrgShare := Must(head.ShareApiKeyWithInstitution(headKey.ID.String(), inst.ID.String()))
 	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Overwrite Workshop"))
 	wsIDStr := workshop.ID.String()
@@ -200,7 +200,7 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyOverwriteByColleague() {
 	s.T().Logf("Workshop key is head's share: %s", headOrgShare.ID)
 
 	// Staff creates their own key, shares with org
-	staffKey := Must(staff.AddApiKey("mock-staff-ow", "Staff Key", "mock"))
+	staffKey := Must(staff.AddApiKey("mock-staff-ow", "Staff Key", "openai"))
 	staffOrgShare := Must(staff.ShareApiKeyWithInstitution(staffKey.ID.String(), inst.ID.String()))
 	s.T().Logf("Staff shared key with org: %s", staffOrgShare.ID)
 
@@ -233,7 +233,7 @@ func (s *WorkshopApiKeyTestSuite) TestColleagueCanRemoveOrgShare() {
 	s.T().Logf("Head and staff joined institution")
 
 	// Staff creates key, shares with org, sets as workshop key
-	staffKey := Must(staff.AddApiKey("mock-staff-col", "Staff Key", "mock"))
+	staffKey := Must(staff.AddApiKey("mock-staff-col", "Staff Key", "openai"))
 	staffOrgShare := Must(staff.ShareApiKeyWithInstitution(staffKey.ID.String(), inst.ID.String()))
 	workshop := Must(staff.CreateWorkshop(inst.ID.String(), "Colleague Workshop"))
 	wsIDStr := workshop.ID.String()
@@ -287,7 +287,7 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeySessionCreationAllRoles() {
 	s.Equal("individual", individual.GetRole())
 
 	// Head adds a working mock key and shares with org
-	mockKey := Must(head.AddApiKey("mock-session-ws-key", "Workshop Session Key", "mock"))
+	mockKey := Must(head.AddApiKey("mock-session-ws-key", "Workshop Session Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(mockKey.ID.String(), inst.ID.String()))
 	s.T().Logf("Head shared key with org: orgShareID=%s", orgShare.ID)
 

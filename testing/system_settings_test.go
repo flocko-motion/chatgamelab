@@ -32,12 +32,12 @@ func (s *SystemSettingsTestSuite) TestAdminsCanSetAndReplaceFreeUseApiKey() {
 	s.T().Logf("Created admin2 with admin role")
 
 	// Both admins add a mock API key
-	admin1Key := Must(admin1.AddApiKey("mock-key-admin1", "Admin1 Mock Key", "mock"))
+	admin1Key := Must(admin1.AddApiKey("mock-key-admin1", "Admin1 Mock Key", "openai"))
 	s.NotEmpty(admin1Key.ID)
 	s.NotEmpty(admin1Key.ApiKeyID)
 	s.T().Logf("Admin1 added API key: shareID=%s, apiKeyID=%s", admin1Key.ID, admin1Key.ApiKeyID)
 
-	admin2Key := Must(admin2.AddApiKey("mock-key-admin2", "Admin2 Mock Key", "mock"))
+	admin2Key := Must(admin2.AddApiKey("mock-key-admin2", "Admin2 Mock Key", "openai"))
 	s.NotEmpty(admin2Key.ID)
 	s.NotEmpty(admin2Key.ApiKeyID)
 	s.T().Logf("Admin2 added API key: shareID=%s, apiKeyID=%s", admin2Key.ID, admin2Key.ApiKeyID)
@@ -53,7 +53,7 @@ func (s *SystemSettingsTestSuite) TestAdminsCanSetAndReplaceFreeUseApiKey() {
 	s.NotNil(settings.FreeUseApiKeyID, "free-use key should be set")
 	s.Equal(admin1Key.ApiKeyID, *settings.FreeUseApiKeyID)
 	s.Equal("Admin1 Mock Key", settings.FreeUseApiKeyName)
-	s.Equal("mock", settings.FreeUseApiKeyPlatform)
+	s.Equal("openai", settings.FreeUseApiKeyPlatform)
 	s.T().Logf("Admin1 set free-use key to his own key")
 
 	// Admin2 can see the free-use key is set (admins see full details)
@@ -68,7 +68,7 @@ func (s *SystemSettingsTestSuite) TestAdminsCanSetAndReplaceFreeUseApiKey() {
 	s.NotNil(settings.FreeUseApiKeyID, "free-use key should be set to admin2's key")
 	s.Equal(admin2Key.ApiKeyID, *settings.FreeUseApiKeyID)
 	s.Equal("Admin2 Mock Key", settings.FreeUseApiKeyName)
-	s.Equal("mock", settings.FreeUseApiKeyPlatform)
+	s.Equal("openai", settings.FreeUseApiKeyPlatform)
 	s.T().Logf("Admin2 replaced free-use key with his own key")
 
 	// Admin1 sees admin2's key is now the free-use key
@@ -103,7 +103,7 @@ func (s *SystemSettingsTestSuite) TestDeleteApiKeyWhileSetAsFreeUse() {
 	s.Role(admin2, "admin")
 
 	// Admin1 adds a key and sets it as free-use
-	admin1Key := Must(admin1.AddApiKey("mock-key-delete-test", "Key To Delete", "mock"))
+	admin1Key := Must(admin1.AddApiKey("mock-key-delete-test", "Key To Delete", "openai"))
 	admin1KeyIDStr := admin1Key.ApiKeyID.String()
 	settings := Must(admin1.SetSystemFreeUseApiKey(&admin1KeyIDStr))
 	s.NotNil(settings.FreeUseApiKeyID)
@@ -127,7 +127,7 @@ func (s *SystemSettingsTestSuite) TestDeleteApiKeyWhileSetAsFreeUse() {
 	s.T().Logf("Admin2 confirms free-use key is cleared")
 
 	// Now test the same with admin2's key
-	admin2Key := Must(admin2.AddApiKey("mock-key-admin2-delete", "Admin2 Key To Delete", "mock"))
+	admin2Key := Must(admin2.AddApiKey("mock-key-admin2-delete", "Admin2 Key To Delete", "openai"))
 	admin2KeyIDStr := admin2Key.ApiKeyID.String()
 	settings = Must(admin2.SetSystemFreeUseApiKey(&admin2KeyIDStr))
 	s.NotNil(settings.FreeUseApiKeyID)
@@ -165,7 +165,7 @@ func (s *SystemSettingsTestSuite) TestHeadCannotModifySystemSettings() {
 	s.T().Logf("Head correctly denied reading system settings")
 
 	// Head cannot set free-use key
-	adminKey := Must(admin.AddApiKey("mock-key-head-test", "Admin Key", "mock"))
+	adminKey := Must(admin.AddApiKey("mock-key-head-test", "Admin Key", "openai"))
 	adminKeyIDStr := adminKey.ApiKeyID.String()
 	_, err = head.SetSystemFreeUseApiKey(&adminKeyIDStr)
 	s.Error(err, "head should not be able to set free-use key")
@@ -190,7 +190,7 @@ func (s *SystemSettingsTestSuite) TestFreeUseKeyClearedWhenAdminRoleRemoved() {
 	s.T().Logf("Created admin2 with admin role")
 
 	// Admin2 adds a key and sets it as the system free-use key
-	admin2Key := Must(admin2.AddApiKey("mock-key-role-test", "Admin2 Role Test Key", "mock"))
+	admin2Key := Must(admin2.AddApiKey("mock-key-role-test", "Admin2 Role Test Key", "openai"))
 	admin2KeyIDStr := admin2Key.ApiKeyID.String()
 	settings := Must(admin2.SetSystemFreeUseApiKey(&admin2KeyIDStr))
 	s.NotNil(settings.FreeUseApiKeyID)

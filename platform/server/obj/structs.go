@@ -427,35 +427,6 @@ type GameTheme struct {
 	StatusEmojis map[string]string `json:"statusEmojis,omitempty"` // maps status field names to emoji, e.g. {"Health": "❤️", "Gold": "🪙"}
 }
 
-// AiPlatform represents an AI provider and the models it offers.
-type AiPlatform struct {
-	ID             string    `json:"id"`   // technical name without spaces, e.g. "openai"
-	Name           string    `json:"name"` // display name e.g. "OpenAI"
-	Models         []AiModel `json:"models"`
-	SupportsApiKey bool      `json:"supportsApiKey"` // whether this platform supports user API keys
-}
-
-// AiModel represents a single AI model tier and its capabilities on a platform.
-type AiModel struct {
-	ID               string `json:"id"`                         // generic tier: "high", "medium", "low", "max"
-	Name             string `json:"name"`                       // display name e.g. "GPT-5.2"
-	Model            string `json:"model"`                      // concrete model ID e.g. "gpt-5.2"
-	ImageModel       string `json:"imageModel,omitempty"`       // model used for image generation (if different from Model)
-	ImageQuality     string `json:"imageQuality,omitempty"`     // image quality: "high", "medium", "low" (default: "low")
-	PartialImages    int    `json:"-"`                          // OpenAI: streamed preview frames requested per image (each billed ~100 image-output tokens; 0 = none). Server-side cost knob, not exposed to clients.
-	Description      string `json:"description"`                // tier label e.g. "Premium"
-	SupportsImage    bool   `json:"supportsImage,omitempty"`    // whether this tier generates images
-	SupportsAudioIn  bool   `json:"supportsAudioIn,omitempty"`  // whether this tier supports voice input (STT transcription)
-	SupportsAudioOut bool   `json:"supportsAudioOut,omitempty"` // whether this tier generates audio narration (TTS)
-}
-
-const (
-	AiModelMax      = "max" // highest text model + audio output (OpenAI only)
-	AiModelPremium  = "high"
-	AiModelBalanced = "medium"
-	AiModelEconomy  = "low"
-)
-
 // ApiKeyType identifies the source/type of API key used for a game session message.
 // Stored in game_session_message.api_key_type and shown in the AI Insight panel.
 const (
@@ -466,47 +437,6 @@ const (
 	ApiKeyTypeSystemFreeUse      = "system_free_use"
 	ApiKeyTypePrivateShare       = "private_share"
 )
-
-// aiModelPriority defines the tier ordering from highest to lowest.
-// Higher index = higher priority.
-var aiModelPriority = map[string]int{
-	AiModelEconomy:  0,
-	AiModelBalanced: 1,
-	AiModelPremium:  2,
-	AiModelMax:      3,
-}
-
-// AiModelTierPriority returns the priority of a tier ID (higher = better).
-// Returns -1 for unknown tiers.
-func AiModelTierPriority(tierID string) int {
-	if p, ok := aiModelPriority[tierID]; ok {
-		return p
-	}
-	return -1
-}
-
-// ResolveModelWithDowngrade returns the model for the requested tier, or the highest
-// available tier below it if the exact tier doesn't exist on this platform.
-// Returns nil only if the platform has no models at all.
-func (p *AiPlatform) ResolveModelWithDowngrade(tierID string) *AiModel {
-	requestedPriority := AiModelTierPriority(tierID)
-
-	// Try exact match first
-	var bestMatch *AiModel
-	bestPriority := -1
-	for i := range p.Models {
-		m := &p.Models[i]
-		if m.ID == tierID {
-			return m
-		}
-		mp := AiModelTierPriority(m.ID)
-		if mp <= requestedPriority && mp > bestPriority {
-			bestMatch = m
-			bestPriority = mp
-		}
-	}
-	return bestMatch
-}
 
 // StatusField represents a single named status value shown during gameplay.
 type StatusField struct {

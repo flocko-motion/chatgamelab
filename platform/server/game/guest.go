@@ -1,7 +1,7 @@
 // package: game / private share sessions and guest players
 // type:    logic
 // job:     creates game sessions from private share links, minting anonymous guest users and resolving the share's API key.
-// limits:  does not run the game turns or generate content; hands off to session play and the AI platforms (-> ai).
+// limits:  does not run the game turns or generate content; hands off to session play.
 package game
 
 import (
@@ -11,6 +11,7 @@ import (
 	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
+	"engine"
 
 	ung "github.com/dillonstreator/go-unique-name-generator"
 	dictionaries "github.com/dillonstreator/go-unique-name-generator/dictionaries"
@@ -98,6 +99,10 @@ func resolvePrivateShareKey(ctx context.Context, gameShare *obj.GameShare) (*obj
 		log.Warn("guest session: sponsored key not accessible", "game_share_id", gameShare.ID, "api_key_share_id", gameShare.ApiKeyShareID)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeNoApiKey, "Sponsored API key is not available")
 	}
+	if !engine.AcceptsKeys(engine.Platform(share.ApiKey.Platform)) {
+		log.Warn("guest session: sponsored key's platform is not supported", "game_share_id", gameShare.ID, "platform", share.ApiKey.Platform)
+		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "The sponsored API key's platform is not supported yet")
+	}
 	return share, nil
 }
 
@@ -148,7 +153,7 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	// 2. Per-share tier (if set on the game share)
 	// 3. System default tier
 	settings, _ := db.GetSystemSettings(ctx)
-	defaultTier := obj.AiModelBalanced
+	defaultTier := string(engine.TierMedium)
 	if settings != nil && settings.DefaultAiQualityTier != "" {
 		defaultTier = settings.DefaultAiQualityTier
 	}
