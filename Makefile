@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release sync check-clean-tree check-on-feature
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -12,6 +12,13 @@ help:
 	@echo "make pr [MERGE=1]     merge $(DEV) in, push, open the pull request; MERGE=1 waits for checks and merges"
 	@echo "make release [YES=1]  $(DEV) -> $(MAIN), then $(MAIN) back into $(DEV); YES=1 skips the prompt"
 	@echo "make sync             merge $(MAIN) back into $(DEV) through a pull request"
+	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
+
+# The spec is Typst; the PDFs are build output.
+docs:
+	@command -v typst >/dev/null || { echo "typst is required: https://typst.app/docs/" >&2; exit 1; }
+	@mkdir -p docs/build
+	typst compile docs/chatgamelab.typ docs/build/chatgamelab.pdf
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:

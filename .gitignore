@@ -28,3 +28,6 @@ server/cgl
 
 # Claude Code agent worktrees — checkouts of this repo, not for the repo
 .claude/worktrees/
+
+# Rendered spec — `make docs` builds it
+docs/build/
