@@ -67,19 +67,19 @@ it; Expand turns the outline into prose.
 graph TB
     INPUT["Player input
     (text and/or audio)"]
-    CAP{"Configured adapter
+    CAP{"Tooling model
     accepts audio input?"}
     TRANSCRIBE(["Transcribe
-    (tool adapter)"])
+    (transcription model)"])
     PREPROCESS(["Preprocess / Rephrase
-    (tool adapter, pluggable)"])
+    (tooling model, pluggable)"])
 
     INPUT --> CAP
     CAP -- no --> TRANSCRIBE --> PREPROCESS
     CAP -- yes --> PREPROCESS
 
     OUTLINE(["Outline
-    (threaded adapter — starts/continues the thread)"])
+    (story model — starts/continues the thread)"])
     PREPROCESS --> OUTLINE
 
     OUTTEXT["outline text"]
@@ -90,9 +90,9 @@ graph TB
     OUTLINE --> IMGPROMPT
 
     EXPAND(["Expand
-    (threaded adapter — same thread)"])
+    (story model — same thread)"])
     IMAGE(["Image
-    (image adapter, optional)"])
+    (image model, optional)"])
     VETO(["Veto / fact-check
     (deferred)"])
 
@@ -101,7 +101,7 @@ graph TB
     OUTTEXT -.-> VETO
 
     AUDIO(["Audio / TTS
-    (audio adapter, optional)"])
+    (speech model, optional)"])
     EXPAND --> AUDIO
 
     OUT(("Turn output"))
@@ -128,22 +128,41 @@ character softens across several exchanges.
 The scenario and the guardrail reach the model through separate channels of the
 live session, so designer text and the platform's constraint stay apart.
 
-## AI adapters
+## AI platforms
 
-Blocks use five **adapter roles**, each resolving to its own model under the
-session's one platform and key:
+The engine publishes a **catalogue** of the AI platforms it runs: what a person
+needs to understand when choosing a platform and a tier. Its settings are
+written into the engine.
 
-| Role | Used by | Continuity |
+- **A platform** has an id, a name, whether it accepts a user's own API key, and
+  four **toggles**, each saying whether a feature exists on it: `images`,
+  `audio-out` (narration), `audio-in` (voice input) and `audio-live`
+  (full-duplex speech).
+- **A genre declares the toggles it needs**, so the genres a platform can run
+  follow from its toggles. NPC-Live needs `audio-live` and `images`; a launch
+  on a platform that lacks one is refused.
+- **A tier decides quality, never whether a feature exists.** The tiers are
+  `low`, `medium` and `high`, labelled Economy, Balanced and High; `max` is
+  read as `high`.
+- **Each tier lists a model per model type**, with the parameters it is called
+  with, such as a picture's size and quality or a voice's name and format.
+  `tooling` and `story` are always listed; each toggle that is on adds one:
+
+| Toggle | Model type | Used by |
 | --- | --- | --- |
-| **Tool** | rephrase, transcribe, translate, observer | single-shot |
-| **Threaded** | Outline and Expand | one continuing conversation |
-| **Image** | image generation | single-shot |
-| **Audio** | speech synthesis, transcription | single-shot |
-| **Live** | the live-session block | one long-lived duplex session |
+| — | **tooling** | rephrase, translate, observer |
+| — | **story** | Outline and Expand, on one continuing conversation |
+| `images` | **image** | image generation |
+| `audio-out` | **speech** | speech synthesis |
+| `audio-in` | **transcription** | transcription |
+| `audio-live` | **live** | the live-session block |
 
-A session names one **tier**, and the platform's preset table turns it into a
-model per role, plus the picture's size and quality. A role can be pinned to a
-named model or lifted to another tier.
+A session names one platform, one key and one tier, and the tier gives every
+block its model. A model type can be pinned to a named model or lifted to
+another tier.
+
+The catalogue is exposed as `engine.Platforms()`, as the transport's
+`GET platforms`, and printed by `cmd/models`.
 
 Conversation continuity — the thread, the live conversation — is per-block
 state, keyed by the block's name.
@@ -158,7 +177,7 @@ against platform data.
 - **Genre prompts** — the mechanics, belonging to the genre as a named map. A
   spec may replace any of them.
 - **Genre, title, image style.**
-- **AI configuration** — platform, tier, per-role overrides and the voice.
+- **AI configuration** — platform, tier, per-model-type pins and the voice.
 - **A key provider** — an injected function, so the stored spec holds no secret
   and a rotated key takes effect on the next call.
 
@@ -192,8 +211,8 @@ internals out of reach of any other module.
   - **Standalone**: a small launcher serves the same handlers from a
     hand-assembled spec.
 
-  The transport deals only in sessions; authentication, roles and share links
-  belong to whoever mounts it.
+  The transport deals in sessions and the catalogue; authentication, roles and
+  share links belong to whoever mounts it.
 - **The player is embedded** in the module and addresses the engine with
   relative URLs under any mount point.
 

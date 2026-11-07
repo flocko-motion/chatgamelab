@@ -411,7 +411,7 @@ func TestNPCLiveRefusesMistral(t *testing.T) {
 		Platform: engine.PlatformMistral,
 		Keys:     func(context.Context) (string, error) { return "k", nil },
 	})
-	if err == nil || !strings.Contains(err.Error(), "no live voice model") {
-		t.Fatalf("err = %v, want a refusal naming the missing live model", err)
+	if err == nil || !strings.Contains(err.Error(), "audio-live") {
+		t.Fatalf("err = %v, want a refusal naming the missing audio-live toggle", err)
 	}
 }

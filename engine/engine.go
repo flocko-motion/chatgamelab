@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -24,10 +26,9 @@ type KeyFunc func(ctx context.Context) (string, error)
 type Tier = adapters.Tier
 
 const (
-	TierEconomy  = adapters.TierEconomy
-	TierBalanced = adapters.TierBalanced
-	TierPremium  = adapters.TierPremium
-	TierMax      = adapters.TierMax
+	TierLow    = adapters.TierLow
+	TierMedium = adapters.TierMedium
+	TierHigh   = adapters.TierHigh
 )
 
 // Platform selects which implementations back the adapter roles.
@@ -75,15 +76,11 @@ type SessionSpec struct {
 	// Keys is a function so the persisted spec holds no secret and a rotated key applies on the next call.
 	Keys KeyFunc `json:"-"`
 
-	// ModelTier is the default for unset Model* fields; empty means balanced.
+	// ModelTier picks every model not pinned in Models; empty means medium.
 	ModelTier Tier `json:"modelTier,omitempty"`
 
-	// Model* pin one role: "$max" names a tier, anything else a literal model.
-	ModelLive     string `json:"modelLive,omitempty"`
-	ModelTool     string `json:"modelTool,omitempty"`
-	ModelThreaded string `json:"modelThreaded,omitempty"`
-	ModelImage    string `json:"modelImage,omitempty"`
-	ModelAudio    string `json:"modelAudio,omitempty"`
+	// Models pins one model type: "$high" takes that tier's model, anything else names a model.
+	Models map[ModelType]string `json:"models,omitempty"`
 
 	// Voice is a provider built-in voice name, fixed once the session exists.
 	Voice string `json:"voice,omitempty"`
@@ -153,6 +150,10 @@ func Launch(ctx context.Context, spec SessionSpec) (*Session, error) {
 }
 
 func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Session, error) {
+	if err := spec.playable(); err != nil {
+		return nil, err
+	}
+
 	var w *genre.Wiring
 	switch spec.Genre {
 	case GenreAdventure:
@@ -161,9 +162,6 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 		live, tool, image, err := spec.adapters()
 		if err != nil {
 			return nil, err
-		}
-		if live == nil {
-			return nil, fmt.Errorf("platform %q has no live voice model, which this genre needs", spec.Platform)
 		}
 		w, err = genre.NewNPCLive(genre.NPCLiveConfig{
 			Live:           live,
@@ -518,49 +516,49 @@ func (spec SessionSpec) idleAfter() time.Duration {
 
 func (spec SessionSpec) modelTier() Tier {
 	if spec.ModelTier == "" {
-		return TierBalanced
+		return TierMedium
 	}
-	return spec.ModelTier
+	return spec.ModelTier.Normal()
 }
 
-// resolveModels turns tier and per-role pins into model names from the platform's byTier table.
+// resolveModels turns the tier and the pins into a model per type from the platform's byTier table.
 func (spec SessionSpec) resolveModels(byTier func(Tier) (adapters.ModelSet, error)) (adapters.ModelSet, error) {
 	models, err := byTier(spec.modelTier())
 	if err != nil {
 		return models, err
 	}
 
-	for _, role := range []struct {
-		name string
-		pin  string
-		at   func(*adapters.ModelSet) *string
-	}{
-		{"modelLive", spec.ModelLive, func(m *adapters.ModelSet) *string { return &m.Live }},
-		{"modelTool", spec.ModelTool, func(m *adapters.ModelSet) *string { return &m.Tool }},
-		{"modelThreaded", spec.ModelThreaded, func(m *adapters.ModelSet) *string { return &m.Threaded }},
-		{"modelImage", spec.ModelImage, func(m *adapters.ModelSet) *string { return &m.Image }},
-		{"modelAudio", spec.ModelAudio, func(m *adapters.ModelSet) *string { return &m.Audio }},
-	} {
-		if role.pin == "" {
+	for _, kind := range slices.Sorted(maps.Keys(spec.Models)) {
+		if !slices.Contains(adapters.ModelTypes(), kind) {
+			return models, fmt.Errorf("models: unknown model type %q", kind)
+		}
+		pin := spec.Models[kind]
+		if pin == "" {
 			continue
 		}
-		if !strings.HasPrefix(role.pin, tierSigil) {
-			*role.at(&models) = role.pin
+		if !strings.HasPrefix(pin, tierSigil) {
+			// A pinned name keeps the tier's parameters, which ride with the price.
+			model := models[kind]
+			model.Name = pin
+			models[kind] = model
 			continue
 		}
 
-		tier := Tier(strings.TrimPrefix(role.pin, tierSigil))
-		other, err := byTier(tier)
+		other, err := byTier(Tier(strings.TrimPrefix(pin, tierSigil)).Normal())
 		if err != nil {
-			return models, fmt.Errorf("%s: %w", role.name, err)
+			return models, fmt.Errorf("models.%s: %w", kind, err)
 		}
-		*role.at(&models) = *role.at(&other)
+		model, ok := other[kind]
+		if !ok {
+			return models, fmt.Errorf("models.%s: tier %q has no %s model", kind, pin, kind)
+		}
+		models[kind] = model
 	}
 	return models, nil
 }
 
 // adapters resolves the platform into implementations, so a block never chooses its own model.
-// A role the platform cannot fill comes back nil, for the genre that needs it to refuse.
+// A role the platform cannot fill comes back nil.
 func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image, error) {
 	switch spec.Platform {
 	case "", PlatformMock:
@@ -570,12 +568,9 @@ func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image
 		if spec.Keys == nil {
 			return nil, nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
 		}
-		models, err := spec.resolveModels(openai.Models)
+		models, err := spec.resolveModels(openai.Platform().Models)
 		if err != nil {
 			return nil, nil, nil, err
-		}
-		if models.Image == "" {
-			return nil, nil, nil, fmt.Errorf("tier %q generates no images, which this genre needs", spec.modelTier())
 		}
 
 		if spec.Voice != "" && !openai.ValidVoice(spec.Voice) {
@@ -583,14 +578,15 @@ func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image
 		}
 
 		keys := adapters.KeyFunc(spec.Keys)
-		return openai.NewLive(keys, models.Live),
-			openai.NewTool(keys, models.Tool),
-			openai.NewImage(keys, models.Image, models.ImageQuality, models.ImageSize), nil
+		image := models[adapters.ModelImage]
+		return openai.NewLive(keys, models[adapters.ModelLive].Name),
+			openai.NewTool(keys, models[adapters.ModelTooling].Name),
+			openai.NewImage(keys, image.Name, image.Params[adapters.ParamQuality], image.Params[adapters.ParamSize]), nil
 	case PlatformMistral:
 		if spec.Keys == nil {
 			return nil, nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
 		}
-		models, err := spec.resolveModels(mistral.Models)
+		models, err := spec.resolveModels(mistral.Platform().Models)
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -598,8 +594,8 @@ func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image
 		// Live stays nil: Mistral has no live voice model.
 		keys := adapters.KeyFunc(spec.Keys)
 		return nil,
-			mistral.NewTool(keys, models.Tool),
-			mistral.NewImage(keys, models.Image), nil
+			mistral.NewTool(keys, models[adapters.ModelTooling].Name),
+			mistral.NewImage(keys, models[adapters.ModelImage].Name), nil
 	default:
 		return nil, nil, nil, fmt.Errorf("unknown platform %q", spec.Platform)
 	}

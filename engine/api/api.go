@@ -11,7 +11,7 @@ import (
 )
 
 // Package api is the engine's HTTP transport, mounted by the platform's router or served standalone.
-// It deals only in session ids and engine calls; auth belongs to whoever mounts it.
+// It deals only in sessions and the catalogue; auth belongs to whoever mounts it.
 type API struct {
 	mu       sync.RWMutex
 	sessions map[string]*engine.Session
@@ -281,9 +281,16 @@ func (a *API) SessionEdge(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(detail)
 }
 
+// Platforms is the engine's catalogue of AI platforms; its JSON shape is the engine's.
+func (a *API) Platforms(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(engine.Platforms())
+}
+
 // Handler is the engine's whole HTTP subtree, so the embedded player uses the same relative URLs everywhere.
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /platforms", a.Platforms)
 	mux.HandleFunc("GET /sessions/{id}/stream", a.SessionStream)
 	mux.HandleFunc("POST /sessions/{id}/input", a.SessionInput)
 	mux.HandleFunc("POST /sessions/{id}/connect", a.SessionConnect)

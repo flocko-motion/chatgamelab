@@ -112,18 +112,3 @@ func TestImageWithoutFileFails(t *testing.T) {
 		t.Fatal("want an error when no file comes back")
 	}
 }
-
-func TestEveryTierDrawsButNoneSpeaksLive(t *testing.T) {
-	for _, tier := range []adapters.Tier{adapters.TierEconomy, adapters.TierBalanced, adapters.TierPremium, adapters.TierMax} {
-		set, err := Models(tier)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if set.Image == "" || set.Tool == "" || set.Threaded == "" {
-			t.Errorf("%s: missing a role: %+v", tier, set)
-		}
-		if set.Live != "" {
-			t.Errorf("%s: names a live model Mistral does not offer", tier)
-		}
-	}
-}

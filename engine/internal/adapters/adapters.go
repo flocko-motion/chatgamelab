@@ -162,26 +162,3 @@ type KeyFunc func(ctx context.Context) (string, error)
 type Tool interface {
 	Query(ctx context.Context, system, user string) (string, Usage, error)
 }
-
-// Tier is the session's quality setting, resolved per platform into a model per role.
-type Tier string
-
-const (
-	TierEconomy  Tier = "economy"
-	TierBalanced Tier = "balanced"
-	TierPremium  Tier = "premium"
-	TierMax      Tier = "max"
-)
-
-// ModelSet is one tier resolved into a model per role, named by mechanism; an
-// empty field means the role is unavailable at that tier.
-type ModelSet struct {
-	Live     string
-	Tool     string
-	Threaded string
-	Image    string
-	Audio    string
-	// ImageQuality and ImageSize are priced with the image model, so they ride with it.
-	ImageQuality string
-	ImageSize    string
-}

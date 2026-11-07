@@ -1,47 +1,41 @@
 package mistral
 
-import (
-	"fmt"
+import "engine/internal/adapters"
 
-	"engine/internal/adapters"
-)
-
-// Model choices per tier, following the table in TECHNOLOGY.md as of August
-// 2026. The helper roles stay on the small model at every tier, as their
-// prompts are short.
+// Model choices per tier follow the table in TECHNOLOGY.md as of August 2026.
+// Tooling stays on the small model at every tier, as its prompts are short.
 //
 // The image model is the conversation model that calls the image_generation
 // tool; the tool takes no size or quality, so neither is set.
 //
-// Live and Audio stay empty: Mistral offers no live voice or speech model.
-var tierModels = map[adapters.Tier]adapters.ModelSet{
-	adapters.TierMax: {
-		Tool:     "mistral-small-latest",
-		Threaded: "mistral-large-latest",
-		Image:    "mistral-small-latest",
-	},
-	adapters.TierPremium: {
-		Tool:     "mistral-small-latest",
-		Threaded: "mistral-large-latest",
-		Image:    "mistral-small-latest",
-	},
-	adapters.TierBalanced: {
-		Tool:     "mistral-small-latest",
-		Threaded: "mistral-medium-latest",
-		Image:    "mistral-small-latest",
-	},
-	adapters.TierEconomy: {
-		Tool:     "mistral-small-latest",
-		Threaded: "mistral-small-latest",
-		Image:    "mistral-small-latest",
-	},
-}
+// Toggles list what this adapter implements: text and pictures.
+var (
+	small = adapters.Model{Name: "mistral-small-latest"}
+)
 
-// Models resolves a tier into concrete model names.
-func Models(tier adapters.Tier) (adapters.ModelSet, error) {
-	set, ok := tierModels[tier]
-	if !ok {
-		return adapters.ModelSet{}, fmt.Errorf("mistral: unknown tier %q", tier)
+// Platform is Mistral's catalogue entry.
+func Platform() adapters.Platform {
+	return adapters.Platform{
+		ID:       "mistral",
+		Name:     "Mistral",
+		UserKeys: true,
+		Toggles:  adapters.Toggles{Images: true},
+		Tiers: adapters.Ladder(
+			adapters.ModelSet{
+				adapters.ModelTooling: small,
+				adapters.ModelStory:   small,
+				adapters.ModelImage:   small,
+			},
+			adapters.ModelSet{
+				adapters.ModelTooling: small,
+				adapters.ModelStory:   {Name: "mistral-medium-latest"},
+				adapters.ModelImage:   small,
+			},
+			adapters.ModelSet{
+				adapters.ModelTooling: small,
+				adapters.ModelStory:   {Name: "mistral-large-latest"},
+				adapters.ModelImage:   small,
+			},
+		),
 	}
-	return set, nil
 }
