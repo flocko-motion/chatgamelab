@@ -6,15 +6,15 @@
 # Requires: gotestsum (go install gotest.tools/gotestsum@latest)
 #
 # Usage:
-#   ./run-test.sh                    # Clean summary (default)
-#   ./run-test.sh --verbose          # Full verbose output
-#   ./run-test.sh -v                 # Full verbose output (short)
-#   ./run-test.sh --no-ai            # Exclude AI tests (default)
-#   ./run-test.sh --ai               # Include AI tests
-#   ./run-test.sh --only-ai          # Run ONLY AI tests
-#   ./run-test.sh --only-ai --verbose # Run only AI tests, verbose
+#   scripts/test.sh                    # Clean summary (default)
+#   scripts/test.sh --verbose          # Full verbose output
+#   scripts/test.sh -v                 # Full verbose output (short)
+#   scripts/test.sh --no-ai            # Exclude AI tests (default)
+#   scripts/test.sh --ai               # Include AI tests
+#   scripts/test.sh --only-ai          # Run ONLY AI tests
+#   scripts/test.sh --only-ai --verbose # Run only AI tests, verbose
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 GOTESTSUM="go run gotest.tools/gotestsum@latest"
 

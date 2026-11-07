@@ -6,7 +6,7 @@
 set -e
 
 cd "$(dirname "$0")"
-cd server
-go build -o ../bin/cgl .
-cd ..
+cd platform/server
+go build -o ../../bin/cgl .
+cd ../..
 exec bin/cgl "$@"

@@ -121,13 +121,20 @@ The automatic checks make sure, that your change doesn't break anything.
 Those tests are of course not perfect, they only test what they were programmed to test, 
 that is running the typical use cases. 
 
-Opening the pull request starts them automatically. There are three:
+Opening the pull request starts them automatically. There are four:
 
 | Check | What it does |
 |---|---|
 | **Backend Tests** | the Go test suite, minus the tests that call an AI provider |
 | **Frontend Checks** | TypeScript type checking, then a production build |
-| **Run Tests** | passes only if both of the above did |
+| **Translations** | fails if any UI text still needs translating |
+| **Run Tests** | passes only if all of the above did |
+
+If you changed a UI text in `en.json` or `de.json`, run `make translate` before
+you push. It translates the change into every other language with an AI
+provider, using the key in `~/.chatgamelab/config.yaml`. Commit the files it
+changes. CI only checks, with `make translate-check`, because translating costs
+money.
 
 They take a few minutes. A failure is not a judgement about you — it usually
 means something in the repository moved and your branch has not caught up, or a

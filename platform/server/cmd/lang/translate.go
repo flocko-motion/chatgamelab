@@ -39,6 +39,7 @@ Supported platforms:
 		targetLang, _ := cmd.Flags().GetString("lang")
 		platform, _ := cmd.Flags().GetString("platform")
 		threads, _ := cmd.Flags().GetInt("threads")
+		check, _ := cmd.Flags().GetBool("check")
 
 		// Validate required flags
 		if inputPath == "" {
@@ -71,18 +72,21 @@ Supported platforms:
 			}
 		}
 
-		// Get API key from flag or config
-		apiKey, err := config.GetApiKey(platform, apiKeyFlag)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-
-		// Get AI platform
-		aiPlatform, err := ai.GetAiPlatform(platform)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error getting AI platform: %v\n", err)
-			os.Exit(1)
+		// A check calls no AI, so it needs neither key nor platform.
+		var apiKey string
+		var aiPlatform ai.AiPlatform
+		if !check {
+			var err error
+			apiKey, err = config.GetApiKey(platform, apiKeyFlag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+			aiPlatform, err = ai.GetAiPlatform(platform)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error getting AI platform: %v\n", err)
+				os.Exit(1)
+			}
 		}
 
 		// Find and read input files (en.json and de.json)
@@ -117,6 +121,9 @@ Supported platforms:
 			if len(added1) > 0 || len(added2) > 0 {
 				// Write patched files back
 				for i, content := range []string{patched1, patched2} {
+					if check {
+						break
+					}
 					filePath := filepath.Join(inputPath, sourceFiles[i])
 					if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
 						fmt.Fprintf(os.Stderr, "Error writing patched %s: %v\n", sourceFiles[i], err)
@@ -126,7 +133,11 @@ Supported platforms:
 
 				// Report what was added
 				fmt.Fprintf(os.Stderr, "Error: Original language files have different structures.\n")
-				fmt.Fprintf(os.Stderr, "The missing fields have been added with \"TODO: TRANSLATE\" placeholders.\n\n")
+				if check {
+					fmt.Fprintf(os.Stderr, "Run make translate to add the missing fields as \"TODO: TRANSLATE\" placeholders.\n\n")
+				} else {
+					fmt.Fprintf(os.Stderr, "The missing fields have been added with \"TODO: TRANSLATE\" placeholders.\n\n")
+				}
 				if len(added1) > 0 {
 					fmt.Fprintf(os.Stderr, "Added to %s (found in %s):\n", sourceFiles[0], sourceFiles[1])
 					for _, field := range added1 {
@@ -266,6 +277,10 @@ Supported platforms:
 			fmt.Printf("\n✓ All %d translations are up-to-date\n", len(targetLangs))
 			return
 		}
+		if check {
+			fmt.Fprintf(os.Stderr, "\n✗ %d language(s) need translating — run make translate\n", len(langsToTranslate))
+			os.Exit(1)
+		}
 		fmt.Printf("\n⏳ Translating %d language(s)...\n\n", len(langsToTranslate))
 
 		var totalUsage obj.TokenUsage
@@ -394,4 +409,5 @@ func init() {
 	translateCmd.Flags().String("lang", "", "Target language code (e.g., 'fr', 'es', 'it'). If not specified, translates to all supported languages")
 	translateCmd.Flags().String("platform", "openai", "AI platform to use (openai, mock, mistral)")
 	translateCmd.Flags().Int("threads", 0, "Number of parallel translation threads (0 = unlimited)")
+	translateCmd.Flags().Bool("check", false, "Report what needs translating and exit non-zero if anything does; calls no AI and writes nothing")
 }

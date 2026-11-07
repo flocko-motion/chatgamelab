@@ -1,5 +1,5 @@
 #!/bin/bash
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 # Function to show usage
 show_usage() {
@@ -192,9 +192,9 @@ if [ -z "$MODE" ]; then
 fi
 
 # Install npm dependencies if needed
-if [ ! -d "web/node_modules" ]; then
+if [ ! -d "platform/web/node_modules" ]; then
     echo "📦 Installing frontend dependencies..."
-    (cd web && npm install)
+    (cd platform/web && npm install)
     echo ""
 fi
 
@@ -241,7 +241,7 @@ case $MODE in
         echo -e "\033[1;35m Database (Docker): \033[1;34mlocalhost:${PORT_POSTGRES}\033[0m"
         echo ""
         echo -e "\033[1;32m Now run the backend locally:\033[0m"
-        echo -e "   \033[1;34mcd server && go run . server\033[0m"
+        echo -e "   \033[1;34mcd platform/server && go run . server\033[0m"
         echo ""
         # Skip build for backend mode - running locally
         docker compose -f docker-compose.dev.yml --profile backend up

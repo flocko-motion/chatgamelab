@@ -100,9 +100,9 @@ Eine technische Altersverifikation (z.B. über den Besitz eines API-Keys) ist re
 
 ## Code-Referenz
 
-Die gesamte Constraint-Auflösung lebt in **einer** Datei: `server/db/resolve_constraint.go`. Sie ist das Code-Gegenstück zu diesem Dokument — beide werden im Gleichschritt gepflegt.
+Die gesamte Constraint-Auflösung lebt in **einer** Datei: `platform/server/db/resolve_constraint.go`. Sie ist das Code-Gegenstück zu diesem Dokument — beide werden im Gleichschritt gepflegt.
 
 - `ResolveConstraint(ctx, player, share)` — **die einzige** öffentliche Einstiegsfunktion. Sie entscheidet anhand des Spielers (Gast vs. angemeldet), welche Kaskade gilt. Rückgabe: Text, Quelle, Quellenname und eine menschenlesbare **Begründung** (`Reasoning`), die Schritt für Schritt mitgeschrieben wird und in den KI-Insights angezeigt werden kann.
 - `resolveAuthenticatedConstraint` (privat) — Kaskade für angemeldete Nutzer (Share-Workshop → Share-Orga → eigener Workshop → eigene Orga → Site nach Alter).
 - `resolveGuestShareConstraint` (privat) — Kaskade für Gäste via Share-Token (Share-Workshop → Share-Orga → Constraint des Autors).
-- Aufrufer übergeben nur `(Spieler, Share)`; die Entscheidung fällt zentral in `ResolveConstraint`. Aufrufer u.a.: `server/game/session_creation.go` (angemeldet), `server/game/guest.go` (Gast/Share), `server/api/routes/guest_play.go` (pro Spielzug). Auflösung passiert pro Spielzug.
+- Aufrufer übergeben nur `(Spieler, Share)`; die Entscheidung fällt zentral in `ResolveConstraint`. Aufrufer u.a.: `platform/server/game/session_creation.go` (angemeldet), `platform/server/game/guest.go` (Gast/Share), `platform/server/api/routes/guest_play.go` (pro Spielzug). Auflösung passiert pro Spielzug.

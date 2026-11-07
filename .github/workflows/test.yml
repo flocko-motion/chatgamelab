@@ -22,11 +22,11 @@ jobs:
 
       - name: Install dependencies
         run: go mod download
-        working-directory: ./server
+        working-directory: ./platform/server
 
       - name: Run tests (excluding AI tests)
         id: tests
-        run: ./run-test.sh --no-ai
+        run: scripts/test.sh --no-ai
         
       - name: Test Summary
         if: always()
@@ -55,21 +55,21 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-          cache-dependency-path: ./web/package-lock.json
+          cache-dependency-path: ./platform/web/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-        working-directory: ./web
+        working-directory: ./platform/web
 
       - name: TypeScript type check
         id: typecheck
         run: npx tsc -b
-        working-directory: ./web
+        working-directory: ./platform/web
 
       - name: Build check
         id: build
         run: npm run build
-        working-directory: ./web
+        working-directory: ./platform/web
 
       - name: Frontend Summary
         if: always()
@@ -90,15 +90,33 @@ jobs:
             exit 1
           fi
 
+  translations:
+    name: Translations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+          cache-dependency-path: ./platform/server/go.sum
+
+      - name: Check every UI text is translated
+        run: make translate-check
+
   test:
     name: Run Tests
-    needs: [backend-tests, frontend-checks]
+    needs: [backend-tests, frontend-checks, translations]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check results
         run: |
-          if [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ]; then
+          if [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ] && [ "${{ needs.translations.result }}" == "success" ]; then
             echo "✅ All checks passed!"
             exit 0
           else

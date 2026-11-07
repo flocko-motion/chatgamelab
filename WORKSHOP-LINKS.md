@@ -8,8 +8,8 @@ records what exists, where it departs from the concept, and what remains.
 ## Part A: built
 
 - **Word tokens.** Invite links carry three German words, re-login links four
-  (`server/functional/wordtoken`). The list is dys2p `de-2048-v1` (CC0) with 34
-  words unfit for schools replaced; `server/functional/wordtoken/README.md` names
+  (`platform/server/functional/wordtoken`). The list is dys2p `de-2048-v1` (CC0) with 34
+  words unfit for schools replaced; `platform/server/functional/wordtoken/README.md` names
   them. Old `ws-…` and `participant-…` tokens keep working, and existing
   participants keep their long tokens until someone resets their access.
 - **Tolerant input.** Case, spaces, dots, underscores and umlauts are
@@ -29,7 +29,7 @@ records what exists, where it departs from the concept, and what remains.
   invite has expired or is used up now marks that invite expired and creates a
   fresh one (`db.CreateWorkshopInvite`).
 - **Token lock.** Lookups of invite, participant and play tokens that were never
-  issued count as guesses (`server/tokenlock`). More than 300 within ten minutes
+  issued count as guesses (`platform/server/tokenlock`). More than 300 within ten minutes
   lock every token check, correct ones included, for five minutes: `429`,
   `Retry-After`, code `token_locked`. `TOKEN_LOCK_MAX_FAILURES`,
   `TOKEN_LOCK_WINDOW` and `TOKEN_LOCK_DURATION` override the defaults. The backend
@@ -50,7 +50,7 @@ records what exists, where it departs from the concept, and what remains.
   oracle for a 44-bit code. That is why the text on `/code` lists what may have
   happened instead of naming it.
 - **Share view.** One full-screen component
-  (`web/src/common/components/share/FullscreenQrOverlay.tsx`) for invite,
+  (`platform/web/src/common/components/share/FullscreenQrOverlay.tsx`) for invite,
   re-login and public-page links: a coloured title bar, the QR code, always
   black on white, and the copyable link. See 'Parts B and C: built' for the
   short links it shows. Heads and staff get a QR button next to 'Organisator'
@@ -71,7 +71,7 @@ records what exists, where it departs from the concept, and what remains.
 - The concept placed the limit on `POST /api/auth/participant-login`. The web
   app never calls that endpoint for re-login links: it stores the token and
   sends it as a bearer token on every request. The count therefore lives in the
-  auth middleware (`server/api/httpx/auth.go`).
+  auth middleware (`platform/server/api/httpx/auth.go`).
 - Deleting a workshop already deletes its participant accounts
   (`db.DeleteWorkshop`), so no change was needed there.
 
@@ -89,14 +89,14 @@ records what exists, where it departs from the concept, and what remains.
    landing-page button. The branch passed type checks, lint on the changed
    files, the build, and the Go unit and integration suites, but nobody has
    looked at the screens yet.
-5. Done on `feat/participant-profile-code`: `./run-translate.sh` translated the
-   new texts into the other 35 languages and brought `server/lang/locales` back
+5. Done on `feat/participant-profile-code`: `make translate` translated the
+   new texts into the other 35 languages and brought `platform/server/lang/locales` back
    in step with the web copy.
 
 ## Part E: not locking participants out
 
 - **The accept call carries the caller's credential.** `handleAccept` in
-  `web/src/routes/invites/$token.accept.tsx` deleted the session cookie from
+  `platform/web/src/routes/invites/$token.accept.tsx` deleted the session cookie from
   JavaScript, which cannot work on an HttpOnly cookie, and then posted without an
   Authorization header. A participant the backend could not recognise was treated
   as a newcomer: a second anonymous account, and `storeParticipantToken`
@@ -160,7 +160,7 @@ Found while hardening the above. All pre-existing, all larger than a fix:
 - **Scaling the backend.** The lock lives in memory, which suits the single
   backend container in `docker-compose.yml`. More than one instance would need
   the counter in Postgres or a shared cache. The same holds for the mutex that
-  serialises the public page's share links (`server/db/workshop_public.go`).
+  serialises the public page's share links (`platform/server/db/workshop_public.go`).
 
 ## Parts B and C: built
 
@@ -192,7 +192,7 @@ Found while hardening the above. All pre-existing, all larger than a fix:
   'Organisator' in the workshop header.
 - **Short links.** Invite and re-login views show `/code/<words>`: three words
   lead to the invite, four log the participant in as `/code` does
-  (`web/src/routes/code/$code.tsx`). Any other count opens the `/code` form
+  (`platform/web/src/routes/code/$code.tsx`). Any other count opens the `/code` form
   prefilled, with its error. Old `ws-…` and `participant-…` tokens keep their
   long links.
 - **Full-screen views.** Invite and re-login links open straight in the
@@ -207,7 +207,7 @@ Found while hardening the above. All pre-existing, all larger than a fix:
   existing YAML export without login, for public games on a page that is on.
 - **Copy.** Logged-in visitors copy through the same prefilled create dialogue
   as 'All games'. Visitors without an account go through login, and registration
-  if needed, and return to the page (`web/src/common/lib/returnTo.ts`). A second
+  if needed, and return to the page (`platform/web/src/common/lib/returnTo.ts`). A second
   sessionStorage entry names the game; the page reads and deletes it once and
   opens the prefilled dialogue. Saving opens the new game's editor.
 - **Play.** Each playable public game gets a share link of its own, created on

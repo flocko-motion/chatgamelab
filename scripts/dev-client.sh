@@ -2,7 +2,7 @@
 
 set -e # Exit with nonzero exit code if anything fails
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 source .env 2>/dev/null || true
 
 echo "Starting Chat Game Lab Frontend..."

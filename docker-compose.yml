@@ -25,7 +25,7 @@ services:
       DB_USER: chatgamelab
     volumes:
       - db_data:/var/lib/postgresql
-      - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./platform/server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     secrets:
       - backup_key
     healthcheck:

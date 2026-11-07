@@ -29,9 +29,9 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	// Auto-load .env from current dir or parent dir
+	// Auto-load .env from the current dir, or the repo root when run from platform/server
 	_ = godotenv.Load(".env")
-	_ = godotenv.Load("../.env")
+	_ = godotenv.Load("../../.env")
 
 	rootCmd.AddCommand(ai.Cmd)
 	rootCmd.AddCommand(apikey.Cmd)

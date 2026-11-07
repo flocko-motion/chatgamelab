@@ -57,22 +57,22 @@ Development uses Docker for services you're not actively working on, while you r
 
 | Command | Docker runs | You develop locally |
 |---------|-------------|---------------------|
-| `./run-dev.sh frontend` | db + backend | Frontend (`cd web && npm run dev`) |
-| `./run-dev.sh backend` | db + web | Backend (`cd server && go run . server`) |
-| `./run-dev.sh all` | db only | Both frontend and backend |
-| `./run-dev.sh` | all services | None (everything in Docker) |
+| `scripts/dev.sh frontend` | db + backend | Frontend (`cd platform/web && npm run dev`) |
+| `scripts/dev.sh backend` | db + web | Backend (`cd platform/server && go run . server`) |
+| `scripts/dev.sh all` | db only | Both frontend and backend |
+| `scripts/dev.sh` | all services | None (everything in Docker) |
 
 ### Develop Frontend
 
 ```bash
 # Terminal 1 - Start database only
-./run-dev.sh all
+scripts/dev.sh all
 
 # Terminal 2 - Start frontend locally
-cd web && npm run dev
+cd platform/web && npm run dev
 
 # Terminal 3 - Start backend locally
-cd server && go run . server
+cd platform/server && go run . server
 ```
 
 Open **http://localhost:5173** in your browser.
@@ -81,10 +81,10 @@ Open **http://localhost:5173** in your browser.
 
 ```bash
 # Terminal 1 - Start database and frontend in Docker
-./run-dev.sh backend
+scripts/dev.sh backend
 
 # Terminal 2 - Start backend locally (with debugger)
-cd server && go run . server
+cd platform/server && go run . server
 ```
 
 Open **http://localhost** in your browser (served by Docker).
@@ -93,7 +93,7 @@ Open **http://localhost** in your browser (served by Docker).
 
 ```bash
 # Start everything (db + backend + web) in Docker
-./run-dev.sh
+scripts/dev.sh
 ```
 
 Open **http://localhost** in your browser.
@@ -101,11 +101,11 @@ Open **http://localhost** in your browser.
 ### Options
 
 ```bash
-./run-dev.sh frontend --reset-db          # Reset database before starting
-./run-dev.sh all --reset-db               # Reset database before starting
-./run-dev.sh --reset-db                   # Reset database before starting all services
-./run-dev.sh frontend --port-backend 8080 # Custom backend port
-./run-dev.sh --help                       # Show all options
+scripts/dev.sh frontend --reset-db          # Reset database before starting
+scripts/dev.sh all --reset-db               # Reset database before starting
+scripts/dev.sh --reset-db                   # Reset database before starting all services
+scripts/dev.sh frontend --port-backend 8080 # Custom backend port
+scripts/dev.sh --help                       # Show all options
 ```
 
 ### Dev Mode Features
@@ -114,7 +114,7 @@ When `DEV_MODE=true` in `.env`, additional development features are enabled:
 
 **JWT Token Generation** - Generate JWT tokens for any user without Auth0:
 ```bash
-cd server
+cd platform/server
 go run . user jwt                    # Generate token for dev user
 go run . user jwt <user-uuid>        # Generate token for specific user
 ```
@@ -127,7 +127,7 @@ go run . user jwt <user-uuid>        # Generate token for specific user
 ./reset-dev-db.sh
 ```
 
-Then restart with `./run-dev.sh`.
+Then restart with `scripts/dev.sh`.
 
 ## Production
 
@@ -288,7 +288,7 @@ sudo systemctl start chatgamelab.service
 If you're a designer wanting to explore the React frontend without the full backend:
 
 ```bash
-cd web && npm run dev
+cd platform/web && npm run dev
 ```
 
 Then open **http://localhost:5173**

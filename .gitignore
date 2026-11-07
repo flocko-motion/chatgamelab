@@ -1,4 +1,4 @@
-server/__debug_bin*
+platform/server/__debug_bin*
 
 .grepai
 .todos
@@ -7,8 +7,7 @@ server/__debug_bin*
 .env
 bin
 */__debug_bin*
-server/cgl
-server/cgl
+platform/server/cgl
 .planning/
 .grepai/
 .todos/
@@ -31,3 +30,6 @@ server/cgl
 
 # Rendered spec — `make docs` builds it
 docs/build/
+
+# macOS Finder metadata
+.DS_Store

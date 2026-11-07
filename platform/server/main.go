@@ -21,7 +21,7 @@ var (
 func init() {
 	// Load .env from root directory
 	// Silently ignore if not found (in prod .env should not be used)
-	_ = godotenv.Load("../.env")
+	_ = godotenv.Load("../../.env")
 }
 
 func main() {

@@ -9,8 +9,8 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/server",
-            "cwd": "${workspaceFolder}/server",
+            "program": "${workspaceFolder}/platform/server",
+            "cwd": "${workspaceFolder}/platform/server",
             "args": [
                 "server"
             ],

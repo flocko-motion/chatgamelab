@@ -30,7 +30,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: ./server/Dockerfile
+      dockerfile: ./platform/server/Dockerfile
     container_name: chatgamelab-backend
     env_file:
       - .env
@@ -56,7 +56,7 @@ services:
 
   web:
     build:
-      context: ./web
+      context: ./platform/web
       dockerfile: Dockerfile.dev
     container_name: chatgamelab-web
     env_file:
@@ -64,7 +64,7 @@ services:
     ports:
       - "${PORT_EXPOSED}:${PORT_EXPOSED}" # Use same port for host and container
     volumes:
-      - ./web:/app
+      - ./platform/web:/app
       - web_node_modules:/app/node_modules
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]

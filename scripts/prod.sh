@@ -1,5 +1,5 @@
 #!/bin/bash
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 if [ -z "$DB_PASSWORD" ]; then
     echo "Error: DB_PASSWORD is not set"

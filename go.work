@@ -2,6 +2,6 @@ go 1.25
 
 use (
 	./engine
-	./server
+	./platform/server
 	./testing
 )

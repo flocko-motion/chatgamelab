@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs translate translate-check
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -13,12 +13,25 @@ help:
 	@echo "make release [YES=1]  $(DEV) -> $(MAIN), then $(MAIN) back into $(DEV); YES=1 skips the prompt"
 	@echo "make sync             merge $(MAIN) back into $(DEV) through a pull request"
 	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
+	@echo "make translate        translate changed UI texts into every language (before pushing)"
+	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
 
 # The spec is Typst; the PDFs are build output.
 docs:
 	@command -v typst >/dev/null || { echo "typst is required: https://typst.app/docs/" >&2; exit 1; }
 	@mkdir -p docs/build
 	typst compile docs/chatgamelab.typ docs/build/chatgamelab.pdf
+
+# Translation calls an AI platform and costs money, so CI only checks it: a
+# change to en.json or de.json is translated by whoever makes it, before pushing.
+PLATFORM ?= openai
+THREADS  ?= 0
+
+translate:
+	scripts/translate.sh $(PLATFORM) $(THREADS)
+
+translate-check:
+	scripts/translate.sh --check
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
