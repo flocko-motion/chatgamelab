@@ -788,32 +788,43 @@ whole turn.
 Two sibling Go modules, joined by `go.work` during development:
 
 - The engine module's internals live almost entirely under its own `internal/` —
-  compiler- enforced: `go build` itself refuses an import from outside the
+  compiler-enforced: `go build` itself refuses an import from outside the
   module's own tree. Not a convention, not a lint rule, not something that
   depends on review discipline or on a coding agent remembering a rule — the
   code simply won't compile if the boundary is crossed. Checked against the
   scaffold from the `server` module: importing `engine/internal/ports` fails
   with *"use of internal package engine/internal/ports not allowed"*, while
   importing `engine` builds.
-- The engine exposes a small, deliberate public API: a `Launch(spec) (*Session,
-  error)`-shaped call, a `NextTurn(session, action) (*Session, *Response,
-  error)`-shaped call, and the `Persist` interface described above.
-- **The engine knows nothing about HTTP or REST.** No `http.Handler`, no
-  request/response types tied to a transport. The portal owns all routing,
-  request parsing, response writing, and SSE framing, translating between HTTP
-  and the engine's plain Go calls. This mirrors what already exists today:
-  `stream.go` only ever deals in a typed Go channel;
-  `api/routes/sessions_messages.go` is the only place that knows SSE exists at
-  all. The split being proposed here is that same separation, generalized to the
-  whole engine instead of just the streaming layer.
+- The engine exposes a small, deliberate public API: `Launch(ctx, spec)` and
+  `Resume(ctx, spec, state)` return a `*Session`, which the caller drives with
+  plain Go calls (`Say`, `Speak`, `Connect`, `Pause`), reads through `Events()`
+  and snapshots through `State()`. `Persist` is the interface described above.
+- **The module is usable in two ways, and ships its own transport for both.**
+  The root `engine` package is the core and serves no HTTP: no handlers, no
+  request types, only Go calls and channels. Next to it, `engine/api` is the
+  engine's HTTP transport, and it serves both uses:
+  - **Embedded in the portal.** The ChatGameLab server imports the module,
+    launches sessions from its own routes, registers them with `api.API`, and
+    mounts the engine's handlers in its own router, behind its own middleware.
+    A handler is an ordinary `func(http.ResponseWriter, *http.Request)` method,
+    so the portal can put each one under its own path and swagger annotations,
+    or mount the whole subtree from `Handler()` at one prefix.
+  - **Standalone.** `cmd/engineserver` loads a hand-assembled `SessionSpec`
+    from a file, launches it, and serves the same handlers on a plain mux. That
+    is how the gpt-live spike is run.
+
+  There is one transport implementation, not one per use. The rule is that the
+  transport deals only in session ids and engine calls. Everything before the
+  route (authentication, roles, share-token resolution) belongs to whoever
+  mounts it, and the engine still knows nothing about users.
 - Frontend assets (HTML/CSS/compiled TypeScript) are embedded into the engine
   module via `//go:embed` and served from the engine's own subtree, alongside
   the endpoints they call. That is what lets the player address the API with
   relative URLs and need no configuration: the same build works under the
-  platform's mount point and under a standalone server.
+  platform's mount point and under `engineserver`.
 - Because the module and `internal/` boundaries are real from day one, moving
   the engine into its own repository later — if that's ever wanted — is a
-  near-zero-cost move: stop workspace- including it, tag a version, point at a
+  near-zero-cost move: stop workspace-including it, tag a version, point at a
   git URL. Nothing needs untangling first, because nothing was allowed to
   tangle.
 
@@ -833,13 +844,18 @@ or a withdrawn share is enforced on the next request regardless.
 
 Mechanically: the portal's binary imports the engine and holds sessions as
 in-memory instances, with no second process and no wire protocol between them.
-`Persist` is the portal's Postgres implementation, passed in at launch.
+`Persist` is the portal's Postgres implementation, passed in at launch, and the
+engine's handlers from `engine/api` are mounted in the portal's router.
 
-Because the engine owns no transport, the standalone shape stays available
-without being built: a thin `main` wrapping the same calls in HTTP, which is
-what the dev launcher already is in embryo. It stays cheap only while three
-things hold — the engine owns no HTTP, `Persist` stays injected, and the portal
-never reaches into `internal/`. The compiler enforces the third.
+The standalone shape is `cmd/engineserver`: a thin `main` that mounts those same
+handlers on a plain mux, with an in-memory `Persist` and no accounts. Both
+shapes stay cheap only while three things hold:
+
+- the core `engine` package serves no HTTP itself,
+- `engine/api` stays free of users and auth,
+- the portal never reaches into `internal/`.
+
+The compiler enforces the third.
 
 The monolith's cost used to be that **a portal deploy ended every live
 conversation**, since a session is a running graph, its goroutines and an open
