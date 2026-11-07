@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"sync"
 
 	"engine"
@@ -17,9 +18,19 @@ type API struct {
 	sessions map[string]*engine.Session
 	// only is a standalone server's single session, which every request reaches whatever id it names.
 	only string
+	dev  bool
 }
 
-func New() *API { return &API{sessions: map[string]*engine.Session{}} }
+// Options configures the transport for whoever mounts it.
+type Options struct {
+	// Dev lists the mock platform in the catalogue; a production platform leaves it out.
+	Dev bool
+}
+
+// New makes the transport; the mounting server says whether it runs in dev mode.
+func New(opts Options) *API {
+	return &API{sessions: map[string]*engine.Session{}, dev: opts.Dev}
+}
 
 func jsonMarshal(v any) ([]byte, error) { return json.Marshal(v) }
 
@@ -282,9 +293,14 @@ func (a *API) SessionEdge(w http.ResponseWriter, r *http.Request) {
 }
 
 // Platforms is the engine's catalogue of AI platforms; its JSON shape is the engine's.
+// The mock is listed in dev mode only.
 func (a *API) Platforms(w http.ResponseWriter, _ *http.Request) {
+	platforms := engine.Platforms()
+	if !a.dev {
+		platforms = slices.DeleteFunc(platforms, func(p engine.PlatformInfo) bool { return p.ID == engine.PlatformMock })
+	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(engine.Platforms())
+	_ = json.NewEncoder(w).Encode(platforms)
 }
 
 // Handler is the engine's whole HTTP subtree, so the embedded player uses the same relative URLs everywhere.

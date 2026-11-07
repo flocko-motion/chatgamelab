@@ -12,7 +12,7 @@ import (
 // The platform mounts this handler and renders what it returns, so the JSON
 // shape is a contract: checked here as raw JSON, not through the Go types.
 func TestPlatformsJSON(t *testing.T) {
-	srv := httptest.NewServer(api.New().Handler())
+	srv := httptest.NewServer(api.New(api.Options{Dev: true}).Handler())
 	defer srv.Close()
 
 	resp, err := http.Get(srv.URL + "/platforms")
@@ -83,5 +83,31 @@ func TestPlatformsJSON(t *testing.T) {
 	}
 	if mock := platforms[2]; mock.ID != "mock" || mock.UserKeys == nil || *mock.UserKeys {
 		t.Errorf("mock = %+v, want no user keys", mock)
+	}
+}
+
+// A production platform must not offer the mock.
+func TestPlatformsLeavesMockOutOfProduction(t *testing.T) {
+	srv := httptest.NewServer(api.New(api.Options{}).Handler())
+	defer srv.Close()
+
+	resp, err := http.Get(srv.URL + "/platforms")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var platforms []struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&platforms); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range platforms {
+		if p.ID == "mock" {
+			t.Fatal("mock listed outside dev mode")
+		}
+	}
+	if len(platforms) == 0 {
+		t.Fatal("no platforms listed")
 	}
 }

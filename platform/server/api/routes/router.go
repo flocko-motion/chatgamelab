@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"cgl/api/httpx"
+	engineapi "engine/api"
 )
 
 // DevMode controls whether dev-only routes are registered
@@ -16,6 +17,7 @@ var DevMode = false
 // NewMux creates a new http.ServeMux with all API routes registered.
 func NewMux() *http.ServeMux {
 	mux := http.NewServeMux()
+	Engine = engineapi.New(engineapi.Options{Dev: DevMode})
 
 	// Public endpoints (no auth at all) - GET
 	mux.HandleFunc("GET /api/status", GetStatus)

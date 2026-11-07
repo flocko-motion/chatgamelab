@@ -6,8 +6,8 @@ package routes
 
 import engineapi "engine/api"
 
-// Engine is the engine's HTTP transport; router.go mounts its handlers.
-var Engine = engineapi.New()
+// Engine is the engine's HTTP transport; NewMux makes it and mounts its handlers.
+var Engine *engineapi.API
 
 // enginePlatformsDoc documents Engine.Platforms for the OpenAPI spec; swag reads
 // annotations only from this module's functions.

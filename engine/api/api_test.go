@@ -23,7 +23,7 @@ func TestHandlerWorksUnderAnyPrefix(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			api := api.New()
+			api := api.New(api.Options{Dev: true})
 			s, err := engine.Launch(ctx, engine.SessionSpec{
 				Genre: engine.GenreAdventure,
 				ID:    "s1",
@@ -59,7 +59,7 @@ func TestInputAndStream(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	api := api.New()
+	api := api.New(api.Options{Dev: true})
 	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"})
 	if err != nil {
 		t.Fatal(err)
@@ -105,7 +105,7 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	api := api.New()
+	api := api.New(api.Options{Dev: true})
 	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typed"})
 	if err != nil {
 		t.Fatal(err)
@@ -128,7 +128,7 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 }
 
 func TestUnknownSessionIs404(t *testing.T) {
-	srv := httptest.NewServer(api.New().Handler())
+	srv := httptest.NewServer(api.New(api.Options{Dev: true}).Handler())
 	defer srv.Close()
 
 	resp, err := http.Get(srv.URL + "/sessions/nope/graph")
@@ -145,7 +145,7 @@ func TestUnknownSessionIs404(t *testing.T) {
 // is what every test here needs before it can do anything.
 func newServer(t *testing.T, id string, session *engine.Session) *httptest.Server {
 	t.Helper()
-	a := api.New()
+	a := api.New(api.Options{Dev: true})
 	a.Register(id, session)
 	srv := httptest.NewServer(a.Handler())
 	t.Cleanup(srv.Close)
@@ -496,7 +496,7 @@ func TestTheOnlySessionAnswersToAnyName(t *testing.T) {
 	}
 	defer session.Close()
 
-	a := api.New()
+	a := api.New(api.Options{Dev: true})
 	a.RegisterOnly("stopped-clock", session)
 	srv := httptest.NewServer(a.Handler())
 	t.Cleanup(srv.Close)
@@ -521,7 +521,7 @@ func TestAnUnknownSessionIsUnknownWhenThereAreSeveral(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	a := api.New()
+	a := api.New(api.Options{Dev: true})
 	for _, id := range []string{"one", "two"} {
 		s, err := engine.Launch(ctx, engine.SessionSpec{
 			Genre: engine.GenreNPCLive, ID: id, Scenario: "A tower.",

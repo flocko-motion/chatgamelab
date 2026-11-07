@@ -64,7 +64,7 @@ func main() {
 		return
 	}
 
-	srv := api.New()
+	srv := api.New(api.Options{Dev: true})
 	srv.RegisterOnly(spec.ID, s)
 
 	fmt.Printf("genre=%s platform=%s session=%s\n", spec.Genre, spec.Platform, spec.ID)
