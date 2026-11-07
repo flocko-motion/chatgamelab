@@ -1,48 +1,27 @@
 // package: lang / supported language registry
 // type:    data
-// job:     defines the map of supported language codes to their native display names
-// limits:  static data only; locale content loading lives in locales.go
+// job:     the supported language codes and their native names, read from the embedded languages.json
+// limits:  the list itself is kept by the translation tool in /translation; locale content lives in locales.go
 package lang
 
-var supportedLanguages = map[string]string{
-	"en":  "English",
-	"de":  "Deutsch",
-	"fr":  "Français",
-	"es":  "Español",
-	"it":  "Italiano",
-	"pt":  "Português",
-	"nl":  "Nederlands",
-	"pl":  "Polski",
-	"ru":  "Русский",
-	"ja":  "日本語",
-	"ko":  "한국어",
-	"zh":  "中文",
-	"ar":  "العربية",
-	"hi":  "हिन्दी",
-	"tr":  "Türkçe",
-	"sv":  "Svenska",
-	"da":  "Dansk",
-	"no":  "Norsk",
-	"fi":  "Suomi",
-	"so":  "Soomaali",
-	"ps":  "پښتو",
-	"fa":  "فارسی",
-	"uk":  "Українська",
-	"bar": "Bayrisch",
-	"el":  "Ελληνικά",
-	"sr":  "Српски",
-	"bs":  "Bosanski",
-	"sq":  "Shqip",
-	"bg":  "Български",
-	"hu":  "Magyar",
-	"hr":  "Hrvatski",
-	"sl":  "Slovenščina",
-	"cs":  "Čeština",
-	"sk":  "Slovenčina",
-	"ro":  "Română",
-	"ti":  "ትግርኛ",
-	"id":  "Bahasa Indonesia",
-}
+import "encoding/json"
+
+// supportedLanguages maps each language code to its native name.
+var supportedLanguages = func() map[string]string {
+	data, err := localesFS.ReadFile("locales/languages.json")
+	if err != nil {
+		panic("lang: embedded languages.json missing: " + err.Error())
+	}
+	var list []Language
+	if err := json.Unmarshal(data, &list); err != nil {
+		panic("lang: embedded languages.json invalid: " + err.Error())
+	}
+	m := make(map[string]string, len(list))
+	for _, l := range list {
+		m[l.Code] = l.Label
+	}
+	return m
+}()
 
 const TranslateInstruction = "You are an expert in translation of json structured language files for games. Translate the given JSON object to the target language while preserving the exact same structure and keys. Only translate the string values. Return a valid JSON object. You get the original already in two languages, so that you have more context to understand the intention of each field."
 
@@ -52,15 +31,6 @@ func GetLanguageName(code string) string {
 		return name
 	}
 	return code
-}
-
-// GetAllLanguageCodes returns a list of all supported language codes
-func GetAllLanguageCodes() []string {
-	codes := make([]string, 0, len(supportedLanguages))
-	for code := range supportedLanguages {
-		codes = append(codes, code)
-	}
-	return codes
 }
 
 // IsValidLanguageCode checks if a language code is supported

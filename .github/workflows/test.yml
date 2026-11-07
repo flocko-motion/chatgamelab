@@ -101,9 +101,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
-          cache: true
-          cache-dependency-path: ./platform/server/go.sum
+          go-version-file: ./translation/go.mod
+          cache: false
 
       - name: Check every UI text is translated
         run: make translate-check

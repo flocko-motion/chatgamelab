@@ -131,8 +131,8 @@ Opening the pull request starts them automatically. There are four:
 | **Run Tests** | passes only if all of the above did |
 
 If you changed a UI text in `en.json` or `de.json`, run `make translate` before
-you push. It translates the change into every other language with an AI
-provider, using the key in `~/.chatgamelab/config.yaml`. Commit the files it
+you push. It translates the change into every other language with OpenAI,
+using the key in `OPENAI_API_KEY`. Commit the files it
 changes. CI only checks, with `make translate-check`, because translating costs
 money.
 

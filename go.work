@@ -4,4 +4,5 @@ use (
 	./engine
 	./platform/server
 	./testing
+	./translation
 )

@@ -22,16 +22,13 @@ docs:
 	@mkdir -p docs/build
 	typst compile docs/chatgamelab.typ docs/build/chatgamelab.pdf
 
-# Translation calls an AI platform and costs money, so CI only checks it: a
-# change to en.json or de.json is translated by whoever makes it, before pushing.
-PLATFORM ?= openai
-THREADS  ?= 0
-
+# Translation calls OpenAI and costs money, so CI only checks it: a change to
+# en.json or de.json is translated by whoever makes it, before pushing.
 translate:
-	scripts/translate.sh $(PLATFORM) $(THREADS)
+	go run ./translation
 
 translate-check:
-	scripts/translate.sh --check
+	go run ./translation --check
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
