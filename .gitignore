@@ -22,6 +22,9 @@ platform/server/cgl
 # sindri hub artifacts (agent worktrees + hub state) — not for the repo
 .worktrees/
 
+# Task briefs handed to agents — not for the repo
+.tasks/
+
 # Claude Code per-user local settings — not for the repo
 .claude/settings.local.json
 
