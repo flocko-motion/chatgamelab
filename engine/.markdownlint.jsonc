@@ -1,0 +1,13 @@
+// markdownlint settings for the engine's documents. Editors pick this file up
+// from the document's directory, and `make lint` runs the same rules.
+{
+  "default": true,
+
+  // Prose wraps at 80. Tables and fenced blocks are exempt: a table row cannot
+  // be wrapped, and code or mermaid is laid out by what it says.
+  "MD013": {
+    "line_length": 80,
+    "tables": false,
+    "code_blocks": false
+  }
+}

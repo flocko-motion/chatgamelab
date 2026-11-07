@@ -2,7 +2,8 @@
 # so its build and test commands live with it rather than in the root Makefile.
 
 .PHONY: help all build test race vet fmt check run dev describe tidy clean \
-        port-free web web-dev web-deps web-toolchain web-clean protocol protocol-check
+        port-free web web-dev web-deps web-toolchain web-clean protocol protocol-check \
+        lint lint-md
 
 # A bare `make` explains itself rather than doing something unasked.
 .DEFAULT_GOAL := help
@@ -27,7 +28,7 @@ help: ## List the targets worth knowing about
 
 all: check
 
-check: fmt vet protocol-check test race ## Everything a change must pass before it is committed
+check: fmt lint protocol-check test race ## Everything a change must pass before it is committed
 
 build: ## Compile every package
 	go build ./...
@@ -43,6 +44,21 @@ vet: ## Report suspicious constructs
 
 fmt: ## Format the Go sources in place
 	gofmt -l -w .
+
+lint: vet lint-md ## Run every linter: go vet, and markdownlint over the documents
+
+# Rules live in .markdownlint.jsonc, which editors read too, so a document that
+# passes here shows no warnings there either.
+MARKDOWNLINT := $(shell command -v markdownlint 2>/dev/null)
+
+lint-md: ## Lint the Markdown documents, prose wrapped at 80
+ifndef MARKDOWNLINT
+	@echo "markdownlint is required to lint the documents, and was not found." >&2
+	@echo "  install it: brew install markdownlint-cli"                        >&2
+	@echo "          or: npm install -g markdownlint-cli"                      >&2
+	@exit 1
+endif
+	markdownlint --ignore web/node_modules '**/*.md'
 
 # --- Running ----------------------------------------------------------------
 
