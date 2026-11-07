@@ -402,3 +402,16 @@ func awaitConnection(ctx context.Context, s *engine.Session) error {
 		}
 	}
 }
+
+// Mistral has no live voice model, so a live genre must refuse it at launch
+// rather than fail once a player connects.
+func TestNPCLiveRefusesMistral(t *testing.T) {
+	_, err := engine.Launch(context.Background(), engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		Platform: engine.PlatformMistral,
+		Keys:     func(context.Context) (string, error) { return "k", nil },
+	})
+	if err == nil || !strings.Contains(err.Error(), "no live voice model") {
+		t.Fatalf("err = %v, want a refusal naming the missing live model", err)
+	}
+}

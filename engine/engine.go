@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"engine/internal/adapters"
+	"engine/internal/adapters/mistral"
 	"engine/internal/adapters/mock"
 	"engine/internal/adapters/openai"
 	"engine/internal/genre"
@@ -33,8 +34,9 @@ const (
 type Platform string
 
 const (
-	PlatformMock   Platform = "mock"
-	PlatformOpenAI Platform = "openai"
+	PlatformMock    Platform = "mock"
+	PlatformOpenAI  Platform = "openai"
+	PlatformMistral Platform = "mistral"
 )
 
 type Genre string
@@ -159,6 +161,9 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 		live, tool, image, err := spec.adapters()
 		if err != nil {
 			return nil, err
+		}
+		if live == nil {
+			return nil, fmt.Errorf("platform %q has no live voice model, which this genre needs", spec.Platform)
 		}
 		w, err = genre.NewNPCLive(genre.NPCLiveConfig{
 			Live:           live,
@@ -555,6 +560,7 @@ func (spec SessionSpec) resolveModels(byTier func(Tier) (adapters.ModelSet, erro
 }
 
 // adapters resolves the platform into implementations, so a block never chooses its own model.
+// A role the platform cannot fill comes back nil, for the genre that needs it to refuse.
 func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image, error) {
 	switch spec.Platform {
 	case "", PlatformMock:
@@ -580,6 +586,20 @@ func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image
 		return openai.NewLive(keys, models.Live),
 			openai.NewTool(keys, models.Tool),
 			openai.NewImage(keys, models.Image, models.ImageQuality, models.ImageSize), nil
+	case PlatformMistral:
+		if spec.Keys == nil {
+			return nil, nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
+		}
+		models, err := spec.resolveModels(mistral.Models)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		// Live stays nil: Mistral has no live voice model.
+		keys := adapters.KeyFunc(spec.Keys)
+		return nil,
+			mistral.NewTool(keys, models.Tool),
+			mistral.NewImage(keys, models.Image), nil
 	default:
 		return nil, nil, nil, fmt.Errorf("unknown platform %q", spec.Platform)
 	}

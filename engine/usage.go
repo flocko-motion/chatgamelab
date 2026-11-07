@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"engine/internal/adapters"
+	"engine/internal/adapters/mistral"
 	"engine/internal/adapters/mock"
 	"engine/internal/adapters/openai"
 	"engine/internal/ports"
@@ -52,8 +53,11 @@ type usageKey struct{ node, model string }
 
 func newUsageLedger(platform Platform) *usageLedger {
 	lookup := mock.Prices
-	if platform == PlatformOpenAI {
+	switch platform {
+	case PlatformOpenAI:
 		lookup = openai.Prices
+	case PlatformMistral:
+		lookup = mistral.Prices
 	}
 	return &usageLedger{latest: map[usageKey]ports.Usage{}, prices: lookup}
 }
