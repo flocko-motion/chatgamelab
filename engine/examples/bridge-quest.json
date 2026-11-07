@@ -1,10 +1,34 @@
 {
-  "genre": "adventure",
-  "id": "bridge-quest",
-  "title": "The Bridge Quest",
-  "platform": "mock",
-  "modelTier": "medium",
-  "scenario": "A medieval bridge crossing guarded by a keeper.",
-  "guardrail": "Keep the story suitable for a 13-year-old.",
-  "status": { "Health": "Good", "Gold": "12" }
+  "spec": {
+    "genre": "adventure",
+    "id": "bridge-quest",
+    "title": "The Bridge Quest",
+    "scenario": "A medieval bridge crossing guarded by a keeper.",
+    "guardrail": "Keep the story suitable for a 13-year-old.",
+    "status": {
+      "Health": "Good",
+      "Gold": "12"
+    }
+  },
+  "offers": [
+    {
+      "platform": "mock",
+      "id": "mock",
+      "caveats": {
+        "allow": {
+          "medium": {
+            "images": true,
+            "audio-out": true
+          }
+        },
+        "default": {
+          "tier": "medium",
+          "toggles": {
+            "images": true,
+            "audio-out": true
+          }
+        }
+      }
+    }
+  ]
 }

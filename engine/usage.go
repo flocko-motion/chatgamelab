@@ -51,7 +51,13 @@ type usageLedger struct {
 
 type usageKey struct{ node, model string }
 
-func newUsageLedger(platform Platform) *usageLedger {
+// newUsageLedger prices from the mock's table until the session settles on a platform.
+func newUsageLedger() *usageLedger {
+	return &usageLedger{latest: map[usageKey]ports.Usage{}, prices: mock.Prices}
+}
+
+// price switches to the settled platform's table.
+func (l *usageLedger) price(platform Platform) {
 	lookup := mock.Prices
 	switch platform {
 	case PlatformOpenAI:
@@ -59,7 +65,9 @@ func newUsageLedger(platform Platform) *usageLedger {
 	case PlatformMistral:
 		lookup = mistral.Prices
 	}
-	return &usageLedger{latest: map[usageKey]ports.Usage{}, prices: lookup}
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.prices = lookup
 }
 
 func (l *usageLedger) record(u ports.Usage) {

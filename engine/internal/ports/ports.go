@@ -110,6 +110,9 @@ const (
 	ImageryPerTurn  Imagery = "per-turn"
 )
 
+// Switchable is a block whose work a session toggle turns off and on during play.
+type Switchable interface{ SetActive(on bool) }
+
 // Named lets a block report itself in graph errors and traces; otherwise its Go type name is used.
 type Named interface{ NodeName() string }
 

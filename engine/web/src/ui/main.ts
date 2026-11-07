@@ -8,6 +8,7 @@ import { WebRTCVoice } from "./voice.js";
 import { mountSplit } from "./split.js";
 import { View } from "./view.js";
 import { Details } from "./details.js";
+import { OptionsDialog } from "./options.js";
 import { mountBackground } from "./theme/backgrounds/index.js";
 import { PRESETS } from "./theme/presets/index.js";
 import { textRenderer } from "./theme/text-effects/index.js";
@@ -97,8 +98,21 @@ themes.addEventListener("change", () => useTheme(themes.value));
 
 mountSplit(required<HTMLElement>("#split"));
 
+const options = new OptionsDialog({
+  form: required<HTMLFormElement>("#options"),
+  offers: required<HTMLElement>("#options-offers"),
+  problem: required<HTMLElement>("#options-problem"),
+  start: required<HTMLButtonElement>("#options-start"),
+  scene: required<HTMLElement>(".scene-area"),
+  pictures: required<HTMLButtonElement>("#pictures"),
+}, {
+  onChoose: (offer, choice) => void player.choose(sessionBase, offer, choice),
+  onToggle: (toggle, on) => void player.setToggle(sessionBase, toggle, on),
+});
+
 player.subscribe((state) => {
   view.render(state);
+  options.render(state);
   details.refresh(state);
 });
 

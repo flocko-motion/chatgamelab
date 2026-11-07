@@ -27,7 +27,7 @@ func TestHandlerWorksUnderAnyPrefix(t *testing.T) {
 			s, err := engine.Launch(ctx, engine.SessionSpec{
 				Genre: engine.GenreAdventure,
 				ID:    "s1",
-			})
+			}, mockOffers())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -60,7 +60,7 @@ func TestInputAndStream(t *testing.T) {
 	defer cancel()
 
 	api := api.New(api.Options{Dev: true})
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"})
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 	defer cancel()
 
 	api := api.New(api.Options{Dev: true})
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typed"})
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typed"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,7 +162,7 @@ func TestEveryNodeIsInspectable(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "inspect",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -207,11 +207,17 @@ func TestNodeDetailCarriesNoSecret(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "secretless",
 		Scenario: "You are the keeper of a bridge.",
+	}, []engine.Offer{{
 		Platform: engine.PlatformOpenAI,
+		ID:       "openai",
 		Keys: func(context.Context) (string, error) {
 			return "sk-should-never-appear", nil
 		},
-	})
+		Caveats: engine.Caveats{
+			Allow:   map[engine.Tier]engine.Toggles{engine.TierLow: {Images: true, AudioLive: true}},
+			Default: engine.Choice{Tier: engine.TierLow, Toggles: engine.Toggles{Images: true, AudioLive: true}},
+		},
+	}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -243,7 +249,7 @@ func TestNodeDetailListsAreNeverNull(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "lists",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -274,7 +280,7 @@ func TestEdgeInspection(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "edges",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -316,7 +322,7 @@ func TestConnectBrokersTheOfferAndKeepsTheSessionID(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "brokered",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -357,7 +363,7 @@ func TestConnectRejectsAnEmptyOffer(t *testing.T) {
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
 		Genre: engine.GenreNPCLive, ID: "empty", Scenario: "A bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -387,7 +393,7 @@ func TestPromptsAreReadable(t *testing.T) {
 		ID:             "prompts",
 		Scenario:       "You are the keeper of a bridge.",
 		PromptOverride: map[string]string{"portrait": "A woodcut of: "},
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -423,7 +429,7 @@ func TestUnknownPromptOverrideIsRefused(t *testing.T) {
 		Genre:          engine.GenreNPCLive,
 		Scenario:       "A bridge.",
 		PromptOverride: map[string]string{"portraitt": "typo"},
-	})
+	}, mockOffers())
 	if err == nil {
 		t.Fatal("a misspelled prompt name launched anyway")
 	}
@@ -458,7 +464,7 @@ func TestEmptyHistoryIsAnEmptyList(t *testing.T) {
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
 		Genre: engine.GenreNPCLive, ID: "fresh", Scenario: "A bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -490,7 +496,7 @@ func TestTheOnlySessionAnswersToAnyName(t *testing.T) {
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
 		Genre: engine.GenreNPCLive, ID: "stopped-clock", Scenario: "A tower.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -525,7 +531,7 @@ func TestAnUnknownSessionIsUnknownWhenThereAreSeveral(t *testing.T) {
 	for _, id := range []string{"one", "two"} {
 		s, err := engine.Launch(ctx, engine.SessionSpec{
 			Genre: engine.GenreNPCLive, ID: id, Scenario: "A tower.",
-		})
+		}, mockOffers())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -545,3 +551,6 @@ func TestAnUnknownSessionIsUnknownWhenThereAreSeveral(t *testing.T) {
 		t.Errorf("an unknown session among several answered %s", resp.Status)
 	}
 }
+
+// mockOffers is what a test runs on: the mock, with nothing to choose.
+func mockOffers() []engine.Offer { return []engine.Offer{engine.MockOffer()} }

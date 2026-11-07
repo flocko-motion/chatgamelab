@@ -26,6 +26,12 @@ type Snapshot struct {
 	// that page did not exist, and a live connection cannot be replayed. A page
 	// that is not told sits waiting for a moment that has already passed.
 	Conversation string `json:"conversation,omitempty"`
+
+	// Choosing is true while the session waits for the player's choice, so a
+	// reloading page shows the dialog again.
+	Choosing bool `json:"choosing"`
+	// Settled is what the session runs on, once it has settled.
+	Settled *Settled `json:"settled,omitempty"`
 }
 
 // recorder keeps what a reloading client will ask for. The engine holds it

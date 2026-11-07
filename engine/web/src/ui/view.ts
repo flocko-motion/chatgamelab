@@ -403,6 +403,7 @@ export class View {
       case "closed":
         return stopped("The game has ended.");
     }
+    if (state.choosing) return stopped("Choose how to play to begin.");
     if (!state.started) return waiting("Setting the scene…");
     // A live genre waits for the player's audio connection; once its control exists, that speaks.
     if (voiceMode(state) === "full-duplex" && audio === null) return waiting("Waking the character…");

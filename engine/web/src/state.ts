@@ -1,5 +1,5 @@
 /** Everything the UI could draw, so a test can play a full game and assert on it without a DOM. */
-import type { Phase, UsageReport } from "./protocol.js";
+import type { Options, Phase, Settled, Toggles, UsageReport } from "./protocol.js";
 import type { VoiceState } from "./voice.js";
 
 /** "reconnecting" means the game is coming back; "failed" means it is not. */
@@ -53,6 +53,10 @@ export interface Snapshot {
   readonly usage: UsageReport;
   /** Where a live genre's conversation stands, which a reload cannot learn by replay. */
   readonly conversation?: Conversation;
+  /** Whether the session waits for the player's choice. */
+  readonly choosing: boolean;
+  /** What the session runs on, once settled. */
+  readonly settled?: Settled;
 }
 
 /** "open" is a conversation running with nobody on this end, as a reload leaves it. */
@@ -90,6 +94,12 @@ export interface PlayerState {
   pausing: boolean;
   /** The same, the other way: a resume asked for and not yet live. */
   resuming: boolean;
+  /** Whether the session waits for the player to choose how to play. */
+  choosing: boolean;
+  /** What the player may choose from. Null until fetched. */
+  options: Options | null;
+  /** What the session runs on, once it has settled. */
+  settled: Settled | null;
 }
 
 export function emptyState(): PlayerState {
@@ -110,7 +120,35 @@ export function emptyState(): PlayerState {
     paused: false,
     pausing: false,
     resuming: false,
+    choosing: false,
+    options: null,
+    settled: null,
   };
+}
+
+/** A toggle's name in its JSON form. */
+export type ToggleName = keyof Toggles;
+
+/** What each toggle means to a player. */
+export const TOGGLE_LABELS: Record<ToggleName, string> = {
+  images: "Pictures",
+  "audio-out": "Narration",
+  "audio-in": "Voice input",
+  "audio-live": "Live voice",
+};
+
+/** Whether the settled offer allows a toggle at the settled tier, so it may go on. */
+export function allows(state: PlayerState, toggle: ToggleName): boolean {
+  const settled = state.settled;
+  if (!settled) return false;
+  const offer = state.options?.offers.find((o) => o.offer === settled.offer);
+  const tier = offer?.tiers.find((t) => t.tier === settled.choice.tier);
+  return tier?.toggles[toggle] ?? false;
+}
+
+/** Whether this genre makes pictures at all, which is when a pictures switch means something. */
+export function makesPictures(state: PlayerState): boolean {
+  return (state.topology?.imagery ?? "") !== "";
 }
 
 /** Whether this genre has anywhere to type, as its wiring declares. */

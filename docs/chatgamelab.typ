@@ -1,4 +1,4 @@
-#import "template.typ": spec
+#import "template.typ": spec, todo
 
 #show: spec.with(title: "ChatGameLab")
 
@@ -25,18 +25,58 @@ the ChatGameLab platform, or embedded in another website on their own.
 
 = The game engine
 
-A *game* is a scenario, a title, an image style and a genre. Playing it opens a
-*session*.
+== Games
+
+A *game* is a title, a genre, a scenario, an image style and a theme. Playing it
+opens a *session*.
+
+- *Genre* picks one of the engine's ways to play.
+- *Scenario* fills in what that genre needs, such as an adventure's background
+  story.
+- *Image style* describes how the game's pictures look.
+- *Theme* picks the look of the player around the game.
 
 == Sessions
 
-A session's link is all a player needs to continue it; a player can leave and
-come back to where they were. A finished session can be read back as it was
-played.
+A session is one player playing one game. Creating it takes:
+
+- the game;
+- the player, who may be an anonymous guest;
+- one or more shared API keys;
+- optionally, the player's preferences.
+
+Before the game begins, the player chooses where there is something to choose:
+
+- *One key, fixed*: the game starts straight away with that key's settings.
+- *One key, customizable*: the player tunes the settings within what the key
+  allows, such as picking one of its quality tiers.
+- *Several keys*: the player picks one, then tunes it if it is customizable.
+
+A session runs in the player's preferred language: the game is translated into
+it when the session is created.
+
+Each session has its own ID. A player can leave a session at any time and
+continue it later under that ID, for as long as the session is kept.
+#todo[How long a session is kept.] A finished session can be read back as it
+was played.
+
+A session plays on one *AI platform* (e.g. OpenAI) at one *quality tier*:
+economy, balanced or high. A tier presets the AI models a session uses,
+including the size and quality of its pictures. Which *features* exist depends
+on the platform: *images* (pictures), *audio-out* (spoken narration), *audio-in*
+(voice input) and *audio-live* (live voice).
+
+The optional features *images*, *audio-in* and *audio-out* can be switched off
+or on at any time during play, as far as the key in use allows the feature.
+Switching one off affects only what is made from then on.
 
 == Genres
 
-The genre decides how a game plays.
+The genre decides how a game plays. A genre is a game mechanic built into the
+engine.
+
+Each genre needs certain features, and a game plays only when the key share used
+for the session provides them.
 
 === Adventure
 
@@ -64,6 +104,9 @@ The player talks by voice with one character.
   with one press, and the character carries on where it left off. Reloading the
   page carries on too.
 - *Playing takes a microphone.* The player speaks and the character listens.
+- *Playing takes audio-live and images*, for the conversation and the portrait.
+- *An NPC-Live session keeps* the character's portrait and any warnings raised
+  during the conversation; the conversation itself is ephemeral.
 
 == Youth protection
 
@@ -79,31 +122,13 @@ starts it.
 
 == Seeing how it works
 
-A game can show its own workings:
+Transparency is one of ChatGameLab's main goals, as its games are educational.
+The player has a view showing the inner workings of the game:
 
-- *The steps of a turn* — which AI calls run, in which order, and which are
-  working right now.
-- *The prompts* a session runs on, including the genre's own instructions.
+- *The steps of a turn* — which AI calls run, in which order, with which
+  prompts and results, and which are working right now.
 - *What it costs* — a running total while playing, broken down per step and per
   AI model.
-
-== Quality
-
-A session runs at one *quality tier* — economy, balanced, premium or max — which
-sets the AI models used and the size and quality of its pictures. Some features,
-such as spoken narration, are reserved for higher tiers. 
-
-NOTE: A single scalar for quality might be to coarse. We could reduce the tiers 
-to just three and in turn introduce toggles like audio-out on/off, images on/off. 
-For an api key shared with a workshop of used for a public game, the sharer would
-then configure either a fixed setting or a limit for settings (e.g. max tier, 
-allowed toggles)
-
-== What a session keeps
-
-- *An Adventure session keeps* everything the player saw, in order.
-- *An NPC-Live session keeps* the character's portrait and any warnings raised
-  during the conversation; the conversation itself is ephemeral.
 
 == Open questions
 
@@ -131,7 +156,10 @@ run workshops and play.
 - *Guest* — plays a shared game without an account.
 
 Anyone who writes a game is its *designer*: they author its scenario, title,
-image style and genre.
+image style, theme and genre.
+
+A game shows how often it has been played; every session started counts as a
+play.
 
 == Youth protection
 
@@ -144,8 +172,10 @@ influence on the rule.
 == Paying
 
 Whoever pays for a session — a workshop, an organisation or the player — is
-resolved by the platform, along with the session's quality tier. A revoked key
-stops working on the next turn.
+resolved by the platform. Whoever shares a key decides how it may be used: which
+tiers, which features at each tier, a default, and whether players may choose
+within that. Several shared keys can be offered at once, and the player picks
+one. A revoked key stops working on the next turn.
 
 == Data
 
@@ -154,7 +184,8 @@ Erasing a user removes their sessions along with their account.
 == Open questions
 
 - *Spend limits* — a ceiling on what one session can cost.
-- *Existing games at the switch to the new engine* — converted or re-authored.
+- *A measure of engagement* — such as turns played next to plays, so games
+  people stay with stand out.
 
 = Embedding
 
@@ -168,5 +199,5 @@ export it for embedding. Players visit only the host website.
 == Open questions
 
 - *What an export contains*, and how a changed game reaches the host website.
-- *Who pays* for an embedded game's sessions, and at which quality tier.
+- *Who pays* for an embedded game's sessions, and which keys it offers.
 - *Which youth-protection rule* an embedded game plays under.

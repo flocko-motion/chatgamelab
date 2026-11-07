@@ -1,6 +1,7 @@
 package genre
 
 import (
+	"engine/internal/adapters"
 	"engine/internal/blocks"
 	"engine/internal/ports"
 )
@@ -30,6 +31,10 @@ type Wiring struct {
 
 	// Live is set by genres whose browser connects directly, for a transport to broker.
 	Live *blocks.LiveSession
+
+	// Switches are the blocks each toggle turns off and on during play. A toggle
+	// with no entry has no block in this genre.
+	Switches map[adapters.Toggle][]ports.Switchable
 }
 
 // Sinks is the event schema, read off the graph so outputs follow their edges.

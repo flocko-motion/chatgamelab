@@ -20,3 +20,9 @@
   v(1em)
   body
 }
+
+// A gap the spec leaves open on purpose: shown inline, in a colour that stands out.
+#let todo(body) = box(
+  fill: rgb("#fff3cd"), stroke: 0.5pt + rgb("#d9a400"), inset: (x: 4pt, y: 2pt),
+  outset: (y: 2pt), radius: 2pt,
+)[*TODO:* #body]

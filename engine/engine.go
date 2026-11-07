@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"maps"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -70,17 +68,11 @@ type SessionSpec struct {
 	// InitPrompt is sent once preparation is done, so the character speaks first.
 	InitPrompt string `json:"initPrompt,omitempty"`
 
-	// Platform empty means mock: no key, no network, no cost.
-	Platform Platform `json:"platform,omitempty"`
-
-	// Keys is a function so the persisted spec holds no secret and a rotated key applies on the next call.
-	Keys KeyFunc `json:"-"`
-
-	// ModelTier picks every model not pinned in Models; empty means medium.
-	ModelTier Tier `json:"modelTier,omitempty"`
-
-	// Models pins one model type: "$high" takes that tier's model, anything else names a model.
-	Models map[ModelType]string `json:"models,omitempty"`
+	// Preference is the player's stored wish, fitted to the offers at launch.
+	// Without one the player chooses, unless a single fixed offer leaves nothing
+	// to choose. The offers themselves are no part of the spec: they are live,
+	// rebuilt from the platform's key cascade on every launch and resume.
+	Preference *Preference `json:"preference,omitempty"`
 
 	// Voice is a provider built-in voice name, fixed once the session exists.
 	Voice string `json:"voice,omitempty"`
@@ -120,17 +112,41 @@ type BlockState struct {
 
 // StreamNames is every stream a genre can wire, and the source of the generated TypeScript union.
 func StreamNames() []string {
-	return []string{"text", "audio", "image", "props", "state", "usage", "connect", "pause", "error"}
+	return []string{"text", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error"}
 }
 
 type Session struct {
+	// mu guards what settling, adapting and toggling change: the spec's offers
+	// and preference, and the settlement.
+	mu sync.Mutex
+	// settled is nil while the player is choosing.
+	settled *settlement
+	// offers are the live offers, never stored: passed at launch, replaced by Adapt.
+	offers []Offer
+	// changes say why the settlement differs from the preference.
+	changes []string
+	// pending holds events posted under mu, until flush hands them to the sender.
+	pending []Event
+	// out is the sender's queue; the sender alone writes to the stream.
+	out outbox
+
 	spec     SessionSpec
+	slots    slots
 	wiring   *genre.Wiring
 	usage    *usageLedger
 	recorder *recorder
 	events   chan Event
+	ctx      context.Context
 	cancel   context.CancelFunc
 	once     sync.Once
+}
+
+// slots hold the adapters the blocks call, filled when the session settles
+// and replaced when it adapts.
+type slots struct {
+	live  adapters.LiveSlot
+	tool  adapters.ToolSlot
+	image adapters.ImageSlot
 }
 
 // SessionState is what changes every turn and must survive a restart, keyed by block name.
@@ -139,19 +155,32 @@ type SessionState struct {
 	Blocks map[string]string `json:"blocks,omitempty"`
 }
 
-// Resume errors on a stored block the wiring lacks: the wiring changed under the session, invalidating it.
-func Resume(ctx context.Context, spec SessionSpec, state SessionState) (*Session, error) {
-	return launch(ctx, spec, &state)
+// Resume continues a stored session on the offers at hand, fitting its stored
+// preference to them. It errors on a stored block the wiring lacks: the wiring
+// changed under the session, invalidating it.
+func Resume(ctx context.Context, spec SessionSpec, state SessionState, offers []Offer) (*Session, error) {
+	return launch(ctx, spec, offers, &state)
 }
 
-// Launch validates a genre's wiring and starts it.
-func Launch(ctx context.Context, spec SessionSpec) (*Session, error) {
-	return launch(ctx, spec, nil)
+// Launch validates a spec and builds its genre's wiring. The game starts at
+// once when there is nothing to choose or the spec carries a preference;
+// otherwise it waits for the player's choice, and nothing runs or bills before.
+//
+// The offers are live, like the key functions they carry: the platform builds
+// them from its key cascade for each launch, and they are never stored.
+func Launch(ctx context.Context, spec SessionSpec, offers []Offer) (*Session, error) {
+	return launch(ctx, spec, offers, nil)
 }
 
-func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Session, error) {
-	if err := spec.playable(); err != nil {
+func launch(ctx context.Context, spec SessionSpec, offers []Offer, state *SessionState) (*Session, error) {
+	if err := refusal(Validate(spec, offers)); err != nil {
 		return nil, err
+	}
+
+	s := &Session{
+		recorder: newRecorder(),
+		events:   make(chan Event, 256),
+		usage:    newUsageLedger(),
 	}
 
 	var w *genre.Wiring
@@ -159,14 +188,11 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 	case GenreAdventure:
 		w = genre.NewAdventure(spec.Status)
 	case GenreNPCLive:
-		live, tool, image, err := spec.adapters()
-		if err != nil {
-			return nil, err
-		}
+		var err error
 		w, err = genre.NewNPCLive(genre.NPCLiveConfig{
-			Live:           live,
-			Tool:           tool,
-			Image:          image,
+			Live:           &s.slots.live,
+			Tool:           &s.slots.tool,
+			Image:          &s.slots.image,
 			Voice:          spec.Voice,
 			Guardrail:      spec.Guardrail,
 			Scenario:       spec.Scenario,
@@ -200,21 +226,16 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 	if spec.ID == "" {
 		spec.ID = "dev-session"
 	}
-
-	ctx, cancel := context.WithCancel(ctx)
-
-	s := &Session{
-		spec:     spec,
-		wiring:   w,
-		usage:    newUsageLedger(spec.Platform),
-		recorder: newRecorder(),
-		events:   make(chan Event, 256),
-	}
-	s.cancel = cancel
+	s.spec = spec
+	s.offers = offers
+	s.wiring = w
+	s.ctx, s.cancel = context.WithCancel(ctx)
+	s.out.ready = make(chan struct{}, 1)
+	go s.deliver()
 
 	// Subscribed before Start, or the opening phases and the one invitation would be missed.
-	states := w.Graph.ObserveStates(ctx)
-	usage := w.Graph.ObserveUsage(ctx)
+	states := w.Graph.ObserveStates(s.ctx)
+	usage := w.Graph.ObserveUsage(s.ctx)
 
 	var invitations, pauses <-chan ports.State
 	if w.Live != nil {
@@ -222,12 +243,18 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 		pauses = w.Live.Pauses()
 	}
 
-	w.Graph.Start(ctx)
-	s.merge(ctx)
-	s.forwardStates(ctx, states)
-	s.forwardUsage(ctx, usage)
-	s.forwardInvitations(ctx, invitations)
-	s.forwardSignal(ctx, pauses, "pause")
+	s.merge(s.ctx)
+	s.forwardStates(s.ctx, states)
+	s.forwardUsage(s.ctx, usage)
+	s.forwardInvitations(s.ctx, invitations)
+	s.forwardSignal(s.ctx, pauses, "pause")
+
+	if settled, changes, choosing := spec.opening(offers); !choosing {
+		s.mu.Lock()
+		s.start(settled, changes)
+		s.mu.Unlock()
+		s.flush()
+	}
 	return s, nil
 }
 
@@ -355,6 +382,9 @@ func (s *Session) Prompts() map[string]string { return s.wiring.Prompts }
 
 // Connect brokers a browser's offer to talk to the provider directly; errors on a genre with no conversation.
 func (s *Session) Connect(ctx context.Context, offer string) (string, error) {
+	if err := s.playing(); err != nil {
+		return "", err
+	}
 	if s.wiring.Live == nil {
 		return "", fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
 	}
@@ -369,7 +399,12 @@ func (s *Session) Snapshot() Snapshot {
 		started = true
 	default:
 	}
-	return s.recorder.snapshot(started, s.usage.report(), s.conversation())
+	snapshot := s.recorder.snapshot(started, s.usage.report(), s.conversation())
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	snapshot.Choosing = s.settled == nil
+	snapshot.Settled = s.settledView()
+	return snapshot
 }
 
 // conversation is where the live block stands, or empty without one.
@@ -422,6 +457,9 @@ func (s *Session) Events() <-chan Event { return s.events }
 
 // Say submits typed player input, erroring on a genre that takes none.
 func (s *Session) Say(text string) error {
+	if err := s.playing(); err != nil {
+		return err
+	}
 	if s.wiring.Say == nil {
 		return fmt.Errorf("genre %q takes no typed input", s.spec.Genre)
 	}
@@ -431,6 +469,9 @@ func (s *Session) Say(text string) error {
 
 // Speak submits player audio.
 func (s *Session) Speak(audio []byte) error {
+	if err := s.playing(); err != nil {
+		return err
+	}
 	if s.wiring.Speak == nil {
 		return fmt.Errorf("genre %q takes no audio input", s.spec.Genre)
 	}
@@ -440,6 +481,9 @@ func (s *Session) Speak(audio []byte) error {
 
 // Pause closes the per-second-billed live conversation; the session stays and a resume continues it.
 func (s *Session) Pause() error {
+	if err := s.playing(); err != nil {
+		return err
+	}
 	if s.wiring.Live == nil {
 		return fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
 	}
@@ -489,9 +533,6 @@ func parseProps(value string) map[string]string {
 	return props
 }
 
-// tierSigil marks a Model* value as a tier; no model name begins with it.
-const tierSigil = "$"
-
 // initPrompt's default asks the character to speak first, leaving what to say to the scenario.
 func (spec SessionSpec) initPrompt() string {
 	if spec.InitPrompt != "" {
@@ -514,89 +555,39 @@ func (spec SessionSpec) idleAfter() time.Duration {
 	}
 }
 
-func (spec SessionSpec) modelTier() Tier {
-	if spec.ModelTier == "" {
-		return TierMedium
-	}
-	return spec.ModelTier.Normal()
-}
-
-// resolveModels turns the tier and the pins into a model per type from the platform's byTier table.
-func (spec SessionSpec) resolveModels(byTier func(Tier) (adapters.ModelSet, error)) (adapters.ModelSet, error) {
-	models, err := byTier(spec.modelTier())
+// adapters builds the settled offer's implementations from its tier's models,
+// so a block never chooses its own model. A role the platform cannot fill
+// comes back nil.
+func (spec SessionSpec) adapters(settled settlement) (adapters.Live, adapters.Tool, adapters.Image, error) {
+	entry, _ := catalogueEntry(settled.offer.Platform)
+	models, err := entry.Models(settled.Tier)
 	if err != nil {
-		return models, err
+		return nil, nil, nil, err
 	}
 
-	for _, kind := range slices.Sorted(maps.Keys(spec.Models)) {
-		if !slices.Contains(adapters.ModelTypes(), kind) {
-			return models, fmt.Errorf("models: unknown model type %q", kind)
-		}
-		pin := spec.Models[kind]
-		if pin == "" {
-			continue
-		}
-		if !strings.HasPrefix(pin, tierSigil) {
-			// A pinned name keeps the tier's parameters, which ride with the price.
-			model := models[kind]
-			model.Name = pin
-			models[kind] = model
-			continue
-		}
-
-		other, err := byTier(Tier(strings.TrimPrefix(pin, tierSigil)).Normal())
-		if err != nil {
-			return models, fmt.Errorf("models.%s: %w", kind, err)
-		}
-		model, ok := other[kind]
-		if !ok {
-			return models, fmt.Errorf("models.%s: tier %q has no %s model", kind, pin, kind)
-		}
-		models[kind] = model
-	}
-	return models, nil
-}
-
-// adapters resolves the platform into implementations, so a block never chooses its own model.
-// A role the platform cannot fill comes back nil.
-func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image, error) {
-	switch spec.Platform {
-	case "", PlatformMock:
+	var (
+		live  adapters.Live
+		tool  adapters.Tool
+		image adapters.Image
+	)
+	switch settled.offer.Platform {
+	case PlatformMock:
 		pace := time.Duration(spec.MockPaceMs) * time.Millisecond
-		return mock.Live{Pace: pace}, mock.Tool{Pace: pace}, mock.Image{Pace: pace}, nil
+		live, tool, image = mock.Live{Pace: pace}, mock.Tool{Pace: pace}, mock.Image{Pace: pace}
 	case PlatformOpenAI:
-		if spec.Keys == nil {
-			return nil, nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
-		}
-		models, err := spec.resolveModels(openai.Platform().Models)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-
-		if spec.Voice != "" && !openai.ValidVoice(spec.Voice) {
-			return nil, nil, nil, fmt.Errorf("unknown voice %q", spec.Voice)
-		}
-
-		keys := adapters.KeyFunc(spec.Keys)
-		image := models[adapters.ModelImage]
-		return openai.NewLive(keys, models[adapters.ModelLive].Name),
-			openai.NewTool(keys, models[adapters.ModelTooling].Name),
-			openai.NewImage(keys, image.Name, image.Params[adapters.ParamQuality], image.Params[adapters.ParamSize]), nil
+		keys := adapters.KeyFunc(settled.offer.Keys)
+		picture := models[adapters.ModelImage]
+		live = openai.NewLive(keys, models[adapters.ModelLive].Name)
+		tool = openai.NewTool(keys, models[adapters.ModelTooling].Name)
+		image = openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize])
 	case PlatformMistral:
-		if spec.Keys == nil {
-			return nil, nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
-		}
-		models, err := spec.resolveModels(mistral.Platform().Models)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-
 		// Live stays nil: Mistral has no live voice model.
-		keys := adapters.KeyFunc(spec.Keys)
-		return nil,
-			mistral.NewTool(keys, models[adapters.ModelTooling].Name),
-			mistral.NewImage(keys, models[adapters.ModelImage].Name), nil
+		keys := adapters.KeyFunc(settled.offer.Keys)
+		tool = mistral.NewTool(keys, models[adapters.ModelTooling].Name)
+		image = mistral.NewImage(keys, models[adapters.ModelImage].Name)
 	default:
-		return nil, nil, nil, fmt.Errorf("unknown platform %q", spec.Platform)
+		return nil, nil, nil, fmt.Errorf("unknown platform %q", settled.offer.Platform)
 	}
+
+	return live, tool, image, nil
 }

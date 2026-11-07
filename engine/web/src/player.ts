@@ -5,10 +5,13 @@
 import {
   isSessionEvent,
   type BlockState,
+  type Choice,
+  type Options,
   type SessionEvent,
+  type Settled,
   type UsageReport,
 } from "./protocol.js";
-import type { Snapshot, Topology } from "./state.js";
+import type { Snapshot, ToggleName, Topology } from "./state.js";
 import { emptyState, type PlayerState } from "./state.js";
 import type { Transport, TransportMessage } from "./transport.js";
 import type { Voice } from "./voice.js";
@@ -87,6 +90,50 @@ export class Player {
     if (!this.state.paused || this.state.resuming) return;
     this.state.resuming = true;
     void this.#openVoice();
+  }
+
+  /**
+   * Sends the player's choice: an offer by its ID, and a tier and toggles if it is
+   * customizable. A refused choice leaves the dialog up and says why.
+   */
+  async choose(base: string | URL, offer: string, choice?: Choice): Promise<boolean> {
+    const accepted = await this.#post(base, "choose", { offer, choice }, "Could not start");
+    if (accepted) await this.loadOptions(base);
+    return accepted;
+  }
+
+  /** Switches a feature during play; off is always allowed, on within the offer. */
+  async setToggle(base: string | URL, toggle: ToggleName, on: boolean): Promise<boolean> {
+    return this.#post(base, "toggles", { toggle, on }, "Could not switch");
+  }
+
+  async #post(base: string | URL, path: string, body: unknown, failure: string): Promise<boolean> {
+    try {
+      const response = await fetch(new URL(path, base), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) throw new Error((await response.text()).trim() || `the engine answered ${response.status}`);
+      this.state.problem = null;
+      this.#notify();
+      return true;
+    } catch (error) {
+      this.state.problem = `${failure}: ${error instanceof Error ? error.message : String(error)}`;
+      this.#notify();
+      return false;
+    }
+  }
+
+  /** Fetches what the player may choose from, and what the session settled on. */
+  async loadOptions(base: string | URL): Promise<void> {
+    const response = await fetch(new URL("options", base));
+    if (!response.ok) return;
+    const options = (await response.json()) as Options;
+    this.state.options = options;
+    this.state.choosing = options.choosing;
+    this.state.settled = options.settled ?? null;
+    this.#notify();
   }
 
   /** Sends one frame of player speech, which is never transcribed into the state. */
@@ -190,6 +237,9 @@ export class Player {
         if (!this.state.invited) void this.#openVoice();
         this.state.invited = true;
         break;
+      case "settled":
+        this.#applySettled(event.Value);
+        break;
       case "pause":
         // Let go for silence or on request; the session itself stays.
         this.state.paused = true;
@@ -235,6 +285,7 @@ export class Player {
       return;
     }
     await this.#loadSnapshot(base);
+    await this.loadOptions(base);
     await this.#loadHistory(base);
 
     // Audio opens here from where the session stands, so replay never resumes a pause.
@@ -251,6 +302,8 @@ export class Player {
     this.state.props = snapshot.props;
     this.state.usage = snapshot.usage;
     this.state.started = snapshot.started;
+    this.state.choosing = snapshot.choosing;
+    this.state.settled = snapshot.settled ?? null;
     // The invitation predates a reloaded page, so it asks where the conversation stands.
     // "open" is a conversation this page lost, so it offers again.
     switch (snapshot.conversation) {
@@ -325,6 +378,15 @@ export class Player {
 
     this.state.phases[report.node] = report.phase;
     this.#recomputeStarted();
+  }
+
+  #applySettled(value: string): void {
+    try {
+      this.state.settled = JSON.parse(value) as Settled;
+      this.state.choosing = false;
+    } catch {
+      // A malformed report costs a display update, not the game.
+    }
   }
 
   #applyUsage(value: string): void {

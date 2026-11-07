@@ -15,6 +15,7 @@ export type StreamName =
   | "usage"
   | "connect"
   | "pause"
+  | "settled"
   | "error"
   ;
 
@@ -57,6 +58,62 @@ export interface UsageReport {
   readonly byNode: UsageRecord[];
   readonly complete: boolean;
   readonly totalCost: number;
+}
+
+/** Which features a session has on, or an offer allows. */
+export interface Toggles {
+  readonly "audio-in": boolean;
+  readonly "audio-live": boolean;
+  readonly "audio-out": boolean;
+  readonly images: boolean;
+}
+
+/** A tier and the toggles on at it. */
+export interface Choice {
+  readonly tier: string;
+  readonly toggles: Toggles;
+}
+
+/** The player's wish, which the platform stores with the session. */
+export interface Preference {
+  readonly offer?: string;
+  readonly platform: string;
+  readonly tier: string;
+  readonly toggles: Toggles;
+}
+
+/** What a session runs on, carried as JSON in a `settled` event's value. */
+export interface Settled {
+  readonly changes?: string[];
+  readonly choice: Choice;
+  readonly offer: string;
+  readonly platform: string;
+  readonly preference: Preference;
+}
+
+/** One tier an offer allows, with its toggles and, as a detail, its models. */
+export interface TierOption {
+  readonly label: string;
+  readonly models: Record<string, string>;
+  readonly tier: string;
+  readonly toggles: Toggles;
+}
+
+/** One offer as a player sees it in the options dialog. */
+export interface OfferOption {
+  readonly customizable: boolean;
+  readonly default: Choice;
+  readonly name: string;
+  readonly offer: string;
+  readonly platform: string;
+  readonly tiers: TierOption[];
+}
+
+/** What the player may choose from, and what the session settled on. */
+export interface Options {
+  readonly choosing: boolean;
+  readonly offers: OfferOption[];
+  readonly settled?: Settled;
 }
 
 export function isSessionEvent(value: unknown): value is SessionEvent {

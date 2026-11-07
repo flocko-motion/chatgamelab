@@ -292,6 +292,65 @@ func (a *API) SessionEdge(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(detail)
 }
 
+// SessionOptions is what the player may choose from, and what the session settled on.
+func (a *API) SessionOptions(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(s.Options())
+}
+
+type chooseRequest struct {
+	Offer  string         `json:"offer"`
+	Choice *engine.Choice `json:"choice,omitempty"`
+}
+
+// SessionChoose takes the player's choice; one outside the offer's caveats is refused.
+func (a *API) SessionChoose(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	var req chooseRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := s.Choose(req.Offer, req.Choice); err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
+}
+
+type toggleRequest struct {
+	Toggle engine.Toggle `json:"toggle"`
+	On     bool          `json:"on"`
+}
+
+// SessionToggle switches a feature during play, such as pictures off.
+func (a *API) SessionToggle(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+	var req toggleRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := s.SetToggle(req.Toggle, req.On); err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
+}
+
 // Platforms is the engine's catalogue of AI platforms; its JSON shape is the engine's.
 // The mock is listed in dev mode only.
 func (a *API) Platforms(w http.ResponseWriter, _ *http.Request) {
@@ -311,6 +370,9 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("POST /sessions/{id}/input", a.SessionInput)
 	mux.HandleFunc("POST /sessions/{id}/connect", a.SessionConnect)
 	mux.HandleFunc("POST /sessions/{id}/pause", a.SessionPause)
+	mux.HandleFunc("GET /sessions/{id}/options", a.SessionOptions)
+	mux.HandleFunc("POST /sessions/{id}/choose", a.SessionChoose)
+	mux.HandleFunc("POST /sessions/{id}/toggles", a.SessionToggle)
 	mux.HandleFunc("GET /sessions/{id}/prompts", a.SessionPrompts)
 	mux.HandleFunc("GET /sessions/{id}/graph", a.SessionGraph)
 	mux.HandleFunc("GET /sessions/{id}/topology", a.SessionTopology)

@@ -5,13 +5,14 @@ import (
 	"sync"
 )
 
-// Persist is injected by whoever embeds the engine: the platform supplies one
-// backed by its Postgres, a standalone build supplies SQLite, a dev launcher
-// supplies memory or nothing. The graph has no opinion — it holds an interface.
+// Persist is injected by whoever embeds the engine. The engine ships two: one
+// that keeps events in memory, for tests, and one that discards them, for a dev
+// launcher. A store persists a session's spec, its state and its events, never
+// its offers: those are live, built from the platform's key cascade for every
+// launch and resume, and carry the keys.
 //
-// This is also what keeps the two deployment shapes symmetric. In-process it is
-// a function call; standalone it is a local implementation. Neither makes the
-// engine call back out to the platform.
+// The engine never calls back out to whoever stores the session; it hands
+// events to this interface.
 type Persist interface {
 	Save(ctx context.Context, sessionID string, e Event) error
 }

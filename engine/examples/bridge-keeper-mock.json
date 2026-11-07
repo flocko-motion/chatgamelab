@@ -1,10 +1,32 @@
 {
-  "genre": "npc-live",
-  "id": "bridge-keeper",
-  "title": "The Bridge Keeper",
-  "platform": "mock",
-  "mockPaceMs": 1200,
-  "scenario": "You are the keeper of a bridge. You never concede passage.",
-  "guardrail": "Keep the conversation suitable for a 13-year-old.",
-  "initPrompt": "Begin. Greet whoever has arrived."
+  "spec": {
+    "genre": "npc-live",
+    "id": "bridge-keeper",
+    "title": "The Bridge Keeper",
+    "mockPaceMs": 1200,
+    "scenario": "You are the keeper of a bridge. You never concede passage.",
+    "guardrail": "Keep the conversation suitable for a 13-year-old.",
+    "initPrompt": "Begin. Greet whoever has arrived."
+  },
+  "offers": [
+    {
+      "platform": "mock",
+      "id": "mock",
+      "caveats": {
+        "allow": {
+          "medium": {
+            "images": true,
+            "audio-live": true
+          }
+        },
+        "default": {
+          "tier": "medium",
+          "toggles": {
+            "images": true,
+            "audio-live": true
+          }
+        }
+      }
+    }
+  ]
 }

@@ -7,8 +7,12 @@ import (
 	"strings"
 	"sync"
 
+	"engine/internal/adapters"
 	"engine/internal/ports"
 )
+
+// The dummies bill invented numbers, priced from the mock's table, so the usage
+// view means something without a real model behind it.
 
 // DummyToolCall stands in for a single-shot text transformation. The role is
 // config, not type: the same block is a rephrase, a translation or a summary
@@ -18,11 +22,15 @@ type DummyToolCall struct {
 	name, role string
 	in         ports.TextInput
 	out        ports.TextBroadcast
+	meter      meter
 }
 
 func NewDummyToolCall(name, role string) *DummyToolCall {
-	return &DummyToolCall{name: name, role: role, in: make(ports.TextInput, 16)}
+	return &DummyToolCall{name: name, role: role, in: make(ports.TextInput, 16), meter: meter{name: name}}
 }
+
+// UsageOutPort reports what the calls have cost.
+func (b *DummyToolCall) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
 
 func (b *DummyToolCall) NodeName() string           { return b.name }
 func (b *DummyToolCall) TextInPort() chan<- string  { return b.in }
@@ -33,7 +41,7 @@ func (b *DummyToolCall) RequiredInputs() []ports.Kind {
 
 func (b *DummyToolCall) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
+		defer func() { b.out.Close(); b.meter.usage.Close() }()
 		for {
 			select {
 			case <-ctx.Done():
@@ -42,6 +50,7 @@ func (b *DummyToolCall) Start(ctx context.Context) {
 				if !ok {
 					return
 				}
+				b.meter.bill(adapters.Usage{Model: "mock-tool", InputTokens: int64(40 + len(v)), OutputTokens: 30})
 				b.out.Send(fmt.Sprintf("[%s] %s", b.role, v))
 			}
 		}
@@ -61,8 +70,9 @@ type DummyThreaded struct {
 	// makes this role threaded, and the thing a resumed session needs back.
 	thread string
 
-	in  ports.TextInput
-	out ports.TextBroadcast
+	in    ports.TextInput
+	out   ports.TextBroadcast
+	meter meter
 }
 
 func (b *DummyThreaded) ExportState() string {
@@ -83,8 +93,11 @@ func (b *DummyThreaded) RestoreState(s string) {
 }
 
 func NewDummyThreaded(name, role string) *DummyThreaded {
-	return &DummyThreaded{name: name, role: role, in: make(ports.TextInput, 16)}
+	return &DummyThreaded{name: name, role: role, in: make(ports.TextInput, 16), meter: meter{name: name}}
 }
+
+// UsageOutPort reports what the turns have cost.
+func (b *DummyThreaded) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
 
 func (b *DummyThreaded) NodeName() string             { return b.name }
 func (b *DummyThreaded) TextInPort() chan<- string    { return b.in }
@@ -93,7 +106,7 @@ func (b *DummyThreaded) RequiredInputs() []ports.Kind { return []ports.Kind{port
 
 func (b *DummyThreaded) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
+		defer func() { b.out.Close(); b.meter.usage.Close() }()
 		for {
 			select {
 			case <-ctx.Done():
@@ -102,6 +115,7 @@ func (b *DummyThreaded) Start(ctx context.Context) {
 				if !ok {
 					return
 				}
+				b.meter.bill(adapters.Usage{Model: "mock-story", InputTokens: int64(400 + len(v)), OutputTokens: 350})
 				b.mu.Lock()
 				b.turn++
 				turn := b.turn
@@ -127,6 +141,7 @@ type DummyExtraction struct {
 	mu      sync.Mutex
 	current ports.PropMap
 	turn    int
+	meter   meter
 }
 
 func NewDummyExtraction(name string) *DummyExtraction {
@@ -135,8 +150,12 @@ func NewDummyExtraction(name string) *DummyExtraction {
 		in:      make(ports.TextInput, 16),
 		propsIn: make(ports.PropsInput, 16),
 		current: ports.PropMap{},
+		meter:   meter{name: name},
 	}
 }
+
+// UsageOutPort reports what the outlines have cost.
+func (b *DummyExtraction) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
 
 func (b *DummyExtraction) NodeName() string                    { return b.name }
 func (b *DummyExtraction) TextInPort() chan<- string           { return b.in }
@@ -154,7 +173,7 @@ func (b *DummyExtraction) RequiredInputs() []ports.Kind {
 
 func (b *DummyExtraction) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.out.Close(); b.secondary.Close(); b.props.Close() }()
+		defer func() { b.out.Close(); b.secondary.Close(); b.props.Close(); b.meter.usage.Close() }()
 
 		// A required input is required: process nothing until the first
 		// snapshot of the current values has arrived. Without this the block
@@ -205,6 +224,7 @@ func (b *DummyExtraction) Start(ctx context.Context) {
 				}
 				b.mu.Unlock()
 
+				b.meter.bill(adapters.Usage{Model: "mock-story", InputTokens: int64(600 + len(v)), OutputTokens: 120})
 				b.out.Send(fmt.Sprintf("[outline] world reacts to: %s", v))
 				b.secondary.Send("[image-prompt] dim stone bridge, torchlight")
 				b.props.Send(ports.PropMap{"Health": health, "Turn": fmt.Sprint(turn)})
@@ -214,14 +234,19 @@ func (b *DummyExtraction) Start(ctx context.Context) {
 }
 
 type DummyImage struct {
-	name string
-	in   ports.TextInput
-	out  ports.ImageBroadcast
+	Switch
+	name  string
+	in    ports.TextInput
+	out   ports.ImageBroadcast
+	meter meter
 }
 
 func NewDummyImage(name string) *DummyImage {
-	return &DummyImage{name: name, in: make(ports.TextInput, 16)}
+	return &DummyImage{name: name, in: make(ports.TextInput, 16), meter: meter{name: name}}
 }
+
+// UsageOutPort reports what the pictures have cost.
+func (b *DummyImage) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
 
 func (b *DummyImage) NodeName() string                     { return b.name }
 func (b *DummyImage) TextInPort() chan<- string            { return b.in }
@@ -230,7 +255,7 @@ func (b *DummyImage) RequiredInputs() []ports.Kind         { return []ports.Kind
 
 func (b *DummyImage) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
+		defer func() { b.out.Close(); b.meter.usage.Close() }()
 		for {
 			select {
 			case <-ctx.Done():
@@ -239,6 +264,10 @@ func (b *DummyImage) Start(ctx context.Context) {
 				if !ok {
 					return
 				}
+				if !b.Active() {
+					continue
+				}
+				b.meter.bill(adapters.Usage{Model: "mock-image", InputTokens: int64(len(v)), Images: 1})
 				b.out.Send(ports.ImageData("<png of " + strings.TrimPrefix(v, "[image-prompt] ") + ">"))
 			}
 		}
@@ -246,12 +275,19 @@ func (b *DummyImage) Start(ctx context.Context) {
 }
 
 type DummyTTS struct {
-	name string
-	in   ports.TextInput
-	out  ports.AudioBroadcast
+	Switch
+	name  string
+	in    ports.TextInput
+	out   ports.AudioBroadcast
+	meter meter
 }
 
-func NewDummyTTS(name string) *DummyTTS { return &DummyTTS{name: name, in: make(ports.TextInput, 16)} }
+func NewDummyTTS(name string) *DummyTTS {
+	return &DummyTTS{name: name, in: make(ports.TextInput, 16), meter: meter{name: name}}
+}
+
+// UsageOutPort reports what the narration has cost.
+func (b *DummyTTS) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
 
 func (b *DummyTTS) NodeName() string                      { return b.name }
 func (b *DummyTTS) TextInPort() chan<- string             { return b.in }
@@ -260,7 +296,7 @@ func (b *DummyTTS) RequiredInputs() []ports.Kind          { return []ports.Kind{
 
 func (b *DummyTTS) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
+		defer func() { b.out.Close(); b.meter.usage.Close() }()
 		for {
 			select {
 			case <-ctx.Done():
@@ -269,6 +305,11 @@ func (b *DummyTTS) Start(ctx context.Context) {
 				if !ok {
 					return
 				}
+				if !b.Active() {
+					continue
+				}
+				// About fifteen characters a second, as narration is read.
+				b.meter.bill(adapters.Usage{Model: "mock-speech", AudioSeconds: float64(len(v)) / 15})
 				b.out.Send(ports.AudioChunk("<narration of " + v + ">"))
 			}
 		}

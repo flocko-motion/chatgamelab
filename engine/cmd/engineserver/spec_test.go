@@ -19,10 +19,11 @@ func TestExampleSpecsLoad(t *testing.T) {
 	}
 	for _, path := range matches {
 		t.Run(filepath.Base(path), func(t *testing.T) {
-			spec, err := loadSpec(path)
+			g, err := loadGame(path)
 			if err != nil {
 				t.Fatal(err)
 			}
+			spec := g.Spec
 			if spec.Genre == "" {
 				t.Error("spec names no genre")
 			}

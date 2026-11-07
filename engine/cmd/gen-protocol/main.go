@@ -93,6 +93,21 @@ func generate() []byte {
 	b.WriteString(" */\n")
 	writeInterface(&b, "UsageReport", reflect.TypeOf(engine.UsageReport{}))
 
+	b.WriteString("/** Which features a session has on, or an offer allows. */\n")
+	writeInterface(&b, "Toggles", reflect.TypeOf(engine.Toggles{}))
+	b.WriteString("/** A tier and the toggles on at it. */\n")
+	writeInterface(&b, "Choice", reflect.TypeOf(engine.Choice{}))
+	b.WriteString("/** The player's wish, which the platform stores with the session. */\n")
+	writeInterface(&b, "Preference", reflect.TypeOf(engine.Preference{}))
+	b.WriteString("/** What a session runs on, carried as JSON in a `settled` event's value. */\n")
+	writeInterface(&b, "Settled", reflect.TypeOf(engine.Settled{}))
+	b.WriteString("/** One tier an offer allows, with its toggles and, as a detail, its models. */\n")
+	writeInterface(&b, "TierOption", reflect.TypeOf(engine.TierOption{}))
+	b.WriteString("/** One offer as a player sees it in the options dialog. */\n")
+	writeInterface(&b, "OfferOption", reflect.TypeOf(engine.OfferOption{}))
+	b.WriteString("/** What the player may choose from, and what the session settled on. */\n")
+	writeInterface(&b, "Options", reflect.TypeOf(engine.Options{}))
+
 	b.WriteString("export function isSessionEvent(value: unknown): value is SessionEvent {\n")
 	b.WriteString("  if (typeof value !== \"object\" || value === null) return false;\n")
 	b.WriteString("  const candidate = value as Partial<SessionEvent>;\n")
@@ -131,6 +146,11 @@ func tsFields(t reflect.Type) []tsField {
 		if !f.IsExported() {
 			continue
 		}
+		// An embedded struct's fields are its parent's in JSON.
+		if f.Anonymous && f.Type.Kind() == reflect.Struct {
+			out = append(out, tsFields(f.Type)...)
+			continue
+		}
 		name := f.Name
 		if tag := f.Tag.Get("json"); tag != "" {
 			if parts := strings.Split(tag, ","); parts[0] != "" && parts[0] != "-" {
@@ -142,6 +162,10 @@ func tsFields(t reflect.Type) []tsField {
 		// the union rather than a bare string.
 		if name == "Stream" {
 			ts = "StreamName"
+		}
+		// A JSON name that is no identifier, such as audio-out, is quoted.
+		if strings.ContainsAny(name, "-") {
+			name = fmt.Sprintf("%q", name)
 		}
 		// Optional in Go's JSON sense means optional in TypeScript's.
 		if strings.Contains(f.Tag.Get("json"), ",omitempty") {
@@ -157,6 +181,10 @@ func tsType(t reflect.Type) string {
 	switch t.Kind() {
 	case reflect.Slice:
 		return tsType(t.Elem()) + "[]"
+	case reflect.Pointer:
+		return tsType(t.Elem())
+	case reflect.Map:
+		return "Record<string, " + tsType(t.Elem()) + ">"
 	case reflect.Struct:
 		return t.Name()
 	case reflect.String:

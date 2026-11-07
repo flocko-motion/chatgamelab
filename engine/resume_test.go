@@ -16,7 +16,7 @@ func TestResumeContinuesTheThread(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	first, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"})
+	first, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestResumeContinuesTheThread(t *testing.T) {
 		t.Fatal("nothing was exported; a threaded block must carry state")
 	}
 
-	resumed, err := engine.Resume(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, state)
+	resumed, err := engine.Resume(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, state, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestFreshLaunchDoesNotContinue(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s2"})
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s2"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func TestFreshLaunchDoesNotContinue(t *testing.T) {
 func TestResumeRefusesUnknownBlock(t *testing.T) {
 	_, err := engine.Resume(context.Background(),
 		engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s3"},
-		engine.SessionState{Blocks: map[string]string{"a-block-that-left": "resp-9"}})
+		engine.SessionState{Blocks: map[string]string{"a-block-that-left": "resp-9"}}, mockOffers())
 	if err == nil {
 		t.Fatal("expected a resume against a changed wiring to fail")
 	}
@@ -103,7 +103,7 @@ func TestResumeRestoresStatusValues(t *testing.T) {
 		Status: map[string]string{"Health": "Wounded", "Gold": "12"},
 	}
 
-	first, err := engine.Launch(ctx, spec)
+	first, err := engine.Launch(ctx, spec, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +114,7 @@ func TestResumeRestoresStatusValues(t *testing.T) {
 
 	// Relaunch with no seed at all: whatever the player sees must come from the
 	// restored state rather than from the spec.
-	resumed, err := engine.Resume(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s4"}, state)
+	resumed, err := engine.Resume(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s4"}, state, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}

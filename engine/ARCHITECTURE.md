@@ -112,7 +112,8 @@ graph TB
 ```
 
 Transcribe runs only when the model resolved into the Preprocess slot takes text
-alone. Image and Audio are toggled in Adventure's configuration.
+alone. Image and Audio are always wired; the session's `images` and `audio-out`
+toggles switch them on and off.
 
 ### NPC-Live
 
@@ -157,9 +158,34 @@ written into the engine.
 | `audio-in` | **transcription** | transcription |
 | `audio-live` | **live** | the live-session block |
 
-A session names one platform, one key and one tier, and the tier gives every
-block its model. A model type can be pinned to a named model or lifted to
-another tier.
+Tiers have capabilities and model choices: a model and its parameters are set
+in the tier table and nowhere else.
+
+- **An offer** is one way a session may run: a platform, a key and the
+  **caveats** on using it, named by a unique ID such as the shared key's.
+  Everything names an offer by its ID, never by position. Caveats select what
+  is allowed and never change a model or a parameter.
+- **Caveats** are an allowance, the toggles allowed at each tier the offer may
+  be used at; a default tier and toggles inside it; and whether the player may
+  customize.
+- **Settling** picks the session's offer, tier and toggles from the offers and
+  the player's preference. With customization off the default applies; with it
+  on the player chooses within the allowance, less than the default included.
+  Whatever is settled must meet the genre's needs; a session never changes
+  platform.
+- **The preference is the player's wish**: a platform, an offer's ID, a tier
+  and toggles. It is persisted with the spec and fitted to the current
+  offers on every settle, since a share can change during a game: the same
+  offer or another on the same platform, the nearest allowed tier, toggles no
+  longer allowed switched off. A choice sent from the options dialog that lies
+  outside the caveats is refused instead.
+- **Toggles are switches in a fixed graph.** The settled toggles are their
+  starting positions; during play a toggle may go off at any time and on when
+  the offer allows it at the session's tier. A block whose toggle is off does
+  no work and bills nothing, and what it made before stays.
+- **`engine.Validate`** reports a spec's errors and warnings, each with a field
+  path. Launch and resume refuse any error; a platform may call it ahead of a
+  launch.
 
 The catalogue is exposed as `engine.Platforms()`, as the transport's
 `GET platforms`, and printed by `cmd/models`.
@@ -169,17 +195,26 @@ state, keyed by the block's name.
 
 ## The session spec
 
-A session launches from one self-contained spec; the engine resolves nothing
-against platform data.
+A session launches from a spec and the offers it may run on; the engine
+resolves nothing against platform data.
 
 - **Scenario and guardrail** — the designer's text and the platform's
   youth-protection constraint, already resolved.
 - **Genre prompts** — the mechanics, belonging to the genre as a named map. A
   spec may replace any of them.
 - **Genre, title, image style.**
-- **AI configuration** — platform, tier, per-model-type pins and the voice.
-- **A key provider** — an injected function, so the stored spec holds no secret
-  and a rotated key takes effect on the next call.
+- **The player's preference** — the wish described above, naming an offer by
+  its ID, once the player has chosen.
+- **The voice.**
+
+The spec is what is stored. **Offers are live inputs** beside it, like
+persistence: `Launch`, `Resume` and `Validate` take them as an argument, and
+`Adapt` replaces them. Each is a platform, a key provider and caveats; the key
+provider is an injected function, so nothing stored holds a secret and a
+rotated key takes effect on the next call. An offer with errors, or without an
+ID of its own, is left out with a warning; no usable offer refuses the launch.
+Only the standalone launcher and the engine's tests supply the mock's offer.
+A launcher's game file keeps the two apart: `{ "spec": …, "offers": […] }`.
 
 The platform assembles a spec from its cascade; a standalone launcher or a third
 party assembles one by hand. The engine treats both the same.
@@ -197,6 +232,17 @@ key stays on the server.
 - **Storage is injected** and written at checkpoints during a turn.
 - **A schema version mismatch invalidates the session.** Sessions are
   disposable; Games and Users keep real migrations.
+- **A session may begin by choosing.** With more than one offer, or one the
+  player may customize, the graph is built and waits: the player's options
+  dialog reads the offers, sends a choice, and the game starts. Nothing runs
+  or bills before. A stored preference skips the dialog.
+- **Every settlement is announced** on the `settled` stream with the
+  preference, so the platform stores it with the spec; an in-game toggle
+  change is announced the same way.
+- **A running session adapts** when the platform passes it new offers: the
+  preference is fitted again, the blocks' adapters are replaced in place, and
+  the player is told what changed. An offer on another platform ends the
+  session.
 
 ## Code boundary and deployment
 

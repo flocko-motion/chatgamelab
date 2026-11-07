@@ -12,6 +12,7 @@ import (
 // NPC-Live's one portrait when the init stem hands it a single prompt, and
 // Adventure's per-turn illustration when the loop does.
 type Image struct {
+	Switch
 	name  string
 	image adapters.Image
 
@@ -61,10 +62,13 @@ func (b *Image) Start(ctx context.Context) {
 				}
 
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-				data, used, err := b.image.Generate(ctx, adapters.ImageRequest{Prompt: prompt})
-				if err == nil {
-					b.report(used)
-					b.out.Send(ports.ImageData(data))
+				// Off, the prompt is dropped; the cycle still completes for the gate.
+				if b.Active() {
+					data, used, err := b.image.Generate(ctx, adapters.ImageRequest{Prompt: prompt})
+					if err == nil {
+						b.report(used)
+						b.out.Send(ports.ImageData(data))
+					}
 				}
 				// Reported even when the call failed: a block owes the gate a
 				// working-then-ready cycle whatever came of the work, or one

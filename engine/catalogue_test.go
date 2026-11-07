@@ -35,10 +35,7 @@ func TestCatalogueListsItsPlatforms(t *testing.T) {
 		t.Errorf("platforms = %v, want %v", ids, want)
 	}
 
-	mock, err := platformInfo(PlatformMock)
-	if err != nil {
-		t.Fatal(err)
-	}
+	mock := Platforms()[2]
 	if mock.UserKeys {
 		t.Error("the mock takes no key")
 	}
@@ -87,5 +84,47 @@ func TestAcceptsKeys(t *testing.T) {
 		if got := AcceptsKeys(id); got != want {
 			t.Errorf("AcceptsKeys(%q) = %v, want %v", id, got, want)
 		}
+	}
+}
+
+// A caller holds a copy: changing what Platforms returned leaves the tier
+// tables, and the next caller's copy, as they were.
+func TestPlatformsAreCopies(t *testing.T) {
+	for _, p := range Platforms() {
+		for _, tier := range p.Tiers {
+			for kind, model := range tier.Models {
+				for name := range model.Params {
+					model.Params[name] = "tampered"
+				}
+				model.Name = "tampered"
+				tier.Models[kind] = model
+			}
+		}
+	}
+
+	for _, p := range Platforms() {
+		for _, tier := range p.Tiers {
+			for kind, model := range tier.Models {
+				if model.Name == "tampered" {
+					t.Errorf("%s/%s/%s: name changed through a copy", p.ID, tier.Tier, kind)
+				}
+				for name, value := range model.Params {
+					if value == "tampered" {
+						t.Errorf("%s/%s/%s: param %s changed through a copy", p.ID, tier.Tier, kind, name)
+					}
+				}
+			}
+		}
+	}
+
+	entry, _ := catalogueEntry(PlatformOpenAI)
+	models, err := entry.Models(TierLow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	models[ModelSpeech].Params[adapters.ParamVoice] = "tampered"
+	again, _ := entry.Models(TierLow)
+	if again[ModelSpeech].Params[adapters.ParamVoice] == "tampered" {
+		t.Error("a tier's model set shares its parameters with the table")
 	}
 }

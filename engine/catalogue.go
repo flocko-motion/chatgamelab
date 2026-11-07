@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"slices"
 
 	"engine/internal/adapters"
@@ -45,11 +44,17 @@ type PlatformInfo struct {
 	Tiers    []TierModels `json:"tiers"`
 }
 
-// Platforms is the engine's catalogue. The mock comes last; whoever lists it
-// decides when a person sees it.
+// catalogueEntries is every platform the engine runs, the mock last.
+func catalogueEntries() []adapters.Platform {
+	return []adapters.Platform{openai.Platform(), mistral.Platform(), mock.Platform()}
+}
+
+// Platforms is the engine's catalogue, a copy the caller may change. The mock
+// comes last; whoever lists it decides when a person sees it.
 func Platforms() []PlatformInfo {
 	var out []PlatformInfo
-	for _, p := range []adapters.Platform{openai.Platform(), mistral.Platform(), mock.Platform()} {
+	for _, p := range catalogueEntries() {
+		p = p.Clone()
 		out = append(out, PlatformInfo{
 			ID:       Platform(p.ID),
 			Name:     p.Name,
@@ -98,32 +103,4 @@ func missing(g Genre, toggles Toggles) []Toggle {
 		}
 	}
 	return out
-}
-
-// platformInfo finds a platform in the catalogue; empty means the mock.
-func platformInfo(id Platform) (PlatformInfo, error) {
-	if id == "" {
-		id = PlatformMock
-	}
-	all := Platforms()
-	i := slices.IndexFunc(all, func(p PlatformInfo) bool { return p.ID == id })
-	if i < 0 {
-		return PlatformInfo{}, fmt.Errorf("unknown platform %q", id)
-	}
-	return all[i], nil
-}
-
-// playable refuses a genre the platform lacks a feature for, before anything is built.
-func (spec SessionSpec) playable() error {
-	if !slices.Contains(Genres(), spec.Genre) {
-		return fmt.Errorf("unknown genre %q", spec.Genre)
-	}
-	p, err := platformInfo(spec.Platform)
-	if err != nil {
-		return err
-	}
-	if lacks := missing(spec.Genre, p.Toggles); lacks != nil {
-		return fmt.Errorf("platform %q cannot run %s: it lacks %v", p.ID, spec.Genre, lacks)
-	}
-	return nil
 }

@@ -43,7 +43,7 @@ func TestHeadlessPlayerFollowsASession(t *testing.T) {
 		ID:        "integration",
 		Scenario:  "You are the keeper of a bridge. You never concede passage.",
 		Guardrail: "Suitable for a 13-year-old.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,5 +73,67 @@ func TestHeadlessPlayerFollowsASession(t *testing.T) {
 	}
 	if strings.Contains(text, "image:      (none)") {
 		t.Error("the portrait never reached the client, so the init stem did not finish")
+	}
+}
+
+// The headless player goes through the options dialog: it finds the session
+// choosing, has a choice outside the caveats refused, reloads and finds the
+// dialog again, then chooses and follows the game as before.
+func TestHeadlessPlayerChooses(t *testing.T) {
+	node, err := exec.LookPath("node")
+	if err != nil {
+		t.Skip("node not installed; skipping the headless player integration test")
+	}
+	harness, err := filepath.Abs("../web/dist/play.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	live := engine.Toggles{Images: true, AudioLive: true}
+	custom := engine.MockOffer()
+	custom.ID = "custom"
+	custom.Caveats = engine.Caveats{
+		Allow:        map[engine.Tier]engine.Toggles{engine.TierLow: live, engine.TierMedium: live},
+		Default:      engine.Choice{Tier: engine.TierMedium, Toggles: live},
+		Customizable: true,
+	}
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:     engine.GenreNPCLive,
+		ID:        "choosing",
+		Scenario:  "You are the keeper of a bridge.",
+		Guardrail: "Suitable for a 13-year-old.",
+	}, []engine.Offer{engine.MockOffer(), custom})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "choosing", session)
+
+	runCtx, cancelRun := context.WithTimeout(ctx, 30*time.Second)
+	defer cancelRun()
+
+	out, err := exec.CommandContext(runCtx, node, harness, srv.URL, "choosing",
+		"--bad=custom:high:images,audio-live", "--choose=custom:low:images,audio-live").CombinedOutput()
+	t.Logf("headless run:\n%s", out)
+	if err != nil {
+		t.Fatalf("headless player failed: %v", err)
+	}
+
+	text := string(out)
+	for _, want := range []string{
+		"choosing:   true",
+		"offers:     2",
+		"refused:    true",
+		"reloaded:   choosing=true",
+		"settled:    low",
+		"started:    true",
+	} {
+		if !strings.Contains(text, want) {
+			t.Errorf("headless output missing %q", want)
+		}
 	}
 }

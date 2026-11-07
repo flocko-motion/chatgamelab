@@ -22,7 +22,7 @@ func TestAdventureThroughPublicAPI(t *testing.T) {
 		Genre:   engine.GenreAdventure,
 		ID:      "test-adventure",
 		Persist: store,
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestLiveGenreIsSpokenOnly(t *testing.T) {
 	s, err := engine.Launch(ctx, engine.SessionSpec{
 		Genre:     engine.GenreNPCLive,
 		Guardrail: "refuse passage",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func TestConnectionIsInvitedOnlyOnceTheGameBegins(t *testing.T) {
 	s, err := engine.Launch(ctx, engine.SessionSpec{
 		Genre:    engine.GenreNPCLive,
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,7 +123,7 @@ func TestConnectIsRefusedByATurnBasedGenre(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure})
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,7 +144,7 @@ func TestUnsupportedInputKindIsRejected(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure})
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,7 +159,7 @@ func TestUnsupportedInputKindIsRejected(t *testing.T) {
 }
 
 func TestUnknownGenreRefused(t *testing.T) {
-	_, err := engine.Launch(context.Background(), engine.SessionSpec{Genre: "quiz"})
+	_, err := engine.Launch(context.Background(), engine.SessionSpec{Genre: "quiz"}, mockOffers())
 	if err == nil {
 		t.Fatal("expected an error for an unknown genre")
 	}
@@ -179,28 +179,38 @@ func remaining(m map[string]bool) int {
 // rather than discovering the problem on the first model call.
 func TestRealPlatformNeedsKeyFunc(t *testing.T) {
 	_, err := engine.Launch(context.Background(), engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
-		Platform: engine.PlatformOpenAI,
-	})
+		Genre: engine.GenreNPCLive,
+	}, []engine.Offer{openaiOffer(nil)})
 	if err == nil {
 		t.Fatal("expected a launch error when no Keys function is injected")
 	}
 }
 
-// The key must not be reachable from a serialised spec, because that blob is
-// what gets persisted.
-func TestSpecMarshalsWithoutSecrets(t *testing.T) {
-	spec := engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
-		Platform: engine.PlatformOpenAI,
-		Keys:     func(context.Context) (string, error) { return "sk-should-not-appear", nil },
+// A serialised spec is what gets stored, so it holds the player's preference
+// and never the offers: those are live, and carry the keys.
+func TestSpecMarshalsWithoutOffers(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	offer := openaiOffer(func(context.Context) (string, error) { return "sk-should-not-appear", nil })
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreNPCLive, ID: "stored"}, []engine.Offer{offer})
+	if err != nil {
+		t.Fatal(err)
 	}
+	defer s.Close()
+
+	spec := engine.SessionSpec{Genre: engine.GenreNPCLive, ID: "stored", Preference: s.Preference()}
 	blob, err := json.Marshal(spec)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(string(blob), "sk-should-not-appear") || strings.Contains(string(blob), "Keys") {
-		t.Errorf("serialised spec leaked the key path: %s", blob)
+	for _, banned := range []string{`"offers"`, "caveats", "sk-should-not-appear", "Keys"} {
+		if strings.Contains(string(blob), banned) {
+			t.Errorf("serialised spec holds %s: %s", banned, blob)
+		}
+	}
+	if !strings.Contains(string(blob), `"preference"`) || !strings.Contains(string(blob), `"offer":"openai-low"`) {
+		t.Errorf("serialised spec lost the preference: %s", blob)
 	}
 }
 
@@ -214,13 +224,13 @@ func TestPortraitFailureDoesNotStopTheSession(t *testing.T) {
 	s, err := engine.Launch(ctx, engine.SessionSpec{
 		Genre:    engine.GenreNPCLive,
 		ID:       "no-portrait",
-		Platform: engine.PlatformOpenAI,
 		Scenario: "a bridge keeper",
+	}, []engine.Offer{
 		// A key resolver that fails stands in for any init work that cannot
 		// complete: the image call never gets a key.
-		Keys: func(context.Context) (string, error) {
+		openaiOffer(func(context.Context) (string, error) {
 			return "", errors.New("no key for you")
-		},
+		}),
 	})
 	if err != nil {
 		t.Fatalf("a failed portrait must not stop the session: %v", err)
@@ -244,7 +254,7 @@ func TestPortraitArrivesWithoutBeingTriggered(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "portrait",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -279,7 +289,7 @@ func TestBlocksReportTheirPhases(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "phases",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -325,7 +335,7 @@ func TestGateOpeningIsVisibleOnTheStream(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "gated",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -363,7 +373,7 @@ func TestOpeningCueSurvivesTheWaitForAPlayer(t *testing.T) {
 		Genre:    engine.GenreNPCLive,
 		ID:       "early",
 		Scenario: "You are the keeper of a bridge.",
-	})
+	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -407,11 +417,34 @@ func awaitConnection(ctx context.Context, s *engine.Session) error {
 // rather than fail once a player connects.
 func TestNPCLiveRefusesMistral(t *testing.T) {
 	_, err := engine.Launch(context.Background(), engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Genre: engine.GenreNPCLive,
+	}, []engine.Offer{{
 		Platform: engine.PlatformMistral,
+		ID:       "mistral",
 		Keys:     func(context.Context) (string, error) { return "k", nil },
-	})
+		Caveats: engine.Caveats{
+			Allow:   map[engine.Tier]engine.Toggles{engine.TierLow: {Images: true}},
+			Default: engine.Choice{Tier: engine.TierLow, Toggles: engine.Toggles{Images: true}},
+		},
+	}})
 	if err == nil || !strings.Contains(err.Error(), "audio-live") {
 		t.Fatalf("err = %v, want a refusal naming the missing audio-live toggle", err)
 	}
 }
+
+// openaiOffer is a single OpenAI offer at low, with what NPC-Live needs.
+func openaiOffer(keys engine.KeyFunc) engine.Offer {
+	needs := engine.Toggles{Images: true, AudioLive: true}
+	return engine.Offer{
+		Platform: engine.PlatformOpenAI,
+		ID:       "openai-low",
+		Keys:     keys,
+		Caveats: engine.Caveats{
+			Allow:   map[engine.Tier]engine.Toggles{engine.TierLow: needs},
+			Default: engine.Choice{Tier: engine.TierLow, Toggles: needs},
+		},
+	}
+}
+
+// mockOffers is what a test runs on: the mock, with nothing to choose.
+func mockOffers() []engine.Offer { return []engine.Offer{engine.MockOffer()} }

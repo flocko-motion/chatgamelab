@@ -2,6 +2,7 @@
 package genre
 
 import (
+	"engine/internal/adapters"
 	"engine/internal/blocks"
 	"engine/internal/ports"
 )
@@ -48,7 +49,12 @@ func NewAdventure(status map[string]string) *Wiring {
 	return &Wiring{
 		Graph: g,
 		Gate:  gate,
-		Say:   player.Say,
+		// The graph's shape is fixed; a toggle that is off stops its block working.
+		Switches: map[adapters.Toggle][]ports.Switchable{
+			adapters.ToggleImages:   {image},
+			adapters.ToggleAudioOut: {tts},
+		},
+		Say: player.Say,
 		// Typed only until Adventure wires push-to-talk transcription.
 		Inputs: []ports.InputMode{ports.InputText},
 		// A picture per turn, each belonging to the scene it illustrates.

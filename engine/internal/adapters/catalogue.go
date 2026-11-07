@@ -3,6 +3,7 @@ package adapters
 import (
 	"fmt"
 	"maps"
+	"slices"
 )
 
 // Tier is the session's quality setting. It decides how good a model is,
@@ -16,7 +17,8 @@ const (
 )
 
 // tierMax is not offered; stored data and specs that name it mean high.
-const tierMax Tier = "max"
+// Untyped, so it is no Tier value a schema generator would list.
+const tierMax = "max"
 
 // Tiers is every tier on offer, cheapest first.
 func Tiers() []Tier { return []Tier{TierLow, TierMedium, TierHigh} }
@@ -29,11 +31,11 @@ func (t Tier) Normal() Tier {
 	return t
 }
 
-// UnmarshalText applies Normal, so decoded data never carries a retired name.
-func (t *Tier) UnmarshalText(text []byte) error {
-	*t = Tier(text).Normal()
-	return nil
-}
+// Retired reports a name that is read as another tier.
+func (t Tier) Retired() bool { return t == tierMax }
+
+// Known reports a tier on offer, after reading a retired name.
+func (t Tier) Known() bool { return slices.Contains(Tiers(), t.Normal()) }
 
 // Label is the tier's name for a person choosing one.
 func (t Tier) Label() string {
@@ -136,6 +138,43 @@ func (t Toggles) Has(toggle Toggle) bool {
 	return false
 }
 
+// With is a copy with one toggle set.
+func (t Toggles) With(toggle Toggle, on bool) Toggles {
+	switch toggle {
+	case ToggleImages:
+		t.Images = on
+	case ToggleAudioOut:
+		t.AudioOut = on
+	case ToggleAudioIn:
+		t.AudioIn = on
+	case ToggleAudioLive:
+		t.AudioLive = on
+	}
+	return t
+}
+
+// On lists the toggles that are on, in display order.
+func (t Toggles) On() []Toggle {
+	var on []Toggle
+	for _, toggle := range AllToggles() {
+		if t.Has(toggle) {
+			on = append(on, toggle)
+		}
+	}
+	return on
+}
+
+// Beyond lists the toggles on here but off in limit.
+func (t Toggles) Beyond(limit Toggles) []Toggle {
+	var out []Toggle
+	for _, toggle := range t.On() {
+		if !limit.Has(toggle) {
+			out = append(out, toggle)
+		}
+	}
+	return out
+}
+
 // ModelTypes is what every tier must list: tooling and story, plus one type
 // per toggle that is on.
 func (t Toggles) ModelTypes() []ModelType {
@@ -183,8 +222,27 @@ func (p Platform) Models(tier Tier) (ModelSet, error) {
 	tier = tier.Normal()
 	for _, t := range p.Tiers {
 		if t.Tier == tier {
-			return maps.Clone(t.Models), nil
+			return t.Models.clone(), nil
 		}
 	}
 	return nil, fmt.Errorf("%s: unknown tier %q", p.ID, tier)
+}
+
+// Clone is a copy sharing no map with the tier tables, so a caller cannot change them.
+func (p Platform) Clone() Platform {
+	tiers := make([]TierModels, len(p.Tiers))
+	for i, t := range p.Tiers {
+		tiers[i] = TierModels{Tier: t.Tier, Label: t.Label, Models: t.Models.clone()}
+	}
+	p.Tiers = tiers
+	return p
+}
+
+func (s ModelSet) clone() ModelSet {
+	out := make(ModelSet, len(s))
+	for kind, model := range s {
+		model.Params = maps.Clone(model.Params)
+		out[kind] = model
+	}
+	return out
 }

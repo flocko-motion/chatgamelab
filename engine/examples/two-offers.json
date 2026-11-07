@@ -1,0 +1,52 @@
+{
+  "spec": {
+    "genre": "adventure",
+    "id": "two-offers",
+    "title": "The Bridge Quest, Your Way",
+    "mockPaceMs": 400,
+    "scenario": "A medieval bridge crossing guarded by a keeper.",
+    "guardrail": "Keep the story suitable for a 13-year-old.",
+    "status": {
+      "Health": "Good",
+      "Gold": "12"
+    }
+  },
+  "offers": [
+    {
+      "platform": "mock",
+      "id": "workshop-key",
+      "caveats": {
+        "allow": {
+          "low": {}
+        },
+        "default": {
+          "tier": "low",
+          "toggles": {}
+        }
+      }
+    },
+    {
+      "platform": "mock",
+      "id": "own-key",
+      "caveats": {
+        "allow": {
+          "low": {
+            "images": true,
+            "audio-out": true
+          },
+          "medium": {
+            "images": true,
+            "audio-out": true
+          }
+        },
+        "default": {
+          "tier": "medium",
+          "toggles": {
+            "images": true
+          }
+        },
+        "customizable": true
+      }
+    }
+  ]
+}

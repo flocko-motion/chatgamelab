@@ -135,5 +135,7 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	w.Observer = observer
 	w.Gate = gate
 	w.Live = live
+	// Only new pictures stop: the portrait, once made, stays.
+	w.Switches = map[adapters.Toggle][]ports.Switchable{adapters.ToggleImages: {portrait}}
 	return w, nil
 }

@@ -1,10 +1,16 @@
-// Command engineserver serves one game's SessionSpec file standalone, with the embedded player at /player/.
+// Command engineserver serves one game standalone, with the embedded player at /player/.
+//
+// A game file wraps what a platform keeps apart: the stored spec, and the live
+// offers a platform would build from its key cascade.
+//
+//	{ "spec": { … }, "offers": [ … ] }
 //
 //	engineserver examples/stopped-clock.json
 //	engineserver --api-key sk-... examples/stopped-clock.json
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"flag"
@@ -31,29 +37,35 @@ func main() {
 		os.Exit(2)
 	}
 
-	spec, err := loadSpec(flag.Arg(0))
+	game, err := loadGame(flag.Arg(0))
 	if err != nil {
 		log.Fatal(err)
 	}
+	spec, offers := game.Spec, game.Offers
 
-	keySource := "none needed: the mock platform makes no calls"
-	if spec.Platform == "" {
-		keySource = `none needed: this game names no platform, so it runs on the mock`
+	keySource := "none needed: this game makes no offer, so it runs on the mock"
+	// A dev launcher, so a game that makes no offer runs on the mock.
+	if len(offers) == 0 {
+		offers = []engine.Offer{engine.MockOffer()}
 	}
-	if spec.Platform != "" && spec.Platform != engine.PlatformMock {
+	for i, offer := range offers {
+		if offer.Platform == engine.PlatformMock {
+			keySource = "none needed: the mock platform makes no calls"
+			continue
+		}
 		var keys engine.KeyFunc
-		keys, keySource, err = keyFunc(spec.Platform, *apiKey)
+		keys, keySource, err = keyFunc(offer.Platform, *apiKey)
 		if err != nil {
 			log.Fatal(err)
 		}
-		spec.Keys = keys
+		offers[i].Keys = keys
 	}
 
 	// In-memory persistence: the session is forgotten on exit.
 	store := &engine.MemoryPersist{}
 	spec.Persist = store
 
-	s, err := engine.Launch(context.Background(), spec)
+	s, err := engine.Launch(context.Background(), spec, offers)
 	if err != nil {
 		log.Fatalf("launch: %v", err)
 	}
@@ -67,25 +79,42 @@ func main() {
 	srv := api.New(api.Options{Dev: true})
 	srv.RegisterOnly(spec.ID, s)
 
-	fmt.Printf("genre=%s platform=%s session=%s\n", spec.Genre, spec.Platform, spec.ID)
+	if settled := s.Snapshot().Settled; settled != nil {
+		fmt.Printf("genre=%s platform=%s tier=%s toggles=%v session=%s\n",
+			spec.Genre, settled.Platform, settled.Choice.Tier, settled.Choice.Toggles.On(), spec.ID)
+	} else {
+		fmt.Printf("genre=%s session=%s: waiting for the player to choose among %d offers\n",
+			spec.Genre, spec.ID, len(offers))
+	}
 	fmt.Printf("  api key:  %s\n", keySource)
 	fmt.Printf("  player  http://localhost%s/player/\n", *addr)
 	fmt.Printf("  graph   http://localhost%s/sessions/%s/graph\n", *addr, spec.ID)
 	log.Fatal(http.ListenAndServe(*addr, srv.Handler()))
 }
 
-// loadSpec reads a hand-assembled spec, which carries no key.
-func loadSpec(path string) (engine.SessionSpec, error) {
-	var spec engine.SessionSpec
+// game is a dev launcher's file: the spec a platform would store, and the
+// offers it would build live. Keeping them apart in the file keeps the offers
+// from being mistaken for something stored.
+type game struct {
+	Spec   engine.SessionSpec `json:"spec"`
+	Offers []engine.Offer     `json:"offers,omitempty"`
+}
+
+// loadGame reads a hand-assembled game file, which carries no key.
+func loadGame(path string) (game, error) {
+	var g game
 
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return spec, err
+		return g, err
 	}
-	if err := json.Unmarshal(raw, &spec); err != nil {
-		return spec, fmt.Errorf("%s: %w", path, err)
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	// A field the format does not know, such as offers inside the spec, is a mistake.
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&g); err != nil {
+		return g, fmt.Errorf("%s: %w", path, err)
 	}
-	return spec, nil
+	return g, nil
 }
 
 // keyFunc reads --api-key, then ~/.chatgamelab/config.yaml, reporting the source so the account is visible.
@@ -118,6 +147,6 @@ func fingerprint(key string) string {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: engineserver [flags] <sessionspec.json>\n\nflags:\n")
+	fmt.Fprintf(os.Stderr, "usage: engineserver [flags] <game.json>\n\nflags:\n")
 	flag.PrintDefaults()
 }

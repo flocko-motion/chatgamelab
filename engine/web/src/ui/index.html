@@ -13,10 +13,18 @@
           <strong id="title">…</strong>
         </div>
         <div class="game-tools">
+          <button id="pictures" class="tool-toggle" type="button" aria-pressed="true" hidden>Pictures on</button>
           <select id="theme" aria-label="Theme" title="Theme"></select>
         </div>
       </header>
       <div id="props" class="statusbar" hidden></div>
+
+      <form id="options" class="options-dialog" hidden>
+        <h2 class="options-title">How do you want to play?</h2>
+        <div id="options-offers" class="options-offers"></div>
+        <p id="options-problem" class="options-problem" hidden></p>
+        <button id="options-start" class="options-start" type="submit">Start the game</button>
+      </form>
 
       <div class="scene-area">
         <div id="background" class="scene-bg" aria-hidden="true"></div>
