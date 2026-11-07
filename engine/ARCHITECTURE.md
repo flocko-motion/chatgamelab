@@ -188,7 +188,14 @@ in the tier table and nowhere else.
   launch.
 
 The catalogue is exposed as `engine.Platforms()`, as the transport's
-`GET platforms`, and printed by `cmd/models`.
+`GET platforms`, and printed by `cmd/models`. Beside it, `GET genres` lists each
+genre with the toggles it needs, and `GET themes` the playback-engine's looks,
+for the game editor.
+
+- **`engine.CheckOffer`** asks an offer's provider whether it accepts the key,
+  with a request that costs nothing, and tells a rejected key from a provider
+  that does not answer. The platform calls it before creating a session; the
+  mock always passes.
 
 Conversation continuity — the thread, the live conversation — is per-block
 state, keyed by the block's name.
@@ -203,6 +210,10 @@ resolves nothing against platform data.
 - **Genre prompts** — the mechanics, belonging to the genre as a named map. A
   spec may replace any of them.
 - **Genre, title, image style.**
+- **Theme** — the playback-engine's look, one of its presets; empty is the
+  default look. Listed by `GET themes`.
+- **Language** — the player's, fixed at creation and carried to the
+  playback-engine.
 - **The player's preference** — the wish described above, naming an offer by
   its ID, once the player has chosen.
 - **The voice.**
@@ -226,12 +237,27 @@ bearer handle scoped to one session, so an embedded player can hold it while the
 key stays on the server.
 
 - **A session is its spec, its state and its event log.** The spec is fixed at
-  launch; the state holds what blocks export, such as conversation continuity.
-- **History is the ordered log of everything that reached an output sink**,
-  replayed through the same client path as live events.
-- **Storage is injected** and written at checkpoints during a turn.
-- **A schema version mismatch invalidates the session.** Sessions are
-  disposable; Games and Users keep real migrations.
+  launch, apart from the player's preference; the state holds what blocks
+  export, such as conversation continuity and status values, and what the
+  session has spent.
+- **History is the ordered log of what a player reads back**: text, pictures,
+  status and errors, replayed through the same client path as live events.
+  Live audio, narration, phases and usage are not part of it.
+- **Storage is injected** as `engine.Persist`: save an event, save the state,
+  load the state, load the history. The state is saved at launch, before it
+  returns, and at checkpoints while the session runs; each history event as it
+  happens. The engine ships a memory store and one that keeps nothing.
+- **`Resume` restores a session by its ID** from the loaded state and history,
+  on fresh offers. A schema version mismatch, or a block the wiring no longer
+  has, refuses the resume as stale. Sessions are disposable; Games and Users
+  keep real migrations.
+- **A live conversation is not re-attached** after a restart: it comes back
+  paused, and the player resumes it with one press from the kept transcript,
+  as after idling.
+- **A refusal names its problem** — no key, a genre the key cannot run, no
+  plays left, a rejected key, an unreachable provider, a stale or unknown
+  session — so the playback-engine can say why. A key rejected during play is
+  reported on the `problem` stream, distinct from a lost connection.
 - **A session may begin by choosing.** With more than one offer, or one the
   player may customize, the graph is built and waits: the player's options
   dialog reads the offers, sends a choice, and the game starts. Nothing runs
@@ -259,6 +285,14 @@ internals out of reach of any other module.
 
   The transport deals in sessions and the catalogue; authentication, roles and
   share links belong to whoever mounts it.
+- **Creating goes through the transport, doing the mounting server's work.**
+  `POST sessions` names a game or a share token, the player's language and a
+  one-time key; the mounting server supplies the function that launches the
+  session (the platform from its game and key cascade, the standalone launcher
+  from its game file). A repeat of the one-time key within ten minutes answers
+  the same session.
+- **A session not in memory is restored lazily** through a resume function the
+  mounting server supplies, by the first request that names it.
 - **The player is embedded** in the module and addresses the engine with
   relative URLs under any mount point.
 
@@ -299,7 +333,7 @@ key and the provider's session id stay on the server.
 
 **An idle conversation is closed**, since a live session bills while open, and
 resumed on request: from a fork of the provider's stored session, or from a
-fresh session seeded with the transcript the engine kept in memory.
+fresh session seeded with the transcript the engine kept.
 
 A reloading page rebuilds from the session's topology, state and history.
 
@@ -317,6 +351,15 @@ wants to own when things render.
   no JavaScript toolchain.
 - **One player** serves the platform and every embedder, through the same
   iframe.
+- **The playback-engine starts and resumes sessions itself.** Opened with a
+  session ID it resumes that one; opened with `new` and a game or a share token
+  it creates one. It then replaces its own URL with the session's, without a
+  reload, and tells a same-origin parent page by
+  `postMessage({ type: "session", id })`. It remembers the session in its own
+  browser storage per game or share, so a host page reloaded with `new` offers
+  to continue or start anew. Every launch error is shown on its launch panel,
+  with a way to try again or start anew. The headless player follows the same
+  flow.
 
 ## Testing
 
@@ -336,16 +379,16 @@ session end to end with the headless player.
 - The HTTP transport, the standalone launcher, and the headless player with its
   instrumentation view.
 - The mock platform.
+- Persistence, resume with schema-version refusal, the create endpoint and
+  the key check.
 
 ### Missing
 
 - **Adventure's real blocks** — tool call, threaded call, extraction, speech
   synthesis and transcription. Adventure is wired from dummies.
 - **The observer's thread** — it judges each line on its own.
-- **Persistence** — storage is in-memory only; the platform's implementation and
-  schema-version invalidation are still to come.
 - **Platform integration** — the server neither launches nor mounts the engine
-  yet. Once it does, v1 is deleted, frontend and backend both.
+  yet, nor stores sessions on its tables.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the player needs.
 - **A veto block**, once the spec settles whether a turn can be rejected.

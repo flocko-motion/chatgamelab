@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"engine"
+	"engine/api"
 )
 
 const output = "web/src/protocol.ts"
@@ -108,6 +109,19 @@ func generate() []byte {
 	b.WriteString("/** What the player may choose from, and what the session settled on. */\n")
 	writeInterface(&b, "Options", reflect.TypeOf(engine.Options{}))
 
+	b.WriteString("/** Why a session cannot start or go on. */\n")
+	b.WriteString("export type Problem =\n")
+	for _, problem := range engine.Problems() {
+		fmt.Fprintf(&b, "  | %q\n", problem)
+	}
+	b.WriteString("  ;\n\n")
+	b.WriteString("/** A refusal: a transport's error body, and a `problem` event's value. */\n")
+	writeInterface(&b, "Refusal", reflect.TypeOf(engine.Refusal{}))
+	b.WriteString("/** What the playback-engine sends to start a session. */\n")
+	writeInterface(&b, "CreateRequest", reflect.TypeOf(api.CreateRequest{}))
+	b.WriteString("/** The session a creation made. */\n")
+	writeInterface(&b, "CreateResponse", reflect.TypeOf(api.CreateResponse{}))
+
 	b.WriteString("export function isSessionEvent(value: unknown): value is SessionEvent {\n")
 	b.WriteString("  if (typeof value !== \"object\" || value === null) return false;\n")
 	b.WriteString("  const candidate = value as Partial<SessionEvent>;\n")
@@ -158,6 +172,9 @@ func tsFields(t reflect.Type) []tsField {
 			}
 		}
 		ts := tsType(f.Type)
+		if f.Type == reflect.TypeOf(engine.Problem("")) {
+			ts = "Problem"
+		}
 		// The stream is the one field whose values are closed, so it carries
 		// the union rather than a bare string.
 		if name == "Stream" {

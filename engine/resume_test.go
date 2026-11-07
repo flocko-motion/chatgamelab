@@ -2,6 +2,7 @@ package engine_test
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -9,35 +10,43 @@ import (
 	"engine"
 )
 
-// A resumed session continues its provider-side thread rather than starting a
-// new one. Without this, every restart silently loses the conversation the
-// model is holding.
-func TestResumeContinuesTheThread(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	first, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, mockOffers())
+// launchStored launches on a memory store, as a platform launches on its tables.
+func launchStored(t *testing.T, store engine.Persist, spec engine.SessionSpec) *engine.Session {
+	t.Helper()
+	spec.Persist = store
+	s, err := engine.Launch(context.Background(), spec, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
+	return s
+}
+
+func resume(t *testing.T, store engine.Persist, id string) *engine.Session {
+	t.Helper()
+	s, err := engine.Resume(context.Background(), id, store, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(s.Close)
+	return s
+}
+
+// A session stored and resumed continues its provider-side thread and shows
+// the conversation so far. Without this, every restart silently loses the
+// conversation the model is holding.
+func TestResumeContinuesTheThread(t *testing.T) {
+	store := &engine.MemoryPersist{}
+	first := launchStored(t, store, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"})
 	if err := first.Say("I try to cross the bridge"); err != nil {
 		t.Fatal(err)
 	}
 	waitFor(t, first, "text", "[prose turn 1]")
-
-	state := first.State()
 	first.Close()
 
-	if len(state.Blocks) == 0 {
-		t.Fatal("nothing was exported; a threaded block must carry state")
+	resumed := resume(t, store, "s1")
+	if !strings.Contains(textOf(resumed.History()), "[prose turn 1]") {
+		t.Errorf("the restored history lacks the first turn: %v", resumed.History())
 	}
-
-	resumed, err := engine.Resume(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, state, mockOffers())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resumed.Close()
-
 	if err := resumed.Say("I keep going"); err != nil {
 		t.Fatal(err)
 	}
@@ -45,34 +54,153 @@ func TestResumeContinuesTheThread(t *testing.T) {
 	waitFor(t, resumed, "text", "[prose turn 2]")
 }
 
-// A fresh launch with the same spec starts over, which is what makes the test
-// above meaningful.
-func TestFreshLaunchDoesNotContinue(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+// The stored spec is the session's: a resume needs nothing but the ID.
+func TestResumeKeepsTheSpecAndPreference(t *testing.T) {
+	store := &engine.MemoryPersist{}
+	first := launchStored(t, store, engine.SessionSpec{
+		Genre: engine.GenreAdventure, ID: "s5", Title: "The Bridge", Theme: "noir", Language: "de",
+	})
+	first.Close()
 
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s2"}, mockOffers())
+	resumed := resume(t, store, "s5")
+	topology := resumed.Topology()
+	if topology.Title != "The Bridge" || topology.Theme != "noir" || topology.Language != "de" {
+		t.Errorf("topology = %+v, want the stored title, theme and language", topology)
+	}
+	if pref := resumed.Preference(); pref == nil || pref.Offer != "mock" {
+		t.Errorf("preference = %+v, want the one settled at launch", pref)
+	}
+}
+
+// A session stored by another version of the engine is refused, so the
+// playback-engine can offer to start anew.
+func TestResumeRefusesAnotherVersion(t *testing.T) {
+	store := &engine.MemoryPersist{}
+	first := launchStored(t, store, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s6"})
+	first.Close()
+
+	stored, err := store.LoadState(context.Background(), "s6")
 	if err != nil {
 		t.Fatal(err)
 	}
+	stored.Version = engine.SchemaVersion - 1
+	if err := store.SaveState(context.Background(), "s6", stored); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = engine.Resume(context.Background(), "s6", store, mockOffers())
+	if !errors.Is(err, engine.ErrStale) {
+		t.Fatalf("got %v, want ErrStale", err)
+	}
+}
+
+// State naming a block the wiring no longer has means the wiring changed under
+// a stored session. That has to fail rather than half-restore.
+func TestResumeRefusesUnknownBlock(t *testing.T) {
+	store := &engine.MemoryPersist{}
+	if err := store.SaveState(context.Background(), "s3", engine.Stored{
+		Version: engine.SchemaVersion,
+		Spec:    engine.SessionSpec{Genre: engine.GenreAdventure},
+		State:   engine.SessionState{Blocks: map[string]string{"a-block-that-left": "resp-9"}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	_, err := engine.Resume(context.Background(), "s3", store, mockOffers())
+	if !errors.Is(err, engine.ErrStale) {
+		t.Fatalf("got %v, want ErrStale", err)
+	}
+	if !strings.Contains(err.Error(), "a-block-that-left") {
+		t.Errorf("error should name the missing block, got: %v", err)
+	}
+}
+
+func TestResumeOfNothingIsUnknown(t *testing.T) {
+	_, err := engine.Resume(context.Background(), "never", &engine.MemoryPersist{}, mockOffers())
+	if !errors.Is(err, engine.ErrUnknown) {
+		t.Fatalf("got %v, want ErrUnknown", err)
+	}
+}
+
+// A fresh launch with the same spec starts over, which is what makes the
+// resume tests meaningful.
+func TestFreshLaunchDoesNotContinue(t *testing.T) {
+	s := launchStored(t, &engine.MemoryPersist{}, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s2"})
 	defer s.Close()
 
 	s.Say("I try to cross the bridge")
 	waitFor(t, s, "text", "[prose turn 1]")
 }
 
-// State naming a block the wiring no longer has means the wiring changed under
-// a stored session. That has to fail rather than half-restore.
-func TestResumeRefusesUnknownBlock(t *testing.T) {
-	_, err := engine.Resume(context.Background(),
-		engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s3"},
-		engine.SessionState{Blocks: map[string]string{"a-block-that-left": "resp-9"}}, mockOffers())
-	if err == nil {
-		t.Fatal("expected a resume against a changed wiring to fail")
+// Status values are not a handle to something a provider remembers: if the
+// engine loses them, they are gone, and the player's status bar resets. So they
+// have to survive a resume too.
+func TestResumeRestoresStatusValues(t *testing.T) {
+	store := &engine.MemoryPersist{}
+	first := launchStored(t, store, engine.SessionSpec{
+		Genre:  engine.GenreAdventure,
+		ID:     "s4",
+		Status: map[string]string{"Health": "Wounded", "Gold": "12"},
+	})
+	first.Say("I press on")
+	waitFor(t, first, "props", "map[Gold:12 Health:Wounded")
+	first.Close()
+
+	resumed := resume(t, store, "s4")
+	if got := resumed.Snapshot().Props["Gold"]; got != "12" {
+		t.Errorf("restored props = %v, want the stored values", resumed.Snapshot().Props)
 	}
-	if !strings.Contains(err.Error(), "a-block-that-left") {
-		t.Errorf("error should name the missing block, got: %v", err)
+	waitFor(t, resumed, "props", "map[Gold:12 Health:Wounded")
+}
+
+// A live conversation open before a restart is not re-attached: it comes back
+// paused, for the player to resume with one press, and the character does not
+// greet again.
+func TestResumedConversationWaitsPaused(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &engine.MemoryPersist{}
+	spec := engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "live", Persist: store,
+		Scenario: "You keep a bridge.", Guardrail: "Suitable for a 13-year-old.",
 	}
+	first, err := engine.Launch(ctx, spec, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := awaitConnection(ctx, first); err != nil {
+		t.Fatal(err)
+	}
+	waitFor(t, first, "text", "")
+	first.Close()
+
+	resumed := resume(t, store, "live")
+	if got := resumed.Snapshot().Conversation; got != "paused" {
+		t.Errorf("conversation = %q, want paused", got)
+	}
+	if countStream(resumed.History(), "image") == 0 {
+		t.Error("the portrait was not kept")
+	}
+}
+
+func textOf(events []engine.Event) string {
+	var b strings.Builder
+	for _, e := range events {
+		if e.Stream == "text" {
+			b.WriteString(e.Value)
+		}
+	}
+	return b.String()
+}
+
+func countStream(events []engine.Event, stream string) int {
+	n := 0
+	for _, e := range events {
+		if e.Stream == stream {
+			n++
+		}
+	}
+	return n
 }
 
 func waitFor(t *testing.T, s *engine.Session, stream, prefix string) {
@@ -88,37 +216,4 @@ func waitFor(t *testing.T, s *engine.Session, stream, prefix string) {
 			t.Fatalf("never saw %s event starting %q", stream, prefix)
 		}
 	}
-}
-
-// Status values are not a handle to something a provider remembers: if the
-// engine loses them, they are gone, and the player's status bar resets. So they
-// have to survive a resume too.
-func TestResumeRestoresStatusValues(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	spec := engine.SessionSpec{
-		Genre:  engine.GenreAdventure,
-		ID:     "s4",
-		Status: map[string]string{"Health": "Wounded", "Gold": "12"},
-	}
-
-	first, err := engine.Launch(ctx, spec, mockOffers())
-	if err != nil {
-		t.Fatal(err)
-	}
-	first.Say("I press on")
-	waitFor(t, first, "props", "map[Gold:12 Health:Wounded")
-	state := first.State()
-	first.Close()
-
-	// Relaunch with no seed at all: whatever the player sees must come from the
-	// restored state rather than from the spec.
-	resumed, err := engine.Resume(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s4"}, state, mockOffers())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resumed.Close()
-
-	waitFor(t, resumed, "props", "map[Gold:12 Health:Wounded")
 }

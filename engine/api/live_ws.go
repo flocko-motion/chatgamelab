@@ -19,9 +19,8 @@ import (
 // SessionStream. Which one a client opens is decided by the genre's declared
 // interaction model, not by the client guessing.
 func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
-	s, id, ok := a.lookup(r)
+	s, ok := a.session(w, r)
 	if !ok {
-		http.Error(w, "unknown session "+id, http.StatusNotFound)
 		return
 	}
 

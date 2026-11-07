@@ -1,5 +1,5 @@
 /** Everything the UI could draw, so a test can play a full game and assert on it without a DOM. */
-import type { Options, Phase, Settled, Toggles, UsageReport } from "./protocol.js";
+import type { Options, Phase, Problem, Refusal, Settled, Toggles, UsageReport } from "./protocol.js";
 import type { VoiceState } from "./voice.js";
 
 /** "reconnecting" means the game is coming back; "failed" means it is not. */
@@ -43,6 +43,10 @@ export interface Topology {
   readonly inputs: string[];
   /** "standing": one picture for the whole session; "per-turn": one per moment. */
   readonly imagery: string;
+  /** The game's theme, a preset's name; absent is the default look. */
+  readonly theme?: string;
+  /** The player's language, fixed when the session was created. */
+  readonly language?: string;
 }
 
 /** Where a session stands, for a client that was not watching it happen. */
@@ -76,6 +80,10 @@ export interface PlayerState {
   notes: string[];
   /** What has gone wrong, in words a player can act on. */
   problem: string | null;
+  /** Why the session could not be reached, when the engine refused it. */
+  refusal: Refusal | null;
+  /** A fault during play that leaves the controls working, such as a rejected key. */
+  fault: string | null;
   /** The wiring, fetched once. Null until it arrives. */
   topology: Topology | null;
   /** What each block is doing right now, keyed by node name. */
@@ -111,6 +119,8 @@ export function emptyState(): PlayerState {
     audioChunks: 0,
     notes: [],
     problem: null,
+    refusal: null,
+    fault: null,
     topology: null,
     phases: {},
     usage: null,
@@ -124,6 +134,25 @@ export function emptyState(): PlayerState {
     options: null,
     settled: null,
   };
+}
+
+/** What each problem means to a player. */
+export const PROBLEM_TEXT: Record<Problem, string> = {
+  "no-key": "There is no AI key available to play this game.",
+  genre: "The available AI key cannot run this kind of game.",
+  "no-plays": "This shared game has no plays left.",
+  "key-rejected": "The AI provider rejected the key.",
+  unreachable: "The AI provider cannot be reached right now.",
+  stale: "This game can no longer be continued.",
+  unknown: "This game session does not exist.",
+  denied: "You may not play this game.",
+  failed: "Something went wrong starting the game.",
+};
+
+/** A refusal in a player's words; one without a known problem says what it can. */
+export function explain(refusal: Refusal): string {
+  if (refusal.problem === "failed" && refusal.message) return refusal.message;
+  return PROBLEM_TEXT[refusal.problem] ?? PROBLEM_TEXT.failed;
 }
 
 /** A toggle's name in its JSON form. */

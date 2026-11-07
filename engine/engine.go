@@ -65,6 +65,12 @@ type SessionSpec struct {
 	// ImageStyle is how pictures are painted; empty takes the genre's default so the style stays stable.
 	ImageStyle string `json:"imageStyle,omitempty"`
 
+	// Theme names the playback-engine's look, one of Themes(); empty is the default look.
+	Theme string `json:"theme,omitempty"`
+
+	// Language is the player's, fixed at creation, as a BCP 47 tag such as "de".
+	Language string `json:"language,omitempty"`
+
 	// InitPrompt is sent once preparation is done, so the character speaks first.
 	InitPrompt string `json:"initPrompt,omitempty"`
 
@@ -112,7 +118,7 @@ type BlockState struct {
 
 // StreamNames is every stream a genre can wire, and the source of the generated TypeScript union.
 func StreamNames() []string {
-	return []string{"text", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error"}
+	return []string{"text", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem"}
 }
 
 type Session struct {
@@ -139,6 +145,12 @@ type Session struct {
 	ctx      context.Context
 	cancel   context.CancelFunc
 	once     sync.Once
+
+	// logMu keeps the stored history in the order the recorder holds it.
+	logMu sync.Mutex
+	// dirty asks the keeper for a checkpoint; kept closes once its last one is written.
+	dirty chan struct{}
+	kept  chan struct{}
 }
 
 // slots hold the adapters the blocks call, filled when the session settles
@@ -149,17 +161,42 @@ type slots struct {
 	image adapters.ImageSlot
 }
 
-// SessionState is what changes every turn and must survive a restart, keyed by block name.
-// Store it with a schema_version and invalidate on mismatch; JSON decoding misses semantic changes.
+// SessionState is what changes every turn and must survive a restart: what
+// each block exports, keyed by block name, and what the session has spent.
 type SessionState struct {
 	Blocks map[string]string `json:"blocks,omitempty"`
+	Usage  []UsageRecord     `json:"usage,omitempty"`
 }
 
 // Resume continues a stored session on the offers at hand, fitting its stored
-// preference to them. It errors on a stored block the wiring lacks: the wiring
-// changed under the session, invalidating it.
-func Resume(ctx context.Context, spec SessionSpec, state SessionState, offers []Offer) (*Session, error) {
-	return launch(ctx, spec, offers, &state)
+// preference to them. It refuses with ErrStale a session stored under another
+// SchemaVersion, or one whose blocks the wiring no longer has, and with
+// ErrUnknown one the store does not hold.
+//
+// The context is the session's lifetime, as for Launch.
+func Resume(ctx context.Context, id string, persist Persist, offers []Offer) (*Session, error) {
+	stored, err := persist.LoadState(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if stored.Version != SchemaVersion {
+		return nil, &Refusal{Problem: ProblemStale,
+			Message: fmt.Sprintf("the session was stored in version %d, and the engine reads %d", stored.Version, SchemaVersion)}
+	}
+	history, err := persist.LoadHistory(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	spec := stored.Spec
+	spec.ID = id
+	spec.Persist = persist
+	return launch(ctx, spec, offers, &resumption{state: stored.State, history: history})
+}
+
+// resumption is what a resumed session starts from.
+type resumption struct {
+	state   SessionState
+	history []Event
 }
 
 // Launch validates a spec and builds its genre's wiring. The game starts at
@@ -168,11 +205,16 @@ func Resume(ctx context.Context, spec SessionSpec, state SessionState, offers []
 //
 // The offers are live, like the key functions they carry: the platform builds
 // them from its key cascade for each launch, and they are never stored.
+//
+// The context is the session's lifetime: a launch from a request handler
+// passes one that outlives the request, such as context.WithoutCancel's. The
+// session's first state is saved before Launch returns, and a failed save
+// refuses the launch.
 func Launch(ctx context.Context, spec SessionSpec, offers []Offer) (*Session, error) {
 	return launch(ctx, spec, offers, nil)
 }
 
-func launch(ctx context.Context, spec SessionSpec, offers []Offer, state *SessionState) (*Session, error) {
+func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumption) (*Session, error) {
 	if err := refusal(Validate(spec, offers)); err != nil {
 		return nil, err
 	}
@@ -212,12 +254,15 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, state *Sessio
 	if err := w.Graph.Validate(); err != nil {
 		return nil, err
 	}
+	s.watchKeys()
 
 	// Restored before anything starts, so the first turn runs on the continued thread.
-	if state != nil && len(state.Blocks) > 0 {
-		if err := w.Graph.RestoreState(state.Blocks); err != nil {
-			return nil, err
+	if from != nil {
+		if err := w.Graph.RestoreState(from.state.Blocks); err != nil {
+			return nil, &Refusal{Problem: ProblemStale, Message: err.Error()}
 		}
+		s.usage.restore(from.state.Usage)
+		s.recorder.restore(from.history)
 	}
 
 	if spec.Persist == nil {
@@ -231,6 +276,16 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, state *Sessio
 	s.wiring = w
 	s.ctx, s.cancel = context.WithCancel(ctx)
 	s.out.ready = make(chan struct{}, 1)
+	s.dirty = make(chan struct{}, 1)
+	s.kept = make(chan struct{})
+
+	// Saved before anything runs, so a session the platform has created can
+	// always be resumed.
+	if err := s.saveState(); err != nil {
+		s.cancel()
+		return nil, fmt.Errorf("store the session: %w", err)
+	}
+	go s.keep()
 	go s.deliver()
 
 	// Subscribed before Start, or the opening phases and the one invitation would be missed.
@@ -271,11 +326,10 @@ func (s *Session) merge(ctx context.Context) {
 						return
 					}
 					ev := Event{Stream: name, Value: v}
-					s.recorder.record(ev)
+					s.log(ev)
 					if name == "props" {
 						s.recorder.recordProps(parseProps(v))
 					}
-					_ = s.spec.Persist.Save(ctx, s.spec.ID, ev)
 					select {
 					case s.events <- ev:
 					case <-ctx.Done():
@@ -305,7 +359,9 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 					continue
 				}
 				ev := Event{Stream: "state", Value: string(blob)}
-				_ = s.spec.Persist.Save(ctx, s.spec.ID, ev)
+				if state.Phase == ports.PhaseReady {
+					s.checkpoint()
+				}
 				select {
 				case s.events <- ev:
 				case <-ctx.Done():
@@ -334,7 +390,7 @@ func (s *Session) forwardUsage(ctx context.Context, usage <-chan ports.Usage) {
 					continue
 				}
 				ev := Event{Stream: "usage", Value: string(blob)}
-				_ = s.spec.Persist.Save(ctx, s.spec.ID, ev)
+				s.checkpoint()
 				select {
 				case s.events <- ev:
 				case <-ctx.Done():
@@ -501,6 +557,8 @@ func (s *Session) Describe() string { return s.wiring.Graph.Describe() }
 func (s *Session) Topology() ports.Topology {
 	t := s.wiring.Graph.Topology()
 	t.Title = s.spec.Title
+	t.Theme = s.spec.Theme
+	t.Language = s.spec.Language
 	t.Imagery = string(s.wiring.Imagery)
 	t.Inputs = make([]string, 0, len(s.wiring.Inputs))
 	for _, mode := range s.wiring.Inputs {
@@ -512,12 +570,14 @@ func (s *Session) Topology() ports.Topology {
 // Mermaid is the wiring as a flowchart.
 func (s *Session) Mermaid() string { return s.wiring.Graph.Mermaid() }
 
-// State is what Resume needs back, read at checkpoints because a conversation may never end.
-func (s *Session) State() SessionState {
-	return SessionState{Blocks: s.wiring.Graph.ExportState()}
-}
+// ID is the session's ID, the handle that plays it.
+func (s *Session) ID() string { return s.spec.ID }
 
-func (s *Session) Close() { s.once.Do(s.cancel) }
+// Close ends the session once its last checkpoint is written.
+func (s *Session) Close() {
+	s.once.Do(s.cancel)
+	<-s.kept
+}
 
 // parseProps reads back the rendered map a props sink emits; remove once props are structured on the wire.
 func parseProps(value string) map[string]string {

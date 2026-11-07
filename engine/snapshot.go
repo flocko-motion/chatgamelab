@@ -67,17 +67,40 @@ func newRecorder() *recorder {
 	return &recorder{phases: map[string]string{}, props: map[string]string{}}
 }
 
-func (r *recorder) record(e Event) {
+// record keeps an event that belongs to the history, and says whether it did.
+func (r *recorder) record(e Event) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	if !historyStreams[e.Stream] {
-		return
+		return false
 	}
 	r.history = append(r.history, e)
+	r.trim()
+	return true
+}
+
+// restore takes a stored history back, with the status values its last
+// props event carried.
+func (r *recorder) restore(history []Event) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for _, e := range history {
+		if !historyStreams[e.Stream] {
+			continue
+		}
+		r.history = append(r.history, e)
+		if e.Stream == "props" {
+			r.props = parseProps(e.Value)
+		}
+	}
+	r.trim()
+}
+
+// trim keeps the newest events. A conversation long enough to hit the limit
+// has lost nothing a player would scroll back to. Called with mu held.
+func (r *recorder) trim() {
 	if len(r.history) > historyLimit {
-		// A conversation long enough to hit this has lost nothing a player
-		// would scroll back to.
 		r.history = r.history[len(r.history)-historyLimit:]
 	}
 }

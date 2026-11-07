@@ -348,6 +348,9 @@ type Topology struct {
 	// Inputs and Imagery are stated by the genre; a client picks its controls and layout from them.
 	Inputs  []string `json:"inputs"`
 	Imagery string   `json:"imagery"`
+	// Theme and Language come from the session's spec, for the playback-engine to apply.
+	Theme    string `json:"theme,omitempty"`
+	Language string `json:"language,omitempty"`
 }
 
 type TopologyNode struct {

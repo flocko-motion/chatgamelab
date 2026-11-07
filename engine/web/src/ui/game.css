@@ -100,6 +100,39 @@ main {
 
 .options-dialog[hidden] { display: none; }
 
+/* ── Launch panel ───────────────────────────────────────────────────── */
+
+.launch-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.25rem;
+  max-width: 36rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.launch-panel[hidden] { display: none; }
+
+.launch-text { margin: 0; font-size: 1.0625rem; }
+
+.launch-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+.launch-action {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--game-player-color, #475569);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.launch-action.primary { color: #ffffff; background: var(--game-player-color, #475569); }
+
 .options-title { margin: 0; font-size: 1.25rem; font-weight: 600; }
 
 .options-offers { display: flex; flex-direction: column; gap: 0.75rem; }

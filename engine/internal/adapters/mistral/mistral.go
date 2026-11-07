@@ -8,4 +8,18 @@
 // genre that needs one cannot run on this platform.
 package mistral
 
+import (
+	"context"
+
+	"engine/internal/adapters"
+)
+
 const baseURL = "https://api.mistral.ai/v1"
+
+// ModelsURL is what a key check asks; a variable so a test can point it at a fake.
+var ModelsURL = baseURL + "/models"
+
+// Check asks Mistral whether it accepts the key, at no cost.
+func Check(ctx context.Context, keys adapters.KeyFunc) error {
+	return adapters.CheckKey(ctx, keys, ModelsURL)
+}

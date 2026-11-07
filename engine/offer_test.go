@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"encoding/json"
 	"slices"
 	"strings"
 	"testing"
@@ -405,8 +404,9 @@ func TestAdaptToAnotherPlatformEndsTheSession(t *testing.T) {
 	}
 }
 
-// The settled event carries the preference for the platform to store.
-func TestSettlingIsAnnouncedAndPersisted(t *testing.T) {
+// The settled event shows the player's choice, and the stored spec keeps it as
+// the preference.
+func TestSettlingIsAnnouncedAndStored(t *testing.T) {
 	store := &MemoryPersist{}
 	spec := adventure(mockAdventureOffer(true))
 	spec.spec.Persist = store
@@ -416,18 +416,13 @@ func TestSettlingIsAnnouncedAndPersisted(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Delivered by the session's sender, so it arrives shortly after.
-	var settled Settled
-	eventually(t, "the settled event to be persisted", func() bool {
-		for _, ev := range store.Snapshot() {
-			if ev.Stream == "settled" && json.Unmarshal([]byte(ev.Value), &settled) == nil {
-				return true
-			}
-		}
-		return false
+	eventually(t, "the preference to be stored", func() bool {
+		stored, err := store.LoadState(context.Background(), "announced")
+		return err == nil && stored.Spec.Preference != nil
 	})
-	if settled.Preference.Tier != TierLow || settled.Preference.Toggles != both {
-		t.Errorf("persisted %+v, want the player's choice", settled)
+	stored, _ := store.LoadState(context.Background(), "announced")
+	if pref := stored.Spec.Preference; pref.Tier != TierLow || pref.Toggles != both || pref.Offer != "share-a" {
+		t.Errorf("stored %+v, want the player's choice", pref)
 	}
 }
 

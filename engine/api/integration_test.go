@@ -2,13 +2,17 @@ package api_test
 
 import (
 	"context"
+	"fmt"
+	"net/http/httptest"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"engine"
+	"engine/api"
 )
 
 // The headless player follows a real session against a real engine, with no
@@ -135,5 +139,65 @@ func TestHeadlessPlayerChooses(t *testing.T) {
 		if !strings.Contains(text, want) {
 			t.Errorf("headless output missing %q", want)
 		}
+	}
+}
+
+// The headless player starts a session the way the page does for
+// ?new&game=…: it creates one, sees the same one answer a repeated one-time
+// key, rebuilds as a reload would, and follows the game.
+func TestHeadlessPlayerCreates(t *testing.T) {
+	node, err := exec.LookPath("node")
+	if err != nil {
+		t.Skip("node not installed; skipping the headless player integration test")
+	}
+	harness, err := filepath.Abs("../web/dist/play.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	store := &engine.MemoryPersist{}
+	var launches atomic.Int32
+	a := api.New(api.Options{
+		Dev: true,
+		Create: func(ctx context.Context, req api.CreateRequest) (*engine.Session, error) {
+			n := launches.Add(1)
+			return engine.Launch(context.WithoutCancel(ctx), engine.SessionSpec{
+				Genre:     engine.GenreNPCLive,
+				ID:        fmt.Sprintf("%s-%d", req.Game, n),
+				Scenario:  "You are the keeper of a bridge.",
+				Guardrail: "Suitable for a 13-year-old.",
+				Language:  req.Language,
+				Persist:   store,
+			}, mockOffers())
+		},
+		Resume: func(ctx context.Context, id string) (*engine.Session, error) {
+			return engine.Resume(context.WithoutCancel(ctx), id, store, mockOffers())
+		},
+	})
+	srv := httptest.NewServer(a.Handler())
+	defer srv.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	out, err := exec.CommandContext(ctx, node, harness, srv.URL, "--new=game:bridge", "--once=k1").CombinedOutput()
+	t.Logf("headless run:\n%s", out)
+	if err != nil {
+		t.Fatalf("headless player failed: %v", err)
+	}
+
+	text := string(out)
+	for _, want := range []string{
+		"created:    bridge-1",
+		"repeated:   same",
+		"resumed:    true",
+		"started:    true",
+		"invited:    true",
+	} {
+		if !strings.Contains(text, want) {
+			t.Errorf("headless output missing %q", want)
+		}
+	}
+	if n := launches.Load(); n != 1 {
+		t.Errorf("%d launches, want 1", n)
 	}
 }

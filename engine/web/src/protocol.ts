@@ -17,6 +17,7 @@ export type StreamName =
   | "pause"
   | "settled"
   | "error"
+  | "problem"
   ;
 
 /** One item on the session-scoped event stream. */
@@ -114,6 +115,38 @@ export interface Options {
   readonly choosing: boolean;
   readonly offers: OfferOption[];
   readonly settled?: Settled;
+}
+
+/** Why a session cannot start or go on. */
+export type Problem =
+  | "no-key"
+  | "genre"
+  | "no-plays"
+  | "key-rejected"
+  | "unreachable"
+  | "stale"
+  | "unknown"
+  | "denied"
+  | "failed"
+  ;
+
+/** A refusal: a transport's error body, and a `problem` event's value. */
+export interface Refusal {
+  readonly message: string;
+  readonly problem: Problem;
+}
+
+/** What the playback-engine sends to start a session. */
+export interface CreateRequest {
+  readonly game?: string;
+  readonly language?: string;
+  readonly once: string;
+  readonly share?: string;
+}
+
+/** The session a creation made. */
+export interface CreateResponse {
+  readonly id: string;
 }
 
 export function isSessionEvent(value: unknown): value is SessionEvent {

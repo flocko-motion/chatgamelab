@@ -7,12 +7,14 @@ import {
   type BlockState,
   type Choice,
   type Options,
+  type Refusal,
   type SessionEvent,
   type Settled,
   type UsageReport,
 } from "./protocol.js";
+import { readRefusal } from "./launch.js";
 import type { Snapshot, ToggleName, Topology } from "./state.js";
-import { emptyState, type PlayerState } from "./state.js";
+import { emptyState, explain, type PlayerState } from "./state.js";
 import type { Transport, TransportMessage } from "./transport.js";
 import type { Voice } from "./voice.js";
 
@@ -218,6 +220,11 @@ export class Player {
         // An empty delta closes the utterance, ordered against the text it ends.
         if (event.Value === "") this.takeFloor();
         else this.#extend(event.Value);
+        // Something answered, so a fault reported earlier has passed.
+        this.state.fault = null;
+        break;
+      case "problem":
+        this.#applyProblem(event.Value);
         break;
       case "image":
         this.state.image = event.Value;
@@ -341,23 +348,36 @@ export class Player {
       return false;
     }
 
-    if (response.status === 404) {
-      // The server is up; the session is missing, likeliest from a link without one.
-      this.state.problem =
-        "No such session. The address needs ?session=<id> — use the link the server printed.";
-      return false;
-    }
     if (!response.ok) {
-      this.state.problem = `The game server answered ${response.status}.`;
+      // The engine refuses with a reason: unknown, or stored too long ago to resume.
+      this.refuse(await readRefusal(response));
       return false;
     }
 
     this.state.problem = null;
+    this.state.refusal = null;
     this.state.topology = (await response.json()) as Topology;
     // A gate that opened before the wiring arrived would otherwise look unstarted.
     this.#recomputeStarted();
     this.#notify();
     return true;
+  }
+
+  /** Shows why the session cannot be had, such as a launch the platform refused. */
+  refuse(refusal: Refusal): void {
+    this.state.refusal = refusal;
+    this.state.problem = explain(refusal);
+    this.#notify();
+  }
+
+  /** A key failing during play: told apart from a lost connection, and not blocking. */
+  #applyProblem(value: string): void {
+    try {
+      const refusal = JSON.parse(value) as Refusal;
+      this.state.fault = explain(refusal);
+    } catch {
+      // A malformed report costs the notice, not the game.
+    }
   }
 
   /** The gate is found by role, so the core need not know what a genre calls it. */

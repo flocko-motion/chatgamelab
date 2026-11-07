@@ -167,7 +167,7 @@ func (l *Live) post(ctx context.Context, key, url string, payload map[string]any
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		detail, _ := readError(resp)
-		return "", "", fmt.Errorf("create live session: %s%s", resp.Status, detail)
+		return "", "", adapters.StatusError("create live session", resp, detail)
 	}
 
 	raw, err := io.ReadAll(resp.Body)

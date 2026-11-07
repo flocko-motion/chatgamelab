@@ -70,6 +70,23 @@ func (l *usageLedger) price(platform Platform) {
 	l.prices = lookup
 }
 
+// restore takes back what a stored session had spent.
+func (l *usageLedger) restore(records []UsageRecord) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	for _, r := range records {
+		l.latest[usageKey{node: r.Node, model: r.Model}] = ports.Usage{
+			Node:              r.Node,
+			Model:             r.Model,
+			InputTokens:       r.InputTokens,
+			CachedInputTokens: r.CachedInputTokens,
+			OutputTokens:      r.OutputTokens,
+			AudioSeconds:      r.AudioSeconds,
+			Images:            r.Images,
+		}
+	}
+}
+
 func (l *usageLedger) record(u ports.Usage) {
 	l.mu.Lock()
 	defer l.mu.Unlock()

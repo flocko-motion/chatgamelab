@@ -60,7 +60,7 @@ func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", used, fmt.Errorf("responses api: %s", resp.Status)
+		return "", used, adapters.StatusError("responses api", resp, "")
 	}
 
 	var out struct {

@@ -43,8 +43,26 @@ func TestAdventureThroughPublicAPI(t *testing.T) {
 		}
 	}
 
-	if got := len(store.Snapshot()); got < 4 {
-		t.Errorf("persist saw %d events, want at least 4", got)
+	// What a reload redraws is stored; audio is not. Which phase changes come
+	// with it depends on timing, so the check is for the streams, not a count.
+	stored := map[string]bool{"text": false, "image": false, "props": false}
+	for remaining(stored) > 0 {
+		for _, e := range store.Events("test-adventure") {
+			if _, wanted := stored[e.Stream]; wanted {
+				stored[e.Stream] = true
+			}
+			if e.Stream == "audio" {
+				t.Fatal("audio was stored")
+			}
+		}
+		if remaining(stored) == 0 {
+			break
+		}
+		select {
+		case <-deadline:
+			t.Fatalf("never stored every stream, still missing %d: %v", remaining(stored), stored)
+		case <-time.After(10 * time.Millisecond):
+		}
 	}
 }
 

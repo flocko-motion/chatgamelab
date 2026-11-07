@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"engine/internal/adapters"
 )
 
 // client speaks the parts of Mistral's API the adapters share.
@@ -103,7 +104,7 @@ func (c *client) do(ctx context.Context, key, method, path string, body []byte) 
 	if resp.StatusCode != http.StatusOK {
 		detail, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
 		resp.Body.Close()
-		return nil, fmt.Errorf("mistral %s: %s: %s", path, resp.Status, strings.TrimSpace(string(detail)))
+		return nil, adapters.StatusError("mistral "+path, resp, ": "+strings.TrimSpace(string(detail)))
 	}
 	return resp, nil
 }

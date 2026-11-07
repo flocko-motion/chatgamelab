@@ -379,7 +379,7 @@ export class View {
 
   /** A coming reply, or a fault that leaves the controls working, shown just above the bar. */
   #renderThinking(state: PlayerState, blocked: Unavailable | null): void {
-    const fault = blocked === null ? state.problem : null;
+    const fault = blocked === null ? (state.problem ?? state.fault) : null;
     this.elements.thinking.hidden = blocked !== null || !(fault || this.#awaiting);
     this.elements.thinking.classList.toggle("fault", fault !== null);
     this.elements.thinkingText.textContent = fault ?? this.#theme.thinking.text;

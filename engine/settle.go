@@ -217,6 +217,8 @@ func (s *Session) announce(changes []string) {
 		return
 	}
 	s.post(Event{Stream: "settled", Value: string(blob)})
+	// The preference may have changed, and the platform keeps it with the spec.
+	s.checkpoint()
 }
 
 // settledView is the settlement on the wire, or nil while choosing. Called with mu held.
@@ -305,9 +307,9 @@ func (s *Session) deliver() {
 	}
 }
 
-// emit puts one event on the stream and through persistence. Only the sender calls it.
+// emit puts one event on the stream and in the history. Only the sender calls it.
 func (s *Session) emit(ev Event) {
-	_ = s.spec.Persist.Save(s.ctx, s.spec.ID, ev)
+	s.log(ev)
 	select {
 	case s.events <- ev:
 	case <-s.ctx.Done():

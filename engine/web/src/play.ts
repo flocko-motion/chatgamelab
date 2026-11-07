@@ -3,8 +3,13 @@
  * node. This is the integration harness — if the core needs a DOM to follow a
  * session, it is not headless.
  *
- *   node dist/play.js http://localhost:8080 standalone
+ *   node dist/play.js <base> <session>
+ *   node dist/play.js <base> --new=game:bridge --once=k1
  *   node dist/play.js <base> <session> --bad=own-key:high:images --choose=own-key:low:images,audio-live
+ *
+ * Opened with --new it creates the session the way the page does, asking a
+ * second time with the same one-time key to see the same session answer, and
+ * rebuilds as a reload would to see it resume.
  *
  * A session waiting for the player's choice is answered from the flags: --bad
  * is sent first and must be refused, the page is then rebuilt as a reload would
@@ -17,9 +22,10 @@
  * the wiring, the portrait, the gate opening, the invitation to connect — and
  * stops there rather than pretending to hold a conversation.
  */
+import { create, transientMemory, type Selector } from "./launch.js";
 import { Player } from "./player.js";
 import type { Choice } from "./protocol.js";
-import { transcript } from "./state.js";
+import { explain, transcript } from "./state.js";
 import { WebSocketTransport } from "./transport.js";
 
 const positional = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
@@ -27,7 +33,9 @@ const flag = (name: string): string | undefined =>
   process.argv.find((arg) => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
 const [baseArg, sessionArg] = positional;
 const base = baseArg ?? "http://localhost:8080";
-const session = sessionArg ?? "standalone";
+const wanted = flag("new");
+const session = wanted ? await createSession(wanted) : sessionArg;
+if (!session) throw new Error("name a session, or --new=game:<id> to create one");
 
 const sessionBase = new URL(`/sessions/${session}/`, base);
 const url = new URL("live", sessionBase);
@@ -38,8 +46,14 @@ const player = new Player(new WebSocketTransport(url));
 
 try {
   await player.restore(sessionBase);
+  if (player.state.refusal) throw new Error(`refused: ${player.state.refusal.problem}`);
   player.connect();
   await player.whenReady();
+  if (wanted) {
+    // A reload finds the session the address now names.
+    await player.rebuild(sessionBase);
+    console.log(`resumed:    ${player.state.topology !== null}`);
+  }
 
   console.log(`choosing:   ${player.state.choosing}`);
   if (player.state.choosing) {
@@ -92,6 +106,27 @@ try {
   }
 } finally {
   player.close();
+}
+
+/** Creates a session as the page does for ?new&game=…, and asks again with the same key. */
+async function createSession(wanted: string): Promise<string> {
+  const [kind, ...rest] = wanted.split(":");
+  if (kind !== "game" && kind !== "share") throw new Error(`--new=${wanted}: name game:<id> or share:<token>`);
+  const selector: Selector = { kind, id: rest.join(":") };
+  const memories = { sessions: transientMemory(), pending: transientMemory() };
+  const once = flag("once");
+
+  const created = await create(new URL(base), selector, "en", memories, once);
+  if ("refusal" in created) {
+    console.log(`refused:    ${created.refusal.problem}`);
+    throw new Error(explain(created.refusal));
+  }
+  console.log(`created:    ${created.id}`);
+  if (once) {
+    const again = await create(new URL(base), selector, "en", memories, once);
+    console.log(`repeated:   ${"id" in again && again.id === created.id ? "same" : "different"}`);
+  }
+  return created.id;
 }
 
 /** Reads "own-key:low:images,audio-live" as that offer at low with those toggles on. */

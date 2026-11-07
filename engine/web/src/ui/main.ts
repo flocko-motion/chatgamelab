@@ -3,7 +3,21 @@
  * pointing a view at its state, and piping input into it.
  */
 import { Player } from "../player.js";
+import {
+  create,
+  forget,
+  opening,
+  readRefusal,
+  remembered,
+  transientMemory,
+  type Memory,
+  type Opening,
+  type Selector,
+} from "../launch.js";
+import type { Refusal } from "../protocol.js";
+import { explain } from "../state.js";
 import { WebSocketTransport } from "../transport.js";
+import { LaunchPanel } from "./launch.js";
 import { WebRTCVoice } from "./voice.js";
 import { mountSplit } from "./split.js";
 import { View } from "./view.js";
@@ -20,10 +34,29 @@ function required<T extends Element>(selector: string): T {
   return element;
 }
 
-// The session is whatever the server was started with; the player brings no
-// spec of its own.
-const sessionID = new URLSearchParams(location.search).get("session") ?? "standalone";
-const sessionBase = new URL(`../sessions/${sessionID}/`, location.href);
+// The engine's root, which the page sits under at player/ wherever it is mounted.
+const root = new URL("../", location.href);
+const params = new URLSearchParams(location.search);
+const memories = { sessions: browserMemory(() => localStorage), pending: browserMemory(() => sessionStorage) };
+const launch = new LaunchPanel({
+  panel: required<HTMLElement>("#launch"),
+  text: required<HTMLElement>("#launch-text"),
+  actions: required<HTMLElement>("#launch-actions"),
+  scene: required<HTMLElement>(".scene-area"),
+});
+
+const opened = opening(params, memories);
+const sessionID = await resolve(opened);
+launch.hide();
+if (params.get("session") !== sessionID) {
+  // The address is now the session's, so a reload resumes it.
+  history.replaceState(null, "", `?session=${encodeURIComponent(sessionID)}`);
+}
+if (opened.kind === "new" && window.parent !== window) {
+  // Same origin only: the ID plays the session, so it goes to no other site.
+  window.parent.postMessage({ type: "session", id: sessionID }, location.origin);
+}
+const sessionBase = new URL(`sessions/${sessionID}/`, root);
 
 const socketURL = new URL("live", sessionBase);
 socketURL.protocol = socketURL.protocol.replace("http", "ws");
@@ -80,20 +113,17 @@ const view = new View({
   onEdgeClick: (from, to, kind) => void details.showEdge(from, to, kind),
 });
 
-// The engine does not choose a theme yet, so the page takes a preset from the
-// URL and offers the rest in the header, where a teacher can try them.
+// The game's theme applies once the session says which; the header offers the
+// rest, where a teacher can try them.
 const themes = required<HTMLSelectElement>("#theme");
-const chosen = new URLSearchParams(location.search).get("theme") ?? "default";
-themes.append(...Object.keys(PRESETS).sort().map((name) => new Option(name, name, false, name === chosen)));
+themes.append(...Object.keys(PRESETS).sort().map((name) => new Option(name, name)));
 
 function useTheme(preset: string): void {
+  themes.value = preset;
   view.setTheme(mergeTheme(fromGenerated({ preset })), preset);
-  const url = new URL(location.href);
-  url.searchParams.set("theme", preset);
-  history.replaceState(null, "", url);
 }
 
-useTheme(themes.value);
+useTheme("default");
 themes.addEventListener("change", () => useTheme(themes.value));
 
 mountSplit(required<HTMLElement>("#split"));
@@ -125,7 +155,12 @@ recover = () => {
 
 // A reload has to rebuild what it missed before it starts listening, or the
 // first live event would land on an empty page.
-void player.restore(sessionBase).then(() => player.connect());
+void player.restore(sessionBase).then(() => {
+  const topology = player.state.topology;
+  if (topology?.theme && topology.theme in PRESETS) useTheme(topology.theme);
+  if (topology?.language) document.documentElement.lang = topology.language;
+  player.connect();
+});
 
 // One control for the whole conversation, because a live one has two states
 // worth being in: open, where the character hears everything and the meter
@@ -150,3 +185,92 @@ compose.addEventListener("submit", (event) => {
   player.takeFloor();
   player.say(text);
 });
+
+/**
+ * Comes to a session: resumes the one named, or creates one for a game or a
+ * share, offering first to continue the one this browser played last. Every
+ * reason a game cannot start is said on the launch panel.
+ */
+async function resolve(open: Opening): Promise<string> {
+  switch (open.kind) {
+    case "nothing":
+      return launch.ask("This page needs a game to play: open it from a game's page.", []);
+    case "resume": {
+      const refusal = await probe(open.id);
+      if (!refusal) return open.id;
+      if (!open.selector) return launch.ask(explain(refusal), []);
+      await launch.ask(explain(refusal), ["Start anew"]);
+      forget(memories.sessions, open.selector);
+      return start(open.selector);
+    }
+    case "new": {
+      const prior = remembered(memories.sessions, open.selector);
+      if (!prior) return start(open.selector);
+      const answer = await launch.ask("You have a game in progress.", ["Continue", "Start anew"]);
+      if (answer === "Continue") return resolve({ kind: "resume", id: prior, selector: open.selector });
+      forget(memories.sessions, open.selector);
+      return start(open.selector);
+    }
+  }
+}
+
+/** Creates a session, as often as the player tries again. */
+async function start(selector: Selector): Promise<string> {
+  const language = params.get("lang") ?? navigator.language;
+  for (;;) {
+    launch.wait("Starting the game…");
+    const created = await create(root, selector, language, memories);
+    if ("id" in created) return created.id;
+    await launch.ask(explain(created.refusal), ["Try again"]);
+  }
+}
+
+/** Whether a session can be had, and if not, why; reaching it restores it. */
+async function probe(id: string): Promise<Refusal | null> {
+  try {
+    const response = await fetch(new URL(`sessions/${encodeURIComponent(id)}/topology`, root));
+    return response.ok ? null : await readRefusal(response);
+  } catch {
+    return { problem: "failed", message: "Cannot reach the game server." };
+  }
+}
+
+/** Browser storage, which a private window or a blocked site may refuse. */
+function browserMemory(storage: () => Storage): Memory {
+  try {
+    const held = storage();
+    void held.length;
+    return {
+      get: (key) => {
+        try {
+          return held.getItem(key);
+        } catch {
+          return null;
+        }
+      },
+      set: (key, value) => {
+        try {
+          held.setItem(key, value);
+        } catch {
+          // Kept nowhere: the page still plays, and forgets.
+        }
+      },
+      remove: (key) => {
+        try {
+          held.removeItem(key);
+        } catch {
+          // Nothing kept, nothing to remove.
+        }
+      },
+      keys: () => {
+        try {
+          return Array.from({ length: held.length }, (_, i) => held.key(i) ?? "");
+        } catch {
+          return [];
+        }
+      },
+    };
+  } catch {
+    return transientMemory();
+  }
+}

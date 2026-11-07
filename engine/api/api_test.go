@@ -486,44 +486,9 @@ func TestEmptyHistoryIsAnEmptyList(t *testing.T) {
 	}
 }
 
-// A server holding one game answers for it whatever a request calls it. The
-// player reads its session from the address, so a bare link, a bookmark from a
-// previous run and a hand-typed address all arrive asking for something else —
-// and every one of them means the only session there is.
-func TestTheOnlySessionAnswersToAnyName(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "stopped-clock", Scenario: "A tower.",
-	}, mockOffers())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer session.Close()
-
-	a := api.New(api.Options{Dev: true})
-	a.RegisterOnly("stopped-clock", session)
-	srv := httptest.NewServer(a.Handler())
-	t.Cleanup(srv.Close)
-
-	// "standalone" is what the page asks for when the address names nothing.
-	for _, id := range []string{"stopped-clock", "standalone", "a-game-from-last-week"} {
-		resp, err := http.Get(srv.URL + "/sessions/" + id + "/topology")
-		if err != nil {
-			t.Fatal(err)
-		}
-		body, _ := io.ReadAll(resp.Body)
-		resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("session %q answered %s: %s", id, resp.Status, body)
-		}
-	}
-}
-
-// A server holding several has nothing to fall back on: an id there is the only
-// thing saying which game a request meant, so an unknown one stays unknown.
-func TestAnUnknownSessionIsUnknownWhenThereAreSeveral(t *testing.T) {
+// An ID is the only thing saying which game a request meant, so an unknown
+// one stays unknown, and says so in words the playback-engine can read.
+func TestAnUnknownSessionIsUnknown(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -549,6 +514,10 @@ func TestAnUnknownSessionIsUnknownWhenThereAreSeveral(t *testing.T) {
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("an unknown session among several answered %s", resp.Status)
+	}
+	var refusal engine.Refusal
+	if err := json.NewDecoder(resp.Body).Decode(&refusal); err != nil || refusal.Problem != engine.ProblemUnknown {
+		t.Errorf("refusal = %+v (%v), want the unknown problem", refusal, err)
 	}
 }
 

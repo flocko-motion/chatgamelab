@@ -73,7 +73,7 @@ func (i *Image) Generate(ctx context.Context, ask adapters.ImageRequest) ([]byte
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, used, fmt.Errorf("images api: %s", resp.Status)
+		return nil, used, adapters.StatusError("images api", resp, "")
 	}
 
 	var out struct {

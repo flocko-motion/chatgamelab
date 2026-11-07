@@ -84,6 +84,9 @@ type Issue struct {
 	Severity Severity `json:"severity"`
 	Field    string   `json:"field"`
 	Message  string   `json:"message"`
+	// Problem is set on an error a player is told about by name, such as a
+	// genre no offer can run.
+	Problem Problem `json:"problem,omitempty"`
 }
 
 func (i Issue) String() string { return i.Field + ": " + i.Message }
@@ -114,6 +117,10 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 			report(SeverityError, "promptOverride."+name, "no such prompt %q (%s has %s)",
 				name, spec.Genre, strings.Join(genrePrompts(spec.Genre), ", "))
 		}
+	}
+
+	if spec.Theme != "" && !knownTheme(spec.Theme) {
+		report(SeverityWarning, "theme", "unknown theme %q, so the default look applies", spec.Theme)
 	}
 
 	if len(offers) == 0 {
@@ -156,12 +163,14 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 		_, changes, fail := fit(*spec.Preference, offers, sound, spec.Genre)
 		if fail != "" {
 			report(SeverityError, "preference", "%s", fail)
+			issues[len(issues)-1].Problem = ProblemGenre
 		}
 		for _, change := range changes {
 			report(SeverityWarning, "preference", "%s", change)
 		}
 	case len(runnable) == 0:
 		report(SeverityError, "offers", "no offer can run %s, which needs %v", spec.Genre, spec.Genre.Needs())
+		issues[len(issues)-1].Problem = ProblemGenre
 	}
 
 	if spec.ImageStyle != "" && !slices.ContainsFunc(runnable, func(i int) bool { return allowsImages(offers[i]) }) {
@@ -451,18 +460,23 @@ func hasError(issues []Issue) bool {
 	return slices.ContainsFunc(issues, func(i Issue) bool { return i.Severity == SeverityError })
 }
 
-// refusal joins a spec's errors into the one error Launch returns.
+// refusal joins a spec's errors into the one error Launch returns, a
+// refusal with the problem of the first error that names one.
 func refusal(issues []Issue) error {
 	var errs []string
+	problem := ProblemFailed
 	for _, i := range issues {
 		if i.Severity == SeverityError {
 			errs = append(errs, i.String())
+			if problem == ProblemFailed && i.Problem != "" {
+				problem = i.Problem
+			}
 		}
 	}
 	if errs == nil {
 		return nil
 	}
-	return fmt.Errorf("invalid session spec: %s", strings.Join(errs, "; "))
+	return &Refusal{Problem: problem, Message: "invalid session spec: " + strings.Join(errs, "; ")}
 }
 
 // catalogueEntry is a platform's own entry, tier tables and all.

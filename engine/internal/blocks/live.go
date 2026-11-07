@@ -2,6 +2,7 @@ package blocks
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"sync"
 	"time"
@@ -34,10 +35,13 @@ type LiveSession struct {
 	// idleAfter closes a silent conversation; zero never does. Keep it above the
 	// 15 s each new session bills up front, or pausing costs more than it saves.
 	idleAfter time.Duration
-	// said is held in memory only, to restore a conversation that was let go.
+	// said is the transcript, both speakers, to restore a conversation that was let go.
 	said []adapters.Utterance
 	// resumeFrom names the closed conversation a resume continues.
 	resumeFrom string
+	// restored is a conversation taken back from a stored session: it waits
+	// paused for the player, and the character does not greet again.
+	restored bool
 	// cue is the gate's opening instruction, held until the conversation starts.
 	cue      string
 	active   chan struct{}
@@ -208,7 +212,12 @@ func (b *LiveSession) run(ctx context.Context) {
 	if !ok {
 		return
 	}
-	b.cue = cue
+	b.mu.Lock()
+	restored := b.restored
+	b.mu.Unlock()
+	if !restored {
+		b.cue = cue
+	}
 
 	// One conversation per iteration; waiting holds a reconnecting player's offer.
 	var waiting *offer
@@ -239,7 +248,9 @@ func (b *LiveSession) run(ctx context.Context) {
 			b.stands(StandingIdle)
 			return
 		}
+		b.mu.Lock()
 		b.resumeFrom = conn.ID()
+		b.mu.Unlock()
 
 		if end == endingReplaced {
 			// Continued at once, the same way a resume is.
@@ -256,7 +267,9 @@ func (b *LiveSession) run(ctx context.Context) {
 func (b *LiveSession) open(ctx context.Context, waiting offer) (adapters.LiveConn, error) {
 	cfg := b.cfg
 	cfg.Offer = waiting.sdp
+	b.mu.Lock()
 	cfg.ResumeFrom = b.resumeFrom
+	b.mu.Unlock()
 	cfg.History = b.transcript()
 
 	conn, err := b.live.Open(ctx, cfg)
@@ -270,13 +283,51 @@ func (b *LiveSession) open(ctx context.Context, waiting offer) (adapters.LiveCon
 	return conn, nil
 }
 
+// liveState is what a stored session keeps of the conversation.
+type liveState struct {
+	From string               `json:"from,omitempty"`
+	Said []adapters.Utterance `json:"said,omitempty"`
+}
+
+// ExportState keeps the transcript and the last conversation's ID, so a
+// session restored after a restart resumes the way an idle one does. Live
+// audio is never kept.
+func (b *LiveSession) ExportState() string {
+	b.mu.Lock()
+	state := liveState{From: b.resumeFrom, Said: append([]adapters.Utterance(nil), b.said...)}
+	b.mu.Unlock()
+	if state.From == "" && len(state.Said) == 0 {
+		return ""
+	}
+	blob, err := json.Marshal(state)
+	if err != nil {
+		return ""
+	}
+	return string(blob)
+}
+
+// RestoreState takes the conversation back paused: one open before the
+// restart is not re-attached, and the player resumes it with one press.
+func (b *LiveSession) RestoreState(s string) {
+	var state liveState
+	if json.Unmarshal([]byte(s), &state) != nil {
+		return
+	}
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.resumeFrom = state.From
+	b.said = state.Said
+	b.restored = true
+	b.stand = StandingPaused
+}
+
 func (b *LiveSession) transcript() []adapters.Utterance {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return append([]adapters.Utterance(nil), b.said...)
 }
 
-// remember keeps what was said, in memory only, for a resume to restore.
+// remember keeps what was said, for a resume to restore.
 func (b *LiveSession) remember(who adapters.Speaker, text string) {
 	if text == "" {
 		return
