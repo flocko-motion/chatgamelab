@@ -1,7 +1,7 @@
-// package: game / private share sessions and guest players
+// package: game / private share plays and guest players
 // type:    logic
-// job:     creates game sessions from private share links, minting anonymous guest users and resolving the share's API key.
-// limits:  does not run the game turns or generate content; hands off to session play.
+// job:     prepares a play from a private share link: validates the token, consumes the share's budget, mints anonymous guest users and picks the share's API key and tier.
+// limits:  does not run the game; the engine does.
 package game
 
 import (
@@ -18,54 +18,64 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateShareSession creates a game session for a private share link.
+// SharePlay is what a share link settles for one play: who plays which game,
+// the sponsored key that pays and the AI quality tier.
+type SharePlay struct {
+	Player        *obj.User
+	Game          *obj.Game
+	GameShare     *obj.GameShare
+	Key           *obj.ApiKeyShare
+	AiQualityTier string
+}
+
+// PrepareSharePlay settles a play of a private share link.
 //
-// The player argument decides who owns the session and, therefore, which
-// youth-protection cascade applies (see db.ResolveConstraint):
+// The player argument decides who plays and, therefore, which youth-protection
+// cascade applies (see db.ResolveConstraint):
 //   - player == nil  → an anonymous guest user is created; the share's "Gäste" cascade applies.
 //   - player != nil  → the authenticated user plays as themselves; their own cascade applies,
-//     with the share supplying stages 1–2. The play shows up in their "recently played".
+//     with the share supplying stages 1–2.
 //
 // Either way the sponsored share key pays (a sponsored game is sponsored for everybody)
 // and the share's play-limit counter is consumed.
-func CreateShareSession(ctx context.Context, token string, language string, player *obj.User) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
-	// 1. Validate token → load game share and game
+func PrepareSharePlay(ctx context.Context, token string, language string, player *obj.User) (*SharePlay, *obj.HTTPError) {
 	gameShare, game, httpErr := ValidatePrivateShareToken(ctx, token)
 	if httpErr != nil {
-		return nil, nil, httpErr
+		return nil, httpErr
 	}
 
-	// 2. Resolve the sponsored API key (required for private shares)
-	share, httpErr := resolvePrivateShareKey(ctx, gameShare)
+	key, httpErr := resolvePrivateShareKey(ctx, gameShare)
 	if httpErr != nil {
-		return nil, nil, httpErr
+		return nil, httpErr
 	}
 
-	// 3. Decrement remaining counter (atomic, race-safe)
 	if httpErr := decrementPrivateShareRemaining(ctx, gameShare.ID); httpErr != nil {
-		return nil, nil, httpErr
+		return nil, httpErr
 	}
 
-	// 4. Determine the session owner: the authenticated player, or a fresh guest user.
-	owner := player
-	if owner == nil {
+	if player == nil {
 		guestUser, httpErr := createGuestUser(ctx, gameShare.ID)
 		if httpErr != nil {
-			return nil, nil, httpErr
+			return nil, httpErr
 		}
-		log.Info("share session: created anonymous guest user", "user_id", guestUser.ID, "user_name", guestUser.Name, "game_id", game.ID)
-		// Set language on guest user (not persisted — used for theme/translation this session).
+		log.Info("share play: created anonymous guest user", "user_id", guestUser.ID, "user_name", guestUser.Name, "game_id", game.ID)
+		// The guest's language is not persisted; it holds for this play only.
 		// Authenticated players keep their own profile language.
 		if language != "" {
 			guestUser.Language = language
 		}
-		owner = guestUser
+		player = guestUser
 	} else {
-		log.Info("share session: authenticated player", "user_id", owner.ID, "game_id", game.ID)
+		log.Info("share play: authenticated player", "user_id", player.ID, "game_id", game.ID)
 	}
 
-	// 5. Run the full session creation flow (reuses existing logic)
-	return createSessionForGuest(ctx, owner, game, share, gameShare)
+	return &SharePlay{
+		Player:        player,
+		Game:          game,
+		GameShare:     gameShare,
+		Key:           key,
+		AiQualityTier: shareTier(ctx, gameShare),
+	}, nil
 }
 
 // ValidatePrivateShareToken checks if the token maps to a valid, playable game.
@@ -96,11 +106,11 @@ func ValidatePrivateShareToken(ctx context.Context, token string) (*obj.GameShar
 func resolvePrivateShareKey(ctx context.Context, gameShare *obj.GameShare) (*obj.ApiKeyShare, *obj.HTTPError) {
 	share, err := db.GetApiKeyShareByID(ctx, uuid.Nil, gameShare.ApiKeyShareID)
 	if err != nil || share.ApiKey == nil {
-		log.Warn("guest session: sponsored key not accessible", "game_share_id", gameShare.ID, "api_key_share_id", gameShare.ApiKeyShareID)
+		log.Warn("share play: sponsored key not accessible", "game_share_id", gameShare.ID, "api_key_share_id", gameShare.ApiKeyShareID)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeNoApiKey, "Sponsored API key is not available")
 	}
 	if !engine.AcceptsKeys(engine.Platform(share.ApiKey.Platform)) {
-		log.Warn("guest session: sponsored key's platform is not supported", "game_share_id", gameShare.ID, "platform", share.ApiKey.Platform)
+		log.Warn("share play: sponsored key's platform is not supported", "game_share_id", gameShare.ID, "platform", share.ApiKey.Platform)
 		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "The sponsored API key's platform is not supported yet")
 	}
 	return share, nil
@@ -116,7 +126,7 @@ func decrementPrivateShareRemaining(ctx context.Context, shareID uuid.UUID) *obj
 	return nil
 }
 
-// createGuestUser creates an anonymous user for a guest play session.
+// createGuestUser creates an anonymous user for a guest play.
 // The user has no email, no auth0 ID, and no participant token.
 func createGuestUser(ctx context.Context, shareID uuid.UUID) (*obj.User, *obj.HTTPError) {
 	nameGenerator := ung.NewUniqueNameGenerator(
@@ -133,7 +143,7 @@ func createGuestUser(ctx context.Context, shareID uuid.UUID) (*obj.User, *obj.HT
 
 	err := db.CreateGuestUser(ctx, userID, name, shareID)
 	if err != nil {
-		log.Error("guest session: failed to create anonymous user", "error", err)
+		log.Error("share play: failed to create anonymous user", "error", err)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create guest user")
 	}
 
@@ -144,55 +154,22 @@ func createGuestUser(ctx context.Context, shareID uuid.UUID) (*obj.User, *obj.HT
 	return user, nil
 }
 
-// createSessionForGuest runs the full session creation flow for a guest.
-// This is very similar to CreateSession but uses a pre-resolved API key share
-// and doesn't need user-level key resolution.
-func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, share *obj.ApiKeyShare, gameShare *obj.GameShare) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
-	// Resolve AI quality tier with priority:
-	// 1. Workshop tier (if this is a workshop share)
-	// 2. Per-share tier (if set on the game share)
-	// 3. System default tier
+// shareTier picks the AI quality tier of a share play: the workshop's tier for a
+// workshop share, else the share's own tier, else the system default.
+func shareTier(ctx context.Context, gameShare *obj.GameShare) string {
 	settings, _ := db.GetSystemSettings(ctx)
-	defaultTier := string(engine.TierMedium)
+	tier := string(engine.TierMedium)
 	if settings != nil && settings.DefaultAiQualityTier != "" {
-		defaultTier = settings.DefaultAiQualityTier
+		tier = settings.DefaultAiQualityTier
 	}
 
-	aiModel := defaultTier
 	if gameShare.WorkshopID != nil {
-		// Workshop share: use the workshop's AI quality tier
 		workshop, err := db.GetWorkshopByID(ctx, uuid.Nil, *gameShare.WorkshopID)
 		if err == nil && workshop.AiQualityTier != nil && *workshop.AiQualityTier != "" {
-			aiModel = *workshop.AiQualityTier
+			tier = *workshop.AiQualityTier
 		}
 	} else if gameShare.AiQualityTier != nil && *gameShare.AiQualityTier != "" {
-		// Non-workshop share: use the per-share tier
-		aiModel = *gameShare.AiQualityTier
+		tier = *gameShare.AiQualityTier
 	}
-
-	log.Info("guest session: using API key", "key_name", share.ApiKey.Name, "platform", share.ApiKey.Platform, "ai_model", aiModel)
-
-	// Build a single-element candidate list for createSessionInternal
-	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel, KeyType: obj.ApiKeyTypePrivateShare}}
-
-	// Use shared internal implementation. Passing gameShare lets the canonical
-	// resolver (db.ResolveConstraint) pick the right cascade for whoever owns this
-	// session — the share's cascade for a guest user, the user's own cascade (with
-	// the share supplying stages 1–2) for an authenticated player.
-	// Guest users: no retries (nil), don't delete existing sessions (false)
-	return createSessionInternal(ctx, user.ID, game, user, gameShare, candidates, nil, false)
-}
-
-// ResolveGuestSessionApiKey re-resolves the API key for a guest session from the game share.
-// This is the guest equivalent of ResolveSessionApiKey.
-func ResolveGuestSessionApiKey(ctx context.Context, session *obj.GameSession, gameShare *obj.GameShare) *obj.HTTPError {
-	share, httpErr := resolvePrivateShareKey(ctx, gameShare)
-	if httpErr != nil {
-		return httpErr
-	}
-	session.ApiKey = share.ApiKey
-	session.ApiKeyID = &share.ApiKey.ID
-	session.AiPlatform = share.ApiKey.Platform
-	session.ApiKeyType = obj.ApiKeyTypePrivateShare
-	return nil
+	return tier
 }

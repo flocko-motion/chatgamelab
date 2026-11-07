@@ -95,9 +95,9 @@ func (s *WorkshopGameSharingTestSuite) TestIndividualCannotShareWhenDisabled() {
 	s.T().Logf("Correctly rejected: %v", err)
 }
 
-// TestGuestCanPlayViaWorkshopShare verifies that an anonymous guest can play
-// a game via a workshop share link created by an individual.
-func (s *WorkshopGameSharingTestSuite) TestGuestCanPlayViaWorkshopShare() {
+// TestGuestCanOpenWorkshopShare verifies that an anonymous guest can open
+// a workshop share link created by an individual.
+func (s *WorkshopGameSharingTestSuite) TestGuestCanOpenWorkshopShare() {
 	_, individual, wsID, gameID := s.setupWorkshopWithSharing("share-play", true)
 
 	// Individual creates share
@@ -111,12 +111,6 @@ func (s *WorkshopGameSharingTestSuite) TestGuestCanPlayViaWorkshopShare() {
 	s.NoError(err, "guest should be able to get game info")
 	s.NotEmpty(info.Name, "game info should have a name")
 	s.T().Logf("Guest game info: name=%s", info.Name)
-
-	// Guest can create session
-	session, err := pub.GuestCreateSession(share.Token)
-	s.NoError(err, "guest should be able to create session")
-	s.NotNil(session.GameSession, "session should not be nil")
-	s.T().Logf("Guest session created: %s", session.ID)
 }
 
 // TestWorkshopShareReusesExistingLink verifies that creating the same workshop

@@ -1,7 +1,7 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     create, update, and delete of games; play/clone counters.
-// limits:  does not list or read games (-> game.go) or handle sessions (-> game_sessions.go).
+// limits:  does not list or read games (-> game.go).
 package db
 
 import (
@@ -12,18 +12,15 @@ import (
 	"cgl/obj"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/sqlc-dev/pqtype"
 	"gopkg.in/yaml.v3"
 )
 
 // DeleteGame soft-deletes a game (sets deleted_at). userID must be the owner.
-// Sessions referencing this game are preserved; they just won't show the game in listings.
 func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 	// Load game and check permission
 	game, err := loadGameByID(ctx, gameID)
@@ -37,9 +34,7 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 	// Store workshop ID before deletion for event publishing
 	workshopID := game.WorkshopID
 
-	// Clean up game data: sessions, messages, tags, favourites, shares, game_shares + guest data
-	_ = queries().DeleteGameSessionMessagesByGameID(ctx, gameID)
-	_ = queries().DeleteGameSessionsByGameID(ctx, gameID)
+	// Clean up game data: tags, favourites, shares, game_shares + guest data
 	_ = queries().DeleteGameTagsByGameID(ctx, gameID)
 	_ = queries().DeleteFavouritesByGameID(ctx, gameID)
 	// Clean up game_share guest data before deleting game_shares
@@ -95,16 +90,6 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	now := time.Now()
 	game.ID = uuid.New()
 
-	// Serialize theme to JSON if present
-	var themeJSON pqtype.NullRawMessage
-	if game.Theme != nil {
-		themeBytes, err := json.Marshal(game.Theme)
-		if err != nil {
-			return obj.ErrServerError("failed to serialize theme")
-		}
-		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
-	}
-
 	arg := db.CreateGameParams{
 		ID:                           game.ID,
 		CreatedBy:                    uuid.NullUUID{UUID: userID, Valid: true},
@@ -122,7 +107,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ImageStyle:                   game.ImageStyle,
 		Css:                          game.CSS,
 		StatusFields:                 game.StatusFields,
-		Theme:                        themeJSON,
+		Theme:                        stringPtrToNullString(game.Theme),
 		FirstMessage:                 sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:                  sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:                   game.FirstImage,
@@ -171,16 +156,6 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		game.PublicSponsoredApiKeyShareID = nil
 	}
 
-	// Serialize theme to JSON if present
-	var themeJSON pqtype.NullRawMessage
-	if game.Theme != nil {
-		themeBytes, err := json.Marshal(game.Theme)
-		if err != nil {
-			return obj.ErrServerError("failed to serialize theme")
-		}
-		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
-	}
-
 	arg := db.UpdateGameParams{
 		ID:                           game.ID,
 		CreatedBy:                    existingGameRaw.CreatedBy,
@@ -197,7 +172,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ImageStyle:                   game.ImageStyle,
 		Css:                          game.CSS,
 		StatusFields:                 game.StatusFields,
-		Theme:                        themeJSON,
+		Theme:                        stringPtrToNullString(game.Theme),
 		FirstMessage:                 sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:                  sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:                   game.FirstImage,

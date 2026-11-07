@@ -117,11 +117,6 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return err
 	}
 
-	// Clear session api_key_id references (sessions can continue with a new key)
-	if err := queries().ClearSessionApiKeyID(ctx, uuid.NullUUID{UUID: key.ID, Valid: true}); err != nil {
-		return obj.ErrServerError("failed to clear session api key references")
-	}
-
 	// Clear user default_api_key_share_id references before deleting shares
 	if err := queries().ClearUserDefaultApiKeyShareByApiKeyID(ctx, key.ID); err != nil {
 		return obj.ErrServerError("failed to clear user default api key references")

@@ -129,36 +129,12 @@ func (q *Queries) DeleteGameSharesByGameID(ctx context.Context, gameID uuid.UUID
 	return err
 }
 
-const deleteGuestSessionMessagesByShareID = `-- name: DeleteGuestSessionMessagesByShareID :exec
-
-DELETE FROM game_session_message WHERE game_session_id IN (
-  SELECT gs.id FROM game_session gs
-  JOIN app_user u ON u.id = gs.user_id
-  WHERE u.private_share_id = $1
-)
-`
-
-// Guest data cleanup by share ID
-func (q *Queries) DeleteGuestSessionMessagesByShareID(ctx context.Context, privateShareID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGuestSessionMessagesByShareID, privateShareID)
-	return err
-}
-
-const deleteGuestSessionsByShareID = `-- name: DeleteGuestSessionsByShareID :exec
-DELETE FROM game_session WHERE user_id IN (
-  SELECT id FROM app_user WHERE private_share_id = $1
-)
-`
-
-func (q *Queries) DeleteGuestSessionsByShareID(ctx context.Context, privateShareID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGuestSessionsByShareID, privateShareID)
-	return err
-}
-
 const deleteGuestUsersByShareID = `-- name: DeleteGuestUsersByShareID :exec
+
 DELETE FROM app_user WHERE private_share_id = $1
 `
 
+// Guest data cleanup by share ID
 func (q *Queries) DeleteGuestUsersByShareID(ctx context.Context, privateShareID uuid.NullUUID) error {
 	_, err := q.db.ExecContext(ctx, deleteGuestUsersByShareID, privateShareID)
 	return err

@@ -284,38 +284,6 @@ func (s *GamePermissionsTestSuite) TestOwnerCanAccessOwnNonPublicGame() {
 	s.T().Logf("Owner accessed own game: %s", fetched.Name)
 }
 
-// TestGameDeletionCleansUpSessions tests that deleting a game also removes
-// its sessions and messages.
-func (s *GamePermissionsTestSuite) TestGameDeletionCleansUpSessions() {
-	// Create user with API key, game, and a session
-	user := s.CreateUser("gp-session-user")
-	Must(user.AddApiKey("mock-gp-sess", "Session Key", "openai"))
-
-	game := Must(user.UploadGame("alien-first-contact"))
-	s.T().Logf("User created game: %s", game.ID)
-
-	// Create a session for the game
-	session, err := user.CreateGameSession(game.ID.String())
-	s.NoError(err)
-	s.NotEmpty(session.ID)
-	s.T().Logf("Created session: %s", session.ID)
-
-	// Verify session exists
-	loadedSession, err := user.GetGameSession(session.ID.String())
-	s.NoError(err)
-	s.Equal(session.ID, loadedSession.ID)
-	s.T().Logf("Session verified")
-
-	// Delete the game
-	MustSucceed(user.DeleteGame(game.ID.String()))
-	s.T().Logf("Game deleted")
-
-	// Session should no longer exist
-	_, err = user.GetGameSession(session.ID.String())
-	s.Error(err, "session should be deleted along with game")
-	s.T().Logf("Session correctly cleaned up")
-}
-
 // TestWhoCanSetGamePublic tests who may switch a game's public flag on: for a
 // workshop game its creator and whoever may edit it (head, staff, admin); for a
 // game outside a workshop only its creator.

@@ -94,28 +94,6 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestDeleteSponsorKeyAlsoRemovesPubl
 	s.T().Logf("Private share correctly removed")
 }
 
-// TestGuestSessionFailsAfterSponsorKeyDeletion verifies that a guest cannot
-// create a new session after the sponsor key is deleted.
-func (s *ApiKeyCascadePrivateShareTestSuite) TestGuestSessionFailsAfterSponsorKeyDeletion() {
-	user, _, shareID, token := s.setupSponsoredGameWithPrivateShare("cascade-sess")
-
-	// Guest creates a session before deletion — should succeed
-	pub := s.Public()
-	resp, err := pub.GuestCreateSession(token)
-	s.NoError(err, "guest should create session before key deletion")
-	s.NotNil(resp.GameSession, "session should not be nil")
-	s.T().Logf("Guest created session before deletion: %s", resp.GameSession.ID)
-
-	// Delete the API key (cascade)
-	MustSucceed(user.DeleteApiKey(shareID, true))
-	s.T().Logf("Deleted sponsor API key")
-
-	// Guest should not be able to create a new session
-	_, err = pub.GuestCreateSession(token)
-	s.Error(err, "guest should not create session after sponsor key deletion")
-	s.T().Logf("Guest correctly denied session creation: %v", err)
-}
-
 // TestNonCascadeDeleteDoesNotAffectPrivateShare verifies that deleting the API key
 // share without cascade does NOT affect the private share (the underlying key still exists).
 func (s *ApiKeyCascadePrivateShareTestSuite) TestNonCascadeDeleteDoesNotAffectPrivateShare() {

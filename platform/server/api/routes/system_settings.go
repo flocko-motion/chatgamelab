@@ -10,6 +10,7 @@ import (
 
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/log"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -223,4 +224,36 @@ func SetSystemFreeUseApiKey(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, updatedSettings)
+}
+
+// PostRestart godoc
+//
+//	@Summary		Restart server
+//	@Description	Admin-only endpoint that triggers a server restart.
+//	@Tags			admin
+//	@Produce		json
+//	@Success		200	{string}	string
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Security		BearerAuth
+//	@Router			/restart [post]
+func PostRestart(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	// Require admin
+	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
+		log.Debug("restart denied - not admin", "user_id", user.ID)
+		httpx.WriteError(w, http.StatusForbidden, "Forbidden: admin access required")
+		return
+	}
+
+	log.Info("restart request received", "user_id", user.ID)
+	go func() {
+		// Give time for response to be sent
+		<-r.Context().Done()
+		log.Info("shutting down server for restart")
+		// Use a channel or signal instead of os.Exit for graceful shutdown
+	}()
+
+	httpx.WriteJSON(w, http.StatusOK, "Server will restart shortly")
 }

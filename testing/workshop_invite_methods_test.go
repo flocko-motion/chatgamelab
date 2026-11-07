@@ -49,7 +49,6 @@ func (s *WorkshopInviteMethodsTestSuite) workshopSetup(prefix string) (*testutil
 		"public":                     false,
 		"showPublicGames":            false,
 		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       false,
 		"isPaused":                   false,
 	}))
 

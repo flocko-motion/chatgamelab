@@ -1,7 +1,7 @@
 // package: testutil / game API helpers
 // type:    logic
-// job:     high-level UserClient helpers for games, sessions, sponsors and shares
-// limits:  game/session HTTP helpers only; no invites/orgs (-> testclient_orgs) or streaming (-> testclient_streaming)
+// job:     high-level UserClient helpers for games, sponsors and shares
+// limits:  game HTTP helpers only; no invites/orgs (-> testclient_orgs)
 package testutil
 
 import (
@@ -90,67 +90,6 @@ func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 	}
 
 	return updatedGame, nil
-}
-
-// CreateGameSession creates a new game session (composable high-level API)
-// Returns the session and the initial message.
-// API key is resolved server-side (sponsor → workshop → user default).
-func (u *UserClient) CreateGameSession(gameID string) (routes.SessionResponse, error) {
-	u.t.Helper()
-
-	var response routes.SessionResponse
-	err := u.Post("games/"+gameID+"/sessions", nil, &response)
-	return response, err
-}
-
-// CreateGameSessionWithStream creates a session and consumes the SSE stream for the initial message.
-// TWO-PHASE INITIALIZATION: Creates session (phase 1), then sends empty action to trigger opening scene (phase 2).
-// Returns the session response with the initial message fully populated (text, image, audio).
-func (u *UserClient) CreateGameSessionWithStream(gameID string) (routes.SessionResponse, *StreamResult, error) {
-	u.t.Helper()
-
-	// PHASE 1: Create session (returns empty messages array)
-	resp, err := u.CreateGameSession(gameID)
-	if err != nil {
-		return routes.SessionResponse{}, nil, err
-	}
-
-	if resp.GameSession == nil {
-		return routes.SessionResponse{}, nil, fmt.Errorf("no session returned")
-	}
-
-	// PHASE 2: Send "init" system action to trigger opening scene generation
-	openingMsg, streamResult, err := u.SendSystemMessage(resp.GameSession.ID.String(), "init")
-	if err != nil {
-		return routes.SessionResponse{}, nil, fmt.Errorf("failed to trigger opening scene: %w", err)
-	}
-
-	// Add the opening message to the response
-	resp.Messages = []obj.GameSessionMessage{openingMsg}
-
-	return resp, streamResult, nil
-}
-
-// GetGameSession loads a session with all messages (composable high-level API)
-// Simulates a player returning to a session (e.g. browser reload).
-func (u *UserClient) GetGameSession(sessionID string) (routes.SessionResponse, error) {
-	u.t.Helper()
-	var response routes.SessionResponse
-	err := u.Get("sessions/"+sessionID+"?messages=all", &response)
-	return response, err
-}
-
-// SendGameMessage sends a message to a game session and returns the AI response (composable high-level API)
-// This returns the initial response with plot outline and status fields.
-// Use SendGameMessageWithStream to also consume the full expanded story.
-func (u *UserClient) SendGameMessage(sessionID string, message string) (obj.GameSessionMessage, error) {
-	u.t.Helper()
-
-	var response obj.GameSessionMessage
-	err := u.Post("sessions/"+sessionID, routes.SessionActionRequest{
-		Message: message,
-	}, &response)
-	return response, err
 }
 
 // GetApiKeyStatus checks whether an API key can be resolved for a game (composable high-level API)

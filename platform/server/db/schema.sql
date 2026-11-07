@@ -81,7 +81,6 @@ CREATE TABLE workshop (
     prompt_constraints text NULL,  -- Additional prompt constraints configured by workshop staff/heads
     show_public_games boolean NOT NULL DEFAULT false,  -- If true, participants can see public games
     show_other_participants_games boolean NOT NULL DEFAULT true,  -- If true, participants can see other participants' games
-    design_editing_enabled boolean NOT NULL DEFAULT false,  -- If true, workshop members can edit game design (theme); default: no
     is_paused boolean NOT NULL DEFAULT false,  -- If true, participants/individuals see a paused overlay and cannot interact
     allow_game_sharing boolean NOT NULL DEFAULT false,  -- If true, participants can create share links for workshop games
     public_slug     text NULL UNIQUE,  -- Path of the public page /w/<public_slug>, shown while public is on
@@ -268,8 +267,8 @@ CREATE TABLE game (
     -- The status fields available to the LLM, shaping the JSON format for status.
     status_fields                   text NOT NULL,
 
-    -- Optional visual theme override (JSON). When set, used directly instead of AI-generating per session.
-    theme                           jsonb NULL,
+    -- Name of the engine theme the game is played in; null means the engine's default.
+    theme                           text NULL,
 
     -- Quick start: pre-generated first scene of the game.
     -- This is generated content (first output after the system message) and may be
@@ -302,93 +301,6 @@ CREATE TABLE game_tag (
     CONSTRAINT game_tag_game_tag_uniq UNIQUE (game_id, tag)
 );
 
--- GameSession
--- A session is created when a user plays a game -> it's the instance of a game.
-CREATE TABLE game_session (
-    id              uuid PRIMARY KEY,
-    created_by      uuid NULL,
-    created_at      timestamptz NOT NULL DEFAULT now(),
-    modified_by     uuid NULL,
-    modified_at     timestamptz NOT NULL DEFAULT now(),
-
-    game_id         uuid NOT NULL REFERENCES game(id),
-    user_id         uuid NOT NULL REFERENCES app_user(id),
-    -- Optional workshop scope (sessions can be created within a workshop context)
-    workshop_id     uuid NULL REFERENCES workshop(id),
-    -- API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-    -- Nullable: key may be deleted, session can continue with a new key.
-    api_key_id      uuid NULL REFERENCES api_key(id),
-    -- AI platform used for playing (e.g. 'openai', 'anthropic').
-    ai_platform     text NOT NULL,
-    -- AI model used for playing (e.g. 'gpt-4o-mini').
-    ai_model        text NOT NULL,
-    -- JSON with arbitrary details to be used within that model and within that session.
-    ai_session      jsonb NOT NULL,
-    image_style     text NOT NULL,
-    -- Language used for this session (ISO 639-1 code), locked at creation time from user preference.
-    language        text NOT NULL DEFAULT 'en',
-    -- Defines the status fields available in the game; copied from game.status_fields at launch.
-    status_fields   text NOT NULL,
-    -- AI-generated visual theme for the game player UI (JSON)
-    theme           jsonb NULL,
-    -- Set to true when image generation fails due to organization verification required
-    is_organisation_unverified boolean NOT NULL DEFAULT false,
-
-    deleted_at      timestamptz NULL
-);
-
--- GameSessionMessage
--- Messages of a game session: system message, player actions, and game responses.
-CREATE TABLE game_session_message (
-    id                  uuid PRIMARY KEY,
-    created_by          uuid NULL,
-    created_at          timestamptz NOT NULL DEFAULT now(),
-    modified_by         uuid NULL,
-    modified_at         timestamptz NOT NULL DEFAULT now(),
-
-    game_session_id     uuid NOT NULL REFERENCES game_session(id),
-    -- Sequence number within the session, starting at 1
-    seq                 integer NOT NULL,
-    -- player: user message; game: LLM/game response; system: initial system/context messages.
-    type                text NOT NULL,
-    -- Plain text of the scene (system message, player action, or game response).
-    message             text NOT NULL,
-    -- JSON encoded status fields.
-    status              text NULL,
-    plot                text NULL,
-    image_prompt        text NULL,
-    image               bytea NULL,
-    audio               bytea NULL,
-    has_image           boolean NOT NULL DEFAULT false,
-    has_audio           boolean NOT NULL DEFAULT false,
-    -- AI insight fields: raw prompts and responses for educational debug view
-    prompt_status_update    text NULL,
-    prompt_response_schema  text NULL,
-    prompt_image_generation text NULL,
-    prompt_expand_story     text NULL,
-    response_raw            text NULL,
-    token_usage             jsonb NULL,
-    url_analytics           text NULL,
-    -- Type of API key used to generate this message (shown in AI Insight panel)
-    api_key_type            text NULL,
-    -- Source of the active prompt constraint when this message was generated.
-    -- prompt_constraint_source: label ("workshop", "organisation", "site13", "site13p", "site18").
-    -- prompt_constraint_text: the constraint text that was actually sent to the AI for this message
-    --   (snapshot — survives later edits to the underlying workshop/org/site constraint).
-    -- prompt_constraint_source_name: human-readable origin (workshop or organisation name),
-    --   NULL for site-by-age sources.
-    prompt_constraint_source text NULL,
-    prompt_constraint_text text NULL,
-    prompt_constraint_source_name text NULL,
-    -- Human-readable trace of how the active constraint was decided (db.ResolveConstraint),
-    -- snapshotted per message for the AI insights view.
-    prompt_constraint_reasoning text NULL,
-
-    deleted_at          timestamptz NULL,
-
-    CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system')),
-    CONSTRAINT game_session_message_api_key_type_chk CHECK (api_key_type IS NULL OR api_key_type IN ('workshop', 'sponsor', 'institution_free_use', 'personal', 'system_free_use', 'private_share'))
-);
 -- SystemSettings
 -- Global system settings (single row table)
 CREATE TABLE system_settings (

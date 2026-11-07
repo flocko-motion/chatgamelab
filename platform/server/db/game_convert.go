@@ -6,11 +6,9 @@ package db
 
 import (
 	db "cgl/db/sqlc"
-	"cgl/log"
 	"cgl/obj"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -39,16 +37,6 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		})
 	}
 
-	// Deserialize theme from JSON if present
-	var theme *obj.GameTheme
-	if g.Theme.Valid && len(g.Theme.RawMessage) > 0 {
-		theme = &obj.GameTheme{}
-		if err := json.Unmarshal(g.Theme.RawMessage, theme); err != nil {
-			log.Warn("failed to unmarshal game theme", "game_id", g.ID, "error", err)
-			theme = nil
-		}
-	}
-
 	game := &obj.Game{
 		ID: g.ID,
 		Meta: obj.Meta{
@@ -67,7 +55,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		ImageStyle:                   g.ImageStyle,
 		CSS:                          g.Css,
 		StatusFields:                 g.StatusFields,
-		Theme:                        theme,
+		Theme:                        nullStringToPtr(g.Theme),
 		FirstMessage:                 nullStringToPtr(g.FirstMessage),
 		FirstStatus:                  nullStringToPtr(g.FirstStatus),
 		FirstImage:                   g.FirstImage,

@@ -4,7 +4,6 @@
 // Features:
 // - JWT token management for authentication
 // - Endpoints for game, user, and API key management
-// - SSE streaming support for game sessions
 // - Uses config module for server URL and JWT storage
 //
 // For external API calls (OpenAI, Mistral, etc.), use the apiclient package instead.
@@ -16,9 +15,7 @@
 package client
 
 import (
-	"bufio"
 	"cgl/config"
-	"cgl/obj"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -116,73 +113,6 @@ func endpointUrl(endpoint string) string {
 		os.Exit(1)
 	}
 	return fmt.Sprintf("%s/api/%s", url, strings.TrimPrefix(endpoint, "/"))
-}
-
-// StreamSSE connects to an SSE endpoint and calls the handler for each chunk
-// Returns when the stream is complete (both textDone and imageDone) or on error
-func StreamSSE(endpoint string, handler func(chunk obj.GameSessionMessageChunk) error) error {
-	url := endpointUrl(endpoint)
-	fmt.Fprintf(os.Stderr, "SSE %s\n", url)
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return fmt.Errorf("failed to create request: %v", err)
-	}
-
-	req.Header.Set("Accept", "text/event-stream")
-	if jwt := LoadJwt(); jwt != "" {
-		req.Header.Set("Authorization", "Bearer "+jwt)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("SSE request failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("SSE error (%d): %s", resp.StatusCode, string(body))
-	}
-
-	scanner := bufio.NewScanner(resp.Body)
-	// Increase buffer size to handle large image chunks (up to 10MB)
-	const maxScanTokenSize = 10 * 1024 * 1024
-	scanner.Buffer(make([]byte, 64*1024), maxScanTokenSize)
-	textDone := false
-	imageDone := false
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !strings.HasPrefix(line, "data: ") {
-			continue
-		}
-
-		data := strings.TrimPrefix(line, "data: ")
-		var chunk obj.GameSessionMessageChunk
-		if err := json.Unmarshal([]byte(data), &chunk); err != nil {
-			continue
-		}
-
-		if err := handler(chunk); err != nil {
-			return err
-		}
-
-		if chunk.TextDone {
-			textDone = true
-		}
-		if chunk.ImageDone {
-			imageDone = true
-		}
-		if chunk.Error != "" {
-			return fmt.Errorf("stream error: %s", chunk.Error)
-		}
-		if textDone && imageDone {
-			break
-		}
-	}
-
-	return scanner.Err()
 }
 
 func apiRequestRaw(method, endpoint string, content string, contentType string, out *string) error {

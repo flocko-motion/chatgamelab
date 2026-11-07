@@ -9,35 +9,20 @@
 #   scripts/test.sh                    # Clean summary (default)
 #   scripts/test.sh --verbose          # Full verbose output
 #   scripts/test.sh -v                 # Full verbose output (short)
-#   scripts/test.sh --no-ai            # Exclude AI tests (default)
-#   scripts/test.sh --ai               # Include AI tests
-#   scripts/test.sh --only-ai          # Run ONLY AI tests
-#   scripts/test.sh --only-ai --verbose # Run only AI tests, verbose
 
 cd "$(dirname "$0")/.."
 
 GOTESTSUM="go run gotest.tools/gotestsum@latest"
 
 # Parse arguments
-BUILD_TAGS=""
-TEST_RUN=""
 VERBOSE=false
 for arg in "$@"; do
     case "$arg" in
-        --no-ai)   ;;  # default behavior, no-op
         --verbose|-v) VERBOSE=true ;;
-        --ai)      BUILD_TAGS="-tags ai_tests" ;;
-        --only-ai) BUILD_TAGS="-tags ai_tests" ; TEST_RUN="-run TestGameEngineSuite" ;;
     esac
 done
 
-if [[ "$TEST_RUN" == "-run TestGameEngineSuite" ]]; then
-    echo "🧪 Running ONLY AI tests..."
-elif [[ -n "$BUILD_TAGS" ]]; then
-    echo "🧪 Running integration tests (including AI tests)..."
-else
-    echo "🧪 Running integration tests (excluding AI tests)..."
-fi
+echo "🧪 Running integration tests..."
 echo ""
 
 cd testing
@@ -52,6 +37,6 @@ else
     FORMAT="dots-v2"
 fi
 
-$GOTESTSUM --format "$FORMAT" --format-hide-empty-pkg -- -v $BUILD_TAGS $TEST_RUN ./...
+$GOTESTSUM --format "$FORMAT" --format-hide-empty-pkg -- -v ./...
 
 exit $?

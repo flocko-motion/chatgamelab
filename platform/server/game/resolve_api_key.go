@@ -1,7 +1,7 @@
 // package: game / server-side API key resolution
 // type:    logic
-// job:     resolves which API key and AI quality tier a session uses by walking the priority chain (workshop, sponsor, institution, user, system).
-// limits:  does not call the AI or create sessions; only selects and traces candidate keys for callers to apply.
+// job:     resolves which API key and AI quality tier a play uses by walking the priority chain (workshop, sponsor, institution, user, system).
+// limits:  does not call the AI or start plays; only selects and traces candidate keys for callers to apply.
 package game
 
 import (
@@ -50,7 +50,7 @@ type keyTraceStep struct {
 //
 // If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
 // platformFilter restricts candidates to a specific AI platform (e.g. "openai").
-// Pass "" to accept any platform (used during session creation).
+// Pass "" to accept any platform.
 func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, platformFilter string) ([]resolvedKey, *obj.HTTPError) {
 	user, err := db.GetUserByID(ctx, userID)
 	if err != nil {
@@ -84,7 +84,6 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 			trace = append(trace, keyTraceStep{Source: keyType, Result: "filtered", Detail: "platform not supported yet", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
 			return
 		}
-		// For existing sessions: only accept keys from the same AI platform.
 		if platformFilter != "" && share.ApiKey.Platform != platformFilter {
 			trace = append(trace, keyTraceStep{Source: keyType, Result: "filtered", Detail: fmt.Sprintf("platform %s != %s", share.ApiKey.Platform, platformFilter), KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
 			return
@@ -134,10 +133,10 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 
 	if len(candidates) == 0 {
 		if platformFilter != "" {
-			log.Debug("no API key available for session platform", "user_id", userID, "game_id", gameID, "platform", platformFilter)
+			log.Debug("no API key available for platform", "user_id", userID, "game_id", gameID, "platform", platformFilter)
 			return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available for platform "+platformFilter+". All available keys use a different AI platform.")
 		}
-		log.Debug("no API key available for session", "user_id", userID, "game_id", gameID)
+		log.Debug("no API key available", "user_id", userID, "game_id", gameID)
 		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
 	}
 
@@ -223,10 +222,8 @@ func describeInstitutionSkip(user *obj.User) string {
 	return "key not accessible"
 }
 
-// resolveApiKeyForSession resolves the highest-priority API key for a session.
-// Convenience wrapper around resolveApiKeyCandidates that returns only the first match.
-// No platform filter — used for new session creation where any platform is acceptable.
-func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
+// resolveApiKey resolves the highest-priority API key on any platform.
+func resolveApiKey(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
 	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID, "")
 	if httpErr != nil {
 		return nil, httpErr
@@ -237,24 +234,8 @@ func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.
 // IsApiKeyAvailable checks whether an API key can be resolved for the given user+game
 // without exposing any key details. Used for upfront checks before starting/resuming a game.
 func IsApiKeyAvailable(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) bool {
-	resolved, _ := resolveApiKeyForSession(ctx, userID, gameID)
+	resolved, _ := resolveApiKey(ctx, userID, gameID)
 	return resolved != nil
-}
-
-// ResolveSessionApiKeyCandidates re-resolves all API key candidates for an existing session.
-// Returns the ordered list of candidates for retry logic.
-// Filters by session.AiPlatform to prevent switching platforms mid-session.
-func ResolveSessionApiKeyCandidates(ctx context.Context, session *obj.GameSession) ([]resolvedKey, *obj.HTTPError) {
-	return resolveApiKeyCandidates(ctx, session.UserID, session.GameID, session.AiPlatform)
-}
-
-// applyResolvedKey updates session fields from a resolved key candidate.
-func applyResolvedKey(session *obj.GameSession, resolved *resolvedKey) {
-	session.ApiKey = resolved.Share.ApiKey
-	session.ApiKeyID = &resolved.Share.ApiKey.ID
-	session.AiPlatform = resolved.Share.ApiKey.Platform
-	session.AiModel = resolved.AiQualityTier
-	session.ApiKeyType = resolved.KeyType
 }
 
 // tierOrDefault returns tier if non-empty, otherwise the default.

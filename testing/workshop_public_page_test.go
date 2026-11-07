@@ -168,7 +168,7 @@ func (s *WorkshopPublicPageTestSuite) TestNoPlayWithoutWorkshopKey() {
 	s.Nil(page.Games[0].Play)
 }
 
-func (s *WorkshopPublicPageTestSuite) TestPlayCountsDownAndStaysApartFromHandMadeLinks() {
+func (s *WorkshopPublicPageTestSuite) TestPlayStaysApartFromHandMadeLinks() {
 	f := s.setup("pubpage-play", true)
 	Must(s.updateWorkshop(f, true, nil))
 	game := Must(f.participant.UploadGame("alien-first-contact"))
@@ -176,11 +176,10 @@ func (s *WorkshopPublicPageTestSuite) TestPlayCountsDownAndStaysApartFromHandMad
 
 	play := Must(s.page(f.slug)).Games[0].Play
 	s.Require().NotNil(play)
-	Must(s.Public().GuestCreateSession(play.Token))
+	s.Equal(50, play.Remaining)
 
 	again := Must(s.page(f.slug)).Games[0].Play
 	s.Equal(play.Token, again.Token, "the page keeps one link per game")
-	s.Equal(49, again.Remaining)
 
 	// A leader's workshop share is a separate, unlimited link.
 	handMade := Must(f.head.CreateWorkshopGameShare(game.ID.String(), f.wsID, nil))

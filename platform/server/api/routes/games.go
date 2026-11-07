@@ -1,6 +1,6 @@
 // package: routes / game HTTP handlers
 // type:    logic
-// job:     handles listing, creating, cloning, updating, and deleting games and their sessions
+// job:     handles listing, creating, cloning, updating, and deleting games
 // limits:  no route registration (-> router.go); game logic delegated to game/db
 package routes
 

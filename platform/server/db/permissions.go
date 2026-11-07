@@ -1,7 +1,7 @@
 // package: db / database access and repository layer
 // type:    logic
 // job:     evaluate whether a user may perform CRUD on institutions, workshops, users, and invites by role.
-// limits:  does not authorize games/sessions/keys (-> permissions_game.go) or define SQL (-> db/sqlc).
+// limits:  does not authorize games/keys (-> permissions_game.go) or define SQL (-> db/sqlc).
 package db
 
 import (

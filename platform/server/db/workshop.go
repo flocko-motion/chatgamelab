@@ -255,7 +255,6 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		PromptConstraints:          promptConstraints,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
-		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
 		AllowGameSharing:           result.AllowGameSharing,
 		PublicSlug:                 nullStringToPtr(result.PublicSlug),
@@ -279,7 +278,6 @@ type UpdateWorkshopParams struct {
 	PromptConstraints          *string
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
-	DesignEditingEnabled       bool
 	IsPaused                   bool
 	AllowGameSharing           bool
 	PublicSlug                 *string // nil keeps the current link
@@ -324,7 +322,6 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		DefaultApiKeyShareID:       existing.DefaultApiKeyShareID,
 		ShowPublicGames:            params.ShowPublicGames,
 		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
-		DesignEditingEnabled:       params.DesignEditingEnabled,
 		IsPaused:                   params.IsPaused,
 		AllowGameSharing:           params.AllowGameSharing,
 	}
@@ -416,7 +413,6 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		PromptConstraints:          promptConstraints,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
-		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
 		AllowGameSharing:           result.AllowGameSharing,
 		PublicSlug:                 nullStringToPtr(result.PublicSlug),
@@ -496,7 +492,6 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		PromptConstraints:          promptConstraints,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
-		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
 		AllowGameSharing:           result.AllowGameSharing,
 		PublicSlug:                 nullStringToPtr(result.PublicSlug),

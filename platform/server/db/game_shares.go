@@ -1,7 +1,7 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     game share links, public sponsorship, and guest-user data.
-// limits:  does not manage games (-> game.go) or sessions (-> game_sessions.go).
+// limits:  does not manage games (-> game.go) or game plays (-> game).
 package db
 
 import (
@@ -372,7 +372,7 @@ func DecrementGameShareRemaining(ctx context.Context, shareID uuid.UUID) (*obj.G
 	return dbGameShareToObj(gs), nil
 }
 
-// CreateGuestUser creates an anonymous user for guest play sessions.
+// CreateGuestUser creates an anonymous user for guest plays.
 // shareID links the guest to the game_share for cleanup on revoke.
 func CreateGuestUser(ctx context.Context, userID uuid.UUID, name string, shareID uuid.UUID) error {
 	_, err := queries().CreateGuestUser(ctx, db.CreateGuestUserParams{
@@ -383,16 +383,8 @@ func CreateGuestUser(ctx context.Context, userID uuid.UUID, name string, shareID
 	return err
 }
 
-// DeleteGuestDataByShareID removes all guest users, their sessions, and messages
-// that were created via a game share link.
-// Must delete in order: messages → sessions → users (FK constraints).
+// DeleteGuestDataByShareID removes the guest users created via a game share link.
 func DeleteGuestDataByShareID(ctx context.Context, shareID uuid.UUID) error {
-	if err := queries().DeleteGuestSessionMessagesByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true}); err != nil {
-		return err
-	}
-	if err := queries().DeleteGuestSessionsByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true}); err != nil {
-		return err
-	}
 	return queries().DeleteGuestUsersByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true})
 }
 

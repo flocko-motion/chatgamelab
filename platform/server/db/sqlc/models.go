@@ -6,7 +6,6 @@ package db
 
 import (
 	"database/sql"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -86,7 +85,7 @@ type Game struct {
 	ImageStyle                   string
 	Css                          string
 	StatusFields                 string
-	Theme                        pqtype.NullRawMessage
+	Theme                        sql.NullString
 	FirstMessage                 sql.NullString
 	FirstStatus                  sql.NullString
 	FirstImage                   []byte
@@ -94,59 +93,6 @@ type Game struct {
 	PlayCount                    int32
 	CloneCount                   int32
 	DeletedAt                    sql.NullTime
-}
-
-type GameSession struct {
-	ID                       uuid.UUID
-	CreatedBy                uuid.NullUUID
-	CreatedAt                time.Time
-	ModifiedBy               uuid.NullUUID
-	ModifiedAt               time.Time
-	GameID                   uuid.UUID
-	UserID                   uuid.UUID
-	WorkshopID               uuid.NullUUID
-	ApiKeyID                 uuid.NullUUID
-	AiPlatform               string
-	AiModel                  string
-	AiSession                json.RawMessage
-	ImageStyle               string
-	Language                 string
-	StatusFields             string
-	Theme                    pqtype.NullRawMessage
-	IsOrganisationUnverified bool
-	DeletedAt                sql.NullTime
-}
-
-type GameSessionMessage struct {
-	ID                         uuid.UUID
-	CreatedBy                  uuid.NullUUID
-	CreatedAt                  time.Time
-	ModifiedBy                 uuid.NullUUID
-	ModifiedAt                 time.Time
-	GameSessionID              uuid.UUID
-	Seq                        int32
-	Type                       string
-	Message                    string
-	Status                     sql.NullString
-	Plot                       sql.NullString
-	ImagePrompt                sql.NullString
-	Image                      []byte
-	Audio                      []byte
-	HasImage                   bool
-	HasAudio                   bool
-	PromptStatusUpdate         sql.NullString
-	PromptResponseSchema       sql.NullString
-	PromptImageGeneration      sql.NullString
-	PromptExpandStory          sql.NullString
-	ResponseRaw                sql.NullString
-	TokenUsage                 pqtype.NullRawMessage
-	UrlAnalytics               sql.NullString
-	ApiKeyType                 sql.NullString
-	PromptConstraintSource     sql.NullString
-	PromptConstraintText       sql.NullString
-	PromptConstraintSourceName sql.NullString
-	PromptConstraintReasoning  sql.NullString
-	DeletedAt                  sql.NullTime
 }
 
 type GameShare struct {
@@ -259,7 +205,6 @@ type Workshop struct {
 	PromptConstraints          sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
-	DesignEditingEnabled       bool
 	IsPaused                   bool
 	AllowGameSharing           bool
 	PublicSlug                 sql.NullString

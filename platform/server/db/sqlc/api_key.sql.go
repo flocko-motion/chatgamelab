@@ -52,15 +52,6 @@ func (q *Queries) ClearGameSponsoredApiKeyByShareID(ctx context.Context, publicS
 	return err
 }
 
-const clearSessionApiKeyID = `-- name: ClearSessionApiKeyID :exec
-UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE api_key_id = $1
-`
-
-func (q *Queries) ClearSessionApiKeyID(ctx context.Context, apiKeyID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, clearSessionApiKeyID, apiKeyID)
-	return err
-}
-
 const clearUserDefaultApiKeyShareByApiKeyID = `-- name: ClearUserDefaultApiKeyShareByApiKeyID :exec
 UPDATE app_user
 SET default_api_key_share_id = NULL, modified_at = now()

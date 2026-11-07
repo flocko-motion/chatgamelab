@@ -114,7 +114,6 @@ SELECT
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.ai_quality_tier AS workshop_ai_quality_tier,
   w.prompt_constraints AS workshop_prompt_constraints,
-  w.design_editing_enabled AS workshop_design_editing_enabled,
   w.is_paused AS workshop_is_paused,
   w.allow_game_sharing AS workshop_allow_game_sharing,
   r.active_workshop_id,
@@ -123,7 +122,6 @@ SELECT
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
   aw.prompt_constraints AS active_workshop_prompt_constraints,
-  aw.design_editing_enabled AS active_workshop_design_editing_enabled,
   aw.is_paused AS active_workshop_is_paused,
   aw.allow_game_sharing AS active_workshop_allow_game_sharing
 FROM app_user u
@@ -496,17 +494,8 @@ RETURNING id;
 
 -- User Statistics queries
 
--- name: CountUserSessions :one
-SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1;
-
 -- name: CountUserGames :one
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1;
-
--- name: CountUserPlayerMessages :one
-SELECT COUNT(*)::int AS count
-FROM game_session_message m
-JOIN game_session s ON s.id = m.game_session_id
-WHERE s.user_id = $1 AND m.type = 'player';
 
 -- name: SumPlayCountOfUserGames :one
 SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1;

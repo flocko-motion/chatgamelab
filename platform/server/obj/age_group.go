@@ -15,8 +15,8 @@ const (
 	AgeGroupU18  = "u18"  // 18+
 )
 
-// Prompt-constraint source labels — written to game_session_message.prompt_constraint_source
-// and surfaced in the player's session-details UI. Stable wire values.
+// Prompt-constraint source labels: name where the active constraint comes from
+// (db.ResolveConstraint). Stable wire values.
 const (
 	ConstraintSourceWorkshop     = "workshop"
 	ConstraintSourceOrganisation = "organisation"

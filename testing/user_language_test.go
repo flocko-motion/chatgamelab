@@ -83,7 +83,6 @@ func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 		"public":                     false,
 		"showPublicGames":            false,
 		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       false,
 		"isPaused":                   false,
 	}))
 

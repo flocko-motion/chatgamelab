@@ -357,7 +357,6 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name:                       res.WorkshopName.String,
 				ShowPublicGames:            res.WorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.WorkshopShowOtherParticipantsGames.Bool,
-				DesignEditingEnabled:       res.WorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.WorkshopIsPaused.Bool,
 				AllowGameSharing:           res.WorkshopAllowGameSharing.Bool,
 				AiQualityTier:              aiQualityTier,
@@ -378,7 +377,6 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name:                       res.ActiveWorkshopName.String,
 				ShowPublicGames:            res.ActiveWorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.ActiveWorkshopShowOtherParticipantsGames.Bool,
-				DesignEditingEnabled:       res.ActiveWorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.ActiveWorkshopIsPaused.Bool,
 				AllowGameSharing:           res.ActiveWorkshopAllowGameSharing.Bool,
 				AiQualityTier:              aiQualityTier,
@@ -440,23 +438,13 @@ func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.U
 }
 
 // DeleteUser hard-deletes a user and cleans up all their data:
-// sessions, API keys (with cascade), shares, roles, favourites, workshop participant records,
+// games, API keys (with cascade), shares, roles, favourites, workshop participant records,
 // invites, and originally_created_by references.
 func DeleteUser(ctx context.Context, id uuid.UUID) error {
-	// 1. Delete session messages and sessions
-	if err := queries().DeleteGameSessionMessagesByUserID(ctx, id); err != nil {
-		return fmt.Errorf("failed to delete user session messages: %w", err)
-	}
-	if err := queries().DeleteAllUserSessions(ctx, id); err != nil {
-		return fmt.Errorf("failed to delete user sessions: %w", err)
-	}
-
-	// 2. Clean up games created by this user
+	// 1. Clean up games created by this user
 	gameIDs, _ := queries().GetGameIDsByCreator(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	for _, gameID := range gameIDs {
 		_ = queries().DeleteGameTagsByGameID(ctx, gameID)
-		_ = queries().DeleteGameSessionMessagesByGameID(ctx, gameID)
-		_ = queries().DeleteGameSessionsByGameID(ctx, gameID)
 		_ = queries().DeleteFavouritesByGameID(ctx, gameID)
 		_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
 		_ = queries().DeleteGameSharesByGameID(ctx, gameID)           // clean up game shares
@@ -464,11 +452,9 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 		_ = queries().HardDeleteGame(ctx, gameID)
 	}
 
-	// 3. Clean up API keys owned by this user (cascade: clears shares, workshop refs, game sponsors, etc.)
+	// 2. Clean up API keys owned by this user (cascade: clears shares, workshop refs, game sponsors, etc.)
 	keyIDs, _ := queries().GetApiKeyIDsByUser(ctx, id)
 	for _, keyID := range keyIDs {
-		// Clear session api_key_id references
-		_ = queries().ClearSessionApiKeyID(ctx, uuid.NullUUID{UUID: keyID, Valid: true})
 		// Clear user default_api_key_share_id references
 		_ = queries().ClearUserDefaultApiKeyShareByApiKeyID(ctx, keyID)
 		// Clear workshop default_api_key_share_id references

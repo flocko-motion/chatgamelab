@@ -1,7 +1,7 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     listing, filtering, and single-game reads.
-// limits:  does not write games (-> game_writes.go), sessions (-> game_sessions.go), or shares (-> game_shares.go).
+// limits:  does not write games (-> game_writes.go) or shares (-> game_shares.go).
 package db
 
 import (

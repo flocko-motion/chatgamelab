@@ -36,11 +36,9 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/games", httpx.RequireAuth(GetGames))
 	mux.Handle("GET /api/games/{id}", httpx.RequireAuth(GetGameByID))
 	mux.Handle("GET /api/games/{id}/yaml", httpx.RequireAuth(GetGameYAML))
-	mux.Handle("GET /api/games/{id}/sessions", httpx.RequireAuth(GetGameSessions))
 	mux.Handle("POST /api/games/new", httpx.RequireAuth(CreateGame))
 	mux.Handle("POST /api/games/{id}", httpx.RequireAuth(UpdateGame))
 	mux.Handle("POST /api/games/{id}/clone", httpx.RequireAuth(CloneGame))
-	mux.Handle("POST /api/games/{id}/sessions", httpx.RequireAuth(CreateGameSession))
 	mux.Handle("PUT /api/games/{id}/yaml", httpx.RequireAuth(UpdateGameYAML))
 	mux.Handle("DELETE /api/games/{id}", httpx.RequireAuth(DeleteGame))
 	mux.Handle("GET /api/games/favourites", httpx.RequireAuth(GetFavouriteGames))
@@ -136,29 +134,8 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PATCH /api/games/{id}/shares/{shareId}", httpx.RequireAuth(UpdateGameShare))
 	mux.Handle("DELETE /api/games/{id}/shares/{shareId}", httpx.RequireAuth(DeleteGameShareByID))
 
-	// Share Play (share token is the capability). OptionalAuth: anonymous callers play
-	// as guests; an authenticated caller plays the shared game as themselves (own
-	// constraint cascade, shows in recently-played). See game.CreateShareSession.
+	// Share Play (the share token is the capability)
 	mux.Handle("GET /api/play/{token}/info", httpx.TokenGuard(http.HandlerFunc(PlayGuestGetGameInfo)))
-	mux.Handle("POST /api/play/{token}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestCreateSession)))
-	mux.Handle("POST /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestSendAction)))
-	mux.Handle("GET /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestGetSession)))
-
-	// Sessions
-	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
-	mux.Handle("GET /api/sessions/{id}", httpx.RequireAuth(GetSession))
-	mux.Handle("POST /api/sessions/{id}", httpx.RequireAuth(PostSessionAction))
-	mux.Handle("PATCH /api/sessions/{id}", httpx.RequireAuth(UpdateSession))
-	mux.Handle("DELETE /api/sessions/{id}", httpx.RequireAuth(DeleteSession))
-
-	// Messages
-	mux.HandleFunc("GET /api/messages/{id}/stream", GetMessageStream)
-	// Image endpoint doesn't require auth header - browser <img> tags can't send headers
-	// Access is verified internally via session ownership
-	mux.HandleFunc("GET /api/messages/{id}/status", GetMessageStatus)
-	mux.HandleFunc("GET /api/messages/{id}/image", GetMessageImage)
-	mux.HandleFunc("GET /api/messages/{id}/image/status", GetMessageImageStatus)
-	mux.HandleFunc("GET /api/messages/{id}/audio", GetMessageAudio)
 
 	// Admin
 	mux.Handle("POST /api/restart", httpx.RequireAuth(PostRestart))

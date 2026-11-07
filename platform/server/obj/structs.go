@@ -1,59 +1,14 @@
 // package: obj / core domain data model
 // type:    data
-// job:     defines the shared domain structs (users, games, sessions, API keys, etc.) exchanged across layers
+// job:     defines the shared domain structs (users, games, API keys, etc.) exchanged across layers
 // limits:  data shapes and light helpers only; no persistence or business logic (-> db, game)
 package obj
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
-
-// TokenUsage tracks token consumption from an API call
-type TokenUsage struct {
-	InputTokens     int  `json:"inputTokens"`
-	CachedTokens    *int `json:"cachedTokens,omitempty"` // Subset of input tokens served from cache
-	OutputTokens    int  `json:"outputTokens"`
-	ReasoningTokens *int `json:"reasoningTokens,omitempty"` // Subset of output tokens used for reasoning
-	TotalTokens     int  `json:"totalTokens"`
-}
-
-// Add returns a new TokenUsage with the sum of both usages
-func (u TokenUsage) Add(other TokenUsage) TokenUsage {
-	result := TokenUsage{
-		InputTokens:  u.InputTokens + other.InputTokens,
-		OutputTokens: u.OutputTokens + other.OutputTokens,
-		TotalTokens:  u.TotalTokens + other.TotalTokens,
-	}
-
-	// Sum cached tokens if either has them
-	if u.CachedTokens != nil || other.CachedTokens != nil {
-		cached := 0
-		if u.CachedTokens != nil {
-			cached += *u.CachedTokens
-		}
-		if other.CachedTokens != nil {
-			cached += *other.CachedTokens
-		}
-		result.CachedTokens = &cached
-	}
-
-	// Sum reasoning tokens if either has them
-	if u.ReasoningTokens != nil || other.ReasoningTokens != nil {
-		reasoning := 0
-		if u.ReasoningTokens != nil {
-			reasoning += *u.ReasoningTokens
-		}
-		if other.ReasoningTokens != nil {
-			reasoning += *other.ReasoningTokens
-		}
-		result.ReasoningTokens = &reasoning
-	}
-
-	return result
-}
 
 // Meta holds creation and modification audit fields common to most entities.
 type Meta struct {
@@ -85,9 +40,7 @@ type User struct {
 
 // UserStats contains aggregated statistics for a user
 type UserStats struct {
-	GamesPlayed       int `json:"gamesPlayed"`
 	GamesCreated      int `json:"gamesCreated"`
-	MessagesSent      int `json:"messagesSent"`
 	TotalPlaysOnGames int `json:"totalPlaysOnGames"`
 }
 
@@ -186,7 +139,6 @@ type Workshop struct {
 	PromptConstraints          *string `json:"promptConstraints,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
-	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 	IsPaused                   bool    `json:"isPaused"`
 	AllowGameSharing           bool    `json:"allowGameSharing"`
 	// Public page /w/<PublicSlug>, visible while Public is on
@@ -311,8 +263,8 @@ type Game struct {
 	CSS string `json:"css" yaml:"css"`
 	// The status fields available to the LLM, shaping the JSON format for status.
 	StatusFields string `json:"statusFields" yaml:"status_fields"`
-	// Optional visual theme override. When set, used directly instead of AI-generating per session.
-	Theme *GameTheme `json:"theme,omitempty" yaml:"-"`
+	// Name of the engine theme the game is played in; nil means the engine's default.
+	Theme *string `json:"theme,omitempty" yaml:"-"`
 	// Quick start: pre-generated first scene of the game.
 	// This is generated content (first output after the system message) and may be
 	// regenerated from time to time to avoid being too static.
@@ -364,71 +316,7 @@ type GameTag struct {
 	Tag    string    `json:"tag"`
 }
 
-// GameSession
-// A session is created when a user plays a game -> it's the instance of a game.
-type GameSession struct {
-	ID   uuid.UUID `json:"id"`
-	Meta Meta      `json:"meta"`
-
-	GameID          uuid.UUID `json:"gameId"`
-	GameName        string    `json:"gameName"`
-	GameDescription string    `json:"gameDescription"`
-	GameScenario    string    `json:"gameScenario"`
-	// Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
-	// Persisted indirectly via AiSession cache, not as its own DB column.
-	GameScenarioImagePrompt string     `json:"gameScenarioImagePrompt,omitempty"`
-	UserID                  uuid.UUID  `json:"userId"`
-	WorkshopID              *uuid.UUID `json:"workshopId,omitempty"`
-	UserName                string     `json:"userName"`
-	// API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-	// Nullable: key may be deleted, session can continue with a new key.
-	ApiKeyID *uuid.UUID `json:"apiKeyId,omitempty"`
-	ApiKey   *ApiKey    `json:"apiKey,omitempty"`
-	// AI model used for playing.
-	AiPlatform string `json:"aiPlatform"`
-	AiModel    string `json:"aiModel"`
-	// JSON with arbitrary details to be used within that model and within that session.
-	AiSession string `json:"aiSession"`
-
-	ImageStyle string `json:"imageStyle"`
-	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
-	Language string `json:"language"`
-	// Resolved prompt constraints, re-injected with every AI call.
-	// Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
-	// or share-workshop > share-org > author's user-cascade (guest via share).
-	PromptConstraints *string `json:"promptConstraints,omitempty"`
-	// Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18").
-	PromptConstraintSource string `json:"promptConstraintSource,omitempty"`
-	// Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
-	// for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
-	PromptConstraintSourceName string `json:"promptConstraintSourceName,omitempty"`
-	// Transient human-readable trace of how the active constraint was decided, built up
-	// branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
-	PromptConstraintReasoning string `json:"promptConstraintReasoning,omitempty"`
-	// Defines the status fields available in the game; copied from game.status_fields at launch.
-	StatusFields string `json:"statusFields"`
-	// AI-generated visual theme for the game player UI (JSON)
-	Theme *GameTheme `json:"theme,omitempty"`
-	// Set to true when image generation fails due to organization verification required
-	IsOrganisationUnverified bool `json:"isOrganisationUnverified,omitempty"`
-	// Transient: source type of the current API key (not persisted in session table, carried in-memory).
-	// Set during key resolution and used to tag game messages with the key source.
-	ApiKeyType string `json:"-"`
-}
-
-// GameTheme defines the visual theme for the game player UI.
-// This is generated by AI based on the game's description and setting.
-// The frontend resolves the preset into a full theme configuration.
-// Only minimal overrides are allowed: animation, thinking text, and status emojis.
-type GameTheme struct {
-	Preset       string            `json:"preset"`                 // preset name (e.g., "space", "medieval", "pirate")
-	Animation    string            `json:"animation,omitempty"`    // optional animation override: "none", "stars", "bubbles", etc. Empty = use preset default.
-	ThinkingText string            `json:"thinkingText,omitempty"` // optional loading phrase override, e.g. "The tale continues..." Empty = use preset default.
-	StatusEmojis map[string]string `json:"statusEmojis,omitempty"` // maps status field names to emoji, e.g. {"Health": "❤️", "Gold": "🪙"}
-}
-
-// ApiKeyType identifies the source/type of API key used for a game session message.
-// Stored in game_session_message.api_key_type and shown in the AI Insight panel.
+// ApiKeyType names the step of the key-resolution chain an API key came from.
 const (
 	ApiKeyTypeWorkshop           = "workshop"
 	ApiKeyTypeSponsor            = "sponsor"
@@ -438,102 +326,8 @@ const (
 	ApiKeyTypePrivateShare       = "private_share"
 )
 
-// StatusField represents a single named status value shown during gameplay.
+// StatusField is one named status value of a game, as listed in Game.StatusFields.
 type StatusField struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
-}
-
-const (
-	GameSessionMessageTypeGame   = "game"   // LLM/game response
-	GameSessionMessageTypePlayer = "player" // player action
-	GameSessionMessageTypeSystem = "system" // system/context messages
-)
-
-// GameSessionMessageAi is the AI-facing JSON structure for player/game messages.
-// Status uses a flat map keyed by field name (e.g. {"Health": "100", "Gold": "5"})
-// so the AI schema can enforce exact field names and prevent hallucination.
-type GameSessionMessageAi struct {
-	Type        string            `json:"type"`
-	Message     string            `json:"message"`
-	Status      map[string]string `json:"status"`
-	ImagePrompt *string           `json:"imagePrompt,omitempty"`
-}
-
-// ToAiJSON converts a GameSessionMessage to its AI-facing JSON representation.
-// Converts internal []StatusField to flat map[string]string for the AI.
-func (m *GameSessionMessage) ToAiJSON() string {
-	statusMap := make(map[string]string, len(m.StatusFields))
-	for _, f := range m.StatusFields {
-		statusMap[f.Name] = f.Value
-	}
-	data, err := json.Marshal(GameSessionMessageAi{
-		Type:        m.Type,
-		Message:     m.Message,
-		Status:      statusMap,
-		ImagePrompt: m.ImagePrompt,
-	})
-	if err != nil {
-		return "{}"
-	}
-	return string(data)
-}
-
-// GameSessionMessage represents a single message (player, game, or system) within a game session.
-type GameSessionMessage struct {
-	ID     uuid.UUID `json:"id"`
-	Meta   Meta      `json:"meta"`
-	Stream bool      `json:"stream"`
-
-	GameSessionID uuid.UUID `json:"gameSessionId"`
-	// Sequence number within the session, starting at 1
-	Seq int `json:"seq"`
-	// player: user message; game: LLM/game response; system: initial system/context messages.
-	Type string `json:"type"`
-	// Plain text of the scene (system message, player action, or game response).
-	Message string `json:"message"`
-
-	// Voice input: base64-encoded audio from the player (not persisted, used for transcription)
-	AudioBase64   string `json:"-"`
-	AudioMimeType string `json:"-"`
-
-	// Transcription holds the text result of audio-to-text conversion (transient, not persisted).
-	// Returned in the action response so the client can display what was recognized.
-	Transcription string `json:"transcription,omitempty"`
-
-	PromptStatusUpdate    *string `json:"requestStatusUpdate,omitempty"`
-	PromptResponseSchema  *string `json:"requestResponseSchema,omitempty"`
-	PromptImageGeneration *string `json:"requestImageGeneration,omitempty"`
-	PromptExpandStory     *string `json:"requestExpandStory,omitempty"`
-	ResponseRaw           *string `json:"responseRaw,omitempty"`
-	URLAnalytics          *string `json:"urlAnalytics,omitempty"`
-
-	// JSON encoded status fields.
-	StatusFields               []StatusField `json:"statusFields"`
-	Plot                       *string       `json:"plot,omitempty"`
-	ImagePrompt                *string       `json:"imagePrompt,omitempty"`
-	Image                      []byte        `json:"image,omitempty"`
-	Audio                      []byte        `json:"audio,omitempty"`
-	HasImage                   bool          `json:"hasImage"`    // true when image generation is active for this message
-	HasAudioIn                 bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
-	HasAudioOut                bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
-	TokenUsage                 *TokenUsage   `json:"tokenUsage,omitempty"`
-	ApiKeyType                 string        `json:"apiKeyType,omitempty"`                 // source of API key used (workshop, sponsor, personal, etc.)
-	PromptConstraintSource     string        `json:"promptConstraintSource,omitempty"`     // source label of active constraint (workshop, organisation, site13, site13p, site18)
-	PromptConstraintText       string        `json:"promptConstraintText,omitempty"`       // snapshot of the constraint text actually applied for this message
-	PromptConstraintSourceName string        `json:"promptConstraintSourceName,omitempty"` // human-readable origin (e.g. workshop or organisation name); empty for site-by-age
-	PromptConstraintReasoning  string        `json:"promptConstraintReasoning,omitempty"`  // human-readable trace of how the constraint was decided (db.ResolveConstraint)
-}
-
-// GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)
-type GameSessionMessageChunk struct {
-	Text       string `json:"text,omitempty"`       // Partial text content
-	TextDone   bool   `json:"textDone,omitempty"`   // True when text streaming is complete
-	ImageData  []byte `json:"imageData,omitempty"`  // Partial/final image data
-	ImageDone  bool   `json:"imageDone,omitempty"`  // True when image streaming is complete
-	ImageError string `json:"imageError,omitempty"` // Human-readable image error (e.g. "rate limit reached")
-	AudioData  []byte `json:"audioData,omitempty"`  // Partial/final audio data (opus)
-	AudioDone  bool   `json:"audioDone,omitempty"`  // True when audio streaming is complete
-	Error      string `json:"error,omitempty"`      // Error message if failed
-	ErrorCode  string `json:"errorCode,omitempty"`  // Machine-readable error code (maps to frontend i18n)
 }

@@ -137,9 +137,6 @@ WHERE default_api_key_share_id IN (
   SELECT id FROM api_key_share WHERE api_key_id = $1
 );
 
--- name: ClearSessionApiKeyID :exec
-UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE api_key_id = $1;
-
 -- name: ClearGameSponsoredApiKeyByShareID :exec
 -- Clear game sponsoring when an API key share is deleted
 UPDATE game

@@ -175,38 +175,13 @@ func (q *Queries) CountHeadsByInstitution(ctx context.Context, institutionID uui
 }
 
 const countUserGames = `-- name: CountUserGames :one
+
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
 `
 
+// User Statistics queries
 func (q *Queries) CountUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
 	row := q.db.QueryRowContext(ctx, countUserGames, createdBy)
-	var count int32
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countUserPlayerMessages = `-- name: CountUserPlayerMessages :one
-SELECT COUNT(*)::int AS count
-FROM game_session_message m
-JOIN game_session s ON s.id = m.game_session_id
-WHERE s.user_id = $1 AND m.type = 'player'
-`
-
-func (q *Queries) CountUserPlayerMessages(ctx context.Context, userID uuid.UUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, countUserPlayerMessages, userID)
-	var count int32
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countUserSessions = `-- name: CountUserSessions :one
-
-SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1
-`
-
-// User Statistics queries
-func (q *Queries) CountUserSessions(ctx context.Context, userID uuid.UUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, countUserSessions, userID)
 	var count int32
 	err := row.Scan(&count)
 	return count, err
@@ -1357,7 +1332,6 @@ SELECT
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.ai_quality_tier AS workshop_ai_quality_tier,
   w.prompt_constraints AS workshop_prompt_constraints,
-  w.design_editing_enabled AS workshop_design_editing_enabled,
   w.is_paused AS workshop_is_paused,
   w.allow_game_sharing AS workshop_allow_game_sharing,
   r.active_workshop_id,
@@ -1366,7 +1340,6 @@ SELECT
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
   aw.prompt_constraints AS active_workshop_prompt_constraints,
-  aw.design_editing_enabled AS active_workshop_design_editing_enabled,
   aw.is_paused AS active_workshop_is_paused,
   aw.allow_game_sharing AS active_workshop_allow_game_sharing
 FROM app_user u
@@ -1412,7 +1385,6 @@ type GetUserDetailsByIDRow struct {
 	WorkshopShowOtherParticipantsGames       sql.NullBool
 	WorkshopAiQualityTier                    sql.NullString
 	WorkshopPromptConstraints                sql.NullString
-	WorkshopDesignEditingEnabled             sql.NullBool
 	WorkshopIsPaused                         sql.NullBool
 	WorkshopAllowGameSharing                 sql.NullBool
 	ActiveWorkshopID                         uuid.NullUUID
@@ -1421,7 +1393,6 @@ type GetUserDetailsByIDRow struct {
 	ActiveWorkshopShowOtherParticipantsGames sql.NullBool
 	ActiveWorkshopAiQualityTier              sql.NullString
 	ActiveWorkshopPromptConstraints          sql.NullString
-	ActiveWorkshopDesignEditingEnabled       sql.NullBool
 	ActiveWorkshopIsPaused                   sql.NullBool
 	ActiveWorkshopAllowGameSharing           sql.NullBool
 }
@@ -1455,7 +1426,6 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopShowOtherParticipantsGames,
 		&i.WorkshopAiQualityTier,
 		&i.WorkshopPromptConstraints,
-		&i.WorkshopDesignEditingEnabled,
 		&i.WorkshopIsPaused,
 		&i.WorkshopAllowGameSharing,
 		&i.ActiveWorkshopID,
@@ -1464,7 +1434,6 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.ActiveWorkshopShowOtherParticipantsGames,
 		&i.ActiveWorkshopAiQualityTier,
 		&i.ActiveWorkshopPromptConstraints,
-		&i.ActiveWorkshopDesignEditingEnabled,
 		&i.ActiveWorkshopIsPaused,
 		&i.ActiveWorkshopAllowGameSharing,
 	)

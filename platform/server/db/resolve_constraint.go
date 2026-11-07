@@ -72,7 +72,7 @@ func ResolveConstraint(ctx context.Context, player *obj.User, share *obj.GameSha
 // a private share link, marked by a non-NULL private_share_id. ResolveConstraint
 // treats guests as anonymous: we don't know who they are, so they fall back to the
 // share author's protection rather than their own age. Mirrors the guest check in
-// canAccessGame (permissions.go). Also used by the play routes to gate session access.
+// canAccessGame (permissions.go).
 func IsGuestUser(ctx context.Context, userID uuid.UUID) bool {
 	appUser, err := queries().GetUserByID(ctx, userID)
 	return err == nil && appUser.PrivateShareID.Valid

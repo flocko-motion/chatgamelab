@@ -31,7 +31,6 @@ type UpdateWorkshopRequest struct {
 	PromptConstraints          *string `json:"promptConstraints,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
-	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 	IsPaused                   bool    `json:"isPaused"`
 	AllowGameSharing           bool    `json:"allowGameSharing"`
 	PublicSlug                 *string `json:"publicSlug,omitempty"`        // omitted keeps the current link
@@ -226,7 +225,6 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		PromptConstraints:          req.PromptConstraints,
 		ShowPublicGames:            req.ShowPublicGames,
 		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
-		DesignEditingEnabled:       req.DesignEditingEnabled,
 		IsPaused:                   req.IsPaused,
 		AllowGameSharing:           req.AllowGameSharing,
 		PublicSlug:                 req.PublicSlug,

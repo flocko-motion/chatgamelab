@@ -41,7 +41,6 @@ export enum AdaptersTier {
   TierLow = "low",
   TierMedium = "medium",
   TierHigh = "high",
-  TierMax = "max",
 }
 
 export interface AdaptersModel {
@@ -50,61 +49,6 @@ export interface AdaptersModel {
 }
 
 export type AdaptersModelSet = Record<string, AdaptersModel>;
-
-export interface DbUserSessionWithGame {
-  aiModel?: string;
-  /** AI model used for playing. */
-  aiPlatform?: string;
-  /** JSON with arbitrary details to be used within that model and within that session. */
-  aiSession?: string;
-  apiKey?: ObjApiKey;
-  /**
-   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-   * Nullable: key may be deleted, session can continue with a new key.
-   */
-  apiKeyId?: string;
-  gameDescription?: string;
-  gameId?: string;
-  gameName?: string;
-  gameScenario?: string;
-  /**
-   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
-   * Persisted indirectly via AiSession cache, not as its own DB column.
-   */
-  gameScenarioImagePrompt?: string;
-  id?: string;
-  imageStyle?: string;
-  /** Set to true when image generation fails due to organization verification required */
-  isOrganisationUnverified?: boolean;
-  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
-  language?: string;
-  meta?: ObjMeta;
-  /**
-   * Transient human-readable trace of how the active constraint was decided, built up
-   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
-   */
-  promptConstraintReasoning?: string;
-  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
-  promptConstraintSource?: string;
-  /**
-   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
-   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
-   */
-  promptConstraintSourceName?: string;
-  /**
-   * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
-   * or share-workshop > share-org > author's user-cascade (guest via share).
-   */
-  promptConstraints?: string;
-  /** Defines the status fields available in the game; copied from game.status_fields at launch. */
-  statusFields?: string;
-  /** AI-generated visual theme for the game player UI (JSON) */
-  theme?: ObjGameTheme;
-  userId?: string;
-  userName?: string;
-  workshopId?: string;
-}
 
 export interface EnginePlatformInfo {
   genres?: EngineGenre[];
@@ -219,112 +163,10 @@ export interface ObjGame {
    */
   systemMessageScenario?: string;
   tags?: ObjGameTag[];
-  /** Optional visual theme override. When set, used directly instead of AI-generating per session. */
-  theme?: ObjGameTheme;
+  /** Name of the engine theme the game is played in; nil means the engine's default. */
+  theme?: string;
   /** Optional workshop scope (games can be created within a workshop context) */
   workshopId?: string;
-}
-
-export interface ObjGameSession {
-  aiModel?: string;
-  /** AI model used for playing. */
-  aiPlatform?: string;
-  /** JSON with arbitrary details to be used within that model and within that session. */
-  aiSession?: string;
-  apiKey?: ObjApiKey;
-  /**
-   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-   * Nullable: key may be deleted, session can continue with a new key.
-   */
-  apiKeyId?: string;
-  gameDescription?: string;
-  gameId?: string;
-  gameName?: string;
-  gameScenario?: string;
-  /**
-   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
-   * Persisted indirectly via AiSession cache, not as its own DB column.
-   */
-  gameScenarioImagePrompt?: string;
-  id?: string;
-  imageStyle?: string;
-  /** Set to true when image generation fails due to organization verification required */
-  isOrganisationUnverified?: boolean;
-  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
-  language?: string;
-  meta?: ObjMeta;
-  /**
-   * Transient human-readable trace of how the active constraint was decided, built up
-   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
-   */
-  promptConstraintReasoning?: string;
-  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
-  promptConstraintSource?: string;
-  /**
-   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
-   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
-   */
-  promptConstraintSourceName?: string;
-  /**
-   * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
-   * or share-workshop > share-org > author's user-cascade (guest via share).
-   */
-  promptConstraints?: string;
-  /** Defines the status fields available in the game; copied from game.status_fields at launch. */
-  statusFields?: string;
-  /** AI-generated visual theme for the game player UI (JSON) */
-  theme?: ObjGameTheme;
-  userId?: string;
-  userName?: string;
-  workshopId?: string;
-}
-
-export interface ObjGameSessionMessage {
-  /** source of API key used (workshop, sponsor, personal, etc.) */
-  apiKeyType?: string;
-  audio?: number[];
-  gameSessionId?: string;
-  /** true when voice input (STT) is available for this session tier */
-  hasAudioIn?: boolean;
-  /** true when audio narration (TTS) is active for this message */
-  hasAudioOut?: boolean;
-  /** true when image generation is active for this message */
-  hasImage?: boolean;
-  id?: string;
-  image?: number[];
-  imagePrompt?: string;
-  /** Plain text of the scene (system message, player action, or game response). */
-  message?: string;
-  meta?: ObjMeta;
-  plot?: string;
-  /** human-readable trace of how the constraint was decided (db.ResolveConstraint) */
-  promptConstraintReasoning?: string;
-  /** source label of active constraint (workshop, organisation, site13, site13p, site18) */
-  promptConstraintSource?: string;
-  /** human-readable origin (e.g. workshop or organisation name); empty for site-by-age */
-  promptConstraintSourceName?: string;
-  /** snapshot of the constraint text actually applied for this message */
-  promptConstraintText?: string;
-  requestExpandStory?: string;
-  requestImageGeneration?: string;
-  requestResponseSchema?: string;
-  requestStatusUpdate?: string;
-  responseRaw?: string;
-  /** Sequence number within the session, starting at 1 */
-  seq?: number;
-  /** JSON encoded status fields. */
-  statusFields?: ObjStatusField[];
-  stream?: boolean;
-  tokenUsage?: ObjTokenUsage;
-  /**
-   * Transcription holds the text result of audio-to-text conversion (transient, not persisted).
-   * Returned in the action response so the client can display what was recognized.
-   */
-  transcription?: string;
-  /** player: user message; game: LLM/game response; system: initial system/context messages. */
-  type?: string;
-  urlAnalytics?: string;
 }
 
 export interface ObjGameTag {
@@ -332,17 +174,6 @@ export interface ObjGameTag {
   id?: string;
   meta?: ObjMeta;
   tag?: string;
-}
-
-export interface ObjGameTheme {
-  /** optional animation override: "none", "stars", "bubbles", etc. Empty = use preset default. */
-  animation?: string;
-  /** preset name (e.g., "space", "medieval", "pirate") */
-  preset?: string;
-  /** maps status field names to emoji, e.g. {"Health": "❤️", "Gold": "🪙"} */
-  statusEmojis?: Record<string, string>;
-  /** optional loading phrase override, e.g. "The tale continues..." Empty = use preset default. */
-  thinkingText?: string;
 }
 
 export interface ObjInstitution {
@@ -399,11 +230,6 @@ export interface ObjPublicWorkshopPlay {
   token?: string;
 }
 
-export interface ObjStatusField {
-  name?: string;
-  value?: string;
-}
-
 export interface ObjSystemSettings {
   createdAt?: string;
   /** ultimate server-wide fallback (e.g. "medium") */
@@ -422,16 +248,6 @@ export interface ObjSystemSettings {
   promptConstraintU13p?: string;
   /** constraint for users aged 18+ (u18) */
   promptConstraintU18?: string;
-}
-
-export interface ObjTokenUsage {
-  /** Subset of input tokens served from cache */
-  cachedTokens?: number;
-  inputTokens?: number;
-  outputTokens?: number;
-  /** Subset of output tokens used for reasoning */
-  reasoningTokens?: number;
-  totalTokens?: number;
 }
 
 export interface ObjUser {
@@ -484,8 +300,6 @@ export interface ObjUserRoleInvite {
 
 export interface ObjUserStats {
   gamesCreated?: number;
-  gamesPlayed?: number;
-  messagesSent?: number;
   totalPlaysOnGames?: number;
 }
 
@@ -495,7 +309,6 @@ export interface ObjWorkshop {
   aiQualityTier?: string;
   allowGameSharing?: boolean;
   defaultApiKeyShareId?: string;
-  designEditingEnabled?: boolean;
   id?: string;
   institution?: ObjInstitution;
   invites?: ObjUserRoleInvite[];
@@ -645,72 +458,6 @@ export interface RoutesGuestGameInfo {
   remaining?: number;
 }
 
-export interface RoutesGuestSessionResponse {
-  aiModel?: string;
-  /** AI model used for playing. */
-  aiPlatform?: string;
-  /** JSON with arbitrary details to be used within that model and within that session. */
-  aiSession?: string;
-  apiKey?: ObjApiKey;
-  /**
-   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-   * Nullable: key may be deleted, session can continue with a new key.
-   */
-  apiKeyId?: string;
-  gameDescription?: string;
-  gameId?: string;
-  gameName?: string;
-  gameScenario?: string;
-  /**
-   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
-   * Persisted indirectly via AiSession cache, not as its own DB column.
-   */
-  gameScenarioImagePrompt?: string;
-  id?: string;
-  imageStyle?: string;
-  /** Set to true when image generation fails due to organization verification required */
-  isOrganisationUnverified?: boolean;
-  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
-  language?: string;
-  messages?: RoutesSessionMessageResponse[];
-  meta?: ObjMeta;
-  /**
-   * Transient human-readable trace of how the active constraint was decided, built up
-   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
-   */
-  promptConstraintReasoning?: string;
-  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
-  promptConstraintSource?: string;
-  /**
-   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
-   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
-   */
-  promptConstraintSourceName?: string;
-  /**
-   * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
-   * or share-workshop > share-org > author's user-cascade (guest via share).
-   */
-  promptConstraints?: string;
-  /** Defines the status fields available in the game; copied from game.status_fields at launch. */
-  statusFields?: string;
-  /** AI-generated visual theme for the game player UI (JSON) */
-  theme?: ObjGameTheme;
-  userId?: string;
-  userName?: string;
-  workshopId?: string;
-}
-
-export interface RoutesImageStatusResponse {
-  errorCode?: string;
-  errorMsg?: string;
-  exists?: boolean;
-  hasError?: boolean;
-  hash?: string;
-  isComplete?: boolean;
-  isOrganisationUnverified?: boolean;
-}
-
 export interface RoutesInviteResponse {
   createdAt?: string;
   expiresAt?: string;
@@ -732,25 +479,6 @@ export interface RoutesInviteResponse {
 export interface RoutesLanguage {
   iso?: string;
   label?: string;
-}
-
-export interface RoutesMessageStatusResponse {
-  /** Fatal error message (AI failure) */
-  error?: string;
-  /** Machine-readable error code */
-  errorCode?: string;
-  /** Machine-readable image error code */
-  imageError?: string;
-  /** Hash for cache-busting image URL */
-  imageHash?: string;
-  /** "none" | "generating" | "complete" | "error" */
-  imageStatus?: string;
-  /** Current status fields */
-  statusFields?: ObjStatusField[];
-  /** Current full text of the message */
-  text?: string;
-  /** True when text streaming is complete (Stream=false in DB) */
-  textDone?: boolean;
 }
 
 export interface RoutesParticipantCodeResponse {
@@ -782,121 +510,6 @@ export interface RoutesRegisterRequest {
 
 export interface RoutesRolesResponse {
   roles?: ObjRole[];
-}
-
-export interface RoutesSessionActionRequest {
-  /** Base64-encoded audio from voice input */
-  audioBase64?: string;
-  /** MIME type of the audio (e.g. "audio/webm;codecs=opus") */
-  audioMimeType?: string;
-  message?: string;
-  /** Current status to pass to AI */
-  statusFields?: ObjStatusField[];
-  /** Message type: "player" or "system" (defaults to "player") */
-  type?: string;
-}
-
-export interface RoutesSessionMessageResponse {
-  /** source of API key used (workshop, sponsor, personal, etc.) */
-  apiKeyType?: string;
-  audio?: number[];
-  gameSessionId?: string;
-  /** true when voice input (STT) is available for this session tier */
-  hasAudioIn?: boolean;
-  /** true when audio narration (TTS) is active for this message */
-  hasAudioOut?: boolean;
-  /** true when image generation is active for this message */
-  hasImage?: boolean;
-  id?: string;
-  image?: number[];
-  imagePrompt?: string;
-  /** Plain text of the scene (system message, player action, or game response). */
-  message?: string;
-  meta?: ObjMeta;
-  plot?: string;
-  /** human-readable trace of how the constraint was decided (db.ResolveConstraint) */
-  promptConstraintReasoning?: string;
-  /** source label of active constraint (workshop, organisation, site13, site13p, site18) */
-  promptConstraintSource?: string;
-  /** human-readable origin (e.g. workshop or organisation name); empty for site-by-age */
-  promptConstraintSourceName?: string;
-  /** snapshot of the constraint text actually applied for this message */
-  promptConstraintText?: string;
-  requestExpandStory?: string;
-  requestImageGeneration?: string;
-  requestResponseSchema?: string;
-  requestStatusUpdate?: string;
-  responseRaw?: string;
-  /** Sequence number within the session, starting at 1 */
-  seq?: number;
-  /** JSON encoded status fields. */
-  statusFields?: ObjStatusField[];
-  stream?: boolean;
-  tokenUsage?: ObjTokenUsage;
-  /**
-   * Transcription holds the text result of audio-to-text conversion (transient, not persisted).
-   * Returned in the action response so the client can display what was recognized.
-   */
-  transcription?: string;
-  /** player: user message; game: LLM/game response; system: initial system/context messages. */
-  type?: string;
-  urlAnalytics?: string;
-}
-
-export interface RoutesSessionResponse {
-  aiModel?: string;
-  /** AI model used for playing. */
-  aiPlatform?: string;
-  /** JSON with arbitrary details to be used within that model and within that session. */
-  aiSession?: string;
-  apiKey?: ObjApiKey;
-  /**
-   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-   * Nullable: key may be deleted, session can continue with a new key.
-   */
-  apiKeyId?: string;
-  gameDescription?: string;
-  gameId?: string;
-  gameName?: string;
-  gameScenario?: string;
-  /**
-   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
-   * Persisted indirectly via AiSession cache, not as its own DB column.
-   */
-  gameScenarioImagePrompt?: string;
-  id?: string;
-  imageStyle?: string;
-  /** Set to true when image generation fails due to organization verification required */
-  isOrganisationUnverified?: boolean;
-  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
-  language?: string;
-  messages?: ObjGameSessionMessage[];
-  meta?: ObjMeta;
-  /**
-   * Transient human-readable trace of how the active constraint was decided, built up
-   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
-   */
-  promptConstraintReasoning?: string;
-  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
-  promptConstraintSource?: string;
-  /**
-   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
-   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
-   */
-  promptConstraintSourceName?: string;
-  /**
-   * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
-   * or share-workshop > share-org > author's user-cascade (guest via share).
-   */
-  promptConstraints?: string;
-  /** Defines the status fields available in the game; copied from game.status_fields at launch. */
-  statusFields?: string;
-  /** AI-generated visual theme for the game player UI (JSON) */
-  theme?: ObjGameTheme;
-  userId?: string;
-  userName?: string;
-  workshopId?: string;
 }
 
 export interface RoutesSetActiveWorkshopRequest {
@@ -980,7 +593,6 @@ export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   aiQualityTier?: string;
   allowGameSharing?: boolean;
-  designEditingEnabled?: boolean;
   isPaused?: boolean;
   name?: string;
   promptConstraints?: string;
@@ -1788,43 +1400,6 @@ export class Api<
       }),
 
     /**
-     * @description Lists sessions for a game
-     *
-     * @tags sessions
-     * @name SessionsList
-     * @summary List game sessions
-     * @request GET:/games/{id}/sessions
-     * @secure
-     */
-    sessionsList: (id: string, params: RequestParams = {}) =>
-      this.request<ObjGameSession[], HttpxErrorResponse>({
-        path: `/games/${id}/sessions`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a new session for a game and returns the session with first message
-     *
-     * @tags sessions
-     * @name SessionsCreate
-     * @summary Create game session
-     * @request POST:/games/{id}/sessions
-     * @secure
-     */
-    sessionsCreate: (id: string, params: RequestParams = {}) =>
-      this.request<RoutesSessionResponse, HttpxErrorResponse>({
-        path: `/games/${id}/sessions`,
-        method: "POST",
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
      * @description Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
      *
      * @tags games
@@ -2401,85 +1976,6 @@ export class Api<
         ...params,
       }),
   };
-  messages = {
-    /**
-     * @description Returns the audio narration for a message (MP3 format). No authentication required - message UUIDs are random and unguessable.
-     *
-     * @tags messages
-     * @name AudioList
-     * @summary Get message audio
-     * @request GET:/messages/{id}/audio
-     */
-    audioList: (id: string, params: RequestParams = {}) =>
-      this.request<File, HttpxErrorResponse>({
-        path: `/messages/${id}/audio`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * @description Returns the generated image for a game session message. Checks in-memory cache first (for partial/WIP images), then database. No authentication required - message UUIDs are random and unguessable.
-     *
-     * @tags messages
-     * @name ImageList
-     * @summary Get message image
-     * @request GET:/messages/{id}/image
-     */
-    imageList: (id: string, params: RequestParams = {}) =>
-      this.request<File, HttpxErrorResponse>({
-        path: `/messages/${id}/image`,
-        method: "GET",
-        format: "blob",
-        ...params,
-      }),
-
-    /**
-     * @description Returns the current hash and completion status of an image being generated. Frontend can poll this to detect when new partial/final images are available.
-     *
-     * @tags messages
-     * @name ImageStatusList
-     * @summary Get image generation status
-     * @request GET:/messages/{id}/image/status
-     */
-    imageStatusList: (id: string, params: RequestParams = {}) =>
-      this.request<RoutesImageStatusResponse, HttpxErrorResponse>({
-        path: `/messages/${id}/image/status`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Returns the current state of a message: text, image status, errors. Frontend polls this as a safety net when SSE drops, on reload, or for image progress. No authentication required - message UUIDs are random and unguessable.
-     *
-     * @tags messages
-     * @name StatusList
-     * @summary Get message completion status
-     * @request GET:/messages/{id}/status
-     */
-    statusList: (id: string, params: RequestParams = {}) =>
-      this.request<RoutesMessageStatusResponse, HttpxErrorResponse>({
-        path: `/messages/${id}/status`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Server-Sent Events endpoint for streaming message chunks.
-     *
-     * @tags messages
-     * @name StreamList
-     * @summary Stream message updates (SSE)
-     * @request GET:/messages/{id}/stream
-     */
-    streamList: (id: string, params: RequestParams = {}) =>
-      this.request<string, string>({
-        path: `/messages/${id}/stream`,
-        method: "GET",
-        ...params,
-      }),
-  };
   platforms = {
     /**
      * @description Returns the engine's AI platforms with their toggles, playable genres and tiers
@@ -2499,23 +1995,7 @@ export class Api<
   };
   play = {
     /**
-     * @description Creates a new anonymous game session using a private share link. No authentication required — the share token grants access.
-     *
-     * @tags play
-     * @name PlayCreate
-     * @summary Create guest session via share token
-     * @request POST:/play/{token}
-     */
-    playCreate: (token: string, params: RequestParams = {}) =>
-      this.request<RoutesGuestSessionResponse, HttpxErrorResponse>({
-        path: `/play/${token}`,
-        method: "POST",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Returns basic game info (name, description) for the welcome screen. No session is created.
+     * @description Returns basic game info (name, description) for the welcome screen.
      *
      * @tags play
      * @name InfoList
@@ -2526,54 +2006,6 @@ export class Api<
       this.request<RoutesGuestGameInfo, HttpxErrorResponse>({
         path: `/play/${token}/info`,
         method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Returns session details for recovery after reload. Validates token→game→session chain.
-     *
-     * @tags play
-     * @name SessionsDetail
-     * @summary Get guest session via share token
-     * @request GET:/play/{token}/sessions/{id}
-     */
-    sessionsDetail: (
-      token: string,
-      id: string,
-      query?: {
-        /** Message inclusion: none|latest|all */
-        messages?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<RoutesSessionResponse, HttpxErrorResponse>({
-        path: `/play/${token}/sessions/${id}`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Sends a player message to an anonymous session. Validates token→game→session chain.
-     *
-     * @tags play
-     * @name SessionsCreate
-     * @summary Send guest action via share token
-     * @request POST:/play/{token}/sessions/{id}
-     */
-    sessionsCreate: (
-      token: string,
-      id: string,
-      request: RoutesSessionActionRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<ObjGameSessionMessage, HttpxErrorResponse>({
-        path: `/play/${token}/sessions/${id}`,
-        method: "POST",
-        body: request,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -2647,116 +2079,6 @@ export class Api<
       this.request<RoutesRolesResponse, HttpxErrorResponse>({
         path: `/roles`,
         method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-  };
-  sessions = {
-    /**
-     * @description Returns recent sessions for the authenticated user with game names
-     *
-     * @tags sessions
-     * @name SessionsList
-     * @summary List user sessions
-     * @request GET:/sessions
-     * @secure
-     */
-    sessionsList: (
-      query?: {
-        /** Search by game name */
-        search?: string;
-        /** Sort field: game, model, lastPlayed (default) */
-        sortBy?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<DbUserSessionWithGame[], HttpxErrorResponse>({
-        path: `/sessions`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Returns session details. Optional query parameter can include latest message.
-     *
-     * @tags sessions
-     * @name SessionsDetail
-     * @summary Get session
-     * @request GET:/sessions/{id}
-     */
-    sessionsDetail: (
-      id: string,
-      query?: {
-        /** Message inclusion: none|latest|all */
-        messages?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<RoutesSessionResponse, HttpxErrorResponse>({
-        path: `/sessions/${id}`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Sends a player message/action to a session and returns the resulting message.
-     *
-     * @tags sessions
-     * @name SessionsCreate
-     * @summary Send session action
-     * @request POST:/sessions/{id}
-     */
-    sessionsCreate: (
-      id: string,
-      request: RoutesSessionActionRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<ObjGameSessionMessage, HttpxErrorResponse>({
-        path: `/sessions/${id}`,
-        method: "POST",
-        body: request,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Deletes a session and all its messages. User must be the owner.
-     *
-     * @tags sessions
-     * @name SessionsDelete
-     * @summary Delete session
-     * @request DELETE:/sessions/{id}
-     * @secure
-     */
-    sessionsDelete: (id: string, params: RequestParams = {}) =>
-      this.request<Record<string, string>, HttpxErrorResponse>({
-        path: `/sessions/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Re-resolves the API key for a session. Used when resuming a session whose API key was deleted. The API key is resolved server-side using the same priority as session creation.
-     *
-     * @tags sessions
-     * @name SessionsPartialUpdate
-     * @summary Update session API key
-     * @request PATCH:/sessions/{id}
-     * @secure
-     */
-    sessionsPartialUpdate: (id: string, params: RequestParams = {}) =>
-      this.request<ObjGameSession, HttpxErrorResponse>({
-        path: `/sessions/${id}`,
-        method: "PATCH",
         secure: true,
         format: "json",
         ...params,

@@ -374,19 +374,9 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 
 // GetUserStats retrieves statistics for a user
 func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error) {
-	sessionsCount, err := queries().CountUserSessions(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to count user sessions: %w", err)
-	}
-
 	gamesCount, err := queries().CountUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
 	if err != nil {
 		return nil, fmt.Errorf("failed to count user games: %w", err)
-	}
-
-	messagesCount, err := queries().CountUserPlayerMessages(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to count user messages: %w", err)
 	}
 
 	playCount, err := queries().SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
@@ -395,9 +385,7 @@ func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error)
 	}
 
 	return &obj.UserStats{
-		GamesPlayed:       int(sessionsCount),
 		GamesCreated:      int(gamesCount),
-		MessagesSent:      int(messagesCount),
 		TotalPlaysOnGames: int(playCount),
 	}, nil
 }

@@ -86,19 +86,6 @@ func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListWorkshops(
 	s.T().Logf("Correctly denied unauthenticated access to workshops")
 }
 
-// TestUnauthenticatedCannotCreateSession verifies that an unauthenticated client
-// cannot create a game session via POST /api/games/{id}/sessions.
-func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotCreateSession() {
-	// Create a user and game so we have a valid game ID
-	user := s.CreateUser("unauth-sess")
-	Must(user.AddApiKey("mock-unauth-sess", "Key", "openai"))
-	game := Must(user.UploadGame("alien-first-contact"))
-
-	pub := s.Public()
-	pub.FailPost("games/"+game.ID.String()+"/sessions", nil)
-	s.T().Logf("Correctly denied unauthenticated session creation")
-}
-
 // TestUnauthenticatedCannotDeleteGame verifies that an unauthenticated client
 // cannot delete a game.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotDeleteGame() {
