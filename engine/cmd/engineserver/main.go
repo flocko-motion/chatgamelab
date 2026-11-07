@@ -1,10 +1,4 @@
-// Command engineserver is the standalone shape: one game's hand-assembled
-// SessionSpec in a file, the engine's own handlers served directly, and the
-// embedded player at /player/. It is how the gpt-live spike is run.
-//
-// The files under examples/ are games, named for themselves. Which genre each
-// one runs is a field inside it, because a game is the thing somebody plays and
-// a genre is the machinery it plays on.
+// Command engineserver serves one game's SessionSpec file standalone, with the embedded player at /player/.
 //
 //	engineserver examples/stopped-clock.json
 //	engineserver --api-key sk-... examples/stopped-clock.json
@@ -55,9 +49,7 @@ func main() {
 		spec.Keys = keys
 	}
 
-	// Persist is injected here rather than named in the spec file, because it
-	// is behaviour. A standalone build would hand in SQLite; this one keeps the
-	// session in memory and forgets it on exit.
+	// In-memory persistence: the session is forgotten on exit.
 	store := &engine.MemoryPersist{}
 	spec.Persist = store
 
@@ -73,9 +65,6 @@ func main() {
 	}
 
 	srv := api.New()
-	// The one game this server serves, registered as the one game this server
-	// serves: every request reaches it, so the player's address needs no
-	// session id and the link below carries none.
 	srv.RegisterOnly(spec.ID, s)
 
 	fmt.Printf("genre=%s platform=%s session=%s\n", spec.Genre, spec.Platform, spec.ID)
@@ -85,8 +74,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(*addr, srv.Handler()))
 }
 
-// loadSpec reads a hand-assembled spec. It carries no key: secrets are
-// injected, never written into a file that gets persisted as a blob.
+// loadSpec reads a hand-assembled spec, which carries no key.
 func loadSpec(path string) (engine.SessionSpec, error) {
 	var spec engine.SessionSpec
 
@@ -100,13 +88,7 @@ func loadSpec(path string) (engine.SessionSpec, error) {
 	return spec, nil
 }
 
-// keyFunc is the standalone counterpart of the resolver the platform injects:
-// the --api-key flag first, then the platform's entry in
-// ~/.chatgamelab/config.yaml.
-//
-// It reports where the key came from and how it ends, because an account is
-// what a session spends and somebody running one should be able to see at a
-// glance that it is the account they meant.
+// keyFunc reads --api-key, then ~/.chatgamelab/config.yaml, reporting the source so the account is visible.
 func keyFunc(platform engine.Platform, override string) (engine.KeyFunc, string, error) {
 	if override != "" {
 		return func(context.Context) (string, error) { return override, nil },
@@ -126,9 +108,7 @@ func keyFunc(platform engine.Platform, override string) (engine.KeyFunc, string,
 		fingerprint(key) + " (" + cfg + ")", nil
 }
 
-// fingerprint is enough of a key to recognise and not enough to use. Four
-// characters distinguishes the accounts somebody is likely to have without
-// putting a usable secret into a terminal, a screenshot or a log.
+// fingerprint is enough of a key to recognise and too little to use.
 func fingerprint(key string) string {
 	const shown = 4
 	if len(key) <= shown {

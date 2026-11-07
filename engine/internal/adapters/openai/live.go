@@ -17,19 +17,12 @@ import (
 	"engine/internal/adapters"
 )
 
-// Live opens GPT-Live conversations.
-//
-// The audio runs between the player's browser and OpenAI over WebRTC; this
-// adapter creates the session, hands back the SDP answer, and then attaches a
-// second connection — a sideband — that carries transcripts, usage and control.
-// The API key is therefore only ever on this side, and OpenAI's session id
-// never reaches the browser.
+// Live opens GPT-Live conversations. Audio runs browser to OpenAI over WebRTC; a
+// sideband here carries transcripts, usage and control, keeping the key server-side.
 type Live struct {
 	keys  adapters.KeyFunc
 	model string
-	// sessions is where conversations are created. A field rather than the
-	// constant directly, so a test can point it at a server that answers the
-	// way the real one does.
+	// sessions is a field so a test can point it at a fake server.
 	sessions string
 	client   *http.Client
 }
@@ -43,12 +36,8 @@ func NewLive(keys adapters.KeyFunc, model string) *Live {
 	}
 }
 
-// builtinVoices is what GPT-Live will accept. A voice cannot change once a
-// session exists, so a bad name is worth catching before one is created rather
-// than as a rejected handshake.
-//
-// TODO: a custom voice trained from a recording is referenced as an object
-// carrying its id, which this adapter does not yet reach for.
+// builtinVoices catches a bad name before a session, whose voice is fixed, exists.
+// TODO: support custom voices, which are referenced by an object carrying their id.
 var builtinVoices = map[string]bool{
 	"alloy": true, "ash": true, "ballad": true, "beacon": true, "bossa": true,
 	"cedar": true, "cinder": true, "coral": true, "delta": true, "echo": true,
@@ -95,27 +84,17 @@ func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.Live
 	return conn, nil
 }
 
-// session is the configuration GPT-Live is created with. Everything here is
-// immutable for the session's lifetime — model, voice and delegation mode
-// included — which is why a change of any of them means a new conversation.
+// session is GPT-Live's creation config, immutable for the session's lifetime.
 type session struct {
 	Model string `json:"model"`
-	// Instructions is the character: the game designer's scenario, and the
-	// conversation policies the model's own prompt guide asks for.
+	// Instructions is the character: the designer's scenario plus conversation policy.
 	Instructions string `json:"instructions"`
-	// Input seeds the conversation. The guardrail rides in here as a developer
-	// message rather than being concatenated into Instructions, so a designer's
-	// text can never occupy the field the platform's constraint holds.
-	//
-	// TODO: this field also takes up to 128 prior messages and 8,192 tokens of
-	// transcript, which is how a dropped conversation would resume.
+	// Input carries the guardrail as its own developer message, so designer text in
+	// Instructions cannot reach the platform's constraint.
 	Input []message `json:"input,omitempty"`
 	Audio audioCfg  `json:"audio"`
-	// Store keeps the recording, which is what makes a paused conversation
-	// resumable: a fork continues from it. The platform already persists a
-	// game's history, so this is the same posture in a second place — with the
-	// difference, which belongs in the disclaimer, that this copy expires on
-	// OpenAI's schedule rather than on request.
+	// Store keeps the recording a fork resumes from; it expires on OpenAI's schedule,
+	// which the disclaimer must say.
 	Store bool `json:"store"`
 }
 
@@ -138,32 +117,21 @@ type audioOutCfg struct {
 	Voice string `json:"voice"`
 }
 
-// create exchanges the browser's offer for an answer, which is the act that
-// brings the session into being. It bills fifteen seconds up front, credited
-// back once the conversation runs — so it happens when a player has arrived
-// rather than when a session is launched.
-// create brings a conversation into being, continuing an earlier one where it
-// can.
-//
-// A fork is the better resume — the model picks up its own recording — but it
-// needs that recording to have finalised, which only a graceful close produces.
-// A dropped connection, a closed laptop or a killed process leave none, and
-// those are exactly the moments somebody wants to carry on from. So a fork that
-// cannot be honoured falls back to seeding a fresh session with what was said,
-// rather than failing the resume outright.
+// create bills fifteen seconds up front, so it runs only once a player has arrived.
+// Resuming needs both paths: a fork continues the provider's recording, but that
+// finalises only on a graceful close, so drops, closed laptops and redeploys fall
+// back to seeding a fresh session with the engine's in-memory transcript.
 func (l *Live) create(ctx context.Context, key string, cfg adapters.LiveConfig, voice string) (id, answer string, err error) {
 	if cfg.ResumeFrom != "" {
 		id, answer, err = l.post(ctx, key, l.sessions+"/"+cfg.ResumeFrom+"/fork", map[string]any{
 			"transport": map[string]any{"type": "webrtc", "sdp": cfg.Offer},
-			// A fork inherits model, instructions and history; only a few
-			// fields may be overridden, so this is deliberately almost empty.
+			// A fork inherits model, instructions and history; few fields may be overridden.
 			"session": map[string]any{"store": true},
 		})
 		if err == nil {
 			return id, answer, nil
 		}
-		// Falling back rather than reporting: no recording is an ordinary
-		// outcome, not a fault, and the conversation carries on either way.
+		// A missing recording is ordinary, so the fallback runs without reporting.
 	}
 
 	return l.post(ctx, key, l.sessions, map[string]any{
@@ -209,9 +177,7 @@ func (l *Live) post(ctx context.Context, key, url string, payload map[string]any
 	return readCreated(raw)
 }
 
-// createdSession is what a successful creation answers with. Both fields are
-// nested, which is worth a type of its own: reading them from the wrong level
-// costs a session that has been created and billed before anything notices.
+// createdSession types the nested fields: misreading them costs a billed session.
 type createdSession struct {
 	Session struct {
 		ID string `json:"id"`
@@ -227,17 +193,14 @@ func readCreated(raw []byte) (id, answer string, err error) {
 		return "", "", fmt.Errorf("create live session: %w (body: %s)", err, excerpt(raw))
 	}
 	if out.Session.ID == "" || out.Transport.SDP == "" {
-		// The session exists by now and is being billed, so the body goes into
-		// the error: a shape that changed under us is worth seeing once rather
-		// than guessing at twice.
+		// The session is already billed, so the body goes into the error.
 		return "", "", fmt.Errorf("create live session: response carried no %s (body: %s)",
 			missing(out.Session.ID, out.Transport.SDP), excerpt(raw))
 	}
 	return out.Session.ID, out.Transport.SDP, nil
 }
 
-// guardrailMessage puts the platform's constraint in as a developer message,
-// which is where the API documents trusted application instructions belong.
+// guardrailMessage uses the developer role, where the API puts trusted instructions.
 func guardrailMessage(guardrail string) []message {
 	if guardrail == "" {
 		return nil
@@ -249,8 +212,7 @@ func guardrailMessage(guardrail string) []message {
 	}}
 }
 
-// excerpt trims a response body down to something an error can carry. An SDP
-// answer is kilobytes of candidates, and none of it helps read a mistake.
+// excerpt trims a body for an error; an SDP answer is kilobytes of candidates.
 func excerpt(raw []byte) string {
 	const limit = 300
 	if len(raw) <= limit {
@@ -259,14 +221,8 @@ func excerpt(raw []byte) string {
 	return string(raw[:limit]) + "…"
 }
 
-// history turns what was said into the startup messages that restore it. This
-// is the path taken when the provider has no finalised recording to fork — a
-// dropped connection leaves none, and that is exactly when somebody most wants
-// to carry on.
-//
-// The provider accepts at most 128 messages and 8,192 tokens, so the oldest are
-// dropped first: a character remembering the last few exchanges and forgetting
-// the opening is better than one refused a resume for talking too long.
+// history seeds a fresh session with what was said. The provider takes at most 128
+// messages and 8,192 tokens, so the oldest go first.
 func history(said []adapters.Utterance) []message {
 	const most = 100
 
@@ -304,8 +260,7 @@ func missing(id, sdp string) string {
 }
 
 func (l *Live) attach(ctx context.Context, key, id, model string) (*liveConn, error) {
-	// The attach endpoint is the sessions URL over a websocket scheme, which
-	// keeps one constant rather than two that can drift apart.
+	// Derived from the sessions URL, so the two endpoints cannot drift apart.
 	url := "wss" + strings.TrimPrefix(l.sessions, "https") + "/" + id + "/attach"
 	ws, _, err := websocket.Dial(ctx, url, &websocket.DialOptions{
 		HTTPHeader: http.Header{"Authorization": {"Bearer " + key}},
@@ -335,17 +290,13 @@ type liveConn struct {
 	answer  string
 	events  chan adapters.LiveEvent
 	done    chan struct{}
-	// finalised closes when the provider confirms the session has ended, which
-	// is also when its recording is saved. Resuming by fork needs that
-	// recording, so a close that did not wait for this leaves nothing to
-	// continue from.
+	// finalised closes once the provider has ended the session and saved its recording.
 	finalised chan struct{}
 
 	mu     sync.Mutex
 	closed bool
 	nextID int
-	// pending tracks instruction appends awaiting acknowledgement, so a
-	// rejected steer is reported rather than assumed to have landed.
+	// pending tracks unacknowledged steers, so a rejected one is reported.
 	pending map[string]struct{}
 }
 
@@ -367,9 +318,7 @@ func (c *liveConn) write(ctx context.Context, msg map[string]any) error {
 	return c.ws.Write(ctx, websocket.MessageText, b)
 }
 
-// Instruct appends to the standing instructions. Appending rather than
-// replacing is what lets the guardrail be re-injected mid-conversation without
-// discarding the character it was meant to constrain.
+// Instruct appends, so re-injecting the guardrail keeps the character.
 func (c *liveConn) Instruct(ctx context.Context, text string) error {
 	c.mu.Lock()
 	id := fmt.Sprintf("steer-%d", c.nextID)
@@ -386,14 +335,8 @@ func (c *liveConn) Instruct(ctx context.Context, text string) error {
 	})
 }
 
-// Close ends the conversation and waits for the provider to say it has
-// finished.
-//
-// The wait is the point. Asking to close and hanging up immediately leaves the
-// session unfinalised, which costs the final usage figure and — because a fork
-// continues a completed recording — the ability to resume at all. The symptom
-// is a later resume answered with "the stored session was not found", long
-// after the mistake.
+// Close waits for the provider to finish: hanging up early loses the final usage and
+// the recording a fork needs, surfacing later as "the stored session was not found".
 func (c *liveConn) Close() error {
 	c.mu.Lock()
 	if c.closed {
@@ -408,8 +351,7 @@ func (c *liveConn) Close() error {
 
 	b, _ := json.Marshal(map[string]any{"type": "session.close"})
 	if err := c.ws.Write(closing, websocket.MessageText, b); err == nil {
-		// Saving the recording takes its own time, so this waits for the
-		// provider's word rather than for a guess at how long that is.
+		// Saving the recording takes its own time; wait for the provider's word.
 		select {
 		case <-c.finalised:
 		case <-closing.Done():
@@ -420,14 +362,10 @@ func (c *liveConn) Close() error {
 	return c.ws.Close(websocket.StatusNormalClosure, "")
 }
 
-// finalisationWait bounds the wait for a session to finish. Long enough for a
-// recording to be saved, short enough that an unresponsive provider does not
-// hold a paused game open.
+// finalisationWait bounds how long an unresponsive provider can hold a game open.
 const finalisationWait = 8 * time.Second
 
-// serverEvent covers the sideband events this adapter acts on. Fields are
-// shared across event types, which the wire format allows because a given type
-// only ever populates its own.
+// serverEvent shares fields across event types; each type populates only its own.
 type serverEvent struct {
 	Type          string `json:"type"`
 	Delta         string `json:"delta"`
@@ -447,8 +385,7 @@ type serverEvent struct {
 
 func (c *liveConn) read(ctx context.Context) {
 	defer func() {
-		// However the read ends, nothing more is coming: a Close still waiting
-		// for finalisation should stop waiting rather than sit out its timeout.
+		// Whatever ends the read, release a Close waiting for finalisation.
 		c.finish()
 		close(c.events)
 	}()
@@ -483,8 +420,7 @@ func (c *liveConn) read(ctx context.Context) {
 			})
 
 		case "session.input_transcript.delta":
-			// The player's own words. Received because they arrive whether or
-			// not they are wanted; what becomes of them is the wiring's call.
+			// The player's own words; what becomes of them is the wiring's call.
 			c.emit(adapters.LiveEvent{
 				Kind:    adapters.EventText,
 				Speaker: adapters.SpeakerPlayer,
@@ -515,12 +451,10 @@ func (c *liveConn) read(ctx context.Context) {
 			}
 
 		case "session.usage.updated":
-			// A running total, not an increment: the documentation is explicit
-			// that these must not be summed.
+			// Cumulative seconds: forward as a running total, never sum.
 			c.emit(adapters.LiveEvent{
 				Kind: adapters.EventUsage,
-				// The resolved model name, never a tier: a price attaches to
-				// a model.
+				// The resolved model name, never a tier: a price attaches to a model.
 				Usage: adapters.Usage{Model: c.modelID, AudioSeconds: ev.Usage.Seconds},
 			})
 
@@ -529,8 +463,7 @@ func (c *liveConn) read(ctx context.Context) {
 
 		case "session.closed":
 			c.settleAll()
-			// Released before the event is emitted, so a Close waiting on it is
-			// not held behind a reader that has already stopped listening.
+			// Released before emitting, so a waiting Close is not stuck behind a stopped reader.
 			c.finish()
 			c.emit(adapters.LiveEvent{Kind: adapters.EventClosed, CloseReason: ev.Reason})
 			return

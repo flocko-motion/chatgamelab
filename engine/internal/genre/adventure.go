@@ -1,6 +1,4 @@
-// Package genre holds one wiring per genre. A genre is Go code, not data: the
-// graph below is checked by the compiler on every build, and by Validate for
-// the completeness the type system cannot see.
+// Package genre holds one wiring per genre, as Go code so the compiler checks each graph.
 package genre
 
 import (
@@ -8,12 +6,8 @@ import (
 	"engine/internal/ports"
 )
 
-// NewAdventure is the turn-based genre: rephrase, then one extraction call
-// yielding plot, image prompt and status at once, then expand and the media
-// fan-out.
-//
-// The four output blocks it wires are its event schema: text, audio, image,
-// props.
+// NewAdventure is the turn-based genre: rephrase, extract plot, image prompt and
+// status in one call, then expand and fan out to media.
 func NewAdventure(status map[string]string) *Wiring {
 	player := blocks.NewPlayerInputText("player-input-text")
 	rephrase := blocks.NewDummyToolCall("rephrase", "3rd-person")
@@ -28,26 +22,20 @@ func NewAdventure(status map[string]string) *Wiring {
 	outProps := blocks.NewPlayerOutputProps("out-props", "props")
 	props := blocks.NewPropsStore("props-store", status)
 
-	// No opening line yet: Adventure begins when the player acts. v1 generates
-	// an opening scene from an init prompt, and this is where that goes.
+	// No opening line: Adventure begins when the player acts.
 	gate := blocks.NewGate("start-game", "")
 
 	g := ports.NewGraph("adventure")
 	g.Track(gate)
-	// Adventure prepares nothing yet, so its gate opens at once — but the edge
-	// is wired, so the lifecycle is the same shape in every genre and adding a
-	// preparation step later changes one line rather than the design.
+	// Wired though it opens at once, so every genre has the same lifecycle shape.
 	g.ConnectState(gate, player)
 	g.ConnectTextOut(player, rephrase)
 	g.ConnectTextOut(rephrase, outline)
 
 	g.ConnectTextOut(outline, expand)
-	// The second text output of the same block. Distinct method, distinct edge:
-	// these two lines cannot be confused for one another at a call site.
+	// The block's second text output, on its own method so the two edges stay distinct.
 	g.ConnectSecondaryTextOut(outline, image)
-	// Status values travel on an edge rather than living in the model's memory:
-	// the store holds them, hands them back before each turn, and is the one
-	// place they can be seeded or corrected.
+	// The store holds status values and is the one place to seed or correct them.
 	g.ConnectPropsOut(outline, props)
 	g.ConnectPropsOut(props, outline)
 	g.ConnectPropsOut(props, outProps)
@@ -61,11 +49,7 @@ func NewAdventure(status map[string]string) *Wiring {
 		Graph: g,
 		Gate:  gate,
 		Say:   player.Say,
-		// Typed, for now. Adventure gains speech when it wires a transcription
-		// block, which is what v1 does today.
-		// Typed only, for now. Adventure takes speech in v1 and will again, as
-		// push-to-talk rather than full duplex — one utterance handed over per
-		// turn — once it wires the transcription block that carries it.
+		// Typed only until Adventure wires push-to-talk transcription.
 		Inputs: []ports.InputMode{ports.InputText},
 		// A picture per turn, each belonging to the scene it illustrates.
 		Imagery: ports.ImageryPerTurn,

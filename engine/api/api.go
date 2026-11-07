@@ -10,24 +10,12 @@ import (
 	"engine/web"
 )
 
-// Package api is the engine's HTTP transport: ordinary handler methods the
-// platform mounts in its own router, and a subtree a standalone build serves
-// directly.
-//
-// API holds the engine's HTTP handlers. They are ordinary
-// func(http.ResponseWriter, *http.Request) methods, so the platform registers
-// them in its own router, with its own paths, middleware and swagger
-// annotations, while a standalone build registers the same methods on a plain
-// mux. One transport implementation either way.
-//
-// The engine still knows nothing about users: these handlers deal in session
-// ids and engine calls. Everything before the route — authentication, roles,
-// share resolution — belongs to whoever mounts them.
+// Package api is the engine's HTTP transport, mounted by the platform's router or served standalone.
+// It deals only in session ids and engine calls; auth belongs to whoever mounts it.
 type API struct {
 	mu       sync.RWMutex
 	sessions map[string]*engine.Session
-	// only names the session a server holds when it holds exactly one, so a
-	// request that names none — or names a stale one — still reaches it.
+	// only is a standalone server's single session, which every request reaches whatever id it names.
 	only string
 }
 
@@ -35,22 +23,14 @@ func New() *API { return &API{sessions: map[string]*engine.Session{}} }
 
 func jsonMarshal(v any) ([]byte, error) { return json.Marshal(v) }
 
-// Register makes a launched session reachable over HTTP. The platform calls
-// this after its own Launch route has run the cascade and built the spec.
+// Register makes a launched session reachable over HTTP.
 func (a *API) Register(id string, s *engine.Session) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.sessions[id] = s
 }
 
-// RegisterOnly registers the one session this server has, and says so: every
-// request reaches it, whether or not it names the right id or any id. It is
-// what a standalone launcher calls — a server serving a single game should not
-// make anybody quote a session id back to it, in a link, a bookmark or a
-// address typed by hand.
-//
-// The platform never calls this. It holds many sessions and an id there is the
-// only thing saying which one a request means.
+// RegisterOnly is for a standalone single-game server, so links and bookmarks need no session id.
 func (a *API) RegisterOnly(id string, s *engine.Session) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -65,18 +45,13 @@ func (a *API) lookup(r *http.Request) (*engine.Session, string, bool) {
 	if s, ok := a.sessions[id]; ok {
 		return s, id, true
 	}
-	// A server holding one game can say which one a request meant, whatever it
-	// asked for: the page's default name, a link from a previous run, nothing
-	// at all. A platform holds many and registers no such session, so an
-	// unknown id there is still unknown.
 	if a.only != "" {
 		return a.sessions[a.only], id, true
 	}
 	return nil, id, false
 }
 
-// SessionStream is the session-scoped event stream. A turn is a bracketed span
-// within it rather than a stream of its own.
+// SessionStream is the session-scoped event stream.
 func (a *API) SessionStream(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -119,8 +94,7 @@ type inputRequest struct {
 	Audio []byte `json:"audio,omitempty"`
 }
 
-// SessionInput submits one player action: typed for a turn-based genre, spoken
-// for a live one. The genre decides which it accepts.
+// SessionInput submits one player action, typed or spoken as the genre accepts.
 func (a *API) SessionInput(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -152,8 +126,7 @@ func (a *API) SessionInput(w http.ResponseWriter, r *http.Request) {
 }
 
 type connectRequest struct {
-	// SDP is the browser's offer. Answering it is what creates the
-	// conversation, so this arrives when a player is actually there.
+	// SDP is the browser's offer; answering it creates the billed conversation.
 	SDP string `json:"sdp"`
 }
 
@@ -161,13 +134,8 @@ type connectResponse struct {
 	SDP string `json:"sdp"`
 }
 
-// SessionConnect brokers the browser's offer to talk to the character. The
-// audio then runs between the player and the provider; the engine keeps a
-// control connection of its own.
-//
-// The engine's own session id is the only handle a browser ever holds. The
-// provider's id stays inside, which is what keeps a spendable key and a
-// steerable conversation out of client-side code.
+// SessionConnect brokers the browser's offer to talk to the character.
+// The provider's id stays server-side, keeping a spendable key and a steerable conversation off the client.
 func (a *API) SessionConnect(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -195,8 +163,7 @@ func (a *API) SessionConnect(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(connectResponse{SDP: answer})
 }
 
-// SessionPause lets a live conversation go at the player's request. It is the
-// same ending an idle one reaches on its own, taken early.
+// SessionPause lets a live conversation go at the player's request, as idling would.
 func (a *API) SessionPause(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -210,8 +177,7 @@ func (a *API) SessionPause(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-// SessionPrompts is the text a session is running on. On a platform that
-// teaches how AI works, what was actually asked of a model is the subject.
+// SessionPrompts is the text a session is running on.
 func (a *API) SessionPrompts(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -222,8 +188,7 @@ func (a *API) SessionPrompts(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(s.Prompts())
 }
 
-// SessionGraph renders the running wiring. Useful to a dev launcher, and the
-// reason a genre's event schema is inspectable rather than documented.
+// SessionGraph renders the running wiring as text.
 func (a *API) SessionGraph(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -234,9 +199,7 @@ func (a *API) SessionGraph(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, s.Describe())
 }
 
-// SessionTopology is the wiring as data, for a view that draws it. Teaching how
-// a turn is assembled is part of what this platform is for, so the shape of the
-// graph is a first-class response rather than a debug dump.
+// SessionTopology is the wiring as data, for a view that draws it.
 func (a *API) SessionTopology(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -247,8 +210,7 @@ func (a *API) SessionTopology(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(s.Topology())
 }
 
-// SessionFlowchart is the same wiring as mermaid, which the project's own
-// documentation already speaks.
+// SessionFlowchart is the same wiring as mermaid.
 func (a *API) SessionFlowchart(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -259,9 +221,7 @@ func (a *API) SessionFlowchart(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, s.Mermaid())
 }
 
-// SessionSnapshot is where the session stands now. A reloading page fetches
-// this and the history rather than replaying the live stream, which keeps the
-// socket for what is happening and REST for what has happened.
+// SessionSnapshot is where the session stands now; a reloading page fetches it with the history.
 func (a *API) SessionSnapshot(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -283,8 +243,7 @@ func (a *API) SessionHistory(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(s.History())
 }
 
-// SessionNode is what one block is and has been doing, for a reader who clicked
-// it on the graph.
+// SessionNode is what one block is and has been doing.
 func (a *API) SessionNode(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -303,7 +262,7 @@ func (a *API) SessionNode(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(detail)
 }
 
-// SessionEdge is what one wire has carried, for a reader who clicked it.
+// SessionEdge is what one wire has carried.
 func (a *API) SessionEdge(w http.ResponseWriter, r *http.Request) {
 	s, id, ok := a.lookup(r)
 	if !ok {
@@ -322,13 +281,7 @@ func (a *API) SessionEdge(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(detail)
 }
 
-// Handler is the engine's whole HTTP subtree, mounted at one prefix by whoever
-// runs it. Owning the subtree is what lets the embedded player address the
-// engine with relative URLs — the same ones in the monolith and standalone —
-// instead of being told its base path at runtime.
-//
-// Mount it behind the platform's middleware; everything before the prefix
-// (authentication, roles, share resolution) stays the platform's business.
+// Handler is the engine's whole HTTP subtree, so the embedded player uses the same relative URLs everywhere.
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /sessions/{id}/stream", a.SessionStream)

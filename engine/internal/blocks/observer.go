@@ -10,14 +10,8 @@ import (
 
 const steerPrefix = "[steer] "
 
-// Observer watches the character's own transcript and steers it back when it
-// drifts. It is the cycle in NPC-Live's graph: its output feeds the block whose
-// output it reads.
-//
-// Two prompt slots with different provenance. Guardrail is the platform's
-// resolved youth-protection constraint and is not authored by a game designer;
-// Scenario is the designer's own text — the setting, the character, and what
-// they must not concede.
+// Observer steers the character back when its transcript drifts: the cycle in
+// NPC-Live's graph. Guardrail is the platform's; Scenario is the designer's.
 type Observer struct {
 	name      string
 	tool      adapters.Tool
@@ -27,10 +21,7 @@ type Observer struct {
 
 	maxInARow   int
 	consecutive int
-	// mute keeps the block on the graph while it does nothing: it reads its
-	// input, calls no model and emits nothing. The voice path is worth proving
-	// before a second model is added to it, and a node that vanished while
-	// muted would make the wiring lie about what the genre contains.
+	// mute keeps the node on the graph, judging nothing, so the wiring stays truthful.
 	mute bool
 
 	in    ports.TextInput
@@ -42,8 +33,7 @@ type Observer struct {
 	spent adapters.Usage
 }
 
-// NewObserver takes the judging instructions rather than holding them, because
-// what an observer looks for is a property of the genre it serves.
+// NewObserver takes the judging instructions because they belong to the genre.
 func NewObserver(name string, tool adapters.Tool, judge, guardrail, scenario string, maxInARow int) *Observer {
 	return &Observer{
 		name:      name,
@@ -56,8 +46,7 @@ func NewObserver(name string, tool adapters.Tool, judge, guardrail, scenario str
 	}
 }
 
-// Mute stops the block judging anything. It still consumes its input, so
-// nothing upstream blocks on a full channel, and it still appears on the graph.
+// Mute stops judging but still drains input, so nothing upstream blocks.
 func (b *Observer) Mute() *Observer {
 	b.mute = true
 	return b
@@ -67,32 +56,20 @@ func (b *Observer) NodeName() string           { return b.name }
 func (b *Observer) TextInPort() chan<- string  { return b.in }
 func (b *Observer) TextOutPort() <-chan string { return b.out.Subscribe() }
 
-// SecondaryTextOutPort carries what the observer found, which is a different
-// thing from what it does about it: the steering instruction goes to the
-// character, and this goes to whoever is watching how the game is played.
-//
-// It is a port rather than a channel hanging off the struct because an output
-// the graph cannot see is an output nothing can validate, nobody can click, and
-// no drawing of this genre admits to.
+// SecondaryTextOutPort carries the findings, for whoever watches play.
 func (b *Observer) SecondaryTextOutPort() <-chan string { return b.flags.Subscribe() }
 
-// RequiredOutputs insists both are wired. A genre taking the steering and
-// dropping the findings would be running a guardrail whose results nobody ever
-// sees, which is worse than not running one.
+// RequiredOutputs stops a genre running an observer whose output reaches nothing.
 func (b *Observer) RequiredOutputs() []ports.Kind { return []ports.Kind{ports.KindText} }
 func (b *Observer) RequiredInputs() []ports.Kind  { return []ports.Kind{ports.KindText} }
 
 // UsageOutPort reports what this block has spent so far.
 func (b *Observer) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe() }
 
-// StateOutPort reports each judgement. An observer is input-driven, so it
-// flickers once per line rather than staying busy.
+// StateOutPort flickers once per judgement.
 func (b *Observer) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
-// systemPrompt joins what the observer is looking for to what it is looking at.
-// The two are kept apart on purpose: the judging instructions are the genre's,
-// while the constraint and the scenario belong to the platform and the game
-// designer respectively.
+// systemPrompt labels each part by its author: genre, platform, game designer.
 func (b *Observer) systemPrompt() string {
 	return strings.Join([]string{
 		b.judge,
@@ -128,8 +105,7 @@ func (b *Observer) Start(ctx context.Context) {
 					b.consecutive = 0
 					continue
 				}
-				// Steering produces more output for this same block to judge,
-				// so the cycle needs a bound or it can sustain itself.
+				// Steering yields more lines to judge, so consecutive interventions are bounded.
 				if b.consecutive >= b.maxInARow {
 					b.flag("giving up after " + itoa(b.consecutive) + " interventions: " + line)
 					continue
@@ -142,8 +118,7 @@ func (b *Observer) Start(ctx context.Context) {
 	}()
 }
 
-// report accumulates and publishes the running total, so a late subscriber sees
-// everything spent rather than only what came after it.
+// report publishes the running total, so a late subscriber sees all spending.
 func (b *Observer) report(used adapters.Usage) {
 	b.spent.Add(used)
 	b.usage.Send(ports.Usage{

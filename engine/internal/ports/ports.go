@@ -1,8 +1,5 @@
 // Package ports defines the typed edges a genre's wiring is built from.
-//
-// A port is a Go interface keyed to a data type, never to a role: a tool-call
-// block is a TextOut whether it is rephrasing, translating or condensing, which
-// is what lets one block type serve many roles.
+// Ports are keyed to a data type, so one block type can serve many roles.
 package ports
 
 import "context"
@@ -13,8 +10,8 @@ type (
 	PropMap    map[string]string
 )
 
-// Source ports hand out a fresh channel per call, so connecting a source twice
-// yields two independent streams rather than two consumers racing for one.
+// Source ports hand out a fresh channel per call: consumers sharing one would steal from each other.
+// SecondaryTextOut exists because a struct satisfies an interface once; split a block needing a third.
 type (
 	AudioOut         interface{ AudioOutPort() <-chan AudioChunk }
 	TextOut          interface{ TextOutPort() <-chan string }
@@ -23,16 +20,7 @@ type (
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
 )
 
-// Phase is what a block is doing. Two values are enough: "not working" needs no
-// distinction between never-started and finished, and a block in the turn loop
-// is never finished anyway.
-//
-// Working is the whole of a block's work, which for a live session is the whole
-// conversation rather than the moments somebody is speaking: it holds a
-// connection, moves bytes and bills by the second from the moment it opens.
-//
-// A block reports its initial phase at startup and then only changes, so a
-// reader sees one working and one ready per piece of work.
+// Phase is what a block is doing; a block reports its initial phase, then only changes.
 type Phase string
 
 const (
@@ -40,9 +28,7 @@ const (
 	PhaseWorking Phase = "working"
 )
 
-// State is a block reporting on itself. It names the block because a gate has
-// to tell one reporter from another — and because a view drawing the graph
-// needs to know which node lit up.
+// State is a block reporting on itself, named so a gate can tell reporters apart.
 type State struct {
 	Node  string `json:"node"`
 	Phase Phase  `json:"phase"`
@@ -50,12 +36,8 @@ type State struct {
 
 type StateOut interface{ StateOutPort() <-chan State }
 
-// Usage is a block reporting what it has spent, cumulatively for the session.
-// Totals rather than deltas: a dropped event then costs accuracy for an instant
-// rather than permanently.
-//
-// Units differ because providers bill differently, and the engine aggregates by
-// model because that is what prices attach to.
+// Usage is a block's cumulative spend for the session: totals, so a dropped event costs
+// accuracy only for an instant and a late subscriber sees the whole session.
 type Usage struct {
 	Node              string  `json:"node"`
 	Model             string  `json:"model"`
@@ -102,114 +84,58 @@ func (k Kind) String() string {
 	return "unknown"
 }
 
-// Sink is an output block: a node whose arrivals become one stream on the
-// session's event stream. The graph collects these rather than a genre listing
-// them, because a stream nothing on the graph produces is a stream the drawing
-// does not admit to — which is how a block ends up with an output nobody can
-// see, validate or click.
+// Sink is an output block whose arrivals become one stream on the session's event stream.
 type Sink interface {
 	Named
-	// Stream names this sink on the wire.
 	Stream() string
-	// Arrivals is what reached it, in order.
 	Arrivals() chan string
 }
 
-// InputMode is one way a player may act on a genre. It is deliberately not a
-// Kind: a Kind names what travels an edge, while this names how somebody
-// supplies it, and audio arrives in two ways that want different controls.
-//
-// A full-duplex conversation listens continuously and the model decides when to
-// answer, so its control is a mute toggle. Push-to-talk records one utterance
-// and hands it over, so its control is a button to hold. Offering the wrong one
-// is not a cosmetic mistake — a mute button on a turn-based genre would leave a
-// player waiting for a reply nobody was asked for.
+// InputMode is how a player supplies input, which picks the client's control (mute toggle vs hold button).
 type InputMode string
 
 const (
-	InputText InputMode = "text"
-	// InputAudioFullDuplex is a conversation that hears while it speaks.
+	InputText            InputMode = "text"
 	InputAudioFullDuplex InputMode = "audio-full-duplex"
-	// InputAudioPushToTalk is one utterance at a time, handed over when the
-	// player has finished saying it.
 	InputAudioPushToTalk InputMode = "audio-push-to-talk"
 )
 
-// Imagery says how many pictures a genre makes, which decides where they
-// belong on a page rather than merely how many arrive.
-//
-// One picture standing for the whole session is not a small version of one per
-// turn: it is the character being spoken to, and it should stay in view for as
-// long as the conversation does. Scrolling it away with the dialogue would lose
-// the one thing the player is talking to.
+// Imagery says how many pictures a genre makes, which decides where a client places them.
 type Imagery string
 
 const (
-	// ImageryNone is a genre that makes no pictures.
 	ImageryNone Imagery = ""
-	// ImageryStanding is one picture for the session, held in view.
+	// ImageryStanding is the character being spoken to, held in view for the whole session.
 	ImageryStanding Imagery = "standing"
-	// ImageryPerTurn is a picture per turn, belonging to the moment it
-	// illustrates and scrolling away with it.
-	ImageryPerTurn Imagery = "per-turn"
+	ImageryPerTurn  Imagery = "per-turn"
 )
 
-// Named lets a block report itself in graph errors and traces. A block that
-// doesn't implement it falls back to its Go type name.
+// Named lets a block report itself in graph errors and traces; otherwise its Go type name is used.
 type Named interface{ NodeName() string }
 
-// RequiresInputs is what a completeness test checks against: the kinds this
-// block cannot run without. Types settle whether an edge is legal; this settles
-// whether the graph is finished.
+// RequiresInputs lists the kinds a block cannot run without, for graph validation.
 type RequiresInputs interface{ RequiredInputs() []Kind }
 
-// RequiresOutputs is the same check facing the other way: the kinds something
-// must consume from this block. Without it a genre could wire a character
-// nobody can hear and still pass validation, because every input it needed was
-// satisfied.
+// RequiresOutputs lists the kinds something must consume, so a character nobody can hear fails validation.
 type RequiresOutputs interface{ RequiredOutputs() []Kind }
 
 // Starter is implemented by blocks that run their own loop.
 type Starter interface{ Start(ctx context.Context) }
 
-// Resumable is implemented by blocks holding provider-side state that must
-// survive a restart — a threaded call's continuation token, a live session's
-// conversation id. The engine never interprets the value; it stores and returns
-// it.
-//
-// State is per block rather than per session: a genre may wire two independent
-// threads, and one field could not hold both.
-//
-// Both methods are called from the caller's goroutine while the block's own
-// loop keeps running — a checkpoint never stops the graph — so an implementation
-// must guard whatever it reports.
+// Resumable blocks hold opaque provider-side state that must survive a restart.
+// Both methods run while the block's own loop keeps going, so guard what they touch.
 type Resumable interface {
 	ExportState() string
 	RestoreState(string)
 }
 
-// Gatekeeper is a node that waits for every block feeding it to work and come
-// back to ready before the game may begin. It is where the init stem joins the
-// game loop.
-//
-// Waiting for working-then-ready rather than for a "done" message means the
-// gate cannot be satisfied by a block that never started. The contract on a
-// gating block is therefore to complete that cycle even when it finds it has
-// nothing to do — a resumed session skipping its image still reports it.
-//
-// The graph tells it how many state edges lead in, because only the graph knows
-// the wiring.
+// Gatekeeper waits for each feeding block to go working then ready before play begins.
+// A gating block must complete that cycle even when it has nothing to do, or the gate never opens.
 type Gatekeeper interface {
 	ExpectReporters(n int)
 }
 
-// Releasable is a node that waits to be let go — a player's input, held until
-// the game starts.
-//
-// The graph tells it how many releases lead in, because whether something is
-// held is a property of the wiring rather than of the block. A source with no
-// release edge is not held at all, which is what stops a genre that never wired
-// a gate from deadlocking on one.
+// Releasable is a node held until released; with no release edge it is never held, so it cannot deadlock.
 type Releasable interface {
 	ExpectReleases(n int)
 }

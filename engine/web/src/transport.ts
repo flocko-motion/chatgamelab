@@ -19,21 +19,8 @@ export interface Transport {
 }
 
 /**
- * The real transport, which puts itself back together.
- *
- * A session outlives its socket. A laptop sleeps, a network hiccups, a portal
- * is redeployed — none of which ends the game, and on a voice genre none of
- * which even interrupts the conversation, since that audio runs between the
- * browser and the model. A socket that stayed down would leave a playable game
- * looking dead.
- *
- * So a drop is retried, with a backoff that gives up nothing but haste: quick
- * enough that a blink is invisible, slow enough that an unreachable server is
- * not hammered. `onClose` is reported only when the retrying stops, so a caller
- * hears "the connection is gone" once rather than once per attempt.
- *
- * WebSocket is a global in browsers and in Node 22+, so the same implementation
- * serves the page and a headless run.
+ * A session outlives its socket, so a drop is retried with backoff; `onClose`
+ * fires once, when retrying stops.
  */
 export class WebSocketTransport implements Transport {
   #socket: WebSocket | null = null;
@@ -43,11 +30,7 @@ export class WebSocketTransport implements Transport {
   /** Set by close(), so a deliberate hang-up is not treated as a fault. */
   #done = false;
 
-  /**
-   * @param url the session's stream.
-   * @param onReopen called when a dropped connection comes back, so whoever is
-   *   listening can catch up on what it missed while it was away.
-   */
+  /** @param onReopen called when a dropped connection returns, so a listener can catch up. */
   constructor(
     private readonly url: URL,
     private readonly onReopen?: () => void,
@@ -69,8 +52,7 @@ export class WebSocketTransport implements Transport {
     socket.onopen = () => {
       this.#attempt = 0;
       this.#handlers?.onOpen();
-      // Announced after the open, so anything catching up is doing so against
-      // a connection that is already live.
+      // After the open, so catching up runs against a live connection.
       if (reopening) this.onReopen?.();
     };
     socket.onmessage = (message: MessageEvent<TransportMessage>) =>
@@ -87,11 +69,7 @@ export class WebSocketTransport implements Transport {
     };
   }
 
-  /**
-   * Waits before trying again, doubling up to a ceiling. The wait is jittered
-   * because a restarted server is reconnected to by every player at once, and
-   * identical backoffs would arrive as one thundering herd.
-   */
+  /** Jittered, so a restarted server is not reconnected to by every player at once. */
   #schedule(): void {
     const ceiling = 10_000;
     const base = Math.min(500 * 2 ** this.#attempt, ceiling);

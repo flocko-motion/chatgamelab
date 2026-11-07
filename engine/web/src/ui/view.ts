@@ -1,10 +1,6 @@
 /**
- * Dumb visualisation: paints whatever the state says and decides nothing.
- *
- * Split screen — the game on the left, drawn the way the platform's player
- * draws it and in the game's theme, and the instrumentation on the right. What
- * the engine is doing and what it costs are part of the subject on this
- * platform, so they get a panel rather than a developer console.
+ * Paints the state and decides nothing: the game on the left, and on the right
+ * the instrumentation, as what the engine does and costs is part of the subject.
  */
 import {
   acceptsTypedInput,
@@ -89,13 +85,7 @@ const AUDIO_ACTION: Record<AudioState, string> = {
   resuming: "Resuming the conversation",
 };
 
-/**
- * Why the game cannot be played, and whether that is a wait or a stop.
- *
- * The difference is the whole of what a spinner promises. One says something is
- * on its way and the page is still in the game; the other says nothing more is
- * coming, and turning a wheel beside it would be a lie told once a second.
- */
+/** Why the game cannot be played; `waiting` is whether a spinner may promise more. */
 interface Unavailable {
   readonly text: string;
   readonly waiting: boolean;
@@ -146,10 +136,7 @@ export class View {
     this.setTheme(this.#theme);
   }
 
-  /**
-   * Restyles the game half. Colours and shapes change in place; text effects
-   * and the background animation are restarted in the new theme's.
-   */
+  /** Restyles the game half, restarting text effects and the background animation. */
   setTheme(theme: GameTheme, preset = "default"): void {
     this.#theme = theme;
     applyTheme(this.elements.root, theme, preset);
@@ -174,11 +161,7 @@ export class View {
   render(state: PlayerState): void {
     this.#last = state;
 
-    // A reason the game cannot be played stands where the controls would be,
-    // inside the bar rather than in place of it. Every one of them means the
-    // controls would not work, and a control that is there and useless invites
-    // a try and then refuses it — but the bar itself is the one fixed thing at
-    // the foot of the scene, and swapping it out moves everything above it.
+    // A blocking reason replaces the controls inside the bar, which stays put for the layout.
     const blocked = this.#unavailable(state);
     show(this.elements.notice, blocked !== null);
     if (blocked !== null) {
@@ -187,25 +170,19 @@ export class View {
     }
 
     const audio = audioState(state);
-    // The bar holds one thing at a time: the controls, or the reason there are
-    // none.
+    // The bar holds the controls or the reason there are none.
     this.#renderAudio(blocked === null ? audio : null);
 
-    // The text box appears only if the wiring has somewhere to deliver what is
-    // typed. A live conversation has no node that takes words, because the
-    // model has no event that would carry them; a conversation that has been
-    // let go has no session to take them either.
+    // Typing needs a node that takes words, and a paused conversation has no session to take them.
     const typing =
       blocked === null && acceptsTypedInput(state) && (audio === null || audio === "live");
     show(this.elements.inputs, typing);
-    // With nothing to type into, the button is the bar's whole content and
-    // belongs in the middle of it.
+    // With nothing to type into, the button centres in the bar.
     this.elements.compose.classList.toggle("no-typing", !typing);
     this.elements.typed.disabled = !typing;
     this.elements.send.disabled = !typing;
 
-    // The game's own name, which is what somebody came to play. The wiring's
-    // name is the genre, and stands in only until an author has given one.
+    // The author's title, with the genre standing in until there is one.
     this.elements.title.textContent = state.topology?.title || state.topology?.name || "…";
 
     this.#renderGraph(state);
@@ -215,33 +192,20 @@ export class View {
     this.#renderThinking(state, blocked);
   }
 
-  /**
-   * The one control a live conversation has, and the one place its state is
-   * said.
-   *
-   * The icon is which state the conversation is in — a microphone while the
-   * character can hear you, pause bars once it has been let go — rather than
-   * which button this is, because the first question a player has is whether
-   * they are being heard.
-   */
+  /** The icon shows the state, since a player's first question is whether they are heard. */
   #renderAudio(audio: AudioState | null): void {
     show(this.elements.audio, audio !== null);
     if (!audio) return;
 
     this.elements.audio.dataset.state = audio;
     this.elements.audioLabel.textContent = AUDIO_LABEL[audio];
-    // A transition is not something to press again: the second press would race
-    // the answer to the first, and both states it could land in are wrong.
+    // A second press during a transition would race the answer to the first.
     this.elements.talk.disabled = audio === "pausing" || audio === "resuming";
     this.elements.talk.setAttribute("aria-label", AUDIO_ACTION[audio]);
     this.elements.talk.title = AUDIO_ACTION[audio];
   }
 
-  /**
-   * Forgets the drawn conversation, for a rebuild after a reconnection. The
-   * core clears its side; this clears what was painted from it, so the two do
-   * not disagree about how much has already been shown.
-   */
+  /** Forgets the drawn conversation for a rebuild, matching the core's cleared side. */
   reset(): void {
     this.elements.feed.replaceChildren();
     this.#cards.clear();
@@ -291,8 +255,7 @@ export class View {
   }
 
   #renderProps(state: PlayerState): void {
-    // Rebuilt only when the status itself changes: every audio chunk renders,
-    // and rebuilding on each one would restart the pulse on a changed value.
+    // Rebuilt only on change: every audio chunk renders, and a rebuild restarts the pulse.
     if (state.props === this.#shownProps) return;
     const previous = this.#shownProps ?? {};
     const first = this.#shownProps === null;
@@ -305,8 +268,7 @@ export class View {
     this.#fields = [];
 
     const entries = Object.entries(state.props);
-    // Hidden until a genre tracks something, since a live conversation tracks
-    // nothing.
+    // Hidden until a genre tracks something.
     this.elements.props.hidden = entries.length === 0;
     this.elements.props.replaceChildren(
       ...entries.map(([key, value]) => {
@@ -332,9 +294,7 @@ export class View {
     if (!state.image || state.image === this.#shownImage) return;
     this.#shownImage = state.image;
 
-    // One picture for the whole session is the character being spoken to, not
-    // an illustration of a moment. It is held above the conversation so it
-    // stays in view, where the timeline would have scrolled it away.
+    // A standing picture is the character, held above the conversation to stay in view.
     if (hasStandingImage(state)) {
       this.#standing(state.image);
       return;
@@ -346,9 +306,7 @@ export class View {
       return;
     }
 
-    // A picture belongs to the scene it was made for: the latest one if that
-    // has none yet, otherwise the next one — a portrait made during preparation
-    // arrives before the character has said anything.
+    // Into the latest card if it has none, else the next: a preparation portrait precedes any line.
     const last = this.#cards.get(state.utterances.at(-1)?.id ?? -1);
     if (last && !last.querySelector(".scene-image")) this.#illustrate(last, state.image);
     else this.#pendingImage = state.image;
@@ -367,13 +325,7 @@ export class View {
     this.elements.sceneArea.style.setProperty("--standing-height", "30vh");
   }
 
-  /**
-   * Keeps the conversation clear of the controls beneath it.
-   *
-   * Measured rather than assumed, because the bar changes height with what it
-   * offers: a text box, a microphone, a resume button, and a status line above
-   * them that comes and goes.
-   */
+  /** Keeps the conversation clear of the bar, measured as its height varies with what it offers. */
   #watchDock(): void {
     const set = (): void => {
       const height = this.elements.dock.offsetHeight;
@@ -384,8 +336,7 @@ export class View {
   }
 
   #renderFeed(state: PlayerState): void {
-    // Append-only: the feed is a timeline, so it is extended rather than
-    // rebuilt on every change.
+    // Append-only: the feed is a timeline.
     for (let i = this.#renderedUtterances; i < state.utterances.length; i++) {
       const utterance = state.utterances[i];
       if (!utterance) continue;
@@ -403,10 +354,8 @@ export class View {
     if (state.utterances.length > this.#renderedUtterances) this.#awaiting = false;
     this.#renderedUtterances = state.utterances.length;
 
-    // Only the newest two can still be changing: the open utterance grows in
-    // place, and the one before it may have just been closed. A turn-based
-    // genre never closes its last line, so a line counts as being spoken only
-    // while something in the graph is still working.
+    // Only the newest two can still change. A turn-based genre never closes its last line,
+    // so streaming also needs a working block.
     const working = Object.values(state.phases).includes("working");
     for (const utterance of state.utterances.slice(-2)) {
       const card = this.#cards.get(utterance.id);
@@ -420,9 +369,7 @@ export class View {
       }
     }
 
-    // Nothing but the conversation reaches this feed. A block that corrects the
-    // character is wired to the character, not to here, so what it found has
-    // nowhere to arrive and nothing to render.
+    // Correcting blocks are wired to the character, so their findings never reach this feed.
 
     for (let i = this.#renderedNotes; i < state.notes.length; i++) {
       this.#append(element("div", "system-message", String(state.notes[i])));
@@ -430,15 +377,7 @@ export class View {
     this.#renderedNotes = state.notes.length;
   }
 
-  /**
-   * Says that a reply is on its way, immediately above the input bar. That is
-   * where somebody about to act is already looking; a state shown in a corner
-   * of the instrumentation is a state nobody reads.
-   *
-   * A fault that leaves the controls working is said here too, for the same
-   * reason and in the same place. One that does not is a notice instead, and
-   * this stays out of its way.
-   */
+  /** A coming reply, or a fault that leaves the controls working, shown just above the bar. */
   #renderThinking(state: PlayerState, blocked: Unavailable | null): void {
     const fault = blocked === null ? state.problem : null;
     this.elements.thinking.hidden = blocked !== null || !(fault || this.#awaiting);
@@ -446,26 +385,13 @@ export class View {
     this.elements.thinkingText.textContent = fault ?? this.#theme.thinking.text;
   }
 
-  /**
-   * Why the game cannot be played right now, in words a player can act on, or
-   * null while it can be.
-   *
-   * Everything here replaces the input bar, so the test for belonging is
-   * whether the controls would work: a conversation that has been let go is not
-   * on this list, because picking it up is exactly what the microphone is for.
-   */
+  /** What makes the controls useless; a pause is absent, as the microphone resumes it. */
   #unavailable(state: PlayerState): Unavailable | null {
     const audio = audioState(state);
-    // A fault outranks whatever the game would otherwise be waiting for — but
-    // not a control that is still there to press. A resume that failed says so
-    // beside the microphone rather than taking away the one thing that would
-    // fix it.
+    // A fault yields to a control still there to press, so a failed resume keeps its retry.
     if (state.problem && audio === null) return stopped(state.problem);
 
-    // The socket's own trouble is said here, because here is the only place
-    // anything is said: a player watching for their turn is looking at the
-    // input bar, and a page that goes quiet without saying why reads as a game
-    // that has stopped listening.
+    // Socket trouble is said in the bar, where a player waiting for their turn looks.
     switch (state.connection) {
       case "idle":
       case "connecting":
@@ -478,9 +404,7 @@ export class View {
         return stopped("The game has ended.");
     }
     if (!state.started) return waiting("Setting the scene…");
-    // A live genre is not playable until the player's own audio connection is
-    // up, which takes a moment and can fail on its own. Once there is a control
-    // for it, the control says so instead.
+    // A live genre waits for the player's audio connection; once its control exists, that speaks.
     if (voiceMode(state) === "full-duplex" && audio === null) return waiting("Waking the character…");
     return null;
   }
@@ -542,11 +466,7 @@ function element(tag: string, className: string, text?: string): HTMLElement {
   return node;
 }
 
-/**
- * Shows or hides an element with an inline style rather than the `hidden`
- * attribute, because a stylesheet rule giving it a display wins over `hidden`
- * and the control comes back.
- */
+/** Inline style, because a stylesheet display rule overrides `hidden`. */
 function show(element: HTMLElement, visible: boolean): void {
   element.style.display = visible ? "" : "none";
 }

@@ -8,9 +8,7 @@ import (
 	"sync"
 )
 
-// Graph is a genre's wiring: nodes of three kinds (inputs, blocks, output
-// sinks) joined by typed edges. It is explicitly allowed to contain cycles —
-// NPC-Live's observer feeds back into the live session on purpose.
+// Graph is a genre's wiring of inputs, blocks and sinks; cycles are allowed (NPC-Live feeds back on purpose).
 type Graph struct {
 	Name      string
 	inspector *inspector
@@ -33,8 +31,7 @@ func NodeName(n any) string {
 	return fmt.Sprintf("%T", n)
 }
 
-// Track registers a node that has no edges yet, so the graph can still start it
-// and tell it what it is waiting for.
+// Track registers a node that has no edges yet, so the graph still starts it.
 func (g *Graph) Track(n any) { g.track(n) }
 
 func (g *Graph) track(n any) {
@@ -102,8 +99,7 @@ func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	})
 }
 
-// ConnectState wires a block's own report on itself. It is what makes the init
-// stem visible: everything reporting to the gate runs once before play begins.
+// ConnectState wires a block's report on itself, which is how the init stem reaches the gate.
 func (g *Graph) ConnectState(src StateOut, dst StateIn) {
 	stream := src.StateOutPort()
 	g.connect(src, dst, KindState, func(ctx context.Context) {
@@ -118,12 +114,9 @@ func (g *Graph) ConnectPropsOut(src PropsOut, dst PropsIn) {
 	})
 }
 
-// Start launches every block's own loop, then every edge pump. Subscription
-// already happened at Connect time, so a source that emits immediately on Start
-// cannot outrun its consumers.
+// Start launches blocks, then pumps; subscribing at Connect time stops an early emitter outrunning consumers.
 func (g *Graph) Start(ctx context.Context) {
-	// Everything that waits has to know what it is waiting for before any of it
-	// can arrive: a gate for its reporters, a held source for its release.
+	// Waiters learn their counts before anything can arrive.
 	for _, n := range g.nodes {
 		incoming := 0
 		for _, e := range g.edges {
@@ -149,9 +142,7 @@ func (g *Graph) Start(ctx context.Context) {
 	}
 }
 
-// Validate checks what the type system cannot: that the graph is complete.
-// Edge legality is settled at compile time; this settles whether every block
-// that needs an input has one, and whether anything is stranded.
+// Validate checks completeness, which the type system cannot: required edges present, nothing stranded.
 func (g *Graph) Validate() error {
 	var problems []string
 
@@ -185,8 +176,7 @@ func (g *Graph) Validate() error {
 		if g.hasAnyIncoming(n) || g.hasAnyOutgoing(n) {
 			continue
 		}
-		// A gate with nothing to wait for is a genre that needs no preparation,
-		// which is legitimate.
+		// A lone gate is a genre that needs no preparation.
 		if _, isGate := n.(Gatekeeper); isGate {
 			continue
 		}
@@ -246,7 +236,6 @@ func (g *Graph) hasAnyOutgoing(n any) bool {
 }
 
 // reachableFromSources walks forward from every node with no inbound edge.
-// Cycles are fine: the seen-set stops the walk, it doesn't reject the graph.
 func (g *Graph) reachableFromSources() []any {
 	seen := map[any]bool{}
 	var walk func(n any)
@@ -282,8 +271,7 @@ func (g *Graph) reachable(target any) bool {
 	return false
 }
 
-// Describe renders the wiring, so a genre's shape can be read without tracing
-// the constructor by hand.
+// Describe renders the wiring as text.
 func (g *Graph) Describe() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "graph %q\n", g.Name)
@@ -293,9 +281,7 @@ func (g *Graph) Describe() string {
 	return b.String()
 }
 
-// ExportState collects every resumable block's state, keyed by node name. The
-// names come from the wiring, so they are stable across restarts as long as the
-// wiring is.
+// ExportState collects every resumable block's state, keyed by node name.
 func (g *Graph) ExportState() map[string]string {
 	state := map[string]string{}
 	for _, n := range g.nodes {
@@ -308,9 +294,7 @@ func (g *Graph) ExportState() map[string]string {
 	return state
 }
 
-// RestoreState hands each block back what it exported. A name with no matching
-// block is reported rather than ignored: it means the wiring changed under a
-// stored session, which is the case that has to invalidate rather than limp on.
+// RestoreState errors on an unknown name: the wiring changed under a stored session, so it must invalidate.
 func (g *Graph) RestoreState(state map[string]string) error {
 	known := map[string]bool{}
 	for _, n := range g.nodes {
@@ -343,10 +327,7 @@ func (g *Graph) RestoreState(state map[string]string) error {
 	return nil
 }
 
-// Sinks collects the genre's output blocks, keyed by the stream each one
-// carries. This is the genre's event schema, read off the wiring rather than
-// declared beside it: a genre cannot name a stream it did not wire, and cannot
-// wire a sink that carries no stream.
+// Sinks is the genre's event schema, read off the wiring so it cannot drift from it.
 func (g *Graph) Sinks() map[string]chan string {
 	streams := map[string]chan string{}
 	for _, n := range g.nodes {
@@ -357,29 +338,20 @@ func (g *Graph) Sinks() map[string]chan string {
 	return streams
 }
 
-// Topology is the wiring in a form something can draw. The engine ships it
-// because ChatGameLab is an educational platform: showing how a turn is
-// actually assembled is the product, not a debug afterthought.
+// Topology is the wiring in drawable form; showing players how a turn is assembled is part of the product.
 type Topology struct {
-	// Name is the wiring's own name — the genre. Title is what this particular
-	// game is called, which is what a player came for; the two are different
-	// questions and a header asking the first one answers nobody.
+	// Name is the genre; Title is this particular game.
 	Name  string         `json:"name"`
 	Title string         `json:"title,omitempty"`
 	Nodes []TopologyNode `json:"nodes"`
 	Edges []TopologyEdge `json:"edges"`
-	// Inputs is what a player may supply: the genre's interaction model, which
-	// the genre states rather than the graph infers. A client picks its
-	// controls from this, so a genre offering no text box shows none.
-	Inputs []string `json:"inputs"`
-	// Imagery is how many pictures this genre makes, which decides where a
-	// client puts them. Stated by the genre, like Inputs.
-	Imagery string `json:"imagery"`
+	// Inputs and Imagery are stated by the genre; a client picks its controls and layout from them.
+	Inputs  []string `json:"inputs"`
+	Imagery string   `json:"imagery"`
 }
 
 type TopologyNode struct {
 	Name string `json:"name"`
-	// Role is what a reader needs to tell a source from a sink at a glance.
 	Role string `json:"role"`
 }
 
@@ -390,8 +362,7 @@ type TopologyEdge struct {
 }
 
 func (g *Graph) Topology() Topology {
-	// Inputs is left for the genre to fill: what a player may do is a decision
-	// somebody made, not a shape to be read off the wiring.
+	// Inputs is left for the genre to fill.
 	t := Topology{Name: g.Name, Inputs: []string{}}
 	for _, n := range g.nodes {
 		t.Nodes = append(t.Nodes, TopologyNode{Name: NodeName(n), Role: g.role(n)})
@@ -406,14 +377,9 @@ func (g *Graph) Topology() Topology {
 	return t
 }
 
-// role reads what a node is from its data edges alone. A control edge does not
-// change what something is: a player's microphone is still a source after the
-// gate wires a release into it, and drawing it as a block would say the game
-// takes its input from the gate.
+// role ignores control edges: a microphone with a release wired in is still a source.
 func (g *Graph) role(n any) string {
-	// A gate is neither a source nor a block, whatever its edges look like: it
-	// is where the init stem joins the turn loop, and a drawing that hides that
-	// hides the shape of the genre.
+	// A gate is drawn as such, whatever its edges: it is where the init stem joins the turn loop.
 	if _, isGate := n.(Gatekeeper); isGate {
 		return "gate"
 	}
@@ -441,8 +407,7 @@ func (g *Graph) role(n any) string {
 	}
 }
 
-// Mermaid renders the wiring as a flowchart, which is what the project's own
-// documentation already speaks.
+// Mermaid renders the wiring as a flowchart for the project's documentation.
 func (g *Graph) Mermaid() string {
 	var b strings.Builder
 	b.WriteString("graph TB\n")
@@ -467,15 +432,12 @@ func (g *Graph) Mermaid() string {
 
 func id(name string) string { return strings.ReplaceAll(name, "-", "_") }
 
-// watch records values passing between two blocks, so a reader can ask what a
-// block did rather than inferring it from the conversation.
+// watch records values passing between two blocks, so a block's output can be inspected.
 func (g *Graph) watch(src, dst any, kind Kind) func(any) {
 	return func(v any) { g.inspector.observe(src, dst, kind, v) }
 }
 
-// ObserveUsage merges every block's spending reports into one stream, by the
-// same introspection as ObserveStates: what a session costs is a property of
-// the whole graph, not of any one edge.
+// ObserveUsage merges every block's spending reports into one stream, by introspection like ObserveStates.
 func (g *Graph) ObserveUsage(ctx context.Context) <-chan Usage {
 	out := make(chan Usage, 128)
 
@@ -513,12 +475,7 @@ func (g *Graph) ObserveUsage(ctx context.Context) <-chan Usage {
 	return out
 }
 
-// ObserveStates merges every block's state reports into one stream.
-//
-// This is introspection rather than wiring: the gate consumes selected reports
-// through edges because what gates is a deliberate choice, while an observer of
-// the whole graph wants all of them and should not need ten edges drawn into a
-// collector node to get them.
+// ObserveStates merges every block's state reports by introspection; the gate takes its selection via edges.
 func (g *Graph) ObserveStates(ctx context.Context) <-chan State {
 	out := make(chan State, 128)
 

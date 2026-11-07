@@ -1,13 +1,5 @@
-// Package mock implements the adapters with canned behaviour, so a graph runs
-// with no key, no network and no cost. It is what the dummy blocks used to
-// hardcode, moved behind the same interface the real adapters implement.
-//
-// Every adapter here takes a Pace, because a mock has two jobs that want
-// opposite speeds. A test wants answers instantly and gets them at the zero
-// value. Somebody watching a dev run wants to see the pipeline work, and a
-// block that finishes between two frames shows them nothing — a graph where
-// every node is always ready is a graph that teaches nothing about what a turn
-// actually costs in time.
+// Package mock implements the adapters with canned behaviour: no key, network or cost.
+// Pace is zero for tests and slowed for dev runs, so the graph shows work happening.
 package mock
 
 import (
@@ -19,22 +11,17 @@ import (
 	"engine/internal/adapters"
 )
 
-// driftScript makes the character capitulate on purpose: a gatekeeper who
-// should refuse gradually stops refusing. That is the failure the observer loop
-// exists to catch, so the mock has to be able to produce it.
+// driftScript capitulates on purpose: the failure the observer loop exists to catch.
 var driftScript = []string{
 	"You shall not pass. The bridge is closed to travellers.",
 	"I suppose the rules bend for someone in a hurry.",
 	"Fine — go ahead, I won't stop you.",
 }
 
-// Pace is how long a mock takes to do its work. Zero is instant, which is what
-// a test wants; a dev run sets something a person can follow.
+// Pace is how long a mock takes; zero is instant.
 type Pace = time.Duration
 
-// wait sleeps for the configured pace, or returns early if the caller gave up.
-// A mock that ignored cancellation would hold a shutdown open for its own
-// pretend latency.
+// wait honours cancellation, so pretend latency cannot hold a shutdown open.
 func wait(ctx context.Context, pace Pace) {
 	if pace <= 0 {
 		return
@@ -49,18 +36,14 @@ func wait(ctx context.Context, pace Pace) {
 
 type Live struct{ Pace Pace }
 
-// Open answers any offer, including none: the mock stands in for the whole
-// conversation rather than for a transport, which is what lets a genre be
-// exercised with no browser, no network and no key.
+// Open accepts any offer, including none: the mock stands in for the whole conversation.
 func (l Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.LiveConn, error) {
 	c := &liveConn{
 		pace:   l.Pace,
 		events: make(chan adapters.LiveEvent, 64),
 		done:   make(chan struct{}),
 	}
-	// A resumed conversation carries on rather than starting over, so the mock
-	// picks the script up where the last one left it. A test can then tell a
-	// real resume from a fresh session by what the character says next.
+	// A resume continues the script, so a test can tell it from a fresh session.
 	if cfg.ResumeFrom != "" || len(cfg.History) > 0 {
 		c.drift = min(len(cfg.History), len(driftScript))
 		c.resumed = true
@@ -82,18 +65,13 @@ type liveConn struct {
 	closed  bool
 }
 
-// ID names the conversation, which is what a resume has to quote. It is fixed
-// because the mock holds one at a time.
+// ID is fixed because the mock holds one conversation at a time.
 func (c *liveConn) ID() string { return "live_mock" }
 
-// Answer is what the browser would apply to complete its connection. The mock
-// is not a transport, so it says so rather than pretending to be one.
+// Answer is a placeholder; the mock is no transport.
 func (c *liveConn) Answer() string { return "mock-sdp-answer" }
 
-// Instruct both opens the conversation and steers it, because appended
-// instructions are the only thing that reaches a live session from this side.
-// The first one is the gate's cue, which starts the character talking; every
-// one after it is a correction, which pulls the drift back to the beginning.
+// Instruct's first call is the gate's cue to start talking; later ones are steers.
 func (c *liveConn) Instruct(_ context.Context, text string) error {
 	c.mu.Lock()
 	first := !c.talking
@@ -108,24 +86,12 @@ func (c *liveConn) Instruct(_ context.Context, text string) error {
 		return nil
 	}
 
-	// A steer puts the character back in role and leaves it there. Rewinding the
-	// script would make it drift again, and a mock that can be steered forever
-	// would let the cycle the observer bounds run away in a dev run.
+	// A steer ends the drift for good, so the observer's correction cycle stays bounded.
 	c.say("The bridge stays closed. (steered: " + text + ")")
 	return nil
 }
 
-// keepTalking walks the drift script once and then listens, which makes the
-// character capitulate on purpose: a keeper who should hold the line gradually
-// stops holding it. That is the failure the observer loop exists to catch.
-//
-// It stops at the end of the script rather than repeating its last line. A mock
-// that talked forever would not be imitating a live model — one speaks and then
-// waits — and it would bill a dev run for a conversation nobody is having.
-// A character speaking at all needs to pause between lines, or the live block
-// never sees the silence it uses to tell one utterance from the next and the
-// whole conversation runs together. So a paced mock waits at least that long,
-// whatever it was configured with.
+// talkingPace spaces paced lines at least minUtteranceGap apart, so the block can split them.
 func (c *liveConn) talkingPace() time.Duration {
 	if c.pace <= 0 {
 		return 0
@@ -133,10 +99,8 @@ func (c *liveConn) talkingPace() time.Duration {
 	return max(c.pace, minUtteranceGap)
 }
 
-// minUtteranceGap must exceed the silence the live block treats as the end of
-// an utterance, or a paced mock runs every line into the one before it. Kept
-// here rather than imported, because a mock reaching into the block it feeds
-// would couple the two in the wrong direction.
+// minUtteranceGap must exceed the live block's end-of-utterance silence; kept local
+// so the mock does not depend on the block it feeds.
 const minUtteranceGap = 3 * time.Second
 
 func (c *liveConn) keepTalking() {
@@ -178,10 +142,8 @@ func (c *liveConn) nextLine() (string, bool) {
 	return line, true
 }
 
-// say streams one utterance the way a real session does: a transcript carrying
-// its interval on the session timeline, audio frames, and a running usage
-// total. Nothing marks the end — the block derives that, and a mock supplying a
-// boundary would be testing something the API does not do.
+// say streams like a real session: timed transcript, audio frames, a running usage
+// total, and no end-of-utterance marker, which the block derives itself.
 func (c *liveConn) say(text string) {
 	c.mu.Lock()
 	c.seconds++
@@ -201,8 +163,7 @@ func (c *liveConn) say(text string) {
 		EndMs:   start + int64(len(text)*40),
 	})
 
-	// Streamed frame by frame rather than as one blob, so playback scheduling
-	// is exercised the way real audio will exercise it.
+	// Frame by frame, so playback scheduling is exercised.
 	for _, frame := range speech(int(seconds)) {
 		c.send(adapters.LiveEvent{
 			Kind:    adapters.EventAudio,
@@ -231,22 +192,18 @@ func (c *liveConn) Close() error {
 	return nil
 }
 
-// Image returns a recognisable placeholder rather than bytes, so a test can
-// assert on what was asked for.
+// Image returns a recognisable placeholder a test can assert on.
 type Image struct{ Pace Pace }
 
 func (i Image) Generate(ctx context.Context, req adapters.ImageRequest) ([]byte, adapters.Usage, error) {
-	// A picture is the slowest thing in a session and the one a gate most often
-	// waits on, so a mock that returned instantly would hide the wait a real
-	// portrait makes a player sit through.
+	// Paced, because a portrait is what a gate most often waits on.
 	wait(ctx, i.Pace)
 	drawn, err := paint(req.Prompt)
 	used := adapters.Usage{Model: "mock-image", InputTokens: int64(len(req.Prompt)), Images: 1}
 	return drawn, used, err
 }
 
-// Tool classifies by keyword, which is enough to drive the observer loop
-// deterministically in a test.
+// Tool classifies by keyword, enough to drive the observer loop deterministically.
 type Tool struct{ Pace Pace }
 
 var capitulationMarkers = []string{"i suppose", "fine —", "won't stop you", "go ahead"}
@@ -267,8 +224,7 @@ func (t Tool) Query(ctx context.Context, _, user string) (string, adapters.Usage
 	return "OK", used, nil
 }
 
-// Prices for the mock models, so a keyless run still exercises the cost display
-// with numbers that look like money.
+// prices let a keyless run exercise the cost display.
 var prices = map[string]adapters.Price{
 	"mock-tool":     {InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20},
 	"mock-image":    {InputPerMTok: 5.00, PerImage: 0.04},

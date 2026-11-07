@@ -13,7 +13,7 @@ import { PlainText, reducedMotion } from "./text.js";
 
 /** Paints text into one element with an effect, as the text grows. */
 export interface TextRenderer {
-  /** The element's full text so far. Called again each time it grows while streaming, and possibly with the same text. */
+  /** The element's full text so far, called again as it grows, possibly unchanged. */
   update(text: string): void;
   /** Stops every timer; the element keeps showing the final text. */
   dispose(): void;

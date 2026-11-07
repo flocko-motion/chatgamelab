@@ -1,9 +1,6 @@
 /**
- * The headless player: a full game is playable through this class alone, with
- * no DOM and no audio device. It owns the session state and the turn timeline;
- * anything drawing it is a pure function of `state`.
- *
- * Integration tests drive this directly against a running engine.
+ * The headless player: holds all session state with no DOM or audio device, so
+ * a full game plays from node.
  */
 import {
   isSessionEvent,
@@ -25,22 +22,13 @@ export class Player {
   #nextUtterance = 1;
   #open: Utterance | null = null;
 
-  /**
-   * The voice is optional because the core must stay playable without one. A
-   * headless run watches a conversation it cannot join, which is the honest
-   * limit of a voice genre with no audio device.
-   */
+  /** Optional, so a headless run can watch a conversation it cannot join. */
   constructor(
     private readonly transport: Transport,
     private readonly voice?: Voice,
   ) {}
 
-  /**
-   * Notified after every state change, so a view never polls.
-   *
-   * `immediate` is opt-out because a waiter must not be called before its own
-   * unsubscribe handle exists.
-   */
+  /** `immediate` is opt-out so a waiter is not called before its unsubscribe handle exists. */
   subscribe(listener: Listener, immediate = true): () => void {
     this.#listeners.add(listener);
     if (immediate) listener(this.state);
@@ -52,22 +40,13 @@ export class Player {
     this.transport.open({
       onOpen: () => this.#set("open"),
       onClose: () => this.#set("closed"),
-      // The transport retries on its own, so a drop is a state to sit through
-      // rather than a failure to report.
+      // The transport retries on its own, so a drop is a state to sit through.
       onError: () => this.#set("reconnecting"),
       onMessage: (data) => this.#receive(data),
     });
   }
 
-  /**
-   * Rebuilds the conversation after a reconnection, from what the engine kept.
-   *
-   * A dropped socket misses whatever was said while it was away, and the
-   * engine's history is the only record of it. Replaying on top of what is
-   * already here would say everything twice, so the conversation is cleared
-   * first and rebuilt whole — through the same path a fresh page uses, which is
-   * why there is no second way for it to be wrong.
-   */
+  /** Clears the conversation before replaying the engine's history, so nothing is said twice. */
   async rebuild(base: string | URL): Promise<void> {
     this.state.utterances = [];
     this.state.notes = [];
@@ -83,21 +62,11 @@ export class Player {
     this.#set("closed");
   }
 
-  /**
-   * Lets the conversation go now, rather than waiting out the silence.
-   *
-   * The asking is recorded before the request is sent and stands until the
-   * engine puts a pause on the stream. Closing a live session is a round trip
-   * through the provider, and a control that shows nothing until it comes back
-   * reads as a control that did nothing — so the wait is a state rather than a
-   * gap.
-   */
+  /** Lets the conversation go now; `pausing` stands until the engine confirms the pause. */
   async pause(base: string | URL): Promise<void> {
     if (this.state.pausing || this.state.paused) return;
     this.state.pausing = true;
-    // Stopped being heard at once. The engine's answer is a round trip away,
-    // and a microphone that keeps reaching the character until it comes back
-    // is a microphone that ignored the press.
+    // Stops sending at once, while the control holds its transition until the engine confirms.
     this.voice?.setSending(false);
     this.#notify();
 
@@ -105,8 +74,7 @@ export class Player {
       const response = await fetch(new URL("pause", base), { method: "POST" });
       if (!response.ok) throw new Error(`the engine answered ${response.status}`);
     } catch (error) {
-      // Nothing was let go, so the conversation is still live: the control
-      // goes back to saying so, and the character can hear again.
+      // Nothing was let go, so the conversation is live again.
       this.state.pausing = false;
       this.voice?.setSending(true);
       this.state.problem = `Could not pause: ${error instanceof Error ? error.message : String(error)}`;
@@ -114,29 +82,19 @@ export class Player {
     }
   }
 
-  /**
-   * Picks a paused conversation back up. The engine is waiting for an offer, so
-   * this opens a connection exactly as the first invitation did — and the
-   * character resumes remembering what was said.
-   */
+  /** Picks a paused conversation back up by sending a fresh offer. */
   resume(): void {
     if (!this.state.paused || this.state.resuming) return;
     this.state.resuming = true;
     void this.#openVoice();
   }
 
-  /**
-   * Sends one frame of player speech. The player's own words are never
-   * transcribed, so nothing about this appears in the state.
-   */
+  /** Sends one frame of player speech, which is never transcribed into the state. */
   speak(pcm: ArrayBuffer): void {
     this.transport.send(pcm);
   }
 
-  /**
-   * Sends typed input. A live session takes both typed and spoken words, and a
-   * turn-based genre takes only these.
-   */
+  /** Sends typed input, which live and turn-based genres both take. */
   say(text: string): void {
     this.transport.send(JSON.stringify({ text }));
   }
@@ -210,9 +168,7 @@ export class Player {
   #apply(event: SessionEvent): void {
     switch (event.Stream) {
       case "text":
-        // An empty delta closes the utterance rather than adding to it: the
-        // boundary rides the same stream as the text so that it is ordered
-        // against it.
+        // An empty delta closes the utterance, ordered against the text it ends.
         if (event.Value === "") this.takeFloor();
         else this.#extend(event.Value);
         break;
@@ -229,22 +185,13 @@ export class Player {
         this.#applyUsage(event.Value);
         break;
       case "connect":
-        // The engine says it would take an offer. The first one is the game
-        // beginning, and the page opens its connection then.
-        //
-        // Every later one follows a pause: the engine lets the conversation go
-        // and comes straight back round to waiting for a new offer. Acting on
-        // that would resume a conversation nobody asked to resume, and start
-        // billing for it again — which is the whole of what the pause was for.
-        // So a second invitation is noted and left alone, and the player's own
-        // press is what answers it.
+        // Only the first invitation is acted on: every later one follows a pause, and answering
+        // it would resume and re-bill a conversation nobody asked to resume. The press offers.
         if (!this.state.invited) void this.#openVoice();
         this.state.invited = true;
         break;
       case "pause":
-        // The conversation was let go — for silence, or because this player
-        // asked. The session is still here; what ended is the expensive half of
-        // it, which is also the answer anybody pressing pause is waiting for.
+        // Let go for silence or on request; the session itself stays.
         this.state.paused = true;
         this.state.pausing = false;
         this.state.voice = "idle";
@@ -256,17 +203,9 @@ export class Player {
     this.#notify();
   }
 
-  /**
-   * Opens the player's own audio connection, once invited.
-   *
-   * A failure here loses the voice rather than the session: the transcript, the
-   * portrait and the character's own words all keep arriving over the stream,
-   * so a player without a microphone still sees the conversation happen.
-   */
+  /** A failure loses only the voice; transcript and portrait keep arriving over the stream. */
   async #openVoice(): Promise<void> {
-    // One negotiation at a time. A second offer while the first is still in
-    // flight leaves two peers racing for one connection, and whichever loses
-    // closes the one the other is waiting on an answer for.
+    // One negotiation at a time: two offers in flight race and close each other's connection.
     if (!this.voice || this.state.voice === "connecting") {
       this.state.resuming = false;
       return;
@@ -276,9 +215,7 @@ export class Player {
     this.#notify();
     try {
       await this.voice.connect();
-      // Paused is cleared here rather than on the way in: until there is a
-      // connection the conversation is still the paused one, and a control that
-      // said otherwise would be saying it early.
+      // Paused clears only once connected; until then it is still the paused conversation.
       this.state.voice = "live";
       this.state.paused = false;
       this.state.problem = null;
@@ -290,15 +227,9 @@ export class Player {
     this.#notify();
   }
 
-  /**
-   * Rebuilds everything a reloaded page missed: the wiring, where the session
-   * stands, and the conversation so far. The socket carries what is happening;
-   * this carries what has happened.
-   */
+  /** Rebuilds what a reloaded page missed; the socket carries only what is happening. */
   async restore(base: string | URL): Promise<void> {
-    // The wiring is fetched first and is the reachability check: without it
-    // there is no session to play, and saying so beats every symptom that
-    // follows from not knowing. loadTopology says what went wrong.
+    // The wiring is the reachability check; loadTopology says what went wrong.
     if (!(await this.loadTopology(base))) {
       this.#notify();
       return;
@@ -306,10 +237,7 @@ export class Player {
     await this.#loadSnapshot(base);
     await this.#loadHistory(base);
 
-    // Replay says what happened; it must not make it happen again. So the audio
-    // is opened here, once, from where the session actually stands rather than
-    // from an event in its past — and a conversation that was let go is left
-    // alone, because picking it up is the player's to ask for.
+    // Audio opens here from where the session stands, so replay never resumes a pause.
     if (this.state.invited && !this.state.paused && this.state.voice === "idle") {
       void this.#openVoice();
     }
@@ -323,10 +251,8 @@ export class Player {
     this.state.props = snapshot.props;
     this.state.usage = snapshot.usage;
     this.state.started = snapshot.started;
-    // Where the conversation stands, which a reloading page has no other way to
-    // learn: the invitation it would have acted on was sent before it existed.
-    // "open" counts as invited too — the conversation running there is one this
-    // page has lost, and offering to take it over is what continues it.
+    // The invitation predates a reloaded page, so it asks where the conversation stands.
+    // "open" is a conversation this page lost, so it offers again.
     switch (snapshot.conversation) {
       case "awaiting":
       case "open":
@@ -340,11 +266,7 @@ export class Player {
     this.#notify();
   }
 
-  /**
-   * Replayed events go through exactly the same path as live ones, so there is
-   * no second way to render a conversation and no second place for it to be
-   * wrong.
-   */
+  /** Replayed history goes through the same path as live events. */
   async #loadHistory(base: string | URL): Promise<void> {
     const response = await fetch(new URL("history", base));
     if (!response.ok) return;
@@ -355,24 +277,19 @@ export class Player {
     }
   }
 
-  /**
-   * Fetches the wiring once. It does not change during a session, so it is a
-   * plain GET rather than something the live stream has to carry.
-   */
+  /** Fetches the wiring once, as it never changes during a session. */
   async loadTopology(base: string | URL): Promise<boolean> {
     let response: Response;
     try {
       response = await fetch(new URL("topology", base));
     } catch {
-      // A refused or unreachable server throws rather than answering, which is
-      // the only case where the server itself is the problem.
+      // Only an unreachable server throws instead of answering.
       this.state.problem = "Cannot reach the game server. Is it still running?";
       return false;
     }
 
     if (response.status === 404) {
-      // The server answered, so it is up: what is missing is the session. Far
-      // and away the likeliest cause is a link without one.
+      // The server is up; the session is missing, likeliest from a link without one.
       this.state.problem =
         "No such session. The address needs ?session=<id> — use the link the server printed.";
       return false;
@@ -384,18 +301,13 @@ export class Player {
 
     this.state.problem = null;
     this.state.topology = (await response.json()) as Topology;
-    // A gate that opened before the wiring arrived would otherwise leave the
-    // game looking unstarted.
+    // A gate that opened before the wiring arrived would otherwise look unstarted.
     this.#recomputeStarted();
     this.#notify();
     return true;
   }
 
-  /**
-   * The game has begun once the gate reports ready. The gate is found by its
-   * role rather than by name, so the core does not have to know what a genre
-   * calls it.
-   */
+  /** The gate is found by role, so the core need not know what a genre calls it. */
   #recomputeStarted(): void {
     const gate = this.state.topology?.nodes.find((node) => node.role === "gate");
     this.state.started = gate ? this.state.phases[gate.name] === "ready" : false;
@@ -443,11 +355,7 @@ export class Player {
 
 type Utterance = PlayerState["utterances"][number];
 
-/**
- * Status arrives as Go's map formatting — `map[Health:Good Gold:12]` — because
- * the engine's props stream is a rendered map today. Parsed here so the state
- * carries real fields rather than a string the UI would have to pick apart.
- */
+/** Parses the props stream's Go map formatting, `map[Health:Good Gold:12]`, into fields. */
 function parseProps(value: string): Record<string, string> {
   const inner = value.replace(/^map\[/, "").replace(/\]$/, "");
   const props: Record<string, string> = {};
