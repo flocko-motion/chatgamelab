@@ -1,4 +1,4 @@
-platform/server/__debug_bin*
+go/__debug_bin*
 
 .grepai
 .todos
@@ -7,7 +7,7 @@ platform/server/__debug_bin*
 .env
 bin
 */__debug_bin*
-platform/server/cgl
+go/cgl
 .planning/
 .grepai/
 .todos/

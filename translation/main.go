@@ -26,9 +26,9 @@ import (
 // The settings, fixed here so every run translates the same way.
 const (
 	// Where en.json and de.json are written by hand, and every translation lands.
-	localesDir = "platform/web/src/i18n/locales"
+	localesDir = "frontend/src/i18n/locales"
 	// The server embeds a copy of the locales; it mirrors localesDir.
-	serverLocalesDir = "platform/server/lang/locales"
+	serverLocalesDir = "go/lang/locales"
 
 	model       = "gpt-5.6-luna"
 	apiKeyEnv   = "OPENAI_API_KEY"

@@ -31,103 +31,42 @@ you need Git basics first. There are friendly clients for Mac such as
 
 ## Requirements
 
-- **Docker** and **docker compose** (v2+)
-- **Node.js and npm** (for local frontend development)
-- **Go 1.21+** (for local backend development)
+- **Go** (version in `go/go.mod`)
+- **Node.js and npm**
+- **podman** (rootless) and **docker-compose**, or Docker with `SCHEMAF_RUNTIME=docker` — see [schemaf's container runtime](https://github.com/flocko-motion/schemaf/blob/main/INSTALL.md#container-runtime)
 - **Auth0 account** (for authentication)
 - **OpenAI API key** (to play games)
 
 ## Setup
 
-### 1. Configure environment
+The platform is a [schemaf](https://github.com/flocko-motion/schemaf) app: the Go server in `go/` is the single gateway, serving `/api/*` and the frontend in `frontend/`. The game engine lives in `go/engine/`, its own Go module.
 
-Copy the example environment file:
+The dev environment's values live outside the repository, in `~/.chatgamelab/dev/etc/env`. It needs at least the database password:
 
 ```bash
-cp .env.example .env
+mkdir -p ~/.chatgamelab/dev/etc
+echo "DB_PASS=changeme" > ~/.chatgamelab/dev/etc/env
 ```
-
-Edit `.env` with your values. See `.env.example` for all available options organized by service (Database, Backend, Frontend).
 
 ## Development
 
-Development uses Docker for services you're not actively working on, while you run your code locally with full debugger support.
-
-### Development Modes
-
-| Command | Docker runs | You develop locally |
-|---------|-------------|---------------------|
-| `scripts/dev.sh frontend` | db + backend | Frontend (`cd platform/web && npm run dev`) |
-| `scripts/dev.sh backend` | db + web | Backend (`cd platform/server && go run . server`) |
-| `scripts/dev.sh all` | db only | Both frontend and backend |
-| `scripts/dev.sh` | all services | None (everything in Docker) |
-
-### Develop Frontend
+`./schemaf.sh` is the entry point for everything:
 
 ```bash
-# Terminal 1 - Start database only
-scripts/dev.sh all
-
-# Terminal 2 - Start frontend locally
-cd platform/web && npm run dev
-
-# Terminal 3 - Start backend locally
-cd platform/server && go run . server
+./schemaf.sh codegen               # regenerate glue code after changing migrations, queries or endpoints
+./schemaf.sh dev                   # list the services
+./schemaf.sh dev db,backend        # Postgres + the Go server
+./schemaf.sh dev all               # Postgres + the Go server + the Vite dev server
+./schemaf.sh test                  # codegen, then all tests
 ```
 
-Open **http://localhost:5173** in your browser.
+The app runs at **http://localhost:7100**. Ports derive from `port` in `schemaf.toml`: the server on 7100, the Vite dev server on 7102, Postgres on 7103. In dev the server passes every request outside `/api/*` to Vite.
 
-### Develop Backend
+Development tokens for any user:
 
 ```bash
-# Terminal 1 - Start database and frontend in Docker
-scripts/dev.sh backend
-
-# Terminal 2 - Start backend locally (with debugger)
-cd platform/server && go run . server
+./schemaf.sh auth token <user-id>
 ```
-
-Open **http://localhost** in your browser (served by Docker).
-
-### Start All Services in Docker
-
-```bash
-# Start everything (db + backend + web) in Docker
-scripts/dev.sh
-```
-
-Open **http://localhost** in your browser.
-
-### Options
-
-```bash
-scripts/dev.sh frontend --reset-db          # Reset database before starting
-scripts/dev.sh all --reset-db               # Reset database before starting
-scripts/dev.sh --reset-db                   # Reset database before starting all services
-scripts/dev.sh frontend --port-backend 8080 # Custom backend port
-scripts/dev.sh --help                       # Show all options
-```
-
-### Dev Mode Features
-
-When `DEV_MODE=true` in `.env`, additional development features are enabled:
-
-**JWT Token Generation** - Generate JWT tokens for any user without Auth0:
-```bash
-cd platform/server
-go run . user jwt                    # Generate token for dev user
-go run . user jwt <user-uuid>        # Generate token for specific user
-```
-
-**Dev User** - A default dev user is seeded on startup with UUID `00000000-0000-0000-0000-000000000000`.
-
-### Reset Database
-
-```bash
-./reset-dev-db.sh
-```
-
-Then restart with `scripts/dev.sh`.
 
 ## Production
 
@@ -286,10 +225,10 @@ sudo systemctl start chatgamelab.service
 
 ## Quick Start for Designers
 
-If you're a designer wanting to explore the React frontend without the full backend:
+To work on the React frontend:
 
 ```bash
-cd platform/web && npm run dev
+./schemaf.sh dev all
 ```
 
-Then open **http://localhost:5173**
+Then open **http://localhost:7100**

@@ -1,0 +1,250 @@
+{
+  "components": {
+    "schemas": {
+      "GetVersionReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "GetVersionResp": {
+        "properties": {
+          "buildTime": {
+            "type": "string"
+          },
+          "gitCommit": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "gitCommit",
+          "buildTime"
+        ],
+        "type": "object"
+      },
+      "SchemafAuth0LoginRequest": {
+        "properties": {
+          "id_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id_token"
+        ],
+        "type": "object"
+      },
+      "SchemafLoginResponse": {
+        "properties": {
+          "subject": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "token"
+        ],
+        "type": "object"
+      },
+      "SchemafRefreshResponse": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "bearerFormat": "JWT",
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "cookieAuth": {
+        "in": "cookie",
+        "name": "chatgamelab_session",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "title": "API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/auth/auth0/login": {
+      "post": {
+        "description": "Verifies the ID token from the Auth0 SPA SDK and starts a schemaf session. 404 if Auth0 is not configured on this instance.",
+        "operationId": "postApiAuthAuth0Login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchemafAuth0LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemafLoginResponse"
+                }
+              }
+            },
+            "description": "Session started; the session cookie is set"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Provider not configured"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Sign in with an Auth0 ID token"
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "description": "Revokes the current session (if any) and clears the session cookie.",
+        "operationId": "postApiAuthLogout",
+        "responses": {
+          "204": {
+            "description": "Logged out"
+          },
+          "403": {
+            "description": "Cross-origin request rejected"
+          }
+        },
+        "summary": "End the current session"
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "operationId": "postApiAuthRefresh",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemafRefreshResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Token is not tied to a session"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Get a fresh token for the current session"
+      }
+    },
+    "/api/auth/{provider}/login": {
+      "post": {
+        "description": "Passes the request to the named identity provider and starts a schemaf session. The body is defined by the provider.",
+        "operationId": "postApiAuthProviderLogin",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemafLoginResponse"
+                }
+              }
+            },
+            "description": "Session started; the session cookie is set"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Provider not configured"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Sign in with an identity provider"
+      }
+    },
+    "/api/version": {
+      "get": {
+        "description": "Returns the version, git commit and build time the server was built with.",
+        "operationId": "getApiVersion",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVersionResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Reports the server's build."
+      }
+    }
+  }
+}

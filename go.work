@@ -1,8 +1,8 @@
-go 1.25
+go 1.25.0
 
 use (
-	./engine
-	./platform/server
+	./go
+	./go/engine
 	./testing
 	./translation
 )

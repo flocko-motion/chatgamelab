@@ -11,9 +11,9 @@ make translate-check   # go run ./translation --check — what CI runs
 It reads `OPENAI_API_KEY`. Everything else is fixed in `main.go`: the model,
 the language list, and the paths.
 
-- `platform/web/src/i18n/locales` holds `en.json` and `de.json`, written by
+- `frontend/src/i18n/locales` holds `en.json` and `de.json`, written by
   hand, and every translation.
-- `platform/server/lang/locales` is the server's embedded copy of that
+- `go/lang/locales` is the server's embedded copy of that
   directory.
 - `languages.json` is written from the language list in `main.go`. The web app
   and the server both read their languages from it.
