@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 岁",
       "ageGroupU18": "18 岁及以上",
       "gamesCreated": "已创建的游戏",
+      "gamesPlayed": "已游玩游戏",
       "memberSince": "注册时间",
+      "messagesSent": "已发送消息",
       "noOrganization": "无组织",
       "noRole": "未分配角色",
       "organization": "组织",
@@ -283,6 +285,7 @@
       "serverDefault": "服务器默认"
     },
     "allGames": {
+      "continue": "游玩",
       "copyConfirm": {
         "confirm": "复制游戏",
         "message": "这会在你的游戏中创建“{{name}}”的副本。",
@@ -303,6 +306,7 @@
       },
       "play": "游玩",
       "reportGame": "举报游戏",
+      "restart": "重新开始",
       "title": "全部游戏",
       "unfavorite": "移出收藏",
       "workshop": "工作坊 / 组织"
@@ -458,6 +462,9 @@
         "gameStart": "游戏如何开始？",
         "gameStartHint": "游戏开始时会发生什么？请描述玩家看到的第一个场景。玩家会受到怎样的欢迎？玩家如何知道该做什么？",
         "gameStartPlaceholder": "你在一片黑暗森林的边缘醒来。一条狭窄的小路通向更深处……",
+        "genre": "类型",
+        "genreHint": "游戏的玩法。",
+        "genreNeeds": "需要具备{{features}}功能的 AI 密钥。",
         "imageStyle": "游戏的图像应是什么风格？",
         "imageStyleHint": "例如：卡通、写实、像素、水彩……",
         "name": "游戏名称",
@@ -465,7 +472,10 @@
         "scenarioHint": "请简要描述：游戏如何运作？世界是什么样的？语言和语气（例如：面向六年级学生的西班牙语）？\n玩家扮演什么角色？请写“玩家……”。\n如果你希望 AI 扮演某个特定人物，请写“你是……”。\n目标是什么？玩家如何知道自己获胜了？",
         "scenarioPlaceholder": "你是一名神秘森林中的探险家，目标是找到隐藏的宝藏……",
         "statusFields": "游戏数值",
-        "statusFieldsHint": "需要追踪哪些数值？例如生命值、积分或弹药。游戏会在游玩时记住并更新这些数值。"
+        "statusFieldsHint": "需要追踪哪些数值？例如生命值、积分或弹药。游戏会在游玩时记住并更新这些数值。",
+        "theme": "主题",
+        "themeDefault": "默认外观",
+        "themeHint": "游戏进行时所采用的外观。"
       },
       "editModal": {
         "adminActionTitle": "管理员操作",
@@ -488,6 +498,12 @@
         "nameRequired": "游戏名称是必填项",
         "nameTooLong": "游戏名称不能超过 70 个字符"
       },
+      "features": {
+        "audio-in": "语音输入",
+        "audio-live": "实时语音",
+        "audio-out": "旁白",
+        "images": "图片"
+      },
       "fields": {
         "created": "创建时间",
         "creator": "创建者",
@@ -496,6 +512,10 @@
         "name": "名称",
         "playCount": "游玩次数",
         "visibility": "可见性"
+      },
+      "genres": {
+        "adventure": "冒险",
+        "npc-live": "NPC 实时互动"
       },
       "importExport": {
         "exportButton": "导出游戏",
@@ -614,6 +634,54 @@
         "style": "设计",
         "styleInfo": "用于游戏外观的可选设置。"
       },
+      "theme": {
+        "presets": {
+          "abstract": "抽象",
+          "adventure": "冒险",
+          "barbie": "芭比",
+          "candy": "糖果",
+          "circus": "马戏团",
+          "cyberpunk": "赛博朋克",
+          "default": "默认",
+          "desert": "沙漠",
+          "detective": "侦探",
+          "educational": "教育",
+          "fairy": "仙境",
+          "fire": "火焰",
+          "garden": "花园",
+          "glitch": "故障艺术",
+          "greenFantasy": "绿色幻想",
+          "hacker": "黑客",
+          "horror": "恐怖",
+          "jungle": "丛林",
+          "matrix": "黑客帝国",
+          "medieval": "中世纪",
+          "minimal": "极简",
+          "mystery": "神秘",
+          "mystic": "玄幻",
+          "nature": "自然",
+          "nautical": "航海",
+          "noir": "黑色电影",
+          "ocean": "海洋",
+          "pirate": "海盗",
+          "playful": "趣味",
+          "retro": "复古",
+          "romance": "浪漫",
+          "school": "校园",
+          "scifi": "科幻",
+          "snowy": "雪景",
+          "space": "太空",
+          "steampunk": "蒸汽朋克",
+          "storybook": "故事书",
+          "sunshine": "阳光",
+          "superhero": "超级英雄",
+          "tech": "科技",
+          "terminal": "终端",
+          "underwater": "水下",
+          "western": "西部",
+          "zombie": "僵尸"
+        }
+      },
       "title": "我创建的游戏",
       "viewModal": {
         "readOnlyNotice": "该游戏由其他用户创建，你只能查看详情。如需编辑，请使用“复制”创建一份可编辑版本。",
@@ -723,6 +791,7 @@
     "logout": "登出",
     "me": "我",
     "myGames": {
+      "continue": "游玩",
       "copyConfirm": {
         "confirm": "复制游戏",
         "message": "这会在你的游戏中创建“{{name}}”的副本。",
@@ -739,6 +808,12 @@
         "favorites": "收藏"
       },
       "play": "游玩",
+      "restart": "重新开始",
+      "restartConfirm": {
+        "confirm": "重新开始",
+        "message": "确定要重新开始“{{game}}”吗？你当前的进度将会丢失。",
+        "title": "重新开始游戏"
+      },
       "title": "我的游戏",
       "unfavorite": "移出收藏"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "你无权访问服务器设置，需要管理员权限。",
       "title": "服务器设置"
     },
+    "sessions": {
+      "untitledGame": "未命名游戏"
+    },
     "settings": "设置",
     "share": {
       "copied": "已复制",
@@ -1138,6 +1216,11 @@
         },
         "title": "关于 ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "还没有游戏记录。开始游玩吧！",
+        "title": "最近游玩",
+        "viewAll": "所有游戏"
+      },
       "myGames": {
         "empty": "还没有游戏，创建你的第一个吧！",
         "title": "我的游戏",
@@ -1169,6 +1252,7 @@
       "title": "快捷操作"
     },
     "untitled": "未命名",
+    "untitledGame": "未命名游戏",
     "version": {
       "mismatch": {
         "message": "前端版本 \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e 与后端版本 \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e 不匹配，可能导致异常行为。如问题持续，请联系支持。",

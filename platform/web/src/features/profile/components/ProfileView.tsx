@@ -14,6 +14,8 @@ import {
   IconBuilding,
   IconChartBar,
   IconDeviceGamepad2,
+  IconMessage,
+  IconPlayerPlay,
   IconSchool,
   IconShieldCheck,
   IconShieldStar,
@@ -57,9 +59,19 @@ export function ProfileView() {
   // Statistics from API
   const statItems = [
     {
+      label: t("profile.gamesPlayed"),
+      value: stats?.gamesPlayed ?? 0,
+      icon: IconPlayerPlay,
+    },
+    {
       label: t("profile.gamesCreated"),
       value: stats?.gamesCreated ?? 0,
       icon: IconDeviceGamepad2,
+    },
+    {
+      label: t("profile.messagesSent"),
+      value: stats?.messagesSent ?? 0,
+      icon: IconMessage,
     },
     {
       label: t("profile.totalPlaysOnGames"),
@@ -110,7 +122,7 @@ export function ProfileView() {
           <Title order={3}>{t("profile.statisticsSection")}</Title>
         </Group>
 
-        <SimpleGrid cols={2} spacing="md">
+        <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
           {statItems.map((stat) => (
             <Card key={stat.label} padding="md" radius="md" bg="gray.0">
               <Stack gap="xs" align="center" ta="center">

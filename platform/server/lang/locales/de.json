@@ -68,7 +68,9 @@
         "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter „Code eingeben“ ein oder scanne den QR-Code.",
         "longTokenHint": "Fotografiere den QR-Code oder speichere den Link und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto. Einen kurzen Code aus vier Wörtern bekommst du von deiner Workshopleitung, wenn sie deinen Zugang zurücksetzt.",
         "error": "Dein Zugangscode konnte nicht geladen werden."
-      }
+      },
+      "gamesPlayed": "Gespielte Spiele",
+      "messagesSent": "Gesendete Nachrichten"
     },
     "register": {
       "cancelButton": "Abbrechen",
@@ -289,7 +291,9 @@
       "reportGame": "Spiel melden",
       "title": "Alle Spiele",
       "unfavorite": "Aus Favoriten entfernen",
-      "workshop": "Workshop / Org"
+      "workshop": "Workshop / Org",
+      "continue": "Spielen",
+      "restart": "Neu starten"
     },
     "apiKeys": {
       "aboutSection": {
@@ -399,12 +403,6 @@
       "jffTitle": "JFF - Institut für Medienpädagogik",
       "programmedBy": "Programmiert von"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "title": "Die Spielansicht wird neu gebaut",
-        "description": "Bald kannst du hier wieder spielen."
-      }
-    },
     "games": {
       "actions": {
         "delete": "Löschen",
@@ -449,7 +447,13 @@
         "scenarioHint": "Beschreibe kurz: Wie funktioniert das Spiel? Wie sieht die Spielwelt aus? Sprache \u0026 Tonfall (z. B. Spanisch für Sechstklässler*innen)?\nWelche Rolle hat die Spielfigur? Schreibe \"Die Spielfigur ...\".\nWenn die KI die Rolle einer bestimmten Person übernehmen soll, schreibe \"Du bist ...\".\nWas ist das Ziel? Woran merkt die Spielfigur, dass sie gewonnen hat?",
         "scenarioPlaceholder": "Die Spielfigur ist ein Entdecker in einem geheimnisvollen Wald. Das Ziel ist es, den versteckten Schatz zu finden...",
         "statusFields": "Spielwerte",
-        "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch."
+        "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch.",
+        "genre": "Genre",
+        "genreHint": "Wie das Spiel gespielt wird.",
+        "genreNeeds": "Braucht einen KI-Schlüssel mit {{features}}.",
+        "theme": "Design",
+        "themeHint": "Das Aussehen, in dem das Spiel gespielt wird.",
+        "themeDefault": "Standard-Aussehen"
       },
       "editModal": {
         "adminActionTitle": "Admin-Aktion",
@@ -606,7 +610,65 @@
         "public": "Öffentlich"
       },
       "privacyHint": "Name und Beschreibung eines Spiels können öffentlich sichtbar werden. Bitte keine Klarnamen verwenden.",
-      "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen."
+      "privacyHintShort": "Kann öffentlich sichtbar werden – bitte keine Klarnamen.",
+      "theme": {
+        "presets": {
+          "abstract": "Abstrakt",
+          "adventure": "Abenteuer",
+          "barbie": "Barbie",
+          "candy": "Süßigkeiten",
+          "circus": "Zirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Standard",
+          "desert": "Wüste",
+          "detective": "Detektiv",
+          "educational": "Lehrreich",
+          "fairy": "Feen",
+          "fire": "Feuer",
+          "garden": "Garten",
+          "glitch": "Glitch",
+          "greenFantasy": "Grüne Fantasie",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Dschungel",
+          "matrix": "Matrix",
+          "medieval": "Mittelalter",
+          "minimal": "Minimal",
+          "mystery": "Geheimnis",
+          "mystic": "Mystisch",
+          "nature": "Natur",
+          "nautical": "Nautisch",
+          "noir": "Noir",
+          "ocean": "Ozean",
+          "pirate": "Pirat",
+          "playful": "Verspielt",
+          "retro": "Retro",
+          "romance": "Romantik",
+          "school": "Schule",
+          "scifi": "Sci-Fi",
+          "snowy": "Verschneit",
+          "space": "Weltraum",
+          "steampunk": "Steampunk",
+          "storybook": "Märchenbuch",
+          "sunshine": "Sonnenschein",
+          "superhero": "Superheld",
+          "tech": "Technik",
+          "terminal": "Terminal",
+          "underwater": "Unterwasser",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
+      "genres": {
+        "adventure": "Abenteuer",
+        "npc-live": "NPC-Live"
+      },
+      "features": {
+        "images": "Bildern",
+        "audio-out": "Vorlesen",
+        "audio-in": "Spracheingabe",
+        "audio-live": "Live-Sprache"
+      }
     },
     "header": {
       "apiKeys": "API-Schlüssel",
@@ -724,7 +786,14 @@
       },
       "play": "Spielen",
       "title": "Meine Spiele",
-      "unfavorite": "Aus Favoriten entfernen"
+      "unfavorite": "Aus Favoriten entfernen",
+      "continue": "Spielen",
+      "restart": "Neu starten",
+      "restartConfirm": {
+        "confirm": "Neu starten",
+        "message": "Möchtest du \"{{game}}\" wirklich neu starten? Dein aktueller Fortschritt geht verloren.",
+        "title": "Spiel neu starten"
+      }
     },
     "myOrganization": {
       "actions": "Aktionen",
@@ -1101,6 +1170,9 @@
         "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten.",
         "button": "Kostenlos loslegen"
       }
+    },
+    "sessions": {
+      "untitledGame": "Unbenanntes Spiel"
     }
   },
   "dashboard": {
@@ -1140,6 +1212,11 @@
         "plays": "{{count}} Mal gespielt",
         "title": "Beliebte Spiele",
         "viewAll": "Alle Spiele"
+      },
+      "lastPlayed": {
+        "empty": "Noch kein laufendes Spiel. Spiel dein erstes Spiel!",
+        "title": "Zuletzt gespielt",
+        "viewAll": "Alle Spiele"
       }
     },
     "quickActions": {
@@ -1156,7 +1233,8 @@
         "message": "Frontend-Version {{frontendVersion}} stimmt nicht mit Backend-Version {{backendVersion}} überein. Dies kann zu unerwartetem Verhalten führen. Kontaktiere den Support, wenn Probleme weiterhin bestehen.",
         "title": "Versionenkonflikt erkannt"
       }
-    }
+    },
+    "untitledGame": "Unbenanntes Spiel"
   },
   "errors": {
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",

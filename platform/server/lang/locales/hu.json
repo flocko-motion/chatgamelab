@@ -51,7 +51,9 @@
       "ageGroupU13": "13–17 éves",
       "ageGroupU18": "18+",
       "gamesCreated": "Létrehozott játékok",
+      "gamesPlayed": "Lejátszott játékok",
       "memberSince": "Regisztrált ekkor",
+      "messagesSent": "Elküldött üzenetek",
       "noOrganization": "Nincs szervezet",
       "noRole": "Nincs szerepkör megadva",
       "organization": "Szervezet",
@@ -283,6 +285,7 @@
       "serverDefault": "Szerver alapértelmezett"
     },
     "allGames": {
+      "continue": "Játék",
       "copyConfirm": {
         "confirm": "Játék másolása",
         "message": "Ez létrehozza a(z) „{{name}}” játék másolatát a játékaid között.",
@@ -303,6 +306,7 @@
       },
       "play": "Játék",
       "reportGame": "Játék jelentése",
+      "restart": "Újrakezdés",
       "title": "Összes játék",
       "unfavorite": "Eltávolítás a kedvencekből",
       "workshop": "Műhely / szervezet"
@@ -458,6 +462,9 @@
         "gameStart": "Hogyan kezdődik a játék?",
         "gameStartHint": "Mi történik a játék elején? Írd le az első jelenetet, amelyet a játékos lát. Hogyan üdvözlöd a játékost? Honnan tudja a játékos, mit kell tennie?",
         "gameStartPlaceholder": "Egy sötét erdő szélén ébredsz. Egy keskeny ösvény vezet a fák mélyére...",
+        "genre": "Műfaj",
+        "genreHint": "A játék módja.",
+        "genreNeeds": "Olyan MI-kulcs szükséges, amely támogatja a következőket: {{features}}.",
         "imageStyle": "Milyen stílusúak legyenek a játék képei?",
         "imageStyleHint": "Például: rajzfilm, realisztikus, pixel art, akvarell...",
         "name": "Játék neve",
@@ -465,7 +472,10 @@
         "scenarioHint": "Írd le röviden: Hogyan működik a játék? Milyen a világ? Nyelv és hangnem (pl. spanyol hatodikosok számára)?\nMilyen szerepe van a játékosnak? Írd azt, hogy „A játékos ...”.\nHa azt szeretnéd, hogy a mesterséges intelligencia egy konkrét személy szerepét játssza, írd azt, hogy „Te ... vagy”.\nMi a cél? Honnan tudja a játékos, hogy nyert?",
         "scenarioPlaceholder": "Egy titokzatos erdő felfedezője vagy. A célod, hogy megtaláld a rejtett kincset...",
         "statusFields": "Játékértékek",
-        "statusFieldsHint": "Mit kövessen a játék? Például élet, pontok vagy lőszer. A játék megjegyzi és frissíti ezeket az értékeket játék közben."
+        "statusFieldsHint": "Mit kövessen a játék? Például élet, pontok vagy lőszer. A játék megjegyzi és frissíti ezeket az értékeket játék közben.",
+        "theme": "Téma",
+        "themeDefault": "Alapértelmezett megjelenés",
+        "themeHint": "A játék megjelenése."
       },
       "editModal": {
         "adminActionTitle": "Adminisztrátori művelet",
@@ -488,6 +498,12 @@
         "nameRequired": "A játék neve kötelező",
         "nameTooLong": "A játék neve legfeljebb 70 karakter lehet"
       },
+      "features": {
+        "audio-in": "hangbevitel",
+        "audio-live": "élő hang",
+        "audio-out": "narráció",
+        "images": "képek"
+      },
       "fields": {
         "created": "Létrehozva",
         "creator": "Készítő",
@@ -496,6 +512,10 @@
         "name": "Név",
         "playCount": "Lejátszások",
         "visibility": "Láthatóság"
+      },
+      "genres": {
+        "adventure": "Kaland",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Játék exportálása",
@@ -614,6 +634,54 @@
         "style": "Dizájn",
         "styleInfo": "Opcionális beállítások a játék kinézetéhez játék közben."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Absztrakt",
+          "adventure": "Kaland",
+          "barbie": "Barbie",
+          "candy": "Édesség",
+          "circus": "Cirkusz",
+          "cyberpunk": "Cyberpunk",
+          "default": "Alapértelmezett",
+          "desert": "Sivatag",
+          "detective": "Detektív",
+          "educational": "Oktató",
+          "fairy": "Tündérmesés",
+          "fire": "Tűz",
+          "garden": "Kert",
+          "glitch": "Glitch",
+          "greenFantasy": "Zöld fantasy",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Dzsungel",
+          "matrix": "Mátrix",
+          "medieval": "Középkori",
+          "minimal": "Minimalista",
+          "mystery": "Rejtély",
+          "mystic": "Misztikus",
+          "nature": "Természet",
+          "nautical": "Tengerészeti",
+          "noir": "Noir",
+          "ocean": "Óceán",
+          "pirate": "Kalóz",
+          "playful": "Játékos",
+          "retro": "Retró",
+          "romance": "Romantika",
+          "school": "Iskola",
+          "scifi": "Sci-fi",
+          "snowy": "Havas",
+          "space": "Űr",
+          "steampunk": "Steampunk",
+          "storybook": "Mesekönyv",
+          "sunshine": "Napsütés",
+          "superhero": "Szuperhős",
+          "tech": "Technológia",
+          "terminal": "Terminál",
+          "underwater": "Víz alatti",
+          "western": "Western",
+          "zombie": "Zombi"
+        }
+      },
       "title": "Általam létrehozott játékok",
       "viewModal": {
         "readOnlyNotice": "Ezt a játékot más felhasználó hozta létre. A részleteket megtekintheted, de nem szerkesztheted. A „Másolás” gombbal készíthetsz saját szerkeszthető verziót.",
@@ -723,6 +791,7 @@
     "logout": "Kijelentkezés",
     "me": "Én",
     "myGames": {
+      "continue": "Játék",
       "copyConfirm": {
         "confirm": "Játék másolása",
         "message": "Ez létrehozza a(z) „{{name}}” játék másolatát a játékaid között.",
@@ -739,6 +808,12 @@
         "favorites": "Kedvencek"
       },
       "play": "Játék",
+      "restart": "Újrakezdés",
+      "restartConfirm": {
+        "confirm": "Újrakezdés",
+        "message": "Biztosan újra szeretnéd kezdeni a(z) „{{game}}” játékot? Az eddigi előrehaladásod el fog veszni.",
+        "title": "Játék újrakezdése"
+      },
       "title": "Saját játékaim",
       "unfavorite": "Eltávolítás a kedvencekből"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
       "title": "Szerver beállítások"
     },
+    "sessions": {
+      "untitledGame": "Névtelen játék"
+    },
     "settings": "Beállítások",
     "share": {
       "copied": "Másolva",
@@ -1138,6 +1216,11 @@
         },
         "title": "A ChatGameLab-ról"
       },
+      "lastPlayed": {
+        "empty": "Még nincs játékelőzmény. Kezdj el játszani egy játékkal!",
+        "title": "Legutóbb játszott",
+        "viewAll": "Összes játék"
+      },
       "myGames": {
         "empty": "Még nincs játékod. Hozd létre az elsőt!",
         "title": "Saját játékaim",
@@ -1169,6 +1252,7 @@
       "title": "Gyors műveletek"
     },
     "untitled": "Névtelen",
+    "untitledGame": "Névtelen játék",
     "version": {
       "mismatch": {
         "message": "A kliens verziója \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e nem egyezik a szerver verziójával \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Ez váratlan működést okozhat. Ha a probléma fennáll, fordulj a támogatáshoz.",

@@ -68,7 +68,9 @@
         "hint": "Take a photo of this code or write it down, and keep it to yourself. It gets you back into your account at any time, on any device: enter the words under “Enter code” on the home page or scan the QR code.",
         "longTokenHint": "Take a photo of the QR code or save the link, and keep it to yourself. It gets you back into your account at any time. Your workshop leader can give you a short four-word code by resetting your access.",
         "error": "Your access code could not be loaded."
-      }
+      },
+      "gamesPlayed": "Games Played",
+      "messagesSent": "Messages Sent"
     },
     "register": {
       "cancelButton": "Cancel",
@@ -289,7 +291,9 @@
       "reportGame": "Report game",
       "title": "All Games",
       "unfavorite": "Remove from favorites",
-      "workshop": "Workshop / Org"
+      "workshop": "Workshop / Org",
+      "continue": "Play",
+      "restart": "Restart"
     },
     "apiKeys": {
       "aboutSection": {
@@ -399,12 +403,6 @@
       "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "Programmed by"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "title": "The game player is being rebuilt",
-        "description": "Games can be played here again soon."
-      }
-    },
     "games": {
       "actions": {
         "delete": "Delete",
@@ -449,7 +447,13 @@
         "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language \u0026 Tone (e.g. Spanisch for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".\nWhat is the goal? How does the player know they have won?",
         "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "statusFields": "Game values",
-        "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
+        "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing.",
+        "genre": "Genre",
+        "genreHint": "How the game is played.",
+        "genreNeeds": "Needs an AI key with {{features}}.",
+        "theme": "Theme",
+        "themeHint": "The look the game is played in.",
+        "themeDefault": "Default look"
       },
       "editModal": {
         "adminActionTitle": "Admin action",
@@ -606,7 +610,65 @@
         "public": "Public"
       },
       "privacyHint": "A game's name and description can become publicly visible. Please don't use real names.",
-      "privacyHintShort": "May become publicly visible – please no real names."
+      "privacyHintShort": "May become publicly visible – please no real names.",
+      "theme": {
+        "presets": {
+          "abstract": "Abstract",
+          "adventure": "Adventure",
+          "barbie": "Barbie",
+          "candy": "Candy",
+          "circus": "Circus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Default",
+          "desert": "Desert",
+          "detective": "Detective",
+          "educational": "Educational",
+          "fairy": "Fairy",
+          "fire": "Fire",
+          "garden": "Garden",
+          "glitch": "Glitch",
+          "greenFantasy": "Green Fantasy",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Jungle",
+          "matrix": "Matrix",
+          "medieval": "Medieval",
+          "minimal": "Minimal",
+          "mystery": "Mystery",
+          "mystic": "Mystic",
+          "nature": "Nature",
+          "nautical": "Nautical",
+          "noir": "Noir",
+          "ocean": "Ocean",
+          "pirate": "Pirate",
+          "playful": "Playful",
+          "retro": "Retro",
+          "romance": "Romance",
+          "school": "School",
+          "scifi": "Sci-Fi",
+          "snowy": "Snowy",
+          "space": "Space",
+          "steampunk": "Steampunk",
+          "storybook": "Storybook",
+          "sunshine": "Sunshine",
+          "superhero": "Superhero",
+          "tech": "Tech",
+          "terminal": "Terminal",
+          "underwater": "Underwater",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
+      "genres": {
+        "adventure": "Adventure",
+        "npc-live": "NPC-Live"
+      },
+      "features": {
+        "images": "pictures",
+        "audio-out": "narration",
+        "audio-in": "voice input",
+        "audio-live": "live voice"
+      }
     },
     "header": {
       "apiKeys": "API Keys",
@@ -724,7 +786,14 @@
       },
       "play": "Play",
       "title": "My Games",
-      "unfavorite": "Remove from favorites"
+      "unfavorite": "Remove from favorites",
+      "continue": "Play",
+      "restart": "Restart",
+      "restartConfirm": {
+        "confirm": "Restart",
+        "message": "Are you sure you want to restart \"{{game}}\"? Your current progress will be lost.",
+        "title": "Restart Game"
+      }
     },
     "myOrganization": {
       "actions": "Actions",
@@ -1101,6 +1170,9 @@
         "text": "Building your own text adventure is free and takes only a few minutes.",
         "button": "Start for free"
       }
+    },
+    "sessions": {
+      "untitledGame": "Untitled Game"
     }
   },
   "dashboard": {
@@ -1140,6 +1212,11 @@
         "plays": "{{count}} plays",
         "title": "Popular Games",
         "viewAll": "All Games"
+      },
+      "lastPlayed": {
+        "empty": "No play history yet. Start playing a game!",
+        "title": "Last Played",
+        "viewAll": "All Games"
       }
     },
     "quickActions": {
@@ -1156,7 +1233,8 @@
         "message": "Frontend version \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e does not match backend version \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. This may cause unexpected behavior. Contact support if issues persist.",
         "title": "Version Mismatch Detected"
       }
-    }
+    },
+    "untitledGame": "Untitled Game"
   },
   "errors": {
     "aiError": "The AI service encountered an error. Please try again.",

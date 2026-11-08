@@ -51,7 +51,9 @@
       "ageGroupU13": "13–17 let",
       "ageGroupU18": "18+",
       "gamesCreated": "Vytvořené hry",
+      "gamesPlayed": "Odehrané hry",
       "memberSince": "Registrován od",
+      "messagesSent": "Odeslané zprávy",
       "noOrganization": "Žádná organizace",
       "noRole": "Není přiřazena žádná role",
       "organization": "Organizace",
@@ -283,6 +285,7 @@
       "serverDefault": "Výchozí serveru"
     },
     "allGames": {
+      "continue": "Hrát",
       "copyConfirm": {
         "confirm": "Kopírovat hru",
         "message": "Vytvoří se kopie hry „{{name}}“ ve vaší knihovně.",
@@ -303,6 +306,7 @@
       },
       "play": "Hrát",
       "reportGame": "Nahlásit hru",
+      "restart": "Restartovat",
       "title": "Všechny hry",
       "unfavorite": "Odebrat z oblíbených",
       "workshop": "Workshop / org."
@@ -458,6 +462,9 @@
         "gameStart": "Jak hra začíná?",
         "gameStartHint": "Co se stane na začátku? Popište první scénu, kterou hráč uvidí. Jak je hráč přivítán? Jak hráč pozná, co má dělat?",
         "gameStartPlaceholder": "Probouzíte se na kraji temného lesa. Úzká stezka vede hlouběji mezi stromy...",
+        "genre": "Žánr",
+        "genreHint": "Jak se hra hraje.",
+        "genreNeeds": "Vyžaduje klíč AI s funkcemi {{features}}.",
         "imageStyle": "Jakým stylem mají být obrázky ve hře?",
         "imageStyleHint": "Například: kreslený, realistický, pixel art, akvarel...",
         "name": "Název hry",
@@ -465,7 +472,10 @@
         "scenarioHint": "Stručně popište: Jak hra funguje? Jaký je herní svět? Jazyk \u0002a6 tón (např. španělština pro žáky šesté třídy)?\nJakou roli má hráč? Napište „Hráč …“.\nPokud chcete, aby AI převzala roli konkrétní osoby, napište „Jste …“.\nJaký je cíl? Jak hráč pozná, že vyhrál?",
         "scenarioPlaceholder": "Jste průzkumník v tajemném lese. Vaším cílem je najít ukrytý poklad...",
         "statusFields": "Hodnoty hry",
-        "statusFieldsHint": "Co má hra sledovat? Například zdraví, body nebo munici. Hra si tyto hodnoty pamatuje a během hraní je aktualizuje."
+        "statusFieldsHint": "Co má hra sledovat? Například zdraví, body nebo munici. Hra si tyto hodnoty pamatuje a během hraní je aktualizuje.",
+        "theme": "Vzhled",
+        "themeDefault": "Výchozí vzhled",
+        "themeHint": "Vzhled, ve kterém se hra hraje."
       },
       "editModal": {
         "adminActionTitle": "Akce správce",
@@ -488,6 +498,12 @@
         "nameRequired": "Název hry je povinný",
         "nameTooLong": "Název hry může mít nejvýše 70 znaků"
       },
+      "features": {
+        "audio-in": "hlasový vstup",
+        "audio-live": "živý hlas",
+        "audio-out": "namluvení",
+        "images": "obrázky"
+      },
       "fields": {
         "created": "Vytvořeno",
         "creator": "Autor",
@@ -496,6 +512,10 @@
         "name": "Název",
         "playCount": "Počet odehrání",
         "visibility": "Viditelnost"
+      },
+      "genres": {
+        "adventure": "Dobrodružství",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Exportovat hru",
@@ -614,6 +634,54 @@
         "style": "Design",
         "styleInfo": "Volitelná nastavení vzhledu hry během hraní."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstraktní",
+          "adventure": "Dobrodružný",
+          "barbie": "Barbie",
+          "candy": "Bonbony",
+          "circus": "Cirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Výchozí",
+          "desert": "Poušť",
+          "detective": "Detektivní",
+          "educational": "Vzdělávací",
+          "fairy": "Víly",
+          "fire": "Oheň",
+          "garden": "Zahrada",
+          "glitch": "Glitch",
+          "greenFantasy": "Zelená fantasy",
+          "hacker": "Hacker",
+          "horror": "Horor",
+          "jungle": "Džungle",
+          "matrix": "Matrix",
+          "medieval": "Středověký",
+          "minimal": "Minimalistický",
+          "mystery": "Tajemství",
+          "mystic": "Mystický",
+          "nature": "Příroda",
+          "nautical": "Námořní",
+          "noir": "Noir",
+          "ocean": "Oceán",
+          "pirate": "Pirátský",
+          "playful": "Hravý",
+          "retro": "Retro",
+          "romance": "Romantika",
+          "school": "Škola",
+          "scifi": "Sci-Fi",
+          "snowy": "Zasněžený",
+          "space": "Vesmír",
+          "steampunk": "Steampunk",
+          "storybook": "Pohádková kniha",
+          "sunshine": "Sluneční svit",
+          "superhero": "Superhrdina",
+          "tech": "Technologie",
+          "terminal": "Terminál",
+          "underwater": "Podvodní",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Mnou vytvořené hry",
       "viewModal": {
         "readOnlyNotice": "Tuto hru vytvořil jiný uživatel. Můžete si prohlédnout detaily, ale upravovat ji nelze. Pomocí „Kopírovat“ si vytvoříte vlastní editovatelnou verzi.",
@@ -723,6 +791,7 @@
     "logout": "Odhlásit se",
     "me": "Já",
     "myGames": {
+      "continue": "Hrát",
       "copyConfirm": {
         "confirm": "Kopírovat hru",
         "message": "Vytvoří se kopie hry „{{name}}“ ve vaší knihovně.",
@@ -739,6 +808,12 @@
         "favorites": "Oblíbené"
       },
       "play": "Hrát",
+      "restart": "Restartovat",
+      "restartConfirm": {
+        "confirm": "Restartovat",
+        "message": "Opravdu chcete restartovat hru „{{game}}“? Váš aktuální postup bude ztracen.",
+        "title": "Restartovat hru"
+      },
       "title": "Moje hry",
       "unfavorite": "Odebrat z oblíbených"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "Nemáte oprávnění k přístupu do nastavení serveru. Je vyžadován přístup administrátora.",
       "title": "Nastavení serveru"
     },
+    "sessions": {
+      "untitledGame": "Nepojmenovaná hra"
+    },
     "settings": "Nastavení",
     "share": {
       "copied": "Zkopírováno",
@@ -1138,6 +1216,11 @@
         },
         "title": "O ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Zatím žádná historie hraní. Začněte hrát hru!",
+        "title": "Naposledy hráno",
+        "viewAll": "Všechny hry"
+      },
       "myGames": {
         "empty": "Zatím žádné hry. Vytvořte svou první!",
         "title": "Moje hry",
@@ -1169,6 +1252,7 @@
       "title": "Rychlé akce"
     },
     "untitled": "Bez názvu",
+    "untitledGame": "Nepojmenovaná hra",
     "version": {
       "mismatch": {
         "message": "Verze frontendu \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e neodpovídá verzi backendu \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. To může způsobit neočekávané chování. Pokud problémy přetrvávají, kontaktujte podporu.",

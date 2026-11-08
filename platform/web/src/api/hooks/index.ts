@@ -44,6 +44,13 @@ export {
   type UseGamesParams,
 } from "./useGames";
 
+// Sessions
+export {
+  useUserSessions,
+  useGameSessionMap,
+  useDeleteSession,
+  type UseUserSessionsParams,
+} from "./useSessions";
 
 // Users
 export {
@@ -56,6 +63,8 @@ export {
 // System (platforms, settings, version)
 export {
   usePlatforms,
+  useGenres,
+  useThemes,
   useSystemSettings,
   useUpdateSystemSettings,
   useSetSystemFreeUseKey,

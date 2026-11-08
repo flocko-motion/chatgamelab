@@ -51,7 +51,9 @@
       "ageGroupU13": "13–17 vuotta",
       "ageGroupU18": "18+",
       "gamesCreated": "Luodut pelit",
+      "gamesPlayed": "Pelatut pelit",
       "memberSince": "Rekisteröitynyt lähtien",
+      "messagesSent": "Lähetetyt viestit",
       "noOrganization": "Ei organisaatiota",
       "noRole": "Roolia ei ole asetettu",
       "organization": "Organisaatio",
@@ -283,6 +285,7 @@
       "serverDefault": "Palvelimen oletus"
     },
     "allGames": {
+      "continue": "Pelaa",
       "copyConfirm": {
         "confirm": "Kopioi peli",
         "message": "Tämä luo kopion pelistä \"{{name}}\" omiin peleihisi.",
@@ -303,6 +306,7 @@
       },
       "play": "Pelaa",
       "reportGame": "Ilmoita peli",
+      "restart": "Käynnistä uudelleen",
       "title": "Kaikki pelit",
       "unfavorite": "Poista suosikeista",
       "workshop": "Työpaja / Org"
@@ -458,6 +462,9 @@
         "gameStart": "Miten peli alkaa?",
         "gameStartHint": "Miten peli alkaa? Kuvaile ensimmäinen kohtaus, jonka pelaaja näkee. Miten pelaaja toivotetaan tervetulleeksi? Mistä pelaaja tietää, mitä hänen pitää tehdä?",
         "gameStartPlaceholder": "Heräät pimeän metsän reunalta. Kapea polku johtaa syvemmälle puihin...",
+        "genre": "Pelityyppi",
+        "genreHint": "Miten peliä pelataan.",
+        "genreNeeds": "Vaatii tekoälyavaimen, jossa on {{features}}.",
         "imageStyle": "Millainen tyyli pelin kuvilla pitäisi olla?",
         "imageStyleHint": "Esimerkiksi: sarjakuva, realistinen, pikselitaide, akvarelli...",
         "name": "Pelin nimi",
@@ -465,7 +472,10 @@
         "scenarioHint": "Kuvaile lyhyesti: Miten peli toimii? Millainen pelimaailma on? Kieli ja sävy (esim. espanja kuudesluokkalaisille)?\nMikä rooli pelaajalla on? Kirjoita \"Pelaaja ...\".\nJos haluat tekoälyn esittävän tiettyä henkilöä, kirjoita \"Olet ...\".\nMikä on tavoite? Mistä pelaaja tietää voittaneensa?",
         "scenarioPlaceholder": "Olet tutkimusmatkailija salaperäisessä metsässä. Tavoitteesi on löytää kätketty aarre...",
         "statusFields": "Peliarvot",
-        "statusFieldsHint": "Mitä asioita pelin pitäisi seurata? Esimerkiksi terveys, pisteet tai ammukset. Peli muistaa nämä arvot ja päivittää niitä pelin aikana."
+        "statusFieldsHint": "Mitä asioita pelin pitäisi seurata? Esimerkiksi terveys, pisteet tai ammukset. Peli muistaa nämä arvot ja päivittää niitä pelin aikana.",
+        "theme": "Teema",
+        "themeDefault": "Oletusulkoasu",
+        "themeHint": "Ulkoasu, jossa peliä pelataan."
       },
       "editModal": {
         "adminActionTitle": "Ylläpidon toimenpide",
@@ -488,6 +498,12 @@
         "nameRequired": "Pelin nimi on pakollinen",
         "nameTooLong": "Pelin nimen pituus saa olla enintään 70 merkkiä"
       },
+      "features": {
+        "audio-in": "puhesyöte",
+        "audio-live": "live-puhe",
+        "audio-out": "kerronta",
+        "images": "kuvat"
+      },
       "fields": {
         "created": "Luotu",
         "creator": "Tekijä",
@@ -496,6 +512,10 @@
         "name": "Nimi",
         "playCount": "Pelikerrat",
         "visibility": "Näkyvyys"
+      },
+      "genres": {
+        "adventure": "Seikkailu",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Vie peli",
@@ -614,6 +634,54 @@
         "style": "Ulkoasu",
         "styleInfo": "Valinnaiset asetukset pelin ulkoasua varten pelatessa."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstrakti",
+          "adventure": "Seikkailu",
+          "barbie": "Barbie",
+          "candy": "Karkki",
+          "circus": "Sirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Oletus",
+          "desert": "Aavikko",
+          "detective": "Etsivä",
+          "educational": "Opettavainen",
+          "fairy": "Keijumainen",
+          "fire": "Tuli",
+          "garden": "Puutarha",
+          "glitch": "Glitch",
+          "greenFantasy": "Vihreä fantasia",
+          "hacker": "Hakkeri",
+          "horror": "Kauhu",
+          "jungle": "Viidakko",
+          "matrix": "Matrix",
+          "medieval": "Keskiaika",
+          "minimal": "Minimalistinen",
+          "mystery": "Mysteeri",
+          "mystic": "Mystinen",
+          "nature": "Luonto",
+          "nautical": "Merenkulku",
+          "noir": "Noir",
+          "ocean": "Valtameri",
+          "pirate": "Merrosvo",
+          "playful": "Leikkisä",
+          "retro": "Retro",
+          "romance": "Romantiikka",
+          "school": "Koulu",
+          "scifi": "Sci-Fi",
+          "snowy": "Luminen",
+          "space": "Avaruus",
+          "steampunk": "Steampunk",
+          "storybook": "Satukirja",
+          "sunshine": "Auringonpaiste",
+          "superhero": "Supersankari",
+          "tech": "Tekniikka",
+          "terminal": "Pääte",
+          "underwater": "Vedenalainen",
+          "western": "Lännenelokuva",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Luomani pelit",
       "viewModal": {
         "readOnlyNotice": "Tämän pelin on luonut toinen käyttäjä. Voit tarkastella tietoja, mutta et muokata. Käytä \"Kopioi\" luodaksesi oman muokattavan version.",
@@ -723,6 +791,7 @@
     "logout": "Kirjaudu ulos",
     "me": "Minä",
     "myGames": {
+      "continue": "Pelaa",
       "copyConfirm": {
         "confirm": "Kopioi peli",
         "message": "Tämä luo kopion pelistä \"{{name}}\" omiin peleihisi.",
@@ -739,6 +808,12 @@
         "favorites": "Suosikit"
       },
       "play": "Pelaa",
+      "restart": "Käynnistä uudelleen",
+      "restartConfirm": {
+        "confirm": "Käynnistä uudelleen",
+        "message": "Haluatko varmasti käynnistää pelin \"{{game}}\" uudelleen? Nykyinen edistymisesi menetetään.",
+        "title": "Käynnistä peli uudelleen"
+      },
       "title": "Omat pelini",
       "unfavorite": "Poista suosikeista"
     },
@@ -1100,6 +1175,9 @@
       "notAuthorized": "Sinulla ei ole oikeutta käyttää palvelinasetuksia. Ylläpitäjätaso vaaditaan.",
       "title": "Palvelinasetukset"
     },
+    "sessions": {
+      "untitledGame": "Nimeämätön peli"
+    },
     "settings": "Asetukset",
     "share": {
       "copied": "Kopioitu",
@@ -1143,6 +1221,11 @@
         },
         "title": "Tietoa ChatGameLabista"
       },
+      "lastPlayed": {
+        "empty": "Pelihistoriaa ei ole vielä. Aloita pelaaminen!",
+        "title": "Viimeksi pelatut",
+        "viewAll": "Kaikki pelit"
+      },
       "myGames": {
         "empty": "Ei vielä pelejä. Luo ensimmäinen pelisi!",
         "title": "Omat pelit",
@@ -1175,6 +1258,7 @@
       "title": "Pikatoiminnot"
     },
     "untitled": "Nimetön",
+    "untitledGame": "Nimeämätön peli",
     "version": {
       "mismatch": {
         "message": "Käyttöliittymän versio \u00003cfrontendVersion\u00003e{{frontendVersion}}\u00003c/frontendVersion\u0000f ei vastaa taustajärjestelmän versiota \u00003cbackendVersion\u00003e{{backendVersion}}\u00003c/backendVersion\u0000f. Tämä voi aiheuttaa odottamatonta toimintaa. Ota yhteyttä tukeen, jos ongelma jatkuu.",

@@ -13,12 +13,15 @@ export interface PlayGameButtonProps extends Omit<
  * PlayGameButton - Prominent button for play/continue actions
  *
  * USE WHEN:
- * - Starting a game ("Play now")
+ * - Starting a new game ("Play now")
+ * - Continuing an existing session ("Continue Game")
  *
- * Uses accent color (cyan) with fixed width to ensure consistent layout.
+ * Uses accent color (cyan) with fixed width to ensure consistent layout
+ * when switching between Play and Continue states.
  *
  * @example
  * <PlayGameButton onClick={handlePlay}>{t('play.playNow')}</PlayGameButton>
+ * <PlayGameButton onClick={handleContinue}>{t('sessions.continueGame')}</PlayGameButton>
  */
 export const PlayGameButton = forwardRef<
   HTMLButtonElement,

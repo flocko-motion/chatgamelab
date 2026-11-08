@@ -8,6 +8,7 @@ import {
   useDeleteGame,
   useExportGameYaml,
 } from "@/api/hooks";
+import { useGameSessionState } from "@/features/games/hooks";
 import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
 import {
@@ -69,6 +70,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     search: debouncedSearch || undefined,
   });
 
+  const { sessionsLoading, getSessionState } = useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
@@ -179,6 +181,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     // Loading states
     isLoading,
     isFetching,
+    sessionsLoading,
     error,
 
     // Mutation states
@@ -187,6 +190,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
 
     // Helpers
     getPermissions,
+    getSessionState,
     fileInputRef,
 
     // Operations

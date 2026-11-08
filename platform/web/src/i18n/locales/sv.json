@@ -51,7 +51,9 @@
       "ageGroupU13": "13–17 år",
       "ageGroupU18": "18+",
       "gamesCreated": "Skapade spel",
+      "gamesPlayed": "Spelade spel",
       "memberSince": "Registrerad sedan",
+      "messagesSent": "Skickade meddelanden",
       "noOrganization": "Ingen organisation",
       "noRole": "Ingen roll tilldelad",
       "organization": "Organisation",
@@ -283,6 +285,7 @@
       "serverDefault": "Serverstandard"
     },
     "allGames": {
+      "continue": "Spela",
       "copyConfirm": {
         "confirm": "Kopiera spel",
         "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
@@ -303,6 +306,7 @@
       },
       "play": "Spela",
       "reportGame": "Anmäl spel",
+      "restart": "Starta om",
       "title": "Alla spel",
       "unfavorite": "Ta bort från favoriter",
       "workshop": "Workshop / Org"
@@ -458,6 +462,9 @@
         "gameStart": "Hur börjar spelet?",
         "gameStartHint": "Vad händer i början? Beskriv den första scenen som spelaren ser. Hur välkomnas spelaren? Hur vet spelaren vad hen ska göra?",
         "gameStartPlaceholder": "Du vaknar vid kanten av en mörk skog. En smal stig leder djupare in bland träden...",
+        "genre": "Genre",
+        "genreHint": "Hur spelet spelas.",
+        "genreNeeds": "Kräver en AI-nyckel med {{features}}.",
         "imageStyle": "Vilken stil ska spelets bilder ha?",
         "imageStyleHint": "Till exempel: tecknad, realistisk, pixelart, akvarell...",
         "name": "Spelnamn",
@@ -465,7 +472,10 @@
         "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser spelvärlden ut? Språk \u0006 Ton (t.ex. spanska för elever i årskurs 6)?\nVilken roll har spelaren? Skriv \"Spelaren ...\".\nOm du vill att AI:n ska spela rollen som en viss person, skriv \"Du är ...\".\nVad är målet? Hur vet spelaren att hen har vunnit?",
         "scenarioPlaceholder": "Du är en upptäcktsresande i en mystisk skog. Ditt mål är att hitta den gömda skatten...",
         "statusFields": "Spelvärden",
-        "statusFieldsHint": "Vad ska spelet hålla reda på? Till exempel hälsa, poäng eller ammunition. Spelet minns dessa värden och uppdaterar dem under spelets gång."
+        "statusFieldsHint": "Vad ska spelet hålla reda på? Till exempel hälsa, poäng eller ammunition. Spelet minns dessa värden och uppdaterar dem under spelets gång.",
+        "theme": "Tema",
+        "themeDefault": "Standardutseende",
+        "themeHint": "Utseendet som spelet spelas i."
       },
       "editModal": {
         "adminActionTitle": "Administratörsåtgärd",
@@ -488,6 +498,12 @@
         "nameRequired": "Spelnamn krävs",
         "nameTooLong": "Spelnamnet får vara högst 70 tecken"
       },
+      "features": {
+        "audio-in": "röstinmatning",
+        "audio-live": "direktröst",
+        "audio-out": "berättarröst",
+        "images": "bilder"
+      },
       "fields": {
         "created": "Skapad",
         "creator": "Skapare",
@@ -496,6 +512,10 @@
         "name": "Namn",
         "playCount": "Spelningar",
         "visibility": "Synlighet"
+      },
+      "genres": {
+        "adventure": "Äventyr",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Exportera spel",
@@ -614,6 +634,54 @@
         "style": "Design",
         "styleInfo": "Valfria inställningar för spelets utseende under spelandet."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstrakt",
+          "adventure": "Äventyr",
+          "barbie": "Barbie",
+          "candy": "Godis",
+          "circus": "Cirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Standard",
+          "desert": "Öken",
+          "detective": "Detektiv",
+          "educational": "Pedagogisk",
+          "fairy": "Älva",
+          "fire": "Eld",
+          "garden": "Trädgård",
+          "glitch": "Glitch",
+          "greenFantasy": "Grön fantasy",
+          "hacker": "Hacker",
+          "horror": "Skräck",
+          "jungle": "Djungel",
+          "matrix": "Matrix",
+          "medieval": "Medeltid",
+          "minimal": "Minimalistisk",
+          "mystery": "Mysterium",
+          "mystic": "Mystisk",
+          "nature": "Natur",
+          "nautical": "Nautisk",
+          "noir": "Noir",
+          "ocean": "Hav",
+          "pirate": "Pirat",
+          "playful": "Lekfull",
+          "retro": "Retro",
+          "romance": "Romantik",
+          "school": "Skola",
+          "scifi": "Sci-fi",
+          "snowy": "Snötäckt",
+          "space": "Rymd",
+          "steampunk": "Steampunk",
+          "storybook": "Sagobok",
+          "sunshine": "Solsken",
+          "superhero": "Superhjälte",
+          "tech": "Teknik",
+          "terminal": "Terminal",
+          "underwater": "Undervattensvärld",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Mina skapade spel",
       "viewModal": {
         "readOnlyNotice": "Detta spel skapades av en annan användare. Du kan visa detaljer men inte redigera. Använd \"Kopiera\" för att skapa en egen redigerbar version.",
@@ -723,6 +791,7 @@
     "logout": "Logga ut",
     "me": "Jag",
     "myGames": {
+      "continue": "Spela",
       "copyConfirm": {
         "confirm": "Kopiera spel",
         "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
@@ -739,6 +808,12 @@
         "favorites": "Favoriter"
       },
       "play": "Spela",
+      "restart": "Starta om",
+      "restartConfirm": {
+        "confirm": "Starta om",
+        "message": "Är du säker på att du vill starta om \"{{game}}\"? Dina nuvarande framsteg går förlorade.",
+        "title": "Starta om spel"
+      },
       "title": "Mina spel",
       "unfavorite": "Ta bort från favoriter"
     },
@@ -1100,6 +1175,9 @@
       "notAuthorized": "Du har inte behörighet att öppna serverinställningarna. Adminåtkomst krävs.",
       "title": "Serverinställningar"
     },
+    "sessions": {
+      "untitledGame": "Namnlöst spel"
+    },
     "settings": "Inställningar",
     "share": {
       "copied": "Kopierad",
@@ -1143,6 +1221,11 @@
         },
         "title": "Om ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Ingen spelhistorik ännu. Börja spela ett spel!",
+        "title": "Senast spelade",
+        "viewAll": "Alla spel"
+      },
       "myGames": {
         "empty": "Inga spel ännu. Skapa ditt första spel!",
         "title": "Mina spel",
@@ -1175,6 +1258,7 @@
       "title": "Snabbåtgärder"
     },
     "untitled": "Namnlös",
+    "untitledGame": "Namnlöst spel",
     "version": {
       "mismatch": {
         "message": "Frontend-version \u00003cfrontendVersion\u00003e{{frontendVersion}}\u00003c/frontendVersion\u00003e matchar inte backend-version \u00003cbackendVersion\u00003e{{backendVersion}}\u00003c/backendVersion\u00003e. Detta kan orsaka oväntat beteende. Kontakta support om problemet kvarstår.",

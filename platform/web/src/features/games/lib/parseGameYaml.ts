@@ -11,6 +11,8 @@ interface GameYaml {
   system_message_game_start?: string;
   image_style?: string;
   status_fields?: string;
+  genre?: string;
+  theme?: string;
 }
 
 /**
@@ -35,5 +37,7 @@ export function parseGameYaml(content: string): Partial<CreateGameFormData> {
     systemMessageGameStart: str(parsed.system_message_game_start),
     imageStyle: str(parsed.image_style),
     statusFields: str(parsed.status_fields),
+    genre: str(parsed.genre),
+    theme: str(parsed.theme),
   };
 }

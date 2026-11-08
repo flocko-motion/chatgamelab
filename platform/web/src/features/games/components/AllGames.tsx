@@ -61,7 +61,11 @@ import {
   useWorkshop,
 } from "@/api/hooks";
 import { useAdmin } from "@/common/hooks/useAdmin";
-import { useFavoriteState, useGameNavigation } from "../hooks";
+import {
+  useFavoriteState,
+  useGameNavigation,
+  useGameSessionState,
+} from "../hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { parseSortValue } from "@/common/lib/sort";
 import type { ObjGame } from "@/api/generated";
@@ -150,6 +154,8 @@ export function AllGames() {
     filter: apiFilter,
   });
 
+  const { sessionsLoading, getSessionState: getGameSessionState } =
+    useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
@@ -178,7 +184,11 @@ export function AllGames() {
     isFavorite,
     toggleFavorite: handleToggleFavorite,
   } = useFavoriteState();
-  const { playGame: handlePlayGame } = useGameNavigation();
+  const {
+    playGame: handlePlayGame,
+    continueGame: handleContinueGame,
+    restartGame: handleRestartGame,
+  } = useGameNavigation();
 
   // Apply client-side favorites/sponsored filter
   const games =
@@ -307,13 +317,26 @@ export function AllGames() {
     return actions;
   };
 
-  const renderPlayButton = (game: ObjGame) => (
-    <GamePlayButtons
-      game={game}
-      onPlay={handlePlayGame}
-      label={t("allGames.play")}
-    />
-  );
+  const playLabels = {
+    play: t("allGames.play"),
+    continue: t("allGames.continue"),
+    restart: t("allGames.restart"),
+  };
+
+  const renderPlayButton = (game: ObjGame) => {
+    const { hasSession, session } = getGameSessionState(game);
+    return (
+      <GamePlayButtons
+        game={game}
+        hasSession={hasSession}
+        session={session}
+        onPlay={handlePlayGame}
+        onContinue={handleContinueGame}
+        onRestart={handleRestartGame}
+        labels={playLabels}
+      />
+    );
+  };
 
   const columns: DataTableColumn<ObjGame>[] = [
     {
@@ -542,7 +565,7 @@ export function AllGames() {
   ];
 
   const hasData = rawGames !== undefined;
-  const isInitialLoading = !hasData && isLoading;
+  const isInitialLoading = !hasData && (isLoading || sessionsLoading);
   const isRefetching = isFetching && hasData;
 
   if (isInitialLoading) {
@@ -659,12 +682,26 @@ export function AllGames() {
               ) : (
                 <SimpleGrid cols={1} spacing="md">
                   {games?.map((game) => {
+                    const { hasSession, session } = getGameSessionState(game);
                     return (
                       <GameCard
                         key={game.id}
                         game={game}
                         onPlay={() => handlePlayGame(game)}
                         playLabel={t("allGames.play")}
+                        hasSession={hasSession}
+                        onContinue={
+                          session
+                            ? () => handleContinueGame(session)
+                            : undefined
+                        }
+                        continueLabel={t("allGames.continue")}
+                        onRestart={
+                          session
+                            ? () => handleRestartGame(game, session)
+                            : undefined
+                        }
+                        restartLabel={t("allGames.restart")}
                         showCreator
                         isOwner={isOwner(game)}
                         creatorLabel={t("games.fields.me")}
@@ -700,11 +737,23 @@ export function AllGames() {
                     : undefined
                 }
                 renderMobileCard={(game) => {
+                  const { hasSession, session } = getGameSessionState(game);
                   return (
                     <GameCard
                       game={game}
                       onPlay={() => handlePlayGame(game)}
                       playLabel={t("allGames.play")}
+                      hasSession={hasSession}
+                      onContinue={
+                        session ? () => handleContinueGame(session) : undefined
+                      }
+                      continueLabel={t("allGames.continue")}
+                      onRestart={
+                        session
+                          ? () => handleRestartGame(game, session)
+                          : undefined
+                      }
+                      restartLabel={t("allGames.restart")}
                       showCreator
                       isOwner={isOwner(game)}
                       creatorLabel={t("games.fields.me")}

@@ -23,6 +23,8 @@ import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
 import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
 import { CODE_LINK_PREFIX } from "../common/lib/wordToken";
+import { PlaybackHost } from "../features/play/PlaybackHost";
+import { playbackTarget } from "../features/play/playback";
 import {
   isAdmin,
   getUserInstitutionId,
@@ -60,6 +62,9 @@ function RootComponent() {
   // Guest play route (anonymous access via share token)
   const isGuestPlayRoute = pathname.startsWith("/play/");
 
+  // The play routes host the playback-engine, edge to edge
+  const playback = playbackTarget(pathname);
+
   // Public routes that don't require authentication
   const isLandingPage = pathname === ROUTES.LANDING;
   const isPublicRoute =
@@ -72,12 +77,15 @@ function RootComponent() {
     pathname === ROUTES.CODE ||
     pathname.startsWith(CODE_LINK_PREFIX) ||
     pathname.startsWith(PUBLIC_WORKSHOP_PREFIX) ||
-    isGuestPlayRoute;
+    isGuestPlayRoute ||
+    // A guest's session is reachable with its id; an account's is refused in the frame
+    pathname.startsWith("/sessions/");
 
   // Routes that participants are allowed to access
   const isParticipantAllowedRoute =
     pathname === ROUTES.MY_WORKSHOP ||
     pathname === ROUTES.PROFILE ||
+    pathname.startsWith("/sessions/") ||
     pathname.includes("/play");
 
   // Determine layout variant based on auth state
@@ -146,7 +154,9 @@ function RootComponent() {
       icon: <IconSchool size={18} />,
       onClick: () => navigate({ to: ROUTES.MY_WORKSHOP as "/" }),
       active:
-        pathname === ROUTES.MY_WORKSHOP || pathname.includes("/play"),
+        pathname === ROUTES.MY_WORKSHOP ||
+        pathname.startsWith("/sessions/") ||
+        pathname.includes("/play"),
     },
   ];
 
@@ -205,6 +215,7 @@ function RootComponent() {
           onClick: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
           active:
             pathname.startsWith(ROUTES.ALL_GAMES) ||
+            pathname.startsWith(ROUTES.SESSIONS) ||
             (isAdminUser && pathname.startsWith(ROUTES.MY_GAMES)),
         },
       ];
@@ -283,19 +294,21 @@ function RootComponent() {
         }
     : undefined;
 
-  // Guest play: show header with logo + Contact + Language, content below
-  // Checked before auth loading so guests aren't blocked by auth initialization.
-  if (isGuestPlayRoute) {
+  // Play routes: one layout and one host for all of them, so the frame stays
+  // mounted when the address becomes the session's. Guests get the header with
+  // logo, Contact and Language. Checked before auth loading; the host waits
+  // for it before mounting the frame.
+  if (playback && !shouldRedirect && !shouldRedirectParticipant) {
     return (
       <AppLayout
         variant="authenticated"
-        background={theme.other.colors.bgLandingGradient}
-        navItems={[]}
-        headerProps={{
-          isGuest: true,
-        }}
+        background="#e8e8ec"
+        darkMode={true}
+        withContainer={false}
+        navItems={isFullyAuthenticated ? navItems : []}
+        headerProps={isFullyAuthenticated ? headerProps : { isGuest: true }}
       >
-        <Outlet />
+        <PlaybackHost target={playback} />
       </AppLayout>
     );
   }

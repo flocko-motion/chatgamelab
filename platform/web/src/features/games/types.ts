@@ -14,4 +14,8 @@ export interface CreateGameFormData {
   systemMessageGameStart?: string;
   imageStyle?: string;
   statusFields?: string;
+  /** One of the engine's genres; empty makes an adventure. */
+  genre?: string;
+  /** One of the playback-engine's themes; empty is the default look. */
+  theme?: string;
 }

@@ -23,6 +23,8 @@ export const queryKeys = {
 
   // Platforms
   platforms: ["platforms"] as const,
+  genres: ["genres"] as const,
+  themes: ["themes"] as const,
 
   // Games
   games: ["games"] as const,
@@ -34,6 +36,13 @@ export const queryKeys = {
     filter?: string;
   }) => ["games", params] as const,
   favoriteGames: ["games", "favorites"] as const,
+
+  // Sessions
+  gameSessions: ["gameSessions"] as const,
+  gameSessionsForGame: (gameId: string) => ["gameSessions", gameId] as const,
+  userSessions: ["userSessions"] as const,
+  userSessionsWithParams: (params: { search?: string; sortBy?: string }) =>
+    ["userSessions", params] as const,
 
   // Users
   users: ["users"] as const,

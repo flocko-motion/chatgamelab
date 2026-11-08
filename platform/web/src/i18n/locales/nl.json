@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 jaar",
       "ageGroupU18": "18+",
       "gamesCreated": "Gemaakte games",
+      "gamesPlayed": "Gespeelde spellen",
       "memberSince": "Geregistreerd sinds",
+      "messagesSent": "Verstuurde berichten",
       "noOrganization": "Geen organisatie",
       "noRole": "Geen rol toegewezen",
       "organization": "Organisatie",
@@ -283,6 +285,7 @@
       "serverDefault": "Serverstandaard"
     },
     "allGames": {
+      "continue": "Spelen",
       "copyConfirm": {
         "confirm": "Game kopiëren",
         "message": "Dit maakt een kopie van \"{{name}}\" in jouw games.",
@@ -303,6 +306,7 @@
       },
       "play": "Spelen",
       "reportGame": "Game rapporteren",
+      "restart": "Opnieuw starten",
       "title": "Alle games",
       "unfavorite": "Verwijderen uit favorieten",
       "workshop": "Workshop / Organisatie"
@@ -458,6 +462,9 @@
         "gameStart": "Hoe begint de game?",
         "gameStartHint": "Wat gebeurt er aan het begin? Beschrijf de eerste scène die de speler ziet. Hoe wordt de speler verwelkomd? Hoe weet de speler wat die moet doen?",
         "gameStartPlaceholder": "Je wordt wakker aan de rand van een donker bos. Een smal pad leidt dieper de bomen in...",
+        "genre": "Genre",
+        "genreHint": "Hoe het spel wordt gespeeld.",
+        "genreNeeds": "Vereist een AI-sleutel met {{features}}.",
         "imageStyle": "Welke stijl moeten de afbeeldingen van de game hebben?",
         "imageStyleHint": "Bijvoorbeeld: cartoon, realistisch, pixel art, aquarel...",
         "name": "Gamenaam",
@@ -465,7 +472,10 @@
         "scenarioHint": "Beschrijf kort: Hoe werkt het spel? Hoe ziet de wereld eruit? Taal en toon (bijvoorbeeld Spaans voor leerlingen uit groep 8)?\nWelke rol heeft de speler? Schrijf \"De speler ...\".\nAls je wilt dat de AI de rol van een specifieke persoon op zich neemt, schrijf dan \"Jij bent ...\".\nWat is het doel? Hoe weet de speler dat die gewonnen heeft?",
         "scenarioPlaceholder": "Je bent een ontdekkingsreiziger in een mysterieus bos. Je doel is om de verborgen schat te vinden...",
         "statusFields": "Gamewaarden",
-        "statusFieldsHint": "Wat moet de game bijhouden? Bijvoorbeeld gezondheid, punten of munitie. De game onthoudt deze waarden en werkt ze bij tijdens het spelen."
+        "statusFieldsHint": "Wat moet de game bijhouden? Bijvoorbeeld gezondheid, punten of munitie. De game onthoudt deze waarden en werkt ze bij tijdens het spelen.",
+        "theme": "Thema",
+        "themeDefault": "Standaarduiterlijk",
+        "themeHint": "Het uiterlijk waarin het spel wordt gespeeld."
       },
       "editModal": {
         "adminActionTitle": "Beheeractie",
@@ -488,6 +498,12 @@
         "nameRequired": "Gamenaam is verplicht",
         "nameTooLong": "Gamenaam mag niet langer zijn dan 70 tekens"
       },
+      "features": {
+        "audio-in": "spraakinput",
+        "audio-live": "live spraak",
+        "audio-out": "vertelling",
+        "images": "afbeeldingen"
+      },
       "fields": {
         "created": "Aangemaakt",
         "creator": "Maker",
@@ -496,6 +512,10 @@
         "name": "Naam",
         "playCount": "Speelbeurten",
         "visibility": "Zichtbaarheid"
+      },
+      "genres": {
+        "adventure": "Avontuur",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Game exporteren",
@@ -614,6 +634,54 @@
         "style": "Vormgeving",
         "styleInfo": "Optionele instellingen voor het uiterlijk van de game tijdens het spelen."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstract",
+          "adventure": "Avontuur",
+          "barbie": "Barbie",
+          "candy": "Snoep",
+          "circus": "Circus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Standaard",
+          "desert": "Woestijn",
+          "detective": "Detective",
+          "educational": "Educatief",
+          "fairy": "Sprookje",
+          "fire": "Vuur",
+          "garden": "Tuin",
+          "glitch": "Glitch",
+          "greenFantasy": "Groene fantasie",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Jungle",
+          "matrix": "Matrix",
+          "medieval": "Middeleeuws",
+          "minimal": "Minimaal",
+          "mystery": "Mysterie",
+          "mystic": "Mystiek",
+          "nature": "Natuur",
+          "nautical": "Nautisch",
+          "noir": "Noir",
+          "ocean": "Oceaan",
+          "pirate": "Piraat",
+          "playful": "Speels",
+          "retro": "Retro",
+          "romance": "Romantiek",
+          "school": "School",
+          "scifi": "Sci-fi",
+          "snowy": "Besneeuwd",
+          "space": "Ruimte",
+          "steampunk": "Steampunk",
+          "storybook": "Sprookjesboek",
+          "sunshine": "Zonneschijn",
+          "superhero": "Superheld",
+          "tech": "Technologie",
+          "terminal": "Terminal",
+          "underwater": "Onderwater",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Mijn gemaakte games",
       "viewModal": {
         "readOnlyNotice": "Deze game is gemaakt door een andere gebruiker. Je kunt de details bekijken maar niet bewerken. Gebruik \"Kopiëren\" om je eigen bewerkbare versie te maken.",
@@ -723,6 +791,7 @@
     "logout": "Uitloggen",
     "me": "Ik",
     "myGames": {
+      "continue": "Spelen",
       "copyConfirm": {
         "confirm": "Game kopiëren",
         "message": "Dit maakt een kopie van \"{{name}}\" in jouw games.",
@@ -739,6 +808,12 @@
         "favorites": "Favorieten"
       },
       "play": "Spelen",
+      "restart": "Opnieuw starten",
+      "restartConfirm": {
+        "confirm": "Opnieuw starten",
+        "message": "Weet je zeker dat je \"{{game}}\" opnieuw wilt starten? Je huidige voortgang gaat verloren.",
+        "title": "Spel opnieuw starten"
+      },
       "title": "Mijn games",
       "unfavorite": "Verwijderen uit favorieten"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "Je hebt geen toegang tot serverinstellingen. Admin-toegang vereist.",
       "title": "Serverinstellingen"
     },
+    "sessions": {
+      "untitledGame": "Naamloos spel"
+    },
     "settings": "Instellingen",
     "share": {
       "copied": "Gekopieerd",
@@ -1138,6 +1216,11 @@
         },
         "title": "Over ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Nog geen speelgeschiedenis. Begin met het spelen van een spel!",
+        "title": "Laatst gespeeld",
+        "viewAll": "Alle spellen"
+      },
       "myGames": {
         "empty": "Nog geen games. Maak je eerste game!",
         "title": "Mijn games",
@@ -1169,6 +1252,7 @@
       "title": "Snelle acties"
     },
     "untitled": "Naamloos",
+    "untitledGame": "Naamloos spel",
     "version": {
       "mismatch": {
         "message": "Frontendversie \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e komt niet overeen met backendversie \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Dit kan onverwacht gedrag veroorzaken. Neem contact op met support als het probleem blijft bestaan.",

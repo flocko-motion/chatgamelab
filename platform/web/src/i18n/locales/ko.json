@@ -51,7 +51,9 @@
       "ageGroupU13": "13~17세",
       "ageGroupU18": "18세 이상",
       "gamesCreated": "제작한 게임",
+      "gamesPlayed": "플레이한 게임",
       "memberSince": "등록일",
+      "messagesSent": "보낸 메시지",
       "noOrganization": "기관 없음",
       "noRole": "역할이 지정되지 않음",
       "organization": "기관",
@@ -283,6 +285,7 @@
       "serverDefault": "서버 기본값"
     },
     "allGames": {
+      "continue": "플레이",
       "copyConfirm": {
         "confirm": "게임 복사",
         "message": "이 작업을 수행하면 \"{{name}}\"의 복사본이 내 게임에 생성됩니다.",
@@ -303,6 +306,7 @@
       },
       "play": "플레이",
       "reportGame": "게임 신고",
+      "restart": "다시 시작",
       "title": "전체 게임",
       "unfavorite": "즐겨찾기 해제",
       "workshop": "워크숍 / 조직"
@@ -458,6 +462,9 @@
         "gameStart": "게임은 어떻게 시작되나요?",
         "gameStartHint": "게임은 어떻게 시작되나요? 플레이어가 처음 보는 장면을 설명하세요. 플레이어는 어떻게 환영받나요? 플레이어는 무엇을 해야 하는지 어떻게 알게 되나요?",
         "gameStartPlaceholder": "당신은 어두운 숲 가장자리에서 깨어납니다. 좁은 오솔길이 나무 사이로 더 깊숙이 이어집니다...",
+        "genre": "장르",
+        "genreHint": "게임이 진행되는 방식입니다.",
+        "genreNeeds": "{{features}} 기능이 있는 AI 키가 필요합니다.",
         "imageStyle": "게임의 이미지 스타일은 어떤가요?",
         "imageStyleHint": "예: 만화, 현실적, 픽셀 아트, 수채화...",
         "name": "게임 이름",
@@ -465,7 +472,10 @@
         "scenarioHint": "간단히 설명하세요. 게임은 어떻게 진행되나요? 세계는 어떤 모습인가요? 언어와 말투는 어떤가요(예: 6학년 학생을 위한 스페인어)?\n플레이어는 어떤 역할을 맡나요? \"플레이어는 ...\"으로 작성하세요.\nAI가 특정 인물의 역할을 맡기를 원한다면 \"당신은 ...입니다\"라고 작성하세요.\n목표는 무엇인가요? 플레이어는 자신이 이겼다는 것을 어떻게 알게 되나요?",
         "scenarioPlaceholder": "당신은 신비한 숲의 탐험가입니다. 목표는 숨겨진 보물을 찾는 것입니다...",
         "statusFields": "게임 수치",
-        "statusFieldsHint": "게임이 추적해야 하는 값은 무엇인가요? 예: 체력, 점수, 탄약. 게임은 이 값을 기억하고 플레이 중에 업데이트합니다."
+        "statusFieldsHint": "게임이 추적해야 하는 값은 무엇인가요? 예: 체력, 점수, 탄약. 게임은 이 값을 기억하고 플레이 중에 업데이트합니다.",
+        "theme": "테마",
+        "themeDefault": "기본 디자인",
+        "themeHint": "게임이 진행되는 디자인입니다."
       },
       "editModal": {
         "adminActionTitle": "관리자 작업",
@@ -488,6 +498,12 @@
         "nameRequired": "게임 이름은 필수입니다",
         "nameTooLong": "게임 이름은 70자 이하이어야 합니다"
       },
+      "features": {
+        "audio-in": "음성 입력",
+        "audio-live": "실시간 음성",
+        "audio-out": "음성 해설",
+        "images": "그림"
+      },
       "fields": {
         "created": "생성일",
         "creator": "제작자",
@@ -496,6 +512,10 @@
         "name": "이름",
         "playCount": "플레이 수",
         "visibility": "공개 범위"
+      },
+      "genres": {
+        "adventure": "어드벤처",
+        "npc-live": "NPC 라이브"
       },
       "importExport": {
         "exportButton": "게임 내보내기",
@@ -614,6 +634,54 @@
         "style": "디자인",
         "styleInfo": "플레이 중 게임의 외형을 위한 선택 사항입니다."
       },
+      "theme": {
+        "presets": {
+          "abstract": "추상",
+          "adventure": "어드벤처",
+          "barbie": "바비",
+          "candy": "캔디",
+          "circus": "서커스",
+          "cyberpunk": "사이버펑크",
+          "default": "기본",
+          "desert": "사막",
+          "detective": "탐정",
+          "educational": "교육",
+          "fairy": "동화",
+          "fire": "불",
+          "garden": "정원",
+          "glitch": "글리치",
+          "greenFantasy": "초록빛 판타지",
+          "hacker": "해커",
+          "horror": "호러",
+          "jungle": "정글",
+          "matrix": "매트릭스",
+          "medieval": "중세",
+          "minimal": "미니멀",
+          "mystery": "미스터리",
+          "mystic": "신비",
+          "nature": "자연",
+          "nautical": "항해",
+          "noir": "느와르",
+          "ocean": "바다",
+          "pirate": "해적",
+          "playful": "장난스러운",
+          "retro": "레트로",
+          "romance": "로맨스",
+          "school": "학교",
+          "scifi": "SF",
+          "snowy": "눈 내리는",
+          "space": "우주",
+          "steampunk": "스팀펑크",
+          "storybook": "동화책",
+          "sunshine": "햇살",
+          "superhero": "슈퍼히어로",
+          "tech": "기술",
+          "terminal": "터미널",
+          "underwater": "수중",
+          "western": "서부극",
+          "zombie": "좀비"
+        }
+      },
       "title": "내가 만든 게임",
       "viewModal": {
         "readOnlyNotice": "이 게임은 다른 사용자가 만들었습니다. 세부 정보는 볼 수 있지만 편집할 수 없습니다. 편집 가능한 버전을 만들려면 \"복사\"를 사용하세요.",
@@ -723,6 +791,7 @@
     "logout": "로그아웃",
     "me": "나",
     "myGames": {
+      "continue": "플레이",
       "copyConfirm": {
         "confirm": "게임 복사",
         "message": "이 작업을 수행하면 \"{{name}}\"의 복사본이 내 게임에 생성됩니다.",
@@ -739,6 +808,12 @@
         "favorites": "즐겨찾기"
       },
       "play": "플레이",
+      "restart": "다시 시작",
+      "restartConfirm": {
+        "confirm": "다시 시작",
+        "message": "\"{{game}}\"을(를) 정말 다시 시작하시겠습니까? 현재 진행 상황을 잃게 됩니다.",
+        "title": "게임 다시 시작"
+      },
       "title": "내 게임",
       "unfavorite": "즐겨찾기 해제"
     },
@@ -1100,6 +1175,9 @@
       "notAuthorized": "서버 설정에 접근할 권한이 없습니다. 관리자 권한이 필요합니다.",
       "title": "서버 설정"
     },
+    "sessions": {
+      "untitledGame": "제목 없는 게임"
+    },
     "settings": "설정",
     "share": {
       "copied": "복사됨",
@@ -1143,6 +1221,11 @@
         },
         "title": "ChatGameLab 소개"
       },
+      "lastPlayed": {
+        "empty": "아직 플레이 기록이 없습니다. 게임을 시작해 보세요!",
+        "title": "최근 플레이",
+        "viewAll": "모든 게임"
+      },
       "myGames": {
         "empty": "아직 게임이 없습니다. 첫 게임을 만들어 보세요!",
         "title": "내 게임",
@@ -1175,6 +1258,7 @@
       "title": "빠른 작업"
     },
     "untitled": "제목 없음",
+    "untitledGame": "제목 없는 게임",
     "version": {
       "mismatch": {
         "message": "프런트엔드 버전 \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e이(가) 백엔드 버전 \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e과 일치하지 않습니다. 예상치 못한 동작이 발생할 수 있습니다. 문제가 계속되면 지원팀에 문의하세요.",

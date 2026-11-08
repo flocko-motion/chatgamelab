@@ -20,5 +20,7 @@ export function gameToFormData(
     systemMessageGameStart: game.systemMessageGameStart || undefined,
     imageStyle: game.imageStyle || undefined,
     statusFields: game.statusFields || undefined,
+    genre: game.genre || undefined,
+    theme: game.theme || undefined,
   };
 }

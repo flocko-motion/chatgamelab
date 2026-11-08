@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 vjeç",
       "ageGroupU18": "18+",
       "gamesCreated": "Lojëra të krijuara",
+      "gamesPlayed": "Lojëra të luajtura",
       "memberSince": "I regjistruar që nga",
+      "messagesSent": "Mesazhe të dërguara",
       "noOrganization": "Pa organizatë",
       "noRole": "Pa rol të caktuar",
       "organization": "Organizata",
@@ -283,6 +285,7 @@
       "serverDefault": "Parazgjedhja e serverit"
     },
     "allGames": {
+      "continue": "Luaj",
       "copyConfirm": {
         "confirm": "Kopjo lojën",
         "message": "Kjo do të krijojë një kopje të \"{{name}}\" te lojërat tuaja.",
@@ -303,6 +306,7 @@
       },
       "play": "Luaj",
       "reportGame": "Raporto lojën",
+      "restart": "Rinis",
       "title": "Të gjitha lojërat",
       "unfavorite": "Hiq nga të preferuarat",
       "workshop": "Punëtori / Org"
@@ -458,6 +462,9 @@
         "gameStart": "Si fillon loja?",
         "gameStartHint": "Si duhet të fillojë loja? Cila është skena e parë? Si përshëndetet personazhi i lojës? Si e kupton lojtari se çfarë duhet të bëjë?",
         "gameStartPlaceholder": "Zgjoheni në buzë të një pylli të errët. Një shteg i ngushtë të çon më thellë në pemë...",
+        "genre": "Zhanri",
+        "genreHint": "Mënyra si luhet loja.",
+        "genreNeeds": "Kërkon një çelës AI me {{features}}.",
         "imageStyle": "Çfarë stili duhet të kenë imazhet e lojës?",
         "imageStyleHint": "Për shembull: vizatim, realist, art piksel, akvarel...",
         "name": "Emri i lojës",
@@ -465,7 +472,10 @@
         "scenarioHint": "Përshkruaj shkurt: Si funksionon loja? Si është bota e lojës? Gjuha dhe toni (p.sh. spanjisht për nxënësit e klasës së gjashtë)?\nÇfarë roli ka personazhi i lojës? Shkruaj \"Personazhi i lojës ...\".\nNëse dëshiron që AI-ja të marrë rolin e një personi të caktuar, shkruaj \"Ti je ...\".\nCili është qëllimi? Si e kupton lojtari se ka fituar?",
         "scenarioPlaceholder": "Ju jeni një eksplorues në një pyll misterioz. Qëllimi juaj është të gjeni thesarin e fshehur...",
         "statusFields": "Vlerat e lojës",
-        "statusFieldsHint": "Çfarë duhet të mbajë shënim loja? Për shembull shëndeti, pikët ose municioni. Loja i mban mend këto vlera dhe i përditëson gjatë lojës."
+        "statusFieldsHint": "Çfarë duhet të mbajë shënim loja? Për shembull shëndeti, pikët ose municioni. Loja i mban mend këto vlera dhe i përditëson gjatë lojës.",
+        "theme": "Tema",
+        "themeDefault": "Pamja e parazgjedhur",
+        "themeHint": "Pamja me të cilën luhet loja."
       },
       "editModal": {
         "adminActionTitle": "Veprim administrativ",
@@ -488,6 +498,12 @@
         "nameRequired": "Emri i lojës është i detyrueshëm",
         "nameTooLong": "Emri i lojës duhet të ketë 70 karaktere ose më pak"
       },
+      "features": {
+        "audio-in": "hyrje zanore",
+        "audio-live": "zë i drejtpërdrejtë",
+        "audio-out": "rrëfim",
+        "images": "imazhe"
+      },
       "fields": {
         "created": "Krijuar",
         "creator": "Krijuesi",
@@ -496,6 +512,10 @@
         "name": "Emri",
         "playCount": "Luajtjet",
         "visibility": "Dukshmëria"
+      },
+      "genres": {
+        "adventure": "Aventurë",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Eksporto lojën",
@@ -614,6 +634,54 @@
         "style": "Dizajni",
         "styleInfo": "Cilësime opsionale për pamjen e lojës gjatë lojës."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstrakt",
+          "adventure": "Aventurë",
+          "barbie": "Barbie",
+          "candy": "Ëmbëlsira",
+          "circus": "Cirk",
+          "cyberpunk": "Cyberpunk",
+          "default": "Parazgjedhur",
+          "desert": "Shkretëtirë",
+          "detective": "Detektiv",
+          "educational": "Edukativ",
+          "fairy": "Zanash",
+          "fire": "Zjarr",
+          "garden": "Kopsht",
+          "glitch": "Glitch",
+          "greenFantasy": "Fantazi e gjelbër",
+          "hacker": "Haker",
+          "horror": "Horror",
+          "jungle": "Xhungël",
+          "matrix": "Matrix",
+          "medieval": "Mesjetë",
+          "minimal": "Minimal",
+          "mystery": "Mister",
+          "mystic": "Mistik",
+          "nature": "Natyrë",
+          "nautical": "Detar",
+          "noir": "Noir",
+          "ocean": "Oqean",
+          "pirate": "Pirat",
+          "playful": "Lojcak",
+          "retro": "Retro",
+          "romance": "Romancë",
+          "school": "Shkollë",
+          "scifi": "Shkencë-fiksion",
+          "snowy": "Me dëborë",
+          "space": "Hapësirë",
+          "steampunk": "Steampunk",
+          "storybook": "Libër me përralla",
+          "sunshine": "Rreze dielli",
+          "superhero": "Superhero",
+          "tech": "Teknologji",
+          "terminal": "Terminal",
+          "underwater": "Nën ujë",
+          "western": "Western",
+          "zombie": "Zombi"
+        }
+      },
       "title": "Lojërat e mia të krijuara",
       "viewModal": {
         "readOnlyNotice": "Kjo lojë është krijuar nga një përdorues tjetër. Mund të shihni detajet por nuk mund ta modifikoni. Përdorni \"Kopjo\" për të krijuar versionin tuaj të redaktueshëm.",
@@ -723,6 +791,7 @@
     "logout": "Dil",
     "me": "Unë",
     "myGames": {
+      "continue": "Luaj",
       "copyConfirm": {
         "confirm": "Kopjo lojën",
         "message": "Kjo do të krijojë një kopje të \"{{name}}\" te lojërat tuaja.",
@@ -739,6 +808,12 @@
         "favorites": "Të preferuarat"
       },
       "play": "Luaj",
+      "restart": "Rinis",
+      "restartConfirm": {
+        "confirm": "Rinis",
+        "message": "A je i sigurt që dëshiron të rinisësh \"{{game}}\"? Përparimi yt aktual do të humbasë.",
+        "title": "Rinis lojën"
+      },
       "title": "Lojërat e mia",
       "unfavorite": "Hiq nga të preferuarat"
     },
@@ -1100,6 +1175,9 @@
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
       "title": "Cilësimet e serverit"
     },
+    "sessions": {
+      "untitledGame": "Lojë pa titull"
+    },
     "settings": "Cilësimet",
     "share": {
       "copied": "U kopjua",
@@ -1143,6 +1221,11 @@
         },
         "title": "Rreth ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Nuk ka ende histori lojërash. Fillo të luash një lojë!",
+        "title": "Luajtur së fundmi",
+        "viewAll": "Të gjitha lojërat"
+      },
       "myGames": {
         "empty": "Nuk ka ende lojëra. Krijoni lojën tuaj të parë!",
         "title": "Lojërat e mia",
@@ -1175,6 +1258,7 @@
       "title": "Veprime të shpejta"
     },
     "untitled": "Pa titull",
+    "untitledGame": "Lojë pa titull",
     "version": {
       "mismatch": {
         "message": "Versioni i frontend-it \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e nuk përputhet me versionin e backend-it \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Kjo mund të shkaktojë sjellje të papritura. Kontaktoni mbështetjen nëse problemi vazhdon.",

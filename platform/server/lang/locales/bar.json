@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 Joa",
       "ageGroupU18": "18+ Joa",
       "gamesCreated": "Spui erstellt",
+      "gamesPlayed": "Gspuite Spui",
       "memberSince": "Registriert seit",
+      "messagesSent": "Gschickte Nochrichtn",
       "noOrganization": "Koane Organisation",
       "noRole": "Koane Roll zuaweist",
       "organization": "Organisation",
@@ -283,6 +285,7 @@
       "serverDefault": "Server-Standard"
     },
     "allGames": {
+      "continue": "Spuin",
       "copyConfirm": {
         "confirm": "Spui kopiern",
         "message": "Dad erstellt a Kopie vo \"{{name}}\" in deine Spiele.",
@@ -303,6 +306,7 @@
       },
       "play": "Spuin",
       "reportGame": "Spui melden",
+      "restart": "Neu startn",
       "title": "Alle Spiele",
       "unfavorite": "Aus Favoriten entferna",
       "workshop": "Workshop / Org"
@@ -458,6 +462,9 @@
         "gameStart": "Wia fangt des Spui o?",
         "gameStartHint": "Wia fangt des Spiel o? Beschreib d erste Szene, de d spielende Person sieht. Wia wird de spielende Person begrüßt? Wia woaß de spielende Person, wos sie doa soi?",
         "gameStartPlaceholder": "Du wachst am Rand vo am finstarn Woid auf. A schmoier Steig führt tiefer in de Bäum...",
+        "genre": "Genre",
+        "genreHint": "Wia ma des Spui spuit.",
+        "genreNeeds": "Braucht an KI-Schlüssl mit {{features}}.",
         "imageStyle": "In welchem Stoi sölln d'Bilder sei?",
         "imageStyleHint": "Zum Beispui: Cartoon, realistisch, Pixel-Art, Aquarell...",
         "name": "Spuinam",
@@ -465,7 +472,10 @@
         "scenarioHint": "Beschreib kurz: Wia funktioniert des Spiel? Wia schaut d Welt aus? Sprache \u00026 Tonfall (z. B. Spanisch für Sechstklässler)?\nWelche Roll hod de Spielfigur? Schreib \"De Spielfigur ...\".\nWenn d KI de Roll von am bestimmten Menschen übernehmen soi, schreib \"Du bist ...\".\nWos is des Ziel? Wia merkt de Spielfigur, dass sie gwonna hod?",
         "scenarioPlaceholder": "Du bist a Entdecker in am geheimnisvollen Woid. Dei Ziel is, den versteckten Schatz zu findn...",
         "statusFields": "Spui-Werte",
-        "statusFieldsHint": "Was soi des Spui im Blick behaltn? Z. B. Gsundheit, Punkte oder Munition. Des Spui merkt si de Werte und aktualisiert's während dem Spuin."
+        "statusFieldsHint": "Was soi des Spui im Blick behaltn? Z. B. Gsundheit, Punkte oder Munition. Des Spui merkt si de Werte und aktualisiert's während dem Spuin.",
+        "theme": "Aussegn",
+        "themeDefault": "Standard-Aussegn",
+        "themeHint": "Des Aussegn, in dem ma des Spui spuit."
       },
       "editModal": {
         "adminActionTitle": "Admin-Aktion",
@@ -488,6 +498,12 @@
         "nameRequired": "Spuinam is Pflicht",
         "nameTooLong": "Spuinam derf höchstens 70 Zeichn ham"
       },
+      "features": {
+        "audio-in": "Spracheingab",
+        "audio-live": "Live-Sproch",
+        "audio-out": "Vorlesen",
+        "images": "Buidl"
+      },
       "fields": {
         "created": "Erstellt",
         "creator": "Ersteller/in",
@@ -496,6 +512,10 @@
         "name": "Nam",
         "playCount": "Spuidurchgänge",
         "visibility": "Sichtbarkeit"
+      },
+      "genres": {
+        "adventure": "Abenteuer",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Spui exportiern",
@@ -614,6 +634,54 @@
         "style": "Design",
         "styleInfo": "Optionale Einstellungen fia's Aussehn währendm Spuin."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstrakt",
+          "adventure": "Abenteuer",
+          "barbie": "Barbie",
+          "candy": "Zuckerl",
+          "circus": "Zirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Standard",
+          "desert": "Wüstn",
+          "detective": "Detektiv",
+          "educational": "Lehrreich",
+          "fairy": "Feen",
+          "fire": "Feia",
+          "garden": "Gartn",
+          "glitch": "Glitch",
+          "greenFantasy": "Grüne Fantasie",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Dschungl",
+          "matrix": "Matrix",
+          "medieval": "Mittelalter",
+          "minimal": "Minimal",
+          "mystery": "Geheimnis",
+          "mystic": "Mystisch",
+          "nature": "Natur",
+          "nautical": "Nautisch",
+          "noir": "Noir",
+          "ocean": "Ozean",
+          "pirate": "Pirat",
+          "playful": "Verspuit",
+          "retro": "Retro",
+          "romance": "Romantik",
+          "school": "Schui",
+          "scifi": "Sci-Fi",
+          "snowy": "Verschneit",
+          "space": "Weltraum",
+          "steampunk": "Steampunk",
+          "storybook": "Märchenbuach",
+          "sunshine": "Sonnenschein",
+          "superhero": "Superheld",
+          "tech": "Technik",
+          "terminal": "Terminal",
+          "underwater": "Unterwass a",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Mei erstellte Spiele",
       "viewModal": {
         "readOnlyNotice": "Des Spui stammt von wem andern. Du kannst's anschaun, aber ned bearbeitn. Nutz „Kopiern“, wennst a eigene Version brauchst.",
@@ -723,6 +791,7 @@
     "logout": "Ausloggn",
     "me": "I",
     "myGames": {
+      "continue": "Spuin",
       "copyConfirm": {
         "confirm": "Spui kopiern",
         "message": "Dad erstellt a Kopie vo \"{{name}}\" in deine Spiele.",
@@ -739,6 +808,12 @@
         "favorites": "Favoriten"
       },
       "play": "Spuin",
+      "restart": "Neu startn",
+      "restartConfirm": {
+        "confirm": "Neu startn",
+        "message": "Wüst du \"{{game}}\" wirklich neu startn? Dein aktueller Fortschritt is weg.",
+        "title": "Spui neu startn"
+      },
       "title": "Meine Spiele",
       "unfavorite": "Aus Favoriten entferna"
     },
@@ -1100,6 +1175,9 @@
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
       "title": "Server-Einstellungen"
     },
+    "sessions": {
+      "untitledGame": "Unbenannts Spui"
+    },
     "settings": "Einstellungen",
     "share": {
       "copied": "Kopiert",
@@ -1143,6 +1221,11 @@
         },
         "title": "Über ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Noch koa Spui gspuit. Fang o, a Spui z'spuin!",
+        "title": "Zuletzt gspuit",
+        "viewAll": "Alle Spui"
+      },
       "myGames": {
         "empty": "No koane Spiele. Erstell dei erstes!",
         "title": "Meine Spiele",
@@ -1175,6 +1258,7 @@
       "title": "Schnellaktionen"
     },
     "untitled": "Ohne Titel",
+    "untitledGame": "Unbenannts Spui",
     "version": {
       "mismatch": {
         "message": "Frontend-Version \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e passt ned zur Backend-Version \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Des kann z'komischen Effekten führn. Meld di beim Support, wenn's ned weggeht.",

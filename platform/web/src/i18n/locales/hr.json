@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 godina",
       "ageGroupU18": "18+",
       "gamesCreated": "Kreirane igre",
+      "gamesPlayed": "Odigrane igre",
       "memberSince": "Registriran od",
+      "messagesSent": "Poslane poruke",
       "noOrganization": "Bez organizacije",
       "noRole": "Nema dodijeljene uloge",
       "organization": "Organizacija",
@@ -283,6 +285,7 @@
       "serverDefault": "Zadano na poslužitelju"
     },
     "allGames": {
+      "continue": "Igraj",
       "copyConfirm": {
         "confirm": "Kopiraj igru",
         "message": "Ovo će stvoriti kopiju igre \"{{name}}\" u tvojim igrama.",
@@ -303,6 +306,7 @@
       },
       "play": "Igraj",
       "reportGame": "Prijavi igru",
+      "restart": "Ponovno pokreni",
       "title": "Sve igre",
       "unfavorite": "Ukloni iz favorita",
       "workshop": "Radionica / organizacija"
@@ -458,6 +462,9 @@
         "gameStart": "Kako igra započinje?",
         "gameStartHint": "Što se događa na početku? Opišite prvu scenu koju igrač vidi. Kako se igrač dočekuje? Kako igrač zna što treba učiniti?",
         "gameStartPlaceholder": "Budiš se na rubu mračne šume. Uska staza vodi dublje među stabla...",
+        "genre": "Žanr",
+        "genreHint": "Način igranja igre.",
+        "genreNeeds": "Potreban je ključ umjetne inteligencije s {{features}}.",
         "imageStyle": "Kakav stil trebaju imati slike igre?",
         "imageStyleHint": "Na primjer: crtić, realistično, piksel art, akvarel...",
         "name": "Naziv igre",
@@ -465,7 +472,10 @@
         "scenarioHint": "Ukratko opišite: Kako igra funkcionira? Kakav je svijet? Jezik i ton (npr. španjolski za učenike šestog razreda)?\nKoju ulogu ima igrač? Napišite \"Igrač ...\". \nAko želite da umjetna inteligencija preuzme ulogu određene osobe, napišite \"Vi ste ...\".\nKoji je cilj? Kako igrač zna da je pobijedio?",
         "scenarioPlaceholder": "Ti si istraživač u tajanstvenoj šumi. Tvoj cilj je pronaći skriveno blago...",
         "statusFields": "Vrijednosti igre",
-        "statusFieldsHint": "Što bi igra trebala pratiti? Na primjer zdravlje, bodove ili streljivo. Igra pamti te vrijednosti i ažurira ih tijekom igranja."
+        "statusFieldsHint": "Što bi igra trebala pratiti? Na primjer zdravlje, bodove ili streljivo. Igra pamti te vrijednosti i ažurira ih tijekom igranja.",
+        "theme": "Tema",
+        "themeDefault": "Zadani izgled",
+        "themeHint": "Izgled u kojem se igra igra."
       },
       "editModal": {
         "adminActionTitle": "Administratorska radnja",
@@ -488,6 +498,12 @@
         "nameRequired": "Naziv igre je obavezan",
         "nameTooLong": "Naziv igre mora imati najviše 70 znakova"
       },
+      "features": {
+        "audio-in": "glasovni unos",
+        "audio-live": "glas uživo",
+        "audio-out": "naracija",
+        "images": "slike"
+      },
       "fields": {
         "created": "Stvoreno",
         "creator": "Autor",
@@ -496,6 +512,10 @@
         "name": "Naziv",
         "playCount": "Igranja",
         "visibility": "Vidljivost"
+      },
+      "genres": {
+        "adventure": "Avantura",
+        "npc-live": "NPC uživo"
       },
       "importExport": {
         "exportButton": "Izvezi igru",
@@ -614,6 +634,54 @@
         "style": "Dizajn",
         "styleInfo": "Neobavezne postavke izgleda igre tijekom igranja."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Apstraktno",
+          "adventure": "Avantura",
+          "barbie": "Barbie",
+          "candy": "Slatkiši",
+          "circus": "Cirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Zadano",
+          "desert": "Pustinja",
+          "detective": "Detektivsko",
+          "educational": "Edukativno",
+          "fairy": "Vilinsko",
+          "fire": "Vatra",
+          "garden": "Vrt",
+          "glitch": "Glitch",
+          "greenFantasy": "Zelena fantastika",
+          "hacker": "Haker",
+          "horror": "Horor",
+          "jungle": "Džungla",
+          "matrix": "Matrix",
+          "medieval": "Srednjovjekovno",
+          "minimal": "Minimalističko",
+          "mystery": "Misterij",
+          "mystic": "Mističko",
+          "nature": "Priroda",
+          "nautical": "Nautičko",
+          "noir": "Noir",
+          "ocean": "Ocean",
+          "pirate": "Gusarsko",
+          "playful": "Razigrano",
+          "retro": "Retro",
+          "romance": "Romantika",
+          "school": "Škola",
+          "scifi": "Znanstvena fantastika",
+          "snowy": "Snježno",
+          "space": "Svemir",
+          "steampunk": "Steampunk",
+          "storybook": "Slikovnica",
+          "sunshine": "Sunčeva svjetlost",
+          "superhero": "Superjunak",
+          "tech": "Tehnologija",
+          "terminal": "Terminal",
+          "underwater": "Podvodno",
+          "western": "Vestern",
+          "zombie": "Zombi"
+        }
+      },
       "title": "Moje kreirane igre",
       "viewModal": {
         "readOnlyNotice": "Ovu igru je izradio drugi korisnik. Možeš vidjeti detalje, ali ne i uređivati. Upotrijebi \"Kopiraj\" za vlastitu uređivu verziju.",
@@ -723,6 +791,7 @@
     "logout": "Odjava",
     "me": "Ja",
     "myGames": {
+      "continue": "Igraj",
       "copyConfirm": {
         "confirm": "Kopiraj igru",
         "message": "Ovo će stvoriti kopiju igre \"{{name}}\" u tvojim igrama.",
@@ -739,6 +808,12 @@
         "favorites": "Favoriti"
       },
       "play": "Igraj",
+      "restart": "Ponovno pokreni",
+      "restartConfirm": {
+        "confirm": "Ponovno pokreni",
+        "message": "Jesi li siguran da želiš ponovno pokrenuti igru \"{{game}}\"? Tvoj trenutni napredak bit će izgubljen.",
+        "title": "Ponovno pokretanje igre"
+      },
       "title": "Moje igre",
       "unfavorite": "Ukloni iz favorita"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "Nemaš dopuštenje za pristup postavkama poslužitelja. Potreban je administratorski pristup.",
       "title": "Postavke poslužitelja"
     },
+    "sessions": {
+      "untitledGame": "Igra bez naslova"
+    },
     "settings": "Postavke",
     "share": {
       "copied": "Kopirano",
@@ -1138,6 +1216,11 @@
         },
         "title": "O ChatGameLab-u"
       },
+      "lastPlayed": {
+        "empty": "Još nema povijesti igranja. Započni s igranjem igre!",
+        "title": "Posljednje igrano",
+        "viewAll": "Sve igre"
+      },
       "myGames": {
         "empty": "Još nema igara. Stvori svoju prvu igru!",
         "title": "Moje igre",
@@ -1169,6 +1252,7 @@
       "title": "Brze radnje"
     },
     "untitled": "Bez naziva",
+    "untitledGame": "Igra bez naslova",
     "version": {
       "mismatch": {
         "message": "Verzija klijenta rontendVersionrontendVersionrontendVersionrontendVersion ne odgovara verziji poslužitelja \u0007backendVersionrontendVersionrontendVersionrontendVersion. To može uzrokovati neočekivano ponašanje. Obratite se podršci ako se problem nastavi.",

@@ -10,6 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   PlayGameButton,
+  TextButton,
   EditIconButton,
   DeleteIconButton,
   GenericIconButton,
@@ -31,6 +32,13 @@ export interface GameCardProps {
   // Play actions
   onPlay: () => void;
   playLabel: string;
+
+  // Continue session (optional)
+  hasSession?: boolean;
+  onContinue?: () => void;
+  continueLabel?: string;
+  onRestart?: () => void;
+  restartLabel?: string;
 
   // Visibility badge (optional, for owner view)
   showVisibility?: boolean;
@@ -67,6 +75,11 @@ export function GameCard({
   onClick,
   onPlay,
   playLabel,
+  hasSession = false,
+  onContinue,
+  continueLabel,
+  onRestart,
+  restartLabel,
   showVisibility = false,
   showCreator = false,
   isOwner = false,
@@ -81,6 +94,29 @@ export function GameCard({
   extra,
 }: GameCardProps) {
   const { t } = useTranslation("common");
+
+  const renderPlayButtons = () => {
+    if (hasSession && onContinue) {
+      return (
+        <Group gap="xs" wrap="nowrap">
+          <PlayGameButton onClick={onContinue} size="xs">
+            {continueLabel}
+          </PlayGameButton>
+          {onRestart && (
+            <TextButton onClick={onRestart} size="xs">
+              {restartLabel}
+            </TextButton>
+          )}
+        </Group>
+      );
+    }
+
+    return (
+      <PlayGameButton onClick={onPlay} size="xs">
+        {playLabel}
+      </PlayGameButton>
+    );
+  };
 
   // Determine which badges to show
   const getBadges = (): GameBadgeType[] => {
@@ -265,11 +301,8 @@ export function GameCard({
 
         {/* Bottom row: Play buttons (left) + Actions (right) */}
         <Group justify="space-between" align="flex-end" wrap="wrap">
-          <Box onClick={(e) => e.stopPropagation()}>
-            <PlayGameButton onClick={onPlay} size="xs">
-              {playLabel}
-            </PlayGameButton>
-          </Box>
+          {/* Play/Continue/Restart buttons */}
+          <Box onClick={(e) => e.stopPropagation()}>{renderPlayButtons()}</Box>
 
           {/* Action buttons + Favorite */}
           <Group gap={4} wrap="wrap" onClick={(e) => e.stopPropagation()}>

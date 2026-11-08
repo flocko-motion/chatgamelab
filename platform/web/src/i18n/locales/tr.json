@@ -52,7 +52,9 @@
       "ageGroupU13": "13-17 yaş",
       "ageGroupU18": "18+",
       "gamesCreated": "Oluşturulan Oyunlar",
+      "gamesPlayed": "Oynanan Oyunlar",
       "memberSince": "Kayıt tarihi",
+      "messagesSent": "Gönderilen Mesajlar",
       "noOrganization": "Organizasyon yok",
       "noRole": "Rol atanmamış",
       "organization": "Organizasyon",
@@ -285,6 +287,7 @@
       "serverDefault": "Sunucu Varsayılanı"
     },
     "allGames": {
+      "continue": "Oyna",
       "copyConfirm": {
         "confirm": "Oyunu Kopyala",
         "message": "\"{{name}}\" oyununun bir kopyası oyunlarınıza eklenecek.",
@@ -305,6 +308,7 @@
       },
       "play": "Oyna",
       "reportGame": "Oyunu bildir",
+      "restart": "Yeniden Başlat",
       "title": "Tüm Oyunlar",
       "unfavorite": "Favorilerden çıkar",
       "workshop": "Atölye / Kuruluş"
@@ -460,6 +464,9 @@
         "gameStart": "Oyun nasıl başlıyor?",
         "gameStartHint": "Oyun nasıl başlamalı? Oyuncunun göreceği ilk sahneyi açıklayın. Oyuncu nasıl karşılanıyor? Oyuncu ne yapması gerektiğini nasıl anlıyor?",
         "gameStartPlaceholder": "Karanlık bir ormanın kenarında uyanıyorsun. Dar bir patika ağaçların içine doğru uzanıyor...",
+        "genre": "Tür",
+        "genreHint": "Oyunun nasıl oynandığı.",
+        "genreNeeds": "{{features}} özelliklerine sahip bir yapay zekâ anahtarı gerekir.",
         "imageStyle": "Oyun görselleri hangi tarzda olmalı?",
         "imageStyleHint": "Örneğin: çizgi film, gerçekçi, piksel art, suluboya...",
         "name": "Oyun Adı",
@@ -467,7 +474,10 @@
         "scenarioHint": "Kısaca açıklayın: Oyun nasıl işliyor? Dünya nasıl bir yer? Dil \u00026 Üslup (ör. altıncı sınıf öğrencileri için İspanyolca)?\nOyuncunun rolü nedir? \"Oyuncu ...\" diye yazın.\nYapay zekânın belirli bir kişinin rolünü üstlenmesini istiyorsanız \"Sen ...\" diye yazın.\nAmaç nedir? Oyuncu kazandığını nasıl anlıyor?",
         "scenarioPlaceholder": "Sen gizemli bir ormanda keşif yapan bir kaşifsin. Amacın saklı hazinenin yerini bulmak...",
         "statusFields": "Oyun değerleri",
-        "statusFieldsHint": "Oyun hangi değerleri takip etmeli? Örneğin can, puan veya cephane. Oyun bu değerleri hatırlar ve oynarken günceller."
+        "statusFieldsHint": "Oyun hangi değerleri takip etmeli? Örneğin can, puan veya cephane. Oyun bu değerleri hatırlar ve oynarken günceller.",
+        "theme": "Tema",
+        "themeDefault": "Varsayılan görünüm",
+        "themeHint": "Oyunun oynandığı görünüm."
       },
       "editModal": {
         "adminActionTitle": "Yönetici işlemi",
@@ -490,6 +500,12 @@
         "nameRequired": "Oyun adı zorunludur",
         "nameTooLong": "Oyun adı en fazla 70 karakter olmalıdır"
       },
+      "features": {
+        "audio-in": "sesli giriş",
+        "audio-live": "canlı ses",
+        "audio-out": "anlatım",
+        "images": "görseller"
+      },
       "fields": {
         "created": "Oluşturuldu",
         "creator": "Oluşturan",
@@ -498,6 +514,10 @@
         "name": "İsim",
         "playCount": "Oynanma",
         "visibility": "Görünürlük"
+      },
+      "genres": {
+        "adventure": "Macera",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Oyunu Dışa Aktar",
@@ -616,6 +636,54 @@
         "style": "Tasarım",
         "styleInfo": "Oyun oynanırken görünümü için isteğe bağlı ayarlar."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Soyut",
+          "adventure": "Macera",
+          "barbie": "Barbie",
+          "candy": "Şeker",
+          "circus": "Sirk",
+          "cyberpunk": "Siberpunk",
+          "default": "Varsayılan",
+          "desert": "Çöl",
+          "detective": "Dedektif",
+          "educational": "Eğitici",
+          "fairy": "Peri",
+          "fire": "Ateş",
+          "garden": "Bahçe",
+          "glitch": "Glitch",
+          "greenFantasy": "Yeşil Fantezi",
+          "hacker": "Hacker",
+          "horror": "Korku",
+          "jungle": "Orman",
+          "matrix": "Matrix",
+          "medieval": "Orta Çağ",
+          "minimal": "Minimal",
+          "mystery": "Gizem",
+          "mystic": "Mistik",
+          "nature": "Doğa",
+          "nautical": "Denizcilik",
+          "noir": "Noir",
+          "ocean": "Okyanus",
+          "pirate": "Korsan",
+          "playful": "Eğlenceli",
+          "retro": "Retro",
+          "romance": "Romantik",
+          "school": "Okul",
+          "scifi": "Bilim Kurgu",
+          "snowy": "Karlı",
+          "space": "Uzay",
+          "steampunk": "Steampunk",
+          "storybook": "Masal Kitabı",
+          "sunshine": "Güneş Işığı",
+          "superhero": "Süper Kahraman",
+          "tech": "Teknoloji",
+          "terminal": "Terminal",
+          "underwater": "Sualtı",
+          "western": "Vahşi Batı",
+          "zombie": "Zombi"
+        }
+      },
       "title": "Oluşturduğum Oyunlar",
       "viewModal": {
         "readOnlyNotice": "Bu oyun başka bir kullanıcı tarafından oluşturuldu. Ayrıntıları görebilirsiniz ancak düzenleyemezsiniz. Düzenleyebileceğiniz bir sürüm oluşturmak için \"Kopyala\"yı kullanın.",
@@ -725,6 +793,7 @@
     "logout": "Çıkış Yap",
     "me": "Ben",
     "myGames": {
+      "continue": "Oyna",
       "copyConfirm": {
         "confirm": "Oyunu Kopyala",
         "message": "\"{{name}}\" oyununun bir kopyası oyunlarınıza eklenecek.",
@@ -741,6 +810,12 @@
         "favorites": "Favoriler"
       },
       "play": "Oyna",
+      "restart": "Yeniden Başlat",
+      "restartConfirm": {
+        "confirm": "Yeniden Başlat",
+        "message": "\"{{game}}\" oyununu yeniden başlatmak istediğinizden emin misiniz? Mevcut ilerlemeniz kaybolacak.",
+        "title": "Oyunu Yeniden Başlat"
+      },
       "title": "Oyunlarım",
       "unfavorite": "Favorilerden çıkar"
     },
@@ -1097,6 +1172,9 @@
       "notAuthorized": "Sunucu ayarlarına erişim izniniz yok. Yönetici erişimi gerekir.",
       "title": "Sunucu Ayarları"
     },
+    "sessions": {
+      "untitledGame": "Adsız Oyun"
+    },
     "settings": "Ayarlar",
     "share": {
       "copied": "Kopyalandı",
@@ -1140,6 +1218,11 @@
         },
         "title": "ChatGameLab Hakkında"
       },
+      "lastPlayed": {
+        "empty": "Henüz oyun geçmişi yok. Bir oyun oynamaya başlayın!",
+        "title": "Son Oynanan",
+        "viewAll": "Tüm Oyunlar"
+      },
       "myGames": {
         "empty": "Henüz oyun yok. İlk oyununuzu oluşturun!",
         "title": "Oyunlarım",
@@ -1171,6 +1254,7 @@
       "title": "Hızlı Eylemler"
     },
     "untitled": "Adsız",
+    "untitledGame": "Adsız Oyun",
     "version": {
       "mismatch": {
         "message": "Ön uç sürümü \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 arka uç sürümü \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 ile eşleşmiyor. Bu beklenmeyen davranışlara yol açabilir. Sorun devam ederse destekle iletişime geçin.",

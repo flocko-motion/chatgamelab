@@ -76,6 +76,22 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+/**
+ * Asks the server to clear its cookies: a participant's session and the play
+ * cookie the playback-engine acts with. Every sign-out calls it.
+ */
+async function clearServerCookies() {
+  try {
+    await fetch(`${config.API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    authLogger.debug("Server cookies cleared");
+  } catch {
+    authLogger.debug("Failed to clear server cookies (may already be cleared)");
+  }
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { t, i18n } = useTranslation();
   const {
@@ -317,11 +333,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (auth0TokenError && auth0IsAuthenticated) {
       authLogger.warning("Auth0 refresh token is stale — logging out to clear session");
-      auth0Logout({
-        logoutParams: {
-          returnTo: auth0Config.logoutUri,
-        },
-      });
+      void clearServerCookies().finally(() =>
+        auth0Logout({
+          logoutParams: {
+            returnTo: auth0Config.logoutUri,
+          },
+        }),
+      );
     }
   }, [auth0TokenError, auth0IsAuthenticated, auth0Logout]);
 
@@ -433,6 +451,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     if (auth0IsAuthenticated) {
       authLogger.debug("Logging out from Auth0");
+      await clearServerCookies();
       auth0Logout({
         logoutParams: {
           returnTo: auth0Config.logoutUri,
@@ -449,17 +468,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsParticipant(false);
       backendFetchAttempted.current = false;
       clearParticipantToken();
-      try {
-        await fetch(`${config.API_BASE_URL}/auth/logout`, {
-          method: "POST",
-          credentials: "include",
-        });
-        authLogger.debug("Session cookie cleared by backend");
-      } catch {
-        authLogger.debug(
-          "Failed to clear session cookie (may already be cleared)",
-        );
-      }
+      await clearServerCookies();
       const homepageUrl = getHomepageUrl();
       authLogger.debug("Redirecting to homepage after participant logout", {
         url: homepageUrl,
@@ -475,6 +484,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       setIsParticipant(false);
+      await clearServerCookies();
       const homepageUrl = getHomepageUrl();
       authLogger.debug("Redirecting to homepage after logout", {
         url: homepageUrl,

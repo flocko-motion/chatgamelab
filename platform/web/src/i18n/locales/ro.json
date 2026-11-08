@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 ani",
       "ageGroupU18": "18+",
       "gamesCreated": "Jocuri create",
+      "gamesPlayed": "Jocuri jucate",
       "memberSince": "Înregistrat din",
+      "messagesSent": "Mesaje trimise",
       "noOrganization": "Fără organizație",
       "noRole": "Niciun rol atribuit",
       "organization": "Organizație",
@@ -283,6 +285,7 @@
       "serverDefault": "Implicit server"
     },
     "allGames": {
+      "continue": "Joacă",
       "copyConfirm": {
         "confirm": "Copiază jocul",
         "message": "Acest lucru va crea o copie a „{{name}}” în jocurile tale.",
@@ -303,6 +306,7 @@
       },
       "play": "Joacă",
       "reportGame": "Raportează jocul",
+      "restart": "Repornește",
       "title": "Toate jocurile",
       "unfavorite": "Elimină din favorite",
       "workshop": "Atelier / Org"
@@ -458,6 +462,9 @@
         "gameStart": "Cum începe jocul?",
         "gameStartHint": "Ce se întâmplă la început? Descrie prima scenă pe care o vede jucătorul. Cum este întâmpinat jucătorul? De unde știe jucătorul ce trebuie să facă?",
         "gameStartPlaceholder": "Te trezești la marginea unei păduri întunecate. O potecă îngustă duce mai adânc printre copaci...",
+        "genre": "Gen",
+        "genreHint": "Cum se joacă jocul.",
+        "genreNeeds": "Necesită o cheie AI cu {{features}}.",
         "imageStyle": "Ce stil ar trebui să aibă imaginile jocului?",
         "imageStyleHint": "De exemplu: desen animat, realist, pixel art, acuarelă...",
         "name": "Numele jocului",
@@ -465,7 +472,10 @@
         "scenarioHint": "Descrie pe scurt: Cum funcționează jocul? Cum este lumea? Limbă și ton (de exemplu, spaniolă pentru elevii de clasa a șasea)?\nCe rol are jucătorul? Scrie „Jucătorul ...”.\nDacă vrei ca inteligența artificială să interpreteze rolul unei anumite persoane, scrie „Ești ...”.\nCare este obiectivul? De unde știe jucătorul că a câștigat?",
         "scenarioPlaceholder": "Ești un explorator într-o pădure misterioasă. Scopul tău este să găsești comoara ascunsă...",
         "statusFields": "Valorile jocului",
-        "statusFieldsHint": "Ce ar trebui să urmărească jocul? De exemplu viață, puncte sau muniție. Jocul își amintește aceste valori și le actualizează în timpul jocului."
+        "statusFieldsHint": "Ce ar trebui să urmărească jocul? De exemplu viață, puncte sau muniție. Jocul își amintește aceste valori și le actualizează în timpul jocului.",
+        "theme": "Temă",
+        "themeDefault": "Aspect implicit",
+        "themeHint": "Aspectul în care se joacă jocul."
       },
       "editModal": {
         "adminActionTitle": "Acțiune de administrator",
@@ -488,6 +498,12 @@
         "nameRequired": "Numele jocului este obligatoriu",
         "nameTooLong": "Numele jocului trebuie să aibă cel mult 70 de caractere"
       },
+      "features": {
+        "audio-in": "introducere vocală",
+        "audio-live": "voce live",
+        "audio-out": "narațiune",
+        "images": "imagini"
+      },
       "fields": {
         "created": "Creat",
         "creator": "Creator",
@@ -496,6 +512,10 @@
         "name": "Nume",
         "playCount": "Jucat de",
         "visibility": "Vizibilitate"
+      },
+      "genres": {
+        "adventure": "Aventură",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Exportă jocul",
@@ -617,6 +637,54 @@
         "style": "Design",
         "styleInfo": "Setări opționale pentru aspectul jocului în timpul rulării."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstract",
+          "adventure": "Aventură",
+          "barbie": "Barbie",
+          "candy": "Dulciuri",
+          "circus": "Circ",
+          "cyberpunk": "Cyberpunk",
+          "default": "Implicit",
+          "desert": "Deșert",
+          "detective": "Detectiv",
+          "educational": "Educațional",
+          "fairy": "Zâne",
+          "fire": "Foc",
+          "garden": "Grădină",
+          "glitch": "Glitch",
+          "greenFantasy": "Fantezie verde",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Junglă",
+          "matrix": "Matrix",
+          "medieval": "Medieval",
+          "minimal": "Minimal",
+          "mystery": "Mister",
+          "mystic": "Mistic",
+          "nature": "Natură",
+          "nautical": "Nautic",
+          "noir": "Noir",
+          "ocean": "Ocean",
+          "pirate": "Pirateresc",
+          "playful": "Jucăuș",
+          "retro": "Retro",
+          "romance": "Romantic",
+          "school": "Școală",
+          "scifi": "SF",
+          "snowy": "Înzăpezit",
+          "space": "Spațiu",
+          "steampunk": "Steampunk",
+          "storybook": "Carte de povești",
+          "sunshine": "Rază de soare",
+          "superhero": "Supererou",
+          "tech": "Tehnologie",
+          "terminal": "Terminal",
+          "underwater": "Subacvatic",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Jocurile create de mine",
       "viewModal": {
         "readOnlyNotice": "Acest joc a fost creat de un alt utilizator. Poți vedea detaliile, dar nu le poți edita. Folosește „Copiază” pentru a crea o versiune editabilă.",
@@ -726,6 +794,7 @@
     "logout": "Deconectează-te",
     "me": "Eu",
     "myGames": {
+      "continue": "Joacă",
       "copyConfirm": {
         "confirm": "Copiază jocul",
         "message": "Aceasta va crea o copie a „{{name}}” în lista ta de jocuri.",
@@ -742,6 +811,12 @@
         "favorites": "Favorite"
       },
       "play": "Joacă",
+      "restart": "Repornește",
+      "restartConfirm": {
+        "confirm": "Repornește",
+        "message": "Sigur vrei să repornești jocul „{{game}}”? Progresul actual va fi pierdut.",
+        "title": "Repornește jocul"
+      },
       "title": "Jocurile mele",
       "unfavorite": "Elimină din favorite"
     },
@@ -1098,6 +1173,9 @@
       "notAuthorized": "Nu ai permisiunea de a accesa setările serverului. Este necesar acces de administrator.",
       "title": "Setările serverului"
     },
+    "sessions": {
+      "untitledGame": "Joc fără titlu"
+    },
     "settings": "Setări",
     "share": {
       "copied": "Copiat",
@@ -1141,6 +1219,11 @@
         },
         "title": "Despre ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Nu există încă un istoric al jocurilor. Începe să joci!",
+        "title": "Jucat recent",
+        "viewAll": "Toate jocurile"
+      },
       "myGames": {
         "empty": "Încă nu există jocuri. Creează primul tău joc!",
         "title": "Jocurile mele",
@@ -1172,6 +1255,7 @@
       "title": "Acțiuni rapide"
     },
     "untitled": "Fără titlu",
+    "untitledGame": "Joc fără titlu",
     "version": {
       "mismatch": {
         "message": "Versiunea interfeței \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 nu se potrivește cu versiunea backend \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. Acest lucru poate cauza comportamente neașteptate. Contactează suportul dacă problemele persistă.",

@@ -4,7 +4,9 @@ import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { apiClient } from "../client";
 import { queryKeys } from "../queryKeys";
 import type {
+  EngineGenreInfo,
   EnginePlatformInfo,
+  EngineThemeInfo,
   ObjSystemSettings,
   HttpxErrorResponse,
   RoutesVersionResponse,
@@ -23,6 +25,27 @@ export function usePlatforms() {
 }
 
 
+// The engine's genres, each with the features it needs, for the game editor
+export function useGenres() {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery<EngineGenreInfo[], HttpxErrorResponse>({
+    queryKey: queryKeys.genres,
+    queryFn: () => api.genres.genresList().then((response) => response.data),
+    staleTime: Infinity,
+  });
+}
+
+// The playback-engine's looks, the default first, for the game editor
+export function useThemes() {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery<EngineThemeInfo[], HttpxErrorResponse>({
+    queryKey: queryKeys.themes,
+    queryFn: () => api.themes.themesList().then((response) => response.data),
+    staleTime: Infinity,
+  });
+}
 
 // System Settings hook (requires authentication)
 export function useSystemSettings() {

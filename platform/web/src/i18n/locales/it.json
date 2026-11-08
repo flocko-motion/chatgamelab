@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 anni",
       "ageGroupU18": "18+",
       "gamesCreated": "Giochi creati",
+      "gamesPlayed": "Partite giocate",
       "memberSince": "Iscritto dal",
+      "messagesSent": "Messaggi inviati",
       "noOrganization": "Nessuna organizzazione",
       "noRole": "Nessun ruolo assegnato",
       "organization": "Organizzazione",
@@ -283,6 +285,7 @@
       "serverDefault": "Predefinito del server"
     },
     "allGames": {
+      "continue": "Gioca",
       "copyConfirm": {
         "confirm": "Copia gioco",
         "message": "Questo creerà una copia di \"{{name}}\" nei tuoi giochi.",
@@ -303,6 +306,7 @@
       },
       "play": "Gioca",
       "reportGame": "Segnala gioco",
+      "restart": "Ricomincia",
       "title": "Tutti i giochi",
       "unfavorite": "Rimuovi dai preferiti",
       "workshop": "Laboratorio / Org"
@@ -458,6 +462,9 @@
         "gameStart": "Come inizia il gioco?",
         "gameStartHint": "Cosa succede all'inizio? Descrivi la prima scena che il giocatore vede. Come viene accolto? Come capisce cosa deve fare?",
         "gameStartPlaceholder": "Ti svegli sul bordo di una foresta oscura. Un sentiero stretto conduce più a fondo tra gli alberi...",
+        "genre": "Genere",
+        "genreHint": "Come si gioca.",
+        "genreNeeds": "Richiede una chiave AI con {{features}}.",
         "imageStyle": "Che stile dovrebbero avere le immagini del gioco?",
         "imageStyleHint": "Per esempio: cartone animato, realistico, pixel art, acquerello...",
         "name": "Nome del gioco",
@@ -465,7 +472,10 @@
         "scenarioHint": "Descrivi brevemente: come funziona il gioco? Com'è il mondo? Lingua \u00026 tono (ad es. spagnolo per studenti di prima media)?\nChe ruolo ha il giocatore? Scrivi \"Il giocatore ...\".\nSe vuoi che l'IA interpreti il ruolo di una persona specifica, scrivi \"Sei ...\".\nQual è l'obiettivo? Come capisce il giocatore di aver vinto?",
         "scenarioPlaceholder": "Sei un esploratore in una foresta misteriosa. Il tuo obiettivo è trovare il tesoro nascosto...",
         "statusFields": "Valori di gioco",
-        "statusFieldsHint": "Cosa deve tenere traccia il gioco? Ad esempio salute, punti o munizioni. Il gioco ricorda questi valori e li aggiorna durante la partita."
+        "statusFieldsHint": "Cosa deve tenere traccia il gioco? Ad esempio salute, punti o munizioni. Il gioco ricorda questi valori e li aggiorna durante la partita.",
+        "theme": "Tema",
+        "themeDefault": "Aspetto predefinito",
+        "themeHint": "L'aspetto con cui si gioca."
       },
       "editModal": {
         "adminActionTitle": "Azione amministratore",
@@ -488,6 +498,12 @@
         "nameRequired": "Il nome del gioco è obbligatorio",
         "nameTooLong": "Il nome del gioco deve avere 70 caratteri o meno"
       },
+      "features": {
+        "audio-in": "input vocale",
+        "audio-live": "voce in tempo reale",
+        "audio-out": "narrazione",
+        "images": "immagini"
+      },
       "fields": {
         "created": "Creato",
         "creator": "Creatore",
@@ -496,6 +512,10 @@
         "name": "Nome",
         "playCount": "Partite",
         "visibility": "Visibilità"
+      },
+      "genres": {
+        "adventure": "Avventura",
+        "npc-live": "NPC in tempo reale"
       },
       "importExport": {
         "exportButton": "Esporta gioco",
@@ -614,6 +634,54 @@
         "style": "Design",
         "styleInfo": "Impostazioni opzionali per l'aspetto del gioco durante la partita."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Astratto",
+          "adventure": "Avventura",
+          "barbie": "Barbie",
+          "candy": "Dolci",
+          "circus": "Circo",
+          "cyberpunk": "Cyberpunk",
+          "default": "Predefinito",
+          "desert": "Deserto",
+          "detective": "Detective",
+          "educational": "Educativo",
+          "fairy": "Fiabesco",
+          "fire": "Fuoco",
+          "garden": "Giardino",
+          "glitch": "Glitch",
+          "greenFantasy": "Fantasy verde",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Giungla",
+          "matrix": "Matrix",
+          "medieval": "Medievale",
+          "minimal": "Minimalista",
+          "mystery": "Mistero",
+          "mystic": "Mistico",
+          "nature": "Natura",
+          "nautical": "Nautico",
+          "noir": "Noir",
+          "ocean": "Oceano",
+          "pirate": "Pirata",
+          "playful": "Giocoso",
+          "retro": "Retrò",
+          "romance": "Romantico",
+          "school": "Scuola",
+          "scifi": "Fantascienza",
+          "snowy": "Innevato",
+          "space": "Spazio",
+          "steampunk": "Steampunk",
+          "storybook": "Libro di fiabe",
+          "sunshine": "Raggi di sole",
+          "superhero": "Supereroe",
+          "tech": "Tecnologia",
+          "terminal": "Terminale",
+          "underwater": "Sottomarino",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Giochi creati da me",
       "viewModal": {
         "readOnlyNotice": "Questo gioco è stato creato da un altro utente. Puoi vedere i dettagli ma non modificarli. Usa \"Copia\" per creare la tua versione modificabile.",
@@ -723,6 +791,7 @@
     "logout": "Logout",
     "me": "Io",
     "myGames": {
+      "continue": "Gioca",
       "copyConfirm": {
         "confirm": "Copia gioco",
         "message": "Questo creerà una copia di \"{{name}}\" nei tuoi giochi.",
@@ -739,6 +808,12 @@
         "favorites": "Preferiti"
       },
       "play": "Gioca",
+      "restart": "Ricomincia",
+      "restartConfirm": {
+        "confirm": "Ricomincia",
+        "message": "Vuoi davvero ricominciare \"{{game}}\"? I tuoi progressi attuali andranno persi.",
+        "title": "Ricomincia la partita"
+      },
       "title": "I miei giochi",
       "unfavorite": "Rimuovi dai preferiti"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "Non hai il permesso di accedere alle impostazioni del server. È richiesto l'accesso amministratore.",
       "title": "Impostazioni server"
     },
+    "sessions": {
+      "untitledGame": "Partita senza titolo"
+    },
     "settings": "Impostazioni",
     "share": {
       "copied": "Copiato",
@@ -1138,6 +1216,11 @@
         },
         "title": "Informazioni su ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Non hai ancora giocato. Inizia una partita!",
+        "title": "Giocate di recente",
+        "viewAll": "Tutte le partite"
+      },
       "myGames": {
         "empty": "Ancora nessun gioco. Crea il tuo primo gioco!",
         "title": "I miei giochi",
@@ -1169,6 +1252,7 @@
       "title": "Azioni rapide"
     },
     "untitled": "Senza titolo",
+    "untitledGame": "Partita senza titolo",
     "version": {
       "mismatch": {
         "message": "La versione frontend \u00103cfrontendVersion\u00103e{{frontendVersion}}\u00103c/frontendVersion\u00103e non corrisponde alla versione backend \u00103cbackendVersion\u00103e{{backendVersion}}\u00103c/backendVersion\u00103e. Ciò potrebbe causare comportamenti imprevisti. Contatta il supporto se il problema persiste.",

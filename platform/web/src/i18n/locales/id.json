@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 tahun",
       "ageGroupU18": "18+",
       "gamesCreated": "Gim yang Dibuat",
+      "gamesPlayed": "Game yang Dimainkan",
       "memberSince": "Terdaftar sejak",
+      "messagesSent": "Pesan yang Dikirim",
       "noOrganization": "Tidak ada organisasi",
       "noRole": "Tidak ada peran yang ditetapkan",
       "organization": "Organisasi",
@@ -283,6 +285,7 @@
       "serverDefault": "Bawaan Server"
     },
     "allGames": {
+      "continue": "Mainkan",
       "copyConfirm": {
         "confirm": "Salin Gim",
         "message": "Ini akan membuat salinan \"{{name}}\" di gim Anda.",
@@ -303,6 +306,7 @@
       },
       "play": "Mainkan",
       "reportGame": "Laporkan gim",
+      "restart": "Mulai Ulang",
       "title": "Semua Gim",
       "unfavorite": "Hapus dari favorit",
       "workshop": "Lokakarya / Organisasi"
@@ -458,6 +462,9 @@
         "gameStart": "Bagaimana gim dimulai?",
         "gameStartHint": "Apa yang terjadi di awal? Jelaskan adegan pertama yang dilihat pemain. Bagaimana pemain disambut? Bagaimana pemain tahu apa yang harus dilakukan?",
         "gameStartPlaceholder": "Kamu terbangun di tepi hutan gelap. Sebuah jalur sempit mengarah lebih dalam ke pepohonan...",
+        "genre": "Genre",
+        "genreHint": "Cara game dimainkan.",
+        "genreNeeds": "Memerlukan kunci AI dengan {{features}}.",
         "imageStyle": "Gaya seperti apa yang harus dimiliki gambar gim?",
         "imageStyleHint": "Misalnya: kartun, realistis, pixel art, cat air...",
         "name": "Nama Gim",
@@ -465,7 +472,10 @@
         "scenarioHint": "Jelaskan secara singkat: Bagaimana cara kerja game ini? Seperti apa dunianya? Bahasa \u0006 Nada (misalnya bahasa Spanyol untuk siswa kelas enam)?\nPeran apa yang dimiliki pemain? Tulis \"Pemain ...\".\nJika Anda ingin AI berperan sebagai orang tertentu, tulis \"Kamu adalah ...\".\nApa tujuannya? Bagaimana pemain tahu bahwa mereka telah menang?",
         "scenarioPlaceholder": "Kamu adalah seorang penjelajah di hutan misterius. Tujuanmu adalah menemukan harta karun tersembunyi...",
         "statusFields": "Nilai gim",
-        "statusFieldsHint": "Apa yang harus dilacak gim? Misalnya kesehatan, poin, atau amunisi. Gim mengingat nilai-nilai ini dan memperbaruinya saat bermain."
+        "statusFieldsHint": "Apa yang harus dilacak gim? Misalnya kesehatan, poin, atau amunisi. Gim mengingat nilai-nilai ini dan memperbaruinya saat bermain.",
+        "theme": "Tema",
+        "themeDefault": "Tampilan default",
+        "themeHint": "Tampilan yang digunakan saat game dimainkan."
       },
       "editModal": {
         "adminActionTitle": "Tindakan admin",
@@ -488,6 +498,12 @@
         "nameRequired": "Nama gim wajib diisi",
         "nameTooLong": "Nama gim harus 70 karakter atau kurang"
       },
+      "features": {
+        "audio-in": "input suara",
+        "audio-live": "suara langsung",
+        "audio-out": "narasi",
+        "images": "gambar"
+      },
       "fields": {
         "created": "Dibuat",
         "creator": "Pembuat",
@@ -496,6 +512,10 @@
         "name": "Nama",
         "playCount": "Jumlah Main",
         "visibility": "Visibilitas"
+      },
+      "genres": {
+        "adventure": "Petualangan",
+        "npc-live": "NPC-Live"
       },
       "importExport": {
         "exportButton": "Ekspor Gim",
@@ -614,6 +634,54 @@
         "style": "Desain",
         "styleInfo": "Pengaturan opsional untuk tampilan gim saat bermain."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstrak",
+          "adventure": "Petualangan",
+          "barbie": "Barbie",
+          "candy": "Permen",
+          "circus": "Sirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Default",
+          "desert": "Gurun",
+          "detective": "Detektif",
+          "educational": "Edukatif",
+          "fairy": "Peri",
+          "fire": "Api",
+          "garden": "Taman",
+          "glitch": "Glitch",
+          "greenFantasy": "Fantasi Hijau",
+          "hacker": "Peretas",
+          "horror": "Horor",
+          "jungle": "Hutan",
+          "matrix": "Matrix",
+          "medieval": "Abad Pertengahan",
+          "minimal": "Minimalis",
+          "mystery": "Misteri",
+          "mystic": "Mistis",
+          "nature": "Alam",
+          "nautical": "Bahari",
+          "noir": "Noir",
+          "ocean": "Laut",
+          "pirate": "Bajak Laut",
+          "playful": "Ceria",
+          "retro": "Retro",
+          "romance": "Romantis",
+          "school": "Sekolah",
+          "scifi": "Fiksi Ilmiah",
+          "snowy": "Bersalju",
+          "space": "Luar Angkasa",
+          "steampunk": "Steampunk",
+          "storybook": "Buku Cerita",
+          "sunshine": "Sinar Matahari",
+          "superhero": "Pahlawan Super",
+          "tech": "Teknologi",
+          "terminal": "Terminal",
+          "underwater": "Bawah Laut",
+          "western": "Western",
+          "zombie": "Zombi"
+        }
+      },
       "title": "Gim Buatan Saya",
       "viewModal": {
         "readOnlyNotice": "Gim ini dibuat oleh pengguna lain. Anda dapat melihat detailnya tetapi tidak dapat mengedit. Gunakan \"Salin\" untuk membuat versi Anda sendiri yang dapat diedit.",
@@ -723,6 +791,7 @@
     "logout": "Keluar",
     "me": "Saya",
     "myGames": {
+      "continue": "Mainkan",
       "copyConfirm": {
         "confirm": "Salin Gim",
         "message": "Ini akan membuat salinan \"{{name}}\" di gim Anda.",
@@ -739,6 +808,12 @@
         "favorites": "Favorit"
       },
       "play": "Mainkan",
+      "restart": "Mulai Ulang",
+      "restartConfirm": {
+        "confirm": "Mulai Ulang",
+        "message": "Apakah kamu yakin ingin memulai ulang \"{{game}}\"? Progresmu saat ini akan hilang.",
+        "title": "Mulai Ulang Game"
+      },
       "title": "Gim Saya",
       "unfavorite": "Hapus dari favorit"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
       "title": "Pengaturan Server"
     },
+    "sessions": {
+      "untitledGame": "Game Tanpa Judul"
+    },
     "settings": "Pengaturan",
     "share": {
       "copied": "Disalin",
@@ -1138,6 +1216,11 @@
         },
         "title": "Tentang ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Belum ada riwayat permainan. Mulai mainkan game!",
+        "title": "Terakhir Dimainkan",
+        "viewAll": "Semua Game"
+      },
       "myGames": {
         "empty": "Belum ada gim. Buat gim pertama Anda!",
         "title": "Gim Saya",
@@ -1169,6 +1252,7 @@
       "title": "Aksi Cepat"
     },
     "untitled": "Tanpa Judul",
+    "untitledGame": "Game Tanpa Judul",
     "version": {
       "mismatch": {
         "message": "Versi frontend \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e tidak cocok dengan versi backend \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Ini dapat menyebabkan perilaku tidak terduga. Hubungi dukungan jika masalah berlanjut.",

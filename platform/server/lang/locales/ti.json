@@ -51,7 +51,9 @@
       "ageGroupU13": "13-17 ኣመት",
       "ageGroupU18": "18 እና ልዕሊ",
       "gamesCreated": "ዝተፈጠሩ ጨዋታታት",
+      "gamesPlayed": "ዝተጻወትካዮም ጸወታታት",
       "memberSince": "ካብ ዝተመደበሉ ጊዜ",
+      "messagesSent": "ዝተላእኩ መልእኽታት",
       "noOrganization": "ማሕበር የለን",
       "noRole": "ሚና ኣይተመደበን",
       "organization": "ማሕበር",
@@ -283,6 +285,7 @@
       "serverDefault": "ናይ ሰርቨር ነባሪ"
     },
     "allGames": {
+      "continue": "ተጻወት",
       "copyConfirm": {
         "confirm": "ጨዋታ ኮፒ ግበር",
         "message": "እዚ ከም ኮፒ \"{{name}}\" ኣብ ጨዋታታትካ ይፈጥር።",
@@ -303,6 +306,7 @@
       },
       "play": "ጫውታ",
       "reportGame": "ጨዋታ ኣቕርብ",
+      "restart": "እንደገና ጀምር",
       "title": "ኩሉ ጨዋታታት",
       "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
       "workshop": "ስልጠና / ተቋማ"
@@ -458,6 +462,9 @@
         "gameStart": "ጨዋታ እንታይ እዩ ዝጀምር?",
         "gameStartHint": "ጸወታ ከመይ ክጅምር ኣለዎ? እታ ቀዳመይቲ ምዕራፍ እንታይ ትመስል? ተጻዋታይ ብኸመይ ይቕበል? ተጻዋታይ እንታይ ክገብር ከም ዘለዎ ብኸመይ ይፈልጥ?",
         "gameStartPlaceholder": "እቲ ጨዋታ ናብ ጨለማ ደናራ ዳርጋ ተነበረስካ ትቐርብ። ትንንሽ መንገዲ ናብ ልዕሊ ጫፍ ይወስድ...",
+        "genre": "ዓይነት",
+        "genreHint": "ጸወታኡ ከመይ ከም ዝጻወት።",
+        "genreNeeds": "ምስ {{features}} ዝሰርሕ መፍትሕ AI የድልዮ።",
         "imageStyle": "ምስል ናይ ጨዋታ እንታይ ስርዓት ይኸውን?",
         "imageStyleHint": "ለ.ዝ.: ካርቱን፣ እውን ምስል፣ ፒክሰል ኣርት፣ ውሃ ቀለም...",
         "name": "ስም ጨዋታ",
@@ -465,7 +472,10 @@
         "scenarioHint": "ብሓጺሩ ግለጽ፦ ጸወታ ብኸመይ ይሰርሕ? ዓለም እቲ ጸወታ እንታይ ትመስል? ቋንቋን ቃናን (ንኣብነት ስፓኒሽ ንተማሃሮ ሻዱሻይ ክፍሊ)?\nተጻዋታይ እንታይ ተራ ኣለዎ? \"ተጻዋታይ ...\" ኢልካ ጽሓፍ።\nእቲ AI ተራ ፍሉይ ሰብ ክወስድ እንተደሊኻ፣ \"ንስኻ ... ኢኻ\" ኢልካ ጽሓፍ።\nዕላማ እንታይ እዩ? ተጻዋታይ ከም ዝተዓወተ ብኸመይ ይፈልጥ?",
         "scenarioPlaceholder": "ንስኻ ተመራማሪ ካብ ምስጢር ደናራ ውሽጢ። ሓባራ መቃን ንምርካብ ትሕቲቶ!",
         "statusFields": "ዋጋታት ጨዋታ",
-        "statusFieldsHint": "ጨዋታ ምንታይ ዋጋታት ክዕብል? ለ.ዝ.: ጤና፣ ነጥብታት፣ ኣሙንስን። ጨዋታ እዛ ዋጋታት ይኽትትላ።"
+        "statusFieldsHint": "ጨዋታ ምንታይ ዋጋታት ክዕብል? ለ.ዝ.: ጤና፣ ነጥብታት፣ ኣሙንስን። ጨዋታ እዛ ዋጋታት ይኽትትላ።",
+        "theme": "ገጽታ",
+        "themeDefault": "ነባሪ መልክዕ",
+        "themeHint": "ጸወታኡ ዝጻወተሉ መልክዕ።"
       },
       "editModal": {
         "adminActionTitle": "ኣስታድሚን ግብሪ",
@@ -488,6 +498,12 @@
         "nameRequired": "ስም ጨዋታ ኣስፈላጊ እዩ",
         "nameTooLong": "ስም ጨዋታ ኣብዚ 70 ፊደላት ዘይኮነ ይግባእ"
       },
+      "features": {
+        "audio-in": "ናይ ድምጺ እታወታ",
+        "audio-live": "ቀጥታ ድምጺ",
+        "audio-out": "ትረኻ",
+        "images": "ስእልታት"
+      },
       "fields": {
         "created": "ተፈጢሩ",
         "creator": "ፈጣሪ",
@@ -496,6 +512,10 @@
         "name": "ስም",
         "playCount": "ዝጫወቱ",
         "visibility": "ይርኣዩ"
+      },
+      "genres": {
+        "adventure": "ጀብዱ",
+        "npc-live": "NPC-ቀጥታ"
       },
       "importExport": {
         "exportButton": "ጨዋታ ኣውጽእ",
@@ -614,6 +634,54 @@
         "style": "ዲዛይን",
         "styleInfo": "ብግድ ቅንብሮም እዚ ብዝጫወቱ ጊዜ ምስል ጨዋታኻ ንምተዋወብ።"
       },
+      "theme": {
+        "presets": {
+          "abstract": "ኣብስትራክት",
+          "adventure": "ጀብዱ",
+          "barbie": "ባርቢ",
+          "candy": "ጣፋጣ",
+          "circus": "ሰርከስ",
+          "cyberpunk": "ሳይበርፓንክ",
+          "default": "ነባሪ",
+          "desert": "ምድረ በዳ",
+          "detective": "መርማሪ",
+          "educational": "ትምህርታዊ",
+          "fairy": "ፌሪ",
+          "fire": "ሓዊ",
+          "garden": "ኣታኽልቲ",
+          "glitch": "ግሊች",
+          "greenFantasy": "ሓምላይ ምናባዊ",
+          "hacker": "ሓከር",
+          "horror": "ራዕዲ",
+          "jungle": "ጫካ",
+          "matrix": "ማትሪክስ",
+          "medieval": "መካከለኛ ዘመን",
+          "minimal": "ሚኒማል",
+          "mystery": "ምስጢር",
+          "mystic": "ምስጢራዊ",
+          "nature": "ተፈጥሮ",
+          "nautical": "ባሕራዊ",
+          "noir": "ኖይር",
+          "ocean": "ውቅያኖስ",
+          "pirate": "ሽፍታ ባሕሪ",
+          "playful": "ቀልዳዊ",
+          "retro": "ሬትሮ",
+          "romance": "ፍቕሪ",
+          "school": "ቤት ትምህርቲ",
+          "scifi": "ሳይ-ፋይ",
+          "snowy": "በረዳዊ",
+          "space": "ጠፈር",
+          "steampunk": "ስቲምፓንክ",
+          "storybook": "መጽሓፍ ተረት",
+          "sunshine": "ብርሃን ጸሓይ",
+          "superhero": "ልዕለ ጀግና",
+          "tech": "ቴክኖሎጂ",
+          "terminal": "ተርሚናል",
+          "underwater": "ትሕቲ ማይ",
+          "western": "ምዕራባዊ",
+          "zombie": "ዞምቢ"
+        }
+      },
       "title": "ጨዋታታቲ ዝፈጠረዉ",
       "viewModal": {
         "readOnlyNotice": "እዚ ጨዋታ ብካልእ ተጠቃሚ ተፈጢሩ። ዝርዝሩ መርኣይ ትኽእል ግን ምኣስተኻኽል ኣይትኽእልን። \"ኮፒ\" ብምጥቃም ሓድሽ ንኽትኣስተኻኽል ትኽእል።",
@@ -723,6 +791,7 @@
     "logout": "ውጽእ",
     "me": "ኣነ",
     "myGames": {
+      "continue": "ተጻወት",
       "copyConfirm": {
         "confirm": "ጨዋታ ኮፒ ግበር",
         "message": "\"{{name}}\" ኮፒ ኣብ ጨዋታታትካ ይፈጥር።",
@@ -739,6 +808,12 @@
         "favorites": "ወደፍቲ"
       },
       "play": "ጫውታ",
+      "restart": "እንደገና ጀምር",
+      "restartConfirm": {
+        "confirm": "እንደገና ጀምር",
+        "message": "\"{{game}}\" እንደገና ክትጅምሮ ትደሊ ዲኻ? ናይ ሕጂ ምዕባለኻ ክጠፍእ እዩ።",
+        "title": "ጸወታ እንደገና ጀምር"
+      },
       "title": "ጨዋታታይ",
       "unfavorite": "ካብ ወደፍቲ ኣውጽእ"
     },
@@ -1100,6 +1175,9 @@
       "notAuthorized": "ናይ ሰርቨር ቅንብሮም ምድላይ ፍቓድ የብልካን። ፈቃድ ኣስመራን ይደሊ።",
       "title": "ቅንብሮም ሰርቨር"
     },
+    "sessions": {
+      "untitledGame": "ዘይተሰየመ ጸወታ"
+    },
     "settings": "ቅንብሮም",
     "share": {
       "copied": "ተቐዲሑ",
@@ -1143,6 +1221,11 @@
         },
         "title": "ስለ ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "ገና ናይ ጸወታ ታሪኽ የለን። ጸወታ ክትጻወት ጀምር!",
+        "title": "ኣብ መወዳእታ ዝተጻወትካዮ",
+        "viewAll": "ኩሎም ጸወታታት"
+      },
       "myGames": {
         "empty": "ጨዋታ የለን። መጀመርታ ጨዋታኻ ፍጠር!",
         "title": "ጨዋታታይ",
@@ -1175,6 +1258,7 @@
       "title": "ፈጣን ተግባራት"
     },
     "untitled": "ዘይተሰማምዐ",
+    "untitledGame": "ዘይተሰየመ ጸወታ",
     "version": {
       "mismatch": {
         "message": "የወጻእ እትዮም እትወሃብ ዝተመደበየ ብርግጽ ብተለዋዋጭ ኣሎ። Frontend እትዮም \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 ብ backend \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 ኣይምስሉን። ድንገታ ባህሪ ምንጭ ይኸውን ይኽእል። ጸገም እንትኸውን ስለ ዚ ድጋፍ ተገናእ።",

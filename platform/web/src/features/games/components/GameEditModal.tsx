@@ -12,6 +12,7 @@ import {
   rem,
   Text,
   Badge,
+  Select,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
@@ -29,7 +30,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ActionButton, CancelButton } from "@components/buttons";
 import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
-import { useGame, useUpdateGame } from "@/api/hooks";
+import { useGame, useGenres, useThemes, useUpdateGame } from "@/api/hooks";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
 import { PrivateShareSection } from "./PrivateShareSection";
 import type { CreateGameFormData } from "../types";
@@ -42,7 +43,12 @@ interface FormValues {
   systemMessageGameStart: string;
   imageStyle: string;
   statusFields: string;
+  genre: string;
+  theme: string;
 }
+
+/** New games are adventures. */
+const DEFAULT_GENRE = "adventure";
 
 interface GameEditModalProps {
   gameId?: string | null;
@@ -101,6 +107,8 @@ export function GameEditModal({
   const [systemMessageGameStart, setSystemMessageGameStart] = useState("");
   const [imageStyle, setImageStyle] = useState("");
   const [statusFields, setStatusFields] = useState("");
+  const [genre, setGenre] = useState(DEFAULT_GENRE);
+  const [theme, setTheme] = useState("");
 
   // Validation
   const [nameError, setNameError] = useState("");
@@ -118,7 +126,9 @@ export function GameEditModal({
       systemMessageScenario !== initialValues.current.systemMessageScenario ||
       systemMessageGameStart !== initialValues.current.systemMessageGameStart ||
       imageStyle !== initialValues.current.imageStyle ||
-      statusFields !== initialValues.current.statusFields
+      statusFields !== initialValues.current.statusFields ||
+      genre !== initialValues.current.genre ||
+      theme !== initialValues.current.theme
     );
   }, [
     name,
@@ -128,6 +138,8 @@ export function GameEditModal({
     systemMessageGameStart,
     imageStyle,
     statusFields,
+    genre,
+    theme,
   ]);
 
   // Track if we've initialized form values
@@ -146,6 +158,8 @@ export function GameEditModal({
         systemMessageGameStart: game.systemMessageGameStart ?? "",
         imageStyle: game.imageStyle ?? "",
         statusFields: game.statusFields ?? "",
+        genre: game.genre || DEFAULT_GENRE,
+        theme: game.theme ?? "",
       };
       initialValues.current = values;
       setName(values.name);
@@ -155,6 +169,8 @@ export function GameEditModal({
       setSystemMessageGameStart(values.systemMessageGameStart);
       setImageStyle(values.imageStyle);
       setStatusFields(values.statusFields);
+      setGenre(values.genre);
+      setTheme(values.theme);
     }
     // Initialize for create mode (optionally with pre-populated data)
     if (isCreateMode && opened && !hasInitialized.current) {
@@ -167,6 +183,8 @@ export function GameEditModal({
         systemMessageGameStart: initialData?.systemMessageGameStart ?? "",
         imageStyle: initialData?.imageStyle ?? "",
         statusFields: initialData?.statusFields ?? "",
+        genre: initialData?.genre || DEFAULT_GENRE,
+        theme: initialData?.theme ?? "",
       };
       initialValues.current = values;
       setName(values.name);
@@ -176,6 +194,8 @@ export function GameEditModal({
       setSystemMessageGameStart(values.systemMessageGameStart);
       setImageStyle(values.imageStyle);
       setStatusFields(values.statusFields);
+      setGenre(values.genre);
+      setTheme(values.theme);
     }
     // Reset when modal closes
     if (!opened) {
@@ -190,6 +210,8 @@ export function GameEditModal({
         setSystemMessageGameStart("");
         setImageStyle("");
         setStatusFields("");
+        setGenre(DEFAULT_GENRE);
+        setTheme("");
         setNameError("");
       }
     }
@@ -215,6 +237,8 @@ export function GameEditModal({
         systemMessageGameStart: systemMessageGameStart.trim() || undefined,
         imageStyle: imageStyle.trim() || undefined,
         statusFields: statusFields.trim() || undefined,
+        genre,
+        theme: theme || undefined,
       });
     } else if (game?.id) {
       // Edit mode - update existing game
@@ -230,6 +254,8 @@ export function GameEditModal({
             systemMessageGameStart: systemMessageGameStart.trim() || undefined,
             imageStyle: imageStyle.trim() || undefined,
             statusFields: statusFields.trim() || undefined,
+            genre,
+            theme: theme || undefined,
           },
         });
         onClose();
@@ -336,6 +362,8 @@ export function GameEditModal({
             data-autofocus
           />
 
+          <GenreSelect value={genre} onChange={setGenre} readOnly={readOnly} />
+
           {/* Scenario */}
           <Textarea
             label={t("games.editFields.scenario")}
@@ -382,6 +410,7 @@ export function GameEditModal({
             readOnly={readOnly}
           />
 
+          <ThemeSelect value={theme} onChange={setTheme} readOnly={readOnly} />
 
           {/* Description - moved to end */}
           <Textarea
@@ -619,5 +648,89 @@ function SharingSection({
         )}
       </Stack>
     </>
+  );
+}
+
+interface ChoiceProps {
+  value: string;
+  onChange: (value: string) => void;
+  readOnly: boolean;
+}
+
+/** The engine's genres, each with the features a key must offer to play it. */
+function GenreSelect({ value, onChange, readOnly }: ChoiceProps) {
+  const { t } = useTranslation("common");
+  const { data: genres } = useGenres();
+
+  const needsOf = (id: string) => {
+    const needs = genres?.find((g) => g.id === id)?.needs ?? [];
+    if (needs.length === 0) return "";
+    const features = needs
+      .map((toggle) => t(`games.features.${toggle}`, { defaultValue: toggle }))
+      .join(", ");
+    return t("games.editFields.genreNeeds", { features });
+  };
+  const options = (genres ?? []).map((g) => ({
+    value: g.id ?? "",
+    label: t(`games.genres.${g.id}`, { defaultValue: g.id }),
+  }));
+  if (!options.some((o) => o.value === value)) {
+    options.push({ value, label: t(`games.genres.${value}`, { defaultValue: value }) });
+  }
+  const selectedNeeds = needsOf(value);
+
+  return (
+    <Select
+      label={t("games.editFields.genre")}
+      description={selectedNeeds || t("games.editFields.genreHint")}
+      data={options}
+      value={value}
+      onChange={(next) => next && onChange(next)}
+      allowDeselect={false}
+      readOnly={readOnly}
+      renderOption={({ option }) => {
+        const needs = needsOf(option.value);
+        return (
+          <Stack gap={0}>
+            <Text size="sm">{option.label}</Text>
+            {needs && (
+              <Text size="xs" c="dimmed">
+                {needs}
+              </Text>
+            )}
+          </Stack>
+        );
+      }}
+    />
+  );
+}
+
+/** The playback-engine's looks; empty is the default look. */
+function ThemeSelect({ value, onChange, readOnly }: ChoiceProps) {
+  const { t } = useTranslation("common");
+  const { data: themes } = useThemes();
+
+  const label = (id: string) =>
+    t(`games.theme.presets.${id}`, { defaultValue: id });
+  const options = (themes ?? [])
+    .map((theme) => theme.id ?? "")
+    .filter((id) => id !== "")
+    .map((id) => ({ value: id, label: label(id) }));
+  if (value && !options.some((o) => o.value === value)) {
+    options.push({ value, label: label(value) });
+  }
+
+  return (
+    <Select
+      label={t("games.editFields.theme")}
+      description={t("games.editFields.themeHint")}
+      placeholder={t("games.editFields.themeDefault")}
+      data={options}
+      value={value || null}
+      onChange={(next) => onChange(next ?? "")}
+      clearable
+      searchable
+      readOnly={readOnly}
+    />
   );
 }

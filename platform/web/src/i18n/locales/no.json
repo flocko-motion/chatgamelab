@@ -51,7 +51,9 @@
       "ageGroupU13": "13–17 år",
       "ageGroupU18": "18+",
       "gamesCreated": "Spill laget",
+      "gamesPlayed": "Spilte spill",
       "memberSince": "Registrert siden",
+      "messagesSent": "Sendte meldinger",
       "noOrganization": "Ingen organisasjon",
       "noRole": "Ingen rolle tildelt",
       "organization": "Organisasjon",
@@ -283,6 +285,7 @@
       "serverDefault": "Serverstandard"
     },
     "allGames": {
+      "continue": "Spill",
       "copyConfirm": {
         "confirm": "Kopier spill",
         "message": "Dette oppretter en kopi av \"{{name}}\" i spillene dine.",
@@ -303,6 +306,7 @@
       },
       "play": "Spill",
       "reportGame": "Rapporter spill",
+      "restart": "Start på nytt",
       "title": "Alle spill",
       "unfavorite": "Fjern fra favoritter",
       "workshop": "Workshop / org"
@@ -458,6 +462,9 @@
         "gameStart": "Hvordan begynner spillet?",
         "gameStartHint": "Hva skjer i starten? Beskriv den første scenen spilleren ser. Hvordan blir spilleren ønsket velkommen? Hvordan vet spilleren hva hen skal gjøre?",
         "gameStartPlaceholder": "Du våkner ved kanten av en mørk skog. En smal sti leder dypere inn mellom trærne...",
+        "genre": "Sjanger",
+        "genreHint": "Hvordan spillet spilles.",
+        "genreNeeds": "Krever en KI-nøkkel med {{features}}.",
         "imageStyle": "Hvilken stil skal spillets bilder ha?",
         "imageStyleHint": "For eksempel: tegneserie, realistisk, pikselkunst, akvarell...",
         "name": "Spillnavn",
@@ -465,7 +472,10 @@
         "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan er verdenen? Språk og tone (for eksempel spansk for sjetteklassinger)?\nHvilken rolle har spilleren? Skriv «Spilleren ...».\nHvis du vil at KI-en skal ha rollen som en bestemt person, skriv «Du er ...».\nHva er målet? Hvordan vet spilleren at hen har vunnet?",
         "scenarioPlaceholder": "Du er en utforsker i en mystisk skog. Målet ditt er å finne den skjulte skatten...",
         "statusFields": "Spillverdier",
-        "statusFieldsHint": "Hva skal spillet holde styr på? For eksempel liv, poeng eller ammunisjon. Spillet husker disse verdiene og oppdaterer dem under spillingen."
+        "statusFieldsHint": "Hva skal spillet holde styr på? For eksempel liv, poeng eller ammunisjon. Spillet husker disse verdiene og oppdaterer dem under spillingen.",
+        "theme": "Tema",
+        "themeDefault": "Standardutseende",
+        "themeHint": "Utseendet spillet spilles med."
       },
       "editModal": {
         "adminActionTitle": "Administratorhandling",
@@ -488,6 +498,12 @@
         "nameRequired": "Spillnavn er påkrevd",
         "nameTooLong": "Spillnavnet må være 70 tegn eller mindre"
       },
+      "features": {
+        "audio-in": "stemmeinndata",
+        "audio-live": "direktetale",
+        "audio-out": "opplesning",
+        "images": "bilder"
+      },
       "fields": {
         "created": "Opprettet",
         "creator": "Skaper",
@@ -496,6 +512,10 @@
         "name": "Navn",
         "playCount": "Spillinger",
         "visibility": "Synlighet"
+      },
+      "genres": {
+        "adventure": "Eventyr",
+        "npc-live": "NPC-direkte"
       },
       "importExport": {
         "exportButton": "Eksporter spill",
@@ -614,6 +634,54 @@
         "style": "Design",
         "styleInfo": "Valgfrie innstillinger for spillets utseende under spilling."
       },
+      "theme": {
+        "presets": {
+          "abstract": "Abstrakt",
+          "adventure": "Eventyr",
+          "barbie": "Barbie",
+          "candy": "Godteri",
+          "circus": "Sirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Standard",
+          "desert": "Ørken",
+          "detective": "Detektiv",
+          "educational": "Lærerikt",
+          "fairy": "Feer",
+          "fire": "Ild",
+          "garden": "Hage",
+          "glitch": "Glitch",
+          "greenFantasy": "Grønn fantasi",
+          "hacker": "Hacker",
+          "horror": "Skrekk",
+          "jungle": "Jungel",
+          "matrix": "Matrix",
+          "medieval": "Middelalder",
+          "minimal": "Minimalistisk",
+          "mystery": "Mysterium",
+          "mystic": "Mystisk",
+          "nature": "Natur",
+          "nautical": "Maritim",
+          "noir": "Noir",
+          "ocean": "Hav",
+          "pirate": "Pirat",
+          "playful": "Leken",
+          "retro": "Retro",
+          "romance": "Romantikk",
+          "school": "Skole",
+          "scifi": "Sci-fi",
+          "snowy": "Snødekt",
+          "space": "Verdensrommet",
+          "steampunk": "Steampunk",
+          "storybook": "Eventyrbok",
+          "sunshine": "Solskinn",
+          "superhero": "Superhelt",
+          "tech": "Teknologi",
+          "terminal": "Terminal",
+          "underwater": "Under vann",
+          "western": "Western",
+          "zombie": "Zombie"
+        }
+      },
       "title": "Mine lagde spill",
       "viewModal": {
         "readOnlyNotice": "Dette spillet ble laget av en annen bruker. Du kan se detaljene, men ikke redigere. Bruk «Kopier» for å lage din egen redigerbare versjon.",
@@ -723,6 +791,7 @@
     "logout": "Logg ut",
     "me": "Meg",
     "myGames": {
+      "continue": "Spill",
       "copyConfirm": {
         "confirm": "Kopier spill",
         "message": "Dette oppretter en kopi av \"{{name}}\" i spillene dine.",
@@ -739,6 +808,12 @@
         "favorites": "Favoritter"
       },
       "play": "Spill",
+      "restart": "Start på nytt",
+      "restartConfirm": {
+        "confirm": "Start på nytt",
+        "message": "Er du sikker på at du vil starte \"{{game}}\" på nytt? Den nåværende fremgangen din vil gå tapt.",
+        "title": "Start spillet på nytt"
+      },
       "title": "Mine spill",
       "unfavorite": "Fjern fra favoritter"
     },
@@ -1095,6 +1170,9 @@
       "notAuthorized": "Du har ikke tillatelse til å få tilgang til serverinnstillinger. Krever admin-tilgang.",
       "title": "Serverinnstillinger"
     },
+    "sessions": {
+      "untitledGame": "Spill uten navn"
+    },
     "settings": "Innstillinger",
     "share": {
       "copied": "Kopiert",
@@ -1138,6 +1216,11 @@
         },
         "title": "Om ChatGameLab"
       },
+      "lastPlayed": {
+        "empty": "Ingen spillhistorikk ennå. Begynn å spille et spill!",
+        "title": "Sist spilt",
+        "viewAll": "Alle spill"
+      },
       "myGames": {
         "empty": "Ingen spill ennå. Lag ditt første spill!",
         "title": "Mine spill",
@@ -1169,6 +1252,7 @@
       "title": "Hurtighandlinger"
     },
     "untitled": "Uten navn",
+    "untitledGame": "Spill uten navn",
     "version": {
       "mismatch": {
         "message": "Frontend-versjon \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e samsvarer ikke med backend-versjon \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Dette kan føre til uventet oppførsel. Kontakt support hvis problemene vedvarer.",

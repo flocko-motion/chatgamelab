@@ -51,7 +51,9 @@
       "ageGroupU13": "13～17歳",
       "ageGroupU18": "18歳以上",
       "gamesCreated": "作成したゲーム",
+      "gamesPlayed": "プレイしたゲーム数",
       "memberSince": "登録日",
+      "messagesSent": "送信したメッセージ数",
       "noOrganization": "組織なし",
       "noRole": "役割なし",
       "organization": "組織",
@@ -283,6 +285,7 @@
       "serverDefault": "サーバーデフォルト"
     },
     "allGames": {
+      "continue": "プレイ",
       "copyConfirm": {
         "confirm": "ゲームをコピー",
         "message": "「{{name}}」を自分のゲームにコピーします。",
@@ -303,6 +306,7 @@
       },
       "play": "プレイ",
       "reportGame": "ゲームを報告",
+      "restart": "リスタート",
       "title": "すべてのゲーム",
       "unfavorite": "お気に入りから削除",
       "workshop": "ワークショップ／組織"
@@ -458,6 +462,9 @@
         "gameStart": "ゲームはどのように始まりますか？",
         "gameStartHint": "ゲームはどのように始まりますか？プレイヤーが最初に目にする場面を説明してください。プレイヤーはどのように迎えられますか？プレイヤーは何をすればよいか、どうすれば分かりますか？",
         "gameStartPlaceholder": "あなたは暗い森の端で目を覚ます。細い道が木々の奥へ続いている...",
+        "genre": "ジャンル",
+        "genreHint": "ゲームのプレイ方法です。",
+        "genreNeeds": "{{features}}に対応したAIキーが必要です。",
         "imageStyle": "ゲームの画像はどのようなスタイルにしますか？",
         "imageStyleHint": "例：カートゥーン、リアル、ピクセルアート、水彩など",
         "name": "ゲーム名",
@@ -465,7 +472,10 @@
         "scenarioHint": "簡単に説明してください：ゲームはどのように進みますか？世界はどのようなところですか？言語 \u00026 トーン（例：小学6年生向けのスペイン語）？\nプレイヤーはどのような役割を担いますか？「プレイヤーは…」と書いてください。\nAIに特定の人物の役割を演じさせたい場合は、「あなたは…」と書いてください。\n目標は何ですか？プレイヤーは勝ったことをどうやって知りますか？",
         "scenarioPlaceholder": "あなたは謎めいた森を探検する冒険者。目的は隠された宝を見つけること...",
         "statusFields": "ゲームの値",
-        "statusFieldsHint": "何を記録しますか？例：体力、ポイント、弾薬など。ゲームはこれらの値を覚えてプレイ中に更新します。"
+        "statusFieldsHint": "何を記録しますか？例：体力、ポイント、弾薬など。ゲームはこれらの値を覚えてプレイ中に更新します。",
+        "theme": "テーマ",
+        "themeDefault": "デフォルトの外観",
+        "themeHint": "ゲームのプレイ時に使用される外観です。"
       },
       "editModal": {
         "adminActionTitle": "管理者アクション",
@@ -488,6 +498,12 @@
         "nameRequired": "ゲーム名は必須です",
         "nameTooLong": "ゲーム名は70文字以内で入力してください"
       },
+      "features": {
+        "audio-in": "音声入力",
+        "audio-live": "ライブ音声",
+        "audio-out": "ナレーション",
+        "images": "画像"
+      },
       "fields": {
         "created": "作成日",
         "creator": "作成者",
@@ -496,6 +512,10 @@
         "name": "名前",
         "playCount": "プレイ数",
         "visibility": "公開範囲"
+      },
+      "genres": {
+        "adventure": "アドベンチャー",
+        "npc-live": "NPCライブ"
       },
       "importExport": {
         "exportButton": "ゲームをエクスポート",
@@ -614,6 +634,54 @@
         "style": "デザイン",
         "styleInfo": "プレイ中の見た目を調整するオプション設定です。"
       },
+      "theme": {
+        "presets": {
+          "abstract": "抽象的",
+          "adventure": "アドベンチャー",
+          "barbie": "バービー",
+          "candy": "キャンディ",
+          "circus": "サーカス",
+          "cyberpunk": "サイバーパンク",
+          "default": "デフォルト",
+          "desert": "砂漠",
+          "detective": "探偵",
+          "educational": "教育的",
+          "fairy": "妖精",
+          "fire": "炎",
+          "garden": "庭園",
+          "glitch": "グリッチ",
+          "greenFantasy": "グリーンファンタジー",
+          "hacker": "ハッカー",
+          "horror": "ホラー",
+          "jungle": "ジャングル",
+          "matrix": "マトリックス",
+          "medieval": "中世",
+          "minimal": "ミニマル",
+          "mystery": "ミステリー",
+          "mystic": "神秘的",
+          "nature": "自然",
+          "nautical": "航海",
+          "noir": "ノワール",
+          "ocean": "海洋",
+          "pirate": "海賊",
+          "playful": "遊び心",
+          "retro": "レトロ",
+          "romance": "ロマンス",
+          "school": "学校",
+          "scifi": "SF",
+          "snowy": "雪景色",
+          "space": "宇宙",
+          "steampunk": "スチームパンク",
+          "storybook": "絵本",
+          "sunshine": "陽光",
+          "superhero": "スーパーヒーロー",
+          "tech": "テクノロジー",
+          "terminal": "ターミナル",
+          "underwater": "水中",
+          "western": "西部劇",
+          "zombie": "ゾンビ"
+        }
+      },
       "title": "作成したゲーム",
       "viewModal": {
         "readOnlyNotice": "このゲームは他のユーザーが作成しました。詳細の閲覧はできますが編集はできません。「コピー」を使って編集可能な自分のバージョンを作成してください。",
@@ -723,6 +791,7 @@
     "logout": "ログアウト",
     "me": "自分",
     "myGames": {
+      "continue": "プレイ",
       "copyConfirm": {
         "confirm": "ゲームをコピー",
         "message": "「{{name}}」を自分のゲームにコピーします。",
@@ -739,6 +808,12 @@
         "favorites": "お気に入り"
       },
       "play": "プレイ",
+      "restart": "リスタート",
+      "restartConfirm": {
+        "confirm": "リスタート",
+        "message": "本当に「{{game}}」をリスタートしますか？現在の進行状況は失われます。",
+        "title": "ゲームをリスタート"
+      },
       "title": "自分のゲーム",
       "unfavorite": "お気に入りから削除"
     },
@@ -1100,6 +1175,9 @@
       "notAuthorized": "サーバー設定にアクセスする権限がありません。管理者アクセスが必要です。",
       "title": "サーバー設定"
     },
+    "sessions": {
+      "untitledGame": "無題のゲーム"
+    },
     "settings": "設定",
     "share": {
       "copied": "コピーしました",
@@ -1143,6 +1221,11 @@
         },
         "title": "ChatGameLabについて"
       },
+      "lastPlayed": {
+        "empty": "まだプレイ履歴がありません。ゲームをプレイしましょう！",
+        "title": "最近プレイしたゲーム",
+        "viewAll": "すべてのゲーム"
+      },
       "myGames": {
         "empty": "まだゲームがありません。最初のゲームを作りましょう！",
         "title": "自分のゲーム",
@@ -1175,6 +1258,7 @@
       "title": "クイックアクション"
     },
     "untitled": "無題",
+    "untitledGame": "無題のゲーム",
     "version": {
       "mismatch": {
         "message": "フロントエンドバージョン\u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003eがバックエンドバージョン\u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003eと一致しません。予期しない動作が発生する可能性があります。問題が続く場合はサポートに連絡してください。",

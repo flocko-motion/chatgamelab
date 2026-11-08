@@ -2,7 +2,7 @@ import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "../types";
 
 /**
- * Create a game and optionally update it with extra fields (scenario, game start, image style, status fields).
+ * Create a game and optionally update it with extra fields (scenario, game start, image style, status fields, theme).
  * This two-step pattern is needed because the create endpoint only accepts basic fields.
  *
  * Used by AllGames, MyGames, GamesManagement, and useWorkshopGames.
@@ -17,6 +17,7 @@ export async function createGameWithExtraFields(
     name: string;
     description: string;
     public: boolean;
+    genre?: string;
   }) => Promise<ObjGame>,
   updateMutateAsync: (req: { id: string; game: ObjGame }) => Promise<ObjGame>,
 ): Promise<ObjGame> {
@@ -24,13 +25,15 @@ export async function createGameWithExtraFields(
     name: data.name,
     description: data.description,
     public: data.isPublic,
+    genre: data.genre,
   });
 
   const hasExtraFields =
     data.systemMessageScenario ||
     data.systemMessageGameStart ||
     data.imageStyle ||
-    data.statusFields;
+    data.statusFields ||
+    data.theme;
 
   if (newGame.id && hasExtraFields) {
     await updateMutateAsync({
@@ -41,6 +44,7 @@ export async function createGameWithExtraFields(
         systemMessageGameStart: data.systemMessageGameStart,
         imageStyle: data.imageStyle,
         statusFields: data.statusFields,
+        theme: data.theme,
       },
     });
   }
