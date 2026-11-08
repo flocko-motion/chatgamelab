@@ -34,6 +34,9 @@ type Options struct {
 	// Resume loads a session that is not in memory, such as after a restart;
 	// without it such a session is unknown.
 	Resume ResumeFunc
+	// Caller names who is asking, such as the signed-in account, so a one-time
+	// key answers only the caller who made it. Without it every caller is one.
+	Caller func(r *http.Request) string
 }
 
 // CreateFunc launches a session for the playback-engine's request. The
@@ -73,6 +76,8 @@ type pending struct {
 	session *engine.Session
 	err     error
 	at      time.Time
+	// caller made the creation; a repeat from anyone else is refused.
+	caller string
 }
 
 // New makes the transport for whoever mounts it.
@@ -149,7 +154,8 @@ func (a *API) find(ctx context.Context, id string) (*engine.Session, error) {
 }
 
 // Create starts a session through the mounting server's CreateFunc. A repeat
-// of a one-time key within OnceWindow answers the session the first created.
+// of a one-time key within OnceWindow answers the session the first created,
+// to the same caller only; anyone else is refused and learns nothing.
 func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 	var req CreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -162,6 +168,10 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	key := req.Once + "\x00" + req.Game + "\x00" + req.Share
+	caller := ""
+	if a.opts.Caller != nil {
+		caller = a.opts.Caller(r)
+	}
 	now := time.Now()
 	a.mu.Lock()
 	for k, p := range a.creating {
@@ -171,10 +181,14 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	p, repeat := a.creating[key]
 	if !repeat {
-		p = &pending{done: make(chan struct{}), at: now}
+		p = &pending{done: make(chan struct{}), at: now, caller: caller}
 		a.creating[key] = p
 	}
 	a.mu.Unlock()
+	if repeat && p.caller != caller {
+		refuse(w, engine.Refuse(engine.ProblemDenied, "this one-time key belongs to another caller"))
+		return
+	}
 
 	if !repeat {
 		p.session, p.err = a.opts.Create(r.Context(), req)

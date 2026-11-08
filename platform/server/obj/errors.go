@@ -138,11 +138,6 @@ func ErrAiErrorf(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeAiError, fmt.Sprintf(format, args...))
 }
 
-// ErrInvalidApiKey returns an invalid-API-key AppError with the given message.
-func ErrInvalidApiKey(message string) *AppError {
-	return NewAppError(ErrCodeInvalidApiKey, message)
-}
-
 // AppError is a custom error type that carries an HTTP error code.
 // It implements the standard error interface while providing additional context.
 type AppError struct {
@@ -169,14 +164,5 @@ func NewAppError(code, message string) *AppError {
 	return &AppError{
 		Code:    code,
 		Message: message,
-	}
-}
-
-// WrapError wraps an existing error with an AppError
-func WrapError(code, message string, err error) *AppError {
-	return &AppError{
-		Code:    code,
-		Message: message,
-		Err:     err,
 	}
 }

@@ -55,6 +55,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		ImageStyle:                   g.ImageStyle,
 		CSS:                          g.Css,
 		StatusFields:                 g.StatusFields,
+		Genre:                        g.Genre,
 		Theme:                        nullStringToPtr(g.Theme),
 		FirstMessage:                 nullStringToPtr(g.FirstMessage),
 		FirstStatus:                  nullStringToPtr(g.FirstStatus),

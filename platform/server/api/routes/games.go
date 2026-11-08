@@ -21,6 +21,8 @@ type CreateGameRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 	Public      *bool  `json:"public,omitempty"`
+	// Genre is one of the engine's genres; empty makes an adventure.
+	Genre string `json:"genre,omitempty"`
 }
 
 // GetGames godoc
@@ -104,6 +106,7 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 	game := obj.Game{
 		Name:        req.Name,
 		Description: req.Description,
+		Genre:       req.Genre,
 	}
 	if req.Public != nil {
 		game.Public = *req.Public
@@ -303,6 +306,7 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		SystemMessageScenario:  sourceGame.SystemMessageScenario,
 		SystemMessageGameStart: sourceGame.SystemMessageGameStart,
 		StatusFields:           sourceGame.StatusFields,
+		Genre:                  sourceGame.Genre,
 		Theme:                  sourceGame.Theme,
 		FirstMessage:           sourceGame.FirstMessage,
 		FirstStatus:            sourceGame.FirstStatus,

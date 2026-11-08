@@ -225,6 +225,38 @@ func (s *BaseSuite) TearDownSuite() {
 	fmt.Printf("✅ [%s] Cleanup complete (Postgres kept running)\n\n", s.SuiteName)
 }
 
+// RestartBackend stops the backend and starts it again on the same port and
+// database, as a deployment does: whatever it held in memory is gone.
+func (s *BaseSuite) RestartBackend() {
+	s.T().Helper()
+	if s.backendCancel != nil {
+		s.backendCancel()
+	}
+	// The old server lets go of the port once it has shut down.
+	addr := fmt.Sprintf("127.0.0.1:%d", s.backendPort)
+	for i := 0; i < 100; i++ {
+		l, err := net.Listen("tcp", addr)
+		if err == nil {
+			l.Close()
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	s.backendCancel = cancel
+	ready := make(chan struct{})
+	go api.RunServer(ctx, s.backendPort, true, ready)
+	select {
+	case <-ready:
+	case <-time.After(30 * time.Second):
+		s.T().Fatalf("backend did not come back")
+	}
+	if err := s.waitForBackend(10); err != nil {
+		s.T().Fatalf("backend not ready after restart: %v", err)
+	}
+}
+
 // CreateUser creates a user with optional name and email
 // If name is empty, generates a random name. If email is empty, generates email as <name>@test.local
 // Example: user := s.CreateUser() or admin := s.CreateUser("alice").Role("admin")

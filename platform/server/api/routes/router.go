@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"cgl/api/httpx"
-	engineapi "engine/api"
 )
 
 // DevMode controls whether dev-only routes are registered
@@ -17,7 +16,8 @@ var DevMode = false
 // NewMux creates a new http.ServeMux with all API routes registered.
 func NewMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	Engine = engineapi.New(engineapi.Options{Dev: DevMode})
+	Engine = newEngine()
+	mountEngine(mux)
 
 	// Public endpoints (no auth at all) - GET
 	mux.HandleFunc("GET /api/status", GetStatus)
@@ -26,6 +26,8 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/languages/{code}", GetLocaleFile)
 
 	mux.Handle("GET /api/platforms", httpx.RequireAuth(Engine.Platforms))
+	mux.Handle("GET /api/genres", httpx.RequireAuth(Engine.Genres))
+	mux.Handle("GET /api/themes", httpx.RequireAuth(Engine.Themes))
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
 	mux.Handle("GET /api/system/constraints", httpx.RequireAuth(GetSystemConstraints))
@@ -46,6 +48,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/games/{id}/favourite", httpx.RequireAuth(RemoveFavouriteGame))
 	mux.Handle("GET /api/games/{id}/available-keys", httpx.RequireAuth(GetAvailableKeys))
 	mux.Handle("GET /api/games/{id}/api-key-status", httpx.RequireAuth(GetApiKeyStatus))
+	mux.Handle("GET /api/games/{id}/sessions", httpx.RequireAuth(GetGameSessions))
 	mux.Handle("PUT /api/games/{id}/sponsor", httpx.RequireAuth(SetGameSponsor))
 	mux.Handle("DELETE /api/games/{id}/sponsor", httpx.RequireAuth(RemoveGameSponsor))
 
@@ -66,6 +69,11 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
 	mux.HandleFunc("POST /api/auth/logout", Logout)
 	mux.Handle("POST /api/auth/participant-login", httpx.TokenGuard(http.HandlerFunc(ParticipantLogin)))
+	mux.Handle("POST /api/auth/play-token", httpx.RequireAuth(PostPlayToken))
+
+	// Sessions: the player's own; playing them is the engine's, mounted at /api/engine/
+	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
+	mux.Handle("DELETE /api/sessions/{id}", httpx.RequireAuth(DeleteSession))
 
 	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))

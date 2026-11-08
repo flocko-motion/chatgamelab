@@ -15,7 +15,8 @@ INSERT INTO game (
   image_style, css, status_fields,
   theme,
   first_message, first_status, first_image,
-  originally_created_by, play_count, clone_count
+  originally_created_by, play_count, clone_count,
+  genre
 ) VALUES (
   $1, $2,
   $3, $4, $5,
@@ -26,7 +27,8 @@ INSERT INTO game (
   $14, $15, $16,
   $17,
   $18, $19, $20,
-  $21, $22, $23
+  $21, $22, $23,
+  $24
 )
 RETURNING *;
 
@@ -279,7 +281,8 @@ UPDATE game SET
   first_message = $17,
   first_status = $18,
   first_image = $19,
-  originally_created_by = $20
+  originally_created_by = $20,
+  genre = $21
 WHERE id = $1
 RETURNING *;
 

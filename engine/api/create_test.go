@@ -100,6 +100,52 @@ func TestOneTimeKeyAnswersTheSameSession(t *testing.T) {
 	}
 }
 
+// A one-time key answers only the caller who made it: another caller who
+// knows it creates nothing and learns no session ID.
+func TestOneTimeKeyBelongsToItsCaller(t *testing.T) {
+	c := &creator{store: &engine.MemoryPersist{}}
+	a := api.New(api.Options{
+		Dev:    true,
+		Create: c.create,
+		Caller: func(r *http.Request) string { return r.Header.Get("X-Caller") },
+	})
+	srv := httptest.NewServer(a.Handler())
+	t.Cleanup(srv.Close)
+
+	ask := func(caller string) *http.Response {
+		blob, _ := json.Marshal(api.CreateRequest{Game: "bridge", Once: "k1"})
+		req, _ := http.NewRequest(http.MethodPost, srv.URL+"/sessions", bytes.NewReader(blob))
+		req.Header.Set("X-Caller", caller)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { resp.Body.Close() })
+		return resp
+	}
+
+	first := created(t, ask("alice"))
+	if again := created(t, ask("alice")); again != first {
+		t.Errorf("the same caller got %q, then %q", first, again)
+	}
+
+	resp := ask("mallory")
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("another caller's repeat answered %s, want 403", resp.Status)
+	}
+	var body map[string]any
+	_ = json.NewDecoder(resp.Body).Decode(&body)
+	if _, leaked := body["id"]; leaked {
+		t.Errorf("another caller learnt a session ID: %v", body)
+	}
+	if body["problem"] != string(engine.ProblemDenied) {
+		t.Errorf("problem %v, want %q", body["problem"], engine.ProblemDenied)
+	}
+	if n := c.launches.Load(); n != 1 {
+		t.Errorf("%d launches, want 1", n)
+	}
+}
+
 func TestCreateNeedsAGameOrShareAndAKey(t *testing.T) {
 	c := &creator{store: &engine.MemoryPersist{}}
 	_, srv := c.server(t)

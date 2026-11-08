@@ -6,6 +6,7 @@ package db
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -85,6 +86,7 @@ type Game struct {
 	ImageStyle                   string
 	Css                          string
 	StatusFields                 string
+	Genre                        string
 	Theme                        sql.NullString
 	FirstMessage                 sql.NullString
 	FirstStatus                  sql.NullString
@@ -93,6 +95,31 @@ type Game struct {
 	PlayCount                    int32
 	CloneCount                   int32
 	DeletedAt                    sql.NullTime
+}
+
+type GameSession struct {
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	ModifiedAt    time.Time
+	GameID        uuid.UUID
+	UserID        uuid.UUID
+	WorkshopID    uuid.NullUUID
+	GameShareID   uuid.NullUUID
+	ApiKeyShareID uuid.NullUUID
+	Platform      string
+	Language      string
+	MessagesSent  int32
+	SchemaVersion int32
+	Spec          json.RawMessage
+	State         json.RawMessage
+}
+
+type GameSessionEvent struct {
+	SessionID uuid.UUID
+	Seq       int64
+	Stream    string
+	Value     string
+	CreatedAt time.Time
 }
 
 type GameShare struct {

@@ -27,7 +27,8 @@ INSERT INTO game (
   image_style, css, status_fields,
   theme,
   first_message, first_status, first_image,
-  originally_created_by, play_count, clone_count
+  originally_created_by, play_count, clone_count,
+  genre
 ) VALUES (
   $1, $2,
   $3, $4, $5,
@@ -38,9 +39,10 @@ INSERT INTO game (
   $14, $15, $16,
   $17,
   $18, $19, $20,
-  $21, $22, $23
+  $21, $22, $23,
+  $24
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at
 `
 
 type CreateGameParams struct {
@@ -67,6 +69,7 @@ type CreateGameParams struct {
 	OriginallyCreatedBy          uuid.NullUUID
 	PlayCount                    int32
 	CloneCount                   int32
+	Genre                        string
 }
 
 // Basic CRUD queries for core entities
@@ -97,6 +100,7 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 		arg.OriginallyCreatedBy,
 		arg.PlayCount,
 		arg.CloneCount,
+		arg.Genre,
 	)
 	var i Game
 	err := row.Scan(
@@ -116,6 +120,7 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 		&i.ImageStyle,
 		&i.Css,
 		&i.StatusFields,
+		&i.Genre,
 		&i.Theme,
 		&i.FirstMessage,
 		&i.FirstStatus,
@@ -204,7 +209,7 @@ func (q *Queries) DeleteGameTagsByGameID(ctx context.Context, gameID uuid.UUID) 
 }
 
 const getAllGames = `-- name: GetAllGames :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY created_at DESC
 `
 
 // All games queries (admin only)
@@ -234,6 +239,7 @@ func (q *Queries) GetAllGames(ctx context.Context) ([]Game, error) {
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -257,7 +263,7 @@ func (q *Queries) GetAllGames(ctx context.Context) ([]Game, error) {
 }
 
 const getAllGamesSortedByCreatedAt = `-- name: GetAllGamesSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY created_at ASC
 `
 
 func (q *Queries) GetAllGamesSortedByCreatedAt(ctx context.Context) ([]Game, error) {
@@ -286,6 +292,7 @@ func (q *Queries) GetAllGamesSortedByCreatedAt(ctx context.Context) ([]Game, err
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -309,7 +316,7 @@ func (q *Queries) GetAllGamesSortedByCreatedAt(ctx context.Context) ([]Game, err
 }
 
 const getAllGamesSortedByModifiedAt = `-- name: GetAllGamesSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY modified_at DESC
 `
 
 func (q *Queries) GetAllGamesSortedByModifiedAt(ctx context.Context) ([]Game, error) {
@@ -338,6 +345,7 @@ func (q *Queries) GetAllGamesSortedByModifiedAt(ctx context.Context) ([]Game, er
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -361,7 +369,7 @@ func (q *Queries) GetAllGamesSortedByModifiedAt(ctx context.Context) ([]Game, er
 }
 
 const getAllGamesSortedByModifiedAtAsc = `-- name: GetAllGamesSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY modified_at ASC
 `
 
 func (q *Queries) GetAllGamesSortedByModifiedAtAsc(ctx context.Context) ([]Game, error) {
@@ -390,6 +398,7 @@ func (q *Queries) GetAllGamesSortedByModifiedAtAsc(ctx context.Context) ([]Game,
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -413,7 +422,7 @@ func (q *Queries) GetAllGamesSortedByModifiedAtAsc(ctx context.Context) ([]Game,
 }
 
 const getAllGamesSortedByName = `-- name: GetAllGamesSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) ASC
 `
 
 func (q *Queries) GetAllGamesSortedByName(ctx context.Context) ([]Game, error) {
@@ -442,6 +451,7 @@ func (q *Queries) GetAllGamesSortedByName(ctx context.Context) ([]Game, error) {
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -465,7 +475,7 @@ func (q *Queries) GetAllGamesSortedByName(ctx context.Context) ([]Game, error) {
 }
 
 const getAllGamesSortedByNameDesc = `-- name: GetAllGamesSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) DESC
 `
 
 func (q *Queries) GetAllGamesSortedByNameDesc(ctx context.Context) ([]Game, error) {
@@ -494,6 +504,7 @@ func (q *Queries) GetAllGamesSortedByNameDesc(ctx context.Context) ([]Game, erro
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -517,7 +528,7 @@ func (q *Queries) GetAllGamesSortedByNameDesc(ctx context.Context) ([]Game, erro
 }
 
 const getAllGamesSortedByPlayCount = `-- name: GetAllGamesSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY play_count DESC
 `
 
 func (q *Queries) GetAllGamesSortedByPlayCount(ctx context.Context) ([]Game, error) {
@@ -546,6 +557,7 @@ func (q *Queries) GetAllGamesSortedByPlayCount(ctx context.Context) ([]Game, err
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -569,7 +581,7 @@ func (q *Queries) GetAllGamesSortedByPlayCount(ctx context.Context) ([]Game, err
 }
 
 const getAllGamesSortedByPlayCountAsc = `-- name: GetAllGamesSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL ORDER BY play_count ASC
 `
 
 func (q *Queries) GetAllGamesSortedByPlayCountAsc(ctx context.Context) ([]Game, error) {
@@ -598,6 +610,7 @@ func (q *Queries) GetAllGamesSortedByPlayCountAsc(ctx context.Context) ([]Game, 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -621,7 +634,7 @@ func (q *Queries) GetAllGamesSortedByPlayCountAsc(ctx context.Context) ([]Game, 
 }
 
 const getGameByID = `-- name: GetGameByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE id = $1
 `
 
 func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (Game, error) {
@@ -644,6 +657,7 @@ func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (Game, error) {
 		&i.ImageStyle,
 		&i.Css,
 		&i.StatusFields,
+		&i.Genre,
 		&i.Theme,
 		&i.FirstMessage,
 		&i.FirstStatus,
@@ -772,7 +786,7 @@ func (q *Queries) GetGameTagsByGameID(ctx context.Context, gameID uuid.UUID) ([]
 }
 
 const getGamesVisibleToUser = `-- name: GetGamesVisibleToUser :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at DESC
 `
 
 type GetGamesVisibleToUserParams struct {
@@ -806,6 +820,7 @@ func (q *Queries) GetGamesVisibleToUser(ctx context.Context, arg GetGamesVisible
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -829,7 +844,7 @@ func (q *Queries) GetGamesVisibleToUser(ctx context.Context, arg GetGamesVisible
 }
 
 const getGamesVisibleToUserSortedByCreatedAt = `-- name: GetGamesVisibleToUserSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at ASC
 `
 
 type GetGamesVisibleToUserSortedByCreatedAtParams struct {
@@ -863,6 +878,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByCreatedAt(ctx context.Context, ar
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -886,7 +902,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByCreatedAt(ctx context.Context, ar
 }
 
 const getGamesVisibleToUserSortedByCreator = `-- name: GetGamesVisibleToUserSortedByCreator :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) ASC
+SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) ASC
 `
 
 // Creator sorting requires joining with user table
@@ -916,6 +932,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByCreator(ctx context.Context, crea
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -939,7 +956,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByCreator(ctx context.Context, crea
 }
 
 const getGamesVisibleToUserSortedByCreatorDesc = `-- name: GetGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) DESC
+SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) DESC
 `
 
 func (q *Queries) GetGamesVisibleToUserSortedByCreatorDesc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -968,6 +985,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByCreatorDesc(ctx context.Context, 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -991,7 +1009,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByCreatorDesc(ctx context.Context, 
 }
 
 const getGamesVisibleToUserSortedByModifiedAt = `-- name: GetGamesVisibleToUserSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at DESC
 `
 
 type GetGamesVisibleToUserSortedByModifiedAtParams struct {
@@ -1025,6 +1043,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByModifiedAt(ctx context.Context, a
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1048,7 +1067,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByModifiedAt(ctx context.Context, a
 }
 
 const getGamesVisibleToUserSortedByModifiedAtAsc = `-- name: GetGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at ASC
 `
 
 type GetGamesVisibleToUserSortedByModifiedAtAscParams struct {
@@ -1082,6 +1101,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1105,7 +1125,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context
 }
 
 const getGamesVisibleToUserSortedByName = `-- name: GetGamesVisibleToUserSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) ASC
 `
 
 type GetGamesVisibleToUserSortedByNameParams struct {
@@ -1139,6 +1159,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByName(ctx context.Context, arg Get
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1162,7 +1183,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByName(ctx context.Context, arg Get
 }
 
 const getGamesVisibleToUserSortedByNameDesc = `-- name: GetGamesVisibleToUserSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) DESC
 `
 
 type GetGamesVisibleToUserSortedByNameDescParams struct {
@@ -1196,6 +1217,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByNameDesc(ctx context.Context, arg
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1219,7 +1241,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByNameDesc(ctx context.Context, arg
 }
 
 const getGamesVisibleToUserSortedByPlayCount = `-- name: GetGamesVisibleToUserSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY play_count DESC
 `
 
 type GetGamesVisibleToUserSortedByPlayCountParams struct {
@@ -1254,6 +1276,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByPlayCount(ctx context.Context, ar
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1277,7 +1300,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByPlayCount(ctx context.Context, ar
 }
 
 const getGamesVisibleToUserSortedByPlayCountAsc = `-- name: GetGamesVisibleToUserSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY play_count ASC
 `
 
 type GetGamesVisibleToUserSortedByPlayCountAscParams struct {
@@ -1311,6 +1334,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByPlayCountAsc(ctx context.Context,
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1334,7 +1358,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByPlayCountAsc(ctx context.Context,
 }
 
 const getOwnGames = `-- name: GetOwnGames :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at DESC
 `
 
 // Own games (created by user) queries
@@ -1364,6 +1388,7 @@ func (q *Queries) GetOwnGames(ctx context.Context, createdBy uuid.NullUUID) ([]G
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1387,7 +1412,7 @@ func (q *Queries) GetOwnGames(ctx context.Context, createdBy uuid.NullUUID) ([]G
 }
 
 const getOwnGamesSortedByCreatedAt = `-- name: GetOwnGamesSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at ASC
 `
 
 func (q *Queries) GetOwnGamesSortedByCreatedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1416,6 +1441,7 @@ func (q *Queries) GetOwnGamesSortedByCreatedAt(ctx context.Context, createdBy uu
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1439,7 +1465,7 @@ func (q *Queries) GetOwnGamesSortedByCreatedAt(ctx context.Context, createdBy uu
 }
 
 const getOwnGamesSortedByModifiedAt = `-- name: GetOwnGamesSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY modified_at DESC
 `
 
 func (q *Queries) GetOwnGamesSortedByModifiedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1468,6 +1494,7 @@ func (q *Queries) GetOwnGamesSortedByModifiedAt(ctx context.Context, createdBy u
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1491,7 +1518,7 @@ func (q *Queries) GetOwnGamesSortedByModifiedAt(ctx context.Context, createdBy u
 }
 
 const getOwnGamesSortedByModifiedAtAsc = `-- name: GetOwnGamesSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY modified_at ASC
 `
 
 func (q *Queries) GetOwnGamesSortedByModifiedAtAsc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1520,6 +1547,7 @@ func (q *Queries) GetOwnGamesSortedByModifiedAtAsc(ctx context.Context, createdB
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1543,7 +1571,7 @@ func (q *Queries) GetOwnGamesSortedByModifiedAtAsc(ctx context.Context, createdB
 }
 
 const getOwnGamesSortedByName = `-- name: GetOwnGamesSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY LOWER(name) ASC
 `
 
 func (q *Queries) GetOwnGamesSortedByName(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1572,6 +1600,7 @@ func (q *Queries) GetOwnGamesSortedByName(ctx context.Context, createdBy uuid.Nu
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1595,7 +1624,7 @@ func (q *Queries) GetOwnGamesSortedByName(ctx context.Context, createdBy uuid.Nu
 }
 
 const getOwnGamesSortedByNameDesc = `-- name: GetOwnGamesSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY LOWER(name) DESC
 `
 
 func (q *Queries) GetOwnGamesSortedByNameDesc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1624,6 +1653,7 @@ func (q *Queries) GetOwnGamesSortedByNameDesc(ctx context.Context, createdBy uui
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1647,7 +1677,7 @@ func (q *Queries) GetOwnGamesSortedByNameDesc(ctx context.Context, createdBy uui
 }
 
 const getOwnGamesSortedByPlayCount = `-- name: GetOwnGamesSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_count DESC
 `
 
 func (q *Queries) GetOwnGamesSortedByPlayCount(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1676,6 +1706,7 @@ func (q *Queries) GetOwnGamesSortedByPlayCount(ctx context.Context, createdBy uu
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1699,7 +1730,7 @@ func (q *Queries) GetOwnGamesSortedByPlayCount(ctx context.Context, createdBy uu
 }
 
 const getOwnGamesSortedByPlayCountAsc = `-- name: GetOwnGamesSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_count ASC
 `
 
 func (q *Queries) GetOwnGamesSortedByPlayCountAsc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1728,6 +1759,7 @@ func (q *Queries) GetOwnGamesSortedByPlayCountAsc(ctx context.Context, createdBy
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1751,7 +1783,7 @@ func (q *Queries) GetOwnGamesSortedByPlayCountAsc(ctx context.Context, createdBy
 }
 
 const getOwnGamesSortedByVisibility = `-- name: GetOwnGamesSortedByVisibility :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public DESC, modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public DESC, modified_at DESC
 `
 
 func (q *Queries) GetOwnGamesSortedByVisibility(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1780,6 +1812,7 @@ func (q *Queries) GetOwnGamesSortedByVisibility(ctx context.Context, createdBy u
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1803,7 +1836,7 @@ func (q *Queries) GetOwnGamesSortedByVisibility(ctx context.Context, createdBy u
 }
 
 const getOwnGamesSortedByVisibilityAsc = `-- name: GetOwnGamesSortedByVisibilityAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public ASC, modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public ASC, modified_at DESC
 `
 
 func (q *Queries) GetOwnGamesSortedByVisibilityAsc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
@@ -1832,6 +1865,7 @@ func (q *Queries) GetOwnGamesSortedByVisibilityAsc(ctx context.Context, createdB
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1855,7 +1889,7 @@ func (q *Queries) GetOwnGamesSortedByVisibilityAsc(ctx context.Context, createdB
 }
 
 const getPublicGames = `-- name: GetPublicGames :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at DESC
 `
 
 func (q *Queries) GetPublicGames(ctx context.Context) ([]Game, error) {
@@ -1884,6 +1918,7 @@ func (q *Queries) GetPublicGames(ctx context.Context) ([]Game, error) {
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1907,7 +1942,7 @@ func (q *Queries) GetPublicGames(ctx context.Context) ([]Game, error) {
 }
 
 const getPublicGamesByWorkshop = `-- name: GetPublicGamesByWorkshop :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC
 `
 
 // Games shown on a workshop's public page.
@@ -1937,6 +1972,7 @@ func (q *Queries) GetPublicGamesByWorkshop(ctx context.Context, workshopID uuid.
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -1960,7 +1996,7 @@ func (q *Queries) GetPublicGamesByWorkshop(ctx context.Context, workshopID uuid.
 }
 
 const getPublicGamesSortedByCreatedAt = `-- name: GetPublicGamesSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at ASC
 `
 
 func (q *Queries) GetPublicGamesSortedByCreatedAt(ctx context.Context) ([]Game, error) {
@@ -1989,6 +2025,7 @@ func (q *Queries) GetPublicGamesSortedByCreatedAt(ctx context.Context) ([]Game, 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2012,7 +2049,7 @@ func (q *Queries) GetPublicGamesSortedByCreatedAt(ctx context.Context) ([]Game, 
 }
 
 const getPublicGamesSortedByModifiedAt = `-- name: GetPublicGamesSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY modified_at DESC
 `
 
 func (q *Queries) GetPublicGamesSortedByModifiedAt(ctx context.Context) ([]Game, error) {
@@ -2041,6 +2078,7 @@ func (q *Queries) GetPublicGamesSortedByModifiedAt(ctx context.Context) ([]Game,
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2064,7 +2102,7 @@ func (q *Queries) GetPublicGamesSortedByModifiedAt(ctx context.Context) ([]Game,
 }
 
 const getPublicGamesSortedByModifiedAtAsc = `-- name: GetPublicGamesSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY modified_at ASC
 `
 
 func (q *Queries) GetPublicGamesSortedByModifiedAtAsc(ctx context.Context) ([]Game, error) {
@@ -2093,6 +2131,7 @@ func (q *Queries) GetPublicGamesSortedByModifiedAtAsc(ctx context.Context) ([]Ga
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2116,7 +2155,7 @@ func (q *Queries) GetPublicGamesSortedByModifiedAtAsc(ctx context.Context) ([]Ga
 }
 
 const getPublicGamesSortedByName = `-- name: GetPublicGamesSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY LOWER(name) ASC
 `
 
 func (q *Queries) GetPublicGamesSortedByName(ctx context.Context) ([]Game, error) {
@@ -2145,6 +2184,7 @@ func (q *Queries) GetPublicGamesSortedByName(ctx context.Context) ([]Game, error
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2168,7 +2208,7 @@ func (q *Queries) GetPublicGamesSortedByName(ctx context.Context) ([]Game, error
 }
 
 const getPublicGamesSortedByNameDesc = `-- name: GetPublicGamesSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY LOWER(name) DESC
 `
 
 func (q *Queries) GetPublicGamesSortedByNameDesc(ctx context.Context) ([]Game, error) {
@@ -2197,6 +2237,7 @@ func (q *Queries) GetPublicGamesSortedByNameDesc(ctx context.Context) ([]Game, e
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2220,7 +2261,7 @@ func (q *Queries) GetPublicGamesSortedByNameDesc(ctx context.Context) ([]Game, e
 }
 
 const getPublicGamesSortedByPlayCount = `-- name: GetPublicGamesSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count DESC
 `
 
 func (q *Queries) GetPublicGamesSortedByPlayCount(ctx context.Context) ([]Game, error) {
@@ -2249,6 +2290,7 @@ func (q *Queries) GetPublicGamesSortedByPlayCount(ctx context.Context) ([]Game, 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2272,7 +2314,7 @@ func (q *Queries) GetPublicGamesSortedByPlayCount(ctx context.Context) ([]Game, 
 }
 
 const getPublicGamesSortedByPlayCountAsc = `-- name: GetPublicGamesSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count ASC
 `
 
 func (q *Queries) GetPublicGamesSortedByPlayCountAsc(ctx context.Context) ([]Game, error) {
@@ -2301,6 +2343,7 @@ func (q *Queries) GetPublicGamesSortedByPlayCountAsc(ctx context.Context) ([]Gam
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2360,7 +2403,7 @@ func (q *Queries) IncrementGamePlayCount(ctx context.Context, id uuid.UUID) erro
 }
 
 const searchAllGames = `-- name: SearchAllGames :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC
 `
 
 func (q *Queries) SearchAllGames(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2389,6 +2432,7 @@ func (q *Queries) SearchAllGames(ctx context.Context, dollar_1 sql.NullString) (
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2412,7 +2456,7 @@ func (q *Queries) SearchAllGames(ctx context.Context, dollar_1 sql.NullString) (
 }
 
 const searchAllGamesSortedByCreatedAt = `-- name: SearchAllGamesSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC
 `
 
 func (q *Queries) SearchAllGamesSortedByCreatedAt(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2441,6 +2485,7 @@ func (q *Queries) SearchAllGamesSortedByCreatedAt(ctx context.Context, dollar_1 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2464,7 +2509,7 @@ func (q *Queries) SearchAllGamesSortedByCreatedAt(ctx context.Context, dollar_1 
 }
 
 const searchAllGamesSortedByModifiedAt = `-- name: SearchAllGamesSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC
 `
 
 func (q *Queries) SearchAllGamesSortedByModifiedAt(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2493,6 +2538,7 @@ func (q *Queries) SearchAllGamesSortedByModifiedAt(ctx context.Context, dollar_1
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2516,7 +2562,7 @@ func (q *Queries) SearchAllGamesSortedByModifiedAt(ctx context.Context, dollar_1
 }
 
 const searchAllGamesSortedByModifiedAtAsc = `-- name: SearchAllGamesSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC
 `
 
 func (q *Queries) SearchAllGamesSortedByModifiedAtAsc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2545,6 +2591,7 @@ func (q *Queries) SearchAllGamesSortedByModifiedAtAsc(ctx context.Context, dolla
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2568,7 +2615,7 @@ func (q *Queries) SearchAllGamesSortedByModifiedAtAsc(ctx context.Context, dolla
 }
 
 const searchAllGamesSortedByName = `-- name: SearchAllGamesSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC
 `
 
 func (q *Queries) SearchAllGamesSortedByName(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2597,6 +2644,7 @@ func (q *Queries) SearchAllGamesSortedByName(ctx context.Context, dollar_1 sql.N
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2620,7 +2668,7 @@ func (q *Queries) SearchAllGamesSortedByName(ctx context.Context, dollar_1 sql.N
 }
 
 const searchAllGamesSortedByNameDesc = `-- name: SearchAllGamesSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC
 `
 
 func (q *Queries) SearchAllGamesSortedByNameDesc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2649,6 +2697,7 @@ func (q *Queries) SearchAllGamesSortedByNameDesc(ctx context.Context, dollar_1 s
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2672,7 +2721,7 @@ func (q *Queries) SearchAllGamesSortedByNameDesc(ctx context.Context, dollar_1 s
 }
 
 const searchAllGamesSortedByPlayCount = `-- name: SearchAllGamesSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC
 `
 
 func (q *Queries) SearchAllGamesSortedByPlayCount(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2701,6 +2750,7 @@ func (q *Queries) SearchAllGamesSortedByPlayCount(ctx context.Context, dollar_1 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2724,7 +2774,7 @@ func (q *Queries) SearchAllGamesSortedByPlayCount(ctx context.Context, dollar_1 
 }
 
 const searchAllGamesSortedByPlayCountAsc = `-- name: SearchAllGamesSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC
 `
 
 func (q *Queries) SearchAllGamesSortedByPlayCountAsc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -2753,6 +2803,7 @@ func (q *Queries) SearchAllGamesSortedByPlayCountAsc(ctx context.Context, dollar
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2776,7 +2827,7 @@ func (q *Queries) SearchAllGamesSortedByPlayCountAsc(ctx context.Context, dollar
 }
 
 const searchGamesVisibleToUser = `-- name: SearchGamesVisibleToUser :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at DESC
 `
 
 type SearchGamesVisibleToUserParams struct {
@@ -2811,6 +2862,7 @@ func (q *Queries) SearchGamesVisibleToUser(ctx context.Context, arg SearchGamesV
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2834,7 +2886,7 @@ func (q *Queries) SearchGamesVisibleToUser(ctx context.Context, arg SearchGamesV
 }
 
 const searchGamesVisibleToUserSortedByCreatedAt = `-- name: SearchGamesVisibleToUserSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at ASC
 `
 
 type SearchGamesVisibleToUserSortedByCreatedAtParams struct {
@@ -2869,6 +2921,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByCreatedAt(ctx context.Context,
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2892,7 +2945,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByCreatedAt(ctx context.Context,
 }
 
 const searchGamesVisibleToUserSortedByCreator = `-- name: SearchGamesVisibleToUserSortedByCreator :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) ASC
+SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) ASC
 `
 
 type SearchGamesVisibleToUserSortedByCreatorParams struct {
@@ -2926,6 +2979,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByCreator(ctx context.Context, a
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -2949,7 +3003,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByCreator(ctx context.Context, a
 }
 
 const searchGamesVisibleToUserSortedByCreatorDesc = `-- name: SearchGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC
+SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC
 `
 
 type SearchGamesVisibleToUserSortedByCreatorDescParams struct {
@@ -2983,6 +3037,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByCreatorDesc(ctx context.Contex
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3006,7 +3061,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByCreatorDesc(ctx context.Contex
 }
 
 const searchGamesVisibleToUserSortedByModifiedAt = `-- name: SearchGamesVisibleToUserSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at DESC
 `
 
 type SearchGamesVisibleToUserSortedByModifiedAtParams struct {
@@ -3041,6 +3096,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAt(ctx context.Context
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3064,7 +3120,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAt(ctx context.Context
 }
 
 const searchGamesVisibleToUserSortedByModifiedAtAsc = `-- name: SearchGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at ASC
 `
 
 type SearchGamesVisibleToUserSortedByModifiedAtAscParams struct {
@@ -3099,6 +3155,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Cont
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3122,7 +3179,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Cont
 }
 
 const searchGamesVisibleToUserSortedByName = `-- name: SearchGamesVisibleToUserSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) ASC
 `
 
 type SearchGamesVisibleToUserSortedByNameParams struct {
@@ -3157,6 +3214,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByName(ctx context.Context, arg 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3180,7 +3238,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByName(ctx context.Context, arg 
 }
 
 const searchGamesVisibleToUserSortedByNameDesc = `-- name: SearchGamesVisibleToUserSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) DESC
 `
 
 type SearchGamesVisibleToUserSortedByNameDescParams struct {
@@ -3215,6 +3273,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByNameDesc(ctx context.Context, 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3238,7 +3297,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByNameDesc(ctx context.Context, 
 }
 
 const searchGamesVisibleToUserSortedByPlayCount = `-- name: SearchGamesVisibleToUserSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY play_count DESC
 `
 
 type SearchGamesVisibleToUserSortedByPlayCountParams struct {
@@ -3273,6 +3332,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByPlayCount(ctx context.Context,
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3296,7 +3356,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByPlayCount(ctx context.Context,
 }
 
 const searchGamesVisibleToUserSortedByPlayCountAsc = `-- name: SearchGamesVisibleToUserSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY play_count ASC
 `
 
 type SearchGamesVisibleToUserSortedByPlayCountAscParams struct {
@@ -3331,6 +3391,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByPlayCountAsc(ctx context.Conte
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3354,7 +3415,7 @@ func (q *Queries) SearchGamesVisibleToUserSortedByPlayCountAsc(ctx context.Conte
 }
 
 const searchOwnGames = `-- name: SearchOwnGames :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC
 `
 
 type SearchOwnGamesParams struct {
@@ -3388,6 +3449,7 @@ func (q *Queries) SearchOwnGames(ctx context.Context, arg SearchOwnGamesParams) 
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3411,7 +3473,7 @@ func (q *Queries) SearchOwnGames(ctx context.Context, arg SearchOwnGamesParams) 
 }
 
 const searchOwnGamesSortedByCreatedAt = `-- name: SearchOwnGamesSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC
 `
 
 type SearchOwnGamesSortedByCreatedAtParams struct {
@@ -3445,6 +3507,7 @@ func (q *Queries) SearchOwnGamesSortedByCreatedAt(ctx context.Context, arg Searc
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3468,7 +3531,7 @@ func (q *Queries) SearchOwnGamesSortedByCreatedAt(ctx context.Context, arg Searc
 }
 
 const searchOwnGamesSortedByModifiedAt = `-- name: SearchOwnGamesSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC
 `
 
 type SearchOwnGamesSortedByModifiedAtParams struct {
@@ -3502,6 +3565,7 @@ func (q *Queries) SearchOwnGamesSortedByModifiedAt(ctx context.Context, arg Sear
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3525,7 +3589,7 @@ func (q *Queries) SearchOwnGamesSortedByModifiedAt(ctx context.Context, arg Sear
 }
 
 const searchOwnGamesSortedByModifiedAtAsc = `-- name: SearchOwnGamesSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC
 `
 
 type SearchOwnGamesSortedByModifiedAtAscParams struct {
@@ -3559,6 +3623,7 @@ func (q *Queries) SearchOwnGamesSortedByModifiedAtAsc(ctx context.Context, arg S
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3582,7 +3647,7 @@ func (q *Queries) SearchOwnGamesSortedByModifiedAtAsc(ctx context.Context, arg S
 }
 
 const searchOwnGamesSortedByName = `-- name: SearchOwnGamesSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC
 `
 
 type SearchOwnGamesSortedByNameParams struct {
@@ -3616,6 +3681,7 @@ func (q *Queries) SearchOwnGamesSortedByName(ctx context.Context, arg SearchOwnG
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3639,7 +3705,7 @@ func (q *Queries) SearchOwnGamesSortedByName(ctx context.Context, arg SearchOwnG
 }
 
 const searchOwnGamesSortedByNameDesc = `-- name: SearchOwnGamesSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC
 `
 
 type SearchOwnGamesSortedByNameDescParams struct {
@@ -3673,6 +3739,7 @@ func (q *Queries) SearchOwnGamesSortedByNameDesc(ctx context.Context, arg Search
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3696,7 +3763,7 @@ func (q *Queries) SearchOwnGamesSortedByNameDesc(ctx context.Context, arg Search
 }
 
 const searchOwnGamesSortedByPlayCount = `-- name: SearchOwnGamesSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC
 `
 
 type SearchOwnGamesSortedByPlayCountParams struct {
@@ -3730,6 +3797,7 @@ func (q *Queries) SearchOwnGamesSortedByPlayCount(ctx context.Context, arg Searc
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3753,7 +3821,7 @@ func (q *Queries) SearchOwnGamesSortedByPlayCount(ctx context.Context, arg Searc
 }
 
 const searchOwnGamesSortedByPlayCountAsc = `-- name: SearchOwnGamesSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC
 `
 
 type SearchOwnGamesSortedByPlayCountAscParams struct {
@@ -3787,6 +3855,7 @@ func (q *Queries) SearchOwnGamesSortedByPlayCountAsc(ctx context.Context, arg Se
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3810,7 +3879,7 @@ func (q *Queries) SearchOwnGamesSortedByPlayCountAsc(ctx context.Context, arg Se
 }
 
 const searchOwnGamesSortedByVisibility = `-- name: SearchOwnGamesSortedByVisibility :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public DESC, modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public DESC, modified_at DESC
 `
 
 type SearchOwnGamesSortedByVisibilityParams struct {
@@ -3844,6 +3913,7 @@ func (q *Queries) SearchOwnGamesSortedByVisibility(ctx context.Context, arg Sear
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3867,7 +3937,7 @@ func (q *Queries) SearchOwnGamesSortedByVisibility(ctx context.Context, arg Sear
 }
 
 const searchOwnGamesSortedByVisibilityAsc = `-- name: SearchOwnGamesSortedByVisibilityAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public ASC, modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public ASC, modified_at DESC
 `
 
 type SearchOwnGamesSortedByVisibilityAscParams struct {
@@ -3901,6 +3971,7 @@ func (q *Queries) SearchOwnGamesSortedByVisibilityAsc(ctx context.Context, arg S
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3924,7 +3995,7 @@ func (q *Queries) SearchOwnGamesSortedByVisibilityAsc(ctx context.Context, arg S
 }
 
 const searchPublicGames = `-- name: SearchPublicGames :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC
 `
 
 func (q *Queries) SearchPublicGames(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -3953,6 +4024,7 @@ func (q *Queries) SearchPublicGames(ctx context.Context, dollar_1 sql.NullString
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -3976,7 +4048,7 @@ func (q *Queries) SearchPublicGames(ctx context.Context, dollar_1 sql.NullString
 }
 
 const searchPublicGamesSortedByCreatedAt = `-- name: SearchPublicGamesSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC
 `
 
 func (q *Queries) SearchPublicGamesSortedByCreatedAt(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -4005,6 +4077,7 @@ func (q *Queries) SearchPublicGamesSortedByCreatedAt(ctx context.Context, dollar
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -4028,7 +4101,7 @@ func (q *Queries) SearchPublicGamesSortedByCreatedAt(ctx context.Context, dollar
 }
 
 const searchPublicGamesSortedByModifiedAt = `-- name: SearchPublicGamesSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC
 `
 
 func (q *Queries) SearchPublicGamesSortedByModifiedAt(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -4057,6 +4130,7 @@ func (q *Queries) SearchPublicGamesSortedByModifiedAt(ctx context.Context, dolla
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -4080,7 +4154,7 @@ func (q *Queries) SearchPublicGamesSortedByModifiedAt(ctx context.Context, dolla
 }
 
 const searchPublicGamesSortedByModifiedAtAsc = `-- name: SearchPublicGamesSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC
 `
 
 func (q *Queries) SearchPublicGamesSortedByModifiedAtAsc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -4109,6 +4183,7 @@ func (q *Queries) SearchPublicGamesSortedByModifiedAtAsc(ctx context.Context, do
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -4132,7 +4207,7 @@ func (q *Queries) SearchPublicGamesSortedByModifiedAtAsc(ctx context.Context, do
 }
 
 const searchPublicGamesSortedByName = `-- name: SearchPublicGamesSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC
 `
 
 func (q *Queries) SearchPublicGamesSortedByName(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -4161,6 +4236,7 @@ func (q *Queries) SearchPublicGamesSortedByName(ctx context.Context, dollar_1 sq
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -4184,7 +4260,7 @@ func (q *Queries) SearchPublicGamesSortedByName(ctx context.Context, dollar_1 sq
 }
 
 const searchPublicGamesSortedByNameDesc = `-- name: SearchPublicGamesSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC
 `
 
 func (q *Queries) SearchPublicGamesSortedByNameDesc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -4213,6 +4289,7 @@ func (q *Queries) SearchPublicGamesSortedByNameDesc(ctx context.Context, dollar_
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -4236,7 +4313,7 @@ func (q *Queries) SearchPublicGamesSortedByNameDesc(ctx context.Context, dollar_
 }
 
 const searchPublicGamesSortedByPlayCount = `-- name: SearchPublicGamesSortedByPlayCount :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC
 `
 
 func (q *Queries) SearchPublicGamesSortedByPlayCount(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -4265,6 +4342,7 @@ func (q *Queries) SearchPublicGamesSortedByPlayCount(ctx context.Context, dollar
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -4288,7 +4366,7 @@ func (q *Queries) SearchPublicGamesSortedByPlayCount(ctx context.Context, dollar
 }
 
 const searchPublicGamesSortedByPlayCountAsc = `-- name: SearchPublicGamesSortedByPlayCountAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC
 `
 
 func (q *Queries) SearchPublicGamesSortedByPlayCountAsc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
@@ -4317,6 +4395,7 @@ func (q *Queries) SearchPublicGamesSortedByPlayCountAsc(ctx context.Context, dol
 			&i.ImageStyle,
 			&i.Css,
 			&i.StatusFields,
+			&i.Genre,
 			&i.Theme,
 			&i.FirstMessage,
 			&i.FirstStatus,
@@ -4377,9 +4456,10 @@ UPDATE game SET
   first_message = $17,
   first_status = $18,
   first_image = $19,
-  originally_created_by = $20
+  originally_created_by = $20,
+  genre = $21
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at
 `
 
 type UpdateGameParams struct {
@@ -4403,6 +4483,7 @@ type UpdateGameParams struct {
 	FirstStatus                  sql.NullString
 	FirstImage                   []byte
 	OriginallyCreatedBy          uuid.NullUUID
+	Genre                        string
 }
 
 func (q *Queries) UpdateGame(ctx context.Context, arg UpdateGameParams) (Game, error) {
@@ -4427,6 +4508,7 @@ func (q *Queries) UpdateGame(ctx context.Context, arg UpdateGameParams) (Game, e
 		arg.FirstStatus,
 		arg.FirstImage,
 		arg.OriginallyCreatedBy,
+		arg.Genre,
 	)
 	var i Game
 	err := row.Scan(
@@ -4446,6 +4528,7 @@ func (q *Queries) UpdateGame(ctx context.Context, arg UpdateGameParams) (Game, e
 		&i.ImageStyle,
 		&i.Css,
 		&i.StatusFields,
+		&i.Genre,
 		&i.Theme,
 		&i.FirstMessage,
 		&i.FirstStatus,

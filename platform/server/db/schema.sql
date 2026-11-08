@@ -267,6 +267,8 @@ CREATE TABLE game (
     -- The status fields available to the LLM, shaping the JSON format for status.
     status_fields                   text NOT NULL,
 
+    -- The engine genre the game is played as, one of the engine's genres.
+    genre                           text NOT NULL DEFAULT 'adventure',
     -- Name of the engine theme the game is played in; null means the engine's default.
     theme                           text NULL,
 
@@ -362,6 +364,53 @@ CREATE TABLE game_share (
     public_page         boolean NOT NULL DEFAULT false  -- Created by the public workshop page; never reused for hand-made links
 );
 CREATE UNIQUE INDEX game_share_public_page_uniq ON game_share (game_id, workshop_id) WHERE public_page;
+
+-- GameSession
+-- A session the engine runs: the platform's bookkeeping beside what the engine
+-- stores through its persistence interface. The id is the engine's session id,
+-- the bearer handle that plays it.
+CREATE TABLE game_session (
+    id              uuid PRIMARY KEY,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    -- Last activity: every stored event and state touches it. Retention and
+    -- "last played" read it.
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    game_id         uuid NOT NULL REFERENCES game(id) ON DELETE CASCADE,
+    user_id         uuid NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    workshop_id     uuid NULL REFERENCES workshop(id) ON DELETE SET NULL,
+    -- The share link the session was created from; its key pays on resume.
+    game_share_id   uuid NULL REFERENCES game_share(id) ON DELETE SET NULL,
+    -- The key share that paid at creation; NULL for the system free-use key or
+    -- once the key is deleted. A resume resolves a key again.
+    api_key_share_id uuid NULL REFERENCES api_key_share(id) ON DELETE SET NULL,
+    -- The AI platform the session runs on; a resume stays on it.
+    platform        text NOT NULL,
+    -- The player's language, fixed at creation.
+    language        text NOT NULL DEFAULT 'en',
+    -- Inputs the player has sent, counted by the platform as they arrive.
+    messages_sent   integer NOT NULL DEFAULT 0,
+
+    -- What the engine stores: its schema version, the spec with the player's
+    -- preference (never offers) and the blocks' state.
+    schema_version  integer NOT NULL,
+    spec            jsonb NOT NULL,
+    state           jsonb NOT NULL
+);
+CREATE INDEX game_session_user_idx ON game_session (user_id, modified_at DESC);
+CREATE INDEX game_session_game_idx ON game_session (game_id);
+CREATE INDEX game_session_modified_idx ON game_session (modified_at);
+
+-- GameSessionEvent
+-- The engine's event log of a session, in order: what a player reads back.
+CREATE TABLE game_session_event (
+    session_id      uuid NOT NULL REFERENCES game_session(id) ON DELETE CASCADE,
+    seq             bigint NOT NULL,
+    stream          text NOT NULL,
+    value           text NOT NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (session_id, seq)
+);
 
 -- Backup Log
 -- One row per run of docker/db/backup.sh, written by the script itself from inside

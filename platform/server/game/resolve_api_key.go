@@ -80,7 +80,7 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 			trace = append(trace, keyTraceStep{Source: keyType, Result: "skipped", Detail: "max candidates reached", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
 			return
 		}
-		if !engine.AcceptsKeys(engine.Platform(share.ApiKey.Platform)) {
+		if !db.AcceptsKeys(share.ApiKey.Platform) {
 			trace = append(trace, keyTraceStep{Source: keyType, Result: "filtered", Detail: "platform not supported yet", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
 			return
 		}

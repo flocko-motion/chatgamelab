@@ -1,6 +1,6 @@
 // package: game / private share plays and guest players
 // type:    logic
-// job:     prepares a play from a private share link: validates the token, consumes the share's budget, mints anonymous guest users and picks the share's API key and tier.
+// job:     prepares a play from a share link: token, key and tier; then takes a play and mints a guest user.
 // limits:  does not run the game; the engine does.
 package game
 
@@ -28,17 +28,18 @@ type SharePlay struct {
 	AiQualityTier string
 }
 
-// PrepareSharePlay settles a play of a private share link.
+// PrepareSharePlay settles a play of a private share link without consuming
+// anything: the token, the game and the share's key and tier. Consume takes the
+// play once the key is known to work.
 //
 // The player argument decides who plays and, therefore, which youth-protection
 // cascade applies (see db.ResolveConstraint):
-//   - player == nil  → an anonymous guest user is created; the share's "Gäste" cascade applies.
+//   - player == nil  → Consume creates an anonymous guest user; the share's "Gäste" cascade applies.
 //   - player != nil  → the authenticated user plays as themselves; their own cascade applies,
 //     with the share supplying stages 1–2.
 //
-// Either way the sponsored share key pays (a sponsored game is sponsored for everybody)
-// and the share's play-limit counter is consumed.
-func PrepareSharePlay(ctx context.Context, token string, language string, player *obj.User) (*SharePlay, *obj.HTTPError) {
+// Either way the sponsored share key pays (a sponsored game is sponsored for everybody).
+func PrepareSharePlay(ctx context.Context, token string, player *obj.User) (*SharePlay, *obj.HTTPError) {
 	gameShare, game, httpErr := ValidatePrivateShareToken(ctx, token)
 	if httpErr != nil {
 		return nil, httpErr
@@ -49,26 +50,6 @@ func PrepareSharePlay(ctx context.Context, token string, language string, player
 		return nil, httpErr
 	}
 
-	if httpErr := decrementPrivateShareRemaining(ctx, gameShare.ID); httpErr != nil {
-		return nil, httpErr
-	}
-
-	if player == nil {
-		guestUser, httpErr := createGuestUser(ctx, gameShare.ID)
-		if httpErr != nil {
-			return nil, httpErr
-		}
-		log.Info("share play: created anonymous guest user", "user_id", guestUser.ID, "user_name", guestUser.Name, "game_id", game.ID)
-		// The guest's language is not persisted; it holds for this play only.
-		// Authenticated players keep their own profile language.
-		if language != "" {
-			guestUser.Language = language
-		}
-		player = guestUser
-	} else {
-		log.Info("share play: authenticated player", "user_id", player.ID, "game_id", game.ID)
-	}
-
 	return &SharePlay{
 		Player:        player,
 		Game:          game,
@@ -76,6 +57,30 @@ func PrepareSharePlay(ctx context.Context, token string, language string, player
 		Key:           key,
 		AiQualityTier: shareTier(ctx, gameShare),
 	}, nil
+}
+
+// Consume takes one play from the share's limit and, for a guest, creates the
+// anonymous guest user who plays it.
+func (sp *SharePlay) Consume(ctx context.Context, language string) *obj.HTTPError {
+	if httpErr := decrementPrivateShareRemaining(ctx, sp.GameShare.ID); httpErr != nil {
+		return httpErr
+	}
+	if sp.Player != nil {
+		log.Info("share play: authenticated player", "user_id", sp.Player.ID, "game_id", sp.Game.ID)
+		return nil
+	}
+	guestUser, httpErr := createGuestUser(ctx, sp.GameShare.ID)
+	if httpErr != nil {
+		return httpErr
+	}
+	log.Info("share play: created anonymous guest user", "user_id", guestUser.ID, "user_name", guestUser.Name, "game_id", sp.Game.ID)
+	// The guest's language is not persisted; it holds for this play only.
+	// Authenticated players keep their own profile language.
+	if language != "" {
+		guestUser.Language = language
+	}
+	sp.Player = guestUser
+	return nil
 }
 
 // ValidatePrivateShareToken checks if the token maps to a valid, playable game.
@@ -109,19 +114,22 @@ func resolvePrivateShareKey(ctx context.Context, gameShare *obj.GameShare) (*obj
 		log.Warn("share play: sponsored key not accessible", "game_share_id", gameShare.ID, "api_key_share_id", gameShare.ApiKeyShareID)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeNoApiKey, "Sponsored API key is not available")
 	}
-	if !engine.AcceptsKeys(engine.Platform(share.ApiKey.Platform)) {
+	if !db.AcceptsKeys(share.ApiKey.Platform) {
 		log.Warn("share play: sponsored key's platform is not supported", "game_share_id", gameShare.ID, "platform", share.ApiKey.Platform)
 		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "The sponsored API key's platform is not supported yet")
 	}
 	return share, nil
 }
 
+// errCodeShareExhausted is a share link with no plays left.
+const errCodeShareExhausted = "share_exhausted"
+
 // decrementPrivateShareRemaining atomically decrements the remaining counter.
 // Returns nil if unlimited (NULL) or still has remaining plays.
 func decrementPrivateShareRemaining(ctx context.Context, shareID uuid.UUID) *obj.HTTPError {
 	_, err := db.DecrementGameShareRemaining(ctx, shareID)
 	if err != nil {
-		return obj.NewHTTPErrorWithCode(403, "share_exhausted", "This share link has reached its play limit")
+		return obj.NewHTTPErrorWithCode(403, errCodeShareExhausted, "This share link has reached its play limit")
 	}
 	return nil
 }

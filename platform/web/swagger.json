@@ -500,7 +500,7 @@
         },
         "/auth/logout": {
             "post": {
-                "description": "Clears the session cookie for participant users",
+                "description": "Clears the session cookies: the participant session and the play token",
                 "produces": [
                     "application/json"
                 ],
@@ -563,6 +563,43 @@
                     },
                     "401": {
                         "description": "Invalid token",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/play-token": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets a short-lived HttpOnly cookie, scoped to the engine's routes, that lets the playback-engine iframe act for the signed-in player. A page hosting the playback-engine calls it before mounting the frame and renews it while open.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Issue a play token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.PlayTokenResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -1261,6 +1298,61 @@
                 }
             }
         },
+        "/games/{id}/sessions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists the authenticated player's own sessions of a game",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "List game sessions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.GameSession"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/{id}/shares": {
             "post": {
                 "security": [
@@ -1691,6 +1783,34 @@
                         "description": "Failed to update",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/genres": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns every genre the engine runs, with the toggles it needs, for the game editor",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "List genres",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/engine.GenreInfo"
+                            }
                         }
                     }
                 }
@@ -2986,6 +3106,127 @@
                 }
             }
         },
+        "/sessions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the authenticated player's recent sessions with their games' names",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "List user sessions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by game name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort field: game, model (AI platform), lastPlayed (default)",
+                        "name": "sortBy",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.UserSessionWithGame"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a session and everything it stored. The player must own it.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Delete session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid session ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/status": {
             "get": {
                 "description": "Returns the current server status, uptime and database backup health",
@@ -3160,6 +3401,34 @@
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/themes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns every look the playback-engine can wear, the default first, for the game editor",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "List themes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/engine.ThemeInfo"
+                            }
                         }
                     }
                 }
@@ -4450,6 +4719,53 @@
                 "TierHigh"
             ]
         },
+        "db.UserSessionWithGame": {
+            "type": "object",
+            "properties": {
+                "apiKeyShareId": {
+                    "description": "ApiKeyShareID is the key share that paid at creation.",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "gameId": {
+                    "type": "string"
+                },
+                "gameName": {
+                    "type": "string"
+                },
+                "gameShareId": {
+                    "description": "GameShareID is the share link the session was created from.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID is the engine's session id, the handle that plays it.",
+                    "type": "string"
+                },
+                "language": {
+                    "description": "Language is the player's, fixed at creation.",
+                    "type": "string"
+                },
+                "messagesSent": {
+                    "type": "integer"
+                },
+                "modifiedAt": {
+                    "description": "ModifiedAt is the session's last activity.",
+                    "type": "string"
+                },
+                "platform": {
+                    "description": "Platform is the AI platform the session runs on.",
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
         "engine.Genre": {
             "type": "string",
             "enum": [
@@ -4460,6 +4776,20 @@
                 "GenreAdventure",
                 "GenreNPCLive"
             ]
+        },
+        "engine.GenreInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/engine.Genre"
+                },
+                "needs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/engine.Toggle"
+                    }
+                }
+            }
         },
         "engine.Platform": {
             "type": "string",
@@ -4503,6 +4833,14 @@
                 }
             }
         },
+        "engine.ThemeInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "engine.TierModels": {
             "type": "object",
             "properties": {
@@ -4516,6 +4854,25 @@
                     "$ref": "#/definitions/adapters.ModelSet"
                 }
             }
+        },
+        "engine.Toggle": {
+            "type": "string",
+            "enum": [
+                "images",
+                "audio-out",
+                "audio-in",
+                "audio-live",
+                "images",
+                "audio-out",
+                "audio-in",
+                "audio-live"
+            ],
+            "x-enum-varnames": [
+                "ToggleImages",
+                "ToggleAudioOut",
+                "ToggleAudioIn",
+                "ToggleAudioLive"
+            ]
         },
         "engine.Toggles": {
             "type": "object",
@@ -4681,6 +5038,10 @@
                 "firstStatus": {
                     "type": "string"
                 },
+                "genre": {
+                    "description": "Genre is the engine genre the game is played as, such as \"adventure\".",
+                    "type": "string"
+                },
                 "icon": {
                     "type": "array",
                     "items": {
@@ -4746,6 +5107,50 @@
                 },
                 "workshopId": {
                     "description": "Optional workshop scope (games can be created within a workshop context)",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameSession": {
+            "type": "object",
+            "properties": {
+                "apiKeyShareId": {
+                    "description": "ApiKeyShareID is the key share that paid at creation.",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "gameId": {
+                    "type": "string"
+                },
+                "gameShareId": {
+                    "description": "GameShareID is the share link the session was created from.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID is the engine's session id, the handle that plays it.",
+                    "type": "string"
+                },
+                "language": {
+                    "description": "Language is the player's, fixed at creation.",
+                    "type": "string"
+                },
+                "messagesSent": {
+                    "type": "integer"
+                },
+                "modifiedAt": {
+                    "description": "ModifiedAt is the session's last activity.",
+                    "type": "string"
+                },
+                "platform": {
+                    "description": "Platform is the AI platform the session runs on.",
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "workshopId": {
                     "type": "string"
                 }
             }
@@ -5102,6 +5507,12 @@
                 "gamesCreated": {
                     "type": "integer"
                 },
+                "gamesPlayed": {
+                    "type": "integer"
+                },
+                "messagesSent": {
+                    "type": "integer"
+                },
                 "totalPlaysOnGames": {
                     "type": "integer"
                 }
@@ -5281,6 +5692,10 @@
             "type": "object",
             "properties": {
                 "description": {
+                    "type": "string"
+                },
+                "genre": {
+                    "description": "Genre is one of the engine's genres; empty makes an adventure.",
                     "type": "string"
                 },
                 "name": {
@@ -5567,6 +5982,14 @@
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.PlayTokenResponse": {
+            "type": "object",
+            "properties": {
+                "expiresAt": {
                     "type": "string"
                 }
             }

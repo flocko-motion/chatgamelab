@@ -112,29 +112,6 @@ func ClearGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uu
 	return nil
 }
 
-// ClearGamePublicSponsorshipByShareID removes sponsorship if the given share is the sponsor.
-// Used when auto-removing sponsorship on key failure.
-func ClearGamePublicSponsorshipByShareID(ctx context.Context, gameID uuid.UUID, shareID uuid.UUID) error {
-	game, err := loadGameByID(ctx, gameID)
-	if err != nil {
-		return err
-	}
-	if game.PublicSponsoredApiKeyShareID == nil || *game.PublicSponsoredApiKeyShareID != shareID {
-		return nil // Not the sponsor
-	}
-
-	if err := queries().ClearGamePublicSponsor(ctx, gameID); err != nil {
-		return err
-	}
-
-	// Delete game-scoped shares for this game
-	if err := queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true}); err != nil {
-		log.Debug("failed to delete game-scoped shares", "game_id", gameID, "error", err)
-	}
-
-	return nil
-}
-
 // CreateGameShare creates a game share link with a game-scoped API key share.
 // The sourceShareID is the user's personal/workshop share that will be cloned into a game-scoped share.
 func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {

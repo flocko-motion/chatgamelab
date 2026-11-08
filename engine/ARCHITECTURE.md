@@ -290,7 +290,8 @@ internals out of reach of any other module.
   one-time key; the mounting server supplies the function that launches the
   session (the platform from its game and key cascade, the standalone launcher
   from its game file). A repeat of the one-time key within ten minutes answers
-  the same session.
+  the same session, and only to the caller who made it: the mounting server
+  names who is asking, and anyone else is refused without learning the ID.
 - **A session not in memory is restored lazily** through a resume function the
   mounting server supplies, by the first request that names it.
 - **The player is embedded** in the module and addresses the engine with
@@ -381,14 +382,14 @@ session end to end with the headless player.
 - The mock platform.
 - Persistence, resume with schema-version refusal, the create endpoint and
   the key check.
+- Embedded in the platform: it mounts the transport behind its access policy,
+  creates sessions from its key cascade and stores them on its tables.
 
 ### Missing
 
 - **Adventure's real blocks** — tool call, threaded call, extraction, speech
   synthesis and transcription. Adventure is wired from dummies.
 - **The observer's thread** — it judges each line on its own.
-- **Platform integration** — the server neither launches nor mounts the engine
-  yet, nor stores sessions on its tables.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the player needs.
 - **A veto block**, once the spec settles whether a turn can be rejected.

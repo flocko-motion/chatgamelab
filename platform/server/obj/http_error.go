@@ -4,11 +4,6 @@
 // limits:  error value and JSON rendering only; no HTTP response writing (-> api/httpx)
 package obj
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
 var (
 	HTTPErrorNotImplemented = HTTPError{StatusCode: 501, Message: "Not Implemented"}
 )
@@ -21,6 +16,8 @@ type HTTPError struct {
 }
 
 // Error implements the error interface, returning the message.
+//
+//deadcode:keep // makes *HTTPError an error, as callers' type assertions need
 func (e HTTPError) Error() string {
 	return e.Message
 }
@@ -28,18 +25,4 @@ func (e HTTPError) Error() string {
 // NewHTTPErrorWithCode creates an HTTPError with the given status code, error code, and message.
 func NewHTTPErrorWithCode(statusCode int, code string, message string) *HTTPError {
 	return &HTTPError{StatusCode: statusCode, Code: code, Message: message}
-}
-
-// Json renders the error as a JSON error response body.
-func (e HTTPError) Json() []byte {
-	type Error struct {
-		Type  string `json:"type"`
-		Error string `json:"error"`
-	}
-	resObj := Error{
-		Error: fmt.Sprintf("%s (%d)", e.Message, e.StatusCode),
-		Type:  "error",
-	}
-	res, _ := json.Marshal(resObj)
-	return res
 }

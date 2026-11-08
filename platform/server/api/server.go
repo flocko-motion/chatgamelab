@@ -1,6 +1,6 @@
 // package: api / HTTP server entrypoint
 // type:    entrypoint
-// job:     initializes telemetry, DB and router, then runs the HTTP server with graceful shutdown
+// job:     initializes telemetry, DB, router and session purge, then runs the HTTP server until shutdown
 // limits:  no route handling (-> api/routes) or middleware definitions (-> api/httpx)
 package api
 
@@ -26,8 +26,10 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	telemetry.Init(routes.Version)
 
 	auth.InitJwtGeneration()
+	auth.InitPlayTokens()
 
 	routes.DevMode = devMode
+	db.DevMode = devMode
 
 	if devMode {
 		log.SetDebug(true)
@@ -47,6 +49,8 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	log.Debug("setting up HTTP router")
 	// Use new stdlib-based router
 	h := routes.Handler()
+
+	startSessionPurger(ctx)
 
 	bindAddr := fmt.Sprintf("0.0.0.0:%d", port)
 	server := &http.Server{

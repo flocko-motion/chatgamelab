@@ -31,8 +31,21 @@ func GetApiKeyByID(ctx context.Context, apiKeyID uuid.UUID) (*obj.ApiKey, error)
 	}, nil
 }
 
+// DevMode lets keys for the engine's mock platform be stored, so a dev stack
+// and the integration tests play without a provider.
+var DevMode bool
+
+// AcceptsKeys says whether a key for the platform may be stored and used: a
+// platform of the engine's that takes users' keys, or the mock in dev mode.
+func AcceptsKeys(platform string) bool {
+	if DevMode && engine.Platform(platform) == engine.PlatformMock {
+		return true
+	}
+	return engine.AcceptsKeys(engine.Platform(platform))
+}
+
 func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platform, key string) (apiKeyID uuid.UUID, shareID uuid.UUID, err error) {
-	if !engine.AcceptsKeys(engine.Platform(platform)) {
+	if !AcceptsKeys(platform) {
 		return uuid.Nil, uuid.Nil, obj.ErrInvalidPlatformf("platform does not take API keys: %s", platform)
 	}
 

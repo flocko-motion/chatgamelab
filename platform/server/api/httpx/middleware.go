@@ -145,6 +145,12 @@ func (w *capturingResponseWriter) Flush() {
 	}
 }
 
+// Unwrap exposes the underlying writer, so http.ResponseController and a
+// WebSocket upgrade reach its Hijacker.
+func (w *capturingResponseWriter) Unwrap() http.ResponseWriter {
+	return w.ResponseWriter
+}
+
 // capturedBody returns the captured response body as a string.
 // Returns empty string for binary content.
 func (w *capturingResponseWriter) capturedBody() string {

@@ -384,8 +384,20 @@ func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error)
 		return nil, fmt.Errorf("failed to sum play count: %w", err)
 	}
 
+	sessionsCount, err := queries().CountUserGameSessions(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count user sessions: %w", err)
+	}
+
+	messagesCount, err := queries().SumUserGameSessionMessages(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count user messages: %w", err)
+	}
+
 	return &obj.UserStats{
+		GamesPlayed:       int(sessionsCount),
 		GamesCreated:      int(gamesCount),
+		MessagesSent:      int(messagesCount),
 		TotalPlaysOnGames: int(playCount),
 	}, nil
 }

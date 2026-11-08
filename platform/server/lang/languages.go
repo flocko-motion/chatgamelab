@@ -25,14 +25,6 @@ var supportedLanguages = func() map[string]string {
 
 const TranslateInstruction = "You are an expert in translation of json structured language files for games. Translate the given JSON object to the target language while preserving the exact same structure and keys. Only translate the string values. Return a valid JSON object. You get the original already in two languages, so that you have more context to understand the intention of each field."
 
-// GetLanguageName returns the full name of a language from its code
-func GetLanguageName(code string) string {
-	if name, exists := supportedLanguages[code]; exists {
-		return name
-	}
-	return code
-}
-
 // IsValidLanguageCode checks if a language code is supported
 func IsValidLanguageCode(code string) bool {
 	_, exists := supportedLanguages[code]

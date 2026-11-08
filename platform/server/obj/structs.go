@@ -40,8 +40,32 @@ type User struct {
 
 // UserStats contains aggregated statistics for a user
 type UserStats struct {
+	GamesPlayed       int `json:"gamesPlayed"`
 	GamesCreated      int `json:"gamesCreated"`
+	MessagesSent      int `json:"messagesSent"`
 	TotalPlaysOnGames int `json:"totalPlaysOnGames"`
+}
+
+// GameSession is the platform's bookkeeping of a session the engine runs: who
+// plays which game, where and on what. What the session holds is the engine's.
+type GameSession struct {
+	// ID is the engine's session id, the handle that plays it.
+	ID         uuid.UUID  `json:"id"`
+	GameID     uuid.UUID  `json:"gameId"`
+	UserID     uuid.UUID  `json:"userId"`
+	WorkshopID *uuid.UUID `json:"workshopId,omitempty"`
+	// GameShareID is the share link the session was created from.
+	GameShareID *uuid.UUID `json:"gameShareId,omitempty"`
+	// ApiKeyShareID is the key share that paid at creation.
+	ApiKeyShareID *uuid.UUID `json:"apiKeyShareId,omitempty"`
+	// Platform is the AI platform the session runs on.
+	Platform string `json:"platform"`
+	// Language is the player's, fixed at creation.
+	Language     string    `json:"language"`
+	MessagesSent int       `json:"messagesSent"`
+	CreatedAt    time.Time `json:"createdAt"`
+	// ModifiedAt is the session's last activity.
+	ModifiedAt time.Time `json:"modifiedAt"`
 }
 
 // Institution represents an organisation with members and shared settings.
@@ -263,8 +287,10 @@ type Game struct {
 	CSS string `json:"css" yaml:"css"`
 	// The status fields available to the LLM, shaping the JSON format for status.
 	StatusFields string `json:"statusFields" yaml:"status_fields"`
+	// Genre is the engine genre the game is played as, such as "adventure".
+	Genre string `json:"genre" yaml:"genre"`
 	// Name of the engine theme the game is played in; nil means the engine's default.
-	Theme *string `json:"theme,omitempty" yaml:"-"`
+	Theme *string `json:"theme,omitempty" yaml:"theme,omitempty"`
 	// Quick start: pre-generated first scene of the game.
 	// This is generated content (first output after the system message) and may be
 	// regenerated from time to time to avoid being too static.

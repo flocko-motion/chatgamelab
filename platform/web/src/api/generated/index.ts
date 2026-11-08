@@ -26,6 +26,13 @@ export enum ObjInviteStatus {
   InviteStatusRevoked = "revoked",
 }
 
+export enum EngineToggle {
+  ToggleImages = "images",
+  ToggleAudioOut = "audio-out",
+  ToggleAudioIn = "audio-in",
+  ToggleAudioLive = "audio-live",
+}
+
 export enum EnginePlatform {
   PlatformMock = "mock",
   PlatformOpenAI = "openai",
@@ -50,6 +57,32 @@ export interface AdaptersModel {
 
 export type AdaptersModelSet = Record<string, AdaptersModel>;
 
+export interface DbUserSessionWithGame {
+  /** ApiKeyShareID is the key share that paid at creation. */
+  apiKeyShareId?: string;
+  createdAt?: string;
+  gameId?: string;
+  gameName?: string;
+  /** GameShareID is the share link the session was created from. */
+  gameShareId?: string;
+  /** ID is the engine's session id, the handle that plays it. */
+  id?: string;
+  /** Language is the player's, fixed at creation. */
+  language?: string;
+  messagesSent?: number;
+  /** ModifiedAt is the session's last activity. */
+  modifiedAt?: string;
+  /** Platform is the AI platform the session runs on. */
+  platform?: string;
+  userId?: string;
+  workshopId?: string;
+}
+
+export interface EngineGenreInfo {
+  id?: EngineGenre;
+  needs?: EngineToggle[];
+}
+
 export interface EnginePlatformInfo {
   genres?: EngineGenre[];
   id?: EnginePlatform;
@@ -57,6 +90,10 @@ export interface EnginePlatformInfo {
   tiers?: EngineTierModels[];
   toggles?: EngineToggles;
   userKeys?: boolean;
+}
+
+export interface EngineThemeInfo {
+  id?: string;
 }
 
 export interface EngineTierModels {
@@ -137,6 +174,8 @@ export interface ObjGame {
    */
   firstMessage?: string;
   firstStatus?: string;
+  /** Genre is the engine genre the game is played as, such as "adventure". */
+  genre?: string;
   icon?: number[];
   id?: string;
   /** What style should the images have? */
@@ -166,6 +205,26 @@ export interface ObjGame {
   /** Name of the engine theme the game is played in; nil means the engine's default. */
   theme?: string;
   /** Optional workshop scope (games can be created within a workshop context) */
+  workshopId?: string;
+}
+
+export interface ObjGameSession {
+  /** ApiKeyShareID is the key share that paid at creation. */
+  apiKeyShareId?: string;
+  createdAt?: string;
+  gameId?: string;
+  /** GameShareID is the share link the session was created from. */
+  gameShareId?: string;
+  /** ID is the engine's session id, the handle that plays it. */
+  id?: string;
+  /** Language is the player's, fixed at creation. */
+  language?: string;
+  messagesSent?: number;
+  /** ModifiedAt is the session's last activity. */
+  modifiedAt?: string;
+  /** Platform is the AI platform the session runs on. */
+  platform?: string;
+  userId?: string;
   workshopId?: string;
 }
 
@@ -300,6 +359,8 @@ export interface ObjUserRoleInvite {
 
 export interface ObjUserStats {
   gamesCreated?: number;
+  gamesPlayed?: number;
+  messagesSent?: number;
   totalPlaysOnGames?: number;
 }
 
@@ -367,6 +428,8 @@ export interface RoutesCreateApiKeyRequest {
 
 export interface RoutesCreateGameRequest {
   description?: string;
+  /** Genre is one of the engine's genres; empty makes an adventure. */
+  genre?: string;
   name?: string;
   public?: boolean;
 }
@@ -490,6 +553,10 @@ export interface RoutesParticipantCodeResponse {
 
 export interface RoutesParticipantLoginRequest {
   token?: string;
+}
+
+export interface RoutesPlayTokenResponse {
+  expiresAt?: string;
 }
 
 export interface RoutesPrivateShareStatus {
@@ -1110,7 +1177,7 @@ export class Api<
       }),
 
     /**
-     * @description Clears the session cookie for participant users
+     * @description Clears the session cookies: the participant session and the play token
      *
      * @tags auth
      * @name LogoutCreate
@@ -1142,6 +1209,24 @@ export class Api<
         method: "POST",
         body: request,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets a short-lived HttpOnly cookie, scoped to the engine's routes, that lets the playback-engine iframe act for the signed-in player. A page hosting the playback-engine calls it before mounting the frame and renews it while open.
+     *
+     * @tags auth
+     * @name PlayTokenCreate
+     * @summary Issue a play token
+     * @request POST:/auth/play-token
+     * @secure
+     */
+    playTokenCreate: (params: RequestParams = {}) =>
+      this.request<RoutesPlayTokenResponse, HttpxErrorResponse>({
+        path: `/auth/play-token`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1400,6 +1485,24 @@ export class Api<
       }),
 
     /**
+     * @description Lists the authenticated player's own sessions of a game
+     *
+     * @tags sessions
+     * @name SessionsList
+     * @summary List game sessions
+     * @request GET:/games/{id}/sessions
+     * @secure
+     */
+    sessionsList: (id: string, params: RequestParams = {}) =>
+      this.request<ObjGameSession[], HttpxErrorResponse>({
+        path: `/games/${id}/sessions`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
      *
      * @tags games
@@ -1538,6 +1641,25 @@ export class Api<
         path: `/games/${id}/yaml`,
         method: "PUT",
         body: yaml,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  genres = {
+    /**
+     * @description Returns every genre the engine runs, with the toggles it needs, for the game editor
+     *
+     * @tags games
+     * @name GenresList
+     * @summary List genres
+     * @request GET:/genres
+     * @secure
+     */
+    genresList: (params: RequestParams = {}) =>
+      this.request<EngineGenreInfo[], any>({
+        path: `/genres`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,
@@ -2084,6 +2206,52 @@ export class Api<
         ...params,
       }),
   };
+  sessions = {
+    /**
+     * @description Returns the authenticated player's recent sessions with their games' names
+     *
+     * @tags sessions
+     * @name SessionsList
+     * @summary List user sessions
+     * @request GET:/sessions
+     * @secure
+     */
+    sessionsList: (
+      query?: {
+        /** Search by game name */
+        search?: string;
+        /** Sort field: game, model (AI platform), lastPlayed (default) */
+        sortBy?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<DbUserSessionWithGame[], HttpxErrorResponse>({
+        path: `/sessions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a session and everything it stored. The player must own it.
+     *
+     * @tags sessions
+     * @name SessionsDelete
+     * @summary Delete session
+     * @request DELETE:/sessions/{id}
+     * @secure
+     */
+    sessionsDelete: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/sessions/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   status = {
     /**
      * @description Returns the current server status, uptime and database backup health
@@ -2174,6 +2342,25 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  themes = {
+    /**
+     * @description Returns every look the playback-engine can wear, the default first, for the game editor
+     *
+     * @tags games
+     * @name ThemesList
+     * @summary List themes
+     * @request GET:/themes
+     * @secure
+     */
+    themesList: (params: RequestParams = {}) =>
+      this.request<EngineThemeInfo[], any>({
+        path: `/themes`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),

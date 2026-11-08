@@ -187,14 +187,15 @@ func CheckNameAvailability(w http.ResponseWriter, r *http.Request) {
 // Logout godoc
 //
 //	@Summary		Logout user
-//	@Description	Clears the session cookie for participant users
+//	@Description	Clears the session cookies: the participant session and the play token
 //	@Tags			auth
 //	@Produce		json
 //	@Success		200	{object}	map[string]string
 //	@Router			/auth/logout [post]
 func Logout(w http.ResponseWriter, r *http.Request) {
 	httpx.ClearSessionCookie(w)
-	log.Debug("session cookie cleared")
+	httpx.ClearPlayCookie(w)
+	log.Debug("session cookies cleared")
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"message": "Logged out"})
 }
 

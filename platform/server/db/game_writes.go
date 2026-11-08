@@ -12,7 +12,9 @@ import (
 	"cgl/obj"
 	"context"
 	"database/sql"
+	"engine"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,9 +36,11 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 	// Store workshop ID before deletion for event publishing
 	workshopID := game.WorkshopID
 
-	// Clean up game data: tags, favourites, shares, game_shares + guest data
+	// Clean up game data: tags, favourites, sessions, shares, game_shares + guest data
 	_ = queries().DeleteGameTagsByGameID(ctx, gameID)
 	_ = queries().DeleteFavouritesByGameID(ctx, gameID)
+	// The game stays as a soft-deleted row, so its sessions go explicitly.
+	_, _ = queries().DeleteGameSessionsByGameID(ctx, gameID)
 	// Clean up game_share guest data before deleting game_shares
 	_ = DeleteGuestDataByGameID(ctx, gameID)
 	_ = queries().DeleteGameSharesByGameID(ctx, gameID)
@@ -87,6 +91,12 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		}
 	}
 
+	genre, err := gameGenre(game.Genre, string(engine.GenreAdventure))
+	if err != nil {
+		return err
+	}
+	game.Genre = genre
+
 	now := time.Now()
 	game.ID = uuid.New()
 
@@ -111,12 +121,13 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		FirstMessage:                 sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:                  sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:                   game.FirstImage,
+		Genre:                        game.Genre,
 	}
 
 	// Note: Private share hash is not generated at creation
 	// Users must explicitly share the game after creating and writing the story
 
-	_, err := queries().CreateGame(ctx, arg)
+	_, err = queries().CreateGame(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
 			return obj.ErrDuplicateNamef("A game with the name %q already exists", game.Name)
@@ -142,6 +153,13 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	if err := canAccessGame(ctx, userID, OpUpdate, existingGame, nil); err != nil {
 		return err
 	}
+
+	// A game sent without a genre keeps its own.
+	genre, err := gameGenre(game.Genre, existingGame.Genre)
+	if err != nil {
+		return err
+	}
+	game.Genre = genre
 
 	now := time.Now()
 
@@ -176,6 +194,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		FirstMessage:                 sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:                  sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:                   game.FirstImage,
+		Genre:                        game.Genre,
 	}
 
 	_, err = queries().UpdateGame(ctx, arg)
@@ -229,6 +248,12 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 	existing.SystemMessageScenario = incoming.SystemMessageScenario
 	existing.SystemMessageGameStart = incoming.SystemMessageGameStart
 	existing.ImageStyle = incoming.ImageStyle
+	// A game file without a genre is an adventure, as every game was before genres.
+	existing.Genre = incoming.Genre
+	if existing.Genre == "" {
+		existing.Genre = string(engine.GenreAdventure)
+	}
+	existing.Theme = incoming.Theme
 
 	// Normalize JSON fields
 	existing.StatusFields = functional.NormalizeJson(incoming.StatusFields, &[]obj.StatusField{})
@@ -243,14 +268,19 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 	return nil
 }
 
+// gameGenre checks a game's genre against the engine's, taking fallback for
+// an empty one.
+func gameGenre(genre, fallback string) (string, error) {
+	if genre == "" {
+		genre = fallback
+	}
+	if !slices.Contains(engine.Genres(), engine.Genre(genre)) {
+		return "", obj.ErrValidationf("unknown genre %q", genre)
+	}
+	return genre, nil
+}
+
 // IncrementGameCloneCount increments the clone count for a game
 func IncrementGameCloneCount(ctx context.Context, gameID uuid.UUID) error {
 	return queries().IncrementGameCloneCount(ctx, gameID)
-}
-
-// Helper functions for converting between sql.Null* types and pointers
-
-// IncrementGamePlayCount increments the play count of a game by 1.
-func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
-	return queries().IncrementGamePlayCount(ctx, gameID)
 }
