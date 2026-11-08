@@ -30,7 +30,7 @@ the ChatGameLab platform, or embedded in another website on their own.
 == Games
 
 A *game* is a title, a genre, a scenario, an image style and a theme. Playing it
-opens a *session*. A session is played in the *playback-engine* by person 
+opens a *session*. A session is played in the *playback-engine* by a person
 called the *player*.
 
 - *Genre* picks one of the engine's ways to play.
