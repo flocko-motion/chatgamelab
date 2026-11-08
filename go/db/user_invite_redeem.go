@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
@@ -90,7 +89,7 @@ func RemoveMemberFromWorkshop(
 // updateInviteStatusUnchecked updates the status of an invite without permission checks.
 // This is an internal function used by RevokeInvite and ReactivateInvite after they've done their own permission checks.
 func updateInviteStatusUnchecked(ctx context.Context, inviteID uuid.UUID, status obj.InviteStatus) error {
-	arg := db.UpdateInviteStatusParams{
+	arg := UpdateInviteStatusParams{
 		ID:     inviteID,
 		Status: string(status),
 	}
@@ -130,7 +129,7 @@ func UpdateInviteStatus(ctx context.Context, userID uuid.UUID, inviteID uuid.UUI
 // Returns the created role ID or an error if the invite is invalid or already processed.
 func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken string, userID uuid.UUID) (uuid.UUID, error) {
 	// Get the invite (by ID or token)
-	var invite db.UserRoleInvite
+	var invite UserRoleInvite
 	var err error
 
 	if inviteToken != "" {
@@ -181,7 +180,7 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 	}
 
 	// Use a transaction to ensure atomicity (delete old role + create new role + mark invite accepted)
-	tx, err := sqlDb.BeginTx(ctx, nil)
+	tx, err := sqlDb().BeginTx(ctx, nil)
 	if err != nil {
 		return uuid.Nil, obj.ErrServerError("failed to begin transaction")
 	}
@@ -196,9 +195,9 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 	}
 
 	// Create the user role
-	arg := db.CreateUserRoleParams{
+	arg := CreateUserRoleParams{
 		UserID:        userID,
-		Role:          sql.NullString{String: invite.Role, Valid: true},
+		Role:          invite.Role,
 		InstitutionID: uuid.NullUUID{UUID: invite.InstitutionID, Valid: true},
 		WorkshopID:    invite.WorkshopID,
 	}
@@ -209,7 +208,7 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 	}
 
 	// Mark invite as accepted
-	if err := txQueries.AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{
+	if err := txQueries.AcceptTargetedInvite(ctx, AcceptTargetedInviteParams{
 		ID:         inviteID,
 		AcceptedBy: uuid.NullUUID{UUID: userID, Valid: true},
 	}); err != nil {
@@ -221,11 +220,7 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 		return uuid.Nil, obj.ErrServerError("failed to commit transaction")
 	}
 
-	// Return the role ID (handle NullUUID)
-	if !roleID.Valid {
-		return uuid.Nil, fmt.Errorf("failed to create user role: no ID returned")
-	}
-	return roleID.UUID, nil
+	return roleID, nil
 }
 
 // DeclineTargetedInvite declines a targeted invite.
@@ -233,7 +228,7 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 // The userID must match either the invited_user_id or the user associated with invited_email.
 func DeclineTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken string, userID uuid.UUID) error {
 	// Get the invite (by ID or token)
-	var invite db.UserRoleInvite
+	var invite UserRoleInvite
 	var err error
 
 	if inviteToken != "" {
@@ -283,7 +278,7 @@ func DeclineTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken 
 
 // canManageInvite checks if a user can manage (revoke/reactivate) an invite.
 // Returns true if the user is: admin, creator, or staff/head of the institution (for workshop invites).
-func canManageInvite(ctx context.Context, invite db.UserRoleInvite, userID uuid.UUID) error {
+func canManageInvite(ctx context.Context, invite UserRoleInvite, userID uuid.UUID) error {
 	user, err := GetUserByID(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("user not found: %w", err)
@@ -380,7 +375,7 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 	}
 
 	// Use a transaction to ensure atomicity (delete old role + create new role + increment uses)
-	tx, err := sqlDb.BeginTx(ctx, nil)
+	tx, err := sqlDb().BeginTx(ctx, nil)
 	if err != nil {
 		return uuid.Nil, obj.ErrServerError("failed to begin transaction")
 	}
@@ -395,9 +390,9 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 	}
 
 	// Create the user role
-	arg := db.CreateUserRoleParams{
+	arg := CreateUserRoleParams{
 		UserID:        userID,
-		Role:          sql.NullString{String: invite.Role, Valid: true},
+		Role:          invite.Role,
 		InstitutionID: uuid.NullUUID{UUID: invite.InstitutionID, Valid: true},
 		WorkshopID:    invite.WorkshopID,
 	}
@@ -422,11 +417,7 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 		_ = UpdateInviteStatus(ctx, userID, invite.ID, obj.InviteStatusExpired)
 	}
 
-	// Return the role ID (handle NullUUID)
-	if !roleID.Valid {
-		return uuid.Nil, fmt.Errorf("failed to create user role: no ID returned")
-	}
-	return roleID.UUID, nil
+	return roleID, nil
 }
 
 // AcceptWorkshopInviteAnonymously accepts a workshop invite token without authentication.
@@ -488,7 +479,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	}
 
 	// Use a transaction to ensure atomicity (create user + create role + increment uses)
-	tx, err := sqlDb.BeginTx(ctx, nil)
+	tx, err := sqlDb().BeginTx(ctx, nil)
 	if err != nil {
 		return nil, "", obj.ErrServerError("failed to begin transaction")
 	}
@@ -500,7 +491,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	userID := uuid.New()
 
 	// Create anonymous user with participant token (no email, no auth0_id)
-	userArg := db.CreateUserWithParticipantTokenParams{
+	userArg := CreateUserWithParticipantTokenParams{
 		ID:               userID,
 		Name:             anonymousName,
 		Email:            sql.NullString{Valid: false},
@@ -515,9 +506,9 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	}
 
 	// Create participant role for the workshop
-	roleArg := db.CreateUserRoleParams{
+	roleArg := CreateUserRoleParams{
 		UserID:        userID,
-		Role:          sql.NullString{String: string(obj.RoleParticipant), Valid: true},
+		Role:          string(obj.RoleParticipant),
 		InstitutionID: uuid.NullUUID{UUID: invite.InstitutionID, Valid: true},
 		WorkshopID:    invite.WorkshopID,
 	}

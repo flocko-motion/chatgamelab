@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
@@ -52,7 +51,7 @@ func CreateApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID,
 // createApiKeyShareInternal creates a share without ownership verification (for internal use)
 func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID, targetUserID, workshopID, institutionID, gameID *uuid.UUID) (*uuid.UUID, error) {
 	now := time.Now()
-	arg := db.CreateApiKeyShareParams{
+	arg := CreateApiKeyShareParams{
 		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:     now,
 		ModifiedBy:    uuid.NullUUID{UUID: userID, Valid: true},
@@ -134,7 +133,7 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 		} else {
 			// Also check if this share is a workshop's default API key
 			// and the user is a member of that workshop
-			canAccess, checkErr := queries().CanUserAccessShareViaWorkshopDefault(ctx, db.CanUserAccessShareViaWorkshopDefaultParams{
+			canAccess, checkErr := queries().CanUserAccessShareViaWorkshopDefault(ctx, CanUserAccessShareViaWorkshopDefaultParams{
 				DefaultApiKeyShareID: uuid.NullUUID{UUID: shareID, Valid: true},
 				UserID:               userID,
 			})

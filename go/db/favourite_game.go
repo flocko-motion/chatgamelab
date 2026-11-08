@@ -1,11 +1,10 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     add, remove, and list a user's favourite games.
-// limits:  does not define SQL queries (-> db/sqlc) or expose HTTP endpoints (-> api).
+// limits:  does not define SQL queries (-> db/queries) or expose HTTP endpoints (-> api).
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
 	"fmt"
@@ -15,7 +14,7 @@ import (
 
 // AddFavouriteGame adds a game to a user's favourites. If already a favourite, does nothing.
 func AddFavouriteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
-	arg := db.AddFavouriteGameParams{
+	arg := AddFavouriteGameParams{
 		CreatedBy: uuid.NullUUID{UUID: userID, Valid: true},
 		GameID:    gameID,
 	}
@@ -33,7 +32,7 @@ func AddFavouriteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) e
 
 // RemoveFavouriteGame removes a game from a user's favourites.
 func RemoveFavouriteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
-	arg := db.RemoveFavouriteGameParams{
+	arg := RemoveFavouriteGameParams{
 		UserID: userID,
 		GameID: gameID,
 	}

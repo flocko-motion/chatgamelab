@@ -1,7 +1,7 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     seed well-known dev users, institutions, and workshops for local development.
-// limits:  does not define SQL queries (-> db/sqlc) or run in production.
+// limits:  does not define SQL queries (-> db/queries) or run in production.
 package db
 
 import (
@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"time"
 
-	db "cgl/db/sqlc"
 	"cgl/log"
 	"cgl/obj"
 
@@ -70,7 +69,7 @@ func preseedDevInstitution(ctx context.Context) {
 	if err != nil {
 		log.Debug("creating dev institution", "id", DevInstitutionID)
 		now := time.Now()
-		arg := db.CreateInstitutionParams{
+		arg := CreateInstitutionParams{
 			ID:         DevInstitutionID,
 			CreatedBy:  uuid.NullUUID{},
 			CreatedAt:  now,
@@ -90,7 +89,7 @@ func preseedDevWorkshop(ctx context.Context) {
 	if err != nil {
 		log.Debug("creating dev workshop", "id", DevWorkshopID)
 		now := time.Now()
-		arg := db.CreateWorkshopParams{
+		arg := CreateWorkshopParams{
 			ID:            DevWorkshopID,
 			CreatedBy:     uuid.NullUUID{},
 			CreatedAt:     now,
@@ -182,7 +181,7 @@ func preseedDevUsers(ctx context.Context) {
 
 // renameDevUser sets a dev user's name and its matching @dev.local email.
 func renameDevUser(ctx context.Context, userID uuid.UUID, name string) error {
-	return queries().UpdateUser(ctx, db.UpdateUserParams{
+	return queries().UpdateUser(ctx, UpdateUserParams{
 		ID:    userID,
 		Name:  name,
 		Email: sql.NullString{String: devUserEmail(name), Valid: true},
@@ -211,9 +210,9 @@ func setDevUserRole(ctx context.Context, slot devUserSlot) {
 	if slot.role == obj.RoleParticipant {
 		workshopID = uuid.NullUUID{UUID: DevWorkshopID, Valid: true}
 	}
-	arg := db.CreateUserRoleParams{
+	arg := CreateUserRoleParams{
 		UserID:        slot.id,
-		Role:          sql.NullString{String: string(slot.role), Valid: true},
+		Role:          string(slot.role),
 		InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(slot.institutionID), Valid: slot.institutionID != nil},
 		WorkshopID:    workshopID,
 	}

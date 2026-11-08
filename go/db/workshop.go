@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/log"
 	"cgl/obj"
 	"context"
@@ -55,7 +54,7 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 	now := time.Now()
 	id := uuid.New()
 
-	arg := db.CreateWorkshopParams{
+	arg := CreateWorkshopParams{
 		ID:               id,
 		CreatedBy:        uuid.NullUUID{UUID: createdBy, Valid: true},
 		CreatedAt:        now,
@@ -121,16 +120,16 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 	}
 
 	// Fetch invites for this workshop (only if user has permission)
-	var inviteRows []db.UserRoleInvite
+	var inviteRows []UserRoleInvite
 	if err := canAccessWorkshopInvites(ctx, userID, result.InstitutionID); err == nil {
 		inviteRows, err = queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: id, Valid: true})
 		if err != nil {
 			// Don't fail if we can't get invites, just return empty list
-			inviteRows = []db.UserRoleInvite{}
+			inviteRows = []UserRoleInvite{}
 		}
 	} else {
 		// User doesn't have permission to view invites, return empty list
-		inviteRows = []db.UserRoleInvite{}
+		inviteRows = []UserRoleInvite{}
 	}
 
 	// Convert invites to obj.UserRoleInvite
@@ -190,14 +189,14 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		if err != nil {
 			// Don't fail if we can't get participants, just return empty list
 			log.Warn("failed to get workshop participants", "workshop_id", id, "error", err)
-			participantRows = []db.GetWorkshopParticipantsRow{}
+			participantRows = []GetWorkshopParticipantsRow{}
 		}
 
 		// Convert participants to obj.WorkshopParticipant
 		participants = make([]obj.WorkshopParticipant, 0, len(participantRows))
 		for _, p := range participantRows {
 			// Parse role from database
-			role, err := stringToRole(p.Role.String)
+			role, err := stringToRole(p.Role)
 			if err != nil {
 				// Default to participant if role parsing fails
 				role = obj.RoleParticipant
@@ -269,8 +268,8 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 	}, nil
 }
 
-// UpdateWorkshopParams contains the parameters for updating a workshop
-type UpdateWorkshopParams struct {
+// WorkshopUpdate contains the parameters for updating a workshop
+type WorkshopUpdate struct {
 	Name                       string
 	Active                     bool
 	Public                     bool
@@ -287,7 +286,7 @@ type UpdateWorkshopParams struct {
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
-func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, params UpdateWorkshopParams) (*obj.Workshop, error) {
+func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, params WorkshopUpdate) (*obj.Workshop, error) {
 	// Get existing to preserve created fields and institution_id
 	existing, err := queries().GetWorkshopByID(ctx, id)
 	if err != nil {
@@ -309,7 +308,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 	}
 
 	now := time.Now()
-	arg := db.UpdateWorkshopParams{
+	arg := UpdateWorkshopParams{
 		ID:                         id,
 		CreatedBy:                  existing.CreatedBy,
 		CreatedAt:                  existing.CreatedAt,
@@ -445,7 +444,7 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 	}
 
 	// Build params
-	arg := db.SetWorkshopDefaultApiKeyParams{
+	arg := SetWorkshopDefaultApiKeyParams{
 		ID:         workshopID,
 		ModifiedBy: uuid.NullUUID{UUID: modifiedBy, Valid: true},
 	}
@@ -581,7 +580,7 @@ func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.U
 		return "", obj.ErrServerError("failed to generate participant token")
 	}
 
-	rows, err := queries().UpdateParticipantToken(ctx, db.UpdateParticipantTokenParams{
+	rows, err := queries().UpdateParticipantToken(ctx, UpdateParticipantTokenParams{
 		ID:               participantUserID,
 		ParticipantToken: sql.NullString{String: token, Valid: true},
 		ModifiedBy:       uuid.NullUUID{UUID: requestingUserID, Valid: true},

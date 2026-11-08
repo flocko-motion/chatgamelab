@@ -1,11 +1,10 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     convert, list, and create user role invites, generating unique invite codes.
-// limits:  does not accept/redeem invites (-> user_invite_redeem.go) or define SQL (-> db/sqlc).
+// limits:  does not accept/redeem invites (-> user_invite_redeem.go) or define SQL (-> db/queries).
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/functional"
 	"cgl/functional/wordtoken"
 	"cgl/obj"
@@ -18,8 +17,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// dbInviteToObj converts db.UserRoleInvite to obj.UserRoleInvite
-func dbInviteToObj(dbInv db.UserRoleInvite) obj.UserRoleInvite {
+// dbInviteToObj converts UserRoleInvite to obj.UserRoleInvite
+func dbInviteToObj(dbInv UserRoleInvite) obj.UserRoleInvite {
 	inv := obj.UserRoleInvite{
 		ID:            dbInv.ID,
 		InstitutionID: dbInv.InstitutionID,
@@ -253,7 +252,7 @@ func CreateInstitutionInvite(
 	}
 
 	// Check for existing pending invite for the same target
-	existingInvite, err := queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
+	existingInvite, err := queries().GetPendingInviteByTarget(ctx, GetPendingInviteByTargetParams{
 		InstitutionID: institutionID,
 		InvitedUserID: uuid.NullUUID{UUID: uuidPtrToUUID(invitedUserID), Valid: invitedUserID != nil},
 		InvitedEmail:  sql.NullString{String: functional.Deref(invitedEmail, ""), Valid: invitedEmail != nil},
@@ -264,7 +263,7 @@ func CreateInstitutionInvite(
 	}
 
 	// Targeted invites don't use invite_token (constraint: either targeted OR open, not both)
-	arg := db.CreateTargetedInviteParams{
+	arg := CreateTargetedInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
 		InstitutionID: institutionID,
 		Role:          string(role),
@@ -325,12 +324,12 @@ func CreateWorkshopInvite(
 	}
 
 	// 3 words = 33 bits; brute force is bounded by the token lock (httpx.TokenLock).
-	inviteToken, err := wordtoken.GenerateUnique(ctx, 3, inviteTokenExists)
+	inviteToken, err := wordtoken.GenerateUnique(ctx, 3, isInviteTokenTaken)
 	if err != nil {
 		return obj.UserRoleInvite{}, obj.ErrServerError("failed to generate invite token")
 	}
 
-	arg := db.CreateOpenInviteParams{
+	arg := CreateOpenInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
 		InstitutionID: workshop.InstitutionID,
 		Role:          string(obj.RoleParticipant),
@@ -387,7 +386,7 @@ func CreateWorkshopEmailInvite(
 	}
 
 	// Check for existing pending invite for same user + institution
-	existingInvite, err := queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
+	existingInvite, err := queries().GetPendingInviteByTarget(ctx, GetPendingInviteByTargetParams{
 		InstitutionID: workshop.InstitutionID,
 		InvitedUserID: uuid.NullUUID{UUID: user.ID, Valid: true},
 		InvitedEmail:  sql.NullString{String: invitedEmail, Valid: true},
@@ -400,7 +399,7 @@ func CreateWorkshopEmailInvite(
 	}
 
 	// Create targeted invite with workshop scope
-	arg := db.CreateTargetedInviteParams{
+	arg := CreateTargetedInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
 		InstitutionID: workshop.InstitutionID,
 		Role:          string(obj.RoleParticipant),
@@ -418,7 +417,7 @@ func CreateWorkshopEmailInvite(
 	return dbInviteToObj(result), nil
 }
 
-func inviteTokenExists(ctx context.Context, token string) (bool, error) {
+func isInviteTokenTaken(ctx context.Context, token string) (bool, error) {
 	return queries().InviteTokenExists(ctx, sql.NullString{String: token, Valid: true})
 }
 
@@ -428,7 +427,7 @@ func inviteTokenExists(ctx context.Context, token string) (bool, error) {
 // A token found in neither form counts as a guess (-> tokenlock).
 func ResolveInviteToken(ctx context.Context, token string) (string, bool) {
 	for _, candidate := range []string{token, wordtoken.Normalize(token)} {
-		ok, err := inviteTokenExists(ctx, candidate)
+		ok, err := isInviteTokenTaken(ctx, candidate)
 		if err != nil {
 			return token, false
 		}

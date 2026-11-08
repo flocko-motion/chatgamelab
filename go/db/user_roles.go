@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/log"
 	"cgl/obj"
 	"context"
@@ -68,9 +67,9 @@ func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
 	}
 
 	// Create admin role for the user
-	arg := db.CreateUserRoleParams{
+	arg := CreateUserRoleParams{
 		UserID:        userID,
-		Role:          sql.NullString{String: string(obj.RoleAdmin), Valid: true},
+		Role:          string(obj.RoleAdmin),
 		InstitutionID: uuid.NullUUID{}, // Admin role has no institution
 		WorkshopID:    uuid.NullUUID{}, // Admin role has no workshop
 	}
@@ -87,9 +86,9 @@ func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
 // assignDefaultIndividualRole creates an "individual" role for the user
 func assignDefaultIndividualRole(ctx context.Context, userID uuid.UUID) error {
 	// Create individual role for the user
-	arg := db.CreateUserRoleParams{
+	arg := CreateUserRoleParams{
 		UserID:        userID,
-		Role:          sql.NullString{String: string(obj.RoleIndividual), Valid: true},
+		Role:          string(obj.RoleIndividual),
 		InstitutionID: uuid.NullUUID{}, // Individual role has no institution
 		WorkshopID:    uuid.NullUUID{}, // Individual role has no workshop
 	}
@@ -324,11 +323,11 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 			oldInstID := targetUser.Role.Institution.ID
 			// Only clean up if actually leaving the institution (removing role or moving to different institution)
 			if role == nil || (institutionID != nil && *institutionID != oldInstID) {
-				_ = queries().DeleteApiKeySharesByOwnerForInstitution(ctx, db.DeleteApiKeySharesByOwnerForInstitutionParams{
+				_ = queries().DeleteApiKeySharesByOwnerForInstitution(ctx, DeleteApiKeySharesByOwnerForInstitutionParams{
 					UserID:        targetUserID,
 					InstitutionID: uuid.NullUUID{UUID: oldInstID, Valid: true},
 				})
-				_ = queries().DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
+				_ = queries().DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
 					UserID:        targetUserID,
 					InstitutionID: oldInstID,
 				})
@@ -337,7 +336,7 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 	}
 
 	// Use a transaction to ensure atomicity
-	tx, err := sqlDb.BeginTx(ctx, nil)
+	tx, err := sqlDb().BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
@@ -358,9 +357,9 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 	}
 
 	// Create the new role
-	arg := db.CreateUserRoleParams{
+	arg := CreateUserRoleParams{
 		UserID:        targetUserID,
-		Role:          sql.NullString{String: *role, Valid: *role != ""},
+		Role:          *role,
 		InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
 		WorkshopID:    uuid.NullUUID{UUID: uuidPtrToUUID(workshopID), Valid: workshopID != nil},
 	}

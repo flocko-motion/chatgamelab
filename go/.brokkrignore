@@ -1,3 +1,5 @@
 # Generated code — excluded from the quality gate.
-db/sqlc/**
+db/*.sql.go
 docs/docs.go
+db/models.go
+db/db.go

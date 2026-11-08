@@ -5,7 +5,6 @@
 package db
 
 import (
-	sqlc "cgl/db/sqlc"
 	"cgl/log"
 	"cgl/obj"
 	"context"
@@ -199,7 +198,7 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 						log.Debug("checking workshop membership",
 							"user_id", userID,
 							"workshop_id", share.WorkshopID.UUID)
-						isMember, err := queries().IsUserInWorkshop(ctx, sqlc.IsUserInWorkshopParams{
+						isMember, err := queries().IsUserInWorkshop(ctx, IsUserInWorkshopParams{
 							UserID:     userID,
 							WorkshopID: share.WorkshopID,
 						})
@@ -288,7 +287,7 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 // Allowed if:
 //   - The user owns the underlying API key, OR
 //   - The share belongs to an institution and the user is head/staff of that institution
-func canUseShareForSponsoring(ctx context.Context, userID uuid.UUID, share sqlc.GetApiKeyShareByIDRow) error {
+func canUseShareForSponsoring(ctx context.Context, userID uuid.UUID, share GetApiKeyShareByIDRow) error {
 	if share.KeyOwnerID == userID {
 		return nil
 	}

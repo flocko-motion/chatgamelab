@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
 	"encoding/json"
@@ -67,13 +66,13 @@ func (l *launchStore) SaveState(ctx context.Context, sessionID string, stored en
 		return err
 	}
 
-	tx, err := sqlDb.BeginTx(ctx, nil)
+	tx, err := sqlDb().BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin session creation: %w", err)
 	}
 	defer tx.Rollback()
 	q := queries().WithTx(tx)
-	if err := q.CreateGameSession(ctx, db.CreateGameSessionParams{
+	if err := q.CreateGameSession(ctx, CreateGameSessionParams{
 		ID:            id,
 		GameID:        l.meta.GameID,
 		UserID:        l.meta.UserID,
@@ -119,7 +118,7 @@ func (SessionStore) SaveEvent(ctx context.Context, sessionID string, e engine.Ev
 	if err != nil {
 		return unknownSession(sessionID)
 	}
-	if err := queries().AppendGameSessionEvent(ctx, db.AppendGameSessionEventParams{
+	if err := queries().AppendGameSessionEvent(ctx, AppendGameSessionEventParams{
 		SessionID: id,
 		Stream:    e.Stream,
 		Value:     e.Value,
@@ -138,7 +137,7 @@ func (SessionStore) SaveState(ctx context.Context, sessionID string, stored engi
 	if err != nil {
 		return err
 	}
-	n, err := queries().SaveGameSessionState(ctx, db.SaveGameSessionStateParams{
+	n, err := queries().SaveGameSessionState(ctx, SaveGameSessionStateParams{
 		ID:            id,
 		SchemaVersion: int32(stored.Version),
 		Spec:          spec,
@@ -233,7 +232,7 @@ type GetUserSessionsFilters struct {
 
 // GetGameSessionsByUserID is a player's most recent sessions with their games' names.
 func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters GetUserSessionsFilters) ([]UserSessionWithGame, error) {
-	rows, err := queries().GetUserGameSessions(ctx, db.GetUserGameSessionsParams{
+	rows, err := queries().GetUserGameSessions(ctx, GetUserGameSessionsParams{
 		UserID: userID,
 		Search: filters.Search,
 		SortBy: filters.SortField,
@@ -310,7 +309,7 @@ func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 // DeleteUserGameSessions deletes a player's sessions of one game, as starting
 // the game anew does, and answers their ids.
 func DeleteUserGameSessions(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]uuid.UUID, error) {
-	ids, err := queries().GetUserGameSessionIDsForGame(ctx, db.GetUserGameSessionIDsForGameParams{UserID: userID, GameID: gameID})
+	ids, err := queries().GetUserGameSessionIDsForGame(ctx, GetUserGameSessionIDsForGameParams{UserID: userID, GameID: gameID})
 	if err != nil {
 		return nil, fmt.Errorf("failed to find sessions: %w", err)
 	}
@@ -331,7 +330,7 @@ const purgeBatchSize = 200
 func PurgeExpiredSessions(ctx context.Context, cutoff time.Time) ([]uuid.UUID, error) {
 	var purged []uuid.UUID
 	for {
-		ids, err := queries().PurgeExpiredGameSessions(ctx, db.PurgeExpiredGameSessionsParams{
+		ids, err := queries().PurgeExpiredGameSessions(ctx, PurgeExpiredGameSessionsParams{
 			ModifiedAt: cutoff,
 			Limit:      purgeBatchSize,
 		})

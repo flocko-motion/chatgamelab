@@ -1,14 +1,12 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     CRUD and listing of institutions with permission checks.
-// limits:  does not define SQL queries (-> db/sqlc) or expose HTTP endpoints (-> api).
+// limits:  does not define SQL queries (-> db/queries) or expose HTTP endpoints (-> api).
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,7 +21,7 @@ func CreateInstitution(ctx context.Context, createdBy uuid.UUID, name string) (*
 
 	now := time.Now()
 
-	arg := db.CreateInstitutionParams{
+	arg := CreateInstitutionParams{
 		ID:         uuid.New(),
 		CreatedBy:  uuid.NullUUID{UUID: createdBy, Valid: true},
 		CreatedAt:  now,
@@ -124,9 +122,7 @@ func loadInstitutionMembers(ctx context.Context, institutionID uuid.UUID) ([]obj
 		if row.Email.Valid {
 			member.Email = &row.Email.String
 		}
-		if row.Role.Valid {
-			member.Role = obj.Role(row.Role.String)
-		}
+		member.Role = obj.Role(row.Role)
 		members = append(members, member)
 	}
 
@@ -148,7 +144,7 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 		return nil, obj.ErrNotFound("user not found")
 	}
 
-	var results []db.Institution
+	var results []Institution
 
 	// Admin can see all institutions
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
@@ -162,7 +158,7 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 		if err != nil {
 			return nil, obj.ErrServerError("failed to get institution")
 		}
-		results = []db.Institution{inst}
+		results = []Institution{inst}
 	} else {
 		// User has no institution role
 		return []obj.Institution{}, nil
@@ -210,7 +206,7 @@ func UpdateInstitution(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, 
 	}
 
 	now := time.Now()
-	arg := db.UpdateInstitutionParams{
+	arg := UpdateInstitutionParams{
 		ID:         id,
 		CreatedBy:  existing.CreatedBy,
 		CreatedAt:  existing.CreatedAt,
@@ -250,7 +246,7 @@ func UpdateInstitutionPromptConstraints(ctx context.Context, userID uuid.UUID, i
 		return err
 	}
 
-	return queries().UpdateInstitutionPromptConstraints(ctx, db.UpdateInstitutionPromptConstraintsParams{
+	return queries().UpdateInstitutionPromptConstraints(ctx, UpdateInstitutionPromptConstraintsParams{
 		ID:                institutionID,
 		PromptConstraints: stringPtrToNullString(constraints),
 	})
@@ -264,7 +260,7 @@ func SetInstitutionFreeUseApiKeyShare(ctx context.Context, userID uuid.UUID, ins
 		return err
 	}
 
-	return queries().SetInstitutionFreeUseApiKeyShare(ctx, db.SetInstitutionFreeUseApiKeyShareParams{
+	return queries().SetInstitutionFreeUseApiKeyShare(ctx, SetInstitutionFreeUseApiKeyShareParams{
 		ID:                   institutionID,
 		FreeUseApiKeyShareID: uuidPtrToNullUUID(shareID),
 	})
@@ -357,12 +353,9 @@ func GetInstitutionMembers(ctx context.Context, institutionID uuid.UUID, userID 
 			},
 		}
 
-		// Add role information if available
-		if dbUser.RoleID.Valid {
-			users[i].Role = &obj.UserRole{
-				ID:   dbUser.RoleID.UUID,
-				Role: obj.Role(dbUser.RoleRole.String),
-			}
+		users[i].Role = &obj.UserRole{
+			ID:   dbUser.RoleID,
+			Role: obj.Role(dbUser.RoleRole),
 		}
 	}
 
@@ -378,7 +371,7 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 	}
 
 	// Clean up API key shares owned by this user that target the institution
-	if err := queries().DeleteApiKeySharesByOwnerForInstitution(ctx, db.DeleteApiKeySharesByOwnerForInstitutionParams{
+	if err := queries().DeleteApiKeySharesByOwnerForInstitution(ctx, DeleteApiKeySharesByOwnerForInstitutionParams{
 		UserID:        memberUserID,
 		InstitutionID: uuid.NullUUID{UUID: institutionID, Valid: true},
 	}); err != nil {
@@ -386,7 +379,7 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 	}
 
 	// Clean up API key shares owned by this user that target any workshop in this institution
-	if err := queries().DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
+	if err := queries().DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
 		UserID:        memberUserID,
 		InstitutionID: institutionID,
 	}); err != nil {
@@ -395,7 +388,7 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 
 	// Atomically swap the institutional role for an "individual" role so the
 	// user is never left with zero roles if the second step fails.
-	tx, err := sqlDb.BeginTx(ctx, nil)
+	tx, err := sqlDb().BeginTx(ctx, nil)
 	if err != nil {
 		return obj.ErrServerError("failed to begin transaction")
 	}
@@ -407,9 +400,9 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 		return obj.ErrServerError("failed to remove member")
 	}
 
-	if _, err := txQueries.CreateUserRole(ctx, db.CreateUserRoleParams{
+	if _, err := txQueries.CreateUserRole(ctx, CreateUserRoleParams{
 		UserID: memberUserID,
-		Role:   sql.NullString{String: string(obj.RoleIndividual), Valid: true},
+		Role:   string(obj.RoleIndividual),
 	}); err != nil {
 		return obj.ErrServerError("failed to assign individual role after member removal")
 	}

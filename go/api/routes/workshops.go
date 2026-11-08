@@ -217,7 +217,7 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := db.UpdateWorkshopParams{
+	params := db.WorkshopUpdate{
 		Name:                       req.Name,
 		Active:                     req.Active,
 		Public:                     req.Public,

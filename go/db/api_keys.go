@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
 	"database/sql"
@@ -57,7 +56,7 @@ func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platf
 	isDefault := count == 0
 
 	now := time.Now()
-	arg := db.CreateApiKeyParams{
+	arg := CreateApiKeyParams{
 		CreatedBy:  uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:  now,
 		ModifiedBy: uuid.NullUUID{UUID: userID, Valid: true},
@@ -170,7 +169,7 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return obj.ErrServerError("failed to delete shares")
 	}
 
-	if err := queries().DeleteApiKey(ctx, db.DeleteApiKeyParams{
+	if err := queries().DeleteApiKey(ctx, DeleteApiKeyParams{
 		ID:     key.ID,
 		UserID: userID,
 	}); err != nil {
@@ -196,7 +195,7 @@ func promoteNextDefaultKey(ctx context.Context, userID uuid.UUID) {
 	// Pick the first one (oldest by share creation) that the user owns
 	for _, s := range shares {
 		if s.OwnerID == userID {
-			_ = queries().SetDefaultApiKey(ctx, db.SetDefaultApiKeyParams{
+			_ = queries().SetDefaultApiKey(ctx, SetDefaultApiKeyParams{
 				ID:     s.ApiKeyID,
 				UserID: userID,
 			})
@@ -220,7 +219,7 @@ func SetDefaultApiKey(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID)
 	if err := queries().ClearDefaultApiKey(ctx, userID); err != nil {
 		return obj.ErrServerError("failed to clear default key")
 	}
-	return queries().SetDefaultApiKey(ctx, db.SetDefaultApiKeyParams{
+	return queries().SetDefaultApiKey(ctx, SetDefaultApiKeyParams{
 		ID:     apiKeyID,
 		UserID: userID,
 	})
@@ -251,7 +250,7 @@ func UpdateApiKeyLastUsageSuccess(ctx context.Context, apiKeyID uuid.UUID, succe
 	if !success && len(errorCode) > 0 && errorCode[0] != "" {
 		lastErrorCode = sql.NullString{String: errorCode[0], Valid: true}
 	}
-	_ = queries().UpdateApiKeyLastUsageSuccess(ctx, db.UpdateApiKeyLastUsageSuccessParams{
+	_ = queries().UpdateApiKeyLastUsageSuccess(ctx, UpdateApiKeyLastUsageSuccessParams{
 		ID:               apiKeyID,
 		LastUsageSuccess: sql.NullBool{Bool: success, Valid: true},
 		LastErrorCode:    lastErrorCode,
@@ -276,7 +275,7 @@ func UpdateApiKeyName(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, 
 	}
 
 	now := time.Now()
-	_, err = queries().UpdateApiKey(ctx, db.UpdateApiKeyParams{
+	_, err = queries().UpdateApiKey(ctx, UpdateApiKeyParams{
 		ID:         key.ID,
 		ModifiedBy: uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt: now,

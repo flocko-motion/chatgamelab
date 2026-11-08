@@ -1,11 +1,10 @@
 // package: db / database access and repository layer
 // type:    logic
 // job:     evaluate whether a user may perform CRUD on institutions, workshops, users, and invites by role.
-// limits:  does not authorize games/keys (-> permissions_game.go) or define SQL (-> db/sqlc).
+// limits:  does not authorize games/keys (-> permissions_game.go) or define SQL (-> db/queries).
 package db
 
 import (
-	sqlc "cgl/db/sqlc"
 	"cgl/log"
 	"cgl/obj"
 	"context"
@@ -507,7 +506,7 @@ func CanReadUser(ctx context.Context, requestingUserID uuid.UUID, targetUserID u
 // - inviteID: pointer to the invite (nil for list operations)
 // - dbInvite: pointer to the database invite record (for read operations)
 // - userID can be zero UUID for anonymous users (only allowed for reading open invites)
-func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperation, dbInvite *sqlc.UserRoleInvite) error {
+func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperation, dbInvite *UserRoleInvite) error {
 	// Handle anonymous users (zero UUID)
 	isAnonymous := userID == uuid.Nil
 

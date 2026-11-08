@@ -2,7 +2,7 @@
 trigger: model_decision
 description: Apply when working with backend server and cgl CLI tool
 ---
-We use sqlc for database queries. sqlc is configured to generate queries in the `go/db/sqlc/queries` directory. Run "sqlc.sh" in the "go" directory to generate queries.
+We use sqlc for database queries. The queries live in `go/db/queries/`; `./schemaf.sh codegen` generates them into package `db`.
 Backend is at /server. 
 OpenAPI docs are at /go/api/docs and can be generated with /go/generate-openapi.sh
 All db access is regulated by /go/db/permissions.go - don't implement permission logic in other places.

@@ -9,7 +9,6 @@ import (
 	"cgl/api/client"
 	"cgl/api/routes"
 	"cgl/config"
-	"cgl/db"
 	"cgl/obj"
 	"context"
 	"fmt"
@@ -22,6 +21,7 @@ import (
 	"time"
 
 	lorem "github.com/drhodes/golorem"
+	"github.com/flocko-motion/schemaf/constants"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -128,9 +128,10 @@ func (s *BaseSuite) SetupSuite() {
 	// This ensures backend detects empty DB and initializes schema
 	fmt.Printf("🚀 [%s] Starting backend in-process...\n", s.SuiteName)
 
-	// Reset database singleton to clear any stale connections from previous test runs
-	// This is critical for tests running in the same process
-	db.Reset()
+	// The migrations are recorded under the project name, which main registers in the binary.
+	if !constants.IsProjectNameSet() {
+		constants.SetProjectName("chatgamelab")
+	}
 
 	// Set environment variables for backend
 	os.Setenv("DB_HOST", "localhost")

@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/events"
 	"cgl/functional"
 	"cgl/log"
@@ -100,7 +99,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	now := time.Now()
 	game.ID = uuid.New()
 
-	arg := db.CreateGameParams{
+	arg := CreateGameParams{
 		ID:                           game.ID,
 		CreatedBy:                    uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:                    now,
@@ -174,7 +173,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		game.PublicSponsoredApiKeyShareID = nil
 	}
 
-	arg := db.UpdateGameParams{
+	arg := UpdateGameParams{
 		ID:                           game.ID,
 		CreatedBy:                    existingGameRaw.CreatedBy,
 		CreatedAt:                    existingGameRaw.CreatedAt,

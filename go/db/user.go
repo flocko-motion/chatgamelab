@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/functional/wordtoken"
 	"cgl/log"
 	"cgl/obj"
@@ -27,7 +26,7 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 	if email != nil {
 		emailStr = *email
 	}
-	arg := db.CreateUserParams{
+	arg := CreateUserParams{
 		Name:     name,
 		Email:    sql.NullString{String: emailStr, Valid: email != nil},
 		Auth0ID:  sql.NullString{String: auth0ID, Valid: auth0ID != ""},
@@ -81,7 +80,7 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 	if email != nil {
 		emailStr = *email
 	}
-	arg := db.CreateUserWithIDParams{
+	arg := CreateUserWithIDParams{
 		ID:      id,
 		Name:    name,
 		Email:   sql.NullString{String: emailStr, Valid: email != nil},
@@ -140,7 +139,7 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	if email != nil {
 		emailStr = *email
 	}
-	arg := db.UpdateUserParams{
+	arg := UpdateUserParams{
 		ID:    id,
 		Name:  name,
 		Email: sql.NullString{String: emailStr, Valid: email != nil},
@@ -150,7 +149,7 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 
 // UpdateUserAgeGroup updates a user's age group.
 func UpdateUserAgeGroup(ctx context.Context, id uuid.UUID, ageGroup *string) error {
-	arg := db.UpdateUserAgeGroupParams{
+	arg := UpdateUserAgeGroupParams{
 		ID:       id,
 		AgeGroup: stringPtrToNullString(ageGroup),
 	}
@@ -159,7 +158,7 @@ func UpdateUserAgeGroup(ctx context.Context, id uuid.UUID, ageGroup *string) err
 
 // UpdateUserAiQualityTier updates a user's AI quality tier.
 func UpdateUserAiQualityTier(ctx context.Context, id uuid.UUID, tier *string) error {
-	arg := db.UpdateUserAiQualityTierParams{
+	arg := UpdateUserAiQualityTierParams{
 		ID:            id,
 		AiQualityTier: stringPtrToNullString(tier),
 	}
@@ -173,7 +172,7 @@ func UpdateUserLanguage(ctx context.Context, currentUserID uuid.UUID, targetUser
 		return err
 	}
 
-	arg := db.UpdateUserLanguageParams{
+	arg := UpdateUserLanguageParams{
 		ID:       targetUserID,
 		Language: language,
 	}
@@ -181,7 +180,7 @@ func UpdateUserLanguage(ctx context.Context, currentUserID uuid.UUID, targetUser
 }
 
 // GetUserByIDRaw gets the raw user record by ID (includes participant_token field)
-func GetUserByIDRaw(ctx context.Context, id uuid.UUID) (db.AppUser, error) {
+func GetUserByIDRaw(ctx context.Context, id uuid.UUID) (AppUser, error) {
 	return queries().GetUserByID(ctx, id)
 }
 
@@ -228,7 +227,7 @@ const ParticipantTokenPrefix = "participant-"
 // bounded by the token lock (httpx.TokenLock).
 func newParticipantToken(ctx context.Context) (string, error) {
 	words, err := wordtoken.GenerateUnique(ctx, 4, func(ctx context.Context, w string) (bool, error) {
-		return participantTokenExists(ctx, ParticipantTokenPrefix+w)
+		return isParticipantTokenTaken(ctx, ParticipantTokenPrefix+w)
 	})
 	if err != nil {
 		return "", err
@@ -236,7 +235,7 @@ func newParticipantToken(ctx context.Context) (string, error) {
 	return ParticipantTokenPrefix + words, nil
 }
 
-func participantTokenExists(ctx context.Context, token string) (bool, error) {
+func isParticipantTokenTaken(ctx context.Context, token string) (bool, error) {
 	return queries().ParticipantTokenExists(ctx, sql.NullString{String: token, Valid: true})
 }
 
@@ -263,7 +262,7 @@ func ParticipantTokenWords(token string) string {
 // ParticipantTokenKnown reports whether a token was ever issued, including
 // tokens of deleted users or workshops. Unknown tokens are guesses.
 func ParticipantTokenKnown(ctx context.Context, token string) bool {
-	ok, err := participantTokenExists(ctx, token)
+	ok, err := isParticipantTokenTaken(ctx, token)
 	return ok || err != nil
 }
 
@@ -423,7 +422,7 @@ func IsNameTaken(ctx context.Context, name string) (bool, error) {
 
 // IsNameTakenByOther checks if a username is taken by another user (for updates)
 func IsNameTakenByOther(ctx context.Context, name string, excludeUserID uuid.UUID) (bool, error) {
-	return queries().IsNameTakenByOther(ctx, db.IsNameTakenByOtherParams{
+	return queries().IsNameTakenByOther(ctx, IsNameTakenByOtherParams{
 		Name: name,
 		ID:   excludeUserID,
 	})
@@ -431,7 +430,7 @@ func IsNameTakenByOther(ctx context.Context, name string, excludeUserID uuid.UUI
 
 // IsEmailTakenByOther checks if an email is taken by another user (for updates)
 func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.UUID) (bool, error) {
-	return queries().IsEmailTakenByOther(ctx, db.IsEmailTakenByOtherParams{
+	return queries().IsEmailTakenByOther(ctx, IsEmailTakenByOtherParams{
 		Email: sql.NullString{String: email, Valid: true},
 		ID:    excludeUserID,
 	})
@@ -470,7 +469,7 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_ = queries().DeleteAllApiKeysByUser(ctx, id)
 
 	// 3. Clear user's default_api_key_share_id (in case it references someone else's share)
-	_ = queries().SetUserDefaultApiKeyShare(ctx, db.SetUserDefaultApiKeyShareParams{
+	_ = queries().SetUserDefaultApiKeyShare(ctx, SetUserDefaultApiKeyShareParams{
 		ID:                   id,
 		DefaultApiKeyShareID: uuid.NullUUID{},
 	})
@@ -502,7 +501,7 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 // SetUserDefaultApiKeyShare sets the default API key share for a user.
 // Pass nil to clear the default.
 func SetUserDefaultApiKeyShare(ctx context.Context, userID uuid.UUID, shareID *uuid.UUID) error {
-	arg := db.SetUserDefaultApiKeyShareParams{
+	arg := SetUserDefaultApiKeyShareParams{
 		ID:                   userID,
 		DefaultApiKeyShareID: uuid.NullUUID{UUID: uuidPtrToUUID(shareID), Valid: shareID != nil},
 	}
@@ -566,7 +565,7 @@ func SetActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID uuid.UU
 	}
 
 	// Set the active workshop
-	err = queries().SetUserActiveWorkshop(ctx, db.SetUserActiveWorkshopParams{
+	err = queries().SetUserActiveWorkshop(ctx, SetUserActiveWorkshopParams{
 		UserID:           userID,
 		ActiveWorkshopID: uuid.NullUUID{UUID: workshopID, Valid: true},
 	})
@@ -586,7 +585,7 @@ func ClearActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID ...uu
 	}
 	// Clean up orphaned participant role if workshop ID is provided
 	if len(workshopID) > 0 {
-		_ = queries().DeleteUserParticipantRole(ctx, db.DeleteUserParticipantRoleParams{
+		_ = queries().DeleteUserParticipantRole(ctx, DeleteUserParticipantRoleParams{
 			UserID:     userID,
 			WorkshopID: uuid.NullUUID{UUID: workshopID[0], Valid: true},
 		})

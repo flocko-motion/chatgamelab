@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
@@ -62,7 +61,7 @@ func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid
 	}
 
 	// Set the sponsor share on the game
-	if err := queries().SetGamePublicSponsor(ctx, db.SetGamePublicSponsorParams{
+	if err := queries().SetGamePublicSponsor(ctx, SetGamePublicSponsorParams{
 		ID:                           gameID,
 		PublicSponsoredApiKeyShareID: uuid.NullUUID{UUID: *sponsorShareID, Valid: true},
 	}); err != nil {
@@ -115,11 +114,11 @@ func ClearGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uu
 // CreateGameShare creates a game share link with a game-scoped API key share.
 // The sourceShareID is the user's personal/workshop share that will be cloned into a game-scoped share.
 func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {
-	return createGameShare(ctx, userID, gameID, sourceShareID, institutionID, workshopID, maxSessions, aiQualityTier, false)
+	return insertGameShare(ctx, userID, gameID, sourceShareID, institutionID, workshopID, maxSessions, aiQualityTier, false)
 }
 
-// createGameShare is CreateGameShare with publicPage marking a link of the public workshop page.
-func createGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string, publicPage bool) (*obj.GameShare, error) {
+// insertGameShare is CreateGameShare with publicPage marking a link of the public workshop page.
+func insertGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string, publicPage bool) (*obj.GameShare, error) {
 	// Verify the source share exists and the user is authorized to use it
 	share, err := queries().GetApiKeyShareByID(ctx, sourceShareID)
 	if err != nil {
@@ -152,7 +151,7 @@ func createGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 	}
 
 	// Create the game_share row
-	gs, err := queries().CreateGameShare(ctx, db.CreateGameShareParams{
+	gs, err := queries().CreateGameShare(ctx, CreateGameShareParams{
 		GameID:        gameID,
 		Token:         token,
 		ApiKeyShareID: *gameScopedShareID,
@@ -194,7 +193,7 @@ func GetGameShareByID(ctx context.Context, shareID uuid.UUID) (*obj.GameShare, e
 
 // GetGameSharesByGameIDAndCreator returns shares for a game created by a specific user.
 func GetGameSharesByGameIDAndCreator(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) ([]obj.GameShare, error) {
-	rows, err := queries().GetGameSharesByGameIDAndCreator(ctx, db.GetGameSharesByGameIDAndCreatorParams{
+	rows, err := queries().GetGameSharesByGameIDAndCreator(ctx, GetGameSharesByGameIDAndCreatorParams{
 		GameID:    gameID,
 		CreatedBy: uuid.NullUUID{UUID: userID, Valid: true},
 	})
@@ -210,7 +209,7 @@ func GetGameSharesByGameIDAndCreator(ctx context.Context, gameID uuid.UUID, user
 
 // GetGameSharesByGameIDAndWorkshop returns shares for a game in a specific workshop.
 func GetGameSharesByGameIDAndWorkshop(ctx context.Context, gameID uuid.UUID, workshopID uuid.UUID) ([]obj.GameShare, error) {
-	rows, err := queries().GetGameSharesByGameIDAndWorkshop(ctx, db.GetGameSharesByGameIDAndWorkshopParams{
+	rows, err := queries().GetGameSharesByGameIDAndWorkshop(ctx, GetGameSharesByGameIDAndWorkshopParams{
 		GameID:     gameID,
 		WorkshopID: uuid.NullUUID{UUID: workshopID, Valid: true},
 	})
@@ -226,7 +225,7 @@ func GetGameSharesByGameIDAndWorkshop(ctx context.Context, gameID uuid.UUID, wor
 
 // GetGameSharesByGameIDAndInstitution returns org-level shares (non-workshop) for a game.
 func GetGameSharesByGameIDAndInstitution(ctx context.Context, gameID uuid.UUID, institutionID uuid.UUID) ([]obj.GameShare, error) {
-	rows, err := queries().GetGameSharesByGameIDAndInstitution(ctx, db.GetGameSharesByGameIDAndInstitutionParams{
+	rows, err := queries().GetGameSharesByGameIDAndInstitution(ctx, GetGameSharesByGameIDAndInstitutionParams{
 		GameID:        gameID,
 		InstitutionID: uuid.NullUUID{UUID: institutionID, Valid: true},
 	})
@@ -242,7 +241,7 @@ func GetGameSharesByGameIDAndInstitution(ctx context.Context, gameID uuid.UUID, 
 
 // GetWorkshopGameShare finds an existing workshop share for a game (for reuse).
 func GetWorkshopGameShare(ctx context.Context, gameID uuid.UUID, workshopID uuid.UUID) (*obj.GameShare, error) {
-	gs, err := queries().GetWorkshopGameShare(ctx, db.GetWorkshopGameShareParams{
+	gs, err := queries().GetWorkshopGameShare(ctx, GetWorkshopGameShareParams{
 		GameID:     gameID,
 		WorkshopID: uuid.NullUUID{UUID: workshopID, Valid: true},
 	})
@@ -329,7 +328,7 @@ func UpdateGameShare(ctx context.Context, shareID uuid.UUID, remaining *int, aiQ
 	if remaining != nil {
 		nullRemaining = sql.NullInt32{Int32: int32(*remaining), Valid: true}
 	}
-	gs, err := queries().UpdateGameShare(ctx, db.UpdateGameShareParams{
+	gs, err := queries().UpdateGameShare(ctx, UpdateGameShareParams{
 		ID:            shareID,
 		Remaining:     nullRemaining,
 		AiQualityTier: stringPtrToNullString(aiQualityTier),
@@ -352,7 +351,7 @@ func DecrementGameShareRemaining(ctx context.Context, shareID uuid.UUID) (*obj.G
 // CreateGuestUser creates an anonymous user for guest plays.
 // shareID links the guest to the game_share for cleanup on revoke.
 func CreateGuestUser(ctx context.Context, userID uuid.UUID, name string, shareID uuid.UUID) error {
-	_, err := queries().CreateGuestUser(ctx, db.CreateGuestUserParams{
+	_, err := queries().CreateGuestUser(ctx, CreateGuestUserParams{
 		ID:             userID,
 		Name:           name,
 		PrivateShareID: uuid.NullUUID{UUID: shareID, Valid: true},
@@ -378,7 +377,7 @@ func DeleteGuestDataByGameID(ctx context.Context, gameID uuid.UUID) error {
 }
 
 // dbGameShareToObj converts a DB game_share row to an obj.GameShare.
-func dbGameShareToObj(gs db.GameShare) *obj.GameShare {
+func dbGameShareToObj(gs GameShare) *obj.GameShare {
 	result := &obj.GameShare{
 		ID:            gs.ID,
 		GameID:        gs.GameID,

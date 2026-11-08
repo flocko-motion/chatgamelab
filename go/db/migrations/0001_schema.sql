@@ -319,8 +319,6 @@ CREATE TABLE system_settings (
     prompt_constraint_u13p text NULL,
     -- Site-level constraint prompt for users aged 18+ (u18)
     prompt_constraint_u18 text NULL,
-    -- Schema version for tracking applied migrations
-    schema_version integer NOT NULL DEFAULT 0,
     -- Free-use API key for all users (admin-configured, references api_key directly)
     free_use_api_key_id uuid NULL REFERENCES api_key(id),
     -- Ensure only one row exists by enforcing a fixed ID
@@ -330,8 +328,8 @@ CREATE TABLE system_settings (
 );
 
 -- Insert initial system_settings row
-INSERT INTO system_settings (id, default_ai_quality_tier, schema_version)
-VALUES ('00000000-0000-0000-0000-000000000001'::uuid, 'medium', 0)
+INSERT INTO system_settings (id, default_ai_quality_tier)
+VALUES ('00000000-0000-0000-0000-000000000001'::uuid, 'medium')
 ON CONFLICT (id) DO NOTHING;
 
 -- UserFavouriteGame

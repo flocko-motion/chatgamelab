@@ -8,6 +8,7 @@ import (
 	"cgl/api/auth"
 	"cgl/api/routes"
 	"cgl/db"
+	"cgl/functional"
 	"cgl/log"
 	"cgl/telemetry"
 	"context"
@@ -37,7 +38,9 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	}
 
 	log.Debug("initializing database")
-	db.Init()
+	if err := db.Open(ctx, databaseURL()); err != nil {
+		log.Fatal("failed to open the database", "error", err)
+	}
 	if devMode {
 		log.Debug("running database preseed")
 		db.Preseed(ctx)
@@ -96,4 +99,14 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 
 	telemetry.Flush(2 * time.Second)
 	log.Info("server stopped")
+}
+
+// databaseURL builds the Postgres DSN from the v1 server's env.
+func databaseURL() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		functional.RequireEnv("DB_USER"),
+		functional.RequireEnv("DB_PASSWORD"),
+		functional.EnvOrDefault("DB_HOST", "127.0.0.1"),
+		functional.RequireEnv("PORT_POSTGRES"),
+		functional.RequireEnv("DB_DATABASE"))
 }

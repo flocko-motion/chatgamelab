@@ -36,7 +36,7 @@ type VersionResponse struct {
 //	@Success		200	{object}	VersionResponse
 //	@Router			/version [get]
 func GetVersion(w http.ResponseWriter, r *http.Request) {
-	dbLevel, err := db.GetCurrentSchemaVersion()
+	dbLevel, err := db.SchemaVersion(r.Context())
 	if err != nil {
 		log.Warn("failed to get schema version", "error", err)
 	}

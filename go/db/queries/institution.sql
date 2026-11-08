@@ -168,12 +168,6 @@ SELECT * FROM workshop WHERE public_slug = $1 AND deleted_at IS NULL;
 -- Deleted workshops keep their slug, so an old link never points at a new workshop.
 SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1) AS exists;
 
--- name: ListWorkshopsWithoutPublicSlug :many
-SELECT id, name FROM workshop WHERE public_slug IS NULL;
-
--- name: SetWorkshopPublicSlug :exec
-UPDATE workshop SET public_slug = $2 WHERE id = $1;
-
 
 -- workshop_participant -------------------------------------------------
 

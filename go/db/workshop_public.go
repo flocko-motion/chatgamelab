@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/functional/wordtoken"
 	"cgl/log"
 	"cgl/obj"
@@ -108,7 +107,6 @@ func validatePublicSlug(slug string) error {
 	return nil
 }
 
-// BackfillWorkshopPublicSlugs gives every workshop created before migration 033 its slug.
 // ValidatePublicLinks checks the further reading a leader entered. The scheme
 // check is the point of this function: the page renders these as links, so a
 // "javascript:" address would run a stranger's code in every visitor's browser.
@@ -183,31 +181,8 @@ func unmarshalPublicLinks(raw pqtype.NullRawMessage) []obj.PublicWorkshopLink {
 	return links
 }
 
-func BackfillWorkshopPublicSlugs(ctx context.Context) error {
-	rows, err := queries().ListWorkshopsWithoutPublicSlug(ctx)
-	if err != nil {
-		return err
-	}
-	for _, row := range rows {
-		slug, err := newPublicSlug(ctx, row.Name)
-		if err != nil {
-			return err
-		}
-		if err := queries().SetWorkshopPublicSlug(ctx, db.SetWorkshopPublicSlugParams{
-			ID:         row.ID,
-			PublicSlug: sql.NullString{String: slug, Valid: true},
-		}); err != nil {
-			return err
-		}
-	}
-	if len(rows) > 0 {
-		log.Info("gave workshops their public page slug", "count", len(rows))
-	}
-	return nil
-}
-
 // loadPublicWorkshop returns the workshop behind a slug while its page is switched on.
-func loadPublicWorkshop(ctx context.Context, slug string) (*db.Workshop, error) {
+func loadPublicWorkshop(ctx context.Context, slug string) (*Workshop, error) {
 	ws, err := queries().GetWorkshopByPublicSlug(ctx, sql.NullString{String: NormalizePublicSlug(slug), Valid: true})
 	if err != nil || !ws.Public {
 		return nil, obj.ErrNotFound("workshop page not found")
@@ -266,14 +241,14 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 
 // ensurePublicPageShares returns the public-page share link of each game, keyed
 // by game ID, and creates the missing ones when the workshop has a key.
-func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Game) (map[uuid.UUID]db.GameShare, error) {
+func ensurePublicPageShares(ctx context.Context, ws *Workshop, games []Game) (map[uuid.UUID]GameShare, error) {
 	workshopID := uuid.NullUUID{UUID: ws.ID, Valid: true}
-	load := func() (map[uuid.UUID]db.GameShare, error) {
+	load := func() (map[uuid.UUID]GameShare, error) {
 		rows, err := queries().GetPublicPageGameSharesByWorkshop(ctx, workshopID)
 		if err != nil {
 			return nil, obj.ErrServerError("failed to load share links")
 		}
-		byGame := make(map[uuid.UUID]db.GameShare, len(rows))
+		byGame := make(map[uuid.UUID]GameShare, len(rows))
 		for _, row := range rows {
 			byGame[row.GameID] = row
 		}
@@ -312,7 +287,7 @@ func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Gam
 		if _, ok := shares[g.ID]; ok || !isPlayable(g) {
 			continue
 		}
-		gs, err := createGameShare(ctx, author, g.ID, ws.DefaultApiKeyShareID.UUID, &ws.InstitutionID, &ws.ID, &sessions, nil, true)
+		gs, err := insertGameShare(ctx, author, g.ID, ws.DefaultApiKeyShareID.UUID, &ws.InstitutionID, &ws.ID, &sessions, nil, true)
 		if err != nil {
 			// A broken workshop key stops every game, so there is no point trying the rest.
 			log.Warn("public page: failed to create share link", "workshop_id", ws.ID, "game_id", g.ID, "error", err)
@@ -328,7 +303,7 @@ func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Gam
 }
 
 // isPlayable mirrors the check in game.ValidatePrivateShareToken.
-func isPlayable(g db.Game) bool {
+func isPlayable(g Game) bool {
 	return g.SystemMessageScenario != "" && g.SystemMessageGameStart != ""
 }
 
@@ -336,7 +311,7 @@ func isPlayable(g db.Game) bool {
 // links. Guests fall back to the author's youth-protection constraint once the
 // workshop and the organisation set none (spec, Jugendschutz, "Gäste"), so this is
 // the workshop's creator, or else whoever assigned the workshop its key.
-func publicPageShareAuthor(ctx context.Context, ws *db.Workshop) (uuid.UUID, error) {
+func publicPageShareAuthor(ctx context.Context, ws *Workshop) (uuid.UUID, error) {
 	if ws.CreatedBy.Valid {
 		if _, err := queries().GetUserByID(ctx, ws.CreatedBy.UUID); err == nil {
 			return ws.CreatedBy.UUID, nil
@@ -365,7 +340,7 @@ func GetPublicWorkshopGame(ctx context.Context, slug string, gameID uuid.UUID) (
 	return game, nil
 }
 
-func deletePublicPageShares(ctx context.Context, shares []db.GameShare) {
+func deletePublicPageShares(ctx context.Context, shares []GameShare) {
 	for _, gs := range shares {
 		if err := DeleteGameShare(ctx, gs.ID); err != nil {
 			log.Warn("failed to delete public page share link", "game_share_id", gs.ID, "error", err)

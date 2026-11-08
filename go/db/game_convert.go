@@ -5,7 +5,6 @@
 package db
 
 import (
-	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
 	"database/sql"
@@ -15,7 +14,7 @@ import (
 )
 
 // dbGameToObj converts a sqlc Game to obj.Game, including tags
-func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
+func dbGameToObj(ctx context.Context, g Game) (*obj.Game, error) {
 	// Get tags for this game
 	dbTags, err := queries().GetGameTagsByGameID(ctx, g.ID)
 	if err != nil {
@@ -98,7 +97,7 @@ func loadGameByID(ctx context.Context, gameID uuid.UUID) (*obj.Game, error) {
 }
 
 // loadGameByIDWithRaw loads a game from DB and returns both the parsed object and raw DB row
-func loadGameByIDWithRaw(ctx context.Context, gameID uuid.UUID) (*obj.Game, *db.Game, error) {
+func loadGameByIDWithRaw(ctx context.Context, gameID uuid.UUID) (*obj.Game, *Game, error) {
 	g, err := queries().GetGameByID(ctx, gameID)
 	if err != nil {
 		return nil, nil, obj.ErrNotFound("game not found")

@@ -125,13 +125,13 @@ SELECT
   aw.is_paused AS active_workshop_is_paused,
   aw.allow_game_sharing AS active_workshop_allow_game_sharing
 FROM app_user u
-LEFT JOIN LATERAL (
-  SELECT ur.*
+LEFT JOIN user_role r ON r.id = (
+  SELECT ur.id
   FROM user_role ur
   WHERE ur.user_id = u.id
   ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
-) r ON TRUE
+)
 LEFT JOIN institution i
   ON i.id = r.institution_id
 LEFT JOIN workshop w
@@ -158,13 +158,13 @@ SELECT
   r.workshop_id,
   w.name         AS workshop_name
 FROM app_user u
-LEFT JOIN LATERAL (
-  SELECT ur.*
+LEFT JOIN user_role r ON r.id = (
+  SELECT ur.id
   FROM user_role ur
   WHERE ur.user_id = u.id
   ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
-) r ON TRUE
+)
 LEFT JOIN institution i
   ON i.id = r.institution_id
 LEFT JOIN workshop w
