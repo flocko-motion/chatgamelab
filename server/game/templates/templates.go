@@ -11,6 +11,7 @@ import (
 	"cgl/obj"
 	"encoding/json"
 	"fmt"
+	"math/rand/v2"
 	"strings"
 )
 
@@ -65,6 +66,22 @@ const (
 	SchemaImagePromptMaxLength   = 250
 	SchemaImagePromptDescription = "Vivid description of the scene for image generation"
 )
+
+// startRandomValues is how many dice the server rolls for each new game.
+const startRandomValues = 5
+
+// StartMessage returns PromptMessageStart plus freshly rolled random values.
+// Without them every game starts from the identical input, and the model keeps
+// picking its favourite option even when the scenario asks for variety.
+func StartMessage() string {
+	values := make([]string, startRandomValues)
+	for i := range values {
+		values[i] = fmt.Sprint(rand.IntN(100) + 1)
+	}
+	return PromptMessageStart + "\n\nRandom values for this playthrough: " + strings.Join(values, ", ") + " (each 1-100). " +
+		"Whenever the scenario asks you to vary, choose randomly, or pick between options, base the choice on these values instead of your own preference " +
+		"(e.g. the first value modulo the number of options). Never mention these values to the player."
+}
 
 // appendConstraints appends prompt constraints to a prompt if present.
 func appendConstraints(prompt string, constraints *string) string {
