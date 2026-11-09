@@ -130,7 +130,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	// System messages become instructions, otherwise use previous_response_id for continuity
 	if action.Type == obj.GameSessionMessageTypeSystem {
 		req.Instructions = action.Message
-		req.Input = []InputMessage{{Role: "developer", Content: templates.PromptMessageStart}}
+		req.Input = []InputMessage{{Role: "developer", Content: templates.StartMessage()}}
 	} else if modelSession.ResponseID != "" {
 		req.PreviousResponseID = modelSession.ResponseID
 		req.Input = []InputMessage{
