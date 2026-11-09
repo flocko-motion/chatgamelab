@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -343,7 +344,17 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			responseStream.Send(obj.GameSessionMessageChunk{ImageDone: true})
 			return
 		}
-		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
+		err := platform.GenerateImage(context.Background(), session, response, responseStream)
+		if err != nil && errors.Is(err, obj.ErrImageStreamIncomplete) {
+			// The stream broke off without a final image: regenerate once within this turn
+			// instead of leaving the player on the preview.
+			log.Warn("image stream incomplete, retrying once", "session_id", session.ID, "message_id", response.ID, "error", err)
+			if dbErr := db.IncrementImageGenAttempts(context.Background(), response.ID); dbErr != nil {
+				log.Warn("failed to bump image_gen_attempts", "message_id", response.ID, "error", dbErr)
+			}
+			err = platform.GenerateImage(context.Background(), session, response, responseStream)
+		}
+		if err != nil {
 			log.Warn("GenerateImage failed", "session_id", session.ID, "error", err)
 
 			// Signal the error to frontend via both cache (for polling) and stream (for SSE).

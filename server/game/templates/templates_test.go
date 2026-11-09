@@ -25,6 +25,20 @@ func TestGetTemplateLeavesNoPlaceholders(t *testing.T) {
 	}
 }
 
+func TestStartMessageRollsFreshValues(t *testing.T) {
+	seen := map[string]bool{}
+	for range 5 {
+		got := StartMessage()
+		if !strings.HasPrefix(got, PromptMessageStart) || !strings.Contains(got, "Random values for this playthrough: ") {
+			t.Fatalf("start message lacks the start prompt or the random values:\n%s", got)
+		}
+		seen[got] = true
+	}
+	if len(seen) == 1 {
+		t.Error("five start messages were identical; the values are not random")
+	}
+}
+
 func TestPromptNarrateOpeningScene(t *testing.T) {
 	rules := "keine Gewalt"
 	got := PromptNarrateOpeningScene("de", &rules)

@@ -400,7 +400,7 @@
       "placeholder": "e.g. apfel otter turm",
       "submit": "Continue",
       "title": "Enter code",
-      "unknown": "That did not get you in. First check the spelling, word by word. Hyphens or spaces do not matter. If the code is right, it may not be valid any more: codes can be replaced, and access ends after the workshop. Then ask your workshop leader for a new code.",
+      "unknown": "That didn't work. First check the spelling, word by word. Hyphens or spaces do not matter. If the code is right, it may not be valid any more: codes can be replaced, or the workshop leader has ended the workshop (this can happen at any time after the workshop). Then ask your workshop leader for a new code.",
       "wrongLength": "A code has three or four words."
     },
     "error": "Error",
@@ -570,7 +570,7 @@
         "imageStyleHint": "For example: cartoon, realistic, pixel art, watercolor...",
         "name": "Game Name",
         "scenario": "What is the game about?",
-        "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language \u0026 Tone (e.g. Spanisch for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".\nWhat is the goal? How does the player know they have won?",
+        "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language \u0026 Tone (e.g. Spanish for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".\nWhat is the goal? How does the player know they have won?",
         "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "statusFields": "Game values",
         "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
@@ -1357,7 +1357,7 @@
         "title": "More about this workshop"
       },
       "about": {
-        "oneLiner": "These text adventures were made with ChatGameLab: built by hand, without programming, told live by an AI.",
+        "oneLiner": "These text adventures were created with ChatGameLab: made by their creators, without programming, told live by an AI.",
         "details": "Their makers describe the world, the characters and the rules in their own words. While you play, an AI keeps telling the story from there: it reacts to whatever you type and invents matching pictures \u2014 so no two rounds play out the same way. Building one yourself quickly shows how strongly your own instructions shape the result, and where an AI reaches its limits. That is the whole point: not having AI explained to you, but trying it out.",
         "more": "Learn more",
         "less": "Less",

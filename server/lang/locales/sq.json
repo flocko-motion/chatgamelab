@@ -57,10 +57,10 @@
       "noOrganization": "Pa organizatë",
       "noRole": "Pa rol të caktuar",
       "organization": "Organizata",
-      "organizationSection": "Organizata \u00026 Roli",
+      "organizationSection": "Organizata dhe roli",
       "participantCode": {
         "error": "Kodi yt i aksesit nuk mund të ngarkohej.",
-        "hint": "Bëj një foto të këtij kodi ose shënoje dhe mbaje për vete. Ai të rikthen në llogarinë tënde në çdo kohë dhe në çdo pajisje: fut fjalët te “Fut kodin” në faqen kryesore ose skano kodin QR.",
+        "hint": "Bëni një foto të këtij kodi ose shënojeni diku dhe mbajeni vetëm për vete. Ky kod ju rikthen në llogarinë tuaj në çdo kohë dhe nga çdo pajisje: futni fjalët te “Fut kodin” në faqen kryesore ose skanoni kodin QR.",
         "longTokenHint": "Bëj një foto të kodit QR ose ruaje lidhjen dhe mbaje për vete. Ajo të rikthen në llogarinë tënde në çdo kohë. Drejtuesi i punëtorisë mund të të japë një kod të shkurtër me katër fjalë duke rivendosur aksesin tënd.",
         "title": "Kodi yt i aksesit"
       },
@@ -130,7 +130,7 @@
         "step2WithInfo": "me:",
         "step3": "3. Ne do ta konfigurojmë organizatën tuaj",
         "step3Description": "Ne do ta krijojmë organizatën tuaj dhe do t’ju caktojmë si drejtues. Më pas mund të ftoni kolegët dhe të organizoni punëtori.",
-        "title": "Hyrje për Edukatorë \u00026 Profesionistë"
+        "title": "Qasje për edukatorë dhe profesionistë"
       },
       "educatorTitle": "Edukator / Profesionist",
       "individualDescription": "Krijoni dhe luani aventura tekstuale të fuqizuara nga AI",
@@ -375,7 +375,7 @@
         "revokeGameShare": "Revoko lidhjen e shpërndarjes",
         "revokePrivateShare": "Revoko lidhjen e ndarjes",
         "sponsorships": "Sponsorizime lojërash",
-        "toggle": "Ndarje \u00026 Sponsorizime",
+        "toggle": "Ndarjet dhe sponsorizimet",
         "unknownGame": "Lojë e panjohur",
         "unknownOrg": "Organizatë e panjohur",
         "unknownUser": "Përdorues i panjohur",
@@ -415,7 +415,7 @@
       "placeholder": "p.sh. apfel otter turm",
       "submit": "Vazhdo",
       "title": "Fut kodin",
-      "unknown": "Ky kod nuk ekziston. Kontrollo drejtshkrimin.",
+      "unknown": "Kjo nuk funksionoi. Së pari kontrolloni drejtshkrimin, fjalë për fjalë. Vizat lidhëse ose hapësirat nuk kanë rëndësi. Nëse kodi është i saktë, mund të mos jetë më i vlefshëm: kodet mund të zëvendësohen ose drejtuesi i punëtorisë mund ta ketë përfunduar punëtorinë (kjo mund të ndodhë në çdo kohë pas punëtorisë). Më pas kërkojini drejtuesit të punëtorisë një kod të ri.",
       "wrongLength": "Një kod ka tre ose katër fjalë."
     },
     "error": "Gabim",
@@ -530,6 +530,11 @@
         "starting": "Duke nisur sesionin e lojës...",
         "startingHint": "AI po përgatit aventurën tuaj"
       },
+      "narration": {
+        "generating": "Rrëfimi po krijohet…",
+        "play": "Luaj rrëfimin",
+        "stop": "Ndalo rrëfimin"
+      },
       "needsApiKey": {
         "description": "Çelësi API i përdorur për këtë sesion nuk është më i disponueshëm.",
         "reason": "Çelësi juaj API i mëparshëm nuk është më i disponueshëm. Për të vazhduar lojën tuaj, ju lutemi zgjidhni një të ri.",
@@ -589,13 +594,13 @@
       "editFields": {
         "description": "Jepni një përshkrim të shkurtër të lojës. Kjo është vetëm për ju dhe nuk ndikon në lojë.",
         "gameStart": "Si fillon loja?",
-        "gameStartHint": "Çfarë ndodh në fillim? Përshkruani skenën e parë që sheh lojtari. Si pritet lojtari?",
+        "gameStartHint": "Çfarë ndodh në fillim? Përshkruani skenën e parë që sheh lojtari. Si mirëpritet lojtari? Si e kupton lojtari se çfarë duhet të bëjë?",
         "gameStartPlaceholder": "Zgjoheni në buzë të një pylli të errët. Një shteg i ngushtë të çon më thellë në pemë...",
         "imageStyle": "Çfarë stili duhet të kenë imazhet e lojës?",
         "imageStyleHint": "Për shembull: vizatim, realist, art piksel, akvarel...",
         "name": "Emri i lojës",
         "scenario": "Për çfarë është loja?",
-        "scenarioHint": "Përshkruani shkurtimisht: Si funksionon loja? Si është bota? Gjuha \u00026 Toni (p.sh. spanjisht për të klasës së gjashtë)?\nÇfarë roli ka lojtari? Shkruani \"Lojtari ...\".\nNëse dëshironi që AI të marrë rolin e një personi specifik shkruani \"Ti je ...\".",
+        "scenarioHint": "Përshkruani shkurtimisht: Si funksionon loja? Si është bota? Gjuha dhe toni (p.sh. spanjisht për nxënësit e klasës së gjashtë)?\nÇfarë roli ka lojtari? Shkruani \"Lojtari ...\". \nNëse dëshironi që AI-ja të marrë rolin e një personi të caktuar, shkruani \"Ti je ...\".\nCili është qëllimi? Si e kupton lojtari se ka fituar?",
         "scenarioPlaceholder": "Ju jeni një eksplorues në një pyll misterioz. Qëllimi juaj është të gjeni thesarin e fshehur...",
         "statusFields": "Vlerat e lojës",
         "statusFieldsHint": "Çfarë duhet të mbajë shënim loja? Për shembull shëndeti, pikët ose municioni. Loja i mban mend këto vlera dhe i përditëson gjatë lojës."
@@ -673,7 +678,7 @@
         "unlimitedSessions": "Sesionet e pakufizuara",
         "update": "Përditëso lidhjen e ndarjes",
         "workshopCreateHint": "Krijoni një lidhje shpërndarjeje për këtë lojë. Çelësi API i punëtorisë zgjidhet automatikisht dhe mbulon kostot.",
-        "workshopDescription": "Kjo lidhje krijohet brenda punëtorisë \"{{name}}\" – të ftuarit luajnë me çelësin API të punëtorisë dhe kufizimet e kërkesave.",
+        "workshopDescription": "Kjo lidhje krijohet brenda punëtorisë \"{{name}}\" – të ftuarit luajnë me çelësin API të punëtorisë dhe kufizimet e udhëzimeve.",
         "workshopShare": "Shpërndarje punëtorie",
         "workshopShareDescription": "Kjo lidhje është krijuar në punëtorinë \"{{name}}\" - të ftuarit luajnë duke përdorur çelësin API të punëtorisë.",
         "workshopSubsection": "Lidhje Shpërndarjeje e Punëtorisë"
@@ -742,7 +747,7 @@
         "basicInfo": "Informacione të përgjithshme rreth lojës. Kjo është vetëm për ju dhe nuk ndikon në lojë.",
         "importExport": "Import/Eksport",
         "quickStart": "Fillim i shpejtë",
-        "story": "Historia \u00026 AI",
+        "story": "Historia dhe IA",
         "storyInfo": "Gjithçka këtu i dërgohet AI-së për të formuar botën dhe historinë e lojës.",
         "style": "Dizajni",
         "styleInfo": "Cilësime opsionale për pamjen e lojës gjatë lojës."
@@ -850,6 +855,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Kopjo këtë lojë",
+      "copyGameLogin": "Hyr dhe kopjo lojën",
+      "copyLeaveMessage": "Kopjimi kërkon hyrje në llogari. Raundi që po luani do të humbasë.",
+      "copyLeaveTitle": "Të largoheni nga loja?",
       "welcome": {
         "backToHome": "Shko te ChatGameLab",
         "continueGame": "Vazhdo lojën",
@@ -886,7 +895,7 @@
         },
         "learn": {
           "description": "Ideale për punëtori edukative dhe aktivitete në klasë",
-          "title": "Mësoni \u00026 Mësoni të tjerët"
+          "title": "Mëso dhe mëso të tjerët"
         },
         "play": {
           "description": "Bashkohuni me miqtë në sesione rrëfimi bashkëpunues",
@@ -1075,6 +1084,19 @@
         "enabledHint": "Kur çaktivizohet, lidhja shfaq vetëm një njoftim dhe lidhjet e lojës në faqe nuk funksionojnë më.",
         "link": "Lidhja",
         "linkHint": "Përdor a–z, 0–9 dhe viza të vetme, nga 3 deri në 60 karaktere.",
+        "links": {
+          "add": "Shto lidhje",
+          "down": "Zhvendose poshtë",
+          "error": "Lidhjet nuk mund të ruheshin. Çdo lidhje duhet të ketë një titull dhe çdo adresë duhet të fillojë me http:// ose https://.",
+          "hint": "Shfaqen në faqe, poshtë lojërave. Më së shumti dhjetë.",
+          "linkDescription": "Përshkrimi (opsional)",
+          "linkTitle": "Titulli",
+          "remove": "Hiq",
+          "save": "Ruaj lidhjet",
+          "title": "Lexime të mëtejshme",
+          "up": "Zhvendose lart",
+          "url": "Adresa"
+        },
         "offHint": "Faqja është çaktivizuar. Megjithatë, mund të përgatitësh lidhjen dhe kodin QR të saj.",
         "open": "Hap faqen",
         "shareDescription": "Dërgoje këtë lidhje ose shfaqe si kod QR.",
@@ -1179,8 +1201,10 @@
         "promptConstraintsPlaceholder": "p.sh. Mbaje historinë të përshtatshme për moshën dhe shmang përmbajtjen e dhunshme.",
         "removeParticipant": "Hiq pjesëmarrësin",
         "removeParticipantConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori?",
-        "removeParticipantMessage": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori? Ky veprim nuk mund të zhbëhet.",
+        "removeParticipantMessage": "A dëshironi vërtet ta hiqni \"{{name}}\" nga kjo punëtori?",
         "removeParticipantTitle": "Hiq pjesëmarrësin",
+        "removeParticipantWarningPermanent": "Kjo fshin përgjithmonë llogarinë e këtij personi dhe çdo lojë që ai ka krijuar, së bashku me të gjitha seancat e lojës dhe çdo lidhje të ndarë me to. Ky veprim nuk mund të zhbëhet. Nëse lojërat duhen ruajtur, shkarkojini fillimisht si YAML.",
+        "removeParticipantWarningVisiting": "Ky person ruan llogarinë dhe lojërat e tij. Përfundon vetëm qasja e tij në këtë punëtori.",
         "resetAccess": "Rivendos aksesin",
         "resetAccessDone": "U krijua aksesi i ri. Lidhja e vjetër nuk funksionon më.",
         "resetAccessError": "Aksesi nuk mund të rivendosej. Provo përsëri.",
@@ -1219,6 +1243,9 @@
     "noRole": "Pa rol",
     "notifications": {
       "accept": "Prano",
+      "acceptConfirm": "Dëshironi të vazhdoni?",
+      "acceptTitle": "Të ndryshohet organizata?",
+      "acceptWarning": "Mund të jeni anëtar i vetëm një organizate në të njëjtën kohë. Pranimi i kësaj ftese do t'ju heqë nga organizata juaj aktuale \"{{organization}}\".",
       "decline": "Refuzo",
       "declineConfirm": "Jeni i sigurt që doni ta refuzoni këtë ftesë?",
       "declineTitle": "Refuzo ftesën",
@@ -1256,10 +1283,25 @@
     "promoteToHead": "Promovo në Kreu",
     "promoteWarning": "Ky përdorues do të fitojë aftësinë për të menaxhuar anëtarët e organizatës dhe për të ftuar mësues.",
     "publicWorkshop": {
+      "about": {
+        "details": "Krijuesit e tyre përshkruajnë botën, personazhet dhe rregullat me fjalët e tyre. Ndërsa luani, një AI vazhdon ta tregojë historinë prej aty: reagon ndaj çdo gjëje që shkruani dhe krijon figura që përputhen me të — prandaj asnjë raund nuk zhvillohet në të njëjtën mënyrë. Krijimi i një loje tuajën e tregon shpejt se sa fort ndikojnë udhëzimet tuaja në rezultat dhe ku arrin kufijtë e AI-së. Ky është i gjithë qëllimi: jo t'ju shpjegohet AI-ja, por ta provoni vetë.",
+        "less": "Më pak",
+        "link": "Më shumë rreth ChatGameLab",
+        "more": "Mëso më shumë",
+        "oneLiner": "Këto aventura me tekst u krijuan me ChatGameLab: të krijuara nga autorët e tyre, pa programim, dhe të treguara drejtpërdrejt nga një AI."
+      },
       "copy": "Kopjo",
       "copyLogin": "Hyr për ta kopjuar",
+      "cta": {
+        "button": "Fillo falas",
+        "text": "Krijimi i aventurës suaj me tekst është falas dhe zgjat vetëm disa minuta.",
+        "title": "Krijoni lojën tuaj në ChatGameLab"
+      },
       "download": "Shkarko",
       "gamesTitle": "Lojërat e kësaj punëtorie",
+      "links": {
+        "title": "Më shumë rreth kësaj punëtorie"
+      },
       "noGames": "Asnjë lojë nuk është publikuar këtu ende.",
       "play": "Luaj",
       "playExhausted": "Nuk kanë mbetur seanca loje",
@@ -1356,7 +1398,8 @@
     "settings": "Cilësimet",
     "share": {
       "copied": "U kopjua",
-      "copyLink": "Kopjo lidhjen"
+      "copyLink": "Kopjo lidhjen",
+      "visitLink": "Vizito lidhjen"
     },
     "showing": "{{count}} anëtarë",
     "sort": {
@@ -1367,7 +1410,16 @@
       "role-desc": "Roli (Z-A)"
     },
     "unnamed": "Pa emër",
-    "viewGame": "Shiko lojën"
+    "viewGame": "Shiko lojën",
+    "workshop": {
+      "inactive": {
+        "description": "Kjo punëtori nuk është aktive tani. Prisni derisa drejtuesi i punëtorisë ta aktivizojë përsëri.",
+        "noCode": "Në këtë pajisje nuk ruhet asnjë kod. Drejtuesi i punëtorisë mund t'jua tregojë kodin tuaj.",
+        "photoFirst": "Nëse dilni nga llogaria, kodi juaj do të zhduket nga kjo pajisje. Bëni fillimisht një foto të tij.",
+        "showCode": "Shfaq kodin tim të qasjes",
+        "title": "Punëtoria nuk është aktive"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1426,7 +1478,7 @@
     "untitledGame": "Lojë pa emër",
     "version": {
       "mismatch": {
-        "message": "Versioni i frontend-it \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e nuk përputhet me versionin e backend-it \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Kjo mund të shkaktojë sjellje të papritura. Kontaktoni mbështetjen nëse problemi vazhdon.",
+        "message": "Versioni i frontend-it \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e nuk përputhet me versionin e backend-it \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Kjo mund të shkaktojë sjellje të papritur. Kontaktoni mbështetjen nëse problemet vazhdojnë.",
         "title": "U zbulua mospërputhje versioni"
       }
     }
@@ -1440,6 +1492,7 @@
     "duplicateName": "Emri për këtë lojë është tashmë në përdorim. Ju lutemi zgjidhni një emër tjetër.",
     "forbidden": "Nuk keni leje ta kryeni këtë veprim.",
     "generic": "Diçka shkoi keq. Ju lutemi provoni përsëri.",
+    "imageGenerationUnavailable": "Figura për këtë skenë nuk mund të krijohej. Historia vazhdon pa të.",
     "insufficientQuota": "Çelësi juaj API ka mbetur pa kredite. Shtoni më shumë kredi ose përdorni një çelës tjetër API.",
     "invalidApiKey": "Çelësi juaj API është i pavlefshëm ose ka skaduar. Ju lutemi kontrolloni çelësin në Cilësime.",
     "invalidJsonSchema": "Konfigurimi i lojës prodhoi një skemë të pavlefshme për AI-në. Kjo është çështje konfigurimi loje, jo çelësi API. Ju lutemi kontrolloni fushat e statusit të lojës dhe provoni përsëri.",

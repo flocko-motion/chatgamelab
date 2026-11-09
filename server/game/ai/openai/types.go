@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+var imageBaseURL = openaiBaseURL // overridable in tests
+
 const (
 	openaiBaseURL         = "https://api.openai.com/v1"
 	responsesEndpoint     = "/responses"

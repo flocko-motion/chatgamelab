@@ -400,7 +400,7 @@
       "placeholder": "e.g. apfel otter turm",
       "submit": "Continue",
       "title": "Enter code",
-      "unknown": "This code does not exist. Please check the spelling.",
+      "unknown": "That didn't work. First check the spelling, word by word. Hyphens or spaces do not matter. If the code is right, it may not be valid any more: codes can be replaced, or the workshop leader has ended the workshop (this can happen at any time after the workshop). Then ask your workshop leader for a new code.",
       "wrongLength": "A code has three or four words."
     },
     "error": "Error",
@@ -515,6 +515,11 @@
         "starting": "Starting game session...",
         "startingHint": "The AI is preparing your adventure"
       },
+      "narration": {
+        "generating": "Narration is being generated…",
+        "play": "Play narration",
+        "stop": "Stop narration"
+      },
       "needsApiKey": {
         "description": "The API key used for this session is no longer available.",
         "title": "API Key Required"
@@ -559,13 +564,13 @@
       "editFields": {
         "description": "Give the game a short description. This is just for you and won't affect gameplay.",
         "gameStart": "How does the game begin?",
-        "gameStartHint": "What happens at the start? Describe the first scene that the player sees. How is the player welcomed?",
+        "gameStartHint": "What happens at the start? Describe the first scene that the player sees. How is the player welcomed? How does the player know what to do?",
         "gameStartPlaceholder": "You wake up at the edge of a dark forest. A narrow path leads deeper into the trees...",
         "imageStyle": "What style should the game's images have?",
         "imageStyleHint": "For example: cartoon, realistic, pixel art, watercolor...",
         "name": "Game Name",
         "scenario": "What is the game about?",
-        "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language \u0026 Tone (e.g. Spanisch for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".",
+        "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language \u0026 Tone (e.g. Spanish for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".\nWhat is the goal? How does the player know they have won?",
         "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "statusFields": "Game values",
         "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
@@ -820,6 +825,10 @@
       "privacyHintShort": "May become publicly visible – please no real names."
     },
     "guestPlay": {
+      "copyGame": "Copy this game",
+      "copyGameLogin": "Log in & copy game",
+      "copyLeaveTitle": "Leave the game?",
+      "copyLeaveMessage": "Copying requires a login. The round you are playing will be lost.",
       "welcome": {
         "backToHome": "Go to ChatGameLab",
         "continueGame": "Continue Game",
@@ -1122,7 +1131,9 @@
         "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
         "removeParticipant": "Remove participant",
         "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
-        "removeParticipantMessage": "Are you sure you want to remove \"{{name}}\" from this workshop? This action cannot be undone.",
+        "removeParticipantMessage": "Do you really want to remove \"{{name}}\" from this workshop?",
+        "removeParticipantWarningPermanent": "This permanently deletes the account of this person and every game they created, along with all play sessions and any shared links to them. It cannot be undone. If the games should be kept, download them as YAML first.",
+        "removeParticipantWarningVisiting": "This person keeps their account and their games. Only their access to this workshop ends.",
         "removeParticipantTitle": "Remove Participant",
         "resetAccess": "Reset access",
         "resetAccessDone": "New access created. The old link no longer works.",
@@ -1153,6 +1164,19 @@
         "viewInviteLink": "View Invite Link"
       },
       "publicPage": {
+        "links": {
+          "title": "Further reading",
+          "hint": "Shown on the page below the games. Ten at most.",
+          "linkTitle": "Title",
+          "linkDescription": "Description (optional)",
+          "url": "Address",
+          "add": "Add link",
+          "remove": "Remove",
+          "up": "Move up",
+          "down": "Move down",
+          "save": "Save links",
+          "error": "The links could not be saved. Every link needs a title, and every address must start with http:// or https://."
+        },
         "title": "Public page",
         "description": "A page without login that shows what the workshop was about and lists the group's public games. It never names who made a game.",
         "enabled": "Show public page",
@@ -1182,6 +1206,9 @@
     "noRole": "No role",
     "notifications": {
       "accept": "Accept",
+      "acceptConfirm": "Do you want to continue?",
+      "acceptTitle": "Switch organization?",
+      "acceptWarning": "You can only be a member of one organization at a time. Accepting this invitation removes you from your current organization \"{{organization}}\".",
       "decline": "Decline",
       "declineConfirm": "Are you sure you want to decline this invitation?",
       "declineTitle": "Decline Invitation",
@@ -1303,7 +1330,8 @@
     "settings": "Settings",
     "share": {
       "copied": "Copied",
-      "copyLink": "Copy link"
+      "copyLink": "Copy link",
+      "visitLink": "Visit link"
     },
     "showing": "{{count}} members",
     "sort": {
@@ -1315,7 +1343,26 @@
     },
     "unnamed": "Unnamed",
     "viewGame": "View Game",
+    "workshop": {
+      "inactive": {
+        "title": "Workshop is not active",
+        "description": "This workshop is not active right now. Wait until your workshop leader switches it on again.",
+        "photoFirst": "If you log out, your code is gone from this device. Take a photo of it first.",
+        "noCode": "No code is stored on this device. Your workshop leader can tell you yours.",
+        "showCode": "Show my access code"
+      }
+    },
     "publicWorkshop": {
+      "links": {
+        "title": "More about this workshop"
+      },
+      "about": {
+        "oneLiner": "These text adventures were created with ChatGameLab: made by their creators, without programming, told live by an AI.",
+        "details": "Their makers describe the world, the characters and the rules in their own words. While you play, an AI keeps telling the story from there: it reacts to whatever you type and invents matching pictures \u2014 so no two rounds play out the same way. Building one yourself quickly shows how strongly your own instructions shape the result, and where an AI reaches its limits. That is the whole point: not having AI explained to you, but trying it out.",
+        "more": "Learn more",
+        "less": "Less",
+        "link": "More about ChatGameLab"
+      },
       "unavailable": {
         "title": "This page is not available",
         "message": "The link is not valid (any more), or the workshop page has been switched off.",
@@ -1329,7 +1376,12 @@
       "download": "Download",
       "copy": "Copy",
       "copyLogin": "Log in to copy",
-      "playNoKey": "This workshop has no API key, so its games can't be played here."
+      "playNoKey": "This workshop has no API key, so its games can't be played here.",
+      "cta": {
+        "title": "Make your own ChatGameLab game",
+        "text": "Building your own text adventure is free and takes only a few minutes.",
+        "button": "Start for free"
+      }
     }
   },
   "dashboard": {
@@ -1402,6 +1454,7 @@
     "duplicateName": "The name for this game is already in use. Please choose a different name.",
     "forbidden": "You don't have permission to perform this action.",
     "generic": "Something went wrong. Please try again.",
+    "imageGenerationUnavailable": "The image for this scene couldn't be generated. The story continues without it.",
     "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
     "invalidJsonSchema": "The game configuration produced an invalid schema for the AI. This is a game setup issue, not an API key problem. Please check the game's status fields and try again.",

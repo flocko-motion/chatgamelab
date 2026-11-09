@@ -57,10 +57,10 @@
       "noOrganization": "Fără organizație",
       "noRole": "Niciun rol atribuit",
       "organization": "Organizație",
-      "organizationSection": "Organizație \u000e Rol",
+      "organizationSection": "Organizație și rol",
       "participantCode": {
         "error": "Codul tău de acces nu a putut fi încărcat.",
-        "hint": "Fă o fotografie a acestui cod sau notează-l și păstrează-l doar pentru tine. Te ajută să revii în contul tău oricând, de pe orice dispozitiv: introdu cuvintele la „Introdu codul” pe pagina principală sau scanează codul QR.",
+        "hint": "Fă o fotografie acestui cod sau notează-l și păstrează-l doar pentru tine. Îți permite să reintri în cont oricând, de pe orice dispozitiv: introdu cuvintele la „Introdu codul” pe pagina principală sau scanează codul QR.",
         "longTokenHint": "Fă o fotografie a codului QR sau salvează linkul și păstrează-l doar pentru tine. Te ajută să revii în contul tău oricând. Coordonatorul atelierului îți poate oferi un cod scurt din patru cuvinte resetându-ți accesul.",
         "title": "Codul tău de acces"
       },
@@ -75,7 +75,7 @@
       "statisticsSection": "Statistici",
       "title": "Profil",
       "totalPlaysOnGames": "Număr total de sesiuni în jocurile mele",
-      "workshopSection": "Atelier \u000026 Organizație"
+      "workshopSection": "Atelier și organizație"
     },
     "register": {
       "ageGroupLabel": "Grupă de vârstă",
@@ -375,7 +375,7 @@
         "revokeGameShare": "Revocă linkul de partajare",
         "revokePrivateShare": "Revocă linkul de partajare",
         "sponsorships": "Sponsorizări de joc",
-        "toggle": "Partajări \u0006 Sponsorizări",
+        "toggle": "Partajări și sponsorizări",
         "unknownGame": "Joc necunoscut",
         "unknownOrg": "Organizație necunoscută",
         "unknownUser": "Utilizator necunoscut",
@@ -415,7 +415,7 @@
       "placeholder": "de ex. măr vidră turn",
       "submit": "Continuă",
       "title": "Introdu codul",
-      "unknown": "Acest cod nu există. Verifică ortografia.",
+      "unknown": "Nu a funcționat. Verifică mai întâi ortografia, cuvânt cu cuvânt. Cratimele și spațiile nu contează. Dacă ai introdus codul corect, este posibil să nu mai fie valabil: codurile pot fi înlocuite sau coordonatorul atelierului poate să fi încheiat atelierul (acest lucru se poate întâmpla oricând după atelier). Apoi cere-i coordonatorului atelierului un cod nou.",
       "wrongLength": "Un cod are trei sau patru cuvinte."
     },
     "error": "Eroare",
@@ -530,6 +530,11 @@
         "starting": "Se pornește sesiunea de joc...",
         "startingHint": "AI-ul îți pregătește aventura"
       },
+      "narration": {
+        "generating": "Narațiunea este generată…",
+        "play": "Redă narațiunea",
+        "stop": "Oprește narațiunea"
+      },
       "needsApiKey": {
         "description": "Cheia API folosită pentru această sesiune nu mai este disponibilă.",
         "title": "Este necesară o cheie API"
@@ -574,13 +579,13 @@
       "editFields": {
         "description": "Oferă o scurtă descriere a jocului. Doar pentru tine, nu afectează jocul.",
         "gameStart": "Cum începe jocul?",
-        "gameStartHint": "Ce se întâmplă la început? Descrie prima scenă pe care o vede jucătorul. Cum este întâmpinat?",
+        "gameStartHint": "Ce se întâmplă la început? Descrie prima scenă pe care o vede jucătorul. Cum este întâmpinat jucătorul? Cum își dă seama jucătorul ce trebuie să facă?",
         "gameStartPlaceholder": "Te trezești la marginea unei păduri întunecate. O potecă îngustă duce mai adânc printre copaci...",
         "imageStyle": "Ce stil ar trebui să aibă imaginile jocului?",
         "imageStyleHint": "De exemplu: desen animat, realist, pixel art, acuarelă...",
         "name": "Numele jocului",
         "scenario": "Despre ce este jocul?",
-        "scenarioHint": "Descrie pe scurt: Cum funcționează jocul? Cum arată lumea? Limbaj \u0006 Ton (de ex. spaniolă pentru clasa a șasea)?\nCe rol are jucătorul? Scrie „Jucătorul ...”.\nDacă vrei ca AI-ul să preia rolul unei persoane specifice, scrie „Tu ești ...”.",
+        "scenarioHint": "Descrie pe scurt: Cum funcționează jocul? Cum este lumea? Limbă și ton (de exemplu, spaniolă pentru elevi de clasa a șasea)?\nCe rol are jucătorul? Scrie „Jucătorul ...”. \nDacă vrei ca inteligența artificială să joace rolul unei anumite persoane, scrie „Ești ...”.\nCare este obiectivul? Cum își dă seama jucătorul că a câștigat?",
         "scenarioPlaceholder": "Ești un explorator într-o pădure misterioasă. Scopul tău este să găsești comoara ascunsă...",
         "statusFields": "Valorile jocului",
         "statusFieldsHint": "Ce ar trebui să urmărească jocul? De exemplu viață, puncte sau muniție. Jocul își amintește aceste valori și le actualizează în timpul jocului."
@@ -658,7 +663,7 @@
         "unlimitedSessions": "Sesiuni nelimitate",
         "update": "Actualizează linkul de partajare",
         "workshopCreateHint": "Creează un link de partajare pentru acest joc. Cheia API a atelierului este selectată automat și acoperă costurile.",
-        "workshopDescription": "Acest link este creat în cadrul atelierului „{{name}}” – invitații se joacă folosind cheia API a atelierului și restricțiile pentru solicitări.",
+        "workshopDescription": "Acest link este creat în cadrul atelierului „{{name}}” – invitații se joacă folosind cheia API și restricțiile pentru prompturi ale atelierului.",
         "workshopShare": "Partajare atelier",
         "workshopShareDescription": "Acest link a fost creat în atelierul „{{name}}” - invitații joacă folosind cheia API a atelierului.",
         "workshopSubsection": "Link de partajare al atelierului"
@@ -838,6 +843,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Copiază acest joc",
+      "copyGameLogin": "Conectează-te și copiază jocul",
+      "copyLeaveMessage": "Copierea necesită conectarea la cont. Runda pe care o joci se va pierde.",
+      "copyLeaveTitle": "Părăsești jocul?",
       "welcome": {
         "backToHome": "Mergi la ChatGameLab",
         "continueGame": "Continuă jocul",
@@ -1063,11 +1072,24 @@
         "enabledHint": "Când este dezactivată, linkul afișează doar o notificare, iar linkurile de joc ale paginii nu mai funcționează.",
         "link": "Link",
         "linkHint": "Folosește a–z, 0–9 și cratime simple, între 3 și 60 de caractere.",
+        "links": {
+          "add": "Adaugă un link",
+          "down": "Mută în jos",
+          "error": "Linkurile nu au putut fi salvate. Fiecare link are nevoie de un titlu, iar fiecare adresă trebuie să înceapă cu http:// sau https://.",
+          "hint": "Afișate pe pagină, sub jocuri. Cel mult zece.",
+          "linkDescription": "Descriere (opțional)",
+          "linkTitle": "Titlu",
+          "remove": "Elimină",
+          "save": "Salvează linkurile",
+          "title": "Lecturi suplimentare",
+          "up": "Mută în sus",
+          "url": "Adresă"
+        },
         "offHint": "Pagina este dezactivată. Poți în continuare să-i pregătești linkul și codul QR.",
         "open": "Deschide pagina",
         "shareDescription": "Trimite acest link sau afișează-l ca un cod QR.",
         "shareTitle": "Pagină publică",
-        "showLink": "Afișează linkul \u000026 codul QR",
+        "showLink": "Afișează linkul și codul QR",
         "slugInvalid": "Folosește a–z, 0–9 și cratime simple, între 3 și 60 de caractere.",
         "slugTaken": "Acest link este deja folosit.",
         "text": "Descriere",
@@ -1163,8 +1185,10 @@
         "promptConstraintsPlaceholder": "de ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
         "removeParticipant": "Elimină participantul",
         "removeParticipantConfirm": "Sigur vrei să îl elimini pe „{{name}}” din acest atelier?",
-        "removeParticipantMessage": "Sigur vrei să îl elimini pe „{{name}}” din acest atelier? Această acțiune nu poate fi anulată.",
+        "removeParticipantMessage": "Sigur vrei să elimini persoana „{{name}}” din acest atelier?",
         "removeParticipantTitle": "Elimină participantul",
+        "removeParticipantWarningPermanent": "Contul acestei persoane și toate jocurile create de ea vor fi șterse definitiv, împreună cu toate sesiunile de joc și toate linkurile distribuite către acestea. Acțiunea nu poate fi anulată. Dacă jocurile trebuie păstrate, descarcă-le mai întâi în format YAML.",
+        "removeParticipantWarningVisiting": "Această persoană își păstrează contul și jocurile. Se încheie doar accesul la acest atelier.",
         "resetAccess": "Resetează accesul",
         "resetAccessDone": "A fost creat un acces nou. Linkul vechi nu mai funcționează.",
         "resetAccessError": "Accesul nu a putut fi resetat. Încearcă din nou.",
@@ -1202,6 +1226,9 @@
     "noRole": "Fără rol",
     "notifications": {
       "accept": "Acceptă",
+      "acceptConfirm": "Vrei să continui?",
+      "acceptTitle": "Schimbi organizația?",
+      "acceptWarning": "Poți fi membru al unei singure organizații la un moment dat. Acceptarea acestei invitații te elimină din organizația actuală „{{organization}}”.",
       "decline": "Respinge",
       "declineConfirm": "Sigur vrei să respingi această invitație?",
       "declineTitle": "Respinge invitația",
@@ -1239,10 +1266,25 @@
     "promoteToHead": "Promovează la conducător",
     "promoteWarning": "Acest utilizator va putea gestiona membrii organizației și invita profesorii.",
     "publicWorkshop": {
+      "about": {
+        "details": "Creatorii lor descriu lumea, personajele și regulile în propriile cuvinte. În timp ce te joci, o inteligență artificială continuă să spună povestea de acolo: reacționează la orice introduci și inventează imagini potrivite — astfel, nicio rundă nu se desfășoară la fel. Dacă îți creezi propriul joc, vei vedea rapid cât de mult influențează instrucțiunile tale rezultatul și unde își atinge limitele inteligența artificială. Acesta este întregul scop: nu să ți se explice inteligența artificială, ci să o încerci.",
+        "less": "Mai puțin",
+        "link": "Mai multe despre ChatGameLab",
+        "more": "Află mai multe",
+        "oneLiner": "Aceste aventuri text au fost create cu ChatGameLab: realizate de creatorii lor, fără programare, și povestite în timp real de o inteligență artificială."
+      },
       "copy": "Copiază",
       "copyLogin": "Autentifică-te pentru a copia",
+      "cta": {
+        "button": "Începe gratuit",
+        "text": "Crearea propriei aventuri text este gratuită și durează doar câteva minute.",
+        "title": "Creează-ți propriul joc ChatGameLab"
+      },
       "download": "Descarcă",
       "gamesTitle": "Jocurile acestui atelier",
+      "links": {
+        "title": "Mai multe despre acest atelier"
+      },
       "noGames": "Niciun joc nu a fost publicat aici încă.",
       "play": "Joacă",
       "playExhausted": "Nu mai există sesiuni de joc disponibile",
@@ -1339,7 +1381,8 @@
     "settings": "Setări",
     "share": {
       "copied": "Copiat",
-      "copyLink": "Copiază linkul"
+      "copyLink": "Copiază linkul",
+      "visitLink": "Vizitează linkul"
     },
     "showing": "{{count}} membri",
     "sort": {
@@ -1350,7 +1393,16 @@
       "role-desc": "Rol (Z-A)"
     },
     "unnamed": "Fără nume",
-    "viewGame": "Vezi jocul"
+    "viewGame": "Vezi jocul",
+    "workshop": {
+      "inactive": {
+        "description": "Acest atelier nu este activ momentan. Așteaptă ca coordonatorul atelierului să îl reactiveze.",
+        "noCode": "Nu există niciun cod salvat pe acest dispozitiv. Coordonatorul atelierului îți poate spune care este codul tău.",
+        "photoFirst": "Dacă te deconectezi, codul tău va dispărea de pe acest dispozitiv. Fă-i mai întâi o fotografie.",
+        "showCode": "Arată codul meu de acces",
+        "title": "Atelierul nu este activ"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1408,7 +1460,7 @@
     "untitledGame": "Joc fără nume",
     "version": {
       "mismatch": {
-        "message": "Versiunea interfeței \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 nu se potrivește cu versiunea backend \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. Acest lucru poate cauza comportamente neașteptate. Contactează suportul dacă problemele persistă.",
+        "message": "Versiunea frontendului \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e nu corespunde versiunii backendului \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Acest lucru poate cauza un comportament neașteptat. Contactați serviciul de asistență dacă problemele persistă.",
         "title": "Detectată nepotrivire de versiuni"
       }
     }
@@ -1422,6 +1474,7 @@
     "duplicateName": "Numele acestui joc este deja folosit. Te rugăm să alegi altul.",
     "forbidden": "Nu ai permisiunea de a efectua această acțiune.",
     "generic": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
+    "imageGenerationUnavailable": "Imaginea pentru această scenă nu a putut fi generată. Povestea continuă fără ea.",
     "insufficientQuota": "Cheia ta API a rămas fără credite. Încarcă fonduri sau folosește o altă cheie.",
     "invalidApiKey": "Cheia ta API este invalidă sau expirată. Verifică cheia în setări.",
     "invalidJsonSchema": "Configurația jocului a generat o schemă invalidă pentru IA. Este o problemă de configurare a jocului, nu a cheii API. Verifică câmpurile de stare ale jocului și încearcă din nou.",

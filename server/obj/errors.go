@@ -4,7 +4,14 @@
 // limits:  error values only; HTTP mapping lives elsewhere (-> obj http_error, api/httpx)
 package obj
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+// ErrImageStreamIncomplete marks an image stream that ended (dropped connection, read error)
+// without delivering the final image. Unlike key/quota/content errors it is worth one retry.
+var ErrImageStreamIncomplete = errors.New("image stream incomplete")
 
 // Common error codes that frontend can handle
 const (

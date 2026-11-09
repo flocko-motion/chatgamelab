@@ -67,7 +67,7 @@
       "workshopSection": "Workshop \u0026 Organisation",
       "participantCode": {
         "title": "Dein Zugangscode",
-        "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter „Code eingeben“ ein oder scanne den QR-Code.",
+        "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter \"Code eingeben\" ein oder scanne den QR-Code.",
         "longTokenHint": "Fotografiere den QR-Code oder speichere den Link und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto. Einen kurzen Code aus vier Wörtern bekommst du von deiner Workshopleitung, wenn sie deinen Zugang zurücksetzt.",
         "error": "Dein Zugangscode konnte nicht geladen werden."
       }
@@ -400,7 +400,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, und nach dem Workshop wird der Zugang beendet. Frag dann deine Workshop-Leitung nach einem neuen Code.",
+      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, oder die Workshop-Leitung hat den Workshop beendet (das kann jederzeit nach dem Workshop passieren). Frag dann deine Workshop-Leitung nach einem neuen Code.",
       "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
     },
     "error": "Fehler",
@@ -646,7 +646,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
         "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
-        "workshopDescription": "Dieser Link wird im Rahmen des Workshops „{{name}}“ erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
+        "workshopDescription": "Dieser Link wird im Rahmen des Workshops \"{{name}}\" erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
         "workshopShare": "Workshop-Freigabe",
         "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
         "workshopSubsection": "Workshop-Freigabelink"
@@ -1208,7 +1208,7 @@
       "accept": "Annehmen",
       "acceptConfirm": "Möchten Sie fortfahren?",
       "acceptTitle": "Organisation wechseln?",
-      "acceptWarning": "Sie können nur Mitglied einer Organisation gleichzeitig sein. Wenn Sie diese Einladung annehmen, verlassen Sie Ihre aktuelle Organisation „{{organization}}“.",
+      "acceptWarning": "Sie können nur Mitglied einer Organisation gleichzeitig sein. Wenn Sie diese Einladung annehmen, verlassen Sie Ihre aktuelle Organisation \"{{organization}}\".",
       "decline": "Ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?",
       "declineTitle": "Einladung ablehnen",
@@ -1358,7 +1358,7 @@
       },
       "about": {
         "oneLiner": "Diese Textabenteuer sind mit dem ChatGameLab entstanden: selbst gebaut, ohne Programmieren, live erz\u00e4hlt von einer KI.",
-        "details": "Die Macher*innen beschreiben Welt, Figuren und Regeln in eigenen Worten. Beim Spielen erz\u00e4hlt eine KI die Geschichte daraus live weiter: Sie reagiert auf jede Eingabe und erfindet dazu passende Bilder \u2014 zwei Runden laufen deshalb nie gleich ab. Wer selbst eines baut, merkt schnell, wie stark die eigenen Anweisungen das Ergebnis pr\u00e4gen und wo eine KI an ihre Grenzen st\u00f6\u00dft. Genau darum geht es: KI nicht erkl\u00e4rt bekommen, sondern ausprobieren.",
+        "details": "Die Macher*innen beschreiben Welt, Figuren und Regeln in eigenen Worten. Beim Spielen erz\u00e4hlt eine KI die Geschichte daraus live weiter: Sie reagiert auf jede Eingabe und erfindet dazu passende Bilder - zwei Runden laufen deshalb nie gleich ab. Wer selbst eines baut, merkt schnell, wie stark die eigenen Anweisungen das Ergebnis pr\u00e4gen und wo eine KI an ihre Grenzen st\u00f6\u00dft. Genau darum geht es: KI nicht erkl\u00e4rt bekommen, sondern ausprobieren.",
         "more": "Mehr erfahren",
         "less": "Weniger",
         "link": "Mehr \u00fcber das ChatGameLab"

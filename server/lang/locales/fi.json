@@ -60,7 +60,7 @@
       "organizationSection": "Organisaatio p rooli",
       "participantCode": {
         "error": "Käyttökoodiasi ei voitu ladata.",
-        "hint": "Ota tästä koodista kuva tai kirjoita se muistiin ja pidä se omana tietonasi. Sen avulla pääset takaisin tilillesi milloin tahansa ja millä tahansa laitteella: syötä sanat etusivun kohtaan ”Syötä koodi” tai skannaa QR-koodi.",
+        "hint": "Ota tästä koodista valokuva tai kirjoita se muistiin ja pidä se omana tietonasi. Sen avulla pääset takaisin tilillesi milloin tahansa ja millä tahansa laitteella: syötä sanat kotisivun kohtaan ”Syötä koodi” tai skannaa QR-koodi.",
         "longTokenHint": "Ota QR-koodista kuva tai tallenna linkki ja pidä se omana tietonasi. Sen avulla pääset takaisin tilillesi milloin tahansa. Työpajan ohjaaja voi antaa sinulle lyhyen nelisanaisen koodin nollaamalla käyttöoikeutesi.",
         "title": "Käyttökoodisi"
       },
@@ -415,7 +415,7 @@
       "placeholder": "esim. omena saukko torni",
       "submit": "Jatka",
       "title": "Syötä koodi",
-      "unknown": "Tätä koodia ei ole olemassa. Tarkista oikeinkirjoitus.",
+      "unknown": "Se ei onnistunut. Tarkista ensin oikeinkirjoitus sana sanalta. Tavuviivoilla tai välilyönneillä ei ole merkitystä. Jos koodi on oikein, se ei ehkä ole enää voimassa: koodeja voidaan vaihtaa tai työpajan vetäjä on lopettanut työpajan (tämä voi tapahtua milloin tahansa työpajan jälkeen). Pyydä sitten työpajan vetäjältä uusi koodi.",
       "wrongLength": "Koodissa on kolme tai neljä sanaa."
     },
     "error": "Virhe",
@@ -530,6 +530,11 @@
         "starting": "Käynnistetään pelisessiota...",
         "startingHint": "AI valmistelee seikkailuasi"
       },
+      "narration": {
+        "generating": "Kerrontaa luodaan…",
+        "play": "Toista kerronta",
+        "stop": "Lopeta kerronta"
+      },
       "needsApiKey": {
         "description": "Tässä sessiossa käytetty API-avain ei ole enää saatavilla.",
         "reason": "Edellinen API-avaimesi ei ole enää käytettävissä. Jatkaaksesi peliä, valitse uusi.",
@@ -589,13 +594,13 @@
       "editFields": {
         "description": "Anna pelille lyhyt kuvaus. Tämä on vain sinulle, eikä vaikuta peliin.",
         "gameStart": "Miten peli alkaa?",
-        "gameStartHint": "Mitä alussa tapahtuu? Kuvaile ensimmäinen kohtaus, jonka pelaaja näkee. Kuinka pelaaja toivotetaan tervetulleeksi?",
+        "gameStartHint": "Mitä tapahtuu alussa? Kuvaile ensimmäinen kohtaus, jonka pelaaja näkee. Miten pelaaja toivotetaan tervetulleeksi? Mistä pelaaja tietää, mitä hänen pitää tehdä?",
         "gameStartPlaceholder": "Heräät pimeän metsän reunalta. Kapea polku johtaa syvemmälle puihin...",
         "imageStyle": "Millainen tyyli pelin kuvilla pitäisi olla?",
         "imageStyleHint": "Esimerkiksi: sarjakuva, realistinen, pikselitaide, akvarelli...",
         "name": "Pelin nimi",
         "scenario": "Mistä pelissä on kyse?",
-        "scenarioHint": "Kuvaile lyhyesti: Miten peli toimii? Millainen maailma on? Kieli p sävy (esim. espanjaa kuudesluokkalaisille)?\nMikä on pelaajan rooli? Kirjoita \"Pelaaja ...\". \nJos haluat AI:n esittävän tiettyä henkilöä, kirjoita \"Sinä olet ...\".",
+        "scenarioHint": "Kuvaile lyhyesti: Miten peli toimii? Millainen maailma on? Kieli ja sävy (esim. espanja kuudesluokkalaisille)?\nMikä rooli pelaajalla on? Kirjoita \"Pelaaja ...\". \nJos haluat tekoälyn ottavan tietyn henkilön roolin, kirjoita \"Olet ...\".\nMikä on tavoite? Mistä pelaaja tietää voittaneensa?",
         "scenarioPlaceholder": "Olet tutkimusmatkailija salaperäisessä metsässä. Tavoitteesi on löytää kätketty aarre...",
         "statusFields": "Peliarvot",
         "statusFieldsHint": "Mitä asioita pelin pitäisi seurata? Esimerkiksi terveys, pisteet tai ammukset. Peli muistaa nämä arvot ja päivittää niitä pelin aikana."
@@ -673,7 +678,7 @@
         "unlimitedSessions": "Rajattomasti istuntoja",
         "update": "Päivitä jakolinkki",
         "workshopCreateHint": "Luo tälle pelille jakolinkki. Työpajan API-avain valitaan automaattisesti ja kattaa kulut.",
-        "workshopDescription": "Tämä linkki on luotu työpajan ”{{name}}” sisällä – vieraat pelaavat työpajan API-avaimella ja kehoterajoitteilla.",
+        "workshopDescription": "Tämä linkki on luotu työpajassa ”{{name}}” – vieraat pelaavat työpajan API-avaimella ja kehotteisiin liittyvillä rajoituksilla.",
         "workshopShare": "Työpajan jakolinkki",
         "workshopShareDescription": "Tämä linkki luotiin työpajassa \"{{name}}\" – vieraat pelaavat työpajan API-avainta käyttäen.",
         "workshopSubsection": "Työpajan jakolinkki"
@@ -850,6 +855,10 @@
       }
     },
     "guestPlay": {
+      "copyGame": "Kopioi tämä peli",
+      "copyGameLogin": "Kirjaudu sisään ja kopioi peli",
+      "copyLeaveMessage": "Kopiointi edellyttää kirjautumista. Pelaamasi pelikerta menetetään.",
+      "copyLeaveTitle": "Poistutaanko pelistä?",
       "welcome": {
         "backToHome": "Siirry ChatGameLabiin",
         "continueGame": "Jatka peliä",
@@ -1075,6 +1084,19 @@
         "enabledHint": "Kun tämä on pois käytöstä, linkki näyttää vain ilmoituksen ja sivun pelilinkit lakkaavat toimimasta.",
         "link": "Linkki",
         "linkHint": "Käytä merkkejä a–z, numeroita 0–9 ja yksittäisiä yhdysmerkkejä, 3–60 merkkiä.",
+        "links": {
+          "add": "Lisää linkki",
+          "down": "Siirrä alas",
+          "error": "Linkkejä ei voitu tallentaa. Jokaisella linkillä on oltava otsikko, ja jokaisen osoitteen on alettava merkkijonolla http:// tai https://.",
+          "hint": "Näytetään sivulla pelien alapuolella. Enintään kymmenen.",
+          "linkDescription": "Kuvaus (valinnainen)",
+          "linkTitle": "Otsikko",
+          "remove": "Poista",
+          "save": "Tallenna linkit",
+          "title": "Lisätietoa",
+          "up": "Siirrä ylös",
+          "url": "Osoite"
+        },
         "offHint": "Sivu on poistettu käytöstä. Voit silti valmistella sen linkin ja QR-koodin.",
         "open": "Avaa sivu",
         "shareDescription": "Lähetä tämä linkki tai näytä se QR-koodina.",
@@ -1179,8 +1201,10 @@
         "promptConstraintsPlaceholder": "esim. pidä tarina ikätasolle sopivana ja vältä väkivaltaista sisältöä.",
         "removeParticipant": "Poista osallistuja",
         "removeParticipantConfirm": "Haluatko varmasti poistaa käyttäjän \"{{name}}\" tästä työpajasta?",
-        "removeParticipantMessage": "Haluatko varmasti poistaa käyttäjän \"{{name}}\" tästä työpajasta? Tätä ei voi perua.",
+        "removeParticipantMessage": "Haluatko varmasti poistaa henkilön ”{{name}}” tästä työpajasta?",
         "removeParticipantTitle": "Poista osallistuja",
+        "removeParticipantWarningPermanent": "Tämä poistaa pysyvästi tämän henkilön tilin ja kaikki hänen luomansa pelit sekä kaikki pelisessiot ja niihin johtavat jaetut linkit. Tätä ei voi perua. Jos pelit halutaan säilyttää, lataa ne ensin YAML-muodossa.",
+        "removeParticipantWarningVisiting": "Tämä henkilö säilyttää tilinsä ja pelinsä. Vain hänen pääsynsä tähän työpajaan päättyy.",
         "resetAccess": "Nollaa käyttöoikeus",
         "resetAccessDone": "Uusi käyttöoikeus luotiin. Vanha linkki ei enää toimi.",
         "resetAccessError": "Käyttöoikeutta ei voitu nollata. Yritä uudelleen.",
@@ -1219,6 +1243,9 @@
     "noRole": "Ei roolia",
     "notifications": {
       "accept": "Hyväksy",
+      "acceptConfirm": "Haluatko jatkaa?",
+      "acceptTitle": "Vaihda organisaatiota?",
+      "acceptWarning": "Voit olla jäsenenä vain yhdessä organisaatiossa kerrallaan. Tämän kutsun hyväksyminen poistaa sinut nykyisestä organisaatiostasi ”{{organization}}”.",
       "decline": "Hylkää",
       "declineConfirm": "Haluatko varmasti hylätä tämän kutsun?",
       "declineTitle": "Hylkää kutsu",
@@ -1256,10 +1283,25 @@
     "promoteToHead": "Ylennä johtajaksi",
     "promoteWarning": "Tämä käyttäjä saa oikeuden hallita organisaation jäseniä ja kutsua opettajia.",
     "publicWorkshop": {
+      "about": {
+        "details": "Niiden tekijät kuvailevat maailman, hahmot ja säännöt omin sanoin. Kun pelaat, tekoäly jatkaa tarinan kertomista siitä eteenpäin: se reagoi kaikkeen kirjoittamaasi ja keksii siihen sopivia kuvia — siksi kaksi pelikertaa eivät koskaan etene samalla tavalla. Oman pelin rakentaminen näyttää nopeasti, kuinka voimakkaasti omat ohjeesi muovaavat lopputulosta ja missä tekoälyn rajat tulevat vastaan. Se on koko jutun tarkoitus: ei se, että tekoälyä selitetään sinulle, vaan että kokeilet sitä itse.",
+        "less": "Vähemmän",
+        "link": "Lisätietoa ChatGameLabista",
+        "more": "Lue lisää",
+        "oneLiner": "Nämä tekstiseikkailut on luotu ChatGameLabilla: niiden tekijöiden ohjelmoimatta tekemät pelit, joita tekoäly kertoo reaaliajassa."
+      },
       "copy": "Kopioi",
       "copyLogin": "Kirjaudu sisään kopioidaksesi",
+      "cta": {
+        "button": "Aloita ilmaiseksi",
+        "text": "Oman tekstiseikkailun rakentaminen on ilmaista ja vie vain muutaman minuutin.",
+        "title": "Tee oma ChatGameLab-pelisi"
+      },
       "download": "Lataa",
       "gamesTitle": "Tämän työpajan pelit",
+      "links": {
+        "title": "Lisätietoa tästä työpajasta"
+      },
       "noGames": "Tänne ei ole vielä julkaistu pelejä.",
       "play": "Pelaa",
       "playExhausted": "Pelíkertoja ei ole jäljellä",
@@ -1356,7 +1398,8 @@
     "settings": "Asetukset",
     "share": {
       "copied": "Kopioitu",
-      "copyLink": "Kopioi linkki"
+      "copyLink": "Kopioi linkki",
+      "visitLink": "Avaa linkki"
     },
     "showing": "{{count}} jäsentä",
     "sort": {
@@ -1367,7 +1410,16 @@
       "role-desc": "Rooli (Ö-A)"
     },
     "unnamed": "Nimetön",
-    "viewGame": "Näytä peli"
+    "viewGame": "Näytä peli",
+    "workshop": {
+      "inactive": {
+        "description": "Tämä työpaja ei ole tällä hetkellä aktiivinen. Odota, että työpajan vetäjä ottaa sen jälleen käyttöön.",
+        "noCode": "Tälle laitteelle ei ole tallennettu koodia. Työpajan vetäjä voi kertoa omasi.",
+        "photoFirst": "Jos kirjaudut ulos, koodisi poistuu tältä laitteelta. Ota siitä ensin valokuva.",
+        "showCode": "Näytä pääsykoodini",
+        "title": "Työpaja ei ole aktiivinen"
+      }
+    }
   },
   "dashboard": {
     "cards": {
@@ -1426,7 +1478,7 @@
     "untitledGame": "Nimetön peli",
     "version": {
       "mismatch": {
-        "message": "Käyttöliittymän versio \u00003cfrontendVersion\u00003e{{frontendVersion}}\u00003c/frontendVersion\u0000f ei vastaa taustajärjestelmän versiota \u00003cbackendVersion\u00003e{{backendVersion}}\u00003c/backendVersion\u0000f. Tämä voi aiheuttaa odottamatonta toimintaa. Ota yhteyttä tukeen, jos ongelma jatkuu.",
+        "message": "Käyttöliittymän versio \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e ei vastaa taustajärjestelmän versiota \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Tämä voi aiheuttaa odottamatonta toimintaa. Ota yhteyttä tukeen, jos ongelmat jatkuvat.",
         "title": "Versioepäsuhta havaittu"
       }
     }
@@ -1440,6 +1492,7 @@
     "duplicateName": "Tämän pelin nimi on jo käytössä. Valitse toinen nimi.",
     "forbidden": "Sinulla ei ole lupaa tehdä tätä toimintoa.",
     "generic": "Jotain meni pieleen. Yritä uudelleen.",
+    "imageGenerationUnavailable": "Tämän kohtauksen kuvaa ei voitu luoda. Tarina jatkuu ilman sitä.",
     "insufficientQuota": "API-avaimeltasi on loppunut saldo. Lisää saldoa tai käytä toista avainta.",
     "invalidApiKey": "API-avaimesi on virheellinen tai vanhentunut. Tarkista avain asetuksista.",
     "invalidJsonSchema": "Peliasetukset tuottivat AI:lle virheellisen skeeman. Tämä on pelin määritysvirhe, ei API-avaimen ongelma. Tarkista pelin tilakentät ja yritä uudelleen.",
