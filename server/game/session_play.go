@@ -309,6 +309,13 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		if err != nil {
 			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
 		} else {
+			// The narration must be plain prose, but the model sometimes answers with JSON or
+			// appends a status block. Clean it and tell the player UI to replace the streamed text.
+			if cleaned := cleanNarration(response.Message); cleaned != strings.TrimSpace(response.Message) {
+				log.Warn("[AI] narration contained JSON, cleaned", "session_id", session.ID, "raw", response.Message)
+				response.Message = cleaned
+				responseStream.Send(obj.GameSessionMessageChunk{TextReplace: cleaned})
+			}
 			log.Info("[AI] prose (final)", "session_id", session.ID, "text", response.Message)
 		}
 

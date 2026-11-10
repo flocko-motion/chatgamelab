@@ -77,6 +77,7 @@ export interface SceneMessage {
 export interface StreamChunk {
   text?: string;
   textDone?: boolean;
+  textReplace?: string; // Cleaned final text from the backend; replaces the streamed text
   imageData?: string; // Base64-encoded partial/WIP image data
   imageDone?: boolean;
   imageHash?: string; // content hash of the final image, sent with imageDone

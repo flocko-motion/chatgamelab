@@ -607,8 +607,8 @@ type GameSessionMessage struct {
 	Plot                       *string       `json:"plot,omitempty"`
 	ImagePrompt                *string       `json:"imagePrompt,omitempty"`
 	Image                      []byte        `json:"image,omitempty"`
-	ImageHash                  string        `json:"imageHash,omitempty"`  // content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag
-	ImageGenAttempts           int           `json:"-"`                     // internal: number of image-generation attempts; caps retry-on-load
+	ImageHash                  string        `json:"imageHash,omitempty"` // content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag
+	ImageGenAttempts           int           `json:"-"`                   // internal: number of image-generation attempts; caps retry-on-load
 	Audio                      []byte        `json:"audio,omitempty"`
 	HasImage                   bool          `json:"hasImage"`    // true when image generation is active for this message
 	HasAudioIn                 bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
@@ -623,14 +623,15 @@ type GameSessionMessage struct {
 
 // GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)
 type GameSessionMessageChunk struct {
-	Text       string `json:"text,omitempty"`       // Partial text content
-	TextDone   bool   `json:"textDone,omitempty"`   // True when text streaming is complete
-	ImageData  []byte `json:"imageData,omitempty"`  // Partial/final image data
-	ImageDone  bool   `json:"imageDone,omitempty"`  // True when image streaming is complete
-	ImageHash  string `json:"imageHash,omitempty"`  // content hash of the final image, sent alongside ImageDone
-	ImageError string `json:"imageError,omitempty"` // Human-readable image error (e.g. "rate limit reached")
-	AudioData  []byte `json:"audioData,omitempty"`  // Partial/final audio data (opus)
-	AudioDone  bool   `json:"audioDone,omitempty"`  // True when audio streaming is complete
-	Error      string `json:"error,omitempty"`      // Error message if failed
-	ErrorCode  string `json:"errorCode,omitempty"`  // Machine-readable error code (maps to frontend i18n)
+	Text        string `json:"text,omitempty"`        // Partial text content
+	TextDone    bool   `json:"textDone,omitempty"`    // True when text streaming is complete
+	TextReplace string `json:"textReplace,omitempty"` // Cleaned final text; replaces the streamed text (e.g. when the AI streamed JSON)
+	ImageData   []byte `json:"imageData,omitempty"`   // Partial/final image data
+	ImageDone   bool   `json:"imageDone,omitempty"`   // True when image streaming is complete
+	ImageHash   string `json:"imageHash,omitempty"`   // content hash of the final image, sent alongside ImageDone
+	ImageError  string `json:"imageError,omitempty"`  // Human-readable image error (e.g. "rate limit reached")
+	AudioData   []byte `json:"audioData,omitempty"`   // Partial/final audio data (opus)
+	AudioDone   bool   `json:"audioDone,omitempty"`   // True when audio streaming is complete
+	Error       string `json:"error,omitempty"`       // Error message if failed
+	ErrorCode   string `json:"errorCode,omitempty"`   // Machine-readable error code (maps to frontend i18n)
 }

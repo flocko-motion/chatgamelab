@@ -110,7 +110,7 @@ func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSe
 		req := ConversationsAPIRequest{
 			Model:          model,
 			Instructions:   action.Message,
-			Inputs:         []InputMessage{{Role: "user", Content: templates.StartMessage()}},
+			Inputs:         []InputMessage{{Role: "user", Content: templates.StartMessage(len(status.FieldNames(session.StatusFields)) > 0)}},
 			Store:          true,
 			CompletionArgs: completionArgs,
 		}
