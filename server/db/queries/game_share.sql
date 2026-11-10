@@ -31,6 +31,12 @@ SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2 AND NOT public_
 -- name: GetPublicPageGameSharesByWorkshop :many
 SELECT * FROM game_share WHERE workshop_id = $1 AND public_page;
 
+-- name: GetPublicPageShareKeysByWorkshop :many
+-- The API key each of a workshop's public-page share links pays with.
+SELECT gs.id, aks.api_key_id FROM game_share gs
+JOIN api_key_share aks ON aks.id = gs.api_key_share_id
+WHERE gs.workshop_id = $1 AND gs.public_page;
+
 -- name: GetPublicPageGameSharesByGame :many
 SELECT * FROM game_share WHERE game_id = $1 AND public_page;
 

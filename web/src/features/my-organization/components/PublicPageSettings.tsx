@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Group,
+  NumberInput,
   Stack,
   Switch,
   Text,
@@ -37,14 +38,23 @@ import {
 import { ConfirmationModal } from "./ConfirmationModal";
 import { PublicPageLinksEditor } from "./PublicPageLinksEditor";
 
+/** Offered when a leader switches the play limit on. */
+const PUBLIC_PLAY_LIMIT_SUGGESTION = 1000;
+
 interface PublicPageSettingsProps {
   workshop: ObjWorkshop;
+  /** Named on the printable QR code. */
+  organizationName?: string;
   /** Called after each save, e.g. to refresh settings embedded elsewhere. */
   onSaved?: () => void;
 }
 
 /** The "Öffentliche Seite" section of the workshop settings. */
-export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProps) {
+export function PublicPageSettings({
+  workshop,
+  organizationName,
+  onSaved,
+}: PublicPageSettingsProps) {
   const { t } = useTranslation("common");
   const updateWorkshop = useUpdateWorkshop();
   const savedSlug = workshop.publicSlug ?? "";
@@ -64,6 +74,8 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
       publicSlug: string;
       publicDescription: string;
       publicLinks: ObjPublicWorkshopLink[];
+      publicPlayLimit: number;
+      publicJoin: boolean;
     }>,
   ) => {
     if (!workshop.id) return;
@@ -82,6 +94,8 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
       publicSlug: changes.publicSlug,
       publicDescription: changes.publicDescription,
       publicLinks: changes.publicLinks,
+      publicPlayLimit: changes.publicPlayLimit,
+      publicJoin: changes.publicJoin,
     });
     onSaved?.();
   };
@@ -108,6 +122,14 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
     }
     setSlugError(null);
     setConfirmSlugOpen(true);
+  };
+
+  const playLimited = workshop.publicPlayLimit !== undefined;
+
+  const savePlayLimit = (value: string | number) => {
+    const limit = Math.floor(Number(value));
+    if (!Number.isFinite(limit) || limit < 1 || limit === workshop.publicPlayLimit) return;
+    void save({ publicPlayLimit: limit });
   };
 
   const saveDescription = async (value: string) => {
@@ -155,6 +177,54 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
           disabled={updateWorkshop.isPending}
           onChange={(e) => save({ public: e.currentTarget.checked })}
         />
+
+        <Switch
+          size="sm"
+          label={t("myOrganization.publicPage.join")}
+          description={t("myOrganization.publicPage.joinHint")}
+          checked={workshop.publicJoin || false}
+          disabled={updateWorkshop.isPending}
+          onChange={(e) => save({ publicJoin: e.currentTarget.checked })}
+        />
+
+        <Stack gap={4}>
+          <Switch
+            size="sm"
+            label={t("myOrganization.publicPage.playLimit")}
+            description={t("myOrganization.publicPage.playLimitHint")}
+            checked={playLimited}
+            disabled={updateWorkshop.isPending}
+            onChange={(e) =>
+              save({
+                publicPlayLimit: e.currentTarget.checked
+                  ? PUBLIC_PLAY_LIMIT_SUGGESTION
+                  : 0,
+              })
+            }
+          />
+          {playLimited && (
+            <Group gap="sm" align="flex-end" pl={46}>
+              <NumberInput
+                size="sm"
+                w={160}
+                label={t("myOrganization.publicPage.playLimitValue")}
+                min={1}
+                step={100}
+                allowDecimal={false}
+                allowNegative={false}
+                defaultValue={workshop.publicPlayLimit}
+                key={`public-play-limit-${workshop.id}-${workshop.publicPlayLimit}`}
+                disabled={updateWorkshop.isPending}
+                onBlur={(e) => savePlayLimit(e.currentTarget.value)}
+              />
+              <Text size="xs" c="dimmed" pb={8}>
+                {t("myOrganization.publicPage.playLimitUsed", {
+                  count: workshop.publicPlayUsed ?? 0,
+                })}
+              </Text>
+            </Group>
+          )}
+        </Stack>
 
         <Stack gap={4}>
           <Text size="sm" fw={500}>
@@ -266,6 +336,8 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
         opened={shareOpen}
         onClose={() => setShareOpen(false)}
         slug={savedSlug}
+        workshopName={workshop.name ?? ""}
+        organizationName={organizationName ?? workshop.institution?.name}
       />
     </Card>
   );

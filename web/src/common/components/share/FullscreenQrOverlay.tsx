@@ -24,7 +24,11 @@ interface FullscreenQrOverlayProps {
   icon: ReactNode;
   /** Mantine colour of the title bar. */
   color: "blue" | "green";
+  /** Smaller line in the title bar, below the title. */
+  subtitle?: string;
   description?: string;
+  /** Small line above the buttons, e.g. who runs the workshop. */
+  footer?: string;
   /** Shown below the link, e.g. the expiry date. */
   children?: ReactNode;
   /** Buttons placed before "Schließen". */
@@ -45,7 +49,9 @@ export function FullscreenQrOverlay({
   title,
   icon,
   color,
+  subtitle,
   description,
+  footer,
   children,
   actions,
   visitable = false,
@@ -79,9 +85,16 @@ export function FullscreenQrOverlay({
         style={{ background: `var(--mantine-color-${color}-filled)` }}
       >
         {icon}
-        <Title order={2} c="white" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.8rem)" }}>
-          {title}
-        </Title>
+        <Stack gap={2}>
+          <Title order={2} c="white" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.8rem)" }}>
+            {title}
+          </Title>
+          {subtitle && (
+            <Text c="white" style={{ fontSize: "clamp(0.9rem, 1.6vw, 1.2rem)" }}>
+              {subtitle}
+            </Text>
+          )}
+        </Stack>
       </Group>
       <Stack align="center" justify="center" gap="lg" p="md" style={{ flex: 1 }}>
         {description && (
@@ -143,6 +156,11 @@ export function FullscreenQrOverlay({
         {children}
       </Stack>
       <Box px="lg" pb="lg">
+        {footer && (
+          <Text c="#555555" size="sm" ta="center" mb="md">
+            {footer}
+          </Text>
+        )}
         <Group justify="center" gap="md">
           {actions}
           {visitable && (

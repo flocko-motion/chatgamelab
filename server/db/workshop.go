@@ -67,6 +67,7 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 		Public:           public,
 		AllowGameSharing: false,
 		PublicSlug:       sql.NullString{String: slug, Valid: true},
+		Language:         user.Language,
 	}
 
 	result, err := queries().CreateWorkshop(ctx, arg)
@@ -74,7 +75,7 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 		return nil, obj.ErrServerError("failed to create workshop")
 	}
 
-	return &obj.Workshop{
+	w := &obj.Workshop{
 		ID:          result.ID,
 		Name:        result.Name,
 		Institution: &obj.Institution{ID: result.InstitutionID},
@@ -87,7 +88,9 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+	setWorkshopExtras(ctx, w, result)
+	return w, nil
 }
 
 // GetWorkshopName retrieves just the workshop name by ID (no permission check, for display only)
@@ -242,7 +245,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		institution.Name = instName
 	}
 
-	return &obj.Workshop{
+	w := &obj.Workshop{
 		ID:                         result.ID,
 		Name:                       result.Name,
 		Institution:                institution,
@@ -267,7 +270,9 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+	setWorkshopExtras(ctx, w, result)
+	return w, nil
 }
 
 // UpdateWorkshopParams contains the parameters for updating a workshop
@@ -286,6 +291,10 @@ type UpdateWorkshopParams struct {
 	PublicDescription          *string // nil keeps the current text, "" clears it
 	// PublicLinks: nil keeps the current further reading, an empty slice clears it
 	PublicLinks *[]obj.PublicWorkshopLink
+	// PublicPlayLimit: nil keeps the current cap, 0 removes it
+	PublicPlayLimit *int
+	PublicJoin      *bool   // nil keeps the current setting
+	Language        *string // nil keeps the current language
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
@@ -378,6 +387,22 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		}
 	}
 
+	arg.PublicPlayLimit = existing.PublicPlayLimit
+	if params.PublicPlayLimit != nil {
+		if *params.PublicPlayLimit < 0 {
+			return nil, obj.ErrValidation("the play limit may not be negative")
+		}
+		arg.PublicPlayLimit = sql.NullInt32{Int32: int32(*params.PublicPlayLimit), Valid: *params.PublicPlayLimit > 0}
+	}
+	arg.PublicJoin = existing.PublicJoin
+	if params.PublicJoin != nil {
+		arg.PublicJoin = *params.PublicJoin
+	}
+	arg.Language = existing.Language
+	if params.Language != nil {
+		arg.Language = *params.Language
+	}
+
 	result, err := queries().UpdateWorkshop(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" && pqErr.Constraint == "workshop_public_slug_key" {
@@ -388,6 +413,14 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 
 	if existing.Public && !result.Public {
 		deleteWorkshopPublicPageShares(ctx, id)
+	}
+
+	// Joining through the public page needs an open invite; this returns the
+	// pending one or creates it.
+	if result.PublicJoin && !existing.PublicJoin {
+		if _, err := CreateWorkshopInvite(ctx, modifiedBy, id, nil, nil); err != nil {
+			log.Warn("public page: failed to prepare the join invite", "workshop_id", id, "error", err)
+		}
 	}
 
 	var updateDefaultApiKeyShareID *uuid.UUID
@@ -405,7 +438,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		promptConstraints = &result.PromptConstraints.String
 	}
 
-	return &obj.Workshop{
+	w := &obj.Workshop{
 		ID:                         result.ID,
 		Name:                       result.Name,
 		Institution:                &obj.Institution{ID: result.InstitutionID},
@@ -428,7 +461,9 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+	setWorkshopExtras(ctx, w, result)
+	return w, nil
 }
 
 // SetWorkshopDefaultApiKey sets the default API key share for a workshop (staff/heads only)
@@ -485,7 +520,7 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		promptConstraints = &result.PromptConstraints.String
 	}
 
-	return &obj.Workshop{
+	w := &obj.Workshop{
 		ID:                         result.ID,
 		Name:                       result.Name,
 		Institution:                &obj.Institution{ID: result.InstitutionID},
@@ -508,7 +543,9 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+	setWorkshopExtras(ctx, w, result)
+	return w, nil
 }
 
 // DeleteWorkshop deletes a workshop after checking the caller's permissions.
@@ -601,4 +638,17 @@ func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.U
 		return "", obj.ErrNotFound("participant has no access token")
 	}
 	return token, nil
+}
+
+// setWorkshopExtras fills the public-page play limit, the join offer, the
+// language and the key source, which every read of a workshop returns.
+func setWorkshopExtras(ctx context.Context, w *obj.Workshop, r db.Workshop) {
+	if r.PublicPlayLimit.Valid {
+		limit := int(r.PublicPlayLimit.Int32)
+		w.PublicPlayLimit = &limit
+	}
+	w.PublicPlayUsed = int(r.PublicPlayUsed)
+	w.PublicJoin = r.PublicJoin
+	w.Language = r.Language
+	w.ApiKeySource = workshopKeySource(ctx, r)
 }

@@ -44,6 +44,10 @@ func CreateShareSession(ctx context.Context, token string, language string, play
 	if httpErr := decrementPrivateShareRemaining(ctx, gameShare.ID); httpErr != nil {
 		return nil, nil, httpErr
 	}
+	// Plays through a workshop's public page also count against the workshop's total.
+	if gameShare.PublicPage && gameShare.WorkshopID != nil && !db.ConsumeWorkshopPublicPlay(ctx, *gameShare.WorkshopID) {
+		return nil, nil, obj.NewHTTPErrorWithCode(403, "share_exhausted", "This workshop's public page has reached its play limit")
+	}
 
 	// 4. Determine the session owner: the authenticated player, or a fresh guest user.
 	owner := player

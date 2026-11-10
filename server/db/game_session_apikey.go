@@ -79,6 +79,13 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 				share = candidate
 				sourceTier = workshop.AiQualityTier
 			}
+		} else if wsErr == nil {
+			// Without a key of its own the workshop falls back to its organisation's.
+			candidate, tier := GetWorkshopOrganizationKeyShare(ctx, workshop.ID)
+			if matchesPlatform(candidate) {
+				share = candidate
+				sourceTier = tier
+			}
 		}
 	}
 

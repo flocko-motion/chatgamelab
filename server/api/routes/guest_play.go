@@ -69,12 +69,17 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	remaining := gameShare.Remaining
+	if gameShare.PublicPage && gameShare.WorkshopID != nil {
+		remaining = db.WorkshopPublicPlayRemaining(r.Context(), *gameShare.WorkshopID)
+	}
+
 	httpx.WriteJSON(w, http.StatusOK, GuestGameInfo{
 		GameID:      gameObj.ID,
 		Public:      gameObj.Public,
 		Name:        gameObj.Name,
 		Description: gameObj.Description,
-		Remaining:   gameShare.Remaining,
+		Remaining:   remaining,
 	})
 }
 

@@ -144,6 +144,11 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 			log.Debug("access granted via workshop default API key", "share_id", shareID, "user_id", userID)
 		}
 	}
+	return apiKeyShareRowToObj(s), nil
+}
+
+// apiKeyShareRowToObj converts a loaded share, including the full API key.
+func apiKeyShareRowToObj(s db.GetApiKeyShareByIDRow) *obj.ApiKeyShare {
 	share := &obj.ApiKeyShare{
 		ID: s.ID,
 		Meta: obj.Meta{
@@ -178,7 +183,7 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 	if s.GameID.Valid {
 		share.Game = &obj.Game{ID: s.GameID.UUID}
 	}
-	return share, nil
+	return share
 }
 
 // GetApiKeySharesByUser returns all API key shares accessible to a user

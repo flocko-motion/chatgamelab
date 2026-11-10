@@ -34,14 +34,14 @@ func toGameShareResponse(gs obj.GameShare) GameShareResponse {
 type CreateGameShareRequest struct {
 	SponsorKeyShareID *uuid.UUID `json:"sponsorKeyShareId"` // required for personal shares; ignored for workshop shares
 	MaxSessions       *int       `json:"maxSessions"`       // null = unlimited
-	WorkshopID        *uuid.UUID `json:"workshopId"`        // set to create a workshop share (uses workshop default key)
+	WorkshopID        *uuid.UUID `json:"workshopId"`        // set to create a workshop share (uses the workshop default key, else the organisation's free key, else the server's)
 	AiQualityTier     *string    `json:"aiQualityTier"`     // null = use source default (workshop tier or system default)
 }
 
 // CreateGameShare godoc
 //
 //	@Summary		Create a game share link
-//	@Description	Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
+//	@Description	Creates a share link for a game. For workshop shares, the workshop default key is used automatically, or, if the workshop has none, its organisation's free key, else the server's.
 //	@Tags			games
 //	@Accept			json
 //	@Produce		json
@@ -121,17 +121,28 @@ func CreateGameShare(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Workshop must have a default API key
-		if workshop.DefaultApiKeyShareID == nil {
-			httpx.WriteError(w, http.StatusBadRequest, "Workshop has no default API key configured")
-			return
-		}
-
-		sponsorShareID = *workshop.DefaultApiKeyShareID
 		workshopID = req.WorkshopID
 		if workshop.Institution != nil {
 			institutionID = &workshop.Institution.ID
 		}
+
+		// Without a workshop key, the organisation's free key pays for the link, else the server's
+		if workshop.DefaultApiKeyShareID == nil {
+			gameShare, err := db.CreateWorkshopFallbackGameShare(r.Context(), user.ID, gameID, institutionID, *req.WorkshopID, req.MaxSessions, req.AiQualityTier)
+			if err != nil {
+				log.Warn("failed to create free-use game share", "game_id", gameID, "error", err)
+				if appErr, ok := err.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, "Failed to create share link: "+err.Error())
+				return
+			}
+			httpx.WriteJSON(w, http.StatusOK, toGameShareResponse(*gameShare))
+			return
+		}
+
+		sponsorShareID = *workshop.DefaultApiKeyShareID
 	} else {
 		// ── Personal / org share ────────────────────────────────────────
 		if req.SponsorKeyShareID == nil {

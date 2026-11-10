@@ -43,6 +43,11 @@ import {
   IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { LanguageSelect } from "@components/LanguageSelect";
+import {
+  labelEmptyKeyOption,
+  workshopApiKeyFallbackLabel,
+} from "@/common/lib/workshopApiKeySource";
 import { useNavigate } from "@tanstack/react-router";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
@@ -385,6 +390,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
       promptConstraints: string;
       isPaused: boolean;
       allowGameSharing: boolean;
+      language: string;
     }>,
   ) => {
     if (!workshop.id) return;
@@ -408,6 +414,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
       allowGameSharing:
         settings.allowGameSharing ?? workshop.allowGameSharing ?? false,
+      language: settings.language,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -856,7 +863,13 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                         </Group>
                         <Select
                           size="xs"
-                          data={apiKeyOptions}
+                          data={labelEmptyKeyOption(
+                            apiKeyOptions,
+                            workshopApiKeyFallbackLabel(
+                              t,
+                              workshop.apiKeySource,
+                            ),
+                          )}
                           value={workshop.defaultApiKeyShareId || ""}
                           onChange={(value) =>
                             handleSetApiKey(workshop.id!, value || null)
@@ -897,6 +910,16 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                         <Text size="xs" c="dimmed" fs="italic">
                           {t("aiQualityTier.newSessionsOnly")}
                         </Text>
+                        <LanguageSelect
+                          size="xs"
+                          label={t("myOrganization.workshops.language")}
+                          description={t("myOrganization.workshops.languageHint")}
+                          value={workshop.language || "en"}
+                          onChange={(language) =>
+                            handleUpdateWorkshopSettings(workshop, { language })
+                          }
+                          disabled={updateWorkshop.isPending}
+                        />
                         <Textarea
                           size="xs"
                           label={t(
@@ -1006,6 +1029,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                       <PublicPageSettings
                         key={workshop.publicSlug}
                         workshop={workshop}
+                        organizationName={institutionName}
                         onSaved={retryBackendFetch}
                       />
 

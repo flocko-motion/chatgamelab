@@ -201,7 +201,7 @@ func describeWorkshopSkip(user *obj.User) string {
 	if user.Role.Workshop == nil {
 		return "not in workshop"
 	}
-	return "no default key configured or not accessible"
+	return "no workshop or organisation key configured, or not accessible"
 }
 
 // describeInstitutionSkip returns a human-readable reason why the institution key was skipped.
@@ -271,15 +271,19 @@ func tierOrDefault(tier *string, defaultTier string) string {
 	return defaultTier
 }
 
-// resolveWorkshopKey checks if the user is in a workshop that has a default API key configured.
+// resolveWorkshopKey returns the key of the user's workshop: its own, or else its
+// organisation's free-use key, which participants reach only this way.
 func resolveWorkshopKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, *string) {
 	if user.Role == nil || user.Role.Workshop == nil {
 		return nil, nil
 	}
 
 	workshop, err := db.GetWorkshopByID(ctx, user.ID, user.Role.Workshop.ID)
-	if err != nil || workshop.DefaultApiKeyShareID == nil {
+	if err != nil {
 		return nil, nil
+	}
+	if workshop.DefaultApiKeyShareID == nil {
+		return db.GetWorkshopOrganizationKeyShare(ctx, workshop.ID)
 	}
 
 	share, err := db.GetApiKeyShareByID(ctx, user.ID, *workshop.DefaultApiKeyShareID)

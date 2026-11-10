@@ -175,6 +175,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setBackendUser(response.data);
         setIsAuthenticated(true);
         setIsParticipant(true);
+        // Participants start in their workshop's language, stored on their
+        // account when they joined; the browser's language must not win.
+        if (response.data.language && response.data.language !== i18n.language) {
+          void i18n.changeLanguage(response.data.language);
+        }
         return true;
       }
       return false;
@@ -203,7 +208,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       authLogger.debug("No valid participant authentication");
       return false;
     }
-  }, [setBackendUser, setIsParticipant]);
+  }, [setBackendUser, setIsParticipant, i18n]);
 
   // ── Auth State Effect ───────────────────────────────────────────────
 
