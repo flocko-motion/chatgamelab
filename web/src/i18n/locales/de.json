@@ -267,6 +267,15 @@
       "max": "Max (Premium + Audio)",
       "medium": "Mittel (Ausgewogen)",
       "newSessionsOnly": "Diese Stufe gilt nur für neue Sitzungen. Bestehende Sitzungen behalten die Stufe, mit der sie gestartet wurden.",
+      "notUsed": {
+        "addKey": "API-Schlüssel hinzufügen",
+        "narrationOnlyMax": "Ohne „Max“ gibt es keinen Erzählton.",
+        "noOwnKey": "Sie gilt nur zusammen mit deinem eigenen API-Schlüssel, und du hast keinen. Deine Spiele laufen über einen bereitgestellten Schlüssel (von Workshop, Organisation oder Server) mit dessen Stufe.",
+        "noServerFreeKey": "Es ist kein freier API-Schlüssel ausgewählt.",
+        "noWorkshopKey": "Für diesen Workshop ist kein eigener API-Schlüssel ausgewählt. Die Spiele laufen dann über den freien Schlüssel der Organisation oder, falls es keinen gibt, über den des Servers - jeweils mit dessen Stufe.",
+        "selectWorkshopKey": "Schlüssel für diesen Workshop auswählen",
+        "title": "Diese Stufe wird nicht verwendet"
+      },
       "serverDefault": "Serverstandard"
     },
     "allGames": {
@@ -324,7 +333,7 @@
       },
       "currentDefault": {
         "label": "Aktiver API-Schlüssel",
-        "none": "Kein Standard-Schlüssel konfiguriert. Füge einen Schlüssel hinzu, um loszulegen."
+        "none": "Du hast keinen eigenen API-Schlüssel. Deine Spiele laufen über einen bereitgestellten Schlüssel (von Workshop, Organisation oder Server), falls vorhanden. Füge einen eigenen Schlüssel hinzu, um die Stufe selbst zu wählen."
       },
       "default": "Standard",
       "deleteModal": {
@@ -1281,7 +1290,7 @@
         "u18Placeholder": "z.B. Halte die Inhalte angemessen. Vermeide explizite Gewalt oder sexuelle Inhalte."
       },
       "defaultTier": {
-        "description": "Die serverweite Standardstufe, die verwendet wird, wenn keine spezifische Stufe auf Workshop-, Institutions- oder Benutzerebene konfiguriert ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben.",
+        "description": "Gilt überall dort, wo zum verwendeten API-Schlüssel (Workshop, Organisation, eigener Schlüssel, freier Schlüssel) keine eigene Stufe eingestellt ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben.",
         "title": "Standard-KI-Qualitätsstufe"
       },
       "freeUseKey": {

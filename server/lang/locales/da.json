@@ -282,6 +282,15 @@
       "max": "Maks (Premium + lyd)",
       "medium": "Mellem (Balanceret)",
       "newSessionsOnly": "Dette niveau gælder kun for nye sessioner. Eksisterende sessioner beholder det niveau, de startede med.",
+      "notUsed": {
+        "addKey": "Tilføj API-nøgle",
+        "narrationOnlyMax": "Uden 'Max' er der ingen fortælling (lyd).",
+        "noOwnKey": "Det gælder kun sammen med din egen API-nøgle, og du har ikke en. Dine spil bruger en nøgle fra dit workshop, din organisation eller serveren på den pågældende nøgles niveau.",
+        "noServerFreeKey": "Der er ikke valgt nogen API-nøgle til gratis brug.",
+        "noWorkshopKey": "Der er ikke valgt en særskilt API-nøgle til dette workshop. Spillene bruger derefter organisationens nøgle til gratis brug eller, hvis der ikke findes en, serverens – på den pågældende nøgles niveau.",
+        "selectWorkshopKey": "Vælg en nøgle til dette workshop",
+        "title": "Dette niveau bruges ikke"
+      },
       "serverDefault": "Serverstandard"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktiv API-nøgle",
-        "none": "Ingen standardnøgle konfigureret. Tilføj en nøgle for at komme i gang."
+        "none": "Du har ikke din egen API-nøgle. Dine spil bruger en nøgle fra dit workshop, din organisation eller serveren, hvis en sådan er tilgængelig. Tilføj din egen nøgle for selv at vælge niveauet."
       },
       "default": "Standard",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "f.eks. Hold indholdet passende. Undgå eksplicit vold eller seksuelt indhold."
       },
       "defaultTier": {
-        "description": "Serverens generelle fallback-niveau bruges, når der ikke er angivet et specifikt niveau på workshop-, institutions- eller brugerniveau. Højere niveauer koster mere, men kan have højere kvalitet.",
+        "description": "Bruges, når kilden til den anvendte API-nøgle (workshop, organisation, egen nøgle eller nøgle til gratis brug) ikke har sit eget niveau. Højere niveauer koster mere, men kan have højere kvalitet.",
         "title": "Standard AI-kvalitetsniveau"
       },
       "freeUseKey": {

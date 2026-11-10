@@ -282,6 +282,15 @@
       "max": "Max (Premium + Cod)",
       "medium": "Dhexdhexaad (Isu dheelli tiran)",
       "newSessionsOnly": "Heerkan wuxuu khuseeyaa kaliya fadhiyada cusub. Fadhiyada jira waxay sii wataan heerkii ay ku bilaabmeen.",
+      "notUsed": {
+        "addKey": "Ku dar furaha API-ga",
+        "narrationOnlyMax": "Haddii uusan jirin 'Max', ma jiri doonto sheekayn (maqal).",
+        "noOwnKey": "Waxay khusaysaa oo keliya marka lagu daro furahaaga API-ga, adiguna mid ma lihid. Ciyaarahaagu waxay isticmaalayaan fure ay bixiyeen aqoon-is-weydaarsigaaga, ururkaaga, ama server-ku, iyagoo adeegsanaya heerka furahaas.",
+        "noServerFreeKey": "Ma jiro fure API oo bilaash loo isticmaalo oo la doortay.",
+        "noWorkshopKey": "Aqoon-is-weydaarsigan looma dooran fure API oo u gaar ah. Ciyaaruhu waxay markaas isticmaalayaan furaha ururka ee bilaashka loo isticmaalo ama, haddii uusan jirin, kan server-ka—iyagoo adeegsanaya heerka furahaas.",
+        "selectWorkshopKey": "U dooro furaha aqoon-is-weydaarsigan",
+        "title": "Heerkan lama isticmaalo"
+      },
       "serverDefault": "Dejinta Server-ka"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Furaha API ee Firfircoon",
-        "none": "Fure caadi ah lama dejin. Fure ku dar si aad u bilowdo."
+        "none": "Ma lihid fure API oo kuu gaar ah. Ciyaarahaagu waxay isticmaalayaan fure ay bixiyeen aqoon-is-weydaarsigaaga, ururkaaga, ama server-ku, haddii la heli karo. Ku dar furahaaga si aad adigu u doorato heerka."
       },
       "default": "Caadi",
       "deleteModal": {
@@ -2137,7 +2146,7 @@
         "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."
       },
       "defaultTier": {
-        "description": "Heerka beddelka ee server-ka oo dhan la isticmaalo marka heer gaar ah aan lagu dejin aqoon-is-weydaarsiga, hay'adda ama heerka isticmaalaha. Heerarka sare way ka qaalisan yihiin, laakiin waxay yeelan karaan tayo ka wanaagsan.",
+        "description": "Waxaa la isticmaalaa mar kasta oo isha furaha API-ga la adeegsanayo (aqoon-is-weydaarsi, urur, fure kuu gaar ah, ama fure bilaash loo isticmaalo) aysan lahayn heer u gaar ah. Heerarka ka sarreeya waxay ku kacaan wax badan, balse waxay yeelan karaan tayo ka sarreysa.",
         "title": "Heerka tayada AI-ga ee caadiga ah"
       },
       "freeUseKey": {

@@ -447,6 +447,11 @@ export function useStreamingSession(adapter: SessionAdapter, narration = false) 
                   return;
                 }
 
+                if (chunk.textReplace) {
+                  // Backend cleaned the narration (e.g. the AI streamed JSON): show the clean text
+                  updateMessage(messageId, { text: chunk.textReplace });
+                }
+
                 if (chunk.text) {
                   appendTextToMessage(messageId, chunk.text);
                 }

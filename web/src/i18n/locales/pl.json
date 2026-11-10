@@ -282,6 +282,15 @@
       "max": "Maks. (Premium + audio)",
       "medium": "Średnia (zrównoważona)",
       "newSessionsOnly": "Ten poziom dotyczy tylko nowych sesji. Istniejące sesje zachowują poziom, z którym zostały rozpoczęte.",
+      "notUsed": {
+        "addKey": "Dodaj klucz API",
+        "narrationOnlyMax": "Bez „Max” nie ma narracji (dźwięku).",
+        "noOwnKey": "Dotyczy to tylko używania własnego klucza API, a Ty go nie masz. Twoje gry korzystają z klucza udostępnionego przez warsztat, organizację lub serwer, na poziomie tego klucza.",
+        "noServerFreeKey": "Nie wybrano żadnego klucza API do bezpłatnego użycia.",
+        "noWorkshopKey": "Dla tego warsztatu nie wybrano własnego klucza API. Gry korzystają wtedy z bezpłatnego klucza organizacji lub, jeśli go nie ma, z klucza serwera — na poziomie tego klucza.",
+        "selectWorkshopKey": "Wybierz klucz dla tego warsztatu",
+        "title": "Ten poziom nie jest używany"
+      },
       "serverDefault": "Domyślne serwera"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktywny klucz API",
-        "none": "Brak skonfigurowanego klucza domyślnego. Dodaj klucz, aby rozpocząć."
+        "none": "Nie masz własnego klucza API. Twoje gry korzystają z klucza udostępnionego przez warsztat, organizację lub serwer, jeśli jest dostępny. Dodaj własny klucz, aby samodzielnie wybrać poziom."
       },
       "default": "Domyślny",
       "deleteModal": {
@@ -1351,7 +1360,7 @@
         "u18Placeholder": "np. Dbaj o odpowiednią treść. Unikaj drastycznej przemocy i treści seksualnych."
       },
       "defaultTier": {
-        "description": "Serwerowy poziom zapasowy używany, gdy nie skonfigurowano konkretnego poziomu na warsztacie, w instytucji ani u użytkownika. Wyższe poziomy kosztują więcej, ale mogą dawać lepszą jakość.",
+        "description": "Używany za każdym razem, gdy źródło używanego klucza API (warsztat, organizacja, własny klucz, klucz do bezpłatnego użycia) nie ma własnego poziomu. Wyższe poziomy kosztują więcej, ale mogą oferować wyższą jakość.",
         "title": "Domyślny poziom jakości AI"
       },
       "freeUseKey": {

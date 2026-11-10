@@ -282,6 +282,15 @@
       "max": "Maks (Premium + Audio)",
       "medium": "Srednji (Uravnotežen)",
       "newSessionsOnly": "Ovaj nivo se primjenjuje samo na nove sesije. Postojeće sesije zadržavaju nivo s kojim su započele.",
+      "notUsed": {
+        "addKey": "Dodaj API ključ",
+        "narrationOnlyMax": "Bez opcije „Max“ nema naracije (zvuka).",
+        "noOwnKey": "Ovo se primjenjuje samo zajedno s vašim vlastitim API ključem, a vi ga nemate. Vaše igre koriste ključ koji je obezbijedila vaša radionica, organizacija ili server, na nivou tog ključa.",
+        "noServerFreeKey": "Nije odabran nijedan API ključ za besplatnu upotrebu.",
+        "noWorkshopKey": "Za ovu radionicu nije odabran vlastiti API ključ. Igre tada koriste organizacijski ključ za besplatnu upotrebu ili, ako takav ne postoji, ključ servera — na nivou tog ključa.",
+        "selectWorkshopKey": "Odaberite ključ za ovu radionicu",
+        "title": "Ovaj nivo se ne koristi"
+      },
       "serverDefault": "Podrazumijevano na serveru"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktivni API ključ",
-        "none": "Nema konfigurisanog podrazumijevanog ključa. Dodajte ključ da počnete."
+        "none": "Nemate vlastiti API ključ. Vaše igre koriste ključ koji je obezbijedila vaša radionica, organizacija ili server, ako je dostupan. Dodajte vlastiti ključ da biste sami odabrali nivo."
       },
       "default": "Podrazumijevani",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "npr. Neka sadržaj bude primjeren. Izbjegavaj eksplicitno nasilje ili seksualni sadržaj."
       },
       "defaultTier": {
-        "description": "Podrazumijevani nivo kvaliteta na nivou servera koji se koristi kada nije podešen na nivou radionice, institucije ili korisnika. Viši nivoi koštaju više, ali mogu imati bolji kvalitet.",
+        "description": "Koristi se kad god izvor API ključa koji se koristi (radionica, organizacija, vlastiti ključ, ključ za besplatnu upotrebu) nema vlastiti nivo. Viši nivoi koštaju više, ali mogu pružiti veći kvalitet.",
         "title": "Podrazumijevani AI nivo kvaliteta"
       },
       "freeUseKey": {

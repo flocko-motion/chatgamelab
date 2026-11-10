@@ -28,7 +28,7 @@ func TestGetTemplateLeavesNoPlaceholders(t *testing.T) {
 func TestStartMessageRollsFreshValues(t *testing.T) {
 	seen := map[string]bool{}
 	for range 5 {
-		got := StartMessage()
+		got := StartMessage(true)
 		if !strings.HasPrefix(got, PromptMessageStart) || !strings.Contains(got, "Random values for this playthrough: ") {
 			t.Fatalf("start message lacks the start prompt or the random values:\n%s", got)
 		}

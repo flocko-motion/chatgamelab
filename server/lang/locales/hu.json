@@ -282,6 +282,15 @@
       "max": "Max (Prémium + Hang)",
       "medium": "Közepes (Kiegyensúlyozott)",
       "newSessionsOnly": "Ez a szint csak az új munkamenetekre vonatkozik. A meglévők megtartják a kezdéskor beállított szintet.",
+      "notUsed": {
+        "addKey": "API-kulcs hozzáadása",
+        "narrationOnlyMax": "A „Max” nélkül nincs narráció (hang).",
+        "noOwnKey": "Ez csak a saját API-kulcsoddal együtt érvényes, neked pedig nincs ilyen kulcsod. A játékaid a műhelyed, a szervezeted vagy a szerver által biztosított kulcsot használják, annak a kulcshoz tartozó szintjén.",
+        "noServerFreeKey": "Nincs ingyenesen használható API-kulcs kiválasztva.",
+        "noWorkshopKey": "Ehhez a műhelyhez nincs saját API-kulcs kiválasztva. A játékok ilyenkor a szervezet ingyenesen használható kulcsát, vagy ha ilyen nincs, a szerver kulcsát használják, annak a kulcshoz tartozó szintjén.",
+        "selectWorkshopKey": "Kulcs kiválasztása ehhez a műhelyhez",
+        "title": "Ez a szint nincs használatban"
+      },
       "serverDefault": "Szerver alapértelmezett"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktív API-kulcs",
-        "none": "Nincs beállított alapértelmezett kulcs. Adj hozzá egy kulcsot a kezdéshez."
+        "none": "Nincs saját API-kulcsod. A játékaid a műhelyed, a szervezeted vagy a szerver által biztosított kulcsot használják, ha elérhető. Add hozzá a saját kulcsodat, hogy magad választhasd ki a szintet."
       },
       "default": "Alapértelmezett",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "Pl.: Maradjon megfelelő a tartalom. Kerüld a nyílt erőszakot vagy szexuális tartalmat."
       },
       "defaultTier": {
-        "description": "A szerver szintű tartalék minőségi szint, amely akkor használatos, ha nincs konkrét szint beállítva a műhely, intézmény vagy felhasználó szintjén. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak.",
+        "description": "A rendszer ezt használja, amikor a használatban lévő API-kulcs forrásának (műhely, szervezet, saját kulcs, ingyenesen használható kulcs) nincs saját szintje. A magasabb szintek többe kerülnek, de jobb minőséget biztosíthatnak.",
         "title": "Alapértelmezett MI minőségi szint"
       },
       "freeUseKey": {

@@ -282,6 +282,15 @@
       "max": "Max (Premium + audio)",
       "medium": "Midden (Gebalanceerd)",
       "newSessionsOnly": "Deze klasse is alleen van toepassing op nieuwe sessies. Bestaande sessies behouden de klasse waarmee ze zijn gestart.",
+      "notUsed": {
+        "addKey": "API-sleutel toevoegen",
+        "narrationOnlyMax": "Zonder 'Max' is er geen vertelling (audio).",
+        "noOwnKey": "Dit geldt alleen in combinatie met je eigen API-sleutel, en je hebt er geen. Je games gebruiken een sleutel die door je workshop, organisatie of de server wordt verstrekt, op het niveau van die sleutel.",
+        "noServerFreeKey": "Er is geen gratis te gebruiken API-sleutel geselecteerd.",
+        "noWorkshopKey": "Er is geen eigen API-sleutel voor deze workshop geselecteerd. Games gebruiken dan de gratis te gebruiken sleutel van de organisatie of, als die er niet is, die van de server, op het niveau van die sleutel.",
+        "selectWorkshopKey": "Selecteer een sleutel voor deze workshop",
+        "title": "Dit niveau wordt niet gebruikt"
+      },
       "serverDefault": "Serverstandaard"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Actieve API-sleutel",
-        "none": "Geen standaardsleutel geconfigureerd. Voeg een sleutel toe om te beginnen."
+        "none": "Je hebt geen eigen API-sleutel. Je games gebruiken een sleutel die door je workshop, organisatie of de server wordt verstrekt, indien beschikbaar. Voeg je eigen sleutel toe om zelf het niveau te kiezen."
       },
       "default": "Standaard",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "bijv. Houd de inhoud gepast. Vermijd expliciet geweld of seksuele inhoud."
       },
       "defaultTier": {
-        "description": "Serverbrede terugvaloptie wanneer geen specifiek niveau is ingesteld op workshop-, instituut- of gebruikersniveau. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben.",
+        "description": "Wordt gebruikt wanneer de bron van de gebruikte API-sleutel (workshop, organisatie, eigen sleutel, gratis te gebruiken sleutel) geen eigen niveau heeft. Hogere niveaus kosten meer, maar kunnen een hogere kwaliteit bieden.",
         "title": "Standaard AI-kwaliteitsniveau"
       },
       "freeUseKey": {

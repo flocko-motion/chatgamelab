@@ -284,6 +284,15 @@
       "max": "Maks (Premium + Ses)",
       "medium": "Orta (Dengeli)",
       "newSessionsOnly": "Bu katman yalnızca yeni oturumlar için geçerlidir. Mevcut oturumlar başladıkları katmanı korur.",
+      "notUsed": {
+        "addKey": "API anahtarı ekle",
+        "narrationOnlyMax": "'Max' olmadan seslendirme (ses) yoktur.",
+        "noOwnKey": "Bu yalnızca kendi API anahtarınızla birlikte geçerlidir ve sizin böyle bir anahtarınız yok. Oyunlarınız, atölyeniz, kuruluşunuz veya sunucu tarafından sağlanan anahtarı, o anahtarın seviyesinde kullanır.",
+        "noServerFreeKey": "Ücretsiz kullanım için herhangi bir API anahtarı seçilmedi.",
+        "noWorkshopKey": "Bu atölye için özel bir API anahtarı seçilmedi. Bu durumda oyunlar, kuruluşun ücretsiz kullanım anahtarını veya bu anahtar yoksa sunucunun anahtarını, o anahtarın seviyesinde kullanır.",
+        "selectWorkshopKey": "Bu atölye için bir anahtar seçin",
+        "title": "Bu seviye kullanılmıyor"
+      },
       "serverDefault": "Sunucu Varsayılanı"
     },
     "allGames": {
@@ -341,7 +350,7 @@
       },
       "currentDefault": {
         "label": "Aktif API Anahtarı",
-        "none": "Varsayılan anahtar yapılandırılmadı. Başlamak için bir anahtar ekleyin."
+        "none": "Kendinize ait bir API anahtarınız yok. Oyunlarınız, varsa atölyeniz, kuruluşunuz veya sunucu tarafından sağlanan bir anahtarı kullanır. Seviyeyi kendiniz seçmek için kendi anahtarınızı ekleyin."
       },
       "default": "Varsayılan",
       "deleteModal": {
@@ -1333,7 +1342,7 @@
         "u18Placeholder": "ör. İçeriği uygun tutun. Açık şiddet veya cinsel içerikten kaçının."
       },
       "defaultTier": {
-        "description": "Atölye, kurum veya kullanıcı seviyesinde belirli bir seviye ayarlanmadığında kullanılan sunucu genelindeki yedek seviye. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir.",
+        "description": "Kullanılan API anahtarının kaynağının (atölye, kuruluş, kendi anahtarınız, ücretsiz kullanım anahtarı) kendine ait bir seviyesi olmadığında kullanılır. Daha yüksek seviyeler daha pahalıdır ancak daha yüksek kalite sunabilir.",
         "title": "Varsayılan Yapay Zekâ Kalite Seviyesi"
       },
       "freeUseKey": {

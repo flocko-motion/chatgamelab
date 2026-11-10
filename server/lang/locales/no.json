@@ -282,6 +282,15 @@
       "max": "Maks (Premium + lyd)",
       "medium": "Middels (Balansert)",
       "newSessionsOnly": "Dette nivået gjelder bare for nye økter. Eksisterende økter beholder nivået de startet med.",
+      "notUsed": {
+        "addKey": "Legg til API-nøkkel",
+        "narrationOnlyMax": "Uten «Max» er det ingen fortellerstemme (lyd).",
+        "noOwnKey": "Dette gjelder bare sammen med din egen API-nøkkel, og du har ingen. Spillene dine bruker en nøkkel fra verkstedet, organisasjonen eller serveren, på det nivået denne nøkkelen har.",
+        "noServerFreeKey": "Ingen API-nøkkel for gratisbruk er valgt.",
+        "noWorkshopKey": "Ingen egen API-nøkkel er valgt for dette verkstedet. Spillene bruker da organisasjonens API-nøkkel for gratisbruk eller, hvis det ikke finnes en, serverens – på det nivået denne nøkkelen har.",
+        "selectWorkshopKey": "Velg en nøkkel for dette verkstedet",
+        "title": "Dette nivået brukes ikke"
+      },
       "serverDefault": "Serverstandard"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktiv API-nøkkel",
-        "none": "Ingen standardnøkkel konfigurert. Legg til en nøkkel for å komme i gang."
+        "none": "Du har ingen egen API-nøkkel. Spillene dine bruker en nøkkel fra verkstedet, organisasjonen eller serveren, hvis tilgjengelig. Legg til din egen nøkkel for å velge nivået selv."
       },
       "default": "Standard",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "f.eks. Hold innholdet passende. Unngå eksplisitt vold eller seksuelt innhold."
       },
       "defaultTier": {
-        "description": "Serverens standardnivå som brukes når det ikke er konfigurert noe spesifikt nivå på workshop-, institusjons- eller brukernivå. Høyere nivåer koster mer, men kan ha høyere kvalitet.",
+        "description": "Brukes når kilden til API-nøkkelen som er i bruk (verksted, organisasjon, egen nøkkel eller nøkkel for gratisbruk) ikke har et eget nivå. Høyere nivåer koster mer, men kan gi høyere kvalitet.",
         "title": "Standard AI-kvalitetsnivå"
       },
       "freeUseKey": {

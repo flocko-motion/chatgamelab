@@ -282,6 +282,15 @@
       "max": "Max (Premium + Audio)",
       "medium": "Stredná (Vyvážená)",
       "newSessionsOnly": "Táto úroveň sa vzťahuje len na nové relácie. Existujúce relácie si ponechajú úroveň, s ktorou začali.",
+      "notUsed": {
+        "addKey": "Dodaj ključ API",
+        "narrationOnlyMax": "Brez možnosti »Max« ni pripovedovanja (zvoka).",
+        "noOwnKey": "To velja samo skupaj z vašim lastnim ključem API, ki ga nimate. Vaše igre uporabljajo ključ, ki ga zagotavlja vaša delavnica, organizacija ali strežnik, na ravni tega ključa.",
+        "noServerFreeKey": "Izbran ni noben ključ API za brezplačno uporabo.",
+        "noWorkshopKey": "Za to delavnico ni izbran lasten ključ API. Igre nato uporabljajo brezplačni ključ organizacije ali, če ga ni, ključ strežnika – na ravni tega ključa.",
+        "selectWorkshopKey": "Izberite ključ za to delavnico",
+        "title": "Ta raven se ne uporablja"
+      },
       "serverDefault": "Predvolené serverom"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktívny API kľúč",
-        "none": "Nie je nastavený žiadny predvolený kľúč. Pridajte kľúč, aby ste mohli pokračovať."
+        "none": "Nimate lastnega ključa API. Vaše igre uporabljajo ključ, ki ga zagotavlja vaša delavnica, organizacija ali strežnik, če je na voljo. Dodajte svoj ključ, da boste lahko sami izbrali raven."
       },
       "default": "Predvolený",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "napr. Udržuj obsah vhodný. Vyhýbaj sa explicitnému násiliu alebo sexuálnemu obsahu."
       },
       "defaultTier": {
-        "description": "Celoserverová záložná úroveň, ktorá sa použije, keď nie je špecifická úroveň nastavená na úrovni workshopu, inštitúcie alebo používateľa. Vyššie úrovne stoja viac, ale môžu mať vyššiu kvalitu.",
+        "description": "Uporablja se vedno, kadar vir uporabljenega ključa API (delavnica, organizacija, lastni ključ, ključ za brezplačno uporabo) nima lastne ravni. Višje ravni stanejo več, vendar lahko zagotavljajo višjo kakovost.",
         "title": "Predvolená úroveň kvality AI"
       },
       "freeUseKey": {

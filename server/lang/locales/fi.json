@@ -282,6 +282,15 @@
       "max": "Maksimi (Premium + ääni)",
       "medium": "Keskitaso (Tasapainotettu)",
       "newSessionsOnly": "Tämä taso koskee vain uusia istuntoja. Olemassa olevat istunnot säilyttävät aloitushetken tason.",
+      "notUsed": {
+        "addKey": "Lisää API-avain",
+        "narrationOnlyMax": "Ilman \"Maxia\" ei ole kerrontaa (ääntä).",
+        "noOwnKey": "Tämä koskee vain omaa API-avaintasi käytettäessä, eikä sinulla ole sellaista. Pelisi käyttävät työpajasi, organisaatiosi tai palvelimen tarjoamaa avainta kyseisen avaimen tasolla.",
+        "noServerFreeKey": "Ilmaiskäyttöistä API-avainta ei ole valittu.",
+        "noWorkshopKey": "Tälle työpajalle ei ole valittu omaa API-avainta. Pelit käyttävät tällöin organisaation ilmaiskäyttöistä avainta tai, jos sellaista ei ole, palvelimen avainta kyseisen avaimen tasolla.",
+        "selectWorkshopKey": "Valitse avain tälle työpajalle",
+        "title": "Tätä tasoa ei käytetä"
+      },
       "serverDefault": "Palvelimen oletus"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktiivinen API-avain",
-        "none": "Oletusavainta ei ole määritetty. Lisää avain aloittaaksesi."
+        "none": "Sinulla ei ole omaa API-avainta. Pelisi käyttävät työpajasi, organisaatiosi tai palvelimen tarjoamaa avainta, jos sellainen on saatavilla. Lisää oma avaimesi, jotta voit valita tason itse."
       },
       "default": "Oletus",
       "deleteModal": {
@@ -1351,7 +1360,7 @@
         "u18Placeholder": "esim. Pidä sisältö sopivana. Vältä eksplisiittistä väkivaltaa tai seksuaalista sisältöä."
       },
       "defaultTier": {
-        "description": "Palvelimen laajuinen varatila, jota käytetään, kun työpajalle, organisaatiolle tai käyttäjälle ei ole määritetty tasoa. Korkeammat tasot maksavat enemmän, mutta voivat tarjota parempaa laatua.",
+        "description": "Käytetään aina, kun käytössä olevan API-avaimen lähteellä (työpaja, organisaatio, oma avain tai ilmaiskäyttöinen avain) ei ole omaa tasoa. Korkeammat tasot maksavat enemmän, mutta niiden laatu voi olla parempi.",
         "title": "AI:n oletuslaatutaso"
       },
       "freeUseKey": {
