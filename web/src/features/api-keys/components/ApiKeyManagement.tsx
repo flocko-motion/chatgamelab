@@ -47,6 +47,7 @@ import {
 } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import { AiTierNotice } from "@/common/components/AiTierNotice";
 import type { ObjAiPlatform } from "@/api/generated";
 import env from "@/config/env";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
@@ -306,6 +307,11 @@ export function ApiKeyManagement() {
         );
         const availableTiers =
           defaultPlatform?.models?.map((m) => m.id ?? "") ?? [];
+        // The user's own tier only applies together with their own default key.
+        const ownTier = backendUser?.aiQualityTier;
+        const keyPlatform =
+          platforms?.find((p) => p.id === "openai" && p.supportsApiKey) ??
+          platforms?.find((p) => p.supportsApiKey);
         return (
           <Card shadow="sm" p="lg" radius="md" withBorder>
             <Stack gap="sm">
@@ -339,6 +345,20 @@ export function ApiKeyManagement() {
               <Text size="xs" c="dimmed" fs="italic">
                 {t("aiQualityTier.newSessionsOnly")}
               </Text>
+              {ownTier && !defaultKey && (
+                <AiTierNotice
+                  tier={ownTier}
+                  reason={t("aiQualityTier.notUsed.noOwnKey")}
+                  actionLabel={
+                    keyPlatform ? t("aiQualityTier.notUsed.addKey") : undefined
+                  }
+                  onAction={
+                    keyPlatform
+                      ? () => openCreateForPlatform(keyPlatform)
+                      : undefined
+                  }
+                />
+              )}
             </Stack>
           </Card>
         );

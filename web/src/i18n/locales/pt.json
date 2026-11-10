@@ -282,6 +282,15 @@
       "max": "Máx (Premium + Áudio)",
       "medium": "Médio (Equilibrado)",
       "newSessionsOnly": "Este nível se aplica apenas a novas sessões. As sessões existentes mantêm o nível com o qual começaram.",
+      "notUsed": {
+        "addKey": "Adicionar chave de API",
+        "narrationOnlyMax": "Sem o 'Max', não há narração (áudio).",
+        "noOwnKey": "Isso só se aplica junto com sua própria chave de API, e você não tem uma. Seus jogos usam uma chave fornecida pela sua oficina, organização ou pelo servidor, na categoria dessa chave.",
+        "noServerFreeKey": "Nenhuma chave de API de uso gratuito está selecionada.",
+        "noWorkshopKey": "Nenhuma chave de API própria está selecionada para esta oficina. Nesse caso, os jogos usam a chave de uso gratuito da organização ou, se não houver uma, a do servidor — na categoria dessa chave.",
+        "selectWorkshopKey": "Selecione uma chave para esta oficina",
+        "title": "Esta categoria não é usada"
+      },
       "serverDefault": "Padrão do Servidor"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Chave de API Ativa",
-        "none": "Nenhuma chave padrão configurada. Adicione uma chave para começar."
+        "none": "Você não tem uma chave de API própria. Seus jogos usam uma chave fornecida pela sua oficina, organização ou pelo servidor, se disponível. Adicione sua própria chave para escolher a categoria por conta própria."
       },
       "default": "Padrão",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "ex.: Mantenha o conteúdo apropriado. Evite violência explícita ou conteúdo sexual."
       },
       "defaultTier": {
-        "description": "O nível padrão em todo o servidor usado quando nenhum nível específico é configurado no workshop, instituição ou usuário. Níveis mais altos custam mais, mas podem ter qualidade superior.",
+        "description": "Usado sempre que a fonte da chave de API em uso (oficina, organização, chave própria ou chave de uso gratuito) não tiver uma categoria própria. Categorias mais altas custam mais, mas podem oferecer maior qualidade.",
         "title": "Nível de Qualidade da IA Padrão"
       },
       "freeUseKey": {

@@ -282,6 +282,15 @@
       "max": "Maximă (Premium + Audio)",
       "medium": "Medie (Echilibrat)",
       "newSessionsOnly": "Acest nivel se aplică doar sesiunilor noi. Sesiunile existente păstrează nivelul cu care au început.",
+      "notUsed": {
+        "addKey": "Adaugă cheia API",
+        "narrationOnlyMax": "Fără „Max” nu există narațiune (audio).",
+        "noOwnKey": "Se aplică numai împreună cu propria ta cheie API, iar tu nu ai una. Jocurile tale folosesc o cheie furnizată de atelierul, organizația sau serverul tău, la nivelul acelei chei.",
+        "noServerFreeKey": "Nu este selectată nicio cheie API pentru utilizare gratuită.",
+        "noWorkshopKey": "Nu este selectată nicio cheie API proprie pentru acest atelier. Jocurile folosesc apoi cheia organizației pentru utilizare gratuită sau, dacă aceasta nu există, cheia serverului, la nivelul acelei chei.",
+        "selectWorkshopKey": "Selectează o cheie pentru acest atelier",
+        "title": "Acest nivel nu este utilizat"
+      },
       "serverDefault": "Implicit server"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Cheie API activă",
-        "none": "Nu există nicio cheie implicită configurată. Adaugă o cheie pentru a începe."
+        "none": "Nu ai propria cheie API. Jocurile tale folosesc o cheie furnizată de atelierul, organizația sau serverul tău, dacă este disponibilă. Adaugă propria cheie pentru a alege tu nivelul."
       },
       "default": "Implicită",
       "deleteModal": {
@@ -1334,7 +1343,7 @@
         "u18Placeholder": "ex. Păstrează conținutul adecvat. Evită violența explicită sau conținutul sexual."
       },
       "defaultTier": {
-        "description": "Nivelul implicit la nivel de server folosit când nu este configurat un nivel specific la nivelul atelierului, instituției sau utilizatorului. Nivelurile mai mari costă mai mult, dar pot avea calitate mai bună.",
+        "description": "Este utilizat ori de câte ori sursa cheii API folosite (atelier, organizație, cheie proprie, cheie pentru utilizare gratuită) nu are propriul nivel. Nivelurile superioare costă mai mult, dar pot oferi o calitate mai bună.",
         "title": "Nivel implicit de calitate IA"
       },
       "freeUseKey": {

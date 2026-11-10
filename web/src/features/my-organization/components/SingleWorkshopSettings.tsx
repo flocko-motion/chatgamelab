@@ -69,6 +69,11 @@ import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import { AiTierNotice } from "@/common/components/AiTierNotice";
+import {
+  focusWorkshopKeySelect,
+  workshopKeySelectId,
+} from "../lib/workshopKeySelect";
 import { useAuth } from "@/providers/AuthProvider";
 
 interface SingleWorkshopSettingsProps {
@@ -412,6 +417,7 @@ export function SingleWorkshopSettings({
               </Text>
             </Group>
             <Select
+              id={workshopKeySelectId(workshop.id!)}
               size="sm"
               data={labelEmptyKeyOption(
                 apiKeyOptions,
@@ -453,6 +459,14 @@ export function SingleWorkshopSettings({
             <Text size="xs" c="dimmed" fs="italic">
               {t("aiQualityTier.newSessionsOnly")}
             </Text>
+            {workshop.aiQualityTier && !workshop.defaultApiKeyShareId && (
+              <AiTierNotice
+                tier={workshop.aiQualityTier}
+                reason={t("aiQualityTier.notUsed.noWorkshopKey")}
+                actionLabel={t("aiQualityTier.notUsed.selectWorkshopKey")}
+                onAction={() => focusWorkshopKeySelect(workshop.id!)}
+              />
+            )}
             <LanguageSelect
               size="sm"
               label={t("myOrganization.workshops.language")}

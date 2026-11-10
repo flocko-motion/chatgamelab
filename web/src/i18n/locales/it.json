@@ -282,6 +282,15 @@
       "max": "Massima (Premium + Audio)",
       "medium": "Media (Bilanciata)",
       "newSessionsOnly": "Questo livello si applica solo alle nuove sessioni. Le sessioni esistenti mantengono il livello con cui sono state avviate.",
+      "notUsed": {
+        "addKey": "Aggiungi chiave API",
+        "narrationOnlyMax": "Senza «Max» non è disponibile la narrazione (audio).",
+        "noOwnKey": "Si applica solo insieme a una tua chiave API, ma non ne possiedi una. I tuoi giochi utilizzano una chiave fornita dal tuo workshop, dalla tua organizzazione o dal server, al livello di quella chiave.",
+        "noServerFreeKey": "Non è selezionata alcuna chiave API per l'uso gratuito.",
+        "noWorkshopKey": "Per questo workshop non è selezionata alcuna chiave API propria. I giochi utilizzano quindi la chiave per l'uso gratuito dell'organizzazione oppure, se non disponibile, quella del server, al livello di quella chiave.",
+        "selectWorkshopKey": "Seleziona una chiave per questo workshop",
+        "title": "Questo livello non viene utilizzato"
+      },
       "serverDefault": "Predefinito del server"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Chiave API attiva",
-        "none": "Nessuna chiave predefinita configurata. Aggiungi una chiave per iniziare."
+        "none": "Non possiedi una chiave API personale. I tuoi giochi utilizzano una chiave fornita dal tuo workshop, dalla tua organizzazione o dal server, se disponibile. Aggiungi la tua chiave per scegliere personalmente il livello."
       },
       "default": "Predefinita",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "es. Mantieni i contenuti appropriati. Evita violenza esplicita o contenuti sessuali."
       },
       "defaultTier": {
-        "description": "Il livello di fallback a livello di server utilizzato quando non è configurato un livello specifico per workshop, istituzione o utente. I livelli più alti costano di più ma possono avere qualità maggiore.",
+        "description": "Viene utilizzato ogni volta che l'origine della chiave API in uso (workshop, organizzazione, chiave personale, chiave per l'uso gratuito) non dispone di un livello proprio. I livelli superiori hanno un costo maggiore, ma possono offrire una qualità più elevata.",
         "title": "Livello qualità IA predefinito"
       },
       "freeUseKey": {

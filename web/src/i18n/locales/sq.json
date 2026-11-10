@@ -282,6 +282,15 @@
       "max": "Maks (Premium + Audio)",
       "medium": "Mesatare (E balancuar)",
       "newSessionsOnly": "Ky nivel zbatohet vetëm për sesionet e reja. Sesionet ekzistuese mbajnë nivelin me të cilin kanë startuar.",
+      "notUsed": {
+        "addKey": "Shto çelësin API",
+        "narrationOnlyMax": "Pa 'Max' nuk ka narracion (audio).",
+        "noOwnKey": "Zbatohet vetëm së bashku me çelësin tënd API, dhe ti nuk ke një të tillë. Lojërat e tua përdorin një çelës të ofruar nga punishtja, organizata ose serveri yt, në nivelin e atij çelësi.",
+        "noServerFreeKey": "Nuk është zgjedhur asnjë çelës API për përdorim falas.",
+        "noWorkshopKey": "Nuk është zgjedhur asnjë çelës API i veçantë për këtë punishte. Lojërat përdorin më pas çelësin e organizatës për përdorim falas ose, nëse nuk ka një të tillë, çelësin e serverit — në nivelin e atij çelësi.",
+        "selectWorkshopKey": "Zgjidh një çelës për këtë punishte",
+        "title": "Ky nivel nuk përdoret"
+      },
       "serverDefault": "Parazgjedhja e serverit"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Çelësi API aktiv",
-        "none": "Nuk ka çelës parazgjedhje të konfiguruar. Shtoni një çelës për të filluar."
+        "none": "Nuk ke një çelës API tëndin. Lojërat e tua përdorin një çelës të ofruar nga punishtja, organizata ose serveri yt, nëse është i disponueshëm. Shto çelësin tënd për të zgjedhur vetë nivelin."
       },
       "default": "Parazgjedhje",
       "deleteModal": {
@@ -1351,7 +1360,7 @@
         "u18Placeholder": "p.sh. Mbajeni përmbajtjen të përshtatshme. Shmangni dhunën e qartë ose përmbajtjen seksuale."
       },
       "defaultTier": {
-        "description": "Niveli rezervë në shkallë serveri që përdoret kur nuk është konfiguruar një nivel specifik në punëtori, institucion ose përdorues. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë.",
+        "description": "Përdoret sa herë që burimi i çelësit API në përdorim (punishtja, organizata, çelësi yt, çelësi për përdorim falas) nuk ka nivelin e vet. Nivelet më të larta kushtojnë më shumë, por mund të ofrojnë cilësi më të lartë.",
         "title": "Niveli parazgjedhje i cilësisë së AI"
       },
       "freeUseKey": {

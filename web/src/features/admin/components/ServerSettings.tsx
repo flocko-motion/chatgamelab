@@ -30,6 +30,7 @@ import {
   useApiKeys,
 } from "@/api/hooks";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import { AiTierNotice } from "@/common/components/AiTierNotice";
 
 export function ServerSettings() {
   const { t } = useTranslation("common");
@@ -213,6 +214,12 @@ export function ServerSettings() {
             <Text size="xs" c="dimmed" fs="italic">
               {t("aiQualityTier.newSessionsOnly")}
             </Text>
+            {settings?.freeUseAiQualityTier && !hasCurrentKey && (
+              <AiTierNotice
+                tier={settings.freeUseAiQualityTier}
+                reason={t("aiQualityTier.notUsed.noServerFreeKey")}
+              />
+            )}
           </Stack>
         </Card>
         {/* Age-Based Constraint Prompts */}

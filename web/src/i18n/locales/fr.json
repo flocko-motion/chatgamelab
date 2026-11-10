@@ -282,6 +282,15 @@
       "max": "Max (Premium + Audio)",
       "medium": "Moyen (Équilibré)",
       "newSessionsOnly": "Ce niveau s'applique uniquement aux nouvelles sessions. Les sessions existantes conservent le niveau avec lequel elles ont commencé.",
+      "notUsed": {
+        "addKey": "Ajouter une clé API",
+        "narrationOnlyMax": "Sans « Max », il n’y a pas de narration (audio).",
+        "noOwnKey": "Cela s’applique uniquement avec votre propre clé API, et vous n’en avez pas. Vos parties utilisent une clé fournie par votre atelier, votre organisation ou le serveur, au niveau de cette clé.",
+        "noServerFreeKey": "Aucune clé API gratuite n’est sélectionnée.",
+        "noWorkshopKey": "Aucune clé API propre à cet atelier n’est sélectionnée. Les parties utilisent alors la clé gratuite de l’organisation ou, à défaut, celle du serveur, au niveau de cette clé.",
+        "selectWorkshopKey": "Sélectionner une clé pour cet atelier",
+        "title": "Ce niveau n’est pas utilisé"
+      },
       "serverDefault": "Par défaut du serveur"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Clé API active",
-        "none": "Aucune clé par défaut configurée. Ajoutez une clé pour commencer."
+        "none": "Vous n’avez pas votre propre clé API. Vos parties utilisent une clé fournie par votre atelier, votre organisation ou le serveur, si elle est disponible. Ajoutez votre propre clé pour choisir vous-même le niveau."
       },
       "default": "Par défaut",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "ex. Garder le contenu approprié. Éviter la violence explicite ou le contenu sexuel."
       },
       "defaultTier": {
-        "description": "Niveau de qualité IA par défaut du serveur, utilisé lorsqu’aucun niveau spécifique n’est configuré au niveau de l’atelier, de l’institution ou de l’utilisateur. Les niveaux supérieurs coûtent plus cher mais peuvent offrir une meilleure qualité.",
+        "description": "Utilisé lorsque la source de la clé API utilisée (atelier, organisation, clé personnelle, clé gratuite) ne possède pas son propre niveau. Les niveaux supérieurs coûtent plus cher, mais peuvent offrir une meilleure qualité.",
         "title": "Niveau de qualité IA par défaut"
       },
       "freeUseKey": {

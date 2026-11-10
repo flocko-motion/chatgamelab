@@ -282,6 +282,15 @@
       "max": "Max (Premium + Audio)",
       "medium": "Mittel (Ausgwogn)",
       "newSessionsOnly": "Daa Tarif gilt bloß fia neie Sitzunga. Laufa Sitzunga bleim beim alten Tarif.",
+      "notUsed": {
+        "addKey": "API-Schlüssl hinzufügen",
+        "narrationOnlyMax": "Ohne „Max“ gibt’s koa Erzählung (Audio).",
+        "noOwnKey": "Des gilt bloß z’samm mit deinem eigenen API-Schlüssl, und du hast koan. Dei Spuile verwenden an Schlüssl, den da Workshop, de Organisation oder da Server bereitstellt – auf da Stufe von dem Schlüssl.",
+        "noServerFreeKey": "Es is koa API-Schlüssl für de kostenlose Nutzung ausgewählt.",
+        "noWorkshopKey": "Für den Workshop is koa eigener API-Schlüssl ausgewählt. De Spuile verwenden dann den kostenlosen Schlüssl vo da Organisation oder, wenn’s den ned gibt, den vom Server – jeweils auf da Stufe von dem Schlüssl.",
+        "selectWorkshopKey": "A Schlüssl für den Workshop auswählen",
+        "title": "Die Stufe wird ned verwendet"
+      },
       "serverDefault": "Server-Standard"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktiva API-Schlüssl",
-        "none": "Koan Standardschlüssl konfiguriert. Füg an Schlüssl hinzu, damit's losgeh kann."
+        "none": "Du hast koan eigenen API-Schlüssl. Dei Spuile verwenden an Schlüssl, den da Workshop, de Organisation oder, falls verfügbar, da Server bereitstellt. Füg deinen eigenen Schlüssl hinzu, damit du de Stufe selber auswählen kannst."
       },
       "default": "Standard",
       "deleteModal": {
@@ -1351,7 +1360,7 @@
         "u18Placeholder": "z.B. Inhalt angemessen hoitn. Koa explizite G'wald oder sexuelle Inhalte."
       },
       "defaultTier": {
-        "description": "Serverweite Ersatzstufn, wenn weder Workshop, Organisation noch Nutzer/in a eigene Stufn ham. Höhere Stufn kostn mehr, san aber evtl. besser.",
+        "description": "Wird immer dann verwendet, wenn d’Quelle vom verwendeten API-Schlüssl (Workshop, Organisation, eigener Schlüssl, kostenloser Schlüssl) koa eigene Stufe hat. Höhere Stufen kosten mehr, können aber a höhere Qualität haben.",
         "title": "Standard-KI-Qualitätsstufn"
       },
       "freeUseKey": {

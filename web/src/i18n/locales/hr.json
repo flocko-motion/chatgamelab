@@ -282,6 +282,15 @@
       "max": "Maksimalna (Premium + Audio)",
       "medium": "Srednja (uravnoteženo)",
       "newSessionsOnly": "Ova se razina primjenjuje samo na nove sesije. Postojeće sesije zadržavaju razinu s kojom su započele.",
+      "notUsed": {
+        "addKey": "Dodaj API ključ",
+        "narrationOnlyMax": "Bez opcije „Max” nema naracije (zvuka).",
+        "noOwnKey": "Primjenjuje se samo zajedno s vašim vlastitim API ključem, a vi ga nemate. Vaše igre koriste ključ koji je dodijelila vaša radionica, organizacija ili poslužitelj, na razini tog ključa.",
+        "noServerFreeKey": "Nije odabran nijedan API ključ za besplatno korištenje.",
+        "noWorkshopKey": "Za ovu radionicu nije odabran vlastiti API ključ. Igre tada koriste organizacijski ključ za besplatno korištenje ili, ako takav ne postoji, ključ poslužitelja — na razini tog ključa.",
+        "selectWorkshopKey": "Odaberite ključ za ovu radionicu",
+        "title": "Ova se razina ne koristi"
+      },
       "serverDefault": "Zadano na poslužitelju"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktivni API ključ",
-        "none": "Nijedan zadani ključ nije konfiguriran. Dodajte ključ za početak."
+        "none": "Nemate vlastiti API ključ. Vaše igre koriste ključ koji je dodijelila vaša radionica, organizacija ili poslužitelj, ako je dostupan. Dodajte vlastiti ključ kako biste sami odabrali razinu."
       },
       "default": "Zadano",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "npr. Drži sadržaj primjerenim. Izbjegavaj eksplicitno nasilje ili seksualni sadržaj."
       },
       "defaultTier": {
-        "description": "Poslužiteljski stupanj kvalitete koji se koristi kada nije konfiguriran nijedan određeni stupanj na razini radionice, ustanove ili korisnika. Više razine skuplje su, ali mogu imati bolju kvalitetu.",
+        "description": "Koristi se kad izvor API ključa koji se upotrebljava (radionica, organizacija, vlastiti ključ, ključ za besplatno korištenje) nema vlastitu razinu. Više razine koštaju više, ali mogu imati veću kvalitetu.",
         "title": "Zadana razina kvalitete AI-ja"
       },
       "freeUseKey": {
