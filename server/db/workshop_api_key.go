@@ -51,10 +51,11 @@ func GetWorkshopOrganizationKeyShare(ctx context.Context, workshopID uuid.UUID) 
 	return apiKeyShareRowToObj(row), tier
 }
 
-// publicPageApiKeyID returns the API key the public page's share links pay with,
-// following the workshop's fallback; uuid.Nil when there is none. working is
+// workshopApiKeyID returns the API key a workshop's share links pay with — its
+// own, else its organisation's free-use key, else the server's; uuid.Nil when
+// there is none. Used by the public page and by workshop share links. working is
 // false once the key has been proven not to work.
-func publicPageApiKeyID(ctx context.Context, ws *db.Workshop) (keyID uuid.UUID, working bool) {
+func workshopApiKeyID(ctx context.Context, ws *db.Workshop) (keyID uuid.UUID, working bool) {
 	shareIDs := []uuid.NullUUID{ws.DefaultApiKeyShareID}
 	if inst, err := queries().GetInstitutionByID(ctx, ws.InstitutionID); err == nil {
 		shareIDs = append(shareIDs, inst.FreeUseApiKeyShareID)

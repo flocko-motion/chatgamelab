@@ -164,6 +164,25 @@ func createGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 	return createGameShareForKey(ctx, userID, gameID, share.ApiKeyID, institutionID, workshopID, maxSessions, aiQualityTier, publicPage)
 }
 
+// CreateWorkshopFallbackGameShare creates a share link for a workshop without a key
+// of its own, paid by the key the workshop falls back to: its organisation's
+// free-use key, else the server's (-> workshopApiKeyID). The route handler has
+// already checked workshop access.
+func CreateWorkshopFallbackGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, institutionID *uuid.UUID, workshopID uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {
+	ws, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil {
+		return nil, obj.ErrNotFound("workshop not found")
+	}
+	keyID, working := workshopApiKeyID(ctx, &ws)
+	if keyID == uuid.Nil {
+		return nil, obj.ErrValidation("Workshop has no API key configured, and neither its organisation nor the server offers a free one")
+	}
+	if !working {
+		return nil, obj.ErrValidation("api key must be working before it can be used for sharing")
+	}
+	return createGameShareForKey(ctx, userID, gameID, keyID, institutionID, &workshopID, maxSessions, aiQualityTier, false)
+}
+
 // createGameShareForKey creates a share link paid by the given API key, through a
 // game-scoped copy of the key. Callers have checked that the key may be used.
 func createGameShareForKey(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string, publicPage bool) (*obj.GameShare, error) {

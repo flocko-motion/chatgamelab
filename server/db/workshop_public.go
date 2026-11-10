@@ -220,7 +220,7 @@ var publicPageShareMu sync.Mutex
 
 // GetPublicWorkshopPage returns the public page behind a slug. It creates the
 // share link of every listed game that has none yet, paid by the key the
-// workshop falls back to (-> publicPageApiKeyID).
+// workshop falls back to (-> workshopApiKeyID).
 func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorkshopPage, error) {
 	ws, err := loadPublicWorkshop(ctx, slug)
 	if err != nil {
@@ -233,7 +233,7 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 		return nil, obj.ErrServerError("failed to load workshop games")
 	}
 
-	keyID, keyWorking := publicPageApiKeyID(ctx, ws)
+	keyID, keyWorking := workshopApiKeyID(ctx, ws)
 	shares, err := ensurePublicPageShares(ctx, ws, games, keyID, keyWorking)
 	if err != nil {
 		return nil, err

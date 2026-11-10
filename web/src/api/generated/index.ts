@@ -563,7 +563,7 @@ export interface RoutesCreateGameShareRequest {
   maxSessions?: number;
   /** required for personal shares; ignored for workshop shares */
   sponsorKeyShareId?: string;
-  /** set to create a workshop share (uses workshop default key) */
+  /** set to create a workshop share (uses the workshop default key, else the organisation's free key, else the server's) */
   workshopId?: string;
 }
 
@@ -1837,7 +1837,7 @@ export class Api<
       }),
 
     /**
-     * @description Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
+     * @description Creates a share link for a game. For workshop shares, the workshop default key is used automatically, or, if the workshop has none, its organisation's free key, else the server's.
      *
      * @tags games
      * @name SharesCreate
