@@ -282,6 +282,15 @@
       "max": "Max (Premium + Audio)",
       "medium": "Střední (Balanced)",
       "newSessionsOnly": "Tato úroveň se vztahuje pouze na nové relace. Stávající relace si ponechají úroveň, se kterou začaly.",
+      "notUsed": {
+        "addKey": "Přidat klíč API",
+        "narrationOnlyMax": "Bez „Max“ není k dispozici žádné vyprávění (zvuk).",
+        "noOwnKey": "Platí pouze společně s vaším vlastním klíčem API, který nemáte. Vaše hry používají klíč poskytnutý vaší dílnou, organizací nebo serverem, a to na úrovni daného klíče.",
+        "noServerFreeKey": "Není vybrán žádný bezplatný klíč API.",
+        "noWorkshopKey": "Pro tuto dílnu není vybrán vlastní klíč API. Hry pak používají bezplatný klíč organizace, nebo pokud žádný není, klíč serveru — na úrovni daného klíče.",
+        "selectWorkshopKey": "Vyberte klíč pro tuto dílnu",
+        "title": "Tato úroveň se nepoužívá"
+      },
       "serverDefault": "Výchozí serveru"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktivní API klíč",
-        "none": "Není nastaven žádný výchozí klíč. Přidejte klíč, abyste mohli začít."
+        "none": "Nemáte vlastní klíč API. Vaše hry používají klíč poskytnutý vaší dílnou, organizací nebo serverem, pokud je k dispozici. Přidejte vlastní klíč a zvolte si úroveň sami."
       },
       "default": "Výchozí",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "např. Udržujte obsah vhodný. Vyhněte se explicitnímu násilí nebo sexuálnímu obsahu."
       },
       "defaultTier": {
-        "description": "Celoserverová záložní úroveň používaná, když není konkrétní úroveň nastavena na úrovni workshopu, instituce nebo uživatele. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu.",
+        "description": "Používá se vždy, když zdroj použitého klíče API (dílna, organizace, vlastní klíč, bezplatný klíč) nemá vlastní úroveň. Vyšší úrovně stojí více, ale mohou poskytovat vyšší kvalitu.",
         "title": "Výchozí úroveň kvality AI"
       },
       "freeUseKey": {

@@ -282,6 +282,15 @@
       "max": "Maks (Premium + Audio)",
       "medium": "Sedang (Seimbang)",
       "newSessionsOnly": "Tingkat ini hanya berlaku untuk sesi baru. Sesi yang sudah ada mempertahankan tingkat saat mereka dimulai.",
+      "notUsed": {
+        "addKey": "Tambahkan kunci API",
+        "narrationOnlyMax": "Tanpa 'Max', tidak ada narasi (audio).",
+        "noOwnKey": "Ini hanya berlaku jika menggunakan kunci API milik Anda sendiri, tetapi Anda tidak memilikinya. Game Anda menggunakan kunci yang disediakan oleh workshop, organisasi, atau server Anda, pada tingkat kunci tersebut.",
+        "noServerFreeKey": "Tidak ada kunci API penggunaan gratis yang dipilih.",
+        "noWorkshopKey": "Tidak ada kunci API khusus yang dipilih untuk workshop ini. Game kemudian menggunakan kunci penggunaan gratis milik organisasi atau, jika tidak ada, kunci milik server—pada tingkat kunci tersebut.",
+        "selectWorkshopKey": "Pilih kunci untuk workshop ini",
+        "title": "Tingkat ini tidak digunakan"
+      },
       "serverDefault": "Bawaan Server"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Kunci API Aktif",
-        "none": "Tidak ada kunci default yang dikonfigurasi. Tambahkan kunci untuk memulai."
+        "none": "Anda tidak memiliki kunci API sendiri. Game Anda menggunakan kunci yang disediakan oleh workshop, organisasi, atau server, jika tersedia. Tambahkan kunci Anda sendiri untuk memilih tingkatnya."
       },
       "default": "Default",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "mis. Jaga konten tetap pantas. Hindari kekerasan eksplisit atau konten seksual."
       },
       "defaultTier": {
-        "description": "Tingkat fallback seluruh server yang digunakan ketika tidak ada tingkat khusus yang dikonfigurasi di tingkat lokakarya, institusi, atau pengguna. Tingkat lebih tinggi biayanya lebih mahal tetapi mungkin berkualitas lebih baik.",
+        "description": "Digunakan ketika sumber kunci API yang sedang digunakan (workshop, organisasi, kunci sendiri, kunci penggunaan gratis) tidak memiliki tingkatnya sendiri. Tingkat yang lebih tinggi lebih mahal, tetapi mungkin memiliki kualitas yang lebih tinggi.",
         "title": "Tingkat Kualitas AI Default"
       },
       "freeUseKey": {

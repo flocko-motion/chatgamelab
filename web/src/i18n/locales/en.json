@@ -267,6 +267,15 @@
       "max": "Max (Premium + Audio)",
       "medium": "Medium (Balanced)",
       "newSessionsOnly": "This tier applies to new sessions only. Existing sessions keep the tier they started with.",
+      "notUsed": {
+        "addKey": "Add API key",
+        "narrationOnlyMax": "Without 'Max' there is no narration (audio).",
+        "noOwnKey": "It only applies together with your own API key, and you don't have one. Your games use a key provided by your workshop, organization, or the server, at that key's tier.",
+        "noServerFreeKey": "No free-use API key is selected.",
+        "noWorkshopKey": "No API key of its own is selected for this workshop. Games then use the organization's free-use key or, if there is none, the server's - at that key's tier.",
+        "selectWorkshopKey": "Select a key for this workshop",
+        "title": "This tier is not used"
+      },
       "serverDefault": "Server Default"
     },
     "allGames": {
@@ -324,7 +333,7 @@
       },
       "currentDefault": {
         "label": "Active API Key",
-        "none": "No default key configured. Add a key to get started."
+        "none": "You don't have an API key of your own. Your games use a key provided by your workshop, organization, or the server, if available. Add your own key to choose the tier yourself."
       },
       "default": "Default",
       "deleteModal": {
@@ -1281,7 +1290,7 @@
         "u18Placeholder": "e.g. Keep content appropriate. Avoid explicit violence or sexual content."
       },
       "defaultTier": {
-        "description": "The server-wide fallback tier used when no specific tier is configured at the workshop, institution, or user level. Higher tiers cost more but may have higher quality.",
+        "description": "Used whenever the source of the API key in use (workshop, organization, own key, free-use key) has no tier of its own. Higher tiers cost more but may have higher quality.",
         "title": "Default AI Quality Tier"
       },
       "freeUseKey": {

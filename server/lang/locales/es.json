@@ -282,6 +282,15 @@
       "max": "Máxima (Premium + Audio)",
       "medium": "Media (Equilibrada)",
       "newSessionsOnly": "Este nivel se aplica solo a las sesiones nuevas. Las sesiones existentes conservan el nivel con el que comenzaron.",
+      "notUsed": {
+        "addKey": "Añadir clave de API",
+        "narrationOnlyMax": "Sin «Max» no hay narración (audio).",
+        "noOwnKey": "Solo se aplica junto con tu propia clave de API, y no tienes una. Tus partidas utilizan una clave proporcionada por tu taller, organización o servidor, en el nivel de esa clave.",
+        "noServerFreeKey": "No se ha seleccionado ninguna clave de API de uso gratuito.",
+        "noWorkshopKey": "No se ha seleccionado ninguna clave de API propia para este taller. Las partidas utilizan entonces la clave de uso gratuito de la organización o, si no existe, la del servidor, en el nivel de esa clave.",
+        "selectWorkshopKey": "Selecciona una clave para este taller",
+        "title": "Este nivel no se utiliza"
+      },
       "serverDefault": "Predeterminado del servidor"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Clave API activa",
-        "none": "No hay clave predeterminada configurada. Añade una clave para comenzar."
+        "none": "No tienes una clave de API propia. Tus partidas utilizan una clave proporcionada por tu taller, organización o servidor, si está disponible. Añade tu propia clave para elegir el nivel tú mismo."
       },
       "default": "Predeterminada",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "p. ej. Mantén el contenido apropiado. Evita la violencia explícita o el contenido sexual."
       },
       "defaultTier": {
-        "description": "Nivel de calidad predeterminado del servidor cuando no se configura uno específico en el taller, institución o usuario. Los niveles más altos cuestan más pero pueden tener mejor calidad.",
+        "description": "Se utiliza cuando el origen de la clave de API en uso (taller, organización, clave propia o clave de uso gratuito) no tiene un nivel propio. Los niveles superiores cuestan más, pero pueden ofrecer una mayor calidad.",
         "title": "Nivel de calidad de IA predeterminado"
       },
       "freeUseKey": {

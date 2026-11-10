@@ -282,6 +282,15 @@
       "max": "Najvišja (Premium + avdio)",
       "medium": "Srednja (Uravnotežena)",
       "newSessionsOnly": "Ta kakovost velja samo za nove seje. Obstoječe seje ohranijo kakovost, s katero so se začele.",
+      "notUsed": {
+        "addKey": "Dodaj ključ API",
+        "narrationOnlyMax": "Brez možnosti »Max« ni pripovedovanja (zvoka).",
+        "noOwnKey": "To velja samo skupaj z vašim lastnim ključem API, vendar ga nimate. Vaše igre uporabljajo ključ, ki ga zagotavlja vaša delavnica, organizacija ali strežnik, in sicer na ravni tega ključa.",
+        "noServerFreeKey": "Izbran ni noben ključ API za brezplačno uporabo.",
+        "noWorkshopKey": "Za to delavnico ni izbran lasten ključ API. Igre nato uporabljajo brezplačni ključ organizacije ali, če tega ni, ključ strežnika – na ravni tega ključa.",
+        "selectWorkshopKey": "Izberite ključ za to delavnico",
+        "title": "Ta raven se ne uporablja"
+      },
       "serverDefault": "Privzeto na strežniku"
     },
     "allGames": {
@@ -339,7 +348,7 @@
       },
       "currentDefault": {
         "label": "Aktivni ključ API",
-        "none": "Privzeti ključ ni nastavljen. Najprej dodajte ključ."
+        "none": "Nimate lastnega ključa API. Vaše igre uporabljajo ključ, ki ga zagotavlja vaša delavnica, organizacija ali strežnik, če je na voljo. Dodajte svoj ključ, da boste lahko sami izbrali raven."
       },
       "default": "Privzeto",
       "deleteModal": {
@@ -1331,7 +1340,7 @@
         "u18Placeholder": "npr. Vsebina naj bo primerna. Izogibaj se izrecnemu nasilju ali spolni vsebini."
       },
       "defaultTier": {
-        "description": "Strežniški rezervni razred, uporabljen, ko ni določen poseben razred na ravni delavnice, institucije ali uporabnika. Višji razredi so dražji, a lahko bolj kakovostni.",
+        "description": "Uporablja se, kadar vir uporabljenega ključa API (delavnica, organizacija, lastni ključ, ključ za brezplačno uporabo) nima lastne ravni. Višje ravni stanejo več, vendar lahko zagotavljajo višjo kakovost.",
         "title": "Privzeti kakovostni razred AI"
       },
       "freeUseKey": {
