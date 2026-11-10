@@ -82,6 +82,23 @@ func MergeTranslations(fullJSON, partialJSON string) (string, error) {
 	return functional.MergeJSON(fullJSON, partialJSON)
 }
 
+// KeepTranslatedHashes returns the hashes of the fields that translationJSON
+// actually contains. A hash marks a field as translated, so a field the AI left
+// out must not keep one, or every later run skips it.
+func KeepTranslatedHashes(hashes map[string]string, translationJSON string) (map[string]string, error) {
+	present, err := functional.CollectFieldValues(translationJSON)
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect translated fields: %w", err)
+	}
+	kept := make(map[string]string, len(hashes))
+	for path, hash := range hashes {
+		if _, ok := present[path]; ok {
+			kept[path] = hash
+		}
+	}
+	return kept, nil
+}
+
 // SaveHashFile saves the hash map to a JSON file
 func SaveHashFile(hashes map[string]string) ([]byte, error) {
 	hashJSON, err := json.MarshalIndent(hashes, "", "  ")
