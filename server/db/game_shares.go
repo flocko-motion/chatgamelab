@@ -161,8 +161,14 @@ func createGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 		return nil, obj.ErrValidation("api key must be working before it can be used for sharing")
 	}
 
+	return createGameShareForKey(ctx, userID, gameID, share.ApiKeyID, institutionID, workshopID, maxSessions, aiQualityTier, publicPage)
+}
+
+// createGameShareForKey creates a share link paid by the given API key, through a
+// game-scoped copy of the key. Callers have checked that the key may be used.
+func createGameShareForKey(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string, publicPage bool) (*obj.GameShare, error) {
 	// Create a game-scoped API key share (accessible by uuid.Nil in guest play flow)
-	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID)
+	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, apiKeyID, &userID, nil, nil, &gameID)
 	if err != nil {
 		return nil, obj.ErrServerError("failed to create game-scoped share")
 	}
@@ -417,6 +423,7 @@ func dbGameShareToObj(gs db.GameShare) *obj.GameShare {
 		ApiKeyShareID: gs.ApiKeyShareID,
 		Remaining:     nullInt32ToIntPtr(gs.Remaining),
 		CreatedAt:     gs.CreatedAt,
+		PublicPage:    gs.PublicPage,
 	}
 	if gs.InstitutionID.Valid {
 		result.InstitutionID = &gs.InstitutionID.UUID

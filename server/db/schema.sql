@@ -87,6 +87,10 @@ CREATE TABLE workshop (
     public_slug     text NULL UNIQUE,  -- Path of the public page /w/<public_slug>, shown while public is on
     public_description text NULL,  -- Text of the public page, plain text with line breaks
     public_links jsonb NULL,  -- Further reading on the public page: [{"title","description","url"}], http/https only
+    public_play_limit integer NULL,  -- Total plays through the public page, NULL = unlimited
+    public_play_used integer NOT NULL DEFAULT 0,  -- Plays through the public page so far
+    public_join boolean NOT NULL DEFAULT false,  -- If true, the public page offers joining through the workshop's open invite
+    language        text NOT NULL DEFAULT 'en',  -- Language new participants start in (ISO 639-1)
 
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );

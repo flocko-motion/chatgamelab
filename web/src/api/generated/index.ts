@@ -373,15 +373,18 @@ export interface ObjPublicWorkshopLink {
 export interface ObjPublicWorkshopPage {
   description?: string;
   games?: ObjPublicWorkshopGame[];
+  /** JoinToken is the workshop's open invite, set while the page offers joining. */
+  joinToken?: string;
   links?: ObjPublicWorkshopLink[];
   name?: string;
-  /** PlayAvailable is false when the workshop has no key: no game on the page can be played. */
+  /** PlayAvailable is false when no key pays for the workshop: no game on the page can be played. */
   playAvailable?: boolean;
+  /** PlayLimit and PlayRemaining count the plays of the whole page; nil means unlimited. */
+  playLimit?: number;
+  playRemaining?: number;
 }
 
 export interface ObjPublicWorkshopPlay {
-  limit?: number;
-  remaining?: number;
   token?: string;
 }
 
@@ -480,20 +483,29 @@ export interface ObjWorkshop {
   /** Workshop settings (configured by staff/heads) */
   aiQualityTier?: string;
   allowGameSharing?: boolean;
+  /** ApiKeySource is the key plays are paid with: one of the WorkshopKeySource* constants, "" when there is none. */
+  apiKeySource?: string;
   defaultApiKeyShareId?: string;
   designEditingEnabled?: boolean;
   id?: string;
   institution?: ObjInstitution;
   invites?: ObjUserRoleInvite[];
   isPaused?: boolean;
+  /** Language new participants start in (ISO 639-1). */
+  language?: string;
   meta?: ObjMeta;
   name?: string;
   participants?: ObjWorkshopParticipant[];
   promptConstraints?: string;
   public?: boolean;
   publicDescription?: string;
+  /** PublicJoin offers joining the workshop on its public page, through its open invite. */
+  publicJoin?: boolean;
   /** PublicLinks is the further reading listed below the games; nil means none. */
   publicLinks?: ObjPublicWorkshopLink[];
+  /** PublicPlayLimit caps the plays through the public page; nil means unlimited. */
+  publicPlayLimit?: number;
+  publicPlayUsed?: number;
   /** Public page /w/<PublicSlug>, visible while Public is on */
   publicSlug?: string;
   showOtherParticipantsGames?: boolean;
@@ -594,6 +606,8 @@ export interface RoutesEnrichedGameShare {
   gameName?: string;
   id?: string;
   institutionId?: string;
+  /** PublicPage marks the links a workshop's public page creates; their plays count against the workshop's limit. */
+  publicPage?: boolean;
   remaining?: number;
   shareUrl?: string;
   /** "workshop", "organization", "personal" */
@@ -612,6 +626,8 @@ export interface RoutesGameShareResponse {
   gameId?: string;
   id?: string;
   institutionId?: string;
+  /** PublicPage marks the links a workshop's public page creates; their plays count against the workshop's limit. */
+  publicPage?: boolean;
   remaining?: number;
   shareUrl?: string;
   token?: string;
@@ -972,13 +988,19 @@ export interface RoutesUpdateWorkshopRequest {
   allowGameSharing?: boolean;
   designEditingEnabled?: boolean;
   isPaused?: boolean;
+  /** ISO 639-1; omitted keeps the current language */
+  language?: string;
   name?: string;
   promptConstraints?: string;
   public?: boolean;
   /** omitted keeps the current text, "" clears it */
   publicDescription?: string;
+  /** omitted keeps the current setting */
+  publicJoin?: boolean;
   /** PublicLinks: omitted keeps the current further reading, an empty list clears it */
   publicLinks?: ObjPublicWorkshopLink[];
+  /** PublicPlayLimit caps the plays through the public page: omitted keeps it, 0 removes it */
+  publicPlayLimit?: number;
   /** omitted keeps the current link */
   publicSlug?: string;
   showOtherParticipantsGames?: boolean;

@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -25,9 +26,6 @@ import (
 )
 
 const (
-	// PublicPageSessions is how many sessions each game's share link on the public page allows.
-	PublicPageSessions = 50
-
 	PublicSlugMinLength        = 3
 	PublicSlugMaxLength        = 60
 	PublicDescriptionMaxLength = 2000
@@ -221,7 +219,8 @@ func loadPublicWorkshop(ctx context.Context, slug string) (*db.Workshop, error) 
 var publicPageShareMu sync.Mutex
 
 // GetPublicWorkshopPage returns the public page behind a slug. It creates the
-// share link of every listed game that has none yet, paid by the workshop's key.
+// share link of every listed game that has none yet, paid by the key the
+// workshop falls back to (-> publicPageApiKeyID).
 func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorkshopPage, error) {
 	ws, err := loadPublicWorkshop(ctx, slug)
 	if err != nil {
@@ -234,7 +233,8 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 		return nil, obj.ErrServerError("failed to load workshop games")
 	}
 
-	shares, err := ensurePublicPageShares(ctx, ws, games)
+	keyID, keyWorking := publicPageApiKeyID(ctx, ws)
+	shares, err := ensurePublicPageShares(ctx, ws, games, keyID, keyWorking)
 	if err != nil {
 		return nil, err
 	}
@@ -242,9 +242,16 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 	page := &obj.PublicWorkshopPage{
 		Name:          ws.Name,
 		Description:   ws.PublicDescription.String,
-		PlayAvailable: ws.DefaultApiKeyShareID.Valid,
+		PlayAvailable: keyID != uuid.Nil,
 		Games:         make([]obj.PublicWorkshopGame, 0, len(games)),
 		Links:         unmarshalPublicLinks(ws.PublicLinks),
+		JoinToken:     publicJoinToken(ctx, ws),
+	}
+	if ws.PublicPlayLimit.Valid {
+		limit := int(ws.PublicPlayLimit.Int32)
+		remaining := max(limit-int(ws.PublicPlayUsed), 0)
+		page.PlayLimit = &limit
+		page.PlayRemaining = &remaining
 	}
 	for _, g := range games {
 		game := obj.PublicWorkshopGame{
@@ -253,20 +260,62 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 			Description: g.Description,
 		}
 		if share, ok := shares[g.ID]; ok && isPlayable(g) {
-			game.Play = &obj.PublicWorkshopPlay{
-				Token:     share.Token,
-				Remaining: int(share.Remaining.Int32),
-				Limit:     PublicPageSessions,
-			}
+			game.Play = &obj.PublicWorkshopPlay{Token: share.Token}
 		}
 		page.Games = append(page.Games, game)
 	}
 	return page, nil
 }
 
+// ConsumeWorkshopPublicPlay counts one play through a workshop's public page.
+// False once the workshop's play limit is reached.
+func ConsumeWorkshopPublicPlay(ctx context.Context, workshopID uuid.UUID) bool {
+	_, err := queries().ConsumeWorkshopPublicPlay(ctx, workshopID)
+	return err == nil
+}
+
+// WorkshopPublicPlayRemaining returns how many plays a workshop's public page
+// has left; nil while it is unlimited.
+func WorkshopPublicPlayRemaining(ctx context.Context, workshopID uuid.UUID) *int {
+	ws, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil || !ws.PublicPlayLimit.Valid {
+		return nil
+	}
+	remaining := max(int(ws.PublicPlayLimit.Int32-ws.PublicPlayUsed), 0)
+	return &remaining
+}
+
+// publicJoinToken returns the workshop's open invite while the page offers
+// joining and the workshop is active; "" otherwise.
+func publicJoinToken(ctx context.Context, ws *db.Workshop) string {
+	if !ws.PublicJoin || !ws.Active {
+		return ""
+	}
+	invites, err := queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: ws.ID, Valid: true})
+	if err != nil {
+		return ""
+	}
+	for _, inv := range invites {
+		// Only the open invite: an invite addressed to someone stays theirs.
+		if inv.Status != string(obj.InviteStatusPending) || !inv.InviteToken.Valid ||
+			inv.InvitedEmail.Valid || inv.InvitedUserID.Valid || inv.Role != string(obj.RoleParticipant) {
+			continue
+		}
+		if inv.ExpiresAt.Valid && inv.ExpiresAt.Time.Before(time.Now()) {
+			continue
+		}
+		if inv.MaxUses.Valid && inv.UsesCount >= inv.MaxUses.Int32 {
+			continue
+		}
+		return inv.InviteToken.String
+	}
+	return ""
+}
+
 // ensurePublicPageShares returns the public-page share link of each game, keyed
-// by game ID, and creates the missing ones when the workshop has a key.
-func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Game) (map[uuid.UUID]db.GameShare, error) {
+// by game ID. Links paid by another key than keyID are revoked, e.g. after the
+// organisation changed its key; missing ones are created while the key works.
+func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Game, keyID uuid.UUID, keyWorking bool) (map[uuid.UUID]db.GameShare, error) {
 	workshopID := uuid.NullUUID{UUID: ws.ID, Valid: true}
 	load := func() (map[uuid.UUID]db.GameShare, error) {
 		rows, err := queries().GetPublicPageGameSharesByWorkshop(ctx, workshopID)
@@ -279,12 +328,20 @@ func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Gam
 		}
 		return byGame, nil
 	}
-
-	shares, err := load()
-	if err != nil || !ws.DefaultApiKeyShareID.Valid {
-		return shares, err
+	stale := func() (map[uuid.UUID]bool, error) {
+		rows, err := queries().GetPublicPageShareKeysByWorkshop(ctx, workshopID)
+		if err != nil {
+			return nil, obj.ErrServerError("failed to load share links")
+		}
+		ids := make(map[uuid.UUID]bool)
+		for _, row := range rows {
+			if row.ApiKeyID != keyID {
+				ids[row.ID] = true
+			}
+		}
+		return ids, nil
 	}
-	missing := func() bool {
+	missing := func(shares map[uuid.UUID]db.GameShare) bool {
 		for _, g := range games {
 			if _, ok := shares[g.ID]; !ok && isPlayable(g) {
 				return true
@@ -292,7 +349,16 @@ func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Gam
 		}
 		return false
 	}
-	if !missing() {
+
+	shares, err := load()
+	if err != nil {
+		return nil, err
+	}
+	staleIDs, err := stale()
+	if err != nil {
+		return nil, err
+	}
+	if len(staleIDs) == 0 && (!keyWorking || !missing(shares)) {
 		return shares, nil
 	}
 
@@ -301,20 +367,33 @@ func ensurePublicPageShares(ctx context.Context, ws *db.Workshop, games []db.Gam
 	if shares, err = load(); err != nil {
 		return nil, err
 	}
+	if staleIDs, err = stale(); err != nil {
+		return nil, err
+	}
+	for gameID, gs := range shares {
+		if staleIDs[gs.ID] {
+			if err := DeleteGameShare(ctx, gs.ID); err != nil {
+				log.Warn("failed to delete public page share link", "game_share_id", gs.ID, "error", err)
+			}
+			delete(shares, gameID)
+		}
+	}
+	if !keyWorking {
+		return shares, nil
+	}
 
 	author, err := publicPageShareAuthor(ctx, ws)
 	if err != nil {
 		log.Warn("public page: no author for share links", "workshop_id", ws.ID, "error", err)
 		return shares, nil
 	}
-	sessions := PublicPageSessions
 	for _, g := range games {
 		if _, ok := shares[g.ID]; ok || !isPlayable(g) {
 			continue
 		}
-		gs, err := createGameShare(ctx, author, g.ID, ws.DefaultApiKeyShareID.UUID, &ws.InstitutionID, &ws.ID, &sessions, nil, true)
+		gs, err := createGameShareForKey(ctx, author, g.ID, keyID, &ws.InstitutionID, &ws.ID, nil, nil, true)
 		if err != nil {
-			// A broken workshop key stops every game, so there is no point trying the rest.
+			// A broken key stops every game, so there is no point trying the rest.
 			log.Warn("public page: failed to create share link", "workshop_id", ws.ID, "game_id", g.ID, "error", err)
 			return shares, nil
 		}
@@ -335,21 +414,35 @@ func isPlayable(g db.Game) bool {
 // publicPageShareAuthor is the account recorded as creator of the page's share
 // links. Guests fall back to the author's youth-protection constraint once the
 // workshop and the organisation set none (JUGENDSCHUTZ.md, "Gäste"), so this is
-// the workshop's creator, or else whoever assigned the workshop its key.
+// the workshop's creator, or else whoever assigned the workshop its key, or else
+// — for a workshop paying with its organisation's or the server's key — one of
+// the organisation's heads.
 func publicPageShareAuthor(ctx context.Context, ws *db.Workshop) (uuid.UUID, error) {
 	if ws.CreatedBy.Valid {
 		if _, err := queries().GetUserByID(ctx, ws.CreatedBy.UUID); err == nil {
 			return ws.CreatedBy.UUID, nil
 		}
 	}
-	keyShare, err := queries().GetApiKeyShareByID(ctx, ws.DefaultApiKeyShareID.UUID)
+	if ws.DefaultApiKeyShareID.Valid {
+		keyShare, err := queries().GetApiKeyShareByID(ctx, ws.DefaultApiKeyShareID.UUID)
+		if err != nil {
+			return uuid.Nil, err
+		}
+		if !keyShare.CreatedBy.Valid {
+			return uuid.Nil, obj.ErrNotFound("workshop key has no creator")
+		}
+		return keyShare.CreatedBy.UUID, nil
+	}
+	members, err := queries().GetInstitutionMembers(ctx, uuid.NullUUID{UUID: ws.InstitutionID, Valid: true})
 	if err != nil {
 		return uuid.Nil, err
 	}
-	if !keyShare.CreatedBy.Valid {
-		return uuid.Nil, obj.ErrNotFound("workshop key has no creator")
+	for _, m := range members {
+		if m.Role.String == string(obj.RoleHead) {
+			return m.ID, nil
+		}
 	}
-	return keyShare.CreatedBy.UUID, nil
+	return uuid.Nil, obj.ErrNotFound("workshop has no creator and its organisation no head")
 }
 
 // GetPublicWorkshopGame returns a game listed on the public page behind a slug.

@@ -6076,6 +6076,10 @@ const docTemplate = `{
                         "$ref": "#/definitions/obj.PublicWorkshopGame"
                     }
                 },
+                "joinToken": {
+                    "description": "JoinToken is the workshop's open invite, set while the page offers joining.",
+                    "type": "string"
+                },
                 "links": {
                     "type": "array",
                     "items": {
@@ -6086,20 +6090,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "playAvailable": {
-                    "description": "PlayAvailable is false when the workshop has no key: no game on the page can be played.",
+                    "description": "PlayAvailable is false when no key pays for the workshop: no game on the page can be played.",
                     "type": "boolean"
+                },
+                "playLimit": {
+                    "description": "PlayLimit and PlayRemaining count the plays of the whole page; nil means unlimited.",
+                    "type": "integer"
+                },
+                "playRemaining": {
+                    "type": "integer"
                 }
             }
         },
         "obj.PublicWorkshopPlay": {
             "type": "object",
             "properties": {
-                "limit": {
-                    "type": "integer"
-                },
-                "remaining": {
-                    "type": "integer"
-                },
                 "token": {
                     "type": "string"
                 }
@@ -6339,6 +6344,10 @@ const docTemplate = `{
                 "allowGameSharing": {
                     "type": "boolean"
                 },
+                "apiKeySource": {
+                    "description": "ApiKeySource is the key plays are paid with: one of the WorkshopKeySource* constants, \"\" when there is none.",
+                    "type": "string"
+                },
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
@@ -6359,6 +6368,10 @@ const docTemplate = `{
                 },
                 "isPaused": {
                     "type": "boolean"
+                },
+                "language": {
+                    "description": "Language new participants start in (ISO 639-1).",
+                    "type": "string"
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -6381,12 +6394,23 @@ const docTemplate = `{
                 "publicDescription": {
                     "type": "string"
                 },
+                "publicJoin": {
+                    "description": "PublicJoin offers joining the workshop on its public page, through its open invite.",
+                    "type": "boolean"
+                },
                 "publicLinks": {
                     "description": "PublicLinks is the further reading listed below the games; nil means none.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/obj.PublicWorkshopLink"
                     }
+                },
+                "publicPlayLimit": {
+                    "description": "PublicPlayLimit caps the plays through the public page; nil means unlimited.",
+                    "type": "integer"
+                },
+                "publicPlayUsed": {
+                    "type": "integer"
                 },
                 "publicSlug": {
                     "description": "Public page /w/\u003cPublicSlug\u003e, visible while Public is on",
@@ -6629,6 +6653,10 @@ const docTemplate = `{
                 "institutionId": {
                     "type": "string"
                 },
+                "publicPage": {
+                    "description": "PublicPage marks the links a workshop's public page creates; their plays count against the workshop's limit.",
+                    "type": "boolean"
+                },
                 "remaining": {
                     "type": "integer"
                 },
@@ -6674,6 +6702,10 @@ const docTemplate = `{
                 },
                 "institutionId": {
                     "type": "string"
+                },
+                "publicPage": {
+                    "description": "PublicPage marks the links a workshop's public page creates; their plays count against the workshop's limit.",
+                    "type": "boolean"
                 },
                 "remaining": {
                     "type": "integer"
@@ -7423,6 +7455,10 @@ const docTemplate = `{
                 "isPaused": {
                     "type": "boolean"
                 },
+                "language": {
+                    "description": "ISO 639-1; omitted keeps the current language",
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -7436,12 +7472,20 @@ const docTemplate = `{
                     "description": "omitted keeps the current text, \"\" clears it",
                     "type": "string"
                 },
+                "publicJoin": {
+                    "description": "omitted keeps the current setting",
+                    "type": "boolean"
+                },
                 "publicLinks": {
                     "description": "PublicLinks: omitted keeps the current further reading, an empty list clears it",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/obj.PublicWorkshopLink"
                     }
+                },
+                "publicPlayLimit": {
+                    "description": "PublicPlayLimit caps the plays through the public page: omitted keeps it, 0 removes it",
+                    "type": "integer"
                 },
                 "publicSlug": {
                     "description": "omitted keeps the current link",

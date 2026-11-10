@@ -194,7 +194,23 @@ type Workshop struct {
 	PublicDescription *string `json:"publicDescription,omitempty"`
 	// PublicLinks is the further reading listed below the games; nil means none.
 	PublicLinks []PublicWorkshopLink `json:"publicLinks,omitempty"`
+	// PublicPlayLimit caps the plays through the public page; nil means unlimited.
+	PublicPlayLimit *int `json:"publicPlayLimit,omitempty"`
+	PublicPlayUsed  int  `json:"publicPlayUsed"`
+	// PublicJoin offers joining the workshop on its public page, through its open invite.
+	PublicJoin bool `json:"publicJoin"`
+	// Language new participants start in (ISO 639-1).
+	Language string `json:"language"`
+	// ApiKeySource is the key plays are paid with: one of the WorkshopKeySource* constants, "" when there is none.
+	ApiKeySource string `json:"apiKeySource"`
 }
+
+// The key a workshop's plays are paid with: its own, else its organisation's free-use key, else the server's.
+const (
+	WorkshopKeySourceWorkshop     = "workshop"
+	WorkshopKeySourceOrganization = "organization"
+	WorkshopKeySourceServer       = "server"
+)
 
 // PublicWorkshopLink is one piece of further reading on a workshop's public page.
 type PublicWorkshopLink struct {
@@ -207,10 +223,15 @@ type PublicWorkshopLink struct {
 type PublicWorkshopPage struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	// PlayAvailable is false when the workshop has no key: no game on the page can be played.
-	PlayAvailable bool                 `json:"playAvailable"`
+	// PlayAvailable is false when no key pays for the workshop: no game on the page can be played.
+	PlayAvailable bool `json:"playAvailable"`
+	// PlayLimit and PlayRemaining count the plays of the whole page; nil means unlimited.
+	PlayLimit     *int                 `json:"playLimit,omitempty"`
+	PlayRemaining *int                 `json:"playRemaining,omitempty"`
 	Games         []PublicWorkshopGame `json:"games"`
 	Links         []PublicWorkshopLink `json:"links,omitempty"`
+	// JoinToken is the workshop's open invite, set while the page offers joining.
+	JoinToken string `json:"joinToken,omitempty"`
 }
 
 // PublicWorkshopGame is one public game on a workshop's public page.
@@ -223,9 +244,7 @@ type PublicWorkshopGame struct {
 
 // PublicWorkshopPlay is the share link through which visitors play a game from the public page.
 type PublicWorkshopPlay struct {
-	Token     string `json:"token"`
-	Remaining int    `json:"remaining"`
-	Limit     int    `json:"limit"`
+	Token string `json:"token"`
 }
 
 // WorkshopParticipant represents a participant enrolled in a workshop.
@@ -345,6 +364,8 @@ type GameShare struct {
 	AiQualityTier *string    `json:"aiQualityTier,omitempty"`
 	CreatedBy     *uuid.UUID `json:"createdBy"`
 	CreatedAt     time.Time  `json:"createdAt"`
+	// PublicPage marks the links a workshop's public page creates; their plays count against the workshop's limit.
+	PublicPage bool `json:"publicPage"`
 }
 
 // this is just a dummy example for a CSS struct that can be used to have validateable CSS definitions

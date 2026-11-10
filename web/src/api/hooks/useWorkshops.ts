@@ -120,11 +120,18 @@ export function useUpdateWorkshop() {
       publicSlug?: string;
       publicDescription?: string;
       publicLinks?: ObjPublicWorkshopLink[];
+      /** 0 removes the limit. */
+      publicPlayLimit?: number;
+      publicJoin?: boolean;
+      language?: string;
     }) => {
       const response = await api.workshops.workshopsPartialUpdate(id, {
         publicSlug: data.publicSlug,
         publicDescription: data.publicDescription,
         publicLinks: data.publicLinks,
+        publicPlayLimit: data.publicPlayLimit,
+        publicJoin: data.publicJoin,
+        language: data.language,
         name: data.name,
         active: data.active ?? true,
         public: data.public ?? false,

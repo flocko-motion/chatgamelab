@@ -478,7 +478,7 @@
           "goToSettings": "API-Schlüssel Einstellungen",
           "personal": "Du musst einen API-Schlüssel konfigurieren, bevor du spielen kannst. Gehe zu deinen API-Schlüssel-Einstellungen, um einen hinzuzufügen.",
           "title": "Kein API-Schlüssel verfügbar",
-          "workshop": "Für diesen Workshop ist kein API-Schlüssel konfiguriert. Bitte kontaktiere deinen Workshop-Administrator."
+          "workshop": "Für diesen Workshop ist kein API-Schlüssel hinterlegt. Die Workshop-Leitung muss in den Workshop-Einstellungen einen API-Schlüssel angeben."
         },
         "retry": "Erneut versuchen",
         "sendFailed": "Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.",
@@ -1082,7 +1082,12 @@
         "createTitle": "Workshop erstellen",
         "deactivate": "Deaktivieren",
         "defaultApiKey": "Standard-API-Schlüssel",
-        "defaultApiKeyHint": "Teilnehmer verwenden diesen API-Schlüssel beim Spielen.",
+        "defaultApiKeyHint": "Teilnehmer verwenden diesen API-Schlüssel beim Spielen. Ohne Auswahl gilt der Schlüssel der Organisation, sonst der des Servers.",
+        "apiKeyFallbackOrganization": "Standard: Schlüssel der Organisation",
+        "apiKeyFallbackServer": "Standard: Schlüssel des Servers",
+        "apiKeyFallbackNone": "Kein Schlüssel – bitte einen auswählen",
+        "language": "Standardsprache",
+        "languageHint": "Wer dem Workshop beitritt, startet in dieser Sprache – Oberfläche und Spiele.",
         "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten?",
         "deleteTitle": "Workshop löschen",
         "deleteWarning": "Alle Spiele und Sitzungen in diesem Workshop werden gelöscht. Dies kann nicht rückgängig gemacht werden.",
@@ -1194,8 +1199,16 @@
         "changeLinkTitle": "Link ändern?",
         "changeLinkMessage": "Die Seite ist danach unter {{url}} erreichbar.",
         "changeLinkWarning": "Der alte Link funktioniert danach nicht mehr – auch bereits ausgedruckte oder verschickte QR-Codes nicht.",
-        "shareTitle": "Öffentliche Seite",
-        "shareDescription": "Diesen Link kannst du verschicken oder als QR-Code zeigen."
+        "shareTitle": "Öffentliche Seite {{name}}",
+        "shareSubtitle": "Hier findest du die ChatGameLab-Spiele, die beim Workshop „{{name}}“ entstanden sind.",
+        "shareDescription": "Scanne den QR-Code mit deiner Handy-Kamera oder gib den Link im Browser ein.",
+        "shareOrganization": "Ein Workshop von {{name}}",
+        "join": "Beitritt zum Workshop anbieten",
+        "joinHint": "Die Seite zeigt dann einen Link, über den man dem Workshop als Teilnehmer*in beitritt. Wer beitritt, spielt mit dem API-Schlüssel des Workshops.",
+        "playLimit": "Spielrunden begrenzen",
+        "playLimitHint": "Jede Spielrunde auf der öffentlichen Seite kostet über den API-Schlüssel Geld. Eine Grenze für den ganzen Workshop deckelt diese Kosten. Ist sie erreicht, kann über die Seite niemand mehr spielen, bis du sie erhöhst.",
+        "playLimitValue": "Spielrunden insgesamt",
+        "playLimitUsed": "Bisher gespielt: {{count}}"
       }
     },
     "name": "Name",
@@ -1376,11 +1389,12 @@
       "download": "Herunterladen",
       "copy": "Kopieren",
       "copyLogin": "Anmelden \u0026 kopieren",
-      "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden.",
+      "playNoKey": "Für diesen Workshop ist kein API-Schlüssel hinterlegt, deshalb kann hier nicht gespielt werden.",
       "cta": {
         "title": "Erstelle selbst ein ChatGameLab-Spiel",
-        "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten.",
-        "button": "Kostenlos loslegen"
+        "inWorkshop": "im Rahmen des Workshops „{{name}}“",
+        "ownAccount": "nach Anmeldung mit deinem eigenen Account.",
+        "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten."
       }
     }
   },

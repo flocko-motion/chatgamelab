@@ -35,6 +35,11 @@ import {
   IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { LanguageSelect } from "@components/LanguageSelect";
+import {
+  labelEmptyKeyOption,
+  workshopApiKeyFallbackLabel,
+} from "@/common/lib/workshopApiKeySource";
 import { useQuery } from "@tanstack/react-query";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
@@ -263,6 +268,7 @@ export function SingleWorkshopSettings({
       promptConstraints: string;
       isPaused: boolean;
       allowGameSharing: boolean;
+      language: string;
     }>,
   ) => {
     if (!workshop?.id) return;
@@ -286,6 +292,7 @@ export function SingleWorkshopSettings({
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
       allowGameSharing:
         settings.allowGameSharing ?? workshop.allowGameSharing ?? false,
+      language: settings.language,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -406,7 +413,10 @@ export function SingleWorkshopSettings({
             </Group>
             <Select
               size="sm"
-              data={apiKeyOptions}
+              data={labelEmptyKeyOption(
+                apiKeyOptions,
+                workshopApiKeyFallbackLabel(t, workshop.apiKeySource),
+              )}
               value={workshop.defaultApiKeyShareId || ""}
               onChange={(value: string | null) =>
                 handleSetApiKey(value || null)
@@ -443,6 +453,16 @@ export function SingleWorkshopSettings({
             <Text size="xs" c="dimmed" fs="italic">
               {t("aiQualityTier.newSessionsOnly")}
             </Text>
+            <LanguageSelect
+              size="sm"
+              label={t("myOrganization.workshops.language")}
+              description={t("myOrganization.workshops.languageHint")}
+              value={workshop.language || "en"}
+              onChange={(language) =>
+                handleUpdateWorkshopSettings({ language })
+              }
+              disabled={updateWorkshop.isPending}
+            />
             <Textarea
               label={t("myOrganization.workshops.promptConstraintsLabel")}
               placeholder={
@@ -528,6 +548,7 @@ export function SingleWorkshopSettings({
           <PublicPageSettings
             key={workshop.publicSlug}
             workshop={workshop}
+            organizationName={institutionName}
             onSaved={retryBackendFetch}
           />
 

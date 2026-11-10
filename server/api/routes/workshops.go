@@ -8,8 +8,10 @@ import (
 	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/events"
+	"cgl/lang"
 	"cgl/obj"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -38,6 +40,10 @@ type UpdateWorkshopRequest struct {
 	PublicDescription          *string `json:"publicDescription,omitempty"` // omitted keeps the current text, "" clears it
 	// PublicLinks: omitted keeps the current further reading, an empty list clears it
 	PublicLinks *[]obj.PublicWorkshopLink `json:"publicLinks,omitempty"`
+	// PublicPlayLimit caps the plays through the public page: omitted keeps it, 0 removes it
+	PublicPlayLimit *int    `json:"publicPlayLimit,omitempty"`
+	PublicJoin      *bool   `json:"publicJoin,omitempty"` // omitted keeps the current setting
+	Language        *string `json:"language,omitempty"`   // ISO 639-1; omitted keeps the current language
 }
 
 // CreateWorkshop godoc
@@ -217,6 +223,14 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteAppError(w, obj.ErrValidation("Name is required"))
 		return
 	}
+	if req.Language != nil {
+		code := strings.ToLower(strings.TrimSpace(*req.Language))
+		if !lang.IsValidLanguageCode(code) {
+			httpx.WriteAppError(w, obj.ErrValidation("Unsupported language code"))
+			return
+		}
+		req.Language = &code
+	}
 
 	params := db.UpdateWorkshopParams{
 		Name:                       req.Name,
@@ -232,6 +246,9 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		PublicSlug:                 req.PublicSlug,
 		PublicDescription:          req.PublicDescription,
 		PublicLinks:                req.PublicLinks,
+		PublicPlayLimit:            req.PublicPlayLimit,
+		PublicJoin:                 req.PublicJoin,
+		Language:                   req.Language,
 	}
 
 	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, params)

@@ -221,6 +221,8 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 		return uuid.Nil, obj.ErrServerError("failed to commit transaction")
 	}
 
+	startInWorkshopLanguage(ctx, userID, invite)
+
 	// Return the role ID (handle NullUUID)
 	if !roleID.Valid {
 		return uuid.Nil, fmt.Errorf("failed to create user role: no ID returned")
@@ -417,6 +419,8 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 		return uuid.Nil, obj.ErrServerError("failed to commit transaction")
 	}
 
+	startInWorkshopLanguage(ctx, userID, invite)
+
 	// If max uses reached, mark as expired
 	if invite.MaxUses.Valid && invite.UsesCount+1 >= invite.MaxUses.Int32 {
 		_ = UpdateInviteStatus(ctx, userID, invite.ID, obj.InviteStatusExpired)
@@ -438,9 +442,9 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 // - They can only acquire a JWT (short-lived) if the workshop is still active
 // - The auth token is their permanent credential stored in the auth0_id field
 //
-// language is an ISO 639-1 code resolved from the request
-// (-> httpx.PreferredLanguage). Participants join through a link and never see
-// a registration form, so their browser language is the only signal we have.
+// The participant starts in the workshop's language. language, an ISO 639-1 code
+// resolved from the request (-> httpx.PreferredLanguage), is the fallback should
+// the workshop not be readable.
 func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, language string) (*obj.User, string, error) {
 	// Get the invite by token
 	invite, err := queries().GetInviteByToken(ctx, sql.NullString{String: inviteToken, Valid: true})
@@ -506,7 +510,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 		Email:            sql.NullString{Valid: false},
 		Auth0ID:          sql.NullString{Valid: false},
 		ParticipantToken: sql.NullString{String: participantToken, Valid: true},
-		Language:         language,
+		Language:         workshopLanguageOr(ctx, invite.WorkshopID.UUID, language),
 	}
 	_, err = txQueries.CreateUserWithParticipantToken(ctx, userArg)
 	if err != nil {
@@ -545,4 +549,29 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	// Return the user and their participant token (prefixed with "participant-")
 	// This token will be detected by auth middleware and handled via DB lookup
 	return user, participantToken, nil
+}
+
+// workshopLanguageOr returns the language a workshop's participants start in,
+// or fallback when the workshop cannot be read.
+func workshopLanguageOr(ctx context.Context, workshopID uuid.UUID, fallback string) string {
+	ws, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil || ws.Language == "" {
+		return fallback
+	}
+	return ws.Language
+}
+
+// startInWorkshopLanguage switches an account that has just become a workshop's
+// participant to the workshop's language. Heads and staff keep their own.
+func startInWorkshopLanguage(ctx context.Context, userID uuid.UUID, invite db.UserRoleInvite) {
+	if !invite.WorkshopID.Valid || invite.Role != string(obj.RoleParticipant) {
+		return
+	}
+	language := workshopLanguageOr(ctx, invite.WorkshopID.UUID, "")
+	if language == "" {
+		return
+	}
+	if err := queries().UpdateUserLanguage(ctx, db.UpdateUserLanguageParams{ID: userID, Language: language}); err != nil {
+		log.Warn("failed to set the workshop language", "user_id", userID, "workshop_id", invite.WorkshopID.UUID, "error", err)
+	}
 }
