@@ -211,15 +211,19 @@ Found while hardening the above. All pre-existing, all larger than a fix:
   sessionStorage entry names the game; the page reads and deletes it once and
   opens the prefilled dialogue. Saving opens the new game's editor.
 - **Play.** Each playable public game gets a share link of its own, created on
-  the first page visit, paid by the workshop's key and limited to 50 sessions.
-  The card shows the sessions left. Without a workshop key every card shows a
-  disabled 'Spielen' with a note that no API key is set; the page response
-  carries `playAvailable` for this. A game that is not ready to play shows no
+  the first page visit, paid by the workshop's key — or, without one, by its
+  organisation's free-use key, else the server's (`db/workshop_api_key.go`).
+  The links themselves are unlimited; leaders may cap all plays through the page
+  with one workshop-wide limit (`workshop.public_play_limit`, off by default),
+  and the page shows the plays left while a limit is set. When no key pays at
+  all, every card shows a disabled 'Spielen' with a note that no API key is set;
+  the page response carries `playAvailable` for this. Workshop share links a
+  leader makes by hand fall back the same way. A game that is not ready to play shows no
   button. These links carry `game_share.public_page`: a leader's hand-made
   workshop share never reuses them, and the game's list of workshop shares leaves
   them out. The key owner's overview of game shares does list them. Switching the page off, unpublishing a game, changing the workshop
-  key, and deleting the workshop revoke them; the next visit creates fresh ones
-  with a fresh count.
+  key, and deleting the workshop revoke them, as does a change of the key they
+  fall back to; the next visit creates fresh ones.
 - **Youth protection.** The page's links carry the workshop and its institution,
   so guests get the workshop's constraint, then the institution's, as for any
   workshop share (JUGENDSCHUTZ.md, 'Gäste'). The recorded author, used when

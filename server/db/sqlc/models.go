@@ -267,6 +267,10 @@ type Workshop struct {
 	PublicSlug                 sql.NullString
 	PublicDescription          sql.NullString
 	PublicLinks                pqtype.NullRawMessage
+	PublicPlayLimit            sql.NullInt32
+	PublicPlayUsed             int32
+	PublicJoin                 bool
+	Language                   string
 }
 
 type WorkshopParticipant struct {

@@ -636,6 +636,41 @@ func (q *Queries) GetPublicPageGameSharesByWorkshop(ctx context.Context, worksho
 	return items, nil
 }
 
+const getPublicPageShareKeysByWorkshop = `-- name: GetPublicPageShareKeysByWorkshop :many
+SELECT gs.id, aks.api_key_id FROM game_share gs
+JOIN api_key_share aks ON aks.id = gs.api_key_share_id
+WHERE gs.workshop_id = $1 AND gs.public_page
+`
+
+type GetPublicPageShareKeysByWorkshopRow struct {
+	ID       uuid.UUID
+	ApiKeyID uuid.UUID
+}
+
+// The API key each of a workshop's public-page share links pays with.
+func (q *Queries) GetPublicPageShareKeysByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]GetPublicPageShareKeysByWorkshopRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicPageShareKeysByWorkshop, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPublicPageShareKeysByWorkshopRow
+	for rows.Next() {
+		var i GetPublicPageShareKeysByWorkshopRow
+		if err := rows.Scan(&i.ID, &i.ApiKeyID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWorkshopGameShare = `-- name: GetWorkshopGameShare :one
 SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 AND workshop_id = $2 AND NOT public_page
 `

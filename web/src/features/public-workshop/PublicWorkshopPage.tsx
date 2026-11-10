@@ -7,6 +7,7 @@ import {
   Center,
   Container,
   Flex,
+  List,
   Loader,
   SimpleGrid,
   Spoiler,
@@ -36,6 +37,7 @@ import { ROUTES } from "@/common/routes/routes";
 import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
 import { EXTERNAL_LINKS } from "@/config/externalLinks";
 import { publicWorkshopPath } from "@/common/lib/publicWorkshop";
+import { inviteShareLinkPath } from "@/common/lib/wordToken";
 import { buildShareUrl } from "@/common/lib/url";
 import { takeReturnTo } from "@/common/lib/returnTo";
 import { GameEditModal } from "@/features/games/components/GameEditModal";
@@ -126,6 +128,9 @@ export function PublicWorkshopPage({
   }
 
   const games = page.games ?? [];
+  // Unset while the workshop's leaders set no limit: playing is then unlimited.
+  const playsLeft = page.playRemaining;
+  const playsExhausted = playsLeft !== undefined && playsLeft <= 0;
 
   return (
     <Container size="md" py="xl">
@@ -140,6 +145,16 @@ export function PublicWorkshopPage({
 
         <Stack gap="sm">
           <Title order={3}>{t("publicWorkshop.gamesTitle")}</Title>
+          {page.playLimit !== undefined && page.playAvailable && (
+            <Text size="sm" c="dimmed">
+              {playsExhausted
+                ? t("publicWorkshop.playExhausted")
+                : t("publicWorkshop.playRemaining", {
+                    remaining: playsLeft,
+                    limit: page.playLimit,
+                  })}
+            </Text>
+          )}
           {games.length === 0 ? (
             <Alert color="gray" variant="light">
               {t("publicWorkshop.noGames")}
@@ -152,6 +167,7 @@ export function PublicWorkshopPage({
                   game={game}
                   isAuthenticated={isAuthenticated}
                   playAvailable={page.playAvailable ?? false}
+                  playsExhausted={playsExhausted}
                   copyUrl={buildShareUrl(
                     `${publicWorkshopPath(slug)}?copy=${game.id}`,
                   )}
@@ -164,7 +180,7 @@ export function PublicWorkshopPage({
 
         <FurtherReading links={page.links ?? []} />
 
-        <CallToAction />
+        <CallToAction workshopName={page.name ?? ""} joinToken={page.joinToken} />
       </Stack>
 
       <GameEditModal
@@ -241,8 +257,18 @@ function FurtherReading({ links }: { links: ObjPublicWorkshopLink[] }) {
   );
 }
 
-/** Closing invitation to build a game of one's own. */
-function CallToAction() {
+/**
+ * Closing invitation to build a game of one's own: by joining the workshop,
+ * while its leaders offer that, or with an account of one's own.
+ */
+function CallToAction({
+  workshopName,
+  joinToken,
+}: {
+  workshopName: string;
+  /** The workshop's open invite; unset while joining is not offered. */
+  joinToken?: string;
+}) {
   const { t } = useTranslation("common");
 
   return (
@@ -250,12 +276,23 @@ function CallToAction() {
       <Stack gap="xs" align="center" ta="center">
         <IconSparkles size={28} />
         <Title order={3}>{t("publicWorkshop.cta.title")}</Title>
+        <List ta="left" spacing={4}>
+          {joinToken && (
+            <List.Item>
+              <Anchor href={inviteShareLinkPath(joinToken)}>
+                {t("publicWorkshop.cta.inWorkshop", { name: workshopName })}
+              </Anchor>
+            </List.Item>
+          )}
+          <List.Item>
+            <Anchor component={Link} to={ROUTES.AUTH_REGISTER}>
+              {t("publicWorkshop.cta.ownAccount")}
+            </Anchor>
+          </List.Item>
+        </List>
         <Text size="sm" c="dimmed">
           {t("publicWorkshop.cta.text")}
         </Text>
-        <Button component={Link} to={ROUTES.AUTH_REGISTER} mt="xs">
-          {t("publicWorkshop.cta.button")}
-        </Button>
       </Stack>
     </Card>
   );
@@ -264,8 +301,10 @@ function CallToAction() {
 interface PublicGameCardProps {
   game: ObjPublicWorkshopGame;
   isAuthenticated: boolean;
-  /** False when the workshop has no key: no game here can be played. */
+  /** False when no key pays for the workshop: no game here can be played. */
   playAvailable: boolean;
+  /** The workshop's play limit is used up. */
+  playsExhausted: boolean;
   /** This page with ?copy=<id>, opened in a new tab. */
   copyUrl: string;
   onDownload: () => void;
@@ -275,12 +314,12 @@ function PublicGameCard({
   game,
   isAuthenticated,
   playAvailable,
+  playsExhausted,
   copyUrl,
   onDownload,
 }: PublicGameCardProps) {
   const { t } = useTranslation("common");
   const play = game.play;
-  const exhausted = !!play && (play.remaining ?? 0) <= 0;
 
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -292,33 +331,22 @@ function PublicGameCard({
           </Text>
         )}
         <Stack gap={4} mt="auto">
-          {play && (
-            <>
-              {exhausted ? (
-                <Button leftSection={<IconPlayerPlay size={16} />} disabled>
-                  {t("publicWorkshop.play")}
-                </Button>
-              ) : (
-                <Button
-                  component="a"
-                  href={buildShareUrl(`/play/${play.token}`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  leftSection={<IconPlayerPlay size={16} />}
-                >
-                  {t("publicWorkshop.play")}
-                </Button>
-              )}
-              <Text size="xs" c="dimmed" ta="center">
-                {exhausted
-                  ? t("publicWorkshop.playExhausted")
-                  : t("publicWorkshop.playRemaining", {
-                      remaining: play.remaining,
-                      limit: play.limit,
-                    })}
-              </Text>
-            </>
-          )}
+          {play &&
+            (playsExhausted ? (
+              <Button leftSection={<IconPlayerPlay size={16} />} disabled>
+                {t("publicWorkshop.play")}
+              </Button>
+            ) : (
+              <Button
+                component="a"
+                href={buildShareUrl(`/play/${play.token}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                leftSection={<IconPlayerPlay size={16} />}
+              >
+                {t("publicWorkshop.play")}
+              </Button>
+            ))}
           {!playAvailable && (
             <>
               <Button leftSection={<IconPlayerPlay size={16} />} disabled>

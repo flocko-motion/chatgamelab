@@ -478,7 +478,7 @@
           "goToSettings": "API Key Settings",
           "personal": "You need to configure an API key before you can play. Go to your API Key settings to add one.",
           "title": "No API Key Available",
-          "workshop": "No API key is configured for this workshop. Please contact your workshop administrator."
+          "workshop": "This workshop has no API key. The workshop leader needs to add one in the workshop settings."
         },
         "retry": "Retry",
         "sendFailed": "Failed to send message. Please try again.",
@@ -1082,7 +1082,12 @@
         "createTitle": "Create Workshop",
         "deactivate": "Deactivate",
         "defaultApiKey": "Default API Key",
-        "defaultApiKeyHint": "Participants will use this API key when playing games.",
+        "defaultApiKeyHint": "Participants will use this API key when playing games. Without a choice, the organization's key applies, else the server's.",
+        "apiKeyFallbackOrganization": "Default: the organization's key",
+        "apiKeyFallbackServer": "Default: the server's key",
+        "apiKeyFallbackNone": "No key – please select one",
+        "language": "Default language",
+        "languageHint": "Whoever joins the workshop starts in this language – interface and games.",
         "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
         "deleteTitle": "Delete Workshop",
         "deleteWarning": "All games and sessions in this workshop will be deleted. This cannot be undone.",
@@ -1194,8 +1199,16 @@
         "changeLinkTitle": "Change the link?",
         "changeLinkMessage": "The page will then be at {{url}}.",
         "changeLinkWarning": "The old link stops working – including QR codes already printed or sent.",
-        "shareTitle": "Public page",
-        "shareDescription": "Send this link or show it as a QR code."
+        "shareTitle": "Public page {{name}}",
+        "shareSubtitle": "Here you'll find the ChatGameLab games created at the workshop “{{name}}”.",
+        "shareDescription": "Scan the QR code with your phone camera or type the link into your browser.",
+        "shareOrganization": "A workshop by {{name}}",
+        "join": "Offer joining the workshop",
+        "joinHint": "The page then shows a link for joining the workshop as a participant. Whoever joins plays with the workshop's API key.",
+        "playLimit": "Limit plays",
+        "playLimitHint": "Every play on the public page costs money through the API key. A limit for the whole workshop caps that cost. Once it is reached, nobody can play through the page until you raise it.",
+        "playLimitValue": "Plays in total",
+        "playLimitUsed": "Played so far: {{count}}"
       }
     },
     "name": "Name",
@@ -1379,8 +1392,9 @@
       "playNoKey": "This workshop has no API key, so its games can't be played here.",
       "cta": {
         "title": "Make your own ChatGameLab game",
-        "text": "Building your own text adventure is free and takes only a few minutes.",
-        "button": "Start for free"
+        "inWorkshop": "as part of the workshop “{{name}}”",
+        "ownAccount": "with your own account after signing up.",
+        "text": "Building your own text adventure is free and takes only a few minutes."
       }
     }
   },

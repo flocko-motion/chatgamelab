@@ -244,6 +244,8 @@ export function WorkshopHeader({
           opened={publicPageOpened}
           onClose={closePublicPage}
           slug={publicSlug}
+          workshopName={workshopName ?? ""}
+          organizationName={organizationName}
         />
       )}
     </>

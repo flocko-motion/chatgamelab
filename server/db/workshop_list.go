@@ -264,6 +264,8 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				},
 			}
 
+			setWorkshopExtras(ctx, &workshop, r)
+
 			// Fetch participants for this workshop
 			participants := fetchWorkshopParticipants(ctx, r.ID)
 			workshop.Participants = participants
@@ -327,6 +329,8 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 					ModifiedAt: &r.ModifiedAt,
 				},
 			}
+
+			setWorkshopExtras(ctx, &workshop, r)
 
 			// Fetch participants for this workshop
 			participants := fetchWorkshopParticipants(ctx, r.ID)
