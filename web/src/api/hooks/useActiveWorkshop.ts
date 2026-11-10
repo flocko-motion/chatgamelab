@@ -30,6 +30,13 @@ export function useSetActiveWorkshop() {
       queryClient.setQueryData(queryKeys.backendUser, updatedUser);
       // Also invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: queryKeys.backendUser });
+      // The server scopes game and session lists to the active workshop, but
+      // the cache keys don't include it. Drop the cached lists so no page
+      // shows the previous workshop's games after entering or leaving one.
+      // reset (not invalidate) so stale lists are never rendered meanwhile.
+      queryClient.resetQueries({ queryKey: queryKeys.games });
+      queryClient.resetQueries({ queryKey: queryKeys.gameSessions });
+      queryClient.resetQueries({ queryKey: queryKeys.userSessions });
     },
   });
 }
