@@ -228,6 +228,16 @@ Supported platforms:
 			} else {
 				oldHashes = make(map[string]string)
 			}
+			// A field missing from the translation is untranslated, whatever its hash says.
+			if existingJSON != "" {
+				if kept, err := KeepTranslatedHashes(oldHashes, existingJSON); err == nil {
+					oldHashes = kept
+				} else {
+					oldHashes = make(map[string]string)
+				}
+			} else {
+				oldHashes = make(map[string]string)
+			}
 
 			// Extract only changed fields from source (en+de)
 			changedJSON, err := ExtractChangedFields(inputContents[0], oldHashes, sourceHashes)
@@ -354,8 +364,20 @@ Supported platforms:
 					return
 				}
 
-				// Write hash file
-				hashJSON, err := SaveHashFile(sourceHashes)
+				// Write hash file, for the fields the translation actually has
+				translatedHashes, err := KeepTranslatedHashes(sourceHashes, finalJSON)
+				if err != nil {
+					mu.Lock()
+					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to check translated fields: %v\n", langName, lang, err)
+					mu.Unlock()
+					return
+				}
+				if missing := len(sourceHashes) - len(translatedHashes); missing > 0 {
+					mu.Lock()
+					fmt.Fprintf(os.Stderr, "⚠ %s (%s): %d field(s) still untranslated; the next run tries them again\n", langName, lang, missing)
+					mu.Unlock()
+				}
+				hashJSON, err := SaveHashFile(translatedHashes)
 				if err != nil {
 					mu.Lock()
 					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to marshal hash file: %v\n", langName, lang, err)
