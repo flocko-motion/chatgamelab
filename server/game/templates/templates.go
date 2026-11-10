@@ -21,10 +21,19 @@ const (
 	// DefaultImageStyle is the fallback when no image style is configured
 	DefaultImageStyle = "simple illustration, minimalist"
 
-	// PromptMessageStart is sent as the first player input to kick off the game
-	// The player knows nothing yet, so the summary must establish role and situation. It names only
-	// one or two things in the scene to engage with - a list of options turns the opening into a menu.
-	PromptMessageStart = "Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario. The summary must make clear who the player character is and what situation they are in, and mention one or two things in the scene the player could engage with. If the scenario asks you to explain the player's task or goal, include it."
+	// PromptMessageStart opens the first player input that kicks off the game (see StartMessage).
+	PromptMessageStart = "Start the game. Generate the opening scene."
+
+	// promptMessageStartStatus is only sent when the game has status fields. Without fields the
+	// schema has no room for them, and the model then tends to push invented status JSON into the
+	// narration instead.
+	promptMessageStartStatus = " Set the status fields to good initial values for the scenario."
+
+	// promptMessageStartOutline: the player knows nothing yet, so the outline must establish role and
+	// situation. It names only one or two things in the scene to engage with - a list of options turns
+	// the opening into a menu. It says "message" on purpose: the word "summary" made the model invent
+	// a "summary" field.
+	promptMessageStartOutline = " The plot outline in \"message\" must make clear who the player character is and what situation they are in, and mention one or two things in the scene the player could engage with. If the scenario asks you to explain the player's task or goal, include it."
 
 	// PromptObjectivizePlayerInput rephrases player input in third person with uncertain outcome.
 	// Used via ToolQuery with a fast model. The %s placeholder is the raw player input.
@@ -49,14 +58,14 @@ const (
 
 	// promptNarratePlotOutlineTemplate is the template for the narration prompt.
 	// The %s placeholder is replaced with the target language name.
-	promptNarratePlotOutlineTemplate = "NARRATE the summary into prose in the players language (%s). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next."
+	promptNarratePlotOutlineTemplate = "NARRATE the summary into prose in the players language (%s). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Output plain prose only: no JSON, no curly braces, no field names, no status values. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next."
 
 	// promptNarrateOpeningSceneTemplate is the narration prompt for the very first scene of a game.
 	// It stays a scene with the usual atmosphere, but makes role and situation clear. What the player
 	// could do shows through people, objects and paths in the scene, never as a list of choices.
 	// An explicit request in the scenario ("explain the task") wins over the hint-only rule.
 	// The %s placeholder is replaced with the target language name.
-	promptNarrateOpeningSceneTemplate = "NARRATE the opening scene into prose in the players language (%s). This is the first thing the player reads - they know nothing yet. STRICT RULES: 4-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Tell it as a scene, with the same atmosphere as any other turn. Within the scene, make clear who the player character is and what situation they are in. Do not list choices: let people, objects and paths in the scene show what the player could do. Hint at what is at stake without spelling the goal out as an instruction. If the scenario explicitly asks you to explain the task, explain it plainly. End with an open question to the player."
+	promptNarrateOpeningSceneTemplate = "NARRATE the opening scene into prose in the players language (%s). This is the first thing the player reads - they know nothing yet. STRICT RULES: 4-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Output plain prose only: no JSON, no curly braces, no field names, no status values. Tell it as a scene, with the same atmosphere as any other turn. Within the scene, make clear who the player character is and what situation they are in. Do not list choices: let people, objects and paths in the scene show what the player could do. Hint at what is at stake without spelling the goal out as an instruction. If the scenario explicitly asks you to explain the task, explain it plainly. End with an open question to the player."
 
 	// Schema field descriptions and max lengths for BuildResponseSchema
 	SchemaMessageMaxLength       = 400
@@ -70,15 +79,22 @@ const (
 // startRandomValues is how many dice the server rolls for each new game.
 const startRandomValues = 5
 
-// StartMessage returns PromptMessageStart plus freshly rolled random values.
+// StartMessage returns the start instruction plus freshly rolled random values.
 // Without them every game starts from the identical input, and the model keeps
 // picking its favourite option even when the scenario asks for variety.
-func StartMessage() string {
+// hasStatusFields says whether the game defines status fields; only then is the model
+// asked to set their initial values.
+func StartMessage(hasStatusFields bool) string {
+	start := PromptMessageStart
+	if hasStatusFields {
+		start += promptMessageStartStatus
+	}
+	start += promptMessageStartOutline
 	values := make([]string, startRandomValues)
 	for i := range values {
 		values[i] = fmt.Sprint(rand.IntN(100) + 1)
 	}
-	return PromptMessageStart + "\n\nRandom values for this playthrough: " + strings.Join(values, ", ") + " (each 1-100). " +
+	return start + "\n\nRandom values for this playthrough: " + strings.Join(values, ", ") + " (each 1-100). " +
 		"Whenever the scenario asks you to vary, choose randomly, or pick between options, base the choice on these values instead of your own preference " +
 		"(e.g. the first value modulo the number of options). Never mention these values to the player."
 }
