@@ -136,8 +136,8 @@ func (s *WorkshopPublicPageTestSuite) TestListsOnlyPublicGamesWithoutCreators() 
 	s.Equal(shown.ID, page.Games[0].ID)
 	s.Equal(shown.Name, page.Games[0].Name)
 	s.Require().NotNil(page.Games[0].Play)
-	s.Equal(50, page.Games[0].Play.Remaining)
-	s.Equal(50, page.Games[0].Play.Limit)
+	s.Nil(page.PlayLimit, "plays through the page are unlimited by default")
+	s.Nil(page.PlayRemaining)
 
 	status, body := s.getRaw("public/workshops/" + f.slug)
 	s.Equal(http.StatusOK, status)
@@ -168,19 +168,58 @@ func (s *WorkshopPublicPageTestSuite) TestNoPlayWithoutWorkshopKey() {
 	s.Nil(page.Games[0].Play)
 }
 
-func (s *WorkshopPublicPageTestSuite) TestPlayCountsDownAndStaysApartFromHandMadeLinks() {
-	f := s.setup("pubpage-play", true)
+func (s *WorkshopPublicPageTestSuite) TestPlayWithOrganisationKeyWhenWorkshopHasNone() {
+	f := s.setup("pubpage-orgkey", false)
+	ws := Must(f.head.GetWorkshop(f.wsID))
+	keyShare := Must(f.head.AddApiKey("mock-pubpage-orgkey", "Org Key", "mock"))
+	orgShare := Must(f.head.ShareApiKeyWithInstitution(keyShare.ID.String(), ws.Institution.ID.String()))
+	orgShareID := orgShare.ID.String()
+	Must(f.head.SetInstitutionFreeUseApiKey(ws.Institution.ID.String(), &orgShareID))
+
+	ws = Must(f.head.GetWorkshop(f.wsID))
+	s.Equal(obj.WorkshopKeySourceOrganization, ws.ApiKeySource)
+
 	Must(s.updateWorkshop(f, true, nil))
 	game := Must(f.participant.UploadGame("alien-first-contact"))
 	s.setGamePublic(f.participant, game.ID.String(), true)
 
-	play := Must(s.page(f.slug)).Games[0].Play
+	page := Must(s.page(f.slug))
+	s.True(page.PlayAvailable, "the organisation's key pays when the workshop has none")
+	s.Require().Len(page.Games, 1)
+	s.Require().NotNil(page.Games[0].Play)
+	Must(s.Public().GuestCreateSession(page.Games[0].Play.Token))
+}
+
+func (s *WorkshopPublicPageTestSuite) TestPlayCountsAgainstWorkshopLimitAndStaysApartFromHandMadeLinks() {
+	f := s.setup("pubpage-play", true)
+	ws := Must(s.updateWorkshop(f, true, map[string]interface{}{"publicPlayLimit": 2}))
+	s.Require().NotNil(ws.PublicPlayLimit)
+	s.Equal(2, *ws.PublicPlayLimit)
+	game := Must(f.participant.UploadGame("alien-first-contact"))
+	s.setGamePublic(f.participant, game.ID.String(), true)
+
+	page := Must(s.page(f.slug))
+	play := page.Games[0].Play
 	s.Require().NotNil(play)
+	s.Require().NotNil(page.PlayRemaining)
+	s.Equal(2, *page.PlayRemaining)
 	Must(s.Public().GuestCreateSession(play.Token))
 
-	again := Must(s.page(f.slug)).Games[0].Play
+	page = Must(s.page(f.slug))
+	again := page.Games[0].Play
 	s.Equal(play.Token, again.Token, "the page keeps one link per game")
-	s.Equal(49, again.Remaining)
+	s.Equal(1, *page.PlayRemaining)
+
+	Must(s.Public().GuestCreateSession(play.Token))
+	_, err := s.Public().GuestCreateSession(play.Token)
+	s.Error(err, "the workshop's play limit must stop further plays")
+	s.Equal(0, *Must(s.page(f.slug)).PlayRemaining)
+	s.Equal(2, Must(f.head.GetWorkshop(f.wsID)).PublicPlayUsed)
+
+	// Removing the limit lets the page play again.
+	ws = Must(s.updateWorkshop(f, true, map[string]interface{}{"publicPlayLimit": 0}))
+	s.Nil(ws.PublicPlayLimit)
+	Must(s.Public().GuestCreateSession(play.Token))
 
 	// A leader's workshop share is a separate, unlimited link.
 	handMade := Must(f.head.CreateWorkshopGameShare(game.ID.String(), f.wsID, nil))
@@ -210,7 +249,6 @@ func (s *WorkshopPublicPageTestSuite) TestLinksRevoked() {
 	Must(s.updateWorkshop(f, true, nil))
 	fresh := Must(s.page(f.slug)).Games[0].Play
 	s.NotEqual(token, fresh.Token)
-	s.Equal(50, fresh.Remaining)
 
 	// Deleting the workshop revokes them as well.
 	MustSucceed(f.head.DeleteWorkshop(f.wsID))
