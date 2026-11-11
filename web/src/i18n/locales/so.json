@@ -351,7 +351,7 @@
       "addKey": "Ku dar Fure",
       "addedOn": "La daray",
       "aiQualityTier": {
-        "description": "Dooro heerka tayada AI ee ciyaarahaaga marka aad adeegsaneysid furaha API-gaaga. Heerarka sare waxay ku kacaan badan yihiin laakiin waxaa laga yaabaa inay tayadoodu fiicnaato. Ka tag madhan si aad u isticmaasho dejinta server-ka."
+        "description": "Dooro heerka tayada AI ee ciyaarahaaga. Haddii aad leedahay furaha API-gaaga, dhammaan heerarku way kuu diyaar yihiin; haddii aad isticmaasho fure bilaash ah, waxaad heli kartaa ugu badnaan heerka loo fasaxay. Heerarka sare kharash badan ayay leeyihiin, balse tayadoodu way ka sarreyn kartaa."
       },
       "createModal": {
         "keyDescription": "Furahaaga waa la sirayn doonaa si ammaan ahna waa lagu kaydin doonaa.",

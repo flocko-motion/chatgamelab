@@ -351,7 +351,7 @@
       "addKey": "Añadir clave",
       "addedOn": "Añadida",
       "aiQualityTier": {
-        "description": "Elige el nivel de calidad de IA para tus juegos al usar tu propia clave API. Los niveles más altos cuestan más, pero pueden ofrecer mayor calidad. Déjalo vacío para usar el predeterminado del servidor."
+        "description": "Elige el nivel de calidad de la IA para tus juegos. Con una clave de API propia, todos los niveles están disponibles; con una clave de uso gratuito, como máximo estará disponible el nivel hasta el que se haya habilitado. Los niveles superiores cuestan más, pero pueden ofrecer una mayor calidad."
       },
       "createModal": {
         "keyDescription": "Tu clave se cifrará y almacenará de forma segura.",

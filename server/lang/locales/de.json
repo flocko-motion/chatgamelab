@@ -334,7 +334,7 @@
       "addKey": "Schlüssel hinzufügen",
       "addedOn": "Hinzugefügt",
       "aiQualityTier": {
-        "description": "Wähle die KI-Qualitätsstufe für deine Spiele bei Verwendung deines eigenen API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Servereinstellung."
+        "description": "Wähle die KI-Qualitätsstufe für deine Spiele. Mit einem eigenen API-Schlüssel sind alle Stufen möglich, mit einem freien Schlüssel höchstens die Stufe, für die er freigegeben ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben."
       },
       "createModal": {
         "keyDescription": "Dein Schlüssel wird verschlüsselt und sicher gespeichert.",

@@ -351,7 +351,7 @@
       "addKey": "Tilføj nøgle",
       "addedOn": "Tilføjet",
       "aiQualityTier": {
-        "description": "Vælg AI-kvalitetsniveauet for dine spil, når du bruger din egen API-nøgle. Højere niveauer koster mere, men kan have højere kvalitet. Lad feltet være tomt for at bruge serverstandarden."
+        "description": "Vælg AI-kvalitetsniveauet til dine spil. Med din egen API-nøgle er alle niveauer tilgængelige; med en gratis brugsnøgle er højst det niveau, som den er frigivet op til, tilgængeligt. Højere niveauer koster mere, men kan have højere kvalitet."
       },
       "createModal": {
         "keyDescription": "Din nøgle bliver krypteret og opbevaret sikkert.",

@@ -351,7 +351,7 @@
       "addKey": "Kulcs hozzáadása",
       "addedOn": "Hozzáadva",
       "aiQualityTier": {
-        "description": "Válaszd ki az MI minőségi szintjét, amikor a saját API-kulcsod használod. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak. Hagyd üresen a szerver alapértelmezett használatához."
+        "description": "Válaszd ki a játékodhoz használni kívánt AI-minőségi szintet. Saját API-kulccsal minden szint elérhető; ingyenesen használható kulccsal legfeljebb az a szint, ameddig azt kiadták. A magasabb szintek többe kerülnek, de jobb minőséget biztosíthatnak."
       },
       "createModal": {
         "keyDescription": "A kulcsod titkosítva, biztonságosan kerül tárolásra.",

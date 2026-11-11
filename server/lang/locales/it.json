@@ -351,7 +351,7 @@
       "addKey": "Aggiungi chiave",
       "addedOn": "Aggiunta",
       "aiQualityTier": {
-        "description": "Scegli il livello di qualità IA per i tuoi giochi quando usi la tua chiave API. I livelli più alti costano di più ma possono avere una qualità superiore. Lascia vuoto per usare il valore predefinito del server."
+        "description": "Scegli il livello di qualità dell'IA per le tue partite. Con una chiave API personale sono disponibili tutti i livelli; con una chiave a uso gratuito, al massimo il livello fino al quale è stata rilasciata. I livelli superiori costano di più, ma possono offrire una qualità maggiore."
       },
       "createModal": {
         "keyDescription": "La tua chiave verrà crittografata e archiviata in modo sicuro.",

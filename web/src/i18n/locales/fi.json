@@ -351,7 +351,7 @@
       "addKey": "Lisää avain",
       "addedOn": "Lisätty",
       "aiQualityTier": {
-        "description": "Valitse AI-laatutaso peleillesi käyttäessäsi omaa API-avaintasi. Korkeammat tasot maksavat enemmän, mutta voivat tuottaa parempaa laatua. Jätä tyhjäksi käyttääksesi palvelimen oletusta."
+        "description": "Valitse peleissäsi käytettävä tekoälyn laatutaso. Omalla API-avaimellasi kaikki tasot ovat käytettävissä; ilmaiseen käyttöön tarkoitetulla avaimella käytettävissä on enintään taso, johon asti se on julkaistu. Korkeammat tasot maksavat enemmän, mutta niiden laatu voi olla parempi."
       },
       "createModal": {
         "keyDescription": "Avaimesi salataan ja tallennetaan turvallisesti.",

@@ -334,7 +334,7 @@
       "addKey": "Add Key",
       "addedOn": "Added",
       "aiQualityTier": {
-        "description": "Choose the AI quality level for your games when using your own API key. Higher tiers cost more but may have higher quality. Leave empty to use the server default."
+        "description": "Choose the AI quality tier for your games. With an API key of your own every tier is available; with a free-use key, at most the tier it is released up to. Higher tiers cost more but may have higher quality."
       },
       "createModal": {
         "keyDescription": "Your key will be encrypted and stored securely.",

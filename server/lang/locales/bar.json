@@ -351,7 +351,7 @@
       "addKey": "Schlüssl hinzufügen",
       "addedOn": "Hinzugefügt",
       "aiQualityTier": {
-        "description": "Wähle d'KI-Qualitätsstufn fia dei Spiele, wennst an eigenen API-Schlüssl nutzt. Höhere Stufn kostn mehr, san aber oft besser. Lass leer, wenn da Server-Standard ziagn soi."
+        "description": "Wähl de KI-Qualitätsstufe für dei Spui aus. Mit am eigenen API-Schlüssel san alle Stufen verfügbar; mit am kostenlos nutzbaren Schlüssel höchstens de Stufe, bis zu der er freigschaltet is. Höhere Stufen kostn mehr, kenna aber a a höhere Qualität ham."
       },
       "createModal": {
         "keyDescription": "Dei Schlüssl werd verschlüsselt und sicha gspeichat.",

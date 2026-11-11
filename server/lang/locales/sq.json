@@ -351,7 +351,7 @@
       "addKey": "Shto çelës",
       "addedOn": "Shtuar",
       "aiQualityTier": {
-        "description": "Zgjidhni nivelin e cilësisë së AI për lojërat tuaja kur përdorni çelësin tuaj API. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë. Lëreni bosh për të përdorur parazgjedhjen e serverit."
+        "description": "Zgjidhni nivelin e cilësisë së IA-së për lojërat tuaja. Me një çelës API tuajin, të gjitha nivelet janë të disponueshme; me një çelës përdorimi falas, mund të përdorni maksimumi nivelin deri te i cili është lëshuar. Nivelet më të larta kushtojnë më shumë, por mund të ofrojnë cilësi më të lartë."
       },
       "createModal": {
         "keyDescription": "Çelësi juaj do të enkriptohet dhe do të ruhet në mënyrë të sigurt.",

@@ -353,7 +353,7 @@
       "addKey": "Anahtar Ekle",
       "addedOn": "Eklendi",
       "aiQualityTier": {
-        "description": "Kendi API anahtarınızı kullanırken oyunlarınız için yapay zekâ kalite seviyesini seçin. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir. Sunucu varsayılanını kullanmak için boş bırakın."
+        "description": "Oyunlarınız için yapay zekâ kalite seviyesini seçin. Size ait bir API anahtarıyla her seviye kullanılabilir; ücretsiz kullanım anahtarıyla en fazla, anahtarın erişime açıldığı seviyeye kadar olan seviye kullanılabilir. Daha yüksek seviyeler daha pahalıdır ancak daha yüksek kalite sunabilir."
       },
       "createModal": {
         "keyDescription": "Anahtarınız şifrelenip güvenle saklanacaktır.",

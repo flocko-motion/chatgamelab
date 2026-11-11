@@ -351,7 +351,7 @@
       "addKey": "Tambah Kunci",
       "addedOn": "Ditambahkan",
       "aiQualityTier": {
-        "description": "Pilih tingkat kualitas AI untuk gim Anda saat menggunakan kunci API sendiri. Tingkat yang lebih tinggi biayanya lebih mahal tetapi mungkin memiliki kualitas lebih baik. Biarkan kosong untuk menggunakan bawaan server."
+        "description": "Pilih tingkat kualitas AI untuk permainan Anda. Dengan kunci API milik Anda sendiri, semua tingkat tersedia; dengan kunci penggunaan gratis, paling tinggi hanya tingkat yang telah dirilis untuk kunci tersebut. Tingkat yang lebih tinggi membutuhkan biaya lebih besar, tetapi mungkin memiliki kualitas yang lebih baik."
       },
       "createModal": {
         "keyDescription": "Kunci Anda akan dienkripsi dan disimpan secara aman.",

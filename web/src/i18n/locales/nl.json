@@ -351,7 +351,7 @@
       "addKey": "Sleutel toevoegen",
       "addedOn": "Toegevoegd",
       "aiQualityTier": {
-        "description": "Kies het AI-kwaliteitsniveau voor je games bij gebruik van je eigen API-sleutel. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Laat leeg om de serverstandaard te gebruiken."
+        "description": "Kies het AI-kwaliteitsniveau voor je games. Met een eigen API-sleutel zijn alle niveaus beschikbaar; met een sleutel voor gratis gebruik maximaal het niveau tot waartoe deze is vrijgegeven. Hogere niveaus kosten meer, maar kunnen een hogere kwaliteit bieden."
       },
       "createModal": {
         "keyDescription": "Je sleutel wordt versleuteld en veilig opgeslagen.",

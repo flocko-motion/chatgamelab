@@ -351,7 +351,7 @@
       "addKey": "Dodaj ključ",
       "addedOn": "Dodano",
       "aiQualityTier": {
-        "description": "Odaberite razinu kvalitete AI-ja za svoje igre kada koristite vlastiti API ključ. Više razine skuplje su, ali mogu imati bolju kvalitetu. Ostavite prazno za korištenje zadanog poslužitelja."
+        "description": "Odaberite razinu kvalitete umjetne inteligencije za svoje igre. S vlastitim API ključem dostupne su sve razine; s ključem za besplatnu upotrebu dostupna je najviše razina do koje je objavljen. Više razine koštaju više, ali mogu pružiti veću kvalitetu."
       },
       "createModal": {
         "keyDescription": "Vaš ključ bit će šifriran i sigurno pohranjen.",

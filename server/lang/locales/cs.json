@@ -351,7 +351,7 @@
       "addKey": "Přidat klíč",
       "addedOn": "Přidáno",
       "aiQualityTier": {
-        "description": "Zvolte úroveň kvality AI pro své hry při použití vlastního API klíče. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu. Nechte prázdné pro použití výchozí hodnoty serveru."
+        "description": "Vyberte úroveň kvality AI pro své hry. S vlastním klíčem API jsou k dispozici všechny úrovně; s klíčem pro bezplatné použití nejvýše úroveň, do které byl zpřístupněn. Vyšší úrovně stojí více, ale mohou nabízet vyšší kvalitu."
       },
       "createModal": {
         "keyDescription": "Váš klíč bude zašifrován a bezpečně uložen.",

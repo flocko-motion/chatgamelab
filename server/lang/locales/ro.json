@@ -351,7 +351,7 @@
       "addKey": "Adaugă cheie",
       "addedOn": "Adăugată",
       "aiQualityTier": {
-        "description": "Alege nivelul de calitate AI pentru jocurile tale atunci când folosești propria cheie API. Nivelurile mai înalte costă mai mult, dar pot oferi calitate superioară. Lasă gol pentru a folosi setarea implicită a serverului."
+        "description": "Alege nivelul de calitate AI pentru jocurile tale. Cu propria ta cheie API, toate nivelurile sunt disponibile; cu o cheie de utilizare gratuită, poți folosi cel mult nivelul până la care a fost lansată aceasta. Nivelurile superioare costă mai mult, dar pot oferi o calitate mai bună."
       },
       "createModal": {
         "keyDescription": "Cheia ta va fi criptată și stocată în siguranță.",
