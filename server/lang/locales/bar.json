@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Hoch (Premium)",
       "label": "KI-Qualitätsstufn",
+      "limit": {
+        "notReleasedOption": "{{tier}} – ned freigschaltet",
+        "releaseDefault": "Standard-Freischaltung ({{tier}})",
+        "title": "Ned freigschaltet: {{tiers}}",
+        "user": {
+          "organization": "Du spuihst mit'm kostenlosen Schlissl vo deiner Organisation. Der is bis '{{tier}}' freigschaltet. Frag bei de Verantwortlichen vo da Organisation nach, ob's de Freischaltung erhöhen können. Mit am eigenen API-Schlissl kannst du jede Stufe verwenden.",
+          "server": "Du spuihst mit'm kostenlosen Schlissl vom Server. Der is bis '{{tier}}' freigschaltet. Mit am eigenen API-Schlissl kannst du jede Stufe verwenden."
+        },
+        "workshop": {
+          "organization": "Ohne eigenen Workshop-Schlissl verwenden de Spuile den kostenlosen Schlissl vo da Organisation. Der is bis '{{tier}}' freigschaltet. Frag bei de Verantwortlichen vo da Organisation nach, ob's de Freischaltung erhöhen können, oder wähl an Schlissl für den Workshop aus.",
+          "server": "Ohne eigenen Workshop-Schlissl verwenden de Spuile den kostenlosen Schlissl vom Server. Der is bis '{{tier}}' freigschaltet. Für höhere Stufen wähl an Schlissl für den Workshop aus."
+        }
+      },
       "low": "Niedrig (Sparmodus)",
       "max": "Max (Premium + Audio)",
       "medium": "Mittel (Ausgwogn)",
       "newSessionsOnly": "Daa Tarif gilt bloß fia neie Sitzunga. Laufa Sitzunga bleim beim alten Tarif.",
+      "noKey": {
+        "title": "Koa Schlissl zum Spuin",
+        "user": "Es gibt koan Schlissl, mit dem du spuin kannst. Füg an eigenen API-Schlissl hinzu.",
+        "workshop": "Für den Workshop gibt's koan Schlissl zum Spuin: weder an eigenen noch an kostenlosen Schlissl vo da Organisation oder vom Server."
+      },
       "notUsed": {
         "addKey": "API-Schlüssl hinzufügen",
         "narrationOnlyMax": "Ohne „Max“ gibt’s koa Erzählung (Audio).",
@@ -565,6 +583,18 @@
       },
       "statusChange": {
         "effect": "Effekt:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Frag bei de Verantwortlichen vo da Organisation nach, ob's de Freischaltung erhöhen können, oder füg an eigenen Schlissl hinzu (für den Workshop oder in deinem Profil).",
+          "participant": "Frag bittscheen dei Workshop-Leitung.",
+          "server": "Mit am eigenen Schlissl (für den Workshop oder in deinem Profil) san alle Stufen verfügbar."
+        },
+        "reason": {
+          "organization": "Der kostenlose Schlissl vo da Organisation is nur bis '{{tier}}' freigschaltet.",
+          "server": "Der kostenlose Schlissl vom Server is nur bis '{{tier}}' freigschaltet."
+        },
+        "title": "Spuin auf '{{applied}}' statt auf '{{requested}}'"
       },
       "unnamed": "Unbenannt"
     },
@@ -1020,6 +1050,11 @@
           "title": "Gratis-Schlüssl",
           "unknownKey": "Unbekannter Schlüssl"
         },
+        "freeUseTier": {
+          "description": "Mitglieder und Workshops ohne eigenen Schlissl können mit'm kostenlosen Schlissl bis zu dieser Stufe spuin. Höhere Stufen kosten mehr. Lass des Feld leer für de Standardstufe vom Server.",
+          "label": "Freigschaltet bis (KI-Qualitätsstufe)",
+          "noKey": "Koa kostenloser Schlissl is ausgewählt."
+        },
         "keyName": "Schlüsslnam",
         "loadError": "Organisations-API-Schlüssel ham si ned laden lassn.",
         "noKeys": "No koane API-Schlüssel mit da Organisation gteilt.",
@@ -1376,8 +1411,8 @@
         "working": "Funktioniert"
       },
       "freeUseTier": {
-        "description": "Qualitätsstufn, wenn da Gratis-API-Schlüssl aktiv is. Höhere Stufn kostn mehr. Leer = Standardstufn.",
-        "title": "Gratis-KI-Qualitätsstufn"
+        "description": "Der kostenlose API-Schlissl vom Server derf bis zu dieser Stufe verwendet wern. Wer a höhere Stufe ausgewählt hod, spuit auf dieser. Höhere Stufen kosten mehr. Lass des Feld leer für de Standardstufe.",
+        "title": "Freigschaltet bis (KI-Qualitätsstufe)"
       },
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
       "title": "Server-Einstellungen"

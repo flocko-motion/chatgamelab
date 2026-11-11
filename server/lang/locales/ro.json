@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Înaltă (Premium)",
       "label": "Nivel calitate AI",
+      "limit": {
+        "notReleasedOption": "{{tier}} - nu este disponibil",
+        "releaseDefault": "Implicit pentru disponibilitate ({{tier}})",
+        "title": "Nu este disponibil: {{tiers}}",
+        "user": {
+          "organization": "Jucați folosind cheia de utilizare gratuită a organizației dumneavoastră. Aceasta este disponibilă până la nivelul „{{tier}}”. Întrebați conducerea organizației dacă poate extinde disponibilitatea. Cu o cheie API proprie puteți folosi toate nivelurile.",
+          "server": "Jucați folosind cheia de utilizare gratuită a serverului. Aceasta este disponibilă până la nivelul „{{tier}}”. Cu o cheie API proprie puteți folosi toate nivelurile."
+        },
+        "workshop": {
+          "organization": "În lipsa unei chei proprii pentru atelier, jocurile folosesc cheia de utilizare gratuită a organizației. Aceasta este disponibilă până la nivelul „{{tier}}”. Întrebați conducerea organizației dacă poate extinde disponibilitatea sau selectați o cheie pentru acest atelier.",
+          "server": "În lipsa unei chei proprii pentru atelier, jocurile folosesc cheia de utilizare gratuită a serverului. Aceasta este disponibilă până la nivelul „{{tier}}”. Pentru niveluri superioare, selectați o cheie pentru acest atelier."
+        }
+      },
       "low": "Joasă (Economy)",
       "max": "Maximă (Premium + Audio)",
       "medium": "Medie (Echilibrat)",
       "newSessionsOnly": "Acest nivel se aplică doar sesiunilor noi. Sesiunile existente păstrează nivelul cu care au început.",
+      "noKey": {
+        "title": "Nu există nicio cheie cu care să jucați",
+        "user": "Nu există nicio cheie cu care să puteți juca. Adăugați o cheie API proprie.",
+        "workshop": "Nu există nicio cheie cu care acest atelier să poată juca: niciuna proprie și nicio cheie de utilizare gratuită a organizației sau a serverului."
+      },
       "notUsed": {
         "addKey": "Adaugă cheia API",
         "narrationOnlyMax": "Fără „Max” nu există narațiune (audio).",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Efect:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Întrebați conducerea organizației dacă poate extinde disponibilitatea sau adăugați o cheie proprie (pentru atelier sau în profilul dumneavoastră).",
+          "participant": "Întrebați liderul atelierului.",
+          "server": "Cu o cheie proprie (pentru atelier sau în profilul dumneavoastră), toate nivelurile sunt disponibile."
+        },
+        "reason": {
+          "organization": "Cheia de utilizare gratuită a organizației este disponibilă doar până la nivelul „{{tier}}”.",
+          "server": "Cheia de utilizare gratuită a serverului este disponibilă doar până la nivelul „{{tier}}”."
+        },
+        "title": "Jucați la nivelul „{{applied}}” în loc de „{{requested}}”"
       },
       "unnamed": "Fără nume"
     },
@@ -1008,6 +1038,11 @@
           "title": "Cheie de utilizare liberă",
           "unknownKey": "Cheie necunoscută"
         },
+        "freeUseTier": {
+          "description": "Membrii și atelierele fără o cheie proprie pot juca folosind cheia de utilizare gratuită până la acest nivel. Nivelurile superioare costă mai mult. Lăsați necompletat pentru nivelul implicit al serverului.",
+          "label": "Disponibil până la (nivelul de calitate al IA)",
+          "noKey": "Nu este selectată nicio cheie de utilizare gratuită."
+        },
         "keyName": "Numele cheii",
         "loadError": "Nu s-au putut încărca cheile API ale organizației.",
         "noKeys": "Nu există încă chei API partajate cu această organizație.",
@@ -1359,8 +1394,8 @@
         "working": "Funcționează"
       },
       "freeUseTier": {
-        "description": "Nivelul de calitate folosit când este activă cheia API de utilizare liberă. Nivelurile mai mari costă mai mult, dar pot oferi calitate mai bună. Lasă gol pentru a folosi nivelul implicit.",
-        "title": "Nivel IA pentru utilizare liberă"
+        "description": "Cheia API de utilizare gratuită a serverului poate fi folosită până la acest nivel. Oricine a ales un nivel superior va juca la acesta. Nivelurile superioare costă mai mult. Lăsați necompletat pentru nivelul implicit.",
+        "title": "Disponibil până la (nivelul de calitate al IA)"
       },
       "notAuthorized": "Nu ai permisiunea de a accesa setările serverului. Este necesar acces de administrator.",
       "title": "Setările serverului"

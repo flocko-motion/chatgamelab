@@ -22,6 +22,10 @@ type resolvedKey struct {
 	Share         *obj.ApiKeyShare
 	AiQualityTier string // resolved tier (high/medium/low), never empty
 	KeyType       string // source type: obj.ApiKeyType* constants
+	// RequestedTier is the tier asked for while a free-use key caps it lower to
+	// AiQualityTier; LimitedBy names who released that key. Both "" otherwise.
+	RequestedTier string
+	LimitedBy     string
 }
 
 const maxCandidates = 3
@@ -41,13 +45,15 @@ type keyTraceStep struct {
 // highest-priority match; subsequent entries are fallbacks.
 //
 // Priority chain:
-//  1. Workshop key + workshop.aiQualityTier
+//  1. Workshop key + workshop.aiQualityTier (without a key of its own: the organisation's free-use key, capped)
 //  2. Sponsored game key (public sponsor on the game)
-//  3. Institution free-use key + institution.freeUseAiQualityTier
+//  3. Institution free-use key, capped
 //  4. User's default API key + user.aiQualityTier
-//  5. System free-use key + system_settings.freeUseAiQualityTier
+//  5. System free-use key, capped
 //
-// If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
+// A free-use key plays at the tier asked for — the workshop's in a workshop, else the
+// user's own — at most at the tier it is released up to (-> db.FreeKeyTier). A tier
+// left empty falls back to system_settings.defaultAiQualityTier.
 // platformFilter restricts candidates to a specific AI platform (e.g. "openai").
 // Pass "" to accept any platform (used during session creation).
 func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, platformFilter string) ([]resolvedKey, *obj.HTTPError) {
@@ -58,16 +64,16 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 
 	// Load system settings for the default tier fallback
 	settings, _ := db.GetSystemSettings(ctx)
-	defaultTier := obj.AiModelBalanced // hardcoded ultimate fallback
-	if settings != nil && settings.DefaultAiQualityTier != "" {
-		defaultTier = settings.DefaultAiQualityTier
-	}
+	defaultTier := db.DefaultAiQualityTier(settings)
+	// The tier asked for when a free-use key pays, which caps it at its release.
+	requestedTier := db.RequestedAiQualityTier(ctx, user)
 
 	var candidates []resolvedKey
 	seen := make(map[uuid.UUID]bool) // deduplicate by API key ID
 	var trace []keyTraceStep
 
-	add := func(share *obj.ApiKeyShare, tier string, keyType string) {
+	// cappedFrom and limitedBy record a free-use key lowering the tier asked for; "" otherwise.
+	add := func(share *obj.ApiKeyShare, tier string, keyType string, cappedFrom string, limitedBy string) {
 		if share == nil || share.ApiKey == nil {
 			return
 		}
@@ -85,41 +91,52 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 			return
 		}
 		seen[share.ApiKey.ID] = true
-		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier, KeyType: keyType})
+		candidate := resolvedKey{Share: share, AiQualityTier: tier, KeyType: keyType}
+		if cappedFrom != "" {
+			candidate.RequestedTier, candidate.LimitedBy = cappedFrom, limitedBy
+		}
+		candidates = append(candidates, candidate)
 		trace = append(trace, keyTraceStep{Source: keyType, Result: "selected", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform, Tier: tier})
 	}
 
 	// 1. Workshop key
-	if share, tier := resolveWorkshopKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeWorkshop)
+	if share, tier, release, fallback := resolveWorkshopKey(ctx, user); share != nil {
+		if fallback {
+			applied, cappedFrom := db.FreeKeyTier(tier, release, defaultTier)
+			add(share, applied, obj.ApiKeyTypeWorkshop, cappedFrom, obj.AiQualityTierLimitedByOrganization)
+		} else {
+			add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeWorkshop, "", "")
+		}
 	} else {
 		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeWorkshop, Result: "skipped", Detail: describeWorkshopSkip(user)})
 	}
 
 	// 2. Sponsored game key
 	if share := resolveSponsoredGameKey(ctx, userID, gameID); share != nil {
-		add(share, defaultTier, obj.ApiKeyTypeSponsor)
+		add(share, defaultTier, obj.ApiKeyTypeSponsor, "", "")
 	} else {
 		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeSponsor, Result: "skipped", Detail: "no sponsorship configured"})
 	}
 
 	// 3. Institution free-use key
-	if share, tier := resolveInstitutionFreeUseKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeInstitutionFreeUse)
+	if share, release := resolveInstitutionFreeUseKey(ctx, user); share != nil {
+		applied, cappedFrom := db.FreeKeyTier(requestedTier, release, defaultTier)
+		add(share, applied, obj.ApiKeyTypeInstitutionFreeUse, cappedFrom, obj.AiQualityTierLimitedByOrganization)
 	} else {
 		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeInstitutionFreeUse, Result: "skipped", Detail: describeInstitutionSkip(user)})
 	}
 
 	// 4. User's default API key
 	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypePersonal)
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypePersonal, "", "")
 	} else {
 		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypePersonal, Result: "skipped", Detail: "no default key configured"})
 	}
 
 	// 5. System free-use key
-	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
-		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeSystemFreeUse)
+	if share, release := resolveSystemFreeUseKey(ctx, settings); share != nil {
+		applied, cappedFrom := db.FreeKeyTier(requestedTier, release, defaultTier)
+		add(share, applied, obj.ApiKeyTypeSystemFreeUse, cappedFrom, obj.AiQualityTierLimitedByServer)
 	} else {
 		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeSystemFreeUse, Result: "skipped", Detail: "no system free-use key configured"})
 	}
@@ -261,6 +278,8 @@ func applyResolvedKey(session *obj.GameSession, resolved *resolvedKey) {
 	session.AiPlatform = resolved.Share.ApiKey.Platform
 	session.AiModel = resolved.AiQualityTier
 	session.ApiKeyType = resolved.KeyType
+	session.AiQualityTierRequested = resolved.RequestedTier
+	session.AiQualityTierLimitedBy = resolved.LimitedBy
 }
 
 // tierOrDefault returns tier if non-empty, otherwise the default.
@@ -271,28 +290,33 @@ func tierOrDefault(tier *string, defaultTier string) string {
 	return defaultTier
 }
 
-// resolveWorkshopKey returns the key of the user's workshop: its own, or else its
-// organisation's free-use key, which participants reach only this way.
-func resolveWorkshopKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, *string) {
+// resolveWorkshopKey returns the key of the user's workshop and the workshop's tier:
+// its own key, or else its organisation's free-use key, which participants reach only
+// this way. fallback marks the latter; release is then the tier that key is released up to.
+func resolveWorkshopKey(ctx context.Context, user *obj.User) (share *obj.ApiKeyShare, tier *string, release *string, fallback bool) {
 	if user.Role == nil || user.Role.Workshop == nil {
-		return nil, nil
+		return nil, nil, nil, false
 	}
 
 	workshop, err := db.GetWorkshopByID(ctx, user.ID, user.Role.Workshop.ID)
 	if err != nil {
-		return nil, nil
+		return nil, nil, nil, false
 	}
 	if workshop.DefaultApiKeyShareID == nil {
-		return db.GetWorkshopOrganizationKeyShare(ctx, workshop.ID)
+		share, release := db.GetWorkshopOrganizationKeyShare(ctx, workshop.ID)
+		if share == nil {
+			return nil, nil, nil, false
+		}
+		return share, workshop.AiQualityTier, release, true
 	}
 
-	share, err := db.GetApiKeyShareByID(ctx, user.ID, *workshop.DefaultApiKeyShareID)
+	share, err = db.GetApiKeyShareByID(ctx, user.ID, *workshop.DefaultApiKeyShareID)
 	if err != nil {
 		log.Warn("workshop default API key share not accessible", "share_id", *workshop.DefaultApiKeyShareID, "error", err)
-		return nil, nil
+		return nil, nil, nil, false
 	}
 
-	return share, workshop.AiQualityTier
+	return share, workshop.AiQualityTier, nil, false
 }
 
 // resolveSponsoredGameKey checks if the game has a public sponsored API key share.

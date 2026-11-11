@@ -216,8 +216,9 @@ export function ServerSettings() {
             </Text>
             {settings?.freeUseAiQualityTier && !hasCurrentKey && (
               <AiTierNotice
-                tier={settings.freeUseAiQualityTier}
+                title={t("aiQualityTier.notUsed.title")}
                 reason={t("aiQualityTier.notUsed.noServerFreeKey")}
+                narrationHint={settings.freeUseAiQualityTier === "max"}
               />
             )}
           </Stack>

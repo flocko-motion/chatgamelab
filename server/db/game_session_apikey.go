@@ -60,14 +60,19 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	// 1. Workshop key + tier → 2. Sponsored game key → 3. Institution free-use key + tier → 4. User default key + tier → 5. System free-use key + tier
 	var share *obj.ApiKeyShare
 	var sourceTier *string
+	// A free-use key plays at the tier asked for, at most at its release (-> FreeKeyTier).
+	var freeKey bool
+	var release *string
+	var limitedBy string
 
 	user, userErr := GetUserByID(ctx, userID)
 
 	// Load system settings for default tier fallback
 	settings, _ := GetSystemSettings(ctx)
-	defaultTier := obj.AiModelBalanced
-	if settings != nil && settings.DefaultAiQualityTier != "" {
-		defaultTier = settings.DefaultAiQualityTier
+	defaultTier := DefaultAiQualityTier(settings)
+	var requestedTier *string
+	if userErr == nil {
+		requestedTier = RequestedAiQualityTier(ctx, user)
 	}
 
 	// 1. Check for workshop key
@@ -81,10 +86,11 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 			}
 		} else if wsErr == nil {
 			// Without a key of its own the workshop falls back to its organisation's.
-			candidate, tier := GetWorkshopOrganizationKeyShare(ctx, workshop.ID)
+			candidate, orgRelease := GetWorkshopOrganizationKeyShare(ctx, workshop.ID)
 			if matchesPlatform(candidate) {
 				share = candidate
-				sourceTier = tier
+				sourceTier = workshop.AiQualityTier
+				freeKey, release, limitedBy = true, orgRelease, obj.AiQualityTierLimitedByOrganization
 			}
 		}
 	}
@@ -105,9 +111,11 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 		candidate, _ := GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
 		if matchesPlatform(candidate) {
 			share = candidate
+			sourceTier = requestedTier
+			freeKey, limitedBy = true, obj.AiQualityTierLimitedByOrganization
 			institution, instErr := GetInstitutionByID(ctx, userID, user.Role.Institution.ID)
 			if instErr == nil {
-				sourceTier = institution.FreeUseAiQualityTier
+				release = institution.FreeUseAiQualityTier
 			}
 		}
 	}
@@ -134,7 +142,8 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 			}
 			if matchesPlatform(candidate) {
 				share = candidate
-				sourceTier = settings.FreeUseAiQualityTier
+				sourceTier = requestedTier
+				freeKey, release, limitedBy = true, settings.FreeUseAiQualityTier, obj.AiQualityTierLimitedByServer
 			}
 		}
 	}
@@ -148,8 +157,14 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 
 	// Resolve the AI model tier: source tier → system default → hardcoded fallback
 	aiModel := defaultTier
-	if sourceTier != nil && *sourceTier != "" {
+	cappedFrom := ""
+	if freeKey {
+		aiModel, cappedFrom = FreeKeyTier(sourceTier, release, defaultTier)
+	} else if sourceTier != nil && *sourceTier != "" {
 		aiModel = *sourceTier
+	}
+	if cappedFrom == "" {
+		limitedBy = ""
 	}
 
 	// Update the session
@@ -163,18 +178,24 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 		return nil, obj.ErrServerError("failed to update session: " + err.Error())
 	}
 
-	return &obj.GameSession{
-		ID:         result.ID,
-		GameID:     result.GameID,
-		UserID:     result.UserID,
-		ApiKeyID:   nullUUIDToPtr(result.ApiKeyID),
-		AiPlatform: result.AiPlatform,
-		AiModel:    result.AiModel,
+	updated := &obj.GameSession{
+		ID:                     result.ID,
+		GameID:                 result.GameID,
+		UserID:                 result.UserID,
+		ApiKeyID:               nullUUIDToPtr(result.ApiKeyID),
+		AiPlatform:             result.AiPlatform,
+		AiModel:                result.AiModel,
+		AiQualityTierRequested: cappedFrom,
+		AiQualityTierLimitedBy: limitedBy,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+	if err := UpdateGameSessionAiQualityTier(ctx, updated); err != nil {
+		return nil, err
+	}
+	return updated, nil
 }

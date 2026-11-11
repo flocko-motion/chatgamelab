@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Magas (Prémium)",
       "label": "MI minőségi szint",
+      "limit": {
+        "notReleasedOption": "{{tier}} – nincs engedélyezve",
+        "releaseDefault": "Alapértelmezett engedélyezés ({{tier}})",
+        "title": "Nincs engedélyezve: {{tiers}}",
+        "user": {
+          "organization": "A szervezeted ingyenesen használható kulcsával játszol. Ez a kulcs legfeljebb a(z) „{{tier}}” szintig engedélyezett. Kérdezd meg a szervezet vezetőségét, hogy engedélyezhetnek-e magasabb szintet. Saját API-kulccsal minden szintet használhatsz.",
+          "server": "A szerver ingyenesen használható kulcsával játszol. Ez a kulcs legfeljebb a(z) „{{tier}}” szintig engedélyezett. Saját API-kulccsal minden szintet használhatsz."
+        },
+        "workshop": {
+          "organization": "Saját workshopkulcs nélkül a játékok a szervezet ingyenesen használható kulcsát használják. Ez a kulcs legfeljebb a(z) „{{tier}}” szintig engedélyezett. Kérdezd meg a szervezet vezetőségét, hogy engedélyezhetnek-e magasabb szintet, vagy válassz kulcsot ehhez a workshophoz.",
+          "server": "Saját workshopkulcs nélkül a játékok a szerver ingyenesen használható kulcsát használják. Ez a kulcs legfeljebb a(z) „{{tier}}” szintig engedélyezett. Magasabb szintekhez válassz kulcsot ehhez a workshophoz."
+        }
+      },
       "low": "Alacsony (Gazdaságos)",
       "max": "Max (Prémium + Hang)",
       "medium": "Közepes (Kiegyensúlyozott)",
       "newSessionsOnly": "Ez a szint csak az új munkamenetekre vonatkozik. A meglévők megtartják a kezdéskor beállított szintet.",
+      "noKey": {
+        "title": "Nincs használható kulcs",
+        "user": "Nincs használható kulcsod. Adj hozzá saját API-kulcsot.",
+        "workshop": "Ehhez a workshophoz nincs használható kulcs: sem saját kulcsa, sem a szervezet vagy a szerver ingyenesen használható kulcsa."
+      },
       "notUsed": {
         "addKey": "API-kulcs hozzáadása",
         "narrationOnlyMax": "A „Max” nélkül nincs narráció (hang).",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Hatás:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Kérdezd meg a szervezet vezetőségét, hogy engedélyezhetnek-e magasabb szintet, vagy adj hozzá saját kulcsot (a workshophoz vagy a profilodban).",
+          "participant": "Kérdezd meg a workshop vezetőjét.",
+          "server": "Saját kulccsal (a workshophoz vagy a profilodban) minden szint elérhető."
+        },
+        "reason": {
+          "organization": "A szervezet ingyenesen használható kulcsa csak a(z) „{{tier}}” szintig engedélyezett.",
+          "server": "A szerver ingyenesen használható kulcsa csak a(z) „{{tier}}” szintig engedélyezett."
+        },
+        "title": "Játék a(z) „{{applied}}” szinten a kért „{{requested}}” helyett"
       },
       "unnamed": "Névtelen"
     },
@@ -1005,6 +1035,11 @@
           "title": "Szabadon használható kulcs",
           "unknownKey": "Ismeretlen kulcs"
         },
+        "freeUseTier": {
+          "description": "A saját kulccsal nem rendelkező tagok és workshopok eddig a szintig játszhatnak az ingyenesen használható kulccsal. A magasabb szintek többe kerülnek. Hagyd üresen a szerver alapértelmezett szintjének használatához.",
+          "label": "Engedélyezve eddig (AI-minőségi szint)",
+          "noKey": "Nincs ingyenesen használható kulcs kiválasztva."
+        },
         "keyName": "Kulcs neve",
         "loadError": "Nem sikerült betölteni a szervezeti API-kulcsokat.",
         "noKeys": "Még nincs megosztott API-kulcs ebben a szervezetben.",
@@ -1356,8 +1391,8 @@
         "working": "Működik"
       },
       "freeUseTier": {
-        "description": "Az a minőségi szint, amely a szabadon használható API-kulcsnál érvényes. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak. Hagyd üresen az alapértelmezett szint használatához.",
-        "title": "Szabadon használható MI minőségi szint"
+        "description": "A szerver ingyenesen használható API-kulcsa eddig a szintig használható. Aki magasabb szintet választott, ezen a szinten játszik. A magasabb szintek többe kerülnek. Hagyd üresen az alapértelmezett szint használatához.",
+        "title": "Engedélyezve eddig (AI-minőségi szint)"
       },
       "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
       "title": "Szerver beállítások"

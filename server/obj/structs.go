@@ -74,7 +74,12 @@ type User struct {
 	Role          *UserRole     `json:"role"`
 	ApiKeys       []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
 	AiQualityTier *string       `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
-	Language      string        `json:"language"`                // ISO 639-1 language code (e.g., "en", "de", "fr")
+	// AiQualityTierLimitSource names the key the user's own tier plays with: one of the
+	// UserTierSource* constants. AiQualityTierLimit is the highest tier they may choose while
+	// a free-use key pays; nil with their own key. Filled for the current user only.
+	AiQualityTierLimitSource string  `json:"aiQualityTierLimitSource,omitempty"`
+	AiQualityTierLimit       *string `json:"aiQualityTierLimit,omitempty"`
+	Language                 string  `json:"language"` // ISO 639-1 language code (e.g., "en", "de", "fr")
 	// AgeGroup cohort:
 	//   "u13"  = 13-17, no parental consent on file (strictest; default when unknown)
 	//   "u13p" = 13-17, with parental consent on file
@@ -203,6 +208,9 @@ type Workshop struct {
 	Language string `json:"language"`
 	// ApiKeySource is the key plays are paid with: one of the WorkshopKeySource* constants, "" when there is none.
 	ApiKeySource string `json:"apiKeySource"`
+	// AiQualityTierLimit is the highest tier the workshop may choose while a free-use key
+	// pays (ApiKeySource organization/server); nil while its own key pays, or none does.
+	AiQualityTierLimit *string `json:"aiQualityTierLimit,omitempty"`
 }
 
 // The key a workshop's plays are paid with: its own, else its organisation's free-use key, else the server's.
@@ -408,6 +416,11 @@ type GameSession struct {
 	// AI model used for playing.
 	AiPlatform string `json:"aiPlatform"`
 	AiModel    string `json:"aiModel"`
+	// AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+	// lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+	// AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+	AiQualityTierRequested string `json:"aiQualityTierRequested,omitempty"`
+	AiQualityTierLimitedBy string `json:"aiQualityTierLimitedBy,omitempty"`
 	// JSON with arbitrary details to be used within that model and within that session.
 	AiSession string `json:"aiSession"`
 

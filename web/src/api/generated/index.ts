@@ -30,6 +30,13 @@ export interface DbUserSessionWithGame {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -213,6 +220,13 @@ export interface ObjGameSession {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -434,6 +448,13 @@ export interface ObjUser {
   ageGroup?: string;
   /** high/medium/low, nil = server default */
   aiQualityTier?: string;
+  aiQualityTierLimit?: string;
+  /**
+   * AiQualityTierLimitSource names the key the user's own tier plays with: one of the
+   * UserTierSource* constants. AiQualityTierLimit is the highest tier they may choose while
+   * a free-use key pays; nil with their own key. Filled for the current user only.
+   */
+  aiQualityTierLimitSource?: string;
   auth0Id?: string;
   deletedAt?: string;
   email?: string;
@@ -482,6 +503,11 @@ export interface ObjWorkshop {
   active?: boolean;
   /** Workshop settings (configured by staff/heads) */
   aiQualityTier?: string;
+  /**
+   * AiQualityTierLimit is the highest tier the workshop may choose while a free-use key
+   * pays (ApiKeySource organization/server); nil while its own key pays, or none does.
+   */
+  aiQualityTierLimit?: string;
   allowGameSharing?: boolean;
   /** ApiKeySource is the key plays are paid with: one of the WorkshopKeySource* constants, "" when there is none. */
   apiKeySource?: string;
@@ -651,6 +677,13 @@ export interface RoutesGuestSessionResponse {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -853,6 +886,13 @@ export interface RoutesSessionResponse {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -915,6 +955,11 @@ export interface RoutesSetFreeUseApiKeyRequest {
 
 export interface RoutesSetInstitutionFreeUseKeyRequest {
   shareId?: string;
+}
+
+export interface RoutesSetInstitutionFreeUseTierRequest {
+  /** low/medium/high/max; null or "" = server default */
+  aiQualityTier?: string;
 }
 
 export interface RoutesSetUserRoleRequest {
@@ -2116,6 +2161,30 @@ export class Api<
     ) =>
       this.request<ObjInstitution, HttpxErrorResponse>({
         path: `/institutions/${id}/free-use-key`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets the highest AI quality tier the institution's free-use key is released up to. Members and workshops without a key of their own play with it at most at this tier. Pass null or "" to fall back to the server's default tier.
+     *
+     * @tags institutions
+     * @name FreeUseTierPartialUpdate
+     * @summary Set institution free-use key tier
+     * @request PATCH:/institutions/{id}/free-use-tier
+     * @secure
+     */
+    freeUseTierPartialUpdate: (
+      id: string,
+      request: RoutesSetInstitutionFreeUseTierRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/free-use-tier`,
         method: "PATCH",
         body: request,
         secure: true,

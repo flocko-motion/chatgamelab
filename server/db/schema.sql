@@ -338,7 +338,11 @@ CREATE TABLE game_session (
     -- Set to true when image generation fails due to organization verification required
     is_organisation_unverified boolean NOT NULL DEFAULT false,
 
-    deleted_at      timestamptz NULL
+    deleted_at      timestamptz NULL,
+    -- Tier the session asked for while a free-use key caps it lower, and who released that key
+    -- (organization/server); both NULL while it plays at the tier it asked for.
+    ai_quality_tier_requested text NULL,
+    ai_quality_tier_limited_by text NULL
 );
 
 -- GameSessionMessage

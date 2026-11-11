@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Élevé (Premium)",
       "label": "Niveau de qualité IA",
+      "limit": {
+        "notReleasedOption": "{{tier}} - non autorisé",
+        "releaseDefault": "Valeur par défaut de l'autorisation ({{tier}})",
+        "title": "Non autorisé : {{tiers}}",
+        "user": {
+          "organization": "Vous jouez avec la clé à usage gratuit de votre organisation. Elle est autorisée jusqu'au niveau '{{tier}}'. Demandez aux responsables de l'organisation s'ils peuvent augmenter cette limite. Avec votre propre clé API, vous pouvez utiliser tous les niveaux.",
+          "server": "Vous jouez avec la clé à usage gratuit du serveur. Elle est autorisée jusqu'au niveau '{{tier}}'. Avec votre propre clé API, vous pouvez utiliser tous les niveaux."
+        },
+        "workshop": {
+          "organization": "Sans clé d'atelier dédiée, les jeux utilisent la clé à usage gratuit de l'organisation. Elle est autorisée jusqu'au niveau '{{tier}}'. Demandez aux responsables de l'organisation s'ils peuvent augmenter cette limite, ou sélectionnez une clé pour cet atelier.",
+          "server": "Sans clé d'atelier dédiée, les jeux utilisent la clé à usage gratuit du serveur. Elle est autorisée jusqu'au niveau '{{tier}}'. Pour les niveaux supérieurs, sélectionnez une clé pour cet atelier."
+        }
+      },
       "low": "Faible (Économique)",
       "max": "Max (Premium + Audio)",
       "medium": "Moyen (Équilibré)",
       "newSessionsOnly": "Ce niveau s'applique uniquement aux nouvelles sessions. Les sessions existantes conservent le niveau avec lequel elles ont commencé.",
+      "noKey": {
+        "title": "Aucune clé pour jouer",
+        "user": "Aucune clé avec laquelle vous pouvez jouer n'est disponible. Ajoutez votre propre clé API.",
+        "workshop": "Aucune clé avec laquelle cet atelier peut jouer n'est disponible : ni clé dédiée, ni clé à usage gratuit de l'organisation ou du serveur."
+      },
       "notUsed": {
         "addKey": "Ajouter une clé API",
         "narrationOnlyMax": "Sans « Max », il n’y a pas de narration (audio).",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Effet :"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Demandez aux responsables de l'organisation s'ils peuvent augmenter cette limite, ou ajoutez votre propre clé (pour l'atelier ou dans votre profil).",
+          "participant": "Veuillez vous adresser au responsable de votre atelier.",
+          "server": "Avec votre propre clé (pour l'atelier ou dans votre profil), tous les niveaux sont disponibles."
+        },
+        "reason": {
+          "organization": "La clé à usage gratuit de l'organisation est autorisée uniquement jusqu'au niveau '{{tier}}'.",
+          "server": "La clé à usage gratuit du serveur est autorisée uniquement jusqu'au niveau '{{tier}}'."
+        },
+        "title": "Jeu au niveau '{{applied}}' au lieu de '{{requested}}'"
       },
       "unnamed": "Sans nom"
     },
@@ -1005,6 +1035,11 @@
           "title": "Clé en libre accès",
           "unknownKey": "Clé inconnue"
         },
+        "freeUseTier": {
+          "description": "Les membres et les ateliers sans clé dédiée peuvent jouer avec la clé à usage gratuit jusqu'à ce niveau. Les niveaux supérieurs coûtent plus cher. Laissez vide pour utiliser le niveau par défaut du serveur.",
+          "label": "Autorisé jusqu'au niveau (qualité de l'IA)",
+          "noKey": "Aucune clé à usage gratuit n'est sélectionnée."
+        },
         "keyName": "Nom de la clé",
         "loadError": "Échec du chargement des clés API de l’organisation.",
         "noKeys": "Aucune clé API partagée avec cette organisation pour le moment.",
@@ -1356,8 +1391,8 @@
         "working": "Fonctionne"
       },
       "freeUseTier": {
-        "description": "Niveau de qualité utilisé quand la clé API en libre accès est active. Les niveaux supérieurs coûtent plus cher mais peuvent offrir une meilleure qualité. Laissez vide pour utiliser le niveau par défaut.",
-        "title": "Niveau de qualité IA pour la clé en libre accès"
+        "description": "La clé API à usage gratuit du serveur peut être utilisée jusqu'à ce niveau. Toute personne ayant choisi un niveau supérieur joue à celui-ci. Les niveaux supérieurs coûtent plus cher. Laissez vide pour utiliser le niveau par défaut.",
+        "title": "Autorisé jusqu'au niveau (qualité de l'IA)"
       },
       "notAuthorized": "Vous n’avez pas l’autorisation d’accéder aux paramètres du serveur. Accès administrateur requis.",
       "title": "Paramètres du serveur"

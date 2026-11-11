@@ -158,6 +158,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
                 institutionId={institutionId}
                 institutionName={institution?.name}
                 freeUseApiKeyShareId={institution?.freeUseApiKeyShareId}
+                freeUseAiQualityTier={institution?.freeUseAiQualityTier}
               />
             </Tabs.Panel>
           )}

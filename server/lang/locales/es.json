@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Alta (Premium)",
       "label": "Nivel de calidad de IA",
+      "limit": {
+        "notReleasedOption": "{{tier}} - no disponible",
+        "releaseDefault": "Disponibilidad predeterminada ({{tier}})",
+        "title": "No disponible: {{tiers}}",
+        "user": {
+          "organization": "Juegas con la clave de uso gratuito de tu organización. Está disponible hasta '{{tier}}'. Pregunta a los responsables de la organización si pueden ampliar la disponibilidad. Con una clave API propia puedes usar todos los niveles.",
+          "server": "Juegas con la clave de uso gratuito del servidor. Está disponible hasta '{{tier}}'. Con una clave API propia puedes usar todos los niveles."
+        },
+        "workshop": {
+          "organization": "Sin una clave propia del taller, los juegos utilizan la clave de uso gratuito de la organización. Está disponible hasta '{{tier}}'. Pregunta a los responsables de la organización si pueden ampliar la disponibilidad o selecciona una clave para este taller.",
+          "server": "Sin una clave propia del taller, los juegos utilizan la clave de uso gratuito del servidor. Está disponible hasta '{{tier}}'. Para usar niveles superiores, selecciona una clave para este taller."
+        }
+      },
       "low": "Baja (Económica)",
       "max": "Máxima (Premium + Audio)",
       "medium": "Media (Equilibrada)",
       "newSessionsOnly": "Este nivel se aplica solo a las sesiones nuevas. Las sesiones existentes conservan el nivel con el que comenzaron.",
+      "noKey": {
+        "title": "No hay ninguna clave para jugar",
+        "user": "No hay ninguna clave con la que puedas jugar. Añade una clave API propia.",
+        "workshop": "No hay ninguna clave con la que este taller pueda jugar: ni una propia ni una clave de uso gratuito de la organización o del servidor."
+      },
       "notUsed": {
         "addKey": "Añadir clave de API",
         "narrationOnlyMax": "Sin «Max» no hay narración (audio).",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Efecto:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Pregunta a los responsables de la organización si pueden ampliar la disponibilidad o añade una clave propia (para el taller o en tu perfil).",
+          "participant": "Pregunta al responsable de tu taller.",
+          "server": "Con una clave propia (para el taller o en tu perfil), todos los niveles están disponibles."
+        },
+        "reason": {
+          "organization": "La clave de uso gratuito de la organización solo está disponible hasta '{{tier}}'.",
+          "server": "La clave de uso gratuito del servidor solo está disponible hasta '{{tier}}'."
+        },
+        "title": "Jugando con '{{applied}}' en lugar de '{{requested}}'"
       },
       "unnamed": "Sin nombre"
     },
@@ -1005,6 +1035,11 @@
           "title": "Clave de uso gratuito",
           "unknownKey": "Clave desconocida"
         },
+        "freeUseTier": {
+          "description": "Los miembros y talleres sin una clave propia pueden jugar con la clave de uso gratuito hasta este nivel. Los niveles superiores cuestan más. Déjalo vacío para usar el nivel predeterminado del servidor.",
+          "label": "Disponible hasta (nivel de calidad de la IA)",
+          "noKey": "No se ha seleccionado ninguna clave de uso gratuito."
+        },
         "keyName": "Nombre de la clave",
         "loadError": "No se pudieron cargar las claves API de la organización.",
         "noKeys": "Aún no se han compartido claves API con esta organización.",
@@ -1356,8 +1391,8 @@
         "working": "Funciona"
       },
       "freeUseTier": {
-        "description": "Nivel de calidad usado cuando está activa la clave API de uso gratuito. Los niveles más altos cuestan más pero pueden ofrecer mejor calidad. Déjalo vacío para usar el nivel predeterminado.",
-        "title": "Nivel de calidad de IA para clave de uso gratuito"
+        "description": "La clave API de uso gratuito del servidor puede utilizarse hasta este nivel. Cualquiera que haya elegido un nivel superior jugará con este. Los niveles superiores cuestan más. Déjalo vacío para usar el nivel predeterminado.",
+        "title": "Disponible hasta (nivel de calidad de la IA)"
       },
       "notAuthorized": "No tienes permiso para acceder a la configuración del servidor. Se requiere acceso de administrador.",
       "title": "Configuración del servidor"

@@ -47,7 +47,10 @@ import {
 } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
-import { AiTierNotice } from "@/common/components/AiTierNotice";
+import {
+  AiTierLimitNotice,
+  AiTierNotice,
+} from "@/common/components/AiTierNotice";
 import type { ObjAiPlatform } from "@/api/generated";
 import env from "@/config/env";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
@@ -307,8 +310,10 @@ export function ApiKeyManagement() {
         );
         const availableTiers =
           defaultPlatform?.models?.map((m) => m.id ?? "") ?? [];
-        // The user's own tier only applies together with their own default key.
-        const ownTier = backendUser?.aiQualityTier;
+        // Without a key of their own, a free-use key pays: only the tiers it is
+        // released for can be chosen.
+        const tierSource = backendUser?.aiQualityTierLimitSource;
+        const tierLimit = backendUser?.aiQualityTierLimit;
         const keyPlatform =
           platforms?.find((p) => p.id === "openai" && p.supportsApiKey) ??
           platforms?.find((p) => p.supportsApiKey);
@@ -326,6 +331,8 @@ export function ApiKeyManagement() {
                   includeEmpty: true,
                   availableTiers:
                     availableTiers.length > 0 ? availableTiers : undefined,
+                  limit: tierLimit,
+                  currentValue: backendUser?.aiQualityTier,
                 })}
                 value={backendUser?.aiQualityTier || ""}
                 onChange={(value) => {
@@ -345,10 +352,26 @@ export function ApiKeyManagement() {
               <Text size="xs" c="dimmed" fs="italic">
                 {t("aiQualityTier.newSessionsOnly")}
               </Text>
-              {ownTier && !defaultKey && (
+              {(tierSource === "organization" || tierSource === "server") &&
+                tierLimit && (
+                  <AiTierLimitNotice
+                    limit={tierLimit}
+                    source={tierSource}
+                    audience="user"
+                    actionLabel={
+                      keyPlatform ? t("aiQualityTier.notUsed.addKey") : undefined
+                    }
+                    onAction={
+                      keyPlatform
+                        ? () => openCreateForPlatform(keyPlatform)
+                        : undefined
+                    }
+                  />
+                )}
+              {tierSource === "none" && (
                 <AiTierNotice
-                  tier={ownTier}
-                  reason={t("aiQualityTier.notUsed.noOwnKey")}
+                  title={t("aiQualityTier.noKey.title")}
+                  reason={t("aiQualityTier.noKey.user")}
                   actionLabel={
                     keyPlatform ? t("aiQualityTier.notUsed.addKey") : undefined
                   }

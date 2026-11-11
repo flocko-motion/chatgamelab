@@ -463,3 +463,25 @@ func (u *UserClient) GetApiKeyGameShares(shareID string, context string) ([]rout
 	err := u.Get(path, &result)
 	return result, err
 }
+
+// SetInstitutionFreeUseTier sets the tier an institution's free-use key is released
+// up to (composable high-level API). "" falls back to the server default.
+func (u *UserClient) SetInstitutionFreeUseTier(institutionID string, tier string) (obj.Institution, error) {
+	u.t.Helper()
+	var result obj.Institution
+	err := u.Patch("institutions/"+institutionID+"/free-use-tier", map[string]interface{}{
+		"aiQualityTier": tier,
+	}, &result)
+	return result, err
+}
+
+// SetSystemFreeUseTier sets the tier the server's free-use key is released up to
+// (composable high-level API). "" falls back to the default tier.
+func (u *UserClient) SetSystemFreeUseTier(tier string) (obj.SystemSettings, error) {
+	u.t.Helper()
+	var result obj.SystemSettings
+	err := u.Patch("system/settings", map[string]interface{}{
+		"freeUseAiQualityTier": tier,
+	}, &result)
+	return result, err
+}

@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Wysoka (Premium)",
       "label": "Poziom jakości AI",
+      "limit": {
+        "notReleasedOption": "{{tier}} - niedostępny",
+        "releaseDefault": "Domyślne ustawienie wydania ({{tier}})",
+        "title": "Niedostępne: {{tiers}}",
+        "user": {
+          "organization": "Korzystasz z bezpłatnego klucza swojej organizacji. Jest on udostępniony maksymalnie do poziomu „{{tier}}”. Zapytaj kierownictwo organizacji, czy może podnieść ten limit. Własny klucz API umożliwia korzystanie ze wszystkich poziomów.",
+          "server": "Korzystasz z bezpłatnego klucza serwera. Jest on udostępniony maksymalnie do poziomu „{{tier}}”. Własny klucz API umożliwia korzystanie ze wszystkich poziomów."
+        },
+        "workshop": {
+          "organization": "Jeśli warsztat nie ma własnego klucza, gry korzystają z bezpłatnego klucza organizacji. Jest on udostępniony maksymalnie do poziomu „{{tier}}”. Zapytaj kierownictwo organizacji, czy może podnieść ten limit, albo wybierz klucz dla tego warsztatu.",
+          "server": "Jeśli warsztat nie ma własnego klucza, gry korzystają z bezpłatnego klucza serwera. Jest on udostępniony maksymalnie do poziomu „{{tier}}”. Aby korzystać z wyższych poziomów, wybierz klucz dla tego warsztatu."
+        }
+      },
       "low": "Niska (Economy)",
       "max": "Maks. (Premium + audio)",
       "medium": "Średnia (zrównoważona)",
       "newSessionsOnly": "Ten poziom dotyczy tylko nowych sesji. Istniejące sesje zachowują poziom, z którym zostały rozpoczęte.",
+      "noKey": {
+        "title": "Brak klucza do gry",
+        "user": "Nie ma klucza, którego możesz użyć do gry. Dodaj własny klucz API.",
+        "workshop": "Nie ma klucza, którego ten warsztat może użyć do gry: ani własnego, ani bezpłatnego klucza organizacji lub serwera."
+      },
       "notUsed": {
         "addKey": "Dodaj klucz API",
         "narrationOnlyMax": "Bez „Max” nie ma narracji (dźwięku).",
@@ -565,6 +583,18 @@
       },
       "statusChange": {
         "effect": "Efekt:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Zapytaj kierownictwo organizacji, czy może podnieść ten limit, albo dodaj własny klucz (dla warsztatu lub w swoim profilu).",
+          "participant": "Zapytaj lidera warsztatu.",
+          "server": "Własny klucz (dla warsztatu lub w swoim profilu) umożliwia korzystanie ze wszystkich poziomów."
+        },
+        "reason": {
+          "organization": "Bezpłatny klucz organizacji jest udostępniony tylko do poziomu „{{tier}}”.",
+          "server": "Bezpłatny klucz serwera jest udostępniony tylko do poziomu „{{tier}}”."
+        },
+        "title": "Gra na poziomie „{{applied}}” zamiast „{{requested}}”"
       },
       "unnamed": "Bez nazwy"
     },
@@ -1020,6 +1050,11 @@
           "title": "Klucz do darmowego użycia",
           "unknownKey": "Nieznany klucz"
         },
+        "freeUseTier": {
+          "description": "Członkowie i warsztaty bez własnego klucza mogą grać z bezpłatnym kluczem maksymalnie do tego poziomu. Wyższe poziomy kosztują więcej. Pozostaw puste, aby użyć domyślnego poziomu serwera.",
+          "label": "Udostępniony maksymalnie do (poziom jakości AI)",
+          "noKey": "Nie wybrano bezpłatnego klucza."
+        },
         "keyName": "Nazwa klucza",
         "loadError": "Nie udało się wczytać kluczy API organizacji.",
         "noKeys": "Jeszcze nie udostępniono żadnych kluczy API tej organizacji.",
@@ -1376,8 +1411,8 @@
         "working": "Działa"
       },
       "freeUseTier": {
-        "description": "Poziom jakości używany, gdy aktywny jest klucz do darmowego użycia. Wyższe poziomy kosztują więcej, ale mogą dawać lepszą jakość. Pozostaw puste, aby użyć domyślnego poziomu.",
-        "title": "Poziom jakości AI dla klucza darmowego"
+        "description": "Z bezpłatnego klucza API serwera można korzystać maksymalnie do tego poziomu. Każdy, kto wybrał wyższy poziom, gra na tym poziomie. Wyższe poziomy kosztują więcej. Pozostaw puste, aby użyć poziomu domyślnego.",
+        "title": "Udostępniony maksymalnie do (poziom jakości AI)"
       },
       "notAuthorized": "Nie masz uprawnień do ustawień serwera. Wymagany dostęp administratora.",
       "title": "Ustawienia serwera"

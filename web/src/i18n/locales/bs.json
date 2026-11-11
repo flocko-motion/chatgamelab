@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Visok (Premium)",
       "label": "AI nivo kvaliteta",
+      "limit": {
+        "notReleasedOption": "{{tier}} - nije pušteno",
+        "releaseDefault": "Podrazumijevana dostupnost ({{tier}})",
+        "title": "Nije pušteno: {{tiers}}",
+        "user": {
+          "organization": "Igrate pomoću ključa vaše organizacije za besplatnu upotrebu. Dostupan je do nivoa '{{tier}}'. Pitajte rukovodstvo organizacije mogu li povećati dostupnost. S vlastitim API ključem možete koristiti svaki nivo.",
+          "server": "Igrate pomoću ključa servera za besplatnu upotrebu. Dostupan je do nivoa '{{tier}}'. S vlastitim API ključem možete koristiti svaki nivo."
+        },
+        "workshop": {
+          "organization": "Bez vlastitog ključa radionice, igre koriste ključ organizacije za besplatnu upotrebu. Dostupan je do nivoa '{{tier}}'. Pitajte rukovodstvo organizacije mogu li povećati dostupnost ili odaberite ključ za ovu radionicu.",
+          "server": "Bez vlastitog ključa radionice, igre koriste ključ servera za besplatnu upotrebu. Dostupan je do nivoa '{{tier}}'. Za više nivoe odaberite ključ za ovu radionicu."
+        }
+      },
       "low": "Nizak (Ekonomičan)",
       "max": "Maks (Premium + Audio)",
       "medium": "Srednji (Uravnotežen)",
       "newSessionsOnly": "Ovaj nivo se primjenjuje samo na nove sesije. Postojeće sesije zadržavaju nivo s kojim su započele.",
+      "noKey": {
+        "title": "Nema ključa za igranje",
+        "user": "Ne postoji ključ pomoću kojeg možete igrati. Dodajte vlastiti API ključ.",
+        "workshop": "Ne postoji ključ pomoću kojeg ova radionica može igrati: nema vlastiti ključ, niti ključ organizacije ili servera za besplatnu upotrebu."
+      },
       "notUsed": {
         "addKey": "Dodaj API ključ",
         "narrationOnlyMax": "Bez opcije „Max“ nema naracije (zvuka).",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Efekat:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Pitajte rukovodstvo organizacije mogu li povećati dostupnost ili dodajte vlastiti ključ (za radionicu ili na svom profilu).",
+          "participant": "Pitajte vođu radionice.",
+          "server": "S vlastitim ključem (za radionicu ili na svom profilu) dostupni su svi nivoi."
+        },
+        "reason": {
+          "organization": "Ključ organizacije za besplatnu upotrebu dostupan je samo do nivoa '{{tier}}'.",
+          "server": "Ključ servera za besplatnu upotrebu dostupan je samo do nivoa '{{tier}}'."
+        },
+        "title": "Igranje na nivou '{{applied}}' umjesto '{{requested}}'"
       },
       "unnamed": "Neimenovano"
     },
@@ -1005,6 +1035,11 @@
           "title": "Ključ za besplatno korištenje",
           "unknownKey": "Nepoznat ključ"
         },
+        "freeUseTier": {
+          "description": "Članovi i radionice bez vlastitog ključa mogu igrati pomoću ključa za besplatnu upotrebu do ovog nivoa. Viši nivoi koštaju više. Ostavite prazno za podrazumijevani nivo servera.",
+          "label": "Dostupno do (nivo kvaliteta AI-ja)",
+          "noKey": "Nije odabran ključ za besplatnu upotrebu."
+        },
         "keyName": "Naziv ključa",
         "loadError": "Neuspješno učitavanje API ključeva organizacije.",
         "noKeys": "Još nema podijeljenih API ključeva u ovoj organizaciji.",
@@ -1356,8 +1391,8 @@
         "working": "Radi"
       },
       "freeUseTier": {
-        "description": "Nivo kvaliteta koji se koristi kada je aktivan API ključ za besplatno korištenje. Viši nivoi koštaju više, ali mogu imati bolji kvalitet. Ostavite prazno za podrazumijevani nivo.",
-        "title": "AI nivo kvaliteta za besplatno korištenje"
+        "description": "API ključ servera za besplatnu upotrebu može se koristiti do ovog nivoa. Svako ko odabere viši nivo igrat će na ovom nivou. Viši nivoi koštaju više. Ostavite prazno za podrazumijevani nivo.",
+        "title": "Dostupno do (nivo kvaliteta AI-ja)"
       },
       "notAuthorized": "Nemate dozvolu za pristup postavkama servera. Potreban je administratorski pristup.",
       "title": "Postavke servera"

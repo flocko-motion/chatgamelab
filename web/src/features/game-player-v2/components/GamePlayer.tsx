@@ -6,6 +6,7 @@ import { useGamePlayerSettings } from "../hooks/useGamePlayerSettings";
 import { useGameThemeResolution } from "../hooks/useGameThemeResolution";
 import { GameThemeProvider, useGameTheme } from "../theme";
 import { GamePlayerHeader } from "./GamePlayerHeader";
+import { TierCappedNotice } from "./TierCappedNotice";
 import { GameStateScreen } from "./GameStateScreen";
 import { MessageList } from "./MessageList";
 import { StatusBar } from "./StatusBar";
@@ -161,6 +162,12 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           />
 
           <StatusBar statusFields={lifecycle.state.statusFields} />
+
+          <TierCappedNotice
+            applied={lifecycle.state.aiModel}
+            requested={lifecycle.state.aiQualityTierRequested}
+            limitedBy={lifecycle.state.aiQualityTierLimitedBy}
+          />
 
           <SceneArea
             sceneEndRef={lifecycle.sceneEndRef}

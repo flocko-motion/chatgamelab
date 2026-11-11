@@ -115,6 +115,8 @@ type GameSession struct {
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
 	DeletedAt                sql.NullTime
+	AiQualityTierRequested   sql.NullString
+	AiQualityTierLimitedBy   sql.NullString
 }
 
 type GameSessionMessage struct {

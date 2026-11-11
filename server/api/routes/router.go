@@ -94,6 +94,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/institutions/{id}/members/{userID}", httpx.RequireAuth(RemoveInstitutionMember))
 	mux.Handle("GET /api/institutions/{id}/apikeys", httpx.RequireAuth(GetInstitutionApiKeys))
 	mux.Handle("PATCH /api/institutions/{id}/free-use-key", httpx.RequireAuth(SetInstitutionFreeUseApiKeyShare))
+	mux.Handle("PATCH /api/institutions/{id}/free-use-tier", httpx.RequireAuth(SetInstitutionFreeUseAiQualityTier))
 	mux.Handle("PATCH /api/institutions/{id}/prompt-constraints", httpx.RequireAuth(UpdateInstitutionPromptConstraints))
 
 	// Workshops

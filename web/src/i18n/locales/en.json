@@ -270,13 +270,29 @@
       "notUsed": {
         "addKey": "Add API key",
         "narrationOnlyMax": "Without 'Max' there is no narration (audio).",
-        "noOwnKey": "It only applies together with your own API key, and you don't have one. Your games use a key provided by your workshop, organization, or the server, at that key's tier.",
         "noServerFreeKey": "No free-use API key is selected.",
-        "noWorkshopKey": "No API key of its own is selected for this workshop. Games then use the organization's free-use key or, if there is none, the server's - at that key's tier.",
         "selectWorkshopKey": "Select a key for this workshop",
         "title": "This tier is not used"
       },
-      "serverDefault": "Server Default"
+      "serverDefault": "Server Default",
+      "limit": {
+        "title": "Not released: {{tiers}}",
+        "notReleasedOption": "{{tier}} - not released",
+        "releaseDefault": "Release default ({{tier}})",
+        "workshop": {
+          "organization": "Without a workshop key of its own, games use the organization's free-use key. It is released up to '{{tier}}'. Ask the organization's leadership whether they can raise the release, or select a key for this workshop.",
+          "server": "Without a workshop key of its own, games use the server's free-use key. It is released up to '{{tier}}'. For higher tiers, select a key for this workshop."
+        },
+        "user": {
+          "organization": "You play with your organization's free-use key. It is released up to '{{tier}}'. Ask the organization's leadership whether they can raise the release. With an API key of your own you can use every tier.",
+          "server": "You play with the server's free-use key. It is released up to '{{tier}}'. With an API key of your own you can use every tier."
+        }
+      },
+      "noKey": {
+        "title": "No key to play with",
+        "workshop": "There is no key this workshop can play with: none of its own, and no free-use key of the organization or the server.",
+        "user": "There is no key you can play with. Add an API key of your own."
+      }
     },
     "allGames": {
       "continue": "Play",
@@ -536,7 +552,19 @@
       "statusChange": {
         "effect": "Effect:"
       },
-      "unnamed": "Unnamed"
+      "unnamed": "Unnamed",
+      "tierCapped": {
+        "title": "Playing at '{{applied}}' instead of '{{requested}}'",
+        "reason": {
+          "organization": "The organization's free-use key is released only up to '{{tier}}'.",
+          "server": "The server's free-use key is released only up to '{{tier}}'."
+        },
+        "action": {
+          "participant": "Please ask your workshop leader.",
+          "organization": "Ask the organization's leadership whether they can raise the release, or add a key of your own (for the workshop or in your profile).",
+          "server": "With a key of your own (for the workshop or in your profile) every tier is available."
+        }
+      }
     },
     "games": {
       "actions": {
@@ -1005,7 +1033,12 @@
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
         "showDetails": "Show details",
-        "title": "Organization API Keys"
+        "title": "Organization API Keys",
+        "freeUseTier": {
+          "label": "Released up to (AI quality tier)",
+          "description": "Members and workshops without a key of their own may play with the free-use key up to this tier. Higher tiers cost more. Leave empty for the server default tier.",
+          "noKey": "No free-use key is selected."
+        }
       },
       "autoShare": {
         "confirmMessage": "This key will be shared with {{orgName}} and can then be used by other heads and staff for workshops. You can remove this sharing later in your personal API key management or the organization API key management.",
@@ -1306,8 +1339,8 @@
         "working": "Working"
       },
       "freeUseTier": {
-        "description": "Quality tier used when the free-use API key is active. Higher tiers cost more but may have higher quality. Leave empty to use the default tier.",
-        "title": "Free-Use AI Quality Tier"
+        "title": "Released up to (AI quality tier)",
+        "description": "The server's free-use API key may be used up to this tier. Anyone who chose a higher tier plays at this one. Higher tiers cost more. Leave empty for the default tier."
       },
       "notAuthorized": "You don't have permission to access server settings. Admin access required.",
       "title": "Server Settings"

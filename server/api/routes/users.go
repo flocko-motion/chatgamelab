@@ -103,7 +103,8 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/users/me [get]
 func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFromRequest(r)
+	user := *httpx.UserFromRequest(r)
+	user.AiQualityTierLimitSource, user.AiQualityTierLimit = db.UserAiQualityTierLimit(r.Context(), &user)
 
 	httpx.WriteJSON(w, http.StatusOK, user)
 }

@@ -477,6 +477,15 @@ UPDATE game_session SET
 WHERE id = $1
 RETURNING *;
 
+-- name: UpdateGameSessionAiQualityTier :exec
+-- The tier a session plays at, and the tier it asked for while a free-use key caps it lower.
+UPDATE game_session SET
+  modified_at = now(),
+  ai_model = $2,
+  ai_quality_tier_requested = $3,
+  ai_quality_tier_limited_by = $4
+WHERE id = $1;
+
 -- name: ClearGameSessionApiKeyByID :exec
 UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE id = $1;
 
