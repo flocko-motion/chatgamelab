@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Tinggi (Premium)",
       "label": "Tingkat Kualitas AI",
+      "limit": {
+        "notReleasedOption": "{{tier}} - belum dirilis",
+        "releaseDefault": "Rilis default ({{tier}})",
+        "title": "Belum dirilis: {{tiers}}",
+        "user": {
+          "organization": "Anda bermain dengan kunci penggunaan gratis milik organisasi Anda. Kunci ini dirilis hingga '{{tier}}'. Tanyakan kepada pimpinan organisasi apakah mereka dapat meningkatkan batas rilis. Dengan kunci API milik Anda sendiri, Anda dapat menggunakan semua tingkat.",
+          "server": "Anda bermain dengan kunci penggunaan gratis milik server. Kunci ini dirilis hingga '{{tier}}'. Dengan kunci API milik Anda sendiri, Anda dapat menggunakan semua tingkat."
+        },
+        "workshop": {
+          "organization": "Tanpa kunci workshop sendiri, game menggunakan kunci penggunaan gratis milik organisasi. Kunci ini dirilis hingga '{{tier}}'. Tanyakan kepada pimpinan organisasi apakah mereka dapat meningkatkan batas rilis, atau pilih kunci untuk workshop ini.",
+          "server": "Tanpa kunci workshop sendiri, game menggunakan kunci penggunaan gratis milik server. Kunci ini dirilis hingga '{{tier}}'. Untuk tingkat yang lebih tinggi, pilih kunci untuk workshop ini."
+        }
+      },
       "low": "Rendah (Ekonomis)",
       "max": "Maks (Premium + Audio)",
       "medium": "Sedang (Seimbang)",
       "newSessionsOnly": "Tingkat ini hanya berlaku untuk sesi baru. Sesi yang sudah ada mempertahankan tingkat saat mereka dimulai.",
+      "noKey": {
+        "title": "Tidak ada kunci untuk bermain",
+        "user": "Tidak ada kunci yang dapat Anda gunakan untuk bermain. Tambahkan kunci API milik Anda sendiri.",
+        "workshop": "Tidak ada kunci yang dapat digunakan workshop ini: baik kunci miliknya sendiri maupun kunci penggunaan gratis milik organisasi atau server."
+      },
       "notUsed": {
         "addKey": "Tambahkan kunci API",
         "narrationOnlyMax": "Tanpa 'Max', tidak ada narasi (audio).",
@@ -333,7 +351,7 @@
       "addKey": "Tambah Kunci",
       "addedOn": "Ditambahkan",
       "aiQualityTier": {
-        "description": "Pilih tingkat kualitas AI untuk gim Anda saat menggunakan kunci API sendiri. Tingkat yang lebih tinggi biayanya lebih mahal tetapi mungkin memiliki kualitas lebih baik. Biarkan kosong untuk menggunakan bawaan server."
+        "description": "Pilih tingkat kualitas AI untuk permainan Anda. Dengan kunci API milik Anda sendiri, semua tingkat tersedia; dengan kunci penggunaan gratis, paling tinggi hanya tingkat yang telah dirilis untuk kunci tersebut. Tingkat yang lebih tinggi membutuhkan biaya lebih besar, tetapi mungkin memiliki kualitas yang lebih baik."
       },
       "createModal": {
         "keyDescription": "Kunci Anda akan dienkripsi dan disimpan secara aman.",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Efek:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Tanyakan kepada pimpinan organisasi apakah mereka dapat meningkatkan batas rilis, atau tambahkan kunci milik Anda sendiri (untuk workshop atau di profil Anda).",
+          "participant": "Silakan tanyakan kepada pemimpin workshop Anda.",
+          "server": "Dengan kunci milik Anda sendiri (untuk workshop atau di profil Anda), semua tingkat tersedia."
+        },
+        "reason": {
+          "organization": "Kunci penggunaan gratis milik organisasi hanya dirilis hingga '{{tier}}'.",
+          "server": "Kunci penggunaan gratis milik server hanya dirilis hingga '{{tier}}'."
+        },
+        "title": "Bermain pada '{{applied}}', bukan '{{requested}}'"
       },
       "unnamed": "Tanpa Nama"
     },
@@ -1005,6 +1035,11 @@
           "title": "Kunci Penggunaan Gratis",
           "unknownKey": "Kunci tidak dikenal"
         },
+        "freeUseTier": {
+          "description": "Anggota dan workshop tanpa kunci sendiri dapat bermain menggunakan kunci penggunaan gratis hingga tingkat ini. Tingkat yang lebih tinggi membutuhkan biaya lebih besar. Kosongkan jika ingin menggunakan tingkat default server.",
+          "label": "Dirilis hingga (tingkat kualitas AI)",
+          "noKey": "Tidak ada kunci penggunaan gratis yang dipilih."
+        },
         "keyName": "Nama Kunci",
         "loadError": "Gagal memuat kunci API organisasi.",
         "noKeys": "Belum ada kunci API yang dibagikan dengan organisasi ini.",
@@ -1356,8 +1391,8 @@
         "working": "Berfungsi"
       },
       "freeUseTier": {
-        "description": "Tingkat kualitas yang digunakan saat kunci API penggunaan gratis aktif. Tingkat lebih tinggi biayanya lebih mahal tetapi mungkin berkualitas lebih baik. Biarkan kosong untuk menggunakan tingkat default.",
-        "title": "Tingkat Kualitas AI Penggunaan Gratis"
+        "description": "Kunci API penggunaan gratis milik server dapat digunakan hingga tingkat ini. Siapa pun yang memilih tingkat lebih tinggi akan bermain pada tingkat ini. Tingkat yang lebih tinggi membutuhkan biaya lebih besar. Kosongkan jika ingin menggunakan tingkat default.",
+        "title": "Dirilis hingga (tingkat kualitas AI)"
       },
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
       "title": "Pengaturan Server"

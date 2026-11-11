@@ -2139,6 +2139,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/institutions/{id}/free-use-tier": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the highest AI quality tier the institution's free-use key is released up to.\nMembers and workshops without a key of their own play with it at most at this tier.\nPass null or \"\" to fall back to the server's default tier.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Set institution free-use key tier",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Tier (null to clear)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetInstitutionFreeUseTierRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/institutions/{id}/members": {
             "get": {
                 "security": [
@@ -5331,6 +5395,13 @@ const docTemplate = `{
                     "description": "AI model used for playing.",
                     "type": "string"
                 },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
+                    "type": "string"
+                },
                 "aiSession": {
                     "description": "JSON with arbitrary details to be used within that model and within that session.",
                     "type": "string"
@@ -5706,6 +5777,13 @@ const docTemplate = `{
                 },
                 "aiPlatform": {
                     "description": "AI model used for playing.",
+                    "type": "string"
+                },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
                     "type": "string"
                 },
                 "aiSession": {
@@ -6217,6 +6295,13 @@ const docTemplate = `{
                     "description": "high/medium/low, nil = server default",
                     "type": "string"
                 },
+                "aiQualityTierLimit": {
+                    "type": "string"
+                },
+                "aiQualityTierLimitSource": {
+                    "description": "AiQualityTierLimitSource names the key the user's own tier plays with: one of the\nUserTierSource* constants. AiQualityTierLimit is the highest tier they may choose while\na free-use key pays; nil with their own key. Filled for the current user only.",
+                    "type": "string"
+                },
                 "auth0Id": {
                     "type": "string"
                 },
@@ -6339,6 +6424,10 @@ const docTemplate = `{
                 },
                 "aiQualityTier": {
                     "description": "Workshop settings (configured by staff/heads)",
+                    "type": "string"
+                },
+                "aiQualityTierLimit": {
+                    "description": "AiQualityTierLimit is the highest tier the workshop may choose while a free-use key\npays (ApiKeySource organization/server); nil while its own key pays, or none does.",
                     "type": "string"
                 },
                 "allowGameSharing": {
@@ -6751,6 +6840,13 @@ const docTemplate = `{
                 },
                 "aiPlatform": {
                     "description": "AI model used for playing.",
+                    "type": "string"
+                },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
                     "type": "string"
                 },
                 "aiSession": {
@@ -7187,6 +7283,13 @@ const docTemplate = `{
                     "description": "AI model used for playing.",
                     "type": "string"
                 },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
+                    "type": "string"
+                },
                 "aiSession": {
                     "description": "JSON with arbitrary details to be used within that model and within that session.",
                     "type": "string"
@@ -7296,6 +7399,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "shareId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetInstitutionFreeUseTierRequest": {
+            "type": "object",
+            "properties": {
+                "aiQualityTier": {
+                    "description": "low/medium/high/max; null or \"\" = server default",
                     "type": "string"
                 }
             }

@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Korkea (Premium)",
       "label": "AI-laatutaso",
+      "limit": {
+        "notReleasedOption": "{{tier}} – ei saatavilla",
+        "releaseDefault": "Oletusarvo ({{tier}})",
+        "title": "Ei saatavilla: {{tiers}}",
+        "user": {
+          "organization": "Pelaat järjestön ilmaiskäyttöavaimella. Se on käytettävissä tasolle '{{tier}}' asti. Kysy järjestön johdolta, voivatko he nostaa rajaa. Omalla API-avaimellasi voit käyttää kaikkia tasoja.",
+          "server": "Pelaat palvelimen ilmaiskäyttöavaimella. Se on käytettävissä tasolle '{{tier}}' asti. Omalla API-avaimellasi voit käyttää kaikkia tasoja."
+        },
+        "workshop": {
+          "organization": "Ilman omaa työpaja-avainta pelit käyttävät järjestön ilmaiskäyttöavainta. Se on käytettävissä tasolle '{{tier}}' asti. Kysy järjestön johdolta, voivatko he nostaa rajaa, tai valitse tälle työpajalle avain.",
+          "server": "Ilman omaa työpaja-avainta pelit käyttävät palvelimen ilmaiskäyttöavainta. Se on käytettävissä tasolle '{{tier}}' asti. Valitse tälle työpajalle avain käyttääksesi korkeampia tasoja."
+        }
+      },
       "low": "Matala (Säästö)",
       "max": "Maksimi (Premium + ääni)",
       "medium": "Keskitaso (Tasapainotettu)",
       "newSessionsOnly": "Tämä taso koskee vain uusia istuntoja. Olemassa olevat istunnot säilyttävät aloitushetken tason.",
+      "noKey": {
+        "title": "Pelaamiseen ei ole avainta",
+        "user": "Sinulla ei ole avainta, jolla voit pelata. Lisää oma API-avaimesi.",
+        "workshop": "Tällä työpajalla ei ole avainta, jolla pelata: ei omaa avainta eikä järjestön tai palvelimen ilmaiskäyttöavainta."
+      },
       "notUsed": {
         "addKey": "Lisää API-avain",
         "narrationOnlyMax": "Ilman \"Maxia\" ei ole kerrontaa (ääntä).",
@@ -333,7 +351,7 @@
       "addKey": "Lisää avain",
       "addedOn": "Lisätty",
       "aiQualityTier": {
-        "description": "Valitse AI-laatutaso peleillesi käyttäessäsi omaa API-avaintasi. Korkeammat tasot maksavat enemmän, mutta voivat tuottaa parempaa laatua. Jätä tyhjäksi käyttääksesi palvelimen oletusta."
+        "description": "Valitse peleissäsi käytettävä tekoälyn laatutaso. Omalla API-avaimellasi kaikki tasot ovat käytettävissä; ilmaiseen käyttöön tarkoitetulla avaimella käytettävissä on enintään taso, johon asti se on julkaistu. Korkeammat tasot maksavat enemmän, mutta niiden laatu voi olla parempi."
       },
       "createModal": {
         "keyDescription": "Avaimesi salataan ja tallennetaan turvallisesti.",
@@ -565,6 +583,18 @@
       },
       "statusChange": {
         "effect": "Vaikutus:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Kysy järjestön johdolta, voivatko he nostaa rajaa, tai lisää oma avain (työpajalle tai profiiliisi).",
+          "participant": "Kysy työpajan johtajalta.",
+          "server": "Omalla avaimellasi (työpajalle tai profiiliisi) kaikki tasot ovat käytettävissä."
+        },
+        "reason": {
+          "organization": "Järjestön ilmaiskäyttöavain on käytettävissä vain tasolle '{{tier}}' asti.",
+          "server": "Palvelimen ilmaiskäyttöavain on käytettävissä vain tasolle '{{tier}}' asti."
+        },
+        "title": "Pelaat tasolla '{{applied}}' etkä tasolla '{{requested}}'"
       },
       "unnamed": "Nimetön"
     },
@@ -1020,6 +1050,11 @@
           "title": "Vapaaseen käyttöön tarkoitettu avain",
           "unknownKey": "Tuntematon avain"
         },
+        "freeUseTier": {
+          "description": "Jäsenet ja työpajat, joilla ei ole omaa avainta, voivat pelata ilmaiskäyttöavaimella tähän tasoon asti. Korkeammat tasot maksavat enemmän. Jätä tyhjäksi, jos haluat käyttää palvelimen oletustasoa.",
+          "label": "Käytettävissä tasolle asti (tekoälyn laatutaso)",
+          "noKey": "Ilmaiskäyttöavainta ei ole valittu."
+        },
         "keyName": "Avaimen nimi",
         "loadError": "Organisaation API-avainten lataus epäonnistui.",
         "noKeys": "Organisaatiolle ei ole vielä jaettu API-avaimia.",
@@ -1376,8 +1411,8 @@
         "working": "Toimii"
       },
       "freeUseTier": {
-        "description": "Laatutaso, jota käytetään, kun vapaaseen käyttöön tarkoitettu API-avain on aktiivinen. Korkeammat tasot maksavat enemmän, mutta voivat tarjota parempaa laatua. Jätä tyhjäksi käyttääksesi oletustasoa.",
-        "title": "Vapaaseen käyttöön tarkoitettu AI-laatutaso"
+        "description": "Palvelimen ilmaiskäyttöavainta voi käyttää tähän tasoon asti. Kaikki korkeamman tason valinneet pelaavat tällä tasolla. Korkeammat tasot maksavat enemmän. Jätä tyhjäksi, jos haluat käyttää oletustasoa.",
+        "title": "Käytettävissä tasolle asti (tekoälyn laatutaso)"
       },
       "notAuthorized": "Sinulla ei ole oikeutta käyttää palvelinasetuksia. Ylläpitäjätaso vaaditaan.",
       "title": "Palvelinasetukset"

@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Høy (Premium)",
       "label": "AI-kvalitetsnivå",
+      "limit": {
+        "notReleasedOption": "{{tier}} – ikke utgitt",
+        "releaseDefault": "Standard for utgivelse ({{tier}})",
+        "title": "Ikke utgitt: {{tiers}}",
+        "user": {
+          "organization": "Du spiller med organisasjonens gratisnøkkel. Den er utgitt opp til «{{tier}}». Spør organisasjonens ledelse om de kan heve grensen. Med en egen API-nøkkel kan du bruke alle nivåer.",
+          "server": "Du spiller med serverens gratisnøkkel. Den er utgitt opp til «{{tier}}». Med en egen API-nøkkel kan du bruke alle nivåer."
+        },
+        "workshop": {
+          "organization": "Uten en egen verkstednøkkel bruker spill spillenes organisasjonens gratisnøkkel. Den er utgitt opp til «{{tier}}». Spør organisasjonens ledelse om de kan heve grensen, eller velg en nøkkel for dette verkstedet.",
+          "server": "Uten en egen verkstednøkkel bruker spill serverens gratisnøkkel. Den er utgitt opp til «{{tier}}». For høyere nivåer må du velge en nøkkel for dette verkstedet."
+        }
+      },
       "low": "Lav (Økonomi)",
       "max": "Maks (Premium + lyd)",
       "medium": "Middels (Balansert)",
       "newSessionsOnly": "Dette nivået gjelder bare for nye økter. Eksisterende økter beholder nivået de startet med.",
+      "noKey": {
+        "title": "Ingen nøkkel å spille med",
+        "user": "Det finnes ingen nøkkel du kan spille med. Legg til en egen API-nøkkel.",
+        "workshop": "Det finnes ingen nøkkel dette verkstedet kan spille med: ingen egen nøkkel og ingen gratisnøkkel fra organisasjonen eller serveren."
+      },
       "notUsed": {
         "addKey": "Legg til API-nøkkel",
         "narrationOnlyMax": "Uten «Max» er det ingen fortellerstemme (lyd).",
@@ -333,7 +351,7 @@
       "addKey": "Legg til nøkkel",
       "addedOn": "Lagt til",
       "aiQualityTier": {
-        "description": "Velg AI-kvalitetsnivå for spillene dine når du bruker din egen API-nøkkel. Høyere nivåer koster mer, men kan ha høyere kvalitet. La stå tomt for å bruke serverstandarden."
+        "description": "Velg AI-kvalitetsnivået for spillene dine. Med en egen API-nøkkel er alle nivåer tilgjengelige, mens en gratisnøkkel gir tilgang til maksimalt nivået den er lansert for. Høyere nivåer koster mer, men kan ha høyere kvalitet."
       },
       "createModal": {
         "keyDescription": "Nøkkelen din blir kryptert og lagret sikkert.",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Effekt:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Spør organisasjonens ledelse om de kan heve grensen, eller legg til en egen nøkkel (for verkstedet eller i profilen din).",
+          "participant": "Spør verkstedlederen din.",
+          "server": "Med en egen nøkkel (for verkstedet eller i profilen din) er alle nivåer tilgjengelige."
+        },
+        "reason": {
+          "organization": "Organisasjonens gratisnøkkel er bare utgitt opp til «{{tier}}».",
+          "server": "Serverens gratisnøkkel er bare utgitt opp til «{{tier}}»."
+        },
+        "title": "Spiller på «{{applied}}» i stedet for «{{requested}}»"
       },
       "unnamed": "Uten navn"
     },
@@ -1005,6 +1035,11 @@
           "title": "Fritt-bruk-nøkkel",
           "unknownKey": "Ukjent nøkkel"
         },
+        "freeUseTier": {
+          "description": "Medlemmer og verksteder uten egen nøkkel kan spille med gratisnøkkelen opp til dette nivået. Høyere nivåer koster mer. La feltet stå tomt for serverens standardnivå.",
+          "label": "Utgitt opp til (AI-kvalitetsnivå)",
+          "noKey": "Ingen gratisnøkkel er valgt."
+        },
         "keyName": "Nøkkelnavn",
         "loadError": "Kunne ikke laste organisasjonens API-nøkler.",
         "noKeys": "Ingen API-nøkler delt med denne organisasjonen ennå.",
@@ -1356,8 +1391,8 @@
         "working": "Fungerer"
       },
       "freeUseTier": {
-        "description": "Kvalitetsnivå som brukes når fritt-bruk API-nøkkelen er aktiv. Høyere nivåer koster mer, men kan ha høyere kvalitet. La stå tomt for å bruke standardnivået.",
-        "title": "Fritt-bruk AI-kvalitetsnivå"
+        "description": "Serverens gratis API-nøkkel kan brukes opp til dette nivået. Alle som har valgt et høyere nivå, spiller på dette nivået. Høyere nivåer koster mer. La feltet stå tomt for standardnivået.",
+        "title": "Utgitt opp til (AI-kvalitetsnivå)"
       },
       "notAuthorized": "Du har ikke tillatelse til å få tilgang til serverinnstillinger. Krever admin-tilgang.",
       "title": "Serverinnstillinger"

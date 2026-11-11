@@ -394,6 +394,15 @@ func createSessionInternal(
 	session.ApiKey = share.ApiKey
 	session.ApiKeyType = candidates[setup.candidateIndex].KeyType
 
+	// Remember when a free-use key caps the tier asked for, so the player can say why.
+	if chosen := candidates[setup.candidateIndex]; chosen.RequestedTier != "" {
+		session.AiQualityTierRequested = chosen.RequestedTier
+		session.AiQualityTierLimitedBy = chosen.LimitedBy
+		if err := db.UpdateGameSessionAiQualityTier(ctx, session); err != nil {
+			log.Warn("failed to store capped quality tier", "session_id", session.ID, "error", err)
+		}
+	}
+
 	// Apply scenario image prompt from parallel setup
 	session.GameScenarioImagePrompt = setup.scenarioImagePrompt
 

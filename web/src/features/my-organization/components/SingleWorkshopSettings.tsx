@@ -69,11 +69,8 @@ import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
-import { AiTierNotice } from "@/common/components/AiTierNotice";
-import {
-  focusWorkshopKeySelect,
-  workshopKeySelectId,
-} from "../lib/workshopKeySelect";
+import { WorkshopTierNotice } from "./WorkshopTierNotice";
+import { workshopKeySelectId } from "../lib/workshopKeySelect";
 import { useAuth } from "@/providers/AuthProvider";
 
 interface SingleWorkshopSettingsProps {
@@ -158,8 +155,11 @@ export function SingleWorkshopSettings({
   const [autoSharePending, setAutoSharePending] = useState<string | null>(null);
   const [autoShareError, setAutoShareError] = useState<string | null>(null);
 
+  // While a free-use key pays, only the tiers it is released for can be chosen.
   const aiQualityTierOptions = getAiQualityTierOptions(t, {
     includeEmpty: true,
+    limit: workshop?.aiQualityTierLimit,
+    currentValue: workshop?.aiQualityTier,
   });
 
   const handleCreateAndViewInvite = async () => {
@@ -459,14 +459,7 @@ export function SingleWorkshopSettings({
             <Text size="xs" c="dimmed" fs="italic">
               {t("aiQualityTier.newSessionsOnly")}
             </Text>
-            {workshop.aiQualityTier && !workshop.defaultApiKeyShareId && (
-              <AiTierNotice
-                tier={workshop.aiQualityTier}
-                reason={t("aiQualityTier.notUsed.noWorkshopKey")}
-                actionLabel={t("aiQualityTier.notUsed.selectWorkshopKey")}
-                onAction={() => focusWorkshopKeySelect(workshop.id!)}
-              />
-            )}
+            <WorkshopTierNotice workshop={workshop} />
             <LanguageSelect
               size="sm"
               label={t("myOrganization.workshops.language")}

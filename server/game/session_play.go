@@ -400,8 +400,15 @@ func DoSessionActionWithFallback(ctx context.Context, session *obj.GameSession, 
 		return nil, resolveErr
 	}
 
-	// Apply the primary candidate
+	// Apply the primary candidate. A tier changed since the last turn — e.g. a free-use
+	// key's release was lowered — is stored, so the player shows what is played.
+	storedTier, storedRequested, storedLimitedBy := session.AiModel, session.AiQualityTierRequested, session.AiQualityTierLimitedBy
 	applyResolvedKey(session, &candidates[0])
+	if session.AiModel != storedTier || session.AiQualityTierRequested != storedRequested || session.AiQualityTierLimitedBy != storedLimitedBy {
+		if err := db.UpdateGameSessionAiQualityTier(ctx, session); err != nil {
+			log.Warn("failed to store session quality tier", "session_id", session.ID, "error", err)
+		}
+	}
 
 	response, httpErr := DoSessionAction(ctx, session, action)
 	if httpErr == nil {

@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Høj (Premium)",
       "label": "AI-kvalitetsniveau",
+      "limit": {
+        "notReleasedOption": "{{tier}} - ikke frigivet",
+        "releaseDefault": "Standard for frigivelse ({{tier}})",
+        "title": "Ikke frigivet: {{tiers}}",
+        "user": {
+          "organization": "Du spiller med din organisations gratisnøgle. Den er frigivet op til '{{tier}}'. Spørg organisationens ledelse, om de kan hæve frigivelsesgrænsen. Med din egen API-nøgle kan du bruge alle trin.",
+          "server": "Du spiller med serverens gratisnøgle. Den er frigivet op til '{{tier}}'. Med din egen API-nøgle kan du bruge alle trin."
+        },
+        "workshop": {
+          "organization": "Uden sin egen workshopnøgle bruger spil organisationens gratisnøgle. Den er frigivet op til '{{tier}}'. Spørg organisationens ledelse, om de kan hæve frigivelsesgrænsen, eller vælg en nøgle til denne workshop.",
+          "server": "Uden sin egen workshopnøgle bruger spil serverens gratisnøgle. Den er frigivet op til '{{tier}}'. Vælg en nøgle til denne workshop for at bruge højere trin."
+        }
+      },
       "low": "Lav (Økonomi)",
       "max": "Maks (Premium + lyd)",
       "medium": "Mellem (Balanceret)",
       "newSessionsOnly": "Dette niveau gælder kun for nye sessioner. Eksisterende sessioner beholder det niveau, de startede med.",
+      "noKey": {
+        "title": "Ingen nøgle at spille med",
+        "user": "Der er ingen nøgle, du kan spille med. Tilføj din egen API-nøgle.",
+        "workshop": "Der er ingen nøgle, som denne workshop kan spille med: hverken sin egen eller organisationens eller serverens gratisnøgle."
+      },
       "notUsed": {
         "addKey": "Tilføj API-nøgle",
         "narrationOnlyMax": "Uden 'Max' er der ingen fortælling (lyd).",
@@ -333,7 +351,7 @@
       "addKey": "Tilføj nøgle",
       "addedOn": "Tilføjet",
       "aiQualityTier": {
-        "description": "Vælg AI-kvalitetsniveauet for dine spil, når du bruger din egen API-nøgle. Højere niveauer koster mere, men kan have højere kvalitet. Lad feltet være tomt for at bruge serverstandarden."
+        "description": "Vælg AI-kvalitetsniveauet til dine spil. Med din egen API-nøgle er alle niveauer tilgængelige; med en gratis brugsnøgle er højst det niveau, som den er frigivet op til, tilgængeligt. Højere niveauer koster mere, men kan have højere kvalitet."
       },
       "createModal": {
         "keyDescription": "Din nøgle bliver krypteret og opbevaret sikkert.",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Effekt:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Spørg organisationens ledelse, om de kan hæve frigivelsesgrænsen, eller tilføj din egen nøgle (til workshoppen eller på din profil).",
+          "participant": "Spørg venligst din workshopleder.",
+          "server": "Med din egen nøgle (til workshoppen eller på din profil) er alle trin tilgængelige."
+        },
+        "reason": {
+          "organization": "Organisationens gratisnøgle er kun frigivet op til '{{tier}}'.",
+          "server": "Serverens gratisnøgle er kun frigivet op til '{{tier}}'."
+        },
+        "title": "Spiller på '{{applied}}' i stedet for '{{requested}}'"
       },
       "unnamed": "Uden navn"
     },
@@ -1005,6 +1035,11 @@
           "title": "Frit-brugs-nøgle",
           "unknownKey": "Ukendt nøgle"
         },
+        "freeUseTier": {
+          "description": "Medlemmer og workshops uden egen nøgle kan spille med gratisnøglen op til dette trin. Højere trin koster mere. Lad feltet stå tomt for serverens standardtrin.",
+          "label": "Frigivet op til (AI-kvalitetstrin)",
+          "noKey": "Ingen gratisnøgle er valgt."
+        },
         "keyName": "Nøglenavn",
         "loadError": "Kunne ikke indlæse organisationens API-nøgler.",
         "noKeys": "Ingen API-nøgler er endnu delt med denne organisation.",
@@ -1356,8 +1391,8 @@
         "working": "Virker"
       },
       "freeUseTier": {
-        "description": "Kvalitetsniveau brugt, når frit-brugs API-nøglen er aktiv. Højere niveauer koster mere, men kan have højere kvalitet. Lad stå tomt for at bruge standardniveauet.",
-        "title": "Frit-brugs AI-kvalitetsniveau"
+        "description": "Serverens gratis API-nøgle kan bruges op til dette trin. Alle, der vælger et højere trin, spiller på dette trin. Højere trin koster mere. Lad feltet stå tomt for standardtrinnet.",
+        "title": "Frigivet op til (AI-kvalitetstrin)"
       },
       "notAuthorized": "Du har ikke tilladelse til at få adgang til serverindstillinger. Adminadgang påkrævet.",
       "title": "Serverindstillinger"

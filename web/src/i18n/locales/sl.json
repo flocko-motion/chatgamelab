@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Visoka (Premium)",
       "label": "Kakovostni razred AI",
+      "limit": {
+        "notReleasedOption": "{{tier}} – ni omogočeno",
+        "releaseDefault": "Privzeto za izdajo ({{tier}})",
+        "title": "Ni omogočeno: {{tiers}}",
+        "user": {
+          "organization": "Igrate s ključem svoje organizacije za brezplačno uporabo. Omogočen je do ravni »{{tier}}«. V vodstvu organizacije preverite, ali lahko omogočijo višjo raven. Z lastnim ključem API lahko uporabljate vse ravni.",
+          "server": "Igrate s strežnikovim ključem za brezplačno uporabo. Omogočen je do ravni »{{tier}}«. Z lastnim ključem API lahko uporabljate vse ravni."
+        },
+        "workshop": {
+          "organization": "Če igre nimajo lastnega ključa za delavnico, uporabljajo ključ organizacije za brezplačno uporabo. Omogočen je do ravni »{{tier}}«. V vodstvu organizacije preverite, ali lahko omogočijo višjo raven, ali pa izberite ključ za to delavnico.",
+          "server": "Če igre nimajo lastnega ključa za delavnico, uporabljajo strežnikov ključ za brezplačno uporabo. Omogočen je do ravni »{{tier}}«. Za višje ravni izberite ključ za to delavnico."
+        }
+      },
       "low": "Nizka (Varčna)",
       "max": "Najvišja (Premium + avdio)",
       "medium": "Srednja (Uravnotežena)",
       "newSessionsOnly": "Ta kakovost velja samo za nove seje. Obstoječe seje ohranijo kakovost, s katero so se začele.",
+      "noKey": {
+        "title": "Ni ključa za igranje",
+        "user": "Ni ključa, s katerim bi lahko igrali. Dodajte svoj ključ API.",
+        "workshop": "Za to delavnico ni ključa, s katerim bi lahko igrale igre: nima lastnega ključa, prav tako pa ni na voljo brezplačni ključ organizacije ali strežnika."
+      },
       "notUsed": {
         "addKey": "Dodaj ključ API",
         "narrationOnlyMax": "Brez možnosti »Max« ni pripovedovanja (zvoka).",
@@ -333,7 +351,7 @@
       "addKey": "Dodaj ključ",
       "addedOn": "Dodano",
       "aiQualityTier": {
-        "description": "Izberite kakovostni nivo AI za svoje igre, ko uporabljate svoj ključ API. Višji razredi so dražji, a lahko nudijo višjo kakovost. Pustite prazno za strežniški privzeti razred."
+        "description": "Izberite raven kakovosti umetne inteligence za svoje igre. Z lastnim ključem API so na voljo vse ravni; z brezplačnim ključem pa največ raven, do katere je bil izdan. Višje ravni stanejo več, vendar so lahko kakovostnejše."
       },
       "createModal": {
         "keyDescription": "Vaš ključ bo šifriran in varno shranjen.",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Učinek:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "V vodstvu organizacije preverite, ali lahko omogočijo višjo raven, ali pa dodajte svoj ključ (za delavnico ali v svojem profilu).",
+          "participant": "Vprašajte vodjo delavnice.",
+          "server": "Z lastnim ključem (za delavnico ali v svojem profilu) so na voljo vse ravni."
+        },
+        "reason": {
+          "organization": "Ključ organizacije za brezplačno uporabo je omogočen samo do ravni »{{tier}}«.",
+          "server": "Strežnikov ključ za brezplačno uporabo je omogočen samo do ravni »{{tier}}«."
+        },
+        "title": "Igranje pri »{{applied}}« namesto pri »{{requested}}«"
       },
       "unnamed": "Neimenovana"
     },
@@ -1005,6 +1035,11 @@
           "title": "Ključ za brezplačno uporabo",
           "unknownKey": "Neznan ključ"
         },
+        "freeUseTier": {
+          "description": "Člani in delavnice brez lastnega ključa lahko igrajo s ključem za brezplačno uporabo do te ravni. Višje ravni stanejo več. Pustite prazno za privzeto raven strežnika.",
+          "label": "Omogočeno do (raven kakovosti umetne inteligence)",
+          "noKey": "Izbran ni noben ključ za brezplačno uporabo."
+        },
         "keyName": "Ime ključa",
         "loadError": "Nalaganje organizacijskih ključev API ni uspelo.",
         "noKeys": "Noben ključ API še ni deljen s to organizacijo.",
@@ -1356,8 +1391,8 @@
         "working": "Deluje"
       },
       "freeUseTier": {
-        "description": "Kakovostni razred, uporabljen, ko je aktiven ključ API za brezplačno uporabo. Višji razredi so dražji, a lahko bolj kakovostni. Pustite prazno za privzeti razred.",
-        "title": "Kakovostni razred AI za brezplačno uporabo"
+        "description": "Strežnikov ključ API za brezplačno uporabo se lahko uporablja do te ravni. Vsakdo, ki je izbral višjo raven, igra pri tej ravni. Višje ravni stanejo več. Pustite prazno za privzeto raven.",
+        "title": "Omogočeno do (raven kakovosti umetne inteligence)"
       },
       "notAuthorized": "Nimate dovoljenja za dostop do strežniških nastavitev. Potreben je adminsitratorski dostop.",
       "title": "Nastavitve strežnika"

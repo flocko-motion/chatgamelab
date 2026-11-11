@@ -142,6 +142,8 @@ export function ThemePreview({ apiTheme }: ThemePreviewProps) {
       theme: apiTheme,
       aiModel: null,
       aiPlatform: null,
+      aiQualityTierRequested: null,
+      aiQualityTierLimitedBy: null,
       promptConstraintSource: null,
       sessionLanguage: null,
     }),

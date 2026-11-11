@@ -26,6 +26,8 @@ export const INITIAL_STATE: GamePlayerState = {
   streamError: null,
   theme: null,
   aiModel: null,
+  aiQualityTierRequested: null,
+  aiQualityTierLimitedBy: null,
   aiPlatform: null,
   promptConstraintSource: null,
 };
@@ -96,6 +98,8 @@ export interface SessionLoadResult {
   theme?: GamePlayerState["theme"];
   aiModel?: string;
   aiPlatform?: string;
+  aiQualityTierRequested?: string;
+  aiQualityTierLimitedBy?: string;
 }
 
 export interface GameMessageResult {
@@ -839,6 +843,8 @@ export function useStreamingSession(adapter: SessionAdapter, narration = false) 
           theme: session.theme || null,
           aiModel: session.aiModel || null,
           aiPlatform: session.aiPlatform || null,
+          aiQualityTierRequested: session.aiQualityTierRequested || null,
+          aiQualityTierLimitedBy: session.aiQualityTierLimitedBy || null,
           promptConstraintSource: latestGameMessage?.promptConstraintSource || null,
         }));
 

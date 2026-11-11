@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Vysoká (Premium)",
       "label": "Úroveň kvality AI",
+      "limit": {
+        "notReleasedOption": "{{tier}} – nezpřístupněno",
+        "releaseDefault": "Výchozí zpřístupnění ({{tier}})",
+        "title": "Nezpřístupněno: {{tiers}}",
+        "user": {
+          "organization": "Hrajete s klíčem vaší organizace pro bezplatné použití. Je zpřístupněn maximálně do úrovně „{{tier}}“. Zeptejte se vedení organizace, zda může tuto úroveň zvýšit. S vlastním klíčem API můžete používat všechny úrovně.",
+          "server": "Hrajete s klíčem serveru pro bezplatné použití. Je zpřístupněn maximálně do úrovně „{{tier}}“. S vlastním klíčem API můžete používat všechny úrovně."
+        },
+        "workshop": {
+          "organization": "Bez vlastního klíče workshopu používají hry klíč organizace pro bezplatné použití. Ten je zpřístupněn maximálně do úrovně „{{tier}}“. Zeptejte se vedení organizace, zda může tuto úroveň zvýšit, nebo vyberte klíč pro tento workshop.",
+          "server": "Bez vlastního klíče workshopu používají hry klíč serveru pro bezplatné použití. Ten je zpřístupněn maximálně do úrovně „{{tier}}“. Pro vyšší úrovně vyberte klíč pro tento workshop."
+        }
+      },
       "low": "Nízká (Economy)",
       "max": "Max (Premium + Audio)",
       "medium": "Střední (Balanced)",
       "newSessionsOnly": "Tato úroveň se vztahuje pouze na nové relace. Stávající relace si ponechají úroveň, se kterou začaly.",
+      "noKey": {
+        "title": "Nemáte klíč, se kterým by bylo možné hrát",
+        "user": "Nemáte klíč, se kterým by bylo možné hrát. Přidejte vlastní klíč API.",
+        "workshop": "Tento workshop nemá klíč, se kterým by mohl hrát: nemá vlastní klíč ani klíč organizace či serveru pro bezplatné použití."
+      },
       "notUsed": {
         "addKey": "Přidat klíč API",
         "narrationOnlyMax": "Bez „Max“ není k dispozici žádné vyprávění (zvuk).",
@@ -333,7 +351,7 @@
       "addKey": "Přidat klíč",
       "addedOn": "Přidáno",
       "aiQualityTier": {
-        "description": "Zvolte úroveň kvality AI pro své hry při použití vlastního API klíče. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu. Nechte prázdné pro použití výchozí hodnoty serveru."
+        "description": "Vyberte úroveň kvality AI pro své hry. S vlastním klíčem API jsou k dispozici všechny úrovně; s klíčem pro bezplatné použití nejvýše úroveň, do které byl zpřístupněn. Vyšší úrovně stojí více, ale mohou nabízet vyšší kvalitu."
       },
       "createModal": {
         "keyDescription": "Váš klíč bude zašifrován a bezpečně uložen.",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Efekt:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Zeptejte se vedení organizace, zda může tuto úroveň zvýšit, nebo přidejte vlastní klíč (pro workshop nebo do svého profilu).",
+          "participant": "Požádejte vedoucího workshopu.",
+          "server": "S vlastním klíčem (pro workshop nebo ve vašem profilu) jsou dostupné všechny úrovně."
+        },
+        "reason": {
+          "organization": "Klíč organizace pro bezplatné použití je zpřístupněn pouze do úrovně „{{tier}}“.",
+          "server": "Klíč serveru pro bezplatné použití je zpřístupněn pouze do úrovně „{{tier}}“."
+        },
+        "title": "Hrajete na úrovni „{{applied}}“ místo „{{requested}}“"
       },
       "unnamed": "Nepojmenovaná"
     },
@@ -1005,6 +1035,11 @@
           "title": "Klíč pro volné používání",
           "unknownKey": "Neznámý klíč"
         },
+        "freeUseTier": {
+          "description": "Členové a workshopy bez vlastního klíče mohou používat klíč pro bezplatné použití až do této úrovně. Vyšší úrovně stojí více. Ponechte prázdné pro výchozí úroveň serveru.",
+          "label": "Zpřístupněno do (úroveň kvality AI)",
+          "noKey": "Není vybrán žádný klíč pro bezplatné použití."
+        },
         "keyName": "Název klíče",
         "loadError": "Nepodařilo se načíst API klíče organizace.",
         "noKeys": "S touto organizací zatím nejsou sdíleny žádné API klíče.",
@@ -1356,8 +1391,8 @@
         "working": "Funguje"
       },
       "freeUseTier": {
-        "description": "Úroveň kvality používaná, když je aktivní API klíč pro volné používání. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu. Nechte prázdné pro výchozí úroveň.",
-        "title": "Úroveň kvality AI pro volné používání"
+        "description": "Klíč API serveru pro bezplatné použití lze používat až do této úrovně. Každý, kdo zvolil vyšší úroveň, bude hrát na této úrovni. Vyšší úrovně stojí více. Ponechte prázdné pro výchozí úroveň.",
+        "title": "Zpřístupněno do (úroveň kvality AI)"
       },
       "notAuthorized": "Nemáte oprávnění k přístupu do nastavení serveru. Je vyžadován přístup administrátora.",
       "title": "Nastavení serveru"
