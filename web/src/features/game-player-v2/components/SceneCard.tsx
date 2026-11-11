@@ -8,6 +8,7 @@ import { DebugPanel } from "./DebugPanel";
 import { AiInsightPanel } from "./AiInsightPanel";
 import { StatusChangeIndicator } from "./StatusChangeIndicator";
 import { ThemedText } from "./text-effects";
+import { stripMarkdownEmphasis } from "../lib/stripMarkdownEmphasis";
 import { AudioPlayButton } from "./AudioPlayButton";
 import classes from "./GamePlayer.module.css";
 
@@ -49,7 +50,8 @@ export function SceneCard({
 
   // Trim trailing whitespace while streaming to prevent height jumps
   // from newlines arriving before the next paragraph's text
-  const displayText = isStreaming ? text.trimEnd() : text;
+  // and drop markdown stars the AI should not have used (**bold**, *italic*)
+  const displayText = stripMarkdownEmphasis(isStreaming ? text.trimEnd() : text);
 
   // Show image area based on backend capability flag
   const hasImage = showImages && !!message.hasImage;
