@@ -97,6 +97,22 @@ export interface HttpxErrorResponse {
   type?: string;
 }
 
+export interface LegalDeclaration {
+  date?: string;
+  /** Hash is the hex SHA-256 of Text, stored with every consent record. */
+  hash?: string;
+  /** Text is the binding German text (Markdown). */
+  text?: string;
+  /** Translations holds optional, non-binding reading aids keyed by language code. */
+  translations?: Record<string, string>;
+  version?: string;
+}
+
+export interface LegalYouthProtectionSuggestion {
+  minAge?: number;
+  text?: string;
+}
+
 export interface ObjAiModel {
   /** tier label e.g. "Premium" */
   description?: string;
@@ -744,6 +760,12 @@ export interface RoutesImageStatusResponse {
   hash?: string;
   isComplete?: boolean;
   isOrganisationUnverified?: boolean;
+}
+
+export interface RoutesInstitutionDeclarationResponse {
+  bindingLanguage?: string;
+  declaration?: LegalDeclaration;
+  youthProtectionSuggestions?: LegalYouthProtectionSuggestion[];
 }
 
 export interface RoutesInviteResponse {
@@ -2477,6 +2499,23 @@ export class Api<
     languagesDetail: (code: string, params: RequestParams = {}) =>
       this.request<Record<string, any>, Record<string, string>>({
         path: `/languages/${code}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  legal = {
+    /**
+     * @description Returns the current version of the Einverständniserklärung for organisations (binding German text, version, date, SHA-256 hash) and the suggested youth-protection prompt restrictions. Public.
+     *
+     * @tags legal
+     * @name InstitutionDeclarationList
+     * @summary Get the institution declaration
+     * @request GET:/legal/institution-declaration
+     */
+    institutionDeclarationList: (params: RequestParams = {}) =>
+      this.request<RoutesInstitutionDeclarationResponse, any>({
+        path: `/legal/institution-declaration`,
         method: "GET",
         format: "json",
         ...params,

@@ -9,6 +9,7 @@ import (
 	"cgl/api/routes"
 	"cgl/db"
 	"cgl/log"
+	"cgl/mail"
 	"cgl/telemetry"
 	"context"
 	"fmt"
@@ -32,6 +33,7 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	if devMode {
 		log.SetDebug(true)
 		log.Info("development mode enabled", "debug_logging", true)
+		mail.EnableRecording()
 	}
 
 	log.Debug("initializing database")

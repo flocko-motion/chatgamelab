@@ -63,7 +63,7 @@ INSERT INTO institution (
   $3, $4, $5,
   $6
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, disabled_at, disabled_reason
 `
 
 type CreateInstitutionParams struct {
@@ -97,6 +97,12 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.FreeUseApiKeyShareID,
 		&i.FreeUseAiQualityTier,
 		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.DisabledAt,
+		&i.DisabledReason,
 	)
 	return i, err
 }
@@ -306,7 +312,7 @@ func (q *Queries) DeleteWorkshopParticipantsByWorkshopID(ctx context.Context, wo
 }
 
 const getInstitutionByID = `-- name: GetInstitutionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints FROM institution WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, disabled_at, disabled_reason FROM institution WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
@@ -323,6 +329,12 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.FreeUseApiKeyShareID,
 		&i.FreeUseAiQualityTier,
 		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.DisabledAt,
+		&i.DisabledReason,
 	)
 	return i, err
 }
@@ -550,7 +562,7 @@ func (q *Queries) HardDeleteWorkshopsByInstitution(ctx context.Context, institut
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints FROM institution WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, disabled_at, disabled_reason FROM institution WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
@@ -573,6 +585,12 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 			&i.FreeUseApiKeyShareID,
 			&i.FreeUseAiQualityTier,
 			&i.PromptConstraints,
+			&i.Operator,
+			&i.Street,
+			&i.PostalCode,
+			&i.City,
+			&i.DisabledAt,
+			&i.DisabledReason,
 		); err != nil {
 			return nil, err
 		}
@@ -820,7 +838,7 @@ UPDATE institution SET
   modified_at = $5,
   name = $6
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, disabled_at, disabled_reason
 `
 
 type UpdateInstitutionParams struct {
@@ -853,6 +871,12 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 		&i.FreeUseApiKeyShareID,
 		&i.FreeUseAiQualityTier,
 		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.DisabledAt,
+		&i.DisabledReason,
 	)
 	return i, err
 }
