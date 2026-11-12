@@ -61,6 +61,9 @@ func Preseed(ctx context.Context) {
 	// Create a dummy game for the first admin user
 	preseedDevGame(ctx, DevAdmin1UserID)
 
+	// Fill empty site constraints so the organisation registration form has a default
+	preseedDevSiteConstraints(ctx)
+
 	log.Debug("database preseed completed")
 }
 
@@ -276,4 +279,31 @@ func preseedDevGame(ctx context.Context, userID uuid.UUID) {
 			log.Warn("failed to create dummy game", "error", err)
 		}
 	}
+}
+
+// Example site constraints from JUGENDSCHUTZ.md. On the live server an admin sets these once.
+const (
+	devSiteConstraintU13   = "Erlaube spürbare Konflikte und stärkere Spannung; greife bei realistischer, detaillierter oder eskalierender Gewalt ein und verhindere Verherrlichung und Überforderung."
+	devSiteConstraintAdult = "Erlaube realistische, auch deutlich intensivere Inhalte; unterbinde exzessive oder verherrlichte Gewalt sowie extreme, entwürdigende oder diskriminierende Darstellungen konsequent."
+)
+
+// preseedDevSiteConstraints fills site constraints that are still empty; set values are kept.
+func preseedDevSiteConstraints(ctx context.Context) {
+	settings, err := GetSystemSettings(ctx)
+	if err != nil {
+		log.Warn("failed to read system settings for constraint preseed", "error", err)
+		return
+	}
+	empty := func(v *string) bool { return v == nil || *v == "" }
+	set := func(name string, current *string, value string, update func(context.Context, *string) error) {
+		if !empty(current) {
+			return
+		}
+		if err := update(ctx, &value); err != nil {
+			log.Warn("failed to preseed site constraint", "level", name, "error", err)
+		}
+	}
+	set("u13", settings.PromptConstraintU13, devSiteConstraintU13, UpdatePromptConstraintU13)
+	set("u13p", settings.PromptConstraintU13p, devSiteConstraintAdult, UpdatePromptConstraintU13p)
+	set("u18", settings.PromptConstraintU18, devSiteConstraintAdult, UpdatePromptConstraintU18)
 }

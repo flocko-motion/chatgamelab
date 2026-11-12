@@ -1,0 +1,34 @@
+{
+  "source": "https://chatgamelab.eu/ki-jugendarbeit/jugendarbeit/voraussetzungen/jugendschutz/",
+  "note": "Wörtlich von der Website übernommen (Stand 12.11.2026). Keine offizielle Alterskennzeichnung. Bei Änderungen Website und diese Datei gemeinsam ändern.",
+  "suggestions": [
+    {
+      "minAge": 6,
+      "text": "Erlaube milde, unrealistische Konflikte ohne Konsequenzen; vermeide Angst und Bedrohung und führe stets zu schnellen, positiven und sicheren Auflösungen."
+    },
+    {
+      "minAge": 8,
+      "text": "Erlaube leichte Spannung und einfache Konflikte; verhindere Gewalt oder Verletzungen aktiv und halte Situationen stets überschaubar, lösbar und nicht belastend."
+    },
+    {
+      "minAge": 10,
+      "text": "Erlaube klar erkennbare Konflikte ohne detaillierte Gewalt; unterbinde Verletzungen aktiv und lenke Eskalationen in entschärfte, nachvollziehbare Lösungen um."
+    },
+    {
+      "minAge": 12,
+      "text": "Erlaube mäßige, nicht-detaillierte Konflikte; verhindere realistische Gewalt und Verletzungen aktiv und vermeide verstörende oder überfordernde Situationen."
+    },
+    {
+      "minAge": 14,
+      "text": "Erlaube spürbare, auch intensivere Konflikte; greife bei realistischer oder detaillierter Gewalt ein und verhindere Eskalation, Verherrlichung und belastende Darstellungen."
+    },
+    {
+      "minAge": 16,
+      "text": "Erlaube realistischere und intensivere Konflikte; unterbinde detaillierte, exzessive oder verherrlichte Gewalt sowie diskriminierende oder explizite Inhalte."
+    },
+    {
+      "minAge": 18,
+      "text": "Erlaube auch explizite Inhalte im gesetzlichen Rahmen; unterbinde illegale, extrem gewaltverherrlichende, sexualisierte oder diskriminierende Darstellungen konsequent."
+    }
+  ]
+}

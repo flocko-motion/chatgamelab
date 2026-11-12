@@ -27,6 +27,19 @@ services:
       - frontend
       - all_services
 
+  # Local test inbox: catches every mail the backend sends. Web UI: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.27
+    container_name: chatgamelab-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    profiles:
+      - db
+      - backend
+      - frontend
+      - all_services
+
   backend:
     build:
       context: .
@@ -38,6 +51,9 @@ services:
       # Override postgres host for docker network (localhost -> db)
       DB_HOST: db
       PORT_POSTGRES: 5432
+      # Mails go to the local Mailpit test inbox (http://localhost:8025)
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
     depends_on:
       db:
         condition: service_healthy

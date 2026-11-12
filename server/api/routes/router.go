@@ -25,6 +25,7 @@ func NewMux() *http.ServeMux {
 
 	mux.Handle("GET /api/platforms", httpx.RequireAuth(GetPlatforms))
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
+	mux.HandleFunc("GET /api/legal/institution-declaration", GetInstitutionDeclaration)
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
 	mux.Handle("GET /api/system/constraints", httpx.RequireAuth(GetSystemConstraints))
 	mux.Handle("PATCH /api/system/settings", httpx.RequireAuth(UpdateSystemSettings))
