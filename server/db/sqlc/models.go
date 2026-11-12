@@ -200,11 +200,11 @@ type InstitutionApplication struct {
 	ID                  uuid.UUID
 	CreatedAt           time.Time
 	ModifiedAt          time.Time
-	UserID              uuid.UUID
+	UserID              uuid.NullUUID
 	Kind                string
-	PersonName          string
-	PersonFunction      string
-	Email               string
+	PersonName          sql.NullString
+	PersonFunction      sql.NullString
+	Email               sql.NullString
 	InstitutionName     string
 	InstitutionOperator string
 	Street              string
@@ -218,6 +218,7 @@ type InstitutionApplication struct {
 	Status              string
 	ConfirmedAt         sql.NullTime
 	InstitutionID       uuid.NullUUID
+	AnonymizedAt        sql.NullTime
 }
 
 type InstitutionConsent struct {

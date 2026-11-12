@@ -45,9 +45,12 @@ UPDATE institution_application
 SET status = 'expired', modified_at = now()
 WHERE status = 'pending' AND expires_at < now();
 
--- name: DeleteOldUnconfirmedInstitutionApplications :execrows
-DELETE FROM institution_application
-WHERE status <> 'confirmed' AND created_at < $1;
+-- name: AnonymizeOldUnconfirmedInstitutionApplications :execrows
+-- Removes the personal data of never-confirmed applications; institution data stays visible.
+UPDATE institution_application
+SET user_id = NULL, person_name = NULL, person_function = NULL, email = NULL,
+    anonymized_at = now(), modified_at = now()
+WHERE status <> 'confirmed' AND anonymized_at IS NULL AND created_at < $1;
 
 -- name: ListInstitutionApplications :many
 SELECT * FROM institution_application

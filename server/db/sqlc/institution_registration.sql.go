@@ -13,6 +13,22 @@ import (
 	"github.com/google/uuid"
 )
 
+const anonymizeOldUnconfirmedInstitutionApplications = `-- name: AnonymizeOldUnconfirmedInstitutionApplications :execrows
+UPDATE institution_application
+SET user_id = NULL, person_name = NULL, person_function = NULL, email = NULL,
+    anonymized_at = now(), modified_at = now()
+WHERE status <> 'confirmed' AND anonymized_at IS NULL AND created_at < $1
+`
+
+// Removes the personal data of never-confirmed applications; institution data stays visible.
+func (q *Queries) AnonymizeOldUnconfirmedInstitutionApplications(ctx context.Context, createdAt time.Time) (int64, error) {
+	result, err := q.db.ExecContext(ctx, anonymizeOldUnconfirmedInstitutionApplications, createdAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const confirmInstitutionApplication = `-- name: ConfirmInstitutionApplication :exec
 UPDATE institution_application
 SET status = 'confirmed', confirmed_at = now(), institution_id = $2, modified_at = now()
@@ -44,16 +60,16 @@ INSERT INTO institution_application (
   $12, $13, $14,
   $15, $16
 )
-RETURNING id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id
+RETURNING id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at
 `
 
 type CreateInstitutionApplicationParams struct {
 	ID                  uuid.UUID
-	UserID              uuid.UUID
+	UserID              uuid.NullUUID
 	Kind                string
-	PersonName          string
-	PersonFunction      string
-	Email               string
+	PersonName          sql.NullString
+	PersonFunction      sql.NullString
+	Email               sql.NullString
 	InstitutionName     string
 	InstitutionOperator string
 	Street              string
@@ -109,6 +125,7 @@ func (q *Queries) CreateInstitutionApplication(ctx context.Context, arg CreateIn
 		&i.Status,
 		&i.ConfirmedAt,
 		&i.InstitutionID,
+		&i.AnonymizedAt,
 	)
 	return i, err
 }
@@ -183,26 +200,13 @@ func (q *Queries) CreateInstitutionConsent(ctx context.Context, arg CreateInstit
 	return i, err
 }
 
-const deleteOldUnconfirmedInstitutionApplications = `-- name: DeleteOldUnconfirmedInstitutionApplications :execrows
-DELETE FROM institution_application
-WHERE status <> 'confirmed' AND created_at < $1
-`
-
-func (q *Queries) DeleteOldUnconfirmedInstitutionApplications(ctx context.Context, createdAt time.Time) (int64, error) {
-	result, err := q.db.ExecContext(ctx, deleteOldUnconfirmedInstitutionApplications, createdAt)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
 const expireInstitutionApplicationsForUser = `-- name: ExpireInstitutionApplicationsForUser :exec
 UPDATE institution_application
 SET status = 'expired', modified_at = now()
 WHERE user_id = $1 AND status = 'pending'
 `
 
-func (q *Queries) ExpireInstitutionApplicationsForUser(ctx context.Context, userID uuid.UUID) error {
+func (q *Queries) ExpireInstitutionApplicationsForUser(ctx context.Context, userID uuid.NullUUID) error {
 	_, err := q.db.ExecContext(ctx, expireInstitutionApplicationsForUser, userID)
 	return err
 }
@@ -222,7 +226,7 @@ func (q *Queries) ExpireOverdueInstitutionApplications(ctx context.Context) (int
 }
 
 const getInstitutionApplicationByTokenHash = `-- name: GetInstitutionApplicationByTokenHash :one
-SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id FROM institution_application WHERE token_hash = $1
+SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at FROM institution_application WHERE token_hash = $1
 `
 
 func (q *Queries) GetInstitutionApplicationByTokenHash(ctx context.Context, tokenHash string) (InstitutionApplication, error) {
@@ -250,6 +254,7 @@ func (q *Queries) GetInstitutionApplicationByTokenHash(ctx context.Context, toke
 		&i.Status,
 		&i.ConfirmedAt,
 		&i.InstitutionID,
+		&i.AnonymizedAt,
 	)
 	return i, err
 }
@@ -285,13 +290,13 @@ func (q *Queries) GetLatestInstitutionConsent(ctx context.Context, institutionID
 }
 
 const getPendingInstitutionApplicationByUser = `-- name: GetPendingInstitutionApplicationByUser :one
-SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id FROM institution_application
+SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at FROM institution_application
 WHERE user_id = $1 AND status = 'pending'
 ORDER BY created_at DESC
 LIMIT 1
 `
 
-func (q *Queries) GetPendingInstitutionApplicationByUser(ctx context.Context, userID uuid.UUID) (InstitutionApplication, error) {
+func (q *Queries) GetPendingInstitutionApplicationByUser(ctx context.Context, userID uuid.NullUUID) (InstitutionApplication, error) {
 	row := q.db.QueryRowContext(ctx, getPendingInstitutionApplicationByUser, userID)
 	var i InstitutionApplication
 	err := row.Scan(
@@ -316,12 +321,13 @@ func (q *Queries) GetPendingInstitutionApplicationByUser(ctx context.Context, us
 		&i.Status,
 		&i.ConfirmedAt,
 		&i.InstitutionID,
+		&i.AnonymizedAt,
 	)
 	return i, err
 }
 
 const listInstitutionApplications = `-- name: ListInstitutionApplications :many
-SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id FROM institution_application
+SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at FROM institution_application
 ORDER BY created_at DESC
 LIMIT $1
 `
@@ -357,6 +363,7 @@ func (q *Queries) ListInstitutionApplications(ctx context.Context, limit int32) 
 			&i.Status,
 			&i.ConfirmedAt,
 			&i.InstitutionID,
+			&i.AnonymizedAt,
 		); err != nil {
 			return nil, err
 		}

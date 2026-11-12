@@ -14,11 +14,13 @@ CREATE TABLE institution_application (
     id                      uuid PRIMARY KEY,
     created_at              timestamptz NOT NULL DEFAULT now(),
     modified_at             timestamptz NOT NULL DEFAULT now(),
-    user_id                 uuid NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    -- Personal data (user_id, person_*, email) is set to NULL by the retention job
+    -- for applications that were never confirmed; the rest stays for the admin overview.
+    user_id                 uuid NULL REFERENCES app_user(id) ON DELETE SET NULL,
     kind                    text NOT NULL,
-    person_name             text NOT NULL,
-    person_function         text NOT NULL,
-    email                   text NOT NULL,
+    person_name             text NULL,
+    person_function         text NULL,
+    email                   text NULL,
     institution_name        text NOT NULL,
     institution_operator    text NOT NULL,
     street                  text NOT NULL,
@@ -32,6 +34,7 @@ CREATE TABLE institution_application (
     status                  text NOT NULL DEFAULT 'pending',
     confirmed_at            timestamptz NULL,
     institution_id          uuid NULL REFERENCES institution(id) ON DELETE SET NULL,
+    anonymized_at           timestamptz NULL,
     CONSTRAINT institution_application_kind_chk CHECK (kind IN ('register', 'upgrade')),
     CONSTRAINT institution_application_status_chk CHECK (status IN ('pending', 'confirmed', 'expired'))
 );
