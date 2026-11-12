@@ -295,7 +295,27 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
-			user, err := db.GetUserByID(r.Context(), uuid.MustParse(userId))
+			// Dev signup token: stands in for a fresh Auth0 login (dev mode only).
+			if strings.HasPrefix(userId, DevSignupSubjectPrefix) {
+				if !DevMode {
+					WriteError(w, http.StatusUnauthorized, "Invalid token")
+					return
+				}
+				user, err := db.GetUserByAuth0ID(r.Context(), userId)
+				if err != nil {
+					WriteUserNotRegistered(w, userId)
+					return
+				}
+				next.ServeHTTP(w, WithUser(r, user))
+				return
+			}
+
+			parsedID, parseErr := uuid.Parse(userId)
+			if parseErr != nil {
+				WriteError(w, http.StatusUnauthorized, "Invalid token: malformed user ID")
+				return
+			}
+			user, err := db.GetUserByID(r.Context(), parsedID)
 			if err != nil {
 				log.Debug("CGL JWT user not found", "user_id", userId, "error", err)
 				WriteError(w, http.StatusUnauthorized, "User not found")
@@ -384,6 +404,16 @@ func RequireAuth0Token(h http.HandlerFunc) http.Handler {
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
+		// Dev mode: a dev signup token stands in for a fresh Auth0 login so the
+		// registration flows can be tested locally without Auth0.
+		if DevMode {
+			if sub, valid := auth.ValidateTokenString(tokenString); valid && strings.HasPrefix(sub, DevSignupSubjectPrefix) {
+				ctx := context.WithValue(r.Context(), auth0IDContextKey, sub)
+				h.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+		}
+
 		// Check if it's a CGL dev JWT first
 		if strings.HasPrefix(tokenString, "cgl-") {
 			WriteError(w, http.StatusForbidden, "Dev tokens cannot be used for registration")
@@ -421,6 +451,12 @@ func RequireAuth0Token(h http.HandlerFunc) http.Handler {
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+// DevMode enables dev-only authentication shortcuts (set at server start).
+var DevMode bool
+
+// DevSignupSubjectPrefix marks dev tokens that act like a fresh, not yet registered Auth0 login.
+const DevSignupSubjectPrefix = "dev-signup|"
 
 // auth0IDContextKey is the context key for storing Auth0 ID
 type auth0IDContextKeyType string

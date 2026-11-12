@@ -91,3 +91,10 @@ WHERE id = $1;
 UPDATE institution
 SET disabled_at = $2, disabled_reason = $3, modified_at = now()
 WHERE id = $1;
+
+-- name: InstitutionNameExists :one
+-- Case-insensitive and including deleted organisations (the name column is UNIQUE over all rows).
+SELECT EXISTS (SELECT 1 FROM institution WHERE lower(name) = lower(sqlc.arg(name)::text));
+
+-- name: GetActiveUserIDsByEmail :many
+SELECT id FROM app_user WHERE lower(email) = lower(sqlc.arg(email)::text) AND deleted_at IS NULL;

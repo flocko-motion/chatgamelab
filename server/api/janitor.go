@@ -83,3 +83,43 @@ func sessionRetention() time.Duration {
 
 	return time.Duration(hours) * time.Hour
 }
+
+// defaultApplicationRetentionDays is how long the personal data of a never-confirmed
+// organisation application is kept (ORG_APPLICATION_RETENTION_DAYS).
+const defaultApplicationRetentionDays = 90
+
+// applicationCleanupInterval is how often expired applications are processed.
+const applicationCleanupInterval = 24 * time.Hour
+
+// startApplicationCleanup expires overdue organisation applications and anonymises old
+// unconfirmed ones, once at startup and then daily.
+func startApplicationCleanup(ctx context.Context) {
+	days := defaultApplicationRetentionDays
+	if raw := functional.EnvOrDefault("ORG_APPLICATION_RETENTION_DAYS", ""); raw != "" {
+		if v, err := strconv.Atoi(raw); err == nil && v > 0 {
+			days = v
+		} else {
+			log.Warn("invalid ORG_APPLICATION_RETENTION_DAYS, using default", "value", raw, "default_days", defaultApplicationRetentionDays)
+		}
+	}
+	retention := time.Duration(days) * 24 * time.Hour
+	log.Info("organisation application cleanup enabled", "retention_days", days)
+
+	go func() {
+		ticker := time.NewTicker(applicationCleanupInterval)
+		defer ticker.Stop()
+		for {
+			expired, anonymized, err := db.ExpireAndAnonymizeInstitutionApplications(ctx, retention)
+			if err != nil {
+				log.Error("organisation application cleanup failed", "error", err)
+			} else if expired > 0 || anonymized > 0 {
+				log.Info("organisation application cleanup", "expired", expired, "anonymized", anonymized)
+			}
+			select {
+			case <-ticker.C:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+}

@@ -629,6 +629,100 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/register-institution": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "After the Auth0 login of a new person: creates the account (age group u18) and an organisation application, and e-mails a confirmation link. The organisation is created only when the link is confirmed. Requires the 18+ confirmation, terms, privacy policy and the current declaration.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Register a new account as an organisation",
+                "parameters": [
+                    {
+                        "description": "Registration form",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.RegisterInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionApplicationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Name taken or e-mail belongs to another account",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dev/mails": {
+            "get": {
+                "description": "DEV_MODE only. The last mails the server sent, newest first.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dev"
+                ],
+                "summary": "Dev: mails sent so far",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/cgl_mail.Message"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dev/signup-token": {
+            "post": {
+                "description": "DEV_MODE only. Returns a token that behaves like the Auth0 login of a person who has no account yet.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dev"
+                ],
+                "summary": "Dev: token for a new person",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.DevSignupTokenResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games": {
             "get": {
                 "description": "Returns a list of games. If authenticated, includes user's private games.",
@@ -1799,6 +1893,165 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to update",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institution-applications": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "For logged-in adult accounts without an organisation: stores an application and e-mails a confirmation link. Requires the 18+ confirmation and the current declaration.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Upgrade the logged-in account to an organisation",
+                "parameters": [
+                    {
+                        "description": "Organisation form",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpgradeInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionApplicationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Account is not 18+",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Already in an organisation, name taken or e-mail of another account",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institution-applications/confirm": {
+            "post": {
+                "description": "Called with the token from the e-mail link. Creates the organisation, makes the applicant its head, sets the youth-protection prompt restriction, logs the consent and e-mails the confirmation (with a copy to the operator).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Confirm an organisation application",
+                "parameters": [
+                    {
+                        "description": "Token from the link",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.ConfirmInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.ConfirmInstitutionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Unknown or used link",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "Link expired",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institution-applications/mine": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the open (unconfirmed) application of the logged-in account, or null.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Get my open organisation application",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.MyInstitutionApplicationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institution-applications/resend": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new confirmation link for the open application of the logged-in account and e-mails it. The previous link stops working.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Resend the confirmation link",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.MyInstitutionApplicationResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "No open application",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -5405,6 +5658,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "cgl_mail.Message": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "sentAt": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
         "db.UserSessionWithGame": {
             "type": "object",
             "properties": {
@@ -6112,6 +6382,118 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.InstitutionApplication": {
+            "type": "object",
+            "properties": {
+                "anonymizedAt": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "confirmedAt": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "declarationVersion": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.InstitutionConsent": {
+            "type": "object",
+            "properties": {
+                "applicationId": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "declarationHash": {
+                    "type": "string"
+                },
+                "declarationVersion": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "obj.InstitutionMember": {
             "type": "object",
             "properties": {
@@ -6655,6 +7037,25 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.ConfirmInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.ConfirmInstitutionResponse": {
+            "type": "object",
+            "properties": {
+                "consent": {
+                    "$ref": "#/definitions/obj.InstitutionConsent"
+                },
+                "institution": {
+                    "$ref": "#/definitions/obj.Institution"
+                }
+            }
+        },
         "routes.CreateApiKeyRequest": {
             "type": "object",
             "properties": {
@@ -6768,6 +7169,17 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.DevSignupTokenResponse": {
+            "type": "object",
+            "properties": {
+                "auth0Id": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -7021,6 +7433,17 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.InstitutionApplicationResponse": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/obj.InstitutionApplication"
+                },
+                "user": {
+                    "$ref": "#/definitions/obj.User"
+                }
+            }
+        },
         "routes.InstitutionDeclarationResponse": {
             "type": "object",
             "properties": {
@@ -7139,6 +7562,14 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.MyInstitutionApplicationResponse": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/obj.InstitutionApplication"
+                }
+            }
+        },
         "routes.ParticipantCodeResponse": {
             "type": "object",
             "properties": {
@@ -7168,6 +7599,64 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/routes.EnrichedGameShare"
                     }
+                }
+            }
+        },
+        "routes.RegisterInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "acceptDeclaration": {
+                    "description": "AcceptDeclaration: the Einverständniserklärung, in the name of the organisation.",
+                    "type": "boolean"
+                },
+                "acceptPrivacy": {
+                    "type": "boolean"
+                },
+                "acceptTerms": {
+                    "type": "boolean"
+                },
+                "accountName": {
+                    "description": "AccountName is the display name of the new account (same rules as normal registration).",
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "confirmAdult": {
+                    "description": "ConfirmAdult: \"Ich bin mindestens 18 Jahre alt\".",
+                    "type": "boolean"
+                },
+                "declarationVersion": {
+                    "description": "DeclarationVersion is the version shown to the person; must be the current one.",
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "language": {
+                    "description": "Language: ISO 639-1 code of the interface (optional).",
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },
@@ -7682,6 +8171,50 @@ const docTemplate = `{
                 },
                 "showPublicGames": {
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.UpgradeInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "acceptDeclaration": {
+                    "description": "AcceptDeclaration: the Einverständniserklärung, in the name of the organisation.",
+                    "type": "boolean"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "confirmAdult": {
+                    "description": "ConfirmAdult: \"Ich bin mindestens 18 Jahre alt\".",
+                    "type": "boolean"
+                },
+                "declarationVersion": {
+                    "description": "DeclarationVersion is the version shown to the person; must be the current one.",
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },

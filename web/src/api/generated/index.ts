@@ -26,6 +26,13 @@ export enum ObjInviteStatus {
   InviteStatusRevoked = "revoked",
 }
 
+export interface CglMailMessage {
+  body?: string;
+  sentAt?: string;
+  subject?: string;
+  to?: string;
+}
+
 export interface DbUserSessionWithGame {
   aiModel?: string;
   /** AI model used for playing. */
@@ -372,6 +379,46 @@ export interface ObjInstitution {
   promptConstraints?: string;
 }
 
+export interface ObjInstitutionApplication {
+  anonymizedAt?: string;
+  city?: string;
+  confirmedAt?: string;
+  createdAt?: string;
+  declarationVersion?: string;
+  email?: string;
+  expiresAt?: string;
+  id?: string;
+  institutionId?: string;
+  institutionName?: string;
+  kind?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  promptConstraint?: string;
+  status?: string;
+  street?: string;
+  userId?: string;
+}
+
+export interface ObjInstitutionConsent {
+  applicationId?: string;
+  city?: string;
+  createdAt?: string;
+  declarationHash?: string;
+  declarationVersion?: string;
+  email?: string;
+  id?: string;
+  institutionId?: string;
+  institutionName?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  street?: string;
+  userId?: string;
+}
+
 export interface ObjInstitutionMember {
   email?: string;
   name?: string;
@@ -586,6 +633,15 @@ export interface RoutesApiKeysResponse {
   shares?: ObjApiKeyShare[];
 }
 
+export interface RoutesConfirmInstitutionRequest {
+  token?: string;
+}
+
+export interface RoutesConfirmInstitutionResponse {
+  consent?: ObjInstitutionConsent;
+  institution?: ObjInstitution;
+}
+
 export interface RoutesCreateApiKeyRequest {
   key?: string;
   name?: string;
@@ -636,6 +692,11 @@ export interface RoutesCreateWorkshopRequest {
   institutionId?: string;
   name?: string;
   public?: boolean;
+}
+
+export interface RoutesDevSignupTokenResponse {
+  auth0Id?: string;
+  token?: string;
 }
 
 export interface RoutesEnrichedGameShare {
@@ -762,6 +823,11 @@ export interface RoutesImageStatusResponse {
   isOrganisationUnverified?: boolean;
 }
 
+export interface RoutesInstitutionApplicationResponse {
+  application?: ObjInstitutionApplication;
+  user?: ObjUser;
+}
+
 export interface RoutesInstitutionDeclarationResponse {
   bindingLanguage?: string;
   declaration?: LegalDeclaration;
@@ -810,6 +876,10 @@ export interface RoutesMessageStatusResponse {
   textDone?: boolean;
 }
 
+export interface RoutesMyInstitutionApplicationResponse {
+  application?: ObjInstitutionApplication;
+}
+
 export interface RoutesParticipantCodeResponse {
   /** Token is the full login token that the /code link and QR code carry. */
   token?: string;
@@ -823,6 +893,30 @@ export interface RoutesParticipantLoginRequest {
 
 export interface RoutesPrivateShareStatus {
   shares?: RoutesEnrichedGameShare[];
+}
+
+export interface RoutesRegisterInstitutionRequest {
+  /** AcceptDeclaration: the Einverständniserklärung, in the name of the organisation. */
+  acceptDeclaration?: boolean;
+  acceptPrivacy?: boolean;
+  acceptTerms?: boolean;
+  /** AccountName is the display name of the new account (same rules as normal registration). */
+  accountName?: string;
+  city?: string;
+  /** ConfirmAdult: "Ich bin mindestens 18 Jahre alt". */
+  confirmAdult?: boolean;
+  /** DeclarationVersion is the version shown to the person; must be the current one. */
+  declarationVersion?: string;
+  email?: string;
+  institutionName?: string;
+  /** Language: ISO 639-1 code of the interface (optional). */
+  language?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  promptConstraint?: string;
+  street?: string;
 }
 
 export interface RoutesRegisterRequest {
@@ -1072,6 +1166,24 @@ export interface RoutesUpdateWorkshopRequest {
   publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
+}
+
+export interface RoutesUpgradeInstitutionRequest {
+  /** AcceptDeclaration: the Einverständniserklärung, in the name of the organisation. */
+  acceptDeclaration?: boolean;
+  city?: string;
+  /** ConfirmAdult: "Ich bin mindestens 18 Jahre alt". */
+  confirmAdult?: boolean;
+  /** DeclarationVersion is the version shown to the person; must be the current one. */
+  declarationVersion?: string;
+  email?: string;
+  institutionName?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  promptConstraint?: string;
+  street?: string;
 }
 
 export interface RoutesUserUpdateRequest {
@@ -1635,6 +1747,62 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description After the Auth0 login of a new person: creates the account (age group u18) and an organisation application, and e-mails a confirmation link. The organisation is created only when the link is confirmed. Requires the 18+ confirmation, terms, privacy policy and the current declaration.
+     *
+     * @tags institution-registration
+     * @name RegisterInstitutionCreate
+     * @summary Register a new account as an organisation
+     * @request POST:/auth/register-institution
+     * @secure
+     */
+    registerInstitutionCreate: (
+      request: RoutesRegisterInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInstitutionApplicationResponse, HttpxErrorResponse>({
+        path: `/auth/register-institution`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  dev = {
+    /**
+     * @description DEV_MODE only. The last mails the server sent, newest first.
+     *
+     * @tags dev
+     * @name MailsList
+     * @summary Dev: mails sent so far
+     * @request GET:/dev/mails
+     */
+    mailsList: (params: RequestParams = {}) =>
+      this.request<CglMailMessage[], any>({
+        path: `/dev/mails`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description DEV_MODE only. Returns a token that behaves like the Auth0 login of a person who has no account yet.
+     *
+     * @tags dev
+     * @name SignupTokenCreate
+     * @summary Dev: token for a new person
+     * @request POST:/dev/signup-token
+     */
+    signupTokenCreate: (params: RequestParams = {}) =>
+      this.request<RoutesDevSignupTokenResponse, any>({
+        path: `/dev/signup-token`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
   };
   games = {
     /**
@@ -2042,6 +2210,87 @@ export class Api<
         path: `/games/${id}/yaml`,
         method: "PUT",
         body: yaml,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  institutionApplications = {
+    /**
+     * @description For logged-in adult accounts without an organisation: stores an application and e-mails a confirmation link. Requires the 18+ confirmation and the current declaration.
+     *
+     * @tags institution-registration
+     * @name InstitutionApplicationsCreate
+     * @summary Upgrade the logged-in account to an organisation
+     * @request POST:/institution-applications
+     * @secure
+     */
+    institutionApplicationsCreate: (
+      request: RoutesUpgradeInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInstitutionApplicationResponse, HttpxErrorResponse>({
+        path: `/institution-applications`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Called with the token from the e-mail link. Creates the organisation, makes the applicant its head, sets the youth-protection prompt restriction, logs the consent and e-mails the confirmation (with a copy to the operator).
+     *
+     * @tags institution-registration
+     * @name ConfirmCreate
+     * @summary Confirm an organisation application
+     * @request POST:/institution-applications/confirm
+     */
+    confirmCreate: (
+      request: RoutesConfirmInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesConfirmInstitutionResponse, HttpxErrorResponse>({
+        path: `/institution-applications/confirm`,
+        method: "POST",
+        body: request,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the open (unconfirmed) application of the logged-in account, or null.
+     *
+     * @tags institution-registration
+     * @name MineList
+     * @summary Get my open organisation application
+     * @request GET:/institution-applications/mine
+     * @secure
+     */
+    mineList: (params: RequestParams = {}) =>
+      this.request<RoutesMyInstitutionApplicationResponse, any>({
+        path: `/institution-applications/mine`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new confirmation link for the open application of the logged-in account and e-mails it. The previous link stops working.
+     *
+     * @tags institution-registration
+     * @name ResendCreate
+     * @summary Resend the confirmation link
+     * @request POST:/institution-applications/resend
+     * @secure
+     */
+    resendCreate: (params: RequestParams = {}) =>
+      this.request<RoutesMyInstitutionApplicationResponse, HttpxErrorResponse>({
+        path: `/institution-applications/resend`,
+        method: "POST",
         secure: true,
         format: "json",
         ...params,
