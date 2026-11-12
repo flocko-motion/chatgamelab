@@ -65,6 +65,7 @@ func NewMux() *http.ServeMux {
 	// Auth
 	mux.HandleFunc("GET /api/auth/check-name", CheckNameAvailability)
 	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
+	mux.Handle("POST /api/auth/register-institution", httpx.RequireAuth0Token(RegisterInstitution))
 	mux.HandleFunc("POST /api/auth/logout", Logout)
 	mux.Handle("POST /api/auth/participant-login", httpx.TokenGuard(http.HandlerFunc(ParticipantLogin)))
 
@@ -83,7 +84,15 @@ func NewMux() *http.ServeMux {
 	if DevMode {
 		mux.HandleFunc("POST /api/users/new", CreateUser)
 		mux.HandleFunc("GET /api/users/{id}/jwt", GetUserJWT)
+		mux.HandleFunc("POST /api/dev/signup-token", CreateDevSignupToken)
+		mux.HandleFunc("GET /api/dev/mails", GetDevMails)
 	}
+
+	// Organisation self-registration
+	mux.Handle("POST /api/institution-applications", httpx.RequireAuth(UpgradeToInstitution))
+	mux.Handle("GET /api/institution-applications/mine", httpx.RequireAuth(GetMyInstitutionApplication))
+	mux.Handle("POST /api/institution-applications/resend", httpx.RequireAuth(ResendInstitutionApplication))
+	mux.HandleFunc("POST /api/institution-applications/confirm", ConfirmInstitutionApplication)
 
 	// Institutions
 	mux.Handle("POST /api/institutions", httpx.RequireAuth(CreateInstitution))

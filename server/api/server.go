@@ -6,6 +6,7 @@ package api
 
 import (
 	"cgl/api/auth"
+	"cgl/api/httpx"
 	"cgl/api/routes"
 	"cgl/db"
 	"cgl/log"
@@ -29,6 +30,7 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	auth.InitJwtGeneration()
 
 	routes.DevMode = devMode
+	httpx.DevMode = devMode
 
 	if devMode {
 		log.SetDebug(true)
@@ -47,6 +49,7 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	db.PromoteAdminEmails(ctx)
 
 	startSessionPurger(ctx)
+	startApplicationCleanup(ctx)
 
 	log.Debug("setting up HTTP router")
 	// Use new stdlib-based router

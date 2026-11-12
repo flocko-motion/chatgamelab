@@ -225,6 +225,33 @@ func (q *Queries) ExpireOverdueInstitutionApplications(ctx context.Context) (int
 	return result.RowsAffected()
 }
 
+const getActiveUserIDsByEmail = `-- name: GetActiveUserIDsByEmail :many
+SELECT id FROM app_user WHERE lower(email) = lower($1::text) AND deleted_at IS NULL
+`
+
+func (q *Queries) GetActiveUserIDsByEmail(ctx context.Context, email string) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getActiveUserIDsByEmail, email)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getInstitutionApplicationByTokenHash = `-- name: GetInstitutionApplicationByTokenHash :one
 SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at FROM institution_application WHERE token_hash = $1
 `
@@ -324,6 +351,18 @@ func (q *Queries) GetPendingInstitutionApplicationByUser(ctx context.Context, us
 		&i.AnonymizedAt,
 	)
 	return i, err
+}
+
+const institutionNameExists = `-- name: InstitutionNameExists :one
+SELECT EXISTS (SELECT 1 FROM institution WHERE lower(name) = lower($1::text))
+`
+
+// Case-insensitive and including deleted organisations (the name column is UNIQUE over all rows).
+func (q *Queries) InstitutionNameExists(ctx context.Context, name string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, institutionNameExists, name)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const listInstitutionApplications = `-- name: ListInstitutionApplications :many
