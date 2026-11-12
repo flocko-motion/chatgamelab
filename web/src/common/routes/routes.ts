@@ -73,6 +73,9 @@ export const ROUTES = {
 
   // Organization routes
   MY_ORGANIZATION: "/my-organization",
+  // Organisation self-registration: upgrade form / open application, and the e-mail link
+  ORGANIZATION_APPLY: "/organization/apply",
+  ORGANIZATION_CONFIRM: "/organization/confirm",
 } as const;
 
 // Route groups for navigation menus

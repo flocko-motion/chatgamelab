@@ -831,6 +831,10 @@ export interface RoutesInstitutionApplicationResponse {
 export interface RoutesInstitutionDeclarationResponse {
   bindingLanguage?: string;
   declaration?: LegalDeclaration;
+  /** DefaultPromptConstraint is the site constraint for age 13+ (u13); the registration form starts with it. */
+  defaultPromptConstraint?: string;
+  /** MaxPromptConstraintLength is the maximum length of an organisation's restriction. */
+  maxPromptConstraintLength?: number;
   youthProtectionSuggestions?: LegalYouthProtectionSuggestion[];
 }
 
@@ -2755,7 +2759,7 @@ export class Api<
   };
   legal = {
     /**
-     * @description Returns the current version of the Einverständniserklärung for organisations (binding German text, version, date, SHA-256 hash) and the suggested youth-protection prompt restrictions. Public.
+     * @description Returns the current version of the Einverständniserklärung for organisations (binding German text, version, date, SHA-256 hash) and the suggested youth-protection prompt restrictions, the site default for age 13+ and the length limit. Public.
      *
      * @tags legal
      * @name InstitutionDeclarationList

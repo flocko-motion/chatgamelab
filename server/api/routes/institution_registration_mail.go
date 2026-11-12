@@ -75,10 +75,21 @@ func consentMailBody(c *obj.InstitutionConsent, d legal.Declaration) string {
 	b.WriteString("Version:          " + d.Version + " (Stand " + formatDate(d.Date) + ")\n")
 	b.WriteString("Prüfsumme:        " + d.Hash + "\n\n")
 	b.WriteString("----------------------------------------------------------------------\n\n")
-	b.WriteString(d.Text)
+	b.WriteString(plainDeclarationText(d.Text))
 	b.WriteString("\n\n----------------------------------------------------------------------\n\n")
 	b.WriteString("Dein ChatGameLab-Team\nJFF – Jugend Film Fernsehen e.V.\n")
 	return b.String()
+}
+
+// plainDeclarationText removes the Markdown bold markers around the title for the plain-text mail;
+// the wording itself is unchanged.
+func plainDeclarationText(text string) string {
+	lines := strings.SplitN(text, "\n", 2)
+	title := strings.TrimSuffix(strings.TrimPrefix(lines[0], "**"), "**")
+	if len(lines) == 1 {
+		return title
+	}
+	return title + "\n" + lines[1]
 }
 
 func formatDate(isoDate string) string {

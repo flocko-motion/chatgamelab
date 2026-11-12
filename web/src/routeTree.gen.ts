@@ -27,6 +27,8 @@ import { Route as WSlugRouteImport } from './routes/w/$slug'
 import { Route as SessionsNewRouteImport } from './routes/sessions/new'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions/$sessionId'
 import { Route as PlayTokenRouteImport } from './routes/play/$token'
+import { Route as OrganizationConfirmRouteImport } from './routes/organization/confirm'
+import { Route as OrganizationApplyRouteImport } from './routes/organization/apply'
 import { Route as MyWorkshopSettingsRouteImport } from './routes/my-workshop/settings'
 import { Route as MyGamesCreateRouteImport } from './routes/my-games/create'
 import { Route as MyGamesGameIdRouteImport } from './routes/my-games/$gameId'
@@ -134,6 +136,16 @@ const PlayTokenRoute = PlayTokenRouteImport.update({
   path: '/play/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationConfirmRoute = OrganizationConfirmRouteImport.update({
+  id: '/organization/confirm',
+  path: '/organization/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizationApplyRoute = OrganizationApplyRouteImport.update({
+  id: '/organization/apply',
+  path: '/organization/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyWorkshopSettingsRoute = MyWorkshopSettingsRouteImport.update({
   id: '/my-workshop/settings',
   path: '/my-workshop/settings',
@@ -229,6 +241,8 @@ export interface FileRoutesByFullPath {
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
+  '/organization/apply': typeof OrganizationApplyRoute
+  '/organization/confirm': typeof OrganizationConfirmRoute
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
@@ -265,6 +279,8 @@ export interface FileRoutesByTo {
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
+  '/organization/apply': typeof OrganizationApplyRoute
+  '/organization/confirm': typeof OrganizationConfirmRoute
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
@@ -302,6 +318,8 @@ export interface FileRoutesById {
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
+  '/organization/apply': typeof OrganizationApplyRoute
+  '/organization/confirm': typeof OrganizationConfirmRoute
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
@@ -340,6 +358,8 @@ export interface FileRouteTypes {
     | '/my-games/$gameId'
     | '/my-games/create'
     | '/my-workshop/settings'
+    | '/organization/apply'
+    | '/organization/confirm'
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
@@ -376,6 +396,8 @@ export interface FileRouteTypes {
     | '/my-games/$gameId'
     | '/my-games/create'
     | '/my-workshop/settings'
+    | '/organization/apply'
+    | '/organization/confirm'
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
@@ -412,6 +434,8 @@ export interface FileRouteTypes {
     | '/my-games/$gameId'
     | '/my-games/create'
     | '/my-workshop/settings'
+    | '/organization/apply'
+    | '/organization/confirm'
     | '/play/$token'
     | '/sessions/$sessionId'
     | '/sessions/new'
@@ -449,6 +473,8 @@ export interface RootRouteChildren {
   MyGamesGameIdRoute: typeof MyGamesGameIdRoute
   MyGamesCreateRoute: typeof MyGamesCreateRoute
   MyWorkshopSettingsRoute: typeof MyWorkshopSettingsRoute
+  OrganizationApplyRoute: typeof OrganizationApplyRoute
+  OrganizationConfirmRoute: typeof OrganizationConfirmRoute
   PlayTokenRoute: typeof PlayTokenRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRoute
   SessionsNewRoute: typeof SessionsNewRoute
@@ -601,6 +627,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organization/confirm': {
+      id: '/organization/confirm'
+      path: '/organization/confirm'
+      fullPath: '/organization/confirm'
+      preLoaderRoute: typeof OrganizationConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organization/apply': {
+      id: '/organization/apply'
+      path: '/organization/apply'
+      fullPath: '/organization/apply'
+      preLoaderRoute: typeof OrganizationApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-workshop/settings': {
       id: '/my-workshop/settings'
       path: '/my-workshop/settings'
@@ -729,6 +769,8 @@ const rootRouteChildren: RootRouteChildren = {
   MyGamesGameIdRoute: MyGamesGameIdRoute,
   MyGamesCreateRoute: MyGamesCreateRoute,
   MyWorkshopSettingsRoute: MyWorkshopSettingsRoute,
+  OrganizationApplyRoute: OrganizationApplyRoute,
+  OrganizationConfirmRoute: OrganizationConfirmRoute,
   PlayTokenRoute: PlayTokenRoute,
   SessionsSessionIdRoute: SessionsSessionIdRoute,
   SessionsNewRoute: SessionsNewRoute,
