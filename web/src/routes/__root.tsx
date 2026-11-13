@@ -11,6 +11,7 @@ import {
   IconSettings,
   IconTools,
   IconShield,
+  IconChartBar,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -238,10 +239,17 @@ function RootComponent() {
       label: t("adminPanel"),
       icon: <IconShield size={18} />,
       active:
+        pathname.startsWith(ROUTES.ADMIN_DASHBOARD) ||
         pathname.startsWith(ROUTES.ADMIN_SERVER_SETTINGS) ||
         pathname.startsWith(ROUTES.ADMIN_ORGANIZATIONS) ||
         pathname.startsWith(ROUTES.ADMIN_USERS),
       children: [
+        {
+          label: t("adminDashboard"),
+          icon: <IconChartBar size={18} />,
+          onClick: () => navigate({ to: ROUTES.ADMIN_DASHBOARD as "/" }),
+          active: pathname.startsWith(ROUTES.ADMIN_DASHBOARD),
+        },
         {
           label: t("serverSettings"),
           icon: <IconSettings size={18} />,

@@ -120,6 +120,23 @@ export interface LegalYouthProtectionSuggestion {
   text?: string;
 }
 
+export interface ObjAdminStats {
+  all?: ObjStatsActivity;
+  consentPending?: number;
+  funnel?: ObjRegistrationFunnel;
+  generatedAt?: string;
+  institutions?: number;
+  institutionsLocked?: number;
+  months?: ObjStatsMonth[];
+  outsideOrganisations?: ObjStatsActivity;
+  perInstitution?: ObjInstitutionStats[];
+  /**
+   * PlaysRecordedSince: sessions and AI turns are counted from this moment on
+   * (game sessions themselves are deleted 48 h after the last activity).
+   */
+  playsRecordedSince?: string;
+}
+
 export interface ObjAiModel {
   /** tier label e.g. "Premium" */
   description?: string;
@@ -443,6 +460,27 @@ export interface ObjInstitutionMember {
   userId?: string;
 }
 
+export interface ObjInstitutionStats {
+  activeWorkshops?: number;
+  city?: string;
+  consentPending?: boolean;
+  createdAt?: string;
+  games?: number;
+  heads?: number;
+  id?: string;
+  individuals?: number;
+  lastActivity?: string;
+  locked?: boolean;
+  months?: ObjStatsMonth[];
+  name?: string;
+  newGames?: ObjStatsPeriod;
+  participants?: number;
+  sessions?: ObjStatsPeriod;
+  staff?: number;
+  turns?: ObjStatsPeriod;
+  workshops?: number;
+}
+
 export interface ObjMeta {
   createdAt?: string;
   createdBy?: UuidNullUUID;
@@ -480,6 +518,31 @@ export interface ObjPublicWorkshopPage {
 
 export interface ObjPublicWorkshopPlay {
   token?: string;
+}
+
+export interface ObjRegistrationFunnel {
+  confirmed?: number;
+  submitted?: number;
+  withWorkshop?: number;
+}
+
+export interface ObjStatsActivity {
+  newGames?: ObjStatsPeriod;
+  sessions?: ObjStatsPeriod;
+  turns?: ObjStatsPeriod;
+}
+
+export interface ObjStatsMonth {
+  month?: string;
+  newGames?: number;
+  newInstitutions?: number;
+  sessions?: number;
+  turns?: number;
+}
+
+export interface ObjStatsPeriod {
+  last30?: number;
+  last7?: number;
 }
 
 export interface ObjStatusField {
@@ -1538,6 +1601,25 @@ export class HttpClient<SecurityDataType = unknown> {
 export class Api<
   SecurityDataType extends unknown,
 > extends HttpClient<SecurityDataType> {
+  admin = {
+    /**
+     * @description Admin only. Organisations, new games, started sessions and AI turns: totals, last 7 and 30 days, per month (last 12 calendar months, Europe/Berlin) and per organisation. Sessions and AI turns are counted from playsRecordedSince on, because game sessions themselves are deleted 48 h after the last activity.
+     *
+     * @tags admin
+     * @name StatsList
+     * @summary Admin statistics
+     * @request GET:/admin/stats
+     * @secure
+     */
+    statsList: (params: RequestParams = {}) =>
+      this.request<ObjAdminStats, HttpxErrorResponse>({
+        path: `/admin/stats`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   apikeys = {
     /**
      * @description Returns the user's API keys and all their linked shares (org shares, sponsorships)

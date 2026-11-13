@@ -91,6 +91,7 @@ func NewMux() *http.ServeMux {
 	// Organisation self-registration
 	mux.Handle("POST /api/institution-applications", httpx.RequireAuth(UpgradeToInstitution))
 	mux.Handle("GET /api/institution-applications", httpx.RequireAuth(ListInstitutionApplications))
+	mux.Handle("GET /api/admin/stats", httpx.RequireAuth(GetAdminStats))
 	mux.Handle("GET /api/institution-applications/mine", httpx.RequireAuth(GetMyInstitutionApplication))
 	mux.Handle("POST /api/institution-applications/resend", httpx.RequireAuth(ResendInstitutionApplication))
 	mux.HandleFunc("POST /api/institution-applications/confirm", ConfirmInstitutionApplication)

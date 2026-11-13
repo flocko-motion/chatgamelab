@@ -383,6 +383,7 @@ func createSessionInternal(
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
 	}
 	log.Debug("session created", "session_id", session.ID)
+	db.RecordPlayStart(ctx, session.ID, game.ID, userID, gameShare)
 
 	// Store resolved constraints in session for re-injection during prose generation
 	session.PromptConstraints = constraint.Text
