@@ -14,6 +14,7 @@ import (
 	"cgl/cmd/institution"
 	"cgl/cmd/invite"
 	"cgl/cmd/lang"
+	"cgl/cmd/mailtest"
 	"cgl/cmd/server"
 	"cgl/cmd/user"
 	"cgl/cmd/workshop"
@@ -43,6 +44,7 @@ func init() {
 	rootCmd.AddCommand(institution.Cmd)
 	rootCmd.AddCommand(workshop.Cmd)
 	rootCmd.AddCommand(invite.Cmd)
+	rootCmd.AddCommand(mailtest.Cmd)
 }
 
 // Execute runs the root command and exits with code 1 if it returns an error.

@@ -252,6 +252,40 @@ func (q *Queries) GetActiveUserIDsByEmail(ctx context.Context, email string) ([]
 	return items, nil
 }
 
+const getInstitutionApplicationByID = `-- name: GetInstitutionApplicationByID :one
+SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at FROM institution_application WHERE id = $1
+`
+
+func (q *Queries) GetInstitutionApplicationByID(ctx context.Context, id uuid.UUID) (InstitutionApplication, error) {
+	row := q.db.QueryRowContext(ctx, getInstitutionApplicationByID, id)
+	var i InstitutionApplication
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+		&i.UserID,
+		&i.Kind,
+		&i.PersonName,
+		&i.PersonFunction,
+		&i.Email,
+		&i.InstitutionName,
+		&i.InstitutionOperator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.PromptConstraint,
+		&i.DeclarationVersion,
+		&i.DeclarationHash,
+		&i.TokenHash,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.ConfirmedAt,
+		&i.InstitutionID,
+		&i.AnonymizedAt,
+	)
+	return i, err
+}
+
 const getInstitutionApplicationByTokenHash = `-- name: GetInstitutionApplicationByTokenHash :one
 SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at FROM institution_application WHERE token_hash = $1
 `
@@ -502,6 +536,27 @@ func (q *Queries) ListInstitutionConsents(ctx context.Context, institutionID uui
 		return nil, err
 	}
 	return items, nil
+}
+
+const renewInstitutionApplicationTokenByID = `-- name: RenewInstitutionApplicationTokenByID :execrows
+UPDATE institution_application
+SET token_hash = $2, expires_at = $3, status = 'pending', modified_at = now()
+WHERE id = $1 AND status IN ('pending', 'expired') AND anonymized_at IS NULL
+`
+
+type RenewInstitutionApplicationTokenByIDParams struct {
+	ID        uuid.UUID
+	TokenHash string
+	ExpiresAt time.Time
+}
+
+// Admin: a fresh link for an open or lapsed (not anonymised) application; it becomes open again.
+func (q *Queries) RenewInstitutionApplicationTokenByID(ctx context.Context, arg RenewInstitutionApplicationTokenByIDParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, renewInstitutionApplicationTokenByID, arg.ID, arg.TokenHash, arg.ExpiresAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const replaceInstitutionApplicationToken = `-- name: ReplaceInstitutionApplicationToken :exec

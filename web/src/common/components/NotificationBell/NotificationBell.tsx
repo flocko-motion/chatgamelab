@@ -23,6 +23,7 @@ import { queryKeys } from "@/api/hooks";
 import type { RoutesInviteResponse } from "@/api/generated";
 import { useTranslateRole } from "@/common/lib/roles";
 import { ROUTES } from "@/common/routes/routes";
+import { AdminRegistrationBell } from "@/features/admin/components/AdminRegistrationBell";
 
 const SEEN_INVITES_KEY = "cgl_seen_invites";
 
@@ -236,9 +237,9 @@ export function NotificationBell() {
     }
   };
 
-  // Hide bell for admin users
+  // Admins have no invites; they are told about new organisation registrations instead.
   if (isAdmin) {
-    return null;
+    return <AdminRegistrationBell />;
   }
 
   return (

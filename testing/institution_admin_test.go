@@ -1,8 +1,11 @@
 package testing
 
 import (
+	"net/url"
+
 	"cgl/api/routes"
 	"cgl/obj"
+	"cgl/testing/testutil"
 )
 
 // TestAdminLocksAndUnlocksOrganisation: a lock stops the organisation's members, keeps their data,
@@ -99,4 +102,49 @@ func (s *InstitutionRegistrationSuite) TestAdminCreatesOrganisationWithDetails()
 	s.Require().NotNil(got.City)
 	s.Equal("Kleinstadt", *got.City)
 	s.Nil(got.Street)
+}
+
+// TestAdminCreatesConfirmationLink: an admin can create a fresh link with a mail text to send by hand;
+// the old link stops working, the new one confirms, and a confirmed application gets no new link.
+func (s *InstitutionRegistrationSuite) TestAdminCreatesConfirmationLink() {
+	admin := s.DevUser()
+	person := s.NewSignupClient()
+	req := s.registerRequest("link-von-hand@jz-test.de")
+	MustSucceed(person.Post("auth/register-institution", req, nil))
+	oldToken := s.LatestConfirmToken(req.Email)
+
+	var apps []obj.InstitutionApplication
+	MustSucceed(admin.Get("institution-applications", &apps))
+	var appID string
+	for _, a := range apps {
+		if a.InstitutionName == req.InstitutionName {
+			appID = a.ID.String()
+		}
+	}
+	s.Require().NotEmpty(appID)
+
+	// Only admins.
+	MustFail(person.Post("institution-applications/"+appID+"/link", nil, nil))
+	MustFail(s.DevUserClient(devHead1ID, "head-1").Post("institution-applications/"+appID+"/link", nil, nil))
+
+	var res routes.InstitutionApplicationLinkResponse
+	MustSucceed(admin.Post("institution-applications/"+appID+"/link", nil, &res))
+	s.Equal(req.Email, res.To)
+	s.Contains(res.Body, res.Link)
+	s.Contains(res.Body, req.InstitutionName)
+	s.NotEmpty(res.Subject)
+	u, err := url.Parse(res.Link)
+	s.Require().NoError(err)
+	newToken := u.Query().Get("token")
+	s.Require().NotEmpty(newToken)
+	s.NotEqual(oldToken, newToken)
+
+	// The old link no longer works, the new one does.
+	s.Public().FailPost("institution-applications/confirm", routes.ConfirmInstitutionRequest{Token: oldToken},
+		testutil.ErrorContains(obj.ErrCodeApplicationTokenInvalid))
+	confirmed := s.confirm(newToken)
+	s.Equal(req.InstitutionName, confirmed.Institution.Name)
+
+	// Confirmed: no new link.
+	MustFail(admin.Post("institution-applications/"+appID+"/link", nil, nil))
 }

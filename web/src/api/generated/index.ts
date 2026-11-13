@@ -852,6 +852,16 @@ export interface RoutesImageStatusResponse {
   isOrganisationUnverified?: boolean;
 }
 
+export interface RoutesInstitutionApplicationLinkResponse {
+  application?: ObjInstitutionApplication;
+  body?: string;
+  link?: string;
+  /** MailConfigured is false while the server has no mail server (SMTP_HOST empty), so the link must be sent by hand. */
+  mailConfigured?: boolean;
+  subject?: string;
+  to?: string;
+}
+
 export interface RoutesInstitutionApplicationResponse {
   application?: ObjInstitutionApplication;
   user?: ObjUser;
@@ -2357,6 +2367,27 @@ export class Api<
     resendCreate: (params: RequestParams = {}) =>
       this.request<RoutesMyInstitutionApplicationResponse, HttpxErrorResponse>({
         path: `/institution-applications/resend`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Admin only. Gives an open or lapsed application a new confirmation link (valid 48 hours; the previous link stops working) and returns it with a ready-to-send mail text, so the admin can send it by hand. Nothing is mailed.
+     *
+     * @tags institution-registration
+     * @name LinkCreate
+     * @summary Create a fresh confirmation link for an application
+     * @request POST:/institution-applications/{id}/link
+     * @secure
+     */
+    linkCreate: (id: string, params: RequestParams = {}) =>
+      this.request<
+        RoutesInstitutionApplicationLinkResponse,
+        HttpxErrorResponse
+      >({
+        path: `/institution-applications/${id}/link`,
         method: "POST",
         secure: true,
         format: "json",
