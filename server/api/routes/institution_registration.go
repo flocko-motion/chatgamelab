@@ -287,13 +287,15 @@ func ConfirmInstitutionApplication(w http.ResponseWriter, r *http.Request) {
 
 // InstitutionConsentRequest is a head's consent to the current declaration for their organisation.
 type InstitutionConsentRequest struct {
-	PersonName         string `json:"personName"`
-	PersonFunction     string `json:"personFunction"`
-	Email              string `json:"email"`
-	Operator           string `json:"operator"`
-	Street             string `json:"street"`
-	PostalCode         string `json:"postalCode"`
-	City               string `json:"city"`
+	PersonName     string `json:"personName"`
+	PersonFunction string `json:"personFunction"`
+	Email          string `json:"email"`
+	Operator       string `json:"operator"`
+	Street         string `json:"street"`
+	PostalCode     string `json:"postalCode"`
+	City           string `json:"city"`
+	// PromptConstraint: the organisation's youth-protection prompt restriction (required, at most 200 characters).
+	PromptConstraint   string `json:"promptConstraint"`
 	AcceptDeclaration  bool   `json:"acceptDeclaration"`
 	DeclarationVersion string `json:"declarationVersion"`
 }
@@ -301,7 +303,7 @@ type InstitutionConsentRequest struct {
 // ConsentToInstitutionDeclaration godoc
 //
 //	@Summary		Consent to the current declaration for an organisation
-//	@Description	For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator and address, and e-mails the confirmation with a copy to the operator address.
+//	@Description	For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator, address and the youth-protection prompt restriction, and e-mails the confirmation with a copy to the operator address.
 //	@Tags			institution-registration
 //	@Accept			json
 //	@Produce		json
@@ -335,6 +337,7 @@ func ConsentToInstitutionDeclaration(w http.ResponseWriter, r *http.Request) {
 	consent, err := db.RecordInstitutionConsent(r.Context(), user.ID, institutionID, db.InstitutionConsentInput{
 		PersonName: req.PersonName, PersonFunction: req.PersonFunction, Email: req.Email,
 		Operator: req.Operator, Street: req.Street, PostalCode: req.PostalCode, City: req.City,
+		PromptConstraint: req.PromptConstraint,
 	})
 	if err != nil {
 		writeErr(w, err)

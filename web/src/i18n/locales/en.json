@@ -149,6 +149,7 @@
         "edit": "Change details and send again"
       },
       "consentModal": {
+        "constraintIntro": "With the declaration your institution commits to setting a youth-protection prompt restriction that fits your target group. Below is the one your organisation uses right now. Please check it and adjust it if needed.",
         "title": "Confirm the declaration",
         "introExisting": "Your organisation “{{name}}” now has a declaration that is confirmed online. It replaces the user agreement you signed before. Please read it and agree on behalf of your institution.",
         "introNewVersion": "The declaration has been updated (version {{version}}). Please read the new version and agree on behalf of your organisation “{{name}}”.",

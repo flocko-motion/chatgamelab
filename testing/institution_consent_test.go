@@ -16,6 +16,8 @@ const (
 	devInstitutionID = "00000000-0000-0000-0000-000000000010"
 )
 
+const consentConstraint = "Erlaube mäßige, nicht-detaillierte Konflikte; verhindere realistische Gewalt aktiv."
+
 func consentRequest() routes.InstitutionConsentRequest {
 	return routes.InstitutionConsentRequest{
 		PersonName:         "Hanna Leitung",
@@ -25,6 +27,7 @@ func consentRequest() routes.InstitutionConsentRequest {
 		Street:             "Devweg 1",
 		PostalCode:         "12345",
 		City:               "Devstadt",
+		PromptConstraint:   consentConstraint,
 		AcceptDeclaration:  true,
 		DeclarationVersion: legal.CurrentDeclaration().Version,
 	}
@@ -52,6 +55,12 @@ func (s *InstitutionRegistrationSuite) TestExistingOrganisationNeedsConsent() {
 	bad = consentRequest()
 	bad.Operator = ""
 	MustFail(head1.Post("institutions/"+devInstitutionID+"/declaration-consent", bad, nil))
+	bad = consentRequest()
+	bad.PromptConstraint = "  "
+	MustFail(head1.Post("institutions/"+devInstitutionID+"/declaration-consent", bad, nil))
+	bad = consentRequest()
+	bad.PromptConstraint = strings.Repeat("a", obj.MaxPromptConstraintLength+1)
+	MustFail(head1.Post("institutions/"+devInstitutionID+"/declaration-consent", bad, nil))
 	s.True(Must(head1.GetMe()).InstitutionDeclaration.Pending, "rejected consents change nothing")
 
 	var consent obj.InstitutionConsent
@@ -78,6 +87,10 @@ func (s *InstitutionRegistrationSuite) TestExistingOrganisationNeedsConsent() {
 	s.Equal("Dev Träger e.V.", *inst.Operator)
 	s.Require().NotNil(inst.City)
 	s.Equal("Devstadt", *inst.City)
+
+	// The restriction confirmed in the window is now the organisation's restriction.
+	s.Require().NotNil(inst.PromptConstraints)
+	s.Equal(consentConstraint, *inst.PromptConstraints)
 
 	// Confirmation to the person and a copy, worded for a renewed consent.
 	var toPerson, copy bool

@@ -149,6 +149,7 @@
         "edit": "Angaben ändern und neu absenden"
       },
       "consentModal": {
+        "constraintIntro": "Mit der Erklärung verpflichtet sich eure Einrichtung, eine zu eurer Zielgruppe passende Jugendschutz-Prompt-Einschränkung festzulegen. Unten steht die, die eure Organisation gerade verwendet. Bitte prüft sie und passt sie bei Bedarf an.",
         "title": "Einverständniserklärung bestätigen",
         "introExisting": "Für eure Organisation „{{name}}“ gibt es jetzt eine Einverständniserklärung, die online bestätigt wird. Sie ersetzt die bisher unterschriebene Nutzungsvereinbarung. Bitte lies sie und stimme im Namen eurer Einrichtung zu.",
         "introNewVersion": "Die Einverständniserklärung wurde aktualisiert (Version {{version}}). Bitte lies die neue Fassung und stimme im Namen eurer Organisation „{{name}}“ zu.",

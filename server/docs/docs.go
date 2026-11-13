@@ -2419,7 +2419,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator and address, and e-mails the confirmation with a copy to the operator address.",
+                "description": "For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator, address and the youth-protection prompt restriction, and e-mails the confirmation with a copy to the operator address.",
                 "consumes": [
                     "application/json"
                 ],
@@ -7808,6 +7808,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "description": "PromptConstraint: the organisation's youth-protection prompt restriction (required, at most 200 characters).",
                     "type": "string"
                 },
                 "street": {
