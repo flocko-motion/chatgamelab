@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { auth0Config } from "../config/auth0";
 import { config } from "../config/env";
 import { Api } from "../api/generated";
-import { getApiConfig } from "../api/client/http";
+import { getApiConfig, INSTITUTION_DISABLED_EVENT } from "../api/client/http";
 import { authLogger } from "../config/logger";
 import { getHomepageUrl } from "../common/lib/url";
 import { ErrorCodes, extractRawErrorCode } from "../common/types/errorCodes";
@@ -35,6 +35,9 @@ export {
   clearParticipantToken,
 } from "./auth/tokenStorage";
 
+/** Dev token role of a person who has no account yet. */
+const DEV_NEW_PERSON_ROLE = "new-person";
+
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
@@ -52,10 +55,12 @@ const defaultAuthContext: AuthContextType = {
   isWorkshopInactive: false,
   loginWithAuth0: () => { },
   loginWithRole: () => {},
+  loginAsNewPerson: async () => {},
   logout: () => {},
   isDevMode: false,
   getAccessToken: async () => null,
   retryBackendFetch: () => {},
+  refreshBackendUser: async () => false,
   register: async () => {},
 };
 
@@ -97,6 +102,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     auth0TokenError,
   } = useTokenManager();
 
+  // Dev "new person" login has no Auth0 profile; give the registration form an empty start.
+  const getDevRegistrationData = useCallback(() => {
+    const cached = devTokenCache.current;
+    if (!isDevMode || cached?.role !== DEV_NEW_PERSON_ROLE) return null;
+    return { auth0Id: cached.userId, email: "", name: "" };
+  }, [isDevMode, devTokenCache]);
+
   const {
     backendUser,
     setBackendUser,
@@ -107,7 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     fetchBackendUser,
     register,
     setTranslationRef,
-  } = useBackendUser({ getAccessToken });
+  } = useBackendUser({ getAccessToken, getDevRegistrationData });
 
   // Keep translation ref in sync
   setTranslationRef(t);
@@ -127,6 +139,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (isAuthenticated) {
       fetchBackendUser();
     }
+  }, [isAuthenticated, fetchBackendUser]);
+
+  // An admin may lock the organisation while the app is open: on the first
+  // "organisation locked" answer, reload the user so the lock notice replaces the page.
+  useEffect(() => {
+    let pending = false;
+    const onLocked = () => {
+      if (pending || !isAuthenticated) return;
+      pending = true;
+      fetchBackendUser().finally(() => {
+        pending = false;
+      });
+    };
+    window.addEventListener(INSTITUTION_DISABLED_EVENT, onLocked);
+    return () => window.removeEventListener(INSTITUTION_DISABLED_EVENT, onLocked);
   }, [isAuthenticated, fetchBackendUser]);
 
   // ── Participant Auth ────────────────────────────────────────────────
@@ -260,7 +287,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
         fetchBackendUser().then((success) => {
-          if (!success) {
+          if (!success && cached.role !== DEV_NEW_PERSON_ROLE) {
             authLogger.warning(
               "Dev session restore failed — user may have been deleted, clearing session",
             );
@@ -427,6 +454,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const loginAsNewPerson = async () => {
+    if (!isDevMode) {
+      authLogger.warning("loginAsNewPerson called but not in dev mode");
+      return;
+    }
+    setIsLoading(true);
+    setBackendError(null);
+    try {
+      const publicApi = new Api(getApiConfig());
+      const res = await publicApi.dev.signupTokenCreate();
+      const token = res.data.token;
+      const auth0Id = res.data.auth0Id;
+      if (!token || !auth0Id) throw new Error("Failed to get dev signup token");
+
+      const tokenCache: TokenCache = {
+        token,
+        expiresAt: Date.now() + 23 * 60 * 60 * 1000,
+        userId: auth0Id,
+        role: DEV_NEW_PERSON_ROLE,
+      };
+      devTokenCache.current = tokenCache;
+      storeDevToken(tokenCache);
+      setUser({ sub: auth0Id, name: DEV_NEW_PERSON_ROLE, role: DEV_NEW_PERSON_ROLE });
+      setIsAuthenticated(true);
+      backendFetchAttempted.current = true;
+      // Ends in needsRegistration: the registration form shows next.
+      await fetchBackendUser();
+    } catch (error) {
+      authLogger.error("Dev new-person login failed", { error });
+      setBackendError(error instanceof Error ? error.message : "Dev login failed");
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     authLogger.debug("Initiating logout", {
       isAuth0Authenticated: auth0IsAuthenticated,
@@ -502,10 +566,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isWorkshopInactive,
     loginWithAuth0,
     loginWithRole,
+    loginAsNewPerson,
     logout,
     isDevMode,
     getAccessToken,
     retryBackendFetch,
+    refreshBackendUser: fetchBackendUser,
     register,
   };
 

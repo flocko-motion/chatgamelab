@@ -19,6 +19,7 @@ export {
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
+  useSetInstitutionFreeUseTier,
 } from "./useApiKeys";
 
 // Games

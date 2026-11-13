@@ -55,7 +55,15 @@ CREATE TABLE institution (
     -- AI quality tier for the institution free-use key (high/medium/low, NULL = server default)
     free_use_ai_quality_tier text NULL,
     -- Additional prompt constraints configured by institution heads
-    prompt_constraints text NULL
+    prompt_constraints text NULL,
+    -- Operator (Träger) and address, entered at self-registration
+    operator        text NULL,
+    street          text NULL,
+    postal_code     text NULL,
+    city            text NULL,
+    -- Reversible admin lock: members cannot use the organisation while set; data is kept
+    disabled_at     timestamptz NULL,
+    disabled_reason text NULL
 );
 
 -- Workshop
@@ -338,7 +346,11 @@ CREATE TABLE game_session (
     -- Set to true when image generation fails due to organization verification required
     is_organisation_unverified boolean NOT NULL DEFAULT false,
 
-    deleted_at      timestamptz NULL
+    deleted_at      timestamptz NULL,
+    -- Tier the session asked for while a free-use key caps it lower, and who released that key
+    -- (organization/server); both NULL while it plays at the tier it asked for.
+    ai_quality_tier_requested text NULL,
+    ai_quality_tier_limited_by text NULL
 );
 
 -- GameSessionMessage
@@ -476,6 +488,88 @@ CREATE TABLE backup_log (
 );
 
 CREATE INDEX backup_log_finished_at_idx ON backup_log (finished_at DESC);
+
+-- Institution application
+-- A self-registration or upgrade request; becomes an institution once the e-mail link is confirmed.
+CREATE TABLE institution_application (
+    id                      uuid PRIMARY KEY,
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    modified_at             timestamptz NOT NULL DEFAULT now(),
+    -- Personal data (user_id, person_*, email) is set to NULL by the retention job
+    -- for applications that were never confirmed; the rest stays for the admin overview.
+    user_id                 uuid NULL REFERENCES app_user(id) ON DELETE SET NULL,
+    kind                    text NOT NULL,
+    person_name             text NULL,
+    person_function         text NULL,
+    email                   text NULL,
+    institution_name        text NOT NULL,
+    institution_operator    text NOT NULL,
+    street                  text NOT NULL,
+    postal_code             text NOT NULL,
+    city                    text NOT NULL,
+    prompt_constraint       text NOT NULL,
+    declaration_version     text NOT NULL,
+    declaration_hash        text NOT NULL,
+    token_hash              text NOT NULL UNIQUE,
+    expires_at              timestamptz NOT NULL,
+    status                  text NOT NULL DEFAULT 'pending',
+    confirmed_at            timestamptz NULL,
+    institution_id          uuid NULL REFERENCES institution(id) ON DELETE SET NULL,
+    anonymized_at           timestamptz NULL,
+    CONSTRAINT institution_application_kind_chk CHECK (kind IN ('register', 'upgrade')),
+    CONSTRAINT institution_application_status_chk CHECK (status IN ('pending', 'confirmed', 'expired'))
+);
+
+CREATE INDEX institution_application_user_idx ON institution_application (user_id);
+CREATE INDEX institution_application_status_idx ON institution_application (status, created_at DESC);
+
+-- Institution consent
+-- Immutable log of every declaration consent. No foreign keys on purpose: the proof must survive deletion of the organisation or account.
+CREATE TABLE institution_consent (
+    id                      uuid PRIMARY KEY,
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    institution_id          uuid NOT NULL,
+    user_id                 uuid NOT NULL,
+    application_id          uuid NULL,
+    email                   text NOT NULL,
+    person_name             text NOT NULL,
+    person_function         text NOT NULL,
+    institution_name        text NOT NULL,
+    institution_operator    text NOT NULL,
+    street                  text NOT NULL,
+    postal_code             text NOT NULL,
+    city                    text NOT NULL,
+    declaration_version     text NOT NULL,
+    declaration_hash        text NOT NULL
+);
+
+CREATE INDEX institution_consent_institution_idx ON institution_consent (institution_id, created_at DESC);
+
+CREATE FUNCTION institution_consent_immutable() RETURNS trigger AS $$
+BEGIN
+    RAISE EXCEPTION 'institution_consent is append-only';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER institution_consent_no_update_delete
+    BEFORE UPDATE OR DELETE ON institution_consent
+    FOR EACH ROW EXECUTE FUNCTION institution_consent_immutable();
+
+-- Play statistics
+-- Anonymous, kept beyond the session retention window (see migration 039).
+CREATE TABLE play_stat (
+    session_id      uuid PRIMARY KEY,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    game_id         uuid NULL,
+    institution_id  uuid NULL,
+    workshop_id     uuid NULL,
+    via_share       boolean NOT NULL DEFAULT false,
+    turns           integer NOT NULL DEFAULT 0,
+    last_turn_at    timestamptz NULL
+);
+
+CREATE INDEX play_stat_created_idx ON play_stat (created_at);
+CREATE INDEX play_stat_institution_idx ON play_stat (institution_id, created_at);
 
 -- Deferred foreign keys (tables referenced before they are created)
 ALTER TABLE institution ADD CONSTRAINT institution_free_use_api_key_share_fk

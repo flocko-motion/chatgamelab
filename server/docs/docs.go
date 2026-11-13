@@ -21,6 +21,37 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. Organisations, new games, started sessions and AI turns: totals, last 7 and 30 days, per month (last 12 calendar months, Europe/Berlin) and per organisation. Sessions and AI turns are counted from playsRecordedSince on, because game sessions themselves are deleted 48 h after the last activity.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.AdminStats"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/apikeys": {
             "get": {
                 "security": [
@@ -624,6 +655,100 @@ const docTemplate = `{
                         "description": "Name already taken",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register-institution": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "After the Auth0 login of a new person: creates the account (age group u18) and right away the organisation, with the person as head; the consent is logged and the confirmation mailed (with a copy to the operator). For now without e-mail confirmation (to be added via Auth0). Requires the 18+ confirmation, terms, privacy policy and the current declaration.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Register a new account as an organisation",
+                "parameters": [
+                    {
+                        "description": "Registration form",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.RegisterInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionRegisteredResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Name taken or e-mail belongs to another account",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dev/mails": {
+            "get": {
+                "description": "DEV_MODE only. The last mails the server sent, newest first.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dev"
+                ],
+                "summary": "Dev: mails sent so far",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/cgl_mail.Message"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dev/signup-token": {
+            "post": {
+                "description": "DEV_MODE only. Returns a token that behaves like the Auth0 login of a person who has no account yet.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dev"
+                ],
+                "summary": "Dev: token for a new person",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.DevSignupTokenResponse"
                         }
                     }
                 }
@@ -1806,6 +1931,197 @@ const docTemplate = `{
                 }
             }
         },
+        "/institution-applications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. All self-registration and upgrade applications, newest first (at most 500), including unconfirmed and expired ones. Personal data of old unconfirmed applications is removed by the retention job.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "List organisation applications",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.InstitutionApplication"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "For logged-in adult accounts without an organisation: creates the organisation right away with the account as head, logs the consent and mails the confirmation. For now without e-mail confirmation. Requires the 18+ confirmation and the current declaration.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Upgrade the logged-in account to an organisation",
+                "parameters": [
+                    {
+                        "description": "Organisation form",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpgradeInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionRegisteredResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Account is not 18+",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Already in an organisation, name taken or e-mail of another account",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institution-applications/confirm": {
+            "post": {
+                "description": "Called with the token from the e-mail link. Creates the organisation, makes the applicant its head, sets the youth-protection prompt restriction, logs the consent and e-mails the confirmation (with a copy to the operator).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Confirm an organisation application",
+                "parameters": [
+                    {
+                        "description": "Token from the link",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.ConfirmInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.ConfirmInstitutionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Unknown or used link",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "Link expired",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institution-applications/mine": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the open (unconfirmed) application of the logged-in account, or null.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Get my open organisation application",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.MyInstitutionApplicationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institution-applications/resend": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new confirmation link for the open application of the logged-in account and e-mails it. The previous link stops working.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Resend the confirmation link",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.MyInstitutionApplicationResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "No open application",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/institutions": {
             "get": {
                 "security": [
@@ -1928,7 +2244,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Soft-deletes an institution (admin only)",
+                "description": "Permanently deletes an institution with all its workshops and workshop participants; heads and staff keep their accounts as individual users (admin only). To block access without losing data, lock it instead (POST /institutions/{id}/disable).",
                 "produces": [
                     "application/json"
                 ],
@@ -2075,6 +2391,167 @@ const docTemplate = `{
                 }
             }
         },
+        "/institutions/{id}/declaration-consent": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator, address and the youth-protection prompt restriction, and e-mails the confirmation with a copy to the operator address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Consent to the current declaration for an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Consent",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionConsentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.InstitutionConsent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Not a head of this organisation",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/disable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. Heads, staff and participants of the organisation can no longer use it, its share links and public pages stop working. Nothing is deleted; unlock reverses it.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Lock an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reason",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/routes.LockInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/enable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. Reverses a lock; members can use the organisation again.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Unlock an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/institutions/{id}/free-use-key": {
             "patch": {
                 "security": [
@@ -2108,6 +2585,70 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/routes.SetInstitutionFreeUseKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/free-use-tier": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the highest AI quality tier the institution's free-use key is released up to.\nMembers and workshops without a key of their own play with it at most at this tier.\nPass null or \"\" to fall back to the server's default tier.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Set institution free-use key tier",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Tier (null to clear)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetInstitutionFreeUseTierRequest"
                         }
                     }
                 ],
@@ -2876,6 +3417,26 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/legal/institution-declaration": {
+            "get": {
+                "description": "Returns the current version of the Einverständniserklärung for organisations (binding German text, version, date, SHA-256 hash) and the suggested youth-protection prompt restrictions, the site default for age 13+ and the length limit. Public.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "legal"
+                ],
+                "summary": "Get the institution declaration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionDeclarationResponse"
                         }
                     }
                 }
@@ -5321,6 +5882,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "cgl_mail.Message": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "sentAt": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
         "db.UserSessionWithGame": {
             "type": "object",
             "properties": {
@@ -5329,6 +5907,13 @@ const docTemplate = `{
                 },
                 "aiPlatform": {
                     "description": "AI model used for playing.",
+                    "type": "string"
+                },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
                     "type": "string"
                 },
                 "aiSession": {
@@ -5427,6 +6012,85 @@ const docTemplate = `{
                 },
                 "type": {
                     "description": "Deprecated: use Code instead",
+                    "type": "string"
+                }
+            }
+        },
+        "legal.Declaration": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "hash": {
+                    "description": "Hash is the hex SHA-256 of Text, stored with every consent record.",
+                    "type": "string"
+                },
+                "text": {
+                    "description": "Text is the binding German text (Markdown).",
+                    "type": "string"
+                },
+                "translations": {
+                    "description": "Translations holds optional, non-binding reading aids keyed by language code.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "legal.YouthProtectionSuggestion": {
+            "type": "object",
+            "properties": {
+                "minAge": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.AdminStats": {
+            "type": "object",
+            "properties": {
+                "all": {
+                    "$ref": "#/definitions/obj.StatsActivity"
+                },
+                "consentPending": {
+                    "type": "integer"
+                },
+                "funnel": {
+                    "$ref": "#/definitions/obj.RegistrationFunnel"
+                },
+                "generatedAt": {
+                    "type": "string"
+                },
+                "institutions": {
+                    "type": "integer"
+                },
+                "institutionsLocked": {
+                    "type": "integer"
+                },
+                "months": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatsMonth"
+                    }
+                },
+                "outsideOrganisations": {
+                    "$ref": "#/definitions/obj.StatsActivity"
+                },
+                "perInstitution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.InstitutionStats"
+                    }
+                },
+                "playsRecordedSince": {
+                    "description": "PlaysRecordedSince: sessions and AI turns are counted from this moment on\n(game sessions themselves are deleted 48 h after the last activity).",
                     "type": "string"
                 }
             }
@@ -5708,6 +6372,13 @@ const docTemplate = `{
                     "description": "AI model used for playing.",
                     "type": "string"
                 },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
+                    "type": "string"
+                },
                 "aiSession": {
                     "description": "JSON with arbitrary details to be used within that model and within that session.",
                     "type": "string"
@@ -5950,6 +6621,24 @@ const docTemplate = `{
         "obj.Institution": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "declaration": {
+                    "description": "Declaration is the consent status of the organisation (admin list only).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.InstitutionDeclarationStatus"
+                        }
+                    ]
+                },
+                "disabledAt": {
+                    "type": "string"
+                },
+                "disabledReason": {
+                    "description": "DisabledReason is the admin's note on a lock (admin list only).",
+                    "type": "string"
+                },
                 "freeUseAiQualityTier": {
                     "description": "high/medium/low, nil = server default",
                     "type": "string"
@@ -5972,8 +6661,147 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "operator": {
+                    "description": "Operator (Träger) and address, entered at self-registration or when consenting to the declaration.",
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
                 "promptConstraints": {
                     "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.InstitutionApplication": {
+            "type": "object",
+            "properties": {
+                "anonymizedAt": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "confirmedAt": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "declarationVersion": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.InstitutionConsent": {
+            "type": "object",
+            "properties": {
+                "applicationId": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "declarationHash": {
+                    "type": "string"
+                },
+                "declarationVersion": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.InstitutionDeclarationStatus": {
+            "type": "object",
+            "properties": {
+                "consentedAt": {
+                    "type": "string"
+                },
+                "consentedVersion": {
+                    "type": "string"
+                },
+                "currentVersion": {
+                    "type": "string"
+                },
+                "pending": {
+                    "type": "boolean"
                 }
             }
         },
@@ -5991,6 +6819,68 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "obj.InstitutionStats": {
+            "type": "object",
+            "properties": {
+                "activeWorkshops": {
+                    "type": "integer"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "consentPending": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "games": {
+                    "type": "integer"
+                },
+                "heads": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "individuals": {
+                    "type": "integer"
+                },
+                "lastActivity": {
+                    "type": "string"
+                },
+                "locked": {
+                    "type": "boolean"
+                },
+                "months": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatsMonth"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "newGames": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "participants": {
+                    "type": "integer"
+                },
+                "sessions": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "staff": {
+                    "type": "integer"
+                },
+                "turns": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "workshops": {
+                    "type": "integer"
                 }
             }
         },
@@ -6110,6 +7000,20 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.RegistrationFunnel": {
+            "type": "object",
+            "properties": {
+                "confirmed": {
+                    "type": "integer"
+                },
+                "submitted": {
+                    "type": "integer"
+                },
+                "withWorkshop": {
+                    "type": "integer"
+                }
+            }
+        },
         "obj.Role": {
             "type": "string",
             "enum": [
@@ -6126,6 +7030,51 @@ const docTemplate = `{
                 "RoleParticipant",
                 "RoleIndividual"
             ]
+        },
+        "obj.StatsActivity": {
+            "type": "object",
+            "properties": {
+                "newGames": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "sessions": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "turns": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                }
+            }
+        },
+        "obj.StatsMonth": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "string"
+                },
+                "newGames": {
+                    "type": "integer"
+                },
+                "newInstitutions": {
+                    "type": "integer"
+                },
+                "sessions": {
+                    "type": "integer"
+                },
+                "turns": {
+                    "type": "integer"
+                }
+            }
+        },
+        "obj.StatsPeriod": {
+            "type": "object",
+            "properties": {
+                "last30": {
+                    "type": "integer"
+                },
+                "last7": {
+                    "type": "integer"
+                }
+            }
         },
         "obj.StatusField": {
             "type": "object",
@@ -6217,6 +7166,13 @@ const docTemplate = `{
                     "description": "high/medium/low, nil = server default",
                     "type": "string"
                 },
+                "aiQualityTierLimit": {
+                    "type": "string"
+                },
+                "aiQualityTierLimitSource": {
+                    "description": "AiQualityTierLimitSource names the key the user's own tier plays with: one of the\nUserTierSource* constants. AiQualityTierLimit is the highest tier they may choose while\na free-use key pays; nil with their own key. Filled for the current user only.",
+                    "type": "string"
+                },
                 "auth0Id": {
                     "type": "string"
                 },
@@ -6228,6 +7184,18 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "institutionDeclaration": {
+                    "description": "InstitutionDeclaration is the declaration status of the user's organisation.\nFilled for organisation heads on GET /users/me only.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.InstitutionDeclarationStatus"
+                        }
+                    ]
+                },
+                "institutionDisabled": {
+                    "description": "InstitutionDisabled is true when the user's organisation is locked (GET /users/me only).",
+                    "type": "boolean"
                 },
                 "language": {
                     "description": "ISO 639-1 language code (e.g., \"en\", \"de\", \"fr\")",
@@ -6339,6 +7307,10 @@ const docTemplate = `{
                 },
                 "aiQualityTier": {
                     "description": "Workshop settings (configured by staff/heads)",
+                    "type": "string"
+                },
+                "aiQualityTierLimit": {
+                    "description": "AiQualityTierLimit is the highest tier the workshop may choose while a free-use key\npays (ApiKeySource organization/server); nil while its own key pays, or none does.",
                     "type": "string"
                 },
                 "allowGameSharing": {
@@ -6509,6 +7481,25 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.ConfirmInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.ConfirmInstitutionResponse": {
+            "type": "object",
+            "properties": {
+                "consent": {
+                    "$ref": "#/definitions/obj.InstitutionConsent"
+                },
+                "institution": {
+                    "$ref": "#/definitions/obj.Institution"
+                }
+            }
+        },
         "routes.CreateApiKeyRequest": {
             "type": "object",
             "properties": {
@@ -6578,7 +7569,20 @@ const docTemplate = `{
         "routes.CreateInstitutionRequest": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "operator": {
+                    "description": "Optional details (operator and address), as entered at self-registration.",
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "street": {
                     "type": "string"
                 }
             }
@@ -6622,6 +7626,17 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.DevSignupTokenResponse": {
+            "type": "object",
+            "properties": {
+                "auth0Id": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -6753,6 +7768,13 @@ const docTemplate = `{
                     "description": "AI model used for playing.",
                     "type": "string"
                 },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
+                    "type": "string"
+                },
                 "aiSession": {
                     "description": "JSON with arbitrary details to be used within that model and within that session.",
                     "type": "string"
@@ -6868,6 +7890,81 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.InstitutionConsentRequest": {
+            "type": "object",
+            "properties": {
+                "acceptDeclaration": {
+                    "type": "boolean"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "declarationVersion": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "description": "PromptConstraint: the organisation's youth-protection prompt restriction (required, at most 200 characters).",
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.InstitutionDeclarationResponse": {
+            "type": "object",
+            "properties": {
+                "bindingLanguage": {
+                    "type": "string"
+                },
+                "declaration": {
+                    "$ref": "#/definitions/legal.Declaration"
+                },
+                "defaultPromptConstraint": {
+                    "description": "DefaultPromptConstraint is the site constraint for age 13+ (u13); the registration form starts with it.",
+                    "type": "string"
+                },
+                "maxPromptConstraintLength": {
+                    "description": "MaxPromptConstraintLength is the maximum length of an organisation's restriction.",
+                    "type": "integer"
+                },
+                "youthProtectionSuggestions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/legal.YouthProtectionSuggestion"
+                    }
+                }
+            }
+        },
+        "routes.InstitutionRegisteredResponse": {
+            "type": "object",
+            "properties": {
+                "consent": {
+                    "$ref": "#/definitions/obj.InstitutionConsent"
+                },
+                "institution": {
+                    "$ref": "#/definitions/obj.Institution"
+                },
+                "user": {
+                    "$ref": "#/definitions/obj.User"
+                }
+            }
+        },
         "routes.InviteResponse": {
             "type": "object",
             "properties": {
@@ -6929,6 +8026,14 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.LockInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.MessageStatusResponse": {
             "type": "object",
             "properties": {
@@ -6969,6 +8074,14 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.MyInstitutionApplicationResponse": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/obj.InstitutionApplication"
+                }
+            }
+        },
         "routes.ParticipantCodeResponse": {
             "type": "object",
             "properties": {
@@ -6998,6 +8111,64 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/routes.EnrichedGameShare"
                     }
+                }
+            }
+        },
+        "routes.RegisterInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "acceptDeclaration": {
+                    "description": "AcceptDeclaration: the Einverständniserklärung, in the name of the organisation.",
+                    "type": "boolean"
+                },
+                "acceptPrivacy": {
+                    "type": "boolean"
+                },
+                "acceptTerms": {
+                    "type": "boolean"
+                },
+                "accountName": {
+                    "description": "AccountName is the display name of the new account (same rules as normal registration).",
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "confirmAdult": {
+                    "description": "ConfirmAdult: \"Ich bin mindestens 18 Jahre alt\".",
+                    "type": "boolean"
+                },
+                "declarationVersion": {
+                    "description": "DeclarationVersion is the version shown to the person; must be the current one.",
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "language": {
+                    "description": "Language: ISO 639-1 code of the interface (optional).",
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },
@@ -7187,6 +8358,13 @@ const docTemplate = `{
                     "description": "AI model used for playing.",
                     "type": "string"
                 },
+                "aiQualityTierLimitedBy": {
+                    "type": "string"
+                },
+                "aiQualityTierRequested": {
+                    "description": "AiQualityTierRequested is the tier the session asked for while a free-use key caps it\nlower (AiModel); AiQualityTierLimitedBy names who released that key: one of the\nAiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.",
+                    "type": "string"
+                },
                 "aiSession": {
                     "description": "JSON with arbitrary details to be used within that model and within that session.",
                     "type": "string"
@@ -7296,6 +8474,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "shareId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetInstitutionFreeUseTierRequest": {
+            "type": "object",
+            "properties": {
+                "aiQualityTier": {
+                    "description": "low/medium/high/max; null or \"\" = server default",
                     "type": "string"
                 }
             }
@@ -7496,6 +8683,50 @@ const docTemplate = `{
                 },
                 "showPublicGames": {
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.UpgradeInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "acceptDeclaration": {
+                    "description": "AcceptDeclaration: the Einverständniserklärung, in the name of the organisation.",
+                    "type": "boolean"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "confirmAdult": {
+                    "description": "ConfirmAdult: \"Ich bin mindestens 18 Jahre alt\".",
+                    "type": "boolean"
+                },
+                "declarationVersion": {
+                    "description": "DeclarationVersion is the version shown to the person; must be the current one.",
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "institutionName": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "promptConstraint": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },

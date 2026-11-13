@@ -9,6 +9,7 @@ import {
   Stack,
   Loader,
   Box,
+  Tooltip,
 } from "@mantine/core";
 import {
   IconChevronDown,
@@ -16,12 +17,15 @@ import {
   IconTrash,
   IconSend,
   IconEdit,
+  IconLock,
+  IconLockOpen,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import type { ObjInstitution, ObjUser } from "@/api/generated";
+import { headNames } from "../lib/organizationHeads";
 import { useTranslateRole } from "@/common/lib/roles";
 
 interface OrganizationMembersRowProps {
@@ -29,13 +33,53 @@ interface OrganizationMembersRowProps {
   onEdit: (org: ObjInstitution) => void;
   onDelete: (org: ObjInstitution) => void;
   onInvite: (org: ObjInstitution) => void;
+  onToggleLock: (org: ObjInstitution) => void;
 }
+
+/** Consent and lock state of an organisation, shared by table row and mobile card. */
+export function OrganizationStatusBadges({ org }: { org: ObjInstitution }) {
+  const { t, i18n } = useTranslation("common");
+  const decl = org.declaration;
+  const date = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(i18n.language) : "");
+  return (
+    <Group gap={4} wrap="wrap">
+      {org.disabledAt ? (
+        <Tooltip label={org.disabledReason || t("admin.organizations.lockedNoReason")} withArrow>
+          <Badge color="red" variant="filled" size="sm">
+            {t("admin.organizations.statusLocked")}
+          </Badge>
+        </Tooltip>
+      ) : (
+        <Badge color="green" variant="light" size="sm">
+          {t("admin.organizations.statusActive")}
+        </Badge>
+      )}
+      {decl &&
+        (decl.pending ? (
+          <Badge color="orange" variant="light" size="sm">
+            {decl.consentedVersion
+              ? t("admin.organizations.consentOutdated", { version: decl.consentedVersion })
+              : t("admin.organizations.consentMissing")}
+          </Badge>
+        ) : (
+          <Badge color="gray" variant="light" size="sm">
+            {t("admin.organizations.consentGiven", {
+              version: decl.consentedVersion,
+              date: date(decl.consentedAt),
+            })}
+          </Badge>
+        ))}
+    </Group>
+  );
+}
+
 
 export function OrganizationMembersRow({
   org,
   onEdit,
   onDelete,
   onInvite,
+  onToggleLock,
 }: OrganizationMembersRowProps) {
   const { t } = useTranslation("common");
   const api = useRequiredAuthenticatedApi();
@@ -87,8 +131,21 @@ export function OrganizationMembersRow({
                 <IconChevronRight size={16} />
               )}
             </ActionIcon>
-            <Text fw={500}>{org.name}</Text>
+            <Stack gap={0}>
+              <Text fw={500}>{org.name}</Text>
+              {(org.operator || org.city) && (
+                <Text size="xs" c="dimmed">
+                  {[org.operator, org.city].filter(Boolean).join(" · ")}
+                </Text>
+              )}
+            </Stack>
           </Group>
+        </Table.Td>
+        <Table.Td>
+          <Text size="sm">{headNames(org) || "–"}</Text>
+        </Table.Td>
+        <Table.Td>
+          <OrganizationStatusBadges org={org} />
         </Table.Td>
         <Table.Td>
           <Badge variant="light" color="blue">
@@ -115,6 +172,14 @@ export function OrganizationMembersRow({
             </ActionIcon>
             <ActionIcon
               variant="subtle"
+              color={org.disabledAt ? "green" : "orange"}
+              onClick={() => onToggleLock(org)}
+              title={org.disabledAt ? t("admin.organizations.unlock") : t("admin.organizations.lock")}
+            >
+              {org.disabledAt ? <IconLockOpen size={16} /> : <IconLock size={16} />}
+            </ActionIcon>
+            <ActionIcon
+              variant="subtle"
               color="red"
               onClick={() => onDelete(org)}
               title={t("delete")}
@@ -126,7 +191,7 @@ export function OrganizationMembersRow({
       </Table.Tr>
       {expanded && (
         <Table.Tr>
-          <Table.Td colSpan={3} style={{ padding: 0 }}>
+          <Table.Td colSpan={5} style={{ padding: 0 }}>
             <Collapse in={expanded}>
               <Box bg="gray.0" p="md">
                 {membersLoading ? (

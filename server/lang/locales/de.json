@@ -270,13 +270,29 @@
       "notUsed": {
         "addKey": "API-Schlüssel hinzufügen",
         "narrationOnlyMax": "Ohne „Max“ gibt es keinen Erzählton.",
-        "noOwnKey": "Sie gilt nur zusammen mit deinem eigenen API-Schlüssel, und du hast keinen. Deine Spiele laufen über einen bereitgestellten Schlüssel (von Workshop, Organisation oder Server) mit dessen Stufe.",
         "noServerFreeKey": "Es ist kein freier API-Schlüssel ausgewählt.",
-        "noWorkshopKey": "Für diesen Workshop ist kein eigener API-Schlüssel ausgewählt. Die Spiele laufen dann über den freien Schlüssel der Organisation oder, falls es keinen gibt, über den des Servers - jeweils mit dessen Stufe.",
         "selectWorkshopKey": "Schlüssel für diesen Workshop auswählen",
         "title": "Diese Stufe wird nicht verwendet"
       },
-      "serverDefault": "Serverstandard"
+      "serverDefault": "Serverstandard",
+      "limit": {
+        "title": "Nicht freigegeben: {{tiers}}",
+        "notReleasedOption": "{{tier}} - nicht freigegeben",
+        "releaseDefault": "Standard der Freigabe ({{tier}})",
+        "workshop": {
+          "organization": "Ohne eigenen Workshop-Schlüssel wird mit dem freien Schlüssel der Organisation gespielt. Er ist bis „{{tier}}“ freigegeben. Frag die Organisationsleitung, ob sie die Freigabe anheben kann, oder wähle einen eigenen Schlüssel für diesen Workshop.",
+          "server": "Ohne eigenen Workshop-Schlüssel wird mit dem freien Schlüssel des Servers gespielt. Er ist bis „{{tier}}“ freigegeben. Für höhere Stufen wähle einen eigenen Schlüssel für diesen Workshop."
+        },
+        "user": {
+          "organization": "Du spielst mit dem freien Schlüssel deiner Organisation. Er ist bis „{{tier}}“ freigegeben. Frag die Organisationsleitung, ob sie die Freigabe anheben kann. Mit einem eigenen API-Schlüssel kannst du alle Stufen nutzen.",
+          "server": "Du spielst mit dem freien Schlüssel des Servers. Er ist bis „{{tier}}“ freigegeben. Mit einem eigenen API-Schlüssel kannst du alle Stufen nutzen."
+        }
+      },
+      "noKey": {
+        "title": "Kein Schlüssel zum Spielen",
+        "workshop": "Für diesen Workshop gibt es keinen Schlüssel, mit dem gespielt werden kann: keinen eigenen und keinen freien der Organisation oder des Servers.",
+        "user": "Es gibt keinen Schlüssel, mit dem du spielen kannst. Füge einen eigenen API-Schlüssel hinzu."
+      }
     },
     "allGames": {
       "continue": "Spielen",
@@ -318,7 +334,7 @@
       "addKey": "Schlüssel hinzufügen",
       "addedOn": "Hinzugefügt",
       "aiQualityTier": {
-        "description": "Wähle die KI-Qualitätsstufe für deine Spiele bei Verwendung deines eigenen API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Servereinstellung."
+        "description": "Wähle die KI-Qualitätsstufe für deine Spiele. Mit einem eigenen API-Schlüssel sind alle Stufen möglich, mit einem freien Schlüssel höchstens die Stufe, für die er freigegeben ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben."
       },
       "createModal": {
         "keyDescription": "Dein Schlüssel wird verschlüsselt und sicher gespeichert.",
@@ -536,7 +552,19 @@
       "statusChange": {
         "effect": "Effekt:"
       },
-      "unnamed": "Unbenannt"
+      "unnamed": "Unbenannt",
+      "tierCapped": {
+        "title": "Gespielt wird mit „{{applied}}“ statt „{{requested}}“",
+        "reason": {
+          "organization": "Der freie Schlüssel der Organisation ist nur bis „{{tier}}“ freigegeben.",
+          "server": "Der freie Schlüssel des Servers ist nur bis „{{tier}}“ freigegeben."
+        },
+        "action": {
+          "participant": "Wende dich an deine Workshop-Leitung.",
+          "organization": "Frag die Organisationsleitung, ob sie die Freigabe anheben kann, oder hinterlege einen eigenen Schlüssel (für den Workshop oder in deinem Profil).",
+          "server": "Mit einem eigenen Schlüssel (für den Workshop oder in deinem Profil) sind alle Stufen möglich."
+        }
+      }
     },
     "games": {
       "actions": {
@@ -1005,7 +1033,12 @@
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
         "showDetails": "Details anzeigen",
-        "title": "Organisations-API-Schlüssel"
+        "title": "Organisations-API-Schlüssel",
+        "freeUseTier": {
+          "label": "Freigegeben bis (KI-Qualitätsstufe)",
+          "description": "Bis zu dieser Stufe dürfen Mitglieder und Workshops ohne eigenen Schlüssel mit dem freien Schlüssel spielen. Höhere Stufen kosten mehr. Leer lassen für die Standardstufe des Servers.",
+          "noKey": "Es ist kein freier Nutzungsschlüssel ausgewählt."
+        }
       },
       "autoShare": {
         "confirmMessage": "Dieser Schlüssel wird mit {{orgName}} geteilt und kann dann von anderen Leitern und Mitarbeitern für Workshops verwendet werden. Sie können diese Freigabe später in Ihrer persönlichen API-Schlüsselverwaltung oder der Organisations-API-Schlüsselverwaltung wieder entfernen.",
@@ -1306,8 +1339,8 @@
         "working": "Funktioniert"
       },
       "freeUseTier": {
-        "description": "Qualitätsstufe bei Verwendung des freien API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Standardstufe.",
-        "title": "Freie KI-Qualitätsstufe"
+        "title": "Freigegeben bis (KI-Qualitätsstufe)",
+        "description": "Bis zu dieser Stufe darf mit dem freien API-Schlüssel des Servers gespielt werden. Wer eine höhere Stufe gewählt hat, spielt mit dieser. Höhere Stufen kosten mehr. Leer lassen für die Standardstufe."
       },
       "notAuthorized": "Sie haben keine Berechtigung, auf die Servereinstellungen zuzugreifen. Administratorzugang erforderlich.",
       "title": "Servereinstellungen"

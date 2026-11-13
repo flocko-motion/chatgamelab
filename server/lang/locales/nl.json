@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Hoog (Premium)",
       "label": "AI-kwaliteitsniveau",
+      "limit": {
+        "notReleasedOption": "{{tier}} - niet vrijgegeven",
+        "releaseDefault": "Standaard vrijgave ({{tier}})",
+        "title": "Niet vrijgegeven: {{tiers}}",
+        "user": {
+          "organization": "Je speelt met de gratis te gebruiken sleutel van je organisatie. Deze is vrijgegeven tot en met '{{tier}}'. Vraag de leiding van je organisatie of zij de vrijgave kunnen verhogen. Met een API-sleutel van jezelf kun je elk niveau gebruiken.",
+          "server": "Je speelt met de gratis te gebruiken sleutel van de server. Deze is vrijgegeven tot en met '{{tier}}'. Met een API-sleutel van jezelf kun je elk niveau gebruiken."
+        },
+        "workshop": {
+          "organization": "Zonder een eigen workshopsleutel gebruiken games de gratis te gebruiken sleutel van de organisatie. Deze is vrijgegeven tot en met '{{tier}}'. Vraag de leiding van je organisatie of zij de vrijgave kunnen verhogen, of selecteer een sleutel voor deze workshop.",
+          "server": "Zonder een eigen workshopsleutel gebruiken games de gratis te gebruiken sleutel van de server. Deze is vrijgegeven tot en met '{{tier}}'. Selecteer voor hogere niveaus een sleutel voor deze workshop."
+        }
+      },
       "low": "Laag (Budget)",
       "max": "Max (Premium + audio)",
       "medium": "Midden (Gebalanceerd)",
       "newSessionsOnly": "Deze klasse is alleen van toepassing op nieuwe sessies. Bestaande sessies behouden de klasse waarmee ze zijn gestart.",
+      "noKey": {
+        "title": "Geen sleutel om mee te spelen",
+        "user": "Er is geen sleutel waarmee je kunt spelen. Voeg een API-sleutel van jezelf toe.",
+        "workshop": "Er is geen sleutel waarmee deze workshop kan spelen: geen eigen sleutel en ook geen gratis te gebruiken sleutel van de organisatie of de server."
+      },
       "notUsed": {
         "addKey": "API-sleutel toevoegen",
         "narrationOnlyMax": "Zonder 'Max' is er geen vertelling (audio).",
@@ -333,7 +351,7 @@
       "addKey": "Sleutel toevoegen",
       "addedOn": "Toegevoegd",
       "aiQualityTier": {
-        "description": "Kies het AI-kwaliteitsniveau voor je games bij gebruik van je eigen API-sleutel. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Laat leeg om de serverstandaard te gebruiken."
+        "description": "Kies het AI-kwaliteitsniveau voor je games. Met een eigen API-sleutel zijn alle niveaus beschikbaar; met een sleutel voor gratis gebruik maximaal het niveau tot waartoe deze is vrijgegeven. Hogere niveaus kosten meer, maar kunnen een hogere kwaliteit bieden."
       },
       "createModal": {
         "keyDescription": "Je sleutel wordt versleuteld en veilig opgeslagen.",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Effect:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Vraag de leiding van je organisatie of zij de vrijgave kunnen verhogen, of voeg een sleutel van jezelf toe (voor de workshop of in je profiel).",
+          "participant": "Vraag het aan je workshopleider.",
+          "server": "Met een sleutel van jezelf (voor de workshop of in je profiel) zijn alle niveaus beschikbaar."
+        },
+        "reason": {
+          "organization": "De gratis te gebruiken sleutel van de organisatie is slechts vrijgegeven tot en met '{{tier}}'.",
+          "server": "De gratis te gebruiken sleutel van de server is slechts vrijgegeven tot en met '{{tier}}'."
+        },
+        "title": "Spelen op '{{applied}}' in plaats van '{{requested}}'"
       },
       "unnamed": "Naamloos"
     },
@@ -1005,6 +1035,11 @@
           "title": "Gratis sleutel",
           "unknownKey": "Onbekende sleutel"
         },
+        "freeUseTier": {
+          "description": "Leden en workshops zonder eigen sleutel kunnen met de gratis te gebruiken sleutel spelen tot en met dit niveau. Hogere niveaus kosten meer. Laat dit leeg voor het standaardniveau van de server.",
+          "label": "Vrijgegeven tot en met (AI-kwaliteitsniveau)",
+          "noKey": "Er is geen gratis te gebruiken sleutel geselecteerd."
+        },
         "keyName": "Sleutelnaam",
         "loadError": "Organisatie-API-sleutels laden mislukt.",
         "noKeys": "Nog geen API-sleutels gedeeld met deze organisatie.",
@@ -1356,8 +1391,8 @@
         "working": "Werkt"
       },
       "freeUseTier": {
-        "description": "Kwaliteitsniveau wanneer de gratis API-sleutel actief is. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Laat leeg om het standaardniveau te gebruiken.",
-        "title": "Gratis AI-kwaliteitsniveau"
+        "description": "De gratis te gebruiken API-sleutel van de server mag tot en met dit niveau worden gebruikt. Iedereen die een hoger niveau heeft gekozen, speelt op dit niveau. Hogere niveaus kosten meer. Laat dit leeg voor het standaardniveau.",
+        "title": "Vrijgegeven tot en met (AI-kwaliteitsniveau)"
       },
       "notAuthorized": "Je hebt geen toegang tot serverinstellingen. Admin-toegang vereist.",
       "title": "Serverinstellingen"

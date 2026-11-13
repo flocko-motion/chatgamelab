@@ -128,16 +128,18 @@ func GetGameSessionByIDForGuest(ctx context.Context, sessionID uuid.UUID, expect
 	}
 
 	session := &obj.GameSession{
-		ID:           s.ID,
-		GameID:       s.GameID,
-		UserID:       s.UserID,
-		ApiKeyID:     nullUUIDToPtr(s.ApiKeyID),
-		AiPlatform:   s.AiPlatform,
-		AiModel:      s.AiModel,
-		AiSession:    string(s.AiSession),
-		ImageStyle:   s.ImageStyle,
-		Language:     s.Language,
-		StatusFields: s.StatusFields,
+		ID:                     s.ID,
+		GameID:                 s.GameID,
+		UserID:                 s.UserID,
+		ApiKeyID:               nullUUIDToPtr(s.ApiKeyID),
+		AiPlatform:             s.AiPlatform,
+		AiModel:                s.AiModel,
+		AiSession:              string(s.AiSession),
+		AiQualityTierRequested: s.AiQualityTierRequested.String,
+		AiQualityTierLimitedBy: s.AiQualityTierLimitedBy.String,
+		ImageStyle:             s.ImageStyle,
+		Language:               s.Language,
+		StatusFields:           s.StatusFields,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
@@ -205,16 +207,18 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	}
 
 	session := &obj.GameSession{
-		ID:           s.ID,
-		GameID:       s.GameID,
-		UserID:       s.UserID,
-		ApiKeyID:     nullUUIDToPtr(s.ApiKeyID),
-		AiPlatform:   s.AiPlatform,
-		AiModel:      s.AiModel,
-		AiSession:    string(s.AiSession),
-		ImageStyle:   s.ImageStyle,
-		Language:     s.Language,
-		StatusFields: s.StatusFields,
+		ID:                     s.ID,
+		GameID:                 s.GameID,
+		UserID:                 s.UserID,
+		ApiKeyID:               nullUUIDToPtr(s.ApiKeyID),
+		AiPlatform:             s.AiPlatform,
+		AiModel:                s.AiModel,
+		AiSession:              string(s.AiSession),
+		AiQualityTierRequested: s.AiQualityTierRequested.String,
+		AiQualityTierLimitedBy: s.AiQualityTierLimitedBy.String,
+		ImageStyle:             s.ImageStyle,
+		Language:               s.Language,
+		StatusFields:           s.StatusFields,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
@@ -489,4 +493,19 @@ func loadSessionByID(ctx context.Context, sessionID uuid.UUID) (*obj.GameSession
 		UserID:     session.UserID,
 		WorkshopID: nullUUIDToPtr(session.WorkshopID),
 	}, nil
+}
+
+// UpdateGameSessionAiQualityTier stores the tier a session plays at and, while a
+// free-use key caps it lower, the tier it asked for and who released the key.
+func UpdateGameSessionAiQualityTier(ctx context.Context, session *obj.GameSession) error {
+	err := queries().UpdateGameSessionAiQualityTier(ctx, db.UpdateGameSessionAiQualityTierParams{
+		ID:                     session.ID,
+		AiModel:                session.AiModel,
+		AiQualityTierRequested: sql.NullString{String: session.AiQualityTierRequested, Valid: session.AiQualityTierRequested != ""},
+		AiQualityTierLimitedBy: sql.NullString{String: session.AiQualityTierLimitedBy, Valid: session.AiQualityTierLimitedBy != ""},
+	})
+	if err != nil {
+		return obj.ErrServerError("failed to update session quality tier")
+	}
+	return nil
 }

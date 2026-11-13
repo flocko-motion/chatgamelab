@@ -91,11 +91,8 @@ import {
   type ObjWorkshopParticipant,
 } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
-import { AiTierNotice } from "@/common/components/AiTierNotice";
-import {
-  focusWorkshopKeySelect,
-  workshopKeySelectId,
-} from "../lib/workshopKeySelect";
+import { WorkshopTierNotice } from "./WorkshopTierNotice";
+import { workshopKeySelectId } from "../lib/workshopKeySelect";
 import { parseSortValue } from "@/common/lib/sort";
 
 interface WorkshopsTabProps {
@@ -904,6 +901,8 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                           label={t("aiQualityTier.label")}
                           data={getAiQualityTierOptions(t, {
                             includeEmpty: true,
+                            limit: workshop.aiQualityTierLimit,
+                            currentValue: workshop.aiQualityTier,
                           })}
                           value={workshop.aiQualityTier || ""}
                           onChange={(value) =>
@@ -916,19 +915,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                         <Text size="xs" c="dimmed" fs="italic">
                           {t("aiQualityTier.newSessionsOnly")}
                         </Text>
-                        {workshop.aiQualityTier &&
-                          !workshop.defaultApiKeyShareId && (
-                            <AiTierNotice
-                              tier={workshop.aiQualityTier}
-                              reason={t("aiQualityTier.notUsed.noWorkshopKey")}
-                              actionLabel={t(
-                                "aiQualityTier.notUsed.selectWorkshopKey",
-                              )}
-                              onAction={() =>
-                                focusWorkshopKeySelect(workshop.id!)
-                              }
-                            />
-                          )}
+                        <WorkshopTierNotice workshop={workshop} />
                         <LanguageSelect
                           size="xs"
                           label={t("myOrganization.workshops.language")}

@@ -54,6 +54,26 @@ func TestCleanNarration(t *testing.T) {
 			want: "Du bist Ehrengast.",
 		},
 		{
+			name: "bold and italic stars removed",
+			in:   "Du siehst **den goldenen Pokal** und *flüsterst* leise. ***Achtung!***",
+			want: "Du siehst den goldenen Pokal und flüsterst leise. Achtung!",
+		},
+		{
+			name: "stars inside JSON narration removed",
+			in:   `{"narration":"Der **Panther** springt."}`,
+			want: "Der Panther springt.",
+		},
+		{
+			name: "lone or spaced stars stay",
+			in:   "Rechne 5 * 3 aus. Ein Stern* bleibt. ** nicht fett **",
+			want: "Rechne 5 * 3 aus. Ein Stern* bleibt. ** nicht fett **",
+		},
+		{
+			name: "no pairing across lines",
+			in:   "Erste Zeile *mit Stern\nzweite Zeile* hier",
+			want: "Erste Zeile *mit Stern\nzweite Zeile* hier",
+		},
+		{
 			name: "broken JSON stays as is",
 			in:   `{"narration":"abgebrochen`,
 			want: `{"narration":"abgebrochen`,

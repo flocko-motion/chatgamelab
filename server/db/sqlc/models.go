@@ -115,6 +115,8 @@ type GameSession struct {
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
 	DeletedAt                sql.NullTime
+	AiQualityTierRequested   sql.NullString
+	AiQualityTierLimitedBy   sql.NullString
 }
 
 type GameSessionMessage struct {
@@ -186,6 +188,66 @@ type Institution struct {
 	FreeUseApiKeyShareID uuid.NullUUID
 	FreeUseAiQualityTier sql.NullString
 	PromptConstraints    sql.NullString
+	Operator             sql.NullString
+	Street               sql.NullString
+	PostalCode           sql.NullString
+	City                 sql.NullString
+	DisabledAt           sql.NullTime
+	DisabledReason       sql.NullString
+}
+
+type InstitutionApplication struct {
+	ID                  uuid.UUID
+	CreatedAt           time.Time
+	ModifiedAt          time.Time
+	UserID              uuid.NullUUID
+	Kind                string
+	PersonName          sql.NullString
+	PersonFunction      sql.NullString
+	Email               sql.NullString
+	InstitutionName     string
+	InstitutionOperator string
+	Street              string
+	PostalCode          string
+	City                string
+	PromptConstraint    string
+	DeclarationVersion  string
+	DeclarationHash     string
+	TokenHash           string
+	ExpiresAt           time.Time
+	Status              string
+	ConfirmedAt         sql.NullTime
+	InstitutionID       uuid.NullUUID
+	AnonymizedAt        sql.NullTime
+}
+
+type InstitutionConsent struct {
+	ID                  uuid.UUID
+	CreatedAt           time.Time
+	InstitutionID       uuid.UUID
+	UserID              uuid.UUID
+	ApplicationID       uuid.NullUUID
+	Email               string
+	PersonName          string
+	PersonFunction      string
+	InstitutionName     string
+	InstitutionOperator string
+	Street              string
+	PostalCode          string
+	City                string
+	DeclarationVersion  string
+	DeclarationHash     string
+}
+
+type PlayStat struct {
+	SessionID     uuid.UUID
+	CreatedAt     time.Time
+	GameID        uuid.NullUUID
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+	ViaShare      bool
+	Turns         int32
+	LastTurnAt    sql.NullTime
 }
 
 type SystemSetting struct {

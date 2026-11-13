@@ -6,9 +6,11 @@ package api
 
 import (
 	"cgl/api/auth"
+	"cgl/api/httpx"
 	"cgl/api/routes"
 	"cgl/db"
 	"cgl/log"
+	"cgl/mail"
 	"cgl/telemetry"
 	"context"
 	"fmt"
@@ -28,10 +30,12 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	auth.InitJwtGeneration()
 
 	routes.DevMode = devMode
+	httpx.DevMode = devMode
 
 	if devMode {
 		log.SetDebug(true)
 		log.Info("development mode enabled", "debug_logging", true)
+		mail.EnableRecording()
 	}
 
 	log.Debug("initializing database")
@@ -45,6 +49,7 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	db.PromoteAdminEmails(ctx)
 
 	startSessionPurger(ctx)
+	startApplicationCleanup(ctx)
 
 	log.Debug("setting up HTTP router")
 	// Use new stdlib-based router

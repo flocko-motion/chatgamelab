@@ -67,12 +67,16 @@ export const ROUTES = {
   DEBUG_ERROR: "/debug/error",
 
   // Admin routes
+  ADMIN_DASHBOARD: "/admin/dashboard",
   ADMIN_SERVER_SETTINGS: "/admin/server-settings",
   ADMIN_ORGANIZATIONS: "/admin/organizations",
   ADMIN_USERS: "/admin/users",
 
   // Organization routes
   MY_ORGANIZATION: "/my-organization",
+  // Organisation self-registration: upgrade form / open application, and the e-mail link
+  ORGANIZATION_APPLY: "/organization/apply",
+  ORGANIZATION_CONFIRM: "/organization/confirm",
 } as const;
 
 // Route groups for navigation menus

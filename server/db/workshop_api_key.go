@@ -13,22 +13,27 @@ import (
 )
 
 // workshopKeySource names the key a workshop's plays are paid with, as one of the
-// obj.WorkshopKeySource* constants, or "" when there is none anywhere.
-func workshopKeySource(ctx context.Context, ws db.Workshop) string {
+// obj.WorkshopKeySource* constants, or "" when there is none anywhere. limit is the
+// tier a free-use key is released up to, nil for the workshop's own key or none.
+func workshopKeySource(ctx context.Context, ws db.Workshop) (source string, limit *string) {
 	if ws.DefaultApiKeyShareID.Valid {
-		return obj.WorkshopKeySourceWorkshop
+		return obj.WorkshopKeySourceWorkshop, nil
 	}
+	settings, settingsErr := GetSystemSettings(ctx)
+	defaultTier := DefaultAiQualityTier(settings)
 	if inst, err := queries().GetInstitutionByID(ctx, ws.InstitutionID); err == nil && inst.FreeUseApiKeyShareID.Valid {
-		return obj.WorkshopKeySourceOrganization
+		release := FreeKeyRelease(nullStringToPtr(inst.FreeUseAiQualityTier), defaultTier)
+		return obj.WorkshopKeySourceOrganization, &release
 	}
-	if settings, err := GetSystemSettings(ctx); err == nil && settings.FreeUseApiKeyID != nil {
-		return obj.WorkshopKeySourceServer
+	if settingsErr == nil && settings.FreeUseApiKeyID != nil {
+		release := FreeKeyRelease(settings.FreeUseAiQualityTier, defaultTier)
+		return obj.WorkshopKeySourceServer, &release
 	}
-	return ""
+	return "", nil
 }
 
 // GetWorkshopOrganizationKeyShare returns the organisation's free-use key that a
-// workshop without a key of its own falls back to, with the organisation's tier.
+// workshop without a key of its own falls back to, with the tier it is released up to.
 // Its participants play with it through the workshop, so it is loaded without the
 // per-user check that keeps them from the organisation's key everywhere else.
 func GetWorkshopOrganizationKeyShare(ctx context.Context, workshopID uuid.UUID) (*obj.ApiKeyShare, *string) {

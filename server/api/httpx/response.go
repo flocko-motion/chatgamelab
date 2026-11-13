@@ -107,11 +107,16 @@ func ErrorCodeToStatus(code string) int {
 		return http.StatusBadRequest
 	case obj.ErrCodeUnauthorized:
 		return http.StatusUnauthorized
-	case obj.ErrCodeForbidden, obj.ErrCodeUserNotRegistered:
+	case obj.ErrCodeForbidden, obj.ErrCodeUserNotRegistered, obj.ErrCodeInstitutionAgeNotAllowed:
 		return http.StatusForbidden
+	case obj.ErrCodeInstitutionConsentsRequired, obj.ErrCodeApplicationTokenInvalid, obj.ErrCodeDeclarationVersionOutdated:
+		return http.StatusBadRequest
+	case obj.ErrCodeApplicationExpired:
+		return http.StatusGone
 	case obj.ErrCodeNotFound:
 		return http.StatusNotFound
-	case obj.ErrCodeConflict, obj.ErrCodeDuplicateName, obj.ErrCodeLastHead, obj.ErrCodePublicSlugTaken:
+	case obj.ErrCodeConflict, obj.ErrCodeDuplicateName, obj.ErrCodeLastHead, obj.ErrCodePublicSlugTaken,
+		obj.ErrCodeAlreadyInInstitution, obj.ErrCodeInstitutionNameTaken, obj.ErrCodeEmailBelongsToOtherAccount:
 		return http.StatusConflict
 	case obj.ErrCodeServerError:
 		return http.StatusInternalServerError

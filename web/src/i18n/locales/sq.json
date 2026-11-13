@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "E lartë (Premium)",
       "label": "Niveli i cilësisë së AI",
+      "limit": {
+        "notReleasedOption": "{{tier}} - nuk është lëshuar",
+        "releaseDefault": "Parazgjedhja e lëshimit ({{tier}})",
+        "title": "Nuk është lëshuar: {{tiers}}",
+        "user": {
+          "organization": "Po luani me çelësin e organizatës për përdorim falas. Ai është lëshuar deri në '{{tier}}'. Pyetni drejtuesit e organizatës nëse mund ta rrisin nivelin e lëshimit. Me një çelës API tuajin mund të përdorni çdo nivel.",
+          "server": "Po luani me çelësin e serverit për përdorim falas. Ai është lëshuar deri në '{{tier}}'. Me një çelës API tuajin mund të përdorni çdo nivel."
+        },
+        "workshop": {
+          "organization": "Pa një çelës të vetin për punëtorinë, lojërat përdorin çelësin e organizatës për përdorim falas. Ai është lëshuar deri në '{{tier}}'. Pyetni drejtuesit e organizatës nëse mund ta rrisin nivelin e lëshimit, ose zgjidhni një çelës për këtë punëtori.",
+          "server": "Pa një çelës të vetin për punëtorinë, lojërat përdorin çelësin e serverit për përdorim falas. Ai është lëshuar deri në '{{tier}}'. Për nivele më të larta, zgjidhni një çelës për këtë punëtori."
+        }
+      },
       "low": "E ulët (Ekonomi)",
       "max": "Maks (Premium + Audio)",
       "medium": "Mesatare (E balancuar)",
       "newSessionsOnly": "Ky nivel zbatohet vetëm për sesionet e reja. Sesionet ekzistuese mbajnë nivelin me të cilin kanë startuar.",
+      "noKey": {
+        "title": "Nuk ka çelës për të luajtur",
+        "user": "Nuk ka asnjë çelës me të cilin mund të luani. Shtoni një çelës API tuajin.",
+        "workshop": "Nuk ka asnjë çelës me të cilin mund të luajë kjo punëtori: as çelësin e vet, as një çelës për përdorim falas të organizatës ose serverit."
+      },
       "notUsed": {
         "addKey": "Shto çelësin API",
         "narrationOnlyMax": "Pa 'Max' nuk ka narracion (audio).",
@@ -333,7 +351,7 @@
       "addKey": "Shto çelës",
       "addedOn": "Shtuar",
       "aiQualityTier": {
-        "description": "Zgjidhni nivelin e cilësisë së AI për lojërat tuaja kur përdorni çelësin tuaj API. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë. Lëreni bosh për të përdorur parazgjedhjen e serverit."
+        "description": "Zgjidhni nivelin e cilësisë së IA-së për lojërat tuaja. Me një çelës API tuajin, të gjitha nivelet janë të disponueshme; me një çelës përdorimi falas, mund të përdorni maksimumi nivelin deri te i cili është lëshuar. Nivelet më të larta kushtojnë më shumë, por mund të ofrojnë cilësi më të lartë."
       },
       "createModal": {
         "keyDescription": "Çelësi juaj do të enkriptohet dhe do të ruhet në mënyrë të sigurt.",
@@ -565,6 +583,18 @@
       },
       "statusChange": {
         "effect": "Efekti:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Pyetni drejtuesit e organizatës nëse mund ta rrisin nivelin e lëshimit, ose shtoni një çelës tuajin (për punëtorinë ose në profilin tuaj).",
+          "participant": "Ju lutemi, pyesni drejtuesin e punëtorisë.",
+          "server": "Me një çelës tuajin (për punëtorinë ose në profilin tuaj), çdo nivel është i disponueshëm."
+        },
+        "reason": {
+          "organization": "Çelësi i organizatës për përdorim falas është lëshuar vetëm deri në '{{tier}}'.",
+          "server": "Çelësi i serverit për përdorim falas është lëshuar vetëm deri në '{{tier}}'."
+        },
+        "title": "Po luhet në '{{applied}}' në vend të '{{requested}}'"
       },
       "unnamed": "Pa emër"
     },
@@ -1020,6 +1050,11 @@
           "title": "Çelësi i përdorimit falas",
           "unknownKey": "Çelës i panjohur"
         },
+        "freeUseTier": {
+          "description": "Anëtarët dhe punëtoritë pa çelës të tyrin mund të luajnë me çelësin për përdorim falas deri në këtë nivel. Nivelet më të larta kushtojnë më shumë. Lëreni bosh për nivelin e parazgjedhur të serverit.",
+          "label": "Lëshuar deri në (niveli i cilësisë së AI-së)",
+          "noKey": "Nuk është zgjedhur asnjë çelës për përdorim falas."
+        },
         "keyName": "Emri i çelësit",
         "loadError": "Dështoi ngarkimi i çelësave API të organizatës.",
         "noKeys": "Ende nuk ka çelësa API të ndarë me këtë organizatë.",
@@ -1376,8 +1411,8 @@
         "working": "Funksionon"
       },
       "freeUseTier": {
-        "description": "Niveli i cilësisë kur çelësi API i përdorimit falas është aktiv. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë. Lëreni bosh për të përdorur nivelin parazgjedhje.",
-        "title": "Niveli i cilësisë së AI për përdorim falas"
+        "description": "Çelësi API i serverit për përdorim falas mund të përdoret deri në këtë nivel. Kushdo që ka zgjedhur një nivel më të lartë luan në këtë nivel. Nivelet më të larta kushtojnë më shumë. Lëreni bosh për nivelin e parazgjedhur.",
+        "title": "Lëshuar deri në (niveli i cilësisë së AI-së)"
       },
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
       "title": "Cilësimet e serverit"

@@ -11,14 +11,16 @@ import {
   IconSettings,
   IconTools,
   IconShield,
+  IconChartBar,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { AppLayout, type NavItem } from "../common/components/Layout";
 import { InactiveWorkshopMessage } from "../common/components/InactiveWorkshopMessage";
+import { InstitutionLockedMessage } from "../common/components/InstitutionLockedMessage";
 import { useAuth } from "../providers/AuthProvider";
 import { useWorkshopMode } from "../providers/WorkshopModeProvider";
-import { RegistrationForm } from "../features/auth";
+import { NewAccountRegistration, DeclarationConsentModal } from "../features/organization-registration";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
 import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
@@ -75,6 +77,7 @@ function RootComponent() {
     pathname.startsWith(ROUTES.AUTH_REGISTER) ||
     pathname.startsWith(ROUTES.AUTH_LOGOUT) ||
     pathname.startsWith(ROUTES.INVITES) ||
+    pathname.startsWith(ROUTES.ORGANIZATION_CONFIRM) ||
     pathname === ROUTES.CODE ||
     pathname.startsWith(CODE_LINK_PREFIX) ||
     pathname.startsWith(PUBLIC_WORKSHOP_PREFIX) ||
@@ -236,10 +239,17 @@ function RootComponent() {
       label: t("adminPanel"),
       icon: <IconShield size={18} />,
       active:
+        pathname.startsWith(ROUTES.ADMIN_DASHBOARD) ||
         pathname.startsWith(ROUTES.ADMIN_SERVER_SETTINGS) ||
         pathname.startsWith(ROUTES.ADMIN_ORGANIZATIONS) ||
         pathname.startsWith(ROUTES.ADMIN_USERS),
       children: [
+        {
+          label: t("adminDashboard"),
+          icon: <IconChartBar size={18} />,
+          onClick: () => navigate({ to: ROUTES.ADMIN_DASHBOARD as "/" }),
+          active: pathname.startsWith(ROUTES.ADMIN_DASHBOARD),
+        },
         {
           label: t("serverSettings"),
           icon: <IconSettings size={18} />,
@@ -353,6 +363,15 @@ function RootComponent() {
     );
   }
 
+  // Members of an organisation an admin has locked see only the explanation
+  if (backendUser?.institutionDisabled && !isPublicRoute) {
+    return (
+      <AppLayout variant="public">
+        <InstitutionLockedMessage onLogout={logout} />
+      </AppLayout>
+    );
+  }
+
   // Show registration form if user needs to complete registration
   if (needsRegistration && registrationData) {
     return (
@@ -361,7 +380,7 @@ function RootComponent() {
           variant="public"
           background={theme.other.colors.bgRegistrationGradient}
         >
-          <RegistrationForm registrationData={registrationData} />
+          <NewAccountRegistration registrationData={registrationData} />
         </AppLayout>
         <TanStackRouterDevtools position="bottom-right" />
       </>
@@ -408,6 +427,7 @@ function RootComponent() {
       >
         <Outlet />
       </AppLayout>
+      {isFullyAuthenticated && !isParticipant && <DeclarationConsentModal />}
       <TanStackRouterDevtools position="bottom-right" />
     </>
   );

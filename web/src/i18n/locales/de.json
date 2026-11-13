@@ -93,6 +93,115 @@
       "subtitle": "Nur noch ein paar Details, um loszulegen",
       "title": "Profil vervollständigen"
     },
+    "organizationRegistration": {
+      "titleRegister": "Organisation registrieren",
+      "titleUpgrade": "Zur Organisation upgraden",
+      "subtitle": "Nach dem Absenden ist eure Organisation sofort freigeschaltet und du bist Organisationsleitung.",
+      "personSection": "Angaben zu deiner Person",
+      "accountNameLabel": "Anzeigename",
+      "accountNameDescription": "So erscheinst du in ChatGameLab (höchstens 24 Zeichen).",
+      "personNameLabel": "Vor- und Nachname",
+      "personFunctionLabel": "Funktion in der Einrichtung",
+      "personFunctionPlaceholder": "z. B. Leitung, pädagogische Fachkraft",
+      "emailLabel": "Dienstliche E-Mail-Adresse",
+      "emailDescription": "An diese Adresse schicken wir den Bestätigungslink und die Bestätigung der Einverständniserklärung.",
+      "institutionSection": "Angaben zur Einrichtung",
+      "institutionNameLabel": "Name der Einrichtung",
+      "operatorLabel": "Träger",
+      "operatorDescription": "z. B. Stadt, Verein, Kirchengemeinde",
+      "streetLabel": "Straße und Hausnummer",
+      "postalCodeLabel": "PLZ",
+      "cityLabel": "Ort",
+      "youthProtection": {
+        "title": "Jugendschutz-Prompt-Einschränkung",
+        "intro": "Diese Anweisung gibt die KI bei allen Spielen deiner Organisation mit. Lege sie passend zum Alter eurer Zielgruppe fest.",
+        "suggestionsLabel": "Vorschläge (ein Klick ersetzt den Text):",
+        "defaultOption": "Standard ab 13 Jahren",
+        "suggestionChildren": "für Kinder ab ca. {{age}} Jahren",
+        "suggestionTeens": "für Jugendliche ab ca. {{age}} Jahren",
+        "suggestionAdults": "für Erwachsene ab {{age}} Jahren",
+        "fieldLabel": "Jugendschutz-Prompt-Einschränkung eurer Organisation",
+        "tooLong": "Höchstens {{max}} Zeichen. Bitte kürzen oder einen Vorschlag wählen.",
+        "changeHint": "Ihr könnt diese Einstellung jederzeit ändern und für einzelne Workshops anders festlegen.",
+        "responsibilityHint": "Die Vorschläge sind keine offizielle Alterskennzeichnung. Eure Einrichtung entscheidet über die Einstellung und verantwortet sie."
+      },
+      "consentSection": "Bestätigungen",
+      "confirmAdult": "Ich bin mindestens 18 Jahre alt.",
+      "acceptTermsPrefix": "Ich stimme den",
+      "acceptTermsSuffix": " zu.",
+      "acceptPrivacyPrefix": "Ich habe die",
+      "acceptPrivacySuffix": " zur Kenntnis genommen.",
+      "declarationGermanOnly": "Die Einverständniserklärung liegt nur auf Deutsch vor. Verbindlich ist der deutsche Text.",
+      "declarationVersion": "Version {{version}}, Stand {{date}}",
+      "emailConfirmHint": "Nach dem Absenden ist die Organisation sofort angelegt. Die Bestätigung mit dem Text der Einverständniserklärung geht an deine E-Mail-Adresse.",
+      "submit": "Organisation registrieren",
+      "switchToPersonal": "Zurück zur Auswahl",
+      "cancel": "Abbrechen",
+      "toMyOrganization": "Zu meiner Organisation",
+      "pending": {
+        "title": "Bitte bestätige deine E-Mail-Adresse",
+        "text": "Wir haben eine E-Mail an {{email}} geschickt. Klicke auf den Link darin, dann wird „{{name}}“ als Organisation freigeschaltet.",
+        "validity": "Der Link ist 48 Stunden gültig. Keine E-Mail bekommen? Schau auch im Spam-Ordner nach.",
+        "resend": "Link erneut senden",
+        "resent": "Wir haben dir einen neuen Link geschickt. Der vorherige Link funktioniert nicht mehr.",
+        "edit": "Angaben ändern und neu absenden"
+      },
+      "consentModal": {
+        "constraintIntro": "Mit der Erklärung verpflichtet sich eure Einrichtung, eine zu eurer Zielgruppe passende Jugendschutz-Prompt-Einschränkung festzulegen. Unten steht die, die eure Organisation gerade verwendet. Bitte prüft sie und passt sie bei Bedarf an.",
+        "title": "Einverständniserklärung bestätigen",
+        "introExisting": "Für eure Organisation „{{name}}“ gibt es jetzt eine Einverständniserklärung, die online bestätigt wird. Sie ersetzt die bisher unterschriebene Nutzungsvereinbarung. Bitte lies sie und stimme im Namen eurer Einrichtung zu.",
+        "introNewVersion": "Die Einverständniserklärung wurde aktualisiert (Version {{version}}). Bitte lies die neue Fassung und stimme im Namen eurer Organisation „{{name}}“ zu.",
+        "oneHeadIsEnough": "Es reicht, wenn eine Organisationsleitung zustimmt. Bis dahin könnt ihr ChatGameLab wie gewohnt nutzen.",
+        "emailDescription": "An diese Adresse schicken wir die Bestätigung mit dem Text der Erklärung.",
+        "later": "Später",
+        "submit": "Zustimmen"
+      },
+      "confirm": {
+        "successTitle": "Organisation freigeschaltet",
+        "successText": "„{{name}}“ ist jetzt im ChatGameLab freigeschaltet. Du bist Organisationsleitung und kannst Workshops anlegen. Die Bestätigung mit der Einverständniserklärung haben wir dir per E-Mail geschickt.",
+        "login": "Anmelden",
+        "errorTitle": "Bestätigung nicht möglich",
+        "backToApplication": "Zum Antrag"
+      },
+      "blocked": {
+        "memberTitle": "Upgrade nicht möglich",
+        "head": "Du leitest bereits eine Organisation.",
+        "member": "Dein Konto gehört bereits zu einer Organisation oder einem Workshop. Um eine eigene Organisation zu registrieren, nutze bitte ein anderes Konto.",
+        "ageTitle": "Nur für Erwachsene",
+        "age": "Eine Organisation kann nur mit einem Konto registriert werden, das als „18 Jahre oder älter“ angelegt ist."
+      },
+      "upgradeCard": {
+        "title": "Organisation",
+        "text": "Du möchtest ChatGameLab mit deiner Einrichtung in Workshops nutzen? Dann kannst du dein Konto zu einer Organisation upgraden. Deine Spiele bleiben erhalten.",
+        "button": "Zur Organisation upgraden"
+      },
+      "errors": {
+        "required": "Pflichtfeld",
+        "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+        "formIncomplete": "Bitte fülle alle Pflichtfelder aus und bestätige alle Punkte.",
+        "loadFailed": "Die Einverständniserklärung konnte nicht geladen werden. Bitte lade die Seite neu.",
+        "generic": "Das hat leider nicht geklappt. Bitte versuche es noch einmal.",
+        "institution_age_not_allowed": "Eine Organisation kann nur mit einem Konto für Erwachsene (18+) registriert werden.",
+        "already_in_institution": "Dein Konto gehört bereits zu einer Organisation, einem Workshop oder ist ein Admin-Konto.",
+        "institution_name_taken": "Eine Organisation mit diesem Namen gibt es schon. Bitte ergänze den Namen, z. B. um den Ort.",
+        "email_belongs_to_other_account": "Zu dieser E-Mail-Adresse gibt es schon ein Konto. Bitte melde dich damit an und wähle in den Einstellungen „Zur Organisation upgraden“.",
+        "application_token_invalid": "Dieser Link ist ungültig oder wurde schon benutzt.",
+        "application_expired": "Dieser Link ist abgelaufen. Melde dich an und lass dir einen neuen Link schicken.",
+        "declaration_version_outdated": "Die Einverständniserklärung wurde inzwischen aktualisiert. Bitte lade die Seite neu und lies die aktuelle Fassung.",
+        "institution_consents_required": "Bitte bestätige alle Punkte.",
+        "duplicate_name": "Dieser Anzeigename ist schon vergeben.",
+        "profane_name": "Dieser Anzeigename ist nicht erlaubt.",
+        "name_too_long": "Der Anzeigename darf höchstens 24 Zeichen lang sein.",
+        "validation_error": "Bitte prüfe deine Angaben.",
+        "conflict": "Für diesen Login gibt es schon ein Konto. Bitte melde dich an und nutze das Upgrade in den Einstellungen."
+      },
+      "emailFromLogin": "Das ist die Adresse deiner Anmeldung.",
+      "emailFromAccount": "Das ist die E-Mail-Adresse deines Kontos.",
+      "registered": {
+        "title": "Organisation registriert",
+        "text": "Eure Organisation ist freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen."
+      }
+    },
     "registerPage": {
       "agreePrefix": "Ich stimme den",
       "agreeSuffix": "und den",
@@ -102,32 +211,18 @@
       "chooseType": "Wie möchtest du ChatGameLab nutzen?",
       "continueButton": "Weiter zur Registrierung",
       "description": "Wir nutzen Auth0 als Authentifizierungsanbieter zur Verwaltung der Benutzerkonten. Du wirst zu Auth0 weitergeleitet, um dein Konto zu erstellen, und dann hierher zurückgeführt, um dein Profil zu vervollständigen.",
-      "educatorDescription": "Nutze ChatGameLab in Workshops, im Unterricht oder in deiner Organisation",
-      "educatorModal": {
-        "closeButton": "Schließen",
-        "copied": "Kopiert!",
-        "copyEmail": "E-Mail kopieren",
-        "eduInfo": "Erfahre mehr über die Nutzung von ChatGameLab für Bildungszwecke:",
-        "intro": "Um ChatGameLab mit deiner Organisation (Schule, Universität, Einrichtung) zu nutzen, folge bitte diesen Schritten:",
-        "registerButton": "Persönliches Konto erstellen",
-        "step1": "Persönliches Konto erstellen",
-        "step1Description": "Erstelle zuerst dein persönliches Konto. Damit meldest du dich auf der Plattform an.",
-        "step2": "Schreibe uns eine E-Mail",
-        "step2Description": "Sende eine E-Mail an",
-        "step2Item1": "Deiner registrierten E-Mail-Adresse",
-        "step2Item2": "Dem Namen deiner Organisation (Schule, Einrichtung etc.)",
-        "step2WithInfo": "mit:",
-        "step3": "Wir richten deine Organisation ein",
-        "step3Description": "Wir erstellen deine Organisation und weisen dich als Leitung zu. Danach kannst du Kolleg:innen einladen und Workshops einrichten.",
-        "title": "Zugang für Fachkräfte \u0026 Lehrkräfte"
-      },
-      "educatorTitle": "Fachkraft / Lehrkraft",
       "individualDescription": "Erstelle und spiele KI-gestützte Textabenteuer",
       "individualTitle": "Persönliches Konto",
       "loginLink": "Anmelden",
       "privacyPolicy": "Datenschutzbestimmungen",
       "termsOfService": "Nutzungsbedingungen",
-      "title": "Konto erstellen"
+      "title": "Konto erstellen",
+      "organizationTitle": "Als Organisation registrieren",
+      "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, die ChatGameLab in Workshops nutzen möchten.",
+      "organizationStep1": "Du legst über Auth0 deinen Zugang an (E-Mail und Passwort).",
+      "organizationStep2": "Du gibst die Angaben zu dir und deiner Einrichtung ein, legst die Jugendschutz-Prompt-Einschränkung fest und stimmst der Einverständniserklärung zu.",
+      "organizationStep3": "Nach dem Absenden ist die Organisation sofort freigeschaltet und du kannst Workshops anlegen.",
+      "organizationExistingAccount": "Du hast schon ein Konto? Dann melde dich an und wähle in den Einstellungen „Zur Organisation upgraden“."
     },
     "settings": {
       "accountSection": "Konto",
@@ -150,7 +245,49 @@
   },
   "common": {
     "actions": "Aktionen",
+    "organizationLocked": {
+      "title": "Organisation gesperrt",
+      "description": "Der Zugang deiner Organisation zu ChatGameLab wurde vom Betreiber gesperrt. Deine Daten bleiben erhalten.",
+      "contact": "Bei Fragen wende dich an",
+      "logout": "Abmelden"
+    },
     "admin": {
+      "dashboard": {
+        "title": "Statistik",
+        "generatedAt": "Stand: {{date}}",
+        "playsSince": "Gestartete Spiele und KI-Antworten werden erst seit {{date}} gezählt. Spielsitzungen selbst werden 48 Stunden nach der letzten Aktivität gelöscht; gezählt wird anonym, ohne Konto und ohne Texte. Spiele und Organisationen zählen auch rückwirkend.",
+        "loadError": "Die Statistik konnte nicht geladen werden.",
+        "organisations": "Organisationen",
+        "organisationsSub": "{{locked}} gesperrt · {{pending}} ohne aktuelle Zustimmung",
+        "newGames7": "Neue Spiele (7 Tage)",
+        "sessions7": "Gestartete Spiele (7 Tage)",
+        "turns7": "KI-Antworten (7 Tage)",
+        "last30": "{{n}} in 30 Tagen",
+        "perMonth": "Pro Monat (letzte 12 Monate)",
+        "viewChart": "Diagramm",
+        "viewTable": "Tabelle",
+        "month": "Monat",
+        "newOrganisations": "Neue Organisationen",
+        "newGames": "Neue Spiele",
+        "sessions": "Gestartete Spiele",
+        "turns": "KI-Antworten",
+        "funnelTitle": "Registrierungen (90 Tage)",
+        "funnel": "{{submitted}} Registrierungen, davon {{confirmed}} freigeschaltet und {{withWorkshop}} mit mindestens einem Workshop.",
+        "outsideTitle": "Ohne Organisation (30 Tage)",
+        "outside": "{{games}} neue Spiele, {{sessions}} gestartete Spiele und {{turns}} KI-Antworten von Einzelkonten und Gästen ohne Organisation.",
+        "perOrganisation": "Pro Organisation",
+        "perOrganisationHint": "Zahlen in den Spalten: 30 Tage / 7 Tage. Eine Zeile anklicken zeigt die Monate. Spalten-Überschriften sortieren.",
+        "organisation": "Organisation",
+        "members": "Mitglieder",
+        "membersValue": "Leitung: {{heads}} · Workshopleitung: {{staff}} · Nutzer*innen: {{individuals}} · Teilnehmende: {{participants}}",
+        "workshops": "Workshops",
+        "activeShort": "{{n}} aktiv",
+        "games": "Spiele",
+        "newGames30": "Neue Spiele",
+        "sessions30": "Gestartet",
+        "turns30": "KI-Antworten",
+        "lastActivity": "Zuletzt aktiv"
+      },
       "invites": {
         "actions": "Aktionen",
         "empty": "Keine ausstehenden Einladungen.",
@@ -190,7 +327,7 @@
         "actions": "Aktionen",
         "create": "Organisation erstellen",
         "createTitle": "Neue Organisation erstellen",
-        "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "deleteConfirm": "„{{name}}“ endgültig löschen? Dabei werden alle Workshops und Teilnehmenden der Organisation gelöscht; Leitungen und Workshopleitungen behalten ihr Konto. Das lässt sich nicht rückgängig machen. Soll die Organisation nur keinen Zugang mehr haben, sperren Sie sie stattdessen.",
         "deleteTitle": "Organisation löschen",
         "editTitle": "Organisation bearbeiten",
         "email": "E-Mail-Adresse",
@@ -211,7 +348,58 @@
         "removeMemberConfirm": "Sind Sie sicher, dass Sie {{name}} aus dieser Organisation entfernen möchten?",
         "searchPlaceholder": "Organisationen suchen...",
         "sendInvite": "Einladung senden",
-        "title": "Organisationen verwalten"
+        "title": "Organisationen verwalten",
+        "heads": "Leitung",
+        "status": "Status und Zustimmung",
+        "statusActive": "Aktiv",
+        "statusLocked": "Gesperrt",
+        "lockedNoReason": "Ohne Begründung gesperrt",
+        "consentMissing": "Erklärung ausstehend",
+        "consentOutdated": "Erklärung veraltet (v{{version}})",
+        "consentGiven": "Erklärung v{{version}} · {{date}}",
+        "lock": "Sperren",
+        "unlock": "Entsperren",
+        "lockTitle": "Organisation sperren",
+        "unlockTitle": "Organisation entsperren",
+        "lockConfirm": "„{{name}}“ sperren? Leitungen, Workshopleitungen und Teilnehmende können die Organisation dann nicht mehr nutzen. Geteilte Spiel-Links und öffentliche Workshop-Seiten funktionieren nicht mehr. Es werden keine Daten gelöscht, die Sperre lässt sich jederzeit aufheben.",
+        "unlockConfirm": "„{{name}}“ entsperren? Alle Mitglieder können die Organisation danach wieder wie vorher nutzen.",
+        "lockReason": "Grund (optional)",
+        "lockReasonDescription": "Nur für Admins sichtbar.",
+        "lockError": "Das hat nicht geklappt. Bitte erneut versuchen.",
+        "detailsOptional": "Optional: Träger und Anschrift",
+        "operator": "Träger",
+        "street": "Straße und Hausnummer",
+        "postalCode": "PLZ",
+        "city": "Ort"
+      },
+      "applications": {
+        "title": "Registrierungsanträge",
+        "description": "Alle Registrierungen und Upgrades. Neue Organisationen werden im Moment sofort freigeschaltet, ohne Bestätigung der E-Mail-Adresse. Bei älteren, nie bestätigten Anträgen werden Name, Funktion und E-Mail nach 90 Tagen automatisch entfernt.",
+        "empty": "Noch keine Anträge.",
+        "loadError": "Die Anträge konnten nicht geladen werden.",
+        "date": "Datum",
+        "institution": "Einrichtung",
+        "person": "Person",
+        "kind": "Art",
+        "kindRegister": "Neues Konto",
+        "kindUpgrade": "Upgrade",
+        "status": "Status",
+        "anonymized": "anonymisiert",
+        "statusValues": {
+          "pending": "Wartet auf Bestätigung",
+          "confirmed": "Bestätigt",
+          "expired": "Nicht bestätigt"
+        },
+        "bell": {
+          "label": "Neue Organisationen",
+          "title": "Neue Organisationen",
+          "intro_one": "Diese Organisation hat sich in den letzten zwei Wochen registriert und ist bereits freigeschaltet.",
+          "intro_other": "Diese {{count}} Organisationen haben sich in den letzten zwei Wochen registriert und sind bereits freigeschaltet.",
+          "lockHint": "Die E-Mail-Adressen werden im Moment nicht bestätigt. Prüfe neue Organisationen kurz und sperre sie in der Übersicht, falls etwas nicht stimmt.",
+          "empty": "In den letzten zwei Wochen hat sich keine Organisation registriert.",
+          "open": "Zur Übersicht",
+          "later": "Später"
+        }
       },
       "users": {
         "actions": "Aktionen",
@@ -270,13 +458,29 @@
       "notUsed": {
         "addKey": "API-Schlüssel hinzufügen",
         "narrationOnlyMax": "Ohne „Max“ gibt es keinen Erzählton.",
-        "noOwnKey": "Sie gilt nur zusammen mit deinem eigenen API-Schlüssel, und du hast keinen. Deine Spiele laufen über einen bereitgestellten Schlüssel (von Workshop, Organisation oder Server) mit dessen Stufe.",
         "noServerFreeKey": "Es ist kein freier API-Schlüssel ausgewählt.",
-        "noWorkshopKey": "Für diesen Workshop ist kein eigener API-Schlüssel ausgewählt. Die Spiele laufen dann über den freien Schlüssel der Organisation oder, falls es keinen gibt, über den des Servers - jeweils mit dessen Stufe.",
         "selectWorkshopKey": "Schlüssel für diesen Workshop auswählen",
         "title": "Diese Stufe wird nicht verwendet"
       },
-      "serverDefault": "Serverstandard"
+      "serverDefault": "Serverstandard",
+      "limit": {
+        "title": "Nicht freigegeben: {{tiers}}",
+        "notReleasedOption": "{{tier}} - nicht freigegeben",
+        "releaseDefault": "Standard der Freigabe ({{tier}})",
+        "workshop": {
+          "organization": "Ohne eigenen Workshop-Schlüssel wird mit dem freien Schlüssel der Organisation gespielt. Er ist bis „{{tier}}“ freigegeben. Frag die Organisationsleitung, ob sie die Freigabe anheben kann, oder wähle einen eigenen Schlüssel für diesen Workshop.",
+          "server": "Ohne eigenen Workshop-Schlüssel wird mit dem freien Schlüssel des Servers gespielt. Er ist bis „{{tier}}“ freigegeben. Für höhere Stufen wähle einen eigenen Schlüssel für diesen Workshop."
+        },
+        "user": {
+          "organization": "Du spielst mit dem freien Schlüssel deiner Organisation. Er ist bis „{{tier}}“ freigegeben. Frag die Organisationsleitung, ob sie die Freigabe anheben kann. Mit einem eigenen API-Schlüssel kannst du alle Stufen nutzen.",
+          "server": "Du spielst mit dem freien Schlüssel des Servers. Er ist bis „{{tier}}“ freigegeben. Mit einem eigenen API-Schlüssel kannst du alle Stufen nutzen."
+        }
+      },
+      "noKey": {
+        "title": "Kein Schlüssel zum Spielen",
+        "workshop": "Für diesen Workshop gibt es keinen Schlüssel, mit dem gespielt werden kann: keinen eigenen und keinen freien der Organisation oder des Servers.",
+        "user": "Es gibt keinen Schlüssel, mit dem du spielen kannst. Füge einen eigenen API-Schlüssel hinzu."
+      }
     },
     "allGames": {
       "continue": "Spielen",
@@ -318,7 +522,7 @@
       "addKey": "Schlüssel hinzufügen",
       "addedOn": "Hinzugefügt",
       "aiQualityTier": {
-        "description": "Wähle die KI-Qualitätsstufe für deine Spiele bei Verwendung deines eigenen API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Servereinstellung."
+        "description": "Wähle die KI-Qualitätsstufe für deine Spiele. Mit einem eigenen API-Schlüssel sind alle Stufen möglich, mit einem freien Schlüssel höchstens die Stufe, für die er freigegeben ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben."
       },
       "createModal": {
         "keyDescription": "Dein Schlüssel wird verschlüsselt und sicher gespeichert.",
@@ -430,7 +634,7 @@
         },
         "sections": {
           "constraintReasoning": "Warum diese Einschränkung gilt",
-          "constraintText": "Aktive Jugendschutz-Einschränkung",
+          "constraintText": "Aktive Jugendschutz-Prompt-Einschränkung",
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung",
           "rawResponse": "Unbearbeitete KI-Antwort",
@@ -454,7 +658,7 @@
           "workshop": "Der Schlüssel deines Workshops wurde verwendet"
         },
         "usedConstraint": {
-          "label": "Verwendete Einschränkungen"
+          "label": "Verwendete Jugendschutz-Prompt-Einschränkung"
         }
       },
       "debug": {
@@ -536,7 +740,19 @@
       "statusChange": {
         "effect": "Effekt:"
       },
-      "unnamed": "Unbenannt"
+      "unnamed": "Unbenannt",
+      "tierCapped": {
+        "title": "Gespielt wird mit „{{applied}}“ statt „{{requested}}“",
+        "reason": {
+          "organization": "Der freie Schlüssel der Organisation ist nur bis „{{tier}}“ freigegeben.",
+          "server": "Der freie Schlüssel des Servers ist nur bis „{{tier}}“ freigegeben."
+        },
+        "action": {
+          "participant": "Wende dich an deine Workshop-Leitung.",
+          "organization": "Frag die Organisationsleitung, ob sie die Freigabe anheben kann, oder hinterlege einen eigenen Schlüssel (für den Workshop oder in deinem Profil).",
+          "server": "Mit einem eigenen Schlüssel (für den Workshop oder in deinem Profil) sind alle Stufen möglich."
+        }
+      }
     },
     "games": {
       "actions": {
@@ -655,7 +871,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
         "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
-        "workshopDescription": "Dieser Link wird im Rahmen des Workshops \"{{name}}\" erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
+        "workshopDescription": "Dieser Link wird im Rahmen des Workshops \"{{name}}\" erstellt – Gäste spielen mit dem API-Schlüssel und der Jugendschutz-Prompt-Einschränkung des Workshops.",
         "workshopShare": "Workshop-Freigabe",
         "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
         "workshopSubsection": "Workshop-Freigabelink"
@@ -1005,7 +1221,12 @@
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
         "showDetails": "Details anzeigen",
-        "title": "Organisations-API-Schlüssel"
+        "title": "Organisations-API-Schlüssel",
+        "freeUseTier": {
+          "label": "Freigegeben bis (KI-Qualitätsstufe)",
+          "description": "Bis zu dieser Stufe dürfen Mitglieder und Workshops ohne eigenen Schlüssel mit dem freien Schlüssel spielen. Höhere Stufen kosten mehr. Leer lassen für die Standardstufe des Servers.",
+          "noKey": "Es ist kein freier Nutzungsschlüssel ausgewählt."
+        }
       },
       "autoShare": {
         "confirmMessage": "Dieser Schlüssel wird mit {{orgName}} geteilt und kann dann von anderen Leitern und Mitarbeitern für Workshops verwendet werden. Sie können diese Freigabe später in Ihrer persönlichen API-Schlüsselverwaltung oder der Organisations-API-Schlüsselverwaltung wieder entfernen.",
@@ -1044,11 +1265,11 @@
       "promoteTitle": "Zum Leiter befördern",
       "promoteToHead": "Zum Leiter befördern",
       "promoteWarning": "Dieser Benutzer erhält die Möglichkeit, Organisationsmitglieder zu verwalten und Lehrer einzuladen.",
-      "promptConstraintsHint": "Zusätzliche KI-Anweisungen für alle Sitzungen in dieser Organisation. Gilt, wenn keine Workshop-Einschränkung gesetzt ist, und für per Link geteilte Spiele.",
-      "promptConstraintsLabel": "Organisations-Einschränkungen",
+      "promptConstraintsHint": "Zusätzliche KI-Anweisungen für alle Sitzungen in dieser Organisation. Gilt, wenn für den Workshop keine eigene gesetzt ist, und für per Link geteilte Spiele.",
+      "promptConstraintsLabel": "Jugendschutz-Prompt-Einschränkung der Organisation",
       "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
       "promptConstraintsFallbackTitle": "Aktiver Site-weiter Fallback",
-      "promptConstraintsFallbackHint": "Keine Organisations-Einschränkung gesetzt. Stattdessen gilt die Site-weite Standardeinstellung für die jeweilige Altersgruppe:",
+      "promptConstraintsFallbackHint": "Keine Jugendschutz-Prompt-Einschränkung für die Organisation gesetzt. Stattdessen gilt die Site-weite Standardeinstellung für die jeweilige Altersgruppe:",
       "promptConstraintsFallbackU13": "Unter 13 Jahre",
       "promptConstraintsFallbackU13p": "13–17 Jahre (mit Zustimmung der Eltern)",
       "promptConstraintsFallbackU18": "18 Jahre oder älter",
@@ -1138,10 +1359,10 @@
         "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
-        "promptConstraintsFallbackOrg": "Organisations-Einschränkung wird als Standard verwendet: {{constraint}}",
-        "promptConstraintsFallbackSite": "Site-Einschränkung wird als Standard verwendet",
+        "promptConstraintsFallbackOrg": "Die Jugendschutz-Prompt-Einschränkung der Organisation wird als Standard verwendet: {{constraint}}",
+        "promptConstraintsFallbackSite": "Die Jugendschutz-Prompt-Einschränkung der Website wird als Standard verwendet",
         "promptConstraintsHint": "Zusätzliche KI-Anweisungen, die für alle Sitzungen in diesem Workshop gelten.",
-        "promptConstraintsLabel": "Prompt-Einschränkungen",
+        "promptConstraintsLabel": "Jugendschutz-Prompt-Einschränkung",
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
         "removeParticipant": "Teilnehmer entfernen",
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
@@ -1277,16 +1498,16 @@
     "searchPlaceholder": "Mitglieder suchen...",
     "serverSettings": {
       "constraints": {
-        "description": "Definiere verbindliche KI-Regeln basierend auf der Altersgruppe der Spieler. Diese Einschränkungen werden in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb des Workshop-Modus.",
-        "title": "Altersbasierte Einschränkungen",
+        "description": "Definiere verbindliche KI-Regeln basierend auf der Altersgruppe der Spieler. Diese Jugendschutz-Prompt-Einschränkungen werden in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb des Workshop-Modus.",
+        "title": "Altersbasierte Jugendschutz-Prompt-Einschränkungen",
         "u13Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren ohne elterliche Einwilligung eingefügt.",
-        "u13Label": "Einschränkung für Nutzer von 13-17 Jahren, ohne elterliche Einwilligung (U13)",
+        "u13Label": "Jugendschutz-Prompt-Einschränkung für Nutzer von 13-17 Jahren, ohne elterliche Einwilligung (U13)",
         "u13Placeholder": "z.B. Halte alle Inhalte strikt altersgerecht für Jugendliche. Keine Gewalt, keine romantischen Inhalte, keine Horrorthemen.",
         "u13pHint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren mit elterlicher Einwilligung eingefügt.",
-        "u13pLabel": "Einschränkung für Nutzer von 13-17 Jahren, mit elterlicher Einwilligung (U13p)",
+        "u13pLabel": "Jugendschutz-Prompt-Einschränkung für Nutzer von 13-17 Jahren, mit elterlicher Einwilligung (U13p)",
         "u13pPlaceholder": "z.B. Altersgerechte Inhalte für Jugendliche, deren Eltern zugestimmt haben. Einige reifere Themen erlaubt, keine expliziten Inhalte.",
         "u18Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer ab 18 Jahren eingefügt.",
-        "u18Label": "Einschränkung für Nutzer ab 18 Jahren (U18)",
+        "u18Label": "Jugendschutz-Prompt-Einschränkung für Nutzer ab 18 Jahren (U18)",
         "u18Placeholder": "z.B. Halte die Inhalte angemessen. Vermeide explizite Gewalt oder sexuelle Inhalte."
       },
       "defaultTier": {
@@ -1306,8 +1527,8 @@
         "working": "Funktioniert"
       },
       "freeUseTier": {
-        "description": "Qualitätsstufe bei Verwendung des freien API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Standardstufe.",
-        "title": "Freie KI-Qualitätsstufe"
+        "title": "Freigegeben bis (KI-Qualitätsstufe)",
+        "description": "Bis zu dieser Stufe darf mit dem freien API-Schlüssel des Servers gespielt werden. Wer eine höhere Stufe gewählt hat, spielt mit dieser. Höhere Stufen kosten mehr. Leer lassen für die Standardstufe."
       },
       "notAuthorized": "Sie haben keine Berechtigung, auf die Servereinstellungen zuzugreifen. Administratorzugang erforderlich.",
       "title": "Servereinstellungen"
@@ -1557,6 +1778,7 @@
     "showPublicPageLink": "Link zur öffentlichen Seite anzeigen"
   },
   "navigation": {
+    "adminDashboard": "Statistik",
     "adminPanel": "Admin-Bereich",
     "allGames": "Alle Spiele",
     "create": "Eigene Spiele erstellen",
@@ -1570,7 +1792,7 @@
     "myOrganization": "Meine Organisation",
     "myWorkshop": "Mein Workshop",
     "orgApiKeys": "API-Schlüssel",
-    "orgConstraints": "Einschränkungen",
+    "orgConstraints": "Jugendschutz-Prompt-Einschränkung",
     "orgMembers": "Mitglieder",
     "orgWorkshops": "Workshops",
     "play": "Spiele spielen",

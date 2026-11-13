@@ -1,13 +1,29 @@
 // package: game / narration clean-up
 // type:    logic
-// job:     strips JSON the AI sometimes puts into the narration step (whole answer as JSON, or a status block appended to the prose).
+// job:     strips JSON the AI sometimes puts into the narration step (whole answer as JSON, or a status block appended to the prose) and markdown emphasis stars.
 // limits:  pure text clean-up; does not call the AI or touch the stream (-> session_play.go).
 package game
 
 import (
 	"encoding/json"
+	"regexp"
 	"strings"
 )
+
+// Paired markdown emphasis on one line: **bold** and *italic*. The content must not start or end
+// with a space, so a lone star or "5 * 3" stays. Bold runs first, so ***x*** ends up as x.
+var (
+	markdownBold   = regexp.MustCompile(`\*\*([^\s*](?:[^*\n]*[^\s*])?)\*\*`)
+	markdownItalic = regexp.MustCompile(`\*([^\s*](?:[^*\n]*[^\s*])?)\*`)
+)
+
+// stripMarkdownEmphasis removes paired ** and * markers but keeps the text between them.
+// The narration prompt forbids markdown, but some models (mostly Mistral) still use it, and the
+// player shows plain text.
+func stripMarkdownEmphasis(text string) string {
+	text = markdownBold.ReplaceAllString(text, "$1")
+	return markdownItalic.ReplaceAllString(text, "$1")
+}
 
 // narrationKeys are the fields in which the AI usually puts the prose when it wrongly answers
 // the narration step with a JSON object. They are tried in this order.
@@ -15,9 +31,14 @@ var narrationKeys = []string{"narration", "scene", "story", "prose", "text", "me
 
 // cleanNarration returns the narration without JSON. The narration step must be plain prose,
 // but now and then the model (mostly at the opening scene) answers with a JSON object such as
-// {"narration":"...","status":{...}}, or appends a status JSON block to the prose.
-// Text without such JSON comes back unchanged (apart from surrounding whitespace).
+// {"narration":"...","status":{...}}, or appends a status JSON block to the prose. Markdown
+// emphasis stars are removed as well. Clean text comes back unchanged (apart from surrounding whitespace).
 func cleanNarration(text string) string {
+	return stripMarkdownEmphasis(stripJSON(text))
+}
+
+// stripJSON removes JSON the model put into the narration (see cleanNarration).
+func stripJSON(text string) string {
 	trimmed := strings.TrimSpace(text)
 	// A trailing markdown fence (```json ... ```) around the JSON is dropped first.
 	unfenced := strings.TrimSpace(strings.TrimSuffix(trimmed, "```"))

@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Alto (Premium)",
       "label": "Nível de Qualidade da IA",
+      "limit": {
+        "notReleasedOption": "{{tier}} - não liberado",
+        "releaseDefault": "Padrão de liberação ({{tier}})",
+        "title": "Não liberado: {{tiers}}",
+        "user": {
+          "organization": "Você joga com a chave de uso gratuito da sua organização. Ela está liberada até '{{tier}}'. Pergunte à liderança da organização se é possível aumentar o nível de liberação. Com uma chave de API própria, você pode usar todos os níveis.",
+          "server": "Você joga com a chave de uso gratuito do servidor. Ela está liberada até '{{tier}}'. Com uma chave de API própria, você pode usar todos os níveis."
+        },
+        "workshop": {
+          "organization": "Sem uma chave própria do workshop, os jogos usam a chave de uso gratuito da organização. Ela está liberada até '{{tier}}'. Pergunte à liderança da organização se é possível aumentar o nível de liberação ou selecione uma chave para este workshop.",
+          "server": "Sem uma chave própria do workshop, os jogos usam a chave de uso gratuito do servidor. Ela está liberada até '{{tier}}'. Para níveis mais altos, selecione uma chave para este workshop."
+        }
+      },
       "low": "Baixo (Econômico)",
       "max": "Máx (Premium + Áudio)",
       "medium": "Médio (Equilibrado)",
       "newSessionsOnly": "Este nível se aplica apenas a novas sessões. As sessões existentes mantêm o nível com o qual começaram.",
+      "noKey": {
+        "title": "Nenhuma chave disponível para jogar",
+        "user": "Não há nenhuma chave disponível para você jogar. Adicione uma chave de API própria.",
+        "workshop": "Não há nenhuma chave disponível para este workshop jogar: nem uma chave própria, nem uma chave de uso gratuito da organização ou do servidor."
+      },
       "notUsed": {
         "addKey": "Adicionar chave de API",
         "narrationOnlyMax": "Sem o 'Max', não há narração (áudio).",
@@ -333,7 +351,7 @@
       "addKey": "Adicionar Chave",
       "addedOn": "Adicionada",
       "aiQualityTier": {
-        "description": "Escolha o nível de qualidade da IA para seus jogos ao usar sua própria chave de API. Níveis mais altos custam mais, mas podem ter qualidade superior. Deixe vazio para usar o padrão do servidor."
+        "description": "Escolha o nível de qualidade da IA para seus jogos. Com uma chave de API própria, todos os níveis estão disponíveis; com uma chave de uso gratuito, no máximo o nível até o qual ela foi disponibilizada. Níveis mais altos custam mais, mas podem oferecer maior qualidade."
       },
       "createModal": {
         "keyDescription": "Sua chave será criptografada e armazenada com segurança.",
@@ -550,6 +568,18 @@
       },
       "statusChange": {
         "effect": "Efeito:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Pergunte à liderança da organização se é possível aumentar o nível de liberação ou adicione uma chave própria (para o workshop ou ao seu perfil).",
+          "participant": "Pergunte ao líder do seu workshop.",
+          "server": "Com uma chave própria (para o workshop ou no seu perfil), todos os níveis estarão disponíveis."
+        },
+        "reason": {
+          "organization": "A chave de uso gratuito da organização está liberada somente até '{{tier}}'.",
+          "server": "A chave de uso gratuito do servidor está liberada somente até '{{tier}}'."
+        },
+        "title": "Jogando em '{{applied}}' em vez de '{{requested}}'"
       },
       "unnamed": "Sem nome"
     },
@@ -1005,6 +1035,11 @@
           "title": "Chave de Uso Livre",
           "unknownKey": "Chave desconhecida"
         },
+        "freeUseTier": {
+          "description": "Membros e workshops sem uma chave própria podem jogar com a chave de uso gratuito até este nível. Níveis mais altos custam mais. Deixe vazio para usar o nível padrão do servidor.",
+          "label": "Liberado até (nível de qualidade da IA)",
+          "noKey": "Nenhuma chave de uso gratuito está selecionada."
+        },
         "keyName": "Nome da Chave",
         "loadError": "Falha ao carregar as chaves de API da organização.",
         "noKeys": "Ainda não há chaves de API compartilhadas com esta organização.",
@@ -1356,8 +1391,8 @@
         "working": "Funcionando"
       },
       "freeUseTier": {
-        "description": "Nível de qualidade usado quando a chave de uso livre está ativa. Níveis mais altos custam mais, mas podem ter qualidade superior. Deixe vazio para usar o nível padrão.",
-        "title": "Nível de Qualidade da IA para Uso Livre"
+        "description": "A chave de API de uso gratuito do servidor pode ser usada até este nível. Qualquer pessoa que escolher um nível mais alto jogará neste nível. Níveis mais altos custam mais. Deixe vazio para usar o nível padrão.",
+        "title": "Liberado até (nível de qualidade da IA)"
       },
       "notAuthorized": "Você não tem permissão para acessar as configurações do servidor. Acesso de admin necessário.",
       "title": "Configurações do Servidor"

@@ -641,7 +641,7 @@ func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.U
 }
 
 // setWorkshopExtras fills the public-page play limit, the join offer, the
-// language and the key source, which every read of a workshop returns.
+// language, the key source and its tier limit, which every read of a workshop returns.
 func setWorkshopExtras(ctx context.Context, w *obj.Workshop, r db.Workshop) {
 	if r.PublicPlayLimit.Valid {
 		limit := int(r.PublicPlayLimit.Int32)
@@ -650,5 +650,5 @@ func setWorkshopExtras(ctx context.Context, w *obj.Workshop, r db.Workshop) {
 	w.PublicPlayUsed = int(r.PublicPlayUsed)
 	w.PublicJoin = r.PublicJoin
 	w.Language = r.Language
-	w.ApiKeySource = workshopKeySource(ctx, r)
+	w.ApiKeySource, w.AiQualityTierLimit = workshopKeySource(ctx, r)
 }

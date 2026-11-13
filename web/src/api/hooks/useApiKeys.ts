@@ -197,3 +197,35 @@ export function useSetInstitutionFreeUseKey() {
 }
 
 
+
+/**
+ * Sets the highest AI quality tier the institution's free-use key is released up
+ * to; null falls back to the server default. Workshops without a key of their own
+ * and members are limited by it, so their limits are refetched.
+ */
+export function useSetInstitutionFreeUseTier() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjInstitution,
+    HttpxErrorResponse,
+    { institutionId: string; aiQualityTier: string | null }
+  >({
+    mutationFn: ({ institutionId, aiQualityTier }) =>
+      api.institutions
+        .freeUseTierPartialUpdate(institutionId, {
+          aiQualityTier: aiQualityTier ?? "",
+        })
+        .then((response) => response.data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institution(variables.institutionId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
+      queryClient.invalidateQueries({ queryKey: ["workshop"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+    },
+    onError: handleApiError,
+  });
+}

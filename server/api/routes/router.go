@@ -25,6 +25,7 @@ func NewMux() *http.ServeMux {
 
 	mux.Handle("GET /api/platforms", httpx.RequireAuth(GetPlatforms))
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
+	mux.HandleFunc("GET /api/legal/institution-declaration", GetInstitutionDeclaration)
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
 	mux.Handle("GET /api/system/constraints", httpx.RequireAuth(GetSystemConstraints))
 	mux.Handle("PATCH /api/system/settings", httpx.RequireAuth(UpdateSystemSettings))
@@ -64,6 +65,7 @@ func NewMux() *http.ServeMux {
 	// Auth
 	mux.HandleFunc("GET /api/auth/check-name", CheckNameAvailability)
 	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
+	mux.Handle("POST /api/auth/register-institution", httpx.RequireAuth0Token(RegisterInstitution))
 	mux.HandleFunc("POST /api/auth/logout", Logout)
 	mux.Handle("POST /api/auth/participant-login", httpx.TokenGuard(http.HandlerFunc(ParticipantLogin)))
 
@@ -82,7 +84,17 @@ func NewMux() *http.ServeMux {
 	if DevMode {
 		mux.HandleFunc("POST /api/users/new", CreateUser)
 		mux.HandleFunc("GET /api/users/{id}/jwt", GetUserJWT)
+		mux.HandleFunc("POST /api/dev/signup-token", CreateDevSignupToken)
+		mux.HandleFunc("GET /api/dev/mails", GetDevMails)
 	}
+
+	// Organisation self-registration
+	mux.Handle("POST /api/institution-applications", httpx.RequireAuth(UpgradeToInstitution))
+	mux.Handle("GET /api/institution-applications", httpx.RequireAuth(ListInstitutionApplications))
+	mux.Handle("GET /api/admin/stats", httpx.RequireAuth(GetAdminStats))
+	mux.Handle("GET /api/institution-applications/mine", httpx.RequireAuth(GetMyInstitutionApplication))
+	mux.Handle("POST /api/institution-applications/resend", httpx.RequireAuth(ResendInstitutionApplication))
+	mux.HandleFunc("POST /api/institution-applications/confirm", ConfirmInstitutionApplication)
 
 	// Institutions
 	mux.Handle("POST /api/institutions", httpx.RequireAuth(CreateInstitution))
@@ -94,7 +106,11 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/institutions/{id}/members/{userID}", httpx.RequireAuth(RemoveInstitutionMember))
 	mux.Handle("GET /api/institutions/{id}/apikeys", httpx.RequireAuth(GetInstitutionApiKeys))
 	mux.Handle("PATCH /api/institutions/{id}/free-use-key", httpx.RequireAuth(SetInstitutionFreeUseApiKeyShare))
+	mux.Handle("PATCH /api/institutions/{id}/free-use-tier", httpx.RequireAuth(SetInstitutionFreeUseAiQualityTier))
 	mux.Handle("PATCH /api/institutions/{id}/prompt-constraints", httpx.RequireAuth(UpdateInstitutionPromptConstraints))
+	mux.Handle("POST /api/institutions/{id}/declaration-consent", httpx.RequireAuth(ConsentToInstitutionDeclaration))
+	mux.Handle("POST /api/institutions/{id}/disable", httpx.RequireAuth(LockInstitution))
+	mux.Handle("POST /api/institutions/{id}/enable", httpx.RequireAuth(UnlockInstitution))
 
 	// Workshops
 	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))

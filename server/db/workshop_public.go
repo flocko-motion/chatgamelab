@@ -210,6 +210,10 @@ func loadPublicWorkshop(ctx context.Context, slug string) (*db.Workshop, error) 
 	if err != nil || !ws.Public {
 		return nil, obj.ErrNotFound("workshop page not found")
 	}
+	// A locked organisation's public pages disappear (the data is kept).
+	if IsShareInstitutionDisabled(ctx, &obj.GameShare{WorkshopID: &ws.ID}) {
+		return nil, obj.ErrNotFound("workshop page not found")
+	}
 	return &ws, nil
 }
 

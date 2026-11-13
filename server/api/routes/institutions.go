@@ -9,6 +9,7 @@ import (
 	"cgl/db"
 	"cgl/obj"
 	"net/http"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 )
@@ -16,6 +17,11 @@ import (
 // CreateInstitutionRequest represents the request to create an institution
 type CreateInstitutionRequest struct {
 	Name string `json:"name"`
+	// Optional details (operator and address), as entered at self-registration.
+	Operator   string `json:"operator,omitempty"`
+	Street     string `json:"street,omitempty"`
+	PostalCode string `json:"postalCode,omitempty"`
+	City       string `json:"city,omitempty"`
 }
 
 // UpdateInstitutionRequest represents the request to update an institution
@@ -57,6 +63,14 @@ func CreateInstitution(w http.ResponseWriter, r *http.Request) {
 		}
 		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
+	}
+	if req.Operator != "" || req.Street != "" || req.PostalCode != "" || req.City != "" {
+		if err := db.SetInstitutionDetails(r.Context(), institution.ID, req.Operator, req.Street, req.PostalCode, req.City); err != nil {
+			httpx.WriteAppError(w, obj.ErrServerError("organisation created, but its details could not be saved"))
+			return
+		}
+		institution.Operator, institution.Street = optionalString(req.Operator), optionalString(req.Street)
+		institution.PostalCode, institution.City = optionalString(req.PostalCode), optionalString(req.City)
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, institution)
@@ -171,7 +185,7 @@ func UpdateInstitution(w http.ResponseWriter, r *http.Request) {
 // DeleteInstitution godoc
 //
 //	@Summary		Delete institution
-//	@Description	Soft-deletes an institution (admin only)
+//	@Description	Permanently deletes an institution with all its workshops and workshop participants; heads and staff keep their accounts as individual users (admin only). To block access without losing data, lock it instead (POST /institutions/{id}/disable).
 //	@Tags			institutions
 //	@Produce		json
 //	@Param			id	path		string	true	"Institution ID"
@@ -375,6 +389,69 @@ func SetInstitutionFreeUseApiKeyShare(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, institution)
 }
 
+// SetInstitutionFreeUseTierRequest is the request body for setting the tier the
+// institution's free-use key is released up to
+type SetInstitutionFreeUseTierRequest struct {
+	AiQualityTier *string `json:"aiQualityTier"` // low/medium/high/max; null or "" = server default
+}
+
+// SetInstitutionFreeUseAiQualityTier godoc
+//
+//	@Summary		Set institution free-use key tier
+//	@Description	Sets the highest AI quality tier the institution's free-use key is released up to.
+//	@Description	Members and workshops without a key of their own play with it at most at this tier.
+//	@Description	Pass null or "" to fall back to the server's default tier.
+//	@Tags			institutions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string								true	"Institution ID (UUID)"
+//	@Param			request	body		SetInstitutionFreeUseTierRequest	true	"Tier (null to clear)"
+//	@Success		200		{object}	obj.Institution
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id}/free-use-tier [patch]
+func SetInstitutionFreeUseAiQualityTier(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	institutionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid institution ID")
+		return
+	}
+
+	var req SetInstitutionFreeUseTierRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+	if req.AiQualityTier != nil && *req.AiQualityTier == "" {
+		req.AiQualityTier = nil
+	}
+
+	if err := db.SetInstitutionFreeUseAiQualityTier(r.Context(), user.ID, institutionID, req.AiQualityTier); err != nil {
+		if httpErr, ok := err.(*obj.HTTPError); ok {
+			httpx.WriteHTTPError(w, httpErr)
+			return
+		}
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update free-use tier: "+err.Error())
+		return
+	}
+
+	institution, err := db.GetInstitutionByID(r.Context(), user.ID, institutionID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated institution: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, institution)
+}
+
 // UpdateInstitutionPromptConstraintsRequest is the request body for updating institution prompt constraints
 type UpdateInstitutionPromptConstraintsRequest struct {
 	PromptConstraints *string `json:"promptConstraints"`
@@ -414,6 +491,10 @@ func UpdateInstitutionPromptConstraints(w http.ResponseWriter, r *http.Request) 
 	if constraint != nil && *constraint == "" {
 		constraint = nil
 	}
+	if constraint != nil && utf8.RuneCountInString(*constraint) > obj.MaxPromptConstraintLength {
+		httpx.WriteAppError(w, obj.ErrValidationf("prompt constraint must be at most %d characters", obj.MaxPromptConstraintLength))
+		return
+	}
 
 	if err := db.UpdateInstitutionPromptConstraints(r.Context(), user.ID, institutionID, constraint); err != nil {
 		if httpErr, ok := err.(*obj.HTTPError); ok {
@@ -435,4 +516,11 @@ func UpdateInstitutionPromptConstraints(w http.ResponseWriter, r *http.Request) 
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, updatedInstitution)
+}
+
+func optionalString(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }

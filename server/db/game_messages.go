@@ -61,6 +61,9 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 	if err != nil {
 		return nil, obj.ErrServerError("failed to create session message")
 	}
+	if msg.Type == obj.GameSessionMessageTypeGame {
+		RecordPlayTurn(ctx, msg.GameSessionID)
+	}
 
 	// Return a copy with the generated values from the database
 	msg.Seq = int(result.Seq)

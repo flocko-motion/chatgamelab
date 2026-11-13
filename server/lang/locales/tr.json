@@ -280,10 +280,28 @@
     "aiQualityTier": {
       "high": "Yüksek (Premium)",
       "label": "Yapay Zekâ Kalite Seviyesi",
+      "limit": {
+        "notReleasedOption": "{{tier}} - kullanıma sunulmadı",
+        "releaseDefault": "Varsayılan sürüm ({{tier}})",
+        "title": "Kullanıma sunulmadı: {{tiers}}",
+        "user": {
+          "organization": "Kuruluşunuzun ücretsiz kullanım anahtarıyla oynuyorsunuz. Bu anahtar '{{tier}}' seviyesine kadar kullanıma sunulmuştur. Kuruluş yöneticilerinden bu seviyeyi yükseltip yükseltemeyeceklerini öğrenin. Kendi API anahtarınızla tüm seviyeleri kullanabilirsiniz.",
+          "server": "Sunucunun ücretsiz kullanım anahtarıyla oynuyorsunuz. Bu anahtar '{{tier}}' seviyesine kadar kullanıma sunulmuştur. Kendi API anahtarınızla tüm seviyeleri kullanabilirsiniz."
+        },
+        "workshop": {
+          "organization": "Kendine ait bir atölye anahtarı olmadan oyunlar, kuruluşun ücretsiz kullanım anahtarını kullanır. Bu anahtar '{{tier}}' seviyesine kadar kullanıma sunulmuştur. Kuruluş yöneticilerinden bu seviyeyi yükseltip yükseltemeyeceklerini öğrenin veya bu atölye için bir anahtar seçin.",
+          "server": "Kendine ait bir atölye anahtarı olmadan oyunlar, sunucunun ücretsiz kullanım anahtarını kullanır. Bu anahtar '{{tier}}' seviyesine kadar kullanıma sunulmuştur. Daha yüksek seviyeler için bu atölye için bir anahtar seçin."
+        }
+      },
       "low": "Düşük (Ekonomi)",
       "max": "Maks (Premium + Ses)",
       "medium": "Orta (Dengeli)",
       "newSessionsOnly": "Bu katman yalnızca yeni oturumlar için geçerlidir. Mevcut oturumlar başladıkları katmanı korur.",
+      "noKey": {
+        "title": "Oynamak için anahtar yok",
+        "user": "Oynayabileceğiniz bir anahtar yok. Kendi API anahtarınızı ekleyin.",
+        "workshop": "Bu atölyenin oynayabileceği bir anahtar yok: kendine ait bir anahtarı olmadığı gibi kuruluşun veya sunucunun ücretsiz kullanım anahtarı da yok."
+      },
       "notUsed": {
         "addKey": "API anahtarı ekle",
         "narrationOnlyMax": "'Max' olmadan seslendirme (ses) yoktur.",
@@ -335,7 +353,7 @@
       "addKey": "Anahtar Ekle",
       "addedOn": "Eklendi",
       "aiQualityTier": {
-        "description": "Kendi API anahtarınızı kullanırken oyunlarınız için yapay zekâ kalite seviyesini seçin. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir. Sunucu varsayılanını kullanmak için boş bırakın."
+        "description": "Oyunlarınız için yapay zekâ kalite seviyesini seçin. Size ait bir API anahtarıyla her seviye kullanılabilir; ücretsiz kullanım anahtarıyla en fazla, anahtarın erişime açıldığı seviyeye kadar olan seviye kullanılabilir. Daha yüksek seviyeler daha pahalıdır ancak daha yüksek kalite sunabilir."
       },
       "createModal": {
         "keyDescription": "Anahtarınız şifrelenip güvenle saklanacaktır.",
@@ -552,6 +570,18 @@
       },
       "statusChange": {
         "effect": "Etki:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Kuruluş yöneticilerinden bu seviyeyi yükseltip yükseltemeyeceklerini öğrenin veya kendi anahtarınızı ekleyin (atölye için ya da profilinize).",
+          "participant": "Lütfen atölye liderinize danışın.",
+          "server": "Kendi anahtarınızla (atölye için ya da profilinizde) tüm seviyeler kullanılabilir."
+        },
+        "reason": {
+          "organization": "Kuruluşun ücretsiz kullanım anahtarı yalnızca '{{tier}}' seviyesine kadar kullanıma sunulmuştur.",
+          "server": "Sunucunun ücretsiz kullanım anahtarı yalnızca '{{tier}}' seviyesine kadar kullanıma sunulmuştur."
+        },
+        "title": "'{{requested}}' yerine '{{applied}}' seviyesinde oynanıyor"
       },
       "unnamed": "Adsız"
     },
@@ -1007,6 +1037,11 @@
           "title": "Ücretsiz Kullanım Anahtarı",
           "unknownKey": "Bilinmeyen anahtar"
         },
+        "freeUseTier": {
+          "description": "Kendi anahtarı olmayan üyeler ve atölyeler, ücretsiz kullanım anahtarıyla bu seviyeye kadar oynayabilir. Daha yüksek seviyelerin maliyeti daha fazladır. Sunucunun varsayılan seviyesini kullanmak için boş bırakın.",
+          "label": "Şu seviyeye kadar kullanıma sunuldu (YZ kalite seviyesi)",
+          "noKey": "Hiçbir ücretsiz kullanım anahtarı seçilmedi."
+        },
         "keyName": "Anahtar Adı",
         "loadError": "Organizasyon API anahtarları yüklenemedi.",
         "noKeys": "Bu organizasyonla henüz API anahtarı paylaşılmadı.",
@@ -1358,8 +1393,8 @@
         "working": "Çalışıyor"
       },
       "freeUseTier": {
-        "description": "Ücretsiz kullanım API anahtarı etkin olduğunda kullanılacak kalite seviyesi. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir. Varsayılan seviye için boş bırakın.",
-        "title": "Ücretsiz Kullanım Yapay Zekâ Kalite Seviyesi"
+        "description": "Sunucunun ücretsiz kullanım API anahtarı bu seviyeye kadar kullanılabilir. Daha yüksek bir seviye seçen herkes bu seviyede oynar. Daha yüksek seviyelerin maliyeti daha fazladır. Varsayılan seviye için boş bırakın.",
+        "title": "Şu seviyeye kadar kullanıma sunuldu (YZ kalite seviyesi)"
       },
       "notAuthorized": "Sunucu ayarlarına erişim izniniz yok. Yönetici erişimi gerekir.",
       "title": "Sunucu Ayarları"

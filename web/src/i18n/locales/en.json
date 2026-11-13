@@ -93,6 +93,115 @@
       "subtitle": "Just a few more details to get started",
       "title": "Complete Your Profile"
     },
+    "organizationRegistration": {
+      "titleRegister": "Register an organisation",
+      "titleUpgrade": "Upgrade to organisation",
+      "subtitle": "Once you send the form, your organisation is activated right away and you are its head.",
+      "personSection": "About you",
+      "accountNameLabel": "Display name",
+      "accountNameDescription": "How you appear in ChatGameLab (at most 24 characters).",
+      "personNameLabel": "First and last name",
+      "personFunctionLabel": "Role in the institution",
+      "personFunctionPlaceholder": "e.g. head, youth worker",
+      "emailLabel": "Work e-mail address",
+      "emailDescription": "We send the confirmation link and the confirmation of the declaration to this address.",
+      "institutionSection": "About the institution",
+      "institutionNameLabel": "Name of the institution",
+      "operatorLabel": "Operator",
+      "operatorDescription": "e.g. city, association, parish",
+      "streetLabel": "Street and number",
+      "postalCodeLabel": "Postcode",
+      "cityLabel": "City",
+      "youthProtection": {
+        "title": "Youth-protection prompt restriction",
+        "intro": "The AI receives this instruction in every game of your organisation. Choose it to fit the age of your target group.",
+        "suggestionsLabel": "Suggestions (a click replaces the text):",
+        "defaultOption": "Default from age 13",
+        "suggestionChildren": "for children from about {{age}}",
+        "suggestionTeens": "for young people from about {{age}}",
+        "suggestionAdults": "for adults from {{age}}",
+        "fieldLabel": "Youth-protection prompt restriction of your organisation",
+        "tooLong": "At most {{max}} characters. Please shorten it or choose a suggestion.",
+        "changeHint": "You can change this setting at any time and set it differently for individual workshops.",
+        "responsibilityHint": "The suggestions are not an official age rating. Your institution decides on the setting and is responsible for it."
+      },
+      "consentSection": "Confirmations",
+      "confirmAdult": "I am at least 18 years old.",
+      "acceptTermsPrefix": "I agree to the",
+      "acceptTermsSuffix": ".",
+      "acceptPrivacyPrefix": "I have read the",
+      "acceptPrivacySuffix": ".",
+      "declarationGermanOnly": "The declaration is only available in German. The German text is binding.",
+      "declarationVersion": "Version {{version}}, dated {{date}}",
+      "emailConfirmHint": "Once you send the form, the organisation is created right away. The confirmation with the text of the declaration goes to your e-mail address.",
+      "submit": "Register organisation",
+      "switchToPersonal": "Back to the choice",
+      "cancel": "Cancel",
+      "toMyOrganization": "Go to my organisation",
+      "pending": {
+        "title": "Please confirm your e-mail address",
+        "text": "We sent an e-mail to {{email}}. Click the link in it to activate “{{name}}” as an organisation.",
+        "validity": "The link is valid for 48 hours. No e-mail? Please also check your spam folder.",
+        "resend": "Send link again",
+        "resent": "We sent you a new link. The previous link no longer works.",
+        "edit": "Change details and send again"
+      },
+      "consentModal": {
+        "constraintIntro": "With the declaration your institution commits to setting a youth-protection prompt restriction that fits your target group. Below is the one your organisation uses right now. Please check it and adjust it if needed.",
+        "title": "Confirm the declaration",
+        "introExisting": "Your organisation “{{name}}” now has a declaration that is confirmed online. It replaces the user agreement you signed before. Please read it and agree on behalf of your institution.",
+        "introNewVersion": "The declaration has been updated (version {{version}}). Please read the new version and agree on behalf of your organisation “{{name}}”.",
+        "oneHeadIsEnough": "It is enough if one head of the organisation agrees. Until then you can use ChatGameLab as usual.",
+        "emailDescription": "We send the confirmation with the text of the declaration to this address.",
+        "later": "Later",
+        "submit": "Agree"
+      },
+      "confirm": {
+        "successTitle": "Organisation activated",
+        "successText": "“{{name}}” is now activated in ChatGameLab. You are its head and can create workshops. We sent you the confirmation with the declaration by e-mail.",
+        "login": "Log in",
+        "errorTitle": "Confirmation not possible",
+        "backToApplication": "Back to the application"
+      },
+      "blocked": {
+        "memberTitle": "Upgrade not possible",
+        "head": "You already lead an organisation.",
+        "member": "Your account already belongs to an organisation or a workshop. To register your own organisation, please use a different account.",
+        "ageTitle": "Adults only",
+        "age": "An organisation can only be registered with an account set up as “18 or older”."
+      },
+      "upgradeCard": {
+        "title": "Organisation",
+        "text": "Want to use ChatGameLab with your institution in workshops? You can upgrade your account to an organisation. Your games are kept.",
+        "button": "Upgrade to organisation"
+      },
+      "errors": {
+        "required": "Required",
+        "emailInvalid": "Please enter a valid e-mail address.",
+        "formIncomplete": "Please fill in all required fields and confirm all points.",
+        "loadFailed": "The declaration could not be loaded. Please reload the page.",
+        "generic": "Something went wrong. Please try again.",
+        "institution_age_not_allowed": "An organisation can only be registered with an adult account (18+).",
+        "already_in_institution": "Your account already belongs to an organisation or a workshop, or is an admin account.",
+        "institution_name_taken": "An organisation with this name already exists. Please extend the name, e.g. with the city.",
+        "email_belongs_to_other_account": "There is already an account with this e-mail address. Please log in with it and choose “Upgrade to organisation” in the settings.",
+        "application_token_invalid": "This link is invalid or has already been used.",
+        "application_expired": "This link has expired. Log in and request a new link.",
+        "declaration_version_outdated": "The declaration has been updated. Please reload the page and read the current version.",
+        "institution_consents_required": "Please confirm all points.",
+        "duplicate_name": "This display name is already taken.",
+        "profane_name": "This display name is not allowed.",
+        "name_too_long": "The display name can be at most 24 characters long.",
+        "validation_error": "Please check your details.",
+        "conflict": "There is already an account for this login. Please log in and use the upgrade in the settings."
+      },
+      "emailFromLogin": "This is the address of your login.",
+      "emailFromAccount": "This is the e-mail address of your account.",
+      "registered": {
+        "title": "Organisation registered",
+        "text": "Your organisation is activated. You are its head and can create workshops now."
+      }
+    },
     "registerPage": {
       "agreePrefix": "I agree to the",
       "agreeSuffix": "and",
@@ -102,32 +211,18 @@
       "chooseType": "How would you like to use ChatGameLab?",
       "continueButton": "Continue to Registration",
       "description": "We use Auth0 as our authentication provider to manage user accounts. You will be redirected to Auth0 to create your account, then returned here to complete your profile.",
-      "educatorDescription": "Use ChatGameLab in workshops, classrooms, or your organization",
-      "educatorModal": {
-        "closeButton": "Close",
-        "copied": "Copied!",
-        "copyEmail": "Copy email",
-        "eduInfo": "Learn more about using ChatGameLab for educational purposes:",
-        "intro": "To use ChatGameLab with your organization (school, university, institution), please follow these steps:",
-        "registerButton": "Create Personal Account",
-        "step1": "Create a personal account",
-        "step1Description": "Create your personal account first. This will be your login for the platform.",
-        "step2": "2. Send us an email",
-        "step2Description": "Write an email to",
-        "step2Item1": "Your registered email address",
-        "step2Item2": "The name of your organization (school, institution, etc.)",
-        "step2WithInfo": "with:",
-        "step3": "3. We'll set up your organization",
-        "step3Description": "We will create your organization and assign you as the head. You can then invite colleagues and set up workshops.",
-        "title": "Educator \u0026 Professional Access"
-      },
-      "educatorTitle": "Educator / Professional",
       "individualDescription": "Create and play AI-powered text adventures",
       "individualTitle": "Personal Account",
       "loginLink": "Log in",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
-      "title": "Create Your Account"
+      "title": "Create Your Account",
+      "organizationTitle": "Register as an organisation",
+      "organizationIntro": "For youth centres, schools and other institutions that want to use ChatGameLab in workshops.",
+      "organizationStep1": "You create your login with Auth0 (e-mail and password).",
+      "organizationStep2": "You enter details about yourself and your institution, set the youth-protection prompt restriction and agree to the declaration.",
+      "organizationStep3": "Once you send the form, the organisation is activated right away and you can create workshops.",
+      "organizationExistingAccount": "Already have an account? Log in and choose “Upgrade to organisation” in the settings."
     },
     "settings": {
       "accountSection": "Account",
@@ -150,7 +245,49 @@
   },
   "common": {
     "actions": "Actions",
+    "organizationLocked": {
+      "title": "Organisation locked",
+      "description": "The operator has locked your organisation's access to ChatGameLab. Your data is kept.",
+      "contact": "If you have questions, please contact",
+      "logout": "Log out"
+    },
     "admin": {
+      "dashboard": {
+        "title": "Statistics",
+        "generatedAt": "As of {{date}}",
+        "playsSince": "Started games and AI responses are counted from {{date}} on. Game sessions themselves are deleted 48 hours after the last activity; counting is anonymous, without account or texts. Games and organisations are counted retroactively too.",
+        "loadError": "The statistics could not be loaded.",
+        "organisations": "Organisations",
+        "organisationsSub": "{{locked}} locked · {{pending}} without current consent",
+        "newGames7": "New games (7 days)",
+        "sessions7": "Started games (7 days)",
+        "turns7": "AI responses (7 days)",
+        "last30": "{{n}} in 30 days",
+        "perMonth": "Per month (last 12 months)",
+        "viewChart": "Chart",
+        "viewTable": "Table",
+        "month": "Month",
+        "newOrganisations": "New organisations",
+        "newGames": "New games",
+        "sessions": "Started games",
+        "turns": "AI responses",
+        "funnelTitle": "Registrations (90 days)",
+        "funnel": "{{submitted}} registrations, of which {{confirmed}} activated and {{withWorkshop}} with at least one workshop.",
+        "outsideTitle": "Outside organisations (30 days)",
+        "outside": "{{games}} new games, {{sessions}} started games and {{turns}} AI responses from individual accounts and guests outside organisations.",
+        "perOrganisation": "Per organisation",
+        "perOrganisationHint": "Numbers in the columns: 30 days / 7 days. Click a row to see the months. Click column headers to sort.",
+        "organisation": "Organisation",
+        "members": "Members",
+        "membersValue": "Heads: {{heads}} · workshop leads: {{staff}} · users: {{individuals}} · participants: {{participants}}",
+        "workshops": "Workshops",
+        "activeShort": "{{n}} active",
+        "games": "Games",
+        "newGames30": "New games",
+        "sessions30": "Started",
+        "turns30": "AI responses",
+        "lastActivity": "Last active"
+      },
       "invites": {
         "actions": "Actions",
         "empty": "No pending invites.",
@@ -190,7 +327,7 @@
         "actions": "Actions",
         "create": "Create Organization",
         "createTitle": "Create New Organization",
-        "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "deleteConfirm": "Permanently delete “{{name}}”? All workshops and participants of the organisation are deleted; heads and workshop leads keep their accounts. This cannot be undone. If the organisation should only lose access, lock it instead.",
         "deleteTitle": "Delete Organization",
         "editTitle": "Edit Organization",
         "email": "Email Address",
@@ -211,7 +348,58 @@
         "removeMemberConfirm": "Are you sure you want to remove {{name}} from this organization?",
         "searchPlaceholder": "Search organizations...",
         "sendInvite": "Send Invite",
-        "title": "Manage Organizations"
+        "title": "Manage Organizations",
+        "heads": "Heads",
+        "status": "Status and consent",
+        "statusActive": "Active",
+        "statusLocked": "Locked",
+        "lockedNoReason": "Locked without a reason",
+        "consentMissing": "Declaration pending",
+        "consentOutdated": "Declaration outdated (v{{version}})",
+        "consentGiven": "Declaration v{{version}} · {{date}}",
+        "lock": "Lock",
+        "unlock": "Unlock",
+        "lockTitle": "Lock organisation",
+        "unlockTitle": "Unlock organisation",
+        "lockConfirm": "Lock “{{name}}”? Heads, workshop leads and participants can then no longer use the organisation. Shared game links and public workshop pages stop working. No data is deleted, and the lock can be lifted at any time.",
+        "unlockConfirm": "Unlock “{{name}}”? All members can then use the organisation as before.",
+        "lockReason": "Reason (optional)",
+        "lockReasonDescription": "Only visible to admins.",
+        "lockError": "That did not work. Please try again.",
+        "detailsOptional": "Optional: operator and address",
+        "operator": "Operator",
+        "street": "Street and number",
+        "postalCode": "Postcode",
+        "city": "City"
+      },
+      "applications": {
+        "title": "Registration applications",
+        "description": "All registrations and upgrades. New organisations are currently activated right away, without confirming the e-mail address. For older applications that were never confirmed, name, role and e-mail are removed automatically after 90 days.",
+        "empty": "No applications yet.",
+        "loadError": "The applications could not be loaded.",
+        "date": "Date",
+        "institution": "Institution",
+        "person": "Person",
+        "kind": "Type",
+        "kindRegister": "New account",
+        "kindUpgrade": "Upgrade",
+        "status": "Status",
+        "anonymized": "anonymised",
+        "statusValues": {
+          "pending": "Waiting for confirmation",
+          "confirmed": "Confirmed",
+          "expired": "Not confirmed"
+        },
+        "bell": {
+          "label": "New organisations",
+          "title": "New organisations",
+          "intro_one": "This organisation registered in the last two weeks and is already activated.",
+          "intro_other": "These {{count}} organisations registered in the last two weeks and are already activated.",
+          "lockHint": "E-mail addresses are currently not confirmed. Take a quick look at new organisations and lock them in the overview if something is wrong.",
+          "empty": "No organisation has registered in the last two weeks.",
+          "open": "Go to overview",
+          "later": "Later"
+        }
       },
       "users": {
         "actions": "Actions",
@@ -270,13 +458,29 @@
       "notUsed": {
         "addKey": "Add API key",
         "narrationOnlyMax": "Without 'Max' there is no narration (audio).",
-        "noOwnKey": "It only applies together with your own API key, and you don't have one. Your games use a key provided by your workshop, organization, or the server, at that key's tier.",
         "noServerFreeKey": "No free-use API key is selected.",
-        "noWorkshopKey": "No API key of its own is selected for this workshop. Games then use the organization's free-use key or, if there is none, the server's - at that key's tier.",
         "selectWorkshopKey": "Select a key for this workshop",
         "title": "This tier is not used"
       },
-      "serverDefault": "Server Default"
+      "serverDefault": "Server Default",
+      "limit": {
+        "title": "Not released: {{tiers}}",
+        "notReleasedOption": "{{tier}} - not released",
+        "releaseDefault": "Release default ({{tier}})",
+        "workshop": {
+          "organization": "Without a workshop key of its own, games use the organization's free-use key. It is released up to '{{tier}}'. Ask the organization's leadership whether they can raise the release, or select a key for this workshop.",
+          "server": "Without a workshop key of its own, games use the server's free-use key. It is released up to '{{tier}}'. For higher tiers, select a key for this workshop."
+        },
+        "user": {
+          "organization": "You play with your organization's free-use key. It is released up to '{{tier}}'. Ask the organization's leadership whether they can raise the release. With an API key of your own you can use every tier.",
+          "server": "You play with the server's free-use key. It is released up to '{{tier}}'. With an API key of your own you can use every tier."
+        }
+      },
+      "noKey": {
+        "title": "No key to play with",
+        "workshop": "There is no key this workshop can play with: none of its own, and no free-use key of the organization or the server.",
+        "user": "There is no key you can play with. Add an API key of your own."
+      }
     },
     "allGames": {
       "continue": "Play",
@@ -318,7 +522,7 @@
       "addKey": "Add Key",
       "addedOn": "Added",
       "aiQualityTier": {
-        "description": "Choose the AI quality level for your games when using your own API key. Higher tiers cost more but may have higher quality. Leave empty to use the server default."
+        "description": "Choose the AI quality tier for your games. With an API key of your own every tier is available; with a free-use key, at most the tier it is released up to. Higher tiers cost more but may have higher quality."
       },
       "createModal": {
         "keyDescription": "Your key will be encrypted and stored securely.",
@@ -430,7 +634,7 @@
         },
         "sections": {
           "constraintReasoning": "Why this constraint applies",
-          "constraintText": "Active youth-protection constraint",
+          "constraintText": "Active youth-protection prompt restriction",
           "expandStory": "Instructions to the AI for writing out the story",
           "imageGeneration": "Instructions from the AI for image generation",
           "rawResponse": "Unprocessed AI response",
@@ -536,7 +740,19 @@
       "statusChange": {
         "effect": "Effect:"
       },
-      "unnamed": "Unnamed"
+      "unnamed": "Unnamed",
+      "tierCapped": {
+        "title": "Playing at '{{applied}}' instead of '{{requested}}'",
+        "reason": {
+          "organization": "The organization's free-use key is released only up to '{{tier}}'.",
+          "server": "The server's free-use key is released only up to '{{tier}}'."
+        },
+        "action": {
+          "participant": "Please ask your workshop leader.",
+          "organization": "Ask the organization's leadership whether they can raise the release, or add a key of your own (for the workshop or in your profile).",
+          "server": "With a key of your own (for the workshop or in your profile) every tier is available."
+        }
+      }
     },
     "games": {
       "actions": {
@@ -1005,7 +1221,12 @@
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
         "showDetails": "Show details",
-        "title": "Organization API Keys"
+        "title": "Organization API Keys",
+        "freeUseTier": {
+          "label": "Released up to (AI quality tier)",
+          "description": "Members and workshops without a key of their own may play with the free-use key up to this tier. Higher tiers cost more. Leave empty for the server default tier.",
+          "noKey": "No free-use key is selected."
+        }
       },
       "autoShare": {
         "confirmMessage": "This key will be shared with {{orgName}} and can then be used by other heads and staff for workshops. You can remove this sharing later in your personal API key management or the organization API key management.",
@@ -1045,7 +1266,7 @@
       "promoteToHead": "Promote to Head",
       "promoteWarning": "This user will gain the ability to manage organization members and invite teachers.",
       "promptConstraintsHint": "Additional AI instructions for all sessions in this organization. Applies when no workshop-level constraint is set, and to games shared via link.",
-      "promptConstraintsLabel": "Organization prompt constraints",
+      "promptConstraintsLabel": "Youth-protection prompt restriction of the organisation",
       "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
       "promptConstraintsFallbackTitle": "Active site-wide fallback",
       "promptConstraintsFallbackHint": "No organization constraint configured. The site-wide default for the player's age group applies:",
@@ -1141,7 +1362,7 @@
         "promptConstraintsFallbackOrg": "Using organization constraint as default: {{constraint}}",
         "promptConstraintsFallbackSite": "Using site constraint as default",
         "promptConstraintsHint": "Additional AI instructions for all sessions in this workshop.",
-        "promptConstraintsLabel": "Prompt constraints",
+        "promptConstraintsLabel": "Youth-protection prompt restriction",
         "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
         "removeParticipant": "Remove participant",
         "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
@@ -1306,8 +1527,8 @@
         "working": "Working"
       },
       "freeUseTier": {
-        "description": "Quality tier used when the free-use API key is active. Higher tiers cost more but may have higher quality. Leave empty to use the default tier.",
-        "title": "Free-Use AI Quality Tier"
+        "title": "Released up to (AI quality tier)",
+        "description": "The server's free-use API key may be used up to this tier. Anyone who chose a higher tier plays at this one. Higher tiers cost more. Leave empty for the default tier."
       },
       "notAuthorized": "You don't have permission to access server settings. Admin access required.",
       "title": "Server Settings"
@@ -1557,6 +1778,7 @@
     "showPublicPageLink": "Show public page link"
   },
   "navigation": {
+    "adminDashboard": "Statistics",
     "adminPanel": "Admin Panel",
     "allGames": "All Games",
     "create": "Create Your Own Game",
@@ -1570,7 +1792,7 @@
     "myOrganization": "My Organization",
     "myWorkshop": "My Workshop",
     "orgApiKeys": "API Keys",
-    "orgConstraints": "Constraints",
+    "orgConstraints": "Youth-protection prompt restriction",
     "orgMembers": "Members",
     "orgWorkshops": "Workshops",
     "play": "Play a Game",

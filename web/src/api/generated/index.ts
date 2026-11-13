@@ -26,10 +26,24 @@ export enum ObjInviteStatus {
   InviteStatusRevoked = "revoked",
 }
 
+export interface CglMailMessage {
+  body?: string;
+  sentAt?: string;
+  subject?: string;
+  to?: string;
+}
+
 export interface DbUserSessionWithGame {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -88,6 +102,39 @@ export interface HttpxErrorResponse {
   message?: string;
   /** Deprecated: use Code instead */
   type?: string;
+}
+
+export interface LegalDeclaration {
+  date?: string;
+  /** Hash is the hex SHA-256 of Text, stored with every consent record. */
+  hash?: string;
+  /** Text is the binding German text (Markdown). */
+  text?: string;
+  /** Translations holds optional, non-binding reading aids keyed by language code. */
+  translations?: Record<string, string>;
+  version?: string;
+}
+
+export interface LegalYouthProtectionSuggestion {
+  minAge?: number;
+  text?: string;
+}
+
+export interface ObjAdminStats {
+  all?: ObjStatsActivity;
+  consentPending?: number;
+  funnel?: ObjRegistrationFunnel;
+  generatedAt?: string;
+  institutions?: number;
+  institutionsLocked?: number;
+  months?: ObjStatsMonth[];
+  outsideOrganisations?: ObjStatsActivity;
+  perInstitution?: ObjInstitutionStats[];
+  /**
+   * PlaysRecordedSince: sessions and AI turns are counted from this moment on
+   * (game sessions themselves are deleted 48 h after the last activity).
+   */
+  playsRecordedSince?: string;
 }
 
 export interface ObjAiModel {
@@ -213,6 +260,13 @@ export interface ObjGameSession {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -332,6 +386,12 @@ export interface ObjGameTheme {
 }
 
 export interface ObjInstitution {
+  city?: string;
+  /** Declaration is the consent status of the organisation (admin list only). */
+  declaration?: ObjInstitutionDeclarationStatus;
+  disabledAt?: string;
+  /** DisabledReason is the admin's note on a lock (admin list only). */
+  disabledReason?: string;
   /** high/medium/low, nil = server default */
   freeUseAiQualityTier?: string;
   freeUseApiKeyShareId?: string;
@@ -339,7 +399,58 @@ export interface ObjInstitution {
   members?: ObjInstitutionMember[];
   meta?: ObjMeta;
   name?: string;
+  /** Operator (Träger) and address, entered at self-registration or when consenting to the declaration. */
+  operator?: string;
+  postalCode?: string;
   promptConstraints?: string;
+  street?: string;
+}
+
+export interface ObjInstitutionApplication {
+  anonymizedAt?: string;
+  city?: string;
+  confirmedAt?: string;
+  createdAt?: string;
+  declarationVersion?: string;
+  email?: string;
+  expiresAt?: string;
+  id?: string;
+  institutionId?: string;
+  institutionName?: string;
+  kind?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  promptConstraint?: string;
+  status?: string;
+  street?: string;
+  userId?: string;
+}
+
+export interface ObjInstitutionConsent {
+  applicationId?: string;
+  city?: string;
+  createdAt?: string;
+  declarationHash?: string;
+  declarationVersion?: string;
+  email?: string;
+  id?: string;
+  institutionId?: string;
+  institutionName?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  street?: string;
+  userId?: string;
+}
+
+export interface ObjInstitutionDeclarationStatus {
+  consentedAt?: string;
+  consentedVersion?: string;
+  currentVersion?: string;
+  pending?: boolean;
 }
 
 export interface ObjInstitutionMember {
@@ -347,6 +458,27 @@ export interface ObjInstitutionMember {
   name?: string;
   role?: ObjRole;
   userId?: string;
+}
+
+export interface ObjInstitutionStats {
+  activeWorkshops?: number;
+  city?: string;
+  consentPending?: boolean;
+  createdAt?: string;
+  games?: number;
+  heads?: number;
+  id?: string;
+  individuals?: number;
+  lastActivity?: string;
+  locked?: boolean;
+  months?: ObjStatsMonth[];
+  name?: string;
+  newGames?: ObjStatsPeriod;
+  participants?: number;
+  sessions?: ObjStatsPeriod;
+  staff?: number;
+  turns?: ObjStatsPeriod;
+  workshops?: number;
 }
 
 export interface ObjMeta {
@@ -386,6 +518,31 @@ export interface ObjPublicWorkshopPage {
 
 export interface ObjPublicWorkshopPlay {
   token?: string;
+}
+
+export interface ObjRegistrationFunnel {
+  confirmed?: number;
+  submitted?: number;
+  withWorkshop?: number;
+}
+
+export interface ObjStatsActivity {
+  newGames?: ObjStatsPeriod;
+  sessions?: ObjStatsPeriod;
+  turns?: ObjStatsPeriod;
+}
+
+export interface ObjStatsMonth {
+  month?: string;
+  newGames?: number;
+  newInstitutions?: number;
+  sessions?: number;
+  turns?: number;
+}
+
+export interface ObjStatsPeriod {
+  last30?: number;
+  last7?: number;
 }
 
 export interface ObjStatusField {
@@ -434,10 +591,24 @@ export interface ObjUser {
   ageGroup?: string;
   /** high/medium/low, nil = server default */
   aiQualityTier?: string;
+  aiQualityTierLimit?: string;
+  /**
+   * AiQualityTierLimitSource names the key the user's own tier plays with: one of the
+   * UserTierSource* constants. AiQualityTierLimit is the highest tier they may choose while
+   * a free-use key pays; nil with their own key. Filled for the current user only.
+   */
+  aiQualityTierLimitSource?: string;
   auth0Id?: string;
   deletedAt?: string;
   email?: string;
   id?: string;
+  /**
+   * InstitutionDeclaration is the declaration status of the user's organisation.
+   * Filled for organisation heads on GET /users/me only.
+   */
+  institutionDeclaration?: ObjInstitutionDeclarationStatus;
+  /** InstitutionDisabled is true when the user's organisation is locked (GET /users/me only). */
+  institutionDisabled?: boolean;
   /** ISO 639-1 language code (e.g., "en", "de", "fr") */
   language?: string;
   meta?: ObjMeta;
@@ -482,6 +653,11 @@ export interface ObjWorkshop {
   active?: boolean;
   /** Workshop settings (configured by staff/heads) */
   aiQualityTier?: string;
+  /**
+   * AiQualityTierLimit is the highest tier the workshop may choose while a free-use key
+   * pays (ApiKeySource organization/server); nil while its own key pays, or none does.
+   */
+  aiQualityTierLimit?: string;
   allowGameSharing?: boolean;
   /** ApiKeySource is the key plays are paid with: one of the WorkshopKeySource* constants, "" when there is none. */
   apiKeySource?: string;
@@ -544,6 +720,15 @@ export interface RoutesApiKeysResponse {
   shares?: ObjApiKeyShare[];
 }
 
+export interface RoutesConfirmInstitutionRequest {
+  token?: string;
+}
+
+export interface RoutesConfirmInstitutionResponse {
+  consent?: ObjInstitutionConsent;
+  institution?: ObjInstitution;
+}
+
 export interface RoutesCreateApiKeyRequest {
   key?: string;
   name?: string;
@@ -575,7 +760,12 @@ export interface RoutesCreateInstitutionInviteRequest {
 }
 
 export interface RoutesCreateInstitutionRequest {
+  city?: string;
   name?: string;
+  /** Optional details (operator and address), as entered at self-registration. */
+  operator?: string;
+  postalCode?: string;
+  street?: string;
 }
 
 export interface RoutesCreateWorkshopEmailInviteRequest {
@@ -594,6 +784,11 @@ export interface RoutesCreateWorkshopRequest {
   institutionId?: string;
   name?: string;
   public?: boolean;
+}
+
+export interface RoutesDevSignupTokenResponse {
+  auth0Id?: string;
+  token?: string;
 }
 
 export interface RoutesEnrichedGameShare {
@@ -651,6 +846,13 @@ export interface RoutesGuestSessionResponse {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -713,6 +915,36 @@ export interface RoutesImageStatusResponse {
   isOrganisationUnverified?: boolean;
 }
 
+export interface RoutesInstitutionConsentRequest {
+  acceptDeclaration?: boolean;
+  city?: string;
+  declarationVersion?: string;
+  email?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  /** PromptConstraint: the organisation's youth-protection prompt restriction (required, at most 200 characters). */
+  promptConstraint?: string;
+  street?: string;
+}
+
+export interface RoutesInstitutionDeclarationResponse {
+  bindingLanguage?: string;
+  declaration?: LegalDeclaration;
+  /** DefaultPromptConstraint is the site constraint for age 13+ (u13); the registration form starts with it. */
+  defaultPromptConstraint?: string;
+  /** MaxPromptConstraintLength is the maximum length of an organisation's restriction. */
+  maxPromptConstraintLength?: number;
+  youthProtectionSuggestions?: LegalYouthProtectionSuggestion[];
+}
+
+export interface RoutesInstitutionRegisteredResponse {
+  consent?: ObjInstitutionConsent;
+  institution?: ObjInstitution;
+  user?: ObjUser;
+}
+
 export interface RoutesInviteResponse {
   createdAt?: string;
   expiresAt?: string;
@@ -736,6 +968,10 @@ export interface RoutesLanguage {
   label?: string;
 }
 
+export interface RoutesLockInstitutionRequest {
+  reason?: string;
+}
+
 export interface RoutesMessageStatusResponse {
   /** Fatal error message (AI failure) */
   error?: string;
@@ -755,6 +991,10 @@ export interface RoutesMessageStatusResponse {
   textDone?: boolean;
 }
 
+export interface RoutesMyInstitutionApplicationResponse {
+  application?: ObjInstitutionApplication;
+}
+
 export interface RoutesParticipantCodeResponse {
   /** Token is the full login token that the /code link and QR code carry. */
   token?: string;
@@ -768,6 +1008,30 @@ export interface RoutesParticipantLoginRequest {
 
 export interface RoutesPrivateShareStatus {
   shares?: RoutesEnrichedGameShare[];
+}
+
+export interface RoutesRegisterInstitutionRequest {
+  /** AcceptDeclaration: the Einverständniserklärung, in the name of the organisation. */
+  acceptDeclaration?: boolean;
+  acceptPrivacy?: boolean;
+  acceptTerms?: boolean;
+  /** AccountName is the display name of the new account (same rules as normal registration). */
+  accountName?: string;
+  city?: string;
+  /** ConfirmAdult: "Ich bin mindestens 18 Jahre alt". */
+  confirmAdult?: boolean;
+  /** DeclarationVersion is the version shown to the person; must be the current one. */
+  declarationVersion?: string;
+  email?: string;
+  institutionName?: string;
+  /** Language: ISO 639-1 code of the interface (optional). */
+  language?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  promptConstraint?: string;
+  street?: string;
 }
 
 export interface RoutesRegisterRequest {
@@ -853,6 +1117,13 @@ export interface RoutesSessionResponse {
   aiModel?: string;
   /** AI model used for playing. */
   aiPlatform?: string;
+  aiQualityTierLimitedBy?: string;
+  /**
+   * AiQualityTierRequested is the tier the session asked for while a free-use key caps it
+   * lower (AiModel); AiQualityTierLimitedBy names who released that key: one of the
+   * AiQualityTierLimitedBy* constants. Both empty while it plays at the tier it asked for.
+   */
+  aiQualityTierRequested?: string;
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
@@ -915,6 +1186,11 @@ export interface RoutesSetFreeUseApiKeyRequest {
 
 export interface RoutesSetInstitutionFreeUseKeyRequest {
   shareId?: string;
+}
+
+export interface RoutesSetInstitutionFreeUseTierRequest {
+  /** low/medium/high/max; null or "" = server default */
+  aiQualityTier?: string;
 }
 
 export interface RoutesSetUserRoleRequest {
@@ -1005,6 +1281,24 @@ export interface RoutesUpdateWorkshopRequest {
   publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
+}
+
+export interface RoutesUpgradeInstitutionRequest {
+  /** AcceptDeclaration: the Einverständniserklärung, in the name of the organisation. */
+  acceptDeclaration?: boolean;
+  city?: string;
+  /** ConfirmAdult: "Ich bin mindestens 18 Jahre alt". */
+  confirmAdult?: boolean;
+  /** DeclarationVersion is the version shown to the person; must be the current one. */
+  declarationVersion?: string;
+  email?: string;
+  institutionName?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  promptConstraint?: string;
+  street?: string;
 }
 
 export interface RoutesUserUpdateRequest {
@@ -1307,6 +1601,25 @@ export class HttpClient<SecurityDataType = unknown> {
 export class Api<
   SecurityDataType extends unknown,
 > extends HttpClient<SecurityDataType> {
+  admin = {
+    /**
+     * @description Admin only. Organisations, new games, started sessions and AI turns: totals, last 7 and 30 days, per month (last 12 calendar months, Europe/Berlin) and per organisation. Sessions and AI turns are counted from playsRecordedSince on, because game sessions themselves are deleted 48 h after the last activity.
+     *
+     * @tags admin
+     * @name StatsList
+     * @summary Admin statistics
+     * @request GET:/admin/stats
+     * @secure
+     */
+    statsList: (params: RequestParams = {}) =>
+      this.request<ObjAdminStats, HttpxErrorResponse>({
+        path: `/admin/stats`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   apikeys = {
     /**
      * @description Returns the user's API keys and all their linked shares (org shares, sponsorships)
@@ -1565,6 +1878,62 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description After the Auth0 login of a new person: creates the account (age group u18) and right away the organisation, with the person as head; the consent is logged and the confirmation mailed (with a copy to the operator). For now without e-mail confirmation (to be added via Auth0). Requires the 18+ confirmation, terms, privacy policy and the current declaration.
+     *
+     * @tags institution-registration
+     * @name RegisterInstitutionCreate
+     * @summary Register a new account as an organisation
+     * @request POST:/auth/register-institution
+     * @secure
+     */
+    registerInstitutionCreate: (
+      request: RoutesRegisterInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInstitutionRegisteredResponse, HttpxErrorResponse>({
+        path: `/auth/register-institution`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  dev = {
+    /**
+     * @description DEV_MODE only. The last mails the server sent, newest first.
+     *
+     * @tags dev
+     * @name MailsList
+     * @summary Dev: mails sent so far
+     * @request GET:/dev/mails
+     */
+    mailsList: (params: RequestParams = {}) =>
+      this.request<CglMailMessage[], any>({
+        path: `/dev/mails`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description DEV_MODE only. Returns a token that behaves like the Auth0 login of a person who has no account yet.
+     *
+     * @tags dev
+     * @name SignupTokenCreate
+     * @summary Dev: token for a new person
+     * @request POST:/dev/signup-token
+     */
+    signupTokenCreate: (params: RequestParams = {}) =>
+      this.request<RoutesDevSignupTokenResponse, any>({
+        path: `/dev/signup-token`,
+        method: "POST",
         format: "json",
         ...params,
       }),
@@ -1980,6 +2349,105 @@ export class Api<
         ...params,
       }),
   };
+  institutionApplications = {
+    /**
+     * @description Admin only. All self-registration and upgrade applications, newest first (at most 500), including unconfirmed and expired ones. Personal data of old unconfirmed applications is removed by the retention job.
+     *
+     * @tags institution-registration
+     * @name InstitutionApplicationsList
+     * @summary List organisation applications
+     * @request GET:/institution-applications
+     * @secure
+     */
+    institutionApplicationsList: (params: RequestParams = {}) =>
+      this.request<ObjInstitutionApplication[], HttpxErrorResponse>({
+        path: `/institution-applications`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description For logged-in adult accounts without an organisation: creates the organisation right away with the account as head, logs the consent and mails the confirmation. For now without e-mail confirmation. Requires the 18+ confirmation and the current declaration.
+     *
+     * @tags institution-registration
+     * @name InstitutionApplicationsCreate
+     * @summary Upgrade the logged-in account to an organisation
+     * @request POST:/institution-applications
+     * @secure
+     */
+    institutionApplicationsCreate: (
+      request: RoutesUpgradeInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInstitutionRegisteredResponse, HttpxErrorResponse>({
+        path: `/institution-applications`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Called with the token from the e-mail link. Creates the organisation, makes the applicant its head, sets the youth-protection prompt restriction, logs the consent and e-mails the confirmation (with a copy to the operator).
+     *
+     * @tags institution-registration
+     * @name ConfirmCreate
+     * @summary Confirm an organisation application
+     * @request POST:/institution-applications/confirm
+     */
+    confirmCreate: (
+      request: RoutesConfirmInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesConfirmInstitutionResponse, HttpxErrorResponse>({
+        path: `/institution-applications/confirm`,
+        method: "POST",
+        body: request,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the open (unconfirmed) application of the logged-in account, or null.
+     *
+     * @tags institution-registration
+     * @name MineList
+     * @summary Get my open organisation application
+     * @request GET:/institution-applications/mine
+     * @secure
+     */
+    mineList: (params: RequestParams = {}) =>
+      this.request<RoutesMyInstitutionApplicationResponse, any>({
+        path: `/institution-applications/mine`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new confirmation link for the open application of the logged-in account and e-mails it. The previous link stops working.
+     *
+     * @tags institution-registration
+     * @name ResendCreate
+     * @summary Resend the confirmation link
+     * @request POST:/institution-applications/resend
+     * @secure
+     */
+    resendCreate: (params: RequestParams = {}) =>
+      this.request<RoutesMyInstitutionApplicationResponse, HttpxErrorResponse>({
+        path: `/institution-applications/resend`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   institutions = {
     /**
      * @description Lists all institutions
@@ -2041,7 +2509,7 @@ export class Api<
       }),
 
     /**
-     * @description Soft-deletes an institution (admin only)
+     * @description Permanently deletes an institution with all its workshops and workshop participants; heads and staff keep their accounts as individual users (admin only). To block access without losing data, lock it instead (POST /institutions/{id}/disable).
      *
      * @tags institutions
      * @name InstitutionsDelete
@@ -2101,6 +2569,72 @@ export class Api<
       }),
 
     /**
+     * @description For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator, address and the youth-protection prompt restriction, and e-mails the confirmation with a copy to the operator address.
+     *
+     * @tags institution-registration
+     * @name DeclarationConsentCreate
+     * @summary Consent to the current declaration for an organisation
+     * @request POST:/institutions/{id}/declaration-consent
+     * @secure
+     */
+    declarationConsentCreate: (
+      id: string,
+      request: RoutesInstitutionConsentRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitutionConsent, HttpxErrorResponse>({
+        path: `/institutions/${id}/declaration-consent`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Admin only. Heads, staff and participants of the organisation can no longer use it, its share links and public pages stop working. Nothing is deleted; unlock reverses it.
+     *
+     * @tags institutions
+     * @name DisableCreate
+     * @summary Lock an organisation
+     * @request POST:/institutions/{id}/disable
+     * @secure
+     */
+    disableCreate: (
+      id: string,
+      request: RoutesLockInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/disable`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Admin only. Reverses a lock; members can use the organisation again.
+     *
+     * @tags institutions
+     * @name EnableCreate
+     * @summary Unlock an organisation
+     * @request POST:/institutions/{id}/enable
+     * @secure
+     */
+    enableCreate: (id: string, params: RequestParams = {}) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/enable`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Sets or clears the free-use API key share for an institution. Any institution member can use this key to play for free. Pass null shareId to clear.
      *
      * @tags institutions
@@ -2116,6 +2650,30 @@ export class Api<
     ) =>
       this.request<ObjInstitution, HttpxErrorResponse>({
         path: `/institutions/${id}/free-use-key`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets the highest AI quality tier the institution's free-use key is released up to. Members and workshops without a key of their own play with it at most at this tier. Pass null or "" to fall back to the server's default tier.
+     *
+     * @tags institutions
+     * @name FreeUseTierPartialUpdate
+     * @summary Set institution free-use key tier
+     * @request PATCH:/institutions/{id}/free-use-tier
+     * @secure
+     */
+    freeUseTierPartialUpdate: (
+      id: string,
+      request: RoutesSetInstitutionFreeUseTierRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/free-use-tier`,
         method: "PATCH",
         body: request,
         secure: true,
@@ -2408,6 +2966,23 @@ export class Api<
     languagesDetail: (code: string, params: RequestParams = {}) =>
       this.request<Record<string, any>, Record<string, string>>({
         path: `/languages/${code}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  legal = {
+    /**
+     * @description Returns the current version of the Einverständniserklärung for organisations (binding German text, version, date, SHA-256 hash) and the suggested youth-protection prompt restrictions, the site default for age 13+ and the length limit. Public.
+     *
+     * @tags legal
+     * @name InstitutionDeclarationList
+     * @summary Get the institution declaration
+     * @request GET:/legal/institution-declaration
+     */
+    institutionDeclarationList: (params: RequestParams = {}) =>
+      this.request<RoutesInstitutionDeclarationResponse, any>({
+        path: `/legal/institution-declaration`,
         method: "GET",
         format: "json",
         ...params,

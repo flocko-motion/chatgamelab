@@ -56,6 +56,14 @@ services:
       BACKUP_ENABLED: ${BACKUP_ENABLED:-false}
       BACKUP_MAX_AGE_HOURS: ${BACKUP_MAX_AGE_HOURS:-48}
       SESSION_RETENTION_HOURS: ${SESSION_RETENTION_HOURS:-48}
+      # Outgoing mail (organisation registration). Empty SMTP_HOST = mails are only logged.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      ORG_REGISTRATION_NOTIFY_EMAIL: ${ORG_REGISTRATION_NOTIFY_EMAIL:-chatgamelab@jff.de}
+      ORG_APPLICATION_RETENTION_DAYS: ${ORG_APPLICATION_RETENTION_DAYS:-90}
       # Site-wide lock on guessed invite/participant/play tokens (empty = built-in default)
       TOKEN_LOCK_MAX_FAILURES: ${TOKEN_LOCK_MAX_FAILURES:-}
       TOKEN_LOCK_WINDOW: ${TOKEN_LOCK_WINDOW:-}

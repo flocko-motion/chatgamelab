@@ -43,24 +43,30 @@ import {
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
+  useSetInstitutionFreeUseTier,
   useApiKeyGameShares,
   useRevokePrivateShare,
   useUpdateGameShare,
 } from "@/api/hooks";
 import type { ObjApiKeyShare, RoutesEnrichedGameShare } from "@/api/generated";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
+import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import { AiTierNotice } from "@/common/components/AiTierNotice";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 
 interface ApiKeysTabProps {
   institutionId: string;
   institutionName?: string;
   freeUseApiKeyShareId?: string;
+  /** The tier the free-use key is released up to; unset = server default */
+  freeUseAiQualityTier?: string;
 }
 
 export function ApiKeysTab({
   institutionId,
   institutionName,
   freeUseApiKeyShareId,
+  freeUseAiQualityTier,
 }: ApiKeysTabProps) {
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
@@ -85,6 +91,7 @@ export function ApiKeysTab({
   const shareApiKey = useShareApiKeyWithInstitution();
   const removeShare = useRemoveInstitutionApiKeyShare();
   const setFreeUseKey = useSetInstitutionFreeUseKey();
+  const setFreeUseTier = useSetInstitutionFreeUseTier();
   // Combined org + personal key options for free-use key selector
   const {
     options: freeUseKeyOptions,
@@ -434,6 +441,29 @@ export function ApiKeysTab({
               clearable={false}
               size="sm"
               style={{ maxWidth: 400 }}
+            />
+          )}
+
+          <Select
+            label={t("myOrganization.apiKeys.freeUseTier.label")}
+            description={t("myOrganization.apiKeys.freeUseTier.description")}
+            data={getAiQualityTierOptions(t, { includeEmpty: true })}
+            value={freeUseAiQualityTier || ""}
+            onChange={(value) =>
+              setFreeUseTier.mutate({
+                institutionId,
+                aiQualityTier: value || null,
+              })
+            }
+            disabled={setFreeUseTier.isPending}
+            size="sm"
+            style={{ maxWidth: 400 }}
+          />
+          {freeUseAiQualityTier && !freeUseApiKeyShareId && (
+            <AiTierNotice
+              title={t("aiQualityTier.notUsed.title")}
+              reason={t("myOrganization.apiKeys.freeUseTier.noKey")}
+              narrationHint={freeUseAiQualityTier === "max"}
             />
           )}
         </Stack>

@@ -3,6 +3,7 @@ import { Stack, Title, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 import { SettingsForm } from '@/features/settings';
+import { OrganizationUpgradeCard } from '@/features/organization-registration';
 import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute(ROUTES.SETTINGS)({
@@ -20,6 +21,7 @@ function SettingsPage() {
       </Stack>
 
       <SettingsForm />
+      <OrganizationUpgradeCard />
     </Stack>
   );
 }

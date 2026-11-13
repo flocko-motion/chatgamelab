@@ -278,10 +278,28 @@
     "aiQualityTier": {
       "high": "Sare (Premium)",
       "label": "Heerka Tayada AI",
+      "limit": {
+        "notReleasedOption": "{{tier}} - lama fasixin",
+        "releaseDefault": "Heerka caadiga ah ee la fasaxay ({{tier}})",
+        "title": "Lama fasixin: {{tiers}}",
+        "user": {
+          "organization": "Waxaad ku ciyaaraysaa furaha ururkaaga ee isticmaalka-bilaashka ah. Waxaa la fasaxay ilaa '{{tier}}'. Weydii hoggaanka ururka inay kordhin karaan heerka fasaxa. Furaha API-ga aad adigu leedahay waxaad ku isticmaali kartaa heer kasta.",
+          "server": "Waxaad ku ciyaaraysaa furaha server-ka ee isticmaalka-bilaashka ah. Waxaa la fasaxay ilaa '{{tier}}'. Furaha API-ga aad adigu leedahay waxaad ku isticmaali kartaa heer kasta."
+        },
+        "workshop": {
+          "organization": "Haddii aanu lahayn fure aqoon-is-weydaarsi u gaar ah, ciyaaruhu waxay isticmaalaan furaha ururka ee isticmaalka-bilaashka ah. Waxaa la fasaxay ilaa '{{tier}}'. Weydii hoggaanka ururka inay kordhin karaan heerka fasaxa, ama dooro fure aqoon-is-weydaarsigan.",
+          "server": "Haddii aanu lahayn fure aqoon-is-weydaarsi u gaar ah, ciyaaruhu waxay isticmaalaan furaha server-ka ee isticmaalka-bilaashka ah. Waxaa la fasaxay ilaa '{{tier}}'. Heerarka ka sarreeya, dooro fure aqoon-is-weydaarsigan."
+        }
+      },
       "low": "Hoose (Economy)",
       "max": "Max (Premium + Cod)",
       "medium": "Dhexdhexaad (Isu dheelli tiran)",
       "newSessionsOnly": "Heerkan wuxuu khuseeyaa kaliya fadhiyada cusub. Fadhiyada jira waxay sii wataan heerkii ay ku bilaabmeen.",
+      "noKey": {
+        "title": "Ma jiro fure lagu ciyaaro",
+        "user": "Ma jiro fure aad ku ciyaari karto. Ku dar furaha API-ga aad adigu leedahay.",
+        "workshop": "Ma jiro fure aqoon-is-weydaarsigan uu ku ciyaari karo: ma laha mid u gaar ah, mana jiro fure isticmaalka-bilaashka ah oo ururka ama server-ku leeyahay."
+      },
       "notUsed": {
         "addKey": "Ku dar furaha API-ga",
         "narrationOnlyMax": "Haddii uusan jirin 'Max', ma jiri doonto sheekayn (maqal).",
@@ -333,7 +351,7 @@
       "addKey": "Ku dar Fure",
       "addedOn": "La daray",
       "aiQualityTier": {
-        "description": "Dooro heerka tayada AI ee ciyaarahaaga marka aad adeegsaneysid furaha API-gaaga. Heerarka sare waxay ku kacaan badan yihiin laakiin waxaa laga yaabaa inay tayadoodu fiicnaato. Ka tag madhan si aad u isticmaasho dejinta server-ka."
+        "description": "Dooro heerka tayada AI ee ciyaarahaaga. Haddii aad leedahay furaha API-gaaga, dhammaan heerarku way kuu diyaar yihiin; haddii aad isticmaasho fure bilaash ah, waxaad heli kartaa ugu badnaan heerka loo fasaxay. Heerarka sare kharash badan ayay leeyihiin, balse tayadoodu way ka sarreyn kartaa."
       },
       "createModal": {
         "keyDescription": "Furahaaga waa la sirayn doonaa si ammaan ahna waa lagu kaydin doonaa.",
@@ -665,6 +683,18 @@
       },
       "statusChange": {
         "effect": "Saameyn:"
+      },
+      "tierCapped": {
+        "action": {
+          "organization": "Weydii hoggaanka ururka inay kordhin karaan heerka fasaxa, ama ku dar fure aad adigu leedahay (aqoon-is-weydaarsiga ama astaantaada).",
+          "participant": "Fadlan weydii hoggaamiyaha aqoon-is-weydaarsigaaga.",
+          "server": "Fure aad adigu leedahay (aqoon-is-weydaarsiga ama astaantaada) waxaad ku heli kartaa heer kasta."
+        },
+        "reason": {
+          "organization": "Furaha ururka ee isticmaalka-bilaashka ah waxaa la fasaxay oo keliya ilaa '{{tier}}'.",
+          "server": "Furaha server-ka ee isticmaalka-bilaashka ah waxaa la fasaxay oo keliya ilaa '{{tier}}'."
+        },
+        "title": "Waxaa lagu ciyaarayaa '{{applied}}' halkii laga isticmaali lahaa '{{requested}}'"
       },
       "unnamed": "Magac la'aan"
     },
@@ -1756,6 +1786,11 @@
           "title": "Fure isticmaal bilaash ah",
           "unknownKey": "Fure aan la aqoon"
         },
+        "freeUseTier": {
+          "description": "Xubnaha iyo aqoon-is-weydaarsiyada aan lahayn fure u gaar ah waxay ku ciyaari karaan furaha isticmaalka-bilaashka ah ilaa heerkan. Heerarka ka sarreeya qiimo badan ayay leeyihiin. Banaani uga tag si loo isticmaalo heerka caadiga ah ee server-ka.",
+          "label": "La fasaxay ilaa (heerka tayada AI)",
+          "noKey": "Lama dooran fure isticmaalka-bilaashka ah."
+        },
         "keyName": "Magaca Fureha",
         "loadError": "Furayaasha API ee ururka lama soo dejin karo.",
         "noKeys": "Ma jiraan furayaal API ah oo weli lala wadaagay ururkan.",
@@ -2162,8 +2197,8 @@
         "working": "Wuu shaqaynayaa"
       },
       "freeUseTier": {
-        "description": "Heerka tayada la isticmaalo marka furaha API-ga bilaashka ahi shaqaynayo. Heerarka sare way ka qaalisan yihiin, laakiin waxay yeelan karaan tayo ka wanaagsan. Bannaan uga tag si loo isticmaalo heerka caadiga ah.",
-        "title": "Heerka tayada AI-ga ee isticmaalka bilaashka ah"
+        "description": "Furaha API-ga server-ka ee isticmaalka-bilaashka ah waxaa la isticmaali karaa ilaa heerkan. Qof kasta oo doortay heer ka sarreeya wuxuu ku ciyaarayaa heerkan. Heerarka ka sarreeya qiimo badan ayay leeyihiin. Banaani uga tag si loo isticmaalo heerka caadiga ah.",
+        "title": "La fasaxay ilaa (heerka tayada AI)"
       },
       "notAuthorized": "Ogolaansho uma lihid inaad gasho dejimaha server-ka. Gelitaanka maamule ayaa loo baahan yahay.",
       "title": "Dejimaha server-ka"
