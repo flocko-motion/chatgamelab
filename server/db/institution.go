@@ -188,6 +188,12 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 			inst.PromptConstraints = &r.PromptConstraints.String
 		}
 		fillInstitutionDetails(&inst, r)
+		if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+			inst.DisabledReason = nullStringToPtr(r.DisabledReason)
+			if status, err := InstitutionDeclarationStatusFor(ctx, r.ID); err == nil {
+				inst.Declaration = status
+			}
+		}
 		members, err := loadInstitutionMembers(ctx, r.ID)
 		if err == nil {
 			inst.Members = members

@@ -17,7 +17,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconAlertCircle, IconSend, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
+import { IconPlus, IconAlertCircle, IconSend, IconEdit, IconTrash, IconSearch, IconLock, IconLockOpen } from '@tabler/icons-react';
 import { ExpandableSearch } from '@/common/components/controls';
 import { PlusIconButton } from '@/common/components/buttons';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +27,9 @@ import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
 import type { ObjInstitution } from '@/api/generated';
 import { InvitesList } from './InvitesList';
-import { OrganizationMembersRow } from './OrganizationMembersRow';
+import { OrganizationMembersRow, OrganizationStatusBadges } from './OrganizationMembersRow';
+import { headNames } from '../lib/organizationHeads';
+import { InstitutionApplicationsList } from './InstitutionApplicationsList';
 
 export function OrganizationsManagement() {
   const { t } = useTranslation('common');
@@ -38,6 +40,9 @@ export function OrganizationsManagement() {
   const [editingOrg, setEditingOrg] = useState<ObjInstitution | null>(null);
   const [inviteOrg, setInviteOrg] = useState<ObjInstitution | null>(null);
   const [newOrgName, setNewOrgName] = useState('');
+  const [newOrgDetails, setNewOrgDetails] = useState({ operator: '', street: '', postalCode: '', city: '' });
+  const [lockOrg, setLockOrg] = useState<ObjInstitution | null>(null);
+  const [lockReason, setLockReason] = useState('');
   const [editName, setEditName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   
@@ -45,6 +50,7 @@ export function OrganizationsManagement() {
   const [editModalOpened, { open: openEditModal, close: closeEditModal }] = useDisclosure(false);
   const [inviteModalOpened, { open: openInviteModal, close: closeInviteModal }] = useDisclosure(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+  const [lockModalOpened, { open: openLockModal, close: closeLockModal }] = useDisclosure(false);
   const [orgToDelete, setOrgToDelete] = useState<ObjInstitution | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
@@ -77,21 +83,28 @@ export function OrganizationsManagement() {
     if (!searchQuery.trim()) return organizations;
     
     const query = searchQuery.toLowerCase();
-    return organizations.filter((org) => 
-      org.name?.toLowerCase().includes(query)
+    return organizations.filter((org) =>
+      [org.name, org.operator, org.city, headNames(org)].some((v) => v?.toLowerCase().includes(query))
     );
   }, [organizations, searchQuery]);
 
   // Create institution mutation
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
-      const response = await api.institutions.institutionsCreate({ name });
+      const response = await api.institutions.institutionsCreate({
+        name,
+        operator: newOrgDetails.operator.trim(),
+        street: newOrgDetails.street.trim(),
+        postalCode: newOrgDetails.postalCode.trim(),
+        city: newOrgDetails.city.trim(),
+      });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
       closeCreateModal();
       setNewOrgName('');
+      setNewOrgDetails({ operator: '', street: '', postalCode: '', city: '' });
     },
   });
 
@@ -118,6 +131,23 @@ export function OrganizationsManagement() {
       queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
       closeDeleteModal();
       setOrgToDelete(null);
+    },
+  });
+
+  // Lock / unlock mutation (reversible, keeps all data)
+  const lockMutation = useMutation({
+    mutationFn: async ({ org, reason }: { org: ObjInstitution; reason: string }) => {
+      if (org.disabledAt) {
+        await api.institutions.enableCreate(org.id!);
+      } else {
+        await api.institutions.disableCreate(org.id!, { reason });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
+      closeLockModal();
+      setLockOrg(null);
+      setLockReason('');
     },
   });
 
@@ -154,6 +184,12 @@ export function OrganizationsManagement() {
     setInviteEmail('');
     setInviteError(null);
     openInviteModal();
+  };
+
+  const handleToggleLock = (org: ObjInstitution) => {
+    setLockOrg(org);
+    setLockReason('');
+    openLockModal();
   };
 
   const handleDelete = (org: ObjInstitution) => {
@@ -220,6 +256,13 @@ export function OrganizationsManagement() {
                           {org.members?.length || 0} {t('admin.organizations.membersCount')}
                         </Badge>
                       </Group>
+                      {(org.operator || org.city) && (
+                        <Text size="xs" c="dimmed">{[org.operator, org.city].filter(Boolean).join(' · ')}</Text>
+                      )}
+                      {headNames(org) && (
+                        <Text size="xs">{t('admin.organizations.heads')}: {headNames(org)}</Text>
+                      )}
+                      <OrganizationStatusBadges org={org} />
                       <Group gap="xs" justify="flex-end">
                         <ActionIcon
                           variant="subtle"
@@ -241,6 +284,15 @@ export function OrganizationsManagement() {
                         </ActionIcon>
                         <ActionIcon
                           variant="subtle"
+                          color={org.disabledAt ? 'green' : 'orange'}
+                          size="sm"
+                          onClick={() => handleToggleLock(org)}
+                          title={org.disabledAt ? t('admin.organizations.unlock') : t('admin.organizations.lock')}
+                        >
+                          {org.disabledAt ? <IconLockOpen size={14} /> : <IconLock size={14} />}
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
                           color="red"
                           size="sm"
                           onClick={() => handleDelete(org)}
@@ -258,8 +310,10 @@ export function OrganizationsManagement() {
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>{t('admin.organizations.name')}</Table.Th>
+                    <Table.Th>{t('admin.organizations.heads')}</Table.Th>
+                    <Table.Th>{t('admin.organizations.status')}</Table.Th>
                     <Table.Th>{t('admin.organizations.members')}</Table.Th>
-                    <Table.Th style={{ width: 150 }}>{t('admin.organizations.actions')}</Table.Th>
+                    <Table.Th style={{ width: 190 }}>{t('admin.organizations.actions')}</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -270,6 +324,7 @@ export function OrganizationsManagement() {
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       onInvite={handleInvite}
+                      onToggleLock={handleToggleLock}
                     />
                   ))}
                 </Table.Tbody>
@@ -280,6 +335,13 @@ export function OrganizationsManagement() {
               {t('admin.organizations.empty')}
             </Text>
           )}
+        </Card>
+
+        {/* Self-registration applications, including unconfirmed attempts */}
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Title order={3} mb={4}>{t('admin.applications.title')}</Title>
+          <Text size="sm" c="dimmed" mb="md">{t('admin.applications.description')}</Text>
+          <InstitutionApplicationsList />
         </Card>
 
         {/* Pending Invites Section */}
@@ -298,6 +360,29 @@ export function OrganizationsManagement() {
             value={newOrgName}
             onChange={(e) => setNewOrgName(e.currentTarget.value)}
           />
+          <Text size="sm" c="dimmed">{t('admin.organizations.detailsOptional')}</Text>
+          <TextInput
+            label={t('admin.organizations.operator')}
+            value={newOrgDetails.operator}
+            onChange={(e) => { const v = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, operator: v })); }}
+          />
+          <TextInput
+            label={t('admin.organizations.street')}
+            value={newOrgDetails.street}
+            onChange={(e) => { const v = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, street: v })); }}
+          />
+          <Group grow>
+            <TextInput
+              label={t('admin.organizations.postalCode')}
+              value={newOrgDetails.postalCode}
+              onChange={(e) => { const v = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, postalCode: v })); }}
+            />
+            <TextInput
+              label={t('admin.organizations.city')}
+              value={newOrgDetails.city}
+              onChange={(e) => { const v = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, city: v })); }}
+            />
+          </Group>
           <Group justify="flex-end">
             <Button variant="subtle" onClick={closeCreateModal}>
               {t('cancel')}
@@ -365,6 +450,47 @@ export function OrganizationsManagement() {
               leftSection={<IconSend size={16} />}
             >
               {t('admin.organizations.sendInvite')}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Lock / Unlock Modal */}
+      <Modal
+        opened={lockModalOpened}
+        onClose={closeLockModal}
+        title={lockOrg?.disabledAt ? t('admin.organizations.unlockTitle') : t('admin.organizations.lockTitle')}
+      >
+        <Stack gap="md">
+          <Text size="sm">
+            {lockOrg?.disabledAt
+              ? t('admin.organizations.unlockConfirm', { name: lockOrg?.name })
+              : t('admin.organizations.lockConfirm', { name: lockOrg?.name })}
+          </Text>
+          {!lockOrg?.disabledAt && (
+            <TextInput
+              label={t('admin.organizations.lockReason')}
+              description={t('admin.organizations.lockReasonDescription')}
+              value={lockReason}
+              onChange={(e) => setLockReason(e.currentTarget.value)}
+              maxLength={300}
+            />
+          )}
+          {lockMutation.isError && (
+            <Alert color="red" icon={<IconAlertCircle size={16} />}>
+              {t('admin.organizations.lockError')}
+            </Alert>
+          )}
+          <Group justify="flex-end">
+            <Button variant="subtle" onClick={closeLockModal}>
+              {t('cancel')}
+            </Button>
+            <Button
+              color={lockOrg?.disabledAt ? 'green' : 'orange'}
+              onClick={() => lockOrg && lockMutation.mutate({ org: lockOrg, reason: lockReason })}
+              loading={lockMutation.isPending}
+            >
+              {lockOrg?.disabledAt ? t('admin.organizations.unlock') : t('admin.organizations.lock')}
             </Button>
           </Group>
         </Stack>

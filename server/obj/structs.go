@@ -89,6 +89,8 @@ type User struct {
 	// InstitutionDeclaration is the declaration status of the user's organisation.
 	// Filled for organisation heads on GET /users/me only.
 	InstitutionDeclaration *InstitutionDeclarationStatus `json:"institutionDeclaration,omitempty"`
+	// InstitutionDisabled is true when the user's organisation is locked (GET /users/me only).
+	InstitutionDisabled bool `json:"institutionDisabled,omitempty"`
 }
 
 // UserStats contains aggregated statistics for a user
@@ -114,6 +116,10 @@ type Institution struct {
 	PostalCode *string    `json:"postalCode,omitempty"`
 	City       *string    `json:"city,omitempty"`
 	DisabledAt *time.Time `json:"disabledAt,omitempty"`
+	// DisabledReason is the admin's note on a lock (admin list only).
+	DisabledReason *string `json:"disabledReason,omitempty"`
+	// Declaration is the consent status of the organisation (admin list only).
+	Declaration *InstitutionDeclarationStatus `json:"declaration,omitempty"`
 }
 
 // InstitutionMember represents a user's membership and role within an institution.

@@ -98,3 +98,24 @@ SELECT EXISTS (SELECT 1 FROM institution WHERE lower(name) = lower(sqlc.arg(name
 
 -- name: GetActiveUserIDsByEmail :many
 SELECT id FROM app_user WHERE lower(email) = lower(sqlc.arg(email)::text) AND deleted_at IS NULL;
+
+-- name: IsUserInstitutionDisabled :one
+-- True if the user is head, staff or participant of a locked organisation (directly or via a workshop).
+SELECT EXISTS (
+  SELECT 1
+  FROM user_role ur
+  LEFT JOIN workshop w ON w.id = ur.workshop_id
+  JOIN institution i ON i.id = COALESCE(ur.institution_id, w.institution_id)
+  WHERE ur.user_id = sqlc.arg(user_id)
+    AND ur.role IN ('head', 'staff', 'participant')
+    AND i.disabled_at IS NOT NULL
+);
+
+-- name: IsShareInstitutionDisabled :one
+-- True if a share belongs to a locked organisation (directly or via one of its workshops).
+SELECT EXISTS (
+  SELECT 1 FROM institution i
+  WHERE i.disabled_at IS NOT NULL
+    AND (i.id = sqlc.narg(institution_id)::uuid
+         OR i.id = (SELECT w.institution_id FROM workshop w WHERE w.id = sqlc.narg(workshop_id)::uuid))
+);

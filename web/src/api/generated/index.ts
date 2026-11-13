@@ -370,7 +370,11 @@ export interface ObjGameTheme {
 
 export interface ObjInstitution {
   city?: string;
+  /** Declaration is the consent status of the organisation (admin list only). */
+  declaration?: ObjInstitutionDeclarationStatus;
   disabledAt?: string;
+  /** DisabledReason is the admin's note on a lock (admin list only). */
+  disabledReason?: string;
   /** high/medium/low, nil = server default */
   freeUseAiQualityTier?: string;
   freeUseApiKeyShareId?: string;
@@ -540,6 +544,8 @@ export interface ObjUser {
    * Filled for organisation heads on GET /users/me only.
    */
   institutionDeclaration?: ObjInstitutionDeclarationStatus;
+  /** InstitutionDisabled is true when the user's organisation is locked (GET /users/me only). */
+  institutionDisabled?: boolean;
   /** ISO 639-1 language code (e.g., "en", "de", "fr") */
   language?: string;
   meta?: ObjMeta;
@@ -691,7 +697,12 @@ export interface RoutesCreateInstitutionInviteRequest {
 }
 
 export interface RoutesCreateInstitutionRequest {
+  city?: string;
   name?: string;
+  /** Optional details (operator and address), as entered at self-registration. */
+  operator?: string;
+  postalCode?: string;
+  street?: string;
 }
 
 export interface RoutesCreateWorkshopEmailInviteRequest {
@@ -889,6 +900,10 @@ export interface RoutesInviteResponse {
 export interface RoutesLanguage {
   iso?: string;
   label?: string;
+}
+
+export interface RoutesLockInstitutionRequest {
+  reason?: string;
 }
 
 export interface RoutesMessageStatusResponse {
@@ -2251,6 +2266,24 @@ export class Api<
   };
   institutionApplications = {
     /**
+     * @description Admin only. All self-registration and upgrade applications, newest first (at most 500), including unconfirmed and expired ones. Personal data of old unconfirmed applications is removed by the retention job.
+     *
+     * @tags institution-registration
+     * @name InstitutionApplicationsList
+     * @summary List organisation applications
+     * @request GET:/institution-applications
+     * @secure
+     */
+    institutionApplicationsList: (params: RequestParams = {}) =>
+      this.request<ObjInstitutionApplication[], HttpxErrorResponse>({
+        path: `/institution-applications`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description For logged-in adult accounts without an organisation: stores an application and e-mails a confirmation link. Requires the 18+ confirmation and the current declaration.
      *
      * @tags institution-registration
@@ -2391,7 +2424,7 @@ export class Api<
       }),
 
     /**
-     * @description Soft-deletes an institution (admin only)
+     * @description Permanently deletes an institution with all its workshops and workshop participants; heads and staff keep their accounts as individual users (admin only). To block access without losing data, lock it instead (POST /institutions/{id}/disable).
      *
      * @tags institutions
      * @name InstitutionsDelete
@@ -2470,6 +2503,48 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Admin only. Heads, staff and participants of the organisation can no longer use it, its share links and public pages stop working. Nothing is deleted; unlock reverses it.
+     *
+     * @tags institutions
+     * @name DisableCreate
+     * @summary Lock an organisation
+     * @request POST:/institutions/{id}/disable
+     * @secure
+     */
+    disableCreate: (
+      id: string,
+      request: RoutesLockInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/disable`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Admin only. Reverses a lock; members can use the organisation again.
+     *
+     * @tags institutions
+     * @name EnableCreate
+     * @summary Unlock an organisation
+     * @request POST:/institutions/{id}/enable
+     * @secure
+     */
+    enableCreate: (id: string, params: RequestParams = {}) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/enable`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),

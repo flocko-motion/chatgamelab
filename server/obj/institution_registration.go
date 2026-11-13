@@ -37,6 +37,8 @@ const (
 	ErrCodeApplicationExpired          = "application_expired"
 	ErrCodeDeclarationVersionOutdated  = "declaration_version_outdated"
 	ErrCodeInstitutionConsentsRequired = "institution_consents_required"
+	// ErrCodeInstitutionDisabled: the organisation was locked by an admin.
+	ErrCodeInstitutionDisabled = "institution_disabled"
 )
 
 // InstitutionDetails is what a person enters about the organisation and themselves.
