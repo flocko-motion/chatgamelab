@@ -8,3 +8,4 @@ export {
 } from "./lib/registrationIntent";
 export { NewAccountRegistration } from "./components/NewAccountRegistration";
 export { OrganizationUpgradeCard } from "./components/OrganizationUpgradeCard";
+export { DeclarationConsentModal } from "./components/DeclarationConsentModal";

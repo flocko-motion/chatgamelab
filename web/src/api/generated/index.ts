@@ -369,6 +369,8 @@ export interface ObjGameTheme {
 }
 
 export interface ObjInstitution {
+  city?: string;
+  disabledAt?: string;
   /** high/medium/low, nil = server default */
   freeUseAiQualityTier?: string;
   freeUseApiKeyShareId?: string;
@@ -376,7 +378,11 @@ export interface ObjInstitution {
   members?: ObjInstitutionMember[];
   meta?: ObjMeta;
   name?: string;
+  /** Operator (Träger) and address, entered at self-registration or when consenting to the declaration. */
+  operator?: string;
+  postalCode?: string;
   promptConstraints?: string;
+  street?: string;
 }
 
 export interface ObjInstitutionApplication {
@@ -417,6 +423,13 @@ export interface ObjInstitutionConsent {
   postalCode?: string;
   street?: string;
   userId?: string;
+}
+
+export interface ObjInstitutionDeclarationStatus {
+  consentedAt?: string;
+  consentedVersion?: string;
+  currentVersion?: string;
+  pending?: boolean;
 }
 
 export interface ObjInstitutionMember {
@@ -522,6 +535,11 @@ export interface ObjUser {
   deletedAt?: string;
   email?: string;
   id?: string;
+  /**
+   * InstitutionDeclaration is the declaration status of the user's organisation.
+   * Filled for organisation heads on GET /users/me only.
+   */
+  institutionDeclaration?: ObjInstitutionDeclarationStatus;
   /** ISO 639-1 language code (e.g., "en", "de", "fr") */
   language?: string;
   meta?: ObjMeta;
@@ -826,6 +844,18 @@ export interface RoutesImageStatusResponse {
 export interface RoutesInstitutionApplicationResponse {
   application?: ObjInstitutionApplication;
   user?: ObjUser;
+}
+
+export interface RoutesInstitutionConsentRequest {
+  acceptDeclaration?: boolean;
+  city?: string;
+  declarationVersion?: string;
+  email?: string;
+  operator?: string;
+  personFunction?: string;
+  personName?: string;
+  postalCode?: string;
+  street?: string;
 }
 
 export interface RoutesInstitutionDeclarationResponse {
@@ -2416,6 +2446,30 @@ export class Api<
         path: `/institutions/${id}/apikeys`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator and address, and e-mails the confirmation with a copy to the operator address.
+     *
+     * @tags institution-registration
+     * @name DeclarationConsentCreate
+     * @summary Consent to the current declaration for an organisation
+     * @request POST:/institutions/{id}/declaration-consent
+     * @secure
+     */
+    declarationConsentCreate: (
+      id: string,
+      request: RoutesInstitutionConsentRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitutionConsent, HttpxErrorResponse>({
+        path: `/institutions/${id}/declaration-consent`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

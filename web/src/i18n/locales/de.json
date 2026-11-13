@@ -146,6 +146,15 @@
         "resent": "Wir haben dir einen neuen Link geschickt. Der vorherige Link funktioniert nicht mehr.",
         "edit": "Angaben ändern und neu absenden"
       },
+      "consentModal": {
+        "title": "Einverständniserklärung bestätigen",
+        "introExisting": "Für eure Organisation „{{name}}“ gibt es jetzt eine Einverständniserklärung, die online bestätigt wird. Sie ersetzt die bisher unterschriebene Nutzungsvereinbarung. Bitte lies sie und stimme im Namen eurer Einrichtung zu.",
+        "introNewVersion": "Die Einverständniserklärung wurde aktualisiert (Version {{version}}). Bitte lies die neue Fassung und stimme im Namen eurer Organisation „{{name}}“ zu.",
+        "oneHeadIsEnough": "Es reicht, wenn eine Organisationsleitung zustimmt. Bis dahin könnt ihr ChatGameLab wie gewohnt nutzen.",
+        "emailDescription": "An diese Adresse schicken wir die Bestätigung mit dem Text der Erklärung.",
+        "later": "Später",
+        "submit": "Zustimmen"
+      },
       "confirm": {
         "successTitle": "Organisation freigeschaltet",
         "successText": "„{{name}}“ ist jetzt im ChatGameLab freigeschaltet. Du bist Organisationsleitung und kannst Workshops anlegen. Die Bestätigung mit der Einverständniserklärung haben wir dir per E-Mail geschickt.",

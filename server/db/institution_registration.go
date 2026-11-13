@@ -37,6 +37,12 @@ const (
 
 // NormalizeInstitutionDetails trims all fields and validates them.
 func NormalizeInstitutionDetails(d obj.InstitutionDetails) (obj.InstitutionDetails, *obj.AppError) {
+	return normalizeInstitutionDetails(d, true)
+}
+
+// normalizeInstitutionDetails validates the form; withConstraint=false skips the
+// youth-protection restriction (renewed consent keeps the organisation's current one).
+func normalizeInstitutionDetails(d obj.InstitutionDetails, withConstraint bool) (obj.InstitutionDetails, *obj.AppError) {
 	d.PersonName = strings.TrimSpace(d.PersonName)
 	d.PersonFunction = strings.TrimSpace(d.PersonFunction)
 	d.Email = strings.TrimSpace(d.Email)
@@ -62,6 +68,9 @@ func NormalizeInstitutionDetails(d obj.InstitutionDetails) (obj.InstitutionDetai
 		{"promptConstraint", d.PromptConstraint, obj.MaxPromptConstraintLength},
 	}
 	for _, f := range required {
+		if f.name == "promptConstraint" && !withConstraint {
+			continue
+		}
 		if f.value == "" {
 			return d, obj.ErrValidationf("%s is required", f.name)
 		}
@@ -433,4 +442,98 @@ func consentFromRow(r sqlc.InstitutionConsent) *obj.InstitutionConsent {
 		DeclarationVersion: r.DeclarationVersion,
 		DeclarationHash:    r.DeclarationHash,
 	}
+}
+
+// InstitutionDeclarationStatusFor compares the organisation's latest consent with the current declaration.
+func InstitutionDeclarationStatusFor(ctx context.Context, institutionID uuid.UUID) (*obj.InstitutionDeclarationStatus, error) {
+	current := legal.CurrentDeclaration()
+	status := &obj.InstitutionDeclarationStatus{CurrentVersion: current.Version, Pending: true}
+	latest, err := GetLatestInstitutionConsent(ctx, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	if latest != nil {
+		status.ConsentedVersion = &latest.DeclarationVersion
+		status.ConsentedAt = &latest.CreatedAt
+		status.Pending = latest.DeclarationVersion != current.Version || latest.DeclarationHash != current.Hash
+	}
+	return status, nil
+}
+
+// InstitutionConsentInput is what a head enters when consenting for an existing organisation.
+type InstitutionConsentInput struct {
+	PersonName     string
+	PersonFunction string
+	Email          string
+	Operator       string
+	Street         string
+	PostalCode     string
+	City           string
+}
+
+// RecordInstitutionConsent logs a head's consent to the current declaration for their own
+// organisation and stores operator and address. One consent per organisation and version is enough;
+// a further consent simply adds another record.
+func RecordInstitutionConsent(ctx context.Context, userID, institutionID uuid.UUID, in InstitutionConsentInput) (*obj.InstitutionConsent, error) {
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.ErrNotFound("user not found")
+	}
+	if user.Role == nil || user.Role.Role != obj.RoleHead || user.Role.Institution == nil || user.Role.Institution.ID != institutionID {
+		return nil, obj.ErrForbidden("only a head of this organisation can consent for it")
+	}
+	inst, err := queries().GetInstitutionByID(ctx, institutionID)
+	if err != nil {
+		return nil, obj.ErrNotFound("organisation not found")
+	}
+
+	// Reuse the registration rules; name and restriction come from the organisation itself.
+	d, appErr := normalizeInstitutionDetails(obj.InstitutionDetails{
+		PersonName: in.PersonName, PersonFunction: in.PersonFunction, Email: in.Email,
+		InstitutionName: inst.Name, Operator: in.Operator, Street: in.Street,
+		PostalCode: in.PostalCode, City: in.City,
+	}, false)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	declaration := legal.CurrentDeclaration()
+	tx, err := sqlDb.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, obj.ErrServerError("failed to begin transaction")
+	}
+	defer tx.Rollback()
+	q := queries().WithTx(tx)
+
+	if err := q.UpdateInstitutionDetails(ctx, sqlc.UpdateInstitutionDetailsParams{
+		ID:         institutionID,
+		Operator:   sql.NullString{String: d.Operator, Valid: true},
+		Street:     sql.NullString{String: d.Street, Valid: true},
+		PostalCode: sql.NullString{String: d.PostalCode, Valid: true},
+		City:       sql.NullString{String: d.City, Valid: true},
+	}); err != nil {
+		return nil, obj.ErrServerError("failed to store organisation details")
+	}
+	row, err := q.CreateInstitutionConsent(ctx, sqlc.CreateInstitutionConsentParams{
+		ID:                  uuid.New(),
+		InstitutionID:       institutionID,
+		UserID:              userID,
+		Email:               d.Email,
+		PersonName:          d.PersonName,
+		PersonFunction:      d.PersonFunction,
+		InstitutionName:     inst.Name,
+		InstitutionOperator: d.Operator,
+		Street:              d.Street,
+		PostalCode:          d.PostalCode,
+		City:                d.City,
+		DeclarationVersion:  declaration.Version,
+		DeclarationHash:     declaration.Hash,
+	})
+	if err != nil {
+		return nil, obj.ErrServerError("failed to log consent")
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, obj.ErrServerError("failed to commit consent")
+	}
+	return consentFromRow(row), nil
 }

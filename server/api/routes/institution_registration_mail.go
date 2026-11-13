@@ -65,7 +65,11 @@ JFF – Jugend Film Fernsehen e.V.
 func consentMailBody(c *obj.InstitutionConsent, d legal.Declaration) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "Hallo %s,\n\n", c.PersonName)
-	fmt.Fprintf(&b, "die Organisation „%s“ ist im ChatGameLab freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.\n\n", c.InstitutionName)
+	if c.ApplicationID != nil {
+		fmt.Fprintf(&b, "die Organisation „%s“ ist im ChatGameLab freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.\n\n", c.InstitutionName)
+	} else {
+		fmt.Fprintf(&b, "danke! Für die Organisation „%s“ im ChatGameLab liegt jetzt die Zustimmung zur aktuellen Einverständniserklärung vor.\n\n", c.InstitutionName)
+	}
 	b.WriteString("Du hast im Namen deiner Einrichtung der folgenden Einverständniserklärung zugestimmt.\n\n")
 	b.WriteString("Einrichtung:      " + c.InstitutionName + "\n")
 	b.WriteString("Träger:           " + c.Operator + "\n")
@@ -107,6 +111,9 @@ func sendConsentConfirmationMails(c *obj.InstitutionConsent) {
 		return
 	}
 	subject := "ChatGameLab: Organisation „" + c.InstitutionName + "“ freigeschaltet – Einverständniserklärung"
+	if c.ApplicationID == nil {
+		subject = "ChatGameLab: Einverständniserklärung für „" + c.InstitutionName + "“ bestätigt (Version " + c.DeclarationVersion + ")"
+	}
 	body := consentMailBody(c, d)
 
 	if err := mail.Send(mail.Message{To: c.Email, Subject: subject, Body: body}); err != nil {
