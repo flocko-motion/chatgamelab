@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { auth0Config } from "../config/auth0";
 import { config } from "../config/env";
 import { Api } from "../api/generated";
-import { getApiConfig } from "../api/client/http";
+import { getApiConfig, INSTITUTION_DISABLED_EVENT } from "../api/client/http";
 import { authLogger } from "../config/logger";
 import { getHomepageUrl } from "../common/lib/url";
 import { ErrorCodes, extractRawErrorCode } from "../common/types/errorCodes";
@@ -139,6 +139,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (isAuthenticated) {
       fetchBackendUser();
     }
+  }, [isAuthenticated, fetchBackendUser]);
+
+  // An admin may lock the organisation while the app is open: on the first
+  // "organisation locked" answer, reload the user so the lock notice replaces the page.
+  useEffect(() => {
+    let pending = false;
+    const onLocked = () => {
+      if (pending || !isAuthenticated) return;
+      pending = true;
+      fetchBackendUser().finally(() => {
+        pending = false;
+      });
+    };
+    window.addEventListener(INSTITUTION_DISABLED_EVENT, onLocked);
+    return () => window.removeEventListener(INSTITUTION_DISABLED_EVENT, onLocked);
   }, [isAuthenticated, fetchBackendUser]);
 
   // ── Participant Auth ────────────────────────────────────────────────
