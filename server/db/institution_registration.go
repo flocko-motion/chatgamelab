@@ -469,11 +469,14 @@ type InstitutionConsentInput struct {
 	Street         string
 	PostalCode     string
 	City           string
+	// PromptConstraint is the organisation's youth-protection prompt restriction, confirmed or
+	// changed together with the declaration (the declaration obliges the organisation to set one).
+	PromptConstraint string
 }
 
 // RecordInstitutionConsent logs a head's consent to the current declaration for their own
-// organisation and stores operator and address. One consent per organisation and version is enough;
-// a further consent simply adds another record.
+// organisation and stores operator, address and the youth-protection prompt restriction.
+// One consent per organisation and version is enough; a further consent adds another record.
 func RecordInstitutionConsent(ctx context.Context, userID, institutionID uuid.UUID, in InstitutionConsentInput) (*obj.InstitutionConsent, error) {
 	user, err := GetUserByID(ctx, userID)
 	if err != nil {
@@ -491,8 +494,8 @@ func RecordInstitutionConsent(ctx context.Context, userID, institutionID uuid.UU
 	d, appErr := normalizeInstitutionDetails(obj.InstitutionDetails{
 		PersonName: in.PersonName, PersonFunction: in.PersonFunction, Email: in.Email,
 		InstitutionName: inst.Name, Operator: in.Operator, Street: in.Street,
-		PostalCode: in.PostalCode, City: in.City,
-	}, false)
+		PostalCode: in.PostalCode, City: in.City, PromptConstraint: in.PromptConstraint,
+	}, true)
 	if appErr != nil {
 		return nil, appErr
 	}
@@ -513,6 +516,11 @@ func RecordInstitutionConsent(ctx context.Context, userID, institutionID uuid.UU
 		City:       sql.NullString{String: d.City, Valid: true},
 	}); err != nil {
 		return nil, obj.ErrServerError("failed to store organisation details")
+	}
+	if err := q.UpdateInstitutionPromptConstraints(ctx, sqlc.UpdateInstitutionPromptConstraintsParams{
+		ID: institutionID, PromptConstraints: sql.NullString{String: d.PromptConstraint, Valid: true},
+	}); err != nil {
+		return nil, obj.ErrServerError("failed to store youth-protection restriction")
 	}
 	row, err := q.CreateInstitutionConsent(ctx, sqlc.CreateInstitutionConsentParams{
 		ID:                  uuid.New(),

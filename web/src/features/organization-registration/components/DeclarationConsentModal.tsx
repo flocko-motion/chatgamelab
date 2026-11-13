@@ -19,6 +19,7 @@ import { getApiConfig } from "@/api/client/http";
 import { useAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useAuth } from "@/providers/AuthProvider";
 import { DeclarationText } from "./DeclarationText";
+import { YouthProtectionField } from "./YouthProtectionField";
 import { organizationErrorMessage } from "../lib/errors";
 
 const DISMISS_KEY = "cgl_declaration_consent_later";
@@ -59,6 +60,8 @@ export function DeclarationConsentModal() {
     city: "",
   });
   const [accepted, setAccepted] = useState(false);
+  // null = not loaded yet; then the organisation's current restriction or the 13+ default.
+  const [constraint, setConstraint] = useState<string | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,12 +70,15 @@ export function DeclarationConsentModal() {
   useEffect(() => {
     if (!opened || !api || !institution?.id) return;
     let cancelled = false;
-    new Api(getApiConfig()).legal.institutionDeclarationList().then((res) => {
-      if (!cancelled) setLegal(res.data);
-    });
-    api.institutions.institutionsDetail(institution.id).then((res) => {
+    Promise.all([
+      new Api(getApiConfig()).legal.institutionDeclarationList(),
+      api.institutions.institutionsDetail(institution.id),
+    ]).then(([legalRes, instRes]) => {
       if (cancelled) return;
-      const inst = res.data;
+      const inst = instRes.data;
+      setLegal(legalRes.data);
+      // Start with what the organisation uses today; without its own, the 13+ default it falls back to.
+      setConstraint((c) => c ?? inst.promptConstraints ?? legalRes.data.defaultPromptConstraint ?? "");
       setForm((f) => ({
         ...f,
         email: f.email || backendUser?.email || "",
@@ -91,6 +97,9 @@ export function DeclarationConsentModal() {
 
   const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
   const missing = (Object.keys(form) as (keyof typeof form)[]).filter((k) => !form[k].trim());
+  const maxConstraint = legal?.maxPromptConstraintLength ?? 200;
+  const constraintValue = constraint ?? "";
+  const constraintInvalid = !constraintValue.trim() || constraintValue.trim().length > maxConstraint;
   const err = (key: keyof typeof form) =>
     showErrors && missing.includes(key) ? t("organizationRegistration.errors.required") : undefined;
   const isGermanUi = (i18n.resolvedLanguage ?? i18n.language ?? "").startsWith("de");
@@ -106,12 +115,13 @@ export function DeclarationConsentModal() {
 
   const submit = async () => {
     setShowErrors(true);
-    if (!api || !legal?.declaration?.version || missing.length > 0 || !accepted) return;
+    if (!api || !legal?.declaration?.version || missing.length > 0 || constraintInvalid || !accepted) return;
     setSaving(true);
     setError(null);
     try {
       await api.institutions.declarationConsentCreate(institution.id!, {
         ...Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v.trim()])),
+        promptConstraint: constraintValue.trim(),
         acceptDeclaration: true,
         declarationVersion: legal.declaration.version,
       });
@@ -172,6 +182,21 @@ export function DeclarationConsentModal() {
             <TextInput label={t("organizationRegistration.cityLabel")} value={form.city}
               onChange={(e) => set("city", e.currentTarget.value)} error={err("city")} maxLength={150} required />
           </Group>
+
+          {constraint === null ? (
+            <Group justify="center" py="sm">
+              <Loader size="sm" />
+            </Group>
+          ) : (
+            <YouthProtectionField
+              legal={legal}
+              value={constraintValue}
+              onChange={setConstraint}
+              showErrors={showErrors}
+              compact
+              intro={t("organizationRegistration.consentModal.constraintIntro")}
+            />
+          )}
 
           {!isGermanUi && (
             <Alert color="gray" variant="light" icon={<IconInfoCircle size={16} />}>

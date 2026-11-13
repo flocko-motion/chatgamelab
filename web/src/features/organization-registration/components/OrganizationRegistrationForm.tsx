@@ -3,7 +3,6 @@ import {
   Alert,
   Anchor,
   Box,
-  Button,
   Card,
   Checkbox,
   Container,
@@ -12,7 +11,6 @@ import {
   Stack,
   Text,
   TextInput,
-  Textarea,
   Title,
 } from "@mantine/core";
 import {
@@ -32,6 +30,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { HELP_LINKS } from "@/config/helpLinks";
 import { authLogger } from "@/config/logger";
 import { DeclarationText } from "./DeclarationText";
+import { YouthProtectionField } from "./YouthProtectionField";
 import { organizationErrorMessage } from "../lib/errors";
 
 export type OrganizationFormMode = "register" | "upgrade";
@@ -62,13 +61,6 @@ interface FormState {
   acceptTerms: boolean;
   acceptPrivacy: boolean;
   acceptDeclaration: boolean;
-}
-
-/** Age label of a suggestion, written so organisations working with children find theirs. */
-function suggestionLabelKey(minAge: number): string {
-  if (minAge >= 18) return "organizationRegistration.youthProtection.suggestionAdults";
-  if (minAge >= 14) return "organizationRegistration.youthProtection.suggestionTeens";
-  return "organizationRegistration.youthProtection.suggestionChildren";
 }
 
 export function OrganizationRegistrationForm({
@@ -335,56 +327,12 @@ export function OrganizationRegistrationForm({
               </Group>
             </Stack>
 
-            {/* Youth protection */}
-            <Stack gap="sm">
-              <Title order={4}>{t("organizationRegistration.youthProtection.title")}</Title>
-              <Text size="sm">{t("organizationRegistration.youthProtection.intro")}</Text>
-              <Text size="sm" fw={500}>
-                {t("organizationRegistration.youthProtection.suggestionsLabel")}
-              </Text>
-              <Group gap="xs">
-                {legal.defaultPromptConstraint && (
-                  <Button
-                    size="xs"
-                    variant={form.promptConstraint === legal.defaultPromptConstraint ? "filled" : "outline"}
-                    onClick={() => set("promptConstraint", legal.defaultPromptConstraint ?? "")}
-                  >
-                    {t("organizationRegistration.youthProtection.defaultOption")}
-                  </Button>
-                )}
-                {(legal.youthProtectionSuggestions ?? []).map((s) => (
-                  <Button
-                    key={s.minAge}
-                    size="xs"
-                    variant={form.promptConstraint === s.text ? "filled" : "outline"}
-                    onClick={() => set("promptConstraint", s.text ?? "")}
-                  >
-                    {t(suggestionLabelKey(s.minAge ?? 0), { age: s.minAge })}
-                  </Button>
-                ))}
-              </Group>
-              <Textarea
-                label={t("organizationRegistration.youthProtection.fieldLabel")}
-                value={form.promptConstraint}
-                onChange={(e) => set("promptConstraint", e.currentTarget.value)}
-                autosize
-                minRows={3}
-                required
-                error={
-                  fieldError("promptConstraint") ??
-                  (constraintTooLong
-                    ? t("organizationRegistration.youthProtection.tooLong", { max: maxLength })
-                    : undefined)
-                }
-                description={`${form.promptConstraint.trim().length} / ${maxLength}`}
-              />
-              <Alert color="blue" variant="light" icon={<IconInfoCircle size={16} />}>
-                <Stack gap={4}>
-                  <Text size="sm">{t("organizationRegistration.youthProtection.changeHint")}</Text>
-                  <Text size="sm">{t("organizationRegistration.youthProtection.responsibilityHint")}</Text>
-                </Stack>
-              </Alert>
-            </Stack>
+            <YouthProtectionField
+              legal={legal}
+              value={form.promptConstraint}
+              onChange={(v) => set("promptConstraint", v)}
+              showErrors={showErrors}
+            />
 
             {/* Consents */}
             <Stack gap="sm">
