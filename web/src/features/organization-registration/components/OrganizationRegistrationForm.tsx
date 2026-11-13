@@ -73,6 +73,9 @@ export function OrganizationRegistrationForm({
   const { t, i18n } = useTranslation("auth");
   const { getAccessToken } = useAuth();
   const isRegister = mode === "register";
+  // The address of the login (or of the account, for upgrades) is fixed, so it can be
+  // confirmed via Auth0 later. Only without one (dev login) can it be typed in.
+  const emailLocked = initialEmail.trim() !== "";
 
   const [legal, setLegal] = useState<RoutesInstitutionDeclarationResponse | null>(null);
   const [legalError, setLegalError] = useState(false);
@@ -262,10 +265,18 @@ export function OrganizationRegistrationForm({
               <TextInput
                 type="email"
                 label={t("organizationRegistration.emailLabel")}
-                description={t("organizationRegistration.emailDescription")}
+                description={
+                  emailLocked
+                    ? isRegister
+                      ? t("organizationRegistration.emailFromLogin")
+                      : t("organizationRegistration.emailFromAccount")
+                    : t("organizationRegistration.emailDescription")
+                }
                 leftSection={<IconMail size={16} />}
                 value={form.email}
                 maxLength={200}
+                readOnly={emailLocked}
+                variant={emailLocked ? "filled" : "default"}
                 onChange={(e) => set("email", e.currentTarget.value)}
                 error={fieldError("email") ?? (emailInvalid ? t("organizationRegistration.errors.emailInvalid") : undefined)}
                 autoComplete="email"

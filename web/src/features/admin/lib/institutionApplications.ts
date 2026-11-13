@@ -5,18 +5,17 @@ export const INSTITUTION_APPLICATIONS_QUERY_KEY = [
   "institutionApplications",
 ] as const;
 
-/** An application still waiting for its confirmation (not confirmed, not anonymised, not lapsed). */
-export function isOpenApplication(a: ObjInstitutionApplication): boolean {
-  return a.status === "pending" && !a.anonymizedAt;
-}
+/** How far back the admin bell looks for newly registered organisations. */
+export const NEW_ORGANISATION_DAYS = 14;
 
-/** An application an admin can create a fresh confirmation link for. */
-export function canCreateLink(a: ObjInstitutionApplication): boolean {
-  return (
-    (a.status === "pending" || a.status === "expired") &&
-    !a.anonymizedAt &&
-    !!a.email
-  );
+/**
+ * A registration that created an organisation within the last NEW_ORGANISATION_DAYS days.
+ * Stage 1 has no e-mail confirmation, so every registration is confirmed right away;
+ * admins check new organisations and can lock them if needed.
+ */
+export function isNewOrganisation(a: ObjInstitutionApplication, now = Date.now()): boolean {
+  if (a.status !== "confirmed" || !a.confirmedAt) return false;
+  return now - new Date(a.confirmedAt).getTime() < NEW_ORGANISATION_DAYS * 24 * 60 * 60 * 1000;
 }
 
 const SEEN_KEY = "cgl_seen_institution_applications";

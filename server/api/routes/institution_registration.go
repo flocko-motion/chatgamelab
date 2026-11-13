@@ -48,10 +48,12 @@ type UpgradeInstitutionRequest struct {
 	InstitutionConsents
 }
 
-// InstitutionApplicationResponse is returned after an application was stored.
-type InstitutionApplicationResponse struct {
-	User        *obj.User                   `json:"user,omitempty"`
-	Application *obj.InstitutionApplication `json:"application"`
+// InstitutionRegisteredResponse is returned after a registration or upgrade: the organisation
+// exists right away (stage 1, no e-mail confirmation yet).
+type InstitutionRegisteredResponse struct {
+	User        *obj.User               `json:"user,omitempty"`
+	Institution *obj.Institution        `json:"institution"`
+	Consent     *obj.InstitutionConsent `json:"consent"`
 }
 
 // MyInstitutionApplicationResponse is the open application of the logged-in account (nil if none).
@@ -113,12 +115,12 @@ func writeErr(w http.ResponseWriter, err error) {
 // RegisterInstitution godoc
 //
 //	@Summary		Register a new account as an organisation
-//	@Description	After the Auth0 login of a new person: creates the account (age group u18) and an organisation application, and e-mails a confirmation link. The organisation is created only when the link is confirmed. Requires the 18+ confirmation, terms, privacy policy and the current declaration.
+//	@Description	After the Auth0 login of a new person: creates the account (age group u18) and right away the organisation, with the person as head; the consent is logged and the confirmation mailed (with a copy to the operator). For now without e-mail confirmation (to be added via Auth0). Requires the 18+ confirmation, terms, privacy policy and the current declaration.
 //	@Tags			institution-registration
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		RegisterInstitutionRequest	true	"Registration form"
-//	@Success		200		{object}	InstitutionApplicationResponse
+//	@Success		200		{object}	InstitutionRegisteredResponse
 //	@Failure		400		{object}	httpx.ErrorResponse
 //	@Failure		409		{object}	httpx.ErrorResponse	"Name taken or e-mail belongs to another account"
 //	@Security		BearerAuth
@@ -174,19 +176,19 @@ func RegisterInstitution(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
-	sendApplicationLinkMail(app, token)
-	httpx.WriteJSON(w, http.StatusOK, InstitutionApplicationResponse{User: user, Application: app})
+	_ = token // the confirmation link stays unused until the address is confirmed via Auth0 (stage 2)
+	finishRegistration(w, r, app, user)
 }
 
 // UpgradeToInstitution godoc
 //
 //	@Summary		Upgrade the logged-in account to an organisation
-//	@Description	For logged-in adult accounts without an organisation: stores an application and e-mails a confirmation link. Requires the 18+ confirmation and the current declaration.
+//	@Description	For logged-in adult accounts without an organisation: creates the organisation right away with the account as head, logs the consent and mails the confirmation. For now without e-mail confirmation. Requires the 18+ confirmation and the current declaration.
 //	@Tags			institution-registration
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		UpgradeInstitutionRequest	true	"Organisation form"
-//	@Success		200		{object}	InstitutionApplicationResponse
+//	@Success		200		{object}	InstitutionRegisteredResponse
 //	@Failure		400		{object}	httpx.ErrorResponse
 //	@Failure		403		{object}	httpx.ErrorResponse	"Account is not 18+"
 //	@Failure		409		{object}	httpx.ErrorResponse	"Already in an organisation, name taken or e-mail of another account"
@@ -212,8 +214,8 @@ func UpgradeToInstitution(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
-	sendApplicationLinkMail(app, token)
-	httpx.WriteJSON(w, http.StatusOK, InstitutionApplicationResponse{Application: app})
+	_ = token // see RegisterInstitution
+	finishRegistration(w, r, app, nil)
 }
 
 // GetMyInstitutionApplication godoc
@@ -346,4 +348,18 @@ func ConsentToInstitutionDeclaration(w http.ResponseWriter, r *http.Request) {
 	log.Info("organisation consented to declaration", "institution_id", institutionID, "user_id", user.ID, "version", consent.DeclarationVersion)
 	sendConsentConfirmationMails(consent)
 	httpx.WriteJSON(w, http.StatusOK, consent)
+}
+
+// finishRegistration creates the organisation for a just-stored application and answers with it.
+// Stage 1: no e-mail confirmation; the address will be confirmed via Auth0 later.
+func finishRegistration(w http.ResponseWriter, r *http.Request, app *obj.InstitutionApplication, user *obj.User) {
+	result, err := db.ConfirmInstitutionApplicationNow(r.Context(), app.ID)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	log.Info("organisation registered", "institution_id", result.Institution.ID, "name", result.Institution.Name,
+		"user_id", result.Consent.UserID, "declaration_version", result.Consent.DeclarationVersion)
+	sendConsentConfirmationMails(result.Consent)
+	httpx.WriteJSON(w, http.StatusOK, InstitutionRegisteredResponse{User: user, Institution: result.Institution, Consent: result.Consent})
 }

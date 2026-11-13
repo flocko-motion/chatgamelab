@@ -1,8 +1,6 @@
-import { useState } from "react";
 import {
   Alert,
   Badge,
-  Button,
   Loader,
   Group,
   ScrollArea,
@@ -10,20 +8,12 @@ import {
   Table,
   Text,
 } from "@mantine/core";
-import { IconAlertCircle, IconLink } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { IconAlertCircle } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
-import type {
-  ObjInstitutionApplication,
-  RoutesInstitutionApplicationLinkResponse,
-} from "@/api/generated";
-import {
-  INSTITUTION_APPLICATIONS_QUERY_KEY,
-  canCreateLink,
-  markApplicationsSeen,
-} from "../lib/institutionApplications";
-import { ApplicationLinkModal } from "./ApplicationLinkModal";
+import type { ObjInstitutionApplication } from "@/api/generated";
+import { INSTITUTION_APPLICATIONS_QUERY_KEY } from "../lib/institutionApplications";
 
 const STATUS_COLOR: Record<string, string> = {
   pending: "blue",
@@ -34,31 +24,16 @@ const STATUS_COLOR: Record<string, string> = {
 /**
  * Admin list of organisation self-registrations, including attempts that were never confirmed.
  * Personal data of old unconfirmed attempts is removed automatically; the row then says so.
- * For open or lapsed applications an admin can create a fresh confirmation link to send by hand.
+ * Stage 1 (no e-mail confirmation): new registrations are confirmed right away.
  */
 export function InstitutionApplicationsList() {
   const { t, i18n } = useTranslation("common");
   const api = useRequiredAuthenticatedApi();
-  const queryClient = useQueryClient();
-  const [linkResult, setLinkResult] =
-    useState<RoutesInstitutionApplicationLinkResponse | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: INSTITUTION_APPLICATIONS_QUERY_KEY,
     queryFn: async () =>
       (await api.institutionApplications.institutionApplicationsList()).data,
-  });
-
-  const linkMutation = useMutation({
-    mutationFn: async (id: string) =>
-      (await api.institutionApplications.linkCreate(id)).data,
-    onSuccess: (result, id) => {
-      markApplicationsSeen([id]);
-      setLinkResult(result);
-      queryClient.invalidateQueries({
-        queryKey: INSTITUTION_APPLICATIONS_QUERY_KEY,
-      });
-    },
   });
 
   const date = (iso?: string) =>
@@ -93,13 +68,8 @@ export function InstitutionApplicationsList() {
 
   return (
     <Stack gap="sm">
-      {linkMutation.isError && (
-        <Alert color="red" icon={<IconAlertCircle size={16} />}>
-          {t("admin.applications.linkError")}
-        </Alert>
-      )}
       <ScrollArea>
-        <Table striped highlightOnHover miw={880}>
+        <Table striped highlightOnHover miw={760}>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>{t("admin.applications.date")}</Table.Th>
@@ -107,7 +77,6 @@ export function InstitutionApplicationsList() {
               <Table.Th>{t("admin.applications.person")}</Table.Th>
               <Table.Th>{t("admin.applications.kind")}</Table.Th>
               <Table.Th>{t("admin.applications.status")}</Table.Th>
-              <Table.Th>{t("admin.applications.actions")}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -168,31 +137,11 @@ export function InstitutionApplicationsList() {
                     )}
                   </Stack>
                 </Table.Td>
-                <Table.Td>
-                  {canCreateLink(a) && a.id && (
-                    <Button
-                      size="xs"
-                      variant="light"
-                      leftSection={<IconLink size={14} />}
-                      loading={
-                        linkMutation.isPending &&
-                        linkMutation.variables === a.id
-                      }
-                      onClick={() => linkMutation.mutate(a.id!)}
-                    >
-                      {t("admin.applications.createLink")}
-                    </Button>
-                  )}
-                </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
       </ScrollArea>
-      <ApplicationLinkModal
-        result={linkResult}
-        onClose={() => setLinkResult(null)}
-      />
     </Stack>
   );
 }

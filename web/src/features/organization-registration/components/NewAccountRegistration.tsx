@@ -12,6 +12,7 @@ import {
   getRegistrationIntent,
   setRegistrationIntent,
 } from "../lib/registrationIntent";
+import { notifyOrganisationRegistered } from "../lib/notifyRegistered";
 
 /**
  * Shown after the first login of a person without an account: the organisation form
@@ -57,9 +58,11 @@ export function NewAccountRegistration({ registrationData }: { registrationData:
       initialName={registrationData.name}
       initialEmail={registrationData.email}
       onSubmitted={async () => {
-        // The account exists now; the organisation follows once the e-mail is confirmed.
+        // Account and organisation exist now (no e-mail confirmation for the time being).
+        clearRegistrationIntent();
         await refreshBackendUser();
-        navigate({ to: ROUTES.ORGANIZATION_APPLY as "/" });
+        notifyOrganisationRegistered(t);
+        navigate({ to: ROUTES.MY_ORGANIZATION as "/" });
       }}
       onCancel={() => {
         clearRegistrationIntent();

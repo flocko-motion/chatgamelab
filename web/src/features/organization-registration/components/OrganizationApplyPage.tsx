@@ -12,6 +12,7 @@ import { ROUTES } from "@/common/routes/routes";
 import { AgeGroup } from "@/constants/ageGroup";
 import { OrganizationRegistrationForm } from "./OrganizationRegistrationForm";
 import { PendingApplication } from "./PendingApplication";
+import { notifyOrganisationRegistered } from "../lib/notifyRegistered";
 
 /**
  * /organization/apply: shows the open application (check your mail), the upgrade form,
@@ -21,7 +22,7 @@ export function OrganizationApplyPage() {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const api = useAuthenticatedApi();
-  const { backendUser } = useAuth();
+  const { backendUser, refreshBackendUser } = useAuth();
   const [pending, setPending] = useState<ObjInstitutionApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -93,10 +94,11 @@ export function OrganizationApplyPage() {
     <OrganizationRegistrationForm
       mode="upgrade"
       initialEmail={backendUser.email ?? ""}
-      onSubmitted={() => {
-        setEditing(false);
-        setLoading(true);
-        load();
+      onSubmitted={async () => {
+        // The organisation exists right away; the account is now its head.
+        await refreshBackendUser();
+        notifyOrganisationRegistered(t);
+        navigate({ to: ROUTES.MY_ORGANIZATION as "/" });
       }}
       onCancel={() => (editing ? setEditing(false) : navigate({ to: ROUTES.SETTINGS as "/" }))}
     />

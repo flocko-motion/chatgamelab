@@ -103,12 +103,12 @@ Einrichtungen registrieren sich selbst; ein Admin muss nichts freigeben.
 3. **Alter:** Pflicht-Checkbox „Ich bin mindestens 18 Jahre alt“. Das Konto erhält die Altersgruppe U18.
 4. **Jugendschutz-Prompt-Einschränkung:** Pflichtfeld (höchstens 200 Zeichen), vorbelegt mit dem Site-Constraint U13. Darüber sieben Vorschläge für Zielgruppen ab ca. 6 bis 18 Jahren (`server/legal/youth_protection_suggestions.json`, wörtlich von chatgamelab.eu). Der Text wird zur Orga-Constraint der neuen Organisation. Die Vorschläge sind keine offizielle Alterskennzeichnung; die Einrichtung entscheidet und verantwortet die Einstellung.
 5. **Zustimmungen:** Nutzungsbedingungen, Datenschutzbestimmungen und die Einverständniserklärung der Einrichtung (`server/legal/institution_declaration/`, versioniert, nur auf Deutsch verbindlich), deren Text im Formular angezeigt wird.
-6. **E-Mail-Bestätigung:** Die Person bekommt einen Link (48 Stunden gültig). Erst nach dem Klick wird die Organisation angelegt und die Person Organisationsleitung. Vorher existiert nur ein Antrag.
+6. **Freischaltung:** Vorläufig ohne Bestätigung der E-Mail-Adresse; wird über Auth0 nachgeholt. Nach dem Absenden wird die Organisation sofort angelegt und die Person Organisationsleitung. Das E-Mail-Feld zeigt fest die Adresse der Anmeldung (beim Upgrade die des Kontos). Admins sehen neue Organisationen in der Kopfzeile und können sie bei Missbrauch sperren.
 7. **Nachweis:** Jede Zustimmung wird unveränderbar protokolliert (Tabelle `institution_consent`: Organisation, Konto, E-Mail, Name und Funktion, Einrichtungsangaben, Zeitpunkt, Version und Hash der Erklärung; keine IP-Adresse). Bestätigungsmail mit vollständigem Text an die Person, Kopie an `ORG_REGISTRATION_NOTIFY_EMAIL` (Standard chatgamelab@jff.de).
 
 **Upgrade:** Ein bestehendes Konto ohne Organisation kann in den Einstellungen „Zur Organisation upgraden“ (gleiche Schritte, ohne erneute Zustimmung zu Nutzungsbedingungen und Datenschutz). Nur Konten mit Altersgruppe U18; U13/U13p sowie Konten, die schon zu einer Organisation oder einem Workshop gehören, können nicht upgraden. Eine E-Mail-Adresse, die zu einem anderen Konto gehört, wird nie angenommen.
 
-**Unbestätigte Anträge:** Nach `ORG_APPLICATION_RETENTION_DAYS` (Standard 90 Tage) werden Name, Funktion, E-Mail-Adresse und Kontoverknüpfung entfernt; Einrichtung, Ort, Datum und Status bleiben für die Admin-Übersicht.
+**Ältere, nie bestätigte Anträge** (aus der Zeit mit Bestätigungslink): Nach `ORG_APPLICATION_RETENTION_DAYS` (Standard 90 Tage) werden Name, Funktion, E-Mail-Adresse und Kontoverknüpfung entfernt; Einrichtung, Ort, Datum und Status bleiben für die Admin-Übersicht.
 
 ## Selbstauskunft statt technische Altersverifikation
 

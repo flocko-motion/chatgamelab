@@ -266,6 +266,26 @@ func ConfirmInstitutionApplication(ctx context.Context, token string) (*Institut
 	if row.Status == obj.InstitutionApplicationExpired || time.Now().After(row.ExpiresAt) {
 		return nil, obj.NewAppError(obj.ErrCodeApplicationExpired, "this link has expired")
 	}
+	return confirmApplicationRow(ctx, row)
+}
+
+// ConfirmInstitutionApplicationNow creates the organisation for a just-submitted application
+// without e-mail confirmation (stage 1, until the address is confirmed via Auth0).
+func ConfirmInstitutionApplicationNow(ctx context.Context, applicationID uuid.UUID) (*InstitutionConfirmation, error) {
+	row, err := queries().GetInstitutionApplicationByID(ctx, applicationID)
+	if err != nil {
+		return nil, obj.ErrNotFound("application not found")
+	}
+	if row.Status != obj.InstitutionApplicationPending {
+		return nil, obj.ErrConflict("application is no longer open")
+	}
+	return confirmApplicationRow(ctx, row)
+}
+
+// confirmApplicationRow re-checks an open application and, in one transaction, creates the
+// organisation with operator, address and youth-protection restriction, makes the applicant
+// its head, logs the consent and marks the application confirmed.
+func confirmApplicationRow(ctx context.Context, row sqlc.InstitutionApplication) (*InstitutionConfirmation, error) {
 	if !row.UserID.Valid || !row.PersonName.Valid || !row.Email.Valid {
 		return nil, obj.NewAppError(obj.ErrCodeApplicationTokenInvalid, "application is no longer valid")
 	}

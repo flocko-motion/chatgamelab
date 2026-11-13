@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionIcon,
   Button,
@@ -20,7 +20,7 @@ import { ROUTES } from "@/common/routes/routes";
 import {
   INSTITUTION_APPLICATIONS_QUERY_KEY,
   getSeenApplicationIds,
-  isOpenApplication,
+  isNewOrganisation,
   markApplicationsSeen,
 } from "../lib/institutionApplications";
 
@@ -28,8 +28,9 @@ import {
 const REFRESH_MS = 2 * 60 * 1000;
 
 /**
- * Header icon for admins: shows how many organisation registrations are waiting for their
- * confirmation and opens a notice once per new registration (like the invite notice for users).
+ * Header icon for admins: shows organisations registered in the last two weeks that this admin
+ * has not looked at yet, and opens a notice once per new one (like the invite notice for users).
+ * Stage 1 has no e-mail confirmation, so admins check new organisations and can lock them.
  */
 export function AdminRegistrationBell() {
   const { t, i18n } = useTranslation("common");
@@ -45,12 +46,17 @@ export function AdminRegistrationBell() {
     refetchInterval: REFRESH_MS,
   });
 
-  const openApps = useMemo(
-    () => (data ?? []).filter(isOpenApplication),
+  // Bumped when the admin closes the notice, so the badge updates right away.
+  const [seenVersion, setSeenVersion] = useState(0);
+  const seen = useMemo(() => getSeenApplicationIds(), [seenVersion]); // eslint-disable-line react-hooks/exhaustive-deps
+  const newOrgs = useMemo(
+    () => (data ?? []).filter((a) => isNewOrganisation(a)),
     [data],
   );
-  const seen = getSeenApplicationIds();
-  const hasUnseen = openApps.some((a) => a.id && !seen.has(a.id));
+  // The badge counts organisations this admin has not been told about yet;
+  // the notice lists all organisations of the last two weeks.
+  const unseenCount = newOrgs.filter((a) => a.id && !seen.has(a.id)).length;
+  const hasUnseen = unseenCount > 0;
 
   useEffect(() => {
     if (!isLoading && hasUnseen && !hasAutoOpened.current && !opened) {
@@ -60,7 +66,8 @@ export function AdminRegistrationBell() {
   }, [isLoading, hasUnseen, opened, open]);
 
   const handleClose = () => {
-    markApplicationsSeen(openApps.map((a) => a.id).filter(Boolean) as string[]);
+    markApplicationsSeen(newOrgs.map((a) => a.id).filter(Boolean) as string[]);
+    setSeenVersion((v) => v + 1);
     close();
   };
 
@@ -77,20 +84,20 @@ export function AdminRegistrationBell() {
         })
       : "";
 
-  const count = openApps.length;
+  const count = newOrgs.length;
 
   return (
     <>
       <Tooltip label={t("admin.applications.bell.label")} withArrow>
         <Indicator
           inline
-          label={count}
           size={18}
           offset={4}
           position="top-end"
           color="red"
-          disabled={count === 0}
-          processing={count > 0}
+          label={unseenCount}
+          disabled={unseenCount === 0}
+          processing={unseenCount > 0}
         >
           <ActionIcon
             variant="subtle"
@@ -119,7 +126,7 @@ export function AdminRegistrationBell() {
             <Text size="sm">
               {t("admin.applications.bell.intro", { count })}
             </Text>
-            {openApps.map((a) => (
+            {newOrgs.map((a) => (
               <Card key={a.id} withBorder padding="sm">
                 <Stack gap={2}>
                   <Text fw={600}>{a.institutionName}</Text>
@@ -135,7 +142,7 @@ export function AdminRegistrationBell() {
               </Card>
             ))}
             <Text size="xs" c="dimmed">
-              {t("admin.applications.bell.manualHint")}
+              {t("admin.applications.bell.lockHint")}
             </Text>
             <Group justify="flex-end" gap="xs">
               <Button variant="subtle" onClick={handleClose}>

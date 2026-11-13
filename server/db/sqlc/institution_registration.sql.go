@@ -538,27 +538,6 @@ func (q *Queries) ListInstitutionConsents(ctx context.Context, institutionID uui
 	return items, nil
 }
 
-const renewInstitutionApplicationTokenByID = `-- name: RenewInstitutionApplicationTokenByID :execrows
-UPDATE institution_application
-SET token_hash = $2, expires_at = $3, status = 'pending', modified_at = now()
-WHERE id = $1 AND status IN ('pending', 'expired') AND anonymized_at IS NULL
-`
-
-type RenewInstitutionApplicationTokenByIDParams struct {
-	ID        uuid.UUID
-	TokenHash string
-	ExpiresAt time.Time
-}
-
-// Admin: a fresh link for an open or lapsed (not anonymised) application; it becomes open again.
-func (q *Queries) RenewInstitutionApplicationTokenByID(ctx context.Context, arg RenewInstitutionApplicationTokenByIDParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, renewInstitutionApplicationTokenByID, arg.ID, arg.TokenHash, arg.ExpiresAt)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
 const replaceInstitutionApplicationToken = `-- name: ReplaceInstitutionApplicationToken :exec
 UPDATE institution_application
 SET token_hash = $2, expires_at = $3, modified_at = now()

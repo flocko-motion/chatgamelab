@@ -98,7 +98,7 @@
       "switchToOrganization": "Stattdessen als Organisation registrieren",
       "titleRegister": "Organisation registrieren",
       "titleUpgrade": "Zur Organisation upgraden",
-      "subtitle": "Nach der Bestätigung deiner E-Mail-Adresse wird die Organisation angelegt und du wirst Organisationsleitung.",
+      "subtitle": "Nach dem Absenden ist eure Organisation sofort freigeschaltet und du bist Organisationsleitung.",
       "personSection": "Angaben zu deiner Person",
       "accountNameLabel": "Anzeigename",
       "accountNameDescription": "So erscheinst du in ChatGameLab (höchstens 24 Zeichen).",
@@ -135,8 +135,8 @@
       "acceptPrivacySuffix": " zur Kenntnis genommen.",
       "declarationGermanOnly": "Die Einverständniserklärung liegt nur auf Deutsch vor. Verbindlich ist der deutsche Text.",
       "declarationVersion": "Version {{version}}, Stand {{date}}",
-      "emailConfirmHint": "Nach dem Absenden bekommst du eine E-Mail mit einem Bestätigungslink. Erst danach wird die Organisation angelegt.",
-      "submit": "Absenden und E-Mail bestätigen",
+      "emailConfirmHint": "Nach dem Absenden ist die Organisation sofort angelegt. Die Bestätigung mit dem Text der Einverständniserklärung geht an deine E-Mail-Adresse.",
+      "submit": "Organisation registrieren",
       "switchToPersonal": "Doch nur ein persönliches Konto anlegen",
       "cancel": "Abbrechen",
       "toMyOrganization": "Zu meiner Organisation",
@@ -196,6 +196,12 @@
         "name_too_long": "Der Anzeigename darf höchstens 24 Zeichen lang sein.",
         "validation_error": "Bitte prüfe deine Angaben.",
         "conflict": "Für diesen Login gibt es schon ein Konto. Bitte melde dich an und nutze das Upgrade in den Einstellungen."
+      },
+      "emailFromLogin": "Das ist die Adresse deiner Anmeldung.",
+      "emailFromAccount": "Das ist die E-Mail-Adresse deines Kontos.",
+      "registered": {
+        "title": "Organisation registriert",
+        "text": "Eure Organisation ist freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen."
       }
     },
     "registerPage": {
@@ -217,7 +223,7 @@
       "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, die ChatGameLab in Workshops nutzen möchten.",
       "organizationStep1": "Du legst über Auth0 deinen Zugang an (E-Mail und Passwort).",
       "organizationStep2": "Du gibst die Angaben zu dir und deiner Einrichtung ein, legst die Jugendschutz-Prompt-Einschränkung fest und stimmst der Einverständniserklärung zu.",
-      "organizationStep3": "Du bestätigst deine dienstliche E-Mail-Adresse. Danach ist die Organisation sofort freigeschaltet und du kannst Workshops anlegen.",
+      "organizationStep3": "Nach dem Absenden ist die Organisation sofort freigeschaltet und du kannst Workshops anlegen.",
       "organizationExistingAccount": "Du hast schon ein Konto? Dann melde dich an und wähle in den Einstellungen „Zur Organisation upgraden“."
     },
     "settings": {
@@ -334,7 +340,7 @@
       },
       "applications": {
         "title": "Registrierungsanträge",
-        "description": "Alle Selbstregistrierungen und Upgrades, auch nicht bestätigte. Bei unbestätigten Anträgen werden Name, Funktion und E-Mail nach 90 Tagen automatisch entfernt.",
+        "description": "Alle Registrierungen und Upgrades. Neue Organisationen werden im Moment sofort freigeschaltet, ohne Bestätigung der E-Mail-Adresse. Bei älteren, nie bestätigten Anträgen werden Name, Funktion und E-Mail nach 90 Tagen automatisch entfernt.",
         "empty": "Noch keine Anträge.",
         "loadError": "Die Anträge konnten nicht geladen werden.",
         "date": "Datum",
@@ -350,29 +356,13 @@
           "confirmed": "Bestätigt",
           "expired": "Nicht bestätigt"
         },
-        "actions": "Aktion",
-        "createLink": "Link erzeugen",
-        "linkError": "Der Link konnte nicht erzeugt werden.",
-        "link": {
-          "title": "Bestätigungslink verschicken",
-          "manual": "Der Server verschickt im Moment keine Mails. Bitte schicke diese Nachricht aus Outlook als chatgamelab@jff.de an die Person.",
-          "configured": "Der Server verschickt Mails selbst. Schicke diesen Link nur von Hand, wenn die automatische Mail nicht angekommen ist.",
-          "validity": "Der Link ist bis {{date}} gültig. Ein vorher verschickter Link funktioniert nicht mehr.",
-          "to": "An",
-          "subject": "Betreff",
-          "body": "Text",
-          "copy": "Kopieren",
-          "copied": "Kopiert",
-          "openMail": "Im Mailprogramm öffnen",
-          "close": "Schließen"
-        },
         "bell": {
-          "label": "Neue Registrierungen",
-          "title": "Neue Registrierungen",
-          "intro_one": "Eine Organisation hat sich registriert und wartet auf die Bestätigung.",
-          "intro_other": "{{count}} Organisationen haben sich registriert und warten auf die Bestätigung.",
-          "manualHint": "Solange der Server keine Mails verschickt, erzeugst du in der Übersicht den Bestätigungslink und schickst ihn von Hand.",
-          "empty": "Keine offenen Registrierungen.",
+          "label": "Neue Organisationen",
+          "title": "Neue Organisationen",
+          "intro_one": "Diese Organisation hat sich in den letzten zwei Wochen registriert und ist bereits freigeschaltet.",
+          "intro_other": "Diese {{count}} Organisationen haben sich in den letzten zwei Wochen registriert und sind bereits freigeschaltet.",
+          "lockHint": "Die E-Mail-Adressen werden im Moment nicht bestätigt. Prüfe neue Organisationen kurz und sperre sie in der Übersicht, falls etwas nicht stimmt.",
+          "empty": "In den letzten zwei Wochen hat sich keine Organisation registriert.",
           "open": "Zur Übersicht",
           "later": "Später"
         }

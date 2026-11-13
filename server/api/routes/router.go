@@ -94,7 +94,6 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/institution-applications/mine", httpx.RequireAuth(GetMyInstitutionApplication))
 	mux.Handle("POST /api/institution-applications/resend", httpx.RequireAuth(ResendInstitutionApplication))
 	mux.HandleFunc("POST /api/institution-applications/confirm", ConfirmInstitutionApplication)
-	mux.Handle("POST /api/institution-applications/{id}/link", httpx.RequireAuth(CreateInstitutionApplicationLink))
 
 	// Institutions
 	mux.Handle("POST /api/institutions", httpx.RequireAuth(CreateInstitution))

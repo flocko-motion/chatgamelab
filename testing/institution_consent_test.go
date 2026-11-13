@@ -124,10 +124,7 @@ func (s *InstitutionRegistrationSuite) TestOnlyHeadsOfTheOrganisationCanConsent(
 	s.Nil(Must(individual.GetMe()).InstitutionDeclaration)
 
 	// Head of a freshly registered organisation: nothing pending there, no access to the dev organisation.
-	other := s.NewSignupClient()
-	req := s.registerRequest("andere-leitung@jz-test.de")
-	MustSucceed(other.Post("auth/register-institution", req, nil))
-	s.confirm(s.LatestConfirmToken(req.Email))
+	other, _, _ := s.register("andere-leitung@jz-test.de")
 	st := Must(other.GetMe()).InstitutionDeclaration
 	s.Require().NotNil(st)
 	s.False(st.Pending, "consent was given at registration")
