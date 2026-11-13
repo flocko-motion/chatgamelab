@@ -1901,6 +1901,38 @@ const docTemplate = `{
             }
         },
         "/institution-applications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. All self-registration and upgrade applications, newest first (at most 500), including unconfirmed and expired ones. Personal data of old unconfirmed applications is removed by the retention job.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "List organisation applications",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.InstitutionApplication"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -2181,7 +2213,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Soft-deletes an institution (admin only)",
+                "description": "Permanently deletes an institution with all its workshops and workshop participants; heads and staff keep their accounts as individual users (admin only). To block access without losing data, lock it instead (POST /institutions/{id}/disable).",
                 "produces": [
                     "application/json"
                 ],
@@ -2379,6 +2411,109 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Not a head of this organisation",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/disable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. Heads, staff and participants of the organisation can no longer use it, its share links and public pages stop working. Nothing is deleted; unlock reverses it.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Lock an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reason",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/routes.LockInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/enable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. Reverses a lock; members can use the organisation again.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Unlock an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -6416,7 +6551,19 @@ const docTemplate = `{
                 "city": {
                     "type": "string"
                 },
+                "declaration": {
+                    "description": "Declaration is the consent status of the organisation (admin list only).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.InstitutionDeclarationStatus"
+                        }
+                    ]
+                },
                 "disabledAt": {
+                    "type": "string"
+                },
+                "disabledReason": {
+                    "description": "DisabledReason is the admin's note on a lock (admin list only).",
                     "type": "string"
                 },
                 "freeUseAiQualityTier": {
@@ -6852,6 +6999,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "institutionDisabled": {
+                    "description": "InstitutionDisabled is true when the user's organisation is locked (GET /users/me only).",
+                    "type": "boolean"
+                },
                 "language": {
                     "description": "ISO 639-1 language code (e.g., \"en\", \"de\", \"fr\")",
                     "type": "string"
@@ -7224,7 +7375,20 @@ const docTemplate = `{
         "routes.CreateInstitutionRequest": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "operator": {
+                    "description": "Optional details (operator and address), as entered at self-registration.",
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "street": {
                     "type": "string"
                 }
             }
@@ -7657,6 +7821,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.LockInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "reason": {
                     "type": "string"
                 }
             }

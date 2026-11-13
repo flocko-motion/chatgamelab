@@ -90,6 +90,7 @@ func NewMux() *http.ServeMux {
 
 	// Organisation self-registration
 	mux.Handle("POST /api/institution-applications", httpx.RequireAuth(UpgradeToInstitution))
+	mux.Handle("GET /api/institution-applications", httpx.RequireAuth(ListInstitutionApplications))
 	mux.Handle("GET /api/institution-applications/mine", httpx.RequireAuth(GetMyInstitutionApplication))
 	mux.Handle("POST /api/institution-applications/resend", httpx.RequireAuth(ResendInstitutionApplication))
 	mux.HandleFunc("POST /api/institution-applications/confirm", ConfirmInstitutionApplication)
@@ -107,6 +108,8 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PATCH /api/institutions/{id}/free-use-tier", httpx.RequireAuth(SetInstitutionFreeUseAiQualityTier))
 	mux.Handle("PATCH /api/institutions/{id}/prompt-constraints", httpx.RequireAuth(UpdateInstitutionPromptConstraints))
 	mux.Handle("POST /api/institutions/{id}/declaration-consent", httpx.RequireAuth(ConsentToInstitutionDeclaration))
+	mux.Handle("POST /api/institutions/{id}/disable", httpx.RequireAuth(LockInstitution))
+	mux.Handle("POST /api/institutions/{id}/enable", httpx.RequireAuth(UnlockInstitution))
 
 	// Workshops
 	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))

@@ -17,6 +17,11 @@ import (
 // CreateInstitutionRequest represents the request to create an institution
 type CreateInstitutionRequest struct {
 	Name string `json:"name"`
+	// Optional details (operator and address), as entered at self-registration.
+	Operator   string `json:"operator,omitempty"`
+	Street     string `json:"street,omitempty"`
+	PostalCode string `json:"postalCode,omitempty"`
+	City       string `json:"city,omitempty"`
 }
 
 // UpdateInstitutionRequest represents the request to update an institution
@@ -58,6 +63,14 @@ func CreateInstitution(w http.ResponseWriter, r *http.Request) {
 		}
 		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
+	}
+	if req.Operator != "" || req.Street != "" || req.PostalCode != "" || req.City != "" {
+		if err := db.SetInstitutionDetails(r.Context(), institution.ID, req.Operator, req.Street, req.PostalCode, req.City); err != nil {
+			httpx.WriteAppError(w, obj.ErrServerError("organisation created, but its details could not be saved"))
+			return
+		}
+		institution.Operator, institution.Street = optionalString(req.Operator), optionalString(req.Street)
+		institution.PostalCode, institution.City = optionalString(req.PostalCode), optionalString(req.City)
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, institution)
@@ -172,7 +185,7 @@ func UpdateInstitution(w http.ResponseWriter, r *http.Request) {
 // DeleteInstitution godoc
 //
 //	@Summary		Delete institution
-//	@Description	Soft-deletes an institution (admin only)
+//	@Description	Permanently deletes an institution with all its workshops and workshop participants; heads and staff keep their accounts as individual users (admin only). To block access without losing data, lock it instead (POST /institutions/{id}/disable).
 //	@Tags			institutions
 //	@Produce		json
 //	@Param			id	path		string	true	"Institution ID"
@@ -503,4 +516,11 @@ func UpdateInstitutionPromptConstraints(w http.ResponseWriter, r *http.Request) 
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, updatedInstitution)
+}
+
+func optionalString(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }

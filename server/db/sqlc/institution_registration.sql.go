@@ -365,6 +365,48 @@ func (q *Queries) InstitutionNameExists(ctx context.Context, name string) (bool,
 	return exists, err
 }
 
+const isShareInstitutionDisabled = `-- name: IsShareInstitutionDisabled :one
+SELECT EXISTS (
+  SELECT 1 FROM institution i
+  WHERE i.disabled_at IS NOT NULL
+    AND (i.id = $1::uuid
+         OR i.id = (SELECT w.institution_id FROM workshop w WHERE w.id = $2::uuid))
+)
+`
+
+type IsShareInstitutionDisabledParams struct {
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+}
+
+// True if a share belongs to a locked organisation (directly or via one of its workshops).
+func (q *Queries) IsShareInstitutionDisabled(ctx context.Context, arg IsShareInstitutionDisabledParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isShareInstitutionDisabled, arg.InstitutionID, arg.WorkshopID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isUserInstitutionDisabled = `-- name: IsUserInstitutionDisabled :one
+SELECT EXISTS (
+  SELECT 1
+  FROM user_role ur
+  LEFT JOIN workshop w ON w.id = ur.workshop_id
+  JOIN institution i ON i.id = COALESCE(ur.institution_id, w.institution_id)
+  WHERE ur.user_id = $1
+    AND ur.role IN ('head', 'staff', 'participant')
+    AND i.disabled_at IS NOT NULL
+)
+`
+
+// True if the user is head, staff or participant of a locked organisation (directly or via a workshop).
+func (q *Queries) IsUserInstitutionDisabled(ctx context.Context, userID uuid.UUID) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isUserInstitutionDisabled, userID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const listInstitutionApplications = `-- name: ListInstitutionApplications :many
 SELECT id, created_at, modified_at, user_id, kind, person_name, person_function, email, institution_name, institution_operator, street, postal_code, city, prompt_constraint, declaration_version, declaration_hash, token_hash, expires_at, status, confirmed_at, institution_id, anonymized_at FROM institution_application
 ORDER BY created_at DESC

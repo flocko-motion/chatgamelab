@@ -238,6 +238,12 @@
   },
   "common": {
     "actions": "Actions",
+    "organizationLocked": {
+      "title": "Organisation locked",
+      "description": "The operator has locked your organisation's access to ChatGameLab. Your data is kept.",
+      "contact": "If you have questions, please contact",
+      "logout": "Log out"
+    },
     "admin": {
       "invites": {
         "actions": "Actions",
@@ -278,7 +284,7 @@
         "actions": "Actions",
         "create": "Create Organization",
         "createTitle": "Create New Organization",
-        "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "deleteConfirm": "Permanently delete “{{name}}”? All workshops and participants of the organisation are deleted; heads and workshop leads keep their accounts. This cannot be undone. If the organisation should only lose access, lock it instead.",
         "deleteTitle": "Delete Organization",
         "editTitle": "Edit Organization",
         "email": "Email Address",
@@ -299,7 +305,48 @@
         "removeMemberConfirm": "Are you sure you want to remove {{name}} from this organization?",
         "searchPlaceholder": "Search organizations...",
         "sendInvite": "Send Invite",
-        "title": "Manage Organizations"
+        "title": "Manage Organizations",
+        "heads": "Heads",
+        "status": "Status and consent",
+        "statusActive": "Active",
+        "statusLocked": "Locked",
+        "lockedNoReason": "Locked without a reason",
+        "consentMissing": "Declaration pending",
+        "consentOutdated": "Declaration outdated (v{{version}})",
+        "consentGiven": "Declaration v{{version}} · {{date}}",
+        "lock": "Lock",
+        "unlock": "Unlock",
+        "lockTitle": "Lock organisation",
+        "unlockTitle": "Unlock organisation",
+        "lockConfirm": "Lock “{{name}}”? Heads, workshop leads and participants can then no longer use the organisation. Shared game links and public workshop pages stop working. No data is deleted, and the lock can be lifted at any time.",
+        "unlockConfirm": "Unlock “{{name}}”? All members can then use the organisation as before.",
+        "lockReason": "Reason (optional)",
+        "lockReasonDescription": "Only visible to admins.",
+        "lockError": "That did not work. Please try again.",
+        "detailsOptional": "Optional: operator and address",
+        "operator": "Operator",
+        "street": "Street and number",
+        "postalCode": "Postcode",
+        "city": "City"
+      },
+      "applications": {
+        "title": "Registration applications",
+        "description": "All self-registrations and upgrades, including unconfirmed ones. For unconfirmed applications, name, role and e-mail are removed automatically after 90 days.",
+        "empty": "No applications yet.",
+        "loadError": "The applications could not be loaded.",
+        "date": "Date",
+        "institution": "Institution",
+        "person": "Person",
+        "kind": "Type",
+        "kindRegister": "New account",
+        "kindUpgrade": "Upgrade",
+        "status": "Status",
+        "anonymized": "anonymised",
+        "statusValues": {
+          "pending": "Waiting for confirmation",
+          "confirmed": "Confirmed",
+          "expired": "Not confirmed"
+        }
       },
       "users": {
         "actions": "Actions",

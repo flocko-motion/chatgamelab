@@ -238,6 +238,12 @@
   },
   "common": {
     "actions": "Aktionen",
+    "organizationLocked": {
+      "title": "Organisation gesperrt",
+      "description": "Der Zugang deiner Organisation zu ChatGameLab wurde vom Betreiber gesperrt. Deine Daten bleiben erhalten.",
+      "contact": "Bei Fragen wende dich an",
+      "logout": "Abmelden"
+    },
     "admin": {
       "invites": {
         "actions": "Aktionen",
@@ -278,7 +284,7 @@
         "actions": "Aktionen",
         "create": "Organisation erstellen",
         "createTitle": "Neue Organisation erstellen",
-        "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "deleteConfirm": "„{{name}}“ endgültig löschen? Dabei werden alle Workshops und Teilnehmenden der Organisation gelöscht; Leitungen und Workshopleitungen behalten ihr Konto. Das lässt sich nicht rückgängig machen. Soll die Organisation nur keinen Zugang mehr haben, sperren Sie sie stattdessen.",
         "deleteTitle": "Organisation löschen",
         "editTitle": "Organisation bearbeiten",
         "email": "E-Mail-Adresse",
@@ -299,7 +305,48 @@
         "removeMemberConfirm": "Sind Sie sicher, dass Sie {{name}} aus dieser Organisation entfernen möchten?",
         "searchPlaceholder": "Organisationen suchen...",
         "sendInvite": "Einladung senden",
-        "title": "Organisationen verwalten"
+        "title": "Organisationen verwalten",
+        "heads": "Leitung",
+        "status": "Status und Zustimmung",
+        "statusActive": "Aktiv",
+        "statusLocked": "Gesperrt",
+        "lockedNoReason": "Ohne Begründung gesperrt",
+        "consentMissing": "Erklärung ausstehend",
+        "consentOutdated": "Erklärung veraltet (v{{version}})",
+        "consentGiven": "Erklärung v{{version}} · {{date}}",
+        "lock": "Sperren",
+        "unlock": "Entsperren",
+        "lockTitle": "Organisation sperren",
+        "unlockTitle": "Organisation entsperren",
+        "lockConfirm": "„{{name}}“ sperren? Leitungen, Workshopleitungen und Teilnehmende können die Organisation dann nicht mehr nutzen. Geteilte Spiel-Links und öffentliche Workshop-Seiten funktionieren nicht mehr. Es werden keine Daten gelöscht, die Sperre lässt sich jederzeit aufheben.",
+        "unlockConfirm": "„{{name}}“ entsperren? Alle Mitglieder können die Organisation danach wieder wie vorher nutzen.",
+        "lockReason": "Grund (optional)",
+        "lockReasonDescription": "Nur für Admins sichtbar.",
+        "lockError": "Das hat nicht geklappt. Bitte erneut versuchen.",
+        "detailsOptional": "Optional: Träger und Anschrift",
+        "operator": "Träger",
+        "street": "Straße und Hausnummer",
+        "postalCode": "PLZ",
+        "city": "Ort"
+      },
+      "applications": {
+        "title": "Registrierungsanträge",
+        "description": "Alle Selbstregistrierungen und Upgrades, auch nicht bestätigte. Bei unbestätigten Anträgen werden Name, Funktion und E-Mail nach 90 Tagen automatisch entfernt.",
+        "empty": "Noch keine Anträge.",
+        "loadError": "Die Anträge konnten nicht geladen werden.",
+        "date": "Datum",
+        "institution": "Einrichtung",
+        "person": "Person",
+        "kind": "Art",
+        "kindRegister": "Neues Konto",
+        "kindUpgrade": "Upgrade",
+        "status": "Status",
+        "anonymized": "anonymisiert",
+        "statusValues": {
+          "pending": "Wartet auf Bestätigung",
+          "confirmed": "Bestätigt",
+          "expired": "Nicht bestätigt"
+        }
       },
       "users": {
         "actions": "Aktionen",

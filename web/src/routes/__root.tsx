@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { AppLayout, type NavItem } from "../common/components/Layout";
 import { InactiveWorkshopMessage } from "../common/components/InactiveWorkshopMessage";
+import { InstitutionLockedMessage } from "../common/components/InstitutionLockedMessage";
 import { useAuth } from "../providers/AuthProvider";
 import { useWorkshopMode } from "../providers/WorkshopModeProvider";
 import { NewAccountRegistration, DeclarationConsentModal } from "../features/organization-registration";
@@ -350,6 +351,15 @@ function RootComponent() {
     return (
       <AppLayout variant="public">
         <InactiveWorkshopMessage onLogout={logout} />
+      </AppLayout>
+    );
+  }
+
+  // Members of an organisation an admin has locked see only the explanation
+  if (backendUser?.institutionDisabled && !isPublicRoute) {
+    return (
+      <AppLayout variant="public">
+        <InstitutionLockedMessage onLogout={logout} />
       </AppLayout>
     );
   }

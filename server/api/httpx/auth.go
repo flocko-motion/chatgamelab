@@ -124,12 +124,42 @@ func MaybeUserFromRequest(r *http.Request) *obj.User {
 // If no user is attached to the request context, it returns 401 Unauthorized.
 func RequireUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if MaybeUserFromRequest(r) == nil {
+		user := MaybeUserFromRequest(r)
+		if user == nil {
 			WriteError(w, http.StatusUnauthorized, "Unauthorized")
+			return
+		}
+		if blockedByInstitutionLock(r, user) {
+			WriteErrorWithCode(w, http.StatusForbidden, obj.ErrCodeInstitutionDisabled,
+				"Your organisation has been locked by the operator")
 			return
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+// lockExemptPaths stay reachable for members of a locked organisation so the app can
+// explain the lock and let them log out.
+var lockExemptPaths = map[string]bool{
+	"GET /api/users/me":     true,
+	"POST /api/auth/logout": true,
+}
+
+// blockedByInstitutionLock: heads, staff and participants of a locked organisation are
+// stopped everywhere except the exempt paths. Admins and individual users are never affected.
+func blockedByInstitutionLock(r *http.Request, user *obj.User) bool {
+	if user.Role == nil {
+		return false
+	}
+	switch user.Role.Role {
+	case obj.RoleHead, obj.RoleStaff, obj.RoleParticipant:
+	default:
+		return false
+	}
+	if lockExemptPaths[r.Method+" "+r.URL.Path] {
+		return false
+	}
+	return db.IsUserInstitutionDisabled(r.Context(), user.ID)
 }
 
 // CustomClaims contains custom data we want from the Auth0 token
