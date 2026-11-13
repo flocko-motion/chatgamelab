@@ -94,6 +94,8 @@
       "title": "Complete Your Profile"
     },
     "organizationRegistration": {
+      "switchHint": "Registering a youth centre, school or other institution?",
+      "switchToOrganization": "Register as an organisation instead",
       "titleRegister": "Register an organisation",
       "titleUpgrade": "Upgrade to organisation",
       "subtitle": "Once your e-mail address is confirmed, the organisation is created and you become its head.",

@@ -94,6 +94,8 @@
       "title": "Profil vervollständigen"
     },
     "organizationRegistration": {
+      "switchHint": "Du registrierst eine Jugendeinrichtung, Schule oder andere Einrichtung?",
+      "switchToOrganization": "Stattdessen als Organisation registrieren",
       "titleRegister": "Organisation registrieren",
       "titleUpgrade": "Zur Organisation upgraden",
       "subtitle": "Nach der Bestätigung deiner E-Mail-Adresse wird die Organisation angelegt und du wirst Organisationsleitung.",
