@@ -1,6 +1,6 @@
 // package: mail / outgoing e-mail
 // type:    infrastructure
-// job:     sends plain-text e-mails via SMTP (configured by environment) or, without SMTP_HOST, writes them to the log; in dev mode sent mails are also kept in memory so tests can read confirmation links.
+// job:     sends plain-text e-mails via SMTP (configured by environment; login via PLAIN or LOGIN, the latter for Microsoft 365) or, without SMTP_HOST, writes them to the log; in dev mode sent mails are also kept in memory so tests can read confirmation links.
 // limits:  no templates for specific mails (-> callers), no queue or retry.
 package mail
 
@@ -68,6 +68,11 @@ func NotifyAddress() string {
 // PublicURL is the app's public base URL without trailing slash (PUBLIC_URL), used for links in mails.
 func PublicURL() string {
 	return strings.TrimRight(functional.EnvOrDefault("PUBLIC_URL", "http://localhost"), "/")
+}
+
+// Configured reports whether a mail server is set (SMTP_HOST); without one, mails are only logged.
+func Configured() bool {
+	return smtpConfigFromEnv().host != ""
 }
 
 // Send delivers one message. Without SMTP_HOST the mail is only logged.
@@ -160,49 +165,125 @@ func sendSMTP(cfg smtpConfig, msg Message) error {
 		return err
 	}
 	addr := net.JoinHostPort(cfg.host, cfg.port)
-
-	var auth smtp.Auth
-	if cfg.user != "" {
-		auth = smtp.PlainAuth("", cfg.user, cfg.password, cfg.host)
-	}
+	tlsConfig := &tls.Config{ServerName: cfg.host}
 
 	// Port 465 uses implicit TLS; everything else uses STARTTLS when the server offers it.
+	var conn net.Conn
 	if cfg.port == "465" {
-		conn, err := tls.Dial("tcp", addr, &tls.Config{ServerName: cfg.host})
-		if err != nil {
-			return err
-		}
-		c, err := smtp.NewClient(conn, cfg.host)
-		if err != nil {
-			return err
-		}
-		defer c.Close()
-		if auth != nil {
-			if err := c.Auth(auth); err != nil {
-				return err
+		conn, err = tls.DialWithDialer(&net.Dialer{Timeout: dialTimeout}, "tcp", addr, tlsConfig)
+	} else {
+		conn, err = net.DialTimeout("tcp", addr, dialTimeout)
+	}
+	if err != nil {
+		return fmt.Errorf("connecting to %s: %w", addr, err)
+	}
+	// Microsoft delays answers to failed logins considerably; never hang forever.
+	_ = conn.SetDeadline(time.Now().Add(sessionTimeout))
+	c, err := smtp.NewClient(conn, cfg.host)
+	if err != nil {
+		conn.Close()
+		return fmt.Errorf("greeting from %s: %w", addr, err)
+	}
+	defer c.Close()
+
+	if cfg.port != "465" {
+		if ok, _ := c.Extension("STARTTLS"); ok {
+			if err := c.StartTLS(tlsConfig); err != nil {
+				return fmt.Errorf("STARTTLS: %w", err)
 			}
 		}
-		return deliver(c, envelopeAddress(cfg.from), envelopeAddress(msg.To), data)
 	}
-	return smtp.SendMail(addr, auth, envelopeAddress(cfg.from), []string{envelopeAddress(msg.To)}, data)
+	if cfg.user != "" {
+		_, mechanisms := c.Extension("AUTH")
+		auth, err := chooseAuth(mechanisms, cfg)
+		if err != nil {
+			return err
+		}
+		if err := c.Auth(auth); err != nil {
+			return fmt.Errorf("login as %s: %w", cfg.user, err)
+		}
+	}
+	return deliver(c, envelopeAddress(cfg.from), envelopeAddress(msg.To), data)
+}
+
+// dialTimeout bounds how long connecting to the mail server may take.
+const dialTimeout = 15 * time.Second
+
+// sessionTimeout bounds the whole SMTP conversation.
+const sessionTimeout = 2 * time.Minute
+
+// chooseAuth picks PLAIN or LOGIN, whichever the server offers (Microsoft 365 offers only LOGIN and XOAUTH2).
+func chooseAuth(mechanisms string, cfg smtpConfig) (smtp.Auth, error) {
+	offered := strings.Fields(strings.ToUpper(mechanisms))
+	has := func(name string) bool {
+		for _, m := range offered {
+			if m == name {
+				return true
+			}
+		}
+		return false
+	}
+	switch {
+	case has("PLAIN"):
+		return smtp.PlainAuth("", cfg.user, cfg.password, cfg.host), nil
+	case has("LOGIN"):
+		return &loginAuth{user: cfg.user, password: cfg.password, host: cfg.host}, nil
+	default:
+		return nil, fmt.Errorf("mail server %s offers no supported login method (offered: %q, supported: PLAIN, LOGIN)", cfg.host, mechanisms)
+	}
+}
+
+// loginAuth implements the SMTP "AUTH LOGIN" mechanism, which net/smtp lacks.
+type loginAuth struct {
+	user, password, host string
+}
+
+func (a *loginAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+	// Like smtp.PlainAuth: never send the password unencrypted, except to localhost.
+	if !server.TLS && !isLocalhost(server.Name) {
+		return "", nil, fmt.Errorf("refusing AUTH LOGIN without TLS to %s", server.Name)
+	}
+	if server.Name != a.host {
+		return "", nil, fmt.Errorf("wrong host name %q, expected %q", server.Name, a.host)
+	}
+	return "LOGIN", nil, nil
+}
+
+func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
+	if !more {
+		return nil, nil
+	}
+	prompt := strings.ToLower(strings.TrimSpace(string(fromServer)))
+	switch {
+	case strings.HasPrefix(prompt, "username"):
+		return []byte(a.user), nil
+	case strings.HasPrefix(prompt, "password"):
+		return []byte(a.password), nil
+	default:
+		return nil, fmt.Errorf("unexpected AUTH LOGIN prompt from server: %q", string(fromServer))
+	}
+}
+
+func isLocalhost(name string) bool {
+	return name == "localhost" || name == "127.0.0.1" || name == "::1"
 }
 
 func deliver(c *smtp.Client, from, to string, data []byte) error {
 	if err := c.Mail(from); err != nil {
-		return err
+		return fmt.Errorf("sender %s: %w", from, err)
 	}
 	if err := c.Rcpt(to); err != nil {
-		return err
+		return fmt.Errorf("recipient %s: %w", to, err)
 	}
 	w, err := c.Data()
 	if err != nil {
-		return err
+		return fmt.Errorf("DATA: %w", err)
 	}
 	if _, err := w.Write(data); err != nil {
-		return err
+		return fmt.Errorf("writing message: %w", err)
 	}
 	if err := w.Close(); err != nil {
-		return err
+		return fmt.Errorf("message not accepted: %w", err)
 	}
 	return c.Quit()
 }

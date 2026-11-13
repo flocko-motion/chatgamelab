@@ -1,12 +1,13 @@
 // package: db / database access and repository layer
 // type:    data
-// job:     admin side of organisations: reversible lock, lock checks for members and shares, list of registration applications, details on manual creation.
+// job:     admin side of organisations: reversible lock, lock checks for members and shares, list of registration applications and fresh confirmation links for them, details on manual creation.
 // limits:  no SQL (-> db/sqlc), no HTTP (-> api/routes/institution_admin.go).
 package db
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 	"time"
 
@@ -102,4 +103,55 @@ func SetInstitutionDetails(ctx context.Context, institutionID uuid.UUID, operato
 	return queries().UpdateInstitutionDetails(ctx, sqlc.UpdateInstitutionDetailsParams{
 		ID: institutionID, Operator: ns(operator), Street: ns(street), PostalCode: ns(postalCode), City: ns(city),
 	})
+}
+
+// RenewInstitutionApplicationLinkAsAdmin gives an open or lapsed application a fresh confirmation
+// link, so an admin can send it by hand (e.g. while no mail server is configured). The previous
+// link stops working. Admin only. Returns the application and the plain token.
+func RenewInstitutionApplicationLinkAsAdmin(ctx context.Context, adminID, applicationID uuid.UUID) (*obj.InstitutionApplication, string, error) {
+	if err := requireAdmin(ctx, adminID); err != nil {
+		return nil, "", err
+	}
+	row, err := queries().GetInstitutionApplicationByID(ctx, applicationID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, "", obj.ErrNotFound("application not found")
+	}
+	if err != nil {
+		return nil, "", obj.ErrServerError("failed to load application")
+	}
+	app := applicationFromRow(row)
+	switch {
+	case app.Status == obj.InstitutionApplicationConfirmed:
+		return nil, "", obj.ErrConflict("application is already confirmed")
+	case app.AnonymizedAt != nil || app.UserID == nil || app.Email == nil:
+		return nil, "", obj.ErrConflict("application was anonymised")
+	}
+	if app.Status == obj.InstitutionApplicationExpired {
+		// Only revive it if the person has not applied again in the meantime.
+		pending, err := GetPendingInstitutionApplication(ctx, *app.UserID)
+		if err != nil {
+			return nil, "", err
+		}
+		if pending != nil && pending.ID != app.ID {
+			return nil, "", obj.ErrConflict("the person has a newer application")
+		}
+	}
+
+	token, hash, err := newApplicationToken()
+	if err != nil {
+		return nil, "", obj.ErrServerError("failed to create token")
+	}
+	expires := time.Now().Add(ApplicationTokenValidity)
+	n, err := queries().RenewInstitutionApplicationTokenByID(ctx, sqlc.RenewInstitutionApplicationTokenByIDParams{
+		ID: app.ID, TokenHash: hash, ExpiresAt: expires,
+	})
+	if err != nil {
+		return nil, "", obj.ErrServerError("failed to renew link")
+	}
+	if n == 0 {
+		return nil, "", obj.ErrConflict("application can no longer be renewed")
+	}
+	app.ExpiresAt = expires
+	app.Status = obj.InstitutionApplicationPending
+	return app, token, nil
 }

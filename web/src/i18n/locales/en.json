@@ -348,6 +348,32 @@
           "pending": "Waiting for confirmation",
           "confirmed": "Confirmed",
           "expired": "Not confirmed"
+        },
+        "actions": "Action",
+        "createLink": "Create link",
+        "linkError": "The link could not be created.",
+        "link": {
+          "title": "Send confirmation link",
+          "manual": "The server is not sending mails at the moment. Please send this message to the person from Outlook as chatgamelab@jff.de.",
+          "configured": "The server sends mails itself. Only send this link by hand if the automatic mail did not arrive.",
+          "validity": "The link is valid until {{date}}. A link sent earlier no longer works.",
+          "to": "To",
+          "subject": "Subject",
+          "body": "Text",
+          "copy": "Copy",
+          "copied": "Copied",
+          "openMail": "Open in mail program",
+          "close": "Close"
+        },
+        "bell": {
+          "label": "New registrations",
+          "title": "New registrations",
+          "intro_one": "One organisation has registered and is waiting for confirmation.",
+          "intro_other": "{{count}} organisations have registered and are waiting for confirmation.",
+          "manualHint": "As long as the server sends no mails, create the confirmation link in the overview and send it by hand.",
+          "empty": "No open registrations.",
+          "open": "Go to overview",
+          "later": "Later"
         }
       },
       "users": {

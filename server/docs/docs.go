@@ -2091,6 +2091,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/institution-applications/{id}/link": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. Gives an open or lapsed application a new confirmation link (valid 48 hours; the previous link stops working) and returns it with a ready-to-send mail text, so the admin can send it by hand. Nothing is mailed.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Create a fresh confirmation link for an application",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Application ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionApplicationLinkResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Already confirmed, anonymised or replaced by a newer application",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/institutions": {
             "get": {
                 "security": [
@@ -7693,6 +7745,30 @@ const docTemplate = `{
                 },
                 "isOrganisationUnverified": {
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.InstitutionApplicationLinkResponse": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/obj.InstitutionApplication"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "mailConfigured": {
+                    "description": "MailConfigured is false while the server has no mail server (SMTP_HOST empty), so the link must be sent by hand.",
+                    "type": "boolean"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
                 }
             }
         },
