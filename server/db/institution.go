@@ -96,6 +96,7 @@ func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*o
 	if result.PromptConstraints.Valid {
 		institution.PromptConstraints = &result.PromptConstraints.String
 	}
+	fillInstitutionDetails(institution, result)
 
 	// Load members if user has permission (admin, head, or staff of this institution)
 	if err := canAccessInstitutionMembers(ctx, userID, OpRead, id, nil); err == nil {
@@ -186,6 +187,7 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 		if r.PromptConstraints.Valid {
 			inst.PromptConstraints = &r.PromptConstraints.String
 		}
+		fillInstitutionDetails(&inst, r)
 		members, err := loadInstitutionMembers(ctx, r.ID)
 		if err == nil {
 			inst.Members = members
@@ -419,4 +421,15 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 	}
 
 	return nil
+}
+
+// fillInstitutionDetails copies operator, address and lock state into the API object.
+func fillInstitutionDetails(inst *obj.Institution, r db.Institution) {
+	inst.Operator = nullStringToPtr(r.Operator)
+	inst.Street = nullStringToPtr(r.Street)
+	inst.PostalCode = nullStringToPtr(r.PostalCode)
+	inst.City = nullStringToPtr(r.City)
+	if r.DisabledAt.Valid {
+		inst.DisabledAt = &r.DisabledAt.Time
+	}
 }

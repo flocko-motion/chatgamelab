@@ -94,3 +94,12 @@ type InstitutionConsent struct {
 	DeclarationVersion string     `json:"declarationVersion"`
 	DeclarationHash    string     `json:"declarationHash"`
 }
+
+// InstitutionDeclarationStatus tells an organisation head whether the current declaration
+// still needs consent (new version, or an organisation that predates self-registration).
+type InstitutionDeclarationStatus struct {
+	CurrentVersion   string     `json:"currentVersion"`
+	ConsentedVersion *string    `json:"consentedVersion,omitempty"`
+	ConsentedAt      *time.Time `json:"consentedAt,omitempty"`
+	Pending          bool       `json:"pending"`
+}

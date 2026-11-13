@@ -2328,6 +2328,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/institutions/{id}/declaration-consent": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator and address, and e-mails the confirmation with a copy to the operator address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institution-registration"
+                ],
+                "summary": "Consent to the current declaration for an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Consent",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.InstitutionConsentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.InstitutionConsent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Not a head of this organisation",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/institutions/{id}/free-use-key": {
             "patch": {
                 "security": [
@@ -6355,6 +6413,12 @@ const docTemplate = `{
         "obj.Institution": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "disabledAt": {
+                    "type": "string"
+                },
                 "freeUseAiQualityTier": {
                     "description": "high/medium/low, nil = server default",
                     "type": "string"
@@ -6377,7 +6441,17 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "operator": {
+                    "description": "Operator (Träger) and address, entered at self-registration or when consenting to the declaration.",
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
                 "promptConstraints": {
+                    "type": "string"
+                },
+                "street": {
                     "type": "string"
                 }
             }
@@ -6491,6 +6565,23 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "obj.InstitutionDeclarationStatus": {
+            "type": "object",
+            "properties": {
+                "consentedAt": {
+                    "type": "string"
+                },
+                "consentedVersion": {
+                    "type": "string"
+                },
+                "currentVersion": {
+                    "type": "string"
+                },
+                "pending": {
+                    "type": "boolean"
                 }
             }
         },
@@ -6752,6 +6843,14 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "institutionDeclaration": {
+                    "description": "InstitutionDeclaration is the declaration status of the user's organisation.\nFilled for organisation heads on GET /users/me only.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.InstitutionDeclarationStatus"
+                        }
+                    ]
                 },
                 "language": {
                     "description": "ISO 639-1 language code (e.g., \"en\", \"de\", \"fr\")",
@@ -7441,6 +7540,38 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/obj.User"
+                }
+            }
+        },
+        "routes.InstitutionConsentRequest": {
+            "type": "object",
+            "properties": {
+                "acceptDeclaration": {
+                    "type": "boolean"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "declarationVersion": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "personFunction": {
+                    "type": "string"
+                },
+                "personName": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },

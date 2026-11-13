@@ -105,6 +105,11 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	user := *httpx.UserFromRequest(r)
 	user.AiQualityTierLimitSource, user.AiQualityTierLimit = db.UserAiQualityTierLimit(r.Context(), &user)
+	if user.Role != nil && user.Role.Role == obj.RoleHead && user.Role.Institution != nil {
+		if status, err := db.InstitutionDeclarationStatusFor(r.Context(), user.Role.Institution.ID); err == nil {
+			user.InstitutionDeclaration = status
+		}
+	}
 
 	httpx.WriteJSON(w, http.StatusOK, user)
 }

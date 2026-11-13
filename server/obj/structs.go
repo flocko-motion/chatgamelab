@@ -86,6 +86,9 @@ type User struct {
 	//   "u18"  = 18+
 	//   nil    = guest / unknown
 	AgeGroup *string `json:"ageGroup,omitempty"`
+	// InstitutionDeclaration is the declaration status of the user's organisation.
+	// Filled for organisation heads on GET /users/me only.
+	InstitutionDeclaration *InstitutionDeclarationStatus `json:"institutionDeclaration,omitempty"`
 }
 
 // UserStats contains aggregated statistics for a user
@@ -105,6 +108,12 @@ type Institution struct {
 	FreeUseApiKeyShareID *uuid.UUID          `json:"freeUseApiKeyShareId,omitempty"`
 	FreeUseAiQualityTier *string             `json:"freeUseAiQualityTier,omitempty"` // high/medium/low, nil = server default
 	PromptConstraints    *string             `json:"promptConstraints,omitempty"`
+	// Operator (Träger) and address, entered at self-registration or when consenting to the declaration.
+	Operator   *string    `json:"operator,omitempty"`
+	Street     *string    `json:"street,omitempty"`
+	PostalCode *string    `json:"postalCode,omitempty"`
+	City       *string    `json:"city,omitempty"`
+	DisabledAt *time.Time `json:"disabledAt,omitempty"`
 }
 
 // InstitutionMember represents a user's membership and role within an institution.

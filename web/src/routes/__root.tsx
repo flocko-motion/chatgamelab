@@ -18,7 +18,7 @@ import { AppLayout, type NavItem } from "../common/components/Layout";
 import { InactiveWorkshopMessage } from "../common/components/InactiveWorkshopMessage";
 import { useAuth } from "../providers/AuthProvider";
 import { useWorkshopMode } from "../providers/WorkshopModeProvider";
-import { NewAccountRegistration } from "../features/organization-registration";
+import { NewAccountRegistration, DeclarationConsentModal } from "../features/organization-registration";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
 import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
@@ -409,6 +409,7 @@ function RootComponent() {
       >
         <Outlet />
       </AppLayout>
+      {isFullyAuthenticated && !isParticipant && <DeclarationConsentModal />}
       <TanStackRouterDevtools position="bottom-right" />
     </>
   );

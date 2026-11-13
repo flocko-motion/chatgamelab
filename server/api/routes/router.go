@@ -106,6 +106,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PATCH /api/institutions/{id}/free-use-key", httpx.RequireAuth(SetInstitutionFreeUseApiKeyShare))
 	mux.Handle("PATCH /api/institutions/{id}/free-use-tier", httpx.RequireAuth(SetInstitutionFreeUseAiQualityTier))
 	mux.Handle("PATCH /api/institutions/{id}/prompt-constraints", httpx.RequireAuth(UpdateInstitutionPromptConstraints))
+	mux.Handle("POST /api/institutions/{id}/declaration-consent", httpx.RequireAuth(ConsentToInstitutionDeclaration))
 
 	// Workshops
 	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))

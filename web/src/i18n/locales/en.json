@@ -146,6 +146,15 @@
         "resent": "We sent you a new link. The previous link no longer works.",
         "edit": "Change details and send again"
       },
+      "consentModal": {
+        "title": "Confirm the declaration",
+        "introExisting": "Your organisation “{{name}}” now has a declaration that is confirmed online. It replaces the user agreement you signed before. Please read it and agree on behalf of your institution.",
+        "introNewVersion": "The declaration has been updated (version {{version}}). Please read the new version and agree on behalf of your organisation “{{name}}”.",
+        "oneHeadIsEnough": "It is enough if one head of the organisation agrees. Until then you can use ChatGameLab as usual.",
+        "emailDescription": "We send the confirmation with the text of the declaration to this address.",
+        "later": "Later",
+        "submit": "Agree"
+      },
       "confirm": {
         "successTitle": "Organisation activated",
         "successText": "“{{name}}” is now activated in ChatGameLab. You are its head and can create workshops. We sent you the confirmation with the declaration by e-mail.",

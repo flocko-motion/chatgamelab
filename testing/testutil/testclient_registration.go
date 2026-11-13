@@ -50,3 +50,15 @@ func (s *BaseSuite) LatestConfirmToken(to string) string {
 	s.T().Fatalf("no confirmation link mail to %s", to)
 	return ""
 }
+
+// DevUserClient returns a client for a preseeded dev user (dev mode JWT by user ID).
+func (s *BaseSuite) DevUserClient(userID, name string) *UserClient {
+	s.T().Helper()
+	var resp struct {
+		Token string `json:"token"`
+	}
+	if err := s.Public().Get("users/"+userID+"/jwt", &resp); err != nil {
+		s.T().Fatalf("failed to get JWT for dev user %s: %v", name, err)
+	}
+	return &UserClient{Name: name, ID: userID, Token: resp.Token, t: s.T()}
+}

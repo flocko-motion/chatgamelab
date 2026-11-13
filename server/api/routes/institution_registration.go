@@ -284,3 +284,63 @@ func ConfirmInstitutionApplication(w http.ResponseWriter, r *http.Request) {
 	sendConsentConfirmationMails(result.Consent)
 	httpx.WriteJSON(w, http.StatusOK, ConfirmInstitutionResponse{Institution: result.Institution, Consent: result.Consent})
 }
+
+// InstitutionConsentRequest is a head's consent to the current declaration for their organisation.
+type InstitutionConsentRequest struct {
+	PersonName         string `json:"personName"`
+	PersonFunction     string `json:"personFunction"`
+	Email              string `json:"email"`
+	Operator           string `json:"operator"`
+	Street             string `json:"street"`
+	PostalCode         string `json:"postalCode"`
+	City               string `json:"city"`
+	AcceptDeclaration  bool   `json:"acceptDeclaration"`
+	DeclarationVersion string `json:"declarationVersion"`
+}
+
+// ConsentToInstitutionDeclaration godoc
+//
+//	@Summary		Consent to the current declaration for an organisation
+//	@Description	For heads of the organisation: logs consent to the current Einverständniserklärung (needed for a new version and for organisations that predate self-registration), stores operator and address, and e-mails the confirmation with a copy to the operator address.
+//	@Tags			institution-registration
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"Institution ID"
+//	@Param			request	body		InstitutionConsentRequest	true	"Consent"
+//	@Success		200		{object}	obj.InstitutionConsent
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse	"Not a head of this organisation"
+//	@Security		BearerAuth
+//	@Router			/institutions/{id}/declaration-consent [post]
+func ConsentToInstitutionDeclaration(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+	institutionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid institution ID")
+		return
+	}
+	var req InstitutionConsentRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+	if !req.AcceptDeclaration {
+		httpx.WriteAppError(w, obj.NewAppError(obj.ErrCodeInstitutionConsentsRequired, "the declaration must be accepted"))
+		return
+	}
+	if req.DeclarationVersion != legal.CurrentDeclaration().Version {
+		httpx.WriteAppError(w, obj.NewAppError(obj.ErrCodeDeclarationVersionOutdated, "the declaration was updated; please reload and read the current version"))
+		return
+	}
+	consent, err := db.RecordInstitutionConsent(r.Context(), user.ID, institutionID, db.InstitutionConsentInput{
+		PersonName: req.PersonName, PersonFunction: req.PersonFunction, Email: req.Email,
+		Operator: req.Operator, Street: req.Street, PostalCode: req.PostalCode, City: req.City,
+	})
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	log.Info("organisation consented to declaration", "institution_id", institutionID, "user_id", user.ID, "version", consent.DeclarationVersion)
+	sendConsentConfirmationMails(consent)
+	httpx.WriteJSON(w, http.StatusOK, consent)
+}
