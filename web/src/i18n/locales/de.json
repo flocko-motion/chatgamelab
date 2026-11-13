@@ -94,8 +94,6 @@
       "title": "Profil vervollständigen"
     },
     "organizationRegistration": {
-      "switchHint": "Du registrierst eine Jugendeinrichtung, Schule oder andere Einrichtung?",
-      "switchToOrganization": "Stattdessen als Organisation registrieren",
       "titleRegister": "Organisation registrieren",
       "titleUpgrade": "Zur Organisation upgraden",
       "subtitle": "Nach dem Absenden ist eure Organisation sofort freigeschaltet und du bist Organisationsleitung.",
@@ -137,7 +135,7 @@
       "declarationVersion": "Version {{version}}, Stand {{date}}",
       "emailConfirmHint": "Nach dem Absenden ist die Organisation sofort angelegt. Die Bestätigung mit dem Text der Einverständniserklärung geht an deine E-Mail-Adresse.",
       "submit": "Organisation registrieren",
-      "switchToPersonal": "Doch nur ein persönliches Konto anlegen",
+      "switchToPersonal": "Zurück zur Auswahl",
       "cancel": "Abbrechen",
       "toMyOrganization": "Zu meiner Organisation",
       "pending": {
