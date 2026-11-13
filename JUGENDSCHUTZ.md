@@ -84,8 +84,8 @@ So ist transparent, welche Stufe der Kaskade pro Spielzug gewonnen hat.
 
 ### 1. Nutzertyp wählen
 
-- **"Anmeldung als Nutzer"** — weiter zur Altersabfrage.
-- **"Anmeldung als Fachkraft / Organisation"** — Informationen zur Registrierung als Organisation (Kontakt per E-Mail). Die Person wird gebeten, sich zunächst als normaler Nutzer zu registrieren.
+- **"Anmeldung als Nutzer"** — weiter zur Altersabfrage (Abschnitt 2).
+- **"Als Organisation registrieren"** — Registrierung einer Einrichtung (Abschnitt 3).
 
 ### 2. Altersabfrage (Selbstauskunft)
 
@@ -93,6 +93,22 @@ So ist transparent, welche Stufe der Kaskade pro Spielzug gewonnen hat.
 2. **13–17 Jahre, ohne Zustimmung der Eltern** — strengere Schutzeinstellungen (U13).
 3. **13–17 Jahre, mit Zustimmung der Eltern** — Standard-Schutzeinstellungen (U13p).
 4. **18 Jahre oder älter** — Standard-Schutzeinstellungen (U18).
+
+### 3. Registrierung als Organisation
+
+Einrichtungen registrieren sich selbst; ein Admin muss nichts freigeben.
+
+1. **Login anlegen** über Auth0 (E-Mail und Passwort).
+2. **Formular** mit Anzeigename, Name, Funktion in der Einrichtung, dienstlicher E-Mail-Adresse, Name der Einrichtung, Träger und Anschrift.
+3. **Alter:** Pflicht-Checkbox „Ich bin mindestens 18 Jahre alt“. Das Konto erhält die Altersgruppe U18.
+4. **Jugendschutz-Prompt-Einschränkung:** Pflichtfeld (höchstens 200 Zeichen), vorbelegt mit dem Site-Constraint U13. Darüber sieben Vorschläge für Zielgruppen ab ca. 6 bis 18 Jahren (`server/legal/youth_protection_suggestions.json`, wörtlich von chatgamelab.eu). Der Text wird zur Orga-Constraint der neuen Organisation. Die Vorschläge sind keine offizielle Alterskennzeichnung; die Einrichtung entscheidet und verantwortet die Einstellung.
+5. **Zustimmungen:** Nutzungsbedingungen, Datenschutzbestimmungen und die Einverständniserklärung der Einrichtung (`server/legal/institution_declaration/`, versioniert, nur auf Deutsch verbindlich), deren Text im Formular angezeigt wird.
+6. **E-Mail-Bestätigung:** Die Person bekommt einen Link (48 Stunden gültig). Erst nach dem Klick wird die Organisation angelegt und die Person Organisationsleitung. Vorher existiert nur ein Antrag.
+7. **Nachweis:** Jede Zustimmung wird unveränderbar protokolliert (Tabelle `institution_consent`: Organisation, Konto, E-Mail, Name und Funktion, Einrichtungsangaben, Zeitpunkt, Version und Hash der Erklärung; keine IP-Adresse). Bestätigungsmail mit vollständigem Text an die Person, Kopie an `ORG_REGISTRATION_NOTIFY_EMAIL` (Standard chatgamelab@jff.de).
+
+**Upgrade:** Ein bestehendes Konto ohne Organisation kann in den Einstellungen „Zur Organisation upgraden“ (gleiche Schritte, ohne erneute Zustimmung zu Nutzungsbedingungen und Datenschutz). Nur Konten mit Altersgruppe U18; U13/U13p sowie Konten, die schon zu einer Organisation oder einem Workshop gehören, können nicht upgraden. Eine E-Mail-Adresse, die zu einem anderen Konto gehört, wird nie angenommen.
+
+**Unbestätigte Anträge:** Nach `ORG_APPLICATION_RETENTION_DAYS` (Standard 90 Tage) werden Name, Funktion, E-Mail-Adresse und Kontoverknüpfung entfernt; Einrichtung, Ort, Datum und Status bleiben für die Admin-Übersicht.
 
 ## Selbstauskunft statt technische Altersverifikation
 

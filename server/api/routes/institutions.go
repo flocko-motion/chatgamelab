@@ -9,6 +9,7 @@ import (
 	"cgl/db"
 	"cgl/obj"
 	"net/http"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 )
@@ -476,6 +477,10 @@ func UpdateInstitutionPromptConstraints(w http.ResponseWriter, r *http.Request) 
 	constraint := req.PromptConstraints
 	if constraint != nil && *constraint == "" {
 		constraint = nil
+	}
+	if constraint != nil && utf8.RuneCountInString(*constraint) > obj.MaxPromptConstraintLength {
+		httpx.WriteAppError(w, obj.ErrValidationf("prompt constraint must be at most %d characters", obj.MaxPromptConstraintLength))
+		return
 	}
 
 	if err := db.UpdateInstitutionPromptConstraints(r.Context(), user.ID, institutionID, constraint); err != nil {

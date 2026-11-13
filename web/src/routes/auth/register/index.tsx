@@ -6,16 +6,10 @@ import {
   Checkbox,
   Anchor,
   Divider,
-  Modal,
-  CopyButton,
-  ActionIcon,
-  Tooltip,
   Group,
-  Alert,
-  ThemeIcon,
+  List,
   Button as MantineButton,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle, BodyText, HelperText } from "@components/typography";
 import { useAuth } from "@/providers/AuthProvider";
@@ -23,31 +17,30 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import {
   IconUser,
-  IconSchool,
+  IconBuilding,
   IconShieldCheck,
   IconArrowLeft,
-  IconCheck,
-  IconCopy,
-  IconExternalLink,
 } from "@tabler/icons-react";
 import { ROUTES } from "@/common/routes/routes";
-import { HELP_LINKS, CONTACT_EMAILS } from "@/config/helpLinks";
+import { HELP_LINKS } from "@/config/helpLinks";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
+import {
+  setRegistrationIntent,
+  clearRegistrationIntent,
+} from "@/features/organization-registration";
 
 export const Route = createFileRoute("/auth/register/")({
   component: RegisterComponent,
 });
 
-type RegisterStep = "choose-type" | "individual-register";
+type RegisterStep = "choose-type" | "individual-register" | "organization-register";
 
 function RegisterComponent() {
   const { t } = useTranslation("auth");
-  const { loginWithAuth0, loginWithRole, isDevMode, user } = useAuth();
+  const { loginWithAuth0, loginWithRole, loginAsNewPerson, isDevMode, user } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<RegisterStep>("choose-type");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [educatorModalOpened, { open: openEducatorModal, close: closeEducatorModal }] =
-    useDisclosure(false);
 
   // Redirect authenticated users — routing hub decides where to go
   useEffect(() => {
@@ -57,7 +50,14 @@ function RegisterComponent() {
   }, [user, router]);
 
   const handleRegister = () => {
-    loginWithAuth0({ screenHint: 'signup' });
+    clearRegistrationIntent();
+    loginWithAuth0({ screenHint: "signup" });
+  };
+
+  // Organisations: after the Auth0 signup the app shows the organisation form.
+  const handleOrganizationRegister = () => {
+    setRegistrationIntent("organization");
+    loginWithAuth0({ screenHint: "signup" });
   };
 
   // Dev roles matching backend preseed users
@@ -105,11 +105,11 @@ function RegisterComponent() {
               </ActionButton>
 
               <ActionButton
-                leftSection={<IconSchool size={20} />}
-                onClick={openEducatorModal}
+                leftSection={<IconBuilding size={20} />}
+                onClick={() => setStep("organization-register")}
                 fullWidth
               >
-                {t("registerPage.educatorTitle", "Educator / Professional")}
+                {t("registerPage.organizationTitle")}
               </ActionButton>
             </Stack>
 
@@ -203,6 +203,53 @@ function RegisterComponent() {
         </Paper>
       )}
 
+      {/* Step 2: Organisation registration (Auth0, then the organisation form) */}
+      {step === "organization-register" && (
+        <Paper shadow="md" p="xl" withBorder>
+          <Stack gap="lg">
+            <Stack gap="xs" align="center" ta="center">
+              <IconBuilding
+                size={48}
+                stroke={1.5}
+                color="var(--mantine-color-blue-6)"
+              />
+              <SectionTitle>{t("registerPage.organizationTitle")}</SectionTitle>
+              <BodyText size="sm">{t("registerPage.organizationIntro")}</BodyText>
+            </Stack>
+
+            <List size="sm" spacing="xs" type="ordered">
+              <List.Item>{t("registerPage.organizationStep1")}</List.Item>
+              <List.Item>{t("registerPage.organizationStep2")}</List.Item>
+              <List.Item>{t("registerPage.organizationStep3")}</List.Item>
+            </List>
+
+            <HelperText>
+              {t("registerPage.organizationExistingAccount")}{" "}
+              <Anchor
+                component="button"
+                size="sm"
+                onClick={() => router.navigate({ to: ROUTES.AUTH_LOGIN })}
+              >
+                {t("registerPage.loginLink", "Log in")}
+              </Anchor>
+            </HelperText>
+
+            <ActionButton onClick={handleOrganizationRegister} fullWidth>
+              {t("registerPage.continueButton", "Continue to Registration")}
+            </ActionButton>
+
+            <ActionButton
+              onClick={() => setStep("choose-type")}
+              leftSection={<IconArrowLeft size={16} />}
+              color="gray"
+              fullWidth
+            >
+              {t("registerPage.backButton", "Back")}
+            </ActionButton>
+          </Stack>
+        </Paper>
+      )}
+
       {/* Dev Mode Quick Login */}
       {isDevMode && (
         <Paper shadow="md" p="xl" withBorder mt="lg">
@@ -213,6 +260,28 @@ function RegisterComponent() {
             />
             <Stack gap="sm">
               <HelperText>{t("login.devModeDescription")}</HelperText>
+              <MantineButton
+                variant="outline"
+                color="orange"
+                onClick={async () => {
+                  setRegistrationIntent("organization");
+                  await loginAsNewPerson();
+                }}
+                fullWidth
+              >
+                Neue Person (Organisation registrieren)
+              </MantineButton>
+              <MantineButton
+                variant="outline"
+                color="orange"
+                onClick={async () => {
+                  clearRegistrationIntent();
+                  await loginAsNewPerson();
+                }}
+                fullWidth
+              >
+                Neue Person (Einzelkonto)
+              </MantineButton>
               {devRoles.map((role) => (
                 <MantineButton
                   key={role.key}
@@ -231,156 +300,6 @@ function RegisterComponent() {
           </Stack>
         </Paper>
       )}
-
-      {/* Educator / Professional Modal */}
-      <Modal
-        opened={educatorModalOpened}
-        onClose={closeEducatorModal}
-        title={
-          <SectionTitle>
-            {t(
-              "registerPage.educatorModal.title",
-              "Educator & Professional Access",
-            )}
-          </SectionTitle>
-        }
-        size="lg"
-        centered
-      >
-        <Stack gap="lg">
-          {/* Edu info callout */}
-          <Alert variant="light" color="blue" icon={<IconExternalLink size={18} />}>
-            <BodyText size="sm">
-              {t(
-                "registerPage.educatorModal.eduInfo",
-                "Learn more about using ChatGameLab for educational purposes:",
-              )}{" "}
-              <Anchor
-                href={HELP_LINKS.EDUCATOR_INFO}
-                target="_blank"
-                rel="noopener noreferrer"
-                size="sm"
-                fw={600}
-              >
-                chatgamelab.eu/edu
-              </Anchor>
-            </BodyText>
-          </Alert>
-
-          <BodyText size="sm">
-            {t(
-              "registerPage.educatorModal.intro",
-              "To use ChatGameLab with your organization (school, university, institution), please follow these steps:",
-            )}
-          </BodyText>
-
-          {/* Step 1 */}
-          <Group gap="sm" align="flex-start" wrap="nowrap">
-            <ThemeIcon size="lg" radius="xl" variant="light" color="blue" mt={2}>
-              <BodyText size="sm" fw={700}>1</BodyText>
-            </ThemeIcon>
-            <Stack gap={4}>
-              <BodyText size="sm" fw={600}>
-                {t("registerPage.educatorModal.step1", "Register as an individual user first")}
-              </BodyText>
-              <BodyText size="sm" c="dimmed">
-                {t(
-                  "registerPage.educatorModal.step1Description",
-                  "Create your personal account using the individual registration. This will be your login for the platform.",
-                )}
-              </BodyText>
-            </Stack>
-          </Group>
-
-          {/* Step 2 */}
-          <Group gap="sm" align="flex-start" wrap="nowrap">
-            <ThemeIcon size="lg" radius="xl" variant="light" color="blue" mt={2}>
-              <BodyText size="sm" fw={700}>2</BodyText>
-            </ThemeIcon>
-            <Stack gap="xs">
-              <BodyText size="sm" fw={600}>
-                {t("registerPage.educatorModal.step2", "Send us an email")}
-              </BodyText>
-              <BodyText size="sm" c="dimmed">
-                {t(
-                  "registerPage.educatorModal.step2Description",
-                  "Write an email to",
-                )}{" "}
-                <Anchor
-                  href={`mailto:${CONTACT_EMAILS.ORGANIZATION_REQUEST}`}
-                  size="sm"
-                  fw={600}
-                >
-                  {CONTACT_EMAILS.ORGANIZATION_REQUEST}
-                </Anchor>
-                <CopyButton value={CONTACT_EMAILS.ORGANIZATION_REQUEST}>
-                  {({ copied, copy }) => (
-                    <Tooltip
-                      label={copied ? t("registerPage.educatorModal.copied", "Copied!") : t("registerPage.educatorModal.copyEmail", "Copy email")}
-                      withArrow
-                    >
-                      <ActionIcon
-                        variant="subtle"
-                        color={copied ? "teal" : "gray"}
-                        onClick={copy}
-                        size="sm"
-                      >
-                        {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-                      </ActionIcon>
-                    </Tooltip>
-                  )}
-                </CopyButton>
-                {" "}{t("registerPage.educatorModal.step2WithInfo", "with:")}
-              </BodyText>
-              <Stack gap={4} pl="sm">
-                <BodyText size="sm" c="dimmed">
-                  • {t("registerPage.educatorModal.step2Item1", "Your registered email address")}
-                </BodyText>
-                <BodyText size="sm" c="dimmed">
-                  • {t("registerPage.educatorModal.step2Item2", "The name of your organization (school, institution, etc.)")}
-                </BodyText>
-              </Stack>
-            </Stack>
-          </Group>
-
-          {/* Step 3 */}
-          <Group gap="sm" align="flex-start" wrap="nowrap">
-            <ThemeIcon size="lg" radius="xl" variant="light" color="blue" mt={2}>
-              <BodyText size="sm" fw={700}>3</BodyText>
-            </ThemeIcon>
-            <Stack gap={4}>
-              <BodyText size="sm" fw={600}>
-                {t("registerPage.educatorModal.step3", "We'll set up your organization")}
-              </BodyText>
-              <BodyText size="sm" c="dimmed">
-                {t(
-                  "registerPage.educatorModal.step3Description",
-                  "We will create your organization and assign you as the head. You can then invite colleagues and set up workshops.",
-                )}
-              </BodyText>
-            </Stack>
-          </Group>
-
-          <Divider />
-
-          <Group justify="space-between">
-            <ActionButton onClick={closeEducatorModal} color="gray">
-              {t("registerPage.educatorModal.closeButton", "Close")}
-            </ActionButton>
-            <ActionButton
-              onClick={() => {
-                closeEducatorModal();
-                setStep("individual-register");
-              }}
-            >
-              {t(
-                "registerPage.educatorModal.registerButton",
-                "Register as Individual",
-              )}
-            </ActionButton>
-          </Group>
-        </Stack>
-      </Modal>
     </Container>
   );
 }

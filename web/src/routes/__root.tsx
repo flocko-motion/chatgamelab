@@ -18,7 +18,7 @@ import { AppLayout, type NavItem } from "../common/components/Layout";
 import { InactiveWorkshopMessage } from "../common/components/InactiveWorkshopMessage";
 import { useAuth } from "../providers/AuthProvider";
 import { useWorkshopMode } from "../providers/WorkshopModeProvider";
-import { RegistrationForm } from "../features/auth";
+import { NewAccountRegistration } from "../features/organization-registration";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
 import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
@@ -75,6 +75,7 @@ function RootComponent() {
     pathname.startsWith(ROUTES.AUTH_REGISTER) ||
     pathname.startsWith(ROUTES.AUTH_LOGOUT) ||
     pathname.startsWith(ROUTES.INVITES) ||
+    pathname.startsWith(ROUTES.ORGANIZATION_CONFIRM) ||
     pathname === ROUTES.CODE ||
     pathname.startsWith(CODE_LINK_PREFIX) ||
     pathname.startsWith(PUBLIC_WORKSHOP_PREFIX) ||
@@ -361,7 +362,7 @@ function RootComponent() {
           variant="public"
           background={theme.other.colors.bgRegistrationGradient}
         >
-          <RegistrationForm registrationData={registrationData} />
+          <NewAccountRegistration registrationData={registrationData} />
         </AppLayout>
         <TanStackRouterDevtools position="bottom-right" />
       </>

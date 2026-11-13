@@ -3200,7 +3200,7 @@ const docTemplate = `{
         },
         "/legal/institution-declaration": {
             "get": {
-                "description": "Returns the current version of the Einverständniserklärung for organisations (binding German text, version, date, SHA-256 hash) and the suggested youth-protection prompt restrictions. Public.",
+                "description": "Returns the current version of the Einverständniserklärung for organisations (binding German text, version, date, SHA-256 hash) and the suggested youth-protection prompt restrictions, the site default for age 13+ and the length limit. Public.",
                 "produces": [
                     "application/json"
                 ],
@@ -7452,6 +7452,14 @@ const docTemplate = `{
                 },
                 "declaration": {
                     "$ref": "#/definitions/legal.Declaration"
+                },
+                "defaultPromptConstraint": {
+                    "description": "DefaultPromptConstraint is the site constraint for age 13+ (u13); the registration form starts with it.",
+                    "type": "string"
+                },
+                "maxPromptConstraintLength": {
+                    "description": "MaxPromptConstraintLength is the maximum length of an organisation's restriction.",
+                    "type": "integer"
                 },
                 "youthProtectionSuggestions": {
                     "type": "array",

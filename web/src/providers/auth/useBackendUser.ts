@@ -14,9 +14,11 @@ import type { RegistrationData } from "./types";
 
 interface UseBackendUserOptions {
   getAccessToken: () => Promise<string | null>;
+  /** Dev mode: registration data of a "new person" login (there is no Auth0 profile). */
+  getDevRegistrationData?: () => RegistrationData | null;
 }
 
-export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
+export function useBackendUser({ getAccessToken, getDevRegistrationData }: UseBackendUserOptions) {
   const { user: auth0User } = useAuth0();
 
   const [backendUser, setBackendUser] = useState<ObjUser | null>(null);
@@ -41,7 +43,7 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
   // Get registration data from Auth0 user - apply smart defaults for name
   const getRegistrationDataFromAuth0 =
     useCallback((): RegistrationData | null => {
-      if (!auth0User?.sub) return null;
+      if (!auth0User?.sub) return getDevRegistrationData?.() ?? null;
 
       const email = auth0User.email || "";
       let name = "";
@@ -61,7 +63,7 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
         email,
         name,
       };
-    }, [auth0User]);
+    }, [auth0User, getDevRegistrationData]);
 
   // Fetch backend user. Returns true on success, false on failure.
   const fetchBackendUser = useCallback(async (): Promise<boolean> => {

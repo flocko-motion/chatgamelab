@@ -37,12 +37,16 @@ export interface AuthContextType {
   isWorkshopInactive: boolean;
   loginWithAuth0: (options?: { screenHint?: string }) => void;
   loginWithRole: (role: string) => void;
+  /** Dev mode only: log in as a new person without an account (acts like a fresh Auth0 signup). */
+  loginAsNewPerson: () => Promise<void>;
   logout: () => Promise<void> | void;
   isDevMode: boolean;
   /** Get the current access token for API calls. Returns null if not authenticated (participants use cookies). */
   getAccessToken: () => Promise<string | null>;
   /** Retry fetching backend user after an error */
   retryBackendFetch: () => void;
+  /** Reload the backend user (e.g. after it was registered or became organisation head). */
+  refreshBackendUser: () => Promise<boolean>;
   /** Register the user with the backend */
   register: (name: string, email: string, ageGroup: string) => Promise<void>;
 }
