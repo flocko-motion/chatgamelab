@@ -346,6 +346,32 @@
           "pending": "Wartet auf Bestätigung",
           "confirmed": "Bestätigt",
           "expired": "Nicht bestätigt"
+        },
+        "actions": "Aktion",
+        "createLink": "Link erzeugen",
+        "linkError": "Der Link konnte nicht erzeugt werden.",
+        "link": {
+          "title": "Bestätigungslink verschicken",
+          "manual": "Der Server verschickt im Moment keine Mails. Bitte schicke diese Nachricht aus Outlook als chatgamelab@jff.de an die Person.",
+          "configured": "Der Server verschickt Mails selbst. Schicke diesen Link nur von Hand, wenn die automatische Mail nicht angekommen ist.",
+          "validity": "Der Link ist bis {{date}} gültig. Ein vorher verschickter Link funktioniert nicht mehr.",
+          "to": "An",
+          "subject": "Betreff",
+          "body": "Text",
+          "copy": "Kopieren",
+          "copied": "Kopiert",
+          "openMail": "Im Mailprogramm öffnen",
+          "close": "Schließen"
+        },
+        "bell": {
+          "label": "Neue Registrierungen",
+          "title": "Neue Registrierungen",
+          "intro_one": "Eine Organisation hat sich registriert und wartet auf die Bestätigung.",
+          "intro_other": "{{count}} Organisationen haben sich registriert und warten auf die Bestätigung.",
+          "manualHint": "Solange der Server keine Mails verschickt, erzeugst du in der Übersicht den Bestätigungslink und schickst ihn von Hand.",
+          "empty": "Keine offenen Registrierungen.",
+          "open": "Zur Übersicht",
+          "later": "Später"
         }
       },
       "users": {

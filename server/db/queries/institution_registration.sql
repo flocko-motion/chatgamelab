@@ -30,6 +30,15 @@ UPDATE institution_application
 SET token_hash = $2, expires_at = $3, modified_at = now()
 WHERE id = $1 AND status = 'pending';
 
+-- name: GetInstitutionApplicationByID :one
+SELECT * FROM institution_application WHERE id = $1;
+
+-- name: RenewInstitutionApplicationTokenByID :execrows
+-- Admin: a fresh link for an open or lapsed (not anonymised) application; it becomes open again.
+UPDATE institution_application
+SET token_hash = $2, expires_at = $3, status = 'pending', modified_at = now()
+WHERE id = $1 AND status IN ('pending', 'expired') AND anonymized_at IS NULL;
+
 -- name: ConfirmInstitutionApplication :exec
 UPDATE institution_application
 SET status = 'confirmed', confirmed_at = now(), institution_id = $2, modified_at = now()

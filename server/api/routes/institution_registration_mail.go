@@ -28,16 +28,22 @@ var berlin = func() *time.Location {
 	return loc
 }()
 
-func sendApplicationLinkMail(app *obj.InstitutionApplication, token string) {
-	if app.Email == nil {
-		return
-	}
-	link := fmt.Sprintf("%s%s?token=%s", mail.PublicURL(), InstitutionConfirmPath, url.QueryEscape(token))
+// applicationLinkSubject is the subject of the mail with the confirmation link.
+const applicationLinkSubject = "ChatGameLab: Bitte bestätige die Registrierung deiner Organisation"
+
+// applicationLink is the confirmation URL for a token.
+func applicationLink(token string) string {
+	return fmt.Sprintf("%s%s?token=%s", mail.PublicURL(), InstitutionConfirmPath, url.QueryEscape(token))
+}
+
+// applicationLinkMailBody is the text of the mail with the confirmation link
+// (sent automatically, or copied by an admin while no mail server is configured).
+func applicationLinkMailBody(app *obj.InstitutionApplication, link string) string {
 	name := ""
 	if app.PersonName != nil {
 		name = *app.PersonName
 	}
-	body := fmt.Sprintf(`Hallo %s,
+	return fmt.Sprintf(`Hallo %s,
 
 du hast „%s“ als Organisation im ChatGameLab registriert.
 
@@ -51,11 +57,16 @@ Falls du das nicht warst, kannst du diese Mail ignorieren.
 Dein ChatGameLab-Team
 JFF – Jugend Film Fernsehen e.V.
 `, name, app.InstitutionName, link)
+}
 
+func sendApplicationLinkMail(app *obj.InstitutionApplication, token string) {
+	if app.Email == nil {
+		return
+	}
 	if err := mail.Send(mail.Message{
 		To:      *app.Email,
-		Subject: "ChatGameLab: Bitte bestätige die Registrierung deiner Organisation",
-		Body:    body,
+		Subject: applicationLinkSubject,
+		Body:    applicationLinkMailBody(app, applicationLink(token)),
 	}); err != nil {
 		log.Error("confirmation link mail failed", "application_id", app.ID, "error", err)
 	}
