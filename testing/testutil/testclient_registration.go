@@ -1,10 +1,6 @@
 package testutil
 
 import (
-	"net/url"
-	"regexp"
-	"strings"
-
 	"cgl/api/routes"
 	"cgl/mail"
 )
@@ -28,27 +24,6 @@ func (s *BaseSuite) DevMails() []mail.Message {
 		s.T().Fatalf("failed to read dev mails: %v", err)
 	}
 	return mails
-}
-
-var confirmLinkPattern = regexp.MustCompile(`/organization/confirm\?token=([^\s]+)`)
-
-// LatestConfirmToken returns the token of the newest confirmation-link mail sent to the address.
-func (s *BaseSuite) LatestConfirmToken(to string) string {
-	s.T().Helper()
-	for _, m := range s.DevMails() {
-		if !strings.EqualFold(m.To, to) {
-			continue
-		}
-		if match := confirmLinkPattern.FindStringSubmatch(m.Body); match != nil {
-			token, err := url.QueryUnescape(match[1])
-			if err != nil {
-				s.T().Fatalf("bad token in link: %v", err)
-			}
-			return token
-		}
-	}
-	s.T().Fatalf("no confirmation link mail to %s", to)
-	return ""
 }
 
 // DevUserClient returns a client for a preseeded dev user (dev mode JWT by user ID).

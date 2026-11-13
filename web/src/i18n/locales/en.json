@@ -98,7 +98,7 @@
       "switchToOrganization": "Register as an organisation instead",
       "titleRegister": "Register an organisation",
       "titleUpgrade": "Upgrade to organisation",
-      "subtitle": "Once your e-mail address is confirmed, the organisation is created and you become its head.",
+      "subtitle": "Once you send the form, your organisation is activated right away and you are its head.",
       "personSection": "About you",
       "accountNameLabel": "Display name",
       "accountNameDescription": "How you appear in ChatGameLab (at most 24 characters).",
@@ -135,8 +135,8 @@
       "acceptPrivacySuffix": ".",
       "declarationGermanOnly": "The declaration is only available in German. The German text is binding.",
       "declarationVersion": "Version {{version}}, dated {{date}}",
-      "emailConfirmHint": "After sending, you will receive an e-mail with a confirmation link. The organisation is created only after that.",
-      "submit": "Send and confirm e-mail",
+      "emailConfirmHint": "Once you send the form, the organisation is created right away. The confirmation with the text of the declaration goes to your e-mail address.",
+      "submit": "Register organisation",
       "switchToPersonal": "Create a personal account instead",
       "cancel": "Cancel",
       "toMyOrganization": "Go to my organisation",
@@ -196,6 +196,12 @@
         "name_too_long": "The display name can be at most 24 characters long.",
         "validation_error": "Please check your details.",
         "conflict": "There is already an account for this login. Please log in and use the upgrade in the settings."
+      },
+      "emailFromLogin": "This is the address of your login.",
+      "emailFromAccount": "This is the e-mail address of your account.",
+      "registered": {
+        "title": "Organisation registered",
+        "text": "Your organisation is activated. You are its head and can create workshops now."
       }
     },
     "registerPage": {
@@ -217,7 +223,7 @@
       "organizationIntro": "For youth centres, schools and other institutions that want to use ChatGameLab in workshops.",
       "organizationStep1": "You create your login with Auth0 (e-mail and password).",
       "organizationStep2": "You enter details about yourself and your institution, set the youth-protection prompt restriction and agree to the declaration.",
-      "organizationStep3": "You confirm your work e-mail address. The organisation is then activated right away and you can create workshops.",
+      "organizationStep3": "Once you send the form, the organisation is activated right away and you can create workshops.",
       "organizationExistingAccount": "Already have an account? Log in and choose “Upgrade to organisation” in the settings."
     },
     "settings": {
@@ -334,7 +340,7 @@
       },
       "applications": {
         "title": "Registration applications",
-        "description": "All self-registrations and upgrades, including unconfirmed ones. For unconfirmed applications, name, role and e-mail are removed automatically after 90 days.",
+        "description": "All registrations and upgrades. New organisations are currently activated right away, without confirming the e-mail address. For older applications that were never confirmed, name, role and e-mail are removed automatically after 90 days.",
         "empty": "No applications yet.",
         "loadError": "The applications could not be loaded.",
         "date": "Date",
@@ -350,29 +356,13 @@
           "confirmed": "Confirmed",
           "expired": "Not confirmed"
         },
-        "actions": "Action",
-        "createLink": "Create link",
-        "linkError": "The link could not be created.",
-        "link": {
-          "title": "Send confirmation link",
-          "manual": "The server is not sending mails at the moment. Please send this message to the person from Outlook as chatgamelab@jff.de.",
-          "configured": "The server sends mails itself. Only send this link by hand if the automatic mail did not arrive.",
-          "validity": "The link is valid until {{date}}. A link sent earlier no longer works.",
-          "to": "To",
-          "subject": "Subject",
-          "body": "Text",
-          "copy": "Copy",
-          "copied": "Copied",
-          "openMail": "Open in mail program",
-          "close": "Close"
-        },
         "bell": {
-          "label": "New registrations",
-          "title": "New registrations",
-          "intro_one": "One organisation has registered and is waiting for confirmation.",
-          "intro_other": "{{count}} organisations have registered and are waiting for confirmation.",
-          "manualHint": "As long as the server sends no mails, create the confirmation link in the overview and send it by hand.",
-          "empty": "No open registrations.",
+          "label": "New organisations",
+          "title": "New organisations",
+          "intro_one": "This organisation registered in the last two weeks and is already activated.",
+          "intro_other": "These {{count}} organisations registered in the last two weeks and are already activated.",
+          "lockHint": "E-mail addresses are currently not confirmed. Take a quick look at new organisations and lock them in the overview if something is wrong.",
+          "empty": "No organisation has registered in the last two weeks.",
           "open": "Go to overview",
           "later": "Later"
         }

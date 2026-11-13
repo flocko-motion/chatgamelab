@@ -64,10 +64,14 @@ func (s *InstitutionRegistrationSuite) registerRequest(email string) routes.Regi
 	}
 }
 
-func (s *InstitutionRegistrationSuite) confirm(token string) routes.ConfirmInstitutionResponse {
-	var resp routes.ConfirmInstitutionResponse
-	s.Public().MustPost("institution-applications/confirm", routes.ConfirmInstitutionRequest{Token: token}, &resp)
-	return resp
+// register signs up a new person as an organisation; the organisation exists right away
+// (stage 1, no e-mail confirmation).
+func (s *InstitutionRegistrationSuite) register(email string) (*testutil.UserClient, routes.RegisterInstitutionRequest, routes.InstitutionRegisteredResponse) {
+	person := s.NewSignupClient()
+	req := s.registerRequest(email)
+	var resp routes.InstitutionRegisteredResponse
+	MustSucceed(person.Post("auth/register-institution", req, &resp))
+	return person, req, resp
 }
 
 // setAgeGroup sets the user's own age group (dev users start without one).
@@ -77,28 +81,18 @@ func setAgeGroup(u *testutil.UserClient, ageGroup string) {
 
 // TestRegisterNewOrganisation: full path for a new person, from form to workshop.
 func (s *InstitutionRegistrationSuite) TestRegisterNewOrganisation() {
-	person := s.NewSignupClient()
-	req := s.registerRequest("leitung-neu@jz-test.de")
+	person, req, result := s.register("leitung-neu@jz-test.de")
+	s.Require().NotNil(result.Institution, "organisation exists right after the form")
+	s.Require().NotNil(result.User)
 
-	var resp routes.InstitutionApplicationResponse
-	MustSucceed(person.Post("auth/register-institution", req, &resp))
-	s.Equal(obj.InstitutionApplicationPending, resp.Application.Status)
-	s.Equal("1.0", resp.Application.DeclarationVersion)
-
-	// Account exists as adult individual; no organisation before the link is confirmed.
 	me := Must(person.GetMe())
 	s.Require().NotNil(me.AgeGroup)
 	s.Equal(obj.AgeGroupU18, *me.AgeGroup)
-	s.Equal(obj.RoleIndividual, me.Role.Role)
-	s.Nil(me.Role.Institution)
 
+	// Nothing is left waiting for a confirmation link.
 	var mine routes.MyInstitutionApplicationResponse
 	MustSucceed(person.Get("institution-applications/mine", &mine))
-	s.Require().NotNil(mine.Application)
-	s.Equal(req.InstitutionName, mine.Application.InstitutionName)
-
-	token := s.LatestConfirmToken(req.Email)
-	result := s.confirm(token)
+	s.Nil(mine.Application)
 
 	// Organisation exists, person is head, constraint and details are set.
 	s.Equal(req.InstitutionName, result.Institution.Name)
@@ -137,9 +131,12 @@ func (s *InstitutionRegistrationSuite) TestRegisterNewOrganisation() {
 	s.True(toPerson, "confirmation mail to the person")
 	s.True(toOperator, "copy to chatgamelab@jff.de")
 
-	// The link works only once.
-	s.Public().FailPost("institution-applications/confirm", routes.ConfirmInstitutionRequest{Token: token},
-		testutil.ErrorContains(obj.ErrCodeApplicationTokenInvalid))
+	// No confirmation-link mail was sent.
+	for _, m := range s.DevMails() {
+		if strings.EqualFold(m.To, req.Email) {
+			s.NotContains(m.Body, "/organization/confirm", "no confirmation link in stage 1")
+		}
+	}
 
 	// Right away the head can create a workshop.
 	ws := Must(person.CreateWorkshop(result.Institution.ID.String(), "Erster Workshop"))
@@ -188,10 +185,7 @@ func (s *InstitutionRegistrationSuite) TestRegisterWithEmailOfExistingAccount() 
 
 // TestOrganisationNameMustBeFree: the same organisation name cannot be registered twice.
 func (s *InstitutionRegistrationSuite) TestOrganisationNameMustBeFree() {
-	first := s.NewSignupClient()
-	req := s.registerRequest("name-erste@jz-test.de")
-	MustSucceed(first.Post("auth/register-institution", req, nil))
-	s.confirm(s.LatestConfirmToken(req.Email))
+	_, req, _ := s.register("name-erste@jz-test.de")
 
 	second := s.NewSignupClient()
 	req2 := s.registerRequest("name-zweite@jz-test.de")
@@ -208,12 +202,11 @@ func (s *InstitutionRegistrationSuite) TestUpgradeAdultAccount() {
 	game := Must(user.UploadGame("alien-first-contact"))
 
 	req := routes.UpgradeInstitutionRequest{InstitutionDetails: s.details(user.Email), InstitutionConsents: consents()}
-	var resp routes.InstitutionApplicationResponse
-	MustSucceed(user.Post("institution-applications", req, &resp))
-	s.Equal(obj.InstitutionApplicationUpgrade, resp.Application.Kind)
-	s.Equal(obj.RoleIndividual, Must(user.GetMe()).Role.Role, "no organisation before confirmation")
+	var result routes.InstitutionRegisteredResponse
+	MustSucceed(user.Post("institution-applications", req, &result))
+	s.Require().NotNil(result.Institution, "organisation exists right after the form")
+	s.Equal(req.InstitutionName, result.Institution.Name)
 
-	result := s.confirm(s.LatestConfirmToken(user.Email))
 	me := Must(user.GetMe())
 	s.Equal(obj.RoleHead, me.Role.Role)
 	s.Equal(result.Institution.ID, me.Role.Institution.ID)
@@ -236,10 +229,7 @@ func (s *InstitutionRegistrationSuite) TestUpgradeRejectedForMinors() {
 
 // TestUpgradeRejectedForMembers: an account that already has an organisation role cannot upgrade.
 func (s *InstitutionRegistrationSuite) TestUpgradeRejectedForMembers() {
-	head := s.NewSignupClient()
-	req := s.registerRequest("leitung-member@jz-test.de")
-	MustSucceed(head.Post("auth/register-institution", req, nil))
-	s.confirm(s.LatestConfirmToken(req.Email))
+	head, _, _ := s.register("leitung-member@jz-test.de")
 
 	upgrade := routes.UpgradeInstitutionRequest{InstitutionDetails: s.details("zweite-orga@jz-test.de"), InstitutionConsents: consents()}
 	err := head.Post("institution-applications", upgrade, nil)
@@ -260,22 +250,6 @@ func (s *InstitutionRegistrationSuite) TestUpgradeNeedsLogin() {
 	err := other.Post("institution-applications", req, nil)
 	s.Require().Error(err)
 	s.Contains(err.Error(), obj.ErrCodeEmailBelongsToOtherAccount)
-}
-
-// TestResendInvalidatesOldLink: a new link replaces the old one.
-func (s *InstitutionRegistrationSuite) TestResendInvalidatesOldLink() {
-	person := s.NewSignupClient()
-	req := s.registerRequest("resend@jz-test.de")
-	MustSucceed(person.Post("auth/register-institution", req, nil))
-	oldToken := s.LatestConfirmToken(req.Email)
-
-	MustSucceed(person.Post("institution-applications/resend", nil, nil))
-	newToken := s.LatestConfirmToken(req.Email)
-	s.NotEqual(oldToken, newToken)
-
-	s.Public().FailPost("institution-applications/confirm", routes.ConfirmInstitutionRequest{Token: oldToken},
-		testutil.ErrorContains(obj.ErrCodeApplicationTokenInvalid))
-	s.confirm(newToken)
 }
 
 // TestUnknownToken: a made-up link does nothing.

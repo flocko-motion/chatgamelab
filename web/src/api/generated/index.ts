@@ -852,21 +852,6 @@ export interface RoutesImageStatusResponse {
   isOrganisationUnverified?: boolean;
 }
 
-export interface RoutesInstitutionApplicationLinkResponse {
-  application?: ObjInstitutionApplication;
-  body?: string;
-  link?: string;
-  /** MailConfigured is false while the server has no mail server (SMTP_HOST empty), so the link must be sent by hand. */
-  mailConfigured?: boolean;
-  subject?: string;
-  to?: string;
-}
-
-export interface RoutesInstitutionApplicationResponse {
-  application?: ObjInstitutionApplication;
-  user?: ObjUser;
-}
-
 export interface RoutesInstitutionConsentRequest {
   acceptDeclaration?: boolean;
   city?: string;
@@ -889,6 +874,12 @@ export interface RoutesInstitutionDeclarationResponse {
   /** MaxPromptConstraintLength is the maximum length of an organisation's restriction. */
   maxPromptConstraintLength?: number;
   youthProtectionSuggestions?: LegalYouthProtectionSuggestion[];
+}
+
+export interface RoutesInstitutionRegisteredResponse {
+  consent?: ObjInstitutionConsent;
+  institution?: ObjInstitution;
+  user?: ObjUser;
 }
 
 export interface RoutesInviteResponse {
@@ -1810,7 +1801,7 @@ export class Api<
       }),
 
     /**
-     * @description After the Auth0 login of a new person: creates the account (age group u18) and an organisation application, and e-mails a confirmation link. The organisation is created only when the link is confirmed. Requires the 18+ confirmation, terms, privacy policy and the current declaration.
+     * @description After the Auth0 login of a new person: creates the account (age group u18) and right away the organisation, with the person as head; the consent is logged and the confirmation mailed (with a copy to the operator). For now without e-mail confirmation (to be added via Auth0). Requires the 18+ confirmation, terms, privacy policy and the current declaration.
      *
      * @tags institution-registration
      * @name RegisterInstitutionCreate
@@ -1822,7 +1813,7 @@ export class Api<
       request: RoutesRegisterInstitutionRequest,
       params: RequestParams = {},
     ) =>
-      this.request<RoutesInstitutionApplicationResponse, HttpxErrorResponse>({
+      this.request<RoutesInstitutionRegisteredResponse, HttpxErrorResponse>({
         path: `/auth/register-institution`,
         method: "POST",
         body: request,
@@ -2296,7 +2287,7 @@ export class Api<
       }),
 
     /**
-     * @description For logged-in adult accounts without an organisation: stores an application and e-mails a confirmation link. Requires the 18+ confirmation and the current declaration.
+     * @description For logged-in adult accounts without an organisation: creates the organisation right away with the account as head, logs the consent and mails the confirmation. For now without e-mail confirmation. Requires the 18+ confirmation and the current declaration.
      *
      * @tags institution-registration
      * @name InstitutionApplicationsCreate
@@ -2308,7 +2299,7 @@ export class Api<
       request: RoutesUpgradeInstitutionRequest,
       params: RequestParams = {},
     ) =>
-      this.request<RoutesInstitutionApplicationResponse, HttpxErrorResponse>({
+      this.request<RoutesInstitutionRegisteredResponse, HttpxErrorResponse>({
         path: `/institution-applications`,
         method: "POST",
         body: request,
@@ -2369,27 +2360,6 @@ export class Api<
     resendCreate: (params: RequestParams = {}) =>
       this.request<RoutesMyInstitutionApplicationResponse, HttpxErrorResponse>({
         path: `/institution-applications/resend`,
-        method: "POST",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Admin only. Gives an open or lapsed application a new confirmation link (valid 48 hours; the previous link stops working) and returns it with a ready-to-send mail text, so the admin can send it by hand. Nothing is mailed.
-     *
-     * @tags institution-registration
-     * @name LinkCreate
-     * @summary Create a fresh confirmation link for an application
-     * @request POST:/institution-applications/{id}/link
-     * @secure
-     */
-    linkCreate: (id: string, params: RequestParams = {}) =>
-      this.request<
-        RoutesInstitutionApplicationLinkResponse,
-        HttpxErrorResponse
-      >({
-        path: `/institution-applications/${id}/link`,
         method: "POST",
         secure: true,
         format: "json",
