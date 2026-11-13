@@ -52,6 +52,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/announcements/current": {
+            "get": {
+                "description": "Returns the announcement that is active right now. Outside its time window only {\"active\": false} is returned.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "announcements"
+                ],
+                "summary": "Get the current dashboard announcement",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.AnnouncementResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/apikeys": {
             "get": {
                 "security": [
@@ -7446,6 +7466,26 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.AnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "startsAt": {
                     "type": "string"
                 }
             }

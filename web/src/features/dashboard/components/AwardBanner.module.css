@@ -1,0 +1,56 @@
+.banner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-xl) var(--mantine-spacing-md) var(--mantine-spacing-md);
+  background-color: var(--mantine-color-accent-0);
+  border-color: var(--mantine-color-accent-3);
+}
+
+.trophy {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin-bottom: 2px;
+}
+
+.cta {
+  flex-shrink: 0;
+}
+
+.close {
+  position: absolute;
+  top: var(--mantine-spacing-xs);
+  right: var(--mantine-spacing-xs);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* From the "sm" breakpoint on: one row, button beside the text. */
+@media (min-width: 48em) {
+  .banner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--mantine-spacing-md);
+    padding-right: calc(var(--mantine-spacing-xl) + var(--mantine-spacing-md));
+  }
+}

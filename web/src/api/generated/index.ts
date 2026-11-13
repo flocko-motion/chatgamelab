@@ -710,6 +710,14 @@ export interface RoutesAddMemberToWorkshopRequest {
   userId?: string;
 }
 
+export interface RoutesAnnouncementResponse {
+  active?: boolean;
+  endsAt?: string;
+  id?: string;
+  link?: string;
+  startsAt?: string;
+}
+
 export interface RoutesApiKeyInfoResponse {
   linkedShares?: ObjApiKeyShare[];
   share?: ObjApiKeyShare;
@@ -1616,6 +1624,23 @@ export class Api<
         path: `/admin/stats`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  announcements = {
+    /**
+     * @description Returns the announcement that is active right now. Outside its time window only {"active": false} is returned.
+     *
+     * @tags announcements
+     * @name CurrentList
+     * @summary Get the current dashboard announcement
+     * @request GET:/announcements/current
+     */
+    currentList: (params: RequestParams = {}) =>
+      this.request<RoutesAnnouncementResponse, any>({
+        path: `/announcements/current`,
+        method: "GET",
         format: "json",
         ...params,
       }),
