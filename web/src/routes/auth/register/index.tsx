@@ -50,7 +50,7 @@ function RegisterComponent() {
   }, [user, router]);
 
   const handleRegister = () => {
-    clearRegistrationIntent();
+    setRegistrationIntent("individual");
     loginWithAuth0({ screenHint: "signup" });
   };
 
@@ -280,7 +280,7 @@ function RegisterComponent() {
                 }}
                 fullWidth
               >
-                Neue Person (Einzelkonto)
+                Neue Person (ohne Vorauswahl, wie „Anmelden“ → „Sign up“)
               </MantineButton>
               {devRoles.map((role) => (
                 <MantineButton

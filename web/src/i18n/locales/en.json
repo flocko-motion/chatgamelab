@@ -94,8 +94,6 @@
       "title": "Complete Your Profile"
     },
     "organizationRegistration": {
-      "switchHint": "Registering a youth centre, school or other institution?",
-      "switchToOrganization": "Register as an organisation instead",
       "titleRegister": "Register an organisation",
       "titleUpgrade": "Upgrade to organisation",
       "subtitle": "Once you send the form, your organisation is activated right away and you are its head.",
@@ -137,7 +135,7 @@
       "declarationVersion": "Version {{version}}, dated {{date}}",
       "emailConfirmHint": "Once you send the form, the organisation is created right away. The confirmation with the text of the declaration goes to your e-mail address.",
       "submit": "Register organisation",
-      "switchToPersonal": "Create a personal account instead",
+      "switchToPersonal": "Back to the choice",
       "cancel": "Cancel",
       "toMyOrganization": "Go to my organisation",
       "pending": {
