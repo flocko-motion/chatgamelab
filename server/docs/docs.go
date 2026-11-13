@@ -21,6 +21,37 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only. Organisations, new games, started sessions and AI turns: totals, last 7 and 30 days, per month (last 12 calendar months, Europe/Berlin) and per organisation. Sessions and AI turns are counted from playsRecordedSince on, because game sessions themselves are deleted 48 h after the last activity.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.AdminStats"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/apikeys": {
             "get": {
                 "security": [
@@ -6022,6 +6053,48 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.AdminStats": {
+            "type": "object",
+            "properties": {
+                "all": {
+                    "$ref": "#/definitions/obj.StatsActivity"
+                },
+                "consentPending": {
+                    "type": "integer"
+                },
+                "funnel": {
+                    "$ref": "#/definitions/obj.RegistrationFunnel"
+                },
+                "generatedAt": {
+                    "type": "string"
+                },
+                "institutions": {
+                    "type": "integer"
+                },
+                "institutionsLocked": {
+                    "type": "integer"
+                },
+                "months": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatsMonth"
+                    }
+                },
+                "outsideOrganisations": {
+                    "$ref": "#/definitions/obj.StatsActivity"
+                },
+                "perInstitution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.InstitutionStats"
+                    }
+                },
+                "playsRecordedSince": {
+                    "description": "PlaysRecordedSince: sessions and AI turns are counted from this moment on\n(game sessions themselves are deleted 48 h after the last activity).",
+                    "type": "string"
+                }
+            }
+        },
         "obj.AiModel": {
             "type": "object",
             "properties": {
@@ -6749,6 +6822,68 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.InstitutionStats": {
+            "type": "object",
+            "properties": {
+                "activeWorkshops": {
+                    "type": "integer"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "consentPending": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "games": {
+                    "type": "integer"
+                },
+                "heads": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "individuals": {
+                    "type": "integer"
+                },
+                "lastActivity": {
+                    "type": "string"
+                },
+                "locked": {
+                    "type": "boolean"
+                },
+                "months": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatsMonth"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "newGames": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "participants": {
+                    "type": "integer"
+                },
+                "sessions": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "staff": {
+                    "type": "integer"
+                },
+                "turns": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "workshops": {
+                    "type": "integer"
+                }
+            }
+        },
         "obj.InviteStatus": {
             "type": "string",
             "enum": [
@@ -6865,6 +7000,20 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.RegistrationFunnel": {
+            "type": "object",
+            "properties": {
+                "confirmed": {
+                    "type": "integer"
+                },
+                "submitted": {
+                    "type": "integer"
+                },
+                "withWorkshop": {
+                    "type": "integer"
+                }
+            }
+        },
         "obj.Role": {
             "type": "string",
             "enum": [
@@ -6881,6 +7030,51 @@ const docTemplate = `{
                 "RoleParticipant",
                 "RoleIndividual"
             ]
+        },
+        "obj.StatsActivity": {
+            "type": "object",
+            "properties": {
+                "newGames": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "sessions": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "turns": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                }
+            }
+        },
+        "obj.StatsMonth": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "string"
+                },
+                "newGames": {
+                    "type": "integer"
+                },
+                "newInstitutions": {
+                    "type": "integer"
+                },
+                "sessions": {
+                    "type": "integer"
+                },
+                "turns": {
+                    "type": "integer"
+                }
+            }
+        },
+        "obj.StatsPeriod": {
+            "type": "object",
+            "properties": {
+                "last30": {
+                    "type": "integer"
+                },
+                "last7": {
+                    "type": "integer"
+                }
+            }
         },
         "obj.StatusField": {
             "type": "object",

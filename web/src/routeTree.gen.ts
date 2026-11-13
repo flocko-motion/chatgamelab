@@ -40,6 +40,7 @@ import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminServerSettingsIndexRouteImport } from './routes/admin/server-settings/index'
 import { Route as AdminOrganizationsIndexRouteImport } from './routes/admin/organizations/index'
+import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
 import { Route as InvitesParticipantTokenRouteImport } from './routes/invites/participant.$token'
 import { Route as InvitesTokenAcceptRouteImport } from './routes/invites/$token.accept'
 import { Route as GamesGameIdPlayRouteImport } from './routes/games/$gameId/play'
@@ -202,6 +203,11 @@ const AdminOrganizationsIndexRoute = AdminOrganizationsIndexRouteImport.update({
   path: '/admin/organizations/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
+  id: '/admin/dashboard/',
+  path: '/admin/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InvitesParticipantTokenRoute = InvitesParticipantTokenRouteImport.update({
   id: '/invites/participant/$token',
   path: '/invites/participant/$token',
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
+  '/admin/dashboard': typeof AdminDashboardIndexRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
@@ -296,6 +303,7 @@ export interface FileRoutesByTo {
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
+  '/admin/dashboard': typeof AdminDashboardIndexRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
@@ -335,6 +343,7 @@ export interface FileRoutesById {
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/organizations/': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings/': typeof AdminServerSettingsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/games/$gameId/play'
     | '/invites/$token/accept'
     | '/invites/participant/$token'
+    | '/admin/dashboard'
     | '/admin/organizations'
     | '/admin/server-settings'
     | '/admin/users'
@@ -413,6 +423,7 @@ export interface FileRouteTypes {
     | '/games/$gameId/play'
     | '/invites/$token/accept'
     | '/invites/participant/$token'
+    | '/admin/dashboard'
     | '/admin/organizations'
     | '/admin/server-settings'
     | '/admin/users'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/games/$gameId/play'
     | '/invites/$token/accept'
     | '/invites/participant/$token'
+    | '/admin/dashboard/'
     | '/admin/organizations/'
     | '/admin/server-settings/'
     | '/admin/users/'
@@ -490,6 +502,7 @@ export interface RootRouteChildren {
   GamesGameIdPlayRoute: typeof GamesGameIdPlayRoute
   InvitesTokenAcceptRoute: typeof InvitesTokenAcceptRoute
   InvitesParticipantTokenRoute: typeof InvitesParticipantTokenRoute
+  AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
   AdminOrganizationsIndexRoute: typeof AdminOrganizationsIndexRoute
   AdminServerSettingsIndexRoute: typeof AdminServerSettingsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
@@ -718,6 +731,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrganizationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/dashboard/': {
+      id: '/admin/dashboard/'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invites/participant/$token': {
       id: '/invites/participant/$token'
       path: '/invites/participant/$token'
@@ -786,6 +806,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesGameIdPlayRoute: GamesGameIdPlayRoute,
   InvitesTokenAcceptRoute: InvitesTokenAcceptRoute,
   InvitesParticipantTokenRoute: InvitesParticipantTokenRoute,
+  AdminDashboardIndexRoute: AdminDashboardIndexRoute,
   AdminOrganizationsIndexRoute: AdminOrganizationsIndexRoute,
   AdminServerSettingsIndexRoute: AdminServerSettingsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,

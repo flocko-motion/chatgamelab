@@ -239,6 +239,17 @@ type InstitutionConsent struct {
 	DeclarationHash     string
 }
 
+type PlayStat struct {
+	SessionID     uuid.UUID
+	CreatedAt     time.Time
+	GameID        uuid.NullUUID
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+	ViaShare      bool
+	Turns         int32
+	LastTurnAt    sql.NullTime
+}
+
 type SystemSetting struct {
 	ID                   uuid.UUID
 	CreatedAt            time.Time

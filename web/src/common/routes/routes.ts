@@ -67,6 +67,7 @@ export const ROUTES = {
   DEBUG_ERROR: "/debug/error",
 
   // Admin routes
+  ADMIN_DASHBOARD: "/admin/dashboard",
   ADMIN_SERVER_SETTINGS: "/admin/server-settings",
   ADMIN_ORGANIZATIONS: "/admin/organizations",
   ADMIN_USERS: "/admin/users",
