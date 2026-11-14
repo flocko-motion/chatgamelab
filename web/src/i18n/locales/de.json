@@ -1629,6 +1629,16 @@
     }
   },
   "dashboard": {
+    "announcement": {
+      "award": {
+        "regionLabel": "Hinweis: Dieter Baacke Preis 2026",
+        "title": "Ausgezeichnet: Dieter Baacke Preis 2026!",
+        "text": "Das Projekt „KI spielerisch durchschauen“, in dem das ChatGameLab weiterentwickelt wurde, hat den Preis gewonnen. Danke an alle, die mitgespielt und mitgebaut haben! Zur Feier ist der Pokal verschwunden. Kannst du ihn finden?",
+        "cta": "Pokal suchen →",
+        "close": "Hinweis schließen",
+        "newTab": "(öffnet in neuem Tab)"
+      }
+    },
     "cards": {
       "externalLinks": {
         "edu": {

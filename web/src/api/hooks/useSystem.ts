@@ -8,6 +8,7 @@ import type {
   ObjSystemSettings,
   HttpxErrorResponse,
   RoutesVersionResponse,
+  RoutesAnnouncementResponse,
   RoutesUpdateSystemSettingsRequest,
 } from "../generated";
 
@@ -41,6 +42,24 @@ export function useVersion() {
   return useQuery<RoutesVersionResponse, HttpxErrorResponse>({
     queryKey: queryKeys.version,
     queryFn: () => api.version.versionList().then((response) => response.data),
+  });
+}
+
+// Current dashboard announcement (public endpoint, no auth needed).
+// The server decides the time window; outside it only { active: false } comes back.
+// Refetched every 10 minutes so an open tab picks up the start and the end.
+export function useCurrentAnnouncement() {
+  return useQuery<RoutesAnnouncementResponse, HttpxErrorResponse>({
+    queryKey: queryKeys.currentAnnouncement,
+    queryFn: () =>
+      apiClient.announcements.currentList().then((response) => response.data),
+    // Guard for a tab left open past the end between two refetches.
+    select: (data) =>
+      data.active && data.endsAt && Date.now() >= Date.parse(data.endsAt)
+        ? { active: false }
+        : data,
+    refetchInterval: 10 * 60 * 1000,
+    retry: false,
   });
 }
 

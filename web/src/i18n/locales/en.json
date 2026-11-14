@@ -1629,6 +1629,16 @@
     }
   },
   "dashboard": {
+    "announcement": {
+      "award": {
+        "regionLabel": "Notice: Dieter Baacke Prize 2026",
+        "title": "Award-winning: Dieter Baacke Prize 2026!",
+        "text": "The project \"KI spielerisch durchschauen\" (\"Seeing through AI through play\"), in which ChatGameLab was further developed, has won the prize. Thank you to everyone who played and built along! To celebrate, the trophy has gone missing. Can you find it?",
+        "cta": "Find the trophy →",
+        "close": "Close notice",
+        "newTab": "(opens in a new tab)"
+      }
+    },
     "cards": {
       "externalLinks": {
         "edu": {

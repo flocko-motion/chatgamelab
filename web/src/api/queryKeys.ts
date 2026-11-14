@@ -74,6 +74,7 @@ export const queryKeys = {
 
   // System
   version: ["version"] as const,
+  currentAnnouncement: ["announcements", "current"] as const,
   systemSettings: ["systemSettings"] as const,
 
   // Translations
