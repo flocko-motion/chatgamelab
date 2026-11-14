@@ -31,6 +31,7 @@ import { useAdmin } from "@/common/hooks/useAdmin";
 import { InformationalCard, type ListItem } from "./InformationalCard";
 import { QuickActionCard } from "./QuickActionCard";
 import { LinksCard, type LinkItem } from "./LinkCard";
+import { AwardBanner } from "./AwardBanner";
 
 // My Games Card - shows last edited/created games
 function MyGamesCard() {
@@ -354,6 +355,8 @@ export function DashboardContent() {
   const { isAdmin: isAdminUser } = useAdmin();
   return (
     <Stack gap="xl">
+      <AwardBanner />
+
       <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
         {!isAdminUser && <MyGamesCard />}
         <MyWorkshopsCard />

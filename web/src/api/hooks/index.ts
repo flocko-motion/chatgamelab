@@ -68,6 +68,7 @@ export {
   useUpdateSystemSettings,
   useSetSystemFreeUseKey,
   useVersion,
+  useCurrentAnnouncement,
 } from "./useSystem";
 
 // Invites
