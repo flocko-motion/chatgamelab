@@ -700,6 +700,21 @@ func (q *Queries) GetWorkshopGameShare(ctx context.Context, arg GetWorkshopGameS
 	return i, err
 }
 
+const setGameShareCreator = `-- name: SetGameShareCreator :exec
+UPDATE game_share SET created_by = $2 WHERE id = $1
+`
+
+type SetGameShareCreatorParams struct {
+	ID        uuid.UUID
+	CreatedBy uuid.NullUUID
+}
+
+// The game's creator takes over a workshop link someone else made, so it keeps working when the game is not public.
+func (q *Queries) SetGameShareCreator(ctx context.Context, arg SetGameShareCreatorParams) error {
+	_, err := q.db.ExecContext(ctx, setGameShareCreator, arg.ID, arg.CreatedBy)
+	return err
+}
+
 const updateGameShare = `-- name: UpdateGameShare :one
 UPDATE game_share SET remaining = $2, ai_quality_tier = $3 WHERE id = $1 RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page
 `

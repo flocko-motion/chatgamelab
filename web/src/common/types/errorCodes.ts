@@ -24,6 +24,8 @@ export const ErrorCodes = {
   AUTH_WORKSHOP_INACTIVE: "auth_workshop_inactive",
   // Site-wide lock after too many guessed invite/re-login codes (server: tokenlock)
   TOKEN_LOCKED: "token_locked",
+  // A share link someone other than the game's creator made, once the game is no longer public
+  GAME_NOT_PUBLIC: "game_not_public",
   // AI-related error codes
   INVALID_API_KEY: "invalid_api_key",
   NO_API_KEY: "no_api_key",
