@@ -35,6 +35,9 @@ const (
 	ErrCodePublicSlugInvalid         = "public_slug_invalid"
 	ErrCodePublicDescriptionTooLong  = "public_description_too_long"
 	ErrCodePublicLinksInvalid        = "public_links_invalid"
+	// ErrCodeGameNotPublic: a share link someone other than the game's creator made
+	// stops working once the game is no longer public.
+	ErrCodeGameNotPublic = "game_not_public"
 
 	// AI-specific error codes
 	ErrCodeAiError                  = "ai_error"

@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 import { ActionButton } from "@components/buttons";
 import { TextButton } from "@components/buttons";
 import { config } from "@/config/env";
+import { ErrorCodes } from "@/common/types/errorCodes";
 import { useAuth } from "@/providers/AuthProvider";
 import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
 import { GameEditModal } from "@/features/games/components/GameEditModal";
@@ -82,9 +83,17 @@ export function GuestWelcome({
           `${config.API_BASE_URL}/play/${token}/info`,
         );
         if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
           if (!cancelled) {
-            setError(t("guestPlay.welcome.invalidLink"));
-            setErrorType("invalid");
+            const notPublic = body?.code === ErrorCodes.GAME_NOT_PUBLIC;
+            setError(
+              t(
+                notPublic
+                  ? "guestPlay.welcome.notPublic"
+                  : "guestPlay.welcome.invalidLink",
+              ),
+            );
+            setErrorType(notPublic ? "expired" : "invalid");
             setLoading(false);
           }
           return;

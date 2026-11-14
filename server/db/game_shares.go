@@ -300,6 +300,14 @@ func GetWorkshopGameShare(ctx context.Context, gameID uuid.UUID, workshopID uuid
 	return dbGameShareToObj(gs), nil
 }
 
+// SetGameShareCreator records userID as the share's creator (see game.shareAllowedForGame).
+func SetGameShareCreator(ctx context.Context, shareID, userID uuid.UUID) error {
+	return queries().SetGameShareCreator(ctx, db.SetGameShareCreatorParams{
+		ID:        shareID,
+		CreatedBy: uuid.NullUUID{UUID: userID, Valid: true},
+	})
+}
+
 // GameShareWithGame represents a game share enriched with game name.
 type GameShareWithGame struct {
 	obj.GameShare

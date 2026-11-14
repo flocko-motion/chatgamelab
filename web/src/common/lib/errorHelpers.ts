@@ -74,6 +74,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.tokenLocked",
     messageKey: "errors:tokenLocked",
   },
+  [ErrorCodes.GAME_NOT_PUBLIC]: {
+    titleKey: "errors:titles.gameNotPublic",
+    messageKey: "errors:gameNotPublic",
+  },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:rateLimitExceeded",

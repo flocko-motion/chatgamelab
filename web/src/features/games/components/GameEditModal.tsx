@@ -648,6 +648,9 @@ function SharingSection({
             <Text size="sm" c="dimmed">
               {t("games.sharing.privateShareLinkDescription")}
             </Text>
+            <Alert icon={<IconAlertCircle size={16} />} color="yellow" variant="light">
+              {t("games.sharing.privateShareLinkHint")}
+            </Alert>
             <PrivateShareSection gameId={gameId!} workshopId={workshopId} />
           </Stack>
         )}
