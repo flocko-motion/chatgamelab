@@ -91,12 +91,28 @@ func ValidatePrivateShareToken(ctx context.Context, token string) (*obj.GameShar
 		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "Game not found")
 	}
 
+	if !shareAllowedForGame(gameShare, game) {
+		return nil, nil, obj.NewHTTPErrorWithCode(403, obj.ErrCodeGameNotPublic, "This game is no longer public")
+	}
+
 	// Verify required game fields
 	if game.SystemMessageScenario == "" || game.SystemMessageGameStart == "" {
 		return nil, nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeValidation, "Game is not ready to play")
 	}
 
 	return gameShare, game, nil
+}
+
+// shareAllowedForGame reports whether a share link may still be played.
+// Only public games may be shared by others (-> routes.CreateGameShare), so a link
+// someone other than the game's creator made stops once the game is no longer public.
+// The creator's own links keep working: they may share a game that is not public.
+// Links without a recorded creator predate created_by and keep working.
+func shareAllowedForGame(share *obj.GameShare, game *obj.Game) bool {
+	if game.Public || share.CreatedBy == nil {
+		return true
+	}
+	return game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == *share.CreatedBy
 }
 
 // resolvePrivateShareKey loads the API key from the game share's api_key_share_id.

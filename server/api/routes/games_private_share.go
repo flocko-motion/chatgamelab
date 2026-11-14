@@ -114,9 +114,17 @@ func CreateGameShare(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Reuse existing workshop share if one exists
+		// Reuse existing workshop share if one exists. When the game's creator asks for
+		// it, they take it over, so it keeps working if the game is not public.
 		existing, err := db.GetWorkshopGameShare(r.Context(), gameID, *req.WorkshopID)
 		if err == nil {
+			if isOwner && (existing.CreatedBy == nil || *existing.CreatedBy != user.ID) {
+				if err := db.SetGameShareCreator(r.Context(), existing.ID, user.ID); err != nil {
+					httpx.WriteError(w, http.StatusInternalServerError, "Failed to take over share link")
+					return
+				}
+				existing.CreatedBy = &user.ID
+			}
 			httpx.WriteJSON(w, http.StatusOK, toGameShareResponse(*existing))
 			return
 		}

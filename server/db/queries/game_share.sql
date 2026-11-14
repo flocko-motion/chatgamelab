@@ -28,6 +28,10 @@ SELECT * FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop
 -- Find existing workshop share for a game (reuse instead of creating duplicates)
 SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2 AND NOT public_page;
 
+-- name: SetGameShareCreator :exec
+-- The game's creator takes over a workshop link someone else made, so it keeps working when the game is not public.
+UPDATE game_share SET created_by = $2 WHERE id = $1;
+
 -- name: GetPublicPageGameSharesByWorkshop :many
 SELECT * FROM game_share WHERE workshop_id = $1 AND public_page;
 
