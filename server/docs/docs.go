@@ -3981,6 +3981,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/{token}/view": {
+            "post": {
+                "description": "Called once by the play page in the browser (at most once per browser, link and day).\nAnonymous statistics only: no account, no IP, no browser data. Automated clients are ignored.",
+                "tags": [
+                    "play"
+                ],
+                "summary": "Count a page view of a share link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Private share token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Game not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/public/workshops/{slug}": {
             "get": {
                 "description": "Returns a public workshop's name, description and public games. No authentication.\nUnknown slugs and switched-off pages both return 404.",
@@ -6112,6 +6147,9 @@ const docTemplate = `{
                 "playsRecordedSince": {
                     "description": "PlaysRecordedSince: sessions and AI turns are counted from this moment on\n(game sessions themselves are deleted 48 h after the last activity).",
                     "type": "string"
+                },
+                "shares": {
+                    "$ref": "#/definitions/obj.ShareStats"
                 }
             }
         },
@@ -7051,6 +7089,47 @@ const docTemplate = `{
                 "RoleIndividual"
             ]
         },
+        "obj.ShareStats": {
+            "type": "object",
+            "properties": {
+                "games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.SharedGameStats"
+                    }
+                },
+                "starts": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "views": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "viewsRecordedSince": {
+                    "description": "ViewsRecordedSince: page views are counted from this moment on.",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.SharedGameStats": {
+            "type": "object",
+            "properties": {
+                "deleted": {
+                    "type": "boolean"
+                },
+                "gameId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "starts": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                },
+                "views": {
+                    "$ref": "#/definitions/obj.StatsPeriod"
+                }
+            }
+        },
         "obj.StatsActivity": {
             "type": "object",
             "properties": {
@@ -7078,6 +7157,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "sessions": {
+                    "type": "integer"
+                },
+                "shareViews": {
                     "type": "integer"
                 },
                 "turns": {

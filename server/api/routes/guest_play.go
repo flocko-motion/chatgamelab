@@ -6,6 +6,7 @@ package routes
 
 import (
 	"net/http"
+	"regexp"
 
 	"cgl/api/httpx"
 	"cgl/db"
@@ -81,6 +82,38 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 		Description: gameObj.Description,
 		Remaining:   remaining,
 	})
+}
+
+// automatedClient matches user agents of crawlers, link previews, scanners and scripts.
+// The play page reports views from the browser, so most of these never call; this catches the rest.
+var automatedClient = regexp.MustCompile(`(?i)bot|crawl|spider|slurp|preview|headless|facebookexternalhit|scan|python|curl|wget|go-http|java/|okhttp|axios|node-fetch|lighthouse|phantom|selenium|puppeteer|playwright`)
+
+// PlayGuestRecordView godoc
+//
+//	@Summary		Count a page view of a share link
+//	@Description	Called once by the play page in the browser (at most once per browser, link and day).
+//	@Description	Anonymous statistics only: no account, no IP, no browser data. Automated clients are ignored.
+//	@Tags			play
+//	@Param			token	path	string	true	"Private share token"
+//	@Success		204
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid or expired token"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Game not found"
+//	@Router			/play/{token}/view [post]
+func PlayGuestRecordView(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+	if token == "" {
+		httpx.WriteError(w, http.StatusBadRequest, "Missing share token")
+		return
+	}
+	gameShare, _, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	if httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+	if ua := r.UserAgent(); ua != "" && !automatedClient.MatchString(ua) {
+		db.RecordShareView(r.Context(), gameShare)
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // PlayGuestCreateSession godoc

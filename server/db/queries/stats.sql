@@ -104,3 +104,57 @@ SELECT
     SELECT 1 FROM workshop w WHERE w.institution_id = a.institution_id))::int AS with_workshop
 FROM institution_application a
 WHERE a.created_at >= sqlc.arg(since)::timestamptz;
+
+-- name: RecordShareView :exec
+-- One anonymous page view of a share link. The organisation comes from the share
+-- or from the share's workshop.
+INSERT INTO share_view (game_id, share_id, institution_id, workshop_id)
+SELECT sqlc.arg(game_id)::uuid, sqlc.narg(share_id)::uuid,
+       COALESCE(sqlc.narg(institution_id)::uuid, w.institution_id),
+       sqlc.narg(workshop_id)::uuid
+FROM (SELECT 1) AS one
+LEFT JOIN workshop w ON w.id = sqlc.narg(workshop_id)::uuid;
+
+-- name: StatsShareViewSince :one
+-- The first recorded share page view; without any view yet the current time.
+SELECT COALESCE(min(created_at), now())::timestamptz AS first_view FROM share_view;
+
+-- name: StatsShareTotals :one
+-- Share page views and sessions started via a share link, last 7 and 30 days.
+SELECT
+  (SELECT count(*) FROM share_view WHERE created_at >= sqlc.arg(since7)::timestamptz)::int AS views7,
+  (SELECT count(*) FROM share_view WHERE created_at >= sqlc.arg(since30)::timestamptz)::int AS views30,
+  (SELECT count(*) FROM play_stat WHERE via_share AND created_at >= sqlc.arg(since7)::timestamptz)::int AS starts7,
+  (SELECT count(*) FROM play_stat WHERE via_share AND created_at >= sqlc.arg(since30)::timestamptz)::int AS starts30;
+
+-- name: StatsShareViewsPerMonth :many
+SELECT to_char(date_trunc('month', created_at AT TIME ZONE 'Europe/Berlin'), 'YYYY-MM')::text AS month,
+       count(*)::int AS n
+FROM share_view
+WHERE created_at >= sqlc.arg(since)::timestamptz
+GROUP BY 1;
+
+-- name: StatsSharedGames :many
+-- Games with share page views in the last 30 days, most viewed first:
+-- views and starts via a share link, last 7 and 30 days.
+WITH v AS (
+  SELECT game_id,
+         count(*) FILTER (WHERE created_at >= sqlc.arg(since7)::timestamptz) AS views7,
+         count(*) AS views30
+  FROM share_view WHERE created_at >= sqlc.arg(since30)::timestamptz
+  GROUP BY game_id
+), s AS (
+  SELECT game_id,
+         count(*) FILTER (WHERE created_at >= sqlc.arg(since7)::timestamptz) AS starts7,
+         count(*) AS starts30
+  FROM play_stat WHERE via_share AND game_id IS NOT NULL AND created_at >= sqlc.arg(since30)::timestamptz
+  GROUP BY game_id
+)
+SELECT v.game_id, COALESCE(g.name, '')::text AS name, (g.deleted_at IS NOT NULL OR g.id IS NULL)::boolean AS deleted,
+       v.views7::int AS views7, v.views30::int AS views30,
+       COALESCE(s.starts7, 0)::int AS starts7, COALESCE(s.starts30, 0)::int AS starts30
+FROM v
+LEFT JOIN s ON s.game_id = v.game_id
+LEFT JOIN game g ON g.id = v.game_id
+ORDER BY v.views30 DESC, name
+LIMIT sqlc.arg(max_rows)::int;

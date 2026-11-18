@@ -23,6 +23,7 @@ type StatsMonth struct {
 	Sessions        int    `json:"sessions"`
 	Turns           int    `json:"turns"`
 	NewInstitutions int    `json:"newInstitutions,omitempty"`
+	ShareViews      int    `json:"shareViews"`
 }
 
 // InstitutionStats are the numbers of one organisation.
@@ -61,6 +62,24 @@ type RegistrationFunnel struct {
 	WithWorkshop int `json:"withWorkshop"`
 }
 
+// SharedGameStats compares page views of a game's share links with the plays started there.
+type SharedGameStats struct {
+	GameID  uuid.UUID   `json:"gameId"`
+	Name    string      `json:"name"`
+	Deleted bool        `json:"deleted"`
+	Views   StatsPeriod `json:"views"`
+	Starts  StatsPeriod `json:"starts"`
+}
+
+// ShareStats are page views of share links (/play/{token}) and the plays started from them.
+type ShareStats struct {
+	// ViewsRecordedSince: page views are counted from this moment on.
+	ViewsRecordedSince time.Time         `json:"viewsRecordedSince"`
+	Views              StatsPeriod       `json:"views"`
+	Starts             StatsPeriod       `json:"starts"`
+	Games              []SharedGameStats `json:"games"`
+}
+
 // AdminStats is everything the admin dashboard shows.
 type AdminStats struct {
 	GeneratedAt time.Time `json:"generatedAt"`
@@ -74,5 +93,6 @@ type AdminStats struct {
 	OutsideOrganisations StatsActivity      `json:"outsideOrganisations"`
 	Months               []StatsMonth       `json:"months"`
 	Funnel               RegistrationFunnel `json:"funnel"`
+	Shares               ShareStats         `json:"shares"`
 	PerInstitution       []InstitutionStats `json:"perInstitution"`
 }

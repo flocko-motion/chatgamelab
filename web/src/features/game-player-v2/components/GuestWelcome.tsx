@@ -25,6 +25,7 @@ import { ErrorCodes } from "@/common/types/errorCodes";
 import { useAuth } from "@/providers/AuthProvider";
 import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
 import { GameEditModal } from "@/features/games/components/GameEditModal";
+import { reportShareView } from "../lib/reportShareView";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 interface GuestGameInfo {
@@ -107,6 +108,7 @@ export function GuestWelcome({
             return;
           }
           setGameInfo(data);
+          reportShareView(token);
           onInfoLoaded?.({ gameId: data.gameId, public: data.public });
           setLoading(false);
         }

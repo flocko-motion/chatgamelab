@@ -250,6 +250,15 @@ type PlayStat struct {
 	LastTurnAt    sql.NullTime
 }
 
+type ShareView struct {
+	ID            int64
+	CreatedAt     time.Time
+	GameID        uuid.UUID
+	ShareID       uuid.NullUUID
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+}
+
 type SystemSetting struct {
 	ID                   uuid.UUID
 	CreatedAt            time.Time

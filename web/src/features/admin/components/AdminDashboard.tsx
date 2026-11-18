@@ -27,7 +27,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
-import type { ObjAdminStats, ObjInstitutionStats, ObjStatsMonth } from "@/api/generated";
+import type { ObjAdminStats, ObjInstitutionStats, ObjShareStats, ObjStatsMonth } from "@/api/generated";
 
 type Metric = "newGames" | "sessions" | "turns";
 type SortKey =
@@ -137,6 +137,7 @@ function MonthTable({ months, showInstitutions }: { months: ObjStatsMonth[]; sho
           <Table.Tr>
             <Table.Th>{t("admin.dashboard.month")}</Table.Th>
             {showInstitutions && <Table.Th ta="right">{t("admin.dashboard.newOrganisations")}</Table.Th>}
+            {showInstitutions && <Table.Th ta="right">{t("admin.dashboard.shareViews")}</Table.Th>}
             <Table.Th ta="right">{t("admin.dashboard.newGames")}</Table.Th>
             <Table.Th ta="right">{t("admin.dashboard.sessions")}</Table.Th>
             <Table.Th ta="right">{t("admin.dashboard.turns")}</Table.Th>
@@ -147,6 +148,7 @@ function MonthTable({ months, showInstitutions }: { months: ObjStatsMonth[]; sho
             <Table.Tr key={m.month}>
               <Table.Td>{monthLabel(m.month ?? "", i18n.language)}</Table.Td>
               {showInstitutions && <Table.Td ta="right">{m.newInstitutions ?? 0}</Table.Td>}
+              {showInstitutions && <Table.Td ta="right">{m.shareViews ?? 0}</Table.Td>}
               <Table.Td ta="right">{m.newGames ?? 0}</Table.Td>
               <Table.Td ta="right">{m.sessions ?? 0}</Table.Td>
               <Table.Td ta="right">{m.turns ?? 0}</Table.Td>
@@ -155,6 +157,72 @@ function MonthTable({ months, showInstitutions }: { months: ObjStatsMonth[]; sho
         </Table.Tbody>
       </Table>
     </ScrollArea>
+  );
+}
+
+/** Share links: page views compared with the games started from them, per game. */
+function ShareCard({ shares, since }: { shares?: ObjShareStats; since: string }) {
+  const { t } = useTranslation("common");
+  const games = shares?.games ?? [];
+  const rate = (starts: number, views: number) => (views > 0 ? `${Math.round((starts / views) * 100)} %` : "–");
+  return (
+    <Card withBorder padding="lg" radius="md">
+      <Title order={4} mb={4}>
+        {t("admin.dashboard.sharesTitle")}
+      </Title>
+      <Text size="sm" c="dimmed" mb="sm">
+        {t("admin.dashboard.sharesHint", { date: since })}
+      </Text>
+      <Text size="sm" fw={500} mb="md">
+        {t("admin.dashboard.sharesTotals", {
+          views7: shares?.views?.last7 ?? 0,
+          starts7: shares?.starts?.last7 ?? 0,
+          views30: shares?.views?.last30 ?? 0,
+          starts30: shares?.starts?.last30 ?? 0,
+        })}
+      </Text>
+      {games.length === 0 ? (
+        <Text size="sm" c="dimmed">
+          {t("admin.dashboard.sharesNone")}
+        </Text>
+      ) : (
+        <ScrollArea>
+          <Table striped withTableBorder miw={560} fz="sm">
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>{t("admin.dashboard.sharesGame")}</Table.Th>
+                <Table.Th ta="right">{t("admin.dashboard.sharesViews")}</Table.Th>
+                <Table.Th ta="right">{t("admin.dashboard.sharesStarts")}</Table.Th>
+                <Table.Th ta="right">{t("admin.dashboard.sharesRate")}</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {games.map((g) => (
+                <Table.Tr key={g.gameId}>
+                  <Table.Td>
+                    {g.name || "–"}
+                    {g.deleted && (
+                      <Badge size="xs" color="gray" variant="light" ml={6}>
+                        {t("admin.dashboard.sharesDeleted")}
+                      </Badge>
+                    )}
+                  </Table.Td>
+                  <Table.Td ta="right">
+                    {g.views?.last30 ?? 0}
+                    <Text span size="xs" c="dimmed"> / {g.views?.last7 ?? 0}</Text>
+                  </Table.Td>
+                  <Table.Td ta="right">
+                    {g.starts?.last30 ?? 0}
+                    <Text span size="xs" c="dimmed"> / {g.starts?.last7 ?? 0}</Text>
+                  </Table.Td>
+                  <Table.Td ta="right">{rate(g.starts?.last30 ?? 0, g.views?.last30 ?? 0)}</Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
+      )}
+    </Card>
   );
 }
 
@@ -340,6 +408,8 @@ export function AdminDashboard() {
             </Text>
           </Card>
         </SimpleGrid>
+
+        <ShareCard shares={data.shares} since={date(data.shares?.viewsRecordedSince)} />
 
         <Card withBorder padding="lg" radius="md">
           <Title order={4} mb={4}>

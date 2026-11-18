@@ -135,6 +135,7 @@ export interface ObjAdminStats {
    * (game sessions themselves are deleted 48 h after the last activity).
    */
   playsRecordedSince?: string;
+  shares?: ObjShareStats;
 }
 
 export interface ObjAiModel {
@@ -526,6 +527,22 @@ export interface ObjRegistrationFunnel {
   withWorkshop?: number;
 }
 
+export interface ObjShareStats {
+  games?: ObjSharedGameStats[];
+  starts?: ObjStatsPeriod;
+  views?: ObjStatsPeriod;
+  /** ViewsRecordedSince: page views are counted from this moment on. */
+  viewsRecordedSince?: string;
+}
+
+export interface ObjSharedGameStats {
+  deleted?: boolean;
+  gameId?: string;
+  name?: string;
+  starts?: ObjStatsPeriod;
+  views?: ObjStatsPeriod;
+}
+
 export interface ObjStatsActivity {
   newGames?: ObjStatsPeriod;
   sessions?: ObjStatsPeriod;
@@ -537,6 +554,7 @@ export interface ObjStatsMonth {
   newGames?: number;
   newInstitutions?: number;
   sessions?: number;
+  shareViews?: number;
   turns?: number;
 }
 
@@ -3206,6 +3224,21 @@ export class Api<
     ) =>
       this.request<File, HttpxErrorResponse>({
         path: `/play/${token}/sessions/${id}/messages/${messageId}/audio`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * @description Called once by the play page in the browser (at most once per browser, link and day). Anonymous statistics only: no account, no IP, no browser data. Automated clients are ignored.
+     *
+     * @tags play
+     * @name ViewCreate
+     * @summary Count a page view of a share link
+     * @request POST:/play/{token}/view
+     */
+    viewCreate: (token: string, params: RequestParams = {}) =>
+      this.request<void, HttpxErrorResponse>({
+        path: `/play/${token}/view`,
         method: "POST",
         ...params,
       }),
