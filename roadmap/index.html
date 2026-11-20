@@ -190,16 +190,19 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     return { id: `m${m.number}`, rank: r, url: m.url, done: m.open === 0,
              label: `◆ ${m.title} — ${due} — ${m.closed}/${m.open + m.closed} done` };
   });
+  // The helper edges attach to the issues, not to the epic boxes: ELK holds a
+  // leaf to its level, a box it only places around its children.
   if (bars.length > 1 || (bars.length === 1 && bars[0].id !== "m-none")) bars.forEach((bar, k) => {
-    elements.push({ data: { id: bar.id, label: bar.label, url: bar.url, kind: "milestone", state: bar.done ? "ready" : "open" } });
-    const members = [...pieces.values()].filter(p => p.rank === bar.rank);
-    for (const p of members)
-      elements.push({ data: { id: `pe-${bar.id}-${p.id}`, source: bar.id, target: p.id, kind: "phaseEdge" } });
+    elements.push({ data: { id: bar.id, label: bar.label, url: bar.url, kind: "milestone", rank: bar.rank,
+                            state: bar.done ? "ready" : "open" } });
+    const members = [...pieces.values()].filter(p => p.rank === bar.rank).flatMap(p => p.issues);
+    for (const i of members)
+      elements.push({ data: { id: `pe-${bar.id}-${i.number}`, source: bar.id, target: `i${i.number}`, kind: "phaseEdge" } });
     const next = bars[k + 1];
     if (!next) return;
     elements.push({ data: { id: `pe-${bar.id}-${next.id}`, source: bar.id, target: next.id, kind: "phaseEdge" } });
-    for (const p of members)
-      elements.push({ data: { id: `pe-${p.id}-${next.id}`, source: p.id, target: next.id, kind: "phaseEdge" } });
+    for (const i of members)
+      elements.push({ data: { id: `pe-${i.number}-${next.id}`, source: `i${i.number}`, target: next.id, kind: "phaseEdge" } });
   });
 
   const cy = cytoscape({
@@ -243,7 +246,15 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const done = cy.nodes("[state='done']").union(
     cy.nodes("[kind='epic']").filter(e => e.children().length && e.children().every(c => c.data("state") === "done")));
   const showDone = document.getElementById("showDone");
-  function applyDone() { showDone.checked ? done.style("display", "element") : done.style("display", "none"); }
+  // A bar shows only while its band holds a visible epic box.
+  function applyDone() {
+    showDone.checked ? done.style("display", "element") : done.style("display", "none");
+    cy.nodes("[kind='milestone']").forEach(bar => {
+      const rank = bar.data("rank");
+      const shown = cy.nodes("[kind='epic']").some(p => p.data("rank") === rank && p.visible());
+      bar.style("display", shown ? "element" : "none");
+    });
+  }
   applyDone();
 
   // Invisible helper edges cap the rows: at most PER_ROW issues side by side in
@@ -292,7 +303,29 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       added = added.concat(capRows(epic.children().filter(n => n.visible()).toArray(), ["issueEdge", "row"], PER_ROW, "row-"));
     });
     cy.add(added);
-    cy.add(capRows(cy.nodes("[kind='epic'], [kind='milestone']").filter(n => n.visible()).toArray(), ["epicEdge", "phaseEdge", "row"], EPICS_PER_ROW, "erow-"));
+    // At most EPICS_PER_ROW epic boxes side by side within one milestone's
+    // band: the boxes form a grid, each above the one in its column on the
+    // next row, joined through their issues (the last issues of the upper box
+    // to the first of the lower), never across a bar.
+    const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
+    const bands = new Map();
+    cy.nodes("[kind='epic']").filter(n => n.visible()).forEach(p => {
+      const r = p.data("rank");
+      (bands.get(r) || bands.set(r, []).get(r)).push(p);
+    });
+    const grid = [];
+    for (const band of bands.values()) {
+      band.sort((a, b) => epicOrder.get(a.data("epic")) - epicOrder.get(b.data("epic")));
+      for (let k = EPICS_PER_ROW; k < band.length; k++) {
+        const upper = band[k - EPICS_PER_ROW].children().filter(n => n.visible());
+        const lower = band[k].children().filter(n => n.visible());
+        const sinks = upper.filter(n => !n.outgoers("edge[kind='issueEdge'], edge[kind='row']").targets().some(t => upper.contains(t)));
+        const sources = lower.filter(n => !n.incomers("edge[kind='issueEdge'], edge[kind='row']").sources().some(t => lower.contains(t)));
+        sinks.forEach(a => sources.forEach(b => grid.push({ group: "edges",
+          data: { id: `grid-${a.id()}-${b.id()}`, source: a.id(), target: b.id(), kind: "row" } })));
+      }
+    }
+    cy.add(grid);
   }
   // A milestone stretches across the whole roadmap at the height the layout
   // gave it: a horizontal bar between the phase before and the phase after.
@@ -305,9 +338,17 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       m.position({ x: (bb.x1 + bb.x2) / 2, y: m.position("y") });
     });
   }
+  // An arrow from a later band back to an earlier one is drawn but left out
+  // of the layout: it would form a cycle with the bars, and the bars keep
+  // the milestones in order.
+  const bandOf = n => n.parent().length ? n.parent().data("rank") : n.data("rank");
   const run = () => {
     rows();
-    const l = cy.layout(layout);
+    const backwards = cy.edges("[kind='issueEdge'], [kind='epicEdge']").filter(e => bandOf(e.source()) > bandOf(e.target()));
+    // Displayed rather than ":visible", which also drops the invisible helper edges.
+    const shown = e => e.style("display") !== "none";
+    const eles = cy.elements().filter(e => e.isNode() ? shown(e) : shown(e) && shown(e.source()) && shown(e.target()));
+    const l = eles.not(backwards).layout(layout);
     l.one("layoutstop", () => { stretchMilestones(); cy.fit(undefined, 30); });
     l.run();
   };
