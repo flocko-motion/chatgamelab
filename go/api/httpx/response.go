@@ -10,56 +10,16 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"net/url"
-	"os"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
-
-// getCookiePath returns the path for cookies based on API_BASE_URL environment variable.
-// Extracts the path component from API_BASE_URL (e.g., "/api" from "https://example.com/api").
-// Defaults to "/api" if not set or no path component.
-func getCookiePath() string {
-	apiBaseURL := os.Getenv("API_BASE_URL")
-	if apiBaseURL == "" {
-		return "/api"
-	}
-
-	// Try to parse as URL to extract path
-	if parsed, err := url.Parse(apiBaseURL); err == nil && parsed.Path != "" && parsed.Path != "/" {
-		return strings.TrimSuffix(parsed.Path, "/")
-	}
-
-	// If it's just a path (starts with /), use it directly
-	if strings.HasPrefix(apiBaseURL, "/") {
-		return strings.TrimSuffix(apiBaseURL, "/")
-	}
-
-	return "/api"
-}
 
 // ErrorResponse is the standard error format for the API
 type ErrorResponse struct {
 	Code    string `json:"code"`    // Machine-readable error code
 	Message string `json:"message"` // Human-readable error message
 	Type    string `json:"type"`    // Deprecated: use Code instead
-}
-
-// UserNotRegisteredResponse is returned when an Auth0 user is not yet registered in the system
-type UserNotRegisteredResponse struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
-	Auth0ID string `json:"auth0Id"`
-}
-
-// WriteUserNotRegistered writes a response indicating the user needs to complete registration
-func WriteUserNotRegistered(w http.ResponseWriter, auth0ID string) {
-	WriteJSON(w, http.StatusForbidden, UserNotRegisteredResponse{
-		Type:    obj.ErrCodeUserNotRegistered,
-		Message: "User is not registered. Please complete registration.",
-		Auth0ID: auth0ID,
-	})
 }
 
 // WriteJSON writes a JSON response with the given status code
@@ -188,32 +148,4 @@ func SetNoCacheHeaders(w http.ResponseWriter) {
 	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
-}
-
-// SetSessionCookie sets an HttpOnly cookie for participant sessions
-// The cookie is used as a fallback authentication mechanism for workshop participants
-func SetSessionCookie(w http.ResponseWriter, r *http.Request, token string) {
-	// Determine if we're in a secure context (HTTPS)
-	secure := r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https"
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "cgl_session",
-		Value:    token,
-		Path:     getCookiePath(),
-		MaxAge:   86400 * 30, // 30 days
-		HttpOnly: true,
-		Secure:   secure,
-		SameSite: http.SameSiteLaxMode,
-	})
-}
-
-// ClearSessionCookie clears the session cookie (for logout)
-func ClearSessionCookie(w http.ResponseWriter) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "cgl_session",
-		Value:    "",
-		Path:     getCookiePath(),
-		MaxAge:   -1,
-		HttpOnly: true,
-	})
 }

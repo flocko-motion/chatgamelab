@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 
-	"cgl/api/auth"
 	"cgl/api/httpx"
 	"cgl/constants"
 	"cgl/db"
@@ -43,13 +42,6 @@ type ParticipantCodeResponse struct {
 	Token *string `json:"token"`
 	// Words is the token's word code, or null for the long tokens issued before word tokens.
 	Words *string `json:"words"`
-}
-
-// UsersJwtResponse holds a dev-issued JWT along with the user and Auth0 identifiers.
-type UsersJwtResponse struct {
-	UserID  string `json:"userId"`
-	Auth0ID string `json:"auth0Id"`
-	Token   string `json:"token"`
 }
 
 // GetUsers godoc
@@ -90,22 +82,6 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	// Everyone else (individual, participant) gets 403
 	httpx.WriteAppError(w, obj.ErrForbidden("only admins or institution heads/staff can list users"))
-}
-
-// GetCurrentUser godoc
-//
-//	@Summary		Get current user
-//	@Description	Returns the currently authenticated user
-//	@Tags			users
-//	@Produce		json
-//	@Success		200	{object}	obj.User
-//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
-//	@Security		BearerAuth
-//	@Router			/users/me [get]
-func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFromRequest(r)
-
-	httpx.WriteJSON(w, http.StatusOK, user)
 }
 
 // GetCurrentUserStats godoc
@@ -440,50 +416,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, user)
-}
-
-// GetUserJWT godoc
-//
-//	@Summary		Generate JWT (dev only)
-//	@Description	Generates a JWT token for a user. Only available in dev mode.
-//	@Tags			users
-//	@Produce		json
-//	@Param			id	path		string	true	"User ID (UUID)"
-//	@Success		200	{object}	UsersJwtResponse
-//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid user ID"
-//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden (not dev mode)"
-//	@Failure		404	{object}	httpx.ErrorResponse	"User not found"
-//	@Failure		500	{object}	httpx.ErrorResponse
-//	@Router			/users/{id}/jwt [get]
-func GetUserJWT(w http.ResponseWriter, r *http.Request) {
-	userID, err := httpx.PathParamUUID(r, "id")
-	if err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid user ID")
-		return
-	}
-
-	user, err := db.GetUserByID(r.Context(), userID)
-	if err != nil {
-		httpx.WriteError(w, http.StatusNotFound, "User not found")
-		return
-	}
-
-	var auth0ID string
-	if user.Auth0Id != nil {
-		auth0ID = *user.Auth0Id
-	}
-
-	tokenString, _, err := auth.GenerateToken(userID.String())
-	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to sign token")
-		return
-	}
-
-	httpx.WriteJSON(w, http.StatusOK, UsersJwtResponse{
-		UserID:  userID.String(),
-		Auth0ID: auth0ID,
-		Token:   tokenString,
-	})
 }
 
 // DeleteUser godoc

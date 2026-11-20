@@ -6,11 +6,9 @@ package routes
 
 import (
 	"net/http"
-	"time"
 
 	"cgl/api/httpx"
 	"cgl/db"
-	"cgl/log"
 	"cgl/obj"
 )
 
@@ -111,31 +109,4 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 	Engine.Forget(sessionID.String())
 
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
-}
-
-// PlayTokenResponse says until when the play cookie holds.
-type PlayTokenResponse struct {
-	ExpiresAt time.Time `json:"expiresAt"`
-}
-
-// PostPlayToken godoc
-//
-//	@Summary		Issue a play token
-//	@Description	Sets a short-lived HttpOnly cookie, scoped to the engine's routes, that lets the playback-engine iframe act for the signed-in player. A page hosting the playback-engine calls it before mounting the frame and renews it while open.
-//	@Tags			auth
-//	@Produce		json
-//	@Success		200	{object}	PlayTokenResponse
-//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
-//	@Failure		500	{object}	httpx.ErrorResponse
-//	@Security		BearerAuth
-//	@Router			/auth/play-token [post]
-func PostPlayToken(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFromRequest(r)
-	expiresAt, err := httpx.SetPlayCookie(w, r, user.ID)
-	if err != nil {
-		log.Error("failed to issue a play token", "user_id", user.ID, "error", err)
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to issue a play token")
-		return
-	}
-	httpx.WriteJSON(w, http.StatusOK, PlayTokenResponse{ExpiresAt: expiresAt})
 }

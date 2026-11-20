@@ -353,7 +353,7 @@ func DecrementGameShareRemaining(ctx context.Context, shareID uuid.UUID) (*obj.G
 func CreateGuestUser(ctx context.Context, userID uuid.UUID, name string, shareID uuid.UUID) error {
 	_, err := queries().CreateGuestUser(ctx, CreateGuestUserParams{
 		ID:             userID,
-		Name:           name,
+		Name:           userName(name),
 		PrivateShareID: uuid.NullUUID{UUID: shareID, Valid: true},
 	})
 	return err

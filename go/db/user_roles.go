@@ -214,7 +214,7 @@ func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 				ModifiedBy: res.ModifiedBy,
 				ModifiedAt: &res.ModifiedAt,
 			},
-			Name:      res.Name,
+			Name:      res.Name.String,
 			Email:     sqlNullStringToMaybeString(res.Email),
 			DeletedAt: &res.DeletedAt.Time,
 			Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),

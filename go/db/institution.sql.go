@@ -315,7 +315,7 @@ ORDER BY r.role, u.name
 
 type GetInstitutionMembersRow struct {
 	ID    uuid.UUID      `json:"id"`
-	Name  string         `json:"name"`
+	Name  sql.NullString `json:"name"`
 	Email sql.NullString `json:"email"`
 	Role  string         `json:"role"`
 }

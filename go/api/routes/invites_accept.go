@@ -11,6 +11,7 @@ import (
 	"cgl/obj"
 	"net/http"
 
+	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
 )
 
@@ -55,9 +56,11 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			// Set HttpOnly cookie for participant session
-			// The authToken is the participant token (starts with "participant-")
-			httpx.SetSessionCookie(w, r, authToken)
+			// Sign the new participant in; authToken stays their code to sign in again.
+			if _, err := schemafapi.StartSession(r.Context(), w, createdUser.ID.String()); err != nil {
+				httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
 
 			// Notify workshop members about the new participant
 			if createdUser.Role != nil && createdUser.Role.Workshop != nil {

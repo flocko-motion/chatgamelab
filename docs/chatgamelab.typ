@@ -254,6 +254,9 @@ U13p or U18 — and the rule the session plays under.
 
 === Registration
 
+The first sign-in creates an account; the account is usable once registration
+is complete. Registration asks for:
+
 1. *Nutzertyp.* "Anmeldung als Nutzer" leads on to the Altersabfrage.
    "Anmeldung als Fachkraft / Organisation" explains how an organisation
    registers, by email, and asks the person to register as a user first.
@@ -263,6 +266,8 @@ U13p or U18 — and the rule the session plays under.
    - 13–17 without parental consent: U13, the stricter rule;
    - 13–17 with parental consent: U13p;
    - 18 or over: U18.
+3. *Name*, required.
+4. *Email*, optional.
 
 *Age is a Selbstauskunft.* It is the legally sound way: a technical check, such
 as owning an API key, does not hold up legally, and whoever gives a false age

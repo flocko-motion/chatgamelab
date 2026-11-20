@@ -117,7 +117,7 @@ func loadInstitutionMembers(ctx context.Context, institutionID uuid.UUID) ([]obj
 	for _, row := range rows {
 		member := obj.InstitutionMember{
 			UserID: row.ID,
-			Name:   row.Name,
+			Name:   row.Name.String,
 		}
 		if row.Email.Valid {
 			member.Email = &row.Email.String
@@ -343,7 +343,7 @@ func GetInstitutionMembers(ctx context.Context, institutionID uuid.UUID, userID 
 
 		users[i] = obj.User{
 			ID:    dbUser.ID,
-			Name:  dbUser.Name,
+			Name:  dbUser.Name.String,
 			Email: email,
 			Meta: obj.Meta{
 				CreatedBy:  dbUser.CreatedBy,

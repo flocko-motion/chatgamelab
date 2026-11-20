@@ -147,7 +147,7 @@ func preseedDevUsers(ctx context.Context) {
 			continue
 		}
 		exists[i] = true
-		misnamed[i] = user.Name != slot.name
+		misnamed[i] = user.Name.String != slot.name
 		if !misnamed[i] {
 			continue
 		}
@@ -183,7 +183,7 @@ func preseedDevUsers(ctx context.Context) {
 func renameDevUser(ctx context.Context, userID uuid.UUID, name string) error {
 	return queries().UpdateUser(ctx, UpdateUserParams{
 		ID:    userID,
-		Name:  name,
+		Name:  userName(name),
 		Email: sql.NullString{String: devUserEmail(name), Valid: true},
 	})
 }

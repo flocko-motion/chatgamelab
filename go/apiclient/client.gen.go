@@ -16,6 +16,12 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// GetCurrentUserResp defines model for GetCurrentUserResp.
+type GetCurrentUserResp struct {
+	State string                 `json:"state"`
+	User  map[string]interface{} `json:"user"`
+}
+
 // GetVersionResp defines model for GetVersionResp.
 type GetVersionResp struct {
 	BuildTime string `json:"buildTime"`
@@ -147,10 +153,27 @@ type ClientInterface interface {
 	// Corresponds with POST /api/auth/logout (the `PostApiAuthLogout` operationId).
 	PostApiAuthLogout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PostApiAuthParticipantLogin Signs a workshop participant in with their token.
+	//
+	// Takes {"token": "..."}: the participant token whole, or its words from a link,
+	// QR code or typed code. Starts a session, sets the session cookie and answers
+	// {"token": "...", "userId": "..."}; the token is for Bearer clients.
+	//
+	// Corresponds with POST /api/auth/participant-login (the `PostApiAuthParticipantLogin` operationId).
+	PostApiAuthParticipantLogin(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiAuthRefresh Get a fresh token for the current session
 	//
 	// Corresponds with POST /api/auth/refresh (the `PostApiAuthRefresh` operationId).
 	PostApiAuthRefresh(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthRegister Completes the caller's registration.
+	//
+	// An account exists from its first Auth0 sign-in and is unusable until it has a
+	// name and an age group; the email is optional. An account registers once.
+	//
+	// Corresponds with POST /api/auth/register (the `PostApiAuthRegister` operationId).
+	PostApiAuthRegister(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthProviderLoginWithBody Sign in with an identity provider
 	//
@@ -169,6 +192,17 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /api/auth/{provider}/login (the `PostApiAuthProviderLogin` operationId).
 	PostApiAuthProviderLogin(ctx context.Context, provider string, body PostApiAuthProviderLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiUsersMe Reports who is calling.
+	//
+	// The state is "anonymous" without a sign-in, "registering" for an account
+	// whose registration is incomplete, and "registered" with the account and its
+	// role. A participant whose workshop is inactive, or an account that is gone,
+	// is refused with 403. Every other endpoint refuses an account that is still
+	// registering; this one reports it.
+	//
+	// Corresponds with GET /api/users/me (the `GetApiUsersMe` operationId).
+	GetApiUsersMe(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiVersion Reports the server's build.
 	//
@@ -233,11 +267,48 @@ func (c *Client) PostApiAuthLogout(ctx context.Context, reqEditors ...RequestEdi
 	return c.Client.Do(req)
 }
 
+// PostApiAuthParticipantLogin Signs a workshop participant in with their token.
+//
+// Takes {"token": "..."}: the participant token whole, or its words from a link,
+// QR code or typed code. Starts a session, sets the session cookie and answers
+// {"token": "...", "userId": "..."}; the token is for Bearer clients.
+//
+// Corresponds with POST /api/auth/participant-login (the `PostApiAuthParticipantLogin` operationId).
+func (c *Client) PostApiAuthParticipantLogin(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthParticipantLoginRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // PostApiAuthRefresh Get a fresh token for the current session
 //
 // Corresponds with POST /api/auth/refresh (the `PostApiAuthRefresh` operationId).
 func (c *Client) PostApiAuthRefresh(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiAuthRefreshRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiAuthRegister Completes the caller's registration.
+//
+// An account exists from its first Auth0 sign-in and is unusable until it has a
+// name and an age group; the email is optional. An account registers once.
+//
+// Corresponds with POST /api/auth/register (the `PostApiAuthRegister` operationId).
+func (c *Client) PostApiAuthRegister(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthRegisterRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -276,6 +347,27 @@ func (c *Client) PostApiAuthProviderLoginWithBody(ctx context.Context, provider 
 // Corresponds with POST /api/auth/{provider}/login (the `PostApiAuthProviderLogin` operationId).
 func (c *Client) PostApiAuthProviderLogin(ctx context.Context, provider string, body PostApiAuthProviderLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiAuthProviderLoginRequest(c.Server, provider, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiUsersMe Reports who is calling.
+//
+// The state is "anonymous" without a sign-in, "registering" for an account
+// whose registration is incomplete, and "registered" with the account and its
+// role. A participant whose workshop is inactive, or an account that is gone,
+// is refused with 403. Every other endpoint refuses an account that is still
+// registering; this one reports it.
+//
+// Corresponds with GET /api/users/me (the `GetApiUsersMe` operationId).
+func (c *Client) GetApiUsersMe(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiUsersMeRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -370,6 +462,33 @@ func NewPostApiAuthLogoutRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewPostApiAuthParticipantLoginRequest constructs an http.Request for the PostApiAuthParticipantLogin method
+func NewPostApiAuthParticipantLoginRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/participant-login")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostApiAuthRefreshRequest constructs an http.Request for the PostApiAuthRefresh method
 func NewPostApiAuthRefreshRequest(server string) (*http.Request, error) {
 	var err error
@@ -380,6 +499,33 @@ func NewPostApiAuthRefreshRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/api/auth/refresh")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiAuthRegisterRequest constructs an http.Request for the PostApiAuthRegister method
+func NewPostApiAuthRegisterRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/register")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -440,6 +586,33 @@ func NewPostApiAuthProviderLoginRequestWithBody(server string, provider string, 
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiUsersMeRequest constructs an http.Request for the GetApiUsersMe method
+func NewGetApiUsersMeRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/users/me")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -542,12 +715,33 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/auth/logout (the `PostApiAuthLogout` operationId).
 	PostApiAuthLogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthLogoutResponse, error)
 
+	// PostApiAuthParticipantLoginWithResponse Signs a workshop participant in with their token.
+	//
+	// Takes {"token": "..."}: the participant token whole, or its words from a link,
+	// QR code or typed code. Starts a session, sets the session cookie and answers
+	// {"token": "...", "userId": "..."}; the token is for Bearer clients.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/auth/participant-login (the `PostApiAuthParticipantLogin` operationId).
+	PostApiAuthParticipantLoginWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthParticipantLoginResponse, error)
+
 	// PostApiAuthRefreshWithResponse Get a fresh token for the current session
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/auth/refresh (the `PostApiAuthRefresh` operationId).
 	PostApiAuthRefreshWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthRefreshResponse, error)
+
+	// PostApiAuthRegisterWithResponse Completes the caller's registration.
+	//
+	// An account exists from its first Auth0 sign-in and is unusable until it has a
+	// name and an age group; the email is optional. An account registers once.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/auth/register (the `PostApiAuthRegister` operationId).
+	PostApiAuthRegisterWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthRegisterResponse, error)
 
 	// PostApiAuthProviderLoginWithBodyWithResponse Sign in with an identity provider
 	//
@@ -566,6 +760,19 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /api/auth/{provider}/login (the `PostApiAuthProviderLogin` operationId).
 	PostApiAuthProviderLoginWithResponse(ctx context.Context, provider string, body PostApiAuthProviderLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthProviderLoginResponse, error)
+
+	// GetApiUsersMeWithResponse Reports who is calling.
+	//
+	// The state is "anonymous" without a sign-in, "registering" for an account
+	// whose registration is incomplete, and "registered" with the account and its
+	// role. A participant whose workshop is inactive, or an account that is gone,
+	// is refused with 403. Every other endpoint refuses an account that is still
+	// registering; this one reports it.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/users/me (the `GetApiUsersMe` operationId).
+	GetApiUsersMeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUsersMeResponse, error)
 
 	// GetApiVersionWithResponse Reports the server's build.
 	//
@@ -652,6 +859,40 @@ func (r PostApiAuthLogoutResponse) ContentType() string {
 	return ""
 }
 
+type PostApiAuthParticipantLoginResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiAuthParticipantLoginResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthParticipantLoginResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthParticipantLoginResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthParticipantLoginResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type PostApiAuthRefreshResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -693,6 +934,40 @@ func (r PostApiAuthRefreshResponse) ContentType() string {
 	return ""
 }
 
+type PostApiAuthRegisterResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiAuthRegisterResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthRegisterResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthRegisterResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthRegisterResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type PostApiAuthProviderLoginResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -728,6 +1003,47 @@ func (r PostApiAuthProviderLoginResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PostApiAuthProviderLoginResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiUsersMeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GetCurrentUserResp
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiUsersMeResponse) GetJSON200() *GetCurrentUserResp {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiUsersMeResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiUsersMeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiUsersMeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiUsersMeResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -820,6 +1136,23 @@ func (c *ClientWithResponses) PostApiAuthLogoutWithResponse(ctx context.Context,
 	return ParsePostApiAuthLogoutResponse(rsp)
 }
 
+// PostApiAuthParticipantLoginWithResponse Signs a workshop participant in with their token.
+//
+// Takes {"token": "..."}: the participant token whole, or its words from a link,
+// QR code or typed code. Starts a session, sets the session cookie and answers
+// {"token": "...", "userId": "..."}; the token is for Bearer clients.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/auth/participant-login (the `PostApiAuthParticipantLogin` operationId).
+func (c *ClientWithResponses) PostApiAuthParticipantLoginWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthParticipantLoginResponse, error) {
+	rsp, err := c.PostApiAuthParticipantLogin(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthParticipantLoginResponse(rsp)
+}
+
 // PostApiAuthRefreshWithResponse Get a fresh token for the current session
 //
 // Returns a wrapper object for the known response body format(s).
@@ -831,6 +1164,22 @@ func (c *ClientWithResponses) PostApiAuthRefreshWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParsePostApiAuthRefreshResponse(rsp)
+}
+
+// PostApiAuthRegisterWithResponse Completes the caller's registration.
+//
+// An account exists from its first Auth0 sign-in and is unusable until it has a
+// name and an age group; the email is optional. An account registers once.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/auth/register (the `PostApiAuthRegister` operationId).
+func (c *ClientWithResponses) PostApiAuthRegisterWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthRegisterResponse, error) {
+	rsp, err := c.PostApiAuthRegister(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthRegisterResponse(rsp)
 }
 
 // PostApiAuthProviderLoginWithBodyWithResponse Sign in with an identity provider
@@ -861,6 +1210,25 @@ func (c *ClientWithResponses) PostApiAuthProviderLoginWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParsePostApiAuthProviderLoginResponse(rsp)
+}
+
+// GetApiUsersMeWithResponse Reports who is calling.
+//
+// The state is "anonymous" without a sign-in, "registering" for an account
+// whose registration is incomplete, and "registered" with the account and its
+// role. A participant whose workshop is inactive, or an account that is gone,
+// is refused with 403. Every other endpoint refuses an account that is still
+// registering; this one reports it.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/users/me (the `GetApiUsersMe` operationId).
+func (c *ClientWithResponses) GetApiUsersMeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUsersMeResponse, error) {
+	rsp, err := c.GetApiUsersMe(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiUsersMeResponse(rsp)
 }
 
 // GetApiVersionWithResponse Reports the server's build.
@@ -932,6 +1300,22 @@ func ParsePostApiAuthLogoutResponse(rsp *http.Response) (*PostApiAuthLogoutRespo
 	return response, nil
 }
 
+// ParsePostApiAuthParticipantLoginResponse parses an HTTP response from a PostApiAuthParticipantLoginWithResponse call
+func ParsePostApiAuthParticipantLoginResponse(rsp *http.Response) (*PostApiAuthParticipantLoginResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthParticipantLoginResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParsePostApiAuthRefreshResponse parses an HTTP response from a PostApiAuthRefreshWithResponse call
 func ParsePostApiAuthRefreshResponse(rsp *http.Response) (*PostApiAuthRefreshResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -959,6 +1343,22 @@ func ParsePostApiAuthRefreshResponse(rsp *http.Response) (*PostApiAuthRefreshRes
 	case rsp.StatusCode == 401:
 		break // No content-type
 
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthRegisterResponse parses an HTTP response from a PostApiAuthRegisterWithResponse call
+func ParsePostApiAuthRegisterResponse(rsp *http.Response) (*PostApiAuthRegisterResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthRegisterResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -992,6 +1392,41 @@ func ParsePostApiAuthProviderLoginResponse(rsp *http.Response) (*PostApiAuthProv
 		break // No content-type
 
 	case rsp.StatusCode == 404:
+		break // No content-type
+
+	case rsp.StatusCode == 500:
+		break // No content-type
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiUsersMeResponse parses an HTTP response from a GetApiUsersMeWithResponse call
+func ParseGetApiUsersMeResponse(rsp *http.Response) (*GetApiUsersMeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiUsersMeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GetCurrentUserResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case rsp.StatusCode == 400:
+		break // No content-type
+
+	case rsp.StatusCode == 401:
 		break // No content-type
 
 	case rsp.StatusCode == 500:

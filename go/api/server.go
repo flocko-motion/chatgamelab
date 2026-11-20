@@ -5,7 +5,6 @@
 package api
 
 import (
-	"cgl/api/auth"
 	"cgl/api/routes"
 	"cgl/db"
 	"cgl/functional"
@@ -25,9 +24,6 @@ import (
 func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struct{}) {
 
 	telemetry.Init(routes.Version)
-
-	auth.InitJwtGeneration()
-	auth.InitPlayTokens()
 
 	routes.DevMode = devMode
 	db.DevMode = devMode

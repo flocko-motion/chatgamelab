@@ -159,7 +159,6 @@ Environment="PUBLIC_URL=https://yourdomain.com" # configure this according to yo
 Environment="PORT_FRONTEND=8000" # port internal to webserver for exposing webapp
 Environment="PORT_BACKEND=8001" # port internal to webserver for exposing backend
 Environment="SESSION_RETENTION_HOURS=48" # game sessions are deleted this long after their last activity (0 = keep forever)
-Environment="PLAY_TOKEN_SECRET=change-me" # signs the playback-engine's player cookie; set a long random value
 
 # Commands
 ExecStartPre=/usr/bin/docker compose pull

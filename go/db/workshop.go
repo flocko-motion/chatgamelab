@@ -205,7 +205,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 			participant := obj.WorkshopParticipant{
 				ID:          p.ID,
 				WorkshopID:  id,
-				Name:        p.Name,
+				Name:        p.Name.String,
 				Role:        role,
 				AccessToken: p.Auth0ID.String, // Auth token stored in auth0_id field
 				Active:      true,

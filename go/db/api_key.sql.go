@@ -252,7 +252,7 @@ type GetApiKeyShareByIDRow struct {
 	KeyIsDefault        bool           `json:"key_is_default"`
 	KeyLastUsageSuccess sql.NullBool   `json:"key_last_usage_success"`
 	KeyLastErrorCode    sql.NullString `json:"key_last_error_code"`
-	KeyOwnerName        string         `json:"key_owner_name"`
+	KeyOwnerName        sql.NullString `json:"key_owner_name"`
 }
 
 func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (GetApiKeyShareByIDRow, error) {
@@ -386,20 +386,20 @@ WHERE s.institution_id = $1
 `
 
 type GetApiKeySharesByInstitutionIDRow struct {
-	ID             uuid.UUID     `json:"id"`
-	CreatedBy      uuid.NullUUID `json:"created_by"`
-	CreatedAt      time.Time     `json:"created_at"`
-	ModifiedBy     uuid.NullUUID `json:"modified_by"`
-	ModifiedAt     time.Time     `json:"modified_at"`
-	ApiKeyID       uuid.UUID     `json:"api_key_id"`
-	UserID         uuid.NullUUID `json:"user_id"`
-	WorkshopID     uuid.NullUUID `json:"workshop_id"`
-	InstitutionID  uuid.NullUUID `json:"institution_id"`
-	GameID         uuid.NullUUID `json:"game_id"`
-	ApiKeyName     string        `json:"api_key_name"`
-	ApiKeyPlatform string        `json:"api_key_platform"`
-	OwnerID        uuid.UUID     `json:"owner_id"`
-	OwnerName      string        `json:"owner_name"`
+	ID             uuid.UUID      `json:"id"`
+	CreatedBy      uuid.NullUUID  `json:"created_by"`
+	CreatedAt      time.Time      `json:"created_at"`
+	ModifiedBy     uuid.NullUUID  `json:"modified_by"`
+	ModifiedAt     time.Time      `json:"modified_at"`
+	ApiKeyID       uuid.UUID      `json:"api_key_id"`
+	UserID         uuid.NullUUID  `json:"user_id"`
+	WorkshopID     uuid.NullUUID  `json:"workshop_id"`
+	InstitutionID  uuid.NullUUID  `json:"institution_id"`
+	GameID         uuid.NullUUID  `json:"game_id"`
+	ApiKeyName     string         `json:"api_key_name"`
+	ApiKeyPlatform string         `json:"api_key_platform"`
+	OwnerID        uuid.UUID      `json:"owner_id"`
+	OwnerName      sql.NullString `json:"owner_name"`
 }
 
 func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutionID uuid.NullUUID) ([]GetApiKeySharesByInstitutionIDRow, error) {
@@ -485,7 +485,7 @@ type GetApiKeySharesByUserIDRow struct {
 	ApiKeyLastUsageSuccess sql.NullBool   `json:"api_key_last_usage_success"`
 	ApiKeyLastErrorCode    sql.NullString `json:"api_key_last_error_code"`
 	OwnerID                uuid.UUID      `json:"owner_id"`
-	OwnerName              string         `json:"owner_name"`
+	OwnerName              sql.NullString `json:"owner_name"`
 }
 
 func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullUUID) ([]GetApiKeySharesByUserIDRow, error) {

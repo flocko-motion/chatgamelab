@@ -27,7 +27,7 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 		emailStr = *email
 	}
 	arg := CreateUserParams{
-		Name:     name,
+		Name:     userName(name),
 		Email:    sql.NullString{String: emailStr, Valid: email != nil},
 		Auth0ID:  sql.NullString{String: auth0ID, Valid: auth0ID != ""},
 		AgeGroup: stringPtrToNullString(ageGroup),
@@ -39,6 +39,25 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 		return nil, err
 	}
 
+	assignInitialRole(ctx, id, email)
+
+	finalUser, err := GetUserByID(ctx, id)
+	if err != nil {
+		log.Error("failed to get user after creation", "user_id", id, "error", err)
+		return nil, err
+	}
+	if finalUser.Role == nil {
+		log.Warn("user has no role after creation", "user_id", id)
+	} else {
+		log.Debug("user created successfully", "user_id", id, "role", finalUser.Role.Role)
+	}
+	return finalUser, nil
+}
+
+// assignInitialRole gives a new account its first role: admin while the admin
+// bootstrap is open and the email is in ADMIN_EMAILS, otherwise individual.
+// Failures are logged; the account stays.
+func assignInitialRole(ctx context.Context, id uuid.UUID, email *string) {
 	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
 	promoted := false
 	if email != nil && isAdminEmail(*email) {
@@ -60,18 +79,6 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 			log.Warn("failed to assign default individual role", "user_id", id, "error", err)
 		}
 	}
-
-	finalUser, err := GetUserByID(ctx, id)
-	if err != nil {
-		log.Error("failed to get user after creation", "user_id", id, "error", err)
-		return nil, err
-	}
-	if finalUser.Role == nil {
-		log.Warn("user has no role after creation", "user_id", id)
-	} else {
-		log.Debug("user created successfully", "user_id", id, "role", finalUser.Role.Role)
-	}
-	return finalUser, nil
 }
 
 // CreateUserWithID creates a new user with a specific UUID
@@ -82,7 +89,7 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 	}
 	arg := CreateUserWithIDParams{
 		ID:      id,
-		Name:    name,
+		Name:    userName(name),
 		Email:   sql.NullString{String: emailStr, Valid: email != nil},
 		Auth0ID: sql.NullString{String: auth0ID, Valid: auth0ID != ""},
 	}
@@ -141,7 +148,7 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	}
 	arg := UpdateUserParams{
 		ID:    id,
-		Name:  name,
+		Name:  userName(name),
 		Email: sql.NullString{String: emailStr, Valid: email != nil},
 	}
 	return queries().UpdateUser(ctx, arg)
@@ -310,7 +317,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			ModifiedBy: res.ModifiedBy,
 			ModifiedAt: &res.CreatedAt,
 		},
-		Name:          res.Name,
+		Name:          res.Name.String,
 		Email:         sqlNullStringToMaybeString(res.Email),
 		DeletedAt:     &res.DeletedAt.Time,
 		Auth0Id:       sqlNullStringToMaybeString(res.Auth0ID),
@@ -417,13 +424,13 @@ func GetUserByEmail(ctx context.Context, email string) (*obj.User, error) {
 
 // IsNameTaken checks if a username is already taken
 func IsNameTaken(ctx context.Context, name string) (bool, error) {
-	return queries().IsNameTaken(ctx, name)
+	return queries().IsNameTaken(ctx, userName(name))
 }
 
 // IsNameTakenByOther checks if a username is taken by another user (for updates)
 func IsNameTakenByOther(ctx context.Context, name string, excludeUserID uuid.UUID) (bool, error) {
 	return queries().IsNameTakenByOther(ctx, IsNameTakenByOtherParams{
-		Name: name,
+		Name: userName(name),
 		ID:   excludeUserID,
 	})
 }
@@ -591,4 +598,10 @@ func ClearActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID ...uu
 		})
 	}
 	return nil
+}
+
+// userName is a name for app_user.name, which stays NULL until registration is
+// complete.
+func userName(name string) sql.NullString {
+	return sql.NullString{String: name, Valid: true}
 }

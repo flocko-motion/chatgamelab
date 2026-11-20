@@ -3,13 +3,7 @@ import { Center, Loader } from "@mantine/core";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
-import { useAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { engineRoot, playbackURL, type PlaybackTarget } from "./playback";
-
-/** How long before the play cookie expires it is renewed. */
-const RENEW_AHEAD_MS = 5 * 60 * 1000;
-/** How soon a failed renewal is tried again. */
-const RETRY_MS = 60 * 1000;
 
 interface Frame {
   readonly target: PlaybackTarget;
@@ -31,7 +25,7 @@ function sameTarget(a: PlaybackTarget, b: PlaybackTarget): boolean {
 export function PlaybackHost({ target }: { target: PlaybackTarget }) {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const signedInAs = usePlayCookie();
+  const signedInAs = useSignedInAs();
   const frameRef = useRef<HTMLIFrameElement>(null);
 
   const [frame, setFrame] = useState<Frame>({
@@ -88,45 +82,12 @@ export function PlaybackHost({ target }: { target: PlaybackTarget }) {
 }
 
 /**
- * Gives the playback-engine the signed-in player's identity: sets the play
- * cookie before the frame mounts and renews it while the page is open. Answers
- * undefined until the frame may mount, then the player's id, or null for a
- * guest.
+ * Who the frame plays as: undefined until auth has loaded, then the player's
+ * id, or null for a guest. The session cookie reaches the playback-engine on
+ * its own.
  */
-function usePlayCookie(): string | null | undefined {
+function useSignedInAs(): string | null | undefined {
   const { isLoading, isAuthenticated, backendUser } = useAuth();
-  const api = useAuthenticatedApi();
-  const userId = isAuthenticated ? (backendUser?.id ?? null) : null;
-  const [issuedFor, setIssuedFor] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isLoading || !userId || !api) return;
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const issue = async () => {
-      let next = RETRY_MS;
-      try {
-        const { data } = await api.auth.playTokenCreate();
-        const expiresAt = data.expiresAt ? Date.parse(data.expiresAt) : NaN;
-        if (!Number.isNaN(expiresAt)) {
-          next = Math.max(expiresAt - Date.now() - RENEW_AHEAD_MS, RETRY_MS);
-        }
-      } catch {
-        // The frame mounts regardless and acts as a guest; the playback-engine
-        // explains whatever it is refused.
-      }
-      if (cancelled) return;
-      setIssuedFor(userId);
-      timer = setTimeout(issue, next);
-    };
-    void issue();
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [isLoading, userId, api]);
-
   if (isLoading) return undefined;
-  if (!userId) return null;
-  return issuedFor === userId ? userId : undefined;
+  return isAuthenticated ? (backendUser?.id ?? null) : null;
 }

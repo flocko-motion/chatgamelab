@@ -1,14 +1,11 @@
 // package: user / user management CLI commands
 // type:    cli
-// job:     configure the CLI's server connection via remote, local, alias, or JWT-update modes
+// job:     configure the CLI's server connection via remote, alias, or JWT-update modes
 // limits:  writes only local CLI config; does not manage server-side accounts (-> config)
 package user
 
 import (
-	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/config"
-	"cgl/functional"
 	"fmt"
 	"log"
 	"strings"
@@ -19,7 +16,6 @@ import (
 var (
 	remoteURL   string
 	remoteToken string
-	localMode   bool
 	aliasName   string
 )
 
@@ -29,16 +25,14 @@ var loginCmd = &cobra.Command{
 	Long: `Configure the CLI to connect to a ChatGameLab server.
 
 Modes:
-  1. Remote mode: Connect to a remote server with URL and JWT token
-     Example: user login --url https://api.example.com --token <jwt> --alias prod
+  1. Remote mode: Connect to a server with URL and token
+     Example: user login --url https://api.example.com --token <token> --alias prod
+     In development, mint the token with: ./schemaf.sh auth token <user-id>
   
-  2. Local mode: Generate JWT for local development server
-     Example: user login --local [user-id] --alias dev
-  
-  3. Quick login: Use a saved server alias
+  2. Quick login: Use a saved server alias
      Example: user login prod
   
-  4. Update JWT for existing alias: Provide alias and new JWT token
+  3. Update JWT for existing alias: Provide alias and new JWT token
      Example: user login prod --token <new-jwt>`,
 	Args: cobra.MaximumNArgs(1),
 	Run:  runLogin,
@@ -48,36 +42,29 @@ func init() {
 	Cmd.AddCommand(loginCmd)
 	loginCmd.Flags().StringVar(&remoteURL, "url", "", "Remote server URL (e.g., http://localhost:8080)")
 	loginCmd.Flags().StringVar(&remoteToken, "token", "", "JWT token for remote server")
-	loginCmd.Flags().BoolVar(&localMode, "local", false, "Use local mode (generate JWT from local server)")
 	loginCmd.Flags().StringVar(&aliasName, "alias", "", "Alias name for this server (saved for quick login)")
 }
 
 func runLogin(cmd *cobra.Command, args []string) {
-	// Mode 1: Update JWT for existing alias (alias + --token)
-	if len(args) > 0 && remoteToken != "" && remoteURL == "" && !localMode {
+	// Update the token of a saved alias (alias + --token)
+	if len(args) > 0 && remoteToken != "" && remoteURL == "" {
 		runAliasUpdateJWT(args[0], remoteToken)
 		return
 	}
 
-	// Mode 2: Quick login with alias
-	if len(args) > 0 && remoteURL == "" && remoteToken == "" && !localMode {
+	// Quick login with a saved alias
+	if len(args) > 0 && remoteURL == "" && remoteToken == "" {
 		runAliasLogin(args[0])
 		return
 	}
 
-	// Mode 3: Local mode
-	if localMode {
-		runLocalLogin(args)
-		return
-	}
-
-	// Mode 4: Remote mode
+	// Remote mode
 	if remoteURL != "" && remoteToken != "" {
 		runRemoteLogin()
 		return
 	}
 
-	log.Fatal("Either provide an alias, use --local for local mode, or provide both --url and --token for remote mode")
+	log.Fatal("Either provide an alias, or both --url and --token")
 }
 
 func runAliasLogin(alias string) {
@@ -142,52 +129,6 @@ func runRemoteLogin() {
 		fmt.Printf("  Alias: %s\n", aliasName)
 	}
 	fmt.Printf("  JWT: %s...\n", truncateToken(token))
-}
-
-func runLocalLogin(args []string) {
-	var userId string
-	if len(args) > 0 {
-		userId = args[0]
-	} else {
-		userId = "00000000-0000-0000-0000-000000000000"
-		fmt.Println("Using dev user (00000000-0000-0000-0000-000000000000)")
-	}
-
-	port := functional.EnvOrDefault("PORT_BACKEND", "")
-	if port == "" {
-		log.Fatal("PORT_BACKEND environment variable is not set")
-	}
-	localURL := fmt.Sprintf("http://127.0.0.1:%s", port)
-
-	if err := config.SetServerConfig(localURL, ""); err != nil {
-		log.Fatalf("Failed to save configuration: %v", err)
-	}
-
-	var resp routes.UsersJwtResponse
-	if err := client.ApiGet("users/"+userId+"/jwt", &resp); err != nil {
-		log.Fatalf("Failed to generate JWT from local server: %v\nMake sure the server is running at %s", err, localURL)
-	}
-
-	// Save with alias if provided
-	if aliasName != "" {
-		if err := config.SetServerConfigWithAlias(localURL, resp.Token, aliasName); err != nil {
-			log.Fatalf("Failed to save JWT: %v", err)
-		}
-	} else {
-		if err := config.SetServerConfig(localURL, resp.Token); err != nil {
-			log.Fatalf("Failed to save JWT: %v", err)
-		}
-	}
-
-	configPath, _ := config.GetConfigPath()
-	fmt.Printf("✓ Configuration saved to %s\n", configPath)
-	fmt.Printf("  Server URL: %s\n", localURL)
-	if aliasName != "" {
-		fmt.Printf("  Alias: %s\n", aliasName)
-	}
-	fmt.Printf("  User ID: %s\n", resp.UserID)
-	fmt.Printf("  Auth0 ID: %s\n", resp.Auth0ID)
-	fmt.Printf("  JWT: %s...\n", truncateToken(resp.Token))
 }
 
 func truncateToken(token string) string {

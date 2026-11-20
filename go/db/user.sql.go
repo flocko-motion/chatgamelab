@@ -134,6 +134,38 @@ func (q *Queries) ClearUserActiveWorkshop(ctx context.Context, userID uuid.UUID)
 	return err
 }
 
+const completeRegistration = `-- name: CompleteRegistration :execrows
+UPDATE app_user SET
+  name = $2,
+  email = $3,
+  age_group = $4,
+  language = COALESCE(NULLIF($5::text, ''), language),
+  modified_at = now()
+WHERE id = $1 AND name IS NULL
+`
+
+type CompleteRegistrationParams struct {
+	ID       uuid.UUID      `json:"id"`
+	Name     sql.NullString `json:"name"`
+	Email    sql.NullString `json:"email"`
+	AgeGroup sql.NullString `json:"age_group"`
+	Language string         `json:"language"`
+}
+
+func (q *Queries) CompleteRegistration(ctx context.Context, arg CompleteRegistrationParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, completeRegistration,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.AgeGroup,
+		arg.Language,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const countAdmins = `-- name: CountAdmins :one
 SELECT COUNT(*)::int AS count
 FROM user_role r
@@ -185,6 +217,21 @@ func (q *Queries) CountUserGames(ctx context.Context, createdBy uuid.NullUUID) (
 	var count int32
 	err := row.Scan(&count)
 	return count, err
+}
+
+const createAccountForAuth0 = `-- name: CreateAccountForAuth0 :one
+INSERT INTO app_user (id, auth0_id)
+VALUES (gen_random_uuid(), $1)
+ON CONFLICT (auth0_id) DO NOTHING
+RETURNING id
+`
+
+// An account from its first sign-in: no name yet, so registration is incomplete.
+func (q *Queries) CreateAccountForAuth0(ctx context.Context, auth0ID sql.NullString) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createAccountForAuth0, auth0ID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createApiKey = `-- name: CreateApiKey :one
@@ -253,9 +300,9 @@ RETURNING id
 `
 
 type CreateGuestUserParams struct {
-	ID             uuid.UUID     `json:"id"`
-	Name           string        `json:"name"`
-	PrivateShareID uuid.NullUUID `json:"private_share_id"`
+	ID             uuid.UUID      `json:"id"`
+	Name           sql.NullString `json:"name"`
+	PrivateShareID uuid.NullUUID  `json:"private_share_id"`
 }
 
 // Guest User queries
@@ -396,7 +443,7 @@ RETURNING id
 `
 
 type CreateUserParams struct {
-	Name     string         `json:"name"`
+	Name     sql.NullString `json:"name"`
 	Email    sql.NullString `json:"email"`
 	Auth0ID  sql.NullString `json:"auth0_id"`
 	AgeGroup sql.NullString `json:"age_group"`
@@ -451,7 +498,7 @@ RETURNING id
 
 type CreateUserWithIDParams struct {
 	ID      uuid.UUID      `json:"id"`
-	Name    string         `json:"name"`
+	Name    sql.NullString `json:"name"`
 	Email   sql.NullString `json:"email"`
 	Auth0ID sql.NullString `json:"auth0_id"`
 }
@@ -477,7 +524,7 @@ RETURNING id
 
 type CreateUserWithParticipantTokenParams struct {
 	ID               uuid.UUID      `json:"id"`
-	Name             string         `json:"name"`
+	Name             sql.NullString `json:"name"`
 	Email            sql.NullString `json:"email"`
 	Auth0ID          sql.NullString `json:"auth0_id"`
 	ParticipantToken sql.NullString `json:"participant_token"`
@@ -646,7 +693,7 @@ type GetAllUsersWithDetailsRow struct {
 	CreatedAt       time.Time      `json:"created_at"`
 	ModifiedBy      uuid.NullUUID  `json:"modified_by"`
 	ModifiedAt      time.Time      `json:"modified_at"`
-	Name            string         `json:"name"`
+	Name            sql.NullString `json:"name"`
 	Email           sql.NullString `json:"email"`
 	DeletedAt       sql.NullTime   `json:"deleted_at"`
 	Auth0ID         sql.NullString `json:"auth0_id"`
@@ -1026,6 +1073,38 @@ func (q *Queries) GetInvitesByWorkshop(ctx context.Context, workshopID uuid.Null
 	return items, nil
 }
 
+const getParticipantStatus = `-- name: GetParticipantStatus :one
+SELECT
+  (u.participant_token IS NOT NULL)::bool AS has_token,
+  EXISTS(
+    SELECT 1 FROM user_role ur
+    WHERE ur.user_id = u.id AND ur.role = 'participant'
+  ) AS has_role,
+  EXISTS(
+    SELECT 1 FROM user_role ur
+    JOIN workshop w ON w.id = ur.workshop_id
+    WHERE ur.user_id = u.id AND ur.role = 'participant'
+      AND w.active AND w.deleted_at IS NULL
+  ) AS workshop_active
+FROM app_user u
+WHERE u.id = $1
+`
+
+type GetParticipantStatusRow struct {
+	HasToken       bool `json:"has_token"`
+	HasRole        bool `json:"has_role"`
+	WorkshopActive bool `json:"workshop_active"`
+}
+
+// has_token marks a participant account; it may sign in while it holds the
+// participant role in an active workshop.
+func (q *Queries) GetParticipantStatus(ctx context.Context, id uuid.UUID) (GetParticipantStatusRow, error) {
+	row := q.db.QueryRowContext(ctx, getParticipantStatus, id)
+	var i GetParticipantStatusRow
+	err := row.Scan(&i.HasToken, &i.HasRole, &i.WorkshopActive)
+	return i, err
+}
+
 const getParticipantUserIDsByWorkshopID = `-- name: GetParticipantUserIDsByWorkshopID :many
 SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'participant'
 `
@@ -1131,16 +1210,16 @@ WHERE k.user_id = $1
 `
 
 type GetUserApiKeysRow struct {
-	ID         uuid.UUID     `json:"id"`
-	CreatedBy  uuid.NullUUID `json:"created_by"`
-	CreatedAt  time.Time     `json:"created_at"`
-	ModifiedBy uuid.NullUUID `json:"modified_by"`
-	ModifiedAt time.Time     `json:"modified_at"`
-	UserID     uuid.UUID     `json:"user_id"`
-	UserName   string        `json:"user_name"`
-	Name       string        `json:"name"`
-	Platform   string        `json:"platform"`
-	Key        string        `json:"key"`
+	ID         uuid.UUID      `json:"id"`
+	CreatedBy  uuid.NullUUID  `json:"created_by"`
+	CreatedAt  time.Time      `json:"created_at"`
+	ModifiedBy uuid.NullUUID  `json:"modified_by"`
+	ModifiedAt time.Time      `json:"modified_at"`
+	UserID     uuid.UUID      `json:"user_id"`
+	UserName   sql.NullString `json:"user_name"`
+	Name       string         `json:"name"`
+	Platform   string         `json:"platform"`
+	Key        string         `json:"key"`
 }
 
 func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUserApiKeysRow, error) {
@@ -1365,7 +1444,7 @@ type GetUserDetailsByIDRow struct {
 	CreatedAt                                time.Time      `json:"created_at"`
 	ModifiedBy                               uuid.NullUUID  `json:"modified_by"`
 	ModifiedAt                               time.Time      `json:"modified_at"`
-	Name                                     string         `json:"name"`
+	Name                                     sql.NullString `json:"name"`
 	Email                                    sql.NullString `json:"email"`
 	DeletedAt                                sql.NullTime   `json:"deleted_at"`
 	Auth0ID                                  sql.NullString `json:"auth0_id"`
@@ -1465,7 +1544,7 @@ WHERE ur.institution_id = $1
 
 type GetUsersByInstitutionRow struct {
 	ID         uuid.UUID      `json:"id"`
-	Name       string         `json:"name"`
+	Name       sql.NullString `json:"name"`
 	Email      sql.NullString `json:"email"`
 	CreatedBy  uuid.NullUUID  `json:"created_by"`
 	CreatedAt  time.Time      `json:"created_at"`
@@ -1522,7 +1601,7 @@ WHERE ur.workshop_id = $1
 
 type GetUsersByWorkshopRow struct {
 	ID            uuid.UUID      `json:"id"`
-	Name          string         `json:"name"`
+	Name          sql.NullString `json:"name"`
 	Email         sql.NullString `json:"email"`
 	CreatedBy     uuid.NullUUID  `json:"created_by"`
 	CreatedAt     time.Time      `json:"created_at"`
@@ -1603,7 +1682,7 @@ ORDER BY joined_at ASC
 
 type GetWorkshopParticipantsRow struct {
 	ID         uuid.UUID      `json:"id"`
-	Name       string         `json:"name"`
+	Name       sql.NullString `json:"name"`
 	Auth0ID    sql.NullString `json:"auth0_id"`
 	JoinedAt   time.Time      `json:"joined_at"`
 	Role       string         `json:"role"`
@@ -1710,7 +1789,7 @@ const isNameTaken = `-- name: IsNameTaken :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken
 `
 
-func (q *Queries) IsNameTaken(ctx context.Context, name string) (bool, error) {
+func (q *Queries) IsNameTaken(ctx context.Context, name sql.NullString) (bool, error) {
 	row := q.db.QueryRowContext(ctx, isNameTaken, name)
 	var taken bool
 	err := row.Scan(&taken)
@@ -1722,8 +1801,8 @@ SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND id != $2 AND deleted_at
 `
 
 type IsNameTakenByOtherParams struct {
-	Name string    `json:"name"`
-	ID   uuid.UUID `json:"id"`
+	Name sql.NullString `json:"name"`
+	ID   uuid.UUID      `json:"id"`
 }
 
 func (q *Queries) IsNameTakenByOther(ctx context.Context, arg IsNameTakenByOtherParams) (bool, error) {
@@ -1937,7 +2016,7 @@ WHERE id = $1
 
 type UpdateUserParams struct {
 	ID    uuid.UUID      `json:"id"`
-	Name  string         `json:"name"`
+	Name  sql.NullString `json:"name"`
 	Email sql.NullString `json:"email"`
 }
 

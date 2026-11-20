@@ -35,11 +35,11 @@ func newEngine() *engineapi.API {
 
 // mountEngine serves the engine's whole subtree under /api/engine/: the
 // playback-engine, its sessions and its lists. Every request is authenticated
-// from the play cookie or the platform's usual credentials, and every request
+// by schemaf's session (cookie or Bearer) where there is one, and every request
 // naming a session passes the access policy first.
 func mountEngine(mux *http.ServeMux) {
-	prefix := "/api" + httpx.EngineMount
-	engineRoutes := httpx.PlayAuth(http.StripPrefix(prefix, guardSessions(Engine.Handler())))
+	prefix := "/api/engine"
+	engineRoutes := httpx.OptionalAuth(http.StripPrefix(prefix, guardSessions(Engine.Handler())).ServeHTTP)
 	mux.Handle(prefix+"/", engineRoutes)
 	// Creating may look up a share token, which counts towards the token lock.
 	mux.Handle("POST "+prefix+"/sessions", httpx.TokenGuard(engineRoutes))

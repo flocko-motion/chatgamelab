@@ -493,7 +493,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	// Create anonymous user with participant token (no email, no auth0_id)
 	userArg := CreateUserWithParticipantTokenParams{
 		ID:               userID,
-		Name:             anonymousName,
+		Name:             userName(anonymousName),
 		Email:            sql.NullString{Valid: false},
 		Auth0ID:          sql.NullString{Valid: false},
 		ParticipantToken: sql.NullString{String: participantToken, Valid: true},

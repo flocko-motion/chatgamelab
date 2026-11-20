@@ -1,6 +1,25 @@
 {
   "components": {
     "schemas": {
+      "GetCurrentUserReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "GetCurrentUserResp": {
+        "properties": {
+          "state": {
+            "type": "string"
+          },
+          "user": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "state",
+          "user"
+        ],
+        "type": "object"
+      },
       "GetVersionReq": {
         "properties": {},
         "type": "object"
@@ -137,6 +156,24 @@
         "summary": "End the current session"
       }
     },
+    "/api/auth/participant-login": {
+      "post": {
+        "description": "Takes {\"token\": \"...\"}: the participant token whole, or its words from a link,\nQR code or typed code. Starts a session, sets the session cookie and answers\n{\"token\": \"...\", \"userId\": \"...\"}; the token is for Bearer clients.",
+        "operationId": "postApiAuthParticipant-login",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Signs a workshop participant in with their token."
+      }
+    },
     "/api/auth/refresh": {
       "post": {
         "operationId": "postApiAuthRefresh",
@@ -167,6 +204,35 @@
           }
         ],
         "summary": "Get a fresh token for the current session"
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "description": "An account exists from its first Auth0 sign-in and is unusable until it has a\nname and an age group; the email is optional. An account registers once.",
+        "operationId": "postApiAuthRegister",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Completes the caller's registration."
       }
     },
     "/api/auth/{provider}/login": {
@@ -219,6 +285,43 @@
           }
         },
         "summary": "Sign in with an identity provider"
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "description": "The state is \"anonymous\" without a sign-in, \"registering\" for an account\nwhose registration is incomplete, and \"registered\" with the account and its\nrole. A participant whose workshop is inactive, or an account that is gone,\nis refused with 403. Every other endpoint refuses an account that is still\nregistering; this one reports it.",
+        "operationId": "getApiUsersMe",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCurrentUserResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Reports who is calling."
       }
     },
     "/api/version": {

@@ -54,7 +54,7 @@ func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.
 		participant := obj.WorkshopParticipant{
 			ID:          p.ID,
 			WorkshopID:  workshopID,
-			Name:        p.Name,
+			Name:        p.Name.String,
 			AccessToken: p.Auth0ID.String,
 			Active:      true,
 			Role:        role,

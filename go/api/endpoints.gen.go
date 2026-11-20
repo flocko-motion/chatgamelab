@@ -8,5 +8,8 @@ import schemafapi "github.com/flocko-motion/schemaf/api"
 // Provider registers all API endpoints with the schemaf framework.
 // Wire up in go/main.go: app.AddApi(api.Provider)
 func Provider() {
+	schemafapi.Register(schemafapi.NewRoute[CompleteRegistrationReq, UserResp](CompleteRegistrationEndpoint{}, "Completes the caller's registration.", "An account exists from its first Auth0 sign-in and is unusable until it has a\nname and an age group; the email is optional. An account registers once."))
+	schemafapi.Register(schemafapi.NewRoute[GetCurrentUserReq, GetCurrentUserResp](GetCurrentUserEndpoint{}, "Reports who is calling.", "The state is \"anonymous\" without a sign-in, \"registering\" for an account\nwhose registration is incomplete, and \"registered\" with the account and its\nrole. A participant whose workshop is inactive, or an account that is gone,\nis refused with 403. Every other endpoint refuses an account that is still\nregistering; this one reports it."))
 	schemafapi.Register(schemafapi.NewRoute[GetVersionReq, GetVersionResp](GetVersionEndpoint{}, "Reports the server's build.", "Returns the version, git commit and build time the server was built with."))
+	schemafapi.Register(schemafapi.NewRawRoute(ParticipantLoginEndpoint{}, "Signs a workshop participant in with their token.", "Takes {\"token\": \"...\"}: the participant token whole, or its words from a link,\nQR code or typed code. Starts a session, sets the session cookie and answers\n{\"token\": \"...\", \"userId\": \"...\"}; the token is for Bearer clients."))
 }

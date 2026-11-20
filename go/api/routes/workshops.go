@@ -11,6 +11,8 @@ import (
 	"cgl/obj"
 	"net/http"
 
+	schemafapi "github.com/flocko-motion/schemaf/api"
+
 	"github.com/google/uuid"
 )
 
@@ -407,6 +409,11 @@ func ResetParticipantToken(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteAppError(w, appErr)
 			return
 		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	// The old token signed sessions in; they end with it.
+	if err := schemafapi.RevokeSubject(r.Context(), participantID.String()); err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

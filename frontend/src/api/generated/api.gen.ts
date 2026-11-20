@@ -10,6 +10,13 @@
  * ---------------------------------------------------------------
  */
 
+export type GetCurrentUserReq = object;
+
+export interface GetCurrentUserResp {
+  state: string;
+  user: object;
+}
+
 export type GetVersionReq = object;
 
 export interface GetVersionResp {
@@ -329,6 +336,20 @@ export class Api<
       }),
 
     /**
+     * @description Takes {"token": "..."}: the participant token whole, or its words from a link, QR code or typed code. Starts a session, sets the session cookie and answers {"token": "...", "userId": "..."}; the token is for Bearer clients.
+     *
+     * @name PostApiAuthParticipantLogin
+     * @summary Signs a workshop participant in with their token.
+     * @request POST:/api/auth/participant-login
+     */
+    postApiAuthParticipantLogin: (params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/auth/participant-login`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
      * No description
      *
      * @name PostApiAuthRefresh
@@ -342,6 +363,22 @@ export class Api<
         method: "POST",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description An account exists from its first Auth0 sign-in and is unusable until it has a name and an age group; the email is optional. An account registers once.
+     *
+     * @name PostApiAuthRegister
+     * @summary Completes the caller's registration.
+     * @request POST:/api/auth/register
+     * @secure
+     */
+    postApiAuthRegister: (params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/auth/register`,
+        method: "POST",
+        secure: true,
         ...params,
       }),
 
@@ -362,6 +399,23 @@ export class Api<
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The state is "anonymous" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A participant whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering; this one reports it.
+     *
+     * @name GetApiUsersMe
+     * @summary Reports who is calling.
+     * @request GET:/api/users/me
+     * @secure
+     */
+    getApiUsersMe: (params: RequestParams = {}) =>
+      this.request<GetCurrentUserResp, void>({
+        path: `/api/users/me`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),

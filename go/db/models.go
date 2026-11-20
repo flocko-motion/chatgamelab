@@ -47,7 +47,7 @@ type AppUser struct {
 	CreatedAt            time.Time      `json:"created_at"`
 	ModifiedBy           uuid.NullUUID  `json:"modified_by"`
 	ModifiedAt           time.Time      `json:"modified_at"`
-	Name                 string         `json:"name"`
+	Name                 sql.NullString `json:"name"`
 	Email                sql.NullString `json:"email"`
 	DeletedAt            sql.NullTime   `json:"deleted_at"`
 	Auth0ID              sql.NullString `json:"auth0_id"`

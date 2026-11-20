@@ -547,3 +547,37 @@ WHERE accepted_by = $1;
 -- Clear originally_created_by references to a deleted user
 UPDATE game SET originally_created_by = NULL
 WHERE originally_created_by = $1;
+
+-- name: CreateAccountForAuth0 :one
+-- An account from its first sign-in: no name yet, so registration is incomplete.
+INSERT INTO app_user (id, auth0_id)
+VALUES (gen_random_uuid(), $1)
+ON CONFLICT (auth0_id) DO NOTHING
+RETURNING id;
+
+-- name: CompleteRegistration :execrows
+UPDATE app_user SET
+  name = $2,
+  email = $3,
+  age_group = $4,
+  language = COALESCE(NULLIF(sqlc.arg(language)::text, ''), language),
+  modified_at = now()
+WHERE id = $1 AND name IS NULL;
+
+-- name: GetParticipantStatus :one
+-- has_token marks a participant account; it may sign in while it holds the
+-- participant role in an active workshop.
+SELECT
+  (u.participant_token IS NOT NULL)::bool AS has_token,
+  EXISTS(
+    SELECT 1 FROM user_role ur
+    WHERE ur.user_id = u.id AND ur.role = 'participant'
+  ) AS has_role,
+  EXISTS(
+    SELECT 1 FROM user_role ur
+    JOIN workshop w ON w.id = ur.workshop_id
+    WHERE ur.user_id = u.id AND ur.role = 'participant'
+      AND w.active AND w.deleted_at IS NULL
+  ) AS workshop_active
+FROM app_user u
+WHERE u.id = $1;

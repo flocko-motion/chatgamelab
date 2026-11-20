@@ -66,10 +66,6 @@ func NewMux() *http.ServeMux {
 
 	// Auth
 	mux.HandleFunc("GET /api/auth/check-name", CheckNameAvailability)
-	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
-	mux.HandleFunc("POST /api/auth/logout", Logout)
-	mux.Handle("POST /api/auth/participant-login", httpx.TokenGuard(http.HandlerFunc(ParticipantLogin)))
-	mux.Handle("POST /api/auth/play-token", httpx.RequireAuth(PostPlayToken))
 
 	// Sessions: the player's own; playing them is the engine's, mounted at /api/engine/
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
@@ -77,7 +73,6 @@ func NewMux() *http.ServeMux {
 
 	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
-	mux.Handle("GET /api/users/me", httpx.RequireAuth(GetCurrentUser))
 	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
 	mux.Handle("GET /api/users/me/participant-code", httpx.RequireAuth(GetCurrentUserParticipantCode))
 	mux.Handle("PATCH /api/users/me/language", httpx.RequireAuth(UpdateUserLanguage))
@@ -89,7 +84,6 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/users/{id}/role", httpx.RequireAuth(RemoveUserRole))
 	if DevMode {
 		mux.HandleFunc("POST /api/users/new", CreateUser)
-		mux.HandleFunc("GET /api/users/{id}/jwt", GetUserJWT)
 	}
 
 	// Institutions

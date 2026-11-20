@@ -155,7 +155,7 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 		ApiKey: &obj.ApiKey{
 			ID:               s.KeyID,
 			UserID:           s.KeyOwnerID,
-			UserName:         s.KeyOwnerName,
+			UserName:         s.KeyOwnerName.String,
 			Name:             s.KeyName,
 			Platform:         s.KeyPlatform,
 			Key:              s.KeyKey,
@@ -210,7 +210,7 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 			ApiKey: &obj.ApiKey{
 				ID:               s.ApiKeyID,
 				UserID:           s.OwnerID,
-				UserName:         s.OwnerName,
+				UserName:         s.OwnerName.String,
 				Name:             s.ApiKeyName,
 				Platform:         s.ApiKeyPlatform,
 				Key:              s.ApiKeyKey,
@@ -261,7 +261,7 @@ func GetApiKeySharesByInstitution(ctx context.Context, userID uuid.UUID, institu
 			ApiKey: &obj.ApiKey{
 				ID:       s.ApiKeyID,
 				UserID:   s.OwnerID,
-				UserName: s.OwnerName,
+				UserName: s.OwnerName.String,
 				Name:     s.ApiKeyName,
 				Platform: s.ApiKeyPlatform,
 				// Key is never exposed
