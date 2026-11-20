@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""Renders the repo's roadmap as Markdown with Mermaid, for the wiki page Roadmap.
+
+Phases are the open epics (issues with sub-issues); the order comes from
+"blocked by" relations, priority from the labels P1/P2/P3. Everything is read
+live through gh; the page is never edited by hand.
+
+Usage: scripts/roadmap.py [owner/repo] > Roadmap.md
+"""
+import json
+import subprocess
+import sys
+from collections import defaultdict
+
+REPO = sys.argv[1] if len(sys.argv) > 1 else "flocko-motion/chatgamelab"
+
+
+def gh(path):
+    out = subprocess.run(["gh", "api", "--paginate", f"repos/{REPO}/{path}"],
+                         check=True, capture_output=True, text=True).stdout
+    # --paginate concatenates JSON arrays; normalise.
+    return json.loads(out.replace("][", ","))
+
+
+def priority(issue):
+    names = {l["name"] for l in issue.get("labels", [])}
+    for p in ("P1", "P2", "P3"):
+        if p in names:
+            return int(p[1])
+    return 4
+
+
+# The open epics: open issues with sub-issues, oldest first.
+EPICS = sorted(
+    i["number"] for i in gh("issues?state=open&per_page=100")
+    if "pull_request" not in i and (i.get("sub_issues_summary") or {}).get("total", 0) > 0
+)
+
+issues = {}      # number -> issue
+phase_of = {}    # number -> epic number
+phases = []      # (epic, [numbers])
+for e in EPICS:
+    epic = gh(f"issues/{e}")
+    subs = gh(f"issues/{e}/sub_issues")
+    nums = []
+    for s in subs:
+        if s.get("repository_url", "").endswith(REPO):
+            issues[s["number"]] = s
+            phase_of[s["number"]] = e
+            nums.append(s["number"])
+    phases.append((epic, nums))
+
+blockers = defaultdict(set)  # number -> open-or-closed blockers within the set
+for n in issues:
+    for b in gh(f"issues/{n}/dependencies/blocked_by"):
+        if b["number"] in issues:
+            blockers[n].add(b["number"])
+
+
+def is_open(n):
+    return issues[n]["state"] == "open"
+
+
+def open_blockers(n, seen=None):
+    """The open issues n waits for. Done issues drop out but pass their own
+    blockers on: with A -> B (done) -> C, C waits for A."""
+    seen = set() if seen is None else seen
+    found = set()
+    for b in blockers[n]:
+        if b in seen:
+            continue
+        seen.add(b)
+        if is_open(b):
+            found.add(b)
+        else:
+            found |= open_blockers(b, seen)
+    return found
+
+
+def state(n):
+    if not is_open(n):
+        return "done"
+    if open_blockers(n):
+        return "blocked"
+    return "ready"
+
+
+phase_index = {e["number"]: i for i, (e, _) in enumerate(phases)}
+
+
+def tiebreak(n):
+    return (priority(issues[n]), phase_index[phase_of[n]], n)
+
+
+# Order: Kahn over open issues; a blocked issue always after its blockers.
+open_nums = [n for n in issues if is_open(n)]
+pending = {n: set(open_blockers(n)) for n in open_nums}
+order = []
+while pending:
+    free = sorted((n for n, bs in pending.items() if not bs), key=tiebreak)
+    if not free:  # a cycle: list the rest as they come
+        order += sorted(pending, key=tiebreak)
+        break
+    n = free[0]
+    order.append(n)
+    del pending[n]
+    for bs in pending.values():
+        bs.discard(n)
+
+url = lambda n: issues[n]["html_url"]
+people = lambda n: [u["login"] for u in issues[n].get("assignees") or []]
+tags = lambda n: [l["name"] for l in issues[n].get("labels") or []]
+
+
+def meta(n, sep=" · "):
+    parts = []
+    if people(n):
+        parts.append("👤 " + ", ".join(people(n)))
+    if tags(n):
+        parts.append("🏷 " + ", ".join(tags(n)))
+    return sep.join(parts)
+
+title = lambda n: issues[n]["title"]
+P = lambda n: f"P{priority(issues[n])}" if priority(issues[n]) < 4 else ""
+
+lines = [
+    "<!-- GENERATED: do not edit. Written by .github/workflows/roadmap.yml from the issues; any edit here is overwritten. -->",
+    "",
+    "> [!WARNING]",
+    "> **Generated automatically — do not edit this page.** It is rebuilt from the issues after every change, and edits here are overwritten.",
+    "> To change the roadmap, change the issues: their epic, priority label (`P1`–`P3`) and *blocked by* relations.",
+    "",
+    "# Roadmap",
+    "",
+]
+
+lines += ["## Next up", ""]
+ready = sorted((n for n in open_nums if state(n) == "ready"), key=tiebreak)
+for n in ready[:5]:
+    lines.append(f"- [#{n}]({url(n)}) {title(n)}" + (f" — {meta(n)}" if meta(n) else ""))
+lines.append("")
+
+lines += ["## Phases", ""]
+for epic, nums in phases:
+    done = sum(1 for n in nums if not is_open(n))
+    total = len(nums) or 1
+    bar = "▓" * round(10 * done / total) + "░" * (10 - round(10 * done / total))
+    lines.append(f"- `{bar} {done:>2}/{len(nums):<2}` **[#{epic['number']} {epic['title']}]({epic['html_url']})**")
+lines.append("")
+
+lines += ["## Order", "", "Top to bottom: what comes first. No scale, only order.", "", "```mermaid", "flowchart TB"]
+for epic, nums in phases:
+    done = sum(1 for n in nums if not is_open(n))
+    etitle = epic["title"].replace('"', "'")
+    lines.append(f'  subgraph E{epic["number"]}["#{epic["number"]} {etitle} — {done}/{len(nums)}"]')
+    # Done issues collapse into one card at the top, in the order they closed.
+    closed = sorted((n for n in nums if not is_open(n)), key=lambda n: issues[n].get("closed_at") or "")
+    if closed:
+        rows = "<br/>".join(f"✓ #{n} {title(n)}".replace('"', "'") for n in closed)
+        lines.append(f'    D{epic["number"]}["{rows}"]:::done')
+    for n in nums:
+        if not is_open(n):
+            continue
+        label = title(n).replace('"', "'")
+        extra = meta(n, "<br/>").replace('"', "'")
+        text = f"<b>#{n}</b> {label}" + (f"<br/><small>{extra}</small>" if extra else "")
+        lines.append(f'    I{n}["{text}"]:::{state(n)}')
+    # An invisible edge puts the done card above every open issue that starts the epic.
+    if closed:
+        roots = [n for n in nums if is_open(n) and not any(phase_of.get(b) == epic["number"] for b in open_blockers(n))]
+        for n in roots:
+            lines.append(f'    D{epic["number"]} ~~~ I{n}')
+    lines.append("  end")
+for n in issues:
+    if not is_open(n):
+        continue
+    for b in sorted(open_blockers(n)):
+        lines.append(f"  I{b} --> I{n}")
+lines += [
+    "  classDef done fill:#e6e6e6,color:#8a8a8a,stroke:#c8c8c8",
+    "  classDef ready fill:#d8f5d8,color:#1f3d1f,stroke:#4caf50",
+    "  classDef blocked fill:#fbe3e3,color:#5c2a2a,stroke:#d98c8c",
+    "```",
+    "",
+    "### How to read it",
+    "",
+    "- **Top to bottom is the order:** what has to happen first is higher up. There is no time scale; nothing is said about how long a step takes.",
+    "- **An arrow** runs from an issue to one that waits for it (*blocked by* on GitHub). An issue starts only once everything pointing at it is done. Done issues leave the graph but keep their chain: if A blocks B, B is done and B blocks C, the arrow runs from A to C.",
+    "- **A box** groups the issues of one epic; its title shows how many are done.",
+    "- **Each card** shows the issue's number and title, then who is assigned (👤) and its labels (🏷).",
+    "",
+    "| Colour | Means |",
+    "|---|---|",
+    "| 🟩 green | **ready**: open, and nothing it waits for is still open; can be started now |",
+    "| 🟥 pale red | **blocked**: open, but waiting for at least one open issue |",
+    "| ⬜ grey | **done**: closed; the done issues of an epic share one card at its top |",
+    "",
+]
+
+lines += ["## Order as a list", ""]
+for i, n in enumerate(order, 1):
+    wait = sorted(open_blockers(n))
+    after = f" — after {', '.join(f'#{b}' for b in wait)}" if wait else ""
+    lines.append(f"{i}. [#{n}]({url(n)}) {title(n)}{after}" + (f" — {meta(n)}" if meta(n) else ""))
+lines.append("")
+
+print("\n".join(lines))
