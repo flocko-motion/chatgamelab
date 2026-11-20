@@ -1,4 +1,4 @@
-# Rebuilds the roadmap from the issues (roadmap/): the wiki page and the interactive page.
+# Rebuilds the interactive roadmap from the issues (roadmap/) and deploys it to Pages.
 # Issue events only run workflows from the default branch, so this lives on
 # v2/development. GitHub sends no event when a "blocked by" relation changes; the
 # daily run and `make roadmap` cover that.
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # the wiki is pushed with the workflow's token
+  contents: read
   issues: read
   pages: write      # the interactive page is deployed to GitHub Pages
   id-token: write
@@ -30,30 +30,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Render the page
+      - name: Build the page
         env:
           GH_TOKEN: ${{ github.token }}
-          ROADMAP_JSON: site/roadmap.json
         run: |
           mkdir -p site
-          python3 roadmap/roadmap.py "${{ github.repository }}" > Roadmap.md
+          python3 roadmap/roadmap.py "${{ github.repository }}" > site/roadmap.json
           cp roadmap/index.html site/
-
-      - name: Push it to the wiki
-        env:
-          TOKEN: ${{ github.token }}
-        run: |
-          git clone --depth 1 "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki
-          cp Roadmap.md wiki/Roadmap.md
-          cd wiki
-          if git diff --quiet; then
-            echo "Roadmap unchanged."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Roadmap: rebuilt from the issues"
-          git push
 
       - name: Hand the interactive page to Pages
         uses: actions/upload-pages-artifact@v3

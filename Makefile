@@ -15,7 +15,7 @@ help:
 	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
 	@echo "make translate        translate changed UI texts into every language (before pushing)"
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
-	@echo "make roadmap          rebuild the wiki page Roadmap from the issues now"
+	@echo "make roadmap          rebuild the interactive roadmap from the issues now"
 	@echo "make roadmap-local    the interactive roadmap, from the live issues, on http://localhost:8765"
 
 # The spec is Typst; the PDFs are build output.
@@ -291,7 +291,7 @@ sync:
 		echo "   your $(DEV) checkout is behind it — git pull to catch up"; \
 	fi
 
-# Rebuilds the wiki page Roadmap now, rather than at the next issue change or
+# Rebuilds the interactive roadmap now, rather than at the next issue change or
 # the daily run: needed after a "blocked by" changes, which sends no event. The
 # workflow runs from the default branch, which is where GitHub dispatches it.
 #
@@ -318,7 +318,7 @@ roadmap:
 ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
 roadmap-local:
 	@mkdir -p "$(ROADMAP_LOCAL)"
-	ROADMAP_JSON="$(ROADMAP_LOCAL)/roadmap.json" python3 roadmap/roadmap.py > /dev/null
+	python3 roadmap/roadmap.py > "$(ROADMAP_LOCAL)/roadmap.json"
 	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
 	@echo "→ http://localhost:8765"
 	@(sleep 1 && (open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true)) &
