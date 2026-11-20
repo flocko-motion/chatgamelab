@@ -15,6 +15,16 @@
 - Commit messages are conventional commits (`feat:`, `fix:`, `refactor:`, …,
   a scope is fine): semantic-release cuts the versions from them.
 
+## New issues
+
+- Every issue gets a milestone (GitHub's milestone field: `1.1` v1 legacy,
+  `2.0` v2 infrastructure, `2.1` v2 features). Before creating an issue, ask
+  the owner which milestone it gets, unless they named it, and set it with
+  `--milestone`.
+- Put the issue under its epic, as a sub-issue, where one fits.
+- The roadmap (`roadmap/`) groups issues by milestone and epic; an issue
+  without a milestone lands under "No milestone".
+
 ## One worktree per issue
 
 Several agents work on this repository at the same time. The main checkout
