@@ -1,13 +1,16 @@
 # Rebuilds the interactive roadmap from the issues (roadmap/) and deploys it to Pages.
 # Issue events only run workflows from the default branch, so this lives on
-# v2/development. GitHub sends no event when a "blocked by" relation changes; the
-# daily run and `make roadmap` cover that.
+# v2/development. GitHub sends no event when a "blocked by" relation or a sub-issue
+# changes; the daily run, `make roadmap` and the page's Update button cover that.
 name: Roadmap
 
 on:
   issues:
     types: [opened, edited, closed, reopened, deleted, transferred,
             labeled, unlabeled, assigned, unassigned, milestoned, demilestoned]
+  # A milestone's due date orders the phases, its title labels a bar.
+  milestone:
+    types: [created, edited, opened, closed, deleted]
   schedule:
     - cron: "17 4 * * *"
   workflow_dispatch:
