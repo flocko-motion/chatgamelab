@@ -293,7 +293,21 @@ sync:
 # Rebuilds the wiki page Roadmap now, rather than at the next issue change or
 # the daily run: needed after a "blocked by" changes, which sends no event. The
 # workflow runs from the default branch, which is where GitHub dispatches it.
+#
+# A run can still be cancelled when a newer one replaces it while waiting; the
+# newest run then does the work, so it is followed instead.
 roadmap:
 	gh workflow run roadmap.yml
 	@sleep 3
-	gh run watch "$$(gh run list --workflow roadmap.yml --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
+	@latest() { gh run list --workflow roadmap.yml --limit 1 --json databaseId --jq '.[0].databaseId'; }; \
+	id=$$(latest); \
+	while :; do \
+		gh run watch "$$id" > /dev/null; \
+		result=$$(gh run view "$$id" --json conclusion --jq .conclusion); \
+		newest=$$(latest); \
+		if [ "$$result" = cancelled ] && [ "$$newest" != "$$id" ]; then \
+			echo "run $$id was replaced by $$newest; following it"; id=$$newest; continue; \
+		fi; \
+		echo "roadmap run $$id: $$result"; \
+		[ "$$result" = success ]; exit $$?; \
+	done
