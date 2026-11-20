@@ -49,6 +49,23 @@ func RecordPlayTurn(ctx context.Context, sessionID uuid.UUID) {
 	}
 }
 
+// RecordShareView counts one page view of a share link. Best effort: errors are only logged.
+func RecordShareView(ctx context.Context, share *obj.GameShare) {
+	params := sqlc.RecordShareViewParams{GameID: share.GameID, ShareID: uuid.NullUUID{UUID: share.ID, Valid: share.ID != uuid.Nil}}
+	if share.InstitutionID != nil {
+		params.InstitutionID = uuid.NullUUID{UUID: *share.InstitutionID, Valid: true}
+	}
+	if share.WorkshopID != nil {
+		params.WorkshopID = uuid.NullUUID{UUID: *share.WorkshopID, Valid: true}
+	}
+	if err := queries().RecordShareView(ctx, params); err != nil {
+		log.Warn("failed to record share view for statistics", "game_id", share.GameID, "error", err)
+	}
+}
+
+// statsSharedGames is how many games the share-link table lists.
+const statsSharedGames = 20
+
 // statsMonthKeys returns the last statsMonths months ("YYYY-MM", oldest first) and the start of the first.
 func statsMonthKeys(now time.Time) ([]string, time.Time) {
 	local := now.In(statsLocation)
@@ -206,5 +223,47 @@ func GetAdminStats(ctx context.Context, adminID uuid.UUID) (*obj.AdminStats, err
 	stats.Funnel = obj.RegistrationFunnel{
 		Submitted: int(funnel.Submitted), Confirmed: int(funnel.Confirmed), WithWorkshop: int(funnel.WithWorkshop),
 	}
+
+	if err := fillShareStats(ctx, stats, idx, since, since7, since30); err != nil {
+		return nil, err
+	}
 	return stats, nil
+}
+
+// fillShareStats adds share page views and the plays started from share links.
+func fillShareStats(ctx context.Context, stats *obj.AdminStats, idx map[string]int, since, since7, since30 time.Time) error {
+	q := queries()
+	if first, err := q.StatsShareViewSince(ctx); err == nil {
+		stats.Shares.ViewsRecordedSince = first
+	}
+	totals, err := q.StatsShareTotals(ctx, sqlc.StatsShareTotalsParams{Since7: since7, Since30: since30})
+	if err != nil {
+		return obj.ErrServerError("failed to count share views")
+	}
+	stats.Shares.Views = obj.StatsPeriod{Last7: int(totals.Views7), Last30: int(totals.Views30)}
+	stats.Shares.Starts = obj.StatsPeriod{Last7: int(totals.Starts7), Last30: int(totals.Starts30)}
+
+	perMonth, err := q.StatsShareViewsPerMonth(ctx, since)
+	if err != nil {
+		return obj.ErrServerError("failed to count share views per month")
+	}
+	for _, r := range perMonth {
+		if i, ok := idx[r.Month]; ok {
+			stats.Months[i].ShareViews = int(r.N)
+		}
+	}
+
+	games, err := q.StatsSharedGames(ctx, sqlc.StatsSharedGamesParams{Since7: since7, Since30: since30, MaxRows: statsSharedGames})
+	if err != nil {
+		return obj.ErrServerError("failed to load shared games")
+	}
+	stats.Shares.Games = make([]obj.SharedGameStats, len(games))
+	for i, r := range games {
+		stats.Shares.Games[i] = obj.SharedGameStats{
+			GameID: r.GameID, Name: r.Name, Deleted: r.Deleted,
+			Views:  obj.StatsPeriod{Last7: int(r.Views7), Last30: int(r.Views30)},
+			Starts: obj.StatsPeriod{Last7: int(r.Starts7), Last30: int(r.Starts30)},
+		}
+	}
+	return nil
 }

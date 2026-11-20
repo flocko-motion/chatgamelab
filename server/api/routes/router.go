@@ -155,6 +155,7 @@ func NewMux() *http.ServeMux {
 	// as guests; an authenticated caller plays the shared game as themselves (own
 	// constraint cascade, shows in recently-played). See game.CreateShareSession.
 	mux.Handle("GET /api/play/{token}/info", httpx.TokenGuard(http.HandlerFunc(PlayGuestGetGameInfo)))
+	mux.Handle("POST /api/play/{token}/view", httpx.TokenGuard(http.HandlerFunc(PlayGuestRecordView)))
 	mux.Handle("POST /api/play/{token}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestCreateSession)))
 	mux.Handle("POST /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestSendAction)))
 	mux.Handle("GET /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestGetSession)))

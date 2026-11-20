@@ -68,6 +68,34 @@ func (q *Queries) RecordPlayTurn(ctx context.Context, sessionID uuid.UUID) error
 	return err
 }
 
+const recordShareView = `-- name: RecordShareView :exec
+INSERT INTO share_view (game_id, share_id, institution_id, workshop_id)
+SELECT $1::uuid, $2::uuid,
+       COALESCE($3::uuid, w.institution_id),
+       $4::uuid
+FROM (SELECT 1) AS one
+LEFT JOIN workshop w ON w.id = $4::uuid
+`
+
+type RecordShareViewParams struct {
+	GameID        uuid.UUID
+	ShareID       uuid.NullUUID
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+}
+
+// One anonymous page view of a share link. The organisation comes from the share
+// or from the share's workshop.
+func (q *Queries) RecordShareView(ctx context.Context, arg RecordShareViewParams) error {
+	_, err := q.db.ExecContext(ctx, recordShareView,
+		arg.GameID,
+		arg.ShareID,
+		arg.InstitutionID,
+		arg.WorkshopID,
+	)
+	return err
+}
+
 const statsGamesPerInstitutionMonth = `-- name: StatsGamesPerInstitutionMonth :many
 SELECT
   COALESCE(w.institution_id, (
@@ -354,4 +382,158 @@ func (q *Queries) StatsRegistrationFunnel(ctx context.Context, since time.Time) 
 	var i StatsRegistrationFunnelRow
 	err := row.Scan(&i.Submitted, &i.Confirmed, &i.WithWorkshop)
 	return i, err
+}
+
+const statsShareTotals = `-- name: StatsShareTotals :one
+SELECT
+  (SELECT count(*) FROM share_view WHERE created_at >= $1::timestamptz)::int AS views7,
+  (SELECT count(*) FROM share_view WHERE created_at >= $2::timestamptz)::int AS views30,
+  (SELECT count(*) FROM play_stat WHERE via_share AND created_at >= $1::timestamptz)::int AS starts7,
+  (SELECT count(*) FROM play_stat WHERE via_share AND created_at >= $2::timestamptz)::int AS starts30
+`
+
+type StatsShareTotalsParams struct {
+	Since7  time.Time
+	Since30 time.Time
+}
+
+type StatsShareTotalsRow struct {
+	Views7   int32
+	Views30  int32
+	Starts7  int32
+	Starts30 int32
+}
+
+// Share page views and sessions started via a share link, last 7 and 30 days.
+func (q *Queries) StatsShareTotals(ctx context.Context, arg StatsShareTotalsParams) (StatsShareTotalsRow, error) {
+	row := q.db.QueryRowContext(ctx, statsShareTotals, arg.Since7, arg.Since30)
+	var i StatsShareTotalsRow
+	err := row.Scan(
+		&i.Views7,
+		&i.Views30,
+		&i.Starts7,
+		&i.Starts30,
+	)
+	return i, err
+}
+
+const statsShareViewSince = `-- name: StatsShareViewSince :one
+SELECT COALESCE(min(created_at), now())::timestamptz AS first_view FROM share_view
+`
+
+// The first recorded share page view; without any view yet the current time.
+func (q *Queries) StatsShareViewSince(ctx context.Context) (time.Time, error) {
+	row := q.db.QueryRowContext(ctx, statsShareViewSince)
+	var first_view time.Time
+	err := row.Scan(&first_view)
+	return first_view, err
+}
+
+const statsShareViewsPerMonth = `-- name: StatsShareViewsPerMonth :many
+SELECT to_char(date_trunc('month', created_at AT TIME ZONE 'Europe/Berlin'), 'YYYY-MM')::text AS month,
+       count(*)::int AS n
+FROM share_view
+WHERE created_at >= $1::timestamptz
+GROUP BY 1
+`
+
+type StatsShareViewsPerMonthRow struct {
+	Month string
+	N     int32
+}
+
+func (q *Queries) StatsShareViewsPerMonth(ctx context.Context, since time.Time) ([]StatsShareViewsPerMonthRow, error) {
+	rows, err := q.db.QueryContext(ctx, statsShareViewsPerMonth, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []StatsShareViewsPerMonthRow
+	for rows.Next() {
+		var i StatsShareViewsPerMonthRow
+		if err := rows.Scan(&i.Month, &i.N); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const statsSharedGames = `-- name: StatsSharedGames :many
+WITH v AS (
+  SELECT game_id,
+         count(*) FILTER (WHERE created_at >= $2::timestamptz) AS views7,
+         count(*) AS views30
+  FROM share_view WHERE created_at >= $3::timestamptz
+  GROUP BY game_id
+), s AS (
+  SELECT game_id,
+         count(*) FILTER (WHERE created_at >= $2::timestamptz) AS starts7,
+         count(*) AS starts30
+  FROM play_stat WHERE via_share AND game_id IS NOT NULL AND created_at >= $3::timestamptz
+  GROUP BY game_id
+)
+SELECT v.game_id, COALESCE(g.name, '')::text AS name, (g.deleted_at IS NOT NULL OR g.id IS NULL)::boolean AS deleted,
+       v.views7::int AS views7, v.views30::int AS views30,
+       COALESCE(s.starts7, 0)::int AS starts7, COALESCE(s.starts30, 0)::int AS starts30
+FROM v
+LEFT JOIN s ON s.game_id = v.game_id
+LEFT JOIN game g ON g.id = v.game_id
+ORDER BY v.views30 DESC, name
+LIMIT $1::int
+`
+
+type StatsSharedGamesParams struct {
+	MaxRows int32
+	Since7  time.Time
+	Since30 time.Time
+}
+
+type StatsSharedGamesRow struct {
+	GameID   uuid.UUID
+	Name     string
+	Deleted  bool
+	Views7   int32
+	Views30  int32
+	Starts7  int32
+	Starts30 int32
+}
+
+// Games with share page views in the last 30 days, most viewed first:
+// views and starts via a share link, last 7 and 30 days.
+func (q *Queries) StatsSharedGames(ctx context.Context, arg StatsSharedGamesParams) ([]StatsSharedGamesRow, error) {
+	rows, err := q.db.QueryContext(ctx, statsSharedGames, arg.MaxRows, arg.Since7, arg.Since30)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []StatsSharedGamesRow
+	for rows.Next() {
+		var i StatsSharedGamesRow
+		if err := rows.Scan(
+			&i.GameID,
+			&i.Name,
+			&i.Deleted,
+			&i.Views7,
+			&i.Views30,
+			&i.Starts7,
+			&i.Starts30,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
