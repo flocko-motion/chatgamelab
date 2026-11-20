@@ -33,11 +33,9 @@ def priority(issue):
     return 4
 
 
-# The open epics: open issues with sub-issues, oldest first.
-EPICS = sorted(
-    i["number"] for i in gh("issues?state=open&per_page=100")
-    if "pull_request" not in i and (i.get("sub_issues_summary") or {}).get("total", 0) > 0
-)
+# Every open issue; the epics among them are those with sub-issues, oldest first.
+OPEN = [i for i in gh("issues?state=open&per_page=100") if "pull_request" not in i]
+EPICS = sorted(i["number"] for i in OPEN if (i.get("sub_issues_summary") or {}).get("total", 0) > 0)
 
 issues = {}      # number -> issue
 phase_of = {}    # number -> epic number
@@ -209,6 +207,17 @@ for i, n in enumerate(order, 1):
     wait = sorted(open_blockers(n))
     after = f" — after {', '.join(f'#{b}' for b in wait)}" if wait else ""
     lines.append(f"{i}. [#{n}]({url(n)}) {title(n)}{after}" + (f" — {meta(n)}" if meta(n) else ""))
+lines.append("")
+
+# Backlog: open issues outside every open epic, the epics themselves aside.
+backlog = [i for i in OPEN if i["number"] not in issues and i["number"] not in EPICS]
+backlog.sort(key=lambda i: (priority(i), i["number"]))
+lines += [f"## Backlog ({len(backlog)})", "",
+          "Open issues in no open epic: to sort into an epic, prioritise or close.", ""]
+for i in backlog:
+    issues[i["number"]] = i
+    n = i["number"]
+    lines.append(f"- [#{n}]({url(n)}) {title(n)}" + (f" — {meta(n)}" if meta(n) else ""))
 lines.append("")
 
 print("\n".join(lines))
