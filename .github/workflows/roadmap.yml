@@ -1,0 +1,48 @@
+# Rebuilds the wiki page Roadmap from the issues (scripts/roadmap.py).
+# Issue events only run workflows from the default branch, so this lives on
+# v2/development. GitHub sends no event when a "blocked by" relation changes; the
+# daily run and `make roadmap` cover that.
+name: Roadmap
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, deleted, transferred,
+            labeled, unlabeled, assigned, unassigned, milestoned, demilestoned]
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # the wiki is pushed with the workflow's token
+  issues: read
+
+concurrency:
+  group: roadmap
+  cancel-in-progress: true
+
+jobs:
+  roadmap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Render the page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/roadmap.py "${{ github.repository }}" > Roadmap.md
+
+      - name: Push it to the wiki
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki
+          cp Roadmap.md wiki/Roadmap.md
+          cd wiki
+          if git diff --quiet; then
+            echo "Roadmap unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Roadmap: rebuilt from the issues"
+          git push
