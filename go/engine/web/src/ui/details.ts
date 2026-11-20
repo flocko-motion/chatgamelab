@@ -5,32 +5,8 @@
  * is selected, in the same place — so reading a stage costs a click rather than
  * a dialog, and the graph stays visible while you read.
  */
-import type { UsageRecord } from "../protocol.js";
+import type { EdgeDetail, NodeDetail, Sample, SessionRef, UsageRecord } from "../client.js";
 import type { PlaybackEngineState } from "../state.js";
-
-export interface Sample {
-  readonly at: string;
-  readonly kind: string;
-  readonly value: string;
-  readonly peer: string;
-}
-
-export interface EdgeDetail {
-  readonly from: string;
-  readonly to: string;
-  readonly kind: string;
-  readonly recent: Sample[];
-}
-
-export interface NodeDetail {
-  readonly name: string;
-  readonly role: string;
-  readonly type: string;
-  readonly phase: string;
-  readonly inputs: Sample[];
-  readonly outputs: Sample[];
-  readonly usage?: UsageRecord;
-}
 
 export class Details {
   #selected: string | null = null;
@@ -38,7 +14,7 @@ export class Details {
   constructor(
     private readonly title: HTMLElement,
     private readonly body: HTMLElement,
-    private readonly base: URL,
+    private readonly session: SessionRef,
   ) {}
 
   /** Returns to the whole session's figures. */
@@ -55,14 +31,20 @@ export class Details {
     this.body.replaceChildren(text("p", "meta", "loading…"));
 
     try {
-      const query = new URLSearchParams({ from, to, kind });
-      const response = await fetch(new URL(`edge?${query}`, this.base));
-      if (!response.ok) {
+      let detail: EdgeDetail;
+      try {
+        ({ data: detail } = await this.session.client.getApiEngineSessionsIdEdgesFromToKind(
+          this.session.id,
+          encodeURIComponent(from),
+          encodeURIComponent(to),
+          encodeURIComponent(kind),
+        ));
+      } catch (thrown) {
+        if (!(thrown instanceof Response)) throw thrown;
         this.body.replaceChildren(text("p", "meta", "no detail for this wire"));
         return;
       }
 
-      const detail = (await response.json()) as EdgeDetail;
       const parts: HTMLElement[] = [];
       const facts = document.createElement("div");
       facts.className = "kv";
@@ -131,13 +113,14 @@ export class Details {
   }
 
   async #renderNode(name: string): Promise<void> {
-    const response = await fetch(new URL(`nodes/${encodeURIComponent(name)}`, this.base));
-    if (!response.ok) {
+    let detail: NodeDetail;
+    try {
+      ({ data: detail } = await this.session.client.getApiEngineSessionsIdNodesNode(this.session.id, encodeURIComponent(name)));
+    } catch (thrown) {
+      if (!(thrown instanceof Response)) throw thrown;
       this.body.replaceChildren(text("p", "meta", `no detail for ${name}`));
       return;
     }
-
-    const detail = (await response.json()) as NodeDetail;
     const parts: HTMLElement[] = [facts(detail)];
 
     // A sink has no outputs and a source has no inputs, so neither is assumed.

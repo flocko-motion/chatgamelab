@@ -3,13 +3,15 @@
 # Run via: ./schemaf.sh run   (or dev)
 # The backend image is never built here: schemaf.sh builds it (./schemaf.sh build)
 # and sets SCHEMAF_IMAGE when it starts the stack.
+# SCHEMAF_INSTANCE_SUFFIX names a parallel dev instance (set by ./schemaf.sh dev
+# --instance); unset, every name is the default stack's.
 
-name: chatgamelab
+name: chatgamelab${SCHEMAF_INSTANCE_SUFFIX:-}
 
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: chatgamelab-postgres
+    container_name: chatgamelab${SCHEMAF_INSTANCE_SUFFIX:-}-postgres
     environment:
       POSTGRES_USER: schemaf
       POSTGRES_PASSWORD: ${DB_PASS:-dev}
@@ -29,12 +31,13 @@ services:
   backend:
     image: "${SCHEMAF_IMAGE:?set by schemaf.sh — use ./schemaf.sh run}"
     pull_policy: never
-    container_name: chatgamelab-backend
+    container_name: chatgamelab${SCHEMAF_INSTANCE_SUFFIX:-}-backend
     env_file:
       - path: ${HOME}/.chatgamelab/etc/env
         required: false
     environment:
       SCHEMAF_ENV: docker
+      SCHEMAF_DEV: "" # production; beats a SCHEMAF_DEV in env_file
       DB_PASS: ${DB_PASS:-dev}
       PORT: "7100"
       BACKUP_SSH_HOST: ${BACKUP_SSH_HOST:-}
@@ -62,8 +65,8 @@ secrets:
 networks:
   net:
     driver: bridge
-    name: chatgamelab-net
+    name: chatgamelab${SCHEMAF_INSTANCE_SUFFIX:-}-net
 
 volumes:
   postgres-data:
-    name: chatgamelab-postgres-data
+    name: chatgamelab${SCHEMAF_INSTANCE_SUFFIX:-}-postgres-data

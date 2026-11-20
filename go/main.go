@@ -1,7 +1,7 @@
 // package: main / entrypoint
 // type:    entrypoint
-// job:     boots the cgl binary as a schemaf app: database, API endpoints, sign-in, background services and the embedded frontend
-// limits:  holds no business logic (-> api, db)
+// job:     boots the cgl binary as a schemaf app wired by app.Wire
+// limits:  holds no wiring and no business logic (-> app)
 package main
 
 import (
@@ -10,22 +10,13 @@ import (
 
 	"github.com/flocko-motion/schemaf/schemaf"
 
-	"cgl/api"
-	"cgl/api/auth"
-	"cgl/db"
+	"cgl/app"
 )
 
 func main() {
-	app := schemaf.New(context.Background())
-
-	app.AddDb(db.Provider)
-	app.AddApi(api.Provider)
-	app.OnLogin(auth.OnLogin)
-	app.AddService(api.Startup)
-	app.AddService(api.Janitor)
-	app.SetFrontend(FrontendFS())
-
-	if err := app.Run(); err != nil {
+	a := schemaf.New(context.Background())
+	app.Wire(a)
+	if err := a.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

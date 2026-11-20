@@ -89,7 +89,7 @@ func (s *Session) problem(r *Refusal) {
 	if r.Problem == ProblemKeyRejected {
 		s.toldRejected = true
 	}
-	s.post(Event{Stream: "problem", Value: string(blob)})
+	s.post(SessionEvent{Stream: "problem", Value: string(blob)})
 	s.mu.Unlock()
 	s.flush()
 }

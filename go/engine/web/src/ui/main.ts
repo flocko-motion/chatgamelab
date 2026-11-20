@@ -2,12 +2,12 @@
  * Browser entry point. Its only jobs are constructing the headless playback-engine,
  * pointing a view at its state, and piping input into it.
  */
+import { engineClient, liveURL, refusalOf, type SessionRef } from "../client.js";
 import { PlaybackEngine } from "../playback-engine.js";
 import {
   create,
   forget,
   opening,
-  readRefusal,
   remembered,
   transientMemory,
   type Memory,
@@ -34,8 +34,8 @@ function required<T extends Element>(selector: string): T {
   return element;
 }
 
-// The engine's root, which the page sits under at playback-engine/ wherever it is mounted.
-const root = new URL("../", location.href);
+// The engine is served from the page's origin, in the platform and in the dev server alike.
+const client = engineClient(location.origin);
 const params = new URLSearchParams(location.search);
 const memories = { sessions: browserMemory(() => localStorage), pending: browserMemory(() => sessionStorage) };
 const launch = new LaunchPanel({
@@ -59,10 +59,7 @@ if (opened.kind === "new" && window.parent !== window) {
   // Same origin only: the ID plays the session, so it goes to no other site.
   window.parent.postMessage({ type: "session", id: sessionID }, location.origin);
 }
-const sessionBase = new URL(`sessions/${sessionID}/`, root);
-
-const socketURL = new URL("live", sessionBase);
-socketURL.protocol = socketURL.protocol.replace("http", "ws");
+const session: SessionRef = { client, id: sessionID };
 
 // The voice is the player's own connection to the model. It is handed to the
 // core rather than opened here, because when it opens is the engine's call:
@@ -73,15 +70,15 @@ socketURL.protocol = socketURL.protocol.replace("http", "ws");
 let recover = (): void => {};
 
 const playback = new PlaybackEngine(
-  new WebSocketTransport(socketURL, () => recover()),
-  new WebRTCVoice(sessionBase),
+  new WebSocketTransport(liveURL(session, location.origin), () => recover()),
+  new WebRTCVoice(session),
 );
 const typed = required<HTMLInputElement>("#typed");
 
 const details = new Details(
   required<HTMLElement>("#details-title"),
   required<HTMLElement>("#details"),
-  sessionBase,
+  session,
 );
 
 const view = new View({
@@ -139,8 +136,8 @@ const options = new OptionsDialog({
   scene: required<HTMLElement>(".scene-area"),
   pictures: required<HTMLButtonElement>("#pictures"),
 }, {
-  onChoose: (offer, choice) => void playback.choose(sessionBase, offer, choice),
-  onToggle: (toggle, on) => void playback.setToggle(sessionBase, toggle, on),
+  onChoose: (offer, choice) => void playback.choose(session, offer, choice),
+  onToggle: (toggle, on) => void playback.setToggle(session, toggle, on),
 });
 
 playback.subscribe((state) => {
@@ -153,12 +150,12 @@ playback.subscribe((state) => {
 // means rebuilding rather than carrying on: the same path a reload takes.
 recover = () => {
   view.reset();
-  void playback.rebuild(sessionBase);
+  void playback.rebuild(session);
 };
 
 // A reload has to rebuild what it missed before it starts listening, or the
 // first live event would land on an empty page.
-void playback.restore(sessionBase).then(async () => {
+void playback.restore(session).then(async () => {
   const topology = playback.state.topology;
   if (topology?.theme && topology.theme in PRESETS) useTheme(topology.theme);
   if (topology?.language) {
@@ -178,7 +175,7 @@ const talk = required<HTMLButtonElement>("#talk");
 talk.addEventListener("click", () => {
   if (talk.disabled) return;
   if (playback.state.paused) playback.resume();
-  else void playback.pause(sessionBase);
+  else void playback.pause(session);
 });
 
 // What is visible is the view's business, decided from the wiring. This only
@@ -227,7 +224,7 @@ async function start(selector: Selector): Promise<string> {
   const language = params.get("lang") ?? navigator.language;
   for (;;) {
     launch.wait(text("launch.starting"));
-    const created = await create(root, selector, language, memories);
+    const created = await create(client, selector, language, memories);
     if ("id" in created) return created.id;
     await launch.ask(text(created.notice.key), [text("launch.tryAgain")]);
   }
@@ -236,10 +233,11 @@ async function start(selector: Selector): Promise<string> {
 /** Whether a session can be had, and if not, why; reaching it restores it. */
 async function probe(id: string): Promise<Notice | null> {
   try {
-    const response = await fetch(new URL(`sessions/${encodeURIComponent(id)}/topology`, root));
-    return response.ok ? null : explain(await readRefusal(response));
-  } catch {
-    return notice("errors.serverUnreachable");
+    await client.getApiEngineSessionsIdTopology(id);
+    return null;
+  } catch (thrown) {
+    const refusal = await refusalOf(thrown);
+    return refusal ? explain(refusal) : notice("errors.serverUnreachable");
   }
 }
 

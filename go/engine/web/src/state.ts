@@ -1,5 +1,6 @@
 /** Everything the UI could draw, so a test can play a full game and assert on it without a DOM. */
-import type { Options, Phase, Problem, Refusal, Settled, Toggles, UsageReport } from "./protocol.js";
+import type { Options, Settled, Toggles, Topology, UsageReport } from "./client.js";
+import type { Phase, Problem, Refusal } from "./protocol.js";
 import type { Notice, TextKey } from "./texts.js";
 import type { VoiceState } from "./voice.js";
 
@@ -19,49 +20,6 @@ export interface Utterance {
   text: string;
   /** Set once the utterance is known to be finished. */
   complete: boolean;
-}
-
-/** A node in the session's wiring, as fetched once at startup. */
-export interface TopologyNode {
-  readonly name: string;
-  readonly role: "source" | "block" | "sink" | "gate";
-}
-
-export interface TopologyEdge {
-  readonly from: string;
-  readonly to: string;
-  readonly kind: string;
-}
-
-export interface Topology {
-  /** The wiring's name, which is the genre. */
-  readonly name: string;
-  /** What this game is called, as its author named it. Empty if nobody did. */
-  readonly title?: string;
-  readonly nodes: TopologyNode[];
-  readonly edges: TopologyEdge[];
-  /** What a player may supply, as the genre declares it. */
-  readonly inputs: string[];
-  /** "standing": one picture for the whole session; "per-turn": one per moment. */
-  readonly imagery: string;
-  /** The game's theme, a preset's name; absent is the default look. */
-  readonly theme?: string;
-  /** The player's language, fixed when the session was created. */
-  readonly language?: string;
-}
-
-/** Where a session stands, for a client that was not watching it happen. */
-export interface Snapshot {
-  readonly started: boolean;
-  readonly phases: Record<string, Phase>;
-  readonly props: Record<string, string>;
-  readonly usage: UsageReport;
-  /** Where a live genre's conversation stands, which a reload cannot learn by replay. */
-  readonly conversation?: Conversation;
-  /** Whether the session waits for the player's choice. */
-  readonly choosing: boolean;
-  /** What the session runs on, once settled. */
-  readonly settled?: Settled;
 }
 
 /** "open" is a conversation running with nobody on this end, as a reload leaves it. */
@@ -139,10 +97,10 @@ export function emptyState(): PlaybackEngineState {
 
 /** The text that says what each problem means to a player. */
 const PROBLEM_TEXT: Record<Problem, TextKey> = {
-  "no-key": "problems.noKey",
+  no_key: "problems.noKey",
   genre: "problems.genre",
-  "no-plays": "problems.noPlays",
-  "key-rejected": "problems.keyRejected",
+  no_plays: "problems.noPlays",
+  key_rejected: "problems.keyRejected",
   unreachable: "problems.unreachable",
   stale: "problems.stale",
   unknown: "problems.unknown",

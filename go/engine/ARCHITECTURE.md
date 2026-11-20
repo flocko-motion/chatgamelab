@@ -277,25 +277,33 @@ internals out of reach of any other module.
 
 - **Public surface**: a launched or resumed session, driven by plain Go calls
   and read as a stream of events.
-- **One HTTP transport, used two ways.** The core serves no HTTP.
-  - **Embedded**: the server launches sessions from its own routes and mounts
-    the engine's handlers in its router, behind its own middleware.
-  - **Standalone**: a small launcher serves the same handlers from a
-    hand-assembled spec.
+- **One HTTP transport, used two ways.** The core serves no HTTP. The
+  transport is one schemaf endpoint per route, each configured with the engine,
+  at `/api/engine/…` in both uses.
+  - **Embedded**: the platform declares an endpoint of its own for every
+    engine route, same method, path and types, which applies its access policy
+    and calls the engine's endpoint. They appear in its OpenAPI spec and its
+    generated clients; a test keeps the two route lists equal.
+  - **Standalone**: a small dev server serves the engine's endpoints from a
+    hand-assembled spec, on a plain mux, through schemaf's endpoint pipeline.
 
-  The transport deals in sessions and the catalogue; authentication, roles and
-  share links belong to whoever mounts it.
-- **Creating goes through the transport, doing the mounting server's work.**
+  The transport deals in sessions; authentication, roles and share links
+  belong to whoever serves it.
+- **A refusal is schemaf's error response** `{"error", "code"}`, its code the
+  problem and its status the problem's: unknown 404, denied 403, stale 410,
+  unreachable 502, failed 500, any other 422.
+- **Creating goes through the transport, doing the serving side's work.**
   `POST sessions` names a game or a share token, the player's language and a
-  one-time key; the mounting server supplies the function that launches the
+  one-time key; the serving side supplies the function that launches the
   session (the platform from its game and key cascade, the standalone launcher
   from its game file). A repeat of the one-time key within ten minutes answers
-  the same session, and only to the caller who made it: the mounting server
-  names who is asking, and anyone else is refused without learning the ID.
+  the same session, and only to the caller who made it: the serving side names
+  who is asking, and anyone else is refused without learning the ID.
 - **A session not in memory is restored lazily** through a resume function the
-  mounting server supplies, by the first request that names it.
-- **The playback-engine is embedded** in the module and addresses the engine with
-  relative URLs under any mount point.
+  serving side supplies, by the first request that names it.
+- **The playback-engine is embedded** in the module, served at
+  `/api/engine/playback-engine/`, and calls every route through the platform's
+  generated client, based at the page's origin.
 
 chatgamelab.eu runs embedded, so every request passes the platform's checks
 before reaching the engine, and a revoked key or withdrawn share takes effect on
@@ -316,8 +324,8 @@ per block and per model, with a flag for whether every model was priced.
 
 **The session-scoped event stream is the protocol**, carried according to the
 genre's interaction model: a voice genre uses one duplex connection for audio
-and events; a turn-based genre reads events as a stream and sends actions as
-requests. A genre's wired output sinks define its event types. Utterance
+and events; a turn-based genre reads events as server-sent events, one JSON
+event per message, and sends actions as requests. A genre's wired output sinks define its event types. Utterance
 boundaries travel in-band.
 
 **Live audio is browser-direct, watched through a sideband:**

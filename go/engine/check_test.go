@@ -57,7 +57,7 @@ func TestCheckOfferPassesTheMock(t *testing.T) {
 func TestCheckOfferWithoutAKey(t *testing.T) {
 	err := CheckOffer(context.Background(), Offer{Platform: PlatformMistral, ID: "share"})
 	if r := RefusalOf(err); r.Problem != ProblemNoKey {
-		t.Errorf("got %v, want no-key", err)
+		t.Errorf("got %v, want no_key", err)
 	}
 }
 
@@ -95,7 +95,7 @@ func TestKeyFailingDuringPlayIsAProblem(t *testing.T) {
 			}
 			var r Refusal
 			if err := json.Unmarshal([]byte(ev.Value), &r); err != nil || r.Problem != ProblemKeyRejected {
-				t.Fatalf("problem event %q, want key-rejected", ev.Value)
+				t.Fatalf("problem event %q, want key_rejected", ev.Value)
 			}
 			return
 		case <-deadline:

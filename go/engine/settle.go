@@ -161,7 +161,7 @@ func (s *Session) adapt(offers []Offer) error {
 
 	settled, changes, fail := fit(*s.spec.Preference, offers, soundOffers(offers), s.spec.Genre)
 	if fail != "" {
-		s.post(Event{Stream: "error", Value: "the game cannot continue: " + fail})
+		s.post(SessionEvent{Stream: "error", Value: "the game cannot continue: " + fail})
 		return errors.New(fail)
 	}
 	s.settled = &settled
@@ -190,7 +190,7 @@ func (s *Session) start(settled settlement, changes []string) {
 func (s *Session) equip() {
 	live, tool, image, err := s.spec.adapters(*s.settled)
 	if err != nil {
-		s.post(Event{Stream: "error", Value: err.Error()})
+		s.post(SessionEvent{Stream: "error", Value: err.Error()})
 		return
 	}
 	s.slots.live.Set(live)
@@ -216,7 +216,7 @@ func (s *Session) announce(changes []string) {
 	if err != nil {
 		return
 	}
-	s.post(Event{Stream: "settled", Value: string(blob)})
+	s.post(SessionEvent{Stream: "settled", Value: string(blob)})
 	// The preference may have changed, and the platform keeps it with the spec.
 	s.checkpoint()
 }
@@ -237,7 +237,7 @@ func (s *Session) settledView() *Settled {
 
 // post queues an event while mu is held; flush hands it to the sender once mu
 // is released.
-func (s *Session) post(ev Event) { s.pending = append(s.pending, ev) }
+func (s *Session) post(ev SessionEvent) { s.pending = append(s.pending, ev) }
 
 // flush hands the queued events to the sender, in order. It never waits on
 // the stream: a send can wait on a full stream nobody reads, and neither the
@@ -268,7 +268,7 @@ func (s *Session) endAfterDelivery() {
 // outbox holds events for the sender, which delivers them in order.
 type outbox struct {
 	mu     sync.Mutex
-	queue  []Event
+	queue  []SessionEvent
 	ending bool
 	ready  chan struct{}
 }
@@ -308,7 +308,7 @@ func (s *Session) deliver() {
 }
 
 // emit puts one event on the stream and in the history. Only the sender calls it.
-func (s *Session) emit(ev Event) {
+func (s *Session) emit(ev SessionEvent) {
 	s.log(ev)
 	select {
 	case s.events <- ev:

@@ -27,12 +27,17 @@ trap 'rc=$?; echo "ERROR: schemaf.sh failed at line ${LINENO}: \"${BASH_COMMAND}
 PROJECT_NAME="chatgamelab"
 # load reads the installed run-side script's version from this exact line
 # (_schemaf_script_version), so it never replaces a newer script with an older one.
-SCHEMAF_VER="v1.14.0"
+SCHEMAF_VER="v1.19.0"
 ORIG_PWD="$PWD"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 USER_DIR="$HOME/.${PROJECT_NAME}"
 DEPLOY_DIR="$USER_DIR/deploy"
 NO_CHECKOUT="this host has no checkout; that command runs on a dev or build host"
+
+# A parallel dev instance's compose names and Postgres port (cli.InstanceComposeEnv).
+# Only `dev` sets them, in Go; everything schemaf.sh starts is the default stack,
+# so they are dropped here and never loaded from an env file.
+unset SCHEMAF_INSTANCE_SUFFIX SCHEMAF_POSTGRES_PORT
 
 # Go template delimiters for --format arguments of the container CLI.
 _O='{{' _C='}}'
@@ -58,12 +63,26 @@ _die() {
 }
 
 # Load env vars from a file. Only sets variables not already in the environment.
-_schemaf_load_env() {
+# Development mode belongs to schemaf.sh (EXTEND.md › Development mode): an env
+# file that sets SCHEMAF_DEV, to any value, stops schemaf.sh before it starts
+# anything, rather than being silently overridden.
+_schemaf_refuse_dev_mode_in() {
   local envfile="$1" key val
   [ -f "$envfile" ] || return 0
   while IFS='=' read -r key val; do
     key=$(echo "$key" | xargs)
+    [ "$key" != SCHEMAF_DEV ] || _die "$envfile sets SCHEMAF_DEV, but development mode is not configured in env files: schemaf.sh sets SCHEMAF_DEV=1 for every command except build and run (EXTEND.md › Development mode). Remove the SCHEMAF_DEV line from $envfile."
+  done < "$envfile"
+}
+
+_schemaf_load_env() {
+  local envfile="$1" key val
+  [ -f "$envfile" ] || return 0
+  _schemaf_refuse_dev_mode_in "$envfile"
+  while IFS='=' read -r key val; do
+    key=$(echo "$key" | xargs)
     [ -z "$key" ] || [[ "$key" == \#* ]] && continue
+    case "$key" in SCHEMAF_INSTANCE_SUFFIX|SCHEMAF_POSTGRES_PORT) continue ;; esac
     val=$(echo "$val" | xargs)
     if [ -z "${!key:-}" ]; then
       export "$key=$val"
@@ -76,6 +95,7 @@ _schemaf_load_env() {
 # (npm install) and must never see the other variables (INSTALL.md › Secrets).
 _schemaf_env_runtime() {
   local envfile="$1" key val
+  _schemaf_refuse_dev_mode_in "$envfile"
   [ -z "${SCHEMAF_RUNTIME:-}" ] || return 0
   [ -f "$envfile" ] || return 0
   while IFS='=' read -r key val; do
@@ -204,7 +224,8 @@ EOF
 
 # >>> inputs-hash — the shell side of gen/inputs.sha256 (cli/cmd/codegen/inputs.go).
 # The input list is rendered from Go's inputGlobs and schemaSourceExcludes; a
-# test checks both agree.
+# test checks both agree. _schemaf_inputs_hash hashes the working tree,
+# _schemaf_commit_inputs_hash the same inputs as committed (build --output).
 
 # stdin → hex SHA-256.
 _schemaf_sha256() {
@@ -218,11 +239,11 @@ _schemaf_sha256() {
   fi
 }
 
-# The schemaf version required in go/go.mod: the first non-comment line holding
-# the module path directly followed by a field starting with "v".
+# The schemaf version required in go.mod (on stdin): the first non-comment line
+# holding the module path directly followed by a field starting with "v".
 _schemaf_gomod_version() {
   local v
-  v=$(awk '$1 !~ /^\/\// { for (i = 1; i < NF; i++) if ($i == "github.com/flocko-motion/schemaf" && $(i+1) ~ /^v/) { print $(i+1); exit } }' go/go.mod)
+  v=$(awk '$1 !~ /^\/\// { for (i = 1; i < NF; i++) if ($i == "github.com/flocko-motion/schemaf" && $(i+1) ~ /^v/) { print $(i+1); exit } }')
   [ -n "$v" ] || { echo "ERROR: go/go.mod requires no version of github.com/flocko-motion/schemaf" >&2; return 1; }
   echo "$v"
 }
@@ -232,7 +253,7 @@ _schemaf_inputs_hash() (
   list=""
   for f in go/api/*.go go/db/migrations/* go/db/queries/* schemaf.toml compose/*.yml; do
     [ -f "$f" ] || continue
-    case "$f" in go/api/*.gen.go) continue ;; esac
+    case "$f" in go/api/*.gen.go|go/api/*_test.go) continue ;; esac
     list="${list}${f}"$'\n'
   done
   # The packages declaring the API's types, one glob per line (gen/schema-sources).
@@ -246,7 +267,8 @@ _schemaf_inputs_hash() (
       done
     done < gen/schema-sources
   fi
-  ver=$(_schemaf_gomod_version) || exit 1
+  [ -f go/go.mod ] || { echo "ERROR: go/go.mod not found" >&2; exit 1; }
+  ver=$(_schemaf_gomod_version < go/go.mod) || exit 1
   {
     printf '%s' "$list" | LC_ALL=C sort -u | while IFS= read -r f; do
       [ -n "$f" ] || continue
@@ -256,14 +278,105 @@ _schemaf_inputs_hash() (
     printf 'schemaf %s\n' "$ver"
   } | _schemaf_sha256
 )
+
+# _schemaf_commit_glob <commit> <glob> — the files of the commit that match
+# the glob (relative to the current directory), one per line as "F <path>" for
+# a regular file or "L <path>" for a symlink, by the rules of the working-tree
+# expansion: a wildcard matches neither "/" nor a leading ".". Submodules and
+# directories are not files.
+_schemaf_commit_glob() {
+  local commit="$1" prefix="" entry meta path kind ok i c p
+  local -a pat comp
+  IFS=/ read -r -a pat <<< "$2"
+  # Only the literal leading directories narrow the listing.
+  for ((i = 0; i < ${#pat[@]} - 1; i++)); do
+    case "${pat[i]}" in *[*?[]*) break ;; esac
+    prefix="${prefix}${pat[i]}/"
+  done
+  git ls-tree -r -z "$commit" -- ${prefix:+"$prefix"} | while IFS= read -r -d '' entry; do
+    meta="${entry%%$'\t'*}" path="${entry#*$'\t'}"
+    case "${meta%% *}" in 100644|100755) kind=F ;; 120000) kind=L ;; *) continue ;; esac
+    IFS=/ read -r -a comp <<< "$path"
+    [ "${#comp[@]}" -eq "${#pat[@]}" ] || continue
+    ok=1
+    for ((i = 0; i < ${#pat[@]}; i++)); do
+      c="${comp[i]}" p="${pat[i]}"
+      if [[ $c == .* && $p != .* ]] || [[ $c != $p ]]; then ok=0; break; fi
+    done
+    if [ "$ok" = 1 ]; then printf '%s %s\n' "$kind" "$path"; fi
+  done
+}
+
+# _schemaf_commit_inputs_hash <commit> — the inputs hash over the commit's
+# versions of the input files, gen/schema-sources and go/go.mod. Untracked and
+# ignored files are not part of it: the commit is what an artifact ships. An
+# input committed as a symlink is an error: the working tree follows it, the
+# commit holds only the link.
+_schemaf_commit_inputs_hash() (
+  set -f
+  commit="$1"
+  list=""
+  symlink() {
+    echo "ERROR: input $1 is a symlink in commit ${commit:0:7} — an artifact ships the commit, commit the file itself" >&2
+    exit 1
+  }
+  for g in go/api/*.go go/db/migrations/* go/db/queries/* schemaf.toml compose/*.yml; do
+    files=$(_schemaf_commit_glob "$commit" "$g") || exit 1
+    while IFS= read -r line; do
+      [ -n "$line" ] || continue
+      f="${line#? }"
+      case "$f" in go/api/*.gen.go|go/api/*_test.go) continue ;; esac
+      [ "${line%% *}" = F ] || symlink "$f"
+      list="${list}${f}"$'\n'
+    done <<< "$files"
+  done
+  # The packages declaring the API's types, as listed in the commit.
+  if git cat-file -e "$commit:./gen/schema-sources" 2>/dev/null; then
+    sources=$(git cat-file blob "$commit:./gen/schema-sources") || exit 1
+    while IFS= read -r g; do
+      [ -n "$g" ] || continue
+      files=$(_schemaf_commit_glob "$commit" "$g") || exit 1
+      while IFS= read -r line; do
+        [ -n "$line" ] || continue
+        f="${line#? }"
+        case "${f##*/}" in .*|*.gen.go|*_test.go) continue ;; esac
+        [ "${line%% *}" = F ] || symlink "$f"
+        list="${list}${f}"$'\n'
+      done <<< "$files"
+    done <<< "$sources"
+  fi
+  git cat-file -e "$commit:./go/go.mod" 2>/dev/null \
+    || { echo "ERROR: go/go.mod is not in commit ${commit:0:7}" >&2; exit 1; }
+  ver=$(git cat-file blob "$commit:./go/go.mod" | _schemaf_gomod_version) || exit 1
+  {
+    printf '%s' "$list" | LC_ALL=C sort -u | while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      sum=$(git cat-file blob "$commit:./$f" | _schemaf_sha256) || exit 1
+      printf '%s  %s\n' "$sum" "$f"
+    done
+    printf 'schemaf %s\n' "$ver"
+  } | _schemaf_sha256
+)
 # <<< inputs-hash
 
 # Refuse when generated files don't match their inputs (EXTEND.md › Code Generation).
+# _schemaf_check_fresh checks the working tree (plain build, run, test);
+# _schemaf_check_fresh_commit <commit> checks the commit (build --output), so a
+# generated file that depends on an untracked or ignored input is stale there.
 _schemaf_check_fresh() {
   local want got
   [ -f gen/inputs.sha256 ] || _die "gen/inputs.sha256 not found — run ./schemaf.sh codegen and commit"
   want=$(tr -d '[:space:]' < gen/inputs.sha256)
   got=$(_schemaf_inputs_hash) || exit 1
+  [ "$want" = "$got" ] || _die "generated files are stale — run ./schemaf.sh codegen and commit"
+}
+
+_schemaf_check_fresh_commit() {
+  local commit="$1" want got
+  git cat-file -e "$commit:./gen/inputs.sha256" 2>/dev/null \
+    || _die "gen/inputs.sha256 is not in commit ${commit:0:7} — run ./schemaf.sh codegen and commit"
+  want=$(git cat-file blob "$commit:./gen/inputs.sha256" | tr -d '[:space:]')
+  got=$(_schemaf_commit_inputs_hash "$commit") || exit 1
   [ "$want" = "$got" ] || _die "generated files are stale — run ./schemaf.sh codegen and commit"
 }
 
@@ -358,7 +471,8 @@ _schemaf_build() {
     [ "$dirty" = false ] || tag="${short}-dirty"
   fi
   _schemaf_check_tag "$tag"
-  _schemaf_check_fresh
+  # An artifact ships the commit, so its inputs are checked as committed.
+  if [ -n "$output" ]; then _schemaf_check_fresh_commit "$commit"; else _schemaf_check_fresh; fi
   _schemaf_warn_empty_inputs
   _schemaf_check_runtime
 
@@ -428,10 +542,10 @@ _schemaf_write_artifact() {
   platform=$(_schemaf_container image inspect --format "${_O}.Os${_C}/${_O}.Architecture${_C}" "$BUILT_IMAGE")
   # Compose files from exactly the commit, like the image: an ignored file in
   # the working tree (which doesn't make it dirty) never ships.
-  git cat-file -e "$commit:compose.gen.yml" 2>/dev/null \
+  git cat-file -e "$commit:./compose.gen.yml" 2>/dev/null \
     || _die "compose.gen.yml is not in commit ${commit:0:7} — run ./schemaf.sh codegen and commit it"
   paths="compose.gen.yml"
-  if git cat-file -e "$commit:compose" 2>/dev/null; then paths="$paths compose"; fi
+  if git cat-file -e "$commit:./compose" 2>/dev/null; then paths="$paths compose"; fi
   src=$(_schemaf_mktemp)
   git archive "$commit" $paths | tar -x -C "$src"
   mkdir "$stage/compose"
@@ -679,12 +793,26 @@ _schemaf_image_rm() {
   echo "Removed $tag" >&2
 }
 
+# --instance is dev-only (INSTALL.md › Parallel dev instances): production
+# always runs the one production stack. _schemaf_refuse_instance <cmd> <args...>
+_schemaf_refuse_instance() {
+  local cmd="$1" a
+  shift
+  for a in "$@"; do
+    case "$a" in
+      --instance|--instance=*) _die "--instance is dev-only: $cmd always uses the one production stack (a parallel dev stack: ./schemaf.sh dev all --instance <n>)" ;;
+    esac
+  done
+}
+
 _schemaf_runside() {
   local cmd="$1" b tty
   shift
   _schemaf_load_env "$USER_DIR/etc/env"
+  unset SCHEMAF_DEV # the run side is production, even if the caller's shell exports it
   case "$cmd" in
     run)
+      _schemaf_refuse_instance run "$@"
       [ "${1:-}" = --image ] && [ $# -ge 2 ] || _die "on the run side, run needs a tag: schemaf.sh run --image <tag> (loaded tags: schemaf.sh image ls)"
       local tag="$2"
       shift 2
@@ -763,35 +891,28 @@ echo "schemaf ${SCHEMAF_VER} — ${PROJECT_NAME}" >&2
 
 # Env files: build reads only SCHEMAF_RUNTIME (see _schemaf_env_runtime), run
 # loads the production env after building, everything else the dev env.
+# Development mode goes with the dev env file (EXTEND.md › Development mode):
+# SCHEMAF_DEV=1 for every command that loads it, never for build or run, whatever
+# the caller's shell exports. Env files may not set it (_schemaf_refuse_dev_mode_in).
 case "$CMD" in
-  build|run) ;;
-  *) _schemaf_load_env "$USER_DIR/dev/etc/env" ;;
+  build|run) _schemaf_refuse_instance "$CMD" "$@"; unset SCHEMAF_DEV ;;
+  *)
+    _schemaf_load_env "$USER_DIR/dev/etc/env"
+    export SCHEMAF_DEV=1
+    ;;
 esac
 
 case "$CMD" in
   codegen)
-    exec go run github.com/flocko-motion/schemaf/cmd/schemaf codegen all
+    exec go run github.com/flocko-motion/schemaf/cmd/schemaf codegen
     ;;
   test)
     _schemaf_check_fresh
     go run github.com/flocko-motion/schemaf/cmd/schemaf prerun test "$PROJECT_NAME"
 
-    # Start ephemeral test environment (no volumes — all data discarded after tests).
-    _schemaf_container compose -f compose.test.gen.yml up -d --wait
-
-    # Query the random host port the runtime assigned to postgres:5432.
-    PG_PORT=$(_schemaf_container compose -f compose.test.gen.yml port postgres 5432 | awk -F: '{print $NF}')
-    export DATABASE_URL="postgres://schemaf:dev@localhost:${PG_PORT}/${PROJECT_NAME}?sslmode=disable"
-
-    # Set URL env vars for project sidecar services (generated by codegen).
-    # shellcheck source=/dev/null
-    source gen/test-env.sh
-
-    # Run tests, capture exit code, then tear down regardless of result.
-    TEST_EXIT=0
-    go run github.com/flocko-motion/schemaf/cmd/schemaf test "$@" || TEST_EXIT=$?
-    _schemaf_container compose -f compose.test.gen.yml down
-    exit $TEST_EXIT
+    # No project services: no compose stack. Each test that boots the app
+    # gets its own database from the test harness (schemaftest).
+    exec go run github.com/flocko-motion/schemaf/cmd/schemaf test "$@"
     ;;
   build)
     _schemaf_env_runtime "$USER_DIR/dev/etc/env"
@@ -859,7 +980,7 @@ case "$CMD" in
       echo "Synced framework docs → docs/schemaf/"
     fi
     echo "Running codegen..."
-    exec go run github.com/flocko-motion/schemaf/cmd/schemaf codegen all
+    exec go run github.com/flocko-motion/schemaf/cmd/schemaf codegen
     ;;
   *)
     SCHEMAF_CWD="$ORIG_PWD" exec go run "${PROJECT_ROOT}/go" "$CMD" "$@"

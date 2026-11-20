@@ -32,7 +32,7 @@ const (
 
 // Reasons a block failed, named as the session's problems are.
 const (
-	ReasonKeyRejected = "key-rejected"
+	ReasonKeyRejected = "key_rejected"
 	ReasonUnreachable = "unreachable"
 	ReasonFailed      = "failed"
 )

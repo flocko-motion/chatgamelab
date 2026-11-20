@@ -7,21 +7,28 @@ import (
 	"net/http"
 
 	"github.com/coder/websocket"
+	schemafapi "github.com/flocko-motion/schemaf/api"
 
 	"engine"
 )
 
-// SessionLive is the duplex endpoint a voice genre needs: the browser sends
-// binary audio frames, and receives the session's events back on the same
-// connection.
+// LiveEndpoint is the duplex WebSocket a voice genre needs.
 //
-// The turn-based genres do not use this — they are served by SessionInput plus
-// SessionStream. Which one a client opens is decided by the genre's declared
-// interaction model, not by the client guessing.
-func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
+// The browser sends binary frames of microphone audio and text frames of
+// typed input, a JSON LiveInput; it receives the session's events back on the
+// same connection, binary frames for audio and text frames of JSON
+// SessionEvent for everything else. A rejected input comes back as an `error`
+// event. The turn-based genres use input and stream instead; which one a
+// client opens is decided by the genre's declared interaction model.
+type LiveEndpoint struct{ API *API }
+
+func (LiveEndpoint) Method() string             { return "GET" }
+func (LiveEndpoint) Path() string               { return "/api/engine/sessions/{id}/live" }
+func (LiveEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
+	s, err := e.API.Session(r.Context(), r.PathValue("id"))
+	if err != nil {
+		return err
 	}
 
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
@@ -30,7 +37,8 @@ func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
 		InsecureSkipVerify: false,
 	})
 	if err != nil {
-		return
+		// Accept has answered the failed upgrade itself.
+		return nil
 	}
 	defer conn.CloseNow()
 	conn.SetReadLimit(-1)
@@ -69,14 +77,14 @@ func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
 	for {
 		typ, data, err := conn.Read(ctx)
 		if err != nil {
-			return
+			return nil
 		}
 
 		var submitErr error
 		if typ == websocket.MessageBinary {
 			submitErr = s.Speak(data)
 		} else {
-			var req inputRequest
+			var req LiveInput
 			if err := json.Unmarshal(data, &req); err != nil {
 				submitErr = fmt.Errorf("malformed input: %w", err)
 			} else {
@@ -87,17 +95,22 @@ func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
 		if submitErr != nil {
 			// Report and keep going: a client mistake is not a reason to end
 			// someone's conversation.
-			if err := wsJSON(ctx, conn, engine.Event{Stream: "error", Value: submitErr.Error()}); err != nil {
-				return
+			if err := wsJSON(ctx, conn, engine.SessionEvent{Stream: "error", Value: submitErr.Error()}); err != nil {
+				return nil
 			}
 		}
 	}
 }
 
-func wsJSON(ctx context.Context, conn *websocket.Conn, e engine.Event) error {
-	b, err := jsonMarshal(e)
+func wsJSON(ctx context.Context, conn *websocket.Conn, e engine.SessionEvent) error {
+	b, err := json.Marshal(e)
 	if err != nil {
 		return err
 	}
 	return conn.Write(ctx, websocket.MessageText, b)
+}
+
+// LiveInput is a text frame on the live WebSocket: typed input.
+type LiveInput struct {
+	Text string `json:"text"`
 }

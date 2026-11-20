@@ -29,6 +29,8 @@ github.com/flocko-motion/schemaf v1.13.0 h1:pFnOvIIWGOkYVBEjjyH3qcaPL0TCGx1ly3UG
 github.com/flocko-motion/schemaf v1.13.0/go.mod h1:9eI3mTRXVDLECfFQzt1OJC8yt/52H8aZtPXFHhmbCac=
 github.com/flocko-motion/schemaf v1.14.0 h1:uyw9DzNHD8DbcSXNp9yXBscEgwNyy0bDPc4kZgaEWbA=
 github.com/flocko-motion/schemaf v1.14.0/go.mod h1:Y/3Zq+IzgPrRw+0YEi2gcTDdvJYKgXZw+xnwjl2ZLnA=
+github.com/flocko-motion/schemaf v1.19.0 h1:iK4ylfXJhyvPRpqOYUGykFKQmJfQqYevSYJ53QeS6nw=
+github.com/flocko-motion/schemaf v1.19.0/go.mod h1:PgnGtB79tgIDxjuDKuVFD150s93WOdSRFYA70WB52pw=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
@@ -102,6 +104,8 @@ github.com/oapi-codegen/oapi-codegen/v2 v2.8.2 h1:68UGCFId8tysEuz1jqDgem0Lnz0d6T
 github.com/oapi-codegen/oapi-codegen/v2 v2.8.2/go.mod h1:yae2TI9IYB5vxQ35gFrpXh9L5H1eJv4MAUK1jumGMTo=
 github.com/oapi-codegen/runtime v1.9.0 h1:YZ9DxX8ZQ8ZmNW1xAtOqa3MQ9AfdcUTcoBakvhQKHno=
 github.com/oapi-codegen/runtime v1.9.0/go.mod h1:jDd+iW9sT//NMDhIne8laRtI2Zq+z1QmUNidsql+M64=
+github.com/oapi-codegen/runtime v1.9.1 h1:77xKS3fIvTBRSCivMyY79002dqH1SMCunGjm/vB9eXY=
+github.com/oapi-codegen/runtime v1.9.1/go.mod h1:jDd+iW9sT//NMDhIne8laRtI2Zq+z1QmUNidsql+M64=
 github.com/oasdiff/yaml v0.1.1 h1:6nHx+pn9gBRM6YpBlFZFQGCCd1nuvqOBtTD3KKTgGxY=
 github.com/oasdiff/yaml v0.1.1/go.mod h1:EYJNoyktvWMJ0Hmhx+6qTaqMOsalUaRGT8Sj1hNcegU=
 github.com/oasdiff/yaml3 v0.0.14 h1:aLJee3hxBK2H5wdXd9iPcIXb93Nty1Ge0pT171eHtkw=

@@ -8,13 +8,13 @@ type Problem string
 
 const (
 	// ProblemNoKey: no key is available for the game.
-	ProblemNoKey Problem = "no-key"
+	ProblemNoKey Problem = "no_key"
 	// ProblemGenre: the available key cannot run the game's genre.
 	ProblemGenre Problem = "genre"
 	// ProblemNoPlays: the share has no plays left.
-	ProblemNoPlays Problem = "no-plays"
+	ProblemNoPlays Problem = "no_plays"
 	// ProblemKeyRejected: the provider refuses the key.
-	ProblemKeyRejected Problem = "key-rejected"
+	ProblemKeyRejected Problem = "key_rejected"
 	// ProblemUnreachable: the provider does not answer.
 	ProblemUnreachable Problem = "unreachable"
 	// ProblemStale: the session was stored by another engine version, or its

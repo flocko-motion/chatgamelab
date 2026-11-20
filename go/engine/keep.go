@@ -12,7 +12,7 @@ const checkpointDelay = 250 * time.Millisecond
 const saveTimeout = 5 * time.Second
 
 // log records an event in the history and stores it, in one order for both.
-func (s *Session) log(ev Event) {
+func (s *Session) log(ev SessionEvent) {
 	s.logMu.Lock()
 	defer s.logMu.Unlock()
 	if !s.recorder.record(ev) {

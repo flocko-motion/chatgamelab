@@ -174,7 +174,7 @@ func TestHeadlessPlaybackEngineCreates(t *testing.T) {
 			return engine.Resume(context.WithoutCancel(ctx), id, store, mockOffers())
 		},
 	})
-	srv := httptest.NewServer(a.Handler())
+	srv := httptest.NewServer(serve(a))
 	defer srv.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

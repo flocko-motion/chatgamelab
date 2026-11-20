@@ -183,7 +183,7 @@ func TestResumedConversationWaitsPaused(t *testing.T) {
 	}
 }
 
-func textOf(events []engine.Event) string {
+func textOf(events []engine.SessionEvent) string {
 	var b strings.Builder
 	for _, e := range events {
 		if e.Stream == "text" {
@@ -193,7 +193,7 @@ func textOf(events []engine.Event) string {
 	return b.String()
 }
 
-func countStream(events []engine.Event, stream string) int {
+func countStream(events []engine.SessionEvent, stream string) int {
 	n := 0
 	for _, e := range events {
 		if e.Stream == stream {
