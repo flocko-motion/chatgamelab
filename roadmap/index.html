@@ -329,6 +329,90 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   }
   // A milestone stretches across the whole roadmap at the height the layout
   // gave it: a horizontal bar between the phase before and the phase after.
+  // Epic boxes are placed by hand after ELK has laid out each box's inside,
+  // in slots (x positions) and, within a band, sub-rows: a split epic stays on
+  // one vertical across the bars.
+  const GAP_X = 60, GAP_Y = 70, BAR_GAP = 50;
+  function arrangeBands() {
+    const boxes = cy.nodes("[kind='epic']").filter(n => n.visible());
+    if (!boxes.length) return;
+    const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
+    const byEpic = new Map();
+    boxes.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
+    // Split epics (pieces in several bands) each get a slot of their own for
+    // their whole span, from first band to last, so the band joining their
+    // pieces runs clear; split epics with disjoint spans may share a slot.
+    // Every other epic fills the free slots of its band, wrapping into
+    // sub-rows. There are at least EPICS_PER_ROW slots, more when more split
+    // epics overlap.
+    const rankOf = b => b.data("rank");
+    const span = e => { const rs = byEpic.get(e).map(rankOf); return [Math.min(...rs), Math.max(...rs)]; };
+    const order = (a, b) => epicOrder.get(a) - epicOrder.get(b);
+    const split = [...byEpic.keys()].filter(e => byEpic.get(e).length > 1)
+      .sort((a, b) => span(a)[0] - span(b)[0] || order(a, b));
+    const slotSpans = [];  // per slot, the spans taken by split epics
+    const placed = new Map();  // epic -> { slot }, box id -> { slot, sub }
+    for (const e of split) {
+      const [lo, hi] = span(e);
+      let s = slotSpans.findIndex(spans => spans.every(([a, b]) => hi < a || lo > b));
+      if (s < 0) { s = slotSpans.length; slotSpans.push([]); }
+      slotSpans[s].push([lo, hi]);
+      byEpic.get(e).forEach(b => placed.set(b.id(), { slot: s, sub: 0 }));
+    }
+    const slots = Math.max(EPICS_PER_ROW, slotSpans.length);
+    // In band r a split epic's slot is blocked while its band runs on below
+    // (r before its last band); in its last band the slot is free below its
+    // piece, from sub-row 1.
+    const startRow = (r, s) => {
+      let row = 0;
+      for (const [a, b] of slotSpans[s] || []) {
+        if (r >= a && r < b) return null;
+        if (r === b) row = 1;
+      }
+      return row;
+    };
+    const ranksAll = [...new Set(boxes.map(rankOf))];
+    for (const r of ranksAll) {
+      const next = new Map();
+      for (let s = 0; s < slots; s++) { const row = startRow(r, s); if (row !== null) next.set(s, row); }
+      if (!next.size) next.set(slots, 0);  // every slot blocked: an extra one on the right
+      const singles = boxes.filter(b => rankOf(b) === r && !placed.has(b.id()))
+        .sort((a, b) => order(a.data("epic"), b.data("epic")));
+      // Fill the shallowest slot first, so the band stays wide and short.
+      for (const b of singles) {
+        const [s, row] = [...next.entries()].sort((x, y) => x[1] - y[1] || x[0] - y[0])[0];
+        placed.set(b.id(), { slot: s, sub: row });
+        next.set(s, row + 1);
+      }
+    }
+    const slotOf = b => placed.get(b.id()).slot;
+    const subOf = b => placed.get(b.id()).sub;
+    const size = new Map();
+    boxes.forEach(b => { const bb = b.boundingBox(); size.set(b.id(), { w: bb.w, h: bb.h }); });
+    const slotWidth = [];
+    boxes.forEach(b => { const s = slotOf(b); slotWidth[s] = Math.max(slotWidth[s] || 0, size.get(b.id()).w); });
+    const slotX = []; let x = 0;
+    for (let s = 0; s < slotWidth.length; s++) { slotX[s] = x; x += (slotWidth[s] || 0) + GAP_X; }
+    const width = x - GAP_X;
+    const ranks = [...new Set(boxes.map(b => b.data("rank")))].sort((a, b) => a - b);
+    let y = 0;
+    for (const r of ranks) {
+      const bar = cy.nodes(`[kind='milestone'][rank = ${r}]`).filter(n => n.visible());
+      if (bar.length) { bar.style("width", width); bar.position({ x: width / 2, y }); y += BAR_GAP; }
+      const inBand = boxes.filter(b => b.data("rank") === r);
+      const subs = [...new Set(inBand.map(subOf))].sort((a, b) => a - b);
+      for (const sub of subs) {
+        const row = inBand.filter(b => subOf(b) === sub);
+        const h = Math.max(...row.map(b => size.get(b.id()).h));
+        row.forEach(b => {
+          const bb = b.boundingBox(), w = size.get(b.id()).w;
+          const dx = slotX[slotOf(b)] + (slotWidth[slotOf(b)] - w) / 2 - bb.x1, dy = y - bb.y1;
+          b.children().forEach(c => c.position({ x: c.position("x") + dx, y: c.position("y") + dy }));
+        });
+        y += h + GAP_Y;
+      }
+    }
+  }
   function stretchMilestones() {
     const epics = cy.nodes("[kind='epic']").filter(n => n.visible());
     if (!epics.length) return;
@@ -347,9 +431,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const backwards = cy.edges("[kind='issueEdge'], [kind='epicEdge']").filter(e => bandOf(e.source()) > bandOf(e.target()));
     // Displayed rather than ":visible", which also drops the invisible helper edges.
     const shown = e => e.style("display") !== "none";
-    const eles = cy.elements().filter(e => e.isNode() ? shown(e) : shown(e) && shown(e.source()) && shown(e.target()));
+    // ELK lays out only the inside of each epic box: edges between boxes and
+    // the helper edges are left out; arrangeBands places the boxes.
+    const inside = e => e.isNode() || (e.data("kind") === "row" && !e.id().startsWith("grid-")) ||
+      (e.data("kind") === "issueEdge" && e.source().parent().same(e.target().parent()));
+    const eles = cy.elements().filter(e => inside(e) && (e.isNode() ? shown(e) : shown(e) && shown(e.source()) && shown(e.target())));
     const l = eles.not(backwards).layout(layout);
-    l.one("layoutstop", () => { stretchMilestones(); cy.fit(undefined, 30); });
+    l.one("layoutstop", () => { arrangeBands(); cy.fit(undefined, 30); });
     l.run();
   };
   run();
