@@ -15,6 +15,8 @@ on:
 permissions:
   contents: write   # the wiki is pushed with the workflow's token
   issues: read
+  pages: write      # the interactive page is deployed to GitHub Pages
+  id-token: write
 
 # A running build finishes; a newer one waits behind it (GitHub keeps the
 # newest waiting run per group), so no build is cut off halfway.
@@ -31,7 +33,11 @@ jobs:
       - name: Render the page
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/roadmap.py "${{ github.repository }}" > Roadmap.md
+          ROADMAP_JSON: site/roadmap.json
+        run: |
+          mkdir -p site
+          python3 scripts/roadmap.py "${{ github.repository }}" > Roadmap.md
+          cp scripts/roadmap-site/index.html site/
 
       - name: Push it to the wiki
         env:
@@ -48,3 +54,19 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Roadmap: rebuilt from the issues"
           git push
+
+      - name: Hand the interactive page to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  # The interactive page: scripts/roadmap-site/index.html with roadmap.json.
+  pages:
+    needs: roadmap
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

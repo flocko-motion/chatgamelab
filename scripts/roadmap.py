@@ -14,6 +14,9 @@ from collections import defaultdict
 
 REPO = sys.argv[1] if len(sys.argv) > 1 else "flocko-motion/chatgamelab"
 
+# Where the roadmap workflow deploys the interactive page.
+PAGES_URL = f"https://{REPO.split('/')[0]}.github.io/{REPO.split('/')[1]}/"
+
 # Done cards per row at the top of an epic; Mermaid does not wrap a row.
 DONE_PER_ROW = 4
 
@@ -185,6 +188,8 @@ lines = [
     "",
     "# Roadmap",
     "",
+    f"**[Interactive version]({PAGES_URL})**: zoom, drag, filter by epic, search.",
+    "",
 ]
 
 lines += ["## Next up", ""]
@@ -276,5 +281,45 @@ for i in backlog:
     n = i["number"]
     lines.append(f"- [#{n}]({url(n)}) {title(n)}" + (f" — {meta(n)}" if meta(n) else ""))
 lines.append("")
+
+# The same roadmap as data, for the interactive page (ROADMAP_JSON=path).
+JSON_OUT = __import__("os").environ.get("ROADMAP_JSON")
+if JSON_OUT:
+    from datetime import datetime, timezone
+
+    def item(n):
+        i = issues[n]
+        return {
+            "number": n,
+            "title": i["title"],
+            "url": i["html_url"],
+            "state": state(n) if n in phase_of else ("done" if i["state"] != "open" else "backlog"),
+            "epic": phase_of.get(n),
+            "assignees": people(n),
+            "labels": tags(n),
+            "priority": priority(i) if priority(i) < 4 else None,
+            "closedAt": i.get("closed_at"),
+            "blockedBy": sorted(open_blockers(n)) if n in phase_of and is_open(n) else [],
+        }
+
+    data = {
+        "repo": REPO,
+        "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "epics": [{
+            "number": epic["number"],
+            "title": epic["title"],
+            "url": epic["html_url"],
+            "done": sum(1 for n in nums if not is_open(n)),
+            "total": len(nums),
+            "waitsOn": sorted(waits_on[epic["number"]]),
+            "issues": nums,
+        } for epic, nums in phases],
+        "issues": [item(n) for n in phase_of],
+        "order": order,
+        "next": ready[:5],
+        "backlog": [item(i["number"]) for i in backlog],
+    }
+    with open(JSON_OUT, "w") as f:
+        json.dump(data, f, indent=1)
 
 print("\n".join(lines))
