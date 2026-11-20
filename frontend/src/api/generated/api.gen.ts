@@ -1436,7 +1436,7 @@ export class Api<
       }),
 
     /**
-     * @description Development only: without DEV_MODE it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "participant"), starts a session for its account and sets the session cookie.
+     * @description Development only: outside development mode it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "participant"), starts a session for its account and sets the session cookie.
      *
      * @name PostApiAuthDevLogin
      * @summary Signs in as one of the seeded development accounts.

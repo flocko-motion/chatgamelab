@@ -15,7 +15,7 @@
                 "server"
             ],
             "env": {
-                "DEV_MODE": "1"
+                "SCHEMAF_DEV": "1"
             },
             "envFile": "${workspaceFolder}/.env"
         },

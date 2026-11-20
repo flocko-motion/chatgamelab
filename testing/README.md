@@ -1,76 +1,85 @@
-# Integration Tests
+# Integration tests
 
-Go-based integration tests for the ChatGameLab backend API.
+Go integration tests for the ChatGameLab platform: they drive the API as its
+callers do and check what it answers.
 
-## Concept
-
-- **Suite-based**: Each test suite gets its own clean database state
-- **Simple setup**: Just Postgres in Docker, backend runs with `go run`
-- **Fast**: Postgres stays running between suites, only tables are dropped
-- **High-level API**: User-centric test helpers with fluent interface
-- **IDE-friendly**: Run any test directly from your IDE
-
-## Quick Start
+## Running
 
 ```bash
-# Setup (first time only)
-cd testing && go mod tidy
-
-# Run all tests (Postgres auto-starts on first run)
-go test -v
-
-# Run specific suite
-go test -v -run TestBasicSuite
+cd testing
+go test ./...                      # every suite
+go test -run TestSessionSuite      # one suite
+go test -run TestSessionSuite/TestSessionCookie
 ```
 
-## Writing Tests
+All they need is a running container runtime (Docker or Podman).
+
+## How a suite runs
+
+Each suite embeds `testutil.BaseSuite`. Its `SetupSuite` starts a fresh
+instance of the platform through schemaf's test harness
+(`schemaftest.Start(t, app.Wire)`): its own database, cloned from a template
+with every migration applied, and the backend in-process on a free port, in
+development mode. The first suite in a run starts one Postgres container; it
+goes away with the test process.
+
+The tests of a suite share its instance and database, so a test that depends
+on another one shows up. `s.RestartBackend()` restarts the backend on the
+same database, as a deployment does.
+
+## Writing a test
+
+A test reads like plain English, in the words `testutil` offers:
 
 ```go
-import (
-    "testing"
-    "cgl/obj"
-    "cgl/testing/testutil"
-    "github.com/stretchr/testify/suite"
-)
-
 type MyTestSuite struct {
-    testutil.BaseSuite  // Automatic Docker lifecycle
+    testutil.BaseSuite
 }
 
 func TestMySuite(t *testing.T) {
-    s := &MyTestSuite{}
-    s.SuiteName = "My Tests"
-    suite.Run(t, s)
+    suite.Run(t, &MyTestSuite{})
 }
 
-func (s *MyTestSuite) TestExample() {
-    // Create users with fluent API
-    alice := testutil.CreateUser(s.T(), "alice", "alice@example.com").Role("admin")
-    bob := testutil.CreateUser(s.T(), "bob", "bob@example.com")
-    
-    // Make API calls
-    var game obj.Game
-    alice.MustPost("games/new", map[string]interface{}{
-        "name": "Test Game",
-    }, &game)
-    
-    // Suite assertions
-    s.NotEmpty(game.ID)
-    s.Equal("Test Game", game.Name)
+func (s *MyTestSuite) TestAnOutsiderCannotOpenTheWorkshop() {
+    head := s.CreateUser("head")
+    outsider := s.CreateUser("outsider")
+    inst := Must(s.DevUser().CreateInstitution("Org"))
+    Must(head.AcceptInvite(Must(s.DevUser().InviteToInstitution(inst.Id.String(), "head", head.ID)).Id.String()))
+    workshop := Must(head.CreateWorkshop(inst.Id.String(), "Workshop"))
+
+    _, err := outsider.GetWorkshop(workshop.Id.String())
+    s.Forbidden(err)
 }
 ```
 
-## Structure
+- **Callers.** `s.CreateUser(name)` creates an account and signs it in with a
+  token the instance mints; `s.DevUser()` is the preseeded admin;
+  `s.Public()` calls without credentials; `s.JoinWorkshop(inviteToken)` and
+  `s.ParticipantLogin(token)` sign participants in; `s.JoinWorkshopWithCookie`
+  gives a caller carrying only the session cookie, as the playback-engine in
+  its iframe does.
+- **Answers** are the generated client's types, re-exported from `testutil`
+  (`testutil.Game`, `testutil.Workshop`, …).
+- **Refusals** are asserted by their code: `s.Forbidden(err)`,
+  `s.NotFound(err)`, `s.Unauthorized(err)`, `s.Refused(err, testutil.CodeNoKey)`.
+- **Success**: `Must(value, err)` returns the value or fails the test;
+  `MustSucceed(err)` for calls without one.
+
+Test files import only the vocabulary, testify, `uuid` and harmless standard
+library; `vocabulary_test.go` checks it. A missing word goes into `testutil`,
+built on the generated client `cgl/apiclient` (`docs/rules/test-vocabulary.md`).
+
+## Layout
 
 ```
 testing/
-├── testutil/              # Infrastructure (BaseSuite, UserClient, etc.)
-├── integration_test.go    # BasicTestSuite
-├── multiuser_test.go      # MultiUserTestSuite
-└── go.mod
+├── testutil/
+│   ├── suite.go       # BaseSuite: the instance, creating and signing in callers
+│   ├── client.go      # the callers on the generated client; refusals
+│   ├── refusals.go    # error codes and the words for refusals
+│   ├── types.go       # the generated client's types tests name
+│   └── users.go, orgs.go, apikeys.go, games.go, sessions.go   # the words
+├── testdata/games/    # game files UploadGame reads
+├── vocabulary_test.go # test files speak only the vocabulary
+└── *_test.go          # the suites
 ```
-
-**Architecture:**
-- Postgres runs in Docker (port 7104) - stays running between suites
-- Backend runs with `go run` (port 7102) - restarted per suite
-- Each suite: **SetupSuite** (clean DB + start backend) → **tests** → **TearDownSuite** (stop backend)

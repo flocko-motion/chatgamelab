@@ -1,8 +1,9 @@
 package testing
 
 import (
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -26,25 +27,23 @@ func (s *WorkshopInviteValidationSuite) workshopSetup(prefix string) (*testutil.
 
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	keyShare := Must(head.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsIDStr := workshop.ID.String()
-	orgShareIDStr := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	wsIDStr := workshop.Id.String()
+	orgShareIDStr := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":     prefix + " Workshop",
-		"active":   true,
-		"public":   false,
-		"isPaused": false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:   prefix + " Workshop",
+		Active: true,
 	}))
 
-	return head, inst.ID.String(), wsIDStr
+	return head, inst.Id.String(), wsIDStr
 }
 
 // TestCannotInviteHeadOfSameOrg verifies that head of the same org cannot be invited by email.
@@ -55,11 +54,11 @@ func (s *WorkshopInviteValidationSuite) TestCannotInviteHeadOfSameOrg() {
 	// Create another head in the same org
 	otherHead := s.CreateUser("inv-head-other")
 	otherInvite := Must(admin.InviteToInstitution(instID, "head", otherHead.ID))
-	Must(otherHead.AcceptInvite(otherInvite.ID.String()))
+	Must(otherHead.AcceptInvite(otherInvite.Id.String()))
 
 	// Try to invite the other head — should fail
 	_, err := head.InviteToWorkshopByEmail(wsID, otherHead.Email)
-	s.Error(err, "should not be able to invite head of same org to workshop")
+	s.Invalid(err, "should not be able to invite head of same org to workshop")
 }
 
 // TestCannotInviteStaffOfSameOrg verifies that staff of the same org cannot be invited by email.
@@ -70,11 +69,11 @@ func (s *WorkshopInviteValidationSuite) TestCannotInviteStaffOfSameOrg() {
 	// Create staff in the same org
 	staff := s.CreateUser("inv-staff-member")
 	staffInvite := Must(admin.InviteToInstitution(instID, "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	Must(staff.AcceptInvite(staffInvite.Id.String()))
 
 	// Try to invite staff — should fail
 	_, err := head.InviteToWorkshopByEmail(wsID, staff.Email)
-	s.Error(err, "should not be able to invite staff of same org to workshop")
+	s.Invalid(err, "should not be able to invite staff of same org to workshop")
 }
 
 // TestCanInviteHeadOfDifferentOrg verifies that head of a different org CAN be invited.
@@ -85,13 +84,13 @@ func (s *WorkshopInviteValidationSuite) TestCanInviteHeadOfDifferentOrg() {
 	// Create a different org with a head
 	otherInst := Must(admin.CreateInstitution("inv-difforg Other Org"))
 	otherHead := s.CreateUser("inv-difforg-other")
-	otherInvite := Must(admin.InviteToInstitution(otherInst.ID.String(), "head", otherHead.ID))
-	Must(otherHead.AcceptInvite(otherInvite.ID.String()))
+	otherInvite := Must(admin.InviteToInstitution(otherInst.Id.String(), "head", otherHead.ID))
+	Must(otherHead.AcceptInvite(otherInvite.Id.String()))
 
 	// Should be able to invite head from different org
 	invite, err := head.InviteToWorkshopByEmail(wsID, otherHead.Email)
 	s.NoError(err, "should be able to invite head of different org to workshop")
-	s.NotEmpty(invite.ID)
+	s.NotEmpty(invite.Id)
 }
 
 // TestWorkshopInviteIncludesNames verifies that the invite listing response
@@ -104,14 +103,15 @@ func (s *WorkshopInviteValidationSuite) TestWorkshopInviteIncludesNames() {
 	Must(head.InviteToWorkshopByEmail(wsID, target.Email))
 
 	// Target fetches their invites with full details
-	invites := Must(target.GetInvitesIncomingDetailed())
+	invites := Must(target.GetInvitesIncoming())
 	s.Require().Len(invites, 1, "should have one pending invite")
 
 	invite := invites[0]
-	s.NotNil(invite.WorkshopID, "should have workshopId")
-	s.NotNil(invite.WorkshopName, "should have workshopName")
+	s.Require().NotNil(invite.WorkshopId, "should have workshopId")
+	s.Equal(wsID, *invite.WorkshopId)
+	s.Require().NotNil(invite.WorkshopName, "should have workshopName")
 	s.Equal("inv-names Workshop", *invite.WorkshopName)
-	s.NotNil(invite.InstitutionName, "should have institutionName")
+	s.Require().NotNil(invite.InstitutionName, "should have institutionName")
 	s.Equal("inv-names Org", *invite.InstitutionName)
 }
 
@@ -123,10 +123,10 @@ func (s *WorkshopInviteValidationSuite) TestCanInviteIndividualOfSameOrg() {
 	// Create an individual in the same org
 	individual := s.CreateUser("inv-ind-user")
 	indInvite := Must(admin.InviteToInstitution(instID, "individual", individual.ID))
-	Must(individual.AcceptInvite(indInvite.ID.String()))
+	Must(individual.AcceptInvite(indInvite.Id.String()))
 
 	// Should be able to invite individual from same org
 	invite, err := head.InviteToWorkshopByEmail(wsID, individual.Email)
 	s.NoError(err, "should be able to invite individual of same org to workshop")
-	s.NotEmpty(invite.ID)
+	s.NotEmpty(invite.Id)
 }

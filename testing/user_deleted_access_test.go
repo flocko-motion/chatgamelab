@@ -1,14 +1,15 @@
 package testing
 
 import (
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
 
-// UserDeletedAccessTestSuite tests that a deleted user's token is rejected
-// for all subsequent API calls.
+// UserDeletedAccessTestSuite tests that a deleted account's token is refused
+// on every later call: the account behind it is gone.
 type UserDeletedAccessTestSuite struct {
 	testutil.BaseSuite
 }
@@ -19,62 +20,34 @@ func TestUserDeletedAccessSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// TestDeletedUserCannotListGames verifies that after an admin deletes a user,
-// the user's existing token can no longer list games.
 func (s *UserDeletedAccessTestSuite) TestDeletedUserCannotListGames() {
-	admin := s.DevUser()
-
-	// Create a user and verify they can list games
 	user := s.CreateUser("del-access-list")
+	Must(user.ListGames())
+
+	MustSucceed(s.DevUser().DeleteUser(user.ID))
+
 	_, err := user.ListGames()
-	s.NoError(err, "user should be able to list games before deletion")
-	s.T().Logf("User can list games before deletion")
-
-	// Admin deletes the user
-	MustSucceed(admin.DeleteUser(user.ID))
-	s.T().Logf("Admin deleted user %s", user.Name)
-
-	// User's token should now be rejected
-	user.FailGet("games", testutil.ErrorContains("401"))
-	s.T().Logf("Deleted user correctly rejected when listing games")
+	s.Forbidden(err)
 }
 
-// TestDeletedUserCannotCreateGame verifies that after an admin deletes a user,
-// the user's existing token can no longer create games.
 func (s *UserDeletedAccessTestSuite) TestDeletedUserCannotCreateGame() {
-	admin := s.DevUser()
-
-	// Create a user and verify they can create a game
 	user := s.CreateUser("del-access-create")
-	game := Must(user.UploadGame("alien-first-contact"))
-	s.NotEmpty(game.ID, "user should be able to create a game before deletion")
-	s.T().Logf("User created game %s before deletion", game.ID)
+	Must(user.UploadGame("alien-first-contact"))
 
-	// Admin deletes the user
-	MustSucceed(admin.DeleteUser(user.ID))
-	s.T().Logf("Admin deleted user %s", user.Name)
+	MustSucceed(s.DevUser().DeleteUser(user.ID))
 
-	// User's token should now be rejected for game creation
-	user.FailPost("games/new", map[string]string{"name": "Should Fail"}, testutil.ErrorContains("401"))
-	s.T().Logf("Deleted user correctly rejected when creating a game")
+	_, err := user.CreateGame("Should Fail")
+	s.Forbidden(err)
 }
 
-// TestDeletedUserCannotAccessProfile verifies that after an admin deletes a user,
-// the user's existing token can no longer access their own profile.
+// Asking who is calling refuses a deleted account too; it doesn't pass for
+// anonymous.
 func (s *UserDeletedAccessTestSuite) TestDeletedUserCannotAccessProfile() {
-	admin := s.DevUser()
-
-	// Create a user and verify they can access their profile
 	user := s.CreateUser("del-access-profile")
-	me := Must(user.GetMe())
-	s.Equal(user.Name, me.Name, "user should be able to access profile before deletion")
-	s.T().Logf("User can access profile before deletion")
+	s.Equal(user.Name, Must(user.GetMe()).Name)
 
-	// Admin deletes the user
-	MustSucceed(admin.DeleteUser(user.ID))
-	s.T().Logf("Admin deleted user %s", user.Name)
+	MustSucceed(s.DevUser().DeleteUser(user.ID))
 
-	// User's token should now be rejected
-	user.FailGet("users/me", testutil.ErrorContains("401"))
-	s.T().Logf("Deleted user correctly rejected when accessing profile")
+	_, err := user.WhoAmI()
+	s.Forbidden(err)
 }

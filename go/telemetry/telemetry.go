@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/getsentry/sentry-go"
 )
 
@@ -47,8 +48,7 @@ func getEnvironment() string {
 	if env != "" {
 		return env
 	}
-	devMode := os.Getenv("DEV_MODE")
-	if devMode == "true" || devMode == "1" {
+	if schemafapi.DevMode() {
 		return "development"
 	}
 	return "production"

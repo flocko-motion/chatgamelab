@@ -19,7 +19,7 @@ func TestInputAndStream(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	a := api.New(api.Options{Dev: true})
+	a := api.New(api.Options{Dev: func() bool { return true }})
 	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -65,7 +65,7 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	a := api.New(api.Options{Dev: true})
+	a := api.New(api.Options{Dev: func() bool { return true }})
 	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typed"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -88,7 +88,7 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 }
 
 func TestUnknownSessionIs404(t *testing.T) {
-	srv := httptest.NewServer(serve(api.New(api.Options{Dev: true})))
+	srv := httptest.NewServer(serve(api.New(api.Options{Dev: func() bool { return true }})))
 	defer srv.Close()
 
 	resp, err := http.Get(srv.URL + "/api/engine/sessions/nope/graph")
@@ -105,7 +105,7 @@ func TestUnknownSessionIs404(t *testing.T) {
 // is what every test here needs before it can do anything.
 func newServer(t *testing.T, id string, session *engine.Session) *httptest.Server {
 	t.Helper()
-	a := api.New(api.Options{Dev: true})
+	a := api.New(api.Options{Dev: func() bool { return true }})
 	a.Register(id, session)
 	srv := httptest.NewServer(serve(a))
 	t.Cleanup(srv.Close)
@@ -452,7 +452,7 @@ func TestAnUnknownSessionIsUnknown(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	a := api.New(api.Options{Dev: true})
+	a := api.New(api.Options{Dev: func() bool { return true }})
 	for _, id := range []string{"one", "two"} {
 		s, err := engine.Launch(ctx, engine.SessionSpec{
 			Genre: engine.GenreNPCLive, ID: id, Scenario: "A tower.",

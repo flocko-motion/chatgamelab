@@ -1,13 +1,8 @@
 package testing
 
 import (
-	"bytes"
-	"encoding/json"
-	"net/http"
 	"testing"
 
-	"cgl/api"
-	"cgl/obj"
 	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
@@ -28,32 +23,11 @@ func TestUserLanguageSuite(t *testing.T) {
 }
 
 // acceptInviteAnonymouslyWithLanguage joins a workshop through an invite link
-// with the given Accept-Language header, mimicking a browser.
-//
-// The shared PublicClient sends no custom headers, so this issues the request
-// directly rather than widening the test harness for one case.
-func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(
-	token string, acceptLanguage string,
-) api.AcceptInviteResp {
+// with the given Accept-Language header, as a browser does, and answers the
+// new participant.
+func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(token, acceptLanguage string) testutil.AcceptedInvite {
 	s.T().Helper()
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		testutil.TestServerURL+"/api/invites/"+token+"/accept",
-		bytes.NewReader(nil),
-	)
-	s.Require().NoError(err)
-	if acceptLanguage != "" {
-		req.Header.Set("Accept-Language", acceptLanguage)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	s.Require().NoError(err)
-	defer resp.Body.Close()
-	s.Require().Equal(http.StatusOK, resp.StatusCode)
-
-	var out api.AcceptInviteResp
-	s.Require().NoError(json.NewDecoder(resp.Body).Decode(&out))
+	out := Must(s.AcceptWorkshopInviteAnonymouslyInLanguage(token, acceptLanguage))
 	s.Require().NotNil(out.User)
 	return out
 }
@@ -66,27 +40,24 @@ func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Anonymous joins require an active workshop with a usable API key.
 	keyShare := Must(head.AddApiKey("mock-lang-key-"+prefix, prefix+" Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsID := workshop.ID.String()
-	orgShareID := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	wsID := workshop.Id.String()
+	orgShareID := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsID, &orgShareID))
-	Must(head.UpdateWorkshop(wsID, map[string]interface{}{
-		"name":                       prefix + " Workshop",
-		"active":                     true,
-		"public":                     false,
-		"showPublicGames":            false,
-		"showOtherParticipantsGames": true,
-		"isPaused":                   false,
+	Must(head.UpdateWorkshop(wsID, testutil.WorkshopUpdate{
+		Name:                       prefix + " Workshop",
+		Active:                     true,
+		ShowOtherParticipantsGames: true,
 	}))
 
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsID))
 	s.Require().NotNil(invite.InviteToken)
 	return *invite.InviteToken
 }

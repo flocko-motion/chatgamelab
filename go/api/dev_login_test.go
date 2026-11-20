@@ -8,8 +8,7 @@ import (
 )
 
 func TestDevLoginIsNotFoundOutsideDevMode(t *testing.T) {
-	defer func(was bool) { devMode = was }(devMode)
-	devMode = false
+	t.Setenv("SCHEMAF_DEV", "")
 
 	_, err := DevLoginEndpoint{}.Handle(context.Background(), DevLoginReq{Role: "admin-1"})
 
@@ -20,8 +19,7 @@ func TestDevLoginIsNotFoundOutsideDevMode(t *testing.T) {
 }
 
 func TestDevLoginRefusesAnUnknownRole(t *testing.T) {
-	defer func(was bool) { devMode = was }(devMode)
-	devMode = true
+	t.Setenv("SCHEMAF_DEV", "1")
 
 	_, err := DevLoginEndpoint{}.Handle(context.Background(), DevLoginReq{Role: "superuser"})
 

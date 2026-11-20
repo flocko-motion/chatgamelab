@@ -29,8 +29,9 @@ type API struct {
 
 // Options configures the transport for whoever serves it.
 type Options struct {
-	// Dev lists the mock platform in the catalogue; a production platform leaves it out.
-	Dev bool
+	// Dev says, per call, whether the catalogue lists the mock platform; a
+	// production platform leaves it out, as does a nil Dev.
+	Dev func() bool
 	// Create does the work of POST /sessions; without it the route is absent.
 	Create CreateFunc
 	// Resume loads a session that is not in memory, such as after a restart;
@@ -95,10 +96,26 @@ func (a *API) Forget(id string) {
 	}
 }
 
+// Close ends every session in memory, each once its last checkpoint is
+// written, and drops them all, as when the platform shuts down: call it while
+// the store still takes writes. A later request restores a session from the
+// store.
+func (a *API) Close() {
+	a.mu.Lock()
+	sessions := a.sessions
+	a.sessions = map[string]*engine.Session{}
+	a.mu.Unlock()
+	var wg sync.WaitGroup
+	for _, s := range sessions {
+		wg.Go(s.Close)
+	}
+	wg.Wait()
+}
+
 // PlatformList is the AI platforms this transport offers: the mock platform in dev only.
 func (a *API) PlatformList() []engine.PlatformInfo {
 	platforms := engine.Platforms()
-	if !a.opts.Dev {
+	if a.opts.Dev == nil || !a.opts.Dev() {
 		platforms = slices.DeleteFunc(platforms, func(p engine.PlatformInfo) bool { return p.ID == engine.PlatformMock })
 	}
 	return platforms

@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -29,33 +29,31 @@ func (s *GamePermissionsTestSuite) TestStaffCanDeleteWorkshopGame() {
 	head := s.CreateUser("gp-head")
 	staff := s.CreateUser("gp-staff")
 
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
-	staffInvite := Must(head.InviteToInstitution(inst.ID.String(), "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
+	staffInvite := Must(head.InviteToInstitution(inst.Id.String(), "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Game Perm Workshop"))
-	wsIDStr := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Game Perm Workshop"))
+	wsIDStr := workshop.Id.String()
 
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
-	s.NoError(err)
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 	s.T().Logf("Participant joined: %s", participant.Name)
 
 	// Participant creates a game (auto-assigned to workshop)
 	game := Must(participant.UploadGame("alien-first-contact"))
-	s.NotEmpty(game.ID)
-	s.T().Logf("Participant created game: %s (ID: %s)", game.Name, game.ID)
+	s.NotEmpty(game.Id)
+	s.T().Logf("Participant created game: %s (ID: %s)", game.Name, game.Id)
 
 	// Staff deletes the participant's workshop game — should succeed
-	MustSucceed(staff.DeleteGame(game.ID.String()))
+	MustSucceed(staff.DeleteGame(game.Id.String()))
 	s.T().Logf("Staff deleted participant's workshop game")
 
 	// Game should no longer be visible
 	games := Must(head.ListGames())
 	for _, g := range games {
-		s.NotEqual(game.ID, g.ID, "game should be deleted")
+		s.NotEqual(game.Id, g.Id, "game should be deleted")
 	}
 	s.T().Logf("Game correctly deleted by staff")
 }
@@ -67,27 +65,25 @@ func (s *GamePermissionsTestSuite) TestHeadCanDeleteWorkshopGame() {
 
 	inst := Must(admin.CreateInstitution("Head Game Org"))
 	head := s.CreateUser("gp-head2")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Head Game Workshop"))
-	wsIDStr := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Head Game Workshop"))
+	wsIDStr := workshop.Id.String()
 
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
-	s.NoError(err)
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	game := Must(participant.UploadGame("alien-first-contact"))
-	s.T().Logf("Participant created game: %s", game.ID)
+	s.T().Logf("Participant created game: %s", game.Id)
 
 	// Head deletes the participant's workshop game — should succeed
-	MustSucceed(head.DeleteGame(game.ID.String()))
+	MustSucceed(head.DeleteGame(game.Id.String()))
 	s.T().Logf("Head deleted participant's workshop game")
 
 	games := Must(head.ListGames())
 	for _, g := range games {
-		s.NotEqual(game.ID, g.ID, "game should be deleted")
+		s.NotEqual(game.Id, g.Id, "game should be deleted")
 	}
 }
 
@@ -98,37 +94,32 @@ func (s *GamePermissionsTestSuite) TestParticipantCannotDeleteOtherParticipantGa
 
 	inst := Must(admin.CreateInstitution("Part Game Org"))
 	head := s.CreateUser("gp-head3")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Part Game Workshop"))
-	wsIDStr := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Part Game Workshop"))
+	wsIDStr := workshop.Id.String()
 
 	// Create two participants
-	invite1 := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp1, err := s.AcceptWorkshopInviteAnonymously(*invite1.InviteToken)
-	s.NoError(err)
-	participant1 := s.CreateUserWithToken(*resp1.AuthToken)
+	invite1 := Must(head.CreateWorkshopInvite(wsIDStr))
+	participant1 := Must(s.JoinWorkshop(*invite1.InviteToken))
 
-	invite2 := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp2, err := s.AcceptWorkshopInviteAnonymously(*invite2.InviteToken)
-	s.NoError(err)
-	participant2 := s.CreateUserWithToken(*resp2.AuthToken)
+	invite2 := Must(head.CreateWorkshopInvite(wsIDStr))
+	participant2 := Must(s.JoinWorkshop(*invite2.InviteToken))
 
 	// Participant1 creates a game
 	game := Must(participant1.UploadGame("alien-first-contact"))
-	s.T().Logf("Participant1 created game: %s", game.ID)
+	s.T().Logf("Participant1 created game: %s", game.Id)
 
-	// Participant2 tries to delete participant1's game — should fail
-	err = participant2.DeleteGame(game.ID.String())
-	s.Error(err, "participant should not be able to delete another participant's game")
-	s.T().Logf("Correctly rejected: %v", err)
+	// Participant2 sees the game (same workshop) but may not delete it
+	err := participant2.DeleteGame(game.Id.String())
+	s.Forbidden(err, "participant should not be able to delete another participant's game")
 
 	// Game should still exist (check via owner)
 	games := Must(participant1.ListGames())
 	found := false
 	for _, g := range games {
-		if g.ID == game.ID {
+		if g.Id == game.Id {
 			found = true
 			break
 		}
@@ -144,16 +135,16 @@ func (s *GamePermissionsTestSuite) TestAdminCanDeleteAnyGame() {
 	// Regular user creates a private game (no workshop)
 	user := s.CreateUser("admin-del-target")
 	game := Must(user.UploadGame("alien-first-contact"))
-	s.T().Logf("User created game: %s (ID: %s)", game.Name, game.ID)
+	s.T().Logf("User created game: %s (ID: %s)", game.Name, game.Id)
 
 	// Admin deletes the user's game — should succeed
-	MustSucceed(admin.DeleteGame(game.ID.String()))
+	MustSucceed(admin.DeleteGame(game.Id.String()))
 	s.T().Logf("Admin deleted another user's game successfully")
 
 	// Game should be gone
 	games := Must(user.ListGames())
 	for _, g := range games {
-		s.NotEqual(game.ID, g.ID, "game should be deleted by admin")
+		s.NotEqual(game.Id, g.Id, "game should be deleted by admin")
 	}
 	s.T().Logf("Game correctly deleted by admin")
 }
@@ -165,13 +156,11 @@ func (s *GamePermissionsTestSuite) TestAdminCanUpdateAnyGame() {
 	// Regular user creates a game
 	user := s.CreateUser("admin-upd-target")
 	game := Must(user.UploadGame("alien-first-contact"))
-	s.T().Logf("User created game: %s (ID: %s)", game.Name, game.ID)
+	s.T().Logf("User created game: %s (ID: %s)", game.Name, game.Id)
 
 	// Admin updates the game's name — should succeed
 	updatedName := game.Name + " (admin-edited)"
-	updated, err := admin.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name": updatedName,
-	})
+	updated, err := admin.RenameGame(game.Id.String(), updatedName)
 	s.NoError(err, "admin should be able to update any game")
 	s.Equal(updatedName, updated.Name, "game name should be updated")
 	s.T().Logf("Admin updated game name to: %s", updated.Name)
@@ -184,12 +173,12 @@ func (s *GamePermissionsTestSuite) TestAdminCanReadAnyPrivateGame() {
 	// Regular user creates a private game
 	user := s.CreateUser("admin-read-target")
 	game := Must(user.UploadGame("alien-first-contact"))
-	s.T().Logf("User created private game: %s (ID: %s)", game.Name, game.ID)
+	s.T().Logf("User created private game: %s (ID: %s)", game.Name, game.Id)
 
 	// Admin reads the game by ID — should succeed
-	fetched, err := admin.GetGameByID(game.ID.String())
+	fetched, err := admin.GetGameByID(game.Id.String())
 	s.NoError(err, "admin should be able to read any private game")
-	s.Equal(game.ID, fetched.ID, "fetched game ID should match")
+	s.Equal(game.Id, fetched.Id, "fetched game ID should match")
 	s.T().Logf("Admin read private game: %s", fetched.Name)
 }
 
@@ -204,17 +193,17 @@ func (s *GamePermissionsTestSuite) TestAdminSeesAllGamesInList() {
 
 	game1 := Must(user1.UploadGame("alien-first-contact"))
 	game2 := Must(user2.UploadGame("alien-first-contact"))
-	s.T().Logf("User1 game: %s, User2 game: %s", game1.ID, game2.ID)
+	s.T().Logf("User1 game: %s, User2 game: %s", game1.Id, game2.Id)
 
 	// Admin lists all games — should see both
 	adminGames := Must(admin.ListGames())
-	s.True(containsGame(adminGames, game1.ID), "admin should see user1's private game in list")
-	s.True(containsGame(adminGames, game2.ID), "admin should see user2's private game in list")
+	s.True(containsGame(adminGames, game1.Id), "admin should see user1's private game in list")
+	s.True(containsGame(adminGames, game2.Id), "admin should see user2's private game in list")
 	s.T().Logf("Admin sees %d games — includes other users' private games", len(adminGames))
 
 	// Non-admin user cannot see each other's private games
 	u1Games := Must(user1.ListGames())
-	s.False(containsGame(u1Games, game2.ID), "regular user should not see another user's private game")
+	s.False(containsGame(u1Games, game2.Id), "regular user should not see another user's private game")
 	s.T().Logf("User1 sees %d games — correctly cannot see user2's game", len(u1Games))
 }
 
@@ -225,18 +214,17 @@ func (s *GamePermissionsTestSuite) TestStaffCannotDeleteNonWorkshopGame() {
 
 	inst := Must(admin.CreateInstitution("Non WS Game Org"))
 	staff := s.CreateUser("gp-staff2")
-	staffInvite := Must(admin.InviteToInstitution(inst.ID.String(), "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	staffInvite := Must(admin.InviteToInstitution(inst.Id.String(), "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.Id.String()))
 
 	// Create an individual user (not in any workshop) with a game
 	individual := s.CreateUser("gp-individual")
 	game := Must(individual.UploadGame("alien-first-contact"))
-	s.T().Logf("Individual created game: %s (not in any workshop)", game.ID)
+	s.T().Logf("Individual created game: %s (not in any workshop)", game.Id)
 
-	// Staff tries to delete the individual's game — should fail
-	err := staff.DeleteGame(game.ID.String())
-	s.Error(err, "staff should not be able to delete a non-workshop game")
-	s.T().Logf("Correctly rejected: %v", err)
+	// Staff can't see the individual's private game, so for them it doesn't exist
+	err := staff.DeleteGame(game.Id.String())
+	s.NotFound(err, "staff should not be able to delete a non-workshop game")
 }
 
 // TestOtherUserCannotAccessNonPublicGame tests that a user cannot fetch
@@ -246,12 +234,11 @@ func (s *GamePermissionsTestSuite) TestOtherUserCannotAccessNonPublicGame() {
 	other := s.CreateUser("gp-other")
 
 	game := Must(owner.UploadGame("alien-first-contact"))
-	s.T().Logf("Owner created game: %s (ID: %s)", game.Name, game.ID)
+	s.T().Logf("Owner created game: %s (ID: %s)", game.Name, game.Id)
 
-	// Other user tries to fetch the game by ID — should fail
-	_, err := other.GetGameByID(game.ID.String())
-	s.Error(err, "other user should not be able to access a non-public game")
-	s.T().Logf("Correctly denied: %v", err)
+	// Other user tries to fetch the game by ID: for them it doesn't exist
+	_, err := other.GetGameByID(game.Id.String())
+	s.NotFound(err, "other user should not be able to access a non-public game")
 }
 
 // TestOtherUserCannotSeeNonPublicGameInList tests that a non-public game
@@ -261,12 +248,12 @@ func (s *GamePermissionsTestSuite) TestOtherUserCannotSeeNonPublicGameInList() {
 	other := s.CreateUser("gp-other2")
 
 	game := Must(owner.UploadGame("alien-first-contact"))
-	s.T().Logf("Owner created game: %s (ID: %s)", game.Name, game.ID)
+	s.T().Logf("Owner created game: %s (ID: %s)", game.Name, game.Id)
 
 	// Other user lists games — should not see the owner's private game
 	games := Must(other.ListGames())
 	for _, g := range games {
-		s.NotEqual(game.ID, g.ID, "other user should not see a non-public game in their list")
+		s.NotEqual(game.Id, g.Id, "other user should not see a non-public game in their list")
 	}
 	s.T().Logf("Other user sees %d games, none of which is the private game", len(games))
 }
@@ -278,9 +265,9 @@ func (s *GamePermissionsTestSuite) TestOwnerCanAccessOwnNonPublicGame() {
 
 	game := Must(owner.UploadGame("alien-first-contact"))
 
-	fetched, err := owner.GetGameByID(game.ID.String())
+	fetched, err := owner.GetGameByID(game.Id.String())
 	s.NoError(err, "owner should be able to access their own game")
-	s.Equal(game.ID, fetched.ID)
+	s.Equal(game.Id, fetched.Id)
 	s.T().Logf("Owner accessed own game: %s", fetched.Name)
 }
 
@@ -293,63 +280,53 @@ func (s *GamePermissionsTestSuite) TestWhoCanSetGamePublic() {
 	// Setup: institution + head + workshop + participant
 	inst := Must(admin.CreateInstitution("Public Flag Org"))
 	head := s.CreateUser("pub-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Public Flag Workshop"))
-	wsIDStr := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Public Flag Workshop"))
+	wsIDStr := workshop.Id.String()
 
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
-	s.NoError(err)
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	// Participant creates a game (private by default)
 	game := Must(participant.UploadGame("alien-first-contact"))
 	s.False(game.Public, "game should be private by default")
-	s.T().Logf("Participant created game: %s (public=%v)", game.ID, game.Public)
-
-	setPublic := func(u *testutil.UserClient, gameID, name string, public bool) (obj.Game, error) {
-		return u.UpdateGame(gameID, map[string]interface{}{"name": name, "public": public})
-	}
+	s.T().Logf("Participant created game: %s (public=%v)", game.Id, game.Public)
 
 	// Head sets public on a participant's workshop game.
-	updated, err := setPublic(head, game.ID.String(), game.Name, true)
+	updated, err := head.SetGamePublic(game.Id.String(), true)
 	s.NoError(err, "head should be able to publish a workshop game")
 	s.True(updated.Public)
 
-	updated, err = setPublic(head, game.ID.String(), game.Name, false)
+	updated, err = head.SetGamePublic(game.Id.String(), false)
 	s.NoError(err, "head should be able to unpublish a workshop game")
 	s.False(updated.Public)
 
 	// Admin sets it too.
-	updated, err = setPublic(admin, game.ID.String(), game.Name, true)
+	updated, err = admin.SetGamePublic(game.Id.String(), true)
 	s.NoError(err, "admin should be able to publish a workshop game")
 	s.True(updated.Public)
-	Must(setPublic(head, game.ID.String(), game.Name, false))
+	Must(head.SetGamePublic(game.Id.String(), false))
 
 	// The creator sets it.
-	updated, err = setPublic(participant, game.ID.String(), game.Name, true)
+	updated, err = participant.SetGamePublic(game.Id.String(), true)
 	s.NoError(err, "creator should be able to publish their own game")
 	s.True(updated.Public)
 
 	// Another participant of the same workshop cannot touch it.
-	resp2, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
-	s.NoError(err)
-	other := s.CreateUserWithToken(*resp2.AuthToken)
-	Must(setPublic(head, game.ID.String(), game.Name, false))
-	_, err = setPublic(other, game.ID.String(), game.Name, true)
-	s.Error(err, "another participant must not publish someone else's game")
-	s.Contains(err.Error(), "403")
+	other := Must(s.JoinWorkshop(*invite.InviteToken))
+	Must(head.SetGamePublic(game.Id.String(), false))
+	_, err = other.SetGamePublic(game.Id.String(), true)
+	s.Forbidden(err, "another participant must not publish someone else's game")
 
 	// Outside a workshop only the creator may publish, admins included.
 	individual := s.CreateUser("pub-individual")
 	personal := Must(individual.UploadGame("alien-first-contact"))
-	s.Nil(personal.WorkshopID)
-	_, err = setPublic(admin, personal.ID.String(), personal.Name, true)
-	s.Error(err, "admin must not publish someone else's personal game")
-	s.Contains(err.Error(), "403")
-	updated, err = setPublic(individual, personal.ID.String(), personal.Name, true)
+	s.Nil(personal.WorkshopId)
+	_, err = admin.SetGamePublic(personal.Id.String(), true)
+	s.Forbidden(err, "admin must not publish someone else's personal game")
+	updated, err = individual.SetGamePublic(personal.Id.String(), true)
 	s.NoError(err)
 	s.True(updated.Public)
 }
@@ -362,38 +339,33 @@ func (s *GamePermissionsTestSuite) TestWorkshopShareRequiresPublicGame() {
 	// Setup: institution + head + workshop + participant + API key
 	inst := Must(admin.CreateInstitution("WS Share Public Org"))
 	head := s.CreateUser("wspub-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	keyShare := Must(head.AddApiKey("mock-wspub", "WS Pub Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "WS Share Public Workshop"))
-	wsIDStr := workshop.ID.String()
-	orgShareIDStr := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "WS Share Public Workshop"))
+	wsIDStr := workshop.Id.String()
+	orgShareIDStr := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":             "WS Share Public Workshop",
-		"active":           true,
-		"public":           false,
-		"allowGameSharing": true,
-		"isPaused":         false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:             "WS Share Public Workshop",
+		Active:           true,
+		AllowGameSharing: true,
 	}))
 
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
-	s.NoError(err)
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	// Participant creates a private game
 	game := Must(participant.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 	s.T().Logf("Game created (public=%v): %s", game.Public, gameID)
 
 	// Head tries to share the private game — should FAIL (non-owner, game not public)
-	_, err = head.CreateWorkshopGameShare(gameID, wsIDStr, nil)
-	s.Error(err, "head should not be able to share a private game they don't own")
-	s.Contains(err.Error(), "403", "should be a 403 forbidden error")
+	_, err := head.CreateWorkshopGameShare(gameID, wsIDStr, nil)
+	s.Forbidden(err, "head should not be able to share a private game they don't own")
 	s.T().Logf("Head correctly rejected from sharing private game: %v", err)
 
 	// Participant (owner) can share their own private game — should SUCCEED
@@ -403,10 +375,7 @@ func (s *GamePermissionsTestSuite) TestWorkshopShareRequiresPublicGame() {
 	s.T().Logf("Owner shared own private game: token=%s", share.Token)
 
 	// Participant makes game public, now head can share too
-	Must(participant.UpdateGame(gameID, map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	Must(participant.SetGamePublic(gameID, true))
 
 	// Head shares the now-public game — should SUCCEED
 	headShare, err := head.CreateWorkshopGameShare(gameID, wsIDStr, nil)

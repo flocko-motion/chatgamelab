@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -27,30 +27,26 @@ func (s *WorkshopSettingsPermissionsTestSuite) setupWorkshop(prefix string) (*te
 
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsIDStr := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	wsIDStr := workshop.Id.String()
 
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
-	s.NoError(err)
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	s.T().Logf("Setup: head=%s, participant=%s, ws=%s", head.Name, participant.Name, wsIDStr)
 	return head, participant, wsIDStr
 }
 
-// workshopUpdatePayload returns a valid update payload with the given isPaused value.
-func workshopUpdatePayload(isPaused bool) map[string]interface{} {
-	return map[string]interface{}{
-		"name":                       "Updated Workshop",
-		"active":                     true,
-		"public":                     false,
-		"showPublicGames":            false,
-		"showOtherParticipantsGames": true,
-		"isPaused":                   isPaused,
+// workshopUpdatePayload is a valid set of settings with the given isPaused value.
+func workshopUpdatePayload(isPaused bool) testutil.WorkshopUpdate {
+	return testutil.WorkshopUpdate{
+		Name:                       "Updated Workshop",
+		Active:                     true,
+		ShowOtherParticipantsGames: true,
+		IsPaused:                   isPaused,
 	}
 }
 
@@ -74,8 +70,7 @@ func (s *WorkshopSettingsPermissionsTestSuite) TestParticipantCannotUpdateWorksh
 
 	// Participant should NOT be able to update workshop settings
 	_, err := participant.UpdateWorkshop(wsIDStr, workshopUpdatePayload(true))
-	s.Error(err, "participant should not be able to update workshop settings")
-	s.T().Logf("Correctly denied participant: %v", err)
+	s.Forbidden(err, "participant should not be able to update workshop settings")
 }
 
 // TestIndividualCannotUpdateWorkshopSettings verifies that an individual user
@@ -93,14 +88,13 @@ func (s *WorkshopSettingsPermissionsTestSuite) TestIndividualCannotUpdateWorksho
 	// Verify they are in workshop mode
 	me := Must(individual.GetMe())
 	s.Require().NotNil(me.Role, "individual should have a role")
-	s.Equal(obj.RoleIndividual, me.Role.Role, "user should have individual role")
+	s.Equal("individual", me.Role.Role, "user should have individual role")
 	s.Require().NotNil(me.Role.Workshop, "individual should have active workshop")
 	s.T().Logf("Individual %s entered workshop %s", individual.Name, wsIDStr)
 
 	// Individual should NOT be able to update workshop settings
 	_, err = individual.UpdateWorkshop(wsIDStr, workshopUpdatePayload(true))
-	s.Error(err, "individual in workshop mode should not be able to update workshop settings")
-	s.T().Logf("Correctly denied individual: %v", err)
+	s.Forbidden(err, "individual in workshop mode should not be able to update workshop settings")
 }
 
 // TestParticipantCannotTogglePause verifies specifically that a participant
@@ -114,8 +108,7 @@ func (s *WorkshopSettingsPermissionsTestSuite) TestParticipantCannotTogglePause(
 
 	// Participant tries to unpause — should fail
 	_, err := participant.UpdateWorkshop(wsIDStr, workshopUpdatePayload(false))
-	s.Error(err, "participant should not be able to unpause the workshop")
-	s.T().Logf("Correctly denied participant unpause: %v", err)
+	s.Forbidden(err, "participant should not be able to unpause the workshop")
 
 	// Verify workshop is still paused
 	ws = Must(head.GetWorkshop(wsIDStr))

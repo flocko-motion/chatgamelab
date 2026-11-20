@@ -1,15 +1,11 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 	"regexp"
 	"strings"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -41,56 +37,54 @@ func (s *WorkshopPublicPageTestSuite) setup(prefix string, withKey bool) publicP
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	name := prefix + " Workshop"
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), name))
-	wsID := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), name))
+	wsID := workshop.Id.String()
 	if withKey {
 		keyShare := Must(head.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
-		orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
-		orgShareID := orgShare.ID.String()
+		orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
+		orgShareID := orgShare.Id.String()
 		Must(head.SetWorkshopApiKey(wsID, &orgShareID))
 	}
 
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
-	resp := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsID))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	ws := Must(head.GetWorkshop(wsID))
 	s.Require().NotNil(ws.PublicSlug, "a new workshop must have a public page link")
 	return publicPageFixture{head: head, participant: participant, wsID: wsID, wsName: name, slug: *ws.PublicSlug}
 }
 
-func (s *WorkshopPublicPageTestSuite) updateWorkshop(f publicPageFixture, public bool, extra map[string]interface{}) (obj.Workshop, error) {
-	updates := map[string]interface{}{"name": f.wsName, "active": true, "public": public}
-	for k, v := range extra {
-		updates[k] = v
+// updateWorkshop saves the workshop as the head: active, public or not, and
+// whatever edit sets; every other setting is off and the page's slug, text
+// and links stay as they are.
+func (s *WorkshopPublicPageTestSuite) updateWorkshop(f publicPageFixture, public bool, edit func(*testutil.WorkshopUpdate)) (testutil.Workshop, error) {
+	update := testutil.WorkshopUpdate{Name: f.wsName, Active: true, Public: public}
+	if edit != nil {
+		edit(&update)
 	}
-	return f.head.UpdateWorkshop(f.wsID, updates)
+	return f.head.UpdateWorkshop(f.wsID, update)
 }
 
-// setGamePublic sends the whole game back, because the update replaces every field.
+// withSlug sets the page's link.
+func (s *WorkshopPublicPageTestSuite) withSlug(slug string) func(*testutil.WorkshopUpdate) {
+	return func(w *testutil.WorkshopUpdate) { w.PublicSlug = &slug }
+}
+
+// withDescription sets the page's text.
+func (s *WorkshopPublicPageTestSuite) withDescription(text string) func(*testutil.WorkshopUpdate) {
+	return func(w *testutil.WorkshopUpdate) { w.PublicDescription = &text }
+}
+
 func (s *WorkshopPublicPageTestSuite) setGamePublic(u *testutil.UserClient, gameID string, public bool) {
-	game := Must(u.GetGameByID(gameID))
-	game.Public = public
-	Must(u.UpdateGame(gameID, game))
+	Must(u.SetGamePublic(gameID, public))
 }
 
-func (s *WorkshopPublicPageTestSuite) page(slug string) (obj.PublicWorkshopPage, error) {
-	var page obj.PublicWorkshopPage
-	err := s.Public().Get("public/workshops/"+slug, &page)
-	return page, err
-}
-
-func (s *WorkshopPublicPageTestSuite) getRaw(path string) (int, string) {
-	resp, err := http.Get(fmt.Sprintf("%s/api/%s", testutil.TestServerURL, path))
-	s.Require().NoError(err)
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	s.Require().NoError(err)
-	return resp.StatusCode, string(body)
+func (s *WorkshopPublicPageTestSuite) page(slug string) (testutil.PublicWorkshopPage, error) {
+	return s.Public().GetPublicWorkshopPage(slug)
 }
 
 func (s *WorkshopPublicPageTestSuite) TestSlugFromWorkshopName() {
@@ -101,10 +95,9 @@ func (s *WorkshopPublicPageTestSuite) TestSlugFromWorkshopName() {
 func (s *WorkshopPublicPageTestSuite) TestPageOnlyWhilePublic() {
 	f := s.setup("pubpage-toggle", true)
 	_, err := s.page(f.slug)
-	s.Error(err, "a workshop that is not public has no page")
-	s.Contains(err.Error(), "404")
+	s.NotFound(err, "a workshop that is not public has no page")
 
-	Must(s.updateWorkshop(f, true, map[string]interface{}{"publicDescription": "  Wir bauen Spiele.\nZwei Tage lang.  "}))
+	Must(s.updateWorkshop(f, true, s.withDescription("  Wir bauen Spiele.\nZwei Tage lang.  ")))
 	page := Must(s.page(f.slug))
 	s.Equal(f.wsName, page.Name)
 	s.Equal("Wir bauen Spiele.\nZwei Tage lang.", page.Description)
@@ -114,7 +107,7 @@ func (s *WorkshopPublicPageTestSuite) TestPageOnlyWhilePublic() {
 	Must(s.page(strings.ToUpper(f.slug)))
 
 	_, err = s.page("gibt-es-nicht-hier")
-	s.Contains(err.Error(), "404")
+	s.NotFound(err)
 }
 
 func (s *WorkshopPublicPageTestSuite) TestListsOnlyPublicGamesWithoutCreators() {
@@ -123,44 +116,40 @@ func (s *WorkshopPublicPageTestSuite) TestListsOnlyPublicGamesWithoutCreators() 
 
 	shown := Must(f.participant.UploadGame("alien-first-contact"))
 	hidden := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, shown.ID.String(), true)
+	s.setGamePublic(f.participant, shown.Id.String(), true)
 
 	// A public game from another workshop stays off this page.
 	other := s.setup("pubpage-games-other", true)
 	foreign := Must(other.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(other.participant, foreign.ID.String(), true)
+	s.setGamePublic(other.participant, foreign.Id.String(), true)
 
 	page := Must(s.page(f.slug))
 	s.True(page.PlayAvailable)
 	s.Require().Len(page.Games, 1)
-	s.Equal(shown.ID, page.Games[0].ID)
+	s.Equal(shown.Id, page.Games[0].Id)
 	s.Equal(shown.Name, page.Games[0].Name)
 	s.Require().NotNil(page.Games[0].Play)
 	s.Equal(50, page.Games[0].Play.Remaining)
 	s.Equal(50, page.Games[0].Play.Limit)
 
-	status, body := s.getRaw("public/workshops/" + f.slug)
-	s.Equal(http.StatusOK, status)
-	var raw map[string]interface{}
-	s.Require().NoError(json.Unmarshal([]byte(body), &raw))
+	body := Must(s.Public().GetPublicWorkshopPageJSON(f.slug))
 	s.NotContains(body, "creator", "the page must never name who made a game")
 	s.NotContains(body, "institution")
 
 	// Download: listed games only.
-	status, body = s.getRaw("public/workshops/" + f.slug + "/games/" + shown.ID.String() + "/yaml")
-	s.Equal(http.StatusOK, status)
-	s.Contains(body, shown.Name)
-	status, _ = s.getRaw("public/workshops/" + f.slug + "/games/" + hidden.ID.String() + "/yaml")
-	s.Equal(http.StatusNotFound, status)
-	status, _ = s.getRaw("public/workshops/" + f.slug + "/games/" + foreign.ID.String() + "/yaml")
-	s.Equal(http.StatusNotFound, status)
+	yaml := Must(s.Public().GetPublicWorkshopGameYAML(f.slug, shown.Id.String()))
+	s.Contains(yaml, shown.Name)
+	_, err := s.Public().GetPublicWorkshopGameYAML(f.slug, hidden.Id.String())
+	s.NotFound(err, "a game not on the page can't be downloaded from it")
+	_, err = s.Public().GetPublicWorkshopGameYAML(f.slug, foreign.Id.String())
+	s.NotFound(err, "another workshop's game can't be downloaded from this page")
 }
 
 func (s *WorkshopPublicPageTestSuite) TestNoPlayWithoutWorkshopKey() {
 	f := s.setup("pubpage-nokey", false)
 	Must(s.updateWorkshop(f, true, nil))
 	game := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, game.ID.String(), true)
+	s.setGamePublic(f.participant, game.Id.String(), true)
 
 	page := Must(s.page(f.slug))
 	s.False(page.PlayAvailable)
@@ -172,7 +161,7 @@ func (s *WorkshopPublicPageTestSuite) TestPlayStaysApartFromHandMadeLinks() {
 	f := s.setup("pubpage-play", true)
 	Must(s.updateWorkshop(f, true, nil))
 	game := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, game.ID.String(), true)
+	s.setGamePublic(f.participant, game.Id.String(), true)
 
 	play := Must(s.page(f.slug)).Games[0].Play
 	s.Require().NotNil(play)
@@ -182,7 +171,7 @@ func (s *WorkshopPublicPageTestSuite) TestPlayStaysApartFromHandMadeLinks() {
 	s.Equal(play.Token, again.Token, "the page keeps one link per game")
 
 	// A leader's workshop share is a separate, unlimited link.
-	handMade := Must(f.head.CreateWorkshopGameShare(game.ID.String(), f.wsID, nil))
+	handMade := Must(f.head.CreateWorkshopGameShare(game.Id.String(), f.wsID, nil))
 	s.NotEqual(play.Token, handMade.Token)
 	s.Nil(handMade.Remaining)
 }
@@ -191,20 +180,20 @@ func (s *WorkshopPublicPageTestSuite) TestLinksRevoked() {
 	f := s.setup("pubpage-revoke", true)
 	Must(s.updateWorkshop(f, true, nil))
 	game := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, game.ID.String(), true)
+	s.setGamePublic(f.participant, game.Id.String(), true)
 
 	// Unpublishing the game revokes its link.
 	token := Must(s.page(f.slug)).Games[0].Play.Token
-	s.setGamePublic(f.head, game.ID.String(), false)
+	s.setGamePublic(f.head, game.Id.String(), false)
 	_, err := s.Public().GuestGetGameInfo(token)
-	s.Error(err, "an unpublished game's page link must stop working")
+	s.NotFound(err, "an unpublished game's page link must stop working")
 
 	// Switching the page off revokes every link; switching it on makes fresh ones.
-	s.setGamePublic(f.head, game.ID.String(), true)
+	s.setGamePublic(f.head, game.Id.String(), true)
 	token = Must(s.page(f.slug)).Games[0].Play.Token
 	Must(s.updateWorkshop(f, false, nil))
 	_, err = s.Public().GuestGetGameInfo(token)
-	s.Error(err, "switching the page off must revoke its links")
+	s.NotFound(err, "switching the page off must revoke its links")
 
 	Must(s.updateWorkshop(f, true, nil))
 	fresh := Must(s.page(f.slug)).Games[0].Play
@@ -214,47 +203,43 @@ func (s *WorkshopPublicPageTestSuite) TestLinksRevoked() {
 	// Deleting the workshop revokes them as well.
 	MustSucceed(f.head.DeleteWorkshop(f.wsID))
 	_, err = s.Public().GuestGetGameInfo(fresh.Token)
-	s.Error(err, "deleting the workshop must revoke its page links")
+	s.NotFound(err, "deleting the workshop must revoke its page links")
 	_, err = s.page(f.slug)
-	s.Contains(err.Error(), "404")
+	s.NotFound(err)
 }
 
 func (s *WorkshopPublicPageTestSuite) TestEditSlug() {
 	f := s.setup("pubpage-slug", true)
 	Must(s.updateWorkshop(f, true, nil))
 
-	ws := Must(s.updateWorkshop(f, true, map[string]interface{}{"publicSlug": "  Unser-Spiele-Workshop "}))
+	ws := Must(s.updateWorkshop(f, true, s.withSlug("  Unser-Spiele-Workshop ")))
 	s.Equal("unser-spiele-workshop", *ws.PublicSlug)
 	Must(s.page("unser-spiele-workshop"))
 	_, err := s.page(f.slug)
-	s.Contains(err.Error(), "404", "the old link must stop working")
+	s.NotFound(err, "the old link must stop working")
 
 	// Other settings leave the link alone when publicSlug is omitted.
-	ws = Must(s.updateWorkshop(f, true, map[string]interface{}{"isPaused": true}))
+	ws = Must(s.updateWorkshop(f, true, func(w *testutil.WorkshopUpdate) { w.IsPaused = true }))
 	s.Equal("unser-spiele-workshop", *ws.PublicSlug)
 
 	for _, bad := range []string{"ab", "mit leerzeichen", "-vorne", "hinten-", "doppel--strich", "ümlaut", strings.Repeat("a", 61)} {
-		_, err := s.updateWorkshop(f, true, map[string]interface{}{"publicSlug": bad})
-		s.Error(err, bad)
-		s.Contains(err.Error(), "public_slug_invalid", bad)
+		_, err := s.updateWorkshop(f, true, s.withSlug(bad))
+		s.Refused(err, testutil.CodePublicSlugInvalid, bad)
 	}
 
 	other := s.setup("pubpage-slug-other", true)
-	_, err = s.updateWorkshop(other, false, map[string]interface{}{"publicSlug": "unser-spiele-workshop"})
-	s.Error(err)
-	s.Contains(err.Error(), "public_slug_taken")
+	_, err = s.updateWorkshop(other, false, s.withSlug("unser-spiele-workshop"))
+	s.Refused(err, testutil.CodePublicSlugTaken)
 
-	_, err = s.updateWorkshop(f, true, map[string]interface{}{"publicDescription": strings.Repeat("ä", 2001)})
-	s.Error(err)
-	s.Contains(err.Error(), "public_description_too_long")
-	Must(s.updateWorkshop(f, true, map[string]interface{}{"publicDescription": strings.Repeat("ä", 2000)}))
+	_, err = s.updateWorkshop(f, true, s.withDescription(strings.Repeat("ä", 2001)))
+	s.Refused(err, testutil.CodePublicDescriptionTooLong)
+	Must(s.updateWorkshop(f, true, s.withDescription(strings.Repeat("ä", 2000))))
 }
 
 func (s *WorkshopPublicPageTestSuite) TestParticipantCannotChangePage() {
 	f := s.setup("pubpage-perm", true)
-	_, err := f.participant.UpdateWorkshop(f.wsID, map[string]interface{}{
-		"name": f.wsName, "active": true, "public": true,
+	_, err := f.participant.UpdateWorkshop(f.wsID, testutil.WorkshopUpdate{
+		Name: f.wsName, Active: true, Public: true,
 	})
-	s.Error(err)
-	s.Contains(err.Error(), "403")
+	s.Forbidden(err)
 }

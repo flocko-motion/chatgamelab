@@ -22,7 +22,7 @@ func platformsJSON(t *testing.T, a *api.API) []byte {
 // The platform answers this list and the game editor renders it, so the JSON
 // shape is a contract: checked here as raw JSON, not through the Go types.
 func TestPlatformsJSON(t *testing.T) {
-	blob := platformsJSON(t, api.New(api.Options{Dev: true}))
+	blob := platformsJSON(t, api.New(api.Options{Dev: func() bool { return true }}))
 
 	type model struct {
 		Name   string            `json:"name"`

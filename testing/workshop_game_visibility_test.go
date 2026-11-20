@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -29,21 +29,17 @@ func (s *WorkshopGameVisibilityTestSuite) setupWorkshop(prefix string) (*testuti
 
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsIDStr := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	wsIDStr := workshop.Id.String()
 
-	invite1 := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp1, err := s.AcceptWorkshopInviteAnonymously(*invite1.InviteToken)
-	s.NoError(err)
-	p1 := s.CreateUserWithToken(*resp1.AuthToken)
+	invite1 := Must(head.CreateWorkshopInvite(wsIDStr))
+	p1 := Must(s.JoinWorkshop(*invite1.InviteToken))
 
-	invite2 := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp2, err := s.AcceptWorkshopInviteAnonymously(*invite2.InviteToken)
-	s.NoError(err)
-	p2 := s.CreateUserWithToken(*resp2.AuthToken)
+	invite2 := Must(head.CreateWorkshopInvite(wsIDStr))
+	p2 := Must(s.JoinWorkshop(*invite2.InviteToken))
 
 	s.T().Logf("Setup: head=%s, p1=%s, p2=%s, ws=%s", head.Name, p1.Name, p2.Name, wsIDStr)
 	return head, p1, p2, wsIDStr
@@ -57,15 +53,15 @@ func (s *WorkshopGameVisibilityTestSuite) TestOtherParticipantGamesHiddenByDefau
 
 	// P1 creates a game
 	game := Must(p1.UploadGame("alien-first-contact"))
-	s.T().Logf("P1 created game: %s", game.ID)
+	s.T().Logf("P1 created game: %s", game.Id)
 
 	// P1 can see their own game
 	p1Games := Must(p1.ListGames())
-	s.True(containsGame(p1Games, game.ID), "p1 should see their own game")
+	s.True(containsGame(p1Games, game.Id), "p1 should see their own game")
 
 	// P2 should NOT see P1's game (default: showOtherParticipantsGames=false)
 	p2Games := Must(p2.ListGames())
-	s.False(containsGame(p2Games, game.ID), "p2 should NOT see p1's game when showOtherParticipantsGames is false")
+	s.False(containsGame(p2Games, game.Id), "p2 should NOT see p1's game when showOtherParticipantsGames is false")
 	s.T().Logf("P2 sees %d games — correctly hidden", len(p2Games))
 }
 
@@ -77,20 +73,20 @@ func (s *WorkshopGameVisibilityTestSuite) TestOtherParticipantGamesVisibleWhenEn
 
 	// Enable showOtherParticipantsGames
 	ws := Must(head.GetWorkshop(wsIDStr))
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       ws.Name,
-		"active":                     true,
-		"showOtherParticipantsGames": true,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       ws.Name,
+		Active:                     true,
+		ShowOtherParticipantsGames: true,
 	}))
 	s.T().Logf("Enabled showOtherParticipantsGames")
 
 	// P1 creates a game
 	game := Must(p1.UploadGame("alien-first-contact"))
-	s.T().Logf("P1 created game: %s", game.ID)
+	s.T().Logf("P1 created game: %s", game.Id)
 
 	// P2 should now see P1's game
 	p2Games := Must(p2.ListGames())
-	s.True(containsGame(p2Games, game.ID), "p2 should see p1's game when showOtherParticipantsGames is true")
+	s.True(containsGame(p2Games, game.Id), "p2 should see p1's game when showOtherParticipantsGames is true")
 	s.T().Logf("P2 sees %d games — correctly visible", len(p2Games))
 }
 
@@ -103,15 +99,12 @@ func (s *WorkshopGameVisibilityTestSuite) TestPublicGamesHiddenByDefault() {
 	outsider := s.CreateUser("vis-pub-outsider")
 	game := Must(outsider.UploadGame("alien-first-contact"))
 	// Make it public
-	Must(outsider.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
-	s.T().Logf("Outsider created public game: %s", game.ID)
+	Must(outsider.SetGamePublic(game.Id.String(), true))
+	s.T().Logf("Outsider created public game: %s", game.Id)
 
 	// P2 should NOT see the public game (default: showPublicGames=false)
 	p2Games := Must(p2.ListGames())
-	s.False(containsGame(p2Games, game.ID), "participant should NOT see public games when showPublicGames is false")
+	s.False(containsGame(p2Games, game.Id), "participant should NOT see public games when showPublicGames is false")
 	s.T().Logf("P2 sees %d games — public game correctly hidden", len(p2Games))
 }
 
@@ -122,25 +115,22 @@ func (s *WorkshopGameVisibilityTestSuite) TestPublicGamesVisibleWhenEnabled() {
 
 	// Enable showPublicGames
 	ws := Must(head.GetWorkshop(wsIDStr))
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":            ws.Name,
-		"active":          true,
-		"showPublicGames": true,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:            ws.Name,
+		Active:          true,
+		ShowPublicGames: true,
 	}))
 	s.T().Logf("Enabled showPublicGames")
 
 	// Create a public game from an outside user
 	outsider := s.CreateUser("vis-pub-outsider2")
 	game := Must(outsider.UploadGame("alien-first-contact"))
-	Must(outsider.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
-	s.T().Logf("Outsider created public game: %s", game.ID)
+	Must(outsider.SetGamePublic(game.Id.String(), true))
+	s.T().Logf("Outsider created public game: %s", game.Id)
 
 	// P2 should now see the public game
 	p2Games := Must(p2.ListGames())
-	s.True(containsGame(p2Games, game.ID), "participant should see public games when showPublicGames is true")
+	s.True(containsGame(p2Games, game.Id), "participant should see public games when showPublicGames is true")
 	s.T().Logf("P2 sees %d games — public game correctly visible", len(p2Games))
 }
 
@@ -153,7 +143,7 @@ func (s *WorkshopGameVisibilityTestSuite) TestOwnGameAlwaysVisible() {
 	game := Must(p1.UploadGame("alien-first-contact"))
 
 	p1Games := Must(p1.ListGames())
-	s.True(containsGame(p1Games, game.ID), "participant should always see their own game")
+	s.True(containsGame(p1Games, game.Id), "participant should always see their own game")
 	s.T().Logf("P1 sees own game regardless of settings")
 }
 
@@ -163,32 +153,31 @@ func (s *WorkshopGameVisibilityTestSuite) TestToggleVisibilityOnAndOff() {
 	head, p1, p2, wsIDStr := s.setupWorkshop("vis-toggle")
 
 	game := Must(p1.UploadGame("alien-first-contact"))
-	s.T().Logf("P1 created game: %s", game.ID)
+	s.T().Logf("P1 created game: %s", game.Id)
 
 	// Default: hidden
 	p2Games := Must(p2.ListGames())
-	s.False(containsGame(p2Games, game.ID), "should be hidden by default")
+	s.False(containsGame(p2Games, game.Id), "should be hidden by default")
 
 	// Enable
 	ws := Must(head.GetWorkshop(wsIDStr))
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       ws.Name,
-		"active":                     true,
-		"showOtherParticipantsGames": true,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       ws.Name,
+		Active:                     true,
+		ShowOtherParticipantsGames: true,
 	}))
 
 	p2Games = Must(p2.ListGames())
-	s.True(containsGame(p2Games, game.ID), "should be visible after enabling")
+	s.True(containsGame(p2Games, game.Id), "should be visible after enabling")
 
 	// Disable again
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       ws.Name,
-		"active":                     true,
-		"showOtherParticipantsGames": false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:   ws.Name,
+		Active: true,
 	}))
 
 	p2Games = Must(p2.ListGames())
-	s.False(containsGame(p2Games, game.ID), "should be hidden again after disabling")
+	s.False(containsGame(p2Games, game.Id), "should be hidden again after disabling")
 	s.T().Logf("Toggle on/off works correctly")
 }
 
@@ -204,12 +193,12 @@ func (s *WorkshopGameVisibilityTestSuite) TestHeadAlwaysSeesAllParticipantGamesR
 	// Both participants create a game
 	game1 := Must(p1.UploadGame("alien-first-contact"))
 	game2 := Must(p2.UploadGame("alien-first-contact"))
-	s.T().Logf("P1 game: %s, P2 game: %s", game1.ID, game2.ID)
+	s.T().Logf("P1 game: %s, P2 game: %s", game1.Id, game2.Id)
 
 	// Head should see BOTH games even though showOtherParticipantsGames=false
 	headGames := Must(head.ListGames())
-	s.True(containsGame(headGames, game1.ID), "head should see p1's game regardless of showOtherParticipantsGames")
-	s.True(containsGame(headGames, game2.ID), "head should see p2's game regardless of showOtherParticipantsGames")
+	s.True(containsGame(headGames, game1.Id), "head should see p1's game regardless of showOtherParticipantsGames")
+	s.True(containsGame(headGames, game2.Id), "head should see p2's game regardless of showOtherParticipantsGames")
 	s.T().Logf("Head sees %d games — both visible despite showOtherParticipantsGames=false", len(headGames))
 }
 
@@ -226,26 +215,23 @@ func (s *WorkshopGameVisibilityTestSuite) TestHeadRespectsShowPublicGamesSetting
 	// Create a public game from an outside user
 	outsider := s.CreateUser("head-pub-outsider")
 	game := Must(outsider.UploadGame("alien-first-contact"))
-	Must(outsider.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
-	s.T().Logf("Outsider public game: %s", game.ID)
+	Must(outsider.SetGamePublic(game.Id.String(), true))
+	s.T().Logf("Outsider public game: %s", game.Id)
 
 	// Head should NOT see the public game when showPublicGames=false
 	headGames := Must(head.ListGames())
-	s.False(containsGame(headGames, game.ID), "head should not see public games when showPublicGames=false")
+	s.False(containsGame(headGames, game.Id), "head should not see public games when showPublicGames=false")
 	s.T().Logf("Head sees %d games — public game hidden with showPublicGames=false", len(headGames))
 
 	// Enable showPublicGames and verify head now sees the public game
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       "head-pub-setting Workshop",
-		"active":                     true,
-		"showPublicGames":            true,
-		"showOtherParticipantsGames": true,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       "head-pub-setting Workshop",
+		Active:                     true,
+		ShowPublicGames:            true,
+		ShowOtherParticipantsGames: true,
 	}))
 	headGames = Must(head.ListGames())
-	s.True(containsGame(headGames, game.ID), "head should see public games when showPublicGames=true")
+	s.True(containsGame(headGames, game.Id), "head should see public games when showPublicGames=true")
 	s.T().Logf("Head sees %d games — public game visible with showPublicGames=true", len(headGames))
 }
 
@@ -258,13 +244,13 @@ func (s *WorkshopGameVisibilityTestSuite) TestStaffAlwaysSeesAllParticipantGames
 	headUser := Must(head.GetMe())
 	instID := ""
 	if headUser.Role != nil && headUser.Role.Institution != nil {
-		instID = headUser.Role.Institution.ID.String()
+		instID = headUser.Role.Institution.Id.String()
 	}
 	s.Require().NotEmpty(instID, "head should have an institution")
 
 	staff := s.CreateUser("staff-bypass-member")
 	staffInvite := Must(head.InviteToInstitution(instID, "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	Must(staff.AcceptInvite(staffInvite.Id.String()))
 	s.T().Logf("Staff member joined institution")
 
 	// Staff enters workshop mode
@@ -273,18 +259,18 @@ func (s *WorkshopGameVisibilityTestSuite) TestStaffAlwaysSeesAllParticipantGames
 
 	// P1 creates a game
 	game1 := Must(p1.UploadGame("alien-first-contact"))
-	s.T().Logf("P1 game: %s", game1.ID)
+	s.T().Logf("P1 game: %s", game1.Id)
 
 	// Staff should see p1's game even though showOtherParticipantsGames=false
 	staffGames := Must(staff.ListGames())
-	s.True(containsGame(staffGames, game1.ID), "staff should see participant's game regardless of showOtherParticipantsGames")
+	s.True(containsGame(staffGames, game1.Id), "staff should see participant's game regardless of showOtherParticipantsGames")
 	s.T().Logf("Staff sees %d games — visible despite showOtherParticipantsGames=false", len(staffGames))
 }
 
 // containsGame checks if a game list contains a game with the given ID.
-func containsGame(games []obj.Game, id uuid.UUID) bool {
+func containsGame(games []testutil.Game, id uuid.UUID) bool {
 	for _, g := range games {
-		if g.ID == id {
+		if g.Id == id {
 			return true
 		}
 	}

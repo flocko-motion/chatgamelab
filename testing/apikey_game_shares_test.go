@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -25,10 +25,10 @@ func TestApiKeyGameSharesSuite(t *testing.T) {
 func (s *ApiKeyGameSharesSuite) TestPersonalGameShareVisibleInApiKeys() {
 	user := s.CreateUser("gs-personal")
 	keyShare := Must(user.AddApiKey("mock-gs-personal", "GS Personal Key", "openai"))
-	shareID := keyShare.ID.String()
+	shareID := keyShare.Id.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 
 	// Create a personal game share
 	created := Must(user.CreateGameShare(gameID, shareID, nil))
@@ -38,9 +38,9 @@ func (s *ApiKeyGameSharesSuite) TestPersonalGameShareVisibleInApiKeys() {
 	resp := Must(user.GetApiKeys())
 	var found bool
 	for _, share := range resp.Shares {
-		if share.IsPrivateShare && share.Game != nil && share.Game.ID.String() == gameID {
+		if share.IsPrivateShare != nil && *share.IsPrivateShare && share.Game != nil && share.Game.Id.String() == gameID {
 			found = true
-			s.NotNil(share.GameShareID, "should have gameShareId set")
+			s.NotNil(share.GameShareId, "should have gameShareId set")
 			s.Equal(game.Name, share.Game.Name, "game name should match")
 			break
 		}
@@ -56,26 +56,26 @@ func (s *ApiKeyGameSharesSuite) TestOrgGameShareVisibleInApiKeys() {
 	// Create institution + head
 	inst := Must(admin.CreateInstitution("gs-org Org"))
 	head := s.CreateUser("gs-org-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Head adds API key and shares with org
 	keyShare := Must(head.AddApiKey("mock-gs-org", "GS Org Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
-	orgShareID := orgShare.ID.String()
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
+	orgShareID := orgShare.Id.String()
 
 	// Upload game and create share using org key
 	game := Must(head.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 	Must(head.CreateGameShare(gameID, orgShareID, nil))
 
 	// Fetch API keys - should include the org game share
 	resp := Must(head.GetApiKeys())
 	var found bool
 	for _, share := range resp.Shares {
-		if share.IsPrivateShare && share.Game != nil && share.Game.ID.String() == gameID {
+		if share.IsPrivateShare != nil && *share.IsPrivateShare && share.Game != nil && share.Game.Id.String() == gameID {
 			found = true
-			s.NotNil(share.GameShareID, "should have gameShareId")
+			s.NotNil(share.GameShareId, "should have gameShareId")
 			s.Equal(game.Name, share.Game.Name, "game name should match")
 			break
 		}
@@ -91,39 +91,34 @@ func (s *ApiKeyGameSharesSuite) TestWorkshopGameShareVisibleInApiKeys() {
 	// Create institution + head
 	inst := Must(admin.CreateInstitution("gs-ws Org"))
 	head := s.CreateUser("gs-ws-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Head adds API key, shares with org
 	keyShare := Must(head.AddApiKey("mock-gs-ws", "GS WS Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
 	// Create workshop and set API key
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "GS Workshop"))
-	wsIDStr := workshop.ID.String()
-	orgShareIDStr := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "GS Workshop"))
+	wsIDStr := workshop.Id.String()
+	orgShareIDStr := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":             "GS Workshop",
-		"active":           true,
-		"public":           false,
-		"allowGameSharing": true,
-		"isPaused":         false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:             "GS Workshop",
+		Active:           true,
+		AllowGameSharing: true,
 	}))
 
 	// Participant joins and creates workshop share
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
 	participant := s.CreateUser("gs-ws-participant")
 	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*invite.InviteToken))
 	game := Must(participant.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
-	Must(participant.UpdateGame(gameID, map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	gameID := game.Id.String()
+	Must(participant.SetGamePublic(gameID, true))
 	Must(participant.CreateWorkshopGameShare(gameID, wsIDStr, nil))
 
 	// Head should see the workshop game share in API keys response
@@ -131,7 +126,7 @@ func (s *ApiKeyGameSharesSuite) TestWorkshopGameShareVisibleInApiKeys() {
 	resp := Must(head.GetApiKeys())
 	var found bool
 	for _, share := range resp.Shares {
-		if share.IsPrivateShare && share.Game != nil && share.Game.ID.String() == gameID {
+		if share.IsPrivateShare != nil && *share.IsPrivateShare && share.Game != nil && share.Game.Id.String() == gameID {
 			found = true
 			break
 		}
@@ -144,10 +139,10 @@ func (s *ApiKeyGameSharesSuite) TestWorkshopGameShareVisibleInApiKeys() {
 func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPersonalContext() {
 	user := s.CreateUser("gs-ctx-personal")
 	keyShare := Must(user.AddApiKey("mock-gs-ctx-personal", "CTX Personal Key", "openai"))
-	shareID := keyShare.ID.String()
+	shareID := keyShare.Id.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 
 	Must(user.CreateGameShare(gameID, shareID, nil))
 
@@ -155,8 +150,9 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPersonalContext() {
 	gameShares := Must(user.GetApiKeyGameShares(shareID, "personal"))
 	s.Require().Len(gameShares, 1, "owner should see personal share in personal context")
 	s.Equal("personal", gameShares[0].Source)
-	s.Equal(game.Name, gameShares[0].GameName)
-	s.Equal(gameID, gameShares[0].GameID.String())
+	s.Require().NotNil(gameShares[0].GameName)
+	s.Equal(game.Name, *gameShares[0].GameName)
+	s.Equal(gameID, gameShares[0].GameId.String())
 }
 
 // TestGameSharesEndpointOrgContextFiltersPersonal verifies the organization context
@@ -166,16 +162,16 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointOrgContextFiltersPersonal(
 
 	inst := Must(admin.CreateInstitution("gs-ctx-filter Org"))
 	head := s.CreateUser("gs-ctx-filter-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	keyShare := Must(head.AddApiKey("mock-gs-ctx-filter", "CTX Filter Key", "openai"))
-	selfShareID := keyShare.ID.String()
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
-	orgShareID := orgShare.ID.String()
+	selfShareID := keyShare.Id.String()
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
+	orgShareID := orgShare.Id.String()
 
 	game := Must(head.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 
 	// Create both a personal and an org share for the same game
 	Must(head.CreateGameShare(gameID, selfShareID, nil))
@@ -199,17 +195,17 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPersonalContextDeniedForNo
 	inst := Must(admin.CreateInstitution("gs-ctx-deny Org"))
 	head := s.CreateUser("gs-ctx-deny-head")
 	staff := s.CreateUser("gs-ctx-deny-staff")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
-	staffInvite := Must(admin.InviteToInstitution(inst.ID.String(), "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
+	staffInvite := Must(admin.InviteToInstitution(inst.Id.String(), "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.Id.String()))
 
 	keyShare := Must(head.AddApiKey("mock-gs-ctx-deny", "CTX Deny Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
-	orgShareID := orgShare.ID.String()
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
+	orgShareID := orgShare.Id.String()
 
 	game := Must(head.UploadGame("alien-first-contact"))
-	Must(head.CreateGameShare(game.ID.String(), orgShareID, nil))
+	Must(head.CreateGameShare(game.Id.String(), orgShareID, nil))
 
 	// Staff can access org context (they have access via institution)
 	orgShares := Must(staff.GetApiKeyGameShares(orgShareID, "organization"))
@@ -217,17 +213,17 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPersonalContextDeniedForNo
 
 	// Staff cannot use personal context (not key owner)
 	_, err := staff.GetApiKeyGameShares(orgShareID, "personal")
-	s.Error(err, "non-owner should be denied personal context")
+	s.Forbidden(err, "non-owner should be denied personal context")
 }
 
 // TestGameSharesEndpointWithRemaining verifies the endpoint returns remaining session count.
 func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointWithRemaining() {
 	user := s.CreateUser("gs-remaining")
 	keyShare := Must(user.AddApiKey("mock-gs-remaining", "GS Remaining Key", "openai"))
-	shareID := keyShare.ID.String()
+	shareID := keyShare.Id.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 
 	// Create a game share with max sessions
 	maxSessions := 5
@@ -246,14 +242,14 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPermission() {
 	user2 := s.CreateUser("gs-perm-other")
 
 	keyShare := Must(user1.AddApiKey("mock-gs-perm", "GS Perm Key", "openai"))
-	shareID := keyShare.ID.String()
+	shareID := keyShare.Id.String()
 
 	game := Must(user1.UploadGame("alien-first-contact"))
-	Must(user1.CreateGameShare(game.ID.String(), shareID, nil))
+	Must(user1.CreateGameShare(game.Id.String(), shareID, nil))
 
 	// user2 should not be able to access user1's game shares (no context)
 	_, err := user2.GetApiKeyGameShares(shareID, "")
-	s.Error(err, "non-owner should not be able to access game shares")
+	s.Forbidden(err, "non-owner should not be able to access game shares")
 }
 
 // TestGameSharesEndpointOrgSource verifies the endpoint returns "organization"
@@ -263,19 +259,20 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointOrgSource() {
 
 	inst := Must(admin.CreateInstitution("gs-ep-org Org"))
 	head := s.CreateUser("gs-ep-org-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	keyShare := Must(head.AddApiKey("mock-gs-ep-org", "GS EP Org Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
-	orgShareID := orgShare.ID.String()
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
+	orgShareID := orgShare.Id.String()
 
 	game := Must(head.UploadGame("alien-first-contact"))
-	Must(head.CreateGameShare(game.ID.String(), orgShareID, nil))
+	Must(head.CreateGameShare(game.Id.String(), orgShareID, nil))
 
 	// No context filter - should return all
 	gameShares := Must(head.GetApiKeyGameShares(orgShareID, ""))
 	s.Require().Len(gameShares, 1)
 	s.Equal("organization", gameShares[0].Source, "source should be organization")
-	s.Equal(game.Name, gameShares[0].GameName)
+	s.Require().NotNil(gameShares[0].GameName)
+	s.Equal(game.Name, *gameShares[0].GameName)
 }

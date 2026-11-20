@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"cgl/api"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -22,7 +22,7 @@ func TestApiKeyIsolationSuite(t *testing.T) {
 
 // assertNoForeignKeys checks that none of the API keys in the response
 // belong to the forbidden user.
-func (s *ApiKeyIsolationTestSuite) assertNoForeignKeys(resp api.ApiKeysResp, forbiddenUserName string, forbiddenKeyNames []string) {
+func (s *ApiKeyIsolationTestSuite) assertNoForeignKeys(resp testutil.ApiKeys, forbiddenUserName string, forbiddenKeyNames []string) {
 	s.T().Helper()
 	forbidden := make(map[string]bool)
 	for _, name := range forbiddenKeyNames {
@@ -64,8 +64,8 @@ func (s *ApiKeyIsolationTestSuite) TestHeadCannotSeeIndividualKeys() {
 
 	inst := Must(admin.CreateInstitution("Key Iso Org"))
 	head := s.CreateUser("iso-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 	Must(head.AddApiKey("mock-head-key", "Head Key", "openai"))
 
 	individual := s.CreateUser("iso-individual")
@@ -89,13 +89,13 @@ func (s *ApiKeyIsolationTestSuite) TestStaffCannotSeeHeadKeys() {
 
 	inst := Must(admin.CreateInstitution("Staff Key Org"))
 	head := s.CreateUser("iso-head2")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 	Must(head.AddApiKey("mock-head2-key", "Head2 Secret Key", "openai"))
 
 	staff := s.CreateUser("iso-staff")
-	staffInvite := Must(head.InviteToInstitution(inst.ID.String(), "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	staffInvite := Must(head.InviteToInstitution(inst.Id.String(), "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.Id.String()))
 	Must(staff.AddApiKey("mock-staff-key", "Staff Secret Key", "openai"))
 
 	// Staff lists keys — should NOT see head's key
@@ -115,8 +115,8 @@ func (s *ApiKeyIsolationTestSuite) TestAdminCannotSeeHeadKeys() {
 
 	inst := Must(admin.CreateInstitution("Admin Key Org"))
 	head := s.CreateUser("iso-head3")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 	Must(head.AddApiKey("mock-head3-key", "Head3 Secret Key", "openai"))
 
 	// Admin lists keys — should NOT see head's key
@@ -135,10 +135,8 @@ func (s *ApiKeyIsolationTestSuite) TestCannotFetchOtherUsersKeyByID() {
 	Must(userB.AddApiKey("mock-userb-key", "UserB Key", "openai"))
 
 	// UserB tries to fetch UserA's key share by ID — should fail
-	var info api.ApiKeyInfoResp
-	err := userB.Get("apikeys/"+keyA.ID.String(), &info)
-	s.Error(err, "user should not be able to fetch another user's API key by share ID")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := userB.GetApiKeyInfo(keyA.Id.String())
+	s.Forbidden(err, "user should not be able to fetch another user's API key by share ID")
 }
 
 // TestUserSeesOnlyOwnKeys is a sanity check that a user can see their own keys.

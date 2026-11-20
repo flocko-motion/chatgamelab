@@ -6,7 +6,6 @@ package api
 
 import (
 	"context"
-	"os"
 
 	"cgl/api/auth"
 	"cgl/obj"
@@ -51,10 +50,6 @@ func parseIDValidation(raw, msg string) (uuid.UUID, error) {
 	}
 	return id, nil
 }
-
-// devMode is on with DEV_MODE=true and off otherwise: dev-only endpoints
-// answer, the engine offers its mock platform, and the database is preseeded.
-var devMode = os.Getenv("DEV_MODE") == "true"
 
 // MessageResp is a confirmation for the user.
 type MessageResp struct {

@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -29,30 +29,28 @@ func (s *WorkshopGameSharingTestSuite) setupWorkshopWithSharing(prefix string, a
 	// Create institution + head
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Head adds API key, shares with org
 	keyShare := Must(head.AddApiKey("mock-ws-share-"+prefix, prefix+" Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
 	// Head creates workshop and sets API key
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsIDStr := workshop.ID.String()
-	orgShareIDStr := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	wsIDStr := workshop.Id.String()
+	orgShareIDStr := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 
 	// Enable allowGameSharing if requested
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":             prefix + " Workshop",
-		"active":           true,
-		"public":           false,
-		"allowGameSharing": allowSharing,
-		"isPaused":         false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:             prefix + " Workshop",
+		Active:           true,
+		AllowGameSharing: allowSharing,
 	}))
 
 	// Create workshop invite for individual
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
 	// Individual joins workshop
@@ -62,10 +60,8 @@ func (s *WorkshopGameSharingTestSuite) setupWorkshopWithSharing(prefix string, a
 
 	// Individual uploads a game in the workshop and makes it public (required for sharing)
 	game := Must(individual.UploadGame("alien-first-contact"))
-	gameIDStr := game.ID.String()
-	// Use full game object to preserve YAML-uploaded fields (system messages etc.)
-	game.Public = true
-	Must(individual.UpdateGame(gameIDStr, game))
+	gameIDStr := game.Id.String()
+	Must(individual.SetGamePublic(gameIDStr, true))
 
 	s.T().Logf("Setup: head=%s, individual=%s, ws=%s, game=%s", head.Name, individual.Name, wsIDStr, gameIDStr)
 	return head, individual, wsIDStr, gameIDStr
@@ -79,9 +75,9 @@ func (s *WorkshopGameSharingTestSuite) TestIndividualCanShareWhenEnabled() {
 	share, err := individual.CreateWorkshopGameShare(gameID, wsID, nil)
 	s.NoError(err, "individual should be able to create workshop share")
 	s.NotEmpty(share.Token, "share should have a token")
-	s.NotEmpty(share.ShareURL, "share should have a URL")
-	s.NotNil(share.WorkshopID, "share should have workshopId set")
-	s.T().Logf("Share created: token=%s, url=%s, workshopId=%v", share.Token, share.ShareURL, share.WorkshopID)
+	s.NotEmpty(share.ShareUrl, "share should have a URL")
+	s.NotNil(share.WorkshopId, "share should have workshopId set")
+	s.T().Logf("Share created: token=%s, url=%s, workshopId=%v", share.Token, share.ShareUrl, share.WorkshopId)
 }
 
 // TestIndividualCannotShareWhenDisabled verifies that a workshop individual
@@ -90,9 +86,7 @@ func (s *WorkshopGameSharingTestSuite) TestIndividualCannotShareWhenDisabled() {
 	_, individual, wsID, gameID := s.setupWorkshopWithSharing("share-no", false)
 
 	_, err := individual.CreateWorkshopGameShare(gameID, wsID, nil)
-	s.Error(err, "individual should NOT be able to share when allowGameSharing is disabled")
-	s.Contains(err.Error(), "403", "should be a 403 forbidden error")
-	s.T().Logf("Correctly rejected: %v", err)
+	s.Forbidden(err, "individual should NOT be able to share when allowGameSharing is disabled")
 }
 
 // TestGuestCanOpenWorkshopShare verifies that an anonymous guest can open
@@ -126,6 +120,6 @@ func (s *WorkshopGameSharingTestSuite) TestWorkshopShareReusesExistingLink() {
 	s.Require().NoError(err)
 
 	s.Equal(share1.Token, share2.Token, "second call should return the same token")
-	s.Equal(share1.ID, share2.ID, "second call should return the same share ID")
-	s.T().Logf("Both calls returned same share: id=%s, token=%s", share1.ID, share1.Token)
+	s.Equal(share1.Id, share2.Id, "second call should return the same share ID")
+	s.T().Logf("Both calls returned same share: id=%s, token=%s", share1.Id, share1.Token)
 }

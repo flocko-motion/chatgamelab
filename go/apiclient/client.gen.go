@@ -1308,7 +1308,7 @@ type ClientInterface interface {
 
 	// PostApiAuthDevLoginWithBody Signs in as one of the seeded development accounts.
 	//
-	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// Development only: outside development mode it answers 404. Takes a preset role
 	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 	// "individual-1", "individual-2", "participant"), starts a session for its
 	// account and sets the session cookie.
@@ -1320,7 +1320,7 @@ type ClientInterface interface {
 
 	// PostApiAuthDevLogin Signs in as one of the seeded development accounts.
 	//
-	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// Development only: outside development mode it answers 404. Takes a preset role
 	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 	// "individual-1", "individual-2", "participant"), starts a session for its
 	// account and sets the session cookie.
@@ -2805,7 +2805,7 @@ func (c *Client) GetApiAuthCheckName(ctx context.Context, reqEditors ...RequestE
 
 // PostApiAuthDevLoginWithBody Signs in as one of the seeded development accounts.
 //
-// Development only: without DEV_MODE it answers 404. Takes a preset role
+// Development only: outside development mode it answers 404. Takes a preset role
 // ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 // "individual-1", "individual-2", "participant"), starts a session for its
 // account and sets the session cookie.
@@ -2827,7 +2827,7 @@ func (c *Client) PostApiAuthDevLoginWithBody(ctx context.Context, contentType st
 
 // PostApiAuthDevLogin Signs in as one of the seeded development accounts.
 //
-// Development only: without DEV_MODE it answers 404. Takes a preset role
+// Development only: outside development mode it answers 404. Takes a preset role
 // ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 // "individual-1", "individual-2", "participant"), starts a session for its
 // account and sets the session cookie.
@@ -10027,7 +10027,7 @@ type ClientWithResponsesInterface interface {
 
 	// PostApiAuthDevLoginWithBodyWithResponse Signs in as one of the seeded development accounts.
 	//
-	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// Development only: outside development mode it answers 404. Takes a preset role
 	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 	// "individual-1", "individual-2", "participant"), starts a session for its
 	// account and sets the session cookie.
@@ -10039,7 +10039,7 @@ type ClientWithResponsesInterface interface {
 
 	// PostApiAuthDevLoginWithResponse Signs in as one of the seeded development accounts.
 	//
-	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// Development only: outside development mode it answers 404. Takes a preset role
 	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 	// "individual-1", "individual-2", "participant"), starts a session for its
 	// account and sets the session cookie.
@@ -17421,7 +17421,7 @@ func (c *ClientWithResponses) GetApiAuthCheckNameWithResponse(ctx context.Contex
 
 // PostApiAuthDevLoginWithBodyWithResponse Signs in as one of the seeded development accounts.
 //
-// Development only: without DEV_MODE it answers 404. Takes a preset role
+// Development only: outside development mode it answers 404. Takes a preset role
 // ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 // "individual-1", "individual-2", "participant"), starts a session for its
 // account and sets the session cookie.
@@ -17439,7 +17439,7 @@ func (c *ClientWithResponses) PostApiAuthDevLoginWithBodyWithResponse(ctx contex
 
 // PostApiAuthDevLoginWithResponse Signs in as one of the seeded development accounts.
 //
-// Development only: without DEV_MODE it answers 404. Takes a preset role
+// Development only: outside development mode it answers 404. Takes a preset role
 // ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
 // "individual-1", "individual-2", "participant"), starts a session for its
 // account and sets the session cookie.

@@ -45,7 +45,7 @@ func (c *creator) resume(ctx context.Context, id string) (*engine.Session, error
 
 func (c *creator) server(t *testing.T) (*api.API, *httptest.Server) {
 	t.Helper()
-	a := api.New(api.Options{Dev: true, Create: c.create, Resume: c.resume})
+	a := api.New(api.Options{Dev: func() bool { return true }, Create: c.create, Resume: c.resume})
 	srv := httptest.NewServer(serve(a))
 	t.Cleanup(srv.Close)
 	return a, srv
@@ -109,7 +109,7 @@ func TestOneTimeKeyAnswersTheSameSession(t *testing.T) {
 func TestOneTimeKeyBelongsToItsCaller(t *testing.T) {
 	c := &creator{store: &engine.MemoryPersist{}}
 	a := api.New(api.Options{
-		Dev:    true,
+		Dev:    func() bool { return true },
 		Create: c.create,
 		Caller: func(ctx context.Context) string { return schemafapi.Header(ctx, "X-Caller") },
 	})
@@ -279,5 +279,31 @@ func TestAFailureKeepsItsCode(t *testing.T) {
 	}
 	if got := errorOf(t, resp); got.Code != string(engine.ProblemFailed) || strings.Contains(got.Error, "fire") {
 		t.Errorf("body = %+v, want code failed and no message", got)
+	}
+}
+
+// Shutting the transport down ends every session in memory, each with its
+// last checkpoint, and leaves memory empty: a later request restores from the
+// store.
+func TestCloseEndsEverySession(t *testing.T) {
+	c := &creator{store: &engine.MemoryPersist{}}
+	a, srv := c.server(t)
+	id := created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k", Language: "de"}))
+
+	a.Close()
+
+	if launches := c.launches.Load(); launches != 1 {
+		t.Fatalf("launches = %d, want 1", launches)
+	}
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/" + id + "/topology")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("the session after Close answered %s, want it restored from the store", resp.Status)
+	}
+	if got := c.launches.Load(); got != 1 {
+		t.Errorf("a request after Close launched anew (%d launches); it should restore", got)
 	}
 }

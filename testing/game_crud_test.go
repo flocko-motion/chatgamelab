@@ -1,9 +1,10 @@
 package testing
 
 import (
-	"cgl/testing/testutil"
 	"strings"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -25,17 +26,15 @@ func TestGameCrudSuite(t *testing.T) {
 func (s *GameCrudTestSuite) TestOwnerCanRenameGame() {
 	alice := s.CreateUser("crud-rename")
 	game := Must(alice.UploadGame("alien-first-contact"))
-	s.NotEmpty(game.ID)
-	s.T().Logf("Created game: %s (ID: %s)", game.Name, game.ID)
+	s.NotEmpty(game.Id)
+	s.T().Logf("Created game: %s (ID: %s)", game.Name, game.Id)
 
-	updated := Must(alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name": "Renamed Game",
-	}))
+	updated := Must(alice.RenameGame(game.Id.String(), "Renamed Game"))
 	s.Equal("Renamed Game", updated.Name)
 	s.T().Logf("Renamed game to: %s", updated.Name)
 
 	// Verify via GET
-	fetched := Must(alice.GetGameByID(game.ID.String()))
+	fetched := Must(alice.GetGameByID(game.Id.String()))
 	s.Equal("Renamed Game", fetched.Name)
 }
 
@@ -48,17 +47,14 @@ func (s *GameCrudTestSuite) TestOwnerCanTogglePublicFlag() {
 	s.False(game.Public, "game should start as private")
 
 	// Make public
-	updated := Must(alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	updated := Must(alice.SetGamePublic(game.Id.String(), true))
 	s.True(updated.Public, "game should be public after update")
 
 	// Bob can see it in public list
 	bobGames := Must(bob.ListGamesWithFilter("public"))
 	found := false
 	for _, g := range bobGames {
-		if g.ID == game.ID {
+		if g.Id == game.Id {
 			found = true
 			break
 		}
@@ -66,16 +62,13 @@ func (s *GameCrudTestSuite) TestOwnerCanTogglePublicFlag() {
 	s.True(found, "bob should see alice's public game")
 
 	// Make private again
-	Must(alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": false,
-	}))
+	Must(alice.SetGamePublic(game.Id.String(), false))
 
 	// Bob should no longer see it
 	bobGames = Must(bob.ListGamesWithFilter("public"))
 	found = false
 	for _, g := range bobGames {
-		if g.ID == game.ID {
+		if g.Id == game.Id {
 			found = true
 			break
 		}
@@ -88,11 +81,10 @@ func (s *GameCrudTestSuite) TestOwnerCanUpdateDescription() {
 	alice := s.CreateUser("crud-desc")
 	game := Must(alice.UploadGame("alien-first-contact"))
 
-	updated := Must(alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":        game.Name,
-		"description": "A brand new description",
-	}))
+	game.Description = "A brand new description"
+	updated := Must(alice.UpdateGame(game.Id.String(), game))
 	s.Equal("A brand new description", updated.Description)
+	s.Equal(game.SystemMessageScenario, updated.SystemMessageScenario, "the rest of the game stays")
 }
 
 // TestNonOwnerCannotUpdateGame verifies that a non-owner cannot update another user's private game.
@@ -102,11 +94,11 @@ func (s *GameCrudTestSuite) TestNonOwnerCannotUpdateGame() {
 
 	game := Must(alice.UploadGame("alien-first-contact"))
 
-	_, err := bob.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name": "Hacked Name",
-	})
-	s.Error(err, "non-owner should not be able to update game")
-	s.T().Logf("Correctly denied: %v", err)
+	// Bob can't see alice's private game, so for him it doesn't exist
+	game.Name = "Hacked Name"
+	_, err := bob.UpdateGame(game.Id.String(), game)
+	s.NotFound(err, "non-owner should not be able to update game")
+	s.NotEqual("Hacked Name", Must(alice.GetGameByID(game.Id.String())).Name)
 }
 
 // TestNameLengthValidation verifies that game names over 70 chars are rejected.
@@ -115,33 +107,27 @@ func (s *GameCrudTestSuite) TestNameLengthValidation() {
 	game := Must(alice.UploadGame("alien-first-contact"))
 
 	longName := strings.Repeat("x", 71)
-	_, err := alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name": longName,
-	})
-	s.Error(err, "name over 70 chars should be rejected")
-	s.T().Logf("Correctly rejected: %v", err)
+	_, err := alice.RenameGame(game.Id.String(), longName)
+	s.Refused(err, testutil.CodeNameTooLong, "name over 70 chars should be rejected")
 }
 
 // --- Clone ---
 
 // TestOwnerCanCloneOwnGame verifies cloning your own game.
-// Note: The clone endpoint loads the game with nil userID, so the game must be
-// public or the owner must make it public first for the clone to succeed.
+// The game is made public first: the clone endpoint loads the game without
+// the caller, so it finds only public games.
 func (s *GameCrudTestSuite) TestOwnerCanCloneOwnGame() {
 	alice := s.CreateUser("crud-clone")
 	game := Must(alice.UploadGame("alien-first-contact"))
 
 	// Make game public so clone endpoint can find it
-	Must(alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	Must(alice.SetGamePublic(game.Id.String(), true))
 
-	cloned := Must(alice.CloneGame(game.ID.String()))
-	s.NotEqual(game.ID, cloned.ID, "cloned game should have different ID")
+	cloned := Must(alice.CloneGame(game.Id.String()))
+	s.NotEqual(game.Id, cloned.Id, "cloned game should have different ID")
 	s.Contains(cloned.Name, "(Copy)", "cloned game name should contain (Copy)")
 	s.False(cloned.Public, "cloned game should start as private")
-	s.T().Logf("Cloned game: %s (ID: %s)", cloned.Name, cloned.ID)
+	s.T().Logf("Cloned game: %s (ID: %s)", cloned.Name, cloned.Id)
 }
 
 // TestUserCanCloneVisiblePublicGame verifies that any user can clone a visible public game.
@@ -150,14 +136,14 @@ func (s *GameCrudTestSuite) TestUserCanCloneVisiblePublicGame() {
 	bob := s.CreateUser("crud-clonevis-b")
 
 	game := Must(alice.UploadGame("alien-first-contact"))
-	fullGame := Must(alice.GetGameByID(game.ID.String()))
+	fullGame := Must(alice.GetGameByID(game.Id.String()))
 	fullGame.Public = true
-	Must(alice.UpdateGame(game.ID.String(), fullGame))
+	Must(alice.UpdateGame(game.Id.String(), fullGame))
 
-	cloned := Must(bob.CloneGame(game.ID.String()))
-	s.NotEqual(game.ID, cloned.ID)
+	cloned := Must(bob.CloneGame(game.Id.String()))
+	s.NotEqual(game.Id, cloned.Id)
 	s.Contains(cloned.Name, "(Copy)")
-	s.T().Logf("Bob cloned visible public game: %s", cloned.ID)
+	s.T().Logf("Bob cloned visible public game: %s", cloned.Id)
 }
 
 // TestUserCannotCloneInvisiblePrivateGame verifies cloning a private game you can't see fails.
@@ -168,21 +154,17 @@ func (s *GameCrudTestSuite) TestUserCannotCloneInvisiblePrivateGame() {
 	game := Must(alice.UploadGame("alien-first-contact"))
 	s.False(game.Public)
 
-	_, err := bob.CloneGame(game.ID.String())
-	s.Error(err, "should not be able to clone a private game you can't see")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := bob.CloneGame(game.Id.String())
+	s.NotFound(err, "should not be able to clone a private game you can't see")
 }
 
 // TestClonedGameStartsAsPrivate verifies that even cloning a public game results in a private clone.
 func (s *GameCrudTestSuite) TestClonedGameStartsAsPrivate() {
 	alice := s.CreateUser("crud-clonepriv2")
 	game := Must(alice.UploadGame("alien-first-contact"))
-	Must(alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	Must(alice.SetGamePublic(game.Id.String(), true))
 
-	cloned := Must(alice.CloneGame(game.ID.String()))
+	cloned := Must(alice.CloneGame(game.Id.String()))
 	s.False(cloned.Public, "cloned game should always start as private")
 }
 
@@ -194,7 +176,7 @@ func (s *GameCrudTestSuite) TestYAMLRoundTrip() {
 	game := Must(alice.UploadGame("alien-first-contact"))
 	s.NotEmpty(game.SystemMessageScenario, "uploaded game should have scenario")
 
-	yamlContent, err := alice.GetGameYAML(game.ID.String())
+	yamlContent, err := alice.GetGameYAML(game.Id.String())
 	s.NoError(err, "should be able to export YAML")
 	s.NotEmpty(yamlContent, "YAML should not be empty")
 	s.T().Logf("Exported YAML length: %d bytes", len(yamlContent))
@@ -206,11 +188,11 @@ func (s *GameCrudTestSuite) TestNonOwnerCanExportPublicGameYAML() {
 	bob := s.CreateUser("crud-yaml-pub-b")
 
 	game := Must(alice.UploadGame("alien-first-contact"))
-	fullGame := Must(alice.GetGameByID(game.ID.String()))
+	fullGame := Must(alice.GetGameByID(game.Id.String()))
 	fullGame.Public = true
-	Must(alice.UpdateGame(game.ID.String(), fullGame))
+	Must(alice.UpdateGame(game.Id.String(), fullGame))
 
-	yamlContent, err := bob.GetGameYAML(game.ID.String())
+	yamlContent, err := bob.GetGameYAML(game.Id.String())
 	s.NoError(err, "non-owner should be able to export YAML of public game")
 	s.NotEmpty(yamlContent)
 	s.T().Logf("Bob exported public game YAML: %d bytes", len(yamlContent))
@@ -224,9 +206,8 @@ func (s *GameCrudTestSuite) TestNonOwnerCannotExportPrivateGameYAML() {
 	game := Must(alice.UploadGame("alien-first-contact"))
 	s.False(game.Public)
 
-	_, err := bob.GetGameYAML(game.ID.String())
-	s.Error(err, "non-owner should not be able to export YAML of private game")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := bob.GetGameYAML(game.Id.String())
+	s.NotFound(err, "non-owner should not be able to export YAML of private game")
 }
 
 // --- Delete ---
@@ -236,13 +217,13 @@ func (s *GameCrudTestSuite) TestOwnerCanDeleteOwnGame() {
 	alice := s.CreateUser("crud-del")
 	game := Must(alice.UploadGame("alien-first-contact"))
 
-	MustSucceed(alice.DeleteGame(game.ID.String()))
-	s.T().Logf("Deleted game: %s", game.ID)
+	MustSucceed(alice.DeleteGame(game.Id.String()))
+	s.T().Logf("Deleted game: %s", game.Id)
 
 	// Verify gone from list
 	games := Must(alice.ListGames())
 	for _, g := range games {
-		s.NotEqual(game.ID, g.ID, "deleted game should not appear in list")
+		s.NotEqual(game.Id, g.Id, "deleted game should not appear in list")
 	}
 }
 
@@ -253,13 +234,13 @@ func (s *GameCrudTestSuite) TestNonOwnerCannotDeleteGame() {
 
 	game := Must(alice.UploadGame("alien-first-contact"))
 
-	err := bob.DeleteGame(game.ID.String())
-	s.Error(err, "non-owner should not be able to delete game")
-	s.T().Logf("Correctly denied: %v", err)
+	// Bob can't see alice's private game, so for him it doesn't exist
+	err := bob.DeleteGame(game.Id.String())
+	s.NotFound(err, "non-owner should not be able to delete game")
 
 	// Verify game still exists
-	fetched := Must(alice.GetGameByID(game.ID.String()))
-	s.Equal(game.ID, fetched.ID)
+	fetched := Must(alice.GetGameByID(game.Id.String()))
+	s.Equal(game.Id, fetched.Id)
 }
 
 // --- Listing filters ---
@@ -276,14 +257,13 @@ func (s *GameCrudTestSuite) TestFilterOwn() {
 	s.GreaterOrEqual(len(ownGames), 1, "alice should see at least 1 own game")
 
 	for _, g := range ownGames {
-		// All returned games should belong to alice (we can't check CreatedBy directly,
-		// but alice's game should be in the list)
-		_ = g
+		s.Require().NotNil(g.CreatorId)
+		s.Equal(alice.ID, g.CreatorId.String(), "own filter returns only alice's games")
 	}
 
 	found := false
 	for _, g := range ownGames {
-		if g.ID == aliceGame.ID {
+		if g.Id == aliceGame.Id {
 			found = true
 			break
 		}
@@ -297,15 +277,12 @@ func (s *GameCrudTestSuite) TestFilterPublic() {
 	bob := s.CreateUser("crud-filter-pub-bob")
 
 	game := Must(alice.UploadGame("alien-first-contact"))
-	Must(alice.UpdateGame(game.ID.String(), map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	Must(alice.SetGamePublic(game.Id.String(), true))
 
 	pubGames := Must(bob.ListGamesWithFilter("public"))
 	found := false
 	for _, g := range pubGames {
-		if g.ID == game.ID {
+		if g.Id == game.Id {
 			found = true
 			break
 		}
@@ -326,7 +303,7 @@ func (s *GameCrudTestSuite) TestSearchByName() {
 	results := Must(alice.ListGamesWithSearch(searchTerm))
 	found := false
 	for _, g := range results {
-		if g.ID == game.ID {
+		if g.Id == game.Id {
 			found = true
 			break
 		}

@@ -1,8 +1,9 @@
 package testing
 
 import (
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -25,11 +26,11 @@ func TestApiKeyCascadePrivateShareSuite(t *testing.T) {
 func (s *ApiKeyCascadePrivateShareTestSuite) setupSponsoredGameWithPrivateShare(prefix string) (*testutil.UserClient, string, string, string) {
 	user := s.CreateUser(prefix)
 	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
-	shareID := keyShare.ID.String()
+	shareID := keyShare.Id.String()
 
 	// Upload game and make it public
 	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 	game.Public = true
 	Must(user.UpdateGame(gameID, game))
 
@@ -65,7 +66,7 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestDeleteSponsorKeyDisablesPrivate
 
 	// Guest should no longer be able to access the game via token
 	_, err := pub.GuestGetGameInfo(token)
-	s.Error(err, "guest should not access game after sponsor key deletion")
+	s.NotFound(err, "guest should not access game after sponsor key deletion")
 	s.T().Logf("Guest correctly denied after key deletion: %v", err)
 }
 
@@ -76,8 +77,8 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestDeleteSponsorKeyAlsoRemovesPubl
 
 	// Verify game has sponsor before deletion
 	game := Must(user.GetGameByID(gameID))
-	s.NotEmpty(game.PublicSponsoredApiKeyShareID, "game should have sponsor before deletion")
-	s.T().Logf("Game has sponsor: %s", *game.PublicSponsoredApiKeyShareID)
+	s.NotEmpty(game.PublicSponsoredApiKeyShareId, "game should have sponsor before deletion")
+	s.T().Logf("Game has sponsor: %s", *game.PublicSponsoredApiKeyShareId)
 
 	// Delete the API key (cascade)
 	MustSucceed(user.DeleteApiKey(shareID, true))
@@ -85,7 +86,7 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestDeleteSponsorKeyAlsoRemovesPubl
 
 	// Game should no longer have a sponsor
 	game = Must(user.GetGameByID(gameID))
-	s.Nil(game.PublicSponsoredApiKeyShareID, "game should not have sponsor after key deletion")
+	s.Nil(game.PublicSponsoredApiKeyShareId, "game should not have sponsor after key deletion")
 	s.T().Logf("Public sponsorship correctly removed")
 
 	// Private share should also be gone
@@ -99,10 +100,10 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestDeleteSponsorKeyAlsoRemovesPubl
 func (s *ApiKeyCascadePrivateShareTestSuite) TestNonCascadeDeleteDoesNotAffectPrivateShare() {
 	user := s.CreateUser("cascade-noaff")
 	keyShare := Must(user.AddApiKey("mock-cascade-noaff", "Key", "openai"))
-	shareID := keyShare.ID.String()
+	shareID := keyShare.Id.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 	game.Public = true
 	Must(user.UpdateGame(gameID, game))
 	Must(user.SetGameSponsor(gameID, shareID))

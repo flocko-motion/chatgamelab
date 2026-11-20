@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -25,10 +25,10 @@ func TestShareSourceSuite(t *testing.T) {
 func (s *ShareSourceTestSuite) TestPersonalKeyCreatesPersonalShare() {
 	user := s.CreateUser("src-personal")
 	keyShare := Must(user.AddApiKey("mock-src-personal", "My Personal Key", "openai"))
-	shareID := keyShare.ID.String()
+	shareID := keyShare.Id.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 
 	// Create share using personal key
 	created := Must(user.CreateGameShare(gameID, shareID, nil))
@@ -49,17 +49,17 @@ func (s *ShareSourceTestSuite) TestOrgKeyCreatesOrgShare() {
 	// Create institution + head
 	inst := Must(admin.CreateInstitution("src-org Org"))
 	head := s.CreateUser("src-org-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Head adds API key and shares it with the org
 	keyShare := Must(head.AddApiKey("mock-src-org", "Org Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
-	orgShareID := orgShare.ID.String()
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
+	orgShareID := orgShare.Id.String()
 
 	// Head uploads a game
 	game := Must(head.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 
 	// Create share using the org-shared key
 	created := Must(head.CreateGameShare(gameID, orgShareID, nil))
@@ -80,41 +80,36 @@ func (s *ShareSourceTestSuite) TestWorkshopShareCreatesWorkshopSource() {
 	// Create institution + head
 	inst := Must(admin.CreateInstitution("src-ws Org"))
 	head := s.CreateUser("src-ws-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Head adds API key, shares with org
 	keyShare := Must(head.AddApiKey("mock-src-ws", "WS Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
 	// Head creates workshop and sets API key
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Source Workshop"))
-	wsIDStr := workshop.ID.String()
-	orgShareIDStr := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Source Workshop"))
+	wsIDStr := workshop.Id.String()
+	orgShareIDStr := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 
 	// Enable game sharing
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":             "Source Workshop",
-		"active":           true,
-		"public":           false,
-		"allowGameSharing": true,
-		"isPaused":         false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:             "Source Workshop",
+		Active:           true,
+		AllowGameSharing: true,
 	}))
 
 	// Create workshop invite for participant
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
 	// Participant joins workshop and uploads a game (must be public for sharing)
 	participant := s.CreateUser("src-ws-participant")
 	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*invite.InviteToken))
 	game := Must(participant.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
-	Must(participant.UpdateGame(gameID, map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	gameID := game.Id.String()
+	Must(participant.SetGamePublic(gameID, true))
 
 	// Participant creates workshop share
 	created := Must(participant.CreateWorkshopGameShare(gameID, wsIDStr, nil))
@@ -124,9 +119,9 @@ func (s *ShareSourceTestSuite) TestWorkshopShareCreatesWorkshopSource() {
 	status := Must(participant.GetPrivateShareStatus(gameID))
 	s.Require().Len(status.Shares, 1, "should have exactly 1 share")
 	s.Equal("workshop", status.Shares[0].Source, "share source should be workshop")
-	s.NotNil(status.Shares[0].WorkshopID, "share should have workshopId set")
-	s.NotNil(status.Shares[0].InstitutionID, "workshop share should also have institutionId set")
-	s.T().Logf("Workshop share created: source=%s, workshopName=%s", status.Shares[0].Source, status.Shares[0].WorkshopName)
+	s.NotNil(status.Shares[0].WorkshopId, "share should have workshopId set")
+	s.NotNil(status.Shares[0].InstitutionId, "workshop share should also have institutionId set")
+	s.T().Logf("Workshop share created: source=%v, workshopName=%v", status.Shares[0].Source, status.Shares[0].WorkshopName)
 }
 
 // TestHeadSeesWorkshopSharesOutsideWorkshopMode verifies that a head user
@@ -137,46 +132,42 @@ func (s *ShareSourceTestSuite) TestHeadSeesWorkshopSharesOutsideWorkshopMode() {
 	// Create institution + head
 	inst := Must(admin.CreateInstitution("src-outside Org"))
 	head := s.CreateUser("src-outside-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Head adds API key, shares with org
 	keyShare := Must(head.AddApiKey("mock-src-outside", "Outside Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
 	// Head creates workshop and sets API key
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Outside Workshop"))
-	wsIDStr := workshop.ID.String()
-	orgShareIDStr := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Outside Workshop"))
+	wsIDStr := workshop.Id.String()
+	orgShareIDStr := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":             "Outside Workshop",
-		"active":           true,
-		"public":           false,
-		"allowGameSharing": true,
-		"isPaused":         false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:             "Outside Workshop",
+		Active:           true,
+		AllowGameSharing: true,
 	}))
 
 	// Create workshop invite for participant
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
 	// Participant joins, uploads game (must be public for sharing), creates workshop share
 	participant := s.CreateUser("src-outside-part")
 	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*invite.InviteToken))
 	game := Must(participant.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
-	Must(participant.UpdateGame(gameID, map[string]interface{}{
-		"name":   game.Name,
-		"public": true,
-	}))
+	gameID := game.Id.String()
+	Must(participant.SetGamePublic(gameID, true))
 	Must(participant.CreateWorkshopGameShare(gameID, wsIDStr, nil))
 
 	// Head (outside workshop mode) should see the workshop share
 	status := Must(head.GetPrivateShareStatus(gameID))
 	s.Require().Len(status.Shares, 1, "head should see 1 workshop share outside workshop mode")
 	s.Equal("workshop", status.Shares[0].Source, "share source should be workshop")
-	s.Equal("Outside Workshop", status.Shares[0].WorkshopName, "should include workshop name")
-	s.T().Logf("Head sees workshop share outside workshop mode: source=%s, workshopName=%s", status.Shares[0].Source, status.Shares[0].WorkshopName)
+	s.Require().NotNil(status.Shares[0].WorkshopName, "should include workshop name")
+	s.Equal("Outside Workshop", *status.Shares[0].WorkshopName)
+	s.T().Logf("Head sees workshop share outside workshop mode: source=%s, workshopName=%v", status.Shares[0].Source, status.Shares[0].WorkshopName)
 }
