@@ -158,7 +158,7 @@ func TestHeadlessPlaybackEngineCreates(t *testing.T) {
 	store := &engine.MemoryPersist{}
 	var launches atomic.Int32
 	a := api.New(api.Options{
-		Dev: true,
+		Dev: func() bool { return true },
 		Create: func(ctx context.Context, req api.CreateRequest) (*engine.Session, error) {
 			n := launches.Add(1)
 			return engine.Launch(context.WithoutCancel(ctx), engine.SessionSpec{

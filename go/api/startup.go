@@ -11,18 +11,16 @@ import (
 	"cgl/db"
 	"cgl/log"
 	"cgl/telemetry"
+
+	schemafapi "github.com/flocko-motion/schemaf/api"
 )
 
-func init() {
-	db.DevMode = devMode
-}
-
-// Startup prepares the platform and then waits for shutdown to flush
-// telemetry; a schemaf service.
+// Startup prepares the platform and then waits for shutdown to end the
+// engine's sessions and flush telemetry; a schemaf service.
 func Startup(ctx context.Context) {
 	telemetry.Init(Version)
 
-	if devMode {
+	if schemafapi.DevMode() {
 		log.SetDebug(true)
 		log.Info("development mode enabled", "debug_logging", true)
 		db.Preseed(ctx)
@@ -30,5 +28,8 @@ func Startup(ctx context.Context) {
 	db.PromoteAdminEmails(ctx)
 
 	<-ctx.Done()
+	// The server is stopping; the database stays open until the services
+	// return, so every session writes its last checkpoint now.
+	Engine.Close()
 	telemetry.Flush(2 * time.Second)
 }

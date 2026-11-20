@@ -1,13 +1,11 @@
 package testing
 
 import (
-	"cgl/api"
-	"cgl/obj"
-	"cgl/testing/testutil"
-	"net/url"
 	"regexp"
 	"strings"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -34,176 +32,184 @@ func (s *WorkshopWordTokensTestSuite) workshopSetup(prefix string) (*testutil.Us
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	keyShare := Must(head.AddApiKey("mock-word-key-"+prefix, prefix+" Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsID := workshop.ID.String()
-	orgShareID := orgShare.ID.String()
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	wsID := workshop.Id.String()
+	orgShareID := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsID, &orgShareID))
-	Must(head.UpdateWorkshop(wsID, map[string]interface{}{
-		"name":     prefix + " Workshop",
-		"active":   true,
-		"public":   false,
-		"isPaused": false,
+	Must(head.UpdateWorkshop(wsID, testutil.WorkshopUpdate{
+		Name:   prefix + " Workshop",
+		Active: true,
 	}))
 	return head, wsID
 }
 
+// codeOf is the participant's own participant token, the code they sign in
+// again with.
+func (s *WorkshopWordTokensTestSuite) codeOf(participant *testutil.UserClient) string {
+	code := Must(participant.GetParticipantCode())
+	s.Require().NotNil(code.Token, "a participant has a participant token")
+	return *code.Token
+}
+
 func (s *WorkshopWordTokensTestSuite) TestInviteTokenIsThreeWords() {
 	head, wsID := s.workshopSetup("word-invite")
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsID))
 	s.Require().NotNil(invite.InviteToken)
 	s.Regexp(threeWords, *invite.InviteToken)
 
 	// Typed with capitals and spaces instead of hyphens.
 	typed := strings.ToUpper(strings.ReplaceAll(*invite.InviteToken, "-", " "))
-	var found map[string]interface{}
-	s.NoError(s.Public().Get("invites/"+url.PathEscape(typed), &found))
+	found := Must(s.Public().GetInvite(typed))
+	s.Equal(invite.Id.String(), found.Id)
 
-	resp := Must(s.AcceptWorkshopInviteAnonymously(url.PathEscape(typed)))
-	s.Require().NotNil(resp.AuthToken)
-	s.Regexp(fourWords, *resp.AuthToken)
+	// Joining with it gives the participant a code of four words.
+	participant := Must(s.JoinWorkshop(typed))
+	s.Regexp(fourWords, s.codeOf(participant))
 }
 
 func (s *WorkshopWordTokensTestSuite) TestParticipantLoginWithoutPrefix() {
 	head, wsID := s.workshopSetup("word-login")
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
-	resp := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
-	words := strings.TrimPrefix(*resp.AuthToken, "participant-")
+	invite := Must(head.CreateWorkshopInvite(wsID))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	words := strings.TrimPrefix(s.codeOf(participant), "participant-")
 
-	s.NoError(s.Public().Post("auth/participant-login", map[string]string{"token": strings.ToUpper(words)}, nil))
-	s.Error(s.Public().Post("auth/participant-login", map[string]string{"token": "apfel-otter-turm-leise"}, nil))
+	again := Must(s.ParticipantLogin(strings.ToUpper(words)))
+	s.Equal(participant.ID, again.ID)
+
+	_, err := s.ParticipantLogin("apfel-otter-turm-leise")
+	s.Unauthorized(err)
 }
 
 func (s *WorkshopWordTokensTestSuite) TestResetParticipantToken() {
 	head, wsID := s.workshopSetup("word-reset")
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
-	resp := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsID))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	oldCode := s.codeOf(participant)
 
-	var result map[string]string
-	s.Require().NoError(head.Post("workshops/participants/"+participant.ID+"/token/reset", nil, &result))
-	newToken := result["token"]
+	newToken := Must(head.ResetParticipantToken(participant.ID))
 	s.Regexp(fourWords, newToken)
-	s.NotEqual(*resp.AuthToken, newToken)
+	s.NotEqual(oldCode, newToken)
 
-	var me obj.User
-	s.Error(participant.Get("users/me", &me), "old token must stop working")
-	s.NotNil(s.CreateUserWithToken(newToken))
+	// The reset ends the participant's sessions and their old code.
+	_, err := participant.WhoAmI()
+	s.Unauthorized(err, "the session started before the reset must end")
+	_, err = s.ParticipantLogin(oldCode)
+	s.Unauthorized(err, "the old code must stop working")
+
+	relogged := Must(s.ParticipantLogin(newToken))
+	s.Equal(participant.ID, relogged.ID)
 
 	// A participant cannot reset anyone's token.
-	s.Error(s.CreateUserWithToken(newToken).Post("workshops/participants/"+participant.ID+"/token/reset", nil, nil))
+	_, err = relogged.ResetParticipantToken(participant.ID)
+	s.Forbidden(err)
 }
 
 func (s *WorkshopWordTokensTestSuite) TestUsedUpInviteIsReplaced() {
 	head, wsID := s.workshopSetup("word-usedup")
-	var first obj.UserRoleInvite
-	s.Require().NoError(head.Post("invites/workshop", map[string]interface{}{
-		"workshopId": wsID,
-		"maxUses":    1,
-	}, &first))
+	one := 1
+	first := Must(head.CreateWorkshopInviteWith(testutil.WorkshopInvite{WorkshopId: wsID, MaxUses: &one}))
+	s.Require().NotNil(first.InviteToken)
 	Must(s.AcceptWorkshopInviteAnonymously(*first.InviteToken))
 
-	second := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
-	s.NotEqual(first.ID, second.ID, "a used-up invite must be replaced")
-	s.Equal(obj.InviteStatusPending, second.Status)
+	second := Must(head.CreateWorkshopInvite(wsID))
+	s.NotEqual(first.Id, second.Id, "a used-up invite must be replaced")
+	s.Equal("pending", second.Status)
 }
 
 func (s *WorkshopWordTokensTestSuite) TestOwnParticipantCode() {
 	head, wsID := s.workshopSetup("word-own")
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
-	resp := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	invite := Must(head.CreateWorkshopInvite(wsID))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 
-	var code api.UserParticipantCodeResp
-	s.Require().NoError(participant.Get("users/me/participant-code", &code))
+	code := Must(participant.GetParticipantCode())
 	s.Require().NotNil(code.Token)
 	s.Require().NotNil(code.Words)
-	s.Equal(*resp.AuthToken, *code.Token)
+	s.Equal(Must(head.GetParticipantToken(participant.ID)), *code.Token, "the participant sees the code their leader sees")
 	s.Equal("participant-"+*code.Words, *code.Token)
 
 	// After a reset the participant sees the new code.
-	var reset map[string]string
-	s.Require().NoError(head.Post("workshops/participants/"+participant.ID+"/token/reset", nil, &reset))
-	s.Require().NoError(s.CreateUserWithToken(reset["token"]).Get("users/me/participant-code", &code))
-	s.Equal(reset["token"], *code.Token)
+	reset := Must(head.ResetParticipantToken(participant.ID))
+	s.Equal(reset, s.codeOf(Must(s.ParticipantLogin(reset))))
 
 	// Users without a participant token get an explicit empty answer.
-	var none api.UserParticipantCodeResp
-	s.Require().NoError(head.Get("users/me/participant-code", &none))
+	none := Must(head.GetParticipantCode())
 	s.Nil(none.Token)
 	s.Nil(none.Words)
 
-	s.Error(s.Public().Get("users/me/participant-code", nil))
+	_, err := s.Public().GetParticipantCode()
+	s.Unauthorized(err)
 }
 
 // TestAuthenticatedAcceptKeepsIdentity pins the contract the invite-accept page
 // relies on: a recognised participant who accepts another workshop's invite keeps
 // their account and moves. Sent anonymously, the very same call mints a second
-// account instead - which is correct for a genuinely new participant, and was the
-// bug when the page forgot to send the caller's token.
+// account instead, which is right for a new participant only: the page must send
+// the caller's credentials.
 func (s *WorkshopWordTokensTestSuite) TestAuthenticatedAcceptKeepsIdentity() {
 	headA, wsA := s.workshopSetup("ident-a")
 	headB, wsB := s.workshopSetup("ident-b")
-	inviteA := Must(headA.CreateWorkshopInvite(wsA, string(obj.RoleParticipant)))
-	inviteB := Must(headB.CreateWorkshopInvite(wsB, string(obj.RoleParticipant)))
+	inviteA := Must(headA.CreateWorkshopInvite(wsA))
+	inviteB := Must(headB.CreateWorkshopInvite(wsB))
 
-	joined := Must(s.AcceptWorkshopInviteAnonymously(*inviteA.InviteToken))
-	participant := s.CreateUserWithToken(*joined.AuthToken)
+	participant := Must(s.JoinWorkshop(*inviteA.InviteToken))
+	code := s.codeOf(participant)
 
 	// Recognised: one account, workshop moved.
 	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
 	me := Must(participant.GetMe())
-	s.Equal(participant.ID, me.ID.String(), "the account must survive the switch")
+	s.Equal(participant.ID, me.Id.String(), "the account must survive the switch")
 	s.Require().NotNil(me.Role)
 	s.Require().NotNil(me.Role.Workshop)
-	s.Equal(wsB, me.Role.Workshop.ID.String(), "the workshop must have changed")
+	s.Equal(wsB, me.Role.Workshop.Id.String(), "the workshop must have changed")
 
 	// The same code still logs the same person in - nothing was reissued.
-	s.Equal(*joined.AuthToken, *Must(headB.GetParticipantToken(participant.ID)))
+	s.Equal(code, Must(headB.GetParticipantToken(participant.ID)))
 
 	// Accepting the invite of the workshop they are already in is a conflict, not a
 	// silent second account. The page turns this into "you are already in".
-	participant.FailPost("invites/"+*inviteB.InviteToken+"/accept", nil,
-		testutil.ErrorContains("409"))
+	s.Conflict(participant.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
 
 	// Anonymously, the same invite still creates a separate account.
 	second := Must(s.AcceptWorkshopInviteAnonymously(*inviteB.InviteToken))
-	s.NotEqual(*joined.AuthToken, *second.AuthToken,
+	s.Require().NotNil(second.User)
+	s.NotEqual(participant.ID, second.User.Id.String(),
 		"an anonymous join must remain a new participant")
 }
 
 // TestResetFailsWhenThereIsNoCode covers the reset of someone who joined with a real
-// account: role participant, but no word code, because only an anonymous join issues
-// one. The update matches no row, and a reset that answered 200 there would hand the
-// leader four words to read out that nothing would ever accept.
+// account: they keep their own role and get no word code, because only an anonymous
+// join issues one. A reset that answered 200 there would hand the leader four words
+// to read out that nothing would ever accept.
 func (s *WorkshopWordTokensTestSuite) TestResetFailsWhenThereIsNoCode() {
 	head, wsID := s.workshopSetup("word-nocode")
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsID))
 
 	registered := s.CreateUser("word-nocode-registered")
 	s.Require().NoError(registered.AcceptWorkshopInviteByToken(*invite.InviteToken))
 
 	// The read side already said so; the reset must now agree.
-	head.FailGet("workshops/participants/"+registered.ID+"/token",
-		testutil.ErrorContains("404"))
-	head.FailPost("workshops/participants/"+registered.ID+"/token/reset", nil,
-		testutil.ErrorContains("404"))
+	_, err := head.GetParticipantToken(registered.ID)
+	s.NotFound(err)
+	_, err = head.ResetParticipantToken(registered.ID)
+	s.NotFound(err)
 
 	// And it wrote nothing: still no token afterwards.
-	head.FailGet("workshops/participants/"+registered.ID+"/token",
-		testutil.ErrorContains("404"))
+	_, err = head.GetParticipantToken(registered.ID)
+	s.NotFound(err)
 
 	// A real anonymous participant still gets a fresh code, and the old one dies.
-	joined := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
-	anonymous := s.CreateUserWithToken(*joined.AuthToken)
-	var reset map[string]string
-	s.Require().NoError(head.Post(
-		"workshops/participants/"+anonymous.ID+"/token/reset", nil, &reset))
-	s.Regexp(fourWords, reset["token"])
-	s.NotEqual(*joined.AuthToken, reset["token"])
-	s.Error(anonymous.Get("users/me", nil), "the old code must stop working")
+	anonymous := Must(s.JoinWorkshop(*invite.InviteToken))
+	oldCode := s.codeOf(anonymous)
+	reset := Must(head.ResetParticipantToken(anonymous.ID))
+	s.Regexp(fourWords, reset)
+	s.NotEqual(oldCode, reset)
+	_, err = s.ParticipantLogin(oldCode)
+	s.Unauthorized(err, "the old code must stop working")
+	_, err = anonymous.WhoAmI()
+	s.Unauthorized(err, "the session started with the old code must end")
 }

@@ -24,7 +24,7 @@ var Engine *engineapi.API
 
 func init() {
 	Engine = engineapi.New(engineapi.Options{
-		Dev:    devMode,
+		Dev:    schemafapi.DevMode,
 		Create: createSession,
 		Resume: resumeSession,
 		Caller: engineCaller,

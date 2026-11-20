@@ -1,16 +1,16 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
 
 // ParticipantRestrictionsTestSuite tests that anonymous workshop participants
-// (share-link users) are restricted from accessing endpoints meant for
-// regular users, heads, or staff.
+// (share-link users) are refused on endpoints meant for regular users, heads
+// or staff.
 type ParticipantRestrictionsTestSuite struct {
 	testutil.BaseSuite
 }
@@ -21,190 +21,144 @@ func TestParticipantRestrictionsSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// setupWorkshopWithParticipant creates an institution, workshop, and a participant.
-// prefix is used to generate unique names per test.
-// Returns (head, participant, workshop ID).
-func (s *ParticipantRestrictionsTestSuite) setupWorkshopWithParticipant(prefix string) (*testutil.UserClient, *testutil.UserClient, string) {
+// setupWorkshopWithParticipant creates an institution with a head, a
+// workshop, and a participant who joined it by its invite link. prefix keeps
+// names unique per test.
+// Returns (head, participant, institution ID, workshop ID).
+func (s *ParticipantRestrictionsTestSuite) setupWorkshopWithParticipant(prefix string) (*testutil.UserClient, *testutil.UserClient, string, string) {
 	admin := s.DevUser()
 
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsIDStr := workshop.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	invite := Must(head.CreateWorkshopInvite(workshop.Id.String()))
+	participant := Must(s.JoinWorkshop(*invite.InviteToken))
 
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
-	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
-	s.NoError(err)
-	participant := s.CreateUserWithToken(*resp.AuthToken)
-	s.T().Logf("Participant joined: %s (ID: %s)", participant.Name, participant.ID)
-
-	return head, participant, wsIDStr
+	return head, participant, inst.Id.String(), workshop.Id.String()
 }
 
-// TestParticipantCannotListInstitutions verifies that a participant cannot
-// list institutions (only admin/head/staff can).
+// Only admins, heads and staff list institutions.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotListInstitutions() {
-	_, participant, _ := s.setupWorkshopWithParticipant("li")
+	_, participant, _, _ := s.setupWorkshopWithParticipant("li")
 
-	_, err := participant.GetInstitutions()
-	s.Error(err, "participant should not be able to list institutions")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.ListInstitutions()
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotCreateInstitution verifies that a participant cannot
-// create an institution.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotCreateInstitution() {
-	_, participant, _ := s.setupWorkshopWithParticipant("ci")
+	_, participant, _, _ := s.setupWorkshopWithParticipant("ci")
 
 	_, err := participant.CreateInstitution("Sneaky Org")
-	s.Error(err, "participant should not be able to create an institution")
-	s.T().Logf("Correctly denied: %v", err)
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotListWorkshops verifies that a participant cannot
-// list workshops (only head/staff can).
+// Only heads and staff list workshops, all of them or their institution's.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotListWorkshops() {
-	_, participant, _ := s.setupWorkshopWithParticipant("lw")
+	_, participant, instID, _ := s.setupWorkshopWithParticipant("lw")
 
-	// Participant tries to list workshops for the institution
-	_, err := participant.ListWorkshops("")
-	s.Error(err, "participant should not be able to list workshops")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.ListAllWorkshops()
+	s.Forbidden(err)
+	_, err = participant.ListWorkshops(instID)
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotCreateWorkshop verifies that a participant cannot
-// create a workshop.
+// Not even in the institution of their own workshop.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotCreateWorkshop() {
-	_, participant, _ := s.setupWorkshopWithParticipant("cw")
+	_, participant, instID, _ := s.setupWorkshopWithParticipant("cw")
 
-	_, err := participant.CreateWorkshop("fake-institution-id", "Sneaky Workshop")
-	s.Error(err, "participant should not be able to create a workshop")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.CreateWorkshop(instID, "Sneaky Workshop")
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotUpdateWorkshop verifies that a participant
-// cannot update a workshop (only head/staff can).
+// Only heads and staff change a workshop, their own participants' included.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotUpdateWorkshop() {
-	_, participant, wsIDStr := s.setupWorkshopWithParticipant("uw")
+	_, participant, _, wsID := s.setupWorkshopWithParticipant("uw")
 
-	_, err := participant.UpdateWorkshop(wsIDStr, map[string]interface{}{"name": "Hacked Workshop"})
-	s.Error(err, "participant should not be able to update a workshop")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.UpdateWorkshop(wsID, testutil.WorkshopUpdate{Name: "Hacked Workshop", Active: true})
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotDeleteOtherUser verifies that a participant cannot
-// delete another user.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotDeleteOtherUser() {
-	head, participant, _ := s.setupWorkshopWithParticipant("du")
+	head, participant, _, _ := s.setupWorkshopWithParticipant("du")
 
-	err := participant.DeleteUser(head.ID)
-	s.Error(err, "participant should not be able to delete another user")
-	s.T().Logf("Correctly denied: %v", err)
+	s.Forbidden(participant.DeleteUser(head.ID))
 }
 
-// TestParticipantCannotAccessOtherWorkshop verifies that a participant
-// cannot read a workshop they don't belong to.
+// A participant reads only the workshop they belong to.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotAccessOtherWorkshop() {
 	admin := s.DevUser()
-	_, participant, _ := s.setupWorkshopWithParticipant("aw")
+	_, participant, _, _ := s.setupWorkshopWithParticipant("aw")
 
-	// Create a second institution with a different workshop
 	inst2 := Must(admin.CreateInstitution("Other Org"))
 	head2 := s.CreateUser("other-head")
-	head2Invite := Must(admin.InviteToInstitution(inst2.ID.String(), "head", head2.ID))
-	Must(head2.AcceptInvite(head2Invite.ID.String()))
-	otherWorkshop := Must(head2.CreateWorkshop(inst2.ID.String(), "Other Workshop"))
+	head2Invite := Must(admin.InviteToInstitution(inst2.Id.String(), "head", head2.ID))
+	Must(head2.AcceptInvite(head2Invite.Id.String()))
+	otherWorkshop := Must(head2.CreateWorkshop(inst2.Id.String(), "Other Workshop"))
 
-	// Participant tries to read the other workshop — should fail
-	_, err := participant.GetWorkshop(otherWorkshop.ID.String())
-	s.Error(err, "participant should not be able to access a workshop they don't belong to")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.GetWorkshop(otherWorkshop.Id.String())
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotInviteToInstitution verifies that a participant
-// cannot create institution invites.
+// Not even into the institution of their own workshop.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotInviteToInstitution() {
-	_, participant, _ := s.setupWorkshopWithParticipant("ii")
+	_, participant, instID, _ := s.setupWorkshopWithParticipant("ii")
 
 	outsider := s.CreateUser("outsider")
-	_, err := participant.InviteToInstitution("fake-id", "staff", outsider.ID)
-	s.Error(err, "participant should not be able to invite to institution")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.InviteToInstitution(instID, "staff", outsider.ID)
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotDeleteWorkshop verifies that a participant
-// cannot delete a workshop (only head/staff can).
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotDeleteWorkshop() {
-	_, participant, wsIDStr := s.setupWorkshopWithParticipant("dw")
+	_, participant, _, wsID := s.setupWorkshopWithParticipant("dw")
 
-	err := participant.DeleteWorkshop(wsIDStr)
-	s.Error(err, "participant should not be able to delete a workshop")
-	s.T().Logf("Correctly denied: %v", err)
+	s.Forbidden(participant.DeleteWorkshop(wsID))
 }
 
-// TestParticipantCannotCreateWorkshopInvite verifies that a participant
-// cannot create workshop invites (only head/staff can).
+// Only heads and staff create a workshop's invite link.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotCreateWorkshopInvite() {
-	_, participant, wsIDStr := s.setupWorkshopWithParticipant("wi")
+	_, participant, _, wsID := s.setupWorkshopWithParticipant("wi")
 
-	_, err := participant.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant))
-	s.Error(err, "participant should not be able to create workshop invites")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.CreateWorkshopInvite(wsID)
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotListUsers verifies that a participant
-// cannot list users.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotListUsers() {
-	_, participant, _ := s.setupWorkshopWithParticipant("lu")
+	_, participant, _, _ := s.setupWorkshopWithParticipant("lu")
 
 	_, err := participant.GetUsers()
-	s.Error(err, "participant should not be able to list users")
-	s.T().Logf("Correctly denied: %v", err)
+	s.Forbidden(err)
 }
 
-// TestParticipantCannotReadOtherUserProfile verifies that a participant
-// cannot read another user's profile by ID.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCannotReadOtherUserProfile() {
-	_, participant, _ := s.setupWorkshopWithParticipant("ru")
+	_, participant, _, _ := s.setupWorkshopWithParticipant("ru")
 
 	outsider := s.CreateUser("ru-outsider")
-	var profile obj.User
-	err := participant.Get("users/"+outsider.ID, &profile)
-	s.Error(err, "participant should not be able to read another user's profile")
-	s.T().Logf("Correctly denied: %v", err)
+	_, err := participant.GetUser(outsider.ID)
+	s.Forbidden(err)
 }
 
-// TestParticipantCanSeeOwnProfile verifies that a participant CAN
-// read their own profile (basic sanity check).
+// A participant does read their own account.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCanSeeOwnProfile() {
-	_, participant, _ := s.setupWorkshopWithParticipant("op")
+	_, participant, _, _ := s.setupWorkshopWithParticipant("op")
 
-	me, err := participant.GetMe()
-	s.NoError(err, "participant should be able to read own profile")
+	me := Must(participant.GetMe())
 	s.Equal(participant.Name, me.Name)
-	s.T().Logf("Participant can see own profile: %s", me.Name)
+	s.Equal("participant", participant.GetRole())
 }
 
-// TestParticipantCanSeeWorkshopGames verifies that a participant CAN
-// list games (they see their workshop games).
+// A participant lists games and sees the ones they made in their workshop.
 func (s *ParticipantRestrictionsTestSuite) TestParticipantCanSeeWorkshopGames() {
-	_, participant, _ := s.setupWorkshopWithParticipant("wg")
+	_, participant, _, _ := s.setupWorkshopWithParticipant("wg")
 
-	// Participant creates a game in their workshop
 	game := Must(participant.UploadGame("alien-first-contact"))
-	s.NotEmpty(game.ID)
 
-	// Participant can list games (sees their own workshop games)
-	games, err := participant.ListGames()
-	s.NoError(err, "participant should be able to list games")
-	s.T().Logf("Participant sees %d game(s)", len(games))
-
+	games := Must(participant.ListGames())
 	found := false
 	for _, g := range games {
-		if g.ID == game.ID {
+		if g.Id == game.Id {
 			found = true
 			break
 		}

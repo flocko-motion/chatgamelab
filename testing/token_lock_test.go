@@ -1,12 +1,10 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"fmt"
-	"os"
-	"strings"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -20,7 +18,7 @@ type TokenLockTestSuite struct {
 }
 
 func TestTokenLockSuite(t *testing.T) {
-	if os.Getenv("TOKEN_LOCK_TEST") != "1" || os.Getenv("TOKEN_LOCK_MAX_FAILURES") != "20" {
+	if !testutil.TokenLockTestRequested() {
 		t.Skip("set TOKEN_LOCK_TEST=1 TOKEN_LOCK_MAX_FAILURES=20 TOKEN_LOCK_DURATION=3s and run alone")
 	}
 	s := &TokenLockTestSuite{}
@@ -32,42 +30,32 @@ func (s *TokenLockTestSuite) TestOnlyGuessesCountAndLockBlocksAll() {
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution("Lock Org"))
 	head := s.CreateUser("lock-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Lock Workshop"))
-	wsID := workshop.ID.String()
-	Must(head.UpdateWorkshop(wsID, map[string]interface{}{"name": "Lock Workshop", "active": true}))
-	invite := Must(head.CreateWorkshopInvite(wsID, string(obj.RoleParticipant)))
-	resp := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
-	token := *resp.AuthToken
-	participant := s.CreateUserWithToken(token)
-	login := func(tok string) error {
-		return s.Public().Post("auth/participant-login", map[string]string{"token": tok}, nil)
-	}
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Lock Workshop"))
+	invite := Must(head.CreateWorkshopInvite(workshop.Id.String()))
+	inviteToken := *invite.InviteToken
+	joined := Must(s.AcceptWorkshopInviteAnonymously(inviteToken))
+	token := *joined.AuthToken
 
 	// A whole workshop logging in, many times over, never counts.
 	for range 50 {
-		s.Require().NoError(login(token))
+		_, err := s.ParticipantLogin(token)
+		s.Require().NoError(err)
 	}
 
-	// 20 guesses are tolerated, the 21st engages the lock.
-	for i := range 20 {
-		err := login(fmt.Sprintf("apfel-otter-turm-%d", i))
-		s.Require().Error(err)
-		s.Require().Contains(err.Error(), "(401)")
+	// 20 guesses are tolerated; the 21st is refused like them and engages
+	// the lock.
+	for i := range 21 {
+		_, err := s.ParticipantLogin(fmt.Sprintf("apfel-otter-turm-%d", i))
+		s.Require().True(s.Unauthorized(err), "guess %d", i+1)
 	}
-	s.Require().Error(login("apfel-otter-turm-last"))
 
-	// Locked: correct tokens fail too, on every token route.
-	err := login(token)
-	s.Require().Error(err)
-	s.True(strings.Contains(err.Error(), "(429)"), err.Error())
-	var me obj.User
-	err = participant.Get("users/me", &me)
-	s.Require().Error(err)
-	s.Contains(err.Error(), "(429)")
-	var inv map[string]interface{}
-	err = s.Public().Get("invites/"+*invite.InviteToken, &inv)
-	s.Require().Error(err)
-	s.Contains(err.Error(), "(429)")
+	// Locked: correct tokens are refused too, on every token route.
+	_, err := s.ParticipantLogin(token)
+	s.Refused(err, testutil.CodeTokenLocked, "signing in with the participant's token")
+	_, err = s.Public().GetInvite(inviteToken)
+	s.Refused(err, testutil.CodeTokenLocked, "reading the invite by its token")
+	_, err = s.AcceptWorkshopInviteAnonymously(inviteToken)
+	s.Refused(err, testutil.CodeTokenLocked, "joining by the invite's token")
 }

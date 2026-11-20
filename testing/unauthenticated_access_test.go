@@ -1,14 +1,15 @@
 package testing
 
 import (
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
 
-// UnauthenticatedAccessTestSuite tests that unauthenticated users (no auth token at all)
-// cannot access protected endpoints. This is a sanity check for the auth middleware.
+// UnauthenticatedAccessTestSuite tests that callers without any credentials
+// are refused on protected endpoints, a sanity check for the sign-in.
 type UnauthenticatedAccessTestSuite struct {
 	testutil.BaseSuite
 }
@@ -19,119 +20,92 @@ func TestUnauthenticatedAccessSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// TestUnauthenticatedCannotListUsers verifies that an unauthenticated client
-// cannot access GET /api/users.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListUsers() {
-	pub := s.Public()
-	pub.FailGet("users")
-	s.T().Logf("Correctly denied unauthenticated access to user list")
+	_, err := s.Public().GetUsers()
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotGetCurrentUser verifies that an unauthenticated client
-// cannot access GET /api/users/me.
-func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotGetCurrentUser() {
-	pub := s.Public()
-	pub.FailGet("users/me")
-	s.T().Logf("Correctly denied unauthenticated access to current user")
+// Asking who is calling answers an anonymous caller: anonymous, without an
+// account.
+func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedIsAnonymous() {
+	me := Must(s.Public().WhoAmI())
+	s.Equal("anonymous", me.State)
+	s.Nil(me.User)
+
+	_, err := s.Public().GetStats()
+	s.Unauthorized(err, "the caller's own statistics need a sign-in")
 }
 
-// TestUnauthenticatedCannotGetUserByID verifies that an unauthenticated client
-// cannot access GET /api/users/{id}.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotGetUserByID() {
-	// Create a user so we have a valid ID to try
 	user := s.CreateUser("unauth-target")
 
-	pub := s.Public()
-	pub.FailGet("users/" + user.ID)
-	s.T().Logf("Correctly denied unauthenticated access to user profile")
+	_, err := s.Public().GetUser(user.ID)
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotListOwnGames verifies that an unauthenticated client
-// cannot use the "own" filter on GET /api/games.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListOwnGames() {
-	pub := s.Public()
-	pub.FailGet("games?filter=own")
-	s.T().Logf("Correctly denied unauthenticated access to own games filter")
+	_, err := s.Public().ListGamesWithFilter("own")
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotCreateGame verifies that an unauthenticated client
-// cannot create a game via POST /api/games/new.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotCreateGame() {
-	pub := s.Public()
-	pub.FailPost("games/new", map[string]interface{}{"name": "Unauthorized Game"})
-	s.T().Logf("Correctly denied unauthenticated game creation")
+	_, err := s.Public().CreateGame("Unauthorized Game")
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotListApiKeys verifies that an unauthenticated client
-// cannot access GET /api/apikeys.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListApiKeys() {
-	pub := s.Public()
-	pub.FailGet("apikeys")
-	s.T().Logf("Correctly denied unauthenticated access to API keys")
+	_, err := s.Public().GetApiKeys()
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotListInstitutions verifies that an unauthenticated client
-// cannot access GET /api/institutions.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListInstitutions() {
-	pub := s.Public()
-	pub.FailGet("institutions")
-	s.T().Logf("Correctly denied unauthenticated access to institutions")
+	_, err := s.Public().ListInstitutions()
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotListWorkshops verifies that an unauthenticated client
-// cannot access GET /api/workshops.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListWorkshops() {
-	pub := s.Public()
-	pub.FailGet("workshops")
-	s.T().Logf("Correctly denied unauthenticated access to workshops")
+	_, err := s.Public().ListAllWorkshops()
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotDeleteGame verifies that an unauthenticated client
-// cannot delete a game.
-func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotDeleteGame() {
+// A caller without credentials can neither change nor delete someone's game;
+// the game stays as it was.
+func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotChangeOrDeleteGame() {
 	user := s.CreateUser("unauth-del")
 	game := Must(user.UploadGame("alien-first-contact"))
 
-	pub := s.Public()
-	// PublicClient doesn't have Delete, so use FailGet on a non-existent endpoint
-	// to verify auth is required. We test via POST to a protected endpoint instead.
-	pub.FailPost("games/"+game.ID.String(), map[string]interface{}{"name": "Hacked"})
-	s.T().Logf("Correctly denied unauthenticated game update")
+	hacked := game
+	hacked.Name = "Hacked"
+	_, err := s.Public().UpdateGame(game.Id.String(), hacked)
+	s.Unauthorized(err)
+
+	s.Unauthorized(s.Public().DeleteGame(game.Id.String()))
+
+	s.Equal(game.Name, Must(user.GetGameByID(game.Id.String())).Name)
 }
 
-// TestUnauthenticatedCannotListGames verifies that unauthenticated users
-// cannot list any games, not even public ones.
+// No platform access without a sign-in: not even the game list.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListGames() {
-	pub := s.Public()
-	pub.FailGet("games")
-	s.T().Logf("Correctly denied unauthenticated access to games list")
+	_, err := s.Public().ListGames()
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotListPublicGames verifies that unauthenticated users
-// cannot list public games either — no platform access without auth.
+// Public games aren't listed to a caller without a sign-in either.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListPublicGames() {
-	pub := s.Public()
-	pub.FailGet("games?filter=public")
-	s.T().Logf("Correctly denied unauthenticated access to public games")
+	_, err := s.Public().ListGamesWithFilter("public")
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCannotGetGameByID verifies that unauthenticated users
-// cannot access a specific game by ID.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotGetGameByID() {
 	user := s.CreateUser("unauth-game")
 	game := Must(user.UploadGame("alien-first-contact"))
 
-	pub := s.Public()
-	pub.FailGet("games/" + game.ID.String())
-	s.T().Logf("Correctly denied unauthenticated access to game by ID")
+	_, err := s.Public().GetGameByID(game.Id.String())
+	s.Unauthorized(err)
 }
 
-// TestUnauthenticatedCanAccessStatus verifies that the status endpoint
-// is accessible without authentication (sanity check).
+// The status report answers without a sign-in.
 func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCanAccessStatus() {
-	pub := s.Public()
-	var result map[string]interface{}
-	pub.MustGet("status", &result)
-	s.Equal("running", result["status"])
-	s.T().Logf("Status endpoint accessible without auth")
+	status := Must(s.Public().Status())
+	s.Equal("ok", status["status"])
 }

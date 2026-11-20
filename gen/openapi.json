@@ -3342,7 +3342,7 @@
     },
     "/api/auth/dev-login": {
       "post": {
-        "description": "Development only: without DEV_MODE it answers 404. Takes a preset role\n(\"admin-1\", \"admin-2\", \"head-1\", \"head-2\", \"staff-1\", \"staff-2\",\n\"individual-1\", \"individual-2\", \"participant\"), starts a session for its\naccount and sets the session cookie.",
+        "description": "Development only: outside development mode it answers 404. Takes a preset role\n(\"admin-1\", \"admin-2\", \"head-1\", \"head-2\", \"staff-1\", \"staff-2\",\n\"individual-1\", \"individual-2\", \"participant\"), starts a session for its\naccount and sets the session cookie.",
         "operationId": "postApiAuthDev-login",
         "requestBody": {
           "content": {

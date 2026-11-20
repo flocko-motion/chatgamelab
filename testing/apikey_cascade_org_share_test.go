@@ -28,20 +28,20 @@ func (s *ApiKeyCascadeOrgShareTestSuite) setupHeadWithOrgAndKey(prefix string) (
 
 	// Create institution and make user the head
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
-	instIDStr := inst.ID.String()
+	instIDStr := inst.Id.String()
 	invite := Must(admin.InviteToInstitution(instIDStr, "head", user.ID))
-	Must(user.AcceptInvite(invite.ID.String()))
+	Must(user.AcceptInvite(invite.Id.String()))
 	s.Equal("head", user.GetRole())
 
 	// Add API key
 	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
-	selfShareID := keyShare.ID.String()
+	selfShareID := keyShare.Id.String()
 
 	// Share key with institution
 	orgShare := Must(user.ShareApiKeyWithInstitution(selfShareID, instIDStr))
-	s.NotEmpty(orgShare.ID)
+	s.NotEmpty(orgShare.Id)
 
-	return user, instIDStr, selfShareID, orgShare.ID.String()
+	return user, instIDStr, selfShareID, orgShare.Id.String()
 }
 
 // TestDeleteKeyRemovesOrgShare verifies that cascade-deleting an API key removes
@@ -54,7 +54,7 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyRemovesOrgShare() {
 	s.Len(keys.ApiKeys, 1, "should have 1 API key")
 	orgShareCount := 0
 	for _, sh := range keys.Shares {
-		if sh.Institution != nil && sh.Institution.ID.String() == instIDStr {
+		if sh.Institution != nil && sh.Institution.Id.String() == instIDStr {
 			orgShareCount++
 		}
 	}
@@ -73,15 +73,15 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyRemovesOrgShare() {
 
 	// Re-create a new key
 	newKey := Must(user.AddApiKey("mock-cascade-org-new", "New Key", "openai"))
-	s.NotEmpty(newKey.ID)
-	s.T().Logf("Created new key: shareID=%s", newKey.ID)
+	s.NotEmpty(newKey.Id)
+	s.T().Logf("Created new key: shareID=%s", newKey.Id)
 
 	// Verify the new key does NOT have an org share
 	keys = Must(user.GetApiKeys())
 	s.Len(keys.ApiKeys, 1, "should have 1 API key after re-creation")
 	orgShareCount = 0
 	for _, sh := range keys.Shares {
-		if sh.Institution != nil && sh.Institution.ID.String() == instIDStr {
+		if sh.Institution != nil && sh.Institution.Id.String() == instIDStr {
 			orgShareCount++
 		}
 	}
@@ -100,8 +100,8 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyWithFreeUseKeyClearsInstit
 
 	// Verify institution has free-use key set
 	inst := Must(user.GetInstitution(instIDStr))
-	s.NotNil(inst.FreeUseApiKeyShareID, "institution should have free-use key set")
-	s.T().Logf("Institution free-use key: %s", *inst.FreeUseApiKeyShareID)
+	s.NotNil(inst.FreeUseApiKeyShareId, "institution should have free-use key set")
+	s.T().Logf("Institution free-use key: %s", *inst.FreeUseApiKeyShareId)
 
 	// Delete the API key (cascade) — should clear institution free-use key reference
 	MustSucceed(user.DeleteApiKey(selfShareID, true))
@@ -109,7 +109,7 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyWithFreeUseKeyClearsInstit
 
 	// Verify institution free-use key is cleared
 	inst = Must(user.GetInstitution(instIDStr))
-	s.Nil(inst.FreeUseApiKeyShareID, "institution free-use key should be cleared after key deletion")
+	s.Nil(inst.FreeUseApiKeyShareId, "institution free-use key should be cleared after key deletion")
 	s.T().Logf("Institution free-use key correctly cleared")
 
 	// Verify no keys remain
@@ -134,12 +134,12 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyWithFreeUseKeyThenRecreate
 
 	// Re-create a new key and share with org
 	newKey := Must(user.AddApiKey("mock-cascade-recreate-new", "New Key", "openai"))
-	newShareID := newKey.ID.String()
+	newShareID := newKey.Id.String()
 	s.T().Logf("Created new key: shareID=%s", newShareID)
 
 	// Verify institution free-use key is cleared (not pointing to old share)
 	inst := Must(user.GetInstitution(instIDStr))
-	s.Nil(inst.FreeUseApiKeyShareID, "institution free-use key should be nil after old key deletion")
+	s.Nil(inst.FreeUseApiKeyShareId, "institution free-use key should be nil after old key deletion")
 	s.T().Logf("Institution free-use key is nil — correct")
 
 	// Verify new key has no org share (only self-share)
@@ -147,7 +147,7 @@ func (s *ApiKeyCascadeOrgShareTestSuite) TestDeleteKeyWithFreeUseKeyThenRecreate
 	s.Len(keys.ApiKeys, 1, "should have 1 API key")
 	orgShareCount := 0
 	for _, sh := range keys.Shares {
-		if sh.Institution != nil && sh.Institution.ID.String() == instIDStr {
+		if sh.Institution != nil && sh.Institution.Id.String() == instIDStr {
 			orgShareCount++
 		}
 	}

@@ -1,11 +1,10 @@
 package testing
 
 import (
-	"cgl/obj"
-	"cgl/testing/testutil"
 	"testing"
 
-	"github.com/google/uuid"
+	"cgl/testing/testutil"
+
 	"github.com/stretchr/testify/suite"
 )
 
@@ -30,37 +29,33 @@ func (s *WorkshopIndividualTestSuite) workshopWithKey(prefix string) (*testutil.
 	// Create institution + head
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
 	head := s.CreateUser(prefix + "-head")
-	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
-	Must(head.AcceptInvite(headInvite.ID.String()))
+	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.Id.String()))
 
 	// Head adds API key, shares with org
 	keyShare := Must(head.AddApiKey("mock-ind-key-"+prefix, prefix+" Key", "openai"))
-	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
 	// Head creates workshop and sets API key
-	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
-	wsIDStr := workshop.ID.String()
-	orgShareIDStr := orgShare.ID.String()
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), prefix+" Workshop"))
+	wsIDStr := workshop.Id.String()
+	orgShareIDStr := orgShare.Id.String()
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 
 	// Enable showOtherParticipantsGames so individuals can see head's games
-	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       prefix + " Workshop",
-		"active":                     true,
-		"public":                     false,
-		"showPublicGames":            false,
-		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       false,
-		"isPaused":                   false,
+	Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       prefix + " Workshop",
+		Active:                     true,
+		ShowOtherParticipantsGames: true,
 	}))
 
 	// Head enters workshop mode and uploads a game
 	Must(head.SetActiveWorkshop(&wsIDStr))
 	game := Must(head.UploadGame("alien-first-contact"))
-	gameIDStr := game.ID.String()
+	gameIDStr := game.Id.String()
 
 	// Create a workshop invite for individuals to join
-	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
 	s.T().Logf("Setup: head=%s, ws=%s, game=%s", head.Name, wsIDStr, gameIDStr)
@@ -75,7 +70,7 @@ func (s *WorkshopIndividualTestSuite) TestIndividualJoinsWorkshopViaInviteToken(
 	// Create individual user (default role, no institution)
 	individual := s.CreateUser("ind-joiner")
 	me := Must(individual.GetMe())
-	s.Equal(obj.RoleIndividual, me.Role.Role, "new user should have individual role")
+	s.Equal("individual", me.Role.Role, "new user should have individual role")
 	s.Nil(me.Role.Institution, "individual should not belong to any institution")
 
 	// Individual accepts the workshop invite token
@@ -84,9 +79,9 @@ func (s *WorkshopIndividualTestSuite) TestIndividualJoinsWorkshopViaInviteToken(
 
 	// Verify they are now in workshop mode
 	me = Must(individual.GetMe())
-	s.Equal(obj.RoleIndividual, me.Role.Role, "role should still be individual")
+	s.Equal("individual", me.Role.Role, "role should still be individual")
 	s.Require().NotNil(me.Role.Workshop, "individual should have active workshop")
-	s.Equal(wsIDStr, me.Role.Workshop.ID.String(), "active workshop should match")
+	s.Equal(wsIDStr, me.Role.Workshop.Id.String(), "active workshop should match")
 	s.T().Logf("Individual %s joined workshop %s via invite token", individual.Name, wsIDStr)
 }
 
@@ -131,17 +126,14 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCannotUpdateWorkshopSettings
 	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
 
 	// Individual should NOT be able to update workshop settings
-	_, err := individual.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       "Hacked Workshop",
-		"active":                     true,
-		"public":                     false,
-		"showPublicGames":            true,
-		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       true,
-		"isPaused":                   true,
+	_, err := individual.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       "Hacked Workshop",
+		Active:                     true,
+		ShowPublicGames:            true,
+		ShowOtherParticipantsGames: true,
+		IsPaused:                   true,
 	})
-	s.Error(err, "individual should not be able to update workshop settings")
-	s.T().Logf("Correctly denied individual settings update: %v", err)
+	s.Forbidden(err, "individual should not be able to update workshop settings")
 }
 
 // TestIndividualCannotTogglePause verifies that an individual in workshop mode
@@ -154,29 +146,22 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCannotTogglePause() {
 	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
 
 	// Head pauses the workshop
-	ws := Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       "Paused Workshop",
-		"active":                     true,
-		"public":                     false,
-		"showPublicGames":            false,
-		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       false,
-		"isPaused":                   true,
+	ws := Must(head.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       "Paused Workshop",
+		Active:                     true,
+		ShowOtherParticipantsGames: true,
+		IsPaused:                   true,
 	}))
 	s.True(ws.IsPaused, "head should be able to pause")
 
 	// Individual tries to unpause — should fail
-	_, err := individual.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       "Paused Workshop",
-		"active":                     true,
-		"public":                     false,
-		"showPublicGames":            false,
-		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       false,
-		"isPaused":                   false,
+	_, err := individual.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       "Paused Workshop",
+		Active:                     true,
+		ShowOtherParticipantsGames: true,
+		IsPaused:                   false,
 	})
-	s.Error(err, "individual should not be able to unpause the workshop")
-	s.T().Logf("Correctly denied individual unpause: %v", err)
+	s.Forbidden(err, "individual should not be able to unpause the workshop")
 
 	// Verify workshop is still paused
 	ws = Must(head.GetWorkshop(wsIDStr))
@@ -189,22 +174,17 @@ func (s *WorkshopIndividualTestSuite) TestParticipantCannotUpdateSettings() {
 	_, wsIDStr, _, inviteToken := s.workshopWithKey("part-settings")
 
 	// Create participant via anonymous invite
-	resp, err := s.AcceptWorkshopInviteAnonymously(inviteToken)
-	s.NoError(err)
-	participant := s.CreateUserWithToken(*resp.AuthToken)
+	participant := Must(s.JoinWorkshop(inviteToken))
 
 	// Participant should NOT be able to update workshop settings
-	_, err = participant.UpdateWorkshop(wsIDStr, map[string]interface{}{
-		"name":                       "Hacked Workshop",
-		"active":                     true,
-		"public":                     false,
-		"showPublicGames":            true,
-		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       true,
-		"isPaused":                   true,
+	_, err := participant.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+		Name:                       "Hacked Workshop",
+		Active:                     true,
+		ShowPublicGames:            true,
+		ShowOtherParticipantsGames: true,
+		IsPaused:                   true,
 	})
-	s.Error(err, "participant should not be able to update workshop settings")
-	s.T().Logf("Correctly denied participant settings update: %v", err)
+	s.Forbidden(err, "participant should not be able to update workshop settings")
 }
 
 // TestIndividualRolePreservedAfterJoining verifies that an individual's role is NOT
@@ -214,16 +194,16 @@ func (s *WorkshopIndividualTestSuite) TestIndividualRolePreservedAfterJoining() 
 
 	individual := s.CreateUser("ind-role-keeper")
 	me := Must(individual.GetMe())
-	s.Equal(obj.RoleIndividual, me.Role.Role, "should start as individual")
+	s.Equal("individual", me.Role.Role, "should start as individual")
 
 	// Join workshop via token
 	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
 
 	// Role must still be individual (not participant)
 	me = Must(individual.GetMe())
-	s.Equal(obj.RoleIndividual, me.Role.Role, "role must remain individual after joining workshop")
+	s.Equal("individual", me.Role.Role, "role must remain individual after joining workshop")
 	s.Require().NotNil(me.Role.Workshop, "should have active workshop set")
-	s.T().Logf("Individual role preserved: %s (workshop: %s)", me.Role.Role, me.Role.Workshop.ID)
+	s.T().Logf("Individual role preserved: %s (workshop: %s)", me.Role.Role, me.Role.Workshop.Id)
 }
 
 // TestIndividualLeavesWorkshopReturnsToNormalView verifies that an individual
@@ -247,7 +227,7 @@ func (s *WorkshopIndividualTestSuite) TestIndividualLeavesWorkshopReturnsToNorma
 
 	// Verify back to normal individual view
 	me = Must(individual.GetMe())
-	s.Equal(obj.RoleIndividual, me.Role.Role, "role should still be individual after leaving")
+	s.Equal("individual", me.Role.Role, "role should still be individual after leaving")
 	s.Nil(me.Role.Workshop, "should have no active workshop after leaving")
 	s.T().Logf("Individual left workshop, back to normal view")
 
@@ -276,9 +256,9 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCanRejoinWorkshopAfterLeavin
 	// Rejoin
 	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
 	me = Must(individual.GetMe())
-	s.Equal(obj.RoleIndividual, me.Role.Role, "role should still be individual after rejoin")
+	s.Equal("individual", me.Role.Role, "role should still be individual after rejoin")
 	s.Require().NotNil(me.Role.Workshop, "should be in workshop after rejoin")
-	s.Equal(wsIDStr, me.Role.Workshop.ID.String(), "should be in the same workshop")
+	s.Equal(wsIDStr, me.Role.Workshop.Id.String(), "should be in the same workshop")
 	s.T().Logf("Individual successfully rejoined workshop")
 }
 
@@ -291,14 +271,14 @@ func (s *WorkshopIndividualTestSuite) TestTargetedInviteWithIndividualRoleWorks(
 	target := s.CreateUser("ind-target")
 
 	// Create targeted invite with 'individual' role — should succeed
-	invite, err := admin.InviteToInstitution(inst.ID.String(), "individual", target.ID)
+	invite, err := admin.InviteToInstitution(inst.Id.String(), "individual", target.ID)
 	s.NoError(err, "targeted invite with 'individual' role should succeed")
-	s.NotEmpty(invite.ID)
+	s.NotEmpty(invite.Id)
 
 	// Accept and verify role stays individual
-	Must(target.AcceptInvite(invite.ID.String()))
+	Must(target.AcceptInvite(invite.Id.String()))
 	me := Must(target.GetMe())
-	s.Equal("individual", string(me.Role.Role), "user should keep individual role")
+	s.Equal("individual", me.Role.Role, "user should keep individual role")
 	s.T().Logf("Individual invite accepted, role: %s", me.Role.Role)
 }
 
@@ -310,27 +290,23 @@ func (s *WorkshopIndividualTestSuite) TestTargetedInviteWithHeadStaffStillWorks(
 
 	// Head invite should work
 	headTarget := s.CreateUser("head-target")
-	invite, err := admin.InviteToInstitution(inst.ID.String(), "head", headTarget.ID)
+	invite, err := admin.InviteToInstitution(inst.Id.String(), "head", headTarget.ID)
 	s.NoError(err, "targeted invite with 'head' role should work")
-	s.NotEmpty(invite.ID)
-	s.T().Logf("Head invite created: %s", invite.ID)
+	s.NotEmpty(invite.Id)
+	s.T().Logf("Head invite created: %s", invite.Id)
 
 	// Staff invite should work
 	staffTarget := s.CreateUser("staff-target")
-	invite, err = admin.InviteToInstitution(inst.ID.String(), "staff", staffTarget.ID)
+	invite, err = admin.InviteToInstitution(inst.Id.String(), "staff", staffTarget.ID)
 	s.NoError(err, "targeted invite with 'staff' role should work")
-	s.NotEmpty(invite.ID)
-	s.T().Logf("Staff invite created: %s", invite.ID)
+	s.NotEmpty(invite.Id)
+	s.T().Logf("Staff invite created: %s", invite.Id)
 }
 
 // containsGameByID checks if a game list contains a game with the given ID string.
-func containsGameByID(games []obj.Game, gameID string) bool {
-	parsed, err := uuid.Parse(gameID)
-	if err != nil {
-		return false
-	}
+func containsGameByID(games []testutil.Game, gameID string) bool {
 	for _, g := range games {
-		if g.ID == parsed {
+		if g.Id.String() == gameID {
 			return true
 		}
 	}

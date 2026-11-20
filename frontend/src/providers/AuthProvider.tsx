@@ -19,7 +19,7 @@ export {
 import { forgetParticipantCode } from "./auth/participantLogin";
 
 // The preset dev accounts sign in only on the dev server; the backend refuses
-// them without DEV_MODE too.
+// them outside development mode too.
 const isDevMode = import.meta.env.DEV;
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

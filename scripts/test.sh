@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Integration test runner - Docker lifecycle is managed by test suites
-# Each test suite automatically starts/stops its own Docker environment
+# Integration test runner. Each suite starts its own instance of the
+# platform through schemaf's test harness; a container runtime is all it needs.
 #
 # Requires: gotestsum (go install gotest.tools/gotestsum@latest)
 #

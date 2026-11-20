@@ -25,9 +25,9 @@ func (s *ApiKeyTestSuite) TestDefaultApiKeySwitching() {
 
 	// Add first key — should become default automatically
 	key1 := Must(user.AddApiKey("mock-key-1", "First Key", "openai"))
-	s.NotEmpty(key1.ID)
-	s.NotEmpty(key1.ApiKeyID)
-	s.T().Logf("Added first key: shareID=%s", key1.ID)
+	s.NotEmpty(key1.Id)
+	s.NotEmpty(key1.ApiKeyId)
+	s.T().Logf("Added first key: shareID=%s", key1.Id)
 
 	// Verify it's the default
 	keys := Must(user.GetApiKeys())
@@ -37,13 +37,13 @@ func (s *ApiKeyTestSuite) TestDefaultApiKeySwitching() {
 
 	// Add second key — should NOT be default
 	key2 := Must(user.AddApiKey("mock-key-2", "Second Key", "openai"))
-	s.NotEmpty(key2.ID)
-	s.T().Logf("Added second key: shareID=%s", key2.ID)
+	s.NotEmpty(key2.Id)
+	s.T().Logf("Added second key: shareID=%s", key2.Id)
 
 	keys = Must(user.GetApiKeys())
 	s.Len(keys.ApiKeys, 2)
 	for _, k := range keys.ApiKeys {
-		if k.ID == key1.ApiKeyID {
+		if k.Id == key1.ApiKeyId {
 			s.True(k.IsDefault, "first key should still be default")
 		} else {
 			s.False(k.IsDefault, "second key should not be default")
@@ -52,13 +52,13 @@ func (s *ApiKeyTestSuite) TestDefaultApiKeySwitching() {
 	s.T().Logf("Second key is not default")
 
 	// Switch default to second key
-	Must(user.SetDefaultApiKey(key2.ID.String()))
+	Must(user.SetDefaultApiKey(key2.Id.String()))
 	s.T().Logf("Switched default to second key")
 
 	// Verify via GetApiKeys
 	keys = Must(user.GetApiKeys())
 	for _, k := range keys.ApiKeys {
-		if k.ID == key2.ApiKeyID {
+		if k.Id == key2.ApiKeyId {
 			s.True(k.IsDefault, "second key should now be default")
 		} else {
 			s.False(k.IsDefault, "first key should no longer be default")
@@ -67,12 +67,12 @@ func (s *ApiKeyTestSuite) TestDefaultApiKeySwitching() {
 	s.T().Logf("Default correctly switched to second key")
 
 	// Switch back to first key
-	Must(user.SetDefaultApiKey(key1.ID.String()))
+	Must(user.SetDefaultApiKey(key1.Id.String()))
 	s.T().Logf("Switched default back to first key")
 
 	keys = Must(user.GetApiKeys())
 	for _, k := range keys.ApiKeys {
-		if k.ID == key1.ApiKeyID {
+		if k.Id == key1.ApiKeyId {
 			s.True(k.IsDefault, "first key should be default again")
 		} else {
 			s.False(k.IsDefault, "second key should not be default")
@@ -89,9 +89,9 @@ func (s *ApiKeyTestSuite) TestMistralKeyLifecycle() {
 
 	// Add a Mistral key
 	key := Must(user.AddApiKey("test-mistral-key-123", "My Mistral", "mistral"))
-	s.NotEmpty(key.ID, "share ID should not be empty")
-	s.NotEmpty(key.ApiKeyID, "api key ID should not be empty")
-	s.T().Logf("Added Mistral key: shareID=%s, apiKeyID=%s", key.ID, key.ApiKeyID)
+	s.NotEmpty(key.Id, "share ID should not be empty")
+	s.NotEmpty(key.ApiKeyId, "api key ID should not be empty")
+	s.T().Logf("Added Mistral key: shareID=%s, apiKeyID=%s", key.Id, key.ApiKeyId)
 
 	// Verify it's listed and is the default (first key)
 	keys := Must(user.GetApiKeys())
@@ -102,13 +102,13 @@ func (s *ApiKeyTestSuite) TestMistralKeyLifecycle() {
 
 	// Add a second key (mock) so we can switch defaults
 	key2 := Must(user.AddApiKey("test-mock-key-456", "My Mock", "openai"))
-	s.T().Logf("Added Mock key: shareID=%s", key2.ID)
+	s.T().Logf("Added Mock key: shareID=%s", key2.Id)
 
 	// Switch default to mock key
-	Must(user.SetDefaultApiKey(key2.ID.String()))
+	Must(user.SetDefaultApiKey(key2.Id.String()))
 	keys = Must(user.GetApiKeys())
 	for _, k := range keys.ApiKeys {
-		if k.ID == key2.ApiKeyID {
+		if k.Id == key2.ApiKeyId {
 			s.True(k.IsDefault, "mock key should be default")
 		} else {
 			s.False(k.IsDefault, "mistral key should not be default")
@@ -117,10 +117,10 @@ func (s *ApiKeyTestSuite) TestMistralKeyLifecycle() {
 	s.T().Logf("Switched default to mock key")
 
 	// Switch default back to Mistral key — this is where "share not found" was reported
-	Must(user.SetDefaultApiKey(key.ID.String()))
+	Must(user.SetDefaultApiKey(key.Id.String()))
 	keys = Must(user.GetApiKeys())
 	for _, k := range keys.ApiKeys {
-		if k.ID == key.ApiKeyID {
+		if k.Id == key.ApiKeyId {
 			s.True(k.IsDefault, "mistral key should be default again")
 		} else {
 			s.False(k.IsDefault, "mock key should not be default")
@@ -129,14 +129,14 @@ func (s *ApiKeyTestSuite) TestMistralKeyLifecycle() {
 	s.T().Logf("Switched default back to Mistral key")
 
 	// Delete Mistral key
-	MustSucceed(user.DeleteApiKey(key.ID.String(), true))
+	MustSucceed(user.DeleteApiKey(key.Id.String(), true))
 	keys = Must(user.GetApiKeys())
 	s.Len(keys.ApiKeys, 1, "should have 1 key remaining")
-	s.Equal(key2.ApiKeyID, keys.ApiKeys[0].ID, "remaining key should be mock")
+	s.Equal(key2.ApiKeyId, keys.ApiKeys[0].Id, "remaining key should be mock")
 	s.T().Logf("Deleted Mistral key, mock key remains")
 
 	// Delete mock key
-	MustSucceed(user.DeleteApiKey(key2.ID.String(), true))
+	MustSucceed(user.DeleteApiKey(key2.Id.String(), true))
 	keys = Must(user.GetApiKeys())
 	s.Len(keys.ApiKeys, 0, "should have no keys remaining")
 	s.T().Logf("All keys removed")
@@ -149,8 +149,8 @@ func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespace() {
 
 	// Create a key with whitespace in the key value and name
 	key := Must(user.AddApiKey("  mock-trim-key  ", "  Trimmed Key  ", "  openai  "))
-	s.NotEmpty(key.ID)
-	s.T().Logf("Created key with whitespace: shareID=%s", key.ID)
+	s.NotEmpty(key.Id)
+	s.T().Logf("Created key with whitespace: shareID=%s", key.Id)
 
 	// Verify the key was created successfully (platform was trimmed and recognized)
 	keys := Must(user.GetApiKeys())
@@ -170,7 +170,7 @@ func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespace() {
 	s.T().Logf("Key stored correctly: name=%q, platform=%q, shortened=%q", apiKey.Name, apiKey.Platform, apiKey.KeyShortened)
 
 	// Clean up
-	MustSucceed(user.DeleteApiKey(key.ID.String(), true))
+	MustSucceed(user.DeleteApiKey(key.Id.String(), true))
 }
 
 // TestApiKeyTrimWhitespaceOnlyFails verifies that whitespace-only values are rejected.
@@ -179,12 +179,12 @@ func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespaceOnlyFails() {
 
 	// Key with whitespace-only value should fail
 	_, err := user.AddApiKey("   ", "Some Name", "openai")
-	s.Error(err, "whitespace-only key value should be rejected")
+	s.Invalid(err, "whitespace-only key value should be rejected")
 	s.T().Logf("Whitespace-only key correctly rejected: %v", err)
 
 	// Key with whitespace-only platform should fail
 	_, err = user.AddApiKey("mock-key-123", "Some Name", "   ")
-	s.Error(err, "whitespace-only platform should be rejected")
+	s.Invalid(err, "whitespace-only platform should be rejected")
 	s.T().Logf("Whitespace-only platform correctly rejected: %v", err)
 }
 
@@ -197,28 +197,28 @@ func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {
 	// User adds two API keys, first becomes default
 	key1 := Must(user.AddApiKey("mock-org-key-1", "Personal Key 1", "openai"))
 	key2 := Must(user.AddApiKey("mock-org-key-2", "Personal Key 2", "openai"))
-	s.T().Logf("User added two keys: key1=%s, key2=%s", key1.ID, key2.ID)
+	s.T().Logf("User added two keys: key1=%s, key2=%s", key1.Id, key2.Id)
 
 	// Verify key1 is default
 	keys := Must(user.GetApiKeys())
 	s.Len(keys.ApiKeys, 2)
 	for _, k := range keys.ApiKeys {
-		if k.ID == key1.ApiKeyID {
+		if k.Id == key1.ApiKeyId {
 			s.True(k.IsDefault, "first key should be default")
 		}
 	}
 
 	// Admin creates institution and invites user as head
 	inst := Must(admin.CreateInstitution("Key Test Org"))
-	invite := Must(admin.InviteToInstitution(inst.ID.String(), "head", user.ID))
-	Must(user.AcceptInvite(invite.ID.String()))
+	invite := Must(admin.InviteToInstitution(inst.Id.String(), "head", user.ID))
+	Must(user.AcceptInvite(invite.Id.String()))
 	s.Equal("head", user.GetRole())
 	s.T().Logf("User became head of institution")
 
 	// User shares key1 with the institution
-	orgShare := Must(user.ShareApiKeyWithInstitution(key1.ID.String(), inst.ID.String()))
-	s.NotEmpty(orgShare.ID)
-	s.T().Logf("Shared key1 with institution: orgShareID=%s", orgShare.ID)
+	orgShare := Must(user.ShareApiKeyWithInstitution(key1.Id.String(), inst.Id.String()))
+	s.NotEmpty(orgShare.Id)
+	s.T().Logf("Shared key1 with institution: orgShareID=%s", orgShare.Id)
 
 	// Verify shares exist
 	keys = Must(user.GetApiKeys())
@@ -227,10 +227,10 @@ func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {
 	s.T().Logf("User has %d keys and %d shares", len(keys.ApiKeys), len(keys.Shares))
 
 	// Switch default to key2
-	Must(user.SetDefaultApiKey(key2.ID.String()))
+	Must(user.SetDefaultApiKey(key2.Id.String()))
 	keys = Must(user.GetApiKeys())
 	for _, k := range keys.ApiKeys {
-		if k.ID == key2.ApiKeyID {
+		if k.Id == key2.ApiKeyId {
 			s.True(k.IsDefault, "key2 should be default after switch")
 		} else {
 			s.False(k.IsDefault, "key1 should not be default")
@@ -239,10 +239,10 @@ func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {
 	s.T().Logf("Switched default to key2")
 
 	// Switch default back to key1
-	Must(user.SetDefaultApiKey(key1.ID.String()))
+	Must(user.SetDefaultApiKey(key1.Id.String()))
 	keys = Must(user.GetApiKeys())
 	for _, k := range keys.ApiKeys {
-		if k.ID == key1.ApiKeyID {
+		if k.Id == key1.ApiKeyId {
 			s.True(k.IsDefault, "key1 should be default again")
 		} else {
 			s.False(k.IsDefault, "key2 should not be default")
@@ -251,17 +251,17 @@ func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {
 	s.T().Logf("Switched default back to key1")
 
 	// Delete key1 (which is shared with org) — cascade should remove key + all shares
-	MustSucceed(user.DeleteApiKey(key1.ID.String(), true))
+	MustSucceed(user.DeleteApiKey(key1.Id.String(), true))
 	s.T().Logf("Deleted key1 (was shared with org)")
 
 	// Verify key1 is gone, only key2 remains
 	keys = Must(user.GetApiKeys())
 	s.Len(keys.ApiKeys, 1, "should have 1 key remaining")
-	s.Equal(key2.ApiKeyID, keys.ApiKeys[0].ID, "remaining key should be key2")
+	s.Equal(key2.ApiKeyId, keys.ApiKeys[0].Id, "remaining key should be key2")
 	s.T().Logf("Key1 removed, key2 remains")
 
 	// Delete key2 — user should have no keys left
-	MustSucceed(user.DeleteApiKey(key2.ID.String(), true))
+	MustSucceed(user.DeleteApiKey(key2.Id.String(), true))
 	keys = Must(user.GetApiKeys())
 	s.Len(keys.ApiKeys, 0, "should have no keys remaining")
 	s.T().Logf("All keys removed")

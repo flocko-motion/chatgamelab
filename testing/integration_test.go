@@ -1,7 +1,6 @@
 package testing
 
 import (
-	"cgl/obj"
 	"testing"
 
 	"cgl/testing/testutil"
@@ -10,7 +9,6 @@ import (
 )
 
 // BasicTestSuite contains basic API tests
-// Each suite gets its own fresh Docker environment
 type BasicTestSuite struct {
 	testutil.BaseSuite
 }
@@ -22,82 +20,43 @@ func TestBasicSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// TestStatusEndpoint tests the status endpoint
+// TestStatusEndpoint tests schemaf's status endpoint
 func (s *BasicTestSuite) TestStatusEndpoint() {
-	public := s.Public()
+	status := Must(s.Public().Status())
 
-	var result map[string]interface{}
-	public.MustGet("status", &result)
-
-	s.Equal("running", result["status"])
-	s.NotEmpty(result["uptime"])
+	s.Equal("ok", status["status"])
+	s.NotEmpty(status["uptime"])
 }
 
 func (s *BasicTestSuite) TestCreateGame() {
 	alice := s.CreateUser("alice", "alice@example.com")
 
-	// Create a new game
-	payload := map[string]interface{}{
-		"name": "Test Game",
-	}
+	game := Must(alice.CreateGame("Test Game"))
 
-	var game obj.Game
-	alice.MustPost("games/new", payload, &game)
-
-	// Verify game was created
-	s.NotEmpty(game.ID, "game ID should not be empty")
+	s.NotEmpty(game.Id, "game ID should not be empty")
 	s.Equal("Test Game", game.Name)
-
-	s.T().Logf("Created game with ID: %s", game.ID)
 }
 
 func (s *BasicTestSuite) TestListGames() {
 	bob := s.CreateUser("bob", "bob@example.com")
+	Must(bob.CreateGame("Game for List Test"))
 
-	// Create a game first
-	createPayload := map[string]interface{}{
-		"name": "Game for List Test",
-	}
-	var createdGame obj.Game
-	bob.MustPost("games/new", createPayload, &createdGame)
+	games := Must(bob.ListGames())
 
-	// List games
-	var games []obj.Game
-	bob.MustGet("games", &games)
-
-	// Should have at least one game
 	s.NotEmpty(games, "should have at least one game")
-
-	s.T().Logf("Found %d games", len(games))
 }
 
 func (s *BasicTestSuite) TestUnauthorizedAccess() {
-	public := s.Public()
-
-	// Try to create game without authentication
-	payload := map[string]interface{}{
-		"name": "Unauthorized Game",
-	}
-
-	// Expect error with any message
-	public.FailPost("games/new", payload)
+	_, err := s.Public().CreateGame("Unauthorized Game")
+	s.Unauthorized(err)
 }
 
 func (s *BasicTestSuite) TestGetGameByID() {
 	charlie := s.CreateUser("charlie", "charlie@example.com")
+	created := Must(charlie.CreateGame("Game to Retrieve"))
 
-	// Create a game
-	createPayload := map[string]interface{}{
-		"name": "Game to Retrieve",
-	}
-	var createdGame obj.Game
-	charlie.MustPost("games/new", createPayload, &createdGame)
-	s.NotEmpty(createdGame.ID)
+	retrieved := Must(charlie.GetGameByID(created.Id.String()))
 
-	// Get the game by ID
-	var retrievedGame obj.Game
-	charlie.MustGet("games/"+createdGame.ID.String(), &retrievedGame)
-
-	s.Equal(createdGame.ID, retrievedGame.ID)
-	s.Equal("Game to Retrieve", retrievedGame.Name)
+	s.Equal(created.Id, retrieved.Id)
+	s.Equal("Game to Retrieve", retrieved.Name)
 }

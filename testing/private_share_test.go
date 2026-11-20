@@ -1,8 +1,9 @@
 package testing
 
 import (
-	"cgl/testing/testutil"
 	"testing"
+
+	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -24,7 +25,7 @@ func (s *PrivateShareTestSuite) setupGameWithKey(prefix string) (*testutil.UserC
 	user := s.CreateUser(prefix)
 	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "openai"))
 	game := Must(user.UploadGame("alien-first-contact"))
-	return user, game.ID.String(), keyShare.ID.String()
+	return user, game.Id.String(), keyShare.Id.String()
 }
 
 // --- Lifecycle ---
@@ -35,8 +36,8 @@ func (s *PrivateShareTestSuite) TestCreateGameShare() {
 
 	resp := Must(user.CreateGameShare(gameID, shareID, nil))
 	s.NotEmpty(resp.Token, "share token should not be empty")
-	s.Contains(resp.ShareURL, "/play/", "share URL should contain /play/")
-	s.T().Logf("Created share: token=%s, url=%s", resp.Token, resp.ShareURL)
+	s.Contains(resp.ShareUrl, "/play/", "share URL should contain /play/")
+	s.T().Logf("Created share: token=%s, url=%s", resp.Token, resp.ShareUrl)
 }
 
 // TestGetPrivateShareStatus verifies reading back the share status matches what was set.
@@ -68,7 +69,7 @@ func (s *PrivateShareTestSuite) TestDeleteGameShare() {
 
 	created := Must(user.CreateGameShare(gameID, shareID, nil))
 
-	MustSucceed(user.DeleteGameShare(gameID, created.ID.String()))
+	MustSucceed(user.DeleteGameShare(gameID, created.Id.String()))
 	s.T().Logf("Deleted share")
 
 	// Verify status
@@ -84,10 +85,9 @@ func (s *PrivateShareTestSuite) TestOnlyOwnerCanCreateShare() {
 	bob := s.CreateUser("ps-perm-b")
 	bobKey := Must(bob.AddApiKey("mock-ps-perm-b", "Bob Key", "openai"))
 
-	// Bob tries to create share on alice's game -> should fail
-	_, err := bob.CreateGameShare(gameID, bobKey.ID.String(), nil)
-	s.Error(err, "non-owner should not be able to create share on private game")
-	s.T().Logf("Correctly denied bob creating share: %v", err)
+	// Bob can't see alice's private game, so for him it doesn't exist
+	_, err := bob.CreateGameShare(gameID, bobKey.Id.String(), nil)
+	s.NotFound(err, "non-owner should not be able to create share on private game")
 }
 
 // TestOnlyOwnerCanDeleteShare verifies that a non-owner cannot delete a share.
@@ -97,9 +97,10 @@ func (s *PrivateShareTestSuite) TestOnlyOwnerCanDeleteShare() {
 
 	created := Must(alice.CreateGameShare(gameID, shareID, nil))
 
-	err := bob.DeleteGameShare(gameID, created.ID.String())
-	s.Error(err, "non-owner should not be able to delete share")
-	s.T().Logf("Correctly denied bob deleting share: %v", err)
+	// Bob can't see alice's private game, so for him neither it nor its share exists
+	err := bob.DeleteGameShare(gameID, created.Id.String())
+	s.NotFound(err, "non-owner should not be able to delete share")
+	s.Len(Must(alice.GetPrivateShareStatus(gameID)).Shares, 1, "the share stays")
 }
 
 // TestNonOwnerCannotReadShareStatusOfPrivateGame verifies that a non-owner cannot
@@ -109,11 +110,10 @@ func (s *PrivateShareTestSuite) TestNonOwnerCannotReadShareStatusOfPrivateGame()
 	bob := s.CreateUser("ps-readperm-b")
 
 	game := Must(alice.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	gameID := game.Id.String()
 
 	_, err := bob.GetPrivateShareStatus(gameID)
-	s.Error(err, "non-owner should not be able to read share status of private game")
-	s.T().Logf("Correctly denied bob reading status: %v", err)
+	s.NotFound(err, "non-owner should not be able to read share status of private game")
 }
 
 // --- Guest play ---
@@ -135,8 +135,7 @@ func (s *PrivateShareTestSuite) TestGuestCanGetGameInfo() {
 func (s *PrivateShareTestSuite) TestInvalidTokenReturnsError() {
 	pub := s.Public()
 	_, err := pub.GuestGetGameInfo("bogus-token-12345")
-	s.Error(err, "invalid token should return error")
-	s.T().Logf("Correctly rejected bogus token: %v", err)
+	s.NotFound(err, "invalid token should return error")
 }
 
 // TestRevokedTokenReturnsError verifies that a revoked token no longer works.
@@ -147,13 +146,12 @@ func (s *PrivateShareTestSuite) TestRevokedTokenReturnsError() {
 	token := created.Token
 
 	// Delete the share
-	MustSucceed(user.DeleteGameShare(gameID, created.ID.String()))
+	MustSucceed(user.DeleteGameShare(gameID, created.Id.String()))
 
 	// Token should no longer work
 	pub := s.Public()
 	_, err := pub.GuestGetGameInfo(token)
-	s.Error(err, "revoked token should return error")
-	s.T().Logf("Correctly rejected revoked token: %v", err)
+	s.NotFound(err, "revoked token should return error")
 }
 
 // --- Cascade ---

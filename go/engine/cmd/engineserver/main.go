@@ -85,7 +85,7 @@ func main() {
 	store := &engine.MemoryPersist{}
 	name := strings.TrimSuffix(filepath.Base(flag.Arg(0)), filepath.Ext(flag.Arg(0)))
 	srv := api.New(api.Options{
-		Dev: true,
+		Dev: func() bool { return true },
 		Create: func(ctx context.Context, req api.CreateRequest) (*engine.Session, error) {
 			usable, err := checked(ctx, offers)
 			if err != nil {

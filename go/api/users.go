@@ -413,7 +413,7 @@ func (CreateUserEndpoint) Method() string             { return "POST" }
 func (CreateUserEndpoint) Path() string               { return "/api/users/new" }
 func (CreateUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
 func (CreateUserEndpoint) Handle(ctx context.Context, req CreateUserReq) (UserResp, error) {
-	if !devMode {
+	if !schemafapi.DevMode() {
 		return obj.User{}, errNotFound("Not found")
 	}
 	if strings.TrimSpace(req.Name) == "" {

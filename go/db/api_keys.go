@@ -11,6 +11,7 @@ import (
 	"engine"
 	"time"
 
+	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
 )
 
@@ -30,14 +31,11 @@ func GetApiKeyByID(ctx context.Context, apiKeyID uuid.UUID) (*obj.ApiKey, error)
 	}, nil
 }
 
-// DevMode lets keys for the engine's mock platform be stored, so a dev stack
-// and the integration tests play without a provider.
-var DevMode bool
-
 // AcceptsKeys says whether a key for the platform may be stored and used: a
-// platform of the engine's that takes users' keys, or the mock in dev mode.
+// platform of the engine's that takes users' keys, or the mock in development
+// mode, so a dev stack and the integration tests play without a provider.
 func AcceptsKeys(platform string) bool {
-	if DevMode && engine.Platform(platform) == engine.PlatformMock {
+	if schemafapi.DevMode() && engine.Platform(platform) == engine.PlatformMock {
 		return true
 	}
 	return engine.AcceptsKeys(engine.Platform(platform))
