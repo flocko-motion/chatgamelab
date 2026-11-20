@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs translate translate-check
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs translate translate-check roadmap
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -15,6 +15,7 @@ help:
 	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
 	@echo "make translate        translate changed UI texts into every language (before pushing)"
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
+	@echo "make roadmap          rebuild the wiki page Roadmap from the issues now"
 
 # The spec is Typst; the PDFs are build output.
 docs:
@@ -288,3 +289,11 @@ sync:
 		&& ! git merge-base --is-ancestor origin/$(DEV) $(DEV); then \
 		echo "   your $(DEV) checkout is behind it — git pull to catch up"; \
 	fi
+
+# Rebuilds the wiki page Roadmap now, rather than at the next issue change or
+# the daily run: needed after a "blocked by" changes, which sends no event. The
+# workflow runs from the default branch, which is where GitHub dispatches it.
+roadmap:
+	gh workflow run roadmap.yml
+	@sleep 3
+	gh run watch "$$(gh run list --workflow roadmap.yml --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status

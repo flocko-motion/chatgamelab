@@ -6,8 +6,37 @@ on:
       - v2/development
 
 jobs:
+  # Whether the pull request touches anything the app is built from. Changes
+  # to the tooling list alone (the roadmap tool, documentation) skip the
+  # checks below; "Run Tests" still reports, so the required check passes.
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          tooling='^(scripts/roadmap\.py|\.github/workflows/roadmap\.yml|docs/.*|.*\.md)$'
+          rest=$(git diff --name-only "$BASE...$HEAD" | grep -Ev "$tooling" || true)
+          if [ -n "$rest" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "Changes beyond tooling:"; echo "$rest"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "Only tooling changed; the checks are skipped."
+          fi
+
   backend-tests:
     name: Backend Tests
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -44,6 +73,8 @@ jobs:
 
   frontend-checks:
     name: Frontend Checks
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -92,6 +123,8 @@ jobs:
 
   translations:
     name: Translations
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -109,12 +142,16 @@ jobs:
 
   test:
     name: Run Tests
-    needs: [backend-tests, frontend-checks, translations]
+    needs: [changes, backend-tests, frontend-checks, translations]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check results
         run: |
+          if [ "${{ needs.changes.result }}" == "success" ] && [ "${{ needs.changes.outputs.code }}" == "false" ]; then
+            echo "✅ Only tooling changed; nothing to check."
+            exit 0
+          fi
           if [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ] && [ "${{ needs.translations.result }}" == "success" ]; then
             echo "✅ All checks passed!"
             exit 0

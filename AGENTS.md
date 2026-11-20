@@ -23,20 +23,22 @@ issue in the main checkout.** Each issue gets its own git worktree, so changes
 from different issues never mix in one working tree.
 
 **Before creating a worktree, propose exactly this name, branch and base and
-wait for confirmation**, e.g. "I'll create `.worktrees/398-toolcall-block/` on
-branch `feat/398-toolcall-block` from `feat/engine-v2` — OK?".
+wait for confirmation**, e.g. "I'll create `.worktrees/349-web-app/` on branch
+`feat/349-web-app` from `origin/v2/development` — OK?".
 
 | What | Pattern | Example |
 |---|---|---|
-| Worktree directory | `.worktrees/<issue>-<slug>/` in the repo root | `.worktrees/398-toolcall-block/` |
-| Branch | `<type>/<issue>-<slug>` | `feat/398-toolcall-block` |
-| Base | `feat/engine-v2`, the branch v2 is developed on | |
+| Worktree directory | `.worktrees/<issue>-<slug>/` in the repo root | `.worktrees/349-web-app/` |
+| Branch | `<type>/<issue>-<slug>` | `feat/349-web-app` |
+| Base and pull request target | `v2/development`, the default branch | |
 
 - `<issue>` is the GitHub issue number, `<slug>` 2–4 lowercase words from its
   title, `<type>` the commit type the change will get (`feat`, `fix`, `docs`,
-  `chore`).
+  `chore`). Work without an issue uses a descriptive slug without a number.
 - After confirmation, from the repo root:
-  `git worktree add -b feat/398-toolcall-block .worktrees/398-toolcall-block feat/engine-v2`.
+  `git fetch origin && git worktree add -b feat/349-web-app .worktrees/349-web-app origin/v2/development`.
+- The 1.X line (`development`, `main`) takes only fixes meant for it; such a
+  branch starts from `origin/development` and names it as its base.
 - If the worktree or branch exists already, say so and propose continuing in
   it.
 - All work for the issue happens inside its worktree. The git rules above hold
