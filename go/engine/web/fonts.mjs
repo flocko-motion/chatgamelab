@@ -1,6 +1,6 @@
 // Writes src/ui/fonts.css: the @font-face rules for every self-hosted font.
 // Run it after adding a font here: `node fonts.mjs`. The build copies each
-// referenced woff2 into dist/assets, so the player asks no third party for
+// referenced woff2 into dist/assets, so the playback-engine asks no third party for
 // anything. Latin and Latin Extended only, which cover the languages the
 // platform plays in. Every family is under the SIL Open Font License 1.1,
 // except Special Elite and Chewy, which are Apache 2.0.

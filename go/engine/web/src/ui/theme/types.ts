@@ -1,7 +1,7 @@
 /**
- * Game Player Theme Types
+ * Playback-engine Theme Types
  *
- * Defines the schema for customizable game player theming.
+ * Defines the schema for customizable playback-engine theming.
  * The current default style is preserved - themes allow non-destructive customization.
  */
 

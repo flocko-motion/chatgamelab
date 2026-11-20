@@ -1344,5 +1344,43 @@
     "rooms": "Räume",
     "serverSettings": "Servereinstellungen",
     "workshopSettings": "Workshop-Einstellungen"
+  },
+  "playbackEngine": {
+    "problems": {
+      "noKey": "Für dieses Spiel ist kein API-Schlüssel verfügbar.",
+      "genre": "Der verfügbare API-Schlüssel kann diese Art von Spiel nicht ausführen.",
+      "noPlays": "Für dieses geteilte Spiel sind keine Spielrunden mehr übrig.",
+      "keyRejected": "Der KI-Anbieter hat den API-Schlüssel abgelehnt.",
+      "unreachable": "Der KI-Anbieter ist gerade nicht erreichbar.",
+      "stale": "Dieses Spiel kann nicht mehr fortgesetzt werden.",
+      "unknown": "Diese Spielsitzung gibt es nicht.",
+      "denied": "Du darfst dieses Spiel nicht spielen.",
+      "failed": "Etwas ist schiefgelaufen, das Spiel kann nicht weitergehen."
+    },
+    "errors": {
+      "serverUnreachable": "Der Spielserver ist nicht erreichbar.",
+      "pauseFailed": "Das Gespräch konnte nicht pausiert werden.",
+      "startFailed": "Das Spiel konnte nicht gestartet werden.",
+      "switchFailed": "Diese Funktion konnte nicht umgeschaltet werden.",
+      "voiceFailed": "Deine Stimme konnte nicht verbunden werden.",
+      "noMicrophone": "Kein Mikrofon. Prüfe die Berechtigung des Browsers für diese Seite.",
+      "connectionLost": "Die Verbindung zum Spiel ist abgebrochen. Lade die Seite neu, um es erneut zu versuchen."
+    },
+    "launch": {
+      "noGame": "Diese Seite braucht ein Spiel: Öffne sie über die Seite eines Spiels.",
+      "inProgress": "Du hast ein angefangenes Spiel.",
+      "continue": "Weiterspielen",
+      "startAnew": "Neu beginnen",
+      "tryAgain": "Erneut versuchen",
+      "starting": "Das Spiel startet…"
+    },
+    "status": {
+      "connecting": "Verbinden…",
+      "reconnecting": "Erneut verbinden…",
+      "ended": "Das Spiel ist zu Ende.",
+      "choose": "Wähle, wie du spielen möchtest, um zu beginnen.",
+      "settingScene": "Die Szene entsteht…",
+      "wakingCharacter": "Die Figur erwacht…"
+    }
   }
 }

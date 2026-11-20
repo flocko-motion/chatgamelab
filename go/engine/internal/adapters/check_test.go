@@ -47,3 +47,28 @@ func TestCheckKeyTellsRejectedFromUnreachable(t *testing.T) {
 		})
 	}
 }
+
+// A block retries what may pass and gives up on what will not, so the status
+// has to say which it is: a timeout, a rate limit or a server failure may pass.
+func TestStatusErrorMarksTransientFailures(t *testing.T) {
+	for status, want := range map[int]struct{ transient, rejected bool }{
+		http.StatusRequestTimeout:      {transient: true},
+		http.StatusTooManyRequests:     {transient: true},
+		http.StatusServiceUnavailable:  {transient: true},
+		http.StatusInternalServerError: {transient: true},
+		http.StatusBadRequest:          {},
+		http.StatusNotFound:            {},
+		http.StatusUnauthorized:        {rejected: true},
+	} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			resp := &http.Response{StatusCode: status, Status: http.StatusText(status)}
+			err := StatusError("call", resp, "")
+			if got := errors.Is(err, ErrTransient); got != want.transient {
+				t.Errorf("transient: got %v, want %v (%v)", got, want.transient, err)
+			}
+			if got := errors.Is(err, ErrKeyRejected); got != want.rejected {
+				t.Errorf("key rejected: got %v, want %v (%v)", got, want.rejected, err)
+			}
+		})
+	}
+}

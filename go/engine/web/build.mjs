@@ -1,15 +1,15 @@
-// Bundles the player into dist/. Three entry points: the page, the audio
+// Bundles the playback-engine into dist/. Three entry points: the page, the audio
 // worklet (which the browser loads by URL and so cannot be bundled into the
 // main script), and the headless harness that plays a session from node.
 import { build } from "esbuild";
-import { cp, mkdir, rm } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 
 await rm("dist", { recursive: true, force: true });
 await mkdir("dist", { recursive: true });
 
 await build({
   entryPoints: {
-    // The player itself, drivable from node with no browser.
+    // The playback-engine itself, drivable from node with no browser.
     play: "src/play.ts",
     // The page, and the worklet the browser loads by URL.
     main: "src/ui/main.ts",
@@ -51,3 +51,15 @@ await build({
 });
 
 await cp("src/ui/index.html", "dist/index.html");
+
+// The playback-engine's texts are the platform's, under playbackEngine in its
+// language files. English is bundled; every other language that has them goes
+// beside the page as locales/<lang>.json, its playbackEngine part only.
+const languageFiles = "../../../frontend/src/i18n/locales";
+await mkdir("dist/locales", { recursive: true });
+for (const name of (await readdir(languageFiles)).sort()) {
+  const code = name.match(/^([a-z]{2,3})\.json$/)?.[1];
+  if (!code || code === "en") continue;
+  const texts = JSON.parse(await readFile(`${languageFiles}/${name}`, "utf8")).playbackEngine;
+  if (texts) await writeFile(`dist/locales/${code}.json`, JSON.stringify(texts));
+}

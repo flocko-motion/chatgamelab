@@ -1,5 +1,5 @@
 {
-  "name": "chatgamelab-engine-player",
+  "name": "chatgamelab-playback-engine",
   "private": true,
   "type": "module",
   "scripts": {

@@ -233,7 +233,7 @@ party assembles one by hand. The engine treats both the same.
 ## Sessions and persistence
 
 **Auth authorises launching a session; the session id plays it.** The id is a
-bearer handle scoped to one session, so an embedded player can hold it while the
+bearer handle scoped to one session, so an embedded playback-engine can hold it while the
 key stays on the server.
 
 - **A session is its spec, its state and its event log.** The spec is fixed at
@@ -294,7 +294,7 @@ internals out of reach of any other module.
   names who is asking, and anyone else is refused without learning the ID.
 - **A session not in memory is restored lazily** through a resume function the
   mounting server supplies, by the first request that names it.
-- **The player is embedded** in the module and addresses the engine with
+- **The playback-engine is embedded** in the module and addresses the engine with
   relative URLs under any mount point.
 
 chatgamelab.eu runs embedded, so every request passes the platform's checks
@@ -340,17 +340,17 @@ A reloading page rebuilds from the session's topology, state and history.
 
 ## Frontend
 
-The player is **plain HTML, CSS and TypeScript, with no framework**: a game turn
+The playback-engine is **plain HTML, CSS and TypeScript, with no framework**: a game turn
 is a timeline of concurrently timed streams, which wants imperative sequencing.
 A dependency is welcome when it takes data and paints, and kept out when it
 wants to own when things render.
 
-- **The headless core is the player.** It owns the whole session state, so a
+- **The headless core is the playback-engine.** It owns the whole session state, so a
   full game plays without a browser; the UI paints that state and pipes input
   back.
 - **The build output is committed** and embedded, so building the engine needs
   no JavaScript toolchain.
-- **One player** serves the platform and every embedder, through the same
+- **One playback-engine** serves the platform and every embedder, through the same
   iframe.
 - **The playback-engine starts and resumes sessions itself.** Opened with a
   session ID it resumes that one; opened with `new` and a game or a share token
@@ -359,7 +359,7 @@ wants to own when things render.
   `postMessage({ type: "session", id })`. It remembers the session in its own
   browser storage per game or share, so a host page reloaded with `new` offers
   to continue or start anew. Every launch error is shown on its launch panel,
-  with a way to try again or start anew. The headless player follows the same
+  with a way to try again or start anew. The headless playback-engine follows the same
   flow.
 
 ## Testing
@@ -367,7 +367,7 @@ wants to own when things render.
 A mock platform implements every adapter with canned, paced output, so genre and
 pipeline tests run in-process with no key or network, and it can script a
 drifting character for the observer to catch. An integration test plays a
-session end to end with the headless player.
+session end to end with the headless playback-engine.
 
 ## Build state
 
@@ -377,7 +377,7 @@ session end to end with the headless player.
   tests.
 - NPC-Live end to end on real adapters: portrait, live session with sideband,
   observer, idle close and resume, cost reporting.
-- The HTTP transport, the standalone launcher, and the headless player with its
+- The HTTP transport, the standalone launcher, and the headless playback-engine with its
   instrumentation view.
 - The mock platform.
 - Persistence, resume with schema-version refusal, the create endpoint and
@@ -391,7 +391,7 @@ session end to end with the headless player.
   synthesis and transcription. Adventure is wired from dummies.
 - **The observer's thread** — it judges each line on its own.
 - **Re-attaching to a live conversation** after a platform restart.
-- **Locking down the browser's data channel** to the commands the player needs.
+- **Locking down the browser's data channel** to the commands the playback-engine needs.
 - **A veto block**, once the spec settles whether a turn can be rejected.
 - **Delegation** — a backend model beside the live conversation, where
   outline-and-expand could run behind a voice. Fixed at session creation, and

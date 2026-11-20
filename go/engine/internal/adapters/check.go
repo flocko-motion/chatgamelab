@@ -14,16 +14,35 @@ var ErrKeyRejected = errors.New("the provider rejected the key")
 // ErrUnreachable is a provider that could not be asked, or failed to answer.
 var ErrUnreachable = errors.New("the provider is unreachable")
 
+// ErrTransient is a failure that may pass if the call is made again: a
+// timeout, a rate limit, a server error, a network failure.
+var ErrTransient = errors.New("the provider failed for now")
+
+// Transient marks a failure to reach the provider, such as a network error, as
+// one that may pass.
+func Transient(call string, err error) error {
+	return fmt.Errorf("%s: %w: %w", call, ErrTransient, err)
+}
+
 // Rejects reports whether an HTTP status says the key itself was refused.
 func Rejects(status int) bool {
 	return status == http.StatusUnauthorized || status == http.StatusForbidden
 }
 
+// mayPass reports whether an HTTP status says the failure may pass on a retry.
+func mayPass(status int) bool {
+	return status == http.StatusRequestTimeout || status == http.StatusTooManyRequests || status >= 500
+}
+
 // StatusError describes a failed call, wrapping ErrKeyRejected when the status
-// says the key was refused, so a session can tell the player.
+// says the key was refused, so a session can tell the player, and ErrTransient
+// when it may pass, so a block can retry.
 func StatusError(call string, resp *http.Response, detail string) error {
-	if Rejects(resp.StatusCode) {
+	switch {
+	case Rejects(resp.StatusCode):
 		return fmt.Errorf("%s: %s%s: %w", call, resp.Status, detail, ErrKeyRejected)
+	case mayPass(resp.StatusCode):
+		return fmt.Errorf("%s: %s%s: %w", call, resp.Status, detail, ErrTransient)
 	}
 	return fmt.Errorf("%s: %s%s", call, resp.Status, detail)
 }

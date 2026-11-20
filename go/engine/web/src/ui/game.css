@@ -1,4 +1,4 @@
-/* The game half, ported from the platform's player
+/* The game half, ported from the platform's playback-engine
    (game-player-v2/components/GamePlayer.module.css). Every colour, font and
    border comes from a --game-* property the theme sets on <main>; each has the
    default theme's value as its fallback. Choices that are not colours travel
@@ -668,7 +668,7 @@ main[data-indicator-blink] .bubble::before { animation: cursor-blink 1s step-end
 /* ── Input ──────────────────────────────────────────────────────────── */
 
 /* The input is the last card in the story, directly under the latest line as
-   in the platform's player, which leaves the scenery below it in view. Once the
+   in the platform's playback-engine, which leaves the scenery below it in view. Once the
    story outgrows the screen it sticks to the bottom, since a live conversation
    takes input at any moment, not only between turns. */
 .inline-input {

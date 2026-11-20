@@ -4,7 +4,8 @@
  * paint the state and pass the player's decision on; the engine decides.
  */
 import type { Choice, OfferOption, Options, Toggles } from "../protocol.js";
-import { TOGGLE_LABELS, allows, makesPictures, type PlayerState, type ToggleName } from "../state.js";
+import { text } from "../texts.js";
+import { TOGGLE_LABELS, allows, makesPictures, type PlaybackEngineState, type ToggleName } from "../state.js";
 
 export interface OptionsElements {
   form: HTMLFormElement;
@@ -48,7 +49,7 @@ export class OptionsDialog {
     });
   }
 
-  render(state: PlayerState): void {
+  render(state: PlaybackEngineState): void {
     const open = state.choosing && state.options !== null;
     this.elements.form.hidden = !open;
     this.elements.scene.style.display = open ? "none" : "";
@@ -58,13 +59,13 @@ export class OptionsDialog {
       this.#draw();
     }
     this.elements.problem.hidden = !(open && state.problem);
-    this.elements.problem.textContent = open ? (state.problem ?? "") : "";
+    this.elements.problem.textContent = open && state.problem ? text(state.problem.key) : "";
 
     this.#renderPictures(state);
   }
 
   /** On while the session has pictures on; it may go back on only where the offer allows. */
-  #renderPictures(state: PlayerState): void {
+  #renderPictures(state: PlaybackEngineState): void {
     const button = this.elements.pictures;
     const settled = state.settled;
     button.hidden = !settled || !makesPictures(state);

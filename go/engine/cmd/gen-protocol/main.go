@@ -72,9 +72,10 @@ func generate() []byte {
 
 	b.WriteString("/**\n")
 	b.WriteString(" * A block reporting on itself, carried as JSON in a `state` event's value.\n")
-	b.WriteString(" * Two phases are enough: a block in the turn loop is never finished.\n")
+	b.WriteString(" * A block in the turn loop is never finished; `failed` means the game cannot\n")
+	b.WriteString(" * continue, and a `problem` event says why.\n")
 	b.WriteString(" */\n")
-	b.WriteString("export type Phase = \"ready\" | \"working\";\n\n")
+	b.WriteString("export type Phase = \"ready\" | \"working\" | \"failed\";\n\n")
 	b.WriteString("export interface BlockState {\n")
 	for _, field := range tsFields(reflect.TypeOf(engine.BlockState{})) {
 		ts := field.tsType

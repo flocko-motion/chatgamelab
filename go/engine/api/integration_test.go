@@ -15,7 +15,7 @@ import (
 	"engine/api"
 )
 
-// The headless player follows a real session against a real engine, with no
+// The headless playback-engine follows a real session against a real engine, with no
 // browser. Go drives: it owns the server, so there is no port to guess and no
 // readiness to poll, and `go test` stays the one command that runs everything.
 //
@@ -28,10 +28,10 @@ import (
 //
 // Skipped when node is absent, because the Go build never requires a JavaScript
 // toolchain — web/dist is committed.
-func TestHeadlessPlayerFollowsASession(t *testing.T) {
+func TestHeadlessPlaybackEngineFollowsASession(t *testing.T) {
 	node, err := exec.LookPath("node")
 	if err != nil {
-		t.Skip("node not installed; skipping the headless player integration test")
+		t.Skip("node not installed; skipping the headless playback-engine integration test")
 	}
 
 	harness, err := filepath.Abs("../web/dist/play.js")
@@ -61,7 +61,7 @@ func TestHeadlessPlayerFollowsASession(t *testing.T) {
 	out, err := exec.CommandContext(runCtx, node, harness, srv.URL, "integration").CombinedOutput()
 	t.Logf("headless run:\n%s", out)
 	if err != nil {
-		t.Fatalf("headless player failed: %v", err)
+		t.Fatalf("headless playback-engine failed: %v", err)
 	}
 
 	text := string(out)
@@ -80,13 +80,13 @@ func TestHeadlessPlayerFollowsASession(t *testing.T) {
 	}
 }
 
-// The headless player goes through the options dialog: it finds the session
+// The headless playback-engine goes through the options dialog: it finds the session
 // choosing, has a choice outside the caveats refused, reloads and finds the
 // dialog again, then chooses and follows the game as before.
-func TestHeadlessPlayerChooses(t *testing.T) {
+func TestHeadlessPlaybackEngineChooses(t *testing.T) {
 	node, err := exec.LookPath("node")
 	if err != nil {
-		t.Skip("node not installed; skipping the headless player integration test")
+		t.Skip("node not installed; skipping the headless playback-engine integration test")
 	}
 	harness, err := filepath.Abs("../web/dist/play.js")
 	if err != nil {
@@ -124,7 +124,7 @@ func TestHeadlessPlayerChooses(t *testing.T) {
 		"--bad=custom:high:images,audio-live", "--choose=custom:low:images,audio-live").CombinedOutput()
 	t.Logf("headless run:\n%s", out)
 	if err != nil {
-		t.Fatalf("headless player failed: %v", err)
+		t.Fatalf("headless playback-engine failed: %v", err)
 	}
 
 	text := string(out)
@@ -142,13 +142,13 @@ func TestHeadlessPlayerChooses(t *testing.T) {
 	}
 }
 
-// The headless player starts a session the way the page does for
+// The headless playback-engine starts a session the way the page does for
 // ?new&game=…: it creates one, sees the same one answer a repeated one-time
 // key, rebuilds as a reload would, and follows the game.
-func TestHeadlessPlayerCreates(t *testing.T) {
+func TestHeadlessPlaybackEngineCreates(t *testing.T) {
 	node, err := exec.LookPath("node")
 	if err != nil {
-		t.Skip("node not installed; skipping the headless player integration test")
+		t.Skip("node not installed; skipping the headless playback-engine integration test")
 	}
 	harness, err := filepath.Abs("../web/dist/play.js")
 	if err != nil {
@@ -182,7 +182,7 @@ func TestHeadlessPlayerCreates(t *testing.T) {
 	out, err := exec.CommandContext(ctx, node, harness, srv.URL, "--new=game:bridge", "--once=k1").CombinedOutput()
 	t.Logf("headless run:\n%s", out)
 	if err != nil {
-		t.Fatalf("headless player failed: %v", err)
+		t.Fatalf("headless playback-engine failed: %v", err)
 	}
 
 	text := string(out)

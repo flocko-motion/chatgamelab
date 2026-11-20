@@ -99,7 +99,7 @@ func (c *client) do(ctx context.Context, key, method, path string, body []byte) 
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, adapters.Transient("mistral "+path, err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		detail, _ := io.ReadAll(io.LimitReader(resp.Body, 512))

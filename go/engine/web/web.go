@@ -1,4 +1,4 @@
-// Package web holds the engine's player: the frontend that talks to the
+// Package web holds the playback-engine: the frontend that talks to the
 // session endpoints.
 //
 // Sources live in src/ and are built into dist/ by `make web`. Only dist/ is
@@ -14,7 +14,7 @@ import (
 //go:embed dist
 var assets embed.FS
 
-// FS is the player's document root, served from the engine's own subtree so the
+// FS is the playback-engine's document root, served from the engine's own subtree so the
 // page can address the API with relative URLs — the same build under the
 // platform's mount point and under a standalone server.
 func FS() fs.FS {

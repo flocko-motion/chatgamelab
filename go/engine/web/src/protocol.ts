@@ -28,9 +28,10 @@ export interface SessionEvent {
 
 /**
  * A block reporting on itself, carried as JSON in a `state` event's value.
- * Two phases are enough: a block in the turn loop is never finished.
+ * A block in the turn loop is never finished; `failed` means the game cannot
+ * continue, and a `problem` event says why.
  */
-export type Phase = "ready" | "working";
+export type Phase = "ready" | "working" | "failed";
 
 export interface BlockState {
   readonly node: string;

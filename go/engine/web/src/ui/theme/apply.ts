@@ -7,7 +7,7 @@ import { cssVars } from "./resolve.js";
 import type { DividerStyle, GameTheme, PlayerIndicator, StreamingCursor } from "./types.js";
 
 /**
- * The platform's player drew diamond, arrow and star as ">", its fallback;
+ * The platform's playback-engine drew diamond, arrow and star as ">", its fallback;
  * thirteen presets ask for them, so they get the symbols their names describe.
  */
 const INDICATORS: Record<PlayerIndicator, string> = {

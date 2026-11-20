@@ -26,12 +26,24 @@ type Phase string
 const (
 	PhaseReady   Phase = "ready"
 	PhaseWorking Phase = "working"
+	// PhaseFailed means the game cannot continue; Reason says why.
+	PhaseFailed Phase = "failed"
+)
+
+// Reasons a block failed, named as the session's problems are.
+const (
+	ReasonKeyRejected = "key-rejected"
+	ReasonUnreachable = "unreachable"
+	ReasonFailed      = "failed"
 )
 
 // State is a block reporting on itself, named so a gate can tell reporters apart.
 type State struct {
 	Node  string `json:"node"`
 	Phase Phase  `json:"phase"`
+	// Reason and Message are set only with PhaseFailed.
+	Reason  string `json:"reason,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 type StateOut interface{ StateOutPort() <-chan State }

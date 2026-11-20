@@ -1,8 +1,8 @@
 /**
- * Browser entry point. Its only jobs are constructing the headless player,
+ * Browser entry point. Its only jobs are constructing the headless playback-engine,
  * pointing a view at its state, and piping input into it.
  */
-import { Player } from "../player.js";
+import { PlaybackEngine } from "../playback-engine.js";
 import {
   create,
   forget,
@@ -14,8 +14,8 @@ import {
   type Opening,
   type Selector,
 } from "../launch.js";
-import type { Refusal } from "../protocol.js";
 import { explain } from "../state.js";
+import { notice, text, useLanguage, type Notice } from "../texts.js";
 import { WebSocketTransport } from "../transport.js";
 import { LaunchPanel } from "./launch.js";
 import { WebRTCVoice } from "./voice.js";
@@ -34,7 +34,7 @@ function required<T extends Element>(selector: string): T {
   return element;
 }
 
-// The engine's root, which the page sits under at player/ wherever it is mounted.
+// The engine's root, which the page sits under at playback-engine/ wherever it is mounted.
 const root = new URL("../", location.href);
 const params = new URLSearchParams(location.search);
 const memories = { sessions: browserMemory(() => localStorage), pending: browserMemory(() => sessionStorage) };
@@ -44,6 +44,9 @@ const launch = new LaunchPanel({
   actions: required<HTMLElement>("#launch-actions"),
   scene: required<HTMLElement>(".scene-area"),
 });
+
+// Before anything is said, so the first words are already in the player's language.
+await useLanguage(params.get("lang") ?? navigator.language, location.href);
 
 const opened = opening(params, memories);
 const sessionID = await resolve(opened);
@@ -65,11 +68,11 @@ socketURL.protocol = socketURL.protocol.replace("http", "ws");
 // core rather than opened here, because when it opens is the engine's call:
 // nothing connects until the game has begun.
 // Assigned once the view exists. The transport has to be built before the
-// player, and the player before the view, so the one thing that closes the
+// playback-engine, and the playback-engine before the view, so the one thing that closes the
 // circle is handed over afterwards.
 let recover = (): void => {};
 
-const player = new Player(
+const playback = new PlaybackEngine(
   new WebSocketTransport(socketURL, () => recover()),
   new WebRTCVoice(sessionBase),
 );
@@ -109,7 +112,7 @@ const view = new View({
   background: mountBackground,
 }, {
   onNodeClick: (name) => void details.show(name),
-  onBackgroundClick: () => details.clear(player.state),
+  onBackgroundClick: () => details.clear(playback.state),
   onEdgeClick: (from, to, kind) => void details.showEdge(from, to, kind),
 });
 
@@ -136,11 +139,11 @@ const options = new OptionsDialog({
   scene: required<HTMLElement>(".scene-area"),
   pictures: required<HTMLButtonElement>("#pictures"),
 }, {
-  onChoose: (offer, choice) => void player.choose(sessionBase, offer, choice),
-  onToggle: (toggle, on) => void player.setToggle(sessionBase, toggle, on),
+  onChoose: (offer, choice) => void playback.choose(sessionBase, offer, choice),
+  onToggle: (toggle, on) => void playback.setToggle(sessionBase, toggle, on),
 });
 
-player.subscribe((state) => {
+playback.subscribe((state) => {
   view.render(state);
   options.render(state);
   details.refresh(state);
@@ -150,16 +153,21 @@ player.subscribe((state) => {
 // means rebuilding rather than carrying on: the same path a reload takes.
 recover = () => {
   view.reset();
-  void player.rebuild(sessionBase);
+  void playback.rebuild(sessionBase);
 };
 
 // A reload has to rebuild what it missed before it starts listening, or the
 // first live event would land on an empty page.
-void player.restore(sessionBase).then(() => {
-  const topology = player.state.topology;
+void playback.restore(sessionBase).then(async () => {
+  const topology = playback.state.topology;
   if (topology?.theme && topology.theme in PRESETS) useTheme(topology.theme);
-  if (topology?.language) document.documentElement.lang = topology.language;
-  player.connect();
+  if (topology?.language) {
+    // The session's language is fixed at creation, and wins over the page's.
+    document.documentElement.lang = topology.language;
+    await useLanguage(topology.language, location.href);
+    view.render(playback.state);
+  }
+  playback.connect();
 });
 
 // One control for the whole conversation, because a live one has two states
@@ -169,8 +177,8 @@ void player.restore(sessionBase).then(() => {
 const talk = required<HTMLButtonElement>("#talk");
 talk.addEventListener("click", () => {
   if (talk.disabled) return;
-  if (player.state.paused) player.resume();
-  else void player.pause(sessionBase);
+  if (playback.state.paused) playback.resume();
+  else void playback.pause(sessionBase);
 });
 
 // What is visible is the view's business, decided from the wiring. This only
@@ -182,8 +190,8 @@ compose.addEventListener("submit", (event) => {
   if (!text || typed.disabled) return;
   typed.value = "";
   view.echo(text);
-  player.takeFloor();
-  player.say(text);
+  playback.takeFloor();
+  playback.say(text);
 });
 
 /**
@@ -194,20 +202,20 @@ compose.addEventListener("submit", (event) => {
 async function resolve(open: Opening): Promise<string> {
   switch (open.kind) {
     case "nothing":
-      return launch.ask("This page needs a game to play: open it from a game's page.", []);
+      return launch.ask(text("launch.noGame"), []);
     case "resume": {
-      const refusal = await probe(open.id);
-      if (!refusal) return open.id;
-      if (!open.selector) return launch.ask(explain(refusal), []);
-      await launch.ask(explain(refusal), ["Start anew"]);
+      const refused = await probe(open.id);
+      if (!refused) return open.id;
+      if (!open.selector) return launch.ask(text(refused.key), []);
+      await launch.ask(text(refused.key), [text("launch.startAnew")]);
       forget(memories.sessions, open.selector);
       return start(open.selector);
     }
     case "new": {
       const prior = remembered(memories.sessions, open.selector);
       if (!prior) return start(open.selector);
-      const answer = await launch.ask("You have a game in progress.", ["Continue", "Start anew"]);
-      if (answer === "Continue") return resolve({ kind: "resume", id: prior, selector: open.selector });
+      const answer = await launch.ask(text("launch.inProgress"), [text("launch.continue"), text("launch.startAnew")]);
+      if (answer === text("launch.continue")) return resolve({ kind: "resume", id: prior, selector: open.selector });
       forget(memories.sessions, open.selector);
       return start(open.selector);
     }
@@ -218,20 +226,20 @@ async function resolve(open: Opening): Promise<string> {
 async function start(selector: Selector): Promise<string> {
   const language = params.get("lang") ?? navigator.language;
   for (;;) {
-    launch.wait("Starting the game…");
+    launch.wait(text("launch.starting"));
     const created = await create(root, selector, language, memories);
     if ("id" in created) return created.id;
-    await launch.ask(explain(created.refusal), ["Try again"]);
+    await launch.ask(text(created.notice.key), [text("launch.tryAgain")]);
   }
 }
 
 /** Whether a session can be had, and if not, why; reaching it restores it. */
-async function probe(id: string): Promise<Refusal | null> {
+async function probe(id: string): Promise<Notice | null> {
   try {
     const response = await fetch(new URL(`sessions/${encodeURIComponent(id)}/topology`, root));
-    return response.ok ? null : await readRefusal(response);
+    return response.ok ? null : explain(await readRefusal(response));
   } catch {
-    return { problem: "failed", message: "Cannot reach the game server." };
+    return notice("errors.serverUnreachable");
   }
 }
 

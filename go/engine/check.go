@@ -9,6 +9,7 @@ import (
 	"engine/internal/adapters"
 	"engine/internal/adapters/mistral"
 	"engine/internal/adapters/openai"
+	"engine/internal/ports"
 )
 
 // CheckOffer asks the offer's provider whether it accepts the key, with a
@@ -59,6 +60,25 @@ func (s *Session) watchKeys() {
 	s.slots.image.Report = report
 }
 
+// fail ends a game a block cannot go on with, telling the player why. A
+// rejected key the slots have already told is not told twice.
+func (s *Session) fail(state ports.State) {
+	problem := ProblemFailed
+	switch state.Reason {
+	case ports.ReasonKeyRejected:
+		problem = ProblemKeyRejected
+	case ports.ReasonUnreachable:
+		problem = ProblemUnreachable
+	}
+	s.mu.Lock()
+	told := problem == ProblemKeyRejected && s.toldRejected
+	s.mu.Unlock()
+	if !told {
+		s.problem(&Refusal{Problem: problem, Message: fmt.Sprintf("%s: %s", state.Node, state.Message)})
+	}
+	s.endAfterDelivery()
+}
+
 // problem puts a refusal on the `problem` stream.
 func (s *Session) problem(r *Refusal) {
 	blob, err := json.Marshal(r)
@@ -66,6 +86,9 @@ func (s *Session) problem(r *Refusal) {
 		return
 	}
 	s.mu.Lock()
+	if r.Problem == ProblemKeyRejected {
+		s.toldRejected = true
+	}
 	s.post(Event{Stream: "problem", Value: string(blob)})
 	s.mu.Unlock()
 	s.flush()

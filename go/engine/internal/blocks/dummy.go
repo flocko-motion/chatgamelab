@@ -14,49 +14,6 @@ import (
 // The dummies bill invented numbers, priced from the mock's table, so the usage
 // view means something without a real model behind it.
 
-// DummyToolCall stands in for a single-shot text transformation. The role is
-// config, not type: the same block is a rephrase, a translation or a summary
-// depending on what it was constructed with. A real AiToolCall replaces the
-// body and keeps the ports.
-type DummyToolCall struct {
-	name, role string
-	in         ports.TextInput
-	out        ports.TextBroadcast
-	meter      meter
-}
-
-func NewDummyToolCall(name, role string) *DummyToolCall {
-	return &DummyToolCall{name: name, role: role, in: make(ports.TextInput, 16), meter: meter{name: name}}
-}
-
-// UsageOutPort reports what the calls have cost.
-func (b *DummyToolCall) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
-
-func (b *DummyToolCall) NodeName() string           { return b.name }
-func (b *DummyToolCall) TextInPort() chan<- string  { return b.in }
-func (b *DummyToolCall) TextOutPort() <-chan string { return b.out.Subscribe() }
-func (b *DummyToolCall) RequiredInputs() []ports.Kind {
-	return []ports.Kind{ports.KindText}
-}
-
-func (b *DummyToolCall) Start(ctx context.Context) {
-	go func() {
-		defer func() { b.out.Close(); b.meter.usage.Close() }()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case v, ok := <-b.in:
-				if !ok {
-					return
-				}
-				b.meter.bill(adapters.Usage{Model: "mock-tool", InputTokens: int64(40 + len(v)), OutputTokens: 30})
-				b.out.Send(fmt.Sprintf("[%s] %s", b.role, v))
-			}
-		}
-	}()
-}
-
 // DummyThreaded stands in for a call on a continuing conversation. It reports
 // its turn number so a wiring test can see the thread is actually continuous.
 type DummyThreaded struct {

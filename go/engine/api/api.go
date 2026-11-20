@@ -535,7 +535,7 @@ func (a *API) Genres(w http.ResponseWriter, _ *http.Request) {
 	_ = json.NewEncoder(w).Encode(engine.GenreList())
 }
 
-// Handler is the engine's whole HTTP subtree, so the embedded player uses the same relative URLs everywhere.
+// Handler is the engine's whole HTTP subtree, so the embedded playback-engine uses the same relative URLs everywhere.
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /platforms", a.Platforms)
@@ -560,6 +560,6 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("GET /sessions/{id}/edge", a.SessionEdge)
 	mux.HandleFunc("GET /sessions/{id}/flowchart", a.SessionFlowchart)
 	mux.HandleFunc("GET /sessions/{id}/live", a.SessionLive)
-	mux.Handle("GET /player/", http.StripPrefix("/player/", http.FileServerFS(web.FS())))
+	mux.Handle("GET /playback-engine/", http.StripPrefix("/playback-engine/", http.FileServerFS(web.FS())))
 	return mux
 }

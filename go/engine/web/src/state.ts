@@ -1,5 +1,6 @@
 /** Everything the UI could draw, so a test can play a full game and assert on it without a DOM. */
 import type { Options, Phase, Problem, Refusal, Settled, Toggles, UsageReport } from "./protocol.js";
+import type { Notice, TextKey } from "./texts.js";
 import type { VoiceState } from "./voice.js";
 
 /** "reconnecting" means the game is coming back; "failed" means it is not. */
@@ -66,7 +67,7 @@ export interface Snapshot {
 /** "open" is a conversation running with nobody on this end, as a reload leaves it. */
 export type Conversation = "idle" | "awaiting" | "open" | "paused";
 
-export interface PlayerState {
+export interface PlaybackEngineState {
   connection: ConnectionState;
   /** The conversation so far, oldest first. */
   utterances: Utterance[];
@@ -78,12 +79,12 @@ export interface PlayerState {
   audioChunks: number;
   /** Anything the client did not recognise, kept rather than dropped. */
   notes: string[];
-  /** What has gone wrong, in words a player can act on. */
-  problem: string | null;
+  /** What has gone wrong, said so a player can act on it. */
+  problem: Notice | null;
   /** Why the session could not be reached, when the engine refused it. */
   refusal: Refusal | null;
   /** A fault during play that leaves the controls working, such as a rejected key. */
-  fault: string | null;
+  fault: Notice | null;
   /** The wiring, fetched once. Null until it arrives. */
   topology: Topology | null;
   /** What each block is doing right now, keyed by node name. */
@@ -110,7 +111,7 @@ export interface PlayerState {
   settled: Settled | null;
 }
 
-export function emptyState(): PlayerState {
+export function emptyState(): PlaybackEngineState {
   return {
     connection: "idle",
     utterances: [],
@@ -136,23 +137,23 @@ export function emptyState(): PlayerState {
   };
 }
 
-/** What each problem means to a player. */
-export const PROBLEM_TEXT: Record<Problem, string> = {
-  "no-key": "There is no AI key available to play this game.",
-  genre: "The available AI key cannot run this kind of game.",
-  "no-plays": "This shared game has no plays left.",
-  "key-rejected": "The AI provider rejected the key.",
-  unreachable: "The AI provider cannot be reached right now.",
-  stale: "This game can no longer be continued.",
-  unknown: "This game session does not exist.",
-  denied: "You may not play this game.",
-  failed: "Something went wrong starting the game.",
+/** The text that says what each problem means to a player. */
+const PROBLEM_TEXT: Record<Problem, TextKey> = {
+  "no-key": "problems.noKey",
+  genre: "problems.genre",
+  "no-plays": "problems.noPlays",
+  "key-rejected": "problems.keyRejected",
+  unreachable: "problems.unreachable",
+  stale: "problems.stale",
+  unknown: "problems.unknown",
+  denied: "problems.denied",
+  failed: "problems.failed",
 };
 
-/** A refusal in a player's words; one without a known problem says what it can. */
-export function explain(refusal: Refusal): string {
-  if (refusal.problem === "failed" && refusal.message) return refusal.message;
-  return PROBLEM_TEXT[refusal.problem] ?? PROBLEM_TEXT.failed;
+/** A refusal as a notice: its problem says what to tell the player, its message is the detail. */
+export function explain(refusal: Refusal): Notice {
+  const key = PROBLEM_TEXT[refusal.problem] ?? PROBLEM_TEXT.failed;
+  return refusal.message ? { key, detail: refusal.message } : { key };
 }
 
 /** A toggle's name in its JSON form. */
@@ -167,7 +168,7 @@ export const TOGGLE_LABELS: Record<ToggleName, string> = {
 };
 
 /** Whether the settled offer allows a toggle at the settled tier, so it may go on. */
-export function allows(state: PlayerState, toggle: ToggleName): boolean {
+export function allows(state: PlaybackEngineState, toggle: ToggleName): boolean {
   const settled = state.settled;
   if (!settled) return false;
   const offer = state.options?.offers.find((o) => o.offer === settled.offer);
@@ -176,19 +177,19 @@ export function allows(state: PlayerState, toggle: ToggleName): boolean {
 }
 
 /** Whether this genre makes pictures at all, which is when a pictures switch means something. */
-export function makesPictures(state: PlayerState): boolean {
+export function makesPictures(state: PlaybackEngineState): boolean {
   return (state.topology?.imagery ?? "") !== "";
 }
 
 /** Whether this genre has anywhere to type, as its wiring declares. */
-export function acceptsTypedInput(state: PlayerState): boolean {
+export function acceptsTypedInput(state: PlaybackEngineState): boolean {
   return accepts(state, "text");
 }
 
 /** How this genre takes speech, which picks a pause control or hold-to-talk. */
 export type VoiceMode = "full-duplex" | "push-to-talk" | null;
 
-export function voiceMode(state: PlayerState): VoiceMode {
+export function voiceMode(state: PlaybackEngineState): VoiceMode {
   if (accepts(state, "audio-full-duplex")) return "full-duplex";
   if (accepts(state, "audio-push-to-talk")) return "push-to-talk";
   return null;
@@ -200,7 +201,7 @@ export function voiceMode(state: PlayerState): VoiceMode {
  */
 export type AudioState = "live" | "pausing" | "paused" | "resuming";
 
-export function audioState(state: PlayerState): AudioState | null {
+export function audioState(state: PlaybackEngineState): AudioState | null {
   if (voiceMode(state) !== "full-duplex") return null;
   if (state.pausing) return "pausing";
   if (state.resuming) return "resuming";
@@ -210,7 +211,7 @@ export function audioState(state: PlayerState): AudioState | null {
 }
 
 /** Whether one picture stands for the session rather than for a moment in it. */
-export function hasStandingImage(state: PlayerState): boolean {
+export function hasStandingImage(state: PlaybackEngineState): boolean {
   return state.topology?.imagery === "standing";
 }
 
@@ -218,11 +219,11 @@ export function hasStandingImage(state: PlayerState): boolean {
  * Read from the declared inputs: node names break on a rename, and graph shape
  * mistakes a genre's self-seeded prompts for player input.
  */
-function accepts(state: PlayerState, kind: string): boolean {
+function accepts(state: PlaybackEngineState, kind: string): boolean {
   return state.topology?.inputs?.includes(kind) ?? false;
 }
 
 /** The transcript as plain text, which is what a headless assertion wants. */
-export function transcript(state: PlayerState): string {
+export function transcript(state: PlaybackEngineState): string {
   return state.utterances.map((u) => u.text).join("\n");
 }

@@ -75,10 +75,10 @@ endif
 
 # --- Running ----------------------------------------------------------------
 
-dev: web port-free ## Build the player, then serve it with a session ready to play
+dev: web port-free ## Build the playback-engine, then serve it with a session ready to play
 	@go run ./cmd/engineserver -addr $(ADDR) $(SPEC)
 
-run: port-free ## Serve a session without rebuilding the player
+run: port-free ## Serve a session without rebuilding the playback-engine
 	@go run ./cmd/engineserver -addr $(ADDR) $(SPEC)
 
 # The port is usually held by a server from the last run, so the useful thing is
@@ -129,18 +129,18 @@ protocol: ## Regenerate the TypeScript view of the wire protocol
 protocol-check: ## Fail if the generated protocol is stale
 	@go run ./cmd/gen-protocol -check
 
-# --- Player -----------------------------------------------------------------
+# --- Playback-engine --------------------------------------------------------
 # Sources live in web/src and build into web/dist, which is committed: the Go
 # module embeds dist, so building the engine never requires a JS toolchain.
-# Only changing the player does.
+# Only changing the playback-engine does.
 
 NODE := $(shell command -v node 2>/dev/null)
 NPM  := $(shell command -v npm 2>/dev/null)
 
-web: protocol web-deps ## Typecheck and bundle the player into web/dist
+web: protocol web-deps ## Typecheck and bundle the playback-engine into web/dist
 	@cd web && npm run build
 
-web-dev: protocol web-deps ## Bundle the player unminified, for reading a stack trace
+web-dev: protocol web-deps ## Bundle the playback-engine unminified, for reading a stack trace
 	@cd web && DEV=1 npm run build
 
 web-deps: web-toolchain
@@ -148,13 +148,13 @@ web-deps: web-toolchain
 
 web-toolchain:
 ifndef NODE
-	@echo "node is required to build the player, and was not found."          >&2
+	@echo "node is required to build the playback-engine, and was not found." >&2
 	@echo "  install Node 20 or newer: https://nodejs.org/"                   >&2
 	@echo "  the Go build does not need it — web/dist is committed."          >&2
 	@exit 1
 endif
 ifndef NPM
-	@echo "npm is required to build the player, and was not found."           >&2
+	@echo "npm is required to build the playback-engine, and was not found."  >&2
 	@echo "  it normally ships with Node: https://nodejs.org/"                >&2
 	@exit 1
 endif
