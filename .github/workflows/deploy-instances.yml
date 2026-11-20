@@ -19,6 +19,13 @@ on:
     branches:
       - development
       - main
+    # A merge of tooling alone changes nothing the box runs; the same list
+    # gates the checks in test.yml.
+    paths-ignore:
+      - "scripts/roadmap.py"
+      - ".github/workflows/roadmap.yml"
+      - "docs/**"
+      - "**.md"
   workflow_dispatch:
 
 jobs:
