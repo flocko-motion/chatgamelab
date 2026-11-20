@@ -38,7 +38,7 @@ func (s *InstitutionDeletionTestSuite) TestAdminCanDeleteInstitutionWithCascade(
 	Must(staff.AcceptInvite(staffInvite.ID.String()))
 
 	// Head creates API key and shares with org
-	headKey := Must(head.AddApiKey("mock-cd-head", "Head Key", "mock"))
+	headKey := Must(head.AddApiKey("mock-cd-head", "Head Key", "openai"))
 	Must(head.ShareApiKeyWithInstitution(headKey.ID.String(), instIDStr))
 	s.T().Logf("Head shared key with org")
 
@@ -140,7 +140,7 @@ func (s *InstitutionDeletionTestSuite) TestAdminDeleteOrgMultipleUsersAndWorksho
 	s.T().Logf("Participants created games: %s, %s", game1.ID, game2.ID)
 
 	// Staff creates API key and shares with org
-	staffKey := Must(staff1.AddApiKey("mock-mu-staff", "Staff Key", "mock"))
+	staffKey := Must(staff1.AddApiKey("mock-mu-staff", "Staff Key", "openai"))
 	Must(staff1.ShareApiKeyWithInstitution(staffKey.ID.String(), instIDStr))
 	s.T().Logf("Staff shared key with org")
 

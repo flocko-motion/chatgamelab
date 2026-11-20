@@ -7,7 +7,7 @@ package testutil
 import (
 	"fmt"
 
-	"cgl/api/routes"
+	"cgl/api"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -22,9 +22,9 @@ func (u *UserClient) GetInvitesIncoming() ([]obj.UserRoleInvite, error) {
 }
 
 // GetInvitesIncomingDetailed returns the user's incoming invites with full details (workshop/institution names)
-func (u *UserClient) GetInvitesIncomingDetailed() ([]routes.InviteResponse, error) {
+func (u *UserClient) GetInvitesIncomingDetailed() ([]api.InviteResp, error) {
 	u.t.Helper()
-	var invites []routes.InviteResponse
+	var invites []api.InviteResp
 	err := u.Get("invites", &invites)
 	return invites, err
 }
@@ -81,7 +81,7 @@ func (u *UserClient) RevokeInvite(inviteID string) error {
 func (u *UserClient) CreateInstitution(name string) (obj.Institution, error) {
 	u.t.Helper()
 	var result obj.Institution
-	payload := routes.CreateInstitutionRequest{
+	payload := api.CreateInstitutionReq{
 		Name: name,
 	}
 	err := u.Post("institutions", payload, &result)
@@ -92,7 +92,7 @@ func (u *UserClient) CreateInstitution(name string) (obj.Institution, error) {
 func (u *UserClient) InviteToInstitution(institutionID, role, invitedUserID string) (obj.UserRoleInvite, error) {
 	u.t.Helper()
 	var result obj.UserRoleInvite
-	payload := routes.CreateInstitutionInviteRequest{
+	payload := api.CreateInstitutionInviteReq{
 		InstitutionID: institutionID,
 		Role:          role,
 		InvitedUserID: &invitedUserID,
@@ -105,7 +105,7 @@ func (u *UserClient) InviteToInstitution(institutionID, role, invitedUserID stri
 func (u *UserClient) InviteToInstitutionByEmail(institutionID, role, invitedEmail string) (obj.UserRoleInvite, error) {
 	u.t.Helper()
 	var result obj.UserRoleInvite
-	payload := routes.CreateInstitutionInviteRequest{
+	payload := api.CreateInstitutionInviteReq{
 		InstitutionID: institutionID,
 		Role:          role,
 		InvitedEmail:  &invitedEmail,
@@ -246,7 +246,7 @@ func (u *UserClient) AddApiKey(apiKey, name, platform string) (obj.ApiKeyShare, 
 	u.t.Helper()
 
 	var result obj.ApiKeyShare
-	err := u.Post("apikeys/new", routes.CreateApiKeyRequest{
+	err := u.Post("apikeys/new", api.CreateApiKeyReq{
 		Name:     name,
 		Platform: platform,
 		Key:      apiKey,
@@ -278,9 +278,9 @@ func (u *UserClient) SetSystemFreeUseApiKey(apiKeyID *string) (obj.SystemSetting
 		if err != nil {
 			return obj.SystemSettings{}, fmt.Errorf("invalid apiKeyID: %w", err)
 		}
-		payload = routes.SetFreeUseApiKeyRequest{ApiKeyID: &id}
+		payload = api.SetSystemFreeUseApiKeyReq{ApiKeyID: &id}
 	} else {
-		payload = routes.SetFreeUseApiKeyRequest{ApiKeyID: nil}
+		payload = api.SetSystemFreeUseApiKeyReq{ApiKeyID: nil}
 	}
 	var result obj.SystemSettings
 	err := u.Patch("system/settings/free-use-key", payload, &result)
@@ -298,9 +298,9 @@ func (u *UserClient) DeleteApiKey(shareID string, cascade bool) error {
 }
 
 // GetApiKeys returns the user's API keys and all their linked shares (composable high-level API)
-func (u *UserClient) GetApiKeys() (routes.ApiKeysResponse, error) {
+func (u *UserClient) GetApiKeys() (api.ApiKeysResp, error) {
 	u.t.Helper()
-	var result routes.ApiKeysResponse
+	var result api.ApiKeysResp
 	err := u.Get("apikeys", &result)
 	return result, err
 }
@@ -340,7 +340,7 @@ func (u *UserClient) ShareApiKeyWithInstitution(shareID string, institutionID st
 		return obj.ApiKeyShare{}, fmt.Errorf("invalid institutionID: %w", err)
 	}
 	var result obj.ApiKeyShare
-	err = u.Post("apikeys/"+shareID+"/shares", routes.ShareRequest{
+	err = u.Post("apikeys/"+shareID+"/shares", api.ShareApiKeyReq{
 		InstitutionID: &instID,
 	}, &result)
 	return result, err
@@ -350,7 +350,7 @@ func (u *UserClient) ShareApiKeyWithInstitution(shareID string, institutionID st
 func (u *UserClient) SetWorkshopApiKey(workshopID string, apiKeyShareID *string) (obj.Workshop, error) {
 	u.t.Helper()
 	var result obj.Workshop
-	err := u.Put("workshops/"+workshopID+"/api-key", routes.SetWorkshopApiKeyRequest{
+	err := u.Put("workshops/"+workshopID+"/api-key", api.SetWorkshopApiKeyReq{
 		ApiKeyShareID: apiKeyShareID,
 	}, &result)
 	return result, err
@@ -392,7 +392,7 @@ func (u *UserClient) ShareApiKeyWithWorkshop(shareID string, workshopID string) 
 		return obj.ApiKeyShare{}, fmt.Errorf("invalid workshopID: %w", err)
 	}
 	var result obj.ApiKeyShare
-	err = u.Post("apikeys/"+shareID+"/shares", routes.ShareRequest{
+	err = u.Post("apikeys/"+shareID+"/shares", api.ShareApiKeyReq{
 		WorkshopID: &wsID,
 	}, &result)
 	return result, err
@@ -436,7 +436,7 @@ func (u *UserClient) ReactivateInvite(inviteID string) error {
 func (u *UserClient) InviteToWorkshopByEmail(workshopID, email string) (obj.UserRoleInvite, error) {
 	u.t.Helper()
 	var result obj.UserRoleInvite
-	err := u.Post("invites/workshop/email", routes.CreateWorkshopEmailInviteRequest{
+	err := u.Post("invites/workshop/email", api.CreateWorkshopEmailInviteReq{
 		WorkshopID: workshopID,
 		Email:      email,
 	}, &result)
@@ -446,16 +446,16 @@ func (u *UserClient) InviteToWorkshopByEmail(workshopID, email string) (obj.User
 // AddMemberToWorkshop directly adds an org individual to a workshop
 func (u *UserClient) AddMemberToWorkshop(workshopID, userID string) error {
 	u.t.Helper()
-	return u.Post("workshops/"+workshopID+"/members", routes.AddMemberToWorkshopRequest{
+	return u.Post("workshops/"+workshopID+"/members", api.AddWorkshopMemberReq{
 		UserID: userID,
 	}, nil)
 }
 
 // GetApiKeyGameShares returns game shares for a specific API key share.
 // context: "personal" (all, owner only), "organization" (org/workshop only), or "" (no filter).
-func (u *UserClient) GetApiKeyGameShares(shareID string, context string) ([]routes.EnrichedGameShare, error) {
+func (u *UserClient) GetApiKeyGameShares(shareID string, context string) ([]api.EnrichedGameShare, error) {
 	u.t.Helper()
-	var result []routes.EnrichedGameShare
+	var result []api.EnrichedGameShare
 	path := "apikeys/" + shareID + "/game-shares"
 	if context != "" {
 		path += "?context=" + context

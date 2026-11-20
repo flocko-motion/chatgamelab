@@ -1,4 +1,4 @@
-server/__debug_bin*
+go/__debug_bin*
 
 .grepai
 .todos
@@ -7,8 +7,7 @@ server/__debug_bin*
 .env
 bin
 */__debug_bin*
-server/cgl
-server/cgl
+go/cgl
 .planning/
 .grepai/
 .todos/
@@ -23,8 +22,17 @@ server/cgl
 # sindri hub artifacts (agent worktrees + hub state) — not for the repo
 .worktrees/
 
+# Task briefs handed to agents — not for the repo
+.tasks/
+
 # Claude Code per-user local settings — not for the repo
 .claude/settings.local.json
 
 # Claude Code agent worktrees — checkouts of this repo, not for the repo
 .claude/worktrees/
+
+# Rendered spec — `make docs` builds it
+docs/build/
+
+# macOS Finder metadata
+.DS_Store

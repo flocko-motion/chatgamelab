@@ -50,7 +50,6 @@ func workshopUpdatePayload(isPaused bool) map[string]interface{} {
 		"public":                     false,
 		"showPublicGames":            false,
 		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       false,
 		"isPaused":                   isPaused,
 	}
 }

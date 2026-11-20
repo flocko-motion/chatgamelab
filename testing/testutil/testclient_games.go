@@ -1,7 +1,7 @@
 // package: testutil / game API helpers
 // type:    logic
-// job:     high-level UserClient helpers for games, sessions, sponsors and shares
-// limits:  game/session HTTP helpers only; no invites/orgs (-> testclient_orgs) or streaming (-> testclient_streaming)
+// job:     high-level UserClient helpers for games, sponsors and shares
+// limits:  game HTTP helpers only; no invites/orgs (-> testclient_orgs)
 package testutil
 
 import (
@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/config"
 	"cgl/obj"
 
@@ -55,7 +55,7 @@ func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 
 	// Create game with unique name
 	var game obj.Game
-	err = u.Post("games/new", routes.CreateGameRequest{
+	err = u.Post("games/new", api.CreateGameReq{
 		Name: uniqueName,
 	}, &game)
 	if err != nil {
@@ -90,67 +90,6 @@ func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 	}
 
 	return updatedGame, nil
-}
-
-// CreateGameSession creates a new game session (composable high-level API)
-// Returns the session and the initial message.
-// API key is resolved server-side (sponsor → workshop → user default).
-func (u *UserClient) CreateGameSession(gameID string) (routes.SessionResponse, error) {
-	u.t.Helper()
-
-	var response routes.SessionResponse
-	err := u.Post("games/"+gameID+"/sessions", nil, &response)
-	return response, err
-}
-
-// CreateGameSessionWithStream creates a session and consumes the SSE stream for the initial message.
-// TWO-PHASE INITIALIZATION: Creates session (phase 1), then sends empty action to trigger opening scene (phase 2).
-// Returns the session response with the initial message fully populated (text, image, audio).
-func (u *UserClient) CreateGameSessionWithStream(gameID string) (routes.SessionResponse, *StreamResult, error) {
-	u.t.Helper()
-
-	// PHASE 1: Create session (returns empty messages array)
-	resp, err := u.CreateGameSession(gameID)
-	if err != nil {
-		return routes.SessionResponse{}, nil, err
-	}
-
-	if resp.GameSession == nil {
-		return routes.SessionResponse{}, nil, fmt.Errorf("no session returned")
-	}
-
-	// PHASE 2: Send "init" system action to trigger opening scene generation
-	openingMsg, streamResult, err := u.SendSystemMessage(resp.GameSession.ID.String(), "init")
-	if err != nil {
-		return routes.SessionResponse{}, nil, fmt.Errorf("failed to trigger opening scene: %w", err)
-	}
-
-	// Add the opening message to the response
-	resp.Messages = []obj.GameSessionMessage{openingMsg}
-
-	return resp, streamResult, nil
-}
-
-// GetGameSession loads a session with all messages (composable high-level API)
-// Simulates a player returning to a session (e.g. browser reload).
-func (u *UserClient) GetGameSession(sessionID string) (routes.SessionResponse, error) {
-	u.t.Helper()
-	var response routes.SessionResponse
-	err := u.Get("sessions/"+sessionID+"?messages=all", &response)
-	return response, err
-}
-
-// SendGameMessage sends a message to a game session and returns the AI response (composable high-level API)
-// This returns the initial response with plot outline and status fields.
-// Use SendGameMessageWithStream to also consume the full expanded story.
-func (u *UserClient) SendGameMessage(sessionID string, message string) (obj.GameSessionMessage, error) {
-	u.t.Helper()
-
-	var response obj.GameSessionMessage
-	err := u.Post("sessions/"+sessionID, routes.SessionActionRequest{
-		Message: message,
-	}, &response)
-	return response, err
 }
 
 // GetApiKeyStatus checks whether an API key can be resolved for a game (composable high-level API)
@@ -204,7 +143,7 @@ func (u *UserClient) SetGameSponsor(gameID string, shareID string) (obj.Game, er
 		return obj.Game{}, fmt.Errorf("invalid shareID: %w", err)
 	}
 	var result obj.Game
-	err = u.Put("games/"+gameID+"/sponsor", routes.SponsorGameRequest{
+	err = u.Put("games/"+gameID+"/sponsor", api.GameSponsorReq{
 		ShareID: shareUUID,
 	}, &result)
 	return result, err
@@ -277,14 +216,14 @@ func (u *UserClient) ListGamesWithSearch(search string) ([]obj.Game, error) {
 }
 
 // CreateGameShare creates a personal/org share for a game (composable high-level API)
-func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSessions *int) (routes.GameShareResponse, error) {
+func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSessions *int) (api.GameShareResp, error) {
 	u.t.Helper()
 	shareUUID, err := uuid.Parse(sponsorShareID)
 	if err != nil {
-		return routes.GameShareResponse{}, fmt.Errorf("invalid sponsorShareID: %w", err)
+		return api.GameShareResp{}, fmt.Errorf("invalid sponsorShareID: %w", err)
 	}
-	var result routes.GameShareResponse
-	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
+	var result api.GameShareResp
+	err = u.Post("games/"+gameID+"/shares", api.CreateGameShareReq{
 		SponsorKeyShareID: &shareUUID,
 		MaxSessions:       maxSessions,
 	}, &result)
@@ -292,9 +231,9 @@ func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSe
 }
 
 // GetPrivateShareStatus returns the private share status for a game (composable high-level API)
-func (u *UserClient) GetPrivateShareStatus(gameID string) (routes.PrivateShareStatus, error) {
+func (u *UserClient) GetPrivateShareStatus(gameID string) (api.PrivateShareStatusResp, error) {
 	u.t.Helper()
-	var result routes.PrivateShareStatus
+	var result api.PrivateShareStatusResp
 	err := u.Get("games/"+gameID+"/private-share", &result)
 	return result, err
 }
@@ -306,14 +245,14 @@ func (u *UserClient) DeleteGameShare(gameID string, shareID string) error {
 }
 
 // CreateWorkshopGameShare creates a workshop share for a game (composable high-level API)
-func (u *UserClient) CreateWorkshopGameShare(gameID string, workshopID string, maxSessions *int) (routes.GameShareResponse, error) {
+func (u *UserClient) CreateWorkshopGameShare(gameID string, workshopID string, maxSessions *int) (api.GameShareResp, error) {
 	u.t.Helper()
 	wsUUID, err := uuid.Parse(workshopID)
 	if err != nil {
-		return routes.GameShareResponse{}, fmt.Errorf("invalid workshopID: %w", err)
+		return api.GameShareResp{}, fmt.Errorf("invalid workshopID: %w", err)
 	}
-	var result routes.GameShareResponse
-	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
+	var result api.GameShareResp
+	err = u.Post("games/"+gameID+"/shares", api.CreateGameShareReq{
 		WorkshopID:  &wsUUID,
 		MaxSessions: maxSessions,
 	}, &result)

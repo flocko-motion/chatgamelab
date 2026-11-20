@@ -1,0 +1,95 @@
+package engine
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+
+	"engine/internal/adapters"
+	"engine/internal/adapters/mistral"
+	"engine/internal/adapters/openai"
+	"engine/internal/ports"
+)
+
+// CheckOffer asks the offer's provider whether it accepts the key, with a
+// request that costs nothing. It blocks, and answers nil, or a refusal:
+// ErrKeyRejected for a key the provider refuses, ErrUnreachable for a provider
+// that does not answer, ProblemNoKey for a key that cannot be had. The mock
+// always passes.
+func CheckOffer(ctx context.Context, offer Offer) error {
+	if offer.Platform == PlatformMock {
+		return nil
+	}
+	if offer.Keys == nil {
+		return &Refusal{Problem: ProblemNoKey, Message: fmt.Sprintf("offer %q has no key", offer.ID)}
+	}
+	keys := adapters.KeyFunc(offer.Keys)
+	var err error
+	switch offer.Platform {
+	case PlatformOpenAI:
+		err = openai.Check(ctx, keys)
+	case PlatformMistral:
+		err = mistral.Check(ctx, keys)
+	default:
+		return fmt.Errorf("unknown platform %q", offer.Platform)
+	}
+	switch {
+	case err == nil:
+		return nil
+	case errors.Is(err, adapters.ErrKeyRejected):
+		return &Refusal{Problem: ProblemKeyRejected, Message: fmt.Sprintf("%s rejected the key: %v", offer.Platform, err)}
+	case errors.Is(err, adapters.ErrUnreachable):
+		return &Refusal{Problem: ProblemUnreachable, Message: fmt.Sprintf("%s did not answer: %v", offer.Platform, err)}
+	default:
+		return &Refusal{Problem: ProblemNoKey, Message: err.Error()}
+	}
+}
+
+// watchKeys tells the player when the provider rejects the key during play,
+// which says something other than a lost connection.
+func (s *Session) watchKeys() {
+	report := func(err error) {
+		if !errors.Is(err, adapters.ErrKeyRejected) {
+			return
+		}
+		s.problem(&Refusal{Problem: ProblemKeyRejected, Message: err.Error()})
+	}
+	s.slots.live.Report = report
+	s.slots.tool.Report = report
+	s.slots.image.Report = report
+}
+
+// fail ends a game a block cannot go on with, telling the player why. A
+// rejected key the slots have already told is not told twice.
+func (s *Session) fail(state ports.State) {
+	problem := ProblemFailed
+	switch state.Reason {
+	case ports.ReasonKeyRejected:
+		problem = ProblemKeyRejected
+	case ports.ReasonUnreachable:
+		problem = ProblemUnreachable
+	}
+	s.mu.Lock()
+	told := problem == ProblemKeyRejected && s.toldRejected
+	s.mu.Unlock()
+	if !told {
+		s.problem(&Refusal{Problem: problem, Message: fmt.Sprintf("%s: %s", state.Node, state.Message)})
+	}
+	s.endAfterDelivery()
+}
+
+// problem puts a refusal on the `problem` stream.
+func (s *Session) problem(r *Refusal) {
+	blob, err := json.Marshal(r)
+	if err != nil {
+		return
+	}
+	s.mu.Lock()
+	if r.Problem == ProblemKeyRejected {
+		s.toldRejected = true
+	}
+	s.post(Event{Stream: "problem", Value: string(blob)})
+	s.mu.Unlock()
+	s.flush()
+}

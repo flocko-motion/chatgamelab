@@ -1,0 +1,4 @@
+# Generated code — excluded from the quality gate.
+db/*.sql.go
+db/models.go
+db/db.go

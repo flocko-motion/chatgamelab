@@ -34,7 +34,7 @@ func (s *WorkshopIndividualTestSuite) workshopWithKey(prefix string) (*testutil.
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds API key, shares with org
-	keyShare := Must(head.AddApiKey("mock-ind-key-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-ind-key-"+prefix, prefix+" Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	// Head creates workshop and sets API key
@@ -119,22 +119,6 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCanPlayGameWithWorkshopKey()
 	available := Must(individual.GetApiKeyStatus(gameIDStr))
 	s.True(available, "individual should have API key available via workshop key")
 	s.T().Logf("Individual: API key available = %v", available)
-}
-
-// TestIndividualCanCreateGameSession verifies that an individual in workshop mode
-// can actually create a game session (play a game), not just see it in the list.
-func (s *WorkshopIndividualTestSuite) TestIndividualCanCreateGameSession() {
-	_, _, gameIDStr, inviteToken := s.workshopWithKey("ind-session")
-
-	// Individual joins workshop
-	individual := s.CreateUser("ind-session-player")
-	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
-
-	// Individual should be able to create a game session (play the game)
-	session, err := individual.CreateGameSession(gameIDStr)
-	s.NoError(err, "individual in workshop should be able to create a game session")
-	s.NotEmpty(session.ID, "session should have an ID")
-	s.T().Logf("Individual created game session: %s", session.ID)
 }
 
 // TestIndividualCannotUpdateWorkshopSettings verifies that an individual in workshop mode

@@ -1,3 +1,0 @@
-# Generated code — excluded from the quality gate.
-db/sqlc/**
-docs/docs.go

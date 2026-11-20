@@ -7,9 +7,7 @@ package testutil
 import (
 	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/config"
-	"cgl/db"
 	"cgl/obj"
 	"context"
 	"fmt"
@@ -22,6 +20,7 @@ import (
 	"time"
 
 	lorem "github.com/drhodes/golorem"
+	"github.com/flocko-motion/schemaf/constants"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -128,9 +127,10 @@ func (s *BaseSuite) SetupSuite() {
 	// This ensures backend detects empty DB and initializes schema
 	fmt.Printf("🚀 [%s] Starting backend in-process...\n", s.SuiteName)
 
-	// Reset database singleton to clear any stale connections from previous test runs
-	// This is critical for tests running in the same process
-	db.Reset()
+	// The migrations are recorded under the project name, which main registers in the binary.
+	if !constants.IsProjectNameSet() {
+		constants.SetProjectName("chatgamelab")
+	}
 
 	// Set environment variables for backend
 	os.Setenv("DB_HOST", "localhost")
@@ -223,6 +223,38 @@ func (s *BaseSuite) TearDownSuite() {
 
 	// Note: Postgres stays running for faster next suite startup
 	fmt.Printf("✅ [%s] Cleanup complete (Postgres kept running)\n\n", s.SuiteName)
+}
+
+// RestartBackend stops the backend and starts it again on the same port and
+// database, as a deployment does: whatever it held in memory is gone.
+func (s *BaseSuite) RestartBackend() {
+	s.T().Helper()
+	if s.backendCancel != nil {
+		s.backendCancel()
+	}
+	// The old server lets go of the port once it has shut down.
+	addr := fmt.Sprintf("127.0.0.1:%d", s.backendPort)
+	for i := 0; i < 100; i++ {
+		l, err := net.Listen("tcp", addr)
+		if err == nil {
+			l.Close()
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	s.backendCancel = cancel
+	ready := make(chan struct{})
+	go api.RunServer(ctx, s.backendPort, true, ready)
+	select {
+	case <-ready:
+	case <-time.After(30 * time.Second):
+		s.T().Fatalf("backend did not come back")
+	}
+	if err := s.waitForBackend(10); err != nil {
+		s.T().Fatalf("backend not ready after restart: %v", err)
+	}
 }
 
 // CreateUser creates a user with optional name and email
@@ -349,13 +381,13 @@ func (s *BaseSuite) waitForBackend(maxRetries int) error {
 }
 
 // AcceptWorkshopInviteAnonymously accepts a workshop invite anonymously (no auth)
-func (s *BaseSuite) AcceptWorkshopInviteAnonymously(token string) (*routes.AcceptInviteResponse, error) {
+func (s *BaseSuite) AcceptWorkshopInviteAnonymously(token string) (*api.AcceptInviteResp, error) {
 	s.T().Helper()
 
 	// Use public client (no auth)
 	publicClient := s.Public()
 
-	var response routes.AcceptInviteResponse
+	var response api.AcceptInviteResp
 	err := publicClient.Post("invites/"+token+"/accept", nil, &response)
 	if err != nil {
 		return nil, err

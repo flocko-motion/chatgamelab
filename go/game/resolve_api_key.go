@@ -1,0 +1,344 @@
+// package: game / server-side API key resolution
+// type:    logic
+// job:     resolves which API key and AI quality tier a play uses by walking the priority chain (workshop, sponsor, institution, user, system).
+// limits:  does not call the AI or start plays; only selects and traces candidate keys for callers to apply.
+package game
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"cgl/db"
+	"cgl/log"
+	"cgl/obj"
+	"engine"
+
+	"github.com/getsentry/sentry-go"
+	"github.com/google/uuid"
+)
+
+// resolvedKey holds the resolved API key share and the AI quality tier from the same source.
+type resolvedKey struct {
+	Share         *obj.ApiKeyShare
+	AiQualityTier string // resolved tier (high/medium/low), never empty
+	KeyType       string // source type: obj.ApiKeyType* constants
+}
+
+const maxCandidates = 3
+
+// keyTraceStep records the outcome of one source in the priority chain.
+type keyTraceStep struct {
+	Source   string // e.g. "workshop", "sponsor", ...
+	Result   string // "selected", "skipped", "filtered", "error"
+	Detail   string // human-readable reason
+	KeyName  string // API key name (if resolved)
+	Platform string // API key platform (if resolved)
+	Tier     string // resolved quality tier (if selected)
+}
+
+// resolveApiKeyCandidates collects all matching API keys from the priority chain,
+// deduplicated by API key ID, up to maxCandidates. The first candidate is the
+// highest-priority match; subsequent entries are fallbacks.
+//
+// Priority chain:
+//  1. Workshop key + workshop.aiQualityTier
+//  2. Sponsored game key (public sponsor on the game)
+//  3. Institution free-use key + institution.freeUseAiQualityTier
+//  4. User's default API key + user.aiQualityTier
+//  5. System free-use key + system_settings.freeUseAiQualityTier
+//
+// If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
+// platformFilter restricts candidates to a specific AI platform (e.g. "openai").
+// Pass "" to accept any platform.
+func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, platformFilter string) ([]resolvedKey, *obj.HTTPError) {
+	user, err := db.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get user")
+	}
+
+	// Load system settings for the default tier fallback
+	settings, _ := db.GetSystemSettings(ctx)
+	defaultTier := string(engine.TierMedium) // hardcoded ultimate fallback
+	if settings != nil && settings.DefaultAiQualityTier != "" {
+		defaultTier = settings.DefaultAiQualityTier
+	}
+
+	var candidates []resolvedKey
+	seen := make(map[uuid.UUID]bool) // deduplicate by API key ID
+	var trace []keyTraceStep
+
+	add := func(share *obj.ApiKeyShare, tier string, keyType string) {
+		if share == nil || share.ApiKey == nil {
+			return
+		}
+		if seen[share.ApiKey.ID] {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "skipped", Detail: "duplicate key", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
+			return
+		}
+		if len(candidates) >= maxCandidates {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "skipped", Detail: "max candidates reached", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
+			return
+		}
+		if !db.AcceptsKeys(share.ApiKey.Platform) {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "filtered", Detail: "platform not supported yet", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
+			return
+		}
+		if platformFilter != "" && share.ApiKey.Platform != platformFilter {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "filtered", Detail: fmt.Sprintf("platform %s != %s", share.ApiKey.Platform, platformFilter), KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
+			return
+		}
+		seen[share.ApiKey.ID] = true
+		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier, KeyType: keyType})
+		trace = append(trace, keyTraceStep{Source: keyType, Result: "selected", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform, Tier: tier})
+	}
+
+	// 1. Workshop key
+	if share, tier := resolveWorkshopKey(ctx, user); share != nil {
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeWorkshop)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeWorkshop, Result: "skipped", Detail: describeWorkshopSkip(user)})
+	}
+
+	// 2. Sponsored game key
+	if share := resolveSponsoredGameKey(ctx, userID, gameID); share != nil {
+		add(share, defaultTier, obj.ApiKeyTypeSponsor)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeSponsor, Result: "skipped", Detail: "no sponsorship configured"})
+	}
+
+	// 3. Institution free-use key
+	if share, tier := resolveInstitutionFreeUseKey(ctx, user); share != nil {
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeInstitutionFreeUse)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeInstitutionFreeUse, Result: "skipped", Detail: describeInstitutionSkip(user)})
+	}
+
+	// 4. User's default API key
+	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypePersonal)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypePersonal, Result: "skipped", Detail: "no default key configured"})
+	}
+
+	// 5. System free-use key
+	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeSystemFreeUse)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeSystemFreeUse, Result: "skipped", Detail: "no system free-use key configured"})
+	}
+
+	// Always send trace to Sentry for debugging
+	sendKeyResolutionTrace(userID, gameID, platformFilter, candidates, trace)
+
+	if len(candidates) == 0 {
+		if platformFilter != "" {
+			log.Debug("no API key available for platform", "user_id", userID, "game_id", gameID, "platform", platformFilter)
+			return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available for platform "+platformFilter+". All available keys use a different AI platform.")
+		}
+		log.Debug("no API key available", "user_id", userID, "game_id", gameID)
+		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
+	}
+
+	return candidates, nil
+}
+
+// sendKeyResolutionTrace sends a Sentry info event with the full decision trail.
+func sendKeyResolutionTrace(userID uuid.UUID, gameID uuid.UUID, platformFilter string, candidates []resolvedKey, trace []keyTraceStep) {
+	// Build a human-readable summary
+	var lines []string
+	for i, step := range trace {
+		line := fmt.Sprintf("%d. [%s] %s", i+1, step.Source, step.Result)
+		if step.KeyName != "" {
+			line += fmt.Sprintf(" key=%q platform=%s", step.KeyName, step.Platform)
+		}
+		if step.Tier != "" {
+			line += fmt.Sprintf(" tier=%s", step.Tier)
+		}
+		if step.Detail != "" {
+			line += fmt.Sprintf(" (%s)", step.Detail)
+		}
+		lines = append(lines, line)
+	}
+	summary := strings.Join(lines, "\n")
+
+	// Build structured extras
+	extras := map[string]any{
+		"user_id":         userID.String(),
+		"game_id":         gameID.String(),
+		"platform_filter": platformFilter,
+		"candidates":      len(candidates),
+		"trace":           summary,
+	}
+	for i, c := range candidates {
+		extras[fmt.Sprintf("candidate_%d_type", i)] = c.KeyType
+		extras[fmt.Sprintf("candidate_%d_key", i)] = c.Share.ApiKey.Name
+		extras[fmt.Sprintf("candidate_%d_platform", i)] = c.Share.ApiKey.Platform
+		extras[fmt.Sprintf("candidate_%d_tier", i)] = c.AiQualityTier
+	}
+
+	event := sentry.NewEvent()
+	event.Level = sentry.LevelInfo
+	event.Message = fmt.Sprintf("API key resolution: %d candidates", len(candidates))
+	event.Tags = map[string]string{
+		"user_id":    userID.String(),
+		"game_id":    gameID.String(),
+		"candidates": fmt.Sprintf("%d", len(candidates)),
+	}
+	if len(candidates) > 0 {
+		event.Tags["primary_key_type"] = candidates[0].KeyType
+		event.Tags["primary_platform"] = candidates[0].Share.ApiKey.Platform
+	}
+	if platformFilter != "" {
+		event.Tags["platform_filter"] = platformFilter
+	}
+	event.Extra = extras
+
+	sentry.CaptureEvent(event)
+}
+
+// describeWorkshopSkip returns a human-readable reason why the workshop key was skipped.
+func describeWorkshopSkip(user *obj.User) string {
+	if user.Role == nil {
+		return "no role"
+	}
+	if user.Role.Workshop == nil {
+		return "not in workshop"
+	}
+	return "no default key configured or not accessible"
+}
+
+// describeInstitutionSkip returns a human-readable reason why the institution key was skipped.
+func describeInstitutionSkip(user *obj.User) string {
+	if user.Role == nil || user.Role.Institution == nil {
+		return "no institution"
+	}
+	if user.Role.Role == obj.RoleParticipant {
+		return "participant role excluded"
+	}
+	if user.Role.Institution.FreeUseApiKeyShareID == nil {
+		return "no free-use key configured"
+	}
+	return "key not accessible"
+}
+
+// resolveApiKey resolves the highest-priority API key on any platform.
+func resolveApiKey(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
+	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID, "")
+	if httpErr != nil {
+		return nil, httpErr
+	}
+	return &candidates[0], nil
+}
+
+// IsApiKeyAvailable checks whether an API key can be resolved for the given user+game
+// without exposing any key details. Used for upfront checks before starting/resuming a game.
+func IsApiKeyAvailable(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) bool {
+	resolved, _ := resolveApiKey(ctx, userID, gameID)
+	return resolved != nil
+}
+
+// tierOrDefault returns tier if non-empty, otherwise the default.
+func tierOrDefault(tier *string, defaultTier string) string {
+	if tier != nil && *tier != "" {
+		return *tier
+	}
+	return defaultTier
+}
+
+// resolveWorkshopKey checks if the user is in a workshop that has a default API key configured.
+func resolveWorkshopKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, *string) {
+	if user.Role == nil || user.Role.Workshop == nil {
+		return nil, nil
+	}
+
+	workshop, err := db.GetWorkshopByID(ctx, user.ID, user.Role.Workshop.ID)
+	if err != nil || workshop.DefaultApiKeyShareID == nil {
+		return nil, nil
+	}
+
+	share, err := db.GetApiKeyShareByID(ctx, user.ID, *workshop.DefaultApiKeyShareID)
+	if err != nil {
+		log.Warn("workshop default API key share not accessible", "share_id", *workshop.DefaultApiKeyShareID, "error", err)
+		return nil, nil
+	}
+
+	return share, workshop.AiQualityTier
+}
+
+// resolveSponsoredGameKey checks if the game has a public sponsored API key share.
+func resolveSponsoredGameKey(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) *obj.ApiKeyShare {
+	game, err := db.GetGameByID(ctx, nil, gameID)
+	if err != nil || game.PublicSponsoredApiKeyShareID == nil {
+		return nil
+	}
+
+	share, err := db.GetApiKeyShareByID(ctx, userID, *game.PublicSponsoredApiKeyShareID)
+	if err != nil {
+		log.Warn("sponsored game key share not accessible", "game_id", gameID, "share_id", *game.PublicSponsoredApiKeyShareID, "error", err)
+		return nil
+	}
+
+	return share
+}
+
+// resolveInstitutionFreeUseKey checks if the user's institution has a free-use API key configured.
+// Participants are excluded — they can only use the workshop key (priority 1).
+func resolveInstitutionFreeUseKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, *string) {
+	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.FreeUseApiKeyShareID == nil {
+		return nil, nil
+	}
+	if user.Role.Role == obj.RoleParticipant {
+		return nil, nil
+	}
+
+	share, err := db.GetApiKeyShareByID(ctx, user.ID, *user.Role.Institution.FreeUseApiKeyShareID)
+	if err != nil {
+		log.Warn("institution free-use API key share not accessible", "share_id", *user.Role.Institution.FreeUseApiKeyShareID, "error", err)
+		return nil, nil
+	}
+
+	// Load full institution to get the tier
+	institution, err := db.GetInstitutionByID(ctx, user.ID, user.Role.Institution.ID)
+	if err != nil {
+		log.Warn("failed to load institution for tier", "institution_id", user.Role.Institution.ID, "error", err)
+		return share, nil
+	}
+
+	return share, institution.FreeUseAiQualityTier
+}
+
+// resolveSystemFreeUseKey checks if the admin has configured a global free-use API key in system settings.
+// The key is stored directly (not as a share), so we load it and wrap it in a synthetic ApiKeyShare.
+func resolveSystemFreeUseKey(ctx context.Context, settings *obj.SystemSettings) (*obj.ApiKeyShare, *string) {
+	if settings == nil || settings.FreeUseApiKeyID == nil {
+		return nil, nil
+	}
+
+	apiKey, err := db.GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
+	if err != nil {
+		log.Warn("system free-use API key not found", "api_key_id", *settings.FreeUseApiKeyID, "error", err)
+		return nil, nil
+	}
+
+	return &obj.ApiKeyShare{
+		ApiKeyID: apiKey.ID,
+		ApiKey:   apiKey,
+	}, settings.FreeUseAiQualityTier
+}
+
+// resolveUserDefaultKey checks if the user has a personal default API key configured.
+func resolveUserDefaultKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, *string) {
+	defaultKey, _ := db.GetDefaultApiKeyForUser(ctx, user.ID)
+	if defaultKey == nil {
+		return nil, nil
+	}
+
+	share, err := db.GetSelfShareForApiKey(ctx, user.ID, defaultKey.ID)
+	if err != nil {
+		log.Warn("user default API key self-share not found", "key_id", defaultKey.ID, "error", err)
+		return nil, nil
+	}
+
+	return share, user.AiQualityTier
+}

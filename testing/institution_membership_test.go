@@ -1,7 +1,7 @@
 package testing
 
 import (
-	"cgl/api/routes"
+	"cgl/api"
 	"cgl/obj"
 	"testing"
 
@@ -492,7 +492,7 @@ func (s *MultiUserTestSuite) TestInviteByEmail() {
 	s.T().Logf("Invite to wrong email correctly rejected")
 
 	// Zara changes their email (using admin endpoint for simplicity)
-	MustSucceed(s.clientAdmin.Post("users/"+zaraMe.ID.String(), routes.UserUpdateRequest{
+	MustSucceed(s.clientAdmin.Post("users/"+zaraMe.ID.String(), api.UpdateUserReq{
 		Name:  zaraMe.Name,
 		Email: "zara-new@example.com",
 	}, nil))

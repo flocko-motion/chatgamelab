@@ -1,0 +1,1378 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "ageGroup": {
+      "description": "ይእቲ ንናብ ኣካውንትካ ትኽክለኛ ምጥቓዕን መመሪያታት ትሕዝቶ ንምምላእ ይሓግዝና።",
+      "label": "ዕድመን ምጥቓዕን ቡድን",
+      "u13": "13–17 ዓመት፣ ዘይተመዝገበ ፍቓድ ወላዶም",
+      "u13Description": "ናይ ChatGameLab ትጠቀም ትኽእል። በለጽሑ መዋቅሮታት ምጥቓዕ ኣብ ኣካውንትካ ይሰርሑ።",
+      "u13p": "13–17 ዓመት፣ ብፍቓድ ወላዶም",
+      "u13pDescription": "እንተ ወላዶም ተስማማዮም ናይ ChatGameLab ትጠቀም ትኽእል።",
+      "u18": "18 ዓመት ወይ ካብዚ ዕድመ ዝበለ",
+      "u18Description": "ናይ ChatGameLab ትጠቀም ትኽእል።",
+      "under13": "ከሳሕ 13 ዓመት",
+      "under13Blocker": "ገና ራስካ ኣካውንት ክትፍጠር ኣትኽእልን። እንተ ከሳሕ 13 ዓመት ዝኾንካ ናይ ChatGameLab ብቐርቢ ውድብ ወጣት ብቻ ትጠቀም ትኽእል።",
+      "under13Description": "ገና ራስካ ኣካውንት ክትፍጠር ኣትኽእልን። እንተ ከሳሕ 13 ዓመት ዝኾንካ ናይ ChatGameLab ብቐርቢ ውድብ ወጣት ብቻ ትጠቀም ትኽእል።"
+    },
+    "login": {
+      "auth0Button": "ብ Auth0 ግባ",
+      "devMode": "እዋን ልማድ",
+      "devModeAlert": {
+        "message": "ይእቲ ዘርእስቲ ናይ ልማድ ግባ ገፅ እያ። ናይ ምስራቅ ስራሕ ውሽጢ ብቕጽል Auth0 ትተሓዝም።",
+        "title": "እዋን ልማድ"
+      },
+      "devModeDescription": "ፈጣን ግባ ንልማድን ፈተናን",
+      "redirecting": {
+        "message": "ናብ ግባ ገፅ ክናመልከትካ ምንባር ተጸዒን።",
+        "title": "ናብ Auth0 እየ ምተሓዘ..."
+      },
+      "role": {
+        "admin": "ከም ኣስመራን ግባ",
+        "guest": "ከም ጋስት ግባ",
+        "student": "ከም ተማሃሪ ግባ",
+        "teacher": "ከም መምህር ግባ"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "ወርድ ወርክሾፕ",
+        "message": "እዚ ወርክሾፕ ክትፈትን ክትወጽእ ትደሊ ኢኻ? እንደገና ምምላስ ሓድሽ ዝውውር ኣገባብ ትደሊ።",
+        "title": "ወርድ ወርክሾፕ?"
+      },
+      "leaveWorkshop": "ወርድ ወርክሾፕ",
+      "organization": "ማሕበር",
+      "role": "ተሳታፊ ወርክሾፕ",
+      "workshop": "ወርክሾፕ"
+    },
+    "profile": {
+      "ageGroup": "ቡድን ዕድመ",
+      "ageGroupDescription": "ንጨዋታትካ ዝተመርጹ መመርሒ ትሕዝቶ ምንታይ እንተ ይሕግዝ ይወስን። እዚ በማእከል ግዜ ምቕያር ትኽእል።",
+      "ageGroupSection": "ዕድመን ምጥቓዕን ቡድን",
+      "ageGroupU13": "13-17 ኣመት",
+      "ageGroupU18": "18 እና ልዕሊ",
+      "gamesCreated": "ዝተፈጠሩ ጨዋታታት",
+      "gamesPlayed": "ዝተጻወትካዮም ጸወታታት",
+      "memberSince": "ካብ ዝተመደበሉ ጊዜ",
+      "messagesSent": "ዝተላእኩ መልእኽታት",
+      "noOrganization": "ማሕበር የለን",
+      "noRole": "ሚና ኣይተመደበን",
+      "organization": "ማሕበር",
+      "organizationSection": "ማሕበር እና ሚና",
+      "participantCode": {
+        "error": "ኮድ መእተዊኻ ክጽዓን ኣይከኣለን።",
+        "hint": "ነዚ ኮድ ስእሊ ኣንስኦ ወይ ጽሒፍካ ሓዞ፣ ንኻ ጥራይ ድማ ኣቆይዎ። ኣብ ዝኾነ ግዜን ኣብ ዝኾነ መሳርሒን ናብ ሕሳብካ ክትኣቱ ይሕግዘካ፦ ኣብ መእተዊ ገጽ ኣብ ትሕቲ “ኮድ ኣእቱ” ዘለዉ ቃላት ኣእትዎ ወይ ኮድ QR ስካን ግበር።",
+        "longTokenHint": "ነቲ ኮድ QR ስእሊ ኣንስኦ ወይ ነቲ ሊንክ ኣቐምጦ፣ ንኻ ጥራይ ድማ ኣቆይዎ። ኣብ ዝኾነ ግዜ ናብ ሕሳብካ ክትኣቱ ይሕግዘካ። መራሒ ዎርክሾፕካ ናይ ምእታው ፍቓድካ ብምምላስ ሓጺር ናይ ኣርባዕተ ቃላት ኮድ ክህበካ ይኽእል።",
+        "title": "ኮድ መእተዊኻ"
+      },
+      "role": "ሚና",
+      "roles": {
+        "admin": "ኣስመራን",
+        "head": "ሓላፊ ማሕበር",
+        "individual": "ውሉድ",
+        "participant": "ተሳታፊ",
+        "staff": "መሪ ወርክሾፕ"
+      },
+      "statisticsSection": "ስታቲስቲክስ",
+      "title": "ፕሮፋይል",
+      "totalPlaysOnGames": "አጠቃላይ ስኬታት ናይ ጨዋታታይ",
+      "workshopSection": "ዎርክሾፕን ውድብን"
+    },
+    "register": {
+      "ageGroupLabel": "ቡድን ዕድመ",
+      "ageGroupRequired": "ቡድን ዕድመኻ በጃኻ ምረጽ",
+      "ageGroupU13": "13-17 ኣመት ዕድመ",
+      "ageGroupU18": "18 ወይ ካብቲ ልዕሊ",
+      "ageGroupUnder13": "በታሕቲ 13",
+      "ageGroupUnder13Error": "ChatGameLab ምጥቃም ንክትኽእል ብውን 13 ኣመት ዕድመ ዝበለ ክንብር ኣለኻ።",
+      "cancelButton": "ሰርዝ",
+      "emailDescription": "ናይ ኣገዳሲ ማሳሰቢ ንንበዝሕ እንጥቀመረይካ።",
+      "emailLabel": "ኢ-መይል ኣድራሻ",
+      "emailPlaceholder": "ኢ-መይልካ ኣእቱ",
+      "errors": {
+        "emailInvalid": "ትክክለኛ ኢ-መይል ኣእትዎ",
+        "emailRequired": "ኢ-መይል ኣስፈላጊ እዩ",
+        "nameRequired": "ስም ኣስፈላጊ እዩ",
+        "nameTaken": "ይእቲ ስም ኣብዚ ይጠቐም ኣሎ",
+        "nameTooLong": "ስም ብዝተፈተነ 24 ፊደላት ይኹን",
+        "registrationFailed": "ምመዝገብ ኣብ ኣጋጣሚ ተስነቐ። ንደገና ፈትኑ።"
+      },
+      "nameDescription": "እዚ ዝርከብካዮ ተጠቃሚታት እዮም። ከፊሉ 24 ፊደላት።",
+      "nameLabel": "ዝታይ ስም",
+      "namePlaceholder": "ዝታይ ስምካ ኣእቱ",
+      "submitButton": "መለማመጃ ፍጠር",
+      "submitting": "መለማመጃ እየ ምፍጣር...",
+      "subtitle": "ምስ ጀሚሩ ጥቂቕ ዝበለ ዝርዝራት",
+      "title": "ፕሮፋይልካ ሙሉእ"
+    },
+    "registerPage": {
+      "agreePrefix": "ኣነ ን",
+      "agreeSuffix": "እና",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "ኣካውንት ኣለካ ድዩ?",
+      "backButton": "ተመለስ",
+      "chooseType": "ChatGameLab ከመይ ክትጥቀም ትደሊ?",
+      "continueButton": "ናብ ምዝገባ ቀጽል",
+      "description": "ንምምላእን ንምንባርርን ናይ ተጠቃሚ ኣካውንታት Auth0 ንመለማመዲ እንጥቀም። ናብ Auth0 ክትመለስ ኢኻ ኣካውንትካ ንትፍጠር፣ ካልእ ድማ ናብዚ ትመለስ ፕሮፋይልካ ንትጨምር።",
+      "educatorDescription": "ChatGameLab ኣብ ስልጠናታት፣ ት/ቤትታት ወይ ተቋማትካ ስራሕ ምጥቃም",
+      "educatorModal": {
+        "closeButton": "ዕጽው",
+        "copied": "ተቐዲሑ!",
+        "copyEmail": "ኢሜይል ቅዳሕ",
+        "eduInfo": "ChatGameLab ንትምህርታዊ ዓላማታት ከመይ ክትጥቀም ተማሃሮ፦",
+        "intro": "ChatGameLab ምስ ተቋማኻ (ት/ቤት፣ ዩኒቨርሲቲ፣ ተቋማ ወዘተ) ንትጥቀም እትደሊ እንተ ኮይንካ እነዚ እርምጃታት ተኸታተል፦",
+        "registerButton": "ውልቃዊ ኣካውንት ፍጠር",
+        "step1": "ውልቃዊ ኣካውንት ፍጠር",
+        "step1Description": "ብመጀመርታ ውልቃዊ ኣካውንትካ ፍጠር። እዚ ፕላትፎርም ምእታው ዝትጠቀምሉ መግቢ መለለዪኻ ይኮን።",
+        "step2": "2. ኢሜይል ስግነና",
+        "step2Description": "ኢሜይል ን",
+        "step2Item1": "ዝተመዝገብካሉ ኢሜይል ኣድራሻ",
+        "step2Item2": "ስም ተቋማኻ (ት/ቤት፣ ተቋማ ወዘተ)",
+        "step2WithInfo": "ብዚ መረጃ:",
+        "step3": "3. ተቋማኻ ንኽንዋስስ ነን",
+        "step3Description": "ንተቋማኻ ንንፈጥርን ንክትኾን ራሕብ ንንስዕብን ንቕድም። ብዚ ድማ ጓል ሰራሕተኛትካ ንትጋብዱን ስልጠናታት ንትዋህዱን ትኽእሉ።",
+        "title": "መምህር እና ሙያዊ መዳረሻ"
+      },
+      "educatorTitle": "መምህር / ሙያዊ",
+      "individualDescription": "ብኤ.ኣይ ዝተንቀሳቀሱ ጽሑፍ ጉዳይ ጨዋታት ፍጠርን ጫውቱን",
+      "individualTitle": "ውልቃዊ ኣካውንት",
+      "loginLink": "እቶ ግባ",
+      "privacyPolicy": "ፖሊሲ ግላዊነት",
+      "termsOfService": "ውዕልታት ኣገልግሎት",
+      "title": "ኣካውንትካ ፍጠር"
+    },
+    "settings": {
+      "accountSection": "መለማመጃ",
+      "ageGroupDescription": "ንጨዋታትካ ዝተመርጹ መመርሒ ትሕዝቶ ምንታይ እንተ ይሕግዝ ይወስን።",
+      "ageGroupLabel": "ቡድን ዕድመ",
+      "ageGroupU13": "13-17 ኣመት",
+      "ageGroupU18": "18 ወይ ካብቲ ልዕሊ",
+      "emailChangeNote": "ኢ-መይልካ ዝትቀይር እንተደለኻ ኣስተዳዳሪ ሳይቱ ኣሕቱት።",
+      "errors": {
+        "nameRequired": "ስም ኣስፈላጊ እዩ",
+        "nameTaken": "ይእቲ ስም ኣብዚ ይጠቐም ኣሎ",
+        "nameTooLong": "ስም ብዝተፈተነ 24 ፊደላት ይኹን",
+        "saveFailed": "ለውጦም ምክልት ኣይተኻኣለን። ንደገና ፈትኑ።"
+      },
+      "nameDescription": "እዚ ዝርከብካዮ ተጠቃሚታት እዮም። ከፊሉ 24 ፊደላት።",
+      "nameLabel": "ዝታይ ስም",
+      "namePlaceholder": "ዝታይ ስምካ ኣእቱ",
+      "saveButton": "ለውጦም ኣቐምጥ",
+      "saved": "ለውጦም ተኣቂሉ።",
+      "saving": "እየ ምኽልት...",
+      "subtitle": "መለማመጃ ቅንብሮም ኣስተዳድር",
+      "title": "ቅንብሮም"
+    }
+  },
+  "common": {
+    "actions": "እቶም ተግባራት",
+    "admin": {
+      "invites": {
+        "actions": "እቶም ተግባራት",
+        "empty": "ምትሕታዊ እቶት የለን።",
+        "invitedEmail": "ዝተዋተነ ኢ-መይል",
+        "modifiedAt": "ዝተስተኻኸለ ግዜ",
+        "noResults": "ጽሑፋ እቶት ኣይረኽብን።",
+        "organization": "ማሕበር",
+        "revokeConfirm": {
+          "confirm": "ሰርዝ",
+          "message": "እዚ እቶት ክትደምስስ ትደሊ ዶ? እዚ ተግባር ኣይተመለሰን።",
+          "title": "እቶት ሰርዝ"
+        },
+        "role": "ሚና",
+        "searchPlaceholder": "ብኢ-መይል፣ ሚና፣ ሁነታ ወይ ማሕበር ፈልጥ...",
+        "sort": {
+          "label": "ኣብ ምንባር ደርስ",
+          "modifiedAt-asc": "ተስተኻኺሉ (ድሕሪቱ ዝተወሰነ)",
+          "modifiedAt-desc": "ተስተኻኺሉ (ኣብዚ ሓድሽ)",
+          "organization-asc": "ማሕበር (A-Z)",
+          "organization-desc": "ማሕበር (Z-A)",
+          "role-asc": "ሚና (A-Z)",
+          "role-desc": "ሚና (Z-A)",
+          "status-asc": "ሁነታ (A-Z)",
+          "status-desc": "ሁነታ (Z-A)"
+        },
+        "status": "ሁነታ",
+        "statuses": {
+          "accepted": "ተቐቢሉ",
+          "declined": "ተናቅፉ",
+          "expired": "ግዜ ውሑስ",
+          "pending": "ተመኺሑ",
+          "revoked": "ተደምሰሰ"
+        },
+        "title": "ምትሕታዊ እቶት"
+      },
+      "organizations": {
+        "actions": "እቶም ተግባራት",
+        "create": "ማሕበር ፍጠር",
+        "createTitle": "ሓዱሽ ማሕበር ፍጠር",
+        "deleteConfirm": "\"{{name}}\" ክትደምስስ ትደሊ ዶ? እዚ ተግባር ኣይተመለሰን።",
+        "deleteTitle": "ማሕበር ሰርዝ",
+        "editTitle": "ማሕበር ኣስተኻኽል",
+        "email": "ኢ-መይል ኣድራሻ",
+        "emailPlaceholder": "ኢ-መይል ኣእቱ",
+        "empty": "እቲ ማሕበር የለን። ናይ መጀመርታ ነዚ ፍጠር።",
+        "inviteDescription": "{{name}} ንሓላፊ ማሕበር እንዲኾን ምልእኽቲ ላእኽ።",
+        "inviteTitle": "ናብ ማሕበር እተው",
+        "memberEmail": "ኢ-መይል",
+        "memberName": "ስም",
+        "memberRole": "ሚና",
+        "members": "ኣባላት",
+        "membersCount": "ኣባላት",
+        "membersList": "ኣባላት",
+        "name": "ስም",
+        "namePlaceholder": "ስም ማሕበር ኣእቱ",
+        "noMembers": "ኣባል ኣብቲ ማሕበር የለን።",
+        "removeMember": "ኣባል ኣውጽእ",
+        "removeMemberConfirm": "{{name}} ካብዚ ማሕበር ክትወጽእዎ ትደሊ ዶ?",
+        "searchPlaceholder": "ማሕበራት ፈልጥ...",
+        "sendInvite": "እቶት ላእኽ",
+        "title": "ማሕበራት ኣስተዳድር"
+      },
+      "users": {
+        "actions": "እቶም ተግባራት",
+        "deleteConfirm": "\"{{name}}\" ክትደምስስ ትደሊ ዶ? እዚ ተግባር ኣይተመለሰን።",
+        "deleteTitle": "ተጠቃሚ ሰርዝ",
+        "editEmail": "ኢ-መይል ኣስተኻኽል",
+        "editTitle": "ተጠቃሚ ኣስተኻኽል",
+        "editingUser": "ተጠቃሚ እየ ምኣስተኻኽል: {{name}}",
+        "email": "ኢ-መይል",
+        "emailPlaceholder": "ኢ-መይል ኣእቱ",
+        "empty": "ተጠቃሚ ኣይተረኸበን።",
+        "hideGuests": "ጋስታት ሰንብት ({{count}})",
+        "hideGuestsShort": "ጋስታት ({{count}})",
+        "joined": "ተቐማጢ",
+        "loadError": "ተጠቃሚ ምምጻት ኣይተኻኣለን",
+        "makeAdmin": "ኣስመራን ኣድርግ",
+        "me": "ኣነ",
+        "name": "ስም",
+        "noEmail": "ኢ-መይል የለን",
+        "noResults": "ተጠቃሚ ኣይተረኸበን።",
+        "noRole": "ሚና የለን",
+        "organization": "ማሕበር",
+        "promoteConfirm": "\"{{name}}\" ({{email}}) ንኣስመራን ክትምሕሩ ትደሊ ዶ?",
+        "promoteTitle": "ናብ ኣስመራን ኣምር",
+        "promoteWarning": "እዚ ተጠቃሚ ሙሉእ ስልጣን ናይ ኣስመራን ኣምጻኡ።",
+        "removeAdmin": "ኣስመራን ኣወግድ",
+        "removeAdminConfirm": "\"{{name}}\" ({{email}}) ኣስመራን ሚና ክትወስድ ትደሊ ዶ?",
+        "removeAdminTitle": "ሚና ኣስመራን ኣወግድ",
+        "removeAdminWarning": "እዚ ተጠቃሚ ሙሉእ ስልጣን ናይ ኣስመራን ይወፍሩ።",
+        "role": "ሚና",
+        "searchPlaceholder": "ብስም፣ ኢ-መይል፣ ሚና ወይ ማሕበር ፈልጥ...",
+        "showing": "{{count}} ካብ {{total}} ተጠቃሚታት እየ ምርኣይ",
+        "sort": {
+          "email-asc": "ኢ-መይል (A-Z)",
+          "email-desc": "ኢ-መይል (Z-A)",
+          "joined-asc": "ተቐማጢ (ድሕሪቱ)",
+          "joined-desc": "ተቐማጢ (ሓድሽ)",
+          "label": "ኣብ ምንባር ደርስ",
+          "name-asc": "ስም (A-Z)",
+          "name-desc": "ስም (Z-A)",
+          "organization-asc": "ማሕበር (A-Z)",
+          "organization-desc": "ማሕበር (Z-A)",
+          "role-asc": "ሚና (A-Z)",
+          "role-desc": "ሚና (Z-A)"
+        },
+        "title": "ተጠቃሚታት ኣስተዳድር"
+      }
+    },
+    "aiQualityTier": {
+      "high": "ልዑል",
+      "label": "AI ደረጃ ጥራይ",
+      "low": "ቁጠባዊ",
+      "max": "ኣብሊ (ፕሪሚየም + ድምጺ)",
+      "medium": "ሚዛናዊ",
+      "newSessionsOnly": "እዚ ደረጃ ናይ ሓድሽ ክፍለ-ግብር ብቻ ይፍፀም። ዝተጀመሩ ክፍለ-ግብርታት ከምቲ ጀማሪ ደረጃ ይቀጽሉ።",
+      "serverDefault": "ናይ ሰርቨር ነባሪ"
+    },
+    "allGames": {
+      "continue": "ተጻወት",
+      "copyConfirm": {
+        "confirm": "ጨዋታ ኮፒ ግበር",
+        "message": "እዚ ከም ኮፒ \"{{name}}\" ኣብ ጨዋታታትካ ይፈጥር።",
+        "title": "ጨዋታ ኮፒ ግበር"
+      },
+      "copyGame": "ጨዋታ ኮፒ ግበር",
+      "empty": {
+        "description": "ፍልሰትካ ኣስተኻኽል ወይ ትንተና ኣልግሶ ሓድሽ ጨዋታታት ንኽትረኽብ መጻእኩም።",
+        "title": "ጨዋታ ኣይተረኸበን"
+      },
+      "favorite": "ናብ ወደፍቲ ወስኽ",
+      "filters": {
+        "all": "ኩሉ ጨዋታታት",
+        "favorites": "ወደፍቲ",
+        "own": "ጨዋታታይ",
+        "public": "ህቡራዊ",
+        "sponsored": "ዝተሰናየ"
+      },
+      "play": "ጫውታ",
+      "reportGame": "ጨዋታ ኣቕርብ",
+      "restart": "እንደገና ጀምር",
+      "title": "ኩሉ ጨዋታታት",
+      "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
+      "workshop": "ስልጠና / ተቋማ"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API ቁልፊታት ንAI መድረኽታት ምቕጻል ዝጥቀመሉ እዮም። ዝተመረጸ ቁልፊ (ብዝምልከት ዝተሰናይ) ሓደ ምትእታዊ ጨዋታ ናብ ምፍጣር ነባሪ ይሆን።",
+        "title": "ስለ API ቁልፊታት"
+      },
+      "addKey": "ቁልፊ ወስኽ",
+      "addedOn": "ተወሲኹ",
+      "aiQualityTier": {
+        "description": "ሓደ ውድብ AI ጥራይ ምርጫ ጨዋታትካ ስትጥቀም ዝምክንያት ቁልፊኻ ተመርጽ። ዝልዕሉ ደረጃ ዋጋ ይንፍስ እዩ ግን ጥራይ ይሕብ። ባዶ ንናይ ሰርቨር ነባሪ ተወዲእ።"
+      },
+      "createModal": {
+        "keyDescription": "ቁልፊኹም ይተርክብ እና ብዕላማዊ ይተኣበራ።",
+        "keyLabel": "API ቁልፊ",
+        "keyPlaceholder": "API ቁልፊኹም ኣእቱ",
+        "nameLabel": "ስም ቁልፊ",
+        "namePlaceholder": "ለ.ዝ., ናይ OpenAI ቁልፊየ",
+        "platformLabel": "መድረኽ",
+        "platformPlaceholder": "መድረኽ ምረፅ",
+        "submit": "ቁልፊ ወስኽ",
+        "title": "ሓዱሽ API ቁልፊ ወስኽ"
+      },
+      "currentDefault": {
+        "label": "ገሊኣት ዝርከብ API ቁልፊ",
+        "none": "ነባሪ ቁልፊ ኣይተቐረበን። ቁልፊ ወስኽ ንጀምሮ።"
+      },
+      "default": "ነባሪ",
+      "deleteModal": {
+        "message": "\"{{name}}\" ክትደምስስ ትደሊ ዶ?",
+        "title": "API ቁልፊ ሰርዝ",
+        "warning": "እዚ ተግባር ኣይተመለሰን። ቁልፊ ብፍጽም ይጠፍእ።"
+      },
+      "errors": {
+        "invalidPlatform": "ዘይተረጋገጸ መድረኽ ተመርጸ። ትክክለኛ መድረኽ AI ምረፅ።",
+        "keyRequired": "API ቁልፊ ኣስፈላጊ እዩ",
+        "loadFailed": "API ቁልፊታት ምምጻት ኣይተኻኣለን። ንደገና ፈትኑ።",
+        "nameRequired": "ስም ኣስፈላጊ እዩ",
+        "platformRequired": "መድረኽ ኣስፈላጊ እዩ"
+      },
+      "key": "ቁልፊ",
+      "keys": "ቁልፊታት",
+      "platform": "መድረኽ",
+      "setDefault": "ነባሪ ኣድርግ",
+      "shares": {
+        "context": {
+          "organization": "ተቋም",
+          "personal": "ውልቃዊ",
+          "workshop": "ስልጠና"
+        },
+        "gameShares": "ናይ ምካፈል ጨዋታ ሊንኮታት",
+        "goToOrg": "ኣስተዳድር",
+        "noOrgShares": "ኣብ ማእከል ማሕበር ዘይተካፈለ",
+        "noSponsorships": "ምስ ጨዋታ ዘይተሰናየ",
+        "orgShares": "ማሕበር ኣካፋሊታት",
+        "privateShares": "ዝፈለጠ ኣካፋሊ ሊንካት",
+        "remaining": "{{count}} ጥቅሞታት ዝተረፈ",
+        "removeSponsor": "ምስ ሰናይ ኣወግድ",
+        "revokeGameShare": "ሊንኩ ምልቀስ",
+        "revokePrivateShare": "ሊንክ ኣካፍል ሰርዝ",
+        "sponsorships": "ጨዋታ ስፖንሰርና",
+        "toggle": "ኣካፋሊታት እና ስፖንሰርና",
+        "unknownGame": "ጨዋታ ዘይታወቀ",
+        "unknownOrg": "ማሕበር ዘይታወቀ",
+        "unknownUser": "ተጠቃሚ ዘይታወቀ",
+        "unknownWorkshop": "ወርክሾፕ ዘይታወቀ",
+        "unlimited": "ዘይተወሰነ ጥቅም"
+      },
+      "status": {
+        "failed": "ቁልፊ ኣይሰርሕን",
+        "unknown": "ቁልፊ እዚ እቲ ጊዜ ኣይተጠቀመን",
+        "working": "ቁልፊ እዚ እየ ምስራሕ"
+      },
+      "subtitle": "API ቁልፊታት ንAI መድረኽታት ኣስተዳድር።",
+      "title": "API ቁልፊ ኣስተዳድር",
+      "unnamed": "ተሰምዐ ዘይብሉ ቁልፊ",
+      "unsupportedPlatform": {
+        "badge": "ገና ኣይደገፈን",
+        "hint": "እዚ መድረኽ ገና ኣይደገፈን። ቁልፍታቱ ተዓቂቦም ይጸንሑ እዮም፣ ግን ኣይጥቀሙሎምን። ክትድምስሶም ትኽእል።"
+      }
+    },
+    "back": "ተመለስ",
+    "cancel": "ሰርዝ",
+    "close": "ዕጽው",
+    "copyGame": "ጨዋታ ኮፒ ግበር",
+    "create": "ፍጠር",
+    "delete": "ሰርዝ",
+    "deleteGame": "ጨዋታ ሰርዝ",
+    "demoteConfirm": "\"{{name}}\" ({{email}}) ናብ መምህር ክትዋህብ ትደሊ ዶ?",
+    "demoteTitle": "ናብ መምህር ኣውርድ",
+    "demoteToStaff": "ናብ መምህር ኣውርድ",
+    "edit": "ኣስተኻኽል",
+    "editGame": "ጨዋታ ኣስተኻኽል",
+    "email": "ኢ-መይል",
+    "emailPlaceholder": "ኢ-መይል ኣእቱ",
+    "empty": "ኣባል ኣብዚ ማሕበር የለን።",
+    "enterCode": {
+      "description": "ካብ ሰለስተ ወይ ኣርባዕተ ቃላት ዝተዳለወ ኮድ ተቐቢልካዶ? ኣብዚ ኣእትዎ።",
+      "placeholder": "ንኣብነት፦ apfel otter turm",
+      "submit": "ቀጽል",
+      "title": "ኮድ ኣእቱ",
+      "unknown": "ክትኣቱ ኣይከኣልካን። መጀመርታ ኣጻራርያ ቃል ብቃል መርምር። ሓረግ ወይ ቦታ ኣየገድስን። እቲ ኮድ ትኽክል እንተኾይኑ፣ ምናልባት ድሮ ኣይሰርሕን ይኸውን፦ ኮዳት ክቕየሩ ይኽእሉ እዮም፣ ድሕሪ እቲ ዎርክሾፕ ድማ መእተዊ መሰል ይውዳእ። ሽዑ ካብ መራሒ ዎርክሾፕካ ሓድሽ ኮድ ሕተት።",
+      "wrongLength": "ኮድ ሰለስተ ወይ ኣርባዕተ ቃላት ኣለዎ።"
+    },
+    "error": "ጌጋ",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - ተቋሚ ስለ ትምህርታዊ ምርምርን ፈጠራን",
+      "programmedBy": "ዝፈጠረዎ"
+    },
+    "gamePlayer": {
+      "rebuilding": {
+        "description": "ቀልጢፉ ኣብዚ እንደገና ክትጻወት ክትኽእል ኢኻ።",
+        "title": "መጻወቲ ጸወታ ዳግማይ ይህነጽ ኣሎ"
+      }
+    },
+    "games": {
+      "actions": {
+        "delete": "ሰርዝ",
+        "edit": "ኣስተኻኽል",
+        "export": "ኣውጽእ",
+        "play": "ጫውታ",
+        "view": "ተመልከት"
+      },
+      "badges": {
+        "myGame": "ጨዋታይ",
+        "public": "ህቡራዊ",
+        "workshop": "ጨዋታ ስልጠና"
+      },
+      "createButton": "ጨዋታ ፍጠር",
+      "createModal": {
+        "descriptionPlaceholder": "ጨዋታኻ ስለ እንታይ እዩ?",
+        "namePlaceholder": "ለ.ዝ., Space Adventure",
+        "publicDescription": "ዕውታታዊ ጨዋታት እቲ ፕላትፎርም ተጠቃሚ ኩሉ ክረክቡን ክጫውቱን ይኽእሉ።",
+        "publicLabel": "እዚ ጨዋታ ሕቡራዊ ኣድርግ",
+        "publicOwnerOnly": "ጥራይ ፈጣሪ እቲ ጸወታ ንህዝቢ ክኸውን ክገብሮ ይኽእል።",
+        "submit": "ጨዋታ ፍጠር",
+        "title": "ሓዱሽ ጨዋታ ፍጠር"
+      },
+      "deleteModal": {
+        "adminActionTitle": "ኣስታድሚን ግብሪ",
+        "adminActionWarning": "ዘይዝነብረሉ ጨዋታ ንምስረዝ ትምልእ ኢኻ። እዚ ኣስታድሚን ግብሪ እዩ ናብ ምምርማር ብቻ ንትጠቀም ትኽእል።",
+        "message": "\"{{name}}\" ክትደምስስ ትደሊ ዶ?",
+        "moderatorActionTitle": "ጨዋታ ንተሳታፊ ምስረዝ",
+        "moderatorActionWarning": "እዚ ጨዋታ ተሳታፊ ናብ ስልጠናኻ ዘለዎ እዩ። ብምስረዝካዮ ንሱ ብፍጹም ይዓጸውልዎ። መመለስ ኣይክእልን።",
+        "title": "ጨዋታ ሰርዝ",
+        "warning": "እዚ ተግባር ኣይተመለሰን። ኩሉ ዳታ ጨዋታ ብፍጽም ይጠፍእ።"
+      },
+      "editFields": {
+        "description": "ጨዋታኻ ንኣነ ናይ ቅርጺ መግለጺ ሓበሬታ ስግር። ጨዋታ ኣይተፅእኖን።",
+        "gameStart": "ጨዋታ እንታይ እዩ ዝጀምር?",
+        "gameStartHint": "ጸወታ ከመይ ክጅምር ኣለዎ? እታ ቀዳመይቲ ምዕራፍ እንታይ ትመስል? ተጻዋታይ ብኸመይ ይቕበል? ተጻዋታይ እንታይ ክገብር ከም ዘለዎ ብኸመይ ይፈልጥ?",
+        "gameStartPlaceholder": "እቲ ጨዋታ ናብ ጨለማ ደናራ ዳርጋ ተነበረስካ ትቐርብ። ትንንሽ መንገዲ ናብ ልዕሊ ጫፍ ይወስድ...",
+        "genre": "ዓይነት",
+        "genreHint": "ጸወታኡ ከመይ ከም ዝጻወት።",
+        "genreNeeds": "ምስ {{features}} ዝሰርሕ መፍትሕ AI የድልዮ።",
+        "imageStyle": "ምስል ናይ ጨዋታ እንታይ ስርዓት ይኸውን?",
+        "imageStyleHint": "ለ.ዝ.: ካርቱን፣ እውን ምስል፣ ፒክሰል ኣርት፣ ውሃ ቀለም...",
+        "name": "ስም ጨዋታ",
+        "scenario": "ጨዋታ እንታይ እዩ ስለ ዝነግር?",
+        "scenarioHint": "ብሓጺሩ ግለጽ፦ ጸወታ ብኸመይ ይሰርሕ? ዓለም እቲ ጸወታ እንታይ ትመስል? ቋንቋን ቃናን (ንኣብነት ስፓኒሽ ንተማሃሮ ሻዱሻይ ክፍሊ)?\nተጻዋታይ እንታይ ተራ ኣለዎ? \"ተጻዋታይ ...\" ኢልካ ጽሓፍ።\nእቲ AI ተራ ፍሉይ ሰብ ክወስድ እንተደሊኻ፣ \"ንስኻ ... ኢኻ\" ኢልካ ጽሓፍ።\nዕላማ እንታይ እዩ? ተጻዋታይ ከም ዝተዓወተ ብኸመይ ይፈልጥ?",
+        "scenarioPlaceholder": "ንስኻ ተመራማሪ ካብ ምስጢር ደናራ ውሽጢ። ሓባራ መቃን ንምርካብ ትሕቲቶ!",
+        "statusFields": "ዋጋታት ጨዋታ",
+        "statusFieldsHint": "ጨዋታ ምንታይ ዋጋታት ክዕብል? ለ.ዝ.: ጤና፣ ነጥብታት፣ ኣሙንስን። ጨዋታ እዛ ዋጋታት ይኽትትላ።",
+        "theme": "ገጽታ",
+        "themeDefault": "ነባሪ መልክዕ",
+        "themeHint": "ጸወታኡ ዝጻወተሉ መልክዕ።"
+      },
+      "editModal": {
+        "adminActionTitle": "ኣስታድሚን ግብሪ",
+        "adminActionWarning": "ዘይዝነብረሉ ጨዋታ ንምርማዕ ትምልእ ኢኻ። እዚ ግብሪ ኣስታድሚን እዩ ንምምርማር ብቻ ንትጠቀም ይግባእ።",
+        "gameDesignSection": "ዲዛይን ጨዋታ",
+        "title": "ጨዋታ ኣስተኻኽል",
+        "unsavedChanges": {
+          "discard": "ለውጥ ሰርዝ",
+          "keepEditing": "ኣስተኻኽል ቀጽል",
+          "message": "ንዘይተቐመጠ ለውጥ ኣለኻ። እነሆም ለውጦም ክትወስድ ትደሊ ዶ?",
+          "title": "ለውጦም ዘይተቐመጡ"
+        }
+      },
+      "empty": {
+        "description": "ጨዋታ ንጀምር ናብ ምፍጣር እንተለምን ተስፋፋሪ AI ጨዋታታት ትፈጥሩ።",
+        "title": "ጨዋታ የለን"
+      },
+      "errors": {
+        "loadFailed": "ጨዋታታት ምምጻት ኣይተኻኣለን። ንደገና ፈትኑ።",
+        "nameRequired": "ስም ጨዋታ ኣስፈላጊ እዩ",
+        "nameTooLong": "ስም ጨዋታ ኣብዚ 70 ፊደላት ዘይኮነ ይግባእ"
+      },
+      "features": {
+        "audio-in": "ናይ ድምጺ እታወታ",
+        "audio-live": "ቀጥታ ድምጺ",
+        "audio-out": "ትረኻ",
+        "images": "ስእልታት"
+      },
+      "fields": {
+        "created": "ተፈጢሩ",
+        "creator": "ፈጣሪ",
+        "me": "ኣነ",
+        "modified": "ተስተኻኺሉ",
+        "name": "ስም",
+        "playCount": "ዝጫወቱ",
+        "visibility": "ይርኣዩ"
+      },
+      "genres": {
+        "adventure": "ጀብዱ",
+        "npc-live": "NPC-ቀጥታ"
+      },
+      "importExport": {
+        "exportButton": "ጨዋታ ኣውጽእ",
+        "importButton": "ጨዋታ ኣቕብል"
+      },
+      "playNow": "ሕጂ ጫውታ",
+      "privacyHint": "ስምን መግለጺን ናይ ጸወታ ብዓይኒ ህዝቢ ክረአ ይኽእል። እባክኻ ሓቀኛ ስማት ኣይትጠቀም።",
+      "privacyHintShort": "ብዓይኒ ህዝቢ ክረአ ይኽእል – እባክኻ ሓቀኛ ስማት ኣይትጠቀም።",
+      "privateShare": {
+        "active": "ብዝፈለጠ ኣካፍሊ ንቅልጡፍ ኣብ ሓላፊ እዩ። ሊንኩ ዘይተሰናየ ዝለኣለ ኣንድ ይጫወታ ይኽእል።",
+        "aiQualityTier": "ጥራይ ኤ.ኣይ",
+        "aiQualityTierDescription": "እዚ ሊንክ ብምጥቃም ዘለዎም ኣንጻር ዝኾነ ጥራይ ሞዴል ኤ.ኣይ ምረጹ።",
+        "copyLink": "ሊንክ ኮፒ ግበር",
+        "createModalTitle": "ውልቃዊ ማካፈሊ ሊንክ ፍጠር",
+        "description": "ኣብቲ ጨዋታ ብምምዕራፍ ምስተዳልዮም እቲ ሊንክ ዘለዎም ሰባት ዝጫወቱ ዘሎም ኣየግበሩ ምስ ዝትሰርሑ ሊንክ ፍጠሩ። ንዕድል ንነቲ ክፍል ግዜ የኽፈል ቁልፊ ኢኻ ትረክብ።",
+        "edit": "ቅንብር ኣስተኻኽል",
+        "editModalTitle": "ውልቃዊ ማካፈሊ ሊንክ ኣርትዕ",
+        "editSettings": "ቅንብሮም ኣካፍሊ ኣስተኻኽል",
+        "enable": "ሊንክ ፍጠር",
+        "loading": "ሁነታ ኣካፍሊ እየ ምምጻት...",
+        "loadingKeys": "API ቁልፊታት እየ ምምጻት...",
+        "maxSessions": "ኣብልጽግና ክፍሊታት",
+        "maxSessionsDescription": "ባዶ ዕውን ንዘይተወሰነ ክፍሊ ምቕጻል።",
+        "noEligibleKeys": "ዝሰርሑ API ቁልፊ የለን። ቀዳማይ ኣብ API ቁልፊ ቅንብሮም ቁልፊ ወስኽ።",
+        "noPersonalShare": "ውልቃዊ ወይ ተቋማዊ ማካፈሊ ሊንክ የለንን። ካብ ስልጠና ወጻኢ ፍጠሩ ትኽእሉ።",
+        "orgKey": "ተቋም",
+        "orgShareDescription": "ማካፈሊ ሊንክ ተቋም - ኣታን ተሳታፊታት ኤፒአይ ቁልፊ ናይ ተቋም ይጥቀሙ።",
+        "personalCreateHint": "ውልቃዊ ሊንክ ፍጠር እንተ ደሊኻ ማንኛይ ዝሓተተ ሰብ እዚ ጨዋታ ብስውኣን ዘይኮነ ኣካውንት ክጫውት ይኽእል። ክፍያ ዝከፍል ኤፒአይ ቁልፊ ንምምራጽ ንራስኻ ትመርጽ።",
+        "personalOrgSubsection": "ውልቃዊ / ተቋማዊ ማካፈሊ ሊንክ",
+        "personalShare": "ውልቃዊ ማካፈሊ ሊንክካ",
+        "personalShareDescription": "ውልቃዊ ማካፈሊ ሊንክካ - ኣታን ተሳታፊታት እቲ ቁልፊ ኤፒአይ ንተመርጽካ ብምጥቃም ይጫውቱ።",
+        "remainingSessions": "{{count}} ክፍሊ(ታት) ዝተረፈ",
+        "revoke": "ሊንክ ሰርዝ",
+        "selectKey": "API ቁልፊ ምረፅ",
+        "selectKeyPlaceholder": "ንኣብልጽግና ክፍሊ ዝኽፈል ቁልፊ ምረፅ...",
+        "shareLink": "ሊንክ ኣካፍሊ",
+        "sourceOrg": "ተቋም",
+        "sourcePersonal": "ውልቃዊ",
+        "sourceWorkshop": "ስልጠና",
+        "title": "ብምስጢር ሊንክ ኣካፍሊ",
+        "unlimited": "ዘይተወሰነ",
+        "unlimitedSessions": "ዘይተወሰኑ ክፍለ-ግብር",
+        "update": "ሊንክ ኣዳምጥ",
+        "workshopCreateHint": "እዚ ጨዋታ ንምካፈል ሊንክ ፍጠር። ኤፒአይ ቁልፊ ናይ ስልጠና ብራእዩ ይመረጽ ወናኒ ወገን ይኽፈል።",
+        "workshopDescription": "እዚ ሊንክ ኣብ ውሽጢ ዎርክሾፕ \"{{name}}\" ተፈጢሩ እዩ – ኣጋይሽ ብቁልፊ API ናይቲ ዎርክሾፕን ብገደባት መምርሒን ይጻወቱ።",
+        "workshopShare": "ስልጠና ማካፈሊ",
+        "workshopShareDescription": "እዚ ሊንክ ኣብ ስልጠና \"{{name}}\" ተፈጢሩ እዩ - ኣታን ተሳታፊታት ቁልፊ ኤፒአይ ናይ ስልጠና ይጥቀሙ።",
+        "workshopSubsection": "ማካፈሊ ሊንክ ስልጠና"
+      },
+      "sharing": {
+        "active": "እንዳለ",
+        "privateShareLink": "ውልቃዊ ማካፈሊ ሊንክ",
+        "privateShareLinkDescription": "ውልቃዊ ማካፈሊ ሊንክታት ሓደ ሰብ ምንኛይ ኣብሎም ክጋሩን ክህቡን ይኽእሉ። ሊንኩ ዘሎዎ ማንኛይ ሰብ ኣካውንት ዘይድልዮ ጨዋታ ብስውኣን ክጫውት ይኽእል። ዋጋ ህድሪ ንምኽፋል ኤፒአይ ቁልፊ ምርጫ ግዱስ እዩ።",
+        "publicGameWorkshopHint": "እዚ ዕውታታዊ ጨዋታ እዩ እናተኾይነ ካብ ስልጠናኻ የተለየ። ኣብ ሞዴል ስልጠና ንዕውታታዊ ጨዋታት ኣማራጺ ምካፈል የለንን።",
+        "publicSponsoring": "ዕውታታዊ ስፖንሰሪንግ",
+        "publicSponsoringDescription": "ፕላትፎርሙ ላዕለዋይ ተጠቃሚ ኩሉ እዚ ጨዋታ ነፃ ክጫውት ይኽእል። ዝተመደበሉ ኤፒአይ ቁልፊ ዋጋ ይኽፈል።",
+        "sectionTitle": "ኣማራጺ ምካፈል",
+        "sectionTitleShareOnly": "ኣማራጺ ምካፈል",
+        "workshopShareRequiresPublic": "እዚ ጸወታ ኣብ ዎርክሾፕ ክካፈል ቅድሚኡ ንህዝቢ ክፉት ክኸውን ኣለዎ።"
+      },
+      "sort": {
+        "createdAt-asc": "ተፈጢሩ (ድሕሪቱ)",
+        "createdAt-desc": "ተፈጢሩ (ሓድሽ)",
+        "creator-asc": "ፈጣሪ (A-Z)",
+        "creator-desc": "ፈጣሪ (Z-A)",
+        "label": "ኣብ ምንባር ደርስ",
+        "modifiedAt-asc": "ተስተኻኺሉ (ድሕሪቱ)",
+        "modifiedAt-desc": "ተስተኻኺሉ (ሓድሽ)",
+        "name-asc": "ስም (A-Z)",
+        "name-desc": "ስም (Z-A)",
+        "playCount-asc": "ዝያዳ እዋኑ ዘይተጫወቱ",
+        "playCount-desc": "ብዙሕ ዝተጫወቱ",
+        "visibility-asc": "ብምስጥር ጨዋታታት ቀዳማይ",
+        "visibility-desc": "ሕቡራዊ ጨዋታታት ቀዳማይ"
+      },
+      "sponsor": {
+        "apiKey": "API ቁልፊ:",
+        "back": "ተመለስ",
+        "confirm": "ስፖንሰርና ኣረጋግጽ",
+        "confirmExplanation": "እቲ ጨዋታ ክትሰናይ እንተኣለኻ ኣብ እያንዳንዱ ክፍሊ ናይ ጨዋታ ቁልፊኻ ይከፍል። እዚ ጨዋታ ዝጫወቱ ኩሉ ሰብ ቁልፊኻ ይጥቀም - ዝኸፈለ ወጪ ንመለማመጃኻ ይምልከት።",
+        "confirmNote": "ምስተሰናይካ ናብ ቅንብሮም ጨዋታ ወይ API ቁልፊ ኣስተዳደር ኣብቲ ጊዜ ክትወግድ ትኽእል።",
+        "currentlySponsored": "እዚ ጨዋታ ሕጂ ተሰናይ እዩ። ናይ ስፖንሰር  API ቁልፊ ንኩሉ ክፍሊ ይከፍል።",
+        "description": "ብምስፖንሰር እዚ ጨዋታ እዚ ኩሉ ሰብ ብናጻ ክትጫወት ኣሎ። ናይ ንድፍ ዋጋ AI ንኩሉ ክፍሊ ናብ ቁልፊኻ ይጨንቁ።",
+        "gameName": "ጨዋታ:",
+        "gameStartMessage": "እዚ ጨዋታ ተሰናይ እዩ - ሰብ ሓቢሩ ወጪ AI እዩ ዝከፍለልካ። ተዓዋት!",
+        "gameStartOk": "ንሕና ንሂድ!",
+        "gameStartTitle": "ነጻ ምጫውታ!",
+        "loadingKeys": "API ቁልፊታት እየ ምምጻት...",
+        "manageSponsor": "ስፖንሰር ኣስተዳድር",
+        "next": "ቀጽል",
+        "noEligibleKeys": "ስፖንሰሪንግ ንምግባር ዝተፈቀዱ ኤፒአይ ቁልፊታት የለንን። በመጀመርታ ኣብ ቅንብራትካ ኤፒአይ ቁልፊ ጨምር።",
+        "privateWarning": "ጨዋታኻ ምስጥር እንተሃበው ህቡራዊ ስፖንሰርና ይጠፍእ።",
+        "removeSponsor": "ስፖንሰርና ኣወግድ",
+        "selectKey": "API ቁልፊ ምረፅ",
+        "selectKeyPlaceholder": "ንስፖንሰር ዝተምረጸ ቁልፊ...",
+        "sourceOrg": "ተቋም",
+        "sourcePersonal": "ውልቃዊ",
+        "sponsorGame": "ጨዋታ ሰናይ",
+        "sponsored": "ዝተሰናየ",
+        "sponsoredTooltip": "እዚ ጨዋታ ዝተሰናየ እዩ - ብናጻ ትጫወት! ፈጣሪ ጨዋታ ወይ ደጋፊ ወጪ AI ይከፍል።",
+        "title": "ጨዋታ ሰናይ"
+      },
+      "statusFieldsEditor": {
+        "addField": "ሓድሽ ዋጋ ወስኽ",
+        "namePlaceholder": "ስም (ለ.ዝ. ጤና)",
+        "noFields": "እቲ ዋጋታት የለን። ብ + ሓድሽ ዋጋ ወስኽ።",
+        "valuePlaceholder": "ዝጀመረሉ ዋጋ (ለ.ዝ. 100)"
+      },
+      "tabs": {
+        "basic": "መሰረታዊ",
+        "basicInfo": "ኣብ ጨዋታ ስለ ዘለዎ ኣብዚ ብቻ ይኹን። ጨዋታ ኣይተፅእኖን።",
+        "importExport": "ኣቕብል/ኣውጽእ",
+        "quickStart": "ብፍጥነት ጀምር",
+        "story": "ታሪክ እና AI",
+        "storyInfo": "ኣብዚ ዝተኣተነ ነገር ኩሉ ንAI ይላእ። ጨዋታኻ ዓለም እና ታሪክ ይተሓለፈሉ።",
+        "style": "ዲዛይን",
+        "styleInfo": "ብግድ ቅንብሮም እዚ ብዝጫወቱ ጊዜ ምስል ጨዋታኻ ንምተዋወብ።"
+      },
+      "theme": {
+        "presets": {
+          "abstract": "ኣብስትራክት",
+          "adventure": "ጀብዱ",
+          "barbie": "ባርቢ",
+          "candy": "ጣፋጣ",
+          "circus": "ሰርከስ",
+          "cyberpunk": "ሳይበርፓንክ",
+          "default": "ነባሪ",
+          "desert": "ምድረ በዳ",
+          "detective": "መርማሪ",
+          "educational": "ትምህርታዊ",
+          "fairy": "ፌሪ",
+          "fire": "ሓዊ",
+          "garden": "ኣታኽልቲ",
+          "glitch": "ግሊች",
+          "greenFantasy": "ሓምላይ ምናባዊ",
+          "hacker": "ሓከር",
+          "horror": "ራዕዲ",
+          "jungle": "ጫካ",
+          "matrix": "ማትሪክስ",
+          "medieval": "መካከለኛ ዘመን",
+          "minimal": "ሚኒማል",
+          "mystery": "ምስጢር",
+          "mystic": "ምስጢራዊ",
+          "nature": "ተፈጥሮ",
+          "nautical": "ባሕራዊ",
+          "noir": "ኖይር",
+          "ocean": "ውቅያኖስ",
+          "pirate": "ሽፍታ ባሕሪ",
+          "playful": "ቀልዳዊ",
+          "retro": "ሬትሮ",
+          "romance": "ፍቕሪ",
+          "school": "ቤት ትምህርቲ",
+          "scifi": "ሳይ-ፋይ",
+          "snowy": "በረዳዊ",
+          "space": "ጠፈር",
+          "steampunk": "ስቲምፓንክ",
+          "storybook": "መጽሓፍ ተረት",
+          "sunshine": "ብርሃን ጸሓይ",
+          "superhero": "ልዕለ ጀግና",
+          "tech": "ቴክኖሎጂ",
+          "terminal": "ተርሚናል",
+          "underwater": "ትሕቲ ማይ",
+          "western": "ምዕራባዊ",
+          "zombie": "ዞምቢ"
+        }
+      },
+      "title": "ጨዋታታቲ ዝፈጠረዉ",
+      "viewModal": {
+        "readOnlyNotice": "እዚ ጨዋታ ብካልእ ተጠቃሚ ተፈጢሩ። ዝርዝሩ መርኣይ ትኽእል ግን ምኣስተኻኽል ኣይትኽእልን። \"ኮፒ\" ብምጥቃም ሓድሽ ንኽትኣስተኻኽል ትኽእል።",
+        "title": "ዝርዝር ጨዋታ"
+      },
+      "visibility": {
+        "private": "ብምስጢር",
+        "public": "ሕቡራዊ"
+      }
+    },
+    "header": {
+      "apiKeys": "API ቁልፊታት",
+      "closeNavigation": "መመርያ ማዕረ ዕጽው",
+      "contact": "ተወዳድር",
+      "goToDashboard": "ናብ ዳሽቦርድ ሂድ",
+      "leaveWorkshopMode": "ካብ ሞድ ወርክሾፕ ውጽእ",
+      "leaveWorkshopModeTooltip": "ካብ ሞድ ወርክሾፕ ውጽእ ናብ መደበኛ እይታ ምምላስ",
+      "logout": "ውጽእ",
+      "openNavigation": "መመርያ ማዕረ ከፍት",
+      "openUserMenu": "መነሻ ተጠቃሚ ክፈት",
+      "organization": "ማሕበር",
+      "profile": "ፕሮፋይል",
+      "workshop": "ወርክሾፕ"
+    },
+    "help": "ሓገዝ",
+    "home": {
+      "codeCta": "ኮድ ኣእቱ",
+      "features": {
+        "create": {
+          "description": "ብAI ዝተደገፈ ጽሑፋዊ መንበር ኣተሓሳስሩ",
+          "title": "መንበራት ፍጠሩ"
+        },
+        "learn": {
+          "description": "ንትምህርቲ ወርክሾፕን ክፍል ትምህርቲ እግዲኛ",
+          "title": "ማርኮን ኣስተምሮን"
+        },
+        "play": {
+          "description": "ሓፋሽ ብኣዕሪብ ሓባራዊ ትሕዝቶ ንኽትጨውቱ",
+          "title": "ኣብ ሓባር ጫውት"
+        },
+        "title": "ለምን ChatGameLab?",
+        "understand": {
+          "description": "AI ሞዴላት ታሪኽ ክእዱ እንትሕዝብ ተመርምሩ",
+          "title": "AI ተረድኡ"
+        }
+      },
+      "loginCta": "ግባን ምርኣይን",
+      "splashDescription": "ኣብ ትምህርታዊ መድረኽ AI ዝተደገፈ ጽሑፋዊ ጨዋታ ምፍጣርን ምጫውታን ዝበለጸ። ንመምህራን፣ ተማሃሪን እና ሓሳሳባዊ ኣዳራሽ ተመጣጣእ።"
+    },
+    "inviteAlreadyExists": "እዚ ኢ-መይል ኣብዚ ምትሕታዊ እቶት ኣሎ።",
+    "inviteError": "እቶት ምልኣኽ ኣይተኻኣለን። ንደገና ፈትኑ።",
+    "inviteTeacher": "መምህር እተው",
+    "inviteTeacherDescription": "መምህር ንማሕበርካ ንምውሳኽ እቶት ላእኽ።",
+    "inviteTeacherTitle": "መምህር እተው",
+    "inviteUser": "ተጠቃሚ እተው",
+    "inviteUserDescription": "ተጠቃሚ ምንታይ ሚና ዘይተሰጠሉ ናብ ማሕበርካ ንምውሳኽ እቶት ላእኽ።",
+    "inviteUserTitle": "ተጠቃሚ እተው",
+    "invites": {
+      "accept": {
+        "inviteMessage": "ናብ ወርክሾፕ ናይ ማሕበር \"{{organization}}\" እትተጋበየኩም።",
+        "inviteMessageSimple": "ናብዚ ወርክሾፕ እትተጋበየኩም።",
+        "joinButton": "ናብ ወርክሾፕ ግባ",
+        "title": "ወርክሾፕ ተቀበል",
+        "titleWithWorkshop": "ወርክሾፕ \"{{workshop}}\" ተቀበል"
+      },
+      "alreadyMember": {
+        "enterButton": "ወርክሾፕ ኣእትዎ",
+        "message": "ወርክሾፕ \"{{workshop}}\" ክትገብር ትደሊ ዶ? ኣብ ሞድ ወርክሾፕ ትምህር ትኣቱ እና ጨዋታት ብናብ ዝተመረጸ ሞንት ትፈጥር።",
+        "title": "ወርክሾፕ ተቀበል"
+      },
+      "errors": {
+        "acceptFailed": "እቶት ምቕባል ኣይተኻኣለን። ንደገና ፈትኑ።",
+        "expired": "እዚ እቶት ሊንክ ግዜ ውሑስ ኣሎ።",
+        "loadFailed": "ዝርዝር እቶት ምምጻት ኣይተኻኣለን። ንደገና ፈትኑ።",
+        "notFound": "እዚ እቶት ሊንክ ዘይተረጋገጸ ወይ ተደምስሰ።",
+        "tokenLocked": "ብዙሓት ዘይተዓወቱ ፈተነታት – እባክኻ ድሕሪ ገለ ግዜ እንደገና ፈትን።"
+      },
+      "goHome": "ናብ መነሻ ሂድ",
+      "participant": {
+        "loggingIn": "እስካ ንመእተው..."
+      },
+      "success": {
+        "message": "ወርክሾፕ ብዓቢ ተቐቢልኻ። እዚ እየ ምትሃዝም...",
+        "title": "እንኳዕ ብደሓን!"
+      },
+      "switchWorkshop": {
+        "message": "ጨዋታታትኻ እና ውልቀ ስራሕካ ኣብ ናይ ኣርክዖም ወርክሾፕ እንዳለዎ ይቀመጥ። ግን እዛ ኣይትኽእልን ካብ ዝርከብካዮ ሞድ ድሕሪ ምእድል።",
+        "stayButton": "ኣብ ናይ ኣሎኻዮ ወርክሾፕ ቆይ",
+        "switchButton": "ወርክሾፕ ቀይር",
+        "title": "ወርክሾፕ ቀይር?",
+        "warning": "ኣብ ሕጂ ወርክሾፕ \"{{currentWorkshop}}\" ኣሎኻ። \"{{newWorkshop}}\" ካብ መራኸብካ ወጺእካ ክህብ እዩ።"
+      }
+    },
+    "labels": {
+      "no": "ኣይፋል",
+      "yes": "እወ"
+    },
+    "languageSwitcher": {
+      "wipHint": "ተወሳኺ ቋንቋታት ብስራሕ ላዕሊ እዮም። ሕጂ እንግሊዝኛን ጀርመን ብቻ እዮም ዝገናአዩ።",
+      "wipLabel": "WIP"
+    },
+    "leaveConfirm": "\"{{name}}\" ክትፈትን ትደሊ ዶ?",
+    "leaveOrganization": "ማሕበር ውጽእ",
+    "leaveTitle": "ማሕበር ውጽእ",
+    "leaveWarning": "ናይ ማሕበር ሓበሬታን ኣባላትን መዳረሻ ትጥፈእ።",
+    "loading": "እየ ምምጻት...",
+    "logout": "ውጽእ",
+    "me": "ኣነ",
+    "myGames": {
+      "continue": "ተጻወት",
+      "copyConfirm": {
+        "confirm": "ጨዋታ ኮፒ ግበር",
+        "message": "\"{{name}}\" ኮፒ ኣብ ጨዋታታትካ ይፈጥር።",
+        "title": "ጨዋታ ኮፒ ግበር"
+      },
+      "copyGame": "ጨዋታ ኮፒ ግበር",
+      "empty": {
+        "description": "ናይ AI ዝተነበበ ጨዋታታት ንምፍጣር የጀምር እንተደለኻ።",
+        "title": "ጨዋታ የለን"
+      },
+      "favorite": "ናብ ወደፍቲ ወስኽ",
+      "filters": {
+        "all": "ኩሉ",
+        "favorites": "ወደፍቲ"
+      },
+      "play": "ጫውታ",
+      "restart": "እንደገና ጀምር",
+      "restartConfirm": {
+        "confirm": "እንደገና ጀምር",
+        "message": "\"{{game}}\" እንደገና ክትጅምሮ ትደሊ ዲኻ? ናይ ሕጂ ምዕባለኻ ክጠፍእ እዩ።",
+        "title": "ጸወታ እንደገና ጀምር"
+      },
+      "title": "ጨዋታታይ",
+      "unfavorite": "ካብ ወደፍቲ ኣውጽእ"
+    },
+    "myOrganization": {
+      "actions": "እቶም ተግባራት",
+      "apiKeys": {
+        "aboutDescription": "ኣብዚ ዝተካፈሉ ኤፒአይ ቁልፊታት ኣባላት ተቋማኻ ኩሉ ጨዋታት ንምጫውታ ክጥቀሙሉ ይኽእሉ።",
+        "aboutTitle": "ናይ ማሕበር API ቁልፊታት",
+        "allowPublicSponsoring": "ሕቡራዊ ስፖንሰርና ፍቕድ",
+        "allowPublicSponsoringDesc": "እዚ ቁልፊ ንኩሉ ተጠቃሚ ጨዋታ ምስፖንሰር ይኽእል።",
+        "filterByPlatform": "ብመድረኽ ፈልጥ",
+        "freeUseKey": {
+          "description": "ናይ ነፃ ጥቅም ቁልፊ ብምርጫ ኣባላት ተቋማኻ ናይ እውን ኤፒአይ ቁልፊ ዘይድልዮም ጨዋታት ንምጫውታ ንምትእትው ትኽእሉ።",
+          "remove": "ኣወግድ",
+          "selectPlaceholder": "ቁልፊ ምረጽ...",
+          "title": "ነጻ ጥቕም ቁልፊ",
+          "unknownKey": "ቁልፊ ዘይታወቀ"
+        },
+        "keyName": "ስም ቁልፊ",
+        "loadError": "ናይ ማሕበር API ቁልፊታት ምምጻት ኣይተኻኣለን።",
+        "noKeys": "ኣብዚ ማሕበር ቁልፊ ዘይተካፈሉ።",
+        "noResults": "API ቁልፊ ኣይተረኸበን።",
+        "notAuthorized": "ናይ ማሕበር API ቁልፊታት ምሕዳር ክትገብር ፍቓድ የብልካን። ሓላፊን መምህራንን ብቻ ይፈቱ።",
+        "owner": "ባለቤት",
+        "platform": "መድረኽ",
+        "publicSponsoring": "ሕቡራዊ ስፖንሰርና",
+        "searchPlaceholder": "ብስም ወይ ባለቤት ፈልጥ...",
+        "selectKey": "API ቁልፊ ምረፅ",
+        "selectKeyPlaceholder": "ምካፍል ቁልፊ ምረፅ...",
+        "share": "ኣካፍል",
+        "shareKey": "ቁልፊ ኣካፍል",
+        "shareKeyTitle": "API ቁልፊ ንማሕበር ኣካፍል",
+        "showDetails": "ዝርዝር ኣርአ",
+        "title": "ናይ ማሕበር API ቁልፊታት"
+      },
+      "autoShare": {
+        "confirmMessage": "እዚ ቁልፊ ከም {{orgName}} ይካፈል እዩ፣ ድሕሪውን ራሕብን ሰራሕተኛታትን ንስልጠናታት ምጥቃም ይኽእሉ። ድሕሪ እዚ ምካፈል ካብ ውልቃዊ ወይ ተቋማዊ ምምሕዳር ኤፒአይ ቁልፊ ስር ምልቀስ ትኽእል።",
+        "confirmTitle": "ቁልፊ ንተቋም ኣካፍል",
+        "orgKeyGroup": "ኤፒአይ ቁልፊታት ተቋም",
+        "personalKeyGroup": "ኤፒአይ ቁልፊታት ውልቃዊ"
+      },
+      "demoteConfirm": "\"{{name}}\" ({{email}}) ናብ መምህር ክትዋህብ ትደሊ ዶ?",
+      "demoteTitle": "ናብ መምህር ኣውርድ",
+      "demoteToStaff": "ናብ መምህር ኣውርድ",
+      "email": "ኢ-መይል",
+      "emailPlaceholder": "ኢ-መይል ኣእቱ",
+      "empty": "ብዚ ማሕበር ኣባል የለን።",
+      "inviteAlreadyExists": "እዚ ኢ-መይል ምትሕታዊ እቶት ኣሎ።",
+      "inviteError": "እቶት ምልኣኽ ኣይተኻኣለን። ንደገና ፈትኑ።",
+      "inviteTeacher": "መምህር እተው",
+      "inviteTeacherDescription": "መምህር ናብ ማሕበርካ ንምውሳኽ እቶት ላእኽ።",
+      "inviteTeacherTitle": "መምህር እተው",
+      "inviteUser": "ተጠቃሚ እተው",
+      "inviteUserDescription": "ተጠቃሚ ምንታይ ሚና ዘይተሰጠሉ ናብ ማሕበርካ ንምውሳኽ እቶት ላእኽ።",
+      "inviteUserTitle": "ተጠቃሚ እተው",
+      "lastHeadError": "ንዚ ማሕበር መጨረሻዋይ ሓላፊ ኢኻ። ምድላይ ብተሓትነት እንተደለኻ ኣስተዳዳሪ ሳይቱ ኣሕቱ።",
+      "leaveConfirm": "\"{{name}}\" ክትፈትን ትደሊ ዶ?",
+      "leaveError": "ካብ ማሕበር ምውጻእ ኣይተኻኣለን። ንደገና ፈትኑ።",
+      "leaveOrganization": "ማሕበር ውጽእ",
+      "leaveTitle": "ማሕበር ውጽእ",
+      "leaveWarning": "ናይ ማሕበር ሓበሬታን ኣባላትን መዳረሻ ትጥፈእ።",
+      "me": "ኣነ",
+      "name": "ስም",
+      "noEmail": "ኢ-መይል የለን",
+      "noOrganization": "ማሕበር የለና",
+      "noOrganizationDescription": "ኣብ ማሕበር ኣባል ኣይኮነካን።",
+      "noResults": "ኣባላት ኣይተረኸቡን።",
+      "noRole": "ሚና የለን",
+      "promoteConfirm": "\"{{name}}\" ({{email}}) ናብ ሓላፊ ክትመሃሩ ትደሊ ዶ?",
+      "promoteTitle": "ናብ ሓላፊ ኣምር",
+      "promoteToHead": "ናብ ሓላፊ ኣምር",
+      "promoteWarning": "እዚ ተጠቃሚ ናይ ኣባላት ማሕበር ኣስተዳድርን መምህራን ምልኣኽን ስልጣን ይገናእ።",
+      "promptConstraintsFallbackEmpty": "(ኣይተስተኻኸለን)",
+      "promptConstraintsFallbackHint": "መገዲ ውድብ ገደብ ኣይተስተኻኸለን። ናይ ዕድመ ተጫዋቲ ናይ ሙሉእ ሳይት ነባሪ ስእለት ይፈጽም፦",
+      "promptConstraintsFallbackTitle": "ተግባራዊ ሙሉእ-ሳይት መደብ ምቕላቕል",
+      "promptConstraintsFallbackU13": "ከሳሕ 13",
+      "promptConstraintsFallbackU13p": "13–17 (ብፍቓድ ወላዶም)",
+      "promptConstraintsFallbackU18": "18 እና ካብዚ ዕድመ",
+      "promptConstraintsHint": "ኣብዚ ተቋም ኩሉ ክፍለ-ግብሪ ላዕለዋይ ተጨማሪ መምሪያታት ኤ.ኣይ። ናይ ስልጠና ደረጃ መገዲ ዘይተተኻኸለ እንተ ኮይኑ እናኮይኑ ብሊንክ ዝተካፈሉ ጨዋታት ላዕለዋይ ይኣፍልጥ።",
+      "promptConstraintsLabel": "የተቋም መገዲ ፕሮምፕት",
+      "promptConstraintsPlaceholder": "ለምሳሌ፡ ታሕቲ ዕድመ ዘለዎም ተጠቃሚታት ትሕዝቶ ንምርግጋዝ፣ ግድለት እና ሓሳዊ ትሕዝቶ ኣብ ጨዋታት ኣይክፍል።",
+      "publicPage": {
+        "changeLinkMessage": "ድሕሪኡ እቲ ገጽ ኣብ {{url}} ክርከብ እዩ።",
+        "changeLinkTitle": "እቲ ሊንክ ክቕየርዶ?",
+        "changeLinkWarning": "እቲ ናይ ቀደም ሊንክ ስራሕ ክገብር ኣይክእልን – ድሮ ተሓቲሞም ወይ ዝተላእኩ ኮዳት QR እውን ይርከብዎም።",
+        "description": "ብዘይ መእተዊ ዝርአ ገጽ እዩ፣ እቲ ዎርክሾፕ ብዛዕባ ምንታይ ከም ዝነበረ ይገልጽ፣ ከምኡውን ናይ ጉጅለ ህዝባዊ ጸወታታት ይዝርዝር። መን ከም ዝሰርሖ ፈጺሙ ኣይጠቅስን።",
+        "descriptionError": "እቲ መግለጺ ክዕቀብ ኣይከኣለን።",
+        "enabled": "ህዝባዊ ገጽ ኣርኢ",
+        "enabledHint": "እንተ ተዓጽዩ፣ እቲ ሊንክ ሓበሬታ ጥራይ የርኢ፣ ናይቲ ገጽ መጻወቲ ሊንክታት ድማ ስራሕ ይቋረጽ።",
+        "link": "ሊንክ",
+        "linkHint": "a–z፣ 0–9 ን ንጽል ሰረዝን ተጠቐም፣ ካብ 3 ክሳብ 60 ቁምፊታት።",
+        "links": {
+          "add": "መላግቦ ወስኽ",
+          "down": "ናብ ታሕቲ ኣንቀሳቕስ",
+          "error": "እቶም መላግቦታት ክዕቀቡ ኣይከኣሉን። ነፍሲ ወከፍ መላግቦ ርእስ ክህልዎ ኣለዎ፣ ነፍሲ ወከፍ ኣድራሻ ድማ ብ http:// ወይ https:// ክጅምር ኣለዎ።",
+          "hint": "ኣብታ ገጽ ኣብ ትሕቲ ጸወታታት ይርአ። ብዝሒ 10 ጥራይ።",
+          "linkDescription": "መግለጺ (ኣማራጺ)",
+          "linkTitle": "ርእሲ",
+          "remove": "ኣልግስ",
+          "save": "መላግቦታት ዕቀብ",
+          "title": "ተወሰኽቲ መላግቦታት",
+          "up": "ናብ ላዕሊ ኣንቀሳቕስ",
+          "url": "ኣድራሻ"
+        },
+        "offHint": "እቲ ገጽ ተዓጽዩ ኣሎ። ነቲ ሊንክን ኮድ QRን ክትዳሎ ግን ትኽእል።",
+        "open": "ገጽ ክፈት",
+        "shareDescription": "ነዚ ሊንክ ስደዶ ወይ ከም ኮድ QR ኣርእዮ።",
+        "shareTitle": "ህዝባዊ ገጽ",
+        "showLink": "ሊንክን ኮድ QRን ኣርኢ",
+        "slugInvalid": "a–z፣ 0–9 ን ንጽል ሰረዝን ተጠቐም፣ ካብ 3 ክሳብ 60 ቁምፊታት።",
+        "slugTaken": "እዚ ሊንክ ድሮ ተወሲዱ ኣሎ።",
+        "text": "መግለጺ",
+        "textHint": "እቲ ዎርክሾፕ ብዛዕባ ምንታይ እዩ ነይሩ? ብዝሒ 2000 ቁምፊታት።",
+        "title": "ህዝባዊ ገጽ"
+      },
+      "removeConfirm": "\"{{name}}\" ካብ ማሕበር ክትወግድ ትደሊ ዶ?",
+      "removeMember": "ኣባል ኣውጽእ",
+      "removeTitle": "ኣባል ኣወግድ",
+      "removeWarning": "እዚ ተጠቃሚ ኣብ ማሕበር መዳረሻ ይጥፍእ።",
+      "role": "ሚና",
+      "searchPlaceholder": "ኣባላት ፈልጥ...",
+      "showing": "{{count}} ኣባላት",
+      "sort": {
+        "label": "ኣብ ምንባር ደርስ",
+        "name-asc": "ስም (A-Z)",
+        "name-desc": "ስም (Z-A)",
+        "role-asc": "ሚና (A-Z)",
+        "role-desc": "ሚና (Z-A)"
+      },
+      "title": "ማሕበርይ",
+      "workshops": {
+        "activate": "ኣንብር",
+        "active": "እንዳለ",
+        "activeDescription": "ንኽብብሎም ተሳታፊታት ኣብ እንተሰርሑ ጨዋታታት ይፈጥሩ።",
+        "activeLabel": "እንዳለ",
+        "addIndividual": "ኣባል ተቋም ጨምር",
+        "addIndividualError": "ኣባል ናብ ስልጠና ምእታው ኣልቦ።",
+        "addIndividualHint": "ተጠቃሚ ንምጨመር እትደሊ እንተ ኮይንካ ብራእዩ ናብ ሞዴ ስልጠና ይግበር። ዳሽቦርድኦም እቲ ሞዴ ስልጠና ይርከብ። ነዚ እንተ ትደሊ ብቕልጡፍ ግብሪ ብቻ ጠቀም።",
+        "addIndividualStaffNote": "ራሕብን መምህራንን ብራእዮም ካብ ዝርዝር ስልጠናታት ናብ ስልጠና ይገባሉ - ኣብዚ ዝርዝር ኣይተረኽቡን።",
+        "addIndividualSuccess": "ኣባል ተጨመረ",
+        "addIndividualSuccessMessage": "{{name}} ናብ ስልጠና ተጨመረ።",
+        "addIndividualTitle": "ግለ ሰብ ናብ ስልጠና ጨምር",
+        "addToWorkshop": "ናብ ስልጠና ጨምር",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "ደረጃ ጥራይ AI ንመልስ። ዝልዕሉ ደረጃ ዋጋ ይንፍስ እዩ ግን ጥራይ ይሓብ። ባዶ ንናይ ሰርቨር ነባሪ ይጥቀም።",
+        "allowGameSharing": "ምካፈል ጨዋታ ፍቀድ",
+        "allowGameSharingHint": "እዚ እንተ ተኣኺዐ ተሳታፊታት ንጨዋታቶም ሊንክ ብኤፒአይ ቁልፊ ናይ ስልጠና ክፍጠሩ ይኽእሉ።",
+        "anonymousParticipant": "ስም ዘይብል ተሳታፊ",
+        "create": "ወርክሾፕ ፍጠር",
+        "createFirst": "መጀመርታ ወርክሾፕካ ፍጠር",
+        "createInviteLink": "ሊንክ እቶት ፍጠር",
+        "createTitle": "ወርክሾፕ ፍጠር",
+        "deactivate": "ኣትኅትን",
+        "defaultApiKey": "ነባሪ API ቁልፊ",
+        "defaultApiKeyHint": "ተሳታፊታት ጨዋታ እንተጫወቱ እዞም ቁልፊ ይጥቀሙ።",
+        "deleteConfirm": "\"{{name}}\" ክትደምስስ ትደሊ ዶ?",
+        "deleteTitle": "ወርክሾፕ ሰርዝ",
+        "deleteWarning": "ኩሉ ጨዋታን ክፍሊታትን ኣብዚ ወርክሾፕ ይጠፍእ። ኣይተመለሰን።",
+        "editParticipant": "ስም ኣስተኻኽል",
+        "empty": "ወርክሾፕ የለን።",
+        "enterWorkshop": "ናብ ሞድ ወርክሾፕ ግባ",
+        "games": "ጨዋታታት",
+        "hideInactive": "ዘይንብሩ ሰንብት",
+        "inactive": "ዘይንብሩ",
+        "inviteByEmail": "ብኢሜይል ጋብተ",
+        "inviteByEmailDescription": "ዝተመዝገበ ተጠቃሚ ስም ኢሜይሉ ኣእትዉ ናይዚ ስልጠና ንምስዋእ። ምእታው ናብ ዳሽቦርድኦም ዝርከብ ግባእ ይርከብ።",
+        "inviteByEmailSuccess": "ግባእ ተልአኾ",
+        "inviteByEmailSuccessMessage": "ግባእ ተፈጢሩ እዩ። ተጠቃሚ እቲ ኣብ ተጠባባቂ ግባኣቶም ይርከብ።",
+        "inviteByEmailTitle": "ተጠቃሚ ናብ ስልጠና ጋብተ",
+        "inviteCreatedAt": "ተፈጢሩ",
+        "inviteDescription": "ተሳታፊታት እዚ ወርክሾፕ ንምውሳኽ ዝግበር ሊንክ ፍጠር።",
+        "inviteExpiresAt": "ይወድስ",
+        "inviteLink": "ሊንክ እቶት",
+        "inviteLinkDescription": "እዚ ሊንክ ተሳታፊታት ንምውሳኽ ኣካፍል።",
+        "inviteLinkTitle": "ናይ ተሳተፍቲ ዕድመ ሊንክ – {{name}}",
+        "inviteUsage": "ተጠቃሚነት",
+        "isPaused": "ወርክሾፕ ምሕላው",
+        "isPausedHint": "እቲ ወርክሾፕ ምሕላው እንተኮይኑ ተሳታፊታት ኣብ ላሕሊ ተዓባብሉ ጨዋታታት ኣይንበሩን።",
+        "joined": "ተቐማጢ",
+        "linkCopied": "ሊንክ ተኮፊዩ",
+        "linkCopiedMessage": "ሊንክ እቶት ናብ ቅርጻ-ቆፅሪ ተኮፊዩ።",
+        "loadError": "ወርክሾፕታት ምምጻት ኣይተኻኣለን።",
+        "nameLabel": "ስም ወርክሾፕ",
+        "namePlaceholder": "ለ.ዝ. ዝግልጽ 2016",
+        "noActiveInvite": "ሕጂ ሊንክ እቶት የለን።",
+        "noDefaultApiKey": "ነባሪ API ቁልፊ የለን",
+        "noDefaultModel": "ነባሪ መድረኽ ተጠቀም",
+        "noIndividuals": "ኣብዚ ተቋም ግለ ኣባላት የለዉን።",
+        "noParticipantToken": "እዚ ተሳታፊ ሊንክ እቶት የለዎን። ስም ዘይብሉ ተሳታፊ (ጋስት) ብቻ ዝነብሩ ሊንክ ኣለዎም።",
+        "noParticipants": "ተሳታፊ የለን",
+        "notAuthorized": "ወርክሾፕ ምሕዳር ፍቓድ የብልካን። ሓላፊን መምህራንን ብቻ ይፈቱ።",
+        "participantGames": "{{count}} ጨዋታታት",
+        "participantJoined": "ተቐማጢ {{date}}",
+        "participantLinkTitle": "ናይ ዳግማይ መእተዊ ሊንክ",
+        "participantLinkTitleNamed": "ናይ {{name}} ዳግማይ መእተዊ ሊንክ",
+        "participantName": "ስም ተሳታፊ",
+        "participants": "ተሳታፊታት",
+        "promptConstraintsFallbackOrg": "መገዲ ተቋም እንተሞላን እዩ ዝተጠቀሙ: {{constraint}}",
+        "promptConstraintsFallbackSite": "መገዲ ሳይት እንተሞላን እዩ ዝተጠቀሙ",
+        "promptConstraintsHint": "እዚ ስልጠና ኩሉ ክፍለ-ግብሪ ላዕለዋይ ተጨማሪ መምሪያታት ኤ.ኣይ።",
+        "promptConstraintsLabel": "ገደታት ፕሮምፕት",
+        "promptConstraintsPlaceholder": "ለምሳሌ፡ ታሪኹ ንዕድመ ዝተማሓየሸ ከም ዘሎ ግበሩን ንጽንፈት ጭካኔ ርቡዕዎ።",
+        "removeParticipant": "ተሳታፊ ኣውጽእ",
+        "removeParticipantConfirm": "\"{{name}}\" ካብዚ ወርክሾፕ ክትወግድ ትደሊ ዶ?",
+        "removeParticipantMessage": "\"{{name}}\" ካብዚ ዎርክሾፕ ብሓቂ ከተልግሶ ትደሊዶ?",
+        "removeParticipantTitle": "ተሳታፊ ኣወግድ",
+        "removeParticipantWarningPermanent": "በዚ ኣካውንት እዚ ሰብን ኩሎም ዝፈጠሮም ጸወታታትን ብቐዋሚ ይድምሰሱ፣ ምስ ኩሎም መዝገባት ጸወታን ዝተኻፈሉ መላግቦታትን። እዚ ክትመልሶ ኣይከኣልን። እቶም ጸወታታት ክዕቀቡ እንተደሊኻ፣ ቅድሚ ሕጂ ከም YAML ኣውርዶም።",
+        "removeParticipantWarningVisiting": "እዚ ሰብ ኣካውንቱን ጸወታታቱን ይዕቅብ። እቲ መእተዊ መሰል ናብዚ ዎርክሾፕ ጥራይ ይውዳእ።",
+        "resetAccess": "መእተዊ ፍቓድ ዳግማይ ኣዳልው",
+        "resetAccessDone": "ሓድሽ መእተዊ ተፈጢሩ። እቲ ናይ ቀደም ሊንክ ደጊም ኣይሰርሕን።",
+        "resetAccessError": "መእተዊ ፍቓድ ዳግማይ ክዳሎ ኣይከኣለን። እባክኻ እንደገና ፈትን።",
+        "resetAccessMessage": "ሓድሽ ሊንክ ምስ ሓድሽ ኮድ ክፍጠር እዩ።",
+        "resetAccessTitle": "መእተዊ ፍቓድ ዳግማይ ክዳሎዶ?",
+        "resetAccessWarning": "እቲ ናይ ቀደም ሊንክን ኮድን ስራሕ ክገብሩ ኣይክእሉን – እቲ ተሳታፊ ኣብዚ ሕጂ ተመዝጊቡሉ ዘሎ መሳርሒታት እውን ይርከብዎም።",
+        "revokeInvite": "ሊንክ እቶት ሰርዝ",
+        "selectApiKey": "API ቁልፊ ምረፅ",
+        "serverDefault": "Server Default",
+        "settings": "ቅንብሮም",
+        "shareParticipantLink": "ናይ ዳግማይ መእተዊ ሊንክ ኣርኢ",
+        "showOtherParticipantsGames": "ጨዋታታት ሓዳሕዳ ተሳታፊታት ኣሳይ",
+        "showOtherParticipantsGamesHint": "ራሕብን ሰራሕተኛታትን ናይ ተሳታፊ ኩሉ ጨዋታታት ንምምርማር ምርኣይ ይኽእሉ",
+        "showPublicGames": "ሕቡራዊ ጨዋታ ንተሳታፊታት ኣሳይ",
+        "sort": {
+          "createdAtAsc": "ድሕሪቱ ቀዳማይ",
+          "createdAtDesc": "ሓድሽ ቀዳማይ",
+          "label": "ኣብ ምንባር ደርስ",
+          "nameAsc": "ስም (A-Z)",
+          "nameDesc": "ስም (Z-A)",
+          "participantsAsc": "ትንሽ ተሳታፊታት",
+          "participantsDesc": "ብዙሕ ተሳታፊታት"
+        },
+        "subtitle": "ወርክሾፕታት ኣስተዳድር፣ ተሳታፊታት ኣብ ጨዋታ ንምትሕዛዝ እቶት ላእኽ።",
+        "title": "ወርክሾፕታት",
+        "unpause": "ከም ዝነበረ መለስ",
+        "usedCount": "{{count}} ኣጠቓቕሞም",
+        "viewInviteLink": "ሊንክ እቶት ተመልከት"
+      }
+    },
+    "name": "ስም",
+    "noEmail": "ኢ-መይል የለን",
+    "noOrganization": "ማሕበር የለና",
+    "noOrganizationDescription": "ተቀማጢ ማሕበር ኣይኮነካን።",
+    "noResults": "ኣባላት ኣይተረኸቡን።",
+    "noRole": "ሚና የለን",
+    "notifications": {
+      "accept": "ተቐበል",
+      "decline": "ኣትቕበል",
+      "declineConfirm": "እዚ እቶት ክትነእት ትደሊ ዶ?",
+      "declineTitle": "እቶት ኣትቕበል",
+      "empty": "ሓድሽ ማሳሰቢ የለን።",
+      "inviteDescription": "እቲ እቶት ነቲ {{role}} ከም ኣባል ክትኣቱ እዩ።",
+      "inviteToJoin": "እቶት ማሕበር",
+      "title": "ማሳሰቢታት",
+      "workshopInvite": "ስልጠና ግባእ",
+      "workshopInviteDescription": "ናብዚ ስልጠና ምእታው ትጋብተ ተመክሮም።"
+    },
+    "play": {
+      "cloneGame": "ተመሳሳሊ ጨዋታ ዕቅዲ ኣብ ጨዋታይ",
+      "empty": {
+        "description": "ፍልሰትካ ቀይር ወይ ድሕሪ ግዜ ሓድሽ ጨዋታታት ምርኣይ ተመልከት።",
+        "title": "ጨዋታ ኣይተረኸበን"
+      },
+      "favorite": "ናብ ወደፍቲ ወስኽ",
+      "filters": {
+        "all": "ኩሉ ጨዋታታት",
+        "favorites": "ወደፍቲ",
+        "organization": "ማሕበር",
+        "own": "ጨዋታይ",
+        "public": "ህቡራዊ"
+      },
+      "owner": "የኔ",
+      "playGame": "ዚ ጨዋታ ጫውታ",
+      "playNow": "ሕጂ ጫውታ",
+      "selectGameTitle": "ጨዋታ ምረፅ",
+      "title": "ጨዋታ ምረፅ",
+      "unfavorite": "ካብ ወደፍቲ ኣውጽእ"
+    },
+    "profile": "ፕሮፋይል",
+    "promoteConfirm": "\"{{name}}\" ({{email}}) ናብ ሓላፊ ክትመሃሩ ትደሊ ዶ?",
+    "promoteTitle": "ናብ ሓላፊ ኣምር",
+    "promoteToHead": "ናብ ሓላፊ ኣምር",
+    "promoteWarning": "እዚ ተጠቃሚ ኣባላት ማሕበር ምሕዳርን መምህራን ምእታው ስልጣን ይገናእ።",
+    "publicWorkshop": {
+      "about": {
+        "details": "እቶም ፈጠርቲ ዓለም፣ ባህርያትን ሕግታትን ብናቶም ቃላት ይገልጹ። ክትጻወት ከለኻ፣ AI ነቲ ዛንታ ካብኡ ቀጻሊ ብቐጥታ ይነግር፦ ንዝጽሕፎ ዘበለ ይምልሰሉን ዝሰማማዕ ስእልታት ይፈጥርን — ስለዚ ክልተ ዙር ብሓደ ዓይነት ኣይካየዱን። ባዕልኻ ምስ እትሃንጽ መምርሒታትካ ንውጽኢት ክንደይ ከም ዝጸልዎን AI ድማ ደረቱ ኣበይ ከም ዝበጽሕን ቀልጢፍካ ትርዳእ። እዚ እዩ ቀንዲ ዕላማኡ፦ AI ክግለጸልካ ዘይኮነስ፣ ባዕልኻ ክትፍትኖ።",
+        "less": "ውሑድ",
+        "link": "ብዛዕባ ChatGameLab ተወሳኺ",
+        "more": "ተወሳኺ ሓበሬታ ርኸብ",
+        "oneLiner": "እዞም ጽሑፋዊ ጀብዱታት ብ ChatGameLab ተሰሪሖም፦ ብኢድ ዝተሃንጹ፣ ብዘይ ፕሮግራሚንግ፣ ብ AI ብቐጥታ ዝንገሩ።"
+      },
+      "copy": "ቅዳሕ",
+      "copyLogin": "ንምቕዳሕ እቶ",
+      "cta": {
+        "button": "ብነጻ ጀምር",
+        "text": "ናትካ ጽሑፋዊ ጀብዱ ምህናጽ ብነጻ እዩ፣ ዝወስዶ ግዜ ድማ ውሑድ ደቓይቕ ጥራይ እዩ።",
+        "title": "ናትካ ChatGameLab ጸወታ ፍጠር"
+      },
+      "download": "ኣውርድ",
+      "gamesTitle": "ካብዚ ዎርክሾፕ ዝመጹ ጸወታታት",
+      "links": {
+        "title": "ብዛዕባ እዚ ዎርክሾፕ ተወሳኺ"
+      },
+      "noGames": "ክሳብ ሕጂ ኣብዚ ዝተሓትመ ጸወታ የለን።",
+      "play": "ተጻወት",
+      "playExhausted": "ዝተረፈ ናይ መጻወቲ ክፍለ-ግዜ የለን",
+      "playNoKey": "እዚ ዎርክሾፕ ቁልፊ API የብሉን፣ ስለዚ ጸወታታቱ ኣብዚ ክጻወቱ ኣይክእሉን።",
+      "playRemaining": "ካብ {{limit}} ናይ መጻወቲ ክፍለ-ግዜታት {{remaining}} ተሪፉ",
+      "unavailable": {
+        "home": "ናብ መእተዊ ገጽ ኪድ",
+        "message": "እቲ ሊንክ ደጊም ቅኑዕ ኣይኮነን፣ ወይ እቲ ናይ ዎርክሾፕ ገጽ ተዓጽዩ ኣሎ።",
+        "title": "እዚ ገጽ ኣይርከብን"
+      }
+    },
+    "removeConfirm": "\"{{name}}\" ካብ ማሕበር ክትወግድ ትደሊ ዶ?",
+    "removeMember": "ኣባል ኣውጽእ",
+    "removeTitle": "ኣባል ኣወግድ",
+    "removeWarning": "እዚ ተጠቃሚ ናይ ማሕበር መዳረሻ ይጥፍእ።",
+    "role": "ሚና",
+    "save": "ኣቐምጥ",
+    "search": "ፈልጥ",
+    "searchPlaceholder": "ኣባላት ፈልጥ...",
+    "serverSettings": {
+      "constraints": {
+        "description": "ብዕድመ ተጫዋታይ ዝተያያዙ ግዴታዊ መምሪያታት ኤ.ኣይ ውሳኔ ኣድልዎ። እነዚ ናይ ኤ.ኣይ ምላስ ኩሉ ይተኣክቱ እዮም። ናይ ስልጠና ሞዴ ወጻኢ ዝተመዝገቡ ተጠቃሚታት ላዕለዋይ ይሰርዩ።",
+        "title": "ብዕድመ ዝተያያዙ መገዲ ፕሮምፕትታት",
+        "u13Hint": "ንተመዝጊቡ ተጠቃሚ ዕድመ 13-17 ፍቓድ ወላዶም ኣይተመዝገበሎም ኣብ ኩሉ ናይ AI ፕሮምፕት ይገብር።",
+        "u13Label": "ንተጠቃሚ ዕድመ 13-17 ዘይተመዝገበ ፍቓድ ወላዶም (U13) ገደብ",
+        "u13Placeholder": "ለምሳሌ፡ ትሕዝቶ ንወጣቶ ምሉእ ተስማሚ ንኽኾን ምርግጋዝ። ግድለት፣ ሮማንቲክ ትሕዝቶ እና ሆሮር ርእሶታት ኣይትጨምር።",
+        "u13pHint": "ንተመዝጊቡ ተጠቃሚ ዕድመ 13-17 ፍቓድ ወላዶም ዝተመዝገበሎም ኣብ ኩሉ ናይ AI ፕሮምፕት ይገብር።",
+        "u13pLabel": "ንተጠቃሚ ዕድመ 13-17 ብፍቓድ ወላዶም (U13p) ገደብ",
+        "u13pPlaceholder": "ለ.ም. ንወጣት ወላዶም ፍቓድ ዝሃቡላ ናይ ዕድመ ዝግበር ትሕዝቶ። ኣንዳንድ ዝረባ ተዋህዶ ጉዳያት ይፍቀዱ፣ ግን ግልፅ ትሕዝቶ ኣይፍቀዱን።",
+        "u18Hint": "ንተጠቃሚ ዕድመ 18 እና ልዕሊ ዘለዎም ፕሮምፕት እዚ ናይ ኤ.ኣይ ይጨናንቕ።",
+        "u18Label": "መገዲ ንተጠቃሚ ዕድመ 18+ (U18)",
+        "u18Placeholder": "ለምሳሌ፡ ትሕዝቶ ንተጠቃሚ ተግባር እንዳይስከርክር ምርግጋዝ። ግድለት ብግርም ወይ ጾታዊ ትሕዝቶ ኣስይትጨምር።"
+      },
+      "defaultTier": {
+        "description": "ናይ ሰርቨር ነባሪ ደረጃ ዝገብር ሓሳብ AI ኣብ ወርክሾፕ፣ ተቋማት ወይ ተጠቃሚ የተቐመጠ ደረጃ ብዙሕ እንታይን ይጠቀም። ዝልዕሉ ዋጋ ይንፍስ ግን ጥራይ ይሓብ።",
+        "title": "ነባሪ AI ደረጃ ጥራይ"
+      },
+      "freeUseKey": {
+        "description": "ናይ ስርቨር ውሽጢ ነጻ ጥቕም API ቁልፊ ኣቐምጥ እቲ ኩሉ ተጠቃሚ ዘይኮነ ቁልፊ ንጨዋታ ክጨውቱ ይኽእሉ። እዚ ቁልፊ ናብ ወርክሾፕ ወይ ማሕበር ቁልፊ እንተሌለ ናብ ክፍሊ ይጥቀም።",
+        "noKeys": "API ቁልፊ የልካን። ቅድሚ ኣብ API ቁልፊ ቅንብሮም ቁልፊ ወስኽ።",
+        "notWorking": "ኣይሰርሕን",
+        "remove": "ኣወግድ",
+        "replacePlaceholder": "ብናይካ API ቁልፊ ክትቀይር...",
+        "selectPlaceholder": "ካብ API ቁልፊታትካ ምረፅ...",
+        "title": "ነጻ ጥቕም API ቁልፊ",
+        "unknownKey": "ዘይታወቀ ቁልፊ (ካልኣይ ተደምስሷ ይኽእል)",
+        "untested": "ዘይተፈተነ",
+        "working": "ይሰርሕ"
+      },
+      "freeUseTier": {
+        "description": "ነዚ ነጻ ጥቕም API ቁልፊ እተጠቀመ ጊዜ ዝርከብ ደረጃ ጥራይ። ዝልዕሉ ዋጋ ይንፍስ እዩ ግን ጥራይ ይሓብ። ባዶ ናይ ነባሪ ደረጃ ይጥቀም።",
+        "title": "ነጻ ጥቕም AI ደረጃ ጥራይ"
+      },
+      "notAuthorized": "ናይ ሰርቨር ቅንብሮም ምድላይ ፍቓድ የብልካን። ፈቃድ ኣስመራን ይደሊ።",
+      "title": "ቅንብሮም ሰርቨር"
+    },
+    "sessions": {
+      "untitledGame": "ዘይተሰየመ ጸወታ"
+    },
+    "settings": "ቅንብሮም",
+    "share": {
+      "copied": "ተቐዲሑ",
+      "copyLink": "ሊንክ ቅዳሕ",
+      "visitLink": "መላግቦ ብጸጋ ተወከስ"
+    },
+    "showing": "{{count}} ኣባላት",
+    "sort": {
+      "label": "ኣብ ምንባር ደርስ",
+      "name-asc": "ስም (A-Z)",
+      "name-desc": "ስም (Z-A)",
+      "role-asc": "ሚና (A-Z)",
+      "role-desc": "ሚና (Z-A)"
+    },
+    "unnamed": "ዘይተሰማምዐ",
+    "viewGame": "ጨዋታ ተመልከት",
+    "workshop": {
+      "inactive": {
+        "description": "እዚ ዎርክሾፕ ሕጂ ኣይንቀሳቐስን ኣሎ። መራሒ ዎርክሾፕካ እንደገና ክሳብ ዘብርሆ ተጸበ።",
+        "noCode": "ኣብዚ መሳርሒ ኮድ ኣይተዓቀበን። መራሒ ዎርክሾፕካ ኮድካ ክነግረካ ይኽእል።",
+        "photoFirst": "እንተወጺእካ፣ ኮድካ ካብዚ መሳርሒ ክጠፍእ እዩ። ቅድሚ ምውጻእካ ስእሊ ውሰደሉ።",
+        "showCode": "ኮድ መእተዊየ ኣርእየኒ",
+        "title": "ዎርክሾፕ ኣይንቀሳቐስን ኣሎ"
+      }
+    }
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "edu": {
+          "description": "ናይ ሚዲያ ፕዳጎጂ ስራሕ ምስ ChatGameLab",
+          "title": "ብዛዕባ ChatGameLab"
+        },
+        "jff": {
+          "description": "ኣስተዳዳሪ ፕሮጀክትን ዋና ተቋምን።",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "እቲ ርእስ ትምህርታዊ ፕሮጀክት ስለ ዝተፈጠረሉ ተረድኡ።",
+          "title": "ChatGameLab ፕሮጀክት"
+        },
+        "title": "ስለ ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "ገና ናይ ጸወታ ታሪኽ የለን። ጸወታ ክትጻወት ጀምር!",
+        "title": "ኣብ መወዳእታ ዝተጻወትካዮ",
+        "viewAll": "ኩሎም ጸወታታት"
+      },
+      "myGames": {
+        "empty": "ጨዋታ የለን። መጀመርታ ጨዋታኻ ፍጠር!",
+        "title": "ጨዋታታይ",
+        "viewAll": "ኩሉ ፍጠራታት"
+      },
+      "myWorkshops": {
+        "empty": "ተረኺቡ ወርክሾፕ የለን። ኣብ ማሕበርካ ወርክሾፕ ፍጠር!",
+        "title": "ወርክሾፕታትይ",
+        "viewAll": "ኩሉ ወርክሾፕታት"
+      },
+      "newGames": {
+        "empty": "ጨዋታ ገና የለን።",
+        "title": "ሓዱሽ ጨዋታታት",
+        "viewAll": "ኩሉ ጨዋታታት"
+      },
+      "popularGames": {
+        "empty": "ጨዋታ ገና የለን።",
+        "plays": "{{count}} ጨዋታታት",
+        "title": "ዝተወደዱ ጨዋታታት",
+        "viewAll": "ኩሉ ጨዋታታት"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "ሓዱሽ ጨዋታ ፍጠር",
+      "createRoom": "ክፍሊ ፍጠር",
+      "createWorkshop": "ወርክሾፕ ፍጠር",
+      "importGame": "ጨዋታ ኣቕብል",
+      "inviteMembers": "ኣባላት እተው",
+      "startNewGame": "ሓዱሽ ጨዋታ ጀምር",
+      "title": "ፈጣን ተግባራት"
+    },
+    "untitled": "ዘይተሰማምዐ",
+    "untitledGame": "ዘይተሰየመ ጸወታ",
+    "version": {
+      "mismatch": {
+        "message": "የወጻእ እትዮም እትወሃብ ዝተመደበየ ብርግጽ ብተለዋዋጭ ኣሎ። Frontend እትዮም \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 ብ backend \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 ኣይምስሉን። ድንገታ ባህሪ ምንጭ ይኸውን ይኽእል። ጸገም እንትኸውን ስለ ዚ ድጋፍ ተገናእ።",
+        "title": "ዝለዓለ ስርአት ተገንብቶ"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "ናይ AI ኣገልግሎት ጌጋ ተፈጥሮ። ንደገና ፈትኑ።",
+    "backendUserFetch": "መረጃ ተጠቃሚ ካብ ሰርቨር ምምጻት ኣይተኻኣለን። ንደገና ፈትኑ።",
+    "billingNotActive": "ናይ OpenAI መለማመጃኹም ኣይንበርን። ናብ https://platform.openai.com/settings/organization/billing ዝርዝራት ክፍሊታት ያረጋግጹ።",
+    "conflict": "እዚ ተግባር ስለ ቅድሚ ዳታ ግጭት ምግባር ኣይክእልን። ንደገና ፈትኑ።",
+    "contentFiltered": "ሕቶኻ ብፖሊሲ AI ተለኽለኽ። ቃልኻ ቀይርኩም ንጌጋ ተደሊ።",
+    "duplicateName": "ስም ጨዋታ ካልእ ኣብ ስራሕ ኣሎ። ረኺቡ ስም ምረፅ።",
+    "forbidden": "እዚ ተግባር ዝገብር ፍቓድ የብልካን።",
+    "generic": "ምንም ጌጋ ተፈጥሮ። ንደገና ፈትኑ።",
+    "insufficientQuota": "API ቁልፊኻ ኣድላይ ክፍሊ የለን። ናይት ቀሪት ክትዎስክ ወይ ካልእ ቁልፊ ተጠቀም።",
+    "invalidApiKey": "API ቁልፊኻ ዘይተረጋገጸ ወይ ግዜ ውሑስ እዩ። ናብ ቅንብሮም ኣረግጹ።",
+    "invalidJsonSchema": "ቅንብር ጨዋታ ንAI ዘይተረጋገጸ ስኩማ ፈጠረ። እዚ ጌጋ ኣብ ቁልፊ ኣይምበርን፣ ኣብ ቅንብር ጨዋታ እዩ። ናይ ሁነታ መስኮትታት ተመርምሩ ንደገና ፈትኑ።",
+    "invalidPlatform": "መድረኽ ዘይተረጋገጸ ተመርጸ። ትክክለኛ ምረፅ።",
+    "invalidToken": "ክፍሊኻ ግዜ ውሑስ ወይ ኣይተረጋገጸን። እቶት ሊንክካ ንደገና ተጠቀም።",
+    "nameProfane": "ይእቲ ስም ኣይተፈቀደን። ካልእ ስም ምረፅ።",
+    "nameTooLong": "ስም ኣዝዩ ነይር። ቀረባ ስም ምረፅ።",
+    "network": "ኔትወርክ ጌጋ። ግንኙነትካ ምርመር።",
+    "noApiKey": "እዚ ጨዋታ ንAPI ቁልፊ የለን። ስፖንሰር ቁልፊውን ኣውጽአ ይኽእል፣ ወይ ንንስኻ ናይ ራእስካ ቁልፊ ኣቐምጥ።",
+    "notFound": "ዝተፈለጠ ነገር ኣይተረኸበን።",
+    "orgVerificationRequired": "ናይ OpenAI ማሕበርካ ማረጋገጺ ንምስራሕ ምስል መፍጣር ይደሊ። ናብ https://platform.openai.com/settings/organization/general ኣረጋግጽ።",
+    "previousResponseNotFound": "AI ናይ ዝሓለፈ ሓተታ ረኺቡ ኣይኮነን። እዚ ጊዜ ረጅዕ ክፍሊ ኣብ ዳግም እንተነበረ ይከኣል። ሓዱሽ ክፍሊ ጀምሩ ንዜ ቀጽል።",
+    "publicDescriptionTooLong": "እቲ መግለጺ ካብ 2000 ቁምፊታት ክበዝሕ የብሉን።",
+    "publicSlugInvalid": "a–z፣ 0–9 ን ንጽል ሰረዝን ተጠቐም፣ ካብ 3 ክሳብ 60 ቁምፊታት።",
+    "publicSlugTaken": "እዚ ሊንክ ድሮ ተወሲዱ ኣሎ።",
+    "rateLimitExceeded": "ብዙሕ ሕቶታት ተላእኩም። ቕሩብ ጊዜ ተጸዒኑ ንደገና ፈትኑ።",
+    "server": "ሰርቨር ጌጋ። ተወሳኺ ግዜ ንኸኣ ፈትኑ።",
+    "titles": {
+      "aiError": "AI ጌጋ",
+      "authentication": "ናይ ምእታው ጌጋ",
+      "billing": "ናይ ክፍሊ ጌጋ",
+      "error": "ጌጋ",
+      "gameConfig": "ናይ ጨዋታ ቅንብር ጌጋ",
+      "network": "ኔትወርክ ጌጋ",
+      "noApiKey": "API ቁልፊ የለን",
+      "notFound": "ኣይተረኸበን",
+      "permission": "ፍቓድ ተኣንግዶ",
+      "server": "ሰርቨር ጌጋ",
+      "tokenLocked": "ብግዜያዊ ተዓጽዩ",
+      "validation": "ምርመራ ጌጋ",
+      "workshopInactive": "ወርክሾፕ ዘይንብሩ"
+    },
+    "tokenLocked": "ብዙሓት ዘይተዓወቱ ፈተነታት – እባክኻ ድሕሪ ገለ ግዜ እንደገና ፈትን።",
+    "unauthorized": "ቀጽል ንምግባር ግባ።",
+    "unexpected": "ድንገታዊ ጌጋ ተፈጥሮ።",
+    "userNotRegistered": "ቀጸሉ ምእታው ቅድሚ መመዝገብ ሙሉእ ክትጨርስ ይደሊ።",
+    "validation": "መዝገብ ይመርምሩ ንደገና ፈትኑ።",
+    "workshopInactive": "ይእቲ ወርክሾፕ ተቆርጸ። መምህርካ ወይ ኣስተዳዳሪ ወርክሾፕ መርዳእ።"
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "ጨዋታ ጀምር እና ኣብዚ ንምርኣይ ወይ የናኻ ጨዋታ ፍጠር!",
+      "title": "ጨዋታ የለን"
+    },
+    "filters": {
+      "all": "ኩሉ ጨዋታታት",
+      "mine": "ጨዋታይ",
+      "public": "ሕቡራዊ ጨዋታታት",
+      "workshop": "ጨዋታታት ወርክሾፕ"
+    },
+    "gameType": "ጨዋታ",
+    "infoModal": {
+      "body": "ናብ ሞዴ ስልጠና ገብረካ። ኣብዚ ሞዴ ውሽጢ ዝተገበረ ኩሉ ስራሕኻ ከምዚ ስልጠና ይተያያዥ እዩ - ጨዋታት እተፈጠርካ፣ ክፍለ-ግብር እትጫውት፣ ሊንኮታት እትካፈል።\n\nኣብ ማእኸል ግዜ ትውጣ ትኽእል። ምውጻእ ስልጠና ኣይዞርምን፣ ዝፈጠርካዮ ነገር ኣይድልየን።",
+      "dontShowAgain": "እዚ ኣይትርኣይ እንደገና",
+      "gotIt": "ተረድአኒ",
+      "headStaffNote": "ካሊእ ግዜ ካብ ዝርዝር ስልጠናታት ተቋማኻ ዝሓለፍካሉ እዚ ስልጠና ንምድጋም ትኽእል።",
+      "individualNote": "እዚ ካብዚ ትውጽእ ድሕሪኡ እንደገና ንምግባር ሓድሽ ግባእ ካብ ኣርከት ስልጠና ኣስፈላጊ ይኮን።",
+      "title": "እንኳዕ ብደሓን መፅአት ናብ {{name}}"
+    },
+    "members": {
+      "empty": "ኣባል ገና የለን",
+      "title": "ኣባላት ወርክሾፕ"
+    },
+    "organizator": "ኣስተዳዳሪ: {{name}}",
+    "paused": {
+      "description": "ወርክሾፕ ሕጂ ተጠቐሙ። ከምዚ ትእዛዛት ካብ ኣስተዳዳሪ ምጽባር።",
+      "title": "ወርክሾፕ ተሰናአ"
+    },
+    "settings": {
+      "currentWorkshop": "ሕጂ ወርክሾፕ",
+      "notInWorkshopMode": "ኣብ ሞድ ወርክሾፕ ኣይኮነካን። ቀዳም ናብ ወርክሾፕ ግባ።",
+      "title": "ቅንብሮም ወርክሾፕ"
+    },
+    "showInviteLink": "ዕድመ ሊንክ ኣርኢ",
+    "showPublicPageLink": "ናይ ህዝባዊ ገጽ ሊንክ ኣርኢ",
+    "title": "ወርክሾፕይ",
+    "you": "ንስኻ"
+  },
+  "navigation": {
+    "adminPanel": "ፓነል ኣስመራን",
+    "allGames": "ኩሉ ጨዋታታት",
+    "create": "ብራኽትካ ጨዋታ ፍጠር",
+    "createGame": "ጨዋታ ፍጠር",
+    "dashboard": "ዳሽቦርድ",
+    "games": "ጨዋታታት",
+    "groups": "ቡድኖች",
+    "manageOrganizations": "ማሕበራት ኣስተዳድር",
+    "manageUsers": "ተጠቃሚታት ኣስተዳድር",
+    "myGames": "ጨዋታታይ",
+    "myOrganization": "ማሕበርይ",
+    "myWorkshop": "ወርክሾፕይ",
+    "orgApiKeys": "API ቁልፊታት",
+    "orgConstraints": "መገዲታት",
+    "orgMembers": "ኣባላት",
+    "orgWorkshops": "ወርክሾፕታት",
+    "play": "ጨዋታ ጫውታ",
+    "rooms": "ክፍሊታት",
+    "serverSettings": "ቅንብሮም ሰርቨር",
+    "workshopSettings": "ቅንብሮም ወርክሾፕ"
+  }
+}

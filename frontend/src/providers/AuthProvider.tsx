@@ -1,0 +1,518 @@
+/* eslint-disable react-refresh/only-export-components */
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useTranslation } from "react-i18next";
+import { auth0Config } from "../config/auth0";
+import { config } from "../config/env";
+import { Api } from "../api/generated";
+import { getApiConfig } from "../api/client/http";
+import { authLogger } from "../config/logger";
+import { getHomepageUrl } from "../common/lib/url";
+import { ErrorCodes, extractRawErrorCode } from "../common/types/errorCodes";
+import { showErrorModal } from "../common/lib/globalErrorModal";
+import type { AuthUser, AuthContextType } from "./auth/types";
+import { useTokenManager } from "./auth/useTokenManager";
+import { useBackendUser } from "./auth/useBackendUser";
+import {
+  getStoredParticipantToken,
+  clearParticipantToken,
+  storeDevToken,
+  clearStoredDevToken,
+  type TokenCache,
+} from "./auth/tokenStorage";
+
+// Re-export types and token helpers for external consumers
+export type { AuthUser, RegistrationData, AuthContextType } from "./auth/types";
+export {
+  getStoredParticipantToken,
+  storeParticipantToken,
+  clearParticipantToken,
+} from "./auth/tokenStorage";
+
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
+
+// Default context value for error boundary recovery scenarios
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  backendUser: null,
+  isLoading: true,
+  isAuthenticated: false,
+  isParticipant: false,
+  needsRegistration: false,
+  registrationData: null,
+  backendError: null,
+  isWorkshopInactive: false,
+  loginWithAuth0: () => { },
+  loginWithRole: () => {},
+  logout: () => {},
+  isDevMode: false,
+  getAccessToken: async () => null,
+  retryBackendFetch: () => {},
+  register: async () => {},
+};
+
+export function useAuth() {
+  const context = React.useContext(AuthContext);
+  // Return default context during error boundary recovery to prevent cascading errors
+  // This can happen when TanStack Router's CatchBoundaryImpl tries to re-render
+  if (!context) {
+    authLogger.warning(
+      "useAuth called outside AuthProvider context, returning default (error boundary recovery)",
+    );
+    return defaultAuthContext;
+  }
+  return context;
+}
+
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+
+/**
+ * Asks the server to clear its cookies: a participant's session and the play
+ * cookie the playback-engine acts with. Every sign-out calls it.
+ */
+async function clearServerCookies() {
+  try {
+    await fetch(`${config.API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    authLogger.debug("Server cookies cleared");
+  } catch {
+    authLogger.debug("Failed to clear server cookies (may already be cleared)");
+  }
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const { t, i18n } = useTranslation();
+  const {
+    user: auth0User,
+    isAuthenticated: auth0IsAuthenticated,
+    isLoading: auth0IsLoading,
+    loginWithRedirect: auth0LoginWithRedirect,
+    logout: auth0Logout,
+  } = useAuth0();
+
+  // ── Composed hooks ──────────────────────────────────────────────────
+
+  const {
+    getAccessToken,
+    isParticipant,
+    setIsParticipant,
+    isDevMode,
+    devTokenCache,
+    auth0TokenError,
+  } = useTokenManager();
+
+  const {
+    backendUser,
+    setBackendUser,
+    backendError,
+    setBackendError,
+    needsRegistration,
+    registrationData,
+    fetchBackendUser,
+    register,
+    setTranslationRef,
+  } = useBackendUser({ getAccessToken });
+
+  // Keep translation ref in sync
+  setTranslationRef(t);
+
+  // ── Local state ─────────────────────────────────────────────────────
+
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isWorkshopInactive, setIsWorkshopInactive] = useState(false);
+
+  // Track if we've already fetched the backend user to avoid duplicate calls
+  const backendFetchAttempted = useRef(false);
+
+  // Retry backend fetch (for error recovery)
+  const retryBackendFetch = useCallback(() => {
+    if (isAuthenticated) {
+      fetchBackendUser();
+    }
+  }, [isAuthenticated, fetchBackendUser]);
+
+  // ── Participant Auth ────────────────────────────────────────────────
+
+  // Try participant authentication (via stored token or cookie)
+  const tryParticipantAuth = useCallback(async (): Promise<boolean> => {
+    const storedToken = getStoredParticipantToken();
+
+    try {
+      let api: Api<unknown>;
+
+      if (storedToken) {
+        authLogger.debug(
+          "Attempting participant authentication with stored token",
+        );
+        api = new Api({
+          baseUrl: config.API_BASE_URL,
+          baseApiParams: {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${storedToken}`,
+            },
+            credentials: "include" as RequestCredentials,
+          },
+        });
+      } else {
+        authLogger.debug("Attempting cookie-based participant authentication");
+        api = new Api(getApiConfig());
+      }
+
+      const response = await api.users.getUsers();
+
+      if (response.data) {
+        authLogger.info("Participant authentication successful", {
+          userId: response.data.id,
+          name: response.data.name,
+          method: storedToken ? "token" : "cookie",
+        });
+
+        const authUser: AuthUser = {
+          sub: response.data.id || "",
+          name: response.data.name || undefined,
+          role: "participant",
+        };
+        setUser(authUser);
+        setBackendUser(response.data);
+        setIsAuthenticated(true);
+        setIsParticipant(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      const errorCode = extractRawErrorCode(error);
+      if (errorCode === "auth_workshop_inactive") {
+        authLogger.info("Participant's workshop is inactive");
+        setIsWorkshopInactive(true);
+        setIsParticipant(true);
+        return true;
+      }
+      if (errorCode === ErrorCodes.TOKEN_LOCKED) {
+        // The token may be valid; keep it for the retry after the lock.
+        authLogger.info("Token checks are locked, keeping stored token");
+        showErrorModal({ code: errorCode });
+        return false;
+      }
+      if (storedToken) {
+        // No modal here on purpose: showErrorModal during app start sets the store
+        // but never paints - measured, and it affects any error raised this early,
+        // not just this one. The explanation lives on /code instead, which is where
+        // the participant goes next and where it can actually be acted on.
+        authLogger.debug("Stored participant token invalid, clearing");
+        clearParticipantToken();
+      }
+      authLogger.debug("No valid participant authentication");
+      return false;
+    }
+  }, [setBackendUser, setIsParticipant]);
+
+  // ── Auth State Effect ───────────────────────────────────────────────
+
+  useEffect(() => {
+    if (auth0IsLoading) {
+      return;
+    }
+
+    if (auth0IsAuthenticated && auth0User) {
+      const authUser: AuthUser = {
+        sub: auth0User.sub!,
+        name: auth0User.name || undefined,
+        email: auth0User.email || undefined,
+        picture: auth0User.picture || undefined,
+      };
+      setUser(authUser);
+      setIsAuthenticated(true);
+      setIsParticipant(false);
+      authLogger.info("Auth0 authentication successful", {
+        auth0Id: auth0User.sub,
+        name: auth0User.name,
+      });
+
+      if (!backendFetchAttempted.current) {
+        backendFetchAttempted.current = true;
+        fetchBackendUser().finally(() => {
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+    } else if (isDevMode && devTokenCache.current) {
+      const cached = devTokenCache.current;
+      authLogger.debug("Restoring dev mode session from localStorage", {
+        userId: cached.userId,
+        role: cached.role,
+      });
+
+      const authUser: AuthUser = {
+        sub: cached.userId,
+        name: cached.role,
+        email: `${cached.role}@dev.local`,
+        role: cached.role,
+      };
+      setUser(authUser);
+      setIsAuthenticated(true);
+      setIsParticipant(false);
+
+      if (!backendFetchAttempted.current) {
+        backendFetchAttempted.current = true;
+        fetchBackendUser().then((success) => {
+          if (!success) {
+            authLogger.warning(
+              "Dev session restore failed — user may have been deleted, clearing session",
+            );
+            devTokenCache.current = null;
+            clearStoredDevToken();
+            setUser(null);
+            setIsAuthenticated(false);
+          }
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+    } else {
+      // Guest play routes (/play/*) are fully anonymous — no Auth0, no participant
+      // cookie, no stored token. Calling GET /users/me would always 401, so skip it.
+      const isGuestPlayRoute = window.location.pathname.startsWith("/play/");
+
+      if (!backendFetchAttempted.current) {
+        backendFetchAttempted.current = true;
+
+        if (isGuestPlayRoute) {
+          authLogger.debug("Guest play route — skipping participant auth check");
+          setUser(null);
+          setBackendUser(null);
+          setIsAuthenticated(false);
+          setIsParticipant(false);
+          setIsLoading(false);
+        } else {
+          authLogger.debug("No token auth, trying cookie-based participant auth");
+          tryParticipantAuth().then((authenticated) => {
+            if (!authenticated) {
+              setUser(null);
+              setBackendUser(null);
+              setIsAuthenticated(false);
+              setIsParticipant(false);
+            }
+            setIsLoading(false);
+          });
+        }
+      } else {
+        setIsLoading(false);
+      }
+    }
+  }, [
+    auth0User,
+    auth0IsAuthenticated,
+    auth0IsLoading,
+    fetchBackendUser,
+    isDevMode,
+    tryParticipantAuth,
+    devTokenCache,
+    setBackendUser,
+    setIsParticipant,
+  ]);
+
+  // ── Stale Token Recovery ─────────────────────────────────────────────
+
+  useEffect(() => {
+    if (auth0TokenError && auth0IsAuthenticated) {
+      authLogger.warning("Auth0 refresh token is stale — logging out to clear session");
+      void clearServerCookies().finally(() =>
+        auth0Logout({
+          logoutParams: {
+            returnTo: auth0Config.logoutUri,
+          },
+        }),
+      );
+    }
+  }, [auth0TokenError, auth0IsAuthenticated, auth0Logout]);
+
+  // ── Login / Logout ──────────────────────────────────────────────────
+
+  const AUTH0_LOCALE_MAP: Record<string, string> = { de: "de", en: "en", fr: "fr-FR", es: "es", it: "it" };
+
+  const loginWithAuth0 = (options?: { screenHint?: string }) => {
+    const lang = i18n.language?.split("-")[0];
+    const auth0Locale = AUTH0_LOCALE_MAP[lang];
+    const uiLocales = auth0Locale ? `${auth0Locale} en` : "en";
+    authLogger.debug("Initiating Auth0 login", { screenHint: options?.screenHint, uiLocales });
+    auth0LoginWithRedirect({
+      authorizationParams: {
+        ui_locales: uiLocales,
+        ...(options?.screenHint && { screen_hint: options.screenHint }),
+      },
+    });
+  };
+
+  const loginWithRole = async (role: string) => {
+    if (!isDevMode) {
+      authLogger.warning("loginWithRole called but not in dev mode");
+      return;
+    }
+
+    const DEV_USER_IDS: Record<string, string> = {
+      "admin-1": "00000000-0000-0000-0000-000000000001",
+      "admin-2": "00000000-0000-0000-0000-000000000002",
+      "head-1": "00000000-0000-0000-0000-000000000003",
+      "head-2": "00000000-0000-0000-0000-000000000004",
+      "staff-1": "00000000-0000-0000-0000-000000000005",
+      "staff-2": "00000000-0000-0000-0000-000000000006",
+      "individual-1": "00000000-0000-0000-0000-000000000007",
+      "individual-2": "00000000-0000-0000-0000-000000000008",
+      participant: "00000000-0000-0000-0000-000000000009",
+    };
+
+    const targetUserId = DEV_USER_IDS[role];
+    if (!targetUserId) {
+      authLogger.error("Unknown dev role", { role });
+      setBackendError(`Unknown role: ${role}`);
+      return;
+    }
+
+    authLogger.debug("Initiating dev mode login", {
+      role,
+      userId: targetUserId,
+    });
+    setIsLoading(true);
+    setBackendError(null);
+
+    try {
+      const publicApi = new Api(getApiConfig());
+
+      const jwtResponse = await publicApi.users.getUsers2(targetUserId);
+      const token = jwtResponse.data.token;
+      const userId = jwtResponse.data.userId;
+
+      if (!token || !userId) {
+        throw new Error(
+          "Failed to get dev JWT token. Make sure the backend is running and seeded.",
+        );
+      }
+
+      const tokenCache: TokenCache = {
+        token,
+        expiresAt: Date.now() + 23 * 60 * 60 * 1000,
+        userId,
+        role,
+      };
+      devTokenCache.current = tokenCache;
+      storeDevToken(tokenCache);
+
+      authLogger.info("Dev JWT obtained", { userId, role });
+
+      const authUser: AuthUser = {
+        sub: userId,
+        name: role,
+        email: `${role}@dev.local`,
+        role,
+      };
+      setUser(authUser);
+      setIsAuthenticated(true);
+      authLogger.info("Dev login successful", { role, userId });
+
+      backendFetchAttempted.current = true;
+      await fetchBackendUser();
+    } catch (error) {
+      authLogger.error("Dev login failed", { role, error });
+      const errorMessage =
+        error instanceof Error ? error.message : "Dev login failed";
+      setBackendError(errorMessage);
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    authLogger.debug("Initiating logout", {
+      isAuth0Authenticated: auth0IsAuthenticated,
+    });
+
+    backendFetchAttempted.current = false;
+    setBackendUser(null);
+    setBackendError(null);
+
+    if (auth0IsAuthenticated) {
+      authLogger.debug("Logging out from Auth0");
+      await clearServerCookies();
+      auth0Logout({
+        logoutParams: {
+          returnTo: auth0Config.logoutUri,
+        },
+      });
+    } else if (isParticipant) {
+      authLogger.debug("Logging out participant (clearing session and token)");
+      // Keep isLoading true to prevent __root.tsx shouldRedirect from firing
+      // before window.location.href takes effect
+      setIsLoading(true);
+      setUser(null);
+      setBackendUser(null);
+      setIsAuthenticated(false);
+      setIsParticipant(false);
+      backendFetchAttempted.current = false;
+      clearParticipantToken();
+      await clearServerCookies();
+      const homepageUrl = getHomepageUrl();
+      authLogger.debug("Redirecting to homepage after participant logout", {
+        url: homepageUrl,
+      });
+      window.location.href = homepageUrl;
+    } else {
+      authLogger.debug("Logging out from dev mode");
+      // Keep isLoading true to prevent __root.tsx shouldRedirect from firing
+      // before window.location.href takes effect
+      setIsLoading(true);
+      devTokenCache.current = null;
+      clearStoredDevToken();
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsParticipant(false);
+      await clearServerCookies();
+      const homepageUrl = getHomepageUrl();
+      authLogger.debug("Redirecting to homepage after logout", {
+        url: homepageUrl,
+      });
+      window.location.href = homepageUrl;
+    }
+  };
+
+  // ── Context Value ───────────────────────────────────────────────────
+
+  const value: AuthContextType = {
+    user,
+    backendUser,
+    isLoading,
+    isAuthenticated,
+    isParticipant,
+    needsRegistration,
+    registrationData,
+    backendError,
+    isWorkshopInactive,
+    loginWithAuth0,
+    loginWithRole,
+    logout,
+    isDevMode,
+    getAccessToken,
+    retryBackendFetch,
+    register,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

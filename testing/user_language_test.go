@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"cgl/api/routes"
+	"cgl/api"
 	"cgl/obj"
 	"cgl/testing/testutil"
 
@@ -34,7 +34,7 @@ func TestUserLanguageSuite(t *testing.T) {
 // directly rather than widening the test harness for one case.
 func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(
 	token string, acceptLanguage string,
-) routes.AcceptInviteResponse {
+) api.AcceptInviteResp {
 	s.T().Helper()
 
 	req, err := http.NewRequest(
@@ -52,7 +52,7 @@ func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(
 	defer resp.Body.Close()
 	s.Require().Equal(http.StatusOK, resp.StatusCode)
 
-	var out routes.AcceptInviteResponse
+	var out api.AcceptInviteResp
 	s.Require().NoError(json.NewDecoder(resp.Body).Decode(&out))
 	s.Require().NotNil(out.User)
 	return out
@@ -70,7 +70,7 @@ func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Anonymous joins require an active workshop with a usable API key.
-	keyShare := Must(head.AddApiKey("mock-lang-key-"+prefix, prefix+" Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-lang-key-"+prefix, prefix+" Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	workshop := Must(head.CreateWorkshop(inst.ID.String(), prefix+" Workshop"))
@@ -83,7 +83,6 @@ func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 		"public":                     false,
 		"showPublicGames":            false,
 		"showOtherParticipantsGames": true,
-		"designEditingEnabled":       false,
 		"isPaused":                   false,
 	}))
 

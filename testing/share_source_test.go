@@ -24,7 +24,7 @@ func TestShareSourceSuite(t *testing.T) {
 // share results in a share with source "personal".
 func (s *ShareSourceTestSuite) TestPersonalKeyCreatesPersonalShare() {
 	user := s.CreateUser("src-personal")
-	keyShare := Must(user.AddApiKey("mock-src-personal", "My Personal Key", "mock"))
+	keyShare := Must(user.AddApiKey("mock-src-personal", "My Personal Key", "openai"))
 	shareID := keyShare.ID.String()
 
 	game := Must(user.UploadGame("alien-first-contact"))
@@ -53,7 +53,7 @@ func (s *ShareSourceTestSuite) TestOrgKeyCreatesOrgShare() {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds API key and shares it with the org
-	keyShare := Must(head.AddApiKey("mock-src-org", "Org Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-src-org", "Org Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 	orgShareID := orgShare.ID.String()
 
@@ -84,7 +84,7 @@ func (s *ShareSourceTestSuite) TestWorkshopShareCreatesWorkshopSource() {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds API key, shares with org
-	keyShare := Must(head.AddApiKey("mock-src-ws", "WS Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-src-ws", "WS Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	// Head creates workshop and sets API key
@@ -141,7 +141,7 @@ func (s *ShareSourceTestSuite) TestHeadSeesWorkshopSharesOutsideWorkshopMode() {
 	Must(head.AcceptInvite(headInvite.ID.String()))
 
 	// Head adds API key, shares with org
-	keyShare := Must(head.AddApiKey("mock-src-outside", "Outside Key", "mock"))
+	keyShare := Must(head.AddApiKey("mock-src-outside", "Outside Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
 
 	// Head creates workshop and sets API key

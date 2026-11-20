@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release sync check-clean-tree check-on-feature
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs translate translate-check
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -12,6 +12,35 @@ help:
 	@echo "make pr [MERGE=1]     merge $(DEV) in, push, open the pull request; MERGE=1 waits for checks and merges"
 	@echo "make release [YES=1]  $(DEV) -> $(MAIN), then $(MAIN) back into $(DEV); YES=1 skips the prompt"
 	@echo "make sync             merge $(MAIN) back into $(DEV) through a pull request"
+	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
+	@echo "make translate        translate changed UI texts into every language (before pushing)"
+	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
+
+# The spec is Typst; the PDFs are build output.
+docs:
+	@command -v typst >/dev/null || { echo "typst is required: https://typst.app/docs/" >&2; exit 1; }
+	@mkdir -p docs/build
+	typst compile docs/chatgamelab.typ docs/build/chatgamelab.pdf
+
+# Translation calls OpenAI and costs money, so CI only checks it: a change to
+# en.json or de.json is translated by whoever makes it, before pushing.
+# The key is OPENAI_API_KEY if set, otherwise the macOS Keychain entry
+# "openai-api-key", otherwise the pass entry "openai/api-key".
+translate:
+	@key="$${OPENAI_API_KEY:-$$(security find-generic-password -s openai-api-key -w 2>/dev/null)}"; \
+	key="$${key:-$$(pass show openai/api-key 2>/dev/null)}"; \
+	if [ -z "$$key" ]; then \
+		echo "No OpenAI key found. Store it once, then run make translate again:" >&2; \
+		echo "  macOS Keychain (key copied to the clipboard; the -w prompt cuts keys at 128 characters):" >&2; \
+		echo "                  security add-generic-password -U -a \"\$$USER\" -s openai-api-key -w \"\$$(pbpaste)\"" >&2; \
+		echo "  pass:           pass insert openai/api-key" >&2; \
+		echo "  or export OPENAI_API_KEY for this shell." >&2; \
+		exit 1; \
+	fi; \
+	OPENAI_API_KEY="$$key" go run ./translation
+
+translate-check:
+	go run ./translation --check
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
