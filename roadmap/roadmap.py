@@ -51,48 +51,75 @@ def deps(n):
     return _deps[n]
 
 
-def epic_blockers(e, seen=None):
-    """The open epics epic e waits for. A closed issue in between drops out
-    but passes its own blockers on, as for issues."""
+issues = {}      # number -> issue
+phase_of = {}    # number -> epic number
+subs_of = {}     # epic -> its sub-issues in this repo
+for e in EPICS:
+    subs_of[e] = [x for x in gh(f"issues/{e}/sub_issues") if x.get("repository_url", "").endswith(REPO)]
+    for x in subs_of[e]:
+        issues[x["number"]] = x
+        phase_of[x["number"]] = e
+
+# Milestones: open issues without sub-issues, in no epic, linked to an epic by
+# blocked-by either way. They are gates between epics, e.g. "infrastructure
+# ready" between the infrastructure epics and the feature epics.
+_open_by_number = {i["number"]: i for i in OPEN}
+MILESTONES = set()
+for e in EPICS:
+    for b in deps(e):
+        n = b["number"]
+        if n in _open_by_number and n not in EPICS and n not in phase_of:
+            MILESTONES.add(n)
+for i in OPEN:
+    n = i["number"]
+    if n in EPICS or n in phase_of or n in MILESTONES:
+        continue
+    if any(b["number"] in EPICS for b in deps(n)):
+        MILESTONES.add(n)
+GATES = set(EPICS) | MILESTONES
+
+
+def gate_blockers(g, seen=None):
+    """The open epics and milestones g waits for. A closed issue in between
+    drops out but passes its own blockers on, as for issues."""
     seen = set() if seen is None else seen
     found = set()
-    for b in deps(e):
+    for b in deps(g):
         n = b["number"]
         if n in seen or not b.get("repository_url", "").endswith(REPO):
             continue
         seen.add(n)
-        if n in EPICS:
+        if n in GATES:
             found.add(n)
         elif b["state"] != "open":
-            found |= epic_blockers(n, seen)
+            found |= gate_blockers(n, seen)
     return found
 
 
-# Epics in dependency order: a blocked epic after the epics it waits for.
-waits_on = {e: epic_blockers(e) for e in EPICS}
-ordered, left = [], {e: set(bs) for e, bs in waits_on.items()}
+# Epics and milestones in dependency order: a blocked one after what it waits for.
+waits_on = {g: gate_blockers(g) for g in GATES}
+ordered, left = [], {g: set(bs) for g, bs in waits_on.items()}
 while left:
-    free = sorted(e for e, bs in left.items() if not bs) or sorted(left)
-    e = free[0]
-    ordered.append(e)
-    del left[e]
+    free = sorted(g for g, bs in left.items() if not bs) or sorted(left)
+    g = free[0]
+    ordered.append(g)
+    del left[g]
     for bs in left.values():
-        bs.discard(e)
-EPICS = ordered
+        bs.discard(g)
+GATE_ORDER = ordered
+EPICS = [g for g in ordered if g not in MILESTONES]
+phases = [(gh(f"issues/{e}"), [x["number"] for x in subs_of[e]]) for e in EPICS]
 
-issues = {}      # number -> issue
-phase_of = {}    # number -> epic number
-phases = []      # (epic, [numbers])
-for e in EPICS:
-    epic = gh(f"issues/{e}")
-    subs = gh(f"issues/{e}/sub_issues")
-    nums = []
-    for s in subs:
-        if s.get("repository_url", "").endswith(REPO):
-            issues[s["number"]] = s
-            phase_of[s["number"]] = e
-            nums.append(s["number"])
-    phases.append((epic, nums))
+
+def upstream(g, seen=None):
+    """Every epic and milestone g waits for, directly or through others."""
+    seen = set() if seen is None else seen
+    for b in waits_on.get(g, ()):
+        if b not in seen:
+            seen.add(b)
+            upstream(b, seen)
+    return seen
+
 
 blockers = defaultdict(set)  # number -> open-or-closed blockers within the set
 for n in issues:
@@ -122,12 +149,20 @@ def open_blockers(n, seen=None):
 
 
 def epic_waits(n):
-    """The open issues of the epics n's epic waits for: none of n starts
-    before those epics are done."""
-    found = set()
-    for e in waits_on.get(phase_of.get(n), ()):
-        found |= {m for m in issues if phase_of.get(m) == e and is_open(m)}
-    return found
+    """The open issues of every epic n's epic waits for, directly or through
+    epics and milestones: none of n starts before those are done."""
+    return gate_work(phase_of.get(n))
+
+
+def gate_work(g):
+    """The open issues of every epic g waits for, directly or through others."""
+    up = upstream(g)
+    return {m for m in issues if phase_of.get(m) in up and is_open(m)}
+
+
+def open_milestones(g):
+    """The open milestones g waits for, directly or through others."""
+    return {m for m in upstream(g) if m in MILESTONES}
 
 
 def waits(n):
@@ -137,13 +172,24 @@ def waits(n):
 def state(n):
     if not is_open(n):
         return "done"
-    if waits(n):
+    if waits(n) or open_milestones(phase_of.get(n)):
         return "blocked"
     return "ready"
 
 
+def gate_state(g):
+    """An epic is done when all its issues are, blocked while something it
+    waits for is open; a milestone is ready once everything it waits for is
+    done."""
+    if g not in MILESTONES and all(not is_open(m) for m in issues if phase_of.get(m) == g):
+        return "done"
+    return "blocked" if (gate_work(g) or open_milestones(g)) else "ready"
+
+
 phase_index = {e["number"]: i for i, (e, _) in enumerate(phases)}
 issues_epic_url = {e["number"]: e["html_url"] for e, _ in phases}
+issues_epic_url.update({m: _open_by_number[m]["html_url"] for m in MILESTONES})
+gate_word = lambda g: "milestone" if g in MILESTONES else "epic"
 
 
 def tiebreak(n):
@@ -206,6 +252,10 @@ for epic, nums in phases:
     total = len(nums) or 1
     bar = "▓" * round(10 * done / total) + "░" * (10 - round(10 * done / total))
     lines.append(f"- `{bar} {done:>2}/{len(nums):<2}` **[#{epic['number']} {epic['title']}]({epic['html_url']})**")
+for m in GATE_ORDER:
+    if m in MILESTONES:
+        mark = "◆ ready" if gate_state(m) == "ready" else "◇ waiting"
+        lines.append(f"- `{mark:<17}` **milestone [#{m} {_open_by_number[m]['title']}]({_open_by_number[m]['html_url']})**")
 lines.append("")
 
 LINK = "style='text-decoration:none;color:inherit'"
@@ -224,24 +274,24 @@ def card(n):
     return f"{link} {label}" + (f"<br/><small>{extra}</small>" if extra else "")
 
 
-def epic_state(e, nums):
-    if all(not is_open(n) for n in nums):
-        return "done"
-    return "blocked" if waits_on[e] else "ready"
-
-
 # The overview: one card per epic, arrows between epics.
 lines += ["## Order", "",
           "Top to bottom: what comes first. No scale, only order. First the epics, then each epic on its own.", "",
           "```mermaid", "flowchart TB"]
-for epic, nums in phases:
-    e = epic["number"]
+epic_by_number = {e["number"]: (e, nums) for e, nums in phases}
+for g in GATE_ORDER:
+    if g in MILESTONES:
+        m = _open_by_number[g]
+        mtitle = m["title"].replace('"', "'")
+        lines.append(f'  E{g}{{{{"<a href=\'{m["html_url"]}\' {LINK}><b>#{g}</b></a> {mtitle}<br/><small>milestone</small>"}}}}:::{gate_state(g)}')
+        continue
+    epic, nums = epic_by_number[g]
     done = sum(1 for n in nums if not is_open(n))
     etitle = epic["title"].replace('"', "'")
-    lines.append(f'  E{e}["<a href=\'{epic["html_url"]}\' {LINK}><b>#{e}</b></a> {etitle}<br/><small>{done}/{len(nums)} done</small>"]:::{epic_state(e, nums)}')
-for e in EPICS:
-    for b in sorted(waits_on[e]):
-        lines.append(f"  E{b} --> E{e}")
+    lines.append(f'  E{g}["<a href=\'{epic["html_url"]}\' {LINK}><b>#{g}</b></a> {etitle}<br/><small>{done}/{len(nums)} done</small>"]:::{gate_state(g)}')
+for g in GATE_ORDER:
+    for b in sorted(waits_on[g]):
+        lines.append(f"  E{b} --> E{g}")
 lines += CLASSES + ["```", ""]
 
 # Each epic on its own: done cards on top, then its open issues; blockers from
@@ -252,7 +302,7 @@ for epic, nums in phases:
     lines += [f"### [#{e}]({epic['html_url']}) {epic['title']} — {done}/{len(nums)}", ""]
     ewait = sorted(waits_on[e])
     if ewait:
-        lines += ["Waits for " + ", ".join(f"epic [#{b}]({issues_epic_url[b]})" for b in ewait) + ".", ""]
+        lines += ["Waits for " + ", ".join(f"{gate_word(b)} [#{b}]({issues_epic_url[b]})" for b in ewait) + ".", ""]
     lines += ["```mermaid", "flowchart TB"]
     closed = sorted((n for n in nums if not is_open(n)), key=lambda n: issues[n].get("closed_at") or "")
     opened = [n for n in nums if is_open(n)]
@@ -298,13 +348,13 @@ lines += ["## Order as a list", ""]
 for i, n in enumerate(order, 1):
     wait = sorted(open_blockers(n))
     ewait = sorted(waits_on.get(phase_of.get(n), ()))
-    parts = [f"#{b}" for b in wait] + [f"epic #{e}" for e in ewait]
+    parts = [f"#{b}" for b in wait] + [f"{gate_word(e)} #{e}" for e in ewait]
     after = f" — after {', '.join(parts)}" if parts else ""
     lines.append(f"{i}. [#{n}]({url(n)}) {title(n)}{after}" + (f" — {meta(n)}" if meta(n) else ""))
 lines.append("")
 
 # Backlog: open issues outside every open epic, the epics themselves aside.
-backlog = [i for i in OPEN if i["number"] not in issues and i["number"] not in EPICS]
+backlog = [i for i in OPEN if i["number"] not in issues and i["number"] not in GATES]
 backlog.sort(key=lambda i: (priority(i), i["number"]))
 lines += [f"## Backlog ({len(backlog)})", "",
           "Open issues in no open epic: to sort into an epic, prioritise or close.", ""]
@@ -344,9 +394,17 @@ if JSON_OUT:
             "done": sum(1 for n in nums if not is_open(n)),
             "total": len(nums),
             "waitsOn": sorted(waits_on[epic["number"]]),
+            "state": gate_state(epic["number"]),
             "issues": nums,
         } for epic, nums in phases],
         "issues": [item(n) for n in phase_of],
+        "milestones": [{
+            "number": m,
+            "title": _open_by_number[m]["title"],
+            "url": _open_by_number[m]["html_url"],
+            "state": gate_state(m),
+            "waitsOn": sorted(waits_on[m]),
+        } for m in GATE_ORDER if m in MILESTONES],
         "order": order,
         "next": ready[:5],
         "backlog": [item(i["number"]) for i in backlog],

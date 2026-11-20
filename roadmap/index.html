@@ -13,12 +13,14 @@
     --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --line: #d0d7de; --panel: #f6f8fa;
     --ready: #d8f5d8; --ready-line: #4caf50; --blocked: #fbe3e3; --blocked-line: #d98c8c;
     --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc;
+    --milestone: #fff3cd; --milestone-line: #d29922;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --line: #30363d; --panel: #161b22;
       --ready: #1f3d24; --ready-line: #3fb950; --blocked: #4a2526; --blocked-line: #c96a6a;
       --done: #262b31; --done-line: #3d444d; --epic: #11161d;
+      --milestone: #3d2e00; --milestone-line: #d29922;
     }
   }
   * { box-sizing: border-box; }
@@ -75,7 +77,8 @@
       <div><span style="background:var(--ready);border-color:var(--ready-line)"></span>ready: nothing it waits for is open</div>
       <div><span style="background:var(--blocked);border-color:var(--blocked-line)"></span>blocked: waits for an open issue or epic</div>
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
-      <div>Boxes are epics; arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
+      <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: a phase boundary, ready once everything above it is done</div>
+      <div>Boxes are epics; arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale. A milestone bar runs across the roadmap: the epics below it wait for it.</div>
       <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, click a card to open its issue.</div>
     </div>
     <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
@@ -118,6 +121,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   for (const e of data.epics) select.add(new Option(`#${e.number} ${e.title}`, e.number));
 
   const elements = [];
+  // Milestones: gates between epics, drawn as bars across the roadmap.
+  for (const m of data.milestones || []) {
+    elements.push({ data: { id: `e${m.number}`, label: `◆ #${m.number} ${m.title}`, url: m.url,
+                            kind: "milestone", state: m.state } });
+    for (const b of m.waitsOn)
+      elements.push({ data: { id: `ee${b}-${m.number}`, source: `e${b}`, target: `e${m.number}`, kind: "epicEdge" } });
+  }
   for (const e of data.epics) {
     elements.push({ data: { id: `e${e.number}`, label: `#${e.number} ${e.title} — ${e.done}/${e.total}`,
                             url: e.url, kind: "epic", epic: e.number } });
@@ -154,14 +164,25 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       { selector: "edge", style: { width: 1.5, "line-color": css("--muted"), "target-arrow-color": css("--muted"),
                                    "target-arrow-shape": "triangle", "curve-style": "bezier", "arrow-scale": 0.9 } },
       { selector: "edge[kind='epicEdge']", style: { width: 3, "line-style": "dashed" } },
+      { selector: "node[kind='milestone']", style: {
+          shape: "round-rectangle", width: 320, height: 30, label: "data(label)", "font-size": 13,
+          "font-weight": "bold", color: css("--fg"), "text-valign": "center", "text-halign": "center",
+          "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
+      // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
+      { selector: "edge.milestoneEdge", style: { opacity: 0, events: "no" } },
+      { selector: "node[kind='milestone'][state='ready']", style: { "background-color": css("--ready"), "border-color": css("--ready-line") } },
       { selector: "edge[kind='row']", style: { opacity: 0, events: "no", "target-arrow-shape": "none" } },
       { selector: ".faded", style: { opacity: 0.15 } },
       { selector: ".hit", style: { "border-width": 3, "border-color": "#d29922" } },
     ],
   });
 
-  // Done issues start hidden; the checkbox brings them back.
-  const done = cy.nodes("[state='done']");
+  cy.nodes("[kind='milestone']").connectedEdges().addClass("milestoneEdge");
+
+  // Done issues start hidden; the checkbox brings them back. An epic whose
+  // issues are all done goes with them.
+  const done = cy.nodes("[state='done']").union(
+    cy.nodes("[kind='epic']").filter(e => e.children().length && e.children().every(c => c.data("state") === "done")));
   const showDone = document.getElementById("showDone");
   function applyDone() { showDone.checked ? done.style("display", "element") : done.style("display", "none"); }
   applyDone();
@@ -212,9 +233,25 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       added = added.concat(capRows(epic.children().filter(n => n.visible()).toArray(), ["issueEdge", "row"], PER_ROW, "row-"));
     });
     cy.add(added);
-    cy.add(capRows(cy.nodes("[kind='epic']").filter(n => n.visible()).toArray(), ["epicEdge", "row"], EPICS_PER_ROW, "erow-"));
+    cy.add(capRows(cy.nodes("[kind='epic'], [kind='milestone']").filter(n => n.visible()).toArray(), ["epicEdge", "row"], EPICS_PER_ROW, "erow-"));
   }
-  const run = () => { rows(); cy.layout(layout).run(); };
+  // A milestone stretches across the whole roadmap at the height the layout
+  // gave it: a horizontal bar between the phase before and the phase after.
+  function stretchMilestones() {
+    const epics = cy.nodes("[kind='epic']").filter(n => n.visible());
+    if (!epics.length) return;
+    const bb = epics.boundingBox();
+    cy.nodes("[kind='milestone']").forEach(m => {
+      m.style("width", bb.w);
+      m.position({ x: (bb.x1 + bb.x2) / 2, y: m.position("y") });
+    });
+  }
+  const run = () => {
+    rows();
+    const l = cy.layout(layout);
+    l.one("layoutstop", () => { stretchMilestones(); cy.fit(undefined, 30); });
+    l.run();
+  };
   run();
   showDone.addEventListener("change", () => { applyDone(); run(); });
   document.getElementById("relayout").addEventListener("click", run);
