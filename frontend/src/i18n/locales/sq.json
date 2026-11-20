@@ -31,6 +31,10 @@
         "guest": "Hyni si Vizitor",
         "student": "Hyni si Student",
         "teacher": "Hyni si Mësues"
+      },
+      "unavailable": {
+        "message": "Kjo instancë nuk ofron hyrje. Pjesëmarrësit e workshop-it mund të fusin kodin e tyre në vend të kësaj.",
+        "title": "Hyrja nuk është e disponueshme"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Nën 13 vjeç",
       "ageGroupUnder13Error": "Duhet të jeni të paktën 13 vjeç për të përdorur ChatGameLab.",
       "cancelButton": "Anulo",
-      "emailDescription": "Do ta përdorim për njoftime të rëndësishme.",
+      "emailDescription": "Opsionale. Do ta përdorim për njoftime të rëndësishme.",
       "emailLabel": "Adresa e emailit",
       "emailPlaceholder": "Shkruani emailin tuaj",
       "errors": {

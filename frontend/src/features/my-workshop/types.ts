@@ -1,4 +1,4 @@
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 
 export type GameFilter = "all" | "mine" | "workshop" | "public";
 
@@ -15,7 +15,7 @@ export interface GamePermissions {
 }
 
 export function getGamePermissions(
-  game: ObjGame,
+  game: Game,
   currentUserId: string | undefined,
   canEditAllWorkshopGames: boolean,
   isAdmin: boolean = false,
@@ -28,11 +28,11 @@ export function getGamePermissions(
 }
 
 export function filterGamesByWorkshopSettings(
-  games: ObjGame[],
+  games: Game[],
   currentUserId: string | undefined,
   currentWorkshopId: string | undefined,
   settings: WorkshopSettings,
-): ObjGame[] {
+): Game[] {
   return games.filter((game) => {
     const isWsGame = !!game.workshopId && game.workshopId === currentWorkshopId;
 
@@ -50,11 +50,11 @@ export function filterGamesByWorkshopSettings(
 }
 
 export function filterGamesByUserFilter(
-  games: ObjGame[],
+  games: Game[],
   filter: GameFilter,
   currentUserId: string | undefined,
   currentWorkshopId?: string,
-): ObjGame[] {
+): Game[] {
   switch (filter) {
     case "mine":
       return games.filter((game) => game.creatorId === currentUserId);
@@ -74,7 +74,7 @@ export function filterGamesByUserFilter(
  * Check if a game belongs to the current workshop
  */
 export function isWorkshopGame(
-  game: ObjGame,
+  game: Game,
   currentWorkshopId: string | undefined,
 ): boolean {
   return !!game.workshopId && game.workshopId === currentWorkshopId;

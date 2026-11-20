@@ -17,13 +17,12 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
 import { uiLogger } from "@/config/logger";
 import { useUpdateUser } from "@/api/hooks";
-import { Api } from "@/api/generated";
-import { createAuthenticatedApiConfig } from "@/api/client/http";
+import { api, withQuery } from "@/api/client/api";
 import { AgeGroup } from "@/constants/ageGroup";
 
 export function SettingsForm() {
   const { t } = useTranslation("auth");
-  const { backendUser, retryBackendFetch, getAccessToken } = useAuth();
+  const { backendUser, retryBackendFetch } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const updateUser = useUpdateUser();
@@ -73,8 +72,7 @@ export function SettingsForm() {
 
       setIsCheckingName(true);
       try {
-        const api = new Api(createAuthenticatedApiConfig(getAccessToken));
-        const response = await api.auth.checkNameList({ name: debouncedName });
+        const response = await api.getApiAuthCheckName(withQuery({ name: debouncedName }));
         const data = response.data as {
           available?: boolean;
           profane?: boolean;
@@ -104,7 +102,6 @@ export function SettingsForm() {
   }, [
     debouncedName,
     backendUser?.name,
-    getAccessToken,
     setError,
     clearErrors,
     t,
@@ -156,10 +153,10 @@ export function SettingsForm() {
           // Check for specific error types
           if (error && typeof error === "object" && "error" in error) {
             const errorData = error as {
-              error?: { data?: { code?: string }; message?: string };
+              error?: { code?: string; error?: string };
             };
-            const code = errorData.error?.data?.code || "";
-            const message = errorData.error?.message || "";
+            const code = errorData.error?.code || "";
+            const message = errorData.error?.error || "";
 
             if (code === "profane_name") {
               setSubmitError(t("errors:nameProfane"));

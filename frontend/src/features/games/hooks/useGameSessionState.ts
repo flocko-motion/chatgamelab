@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { useGameSessionMap } from "@/api/hooks";
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import type { Game, UserSessionWithGame } from "@/api/generated/api.gen";
 
 export interface GameSessionState {
   hasSession: boolean;
-  session: DbUserSessionWithGame | undefined;
+  session: UserSessionWithGame | undefined;
 }
 
 /**
@@ -15,7 +15,7 @@ export function useGameSessionState() {
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
 
   const getSessionState = useCallback(
-    (game: ObjGame): GameSessionState => {
+    (game: Game): GameSessionState => {
       if (!game.id) return { hasSession: false, session: undefined };
       const session = sessionMap.get(game.id);
       return { hasSession: !!session, session };

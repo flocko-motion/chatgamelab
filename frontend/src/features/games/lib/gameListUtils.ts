@@ -1,11 +1,11 @@
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 
 /**
  * Get a date label for a game based on the current sort field.
  * Shows createdAt when sorting by createdAt, otherwise modifiedAt.
  */
 export function getGameDateLabel(
-  game: ObjGame,
+  game: Game,
   sortField: string,
 ): string | undefined {
   const dateValue =

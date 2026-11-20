@@ -9,7 +9,7 @@ import {
   useExportGameYaml,
 } from "@/api/hooks";
 import { useGameSessionState } from "@/features/games/hooks";
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import type { CreateGameFormData } from "@/features/games/types";
 import {
   parseGameYaml,
@@ -107,7 +107,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
 
   // Permission helpers
   const getPermissions = useCallback(
-    (game: ObjGame) =>
+    (game: Game) =>
       getGamePermissions(game, currentUserId, canEditAllWorkshopGames),
     [currentUserId, canEditAllWorkshopGames],
   );
@@ -132,7 +132,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
   );
 
   const handleExportGame = useCallback(
-    async (game: ObjGame) => {
+    async (game: Game) => {
       if (!game.id) return;
       const yaml = await exportGameYaml.mutateAsync(game.id);
       downloadYamlFile(yaml, game.name);

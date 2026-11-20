@@ -31,6 +31,10 @@
         "guest": "Пријави се као гост",
         "student": "Пријави се као ученик",
         "teacher": "Пријави се као наставник"
+      },
+      "unavailable": {
+        "message": "На овој инстанци пријављивање није доступно. Учесници радионице уместо тога могу да унесу свој код.",
+        "title": "Пријављивање није доступно"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Ispod 13",
       "ageGroupUnder13Error": "Morate imati najmanje 13 godina da biste koristili ChatGameLab.",
       "cancelButton": "Откажи",
-      "emailDescription": "Користићемо је за важна обавештења.",
+      "emailDescription": "Опционо. Користићемо је за важна обавештења.",
       "emailLabel": "Имејл адреса",
       "emailPlaceholder": "Унесите свој имејл",
       "errors": {

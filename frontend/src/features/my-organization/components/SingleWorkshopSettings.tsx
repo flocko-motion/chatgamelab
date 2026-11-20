@@ -1,4 +1,6 @@
+import { api } from "@/api/client/api";
 import { useState } from "react";
+import { RoleName } from "@/common/lib/roles";
 import {
   Stack,
   Card,
@@ -37,7 +39,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { queryKeys } from "@/api/queryKeys";
 import {
   useWorkshop,
@@ -62,7 +63,7 @@ import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
-import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
+import { type WorkshopParticipant } from "@/api/generated/api.gen";
 import {
   getAiQualityTierOptions,
   normalizeAiQualityTier,
@@ -109,21 +110,20 @@ export function SingleWorkshopSettings({
 
   // Participant editing state
   const [editingParticipant, setEditingParticipant] =
-    useState<ObjWorkshopParticipant | null>(null);
+    useState<WorkshopParticipant | null>(null);
   const [participantNewName, setParticipantNewName] = useState("");
   const [participantToRemove, setParticipantToRemove] =
-    useState<ObjWorkshopParticipant | null>(null);
+    useState<WorkshopParticipant | null>(null);
   const [linkParticipant, setLinkParticipant] = useState<{
     id: string;
     name?: string;
   } | null>(null);
 
   const { data: workshop, isLoading, isError } = useWorkshop(workshopId);
-  const api = useRequiredAuthenticatedApi();
   const { data: institution } = useQuery({
     queryKey: queryKeys.institution(institutionId),
     queryFn: async () => {
-      const response = await api.institutions.institutionsDetail(institutionId);
+      const response = await api.getApiInstitutionsId(institutionId);
       return response.data;
     },
     enabled: !!institutionId,
@@ -219,7 +219,7 @@ export function SingleWorkshopSettings({
   };
 
   // Participant handlers
-  const handleEditParticipant = (participant: ObjWorkshopParticipant) => {
+  const handleEditParticipant = (participant: WorkshopParticipant) => {
     setEditingParticipant(participant);
     setParticipantNewName(participant.name || "");
   };
@@ -633,7 +633,7 @@ export function SingleWorkshopSettings({
                               ) : (
                                 <>
                                   {participant.role ===
-                                    ObjRole.RoleParticipant && (
+                                    RoleName.Participant && (
                                       <Tooltip
                                         label={t(
                                           "myOrganization.workshops.shareParticipantLink",
@@ -673,8 +673,8 @@ export function SingleWorkshopSettings({
                                       <IconPencil size={14} />
                                     </ActionIcon>
                                   </Tooltip>
-                                  {participant.role !== ObjRole.RoleHead &&
-                                    participant.role !== ObjRole.RoleStaff && (
+                                  {participant.role !== RoleName.Head &&
+                                    participant.role !== RoleName.Staff && (
                                     <Tooltip
                                       label={t(
                                         "myOrganization.workshops.removeParticipant",
@@ -794,7 +794,7 @@ export function SingleWorkshopSettings({
                                 ) : (
                                   <>
                                     {participant.role ===
-                                      ObjRole.RoleParticipant && (
+                                      RoleName.Participant && (
                                         <Tooltip
                                           label={t(
                                             "myOrganization.workshops.shareParticipantLink",
@@ -834,8 +834,8 @@ export function SingleWorkshopSettings({
                                         <IconPencil size={14} />
                                       </ActionIcon>
                                     </Tooltip>
-                                    {participant.role !== ObjRole.RoleHead &&
-                                      participant.role !== ObjRole.RoleStaff && (
+                                    {participant.role !== RoleName.Head &&
+                                      participant.role !== RoleName.Staff && (
                                       <Tooltip
                                         label={t(
                                           "myOrganization.workshops.removeParticipant",

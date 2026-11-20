@@ -1,3 +1,4 @@
+import { api } from "@/api/client/api";
 import { useState } from "react";
 import {
   Table,
@@ -20,15 +21,14 @@ import {
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
-import type { ObjInstitution, ObjUser } from "@/api/generated";
+import type { Institution, User } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 
 interface OrganizationMembersRowProps {
-  org: ObjInstitution;
-  onEdit: (org: ObjInstitution) => void;
-  onDelete: (org: ObjInstitution) => void;
-  onInvite: (org: ObjInstitution) => void;
+  org: Institution;
+  onEdit: (org: Institution) => void;
+  onDelete: (org: Institution) => void;
+  onInvite: (org: Institution) => void;
 }
 
 export function OrganizationMembersRow({
@@ -38,7 +38,6 @@ export function OrganizationMembersRow({
   onInvite,
 }: OrganizationMembersRowProps) {
   const { t } = useTranslation("common");
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
   const translateRole = useTranslateRole();
   const [expanded, setExpanded] = useState(false);
@@ -46,7 +45,7 @@ export function OrganizationMembersRow({
   const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: queryKeys.institutionMembers(org.id!),
     queryFn: async () => {
-      const response = await api.institutions.membersList(org.id!);
+      const response = await api.getApiInstitutionsIdMembers(org.id!);
       return response.data;
     },
     enabled: expanded,
@@ -54,7 +53,7 @@ export function OrganizationMembersRow({
 
   const removeMemberMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await api.institutions.membersDelete(org.id!, userId);
+      await api.deleteApiInstitutionsIdMembersUserId(org.id!, userId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -156,7 +155,7 @@ export function OrganizationMembersRow({
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {members.map((member: ObjUser) => (
+                        {members.map((member: User) => (
                           <Table.Tr key={member.id}>
                             <Table.Td>
                               <Text size="sm">{member.name || "-"}</Text>

@@ -30,8 +30,8 @@ import {
   useRevokePrivateShare,
   useUpdateGameShare,
   useWorkshop,
-  type EnrichedGameShare,
 } from "@/api/hooks";
+import type { EnrichedGameShare } from "@/api/generated/api.gen";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   getAiQualityTierLabel,

@@ -31,6 +31,10 @@
         "guest": "게스트로 로그인",
         "student": "학생으로 로그인",
         "teacher": "교사로 로그인"
+      },
+      "unavailable": {
+        "message": "이 인스턴스에서는 로그인을 사용할 수 없습니다. 워크숍 참가자는 대신 코드를 입력할 수 있습니다.",
+        "title": "로그인을 사용할 수 없음"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "13세 미만",
       "ageGroupUnder13Error": "ChatGameLab을 사용하려면 만 13세 이상이어야 합니다.",
       "cancelButton": "취소",
-      "emailDescription": "중요한 알림을 보내는 데 사용됩니다.",
+      "emailDescription": "선택 사항입니다. 중요한 알림을 보내기 위해 사용됩니다.",
       "emailLabel": "이메일 주소",
       "emailPlaceholder": "이메일을 입력하세요",
       "errors": {

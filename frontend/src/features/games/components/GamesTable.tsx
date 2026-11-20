@@ -3,15 +3,15 @@ import { IconWorld, IconLock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { PlayGameButton, EditButtonWithText, DeleteButtonWithText, ExportButtonWithText } from '@components/buttons';
 import { useAuth } from '@/providers/AuthProvider';
-import type { ObjGame } from '@/api/generated';
+import type { Game } from "@/api/generated/api.gen";
 
 interface GamesTableProps {
-  games: ObjGame[];
-  onView: (game: ObjGame) => void;
-  onEdit: (game: ObjGame) => void;
-  onDelete: (game: ObjGame) => void;
-  onExport: (game: ObjGame) => void;
-  onPlay: (game: ObjGame) => void;
+  games: Game[];
+  onView: (game: Game) => void;
+  onEdit: (game: Game) => void;
+  onDelete: (game: Game) => void;
+  onExport: (game: Game) => void;
+  onPlay: (game: Game) => void;
   fillHeight?: boolean;
 }
 

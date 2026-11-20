@@ -31,6 +31,10 @@
         "guest": "Accedi come ospite",
         "student": "Accedi come studente",
         "teacher": "Accedi come insegnante"
+      },
+      "unavailable": {
+        "message": "Questa istanza non offre alcun accesso. I partecipanti al workshop possono invece inserire il proprio codice.",
+        "title": "Accesso non disponibile"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Meno di 13",
       "ageGroupUnder13Error": "Devi avere almeno 13 anni per usare ChatGameLab.",
       "cancelButton": "Annulla",
-      "emailDescription": "Lo useremo per notifiche importanti.",
+      "emailDescription": "Facoltativo. Lo useremo per le notifiche importanti.",
       "emailLabel": "Indirizzo email",
       "emailPlaceholder": "Inserisci la tua email",
       "errors": {

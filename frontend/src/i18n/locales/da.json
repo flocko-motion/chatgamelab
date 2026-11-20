@@ -31,6 +31,10 @@
         "guest": "Log ind som gæst",
         "student": "Log ind som elev",
         "teacher": "Log ind som lærer"
+      },
+      "unavailable": {
+        "message": "Der er ingen loginmulighed på denne instans. Workshopdeltagere kan i stedet indtaste deres kode.",
+        "title": "Login er ikke tilgængeligt"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Under 13",
       "ageGroupUnder13Error": "Du skal være mindst 13 år for at bruge ChatGameLab.",
       "cancelButton": "Annuller",
-      "emailDescription": "Vi bruger denne til vigtige meddelelser.",
+      "emailDescription": "Valgfrit. Vi bruger den til vigtige meddelelser.",
       "emailLabel": "E-mailadresse",
       "emailPlaceholder": "Indtast din e-mail",
       "errors": {

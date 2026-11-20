@@ -31,6 +31,10 @@
         "guest": "Bejelentkezés vendégként",
         "student": "Bejelentkezés diákként",
         "teacher": "Bejelentkezés tanárként"
+      },
+      "unavailable": {
+        "message": "Ezen a példányon nincs beállítva a bejelentkezés. A workshop résztvevői ehelyett megadhatják a kódjukat.",
+        "title": "A bejelentkezés nem érhető el"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "13 év alatt",
       "ageGroupUnder13Error": "A ChatGameLab használatához legalább 13 évesnek kell lenned.",
       "cancelButton": "Mégse",
-      "emailDescription": "Fontos értesítésekhez fogjuk használni.",
+      "emailDescription": "Nem kötelező. Fontos értesítésekhez fogjuk használni.",
       "emailLabel": "E-mail-cím",
       "emailPlaceholder": "Add meg az e-mail-címed",
       "errors": {

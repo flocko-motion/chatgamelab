@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
@@ -18,20 +19,29 @@ import { WorkshopModeProvider } from "./WorkshopModeProvider";
 // Initialize i18n
 import "../i18n";
 
+/** Auth0's SDK, when the instance offers Auth0 sign-in. */
+function SignInProvider({ children }: { children: ReactNode }) {
+  if (!auth0Config) return <>{children}</>;
+  return (
+    <Auth0Provider
+      domain={auth0Config.domain}
+      clientId={auth0Config.clientId}
+      authorizationParams={{
+        redirect_uri: auth0Config.redirectUri,
+        scope: "openid profile offline_access",
+      }}
+      cacheLocation="localstorage"
+      useRefreshTokens={true}
+    >
+      {children}
+    </Auth0Provider>
+  );
+}
+
 export function AppProviders() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Auth0Provider
-        domain={auth0Config.domain}
-        clientId={auth0Config.clientId}
-        authorizationParams={{
-          audience: auth0Config.audience,
-          redirect_uri: auth0Config.redirectUri,
-          scope: 'openid profile email offline_access',
-        }}
-        cacheLocation="localstorage"
-        useRefreshTokens={true}
-      >
+      <SignInProvider>
         <MantineProvider theme={mantineTheme} forceColorScheme="light">
           <ErrorBoundary>
             <ModalsProvider>
@@ -46,7 +56,7 @@ export function AppProviders() {
             </ModalsProvider>
           </ErrorBoundary>
         </MantineProvider>
-      </Auth0Provider>
+      </SignInProvider>
     </QueryClientProvider>
   );
 }

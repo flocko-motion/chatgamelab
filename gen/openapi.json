@@ -446,6 +446,33 @@
         ],
         "type": "object"
       },
+      "DevLoginReq": {
+        "properties": {
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "type": "object"
+      },
+      "DevLoginResp": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
       "EdgeDetail": {
         "properties": {
           "from": {
@@ -2271,10 +2298,6 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "email"
-        ],
         "type": "object"
       },
       "UpdateWorkshopReq": {
@@ -3315,6 +3338,45 @@
           }
         },
         "summary": "Checks whether a name is free to register."
+      }
+    },
+    "/api/auth/dev-login": {
+      "post": {
+        "description": "Development only: without DEV_MODE it answers 404. Takes a preset role\n(\"admin-1\", \"admin-2\", \"head-1\", \"head-2\", \"staff-1\", \"staff-2\",\n\"individual-1\", \"individual-2\", \"participant\"), starts a session for its\naccount and sets the session cookie.",
+        "operationId": "postApiAuthDev-login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevLoginReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevLoginResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Signs in as one of the seeded development accounts."
       }
     },
     "/api/auth/logout": {

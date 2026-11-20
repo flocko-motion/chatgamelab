@@ -31,6 +31,10 @@
         "guest": "Se connecter en tant qu’invité",
         "student": "Se connecter en tant qu’élève",
         "teacher": "Se connecter en tant qu’enseignant"
+      },
+      "unavailable": {
+        "message": "Cette instance ne propose aucune connexion. Les participants à l’atelier peuvent saisir leur code à la place.",
+        "title": "Connexion indisponible"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Moins de 13 ans",
       "ageGroupUnder13Error": "Vous devez avoir au moins 13 ans pour utiliser ChatGameLab.",
       "cancelButton": "Annuler",
-      "emailDescription": "Nous l’utiliserons pour les notifications importantes.",
+      "emailDescription": "Facultatif. Nous l’utiliserons pour les notifications importantes.",
       "emailLabel": "Adresse e-mail",
       "emailPlaceholder": "Entrez votre e-mail",
       "errors": {

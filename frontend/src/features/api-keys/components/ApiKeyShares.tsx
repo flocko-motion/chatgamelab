@@ -19,10 +19,10 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { DeleteIconButton } from "@components/buttons";
 import { useRemoveGameSponsor, useRevokePrivateShare } from "@/api/hooks";
-import type { ObjApiKeyShare } from "@/api/generated";
+import type { ApiKeyShare } from "@/api/generated/api.gen";
 
 interface ApiKeySharesProps {
-  shares: ObjApiKeyShare[];
+  shares: ApiKeyShare[];
 }
 
 export function ApiKeyShares({ shares }: ApiKeySharesProps) {
@@ -76,7 +76,7 @@ export function ApiKeyShares({ shares }: ApiKeySharesProps) {
   );
 }
 
-function OrgSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
+function OrgSharesSection({ shares }: { shares: ApiKeyShare[] }) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
 
@@ -123,7 +123,7 @@ function OrgSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
   );
 }
 
-function SponsorshipsSection({ shares }: { shares: ObjApiKeyShare[] }) {
+function SponsorshipsSection({ shares }: { shares: ApiKeyShare[] }) {
   const { t } = useTranslation("common");
   const removeGameSponsor = useRemoveGameSponsor();
 
@@ -157,11 +157,11 @@ function SponsorshipsSection({ shares }: { shares: ObjApiKeyShare[] }) {
   );
 }
 
-function GameSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
+function GameSharesSection({ shares }: { shares: ApiKeyShare[] }) {
   const { t } = useTranslation("common");
   const revokeShare = useRevokePrivateShare();
 
-  const getContextLabel = (share: ObjApiKeyShare): string => {
+  const getContextLabel = (share: ApiKeyShare): string => {
     if (share.workshop) {
       return share.workshop.name
         ? `${t("apiKeys.shares.context.workshop")}: ${share.workshop.name}`
@@ -173,7 +173,7 @@ function GameSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
     return t("apiKeys.shares.context.personal");
   };
 
-  const getRemainingLabel = (share: ObjApiKeyShare): string => {
+  const getRemainingLabel = (share: ApiKeyShare): string => {
     if (share.remaining == null) return t("apiKeys.shares.unlimited");
     return t("apiKeys.shares.remaining", { count: share.remaining });
   };

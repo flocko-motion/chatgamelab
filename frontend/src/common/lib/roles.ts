@@ -12,7 +12,7 @@
 
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import type { ObjUser, ObjUserRole } from "@/api/generated";
+import type { User, UserRole } from "@/api/generated/api.gen";
 
 /**
  * Role values with numeric levels for easy comparison.
@@ -37,6 +37,17 @@ export type RoleString =
   | "staff"
   | "head"
   | "admin";
+
+/**
+ * The API's role strings by name.
+ */
+export const RoleName = {
+  Participant: "participant",
+  Individual: "individual",
+  Staff: "staff",
+  Head: "head",
+  Admin: "admin",
+} as const satisfies Record<string, RoleString>;
 
 /**
  * Maps API role strings to Role enum values.
@@ -76,7 +87,7 @@ export function parseRole(
  * Returns undefined if user has no role.
  */
 export function getUserRole(
-  user: ObjUser | null | undefined,
+  user: User | null | undefined,
 ): Role | undefined {
   if (!user?.role?.role) return undefined;
   return parseRole(user.role.role);
@@ -86,7 +97,7 @@ export function getUserRole(
  * Gets the role string from a user object.
  */
 export function getUserRoleString(
-  user: ObjUser | null | undefined,
+  user: User | null | undefined,
 ): RoleString | undefined {
   return user?.role?.role as RoleString | undefined;
 }
@@ -95,8 +106,8 @@ export function getUserRoleString(
  * Gets the UserRole object from a user.
  */
 export function getUserRoleDetails(
-  user: ObjUser | null | undefined,
-): ObjUserRole | undefined {
+  user: User | null | undefined,
+): UserRole | undefined {
   return user?.role;
 }
 
@@ -123,7 +134,7 @@ export function getRoleLabel(role: Role | string | undefined | null): string {
  * hasMinRole(user, Role.Admin) // true only if admin
  */
 export function hasMinRole(
-  user: ObjUser | null | undefined,
+  user: User | null | undefined,
   minRole: Role,
 ): boolean {
   const userRole = getUserRole(user);
@@ -134,7 +145,7 @@ export function hasMinRole(
 /**
  * Checks if user has exactly the specified role.
  */
-export function hasRole(user: ObjUser | null | undefined, role: Role): boolean {
+export function hasRole(user: User | null | undefined, role: Role): boolean {
   const userRole = getUserRole(user);
   return userRole === role;
 }
@@ -143,7 +154,7 @@ export function hasRole(user: ObjUser | null | undefined, role: Role): boolean {
  * Checks if user has any of the specified roles.
  */
 export function hasAnyRole(
-  user: ObjUser | null | undefined,
+  user: User | null | undefined,
   roles: Role[],
 ): boolean {
   const userRole = getUserRole(user);
@@ -154,35 +165,35 @@ export function hasAnyRole(
 /**
  * Checks if user is an admin.
  */
-export function isAdmin(user: ObjUser | null | undefined): boolean {
+export function isAdmin(user: User | null | undefined): boolean {
   return hasRole(user, Role.Admin);
 }
 
 /**
  * Checks if user is at least a head (head or admin).
  */
-export function isAtLeastHead(user: ObjUser | null | undefined): boolean {
+export function isAtLeastHead(user: User | null | undefined): boolean {
   return hasMinRole(user, Role.Head);
 }
 
 /**
  * Checks if user is at least staff (staff, head, or admin).
  */
-export function isAtLeastStaff(user: ObjUser | null | undefined): boolean {
+export function isAtLeastStaff(user: User | null | undefined): boolean {
   return hasMinRole(user, Role.Staff);
 }
 
 /**
  * Checks if user has any role (is not a guest).
  */
-export function hasAnyRoleAssigned(user: ObjUser | null | undefined): boolean {
+export function hasAnyRoleAssigned(user: User | null | undefined): boolean {
   return getUserRole(user) !== undefined;
 }
 
 /**
  * Checks if user is a guest (no role assigned).
  */
-export function isGuest(user: ObjUser | null | undefined): boolean {
+export function isGuest(user: User | null | undefined): boolean {
   return !hasAnyRoleAssigned(user);
 }
 
@@ -190,7 +201,7 @@ export function isGuest(user: ObjUser | null | undefined): boolean {
  * Gets the user's institution ID if they have one.
  */
 export function getUserInstitutionId(
-  user: ObjUser | null | undefined,
+  user: User | null | undefined,
 ): string | undefined {
   return user?.role?.institution?.id;
 }
@@ -199,7 +210,7 @@ export function getUserInstitutionId(
  * Checks if user belongs to a specific institution.
  */
 export function isInInstitution(
-  user: ObjUser | null | undefined,
+  user: User | null | undefined,
   institutionId: string,
 ): boolean {
   return getUserInstitutionId(user) === institutionId;

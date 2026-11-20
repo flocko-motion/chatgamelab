@@ -31,6 +31,10 @@
         "guest": "ከም ጋስት ግባ",
         "student": "ከም ተማሃሪ ግባ",
         "teacher": "ከም መምህር ግባ"
+      },
+      "unavailable": {
+        "message": "እዚ ኢንስታንስ ናይ ምእታው ኣገልግሎት ኣይህብን እዩ። ተሳተፍቲ ወርክሾፕ ኣብ ክንዳኡ ኮዶም ከእትዉ ይኽእሉ።",
+        "title": "ምእታው ኣይርከብን እዩ"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "በታሕቲ 13",
       "ageGroupUnder13Error": "ChatGameLab ምጥቃም ንክትኽእል ብውን 13 ኣመት ዕድመ ዝበለ ክንብር ኣለኻ።",
       "cancelButton": "ሰርዝ",
-      "emailDescription": "ናይ ኣገዳሲ ማሳሰቢ ንንበዝሕ እንጥቀመረይካ።",
+      "emailDescription": "ኣማራጺ እዩ። ንኣገደስቲ ምልክታት ክንጥቀመሉ ኢና።",
       "emailLabel": "ኢ-መይል ኣድራሻ",
       "emailPlaceholder": "ኢ-መይልካ ኣእቱ",
       "errors": {

@@ -25,11 +25,9 @@
         "message": "Bitte warte, während wir dich zur Login-Seite weiterleiten.",
         "title": "Weiterleitung zu Auth0..."
       },
-      "role": {
-        "admin": "Als Admin anmelden",
-        "guest": "Als Gast anmelden",
-        "student": "Als Schüler anmelden",
-        "teacher": "Als Lehrer anmelden"
+      "unavailable": {
+        "message": "Auf dieser Instanz ist keine Anmeldung eingerichtet. Workshop-Teilnehmende können stattdessen ihren Code eingeben.",
+        "title": "Anmeldung nicht verfügbar"
       }
     },
     "participant": {
@@ -74,7 +72,7 @@
     },
     "register": {
       "cancelButton": "Abbrechen",
-      "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
+      "emailDescription": "Optional. Wir verwenden sie für wichtige Benachrichtigungen.",
       "emailLabel": "E-Mail-Adresse",
       "emailPlaceholder": "Gib deine E-Mail ein",
       "errors": {

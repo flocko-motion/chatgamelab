@@ -51,7 +51,7 @@ import {
   getAiQualityTierOptions,
   normalizeAiQualityTier,
 } from "@/common/lib/aiQualityTier";
-import type { EngineTierModels } from "@/api/generated";
+import type { TierModels } from "@/api/generated/api.gen";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
 import { ApiKeyShares } from "./ApiKeyShares";
 
@@ -85,7 +85,7 @@ export function ApiKeyManagement() {
     id: string;
     name: string;
     supported: boolean;
-    tiers: EngineTierModels[];
+    tiers: TierModels[];
   }[] = [
     ...(platforms ?? [])
       .filter((p) => p.userKeys)

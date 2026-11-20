@@ -31,6 +31,10 @@
         "guest": "Přihlásit se jako host",
         "student": "Přihlásit se jako student",
         "teacher": "Přihlásit se jako učitel"
+      },
+      "unavailable": {
+        "message": "Tato instance nenabízí přihlášení. Účastníci workshopu mohou místo toho zadat svůj kód.",
+        "title": "Přihlášení není k dispozici"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Méně než 13",
       "ageGroupUnder13Error": "Abyste mohli ChatGameLab používat, musíte být starší 13 let.",
       "cancelButton": "Zrušit",
-      "emailDescription": "Použijeme ji pro důležitá oznámení.",
+      "emailDescription": "Volitelné. Použijeme ho pro důležitá upozornění.",
       "emailLabel": "E-mailová adresa",
       "emailPlaceholder": "Zadejte svůj e-mail",
       "errors": {

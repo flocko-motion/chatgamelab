@@ -14,11 +14,9 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
-import { config } from "@/config/env";
 import { ROUTES } from "@/common/routes/routes";
 import { buildShareUrl } from "@/common/lib/url";
-import { ErrorCodes } from "@/common/types/errorCodes";
-import { storeParticipantToken } from "@/providers/AuthProvider";
+import { participantLogin, type ParticipantLoginResult } from "@/providers/AuthProvider";
 import {
   INVITE_WORD_COUNT,
   PARTICIPANT_WORD_COUNT,
@@ -27,6 +25,14 @@ import {
   toParticipantToken,
   wordCount,
 } from "@/common/lib/wordToken";
+
+/** What a failed sign-in with a code tells the participant. */
+const LOGIN_FAILURE_MESSAGE: Record<Exclude<ParticipantLoginResult, "ok">, string> = {
+  locked: "invites.errors.tokenLocked",
+  inactive: "workshop.inactive.description",
+  unknown: "enterCode.unknown",
+  failed: "invites.errors.loadFailed",
+};
 
 interface EnterCodePageProps {
   /** From a short link /code/<words>: submitted once on arrival. */
@@ -58,29 +64,12 @@ export function EnterCodePage({ initialCode }: EnterCodePageProps) {
 
     setSubmitting(true);
     try {
-      const token = toParticipantToken(code);
-      const response = await fetch(
-        `${config.API_BASE_URL}/auth/participant-login`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        },
-      );
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        setError(
-          data.code === ErrorCodes.TOKEN_LOCKED
-            ? t("invites.errors.tokenLocked")
-            : t("enterCode.unknown"),
-        );
+      const result = await participantLogin(toParticipantToken(code));
+      if (result === "ok") {
+        window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
         return;
       }
-      storeParticipantToken(token);
-      window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
-    } catch {
-      setError(t("invites.errors.loadFailed"));
+      setError(t(LOGIN_FAILURE_MESSAGE[result]));
     } finally {
       setSubmitting(false);
     }

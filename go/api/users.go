@@ -361,9 +361,10 @@ func (UpdateUserEndpoint) Handle(ctx context.Context, req UpdateUserReq) (UserRe
 
 // UpdateUserReq is the user from the path and the properties to change.
 type UpdateUserReq struct {
-	UserID               string     `path:"id" json:"-"`
-	Name                 string     `json:"name"`
-	Email                string     `json:"email"`
+	UserID string `path:"id" json:"-"`
+	// Name and Email are left unchanged when empty.
+	Name                 string     `json:"name,omitempty"`
+	Email                string     `json:"email,omitempty"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
 	AiQualityTier        *string    `json:"aiQualityTier,omitempty"`
 	// AgeGroup is "u13" (13-17, no parental consent), "u13p" (13-17, with

@@ -1,9 +1,9 @@
+import { api } from "@/api/client/api";
 import { useState } from "react";
 import { Alert, Center, Loader, Modal } from "@mantine/core";
 import { IconAlertCircle, IconLink, IconRefresh } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useResetParticipantToken } from "@/api/hooks";
 import { FullscreenQrOverlay } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
@@ -26,7 +26,6 @@ export function ParticipantLinkModal({
   onClose,
 }: ParticipantLinkModalProps) {
   const { t } = useTranslation("common");
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
   const resetToken = useResetParticipantToken();
   const [confirmReset, setConfirmReset] = useState(false);
@@ -36,7 +35,7 @@ export function ParticipantLinkModal({
   const { data: token, isError } = useQuery({
     queryKey,
     queryFn: async () => {
-      const response = await api.workshops.participantsTokenList(
+      const response = await api.getApiWorkshopsParticipantsParticipantIdToken(
         participantId!,
       );
       return response.data?.token ?? null;

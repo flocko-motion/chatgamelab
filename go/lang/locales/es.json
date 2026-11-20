@@ -31,6 +31,10 @@
         "guest": "Iniciar sesión como invitado",
         "student": "Iniciar sesión como estudiante",
         "teacher": "Iniciar sesión como docente"
+      },
+      "unavailable": {
+        "message": "Esta instancia no ofrece inicio de sesión. Los participantes del taller pueden introducir su código en su lugar.",
+        "title": "Inicio de sesión no disponible"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Menos de 13",
       "ageGroupUnder13Error": "Debes tener al menos 13 años para usar ChatGameLab.",
       "cancelButton": "Cancelar",
-      "emailDescription": "La usaremos para notificaciones importantes.",
+      "emailDescription": "Opcional. Usaremos este correo para notificaciones importantes.",
       "emailLabel": "Correo electrónico",
       "emailPlaceholder": "Ingresa tu correo",
       "errors": {

@@ -1,7 +1,7 @@
+import { api } from "@/api/client/api";
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
-import { useAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useCreateGame, useUpdateGame } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
@@ -26,7 +26,6 @@ import type { CreateGameFormData } from "@/features/games/types";
 export function useCopyGameIntent(scope: string) {
   const navigate = useNavigate();
   const { isAuthenticated, isParticipant, backendUser } = useAuth();
-  const authApi = useAuthenticatedApi();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const [copyData, setCopyData] = useState<Partial<CreateGameFormData> | null>(
@@ -35,16 +34,16 @@ export function useCopyGameIntent(scope: string) {
   const [opened, { open, close }] = useDisclosure(false);
 
   /** True once an authenticated visitor can be asked to copy. */
-  const ready = !isAuthenticated || !!(backendUser && authApi);
+  const ready = !isAuthenticated || !!backendUser;
 
   const start = async (gameId: string) => {
-    if (!isAuthenticated || !authApi) {
+    if (!isAuthenticated) {
       rememberReturnTo(scope);
       rememberCopyIntent({ scope, gameId });
       navigate({ to: ROUTES.AUTH_LOGIN });
       return;
     }
-    const full = (await authApi.games.gamesDetail(gameId)).data;
+    const full = (await api.getApiGamesId(gameId)).data;
     setCopyData(gameToFormData(full));
     open();
   };

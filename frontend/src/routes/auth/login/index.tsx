@@ -20,7 +20,7 @@ export const Route = createFileRoute("/auth/login/")({
 
 function LoginComponent() {
   const { t } = useTranslation("auth");
-  const { loginWithAuth0, loginWithRole, isDevMode, user } = useAuth();
+  const { loginWithAuth0, loginWithRole, isDevMode, auth0Enabled, user } = useAuth();
   const router = useRouter();
 
   // Redirect authenticated users. This is the single place that decides where
@@ -34,20 +34,28 @@ function LoginComponent() {
     }
   }, [user, router]);
 
-  // In production mode, redirect directly to Auth0
+  // In production mode, sign-in happens at Auth0
   useEffect(() => {
-    if (!isDevMode) {
+    if (!isDevMode && auth0Enabled && !user) {
       loginWithAuth0();
     }
-  }, [isDevMode, loginWithAuth0]);
+  }, [isDevMode, auth0Enabled, user, loginWithAuth0]);
 
-  // Show loading while redirecting in production
   if (!isDevMode) {
     return (
       <Container size="sm" py="xl">
         <Stack gap="lg" align="center">
-          <SectionTitle>{t("login.redirecting.title")}</SectionTitle>
-          <HelperText>{t("login.redirecting.message")}</HelperText>
+          {auth0Enabled ? (
+            <>
+              <SectionTitle>{t("login.redirecting.title")}</SectionTitle>
+              <HelperText>{t("login.redirecting.message")}</HelperText>
+            </>
+          ) : (
+            <>
+              <SectionTitle>{t("login.unavailable.title")}</SectionTitle>
+              <HelperText>{t("login.unavailable.message")}</HelperText>
+            </>
+          )}
         </Stack>
       </Container>
     );
@@ -75,9 +83,11 @@ function LoginComponent() {
             <HelperText>{t("login.devModeAlert.message")}</HelperText>
           </Stack>
 
-          <ActionButton onClick={loginWithAuth0} fullWidth>
-            {t("login.auth0Button")}
-          </ActionButton>
+          {auth0Enabled && (
+            <ActionButton onClick={() => loginWithAuth0()} fullWidth>
+              {t("login.auth0Button")}
+            </ActionButton>
+          )}
 
           <Divider label={t("login.devMode")} labelPosition="center" />
 

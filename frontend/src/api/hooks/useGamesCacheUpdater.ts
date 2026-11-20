@@ -1,9 +1,9 @@
+import { api } from "../client/api";
 import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
-import { useAuthenticatedApi } from "../useAuthenticatedApi";
 import { uiLogger } from "@/config/logger";
-import type { ObjGame } from "../generated";
+import type { Game } from "../generated/api.gen";
 
 /**
  * Hook that provides functions to update the games cache without full refetch.
@@ -14,7 +14,6 @@ import type { ObjGame } from "../generated";
  */
 export function useGamesCacheUpdater() {
   const queryClient = useQueryClient();
-  const api = useAuthenticatedApi();
 
   /**
    * Invalidate games query as fallback when we can't fetch individual games
@@ -26,24 +25,17 @@ export function useGamesCacheUpdater() {
 
   /**
    * Fetch a single game and add it to all games list caches.
-   * Falls back to full invalidation if API client unavailable.
    */
   const addGameToCache = useCallback(
     async (gameId: string) => {
-      uiLogger.debug("addGameToCache called", { gameId, hasApi: !!api });
-      if (!api) {
-        // API not available - fall back to invalidating games
-        uiLogger.debug("No API client, falling back to invalidation");
-        invalidateGames();
-        return;
-      }
+      uiLogger.debug("addGameToCache called", { gameId });
 
       try {
-        const response = await api.games.gamesDetail(gameId);
+        const response = await api.getApiGamesId(gameId);
         const newGame = response.data;
 
         // Update all games list queries
-        queryClient.setQueriesData<ObjGame[]>(
+        queryClient.setQueriesData<Game[]>(
           { queryKey: queryKeys.games },
           (oldData) => {
             if (!oldData) return [newGame];
@@ -68,7 +60,7 @@ export function useGamesCacheUpdater() {
         invalidateGames();
       }
     },
-    [api, queryClient, invalidateGames],
+    [queryClient, invalidateGames],
   );
 
   /**
@@ -77,18 +69,13 @@ export function useGamesCacheUpdater() {
    */
   const updateGameInCache = useCallback(
     async (gameId: string) => {
-      if (!api) {
-        // Participants use cookie auth - fall back to invalidating games
-        invalidateGames();
-        return;
-      }
 
       try {
-        const response = await api.games.gamesDetail(gameId);
+        const response = await api.getApiGamesId(gameId);
         const updatedGame = response.data;
 
         // Update all games list queries
-        queryClient.setQueriesData<ObjGame[]>(
+        queryClient.setQueriesData<Game[]>(
           { queryKey: queryKeys.games },
           (oldData) => {
             if (!oldData) return oldData;
@@ -112,7 +99,7 @@ export function useGamesCacheUpdater() {
         invalidateGames();
       }
     },
-    [api, queryClient, invalidateGames],
+    [queryClient, invalidateGames],
   );
 
   /**
@@ -121,7 +108,7 @@ export function useGamesCacheUpdater() {
   const removeGameFromCache = useCallback(
     (gameId: string) => {
       // Update all games list queries
-      queryClient.setQueriesData<ObjGame[]>(
+      queryClient.setQueriesData<Game[]>(
         { queryKey: queryKeys.games },
         (oldData) => {
           if (!oldData) return oldData;

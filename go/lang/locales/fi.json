@@ -31,6 +31,10 @@
         "guest": "Kirjaudu vieraana",
         "student": "Kirjaudu opiskelijana",
         "teacher": "Kirjaudu opettajana"
+      },
+      "unavailable": {
+        "message": "Tällä instanssilla ei ole kirjautumismahdollisuutta. Työpajan osallistujat voivat syöttää koodinsa sen sijaan.",
+        "title": "Kirjautuminen ei ole käytettävissä"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Alle 13",
       "ageGroupUnder13Error": "ChatGameLabia käyttääksesi sinun on oltava vähintään 13-vuotias.",
       "cancelButton": "Peruuta",
-      "emailDescription": "Käytämme tätä osoitetta tärkeisiin ilmoituksiin.",
+      "emailDescription": "Valinnainen. Käytämme sitä tärkeisiin ilmoituksiin.",
       "emailLabel": "Sähköpostiosoite",
       "emailPlaceholder": "Syötä sähköpostiosiotteesi",
       "errors": {

@@ -1,3 +1,4 @@
+import { api } from "@/api/client/api";
 import { useState, useMemo, useCallback } from "react";
 import {
   Table,
@@ -20,11 +21,10 @@ import {
   useAllInvites,
   useRevokeInvite,
 } from "@/api/hooks";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { parseSortValue } from "@/common/lib/sort";
 import { SortSelector, type SortOption } from "@/common/components/controls";
-import type { RoutesInviteResponse, ObjInstitution } from "@/api/generated";
+import type { InviteResp, Institution } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 
 const getStatusColor = (status: string) => {
@@ -44,7 +44,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const getDisplayDate = (invite: RoutesInviteResponse) => {
+const getDisplayDate = (invite: InviteResp) => {
   return invite.modifiedAt || invite.createdAt;
 };
 
@@ -58,7 +58,6 @@ export function InvitesList({
   showInstitutionColumn = false,
 }: InvitesListProps) {
   const { t } = useTranslation("common");
-  const api = useRequiredAuthenticatedApi();
   const { isMobile } = useResponsiveDesign();
 
   // Use institution-specific query if institutionId is provided, otherwise use all invites (admin)
@@ -75,7 +74,7 @@ export function InvitesList({
   const { data: institutions } = useQuery({
     queryKey: queryKeys.institutions,
     queryFn: async () => {
-      const response = await api.institutions.institutionsList();
+      const response = await api.getApiInstitutions();
       return response.data;
     },
   });
@@ -85,7 +84,7 @@ export function InvitesList({
     (instId?: string) => {
       if (!instId || !institutions) return instId || "-";
       const institution = institutions.find(
-        (org: ObjInstitution) => org.id === instId,
+        (org: Institution) => org.id === instId,
       );
       return institution?.name || instId;
     },
@@ -216,7 +215,7 @@ export function InvitesList({
   if (error) {
     return (
       <Alert icon={<IconAlertCircle size={16} />} color="red">
-        {t("error")}: {error.message}
+        {t("error")}: {error.error}
       </Alert>
     );
   }
@@ -262,7 +261,7 @@ export function InvitesList({
         </Group>
         {sortedInvites.length === 0
           ? renderNoResults()
-          : sortedInvites.map((invite: RoutesInviteResponse) => (
+          : sortedInvites.map((invite: InviteResp) => (
               <Card key={invite.id} withBorder padding="sm" radius="md">
                 <Stack gap="xs">
                   <Group justify="space-between" wrap="nowrap">
@@ -348,7 +347,7 @@ export function InvitesList({
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {sortedInvites.map((invite: RoutesInviteResponse) => (
+            {sortedInvites.map((invite: InviteResp) => (
               <Table.Tr key={invite.id}>
                 {showInstitutionColumn && (
                   <Table.Td>

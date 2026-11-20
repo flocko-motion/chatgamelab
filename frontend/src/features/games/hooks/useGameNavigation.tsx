@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useModals } from "@mantine/modals";
 import { Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import type { Game, UserSessionWithGame } from "@/api/generated/api.gen";
 import { useDeleteSession } from "@/api/hooks";
 import { forgetRememberedSession } from "@/features/play/playback";
 
@@ -18,7 +18,7 @@ export function useGameNavigation() {
   const deleteSession = useDeleteSession();
 
   const playGame = useCallback(
-    (game: ObjGame) => {
+    (game: Game) => {
       if (game.id) {
         navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
       }
@@ -27,7 +27,7 @@ export function useGameNavigation() {
   );
 
   const continueGame = useCallback(
-    (session: DbUserSessionWithGame) => {
+    (session: UserSessionWithGame) => {
       if (session.id) {
         navigate({ to: `/sessions/${session.id}` as "/" });
       }
@@ -36,7 +36,7 @@ export function useGameNavigation() {
   );
 
   const restartGame = useCallback(
-    (game: ObjGame, session: DbUserSessionWithGame) => {
+    (game: Game, session: UserSessionWithGame) => {
       if (!game.id || !session.id) return;
 
       modals.openConfirmModal({

@@ -1,7 +1,7 @@
+import { api } from "../client/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
-import type { ObjUser, HttpxErrorResponse } from "../generated";
+import type { User, Error as ApiError } from "../generated/api.gen";
 
 // Mutation key for deduplication
 const MUTATION_KEY = ["setActiveWorkshop"] as const;
@@ -11,16 +11,12 @@ const MUTATION_KEY = ["setActiveWorkshop"] as const;
  * This persists the workshop context in the backend
  */
 export function useSetActiveWorkshop() {
-  const api = useAuthenticatedApi();
   const queryClient = useQueryClient();
 
-  return useMutation<ObjUser, HttpxErrorResponse, string | null>({
+  return useMutation<User, ApiError, string | null>({
     mutationKey: MUTATION_KEY,
     mutationFn: async (workshopId: string | null) => {
-      if (!api) {
-        throw new Error("Not authenticated");
-      }
-      const response = await api.users.meActiveWorkshopUpdate({
+      const response = await api.putApiUsersMeActiveWorkshop({
         workshopId: workshopId ?? undefined,
       });
       return response.data;

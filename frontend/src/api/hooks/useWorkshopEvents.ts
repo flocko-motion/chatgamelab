@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { config } from "@/config/env";
 import { queryKeys } from "../queryKeys";
 import { uiLogger } from "@/config/logger";
 import { useAuth } from "@/providers/AuthProvider";
@@ -43,7 +42,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
   } = options;
   const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
-  const { getAccessToken, isParticipant } = useAuth();
+  const { isParticipant } = useAuth();
   const eventSourceRef = useRef<EventSource | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -103,16 +102,8 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
 
     const connect = async () => {
       try {
-        const baseUrl = config.API_BASE_URL.replace(/\/$/, "");
-        let url = `${baseUrl}/workshops/${workshopId}/events`;
-
-        // Add token as query param (EventSource can't send headers).
-        // This applies to all users — participants included — because
-        // SameSite=Lax cookies are not sent on cross-origin sub-resource requests.
-        const token = await getAccessToken();
-        if (token) {
-          url = `${url}?token=${encodeURIComponent(token)}`;
-        }
+        // Same origin: the session cookie authenticates the stream.
+        const url = `/api/workshops/${encodeURIComponent(workshopId)}/events`;
 
         if (cancelled) return;
 
@@ -121,7 +112,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
           isParticipant,
         });
 
-        eventSource = new EventSource(url, { withCredentials: true });
+        eventSource = new EventSource(url);
         eventSourceRef.current = eventSource;
 
         eventSource.addEventListener("connected", () => {
@@ -208,7 +199,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
           scheduleReconnect();
         };
       } catch (error) {
-        // getAccessToken() or EventSource construction failed (e.g. server down).
+        // EventSource construction failed (e.g. server down).
         // Fall through to backoff reconnect instead of leaving an unhandled rejection.
         uiLogger.warning("SSE connect() failed, scheduling retry", {
           workshopId,
@@ -232,7 +223,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
       eventSourceRef.current = null;
       setIsConnected(false);
     };
-  }, [workshopId, enabled, queryClient, getAccessToken, isParticipant]);
+  }, [workshopId, enabled, queryClient, isParticipant]);
 
   return { isConnected };
 }

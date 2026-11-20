@@ -31,6 +31,10 @@
         "guest": "Logga in som gäst",
         "student": "Logga in som elev",
         "teacher": "Logga in som lärare"
+      },
+      "unavailable": {
+        "message": "Den här instansen erbjuder ingen inloggning. Workshopdeltagare kan ange sin kod i stället.",
+        "title": "Inloggning är inte tillgänglig"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Under 13",
       "ageGroupUnder13Error": "Du måste vara minst 13 år gammal för att använda ChatGameLab.",
       "cancelButton": "Avbryt",
-      "emailDescription": "Vi använder den för viktiga aviseringar.",
+      "emailDescription": "Valfritt. Vi använder den för viktiga aviseringar.",
       "emailLabel": "E-postadress",
       "emailPlaceholder": "Ange din e-post",
       "errors": {

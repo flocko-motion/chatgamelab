@@ -23,8 +23,7 @@ import { authLogger } from '@/config/logger';
 import { takeReturnTo } from '@/common/lib/returnTo';
 
 import { useAuth, type RegistrationData } from '@/providers/AuthProvider';
-import { Api } from '@/api/generated';
-import { createAuthenticatedApiConfig } from '@/api/client/http';
+import { api, withQuery } from '@/api/client/api';
 import { AgeGroup, AGE_GROUP_UNDER_13 } from '@/constants/ageGroup';
 
 interface RegistrationFormProps {
@@ -35,7 +34,7 @@ interface RegistrationFormProps {
 export function RegistrationForm({ registrationData, onCancel }: RegistrationFormProps) {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
-  const { register: registerUser, getAccessToken, logout } = useAuth();
+  const { register: registerUser, logout } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -46,10 +45,11 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
       .string()
       .min(1, t('register.errors.nameRequired'))
       .max(24, t('register.errors.nameTooLong')),
-    email: z
-      .string()
-      .min(1, t('register.errors.emailRequired'))
-      .email(t('register.errors.emailInvalid')),
+    // Optional: an account needs only a name and an age group.
+    email: z.union([
+      z.literal(''),
+      z.string().trim().email(t('register.errors.emailInvalid')),
+    ]),
   });
 
   type FormData = z.infer<typeof schema>;
@@ -65,7 +65,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     resolver: zodResolver(schema),
     defaultValues: {
       name: registrationData.name || '',
-      email: registrationData.email || '',
+      email: '',
     },
   });
 
@@ -83,8 +83,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
 
       setIsCheckingName(true);
       try {
-        const api = new Api(createAuthenticatedApiConfig(getAccessToken));
-        const response = await api.auth.checkNameList({ name: debouncedName });
+        const response = await api.getApiAuthCheckName(withQuery({ name: debouncedName }));
         const data = response.data as { available?: boolean; profane?: boolean };
         const available = data.available ?? false;
         setNameAvailable(available);
@@ -108,7 +107,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     };
 
     checkNameAvailability();
-  }, [debouncedName, getAccessToken, setError, clearErrors, t]);
+  }, [debouncedName, setError, clearErrors, t]);
 
   const onSubmit = async (data: FormData) => {
     if (nameAvailable === false) {
@@ -127,8 +126,8 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     } catch (error: unknown) {
       authLogger.error('Registration failed', { error });
       // Check for profane_name error code from backend
-      const apiError = error as { error?: { data?: { code?: string } } };
-      if (apiError?.error?.data?.code === 'profane_name') {
+      const apiError = error as { error?: { code?: string } };
+      if (apiError?.error?.code === 'profane_name') {
         setError('name', {
           type: 'manual',
           message: t('errors:nameProfane'),

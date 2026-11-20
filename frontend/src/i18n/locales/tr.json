@@ -32,6 +32,10 @@
         "guest": "Misafir olarak giriş yap",
         "student": "Öğrenci olarak giriş yap",
         "teacher": "Öğretmen olarak giriş yap"
+      },
+      "unavailable": {
+        "message": "Bu sunucuda oturum açma seçeneği bulunmuyor. Atölye katılımcıları bunun yerine kodlarını girebilir.",
+        "title": "Oturum açma kullanılamıyor"
       }
     },
     "participant": {
@@ -86,7 +90,7 @@
       "ageGroupUnder13": "13 yaş altı",
       "ageGroupUnder13Error": "ChatGameLab'i kullanmak için en az 13 yaşında olmalısınız.",
       "cancelButton": "İptal",
-      "emailDescription": "Bunu önemli bildirimler için kullanacağız.",
+      "emailDescription": "İsteğe bağlıdır. Bunu önemli bildirimler için kullanacağız.",
       "emailLabel": "E-posta Adresi",
       "emailPlaceholder": "E-postanızı girin",
       "errors": {

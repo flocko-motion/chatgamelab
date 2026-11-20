@@ -1,54 +1,54 @@
+import { api } from "../client/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
-import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
 import type {
-  ObjUser,
-  ObjUserStats,
-  HttpxErrorResponse,
-  RoutesParticipantCodeResponse,
-  RoutesUserUpdateRequest,
-} from "../generated";
+  User,
+  UserStats,
+  Error as ApiError,
+  UserParticipantCodeResp,
+  UpdateUserReq,
+} from "../generated/api.gen";
 
 export function useCurrentUser() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjUser, HttpxErrorResponse>({
+  return useQuery<User, ApiError>({
     queryKey: queryKeys.currentUser,
-    queryFn: () => api.users.getUsers().then((response) => response.data),
+    queryFn: () =>
+      api.getApiUsersMe().then((response) => {
+        if (!response.data.user) throw new Error("not registered");
+        return response.data.user;
+      }),
   });
 }
 
 export function useUserStats() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjUserStats, HttpxErrorResponse>({
+  return useQuery<UserStats, ApiError>({
     queryKey: [...queryKeys.currentUser, "stats"],
-    queryFn: () => api.users.meStatsList().then((response) => response.data),
+    queryFn: () => api.getApiUsersMeStats().then((response) => response.data),
   });
 }
 
 export function useOwnParticipantCode() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<RoutesParticipantCodeResponse, HttpxErrorResponse>({
+  return useQuery<UserParticipantCodeResp, ApiError>({
     queryKey: [...queryKeys.currentUser, "participantCode"],
     queryFn: () =>
-      api.users.meParticipantCodeList().then((response) => response.data),
+      api.getApiUsersMeParticipantCode().then((response) => response.data),
   });
 }
 
 export function useUpdateUser() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjUser,
-    HttpxErrorResponse,
-    { id: string; request: RoutesUserUpdateRequest }
+    User,
+    ApiError,
+    { id: string; request: UpdateUserReq }
   >({
     mutationFn: ({ id, request }) =>
-      api.users.usersCreate(id, request).then((response) => response.data),
+      api.postApiUsersId(id, request).then((response) => response.data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.users, id] });

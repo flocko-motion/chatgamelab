@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { getBaseUrl } from "@/common/lib/url";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { apiLogger } from "./logger";
-import type { HttpxErrorResponse } from "../api/generated";
+import type { Error as ApiError } from "../api/generated/api.gen";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,7 +84,7 @@ export const queryClient = new QueryClient({
 // Global error handler function
 export function handleApiError(
   error:
-    | HttpxErrorResponse
+    | ApiError
     | Error
     | { status?: number; type?: string; code?: string; message?: string },
 ) {
@@ -110,8 +110,9 @@ export function handleApiError(
         ? (errorObj.error as Record<string, unknown>)
         : null;
 
-    // Handle structured API errors (prefer nested body, fall back to top-level)
-    const rawMessage = nested?.message ?? errorObj.message;
+    // Handle structured API errors (prefer nested body, fall back to top-level).
+    // The API's error body carries its message in `error`.
+    const rawMessage = nested?.error ?? errorObj.message;
     if (typeof rawMessage === "string") {
       message = rawMessage;
     }
