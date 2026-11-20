@@ -66,6 +66,7 @@
     <label><input type="checkbox" id="showDone"> show done</label>
     <button id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
     <button id="fit">Fit</button>
+    <button id="update" title="Opens the roadmap workflow on GitHub: click Run workflow there (needs write access). This page reloads by itself once the update is out.">Update ↻</button>
   </div>
 </header>
 <main>
@@ -111,6 +112,21 @@ function li(item) {
 function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
 fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
+  // Update: the workflow is started on GitHub, where the login and the rights
+  // are checked; this page then watches roadmap.json and reloads once a newer
+  // one is published.
+  const generated = document.getElementById("generated");
+  document.getElementById("update").addEventListener("click", () => {
+    window.open(`https://github.com/${data.repo}/actions/workflows/roadmap.yml`, "_blank", "noopener");
+    generated.textContent = "waiting for the update… (click Run workflow on GitHub)";
+    const until = Date.now() + 10 * 60 * 1000;
+    const timer = setInterval(() => {
+      if (Date.now() > until) { clearInterval(timer); generated.textContent = "no update arrived; reload to check"; return; }
+      fetch(`roadmap.json?t=${Date.now()}`, { cache: "no-cache" }).then(r => r.json()).then(fresh => {
+        if (fresh.generated > data.generated) { clearInterval(timer); location.reload(); }
+      }).catch(() => {});
+    }, 15000);
+  });
   document.getElementById("generated").textContent =
     `${data.repo} · updated ${new Date(data.generated).toLocaleString()}`;
   const byNumber = Object.fromEntries(data.issues.map(i => [i.number, i]));
