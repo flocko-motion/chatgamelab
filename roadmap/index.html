@@ -66,6 +66,7 @@
     <label><input type="checkbox" id="showDone"> show done</label>
     <button id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
     <button id="fit">Fit</button>
+    <button id="update" title="Opens the roadmap workflow on GitHub: click Run workflow there (needs write access). This page reloads by itself once the update is out.">Update ↻</button>
   </div>
 </header>
 <main>
@@ -77,8 +78,8 @@
       <div><span style="background:var(--ready);border-color:var(--ready-line)"></span>ready: nothing it waits for is open</div>
       <div><span style="background:var(--blocked);border-color:var(--blocked-line)"></span>blocked: waits for an open issue or epic</div>
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
-      <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: a phase boundary, ready once everything above it is done</div>
-      <div>Boxes are epics; arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale. A milestone bar runs across the roadmap: the epics below it wait for it.</div>
+      <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date</div>
+      <div>Boxes are epics, one per milestone they have issues in; a broad band joins the pieces of one epic. Arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
       <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, click a card to open its issue.</div>
     </div>
     <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
@@ -111,6 +112,21 @@ function li(item) {
 function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
 fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
+  // Update: the workflow is started on GitHub, where the login and the rights
+  // are checked; this page then watches roadmap.json and reloads once a newer
+  // one is published.
+  const generated = document.getElementById("generated");
+  document.getElementById("update").addEventListener("click", () => {
+    window.open(`https://github.com/${data.repo}/actions/workflows/roadmap.yml`, "_blank", "noopener");
+    generated.textContent = "waiting for the update… (click Run workflow on GitHub)";
+    const until = Date.now() + 10 * 60 * 1000;
+    const timer = setInterval(() => {
+      if (Date.now() > until) { clearInterval(timer); generated.textContent = "no update arrived; reload to check"; return; }
+      fetch(`roadmap.json?t=${Date.now()}`, { cache: "no-cache" }).then(r => r.json()).then(fresh => {
+        if (fresh.generated > data.generated) { clearInterval(timer); location.reload(); }
+      }).catch(() => {});
+    }, 15000);
+  });
   document.getElementById("generated").textContent =
     `${data.repo} · updated ${new Date(data.generated).toLocaleString()}`;
   const byNumber = Object.fromEntries(data.issues.map(i => [i.number, i]));
@@ -121,28 +137,70 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   for (const e of data.epics) select.add(new Option(`#${e.number} ${e.title}`, e.number));
 
   const elements = [];
-  // Milestones: gates between epics, drawn as bars across the roadmap.
-  for (const m of data.milestones || []) {
-    elements.push({ data: { id: `e${m.number}`, label: `◆ #${m.number} ${m.title}`, url: m.url,
-                            kind: "milestone", state: m.state } });
-    for (const b of m.waitsOn)
-      elements.push({ data: { id: `ee${b}-${m.number}`, source: `e${b}`, target: `e${m.number}`, kind: "epicEdge" } });
+  // An epic gets a box per milestone it has issues in (a piece); the pieces of
+  // one epic are joined by a broad band. Milestones (GitHub's field, ordered
+  // by due date) are bars across the roadmap, each with its pieces below it
+  // down to the next bar; issues without a milestone come last. Milestones
+  // group and order: nothing waits because of one.
+  const milestones = data.milestones || [];
+  const msRank = new Map(milestones.map((m, k) => [m.number, k]));
+  const rank = ms => ms == null || !msRank.has(ms) ? milestones.length : msRank.get(ms);
+  const epicOf = Object.fromEntries(data.epics.map(e => [e.number, e]));
+  const pieceId = (epic, ms) => `p${epic}-${ms == null || !msRank.has(ms) ? "none" : ms}`;
+  const pieces = new Map();
+  for (const i of data.issues) {
+    const id = pieceId(i.epic, i.milestone);
+    if (!pieces.has(id)) pieces.set(id, { id, epic: i.epic, rank: rank(i.milestone), issues: [] });
+    pieces.get(id).issues.push(i);
   }
-  for (const e of data.epics) {
-    elements.push({ data: { id: `e${e.number}`, label: `#${e.number} ${e.title} — ${e.done}/${e.total}`,
-                            url: e.url, kind: "epic", epic: e.number } });
-    for (const b of e.waitsOn)
-      elements.push({ data: { id: `ee${b}-${e.number}`, source: `e${b}`, target: `e${e.number}`, kind: "epicEdge" } });
+  const piecesOf = epic => [...pieces.values()].filter(p => p.epic === epic).sort((a, b) => a.rank - b.rank);
+  for (const p of pieces.values()) {
+    const e = epicOf[p.epic];
+    const done = p.issues.filter(i => i.state === "done").length;
+    elements.push({ data: { id: p.id, label: `#${e.number} ${e.title} — ${done}/${p.issues.length}`,
+                            url: e.url, kind: "epic", epic: e.number, rank: p.rank } });
   }
   for (const i of data.issues) {
     const meta = [i.assignees.length ? "👤 " + i.assignees.join(", ") : "", i.labels.length ? "🏷 " + i.labels.join(", ") : ""]
       .filter(Boolean).join("\n");
-    elements.push({ data: { id: `i${i.number}`, parent: `e${i.epic}`, label: `#${i.number} ${i.title}`,
+    elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), label: `#${i.number} ${i.title}`,
                             url: i.url, kind: "issue", state: i.state, epic: i.epic, meta,
                             search: `#${i.number} ${i.title} ${i.assignees.join(" ")} ${i.labels.join(" ")}`.toLowerCase() } });
     for (const b of i.blockedBy)
       elements.push({ data: { id: `ie${b}-${i.number}`, source: `i${b}`, target: `i${i.number}`, kind: "issueEdge" } });
   }
+  for (const e of data.epics) {
+    const mine = piecesOf(e.number);
+    for (let k = 1; k < mine.length; k++)
+      elements.push({ data: { id: `link-${mine[k - 1].id}-${mine[k].id}`, source: mine[k - 1].id, target: mine[k].id, kind: "epicLink" } });
+    for (const b of e.waitsOn) {
+      const from = piecesOf(b), to = mine;
+      if (from.length && to.length)
+        elements.push({ data: { id: `ee${b}-${e.number}`, source: from[from.length - 1].id, target: to[0].id, kind: "epicEdge" } });
+    }
+  }
+
+  // The bars, in milestone order, and invisible edges holding each piece
+  // between its bar and the next.
+  const ranks = [...new Set([...pieces.values()].map(p => p.rank))].sort((a, b) => a - b);
+  const bars = ranks.map(r => {
+    const m = milestones[r];
+    if (!m) return { id: "m-none", rank: r, url: null, done: false, label: "No milestone" };
+    const due = m.due ? `due ${new Date(m.due).toLocaleDateString()}` : "no due date";
+    return { id: `m${m.number}`, rank: r, url: m.url, done: m.open === 0,
+             label: `◆ ${m.title} — ${due} — ${m.closed}/${m.open + m.closed} done` };
+  });
+  if (bars.length > 1 || (bars.length === 1 && bars[0].id !== "m-none")) bars.forEach((bar, k) => {
+    elements.push({ data: { id: bar.id, label: bar.label, url: bar.url, kind: "milestone", state: bar.done ? "ready" : "open" } });
+    const members = [...pieces.values()].filter(p => p.rank === bar.rank);
+    for (const p of members)
+      elements.push({ data: { id: `pe-${bar.id}-${p.id}`, source: bar.id, target: p.id, kind: "phaseEdge" } });
+    const next = bars[k + 1];
+    if (!next) return;
+    elements.push({ data: { id: `pe-${bar.id}-${next.id}`, source: bar.id, target: next.id, kind: "phaseEdge" } });
+    for (const p of members)
+      elements.push({ data: { id: `pe-${p.id}-${next.id}`, source: p.id, target: next.id, kind: "phaseEdge" } });
+  });
 
   const cy = cytoscape({
     container: document.getElementById("graph"),
@@ -169,15 +227,16 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
           "font-weight": "bold", color: css("--fg"), "text-valign": "center", "text-halign": "center",
           "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
       // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
-      { selector: "edge.milestoneEdge", style: { opacity: 0, events: "no" } },
+      { selector: "edge[kind='phaseEdge']", style: { opacity: 0, events: "no" } },
+      // The band joining the pieces of one epic across milestones.
+      { selector: "edge[kind='epicLink']", style: { width: 22, "line-color": css("--line"), opacity: 0.55,
+          "target-arrow-shape": "none", "curve-style": "straight", "z-index": 0 } },
       { selector: "node[kind='milestone'][state='ready']", style: { "background-color": css("--ready"), "border-color": css("--ready-line") } },
       { selector: "edge[kind='row']", style: { opacity: 0, events: "no", "target-arrow-shape": "none" } },
       { selector: ".faded", style: { opacity: 0.15 } },
       { selector: ".hit", style: { "border-width": 3, "border-color": "#d29922" } },
     ],
   });
-
-  cy.nodes("[kind='milestone']").connectedEdges().addClass("milestoneEdge");
 
   // Done issues start hidden; the checkbox brings them back. An epic whose
   // issues are all done goes with them.
@@ -233,7 +292,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       added = added.concat(capRows(epic.children().filter(n => n.visible()).toArray(), ["issueEdge", "row"], PER_ROW, "row-"));
     });
     cy.add(added);
-    cy.add(capRows(cy.nodes("[kind='epic'], [kind='milestone']").filter(n => n.visible()).toArray(), ["epicEdge", "row"], EPICS_PER_ROW, "erow-"));
+    cy.add(capRows(cy.nodes("[kind='epic'], [kind='milestone']").filter(n => n.visible()).toArray(), ["epicEdge", "phaseEdge", "row"], EPICS_PER_ROW, "erow-"));
   }
   // A milestone stretches across the whole roadmap at the height the layout
   // gave it: a horizontal bar between the phase before and the phase after.
@@ -260,8 +319,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   select.addEventListener("change", () => {
     cy.elements().removeClass("faded");
     if (!select.value) return cy.fit(undefined, 30);
-    const epic = cy.$(`#e${select.value}`);
-    const keep = epic.union(epic.descendants());
+    const epic = cy.nodes(`[kind='epic'][epic = ${Number(select.value)}]`);
+    const keep = epic.union(epic.descendants()).union(epic.connectedEdges("[kind='epicLink']"));
     cy.elements().not(keep).not(keep.connectedEdges()).addClass("faded");
     cy.fit(keep, 40);
   });
