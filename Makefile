@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release sync check-clean-tree check-on-feature
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature roadmap
 
 # First target, so a bare `make` prints this instead of force-pushing.
 help:
@@ -6,6 +6,7 @@ help:
 	@echo "make pr [MERGE=1]     merge development in, push, open the pull request; MERGE=1 waits for checks and merges"
 	@echo "make release [YES=1]  development -> main, then main back into development; YES=1 skips the prompt"
 	@echo "make sync             merge main back into development through a pull request"
+	@echo "make roadmap          rebuild the wiki page Roadmap from the issues now"
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
@@ -253,3 +254,11 @@ sync:
 		&& ! git merge-base --is-ancestor origin/development development; then \
 		echo "   your development checkout is behind it — git pull to catch up"; \
 	fi
+
+# Rebuilds the wiki page Roadmap now, rather than at the next issue change or
+# the daily run: needed after a "blocked by" changes, which sends no event. The
+# workflow runs from the default branch, which is where GitHub dispatches it.
+roadmap:
+	gh workflow run roadmap.yml
+	@sleep 3
+	gh run watch "$$(gh run list --workflow roadmap.yml --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
