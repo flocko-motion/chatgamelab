@@ -23,9 +23,10 @@
  * stops there rather than pretending to hold a conversation.
  */
 import { create, transientMemory, type Selector } from "./launch.js";
-import { Player } from "./player.js";
+import { PlaybackEngine } from "./playback-engine.js";
 import type { Choice } from "./protocol.js";
-import { explain, transcript } from "./state.js";
+import { transcript } from "./state.js";
+import { NoticeError, describe } from "./texts.js";
 import { WebSocketTransport } from "./transport.js";
 
 const positional = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
@@ -42,50 +43,50 @@ const url = new URL("live", sessionBase);
 url.protocol = url.protocol.replace("http", "ws");
 
 // No voice: this run watches rather than joins.
-const player = new Player(new WebSocketTransport(url));
+const playback = new PlaybackEngine(new WebSocketTransport(url));
 
 try {
-  await player.restore(sessionBase);
-  if (player.state.refusal) throw new Error(`refused: ${player.state.refusal.problem}`);
-  player.connect();
-  await player.whenReady();
+  await playback.restore(sessionBase);
+  if (playback.state.refusal) throw new Error(`refused: ${playback.state.refusal.problem}`);
+  playback.connect();
+  await playback.whenReady();
   if (wanted) {
     // A reload finds the session the address now names.
-    await player.rebuild(sessionBase);
-    console.log(`resumed:    ${player.state.topology !== null}`);
+    await playback.rebuild(sessionBase);
+    console.log(`resumed:    ${playback.state.topology !== null}`);
   }
 
-  console.log(`choosing:   ${player.state.choosing}`);
-  if (player.state.choosing) {
-    console.log(`offers:     ${player.state.options?.offers.length ?? 0}`);
+  console.log(`choosing:   ${playback.state.choosing}`);
+  if (playback.state.choosing) {
+    console.log(`offers:     ${playback.state.options?.offers.length ?? 0}`);
     const bad = flag("bad");
     if (bad) {
       const [offer, choice] = parseChoice(bad);
-      const accepted = await player.choose(sessionBase, offer, choice);
+      const accepted = await playback.choose(sessionBase, offer, choice);
       console.log(`refused:    ${!accepted}`);
       if (accepted) throw new Error(`the engine accepted a choice outside the caveats: ${bad}`);
     }
     // A reload while choosing must find the dialog again.
-    await player.rebuild(sessionBase);
-    console.log(`reloaded:   choosing=${player.state.choosing}`);
+    await playback.rebuild(sessionBase);
+    console.log(`reloaded:   choosing=${playback.state.choosing}`);
 
     const wanted = flag("choose");
     if (!wanted) throw new Error("the session waits for a choice and none was given (--choose)");
     const [offer, choice] = parseChoice(wanted);
-    if (!(await player.choose(sessionBase, offer, choice))) {
-      throw new Error(`the choice was refused: ${player.state.problem}`);
+    if (!(await playback.choose(sessionBase, offer, choice))) {
+      throw new Error(`the choice was refused: ${playback.state.problem ? describe(playback.state.problem) : "?"}`);
     }
-    await player.until((state) => state.settled !== null, 10_000);
-    console.log(`settled:    ${player.state.settled?.choice.tier} ${JSON.stringify(player.state.settled?.choice.toggles)}`);
+    await playback.until((state) => state.settled !== null, 10_000);
+    console.log(`settled:    ${playback.state.settled?.choice.tier} ${JSON.stringify(playback.state.settled?.choice.toggles)}`);
   }
 
   // The init stem runs without anybody acting, which is the point of it: the
   // portrait is made and the gate opens before a player is asked for anything.
-  await player.until((state) => state.image !== null, 10_000);
-  await player.until((state) => state.started, 10_000);
-  await player.until((state) => state.invited, 10_000);
+  await playback.until((state) => state.image !== null, 10_000);
+  await playback.until((state) => state.started, 10_000);
+  await playback.until((state) => state.invited, 10_000);
 
-  const state = player.state;
+  const state = playback.state;
   console.log("--- session ---");
   console.log(`image:      ${state.image ? `${state.image.slice(0, 40)}…` : "(none)"}`);
   console.log(`started:    ${state.started}`);
@@ -105,7 +106,7 @@ try {
     throw new Error("the wiring has nowhere for a player's voice to go");
   }
 } finally {
-  player.close();
+  playback.close();
 }
 
 /** Creates a session as the page does for ?new&game=…, and asks again with the same key. */
@@ -117,9 +118,9 @@ async function createSession(wanted: string): Promise<string> {
   const once = flag("once");
 
   const created = await create(new URL(base), selector, "en", memories, once);
-  if ("refusal" in created) {
-    console.log(`refused:    ${created.refusal.problem}`);
-    throw new Error(explain(created.refusal));
+  if ("notice" in created) {
+    console.log(`refused:    ${describe(created.notice)}`);
+    throw new NoticeError(created.notice);
   }
   console.log(`created:    ${created.id}`);
   if (once) {

@@ -203,17 +203,22 @@ func (i Image) Generate(ctx context.Context, req adapters.ImageRequest) ([]byte,
 	return drawn, used, err
 }
 
-// Tool classifies by keyword, enough to drive the observer loop deterministically.
+// Tool judges when the system prompt asks for a verdict, by keyword, enough to
+// drive the observer loop deterministically; any other role echoes its input.
 type Tool struct{ Pace Pace }
 
 var capitulationMarkers = []string{"i suppose", "fine —", "won't stop you", "go ahead"}
 
-func (t Tool) Query(ctx context.Context, _, user string) (string, adapters.Usage, error) {
+func (t Tool) Query(ctx context.Context, system, user string) (string, adapters.Usage, error) {
 	wait(ctx, t.Pace)
 	used := adapters.Usage{
 		Model:        "mock-tool",
-		InputTokens:  int64(len(user)),
+		InputTokens:  int64(len(system) + len(user)),
 		OutputTokens: 4,
+	}
+	if !strings.Contains(system, "VIOLATION") {
+		used.OutputTokens = int64(len(user))
+		return "[mock-tool] " + user, used, nil
 	}
 	low := strings.ToLower(user)
 	for _, m := range capitulationMarkers {

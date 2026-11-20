@@ -26,7 +26,7 @@ func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		// Same-origin only: the engine is mounted inside whatever serves the
-		// player, so a cross-origin upgrade has no legitimate caller.
+		// playback-engine, so a cross-origin upgrade has no legitimate caller.
 		InsecureSkipVerify: false,
 	})
 	if err != nil {

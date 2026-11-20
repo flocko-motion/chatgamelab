@@ -29,13 +29,13 @@ func TestPipelines(t *testing.T) {
 	}{
 		{
 			name:  "adventure runs one action through the whole pipeline",
-			build: func() *Wiring { return NewAdventure(map[string]string{"Health": "Good"}) },
+			build: func() *Wiring { return mustAdventure(t, map[string]string{"Health": "Good"}) },
 			say:   []string{"I try to cross the bridge"},
 			want: map[string][]string{
 				// The rephrase, extraction and expand stages each leave their
 				// mark, in order, which is what makes this a pipeline test
 				// rather than an output test.
-				"text":  {"[prose turn 1] [outline] world reacts to: [3rd-person] I try to cross the bridge"},
+				"text":  {"[prose turn 1] [outline] world reacts to: [mock-tool] I try to cross the bridge"},
 				"image": {"<png of dim stone bridge, torchlight>"},
 				"audio": {"<narration of [prose turn 1]"},
 				"props": {"map[Health:Good]", "map[Health:Good Turn:1]"},
@@ -43,7 +43,7 @@ func TestPipelines(t *testing.T) {
 		},
 		{
 			name:  "adventure keeps its thread across turns",
-			build: func() *Wiring { return NewAdventure(nil) },
+			build: func() *Wiring { return mustAdventure(t, nil) },
 			say:   []string{"I look around", "I keep walking"},
 			want: map[string][]string{
 				// Turn 2, not turn 1 again: the threaded block is continuing a

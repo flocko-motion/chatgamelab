@@ -131,6 +131,8 @@ type Session struct {
 	offers []Offer
 	// changes say why the settlement differs from the preference.
 	changes []string
+	// toldRejected says the slots have told the player their key was rejected.
+	toldRejected bool
 	// pending holds events posted under mu, until flush hands them to the sender.
 	pending []Event
 	// out is the sender's queue; the sender alone writes to the stream.
@@ -228,7 +230,16 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	var w *genre.Wiring
 	switch spec.Genre {
 	case GenreAdventure:
-		w = genre.NewAdventure(spec.Status)
+		var err error
+		w, err = genre.NewAdventure(genre.AdventureConfig{
+			Tool:           &s.slots.tool,
+			Status:         spec.Status,
+			Language:       spec.Language,
+			PromptOverride: spec.PromptOverride,
+		})
+		if err != nil {
+			return nil, err
+		}
 	case GenreNPCLive:
 		var err error
 		w, err = genre.NewNPCLive(genre.NPCLiveConfig{
@@ -366,6 +377,9 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 				case s.events <- ev:
 				case <-ctx.Done():
 					return
+				}
+				if state.Phase == ports.PhaseFailed {
+					s.fail(state)
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 /**
- * The headless player: holds all session state with no DOM or audio device, so
+ * The headless playback-engine: holds all session state with no DOM or audio device, so
  * a full game plays from node.
  */
 import {
@@ -14,14 +14,15 @@ import {
 } from "./protocol.js";
 import { readRefusal } from "./launch.js";
 import type { Snapshot, ToggleName, Topology } from "./state.js";
-import { emptyState, explain, type PlayerState } from "./state.js";
+import { emptyState, explain, type PlaybackEngineState } from "./state.js";
+import { notice, type TextKey } from "./texts.js";
 import type { Transport, TransportMessage } from "./transport.js";
 import type { Voice } from "./voice.js";
 
-export type Listener = (state: PlayerState) => void;
+export type Listener = (state: PlaybackEngineState) => void;
 
-export class Player {
-  readonly state: PlayerState = emptyState();
+export class PlaybackEngine {
+  readonly state: PlaybackEngineState = emptyState();
 
   #listeners = new Set<Listener>();
   #nextUtterance = 1;
@@ -82,7 +83,7 @@ export class Player {
       // Nothing was let go, so the conversation is live again.
       this.state.pausing = false;
       this.voice?.setSending(true);
-      this.state.problem = `Could not pause: ${error instanceof Error ? error.message : String(error)}`;
+      this.state.problem = notice("errors.pauseFailed", error);
       this.#notify();
     }
   }
@@ -99,17 +100,17 @@ export class Player {
    * customizable. A refused choice leaves the dialog up and says why.
    */
   async choose(base: string | URL, offer: string, choice?: Choice): Promise<boolean> {
-    const accepted = await this.#post(base, "choose", { offer, choice }, "Could not start");
+    const accepted = await this.#post(base, "choose", { offer, choice }, "errors.startFailed");
     if (accepted) await this.loadOptions(base);
     return accepted;
   }
 
   /** Switches a feature during play; off is always allowed, on within the offer. */
   async setToggle(base: string | URL, toggle: ToggleName, on: boolean): Promise<boolean> {
-    return this.#post(base, "toggles", { toggle, on }, "Could not switch");
+    return this.#post(base, "toggles", { toggle, on }, "errors.switchFailed");
   }
 
-  async #post(base: string | URL, path: string, body: unknown, failure: string): Promise<boolean> {
+  async #post(base: string | URL, path: string, body: unknown, failure: TextKey): Promise<boolean> {
     try {
       const response = await fetch(new URL(path, base), {
         method: "POST",
@@ -121,7 +122,7 @@ export class Player {
       this.#notify();
       return true;
     } catch (error) {
-      this.state.problem = `${failure}: ${error instanceof Error ? error.message : String(error)}`;
+      this.state.problem = notice(failure, error);
       this.#notify();
       return false;
     }
@@ -168,7 +169,7 @@ export class Player {
   }
 
   /** Resolves when the state satisfies a predicate, which is how tests wait. */
-  until(predicate: (state: PlayerState) => boolean, timeoutMs = 10_000): Promise<PlayerState> {
+  until(predicate: (state: PlaybackEngineState) => boolean, timeoutMs = 10_000): Promise<PlaybackEngineState> {
     if (predicate(this.state)) return Promise.resolve(this.state);
 
     return new Promise((resolve, reject) => {
@@ -278,7 +279,7 @@ export class Player {
       this.state.problem = null;
     } catch (error) {
       this.state.voice = "failed";
-      this.state.problem = error instanceof Error ? error.message : String(error);
+      this.state.problem = notice("errors.voiceFailed", error);
     }
     this.state.resuming = false;
     this.#notify();
@@ -344,7 +345,7 @@ export class Player {
       response = await fetch(new URL("topology", base));
     } catch {
       // Only an unreachable server throws instead of answering.
-      this.state.problem = "Cannot reach the game server. Is it still running?";
+      this.state.problem = notice("errors.serverUnreachable");
       return false;
     }
 
@@ -425,7 +426,7 @@ export class Player {
     this.#open.text += delta;
   }
 
-  #set(connection: PlayerState["connection"]): void {
+  #set(connection: PlaybackEngineState["connection"]): void {
     this.state.connection = connection;
     this.#notify();
   }
@@ -435,7 +436,7 @@ export class Player {
   }
 }
 
-type Utterance = PlayerState["utterances"][number];
+type Utterance = PlaybackEngineState["utterances"][number];
 
 /** Parses the props stream's Go map formatting, `map[Health:Good Gold:12]`, into fields. */
 function parseProps(value: string): Record<string, string> {

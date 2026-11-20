@@ -55,7 +55,7 @@ func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters
 
 	resp, err := t.client.Do(req)
 	if err != nil {
-		return "", used, err
+		return "", used, adapters.Transient("responses api", err)
 	}
 	defer resp.Body.Close()
 

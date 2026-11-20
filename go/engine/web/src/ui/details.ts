@@ -6,7 +6,7 @@
  * a dialog, and the graph stays visible while you read.
  */
 import type { UsageRecord } from "../protocol.js";
-import type { PlayerState } from "../state.js";
+import type { PlaybackEngineState } from "../state.js";
 
 export interface Sample {
   readonly at: string;
@@ -42,7 +42,7 @@ export class Details {
   ) {}
 
   /** Returns to the whole session's figures. */
-  clear(state: PlayerState): void {
+  clear(state: PlaybackEngineState): void {
     this.#selected = null;
     this.title.textContent = "usage";
     this.#renderSession(state);
@@ -96,12 +96,12 @@ export class Details {
    * every event would flicker, and its figures are a moment's snapshot rather
    * than a live reading.
    */
-  refresh(state: PlayerState): void {
+  refresh(state: PlaybackEngineState): void {
     if (this.#selected) return;
     this.#renderSession(state);
   }
 
-  #renderSession(state: PlayerState): void {
+  #renderSession(state: PlaybackEngineState): void {
     const usage = state.usage;
     if (!usage) {
       this.body.replaceChildren(

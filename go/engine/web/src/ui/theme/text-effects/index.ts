@@ -1,5 +1,5 @@
 /**
- * The theme's text effects, ported from the platform's player
+ * The theme's text effects, ported from the platform's playback-engine
  * (game-player-v2/components/text-effects) so a message looks the same in both.
  * Classes and keyframes live in text-effects.css.
  */

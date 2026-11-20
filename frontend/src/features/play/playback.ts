@@ -31,7 +31,7 @@ export function engineRoot(): URL {
 
 /** The playback-engine's address for a target, in the player's language. */
 export function playbackURL(target: PlaybackTarget, language: string): string {
-  const url = new URL("player/", engineRoot());
+  const url = new URL("playback-engine/", engineRoot());
   if (target.kind === "session") {
     url.searchParams.set("session", target.id);
   } else {

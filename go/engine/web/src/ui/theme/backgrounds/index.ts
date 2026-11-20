@@ -1,5 +1,5 @@
 /**
- * The animated layer behind the scene, ported from the platform's player
+ * The animated layer behind the scene, ported from the platform's playback-engine
  * (game-player-v2/components/BackgroundAnimation.tsx) so a theme moves the
  * same in both. Styles are in backgrounds.css.
  */

@@ -10,6 +10,7 @@
  * It lives under ui/ because it needs a microphone and a speaker, and the core
  * has neither — the same reason the graph library lives here.
  */
+import { NoticeError, notice } from "../texts.js";
 import type { Voice } from "../voice.js";
 
 export class WebRTCVoice implements Voice {
@@ -51,7 +52,7 @@ export class WebRTCVoice implements Voice {
         audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
       });
     } catch {
-      throw new Error("No microphone. Check the browser's permission for this page.");
+      throw new NoticeError(notice("errors.noMicrophone"));
     }
     for (const track of this.#microphone.getAudioTracks()) {
       peer.addTrack(track, this.#microphone);
@@ -89,10 +90,10 @@ export class WebRTCVoice implements Voice {
     try {
       response = await fetch(new URL("state", this.base));
     } catch {
-      throw new Error("Cannot reach the game server.");
+      throw new NoticeError(notice("errors.serverUnreachable"));
     }
     if (!response.ok) {
-      throw new Error(`The game server answered ${response.status}; this session may have ended.`);
+      throw new NoticeError(notice("errors.voiceFailed", `the game server answered ${response.status}; this session may have ended`));
     }
   }
 

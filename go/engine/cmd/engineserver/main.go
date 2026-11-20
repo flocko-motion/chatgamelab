@@ -1,4 +1,4 @@
-// Command engineserver serves one game standalone, with the embedded player at /player/.
+// Command engineserver serves one game standalone, with the embedded playback-engine at /playback-engine/.
 //
 // A game file wraps what a platform keeps apart: the stored spec, and the live
 // offers a platform would build from its key cascade.
@@ -106,7 +106,7 @@ func main() {
 
 	fmt.Printf("genre=%s game=%s offers=%d\n", spec.Genre, name, len(offers))
 	fmt.Printf("  api key:  %s\n", keySource)
-	fmt.Printf("  player  http://localhost%s/player/?new&game=%s\n", *addr, name)
+	fmt.Printf("  playback-engine  http://localhost%s/playback-engine/?new&game=%s\n", *addr, name)
 	log.Fatal(http.ListenAndServe(*addr, srv.Handler()))
 }
 

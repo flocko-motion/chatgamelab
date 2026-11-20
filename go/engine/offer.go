@@ -450,6 +450,8 @@ func soundOffers(offers []Offer) []bool {
 // genrePrompts is every prompt a genre lets a spec replace.
 func genrePrompts(g Genre) []string {
 	switch g {
+	case GenreAdventure:
+		return slices.Sorted(maps.Keys(genre.AdventurePrompts))
 	case GenreNPCLive:
 		return slices.Sorted(maps.Keys(genre.NPCLivePrompts))
 	}

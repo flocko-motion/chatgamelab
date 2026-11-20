@@ -2,7 +2,7 @@
  * Turns a theme into what the page applies: a complete theme merged over the
  * defaults, and the CSS custom properties the stylesheet reads.
  *
- * Ported from the platform's player (game-player-v2/theme) so a game looks the
+ * Ported from the platform's playback-engine (game-player-v2/theme) so a game looks the
  * same in both. Pure functions: nothing here touches the DOM.
  */
 import {

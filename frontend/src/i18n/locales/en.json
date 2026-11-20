@@ -1344,5 +1344,43 @@
     "rooms": "Rooms",
     "serverSettings": "Server Settings",
     "workshopSettings": "Workshop Settings"
+  },
+  "playbackEngine": {
+    "problems": {
+      "noKey": "There is no AI key available to play this game.",
+      "genre": "The available AI key cannot run this kind of game.",
+      "noPlays": "This shared game has no plays left.",
+      "keyRejected": "The AI provider rejected the key.",
+      "unreachable": "The AI provider cannot be reached right now.",
+      "stale": "This game can no longer be continued.",
+      "unknown": "This game session does not exist.",
+      "denied": "You may not play this game.",
+      "failed": "Something went wrong, and the game cannot go on."
+    },
+    "errors": {
+      "serverUnreachable": "Cannot reach the game server.",
+      "pauseFailed": "Could not pause the conversation.",
+      "startFailed": "Could not start the game.",
+      "switchFailed": "Could not switch this feature.",
+      "voiceFailed": "Could not connect your voice.",
+      "noMicrophone": "No microphone. Check the browser's permission for this page.",
+      "connectionLost": "Lost the connection to the game. Reload to try again."
+    },
+    "launch": {
+      "noGame": "This page needs a game to play: open it from a game's page.",
+      "inProgress": "You have a game in progress.",
+      "continue": "Continue",
+      "startAnew": "Start anew",
+      "tryAgain": "Try again",
+      "starting": "Starting the game…"
+    },
+    "status": {
+      "connecting": "Connecting…",
+      "reconnecting": "Reconnecting…",
+      "ended": "The game has ended.",
+      "choose": "Choose how to play to begin.",
+      "settingScene": "Setting the scene…",
+      "wakingCharacter": "Waking the character…"
+    }
   }
 }

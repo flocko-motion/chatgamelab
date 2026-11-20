@@ -1,6 +1,6 @@
 /* Hand-drawn skins: the detail a preset's configuration cannot express,
    keyed on main[data-preset]. A preset without one looks exactly as the
-   platform's player draws it.
+   platform's playback-engine draws it.
 
    A scene picture carries the story, so a frame goes around it: a skin may
    round or clip its corners, and a frame's width is added outside the

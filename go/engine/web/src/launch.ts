@@ -4,6 +4,8 @@
  * one. Headless, so the node harness starts sessions the way the page does.
  */
 import type { CreateRequest, CreateResponse, Refusal } from "./protocol.js";
+import { explain } from "./state.js";
+import { notice, type Notice } from "./texts.js";
 
 /** What `new` names: a game, or a share token. */
 export interface Selector {
@@ -77,7 +79,8 @@ export function selectorOf(memory: Memory, id: string): Selector | null {
   return null;
 }
 
-export type Created = { readonly id: string } | { readonly refusal: Refusal };
+/** A session, or what to tell the player about why there is none. */
+export type Created = { readonly id: string } | { readonly notice: Notice };
 
 /**
  * Creates a session at the engine's root. The one-time key is kept until the
@@ -104,12 +107,12 @@ export async function create(
       body: JSON.stringify(body),
     });
   } catch {
-    return { refusal: { problem: "failed", message: "Cannot reach the game server." } };
+    return { notice: notice("errors.serverUnreachable") };
   }
   if (!response.ok) {
     // Refused: the next try is a new intent, with a new key.
     memories.pending.remove(onceKey);
-    return { refusal: await readRefusal(response) };
+    return { notice: explain(await readRefusal(response)) };
   }
   const created = (await response.json()) as CreateResponse;
   remember(memories.sessions, selector, created.id);

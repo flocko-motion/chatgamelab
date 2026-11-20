@@ -16,7 +16,7 @@ import (
 )
 
 // The subtree must work identically wherever it is mounted, which is the whole
-// reason the engine owns it: the player addresses it with relative URLs.
+// reason the engine owns it: the playback-engine addresses it with relative URLs.
 func TestHandlerWorksUnderAnyPrefix(t *testing.T) {
 	for _, prefix := range []string{"", "/api/engine", "/deeply/nested/mount"} {
 		t.Run("prefix="+prefix, func(t *testing.T) {

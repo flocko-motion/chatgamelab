@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -100,5 +101,46 @@ func TestKeyFailingDuringPlayIsAProblem(t *testing.T) {
 		case <-deadline:
 			t.Fatal("no problem event for a rejected key")
 		}
+	}
+}
+
+type brokenTool struct{}
+
+func (brokenTool) Query(context.Context, string, string) (string, adapters.Usage, error) {
+	return "", adapters.Usage{}, errors.New("responses api: 404 model not found")
+}
+
+// A tool call the game cannot do without ends the game when it fails, and the
+// player is told why.
+func TestAFailedToolCallEndsTheGame(t *testing.T) {
+	s := launchOrFail(t, adventure(MockOffer()))
+	s.slots.tool.Set(brokenTool{})
+	if err := s.Say("I cross the bridge"); err != nil {
+		t.Fatal(err)
+	}
+
+	deadline := time.After(2 * time.Second)
+	for problem := false; !problem; {
+		select {
+		case ev := <-s.Events():
+			if ev.Stream != "problem" {
+				continue
+			}
+			var r Refusal
+			if err := json.Unmarshal([]byte(ev.Value), &r); err != nil || r.Problem != ProblemFailed {
+				t.Fatalf("problem event %q, want failed", ev.Value)
+			}
+			if !strings.Contains(r.Message, "model not found") {
+				t.Errorf("the problem does not say what failed: %q", r.Message)
+			}
+			problem = true
+		case <-deadline:
+			t.Fatal("no problem event for a failed tool call")
+		}
+	}
+	select {
+	case <-s.ctx.Done():
+	case <-time.After(time.Second):
+		t.Error("the session kept running after the game failed")
 	}
 }

@@ -7,11 +7,53 @@ import (
 	"engine/internal/ports"
 )
 
+// AdventureConfig is what the wiring needs from a session spec, already resolved.
+type AdventureConfig struct {
+	Tool adapters.Tool
+
+	// Status seeds the values the game keeps, such as Health.
+	Status map[string]string
+
+	// Language is the player's, as a BCP 47 tag; empty leaves it to the model.
+	Language string
+
+	// PromptOverride retunes the genre's prompts by name, without a new build.
+	PromptOverride map[string]string
+}
+
+// Prompt names are constants so a rename fails to compile.
+const (
+	PromptRephrase = "rephrase"
+)
+
+// AdventurePrompts are the mechanics' own prompts; a spec may replace any by name.
+var AdventurePrompts = Prompts{
+	// Third person with the outcome open, so the story decides what happens.
+	PromptRephrase: "Rephrase the player's input in third person, making the outcome uncertain. " +
+		"Return ONLY the rephrased text, nothing else.\n" +
+		"Example: 'I attack the wolf and wrestle him to the ground' → " +
+		"'The player attacks the wolf, hoping to wrestle him to the ground.'",
+}
+
+// languageClause asks for the player's language; empty asks for nothing.
+func languageClause(tag string) string {
+	if tag == "" {
+		return ""
+	}
+	return "\n\nKeep the response in the language with BCP 47 tag `" + tag + "`."
+}
+
 // NewAdventure is the turn-based genre: rephrase, extract plot, image prompt and
 // status in one call, then expand and fan out to media.
-func NewAdventure(status map[string]string) *Wiring {
+func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
+	prompts, err := Resolve(AdventurePrompts, cfg.PromptOverride)
+	if err != nil {
+		return nil, err
+	}
+	prompts[PromptRephrase] += languageClause(cfg.Language)
+
 	player := blocks.NewPlayerInputText("player-input-text")
-	rephrase := blocks.NewDummyToolCall("rephrase", "3rd-person")
+	rephrase := blocks.NewToolCall("rephrase", cfg.Tool, prompts[PromptRephrase])
 	outline := blocks.NewDummyExtraction("outline")
 	expand := blocks.NewDummyThreaded("expand", "prose")
 	image := blocks.NewDummyImage("image")
@@ -21,7 +63,7 @@ func NewAdventure(status map[string]string) *Wiring {
 	outAudio := blocks.NewPlayerOutputAudio("out-audio", "audio")
 	outImage := blocks.NewPlayerOutputImage("out-image", "image")
 	outProps := blocks.NewPlayerOutputProps("out-props", "props")
-	props := blocks.NewPropsStore("props-store", status)
+	props := blocks.NewPropsStore("props-store", cfg.Status)
 
 	// No opening line: Adventure begins when the player acts.
 	gate := blocks.NewGate("start-game", "")
@@ -47,8 +89,9 @@ func NewAdventure(status map[string]string) *Wiring {
 	g.ConnectImageOut(image, outImage)
 
 	return &Wiring{
-		Graph: g,
-		Gate:  gate,
+		Graph:   g,
+		Gate:    gate,
+		Prompts: prompts,
 		// The graph's shape is fixed; a toggle that is off stops its block working.
 		Switches: map[adapters.Toggle][]ports.Switchable{
 			adapters.ToggleImages:   {image},
@@ -59,5 +102,5 @@ func NewAdventure(status map[string]string) *Wiring {
 		Inputs: []ports.InputMode{ports.InputText},
 		// A picture per turn, each belonging to the scene it illustrates.
 		Imagery: ports.ImageryPerTurn,
-	}
+	}, nil
 }

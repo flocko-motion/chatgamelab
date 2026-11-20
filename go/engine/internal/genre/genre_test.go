@@ -20,7 +20,7 @@ func TestGraphsAreValid(t *testing.T) {
 		name  string
 		graph *ports.Graph
 	}{
-		{"adventure", NewAdventure(nil).Graph},
+		{"adventure", mustAdventure(t, nil).Graph},
 		{"npc-live", mustNPCLive(t, mockNPCConfig("stay in character")).Graph},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -36,7 +36,7 @@ func TestGraphsAreValid(t *testing.T) {
 func TestValidateCatchesUnwiredBlock(t *testing.T) {
 	g := ports.NewGraph("broken")
 	player := blocks.NewPlayerInputText("player")
-	rephrase := blocks.NewDummyToolCall("rephrase", "3rd-person")
+	rephrase := blocks.NewToolCall("rephrase", mock.Tool{}, "rephrase")
 	orphan := blocks.NewDummyImage("orphan-image")
 	outText := blocks.NewPlayerOutputText("out-text", "text")
 	outImage := blocks.NewPlayerOutputImage("out-image", "image")
@@ -58,14 +58,14 @@ func TestAdventureFlow(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	a := NewAdventure(map[string]string{"Health": "Good"})
+	a := mustAdventure(t, map[string]string{"Health": "Good"})
 	if err := a.Graph.Validate(); err != nil {
 		t.Fatal(err)
 	}
 	a.Graph.Start(ctx)
 	a.Say("I try to cross the bridge")
 
-	const prose = "[prose turn 1] [outline] world reacts to: [3rd-person] I try to cross the bridge"
+	const prose = "[prose turn 1] [outline] world reacts to: [mock-tool] I try to cross the bridge"
 	expect(t, a.Sinks()["text"], prose)
 	expect(t, a.Sinks()["image"], "<png of dim stone bridge, torchlight>")
 	// Seeded values reach the player before the first turn, then the turn's
@@ -150,6 +150,43 @@ func TestPromptOverride(t *testing.T) {
 	}
 }
 
+// Adventure's rephrase is configured by the genre, in the player's language,
+// and a spec may replace it by name.
+func TestAdventureRephrasePrompt(t *testing.T) {
+	w := mustAdventure(t, nil)
+	if got := w.Prompts[PromptRephrase]; got != AdventurePrompts[PromptRephrase] {
+		t.Errorf("without a language the prompt is %q", got)
+	}
+
+	w, err := NewAdventure(AdventureConfig{Tool: mock.Tool{}, Language: "de"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := w.Prompts[PromptRephrase]; !strings.HasSuffix(got, "Keep the response in the language with BCP 47 tag `de`.") {
+		t.Errorf("the player's language is not asked for: %q", got)
+	}
+
+	w, err = NewAdventure(AdventureConfig{Tool: mock.Tool{}, PromptOverride: map[string]string{PromptRephrase: "Say it as a pirate."}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := w.Prompts[PromptRephrase]; got != "Say it as a pirate." {
+		t.Errorf("override ignored, prompt is %q", got)
+	}
+	if _, err := NewAdventure(AdventureConfig{Tool: mock.Tool{}, PromptOverride: map[string]string{"observer": "x"}}); err == nil {
+		t.Error("a prompt Adventure does not have was accepted")
+	}
+}
+
+func mustAdventure(t testing.TB, status map[string]string) *Wiring {
+	t.Helper()
+	w, err := NewAdventure(AdventureConfig{Tool: mock.Tool{}, Status: status})
+	if err != nil {
+		t.Fatalf("wiring adventure: %v", err)
+	}
+	return w
+}
+
 func mockNPCConfig(guardrail string) NPCLiveConfig {
 	return NPCLiveConfig{
 		Live:       mock.Live{},
@@ -216,7 +253,7 @@ func TestSeededStatusSurvivesTheFirstTurn(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		ctx, cancel := context.WithCancel(context.Background())
 
-		a := NewAdventure(map[string]string{"Health": "Wounded", "Gold": "12"})
+		a := mustAdventure(t, map[string]string{"Health": "Wounded", "Gold": "12"})
 		a.Graph.Start(ctx)
 		a.Say("I press on")
 
@@ -350,7 +387,7 @@ func TestEventSchemaComesFromTheGraph(t *testing.T) {
 		name  string
 		build func() *Wiring
 	}{
-		{"adventure", func() *Wiring { return NewAdventure(nil) }},
+		{"adventure", func() *Wiring { return mustAdventure(t, nil) }},
 		{"npc-live", func() *Wiring { return mustNPCLive(t, mockNPCConfig("refuse passage")) }},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -745,7 +782,7 @@ func TestDeclaredInputsMatchTheWiring(t *testing.T) {
 		build func() *Wiring
 		want  []ports.InputMode
 	}{
-		{"adventure", func() *Wiring { return NewAdventure(nil) }, []ports.InputMode{ports.InputText}},
+		{"adventure", func() *Wiring { return mustAdventure(t, nil) }, []ports.InputMode{ports.InputText}},
 		{"npc-live", func() *Wiring { return mustNPCLive(t, mockNPCConfig("refuse passage")) }, []ports.InputMode{ports.InputAudioFullDuplex}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

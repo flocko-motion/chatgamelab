@@ -68,7 +68,7 @@ func (i *Image) Generate(ctx context.Context, ask adapters.ImageRequest) ([]byte
 
 	resp, err := i.client.Do(req)
 	if err != nil {
-		return nil, used, err
+		return nil, used, adapters.Transient("images api", err)
 	}
 	defer resp.Body.Close()
 

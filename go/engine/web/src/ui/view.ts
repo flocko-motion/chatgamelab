@@ -8,8 +8,9 @@ import {
   hasStandingImage,
   voiceMode,
   type AudioState,
-  type PlayerState,
+  type PlaybackEngineState,
 } from "../state.js";
+import { text } from "../texts.js";
 import { Flowchart } from "./flowchart.js";
 import { applyTheme } from "./theme/apply.js";
 import { mergeTheme, statusEmoji } from "./theme/resolve.js";
@@ -117,7 +118,7 @@ export class View {
   #awaiting = false;
   #theme: GameTheme = mergeTheme(undefined);
   #stopBackground: () => void = () => {};
-  #last: PlayerState | null = null;
+  #last: PlaybackEngineState | null = null;
   #flowchart: Flowchart;
 
   constructor(
@@ -158,7 +159,7 @@ export class View {
     if (this.#last) this.render(this.#last);
   }
 
-  render(state: PlayerState): void {
+  render(state: PlaybackEngineState): void {
     this.#last = state;
 
     // A blocking reason replaces the controls inside the bar, which stays put for the layout.
@@ -248,13 +249,13 @@ export class View {
     return painted;
   }
 
-  #renderGraph(state: PlayerState): void {
+  #renderGraph(state: PlaybackEngineState): void {
     if (!state.topology) return;
     this.#flowchart.draw(state.topology);
     this.#flowchart.update(state.phases, state.usage?.byNode ?? []);
   }
 
-  #renderProps(state: PlayerState): void {
+  #renderProps(state: PlaybackEngineState): void {
     // Rebuilt only on change: every audio chunk renders, and a rebuild restarts the pulse.
     if (state.props === this.#shownProps) return;
     const previous = this.#shownProps ?? {};
@@ -290,7 +291,7 @@ export class View {
     );
   }
 
-  #renderImage(state: PlayerState): void {
+  #renderImage(state: PlaybackEngineState): void {
     if (!state.image || state.image === this.#shownImage) return;
     this.#shownImage = state.image;
 
@@ -335,7 +336,7 @@ export class View {
     new ResizeObserver(set).observe(this.elements.dock);
   }
 
-  #renderFeed(state: PlayerState): void {
+  #renderFeed(state: PlaybackEngineState): void {
     // Append-only: the feed is a timeline.
     for (let i = this.#renderedUtterances; i < state.utterances.length; i++) {
       const utterance = state.utterances[i];
@@ -378,35 +379,35 @@ export class View {
   }
 
   /** A coming reply, or a fault that leaves the controls working, shown just above the bar. */
-  #renderThinking(state: PlayerState, blocked: Unavailable | null): void {
+  #renderThinking(state: PlaybackEngineState, blocked: Unavailable | null): void {
     const fault = blocked === null ? (state.problem ?? state.fault) : null;
     this.elements.thinking.hidden = blocked !== null || !(fault || this.#awaiting);
     this.elements.thinking.classList.toggle("fault", fault !== null);
-    this.elements.thinkingText.textContent = fault ?? this.#theme.thinking.text;
+    this.elements.thinkingText.textContent = fault ? text(fault.key) : this.#theme.thinking.text;
   }
 
   /** What makes the controls useless; a pause is absent, as the microphone resumes it. */
-  #unavailable(state: PlayerState): Unavailable | null {
+  #unavailable(state: PlaybackEngineState): Unavailable | null {
     const audio = audioState(state);
     // A fault yields to a control still there to press, so a failed resume keeps its retry.
-    if (state.problem && audio === null) return stopped(state.problem);
+    if (state.problem && audio === null) return stopped(text(state.problem.key));
 
     // Socket trouble is said in the bar, where a player waiting for their turn looks.
     switch (state.connection) {
       case "idle":
       case "connecting":
-        return waiting("Connecting…");
+        return waiting(text("status.connecting"));
       case "reconnecting":
-        return waiting("Reconnecting…");
+        return waiting(text("status.reconnecting"));
       case "failed":
-        return stopped("Lost the connection to the game. Reload to try again.");
+        return stopped(text("errors.connectionLost"));
       case "closed":
-        return stopped("The game has ended.");
+        return stopped(text("status.ended"));
     }
-    if (state.choosing) return stopped("Choose how to play to begin.");
-    if (!state.started) return waiting("Setting the scene…");
+    if (state.choosing) return stopped(text("status.choose"));
+    if (!state.started) return waiting(text("status.settingScene"));
     // A live genre waits for the player's audio connection; once its control exists, that speaks.
-    if (voiceMode(state) === "full-duplex" && audio === null) return waiting("Waking the character…");
+    if (voiceMode(state) === "full-duplex" && audio === null) return waiting(text("status.wakingCharacter"));
     return null;
   }
 
