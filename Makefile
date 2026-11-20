@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs translate translate-check roadmap
+.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -16,6 +16,7 @@ help:
 	@echo "make translate        translate changed UI texts into every language (before pushing)"
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
 	@echo "make roadmap          rebuild the wiki page Roadmap from the issues now"
+	@echo "make roadmap-local    the interactive roadmap, from the live issues, on http://localhost:8765"
 
 # The spec is Typst; the PDFs are build output.
 docs:
@@ -311,3 +312,14 @@ roadmap:
 		echo "roadmap run $$id: $$result"; \
 		[ "$$result" = success ]; exit $$?; \
 	done
+
+# The interactive roadmap on this machine: the data comes from the live issues
+# through gh (your login), the page is the one Pages serves. Ctrl-C stops it.
+ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
+roadmap-local:
+	@mkdir -p "$(ROADMAP_LOCAL)"
+	ROADMAP_JSON="$(ROADMAP_LOCAL)/roadmap.json" python3 roadmap/roadmap.py > /dev/null
+	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
+	@echo "→ http://localhost:8765"
+	@(sleep 1 && (open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true)) &
+	python3 -m http.server 8765 --bind 127.0.0.1 --directory "$(ROADMAP_LOCAL)"
