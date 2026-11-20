@@ -5,7 +5,8 @@ Phases are the open epics (issues with sub-issues); the order comes from
 "blocked by" relations, priority from the labels P1/P2/P3. Everything is read
 live through gh; the page is never edited by hand.
 
-Usage: scripts/roadmap.py [owner/repo] > Roadmap.md
+Usage: roadmap/roadmap.py [owner/repo] > Roadmap.md
+       ROADMAP_JSON=roadmap.json roadmap/roadmap.py > /dev/null
 """
 import json
 import subprocess

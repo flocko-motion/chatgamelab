@@ -1,4 +1,4 @@
-# Rebuilds the wiki page Roadmap from the issues (scripts/roadmap.py).
+# Rebuilds the roadmap from the issues (roadmap/): the wiki page and the interactive page.
 # Issue events only run workflows from the default branch, so this lives on
 # v2/development. GitHub sends no event when a "blocked by" relation changes; the
 # daily run and `make roadmap` cover that.
@@ -36,8 +36,8 @@ jobs:
           ROADMAP_JSON: site/roadmap.json
         run: |
           mkdir -p site
-          python3 scripts/roadmap.py "${{ github.repository }}" > Roadmap.md
-          cp scripts/roadmap-site/index.html site/
+          python3 roadmap/roadmap.py "${{ github.repository }}" > Roadmap.md
+          cp roadmap/index.html site/
 
       - name: Push it to the wiki
         env:
@@ -60,7 +60,7 @@ jobs:
         with:
           path: site
 
-  # The interactive page: scripts/roadmap-site/index.html with roadmap.json.
+  # The interactive page: roadmap/index.html with roadmap.json.
   pages:
     needs: roadmap
     runs-on: ubuntu-latest

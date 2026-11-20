@@ -318,8 +318,8 @@ roadmap:
 ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
 roadmap-local:
 	@mkdir -p "$(ROADMAP_LOCAL)"
-	ROADMAP_JSON="$(ROADMAP_LOCAL)/roadmap.json" python3 scripts/roadmap.py > /dev/null
-	cp scripts/roadmap-site/index.html "$(ROADMAP_LOCAL)/"
+	ROADMAP_JSON="$(ROADMAP_LOCAL)/roadmap.json" python3 roadmap/roadmap.py > /dev/null
+	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
 	@echo "→ http://localhost:8765"
 	@(sleep 1 && (open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true)) &
 	python3 -m http.server 8765 --bind 127.0.0.1 --directory "$(ROADMAP_LOCAL)"

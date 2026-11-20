@@ -23,7 +23,7 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
-          tooling='^(scripts/roadmap\.py|\.github/workflows/roadmap\.yml|docs/.*|.*\.md)$'
+          tooling='^(roadmap/.*|\.github/workflows/roadmap\.yml|docs/.*|.*\.md)$'
           rest=$(git diff --name-only "$BASE...$HEAD" | grep -Ev "$tooling" || true)
           if [ -n "$rest" ]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
