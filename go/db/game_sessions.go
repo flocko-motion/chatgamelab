@@ -1,7 +1,7 @@
 // package: db / database access and repository layer
 // type:    data
 // job:     stores the engine's sessions beside the platform's bookkeeping, and lists and deletes them.
-// limits:  reacts to nothing it stores; launching, resuming and access belong to game and api/routes.
+// limits:  reacts to nothing it stores; launching, resuming and access belong to game and api.
 package db
 
 import (

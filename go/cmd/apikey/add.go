@@ -5,8 +5,8 @@
 package apikey
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -34,7 +34,7 @@ func runAdd(cmd *cobra.Command, args []string) {
 	platform := args[0]
 	key := strings.TrimSpace(args[1])
 
-	req := routes.CreateApiKeyRequest{
+	req := api.CreateApiKeyReq{
 		Name:     keyName,
 		Platform: platform,
 		Key:      key,

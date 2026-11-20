@@ -1,7 +1,7 @@
 // package: role / user role management CLI commands
 // type:    cli
 // job:     set a user's role (admin/head/staff/participant) with required institution or workshop scope
-// limits:  validates inputs then posts the request; server enforces authorization (-> api/routes)
+// limits:  validates inputs then posts the request; server enforces authorization (-> api)
 package role
 
 import (

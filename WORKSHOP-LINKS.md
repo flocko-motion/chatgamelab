@@ -39,7 +39,7 @@ records what exists, where it departs from the concept, and what remains.
   `ParticipantTokenExists` compares against the *current* column value, a reset
   overwrites it, and `db.DeleteUser` removes the row outright, so
   `db.ParticipantTokenKnown` is false for a code that was once real and
-  `httpx.Authenticate` counts it. Only *invite* tokens behave as that sentence
+  `auth.RedeemParticipantToken` counts it. Only *invite* tokens behave as that sentence
   described, because the used-up row is kept with status `expired` and
   `InviteTokenExists` is status-blind. In a classroom this costs a few failures
   per stale device, not a stream: the backend clears a session cookie carrying a
@@ -68,10 +68,9 @@ records what exists, where it departs from the concept, and what remains.
   keeps the stored token.
 - 'Zugang zurücksetzen' sits inside the re-login popup, one click from the
   existing link button, which keeps each participant row at its current icons.
-- The concept placed the limit on `POST /api/auth/participant-login`. The web
-  app never calls that endpoint for re-login links: it stores the token and
-  sends it as a bearer token on every request. The count therefore lives in the
-  auth middleware (`go/api/httpx/auth.go`).
+- The limit sits on `POST /api/auth/participant-login`: links, QR codes and
+  typed codes all sign in there, and an unknown token counts where it is
+  redeemed (`go/api/auth/login.go`).
 - Deleting a workshop already deletes its participant accounts
   (`db.DeleteWorkshop`), so no change was needed there.
 

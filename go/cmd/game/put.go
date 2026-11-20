@@ -5,6 +5,7 @@
 package game
 
 import (
+	"cgl/api"
 	"cgl/api/client"
 	"cgl/functional"
 	"cgl/obj"
@@ -14,6 +15,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var putCmd = &cobra.Command{
@@ -97,8 +99,7 @@ func uploadDirectory(dirPath string) {
 			continue
 		}
 
-		var resp obj.Game
-		err = client.ApiPostRaw("games/new", string(yamlContent), &resp)
+		resp, err := createGameFromYAML(yamlContent)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "✗ Failed to upload %s: %v\n", fileName, err)
 			failCount++
@@ -126,9 +127,21 @@ func uploadSingleGame(yamlContent []byte, args []string) {
 		printGameInfo(gameID)
 	} else {
 		// Create new game
-		var resp obj.Game
-		functional.Must(client.ApiPostRaw("games/new", string(yamlContent), &resp), "failed to create game")
+		resp, err := createGameFromYAML(yamlContent)
+		functional.Must(err, "failed to create game")
 		fmt.Println("Game created successfully")
 		printGameInfo(resp.ID.String())
 	}
+}
+
+// createGameFromYAML creates a game from a game file's name, description,
+// visibility and genre.
+func createGameFromYAML(yamlContent []byte) (obj.Game, error) {
+	var req api.CreateGameReq
+	if err := yaml.Unmarshal(yamlContent, &req); err != nil {
+		return obj.Game{}, fmt.Errorf("invalid game file: %w", err)
+	}
+	var resp obj.Game
+	err := client.ApiPost("games/new", req, &resp)
+	return resp, err
 }

@@ -1,12 +1,12 @@
 // package: workshop / workshop management CLI commands
 // type:    cli
 // job:     create a workshop with name, optional institution, and active/public flags
-// limits:  only posts the create request; institution auto-resolution and persistence are server-side (-> api/routes)
+// limits:  only posts the create request; institution auto-resolution and persistence are server-side (-> api)
 package workshop
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -41,7 +41,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 		institutionID = &args[1]
 	}
 
-	req := routes.CreateWorkshopRequest{
+	req := api.CreateWorkshopReq{
 		InstitutionID: institutionID,
 		Name:          name,
 		Active:        active,

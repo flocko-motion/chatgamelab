@@ -1,7 +1,7 @@
 // package: workshop / workshop management CLI commands
 // type:    cli
 // job:     list workshops, optionally filtered by institution ID, and print their status
-// limits:  read-only display; no pagination (-> api/routes)
+// limits:  read-only display; no pagination (-> api)
 package workshop
 
 import (

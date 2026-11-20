@@ -1,7 +1,7 @@
 package testing
 
 import (
-	"cgl/api/routes"
+	"cgl/api"
 	"cgl/obj"
 	"cgl/testing/testutil"
 	"net/url"
@@ -118,7 +118,7 @@ func (s *WorkshopWordTokensTestSuite) TestOwnParticipantCode() {
 	resp := Must(s.AcceptWorkshopInviteAnonymously(*invite.InviteToken))
 	participant := s.CreateUserWithToken(*resp.AuthToken)
 
-	var code routes.ParticipantCodeResponse
+	var code api.UserParticipantCodeResp
 	s.Require().NoError(participant.Get("users/me/participant-code", &code))
 	s.Require().NotNil(code.Token)
 	s.Require().NotNil(code.Words)
@@ -132,7 +132,7 @@ func (s *WorkshopWordTokensTestSuite) TestOwnParticipantCode() {
 	s.Equal(reset["token"], *code.Token)
 
 	// Users without a participant token get an explicit empty answer.
-	var none routes.ParticipantCodeResponse
+	var none api.UserParticipantCodeResp
 	s.Require().NoError(head.Get("users/me/participant-code", &none))
 	s.Nil(none.Token)
 	s.Nil(none.Words)

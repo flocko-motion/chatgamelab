@@ -1,6 +1,6 @@
 // package: main / entrypoint
 // type:    entrypoint
-// job:     boots the cgl binary as a schemaf app: database, API endpoints, sign-in and the embedded frontend
+// job:     boots the cgl binary as a schemaf app: database, API endpoints, sign-in, background services and the embedded frontend
 // limits:  holds no business logic (-> api, db)
 package main
 
@@ -21,6 +21,8 @@ func main() {
 	app.AddDb(db.Provider)
 	app.AddApi(api.Provider)
 	app.OnLogin(auth.OnLogin)
+	app.AddService(api.Startup)
+	app.AddService(api.Janitor)
 	app.SetFrontend(FrontendFS())
 
 	if err := app.Run(); err != nil {

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"cgl/api/routes"
+	"cgl/api"
 	"cgl/obj"
 	"cgl/testing/testutil"
 
@@ -34,7 +34,7 @@ func TestUserLanguageSuite(t *testing.T) {
 // directly rather than widening the test harness for one case.
 func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(
 	token string, acceptLanguage string,
-) routes.AcceptInviteResponse {
+) api.AcceptInviteResp {
 	s.T().Helper()
 
 	req, err := http.NewRequest(
@@ -52,7 +52,7 @@ func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(
 	defer resp.Body.Close()
 	s.Require().Equal(http.StatusOK, resp.StatusCode)
 
-	var out routes.AcceptInviteResponse
+	var out api.AcceptInviteResp
 	s.Require().NoError(json.NewDecoder(resp.Body).Decode(&out))
 	s.Require().NotNil(out.User)
 	return out

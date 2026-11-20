@@ -1,7 +1,7 @@
 // package: game / engine sessions from the platform's data
 // type:    logic
 // job:     creates and resumes engine sessions: one checked offer from the key cascade, the rule, the spec.
-// limits:  no HTTP or access policy (-> api/routes); storage is db.SessionStore; running it is the engine's.
+// limits:  no HTTP or access policy (-> api); storage is db.SessionStore; running it is the engine's.
 package game
 
 import (

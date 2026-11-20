@@ -1,12 +1,12 @@
 // package: invite / invite management CLI commands
 // type:    cli
 // job:     create a targeted institution invite for a user (by id or email) with a role
-// limits:  only posts the invite request and prints the result; server issues the token (-> api/routes)
+// limits:  only posts the invite request and prints the result; server issues the token (-> api)
 package invite
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"fmt"
 	"log"
 
@@ -40,7 +40,7 @@ func runInstitutionInvite(cmd *cobra.Command, args []string) {
 		log.Fatal("Either --user-id or --email must be provided")
 	}
 
-	req := routes.CreateInstitutionInviteRequest{
+	req := api.CreateInstitutionInviteReq{
 		InstitutionID: institutionID,
 		Role:          role,
 	}

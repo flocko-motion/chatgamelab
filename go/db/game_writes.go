@@ -7,7 +7,6 @@ package db
 import (
 	"cgl/events"
 	"cgl/functional"
-	"cgl/log"
 	"cgl/obj"
 	"context"
 	"database/sql"
@@ -18,7 +17,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"gopkg.in/yaml.v3"
 )
 
 // DeleteGame soft-deletes a game (sets deleted_at). userID must be the owner.
@@ -216,55 +214,33 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	return nil
 }
 
-// UpdateGameYaml updates a game from YAML content. userID must be the owner.
-func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yamlContent string) error {
-	log.Debug("UpdateGameYaml: starting", "user_id", userID, "game_id", gameID)
-
-	// Get existing game first (includes permission check)
+// UpdateGameFromFile replaces a game's content with a game file's. userID
+// must be allowed to update the game.
+func UpdateGameFromFile(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, file obj.GameFile) error {
+	// Fetching the game checks the caller may see it.
 	existing, err := GetGameByID(ctx, &userID, gameID)
 	if err != nil {
-		log.Debug("UpdateGameYaml: GetGameByID failed", "error", err)
 		return fmt.Errorf("game not found: %w", err)
 	}
-	log.Debug("UpdateGameYaml: existing game loaded", "name", existing.Name)
-
-	// Additional permission check for update operation
 	if err := canAccessGame(ctx, userID, OpUpdate, existing, nil); err != nil {
 		return err
 	}
 
-	// Parse YAML into a game object
-	var incoming obj.Game
-	if err := yaml.Unmarshal([]byte(yamlContent), &incoming); err != nil {
-		log.Debug("UpdateGameYaml: YAML unmarshal failed", "error", err)
-		return obj.ErrValidation("invalid YAML")
-	}
-	log.Debug("UpdateGameYaml: YAML parsed", "incoming_name", incoming.Name, "incoming_description", incoming.Description)
-
-	// Selectively copy allowed fields
-	existing.Name = incoming.Name
-	existing.Description = incoming.Description
-	existing.SystemMessageScenario = incoming.SystemMessageScenario
-	existing.SystemMessageGameStart = incoming.SystemMessageGameStart
-	existing.ImageStyle = incoming.ImageStyle
+	existing.Name = file.Name
+	existing.Description = file.Description
+	existing.SystemMessageScenario = file.SystemMessageScenario
+	existing.SystemMessageGameStart = file.SystemMessageGameStart
+	existing.ImageStyle = file.ImageStyle
 	// A game file without a genre is an adventure, as every game was before genres.
-	existing.Genre = incoming.Genre
+	existing.Genre = file.Genre
 	if existing.Genre == "" {
 		existing.Genre = string(engine.GenreAdventure)
 	}
-	existing.Theme = incoming.Theme
+	existing.Theme = file.Theme
+	existing.StatusFields = functional.NormalizeJson(file.StatusFields, &[]obj.StatusField{})
+	existing.CSS = functional.NormalizeJson(file.CSS, &obj.CSS{})
 
-	// Normalize JSON fields
-	existing.StatusFields = functional.NormalizeJson(incoming.StatusFields, &[]obj.StatusField{})
-	existing.CSS = functional.NormalizeJson(incoming.CSS, &obj.CSS{})
-
-	log.Debug("UpdateGameYaml: calling UpdateGame", "game_id", existing.ID, "name", existing.Name)
-	if err := UpdateGame(ctx, userID, existing); err != nil {
-		log.Debug("UpdateGameYaml: UpdateGame failed", "error", err)
-		return err
-	}
-	log.Debug("UpdateGameYaml: success")
-	return nil
+	return UpdateGame(ctx, userID, existing)
 }
 
 // gameGenre checks a game's genre against the engine's, taking fallback for

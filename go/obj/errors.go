@@ -1,7 +1,7 @@
 // package: obj / application error types
 // type:    data
 // job:     defines AppError, frontend-facing error codes, and typed error constructors
-// limits:  error values only; HTTP mapping lives elsewhere (-> obj http_error, api/httpx)
+// limits:  error values only; HTTP mapping lives elsewhere (-> obj http_error, api)
 package obj
 
 import "fmt"

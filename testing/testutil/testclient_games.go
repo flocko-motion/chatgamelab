@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/config"
 	"cgl/obj"
 
@@ -55,7 +55,7 @@ func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 
 	// Create game with unique name
 	var game obj.Game
-	err = u.Post("games/new", routes.CreateGameRequest{
+	err = u.Post("games/new", api.CreateGameReq{
 		Name: uniqueName,
 	}, &game)
 	if err != nil {
@@ -143,7 +143,7 @@ func (u *UserClient) SetGameSponsor(gameID string, shareID string) (obj.Game, er
 		return obj.Game{}, fmt.Errorf("invalid shareID: %w", err)
 	}
 	var result obj.Game
-	err = u.Put("games/"+gameID+"/sponsor", routes.SponsorGameRequest{
+	err = u.Put("games/"+gameID+"/sponsor", api.GameSponsorReq{
 		ShareID: shareUUID,
 	}, &result)
 	return result, err
@@ -216,14 +216,14 @@ func (u *UserClient) ListGamesWithSearch(search string) ([]obj.Game, error) {
 }
 
 // CreateGameShare creates a personal/org share for a game (composable high-level API)
-func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSessions *int) (routes.GameShareResponse, error) {
+func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSessions *int) (api.GameShareResp, error) {
 	u.t.Helper()
 	shareUUID, err := uuid.Parse(sponsorShareID)
 	if err != nil {
-		return routes.GameShareResponse{}, fmt.Errorf("invalid sponsorShareID: %w", err)
+		return api.GameShareResp{}, fmt.Errorf("invalid sponsorShareID: %w", err)
 	}
-	var result routes.GameShareResponse
-	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
+	var result api.GameShareResp
+	err = u.Post("games/"+gameID+"/shares", api.CreateGameShareReq{
 		SponsorKeyShareID: &shareUUID,
 		MaxSessions:       maxSessions,
 	}, &result)
@@ -231,9 +231,9 @@ func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSe
 }
 
 // GetPrivateShareStatus returns the private share status for a game (composable high-level API)
-func (u *UserClient) GetPrivateShareStatus(gameID string) (routes.PrivateShareStatus, error) {
+func (u *UserClient) GetPrivateShareStatus(gameID string) (api.PrivateShareStatusResp, error) {
 	u.t.Helper()
-	var result routes.PrivateShareStatus
+	var result api.PrivateShareStatusResp
 	err := u.Get("games/"+gameID+"/private-share", &result)
 	return result, err
 }
@@ -245,14 +245,14 @@ func (u *UserClient) DeleteGameShare(gameID string, shareID string) error {
 }
 
 // CreateWorkshopGameShare creates a workshop share for a game (composable high-level API)
-func (u *UserClient) CreateWorkshopGameShare(gameID string, workshopID string, maxSessions *int) (routes.GameShareResponse, error) {
+func (u *UserClient) CreateWorkshopGameShare(gameID string, workshopID string, maxSessions *int) (api.GameShareResp, error) {
 	u.t.Helper()
 	wsUUID, err := uuid.Parse(workshopID)
 	if err != nil {
-		return routes.GameShareResponse{}, fmt.Errorf("invalid workshopID: %w", err)
+		return api.GameShareResp{}, fmt.Errorf("invalid workshopID: %w", err)
 	}
-	var result routes.GameShareResponse
-	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
+	var result api.GameShareResp
+	err = u.Post("games/"+gameID+"/shares", api.CreateGameShareReq{
 		WorkshopID:  &wsUUID,
 		MaxSessions: maxSessions,
 	}, &result)

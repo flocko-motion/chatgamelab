@@ -1,12 +1,12 @@
 // package: institution / institution management CLI commands
 // type:    cli
 // job:     create a new institution by name via the institutions API endpoint
-// limits:  only posts the create request; server owns validation and persistence (-> api/routes)
+// limits:  only posts the create request; server owns validation and persistence (-> api)
 package institution
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -29,7 +29,7 @@ func init() {
 func runCreate(cmd *cobra.Command, args []string) {
 	name := args[0]
 
-	req := routes.CreateInstitutionRequest{
+	req := api.CreateInstitutionReq{
 		Name: name,
 	}
 

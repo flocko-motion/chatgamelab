@@ -1,7 +1,7 @@
 package testing
 
 import (
-	"cgl/api/routes"
+	"cgl/api"
 	"cgl/testing/testutil"
 	"testing"
 
@@ -22,7 +22,7 @@ func TestApiKeyIsolationSuite(t *testing.T) {
 
 // assertNoForeignKeys checks that none of the API keys in the response
 // belong to the forbidden user.
-func (s *ApiKeyIsolationTestSuite) assertNoForeignKeys(resp routes.ApiKeysResponse, forbiddenUserName string, forbiddenKeyNames []string) {
+func (s *ApiKeyIsolationTestSuite) assertNoForeignKeys(resp api.ApiKeysResp, forbiddenUserName string, forbiddenKeyNames []string) {
 	s.T().Helper()
 	forbidden := make(map[string]bool)
 	for _, name := range forbiddenKeyNames {
@@ -135,7 +135,7 @@ func (s *ApiKeyIsolationTestSuite) TestCannotFetchOtherUsersKeyByID() {
 	Must(userB.AddApiKey("mock-userb-key", "UserB Key", "openai"))
 
 	// UserB tries to fetch UserA's key share by ID — should fail
-	var info routes.ApiKeyInfoResponse
+	var info api.ApiKeyInfoResp
 	err := userB.Get("apikeys/"+keyA.ID.String(), &info)
 	s.Error(err, "user should not be able to fetch another user's API key by share ID")
 	s.T().Logf("Correctly denied: %v", err)

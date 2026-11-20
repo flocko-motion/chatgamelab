@@ -10,8 +10,7 @@ help: ## List the targets worth knowing about
 lint: lint-go ## Run every linter
 
 # brokkr's full gate reports as a warning for now; only comment length fails
-# the build. Route handlers are exempt from comment length: their godoc blocks
-# are the OpenAPI spec, so their length is swag's, not prose.
+# the build.
 BROKKR := $(shell command -v brokkr 2>/dev/null)
 
 lint-go: ## Run brokkr: every linter as a warning, comment length strict
@@ -21,4 +20,4 @@ ifndef BROKKR
 	@exit 1
 endif
 	-@brokkr lint --tail 20
-	brokkr lint comment-length --ignore='api/routes/**'
+	brokkr lint comment-length

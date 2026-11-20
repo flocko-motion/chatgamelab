@@ -1,12 +1,12 @@
 // package: user / user management CLI commands
 // type:    cli
 // job:     create a new user (name and optional email) without Auth0 for development use
-// limits:  only posts the create request; server owns persistence and validation (-> api/routes)
+// limits:  only posts the create request; server owns persistence and validation (-> api)
 package user
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -27,7 +27,7 @@ func init() {
 }
 
 func runUserAdd(cmd *cobra.Command, args []string) {
-	req := routes.UsersNewRequest{Name: args[0]}
+	req := api.CreateUserReq{Name: args[0]}
 	if len(args) > 1 {
 		req.Email = &args[1]
 	}

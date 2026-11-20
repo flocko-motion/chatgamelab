@@ -10,19 +10,426 @@
  * ---------------------------------------------------------------
  */
 
-export type GetCurrentUserReq = object;
+export interface AcceptInviteResp {
+  authToken?: string;
+  message: string;
+  user?: User;
+}
+
+export interface AddWorkshopMemberReq {
+  userId: string;
+}
+
+export interface ApiKey {
+  /** @format uuid */
+  id: string;
+  isDefault: boolean;
+  keyShortened: string;
+  lastErrorCode?: string;
+  lastUsageSuccess?: boolean;
+  meta: Meta;
+  name: string;
+  platform: string;
+  /** @format uuid */
+  userId: string;
+  userName: string;
+}
+
+export interface ApiKeyInfoResp {
+  linkedShares: ApiKeyShare[];
+  share?: ApiKeyShare;
+}
+
+export interface ApiKeyShare {
+  apiKey?: ApiKey;
+  /** @format uuid */
+  apiKeyId: string;
+  game?: Game;
+  /** @format uuid */
+  gameShareId?: string;
+  /** @format uuid */
+  id: string;
+  institution?: Institution;
+  isPrivateShare?: boolean;
+  isUserDefault: boolean;
+  meta: Meta;
+  remaining?: number;
+  user?: User;
+  workshop?: Workshop;
+}
+
+export interface ApiKeysResp {
+  apiKeys: ApiKey[];
+  shares: ApiKeyShare[];
+}
+
+export interface AvailableKey {
+  isDefault: boolean;
+  name: string;
+  platform: string;
+  /** @format uuid */
+  shareId: string;
+  source: string;
+}
+
+export interface CheckNameResp {
+  available: boolean;
+  profane?: boolean;
+}
+
+export interface CreateApiKeyReq {
+  key: string;
+  name: string;
+  platform: string;
+}
+
+export interface CreateGameReq {
+  description?: string;
+  genre?: string;
+  name: string;
+  public?: boolean;
+}
+
+export interface CreateGameShareReq {
+  aiQualityTier?: string;
+  maxSessions?: number;
+  /** @format uuid */
+  sponsorKeyShareId?: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface CreateInstitutionInviteReq {
+  institutionId: string;
+  invitedEmail?: string;
+  invitedUserId?: string;
+  role: string;
+}
+
+export interface CreateInstitutionReq {
+  name: string;
+}
+
+export interface CreateUserReq {
+  email?: string;
+  name: string;
+}
+
+export interface CreateWorkshopEmailInviteReq {
+  email: string;
+  workshopId: string;
+}
+
+export interface CreateWorkshopInviteReq {
+  expiresAt?: string;
+  maxUses?: number;
+  workshopId: string;
+}
+
+export interface CreateWorkshopReq {
+  active: boolean;
+  institutionId?: string;
+  name: string;
+  public: boolean;
+}
+
+export interface EnrichedGameShare {
+  aiQualityTier?: string;
+  /** @format uuid */
+  apiKeyShareId: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  createdBy?: string;
+  /** @format uuid */
+  gameId: string;
+  gameName?: string;
+  /** @format uuid */
+  id: string;
+  /** @format uuid */
+  institutionId?: string;
+  remaining?: number;
+  shareUrl: string;
+  source: string;
+  token: string;
+  /** @format uuid */
+  workshopId?: string;
+  workshopName?: string;
+}
+
+export interface Error {
+  /** Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, too_many_requests, unavailable, internal). */
+  code: string;
+  /** The message. On 5xx always the status text. */
+  error: string;
+  /** On 5xx only: the id the full error is logged under. */
+  id?: string;
+}
+
+export interface FavouriteResp {
+  favourite: boolean;
+}
+
+export interface Game {
+  cloneCount: number;
+  /** @format uuid */
+  creatorId?: string;
+  creatorName?: string;
+  css: string;
+  description: string;
+  /** @format byte */
+  firstImage: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
+  genre: string;
+  /** @format byte */
+  icon: Blob;
+  /** @format uuid */
+  id: string;
+  imageStyle: string;
+  meta: Meta;
+  name: string;
+  /** @format uuid */
+  originalCreatorId?: string;
+  originalCreatorName?: string;
+  /** @format uuid */
+  originallyCreatedBy?: string;
+  playCount: number;
+  public: boolean;
+  /** @format uuid */
+  publicSponsoredApiKeyShareId?: string;
+  statusFields: string;
+  systemMessageGameStart: string;
+  systemMessageScenario: string;
+  tags: GameTag[];
+  theme?: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface GameApiKeyStatusResp {
+  available: boolean;
+}
+
+export interface GameFile {
+  css: string;
+  description: string;
+  genre: string;
+  /** @format uuid */
+  id: string;
+  image_style: string;
+  name: string;
+  status_fields: string;
+  system_message_game_start: string;
+  system_message_scenario: string;
+  theme?: string;
+}
+
+export interface GameSession {
+  /** @format uuid */
+  apiKeyShareId?: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  gameId: string;
+  /** @format uuid */
+  gameShareId?: string;
+  /** @format uuid */
+  id: string;
+  language: string;
+  messagesSent: number;
+  /** @format date-time */
+  modifiedAt: string;
+  platform: string;
+  /** @format uuid */
+  userId: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface GameShareResp {
+  aiQualityTier?: string;
+  /** @format uuid */
+  apiKeyShareId: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  createdBy?: string;
+  /** @format uuid */
+  gameId: string;
+  /** @format uuid */
+  id: string;
+  /** @format uuid */
+  institutionId?: string;
+  remaining?: number;
+  shareUrl: string;
+  token: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface GameSponsorReq {
+  /** @format uuid */
+  shareId: string;
+}
+
+export interface GameTag {
+  /** @format uuid */
+  gameId: string;
+  /** @format uuid */
+  id: string;
+  meta: Meta;
+  tag: string;
+}
+
+export interface GenreInfo {
+  id: string;
+  needs: string[];
+}
 
 export interface GetCurrentUserResp {
   state: string;
-  user: object;
+  user?: User;
 }
-
-export type GetVersionReq = object;
 
 export interface GetVersionResp {
   buildTime: string;
   gitCommit: string;
   version: string;
+}
+
+export interface GuestGameInfoResp {
+  description?: string;
+  /** @format uuid */
+  gameId: string;
+  name: string;
+  public: boolean;
+  remaining?: number;
+}
+
+export interface Institution {
+  freeUseAiQualityTier?: string;
+  /** @format uuid */
+  freeUseApiKeyShareId?: string;
+  /** @format uuid */
+  id: string;
+  members?: InstitutionMember[];
+  meta: Meta;
+  name: string;
+  promptConstraints?: string;
+}
+
+export interface InstitutionMember {
+  email?: string;
+  name: string;
+  role: string;
+  /** @format uuid */
+  userId: string;
+}
+
+export interface InviteResp {
+  createdAt: string;
+  expiresAt?: string;
+  id: string;
+  institutionId: string;
+  institutionName?: string;
+  inviteToken?: string;
+  invitedEmail?: string;
+  invitedUserId?: string;
+  maxUses?: number;
+  modifiedAt?: string;
+  role: string;
+  status: string;
+  usesCount: number;
+  workshopId?: string;
+  workshopName?: string;
+}
+
+export interface Language {
+  iso: string;
+  label: string;
+}
+
+export interface MessageResp {
+  message: string;
+}
+
+export interface Meta {
+  /** @format date-time */
+  createdAt?: string;
+  /** @format uuid */
+  createdBy: string | null;
+  /** @format date-time */
+  modifiedAt?: string;
+  /** @format uuid */
+  modifiedBy: string | null;
+}
+
+export interface Model {
+  name: string;
+  params?: Record<string, string>;
+}
+
+export interface ParticipantLoginReq {
+  token: string;
+}
+
+export interface ParticipantLoginResp {
+  token: string;
+  /** @format uuid */
+  userId: string;
+}
+
+export interface PlatformInfo {
+  genres: string[];
+  id: string;
+  name: string;
+  tiers: TierModels[];
+  toggles: Toggles;
+  userKeys: boolean;
+}
+
+export interface PrivateShareStatusResp {
+  shares: EnrichedGameShare[];
+}
+
+export interface PublicWorkshopGame {
+  description: string;
+  /** @format uuid */
+  id: string;
+  name: string;
+  play?: PublicWorkshopPlay;
+}
+
+export interface PublicWorkshopLink {
+  description?: string;
+  title: string;
+  url: string;
+}
+
+export interface PublicWorkshopPage {
+  description: string;
+  games: PublicWorkshopGame[];
+  links?: PublicWorkshopLink[];
+  name: string;
+  playAvailable: boolean;
+}
+
+export interface PublicWorkshopPlay {
+  limit: number;
+  remaining: number;
+  token: string;
+}
+
+export interface Registration {
+  ageGroup: string;
+  email?: string;
+  language?: string;
+  name: string;
+}
+
+export interface RolesResp {
+  roles: string[];
 }
 
 export interface SchemafAuth0LoginRequest {
@@ -35,6 +442,329 @@ export interface SchemafLoginResponse {
 }
 
 export interface SchemafRefreshResponse {
+  token: string;
+}
+
+export interface SessionDeletedResp {
+  status: string;
+}
+
+export interface SetActiveWorkshopReq {
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface SetInstitutionFreeUseKeyReq {
+  /** @format uuid */
+  shareId?: string;
+}
+
+export interface SetSystemFreeUseApiKeyReq {
+  /** @format uuid */
+  apiKeyId?: string;
+}
+
+export interface SetUserRoleReq {
+  /** @format uuid */
+  institutionId?: string;
+  role: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface SetWorkshopApiKeyReq {
+  apiKeyShareId?: string;
+}
+
+export interface ShareApiKeyReq {
+  /** @format uuid */
+  institutionId?: string;
+  /** @format uuid */
+  userId?: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface SystemConstraintsResp {
+  promptConstraintU13?: string;
+  promptConstraintU13p?: string;
+  promptConstraintU18?: string;
+}
+
+export interface SystemSettings {
+  /** @format date-time */
+  createdAt?: string;
+  defaultAiQualityTier: string;
+  freeUseAiQualityTier?: string;
+  /** @format uuid */
+  freeUseApiKeyId?: string;
+  freeUseApiKeyName?: string;
+  freeUseApiKeyPlatform?: string;
+  freeUseApiKeyWorking?: boolean;
+  /** @format uuid */
+  id: string;
+  /** @format date-time */
+  modifiedAt?: string;
+  promptConstraintU13?: string;
+  promptConstraintU13p?: string;
+  promptConstraintU18?: string;
+}
+
+export interface ThemeInfo {
+  id: string;
+}
+
+export interface TierModels {
+  id: string;
+  label: string;
+  models: Record<string, Model>;
+}
+
+export interface Toggles {
+  "audio-in": boolean;
+  "audio-live": boolean;
+  "audio-out": boolean;
+  images: boolean;
+}
+
+export interface UpdateApiKeyReq {
+  name?: string;
+}
+
+export interface UpdateGameReq {
+  cloneCount: number;
+  /** @format uuid */
+  creatorId?: string;
+  creatorName?: string;
+  css: string;
+  description: string;
+  /** @format byte */
+  firstImage: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
+  genre: string;
+  /** @format byte */
+  icon: Blob;
+  /** @format uuid */
+  id: string;
+  imageStyle: string;
+  meta: Meta;
+  name: string;
+  /** @format uuid */
+  originalCreatorId?: string;
+  originalCreatorName?: string;
+  /** @format uuid */
+  originallyCreatedBy?: string;
+  playCount: number;
+  public: boolean;
+  /** @format uuid */
+  publicSponsoredApiKeyShareId?: string;
+  statusFields: string;
+  systemMessageGameStart: string;
+  systemMessageScenario: string;
+  tags: GameTag[];
+  theme?: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface UpdateGameShareReq {
+  aiQualityTier?: string;
+  maxSessions?: number;
+}
+
+export interface UpdateGameYAMLReq {
+  css: string;
+  description: string;
+  genre: string;
+  /** @format uuid */
+  id: string;
+  image_style: string;
+  name: string;
+  status_fields: string;
+  system_message_game_start: string;
+  system_message_scenario: string;
+  theme?: string;
+}
+
+export interface UpdateInstitutionPromptConstraintsReq {
+  promptConstraints?: string;
+}
+
+export interface UpdateInstitutionReq {
+  name: string;
+}
+
+export interface UpdateSystemSettingsReq {
+  defaultAiQualityTier?: string;
+  freeUseAiQualityTier?: string;
+  promptConstraintU13?: string;
+  promptConstraintU13p?: string;
+  promptConstraintU18?: string;
+}
+
+export interface UpdateUserLanguageReq {
+  language: string;
+}
+
+export interface UpdateUserReq {
+  ageGroup?: string;
+  aiQualityTier?: string;
+  /** @format uuid */
+  defaultApiKeyShareId?: string;
+  email: string;
+  name: string;
+}
+
+export interface UpdateWorkshopReq {
+  active: boolean;
+  aiQualityTier?: string;
+  allowGameSharing: boolean;
+  isPaused: boolean;
+  name: string;
+  promptConstraints?: string;
+  public: boolean;
+  publicDescription?: string;
+  publicLinks?: PublicWorkshopLink[];
+  publicSlug?: string;
+  showOtherParticipantsGames: boolean;
+  showPublicGames: boolean;
+}
+
+export interface User {
+  ageGroup?: string;
+  aiQualityTier?: string;
+  apiKeys: ApiKeyShare[];
+  auth0Id?: string;
+  /** @format date-time */
+  deletedAt?: string;
+  email?: string;
+  /** @format uuid */
+  id: string;
+  language: string;
+  meta: Meta;
+  name: string;
+  role?: UserRole;
+}
+
+export interface UserParticipantCodeResp {
+  token?: string;
+  words?: string;
+}
+
+export interface UserRole {
+  /** @format uuid */
+  id: string;
+  institution?: Institution;
+  meta: Meta;
+  role: string;
+  /** @format uuid */
+  userId: string;
+  workshop?: Workshop;
+}
+
+export interface UserRoleInvite {
+  /** @format date-time */
+  acceptedAt?: string;
+  /** @format uuid */
+  acceptedBy?: string;
+  /** @format date-time */
+  expiresAt?: string;
+  /** @format uuid */
+  id: string;
+  /** @format uuid */
+  institutionId: string;
+  inviteToken?: string;
+  invitedEmail?: string;
+  /** @format uuid */
+  invitedUserId?: string;
+  maxUses?: number;
+  meta: Meta;
+  role: string;
+  status: string;
+  usesCount: number;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface UserSessionWithGame {
+  /** @format uuid */
+  apiKeyShareId?: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  gameId: string;
+  gameName: string;
+  /** @format uuid */
+  gameShareId?: string;
+  /** @format uuid */
+  id: string;
+  language: string;
+  messagesSent: number;
+  /** @format date-time */
+  modifiedAt: string;
+  platform: string;
+  /** @format uuid */
+  userId: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface UserStats {
+  gamesCreated: number;
+  gamesPlayed: number;
+  messagesSent: number;
+  totalPlaysOnGames: number;
+}
+
+export interface Workshop {
+  active: boolean;
+  aiQualityTier?: string;
+  allowGameSharing: boolean;
+  /** @format uuid */
+  defaultApiKeyShareId?: string;
+  /** @format uuid */
+  id: string;
+  institution?: Institution;
+  invites?: UserRoleInvite[];
+  isPaused: boolean;
+  meta: Meta;
+  name: string;
+  participants?: WorkshopParticipant[];
+  promptConstraints?: string;
+  public: boolean;
+  publicDescription?: string;
+  publicLinks?: PublicWorkshopLink[];
+  publicSlug?: string;
+  showOtherParticipantsGames: boolean;
+  showPublicGames: boolean;
+}
+
+export interface WorkshopEvent {
+  /** @format uuid */
+  gameId?: string;
+  /** @format uuid */
+  triggeredBy?: string;
+  type: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface WorkshopParticipant {
+  accessToken: string;
+  active: boolean;
+  gamesCount: number;
+  /** @format uuid */
+  id: string;
+  meta: Meta;
+  name: string;
+  permanent: boolean;
+  role: string;
+  /** @format uuid */
+  workshopId: string;
+}
+
+export interface WorkshopParticipantTokenResp {
   token: string;
 }
 
@@ -302,6 +1032,179 @@ export class Api<
 > extends HttpClient<SecurityDataType> {
   api = {
     /**
+     * @description (organization shares, sponsorships).
+     *
+     * @name GetApiApikeys
+     * @summary Lists the caller's API keys and all their linked shares
+     * @request GET:/api/apikeys
+     * @secure
+     */
+    getApiApikeys: (params: RequestParams = {}) =>
+      this.request<ApiKeysResp, Error>({
+        path: `/api/apikeys`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Platform and key are required; surrounding whitespace is trimmed. Without a name the key is named after its platform and today's date, e.g. "Mistral 12.02.26".
+     *
+     * @name PostApiApikeysNew
+     * @summary Creates an API key and shares it with the caller.
+     * @request POST:/api/apikeys/new
+     * @secure
+     */
+    postApiApikeysNew: (data: CreateApiKeyReq, params: RequestParams = {}) =>
+      this.request<ApiKeyShare, Error>({
+        path: `/api/apikeys/new`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description With cascade=true it deletes the key and all its shares.
+     *
+     * @name DeleteApiApikeysId
+     * @summary Removes an API key share and answers with it as it was.
+     * @request DELETE:/api/apikeys/{id}
+     * @secure
+     */
+    deleteApiApikeysId: (id: string, params: RequestParams = {}) =>
+      this.request<ApiKeyShare, Error>({
+        path: `/api/apikeys/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiApikeysId
+     * @summary Returns an API key share and the shares linked to it.
+     * @request GET:/api/apikeys/{id}
+     * @secure
+     */
+    getApiApikeysId: (id: string, params: RequestParams = {}) =>
+      this.request<ApiKeyInfoResp, Error>({
+        path: `/api/apikeys/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PatchApiApikeysId
+     * @summary Renames an API key.
+     * @request PATCH:/api/apikeys/{id}
+     * @secure
+     */
+    patchApiApikeysId: (
+      id: string,
+      data: UpdateApiKeyReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<ApiKeyShare, Error>({
+        path: `/api/apikeys/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description institution, at the path older clients use.
+     *
+     * @name PostApiApikeysId
+     * @summary Shares an API key with a user, workshop or
+     * @request POST:/api/apikeys/{id}
+     * @secure
+     */
+    postApiApikeysId: (
+      id: string,
+      data: ShareApiKeyReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<ApiKeyShare, Error>({
+        path: `/api/apikeys/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PutApiApikeysIdDefault
+     * @summary Makes an API key the caller's default for new sessions.
+     * @request PUT:/api/apikeys/{id}/default
+     * @secure
+     */
+    putApiApikeysIdDefault: (id: string, params: RequestParams = {}) =>
+      this.request<ApiKeyShare, Error>({
+        path: `/api/apikeys/${id}/default`,
+        method: "PUT",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description with each game's name and where the share comes from. Query: context=personal lists all shares and requires owning the key; context=organization lists only organization and workshop shares.
+     *
+     * @name GetApiApikeysIdGameShares
+     * @summary Lists the game share links that use an API key,
+     * @request GET:/api/apikeys/{id}/game-shares
+     * @secure
+     */
+    getApiApikeysIdGameShares: (id: string, params: RequestParams = {}) =>
+      this.request<EnrichedGameShare[], Error>({
+        path: `/api/apikeys/${id}/game-shares`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PostApiApikeysIdShares
+     * @summary Shares an API key with a user, workshop or institution.
+     * @request POST:/api/apikeys/{id}/shares
+     * @secure
+     */
+    postApiApikeysIdShares: (
+      id: string,
+      data: ShareApiKeyReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<ApiKeyShare, Error>({
+        path: `/api/apikeys/${id}/shares`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Verifies the ID token from the Auth0 SPA SDK and starts a schemaf session. 404 if Auth0 is not configured on this instance.
      *
      * @name PostApiAuthAuth0Login
@@ -312,11 +1215,26 @@ export class Api<
       data: SchemafAuth0LoginRequest,
       params: RequestParams = {},
     ) =>
-      this.request<SchemafLoginResponse, void>({
+      this.request<SchemafLoginResponse, Error>({
         path: `/api/auth/auth0/login`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description A name longer than 24 characters is unavailable; a profane one is unavailable and flagged profane.
+     *
+     * @name GetApiAuthCheckName
+     * @summary Checks whether a name is free to register.
+     * @request GET:/api/auth/check-name
+     */
+    getApiAuthCheckName: (params: RequestParams = {}) =>
+      this.request<CheckNameResp, Error>({
+        path: `/api/auth/check-name`,
+        method: "GET",
         format: "json",
         ...params,
       }),
@@ -329,23 +1247,29 @@ export class Api<
      * @request POST:/api/auth/logout
      */
     postApiAuthLogout: (params: RequestParams = {}) =>
-      this.request<void, void>({
+      this.request<void, Error>({
         path: `/api/auth/logout`,
         method: "POST",
         ...params,
       }),
 
     /**
-     * @description Takes {"token": "..."}: the participant token whole, or its words from a link, QR code or typed code. Starts a session, sets the session cookie and answers {"token": "...", "userId": "..."}; the token is for Bearer clients.
+     * @description Takes the participant token whole, or its words from a link, QR code or typed code. Starts a session, sets the session cookie and answers with the session token, for Bearer clients, and the participant's id.
      *
      * @name PostApiAuthParticipantLogin
      * @summary Signs a workshop participant in with their token.
      * @request POST:/api/auth/participant-login
      */
-    postApiAuthParticipantLogin: (params: RequestParams = {}) =>
-      this.request<void, void>({
+    postApiAuthParticipantLogin: (
+      data: ParticipantLoginReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<ParticipantLoginResp, Error>({
         path: `/api/auth/participant-login`,
         method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -358,7 +1282,7 @@ export class Api<
      * @secure
      */
     postApiAuthRefresh: (params: RequestParams = {}) =>
-      this.request<SchemafRefreshResponse, void>({
+      this.request<SchemafRefreshResponse, Error>({
         path: `/api/auth/refresh`,
         method: "POST",
         secure: true,
@@ -374,11 +1298,14 @@ export class Api<
      * @request POST:/api/auth/register
      * @secure
      */
-    postApiAuthRegister: (params: RequestParams = {}) =>
-      this.request<void, void>({
+    postApiAuthRegister: (data: Registration, params: RequestParams = {}) =>
+      this.request<User, Error>({
         path: `/api/auth/register`,
         method: "POST",
+        body: data,
         secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -394,11 +1321,1101 @@ export class Api<
       data: Record<string, any>,
       params: RequestParams = {},
     ) =>
-      this.request<SchemafLoginResponse, void>({
+      this.request<SchemafLoginResponse, Error>({
         path: `/api/auth/${provider}/login`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The playback-engine, its session stream (WebSocket included), its state and its lists. Accounts and guests alike; a request naming a session passes the access policy first.
+     *
+     * @name GetApiEngineRest
+     * @summary Passes GET requests under /api/engine/ to the engine.
+     * @request GET:/api/engine/{rest...}
+     * @secure
+     */
+    getApiEngineRest: (rest: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/engine/${rest}`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Creating a session from a game or a share token, and a session's input, choices, toggles, connect and pause. Accounts and guests alike; a request naming a session passes the access policy first. Creating counts towards the token lock, as it may look up a share token.
+     *
+     * @name PostApiEngineRest
+     * @summary Passes POST requests under /api/engine/ to the engine.
+     * @request POST:/api/engine/{rest...}
+     * @secure
+     */
+    postApiEngineRest: (rest: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/engine/${rest}`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt, playCount), sortDir (asc, desc), filter (all, own, public, organization, favorites).
+     *
+     * @name GetApiGames
+     * @summary Lists the games the caller can see.
+     * @request GET:/api/games
+     * @secure
+     */
+    getApiGames: (params: RequestParams = {}) =>
+      this.request<Game[], Error>({
+        path: `/api/games`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiGamesFavourites
+     * @summary Lists the games the caller has marked as favourites.
+     * @request GET:/api/games/favourites
+     * @secure
+     */
+    getApiGamesFavourites: (params: RequestParams = {}) =>
+      this.request<Game[], Error>({
+        path: `/api/games/favourites`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Only the name is required, at most 70 characters; the genre is one of the engine's genres and makes an adventure when empty.
+     *
+     * @name PostApiGamesNew
+     * @summary Creates a game owned by the caller.
+     * @request POST:/api/games/new
+     * @secure
+     */
+    postApiGamesNew: (data: CreateGameReq, params: RequestParams = {}) =>
+      this.request<Game, Error>({
+        path: `/api/games/new`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name DeleteApiGamesId
+     * @summary Deletes a game and answers with it as it was.
+     * @request DELETE:/api/games/{id}
+     * @secure
+     */
+    deleteApiGamesId: (id: string, params: RequestParams = {}) =>
+      this.request<Game, Error>({
+        path: `/api/games/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiGamesId
+     * @summary Returns a game the caller can see.
+     * @request GET:/api/games/{id}
+     * @secure
+     */
+    getApiGamesId: (id: string, params: RequestParams = {}) =>
+      this.request<Game, Error>({
+        path: `/api/games/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Takes the whole game; its name is at most 70 characters. Answers with the game as stored.
+     *
+     * @name PostApiGamesId
+     * @summary Updates a game's properties.
+     * @request POST:/api/games/{id}
+     * @secure
+     */
+    postApiGamesId: (
+      id: string,
+      data: UpdateGameReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Game, Error>({
+        path: `/api/games/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description caller playing a game.
+     *
+     * @name GetApiGamesIdApiKeyStatus
+     * @summary Answers whether an API key resolves for the
+     * @request GET:/api/games/{id}/api-key-status
+     * @secure
+     */
+    getApiGamesIdApiKeyStatus: (id: string, params: RequestParams = {}) =>
+      this.request<GameApiKeyStatusResp, Error>({
+        path: `/api/games/${id}/api-key-status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description with, in order of priority.
+     *
+     * @name GetApiGamesIdAvailableKeys
+     * @summary Lists the API keys the caller can play a game
+     * @request GET:/api/games/{id}/available-keys
+     * @secure
+     */
+    getApiGamesIdAvailableKeys: (id: string, params: RequestParams = {}) =>
+      this.request<AvailableKey[], Error>({
+        path: `/api/games/${id}/available-keys`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description new private game of the caller's.
+     *
+     * @name PostApiGamesIdClone
+     * @summary Copies a public game, or one of the caller's own, into a
+     * @request POST:/api/games/{id}/clone
+     * @secure
+     */
+    postApiGamesIdClone: (id: string, params: RequestParams = {}) =>
+      this.request<Game, Error>({
+        path: `/api/games/${id}/clone`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name DeleteApiGamesIdFavourite
+     * @summary Removes a game from the caller's favourites.
+     * @request DELETE:/api/games/{id}/favourite
+     * @secure
+     */
+    deleteApiGamesIdFavourite: (id: string, params: RequestParams = {}) =>
+      this.request<FavouriteResp, Error>({
+        path: `/api/games/${id}/favourite`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PostApiGamesIdFavourite
+     * @summary Adds a game to the caller's favourites.
+     * @request POST:/api/games/{id}/favourite
+     * @secure
+     */
+    postApiGamesIdFavourite: (id: string, params: RequestParams = {}) =>
+      this.request<FavouriteResp, Error>({
+        path: `/api/games/${id}/favourite`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description has access to. These are the caller's own personal and organisation shares, their institution's shares for head, staff and admins, the shares of the workshop they are in, and for head and staff outside a workshop the shares of every workshop of their institution.
+     *
+     * @name GetApiGamesIdPrivateShare
+     * @summary Lists the share links of a game the caller
+     * @request GET:/api/games/{id}/private-share
+     * @secure
+     */
+    getApiGamesIdPrivateShare: (id: string, params: RequestParams = {}) =>
+      this.request<PrivateShareStatusResp, Error>({
+        path: `/api/games/${id}/private-share`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiGamesIdSessions
+     * @summary Lists the caller's own sessions of a game.
+     * @request GET:/api/games/{id}/sessions
+     * @secure
+     */
+    getApiGamesIdSessions: (id: string, params: RequestParams = {}) =>
+      this.request<GameSession[], Error>({
+        path: `/api/games/${id}/sessions`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description A workshop share (workshopId set) plays on the workshop's default API key and is reused when the game already has one in that workshop. A personal or organisation share needs sponsorKeyShareId; it is an organisation share when that key share belongs to an institution.
+     *
+     * @name PostApiGamesIdShares
+     * @summary Creates a share link for a game.
+     * @request POST:/api/games/{id}/shares
+     * @secure
+     */
+    postApiGamesIdShares: (
+      id: string,
+      data: CreateGameShareReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<GameShareResp, Error>({
+        path: `/api/games/${id}/shares`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The share's creator, the game's owner, members of the share's workshop and head or staff of its institution may revoke it.
+     *
+     * @name DeleteApiGamesIdSharesShareId
+     * @summary Revokes a share link and cleans up its guest data.
+     * @request DELETE:/api/games/{id}/shares/{shareId}
+     * @secure
+     */
+    deleteApiGamesIdSharesShareId: (
+      id: string,
+      shareId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<MessageResp, Error>({
+        path: `/api/games/${id}/shares/${shareId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Whoever may revoke the share may update it.
+     *
+     * @name PatchApiGamesIdSharesShareId
+     * @summary Updates a share link's settings.
+     * @request PATCH:/api/games/{id}/shares/{shareId}
+     * @secure
+     */
+    patchApiGamesIdSharesShareId: (
+      id: string,
+      shareId: string,
+      data: UpdateGameShareReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<GameShareResp, Error>({
+        path: `/api/games/${id}/shares/${shareId}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description answers with the game.
+     *
+     * @name DeleteApiGamesIdSponsor
+     * @summary Removes the public sponsorship from a game and
+     * @request DELETE:/api/games/{id}/sponsor
+     * @secure
+     */
+    deleteApiGamesIdSponsor: (id: string, params: RequestParams = {}) =>
+      this.request<Game, Error>({
+        path: `/api/games/${id}/sponsor`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description API key shares and answers with the game.
+     *
+     * @name PutApiGamesIdSponsor
+     * @summary Sponsors a game publicly with one of the caller's
+     * @request PUT:/api/games/{id}/sponsor
+     * @secure
+     */
+    putApiGamesIdSponsor: (
+      id: string,
+      data: GameSponsorReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Game, Error>({
+        path: `/api/games/${id}/sponsor`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiGamesIdYaml
+     * @summary Exports a game as a game file, YAML by default.
+     * @request GET:/api/games/{id}/yaml
+     * @secure
+     */
+    getApiGamesIdYaml: (id: string, params: RequestParams = {}) =>
+      this.request<GameFile, Error>({
+        path: `/api/games/${id}/yaml`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description answers with the game. The file's content replaces the game's; its id is ignored.
+     *
+     * @name PutApiGamesIdYaml
+     * @summary Updates a game from a game file, YAML or JSON, and
+     * @request PUT:/api/games/{id}/yaml
+     * @secure
+     */
+    putApiGamesIdYaml: (
+      id: string,
+      data: UpdateGameYAMLReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Game, Error>({
+        path: `/api/games/${id}/yaml`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description With the toggles each needs, for the game editor.
+     *
+     * @name GetApiGenres
+     * @summary Lists every genre the engine runs.
+     * @request GET:/api/genres
+     * @secure
+     */
+    getApiGenres: (params: RequestParams = {}) =>
+      this.request<GenreInfo[], Error>({
+        path: `/api/genres`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiInstitutions
+     * @summary Lists the institutions the caller can see.
+     * @request GET:/api/institutions
+     * @secure
+     */
+    getApiInstitutions: (params: RequestParams = {}) =>
+      this.request<Institution[], Error>({
+        path: `/api/institutions`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The name is required.
+     *
+     * @name PostApiInstitutions
+     * @summary Creates an institution.
+     * @request POST:/api/institutions
+     * @secure
+     */
+    postApiInstitutions: (
+      data: CreateInstitutionReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Institution, Error>({
+        path: `/api/institutions`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name DeleteApiInstitutionsId
+     * @summary Deletes an institution; admins only.
+     * @request DELETE:/api/institutions/{id}
+     * @secure
+     */
+    deleteApiInstitutionsId: (id: string, params: RequestParams = {}) =>
+      this.request<MessageResp, Error>({
+        path: `/api/institutions/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiInstitutionsId
+     * @summary Returns an institution.
+     * @request GET:/api/institutions/{id}
+     * @secure
+     */
+    getApiInstitutionsId: (id: string, params: RequestParams = {}) =>
+      this.request<Institution, Error>({
+        path: `/api/institutions/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The name is required.
+     *
+     * @name PatchApiInstitutionsId
+     * @summary Renames an institution.
+     * @request PATCH:/api/institutions/{id}
+     * @secure
+     */
+    patchApiInstitutionsId: (
+      id: string,
+      data: UpdateInstitutionReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Institution, Error>({
+        path: `/api/institutions/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description heads and staff only.
+     *
+     * @name GetApiInstitutionsIdApikeys
+     * @summary Lists the API keys shared with an institution;
+     * @request GET:/api/institutions/{id}/apikeys
+     * @secure
+     */
+    getApiInstitutionsIdApikeys: (id: string, params: RequestParams = {}) =>
+      this.request<ApiKeyShare[], Error>({
+        path: `/api/institutions/${id}/apikeys`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description free-use API key share and answers with the institution. Any member of the institution plays for free with this key. A null shareId clears it.
+     *
+     * @name PatchApiInstitutionsIdFreeUseKey
+     * @summary Sets or clears an institution's
+     * @request PATCH:/api/institutions/{id}/free-use-key
+     * @secure
+     */
+    patchApiInstitutionsIdFreeUseKey: (
+      id: string,
+      data: SetInstitutionFreeUseKeyReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Institution, Error>({
+        path: `/api/institutions/${id}/free-use-key`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiInstitutionsIdMembers
+     * @summary Lists the members of an institution.
+     * @request GET:/api/institutions/{id}/members
+     * @secure
+     */
+    getApiInstitutionsIdMembers: (id: string, params: RequestParams = {}) =>
+      this.request<User[], Error>({
+        path: `/api/institutions/${id}/members`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description and admins only.
+     *
+     * @name DeleteApiInstitutionsIdMembersUserId
+     * @summary Removes a member from an institution; heads
+     * @request DELETE:/api/institutions/{id}/members/{userID}
+     * @secure
+     */
+    deleteApiInstitutionsIdMembersUserId: (
+      id: string,
+      userId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<MessageResp, Error>({
+        path: `/api/institutions/${id}/members/${userId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description prompt constraints and answers with the institution; heads and admins only. An empty or null promptConstraints clears them.
+     *
+     * @name PatchApiInstitutionsIdPromptConstraints
+     * @summary Sets or clears an institution's
+     * @request PATCH:/api/institutions/{id}/prompt-constraints
+     * @secure
+     */
+    patchApiInstitutionsIdPromptConstraints: (
+      id: string,
+      data: UpdateInstitutionPromptConstraintsReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Institution, Error>({
+        path: `/api/institutions/${id}/prompt-constraints`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiInvites
+     * @summary Lists the invites addressed to the caller.
+     * @request GET:/api/invites
+     * @secure
+     */
+    getApiInvites: (params: RequestParams = {}) =>
+      this.request<InviteResp[], Error>({
+        path: `/api/invites`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiInvitesAll
+     * @summary Lists every invite; admins only.
+     * @request GET:/api/invites/all
+     * @secure
+     */
+    getApiInvitesAll: (params: RequestParams = {}) =>
+      this.request<InviteResp[], Error>({
+        path: `/api/invites/all`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description head, staff or individual. The role defaults to staff. The invite names the invited user by id or email.
+     *
+     * @name PostApiInvitesInstitution
+     * @summary Invites a user to join an institution as
+     * @request POST:/api/invites/institution
+     * @secure
+     */
+    postApiInvitesInstitution: (
+      data: CreateInstitutionInviteReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<UserRoleInvite, Error>({
+        path: `/api/invites/institution`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The caller is head or staff of the institution, or an admin.
+     *
+     * @name GetApiInvitesInstitutionInstitutionId
+     * @summary Lists the invites to join an institution.
+     * @request GET:/api/invites/institution/{institutionId}
+     * @secure
+     */
+    getApiInvitesInstitutionInstitutionId: (
+      institutionId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<InviteResp[], Error>({
+        path: `/api/invites/institution/${institutionId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description workshop as participants.
+     *
+     * @name PostApiInvitesWorkshop
+     * @summary Creates an open invite for users to join a
+     * @request POST:/api/invites/workshop
+     * @secure
+     */
+    postApiInvitesWorkshop: (
+      data: CreateWorkshopInviteReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<UserRoleInvite, Error>({
+        path: `/api/invites/workshop`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description join a workshop. A second pending invite for the same user and workshop is refused with 409.
+     *
+     * @name PostApiInvitesWorkshopEmail
+     * @summary Invites a registered user, by email, to
+     * @request POST:/api/invites/workshop/email
+     * @secure
+     */
+    postApiInvitesWorkshopEmail: (
+      data: CreateWorkshopEmailInviteReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<InviteResp, Error>({
+        path: `/api/invites/workshop/email`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description An id needs a signed-in caller: admins see any invite, everyone else the invites addressed to them or created by them. A token also answers an anonymous caller, for open invites.
+     *
+     * @name GetApiInvitesIdOrToken
+     * @summary Returns an invite by its id or its token.
+     * @request GET:/api/invites/{idOrToken}
+     * @secure
+     */
+    getApiInvitesIdOrToken: (idOrToken: string, params: RequestParams = {}) =>
+      this.request<InviteResp, Error>({
+        path: `/api/invites/${idOrToken}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description An anonymous caller accepts a workshop invite by token: this creates a participant account in the browser's language, starts its session, sets the session cookie and answers with the account and its token. A signed-in participant switches to the invite's workshop; a head, staff member or individual enters it and keeps their role; anyone else joins as a participant. An invite by id needs a signed-in caller; an institution invite gives the caller its role.
+     *
+     * @name PostApiInvitesIdOrTokenAccept
+     * @summary Accepts an invite by its id or its token.
+     * @request POST:/api/invites/{idOrToken}/accept
+     * @secure
+     */
+    postApiInvitesIdOrTokenAccept: (
+      idOrToken: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<AcceptInviteResp, Error>({
+        path: `/api/invites/${idOrToken}/accept`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Its creator and admins can revoke it, and institution staff a workshop invite.
+     *
+     * @name DeleteApiInvitesId
+     * @summary Revokes a pending invite.
+     * @request DELETE:/api/invites/{id}
+     * @secure
+     */
+    deleteApiInvitesId: (id: string, params: RequestParams = {}) =>
+      this.request<MessageResp, Error>({
+        path: `/api/invites/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description status "declined".
+     *
+     * @name PostApiInvitesIdDecline
+     * @summary Declines an invite and answers with its id and its
+     * @request POST:/api/invites/{id}/decline
+     * @secure
+     */
+    postApiInvitesIdDecline: (id: string, params: RequestParams = {}) =>
+      this.request<UserRoleInvite, Error>({
+        path: `/api/invites/${id}/decline`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiLanguages
+     * @summary Lists the languages the application is available in.
+     * @request GET:/api/languages
+     */
+    getApiLanguages: (params: RequestParams = {}) =>
+      this.request<Language[], Error>({
+        path: `/api/languages`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description (e.g. "fr", "de", "no"), as a JSON object.
+     *
+     * @name GetApiLanguagesCode
+     * @summary Returns the translations of a language, by its code
+     * @request GET:/api/languages/{code}
+     */
+    getApiLanguagesCode: (code: string, params: RequestParams = {}) =>
+      this.request<Record<string, any>, Error>({
+        path: `/api/languages/${code}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description With their toggles, playable genres and tiers.
+     *
+     * @name GetApiPlatforms
+     * @summary Lists the engine's AI platforms.
+     * @request GET:/api/platforms
+     * @secure
+     */
+    getApiPlatforms: (params: RequestParams = {}) =>
+      this.request<PlatformInfo[], Error>({
+        path: `/api/platforms`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description welcome screen: its name, description and how many plays are left.
+     *
+     * @name GetApiPlayTokenInfo
+     * @summary Returns the game a share token plays, for the
+     * @request GET:/api/play/{token}/info
+     */
+    getApiPlayTokenInfo: (token: string, params: RequestParams = {}) =>
+      this.request<GuestGameInfoResp, Error>({
+        path: `/api/play/${token}/info`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description and public games. An unknown slug and a switched-off page both answer 404.
+     *
+     * @name GetApiPublicWorkshopsSlug
+     * @summary Returns a public workshop's name, description
+     * @request GET:/api/public/workshops/{slug}
+     */
+    getApiPublicWorkshopsSlug: (slug: string, params: RequestParams = {}) =>
+      this.request<PublicWorkshopPage, Error>({
+        path: `/api/public/workshops/${slug}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description page as a game file, YAML by default.
+     *
+     * @name GetApiPublicWorkshopsSlugGamesIdYaml
+     * @summary Exports a game listed on a public workshop
+     * @request GET:/api/public/workshops/{slug}/games/{id}/yaml
+     */
+    getApiPublicWorkshopsSlugGamesIdYaml: (
+      slug: string,
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<GameFile, Error>({
+        path: `/api/public/workshops/${slug}/games/${id}/yaml`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PostApiRestart
+     * @summary Has the server restart; admins only.
+     * @request POST:/api/restart
+     * @secure
+     */
+    postApiRestart: (params: RequestParams = {}) =>
+      this.request<string, Error>({
+        path: `/api/restart`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiRoles
+     * @summary Lists the roles a user can have.
+     * @request GET:/api/roles
+     * @secure
+     */
+    getApiRoles: (params: RequestParams = {}) =>
+      this.request<RolesResp, Error>({
+        path: `/api/roles`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Query: search (game name), sortBy (game, model for the AI platform, lastPlayed by default).
+     *
+     * @name GetApiSessions
+     * @summary Lists the caller's recent sessions with their games' names.
+     * @request GET:/api/sessions
+     * @secure
+     */
+    getApiSessions: (params: RequestParams = {}) =>
+      this.request<UserSessionWithGame[], Error>({
+        path: `/api/sessions`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name DeleteApiSessionsId
+     * @summary Deletes a session the caller owns and everything it stored.
+     * @request DELETE:/api/sessions/{id}
+     * @secure
+     */
+    deleteApiSessionsId: (id: string, params: RequestParams = {}) =>
+      this.request<SessionDeletedResp, Error>({
+        path: `/api/sessions/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description constraint texts. Any signed-in user may read them, so organization settings can show the fallback that applies when an organization has none of its own.
+     *
+     * @name GetApiSystemConstraints
+     * @summary Returns the three site-wide age-based prompt
+     * @request GET:/api/system/constraints
+     * @secure
+     */
+    getApiSystemConstraints: (params: RequestParams = {}) =>
+      this.request<SystemConstraintsResp, Error>({
+        path: `/api/system/constraints`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiSystemSettings
+     * @summary Returns the site-wide settings to an admin.
+     * @request GET:/api/system/settings
+     * @secure
+     */
+    getApiSystemSettings: (params: RequestParams = {}) =>
+      this.request<SystemSettings, Error>({
+        path: `/api/system/settings`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Only the fields sent change. The default AI quality tier cannot be empty; an empty free-use tier or constraint clears it. Answers with the settings as stored.
+     *
+     * @name PatchApiSystemSettings
+     * @summary Updates the site-wide settings; admins only.
+     * @request PATCH:/api/system/settings
+     * @secure
+     */
+    patchApiSystemSettings: (
+      data: UpdateSystemSettingsReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<SystemSettings, Error>({
+        path: `/api/system/settings`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description key; admins only. The admin's own API key is used directly. A null apiKeyId clears it.
+     *
+     * @name PatchApiSystemSettingsFreeUseKey
+     * @summary Sets or clears the site-wide free-use API
+     * @request PATCH:/api/system/settings/free-use-key
+     * @secure
+     */
+    patchApiSystemSettingsFreeUseKey: (
+      data: SetSystemFreeUseApiKeyReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<SystemSettings, Error>({
+        path: `/api/system/settings/free-use-key`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The default first, for the game editor.
+     *
+     * @name GetApiThemes
+     * @summary Lists every look the playback-engine can wear.
+     * @request GET:/api/themes
+     * @secure
+     */
+    getApiThemes: (params: RequestParams = {}) =>
+      this.request<ThemeInfo[], Error>({
+        path: `/api/themes`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Admins see every user; heads and staff see the members of their institution. Everyone else is refused.
+     *
+     * @name GetApiUsers
+     * @summary Lists the users the caller manages.
+     * @request GET:/api/users
+     * @secure
+     */
+    getApiUsers: (params: RequestParams = {}) =>
+      this.request<User[], Error>({
+        path: `/api/users`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -412,10 +2429,201 @@ export class Api<
      * @secure
      */
     getApiUsersMe: (params: RequestParams = {}) =>
-      this.request<GetCurrentUserResp, void>({
+      this.request<GetCurrentUserResp, Error>({
         path: `/api/users/me`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description the caller's account. Heads, staff and individuals enter a workshop by its id; a null workshopId leaves workshop mode.
+     *
+     * @name PutApiUsersMeActiveWorkshop
+     * @summary Enters or leaves workshop mode and answers with
+     * @request PUT:/api/users/me/active-workshop
+     * @secure
+     */
+    putApiUsersMeActiveWorkshop: (
+      data: SetActiveWorkshopReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<User, Error>({
+        path: `/api/users/me/active-workshop`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description their account. The language is an ISO 639-1 code the platform supports.
+     *
+     * @name PatchApiUsersMeLanguage
+     * @summary Sets the caller's language and answers with
+     * @request PATCH:/api/users/me/language
+     * @secure
+     */
+    patchApiUsersMeLanguage: (
+      data: UpdateUserLanguageReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<User, Error>({
+        path: `/api/users/me/language`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Both fields are null for an account without one.
+     *
+     * @name GetApiUsersMeParticipantCode
+     * @summary Returns the caller's own re-login code.
+     * @request GET:/api/users/me/participant-code
+     * @secure
+     */
+    getApiUsersMeParticipantCode: (params: RequestParams = {}) =>
+      this.request<UserParticipantCodeResp, Error>({
+        path: `/api/users/me/participant-code`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiUsersMeStats
+     * @summary Returns the caller's statistics.
+     * @request GET:/api/users/me/stats
+     * @secure
+     */
+    getApiUsersMeStats: (params: RequestParams = {}) =>
+      this.request<UserStats, Error>({
+        path: `/api/users/me/stats`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The name is required. The account's language follows the request's Accept-Language.
+     *
+     * @name PostApiUsersNew
+     * @summary Creates a user without Auth0; in dev mode only.
+     * @request POST:/api/users/new
+     */
+    postApiUsersNew: (data: CreateUserReq, params: RequestParams = {}) =>
+      this.request<User, Error>({
+        path: `/api/users/new`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description record.
+     *
+     * @name DeleteApiUsersId
+     * @summary Removes a user, such as a participant, keeping their
+     * @request DELETE:/api/users/{id}
+     * @secure
+     */
+    deleteApiUsersId: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/users/${id}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description The caller reads their own account; admins read anyone; heads and staff read the members of their institution.
+     *
+     * @name GetApiUsersId
+     * @summary Returns a user.
+     * @request GET:/api/users/{id}
+     * @secure
+     */
+    getApiUsersId: (id: string, params: RequestParams = {}) =>
+      this.request<User, Error>({
+        path: `/api/users/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The caller updates themselves; admins update anyone; heads and staff update the participants of their institution's workshops. Only admins change an email. An empty name or email leaves it unchanged; an empty aiQualityTier clears it. The age group is "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent) or "u18" (18+).
+     *
+     * @name PostApiUsersId
+     * @summary Updates a user and answers with them.
+     * @request POST:/api/users/{id}
+     * @secure
+     */
+    postApiUsersId: (
+      id: string,
+      data: UpdateUserReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<User, Error>({
+        path: `/api/users/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name DeleteApiUsersIdRole
+     * @summary Removes a user's role and answers with the user.
+     * @request DELETE:/api/users/{id}/role
+     * @secure
+     */
+    deleteApiUsersIdRole: (id: string, params: RequestParams = {}) =>
+      this.request<User, Error>({
+        path: `/api/users/${id}/role`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The role is scoped to an institution or a workshop by their ids.
+     *
+     * @name PostApiUsersIdRole
+     * @summary Sets a user's role and answers with the user.
+     * @request POST:/api/users/{id}/role
+     * @secure
+     */
+    postApiUsersIdRole: (
+      id: string,
+      data: SetUserRoleReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<User, Error>({
+        path: `/api/users/${id}/role`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -428,9 +2636,225 @@ export class Api<
      * @request GET:/api/version
      */
     getApiVersion: (params: RequestParams = {}) =>
-      this.request<GetVersionResp, void>({
+      this.request<GetVersionResp, Error>({
         path: `/api/version`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description one institution. Query: institutionId, search (name), sortBy (name, createdAt, participantCount), sortDir (asc, desc), activeOnly ("true" lists active workshops only).
+     *
+     * @name GetApiWorkshops
+     * @summary Lists the workshops the caller can see, or those of
+     * @request GET:/api/workshops
+     * @secure
+     */
+    getApiWorkshops: (params: RequestParams = {}) =>
+      this.request<Workshop[], Error>({
+        path: `/api/workshops`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PostApiWorkshops
+     * @summary Creates a workshop.
+     * @request POST:/api/workshops
+     * @secure
+     */
+    postApiWorkshops: (data: CreateWorkshopReq, params: RequestParams = {}) =>
+      this.request<Workshop, Error>({
+        path: `/api/workshops`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description staff and heads only.
+     *
+     * @name GetApiWorkshopsParticipantsParticipantIdToken
+     * @summary Returns a workshop participant's access token;
+     * @request GET:/api/workshops/participants/{participantId}/token
+     * @secure
+     */
+    getApiWorkshopsParticipantsParticipantIdToken: (
+      participantId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<WorkshopParticipantTokenResp, Error>({
+        path: `/api/workshops/participants/${participantId}/token`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description staff and heads only. Earlier sign-in links stop working and the participant's sessions end.
+     *
+     * @name PostApiWorkshopsParticipantsParticipantIdTokenReset
+     * @summary Replaces a workshop participant's access token;
+     * @request POST:/api/workshops/participants/{participantId}/token/reset
+     * @secure
+     */
+    postApiWorkshopsParticipantsParticipantIdTokenReset: (
+      participantId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<WorkshopParticipantTokenResp, Error>({
+        path: `/api/workshops/participants/${participantId}/token/reset`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name DeleteApiWorkshopsId
+     * @summary Soft-deletes a workshop.
+     * @request DELETE:/api/workshops/{id}
+     * @secure
+     */
+    deleteApiWorkshopsId: (id: string, params: RequestParams = {}) =>
+      this.request<MessageResp, Error>({
+        path: `/api/workshops/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiWorkshopsId
+     * @summary Returns a workshop.
+     * @request GET:/api/workshops/{id}
+     * @secure
+     */
+    getApiWorkshopsId: (id: string, params: RequestParams = {}) =>
+      this.request<Workshop, Error>({
+        path: `/api/workshops/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The name is required. Omitting publicSlug, publicDescription or publicLinks keeps the current value; an empty description or list clears it.
+     *
+     * @name PatchApiWorkshopsId
+     * @summary Updates a workshop's settings and its public page.
+     * @request PATCH:/api/workshops/{id}
+     * @secure
+     */
+    patchApiWorkshopsId: (
+      id: string,
+      data: UpdateWorkshopReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Workshop, Error>({
+        path: `/api/workshops/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description with; staff and heads only. A null or empty apiKeyShareId removes it.
+     *
+     * @name PutApiWorkshopsIdApiKey
+     * @summary Sets the API key a workshop's participants play
+     * @request PUT:/api/workshops/{id}/api-key
+     * @secure
+     */
+    putApiWorkshopsIdApiKey: (
+      id: string,
+      data: SetWorkshopApiKeyReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<Workshop, Error>({
+        path: `/api/workshops/${id}/api-key`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The stream opens with a "connected" event carrying the workshop id, then sends each update, until the client disconnects.
+     *
+     * @name GetApiWorkshopsIdEvents
+     * @summary Streams a workshop's updates as Server-Sent Events.
+     * @request GET:/api/workshops/{id}/events
+     * @secure
+     */
+    getApiWorkshopsIdEvents: (id: string, params: RequestParams = {}) =>
+      this.request<WorkshopEvent, Error>({
+        path: `/api/workshops/${id}/events`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description making it their active workshop.
+     *
+     * @name PostApiWorkshopsIdMembers
+     * @summary Adds a member of the organization to a workshop by
+     * @request POST:/api/workshops/{id}/members
+     * @secure
+     */
+    postApiWorkshopsIdMembers: (
+      id: string,
+      data: AddWorkshopMemberReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<MessageResp, Error>({
+        path: `/api/workshops/${id}/members`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description workshop by clearing their active workshop.
+     *
+     * @name DeleteApiWorkshopsIdMembersUserId
+     * @summary Removes a member who is not permanent from a
+     * @request DELETE:/api/workshops/{id}/members/{userId}
+     * @secure
+     */
+    deleteApiWorkshopsIdMembersUserId: (
+      id: string,
+      userId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<MessageResp, Error>({
+        path: `/api/workshops/${id}/members/${userId}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),

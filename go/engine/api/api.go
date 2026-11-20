@@ -510,12 +510,17 @@ func (a *API) SessionToggle(w http.ResponseWriter, r *http.Request) {
 // Platforms is the engine's catalogue of AI platforms; its JSON shape is the engine's.
 // The mock is listed in dev mode only.
 func (a *API) Platforms(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(a.PlatformList())
+}
+
+// PlatformList is the AI platforms this transport offers: the mock platform in dev only.
+func (a *API) PlatformList() []engine.PlatformInfo {
 	platforms := engine.Platforms()
 	if !a.opts.Dev {
 		platforms = slices.DeleteFunc(platforms, func(p engine.PlatformInfo) bool { return p.ID == engine.PlatformMock })
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(platforms)
+	return platforms
 }
 
 // Themes is every look the playback-engine can wear, for the game editor.

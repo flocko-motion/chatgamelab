@@ -12,7 +12,6 @@ import (
 	"cgl/cmd/healthcheck"
 	"cgl/cmd/institution"
 	"cgl/cmd/invite"
-	"cgl/cmd/server"
 	"cgl/cmd/user"
 	"cgl/cmd/workshop"
 
@@ -33,7 +32,6 @@ func init() {
 
 	rootCmd.AddCommand(apikey.Cmd)
 	rootCmd.AddCommand(healthcheck.Cmd)
-	rootCmd.AddCommand(server.Cmd)
 	rootCmd.AddCommand(user.Cmd)
 	rootCmd.AddCommand(game.Cmd)
 	rootCmd.AddCommand(institution.Cmd)

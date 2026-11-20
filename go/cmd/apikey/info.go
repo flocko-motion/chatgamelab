@@ -5,8 +5,8 @@
 package apikey
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"fmt"
 	"log"
 	"os"
@@ -30,7 +30,7 @@ func init() {
 func runInfo(cmd *cobra.Command, args []string) {
 	shareID := args[0]
 
-	var resp routes.ApiKeyInfoResponse
+	var resp api.ApiKeyInfoResp
 	if err := client.ApiGet("apikeys/"+shareID, &resp); err != nil {
 		log.Fatalf("Failed to fetch API key info: %v", err)
 	}

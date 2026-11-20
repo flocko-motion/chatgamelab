@@ -1,8 +1,796 @@
 {
   "components": {
     "schemas": {
-      "GetCurrentUserReq": {
-        "properties": {},
+      "AcceptInviteResp": {
+        "properties": {
+          "authToken": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "AddWorkshopMemberReq": {
+        "properties": {
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId"
+        ],
+        "type": "object"
+      },
+      "ApiKey": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "keyShortened": {
+            "type": "string"
+          },
+          "lastErrorCode": {
+            "type": "string"
+          },
+          "lastUsageSuccess": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name",
+          "userId",
+          "userName",
+          "platform",
+          "keyShortened",
+          "isDefault"
+        ],
+        "type": "object"
+      },
+      "ApiKeyInfoResp": {
+        "properties": {
+          "linkedShares": {
+            "items": {
+              "$ref": "#/components/schemas/ApiKeyShare"
+            },
+            "type": "array"
+          },
+          "share": {
+            "$ref": "#/components/schemas/ApiKeyShare"
+          }
+        },
+        "required": [
+          "linkedShares"
+        ],
+        "type": "object"
+      },
+      "ApiKeyShare": {
+        "properties": {
+          "apiKey": {
+            "$ref": "#/components/schemas/ApiKey"
+          },
+          "apiKeyId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "game": {
+            "$ref": "#/components/schemas/Game"
+          },
+          "gameShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institution": {
+            "$ref": "#/components/schemas/Institution"
+          },
+          "isPrivateShare": {
+            "type": "boolean"
+          },
+          "isUserDefault": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "remaining": {
+            "type": "integer"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "workshop": {
+            "$ref": "#/components/schemas/Workshop"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "apiKeyId",
+          "isUserDefault"
+        ],
+        "type": "object"
+      },
+      "ApiKeysResp": {
+        "properties": {
+          "apiKeys": {
+            "items": {
+              "$ref": "#/components/schemas/ApiKey"
+            },
+            "type": "array"
+          },
+          "shares": {
+            "items": {
+              "$ref": "#/components/schemas/ApiKeyShare"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "apiKeys",
+          "shares"
+        ],
+        "type": "object"
+      },
+      "AvailableKey": {
+        "properties": {
+          "isDefault": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "shareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "shareId",
+          "name",
+          "platform",
+          "source",
+          "isDefault"
+        ],
+        "type": "object"
+      },
+      "CheckNameResp": {
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "profane": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available"
+        ],
+        "type": "object"
+      },
+      "CreateApiKeyReq": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "platform",
+          "key"
+        ],
+        "type": "object"
+      },
+      "CreateGameReq": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "CreateGameShareReq": {
+        "properties": {
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "maxSessions": {
+            "type": "integer"
+          },
+          "sponsorKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CreateInstitutionInviteReq": {
+        "properties": {
+          "institutionId": {
+            "type": "string"
+          },
+          "invitedEmail": {
+            "type": "string"
+          },
+          "invitedUserId": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "institutionId",
+          "role"
+        ],
+        "type": "object"
+      },
+      "CreateInstitutionReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "CreateUserReq": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "CreateWorkshopEmailInviteReq": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "workshopId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workshopId",
+          "email"
+        ],
+        "type": "object"
+      },
+      "CreateWorkshopInviteReq": {
+        "properties": {
+          "expiresAt": {
+            "type": "string"
+          },
+          "maxUses": {
+            "type": "integer"
+          },
+          "workshopId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workshopId"
+        ],
+        "type": "object"
+      },
+      "CreateWorkshopReq": {
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "active",
+          "public"
+        ],
+        "type": "object"
+      },
+      "EnrichedGameShare": {
+        "properties": {
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "apiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameName": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institutionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "remaining": {
+            "type": "integer"
+          },
+          "shareUrl": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshopName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "gameId",
+          "token",
+          "apiKeyShareId",
+          "createdAt",
+          "shareUrl",
+          "source"
+        ],
+        "type": "object"
+      },
+      "Error": {
+        "properties": {
+          "code": {
+            "description": "Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, too_many_requests, unavailable, internal).",
+            "type": "string"
+          },
+          "error": {
+            "description": "The message. On 5xx always the status text.",
+            "type": "string"
+          },
+          "id": {
+            "description": "On 5xx only: the id the full error is logged under.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "code"
+        ],
+        "type": "object"
+      },
+      "FavouriteResp": {
+        "properties": {
+          "favourite": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "favourite"
+        ],
+        "type": "object"
+      },
+      "Game": {
+        "properties": {
+          "cloneCount": {
+            "type": "integer"
+          },
+          "creatorId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "creatorName": {
+            "type": "string"
+          },
+          "css": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "firstImage": {
+            "format": "byte",
+            "type": "string"
+          },
+          "firstMessage": {
+            "type": "string"
+          },
+          "firstStatus": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "icon": {
+            "format": "byte",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "imageStyle": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "originalCreatorId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "originalCreatorName": {
+            "type": "string"
+          },
+          "originallyCreatedBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "playCount": {
+            "type": "integer"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "publicSponsoredApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "statusFields": {
+            "type": "string"
+          },
+          "systemMessageGameStart": {
+            "type": "string"
+          },
+          "systemMessageScenario": {
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/GameTag"
+            },
+            "type": "array"
+          },
+          "theme": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name",
+          "description",
+          "icon",
+          "public",
+          "systemMessageScenario",
+          "systemMessageGameStart",
+          "imageStyle",
+          "css",
+          "statusFields",
+          "genre",
+          "firstImage",
+          "tags",
+          "playCount",
+          "cloneCount"
+        ],
+        "type": "object"
+      },
+      "GameApiKeyStatusResp": {
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available"
+        ],
+        "type": "object"
+      },
+      "GameFile": {
+        "properties": {
+          "css": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "image_style": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status_fields": {
+            "type": "string"
+          },
+          "system_message_game_start": {
+            "type": "string"
+          },
+          "system_message_scenario": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "system_message_scenario",
+          "system_message_game_start",
+          "image_style",
+          "css",
+          "status_fields",
+          "genre"
+        ],
+        "type": "object"
+      },
+      "GameSession": {
+        "properties": {
+          "apiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "messagesSent": {
+            "type": "integer"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "gameId",
+          "userId",
+          "platform",
+          "language",
+          "messagesSent",
+          "createdAt",
+          "modifiedAt"
+        ],
+        "type": "object"
+      },
+      "GameShareResp": {
+        "properties": {
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "apiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institutionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "remaining": {
+            "type": "integer"
+          },
+          "shareUrl": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "gameId",
+          "token",
+          "apiKeyShareId",
+          "createdAt",
+          "shareUrl"
+        ],
+        "type": "object"
+      },
+      "GameSponsorReq": {
+        "properties": {
+          "shareId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shareId"
+        ],
+        "type": "object"
+      },
+      "GameTag": {
+        "properties": {
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "tag": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "gameId",
+          "tag"
+        ],
+        "type": "object"
+      },
+      "GenreInfo": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "needs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "needs"
+        ],
         "type": "object"
       },
       "GetCurrentUserResp": {
@@ -11,17 +799,12 @@
             "type": "string"
           },
           "user": {
-            "type": "object"
+            "$ref": "#/components/schemas/User"
           }
         },
         "required": [
-          "state",
-          "user"
+          "state"
         ],
-        "type": "object"
-      },
-      "GetVersionReq": {
-        "properties": {},
         "type": "object"
       },
       "GetVersionResp": {
@@ -40,6 +823,424 @@
           "version",
           "gitCommit",
           "buildTime"
+        ],
+        "type": "object"
+      },
+      "GuestGameInfoResp": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "remaining": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "gameId",
+          "public",
+          "name"
+        ],
+        "type": "object"
+      },
+      "Institution": {
+        "properties": {
+          "freeUseAiQualityTier": {
+            "type": "string"
+          },
+          "freeUseApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/InstitutionMember"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "promptConstraints": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name"
+        ],
+        "type": "object"
+      },
+      "InstitutionMember": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "name",
+          "role"
+        ],
+        "type": "object"
+      },
+      "InviteResp": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "institutionName": {
+            "type": "string"
+          },
+          "inviteToken": {
+            "type": "string"
+          },
+          "invitedEmail": {
+            "type": "string"
+          },
+          "invitedUserId": {
+            "type": "string"
+          },
+          "maxUses": {
+            "type": "integer"
+          },
+          "modifiedAt": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "usesCount": {
+            "type": "integer"
+          },
+          "workshopId": {
+            "type": "string"
+          },
+          "workshopName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "role",
+          "usesCount",
+          "status",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "Language": {
+        "properties": {
+          "iso": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "iso"
+        ],
+        "type": "object"
+      },
+      "MessageResp": {
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "Meta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifiedBy": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdBy",
+          "modifiedBy"
+        ],
+        "type": "object"
+      },
+      "Model": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "params": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "ParticipantLoginReq": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "ParticipantLoginResp": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "PlatformInfo": {
+        "properties": {
+          "genres": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tiers": {
+            "items": {
+              "$ref": "#/components/schemas/TierModels"
+            },
+            "type": "array"
+          },
+          "toggles": {
+            "$ref": "#/components/schemas/Toggles"
+          },
+          "userKeys": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "userKeys",
+          "toggles",
+          "genres",
+          "tiers"
+        ],
+        "type": "object"
+      },
+      "PrivateShareStatusResp": {
+        "properties": {
+          "shares": {
+            "items": {
+              "$ref": "#/components/schemas/EnrichedGameShare"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "shares"
+        ],
+        "type": "object"
+      },
+      "PublicWorkshopGame": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "play": {
+            "$ref": "#/components/schemas/PublicWorkshopPlay"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description"
+        ],
+        "type": "object"
+      },
+      "PublicWorkshopLink": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "url"
+        ],
+        "type": "object"
+      },
+      "PublicWorkshopPage": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "games": {
+            "items": {
+              "$ref": "#/components/schemas/PublicWorkshopGame"
+            },
+            "type": "array"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/PublicWorkshopLink"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "playAvailable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "playAvailable",
+          "games"
+        ],
+        "type": "object"
+      },
+      "PublicWorkshopPlay": {
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "remaining": {
+            "type": "integer"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "remaining",
+          "limit"
+        ],
+        "type": "object"
+      },
+      "Registration": {
+        "properties": {
+          "ageGroup": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "ageGroup"
+        ],
+        "type": "object"
+      },
+      "RolesResp": {
+        "properties": {
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "roles"
         ],
         "type": "object"
       },
@@ -79,6 +1280,910 @@
           "token"
         ],
         "type": "object"
+      },
+      "SessionDeletedResp": {
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "SetActiveWorkshopReq": {
+        "properties": {
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SetInstitutionFreeUseKeyReq": {
+        "properties": {
+          "shareId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SetSystemFreeUseApiKeyReq": {
+        "properties": {
+          "apiKeyId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SetUserRoleReq": {
+        "properties": {
+          "institutionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "type": "object"
+      },
+      "SetWorkshopApiKeyReq": {
+        "properties": {
+          "apiKeyShareId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ShareApiKeyReq": {
+        "properties": {
+          "institutionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SystemConstraintsResp": {
+        "properties": {
+          "promptConstraintU13": {
+            "type": "string"
+          },
+          "promptConstraintU13p": {
+            "type": "string"
+          },
+          "promptConstraintU18": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SystemSettings": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "defaultAiQualityTier": {
+            "type": "string"
+          },
+          "freeUseAiQualityTier": {
+            "type": "string"
+          },
+          "freeUseApiKeyId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "freeUseApiKeyName": {
+            "type": "string"
+          },
+          "freeUseApiKeyPlatform": {
+            "type": "string"
+          },
+          "freeUseApiKeyWorking": {
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "promptConstraintU13": {
+            "type": "string"
+          },
+          "promptConstraintU13p": {
+            "type": "string"
+          },
+          "promptConstraintU18": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "defaultAiQualityTier"
+        ],
+        "type": "object"
+      },
+      "ThemeInfo": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "TierModels": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "models": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Model"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "models"
+        ],
+        "type": "object"
+      },
+      "Toggles": {
+        "properties": {
+          "audio-in": {
+            "type": "boolean"
+          },
+          "audio-live": {
+            "type": "boolean"
+          },
+          "audio-out": {
+            "type": "boolean"
+          },
+          "images": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "images",
+          "audio-out",
+          "audio-in",
+          "audio-live"
+        ],
+        "type": "object"
+      },
+      "UpdateApiKeyReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateGameReq": {
+        "properties": {
+          "cloneCount": {
+            "type": "integer"
+          },
+          "creatorId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "creatorName": {
+            "type": "string"
+          },
+          "css": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "firstImage": {
+            "format": "byte",
+            "type": "string"
+          },
+          "firstMessage": {
+            "type": "string"
+          },
+          "firstStatus": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "icon": {
+            "format": "byte",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "imageStyle": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "originalCreatorId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "originalCreatorName": {
+            "type": "string"
+          },
+          "originallyCreatedBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "playCount": {
+            "type": "integer"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "publicSponsoredApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "statusFields": {
+            "type": "string"
+          },
+          "systemMessageGameStart": {
+            "type": "string"
+          },
+          "systemMessageScenario": {
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/GameTag"
+            },
+            "type": "array"
+          },
+          "theme": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name",
+          "description",
+          "icon",
+          "public",
+          "systemMessageScenario",
+          "systemMessageGameStart",
+          "imageStyle",
+          "css",
+          "statusFields",
+          "genre",
+          "firstImage",
+          "tags",
+          "playCount",
+          "cloneCount"
+        ],
+        "type": "object"
+      },
+      "UpdateGameShareReq": {
+        "properties": {
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "maxSessions": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateGameYAMLReq": {
+        "properties": {
+          "css": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "image_style": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status_fields": {
+            "type": "string"
+          },
+          "system_message_game_start": {
+            "type": "string"
+          },
+          "system_message_scenario": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "system_message_scenario",
+          "system_message_game_start",
+          "image_style",
+          "css",
+          "status_fields",
+          "genre"
+        ],
+        "type": "object"
+      },
+      "UpdateInstitutionPromptConstraintsReq": {
+        "properties": {
+          "promptConstraints": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateInstitutionReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "UpdateSystemSettingsReq": {
+        "properties": {
+          "defaultAiQualityTier": {
+            "type": "string"
+          },
+          "freeUseAiQualityTier": {
+            "type": "string"
+          },
+          "promptConstraintU13": {
+            "type": "string"
+          },
+          "promptConstraintU13p": {
+            "type": "string"
+          },
+          "promptConstraintU18": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateUserLanguageReq": {
+        "properties": {
+          "language": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "language"
+        ],
+        "type": "object"
+      },
+      "UpdateUserReq": {
+        "properties": {
+          "ageGroup": {
+            "type": "string"
+          },
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "defaultApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ],
+        "type": "object"
+      },
+      "UpdateWorkshopReq": {
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "allowGameSharing": {
+            "type": "boolean"
+          },
+          "isPaused": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "promptConstraints": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "publicDescription": {
+            "type": "string"
+          },
+          "publicLinks": {
+            "items": {
+              "$ref": "#/components/schemas/PublicWorkshopLink"
+            },
+            "type": "array"
+          },
+          "publicSlug": {
+            "type": "string"
+          },
+          "showOtherParticipantsGames": {
+            "type": "boolean"
+          },
+          "showPublicGames": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "active",
+          "public",
+          "showPublicGames",
+          "showOtherParticipantsGames",
+          "isPaused",
+          "allowGameSharing"
+        ],
+        "type": "object"
+      },
+      "User": {
+        "properties": {
+          "ageGroup": {
+            "type": "string"
+          },
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "apiKeys": {
+            "items": {
+              "$ref": "#/components/schemas/ApiKeyShare"
+            },
+            "type": "array"
+          },
+          "auth0Id": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name",
+          "apiKeys",
+          "language"
+        ],
+        "type": "object"
+      },
+      "UserParticipantCodeResp": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "words": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UserRole": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institution": {
+            "$ref": "#/components/schemas/Institution"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "role": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshop": {
+            "$ref": "#/components/schemas/Workshop"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "userId",
+          "role"
+        ],
+        "type": "object"
+      },
+      "UserRoleInvite": {
+        "properties": {
+          "acceptedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "acceptedBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institutionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "inviteToken": {
+            "type": "string"
+          },
+          "invitedEmail": {
+            "type": "string"
+          },
+          "invitedUserId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxUses": {
+            "type": "integer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "usesCount": {
+            "type": "integer"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "institutionId",
+          "role",
+          "usesCount",
+          "status"
+        ],
+        "type": "object"
+      },
+      "UserSessionWithGame": {
+        "properties": {
+          "apiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameName": {
+            "type": "string"
+          },
+          "gameShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "messagesSent": {
+            "type": "integer"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "gameId",
+          "userId",
+          "platform",
+          "language",
+          "messagesSent",
+          "createdAt",
+          "modifiedAt",
+          "gameName"
+        ],
+        "type": "object"
+      },
+      "UserStats": {
+        "properties": {
+          "gamesCreated": {
+            "type": "integer"
+          },
+          "gamesPlayed": {
+            "type": "integer"
+          },
+          "messagesSent": {
+            "type": "integer"
+          },
+          "totalPlaysOnGames": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "gamesPlayed",
+          "gamesCreated",
+          "messagesSent",
+          "totalPlaysOnGames"
+        ],
+        "type": "object"
+      },
+      "Workshop": {
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "allowGameSharing": {
+            "type": "boolean"
+          },
+          "defaultApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institution": {
+            "$ref": "#/components/schemas/Institution"
+          },
+          "invites": {
+            "items": {
+              "$ref": "#/components/schemas/UserRoleInvite"
+            },
+            "type": "array"
+          },
+          "isPaused": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/WorkshopParticipant"
+            },
+            "type": "array"
+          },
+          "promptConstraints": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "publicDescription": {
+            "type": "string"
+          },
+          "publicLinks": {
+            "items": {
+              "$ref": "#/components/schemas/PublicWorkshopLink"
+            },
+            "type": "array"
+          },
+          "publicSlug": {
+            "type": "string"
+          },
+          "showOtherParticipantsGames": {
+            "type": "boolean"
+          },
+          "showPublicGames": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name",
+          "active",
+          "public",
+          "showPublicGames",
+          "showOtherParticipantsGames",
+          "isPaused",
+          "allowGameSharing"
+        ],
+        "type": "object"
+      },
+      "WorkshopEvent": {
+        "properties": {
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "triggeredBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "WorkshopParticipant": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "gamesCount": {
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permanent": {
+            "type": "boolean"
+          },
+          "role": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "workshopId",
+          "name",
+          "role",
+          "accessToken",
+          "active",
+          "gamesCount",
+          "permanent"
+        ],
+        "type": "object"
+      },
+      "WorkshopParticipantTokenResp": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -100,6 +2205,442 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/apikeys": {
+      "get": {
+        "description": "(organization shares, sponsorships).",
+        "operationId": "getApiApikeys",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeysResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the caller's API keys and all their linked shares"
+      }
+    },
+    "/api/apikeys/new": {
+      "post": {
+        "description": "Platform and key are required; surrounding whitespace is trimmed. Without a\nname the key is named after its platform and today's date, e.g.\n\"Mistral 12.02.26\".",
+        "operationId": "postApiApikeysNew",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyShare"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Creates an API key and shares it with the caller."
+      }
+    },
+    "/api/apikeys/{id}": {
+      "delete": {
+        "description": "With cascade=true it deletes the key and all its shares.",
+        "operationId": "deleteApiApikeysId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyShare"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes an API key share and answers with it as it was."
+      },
+      "get": {
+        "operationId": "getApiApikeysId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyInfoResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns an API key share and the shares linked to it."
+      },
+      "patch": {
+        "operationId": "patchApiApikeysId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateApiKeyReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyShare"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Renames an API key."
+      },
+      "post": {
+        "description": "institution, at the path older clients use.",
+        "operationId": "postApiApikeysId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareApiKeyReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyShare"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Shares an API key with a user, workshop or"
+      }
+    },
+    "/api/apikeys/{id}/default": {
+      "put": {
+        "operationId": "putApiApikeysIdDefault",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyShare"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Makes an API key the caller's default for new sessions."
+      }
+    },
+    "/api/apikeys/{id}/game-shares": {
+      "get": {
+        "description": "with each game's name and where the share comes from.\n\nQuery: context=personal lists all shares and requires owning the key;\ncontext=organization lists only organization and workshop shares.",
+        "operationId": "getApiApikeysIdGame-shares",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EnrichedGameShare"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the game share links that use an API key,"
+      }
+    },
+    "/api/apikeys/{id}/shares": {
+      "post": {
+        "operationId": "postApiApikeysIdShares",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareApiKeyReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyShare"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Shares an API key with a user, workshop or institution."
+      }
+    },
     "/api/auth/auth0/login": {
       "post": {
         "description": "Verifies the ID token from the Auth0 SPA SDK and starts a schemaf session. 404 if Auth0 is not configured on this instance.",
@@ -125,20 +2666,47 @@
             },
             "description": "Session started; the session cookie is set"
           },
-          "400": {
-            "description": "Bad Request"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Provider not configured"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "summary": "Sign in with an Auth0 ID token"
+      }
+    },
+    "/api/auth/check-name": {
+      "get": {
+        "description": "A name longer than 24 characters is unavailable; a profane one is\nunavailable and flagged profane.",
+        "operationId": "getApiAuthCheck-name",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckNameResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Checks whether a name is free to register."
       }
     },
     "/api/auth/logout": {
@@ -149,8 +2717,15 @@
           "204": {
             "description": "Logged out"
           },
-          "403": {
-            "description": "Cross-origin request rejected"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "summary": "End the current session"
@@ -158,17 +2733,38 @@
     },
     "/api/auth/participant-login": {
       "post": {
-        "description": "Takes {\"token\": \"...\"}: the participant token whole, or its words from a link,\nQR code or typed code. Starts a session, sets the session cookie and answers\n{\"token\": \"...\", \"userId\": \"...\"}; the token is for Bearer clients.",
+        "description": "Takes the participant token whole, or its words from a link, QR code or\ntyped code. Starts a session, sets the session cookie and answers with the\nsession token, for Bearer clients, and the participant's id.",
         "operationId": "postApiAuthParticipant-login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParticipantLoginReq"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParticipantLoginResp"
+                }
+              }
+            },
             "description": "OK"
           },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "summary": "Signs a workshop participant in with their token."
@@ -188,11 +2784,15 @@
             },
             "description": "OK"
           },
-          "400": {
-            "description": "Token is not tied to a session"
-          },
-          "401": {
-            "description": "Unauthorized"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "security": [
@@ -210,18 +2810,36 @@
       "post": {
         "description": "An account exists from its first Auth0 sign-in and is unusable until it has a\nname and an age group; the email is optional. An account registers once.",
         "operationId": "postApiAuthRegister",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Registration"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
             "description": "OK"
           },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "security": [
@@ -271,20 +2889,2727 @@
             },
             "description": "Session started; the session cookie is set"
           },
-          "400": {
-            "description": "Bad Request"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Provider not configured"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "summary": "Sign in with an identity provider"
+      }
+    },
+    "/api/engine/{rest...}": {
+      "get": {
+        "description": "The playback-engine, its session stream (WebSocket included), its state and\nits lists. Accounts and guests alike; a request naming a session passes the\naccess policy first.",
+        "operationId": "getApiEngineRest...",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rest...",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Passes GET requests under /api/engine/ to the engine."
+      },
+      "post": {
+        "description": "Creating a session from a game or a share token, and a session's input,\nchoices, toggles, connect and pause. Accounts and guests alike; a request\nnaming a session passes the access policy first. Creating counts towards the\ntoken lock, as it may look up a share token.",
+        "operationId": "postApiEngineRest...",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rest...",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Passes POST requests under /api/engine/ to the engine."
+      }
+    },
+    "/api/games": {
+      "get": {
+        "description": "Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt,\nplayCount), sortDir (asc, desc), filter (all, own, public, organization,\nfavorites).",
+        "operationId": "getApiGames",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Game"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the games the caller can see."
+      }
+    },
+    "/api/games/favourites": {
+      "get": {
+        "operationId": "getApiGamesFavourites",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Game"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the games the caller has marked as favourites."
+      }
+    },
+    "/api/games/new": {
+      "post": {
+        "description": "Only the name is required, at most 70 characters; the genre is one of the\nengine's genres and makes an adventure when empty.",
+        "operationId": "postApiGamesNew",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGameReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Creates a game owned by the caller."
+      }
+    },
+    "/api/games/{id}": {
+      "delete": {
+        "operationId": "deleteApiGamesId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Deletes a game and answers with it as it was."
+      },
+      "get": {
+        "operationId": "getApiGamesId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns a game the caller can see."
+      },
+      "post": {
+        "description": "Takes the whole game; its name is at most 70 characters. Answers with the\ngame as stored.",
+        "operationId": "postApiGamesId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGameReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Updates a game's properties."
+      }
+    },
+    "/api/games/{id}/api-key-status": {
+      "get": {
+        "description": "caller playing a game.",
+        "operationId": "getApiGamesIdApi-key-status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameApiKeyStatusResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers whether an API key resolves for the"
+      }
+    },
+    "/api/games/{id}/available-keys": {
+      "get": {
+        "description": "with, in order of priority.",
+        "operationId": "getApiGamesIdAvailable-keys",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AvailableKey"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the API keys the caller can play a game"
+      }
+    },
+    "/api/games/{id}/clone": {
+      "post": {
+        "description": "new private game of the caller's.",
+        "operationId": "postApiGamesIdClone",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Copies a public game, or one of the caller's own, into a"
+      }
+    },
+    "/api/games/{id}/favourite": {
+      "delete": {
+        "operationId": "deleteApiGamesIdFavourite",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes a game from the caller's favourites."
+      },
+      "post": {
+        "operationId": "postApiGamesIdFavourite",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Adds a game to the caller's favourites."
+      }
+    },
+    "/api/games/{id}/private-share": {
+      "get": {
+        "description": "has access to.\n\nThese are the caller's own personal and organisation shares, their\ninstitution's shares for head, staff and admins, the shares of the workshop\nthey are in, and for head and staff outside a workshop the shares of every\nworkshop of their institution.",
+        "operationId": "getApiGamesIdPrivate-share",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateShareStatusResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the share links of a game the caller"
+      }
+    },
+    "/api/games/{id}/sessions": {
+      "get": {
+        "operationId": "getApiGamesIdSessions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GameSession"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the caller's own sessions of a game."
+      }
+    },
+    "/api/games/{id}/shares": {
+      "post": {
+        "description": "A workshop share (workshopId set) plays on the workshop's default API key\nand is reused when the game already has one in that workshop. A personal or\norganisation share needs sponsorKeyShareId; it is an organisation share when\nthat key share belongs to an institution.",
+        "operationId": "postApiGamesIdShares",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGameShareReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameShareResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Creates a share link for a game."
+      }
+    },
+    "/api/games/{id}/shares/{shareId}": {
+      "delete": {
+        "description": "The share's creator, the game's owner, members of the share's workshop and\nhead or staff of its institution may revoke it.",
+        "operationId": "deleteApiGamesIdSharesShareId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "shareId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Revokes a share link and cleans up its guest data."
+      },
+      "patch": {
+        "description": "Whoever may revoke the share may update it.",
+        "operationId": "patchApiGamesIdSharesShareId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "shareId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGameShareReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameShareResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Updates a share link's settings."
+      }
+    },
+    "/api/games/{id}/sponsor": {
+      "delete": {
+        "description": "answers with the game.",
+        "operationId": "deleteApiGamesIdSponsor",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes the public sponsorship from a game and"
+      },
+      "put": {
+        "description": "API key shares and answers with the game.",
+        "operationId": "putApiGamesIdSponsor",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GameSponsorReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sponsors a game publicly with one of the caller's"
+      }
+    },
+    "/api/games/{id}/yaml": {
+      "get": {
+        "operationId": "getApiGamesIdYaml",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameFile"
+                }
+              },
+              "application/x-yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameFile"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Exports a game as a game file, YAML by default."
+      },
+      "put": {
+        "description": "answers with the game.\n\nThe file's content replaces the game's; its id is ignored.",
+        "operationId": "putApiGamesIdYaml",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGameYAMLReq"
+              }
+            },
+            "application/x-yaml": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGameYAMLReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Updates a game from a game file, YAML or JSON, and"
+      }
+    },
+    "/api/genres": {
+      "get": {
+        "description": "With the toggles each needs, for the game editor.",
+        "operationId": "getApiGenres",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GenreInfo"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists every genre the engine runs."
+      }
+    },
+    "/api/institutions": {
+      "get": {
+        "operationId": "getApiInstitutions",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Institution"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the institutions the caller can see."
+      },
+      "post": {
+        "description": "The name is required.",
+        "operationId": "postApiInstitutions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInstitutionReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Institution"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Creates an institution."
+      }
+    },
+    "/api/institutions/{id}": {
+      "delete": {
+        "operationId": "deleteApiInstitutionsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Deletes an institution; admins only."
+      },
+      "get": {
+        "operationId": "getApiInstitutionsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Institution"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns an institution."
+      },
+      "patch": {
+        "description": "The name is required.",
+        "operationId": "patchApiInstitutionsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInstitutionReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Institution"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Renames an institution."
+      }
+    },
+    "/api/institutions/{id}/apikeys": {
+      "get": {
+        "description": "heads and staff only.",
+        "operationId": "getApiInstitutionsIdApikeys",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApiKeyShare"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the API keys shared with an institution;"
+      }
+    },
+    "/api/institutions/{id}/free-use-key": {
+      "patch": {
+        "description": "free-use API key share and answers with the institution.\n\nAny member of the institution plays for free with this key. A null shareId\nclears it.",
+        "operationId": "patchApiInstitutionsIdFree-use-key",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetInstitutionFreeUseKeyReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Institution"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets or clears an institution's"
+      }
+    },
+    "/api/institutions/{id}/members": {
+      "get": {
+        "operationId": "getApiInstitutionsIdMembers",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the members of an institution."
+      }
+    },
+    "/api/institutions/{id}/members/{userID}": {
+      "delete": {
+        "description": "and admins only.",
+        "operationId": "deleteApiInstitutionsIdMembersUserID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "userID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes a member from an institution; heads"
+      }
+    },
+    "/api/institutions/{id}/prompt-constraints": {
+      "patch": {
+        "description": "prompt constraints and answers with the institution; heads and admins only.\n\nAn empty or null promptConstraints clears them.",
+        "operationId": "patchApiInstitutionsIdPrompt-constraints",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInstitutionPromptConstraintsReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Institution"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets or clears an institution's"
+      }
+    },
+    "/api/invites": {
+      "get": {
+        "operationId": "getApiInvites",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InviteResp"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the invites addressed to the caller."
+      }
+    },
+    "/api/invites/all": {
+      "get": {
+        "operationId": "getApiInvitesAll",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InviteResp"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists every invite; admins only."
+      }
+    },
+    "/api/invites/institution": {
+      "post": {
+        "description": "head, staff or individual.\n\nThe role defaults to staff. The invite names the invited user by id or\nemail.",
+        "operationId": "postApiInvitesInstitution",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInstitutionInviteReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleInvite"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Invites a user to join an institution as"
+      }
+    },
+    "/api/invites/institution/{institutionId}": {
+      "get": {
+        "description": "The caller is head or staff of the institution, or an admin.",
+        "operationId": "getApiInvitesInstitutionInstitutionId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "institutionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InviteResp"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the invites to join an institution."
+      }
+    },
+    "/api/invites/workshop": {
+      "post": {
+        "description": "workshop as participants.",
+        "operationId": "postApiInvitesWorkshop",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkshopInviteReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleInvite"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Creates an open invite for users to join a"
+      }
+    },
+    "/api/invites/workshop/email": {
+      "post": {
+        "description": "join a workshop.\n\nA second pending invite for the same user and workshop is refused with 409.",
+        "operationId": "postApiInvitesWorkshopEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkshopEmailInviteReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Invites a registered user, by email, to"
+      }
+    },
+    "/api/invites/{idOrToken}": {
+      "get": {
+        "description": "An id needs a signed-in caller: admins see any invite, everyone else the\ninvites addressed to them or created by them. A token also answers an\nanonymous caller, for open invites.",
+        "operationId": "getApiInvitesIdOrToken",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "idOrToken",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns an invite by its id or its token."
+      }
+    },
+    "/api/invites/{idOrToken}/accept": {
+      "post": {
+        "description": "An anonymous caller accepts a workshop invite by token: this creates a\nparticipant account in the browser's language, starts its session, sets the\nsession cookie and answers with the account and its token. A signed-in\nparticipant switches to the invite's workshop; a head, staff member or\nindividual enters it and keeps their role; anyone else joins as a\nparticipant. An invite by id needs a signed-in caller; an institution invite\ngives the caller its role.",
+        "operationId": "postApiInvitesIdOrTokenAccept",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "idOrToken",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInviteResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Accepts an invite by its id or its token."
+      }
+    },
+    "/api/invites/{id}": {
+      "delete": {
+        "description": "Its creator and admins can revoke it, and institution staff a workshop\ninvite.",
+        "operationId": "deleteApiInvitesId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Revokes a pending invite."
+      }
+    },
+    "/api/invites/{id}/decline": {
+      "post": {
+        "description": "status \"declined\".",
+        "operationId": "postApiInvitesIdDecline",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleInvite"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Declines an invite and answers with its id and its"
+      }
+    },
+    "/api/languages": {
+      "get": {
+        "operationId": "getApiLanguages",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Language"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Lists the languages the application is available in."
+      }
+    },
+    "/api/languages/{code}": {
+      "get": {
+        "description": "(e.g. \"fr\", \"de\", \"no\"), as a JSON object.",
+        "operationId": "getApiLanguagesCode",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {},
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Returns the translations of a language, by its code"
+      }
+    },
+    "/api/platforms": {
+      "get": {
+        "description": "With their toggles, playable genres and tiers.",
+        "operationId": "getApiPlatforms",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformInfo"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the engine's AI platforms."
+      }
+    },
+    "/api/play/{token}/info": {
+      "get": {
+        "description": "welcome screen: its name, description and how many plays are left.",
+        "operationId": "getApiPlayTokenInfo",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestGameInfoResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Returns the game a share token plays, for the"
+      }
+    },
+    "/api/public/workshops/{slug}": {
+      "get": {
+        "description": "and public games.\n\nAn unknown slug and a switched-off page both answer 404.",
+        "operationId": "getApiPublicWorkshopsSlug",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicWorkshopPage"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Returns a public workshop's name, description"
+      }
+    },
+    "/api/public/workshops/{slug}/games/{id}/yaml": {
+      "get": {
+        "description": "page as a game file, YAML by default.",
+        "operationId": "getApiPublicWorkshopsSlugGamesIdYaml",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameFile"
+                }
+              },
+              "application/x-yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameFile"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Exports a game listed on a public workshop"
+      }
+    },
+    "/api/restart": {
+      "post": {
+        "operationId": "postApiRestart",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Has the server restart; admins only."
+      }
+    },
+    "/api/roles": {
+      "get": {
+        "operationId": "getApiRoles",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RolesResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the roles a user can have."
+      }
+    },
+    "/api/sessions": {
+      "get": {
+        "description": "Query: search (game name), sortBy (game, model for the AI platform,\nlastPlayed by default).",
+        "operationId": "getApiSessions",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserSessionWithGame"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the caller's recent sessions with their games' names."
+      }
+    },
+    "/api/sessions/{id}": {
+      "delete": {
+        "operationId": "deleteApiSessionsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDeletedResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Deletes a session the caller owns and everything it stored."
+      }
+    },
+    "/api/system/constraints": {
+      "get": {
+        "description": "constraint texts.\n\nAny signed-in user may read them, so organization settings can show the\nfallback that applies when an organization has none of its own.",
+        "operationId": "getApiSystemConstraints",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemConstraintsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns the three site-wide age-based prompt"
+      }
+    },
+    "/api/system/settings": {
+      "get": {
+        "operationId": "getApiSystemSettings",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemSettings"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns the site-wide settings to an admin."
+      },
+      "patch": {
+        "description": "Only the fields sent change. The default AI quality tier cannot be empty;\nan empty free-use tier or constraint clears it. Answers with the settings\nas stored.",
+        "operationId": "patchApiSystemSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSystemSettingsReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemSettings"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Updates the site-wide settings; admins only."
+      }
+    },
+    "/api/system/settings/free-use-key": {
+      "patch": {
+        "description": "key; admins only.\n\nThe admin's own API key is used directly. A null apiKeyId clears it.",
+        "operationId": "patchApiSystemSettingsFree-use-key",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSystemFreeUseApiKeyReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemSettings"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets or clears the site-wide free-use API"
+      }
+    },
+    "/api/themes": {
+      "get": {
+        "description": "The default first, for the game editor.",
+        "operationId": "getApiThemes",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ThemeInfo"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists every look the playback-engine can wear."
+      }
+    },
+    "/api/users": {
+      "get": {
+        "description": "Admins see every user; heads and staff see the members of their\ninstitution. Everyone else is refused.",
+        "operationId": "getApiUsers",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the users the caller manages."
       }
     },
     "/api/users/me": {
@@ -302,14 +5627,15 @@
             },
             "description": "OK"
           },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "security": [
@@ -322,6 +5648,453 @@
           }
         ],
         "summary": "Reports who is calling."
+      }
+    },
+    "/api/users/me/active-workshop": {
+      "put": {
+        "description": "the caller's account.\n\nHeads, staff and individuals enter a workshop by its id; a null workshopId\nleaves workshop mode.",
+        "operationId": "putApiUsersMeActive-workshop",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetActiveWorkshopReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Enters or leaves workshop mode and answers with"
+      }
+    },
+    "/api/users/me/language": {
+      "patch": {
+        "description": "their account.\n\nThe language is an ISO 639-1 code the platform supports.",
+        "operationId": "patchApiUsersMeLanguage",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserLanguageReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets the caller's language and answers with"
+      }
+    },
+    "/api/users/me/participant-code": {
+      "get": {
+        "description": "Both fields are null for an account without one.",
+        "operationId": "getApiUsersMeParticipant-code",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserParticipantCodeResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns the caller's own re-login code."
+      }
+    },
+    "/api/users/me/stats": {
+      "get": {
+        "operationId": "getApiUsersMeStats",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStats"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns the caller's statistics."
+      }
+    },
+    "/api/users/new": {
+      "post": {
+        "description": "The name is required. The account's language follows the request's\nAccept-Language.",
+        "operationId": "postApiUsersNew",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Creates a user without Auth0; in dev mode only."
+      }
+    },
+    "/api/users/{id}": {
+      "delete": {
+        "description": "record.",
+        "operationId": "deleteApiUsersId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes a user, such as a participant, keeping their"
+      },
+      "get": {
+        "description": "The caller reads their own account; admins read anyone; heads and staff\nread the members of their institution.",
+        "operationId": "getApiUsersId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns a user."
+      },
+      "post": {
+        "description": "The caller updates themselves; admins update anyone; heads and staff update\nthe participants of their institution's workshops. Only admins change an\nemail. An empty name or email leaves it unchanged; an empty aiQualityTier\nclears it. The age group is \"u13\" (13-17, no parental consent), \"u13p\"\n(13-17, with parental consent) or \"u18\" (18+).",
+        "operationId": "postApiUsersId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Updates a user and answers with them."
+      }
+    },
+    "/api/users/{id}/role": {
+      "delete": {
+        "operationId": "deleteApiUsersIdRole",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes a user's role and answers with the user."
+      },
+      "post": {
+        "description": "The role is scoped to an institution or a workshop by their ids.",
+        "operationId": "postApiUsersIdRole",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUserRoleReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets a user's role and answers with the user."
       }
     },
     "/api/version": {
@@ -339,14 +6112,557 @@
             },
             "description": "OK"
           },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
           }
         },
         "summary": "Reports the server's build."
+      }
+    },
+    "/api/workshops": {
+      "get": {
+        "description": "one institution.\n\nQuery: institutionId, search (name), sortBy (name, createdAt,\nparticipantCount), sortDir (asc, desc), activeOnly (\"true\" lists active\nworkshops only).",
+        "operationId": "getApiWorkshops",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Workshop"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists the workshops the caller can see, or those of"
+      },
+      "post": {
+        "operationId": "postApiWorkshops",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkshopReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workshop"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Creates a workshop."
+      }
+    },
+    "/api/workshops/participants/{participantId}/token": {
+      "get": {
+        "description": "staff and heads only.",
+        "operationId": "getApiWorkshopsParticipantsParticipantIdToken",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participantId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopParticipantTokenResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns a workshop participant's access token;"
+      }
+    },
+    "/api/workshops/participants/{participantId}/token/reset": {
+      "post": {
+        "description": "staff and heads only.\n\nEarlier sign-in links stop working and the participant's sessions end.",
+        "operationId": "postApiWorkshopsParticipantsParticipantIdTokenReset",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participantId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopParticipantTokenResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Replaces a workshop participant's access token;"
+      }
+    },
+    "/api/workshops/{id}": {
+      "delete": {
+        "operationId": "deleteApiWorkshopsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Soft-deletes a workshop."
+      },
+      "get": {
+        "operationId": "getApiWorkshopsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workshop"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns a workshop."
+      },
+      "patch": {
+        "description": "The name is required. Omitting publicSlug, publicDescription or publicLinks\nkeeps the current value; an empty description or list clears it.",
+        "operationId": "patchApiWorkshopsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkshopReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workshop"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Updates a workshop's settings and its public page."
+      }
+    },
+    "/api/workshops/{id}/api-key": {
+      "put": {
+        "description": "with; staff and heads only.\n\nA null or empty apiKeyShareId removes it.",
+        "operationId": "putApiWorkshopsIdApi-key",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetWorkshopApiKeyReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workshop"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets the API key a workshop's participants play"
+      }
+    },
+    "/api/workshops/{id}/events": {
+      "get": {
+        "description": "The stream opens with a \"connected\" event carrying the workshop id, then\nsends each update, until the client disconnects.",
+        "operationId": "getApiWorkshopsIdEvents",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopEvent"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Streams a workshop's updates as Server-Sent Events."
+      }
+    },
+    "/api/workshops/{id}/members": {
+      "post": {
+        "description": "making it their active workshop.",
+        "operationId": "postApiWorkshopsIdMembers",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddWorkshopMemberReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Adds a member of the organization to a workshop by"
+      }
+    },
+    "/api/workshops/{id}/members/{userId}": {
+      "delete": {
+        "description": "workshop by clearing their active workshop.",
+        "operationId": "deleteApiWorkshopsIdMembersUserId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes a member who is not permanent from a"
       }
     }
   }

@@ -1,7 +1,7 @@
 // package: obj / HTTP error type
 // type:    data
 // job:     defines HTTPError carrying an HTTP status code, error code, and message
-// limits:  error value and JSON rendering only; no HTTP response writing (-> api/httpx)
+// limits:  error value and JSON rendering only; no HTTP response writing (-> api)
 package obj
 
 var (

@@ -7,7 +7,6 @@ package testutil
 import (
 	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/config"
 	"cgl/obj"
 	"context"
@@ -382,13 +381,13 @@ func (s *BaseSuite) waitForBackend(maxRetries int) error {
 }
 
 // AcceptWorkshopInviteAnonymously accepts a workshop invite anonymously (no auth)
-func (s *BaseSuite) AcceptWorkshopInviteAnonymously(token string) (*routes.AcceptInviteResponse, error) {
+func (s *BaseSuite) AcceptWorkshopInviteAnonymously(token string) (*api.AcceptInviteResp, error) {
 	s.T().Helper()
 
 	// Use public client (no auth)
 	publicClient := s.Public()
 
-	var response routes.AcceptInviteResponse
+	var response api.AcceptInviteResp
 	err := publicClient.Post("invites/"+token+"/accept", nil, &response)
 	if err != nil {
 		return nil, err

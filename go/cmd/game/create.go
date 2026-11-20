@@ -5,8 +5,8 @@
 package game
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -30,7 +30,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	name := args[0]
 
 	var resp obj.Game
-	if err := client.ApiPost("games/new", routes.CreateGameRequest{Name: name}, &resp); err != nil {
+	if err := client.ApiPost("games/new", api.CreateGameReq{Name: name}, &resp); err != nil {
 		log.Fatalf("Failed to create game: %v", err)
 	}
 

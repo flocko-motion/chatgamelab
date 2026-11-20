@@ -6,18 +6,14 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
 
 	"cgl/api/auth"
-	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/obj"
-	"cgl/tokenlock"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
+	"github.com/google/uuid"
 )
 
 // CompleteRegistrationEndpoint completes the caller's registration.
@@ -96,56 +92,39 @@ type GetCurrentUserReq struct{}
 
 // ParticipantLoginEndpoint signs a workshop participant in with their token.
 //
-// Takes {"token": "..."}: the participant token whole, or its words from a link,
-// QR code or typed code. Starts a session, sets the session cookie and answers
-// {"token": "...", "userId": "..."}; the token is for Bearer clients.
+// Takes the participant token whole, or its words from a link, QR code or
+// typed code. Starts a session, sets the session cookie and answers with the
+// session token, for Bearer clients, and the participant's id.
 type ParticipantLoginEndpoint struct{}
 
 func (ParticipantLoginEndpoint) Method() string             { return "POST" }
 func (ParticipantLoginEndpoint) Path() string               { return "/api/auth/participant-login" }
 func (ParticipantLoginEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
-func (ParticipantLoginEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
-	if retry := tokenlock.RetryAfter(); retry > 0 {
-		httpx.WriteTokenLocked(w, retry)
-		return nil
+func (ParticipantLoginEndpoint) Handle(ctx context.Context, req ParticipantLoginReq) (ParticipantLoginResp, error) {
+	if err := tokenLocked(); err != nil {
+		return ParticipantLoginResp{}, err
 	}
-	var req struct {
-		Token string `json:"token"`
-	}
-	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&req); err != nil {
-		return fmt.Errorf("invalid request body: %w", schemafapi.ErrBadRequest)
-	}
-	userID, err := auth.RedeemParticipantToken(r.Context(), req.Token)
+	userID, err := auth.RedeemParticipantToken(ctx, req.Token)
 	if errors.Is(err, auth.ErrInvalidParticipantToken) {
-		httpx.WriteError(w, http.StatusUnauthorized, err.Error())
-		return nil
+		return ParticipantLoginResp{}, errUnauthorized(err.Error())
 	}
 	if err != nil {
-		return err
+		return ParticipantLoginResp{}, err
 	}
-	token, err := schemafapi.StartSession(r.Context(), w, userID.String())
+	token, err := schemafapi.StartSessionCtx(ctx, userID.String())
 	if err != nil {
-		return err
+		return ParticipantLoginResp{}, err
 	}
-	httpx.WriteJSON(w, http.StatusOK, map[string]string{"token": token, "userId": userID.String()})
-	return nil
+	return ParticipantLoginResp{Token: token, UserID: userID}, nil
 }
 
-// appError maps the db layer's AppErrors to schemaf's status errors.
-func appError(err error) error {
-	var appErr *obj.AppError
-	if !errors.As(err, &appErr) {
-		return err
-	}
-	switch appErr.Code {
-	case obj.ErrCodeConflict:
-		return fmt.Errorf("%s: %w", appErr.Message, schemafapi.ErrConflict)
-	case obj.ErrCodeNotFound:
-		return fmt.Errorf("%s: %w", appErr.Message, schemafapi.ErrNotFound)
-	case obj.ErrCodeForbidden:
-		return fmt.Errorf("%s: %w", appErr.Message, schemafapi.ErrForbidden)
-	case obj.ErrCodeValidation, obj.ErrCodeInvalidInput:
-		return fmt.Errorf("%s: %w", appErr.Message, schemafapi.ErrBadRequest)
-	}
-	return err
+// ParticipantLoginReq is a participant's token.
+type ParticipantLoginReq struct {
+	Token string `json:"token"`
+}
+
+// ParticipantLoginResp is the session token and the signed-in participant.
+type ParticipantLoginResp struct {
+	Token  string    `json:"token"`
+	UserID uuid.UUID `json:"userId"`
 }

@@ -1,11 +1,10 @@
-// package: api / HTTP server entrypoint
+// package: api / background services
 // type:    wiring
-// job:     runs the session retention purge once at startup and then on a ticker for the life of the server.
-// limits:  holds no SQL (-> db/game_sessions.go) and no HTTP surface (-> api/routes).
+// job:     runs the session retention purge once at startup and then on a ticker for the life of the server
+// limits:  holds no SQL (-> db/game_sessions.go) and no HTTP surface
 package api
 
 import (
-	"cgl/api/routes"
 	"cgl/db"
 	"cgl/functional"
 	"cgl/log"
@@ -23,9 +22,9 @@ const (
 	sessionPurgeInterval = time.Hour
 )
 
-// startSessionPurger launches the retention purge in the background.
+// Janitor runs the retention purge until ctx ends; a schemaf service.
 // SESSION_RETENTION_HOURS overrides the window; 0 switches the purge off.
-func startSessionPurger(ctx context.Context) {
+func Janitor(ctx context.Context) {
 	retention := sessionRetention()
 	if retention <= 0 {
 		log.Info("session purge disabled", "env", "SESSION_RETENTION_HOURS=0")
@@ -34,20 +33,18 @@ func startSessionPurger(ctx context.Context) {
 
 	log.Info("session purge enabled", "retention", retention, "interval", sessionPurgeInterval)
 
-	go func() {
-		ticker := time.NewTicker(sessionPurgeInterval)
-		defer ticker.Stop()
+	ticker := time.NewTicker(sessionPurgeInterval)
+	defer ticker.Stop()
 
-		for {
-			purgeExpiredSessions(ctx, retention)
+	for {
+		purgeExpiredSessions(ctx, retention)
 
-			select {
-			case <-ticker.C:
-			case <-ctx.Done():
-				return
-			}
+		select {
+		case <-ticker.C:
+		case <-ctx.Done():
+			return
 		}
-	}()
+	}
 }
 
 // purgeExpiredSessions runs one purge pass, logging the outcome. A purged
@@ -57,7 +54,7 @@ func purgeExpiredSessions(ctx context.Context, retention time.Duration) {
 
 	purged, err := db.PurgeExpiredSessions(ctx, cutoff)
 	for _, id := range purged {
-		routes.Engine.Forget(id.String())
+		Engine.Forget(id.String())
 	}
 	if err != nil {
 		log.Error("session purge failed", "error", err, "cutoff", cutoff, "purged", len(purged))

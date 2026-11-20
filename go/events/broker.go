@@ -6,7 +6,6 @@ package events
 
 import (
 	"cgl/log"
-	"fmt"
 	"sync"
 
 	"github.com/google/uuid"
@@ -26,23 +25,29 @@ const (
 	GameDeleted EventType = "game_deleted"
 	// MembersUpdated is emitted when a member joins or leaves a workshop
 	MembersUpdated EventType = "members_updated"
+	// Connected opens a subscriber's stream
+	Connected EventType = "connected"
 )
 
-// Event represents an SSE event to be sent to clients
-type Event struct {
-	Type EventType `json:"type"`
-	Data string    `json:"data,omitempty"`
+// WorkshopEvent is one update to a workshop, as its subscribers receive it.
+// A game event names the game and who triggered it, so a client can ignore
+// its own changes; the connected event names the workshop.
+type WorkshopEvent struct {
+	Type        EventType  `json:"type"`
+	WorkshopID  *uuid.UUID `json:"workshopId,omitempty"`
+	GameID      *uuid.UUID `json:"gameId,omitempty"`
+	TriggeredBy *uuid.UUID `json:"triggeredBy,omitempty"`
 }
 
 // Broker manages SSE connections per workshop
 type Broker struct {
 	mu          sync.RWMutex
-	subscribers map[uuid.UUID]map[chan Event]struct{}
+	subscribers map[uuid.UUID]map[chan WorkshopEvent]struct{}
 }
 
 // Global broker instance
 var globalBroker = &Broker{
-	subscribers: make(map[uuid.UUID]map[chan Event]struct{}),
+	subscribers: make(map[uuid.UUID]map[chan WorkshopEvent]struct{}),
 }
 
 // GetBroker returns the global event broker
@@ -51,14 +56,14 @@ func GetBroker() *Broker {
 }
 
 // Subscribe creates a new event channel for a workshop
-func (b *Broker) Subscribe(workshopID uuid.UUID) chan Event {
+func (b *Broker) Subscribe(workshopID uuid.UUID) chan WorkshopEvent {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	ch := make(chan Event, 10)
+	ch := make(chan WorkshopEvent, 10)
 
 	if b.subscribers[workshopID] == nil {
-		b.subscribers[workshopID] = make(map[chan Event]struct{})
+		b.subscribers[workshopID] = make(map[chan WorkshopEvent]struct{})
 	}
 	b.subscribers[workshopID][ch] = struct{}{}
 
@@ -68,7 +73,7 @@ func (b *Broker) Subscribe(workshopID uuid.UUID) chan Event {
 }
 
 // Unsubscribe removes an event channel for a workshop
-func (b *Broker) Unsubscribe(workshopID uuid.UUID, ch chan Event) {
+func (b *Broker) Unsubscribe(workshopID uuid.UUID, ch chan WorkshopEvent) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -86,7 +91,7 @@ func (b *Broker) Unsubscribe(workshopID uuid.UUID, ch chan Event) {
 }
 
 // Publish sends an event to all subscribers of a workshop
-func (b *Broker) Publish(workshopID uuid.UUID, event Event) {
+func (b *Broker) Publish(workshopID uuid.UUID, event WorkshopEvent) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 
@@ -110,29 +115,31 @@ func (b *Broker) Publish(workshopID uuid.UUID, event Event) {
 
 // PublishWorkshopUpdated is a convenience method to publish a workshop_updated event
 func (b *Broker) PublishWorkshopUpdated(workshopID uuid.UUID) {
-	b.Publish(workshopID, Event{Type: WorkshopUpdated})
+	b.Publish(workshopID, WorkshopEvent{Type: WorkshopUpdated})
 }
 
 // PublishGameCreated publishes a game_created event with game ID and creator ID
 // The triggeredBy field allows clients to ignore events they triggered themselves
 func (b *Broker) PublishGameCreated(workshopID uuid.UUID, gameID uuid.UUID, triggeredBy uuid.UUID) {
-	data := fmt.Sprintf(`{"gameId":"%s","triggeredBy":"%s"}`, gameID, triggeredBy)
-	b.Publish(workshopID, Event{Type: GameCreated, Data: data})
+	b.Publish(workshopID, gameEvent(GameCreated, gameID, triggeredBy))
 }
 
 // PublishGameUpdated publishes a game_updated event with game ID and modifier ID
 func (b *Broker) PublishGameUpdated(workshopID uuid.UUID, gameID uuid.UUID, triggeredBy uuid.UUID) {
-	data := fmt.Sprintf(`{"gameId":"%s","triggeredBy":"%s"}`, gameID, triggeredBy)
-	b.Publish(workshopID, Event{Type: GameUpdated, Data: data})
+	b.Publish(workshopID, gameEvent(GameUpdated, gameID, triggeredBy))
 }
 
 // PublishGameDeleted publishes a game_deleted event with game ID and deleter ID
 func (b *Broker) PublishGameDeleted(workshopID uuid.UUID, gameID uuid.UUID, triggeredBy uuid.UUID) {
-	data := fmt.Sprintf(`{"gameId":"%s","triggeredBy":"%s"}`, gameID, triggeredBy)
-	b.Publish(workshopID, Event{Type: GameDeleted, Data: data})
+	b.Publish(workshopID, gameEvent(GameDeleted, gameID, triggeredBy))
 }
 
 // PublishMembersUpdated is a convenience method to publish a members_updated event
 func (b *Broker) PublishMembersUpdated(workshopID uuid.UUID) {
-	b.Publish(workshopID, Event{Type: MembersUpdated})
+	b.Publish(workshopID, WorkshopEvent{Type: MembersUpdated})
+}
+
+// gameEvent is an event about a game in a workshop.
+func gameEvent(t EventType, gameID, triggeredBy uuid.UUID) WorkshopEvent {
+	return WorkshopEvent{Type: t, GameID: &gameID, TriggeredBy: &triggeredBy}
 }

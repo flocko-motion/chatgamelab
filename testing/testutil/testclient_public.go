@@ -7,8 +7,8 @@ package testutil
 import (
 	"fmt"
 
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/config"
 )
 
@@ -69,9 +69,9 @@ func (p *PublicClient) FailPost(endpoint string, payload interface{}, validators
 }
 
 // GuestGetGameInfo returns game info via a share token (composable high-level API)
-func (p *PublicClient) GuestGetGameInfo(token string) (routes.GuestGameInfo, error) {
+func (p *PublicClient) GuestGetGameInfo(token string) (api.GuestGameInfoResp, error) {
 	p.t.Helper()
-	var result routes.GuestGameInfo
+	var result api.GuestGameInfoResp
 	err := p.Get("play/"+token+"/info", &result)
 	return result, err
 }

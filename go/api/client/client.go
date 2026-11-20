@@ -11,7 +11,7 @@
 // package: client / CLI-to-backend HTTP client
 // type:    glue
 // job:     wraps HTTP verbs, JWT auth, and SSE streaming for CLI calls to the CGL API
-// limits:  not for external provider calls (-> apiclient); no route handling (-> api/routes)
+// limits:  not for external provider calls (-> apiclient); no route handling (-> api)
 package client
 
 import (

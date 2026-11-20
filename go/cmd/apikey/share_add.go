@@ -5,8 +5,8 @@
 package apikey
 
 import (
+	"cgl/api"
 	"cgl/api/client"
-	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -43,7 +43,7 @@ func runShareAdd(cmd *cobra.Command, args []string) {
 		log.Fatalf("At least one of --user-id, --workshop-id, or --institution-id is required")
 	}
 
-	req := routes.ShareRequest{}
+	req := api.ShareApiKeyReq{}
 
 	if shareUserID != "" {
 		id, err := uuid.Parse(shareUserID)
