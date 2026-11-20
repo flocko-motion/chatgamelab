@@ -206,6 +206,57 @@
         ],
         "type": "object"
       },
+      "Choice": {
+        "properties": {
+          "tier": {
+            "type": "string"
+          },
+          "toggles": {
+            "$ref": "#/components/schemas/Toggles"
+          }
+        },
+        "required": [
+          "tier",
+          "toggles"
+        ],
+        "type": "object"
+      },
+      "ChooseRequest": {
+        "properties": {
+          "choice": {
+            "$ref": "#/components/schemas/Choice"
+          },
+          "offer": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "offer"
+        ],
+        "type": "object"
+      },
+      "ConnectRequest": {
+        "properties": {
+          "sdp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sdp"
+        ],
+        "type": "object"
+      },
+      "ConnectResponse": {
+        "properties": {
+          "sdp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sdp"
+        ],
+        "type": "object"
+      },
       "CreateApiKeyReq": {
         "properties": {
           "key": {
@@ -296,6 +347,37 @@
         ],
         "type": "object"
       },
+      "CreateRequest": {
+        "properties": {
+          "game": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "once": {
+            "type": "string"
+          },
+          "share": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "once"
+        ],
+        "type": "object"
+      },
+      "CreateResponse": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
       "CreateUserReq": {
         "properties": {
           "email": {
@@ -361,6 +443,32 @@
           "name",
           "active",
           "public"
+        ],
+        "type": "object"
+      },
+      "EdgeDetail": {
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "recent": {
+            "items": {
+              "$ref": "#/components/schemas/Sample"
+            },
+            "type": "array"
+          },
+          "to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "kind",
+          "recent"
         ],
         "type": "object"
       },
@@ -430,7 +538,7 @@
       "Error": {
         "properties": {
           "code": {
-            "description": "Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, too_many_requests, unavailable, internal).",
+            "description": "Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, gone, precondition_failed, too_large, unprocessable, too_many_requests, not_implemented, bad_gateway, unavailable, gateway_timeout, internal, method_not_allowed, not_acceptable, unsupported_media_type).",
             "type": "string"
           },
           "error": {
@@ -456,6 +564,17 @@
         },
         "required": [
           "favourite"
+        ],
+        "type": "object"
+      },
+      "FlowchartResponse": {
+        "properties": {
+          "flowchart": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "flowchart"
         ],
         "type": "object"
       },
@@ -826,6 +945,17 @@
         ],
         "type": "object"
       },
+      "GraphResponse": {
+        "properties": {
+          "graph": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "graph"
+        ],
+        "type": "object"
+      },
       "GuestGameInfoResp": {
         "properties": {
           "description": {
@@ -850,6 +980,18 @@
           "public",
           "name"
         ],
+        "type": "object"
+      },
+      "InputRequest": {
+        "properties": {
+          "audio": {
+            "format": "byte",
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "Institution": {
@@ -1039,6 +1181,101 @@
         ],
         "type": "object"
       },
+      "NodeDetail": {
+        "properties": {
+          "inputs": {
+            "items": {
+              "$ref": "#/components/schemas/Sample"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outputs": {
+            "items": {
+              "$ref": "#/components/schemas/Sample"
+            },
+            "type": "array"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/UsageRecord"
+          }
+        },
+        "required": [
+          "name",
+          "role",
+          "type",
+          "inputs",
+          "outputs",
+          "phase"
+        ],
+        "type": "object"
+      },
+      "OfferOption": {
+        "properties": {
+          "customizable": {
+            "type": "boolean"
+          },
+          "default": {
+            "$ref": "#/components/schemas/Choice"
+          },
+          "name": {
+            "type": "string"
+          },
+          "offer": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "tiers": {
+            "items": {
+              "$ref": "#/components/schemas/TierOption"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "offer",
+          "platform",
+          "name",
+          "customizable",
+          "default",
+          "tiers"
+        ],
+        "type": "object"
+      },
+      "Options": {
+        "properties": {
+          "choosing": {
+            "type": "boolean"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/OfferOption"
+            },
+            "type": "array"
+          },
+          "settled": {
+            "$ref": "#/components/schemas/Settled"
+          }
+        },
+        "required": [
+          "choosing",
+          "offers"
+        ],
+        "type": "object"
+      },
       "ParticipantLoginReq": {
         "properties": {
           "token": {
@@ -1100,6 +1337,28 @@
           "toggles",
           "genres",
           "tiers"
+        ],
+        "type": "object"
+      },
+      "Preference": {
+        "properties": {
+          "offer": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "string"
+          },
+          "toggles": {
+            "$ref": "#/components/schemas/Toggles"
+          }
+        },
+        "required": [
+          "platform",
+          "tier",
+          "toggles"
         ],
         "type": "object"
       },
@@ -1244,6 +1503,30 @@
         ],
         "type": "object"
       },
+      "Sample": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "peer": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "kind",
+          "value",
+          "peer"
+        ],
+        "type": "object"
+      },
       "SchemafAuth0LoginRequest": {
         "properties": {
           "id_token": {
@@ -1252,6 +1535,51 @@
         },
         "required": [
           "id_token"
+        ],
+        "type": "object"
+      },
+      "SchemafErrorDetails": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "error": {
+            "description": "The full error.",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "misuse": {
+            "description": "The misuse of the error API, if any.",
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "subject": {
+            "description": "The caller, if authenticated.",
+            "type": "string"
+          },
+          "time": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "time",
+          "method",
+          "path",
+          "status",
+          "code",
+          "error"
         ],
         "type": "object"
       },
@@ -1281,6 +1609,17 @@
         ],
         "type": "object"
       },
+      "SchemafUser": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
       "SessionDeletedResp": {
         "properties": {
           "status": {
@@ -1289,6 +1628,21 @@
         },
         "required": [
           "status"
+        ],
+        "type": "object"
+      },
+      "SessionEvent": {
+        "properties": {
+          "Stream": {
+            "type": "string"
+          },
+          "Value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "Stream",
+          "Value"
         ],
         "type": "object"
       },
@@ -1346,6 +1700,35 @@
         },
         "type": "object"
       },
+      "Settled": {
+        "properties": {
+          "changes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "choice": {
+            "$ref": "#/components/schemas/Choice"
+          },
+          "offer": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "preference": {
+            "$ref": "#/components/schemas/Preference"
+          }
+        },
+        "required": [
+          "offer",
+          "platform",
+          "choice",
+          "preference"
+        ],
+        "type": "object"
+      },
       "ShareApiKeyReq": {
         "properties": {
           "institutionId": {
@@ -1361,6 +1744,45 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "Snapshot": {
+        "properties": {
+          "choosing": {
+            "type": "boolean"
+          },
+          "conversation": {
+            "type": "string"
+          },
+          "phases": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "props": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "settled": {
+            "$ref": "#/components/schemas/Settled"
+          },
+          "started": {
+            "type": "boolean"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/UsageReport"
+          }
+        },
+        "required": [
+          "started",
+          "phases",
+          "props",
+          "usage",
+          "choosing"
+        ],
         "type": "object"
       },
       "SystemConstraintsResp": {
@@ -1459,6 +1881,47 @@
         ],
         "type": "object"
       },
+      "TierOption": {
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "models": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "tier": {
+            "type": "string"
+          },
+          "toggles": {
+            "$ref": "#/components/schemas/Toggles"
+          }
+        },
+        "required": [
+          "tier",
+          "label",
+          "toggles",
+          "models"
+        ],
+        "type": "object"
+      },
+      "ToggleRequest": {
+        "properties": {
+          "on": {
+            "type": "boolean"
+          },
+          "toggle": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "toggle",
+          "on"
+        ],
+        "type": "object"
+      },
       "Toggles": {
         "properties": {
           "audio-in": {
@@ -1479,6 +1942,85 @@
           "audio-out",
           "audio-in",
           "audio-live"
+        ],
+        "type": "object"
+      },
+      "Topology": {
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyEdge"
+            },
+            "type": "array"
+          },
+          "imagery": {
+            "type": "string"
+          },
+          "inputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "language": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyNode"
+            },
+            "type": "array"
+          },
+          "theme": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "nodes",
+          "edges",
+          "inputs",
+          "imagery"
+        ],
+        "type": "object"
+      },
+      "TopologyEdge": {
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "TopologyNode": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "role"
         ],
         "type": "object"
       },
@@ -1785,6 +2327,72 @@
           "showOtherParticipantsGames",
           "isPaused",
           "allowGameSharing"
+        ],
+        "type": "object"
+      },
+      "UsageRecord": {
+        "properties": {
+          "audioSeconds": {
+            "type": "number"
+          },
+          "cachedInputTokens": {
+            "type": "integer"
+          },
+          "cost": {
+            "type": "number"
+          },
+          "images": {
+            "type": "integer"
+          },
+          "inputTokens": {
+            "type": "integer"
+          },
+          "model": {
+            "type": "string"
+          },
+          "node": {
+            "type": "string"
+          },
+          "outputTokens": {
+            "type": "integer"
+          },
+          "priced": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model",
+          "cost",
+          "priced"
+        ],
+        "type": "object"
+      },
+      "UsageReport": {
+        "properties": {
+          "byModel": {
+            "items": {
+              "$ref": "#/components/schemas/UsageRecord"
+            },
+            "type": "array"
+          },
+          "byNode": {
+            "items": {
+              "$ref": "#/components/schemas/UsageRecord"
+            },
+            "type": "array"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "totalCost": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "byNode",
+          "byModel",
+          "totalCost",
+          "complete"
         ],
         "type": "object"
       },
@@ -2903,14 +3511,85 @@
         "summary": "Sign in with an identity provider"
       }
     },
-    "/api/engine/{rest...}": {
+    "/api/config": {
       "get": {
-        "description": "The playback-engine, its session stream (WebSocket included), its state and\nits lists. Accounts and guests alike; a request naming a session passes the\naccess policy first.",
-        "operationId": "getApiEngineRest...",
+        "description": "Every PUBLIC_* environment variable, keyed by its full name. Read it in the frontend through config() from config.gen.ts.",
+        "operationId": "getApiConfig",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Public frontend config"
+      }
+    },
+    "/api/engine/playback-engine/": {
+      "get": {
+        "description": "Opened with ?session=\u003cid\u003e to play a session, or ?new\u0026game=\u003cid\u003e or\n?new\u0026share=\u003ctoken\u003e to start one.",
+        "operationId": "getApiEnginePlayback-engine",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Serves the playback-engine's page."
+      }
+    },
+    "/api/engine/playback-engine/{dir}/{file}": {
+      "get": {
+        "description": "Its chunks, fonts, art and language files.",
+        "operationId": "getApiEnginePlayback-engineDirFile",
         "parameters": [
           {
             "in": "path",
-            "name": "rest...",
+            "name": "dir",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "file",
             "required": true,
             "schema": {
               "type": "string"
@@ -2941,15 +3620,482 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Passes GET requests under /api/engine/ to the engine."
-      },
+        "summary": "Serves a playback-engine file in a folder."
+      }
+    },
+    "/api/engine/playback-engine/{file}": {
+      "get": {
+        "description": "Its scripts, stylesheet and worklet.",
+        "operationId": "getApiEnginePlayback-engineFile",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Serves a playback-engine file beside its page."
+      }
+    },
+    "/api/engine/sessions": {
       "post": {
-        "description": "Creating a session from a game or a share token, and a session's input,\nchoices, toggles, connect and pause. Accounts and guests alike; a request\nnaming a session passes the access policy first. Creating counts towards the\ntoken lock, as it may look up a share token.",
-        "operationId": "postApiEngineRest...",
+        "description": "A game for a signed-in player, a share token for a guest or a signed-in\nplayer. A repeat of the one-time key within ten minutes answers the session\nthe first created, to the same caller only. Counts towards the token lock,\nas it may look up a share token.",
+        "operationId": "postApiEngineSessions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Starts a session from a game or a share token."
+      }
+    },
+    "/api/engine/sessions/{id}/choose": {
+      "post": {
+        "description": "A choice outside the offer's caveats is refused.",
+        "operationId": "postApiEngineSessionsIdChoose",
         "parameters": [
           {
             "in": "path",
-            "name": "rest...",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChooseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Takes the player's choice among a session's offers."
+      }
+    },
+    "/api/engine/sessions/{id}/connect": {
+      "post": {
+        "description": "The provider's id stays server-side, keeping a spendable key and a\nsteerable conversation off the client.",
+        "operationId": "postApiEngineSessionsIdConnect",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Brokers the browser's offer to talk to a session's character."
+      }
+    },
+    "/api/engine/sessions/{id}/edges/{from}/{to}/{kind}": {
+      "get": {
+        "description": "The wire is named by its ends and its kind.",
+        "operationId": "getApiEngineSessionsIdEdgesFromToKind",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdgeDetail"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers what one wire of a session has carried."
+      }
+    },
+    "/api/engine/sessions/{id}/flowchart": {
+      "get": {
+        "operationId": "getApiEngineSessionsIdFlowchart",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowchartResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Renders a session's running wiring as a mermaid flowchart."
+      }
+    },
+    "/api/engine/sessions/{id}/graph": {
+      "get": {
+        "operationId": "getApiEngineSessionsIdGraph",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Renders a session's running wiring as text."
+      }
+    },
+    "/api/engine/sessions/{id}/history": {
+      "get": {
+        "operationId": "getApiEngineSessionsIdHistory",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SessionEvent"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers a session's conversation so far, in order."
+      }
+    },
+    "/api/engine/sessions/{id}/input": {
+      "post": {
+        "description": "As the genre accepts; an accepted input counts as one of the session's\nmessages.",
+        "operationId": "postApiEngineSessionsIdInput",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Submits one player action to a session, typed or spoken."
+      }
+    },
+    "/api/engine/sessions/{id}/live": {
+      "get": {
+        "description": "The browser sends binary frames of microphone audio and text frames of\ntyped input, a JSON LiveInput; it receives the session's events back,\nbinary frames for audio and text frames of JSON SessionEvent for everything\nelse. A rejected input comes back as an `error` event.",
+        "operationId": "getApiEngineSessionsIdLive",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
             "required": true,
             "schema": {
               "type": "string"
@@ -2980,7 +4126,443 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Passes POST requests under /api/engine/ to the engine."
+        "summary": "Opens the duplex WebSocket a session of a voice genre needs."
+      }
+    },
+    "/api/engine/sessions/{id}/nodes/{node}": {
+      "get": {
+        "operationId": "getApiEngineSessionsIdNodesNode",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeDetail"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers what one block of a session is and has been doing."
+      }
+    },
+    "/api/engine/sessions/{id}/options": {
+      "get": {
+        "description": "And what the session settled on.",
+        "operationId": "getApiEngineSessionsIdOptions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Options"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers what the player of a session may choose from."
+      }
+    },
+    "/api/engine/sessions/{id}/pause": {
+      "post": {
+        "description": "As idling would.",
+        "operationId": "postApiEngineSessionsIdPause",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lets a session's live conversation go at the player's request."
+      }
+    },
+    "/api/engine/sessions/{id}/prompts": {
+      "get": {
+        "operationId": "getApiEngineSessionsIdPrompts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers the text a session is running on, by block."
+      }
+    },
+    "/api/engine/sessions/{id}/state": {
+      "get": {
+        "description": "A reloading page fetches it with the history.",
+        "operationId": "getApiEngineSessionsIdState",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers where a session stands now."
+      }
+    },
+    "/api/engine/sessions/{id}/stream": {
+      "get": {
+        "description": "Each event's data is one SessionEvent; its Stream names the kind.",
+        "operationId": "getApiEngineSessionsIdStream",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionEvent"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Streams a session's events as server-sent events."
+      }
+    },
+    "/api/engine/sessions/{id}/toggles": {
+      "post": {
+        "description": "Such as pictures off; on only as far as the session's offer allows.",
+        "operationId": "postApiEngineSessionsIdToggles",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Switches a feature of a session during play."
+      }
+    },
+    "/api/engine/sessions/{id}/topology": {
+      "get": {
+        "operationId": "getApiEngineSessionsIdTopology",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topology"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers a session's wiring as data, for a view that draws it."
+      }
+    },
+    "/api/errors/{id}": {
+      "get": {
+        "description": "The details stored for the 5xx answered with this id: open in development mode, in production only to callers the app allows (app.CanSeeErrorDetails). 404 when the id is unknown or expired (kept: newest 1000, at most 24 hours, per process).",
+        "operationId": "getApiErrorsId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemafErrorDetails"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Details of a server error"
       }
     },
     "/api/games": {
@@ -4010,6 +5592,51 @@
           }
         ],
         "summary": "Lists every genre the engine runs."
+      }
+    },
+    "/api/health": {
+      "get": {
+        "description": "\"status\" is \"ok\" or \"error\", \"db\" and every registered health check are \"ok\" or \"error: …\". 503 (with the same body) when anything is unhealthy.",
+        "operationId": "getApiHealth",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Healthy"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unhealthy"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Health check"
       }
     },
     "/api/institutions": {
@@ -5367,6 +6994,36 @@
         "summary": "Deletes a session the caller owns and everything it stored."
       }
     },
+    "/api/status": {
+      "get": {
+        "description": "Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.",
+        "operationId": "getApiStatus",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Service status"
+      }
+    },
     "/api/system/constraints": {
       "get": {
         "description": "constraint texts.\n\nAny signed-in user may read them, so organization settings can show the\nfallback that applies when an organization has none of its own.",
@@ -5570,6 +7227,43 @@
           }
         ],
         "summary": "Lists every look the playback-engine can wear."
+      }
+    },
+    "/api/user/me": {
+      "get": {
+        "description": "The subject of the caller.",
+        "operationId": "getApiUserMe",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemafUser"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "The authenticated caller"
       }
     },
     "/api/users": {

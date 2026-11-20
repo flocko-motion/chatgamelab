@@ -11,7 +11,7 @@ RUN npm run build
 FROM golang:1.26.0-alpine AS build
 WORKDIR /src
 COPY go/ ./
-COPY --from=frontend /src/dist ./frontend_dist/
+COPY --from=frontend /src/dist ./app/frontend_dist/
 RUN go mod tidy && go build -o /app .
 
 FROM alpine:latest

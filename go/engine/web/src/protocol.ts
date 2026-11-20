@@ -20,7 +20,7 @@ export type StreamName =
   | "problem"
   ;
 
-/** One item on the session-scoped event stream. */
+/** One item on the session's events, a text frame on the live WebSocket. */
 export interface SessionEvent {
   readonly Stream: StreamName;
   readonly Value: string;
@@ -38,92 +38,12 @@ export interface BlockState {
   readonly phase: Phase;
 }
 
-/** What one block spent on one model, cumulatively. */
-export interface UsageRecord {
-  readonly audioSeconds?: number;
-  readonly cachedInputTokens?: number;
-  readonly cost: number;
-  readonly images?: number;
-  readonly inputTokens?: number;
-  readonly model: string;
-  readonly node?: string;
-  readonly outputTokens?: number;
-  readonly priced: boolean;
-}
-
-/**
- * The session's spending, both ways round: per block for a graph view's
- * labels, and per model because that is what prices attach to.
- */
-export interface UsageReport {
-  readonly byModel: UsageRecord[];
-  readonly byNode: UsageRecord[];
-  readonly complete: boolean;
-  readonly totalCost: number;
-}
-
-/** Which features a session has on, or an offer allows. */
-export interface Toggles {
-  readonly "audio-in": boolean;
-  readonly "audio-live": boolean;
-  readonly "audio-out": boolean;
-  readonly images: boolean;
-}
-
-/** A tier and the toggles on at it. */
-export interface Choice {
-  readonly tier: string;
-  readonly toggles: Toggles;
-}
-
-/** The player's wish, which the platform stores with the session. */
-export interface Preference {
-  readonly offer?: string;
-  readonly platform: string;
-  readonly tier: string;
-  readonly toggles: Toggles;
-}
-
-/** What a session runs on, carried as JSON in a `settled` event's value. */
-export interface Settled {
-  readonly changes?: string[];
-  readonly choice: Choice;
-  readonly offer: string;
-  readonly platform: string;
-  readonly preference: Preference;
-}
-
-/** One tier an offer allows, with its toggles and, as a detail, its models. */
-export interface TierOption {
-  readonly label: string;
-  readonly models: Record<string, string>;
-  readonly tier: string;
-  readonly toggles: Toggles;
-}
-
-/** One offer as a player sees it in the options dialog. */
-export interface OfferOption {
-  readonly customizable: boolean;
-  readonly default: Choice;
-  readonly name: string;
-  readonly offer: string;
-  readonly platform: string;
-  readonly tiers: TierOption[];
-}
-
-/** What the player may choose from, and what the session settled on. */
-export interface Options {
-  readonly choosing: boolean;
-  readonly offers: OfferOption[];
-  readonly settled?: Settled;
-}
-
 /** Why a session cannot start or go on. */
 export type Problem =
-  | "no-key"
+  | "no_key"
   | "genre"
-  | "no-plays"
-  | "key-rejected"
+  | "no_plays"
+  | "key_rejected"
   | "unreachable"
   | "stale"
   | "unknown"
@@ -131,23 +51,31 @@ export type Problem =
   | "failed"
   ;
 
-/** A refusal: a transport's error body, and a `problem` event's value. */
+/** Every problem; an error code outside it is a failure. */
+export const PROBLEMS: readonly Problem[] = [
+  "no_key",
+  "genre",
+  "no_plays",
+  "key_rejected",
+  "unreachable",
+  "stale",
+  "unknown",
+  "denied",
+  "failed",
+];
+
+/**
+ * A refusal: a `problem` event's value. A route's refusal is its error
+ * response, whose code is the problem.
+ */
 export interface Refusal {
   readonly message: string;
   readonly problem: Problem;
 }
 
-/** What the playback-engine sends to start a session. */
-export interface CreateRequest {
-  readonly game?: string;
-  readonly language?: string;
-  readonly once: string;
-  readonly share?: string;
-}
-
-/** The session a creation made. */
-export interface CreateResponse {
-  readonly id: string;
+/** A text frame the playback-engine sends on the live WebSocket: typed input. */
+export interface LiveInput {
+  readonly text: string;
 }
 
 export function isSessionEvent(value: unknown): value is SessionEvent {

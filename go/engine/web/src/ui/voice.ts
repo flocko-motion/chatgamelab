@@ -10,6 +10,7 @@
  * It lives under ui/ because it needs a microphone and a speaker, and the core
  * has neither — the same reason the graph library lives here.
  */
+import { detailOf, type SessionRef } from "../client.js";
 import { NoticeError, notice } from "../texts.js";
 import type { Voice } from "../voice.js";
 
@@ -19,11 +20,11 @@ export class WebRTCVoice implements Voice {
   #speaker: HTMLAudioElement | null = null;
 
   /**
-   * @param base the session's URL, which is where the offer is brokered.
+   * @param session the session, which brokers the offer.
    * @param onRemoteTrack hands the character's audio to whatever plays it.
    */
   constructor(
-    private readonly base: URL,
+    private readonly session: SessionRef,
     private readonly onRemoteTrack?: (stream: MediaStream) => void,
   ) {}
 
@@ -64,16 +65,12 @@ export class WebRTCVoice implements Voice {
     const offer = peer.localDescription?.sdp;
     if (!offer) throw new Error("the browser produced no offer to send");
 
-    const response = await fetch(new URL("connect", this.base), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sdp: offer }),
-    });
-    if (!response.ok) {
-      throw new Error(`the engine refused the connection: ${response.status} ${await response.text()}`);
+    let sdp: string;
+    try {
+      ({ data: { sdp } } = await this.session.client.postApiEngineSessionsIdConnect(this.session.id, { sdp: offer }));
+    } catch (thrown) {
+      throw new Error(`the engine refused the connection: ${await detailOf(thrown)}`);
     }
-
-    const { sdp } = (await response.json()) as { sdp: string };
     // The answer took a round trip, and this connection may have been let go
     // while it was away — a pause closes the peer, and a later attempt replaces
     // it. Answering a peer that is no longer the one in use fails, and the
@@ -86,14 +83,11 @@ export class WebRTCVoice implements Voice {
 
   /** Confirms the engine is answering before the rest of this is attempted. */
   async #reachable(): Promise<void> {
-    let response: Response;
     try {
-      response = await fetch(new URL("state", this.base));
-    } catch {
-      throw new NoticeError(notice("errors.serverUnreachable"));
-    }
-    if (!response.ok) {
-      throw new NoticeError(notice("errors.voiceFailed", `the game server answered ${response.status}; this session may have ended`));
+      await this.session.client.getApiEngineSessionsIdState(this.session.id);
+    } catch (thrown) {
+      if (!(thrown instanceof Response)) throw new NoticeError(notice("errors.serverUnreachable"));
+      throw new NoticeError(notice("errors.voiceFailed", `the game server answered ${thrown.status}; this session may have ended`));
     }
   }
 

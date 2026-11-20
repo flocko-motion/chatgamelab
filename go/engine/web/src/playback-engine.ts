@@ -2,18 +2,9 @@
  * The headless playback-engine: holds all session state with no DOM or audio device, so
  * a full game plays from node.
  */
-import {
-  isSessionEvent,
-  type BlockState,
-  type Choice,
-  type Options,
-  type Refusal,
-  type SessionEvent,
-  type Settled,
-  type UsageReport,
-} from "./protocol.js";
-import { readRefusal } from "./launch.js";
-import type { Snapshot, ToggleName, Topology } from "./state.js";
+import { detailOf, refusalOf, type Choice, type SessionRef, type Settled, type UsageReport } from "./client.js";
+import { isSessionEvent, type BlockState, type Phase, type Refusal, type SessionEvent } from "./protocol.js";
+import type { Conversation, ToggleName } from "./state.js";
 import { emptyState, explain, type PlaybackEngineState } from "./state.js";
 import { notice, type TextKey } from "./texts.js";
 import type { Transport, TransportMessage } from "./transport.js";
@@ -53,13 +44,13 @@ export class PlaybackEngine {
   }
 
   /** Clears the conversation before replaying the engine's history, so nothing is said twice. */
-  async rebuild(base: string | URL): Promise<void> {
+  async rebuild(session: SessionRef): Promise<void> {
     this.state.utterances = [];
     this.state.notes = [];
     this.#open = null;
     this.#nextUtterance = 1;
     this.#notify();
-    await this.restore(base);
+    await this.restore(session);
   }
 
   close(): void {
@@ -69,7 +60,7 @@ export class PlaybackEngine {
   }
 
   /** Lets the conversation go now; `pausing` stands until the engine confirms the pause. */
-  async pause(base: string | URL): Promise<void> {
+  async pause(session: SessionRef): Promise<void> {
     if (this.state.pausing || this.state.paused) return;
     this.state.pausing = true;
     // Stops sending at once, while the control holds its transition until the engine confirms.
@@ -77,13 +68,12 @@ export class PlaybackEngine {
     this.#notify();
 
     try {
-      const response = await fetch(new URL("pause", base), { method: "POST" });
-      if (!response.ok) throw new Error(`the engine answered ${response.status}`);
-    } catch (error) {
+      await session.client.postApiEngineSessionsIdPause(session.id);
+    } catch (thrown) {
       // Nothing was let go, so the conversation is live again.
       this.state.pausing = false;
       this.voice?.setSending(true);
-      this.state.problem = notice("errors.pauseFailed", error);
+      this.state.problem = notice("errors.pauseFailed", await detailOf(thrown));
       this.#notify();
     }
   }
@@ -99,40 +89,41 @@ export class PlaybackEngine {
    * Sends the player's choice: an offer by its ID, and a tier and toggles if it is
    * customizable. A refused choice leaves the dialog up and says why.
    */
-  async choose(base: string | URL, offer: string, choice?: Choice): Promise<boolean> {
-    const accepted = await this.#post(base, "choose", { offer, choice }, "errors.startFailed");
-    if (accepted) await this.loadOptions(base);
+  async choose(session: SessionRef, offer: string, choice?: Choice): Promise<boolean> {
+    const accepted = await this.#post(
+      () => session.client.postApiEngineSessionsIdChoose(session.id, choice ? { offer, choice } : { offer }),
+      "errors.startFailed",
+    );
+    if (accepted) await this.loadOptions(session);
     return accepted;
   }
 
   /** Switches a feature during play; off is always allowed, on within the offer. */
-  async setToggle(base: string | URL, toggle: ToggleName, on: boolean): Promise<boolean> {
-    return this.#post(base, "toggles", { toggle, on }, "errors.switchFailed");
+  async setToggle(session: SessionRef, toggle: ToggleName, on: boolean): Promise<boolean> {
+    return this.#post(() => session.client.postApiEngineSessionsIdToggles(session.id, { toggle, on }), "errors.switchFailed");
   }
 
-  async #post(base: string | URL, path: string, body: unknown, failure: TextKey): Promise<boolean> {
+  async #post(call: () => Promise<unknown>, failure: TextKey): Promise<boolean> {
     try {
-      const response = await fetch(new URL(path, base), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) throw new Error((await response.text()).trim() || `the engine answered ${response.status}`);
+      await call();
       this.state.problem = null;
       this.#notify();
       return true;
-    } catch (error) {
-      this.state.problem = notice(failure, error);
+    } catch (thrown) {
+      this.state.problem = notice(failure, await detailOf(thrown));
       this.#notify();
       return false;
     }
   }
 
   /** Fetches what the player may choose from, and what the session settled on. */
-  async loadOptions(base: string | URL): Promise<void> {
-    const response = await fetch(new URL("options", base));
-    if (!response.ok) return;
-    const options = (await response.json()) as Options;
+  async loadOptions(session: SessionRef): Promise<void> {
+    let options;
+    try {
+      ({ data: options } = await session.client.getApiEngineSessionsIdOptions(session.id));
+    } catch {
+      return;
+    }
     this.state.options = options;
     this.state.choosing = options.choosing;
     this.state.settled = options.settled ?? null;
@@ -286,15 +277,15 @@ export class PlaybackEngine {
   }
 
   /** Rebuilds what a reloaded page missed; the socket carries only what is happening. */
-  async restore(base: string | URL): Promise<void> {
+  async restore(session: SessionRef): Promise<void> {
     // The wiring is the reachability check; loadTopology says what went wrong.
-    if (!(await this.loadTopology(base))) {
+    if (!(await this.loadTopology(session))) {
       this.#notify();
       return;
     }
-    await this.#loadSnapshot(base);
-    await this.loadOptions(base);
-    await this.#loadHistory(base);
+    await this.#loadSnapshot(session);
+    await this.loadOptions(session);
+    await this.#loadHistory(session);
 
     // Audio opens here from where the session stands, so replay never resumes a pause.
     if (this.state.invited && !this.state.paused && this.state.voice === "idle") {
@@ -302,11 +293,14 @@ export class PlaybackEngine {
     }
   }
 
-  async #loadSnapshot(base: string | URL): Promise<void> {
-    const response = await fetch(new URL("state", base));
-    if (!response.ok) return;
-    const snapshot = (await response.json()) as Snapshot;
-    this.state.phases = snapshot.phases;
+  async #loadSnapshot(session: SessionRef): Promise<void> {
+    let snapshot;
+    try {
+      ({ data: snapshot } = await session.client.getApiEngineSessionsIdState(session.id));
+    } catch {
+      return;
+    }
+    this.state.phases = snapshot.phases as Record<string, Phase>;
     this.state.props = snapshot.props;
     this.state.usage = snapshot.usage;
     this.state.started = snapshot.started;
@@ -314,7 +308,7 @@ export class PlaybackEngine {
     this.state.settled = snapshot.settled ?? null;
     // The invitation predates a reloaded page, so it asks where the conversation stands.
     // "open" is a conversation this page lost, so it offers again.
-    switch (snapshot.conversation) {
+    switch (snapshot.conversation as Conversation | undefined) {
       case "awaiting":
       case "open":
         this.state.invited = true;
@@ -328,36 +322,36 @@ export class PlaybackEngine {
   }
 
   /** Replayed history goes through the same path as live events. */
-  async #loadHistory(base: string | URL): Promise<void> {
-    const response = await fetch(new URL("history", base));
-    if (!response.ok) return;
-    const history: unknown = await response.json();
+  async #loadHistory(session: SessionRef): Promise<void> {
+    let history: unknown;
+    try {
+      ({ data: history } = await session.client.getApiEngineSessionsIdHistory(session.id));
+    } catch {
+      return;
+    }
     if (!Array.isArray(history)) return;
-    for (const event of history as SessionEvent[]) {
-      this.#apply(event);
+    for (const event of history) {
+      if (isSessionEvent(event)) this.#apply(event);
     }
   }
 
   /** Fetches the wiring once, as it never changes during a session. */
-  async loadTopology(base: string | URL): Promise<boolean> {
-    let response: Response;
+  async loadTopology(session: SessionRef): Promise<boolean> {
+    let topology;
     try {
-      response = await fetch(new URL("topology", base));
-    } catch {
-      // Only an unreachable server throws instead of answering.
-      this.state.problem = notice("errors.serverUnreachable");
-      return false;
-    }
-
-    if (!response.ok) {
+      ({ data: topology } = await session.client.getApiEngineSessionsIdTopology(session.id));
+    } catch (thrown) {
       // The engine refuses with a reason: unknown, or stored too long ago to resume.
-      this.refuse(await readRefusal(response));
+      const refusal = await refusalOf(thrown);
+      if (refusal) this.refuse(refusal);
+      // Only an unreachable server throws something other than its answer.
+      else this.state.problem = notice("errors.serverUnreachable");
       return false;
     }
 
     this.state.problem = null;
     this.state.refusal = null;
-    this.state.topology = (await response.json()) as Topology;
+    this.state.topology = topology;
     // A gate that opened before the wiring arrived would otherwise look unstarted.
     this.#recomputeStarted();
     this.#notify();

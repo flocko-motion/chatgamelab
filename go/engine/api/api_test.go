@@ -15,77 +15,37 @@ import (
 	"engine/api"
 )
 
-// The subtree must work identically wherever it is mounted, which is the whole
-// reason the engine owns it: the playback-engine addresses it with relative URLs.
-func TestHandlerWorksUnderAnyPrefix(t *testing.T) {
-	for _, prefix := range []string{"", "/api/engine", "/deeply/nested/mount"} {
-		t.Run("prefix="+prefix, func(t *testing.T) {
-			ctx, cancel := context.WithCancel(context.Background())
-			defer cancel()
-
-			api := api.New(api.Options{Dev: true})
-			s, err := engine.Launch(ctx, engine.SessionSpec{
-				Genre: engine.GenreAdventure,
-				ID:    "s1",
-			}, mockOffers())
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer s.Close()
-			api.Register("s1", s)
-
-			mux := http.NewServeMux()
-			if prefix == "" {
-				mux.Handle("/", api.Handler())
-			} else {
-				mux.Handle(prefix+"/", http.StripPrefix(prefix, api.Handler()))
-			}
-			srv := httptest.NewServer(mux)
-			defer srv.Close()
-
-			resp, err := http.Get(srv.URL + prefix + "/sessions/s1/graph")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer resp.Body.Close()
-			if resp.StatusCode != http.StatusOK {
-				t.Fatalf("graph: status %d", resp.StatusCode)
-			}
-		})
-	}
-}
-
 func TestInputAndStream(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	api := api.New(api.Options{Dev: true})
+	a := api.New(api.Options{Dev: true})
 	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	api.Register("s1", s)
+	a.Register("s1", s)
 
-	srv := httptest.NewServer(api.Handler())
+	srv := httptest.NewServer(serve(a))
 	defer srv.Close()
 
 	streamCtx, stopStream := context.WithTimeout(ctx, 3*time.Second)
 	defer stopStream()
-	req, _ := http.NewRequestWithContext(streamCtx, http.MethodGet, srv.URL+"/sessions/s1/stream", nil)
+	req, _ := http.NewRequestWithContext(streamCtx, http.MethodGet, srv.URL+"/api/engine/sessions/s1/stream", nil)
 	stream, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stream.Body.Close()
 
-	post, err := http.Post(srv.URL+"/sessions/s1/input", "application/json",
+	post, err := http.Post(srv.URL+"/api/engine/sessions/s1/input", "application/json",
 		strings.NewReader(`{"text":"I try to cross the bridge"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer post.Body.Close()
-	if post.StatusCode != http.StatusAccepted {
+	if post.StatusCode != http.StatusOK {
 		t.Fatalf("input: status %d", post.StatusCode)
 	}
 
@@ -94,7 +54,7 @@ func TestInputAndStream(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reading stream: %v", err)
 	}
-	if got := string(buf[:n]); !strings.Contains(got, "event: ") {
+	if got := string(buf[:n]); !strings.Contains(got, "data: ") {
 		t.Errorf("stream carried no SSE event, got %q", got)
 	}
 }
@@ -105,18 +65,18 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	api := api.New(api.Options{Dev: true})
+	a := api.New(api.Options{Dev: true})
 	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typed"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	api.Register("typed", s)
+	a.Register("typed", s)
 
-	srv := httptest.NewServer(api.Handler())
+	srv := httptest.NewServer(serve(a))
 	defer srv.Close()
 
-	resp, err := http.Post(srv.URL+"/sessions/typed/input", "application/json",
+	resp, err := http.Post(srv.URL+"/api/engine/sessions/typed/input", "application/json",
 		strings.NewReader(`{"audio":"c3Bva2Vu"}`))
 	if err != nil {
 		t.Fatal(err)
@@ -128,10 +88,10 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 }
 
 func TestUnknownSessionIs404(t *testing.T) {
-	srv := httptest.NewServer(api.New(api.Options{Dev: true}).Handler())
+	srv := httptest.NewServer(serve(api.New(api.Options{Dev: true})))
 	defer srv.Close()
 
-	resp, err := http.Get(srv.URL + "/sessions/nope/graph")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/nope/graph")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +107,7 @@ func newServer(t *testing.T, id string, session *engine.Session) *httptest.Serve
 	t.Helper()
 	a := api.New(api.Options{Dev: true})
 	a.Register(id, session)
-	srv := httptest.NewServer(a.Handler())
+	srv := httptest.NewServer(serve(a))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -176,7 +136,7 @@ func TestEveryNodeIsInspectable(t *testing.T) {
 	}
 
 	for _, node := range topology.Nodes {
-		resp, err := http.Get(srv.URL + "/sessions/inspect/nodes/" + node.Name)
+		resp, err := http.Get(srv.URL + "/api/engine/sessions/inspect/nodes/" + node.Name)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -186,7 +146,7 @@ func TestEveryNodeIsInspectable(t *testing.T) {
 		}
 	}
 
-	resp, err := http.Get(srv.URL + "/sessions/inspect/nodes/not-a-block")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/inspect/nodes/not-a-block")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,7 +186,7 @@ func TestNodeDetailCarriesNoSecret(t *testing.T) {
 	srv := newServer(t, "secretless", session)
 
 	for _, node := range session.Topology().Nodes {
-		resp, err := http.Get(srv.URL + "/sessions/secretless/nodes/" + node.Name)
+		resp, err := http.Get(srv.URL + "/api/engine/sessions/secretless/nodes/" + node.Name)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -258,7 +218,7 @@ func TestNodeDetailListsAreNeverNull(t *testing.T) {
 	srv := newServer(t, "lists", session)
 
 	for _, node := range session.Topology().Nodes {
-		resp, err := http.Get(srv.URL + "/sessions/lists/nodes/" + node.Name)
+		resp, err := http.Get(srv.URL + "/api/engine/sessions/lists/nodes/" + node.Name)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -289,7 +249,7 @@ func TestEdgeInspection(t *testing.T) {
 	srv := newServer(t, "edges", session)
 
 	for _, edge := range session.Topology().Edges {
-		url := fmt.Sprintf("%s/sessions/edges/edge?from=%s&to=%s&kind=%s",
+		url := fmt.Sprintf("%s/api/engine/sessions/edges/edges/%s/%s/%s",
 			srv.URL, edge.From, edge.To, edge.Kind)
 		resp, err := http.Get(url)
 		if err != nil {
@@ -301,7 +261,7 @@ func TestEdgeInspection(t *testing.T) {
 		}
 	}
 
-	resp, err := http.Get(srv.URL + "/sessions/edges/edge?from=observer&to=out-text&kind=text")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/edges/edges/observer/out-text/text")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -334,7 +294,7 @@ func TestConnectBrokersTheOfferAndKeepsTheSessionID(t *testing.T) {
 	waitForConnectInvitation(t, session)
 
 	body := strings.NewReader(`{"sdp":"v=0 browser offer"}`)
-	resp, err := http.Post(srv.URL+"/sessions/brokered/connect", "application/json", body)
+	resp, err := http.Post(srv.URL+"/api/engine/sessions/brokered/connect", "application/json", body)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -370,7 +330,7 @@ func TestConnectRejectsAnEmptyOffer(t *testing.T) {
 	defer session.Close()
 
 	srv := newServer(t, "empty", session)
-	resp, err := http.Post(srv.URL+"/sessions/empty/connect", "application/json",
+	resp, err := http.Post(srv.URL+"/api/engine/sessions/empty/connect", "application/json",
 		strings.NewReader(`{"sdp":""}`))
 	if err != nil {
 		t.Fatal(err)
@@ -400,7 +360,7 @@ func TestPromptsAreReadable(t *testing.T) {
 	defer session.Close()
 
 	srv := newServer(t, "prompts", session)
-	resp, err := http.Get(srv.URL + "/sessions/prompts/prompts")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/prompts/prompts")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -471,7 +431,7 @@ func TestEmptyHistoryIsAnEmptyList(t *testing.T) {
 	defer session.Close()
 
 	srv := newServer(t, "fresh", session)
-	resp, err := http.Get(srv.URL + "/sessions/fresh/history")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/fresh/history")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -504,10 +464,10 @@ func TestAnUnknownSessionIsUnknown(t *testing.T) {
 		a.Register(id, s)
 	}
 
-	srv := httptest.NewServer(a.Handler())
+	srv := httptest.NewServer(serve(a))
 	t.Cleanup(srv.Close)
 
-	resp, err := http.Get(srv.URL + "/sessions/three/topology")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/three/topology")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -515,11 +475,13 @@ func TestAnUnknownSessionIsUnknown(t *testing.T) {
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("an unknown session among several answered %s", resp.Status)
 	}
-	var refusal engine.Refusal
-	if err := json.NewDecoder(resp.Body).Decode(&refusal); err != nil || refusal.Problem != engine.ProblemUnknown {
-		t.Errorf("refusal = %+v (%v), want the unknown problem", refusal, err)
+	if got := errorOf(t, resp); got.Code != string(engine.ProblemUnknown) {
+		t.Errorf("refusal = %+v, want the unknown problem", got)
 	}
 }
 
 // mockOffers is what a test runs on: the mock, with nothing to choose.
 func mockOffers() []engine.Offer { return []engine.Offer{engine.MockOffer()} }
+
+// serve is the engine's routes on a plain mux, as the dev server serves them.
+func serve(a *api.API) http.Handler { return api.Mux(a.SchemafRoutes()) }

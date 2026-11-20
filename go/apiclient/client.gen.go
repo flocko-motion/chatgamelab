@@ -89,6 +89,28 @@ type CheckNameResp struct {
 	Profane   *bool `json:"profane,omitempty"`
 }
 
+// Choice defines model for Choice.
+type Choice struct {
+	Tier    string  `json:"tier"`
+	Toggles Toggles `json:"toggles"`
+}
+
+// ChooseRequest defines model for ChooseRequest.
+type ChooseRequest struct {
+	Choice *Choice `json:"choice,omitempty"`
+	Offer  string  `json:"offer"`
+}
+
+// ConnectRequest defines model for ConnectRequest.
+type ConnectRequest struct {
+	Sdp string `json:"sdp"`
+}
+
+// ConnectResponse defines model for ConnectResponse.
+type ConnectResponse struct {
+	Sdp string `json:"sdp"`
+}
+
 // CreateApiKeyReq defines model for CreateApiKeyReq.
 type CreateApiKeyReq struct {
 	Key      string `json:"key"`
@@ -125,6 +147,19 @@ type CreateInstitutionReq struct {
 	Name string `json:"name"`
 }
 
+// CreateRequest defines model for CreateRequest.
+type CreateRequest struct {
+	Game     *string `json:"game,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Once     string  `json:"once"`
+	Share    *string `json:"share,omitempty"`
+}
+
+// CreateResponse defines model for CreateResponse.
+type CreateResponse struct {
+	Id string `json:"id"`
+}
+
 // CreateUserReq defines model for CreateUserReq.
 type CreateUserReq struct {
 	Email *string `json:"email,omitempty"`
@@ -152,6 +187,14 @@ type CreateWorkshopReq struct {
 	Public        bool    `json:"public"`
 }
 
+// EdgeDetail defines model for EdgeDetail.
+type EdgeDetail struct {
+	From   string   `json:"from"`
+	Kind   string   `json:"kind"`
+	Recent []Sample `json:"recent"`
+	To     string   `json:"to"`
+}
+
 // EnrichedGameShare defines model for EnrichedGameShare.
 type EnrichedGameShare struct {
 	AiQualityTier *string             `json:"aiQualityTier,omitempty"`
@@ -172,7 +215,7 @@ type EnrichedGameShare struct {
 
 // Error defines model for Error.
 type Error struct {
-	// Code Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, too_many_requests, unavailable, internal).
+	// Code Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, gone, precondition_failed, too_large, unprocessable, too_many_requests, not_implemented, bad_gateway, unavailable, gateway_timeout, internal, method_not_allowed, not_acceptable, unsupported_media_type).
 	Code string `json:"code"`
 
 	// Error The message. On 5xx always the status text.
@@ -185,6 +228,11 @@ type Error struct {
 // FavouriteResp defines model for FavouriteResp.
 type FavouriteResp struct {
 	Favourite bool `json:"favourite"`
+}
+
+// FlowchartResponse defines model for FlowchartResponse.
+type FlowchartResponse struct {
+	Flowchart string `json:"flowchart"`
 }
 
 // Game defines model for Game.
@@ -298,6 +346,11 @@ type GetVersionResp struct {
 	Version   string `json:"version"`
 }
 
+// GraphResponse defines model for GraphResponse.
+type GraphResponse struct {
+	Graph string `json:"graph"`
+}
+
 // GuestGameInfoResp defines model for GuestGameInfoResp.
 type GuestGameInfoResp struct {
 	Description *string            `json:"description,omitempty"`
@@ -305,6 +358,12 @@ type GuestGameInfoResp struct {
 	Name        string             `json:"name"`
 	Public      bool               `json:"public"`
 	Remaining   *int               `json:"remaining,omitempty"`
+}
+
+// InputRequest defines model for InputRequest.
+type InputRequest struct {
+	Audio *[]byte `json:"audio,omitempty"`
+	Text  *string `json:"text,omitempty"`
 }
 
 // Institution defines model for Institution.
@@ -370,6 +429,34 @@ type Model struct {
 	Params *map[string]string `json:"params,omitempty"`
 }
 
+// NodeDetail defines model for NodeDetail.
+type NodeDetail struct {
+	Inputs  []Sample     `json:"inputs"`
+	Name    string       `json:"name"`
+	Outputs []Sample     `json:"outputs"`
+	Phase   string       `json:"phase"`
+	Role    string       `json:"role"`
+	Type    string       `json:"type"`
+	Usage   *UsageRecord `json:"usage,omitempty"`
+}
+
+// OfferOption defines model for OfferOption.
+type OfferOption struct {
+	Customizable bool         `json:"customizable"`
+	Default      Choice       `json:"default"`
+	Name         string       `json:"name"`
+	Offer        string       `json:"offer"`
+	Platform     string       `json:"platform"`
+	Tiers        []TierOption `json:"tiers"`
+}
+
+// Options defines model for Options.
+type Options struct {
+	Choosing bool          `json:"choosing"`
+	Offers   []OfferOption `json:"offers"`
+	Settled  *Settled      `json:"settled,omitempty"`
+}
+
 // ParticipantLoginReq defines model for ParticipantLoginReq.
 type ParticipantLoginReq struct {
 	Token string `json:"token"`
@@ -389,6 +476,14 @@ type PlatformInfo struct {
 	Tiers    []TierModels `json:"tiers"`
 	Toggles  Toggles      `json:"toggles"`
 	UserKeys bool         `json:"userKeys"`
+}
+
+// Preference defines model for Preference.
+type Preference struct {
+	Offer    *string `json:"offer,omitempty"`
+	Platform string  `json:"platform"`
+	Tier     string  `json:"tier"`
+	Toggles  Toggles `json:"toggles"`
 }
 
 // PrivateShareStatusResp defines model for PrivateShareStatusResp.
@@ -440,9 +535,36 @@ type RolesResp struct {
 	Roles []string `json:"roles"`
 }
 
+// Sample defines model for Sample.
+type Sample struct {
+	At    time.Time `json:"at"`
+	Kind  string    `json:"kind"`
+	Peer  string    `json:"peer"`
+	Value string    `json:"value"`
+}
+
 // SchemafAuth0LoginRequest defines model for SchemafAuth0LoginRequest.
 type SchemafAuth0LoginRequest struct {
 	IdToken string `json:"id_token"`
+}
+
+// SchemafErrorDetails defines model for SchemafErrorDetails.
+type SchemafErrorDetails struct {
+	Code string `json:"code"`
+
+	// Error The full error.
+	Error  string `json:"error"`
+	Id     string `json:"id"`
+	Method string `json:"method"`
+
+	// Misuse The misuse of the error API, if any.
+	Misuse *string `json:"misuse,omitempty"`
+	Path   string  `json:"path"`
+	Status int     `json:"status"`
+
+	// Subject The caller, if authenticated.
+	Subject *string   `json:"subject,omitempty"`
+	Time    time.Time `json:"time"`
 }
 
 // SchemafLoginResponse defines model for SchemafLoginResponse.
@@ -456,9 +578,20 @@ type SchemafRefreshResponse struct {
 	Token string `json:"token"`
 }
 
+// SchemafUser defines model for SchemafUser.
+type SchemafUser struct {
+	Id string `json:"id"`
+}
+
 // SessionDeletedResp defines model for SessionDeletedResp.
 type SessionDeletedResp struct {
 	Status string `json:"status"`
+}
+
+// SessionEvent defines model for SessionEvent.
+type SessionEvent struct {
+	Stream string `json:"Stream"`
+	Value  string `json:"Value"`
 }
 
 // SetActiveWorkshopReq defines model for SetActiveWorkshopReq.
@@ -488,11 +621,31 @@ type SetWorkshopApiKeyReq struct {
 	ApiKeyShareId *string `json:"apiKeyShareId,omitempty"`
 }
 
+// Settled defines model for Settled.
+type Settled struct {
+	Changes    *[]string  `json:"changes,omitempty"`
+	Choice     Choice     `json:"choice"`
+	Offer      string     `json:"offer"`
+	Platform   string     `json:"platform"`
+	Preference Preference `json:"preference"`
+}
+
 // ShareApiKeyReq defines model for ShareApiKeyReq.
 type ShareApiKeyReq struct {
 	InstitutionId *openapi_types.UUID `json:"institutionId,omitempty"`
 	UserId        *openapi_types.UUID `json:"userId,omitempty"`
 	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
+}
+
+// Snapshot defines model for Snapshot.
+type Snapshot struct {
+	Choosing     bool              `json:"choosing"`
+	Conversation *string           `json:"conversation,omitempty"`
+	Phases       map[string]string `json:"phases"`
+	Props        map[string]string `json:"props"`
+	Settled      *Settled          `json:"settled,omitempty"`
+	Started      bool              `json:"started"`
+	Usage        UsageReport       `json:"usage"`
 }
 
 // SystemConstraintsResp defines model for SystemConstraintsResp.
@@ -530,12 +683,51 @@ type TierModels struct {
 	Models map[string]Model `json:"models"`
 }
 
+// TierOption defines model for TierOption.
+type TierOption struct {
+	Label   string            `json:"label"`
+	Models  map[string]string `json:"models"`
+	Tier    string            `json:"tier"`
+	Toggles Toggles           `json:"toggles"`
+}
+
+// ToggleRequest defines model for ToggleRequest.
+type ToggleRequest struct {
+	On     bool   `json:"on"`
+	Toggle string `json:"toggle"`
+}
+
 // Toggles defines model for Toggles.
 type Toggles struct {
 	AudioIn   bool `json:"audio-in"`
 	AudioLive bool `json:"audio-live"`
 	AudioOut  bool `json:"audio-out"`
 	Images    bool `json:"images"`
+}
+
+// Topology defines model for Topology.
+type Topology struct {
+	Edges    []TopologyEdge `json:"edges"`
+	Imagery  string         `json:"imagery"`
+	Inputs   []string       `json:"inputs"`
+	Language *string        `json:"language,omitempty"`
+	Name     string         `json:"name"`
+	Nodes    []TopologyNode `json:"nodes"`
+	Theme    *string        `json:"theme,omitempty"`
+	Title    *string        `json:"title,omitempty"`
+}
+
+// TopologyEdge defines model for TopologyEdge.
+type TopologyEdge struct {
+	From string `json:"from"`
+	Kind string `json:"kind"`
+	To   string `json:"to"`
+}
+
+// TopologyNode defines model for TopologyNode.
+type TopologyNode struct {
+	Name string `json:"name"`
+	Role string `json:"role"`
 }
 
 // UpdateApiKeyReq defines model for UpdateApiKeyReq.
@@ -640,6 +832,27 @@ type UpdateWorkshopReq struct {
 	PublicSlug                 *string               `json:"publicSlug,omitempty"`
 	ShowOtherParticipantsGames bool                  `json:"showOtherParticipantsGames"`
 	ShowPublicGames            bool                  `json:"showPublicGames"`
+}
+
+// UsageRecord defines model for UsageRecord.
+type UsageRecord struct {
+	AudioSeconds      *float32 `json:"audioSeconds,omitempty"`
+	CachedInputTokens *int     `json:"cachedInputTokens,omitempty"`
+	Cost              float32  `json:"cost"`
+	Images            *int     `json:"images,omitempty"`
+	InputTokens       *int     `json:"inputTokens,omitempty"`
+	Model             string   `json:"model"`
+	Node              *string  `json:"node,omitempty"`
+	OutputTokens      *int     `json:"outputTokens,omitempty"`
+	Priced            bool     `json:"priced"`
+}
+
+// UsageReport defines model for UsageReport.
+type UsageReport struct {
+	ByModel   []UsageRecord `json:"byModel"`
+	ByNode    []UsageRecord `json:"byNode"`
+	Complete  bool          `json:"complete"`
+	TotalCost float32       `json:"totalCost"`
 }
 
 // User defines model for User.
@@ -789,6 +1002,21 @@ type PostApiAuthRegisterJSONRequestBody = Registration
 
 // PostApiAuthProviderLoginJSONRequestBody defines body for PostApiAuthProviderLogin for application/json ContentType.
 type PostApiAuthProviderLoginJSONRequestBody PostApiAuthProviderLoginJSONBody
+
+// PostApiEngineSessionsJSONRequestBody defines body for PostApiEngineSessions for application/json ContentType.
+type PostApiEngineSessionsJSONRequestBody = CreateRequest
+
+// PostApiEngineSessionsIdChooseJSONRequestBody defines body for PostApiEngineSessionsIdChoose for application/json ContentType.
+type PostApiEngineSessionsIdChooseJSONRequestBody = ChooseRequest
+
+// PostApiEngineSessionsIdConnectJSONRequestBody defines body for PostApiEngineSessionsIdConnect for application/json ContentType.
+type PostApiEngineSessionsIdConnectJSONRequestBody = ConnectRequest
+
+// PostApiEngineSessionsIdInputJSONRequestBody defines body for PostApiEngineSessionsIdInput for application/json ContentType.
+type PostApiEngineSessionsIdInputJSONRequestBody = InputRequest
+
+// PostApiEngineSessionsIdTogglesJSONRequestBody defines body for PostApiEngineSessionsIdToggles for application/json ContentType.
+type PostApiEngineSessionsIdTogglesJSONRequestBody = ToggleRequest
 
 // PostApiGamesNewJSONRequestBody defines body for PostApiGamesNew for application/json ContentType.
 type PostApiGamesNewJSONRequestBody = CreateGameReq
@@ -1136,24 +1364,216 @@ type ClientInterface interface {
 	// Corresponds with POST /api/auth/{provider}/login (the `PostApiAuthProviderLogin` operationId).
 	PostApiAuthProviderLogin(ctx context.Context, provider string, body PostApiAuthProviderLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiEngineRest Passes GET requests under /api/engine/ to the engine.
+	// GetApiConfig Public frontend config
 	//
-	// The playback-engine, its session stream (WebSocket included), its state and
-	// its lists. Accounts and guests alike; a request naming a session passes the
-	// access policy first.
+	// Every PUBLIC_* environment variable, keyed by its full name. Read it in the frontend through config() from config.gen.ts.
 	//
-	// Corresponds with GET /api/engine/{rest...} (the `GetApiEngineRest` operationId).
-	GetApiEngineRest(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Corresponds with GET /api/config (the `GetApiConfig` operationId).
+	GetApiConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiEngineRest Passes POST requests under /api/engine/ to the engine.
+	// GetApiEnginePlaybackEngine Serves the playback-engine's page.
 	//
-	// Creating a session from a game or a share token, and a session's input,
-	// choices, toggles, connect and pause. Accounts and guests alike; a request
-	// naming a session passes the access policy first. Creating counts towards the
-	// token lock, as it may look up a share token.
+	// Opened with ?session=<id> to play a session, or ?new&game=<id> or
+	// ?new&share=<token> to start one.
 	//
-	// Corresponds with POST /api/engine/{rest...} (the `PostApiEngineRest` operationId).
-	PostApiEngineRest(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Corresponds with GET /api/engine/playback-engine/ (the `GetApiEnginePlaybackEngine` operationId).
+	GetApiEnginePlaybackEngine(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEnginePlaybackEngineDirFile Serves a playback-engine file in a folder.
+	//
+	// Its chunks, fonts, art and language files.
+	//
+	// Corresponds with GET /api/engine/playback-engine/{dir}/{file} (the `GetApiEnginePlaybackEngineDirFile` operationId).
+	GetApiEnginePlaybackEngineDirFile(ctx context.Context, dir string, file string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEnginePlaybackEngineFile Serves a playback-engine file beside its page.
+	//
+	// Its scripts, stylesheet and worklet.
+	//
+	// Corresponds with GET /api/engine/playback-engine/{file} (the `GetApiEnginePlaybackEngineFile` operationId).
+	GetApiEnginePlaybackEngineFile(ctx context.Context, file string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsWithBody Starts a session from a game or a share token.
+	//
+	// A game for a signed-in player, a share token for a guest or a signed-in
+	// player. A repeat of the one-time key within ten minutes answers the session
+	// the first created, to the same caller only. Counts towards the token lock,
+	// as it may look up a share token.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+	PostApiEngineSessionsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessions Starts a session from a game or a share token.
+	//
+	// A game for a signed-in player, a share token for a guest or a signed-in
+	// player. A repeat of the one-time key within ten minutes answers the session
+	// the first created, to the same caller only. Counts towards the token lock,
+	// as it may look up a share token.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+	PostApiEngineSessions(ctx context.Context, body PostApiEngineSessionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdChooseWithBody Takes the player's choice among a session's offers.
+	//
+	// A choice outside the offer's caveats is refused.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+	PostApiEngineSessionsIdChooseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdChoose Takes the player's choice among a session's offers.
+	//
+	// A choice outside the offer's caveats is refused.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+	PostApiEngineSessionsIdChoose(ctx context.Context, id string, body PostApiEngineSessionsIdChooseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdConnectWithBody Brokers the browser's offer to talk to a session's character.
+	//
+	// The provider's id stays server-side, keeping a spendable key and a
+	// steerable conversation off the client.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+	PostApiEngineSessionsIdConnectWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdConnect Brokers the browser's offer to talk to a session's character.
+	//
+	// The provider's id stays server-side, keeping a spendable key and a
+	// steerable conversation off the client.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+	PostApiEngineSessionsIdConnect(ctx context.Context, id string, body PostApiEngineSessionsIdConnectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdEdgesFromToKind Answers what one wire of a session has carried.
+	//
+	// The wire is named by its ends and its kind.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/edges/{from}/{to}/{kind} (the `GetApiEngineSessionsIdEdgesFromToKind` operationId).
+	GetApiEngineSessionsIdEdgesFromToKind(ctx context.Context, id string, from string, to string, kind string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdFlowchart Renders a session's running wiring as a mermaid flowchart.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/flowchart (the `GetApiEngineSessionsIdFlowchart` operationId).
+	GetApiEngineSessionsIdFlowchart(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdGraph Renders a session's running wiring as text.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/graph (the `GetApiEngineSessionsIdGraph` operationId).
+	GetApiEngineSessionsIdGraph(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdHistory Answers a session's conversation so far, in order.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/history (the `GetApiEngineSessionsIdHistory` operationId).
+	GetApiEngineSessionsIdHistory(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdInputWithBody Submits one player action to a session, typed or spoken.
+	//
+	// As the genre accepts; an accepted input counts as one of the session's
+	// messages.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+	PostApiEngineSessionsIdInputWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdInput Submits one player action to a session, typed or spoken.
+	//
+	// As the genre accepts; an accepted input counts as one of the session's
+	// messages.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+	PostApiEngineSessionsIdInput(ctx context.Context, id string, body PostApiEngineSessionsIdInputJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdLive Opens the duplex WebSocket a session of a voice genre needs.
+	//
+	// The browser sends binary frames of microphone audio and text frames of
+	// typed input, a JSON LiveInput; it receives the session's events back,
+	// binary frames for audio and text frames of JSON SessionEvent for everything
+	// else. A rejected input comes back as an `error` event.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/live (the `GetApiEngineSessionsIdLive` operationId).
+	GetApiEngineSessionsIdLive(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdNodesNode Answers what one block of a session is and has been doing.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
+	GetApiEngineSessionsIdNodesNode(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdOptions Answers what the player of a session may choose from.
+	//
+	// And what the session settled on.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/options (the `GetApiEngineSessionsIdOptions` operationId).
+	GetApiEngineSessionsIdOptions(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdPause Lets a session's live conversation go at the player's request.
+	//
+	// As idling would.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/pause (the `PostApiEngineSessionsIdPause` operationId).
+	PostApiEngineSessionsIdPause(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdPrompts Answers the text a session is running on, by block.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/prompts (the `GetApiEngineSessionsIdPrompts` operationId).
+	GetApiEngineSessionsIdPrompts(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdState Answers where a session stands now.
+	//
+	// A reloading page fetches it with the history.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/state (the `GetApiEngineSessionsIdState` operationId).
+	GetApiEngineSessionsIdState(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdStream Streams a session's events as server-sent events.
+	//
+	// Each event's data is one SessionEvent; its Stream names the kind.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/stream (the `GetApiEngineSessionsIdStream` operationId).
+	GetApiEngineSessionsIdStream(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdTogglesWithBody Switches a feature of a session during play.
+	//
+	// Such as pictures off; on only as far as the session's offer allows.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+	PostApiEngineSessionsIdTogglesWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdToggles Switches a feature of a session during play.
+	//
+	// Such as pictures off; on only as far as the session's offer allows.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+	PostApiEngineSessionsIdToggles(ctx context.Context, id string, body PostApiEngineSessionsIdTogglesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiEngineSessionsIdTopology Answers a session's wiring as data, for a view that draws it.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/topology (the `GetApiEngineSessionsIdTopology` operationId).
+	GetApiEngineSessionsIdTopology(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiErrorsId Details of a server error
+	//
+	// The details stored for the 5xx answered with this id: open in development mode, in production only to callers the app allows (app.CanSeeErrorDetails). 404 when the id is unknown or expired (kept: newest 1000, at most 24 hours, per process).
+	//
+	// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
+	GetApiErrorsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiGames Lists the games the caller can see.
 	//
@@ -1375,6 +1795,13 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/genres (the `GetApiGenres` operationId).
 	GetApiGenres(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiHealth Health check
+	//
+	// "status" is "ok" or "error", "db" and every registered health check are "ok" or "error: …". 503 (with the same body) when anything is unhealthy.
+	//
+	// Corresponds with GET /api/health (the `GetApiHealth` operationId).
+	GetApiHealth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiInstitutions Lists the institutions the caller can see.
 	//
@@ -1675,6 +2102,13 @@ type ClientInterface interface {
 	// Corresponds with DELETE /api/sessions/{id} (the `DeleteApiSessionsId` operationId).
 	DeleteApiSessionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiStatus Service status
+	//
+	// Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
+	//
+	// Corresponds with GET /api/status (the `GetApiStatus` operationId).
+	GetApiStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetApiSystemConstraints Returns the three site-wide age-based prompt
 	//
 	// constraint texts.
@@ -1740,6 +2174,13 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/themes (the `GetApiThemes` operationId).
 	GetApiThemes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiUserMe The authenticated caller
+	//
+	// The subject of the caller.
+	//
+	// Corresponds with GET /api/user/me (the `GetApiUserMe` operationId).
+	GetApiUserMe(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiUsers Lists the users the caller manages.
 	//
@@ -2476,15 +2917,13 @@ func (c *Client) PostApiAuthProviderLogin(ctx context.Context, provider string, 
 	return c.Client.Do(req)
 }
 
-// GetApiEngineRest Passes GET requests under /api/engine/ to the engine.
+// GetApiConfig Public frontend config
 //
-// The playback-engine, its session stream (WebSocket included), its state and
-// its lists. Accounts and guests alike; a request naming a session passes the
-// access policy first.
+// Every PUBLIC_* environment variable, keyed by its full name. Read it in the frontend through config() from config.gen.ts.
 //
-// Corresponds with GET /api/engine/{rest...} (the `GetApiEngineRest` operationId).
-func (c *Client) GetApiEngineRest(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiEngineRestRequest(c.Server, rest)
+// Corresponds with GET /api/config (the `GetApiConfig` operationId).
+func (c *Client) GetApiConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiConfigRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -2495,16 +2934,460 @@ func (c *Client) GetApiEngineRest(ctx context.Context, rest string, reqEditors .
 	return c.Client.Do(req)
 }
 
-// PostApiEngineRest Passes POST requests under /api/engine/ to the engine.
+// GetApiEnginePlaybackEngine Serves the playback-engine's page.
 //
-// Creating a session from a game or a share token, and a session's input,
-// choices, toggles, connect and pause. Accounts and guests alike; a request
-// naming a session passes the access policy first. Creating counts towards the
-// token lock, as it may look up a share token.
+// Opened with ?session=<id> to play a session, or ?new&game=<id> or
+// ?new&share=<token> to start one.
 //
-// Corresponds with POST /api/engine/{rest...} (the `PostApiEngineRest` operationId).
-func (c *Client) PostApiEngineRest(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiEngineRestRequest(c.Server, rest)
+// Corresponds with GET /api/engine/playback-engine/ (the `GetApiEnginePlaybackEngine` operationId).
+func (c *Client) GetApiEnginePlaybackEngine(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEnginePlaybackEngineRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEnginePlaybackEngineDirFile Serves a playback-engine file in a folder.
+//
+// Its chunks, fonts, art and language files.
+//
+// Corresponds with GET /api/engine/playback-engine/{dir}/{file} (the `GetApiEnginePlaybackEngineDirFile` operationId).
+func (c *Client) GetApiEnginePlaybackEngineDirFile(ctx context.Context, dir string, file string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEnginePlaybackEngineDirFileRequest(c.Server, dir, file)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEnginePlaybackEngineFile Serves a playback-engine file beside its page.
+//
+// Its scripts, stylesheet and worklet.
+//
+// Corresponds with GET /api/engine/playback-engine/{file} (the `GetApiEnginePlaybackEngineFile` operationId).
+func (c *Client) GetApiEnginePlaybackEngineFile(ctx context.Context, file string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEnginePlaybackEngineFileRequest(c.Server, file)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsWithBody Starts a session from a game or a share token.
+//
+// A game for a signed-in player, a share token for a guest or a signed-in
+// player. A repeat of the one-time key within ten minutes answers the session
+// the first created, to the same caller only. Counts towards the token lock,
+// as it may look up a share token.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+func (c *Client) PostApiEngineSessionsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessions Starts a session from a game or a share token.
+//
+// A game for a signed-in player, a share token for a guest or a signed-in
+// player. A repeat of the one-time key within ten minutes answers the session
+// the first created, to the same caller only. Counts towards the token lock,
+// as it may look up a share token.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+func (c *Client) PostApiEngineSessions(ctx context.Context, body PostApiEngineSessionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdChooseWithBody Takes the player's choice among a session's offers.
+//
+// A choice outside the offer's caveats is refused.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+func (c *Client) PostApiEngineSessionsIdChooseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdChooseRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdChoose Takes the player's choice among a session's offers.
+//
+// A choice outside the offer's caveats is refused.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+func (c *Client) PostApiEngineSessionsIdChoose(ctx context.Context, id string, body PostApiEngineSessionsIdChooseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdChooseRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdConnectWithBody Brokers the browser's offer to talk to a session's character.
+//
+// The provider's id stays server-side, keeping a spendable key and a
+// steerable conversation off the client.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+func (c *Client) PostApiEngineSessionsIdConnectWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdConnectRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdConnect Brokers the browser's offer to talk to a session's character.
+//
+// The provider's id stays server-side, keeping a spendable key and a
+// steerable conversation off the client.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+func (c *Client) PostApiEngineSessionsIdConnect(ctx context.Context, id string, body PostApiEngineSessionsIdConnectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdConnectRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdEdgesFromToKind Answers what one wire of a session has carried.
+//
+// The wire is named by its ends and its kind.
+//
+// Corresponds with GET /api/engine/sessions/{id}/edges/{from}/{to}/{kind} (the `GetApiEngineSessionsIdEdgesFromToKind` operationId).
+func (c *Client) GetApiEngineSessionsIdEdgesFromToKind(ctx context.Context, id string, from string, to string, kind string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdEdgesFromToKindRequest(c.Server, id, from, to, kind)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdFlowchart Renders a session's running wiring as a mermaid flowchart.
+//
+// Corresponds with GET /api/engine/sessions/{id}/flowchart (the `GetApiEngineSessionsIdFlowchart` operationId).
+func (c *Client) GetApiEngineSessionsIdFlowchart(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdFlowchartRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdGraph Renders a session's running wiring as text.
+//
+// Corresponds with GET /api/engine/sessions/{id}/graph (the `GetApiEngineSessionsIdGraph` operationId).
+func (c *Client) GetApiEngineSessionsIdGraph(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdGraphRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdHistory Answers a session's conversation so far, in order.
+//
+// Corresponds with GET /api/engine/sessions/{id}/history (the `GetApiEngineSessionsIdHistory` operationId).
+func (c *Client) GetApiEngineSessionsIdHistory(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdHistoryRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdInputWithBody Submits one player action to a session, typed or spoken.
+//
+// As the genre accepts; an accepted input counts as one of the session's
+// messages.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+func (c *Client) PostApiEngineSessionsIdInputWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdInputRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdInput Submits one player action to a session, typed or spoken.
+//
+// As the genre accepts; an accepted input counts as one of the session's
+// messages.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+func (c *Client) PostApiEngineSessionsIdInput(ctx context.Context, id string, body PostApiEngineSessionsIdInputJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdInputRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdLive Opens the duplex WebSocket a session of a voice genre needs.
+//
+// The browser sends binary frames of microphone audio and text frames of
+// typed input, a JSON LiveInput; it receives the session's events back,
+// binary frames for audio and text frames of JSON SessionEvent for everything
+// else. A rejected input comes back as an `error` event.
+//
+// Corresponds with GET /api/engine/sessions/{id}/live (the `GetApiEngineSessionsIdLive` operationId).
+func (c *Client) GetApiEngineSessionsIdLive(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdLiveRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdNodesNode Answers what one block of a session is and has been doing.
+//
+// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
+func (c *Client) GetApiEngineSessionsIdNodesNode(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdNodesNodeRequest(c.Server, id, node)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdOptions Answers what the player of a session may choose from.
+//
+// And what the session settled on.
+//
+// Corresponds with GET /api/engine/sessions/{id}/options (the `GetApiEngineSessionsIdOptions` operationId).
+func (c *Client) GetApiEngineSessionsIdOptions(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdOptionsRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdPause Lets a session's live conversation go at the player's request.
+//
+// As idling would.
+//
+// Corresponds with POST /api/engine/sessions/{id}/pause (the `PostApiEngineSessionsIdPause` operationId).
+func (c *Client) PostApiEngineSessionsIdPause(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdPauseRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdPrompts Answers the text a session is running on, by block.
+//
+// Corresponds with GET /api/engine/sessions/{id}/prompts (the `GetApiEngineSessionsIdPrompts` operationId).
+func (c *Client) GetApiEngineSessionsIdPrompts(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdPromptsRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdState Answers where a session stands now.
+//
+// A reloading page fetches it with the history.
+//
+// Corresponds with GET /api/engine/sessions/{id}/state (the `GetApiEngineSessionsIdState` operationId).
+func (c *Client) GetApiEngineSessionsIdState(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdStateRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdStream Streams a session's events as server-sent events.
+//
+// Each event's data is one SessionEvent; its Stream names the kind.
+//
+// Corresponds with GET /api/engine/sessions/{id}/stream (the `GetApiEngineSessionsIdStream` operationId).
+func (c *Client) GetApiEngineSessionsIdStream(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdStreamRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdTogglesWithBody Switches a feature of a session during play.
+//
+// Such as pictures off; on only as far as the session's offer allows.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+func (c *Client) PostApiEngineSessionsIdTogglesWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdTogglesRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdToggles Switches a feature of a session during play.
+//
+// Such as pictures off; on only as far as the session's offer allows.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+func (c *Client) PostApiEngineSessionsIdToggles(ctx context.Context, id string, body PostApiEngineSessionsIdTogglesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdTogglesRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiEngineSessionsIdTopology Answers a session's wiring as data, for a view that draws it.
+//
+// Corresponds with GET /api/engine/sessions/{id}/topology (the `GetApiEngineSessionsIdTopology` operationId).
+func (c *Client) GetApiEngineSessionsIdTopology(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdTopologyRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiErrorsId Details of a server error
+//
+// The details stored for the 5xx answered with this id: open in development mode, in production only to callers the app allows (app.CanSeeErrorDetails). 404 when the id is unknown or expired (kept: newest 1000, at most 24 hours, per process).
+//
+// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
+func (c *Client) GetApiErrorsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiErrorsIdRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -2996,6 +3879,23 @@ func (c *Client) PutApiGamesIdYaml(ctx context.Context, id string, body PutApiGa
 // Corresponds with GET /api/genres (the `GetApiGenres` operationId).
 func (c *Client) GetApiGenres(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiGenresRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiHealth Health check
+//
+// "status" is "ok" or "error", "db" and every registered health check are "ok" or "error: …". 503 (with the same body) when anything is unhealthy.
+//
+// Corresponds with GET /api/health (the `GetApiHealth` operationId).
+func (c *Client) GetApiHealth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiHealthRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -3675,6 +4575,23 @@ func (c *Client) DeleteApiSessionsId(ctx context.Context, id string, reqEditors 
 	return c.Client.Do(req)
 }
 
+// GetApiStatus Service status
+//
+// Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
+//
+// Corresponds with GET /api/status (the `GetApiStatus` operationId).
+func (c *Client) GetApiStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // GetApiSystemConstraints Returns the three site-wide age-based prompt
 //
 // constraint texts.
@@ -3801,6 +4718,23 @@ func (c *Client) PatchApiSystemSettingsFreeUseKey(ctx context.Context, body Patc
 // Corresponds with GET /api/themes (the `GetApiThemes` operationId).
 func (c *Client) GetApiThemes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiThemesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiUserMe The authenticated caller
+//
+// The subject of the caller.
+//
+// Corresponds with GET /api/user/me (the `GetApiUserMe` operationId).
+func (c *Client) GetApiUserMe(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiUserMeRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -5027,23 +5961,16 @@ func NewPostApiAuthProviderLoginRequestWithBody(server string, provider string, 
 	return req, nil
 }
 
-// NewGetApiEngineRestRequest constructs an http.Request for the GetApiEngineRest method
-func NewGetApiEngineRestRequest(server string, rest string) (*http.Request, error) {
+// NewGetApiConfigRequest constructs an http.Request for the GetApiConfig method
+func NewGetApiConfigRequest(server string) (*http.Request, error) {
 	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "rest...", rest, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/engine/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/config")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -5061,13 +5988,47 @@ func NewGetApiEngineRestRequest(server string, rest string) (*http.Request, erro
 	return req, nil
 }
 
-// NewPostApiEngineRestRequest constructs an http.Request for the PostApiEngineRest method
-func NewPostApiEngineRestRequest(server string, rest string) (*http.Request, error) {
+// NewGetApiEnginePlaybackEngineRequest constructs an http.Request for the GetApiEnginePlaybackEngine method
+func NewGetApiEnginePlaybackEngineRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/playback-engine/")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEnginePlaybackEngineDirFileRequest constructs an http.Request for the GetApiEnginePlaybackEngineDirFile method
+func NewGetApiEnginePlaybackEngineDirFileRequest(server string, dir string, file string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "rest...", rest, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "dir", dir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "file", file, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
 	if err != nil {
 		return nil, err
 	}
@@ -5077,7 +6038,522 @@ func NewPostApiEngineRestRequest(server string, rest string) (*http.Request, err
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/engine/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/engine/playback-engine/%s/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEnginePlaybackEngineFileRequest constructs an http.Request for the GetApiEnginePlaybackEngineFile method
+func NewGetApiEnginePlaybackEngineFileRequest(server string, file string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "file", file, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/playback-engine/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsRequest calls the generic PostApiEngineSessions builder with application/json body
+func NewPostApiEngineSessionsRequest(server string, body PostApiEngineSessionsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiEngineSessionsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiEngineSessionsRequestWithBody constructs an http.Request for the PostApiEngineSessions method, with any body, and a specified content type
+func NewPostApiEngineSessionsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdChooseRequest calls the generic PostApiEngineSessionsIdChoose builder with application/json body
+func NewPostApiEngineSessionsIdChooseRequest(server string, id string, body PostApiEngineSessionsIdChooseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiEngineSessionsIdChooseRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiEngineSessionsIdChooseRequestWithBody constructs an http.Request for the PostApiEngineSessionsIdChoose method, with any body, and a specified content type
+func NewPostApiEngineSessionsIdChooseRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/choose", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdConnectRequest calls the generic PostApiEngineSessionsIdConnect builder with application/json body
+func NewPostApiEngineSessionsIdConnectRequest(server string, id string, body PostApiEngineSessionsIdConnectJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiEngineSessionsIdConnectRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiEngineSessionsIdConnectRequestWithBody constructs an http.Request for the PostApiEngineSessionsIdConnect method, with any body, and a specified content type
+func NewPostApiEngineSessionsIdConnectRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/connect", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdEdgesFromToKindRequest constructs an http.Request for the GetApiEngineSessionsIdEdgesFromToKind method
+func NewGetApiEngineSessionsIdEdgesFromToKindRequest(server string, id string, from string, to string, kind string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "from", from, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "to", to, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam3 string
+
+	pathParam3, err = runtime.StyleParamWithOptions("simple", false, "kind", kind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/edges/%s/%s/%s", pathParam0, pathParam1, pathParam2, pathParam3)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdFlowchartRequest constructs an http.Request for the GetApiEngineSessionsIdFlowchart method
+func NewGetApiEngineSessionsIdFlowchartRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/flowchart", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdGraphRequest constructs an http.Request for the GetApiEngineSessionsIdGraph method
+func NewGetApiEngineSessionsIdGraphRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/graph", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdHistoryRequest constructs an http.Request for the GetApiEngineSessionsIdHistory method
+func NewGetApiEngineSessionsIdHistoryRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/history", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdInputRequest calls the generic PostApiEngineSessionsIdInput builder with application/json body
+func NewPostApiEngineSessionsIdInputRequest(server string, id string, body PostApiEngineSessionsIdInputJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiEngineSessionsIdInputRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiEngineSessionsIdInputRequestWithBody constructs an http.Request for the PostApiEngineSessionsIdInput method, with any body, and a specified content type
+func NewPostApiEngineSessionsIdInputRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/input", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdLiveRequest constructs an http.Request for the GetApiEngineSessionsIdLive method
+func NewGetApiEngineSessionsIdLiveRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/live", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdNodesNodeRequest constructs an http.Request for the GetApiEngineSessionsIdNodesNode method
+func NewGetApiEngineSessionsIdNodesNodeRequest(server string, id string, node string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "node", node, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/nodes/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdOptionsRequest constructs an http.Request for the GetApiEngineSessionsIdOptions method
+func NewGetApiEngineSessionsIdOptionsRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/options", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdPauseRequest constructs an http.Request for the PostApiEngineSessionsIdPause method
+func NewPostApiEngineSessionsIdPauseRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/pause", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -5088,6 +6564,223 @@ func NewPostApiEngineRestRequest(server string, rest string) (*http.Request, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdPromptsRequest constructs an http.Request for the GetApiEngineSessionsIdPrompts method
+func NewGetApiEngineSessionsIdPromptsRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/prompts", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdStateRequest constructs an http.Request for the GetApiEngineSessionsIdState method
+func NewGetApiEngineSessionsIdStateRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/state", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdStreamRequest constructs an http.Request for the GetApiEngineSessionsIdStream method
+func NewGetApiEngineSessionsIdStreamRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/stream", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdTogglesRequest calls the generic PostApiEngineSessionsIdToggles builder with application/json body
+func NewPostApiEngineSessionsIdTogglesRequest(server string, id string, body PostApiEngineSessionsIdTogglesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiEngineSessionsIdTogglesRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiEngineSessionsIdTogglesRequestWithBody constructs an http.Request for the PostApiEngineSessionsIdToggles method, with any body, and a specified content type
+func NewPostApiEngineSessionsIdTogglesRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/toggles", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiEngineSessionsIdTopologyRequest constructs an http.Request for the GetApiEngineSessionsIdTopology method
+func NewGetApiEngineSessionsIdTopologyRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/topology", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiErrorsIdRequest constructs an http.Request for the GetApiErrorsId method
+func NewGetApiErrorsIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/errors/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -5856,6 +7549,33 @@ func NewGetApiGenresRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/api/genres")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiHealthRequest constructs an http.Request for the GetApiHealth method
+func NewGetApiHealthRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/health")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -6914,6 +8634,33 @@ func NewDeleteApiSessionsIdRequest(server string, id string) (*http.Request, err
 	return req, nil
 }
 
+// NewGetApiStatusRequest constructs an http.Request for the GetApiStatus method
+func NewGetApiStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetApiSystemConstraintsRequest constructs an http.Request for the GetApiSystemConstraints method
 func NewGetApiSystemConstraintsRequest(server string) (*http.Request, error) {
 	var err error
@@ -7058,6 +8805,33 @@ func NewGetApiThemesRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/api/themes")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiUserMeRequest constructs an http.Request for the GetApiUserMe method
+func NewGetApiUserMeRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user/me")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -8205,28 +9979,250 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/auth/{provider}/login (the `PostApiAuthProviderLogin` operationId).
 	PostApiAuthProviderLoginWithResponse(ctx context.Context, provider string, body PostApiAuthProviderLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthProviderLoginResponse, error)
 
-	// GetApiEngineRestWithResponse Passes GET requests under /api/engine/ to the engine.
+	// GetApiConfigWithResponse Public frontend config
 	//
-	// The playback-engine, its session stream (WebSocket included), its state and
-	// its lists. Accounts and guests alike; a request naming a session passes the
-	// access policy first.
+	// Every PUBLIC_* environment variable, keyed by its full name. Read it in the frontend through config() from config.gen.ts.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
-	// Corresponds with GET /api/engine/{rest...} (the `GetApiEngineRest` operationId).
-	GetApiEngineRestWithResponse(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*GetApiEngineRestResponse, error)
+	// Corresponds with GET /api/config (the `GetApiConfig` operationId).
+	GetApiConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiConfigResponse, error)
 
-	// PostApiEngineRestWithResponse Passes POST requests under /api/engine/ to the engine.
+	// GetApiEnginePlaybackEngineWithResponse Serves the playback-engine's page.
 	//
-	// Creating a session from a game or a share token, and a session's input,
-	// choices, toggles, connect and pause. Accounts and guests alike; a request
-	// naming a session passes the access policy first. Creating counts towards the
-	// token lock, as it may look up a share token.
+	// Opened with ?session=<id> to play a session, or ?new&game=<id> or
+	// ?new&share=<token> to start one.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
-	// Corresponds with POST /api/engine/{rest...} (the `PostApiEngineRest` operationId).
-	PostApiEngineRestWithResponse(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*PostApiEngineRestResponse, error)
+	// Corresponds with GET /api/engine/playback-engine/ (the `GetApiEnginePlaybackEngine` operationId).
+	GetApiEnginePlaybackEngineWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiEnginePlaybackEngineResponse, error)
+
+	// GetApiEnginePlaybackEngineDirFileWithResponse Serves a playback-engine file in a folder.
+	//
+	// Its chunks, fonts, art and language files.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/playback-engine/{dir}/{file} (the `GetApiEnginePlaybackEngineDirFile` operationId).
+	GetApiEnginePlaybackEngineDirFileWithResponse(ctx context.Context, dir string, file string, reqEditors ...RequestEditorFn) (*GetApiEnginePlaybackEngineDirFileResponse, error)
+
+	// GetApiEnginePlaybackEngineFileWithResponse Serves a playback-engine file beside its page.
+	//
+	// Its scripts, stylesheet and worklet.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/playback-engine/{file} (the `GetApiEnginePlaybackEngineFile` operationId).
+	GetApiEnginePlaybackEngineFileWithResponse(ctx context.Context, file string, reqEditors ...RequestEditorFn) (*GetApiEnginePlaybackEngineFileResponse, error)
+
+	// PostApiEngineSessionsWithBodyWithResponse Starts a session from a game or a share token.
+	//
+	// A game for a signed-in player, a share token for a guest or a signed-in
+	// player. A repeat of the one-time key within ten minutes answers the session
+	// the first created, to the same caller only. Counts towards the token lock,
+	// as it may look up a share token.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+	PostApiEngineSessionsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsResponse, error)
+
+	// PostApiEngineSessionsWithResponse Starts a session from a game or a share token.
+	//
+	// A game for a signed-in player, a share token for a guest or a signed-in
+	// player. A repeat of the one-time key within ten minutes answers the session
+	// the first created, to the same caller only. Counts towards the token lock,
+	// as it may look up a share token.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+	PostApiEngineSessionsWithResponse(ctx context.Context, body PostApiEngineSessionsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsResponse, error)
+
+	// PostApiEngineSessionsIdChooseWithBodyWithResponse Takes the player's choice among a session's offers.
+	//
+	// A choice outside the offer's caveats is refused.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+	PostApiEngineSessionsIdChooseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdChooseResponse, error)
+
+	// PostApiEngineSessionsIdChooseWithResponse Takes the player's choice among a session's offers.
+	//
+	// A choice outside the offer's caveats is refused.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+	PostApiEngineSessionsIdChooseWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdChooseJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdChooseResponse, error)
+
+	// PostApiEngineSessionsIdConnectWithBodyWithResponse Brokers the browser's offer to talk to a session's character.
+	//
+	// The provider's id stays server-side, keeping a spendable key and a
+	// steerable conversation off the client.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+	PostApiEngineSessionsIdConnectWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConnectResponse, error)
+
+	// PostApiEngineSessionsIdConnectWithResponse Brokers the browser's offer to talk to a session's character.
+	//
+	// The provider's id stays server-side, keeping a spendable key and a
+	// steerable conversation off the client.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+	PostApiEngineSessionsIdConnectWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdConnectJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConnectResponse, error)
+
+	// GetApiEngineSessionsIdEdgesFromToKindWithResponse Answers what one wire of a session has carried.
+	//
+	// The wire is named by its ends and its kind.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/edges/{from}/{to}/{kind} (the `GetApiEngineSessionsIdEdgesFromToKind` operationId).
+	GetApiEngineSessionsIdEdgesFromToKindWithResponse(ctx context.Context, id string, from string, to string, kind string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdEdgesFromToKindResponse, error)
+
+	// GetApiEngineSessionsIdFlowchartWithResponse Renders a session's running wiring as a mermaid flowchart.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/flowchart (the `GetApiEngineSessionsIdFlowchart` operationId).
+	GetApiEngineSessionsIdFlowchartWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdFlowchartResponse, error)
+
+	// GetApiEngineSessionsIdGraphWithResponse Renders a session's running wiring as text.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/graph (the `GetApiEngineSessionsIdGraph` operationId).
+	GetApiEngineSessionsIdGraphWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdGraphResponse, error)
+
+	// GetApiEngineSessionsIdHistoryWithResponse Answers a session's conversation so far, in order.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/history (the `GetApiEngineSessionsIdHistory` operationId).
+	GetApiEngineSessionsIdHistoryWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdHistoryResponse, error)
+
+	// PostApiEngineSessionsIdInputWithBodyWithResponse Submits one player action to a session, typed or spoken.
+	//
+	// As the genre accepts; an accepted input counts as one of the session's
+	// messages.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+	PostApiEngineSessionsIdInputWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdInputResponse, error)
+
+	// PostApiEngineSessionsIdInputWithResponse Submits one player action to a session, typed or spoken.
+	//
+	// As the genre accepts; an accepted input counts as one of the session's
+	// messages.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+	PostApiEngineSessionsIdInputWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdInputJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdInputResponse, error)
+
+	// GetApiEngineSessionsIdLiveWithResponse Opens the duplex WebSocket a session of a voice genre needs.
+	//
+	// The browser sends binary frames of microphone audio and text frames of
+	// typed input, a JSON LiveInput; it receives the session's events back,
+	// binary frames for audio and text frames of JSON SessionEvent for everything
+	// else. A rejected input comes back as an `error` event.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/live (the `GetApiEngineSessionsIdLive` operationId).
+	GetApiEngineSessionsIdLiveWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdLiveResponse, error)
+
+	// GetApiEngineSessionsIdNodesNodeWithResponse Answers what one block of a session is and has been doing.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
+	GetApiEngineSessionsIdNodesNodeWithResponse(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdNodesNodeResponse, error)
+
+	// GetApiEngineSessionsIdOptionsWithResponse Answers what the player of a session may choose from.
+	//
+	// And what the session settled on.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/options (the `GetApiEngineSessionsIdOptions` operationId).
+	GetApiEngineSessionsIdOptionsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdOptionsResponse, error)
+
+	// PostApiEngineSessionsIdPauseWithResponse Lets a session's live conversation go at the player's request.
+	//
+	// As idling would.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/pause (the `PostApiEngineSessionsIdPause` operationId).
+	PostApiEngineSessionsIdPauseWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdPauseResponse, error)
+
+	// GetApiEngineSessionsIdPromptsWithResponse Answers the text a session is running on, by block.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/prompts (the `GetApiEngineSessionsIdPrompts` operationId).
+	GetApiEngineSessionsIdPromptsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdPromptsResponse, error)
+
+	// GetApiEngineSessionsIdStateWithResponse Answers where a session stands now.
+	//
+	// A reloading page fetches it with the history.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/state (the `GetApiEngineSessionsIdState` operationId).
+	GetApiEngineSessionsIdStateWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdStateResponse, error)
+
+	// GetApiEngineSessionsIdStreamWithResponse Streams a session's events as server-sent events.
+	//
+	// Each event's data is one SessionEvent; its Stream names the kind.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/stream (the `GetApiEngineSessionsIdStream` operationId).
+	GetApiEngineSessionsIdStreamWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdStreamResponse, error)
+
+	// PostApiEngineSessionsIdTogglesWithBodyWithResponse Switches a feature of a session during play.
+	//
+	// Such as pictures off; on only as far as the session's offer allows.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+	PostApiEngineSessionsIdTogglesWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdTogglesResponse, error)
+
+	// PostApiEngineSessionsIdTogglesWithResponse Switches a feature of a session during play.
+	//
+	// Such as pictures off; on only as far as the session's offer allows.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+	PostApiEngineSessionsIdTogglesWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdTogglesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdTogglesResponse, error)
+
+	// GetApiEngineSessionsIdTopologyWithResponse Answers a session's wiring as data, for a view that draws it.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/topology (the `GetApiEngineSessionsIdTopology` operationId).
+	GetApiEngineSessionsIdTopologyWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdTopologyResponse, error)
+
+	// GetApiErrorsIdWithResponse Details of a server error
+	//
+	// The details stored for the 5xx answered with this id: open in development mode, in production only to callers the app allows (app.CanSeeErrorDetails). 404 when the id is unknown or expired (kept: newest 1000, at most 24 hours, per process).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
+	GetApiErrorsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiErrorsIdResponse, error)
 
 	// GetApiGamesWithResponse Lists the games the caller can see.
 	//
@@ -8478,6 +10474,15 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/genres (the `GetApiGenres` operationId).
 	GetApiGenresWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiGenresResponse, error)
+
+	// GetApiHealthWithResponse Health check
+	//
+	// "status" is "ok" or "error", "db" and every registered health check are "ok" or "error: …". 503 (with the same body) when anything is unhealthy.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/health (the `GetApiHealth` operationId).
+	GetApiHealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiHealthResponse, error)
 
 	// GetApiInstitutionsWithResponse Lists the institutions the caller can see.
 	//
@@ -8824,6 +10829,15 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with DELETE /api/sessions/{id} (the `DeleteApiSessionsId` operationId).
 	DeleteApiSessionsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiSessionsIdResponse, error)
 
+	// GetApiStatusWithResponse Service status
+	//
+	// Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/status (the `GetApiStatus` operationId).
+	GetApiStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiStatusResponse, error)
+
 	// GetApiSystemConstraintsWithResponse Returns the three site-wide age-based prompt
 	//
 	// constraint texts.
@@ -8895,6 +10909,15 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/themes (the `GetApiThemes` operationId).
 	GetApiThemesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiThemesResponse, error)
+
+	// GetApiUserMeWithResponse The authenticated caller
+	//
+	// The subject of the caller.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/user/me (the `GetApiUserMe` operationId).
+	GetApiUserMeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUserMeResponse, error)
 
 	// GetApiUsersWithResponse Lists the users the caller manages.
 	//
@@ -9982,25 +12005,32 @@ func (r PostApiAuthProviderLoginResponse) ContentType() string {
 	return ""
 }
 
-type GetApiEngineRestResponse struct {
+type GetApiConfigResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *map[string]string
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiConfigResponse) GetJSON200() *map[string]string {
+	return r.JSON200
+}
+
 // GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r GetApiEngineRestResponse) GetJSONDefault() *Error {
+func (r GetApiConfigResponse) GetJSONDefault() *Error {
 	return r.JSONDefault
 }
 
 // GetBody returns the raw response body bytes
-func (r GetApiEngineRestResponse) GetBody() []byte {
+func (r GetApiConfigResponse) GetBody() []byte {
 	return r.Body
 }
 
 // Status returns HTTPResponse.Status
-func (r GetApiEngineRestResponse) Status() string {
+func (r GetApiConfigResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -10008,7 +12038,7 @@ func (r GetApiEngineRestResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetApiEngineRestResponse) StatusCode() int {
+func (r GetApiConfigResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -10016,14 +12046,14 @@ func (r GetApiEngineRestResponse) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetApiEngineRestResponse) ContentType() string {
+func (r GetApiConfigResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
 }
 
-type PostApiEngineRestResponse struct {
+type GetApiEnginePlaybackEngineResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSONDefault the response for an HTTP default `application/json` response
@@ -10031,17 +12061,17 @@ type PostApiEngineRestResponse struct {
 }
 
 // GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r PostApiEngineRestResponse) GetJSONDefault() *Error {
+func (r GetApiEnginePlaybackEngineResponse) GetJSONDefault() *Error {
 	return r.JSONDefault
 }
 
 // GetBody returns the raw response body bytes
-func (r PostApiEngineRestResponse) GetBody() []byte {
+func (r GetApiEnginePlaybackEngineResponse) GetBody() []byte {
 	return r.Body
 }
 
 // Status returns HTTPResponse.Status
-func (r PostApiEngineRestResponse) Status() string {
+func (r GetApiEnginePlaybackEngineResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -10049,7 +12079,7 @@ func (r PostApiEngineRestResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PostApiEngineRestResponse) StatusCode() int {
+func (r GetApiEnginePlaybackEngineResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -10057,7 +12087,911 @@ func (r PostApiEngineRestResponse) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r PostApiEngineRestResponse) ContentType() string {
+func (r GetApiEnginePlaybackEngineResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEnginePlaybackEngineDirFileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEnginePlaybackEngineDirFileResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEnginePlaybackEngineDirFileResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEnginePlaybackEngineDirFileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEnginePlaybackEngineDirFileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEnginePlaybackEngineDirFileResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEnginePlaybackEngineFileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEnginePlaybackEngineFileResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEnginePlaybackEngineFileResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEnginePlaybackEngineFileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEnginePlaybackEngineFileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEnginePlaybackEngineFileResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *CreateResponse
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiEngineSessionsResponse) GetJSON200() *CreateResponse {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdChooseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdChooseResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdChooseResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdChooseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdChooseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdChooseResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdConnectResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *ConnectResponse
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiEngineSessionsIdConnectResponse) GetJSON200() *ConnectResponse {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdConnectResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdConnectResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdConnectResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdConnectResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdConnectResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdEdgesFromToKindResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *EdgeDetail
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdEdgesFromToKindResponse) GetJSON200() *EdgeDetail {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdEdgesFromToKindResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdEdgesFromToKindResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdEdgesFromToKindResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdEdgesFromToKindResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdEdgesFromToKindResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdFlowchartResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *FlowchartResponse
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdFlowchartResponse) GetJSON200() *FlowchartResponse {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdFlowchartResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdFlowchartResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdFlowchartResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdFlowchartResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdFlowchartResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdGraphResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GraphResponse
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdGraphResponse) GetJSON200() *GraphResponse {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdGraphResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdGraphResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdGraphResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdGraphResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdGraphResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdHistoryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *[]SessionEvent
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdHistoryResponse) GetJSON200() *[]SessionEvent {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdHistoryResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdHistoryResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdHistoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdHistoryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdHistoryResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdInputResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdInputResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdInputResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdInputResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdInputResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdInputResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdLiveResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdLiveResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdLiveResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdLiveResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdLiveResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdLiveResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdNodesNodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *NodeDetail
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdNodesNodeResponse) GetJSON200() *NodeDetail {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdNodesNodeResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdNodesNodeResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdNodesNodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdNodesNodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdNodesNodeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdOptionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Options
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdOptionsResponse) GetJSON200() *Options {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdOptionsResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdOptionsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdOptionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdOptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdOptionsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdPauseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdPauseResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdPauseResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdPauseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdPauseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdPauseResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdPromptsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *map[string]string
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdPromptsResponse) GetJSON200() *map[string]string {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdPromptsResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdPromptsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdPromptsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdPromptsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdPromptsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdStateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Snapshot
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdStateResponse) GetJSON200() *Snapshot {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdStateResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdStateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdStateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdStateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdStateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdStreamResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdStreamResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdStreamResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdStreamResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdStreamResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdStreamResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdTogglesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdTogglesResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdTogglesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdTogglesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdTogglesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdTogglesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiEngineSessionsIdTopologyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Topology
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdTopologyResponse) GetJSON200() *Topology {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdTopologyResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdTopologyResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdTopologyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdTopologyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdTopologyResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiErrorsIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *SchemafErrorDetails
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiErrorsIdResponse) GetJSON200() *SchemafErrorDetails {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiErrorsIdResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiErrorsIdResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiErrorsIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiErrorsIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiErrorsIdResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -11073,6 +14007,61 @@ func (r GetApiGenresResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiGenresResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiHealthResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *map[string]string
+	// JSON503 the response for an HTTP 503 `application/json` response
+	JSON503 *map[string]string
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiHealthResponse) GetJSON200() *map[string]string {
+	return r.JSON200
+}
+
+// GetJSON503 returns the response for an HTTP 503 `application/json` response
+func (r GetApiHealthResponse) GetJSON503() *map[string]string {
+	return r.JSON503
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiHealthResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiHealthResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiHealthResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiHealthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiHealthResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -12526,6 +15515,54 @@ func (r DeleteApiSessionsIdResponse) ContentType() string {
 	return ""
 }
 
+type GetApiStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *map[string]interface{}
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiStatusResponse) GetJSON200() *map[string]interface{} {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiStatusResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiStatusResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiStatusResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiStatusResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiSystemConstraintsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -12760,6 +15797,54 @@ func (r GetApiThemesResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiThemesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiUserMeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *SchemafUser
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiUserMeResponse) GetJSON200() *SchemafUser {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiUserMeResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiUserMeResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiUserMeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiUserMeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiUserMeResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -14264,39 +17349,411 @@ func (c *ClientWithResponses) PostApiAuthProviderLoginWithResponse(ctx context.C
 	return ParsePostApiAuthProviderLoginResponse(rsp)
 }
 
-// GetApiEngineRestWithResponse Passes GET requests under /api/engine/ to the engine.
+// GetApiConfigWithResponse Public frontend config
 //
-// The playback-engine, its session stream (WebSocket included), its state and
-// its lists. Accounts and guests alike; a request naming a session passes the
-// access policy first.
+// Every PUBLIC_* environment variable, keyed by its full name. Read it in the frontend through config() from config.gen.ts.
 //
 // Returns a wrapper object for the known response body format(s).
 //
-// Corresponds with GET /api/engine/{rest...} (the `GetApiEngineRest` operationId).
-func (c *ClientWithResponses) GetApiEngineRestWithResponse(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*GetApiEngineRestResponse, error) {
-	rsp, err := c.GetApiEngineRest(ctx, rest, reqEditors...)
+// Corresponds with GET /api/config (the `GetApiConfig` operationId).
+func (c *ClientWithResponses) GetApiConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiConfigResponse, error) {
+	rsp, err := c.GetApiConfig(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetApiEngineRestResponse(rsp)
+	return ParseGetApiConfigResponse(rsp)
 }
 
-// PostApiEngineRestWithResponse Passes POST requests under /api/engine/ to the engine.
+// GetApiEnginePlaybackEngineWithResponse Serves the playback-engine's page.
 //
-// Creating a session from a game or a share token, and a session's input,
-// choices, toggles, connect and pause. Accounts and guests alike; a request
-// naming a session passes the access policy first. Creating counts towards the
-// token lock, as it may look up a share token.
+// Opened with ?session=<id> to play a session, or ?new&game=<id> or
+// ?new&share=<token> to start one.
 //
 // Returns a wrapper object for the known response body format(s).
 //
-// Corresponds with POST /api/engine/{rest...} (the `PostApiEngineRest` operationId).
-func (c *ClientWithResponses) PostApiEngineRestWithResponse(ctx context.Context, rest string, reqEditors ...RequestEditorFn) (*PostApiEngineRestResponse, error) {
-	rsp, err := c.PostApiEngineRest(ctx, rest, reqEditors...)
+// Corresponds with GET /api/engine/playback-engine/ (the `GetApiEnginePlaybackEngine` operationId).
+func (c *ClientWithResponses) GetApiEnginePlaybackEngineWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiEnginePlaybackEngineResponse, error) {
+	rsp, err := c.GetApiEnginePlaybackEngine(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePostApiEngineRestResponse(rsp)
+	return ParseGetApiEnginePlaybackEngineResponse(rsp)
+}
+
+// GetApiEnginePlaybackEngineDirFileWithResponse Serves a playback-engine file in a folder.
+//
+// Its chunks, fonts, art and language files.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/playback-engine/{dir}/{file} (the `GetApiEnginePlaybackEngineDirFile` operationId).
+func (c *ClientWithResponses) GetApiEnginePlaybackEngineDirFileWithResponse(ctx context.Context, dir string, file string, reqEditors ...RequestEditorFn) (*GetApiEnginePlaybackEngineDirFileResponse, error) {
+	rsp, err := c.GetApiEnginePlaybackEngineDirFile(ctx, dir, file, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEnginePlaybackEngineDirFileResponse(rsp)
+}
+
+// GetApiEnginePlaybackEngineFileWithResponse Serves a playback-engine file beside its page.
+//
+// Its scripts, stylesheet and worklet.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/playback-engine/{file} (the `GetApiEnginePlaybackEngineFile` operationId).
+func (c *ClientWithResponses) GetApiEnginePlaybackEngineFileWithResponse(ctx context.Context, file string, reqEditors ...RequestEditorFn) (*GetApiEnginePlaybackEngineFileResponse, error) {
+	rsp, err := c.GetApiEnginePlaybackEngineFile(ctx, file, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEnginePlaybackEngineFileResponse(rsp)
+}
+
+// PostApiEngineSessionsWithBodyWithResponse Starts a session from a game or a share token.
+//
+// A game for a signed-in player, a share token for a guest or a signed-in
+// player. A repeat of the one-time key within ten minutes answers the session
+// the first created, to the same caller only. Counts towards the token lock,
+// as it may look up a share token.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsResponse, error) {
+	rsp, err := c.PostApiEngineSessionsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsResponse(rsp)
+}
+
+// PostApiEngineSessionsWithResponse Starts a session from a game or a share token.
+//
+// A game for a signed-in player, a share token for a guest or a signed-in
+// player. A repeat of the one-time key within ten minutes answers the session
+// the first created, to the same caller only. Counts towards the token lock,
+// as it may look up a share token.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions (the `PostApiEngineSessions` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsWithResponse(ctx context.Context, body PostApiEngineSessionsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsResponse, error) {
+	rsp, err := c.PostApiEngineSessions(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsResponse(rsp)
+}
+
+// PostApiEngineSessionsIdChooseWithBodyWithResponse Takes the player's choice among a session's offers.
+//
+// A choice outside the offer's caveats is refused.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdChooseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdChooseResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdChooseWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdChooseResponse(rsp)
+}
+
+// PostApiEngineSessionsIdChooseWithResponse Takes the player's choice among a session's offers.
+//
+// A choice outside the offer's caveats is refused.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/choose (the `PostApiEngineSessionsIdChoose` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdChooseWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdChooseJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdChooseResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdChoose(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdChooseResponse(rsp)
+}
+
+// PostApiEngineSessionsIdConnectWithBodyWithResponse Brokers the browser's offer to talk to a session's character.
+//
+// The provider's id stays server-side, keeping a spendable key and a
+// steerable conversation off the client.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdConnectWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConnectResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdConnectWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdConnectResponse(rsp)
+}
+
+// PostApiEngineSessionsIdConnectWithResponse Brokers the browser's offer to talk to a session's character.
+//
+// The provider's id stays server-side, keeping a spendable key and a
+// steerable conversation off the client.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdConnectWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdConnectJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConnectResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdConnect(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdConnectResponse(rsp)
+}
+
+// GetApiEngineSessionsIdEdgesFromToKindWithResponse Answers what one wire of a session has carried.
+//
+// The wire is named by its ends and its kind.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/edges/{from}/{to}/{kind} (the `GetApiEngineSessionsIdEdgesFromToKind` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdEdgesFromToKindWithResponse(ctx context.Context, id string, from string, to string, kind string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdEdgesFromToKindResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdEdgesFromToKind(ctx, id, from, to, kind, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdEdgesFromToKindResponse(rsp)
+}
+
+// GetApiEngineSessionsIdFlowchartWithResponse Renders a session's running wiring as a mermaid flowchart.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/flowchart (the `GetApiEngineSessionsIdFlowchart` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdFlowchartWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdFlowchartResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdFlowchart(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdFlowchartResponse(rsp)
+}
+
+// GetApiEngineSessionsIdGraphWithResponse Renders a session's running wiring as text.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/graph (the `GetApiEngineSessionsIdGraph` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdGraphWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdGraphResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdGraph(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdGraphResponse(rsp)
+}
+
+// GetApiEngineSessionsIdHistoryWithResponse Answers a session's conversation so far, in order.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/history (the `GetApiEngineSessionsIdHistory` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdHistoryWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdHistoryResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdHistory(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdHistoryResponse(rsp)
+}
+
+// PostApiEngineSessionsIdInputWithBodyWithResponse Submits one player action to a session, typed or spoken.
+//
+// As the genre accepts; an accepted input counts as one of the session's
+// messages.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdInputWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdInputResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdInputWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdInputResponse(rsp)
+}
+
+// PostApiEngineSessionsIdInputWithResponse Submits one player action to a session, typed or spoken.
+//
+// As the genre accepts; an accepted input counts as one of the session's
+// messages.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/input (the `PostApiEngineSessionsIdInput` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdInputWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdInputJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdInputResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdInput(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdInputResponse(rsp)
+}
+
+// GetApiEngineSessionsIdLiveWithResponse Opens the duplex WebSocket a session of a voice genre needs.
+//
+// The browser sends binary frames of microphone audio and text frames of
+// typed input, a JSON LiveInput; it receives the session's events back,
+// binary frames for audio and text frames of JSON SessionEvent for everything
+// else. A rejected input comes back as an `error` event.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/live (the `GetApiEngineSessionsIdLive` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdLiveWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdLiveResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdLive(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdLiveResponse(rsp)
+}
+
+// GetApiEngineSessionsIdNodesNodeWithResponse Answers what one block of a session is and has been doing.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdNodesNodeWithResponse(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdNodesNodeResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdNodesNode(ctx, id, node, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdNodesNodeResponse(rsp)
+}
+
+// GetApiEngineSessionsIdOptionsWithResponse Answers what the player of a session may choose from.
+//
+// And what the session settled on.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/options (the `GetApiEngineSessionsIdOptions` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdOptionsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdOptionsResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdOptions(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdOptionsResponse(rsp)
+}
+
+// PostApiEngineSessionsIdPauseWithResponse Lets a session's live conversation go at the player's request.
+//
+// As idling would.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/pause (the `PostApiEngineSessionsIdPause` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdPauseWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdPauseResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdPause(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdPauseResponse(rsp)
+}
+
+// GetApiEngineSessionsIdPromptsWithResponse Answers the text a session is running on, by block.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/prompts (the `GetApiEngineSessionsIdPrompts` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdPromptsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdPromptsResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdPrompts(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdPromptsResponse(rsp)
+}
+
+// GetApiEngineSessionsIdStateWithResponse Answers where a session stands now.
+//
+// A reloading page fetches it with the history.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/state (the `GetApiEngineSessionsIdState` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdStateWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdStateResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdState(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdStateResponse(rsp)
+}
+
+// GetApiEngineSessionsIdStreamWithResponse Streams a session's events as server-sent events.
+//
+// Each event's data is one SessionEvent; its Stream names the kind.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/stream (the `GetApiEngineSessionsIdStream` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdStreamWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdStreamResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdStream(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdStreamResponse(rsp)
+}
+
+// PostApiEngineSessionsIdTogglesWithBodyWithResponse Switches a feature of a session during play.
+//
+// Such as pictures off; on only as far as the session's offer allows.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdTogglesWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdTogglesResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdTogglesWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdTogglesResponse(rsp)
+}
+
+// PostApiEngineSessionsIdTogglesWithResponse Switches a feature of a session during play.
+//
+// Such as pictures off; on only as far as the session's offer allows.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/toggles (the `PostApiEngineSessionsIdToggles` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdTogglesWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdTogglesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdTogglesResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdToggles(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdTogglesResponse(rsp)
+}
+
+// GetApiEngineSessionsIdTopologyWithResponse Answers a session's wiring as data, for a view that draws it.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/topology (the `GetApiEngineSessionsIdTopology` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdTopologyWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdTopologyResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdTopology(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdTopologyResponse(rsp)
+}
+
+// GetApiErrorsIdWithResponse Details of a server error
+//
+// The details stored for the 5xx answered with this id: open in development mode, in production only to callers the app allows (app.CanSeeErrorDetails). 404 when the id is unknown or expired (kept: newest 1000, at most 24 hours, per process).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
+func (c *ClientWithResponses) GetApiErrorsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiErrorsIdResponse, error) {
+	rsp, err := c.GetApiErrorsId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiErrorsIdResponse(rsp)
 }
 
 // GetApiGamesWithResponse Lists the games the caller can see.
@@ -14710,6 +18167,21 @@ func (c *ClientWithResponses) GetApiGenresWithResponse(ctx context.Context, reqE
 		return nil, err
 	}
 	return ParseGetApiGenresResponse(rsp)
+}
+
+// GetApiHealthWithResponse Health check
+//
+// "status" is "ok" or "error", "db" and every registered health check are "ok" or "error: …". 503 (with the same body) when anything is unhealthy.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/health (the `GetApiHealth` operationId).
+func (c *ClientWithResponses) GetApiHealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiHealthResponse, error) {
+	rsp, err := c.GetApiHealth(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiHealthResponse(rsp)
 }
 
 // GetApiInstitutionsWithResponse Lists the institutions the caller can see.
@@ -15279,6 +18751,21 @@ func (c *ClientWithResponses) DeleteApiSessionsIdWithResponse(ctx context.Contex
 	return ParseDeleteApiSessionsIdResponse(rsp)
 }
 
+// GetApiStatusWithResponse Service status
+//
+// Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/status (the `GetApiStatus` operationId).
+func (c *ClientWithResponses) GetApiStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiStatusResponse, error) {
+	rsp, err := c.GetApiStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiStatusResponse(rsp)
+}
+
 // GetApiSystemConstraintsWithResponse Returns the three site-wide age-based prompt
 //
 // constraint texts.
@@ -15391,6 +18878,21 @@ func (c *ClientWithResponses) GetApiThemesWithResponse(ctx context.Context, reqE
 		return nil, err
 	}
 	return ParseGetApiThemesResponse(rsp)
+}
+
+// GetApiUserMeWithResponse The authenticated caller
+//
+// The subject of the caller.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/user/me (the `GetApiUserMe` operationId).
+func (c *ClientWithResponses) GetApiUserMeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUserMeResponse, error) {
+	rsp, err := c.GetApiUserMe(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiUserMeResponse(rsp)
 }
 
 // GetApiUsersWithResponse Lists the users the caller manages.
@@ -16439,15 +19941,48 @@ func ParsePostApiAuthProviderLoginResponse(rsp *http.Response) (*PostApiAuthProv
 	return response, nil
 }
 
-// ParseGetApiEngineRestResponse parses an HTTP response from a GetApiEngineRestWithResponse call
-func ParseGetApiEngineRestResponse(rsp *http.Response) (*GetApiEngineRestResponse, error) {
+// ParseGetApiConfigResponse parses an HTTP response from a GetApiConfigWithResponse call
+func ParseGetApiConfigResponse(rsp *http.Response) (*GetApiConfigResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetApiEngineRestResponse{
+	response := &GetApiConfigResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEnginePlaybackEngineResponse parses an HTTP response from a GetApiEnginePlaybackEngineWithResponse call
+func ParseGetApiEnginePlaybackEngineResponse(rsp *http.Response) (*GetApiEnginePlaybackEngineResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEnginePlaybackEngineResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -16468,15 +20003,15 @@ func ParseGetApiEngineRestResponse(rsp *http.Response) (*GetApiEngineRestRespons
 	return response, nil
 }
 
-// ParsePostApiEngineRestResponse parses an HTTP response from a PostApiEngineRestWithResponse call
-func ParsePostApiEngineRestResponse(rsp *http.Response) (*PostApiEngineRestResponse, error) {
+// ParseGetApiEnginePlaybackEngineDirFileResponse parses an HTTP response from a GetApiEnginePlaybackEngineDirFileWithResponse call
+func ParseGetApiEnginePlaybackEngineDirFileResponse(rsp *http.Response) (*GetApiEnginePlaybackEngineDirFileResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PostApiEngineRestResponse{
+	response := &GetApiEnginePlaybackEngineDirFileResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -16484,6 +20019,602 @@ func ParsePostApiEngineRestResponse(rsp *http.Response) (*PostApiEngineRestRespo
 	switch {
 	case rsp.StatusCode == 200:
 		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEnginePlaybackEngineFileResponse parses an HTTP response from a GetApiEnginePlaybackEngineFileWithResponse call
+func ParseGetApiEnginePlaybackEngineFileResponse(rsp *http.Response) (*GetApiEnginePlaybackEngineFileResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEnginePlaybackEngineFileResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsResponse parses an HTTP response from a PostApiEngineSessionsWithResponse call
+func ParsePostApiEngineSessionsResponse(rsp *http.Response) (*PostApiEngineSessionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreateResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdChooseResponse parses an HTTP response from a PostApiEngineSessionsIdChooseWithResponse call
+func ParsePostApiEngineSessionsIdChooseResponse(rsp *http.Response) (*PostApiEngineSessionsIdChooseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdChooseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdConnectResponse parses an HTTP response from a PostApiEngineSessionsIdConnectWithResponse call
+func ParsePostApiEngineSessionsIdConnectResponse(rsp *http.Response) (*PostApiEngineSessionsIdConnectResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdConnectResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ConnectResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdEdgesFromToKindResponse parses an HTTP response from a GetApiEngineSessionsIdEdgesFromToKindWithResponse call
+func ParseGetApiEngineSessionsIdEdgesFromToKindResponse(rsp *http.Response) (*GetApiEngineSessionsIdEdgesFromToKindResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdEdgesFromToKindResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EdgeDetail
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdFlowchartResponse parses an HTTP response from a GetApiEngineSessionsIdFlowchartWithResponse call
+func ParseGetApiEngineSessionsIdFlowchartResponse(rsp *http.Response) (*GetApiEngineSessionsIdFlowchartResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdFlowchartResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest FlowchartResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdGraphResponse parses an HTTP response from a GetApiEngineSessionsIdGraphWithResponse call
+func ParseGetApiEngineSessionsIdGraphResponse(rsp *http.Response) (*GetApiEngineSessionsIdGraphResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdGraphResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GraphResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdHistoryResponse parses an HTTP response from a GetApiEngineSessionsIdHistoryWithResponse call
+func ParseGetApiEngineSessionsIdHistoryResponse(rsp *http.Response) (*GetApiEngineSessionsIdHistoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdHistoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []SessionEvent
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdInputResponse parses an HTTP response from a PostApiEngineSessionsIdInputWithResponse call
+func ParsePostApiEngineSessionsIdInputResponse(rsp *http.Response) (*PostApiEngineSessionsIdInputResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdInputResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdLiveResponse parses an HTTP response from a GetApiEngineSessionsIdLiveWithResponse call
+func ParseGetApiEngineSessionsIdLiveResponse(rsp *http.Response) (*GetApiEngineSessionsIdLiveResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdLiveResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdNodesNodeResponse parses an HTTP response from a GetApiEngineSessionsIdNodesNodeWithResponse call
+func ParseGetApiEngineSessionsIdNodesNodeResponse(rsp *http.Response) (*GetApiEngineSessionsIdNodesNodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdNodesNodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest NodeDetail
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdOptionsResponse parses an HTTP response from a GetApiEngineSessionsIdOptionsWithResponse call
+func ParseGetApiEngineSessionsIdOptionsResponse(rsp *http.Response) (*GetApiEngineSessionsIdOptionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdOptionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Options
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdPauseResponse parses an HTTP response from a PostApiEngineSessionsIdPauseWithResponse call
+func ParsePostApiEngineSessionsIdPauseResponse(rsp *http.Response) (*PostApiEngineSessionsIdPauseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdPauseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdPromptsResponse parses an HTTP response from a GetApiEngineSessionsIdPromptsWithResponse call
+func ParseGetApiEngineSessionsIdPromptsResponse(rsp *http.Response) (*GetApiEngineSessionsIdPromptsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdPromptsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdStateResponse parses an HTTP response from a GetApiEngineSessionsIdStateWithResponse call
+func ParseGetApiEngineSessionsIdStateResponse(rsp *http.Response) (*GetApiEngineSessionsIdStateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdStateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Snapshot
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdStreamResponse parses an HTTP response from a GetApiEngineSessionsIdStreamWithResponse call
+func ParseGetApiEngineSessionsIdStreamResponse(rsp *http.Response) (*GetApiEngineSessionsIdStreamResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdStreamResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdTogglesResponse parses an HTTP response from a PostApiEngineSessionsIdTogglesWithResponse call
+func ParsePostApiEngineSessionsIdTogglesResponse(rsp *http.Response) (*PostApiEngineSessionsIdTogglesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdTogglesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiEngineSessionsIdTopologyResponse parses an HTTP response from a GetApiEngineSessionsIdTopologyWithResponse call
+func ParseGetApiEngineSessionsIdTopologyResponse(rsp *http.Response) (*GetApiEngineSessionsIdTopologyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdTopologyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Topology
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiErrorsIdResponse parses an HTTP response from a GetApiErrorsIdWithResponse call
+func ParseGetApiErrorsIdResponse(rsp *http.Response) (*GetApiErrorsIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiErrorsIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SchemafErrorDetails
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
@@ -17184,6 +21315,46 @@ func ParseGetApiGenresResponse(rsp *http.Response) (*GetApiGenresResponse, error
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiHealthResponse parses an HTTP response from a GetApiHealthWithResponse call
+func ParseGetApiHealthResponse(rsp *http.Response) (*GetApiHealthResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiHealthResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest map[string]string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
@@ -18194,6 +22365,39 @@ func ParseDeleteApiSessionsIdResponse(rsp *http.Response) (*DeleteApiSessionsIdR
 	return response, nil
 }
 
+// ParseGetApiStatusResponse parses an HTTP response from a GetApiStatusWithResponse call
+func ParseGetApiStatusResponse(rsp *http.Response) (*GetApiStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetApiSystemConstraintsResponse parses an HTTP response from a GetApiSystemConstraintsWithResponse call
 func ParseGetApiSystemConstraintsResponse(rsp *http.Response) (*GetApiSystemConstraintsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -18342,6 +22546,39 @@ func ParseGetApiThemesResponse(rsp *http.Response) (*GetApiThemesResponse, error
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []ThemeInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiUserMeResponse parses an HTTP response from a GetApiUserMeWithResponse call
+func ParseGetApiUserMeResponse(rsp *http.Response) (*GetApiUserMeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiUserMeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SchemafUser
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

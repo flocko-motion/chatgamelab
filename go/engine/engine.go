@@ -104,8 +104,8 @@ type SessionSpec struct {
 	ScriptIntervalMs int `json:"scriptIntervalMs,omitempty"`
 }
 
-// Event is one item on the session-scoped stream; Stream names the output block it came from.
-type Event struct {
+// SessionEvent is one item on the session-scoped stream; Stream names the output block it came from.
+type SessionEvent struct {
 	Stream string
 	Value  string
 }
@@ -134,7 +134,7 @@ type Session struct {
 	// toldRejected says the slots have told the player their key was rejected.
 	toldRejected bool
 	// pending holds events posted under mu, until flush hands them to the sender.
-	pending []Event
+	pending []SessionEvent
 	// out is the sender's queue; the sender alone writes to the stream.
 	out outbox
 
@@ -143,7 +143,7 @@ type Session struct {
 	wiring   *genre.Wiring
 	usage    *usageLedger
 	recorder *recorder
-	events   chan Event
+	events   chan SessionEvent
 	ctx      context.Context
 	cancel   context.CancelFunc
 	once     sync.Once
@@ -198,7 +198,7 @@ func Resume(ctx context.Context, id string, persist Persist, offers []Offer) (*S
 // resumption is what a resumed session starts from.
 type resumption struct {
 	state   SessionState
-	history []Event
+	history []SessionEvent
 }
 
 // Launch validates a spec and builds its genre's wiring. The game starts at
@@ -223,7 +223,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 
 	s := &Session{
 		recorder: newRecorder(),
-		events:   make(chan Event, 256),
+		events:   make(chan SessionEvent, 256),
 		usage:    newUsageLedger(),
 	}
 
@@ -336,7 +336,7 @@ func (s *Session) merge(ctx context.Context) {
 					if !ok {
 						return
 					}
-					ev := Event{Stream: name, Value: v}
+					ev := SessionEvent{Stream: name, Value: v}
 					s.log(ev)
 					if name == "props" {
 						s.recorder.recordProps(parseProps(v))
@@ -369,7 +369,7 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 				if err != nil {
 					continue
 				}
-				ev := Event{Stream: "state", Value: string(blob)}
+				ev := SessionEvent{Stream: "state", Value: string(blob)}
 				if state.Phase == ports.PhaseReady {
 					s.checkpoint()
 				}
@@ -403,7 +403,7 @@ func (s *Session) forwardUsage(ctx context.Context, usage <-chan ports.Usage) {
 				if err != nil {
 					continue
 				}
-				ev := Event{Stream: "usage", Value: string(blob)}
+				ev := SessionEvent{Stream: "usage", Value: string(blob)}
 				s.checkpoint()
 				select {
 				case s.events <- ev:
@@ -435,7 +435,7 @@ func (s *Session) forwardSignal(ctx context.Context, signal <-chan ports.State, 
 					return
 				}
 				select {
-				case s.events <- Event{Stream: stream}:
+				case s.events <- SessionEvent{Stream: stream}:
 				case <-ctx.Done():
 					return
 				}
@@ -485,6 +485,16 @@ func (s *Session) conversation() string {
 	return s.wiring.Live.Standing()
 }
 
+// The wiring as data, as a transport answers it: the drawable graph, and what
+// one wire or block has carried.
+type (
+	Topology     = ports.Topology
+	TopologyNode = ports.TopologyNode
+	TopologyEdge = ports.TopologyEdge
+	EdgeDetail   = ports.EdgeDetail
+	Sample       = ports.Sample
+)
+
 // NodeDetail is everything the engine knows about one block.
 type NodeDetail struct {
 	ports.NodeDetail
@@ -520,10 +530,10 @@ func (s *Session) InspectEdge(from, to, kind string) (ports.EdgeDetail, bool) {
 }
 
 // History is the conversation so far, applied by a client through the same path as live events.
-func (s *Session) History() []Event { return s.recorder.replay() }
+func (s *Session) History() []SessionEvent { return s.recorder.replay() }
 
 // Events is the session-scoped stream the transport serialises.
-func (s *Session) Events() <-chan Event { return s.events }
+func (s *Session) Events() <-chan SessionEvent { return s.events }
 
 // Say submits typed player input, erroring on a genre that takes none.
 func (s *Session) Say(text string) error {

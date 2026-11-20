@@ -46,7 +46,7 @@ type recorder struct {
 	// on purpose: they are how a session sounded and felt as it happened, not
 	// what it was, and replaying thirty audio frames per utterance into a
 	// reloaded page would be neither useful nor cheap.
-	history []Event
+	history []SessionEvent
 }
 
 // historyStreams is what a reload needs to redraw the conversation.
@@ -68,7 +68,7 @@ func newRecorder() *recorder {
 }
 
 // record keeps an event that belongs to the history, and says whether it did.
-func (r *recorder) record(e Event) bool {
+func (r *recorder) record(e SessionEvent) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -82,7 +82,7 @@ func (r *recorder) record(e Event) bool {
 
 // restore takes a stored history back, with the status values its last
 // props event carried.
-func (r *recorder) restore(history []Event) {
+func (r *recorder) restore(history []SessionEvent) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, e := range history {
@@ -138,11 +138,11 @@ func (r *recorder) snapshot(started bool, usage UsageReport, conversation string
 	}
 }
 
-func (r *recorder) replay() []Event {
+func (r *recorder) replay() []SessionEvent {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	// Empty rather than nil: a session nobody has spoken in yet still has a
 	// history, and it is an empty one. A nil slice encodes as JSON null, which
 	// a client iterating what it was handed cannot read.
-	return append(make([]Event, 0, len(r.history)), r.history...)
+	return append(make([]SessionEvent, 0, len(r.history)), r.history...)
 }

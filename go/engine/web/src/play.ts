@@ -3,9 +3,11 @@
  * node. This is the integration harness — if the core needs a DOM to follow a
  * session, it is not headless.
  *
- *   node dist/play.js <base> <session>
- *   node dist/play.js <base> --new=game:bridge --once=k1
- *   node dist/play.js <base> <session> --bad=own-key:high:images --choose=own-key:low:images,audio-live
+ *   node dist/play.js <origin> <session>
+ *   node dist/play.js <origin> --new=game:bridge --once=k1
+ *   node dist/play.js <origin> <session> --bad=own-key:high:images --choose=own-key:low:images,audio-live
+ *
+ * The origin serves the engine at /api/engine/…: the platform, or the dev server.
  *
  * Opened with --new it creates the session the way the page does, asking a
  * second time with the same one-time key to see the same session answer, and
@@ -22,9 +24,9 @@
  * the wiring, the portrait, the gate opening, the invitation to connect — and
  * stops there rather than pretending to hold a conversation.
  */
+import { engineClient, liveURL, type Choice, type SessionRef } from "./client.js";
 import { create, transientMemory, type Selector } from "./launch.js";
 import { PlaybackEngine } from "./playback-engine.js";
-import type { Choice } from "./protocol.js";
 import { transcript } from "./state.js";
 import { NoticeError, describe } from "./texts.js";
 import { WebSocketTransport } from "./transport.js";
@@ -32,27 +34,25 @@ import { WebSocketTransport } from "./transport.js";
 const positional = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
 const flag = (name: string): string | undefined =>
   process.argv.find((arg) => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
-const [baseArg, sessionArg] = positional;
-const base = baseArg ?? "http://localhost:8080";
+const [originArg, sessionArg] = positional;
+const origin = originArg ?? "http://localhost:8080";
+const client = engineClient(origin);
 const wanted = flag("new");
-const session = wanted ? await createSession(wanted) : sessionArg;
-if (!session) throw new Error("name a session, or --new=game:<id> to create one");
-
-const sessionBase = new URL(`/sessions/${session}/`, base);
-const url = new URL("live", sessionBase);
-url.protocol = url.protocol.replace("http", "ws");
+const id = wanted ? await createSession(wanted) : sessionArg;
+if (!id) throw new Error("name a session, or --new=game:<id> to create one");
+const sessionRef: SessionRef = { client, id };
 
 // No voice: this run watches rather than joins.
-const playback = new PlaybackEngine(new WebSocketTransport(url));
+const playback = new PlaybackEngine(new WebSocketTransport(liveURL(sessionRef, origin)));
 
 try {
-  await playback.restore(sessionBase);
+  await playback.restore(sessionRef);
   if (playback.state.refusal) throw new Error(`refused: ${playback.state.refusal.problem}`);
   playback.connect();
   await playback.whenReady();
   if (wanted) {
     // A reload finds the session the address now names.
-    await playback.rebuild(sessionBase);
+    await playback.rebuild(sessionRef);
     console.log(`resumed:    ${playback.state.topology !== null}`);
   }
 
@@ -62,18 +62,18 @@ try {
     const bad = flag("bad");
     if (bad) {
       const [offer, choice] = parseChoice(bad);
-      const accepted = await playback.choose(sessionBase, offer, choice);
+      const accepted = await playback.choose(sessionRef, offer, choice);
       console.log(`refused:    ${!accepted}`);
       if (accepted) throw new Error(`the engine accepted a choice outside the caveats: ${bad}`);
     }
     // A reload while choosing must find the dialog again.
-    await playback.rebuild(sessionBase);
+    await playback.rebuild(sessionRef);
     console.log(`reloaded:   choosing=${playback.state.choosing}`);
 
     const wanted = flag("choose");
     if (!wanted) throw new Error("the session waits for a choice and none was given (--choose)");
     const [offer, choice] = parseChoice(wanted);
-    if (!(await playback.choose(sessionBase, offer, choice))) {
+    if (!(await playback.choose(sessionRef, offer, choice))) {
       throw new Error(`the choice was refused: ${playback.state.problem ? describe(playback.state.problem) : "?"}`);
     }
     await playback.until((state) => state.settled !== null, 10_000);
@@ -117,14 +117,14 @@ async function createSession(wanted: string): Promise<string> {
   const memories = { sessions: transientMemory(), pending: transientMemory() };
   const once = flag("once");
 
-  const created = await create(new URL(base), selector, "en", memories, once);
+  const created = await create(client, selector, "en", memories, once);
   if ("notice" in created) {
     console.log(`refused:    ${describe(created.notice)}`);
     throw new NoticeError(created.notice);
   }
   console.log(`created:    ${created.id}`);
   if (once) {
-    const again = await create(new URL(base), selector, "en", memories, once);
+    const again = await create(client, selector, "en", memories, once);
     console.log(`repeated:   ${"id" in again && again.id === created.id ? "same" : "different"}`);
   }
   return created.id;

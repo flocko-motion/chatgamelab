@@ -4,11 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync/atomic"
 	"testing"
+
+	schemafapi "github.com/flocko-motion/schemaf/api"
 
 	"engine"
 	"engine/api"
@@ -42,7 +46,7 @@ func (c *creator) resume(ctx context.Context, id string) (*engine.Session, error
 func (c *creator) server(t *testing.T) (*api.API, *httptest.Server) {
 	t.Helper()
 	a := api.New(api.Options{Dev: true, Create: c.create, Resume: c.resume})
-	srv := httptest.NewServer(a.Handler())
+	srv := httptest.NewServer(serve(a))
 	t.Cleanup(srv.Close)
 	return a, srv
 }
@@ -60,7 +64,7 @@ func post(t *testing.T, url string, body any) *http.Response {
 
 func created(t *testing.T, resp *http.Response) string {
 	t.Helper()
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("create answered %s", resp.Status)
 	}
 	var out api.CreateResponse
@@ -76,9 +80,9 @@ func TestOneTimeKeyAnswersTheSameSession(t *testing.T) {
 	c := &creator{store: &engine.MemoryPersist{}}
 	_, srv := c.server(t)
 
-	first := created(t, post(t, srv.URL+"/sessions", api.CreateRequest{Game: "bridge", Once: "k1"}))
-	again := created(t, post(t, srv.URL+"/sessions", api.CreateRequest{Game: "bridge", Once: "k1"}))
-	other := created(t, post(t, srv.URL+"/sessions", api.CreateRequest{Game: "bridge", Once: "k2"}))
+	first := created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k1"}))
+	again := created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k1"}))
+	other := created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k2"}))
 
 	if first != again {
 		t.Errorf("the same key created %q and %q", first, again)
@@ -90,7 +94,7 @@ func TestOneTimeKeyAnswersTheSameSession(t *testing.T) {
 		t.Errorf("%d launches, want 2", n)
 	}
 
-	resp, err := http.Get(srv.URL + "/sessions/" + first + "/topology")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/" + first + "/topology")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,14 +111,14 @@ func TestOneTimeKeyBelongsToItsCaller(t *testing.T) {
 	a := api.New(api.Options{
 		Dev:    true,
 		Create: c.create,
-		Caller: func(r *http.Request) string { return r.Header.Get("X-Caller") },
+		Caller: func(ctx context.Context) string { return schemafapi.Header(ctx, "X-Caller") },
 	})
-	srv := httptest.NewServer(a.Handler())
+	srv := httptest.NewServer(serve(a))
 	t.Cleanup(srv.Close)
 
 	ask := func(caller string) *http.Response {
 		blob, _ := json.Marshal(api.CreateRequest{Game: "bridge", Once: "k1"})
-		req, _ := http.NewRequest(http.MethodPost, srv.URL+"/sessions", bytes.NewReader(blob))
+		req, _ := http.NewRequest(http.MethodPost, srv.URL+"/api/engine/sessions", bytes.NewReader(blob))
 		req.Header.Set("X-Caller", caller)
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
@@ -138,8 +142,8 @@ func TestOneTimeKeyBelongsToItsCaller(t *testing.T) {
 	if _, leaked := body["id"]; leaked {
 		t.Errorf("another caller learnt a session ID: %v", body)
 	}
-	if body["problem"] != string(engine.ProblemDenied) {
-		t.Errorf("problem %v, want %q", body["problem"], engine.ProblemDenied)
+	if body["code"] != string(engine.ProblemDenied) {
+		t.Errorf("code %v, want %q", body["code"], engine.ProblemDenied)
 	}
 	if n := c.launches.Load(); n != 1 {
 		t.Errorf("%d launches, want 1", n)
@@ -154,7 +158,7 @@ func TestCreateNeedsAGameOrShareAndAKey(t *testing.T) {
 		{Once: "k"},
 		{Game: "bridge", Share: "tok", Once: "k"},
 	} {
-		if resp := post(t, srv.URL+"/sessions", req); resp.StatusCode != http.StatusBadRequest {
+		if resp := post(t, srv.URL+"/api/engine/sessions", req); resp.StatusCode != http.StatusBadRequest {
 			t.Errorf("%+v answered %s", req, resp.Status)
 		}
 	}
@@ -165,21 +169,17 @@ func TestCreateRefusalReachesThePlaybackEngine(t *testing.T) {
 	c := &creator{store: &engine.MemoryPersist{}, refuse: engine.Refuse(engine.ProblemNoPlays, "the share has no plays left")}
 	_, srv := c.server(t)
 
-	resp := post(t, srv.URL+"/sessions", api.CreateRequest{Share: "tok", Once: "k"})
+	resp := post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Share: "tok", Once: "k"})
 	if resp.StatusCode != http.StatusUnprocessableEntity {
 		t.Errorf("status %s", resp.Status)
 	}
-	var refusal engine.Refusal
-	if err := json.NewDecoder(resp.Body).Decode(&refusal); err != nil {
-		t.Fatal(err)
-	}
-	if refusal.Problem != engine.ProblemNoPlays || refusal.Message != "the share has no plays left" {
-		t.Errorf("refusal = %+v", refusal)
+	if got := errorOf(t, resp); got.Code != string(engine.ProblemNoPlays) || got.Error != "the share has no plays left" {
+		t.Errorf("refusal = %+v", got)
 	}
 
 	// A failure is not remembered: the same key tries again.
 	c.refuse = nil
-	created(t, post(t, srv.URL+"/sessions", api.CreateRequest{Share: "tok", Once: "k"}))
+	created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Share: "tok", Once: "k"}))
 }
 
 // A session that is stored but not in memory, as after a restart, is
@@ -187,12 +187,12 @@ func TestCreateRefusalReachesThePlaybackEngine(t *testing.T) {
 func TestLazyRestore(t *testing.T) {
 	c := &creator{store: &engine.MemoryPersist{}}
 	a, srv := c.server(t)
-	id := created(t, post(t, srv.URL+"/sessions", api.CreateRequest{Game: "bridge", Once: "k", Language: "de"}))
+	id := created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k", Language: "de"}))
 
 	// What a restart leaves: the store, and nothing in memory.
 	a.Forget(id)
 
-	resp, err := http.Get(srv.URL + "/sessions/" + id + "/topology")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/" + id + "/topology")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,7 +213,7 @@ func TestLazyRestore(t *testing.T) {
 func TestStaleSessionIsGone(t *testing.T) {
 	c := &creator{store: &engine.MemoryPersist{}}
 	a, srv := c.server(t)
-	id := created(t, post(t, srv.URL+"/sessions", api.CreateRequest{Game: "bridge", Once: "k"}))
+	id := created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k"}))
 	a.Forget(id)
 
 	stored, err := c.store.LoadState(context.Background(), id)
@@ -223,57 +223,61 @@ func TestStaleSessionIsGone(t *testing.T) {
 	stored.Version++
 	_ = c.store.SaveState(context.Background(), id, stored)
 
-	resp, err := http.Get(srv.URL + "/sessions/" + id + "/topology")
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/" + id + "/topology")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
-	var refusal engine.Refusal
-	_ = json.NewDecoder(resp.Body).Decode(&refusal)
-	if resp.StatusCode != http.StatusGone || refusal.Problem != engine.ProblemStale {
-		t.Errorf("answered %s with %+v, want gone and stale", resp.Status, refusal)
+	if got := errorOf(t, resp); resp.StatusCode != http.StatusGone || got.Code != string(engine.ProblemStale) {
+		t.Errorf("answered %s with %+v, want gone and stale", resp.Status, got)
 	}
 }
 
-// The game editor reads these, so their JSON shape is a contract.
-func TestListsJSON(t *testing.T) {
-	srv := httptest.NewServer(api.New(api.Options{}).Handler())
-	defer srv.Close()
-
-	var themes []map[string]any
-	getJSON(t, srv.URL+"/themes", &themes)
-	if len(themes) == 0 || themes[0]["id"] != "default" {
-		t.Errorf("themes = %v, want the default first", themes)
-	}
-
-	var genres []struct {
-		ID    string   `json:"id"`
-		Needs []string `json:"needs"`
-	}
-	getJSON(t, srv.URL+"/genres", &genres)
-	want := map[string][]string{"adventure": {}, "npc-live": {"audio-live", "images"}}
-	if len(genres) != len(want) {
-		t.Fatalf("genres = %+v", genres)
-	}
-	for _, g := range genres {
-		needs, known := want[g.ID]
-		if !known || fmt.Sprint(g.Needs) != fmt.Sprint(needs) || g.Needs == nil {
-			t.Errorf("genre %+v, want needs %v", g, needs)
-		}
-	}
+// errorBody is schemaf's error response, which carries a refusal's problem as its code.
+type errorBody struct {
+	Error string `json:"error"`
+	Code  string `json:"code"`
 }
 
-func getJSON(t *testing.T, url string, into any) {
+func errorOf(t *testing.T, resp *http.Response) errorBody {
 	t.Helper()
-	resp, err := http.Get(url)
-	if err != nil {
+	var body errorBody
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatalf("error body: %v", err)
+	}
+	return body
+}
+
+// A refusal answers in schemaf's error format, literally, with its problem as
+// the code: the playback-engine reads nothing else.
+func TestARefusalAnswersErrorAndCode(t *testing.T) {
+	c := &creator{store: &engine.MemoryPersist{}, refuse: engine.Refuse(engine.ProblemDenied, "not yours")}
+	_, srv := c.server(t)
+
+	resp := post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k"})
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("status %s, want 403", resp.Status)
+	}
+	var body map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
-	if ct := resp.Header.Get("Content-Type"); ct != "application/json" {
-		t.Errorf("%s: content type %q", url, ct)
+	want := map[string]any{"error": "not yours", "code": "denied"}
+	if fmt.Sprint(body) != fmt.Sprint(want) {
+		t.Errorf("body = %v, want %v", body, want)
 	}
-	if err := json.NewDecoder(resp.Body).Decode(into); err != nil {
-		t.Fatal(err)
+}
+
+// A refusal for a failure keeps its code while schemaf withholds the message.
+func TestAFailureKeepsItsCode(t *testing.T) {
+	c := &creator{store: &engine.MemoryPersist{}, refuse: errors.New("the database is on fire")}
+	_, srv := c.server(t)
+
+	resp := post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "bridge", Once: "k"})
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Errorf("status %s, want 500", resp.Status)
+	}
+	if got := errorOf(t, resp); got.Code != string(engine.ProblemFailed) || strings.Contains(got.Error, "fire") {
+		t.Errorf("body = %+v, want code failed and no message", got)
 	}
 }

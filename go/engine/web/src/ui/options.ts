@@ -3,7 +3,7 @@
  * the player's choice, and the pictures switch in the header during play. Both
  * paint the state and pass the player's decision on; the engine decides.
  */
-import type { Choice, OfferOption, Options, Toggles } from "../protocol.js";
+import type { Choice, OfferOption, Options, Toggles } from "../client.js";
 import { text } from "../texts.js";
 import { TOGGLE_LABELS, allows, makesPictures, type PlaybackEngineState, type ToggleName } from "../state.js";
 

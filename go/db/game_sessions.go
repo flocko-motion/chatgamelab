@@ -113,7 +113,7 @@ func unknownSession(sessionID string) error {
 	return engine.Refuse(engine.ProblemUnknown, fmt.Sprintf("there is no session %q", sessionID))
 }
 
-func (SessionStore) SaveEvent(ctx context.Context, sessionID string, e engine.Event) error {
+func (SessionStore) SaveEvent(ctx context.Context, sessionID string, e engine.SessionEvent) error {
 	id, err := uuid.Parse(sessionID)
 	if err != nil {
 		return unknownSession(sessionID)
@@ -172,7 +172,7 @@ func (SessionStore) LoadState(ctx context.Context, sessionID string) (engine.Sto
 	return stored, nil
 }
 
-func (SessionStore) LoadHistory(ctx context.Context, sessionID string) ([]engine.Event, error) {
+func (SessionStore) LoadHistory(ctx context.Context, sessionID string) ([]engine.SessionEvent, error) {
 	id, err := uuid.Parse(sessionID)
 	if err != nil {
 		return nil, unknownSession(sessionID)
@@ -181,9 +181,9 @@ func (SessionStore) LoadHistory(ctx context.Context, sessionID string) ([]engine
 	if err != nil {
 		return nil, fmt.Errorf("load history: %w", err)
 	}
-	events := make([]engine.Event, 0, len(rows))
+	events := make([]engine.SessionEvent, 0, len(rows))
 	for _, r := range rows {
-		events = append(events, engine.Event{Stream: r.Stream, Value: r.Value})
+		events = append(events, engine.SessionEvent{Stream: r.Stream, Value: r.Value})
 	}
 	return events, nil
 }

@@ -1,10 +1,11 @@
-// Command gen-protocol writes the TypeScript view of the engine's wire
-// protocol from the Go types that define it.
+// Command gen-protocol writes the TypeScript view of the engine's wire protocol
+// beyond OpenAPI, from the Go types that define it.
 //
-// The monolith generates its client from OpenAPI, which cannot describe frames
-// on a WebSocket — and the session protocol is a WebSocket. So the contract
-// that actually matters is the event message, and this keeps the Go and
-// TypeScript sides of it from drifting.
+// The playback-engine calls every route through the generated OpenAPI client,
+// which types the requests and responses. OpenAPI cannot describe frames on a
+// WebSocket, nor the JSON inside an event's value, so this keeps the Go and
+// TypeScript sides of those from drifting: the live frames, the payloads only
+// events carry, and the problems a refusal names.
 //
 //	go run ./cmd/gen-protocol            # write web/src/protocol.ts
 //	go run ./cmd/gen-protocol -check     # fail if it is stale
@@ -63,9 +64,9 @@ func generate() []byte {
 	}
 	b.WriteString("  ;\n\n")
 
-	b.WriteString("/** One item on the session-scoped event stream. */\n")
+	b.WriteString("/** One item on the session's events, a text frame on the live WebSocket. */\n")
 	b.WriteString("export interface SessionEvent {\n")
-	for _, field := range tsFields(reflect.TypeOf(engine.Event{})) {
+	for _, field := range tsFields(reflect.TypeOf(engine.SessionEvent{})) {
 		fmt.Fprintf(&b, "  readonly %s: %s;\n", field.name, field.tsType)
 	}
 	b.WriteString("}\n\n")
@@ -86,48 +87,31 @@ func generate() []byte {
 	}
 	b.WriteString("}\n\n")
 
-	b.WriteString("/** What one block spent on one model, cumulatively. */\n")
-	writeInterface(&b, "UsageRecord", reflect.TypeOf(engine.UsageRecord{}))
-
-	b.WriteString("/**\n")
-	b.WriteString(" * The session's spending, both ways round: per block for a graph view's\n")
-	b.WriteString(" * labels, and per model because that is what prices attach to.\n")
-	b.WriteString(" */\n")
-	writeInterface(&b, "UsageReport", reflect.TypeOf(engine.UsageReport{}))
-
-	b.WriteString("/** Which features a session has on, or an offer allows. */\n")
-	writeInterface(&b, "Toggles", reflect.TypeOf(engine.Toggles{}))
-	b.WriteString("/** A tier and the toggles on at it. */\n")
-	writeInterface(&b, "Choice", reflect.TypeOf(engine.Choice{}))
-	b.WriteString("/** The player's wish, which the platform stores with the session. */\n")
-	writeInterface(&b, "Preference", reflect.TypeOf(engine.Preference{}))
-	b.WriteString("/** What a session runs on, carried as JSON in a `settled` event's value. */\n")
-	writeInterface(&b, "Settled", reflect.TypeOf(engine.Settled{}))
-	b.WriteString("/** One tier an offer allows, with its toggles and, as a detail, its models. */\n")
-	writeInterface(&b, "TierOption", reflect.TypeOf(engine.TierOption{}))
-	b.WriteString("/** One offer as a player sees it in the options dialog. */\n")
-	writeInterface(&b, "OfferOption", reflect.TypeOf(engine.OfferOption{}))
-	b.WriteString("/** What the player may choose from, and what the session settled on. */\n")
-	writeInterface(&b, "Options", reflect.TypeOf(engine.Options{}))
-
 	b.WriteString("/** Why a session cannot start or go on. */\n")
 	b.WriteString("export type Problem =\n")
 	for _, problem := range engine.Problems() {
 		fmt.Fprintf(&b, "  | %q\n", problem)
 	}
 	b.WriteString("  ;\n\n")
-	b.WriteString("/** A refusal: a transport's error body, and a `problem` event's value. */\n")
+	b.WriteString("/** Every problem; an error code outside it is a failure. */\n")
+	b.WriteString("export const PROBLEMS: readonly Problem[] = [\n")
+	for _, problem := range engine.Problems() {
+		fmt.Fprintf(&b, "  %q,\n", problem)
+	}
+	b.WriteString("];\n\n")
+	b.WriteString("/**\n")
+	b.WriteString(" * A refusal: a `problem` event's value. A route's refusal is its error\n")
+	b.WriteString(" * response, whose code is the problem.\n")
+	b.WriteString(" */\n")
 	writeInterface(&b, "Refusal", reflect.TypeOf(engine.Refusal{}))
-	b.WriteString("/** What the playback-engine sends to start a session. */\n")
-	writeInterface(&b, "CreateRequest", reflect.TypeOf(api.CreateRequest{}))
-	b.WriteString("/** The session a creation made. */\n")
-	writeInterface(&b, "CreateResponse", reflect.TypeOf(api.CreateResponse{}))
+	b.WriteString("/** A text frame the playback-engine sends on the live WebSocket: typed input. */\n")
+	writeInterface(&b, "LiveInput", reflect.TypeOf(api.LiveInput{}))
 
 	b.WriteString("export function isSessionEvent(value: unknown): value is SessionEvent {\n")
 	b.WriteString("  if (typeof value !== \"object\" || value === null) return false;\n")
 	b.WriteString("  const candidate = value as Partial<SessionEvent>;\n")
 	b.WriteString("  return (\n")
-	fields := tsFields(reflect.TypeOf(engine.Event{}))
+	fields := tsFields(reflect.TypeOf(engine.SessionEvent{}))
 	for i, field := range fields {
 		sep := " &&"
 		if i == len(fields)-1 {

@@ -77,6 +77,24 @@ export interface CheckNameResp {
   profane?: boolean;
 }
 
+export interface Choice {
+  tier: string;
+  toggles: Toggles;
+}
+
+export interface ChooseRequest {
+  choice?: Choice;
+  offer: string;
+}
+
+export interface ConnectRequest {
+  sdp: string;
+}
+
+export interface ConnectResponse {
+  sdp: string;
+}
+
 export interface CreateApiKeyReq {
   key: string;
   name: string;
@@ -110,6 +128,17 @@ export interface CreateInstitutionReq {
   name: string;
 }
 
+export interface CreateRequest {
+  game?: string;
+  language?: string;
+  once: string;
+  share?: string;
+}
+
+export interface CreateResponse {
+  id: string;
+}
+
 export interface CreateUserReq {
   email?: string;
   name: string;
@@ -131,6 +160,13 @@ export interface CreateWorkshopReq {
   institutionId?: string;
   name: string;
   public: boolean;
+}
+
+export interface EdgeDetail {
+  from: string;
+  kind: string;
+  recent: Sample[];
+  to: string;
 }
 
 export interface EnrichedGameShare {
@@ -158,7 +194,7 @@ export interface EnrichedGameShare {
 }
 
 export interface Error {
-  /** Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, too_many_requests, unavailable, internal). */
+  /** Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, gone, precondition_failed, too_large, unprocessable, too_many_requests, not_implemented, bad_gateway, unavailable, gateway_timeout, internal, method_not_allowed, not_acceptable, unsupported_media_type). */
   code: string;
   /** The message. On 5xx always the status text. */
   error: string;
@@ -168,6 +204,10 @@ export interface Error {
 
 export interface FavouriteResp {
   favourite: boolean;
+}
+
+export interface FlowchartResponse {
+  flowchart: string;
 }
 
 export interface Game {
@@ -298,6 +338,10 @@ export interface GetVersionResp {
   version: string;
 }
 
+export interface GraphResponse {
+  graph: string;
+}
+
 export interface GuestGameInfoResp {
   description?: string;
   /** @format uuid */
@@ -305,6 +349,12 @@ export interface GuestGameInfoResp {
   name: string;
   public: boolean;
   remaining?: number;
+}
+
+export interface InputRequest {
+  /** @format byte */
+  audio?: Blob;
+  text?: string;
 }
 
 export interface Institution {
@@ -370,6 +420,31 @@ export interface Model {
   params?: Record<string, string>;
 }
 
+export interface NodeDetail {
+  inputs: Sample[];
+  name: string;
+  outputs: Sample[];
+  phase: string;
+  role: string;
+  type: string;
+  usage?: UsageRecord;
+}
+
+export interface OfferOption {
+  customizable: boolean;
+  default: Choice;
+  name: string;
+  offer: string;
+  platform: string;
+  tiers: TierOption[];
+}
+
+export interface Options {
+  choosing: boolean;
+  offers: OfferOption[];
+  settled?: Settled;
+}
+
 export interface ParticipantLoginReq {
   token: string;
 }
@@ -387,6 +462,13 @@ export interface PlatformInfo {
   tiers: TierModels[];
   toggles: Toggles;
   userKeys: boolean;
+}
+
+export interface Preference {
+  offer?: string;
+  platform: string;
+  tier: string;
+  toggles: Toggles;
 }
 
 export interface PrivateShareStatusResp {
@@ -432,8 +514,32 @@ export interface RolesResp {
   roles: string[];
 }
 
+export interface Sample {
+  /** @format date-time */
+  at: string;
+  kind: string;
+  peer: string;
+  value: string;
+}
+
 export interface SchemafAuth0LoginRequest {
   id_token: string;
+}
+
+export interface SchemafErrorDetails {
+  code: string;
+  /** The full error. */
+  error: string;
+  id: string;
+  method: string;
+  /** The misuse of the error API, if any. */
+  misuse?: string;
+  path: string;
+  status: number;
+  /** The caller, if authenticated. */
+  subject?: string;
+  /** @format date-time */
+  time: string;
 }
 
 export interface SchemafLoginResponse {
@@ -445,8 +551,17 @@ export interface SchemafRefreshResponse {
   token: string;
 }
 
+export interface SchemafUser {
+  id: string;
+}
+
 export interface SessionDeletedResp {
   status: string;
+}
+
+export interface SessionEvent {
+  Stream: string;
+  Value: string;
 }
 
 export interface SetActiveWorkshopReq {
@@ -476,6 +591,14 @@ export interface SetWorkshopApiKeyReq {
   apiKeyShareId?: string;
 }
 
+export interface Settled {
+  changes?: string[];
+  choice: Choice;
+  offer: string;
+  platform: string;
+  preference: Preference;
+}
+
 export interface ShareApiKeyReq {
   /** @format uuid */
   institutionId?: string;
@@ -483,6 +606,16 @@ export interface ShareApiKeyReq {
   userId?: string;
   /** @format uuid */
   workshopId?: string;
+}
+
+export interface Snapshot {
+  choosing: boolean;
+  conversation?: string;
+  phases: Record<string, string>;
+  props: Record<string, string>;
+  settled?: Settled;
+  started: boolean;
+  usage: UsageReport;
 }
 
 export interface SystemConstraintsResp {
@@ -520,11 +653,45 @@ export interface TierModels {
   models: Record<string, Model>;
 }
 
+export interface TierOption {
+  label: string;
+  models: Record<string, string>;
+  tier: string;
+  toggles: Toggles;
+}
+
+export interface ToggleRequest {
+  on: boolean;
+  toggle: string;
+}
+
 export interface Toggles {
   "audio-in": boolean;
   "audio-live": boolean;
   "audio-out": boolean;
   images: boolean;
+}
+
+export interface Topology {
+  edges: TopologyEdge[];
+  imagery: string;
+  inputs: string[];
+  language?: string;
+  name: string;
+  nodes: TopologyNode[];
+  theme?: string;
+  title?: string;
+}
+
+export interface TopologyEdge {
+  from: string;
+  kind: string;
+  to: string;
+}
+
+export interface TopologyNode {
+  name: string;
+  role: string;
 }
 
 export interface UpdateApiKeyReq {
@@ -629,6 +796,25 @@ export interface UpdateWorkshopReq {
   publicSlug?: string;
   showOtherParticipantsGames: boolean;
   showPublicGames: boolean;
+}
+
+export interface UsageRecord {
+  audioSeconds?: number;
+  cachedInputTokens?: number;
+  cost: number;
+  images?: number;
+  inputTokens?: number;
+  model: string;
+  node?: string;
+  outputTokens?: number;
+  priced: boolean;
+}
+
+export interface UsageReport {
+  byModel: UsageRecord[];
+  byNode: UsageRecord[];
+  complete: boolean;
+  totalCost: number;
 }
 
 export interface User {
@@ -1331,34 +1517,408 @@ export class Api<
       }),
 
     /**
-     * @description The playback-engine, its session stream (WebSocket included), its state and its lists. Accounts and guests alike; a request naming a session passes the access policy first.
+     * @description Every PUBLIC_* environment variable, keyed by its full name. Read it in the frontend through config() from config.gen.ts.
      *
-     * @name GetApiEngineRest
-     * @summary Passes GET requests under /api/engine/ to the engine.
-     * @request GET:/api/engine/{rest...}
+     * @name GetApiConfig
+     * @summary Public frontend config
+     * @request GET:/api/config
+     */
+    getApiConfig: (params: RequestParams = {}) =>
+      this.request<Record<string, string>, Error>({
+        path: `/api/config`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Opened with ?session=<id> to play a session, or ?new&game=<id> or ?new&share=<token> to start one.
+     *
+     * @name GetApiEnginePlaybackEngine
+     * @summary Serves the playback-engine's page.
+     * @request GET:/api/engine/playback-engine/
      * @secure
      */
-    getApiEngineRest: (rest: string, params: RequestParams = {}) =>
+    getApiEnginePlaybackEngine: (params: RequestParams = {}) =>
       this.request<void, Error>({
-        path: `/api/engine/${rest}`,
+        path: `/api/engine/playback-engine/`,
         method: "GET",
         secure: true,
         ...params,
       }),
 
     /**
-     * @description Creating a session from a game or a share token, and a session's input, choices, toggles, connect and pause. Accounts and guests alike; a request naming a session passes the access policy first. Creating counts towards the token lock, as it may look up a share token.
+     * @description Its chunks, fonts, art and language files.
      *
-     * @name PostApiEngineRest
-     * @summary Passes POST requests under /api/engine/ to the engine.
-     * @request POST:/api/engine/{rest...}
+     * @name GetApiEnginePlaybackEngineDirFile
+     * @summary Serves a playback-engine file in a folder.
+     * @request GET:/api/engine/playback-engine/{dir}/{file}
      * @secure
      */
-    postApiEngineRest: (rest: string, params: RequestParams = {}) =>
+    getApiEnginePlaybackEngineDirFile: (
+      dir: string,
+      file: string,
+      params: RequestParams = {},
+    ) =>
       this.request<void, Error>({
-        path: `/api/engine/${rest}`,
+        path: `/api/engine/playback-engine/${dir}/${file}`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Its scripts, stylesheet and worklet.
+     *
+     * @name GetApiEnginePlaybackEngineFile
+     * @summary Serves a playback-engine file beside its page.
+     * @request GET:/api/engine/playback-engine/{file}
+     * @secure
+     */
+    getApiEnginePlaybackEngineFile: (
+      file: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/playback-engine/${file}`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description A game for a signed-in player, a share token for a guest or a signed-in player. A repeat of the one-time key within ten minutes answers the session the first created, to the same caller only. Counts towards the token lock, as it may look up a share token.
+     *
+     * @name PostApiEngineSessions
+     * @summary Starts a session from a game or a share token.
+     * @request POST:/api/engine/sessions
+     * @secure
+     */
+    postApiEngineSessions: (data: CreateRequest, params: RequestParams = {}) =>
+      this.request<CreateResponse, Error>({
+        path: `/api/engine/sessions`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description A choice outside the offer's caveats is refused.
+     *
+     * @name PostApiEngineSessionsIdChoose
+     * @summary Takes the player's choice among a session's offers.
+     * @request POST:/api/engine/sessions/{id}/choose
+     * @secure
+     */
+    postApiEngineSessionsIdChoose: (
+      id: string,
+      data: ChooseRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/choose`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The provider's id stays server-side, keeping a spendable key and a steerable conversation off the client.
+     *
+     * @name PostApiEngineSessionsIdConnect
+     * @summary Brokers the browser's offer to talk to a session's character.
+     * @request POST:/api/engine/sessions/{id}/connect
+     * @secure
+     */
+    postApiEngineSessionsIdConnect: (
+      id: string,
+      data: ConnectRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ConnectResponse, Error>({
+        path: `/api/engine/sessions/${id}/connect`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The wire is named by its ends and its kind.
+     *
+     * @name GetApiEngineSessionsIdEdgesFromToKind
+     * @summary Answers what one wire of a session has carried.
+     * @request GET:/api/engine/sessions/{id}/edges/{from}/{to}/{kind}
+     * @secure
+     */
+    getApiEngineSessionsIdEdgesFromToKind: (
+      id: string,
+      from: string,
+      to: string,
+      kind: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<EdgeDetail, Error>({
+        path: `/api/engine/sessions/${id}/edges/${from}/${to}/${kind}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiEngineSessionsIdFlowchart
+     * @summary Renders a session's running wiring as a mermaid flowchart.
+     * @request GET:/api/engine/sessions/{id}/flowchart
+     * @secure
+     */
+    getApiEngineSessionsIdFlowchart: (id: string, params: RequestParams = {}) =>
+      this.request<FlowchartResponse, Error>({
+        path: `/api/engine/sessions/${id}/flowchart`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiEngineSessionsIdGraph
+     * @summary Renders a session's running wiring as text.
+     * @request GET:/api/engine/sessions/{id}/graph
+     * @secure
+     */
+    getApiEngineSessionsIdGraph: (id: string, params: RequestParams = {}) =>
+      this.request<GraphResponse, Error>({
+        path: `/api/engine/sessions/${id}/graph`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiEngineSessionsIdHistory
+     * @summary Answers a session's conversation so far, in order.
+     * @request GET:/api/engine/sessions/{id}/history
+     * @secure
+     */
+    getApiEngineSessionsIdHistory: (id: string, params: RequestParams = {}) =>
+      this.request<SessionEvent[], Error>({
+        path: `/api/engine/sessions/${id}/history`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description As the genre accepts; an accepted input counts as one of the session's messages.
+     *
+     * @name PostApiEngineSessionsIdInput
+     * @summary Submits one player action to a session, typed or spoken.
+     * @request POST:/api/engine/sessions/{id}/input
+     * @secure
+     */
+    postApiEngineSessionsIdInput: (
+      id: string,
+      data: InputRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/input`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The browser sends binary frames of microphone audio and text frames of typed input, a JSON LiveInput; it receives the session's events back, binary frames for audio and text frames of JSON SessionEvent for everything else. A rejected input comes back as an `error` event.
+     *
+     * @name GetApiEngineSessionsIdLive
+     * @summary Opens the duplex WebSocket a session of a voice genre needs.
+     * @request GET:/api/engine/sessions/{id}/live
+     * @secure
+     */
+    getApiEngineSessionsIdLive: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/live`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiEngineSessionsIdNodesNode
+     * @summary Answers what one block of a session is and has been doing.
+     * @request GET:/api/engine/sessions/{id}/nodes/{node}
+     * @secure
+     */
+    getApiEngineSessionsIdNodesNode: (
+      id: string,
+      node: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<NodeDetail, Error>({
+        path: `/api/engine/sessions/${id}/nodes/${node}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description And what the session settled on.
+     *
+     * @name GetApiEngineSessionsIdOptions
+     * @summary Answers what the player of a session may choose from.
+     * @request GET:/api/engine/sessions/{id}/options
+     * @secure
+     */
+    getApiEngineSessionsIdOptions: (id: string, params: RequestParams = {}) =>
+      this.request<Options, Error>({
+        path: `/api/engine/sessions/${id}/options`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description As idling would.
+     *
+     * @name PostApiEngineSessionsIdPause
+     * @summary Lets a session's live conversation go at the player's request.
+     * @request POST:/api/engine/sessions/{id}/pause
+     * @secure
+     */
+    postApiEngineSessionsIdPause: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/pause`,
         method: "POST",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiEngineSessionsIdPrompts
+     * @summary Answers the text a session is running on, by block.
+     * @request GET:/api/engine/sessions/{id}/prompts
+     * @secure
+     */
+    getApiEngineSessionsIdPrompts: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, Error>({
+        path: `/api/engine/sessions/${id}/prompts`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description A reloading page fetches it with the history.
+     *
+     * @name GetApiEngineSessionsIdState
+     * @summary Answers where a session stands now.
+     * @request GET:/api/engine/sessions/{id}/state
+     * @secure
+     */
+    getApiEngineSessionsIdState: (id: string, params: RequestParams = {}) =>
+      this.request<Snapshot, Error>({
+        path: `/api/engine/sessions/${id}/state`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Each event's data is one SessionEvent; its Stream names the kind.
+     *
+     * @name GetApiEngineSessionsIdStream
+     * @summary Streams a session's events as server-sent events.
+     * @request GET:/api/engine/sessions/{id}/stream
+     * @secure
+     */
+    getApiEngineSessionsIdStream: (id: string, params: RequestParams = {}) =>
+      this.request<SessionEvent, Error>({
+        path: `/api/engine/sessions/${id}/stream`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Such as pictures off; on only as far as the session's offer allows.
+     *
+     * @name PostApiEngineSessionsIdToggles
+     * @summary Switches a feature of a session during play.
+     * @request POST:/api/engine/sessions/{id}/toggles
+     * @secure
+     */
+    postApiEngineSessionsIdToggles: (
+      id: string,
+      data: ToggleRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/toggles`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetApiEngineSessionsIdTopology
+     * @summary Answers a session's wiring as data, for a view that draws it.
+     * @request GET:/api/engine/sessions/{id}/topology
+     * @secure
+     */
+    getApiEngineSessionsIdTopology: (id: string, params: RequestParams = {}) =>
+      this.request<Topology, Error>({
+        path: `/api/engine/sessions/${id}/topology`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The details stored for the 5xx answered with this id: open in development mode, in production only to callers the app allows (app.CanSeeErrorDetails). 404 when the id is unknown or expired (kept: newest 1000, at most 24 hours, per process).
+     *
+     * @name GetApiErrorsId
+     * @summary Details of a server error
+     * @request GET:/api/errors/{id}
+     * @secure
+     */
+    getApiErrorsId: (id: string, params: RequestParams = {}) =>
+      this.request<SchemafErrorDetails, Error>({
+        path: `/api/errors/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -1752,6 +2312,21 @@ export class Api<
         path: `/api/genres`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description "status" is "ok" or "error", "db" and every registered health check are "ok" or "error: …". 503 (with the same body) when anything is unhealthy.
+     *
+     * @name GetApiHealth
+     * @summary Health check
+     * @request GET:/api/health
+     */
+    getApiHealth: (params: RequestParams = {}) =>
+      this.request<Record<string, string>, Record<string, string> | Error>({
+        path: `/api/health`,
+        method: "GET",
         format: "json",
         ...params,
       }),
@@ -2309,6 +2884,21 @@ export class Api<
       }),
 
     /**
+     * @description Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
+     *
+     * @name GetApiStatus
+     * @summary Service status
+     * @request GET:/api/status
+     */
+    getApiStatus: (params: RequestParams = {}) =>
+      this.request<Record<string, any>, Error>({
+        path: `/api/status`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description constraint texts. Any signed-in user may read them, so organization settings can show the fallback that applies when an organization has none of its own.
      *
      * @name GetApiSystemConstraints
@@ -2397,6 +2987,23 @@ export class Api<
     getApiThemes: (params: RequestParams = {}) =>
       this.request<ThemeInfo[], Error>({
         path: `/api/themes`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The subject of the caller.
+     *
+     * @name GetApiUserMe
+     * @summary The authenticated caller
+     * @request GET:/api/user/me
+     * @secure
+     */
+    getApiUserMe: (params: RequestParams = {}) =>
+      this.request<SchemafUser, Error>({
+        path: `/api/user/me`,
         method: "GET",
         secure: true,
         format: "json",

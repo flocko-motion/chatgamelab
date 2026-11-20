@@ -1,4 +1,6 @@
-// Command engineserver serves one game standalone, with the embedded playback-engine at /playback-engine/.
+// Command engineserver serves one game standalone, with the embedded
+// playback-engine at /api/engine/playback-engine/: the engine's routes, at the
+// platform's paths, through schemaf's endpoint pipeline.
 //
 // A game file wraps what a platform keeps apart: the stored spec, and the live
 // offers a platform would build from its key cascade.
@@ -106,8 +108,8 @@ func main() {
 
 	fmt.Printf("genre=%s game=%s offers=%d\n", spec.Genre, name, len(offers))
 	fmt.Printf("  api key:  %s\n", keySource)
-	fmt.Printf("  playback-engine  http://localhost%s/playback-engine/?new&game=%s\n", *addr, name)
-	log.Fatal(http.ListenAndServe(*addr, srv.Handler()))
+	fmt.Printf("  playback-engine  http://localhost%s/api/engine/playback-engine/?new&game=%s\n", *addr, name)
+	log.Fatal(http.ListenAndServe(*addr, api.Mux(srv.SchemafRoutes())))
 }
 
 // checked keeps the offers whose key the provider accepts, as a platform

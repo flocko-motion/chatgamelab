@@ -2,30 +2,27 @@ package api_test
 
 import (
 	"encoding/json"
-	"net/http"
-	"net/http/httptest"
+	"fmt"
 	"testing"
 
+	"engine"
 	"engine/api"
 )
 
-// The platform mounts this handler and renders what it returns, so the JSON
-// shape is a contract: checked here as raw JSON, not through the Go types.
-func TestPlatformsJSON(t *testing.T) {
-	srv := httptest.NewServer(api.New(api.Options{Dev: true}).Handler())
-	defer srv.Close()
-
-	resp, err := http.Get(srv.URL + "/platforms")
+// platformsJSON is the platform list as the platform answers it.
+func platformsJSON(t *testing.T, a *api.API) []byte {
+	t.Helper()
+	blob, err := json.Marshal(a.PlatformList())
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("status %d", resp.StatusCode)
-	}
-	if ct := resp.Header.Get("Content-Type"); ct != "application/json" {
-		t.Errorf("content type %q", ct)
-	}
+	return blob
+}
+
+// The platform answers this list and the game editor renders it, so the JSON
+// shape is a contract: checked here as raw JSON, not through the Go types.
+func TestPlatformsJSON(t *testing.T) {
+	blob := platformsJSON(t, api.New(api.Options{Dev: true}))
 
 	type model struct {
 		Name   string            `json:"name"`
@@ -43,7 +40,7 @@ func TestPlatformsJSON(t *testing.T) {
 			Models map[string]model `json:"models"`
 		} `json:"tiers"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&platforms); err != nil {
+	if err := json.Unmarshal(blob, &platforms); err != nil {
 		t.Fatal(err)
 	}
 	if len(platforms) != 3 {
@@ -88,18 +85,10 @@ func TestPlatformsJSON(t *testing.T) {
 
 // A production platform must not offer the mock.
 func TestPlatformsLeavesMockOutOfProduction(t *testing.T) {
-	srv := httptest.NewServer(api.New(api.Options{}).Handler())
-	defer srv.Close()
-
-	resp, err := http.Get(srv.URL + "/platforms")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
 	var platforms []struct {
 		ID string `json:"id"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&platforms); err != nil {
+	if err := json.Unmarshal(platformsJSON(t, api.New(api.Options{})), &platforms); err != nil {
 		t.Fatal(err)
 	}
 	for _, p := range platforms {
@@ -109,5 +98,42 @@ func TestPlatformsLeavesMockOutOfProduction(t *testing.T) {
 	}
 	if len(platforms) == 0 {
 		t.Fatal("no platforms listed")
+	}
+}
+
+// The game editor reads the themes and genres the platform answers, so their
+// JSON shape is a contract.
+func TestListsJSON(t *testing.T) {
+	var themes []map[string]any
+	remarshal(t, engine.Themes(), &themes)
+	if len(themes) == 0 || themes[0]["id"] != "default" {
+		t.Errorf("themes = %v, want the default first", themes)
+	}
+
+	var genres []struct {
+		ID    string   `json:"id"`
+		Needs []string `json:"needs"`
+	}
+	remarshal(t, engine.GenreList(), &genres)
+	want := map[string][]string{"adventure": {}, "npc-live": {"audio-live", "images"}}
+	if len(genres) != len(want) {
+		t.Fatalf("genres = %+v", genres)
+	}
+	for _, g := range genres {
+		needs, known := want[g.ID]
+		if !known || fmt.Sprint(g.Needs) != fmt.Sprint(needs) || g.Needs == nil {
+			t.Errorf("genre %+v, want needs %v", g, needs)
+		}
+	}
+}
+
+func remarshal(t *testing.T, v, into any) {
+	t.Helper()
+	blob, err := json.Marshal(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(blob, into); err != nil {
+		t.Fatal(err)
 	}
 }

@@ -7,8 +7,9 @@
  */
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import type { Phase, UsageRecord } from "../protocol.js";
-import type { Topology } from "../state.js";
+import type { UsageRecord } from "../client.js";
+import type { Phase } from "../protocol.js";
+import type { Topology } from "../client.js";
 
 cytoscape.use(dagre);
 

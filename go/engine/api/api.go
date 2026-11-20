@@ -1,20 +1,22 @@
+// Package api is the engine's HTTP transport: one schemaf endpoint per route,
+// under /api/engine/ in the platform and in the dev server alike. It deals only
+// in sessions; auth belongs to whoever serves it.
 package api
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"slices"
 	"sync"
 	"time"
 
+	schemafapi "github.com/flocko-motion/schemaf/api"
+
 	"engine"
-	"engine/web"
 )
 
-// Package api is the engine's HTTP transport, mounted by the platform's router or served standalone.
-// It deals only in sessions and the catalogue; auth belongs to whoever mounts it.
+// API holds the sessions the transport serves and how it makes and restores them.
 type API struct {
 	mu       sync.RWMutex
 	sessions map[string]*engine.Session
@@ -25,23 +27,24 @@ type API struct {
 	opts     Options
 }
 
-// Options configures the transport for whoever mounts it.
+// Options configures the transport for whoever serves it.
 type Options struct {
 	// Dev lists the mock platform in the catalogue; a production platform leaves it out.
 	Dev bool
-	// Create does the work of POST /sessions; without it the endpoint is absent.
+	// Create does the work of POST /sessions; without it the route is absent.
 	Create CreateFunc
 	// Resume loads a session that is not in memory, such as after a restart;
 	// without it such a session is unknown.
 	Resume ResumeFunc
-	// Caller names who is asking, such as the signed-in account, so a one-time
-	// key answers only the caller who made it. Without it every caller is one.
-	Caller func(r *http.Request) string
+	// Caller names who is asking, such as the signed-in account, from the
+	// request's context, so a one-time key answers only the caller who made
+	// it. Without it every caller is one.
+	Caller func(ctx context.Context) string
 }
 
 // CreateFunc launches a session for the playback-engine's request. The
-// context is the request's, carrying whatever the mounting server's middleware
-// put there; the session must be launched on one that outlives it, such as
+// context is the request's, carrying whatever the serving side put there; the
+// session must be launched on one that outlives it, such as
 // context.WithoutCancel's. An error that is an *engine.Refusal reaches the
 // playback-engine with its problem.
 type CreateFunc func(ctx context.Context, req CreateRequest) (*engine.Session, error)
@@ -49,23 +52,6 @@ type CreateFunc func(ctx context.Context, req CreateRequest) (*engine.Session, e
 // ResumeFunc loads a stored session by its ID, through engine.Resume, under
 // the same contexts as CreateFunc.
 type ResumeFunc func(ctx context.Context, id string) (*engine.Session, error)
-
-// CreateRequest is what the playback-engine sends to start a session.
-type CreateRequest struct {
-	// Game or Share names what to play: a game, or a share token.
-	Game  string `json:"game,omitempty"`
-	Share string `json:"share,omitempty"`
-	// Language is the player's, as the playback-engine knows it.
-	Language string `json:"language,omitempty"`
-	// Once is a key the playback-engine makes for one intent to start, so a
-	// repeat within OnceWindow answers the same session.
-	Once string `json:"once"`
-}
-
-// CreateResponse names the session created.
-type CreateResponse struct {
-	ID string `json:"id"`
-}
 
 // OnceWindow is how long a one-time key answers the session it created.
 const OnceWindow = 10 * time.Minute
@@ -80,7 +66,7 @@ type pending struct {
 	caller string
 }
 
-// New makes the transport for whoever mounts it.
+// New makes the transport for whoever serves it.
 func New(opts Options) *API {
 	return &API{
 		sessions:  map[string]*engine.Session{},
@@ -89,8 +75,6 @@ func New(opts Options) *API {
 		opts:      opts,
 	}
 }
-
-func jsonMarshal(v any) ([]byte, error) { return json.Marshal(v) }
 
 // Register makes a launched session reachable over HTTP.
 func (a *API) Register(id string, s *engine.Session) {
@@ -111,15 +95,23 @@ func (a *API) Forget(id string) {
 	}
 }
 
-// session finds the request's session, restoring it if it is stored but not
-// in memory, and answers the refusal itself when there is none.
-func (a *API) session(w http.ResponseWriter, r *http.Request) (*engine.Session, bool) {
-	s, err := a.find(r.Context(), r.PathValue("id"))
-	if err != nil {
-		refuse(w, err)
-		return nil, false
+// PlatformList is the AI platforms this transport offers: the mock platform in dev only.
+func (a *API) PlatformList() []engine.PlatformInfo {
+	platforms := engine.Platforms()
+	if !a.opts.Dev {
+		platforms = slices.DeleteFunc(platforms, func(p engine.PlatformInfo) bool { return p.ID == engine.PlatformMock })
 	}
-	return s, true
+	return platforms
+}
+
+// Session finds a session by its ID, restoring it if it is stored but not in
+// memory. Without one, the error is the refusal to answer with.
+func (a *API) Session(ctx context.Context, id string) (*engine.Session, error) {
+	s, err := a.find(ctx, id)
+	if err != nil {
+		return nil, Refusal(err)
+	}
+	return s, nil
 }
 
 func (a *API) find(ctx context.Context, id string) (*engine.Session, error) {
@@ -153,24 +145,18 @@ func (a *API) find(ctx context.Context, id string) (*engine.Session, error) {
 	return p.session, p.err
 }
 
-// Create starts a session through the mounting server's CreateFunc. A repeat
-// of a one-time key within OnceWindow answers the session the first created,
-// to the same caller only; anyone else is refused and learns nothing.
-func (a *API) Create(w http.ResponseWriter, r *http.Request) {
-	var req CreateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
+// create starts a session through the serving side's CreateFunc. A repeat of
+// a one-time key within OnceWindow answers the session the first created, to
+// the same caller only; anyone else is refused and learns nothing.
+func (a *API) create(ctx context.Context, req CreateRequest) (CreateResponse, error) {
 	if req.Once == "" || (req.Game == "") == (req.Share == "") {
-		http.Error(w, "a creation names a game or a share, and carries a one-time key", http.StatusBadRequest)
-		return
+		return CreateResponse{}, badRequest("a creation names a game or a share, and carries a one-time key")
 	}
 
 	key := req.Once + "\x00" + req.Game + "\x00" + req.Share
 	caller := ""
 	if a.opts.Caller != nil {
-		caller = a.opts.Caller(r)
+		caller = a.opts.Caller(ctx)
 	}
 	now := time.Now()
 	a.mu.Lock()
@@ -186,12 +172,11 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	a.mu.Unlock()
 	if repeat && p.caller != caller {
-		refuse(w, engine.Refuse(engine.ProblemDenied, "this one-time key belongs to another caller"))
-		return
+		return CreateResponse{}, Refusal(engine.Refuse(engine.ProblemDenied, "this one-time key belongs to another caller"))
 	}
 
 	if !repeat {
-		p.session, p.err = a.opts.Create(r.Context(), req)
+		p.session, p.err = a.opts.Create(ctx, req)
 		a.mu.Lock()
 		if p.err == nil {
 			a.sessions[p.session.ID()] = p.session
@@ -204,362 +189,109 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	<-p.done
 	if p.err != nil {
-		refuse(w, p.err)
-		return
+		return CreateResponse{}, Refusal(p.err)
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(CreateResponse{ID: p.session.ID()})
+	return CreateResponse{ID: p.session.ID()}, nil
 }
 
-// refuse answers an error as a refusal the playback-engine can explain.
-func refuse(w http.ResponseWriter, err error) {
+// Refusal is the error an endpoint answers for err, read as a refusal: its
+// problem is the error's code, with the problem's status.
+// An error that names no problem is ProblemFailed.
+func Refusal(err error) error {
 	refusal := engine.RefusalOf(err)
-	status := http.StatusUnprocessableEntity
-	switch refusal.Problem {
+	return problemError(refusal.Problem, refusal.Message)
+}
+
+// rejected is the error an endpoint answers when a session turns an action
+// down: a refusal keeps its problem, anything else is unprocessable.
+func rejected(err error) error {
+	if refusal := engine.RefusalOf(err); refusal.Problem != engine.ProblemFailed {
+		return problemError(refusal.Problem, refusal.Message)
+	}
+	return schemafapi.Error(schemafapi.ErrUnprocessable, "unprocessable", err.Error())
+}
+
+func problemError(problem engine.Problem, message string) error {
+	code := string(problem)
+	switch problem {
 	case engine.ProblemUnknown:
-		status = http.StatusNotFound
-	case engine.ProblemStale:
-		status = http.StatusGone
+		return schemafapi.Error(schemafapi.ErrNotFound, code, message)
 	case engine.ProblemDenied:
-		status = http.StatusForbidden
+		return schemafapi.Error(schemafapi.ErrForbidden, code, message)
+	case engine.ProblemStale:
+		return schemafapi.Error(schemafapi.ErrGone, code, message)
 	case engine.ProblemUnreachable:
-		status = http.StatusBadGateway
+		return schemafapi.Error(schemafapi.ErrBadGateway, code, message)
 	case engine.ProblemFailed:
-		status = http.StatusInternalServerError
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(refusal)
-}
-
-// SessionStream is the session-scoped event stream.
-func (a *API) SessionStream(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.WriteHeader(http.StatusOK)
-	flusher.Flush()
-
-	enc := json.NewEncoder(w)
-	for {
-		select {
-		case <-r.Context().Done():
-			return
-		case e, open := <-s.Events():
-			if !open {
-				return
-			}
-			fmt.Fprintf(w, "event: %s\ndata: ", e.Stream)
-			if err := enc.Encode(e); err != nil {
-				return
-			}
-			fmt.Fprint(w, "\n")
-			flusher.Flush()
-		}
-	}
-}
-
-type inputRequest struct {
-	Text  string `json:"text,omitempty"`
-	Audio []byte `json:"audio,omitempty"`
-}
-
-// SessionInput submits one player action, typed or spoken as the genre accepts.
-func (a *API) SessionInput(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-
-	var req inputRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var err error
-	switch {
-	case req.Text != "":
-		err = s.Say(req.Text)
-	case len(req.Audio) > 0:
-		err = s.Speak(req.Audio)
+		// No sentinel: schemaf answers 500, withholds the message and keeps the code.
+		return failed{message}
 	default:
-		http.Error(w, "body carries neither text nor audio", http.StatusBadRequest)
-		return
+		return schemafapi.Error(schemafapi.ErrUnprocessable, code, message)
 	}
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-		return
-	}
-	w.WriteHeader(http.StatusAccepted)
 }
 
-type connectRequest struct {
-	// SDP is the browser's offer; answering it creates the billed conversation.
-	SDP string `json:"sdp"`
+// failed is a refusal for ProblemFailed, a 500 with its code.
+type failed struct{ message string }
+
+func (f failed) Error() string { return f.message }
+func (f failed) Code() string  { return string(engine.ProblemFailed) }
+
+// badRequest is a request schemaf decoded but the engine cannot act on.
+func badRequest(message string) error {
+	return schemafapi.Error(schemafapi.ErrBadRequest, "bad_request", message)
 }
 
-type connectResponse struct {
-	SDP string `json:"sdp"`
+// Route is one of the engine's routes, for comparing them with another server's.
+type Route struct {
+	Method, Path string
 }
 
-// SessionConnect brokers the browser's offer to talk to the character.
-// The provider's id stays server-side, keeping a spendable key and a steerable conversation off the client.
-func (a *API) SessionConnect(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
+// Routes is every route the engine serves, the creation included.
+func Routes() []Route {
+	var out []Route
+	for _, r := range New(Options{Create: func(context.Context, CreateRequest) (*engine.Session, error) { return nil, nil }}).SchemafRoutes() {
+		out = append(out, Route{Method: r.Method, Path: r.Path})
 	}
-
-	var req connectRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	if req.SDP == "" {
-		http.Error(w, "body carries no SDP offer", http.StatusBadRequest)
-		return
-	}
-
-	answer, err := s.Connect(r.Context(), req.SDP)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(connectResponse{SDP: answer})
+	return out
 }
 
-// SessionPause lets a live conversation go at the player's request, as idling would.
-func (a *API) SessionPause(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	if err := s.Pause(); err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-		return
-	}
-	w.WriteHeader(http.StatusAccepted)
-}
-
-// SessionPrompts is the text a session is running on.
-func (a *API) SessionPrompts(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(s.Prompts())
-}
-
-// SessionGraph renders the running wiring as text.
-func (a *API) SessionGraph(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	fmt.Fprint(w, s.Describe())
-}
-
-// SessionTopology is the wiring as data, for a view that draws it.
-func (a *API) SessionTopology(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(s.Topology())
-}
-
-// SessionFlowchart is the same wiring as mermaid.
-func (a *API) SessionFlowchart(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	fmt.Fprint(w, s.Mermaid())
-}
-
-// SessionSnapshot is where the session stands now; a reloading page fetches it with the history.
-func (a *API) SessionSnapshot(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(s.Snapshot())
-}
-
-// SessionHistory is the conversation so far, in order.
-func (a *API) SessionHistory(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(s.History())
-}
-
-// SessionNode is what one block is and has been doing.
-func (a *API) SessionNode(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-
-	node := r.PathValue("node")
-	detail, found := s.Inspect(node)
-	if !found {
-		http.Error(w, fmt.Sprintf("session %q has no block %q", r.PathValue("id"), node), http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(detail)
-}
-
-// SessionEdge is what one wire has carried.
-func (a *API) SessionEdge(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-
-	q := r.URL.Query()
-	detail, found := s.InspectEdge(q.Get("from"), q.Get("to"), q.Get("kind"))
-	if !found {
-		http.Error(w, "no such edge", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(detail)
-}
-
-// SessionOptions is what the player may choose from, and what the session settled on.
-func (a *API) SessionOptions(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(s.Options())
-}
-
-type chooseRequest struct {
-	Offer  string         `json:"offer"`
-	Choice *engine.Choice `json:"choice,omitempty"`
-}
-
-// SessionChoose takes the player's choice; one outside the offer's caveats is refused.
-func (a *API) SessionChoose(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	var req chooseRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := s.Choose(req.Offer, req.Choice); err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-		return
-	}
-	w.WriteHeader(http.StatusAccepted)
-}
-
-type toggleRequest struct {
-	Toggle engine.Toggle `json:"toggle"`
-	On     bool          `json:"on"`
-}
-
-// SessionToggle switches a feature during play, such as pictures off.
-func (a *API) SessionToggle(w http.ResponseWriter, r *http.Request) {
-	s, ok := a.session(w, r)
-	if !ok {
-		return
-	}
-	var req toggleRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "malformed body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := s.SetToggle(req.Toggle, req.On); err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-		return
-	}
-	w.WriteHeader(http.StatusAccepted)
-}
-
-// Platforms is the engine's catalogue of AI platforms; its JSON shape is the engine's.
-// The mock is listed in dev mode only.
-func (a *API) Platforms(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(a.PlatformList())
-}
-
-// PlatformList is the AI platforms this transport offers: the mock platform in dev only.
-func (a *API) PlatformList() []engine.PlatformInfo {
-	platforms := engine.Platforms()
-	if !a.opts.Dev {
-		platforms = slices.DeleteFunc(platforms, func(p engine.PlatformInfo) bool { return p.ID == engine.PlatformMock })
-	}
-	return platforms
-}
-
-// Themes is every look the playback-engine can wear, for the game editor.
-func (a *API) Themes(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(engine.Themes())
-}
-
-// Genres is every genre with the toggles it needs, for the game editor.
-func (a *API) Genres(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(engine.GenreList())
-}
-
-// Handler is the engine's whole HTTP subtree, so the embedded playback-engine uses the same relative URLs everywhere.
-func (a *API) Handler() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /platforms", a.Platforms)
-	mux.HandleFunc("GET /themes", a.Themes)
-	mux.HandleFunc("GET /genres", a.Genres)
+// SchemafRoutes is the engine's endpoints as schemaf routes, each running
+// schemaf's whole pipeline on a plain http.ServeMux:
+//
+//	mux.Handle(r.Method+" "+r.Path, r.Handler)
+func (a *API) SchemafRoutes() []schemafapi.Route {
+	var routes []schemafapi.Route
 	if a.opts.Create != nil {
-		mux.HandleFunc("POST /sessions", a.Create)
+		routes = append(routes, schemafapi.NewRoute(CreateEndpoint{a}, "", ""))
 	}
-	mux.HandleFunc("GET /sessions/{id}/stream", a.SessionStream)
-	mux.HandleFunc("POST /sessions/{id}/input", a.SessionInput)
-	mux.HandleFunc("POST /sessions/{id}/connect", a.SessionConnect)
-	mux.HandleFunc("POST /sessions/{id}/pause", a.SessionPause)
-	mux.HandleFunc("GET /sessions/{id}/options", a.SessionOptions)
-	mux.HandleFunc("POST /sessions/{id}/choose", a.SessionChoose)
-	mux.HandleFunc("POST /sessions/{id}/toggles", a.SessionToggle)
-	mux.HandleFunc("GET /sessions/{id}/prompts", a.SessionPrompts)
-	mux.HandleFunc("GET /sessions/{id}/graph", a.SessionGraph)
-	mux.HandleFunc("GET /sessions/{id}/topology", a.SessionTopology)
-	mux.HandleFunc("GET /sessions/{id}/state", a.SessionSnapshot)
-	mux.HandleFunc("GET /sessions/{id}/history", a.SessionHistory)
-	mux.HandleFunc("GET /sessions/{id}/nodes/{node}", a.SessionNode)
-	mux.HandleFunc("GET /sessions/{id}/edge", a.SessionEdge)
-	mux.HandleFunc("GET /sessions/{id}/flowchart", a.SessionFlowchart)
-	mux.HandleFunc("GET /sessions/{id}/live", a.SessionLive)
-	mux.Handle("GET /playback-engine/", http.StripPrefix("/playback-engine/", http.FileServerFS(web.FS())))
+	return append(routes,
+		schemafapi.NewRoute(InputEndpoint{a}, "", ""),
+		schemafapi.NewRoute(ChooseEndpoint{a}, "", ""),
+		schemafapi.NewRoute(TogglesEndpoint{a}, "", ""),
+		schemafapi.NewRoute(ConnectEndpoint{a}, "", ""),
+		schemafapi.NewRoute(PauseEndpoint{a}, "", ""),
+		schemafapi.NewRoute(StateEndpoint{a}, "", ""),
+		schemafapi.NewRoute(HistoryEndpoint{a}, "", ""),
+		schemafapi.NewRoute(TopologyEndpoint{a}, "", ""),
+		schemafapi.NewRoute(OptionsEndpoint{a}, "", ""),
+		schemafapi.NewRoute(NodeEndpoint{a}, "", ""),
+		schemafapi.NewRoute(EdgeEndpoint{a}, "", ""),
+		schemafapi.NewRoute(PromptsEndpoint{a}, "", ""),
+		schemafapi.NewRoute(GraphEndpoint{a}, "", ""),
+		schemafapi.NewRoute(FlowchartEndpoint{a}, "", ""),
+		schemafapi.NewStreamRoute(StreamEndpoint{a}, "", ""),
+		schemafapi.NewRawRoute(LiveEndpoint{a}, "", ""),
+		schemafapi.NewRawRoute(PlaybackIndexEndpoint{}, "", ""),
+		schemafapi.NewRawRoute(PlaybackFileEndpoint{}, "", ""),
+		schemafapi.NewRawRoute(PlaybackNestedFileEndpoint{}, "", ""),
+	)
+}
+
+// Mux serves the routes on a plain http.ServeMux, as the dev server does.
+func Mux(routes []schemafapi.Route) *http.ServeMux {
+	mux := http.NewServeMux()
+	for _, r := range routes {
+		mux.Handle(r.Method+" "+r.Path, r.Handler)
+	}
 	return mux
 }

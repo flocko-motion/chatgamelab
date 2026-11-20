@@ -11,7 +11,7 @@ import "embed"
 var projectMigrations embed.FS
 
 // Provider returns the embedded project migrations for registration with schemaf.
-// Wire up in go/main.go: app.AddDb(db.Provider)
+// Wire up in Wire (go/app/app.go): app.AddDb(db.Provider)
 func Provider() embed.FS {
 	return projectMigrations
 }
