@@ -187,6 +187,17 @@ type CreateWorkshopReq struct {
 	Public        bool    `json:"public"`
 }
 
+// DevLoginReq defines model for DevLoginReq.
+type DevLoginReq struct {
+	Role string `json:"role"`
+}
+
+// DevLoginResp defines model for DevLoginResp.
+type DevLoginResp struct {
+	Token  string             `json:"token"`
+	UserId openapi_types.UUID `json:"userId"`
+}
+
 // EdgeDetail defines model for EdgeDetail.
 type EdgeDetail struct {
 	From   string   `json:"from"`
@@ -814,8 +825,8 @@ type UpdateUserReq struct {
 	AgeGroup             *string             `json:"ageGroup,omitempty"`
 	AiQualityTier        *string             `json:"aiQualityTier,omitempty"`
 	DefaultApiKeyShareId *openapi_types.UUID `json:"defaultApiKeyShareId,omitempty"`
-	Email                string              `json:"email"`
-	Name                 string              `json:"name"`
+	Email                *string             `json:"email,omitempty"`
+	Name                 *string             `json:"name,omitempty"`
 }
 
 // UpdateWorkshopReq defines model for UpdateWorkshopReq.
@@ -993,6 +1004,9 @@ type PostApiApikeysIdSharesJSONRequestBody = ShareApiKeyReq
 
 // PostApiAuthAuth0LoginJSONRequestBody defines body for PostApiAuthAuth0Login for application/json ContentType.
 type PostApiAuthAuth0LoginJSONRequestBody = SchemafAuth0LoginRequest
+
+// PostApiAuthDevLoginJSONRequestBody defines body for PostApiAuthDevLogin for application/json ContentType.
+type PostApiAuthDevLoginJSONRequestBody = DevLoginReq
 
 // PostApiAuthParticipantLoginJSONRequestBody defines body for PostApiAuthParticipantLogin for application/json ContentType.
 type PostApiAuthParticipantLoginJSONRequestBody = ParticipantLoginReq
@@ -1291,6 +1305,30 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/auth/check-name (the `GetApiAuthCheckName` operationId).
 	GetApiAuthCheckName(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthDevLoginWithBody Signs in as one of the seeded development accounts.
+	//
+	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+	// "individual-1", "individual-2", "participant"), starts a session for its
+	// account and sets the session cookie.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+	PostApiAuthDevLoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthDevLogin Signs in as one of the seeded development accounts.
+	//
+	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+	// "individual-1", "individual-2", "participant"), starts a session for its
+	// account and sets the session cookie.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+	PostApiAuthDevLogin(ctx context.Context, body PostApiAuthDevLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthLogout End the current session
 	//
@@ -2755,6 +2793,50 @@ func (c *Client) PostApiAuthAuth0Login(ctx context.Context, body PostApiAuthAuth
 // Corresponds with GET /api/auth/check-name (the `GetApiAuthCheckName` operationId).
 func (c *Client) GetApiAuthCheckName(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiAuthCheckNameRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiAuthDevLoginWithBody Signs in as one of the seeded development accounts.
+//
+// Development only: without DEV_MODE it answers 404. Takes a preset role
+// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+// "individual-1", "individual-2", "participant"), starts a session for its
+// account and sets the session cookie.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+func (c *Client) PostApiAuthDevLoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthDevLoginRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiAuthDevLogin Signs in as one of the seeded development accounts.
+//
+// Development only: without DEV_MODE it answers 404. Takes a preset role
+// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+// "individual-1", "individual-2", "participant"), starts a session for its
+// account and sets the session cookie.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+func (c *Client) PostApiAuthDevLogin(ctx context.Context, body PostApiAuthDevLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthDevLoginRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5776,6 +5858,46 @@ func NewGetApiAuthCheckNameRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewPostApiAuthDevLoginRequest calls the generic PostApiAuthDevLogin builder with application/json body
+func NewPostApiAuthDevLoginRequest(server string, body PostApiAuthDevLoginJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthDevLoginRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAuthDevLoginRequestWithBody constructs an http.Request for the PostApiAuthDevLogin method, with any body, and a specified content type
+func NewPostApiAuthDevLoginRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/dev-login")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -9903,6 +10025,30 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/auth/check-name (the `GetApiAuthCheckName` operationId).
 	GetApiAuthCheckNameWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAuthCheckNameResponse, error)
 
+	// PostApiAuthDevLoginWithBodyWithResponse Signs in as one of the seeded development accounts.
+	//
+	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+	// "individual-1", "individual-2", "participant"), starts a session for its
+	// account and sets the session cookie.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+	PostApiAuthDevLoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthDevLoginResponse, error)
+
+	// PostApiAuthDevLoginWithResponse Signs in as one of the seeded development accounts.
+	//
+	// Development only: without DEV_MODE it answers 404. Takes a preset role
+	// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+	// "individual-1", "individual-2", "participant"), starts a session for its
+	// account and sets the session cookie.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+	PostApiAuthDevLoginWithResponse(ctx context.Context, body PostApiAuthDevLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthDevLoginResponse, error)
+
 	// PostApiAuthLogoutWithResponse End the current session
 	//
 	// Revokes the current session (if any) and clears the session cookie.
@@ -11766,6 +11912,54 @@ func (r GetApiAuthCheckNameResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiAuthCheckNameResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAuthDevLoginResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *DevLoginResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiAuthDevLoginResponse) GetJSON200() *DevLoginResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiAuthDevLoginResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiAuthDevLoginResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthDevLoginResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthDevLoginResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthDevLoginResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -17225,6 +17419,42 @@ func (c *ClientWithResponses) GetApiAuthCheckNameWithResponse(ctx context.Contex
 	return ParseGetApiAuthCheckNameResponse(rsp)
 }
 
+// PostApiAuthDevLoginWithBodyWithResponse Signs in as one of the seeded development accounts.
+//
+// Development only: without DEV_MODE it answers 404. Takes a preset role
+// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+// "individual-1", "individual-2", "participant"), starts a session for its
+// account and sets the session cookie.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+func (c *ClientWithResponses) PostApiAuthDevLoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthDevLoginResponse, error) {
+	rsp, err := c.PostApiAuthDevLoginWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthDevLoginResponse(rsp)
+}
+
+// PostApiAuthDevLoginWithResponse Signs in as one of the seeded development accounts.
+//
+// Development only: without DEV_MODE it answers 404. Takes a preset role
+// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+// "individual-1", "individual-2", "participant"), starts a session for its
+// account and sets the session cookie.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/auth/dev-login (the `PostApiAuthDevLogin` operationId).
+func (c *ClientWithResponses) PostApiAuthDevLoginWithResponse(ctx context.Context, body PostApiAuthDevLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthDevLoginResponse, error) {
+	rsp, err := c.PostApiAuthDevLogin(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthDevLoginResponse(rsp)
+}
+
 // PostApiAuthLogoutWithResponse End the current session
 //
 // Revokes the current session (if any) and clears the session cookie.
@@ -19763,6 +19993,39 @@ func ParseGetApiAuthCheckNameResponse(rsp *http.Response) (*GetApiAuthCheckNameR
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest CheckNameResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthDevLoginResponse parses an HTTP response from a PostApiAuthDevLoginWithResponse call
+func ParsePostApiAuthDevLoginResponse(rsp *http.Response) (*PostApiAuthDevLoginResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthDevLoginResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DevLoginResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

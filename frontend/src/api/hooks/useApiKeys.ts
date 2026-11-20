@@ -1,37 +1,35 @@
+import { api, withQuery } from "../client/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
-import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
 import type {
-  ObjApiKeyShare,
-  ObjInstitution,
-  HttpxErrorResponse,
-  RoutesApiKeysResponse,
-  RoutesCreateApiKeyRequest,
-  RoutesEnrichedGameShare,
-} from "../generated";
+  ApiKeyShare,
+  Institution,
+  Error as ApiError,
+  ApiKeysResp,
+  CreateApiKeyReq,
+  EnrichedGameShare,
+} from "../generated/api.gen";
 
 // API Keys hooks
 export function useApiKeys() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<RoutesApiKeysResponse, HttpxErrorResponse>({
+  return useQuery<ApiKeysResp, ApiError>({
     queryKey: queryKeys.apiKeys,
-    queryFn: () => api.apikeys.apikeysList().then((response) => response.data),
+    queryFn: () => api.getApiApikeys().then((response) => response.data),
   });
 }
 
 export function useCreateApiKey() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
-    RoutesCreateApiKeyRequest
+    ApiKeyShare,
+    ApiError,
+    CreateApiKeyReq
   >({
     mutationFn: (request) =>
-      api.apikeys.postApikeys(request).then((response) => response.data),
+      api.postApiApikeysNew(request).then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
     },
@@ -42,16 +40,14 @@ export function useCreateApiKey() {
 
 export function useDeleteApiKey() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
+    ApiKeyShare,
+    ApiError,
     { id: string; cascade?: boolean }
   >({
     mutationFn: ({ id, cascade }) =>
-      api.apikeys
-        .apikeysDelete(id, { cascade })
+      api.deleteApiApikeysId(id, withQuery({ cascade }))
         .then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
@@ -69,11 +65,10 @@ export function useDeleteApiKey() {
 
 export function useSetDefaultApiKey() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<ObjApiKeyShare, HttpxErrorResponse, { id: string }>({
+  return useMutation<ApiKeyShare, ApiError, { id: string }>({
     mutationFn: ({ id }) =>
-      api.apikeys.defaultUpdate(id).then((response) => response.data),
+      api.putApiApikeysIdDefault(id).then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
     },
@@ -83,13 +78,11 @@ export function useSetDefaultApiKey() {
 
 // Institution API Keys hooks
 export function useInstitutionApiKeys(institutionId: string) {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjApiKeyShare[], HttpxErrorResponse>({
+  return useQuery<ApiKeyShare[], ApiError>({
     queryKey: queryKeys.institutionApiKeys(institutionId),
     queryFn: () =>
-      api.institutions
-        .apikeysList(institutionId)
+      api.getApiInstitutionsIdApikeys(institutionId)
         .then((response) => response.data),
     enabled: !!institutionId,
   });
@@ -101,13 +94,11 @@ export function useApiKeyGameShares(
   shareId: string | null,
   context?: "personal" | "organization",
 ) {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<RoutesEnrichedGameShare[], HttpxErrorResponse>({
+  return useQuery<EnrichedGameShare[], ApiError>({
     queryKey: [...queryKeys.apiKeyGameShares(shareId ?? ""), context ?? "all"],
     queryFn: () =>
-      api.apikeys
-        .gameSharesList(shareId!, context ? { context } : undefined)
+      api.getApiApikeysIdGameShares(shareId!, withQuery({ context }))
         .then((response) => response.data),
     enabled: !!shareId,
   });
@@ -115,19 +106,17 @@ export function useApiKeyGameShares(
 
 export function useShareApiKeyWithInstitution() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
+    ApiKeyShare,
+    ApiError,
     {
       shareId: string;
       institutionId: string;
     }
   >({
     mutationFn: ({ shareId, institutionId }) =>
-      api.apikeys
-        .sharesCreate(shareId, {
+      api.postApiApikeysIdShares(shareId, {
           institutionId,
         })
         .then((response) => response.data),
@@ -143,16 +132,14 @@ export function useShareApiKeyWithInstitution() {
 
 export function useRemoveInstitutionApiKeyShare() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
+    ApiKeyShare,
+    ApiError,
     { shareId: string; institutionId: string }
   >({
     mutationFn: ({ shareId }) =>
-      api.apikeys
-        .apikeysDelete(shareId, { cascade: false })
+      api.deleteApiApikeysId(shareId, withQuery({ cascade: false }))
         .then((response) => response.data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
@@ -171,16 +158,14 @@ export function useRemoveInstitutionApiKeyShare() {
 // Institution Free-Use Key hook
 export function useSetInstitutionFreeUseKey() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjInstitution,
-    HttpxErrorResponse,
+    Institution,
+    ApiError,
     { institutionId: string; shareId: string | null }
   >({
     mutationFn: ({ institutionId, shareId }) =>
-      api.institutions
-        .freeUseKeyPartialUpdate(institutionId, {
+      api.patchApiInstitutionsIdFreeUseKey(institutionId, {
           shareId: shareId ?? undefined,
         })
         .then((response) => response.data),

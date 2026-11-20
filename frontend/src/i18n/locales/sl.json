@@ -31,6 +31,10 @@
         "guest": "Prijava kot gost",
         "student": "Prijava kot študent",
         "teacher": "Prijava kot učitelj"
+      },
+      "unavailable": {
+        "message": "Ta različica ne omogoča prijave. Udeleženci delavnice lahko namesto tega vnesejo svojo kodo.",
+        "title": "Prijava ni na voljo"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Manj kot 13",
       "ageGroupUnder13Error": "Za uporabo ChatGameLab moraš biti star vsaj 13 let.",
       "cancelButton": "Prekliči",
-      "emailDescription": "Uporabili ga bomo za pomembna obvestila.",
+      "emailDescription": "Izbirno. Uporabili ga bomo za pomembna obvestila.",
       "emailLabel": "E-poštni naslov",
       "emailPlaceholder": "Vnesite svoj e-poštni naslov",
       "errors": {

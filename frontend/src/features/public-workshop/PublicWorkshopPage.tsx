@@ -25,12 +25,11 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { apiClient } from "@/api/client";
-import { config } from "@/config/env";
+import { api } from "@/api/client/api";
 import type {
-  ObjPublicWorkshopGame,
-  ObjPublicWorkshopLink,
-} from "@/api/generated";
+  PublicWorkshopGame,
+  PublicWorkshopLink,
+} from "@/api/generated/api.gen";
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
@@ -69,17 +68,20 @@ export function PublicWorkshopPage({
 
   const { data: page, isLoading, isError } = useQuery({
     queryKey: ["publicWorkshop", slug],
-    queryFn: async () => (await apiClient.public.workshopsDetail(slug)).data,
+    queryFn: async () => (await api.getApiPublicWorkshopsSlug(slug)).data,
     retry: false,
   });
 
-  const handleDownload = async (game: ObjPublicWorkshopGame) => {
+  const handleDownload = async (game: PublicWorkshopGame) => {
     if (!game.id) return;
-    const response = await fetch(
-      `${config.API_BASE_URL}/public/workshops/${encodeURIComponent(slug)}/games/${game.id}/yaml`,
-    );
-    if (response.ok) {
-      downloadYamlFile(await response.text(), game.name);
+    try {
+      const response = await api.getApiPublicWorkshopsSlugGamesIdYaml(slug, game.id, {
+        headers: { Accept: "application/x-yaml" },
+        format: "text",
+      });
+      downloadYamlFile(response.data as unknown as string, game.name);
+    } catch {
+      // Nothing to download.
     }
   };
 
@@ -210,7 +212,7 @@ function AboutChatGameLab() {
 }
 
 /** Links the workshop's leaders added, shown below the games. */
-function FurtherReading({ links }: { links: ObjPublicWorkshopLink[] }) {
+function FurtherReading({ links }: { links: PublicWorkshopLink[] }) {
   const { t } = useTranslation("common");
 
   if (links.length === 0) return null;
@@ -262,7 +264,7 @@ function CallToAction() {
 }
 
 interface PublicGameCardProps {
-  game: ObjPublicWorkshopGame;
+  game: PublicWorkshopGame;
   isAuthenticated: boolean;
   /** False when the workshop has no key: no game here can be played. */
   playAvailable: boolean;

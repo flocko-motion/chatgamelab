@@ -1,12 +1,12 @@
+import { api, withQuery } from "../client/api";
 import {
   useQuery,
   useMutation,
   useQueryClient,
   keepPreviousData,
 } from "@tanstack/react-query";
-import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
-import type { ObjPublicWorkshopLink, ObjWorkshop } from "../generated";
+import type { PublicWorkshopLink, Workshop } from "../generated/api.gen";
 
 /**
  * Parameters for listing workshops with filtering and sorting
@@ -23,7 +23,6 @@ export interface UseWorkshopsParams {
  * Hook to fetch workshops for a specific institution with filtering and sorting
  */
 export function useWorkshops(params: UseWorkshopsParams) {
-  const api = useRequiredAuthenticatedApi();
   const { institutionId, search, sortBy, sortDir, activeOnly } = params;
 
   return useQuery({
@@ -33,13 +32,13 @@ export function useWorkshops(params: UseWorkshopsParams) {
     ],
     queryFn: async () => {
       if (!institutionId) return [];
-      const response = await api.workshops.workshopsList({
-        institutionId,
-        search: search || undefined,
-        sortBy: sortBy || undefined,
-        sortDir: sortDir || undefined,
-        activeOnly: activeOnly || undefined,
-      });
+      const response = await api.getApiWorkshops(withQuery({
+          institutionId,
+          search: search || undefined,
+          sortBy: sortBy || undefined,
+          sortDir: sortDir || undefined,
+          activeOnly: activeOnly || undefined,
+        }));
       return response.data;
     },
     enabled: !!institutionId,
@@ -51,13 +50,12 @@ export function useWorkshops(params: UseWorkshopsParams) {
  * Hook to fetch a single workshop by ID
  */
 export function useWorkshop(workshopId: string | undefined) {
-  const api = useRequiredAuthenticatedApi();
 
   return useQuery({
     queryKey: queryKeys.workshop(workshopId || ""),
     queryFn: async () => {
       if (!workshopId) return null;
-      const response = await api.workshops.workshopsDetail(workshopId);
+      const response = await api.getApiWorkshopsId(workshopId);
       return response.data;
     },
     enabled: !!workshopId,
@@ -68,7 +66,6 @@ export function useWorkshop(workshopId: string | undefined) {
  * Hook to create a new workshop
  */
 export function useCreateWorkshop() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -78,7 +75,7 @@ export function useCreateWorkshop() {
       active?: boolean;
       public?: boolean;
     }) => {
-      const response = await api.workshops.workshopsCreate({
+      const response = await api.postApiWorkshops({
         name: data.name,
         institutionId: data.institutionId,
         active: data.active ?? true,
@@ -97,7 +94,6 @@ export function useCreateWorkshop() {
  * Hook to update a workshop
  */
 export function useUpdateWorkshop() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -118,9 +114,9 @@ export function useUpdateWorkshop() {
       // Omitted keeps the current value on the server.
       publicSlug?: string;
       publicDescription?: string;
-      publicLinks?: ObjPublicWorkshopLink[];
+      publicLinks?: PublicWorkshopLink[];
     }) => {
-      const response = await api.workshops.workshopsPartialUpdate(id, {
+      const response = await api.patchApiWorkshopsId(id, {
         publicSlug: data.publicSlug,
         publicDescription: data.publicDescription,
         publicLinks: data.publicLinks,
@@ -153,12 +149,11 @@ export function useUpdateWorkshop() {
  * Hook to delete a workshop
  */
 export function useDeleteWorkshop() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (workshopId: string) => {
-      await api.workshops.workshopsDelete(workshopId);
+      await api.deleteApiWorkshopsId(workshopId);
     },
     onSuccess: () => {
       // Invalidate all workshop queries
@@ -171,7 +166,6 @@ export function useDeleteWorkshop() {
  * Hook to create a workshop invite (open invite for participants)
  */
 export function useCreateWorkshopInvite() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -180,7 +174,7 @@ export function useCreateWorkshopInvite() {
       maxUses?: number;
       expiresAt?: string;
     }) => {
-      const response = await api.invites.workshopCreate({
+      const response = await api.postApiInvitesWorkshop({
         workshopId: data.workshopId,
         maxUses: data.maxUses,
         expiresAt: data.expiresAt,
@@ -201,7 +195,6 @@ export function useCreateWorkshopInvite() {
  * Hook to set workshop default API key for participants
  */
 export function useSetWorkshopApiKey() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -209,14 +202,14 @@ export function useSetWorkshopApiKey() {
       workshopId: string;
       apiKeyShareId: string | null;
     }) => {
-      const response = await api.workshops.apiKeyUpdate(data.workshopId, {
+      const response = await api.putApiWorkshopsIdApiKey(data.workshopId, {
         apiKeyShareId: data.apiKeyShareId || undefined,
       });
       return response.data;
     },
     onSuccess: (updatedWorkshop, variables) => {
       // Update the workshop in the cache immediately with the new data
-      queryClient.setQueryData<ObjWorkshop[]>(["workshops"], (old) => {
+      queryClient.setQueryData<Workshop[]>(["workshops"], (old) => {
         if (!old) return old;
         return old.map((w) =>
           w.id === variables.workshopId ? updatedWorkshop : w,
@@ -234,12 +227,11 @@ export function useSetWorkshopApiKey() {
  * Hook to update a participant's name
  */
 export function useUpdateParticipant() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: { participantId: string; name: string }) => {
-      const response = await api.users.usersCreate(data.participantId, {
+      const response = await api.postApiUsersId(data.participantId, {
         name: data.name,
       });
       return response.data;
@@ -256,12 +248,11 @@ export function useUpdateParticipant() {
  * Hook to replace a participant's login token; earlier re-login links stop working.
  */
 export function useResetParticipantToken() {
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation({
     mutationFn: async (participantId: string) => {
       const response =
-        await api.workshops.participantsTokenResetCreate(participantId);
+        await api.postApiWorkshopsParticipantsParticipantIdTokenReset(participantId);
       return response.data;
     },
   });
@@ -274,7 +265,6 @@ export function useResetParticipantToken() {
  * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
  */
 export function useRemoveParticipant() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -288,9 +278,9 @@ export function useRemoveParticipant() {
       permanent: boolean;
     }) => {
       if (permanent) {
-        await api.users.usersDelete(participantId);
+        await api.deleteApiUsersId(participantId);
       } else {
-        await api.workshops.membersDelete(workshopId, participantId);
+        await api.deleteApiWorkshopsIdMembersUserId(workshopId, participantId);
       }
     },
     onSuccess: () => {
@@ -304,12 +294,11 @@ export function useRemoveParticipant() {
  * Hook to invite a registered user to a workshop by email
  */
 export function useCreateWorkshopEmailInvite() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: { workshopId: string; email: string }) => {
-      const response = await api.invites.workshopEmailCreate({
+      const response = await api.postApiInvitesWorkshopEmail({
         workshopId: data.workshopId,
         email: data.email,
       });
@@ -329,12 +318,11 @@ export function useCreateWorkshopEmailInvite() {
  * Hook to directly add an org individual to a workshop
  */
 export function useAddMemberToWorkshop() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: { workshopId: string; userId: string }) => {
-      const response = await api.workshops.membersCreate(data.workshopId, {
+      const response = await api.postApiWorkshopsIdMembers(data.workshopId, {
         userId: data.userId,
       });
       return response.data;

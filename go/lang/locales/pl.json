@@ -31,6 +31,10 @@
         "guest": "Zaloguj jako gość",
         "student": "Zaloguj jako uczeń",
         "teacher": "Zaloguj jako nauczyciel"
+      },
+      "unavailable": {
+        "message": "Ta instancja nie oferuje logowania. Uczestnicy warsztatu mogą zamiast tego wprowadzić swój kod.",
+        "title": "Logowanie niedostępne"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Mniej niż 13 lat",
       "ageGroupUnder13Error": "Musisz mieć co najmniej 13 lat, aby korzystać z ChatGameLab.",
       "cancelButton": "Anuluj",
-      "emailDescription": "Będziemy go używać do ważnych powiadomień.",
+      "emailDescription": "Opcjonalne. Wykorzystamy go do wysyłania ważnych powiadomień.",
       "emailLabel": "Adres e-mail",
       "emailPlaceholder": "Wpisz swój e-mail",
       "errors": {

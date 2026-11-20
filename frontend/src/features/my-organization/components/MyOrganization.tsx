@@ -1,3 +1,4 @@
+import { api } from "@/api/client/api";
 import {
   Card,
   Container,
@@ -13,7 +14,6 @@ import { IconAlertCircle, IconUsers, IconSchool, IconKey, IconShieldLock } from 
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserInstitutionId, isAtLeastHead, isAtLeastStaff } from '@/common/lib/roles';
 import { MembersTab } from './MembersTab';
@@ -27,7 +27,6 @@ interface MyOrganizationProps {
 
 export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
   const { t } = useTranslation('common');
-  const api = useRequiredAuthenticatedApi();
   const { backendUser } = useAuth();
   const queryClient = useQueryClient();
 
@@ -40,7 +39,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
     queryKey: queryKeys.institutionMembers(institutionId!),
     queryFn: async () => {
       if (!institutionId) return [];
-      const response = await api.institutions.membersList(institutionId);
+      const response = await api.getApiInstitutionsIdMembers(institutionId);
       return response.data;
     },
     enabled: !!institutionId,
@@ -51,7 +50,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
     queryKey: queryKeys.institution(institutionId!),
     queryFn: async () => {
       if (!institutionId) return null;
-      const response = await api.institutions.institutionsDetail(institutionId);
+      const response = await api.getApiInstitutionsId(institutionId);
       return response.data;
     },
     enabled: !!institutionId,
@@ -60,7 +59,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
   const updatePromptConstraints = useMutation({
     mutationFn: async (promptConstraints: string) => {
       if (!institutionId) return;
-      await api.institutions.promptConstraintsPartialUpdate(institutionId, {
+      await api.patchApiInstitutionsIdPromptConstraints(institutionId, {
         promptConstraints: promptConstraints || undefined,
       });
     },
@@ -73,7 +72,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
   const { data: siteConstraints } = useQuery({
     queryKey: ['systemConstraints'] as const,
     queryFn: async () => {
-      const response = await api.system.constraintsList();
+      const response = await api.getApiSystemConstraints();
       return response.data;
     },
     enabled: canEditSettings && orgConstraintEmpty,

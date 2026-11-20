@@ -15,7 +15,7 @@ import {
   DeleteIconButton,
   GenericIconButton,
 } from "@components/buttons";
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import type { ReactNode } from "react";
 
 export interface GameCardAction {
@@ -26,7 +26,7 @@ export interface GameCardAction {
 }
 
 export interface GameCardProps {
-  game: ObjGame;
+  game: Game;
   onClick?: () => void;
 
   // Play actions

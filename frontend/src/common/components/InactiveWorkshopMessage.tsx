@@ -4,7 +4,7 @@ import { IconSchoolOff, IconQrcode } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 import { ParticipantCodeDisplay } from "./share";
-import { getStoredParticipantToken } from "@/providers/AuthProvider";
+import { rememberedParticipantCode } from "@/providers/AuthProvider";
 import { speakableCode } from "@/common/lib/wordToken";
 
 interface InactiveWorkshopMessageProps {
@@ -17,7 +17,7 @@ export function InactiveWorkshopMessage({
   const { t } = useTranslation("common");
   // Read once: logging out clears the token, and a later render must not lose the
   // code while it is still on screen.
-  const [token] = useState(() => getStoredParticipantToken());
+  const [token] = useState(() => rememberedParticipantCode());
   const [showCode, setShowCode] = useState(false);
 
   return (

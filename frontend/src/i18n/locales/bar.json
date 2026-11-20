@@ -31,6 +31,10 @@
         "guest": "Als Gast einloggn",
         "student": "Als Schülerin/Schüler einloggn",
         "teacher": "Als Lehrer/in einloggn"
+      },
+      "unavailable": {
+        "message": "Auf dera Instanz gibt’s koa Anmeldung. Workshop-Teilnehmer kenna stattdessen ihren Code eingeben.",
+        "title": "Anmeldung ned verfügbar"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Unter 13",
       "ageGroupUnder13Error": "Du musst mindestns 13 Joa oid sei, damitst ChatGameLab nutzn derfst.",
       "cancelButton": "Abbrecha",
-      "emailDescription": "D'Adress nutzn ma fia wichtige Benachrichtigungen.",
+      "emailDescription": "Optional. Mir verwenden’s für wichtige Benachrichtigungen.",
       "emailLabel": "E-Mail-Adress",
       "emailPlaceholder": "Gib dei E-Mail ei",
       "errors": {

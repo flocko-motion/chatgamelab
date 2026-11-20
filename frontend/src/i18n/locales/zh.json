@@ -31,6 +31,10 @@
         "guest": "以访客身份登录",
         "student": "以学生身份登录",
         "teacher": "以教师身份登录"
+      },
+      "unavailable": {
+        "message": "此实例不提供登录功能。参加工作坊的用户可以改为输入代码。",
+        "title": "登录不可用"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "13 岁以下",
       "ageGroupUnder13Error": "你必须年满 13 岁才能使用 ChatGameLab。",
       "cancelButton": "取消",
-      "emailDescription": "我们将用它发送重要通知。",
+      "emailDescription": "可选。我们会使用此邮箱发送重要通知。",
       "emailLabel": "电子邮箱地址",
       "emailPlaceholder": "请输入邮箱",
       "errors": {

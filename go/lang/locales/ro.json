@@ -31,6 +31,10 @@
         "guest": "Autentifică-te ca Invitat",
         "student": "Autentifică-te ca Elev",
         "teacher": "Autentifică-te ca Profesor"
+      },
+      "unavailable": {
+        "message": "Pe această instanță nu este disponibilă autentificarea. Participanții la atelier pot introduce în schimb codul lor.",
+        "title": "Autentificarea nu este disponibilă"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Sub 13",
       "ageGroupUnder13Error": "Trebuie să ai cel puțin 13 ani pentru a utiliza ChatGameLab.",
       "cancelButton": "Anulează",
-      "emailDescription": "Îl vom folosi pentru notificări importante.",
+      "emailDescription": "Opțional. Vom folosi această adresă pentru notificări importante.",
       "emailLabel": "Adresă de email",
       "emailPlaceholder": "Introdu adresa ta de email",
       "errors": {

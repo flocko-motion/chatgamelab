@@ -32,7 +32,7 @@ import {
   useDeleteGame,
   useExportGameYaml,
 } from "@/api/hooks";
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import { type SortField, type CreateGameFormData } from "../types";
 import {
   parseGameYaml,
@@ -70,7 +70,7 @@ export function GamesManagement({
   ] = useDisclosure(false);
   const [viewModalOpened, { open: openViewModal, close: closeViewModal }] =
     useDisclosure(initialGameId ? true : false);
-  const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(
     initialGameId ?? null,
   );
@@ -78,7 +78,7 @@ export function GamesManagement({
     sponsorModalOpened,
     { open: openSponsorModal, close: closeSponsorModal },
   ] = useDisclosure(false);
-  const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
+  const [gameToSponsor, setGameToSponsor] = useState<Game | null>(null);
   const [sortField, setSortField] = useState<SortField>("modifiedAt");
 
   const {
@@ -118,21 +118,21 @@ export function GamesManagement({
     }
   };
 
-  const handleEditGame = (game: ObjGame) => {
+  const handleEditGame = (game: Game) => {
     if (game.id) {
       setGameToView(game.id);
       openViewModal();
     }
   };
 
-  const handleViewGame = (game: ObjGame) => {
+  const handleViewGame = (game: Game) => {
     if (game.id) {
       setGameToView(game.id);
       openViewModal();
     }
   };
 
-  const handleDeleteClick = (game: ObjGame) => {
+  const handleDeleteClick = (game: Game) => {
     setGameToDelete(game);
     openDeleteModal();
   };
@@ -148,7 +148,7 @@ export function GamesManagement({
     }
   };
 
-  const handleExport = async (game: ObjGame) => {
+  const handleExport = async (game: Game) => {
     if (!game.id) return;
     try {
       const yaml = await exportGameYaml.mutateAsync(game.id);
@@ -162,7 +162,7 @@ export function GamesManagement({
     fileInputRef.current?.click();
   };
 
-  const handlePlayGame = (game: ObjGame) => {
+  const handlePlayGame = (game: Game) => {
     if (game.id) {
       navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
     }

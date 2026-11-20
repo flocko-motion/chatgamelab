@@ -1,85 +1,77 @@
+import { api } from "../client/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
-import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
-import { apiClient } from "../client";
 import { queryKeys } from "../queryKeys";
 import type {
-  EngineGenreInfo,
-  EnginePlatformInfo,
-  EngineThemeInfo,
-  ObjSystemSettings,
-  HttpxErrorResponse,
-  RoutesVersionResponse,
-  RoutesUpdateSystemSettingsRequest,
-} from "../generated";
+  GenreInfo,
+  PlatformInfo,
+  ThemeInfo,
+  SystemSettings,
+  Error as ApiError,
+  GetVersionResp,
+  UpdateSystemSettingsReq,
+} from "../generated/api.gen";
 
 // Platforms hook (requires authentication)
 export function usePlatforms() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<EnginePlatformInfo[], HttpxErrorResponse>({
+  return useQuery<PlatformInfo[], ApiError>({
     queryKey: queryKeys.platforms,
     queryFn: () =>
-      api.platforms.platformsList().then((response) => response.data),
+      api.getApiPlatforms().then((response) => response.data),
   });
 }
 
 
 // The engine's genres, each with the features it needs, for the game editor
 export function useGenres() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<EngineGenreInfo[], HttpxErrorResponse>({
+  return useQuery<GenreInfo[], ApiError>({
     queryKey: queryKeys.genres,
-    queryFn: () => api.genres.genresList().then((response) => response.data),
+    queryFn: () => api.getApiGenres().then((response) => response.data),
     staleTime: Infinity,
   });
 }
 
 // The playback-engine's looks, the default first, for the game editor
 export function useThemes() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<EngineThemeInfo[], HttpxErrorResponse>({
+  return useQuery<ThemeInfo[], ApiError>({
     queryKey: queryKeys.themes,
-    queryFn: () => api.themes.themesList().then((response) => response.data),
+    queryFn: () => api.getApiThemes().then((response) => response.data),
     staleTime: Infinity,
   });
 }
 
 // System Settings hook (requires authentication)
 export function useSystemSettings() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjSystemSettings, HttpxErrorResponse>({
+  return useQuery<SystemSettings, ApiError>({
     queryKey: queryKeys.systemSettings,
-    queryFn: () => api.system.settingsList().then((response) => response.data),
+    queryFn: () => api.getApiSystemSettings().then((response) => response.data),
   });
 }
 
 // Version hook (public endpoint, no auth needed)
 export function useVersion() {
-  const api = apiClient;
 
-  return useQuery<RoutesVersionResponse, HttpxErrorResponse>({
+  return useQuery<GetVersionResp, ApiError>({
     queryKey: queryKeys.version,
-    queryFn: () => api.version.versionList().then((response) => response.data),
+    queryFn: () => api.getApiVersion().then((response) => response.data),
   });
 }
 
 // Update System Settings mutation (admin only)
 export function useUpdateSystemSettings() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation<
-    ObjSystemSettings,
-    HttpxErrorResponse,
-    RoutesUpdateSystemSettingsRequest
+    SystemSettings,
+    ApiError,
+    UpdateSystemSettingsReq
   >({
     mutationFn: (request) =>
-      api.system
-        .settingsPartialUpdate(request)
+      api.patchApiSystemSettings(request)
         .then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.systemSettings });
@@ -89,17 +81,15 @@ export function useUpdateSystemSettings() {
 
 // Set/clear system free-use API key (admin only)
 export function useSetSystemFreeUseKey() {
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation<
-    ObjSystemSettings,
-    HttpxErrorResponse,
+    SystemSettings,
+    ApiError,
     { apiKeyId: string | null }
   >({
     mutationFn: ({ apiKeyId }) =>
-      api.system
-        .settingsFreeUseKeyPartialUpdate({
+      api.patchApiSystemSettingsFreeUseKey({
           apiKeyId: apiKeyId ?? undefined,
         })
         .then((response) => response.data),

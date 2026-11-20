@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv, type ProxyOptions } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import { browserLogs } from './plugins/browser-logs';
@@ -6,24 +6,8 @@ import path from 'path';
 
 const envDir = '../'; // Load .env from root directory (single source of truth)
 
-/**
- * The playback-engine tells its parent page about a new session only when both
- * share an origin. The API runs on its own port in development, so the dev
- * server serves the engine's routes on the page's origin
- * (src/features/play/playback.ts). The Host header is kept, so the engine's
- * websocket accepts the page's Origin.
- */
-function engineProxy(mode: string): Record<string, ProxyOptions> {
-  const apiBase = loadEnv(mode, envDir, 'VITE_').VITE_API_BASE_URL;
-  // A relative API base already shares the page's origin.
-  if (!apiBase || !URL.canParse(apiBase)) return {};
-  const api = new URL(apiBase);
-  const path = `${api.pathname.replace(/\/$/, '')}/engine`;
-  return { [path]: { target: api.origin, changeOrigin: false, ws: true } };
-}
-
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   envDir,
   // Use relative paths so assets resolve correctly with a runtime-patched <base> tag
   base: './',
@@ -58,7 +42,9 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     include: ['react', 'react-dom', '@mantine/core', '@mantine/hooks'],
   },
+  // schemaf's server proxies the frontend to port + 2 (schemaf.toml) in development.
   server: {
-    proxy: engineProxy(mode),
+    port: 7102,
+    strictPort: true,
   },
-}));
+});

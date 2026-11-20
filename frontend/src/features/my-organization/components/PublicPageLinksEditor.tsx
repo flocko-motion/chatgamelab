@@ -17,16 +17,16 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { ObjPublicWorkshopLink } from "@/api/generated";
+import type { PublicWorkshopLink } from "@/api/generated/api.gen";
 import { PUBLIC_LINKS_MAX } from "@/common/lib/publicWorkshop";
 
 interface PublicPageLinksEditorProps {
-  links: ObjPublicWorkshopLink[];
-  onSave: (links: ObjPublicWorkshopLink[]) => Promise<void>;
+  links: PublicWorkshopLink[];
+  onSave: (links: PublicWorkshopLink[]) => Promise<void>;
   saving: boolean;
 }
 
-const EMPTY: ObjPublicWorkshopLink = { title: "", description: "", url: "" };
+const EMPTY: PublicWorkshopLink = { title: "", description: "", url: "" };
 
 /** Further reading shown below the games on the public page. */
 export function PublicPageLinksEditor({
@@ -35,10 +35,10 @@ export function PublicPageLinksEditor({
   saving,
 }: PublicPageLinksEditorProps) {
   const { t } = useTranslation("common");
-  const [rows, setRows] = useState<ObjPublicWorkshopLink[]>(links);
+  const [rows, setRows] = useState<PublicWorkshopLink[]>(links);
   const [error, setError] = useState<string | null>(null);
 
-  const edit = (index: number, patch: Partial<ObjPublicWorkshopLink>) =>
+  const edit = (index: number, patch: Partial<PublicWorkshopLink>) =>
     setRows(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
 
   const move = (index: number, to: number) => {

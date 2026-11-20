@@ -1,3 +1,4 @@
+import { api, withQuery } from "../client/api";
 import {
   keepPreviousData,
   useMutation,
@@ -5,16 +6,17 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
-import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
-import { config } from "@/config/env";
 import { useAuth } from "@/providers/AuthProvider";
 import type {
-  ObjGame,
-  HttpxErrorResponse,
-  RoutesCreateGameRequest,
-  RoutesGameShareResponse,
-} from "../generated";
+  Game,
+  Error as ApiError,
+  CreateGameReq,
+  FavouriteResp,
+  GameShareResp,
+  MessageResp,
+  PrivateShareStatusResp,
+} from "../generated/api.gen";
 
 // Games hooks
 export interface UseGamesParams {
@@ -37,20 +39,18 @@ export interface UseGamesParams {
 }
 
 export function useGames(params?: UseGamesParams) {
-  const api = useRequiredAuthenticatedApi();
   const { isAuthenticated } = useAuth();
   const { search, sortBy, sortDir, filter } = params || {};
 
-  return useQuery<ObjGame[], HttpxErrorResponse>({
+  return useQuery<Game[], ApiError>({
     queryKey: [...queryKeys.games, { search, sortBy, sortDir, filter }],
     queryFn: () =>
-      api.games
-        .gamesList({
-          search: search || undefined,
-          sortBy: sortBy || undefined,
-          sortDir: sortDir || undefined,
-          filter: filter || undefined,
-        })
+      api.getApiGames(withQuery({
+            search: search || undefined,
+            sortBy: sortBy || undefined,
+            sortDir: sortDir || undefined,
+            filter: filter || undefined,
+          }))
         .then((response) => response.data),
     placeholderData: keepPreviousData,
     enabled: isAuthenticated,
@@ -58,22 +58,20 @@ export function useGames(params?: UseGamesParams) {
 }
 
 export function useGame(id: string | undefined) {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjGame, HttpxErrorResponse>({
+  return useQuery<Game, ApiError>({
     queryKey: [...queryKeys.games, id],
-    queryFn: () => api.games.gamesDetail(id!).then((response) => response.data),
+    queryFn: () => api.getApiGamesId(id!).then((response) => response.data),
     enabled: !!id,
   });
 }
 
 export function useCreateGame() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<ObjGame, HttpxErrorResponse, RoutesCreateGameRequest>({
+  return useMutation<Game, ApiError, CreateGameReq>({
     mutationFn: (request) =>
-      api.games.postGames(request).then((response) => response.data),
+      api.postApiGamesNew(request).then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
@@ -83,15 +81,14 @@ export function useCreateGame() {
 
 export function useUpdateGame() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjGame,
-    HttpxErrorResponse,
-    { id: string; game: ObjGame }
+    Game,
+    ApiError,
+    { id: string; game: Game }
   >({
     mutationFn: ({ id, game }) =>
-      api.games.gamesCreate(id, game).then((response) => response.data),
+      api.postApiGamesId(id, game).then((response) => response.data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
@@ -102,11 +99,10 @@ export function useUpdateGame() {
 
 export function useDeleteGame() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<ObjGame, HttpxErrorResponse, string>({
+  return useMutation<Game, ApiError, string>({
     mutationFn: (id) =>
-      api.games.gamesDelete(id).then((response) => response.data),
+      api.deleteApiGamesId(id).then((response) => response.data),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({
@@ -119,24 +115,14 @@ export function useDeleteGame() {
 }
 
 export function useExportGameYaml() {
-  const { getAccessToken } = useAuth();
-
-  return useMutation<string, HttpxErrorResponse, string>({
-    mutationFn: async (id) => {
-      const token = await getAccessToken();
-      const response = await fetch(`${config.API_BASE_URL}/games/${id}/yaml`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/x-yaml",
-        },
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw error;
-      }
-      return response.text();
-    },
+  return useMutation<string, ApiError, string>({
+    mutationFn: (id) =>
+      api
+        .getApiGamesIdYaml(id, {
+          headers: { Accept: "application/x-yaml" },
+          format: "text",
+        })
+        .then((response) => response.data as unknown as string),
     onError: handleApiError,
   });
 }
@@ -145,16 +131,14 @@ export function useExportGameYaml() {
 // Game Sponsoring hooks
 export function useSponsorGame() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    ObjGame,
-    HttpxErrorResponse,
+    Game,
+    ApiError,
     { gameId: string; shareId: string }
   >({
     mutationFn: ({ gameId, shareId }) =>
-      api.games
-        .sponsorUpdate(gameId, { shareId })
+      api.putApiGamesIdSponsor(gameId, { shareId })
         .then((response) => response.data),
     onSuccess: (_, { gameId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
@@ -167,11 +151,10 @@ export function useSponsorGame() {
 
 export function useRemoveGameSponsor() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<ObjGame, HttpxErrorResponse, string>({
+  return useMutation<Game, ApiError, string>({
     mutationFn: (gameId) =>
-      api.games.sponsorDelete(gameId).then((response) => response.data),
+      api.deleteApiGamesIdSponsor(gameId).then((response) => response.data),
     onSuccess: (_, gameId) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
@@ -183,21 +166,19 @@ export function useRemoveGameSponsor() {
 
 // Favorite Games hooks
 export function useFavoriteGames() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjGame[], HttpxErrorResponse>({
+  return useQuery<Game[], ApiError>({
     queryKey: [...queryKeys.games, "favorites"],
-    queryFn: () => api.games.favouritesList().then((response) => response.data),
+    queryFn: () => api.getApiGamesFavourites().then((response) => response.data),
   });
 }
 
 export function useAddFavorite() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<Record<string, boolean>, HttpxErrorResponse, string>({
+  return useMutation<FavouriteResp, ApiError, string>({
     mutationFn: (gameId) =>
-      api.games.favouriteCreate(gameId).then((response) => response.data),
+      api.postApiGamesIdFavourite(gameId).then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
@@ -207,11 +188,10 @@ export function useAddFavorite() {
 
 export function useRemoveFavorite() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<Record<string, boolean>, HttpxErrorResponse, string>({
+  return useMutation<FavouriteResp, ApiError, string>({
     mutationFn: (gameId) =>
-      api.games.favouriteDelete(gameId).then((response) => response.data),
+      api.deleteApiGamesIdFavourite(gameId).then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
@@ -221,81 +201,32 @@ export function useRemoveFavorite() {
 
 // ── Private Share Management hooks ──────────────────────────────────────────
 
-export interface EnrichedGameShare {
-  id: string;
-  gameId: string;
-  token: string;
-  apiKeyShareId: string;
-  institutionId: string | null;
-  workshopId: string | null;
-  remaining: number | null;
-  aiQualityTier?: string | null;
-  createdBy: string | null;
-  createdAt: string;
-  shareUrl: string;
-  source: "workshop" | "organization" | "personal";
-  workshopName?: string;
-}
-
-export interface PrivateShareStatus {
-  shares: EnrichedGameShare[];
-}
-
 export function usePrivateShareStatus(gameId: string | undefined) {
-  const { getAccessToken } = useAuth();
-
-  return useQuery<PrivateShareStatus>({
+  return useQuery<PrivateShareStatusResp, ApiError>({
     queryKey: [...queryKeys.games, gameId, "private-share"],
-    queryFn: async () => {
-      const token = await getAccessToken();
-      const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/private-share`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        },
-      );
-      if (!response.ok) throw new Error("Failed to fetch private share status");
-      return response.json();
-    },
+    queryFn: () =>
+      api.getApiGamesIdPrivateShare(gameId!).then((response) => response.data),
     enabled: !!gameId,
   });
 }
 
 export function useCreateGameShare() {
   const queryClient = useQueryClient();
-  const { getAccessToken } = useAuth();
 
   return useMutation<
-    RoutesGameShareResponse,
-    Error,
+    GameShareResp,
+    ApiError,
     { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null; aiQualityTier?: string | null }
   >({
-    mutationFn: async ({ gameId, workshopId, sponsorKeyShareId, maxSessions, aiQualityTier }) => {
-      const token = await getAccessToken();
-      const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/shares`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            workshopId: workshopId ?? null,
-            sponsorKeyShareId: sponsorKeyShareId ?? null,
-            maxSessions: maxSessions ?? null,
-            aiQualityTier: aiQualityTier ?? null,
-          }),
-        },
-      );
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Failed to create share link");
-      }
-      return response.json();
-    },
+    mutationFn: ({ gameId, workshopId, sponsorKeyShareId, maxSessions, aiQualityTier }) =>
+      api
+        .postApiGamesIdShares(gameId, {
+          workshopId: workshopId ?? undefined,
+          sponsorKeyShareId: sponsorKeyShareId ?? undefined,
+          maxSessions: maxSessions ?? undefined,
+          aiQualityTier: aiQualityTier ?? undefined,
+        })
+        .then((response) => response.data),
     onSuccess: (_, { gameId }) => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.games, gameId, "private-share"],
@@ -309,24 +240,12 @@ export function useCreateGameShare() {
 
 export function useRevokePrivateShare() {
   const queryClient = useQueryClient();
-  const { getAccessToken } = useAuth();
 
-  return useMutation<void, Error, { gameId: string; shareId: string }>({
-    mutationFn: async ({ gameId, shareId }) => {
-      const token = await getAccessToken();
-      const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/shares/${shareId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        },
-      );
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Failed to revoke private share");
-      }
-    },
+  return useMutation<MessageResp, ApiError, { gameId: string; shareId: string }>({
+    mutationFn: ({ gameId, shareId }) =>
+      api
+        .deleteApiGamesIdSharesShareId(gameId, shareId)
+        .then((response) => response.data),
     onSuccess: (_, { gameId }) => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.games, gameId, "private-share"],
@@ -342,32 +261,19 @@ export function useRevokePrivateShare() {
 
 export function useUpdateGameShare() {
   const queryClient = useQueryClient();
-  const { getAccessToken } = useAuth();
 
   return useMutation<
-    void,
-    Error,
+    GameShareResp,
+    ApiError,
     { gameId: string; shareId: string; maxSessions: number | null; aiQualityTier?: string | null }
   >({
-    mutationFn: async ({ gameId, shareId, maxSessions, aiQualityTier }) => {
-      const token = await getAccessToken();
-      const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/shares/${shareId}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ maxSessions, aiQualityTier: aiQualityTier ?? null }),
-        },
-      );
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Failed to update share");
-      }
-    },
+    mutationFn: ({ gameId, shareId, maxSessions, aiQualityTier }) =>
+      api
+        .patchApiGamesIdSharesShareId(gameId, shareId, {
+          maxSessions: maxSessions ?? undefined,
+          aiQualityTier: aiQualityTier ?? undefined,
+        })
+        .then((response) => response.data),
     onSuccess: (_, { gameId }) => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.games, gameId, "private-share"],
@@ -381,25 +287,13 @@ export function useUpdateGameShare() {
 
 // API Key Status hook
 export function useApiKeyStatus(gameId: string | undefined) {
-  const { getAccessToken } = useAuth();
-
   return useQuery<boolean>({
     queryKey: queryKeys.apiKeyStatus(gameId!),
-    queryFn: async () => {
-      const token = await getAccessToken();
-      const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/api-key-status`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-        },
-      );
-      if (!response.ok) return false;
-      const data: { available: boolean } = await response.json();
-      return data.available;
-    },
+    queryFn: () =>
+      api
+        .getApiGamesIdApiKeyStatus(gameId!)
+        .then((response) => response.data.available)
+        .catch(() => false),
     enabled: !!gameId,
     staleTime: 0,
   });

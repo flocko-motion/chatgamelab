@@ -32,7 +32,7 @@ import {
   type DataTableColumn,
 } from "@components/DataTable";
 import { DimmedLoader } from "@components/LoadingAnimation";
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import type { CreateGameFormData } from "@/features/games/types";
 import { gameToFormData, getGameDateLabel } from "@/features/games/lib";
 import {
@@ -101,7 +101,7 @@ export function MyWorkshop() {
   ] = useDisclosure(false);
   const [viewModalOpened, { open: openViewModal, close: closeViewModal }] =
     useDisclosure(false);
-  const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewReadOnly, setGameToViewReadOnly] = useState(false);
   const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
@@ -109,7 +109,7 @@ export function MyWorkshop() {
     sponsorModalOpened,
     { close: closeSponsorModal },
   ] = useDisclosure(false);
-  const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
+  const [gameToSponsor, setGameToSponsor] = useState<Game | null>(null);
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
   const [gameFilter, setGameFilter] = useState<GameFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -165,7 +165,7 @@ export function MyWorkshop() {
     }
   };
 
-  const handleEditGame = (game: ObjGame) => {
+  const handleEditGame = (game: Game) => {
     const { canEdit } = getPermissions(game);
     if (game.id && canEdit) {
       setGameToView(game.id);
@@ -175,7 +175,7 @@ export function MyWorkshop() {
     }
   };
 
-  const handleViewGame = (game: ObjGame) => {
+  const handleViewGame = (game: Game) => {
     const { canEdit } = getPermissions(game);
     if (game.id) {
       setGameToView(game.id);
@@ -200,7 +200,7 @@ export function MyWorkshop() {
     }
   };
 
-  const handleDeleteClick = (game: ObjGame) => {
+  const handleDeleteClick = (game: Game) => {
     const { canDelete } = getPermissions(game);
     if (canDelete) {
       setGameToDelete(game);
@@ -219,7 +219,7 @@ export function MyWorkshop() {
     }
   };
 
-  const handleCopyGame = (game: ObjGame) => {
+  const handleCopyGame = (game: Game) => {
     if (!game.id) return;
     setCreateInitialData(gameToFormData(game));
     openCreateModal();
@@ -247,7 +247,7 @@ export function MyWorkshop() {
   };
 
   // Render helpers
-  const renderPlayButton = (game: ObjGame) => {
+  const renderPlayButton = (game: Game) => {
     const { hasSession, session } = getSessionState(game);
     return (
       <GamePlayButtons
@@ -262,9 +262,9 @@ export function MyWorkshop() {
     );
   };
 
-  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
+  const getDateLabel = (game: Game) => getGameDateLabel(game, sortField);
 
-  const getCardActions = (game: ObjGame): GameCardAction[] => {
+  const getCardActions = (game: Game): GameCardAction[] => {
     const { canEdit, canDelete } = getPermissions(game);
     const actions: GameCardAction[] = [];
 
@@ -299,7 +299,7 @@ export function MyWorkshop() {
     return actions;
   };
 
-  const getGameBadge = (game: ObjGame) => {
+  const getGameBadge = (game: Game) => {
     const { isOwner } = getPermissions(game);
     const badges: React.ReactNode[] = [];
     if (isOwner) {
@@ -346,7 +346,7 @@ export function MyWorkshop() {
   };
 
   // Table columns
-  const columns: DataTableColumn<ObjGame>[] = [
+  const columns: DataTableColumn<Game>[] = [
     {
       key: "name",
       header: t("games.fields.name"),
@@ -486,7 +486,7 @@ export function MyWorkshop() {
     );
   }
 
-  const renderGameCard = (game: ObjGame) => {
+  const renderGameCard = (game: Game) => {
     const { hasSession, session } = getSessionState(game);
     const { isOwner } = getPermissions(game);
     return (

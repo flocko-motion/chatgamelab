@@ -31,6 +31,10 @@
         "guest": "Gal sidii Marti",
         "student": "Gal sidii Arday",
         "teacher": "Gal sidii Macallin"
+      },
+      "unavailable": {
+        "message": "Adeeggan ma bixiyo gelitaan. Ka-qaybgalayaasha aqoon-is-weydaarsigu waxay beddelkeeda geli karaan koodhkooda.",
+        "title": "Gelitaanku ma jiro"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Ka yar 13",
       "ageGroupUnder13Error": "Waa inaad ahaataa ugu yaraan 13 sano jir si aad u isticmaasho ChatGameLab.",
       "cancelButton": "Jooji",
-      "emailDescription": "Waxaan u adeegsan doonaa ogeysiisyo muhiim ah.",
+      "emailDescription": "Ikhtiyaari. Waxaan u isticmaali doonnaa ogeysiisyo muhiim ah.",
       "emailLabel": "Cinwaanka iimaylka",
       "emailPlaceholder": "Geli iimaylkaaga",
       "errors": {

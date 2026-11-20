@@ -1,12 +1,13 @@
+import { api, withQuery } from "../client/api";
 import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
-import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
 import type {
-  HttpxErrorResponse,
-  DbUserSessionWithGame,
-} from "../generated";
+  Error as ApiError,
+  SessionDeletedResp,
+  UserSessionWithGame,
+} from "../generated/api.gen";
 
 // User Sessions hooks (last played)
 export interface UseUserSessionsParams {
@@ -15,14 +16,12 @@ export interface UseUserSessionsParams {
 }
 
 export function useUserSessions(params?: UseUserSessionsParams) {
-  const api = useRequiredAuthenticatedApi();
   const { search, sortBy } = params || {};
 
-  return useQuery<DbUserSessionWithGame[], HttpxErrorResponse>({
+  return useQuery<UserSessionWithGame[], ApiError>({
     queryKey: [...queryKeys.userSessions, { search, sortBy }],
     queryFn: () =>
-      api.sessions
-        .sessionsList({ search, sortBy })
+      api.getApiSessions(withQuery({ search, sortBy }))
         .then((response) => response.data),
   });
 }
@@ -32,8 +31,8 @@ export function useGameSessionMap() {
   const { data: sessions, isLoading, error } = useUserSessions();
 
   const sessionMap = useMemo(() => {
-    if (!sessions) return new Map<string, DbUserSessionWithGame>();
-    const map = new Map<string, DbUserSessionWithGame>();
+    if (!sessions) return new Map<string, UserSessionWithGame>();
+    const map = new Map<string, UserSessionWithGame>();
     for (const session of sessions) {
       if (session.gameId) {
         map.set(session.gameId, session);
@@ -47,11 +46,10 @@ export function useGameSessionMap() {
 
 export function useDeleteSession() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<Record<string, string>, HttpxErrorResponse, string>({
+  return useMutation<SessionDeletedResp, ApiError, string>({
     mutationFn: (id) =>
-      api.sessions.sessionsDelete(id).then((response) => response.data),
+      api.deleteApiSessionsId(id).then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
       queryClient.invalidateQueries({ queryKey: queryKeys.gameSessions });

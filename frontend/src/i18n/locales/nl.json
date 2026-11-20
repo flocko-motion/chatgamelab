@@ -31,6 +31,10 @@
         "guest": "Inloggen als gast",
         "student": "Inloggen als leerling",
         "teacher": "Inloggen als docent"
+      },
+      "unavailable": {
+        "message": "Op deze instantie is aanmelden niet mogelijk. Workshopdeelnemers kunnen in plaats daarvan hun code invoeren.",
+        "title": "Aanmelden niet beschikbaar"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Jonger dan 13",
       "ageGroupUnder13Error": "Je moet minstens 13 jaar oud zijn om ChatGameLab te gebruiken.",
       "cancelButton": "Annuleren",
-      "emailDescription": "We gebruiken dit voor belangrijke meldingen.",
+      "emailDescription": "Optioneel. We gebruiken dit voor belangrijke meldingen.",
       "emailLabel": "E-mailadres",
       "emailPlaceholder": "Voer je e-mail in",
       "errors": {

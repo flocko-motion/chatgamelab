@@ -61,7 +61,7 @@ import {
   useGameNavigation,
   useGameSessionState,
 } from "../hooks";
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import { parseSortValue } from "@/common/lib/sort";
 import { type CreateGameFormData } from "../types";
 import {
@@ -108,7 +108,7 @@ export function MyGames({
   ] = useDisclosure(false);
   const [viewModalOpened, { open: openViewModal, close: closeViewModal }] =
     useDisclosure(initialGameId ? true : false);
-  const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(
     initialGameId ?? null,
   );
@@ -116,7 +116,7 @@ export function MyGames({
     sponsorModalOpened,
     { open: openSponsorModal, close: closeSponsorModal },
   ] = useDisclosure(false);
-  const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
+  const [gameToSponsor, setGameToSponsor] = useState<Game | null>(null);
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
   const [showFavorites, setShowFavorites] = useState<"all" | "favorites">(
     "all",
@@ -189,21 +189,21 @@ export function MyGames({
     }
   };
 
-  const handleEditGame = (game: ObjGame) => {
+  const handleEditGame = (game: Game) => {
     if (game.id) {
       setGameToView(game.id);
       openViewModal();
     }
   };
 
-  const handleViewGame = (game: ObjGame) => {
+  const handleViewGame = (game: Game) => {
     if (game.id) {
       setGameToView(game.id);
       openViewModal();
     }
   };
 
-  const handleDeleteClick = (game: ObjGame) => {
+  const handleDeleteClick = (game: Game) => {
     setGameToDelete(game);
     openDeleteModal();
   };
@@ -219,7 +219,7 @@ export function MyGames({
     }
   };
 
-  const handleExport = async (game: ObjGame) => {
+  const handleExport = async (game: Game) => {
     if (!game.id) return;
     try {
       const yaml = await exportGameYaml.mutateAsync(game.id);
@@ -246,7 +246,7 @@ export function MyGames({
   const [createInitialData, setCreateInitialData] =
     useState<Partial<CreateGameFormData> | null>(null);
 
-  const handleCopyGame = (game: ObjGame) => {
+  const handleCopyGame = (game: Game) => {
     if (!game.id) return;
     setCreateInitialData(gameToFormData(game));
     openCreateModal();
@@ -267,9 +267,9 @@ export function MyGames({
     event.target.value = "";
   };
 
-  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
+  const getDateLabel = (game: Game) => getGameDateLabel(game, sortField);
 
-  const getCardActions = (game: ObjGame): GameCardAction[] => [
+  const getCardActions = (game: Game): GameCardAction[] => [
     {
       key: "edit",
       icon: null,
@@ -302,7 +302,7 @@ export function MyGames({
     restart: t("myGames.restart"),
   };
 
-  const renderPlayButton = (game: ObjGame) => {
+  const renderPlayButton = (game: Game) => {
     const { hasSession, session } = getGameSessionState(game);
     return (
       <GamePlayButtons
@@ -317,7 +317,7 @@ export function MyGames({
     );
   };
 
-  const columns: DataTableColumn<ObjGame>[] = [
+  const columns: DataTableColumn<Game>[] = [
     {
       key: "favorite",
       header: "",

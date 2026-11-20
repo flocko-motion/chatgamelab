@@ -19,10 +19,10 @@ import { useState } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import { useApiKeys, useInstitutionApiKeys, useSponsorGame, useRemoveGameSponsor } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
-import type { ObjGame, ObjApiKeyShare } from "@/api/generated";
+import type { Game, ApiKeyShare } from "@/api/generated/api.gen";
 
 interface SponsorGameModalProps {
-  game: ObjGame | null;
+  game: Game | null;
   opened: boolean;
   onClose: () => void;
 }
@@ -51,7 +51,7 @@ export function SponsorGameModal({
   // Deduplicate by share ID.
   const keys = apiKeys?.apiKeys ?? [];
   const personalShares = apiKeys?.shares ?? [];
-  const eligibleKeys: (ObjApiKeyShare & { apiKey?: (typeof keys)[number]; label?: string })[] = [];
+  const eligibleKeys: (ApiKeyShare & { apiKey?: (typeof keys)[number]; label?: string })[] = [];
   const seenShareIds = new Set<string>();
 
   for (const share of personalShares) {

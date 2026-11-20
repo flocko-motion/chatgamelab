@@ -22,7 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useUpdateWorkshop } from "@/api/hooks";
-import type { ObjPublicWorkshopLink, ObjWorkshop } from "@/api/generated";
+import type { PublicWorkshopLink, Workshop } from "@/api/generated/api.gen";
 import { PublicPageQrOverlay } from "@components/share";
 import { buildShareUrl } from "@/common/lib/url";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
@@ -38,7 +38,7 @@ import { ConfirmationModal } from "./ConfirmationModal";
 import { PublicPageLinksEditor } from "./PublicPageLinksEditor";
 
 interface PublicPageSettingsProps {
-  workshop: ObjWorkshop;
+  workshop: Workshop;
   /** Called after each save, e.g. to refresh settings embedded elsewhere. */
   onSaved?: () => void;
 }
@@ -63,7 +63,7 @@ export function PublicPageSettings({ workshop, onSaved }: PublicPageSettingsProp
       public: boolean;
       publicSlug: string;
       publicDescription: string;
-      publicLinks: ObjPublicWorkshopLink[];
+      publicLinks: PublicWorkshopLink[];
     }>,
   ) => {
     if (!workshop.id) return;

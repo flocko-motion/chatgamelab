@@ -1,39 +1,36 @@
+import { api } from "../client/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
-import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
-import type { RoutesInviteResponse, HttpxErrorResponse } from "../generated";
+import type { InviteResp, MessageResp, Error as ApiError } from "../generated/api.gen";
 
 export function useInstitutionInvites(institutionId: string | undefined) {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<RoutesInviteResponse[], HttpxErrorResponse>({
+  return useQuery<InviteResp[], ApiError>({
     queryKey: queryKeys.institutionInvites(institutionId!),
-    queryFn: () => api.invites.institutionDetail(institutionId!).then((response) => response.data),
+    queryFn: () => api.getApiInvitesInstitutionInstitutionId(institutionId!).then((response) => response.data),
     enabled: !!institutionId,
   });
 }
 
 export function useAllInvites() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<RoutesInviteResponse[], HttpxErrorResponse>({
+  return useQuery<InviteResp[], ApiError>({
     queryKey: queryKeys.allInvites,
-    queryFn: () => api.invites.getInvites().then((response) => response.data),
+    queryFn: () => api.getApiInvitesAll().then((response) => response.data),
   });
 }
 
 export function useRevokeInvite() {
   const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
   return useMutation<
-    Record<string, string>,
-    HttpxErrorResponse,
+    MessageResp,
+    ApiError,
     string
   >({
     mutationFn: (inviteId) =>
-      api.invites.invitesDelete(inviteId).then((response) => response.data),
+      api.deleteApiInvitesId(inviteId).then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workshops'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.invites });

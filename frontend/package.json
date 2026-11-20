@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "gen:api": "swagger-typescript-api generate --path ./swagger.json --output ./src/api/generated --name index.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },

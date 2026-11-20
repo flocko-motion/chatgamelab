@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { RoleName } from "@/common/lib/roles";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   Stack,
@@ -81,10 +82,9 @@ import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import {
-  ObjRole,
-  type ObjWorkshop,
-  type ObjWorkshopParticipant,
-} from "@/api/generated";
+  type Workshop,
+  type WorkshopParticipant,
+} from "@/api/generated/api.gen";
 import {
   getAiQualityTierOptions,
   normalizeAiQualityTier,
@@ -107,7 +107,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
   const { isMobile } = useResponsiveDesign();
   const { retryBackendFetch } = useAuth();
 
-  const handleEnterWorkshop = async (workshop: ObjWorkshop) => {
+  const handleEnterWorkshop = async (workshop: Workshop) => {
     if (!workshop.id || !workshop.name) return;
     await enterWorkshopMode(workshop.id, workshop.name);
     navigate({ to: ROUTES.MY_WORKSHOP as "/" });
@@ -144,7 +144,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
 
   const [newWorkshopName, setNewWorkshopName] = useState("");
   const [newWorkshopActive, setNewWorkshopActive] = useState(true);
-  const [selectedWorkshop, setSelectedWorkshop] = useState<ObjWorkshop | null>(
+  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(
     null,
   );
   const [newlyCreatedInvite, setNewlyCreatedInvite] = useState<{
@@ -160,10 +160,10 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
 
   // Participant editing state
   const [editingParticipant, setEditingParticipant] =
-    useState<ObjWorkshopParticipant | null>(null);
+    useState<WorkshopParticipant | null>(null);
   const [participantNewName, setParticipantNewName] = useState("");
   const [participantToRemove, setParticipantToRemove] =
-    useState<ObjWorkshopParticipant | null>(null);
+    useState<WorkshopParticipant | null>(null);
   const [linkParticipant, setLinkParticipant] = useState<{
     id: string;
     name?: string;
@@ -232,7 +232,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     closeCreateModal();
   };
 
-  const handleToggleActive = async (workshop: ObjWorkshop) => {
+  const handleToggleActive = async (workshop: Workshop) => {
     if (!workshop.id) return;
     await updateWorkshop.mutateAsync({
       id: workshop.id,
@@ -242,7 +242,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     });
   };
 
-  const handleCreateAndViewInvite = async (workshop: ObjWorkshop) => {
+  const handleCreateAndViewInvite = async (workshop: Workshop) => {
     if (!workshop.id) return;
     const invite = await createInvite.mutateAsync({ workshopId: workshop.id });
     setNewlyCreatedInvite(invite);
@@ -256,7 +256,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     closeInviteLinkModal();
   };
 
-  const handleOpenEmailInviteModal = (workshop: ObjWorkshop) => {
+  const handleOpenEmailInviteModal = (workshop: Workshop) => {
     setSelectedWorkshop(workshop);
     setEmailInviteError(null);
     openEmailInviteModal();
@@ -283,7 +283,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     }
   };
 
-  const handleOpenAddIndividualModal = (workshop: ObjWorkshop) => {
+  const handleOpenAddIndividualModal = (workshop: Workshop) => {
     setSelectedWorkshop(workshop);
     openAddIndividualModal();
   };
@@ -326,7 +326,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     }
   };
 
-  const handleOpenDeleteModal = (workshop: ObjWorkshop) => {
+  const handleOpenDeleteModal = (workshop: Workshop) => {
     setSelectedWorkshop(workshop);
     openDeleteModal();
   };
@@ -340,7 +340,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
   };
 
   // Participant handlers
-  const handleEditParticipant = (participant: ObjWorkshopParticipant) => {
+  const handleEditParticipant = (participant: WorkshopParticipant) => {
     setEditingParticipant(participant);
     setParticipantNewName(participant.name || "");
   };
@@ -379,7 +379,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
 
   // Workshop settings handler
   const handleUpdateWorkshopSettings = async (
-    workshop: ObjWorkshop,
+    workshop: Workshop,
     settings: Partial<{
       showPublicGames: boolean;
       showOtherParticipantsGames: boolean;
@@ -1134,7 +1134,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                           ) : (
                                             <>
                                               {participant.role ===
-                                                ObjRole.RoleParticipant && (
+                                                RoleName.Participant && (
                                                   <Tooltip
                                                     label={t(
                                                       "myOrganization.workshops.shareParticipantLink",
@@ -1310,7 +1310,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                             ) : (
                                               <>
                                                 {participant.role ===
-                                                  ObjRole.RoleParticipant && (
+                                                  RoleName.Participant && (
                                                     <Tooltip
                                                       label={t(
                                                         "myOrganization.workshops.shareParticipantLink",

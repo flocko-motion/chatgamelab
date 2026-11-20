@@ -1,3 +1,4 @@
+import { api } from "@/api/client/api";
 import { useState, useMemo } from 'react';
 import {
   Container,
@@ -23,20 +24,18 @@ import { PlusIconButton } from '@/common/components/buttons';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
-import type { ObjInstitution } from '@/api/generated';
+import type { Institution } from "@/api/generated/api.gen";
 import { InvitesList } from './InvitesList';
 import { OrganizationMembersRow } from './OrganizationMembersRow';
 
 export function OrganizationsManagement() {
   const { t } = useTranslation('common');
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
   const { isMobile } = useResponsiveDesign();
   
-  const [editingOrg, setEditingOrg] = useState<ObjInstitution | null>(null);
-  const [inviteOrg, setInviteOrg] = useState<ObjInstitution | null>(null);
+  const [editingOrg, setEditingOrg] = useState<Institution | null>(null);
+  const [inviteOrg, setInviteOrg] = useState<Institution | null>(null);
   const [newOrgName, setNewOrgName] = useState('');
   const [editName, setEditName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
@@ -45,15 +44,15 @@ export function OrganizationsManagement() {
   const [editModalOpened, { open: openEditModal, close: closeEditModal }] = useDisclosure(false);
   const [inviteModalOpened, { open: openInviteModal, close: closeInviteModal }] = useDisclosure(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-  const [orgToDelete, setOrgToDelete] = useState<ObjInstitution | null>(null);
+  const [orgToDelete, setOrgToDelete] = useState<Institution | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
 
   // Helper to extract error message from API error
   const getErrorMessage = (error: unknown): string => {
     if (error && typeof error === 'object' && 'error' in error) {
-      const apiError = error as { error?: { message?: string } };
-      const message = apiError.error?.message || '';
+      const apiError = error as { error?: { error?: string } };
+      const message = apiError.error?.error || '';
       if (message.includes('pending invite already exists')) {
         return t('myOrganization.inviteAlreadyExists');
       }
@@ -66,7 +65,7 @@ export function OrganizationsManagement() {
   const { data: organizations, isLoading, error } = useQuery({
     queryKey: queryKeys.institutions,
     queryFn: async () => {
-      const response = await api.institutions.institutionsList();
+      const response = await api.getApiInstitutions();
       return response.data;
     },
   });
@@ -85,7 +84,7 @@ export function OrganizationsManagement() {
   // Create institution mutation
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
-      const response = await api.institutions.institutionsCreate({ name });
+      const response = await api.postApiInstitutions({ name });
       return response.data;
     },
     onSuccess: () => {
@@ -98,7 +97,7 @@ export function OrganizationsManagement() {
   // Update institution mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const response = await api.institutions.institutionsPartialUpdate(id, { name });
+      const response = await api.patchApiInstitutionsId(id, { name });
       return response.data;
     },
     onSuccess: () => {
@@ -112,7 +111,7 @@ export function OrganizationsManagement() {
   // Delete institution mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await api.institutions.institutionsDelete(id);
+      await api.deleteApiInstitutionsId(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
@@ -124,7 +123,7 @@ export function OrganizationsManagement() {
   // Send invite mutation
   const inviteMutation = useMutation({
     mutationFn: async ({ institutionId, email }: { institutionId: string; email: string }) => {
-      const response = await api.invites.institutionCreate({ 
+      const response = await api.postApiInvitesInstitution({ 
         institutionId, 
         role: 'head',
         invitedEmail: email 
@@ -143,20 +142,20 @@ export function OrganizationsManagement() {
     },
   });
 
-  const handleEdit = (org: ObjInstitution) => {
+  const handleEdit = (org: Institution) => {
     setEditingOrg(org);
     setEditName(org.name || '');
     openEditModal();
   };
 
-  const handleInvite = (org: ObjInstitution) => {
+  const handleInvite = (org: Institution) => {
     setInviteOrg(org);
     setInviteEmail('');
     setInviteError(null);
     openInviteModal();
   };
 
-  const handleDelete = (org: ObjInstitution) => {
+  const handleDelete = (org: Institution) => {
     setOrgToDelete(org);
     openDeleteModal();
   };

@@ -31,6 +31,10 @@
         "guest": "ゲストとしてログイン",
         "student": "生徒としてログイン",
         "teacher": "教師としてログイン"
+      },
+      "unavailable": {
+        "message": "このインスタンスではサインインを利用できません。ワークショップの参加者は代わりにコードを入力できます。",
+        "title": "サインインを利用できません"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "13歳未満",
       "ageGroupUnder13Error": "ChatGameLabを利用するには13歳以上である必要があります。",
       "cancelButton": "キャンセル",
-      "emailDescription": "重要なお知らせに使用します。",
+      "emailDescription": "任意です。重要なお知らせに使用します。",
       "emailLabel": "メールアドレス",
       "emailPlaceholder": "メールアドレスを入力",
       "errors": {

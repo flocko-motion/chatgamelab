@@ -31,6 +31,10 @@
         "guest": "Masuk sebagai Tamu",
         "student": "Masuk sebagai Siswa",
         "teacher": "Masuk sebagai Guru"
+      },
+      "unavailable": {
+        "message": "Instans ini tidak menyediakan login. Peserta lokakarya dapat memasukkan kode mereka sebagai gantinya.",
+        "title": "Login tidak tersedia"
       }
     },
     "participant": {
@@ -85,7 +89,7 @@
       "ageGroupUnder13": "Di bawah 13",
       "ageGroupUnder13Error": "Anda harus berusia minimal 13 tahun untuk menggunakan ChatGameLab.",
       "cancelButton": "Batal",
-      "emailDescription": "Kami akan menggunakannya untuk pemberitahuan penting.",
+      "emailDescription": "Opsional. Kami akan menggunakannya untuk pemberitahuan penting.",
       "emailLabel": "Alamat Email",
       "emailPlaceholder": "Masukkan email Anda",
       "errors": {

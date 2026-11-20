@@ -21,11 +21,12 @@ import { useState, useEffect, type ReactNode } from "react";
 import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
-import { config } from "@/config/env";
-import { useAuth, storeParticipantToken } from "@/providers/AuthProvider";
+import { api } from "@/api/client/api";
+import { useAuth, rememberParticipantCode } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl } from "@/common/lib/url";
+import type { AcceptInviteResp, InviteResp } from "@/api/generated/api.gen";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 export const Route = createFileRoute("/invites/$token/accept")({
@@ -70,6 +71,12 @@ function InvitePageLayout({
   );
 }
 
+/** The status and error body of a failed API call; no status for a network failure. */
+function failure(err: unknown): { status?: number; body: { code?: string; error?: string } } {
+  const res = err as { status?: number; error?: { code?: string; error?: string } } | null;
+  return { status: res?.status, body: res?.error ?? {} };
+}
+
 interface InviteDetails {
   id: string;
   workshopId?: string;
@@ -88,7 +95,6 @@ function AcceptInvitePage() {
     isAuthenticated,
     backendUser,
     isLoading: authLoading,
-    getAccessToken,
   } = useAuth();
   // Check if user is a non-participant authenticated user (admin, head, staff, individual)
   const isLoggedInNonParticipant = isAuthenticated && !isParticipant;
@@ -109,7 +115,7 @@ function AcceptInvitePage() {
   // status >= 500 carries a raw English server sentence; never show that to a
   // participant, who may be a teenager on a phone.
   const acceptErrorMessage = (
-    errorData: { code?: string; message?: string },
+    errorData: { code?: string; error?: string },
     status?: number,
   ) => {
     if (errorData.code === ErrorCodes.TOKEN_LOCKED) {
@@ -118,7 +124,7 @@ function AcceptInvitePage() {
     if (status !== undefined && status >= 500) {
       return t("invites.errors.acceptFailed");
     }
-    return errorData.message || t("invites.errors.acceptFailed");
+    return errorData.error || t("invites.errors.acceptFailed");
   };
 
   // Get current workshop info if user is a participant
@@ -132,15 +138,17 @@ function AcceptInvitePage() {
 
     async function fetchInvite() {
       try {
-        const response = await fetch(`${config.API_BASE_URL}/invites/${token}`);
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          if (errorData.code === ErrorCodes.TOKEN_LOCKED) {
+        let data: InviteResp;
+        try {
+          data = (await api.getApiInvitesIdOrToken(token)).data;
+        } catch (err) {
+          const { status, body } = failure(err);
+          if (status === undefined) throw err;
+          if (body.code === ErrorCodes.TOKEN_LOCKED) {
             setError(t("invites.errors.tokenLocked"));
-          } else if (response.status === 404) {
+          } else if (status === 404) {
             setError(t("invites.errors.notFound"));
-          } else if (errorData.code === "invite_expired") {
+          } else if (body.code === "invite_expired") {
             setError(t("invites.errors.expired"));
           } else {
             setError(t("invites.errors.loadFailed"));
@@ -148,8 +156,6 @@ function AcceptInvitePage() {
           setState("error");
           return;
         }
-
-        const data = await response.json();
         setInvite(data);
 
         // Head/staff clicking a workshop invite link → auto-enter the workshop
@@ -161,19 +167,7 @@ function AcceptInvitePage() {
         ) {
           // Auto-accept to enter workshop mode, then redirect
           try {
-            const accessToken = await getAccessToken();
-            const headers: Record<string, string> = {
-              "Content-Type": "application/json",
-            };
-            if (accessToken) {
-              headers["Authorization"] = `Bearer ${accessToken}`;
-            }
-            await fetch(`${config.API_BASE_URL}/invites/${token}/accept`, {
-              method: "POST",
-              credentials: "include",
-              headers,
-              body: JSON.stringify({}),
-            });
+            await api.postApiInvitesIdOrTokenAccept(token).catch(() => {});
             try {
               sessionStorage.setItem("cgl_workshop_mode_pending", "true");
             } catch {}
@@ -237,49 +231,29 @@ function AcceptInvitePage() {
     setState("accepting");
 
     try {
-      // Send who is asking, exactly as handleEnterWorkshop does. Without it the
-      // backend sees an anonymous caller and mints a SECOND account, orphaning the
-      // first one and its games - and storeParticipantToken below then overwrites
-      // the old code. The session cookie alone is not enough: anyone who arrived
-      // through /invites/participant/<token> never got one.
-      const accessToken = await getAccessToken();
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      const response = await fetch(
-        `${config.API_BASE_URL}/invites/${token}/accept`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers,
-          body: JSON.stringify({}),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+      // The session cookie tells the server who is asking, so a signed-in
+      // participant keeps their account instead of getting a second one.
+      let result: AcceptInviteResp;
+      try {
+        result = (await api.postApiInvitesIdOrTokenAccept(token)).data;
+      } catch (err) {
+        const { status, body } = failure(err);
+        if (status === undefined) throw err;
         // Being recognised makes a new answer possible: "you are already in this
         // workshop". That is not a failure - send them where they wanted to go.
-        if (errorData.code === ErrorCodes.CONFLICT) {
+        if (body.code === ErrorCodes.CONFLICT) {
           navigate({ to: ROUTES.MY_WORKSHOP as "/" });
           return;
         }
-        setError(acceptErrorMessage(errorData, response.status));
+        setError(acceptErrorMessage(body, status));
         setState("error");
         return;
       }
 
-      const result = await response.json();
-
-      // Store participant token in localStorage so tryParticipantAuth() can use it
-      // on page reload. Only an anonymous join returns one; a recognised caller
-      // keeps the account and the code they already have.
+      // An anonymous join signs the new participant in and returns their code;
+      // keep it to show again. A recognised caller keeps the code they have.
       if (result.authToken) {
-        storeParticipantToken(result.authToken);
+        rememberParticipantCode(result.authToken);
       }
 
       setState("success");
@@ -354,26 +328,12 @@ function AcceptInvitePage() {
         // Use the accept endpoint which handles all cases:
         // - Head/staff in same org → enters workshop mode
         // - Individual/user without role → falls back to AcceptOpenInvite (joins as participant)
-        const accessToken = await getAccessToken();
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-        if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
-        }
-        const response = await fetch(
-          `${config.API_BASE_URL}/invites/${token}/accept`,
-          {
-            method: "POST",
-            credentials: "include",
-            headers,
-            body: JSON.stringify({}),
-          },
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          setError(acceptErrorMessage(errorData, response.status));
+        try {
+          await api.postApiInvitesIdOrTokenAccept(token);
+        } catch (err) {
+          const { status, body } = failure(err);
+          if (status === undefined) throw err;
+          setError(acceptErrorMessage(body, status));
           setState("error");
           return;
         }

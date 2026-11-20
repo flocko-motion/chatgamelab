@@ -1,3 +1,4 @@
+import { api } from "@/api/client/api";
 import { useState, useCallback } from "react";
 import { Stack, Card, Group, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -11,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
 import { useNavigate } from "@tanstack/react-router";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   isAtLeastHead,
@@ -24,12 +24,12 @@ import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { MembersList } from "./MembersList";
 import { InviteModal } from "./InviteModal";
 import { ConfirmationModal } from "./ConfirmationModal";
-import type { ObjUser, ObjInstitution } from "@/api/generated";
+import type { User, Institution } from "@/api/generated/api.gen";
 
 interface MembersTabProps {
-  members: ObjUser[];
+  members: User[];
   isLoading: boolean;
-  institution: ObjInstitution | null | undefined;
+  institution: Institution | null | undefined;
 }
 
 export function MembersTab({
@@ -38,13 +38,12 @@ export function MembersTab({
   institution,
 }: MembersTabProps) {
   const { t } = useTranslation("common");
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
   const { backendUser, retryBackendFetch } = useAuth();
 
-  const [userToPromote, setUserToPromote] = useState<ObjUser | null>(null);
-  const [userToDemote, setUserToDemote] = useState<ObjUser | null>(null);
-  const [userToRemove, setUserToRemove] = useState<ObjUser | null>(null);
+  const [userToPromote, setUserToPromote] = useState<User | null>(null);
+  const [userToDemote, setUserToDemote] = useState<User | null>(null);
+  const [userToRemove, setUserToRemove] = useState<User | null>(null);
 
   const [
     inviteTeacherModalOpened,
@@ -84,8 +83,8 @@ export function MembersTab({
   // Helper to extract error message from API error
   const getErrorMessage = (error: unknown): string => {
     if (error && typeof error === "object" && "error" in error) {
-      const apiError = error as { error?: { message?: string } };
-      const message = apiError.error?.message || "";
+      const apiError = error as { error?: { error?: string } };
+      const message = apiError.error?.error || "";
       if (message.includes("pending invite already exists")) {
         return t("myOrganization.inviteAlreadyExists");
       }
@@ -98,7 +97,7 @@ export function MembersTab({
   const inviteTeacherMutation = useMutation({
     mutationFn: async (email: string) => {
       if (!institutionId) throw new Error("No institution");
-      await api.invites.institutionCreate({
+      await api.postApiInvitesInstitution({
         institutionId,
         role: "staff",
         invitedEmail: email,
@@ -120,7 +119,7 @@ export function MembersTab({
   const inviteUserMutation = useMutation({
     mutationFn: async (email: string) => {
       if (!institutionId) throw new Error("No institution");
-      await api.invites.institutionCreate({
+      await api.postApiInvitesInstitution({
         institutionId,
         role: "individual",
         invitedEmail: email,
@@ -142,7 +141,7 @@ export function MembersTab({
   const promoteMutation = useMutation({
     mutationFn: async (userId: string) => {
       if (!institutionId) throw new Error("No institution");
-      await api.users.roleCreate(userId, { role: "head", institutionId });
+      await api.postApiUsersIdRole(userId, { role: "head", institutionId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -156,7 +155,7 @@ export function MembersTab({
   const demoteMutation = useMutation({
     mutationFn: async (userId: string) => {
       if (!institutionId) throw new Error("No institution");
-      await api.users.roleCreate(userId, { role: "staff", institutionId });
+      await api.postApiUsersIdRole(userId, { role: "staff", institutionId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -170,7 +169,7 @@ export function MembersTab({
   const removeMemberMutation = useMutation({
     mutationFn: async (userId: string) => {
       if (!institutionId) throw new Error("No institution");
-      await api.institutions.membersDelete(institutionId, userId);
+      await api.deleteApiInstitutionsIdMembersUserId(institutionId, userId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -187,7 +186,7 @@ export function MembersTab({
     mutationFn: async () => {
       if (!institutionId || !backendUser?.id)
         throw new Error("No institution or user");
-      await api.institutions.membersDelete(institutionId, backendUser.id);
+      await api.deleteApiInstitutionsIdMembersUserId(institutionId, backendUser.id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -215,7 +214,7 @@ export function MembersTab({
 
   // Handlers
   const handlePromote = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       setUserToPromote(user);
       openPromoteModal();
     },
@@ -223,7 +222,7 @@ export function MembersTab({
   );
 
   const handleDemote = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       setUserToDemote(user);
       openDemoteModal();
     },
@@ -231,7 +230,7 @@ export function MembersTab({
   );
 
   const handleRemove = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       setUserToRemove(user);
       openRemoveModal();
     },

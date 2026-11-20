@@ -68,7 +68,7 @@ import {
 } from "../hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { parseSortValue } from "@/common/lib/sort";
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import { type GameFilter } from "@/features/play/types";
 import type { CreateGameFormData } from "../types";
 import {
@@ -173,10 +173,10 @@ export function AllGames() {
   ] = useDisclosure(false);
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
-  const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
+  const [gameToSponsor, setGameToSponsor] = useState<Game | null>(null);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
     useDisclosure(false);
-  const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
   const [createInitialData, setCreateInitialData] =
     useState<Partial<CreateGameFormData> | null>(null);
   const {
@@ -198,12 +198,12 @@ export function AllGames() {
         ? rawGames?.filter((game) => !!game.publicSponsoredApiKeyShareId)
         : rawGames;
 
-  const isOwner = (game: ObjGame) => {
+  const isOwner = (game: Game) => {
     if (!backendUser?.id || !game.creatorId) return false;
     return game.creatorId === backendUser.id;
   };
 
-  const handleViewGame = (game: ObjGame) => {
+  const handleViewGame = (game: Game) => {
     if (!game.id) return;
     setGameToView(game.id);
     setGameToViewIsOwner(isOwner(game));
@@ -219,13 +219,13 @@ export function AllGames() {
     }
   };
 
-  const handleCopyGame = (game: ObjGame) => {
+  const handleCopyGame = (game: Game) => {
     if (!game.id) return;
     setCreateInitialData(gameToFormData(game));
     openCreateModal();
   };
 
-  const handleDeleteGame = (game: ObjGame) => {
+  const handleDeleteGame = (game: Game) => {
     setGameToDelete(game);
     openDeleteModal();
   };
@@ -241,7 +241,7 @@ export function AllGames() {
     }
   };
 
-  const handleExport = async (game: ObjGame) => {
+  const handleExport = async (game: Game) => {
     if (!game.id) return;
     try {
       const yaml = await exportGameYaml.mutateAsync(game.id);
@@ -273,9 +273,9 @@ export function AllGames() {
     }
   };
 
-  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
+  const getDateLabel = (game: Game) => getGameDateLabel(game, sortField);
 
-  const getCardActions = (game: ObjGame): GameCardAction[] => {
+  const getCardActions = (game: Game): GameCardAction[] => {
     const canEdit = isOwner(game) || isAdminUser;
     const actions: GameCardAction[] = [
       canEdit
@@ -323,7 +323,7 @@ export function AllGames() {
     restart: t("allGames.restart"),
   };
 
-  const renderPlayButton = (game: ObjGame) => {
+  const renderPlayButton = (game: Game) => {
     const { hasSession, session } = getGameSessionState(game);
     return (
       <GamePlayButtons
@@ -338,7 +338,7 @@ export function AllGames() {
     );
   };
 
-  const columns: DataTableColumn<ObjGame>[] = [
+  const columns: DataTableColumn<Game>[] = [
     {
       key: "favorite",
       header: "",
@@ -444,11 +444,11 @@ export function AllGames() {
             key: "workshop",
             header: t("allGames.workshop"),
             width: 170,
-            render: (game: ObjGame) =>
+            render: (game: Game) =>
               game.workshopId ? (
                 <WorkshopBadges workshopId={game.workshopId} />
               ) : null,
-          } as DataTableColumn<ObjGame>,
+          } as DataTableColumn<Game>,
         ]
       : []),
     {

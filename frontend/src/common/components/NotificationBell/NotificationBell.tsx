@@ -1,3 +1,4 @@
+import { api } from "@/api/client/api";
 import { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import {
   ActionIcon,
@@ -17,10 +18,9 @@ import { IconBell } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useAuth } from "@/providers/AuthProvider";
 import { queryKeys } from "@/api/hooks";
-import type { RoutesInviteResponse } from "@/api/generated";
+import type { InviteResp } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 import { ROUTES } from "@/common/routes/routes";
 
@@ -48,7 +48,6 @@ function markInvitesAsSeen(inviteIds: string[]): void {
 
 export function NotificationBell() {
   const { t } = useTranslation("common");
-  const api = useRequiredAuthenticatedApi();
   const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
   const [opened, { open, close }] = useDisclosure(false);
@@ -57,7 +56,7 @@ export function NotificationBell() {
     { open: openDeclineModal, close: closeDeclineModal },
   ] = useDisclosure(false);
   const [inviteToDecline, setInviteToDecline] =
-    useState<RoutesInviteResponse | null>(null);
+    useState<InviteResp | null>(null);
   const hasAutoOpened = useRef(false);
 
   // Admins don't have invites - disable query and hide the bell
@@ -66,7 +65,7 @@ export function NotificationBell() {
   const { data: invites, isLoading } = useQuery({
     queryKey: queryKeys.invites,
     queryFn: async () => {
-      const response = await api.invites.invitesList();
+      const response = await api.getApiInvites();
       return response.data;
     },
     enabled: !isAdmin, // Don't fetch invites for admins
@@ -75,11 +74,11 @@ export function NotificationBell() {
   const navigate = useNavigate();
 
   const [acceptingInvite, setAcceptingInvite] =
-    useState<RoutesInviteResponse | null>(null);
+    useState<InviteResp | null>(null);
 
   const acceptMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      const response = await api.invites.acceptCreate(inviteId);
+      const response = await api.postApiInvitesIdOrTokenAccept(inviteId);
       return response.data;
     },
     onSuccess: () => {
@@ -112,7 +111,7 @@ export function NotificationBell() {
 
   const declineMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      const response = await api.invites.declineCreate(inviteId);
+      const response = await api.postApiInvitesIdDecline(inviteId);
       return response.data;
     },
     onSuccess: () => {
@@ -164,17 +163,17 @@ export function NotificationBell() {
 
   const translateRole = useTranslateRole();
 
-  const isWorkshopInvite = (invite: RoutesInviteResponse) =>
+  const isWorkshopInvite = (invite: InviteResp) =>
     !!invite.workshopId;
 
-  const getInviteTitle = (invite: RoutesInviteResponse) => {
+  const getInviteTitle = (invite: InviteResp) => {
     if (isWorkshopInvite(invite)) {
       return t("notifications.workshopInvite");
     }
     return t("notifications.inviteToJoin");
   };
 
-  const getInviteTarget = (invite: RoutesInviteResponse) => {
+  const getInviteTarget = (invite: InviteResp) => {
     if (isWorkshopInvite(invite)) {
       const wsName = invite.workshopName || invite.workshopId;
       const orgName = invite.institutionName;
@@ -183,12 +182,12 @@ export function NotificationBell() {
     return invite.institutionName || invite.institutionId || "-";
   };
 
-  const handleAccept = (invite: RoutesInviteResponse) => {
+  const handleAccept = (invite: InviteResp) => {
     setAcceptingInvite(invite);
     acceptMutation.mutate(invite.id!);
   };
 
-  const handleDecline = (invite: RoutesInviteResponse) => {
+  const handleDecline = (invite: InviteResp) => {
     setInviteToDecline(invite);
     openDeclineModal();
   };
@@ -248,7 +247,7 @@ export function NotificationBell() {
           </Text>
         ) : (
           <Stack gap="md">
-            {pendingInvites.map((invite: RoutesInviteResponse) => (
+            {pendingInvites.map((invite: InviteResp) => (
               <Card key={invite.id} withBorder padding="md">
                 <Stack gap="sm">
                   <Group justify="space-between" align="flex-start">

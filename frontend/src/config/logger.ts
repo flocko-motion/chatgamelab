@@ -65,7 +65,7 @@ export const logger = Logger.create({
   minLevel: getMinLogLevel(),
   transports: [
     new ConsoleTransport(),
-    ...(config.SENTRY_DSN_FRONTEND ? [new SentryTransport()] : []),
+    ...(config.SENTRY_DSN ? [new SentryTransport()] : []),
   ],
 });
 

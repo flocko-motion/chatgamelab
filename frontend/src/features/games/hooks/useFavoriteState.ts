@@ -4,7 +4,7 @@ import {
   useAddFavorite,
   useRemoveFavorite,
 } from "@/api/hooks";
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 
 /**
  * Shared hook for game favorites state and toggle logic.
@@ -20,10 +20,10 @@ export function useFavoriteState() {
     [favoriteGames],
   );
 
-  const isFavorite = (game: ObjGame) =>
+  const isFavorite = (game: Game) =>
     game.id ? favoriteGameIds.has(game.id) : false;
 
-  const toggleFavorite = (game: ObjGame) => {
+  const toggleFavorite = (game: Game) => {
     if (!game.id) return;
     if (isFavorite(game)) {
       removeFavorite.mutate(game.id);

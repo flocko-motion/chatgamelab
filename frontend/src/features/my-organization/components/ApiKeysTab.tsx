@@ -47,7 +47,7 @@ import {
   useRevokePrivateShare,
   useUpdateGameShare,
 } from "@/api/hooks";
-import type { ObjApiKeyShare, RoutesEnrichedGameShare } from "@/api/generated";
+import type { ApiKeyShare, EnrichedGameShare } from "@/api/generated/api.gen";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 
@@ -160,7 +160,7 @@ export function ApiKeysTab({
 
   const [expandedShareId, setExpandedShareId] = useState<string | null>(null);
 
-  const handleRemoveShare = async (share: ObjApiKeyShare) => {
+  const handleRemoveShare = async (share: ApiKeyShare) => {
     if (!share.id) return;
     await removeShare.mutateAsync({
       shareId: share.id,
@@ -496,7 +496,7 @@ export function ApiKeysTab({
 // --- Mobile card for org API key ---
 
 interface OrgKeyRowProps {
-  share: ObjApiKeyShare;
+  share: ApiKeyShare;
   expanded: boolean;
   onToggle: () => void;
   onRemove: () => void;
@@ -665,7 +665,7 @@ function OrgKeyDetails({ shareId }: { shareId: string }) {
   );
 }
 
-function OrgGameShareRow({ gameShare }: { gameShare: RoutesEnrichedGameShare }) {
+function OrgGameShareRow({ gameShare }: { gameShare: EnrichedGameShare }) {
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
   const revokeShare = useRevokePrivateShare();

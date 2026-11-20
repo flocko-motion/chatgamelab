@@ -39,8 +39,6 @@ export {
   useCreateGameShare,
   useRevokePrivateShare,
   useUpdateGameShare,
-  type PrivateShareStatus,
-  type EnrichedGameShare,
   type UseGamesParams,
 } from "./useGames";
 

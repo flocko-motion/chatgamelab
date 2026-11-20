@@ -1,4 +1,4 @@
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import type { CreateGameFormData } from "../types";
 
 /**
@@ -18,9 +18,9 @@ export async function createGameWithExtraFields(
     description: string;
     public: boolean;
     genre?: string;
-  }) => Promise<ObjGame>,
-  updateMutateAsync: (req: { id: string; game: ObjGame }) => Promise<ObjGame>,
-): Promise<ObjGame> {
+  }) => Promise<Game>,
+  updateMutateAsync: (req: { id: string; game: Game }) => Promise<Game>,
+): Promise<Game> {
   const newGame = await createMutateAsync({
     name: data.name,
     description: data.description,
@@ -40,10 +40,10 @@ export async function createGameWithExtraFields(
       id: newGame.id,
       game: {
         ...newGame,
-        systemMessageScenario: data.systemMessageScenario,
-        systemMessageGameStart: data.systemMessageGameStart,
-        imageStyle: data.imageStyle,
-        statusFields: data.statusFields,
+        systemMessageScenario: data.systemMessageScenario ?? "",
+        systemMessageGameStart: data.systemMessageGameStart ?? "",
+        imageStyle: data.imageStyle ?? "",
+        statusFields: data.statusFields ?? "",
         theme: data.theme,
       },
     });

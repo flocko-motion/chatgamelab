@@ -1,48 +1,48 @@
 /**
  * Shared types for the auth module.
  */
-import type { ObjUser } from "@/api/generated";
+import type { User } from "@/api/generated/api.gen";
 
 export interface AuthUser {
   sub: string;
   name?: string;
   email?: string;
-  picture?: string;
   role?: string;
 }
 
-/** Data needed for registration when user is authenticated but not registered */
+/** Suggestions that pre-fill the registration form. */
 export interface RegistrationData {
-  auth0Id: string;
-  email: string;
   name: string;
 }
 
 export interface AuthContextType {
-  /** Auth0 user info (from token) */
+  /** The signed-in account, in brief; null while anonymous or registering. */
   user: AuthUser | null;
-  /** Backend user data (from /api/users/me) */
-  backendUser: ObjUser | null;
+  /** The signed-in account (from /api/users/me). */
+  backendUser: User | null;
   isLoading: boolean;
+  /** True once a registered account or a participant is signed in. */
   isAuthenticated: boolean;
-  /** True if user is authenticated via participant cookie (workshop participant) */
+  /** True if the account is a workshop participant. */
   isParticipant: boolean;
-  /** True if user is authenticated with Auth0 but not registered in backend */
+  /** True while a signed-in account has not completed registration. */
   needsRegistration: boolean;
-  /** Data from Auth0 to pre-fill registration form */
+  /** Suggestions to pre-fill the registration form. */
   registrationData: RegistrationData | null;
-  /** Error fetching backend user - app is not operational */
+  /** Error fetching the account: the app is not operational. */
   backendError: string | null;
-  /** True if participant's workshop is inactive */
+  /** True if the participant's workshop is inactive. */
   isWorkshopInactive: boolean;
+  /** True if this instance offers Auth0 sign-in. */
+  auth0Enabled: boolean;
   loginWithAuth0: (options?: { screenHint?: string }) => void;
-  loginWithRole: (role: string) => void;
-  logout: () => Promise<void> | void;
+  /** Development only: true where the preset dev accounts can sign in. */
   isDevMode: boolean;
-  /** Get the current access token for API calls. Returns null if not authenticated (participants use cookies). */
-  getAccessToken: () => Promise<string | null>;
-  /** Retry fetching backend user after an error */
+  /** Development only: signs in as a seeded account by preset role ("admin-1", …). */
+  loginWithRole: (role: string) => Promise<void>;
+  logout: () => Promise<void> | void;
+  /** Fetch the account again, after an error or a change. */
   retryBackendFetch: () => void;
-  /** Register the user with the backend */
+  /** Complete the registration of the signed-in account. */
   register: (name: string, email: string, ageGroup: string) => Promise<void>;
 }

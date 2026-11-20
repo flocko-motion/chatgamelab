@@ -1,20 +1,18 @@
 /**
- * Runtime configuration for the app.
- * 
- * In development: Uses VITE_* environment variables
- * In production: Uses window.__APP_CONFIG__ injected by container entrypoint
- * 
- * Note: All values here are PUBLIC (readable by browser). Never put secrets here.
+ * The instance's public configuration, from the server's PUBLIC_* environment
+ * variables (schemaf's runtime config, loaded before the app renders).
+ *
+ * Every value here is readable by the browser. Never put a secret here.
  */
+import { config as runtimeConfig } from '@/api/generated/config.gen';
 
 type AppConfig = {
-  API_BASE_URL: string;
-  AUTH0_DOMAIN: string;
-  AUTH0_CLIENT_ID: string;
-  AUTH0_AUDIENCE: string;
-  AUTH0_REDIRECT_URI?: string;
-  PUBLIC_URL?: string;
-  SENTRY_DSN_FRONTEND?: string;
+  /** Auth0 tenant domain; with AUTH0_CLIENT_ID, Auth0 sign-in is offered. */
+  AUTH0_DOMAIN?: string;
+  AUTH0_CLIENT_ID?: string;
+  /** The app's public URL, the base of share links. Defaults to the page's origin. */
+  PUBLIC_URL: string;
+  SENTRY_DSN?: string;
   /**
    * External homepage URL for deployments with a separate landing page.
    * When set, the root route (/) redirects here, and logout flows use this URL.
@@ -23,30 +21,14 @@ type AppConfig = {
   HOMEPAGE_URL?: string;
 };
 
-declare global {
-  interface Window {
-    __APP_CONFIG__?: Partial<AppConfig>;
-  }
-}
-
-function must<T>(value: T | undefined, name: string): T {
-  if (value === undefined || value === null || value === '') {
-    throw new Error(`Missing required config: ${name}`);
-  }
-  return value;
-}
-
-const runtime = (typeof window !== 'undefined' && window.__APP_CONFIG__) || {};
+const value = (key: string) => runtimeConfig(key) || undefined;
 
 export const config: AppConfig = {
-  API_BASE_URL: must(runtime.API_BASE_URL ?? import.meta.env.VITE_API_BASE_URL, 'API_BASE_URL'),
-  AUTH0_DOMAIN: must(runtime.AUTH0_DOMAIN ?? import.meta.env.VITE_AUTH0_DOMAIN, 'AUTH0_DOMAIN'),
-  AUTH0_CLIENT_ID: must(runtime.AUTH0_CLIENT_ID ?? import.meta.env.VITE_AUTH0_CLIENT_ID, 'AUTH0_CLIENT_ID'),
-  AUTH0_AUDIENCE: must(runtime.AUTH0_AUDIENCE ?? import.meta.env.VITE_AUTH0_AUDIENCE, 'AUTH0_AUDIENCE'),
-  AUTH0_REDIRECT_URI: runtime.AUTH0_REDIRECT_URI ?? import.meta.env.VITE_AUTH0_REDIRECT_URI,
-  PUBLIC_URL: runtime.PUBLIC_URL || import.meta.env.PUBLIC_URL || '/',
-  SENTRY_DSN_FRONTEND: runtime.SENTRY_DSN_FRONTEND ?? import.meta.env.VITE_SENTRY_DSN_FRONTEND,
-  HOMEPAGE_URL: runtime.HOMEPAGE_URL ?? import.meta.env.VITE_HOMEPAGE_URL,
+  AUTH0_DOMAIN: value('PUBLIC_AUTH0_DOMAIN'),
+  AUTH0_CLIENT_ID: value('PUBLIC_AUTH0_CLIENT_ID'),
+  PUBLIC_URL: value('PUBLIC_URL') ?? '/',
+  SENTRY_DSN: value('PUBLIC_SENTRY_DSN'),
+  HOMEPAGE_URL: value('PUBLIC_HOMEPAGE_URL'),
 };
 
 const env = {

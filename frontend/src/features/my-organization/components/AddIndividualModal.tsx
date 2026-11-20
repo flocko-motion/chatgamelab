@@ -1,3 +1,5 @@
+import { api } from "@/api/client/api";
+import { RoleName } from "@/common/lib/roles";
 import {
   Modal,
   Stack,
@@ -17,10 +19,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { queryKeys } from "@/api/queryKeys";
 import { useAddMemberToWorkshop } from "@/api/hooks";
-import { ObjRole, type ObjUser } from "@/api/generated";
+import { type User } from "@/api/generated/api.gen";
 
 interface AddIndividualModalProps {
   opened: boolean;
@@ -36,23 +37,22 @@ export function AddIndividualModal({
   institutionId,
 }: AddIndividualModalProps) {
   const { t } = useTranslation("common");
-  const api = useRequiredAuthenticatedApi();
   const addMember = useAddMemberToWorkshop();
 
-  const { data: members = [], isLoading } = useQuery<ObjUser[]>({
+  const { data: members = [], isLoading } = useQuery<User[]>({
     queryKey: queryKeys.institutionMembers(institutionId),
     queryFn: async () => {
-      const response = await api.institutions.membersList(institutionId);
+      const response = await api.getApiInstitutionsIdMembers(institutionId);
       return response.data;
     },
     enabled: opened && !!institutionId,
   });
 
   const individuals = members.filter(
-    (m) => m.role?.role === ObjRole.RoleIndividual,
+    (m) => m.role?.role === RoleName.Individual,
   );
 
-  const handleAdd = async (user: ObjUser) => {
+  const handleAdd = async (user: User) => {
     if (!user.id) return;
     try {
       await addMember.mutateAsync({ workshopId, userId: user.id });

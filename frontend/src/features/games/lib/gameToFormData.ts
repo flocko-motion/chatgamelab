@@ -1,15 +1,15 @@
-import type { ObjGame } from "@/api/generated";
+import type { Game } from "@/api/generated/api.gen";
 import type { CreateGameFormData } from "../types";
 
 /**
- * Convert an ObjGame (from API) into CreateGameFormData for the create modal.
+ * Convert an Game (from API) into CreateGameFormData for the create modal.
  * Used for the "Copy" flow - pre-populates the modal with existing game data.
  *
  * @param game - The source game to copy from
  * @param suffix - Suffix to append to the name (default: " (Copy)")
  */
 export function gameToFormData(
-  game: ObjGame,
+  game: Game,
   suffix = " (Copy)",
 ): CreateGameFormData {
   return {

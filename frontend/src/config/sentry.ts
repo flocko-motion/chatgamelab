@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/react';
 import { config } from './env';
 
 export function initSentry() {
-  const dsn = config.SENTRY_DSN_FRONTEND;
+  const dsn = config.SENTRY_DSN;
   if (!dsn) {
     return;
   }

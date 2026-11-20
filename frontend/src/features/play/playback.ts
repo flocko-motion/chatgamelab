@@ -1,5 +1,3 @@
-import { config } from "@/config/env";
-
 /** What a play route opens: a new session for a game or a share link, or a session. */
 export type PlaybackTarget =
   | { readonly kind: "game"; readonly id: string }
@@ -18,15 +16,11 @@ export function playbackTarget(pathname: string): PlaybackTarget | null {
 }
 
 /**
- * Where the engine is mounted. The playback-engine tells its parent page about
- * a new session only when both share an origin, so in development, where the
- * API runs on its own port, the dev server proxies the engine onto the page's
- * origin (vite.config.ts).
+ * Where the engine is mounted: in-process under the API, on the page's origin,
+ * which the playback-engine needs to tell its parent page about a new session.
  */
 export function engineRoot(): URL {
-  const api = new URL(config.API_BASE_URL.replace(/\/?$/, "/"), window.location.href);
-  const root = new URL("engine/", api);
-  return import.meta.env.DEV ? new URL(root.pathname, window.location.origin) : root;
+  return new URL("/api/engine/", window.location.origin);
 }
 
 /** The playback-engine's address for a target, in the player's language. */

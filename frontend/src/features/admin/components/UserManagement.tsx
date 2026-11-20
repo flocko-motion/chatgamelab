@@ -1,3 +1,4 @@
+import { api } from "@/api/client/api";
 import { useState, useMemo, useCallback } from "react";
 import {
   Container,
@@ -28,7 +29,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
-import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import {
   SortSelector,
@@ -37,14 +37,13 @@ import {
 } from "@/common/components/controls";
 import { useAuth } from "@/providers/AuthProvider";
 import { parseSortValue } from "@/common/lib/sort";
-import { getRoleColor, useTranslateRole } from "@/common/lib/roles";
-import type { ObjUser, ObjRole } from "@/api/generated";
+import { getRoleColor, useTranslateRole, type RoleString } from "@/common/lib/roles";
+import type { User, } from "@/api/generated/api.gen";
 
 type SortField = "name" | "email" | "role" | "organization" | "joined";
 
 export function UserManagement() {
   const { t } = useTranslation("common");
-  const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
   const { isMobile } = useResponsiveDesign();
   const { backendUser } = useAuth();
@@ -53,12 +52,12 @@ export function UserManagement() {
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
   const [hideGuests, setHideGuests] = useState(true);
   const [sortValue, setSortValue] = useState("name-asc");
-  const [userToDelete, setUserToDelete] = useState<ObjUser | null>(null);
-  const [userToPromote, setUserToPromote] = useState<ObjUser | null>(null);
-  const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<ObjUser | null>(
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToPromote, setUserToPromote] = useState<User | null>(null);
+  const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<User | null>(
     null,
   );
-  const [userToEdit, setUserToEdit] = useState<ObjUser | null>(null);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [editName, setEditName] = useState("");
   const [
     deleteModalOpened,
@@ -83,7 +82,7 @@ export function UserManagement() {
   } = useQuery({
     queryKey: queryKeys.adminUsers,
     queryFn: async () => {
-      const response = await api.users.usersList();
+      const response = await api.getApiUsers();
       return response.data;
     },
   });
@@ -91,7 +90,7 @@ export function UserManagement() {
   // Delete user mutation
   const deleteMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await api.users.usersDelete(userId);
+      await api.deleteApiUsersId(userId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
@@ -103,7 +102,7 @@ export function UserManagement() {
   // Make admin mutation
   const makeAdminMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await api.users.roleCreate(userId, { role: "admin" });
+      await api.postApiUsersIdRole(userId, { role: "admin" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
@@ -115,7 +114,7 @@ export function UserManagement() {
   // Remove admin mutation
   const removeAdminMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await api.users.roleDelete(userId);
+      await api.deleteApiUsersIdRole(userId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
@@ -127,7 +126,7 @@ export function UserManagement() {
   // Update user mutation
   const updateUserMutation = useMutation({
     mutationFn: async ({ userId, name }: { userId: string; name: string }) => {
-      await api.users.usersCreate(userId, { name });
+      await api.postApiUsersId(userId, { name });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
@@ -151,34 +150,34 @@ export function UserManagement() {
     [backendUser?.id],
   );
 
-  const isAdmin = useCallback((user: ObjUser) => {
+  const isAdmin = useCallback((user: User) => {
     return user.role?.role === "admin";
   }, []);
 
-  const isIndividual = useCallback((user: ObjUser) => {
+  const isIndividual = useCallback((user: User) => {
     return user.role?.role === "individual";
   }, []);
 
   const canPromoteToAdmin = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       return !isCurrentUser(user.id) && isIndividual(user);
     },
     [isCurrentUser, isIndividual],
   );
 
   const canRemoveAdmin = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       return !isCurrentUser(user.id) && isAdmin(user);
     },
     [isCurrentUser, isAdmin],
   );
 
-  const getOrganizationName = useCallback((user: ObjUser) => {
+  const getOrganizationName = useCallback((user: User) => {
     return user.role?.institution?.name || "-";
   }, []);
 
   const handleDelete = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       setUserToDelete(user);
       openDeleteModal();
     },
@@ -186,7 +185,7 @@ export function UserManagement() {
   );
 
   const handlePromote = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       setUserToPromote(user);
       openPromoteModal();
     },
@@ -194,7 +193,7 @@ export function UserManagement() {
   );
 
   const handleRemoveAdmin = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       setUserToRemoveAdmin(user);
       openRemoveAdminModal();
     },
@@ -202,7 +201,7 @@ export function UserManagement() {
   );
 
   const handleEdit = useCallback(
-    (user: ObjUser) => {
+    (user: User) => {
       setUserToEdit(user);
       setEditName(user.name || "");
       openEditModal();
@@ -414,7 +413,7 @@ export function UserManagement() {
                         {user.role?.role && (
                           <Badge
                             variant="light"
-                            color={getRoleColor(user.role.role as ObjRole)}
+                            color={getRoleColor(user.role.role as RoleString)}
                             size="sm"
                           >
                             {translateRole(user.role.role)}
@@ -527,7 +526,7 @@ export function UserManagement() {
                         {user.role?.role ? (
                           <Badge
                             variant="light"
-                            color={getRoleColor(user.role.role as ObjRole)}
+                            color={getRoleColor(user.role.role as RoleString)}
                           >
                             {translateRole(user.role.role)}
                           </Badge>

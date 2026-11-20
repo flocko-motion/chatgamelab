@@ -1,7 +1,7 @@
-import type { ObjUserRoleInvite } from "@/api/generated";
+import type { UserRoleInvite } from "@/api/generated/api.gen";
 
 /** Pending open invite that still admits participants; mirrors db.CreateWorkshopInvite. */
-export function isUsableInvite(invite: ObjUserRoleInvite): boolean {
+export function isUsableInvite(invite: UserRoleInvite): boolean {
   if (invite.status !== "pending" || !invite.inviteToken) return false;
   if (invite.expiresAt && new Date(invite.expiresAt) < new Date()) return false;
   if (invite.maxUses && (invite.usesCount ?? 0) >= invite.maxUses) return false;

@@ -8,7 +8,6 @@ interface BackendVersionInfo {
   version: string;
   buildTime: string;
   gitCommit: string;
-  dbLevel: number;
 }
 
 interface VersionDisplayProps {
@@ -25,7 +24,6 @@ export function VersionDisplay({ darkMode = false }: VersionDisplayProps) {
         version: backendData.version,
         buildTime: backendData.buildTime,
         gitCommit: backendData.gitCommit,
-        dbLevel: backendData.dbLevel ?? 0,
       }
       : null;
 
@@ -86,14 +84,6 @@ export function VersionDisplay({ darkMode = false }: VersionDisplayProps) {
           </Text>
           <Text size="sm" c="blue.3" style={{ fontFamily: 'monospace' }}>
             {backendInfo.gitCommit.substring(0, 7)}
-          </Text>
-        </div>
-        <div style={{ display: 'flex', gap: 'var(--mantine-spacing-sm)' }}>
-          <Text size="sm" c="gray.2" style={{ minWidth: '60px' }}>
-            <strong>DB Level:</strong>
-          </Text>
-          <Text size="sm" c="gray.2" style={{ fontFamily: 'monospace' }}>
-            {backendInfo.dbLevel}
           </Text>
         </div>
       </div>

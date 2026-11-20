@@ -128,3 +128,53 @@ type ParticipantLoginResp struct {
 	Token  string    `json:"token"`
 	UserID uuid.UUID `json:"userId"`
 }
+
+// DevLoginEndpoint signs in as one of the seeded development accounts.
+//
+// Development only: without DEV_MODE it answers 404. Takes a preset role
+// ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
+// "individual-1", "individual-2", "participant"), starts a session for its
+// account and sets the session cookie.
+type DevLoginEndpoint struct{}
+
+func (DevLoginEndpoint) Method() string             { return "POST" }
+func (DevLoginEndpoint) Path() string               { return "/api/auth/dev-login" }
+func (DevLoginEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (DevLoginEndpoint) Handle(ctx context.Context, req DevLoginReq) (DevLoginResp, error) {
+	if !devMode {
+		return DevLoginResp{}, errNotFound("Not found")
+	}
+	userID, ok := devLoginAccounts[req.Role]
+	if !ok {
+		return DevLoginResp{}, errNotFound("Unknown dev role")
+	}
+	token, err := schemafapi.StartSessionCtx(ctx, userID.String())
+	if err != nil {
+		return DevLoginResp{}, err
+	}
+	return DevLoginResp{Token: token, UserID: userID}, nil
+}
+
+// devLoginAccounts are the seeded development accounts by preset role.
+var devLoginAccounts = map[string]uuid.UUID{
+	"admin-1":      db.DevAdmin1UserID,
+	"admin-2":      db.DevAdmin2UserID,
+	"head-1":       db.DevHead1UserID,
+	"head-2":       db.DevHead2UserID,
+	"staff-1":      db.DevStaff1UserID,
+	"staff-2":      db.DevStaff2UserID,
+	"individual-1": db.DevIndividual1UserID,
+	"individual-2": db.DevIndividual2UserID,
+	"participant":  db.DevParticipantUserID,
+}
+
+// DevLoginReq is a preset role of a seeded development account.
+type DevLoginReq struct {
+	Role string `json:"role"`
+}
+
+// DevLoginResp is the session token and the signed-in account.
+type DevLoginResp struct {
+	Token  string    `json:"token"`
+	UserID uuid.UUID `json:"userId"`
+}
