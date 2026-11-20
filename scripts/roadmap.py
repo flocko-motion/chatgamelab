@@ -14,6 +14,9 @@ from collections import defaultdict
 
 REPO = sys.argv[1] if len(sys.argv) > 1 else "flocko-motion/chatgamelab"
 
+# Done cards per row at the top of an epic; Mermaid does not wrap a row.
+DONE_PER_ROW = 4
+
 
 def gh(path):
     out = subprocess.run(["gh", "api", "--paginate", f"repos/{REPO}/{path}"],
@@ -152,24 +155,28 @@ lines += ["## Order", "", "Top to bottom: what comes first. No scale, only order
 for epic, nums in phases:
     done = sum(1 for n in nums if not is_open(n))
     etitle = epic["title"].replace('"', "'")
-    lines.append(f'  subgraph E{epic["number"]}["#{epic["number"]} {etitle} — {done}/{len(nums)}"]')
-    # Done issues collapse into one card at the top, in the order they closed.
+    elink = f"<a href='{epic['html_url']}' style='text-decoration:none;color:inherit'><b>#{epic['number']}</b></a>"
+    lines.append(f'  subgraph E{epic["number"]}["{elink} {etitle} — {done}/{len(nums)}"]')
+    # Done issues come first, one card each, in the order they closed.
     closed = sorted((n for n in nums if not is_open(n)), key=lambda n: issues[n].get("closed_at") or "")
-    if closed:
-        rows = "<br/>".join(f"✓ #{n} {title(n)}".replace('"', "'") for n in closed)
-        lines.append(f'    D{epic["number"]}["{rows}"]:::done')
-    for n in nums:
-        if not is_open(n):
-            continue
+    opened = [n for n in nums if is_open(n)]
+    for n in closed + opened:
         label = title(n).replace('"', "'")
         extra = meta(n, "<br/>").replace('"', "'")
-        text = f"<b>#{n}</b> {label}" + (f"<br/><small>{extra}</small>" if extra else "")
+        link = f"<a href='{url(n)}' style='text-decoration:none;color:inherit'><b>#{n}</b></a>"
+        text = f"{link} {label}" + (f"<br/><small>{extra}</small>" if extra else "")
         lines.append(f'    I{n}["{text}"]:::{state(n)}')
-    # An invisible edge puts the done card above every open issue that starts the epic.
-    if closed:
-        roots = [n for n in nums if is_open(n) and not any(phase_of.get(b) == epic["number"] for b in open_blockers(n))]
-        for n in roots:
-            lines.append(f'    D{epic["number"]} ~~~ I{n}')
+    # Invisible edges lay the done cards out as a grid, DONE_PER_ROW wide, each
+    # card above the one in its column on the next row, and the last row above
+    # the open issues that start the epic.
+    roots = [n for n in opened if not any(phase_of.get(b) == epic["number"] for b in open_blockers(n))]
+    for i, d in enumerate(closed):
+        below = i + DONE_PER_ROW
+        if below < len(closed):
+            lines.append(f"    I{d} ~~~ I{closed[below]}")
+        else:
+            for n in roots:
+                lines.append(f"    I{d} ~~~ I{n}")
     lines.append("  end")
 for n in issues:
     if not is_open(n):
@@ -193,7 +200,7 @@ lines += [
     "|---|---|",
     "| 🟩 green | **ready**: open, and nothing it waits for is still open; can be started now |",
     "| 🟥 pale red | **blocked**: open, but waiting for at least one open issue |",
-    "| ⬜ grey | **done**: closed; the done issues of an epic share one card at its top |",
+    "| ⬜ grey | **done**: closed; done issues sit in a row at the top of their epic, in the order they closed |",
     "",
 ]
 
