@@ -13,12 +13,14 @@
     --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --line: #d0d7de; --panel: #f6f8fa;
     --ready: #d8f5d8; --ready-line: #4caf50; --blocked: #fbe3e3; --blocked-line: #d98c8c;
     --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc;
+    --milestone: #fff3cd; --milestone-line: #d29922;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --line: #30363d; --panel: #161b22;
       --ready: #1f3d24; --ready-line: #3fb950; --blocked: #4a2526; --blocked-line: #c96a6a;
       --done: #262b31; --done-line: #3d444d; --epic: #11161d;
+      --milestone: #3d2e00; --milestone-line: #d29922;
     }
   }
   * { box-sizing: border-box; }
@@ -75,7 +77,8 @@
       <div><span style="background:var(--ready);border-color:var(--ready-line)"></span>ready: nothing it waits for is open</div>
       <div><span style="background:var(--blocked);border-color:var(--blocked-line)"></span>blocked: waits for an open issue or epic</div>
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
-      <div>Boxes are epics; arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
+      <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: a phase boundary, ready once everything above it is done</div>
+      <div>Boxes are epics; arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale. A milestone bar runs across the roadmap: the epics below it wait for it.</div>
       <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, click a card to open its issue.</div>
     </div>
     <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
@@ -92,8 +95,14 @@ const COLORS = {
 const layout = { name: "elk", fit: true, padding: 30, nodeDimensionsIncludeLabels: true,
   elk: { algorithm: "layered", "elk.direction": "DOWN",
          "elk.hierarchyHandling": "INCLUDE_CHILDREN",
-         "elk.layered.spacing.nodeNodeBetweenLayers": 40, "elk.spacing.nodeNode": 24,
-         "elk.padding": "[top=40,left=16,bottom=16,right=16]" } };
+         "elk.layered.spacing.nodeNodeBetweenLayers": 64, "elk.spacing.nodeNode": 32,
+         "elk.layered.layering.strategy": "LONGEST_PATH",
+         "elk.padding": "[top=24,left=24,bottom=24,right=24]" } };
+
+// At most this many issues side by side in an epic; ELK alone puts every issue
+// of one level into a single row.
+const PER_ROW = 2;
+const EPICS_PER_ROW = 3;
 
 function li(item) {
   const who = item.assignees.length ? ` — ${item.assignees.join(", ")}` : "";
@@ -112,6 +121,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   for (const e of data.epics) select.add(new Option(`#${e.number} ${e.title}`, e.number));
 
   const elements = [];
+  // Milestones: gates between epics, drawn as bars across the roadmap.
+  for (const m of data.milestones || []) {
+    elements.push({ data: { id: `e${m.number}`, label: `◆ #${m.number} ${m.title}`, url: m.url,
+                            kind: "milestone", state: m.state } });
+    for (const b of m.waitsOn)
+      elements.push({ data: { id: `ee${b}-${m.number}`, source: `e${b}`, target: `e${m.number}`, kind: "epicEdge" } });
+  }
   for (const e of data.epics) {
     elements.push({ data: { id: `e${e.number}`, label: `#${e.number} ${e.title} — ${e.done}/${e.total}`,
                             url: e.url, kind: "epic", epic: e.number } });
@@ -134,9 +150,10 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     style: [
       { selector: "node[kind='epic']", style: {
           "background-color": css("--epic"), "border-color": css("--line"), "border-width": 1,
-          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": 24,
-          "font-size": 13, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 420,
-          shape: "round-rectangle", padding: 16 } },
+          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -6,
+          "text-background-color": css("--bg"), "text-background-opacity": 1, "text-background-padding": 3,
+          "font-size": 13, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 440,
+          shape: "round-rectangle", padding: 24 } },
       { selector: "node[kind='issue']", style: {
           width: 210, height: 54, shape: "round-rectangle", label: "data(label)",
           "text-wrap": "wrap", "text-max-width": 190, "font-size": 11, color: css("--fg"),
@@ -147,17 +164,94 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       { selector: "edge", style: { width: 1.5, "line-color": css("--muted"), "target-arrow-color": css("--muted"),
                                    "target-arrow-shape": "triangle", "curve-style": "bezier", "arrow-scale": 0.9 } },
       { selector: "edge[kind='epicEdge']", style: { width: 3, "line-style": "dashed" } },
+      { selector: "node[kind='milestone']", style: {
+          shape: "round-rectangle", width: 320, height: 30, label: "data(label)", "font-size": 13,
+          "font-weight": "bold", color: css("--fg"), "text-valign": "center", "text-halign": "center",
+          "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
+      // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
+      { selector: "edge.milestoneEdge", style: { opacity: 0, events: "no" } },
+      { selector: "node[kind='milestone'][state='ready']", style: { "background-color": css("--ready"), "border-color": css("--ready-line") } },
+      { selector: "edge[kind='row']", style: { opacity: 0, events: "no", "target-arrow-shape": "none" } },
       { selector: ".faded", style: { opacity: 0.15 } },
       { selector: ".hit", style: { "border-width": 3, "border-color": "#d29922" } },
     ],
   });
 
-  // Done issues start hidden; the checkbox brings them back.
-  const done = cy.nodes("[state='done']");
+  cy.nodes("[kind='milestone']").connectedEdges().addClass("milestoneEdge");
+
+  // Done issues start hidden; the checkbox brings them back. An epic whose
+  // issues are all done goes with them.
+  const done = cy.nodes("[state='done']").union(
+    cy.nodes("[kind='epic']").filter(e => e.children().length && e.children().every(c => c.data("state") === "done")));
   const showDone = document.getElementById("showDone");
   function applyDone() { showDone.checked ? done.style("display", "element") : done.style("display", "none"); }
   applyDone();
-  const run = () => cy.layout(layout).run();
+
+  // Invisible helper edges cap the rows: at most PER_ROW issues side by side in
+  // an epic, at most EPICS_PER_ROW epics side by side. A node's level is its
+  // longest path over the blocked-by edges and the helpers; while a level holds
+  // too many, its extra nodes get a helper edge from one PER_ROW places before
+  // them, which moves them a level down. ELK lays out by longest path too.
+  function capRows(nodes, edgeKinds, perRow, prefix) {
+    const added = [];
+    const preds = n => {
+      const ids = new Set(nodes.map(m => m.id()));
+      const fromGraph = n.incomers(edgeKinds.map(k => `edge[kind='${k}']`).join(",")).sources()
+        .filter(p => ids.has(p.id())).map(p => p.id());
+      return fromGraph.concat(added.filter(e => e.data.target === n.id()).map(e => e.data.source));
+    };
+    for (let round = 0; round < 50; round++) {
+      const level = new Map();
+      const levelOf = id => {
+        if (level.has(id)) return level.get(id);
+        level.set(id, 0);
+        const ps = preds(cy.getElementById(id));
+        const l = ps.length ? 1 + Math.max(...ps.map(levelOf)) : 0;
+        level.set(id, l);
+        return l;
+      };
+      const groups = new Map();
+      nodes.forEach(n => { const l = levelOf(n.id()); (groups.get(l) || groups.set(l, []).get(l)).push(n); });
+      let changed = false;
+      for (const group of groups.values()) {
+        if (group.length <= perRow) continue;
+        group.sort((a, b) => parseInt(a.id().slice(1)) - parseInt(b.id().slice(1)));
+        for (let i = perRow; i < group.length; i++)
+          added.push({ group: "edges", data: { id: `${prefix}${group[i - perRow].id()}-${group[i].id()}`,
+                       source: group[i - perRow].id(), target: group[i].id(), kind: "row" } });
+        changed = true;
+        break;  // re-level after each crowded level: the moved nodes change the levels below
+      }
+      if (!changed) break;
+    }
+    return added;
+  }
+  function rows() {
+    cy.remove(cy.edges("[kind='row']"));
+    let added = [];
+    cy.nodes("[kind='epic']").forEach(epic => {
+      added = added.concat(capRows(epic.children().filter(n => n.visible()).toArray(), ["issueEdge", "row"], PER_ROW, "row-"));
+    });
+    cy.add(added);
+    cy.add(capRows(cy.nodes("[kind='epic'], [kind='milestone']").filter(n => n.visible()).toArray(), ["epicEdge", "row"], EPICS_PER_ROW, "erow-"));
+  }
+  // A milestone stretches across the whole roadmap at the height the layout
+  // gave it: a horizontal bar between the phase before and the phase after.
+  function stretchMilestones() {
+    const epics = cy.nodes("[kind='epic']").filter(n => n.visible());
+    if (!epics.length) return;
+    const bb = epics.boundingBox();
+    cy.nodes("[kind='milestone']").forEach(m => {
+      m.style("width", bb.w);
+      m.position({ x: (bb.x1 + bb.x2) / 2, y: m.position("y") });
+    });
+  }
+  const run = () => {
+    rows();
+    const l = cy.layout(layout);
+    l.one("layoutstop", () => { stretchMilestones(); cy.fit(undefined, 30); });
+    l.run();
+  };
   run();
   showDone.addEventListener("change", () => { applyDone(); run(); });
   document.getElementById("relayout").addEventListener("click", run);
