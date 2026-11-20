@@ -142,6 +142,7 @@ def state(n):
 
 
 phase_index = {e["number"]: i for i, (e, _) in enumerate(phases)}
+issues_epic_url = {e["number"]: e["html_url"] for e, _ in phases}
 
 
 def tiebreak(n):
@@ -206,59 +207,89 @@ for epic, nums in phases:
     lines.append(f"- `{bar} {done:>2}/{len(nums):<2}` **[#{epic['number']} {epic['title']}]({epic['html_url']})**")
 lines.append("")
 
-lines += ["## Order", "", "Top to bottom: what comes first. No scale, only order.", "", "```mermaid", "flowchart TB"]
-for epic, nums in phases:
-    done = sum(1 for n in nums if not is_open(n))
-    etitle = epic["title"].replace('"', "'")
-    elink = f"<a href='{epic['html_url']}' style='text-decoration:none;color:inherit'><b>#{epic['number']}</b></a>"
-    lines.append(f'  subgraph E{epic["number"]}["{elink} {etitle} — {done}/{len(nums)}"]')
-    # Done issues come first, one card each, in the order they closed.
-    closed = sorted((n for n in nums if not is_open(n)), key=lambda n: issues[n].get("closed_at") or "")
-    opened = [n for n in nums if is_open(n)]
-    for n in closed + opened:
-        label = title(n).replace('"', "'")
-        extra = meta(n, "<br/>").replace('"', "'")
-        link = f"<a href='{url(n)}' style='text-decoration:none;color:inherit'><b>#{n}</b></a>"
-        text = f"{link} {label}" + (f"<br/><small>{extra}</small>" if extra else "")
-        lines.append(f'    I{n}["{text}"]:::{state(n)}')
-    # Invisible edges lay the done cards out as a grid, DONE_PER_ROW wide, each
-    # card above the one in its column on the next row, and the last row above
-    # the open issues that start the epic.
-    roots = [n for n in opened if not any(phase_of.get(b) == epic["number"] for b in open_blockers(n))]
-    for i, d in enumerate(closed):
-        below = i + DONE_PER_ROW
-        if below < len(closed):
-            lines.append(f"    I{d} ~~~ I{closed[below]}")
-        else:
-            for n in roots:
-                lines.append(f"    I{d} ~~~ I{n}")
-    lines.append("  end")
-for n in issues:
-    if not is_open(n):
-        continue
-    for b in sorted(open_blockers(n)):
-        lines.append(f"  I{b} --> I{n}")
-for e in EPICS:
-    for b in sorted(waits_on[e]):
-        lines.append(f"  E{b} --> E{e}")
-lines += [
+LINK = "style='text-decoration:none;color:inherit'"
+CLASSES = [
     "  classDef done fill:#e6e6e6,color:#8a8a8a,stroke:#c8c8c8",
     "  classDef ready fill:#d8f5d8,color:#1f3d1f,stroke:#4caf50",
     "  classDef blocked fill:#fbe3e3,color:#5c2a2a,stroke:#d98c8c",
-    "```",
-    "",
+    "  classDef ext fill:#ffffff,color:#666666,stroke:#999999,stroke-dasharray:4 3",
+]
+
+
+def card(n):
+    label = title(n).replace('"', "'")
+    extra = meta(n, "<br/>").replace('"', "'")
+    link = f"<a href='{url(n)}' {LINK}><b>#{n}</b></a>"
+    return f"{link} {label}" + (f"<br/><small>{extra}</small>" if extra else "")
+
+
+def epic_state(e, nums):
+    if all(not is_open(n) for n in nums):
+        return "done"
+    return "blocked" if waits_on[e] else "ready"
+
+
+# The overview: one card per epic, arrows between epics.
+lines += ["## Order", "",
+          "Top to bottom: what comes first. No scale, only order. First the epics, then each epic on its own.", "",
+          "```mermaid", "flowchart TB"]
+for epic, nums in phases:
+    e = epic["number"]
+    done = sum(1 for n in nums if not is_open(n))
+    etitle = epic["title"].replace('"', "'")
+    lines.append(f'  E{e}["<a href=\'{epic["html_url"]}\' {LINK}><b>#{e}</b></a> {etitle}<br/><small>{done}/{len(nums)} done</small>"]:::{epic_state(e, nums)}')
+for e in EPICS:
+    for b in sorted(waits_on[e]):
+        lines.append(f"  E{b} --> E{e}")
+lines += CLASSES + ["```", ""]
+
+# Each epic on its own: done cards on top, then its open issues; blockers from
+# other epics appear as dashed cards.
+for epic, nums in phases:
+    e = epic["number"]
+    done = sum(1 for n in nums if not is_open(n))
+    lines += [f"### [#{e}]({epic['html_url']}) {epic['title']} — {done}/{len(nums)}", ""]
+    ewait = sorted(waits_on[e])
+    if ewait:
+        lines += ["Waits for " + ", ".join(f"epic [#{b}]({issues_epic_url[b]})" for b in ewait) + ".", ""]
+    lines += ["```mermaid", "flowchart TB"]
+    closed = sorted((n for n in nums if not is_open(n)), key=lambda n: issues[n].get("closed_at") or "")
+    opened = [n for n in nums if is_open(n)]
+    for n in closed + opened:
+        lines.append(f'  I{n}["{card(n)}"]:::{state(n)}')
+    external = sorted({b for n in opened for b in open_blockers(n) if phase_of.get(b) != e})
+    for b in external:
+        where = f" in #{phase_of[b]}" if b in phase_of else ""
+        lines.append(f'  I{b}["<a href=\'{url(b)}\' {LINK}><b>#{b}</b></a>{where}"]:::ext')
+    # Invisible edges lay the done cards out as a grid, DONE_PER_ROW wide,
+    # above the open issues that start the epic.
+    roots = [n for n in opened if not any(phase_of.get(b) == e for b in open_blockers(n))]
+    for i, d in enumerate(closed):
+        below = i + DONE_PER_ROW
+        if below < len(closed):
+            lines.append(f"  I{d} ~~~ I{closed[below]}")
+        else:
+            for n in roots:
+                lines.append(f"  I{d} ~~~ I{n}")
+    for n in opened:
+        for b in sorted(open_blockers(n)):
+            lines.append(f"  I{b} --> I{n}")
+    lines += CLASSES + ["```", ""]
+
+lines += [
     "### How to read it",
     "",
     "- **Top to bottom is the order:** what has to happen first is higher up. There is no time scale; nothing is said about how long a step takes.",
-    "- **An arrow** runs from an issue to one that waits for it (*blocked by* on GitHub). An issue starts only once everything pointing at it is done. Done issues leave the graph but keep their chain: if A blocks B, B is done and B blocks C, the arrow runs from A to C.",
-    "- **A box** groups the issues of one epic; its title shows how many are done. An arrow between boxes means the lower epic waits for the upper one (*blocked by* between the epics): its issues count as blocked until that epic is done.",
-    "- **Each card** shows the issue's number and title, then who is assigned (👤) and its labels (🏷).",
+    "- **The overview** shows the epics; an arrow means the lower epic waits for the upper one (*blocked by* between the epics), and its issues count as blocked until that epic is done.",
+    "- **Each epic's diagram** shows its issues. An arrow runs from an issue to one that waits for it (*blocked by*). Done issues leave the graph but keep their chain: if A blocks B, B is done and B blocks C, the arrow runs from A to C. A dashed card is a blocker from another epic.",
+    "- **Each card** shows the issue's number (a link) and title, then who is assigned (👤) and its labels (🏷).",
     "",
     "| Colour | Means |",
     "|---|---|",
     "| 🟩 green | **ready**: open, and nothing it waits for is still open; can be started now |",
-    "| 🟥 pale red | **blocked**: open, but waiting for at least one open issue |",
-    "| ⬜ grey | **done**: closed; done issues sit in a row at the top of their epic, in the order they closed |",
+    "| 🟥 pale red | **blocked**: open, but waiting for at least one open issue or epic |",
+    "| ⬜ grey | **done**: closed; done issues sit at the top of their epic, in the order they closed |",
+    "| ⬚ dashed | a blocker from another epic |",
     "",
 ]
 
