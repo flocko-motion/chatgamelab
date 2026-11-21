@@ -1,4 +1,4 @@
-import type { Game } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/generated/api.gen";
 import type { CreateGameFormData } from "../types";
 
 /**
@@ -9,7 +9,17 @@ import type { CreateGameFormData } from "../types";
  * @param suffix - Suffix to append to the name (default: " (Copy)")
  */
 export function gameToFormData(
-  game: Game,
+  game: Pick<
+    GameView,
+    | "name"
+    | "description"
+    | "systemMessageScenario"
+    | "systemMessageGameStart"
+    | "imageStyle"
+    | "statusFields"
+    | "genre"
+    | "theme"
+  >,
   suffix = " (Copy)",
 ): CreateGameFormData {
   return {

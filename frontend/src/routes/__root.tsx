@@ -2,8 +2,7 @@ import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Center, Loader, useMantineTheme } from "@mantine/core";
 import {
-  IconPlayerPlay,
-  IconWorld,
+  IconMessage,
   IconHome,
   IconBuilding,
   IconUsers,
@@ -165,7 +164,7 @@ function RootComponent() {
     workshopNavItems.push({
       label: t("createGame"),
       icon: <IconTools size={18} />,
-      onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
+      onClick: () => navigate({ to: ROUTES.GAME_CREATE as "/" }),
       active: false,
     });
   }
@@ -180,8 +179,6 @@ function RootComponent() {
     });
   }
 
-  const isAdminUser = isAdmin(backendUser);
-
   const navItems: NavItem[] = isInWorkshopUI
     ? workshopNavItems
     : [
@@ -194,29 +191,16 @@ function RootComponent() {
         {
           label: t("createGame"),
           icon: <IconTools size={18} />,
-          onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
+          onClick: () => navigate({ to: ROUTES.GAME_CREATE as "/" }),
           active: false,
         },
-        ...(!isAdminUser
-          ? [
-              {
-                label: t("myGames"),
-                icon: <IconPlayerPlay size={18} />,
-                onClick: () => navigate({ to: ROUTES.MY_GAMES as "/" }),
-                active:
-                  pathname.startsWith(ROUTES.MY_GAMES) &&
-                  pathname !== ROUTES.MY_GAME_CREATE,
-              } as NavItem,
-            ]
-          : []),
         {
           label: t("allGames"),
-          icon: <IconWorld size={18} />,
+          icon: <IconMessage size={18} />,
           onClick: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
           active:
-            pathname.startsWith(ROUTES.ALL_GAMES) ||
-            pathname.startsWith(ROUTES.SESSIONS) ||
-            (isAdminUser && pathname.startsWith(ROUTES.MY_GAMES)),
+            (pathname.startsWith(ROUTES.ALL_GAMES) && pathname !== ROUTES.GAME_CREATE) ||
+            pathname.startsWith(ROUTES.SESSIONS),
         },
       ];
 

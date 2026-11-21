@@ -1,11 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { MyGames } from '@/features/games';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/my-games/$gameId')({
-  component: MyGameDetailPage,
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: '/games/$gameId', params: { gameId: params.gameId } });
+  },
 });
-
-function MyGameDetailPage() {
-  const { gameId } = Route.useParams();
-  return <MyGames initialGameId={gameId} initialMode="view" />;
-}

@@ -1,0 +1,47 @@
+/* As tall as its page of rows: the page scrolls, the list pages. */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+.th {
+  color: var(--mantine-color-gray-6);
+  font-weight: 600;
+  font-size: var(--mantine-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.headRow {
+  border-bottom: 2px solid var(--mantine-color-gray-2);
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  border-radius: var(--mantine-radius-sm);
+}
+
+.sortButton:hover,
+.sortButton[data-active] {
+  color: var(--mantine-color-gray-8);
+}
+
+.row {
+  transition: background-color 150ms ease;
+}
+
+.row[data-clickable] {
+  cursor: pointer;
+}
+
+.row[data-accent] {
+  box-shadow: inset 3px 0 0 var(--row-accent);
+}

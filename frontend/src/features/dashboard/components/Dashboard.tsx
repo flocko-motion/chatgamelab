@@ -36,22 +36,19 @@ import { LinksCard, type LinkItem } from "./LinkCard";
 function MyGamesCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: games, isLoading } = useGames({
+  const { data: page, isLoading } = useGames({
     sortBy: "modifiedAt",
     sortDir: "desc",
-    filter: "own",
+    filters: ["own"],
+    limit: 5,
   });
-
-  const recentGames = useMemo(() => {
-    if (!games) return [];
-    return games.slice(0, 5);
-  }, [games]);
+  const recentGames = page?.items ?? [];
 
   const items: ListItem[] = recentGames.map((game) => ({
     id: game.id ?? "",
     label: game.name ?? t("untitled"),
     sublabel: formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt),
-    onClick: () => navigate({ to: `/my-games/${game.id}` as "/" }),
+    onClick: () => navigate({ to: "/games/$gameId", params: { gameId: game.id } }),
   }));
 
   return (
@@ -60,7 +57,7 @@ function MyGamesCard() {
       items={items}
       emptyMessage={t("cards.myGames.empty")}
       viewAllLabel={t("cards.myGames.viewAll")}
-      onViewAll={() => navigate({ to: ROUTES.MY_GAMES as "/" })}
+      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/", search: { only: "own" } })}
       isLoading={isLoading}
     />
   );
@@ -164,17 +161,14 @@ function LastPlayedCard() {
 function PopularGamesCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: games, isLoading: gamesLoading } = useGames({
+  const { data: page, isLoading: gamesLoading } = useGames({
     sortBy: "playCount",
     sortDir: "desc",
-    filter: "public",
+    filters: ["public"],
+    limit: 10,
   });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
-
-  const popularGames = useMemo(() => {
-    if (!games) return [];
-    return games.slice(0, 10);
-  }, [games]);
+  const popularGames = page?.items ?? [];
 
   const handleGameClick = (gameId: string) => {
     const existingSession = sessionMap.get(gameId);
@@ -205,27 +199,18 @@ function PopularGamesCard() {
   );
 }
 
-// New Games Card - shows 10 newest games (excluding user's own)
+// New Games Card - shows the 10 newest public games of other people
 function NewGamesCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: games, isLoading: gamesLoading } = useGames({
+  const { data: page, isLoading: gamesLoading } = useGames({
     sortBy: "createdAt",
     sortDir: "desc",
-    filter: "public",
+    filters: ["public", "others"],
+    limit: 10,
   });
+  const newGames = page?.items ?? [];
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
-  const { data: currentUser } = useCurrentUser();
-
-  /* eslint-disable react-hooks/preserve-manual-memoization -- Optional chaining limitation */
-  const newGames = useMemo(() => {
-    if (!games || !currentUser?.id) return [];
-    // Exclude user's own games
-    return games
-      .filter((game) => game.creatorId !== currentUser.id)
-      .slice(0, 10);
-  }, [games, currentUser?.id]);
-  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const handleGameClick = (gameId: string) => {
     const existingSession = sessionMap.get(gameId);
@@ -312,14 +297,14 @@ function QuickActionsCard() {
       id: "create-game",
       label: t("quickActions.createNewGame"),
       icon: <IconTools size={16} />,
-      onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
+      onClick: () => navigate({ to: ROUTES.GAME_CREATE as "/" }),
     },
     {
       id: "import-game",
       label: t("quickActions.importGame"),
       icon: <IconDownload size={16} />,
       onClick: () =>
-        navigate({ to: ROUTES.MY_GAMES as "/", search: { action: "import" } }),
+        navigate({ to: ROUTES.ALL_GAMES as "/", search: { action: "import" } }),
     },
     ...(canManageWorkshops
       ? [

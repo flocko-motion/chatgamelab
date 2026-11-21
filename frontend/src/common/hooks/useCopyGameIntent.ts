@@ -2,7 +2,8 @@ import { api } from "@/api/client/api";
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
-import { useCreateGame, useUpdateGame } from "@/api/hooks";
+import { useCreateGame } from "@/api/hooks";
+import type { CreateGameReq } from "@/api/generated/api.gen";
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import {
@@ -11,10 +12,7 @@ import {
   takeCopyIntent,
   takeReturnTo,
 } from "@/common/lib/returnTo";
-import {
-  createGameWithExtraFields,
-  gameToFormData,
-} from "@/features/games/lib";
+import { gameToFormData } from "@/features/games/lib";
 import type { CreateGameFormData } from "@/features/games/types";
 
 /**
@@ -27,7 +25,6 @@ export function useCopyGameIntent(scope: string) {
   const navigate = useNavigate();
   const { isAuthenticated, isParticipant, backendUser } = useAuth();
   const createGame = useCreateGame();
-  const updateGame = useUpdateGame();
   const [copyData, setCopyData] = useState<Partial<CreateGameFormData> | null>(
     null,
   );
@@ -56,18 +53,14 @@ export function useCopyGameIntent(scope: string) {
     if (gameId) void start(gameId);
   };
 
-  const createCopy = async (data: CreateGameFormData) => {
-    const newGame = await createGameWithExtraFields(
-      data,
-      createGame.mutateAsync,
-      updateGame.mutateAsync,
-    );
+  const createCopy = async (request: CreateGameReq) => {
+    const newGame = await createGame.mutateAsync(request);
     close();
     setCopyData(null);
     if (isParticipant) {
       navigate({ to: ROUTES.MY_WORKSHOP as "/" });
     } else if (newGame.id) {
-      navigate({ to: `/my-games/${newGame.id}` as "/" });
+      navigate({ to: "/games/$gameId", params: { gameId: newGame.id } });
     }
   };
 

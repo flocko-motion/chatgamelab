@@ -9,13 +9,13 @@ export interface GameSessionState {
 
 /**
  * Shared hook for looking up a game's active session from the session map.
- * Used by AllGames, MyGames, and MyWorkshop.
+ * Used by the game lists (GamesTable).
  */
 export function useGameSessionState() {
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
 
   const getSessionState = useCallback(
-    (game: Game): GameSessionState => {
+    (game: Pick<Game, "id">): GameSessionState => {
       if (!game.id) return { hasSession: false, session: undefined };
       const session = sessionMap.get(game.id);
       return { hasSession: !!session, session };
