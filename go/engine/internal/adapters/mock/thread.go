@@ -20,7 +20,7 @@ const threadPrefix = "mock-thread-"
 // Thread answers each call with its turn number, which a continuation or a
 // seeding transcript carries on, streamed word by word over the Pace.
 //
-// A plain turn answers "[story turn N]" and its input. A structured turn
+// A plain turn answers "[story turn N]" and its input's first words. A structured turn
 // answers JSON of its schema: each text field "[<field> N]" and the action,
 // each object field its value carried on, marked "[turn N]". A cue that is no
 // JSON stands in for the action. A spoken turn follows each word with a PCM16
@@ -52,7 +52,7 @@ func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapter
 		}
 	}
 
-	text := fmt.Sprintf("[story turn %d] %s", n, turn.Input)
+	text := fmt.Sprintf("[story turn %d] %s", n, echo(turn.Input))
 	if turn.Schema != nil {
 		text = structured(turn.Schema.Body, turn.Input, n)
 	}
@@ -96,6 +96,19 @@ func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapter
 			Made:  time.Now().UTC(),
 		},
 	}, nil
+}
+
+// echoWords bounds a plain turn's echo, so a long prompt makes a reply, and a
+// spoken one audio, of a turn's usual size.
+const echoWords = 12
+
+// echo is the input's first words.
+func echo(input string) string {
+	words := strings.Fields(input)
+	if len(words) <= echoWords {
+		return input
+	}
+	return strings.Join(words[:echoWords], " ")
 }
 
 // marker is the turn mark a carried value ends in, replaced on each turn.
