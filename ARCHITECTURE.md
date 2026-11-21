@@ -1,7 +1,7 @@
 # Architecture
 
-<!-- Seeded by sindri. Describe how this project is meant to be built so reviewers
-     can hold every change to it, then commit this file. Replace this comment. -->
+How ChatGameLab is built: the bridge between the spec (`docs/chatgamelab.typ`)
+and the code. The engine has its own: `go/engine/ARCHITECTURE.md`.
 
 ## Baseline
 
@@ -10,6 +10,42 @@ That floor is enforced automatically.
 
 ## Project rules
 
-<!-- Add the rules that matter: layering and boundaries, what belongs where,
-     naming, dependencies, patterns to follow or avoid. -->
-_(none documented yet)_
+### The secure core decides who may see and change what (#344)
+
+- **Layers.** schemaf establishes who the caller is; the core (`go/core`)
+  decides what they may see and change; everything else consumes the core.
+- **The caller travels in the ctx.** schemaf's `OnRequest` hook runs
+  `core.Resolve` once per request; it builds the caller from the hook's
+  `*api.Admission`, the only way to one. Every core function works for the
+  caller in its ctx; no code hands a caller around. Handlers pass `ctx` and
+  decide nothing.
+- **The rules are one table.** `go/core/internal/rules/rules.go`: per role,
+  grouped by context, one grant per line as `{Action, Entity, Relation}`. Not
+  listed means refused; admin is no exception. Code never checks a role.
+- **Contexts are the caller's situation**: always, in or outside a workshop,
+  and the workshop's settings. A grant holds in one context; a caller holds
+  the grants of every context they are in.
+- **Entities split into sections where visibility differs** (`GameCard`,
+  `GameContent`, `GameSettings`). No field is in two sections. A loaded entity
+  is its base section; others unlock with `AsX()`, a check of flags the query
+  computed, no further lookup.
+- **List and Read are separate rights.** Listing may be narrower than reading.
+  A `Via` relation (a share link, a session id) opens one entity and is never
+  listable.
+- **Gates join table and SQL.** `go/core/gates.go` turns grants into a query's
+  parameters, one line per grant; each relation is one SQL fragment, written
+  once, switched on by its flag. `gates_test.go` fails when the table grants a
+  relation no gate opens.
+- **Wishes only narrow.** Filters, search, sorting and paging come from the
+  caller and narrow what the gates let through. An unknown wish is refused.
+- **The API owns the wire format.** `go/api/wire` converts the core's types
+  into JSON, through their public getters and unlocked sections only. A view
+  is flat; `hasX` says which sections it holds.
+- **Database access.** Queries live in `go/db/queries/`, the core's as
+  `v2_*.sql`. Only the core reads them, through `core/internal/store`.
+  Hand-written files in `go/db` are v1; an entity is ported when its file is
+  gone.
+- **Legacy bridge.** `core.LegacyCaller` and its siblings hand v1 code the
+  caller as `obj.User`. Each call marks code not yet ported.
+- **Readability over performance.** The core is the code people review for
+  rights; it is written to be read.
