@@ -25,4 +25,5 @@ export { ExportButtonWithText, type ExportButtonWithTextProps } from './ExportBu
 export { PlayIconButton } from './PlayIconButton';
 export { PlayGameButton, type PlayGameButtonProps } from './PlayGameButton';
 export { PlusIconButton, type PlusIconButtonProps } from './PlusIconButton';
+export { ToggleIconButton, type ToggleIconButtonProps } from './ToggleIconButton';
 export type { IconButtonProps } from './types';

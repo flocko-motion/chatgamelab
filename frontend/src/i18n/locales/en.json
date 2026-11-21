@@ -272,9 +272,17 @@
         "message": "This will create a copy of \"{{name}}\" in your games.",
         "title": "Copy Game"
       },
-      "copyGame": "Copy Game",
       "empty": {
         "description": "Try adjusting your filters or check back later for new games.",
+        "is": "No game is {{conditions}}.",
+        "named": "No game has “{{search}}” in its name.",
+        "isAndNamed": "No game is {{conditions}} and has “{{search}}” in its name.",
+        "conditions": {
+          "favorites": "one of your favorites",
+          "own": "yours",
+          "sponsored": "sponsored",
+          "public": "public"
+        },
         "title": "No games found"
       },
       "favorite": "Add to favorites",
@@ -287,8 +295,9 @@
       },
       "play": "Play",
       "reportGame": "Report game",
-      "title": "All Games",
+      "title": "Games",
       "unfavorite": "Remove from favorites",
+      "onlyFavorites": "Show only favorites",
       "workshop": "Workshop / Org",
       "continue": "Play",
       "restart": "Restart"
@@ -402,13 +411,6 @@
       "programmedBy": "Programmed by"
     },
     "games": {
-      "actions": {
-        "delete": "Delete",
-        "edit": "Edit",
-        "export": "Export",
-        "play": "Play",
-        "view": "View"
-      },
       "badges": {
         "myGame": "My Game",
         "public": "Public",
@@ -421,8 +423,7 @@
         "publicDescription": "Public games are visible and playable by all users on this platform.",
         "publicLabel": "Make this game public",
         "submit": "Create Game",
-        "title": "Create New Game",
-        "publicOwnerOnly": "Only the game creator can make a game public."
+        "title": "Create New Game"
       },
       "deleteModal": {
         "adminActionTitle": "Admin action",
@@ -465,10 +466,6 @@
           "title": "Unsaved Changes"
         }
       },
-      "empty": {
-        "description": "Create your first game to get started with interactive AI-powered adventures.",
-        "title": "No games yet"
-      },
       "errors": {
         "loadFailed": "Failed to load games. Please try again.",
         "nameRequired": "Game name is required",
@@ -477,7 +474,6 @@
       "fields": {
         "created": "Created",
         "creator": "Creator",
-        "me": "Me",
         "modified": "Modified",
         "name": "Name",
         "playCount": "Plays",
@@ -487,7 +483,6 @@
         "exportButton": "Export Game",
         "importButton": "Import Game"
       },
-      "playNow": "Play Now",
       "privateShare": {
         "active": "Private sharing is active. Anyone with the link below can play this game anonymously.",
         "aiQualityTier": "AI Quality",
@@ -533,12 +528,10 @@
         "active": "Active",
         "privateShareLink": "Private Share Link",
         "privateShareLinkDescription": "Private share links can be shared with others. Anyone with the link can play the game anonymously without an account. An API key must be selected to cover the costs.",
-        "publicGameWorkshopHint": "This is a public game and not part of your workshop. Sharing options are not available for public games in workshop mode.",
         "publicSponsoring": "Public Sponsoring",
         "publicSponsoringDescription": "All users on the platform can play this game for free - your assigned API key covers the cost.",
         "sectionTitle": "Sharing Options",
-        "sectionTitleShareOnly": "Sharing Options",
-        "workshopShareRequiresPublic": "This game must be public before it can be shared in the workshop."
+        "sectionTitleShareOnly": "Sharing Options"
       },
       "sort": {
         "createdAt-asc": "Created (Oldest)",
@@ -598,7 +591,6 @@
         "style": "Design",
         "styleInfo": "Optional settings for the look of the game while playing."
       },
-      "title": "My Created Games",
       "viewModal": {
         "readOnlyNotice": "This game was created by another user. You can view the details but cannot edit. Use \"Copy\" to create your own editable version.",
         "title": "Game Details"
@@ -666,7 +658,8 @@
         "audio-out": "narration",
         "audio-in": "voice input",
         "audio-live": "live voice"
-      }
+      },
+      "byCreator": "by {{name}}"
     },
     "header": {
       "apiKeys": "API Keys",
@@ -763,6 +756,18 @@
     "leaveOrganization": "Leave Organization",
     "leaveTitle": "Leave Organization",
     "leaveWarning": "You will lose access to all organization resources and members.",
+    "list": {
+      "range": "{{from}}–{{to}} of {{total}}",
+      "clearSearch": "Clear search",
+      "filter": "Filter",
+      "perPage": "Per page",
+      "pagination": {
+        "previous": "Previous page",
+        "next": "Next page",
+        "first": "First page",
+        "last": "Last page"
+      }
+    },
     "loading": "Loading...",
     "logout": "Logout",
     "me": "Me",
@@ -772,21 +777,15 @@
         "message": "This will create a copy of \"{{name}}\" in your games.",
         "title": "Copy Game"
       },
-      "copyGame": "Copy Game",
       "empty": {
         "description": "Create your first game to get started with interactive AI-powered adventures.",
         "title": "No games yet"
       },
-      "favorite": "Add to favorites",
       "filters": {
         "all": "All",
         "favorites": "Favorites"
       },
-      "play": "Play",
       "title": "My Games",
-      "unfavorite": "Remove from favorites",
-      "continue": "Play",
-      "restart": "Restart",
       "restartConfirm": {
         "confirm": "Restart",
         "message": "Are you sure you want to restart \"{{game}}\"? Your current progress will be lost.",
@@ -1290,10 +1289,8 @@
     "filters": {
       "all": "All Games",
       "mine": "My Games",
-      "public": "Public Games",
-      "workshop": "Workshop Games"
+      "public": "Public Games"
     },
-    "gameType": "Game",
     "infoModal": {
       "body": "You've entered workshop mode. While in this mode, everything you do is linked to this workshop - games you create, play sessions, and share links.\n\nYou can leave anytime. Leaving won't end the workshop or remove anything you've created.",
       "dontShowAgain": "Don't show this again",
@@ -1318,12 +1315,11 @@
     },
     "showInviteLink": "Show invite link",
     "title": "My Workshop",
-    "you": "You",
     "showPublicPageLink": "Show public page link"
   },
   "navigation": {
     "adminPanel": "Admin Panel",
-    "allGames": "All Games",
+    "allGames": "Games",
     "create": "Create Your Own Game",
     "createGame": "Create Game",
     "dashboard": "Dashboard",

@@ -1,11 +1,3 @@
-export type SortField =
-  | "name"
-  | "createdAt"
-  | "modifiedAt"
-  | "playCount"
-  | "visibility"
-  | "creator";
-
 export interface CreateGameFormData {
   name: string;
   description: string;

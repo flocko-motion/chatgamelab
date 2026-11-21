@@ -272,9 +272,17 @@
         "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
         "title": "Spiel kopieren"
       },
-      "copyGame": "Spiel kopieren",
       "empty": {
         "description": "Versuche deine Filter anzupassen oder schau später nach neuen Spielen.",
+        "is": "Kein Spiel ist {{conditions}}.",
+        "named": "Kein Spiel hat „{{search}}“ im Namen.",
+        "isAndNamed": "Kein Spiel ist {{conditions}} und hat „{{search}}“ im Namen.",
+        "conditions": {
+          "favorites": "einer deiner Favoriten",
+          "own": "von dir",
+          "sponsored": "gesponsert",
+          "public": "öffentlich"
+        },
         "title": "Keine Spiele gefunden"
       },
       "favorite": "Zu Favoriten hinzufügen",
@@ -287,8 +295,9 @@
       },
       "play": "Spielen",
       "reportGame": "Spiel melden",
-      "title": "Alle Spiele",
+      "title": "Spiele",
       "unfavorite": "Aus Favoriten entfernen",
+      "onlyFavorites": "Nur Favoriten anzeigen",
       "workshop": "Workshop / Org",
       "continue": "Spielen",
       "restart": "Neu starten"
@@ -402,13 +411,6 @@
       "programmedBy": "Programmiert von"
     },
     "games": {
-      "actions": {
-        "delete": "Löschen",
-        "edit": "Bearbeiten",
-        "export": "Exportieren",
-        "play": "Spielen",
-        "view": "Ansehen"
-      },
       "badges": {
         "myGame": "Mein Spiel",
         "public": "Öffentlich",
@@ -421,8 +423,7 @@
         "publicDescription": "Öffentliche Spiele sind für alle Nutzer dieser Plattform sichtbar und spielbar.",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "submit": "Spiel erstellen",
-        "title": "Neues Spiel erstellen",
-        "publicOwnerOnly": "Nur wer das Spiel erstellt hat, kann es öffentlich machen."
+        "title": "Neues Spiel erstellen"
       },
       "deleteModal": {
         "adminActionTitle": "Admin-Aktion",
@@ -465,10 +466,6 @@
           "title": "Ungespeicherte Änderungen"
         }
       },
-      "empty": {
-        "description": "Erstelle dein erstes Spiel und starte mit interaktiven KI-gestützten Abenteuern.",
-        "title": "Noch keine Spiele"
-      },
       "errors": {
         "loadFailed": "Spiele konnten nicht geladen werden. Bitte versuche es erneut.",
         "nameRequired": "Spielname ist erforderlich",
@@ -477,7 +474,6 @@
       "fields": {
         "created": "Erstellt",
         "creator": "Ersteller",
-        "me": "Ich",
         "modified": "Geändert",
         "name": "Name",
         "playCount": "Gespielt",
@@ -487,7 +483,6 @@
         "exportButton": "Spiel exportieren",
         "importButton": "Spiel importieren"
       },
-      "playNow": "Jetzt spielen",
       "privateShare": {
         "active": "Die private Freigabe ist aktiv. Jeder mit dem untenstehenden Link kann dieses Spiel anonym spielen.",
         "aiQualityTier": "KI-Qualität",
@@ -533,12 +528,10 @@
         "active": "Aktiv",
         "privateShareLink": "Privater Freigabelink",
         "privateShareLinkDescription": "Private Freigabelinks können mit anderen geteilt werden. Damit kann jeder das Spiel anonym ohne eigenes Nutzerkonto spielen. Es muss ein API-Schlüssel ausgewählt werden, der für die Kosten aufkommt.",
-        "publicGameWorkshopHint": "Dies ist ein öffentliches Spiel und nicht Teil Ihres Workshops. Freigabeoptionen sind für öffentliche Spiele im Workshop-Modus nicht verfügbar.",
         "publicSponsoring": "Öffentliches Sponsoring",
         "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten.",
         "sectionTitle": "Freigabeoptionen",
-        "sectionTitleShareOnly": "Freigabeoptionen",
-        "workshopShareRequiresPublic": "Das Spiel muss öffentlich sein, bevor es im Workshop geteilt werden kann."
+        "sectionTitleShareOnly": "Freigabeoptionen"
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",
@@ -598,7 +591,6 @@
         "style": "Design",
         "styleInfo": "Optionale Einstellungen für das Aussehen des Spiels beim Spielen."
       },
-      "title": "Meine erstellten Spiele",
       "viewModal": {
         "readOnlyNotice": "Dieses Spiel wurde von einem anderen Benutzer erstellt. Du kannst die Details ansehen, aber nicht bearbeiten. Verwende \"Kopieren\", um deine eigene bearbeitbare Version zu erstellen.",
         "title": "Spieldetails"
@@ -666,7 +658,8 @@
         "audio-out": "Vorlesen",
         "audio-in": "Spracheingabe",
         "audio-live": "Live-Sprache"
-      }
+      },
+      "byCreator": "von {{name}}"
     },
     "header": {
       "apiKeys": "API-Schlüssel",
@@ -763,6 +756,18 @@
     "leaveOrganization": "Organisation verlassen",
     "leaveTitle": "Organisation verlassen",
     "leaveWarning": "Sie verlieren den Zugriff auf alle Organisationsressourcen und Mitglieder.",
+    "list": {
+      "range": "{{from}}–{{to}} von {{total}}",
+      "clearSearch": "Suche leeren",
+      "filter": "Filter",
+      "perPage": "Pro Seite",
+      "pagination": {
+        "previous": "Vorherige Seite",
+        "next": "Nächste Seite",
+        "first": "Erste Seite",
+        "last": "Letzte Seite"
+      }
+    },
     "loading": "Laden...",
     "logout": "Abmelden",
     "me": "Ich",
@@ -772,21 +777,15 @@
         "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
         "title": "Spiel kopieren"
       },
-      "copyGame": "Spiel kopieren",
       "empty": {
         "description": "Erstelle dein erstes Spiel, um mit interaktiven KI-gestützten Abenteuern zu beginnen.",
         "title": "Noch keine Spiele"
       },
-      "favorite": "Zu Favoriten hinzufügen",
       "filters": {
         "all": "Alle",
         "favorites": "Favoriten"
       },
-      "play": "Spielen",
       "title": "Meine Spiele",
-      "unfavorite": "Aus Favoriten entfernen",
-      "continue": "Spielen",
-      "restart": "Neu starten",
       "restartConfirm": {
         "confirm": "Neu starten",
         "message": "Möchtest du \"{{game}}\" wirklich neu starten? Dein aktueller Fortschritt geht verloren.",
@@ -1290,10 +1289,8 @@
     "filters": {
       "all": "Alle Spiele",
       "mine": "Meine Spiele",
-      "public": "Öffentliche Spiele",
-      "workshop": "Workshop-Spiele"
+      "public": "Öffentliche Spiele"
     },
-    "gameType": "Spiel",
     "infoModal": {
       "body": "Du hast den Workshop-Modus betreten. In diesem Modus ist alles, was du tust, mit diesem Workshop verknüpft - erstellte Spiele, Spielsitzungen und geteilte Links.\n\nDu kannst den Modus jederzeit verlassen. Das Verlassen beendet den Workshop nicht und entfernt nichts, was du erstellt hast.",
       "dontShowAgain": "Nicht mehr anzeigen",
@@ -1318,12 +1315,11 @@
     },
     "showInviteLink": "Einladungslink anzeigen",
     "title": "Mein Workshop",
-    "you": "Du",
     "showPublicPageLink": "Link zur öffentlichen Seite anzeigen"
   },
   "navigation": {
     "adminPanel": "Admin-Bereich",
-    "allGames": "Alle Spiele",
+    "allGames": "Spiele",
     "create": "Eigene Spiele erstellen",
     "createGame": "Spiel erstellen",
     "dashboard": "Dashboard",

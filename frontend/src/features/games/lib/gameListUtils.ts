@@ -1,16 +1,24 @@
-import type { Game } from "@/api/generated/api.gen";
-
 /**
  * Get a date label for a game based on the current sort field.
  * Shows createdAt when sorting by createdAt, otherwise modifiedAt.
  */
 export function getGameDateLabel(
-  game: Game,
+  game: { meta?: { createdAt?: string; modifiedAt?: string } },
   sortField: string,
 ): string | undefined {
-  const dateValue =
-    sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
+  const dateValue = gameListDate(game, sortField);
   return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
+}
+
+/**
+ * The date a game list shows for a game: when it was created if the list is
+ * sorted by that, else when it was last changed.
+ */
+export function gameListDate(
+  game: { meta?: { createdAt?: string; modifiedAt?: string } },
+  sortField: string,
+): string | undefined {
+  return sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
 }
 
 /**

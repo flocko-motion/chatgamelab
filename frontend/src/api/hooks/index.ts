@@ -27,11 +27,11 @@ export {
   useGame,
   useCreateGame,
   useUpdateGame,
+  useGameTemplate,
   useDeleteGame,
   useExportGameYaml,
   useSponsorGame,
   useRemoveGameSponsor,
-  useFavoriteGames,
   useAddFavorite,
   useRemoveFavorite,
   useApiKeyStatus,
@@ -39,7 +39,11 @@ export {
   useCreateGameShare,
   useRevokePrivateShare,
   useUpdateGameShare,
-  type UseGamesParams,
+  GAME_LIST_FILTERS,
+  GAME_LIST_SORTS,
+  type GameListFilter,
+  type GameListSort,
+  type GameListParams,
 } from "./useGames";
 
 // Sessions
