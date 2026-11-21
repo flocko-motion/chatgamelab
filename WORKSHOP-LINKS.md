@@ -10,25 +10,27 @@ records what exists, where it departs from the concept, and what remains.
 - **Word tokens.** Invite links carry three German words, re-login links four
   (`go/functional/wordtoken`). The list is dys2p `de-2048-v1` (CC0) with 34
   words unfit for schools replaced; `go/functional/wordtoken/README.md` names
-  them. Old `ws-…` and `participant-…` tokens keep working, and existing
-  participants keep their long tokens until someone resets their access.
+  them. Re-login codes start with `guest-`; old `ws-…` invites and old
+  `participant-…` codes keep working (backwards compatibility,
+  `db.LegacyGuestTokenPrefix`), and existing Guests keep their long tokens
+  until someone resets their access.
 - **Tolerant input.** Case, spaces, dots, underscores and umlauts are
   normalised on the server and in the browser; `/code` takes three words
   (invite) or four (re-login). The landing page links to it.
-- **Reset access.** `POST /api/workshops/participants/{id}/token/reset`, with the
+- **Reset access.** `POST /api/workshops/guests/{id}/token/reset`, with the
   permissions of reading the token. The re-login popup offers it behind a
   confirmation.
-- **Own code in the profile.** Participants open 'Profil' from the avatar menu
+- **Own code in the profile.** Guests open 'Profil' from the avatar menu
   or the phone menu. The profile starts with their access code: the words, a
   QR code and the `/code` link, laid out for one photo
-  (`GET /api/users/me/participant-code`). A participant with an old long token
+  (`GET /api/users/me/secrets`, a shortcut to `GET /api/users/{id}/secrets`). A Guest with an old long token
   sees QR code and link, and a hint that the workshop leader can issue a short
-  code through 'Zugang zurücksetzen'. Participants never see the age group
+  code through 'Zugang zurücksetzen'. Guests never see the age group
   switch, because it would let them loosen their own youth protection.
 - **Dead invites.** Asking for the invite link of a workshop whose pending
   invite has expired or is used up now marks that invite expired and creates a
   fresh one (`db.CreateWorkshopInvite`).
-- **Token lock.** Lookups of invite, participant and play tokens that were never
+- **Token lock.** Lookups of invite, guest and play tokens that were never
   issued count as guesses (`go/tokenlock`). More than 300 within ten minutes
   lock every token check, correct ones included, for five minutes: `429`,
   `Retry-After`, code `token_locked`. `TOKEN_LOCK_MAX_FAILURES`,
@@ -36,10 +38,10 @@ records what exists, where it departs from the concept, and what remains.
   drops a session cookie whose token no longer exists.
 - **Retired codes do count.** An earlier version of this file claimed tokens of
   deleted users, deleted workshops or reset access never count. They do.
-  `ParticipantTokenExists` compares against the *current* column value, a reset
+  `GuestTokenExists` compares against the *current* column value, a reset
   overwrites it, and `db.DeleteUser` removes the row outright, so
-  `db.ParticipantTokenKnown` is false for a code that was once real and
-  `auth.RedeemParticipantToken` counts it. Only *invite* tokens behave as that sentence
+  `db.GuestTokenKnown` is false for a code that was once real and
+  `auth.RedeemGuestToken` counts it. Only *invite* tokens behave as that sentence
   described, because the used-up row is kept with status `expired` and
   `InviteTokenExists` is status-blind. In a classroom this costs a few failures
   per stale device, not a stream: the backend clears a session cookie carrying a
@@ -62,16 +64,16 @@ records what exists, where it departs from the concept, and what remains.
   Everyone in a classroom shares one IP behind the school's NAT, and the server
   never sees client IPs (nginx forwards them, the Go code does not read them).
   No `TRUST_PROXY` flag was needed.
-- The participant token is the session. During a lock, participants who are
+- The Guest's token is the session. During a lock, Guests who are
   already logged in therefore get `429` on every request until it lifts. The
   frontend shows 'Zu viele Fehlversuche – bitte später erneut versuchen' and
   keeps the stored token.
 - 'Zugang zurücksetzen' sits inside the re-login popup, one click from the
-  existing link button, which keeps each participant row at its current icons.
-- The limit sits on `POST /api/auth/participant-login`: links, QR codes and
+  existing link button, which keeps each Guest's row at its current icons.
+- The limit sits on `POST /api/auth/guest-login`: links, QR codes and
   typed codes all sign in there, and an unknown token counts where it is
   redeemed (`go/api/auth/login.go`).
-- Deleting a workshop already deletes its participant accounts
+- Deleting a workshop already deletes its Guests
   (`db.DeleteWorkshop`), so no change was needed there.
 
 ## Part A: before the first real workshop
@@ -92,13 +94,13 @@ records what exists, where it departs from the concept, and what remains.
    new texts into the other 35 languages and brought `go/lang/locales` back
    in step with the web copy.
 
-## Part E: not locking participants out
+## Part E: not locking Guests out
 
 - **The accept call carries the caller's credential.** `handleAccept` in
   `frontend/src/routes/invites/$token.accept.tsx` deleted the session cookie from
   JavaScript, which cannot work on an HttpOnly cookie, and then posted without an
-  Authorization header. A participant the backend could not recognise was treated
-  as a newcomer: a second anonymous account, and `storeParticipantToken`
+  Authorization header. A Guest the backend could not recognise was treated
+  as a newcomer: a second Guest, and `storeGuestToken`
   overwriting the code of the first. Measured in the dev environment: same person,
   cookie cleared, account `a40de2ff` became `3b28cec7` and the code changed. The
   first account keeps its membership and games, and its old code still works - so
@@ -107,9 +109,9 @@ records what exists, where it departs from the concept, and what remains.
   recognised caller can get are handled: 409 means "you are already in" and
   navigates there, and anything from 500 up falls back to the translated text
   instead of showing a raw English server sentence.
-- **A reset with nothing to reset fails.** `UpdateParticipantToken` keeps its
-  `AND participant_token IS NOT NULL` guard on purpose - a registered participant
-  has a real login, and minting a word code for them would add a second, weaker
+- **A reset with nothing to reset fails.** `UpdateGuestToken` keeps its
+  `AND guest_token IS NOT NULL` guard on purpose - a registered user
+  with the guest role has an Auth0 login, and minting a word code for them would add a second, weaker
   credential - but the query was `:exec`, so zero rows looked like success and the
   endpoint answered 200 with a code it had never stored. It is `:execrows` now and
   answers 404, the same as the read side. Reachable for anyone who joined with
@@ -117,37 +119,37 @@ records what exists, where it departs from the concept, and what remains.
   returns before the target is loaded.
 - **The inactive screen keeps the code.** Its only action used to be a logout that
   erases the stored code, on a screen where the code cannot be fetched back: the
-  middleware answers 403 before any handler runs, and `/auth/participant-login`
+  middleware answers 403 before any handler runs, and `/auth/guest-login`
   refuses while the workshop is off. It now offers the code first, read straight
   from localStorage with no request at all, and warns before the logout. Without a
   stored code it says the leader can look it up, which is true - the leader-side
-  read does not check `workshop.active`. The cookie-only participant still depends
+  read does not check `workshop.active`. The cookie-only Guest still depends
   on the leader; letting the code endpoint through the middleware for
   `workshop_inactive` would cover them and is the open follow-up.
 - **The screen was English.** `common.workshop.inactive.title` and `.description`
-  existed in neither locale, so German participants read the component's inline
+  existed in neither locale, so German Guests read the component's inline
   fallbacks.
-- **Removing a participant says what it does.** It hard-deletes the account and
+- **Removing a Guest says what it does.** It hard-deletes the account and
   every game they created; the dialogue promised only removal from the workshop.
   The behaviour is unchanged - see 'Bigger rebuilds' - but the warning is honest
   now, and distinguishes the visiting individual, who keeps both.
 - **No modal at app start.** `showErrorModal` called while the app is still
   booting sets its store but never paints. Measured while building the above; it
-  affects any error raised that early, not just participant auth. Worth fixing at
+  affects any error raised that early, not just a Guest's sign-in. Worth fixing at
   the source rather than working around it per call site.
 
 ## Bigger rebuilds, for the week of 2026-11-20
 
 Found while hardening the above. All pre-existing, all larger than a fix:
 
-- `DELETE /api/users/{id}` hard-deletes a participant **and every game they
+- `DELETE /api/users/{id}` hard-deletes a Guest **and every game they
   created**. A leader can erase a registered user's games this way.
-- `db.DeleteWorkshop` deletes every participant account and their games, while
-  explicitly sparing the games of non-participant members.
+- `db.DeleteWorkshop` deletes every Guest in it and their games, while
+  explicitly sparing the games of its other members.
 - `db.AcceptOpenInvite` deletes **all** of a user's roles, not just the one for the
   workshop being left. Afterwards `getGamesVisibleToUser` filters the games of the
   former workshop out - for their own creator. The data is there, unreachable.
-- `db.RemoveMemberFromWorkshop` accepts real participants and removes only the
+- `db.RemoveMemberFromWorkshop` accepts registered users with the guest role and removes only the
   role, leaving an account whose token can never authenticate again.
 - `PATCH /api/workshops/{id}` replaces rather than merges, and `active` is a plain
   bool: a caller that omits it deactivates the workshop and locks out the cohort.
@@ -167,7 +169,7 @@ Found while hardening the above. All pre-existing, all larger than a fix:
   `public` on: its creator, admins, and heads and staff of the workshop's
   institution (`db.UpdateGame`). A game outside a workshop stays with the old
   rule: only its creator. The switch acts at once, because the leader
-  decides what the participants want.
+  decides what the workshop's members want.
 - **The page.** `/w/<slug>` exists while `workshop.public` is on, which is off
   by default. It shows the workshop's name, its description (plain text with
   line breaks, up to 2000 characters), and the workshop's public games with name
@@ -186,11 +188,11 @@ Found while hardening the above. All pre-existing, all larger than a fix:
   different workshop.
 - **Settings.** Both workshop settings views carry an 'Öffentliche Seite'
   section: the on/off switch, the slug editor, the description, and the link
-  with its QR code in the full-screen view. Participants cannot change it.
+  with its QR code in the full-screen view. Guests cannot change it.
   While the page is on, heads and staff find a second QR button for it next to
   'Organisator' in the workshop header.
 - **Short links.** Invite and re-login views show `/code/<words>`: three words
-  lead to the invite, four log the participant in as `/code` does
+  lead to the invite, four sign the Guest in as `/code` does
   (`frontend/src/routes/code/$code.tsx`). Any other count opens the `/code` form
   prefilled, with its error. Old `ws-…` and `participant-…` tokens keep their
   long links.

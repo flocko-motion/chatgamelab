@@ -42,6 +42,10 @@ SELECT g.*,
   OR (@edit_settings_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
   OR  @edit_settings_everywhere::bool, false)::bool                    AS may_edit_settings,
   COALESCE(
+     (@delete_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
+  OR (@delete_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR  @delete_everywhere::bool, false)::bool                         AS may_delete,
+  COALESCE(
      (@copy_public::bool  AND g.public)
   OR (@copy_own::bool     AND g.created_by = sqlc.narg(caller)::uuid), false)::bool  AS may_copy,
   COALESCE(

@@ -1,7 +1,7 @@
 // package: api / schemaf endpoints
 // type:    logic
-// job:     lists, reads, updates and removes users, and the caller's own stats, participant code, language and active workshop
-// limits:  user storage and its permission checks live in db; roles (-> user_role.go); the caller's own account (-> auth.go)
+// job:     lists, reads, updates and deletes users, their stats and login code; /me is a shortcut to the caller's own user
+// limits:  decides nothing: the core does (core.ReadUser and its siblings); roles (-> user_role.go); workshop mode is still v1 here (SetActiveWorkshopEndpoint)
 package api
 
 import (
@@ -9,158 +9,223 @@ import (
 	"fmt"
 	"strings"
 
-	"cgl/constants"
+	"cgl/api/wire"
+	"cgl/core"
 	"cgl/db"
 	"cgl/events"
-	"cgl/lang"
-	"cgl/log"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
 )
 
-// UsersResp is a list of users.
-type UsersResp = []obj.User
+// UserViewResp is a user as the caller sees them.
+type UserViewResp = wire.UserView
+
+// UserViewsResp is a list of users.
+type UserViewsResp = []wire.UserView
 
 // UserStatsResp is a user's statistics.
-type UserStatsResp = obj.UserStats
+type UserStatsResp = wire.UserStatsView
+
+// UserSecretsResp is a user's login code.
+type UserSecretsResp = wire.UserSecretsView
 
 // UserIDReq names a user by their id.
 type UserIDReq struct {
 	ID string `path:"id"`
 }
 
-// ListUsersEndpoint lists the users the caller manages.
-//
-// Admins see every user; heads and staff see the members of their
-// institution. Everyone else is refused.
+// MeReq names the caller: a shortcut to their own user.
+type MeReq struct{}
+
+// me is the caller's own id, for the /me shortcuts; refused for a caller
+// nobody signed in.
+func me(ctx context.Context) (uuid.UUID, error) {
+	_, user, err := core.ReadMe(ctx)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	if user == nil {
+		return uuid.Nil, errForbidden("Not signed in or registration not complete")
+	}
+	return user.ID(), nil
+}
+
+// ListUsersEndpoint lists the users the caller may list: admins every user,
+// heads and staff the members of their organisation.
 type ListUsersEndpoint struct{}
 
 func (ListUsersEndpoint) Method() string             { return "GET" }
 func (ListUsersEndpoint) Path() string               { return "/api/users" }
 func (ListUsersEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListUsersEndpoint) Handle(ctx context.Context, _ ListUsersReq) (UsersResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
-		users, err := db.GetAllUsers(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get users: %w", err)
-		}
-		return users, nil
-	}
-	if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) && user.Role.Institution != nil {
-		members, err := db.GetInstitutionMembers(ctx, user.Role.Institution.ID, user.ID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get users: %w", err)
-		}
-		return members, nil
-	}
-	return nil, appError(obj.ErrForbidden("only admins or institution heads/staff can list users"))
+func (ListUsersEndpoint) Handle(ctx context.Context, _ ListUsersReq) (UserViewsResp, error) {
+	return wire.UserViewsOf(core.ListUsers(ctx))
 }
 
 // ListUsersReq takes no parameters.
 type ListUsersReq struct{}
 
-// GetCurrentUserStatsEndpoint returns the caller's statistics.
-type GetCurrentUserStatsEndpoint struct{}
+// GetUserEndpoint returns a user the caller may see: themselves, and for
+// heads and staff their organisation's members and the guests in its
+// workshops; admins anyone. 404 otherwise.
+type GetUserEndpoint struct{}
 
-func (GetCurrentUserStatsEndpoint) Method() string             { return "GET" }
-func (GetCurrentUserStatsEndpoint) Path() string               { return "/api/users/me/stats" }
-func (GetCurrentUserStatsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetCurrentUserStatsEndpoint) Handle(ctx context.Context, _ GetCurrentUserStatsReq) (UserStatsResp, error) {
-	user, err := caller(ctx)
+func (GetUserEndpoint) Method() string             { return "GET" }
+func (GetUserEndpoint) Path() string               { return "/api/users/{id}" }
+func (GetUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetUserEndpoint) Handle(ctx context.Context, req UserIDReq) (UserViewResp, error) {
+	userID, err := parseID(req.ID, "Invalid user ID")
 	if err != nil {
-		return obj.UserStats{}, err
+		return UserViewResp{}, err
 	}
-	stats, err := db.GetUserStats(ctx, user.ID)
-	if err != nil {
-		return obj.UserStats{}, fmt.Errorf("failed to get user stats: %w", err)
-	}
-	return *stats, nil
+	return wire.UserViewOf(core.ReadUser(ctx, userID))
 }
 
-// GetCurrentUserStatsReq takes no parameters.
-type GetCurrentUserStatsReq struct{}
-
-// GetCurrentUserParticipantCodeEndpoint returns the caller's own re-login code.
+// UpdateUserEndpoint changes a user and answers with them as stored.
 //
-// Both fields are null for an account without one.
-type GetCurrentUserParticipantCodeEndpoint struct{}
+// Send what changes; a field left out stays as it is. Each changed section
+// must be one the caller may edit (mayEditCard for the name, mayEditAccount
+// for language, age group, AI quality tier and default key, mayEditContact
+// for the email); otherwise the whole request is refused (403). The age group
+// is "u13" (13-17, no parental consent), "u13p" (13-17, with parental
+// consent) or "u18" (18+). An empty aiQualityTier or email removes it.
+type UpdateUserEndpoint struct{}
 
-func (GetCurrentUserParticipantCodeEndpoint) Method() string { return "GET" }
-func (GetCurrentUserParticipantCodeEndpoint) Path() string {
-	return "/api/users/me/participant-code"
-}
-func (GetCurrentUserParticipantCodeEndpoint) Auth() schemafapi.AuthLevel {
-	return schemafapi.AuthRequired
-}
-func (GetCurrentUserParticipantCodeEndpoint) Handle(ctx context.Context, _ GetCurrentUserParticipantCodeReq) (UserParticipantCodeResp, error) {
-	user, err := caller(ctx)
+func (UpdateUserEndpoint) Method() string             { return "POST" }
+func (UpdateUserEndpoint) Path() string               { return "/api/users/{id}" }
+func (UpdateUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (UpdateUserEndpoint) Handle(ctx context.Context, req UpdateUserReq) (UserViewResp, error) {
+	userID, err := parseID(req.UserID, "Invalid user ID")
 	if err != nil {
-		return UserParticipantCodeResp{}, err
+		return UserViewResp{}, err
 	}
-	token, err := db.GetOwnParticipantToken(ctx, user.ID)
-	if err != nil {
-		return UserParticipantCodeResp{}, appError(obj.ErrServerError("failed to get participant code"))
-	}
-	var resp UserParticipantCodeResp
-	if token != "" {
-		resp.Token = &token
-		if words := db.ParticipantTokenWords(token); words != "" {
-			resp.Words = &words
-		}
-	}
-	return resp, nil
+	return wire.UserViewOf(core.UpdateUser(ctx, userID, req.changes()))
 }
 
-// GetCurrentUserParticipantCodeReq takes no parameters.
-type GetCurrentUserParticipantCodeReq struct{}
+// UpdateUserReq is the user from the path and what changes; left out (or
+// null): unchanged.
+type UpdateUserReq struct {
+	UserID string `path:"id"`
 
-// UserParticipantCodeResp is the caller's own re-login code; both fields are
-// null for an account without one.
-type UserParticipantCodeResp struct {
-	// Token is the full login token that the /code link and QR code carry.
-	Token *string `json:"token"`
-	// Words is the token's word code, or null for the long tokens issued before word tokens.
-	Words *string `json:"words"`
+	Name                 *string    `json:"name"`
+	Email                *string    `json:"email"`
+	Language             *string    `json:"language"`
+	AgeGroup             *string    `json:"ageGroup"`
+	AiQualityTier        *string    `json:"aiQualityTier"`
+	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId"`
 }
 
-// UpdateUserLanguageEndpoint sets the caller's language and answers with
-// their account.
-//
-// The language is an ISO 639-1 code the platform supports.
-type UpdateUserLanguageEndpoint struct{}
+func (r UpdateUserReq) changes() core.UserChanges {
+	return core.UserChanges{
+		Name:                 r.Name,
+		Email:                r.Email,
+		Language:             r.Language,
+		AgeGroup:             r.AgeGroup,
+		AiQualityTier:        r.AiQualityTier,
+		DefaultApiKeyShareID: r.DefaultApiKeyShareID,
+	}
+}
 
-func (UpdateUserLanguageEndpoint) Method() string             { return "PATCH" }
-func (UpdateUserLanguageEndpoint) Path() string               { return "/api/users/me/language" }
-func (UpdateUserLanguageEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (UpdateUserLanguageEndpoint) Handle(ctx context.Context, req UpdateUserLanguageReq) (UserResp, error) {
-	user, err := caller(ctx)
+// DeleteUserEndpoint deletes a user with their games, keys, shares and
+// roles. It takes mayDelete (403 otherwise); an organisation's last head is
+// refused (409).
+type DeleteUserEndpoint struct{}
+
+func (DeleteUserEndpoint) Method() string             { return "DELETE" }
+func (DeleteUserEndpoint) Path() string               { return "/api/users/{id}" }
+func (DeleteUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (DeleteUserEndpoint) Handle(ctx context.Context, req UserIDReq) (UserDeletedResp, error) {
+	userID, err := parseID(req.ID, "Invalid user ID")
 	if err != nil {
-		return obj.User{}, err
+		return UserDeletedResp{}, err
+	}
+	return UserDeletedResp{}, core.DeleteUser(ctx, userID)
+}
+
+// UserDeletedResp confirms a removal; it has no fields.
+type UserDeletedResp struct{}
+
+// GetUserStatsEndpoint returns what a user did on the platform, counted. It
+// takes seeing their account (403 otherwise).
+type GetUserStatsEndpoint struct{}
+
+func (GetUserStatsEndpoint) Method() string             { return "GET" }
+func (GetUserStatsEndpoint) Path() string               { return "/api/users/{id}/stats" }
+func (GetUserStatsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetUserStatsEndpoint) Handle(ctx context.Context, req UserIDReq) (UserStatsResp, error) {
+	userID, err := parseID(req.ID, "Invalid user ID")
+	if err != nil {
+		return UserStatsResp{}, err
+	}
+	return wire.UserStatsViewOf(core.ReadUserStats(ctx, userID))
+}
+
+// GetMyStatsEndpoint is the caller's own statistics: GetUserStatsEndpoint
+// with their id.
+type GetMyStatsEndpoint struct{}
+
+func (GetMyStatsEndpoint) Method() string             { return "GET" }
+func (GetMyStatsEndpoint) Path() string               { return "/api/users/me/stats" }
+func (GetMyStatsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetMyStatsEndpoint) Handle(ctx context.Context, _ MeReq) (UserStatsResp, error) {
+	id, err := me(ctx)
+	if err != nil {
+		return UserStatsResp{}, err
+	}
+	return wire.UserStatsViewOf(core.ReadUserStats(ctx, id))
+}
+
+// GetUserSecretsEndpoint returns a user's login code: the guest's own, and
+// for heads and staff the guests' in their organisation's workshops, to help
+// a guest who lost theirs. Both fields are null for an account without one.
+type GetUserSecretsEndpoint struct{}
+
+func (GetUserSecretsEndpoint) Method() string             { return "GET" }
+func (GetUserSecretsEndpoint) Path() string               { return "/api/users/{id}/secrets" }
+func (GetUserSecretsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetUserSecretsEndpoint) Handle(ctx context.Context, req UserIDReq) (UserSecretsResp, error) {
+	userID, err := parseID(req.ID, "Invalid user ID")
+	if err != nil {
+		return UserSecretsResp{}, err
+	}
+	return wire.UserSecretsViewOf(core.ReadUser(ctx, userID))
+}
+
+// GetMySecretsEndpoint is the caller's own login code: GetUserSecretsEndpoint
+// with their id.
+type GetMySecretsEndpoint struct{}
+
+func (GetMySecretsEndpoint) Method() string             { return "GET" }
+func (GetMySecretsEndpoint) Path() string               { return "/api/users/me/secrets" }
+func (GetMySecretsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetMySecretsEndpoint) Handle(ctx context.Context, _ MeReq) (UserSecretsResp, error) {
+	id, err := me(ctx)
+	if err != nil {
+		return UserSecretsResp{}, err
+	}
+	return wire.UserSecretsViewOf(core.ReadUser(ctx, id))
+}
+
+// UpdateMyLanguageEndpoint sets the caller's language and answers with their
+// user: UpdateUserEndpoint with their id and only the language. The
+// language is an ISO 639-1 code the platform supports.
+type UpdateMyLanguageEndpoint struct{}
+
+func (UpdateMyLanguageEndpoint) Method() string             { return "PATCH" }
+func (UpdateMyLanguageEndpoint) Path() string               { return "/api/users/me/language" }
+func (UpdateMyLanguageEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (UpdateMyLanguageEndpoint) Handle(ctx context.Context, req UpdateMyLanguageReq) (UserViewResp, error) {
+	id, err := me(ctx)
+	if err != nil {
+		return UserViewResp{}, err
 	}
 	language := strings.ToLower(strings.TrimSpace(req.Language))
-	if !lang.IsValidLanguageCode(language) {
-		return obj.User{}, errBadRequest("Unsupported language code")
-	}
-	if err := db.UpdateUserLanguage(ctx, user.ID, user.ID, language); err != nil {
-		log.Error("failed to update user language", "user_id", user.ID, "error", err)
-		return obj.User{}, fmt.Errorf("failed to update language: %w", err)
-	}
-	updated, err := db.GetUserByID(ctx, user.ID)
-	if err != nil {
-		return obj.User{}, fmt.Errorf("failed to get updated user: %w", err)
-	}
-	return *updated, nil
+	return wire.UserViewOf(core.UpdateUser(ctx, id, core.UserChanges{Language: &language}))
 }
 
-// UpdateUserLanguageReq is the caller's new language.
-type UpdateUserLanguageReq struct {
-	// Language is an ISO 639-1 code.
+// UpdateMyLanguageReq is the caller's new language, an ISO 639-1 code.
+type UpdateMyLanguageReq struct {
 	Language string `json:"language"`
 }
 
@@ -216,187 +281,6 @@ type SetActiveWorkshopReq struct {
 	WorkshopID *uuid.UUID `json:"workshopId"`
 }
 
-// GetUserEndpoint returns a user.
-//
-// The caller reads their own account; admins read anyone; heads and staff
-// read the members of their institution.
-type GetUserEndpoint struct{}
-
-func (GetUserEndpoint) Method() string             { return "GET" }
-func (GetUserEndpoint) Path() string               { return "/api/users/{id}" }
-func (GetUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetUserEndpoint) Handle(ctx context.Context, req UserIDReq) (UserResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.User{}, err
-	}
-	targetID, err := parseID(req.ID, "Invalid user ID")
-	if err != nil {
-		return obj.User{}, err
-	}
-	if err := db.CanReadUser(ctx, user.ID, targetID); err != nil {
-		return obj.User{}, errForbidden("Not authorized to read this user")
-	}
-	target, err := db.GetUserByID(ctx, targetID)
-	if err != nil {
-		return obj.User{}, errNotFound("User not found")
-	}
-	return *target, nil
-}
-
-// UpdateUserEndpoint updates a user and answers with them.
-//
-// The caller updates themselves; admins update anyone; heads and staff update
-// the participants of their institution's workshops. Only admins change an
-// email. An empty name or email leaves it unchanged; an empty aiQualityTier
-// clears it. The age group is "u13" (13-17, no parental consent), "u13p"
-// (13-17, with parental consent) or "u18" (18+).
-type UpdateUserEndpoint struct{}
-
-func (UpdateUserEndpoint) Method() string             { return "POST" }
-func (UpdateUserEndpoint) Path() string               { return "/api/users/{id}" }
-func (UpdateUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (UpdateUserEndpoint) Handle(ctx context.Context, req UpdateUserReq) (UserResp, error) {
-	currentUser, err := caller(ctx)
-	if err != nil {
-		return obj.User{}, err
-	}
-	userID, err := parseID(req.UserID, "Invalid user ID")
-	if err != nil {
-		return obj.User{}, err
-	}
-
-	isAdmin := currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin
-	canUpdate := false
-	if userID == currentUser.ID || isAdmin {
-		canUpdate = true
-	} else if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleHead || currentUser.Role.Role == obj.RoleStaff) {
-		if err := db.CanUpdateParticipantName(ctx, currentUser.ID, userID); err == nil {
-			canUpdate = true
-		}
-	}
-	if !canUpdate {
-		return obj.User{}, errForbidden("Forbidden: cannot update this user")
-	}
-
-	user, err := db.GetUserByID(ctx, userID)
-	if err != nil {
-		return obj.User{}, errNotFound("User not found")
-	}
-
-	// An empty email in the request leaves the email unchanged.
-	emailChanged := req.Email != "" && (user.Email == nil || req.Email != *user.Email)
-	nameChanged := req.Name != "" && req.Name != user.Name
-
-	if emailChanged && !isAdmin {
-		return obj.User{}, errForbidden("Only administrators can change email addresses")
-	}
-	if nameChanged && constants.IsProfane(req.Name) {
-		return obj.User{}, appError(obj.ErrProfaneName("This name is not allowed"))
-	}
-	if nameChanged {
-		nameTaken, err := db.IsNameTakenByOther(ctx, req.Name, userID)
-		if err != nil {
-			return obj.User{}, fmt.Errorf("failed to check name availability: %w", err)
-		}
-		if nameTaken {
-			return obj.User{}, errConflict("Name is already taken")
-		}
-	}
-	if emailChanged {
-		emailTaken, err := db.IsEmailTakenByOther(ctx, req.Email, userID)
-		if err != nil {
-			return obj.User{}, fmt.Errorf("failed to check email availability: %w", err)
-		}
-		if emailTaken {
-			return obj.User{}, errConflict("Email is already taken")
-		}
-	}
-
-	if nameChanged || emailChanged {
-		name := user.Name
-		if req.Name != "" {
-			name = req.Name
-		}
-		email := user.Email
-		if req.Email != "" {
-			email = &req.Email
-		}
-		if err := db.UpdateUserDetails(ctx, userID, name, email); err != nil {
-			return obj.User{}, fmt.Errorf("failed to update user: %w", err)
-		}
-	}
-
-	if req.DefaultApiKeyShareID != nil {
-		if err := db.SetUserDefaultApiKeyShare(ctx, userID, req.DefaultApiKeyShareID); err != nil {
-			return obj.User{}, errBadRequest("Failed to set default API key: " + err.Error())
-		}
-	}
-
-	if req.AgeGroup != nil {
-		if *req.AgeGroup != obj.AgeGroupU13 && *req.AgeGroup != obj.AgeGroupU13p && *req.AgeGroup != obj.AgeGroupU18 {
-			return obj.User{}, errBadRequest("Age group must be '" + obj.AgeGroupU13 + "', '" + obj.AgeGroupU13p + "' or '" + obj.AgeGroupU18 + "'")
-		}
-		if err := db.UpdateUserAgeGroup(ctx, userID, req.AgeGroup); err != nil {
-			return obj.User{}, fmt.Errorf("failed to update age group: %w", err)
-		}
-	}
-
-	if req.AiQualityTier != nil {
-		tier := req.AiQualityTier
-		if *tier == "" {
-			tier = nil
-		}
-		if err := db.UpdateUserAiQualityTier(ctx, userID, tier); err != nil {
-			return obj.User{}, fmt.Errorf("failed to update AI quality tier: %w", err)
-		}
-	}
-
-	updated, err := db.GetUserByID(ctx, userID)
-	if err != nil {
-		return obj.User{}, fmt.Errorf("failed to get updated user: %w", err)
-	}
-	return *updated, nil
-}
-
-// UpdateUserReq is the user from the path and the properties to change.
-type UpdateUserReq struct {
-	UserID string `path:"id"`
-	// Name and Email are left unchanged when empty.
-	Name                 string     `json:"name,omitempty"`
-	Email                string     `json:"email,omitempty"`
-	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
-	AiQualityTier        *string    `json:"aiQualityTier,omitempty"`
-	// AgeGroup is "u13" (13-17, no parental consent), "u13p" (13-17, with
-	// parental consent) or "u18" (18+).
-	AgeGroup *string `json:"ageGroup,omitempty"`
-}
-
-// DeleteUserEndpoint removes a user, such as a participant, keeping their
-// record.
-type DeleteUserEndpoint struct{}
-
-func (DeleteUserEndpoint) Method() string             { return "DELETE" }
-func (DeleteUserEndpoint) Path() string               { return "/api/users/{id}" }
-func (DeleteUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (DeleteUserEndpoint) Handle(ctx context.Context, req UserIDReq) (UserDeletedResp, error) {
-	currentUser, err := caller(ctx)
-	if err != nil {
-		return UserDeletedResp{}, err
-	}
-	userID, err := parseID(req.ID, "Invalid user ID")
-	if err != nil {
-		return UserDeletedResp{}, err
-	}
-	if err := db.RemoveUser(ctx, currentUser.ID, userID); err != nil {
-		return UserDeletedResp{}, appError(err)
-	}
-	return UserDeletedResp{}, nil
-}
-
-// UserDeletedResp confirms a removal; it has no fields.
-type UserDeletedResp struct{}
-
 // CreateUserReq is a new user's name and optional email.
 type CreateUserReq struct {
 	Name  string  `json:"name"`
@@ -405,8 +289,9 @@ type CreateUserReq struct {
 
 // CreateUserEndpoint creates a user without Auth0; in dev mode only.
 //
-// The name is required. The account's language follows the request's
-// Accept-Language.
+// The account's language follows the request's Accept-Language. Without a
+// name it creates an account still registering, as a first Auth0 sign-in
+// does (for testing registration).
 type CreateUserEndpoint struct{}
 
 func (CreateUserEndpoint) Method() string             { return "POST" }
@@ -417,7 +302,11 @@ func (CreateUserEndpoint) Handle(ctx context.Context, req CreateUserReq) (UserRe
 		return obj.User{}, errNotFound("Not found")
 	}
 	if strings.TrimSpace(req.Name) == "" {
-		return obj.User{}, errBadRequest("Name is required")
+		id, err := db.AccountForAuth0(ctx, "dev|"+uuid.NewString())
+		if err != nil {
+			return obj.User{}, fmt.Errorf("failed to create account: %w", err)
+		}
+		return obj.User{ID: id}, nil
 	}
 	user, err := db.CreateUser(ctx, req.Name, req.Email, "", nil, preferredLanguage(ctx))
 	if err != nil {

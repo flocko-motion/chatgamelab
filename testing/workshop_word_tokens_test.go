@@ -11,7 +11,7 @@ import (
 )
 
 // WorkshopWordTokensTestSuite tests invite and re-login tokens made of words:
-// format, tolerant input, participant login without prefix, access reset, and
+// format, tolerant input, guest login without prefix, access reset, and
 // replacement of a used-up invite.
 type WorkshopWordTokensTestSuite struct {
 	testutil.BaseSuite
@@ -25,7 +25,7 @@ func TestWorkshopWordTokensSuite(t *testing.T) {
 
 var (
 	threeWords = regexp.MustCompile(`^[a-z]{4,10}(-[a-z]{4,10}){2}$`)
-	fourWords  = regexp.MustCompile(`^participant-[a-z]{4,10}(-[a-z]{4,10}){3}$`)
+	fourWords  = regexp.MustCompile(`^guest-[a-z]{4,10}(-[a-z]{4,10}){3}$`)
 )
 
 func (s *WorkshopWordTokensTestSuite) workshopSetup(prefix string) (*testutil.UserClient, string) {
@@ -48,11 +48,11 @@ func (s *WorkshopWordTokensTestSuite) workshopSetup(prefix string) (*testutil.Us
 	return head, wsID
 }
 
-// codeOf is the participant's own participant token, the code they sign in
+// codeOf is the guest's own guest token, the code they sign in
 // again with.
-func (s *WorkshopWordTokensTestSuite) codeOf(participant *testutil.UserClient) string {
-	code := Must(participant.GetParticipantCode())
-	s.Require().NotNil(code.Token, "a participant has a participant token")
+func (s *WorkshopWordTokensTestSuite) codeOf(guest *testutil.UserClient) string {
+	code := Must(guest.GetGuestCode())
+	s.Require().NotNil(code.Token, "a guest has a guest token")
 	return *code.Token
 }
 
@@ -67,45 +67,45 @@ func (s *WorkshopWordTokensTestSuite) TestInviteTokenIsThreeWords() {
 	found := Must(s.Public().GetInvite(typed))
 	s.Equal(invite.Id.String(), found.Id)
 
-	// Joining with it gives the participant a code of four words.
-	participant := Must(s.JoinWorkshop(typed))
-	s.Regexp(fourWords, s.codeOf(participant))
+	// Joining with it gives the guest a code of four words.
+	guest := Must(s.JoinWorkshop(typed))
+	s.Regexp(fourWords, s.codeOf(guest))
 }
 
-func (s *WorkshopWordTokensTestSuite) TestParticipantLoginWithoutPrefix() {
+func (s *WorkshopWordTokensTestSuite) TestGuestLoginWithoutPrefix() {
 	head, wsID := s.workshopSetup("word-login")
 	invite := Must(head.CreateWorkshopInvite(wsID))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
-	words := strings.TrimPrefix(s.codeOf(participant), "participant-")
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
+	words := strings.TrimPrefix(s.codeOf(guest), "guest-")
 
-	again := Must(s.ParticipantLogin(strings.ToUpper(words)))
-	s.Equal(participant.ID, again.ID)
+	again := Must(s.GuestLogin(strings.ToUpper(words)))
+	s.Equal(guest.ID, again.ID)
 
-	_, err := s.ParticipantLogin("apfel-otter-turm-leise")
+	_, err := s.GuestLogin("apfel-otter-turm-leise")
 	s.Unauthorized(err)
 }
 
-func (s *WorkshopWordTokensTestSuite) TestResetParticipantToken() {
+func (s *WorkshopWordTokensTestSuite) TestResetGuestToken() {
 	head, wsID := s.workshopSetup("word-reset")
 	invite := Must(head.CreateWorkshopInvite(wsID))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
-	oldCode := s.codeOf(participant)
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
+	oldCode := s.codeOf(guest)
 
-	newToken := Must(head.ResetParticipantToken(participant.ID))
+	newToken := Must(head.ResetGuestToken(guest.ID))
 	s.Regexp(fourWords, newToken)
 	s.NotEqual(oldCode, newToken)
 
-	// The reset ends the participant's sessions and their old code.
-	_, err := participant.WhoAmI()
+	// The reset ends the guest's sessions and their old code.
+	_, err := guest.WhoAmI()
 	s.Unauthorized(err, "the session started before the reset must end")
-	_, err = s.ParticipantLogin(oldCode)
+	_, err = s.GuestLogin(oldCode)
 	s.Unauthorized(err, "the old code must stop working")
 
-	relogged := Must(s.ParticipantLogin(newToken))
-	s.Equal(participant.ID, relogged.ID)
+	relogged := Must(s.GuestLogin(newToken))
+	s.Equal(guest.ID, relogged.ID)
 
-	// A participant cannot reset anyone's token.
-	_, err = relogged.ResetParticipantToken(participant.ID)
+	// A guest cannot reset anyone's token.
+	_, err = relogged.ResetGuestToken(guest.ID)
 	s.Forbidden(err)
 }
 
@@ -121,34 +121,34 @@ func (s *WorkshopWordTokensTestSuite) TestUsedUpInviteIsReplaced() {
 	s.Equal("pending", second.Status)
 }
 
-func (s *WorkshopWordTokensTestSuite) TestOwnParticipantCode() {
+func (s *WorkshopWordTokensTestSuite) TestOwnGuestCode() {
 	head, wsID := s.workshopSetup("word-own")
 	invite := Must(head.CreateWorkshopInvite(wsID))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
 
-	code := Must(participant.GetParticipantCode())
+	code := Must(guest.GetGuestCode())
 	s.Require().NotNil(code.Token)
 	s.Require().NotNil(code.Words)
-	s.Equal(Must(head.GetParticipantToken(participant.ID)), *code.Token, "the participant sees the code their leader sees")
-	s.Equal("participant-"+*code.Words, *code.Token)
+	s.Equal(Must(head.GetGuestToken(guest.ID)), *code.Token, "the guest sees the code their leader sees")
+	s.Equal("guest-"+*code.Words, *code.Token)
 
-	// After a reset the participant sees the new code.
-	reset := Must(head.ResetParticipantToken(participant.ID))
-	s.Equal(reset, s.codeOf(Must(s.ParticipantLogin(reset))))
+	// After a reset the guest sees the new code.
+	reset := Must(head.ResetGuestToken(guest.ID))
+	s.Equal(reset, s.codeOf(Must(s.GuestLogin(reset))))
 
-	// Users without a participant token get an explicit empty answer.
-	none := Must(head.GetParticipantCode())
+	// Users without a guest token get an explicit empty answer.
+	none := Must(head.GetGuestCode())
 	s.Nil(none.Token)
 	s.Nil(none.Words)
 
-	_, err := s.Public().GetParticipantCode()
+	_, err := s.Public().GetGuestCode()
 	s.Unauthorized(err)
 }
 
 // TestAuthenticatedAcceptKeepsIdentity pins the contract the invite-accept page
-// relies on: a recognised participant who accepts another workshop's invite keeps
+// relies on: a recognised guest who accepts another workshop's invite keeps
 // their account and moves. Sent anonymously, the very same call mints a second
-// account instead, which is right for a new participant only: the page must send
+// account instead, which is right for a new guest only: the page must send
 // the caller's credentials.
 func (s *WorkshopWordTokensTestSuite) TestAuthenticatedAcceptKeepsIdentity() {
 	headA, wsA := s.workshopSetup("ident-a")
@@ -156,29 +156,29 @@ func (s *WorkshopWordTokensTestSuite) TestAuthenticatedAcceptKeepsIdentity() {
 	inviteA := Must(headA.CreateWorkshopInvite(wsA))
 	inviteB := Must(headB.CreateWorkshopInvite(wsB))
 
-	participant := Must(s.JoinWorkshop(*inviteA.InviteToken))
-	code := s.codeOf(participant)
+	guest := Must(s.JoinWorkshop(*inviteA.InviteToken))
+	code := s.codeOf(guest)
 
 	// Recognised: one account, workshop moved.
-	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
-	me := Must(participant.GetMe())
-	s.Equal(participant.ID, me.Id.String(), "the account must survive the switch")
+	s.Require().NoError(guest.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
+	me := Must(guest.GetMe())
+	s.Equal(guest.ID, me.Id.String(), "the account must survive the switch")
 	s.Require().NotNil(me.Role)
 	s.Require().NotNil(me.Role.Workshop)
 	s.Equal(wsB, me.Role.Workshop.Id.String(), "the workshop must have changed")
 
 	// The same code still logs the same person in - nothing was reissued.
-	s.Equal(code, Must(headB.GetParticipantToken(participant.ID)))
+	s.Equal(code, Must(headB.GetGuestToken(guest.ID)))
 
 	// Accepting the invite of the workshop they are already in is a conflict, not a
 	// silent second account. The page turns this into "you are already in".
-	s.Conflict(participant.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
+	s.Conflict(guest.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
 
 	// Anonymously, the same invite still creates a separate account.
 	second := Must(s.AcceptWorkshopInviteAnonymously(*inviteB.InviteToken))
 	s.Require().NotNil(second.User)
-	s.NotEqual(participant.ID, second.User.Id.String(),
-		"an anonymous join must remain a new participant")
+	s.NotEqual(guest.ID, second.User.Id.String(),
+		"an anonymous join must remain a new guest")
 }
 
 // TestResetFailsWhenThereIsNoCode covers the reset of someone who joined with a real
@@ -193,22 +193,22 @@ func (s *WorkshopWordTokensTestSuite) TestResetFailsWhenThereIsNoCode() {
 	s.Require().NoError(registered.AcceptWorkshopInviteByToken(*invite.InviteToken))
 
 	// The read side already said so; the reset must now agree.
-	_, err := head.GetParticipantToken(registered.ID)
+	_, err := head.GetGuestToken(registered.ID)
 	s.NotFound(err)
-	_, err = head.ResetParticipantToken(registered.ID)
+	_, err = head.ResetGuestToken(registered.ID)
 	s.NotFound(err)
 
 	// And it wrote nothing: still no token afterwards.
-	_, err = head.GetParticipantToken(registered.ID)
+	_, err = head.GetGuestToken(registered.ID)
 	s.NotFound(err)
 
-	// A real anonymous participant still gets a fresh code, and the old one dies.
+	// A Guest still gets a fresh code, and the old one dies.
 	anonymous := Must(s.JoinWorkshop(*invite.InviteToken))
 	oldCode := s.codeOf(anonymous)
-	reset := Must(head.ResetParticipantToken(anonymous.ID))
+	reset := Must(head.ResetGuestToken(anonymous.ID))
 	s.Regexp(fourWords, reset)
 	s.NotEqual(oldCode, reset)
-	_, err = s.ParticipantLogin(oldCode)
+	_, err = s.GuestLogin(oldCode)
 	s.Unauthorized(err, "the old code must stop working")
 	_, err = anonymous.WhoAmI()
 	s.Unauthorized(err, "the session started with the old code must end")

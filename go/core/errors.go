@@ -28,6 +28,17 @@ func forbidden(format string, args ...any) error {
 	return schemafapi.Error(schemafapi.ErrForbidden, obj.ErrCodeForbidden, fmt.Sprintf(format, args...))
 }
 
+// badRequest: 400 with a code of its own, e.g. profane_name.
+func badRequest(code, format string, args ...any) error {
+	return schemafapi.Error(schemafapi.ErrBadRequest, code, fmt.Sprintf(format, args...))
+}
+
+// conflict: 409, the request clashes with what is stored (a taken name,
+// the last head).
+func conflict(code, format string, args ...any) error {
+	return schemafapi.Error(schemafapi.ErrConflict, code, fmt.Sprintf(format, args...))
+}
+
 // nameTooLong: 400, name_too_long.
 func nameTooLong(format string, args ...any) error {
 	return schemafapi.Error(schemafapi.ErrBadRequest, obj.ErrCodeNameTooLong, fmt.Sprintf(format, args...))

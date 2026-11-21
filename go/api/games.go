@@ -196,7 +196,7 @@ func (r GameFields) changes() core.GameChanges {
 }
 
 // DeleteGameEndpoint deletes a game and answers with it as it was. Deleting
-// takes mayEditSettings (403 otherwise).
+// takes mayDelete (403 otherwise).
 type DeleteGameEndpoint struct{}
 
 func (DeleteGameEndpoint) Method() string             { return "DELETE" }

@@ -13,7 +13,7 @@ import (
 // DeleteGame deletes a game and returns it as it was.
 //
 // A game the caller may not read does not exist for them (ErrNotFound).
-// Deleting takes the right to edit the game's settings: {Edit, GameSettings}.
+// Deleting takes {Delete, GameCard}.
 // The game stays as a soft-deleted row; what hangs on it goes: tags,
 // favorites, sessions, share links with their guests, the game's key shares.
 func DeleteGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
@@ -21,7 +21,7 @@ func DeleteGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !game.MayEditSettings() {
+	if !game.MayDelete() {
 		return nil, forbidden("you may not delete this game")
 	}
 	by := account(ctx).UUID // whoever may edit has an account: a guest owns nothing

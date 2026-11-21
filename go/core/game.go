@@ -125,6 +125,7 @@ func gameCardOf(ctx context.Context, r db.V2GameCardsRow) *GameCard {
 		mayCopy:         r.MayCopy,
 		mayShare:        r.MayShare,
 		mayPublish:      r.MayPublish,
+		mayDelete:       r.MayDelete,
 		isFavorite:      r.IsFavorite,
 	}
 }
@@ -221,6 +222,7 @@ type GameCard struct {
 	mayCopy         bool
 	mayShare        bool
 	mayPublish      bool
+	mayDelete       bool
 
 	isFavorite bool // the caller's own mark
 }
@@ -246,9 +248,12 @@ func (g *GameCard) MayEditCard() bool { return g.mayEditCard }
 // {Edit, GameContent}.
 func (g *GameCard) MayEditContent() bool { return g.mayEditContent }
 
-// MayEditSettings says whether the caller may change who is behind the game,
-// deleting it included: {Edit, GameSettings}.
+// MayEditSettings says whether the caller may change who is behind the game:
+// {Edit, GameSettings}.
 func (g *GameCard) MayEditSettings() bool { return g.mayEditSettings }
+
+// MayDelete says whether the caller may delete the game: {Delete, GameCard}.
+func (g *GameCard) MayDelete() bool { return g.mayDelete }
 
 // MayCopy says whether the caller may copy the game into a new game of their
 // own: {Copy, GameContent}. It answers what to offer; the copy itself checks
