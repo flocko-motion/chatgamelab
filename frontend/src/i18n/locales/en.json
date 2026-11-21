@@ -469,8 +469,6 @@
         "toggle": "Shares \u0026 Sponsorships",
         "unknownGame": "Unknown game",
         "unknownOrg": "Unknown organization",
-        "unknownUser": "Unknown user",
-        "unknownWorkshop": "Unknown workshop",
         "unlimited": "Unlimited usages"
       },
       "status": {
@@ -920,6 +918,7 @@
         "owner": "Owner",
         "platform": "Platform",
         "publicSponsoring": "Public Sponsoring",
+        "removeShare": "Remove from organization",
         "searchPlaceholder": "Search by name or owner...",
         "selectKey": "Select API Key",
         "selectKeyPlaceholder": "Choose a key to share...",

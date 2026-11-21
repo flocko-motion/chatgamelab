@@ -31,7 +31,7 @@ func (c caller) GetApiKeyInfo(shareID string) (ApiKeyInfo, error) {
 
 // RenameApiKey renames a key.
 func (c caller) RenameApiKey(shareID, name string) (ApiKeyShare, error) {
-	return decode[ApiKeyShare](c.api.PatchApiApikeysIdWithResponse(ctx(), shareID, apiclient.UpdateApiKeyReq{Name: &name}))
+	return decode[ApiKeyShare](c.api.PatchApiApikeysIdWithResponse(ctx(), shareID, apiclient.UpdateApiKeyReq{Name: name}))
 }
 
 // DeleteApiKey deletes a key share; with cascade, the owner deletes the key

@@ -58,14 +58,15 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyLifecycle() {
 	s.NotNil(updatedWs.DefaultApiKeyShareId, "workshop should have a default API key")
 	s.T().Logf("Workshop key set to orgShare: %s", orgShareIDStr)
 
-	// Head uploads a game (needed for API key status check)
-	game := Must(head.UploadGame("alien-first-contact"))
-	s.NotEmpty(game.Id)
-	s.T().Logf("Head uploaded game: %s (ID: %s)", game.Name, game.Id)
-
 	// Head enters workshop mode
 	Must(head.SetActiveWorkshop(&wsIDStr))
 	s.T().Logf("Head entered workshop mode")
+
+	// Head uploads a game in the workshop, which its guests read (needed for
+	// API key status check)
+	game := Must(head.UploadGame("alien-first-contact"))
+	s.NotEmpty(game.Id)
+	s.T().Logf("Head uploaded game: %s (ID: %s)", game.Name, game.Id)
 
 	// Verify head can see API key is available for the game
 	headAvailable := Must(head.GetApiKeyStatus(game.Id.String()))
@@ -122,12 +123,12 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyRemovedViaOrgShareDeletion() {
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 	s.T().Logf("Workshop key set")
 
-	// Head uploads a game
-	game := Must(head.UploadGame("arctic-expedition"))
-	s.T().Logf("Head uploaded game: %s", game.Name)
-
 	// Head enters workshop mode
 	Must(head.SetActiveWorkshop(&wsIDStr))
+
+	// Head uploads a game in the workshop
+	game := Must(head.UploadGame("arctic-expedition"))
+	s.T().Logf("Head uploaded game: %s", game.Name)
 
 	// Create guest
 	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))

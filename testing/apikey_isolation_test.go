@@ -32,9 +32,7 @@ func (s *ApiKeyIsolationTestSuite) assertNoForeignKeys(resp testutil.ApiKeys, fo
 		s.False(forbidden[key.Name], "should not see %s's key %q in ApiKeys list", forbiddenUserName, key.Name)
 	}
 	for _, share := range resp.Shares {
-		if share.ApiKey != nil {
-			s.False(forbidden[share.ApiKey.Name], "should not see %s's key %q in Shares list", forbiddenUserName, share.ApiKey.Name)
-		}
+		s.False(forbidden[share.ApiKey.Name], "should not see %s's key %q in Shares list", forbiddenUserName, share.ApiKey.Name)
 	}
 }
 
@@ -136,7 +134,7 @@ func (s *ApiKeyIsolationTestSuite) TestCannotFetchOtherUsersKeyByID() {
 
 	// UserB tries to fetch UserA's key share by ID — should fail
 	_, err := userB.GetApiKeyInfo(keyA.Id.String())
-	s.Forbidden(err, "user should not be able to fetch another user's API key by share ID")
+	s.NotFound(err, "user should not be able to fetch another user's API key by share ID: for them it does not exist")
 }
 
 // TestUserSeesOnlyOwnKeys is a sanity check that a user can see their own keys.

@@ -114,7 +114,7 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	// Harry sees invitation
 	harryInvites := Must(clientHarry.GetInvitesIncoming())
 	s.Equal(1, len(harryInvites), "harry should see 1 pending invite")
-	s.Equal(harryInvite.Id.String(), harryInvites[0].Id)
+	s.Equal(harryInvite.Id, harryInvites[0].Id)
 	s.T().Logf("Harry sees %d pending invite(s)", len(harryInvites))
 
 	// Verify harry lists no institutions and sees none (not a member yet)
@@ -167,7 +167,7 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	// Tanja sees invitation
 	tanjaInvites := Must(clientTanja.GetInvitesIncoming())
 	s.Equal(1, len(tanjaInvites), "tanja should see 1 pending invite")
-	s.Equal(tanjaInvite.Id.String(), tanjaInvites[0].Id)
+	s.Equal(tanjaInvite.Id, tanjaInvites[0].Id)
 	s.T().Logf("Tanja sees %d pending invite(s)", len(tanjaInvites))
 
 	// Verify: Tanja lists and sees no institution yet (not a member)

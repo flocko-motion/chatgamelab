@@ -301,6 +301,12 @@ tiers, which features at each tier, a default, and whether players may choose
 within that. Several shared keys can be offered at once, and the player picks
 one. A revoked key stops working on the next turn.
 
+*An API-key share is like a credit-line, it allows it's holder to spend money.* 
+It belongs to the user who owns the API-key it, and only they share it
+or take it back. If user is member of an organisation it can shared with that organisation. 
+All members of that organisation can then use the key within that organisation 
+and its workshops. 
+
 == Data
 
 Erasing a user removes their sessions along with their account.

@@ -111,7 +111,7 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteIndividualEntersWorkshop
 	invite := Must(head.InviteToWorkshopByEmail(wsID, individual.Email))
 
 	// Individual accepts the invite
-	Must(individual.AcceptInvite(invite.Id))
+	Must(individual.AcceptInvite(invite.Id.String()))
 
 	// Should enter workshop mode without role change
 	me = Must(individual.GetMe())
@@ -133,7 +133,7 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteNewUserKeepsIndividualRo
 	invite := Must(head.InviteToWorkshopByEmail(wsID, newUser.Email))
 
 	// New user accepts → should enter workshop mode (individual stays individual)
-	Must(newUser.AcceptInvite(invite.Id))
+	Must(newUser.AcceptInvite(invite.Id.String()))
 	me = Must(newUser.GetMe())
 	s.Equal("individual", me.Role.Role, "role should stay individual")
 	s.Require().NotNil(me.Role.Workshop, "should have active workshop after accepting")
@@ -154,7 +154,7 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteStaffOfOtherOrgKeepsRole
 	Must(staff.AcceptInvite(staffInvite.Id.String()))
 
 	invite := Must(head.InviteToWorkshopByEmail(wsID, staff.Email))
-	_, err := staff.AcceptInvite(invite.Id)
+	_, err := staff.AcceptInvite(invite.Id.String())
 	s.Forbidden(err, "staff of another organisation cannot enter the workshop")
 
 	me := Must(staff.GetMe())
@@ -173,7 +173,7 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteAdminKeepsRole() {
 	s.Role(target, "admin")
 
 	invite := Must(head.InviteToWorkshopByEmail(wsID, target.Email))
-	_, err := target.AcceptInvite(invite.Id)
+	_, err := target.AcceptInvite(invite.Id.String())
 	s.Forbidden(err, "an admin cannot enter a workshop")
 
 	me := Must(target.GetMe())
@@ -283,7 +283,7 @@ func (s *WorkshopInviteMethodsTestSuite) TestCannotAddUserFromDifferentOrg() {
 
 	// Head tries to add individual from different org — should fail
 	err := head.AddMemberToWorkshop(wsID, otherInd.ID)
-	s.Forbidden(err, "should not be able to add user from different org")
+	s.NotFound(err, "should not be able to add user from different org: for the head, they do not exist")
 }
 
 func (s *WorkshopInviteMethodsTestSuite) TestGuestCannotAddMember() {

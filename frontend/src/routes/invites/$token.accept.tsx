@@ -26,7 +26,7 @@ import { useAuth, rememberGuestCode } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl } from "@/common/lib/url";
-import type { AcceptInviteResp, InviteResp } from "@/api/generated/api.gen";
+import type { AcceptInviteResp, InviteCardView } from "@/api/generated/api.gen";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 export const Route = createFileRoute("/invites/$token/accept")({
@@ -138,7 +138,7 @@ function AcceptInvitePage() {
 
     async function fetchInvite() {
       try {
-        let data: InviteResp;
+        let data: InviteCardView;
         try {
           data = (await api.getApiInvitesIdOrToken(token)).data;
         } catch (err) {

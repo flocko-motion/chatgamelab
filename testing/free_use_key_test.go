@@ -39,6 +39,7 @@ func (s *FreeUseKeyTestSuite) TestSystemFreeUseKeyAllowsPlayWithoutOwnKey() {
 
 	// Admin uploads a game (needed for session creation)
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.NotEmpty(game.Id)
 	s.T().Logf("Admin uploaded game: %s (ID: %s)", game.Name, game.Id)
 
@@ -95,6 +96,7 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyAllowsOrgMembersToPlay() 
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s (ID: %s)", game.Name, game.Id)
 
 	// Create institution with head
@@ -157,6 +159,7 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyFallbackInWorkshopWithNoK
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("arctic-expedition"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head
@@ -209,6 +212,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyAllowsWorkshopMembersToPlay() {
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head
@@ -266,6 +270,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyDoesNotLeakToOtherWorkshops() {
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("arctic-expedition"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head
@@ -320,6 +325,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyTakesPriorityOverInstitutionFreeUse
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head

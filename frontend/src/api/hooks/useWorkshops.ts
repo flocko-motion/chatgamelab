@@ -6,7 +6,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
-import type { PublicWorkshopLink, Workshop } from "../generated/api.gen";
+import type { PublicWorkshopLink, WorkshopView } from "../generated/api.gen";
 
 /**
  * Parameters for listing workshops with filtering and sorting
@@ -209,7 +209,7 @@ export function useSetWorkshopApiKey() {
     },
     onSuccess: (updatedWorkshop, variables) => {
       // Update the workshop in the cache immediately with the new data
-      queryClient.setQueryData<Workshop[]>(["workshops"], (old) => {
+      queryClient.setQueryData<WorkshopView[]>(["workshops"], (old) => {
         if (!old) return old;
         return old.map((w) =>
           w.id === variables.workshopId ? updatedWorkshop : w,

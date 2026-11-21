@@ -10,7 +10,7 @@
             "type": "string"
           },
           "user": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/NewGuestView"
           }
         },
         "required": [
@@ -80,12 +80,12 @@
         "properties": {
           "linkedShares": {
             "items": {
-              "$ref": "#/components/schemas/ApiKeyShare"
+              "$ref": "#/components/schemas/KeyShareView"
             },
             "type": "array"
           },
           "share": {
-            "$ref": "#/components/schemas/ApiKeyShare"
+            "$ref": "#/components/schemas/KeyShareView"
           }
         },
         "required": [
@@ -143,17 +143,64 @@
         ],
         "type": "object"
       },
+      "ApiKeyView": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "keyShortened": {
+            "type": "string"
+          },
+          "lastErrorCode": {
+            "type": "string"
+          },
+          "lastUsageSuccess": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/KeyMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name",
+          "userId",
+          "userName",
+          "platform",
+          "keyShortened",
+          "isDefault"
+        ],
+        "type": "object"
+      },
       "ApiKeysResp": {
         "properties": {
           "apiKeys": {
             "items": {
-              "$ref": "#/components/schemas/ApiKey"
+              "$ref": "#/components/schemas/ApiKeyView"
             },
             "type": "array"
           },
           "shares": {
             "items": {
-              "$ref": "#/components/schemas/ApiKeyShare"
+              "$ref": "#/components/schemas/KeyShareView"
             },
             "type": "array"
           }
@@ -711,69 +758,6 @@
         ],
         "type": "object"
       },
-      "EnrichedGameShare": {
-        "properties": {
-          "aiQualityTier": {
-            "type": "string"
-          },
-          "apiKeyShareId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "createdBy": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "gameId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "gameName": {
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "institutionId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "remaining": {
-            "type": "integer"
-          },
-          "shareUrl": {
-            "type": "string"
-          },
-          "source": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          },
-          "workshopId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "workshopName": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "gameId",
-          "token",
-          "apiKeyShareId",
-          "createdAt",
-          "shareUrl",
-          "source"
-        ],
-        "type": "object"
-      },
       "Error": {
         "properties": {
           "code": {
@@ -1061,59 +1045,6 @@
           "messagesSent",
           "createdAt",
           "modifiedAt"
-        ],
-        "type": "object"
-      },
-      "GameShareResp": {
-        "properties": {
-          "aiQualityTier": {
-            "type": "string"
-          },
-          "apiKeyShareId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "createdBy": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "gameId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "institutionId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "remaining": {
-            "type": "integer"
-          },
-          "shareUrl": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          },
-          "workshopId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "gameId",
-          "token",
-          "apiKeyShareId",
-          "createdAt",
-          "shareUrl"
         ],
         "type": "object"
       },
@@ -1552,18 +1483,26 @@
         ],
         "type": "object"
       },
-      "InviteResp": {
+      "InviteCardView": {
         "properties": {
-          "createdAt": {
+          "acceptedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "acceptedBy": {
+            "format": "uuid",
             "type": "string"
           },
           "expiresAt": {
+            "format": "date-time",
             "type": "string"
           },
           "id": {
+            "format": "uuid",
             "type": "string"
           },
           "institutionId": {
+            "format": "uuid",
             "type": "string"
           },
           "institutionName": {
@@ -1576,13 +1515,20 @@
             "type": "string"
           },
           "invitedUserId": {
+            "format": "uuid",
             "type": "string"
           },
           "maxUses": {
             "type": "integer"
           },
-          "modifiedAt": {
-            "type": "string"
+          "mayAnswer": {
+            "type": "boolean"
+          },
+          "mayRevoke": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/InviteMeta"
           },
           "role": {
             "type": "string"
@@ -1594,6 +1540,7 @@
             "type": "integer"
           },
           "workshopId": {
+            "format": "uuid",
             "type": "string"
           },
           "workshopName": {
@@ -1602,11 +1549,183 @@
         },
         "required": [
           "id",
+          "meta",
           "institutionId",
           "role",
           "usesCount",
           "status",
+          "institutionName",
+          "mayRevoke",
+          "mayAnswer"
+        ],
+        "type": "object"
+      },
+      "InviteMeta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "modifiedAt"
+        ],
+        "type": "object"
+      },
+      "InviteView": {
+        "properties": {
+          "acceptedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "acceptedBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institutionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "inviteToken": {
+            "type": "string"
+          },
+          "invitedEmail": {
+            "type": "string"
+          },
+          "invitedUserId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxUses": {
+            "type": "integer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/InviteMeta"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "usesCount": {
+            "type": "integer"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "institutionId",
+          "role",
+          "usesCount",
+          "status"
+        ],
+        "type": "object"
+      },
+      "KeyMeta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "modifiedAt"
+        ],
+        "type": "object"
+      },
+      "KeyShareMeta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
           "createdAt"
+        ],
+        "type": "object"
+      },
+      "KeyShareView": {
+        "properties": {
+          "apiKey": {
+            "$ref": "#/components/schemas/ApiKeyView"
+          },
+          "apiKeyId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "game": {
+            "$ref": "#/components/schemas/NamedRef"
+          },
+          "gameShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institution": {
+            "$ref": "#/components/schemas/NamedRef"
+          },
+          "isPrivateShare": {
+            "type": "boolean"
+          },
+          "mayRevoke": {
+            "type": "boolean"
+          },
+          "mayShare": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/KeyShareMeta"
+          },
+          "remaining": {
+            "type": "integer"
+          },
+          "self": {
+            "type": "boolean"
+          },
+          "sourceShareId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "apiKeyId",
+          "apiKey",
+          "self",
+          "mayShare",
+          "mayRevoke"
         ],
         "type": "object"
       },
@@ -1717,6 +1836,26 @@
         "required": [
           "id",
           "name"
+        ],
+        "type": "object"
+      },
+      "NewGuestView": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "language"
         ],
         "type": "object"
       },
@@ -2055,6 +2194,18 @@
         ],
         "type": "object"
       },
+      "ParticipantMeta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt"
+        ],
+        "type": "object"
+      },
       "PlatformInfo": {
         "properties": {
           "genres": {
@@ -2118,7 +2269,7 @@
         "properties": {
           "shares": {
             "items": {
-              "$ref": "#/components/schemas/EnrichedGameShare"
+              "$ref": "#/components/schemas/ShareLinkView"
             },
             "type": "array"
           }
@@ -2477,6 +2628,77 @@
         },
         "type": "object"
       },
+      "ShareLinkView": {
+        "properties": {
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "apiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameName": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institutionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "keyName": {
+            "type": "string"
+          },
+          "mayManage": {
+            "type": "boolean"
+          },
+          "remaining": {
+            "type": "integer"
+          },
+          "shareUrl": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshopName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "gameId",
+          "token",
+          "shareUrl",
+          "apiKeyShareId",
+          "createdAt",
+          "source",
+          "keyName",
+          "mayManage"
+        ],
+        "type": "object"
+      },
       "Snapshot": {
         "properties": {
           "choosing": {
@@ -2769,6 +2991,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "name"
+        ],
         "type": "object"
       },
       "UpdateGameReq": {
@@ -2986,15 +3211,6 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "name",
-          "active",
-          "public",
-          "showPublicGames",
-          "showOtherParticipantsGames",
-          "isPaused",
-          "allowGameSharing"
-        ],
         "type": "object"
       },
       "UsageRecord": {
@@ -3509,6 +3725,23 @@
         ],
         "type": "object"
       },
+      "WorkshopMeta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "modifiedAt"
+        ],
+        "type": "object"
+      },
       "WorkshopParticipant": {
         "properties": {
           "accessToken": {
@@ -3554,6 +3787,151 @@
         ],
         "type": "object"
       },
+      "WorkshopParticipantView": {
+        "properties": {
+          "gamesCount": {
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ParticipantMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permanent": {
+            "type": "boolean"
+          },
+          "role": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workshopId",
+          "name",
+          "role",
+          "meta",
+          "gamesCount",
+          "permanent"
+        ],
+        "type": "object"
+      },
+      "WorkshopView": {
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "allowGameSharing": {
+            "type": "boolean"
+          },
+          "defaultApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "hasParticipants": {
+            "type": "boolean"
+          },
+          "hasSettings": {
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "institution": {
+            "$ref": "#/components/schemas/NamedRef"
+          },
+          "invites": {
+            "items": {
+              "$ref": "#/components/schemas/InviteView"
+            },
+            "type": "array"
+          },
+          "isPaused": {
+            "type": "boolean"
+          },
+          "mayDelete": {
+            "type": "boolean"
+          },
+          "mayEditCard": {
+            "type": "boolean"
+          },
+          "mayEditSettings": {
+            "type": "boolean"
+          },
+          "mayManageParticipants": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/WorkshopMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/WorkshopParticipantView"
+            },
+            "type": "array"
+          },
+          "promptConstraints": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "publicDescription": {
+            "type": "string"
+          },
+          "publicLinks": {
+            "items": {
+              "$ref": "#/components/schemas/PublicWorkshopLink"
+            },
+            "type": "array"
+          },
+          "publicSlug": {
+            "type": "string"
+          },
+          "showOtherParticipantsGames": {
+            "type": "boolean"
+          },
+          "showPublicGames": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "meta",
+          "institution",
+          "active",
+          "isPaused",
+          "public",
+          "showPublicGames",
+          "showOtherParticipantsGames",
+          "allowGameSharing",
+          "mayEditCard",
+          "mayEditSettings",
+          "mayDelete",
+          "mayManageParticipants",
+          "hasSettings",
+          "hasParticipants",
+          "participants",
+          "invites"
+        ],
+        "type": "object"
+      },
       "YouthProtectionSuggestion": {
         "properties": {
           "minAge": {
@@ -3591,7 +3969,7 @@
   "paths": {
     "/api/apikeys": {
       "get": {
-        "description": "(organization shares, sponsorships).",
+        "description": "own use of each, the organisation they gave it to, and the sponsored games\nand share links it pays for.",
         "operationId": "getApiApikeys",
         "responses": {
           "200": {
@@ -3623,12 +4001,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the caller's API keys and all their linked shares"
+        "summary": "Lists the caller's keys and every share of them: their"
       }
     },
     "/api/apikeys/new": {
       "post": {
-        "description": "Platform and key are required; surrounding whitespace is trimmed. Without a\nname the key is named after its platform and today's date, e.g.\n\"Mistral 12.02.26\".",
+        "description": "own use of it. Platform and key are required; surrounding whitespace is\ntrimmed. Without a name the key is named after its platform and today's\ndate, e.g. \"Mistral 12.02.26\". The caller's first key becomes their\ndefault.",
         "operationId": "postApiApikeysNew",
         "requestBody": {
           "content": {
@@ -3645,7 +4023,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiKeyShare"
+                  "$ref": "#/components/schemas/KeyShareView"
                 }
               }
             },
@@ -3670,12 +4048,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Creates an API key and shares it with the caller."
+        "summary": "Stores a key of the caller's and answers with their"
       }
     },
     "/api/apikeys/{id}": {
       "delete": {
-        "description": "With cascade=true it deletes the key and all its shares.",
+        "description": "owner any share of their key, a head their organisation's, head and staff\nwhat draws from it. With cascade=true the owner deletes the key itself,\nwith every share of it. The owner's own use of a key goes only with the\nkey.",
         "operationId": "deleteApiApikeysId",
         "parameters": [
           {
@@ -3700,7 +4078,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiKeyShare"
+                  "$ref": "#/components/schemas/MessageResp"
                 }
               }
             },
@@ -3725,9 +4103,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Removes an API key share and answers with it as it was."
+        "summary": "Takes a share back, stopping what draws from it: the"
       },
       "get": {
+        "description": "owner every share of the key (linkedShares).",
         "operationId": "getApiApikeysId",
         "parameters": [
           {
@@ -3769,7 +4148,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns an API key share and the shares linked to it."
+        "summary": "Returns a share the caller may see, and for the key's"
       },
       "patch": {
         "operationId": "patchApiApikeysId",
@@ -3798,7 +4177,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiKeyShare"
+                  "$ref": "#/components/schemas/KeyShareView"
                 }
               }
             },
@@ -3823,10 +4202,9 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Renames an API key."
+        "summary": "Renames a key, for its owner."
       },
       "post": {
-        "description": "institution, at the path older clients use.",
         "operationId": "postApiApikeysId",
         "parameters": [
           {
@@ -3853,7 +4231,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiKeyShare"
+                  "$ref": "#/components/schemas/KeyShareView"
                 }
               }
             },
@@ -3878,11 +4256,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Shares an API key with a user, workshop or"
+        "summary": "Is ShareApiKeyEndpoint at v1's path."
       }
     },
     "/api/apikeys/{id}/default": {
       "put": {
+        "description": "play with themselves.",
         "operationId": "putApiApikeysIdDefault",
         "parameters": [
           {
@@ -3899,7 +4278,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiKeyShare"
+                  "$ref": "#/components/schemas/KeyShareView"
                 }
               }
             },
@@ -3924,12 +4303,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Makes an API key the caller's default for new sessions."
+        "summary": "Makes a key its owner's default: the one they"
       }
     },
     "/api/apikeys/{id}/game-shares": {
       "get": {
-        "description": "with each game's name and where the share comes from.\n\nQuery: context=personal lists all shares and requires owning the key;\ncontext=organization lists only organization and workshop shares.",
+        "description": "of its shares: for the key's owner all of them, for head and staff those\ntheir organisation pays for. context=personal needs the owner's own share;\ncontext=organization leaves out the owner's personal links.",
         "operationId": "getApiApikeysIdGame-shares",
         "parameters": [
           {
@@ -3955,7 +4334,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/EnrichedGameShare"
+                    "$ref": "#/components/schemas/ShareLinkView"
                   },
                   "type": "array"
                 }
@@ -3982,11 +4361,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the game share links that use an API key,"
+        "summary": "Lists the share links a key pays for, by one"
       }
     },
     "/api/apikeys/{id}/shares": {
       "post": {
+        "description": "workshops may play with it, its head and staff sponsor games and make\nshare links with it. A key is shared with an organisation only, never\nwith users or workshops, and never across organisations.",
         "operationId": "postApiApikeysIdShares",
         "parameters": [
           {
@@ -4013,7 +4393,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiKeyShare"
+                  "$ref": "#/components/schemas/KeyShareView"
                 }
               }
             },
@@ -4038,7 +4418,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Shares an API key with a user, workshop or institution."
+        "summary": "Gives a key to its owner's own organisation: its"
       }
     },
     "/api/auth/auth0/login": {
@@ -5811,7 +6191,7 @@
     },
     "/api/games/{id}/api-key-status": {
       "get": {
-        "description": "caller playing a game.",
+        "description": "caller's plays of a game they may read.",
         "operationId": "getApiGamesIdApi-key-status",
         "parameters": [
           {
@@ -5853,12 +6233,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Answers whether an API key resolves for the"
+        "summary": "Answers whether a key would pay for the"
       }
     },
     "/api/games/{id}/available-keys": {
       "get": {
-        "description": "with, in order of priority.",
+        "description": "caller's plays of a game they may read, in the order they are tried.",
         "operationId": "getApiGamesIdAvailable-keys",
         "parameters": [
           {
@@ -5903,7 +6283,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the API keys the caller can play a game"
+        "summary": "Lists the keys that would pay for the"
       }
     },
     "/api/games/{id}/clone": {
@@ -6047,7 +6427,7 @@
     },
     "/api/games/{id}/private-share": {
       "get": {
-        "description": "has access to.\n\nThese are the caller's own personal and organisation shares, their\ninstitution's shares for head, staff and admins, the shares of the workshop\nthey are in, and for head and staff outside a workshop the shares of every\nworkshop of their institution.",
+        "description": "see: those they made, of their game, paid by their keys or their\norganisation's, and their workshop's. A game they may not read is 404.",
         "operationId": "getApiGamesIdPrivate-share",
         "parameters": [
           {
@@ -6089,7 +6469,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the share links of a game the caller"
+        "summary": "Lists a game's share links the caller may"
       }
     },
     "/api/games/{id}/sessions": {
@@ -6143,7 +6523,7 @@
     },
     "/api/games/{id}/shares": {
       "post": {
-        "description": "A workshop share (workshopId set) plays on the workshop's default API key\nand is reused when the game already has one in that workshop. A personal or\norganisation share needs sponsorKeyShareId; it is an organisation share when\nthat key share belongs to an institution.",
+        "description": "share: paid by a key share they may draw from (sponsorKeyShareId), or by\nthe workshop's key (workshopId) for the workshop's head and staff, and for\nthose in it while it allows sharing. A workshop has one link per game; an\nexisting one is answered. maxSessions limits the plays; null: unlimited.",
         "operationId": "postApiGamesIdShares",
         "parameters": [
           {
@@ -6170,7 +6550,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GameShareResp"
+                  "$ref": "#/components/schemas/ShareLinkView"
                 }
               }
             },
@@ -6195,12 +6575,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Creates a share link for a game."
+        "summary": "Makes a share link for a game the caller may"
       }
     },
     "/api/games/{id}/shares/{shareId}": {
       "delete": {
-        "description": "The share's creator, the game's owner, members of the share's workshop and\nhead or staff of its institution may revoke it.",
+        "description": "maker, the game's owner, the key's owner, and head and staff when their\norganisation's key pays.",
         "operationId": "deleteApiGamesIdSharesShareId",
         "parameters": [
           {
@@ -6250,10 +6630,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Revokes a share link and cleans up its guest data."
+        "summary": "Stops a share link: its guests go with it. For its"
       },
       "patch": {
-        "description": "Whoever may revoke the share may update it.",
+        "description": "may stop it. Both are set: a null maxSessions makes it unlimited, a null\naiQualityTier plays at the source's default.",
         "operationId": "patchApiGamesIdSharesShareId",
         "parameters": [
           {
@@ -6288,7 +6668,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GameShareResp"
+                  "$ref": "#/components/schemas/ShareLinkView"
                 }
               }
             },
@@ -6313,12 +6693,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Updates a share link's settings."
+        "summary": "Sets a share link's limit and tier, for those who"
       }
     },
     "/api/games/{id}/sponsor": {
       "delete": {
-        "description": "answers with the game.",
+        "description": "the game, the key's owner, and head and staff when their organisation's\nkey pays.",
         "operationId": "deleteApiGamesIdSponsor",
         "parameters": [
           {
@@ -6335,7 +6715,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -6360,10 +6740,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Removes the public sponsorship from a game and"
+        "summary": "Stops a game's sponsorship: for those who edit"
       },
       "put": {
-        "description": "API key shares and answers with the game.",
+        "description": "replacing what paid before: for those who edit the game, with a share\nthey may draw from. A key known to fail is refused.",
         "operationId": "putApiGamesIdSponsor",
         "parameters": [
           {
@@ -6390,7 +6770,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -6415,7 +6795,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Sponsors a game publicly with one of the caller's"
+        "summary": "Makes a key share pay for a game's public plays,"
       }
     },
     "/api/games/{id}/yaml": {
@@ -6864,7 +7244,7 @@
     },
     "/api/institutions/{id}/apikeys": {
       "get": {
-        "description": "heads and staff only.",
+        "description": "its head and staff.",
         "operationId": "getApiInstitutionsIdApikeys",
         "parameters": [
           {
@@ -6882,7 +7262,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/ApiKeyShare"
+                    "$ref": "#/components/schemas/KeyShareView"
                   },
                   "type": "array"
                 }
@@ -6909,7 +7289,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the API keys shared with an institution;"
+        "summary": "Lists the keys given to an organisation: for"
       }
     },
     "/api/institutions/{id}/declaration-consent": {
@@ -7061,7 +7441,7 @@
     },
     "/api/institutions/{id}/free-use-key": {
       "patch": {
-        "description": "free-use API key share and answers with the institution.\n\nAny member of the institution plays for free with this key. A null shareId\nclears it.",
+        "description": "organisation's members play with for free: one of the keys given to it.\nA null shareId clears it.",
         "operationId": "patchApiInstitutionsIdFree-use-key",
         "parameters": [
           {
@@ -7113,7 +7493,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Sets or clears an institution's"
+        "summary": "Sets or clears the key an"
       }
     },
     "/api/institutions/{id}/members": {
@@ -7325,6 +7705,7 @@
     },
     "/api/invites": {
       "get": {
+        "description": "account or email: what they may accept or decline.",
         "operationId": "getApiInvites",
         "responses": {
           "200": {
@@ -7332,7 +7713,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/InviteResp"
+                    "$ref": "#/components/schemas/InviteCardView"
                   },
                   "type": "array"
                 }
@@ -7359,11 +7740,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the invites addressed to the caller."
+        "summary": "Lists the pending invites addressed to the caller, by"
       }
     },
     "/api/invites/all": {
       "get": {
+        "description": "admin, all of them.",
         "operationId": "getApiInvitesAll",
         "responses": {
           "200": {
@@ -7371,7 +7753,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/InviteResp"
+                    "$ref": "#/components/schemas/InviteCardView"
                   },
                   "type": "array"
                 }
@@ -7398,12 +7780,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists every invite; admins only."
+        "summary": "Lists every invite the caller may list: for the"
       }
     },
     "/api/invites/institution": {
       "post": {
-        "description": "head, staff or individual.\n\nThe role defaults to staff. The invite names the invited user by id or\nemail.",
+        "description": "an organisation as head, staff or individual (staff by default). Head and\nstaff invite into their organisation, only heads as head; the admin into\nany.",
         "operationId": "postApiInvitesInstitution",
         "requestBody": {
           "content": {
@@ -7420,7 +7802,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserRoleInvite"
+                  "$ref": "#/components/schemas/InviteCardView"
                 }
               }
             },
@@ -7445,12 +7827,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Invites a user to join an institution as"
+        "summary": "Invites an account, by id or email, into"
       }
     },
     "/api/invites/institution/{institutionId}": {
       "get": {
-        "description": "The caller is head or staff of the institution, or an admin.",
+        "description": "caller may list: its head and staff (staff without the invites to become\nhead), and the admin.",
         "operationId": "getApiInvitesInstitutionInstitutionId",
         "parameters": [
           {
@@ -7468,7 +7850,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/InviteResp"
+                    "$ref": "#/components/schemas/InviteCardView"
                   },
                   "type": "array"
                 }
@@ -7495,12 +7877,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the invites to join an institution."
+        "summary": "Lists an organisation's invites the"
       }
     },
     "/api/invites/workshop": {
       "post": {
-        "description": "workshop as Guests.",
+        "description": "a new one. Whoever follows it becomes a guest there, or, a member of an\norganisation, works in it.",
         "operationId": "postApiInvitesWorkshop",
         "requestBody": {
           "content": {
@@ -7517,7 +7899,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserRoleInvite"
+                  "$ref": "#/components/schemas/InviteCardView"
                 }
               }
             },
@@ -7542,12 +7924,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Creates an open invite for users to join a"
+        "summary": "Returns a workshop's link: its usable one, or"
       }
     },
     "/api/invites/workshop/email": {
       "post": {
-        "description": "join a workshop.\n\nA second pending invite for the same user and workshop is refused with 409.",
+        "description": "into a workshop: accepting, they keep their role and work in it.",
         "operationId": "postApiInvitesWorkshopEmail",
         "requestBody": {
           "content": {
@@ -7564,7 +7946,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InviteResp"
+                  "$ref": "#/components/schemas/InviteCardView"
                 }
               }
             },
@@ -7589,12 +7971,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Invites a registered user, by email, to"
+        "summary": "Invites the account with this email"
       }
     },
     "/api/invites/{idOrToken}": {
       "get": {
-        "description": "An id needs a signed-in caller: admins see any invite, everyone else the\ninvites addressed to them or created by them. A token also answers an\nanonymous caller, for open invites.",
+        "description": "its link's token, for anyone who has it, signed in or not. Repeated\nguesses at tokens are slowed down (429).",
         "operationId": "getApiInvitesIdOrToken",
         "parameters": [
           {
@@ -7611,7 +7993,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InviteResp"
+                  "$ref": "#/components/schemas/InviteCardView"
                 }
               }
             },
@@ -7637,12 +8019,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns an invite by its id or its token."
+        "summary": "Returns an invite: by id, for those who may read it; by"
       }
     },
     "/api/invites/{idOrToken}/accept": {
       "post": {
-        "description": "An anonymous caller accepts a workshop invite by token: this creates a\nGuest in the browser's language, starts its session, sets the\nsession cookie and answers with the account and its token. A signed-in\nGuest switches to the invite's workshop; a head, staff member or\nindividual enters it and keeps their role; anyone else joins as a\nGuest. An invite by id needs a signed-in caller: a workshop invite\nlets them enter the workshop with their own role, an institution invite\ngives them its role.",
+        "description": "Following a link without an account joins its workshop as a new guest,\nsigned in at once. A member of an organisation keeps their role and works\nin the workshop; anyone else takes the invite's role. Only a pending\ninvite is accepted (409). Repeated guesses at tokens are slowed down\n(429).",
         "operationId": "postApiInvitesIdOrTokenAccept",
         "parameters": [
           {
@@ -7685,12 +8067,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Accepts an invite by its id or its token."
+        "summary": "Accepts an invite, by its id or its link's token."
       }
     },
     "/api/invites/{id}": {
       "delete": {
-        "description": "Its creator and admins can revoke it, and institution staff a workshop\ninvite.",
+        "description": "and staff (staff not the invites to become head), and the admin. An\nanswered invite stays (409).",
         "operationId": "deleteApiInvitesId",
         "parameters": [
           {
@@ -7732,12 +8114,11 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Revokes a pending invite."
+        "summary": "Deletes a pending invite: for its organisation's head"
       }
     },
     "/api/invites/{id}/decline": {
       "post": {
-        "description": "status \"declined\".",
         "operationId": "postApiInvitesIdDecline",
         "parameters": [
           {
@@ -7754,7 +8135,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserRoleInvite"
+                  "$ref": "#/components/schemas/MessageResp"
                 }
               }
             },
@@ -7779,7 +8160,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Declines an invite and answers with its id and its"
+        "summary": "Declines a pending invite addressed to the caller."
       }
     },
     "/api/languages": {
@@ -8927,6 +9308,7 @@
     },
     "/api/users/{id}/role": {
       "delete": {
+        "description": "an individual of no organisation. A head removes a member from the\norganisation instead (DELETE /api/institutions/{id}/members/{userID}).",
         "operationId": "deleteApiUsersIdRole",
         "parameters": [
           {
@@ -8943,7 +9325,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserView"
                 }
               }
             },
@@ -8968,10 +9350,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Removes a user's role and answers with the user."
+        "summary": "Takes a user's role away, the admin's: they become"
       },
       "post": {
-        "description": "The role is scoped to an institution or a workshop by their ids.",
+        "description": "The admin gives any role, scoped to an organisation or a workshop by\ntheir ids; a head makes a member of their organisation head or staff\nthere. Only an individual becomes admin, and an organisation keeps its\nlast head (409 last_head).",
         "operationId": "postApiUsersIdRole",
         "parameters": [
           {
@@ -8998,7 +9380,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserView"
                 }
               }
             },
@@ -9023,7 +9405,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Sets a user's role and answers with the user."
+        "summary": "Gives a user a new role and answers with them."
       }
     },
     "/api/users/{id}/secrets": {
@@ -9151,7 +9533,7 @@
     },
     "/api/workshops": {
       "get": {
-        "description": "one institution.\n\nQuery: institutionId, search (name), sortBy (name, createdAt,\nparticipantCount), sortDir (asc, desc), activeOnly (\"true\" lists active\nworkshops only).",
+        "description": "all of them, a head or staff their organisation's.\n\ninstitutionId, search and activeOnly narrow the list; sortBy (name,\ncreatedAt, participantCount) and sortDir (asc, desc) order it, newest\nfirst by default.",
         "operationId": "getApiWorkshops",
         "parameters": [
           {
@@ -9201,7 +9583,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/Workshop"
+                    "$ref": "#/components/schemas/WorkshopView"
                   },
                   "type": "array"
                 }
@@ -9228,9 +9610,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the workshops the caller can see, or those of"
+        "summary": "Lists the workshops the caller may list: an admin"
       },
       "post": {
+        "description": "for the admin, in the one named (institutionId).",
         "operationId": "postApiWorkshops",
         "requestBody": {
           "content": {
@@ -9247,7 +9630,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workshop"
+                  "$ref": "#/components/schemas/WorkshopView"
                 }
               }
             },
@@ -9272,12 +9655,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Creates a workshop."
+        "summary": "Creates a workshop in the caller's organisation, or,"
       }
     },
     "/api/workshops/guests/{guestId}/token": {
       "get": {
-        "description": "staff and heads only.",
+        "description": "caller's organisation's workshops: for its head and staff, helping a guest\nwho lost it.",
         "operationId": "getApiWorkshopsGuestsGuestIdToken",
         "parameters": [
           {
@@ -9319,12 +9702,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns the sign-in code of a Guest in a workshop;"
+        "summary": "Returns the login code of a guest in one of the"
       }
     },
     "/api/workshops/guests/{guestId}/token/reset": {
       "post": {
-        "description": "staff and heads only.\n\nEarlier sign-in links stop working and the Guest's sessions end.",
+        "description": "workshops a new login code: for its head and staff. Earlier login links\nstop working and the guest's sessions end.",
         "operationId": "postApiWorkshopsGuestsGuestIdTokenReset",
         "parameters": [
           {
@@ -9366,11 +9749,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Replaces the sign-in code of a Guest in a workshop;"
+        "summary": "Gives a guest in one of the caller's organisation's"
       }
     },
     "/api/workshops/{id}": {
       "delete": {
+        "description": "stay with their creators.",
         "operationId": "deleteApiWorkshopsId",
         "parameters": [
           {
@@ -9412,9 +9796,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Soft-deletes a workshop."
+        "summary": "Deletes a workshop with its guests; its other games"
       },
       "get": {
+        "description": "organisation's, the one they are in, one with a public page, or any, for\nan admin. Others get 404.",
         "operationId": "getApiWorkshopsId",
         "parameters": [
           {
@@ -9431,7 +9816,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workshop"
+                  "$ref": "#/components/schemas/WorkshopView"
                 }
               }
             },
@@ -9456,10 +9841,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns a workshop."
+        "summary": "Returns a workshop the caller may read: one of their"
       },
       "patch": {
-        "description": "The name is required. Omitting publicSlug, publicDescription or publicLinks\nkeeps the current value; an empty description or list clears it.",
+        "description": "Only what is given changes. An empty aiQualityTier, promptConstraints or\npublicDescription removes it; an empty publicLinks list clears the links.\nSwitching public off ends the public page's share links.",
         "operationId": "patchApiWorkshopsId",
         "parameters": [
           {
@@ -9486,7 +9871,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workshop"
+                  "$ref": "#/components/schemas/WorkshopView"
                 }
               }
             },
@@ -9511,12 +9896,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Updates a workshop's settings and its public page."
+        "summary": "Changes a workshop and answers with it as stored."
       }
     },
     "/api/workshops/{id}/api-key": {
       "put": {
-        "description": "with; staff and heads only.\n\nA null or empty apiKeyShareId removes it.",
+        "description": "keys given to its organisation; null or empty clears it, and the workshop\nplays no more until one is picked.",
         "operationId": "putApiWorkshopsIdApi-key",
         "parameters": [
           {
@@ -9543,7 +9928,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Workshop"
+                  "$ref": "#/components/schemas/WorkshopView"
                 }
               }
             },
@@ -9568,7 +9953,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Sets the API key a workshop's members play"
+        "summary": "Sets the key a workshop plays with: one of the"
       }
     },
     "/api/workshops/{id}/events": {
@@ -9620,7 +10005,7 @@
     },
     "/api/workshops/{id}/members": {
       "post": {
-        "description": "making it their active workshop.",
+        "description": "into it: it becomes the workshop they work in.",
         "operationId": "postApiWorkshopsIdMembers",
         "parameters": [
           {
@@ -9672,12 +10057,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Adds a member of the organization to a workshop by"
+        "summary": "Puts an individual of the workshop's organisation"
       }
     },
     "/api/workshops/{id}/members/{userId}": {
       "delete": {
-        "description": "workshop by clearing their active workshop.",
+        "description": "loses their place, a member working in it leaves it.",
         "operationId": "deleteApiWorkshopsIdMembersUserId",
         "parameters": [
           {
@@ -9727,7 +10112,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Removes a member who is not permanent from a"
+        "summary": "Takes someone out of a workshop: a guest of it"
       }
     }
   }

@@ -2,6 +2,7 @@ package core
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -43,6 +44,20 @@ func badRequest(code, format string, args ...any) error {
 // the last head).
 func conflict(code, format string, args ...any) error {
 	return schemafapi.Error(schemafapi.ErrConflict, code, fmt.Sprintf(format, args...))
+}
+
+// fromV1 reads an error of a v1 validator the core still calls as the core
+// answers it: a taken public page address 409, any other refusal 400 with
+// its code. Any other error passes.
+func fromV1(err error) error {
+	var appErr *obj.AppError
+	if !errors.As(err, &appErr) {
+		return err
+	}
+	if appErr.Code == obj.ErrCodePublicSlugTaken {
+		return conflict(appErr.Code, "%s", appErr.Message)
+	}
+	return badRequest(appErr.Code, "%s", appErr.Message)
 }
 
 // nameTooLong: 400, name_too_long.

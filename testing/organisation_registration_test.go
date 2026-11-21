@@ -362,8 +362,10 @@ func (s *OrganisationRegistrationTestSuite) TestAnAdminSuspendsAnOrganisation() 
 
 	for name, member := range map[string]*testutil.UserClient{"head": head, "staff": staff, "guest": guest} {
 		s.Equal(testutil.SuspendedByAdmin, s.suspension(member), name)
+		// they see nothing of its workshops until the suspension ends; the
+		// app tells them from /api/users/me
 		_, err := member.GetWorkshop(workshop.Id.String())
-		s.Refused(err, testutil.CodeOrganisationSuspended, name)
+		s.NotFound(err, name)
 	}
 	_, err = head.ConsentToDeclaration(institutionID, s.consent(fmt.Sprintf("trotzdem-%d@jz-test.de", s.unique())))
 	MustSucceed(err)

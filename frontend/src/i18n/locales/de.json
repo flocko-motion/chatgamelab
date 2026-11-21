@@ -469,8 +469,6 @@
         "toggle": "Freigaben \u0026 Sponsorings",
         "unknownGame": "Unbekanntes Spiel",
         "unknownOrg": "Unbekannte Organisation",
-        "unknownUser": "Unbekannter Benutzer",
-        "unknownWorkshop": "Unbekannter Workshop",
         "unlimited": "Unbegrenzte Nutzungen"
       },
       "status": {
@@ -920,6 +918,7 @@
         "owner": "Besitzer",
         "platform": "Plattform",
         "publicSponsoring": "Öffentliches Sponsoring",
+        "removeShare": "Aus der Organisation entfernen",
         "searchPlaceholder": "Nach Name oder Besitzer suchen...",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Wählen Sie einen Schlüssel zum Teilen...",

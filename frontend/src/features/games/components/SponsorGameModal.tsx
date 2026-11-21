@@ -19,7 +19,7 @@ import { useState } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import { useApiKeys, useInstitutionApiKeys, useSponsorGame, useRemoveGameSponsor } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
-import type { GameView, ApiKeyShare } from "@/api/generated/api.gen";
+import type { GameView, KeyShareView } from "@/api/generated/api.gen";
 
 interface SponsorGameModalProps {
   game: Pick<GameView, "id" | "name" | "publicSponsoredApiKeyShareId"> | null;
@@ -47,28 +47,19 @@ export function SponsorGameModal({
 
   const isSponsored = !!game?.publicSponsoredApiKeyShareId;
 
-  // Include both personal shares and institution-shared keys (for head/staff).
+  // The owner's own-use shares and the keys given to their organisation,
+  // where the server says the caller may draw a sponsorship from them.
   // Deduplicate by share ID.
-  const keys = apiKeys?.apiKeys ?? [];
-  const personalShares = apiKeys?.shares ?? [];
-  const eligibleKeys: (ApiKeyShare & { apiKey?: (typeof keys)[number]; label?: string })[] = [];
+  const personalShares = (apiKeys?.shares ?? []).filter((s) => s.self);
+  const eligibleKeys: KeyShareView[] = [];
   const seenShareIds = new Set<string>();
 
-  for (const share of personalShares) {
-    if (!share.id) continue;
+  for (const share of [...personalShares, ...(institutionKeys ?? [])]) {
+    if (!share.id || !share.mayShare) continue;
     if (seenShareIds.has(share.id)) continue;
-    const apiKey = keys.find((k) => k.id === share.apiKeyId);
-    if (apiKey?.lastUsageSuccess === false) continue;
+    if (share.apiKey.lastUsageSuccess === false) continue;
     seenShareIds.add(share.id);
-    eligibleKeys.push({ ...share, apiKey });
-  }
-
-  for (const share of (institutionKeys ?? [])) {
-    if (!share.id) continue;
-    if (seenShareIds.has(share.id)) continue;
-    if (share.apiKey?.lastUsageSuccess === false) continue;
-    seenShareIds.add(share.id);
-    eligibleKeys.push({ ...share });
+    eligibleKeys.push(share);
   }
 
   const selectedShare = eligibleKeys.find((s) => s.id === selectedShareId);

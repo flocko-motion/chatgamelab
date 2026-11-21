@@ -22,9 +22,24 @@ var Rules = map[Role]Grants{
 			{Read, OrganisationRecord, Everywhere},
 			{Delete, Membership, Everywhere}, // never an organisation's last head
 
-			{Read, Workshop, Everywhere},
-			{List, Workshop, Everywhere},
-			{Manage, Workshop, Everywhere},
+			{Create, WorkshopCard, Everywhere}, // in any organisation
+			{Read, WorkshopCard, Everywhere},
+			{List, WorkshopCard, Everywhere},
+			{Edit, WorkshopCard, Everywhere},
+			{Delete, WorkshopCard, Everywhere},
+			{Read, WorkshopSettings, Everywhere},
+			{Edit, WorkshopSettings, Everywhere},
+			{List, WorkshopParticipants, Everywhere},
+			{Manage, WorkshopParticipants, Everywhere},
+			{Create, Invite, Everywhere},
+			{List, Invite, Everywhere},
+			{Read, Invite, Everywhere},
+			{Delete, Invite, Everywhere},
+			{Create, HeadInvite, Everywhere},
+			{List, HeadInvite, Everywhere},
+			{Read, HeadInvite, Everywhere},
+			{Delete, HeadInvite, Everywhere},
+			{Edit, Membership, Everywhere}, // any role, admin included; only an individual becomes admin
 
 			{Read, GameCard, Everywhere},
 			{List, GameCard, Everywhere},
@@ -63,15 +78,41 @@ var Rules = map[Role]Grants{
 			{Read, OrganisationRecord, OfOwnOrganisation},
 			{Delete, Membership, MemberOfOwnOrganisation}, // leaving too; never the last head
 			{Delete, Membership, GuestOfOwnOrganisation},
+			{Edit, Membership, MemberOfOwnOrganisation}, // making members head or staff; never the last head away
+			{Create, HeadInvite, OfOwnOrganisation},
+			{List, HeadInvite, OfOwnOrganisation},
+			{Read, HeadInvite, OfOwnOrganisation},
+			{Delete, HeadInvite, OfOwnOrganisation},
+			{Delete, ApiKeyShare, SharedWithOwnOrganisation}, // removing a key from the organisation; its owner keeps it
 
-			{Manage, Workshop, OfOwnOrganisation},
-			{Enter, Workshop, OfOwnOrganisation},
+			// an organisation is cooperative: its head and staff run all its
+			// workshops
+			{Create, WorkshopCard, OfOwnOrganisation},
+			{Read, WorkshopCard, OfOwnOrganisation},
+			{List, WorkshopCard, OfOwnOrganisation},
+			{Edit, WorkshopCard, OfOwnOrganisation},
+			{Delete, WorkshopCard, OfOwnOrganisation},
+			{Read, WorkshopSettings, OfOwnOrganisation},
+			{Edit, WorkshopSettings, OfOwnOrganisation},
+			{List, WorkshopParticipants, OfOwnOrganisation},
+			{Manage, WorkshopParticipants, OfOwnOrganisation}, // its individuals, in and out
+			{Create, Invite, OfOwnOrganisation},               // staff invite staff and individuals too
+			{List, Invite, OfOwnOrganisation},
+			{Read, Invite, OfOwnOrganisation},
+			{Delete, Invite, OfOwnOrganisation}, // whoever made it: the organisation is cooperative
+			{Enter, WorkshopCard, OfOwnOrganisation},
 
+			// the organisation's keys, given by their owners: workshops play
+			// with them, and they pay for sponsored games and share links
 			{List, ApiKeyShare, SharedWithOwnOrganisation},
-			{Use, ApiKeyShare, SharedWithOwnOrganisation},
-			{Manage, ApiKeyShare, SharedWithOwnOrganisation},
-
-			{Share, ApiKeyShare, Held}, // where to: sharing.go
+			{Share, ApiKeyShare, SharedWithOwnOrganisation}, // a sponsorship or a share link drawn from it
+			{Use, ApiKeyShare, FreeUseOfOwnOrganisation},
+			// what draws from them: the organisation is cooperative, so any of
+			// its head and staff stops any of it, whoever made it
+			{List, ApiKeyShare, PaidByOwnOrganisation},
+			{Manage, ApiKeyShare, PaidByOwnOrganisation},
+			{List, ShareLink, PaidByOwnOrganisation},
+			{Manage, ShareLink, PaidByOwnOrganisation},
 
 			{Read, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
 			{Read, GameContent, OfOwnOrganisation},
@@ -88,8 +129,9 @@ var Rules = map[Role]Grants{
 			{Read, UserCard, OfOwnOrganisation}, // members, and guests in its workshops
 			{Read, UserAccount, OfOwnOrganisation},
 			{Read, UserContact, OfOwnOrganisation},
-			{Read, UserSecrets, OfOwnOrganisation},    // a guest's login code: helping a guest who lost it
-			{List, UserCard, MemberOfOwnOrganisation}, // listing is narrower: no guests
+			{Read, UserSecrets, OfOwnOrganisation},      // a guest's login code: helping a guest who lost it
+			{Edit, UserSecrets, GuestOfOwnOrganisation}, // a new login code, ending the old one
+			{List, UserCard, MemberOfOwnOrganisation},   // listing is narrower: no guests
 			{List, UserAccount, MemberOfOwnOrganisation},
 			{List, UserContact, MemberOfOwnOrganisation},
 			{Edit, UserCard, GuestOfOwnOrganisation},
@@ -121,14 +163,34 @@ var Rules = map[Role]Grants{
 			{Delete, Membership, GuestOfOwnOrganisation},
 			{Delete, Membership, Own}, // leaving
 
-			{Manage, Workshop, Assigned},
-			{Enter, Workshop, OfOwnOrganisation},
+			// an organisation is cooperative: its head and staff run all its
+			// workshops
+			{Create, WorkshopCard, OfOwnOrganisation},
+			{Read, WorkshopCard, OfOwnOrganisation},
+			{List, WorkshopCard, OfOwnOrganisation},
+			{Edit, WorkshopCard, OfOwnOrganisation},
+			{Delete, WorkshopCard, OfOwnOrganisation},
+			{Read, WorkshopSettings, OfOwnOrganisation},
+			{Edit, WorkshopSettings, OfOwnOrganisation},
+			{List, WorkshopParticipants, OfOwnOrganisation},
+			{Manage, WorkshopParticipants, OfOwnOrganisation}, // its individuals, in and out
+			{Create, Invite, OfOwnOrganisation},               // staff invite staff and individuals too
+			{List, Invite, OfOwnOrganisation},
+			{Read, Invite, OfOwnOrganisation},
+			{Delete, Invite, OfOwnOrganisation}, // whoever made it: the organisation is cooperative
+			{Enter, WorkshopCard, OfOwnOrganisation},
 
+			// the organisation's keys, given by their owners: workshops play
+			// with them, and they pay for sponsored games and share links
 			{List, ApiKeyShare, SharedWithOwnOrganisation},
-			{Use, ApiKeyShare, SharedWithOwnOrganisation},
-			{Manage, ApiKeyShare, SharedWithOwnOrganisation},
-
-			{Share, ApiKeyShare, Held}, // where to: sharing.go
+			{Share, ApiKeyShare, SharedWithOwnOrganisation}, // a sponsorship or a share link drawn from it
+			{Use, ApiKeyShare, FreeUseOfOwnOrganisation},
+			// what draws from them: the organisation is cooperative, so any of
+			// its head and staff stops any of it, whoever made it
+			{List, ApiKeyShare, PaidByOwnOrganisation},
+			{Manage, ApiKeyShare, PaidByOwnOrganisation},
+			{List, ShareLink, PaidByOwnOrganisation},
+			{Manage, ShareLink, PaidByOwnOrganisation},
 
 			{Read, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
 			{Read, GameContent, OfOwnOrganisation},
@@ -145,8 +207,9 @@ var Rules = map[Role]Grants{
 			{Read, UserCard, OfOwnOrganisation}, // members, and guests in its workshops
 			{Read, UserAccount, OfOwnOrganisation},
 			{Read, UserContact, OfOwnOrganisation},
-			{Read, UserSecrets, OfOwnOrganisation},    // a guest's login code: helping a guest who lost it
-			{List, UserCard, MemberOfOwnOrganisation}, // listing is narrower: no guests
+			{Read, UserSecrets, OfOwnOrganisation},      // a guest's login code: helping a guest who lost it
+			{Edit, UserSecrets, GuestOfOwnOrganisation}, // a new login code, ending the old one
+			{List, UserCard, MemberOfOwnOrganisation},   // listing is narrower: no guests
 			{List, UserAccount, MemberOfOwnOrganisation},
 			{List, UserContact, MemberOfOwnOrganisation},
 			{Edit, UserCard, GuestOfOwnOrganisation},
@@ -166,10 +229,11 @@ var Rules = map[Role]Grants{
 	// it is in a workshop like anyone (Everyone, InWorkshop).
 	Individual: {
 		Always: {
-			{Enter, Workshop, Active},
+			{Enter, WorkshopCard, Active},
 
-			{List, UserCard, MemberOfOwnOrganisation}, // an individual of an organisation sees who else is in it
-			{Delete, Membership, Own},                 // leaving it
+			{List, UserCard, MemberOfOwnOrganisation},    // an individual of an organisation sees who else is in it
+			{Use, ApiKeyShare, FreeUseOfOwnOrganisation}, // members play with it, guests not
+			{Delete, Membership, Own},                    // leaving it
 
 			{Edit, UserContact, Own},
 
@@ -198,7 +262,8 @@ var Rules = map[Role]Grants{
 			{Copy, GameContent, Public}, // into a new private game of the caller's
 			{Copy, GameContent, Own},
 
-			{List, ShareLink, PaidByOwnKey}, // v1: the payer may not revoke; questionable
+			{List, ShareLink, PaidByOwnKey},
+			{Manage, ShareLink, PaidByOwnKey}, // the payer stops it; v1 let them only see it
 
 			{List, ShareLink, Own},
 			{Manage, ShareLink, Own},
@@ -206,18 +271,24 @@ var Rules = map[Role]Grants{
 			{List, ShareLink, OfOwnGame},
 			{Manage, ShareLink, OfOwnGame},
 
+			// invites addressed to the caller, by account or email
+			{List, Invite, SharedWithMe},
+			{Read, Invite, SharedWithMe},
+			{Use, Invite, SharedWithMe},
+			{List, HeadInvite, SharedWithMe},
+			{Read, HeadInvite, SharedWithMe},
+			{Use, HeadInvite, SharedWithMe},
+
+			// a key is money: whoever bought it owns it, shares it and takes
+			// it back; nobody else, the admin included
 			{Read, ApiKey, Own}, // the record and a shortened key, never the secret
 			{List, ApiKey, Own},
 			{Use, ApiKey, Own},
-			{Share, ApiKey, Own},
+			{Share, ApiKey, Own}, // with their own organisation, or for a sponsored game or a share link
 			{Manage, ApiKey, Own},
 
 			{List, ApiKeyShare, PaidByOwnKey},
-			{Manage, ApiKeyShare, PaidByOwnKey},
-
-			{List, ApiKeyShare, SharedWithMe},
-			{Use, ApiKeyShare, SharedWithMe},
-			{Manage, ApiKeyShare, SharedWithMe}, // v1: the recipient may drop it
+			{Manage, ApiKeyShare, PaidByOwnKey}, // taking a share back stops what draws from it
 		},
 	},
 
@@ -225,6 +296,7 @@ var Rules = map[Role]Grants{
 	Everyone: {
 		Always: {
 			{Read, OrganisationCard, OfOwnOrganisation}, // a member's, or a guest's through their workshop
+			{Read, WorkshopCard, Public},                // one with a public page
 
 			{Read, GameCard, Public},
 			{Read, GameContent, Public},
@@ -243,6 +315,9 @@ var Rules = map[Role]Grants{
 			{Play, GameCard, ViaShareLink},
 
 			{Play, Session, ViaGuestSessionID},
+
+			{Read, Invite, ViaInviteLink}, // a link joins a workshop, anonymously too
+			{Use, Invite, ViaInviteLink},
 		},
 		OutsideWorkshop: {
 			{List, GameCard, Public},
@@ -252,7 +327,8 @@ var Rules = map[Role]Grants{
 		// head, staff and individuals in workshop mode. A guest through a share
 		// link is never in a workshop.
 		InWorkshop: {
-			{Read, Workshop, Current},
+			{Read, WorkshopCard, Current},
+			{List, WorkshopParticipants, Current}, // those in a workshop see each other
 
 			{List, GameCard, OwnOfCurrentWorkshop},
 			{Read, GameCard, OfCurrentWorkshop}, // reading is wider than listing
@@ -292,6 +368,7 @@ var Rules = map[Role]Grants{
 		SharingAllowed: {
 			{Share, GameCard, Own},
 			{Share, GameCard, Public},
+			{Share, ApiKeyShare, SharedWithCurrentWorkshop}, // share links paid by the workshop's key
 		},
 	},
 }

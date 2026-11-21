@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"cgl/core/internal/rules"
+	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/legal"
 
@@ -229,4 +230,243 @@ func mayRemoveMember(ctx context.Context, user *UserCard) bool {
 		(granted(ctx, rules.Delete, rules.Membership, rules.MemberOfOwnOrganisation) && inOwn && !isGuest) ||
 		(granted(ctx, rules.Delete, rules.Membership, rules.GuestOfOwnOrganisation) && inOwn && isGuest) ||
 		(granted(ctx, rules.Delete, rules.Membership, rules.Own) && isSelf && !isGuest)
+}
+
+// listWorkshopsGates opens V2Workshops for a list: the rows by
+// {List, WorkshopCard}.
+func listWorkshopsGates(ctx context.Context) db.V2WorkshopsParams {
+	p := workshopGates(ctx)
+	p.CardOrganisation = granted(ctx, rules.List, rules.WorkshopCard, rules.OfOwnOrganisation)
+	p.CardEverywhere = granted(ctx, rules.List, rules.WorkshopCard, rules.Everywhere)
+	return p
+}
+
+// readWorkshopGates opens V2Workshops for one workshop: the row by
+// {Read, WorkshopCard}.
+func readWorkshopGates(ctx context.Context, id uuid.UUID) db.V2WorkshopsParams {
+	p := workshopGates(ctx)
+	p.ID = uuid.NullUUID{UUID: id, Valid: true}
+	p.CardOrganisation = granted(ctx, rules.Read, rules.WorkshopCard, rules.OfOwnOrganisation)
+	p.CardCurrent = granted(ctx, rules.Read, rules.WorkshopCard, rules.Current)
+	p.CardPublic = granted(ctx, rules.Read, rules.WorkshopCard, rules.Public)
+	p.CardEverywhere = granted(ctx, rules.Read, rules.WorkshopCard, rules.Everywhere)
+	return p
+}
+
+// workshopGates opens what list and read share: the sections by
+// {Read, WorkshopSettings} and {List, WorkshopParticipants},
+// the actions by {Edit, <section>}, {Delete, WorkshopCard} and
+// {Manage, WorkshopParticipants}.
+func workshopGates(ctx context.Context) db.V2WorkshopsParams {
+	return db.V2WorkshopsParams{
+		OwnOrganisation: ownOrganisation(ctx),
+		CurrentWorkshop: currentWorkshop(ctx),
+
+		SettingsOrganisation:     granted(ctx, rules.Read, rules.WorkshopSettings, rules.OfOwnOrganisation),
+		SettingsEverywhere:       granted(ctx, rules.Read, rules.WorkshopSettings, rules.Everywhere),
+		ParticipantsOrganisation: granted(ctx, rules.List, rules.WorkshopParticipants, rules.OfOwnOrganisation),
+		ParticipantsCurrent:      granted(ctx, rules.List, rules.WorkshopParticipants, rules.Current),
+		ParticipantsEverywhere:   granted(ctx, rules.List, rules.WorkshopParticipants, rules.Everywhere),
+
+		EditCardOrganisation:           granted(ctx, rules.Edit, rules.WorkshopCard, rules.OfOwnOrganisation),
+		EditCardEverywhere:             granted(ctx, rules.Edit, rules.WorkshopCard, rules.Everywhere),
+		EditSettingsOrganisation:       granted(ctx, rules.Edit, rules.WorkshopSettings, rules.OfOwnOrganisation),
+		EditSettingsEverywhere:         granted(ctx, rules.Edit, rules.WorkshopSettings, rules.Everywhere),
+		DeleteOrganisation:             granted(ctx, rules.Delete, rules.WorkshopCard, rules.OfOwnOrganisation),
+		DeleteEverywhere:               granted(ctx, rules.Delete, rules.WorkshopCard, rules.Everywhere),
+		ManageParticipantsOrganisation: granted(ctx, rules.Manage, rules.WorkshopParticipants, rules.OfOwnOrganisation),
+		ManageParticipantsEverywhere:   granted(ctx, rules.Manage, rules.WorkshopParticipants, rules.Everywhere),
+	}
+}
+
+// mayCreateWorkshop says whether the caller may create a workshop in
+// organisation org: {Create, WorkshopCard, OfOwnOrganisation} in their own,
+// {Create, WorkshopCard, Everywhere} in any.
+func mayCreateWorkshop(ctx context.Context, org uuid.UUID) bool {
+	own := from(ctx).Organisation()
+	return granted(ctx, rules.Create, rules.WorkshopCard, rules.Everywhere) ||
+		(granted(ctx, rules.Create, rules.WorkshopCard, rules.OfOwnOrganisation) && own != nil && *own == org)
+}
+
+// mayResetLoginCode says whether the caller may give user a new login code:
+// {Edit, UserSecrets}, for a guest of their organisation.
+func mayResetLoginCode(ctx context.Context, user *UserCard) bool {
+	own := from(ctx).Organisation()
+	return granted(ctx, rules.Edit, rules.UserSecrets, rules.GuestOfOwnOrganisation) &&
+		user.row.role == "guest" && own != nil && user.row.organisationID != nil && *user.row.organisationID == *own
+}
+
+// listInvitesGates opens V2Invites for a list: the rows by {List, Invite}
+// and {List, HeadInvite}.
+func listInvitesGates(ctx context.Context) (db.V2InvitesParams, error) {
+	p, err := inviteGates(ctx)
+	p.CardOrganisation = granted(ctx, rules.List, rules.Invite, rules.OfOwnOrganisation)
+	p.HeadOrganisation = granted(ctx, rules.List, rules.HeadInvite, rules.OfOwnOrganisation)
+	p.CardMine = granted(ctx, rules.List, rules.Invite, rules.SharedWithMe)
+	p.HeadMine = granted(ctx, rules.List, rules.HeadInvite, rules.SharedWithMe)
+	p.CardEverywhere = granted(ctx, rules.List, rules.Invite, rules.Everywhere)
+	p.HeadEverywhere = granted(ctx, rules.List, rules.HeadInvite, rules.Everywhere)
+	return p, err
+}
+
+// readInviteGates opens V2Invites for one invite, by its id or the token of
+// its link: the row by {Read, Invite} and {Read, HeadInvite}.
+func readInviteGates(ctx context.Context, id *uuid.UUID, token *string) (db.V2InvitesParams, error) {
+	p, err := inviteGates(ctx)
+	p.ID = nullUUID(id)
+	p.Token = sqlString(token)
+	p.CardOrganisation = granted(ctx, rules.Read, rules.Invite, rules.OfOwnOrganisation)
+	p.HeadOrganisation = granted(ctx, rules.Read, rules.HeadInvite, rules.OfOwnOrganisation)
+	p.CardMine = granted(ctx, rules.Read, rules.Invite, rules.SharedWithMe)
+	p.HeadMine = granted(ctx, rules.Read, rules.HeadInvite, rules.SharedWithMe)
+	p.CardLink = granted(ctx, rules.Read, rules.Invite, rules.ViaInviteLink)
+	p.CardEverywhere = granted(ctx, rules.Read, rules.Invite, rules.Everywhere)
+	p.HeadEverywhere = granted(ctx, rules.Read, rules.HeadInvite, rules.Everywhere)
+	return p, err
+}
+
+// inviteGates opens what list and read share: the actions by
+// {Delete, Invite}, {Delete, HeadInvite}, {Use, Invite} and
+// {Use, HeadInvite}. An invite addressed by email is the caller's when the
+// email is theirs.
+func inviteGates(ctx context.Context) (db.V2InvitesParams, error) {
+	p := db.V2InvitesParams{
+		Caller:          account(ctx),
+		OwnOrganisation: ownOrganisation(ctx),
+
+		DeleteOrganisation:     granted(ctx, rules.Delete, rules.Invite, rules.OfOwnOrganisation),
+		DeleteHeadOrganisation: granted(ctx, rules.Delete, rules.HeadInvite, rules.OfOwnOrganisation),
+		DeleteEverywhere:       granted(ctx, rules.Delete, rules.Invite, rules.Everywhere),
+		DeleteHeadEverywhere:   granted(ctx, rules.Delete, rules.HeadInvite, rules.Everywhere),
+		UseMine:                granted(ctx, rules.Use, rules.Invite, rules.SharedWithMe),
+		UseHeadMine:            granted(ctx, rules.Use, rules.HeadInvite, rules.SharedWithMe),
+		UseLink:                granted(ctx, rules.Use, rules.Invite, rules.ViaInviteLink),
+	}
+	if id := from(ctx).Account(); id != nil {
+		email, err := store.Queries().V2UserEmail(ctx, *id)
+		if err != nil {
+			return p, err
+		}
+		p.CallerEmail = email
+	}
+	return p, nil
+}
+
+// mayCreateInvite says whether the caller may invite into organisation org:
+// as head, {Create, HeadInvite}; otherwise {Create, Invite}; in their own
+// organisation, or, for the admin, in any.
+func mayCreateInvite(ctx context.Context, org uuid.UUID, asHead bool) bool {
+	own := from(ctx).Organisation()
+	inOwn := own != nil && *own == org
+	if asHead {
+		return granted(ctx, rules.Create, rules.HeadInvite, rules.Everywhere) ||
+			(granted(ctx, rules.Create, rules.HeadInvite, rules.OfOwnOrganisation) && inOwn)
+	}
+	return granted(ctx, rules.Create, rules.Invite, rules.Everywhere) ||
+		(granted(ctx, rules.Create, rules.Invite, rules.OfOwnOrganisation) && inOwn)
+}
+
+// mayChangeRole says whether the caller may change user's role, and whether
+// only within their organisation, to head or staff: {Edit, Membership}
+// Everywhere (any role, the admin's) or MemberOfOwnOrganisation.
+func mayChangeRole(ctx context.Context, user *UserCard) (any, withinOwn bool) {
+	own := from(ctx).Organisation()
+	inOwn := own != nil && user.row.organisationID != nil && *user.row.organisationID == *own && user.row.role != "guest"
+	return granted(ctx, rules.Edit, rules.Membership, rules.Everywhere),
+		granted(ctx, rules.Edit, rules.Membership, rules.MemberOfOwnOrganisation) && inOwn
+}
+
+// mayEnterWorkshop says whether the caller may work in a workshop of
+// organisation org: {Enter, WorkshopCard}, OfOwnOrganisation for one of
+// theirs, Active for any; either way only while it runs.
+func mayEnterWorkshop(ctx context.Context, org uuid.UUID, active bool) bool {
+	own := from(ctx).Organisation()
+	return active && (granted(ctx, rules.Enter, rules.WorkshopCard, rules.Active) ||
+		(granted(ctx, rules.Enter, rules.WorkshopCard, rules.OfOwnOrganisation) && own != nil && *own == org))
+}
+
+// keyGates opens V2Keys: the caller's own keys by {List, ApiKey, Own}.
+func keyGates(ctx context.Context) db.V2KeysParams {
+	return db.V2KeysParams{
+		Caller: account(ctx),
+		Own:    granted(ctx, rules.List, rules.ApiKey, rules.Own),
+	}
+}
+
+// keyShareGates opens V2KeyShares, for a list or one share: the rows by
+// {List, ApiKeyShare}, the actions by {Share, ApiKey}, {Share, ApiKeyShare},
+// {Manage, ApiKeyShare} and {Delete, ApiKeyShare}.
+func keyShareGates(ctx context.Context) db.V2KeySharesParams {
+	return db.V2KeySharesParams{
+		Caller:          account(ctx),
+		OwnOrganisation: ownOrganisation(ctx),
+
+		CardOwn:          granted(ctx, rules.List, rules.ApiKeyShare, rules.PaidByOwnKey),
+		CardOrganisation: granted(ctx, rules.List, rules.ApiKeyShare, rules.SharedWithOwnOrganisation),
+		CardDrawn:        granted(ctx, rules.List, rules.ApiKeyShare, rules.PaidByOwnOrganisation),
+
+		ShareOwn:          granted(ctx, rules.Share, rules.ApiKey, rules.Own),
+		ShareOrganisation: granted(ctx, rules.Share, rules.ApiKeyShare, rules.SharedWithOwnOrganisation),
+		ShareWorkshop:     granted(ctx, rules.Share, rules.ApiKeyShare, rules.SharedWithCurrentWorkshop),
+		CurrentWorkshop:   currentWorkshop(ctx),
+
+		RevokeOwn:          granted(ctx, rules.Manage, rules.ApiKeyShare, rules.PaidByOwnKey),
+		RevokeOrganisation: granted(ctx, rules.Delete, rules.ApiKeyShare, rules.SharedWithOwnOrganisation),
+		RevokeDrawn:        granted(ctx, rules.Manage, rules.ApiKeyShare, rules.PaidByOwnOrganisation),
+	}
+}
+
+// mayManageKey says whether the caller may rename their key, make it their
+// default or delete it: {Manage, ApiKey, Own}, for a key they own.
+func mayManageKey(ctx context.Context, owner uuid.UUID) bool {
+	return granted(ctx, rules.Manage, rules.ApiKey, rules.Own) && account(ctx).Valid && account(ctx).UUID == owner
+}
+
+// mayCreateKey says whether the caller may add a key of their own:
+// {Manage, ApiKey, Own}.
+func mayCreateKey(ctx context.Context) bool {
+	return granted(ctx, rules.Manage, rules.ApiKey, rules.Own) && account(ctx).Valid
+}
+
+// shareLinkGates opens V2ShareLinks, for a list or one link: the rows by
+// {List, ShareLink}, the actions by {Manage, ShareLink}.
+func shareLinkGates(ctx context.Context) db.V2ShareLinksParams {
+	return db.V2ShareLinksParams{
+		Caller:          account(ctx),
+		OwnOrganisation: ownOrganisation(ctx),
+		CurrentWorkshop: currentWorkshop(ctx),
+
+		CardOwn:          granted(ctx, rules.List, rules.ShareLink, rules.Own),
+		CardGame:         granted(ctx, rules.List, rules.ShareLink, rules.OfOwnGame),
+		CardKey:          granted(ctx, rules.List, rules.ShareLink, rules.PaidByOwnKey),
+		CardOrganisation: granted(ctx, rules.List, rules.ShareLink, rules.PaidByOwnOrganisation),
+		CardWorkshop:     granted(ctx, rules.List, rules.ShareLink, rules.OfCurrentWorkshop),
+
+		ManageOwn:          granted(ctx, rules.Manage, rules.ShareLink, rules.Own),
+		ManageGame:         granted(ctx, rules.Manage, rules.ShareLink, rules.OfOwnGame),
+		ManageKey:          granted(ctx, rules.Manage, rules.ShareLink, rules.PaidByOwnKey),
+		ManageOrganisation: granted(ctx, rules.Manage, rules.ShareLink, rules.PaidByOwnOrganisation),
+	}
+}
+
+// payerGrants says which of the shares that may pay for the caller's plays
+// they may use: their workshop's key, {Use, ApiKeyShare,
+// SharedWithCurrentWorkshop}; their organisation's free-use key, {Use,
+// ApiKeyShare, FreeUseOfOwnOrganisation}; their own default key, {Use,
+// ApiKey, Own}.
+func payerGrants(ctx context.Context) (workshop, freeUse, own bool) {
+	return granted(ctx, rules.Use, rules.ApiKeyShare, rules.SharedWithCurrentWorkshop),
+		granted(ctx, rules.Use, rules.ApiKeyShare, rules.FreeUseOfOwnOrganisation),
+		granted(ctx, rules.Use, rules.ApiKey, rules.Own)
+}
+
+// mayDrawFromWorkshopKey says whether the caller may pay for share links
+// with workshop's key: {Share, ApiKeyShare, SharedWithOwnOrganisation} as
+// head or staff of its organisation org, {Share, ApiKeyShare,
+// SharedWithCurrentWorkshop} in it while it allows sharing.
+func mayDrawFromWorkshopKey(ctx context.Context, org, workshop uuid.UUID) bool {
+	c := from(ctx)
+	own, current := c.Organisation(), c.CurrentWorkshop()
+	return (granted(ctx, rules.Share, rules.ApiKeyShare, rules.SharedWithOwnOrganisation) && own != nil && *own == org) ||
+		(granted(ctx, rules.Share, rules.ApiKeyShare, rules.SharedWithCurrentWorkshop) && current != nil && *current == workshop)
 }

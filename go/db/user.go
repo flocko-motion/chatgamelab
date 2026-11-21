@@ -237,9 +237,9 @@ const GuestTokenPrefix = "guest-"
 // them; nothing new is issued with it.
 const LegacyGuestTokenPrefix = "participant-"
 
-// newGuestToken returns the prefix plus 4 words (44 bits); brute force is
+// NewGuestToken returns the prefix plus 4 words (44 bits); brute force is
 // bounded by the token lock (httpx.TokenLock).
-func newGuestToken(ctx context.Context) (string, error) {
+func NewGuestToken(ctx context.Context) (string, error) {
 	words, err := wordtoken.GenerateUnique(ctx, 4, func(ctx context.Context, w string) (bool, error) {
 		return isGuestTokenTaken(ctx, GuestTokenPrefix+w)
 	})

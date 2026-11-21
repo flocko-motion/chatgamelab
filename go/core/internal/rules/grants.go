@@ -47,8 +47,9 @@ const (
 	Delete Action = "delete"
 	Manage Action = "manage"
 	// Create makes a new entity. Own: it is the caller's from the start, and
-	// its rights are the role's Own grants. Everywhere: the caller makes it
-	// for others, as an admin makes an organisation.
+	// its rights are the role's Own grants. OfOwnOrganisation: it belongs to
+	// the caller's organisation, as a workshop does. Everywhere: the caller
+	// makes it for others, as an admin makes an organisation.
 	Create Action = "create"
 	// Copy makes a new entity of the caller's from this one.
 	Copy Action = "copy"
@@ -114,7 +115,27 @@ const (
 	// code. Whoever holds it is that guest.
 	UserSecrets Entity = "user secrets"
 
-	Workshop Entity = "workshop"
+	// WorkshopCard is what a workshop is to those in it: its name and
+	// organisation, whether it runs or is paused, what it shows and lets its
+	// participants do, its AI tier, and whether it has a public page and at
+	// which address.
+	WorkshopCard Entity = "workshop card"
+	// WorkshopSettings is how a workshop is set up behind that: its
+	// youth-protection restriction, the key share it plays with, and its
+	// public page's text and links.
+	WorkshopSettings Entity = "workshop settings"
+	// WorkshopParticipants is who is in a workshop: its guests, and the
+	// members of its organisation working in it. Managing it puts an
+	// individual of the organisation into the workshop or takes them out.
+	WorkshopParticipants Entity = "workshop participants"
+	// Invite brings someone into an organisation as staff or individual, or
+	// into a workshop: for an account or an email, or as a link anyone may
+	// follow. Listing it hands out its link. Using it answers it: accepting
+	// or declining.
+	Invite Entity = "invite"
+	// HeadInvite is an invite to become an organisation's head: kept apart,
+	// as fewer may make, see or revoke it.
+	HeadInvite Entity = "head invite"
 
 	// OrganisationCard is who an organisation is: its id and name, what its
 	// members and the guests in its workshops see of it.
@@ -147,10 +168,8 @@ const (
 	Public     Relation = "public"
 	Active     Relation = "active"  // switched on, e.g. a workshop that is running
 	Current    Relation = "current" // the one the caller is in, e.g. their current workshop
-	Held       Relation = "held"    // held by the caller, directly or through their organisation or workshop
 	Own        Relation = "own"     // created by the caller
 
-	Assigned          Relation = "assigned"            // the caller is assigned to it
 	OfCurrentWorkshop Relation = "of current workshop" // the workshop the caller is in
 	OfOwnOrganisation Relation = "of own organisation" // belongs to the caller's organisation, e.g. a game of one of its workshops, a member, a guest in one of its workshops
 
@@ -158,6 +177,7 @@ const (
 	GuestOfOwnOrganisation  Relation = "guest of own organisation"  // a guest in one of the caller's organisation's workshops
 	OfOwnGame               Relation = "of own game"                // belongs to a game the caller created
 	PaidByOwnKey            Relation = "paid by own key"            // spends from an API key the caller owns
+	PaidByOwnOrganisation   Relation = "paid by own organisation"   // spends from a key given to the caller's organisation
 
 	OwnOfCurrentWorkshop Relation = "own, of the current workshop" // created by the caller, in the workshop they are in
 	PublicElsewhere      Relation = "public, elsewhere"            // public, not of the workshop the caller is in
@@ -165,10 +185,12 @@ const (
 	SharedWithMe              Relation = "shared with me"               // given to the caller
 	SharedWithCurrentWorkshop Relation = "shared with current workshop" // given to the workshop the caller is in
 	SharedWithOwnOrganisation Relation = "shared with own organisation" // given to the caller's organisation
+	FreeUseOfOwnOrganisation  Relation = "free use of own organisation" // the key the caller's organisation lets its members play with
 
 	// Via: the caller holds the secret that opens this one entity. Like a
 	// wallet key, it grants access but can never be listed.
 	ViaShareLink      Relation = "via share link"
+	ViaInviteLink     Relation = "via invite link" // an invite link: whoever has it may follow it
 	ViaGuestSessionID Relation = "via guest session id"
 )
 

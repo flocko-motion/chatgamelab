@@ -36,20 +36,6 @@ func GetInstitutionFreeUseTier(ctx context.Context, id uuid.UUID) (*string, erro
 	return &result.FreeUseAiQualityTier.String, nil
 }
 
-// SetInstitutionFreeUseApiKeyShare sets or clears the free-use API key share for an institution.
-// Permission check: head of the institution or admin.
-func SetInstitutionFreeUseApiKeyShare(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, shareID *uuid.UUID) error {
-	// Check permission - must be head or admin
-	if err := canAccessInstitution(ctx, userID, OpUpdate, &institutionID); err != nil {
-		return err
-	}
-
-	return queries().SetInstitutionFreeUseApiKeyShare(ctx, SetInstitutionFreeUseApiKeyShareParams{
-		ID:                   institutionID,
-		FreeUseApiKeyShareID: uuidPtrToNullUUID(shareID),
-	})
-}
-
 // DeleteInstitutionCascade deletes an institution and all its data, for the
 // core, which has checked that deletedBy may (core.DeleteOrganisation).
 // Cascade: workshops (with their Guests and games), member users (with their data),
@@ -59,8 +45,7 @@ func DeleteInstitutionCascade(ctx context.Context, id uuid.UUID, deletedBy uuid.
 	// 1. Delete all workshops (cascades to their Guests, games, etc.)
 	workshopIDs, _ := queries().GetWorkshopIDsByInstitution(ctx, id)
 	for _, wsID := range workshopIDs {
-		// Use deletedBy (admin) to bypass per-workshop permission checks
-		_ = DeleteWorkshop(ctx, wsID, deletedBy)
+		_ = DeleteWorkshopCascade(ctx, wsID)
 	}
 
 	// 2. Delete the remaining Guests

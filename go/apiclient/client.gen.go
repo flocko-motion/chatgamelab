@@ -22,9 +22,9 @@ import (
 
 // AcceptInviteResp defines model for AcceptInviteResp.
 type AcceptInviteResp struct {
-	AuthToken *string `json:"authToken,omitempty"`
-	Message   string  `json:"message"`
-	User      *User   `json:"user,omitempty"`
+	AuthToken *string       `json:"authToken,omitempty"`
+	Message   string        `json:"message"`
+	User      *NewGuestView `json:"user,omitempty"`
 }
 
 // AddWorkshopMemberReq defines model for AddWorkshopMemberReq.
@@ -48,8 +48,8 @@ type ApiKey struct {
 
 // ApiKeyInfoResp defines model for ApiKeyInfoResp.
 type ApiKeyInfoResp struct {
-	LinkedShares []ApiKeyShare `json:"linkedShares"`
-	Share        *ApiKeyShare  `json:"share,omitempty"`
+	LinkedShares []KeyShareView `json:"linkedShares"`
+	Share        *KeyShareView  `json:"share,omitempty"`
 }
 
 // ApiKeyShare defines model for ApiKeyShare.
@@ -68,10 +68,24 @@ type ApiKeyShare struct {
 	Workshop       *Workshop           `json:"workshop,omitempty"`
 }
 
+// ApiKeyView defines model for ApiKeyView.
+type ApiKeyView struct {
+	Id               openapi_types.UUID `json:"id"`
+	IsDefault        bool               `json:"isDefault"`
+	KeyShortened     string             `json:"keyShortened"`
+	LastErrorCode    *string            `json:"lastErrorCode,omitempty"`
+	LastUsageSuccess *bool              `json:"lastUsageSuccess,omitempty"`
+	Meta             KeyMeta            `json:"meta"`
+	Name             string             `json:"name"`
+	Platform         string             `json:"platform"`
+	UserId           openapi_types.UUID `json:"userId"`
+	UserName         string             `json:"userName"`
+}
+
 // ApiKeysResp defines model for ApiKeysResp.
 type ApiKeysResp struct {
-	ApiKeys []ApiKey      `json:"apiKeys"`
-	Shares  []ApiKeyShare `json:"shares"`
+	ApiKeys []ApiKeyView   `json:"apiKeys"`
+	Shares  []KeyShareView `json:"shares"`
 }
 
 // AvailableKey defines model for AvailableKey.
@@ -277,24 +291,6 @@ type EdgeDetail struct {
 	To     string   `json:"to"`
 }
 
-// EnrichedGameShare defines model for EnrichedGameShare.
-type EnrichedGameShare struct {
-	AiQualityTier *string             `json:"aiQualityTier,omitempty"`
-	ApiKeyShareId openapi_types.UUID  `json:"apiKeyShareId"`
-	CreatedAt     time.Time           `json:"createdAt"`
-	CreatedBy     *openapi_types.UUID `json:"createdBy,omitempty"`
-	GameId        openapi_types.UUID  `json:"gameId"`
-	GameName      *string             `json:"gameName,omitempty"`
-	Id            openapi_types.UUID  `json:"id"`
-	InstitutionId *openapi_types.UUID `json:"institutionId,omitempty"`
-	Remaining     *int                `json:"remaining,omitempty"`
-	ShareUrl      string              `json:"shareUrl"`
-	Source        string              `json:"source"`
-	Token         string              `json:"token"`
-	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
-	WorkshopName  *string             `json:"workshopName,omitempty"`
-}
-
 // Error defines model for Error.
 type Error struct {
 	// Code Machine-readable code: an app code, or the default code of the status (bad_request, unauthorized, forbidden, not_found, conflict, gone, precondition_failed, too_large, unprocessable, too_many_requests, not_implemented, bad_gateway, unavailable, gateway_timeout, internal, method_not_allowed, not_acceptable, unsupported_media_type).
@@ -385,21 +381,6 @@ type GameSession struct {
 	ModifiedAt    time.Time           `json:"modifiedAt"`
 	Platform      string              `json:"platform"`
 	UserId        openapi_types.UUID  `json:"userId"`
-	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
-}
-
-// GameShareResp defines model for GameShareResp.
-type GameShareResp struct {
-	AiQualityTier *string             `json:"aiQualityTier,omitempty"`
-	ApiKeyShareId openapi_types.UUID  `json:"apiKeyShareId"`
-	CreatedAt     time.Time           `json:"createdAt"`
-	CreatedBy     *openapi_types.UUID `json:"createdBy,omitempty"`
-	GameId        openapi_types.UUID  `json:"gameId"`
-	Id            openapi_types.UUID  `json:"id"`
-	InstitutionId *openapi_types.UUID `json:"institutionId,omitempty"`
-	Remaining     *int                `json:"remaining,omitempty"`
-	ShareUrl      string              `json:"shareUrl"`
-	Token         string              `json:"token"`
 	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
@@ -548,23 +529,79 @@ type Institution struct {
 	PromptConstraints    *string             `json:"promptConstraints,omitempty"`
 }
 
-// InviteResp defines model for InviteResp.
-type InviteResp struct {
-	CreatedAt       string  `json:"createdAt"`
-	ExpiresAt       *string `json:"expiresAt,omitempty"`
-	Id              string  `json:"id"`
-	InstitutionId   string  `json:"institutionId"`
-	InstitutionName *string `json:"institutionName,omitempty"`
-	InviteToken     *string `json:"inviteToken,omitempty"`
-	InvitedEmail    *string `json:"invitedEmail,omitempty"`
-	InvitedUserId   *string `json:"invitedUserId,omitempty"`
-	MaxUses         *int    `json:"maxUses,omitempty"`
-	ModifiedAt      *string `json:"modifiedAt,omitempty"`
-	Role            string  `json:"role"`
-	Status          string  `json:"status"`
-	UsesCount       int     `json:"usesCount"`
-	WorkshopId      *string `json:"workshopId,omitempty"`
-	WorkshopName    *string `json:"workshopName,omitempty"`
+// InviteCardView defines model for InviteCardView.
+type InviteCardView struct {
+	AcceptedAt      *time.Time          `json:"acceptedAt,omitempty"`
+	AcceptedBy      *openapi_types.UUID `json:"acceptedBy,omitempty"`
+	ExpiresAt       *time.Time          `json:"expiresAt,omitempty"`
+	Id              openapi_types.UUID  `json:"id"`
+	InstitutionId   openapi_types.UUID  `json:"institutionId"`
+	InstitutionName string              `json:"institutionName"`
+	InviteToken     *string             `json:"inviteToken,omitempty"`
+	InvitedEmail    *string             `json:"invitedEmail,omitempty"`
+	InvitedUserId   *openapi_types.UUID `json:"invitedUserId,omitempty"`
+	MaxUses         *int                `json:"maxUses,omitempty"`
+	MayAnswer       bool                `json:"mayAnswer"`
+	MayRevoke       bool                `json:"mayRevoke"`
+	Meta            InviteMeta          `json:"meta"`
+	Role            string              `json:"role"`
+	Status          string              `json:"status"`
+	UsesCount       int                 `json:"usesCount"`
+	WorkshopId      *openapi_types.UUID `json:"workshopId,omitempty"`
+	WorkshopName    *string             `json:"workshopName,omitempty"`
+}
+
+// InviteMeta defines model for InviteMeta.
+type InviteMeta struct {
+	CreatedAt  time.Time `json:"createdAt"`
+	ModifiedAt time.Time `json:"modifiedAt"`
+}
+
+// InviteView defines model for InviteView.
+type InviteView struct {
+	AcceptedAt    *time.Time          `json:"acceptedAt,omitempty"`
+	AcceptedBy    *openapi_types.UUID `json:"acceptedBy,omitempty"`
+	ExpiresAt     *time.Time          `json:"expiresAt,omitempty"`
+	Id            openapi_types.UUID  `json:"id"`
+	InstitutionId openapi_types.UUID  `json:"institutionId"`
+	InviteToken   *string             `json:"inviteToken,omitempty"`
+	InvitedEmail  *string             `json:"invitedEmail,omitempty"`
+	InvitedUserId *openapi_types.UUID `json:"invitedUserId,omitempty"`
+	MaxUses       *int                `json:"maxUses,omitempty"`
+	Meta          InviteMeta          `json:"meta"`
+	Role          string              `json:"role"`
+	Status        string              `json:"status"`
+	UsesCount     int                 `json:"usesCount"`
+	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
+}
+
+// KeyMeta defines model for KeyMeta.
+type KeyMeta struct {
+	CreatedAt  time.Time `json:"createdAt"`
+	ModifiedAt time.Time `json:"modifiedAt"`
+}
+
+// KeyShareMeta defines model for KeyShareMeta.
+type KeyShareMeta struct {
+	CreatedAt time.Time           `json:"createdAt"`
+	CreatedBy *openapi_types.UUID `json:"createdBy,omitempty"`
+}
+
+// KeyShareView defines model for KeyShareView.
+type KeyShareView struct {
+	ApiKey         ApiKeyView          `json:"apiKey"`
+	ApiKeyId       openapi_types.UUID  `json:"apiKeyId"`
+	Game           *NamedRef           `json:"game,omitempty"`
+	GameShareId    *openapi_types.UUID `json:"gameShareId,omitempty"`
+	Id             openapi_types.UUID  `json:"id"`
+	Institution    *NamedRef           `json:"institution,omitempty"`
+	IsPrivateShare *bool               `json:"isPrivateShare,omitempty"`
+	MayRevoke      bool                `json:"mayRevoke"`
+	MayShare       bool                `json:"mayShare"`
+	Meta           KeyShareMeta        `json:"meta"`
+	Remaining      *int                `json:"remaining,omitempty"`
+	Self           bool                `json:"self"`
+	SourceShareId  *openapi_types.UUID `json:"sourceShareId,omitempty"`
 }
 
 // Language defines model for Language.
@@ -604,6 +641,13 @@ type Model struct {
 type NamedRef struct {
 	Id   openapi_types.UUID `json:"id"`
 	Name string             `json:"name"`
+}
+
+// NewGuestView defines model for NewGuestView.
+type NewGuestView struct {
+	Id       openapi_types.UUID `json:"id"`
+	Language string             `json:"language"`
+	Name     string             `json:"name"`
 }
 
 // NodeDetail defines model for NodeDetail.
@@ -709,6 +753,11 @@ type OrganisationView struct {
 	SuspendedReason      *string                       `json:"suspendedReason,omitempty"`
 }
 
+// ParticipantMeta defines model for ParticipantMeta.
+type ParticipantMeta struct {
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 // PlatformInfo defines model for PlatformInfo.
 type PlatformInfo struct {
 	Genres   []string     `json:"genres"`
@@ -729,7 +778,7 @@ type Preference struct {
 
 // PrivateShareStatusResp defines model for PrivateShareStatusResp.
 type PrivateShareStatusResp struct {
-	Shares []EnrichedGameShare `json:"shares"`
+	Shares []ShareLinkView `json:"shares"`
 }
 
 // PublicWorkshopGame defines model for PublicWorkshopGame.
@@ -870,6 +919,26 @@ type ShareApiKeyReq struct {
 	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
+// ShareLinkView defines model for ShareLinkView.
+type ShareLinkView struct {
+	AiQualityTier *string             `json:"aiQualityTier,omitempty"`
+	ApiKeyShareId openapi_types.UUID  `json:"apiKeyShareId"`
+	CreatedAt     time.Time           `json:"createdAt"`
+	CreatedBy     *openapi_types.UUID `json:"createdBy,omitempty"`
+	GameId        openapi_types.UUID  `json:"gameId"`
+	GameName      *string             `json:"gameName,omitempty"`
+	Id            openapi_types.UUID  `json:"id"`
+	InstitutionId *openapi_types.UUID `json:"institutionId,omitempty"`
+	KeyName       string              `json:"keyName"`
+	MayManage     bool                `json:"mayManage"`
+	Remaining     *int                `json:"remaining,omitempty"`
+	ShareUrl      string              `json:"shareUrl"`
+	Source        string              `json:"source"`
+	Token         string              `json:"token"`
+	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
+	WorkshopName  *string             `json:"workshopName,omitempty"`
+}
+
 // Snapshot defines model for Snapshot.
 type Snapshot struct {
 	Choosing     bool              `json:"choosing"`
@@ -970,7 +1039,7 @@ type TopologyNode struct {
 
 // UpdateApiKeyReq defines model for UpdateApiKeyReq.
 type UpdateApiKeyReq struct {
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name"`
 }
 
 // UpdateGameReq defines model for UpdateGameReq.
@@ -1043,18 +1112,18 @@ type UpdateUserReq struct {
 
 // UpdateWorkshopReq defines model for UpdateWorkshopReq.
 type UpdateWorkshopReq struct {
-	Active                     bool                  `json:"active"`
+	Active                     *bool                 `json:"active,omitempty"`
 	AiQualityTier              *string               `json:"aiQualityTier,omitempty"`
-	AllowGameSharing           bool                  `json:"allowGameSharing"`
-	IsPaused                   bool                  `json:"isPaused"`
-	Name                       string                `json:"name"`
+	AllowGameSharing           *bool                 `json:"allowGameSharing,omitempty"`
+	IsPaused                   *bool                 `json:"isPaused,omitempty"`
+	Name                       *string               `json:"name,omitempty"`
 	PromptConstraints          *string               `json:"promptConstraints,omitempty"`
-	Public                     bool                  `json:"public"`
+	Public                     *bool                 `json:"public,omitempty"`
 	PublicDescription          *string               `json:"publicDescription,omitempty"`
 	PublicLinks                *[]PublicWorkshopLink `json:"publicLinks,omitempty"`
 	PublicSlug                 *string               `json:"publicSlug,omitempty"`
-	ShowOtherParticipantsGames bool                  `json:"showOtherParticipantsGames"`
-	ShowPublicGames            bool                  `json:"showPublicGames"`
+	ShowOtherParticipantsGames *bool                 `json:"showOtherParticipantsGames,omitempty"`
+	ShowPublicGames            *bool                 `json:"showPublicGames,omitempty"`
 }
 
 // UsageRecord defines model for UsageRecord.
@@ -1216,6 +1285,12 @@ type WorkshopEvent struct {
 	WorkshopId  *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
+// WorkshopMeta defines model for WorkshopMeta.
+type WorkshopMeta struct {
+	CreatedAt  time.Time `json:"createdAt"`
+	ModifiedAt time.Time `json:"modifiedAt"`
+}
+
 // WorkshopParticipant defines model for WorkshopParticipant.
 type WorkshopParticipant struct {
 	AccessToken string             `json:"accessToken"`
@@ -1227,6 +1302,45 @@ type WorkshopParticipant struct {
 	Permanent   bool               `json:"permanent"`
 	Role        string             `json:"role"`
 	WorkshopId  openapi_types.UUID `json:"workshopId"`
+}
+
+// WorkshopParticipantView defines model for WorkshopParticipantView.
+type WorkshopParticipantView struct {
+	GamesCount int                `json:"gamesCount"`
+	Id         openapi_types.UUID `json:"id"`
+	Meta       ParticipantMeta    `json:"meta"`
+	Name       string             `json:"name"`
+	Permanent  bool               `json:"permanent"`
+	Role       string             `json:"role"`
+	WorkshopId openapi_types.UUID `json:"workshopId"`
+}
+
+// WorkshopView defines model for WorkshopView.
+type WorkshopView struct {
+	Active                     bool                      `json:"active"`
+	AiQualityTier              *string                   `json:"aiQualityTier,omitempty"`
+	AllowGameSharing           bool                      `json:"allowGameSharing"`
+	DefaultApiKeyShareId       *openapi_types.UUID       `json:"defaultApiKeyShareId,omitempty"`
+	HasParticipants            bool                      `json:"hasParticipants"`
+	HasSettings                bool                      `json:"hasSettings"`
+	Id                         openapi_types.UUID        `json:"id"`
+	Institution                NamedRef                  `json:"institution"`
+	Invites                    []InviteView              `json:"invites"`
+	IsPaused                   bool                      `json:"isPaused"`
+	MayDelete                  bool                      `json:"mayDelete"`
+	MayEditCard                bool                      `json:"mayEditCard"`
+	MayEditSettings            bool                      `json:"mayEditSettings"`
+	MayManageParticipants      bool                      `json:"mayManageParticipants"`
+	Meta                       WorkshopMeta              `json:"meta"`
+	Name                       string                    `json:"name"`
+	Participants               []WorkshopParticipantView `json:"participants"`
+	PromptConstraints          *string                   `json:"promptConstraints,omitempty"`
+	Public                     bool                      `json:"public"`
+	PublicDescription          *string                   `json:"publicDescription,omitempty"`
+	PublicLinks                *[]PublicWorkshopLink     `json:"publicLinks,omitempty"`
+	PublicSlug                 *string                   `json:"publicSlug,omitempty"`
+	ShowOtherParticipantsGames bool                      `json:"showOtherParticipantsGames"`
+	ShowPublicGames            bool                      `json:"showPublicGames"`
 }
 
 // YouthProtectionSuggestion defines model for YouthProtectionSuggestion.
@@ -1477,102 +1591,115 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 
-	// GetApiApikeys Lists the caller's API keys and all their linked shares
+	// GetApiApikeys Lists the caller's keys and every share of them: their
 	//
-	// (organization shares, sponsorships).
+	// own use of each, the organisation they gave it to, and the sponsored games
+	// and share links it pays for.
 	//
 	// Corresponds with GET /api/apikeys (the `GetApiApikeys` operationId).
 	GetApiApikeys(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiApikeysNewWithBody Creates an API key and shares it with the caller.
+	// PostApiApikeysNewWithBody Stores a key of the caller's and answers with their
 	//
-	// Platform and key are required; surrounding whitespace is trimmed. Without a
-	// name the key is named after its platform and today's date, e.g.
-	// "Mistral 12.02.26".
+	// own use of it. Platform and key are required; surrounding whitespace is
+	// trimmed. Without a name the key is named after its platform and today's
+	// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+	// default.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/apikeys/new (the `PostApiApikeysNew` operationId).
 	PostApiApikeysNewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiApikeysNew Creates an API key and shares it with the caller.
+	// PostApiApikeysNew Stores a key of the caller's and answers with their
 	//
-	// Platform and key are required; surrounding whitespace is trimmed. Without a
-	// name the key is named after its platform and today's date, e.g.
-	// "Mistral 12.02.26".
+	// own use of it. Platform and key are required; surrounding whitespace is
+	// trimmed. Without a name the key is named after its platform and today's
+	// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+	// default.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/apikeys/new (the `PostApiApikeysNew` operationId).
 	PostApiApikeysNew(ctx context.Context, body PostApiApikeysNewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiApikeysId Removes an API key share and answers with it as it was.
+	// DeleteApiApikeysId Takes a share back, stopping what draws from it: the
 	//
-	// With cascade=true it deletes the key and all its shares.
+	// owner any share of their key, a head their organisation's, head and staff
+	// what draws from it. With cascade=true the owner deletes the key itself,
+	// with every share of it. The owner's own use of a key goes only with the
+	// key.
 	//
 	// Corresponds with DELETE /api/apikeys/{id} (the `DeleteApiApikeysId` operationId).
 	DeleteApiApikeysId(ctx context.Context, id string, params *DeleteApiApikeysIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiApikeysId Returns an API key share and the shares linked to it.
+	// GetApiApikeysId Returns a share the caller may see, and for the key's
+	//
+	// owner every share of the key (linkedShares).
 	//
 	// Corresponds with GET /api/apikeys/{id} (the `GetApiApikeysId` operationId).
 	GetApiApikeysId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiApikeysIdWithBody Renames an API key.
+	// PatchApiApikeysIdWithBody Renames a key, for its owner.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with PATCH /api/apikeys/{id} (the `PatchApiApikeysId` operationId).
 	PatchApiApikeysIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiApikeysId Renames an API key.
+	// PatchApiApikeysId Renames a key, for its owner.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with PATCH /api/apikeys/{id} (the `PatchApiApikeysId` operationId).
 	PatchApiApikeysId(ctx context.Context, id string, body PatchApiApikeysIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiApikeysIdWithBody Shares an API key with a user, workshop or
-	//
-	// institution, at the path older clients use.
+	// PostApiApikeysIdWithBody Is ShareApiKeyEndpoint at v1's path.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/apikeys/{id} (the `PostApiApikeysId` operationId).
 	PostApiApikeysIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiApikeysId Shares an API key with a user, workshop or
-	//
-	// institution, at the path older clients use.
+	// PostApiApikeysId Is ShareApiKeyEndpoint at v1's path.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/apikeys/{id} (the `PostApiApikeysId` operationId).
 	PostApiApikeysId(ctx context.Context, id string, body PostApiApikeysIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutApiApikeysIdDefault Makes an API key the caller's default for new sessions.
+	// PutApiApikeysIdDefault Makes a key its owner's default: the one they
+	//
+	// play with themselves.
 	//
 	// Corresponds with PUT /api/apikeys/{id}/default (the `PutApiApikeysIdDefault` operationId).
 	PutApiApikeysIdDefault(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiApikeysIdGameShares Lists the game share links that use an API key,
+	// GetApiApikeysIdGameShares Lists the share links a key pays for, by one
 	//
-	// with each game's name and where the share comes from.
-	//
-	// Query: context=personal lists all shares and requires owning the key;
-	// context=organization lists only organization and workshop shares.
+	// of its shares: for the key's owner all of them, for head and staff those
+	// their organisation pays for. context=personal needs the owner's own share;
+	// context=organization leaves out the owner's personal links.
 	//
 	// Corresponds with GET /api/apikeys/{id}/game-shares (the `GetApiApikeysIdGameShares` operationId).
 	GetApiApikeysIdGameShares(ctx context.Context, id string, params *GetApiApikeysIdGameSharesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiApikeysIdSharesWithBody Shares an API key with a user, workshop or institution.
+	// PostApiApikeysIdSharesWithBody Gives a key to its owner's own organisation: its
+	//
+	// workshops may play with it, its head and staff sponsor games and make
+	// share links with it. A key is shared with an organisation only, never
+	// with users or workshops, and never across organisations.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/apikeys/{id}/shares (the `PostApiApikeysIdShares` operationId).
 	PostApiApikeysIdSharesWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiApikeysIdShares Shares an API key with a user, workshop or institution.
+	// PostApiApikeysIdShares Gives a key to its owner's own organisation: its
+	//
+	// workshops may play with it, its head and staff sponsor games and make
+	// share links with it. A key is shared with an organisation only, never
+	// with users or workshops, and never across organisations.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -2057,16 +2184,16 @@ type ClientInterface interface {
 	// Corresponds with POST /api/games/{id} (the `PostApiGamesId` operationId).
 	PostApiGamesId(ctx context.Context, id string, body PostApiGamesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGamesIdApiKeyStatus Answers whether an API key resolves for the
+	// GetApiGamesIdApiKeyStatus Answers whether a key would pay for the
 	//
-	// caller playing a game.
+	// caller's plays of a game they may read.
 	//
 	// Corresponds with GET /api/games/{id}/api-key-status (the `GetApiGamesIdApiKeyStatus` operationId).
 	GetApiGamesIdApiKeyStatus(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGamesIdAvailableKeys Lists the API keys the caller can play a game
+	// GetApiGamesIdAvailableKeys Lists the keys that would pay for the
 	//
-	// with, in order of priority.
+	// caller's plays of a game they may read, in the order they are tried.
 	//
 	// Corresponds with GET /api/games/{id}/available-keys (the `GetApiGamesIdAvailableKeys` operationId).
 	GetApiGamesIdAvailableKeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2093,14 +2220,10 @@ type ClientInterface interface {
 	// Corresponds with POST /api/games/{id}/favourite (the `PostApiGamesIdFavourite` operationId).
 	PostApiGamesIdFavourite(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGamesIdPrivateShare Lists the share links of a game the caller
+	// GetApiGamesIdPrivateShare Lists a game's share links the caller may
 	//
-	// has access to.
-	//
-	// These are the caller's own personal and organisation shares, their
-	// institution's shares for head, staff and admins, the shares of the workshop
-	// they are in, and for head and staff outside a workshop the shares of every
-	// workshop of their institution.
+	// see: those they made, of their game, paid by their keys or their
+	// organisation's, and their workshop's. A game they may not read is 404.
 	//
 	// Corresponds with GET /api/games/{id}/private-share (the `GetApiGamesIdPrivateShare` operationId).
 	GetApiGamesIdPrivateShare(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2110,75 +2233,80 @@ type ClientInterface interface {
 	// Corresponds with GET /api/games/{id}/sessions (the `GetApiGamesIdSessions` operationId).
 	GetApiGamesIdSessions(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesIdSharesWithBody Creates a share link for a game.
+	// PostApiGamesIdSharesWithBody Makes a share link for a game the caller may
 	//
-	// A workshop share (workshopId set) plays on the workshop's default API key
-	// and is reused when the game already has one in that workshop. A personal or
-	// organisation share needs sponsorKeyShareId; it is an organisation share when
-	// that key share belongs to an institution.
+	// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+	// the workshop's key (workshopId) for the workshop's head and staff, and for
+	// those in it while it allows sharing. A workshop has one link per game; an
+	// existing one is answered. maxSessions limits the plays; null: unlimited.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/games/{id}/shares (the `PostApiGamesIdShares` operationId).
 	PostApiGamesIdSharesWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesIdShares Creates a share link for a game.
+	// PostApiGamesIdShares Makes a share link for a game the caller may
 	//
-	// A workshop share (workshopId set) plays on the workshop's default API key
-	// and is reused when the game already has one in that workshop. A personal or
-	// organisation share needs sponsorKeyShareId; it is an organisation share when
-	// that key share belongs to an institution.
+	// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+	// the workshop's key (workshopId) for the workshop's head and staff, and for
+	// those in it while it allows sharing. A workshop has one link per game; an
+	// existing one is answered. maxSessions limits the plays; null: unlimited.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/games/{id}/shares (the `PostApiGamesIdShares` operationId).
 	PostApiGamesIdShares(ctx context.Context, id string, body PostApiGamesIdSharesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiGamesIdSharesShareId Revokes a share link and cleans up its guest data.
+	// DeleteApiGamesIdSharesShareId Stops a share link: its guests go with it. For its
 	//
-	// The share's creator, the game's owner, members of the share's workshop and
-	// head or staff of its institution may revoke it.
+	// maker, the game's owner, the key's owner, and head and staff when their
+	// organisation's key pays.
 	//
 	// Corresponds with DELETE /api/games/{id}/shares/{shareId} (the `DeleteApiGamesIdSharesShareId` operationId).
 	DeleteApiGamesIdSharesShareId(ctx context.Context, id string, shareId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiGamesIdSharesShareIdWithBody Updates a share link's settings.
+	// PatchApiGamesIdSharesShareIdWithBody Sets a share link's limit and tier, for those who
 	//
-	// Whoever may revoke the share may update it.
+	// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+	// aiQualityTier plays at the source's default.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with PATCH /api/games/{id}/shares/{shareId} (the `PatchApiGamesIdSharesShareId` operationId).
 	PatchApiGamesIdSharesShareIdWithBody(ctx context.Context, id string, shareId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiGamesIdSharesShareId Updates a share link's settings.
+	// PatchApiGamesIdSharesShareId Sets a share link's limit and tier, for those who
 	//
-	// Whoever may revoke the share may update it.
+	// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+	// aiQualityTier plays at the source's default.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with PATCH /api/games/{id}/shares/{shareId} (the `PatchApiGamesIdSharesShareId` operationId).
 	PatchApiGamesIdSharesShareId(ctx context.Context, id string, shareId string, body PatchApiGamesIdSharesShareIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiGamesIdSponsor Removes the public sponsorship from a game and
+	// DeleteApiGamesIdSponsor Stops a game's sponsorship: for those who edit
 	//
-	// answers with the game.
+	// the game, the key's owner, and head and staff when their organisation's
+	// key pays.
 	//
 	// Corresponds with DELETE /api/games/{id}/sponsor (the `DeleteApiGamesIdSponsor` operationId).
 	DeleteApiGamesIdSponsor(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutApiGamesIdSponsorWithBody Sponsors a game publicly with one of the caller's
+	// PutApiGamesIdSponsorWithBody Makes a key share pay for a game's public plays,
 	//
-	// API key shares and answers with the game.
+	// replacing what paid before: for those who edit the game, with a share
+	// they may draw from. A key known to fail is refused.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with PUT /api/games/{id}/sponsor (the `PutApiGamesIdSponsor` operationId).
 	PutApiGamesIdSponsorWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutApiGamesIdSponsor Sponsors a game publicly with one of the caller's
+	// PutApiGamesIdSponsor Makes a key share pay for a game's public plays,
 	//
-	// API key shares and answers with the game.
+	// replacing what paid before: for those who edit the game, with a share
+	// they may draw from. A key known to fail is refused.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -2305,9 +2433,9 @@ type ClientInterface interface {
 	// Corresponds with PATCH /api/institutions/{id} (the `PatchApiInstitutionsId` operationId).
 	PatchApiInstitutionsId(ctx context.Context, id string, body PatchApiInstitutionsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInstitutionsIdApikeys Lists the API keys shared with an institution;
+	// GetApiInstitutionsIdApikeys Lists the keys given to an organisation: for
 	//
-	// heads and staff only.
+	// its head and staff.
 	//
 	// Corresponds with GET /api/institutions/{id}/apikeys (the `GetApiInstitutionsIdApikeys` operationId).
 	GetApiInstitutionsIdApikeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2370,24 +2498,20 @@ type ClientInterface interface {
 	// Corresponds with POST /api/institutions/{id}/declaration-consent (the `PostApiInstitutionsIdDeclarationConsent` operationId).
 	PostApiInstitutionsIdDeclarationConsent(ctx context.Context, id string, body PostApiInstitutionsIdDeclarationConsentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiInstitutionsIdFreeUseKeyWithBody Sets or clears an institution's
+	// PatchApiInstitutionsIdFreeUseKeyWithBody Sets or clears the key an
 	//
-	// free-use API key share and answers with the institution.
-	//
-	// Any member of the institution plays for free with this key. A null shareId
-	// clears it.
+	// organisation's members play with for free: one of the keys given to it.
+	// A null shareId clears it.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with PATCH /api/institutions/{id}/free-use-key (the `PatchApiInstitutionsIdFreeUseKey` operationId).
 	PatchApiInstitutionsIdFreeUseKeyWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiInstitutionsIdFreeUseKey Sets or clears an institution's
+	// PatchApiInstitutionsIdFreeUseKey Sets or clears the key an
 	//
-	// free-use API key share and answers with the institution.
-	//
-	// Any member of the institution plays for free with this key. A null shareId
-	// clears it.
+	// organisation's members play with for free: one of the keys given to it.
+	// A null shareId clears it.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -2450,121 +2574,116 @@ type ClientInterface interface {
 	// Corresponds with POST /api/institutions/{id}/suspension (the `PostApiInstitutionsIdSuspension` operationId).
 	PostApiInstitutionsIdSuspension(ctx context.Context, id string, body PostApiInstitutionsIdSuspensionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInvites Lists the invites addressed to the caller.
+	// GetApiInvites Lists the pending invites addressed to the caller, by
+	//
+	// account or email: what they may accept or decline.
 	//
 	// Corresponds with GET /api/invites (the `GetApiInvites` operationId).
 	GetApiInvites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInvitesAll Lists every invite; admins only.
+	// GetApiInvitesAll Lists every invite the caller may list: for the
+	//
+	// admin, all of them.
 	//
 	// Corresponds with GET /api/invites/all (the `GetApiInvitesAll` operationId).
 	GetApiInvitesAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesInstitutionWithBody Invites a user to join an institution as
+	// PostApiInvitesInstitutionWithBody Invites an account, by id or email, into
 	//
-	// head, staff or individual.
-	//
-	// The role defaults to staff. The invite names the invited user by id or
-	// email.
+	// an organisation as head, staff or individual (staff by default). Head and
+	// staff invite into their organisation, only heads as head; the admin into
+	// any.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/invites/institution (the `PostApiInvitesInstitution` operationId).
 	PostApiInvitesInstitutionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesInstitution Invites a user to join an institution as
+	// PostApiInvitesInstitution Invites an account, by id or email, into
 	//
-	// head, staff or individual.
-	//
-	// The role defaults to staff. The invite names the invited user by id or
-	// email.
+	// an organisation as head, staff or individual (staff by default). Head and
+	// staff invite into their organisation, only heads as head; the admin into
+	// any.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/invites/institution (the `PostApiInvitesInstitution` operationId).
 	PostApiInvitesInstitution(ctx context.Context, body PostApiInvitesInstitutionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInvitesInstitutionInstitutionId Lists the invites to join an institution.
+	// GetApiInvitesInstitutionInstitutionId Lists an organisation's invites the
 	//
-	// The caller is head or staff of the institution, or an admin.
+	// caller may list: its head and staff (staff without the invites to become
+	// head), and the admin.
 	//
 	// Corresponds with GET /api/invites/institution/{institutionId} (the `GetApiInvitesInstitutionInstitutionId` operationId).
 	GetApiInvitesInstitutionInstitutionId(ctx context.Context, institutionId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesWorkshopWithBody Creates an open invite for users to join a
+	// PostApiInvitesWorkshopWithBody Returns a workshop's link: its usable one, or
 	//
-	// workshop as Guests.
+	// a new one. Whoever follows it becomes a guest there, or, a member of an
+	// organisation, works in it.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/invites/workshop (the `PostApiInvitesWorkshop` operationId).
 	PostApiInvitesWorkshopWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesWorkshop Creates an open invite for users to join a
+	// PostApiInvitesWorkshop Returns a workshop's link: its usable one, or
 	//
-	// workshop as Guests.
+	// a new one. Whoever follows it becomes a guest there, or, a member of an
+	// organisation, works in it.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/invites/workshop (the `PostApiInvitesWorkshop` operationId).
 	PostApiInvitesWorkshop(ctx context.Context, body PostApiInvitesWorkshopJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesWorkshopEmailWithBody Invites a registered user, by email, to
+	// PostApiInvitesWorkshopEmailWithBody Invites the account with this email
 	//
-	// join a workshop.
-	//
-	// A second pending invite for the same user and workshop is refused with 409.
+	// into a workshop: accepting, they keep their role and work in it.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/invites/workshop/email (the `PostApiInvitesWorkshopEmail` operationId).
 	PostApiInvitesWorkshopEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesWorkshopEmail Invites a registered user, by email, to
+	// PostApiInvitesWorkshopEmail Invites the account with this email
 	//
-	// join a workshop.
-	//
-	// A second pending invite for the same user and workshop is refused with 409.
+	// into a workshop: accepting, they keep their role and work in it.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/invites/workshop/email (the `PostApiInvitesWorkshopEmail` operationId).
 	PostApiInvitesWorkshopEmail(ctx context.Context, body PostApiInvitesWorkshopEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInvitesIdOrToken Returns an invite by its id or its token.
+	// GetApiInvitesIdOrToken Returns an invite: by id, for those who may read it; by
 	//
-	// An id needs a signed-in caller: admins see any invite, everyone else the
-	// invites addressed to them or created by them. A token also answers an
-	// anonymous caller, for open invites.
+	// its link's token, for anyone who has it, signed in or not. Repeated
+	// guesses at tokens are slowed down (429).
 	//
 	// Corresponds with GET /api/invites/{idOrToken} (the `GetApiInvitesIdOrToken` operationId).
 	GetApiInvitesIdOrToken(ctx context.Context, idOrToken string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesIdOrTokenAccept Accepts an invite by its id or its token.
+	// PostApiInvitesIdOrTokenAccept Accepts an invite, by its id or its link's token.
 	//
-	// An anonymous caller accepts a workshop invite by token: this creates a
-	// Guest in the browser's language, starts its session, sets the
-	// session cookie and answers with the account and its token. A signed-in
-	// Guest switches to the invite's workshop; a head, staff member or
-	// individual enters it and keeps their role; anyone else joins as a
-	// Guest. An invite by id needs a signed-in caller: a workshop invite
-	// lets them enter the workshop with their own role, an institution invite
-	// gives them its role.
+	// Following a link without an account joins its workshop as a new guest,
+	// signed in at once. A member of an organisation keeps their role and works
+	// in the workshop; anyone else takes the invite's role. Only a pending
+	// invite is accepted (409). Repeated guesses at tokens are slowed down
+	// (429).
 	//
 	// Corresponds with POST /api/invites/{idOrToken}/accept (the `PostApiInvitesIdOrTokenAccept` operationId).
 	PostApiInvitesIdOrTokenAccept(ctx context.Context, idOrToken string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiInvitesId Revokes a pending invite.
+	// DeleteApiInvitesId Deletes a pending invite: for its organisation's head
 	//
-	// Its creator and admins can revoke it, and institution staff a workshop
-	// invite.
+	// and staff (staff not the invites to become head), and the admin. An
+	// answered invite stays (409).
 	//
 	// Corresponds with DELETE /api/invites/{id} (the `DeleteApiInvitesId` operationId).
 	DeleteApiInvitesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInvitesIdDecline Declines an invite and answers with its id and its
-	//
-	// status "declined".
+	// PostApiInvitesIdDecline Declines a pending invite addressed to the caller.
 	//
 	// Corresponds with POST /api/invites/{id}/decline (the `PostApiInvitesIdDecline` operationId).
 	PostApiInvitesIdDecline(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2869,23 +2988,32 @@ type ClientInterface interface {
 	// Corresponds with POST /api/users/{id} (the `PostApiUsersId` operationId).
 	PostApiUsersId(ctx context.Context, id string, body PostApiUsersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiUsersIdRole Removes a user's role and answers with the user.
+	// DeleteApiUsersIdRole Takes a user's role away, the admin's: they become
+	//
+	// an individual of no organisation. A head removes a member from the
+	// organisation instead (DELETE /api/institutions/{id}/members/{userID}).
 	//
 	// Corresponds with DELETE /api/users/{id}/role (the `DeleteApiUsersIdRole` operationId).
 	DeleteApiUsersIdRole(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiUsersIdRoleWithBody Sets a user's role and answers with the user.
+	// PostApiUsersIdRoleWithBody Gives a user a new role and answers with them.
 	//
-	// The role is scoped to an institution or a workshop by their ids.
+	// The admin gives any role, scoped to an organisation or a workshop by
+	// their ids; a head makes a member of their organisation head or staff
+	// there. Only an individual becomes admin, and an organisation keeps its
+	// last head (409 last_head).
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/users/{id}/role (the `PostApiUsersIdRole` operationId).
 	PostApiUsersIdRoleWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiUsersIdRole Sets a user's role and answers with the user.
+	// PostApiUsersIdRole Gives a user a new role and answers with them.
 	//
-	// The role is scoped to an institution or a workshop by their ids.
+	// The admin gives any role, scoped to an organisation or a workshop by
+	// their ids; a head makes a member of their organisation head or staff
+	// there. Only an individual becomes admin, and an organisation keeps its
+	// last head (409 last_head).
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -2914,93 +3042,102 @@ type ClientInterface interface {
 	// Corresponds with GET /api/version (the `GetApiVersion` operationId).
 	GetApiVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiWorkshops Lists the workshops the caller can see, or those of
+	// GetApiWorkshops Lists the workshops the caller may list: an admin
 	//
-	// one institution.
+	// all of them, a head or staff their organisation's.
 	//
-	// Query: institutionId, search (name), sortBy (name, createdAt,
-	// participantCount), sortDir (asc, desc), activeOnly ("true" lists active
-	// workshops only).
+	// institutionId, search and activeOnly narrow the list; sortBy (name,
+	// createdAt, participantCount) and sortDir (asc, desc) order it, newest
+	// first by default.
 	//
 	// Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
 	GetApiWorkshops(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiWorkshopsWithBody Creates a workshop.
+	// PostApiWorkshopsWithBody Creates a workshop in the caller's organisation, or,
+	//
+	// for the admin, in the one named (institutionId).
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/workshops (the `PostApiWorkshops` operationId).
 	PostApiWorkshopsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiWorkshops Creates a workshop.
+	// PostApiWorkshops Creates a workshop in the caller's organisation, or,
+	//
+	// for the admin, in the one named (institutionId).
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/workshops (the `PostApiWorkshops` operationId).
 	PostApiWorkshops(ctx context.Context, body PostApiWorkshopsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiWorkshopsGuestsGuestIdToken Returns the sign-in code of a Guest in a workshop;
+	// GetApiWorkshopsGuestsGuestIdToken Returns the login code of a guest in one of the
 	//
-	// staff and heads only.
+	// caller's organisation's workshops: for its head and staff, helping a guest
+	// who lost it.
 	//
 	// Corresponds with GET /api/workshops/guests/{guestId}/token (the `GetApiWorkshopsGuestsGuestIdToken` operationId).
 	GetApiWorkshopsGuestsGuestIdToken(ctx context.Context, guestId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiWorkshopsGuestsGuestIdTokenReset Replaces the sign-in code of a Guest in a workshop;
+	// PostApiWorkshopsGuestsGuestIdTokenReset Gives a guest in one of the caller's organisation's
 	//
-	// staff and heads only.
-	//
-	// Earlier sign-in links stop working and the Guest's sessions end.
+	// workshops a new login code: for its head and staff. Earlier login links
+	// stop working and the guest's sessions end.
 	//
 	// Corresponds with POST /api/workshops/guests/{guestId}/token/reset (the `PostApiWorkshopsGuestsGuestIdTokenReset` operationId).
 	PostApiWorkshopsGuestsGuestIdTokenReset(ctx context.Context, guestId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiWorkshopsId Soft-deletes a workshop.
+	// DeleteApiWorkshopsId Deletes a workshop with its guests; its other games
+	//
+	// stay with their creators.
 	//
 	// Corresponds with DELETE /api/workshops/{id} (the `DeleteApiWorkshopsId` operationId).
 	DeleteApiWorkshopsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiWorkshopsId Returns a workshop.
+	// GetApiWorkshopsId Returns a workshop the caller may read: one of their
+	//
+	// organisation's, the one they are in, one with a public page, or any, for
+	// an admin. Others get 404.
 	//
 	// Corresponds with GET /api/workshops/{id} (the `GetApiWorkshopsId` operationId).
 	GetApiWorkshopsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiWorkshopsIdWithBody Updates a workshop's settings and its public page.
+	// PatchApiWorkshopsIdWithBody Changes a workshop and answers with it as stored.
 	//
-	// The name is required. Omitting publicSlug, publicDescription or publicLinks
-	// keeps the current value; an empty description or list clears it.
+	// Only what is given changes. An empty aiQualityTier, promptConstraints or
+	// publicDescription removes it; an empty publicLinks list clears the links.
+	// Switching public off ends the public page's share links.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with PATCH /api/workshops/{id} (the `PatchApiWorkshopsId` operationId).
 	PatchApiWorkshopsIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiWorkshopsId Updates a workshop's settings and its public page.
+	// PatchApiWorkshopsId Changes a workshop and answers with it as stored.
 	//
-	// The name is required. Omitting publicSlug, publicDescription or publicLinks
-	// keeps the current value; an empty description or list clears it.
+	// Only what is given changes. An empty aiQualityTier, promptConstraints or
+	// publicDescription removes it; an empty publicLinks list clears the links.
+	// Switching public off ends the public page's share links.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with PATCH /api/workshops/{id} (the `PatchApiWorkshopsId` operationId).
 	PatchApiWorkshopsId(ctx context.Context, id string, body PatchApiWorkshopsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutApiWorkshopsIdApiKeyWithBody Sets the API key a workshop's members play
+	// PutApiWorkshopsIdApiKeyWithBody Sets the key a workshop plays with: one of the
 	//
-	// with; staff and heads only.
-	//
-	// A null or empty apiKeyShareId removes it.
+	// keys given to its organisation; null or empty clears it, and the workshop
+	// plays no more until one is picked.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with PUT /api/workshops/{id}/api-key (the `PutApiWorkshopsIdApiKey` operationId).
 	PutApiWorkshopsIdApiKeyWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutApiWorkshopsIdApiKey Sets the API key a workshop's members play
+	// PutApiWorkshopsIdApiKey Sets the key a workshop plays with: one of the
 	//
-	// with; staff and heads only.
-	//
-	// A null or empty apiKeyShareId removes it.
+	// keys given to its organisation; null or empty clears it, and the workshop
+	// plays no more until one is picked.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -3015,35 +3152,36 @@ type ClientInterface interface {
 	// Corresponds with GET /api/workshops/{id}/events (the `GetApiWorkshopsIdEvents` operationId).
 	GetApiWorkshopsIdEvents(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiWorkshopsIdMembersWithBody Adds a member of the organization to a workshop by
+	// PostApiWorkshopsIdMembersWithBody Puts an individual of the workshop's organisation
 	//
-	// making it their active workshop.
+	// into it: it becomes the workshop they work in.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
 	PostApiWorkshopsIdMembersWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiWorkshopsIdMembers Adds a member of the organization to a workshop by
+	// PostApiWorkshopsIdMembers Puts an individual of the workshop's organisation
 	//
-	// making it their active workshop.
+	// into it: it becomes the workshop they work in.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
 	PostApiWorkshopsIdMembers(ctx context.Context, id string, body PostApiWorkshopsIdMembersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiWorkshopsIdMembersUserId Removes a member who is not permanent from a
+	// DeleteApiWorkshopsIdMembersUserId Takes someone out of a workshop: a guest of it
 	//
-	// workshop by clearing their active workshop.
+	// loses their place, a member working in it leaves it.
 	//
 	// Corresponds with DELETE /api/workshops/{id}/members/{userId} (the `DeleteApiWorkshopsIdMembersUserId` operationId).
 	DeleteApiWorkshopsIdMembersUserId(ctx context.Context, id string, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-// GetApiApikeys Lists the caller's API keys and all their linked shares
+// GetApiApikeys Lists the caller's keys and every share of them: their
 //
-// (organization shares, sponsorships).
+// own use of each, the organisation they gave it to, and the sponsored games
+// and share links it pays for.
 //
 // Corresponds with GET /api/apikeys (the `GetApiApikeys` operationId).
 func (c *Client) GetApiApikeys(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3058,11 +3196,12 @@ func (c *Client) GetApiApikeys(ctx context.Context, reqEditors ...RequestEditorF
 	return c.Client.Do(req)
 }
 
-// PostApiApikeysNewWithBody Creates an API key and shares it with the caller.
+// PostApiApikeysNewWithBody Stores a key of the caller's and answers with their
 //
-// Platform and key are required; surrounding whitespace is trimmed. Without a
-// name the key is named after its platform and today's date, e.g.
-// "Mistral 12.02.26".
+// own use of it. Platform and key are required; surrounding whitespace is
+// trimmed. Without a name the key is named after its platform and today's
+// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+// default.
 //
 // Takes any type of body and a specified content type.
 //
@@ -3079,11 +3218,12 @@ func (c *Client) PostApiApikeysNewWithBody(ctx context.Context, contentType stri
 	return c.Client.Do(req)
 }
 
-// PostApiApikeysNew Creates an API key and shares it with the caller.
+// PostApiApikeysNew Stores a key of the caller's and answers with their
 //
-// Platform and key are required; surrounding whitespace is trimmed. Without a
-// name the key is named after its platform and today's date, e.g.
-// "Mistral 12.02.26".
+// own use of it. Platform and key are required; surrounding whitespace is
+// trimmed. Without a name the key is named after its platform and today's
+// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+// default.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -3100,9 +3240,12 @@ func (c *Client) PostApiApikeysNew(ctx context.Context, body PostApiApikeysNewJS
 	return c.Client.Do(req)
 }
 
-// DeleteApiApikeysId Removes an API key share and answers with it as it was.
+// DeleteApiApikeysId Takes a share back, stopping what draws from it: the
 //
-// With cascade=true it deletes the key and all its shares.
+// owner any share of their key, a head their organisation's, head and staff
+// what draws from it. With cascade=true the owner deletes the key itself,
+// with every share of it. The owner's own use of a key goes only with the
+// key.
 //
 // Corresponds with DELETE /api/apikeys/{id} (the `DeleteApiApikeysId` operationId).
 func (c *Client) DeleteApiApikeysId(ctx context.Context, id string, params *DeleteApiApikeysIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3117,7 +3260,9 @@ func (c *Client) DeleteApiApikeysId(ctx context.Context, id string, params *Dele
 	return c.Client.Do(req)
 }
 
-// GetApiApikeysId Returns an API key share and the shares linked to it.
+// GetApiApikeysId Returns a share the caller may see, and for the key's
+//
+// owner every share of the key (linkedShares).
 //
 // Corresponds with GET /api/apikeys/{id} (the `GetApiApikeysId` operationId).
 func (c *Client) GetApiApikeysId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3132,7 +3277,7 @@ func (c *Client) GetApiApikeysId(ctx context.Context, id string, reqEditors ...R
 	return c.Client.Do(req)
 }
 
-// PatchApiApikeysIdWithBody Renames an API key.
+// PatchApiApikeysIdWithBody Renames a key, for its owner.
 //
 // Takes any type of body and a specified content type.
 //
@@ -3149,7 +3294,7 @@ func (c *Client) PatchApiApikeysIdWithBody(ctx context.Context, id string, conte
 	return c.Client.Do(req)
 }
 
-// PatchApiApikeysId Renames an API key.
+// PatchApiApikeysId Renames a key, for its owner.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -3166,9 +3311,7 @@ func (c *Client) PatchApiApikeysId(ctx context.Context, id string, body PatchApi
 	return c.Client.Do(req)
 }
 
-// PostApiApikeysIdWithBody Shares an API key with a user, workshop or
-//
-// institution, at the path older clients use.
+// PostApiApikeysIdWithBody Is ShareApiKeyEndpoint at v1's path.
 //
 // Takes any type of body and a specified content type.
 //
@@ -3185,9 +3328,7 @@ func (c *Client) PostApiApikeysIdWithBody(ctx context.Context, id string, conten
 	return c.Client.Do(req)
 }
 
-// PostApiApikeysId Shares an API key with a user, workshop or
-//
-// institution, at the path older clients use.
+// PostApiApikeysId Is ShareApiKeyEndpoint at v1's path.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -3204,7 +3345,9 @@ func (c *Client) PostApiApikeysId(ctx context.Context, id string, body PostApiAp
 	return c.Client.Do(req)
 }
 
-// PutApiApikeysIdDefault Makes an API key the caller's default for new sessions.
+// PutApiApikeysIdDefault Makes a key its owner's default: the one they
+//
+// play with themselves.
 //
 // Corresponds with PUT /api/apikeys/{id}/default (the `PutApiApikeysIdDefault` operationId).
 func (c *Client) PutApiApikeysIdDefault(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3219,12 +3362,11 @@ func (c *Client) PutApiApikeysIdDefault(ctx context.Context, id string, reqEdito
 	return c.Client.Do(req)
 }
 
-// GetApiApikeysIdGameShares Lists the game share links that use an API key,
+// GetApiApikeysIdGameShares Lists the share links a key pays for, by one
 //
-// with each game's name and where the share comes from.
-//
-// Query: context=personal lists all shares and requires owning the key;
-// context=organization lists only organization and workshop shares.
+// of its shares: for the key's owner all of them, for head and staff those
+// their organisation pays for. context=personal needs the owner's own share;
+// context=organization leaves out the owner's personal links.
 //
 // Corresponds with GET /api/apikeys/{id}/game-shares (the `GetApiApikeysIdGameShares` operationId).
 func (c *Client) GetApiApikeysIdGameShares(ctx context.Context, id string, params *GetApiApikeysIdGameSharesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3239,7 +3381,11 @@ func (c *Client) GetApiApikeysIdGameShares(ctx context.Context, id string, param
 	return c.Client.Do(req)
 }
 
-// PostApiApikeysIdSharesWithBody Shares an API key with a user, workshop or institution.
+// PostApiApikeysIdSharesWithBody Gives a key to its owner's own organisation: its
+//
+// workshops may play with it, its head and staff sponsor games and make
+// share links with it. A key is shared with an organisation only, never
+// with users or workshops, and never across organisations.
 //
 // Takes any type of body and a specified content type.
 //
@@ -3256,7 +3402,11 @@ func (c *Client) PostApiApikeysIdSharesWithBody(ctx context.Context, id string, 
 	return c.Client.Do(req)
 }
 
-// PostApiApikeysIdShares Shares an API key with a user, workshop or institution.
+// PostApiApikeysIdShares Gives a key to its owner's own organisation: its
+//
+// workshops may play with it, its head and staff sponsor games and make
+// share links with it. A key is shared with an organisation only, never
+// with users or workshops, and never across organisations.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4261,9 +4411,9 @@ func (c *Client) PostApiGamesId(ctx context.Context, id string, body PostApiGame
 	return c.Client.Do(req)
 }
 
-// GetApiGamesIdApiKeyStatus Answers whether an API key resolves for the
+// GetApiGamesIdApiKeyStatus Answers whether a key would pay for the
 //
-// caller playing a game.
+// caller's plays of a game they may read.
 //
 // Corresponds with GET /api/games/{id}/api-key-status (the `GetApiGamesIdApiKeyStatus` operationId).
 func (c *Client) GetApiGamesIdApiKeyStatus(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4278,9 +4428,9 @@ func (c *Client) GetApiGamesIdApiKeyStatus(ctx context.Context, id string, reqEd
 	return c.Client.Do(req)
 }
 
-// GetApiGamesIdAvailableKeys Lists the API keys the caller can play a game
+// GetApiGamesIdAvailableKeys Lists the keys that would pay for the
 //
-// with, in order of priority.
+// caller's plays of a game they may read, in the order they are tried.
 //
 // Corresponds with GET /api/games/{id}/available-keys (the `GetApiGamesIdAvailableKeys` operationId).
 func (c *Client) GetApiGamesIdAvailableKeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4347,14 +4497,10 @@ func (c *Client) PostApiGamesIdFavourite(ctx context.Context, id string, reqEdit
 	return c.Client.Do(req)
 }
 
-// GetApiGamesIdPrivateShare Lists the share links of a game the caller
+// GetApiGamesIdPrivateShare Lists a game's share links the caller may
 //
-// has access to.
-//
-// These are the caller's own personal and organisation shares, their
-// institution's shares for head, staff and admins, the shares of the workshop
-// they are in, and for head and staff outside a workshop the shares of every
-// workshop of their institution.
+// see: those they made, of their game, paid by their keys or their
+// organisation's, and their workshop's. A game they may not read is 404.
 //
 // Corresponds with GET /api/games/{id}/private-share (the `GetApiGamesIdPrivateShare` operationId).
 func (c *Client) GetApiGamesIdPrivateShare(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4384,12 +4530,12 @@ func (c *Client) GetApiGamesIdSessions(ctx context.Context, id string, reqEditor
 	return c.Client.Do(req)
 }
 
-// PostApiGamesIdSharesWithBody Creates a share link for a game.
+// PostApiGamesIdSharesWithBody Makes a share link for a game the caller may
 //
-// A workshop share (workshopId set) plays on the workshop's default API key
-// and is reused when the game already has one in that workshop. A personal or
-// organisation share needs sponsorKeyShareId; it is an organisation share when
-// that key share belongs to an institution.
+// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+// the workshop's key (workshopId) for the workshop's head and staff, and for
+// those in it while it allows sharing. A workshop has one link per game; an
+// existing one is answered. maxSessions limits the plays; null: unlimited.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4406,12 +4552,12 @@ func (c *Client) PostApiGamesIdSharesWithBody(ctx context.Context, id string, co
 	return c.Client.Do(req)
 }
 
-// PostApiGamesIdShares Creates a share link for a game.
+// PostApiGamesIdShares Makes a share link for a game the caller may
 //
-// A workshop share (workshopId set) plays on the workshop's default API key
-// and is reused when the game already has one in that workshop. A personal or
-// organisation share needs sponsorKeyShareId; it is an organisation share when
-// that key share belongs to an institution.
+// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+// the workshop's key (workshopId) for the workshop's head and staff, and for
+// those in it while it allows sharing. A workshop has one link per game; an
+// existing one is answered. maxSessions limits the plays; null: unlimited.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4428,10 +4574,10 @@ func (c *Client) PostApiGamesIdShares(ctx context.Context, id string, body PostA
 	return c.Client.Do(req)
 }
 
-// DeleteApiGamesIdSharesShareId Revokes a share link and cleans up its guest data.
+// DeleteApiGamesIdSharesShareId Stops a share link: its guests go with it. For its
 //
-// The share's creator, the game's owner, members of the share's workshop and
-// head or staff of its institution may revoke it.
+// maker, the game's owner, the key's owner, and head and staff when their
+// organisation's key pays.
 //
 // Corresponds with DELETE /api/games/{id}/shares/{shareId} (the `DeleteApiGamesIdSharesShareId` operationId).
 func (c *Client) DeleteApiGamesIdSharesShareId(ctx context.Context, id string, shareId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4446,9 +4592,10 @@ func (c *Client) DeleteApiGamesIdSharesShareId(ctx context.Context, id string, s
 	return c.Client.Do(req)
 }
 
-// PatchApiGamesIdSharesShareIdWithBody Updates a share link's settings.
+// PatchApiGamesIdSharesShareIdWithBody Sets a share link's limit and tier, for those who
 //
-// Whoever may revoke the share may update it.
+// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+// aiQualityTier plays at the source's default.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4465,9 +4612,10 @@ func (c *Client) PatchApiGamesIdSharesShareIdWithBody(ctx context.Context, id st
 	return c.Client.Do(req)
 }
 
-// PatchApiGamesIdSharesShareId Updates a share link's settings.
+// PatchApiGamesIdSharesShareId Sets a share link's limit and tier, for those who
 //
-// Whoever may revoke the share may update it.
+// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+// aiQualityTier plays at the source's default.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4484,9 +4632,10 @@ func (c *Client) PatchApiGamesIdSharesShareId(ctx context.Context, id string, sh
 	return c.Client.Do(req)
 }
 
-// DeleteApiGamesIdSponsor Removes the public sponsorship from a game and
+// DeleteApiGamesIdSponsor Stops a game's sponsorship: for those who edit
 //
-// answers with the game.
+// the game, the key's owner, and head and staff when their organisation's
+// key pays.
 //
 // Corresponds with DELETE /api/games/{id}/sponsor (the `DeleteApiGamesIdSponsor` operationId).
 func (c *Client) DeleteApiGamesIdSponsor(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4501,9 +4650,10 @@ func (c *Client) DeleteApiGamesIdSponsor(ctx context.Context, id string, reqEdit
 	return c.Client.Do(req)
 }
 
-// PutApiGamesIdSponsorWithBody Sponsors a game publicly with one of the caller's
+// PutApiGamesIdSponsorWithBody Makes a key share pay for a game's public plays,
 //
-// API key shares and answers with the game.
+// replacing what paid before: for those who edit the game, with a share
+// they may draw from. A key known to fail is refused.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4520,9 +4670,10 @@ func (c *Client) PutApiGamesIdSponsorWithBody(ctx context.Context, id string, co
 	return c.Client.Do(req)
 }
 
-// PutApiGamesIdSponsor Sponsors a game publicly with one of the caller's
+// PutApiGamesIdSponsor Makes a key share pay for a game's public plays,
 //
-// API key shares and answers with the game.
+// replacing what paid before: for those who edit the game, with a share
+// they may draw from. A key known to fail is refused.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4779,9 +4930,9 @@ func (c *Client) PatchApiInstitutionsId(ctx context.Context, id string, body Pat
 	return c.Client.Do(req)
 }
 
-// GetApiInstitutionsIdApikeys Lists the API keys shared with an institution;
+// GetApiInstitutionsIdApikeys Lists the keys given to an organisation: for
 //
-// heads and staff only.
+// its head and staff.
 //
 // Corresponds with GET /api/institutions/{id}/apikeys (the `GetApiInstitutionsIdApikeys` operationId).
 func (c *Client) GetApiInstitutionsIdApikeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4894,12 +5045,10 @@ func (c *Client) PostApiInstitutionsIdDeclarationConsent(ctx context.Context, id
 	return c.Client.Do(req)
 }
 
-// PatchApiInstitutionsIdFreeUseKeyWithBody Sets or clears an institution's
+// PatchApiInstitutionsIdFreeUseKeyWithBody Sets or clears the key an
 //
-// free-use API key share and answers with the institution.
-//
-// Any member of the institution plays for free with this key. A null shareId
-// clears it.
+// organisation's members play with for free: one of the keys given to it.
+// A null shareId clears it.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4916,12 +5065,10 @@ func (c *Client) PatchApiInstitutionsIdFreeUseKeyWithBody(ctx context.Context, i
 	return c.Client.Do(req)
 }
 
-// PatchApiInstitutionsIdFreeUseKey Sets or clears an institution's
+// PatchApiInstitutionsIdFreeUseKey Sets or clears the key an
 //
-// free-use API key share and answers with the institution.
-//
-// Any member of the institution plays for free with this key. A null shareId
-// clears it.
+// organisation's members play with for free: one of the keys given to it.
+// A null shareId clears it.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -5044,7 +5191,9 @@ func (c *Client) PostApiInstitutionsIdSuspension(ctx context.Context, id string,
 	return c.Client.Do(req)
 }
 
-// GetApiInvites Lists the invites addressed to the caller.
+// GetApiInvites Lists the pending invites addressed to the caller, by
+//
+// account or email: what they may accept or decline.
 //
 // Corresponds with GET /api/invites (the `GetApiInvites` operationId).
 func (c *Client) GetApiInvites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5059,7 +5208,9 @@ func (c *Client) GetApiInvites(ctx context.Context, reqEditors ...RequestEditorF
 	return c.Client.Do(req)
 }
 
-// GetApiInvitesAll Lists every invite; admins only.
+// GetApiInvitesAll Lists every invite the caller may list: for the
+//
+// admin, all of them.
 //
 // Corresponds with GET /api/invites/all (the `GetApiInvitesAll` operationId).
 func (c *Client) GetApiInvitesAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5074,12 +5225,11 @@ func (c *Client) GetApiInvitesAll(ctx context.Context, reqEditors ...RequestEdit
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesInstitutionWithBody Invites a user to join an institution as
+// PostApiInvitesInstitutionWithBody Invites an account, by id or email, into
 //
-// head, staff or individual.
-//
-// The role defaults to staff. The invite names the invited user by id or
-// email.
+// an organisation as head, staff or individual (staff by default). Head and
+// staff invite into their organisation, only heads as head; the admin into
+// any.
 //
 // Takes any type of body and a specified content type.
 //
@@ -5096,12 +5246,11 @@ func (c *Client) PostApiInvitesInstitutionWithBody(ctx context.Context, contentT
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesInstitution Invites a user to join an institution as
+// PostApiInvitesInstitution Invites an account, by id or email, into
 //
-// head, staff or individual.
-//
-// The role defaults to staff. The invite names the invited user by id or
-// email.
+// an organisation as head, staff or individual (staff by default). Head and
+// staff invite into their organisation, only heads as head; the admin into
+// any.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -5118,9 +5267,10 @@ func (c *Client) PostApiInvitesInstitution(ctx context.Context, body PostApiInvi
 	return c.Client.Do(req)
 }
 
-// GetApiInvitesInstitutionInstitutionId Lists the invites to join an institution.
+// GetApiInvitesInstitutionInstitutionId Lists an organisation's invites the
 //
-// The caller is head or staff of the institution, or an admin.
+// caller may list: its head and staff (staff without the invites to become
+// head), and the admin.
 //
 // Corresponds with GET /api/invites/institution/{institutionId} (the `GetApiInvitesInstitutionInstitutionId` operationId).
 func (c *Client) GetApiInvitesInstitutionInstitutionId(ctx context.Context, institutionId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5135,9 +5285,10 @@ func (c *Client) GetApiInvitesInstitutionInstitutionId(ctx context.Context, inst
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesWorkshopWithBody Creates an open invite for users to join a
+// PostApiInvitesWorkshopWithBody Returns a workshop's link: its usable one, or
 //
-// workshop as Guests.
+// a new one. Whoever follows it becomes a guest there, or, a member of an
+// organisation, works in it.
 //
 // Takes any type of body and a specified content type.
 //
@@ -5154,9 +5305,10 @@ func (c *Client) PostApiInvitesWorkshopWithBody(ctx context.Context, contentType
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesWorkshop Creates an open invite for users to join a
+// PostApiInvitesWorkshop Returns a workshop's link: its usable one, or
 //
-// workshop as Guests.
+// a new one. Whoever follows it becomes a guest there, or, a member of an
+// organisation, works in it.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -5173,11 +5325,9 @@ func (c *Client) PostApiInvitesWorkshop(ctx context.Context, body PostApiInvites
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesWorkshopEmailWithBody Invites a registered user, by email, to
+// PostApiInvitesWorkshopEmailWithBody Invites the account with this email
 //
-// join a workshop.
-//
-// A second pending invite for the same user and workshop is refused with 409.
+// into a workshop: accepting, they keep their role and work in it.
 //
 // Takes any type of body and a specified content type.
 //
@@ -5194,11 +5344,9 @@ func (c *Client) PostApiInvitesWorkshopEmailWithBody(ctx context.Context, conten
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesWorkshopEmail Invites a registered user, by email, to
+// PostApiInvitesWorkshopEmail Invites the account with this email
 //
-// join a workshop.
-//
-// A second pending invite for the same user and workshop is refused with 409.
+// into a workshop: accepting, they keep their role and work in it.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -5215,11 +5363,10 @@ func (c *Client) PostApiInvitesWorkshopEmail(ctx context.Context, body PostApiIn
 	return c.Client.Do(req)
 }
 
-// GetApiInvitesIdOrToken Returns an invite by its id or its token.
+// GetApiInvitesIdOrToken Returns an invite: by id, for those who may read it; by
 //
-// An id needs a signed-in caller: admins see any invite, everyone else the
-// invites addressed to them or created by them. A token also answers an
-// anonymous caller, for open invites.
+// its link's token, for anyone who has it, signed in or not. Repeated
+// guesses at tokens are slowed down (429).
 //
 // Corresponds with GET /api/invites/{idOrToken} (the `GetApiInvitesIdOrToken` operationId).
 func (c *Client) GetApiInvitesIdOrToken(ctx context.Context, idOrToken string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5234,16 +5381,13 @@ func (c *Client) GetApiInvitesIdOrToken(ctx context.Context, idOrToken string, r
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesIdOrTokenAccept Accepts an invite by its id or its token.
+// PostApiInvitesIdOrTokenAccept Accepts an invite, by its id or its link's token.
 //
-// An anonymous caller accepts a workshop invite by token: this creates a
-// Guest in the browser's language, starts its session, sets the
-// session cookie and answers with the account and its token. A signed-in
-// Guest switches to the invite's workshop; a head, staff member or
-// individual enters it and keeps their role; anyone else joins as a
-// Guest. An invite by id needs a signed-in caller: a workshop invite
-// lets them enter the workshop with their own role, an institution invite
-// gives them its role.
+// Following a link without an account joins its workshop as a new guest,
+// signed in at once. A member of an organisation keeps their role and works
+// in the workshop; anyone else takes the invite's role. Only a pending
+// invite is accepted (409). Repeated guesses at tokens are slowed down
+// (429).
 //
 // Corresponds with POST /api/invites/{idOrToken}/accept (the `PostApiInvitesIdOrTokenAccept` operationId).
 func (c *Client) PostApiInvitesIdOrTokenAccept(ctx context.Context, idOrToken string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5258,10 +5402,10 @@ func (c *Client) PostApiInvitesIdOrTokenAccept(ctx context.Context, idOrToken st
 	return c.Client.Do(req)
 }
 
-// DeleteApiInvitesId Revokes a pending invite.
+// DeleteApiInvitesId Deletes a pending invite: for its organisation's head
 //
-// Its creator and admins can revoke it, and institution staff a workshop
-// invite.
+// and staff (staff not the invites to become head), and the admin. An
+// answered invite stays (409).
 //
 // Corresponds with DELETE /api/invites/{id} (the `DeleteApiInvitesId` operationId).
 func (c *Client) DeleteApiInvitesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5276,9 +5420,7 @@ func (c *Client) DeleteApiInvitesId(ctx context.Context, id string, reqEditors .
 	return c.Client.Do(req)
 }
 
-// PostApiInvitesIdDecline Declines an invite and answers with its id and its
-//
-// status "declined".
+// PostApiInvitesIdDecline Declines a pending invite addressed to the caller.
 //
 // Corresponds with POST /api/invites/{id}/decline (the `PostApiInvitesIdDecline` operationId).
 func (c *Client) PostApiInvitesIdDecline(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5933,7 +6075,10 @@ func (c *Client) PostApiUsersId(ctx context.Context, id string, body PostApiUser
 	return c.Client.Do(req)
 }
 
-// DeleteApiUsersIdRole Removes a user's role and answers with the user.
+// DeleteApiUsersIdRole Takes a user's role away, the admin's: they become
+//
+// an individual of no organisation. A head removes a member from the
+// organisation instead (DELETE /api/institutions/{id}/members/{userID}).
 //
 // Corresponds with DELETE /api/users/{id}/role (the `DeleteApiUsersIdRole` operationId).
 func (c *Client) DeleteApiUsersIdRole(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5948,9 +6093,12 @@ func (c *Client) DeleteApiUsersIdRole(ctx context.Context, id string, reqEditors
 	return c.Client.Do(req)
 }
 
-// PostApiUsersIdRoleWithBody Sets a user's role and answers with the user.
+// PostApiUsersIdRoleWithBody Gives a user a new role and answers with them.
 //
-// The role is scoped to an institution or a workshop by their ids.
+// The admin gives any role, scoped to an organisation or a workshop by
+// their ids; a head makes a member of their organisation head or staff
+// there. Only an individual becomes admin, and an organisation keeps its
+// last head (409 last_head).
 //
 // Takes any type of body and a specified content type.
 //
@@ -5967,9 +6115,12 @@ func (c *Client) PostApiUsersIdRoleWithBody(ctx context.Context, id string, cont
 	return c.Client.Do(req)
 }
 
-// PostApiUsersIdRole Sets a user's role and answers with the user.
+// PostApiUsersIdRole Gives a user a new role and answers with them.
 //
-// The role is scoped to an institution or a workshop by their ids.
+// The admin gives any role, scoped to an organisation or a workshop by
+// their ids; a head makes a member of their organisation head or staff
+// there. Only an individual becomes admin, and an organisation keeps its
+// last head (409 last_head).
 //
 // Takes a body of the `application/json` content type.
 //
@@ -6038,13 +6189,13 @@ func (c *Client) GetApiVersion(ctx context.Context, reqEditors ...RequestEditorF
 	return c.Client.Do(req)
 }
 
-// GetApiWorkshops Lists the workshops the caller can see, or those of
+// GetApiWorkshops Lists the workshops the caller may list: an admin
 //
-// one institution.
+// all of them, a head or staff their organisation's.
 //
-// Query: institutionId, search (name), sortBy (name, createdAt,
-// participantCount), sortDir (asc, desc), activeOnly ("true" lists active
-// workshops only).
+// institutionId, search and activeOnly narrow the list; sortBy (name,
+// createdAt, participantCount) and sortDir (asc, desc) order it, newest
+// first by default.
 //
 // Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
 func (c *Client) GetApiWorkshops(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -6059,7 +6210,9 @@ func (c *Client) GetApiWorkshops(ctx context.Context, params *GetApiWorkshopsPar
 	return c.Client.Do(req)
 }
 
-// PostApiWorkshopsWithBody Creates a workshop.
+// PostApiWorkshopsWithBody Creates a workshop in the caller's organisation, or,
+//
+// for the admin, in the one named (institutionId).
 //
 // Takes any type of body and a specified content type.
 //
@@ -6076,7 +6229,9 @@ func (c *Client) PostApiWorkshopsWithBody(ctx context.Context, contentType strin
 	return c.Client.Do(req)
 }
 
-// PostApiWorkshops Creates a workshop.
+// PostApiWorkshops Creates a workshop in the caller's organisation, or,
+//
+// for the admin, in the one named (institutionId).
 //
 // Takes a body of the `application/json` content type.
 //
@@ -6093,9 +6248,10 @@ func (c *Client) PostApiWorkshops(ctx context.Context, body PostApiWorkshopsJSON
 	return c.Client.Do(req)
 }
 
-// GetApiWorkshopsGuestsGuestIdToken Returns the sign-in code of a Guest in a workshop;
+// GetApiWorkshopsGuestsGuestIdToken Returns the login code of a guest in one of the
 //
-// staff and heads only.
+// caller's organisation's workshops: for its head and staff, helping a guest
+// who lost it.
 //
 // Corresponds with GET /api/workshops/guests/{guestId}/token (the `GetApiWorkshopsGuestsGuestIdToken` operationId).
 func (c *Client) GetApiWorkshopsGuestsGuestIdToken(ctx context.Context, guestId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -6110,11 +6266,10 @@ func (c *Client) GetApiWorkshopsGuestsGuestIdToken(ctx context.Context, guestId 
 	return c.Client.Do(req)
 }
 
-// PostApiWorkshopsGuestsGuestIdTokenReset Replaces the sign-in code of a Guest in a workshop;
+// PostApiWorkshopsGuestsGuestIdTokenReset Gives a guest in one of the caller's organisation's
 //
-// staff and heads only.
-//
-// Earlier sign-in links stop working and the Guest's sessions end.
+// workshops a new login code: for its head and staff. Earlier login links
+// stop working and the guest's sessions end.
 //
 // Corresponds with POST /api/workshops/guests/{guestId}/token/reset (the `PostApiWorkshopsGuestsGuestIdTokenReset` operationId).
 func (c *Client) PostApiWorkshopsGuestsGuestIdTokenReset(ctx context.Context, guestId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -6129,7 +6284,9 @@ func (c *Client) PostApiWorkshopsGuestsGuestIdTokenReset(ctx context.Context, gu
 	return c.Client.Do(req)
 }
 
-// DeleteApiWorkshopsId Soft-deletes a workshop.
+// DeleteApiWorkshopsId Deletes a workshop with its guests; its other games
+//
+// stay with their creators.
 //
 // Corresponds with DELETE /api/workshops/{id} (the `DeleteApiWorkshopsId` operationId).
 func (c *Client) DeleteApiWorkshopsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -6144,7 +6301,10 @@ func (c *Client) DeleteApiWorkshopsId(ctx context.Context, id string, reqEditors
 	return c.Client.Do(req)
 }
 
-// GetApiWorkshopsId Returns a workshop.
+// GetApiWorkshopsId Returns a workshop the caller may read: one of their
+//
+// organisation's, the one they are in, one with a public page, or any, for
+// an admin. Others get 404.
 //
 // Corresponds with GET /api/workshops/{id} (the `GetApiWorkshopsId` operationId).
 func (c *Client) GetApiWorkshopsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -6159,10 +6319,11 @@ func (c *Client) GetApiWorkshopsId(ctx context.Context, id string, reqEditors ..
 	return c.Client.Do(req)
 }
 
-// PatchApiWorkshopsIdWithBody Updates a workshop's settings and its public page.
+// PatchApiWorkshopsIdWithBody Changes a workshop and answers with it as stored.
 //
-// The name is required. Omitting publicSlug, publicDescription or publicLinks
-// keeps the current value; an empty description or list clears it.
+// Only what is given changes. An empty aiQualityTier, promptConstraints or
+// publicDescription removes it; an empty publicLinks list clears the links.
+// Switching public off ends the public page's share links.
 //
 // Takes any type of body and a specified content type.
 //
@@ -6179,10 +6340,11 @@ func (c *Client) PatchApiWorkshopsIdWithBody(ctx context.Context, id string, con
 	return c.Client.Do(req)
 }
 
-// PatchApiWorkshopsId Updates a workshop's settings and its public page.
+// PatchApiWorkshopsId Changes a workshop and answers with it as stored.
 //
-// The name is required. Omitting publicSlug, publicDescription or publicLinks
-// keeps the current value; an empty description or list clears it.
+// Only what is given changes. An empty aiQualityTier, promptConstraints or
+// publicDescription removes it; an empty publicLinks list clears the links.
+// Switching public off ends the public page's share links.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -6199,11 +6361,10 @@ func (c *Client) PatchApiWorkshopsId(ctx context.Context, id string, body PatchA
 	return c.Client.Do(req)
 }
 
-// PutApiWorkshopsIdApiKeyWithBody Sets the API key a workshop's members play
+// PutApiWorkshopsIdApiKeyWithBody Sets the key a workshop plays with: one of the
 //
-// with; staff and heads only.
-//
-// A null or empty apiKeyShareId removes it.
+// keys given to its organisation; null or empty clears it, and the workshop
+// plays no more until one is picked.
 //
 // Takes any type of body and a specified content type.
 //
@@ -6220,11 +6381,10 @@ func (c *Client) PutApiWorkshopsIdApiKeyWithBody(ctx context.Context, id string,
 	return c.Client.Do(req)
 }
 
-// PutApiWorkshopsIdApiKey Sets the API key a workshop's members play
+// PutApiWorkshopsIdApiKey Sets the key a workshop plays with: one of the
 //
-// with; staff and heads only.
-//
-// A null or empty apiKeyShareId removes it.
+// keys given to its organisation; null or empty clears it, and the workshop
+// plays no more until one is picked.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -6259,9 +6419,9 @@ func (c *Client) GetApiWorkshopsIdEvents(ctx context.Context, id string, reqEdit
 	return c.Client.Do(req)
 }
 
-// PostApiWorkshopsIdMembersWithBody Adds a member of the organization to a workshop by
+// PostApiWorkshopsIdMembersWithBody Puts an individual of the workshop's organisation
 //
-// making it their active workshop.
+// into it: it becomes the workshop they work in.
 //
 // Takes any type of body and a specified content type.
 //
@@ -6278,9 +6438,9 @@ func (c *Client) PostApiWorkshopsIdMembersWithBody(ctx context.Context, id strin
 	return c.Client.Do(req)
 }
 
-// PostApiWorkshopsIdMembers Adds a member of the organization to a workshop by
+// PostApiWorkshopsIdMembers Puts an individual of the workshop's organisation
 //
-// making it their active workshop.
+// into it: it becomes the workshop they work in.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -6297,9 +6457,9 @@ func (c *Client) PostApiWorkshopsIdMembers(ctx context.Context, id string, body 
 	return c.Client.Do(req)
 }
 
-// DeleteApiWorkshopsIdMembersUserId Removes a member who is not permanent from a
+// DeleteApiWorkshopsIdMembersUserId Takes someone out of a workshop: a guest of it
 //
-// workshop by clearing their active workshop.
+// loses their place, a member working in it leaves it.
 //
 // Corresponds with DELETE /api/workshops/{id}/members/{userId} (the `DeleteApiWorkshopsIdMembersUserId` operationId).
 func (c *Client) DeleteApiWorkshopsIdMembersUserId(ctx context.Context, id string, userId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -11371,112 +11531,125 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 
-	// GetApiApikeysWithResponse Lists the caller's API keys and all their linked shares
+	// GetApiApikeysWithResponse Lists the caller's keys and every share of them: their
 	//
-	// (organization shares, sponsorships).
+	// own use of each, the organisation they gave it to, and the sponsored games
+	// and share links it pays for.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/apikeys (the `GetApiApikeys` operationId).
 	GetApiApikeysWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiApikeysResponse, error)
 
-	// PostApiApikeysNewWithBodyWithResponse Creates an API key and shares it with the caller.
+	// PostApiApikeysNewWithBodyWithResponse Stores a key of the caller's and answers with their
 	//
-	// Platform and key are required; surrounding whitespace is trimmed. Without a
-	// name the key is named after its platform and today's date, e.g.
-	// "Mistral 12.02.26".
+	// own use of it. Platform and key are required; surrounding whitespace is
+	// trimmed. Without a name the key is named after its platform and today's
+	// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+	// default.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/apikeys/new (the `PostApiApikeysNew` operationId).
 	PostApiApikeysNewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiApikeysNewResponse, error)
 
-	// PostApiApikeysNewWithResponse Creates an API key and shares it with the caller.
+	// PostApiApikeysNewWithResponse Stores a key of the caller's and answers with their
 	//
-	// Platform and key are required; surrounding whitespace is trimmed. Without a
-	// name the key is named after its platform and today's date, e.g.
-	// "Mistral 12.02.26".
+	// own use of it. Platform and key are required; surrounding whitespace is
+	// trimmed. Without a name the key is named after its platform and today's
+	// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+	// default.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/apikeys/new (the `PostApiApikeysNew` operationId).
 	PostApiApikeysNewWithResponse(ctx context.Context, body PostApiApikeysNewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiApikeysNewResponse, error)
 
-	// DeleteApiApikeysIdWithResponse Removes an API key share and answers with it as it was.
+	// DeleteApiApikeysIdWithResponse Takes a share back, stopping what draws from it: the
 	//
-	// With cascade=true it deletes the key and all its shares.
+	// owner any share of their key, a head their organisation's, head and staff
+	// what draws from it. With cascade=true the owner deletes the key itself,
+	// with every share of it. The owner's own use of a key goes only with the
+	// key.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/apikeys/{id} (the `DeleteApiApikeysId` operationId).
 	DeleteApiApikeysIdWithResponse(ctx context.Context, id string, params *DeleteApiApikeysIdParams, reqEditors ...RequestEditorFn) (*DeleteApiApikeysIdResponse, error)
 
-	// GetApiApikeysIdWithResponse Returns an API key share and the shares linked to it.
+	// GetApiApikeysIdWithResponse Returns a share the caller may see, and for the key's
+	//
+	// owner every share of the key (linkedShares).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/apikeys/{id} (the `GetApiApikeysId` operationId).
 	GetApiApikeysIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiApikeysIdResponse, error)
 
-	// PatchApiApikeysIdWithBodyWithResponse Renames an API key.
+	// PatchApiApikeysIdWithBodyWithResponse Renames a key, for its owner.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/apikeys/{id} (the `PatchApiApikeysId` operationId).
 	PatchApiApikeysIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiApikeysIdResponse, error)
 
-	// PatchApiApikeysIdWithResponse Renames an API key.
+	// PatchApiApikeysIdWithResponse Renames a key, for its owner.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/apikeys/{id} (the `PatchApiApikeysId` operationId).
 	PatchApiApikeysIdWithResponse(ctx context.Context, id string, body PatchApiApikeysIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiApikeysIdResponse, error)
 
-	// PostApiApikeysIdWithBodyWithResponse Shares an API key with a user, workshop or
-	//
-	// institution, at the path older clients use.
+	// PostApiApikeysIdWithBodyWithResponse Is ShareApiKeyEndpoint at v1's path.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/apikeys/{id} (the `PostApiApikeysId` operationId).
 	PostApiApikeysIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiApikeysIdResponse, error)
 
-	// PostApiApikeysIdWithResponse Shares an API key with a user, workshop or
-	//
-	// institution, at the path older clients use.
+	// PostApiApikeysIdWithResponse Is ShareApiKeyEndpoint at v1's path.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/apikeys/{id} (the `PostApiApikeysId` operationId).
 	PostApiApikeysIdWithResponse(ctx context.Context, id string, body PostApiApikeysIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiApikeysIdResponse, error)
 
-	// PutApiApikeysIdDefaultWithResponse Makes an API key the caller's default for new sessions.
+	// PutApiApikeysIdDefaultWithResponse Makes a key its owner's default: the one they
+	//
+	// play with themselves.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PUT /api/apikeys/{id}/default (the `PutApiApikeysIdDefault` operationId).
 	PutApiApikeysIdDefaultWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PutApiApikeysIdDefaultResponse, error)
 
-	// GetApiApikeysIdGameSharesWithResponse Lists the game share links that use an API key,
+	// GetApiApikeysIdGameSharesWithResponse Lists the share links a key pays for, by one
 	//
-	// with each game's name and where the share comes from.
-	//
-	// Query: context=personal lists all shares and requires owning the key;
-	// context=organization lists only organization and workshop shares.
+	// of its shares: for the key's owner all of them, for head and staff those
+	// their organisation pays for. context=personal needs the owner's own share;
+	// context=organization leaves out the owner's personal links.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/apikeys/{id}/game-shares (the `GetApiApikeysIdGameShares` operationId).
 	GetApiApikeysIdGameSharesWithResponse(ctx context.Context, id string, params *GetApiApikeysIdGameSharesParams, reqEditors ...RequestEditorFn) (*GetApiApikeysIdGameSharesResponse, error)
 
-	// PostApiApikeysIdSharesWithBodyWithResponse Shares an API key with a user, workshop or institution.
+	// PostApiApikeysIdSharesWithBodyWithResponse Gives a key to its owner's own organisation: its
+	//
+	// workshops may play with it, its head and staff sponsor games and make
+	// share links with it. A key is shared with an organisation only, never
+	// with users or workshops, and never across organisations.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/apikeys/{id}/shares (the `PostApiApikeysIdShares` operationId).
 	PostApiApikeysIdSharesWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiApikeysIdSharesResponse, error)
 
-	// PostApiApikeysIdSharesWithResponse Shares an API key with a user, workshop or institution.
+	// PostApiApikeysIdSharesWithResponse Gives a key to its owner's own organisation: its
+	//
+	// workshops may play with it, its head and staff sponsor games and make
+	// share links with it. A key is shared with an organisation only, never
+	// with users or workshops, and never across organisations.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -12011,18 +12184,18 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/games/{id} (the `PostApiGamesId` operationId).
 	PostApiGamesIdWithResponse(ctx context.Context, id string, body PostApiGamesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesIdResponse, error)
 
-	// GetApiGamesIdApiKeyStatusWithResponse Answers whether an API key resolves for the
+	// GetApiGamesIdApiKeyStatusWithResponse Answers whether a key would pay for the
 	//
-	// caller playing a game.
+	// caller's plays of a game they may read.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/games/{id}/api-key-status (the `GetApiGamesIdApiKeyStatus` operationId).
 	GetApiGamesIdApiKeyStatusWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdApiKeyStatusResponse, error)
 
-	// GetApiGamesIdAvailableKeysWithResponse Lists the API keys the caller can play a game
+	// GetApiGamesIdAvailableKeysWithResponse Lists the keys that would pay for the
 	//
-	// with, in order of priority.
+	// caller's plays of a game they may read, in the order they are tried.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12057,14 +12230,10 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/games/{id}/favourite (the `PostApiGamesIdFavourite` operationId).
 	PostApiGamesIdFavouriteWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiGamesIdFavouriteResponse, error)
 
-	// GetApiGamesIdPrivateShareWithResponse Lists the share links of a game the caller
+	// GetApiGamesIdPrivateShareWithResponse Lists a game's share links the caller may
 	//
-	// has access to.
-	//
-	// These are the caller's own personal and organisation shares, their
-	// institution's shares for head, staff and admins, the shares of the workshop
-	// they are in, and for head and staff outside a workshop the shares of every
-	// workshop of their institution.
+	// see: those they made, of their game, paid by their keys or their
+	// organisation's, and their workshop's. A game they may not read is 404.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12078,79 +12247,84 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/games/{id}/sessions (the `GetApiGamesIdSessions` operationId).
 	GetApiGamesIdSessionsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdSessionsResponse, error)
 
-	// PostApiGamesIdSharesWithBodyWithResponse Creates a share link for a game.
+	// PostApiGamesIdSharesWithBodyWithResponse Makes a share link for a game the caller may
 	//
-	// A workshop share (workshopId set) plays on the workshop's default API key
-	// and is reused when the game already has one in that workshop. A personal or
-	// organisation share needs sponsorKeyShareId; it is an organisation share when
-	// that key share belongs to an institution.
+	// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+	// the workshop's key (workshopId) for the workshop's head and staff, and for
+	// those in it while it allows sharing. A workshop has one link per game; an
+	// existing one is answered. maxSessions limits the plays; null: unlimited.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/games/{id}/shares (the `PostApiGamesIdShares` operationId).
 	PostApiGamesIdSharesWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiGamesIdSharesResponse, error)
 
-	// PostApiGamesIdSharesWithResponse Creates a share link for a game.
+	// PostApiGamesIdSharesWithResponse Makes a share link for a game the caller may
 	//
-	// A workshop share (workshopId set) plays on the workshop's default API key
-	// and is reused when the game already has one in that workshop. A personal or
-	// organisation share needs sponsorKeyShareId; it is an organisation share when
-	// that key share belongs to an institution.
+	// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+	// the workshop's key (workshopId) for the workshop's head and staff, and for
+	// those in it while it allows sharing. A workshop has one link per game; an
+	// existing one is answered. maxSessions limits the plays; null: unlimited.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/games/{id}/shares (the `PostApiGamesIdShares` operationId).
 	PostApiGamesIdSharesWithResponse(ctx context.Context, id string, body PostApiGamesIdSharesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesIdSharesResponse, error)
 
-	// DeleteApiGamesIdSharesShareIdWithResponse Revokes a share link and cleans up its guest data.
+	// DeleteApiGamesIdSharesShareIdWithResponse Stops a share link: its guests go with it. For its
 	//
-	// The share's creator, the game's owner, members of the share's workshop and
-	// head or staff of its institution may revoke it.
+	// maker, the game's owner, the key's owner, and head and staff when their
+	// organisation's key pays.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/games/{id}/shares/{shareId} (the `DeleteApiGamesIdSharesShareId` operationId).
 	DeleteApiGamesIdSharesShareIdWithResponse(ctx context.Context, id string, shareId string, reqEditors ...RequestEditorFn) (*DeleteApiGamesIdSharesShareIdResponse, error)
 
-	// PatchApiGamesIdSharesShareIdWithBodyWithResponse Updates a share link's settings.
+	// PatchApiGamesIdSharesShareIdWithBodyWithResponse Sets a share link's limit and tier, for those who
 	//
-	// Whoever may revoke the share may update it.
+	// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+	// aiQualityTier plays at the source's default.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/games/{id}/shares/{shareId} (the `PatchApiGamesIdSharesShareId` operationId).
 	PatchApiGamesIdSharesShareIdWithBodyWithResponse(ctx context.Context, id string, shareId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiGamesIdSharesShareIdResponse, error)
 
-	// PatchApiGamesIdSharesShareIdWithResponse Updates a share link's settings.
+	// PatchApiGamesIdSharesShareIdWithResponse Sets a share link's limit and tier, for those who
 	//
-	// Whoever may revoke the share may update it.
+	// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+	// aiQualityTier plays at the source's default.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/games/{id}/shares/{shareId} (the `PatchApiGamesIdSharesShareId` operationId).
 	PatchApiGamesIdSharesShareIdWithResponse(ctx context.Context, id string, shareId string, body PatchApiGamesIdSharesShareIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiGamesIdSharesShareIdResponse, error)
 
-	// DeleteApiGamesIdSponsorWithResponse Removes the public sponsorship from a game and
+	// DeleteApiGamesIdSponsorWithResponse Stops a game's sponsorship: for those who edit
 	//
-	// answers with the game.
+	// the game, the key's owner, and head and staff when their organisation's
+	// key pays.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/games/{id}/sponsor (the `DeleteApiGamesIdSponsor` operationId).
 	DeleteApiGamesIdSponsorWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiGamesIdSponsorResponse, error)
 
-	// PutApiGamesIdSponsorWithBodyWithResponse Sponsors a game publicly with one of the caller's
+	// PutApiGamesIdSponsorWithBodyWithResponse Makes a key share pay for a game's public plays,
 	//
-	// API key shares and answers with the game.
+	// replacing what paid before: for those who edit the game, with a share
+	// they may draw from. A key known to fail is refused.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PUT /api/games/{id}/sponsor (the `PutApiGamesIdSponsor` operationId).
 	PutApiGamesIdSponsorWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiGamesIdSponsorResponse, error)
 
-	// PutApiGamesIdSponsorWithResponse Sponsors a game publicly with one of the caller's
+	// PutApiGamesIdSponsorWithResponse Makes a key share pay for a game's public plays,
 	//
-	// API key shares and answers with the game.
+	// replacing what paid before: for those who edit the game, with a share
+	// they may draw from. A key known to fail is refused.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -12289,9 +12463,9 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with PATCH /api/institutions/{id} (the `PatchApiInstitutionsId` operationId).
 	PatchApiInstitutionsIdWithResponse(ctx context.Context, id string, body PatchApiInstitutionsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdResponse, error)
 
-	// GetApiInstitutionsIdApikeysWithResponse Lists the API keys shared with an institution;
+	// GetApiInstitutionsIdApikeysWithResponse Lists the keys given to an organisation: for
 	//
-	// heads and staff only.
+	// its head and staff.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12360,24 +12534,20 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/institutions/{id}/declaration-consent (the `PostApiInstitutionsIdDeclarationConsent` operationId).
 	PostApiInstitutionsIdDeclarationConsentWithResponse(ctx context.Context, id string, body PostApiInstitutionsIdDeclarationConsentJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInstitutionsIdDeclarationConsentResponse, error)
 
-	// PatchApiInstitutionsIdFreeUseKeyWithBodyWithResponse Sets or clears an institution's
+	// PatchApiInstitutionsIdFreeUseKeyWithBodyWithResponse Sets or clears the key an
 	//
-	// free-use API key share and answers with the institution.
-	//
-	// Any member of the institution plays for free with this key. A null shareId
-	// clears it.
+	// organisation's members play with for free: one of the keys given to it.
+	// A null shareId clears it.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/institutions/{id}/free-use-key (the `PatchApiInstitutionsIdFreeUseKey` operationId).
 	PatchApiInstitutionsIdFreeUseKeyWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdFreeUseKeyResponse, error)
 
-	// PatchApiInstitutionsIdFreeUseKeyWithResponse Sets or clears an institution's
+	// PatchApiInstitutionsIdFreeUseKeyWithResponse Sets or clears the key an
 	//
-	// free-use API key share and answers with the institution.
-	//
-	// Any member of the institution plays for free with this key. A null shareId
-	// clears it.
+	// organisation's members play with for free: one of the keys given to it.
+	// A null shareId clears it.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -12446,133 +12616,128 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/institutions/{id}/suspension (the `PostApiInstitutionsIdSuspension` operationId).
 	PostApiInstitutionsIdSuspensionWithResponse(ctx context.Context, id string, body PostApiInstitutionsIdSuspensionJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInstitutionsIdSuspensionResponse, error)
 
-	// GetApiInvitesWithResponse Lists the invites addressed to the caller.
+	// GetApiInvitesWithResponse Lists the pending invites addressed to the caller, by
+	//
+	// account or email: what they may accept or decline.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/invites (the `GetApiInvites` operationId).
 	GetApiInvitesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiInvitesResponse, error)
 
-	// GetApiInvitesAllWithResponse Lists every invite; admins only.
+	// GetApiInvitesAllWithResponse Lists every invite the caller may list: for the
+	//
+	// admin, all of them.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/invites/all (the `GetApiInvitesAll` operationId).
 	GetApiInvitesAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiInvitesAllResponse, error)
 
-	// PostApiInvitesInstitutionWithBodyWithResponse Invites a user to join an institution as
+	// PostApiInvitesInstitutionWithBodyWithResponse Invites an account, by id or email, into
 	//
-	// head, staff or individual.
-	//
-	// The role defaults to staff. The invite names the invited user by id or
-	// email.
+	// an organisation as head, staff or individual (staff by default). Head and
+	// staff invite into their organisation, only heads as head; the admin into
+	// any.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/institution (the `PostApiInvitesInstitution` operationId).
 	PostApiInvitesInstitutionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiInvitesInstitutionResponse, error)
 
-	// PostApiInvitesInstitutionWithResponse Invites a user to join an institution as
+	// PostApiInvitesInstitutionWithResponse Invites an account, by id or email, into
 	//
-	// head, staff or individual.
-	//
-	// The role defaults to staff. The invite names the invited user by id or
-	// email.
+	// an organisation as head, staff or individual (staff by default). Head and
+	// staff invite into their organisation, only heads as head; the admin into
+	// any.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/institution (the `PostApiInvitesInstitution` operationId).
 	PostApiInvitesInstitutionWithResponse(ctx context.Context, body PostApiInvitesInstitutionJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInvitesInstitutionResponse, error)
 
-	// GetApiInvitesInstitutionInstitutionIdWithResponse Lists the invites to join an institution.
+	// GetApiInvitesInstitutionInstitutionIdWithResponse Lists an organisation's invites the
 	//
-	// The caller is head or staff of the institution, or an admin.
+	// caller may list: its head and staff (staff without the invites to become
+	// head), and the admin.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/invites/institution/{institutionId} (the `GetApiInvitesInstitutionInstitutionId` operationId).
 	GetApiInvitesInstitutionInstitutionIdWithResponse(ctx context.Context, institutionId string, reqEditors ...RequestEditorFn) (*GetApiInvitesInstitutionInstitutionIdResponse, error)
 
-	// PostApiInvitesWorkshopWithBodyWithResponse Creates an open invite for users to join a
+	// PostApiInvitesWorkshopWithBodyWithResponse Returns a workshop's link: its usable one, or
 	//
-	// workshop as Guests.
+	// a new one. Whoever follows it becomes a guest there, or, a member of an
+	// organisation, works in it.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/workshop (the `PostApiInvitesWorkshop` operationId).
 	PostApiInvitesWorkshopWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiInvitesWorkshopResponse, error)
 
-	// PostApiInvitesWorkshopWithResponse Creates an open invite for users to join a
+	// PostApiInvitesWorkshopWithResponse Returns a workshop's link: its usable one, or
 	//
-	// workshop as Guests.
+	// a new one. Whoever follows it becomes a guest there, or, a member of an
+	// organisation, works in it.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/workshop (the `PostApiInvitesWorkshop` operationId).
 	PostApiInvitesWorkshopWithResponse(ctx context.Context, body PostApiInvitesWorkshopJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInvitesWorkshopResponse, error)
 
-	// PostApiInvitesWorkshopEmailWithBodyWithResponse Invites a registered user, by email, to
+	// PostApiInvitesWorkshopEmailWithBodyWithResponse Invites the account with this email
 	//
-	// join a workshop.
-	//
-	// A second pending invite for the same user and workshop is refused with 409.
+	// into a workshop: accepting, they keep their role and work in it.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/workshop/email (the `PostApiInvitesWorkshopEmail` operationId).
 	PostApiInvitesWorkshopEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiInvitesWorkshopEmailResponse, error)
 
-	// PostApiInvitesWorkshopEmailWithResponse Invites a registered user, by email, to
+	// PostApiInvitesWorkshopEmailWithResponse Invites the account with this email
 	//
-	// join a workshop.
-	//
-	// A second pending invite for the same user and workshop is refused with 409.
+	// into a workshop: accepting, they keep their role and work in it.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/workshop/email (the `PostApiInvitesWorkshopEmail` operationId).
 	PostApiInvitesWorkshopEmailWithResponse(ctx context.Context, body PostApiInvitesWorkshopEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInvitesWorkshopEmailResponse, error)
 
-	// GetApiInvitesIdOrTokenWithResponse Returns an invite by its id or its token.
+	// GetApiInvitesIdOrTokenWithResponse Returns an invite: by id, for those who may read it; by
 	//
-	// An id needs a signed-in caller: admins see any invite, everyone else the
-	// invites addressed to them or created by them. A token also answers an
-	// anonymous caller, for open invites.
+	// its link's token, for anyone who has it, signed in or not. Repeated
+	// guesses at tokens are slowed down (429).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/invites/{idOrToken} (the `GetApiInvitesIdOrToken` operationId).
 	GetApiInvitesIdOrTokenWithResponse(ctx context.Context, idOrToken string, reqEditors ...RequestEditorFn) (*GetApiInvitesIdOrTokenResponse, error)
 
-	// PostApiInvitesIdOrTokenAcceptWithResponse Accepts an invite by its id or its token.
+	// PostApiInvitesIdOrTokenAcceptWithResponse Accepts an invite, by its id or its link's token.
 	//
-	// An anonymous caller accepts a workshop invite by token: this creates a
-	// Guest in the browser's language, starts its session, sets the
-	// session cookie and answers with the account and its token. A signed-in
-	// Guest switches to the invite's workshop; a head, staff member or
-	// individual enters it and keeps their role; anyone else joins as a
-	// Guest. An invite by id needs a signed-in caller: a workshop invite
-	// lets them enter the workshop with their own role, an institution invite
-	// gives them its role.
+	// Following a link without an account joins its workshop as a new guest,
+	// signed in at once. A member of an organisation keeps their role and works
+	// in the workshop; anyone else takes the invite's role. Only a pending
+	// invite is accepted (409). Repeated guesses at tokens are slowed down
+	// (429).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/{idOrToken}/accept (the `PostApiInvitesIdOrTokenAccept` operationId).
 	PostApiInvitesIdOrTokenAcceptWithResponse(ctx context.Context, idOrToken string, reqEditors ...RequestEditorFn) (*PostApiInvitesIdOrTokenAcceptResponse, error)
 
-	// DeleteApiInvitesIdWithResponse Revokes a pending invite.
+	// DeleteApiInvitesIdWithResponse Deletes a pending invite: for its organisation's head
 	//
-	// Its creator and admins can revoke it, and institution staff a workshop
-	// invite.
+	// and staff (staff not the invites to become head), and the admin. An
+	// answered invite stays (409).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/invites/{id} (the `DeleteApiInvitesId` operationId).
 	DeleteApiInvitesIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiInvitesIdResponse, error)
 
-	// PostApiInvitesIdDeclineWithResponse Declines an invite and answers with its id and its
-	//
-	// status "declined".
+	// PostApiInvitesIdDeclineWithResponse Declines a pending invite addressed to the caller.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12923,25 +13088,34 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/users/{id} (the `PostApiUsersId` operationId).
 	PostApiUsersIdWithResponse(ctx context.Context, id string, body PostApiUsersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiUsersIdResponse, error)
 
-	// DeleteApiUsersIdRoleWithResponse Removes a user's role and answers with the user.
+	// DeleteApiUsersIdRoleWithResponse Takes a user's role away, the admin's: they become
+	//
+	// an individual of no organisation. A head removes a member from the
+	// organisation instead (DELETE /api/institutions/{id}/members/{userID}).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/users/{id}/role (the `DeleteApiUsersIdRole` operationId).
 	DeleteApiUsersIdRoleWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiUsersIdRoleResponse, error)
 
-	// PostApiUsersIdRoleWithBodyWithResponse Sets a user's role and answers with the user.
+	// PostApiUsersIdRoleWithBodyWithResponse Gives a user a new role and answers with them.
 	//
-	// The role is scoped to an institution or a workshop by their ids.
+	// The admin gives any role, scoped to an organisation or a workshop by
+	// their ids; a head makes a member of their organisation head or staff
+	// there. Only an individual becomes admin, and an organisation keeps its
+	// last head (409 last_head).
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/users/{id}/role (the `PostApiUsersIdRole` operationId).
 	PostApiUsersIdRoleWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiUsersIdRoleResponse, error)
 
-	// PostApiUsersIdRoleWithResponse Sets a user's role and answers with the user.
+	// PostApiUsersIdRoleWithResponse Gives a user a new role and answers with them.
 	//
-	// The role is scoped to an institution or a workshop by their ids.
+	// The admin gives any role, scoped to an organisation or a workshop by
+	// their ids; a head makes a member of their organisation head or staff
+	// there. Only an individual becomes admin, and an organisation keeps its
+	// last head (409 last_head).
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -12976,103 +13150,112 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/version (the `GetApiVersion` operationId).
 	GetApiVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiVersionResponse, error)
 
-	// GetApiWorkshopsWithResponse Lists the workshops the caller can see, or those of
+	// GetApiWorkshopsWithResponse Lists the workshops the caller may list: an admin
 	//
-	// one institution.
+	// all of them, a head or staff their organisation's.
 	//
-	// Query: institutionId, search (name), sortBy (name, createdAt,
-	// participantCount), sortDir (asc, desc), activeOnly ("true" lists active
-	// workshops only).
+	// institutionId, search and activeOnly narrow the list; sortBy (name,
+	// createdAt, participantCount) and sortDir (asc, desc) order it, newest
+	// first by default.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
 	GetApiWorkshopsWithResponse(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*GetApiWorkshopsResponse, error)
 
-	// PostApiWorkshopsWithBodyWithResponse Creates a workshop.
+	// PostApiWorkshopsWithBodyWithResponse Creates a workshop in the caller's organisation, or,
+	//
+	// for the admin, in the one named (institutionId).
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/workshops (the `PostApiWorkshops` operationId).
 	PostApiWorkshopsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiWorkshopsResponse, error)
 
-	// PostApiWorkshopsWithResponse Creates a workshop.
+	// PostApiWorkshopsWithResponse Creates a workshop in the caller's organisation, or,
+	//
+	// for the admin, in the one named (institutionId).
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/workshops (the `PostApiWorkshops` operationId).
 	PostApiWorkshopsWithResponse(ctx context.Context, body PostApiWorkshopsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiWorkshopsResponse, error)
 
-	// GetApiWorkshopsGuestsGuestIdTokenWithResponse Returns the sign-in code of a Guest in a workshop;
+	// GetApiWorkshopsGuestsGuestIdTokenWithResponse Returns the login code of a guest in one of the
 	//
-	// staff and heads only.
+	// caller's organisation's workshops: for its head and staff, helping a guest
+	// who lost it.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/workshops/guests/{guestId}/token (the `GetApiWorkshopsGuestsGuestIdToken` operationId).
 	GetApiWorkshopsGuestsGuestIdTokenWithResponse(ctx context.Context, guestId string, reqEditors ...RequestEditorFn) (*GetApiWorkshopsGuestsGuestIdTokenResponse, error)
 
-	// PostApiWorkshopsGuestsGuestIdTokenResetWithResponse Replaces the sign-in code of a Guest in a workshop;
+	// PostApiWorkshopsGuestsGuestIdTokenResetWithResponse Gives a guest in one of the caller's organisation's
 	//
-	// staff and heads only.
-	//
-	// Earlier sign-in links stop working and the Guest's sessions end.
+	// workshops a new login code: for its head and staff. Earlier login links
+	// stop working and the guest's sessions end.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/workshops/guests/{guestId}/token/reset (the `PostApiWorkshopsGuestsGuestIdTokenReset` operationId).
 	PostApiWorkshopsGuestsGuestIdTokenResetWithResponse(ctx context.Context, guestId string, reqEditors ...RequestEditorFn) (*PostApiWorkshopsGuestsGuestIdTokenResetResponse, error)
 
-	// DeleteApiWorkshopsIdWithResponse Soft-deletes a workshop.
+	// DeleteApiWorkshopsIdWithResponse Deletes a workshop with its guests; its other games
+	//
+	// stay with their creators.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/workshops/{id} (the `DeleteApiWorkshopsId` operationId).
 	DeleteApiWorkshopsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiWorkshopsIdResponse, error)
 
-	// GetApiWorkshopsIdWithResponse Returns a workshop.
+	// GetApiWorkshopsIdWithResponse Returns a workshop the caller may read: one of their
+	//
+	// organisation's, the one they are in, one with a public page, or any, for
+	// an admin. Others get 404.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/workshops/{id} (the `GetApiWorkshopsId` operationId).
 	GetApiWorkshopsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiWorkshopsIdResponse, error)
 
-	// PatchApiWorkshopsIdWithBodyWithResponse Updates a workshop's settings and its public page.
+	// PatchApiWorkshopsIdWithBodyWithResponse Changes a workshop and answers with it as stored.
 	//
-	// The name is required. Omitting publicSlug, publicDescription or publicLinks
-	// keeps the current value; an empty description or list clears it.
+	// Only what is given changes. An empty aiQualityTier, promptConstraints or
+	// publicDescription removes it; an empty publicLinks list clears the links.
+	// Switching public off ends the public page's share links.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/workshops/{id} (the `PatchApiWorkshopsId` operationId).
 	PatchApiWorkshopsIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiWorkshopsIdResponse, error)
 
-	// PatchApiWorkshopsIdWithResponse Updates a workshop's settings and its public page.
+	// PatchApiWorkshopsIdWithResponse Changes a workshop and answers with it as stored.
 	//
-	// The name is required. Omitting publicSlug, publicDescription or publicLinks
-	// keeps the current value; an empty description or list clears it.
+	// Only what is given changes. An empty aiQualityTier, promptConstraints or
+	// publicDescription removes it; an empty publicLinks list clears the links.
+	// Switching public off ends the public page's share links.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/workshops/{id} (the `PatchApiWorkshopsId` operationId).
 	PatchApiWorkshopsIdWithResponse(ctx context.Context, id string, body PatchApiWorkshopsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiWorkshopsIdResponse, error)
 
-	// PutApiWorkshopsIdApiKeyWithBodyWithResponse Sets the API key a workshop's members play
+	// PutApiWorkshopsIdApiKeyWithBodyWithResponse Sets the key a workshop plays with: one of the
 	//
-	// with; staff and heads only.
-	//
-	// A null or empty apiKeyShareId removes it.
+	// keys given to its organisation; null or empty clears it, and the workshop
+	// plays no more until one is picked.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PUT /api/workshops/{id}/api-key (the `PutApiWorkshopsIdApiKey` operationId).
 	PutApiWorkshopsIdApiKeyWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiWorkshopsIdApiKeyResponse, error)
 
-	// PutApiWorkshopsIdApiKeyWithResponse Sets the API key a workshop's members play
+	// PutApiWorkshopsIdApiKeyWithResponse Sets the key a workshop plays with: one of the
 	//
-	// with; staff and heads only.
-	//
-	// A null or empty apiKeyShareId removes it.
+	// keys given to its organisation; null or empty clears it, and the workshop
+	// plays no more until one is picked.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -13089,27 +13272,27 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/workshops/{id}/events (the `GetApiWorkshopsIdEvents` operationId).
 	GetApiWorkshopsIdEventsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiWorkshopsIdEventsResponse, error)
 
-	// PostApiWorkshopsIdMembersWithBodyWithResponse Adds a member of the organization to a workshop by
+	// PostApiWorkshopsIdMembersWithBodyWithResponse Puts an individual of the workshop's organisation
 	//
-	// making it their active workshop.
+	// into it: it becomes the workshop they work in.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
 	PostApiWorkshopsIdMembersWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiWorkshopsIdMembersResponse, error)
 
-	// PostApiWorkshopsIdMembersWithResponse Adds a member of the organization to a workshop by
+	// PostApiWorkshopsIdMembersWithResponse Puts an individual of the workshop's organisation
 	//
-	// making it their active workshop.
+	// into it: it becomes the workshop they work in.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
 	PostApiWorkshopsIdMembersWithResponse(ctx context.Context, id string, body PostApiWorkshopsIdMembersJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiWorkshopsIdMembersResponse, error)
 
-	// DeleteApiWorkshopsIdMembersUserIdWithResponse Removes a member who is not permanent from a
+	// DeleteApiWorkshopsIdMembersUserIdWithResponse Takes someone out of a workshop: a guest of it
 	//
-	// workshop by clearing their active workshop.
+	// loses their place, a member working in it leaves it.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -13169,13 +13352,13 @@ type PostApiApikeysNewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ApiKeyShare
+	JSON200 *KeyShareView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiApikeysNewResponse) GetJSON200() *ApiKeyShare {
+func (r PostApiApikeysNewResponse) GetJSON200() *KeyShareView {
 	return r.JSON200
 }
 
@@ -13217,13 +13400,13 @@ type DeleteApiApikeysIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ApiKeyShare
+	JSON200 *MessageResp
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r DeleteApiApikeysIdResponse) GetJSON200() *ApiKeyShare {
+func (r DeleteApiApikeysIdResponse) GetJSON200() *MessageResp {
 	return r.JSON200
 }
 
@@ -13313,13 +13496,13 @@ type PatchApiApikeysIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ApiKeyShare
+	JSON200 *KeyShareView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PatchApiApikeysIdResponse) GetJSON200() *ApiKeyShare {
+func (r PatchApiApikeysIdResponse) GetJSON200() *KeyShareView {
 	return r.JSON200
 }
 
@@ -13361,13 +13544,13 @@ type PostApiApikeysIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ApiKeyShare
+	JSON200 *KeyShareView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiApikeysIdResponse) GetJSON200() *ApiKeyShare {
+func (r PostApiApikeysIdResponse) GetJSON200() *KeyShareView {
 	return r.JSON200
 }
 
@@ -13409,13 +13592,13 @@ type PutApiApikeysIdDefaultResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ApiKeyShare
+	JSON200 *KeyShareView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PutApiApikeysIdDefaultResponse) GetJSON200() *ApiKeyShare {
+func (r PutApiApikeysIdDefaultResponse) GetJSON200() *KeyShareView {
 	return r.JSON200
 }
 
@@ -13457,13 +13640,13 @@ type GetApiApikeysIdGameSharesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]EnrichedGameShare
+	JSON200 *[]ShareLinkView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiApikeysIdGameSharesResponse) GetJSON200() *[]EnrichedGameShare {
+func (r GetApiApikeysIdGameSharesResponse) GetJSON200() *[]ShareLinkView {
 	return r.JSON200
 }
 
@@ -13505,13 +13688,13 @@ type PostApiApikeysIdSharesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ApiKeyShare
+	JSON200 *KeyShareView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiApikeysIdSharesResponse) GetJSON200() *ApiKeyShare {
+func (r PostApiApikeysIdSharesResponse) GetJSON200() *KeyShareView {
 	return r.JSON200
 }
 
@@ -15636,13 +15819,13 @@ type PostApiGamesIdSharesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *GameShareResp
+	JSON200 *ShareLinkView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiGamesIdSharesResponse) GetJSON200() *GameShareResp {
+func (r PostApiGamesIdSharesResponse) GetJSON200() *ShareLinkView {
 	return r.JSON200
 }
 
@@ -15732,13 +15915,13 @@ type PatchApiGamesIdSharesShareIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *GameShareResp
+	JSON200 *ShareLinkView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PatchApiGamesIdSharesShareIdResponse) GetJSON200() *GameShareResp {
+func (r PatchApiGamesIdSharesShareIdResponse) GetJSON200() *ShareLinkView {
 	return r.JSON200
 }
 
@@ -15780,13 +15963,13 @@ type DeleteApiGamesIdSponsorResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r DeleteApiGamesIdSponsorResponse) GetJSON200() *Game {
+func (r DeleteApiGamesIdSponsorResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -15828,13 +16011,13 @@ type PutApiGamesIdSponsorResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PutApiGamesIdSponsorResponse) GetJSON200() *Game {
+func (r PutApiGamesIdSponsorResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -16322,13 +16505,13 @@ type GetApiInstitutionsIdApikeysResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]ApiKeyShare
+	JSON200 *[]KeyShareView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInstitutionsIdApikeysResponse) GetJSON200() *[]ApiKeyShare {
+func (r GetApiInstitutionsIdApikeysResponse) GetJSON200() *[]KeyShareView {
 	return r.JSON200
 }
 
@@ -16754,13 +16937,13 @@ type GetApiInvitesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]InviteResp
+	JSON200 *[]InviteCardView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInvitesResponse) GetJSON200() *[]InviteResp {
+func (r GetApiInvitesResponse) GetJSON200() *[]InviteCardView {
 	return r.JSON200
 }
 
@@ -16802,13 +16985,13 @@ type GetApiInvitesAllResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]InviteResp
+	JSON200 *[]InviteCardView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInvitesAllResponse) GetJSON200() *[]InviteResp {
+func (r GetApiInvitesAllResponse) GetJSON200() *[]InviteCardView {
 	return r.JSON200
 }
 
@@ -16850,13 +17033,13 @@ type PostApiInvitesInstitutionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *UserRoleInvite
+	JSON200 *InviteCardView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiInvitesInstitutionResponse) GetJSON200() *UserRoleInvite {
+func (r PostApiInvitesInstitutionResponse) GetJSON200() *InviteCardView {
 	return r.JSON200
 }
 
@@ -16898,13 +17081,13 @@ type GetApiInvitesInstitutionInstitutionIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]InviteResp
+	JSON200 *[]InviteCardView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInvitesInstitutionInstitutionIdResponse) GetJSON200() *[]InviteResp {
+func (r GetApiInvitesInstitutionInstitutionIdResponse) GetJSON200() *[]InviteCardView {
 	return r.JSON200
 }
 
@@ -16946,13 +17129,13 @@ type PostApiInvitesWorkshopResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *UserRoleInvite
+	JSON200 *InviteCardView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiInvitesWorkshopResponse) GetJSON200() *UserRoleInvite {
+func (r PostApiInvitesWorkshopResponse) GetJSON200() *InviteCardView {
 	return r.JSON200
 }
 
@@ -16994,13 +17177,13 @@ type PostApiInvitesWorkshopEmailResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *InviteResp
+	JSON200 *InviteCardView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiInvitesWorkshopEmailResponse) GetJSON200() *InviteResp {
+func (r PostApiInvitesWorkshopEmailResponse) GetJSON200() *InviteCardView {
 	return r.JSON200
 }
 
@@ -17042,13 +17225,13 @@ type GetApiInvitesIdOrTokenResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *InviteResp
+	JSON200 *InviteCardView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInvitesIdOrTokenResponse) GetJSON200() *InviteResp {
+func (r GetApiInvitesIdOrTokenResponse) GetJSON200() *InviteCardView {
 	return r.JSON200
 }
 
@@ -17186,13 +17369,13 @@ type PostApiInvitesIdDeclineResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *UserRoleInvite
+	JSON200 *MessageResp
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiInvitesIdDeclineResponse) GetJSON200() *UserRoleInvite {
+func (r PostApiInvitesIdDeclineResponse) GetJSON200() *MessageResp {
 	return r.JSON200
 }
 
@@ -18578,13 +18761,13 @@ type DeleteApiUsersIdRoleResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *User
+	JSON200 *UserView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r DeleteApiUsersIdRoleResponse) GetJSON200() *User {
+func (r DeleteApiUsersIdRoleResponse) GetJSON200() *UserView {
 	return r.JSON200
 }
 
@@ -18626,13 +18809,13 @@ type PostApiUsersIdRoleResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *User
+	JSON200 *UserView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiUsersIdRoleResponse) GetJSON200() *User {
+func (r PostApiUsersIdRoleResponse) GetJSON200() *UserView {
 	return r.JSON200
 }
 
@@ -18818,13 +19001,13 @@ type GetApiWorkshopsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]Workshop
+	JSON200 *[]WorkshopView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiWorkshopsResponse) GetJSON200() *[]Workshop {
+func (r GetApiWorkshopsResponse) GetJSON200() *[]WorkshopView {
 	return r.JSON200
 }
 
@@ -18866,13 +19049,13 @@ type PostApiWorkshopsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Workshop
+	JSON200 *WorkshopView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiWorkshopsResponse) GetJSON200() *Workshop {
+func (r PostApiWorkshopsResponse) GetJSON200() *WorkshopView {
 	return r.JSON200
 }
 
@@ -19058,13 +19241,13 @@ type GetApiWorkshopsIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Workshop
+	JSON200 *WorkshopView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiWorkshopsIdResponse) GetJSON200() *Workshop {
+func (r GetApiWorkshopsIdResponse) GetJSON200() *WorkshopView {
 	return r.JSON200
 }
 
@@ -19106,13 +19289,13 @@ type PatchApiWorkshopsIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Workshop
+	JSON200 *WorkshopView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PatchApiWorkshopsIdResponse) GetJSON200() *Workshop {
+func (r PatchApiWorkshopsIdResponse) GetJSON200() *WorkshopView {
 	return r.JSON200
 }
 
@@ -19154,13 +19337,13 @@ type PutApiWorkshopsIdApiKeyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Workshop
+	JSON200 *WorkshopView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PutApiWorkshopsIdApiKeyResponse) GetJSON200() *Workshop {
+func (r PutApiWorkshopsIdApiKeyResponse) GetJSON200() *WorkshopView {
 	return r.JSON200
 }
 
@@ -19335,9 +19518,10 @@ func (r DeleteApiWorkshopsIdMembersUserIdResponse) ContentType() string {
 	return ""
 }
 
-// GetApiApikeysWithResponse Lists the caller's API keys and all their linked shares
+// GetApiApikeysWithResponse Lists the caller's keys and every share of them: their
 //
-// (organization shares, sponsorships).
+// own use of each, the organisation they gave it to, and the sponsored games
+// and share links it pays for.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -19350,11 +19534,12 @@ func (c *ClientWithResponses) GetApiApikeysWithResponse(ctx context.Context, req
 	return ParseGetApiApikeysResponse(rsp)
 }
 
-// PostApiApikeysNewWithBodyWithResponse Creates an API key and shares it with the caller.
+// PostApiApikeysNewWithBodyWithResponse Stores a key of the caller's and answers with their
 //
-// Platform and key are required; surrounding whitespace is trimmed. Without a
-// name the key is named after its platform and today's date, e.g.
-// "Mistral 12.02.26".
+// own use of it. Platform and key are required; surrounding whitespace is
+// trimmed. Without a name the key is named after its platform and today's
+// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+// default.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19367,11 +19552,12 @@ func (c *ClientWithResponses) PostApiApikeysNewWithBodyWithResponse(ctx context.
 	return ParsePostApiApikeysNewResponse(rsp)
 }
 
-// PostApiApikeysNewWithResponse Creates an API key and shares it with the caller.
+// PostApiApikeysNewWithResponse Stores a key of the caller's and answers with their
 //
-// Platform and key are required; surrounding whitespace is trimmed. Without a
-// name the key is named after its platform and today's date, e.g.
-// "Mistral 12.02.26".
+// own use of it. Platform and key are required; surrounding whitespace is
+// trimmed. Without a name the key is named after its platform and today's
+// date, e.g. "Mistral 12.02.26". The caller's first key becomes their
+// default.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19384,9 +19570,12 @@ func (c *ClientWithResponses) PostApiApikeysNewWithResponse(ctx context.Context,
 	return ParsePostApiApikeysNewResponse(rsp)
 }
 
-// DeleteApiApikeysIdWithResponse Removes an API key share and answers with it as it was.
+// DeleteApiApikeysIdWithResponse Takes a share back, stopping what draws from it: the
 //
-// With cascade=true it deletes the key and all its shares.
+// owner any share of their key, a head their organisation's, head and staff
+// what draws from it. With cascade=true the owner deletes the key itself,
+// with every share of it. The owner's own use of a key goes only with the
+// key.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -19399,7 +19588,9 @@ func (c *ClientWithResponses) DeleteApiApikeysIdWithResponse(ctx context.Context
 	return ParseDeleteApiApikeysIdResponse(rsp)
 }
 
-// GetApiApikeysIdWithResponse Returns an API key share and the shares linked to it.
+// GetApiApikeysIdWithResponse Returns a share the caller may see, and for the key's
+//
+// owner every share of the key (linkedShares).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -19412,7 +19603,7 @@ func (c *ClientWithResponses) GetApiApikeysIdWithResponse(ctx context.Context, i
 	return ParseGetApiApikeysIdResponse(rsp)
 }
 
-// PatchApiApikeysIdWithBodyWithResponse Renames an API key.
+// PatchApiApikeysIdWithBodyWithResponse Renames a key, for its owner.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19425,7 +19616,7 @@ func (c *ClientWithResponses) PatchApiApikeysIdWithBodyWithResponse(ctx context.
 	return ParsePatchApiApikeysIdResponse(rsp)
 }
 
-// PatchApiApikeysIdWithResponse Renames an API key.
+// PatchApiApikeysIdWithResponse Renames a key, for its owner.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19438,9 +19629,7 @@ func (c *ClientWithResponses) PatchApiApikeysIdWithResponse(ctx context.Context,
 	return ParsePatchApiApikeysIdResponse(rsp)
 }
 
-// PostApiApikeysIdWithBodyWithResponse Shares an API key with a user, workshop or
-//
-// institution, at the path older clients use.
+// PostApiApikeysIdWithBodyWithResponse Is ShareApiKeyEndpoint at v1's path.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19453,9 +19642,7 @@ func (c *ClientWithResponses) PostApiApikeysIdWithBodyWithResponse(ctx context.C
 	return ParsePostApiApikeysIdResponse(rsp)
 }
 
-// PostApiApikeysIdWithResponse Shares an API key with a user, workshop or
-//
-// institution, at the path older clients use.
+// PostApiApikeysIdWithResponse Is ShareApiKeyEndpoint at v1's path.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19468,7 +19655,9 @@ func (c *ClientWithResponses) PostApiApikeysIdWithResponse(ctx context.Context, 
 	return ParsePostApiApikeysIdResponse(rsp)
 }
 
-// PutApiApikeysIdDefaultWithResponse Makes an API key the caller's default for new sessions.
+// PutApiApikeysIdDefaultWithResponse Makes a key its owner's default: the one they
+//
+// play with themselves.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -19481,12 +19670,11 @@ func (c *ClientWithResponses) PutApiApikeysIdDefaultWithResponse(ctx context.Con
 	return ParsePutApiApikeysIdDefaultResponse(rsp)
 }
 
-// GetApiApikeysIdGameSharesWithResponse Lists the game share links that use an API key,
+// GetApiApikeysIdGameSharesWithResponse Lists the share links a key pays for, by one
 //
-// with each game's name and where the share comes from.
-//
-// Query: context=personal lists all shares and requires owning the key;
-// context=organization lists only organization and workshop shares.
+// of its shares: for the key's owner all of them, for head and staff those
+// their organisation pays for. context=personal needs the owner's own share;
+// context=organization leaves out the owner's personal links.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -19499,7 +19687,11 @@ func (c *ClientWithResponses) GetApiApikeysIdGameSharesWithResponse(ctx context.
 	return ParseGetApiApikeysIdGameSharesResponse(rsp)
 }
 
-// PostApiApikeysIdSharesWithBodyWithResponse Shares an API key with a user, workshop or institution.
+// PostApiApikeysIdSharesWithBodyWithResponse Gives a key to its owner's own organisation: its
+//
+// workshops may play with it, its head and staff sponsor games and make
+// share links with it. A key is shared with an organisation only, never
+// with users or workshops, and never across organisations.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19512,7 +19704,11 @@ func (c *ClientWithResponses) PostApiApikeysIdSharesWithBodyWithResponse(ctx con
 	return ParsePostApiApikeysIdSharesResponse(rsp)
 }
 
-// PostApiApikeysIdSharesWithResponse Shares an API key with a user, workshop or institution.
+// PostApiApikeysIdSharesWithResponse Gives a key to its owner's own organisation: its
+//
+// workshops may play with it, its head and staff sponsor games and make
+// share links with it. A key is shared with an organisation only, never
+// with users or workshops, and never across organisations.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20359,9 +20555,9 @@ func (c *ClientWithResponses) PostApiGamesIdWithResponse(ctx context.Context, id
 	return ParsePostApiGamesIdResponse(rsp)
 }
 
-// GetApiGamesIdApiKeyStatusWithResponse Answers whether an API key resolves for the
+// GetApiGamesIdApiKeyStatusWithResponse Answers whether a key would pay for the
 //
-// caller playing a game.
+// caller's plays of a game they may read.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20374,9 +20570,9 @@ func (c *ClientWithResponses) GetApiGamesIdApiKeyStatusWithResponse(ctx context.
 	return ParseGetApiGamesIdApiKeyStatusResponse(rsp)
 }
 
-// GetApiGamesIdAvailableKeysWithResponse Lists the API keys the caller can play a game
+// GetApiGamesIdAvailableKeysWithResponse Lists the keys that would pay for the
 //
-// with, in order of priority.
+// caller's plays of a game they may read, in the order they are tried.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20435,14 +20631,10 @@ func (c *ClientWithResponses) PostApiGamesIdFavouriteWithResponse(ctx context.Co
 	return ParsePostApiGamesIdFavouriteResponse(rsp)
 }
 
-// GetApiGamesIdPrivateShareWithResponse Lists the share links of a game the caller
+// GetApiGamesIdPrivateShareWithResponse Lists a game's share links the caller may
 //
-// has access to.
-//
-// These are the caller's own personal and organisation shares, their
-// institution's shares for head, staff and admins, the shares of the workshop
-// they are in, and for head and staff outside a workshop the shares of every
-// workshop of their institution.
+// see: those they made, of their game, paid by their keys or their
+// organisation's, and their workshop's. A game they may not read is 404.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20468,12 +20660,12 @@ func (c *ClientWithResponses) GetApiGamesIdSessionsWithResponse(ctx context.Cont
 	return ParseGetApiGamesIdSessionsResponse(rsp)
 }
 
-// PostApiGamesIdSharesWithBodyWithResponse Creates a share link for a game.
+// PostApiGamesIdSharesWithBodyWithResponse Makes a share link for a game the caller may
 //
-// A workshop share (workshopId set) plays on the workshop's default API key
-// and is reused when the game already has one in that workshop. A personal or
-// organisation share needs sponsorKeyShareId; it is an organisation share when
-// that key share belongs to an institution.
+// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+// the workshop's key (workshopId) for the workshop's head and staff, and for
+// those in it while it allows sharing. A workshop has one link per game; an
+// existing one is answered. maxSessions limits the plays; null: unlimited.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20486,12 +20678,12 @@ func (c *ClientWithResponses) PostApiGamesIdSharesWithBodyWithResponse(ctx conte
 	return ParsePostApiGamesIdSharesResponse(rsp)
 }
 
-// PostApiGamesIdSharesWithResponse Creates a share link for a game.
+// PostApiGamesIdSharesWithResponse Makes a share link for a game the caller may
 //
-// A workshop share (workshopId set) plays on the workshop's default API key
-// and is reused when the game already has one in that workshop. A personal or
-// organisation share needs sponsorKeyShareId; it is an organisation share when
-// that key share belongs to an institution.
+// share: paid by a key share they may draw from (sponsorKeyShareId), or by
+// the workshop's key (workshopId) for the workshop's head and staff, and for
+// those in it while it allows sharing. A workshop has one link per game; an
+// existing one is answered. maxSessions limits the plays; null: unlimited.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20504,10 +20696,10 @@ func (c *ClientWithResponses) PostApiGamesIdSharesWithResponse(ctx context.Conte
 	return ParsePostApiGamesIdSharesResponse(rsp)
 }
 
-// DeleteApiGamesIdSharesShareIdWithResponse Revokes a share link and cleans up its guest data.
+// DeleteApiGamesIdSharesShareIdWithResponse Stops a share link: its guests go with it. For its
 //
-// The share's creator, the game's owner, members of the share's workshop and
-// head or staff of its institution may revoke it.
+// maker, the game's owner, the key's owner, and head and staff when their
+// organisation's key pays.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20520,9 +20712,10 @@ func (c *ClientWithResponses) DeleteApiGamesIdSharesShareIdWithResponse(ctx cont
 	return ParseDeleteApiGamesIdSharesShareIdResponse(rsp)
 }
 
-// PatchApiGamesIdSharesShareIdWithBodyWithResponse Updates a share link's settings.
+// PatchApiGamesIdSharesShareIdWithBodyWithResponse Sets a share link's limit and tier, for those who
 //
-// Whoever may revoke the share may update it.
+// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+// aiQualityTier plays at the source's default.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20535,9 +20728,10 @@ func (c *ClientWithResponses) PatchApiGamesIdSharesShareIdWithBodyWithResponse(c
 	return ParsePatchApiGamesIdSharesShareIdResponse(rsp)
 }
 
-// PatchApiGamesIdSharesShareIdWithResponse Updates a share link's settings.
+// PatchApiGamesIdSharesShareIdWithResponse Sets a share link's limit and tier, for those who
 //
-// Whoever may revoke the share may update it.
+// may stop it. Both are set: a null maxSessions makes it unlimited, a null
+// aiQualityTier plays at the source's default.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20550,9 +20744,10 @@ func (c *ClientWithResponses) PatchApiGamesIdSharesShareIdWithResponse(ctx conte
 	return ParsePatchApiGamesIdSharesShareIdResponse(rsp)
 }
 
-// DeleteApiGamesIdSponsorWithResponse Removes the public sponsorship from a game and
+// DeleteApiGamesIdSponsorWithResponse Stops a game's sponsorship: for those who edit
 //
-// answers with the game.
+// the game, the key's owner, and head and staff when their organisation's
+// key pays.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20565,9 +20760,10 @@ func (c *ClientWithResponses) DeleteApiGamesIdSponsorWithResponse(ctx context.Co
 	return ParseDeleteApiGamesIdSponsorResponse(rsp)
 }
 
-// PutApiGamesIdSponsorWithBodyWithResponse Sponsors a game publicly with one of the caller's
+// PutApiGamesIdSponsorWithBodyWithResponse Makes a key share pay for a game's public plays,
 //
-// API key shares and answers with the game.
+// replacing what paid before: for those who edit the game, with a share
+// they may draw from. A key known to fail is refused.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20580,9 +20776,10 @@ func (c *ClientWithResponses) PutApiGamesIdSponsorWithBodyWithResponse(ctx conte
 	return ParsePutApiGamesIdSponsorResponse(rsp)
 }
 
-// PutApiGamesIdSponsorWithResponse Sponsors a game publicly with one of the caller's
+// PutApiGamesIdSponsorWithResponse Makes a key share pay for a game's public plays,
 //
-// API key shares and answers with the game.
+// replacing what paid before: for those who edit the game, with a share
+// they may draw from. A key known to fail is refused.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20799,9 +20996,9 @@ func (c *ClientWithResponses) PatchApiInstitutionsIdWithResponse(ctx context.Con
 	return ParsePatchApiInstitutionsIdResponse(rsp)
 }
 
-// GetApiInstitutionsIdApikeysWithResponse Lists the API keys shared with an institution;
+// GetApiInstitutionsIdApikeysWithResponse Lists the keys given to an organisation: for
 //
-// heads and staff only.
+// its head and staff.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20900,12 +21097,10 @@ func (c *ClientWithResponses) PostApiInstitutionsIdDeclarationConsentWithRespons
 	return ParsePostApiInstitutionsIdDeclarationConsentResponse(rsp)
 }
 
-// PatchApiInstitutionsIdFreeUseKeyWithBodyWithResponse Sets or clears an institution's
+// PatchApiInstitutionsIdFreeUseKeyWithBodyWithResponse Sets or clears the key an
 //
-// free-use API key share and answers with the institution.
-//
-// Any member of the institution plays for free with this key. A null shareId
-// clears it.
+// organisation's members play with for free: one of the keys given to it.
+// A null shareId clears it.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20918,12 +21113,10 @@ func (c *ClientWithResponses) PatchApiInstitutionsIdFreeUseKeyWithBodyWithRespon
 	return ParsePatchApiInstitutionsIdFreeUseKeyResponse(rsp)
 }
 
-// PatchApiInstitutionsIdFreeUseKeyWithResponse Sets or clears an institution's
+// PatchApiInstitutionsIdFreeUseKeyWithResponse Sets or clears the key an
 //
-// free-use API key share and answers with the institution.
-//
-// Any member of the institution plays for free with this key. A null shareId
-// clears it.
+// organisation's members play with for free: one of the keys given to it.
+// A null shareId clears it.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21028,7 +21221,9 @@ func (c *ClientWithResponses) PostApiInstitutionsIdSuspensionWithResponse(ctx co
 	return ParsePostApiInstitutionsIdSuspensionResponse(rsp)
 }
 
-// GetApiInvitesWithResponse Lists the invites addressed to the caller.
+// GetApiInvitesWithResponse Lists the pending invites addressed to the caller, by
+//
+// account or email: what they may accept or decline.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21041,7 +21236,9 @@ func (c *ClientWithResponses) GetApiInvitesWithResponse(ctx context.Context, req
 	return ParseGetApiInvitesResponse(rsp)
 }
 
-// GetApiInvitesAllWithResponse Lists every invite; admins only.
+// GetApiInvitesAllWithResponse Lists every invite the caller may list: for the
+//
+// admin, all of them.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21054,12 +21251,11 @@ func (c *ClientWithResponses) GetApiInvitesAllWithResponse(ctx context.Context, 
 	return ParseGetApiInvitesAllResponse(rsp)
 }
 
-// PostApiInvitesInstitutionWithBodyWithResponse Invites a user to join an institution as
+// PostApiInvitesInstitutionWithBodyWithResponse Invites an account, by id or email, into
 //
-// head, staff or individual.
-//
-// The role defaults to staff. The invite names the invited user by id or
-// email.
+// an organisation as head, staff or individual (staff by default). Head and
+// staff invite into their organisation, only heads as head; the admin into
+// any.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21072,12 +21268,11 @@ func (c *ClientWithResponses) PostApiInvitesInstitutionWithBodyWithResponse(ctx 
 	return ParsePostApiInvitesInstitutionResponse(rsp)
 }
 
-// PostApiInvitesInstitutionWithResponse Invites a user to join an institution as
+// PostApiInvitesInstitutionWithResponse Invites an account, by id or email, into
 //
-// head, staff or individual.
-//
-// The role defaults to staff. The invite names the invited user by id or
-// email.
+// an organisation as head, staff or individual (staff by default). Head and
+// staff invite into their organisation, only heads as head; the admin into
+// any.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21090,9 +21285,10 @@ func (c *ClientWithResponses) PostApiInvitesInstitutionWithResponse(ctx context.
 	return ParsePostApiInvitesInstitutionResponse(rsp)
 }
 
-// GetApiInvitesInstitutionInstitutionIdWithResponse Lists the invites to join an institution.
+// GetApiInvitesInstitutionInstitutionIdWithResponse Lists an organisation's invites the
 //
-// The caller is head or staff of the institution, or an admin.
+// caller may list: its head and staff (staff without the invites to become
+// head), and the admin.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21105,9 +21301,10 @@ func (c *ClientWithResponses) GetApiInvitesInstitutionInstitutionIdWithResponse(
 	return ParseGetApiInvitesInstitutionInstitutionIdResponse(rsp)
 }
 
-// PostApiInvitesWorkshopWithBodyWithResponse Creates an open invite for users to join a
+// PostApiInvitesWorkshopWithBodyWithResponse Returns a workshop's link: its usable one, or
 //
-// workshop as Guests.
+// a new one. Whoever follows it becomes a guest there, or, a member of an
+// organisation, works in it.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21120,9 +21317,10 @@ func (c *ClientWithResponses) PostApiInvitesWorkshopWithBodyWithResponse(ctx con
 	return ParsePostApiInvitesWorkshopResponse(rsp)
 }
 
-// PostApiInvitesWorkshopWithResponse Creates an open invite for users to join a
+// PostApiInvitesWorkshopWithResponse Returns a workshop's link: its usable one, or
 //
-// workshop as Guests.
+// a new one. Whoever follows it becomes a guest there, or, a member of an
+// organisation, works in it.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21135,11 +21333,9 @@ func (c *ClientWithResponses) PostApiInvitesWorkshopWithResponse(ctx context.Con
 	return ParsePostApiInvitesWorkshopResponse(rsp)
 }
 
-// PostApiInvitesWorkshopEmailWithBodyWithResponse Invites a registered user, by email, to
+// PostApiInvitesWorkshopEmailWithBodyWithResponse Invites the account with this email
 //
-// join a workshop.
-//
-// A second pending invite for the same user and workshop is refused with 409.
+// into a workshop: accepting, they keep their role and work in it.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21152,11 +21348,9 @@ func (c *ClientWithResponses) PostApiInvitesWorkshopEmailWithBodyWithResponse(ct
 	return ParsePostApiInvitesWorkshopEmailResponse(rsp)
 }
 
-// PostApiInvitesWorkshopEmailWithResponse Invites a registered user, by email, to
+// PostApiInvitesWorkshopEmailWithResponse Invites the account with this email
 //
-// join a workshop.
-//
-// A second pending invite for the same user and workshop is refused with 409.
+// into a workshop: accepting, they keep their role and work in it.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21169,11 +21363,10 @@ func (c *ClientWithResponses) PostApiInvitesWorkshopEmailWithResponse(ctx contex
 	return ParsePostApiInvitesWorkshopEmailResponse(rsp)
 }
 
-// GetApiInvitesIdOrTokenWithResponse Returns an invite by its id or its token.
+// GetApiInvitesIdOrTokenWithResponse Returns an invite: by id, for those who may read it; by
 //
-// An id needs a signed-in caller: admins see any invite, everyone else the
-// invites addressed to them or created by them. A token also answers an
-// anonymous caller, for open invites.
+// its link's token, for anyone who has it, signed in or not. Repeated
+// guesses at tokens are slowed down (429).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21186,16 +21379,13 @@ func (c *ClientWithResponses) GetApiInvitesIdOrTokenWithResponse(ctx context.Con
 	return ParseGetApiInvitesIdOrTokenResponse(rsp)
 }
 
-// PostApiInvitesIdOrTokenAcceptWithResponse Accepts an invite by its id or its token.
+// PostApiInvitesIdOrTokenAcceptWithResponse Accepts an invite, by its id or its link's token.
 //
-// An anonymous caller accepts a workshop invite by token: this creates a
-// Guest in the browser's language, starts its session, sets the
-// session cookie and answers with the account and its token. A signed-in
-// Guest switches to the invite's workshop; a head, staff member or
-// individual enters it and keeps their role; anyone else joins as a
-// Guest. An invite by id needs a signed-in caller: a workshop invite
-// lets them enter the workshop with their own role, an institution invite
-// gives them its role.
+// Following a link without an account joins its workshop as a new guest,
+// signed in at once. A member of an organisation keeps their role and works
+// in the workshop; anyone else takes the invite's role. Only a pending
+// invite is accepted (409). Repeated guesses at tokens are slowed down
+// (429).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21208,10 +21398,10 @@ func (c *ClientWithResponses) PostApiInvitesIdOrTokenAcceptWithResponse(ctx cont
 	return ParsePostApiInvitesIdOrTokenAcceptResponse(rsp)
 }
 
-// DeleteApiInvitesIdWithResponse Revokes a pending invite.
+// DeleteApiInvitesIdWithResponse Deletes a pending invite: for its organisation's head
 //
-// Its creator and admins can revoke it, and institution staff a workshop
-// invite.
+// and staff (staff not the invites to become head), and the admin. An
+// answered invite stays (409).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21224,9 +21414,7 @@ func (c *ClientWithResponses) DeleteApiInvitesIdWithResponse(ctx context.Context
 	return ParseDeleteApiInvitesIdResponse(rsp)
 }
 
-// PostApiInvitesIdDeclineWithResponse Declines an invite and answers with its id and its
-//
-// status "declined".
+// PostApiInvitesIdDeclineWithResponse Declines a pending invite addressed to the caller.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21787,7 +21975,10 @@ func (c *ClientWithResponses) PostApiUsersIdWithResponse(ctx context.Context, id
 	return ParsePostApiUsersIdResponse(rsp)
 }
 
-// DeleteApiUsersIdRoleWithResponse Removes a user's role and answers with the user.
+// DeleteApiUsersIdRoleWithResponse Takes a user's role away, the admin's: they become
+//
+// an individual of no organisation. A head removes a member from the
+// organisation instead (DELETE /api/institutions/{id}/members/{userID}).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21800,9 +21991,12 @@ func (c *ClientWithResponses) DeleteApiUsersIdRoleWithResponse(ctx context.Conte
 	return ParseDeleteApiUsersIdRoleResponse(rsp)
 }
 
-// PostApiUsersIdRoleWithBodyWithResponse Sets a user's role and answers with the user.
+// PostApiUsersIdRoleWithBodyWithResponse Gives a user a new role and answers with them.
 //
-// The role is scoped to an institution or a workshop by their ids.
+// The admin gives any role, scoped to an organisation or a workshop by
+// their ids; a head makes a member of their organisation head or staff
+// there. Only an individual becomes admin, and an organisation keeps its
+// last head (409 last_head).
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21815,9 +22009,12 @@ func (c *ClientWithResponses) PostApiUsersIdRoleWithBodyWithResponse(ctx context
 	return ParsePostApiUsersIdRoleResponse(rsp)
 }
 
-// PostApiUsersIdRoleWithResponse Sets a user's role and answers with the user.
+// PostApiUsersIdRoleWithResponse Gives a user a new role and answers with them.
 //
-// The role is scoped to an institution or a workshop by their ids.
+// The admin gives any role, scoped to an organisation or a workshop by
+// their ids; a head makes a member of their organisation head or staff
+// there. Only an individual becomes admin, and an organisation keeps its
+// last head (409 last_head).
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21876,13 +22073,13 @@ func (c *ClientWithResponses) GetApiVersionWithResponse(ctx context.Context, req
 	return ParseGetApiVersionResponse(rsp)
 }
 
-// GetApiWorkshopsWithResponse Lists the workshops the caller can see, or those of
+// GetApiWorkshopsWithResponse Lists the workshops the caller may list: an admin
 //
-// one institution.
+// all of them, a head or staff their organisation's.
 //
-// Query: institutionId, search (name), sortBy (name, createdAt,
-// participantCount), sortDir (asc, desc), activeOnly ("true" lists active
-// workshops only).
+// institutionId, search and activeOnly narrow the list; sortBy (name,
+// createdAt, participantCount) and sortDir (asc, desc) order it, newest
+// first by default.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21895,7 +22092,9 @@ func (c *ClientWithResponses) GetApiWorkshopsWithResponse(ctx context.Context, p
 	return ParseGetApiWorkshopsResponse(rsp)
 }
 
-// PostApiWorkshopsWithBodyWithResponse Creates a workshop.
+// PostApiWorkshopsWithBodyWithResponse Creates a workshop in the caller's organisation, or,
+//
+// for the admin, in the one named (institutionId).
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21908,7 +22107,9 @@ func (c *ClientWithResponses) PostApiWorkshopsWithBodyWithResponse(ctx context.C
 	return ParsePostApiWorkshopsResponse(rsp)
 }
 
-// PostApiWorkshopsWithResponse Creates a workshop.
+// PostApiWorkshopsWithResponse Creates a workshop in the caller's organisation, or,
+//
+// for the admin, in the one named (institutionId).
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21921,9 +22122,10 @@ func (c *ClientWithResponses) PostApiWorkshopsWithResponse(ctx context.Context, 
 	return ParsePostApiWorkshopsResponse(rsp)
 }
 
-// GetApiWorkshopsGuestsGuestIdTokenWithResponse Returns the sign-in code of a Guest in a workshop;
+// GetApiWorkshopsGuestsGuestIdTokenWithResponse Returns the login code of a guest in one of the
 //
-// staff and heads only.
+// caller's organisation's workshops: for its head and staff, helping a guest
+// who lost it.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21936,11 +22138,10 @@ func (c *ClientWithResponses) GetApiWorkshopsGuestsGuestIdTokenWithResponse(ctx 
 	return ParseGetApiWorkshopsGuestsGuestIdTokenResponse(rsp)
 }
 
-// PostApiWorkshopsGuestsGuestIdTokenResetWithResponse Replaces the sign-in code of a Guest in a workshop;
+// PostApiWorkshopsGuestsGuestIdTokenResetWithResponse Gives a guest in one of the caller's organisation's
 //
-// staff and heads only.
-//
-// Earlier sign-in links stop working and the Guest's sessions end.
+// workshops a new login code: for its head and staff. Earlier login links
+// stop working and the guest's sessions end.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21953,7 +22154,9 @@ func (c *ClientWithResponses) PostApiWorkshopsGuestsGuestIdTokenResetWithRespons
 	return ParsePostApiWorkshopsGuestsGuestIdTokenResetResponse(rsp)
 }
 
-// DeleteApiWorkshopsIdWithResponse Soft-deletes a workshop.
+// DeleteApiWorkshopsIdWithResponse Deletes a workshop with its guests; its other games
+//
+// stay with their creators.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21966,7 +22169,10 @@ func (c *ClientWithResponses) DeleteApiWorkshopsIdWithResponse(ctx context.Conte
 	return ParseDeleteApiWorkshopsIdResponse(rsp)
 }
 
-// GetApiWorkshopsIdWithResponse Returns a workshop.
+// GetApiWorkshopsIdWithResponse Returns a workshop the caller may read: one of their
+//
+// organisation's, the one they are in, one with a public page, or any, for
+// an admin. Others get 404.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21979,10 +22185,11 @@ func (c *ClientWithResponses) GetApiWorkshopsIdWithResponse(ctx context.Context,
 	return ParseGetApiWorkshopsIdResponse(rsp)
 }
 
-// PatchApiWorkshopsIdWithBodyWithResponse Updates a workshop's settings and its public page.
+// PatchApiWorkshopsIdWithBodyWithResponse Changes a workshop and answers with it as stored.
 //
-// The name is required. Omitting publicSlug, publicDescription or publicLinks
-// keeps the current value; an empty description or list clears it.
+// Only what is given changes. An empty aiQualityTier, promptConstraints or
+// publicDescription removes it; an empty publicLinks list clears the links.
+// Switching public off ends the public page's share links.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21995,10 +22202,11 @@ func (c *ClientWithResponses) PatchApiWorkshopsIdWithBodyWithResponse(ctx contex
 	return ParsePatchApiWorkshopsIdResponse(rsp)
 }
 
-// PatchApiWorkshopsIdWithResponse Updates a workshop's settings and its public page.
+// PatchApiWorkshopsIdWithResponse Changes a workshop and answers with it as stored.
 //
-// The name is required. Omitting publicSlug, publicDescription or publicLinks
-// keeps the current value; an empty description or list clears it.
+// Only what is given changes. An empty aiQualityTier, promptConstraints or
+// publicDescription removes it; an empty publicLinks list clears the links.
+// Switching public off ends the public page's share links.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22011,11 +22219,10 @@ func (c *ClientWithResponses) PatchApiWorkshopsIdWithResponse(ctx context.Contex
 	return ParsePatchApiWorkshopsIdResponse(rsp)
 }
 
-// PutApiWorkshopsIdApiKeyWithBodyWithResponse Sets the API key a workshop's members play
+// PutApiWorkshopsIdApiKeyWithBodyWithResponse Sets the key a workshop plays with: one of the
 //
-// with; staff and heads only.
-//
-// A null or empty apiKeyShareId removes it.
+// keys given to its organisation; null or empty clears it, and the workshop
+// plays no more until one is picked.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22028,11 +22235,10 @@ func (c *ClientWithResponses) PutApiWorkshopsIdApiKeyWithBodyWithResponse(ctx co
 	return ParsePutApiWorkshopsIdApiKeyResponse(rsp)
 }
 
-// PutApiWorkshopsIdApiKeyWithResponse Sets the API key a workshop's members play
+// PutApiWorkshopsIdApiKeyWithResponse Sets the key a workshop plays with: one of the
 //
-// with; staff and heads only.
-//
-// A null or empty apiKeyShareId removes it.
+// keys given to its organisation; null or empty clears it, and the workshop
+// plays no more until one is picked.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22061,9 +22267,9 @@ func (c *ClientWithResponses) GetApiWorkshopsIdEventsWithResponse(ctx context.Co
 	return ParseGetApiWorkshopsIdEventsResponse(rsp)
 }
 
-// PostApiWorkshopsIdMembersWithBodyWithResponse Adds a member of the organization to a workshop by
+// PostApiWorkshopsIdMembersWithBodyWithResponse Puts an individual of the workshop's organisation
 //
-// making it their active workshop.
+// into it: it becomes the workshop they work in.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22076,9 +22282,9 @@ func (c *ClientWithResponses) PostApiWorkshopsIdMembersWithBodyWithResponse(ctx 
 	return ParsePostApiWorkshopsIdMembersResponse(rsp)
 }
 
-// PostApiWorkshopsIdMembersWithResponse Adds a member of the organization to a workshop by
+// PostApiWorkshopsIdMembersWithResponse Puts an individual of the workshop's organisation
 //
-// making it their active workshop.
+// into it: it becomes the workshop they work in.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22091,9 +22297,9 @@ func (c *ClientWithResponses) PostApiWorkshopsIdMembersWithResponse(ctx context.
 	return ParsePostApiWorkshopsIdMembersResponse(rsp)
 }
 
-// DeleteApiWorkshopsIdMembersUserIdWithResponse Removes a member who is not permanent from a
+// DeleteApiWorkshopsIdMembersUserIdWithResponse Takes someone out of a workshop: a guest of it
 //
-// workshop by clearing their active workshop.
+// loses their place, a member working in it leaves it.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -22154,7 +22360,7 @@ func ParsePostApiApikeysNewResponse(rsp *http.Response) (*PostApiApikeysNewRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ApiKeyShare
+		var dest KeyShareView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22187,7 +22393,7 @@ func ParseDeleteApiApikeysIdResponse(rsp *http.Response) (*DeleteApiApikeysIdRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ApiKeyShare
+		var dest MessageResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22253,7 +22459,7 @@ func ParsePatchApiApikeysIdResponse(rsp *http.Response) (*PatchApiApikeysIdRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ApiKeyShare
+		var dest KeyShareView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22286,7 +22492,7 @@ func ParsePostApiApikeysIdResponse(rsp *http.Response) (*PostApiApikeysIdRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ApiKeyShare
+		var dest KeyShareView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22319,7 +22525,7 @@ func ParsePutApiApikeysIdDefaultResponse(rsp *http.Response) (*PutApiApikeysIdDe
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ApiKeyShare
+		var dest KeyShareView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22352,7 +22558,7 @@ func ParseGetApiApikeysIdGameSharesResponse(rsp *http.Response) (*GetApiApikeysI
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []EnrichedGameShare
+		var dest []ShareLinkView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22385,7 +22591,7 @@ func ParsePostApiApikeysIdSharesResponse(rsp *http.Response) (*PostApiApikeysIdS
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ApiKeyShare
+		var dest KeyShareView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -23856,7 +24062,7 @@ func ParsePostApiGamesIdSharesResponse(rsp *http.Response) (*PostApiGamesIdShare
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest GameShareResp
+		var dest ShareLinkView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -23922,7 +24128,7 @@ func ParsePatchApiGamesIdSharesShareIdResponse(rsp *http.Response) (*PatchApiGam
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest GameShareResp
+		var dest ShareLinkView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -23955,7 +24161,7 @@ func ParseDeleteApiGamesIdSponsorResponse(rsp *http.Response) (*DeleteApiGamesId
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -23988,7 +24194,7 @@ func ParsePutApiGamesIdSponsorResponse(rsp *http.Response) (*PutApiGamesIdSponso
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24332,7 +24538,7 @@ func ParseGetApiInstitutionsIdApikeysResponse(rsp *http.Response) (*GetApiInstit
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []ApiKeyShare
+		var dest []KeyShareView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24629,7 +24835,7 @@ func ParseGetApiInvitesResponse(rsp *http.Response) (*GetApiInvitesResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []InviteResp
+		var dest []InviteCardView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24662,7 +24868,7 @@ func ParseGetApiInvitesAllResponse(rsp *http.Response) (*GetApiInvitesAllRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []InviteResp
+		var dest []InviteCardView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24695,7 +24901,7 @@ func ParsePostApiInvitesInstitutionResponse(rsp *http.Response) (*PostApiInvites
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest UserRoleInvite
+		var dest InviteCardView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24728,7 +24934,7 @@ func ParseGetApiInvitesInstitutionInstitutionIdResponse(rsp *http.Response) (*Ge
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []InviteResp
+		var dest []InviteCardView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24761,7 +24967,7 @@ func ParsePostApiInvitesWorkshopResponse(rsp *http.Response) (*PostApiInvitesWor
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest UserRoleInvite
+		var dest InviteCardView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24794,7 +25000,7 @@ func ParsePostApiInvitesWorkshopEmailResponse(rsp *http.Response) (*PostApiInvit
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest InviteResp
+		var dest InviteCardView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24827,7 +25033,7 @@ func ParseGetApiInvitesIdOrTokenResponse(rsp *http.Response) (*GetApiInvitesIdOr
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest InviteResp
+		var dest InviteCardView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24926,7 +25132,7 @@ func ParsePostApiInvitesIdDeclineResponse(rsp *http.Response) (*PostApiInvitesId
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest UserRoleInvite
+		var dest MessageResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -25886,7 +26092,7 @@ func ParseDeleteApiUsersIdRoleResponse(rsp *http.Response) (*DeleteApiUsersIdRol
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest User
+		var dest UserView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -25919,7 +26125,7 @@ func ParsePostApiUsersIdRoleResponse(rsp *http.Response) (*PostApiUsersIdRoleRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest User
+		var dest UserView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -26051,7 +26257,7 @@ func ParseGetApiWorkshopsResponse(rsp *http.Response) (*GetApiWorkshopsResponse,
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Workshop
+		var dest []WorkshopView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -26084,7 +26290,7 @@ func ParsePostApiWorkshopsResponse(rsp *http.Response) (*PostApiWorkshopsRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Workshop
+		var dest WorkshopView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -26216,7 +26422,7 @@ func ParseGetApiWorkshopsIdResponse(rsp *http.Response) (*GetApiWorkshopsIdRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Workshop
+		var dest WorkshopView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -26249,7 +26455,7 @@ func ParsePatchApiWorkshopsIdResponse(rsp *http.Response) (*PatchApiWorkshopsIdR
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Workshop
+		var dest WorkshopView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -26282,7 +26488,7 @@ func ParsePutApiWorkshopsIdApiKeyResponse(rsp *http.Response) (*PutApiWorkshopsI
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Workshop
+		var dest WorkshopView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

@@ -78,15 +78,15 @@ func joinPublicSlug(base, words string) string {
 	return base + "-" + words
 }
 
-func publicSlugExists(ctx context.Context, slug string) (bool, error) {
+func PublicSlugExists(ctx context.Context, slug string) (bool, error) {
 	return queries().WorkshopPublicSlugExists(ctx, sql.NullString{String: slug, Valid: true})
 }
 
-// newPublicSlug returns a free slug of the form <name>-<word>-<word>.
-func newPublicSlug(ctx context.Context, name string) (string, error) {
+// NewPublicSlug returns a free slug of the form <name>-<word>-<word>.
+func NewPublicSlug(ctx context.Context, name string) (string, error) {
 	base := publicSlugBase(name)
 	words, err := wordtoken.GenerateUnique(ctx, publicSlugWords, func(ctx context.Context, words string) (bool, error) {
-		return publicSlugExists(ctx, joinPublicSlug(base, words))
+		return PublicSlugExists(ctx, joinPublicSlug(base, words))
 	})
 	if err != nil {
 		return "", err
@@ -99,8 +99,8 @@ func NormalizePublicSlug(slug string) string {
 	return strings.ToLower(strings.TrimSpace(slug))
 }
 
-// validatePublicSlug checks a normalised slug against the format rules.
-func validatePublicSlug(slug string) error {
+// ValidatePublicSlug checks a normalised slug against the format rules.
+func ValidatePublicSlug(slug string) error {
 	if len(slug) < PublicSlugMinLength || len(slug) > PublicSlugMaxLength || !publicSlugPattern.MatchString(slug) {
 		return obj.ErrPublicSlugInvalid("The link may contain only a-z, 0-9 and single hyphens, and must be 3 to 60 characters long")
 	}
@@ -155,8 +155,8 @@ func ValidatePublicLinks(links []obj.PublicWorkshopLink) ([]obj.PublicWorkshopLi
 	return cleaned, nil
 }
 
-// marshalPublicLinks turns validated links into the jsonb column value.
-func marshalPublicLinks(links []obj.PublicWorkshopLink) (pqtype.NullRawMessage, error) {
+// MarshalPublicLinks turns validated links into the jsonb column value.
+func MarshalPublicLinks(links []obj.PublicWorkshopLink) (pqtype.NullRawMessage, error) {
 	if len(links) == 0 {
 		return pqtype.NullRawMessage{}, nil
 	}
@@ -167,9 +167,9 @@ func marshalPublicLinks(links []obj.PublicWorkshopLink) (pqtype.NullRawMessage, 
 	return pqtype.NullRawMessage{RawMessage: raw, Valid: true}, nil
 }
 
-// unmarshalPublicLinks reads the jsonb column. Unreadable content is treated as
+// UnmarshalPublicLinks reads the jsonb column. Unreadable content is treated as
 // no links rather than breaking every read of the workshop.
-func unmarshalPublicLinks(raw pqtype.NullRawMessage) []obj.PublicWorkshopLink {
+func UnmarshalPublicLinks(raw pqtype.NullRawMessage) []obj.PublicWorkshopLink {
 	if !raw.Valid {
 		return nil
 	}
@@ -220,7 +220,7 @@ func GetPublicWorkshopPage(ctx context.Context, slug string) (*obj.PublicWorksho
 		Description:   ws.PublicDescription.String,
 		PlayAvailable: ws.DefaultApiKeyShareID.Valid,
 		Games:         make([]obj.PublicWorkshopGame, 0, len(games)),
-		Links:         unmarshalPublicLinks(ws.PublicLinks),
+		Links:         UnmarshalPublicLinks(ws.PublicLinks),
 	}
 	for _, g := range games {
 		game := obj.PublicWorkshopGame{
@@ -349,8 +349,9 @@ func deletePublicPageShares(ctx context.Context, shares []GameShare) {
 	}
 }
 
-// deleteWorkshopPublicPageShares revokes every share link of a workshop's public page.
-func deleteWorkshopPublicPageShares(ctx context.Context, workshopID uuid.UUID) {
+// DeleteWorkshopPublicPageShares revokes every share link of a workshop's public page.
+// v1's share links: the core calls it until share links are ported (#451).
+func DeleteWorkshopPublicPageShares(ctx context.Context, workshopID uuid.UUID) {
 	shares, err := queries().GetPublicPageGameSharesByWorkshop(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
 	if err != nil {
 		log.Warn("failed to load public page share links", "workshop_id", workshopID, "error", err)

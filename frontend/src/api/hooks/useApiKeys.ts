@@ -3,12 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
 import { queryKeys } from "../queryKeys";
 import type {
-  ApiKeyShare,
+  KeyShareView,
+  MessageResp,
   OrganisationView,
   Error as ApiError,
   ApiKeysResp,
   CreateApiKeyReq,
-  EnrichedGameShare,
+  ShareLinkView,
 } from "../generated/api.gen";
 
 // API Keys hooks
@@ -24,7 +25,7 @@ export function useCreateApiKey() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    ApiKeyShare,
+    KeyShareView,
     ApiError,
     CreateApiKeyReq
   >({
@@ -42,7 +43,7 @@ export function useDeleteApiKey() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    ApiKeyShare,
+    MessageResp,
     ApiError,
     { id: string; cascade?: boolean }
   >({
@@ -66,7 +67,7 @@ export function useDeleteApiKey() {
 export function useSetDefaultApiKey() {
   const queryClient = useQueryClient();
 
-  return useMutation<ApiKeyShare, ApiError, { id: string }>({
+  return useMutation<KeyShareView, ApiError, { id: string }>({
     mutationFn: ({ id }) =>
       api.putApiApikeysIdDefault(id).then((response) => response.data),
     onSuccess: () => {
@@ -79,7 +80,7 @@ export function useSetDefaultApiKey() {
 // Institution API Keys hooks
 export function useInstitutionApiKeys(institutionId: string) {
 
-  return useQuery<ApiKeyShare[], ApiError>({
+  return useQuery<KeyShareView[], ApiError>({
     queryKey: queryKeys.institutionApiKeys(institutionId),
     queryFn: () =>
       api.getApiInstitutionsIdApikeys(institutionId)
@@ -89,13 +90,13 @@ export function useInstitutionApiKeys(institutionId: string) {
 }
 
 // Game shares for a specific API key share
-// context: "personal" = all shares (owner only), "organization" = org/workshop only
+// context: "personal" = all shares (owner only), "organization" = organisation shares only
 export function useApiKeyGameShares(
   shareId: string | null,
   context?: "personal" | "organization",
 ) {
 
-  return useQuery<EnrichedGameShare[], ApiError>({
+  return useQuery<ShareLinkView[], ApiError>({
     queryKey: [...queryKeys.apiKeyGameShares(shareId ?? ""), context ?? "all"],
     queryFn: () =>
       api.getApiApikeysIdGameShares(shareId!, { context })
@@ -108,7 +109,7 @@ export function useShareApiKeyWithInstitution() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    ApiKeyShare,
+    KeyShareView,
     ApiError,
     {
       shareId: string;
@@ -134,7 +135,7 @@ export function useRemoveInstitutionApiKeyShare() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    ApiKeyShare,
+    MessageResp,
     ApiError,
     { shareId: string; institutionId: string }
   >({

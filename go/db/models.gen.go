@@ -39,6 +39,7 @@ type ApiKeyShare struct {
 	WorkshopID    uuid.NullUUID `json:"workshop_id"`
 	InstitutionID uuid.NullUUID `json:"institution_id"`
 	GameID        uuid.NullUUID `json:"game_id"`
+	SourceShareID uuid.NullUUID `json:"source_share_id"`
 }
 
 type AppUser struct {

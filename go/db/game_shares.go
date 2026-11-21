@@ -6,7 +6,6 @@ package db
 
 import (
 	"cgl/functional"
-	"cgl/log"
 	"cgl/obj"
 	"cgl/tokenlock"
 	"context"
@@ -16,106 +15,6 @@ import (
 
 	"github.com/google/uuid"
 )
-
-// SetGamePublicSponsorship sets a public sponsorship on a game.
-// Creates a game-scoped API key share and links it to the game.
-// The user must own the API key and have permission to update the game.
-func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyShareID uuid.UUID) error {
-	// Load game and check update permission
-	game, err := loadGameByID(ctx, gameID)
-	if err != nil {
-		return err
-	}
-	if err := canAccessGame(ctx, userID, OpUpdate, game, nil); err != nil {
-		return err
-	}
-
-	// Verify the share exists and the user is authorized to use it
-	share, err := queries().GetApiKeyShareByID(ctx, apiKeyShareID)
-	if err != nil {
-		return obj.ErrNotFound("api key share not found")
-	}
-	if err := canUseShareForSponsoring(ctx, userID, share); err != nil {
-		return err
-	}
-
-	// Verify the key has been proven to work (last_usage_success must be true)
-	if share.KeyLastUsageSuccess.Valid && !share.KeyLastUsageSuccess.Bool {
-		return obj.ErrValidation("api key must be proven to work before sponsoring")
-	}
-
-	// Remove any existing sponsorship and its game-scoped shares first
-	if game.PublicSponsoredApiKeyShareID != nil {
-		if err := queries().ClearGamePublicSponsor(ctx, gameID); err != nil {
-			return obj.ErrServerError("failed to clear existing sponsorship")
-		}
-		if err := queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true}); err != nil {
-			log.Debug("failed to delete old game-scoped shares", "game_id", gameID, "error", err)
-		}
-	}
-
-	// Create a game-scoped share for this sponsorship
-	sponsorShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID)
-	if err != nil {
-		return obj.ErrServerError("failed to create sponsorship share")
-	}
-
-	// Set the sponsor share on the game
-	if err := queries().SetGamePublicSponsor(ctx, SetGamePublicSponsorParams{
-		ID:                           gameID,
-		PublicSponsoredApiKeyShareID: uuid.NullUUID{UUID: *sponsorShareID, Valid: true},
-	}); err != nil {
-		return obj.ErrServerError("failed to set game sponsorship")
-	}
-
-	return nil
-}
-
-// ClearGamePublicSponsorship removes the public sponsorship from a game.
-// Also deletes the game-scoped API key share.
-// Allowed by: game owner (OpUpdate) OR the API key owner who sponsors the game.
-func ClearGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
-	game, err := loadGameByID(ctx, gameID)
-	if err != nil {
-		return err
-	}
-
-	if game.PublicSponsoredApiKeyShareID == nil {
-		return nil // Already no sponsorship
-	}
-
-	// Allow if user can update the game (game owner / higher role)
-	accessErr := canAccessGame(ctx, userID, OpUpdate, game, nil)
-	if accessErr != nil {
-		// Also allow if user owns the API key behind the sponsorship
-		share, shareErr := queries().GetApiKeyShareByID(ctx, *game.PublicSponsoredApiKeyShareID)
-		if shareErr != nil {
-			return accessErr
-		}
-		key, keyErr := queries().GetApiKeyByID(ctx, share.ApiKeyID)
-		if keyErr != nil || key.UserID != userID {
-			return accessErr
-		}
-	}
-
-	// Clear the sponsor on the game
-	if err := queries().ClearGamePublicSponsor(ctx, gameID); err != nil {
-		return obj.ErrServerError("failed to clear game sponsorship")
-	}
-
-	// Delete game-scoped shares for this game
-	if err := queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true}); err != nil {
-		log.Debug("failed to delete game-scoped shares", "game_id", gameID, "error", err)
-	}
-
-	return nil
-}
-
-// CreateGameShare creates a game share link with a game-scoped API key share.
-// The sourceShareID is the user's personal/workshop share that will be cloned into a game-scoped share.
-func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {
-	return insertGameShare(ctx, userID, gameID, sourceShareID, institutionID, workshopID, maxSessions, aiQualityTier, false)
-}
 
 // insertGameShare is CreateGameShare with publicPage marking a link of the public workshop page.
 func insertGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string, publicPage bool) (*obj.GameShare, error) {
@@ -137,11 +36,18 @@ func insertGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 		return nil, obj.ErrValidation("api key must be working before it can be used for sharing")
 	}
 
-	// Create a game-scoped API key share (accessible by uuid.Nil in guest play flow)
-	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID)
+	// The share drawn for the link from its source (#451): taking the
+	// source back stops the link.
+	drawnID, err := queries().V2CreateKeyShare(ctx, V2CreateKeyShareParams{
+		CreatedBy:     userID,
+		ApiKeyID:      share.ApiKeyID,
+		GameID:        uuid.NullUUID{UUID: gameID, Valid: true},
+		SourceShareID: uuid.NullUUID{UUID: sourceShareID, Valid: true},
+	})
 	if err != nil {
 		return nil, obj.ErrServerError("failed to create game-scoped share")
 	}
+	gameScopedShareID := &drawnID
 
 	// Generate a secure token for the share link
 	token, err := functional.GenerateSecureToken(20)
@@ -257,22 +163,6 @@ type GameShareWithGame struct {
 	GameName string
 }
 
-// GetGameSharesWithGameByApiKeyID returns game shares (with game name) for all shares of an API key.
-func GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GameShareWithGame, error) {
-	rows, err := queries().GetGameSharesWithGameByApiKeyID(ctx, apiKeyID)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]GameShareWithGame, len(rows))
-	for i, r := range rows {
-		result[i] = GameShareWithGame{
-			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.AiQualityTier, r.CreatedBy, r.CreatedAt),
-			GameName:  r.GameName,
-		}
-	}
-	return result, nil
-}
-
 // dbGameShareToObjFromJoin converts individual fields (from JOIN query results) to obj.GameShare.
 func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID uuid.UUID, institutionID, workshopID uuid.NullUUID, remaining sql.NullInt32, aiQualityTier sql.NullString, createdBy uuid.NullUUID, createdAt time.Time) *obj.GameShare {
 	gs := &obj.GameShare{
@@ -320,23 +210,6 @@ func DeleteGameShare(ctx context.Context, shareID uuid.UUID) error {
 	_ = queries().DeleteApiKeyShare(ctx, gs.ApiKeyShareID)
 
 	return nil
-}
-
-// UpdateGameShare updates the remaining sessions and AI quality tier on a game share.
-func UpdateGameShare(ctx context.Context, shareID uuid.UUID, remaining *int, aiQualityTier *string) (*obj.GameShare, error) {
-	var nullRemaining sql.NullInt32
-	if remaining != nil {
-		nullRemaining = sql.NullInt32{Int32: int32(*remaining), Valid: true}
-	}
-	gs, err := queries().UpdateGameShare(ctx, UpdateGameShareParams{
-		ID:            shareID,
-		Remaining:     nullRemaining,
-		AiQualityTier: stringPtrToNullString(aiQualityTier),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return dbGameShareToObj(gs), nil
 }
 
 // DecrementGameShareRemaining atomically decrements the remaining counter on a game share.

@@ -1,6 +1,6 @@
 // package: db / database access and repository layer
 // type:    data
-// job:     create, read, update, delete a single workshop and its default key and its Guests' sign-in codes.
+// job:     what v1 code still reads and writes of workshops: reading one for v1 callers, its key (until #451), the delete cascade; the rest is the core's (core/workshop*.go).
 // limits:  does not list workshops or fetch member/invite collections (-> workshop_list.go).
 package db
 
@@ -8,86 +8,9 @@ import (
 	"cgl/log"
 	"cgl/obj"
 	"context"
-	"database/sql"
-	"strings"
-	"time"
-	"unicode/utf8"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
-
-// CreateWorkshop creates a new workshop (admin or head/staff of institution)
-// If institutionID is nil, it will be auto-resolved from the user's role (non-admin users only)
-func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uuid.UUID, name string, active, public bool) (*obj.Workshop, error) {
-	// Get user to check role and potentially auto-resolve institution
-	user, err := GetUserByID(ctx, createdBy)
-	if err != nil {
-		return nil, obj.ErrNotFound("user not found")
-	}
-
-	// Auto-resolve institutionID if not provided
-	var finalInstitutionID uuid.UUID
-	if institutionID == nil {
-		// Only non-admin users can auto-resolve from their role
-		if user.Role == nil || user.Role.Role == obj.RoleAdmin {
-			return nil, obj.ErrValidation("admin users must specify institutionId")
-		}
-		if user.Role.Institution == nil {
-			return nil, obj.ErrValidation("user has no institution assigned")
-		}
-		finalInstitutionID = user.Role.Institution.ID
-	} else {
-		finalInstitutionID = *institutionID
-	}
-
-	// Check permission
-	if err := canAccessWorkshop(ctx, createdBy, OpCreate, finalInstitutionID, nil, uuid.Nil); err != nil {
-		return nil, err
-	}
-
-	slug, err := newPublicSlug(ctx, name)
-	if err != nil {
-		return nil, obj.ErrServerError("failed to create workshop link")
-	}
-
-	now := time.Now()
-	id := uuid.New()
-
-	arg := CreateWorkshopParams{
-		ID:               id,
-		CreatedBy:        uuid.NullUUID{UUID: createdBy, Valid: true},
-		CreatedAt:        now,
-		ModifiedBy:       uuid.NullUUID{UUID: createdBy, Valid: true},
-		ModifiedAt:       now,
-		Name:             name,
-		InstitutionID:    finalInstitutionID,
-		Active:           active,
-		Public:           public,
-		AllowGameSharing: false,
-		PublicSlug:       sql.NullString{String: slug, Valid: true},
-	}
-
-	result, err := queries().CreateWorkshop(ctx, arg)
-	if err != nil {
-		return nil, obj.ErrServerError("failed to create workshop")
-	}
-
-	return &obj.Workshop{
-		ID:          result.ID,
-		Name:        result.Name,
-		Institution: &obj.Institution{ID: result.InstitutionID},
-		Active:      result.Active,
-		Public:      result.Public,
-		PublicSlug:  nullStringToPtr(result.PublicSlug),
-		Meta: obj.Meta{
-			CreatedBy:  result.CreatedBy,
-			CreatedAt:  &result.CreatedAt,
-			ModifiedBy: result.ModifiedBy,
-			ModifiedAt: &result.ModifiedAt,
-		},
-	}, nil
-}
 
 // GetWorkshopName retrieves just the workshop name by ID (no permission check, for display only)
 func GetWorkshopName(ctx context.Context, id uuid.UUID) (string, error) {
@@ -258,7 +181,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		AllowGameSharing:           result.AllowGameSharing,
 		PublicSlug:                 nullStringToPtr(result.PublicSlug),
 		PublicDescription:          nullStringToPtr(result.PublicDescription),
-		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
+		PublicLinks:                UnmarshalPublicLinks(result.PublicLinks),
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -268,260 +191,11 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 	}, nil
 }
 
-// WorkshopUpdate contains the parameters for updating a workshop
-type WorkshopUpdate struct {
-	Name                       string
-	Active                     bool
-	Public                     bool
-	AiQualityTier              *string
-	PromptConstraints          *string
-	ShowPublicGames            bool
-	ShowOtherParticipantsGames bool
-	IsPaused                   bool
-	AllowGameSharing           bool
-	PublicSlug                 *string // nil keeps the current link
-	PublicDescription          *string // nil keeps the current text, "" clears it
-	// PublicLinks: nil keeps the current further reading, an empty slice clears it
-	PublicLinks *[]obj.PublicWorkshopLink
-}
-
-// UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
-func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, params WorkshopUpdate) (*obj.Workshop, error) {
-	// Get existing to preserve created fields and institution_id
-	existing, err := queries().GetWorkshopByID(ctx, id)
-	if err != nil {
-		return nil, obj.ErrNotFound("workshop not found")
-	}
-
-	// Check permission - need to know who created it
-	var createdByID uuid.UUID
-	if existing.CreatedBy.Valid {
-		createdByID = existing.CreatedBy.UUID
-	}
-	if err := canAccessWorkshop(ctx, modifiedBy, OpUpdate, existing.InstitutionID, &id, createdByID); err != nil {
-		return nil, err
-	}
-
-	existing, err = queries().GetWorkshopByID(ctx, id)
-	if err != nil {
-		return nil, obj.ErrNotFound("workshop not found")
-	}
-
-	now := time.Now()
-	arg := UpdateWorkshopParams{
-		ID:                         id,
-		CreatedBy:                  existing.CreatedBy,
-		CreatedAt:                  existing.CreatedAt,
-		ModifiedBy:                 uuid.NullUUID{UUID: modifiedBy, Valid: true},
-		ModifiedAt:                 now,
-		Name:                       params.Name,
-		InstitutionID:              existing.InstitutionID,
-		Active:                     params.Active,
-		Public:                     params.Public,
-		DefaultApiKeyShareID:       existing.DefaultApiKeyShareID,
-		ShowPublicGames:            params.ShowPublicGames,
-		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
-		IsPaused:                   params.IsPaused,
-		AllowGameSharing:           params.AllowGameSharing,
-	}
-	if params.AiQualityTier != nil {
-		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
-	}
-	if params.PromptConstraints != nil {
-		// Empty string from the client means "clear" — store as NULL so the
-		// constraint resolution falls back to the org/site cascade.
-		if *params.PromptConstraints == "" {
-			arg.PromptConstraints = sql.NullString{Valid: false}
-		} else {
-			arg.PromptConstraints = sql.NullString{String: *params.PromptConstraints, Valid: true}
-		}
-	} else {
-		// Field not provided — preserve existing value (don't accidentally clear it).
-		arg.PromptConstraints = existing.PromptConstraints
-	}
-
-	arg.PublicSlug = existing.PublicSlug
-	if params.PublicSlug != nil {
-		slug := NormalizePublicSlug(*params.PublicSlug)
-		if slug != existing.PublicSlug.String {
-			if err := validatePublicSlug(slug); err != nil {
-				return nil, err
-			}
-			if taken, err := publicSlugExists(ctx, slug); err != nil {
-				return nil, obj.ErrServerError("failed to check workshop link")
-			} else if taken {
-				return nil, obj.ErrPublicSlugTaken("This link is already taken")
-			}
-		}
-		arg.PublicSlug = sql.NullString{String: slug, Valid: true}
-	}
-	arg.PublicDescription = existing.PublicDescription
-	if params.PublicDescription != nil {
-		description := strings.TrimSpace(*params.PublicDescription)
-		if utf8.RuneCountInString(description) > PublicDescriptionMaxLength {
-			return nil, obj.ErrPublicDescriptionTooLong("The description may be at most 2000 characters long")
-		}
-		arg.PublicDescription = sql.NullString{String: description, Valid: description != ""}
-	}
-	arg.PublicLinks = existing.PublicLinks
-	if params.PublicLinks != nil {
-		links, err := ValidatePublicLinks(*params.PublicLinks)
-		if err != nil {
-			return nil, err
-		}
-		if arg.PublicLinks, err = marshalPublicLinks(links); err != nil {
-			return nil, err
-		}
-	}
-
-	result, err := queries().UpdateWorkshop(ctx, arg)
-	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" && pqErr.Constraint == "workshop_public_slug_key" {
-			return nil, obj.ErrPublicSlugTaken("This link is already taken")
-		}
-		return nil, obj.ErrServerError("failed to update workshop")
-	}
-
-	if existing.Public && !result.Public {
-		deleteWorkshopPublicPageShares(ctx, id)
-	}
-
-	var updateDefaultApiKeyShareID *uuid.UUID
-	if result.DefaultApiKeyShareID.Valid {
-		updateDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
-	}
-
-	var aiQualityTier *string
-	if result.AiQualityTier.Valid {
-		aiQualityTier = &result.AiQualityTier.String
-	}
-
-	var promptConstraints *string
-	if result.PromptConstraints.Valid {
-		promptConstraints = &result.PromptConstraints.String
-	}
-
-	return &obj.Workshop{
-		ID:                         result.ID,
-		Name:                       result.Name,
-		Institution:                &obj.Institution{ID: result.InstitutionID},
-		Active:                     result.Active,
-		Public:                     result.Public,
-		DefaultApiKeyShareID:       updateDefaultApiKeyShareID,
-		AiQualityTier:              aiQualityTier,
-		PromptConstraints:          promptConstraints,
-		ShowPublicGames:            result.ShowPublicGames,
-		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
-		IsPaused:                   result.IsPaused,
-		AllowGameSharing:           result.AllowGameSharing,
-		PublicSlug:                 nullStringToPtr(result.PublicSlug),
-		PublicDescription:          nullStringToPtr(result.PublicDescription),
-		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
-		Meta: obj.Meta{
-			CreatedBy:  result.CreatedBy,
-			CreatedAt:  &result.CreatedAt,
-			ModifiedBy: result.ModifiedBy,
-			ModifiedAt: &result.ModifiedAt,
-		},
-	}, nil
-}
-
-// SetWorkshopDefaultApiKey sets the default API key share for a workshop (staff/heads only)
-func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifiedBy uuid.UUID, apiKeyShareID *uuid.UUID) (*obj.Workshop, error) {
-	// Get existing workshop to check permission
-	existing, err := queries().GetWorkshopByID(ctx, workshopID)
-	if err != nil {
-		return nil, obj.ErrNotFound("workshop not found")
-	}
-
-	// Check permission - need to know who created it
-	var createdByID uuid.UUID
-	if existing.CreatedBy.Valid {
-		createdByID = existing.CreatedBy.UUID
-	}
-	if err := canAccessWorkshop(ctx, modifiedBy, OpUpdate, existing.InstitutionID, &workshopID, createdByID); err != nil {
-		return nil, err
-	}
-
-	// Build params
-	arg := SetWorkshopDefaultApiKeyParams{
-		ID:         workshopID,
-		ModifiedBy: uuid.NullUUID{UUID: modifiedBy, Valid: true},
-	}
-	if apiKeyShareID != nil {
-		arg.DefaultApiKeyShareID = uuid.NullUUID{UUID: *apiKeyShareID, Valid: true}
-	} else {
-		// Explicitly set to NULL when clearing
-		arg.DefaultApiKeyShareID = uuid.NullUUID{Valid: false}
-	}
-
-	result, err := queries().SetWorkshopDefaultApiKey(ctx, arg)
-	if err != nil {
-		return nil, obj.ErrServerError("failed to set workshop API key")
-	}
-
-	// The public page's links pay with a copy of the old key; the page makes new ones on its next visit.
-	if existing.DefaultApiKeyShareID != result.DefaultApiKeyShareID {
-		deleteWorkshopPublicPageShares(ctx, workshopID)
-	}
-
-	var setDefaultApiKeyShareID *uuid.UUID
-	if result.DefaultApiKeyShareID.Valid {
-		setDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
-	}
-
-	var aiQualityTier *string
-	if result.AiQualityTier.Valid {
-		aiQualityTier = &result.AiQualityTier.String
-	}
-
-	var promptConstraints *string
-	if result.PromptConstraints.Valid {
-		promptConstraints = &result.PromptConstraints.String
-	}
-
-	return &obj.Workshop{
-		ID:                         result.ID,
-		Name:                       result.Name,
-		Institution:                &obj.Institution{ID: result.InstitutionID},
-		Active:                     result.Active,
-		Public:                     result.Public,
-		DefaultApiKeyShareID:       setDefaultApiKeyShareID,
-		AiQualityTier:              aiQualityTier,
-		PromptConstraints:          promptConstraints,
-		ShowPublicGames:            result.ShowPublicGames,
-		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
-		IsPaused:                   result.IsPaused,
-		AllowGameSharing:           result.AllowGameSharing,
-		PublicSlug:                 nullStringToPtr(result.PublicSlug),
-		PublicDescription:          nullStringToPtr(result.PublicDescription),
-		PublicLinks:                unmarshalPublicLinks(result.PublicLinks),
-		Meta: obj.Meta{
-			CreatedBy:  result.CreatedBy,
-			CreatedAt:  &result.CreatedAt,
-			ModifiedBy: result.ModifiedBy,
-			ModifiedAt: &result.ModifiedAt,
-		},
-	}, nil
-}
-
-// DeleteWorkshop deletes a workshop after checking the caller's permissions.
-func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) error {
-	// Get workshop to check institution and creator
-	workshop, err := queries().GetWorkshopByID(ctx, id)
-	if err != nil {
-		return obj.ErrNotFound("workshop not found")
-	}
-
-	// Check permission - need to know who created it
-	var createdByID uuid.UUID
-	if workshop.CreatedBy.Valid {
-		createdByID = workshop.CreatedBy.UUID
-	}
-	if err := canAccessWorkshop(ctx, deletedBy, OpDelete, workshop.InstitutionID, &id, createdByID); err != nil {
-		return err
-	}
-
+// DeleteWorkshopCascade deletes a workshop with its guests, for the core,
+// which has checked that the caller may (core.DeleteWorkshop): v1's cascade
+// until guests and share links are ported. Its other games stay with their
+// creators.
+func DeleteWorkshopCascade(ctx context.Context, id uuid.UUID) error {
 	wsNullUUID := uuid.NullUUID{UUID: id, Valid: true}
 
 	// Clean up Guests: collect user IDs, delete roles and user accounts
@@ -532,64 +206,13 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 		_ = DeleteUser(ctx, uid)
 	}
 
-	deleteWorkshopPublicPageShares(ctx, id)
+	DeleteWorkshopPublicPageShares(ctx, id)
 
 	// Unlink remaining games from this workshop (member games stay with their creator)
 	_ = queries().UnlinkGamesFromWorkshop(ctx, wsNullUUID)
 
-	err = queries().DeleteWorkshop(ctx, id)
-	if err != nil {
+	if err := queries().DeleteWorkshop(ctx, id); err != nil {
 		return obj.ErrServerError("failed to delete workshop")
 	}
 	return nil
-}
-
-// GetGuestToken retrieves the sign-in code of a Guest in a workshop.
-// Only staff and heads of the institution owning the workshop can access this.
-func GetGuestToken(ctx context.Context, guestUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
-	// Check permission using centralized function (validates the Guest and checks access)
-	if err := canAccessGuestTokens(ctx, requestingUserID, uuid.Nil, &guestUserID); err != nil {
-		return "", err
-	}
-
-	// Get the raw user record to access the guest_token field
-	userRecord, err := queries().GetUserByID(ctx, guestUserID)
-	if err != nil {
-		return "", obj.ErrNotFound("user not found")
-	}
-
-	if !userRecord.GuestToken.Valid || userRecord.GuestToken.String == "" {
-		return "", obj.ErrNotFound("guest has no access token")
-	}
-
-	return userRecord.GuestToken.String, nil
-}
-
-// ResetGuestToken replaces a Guest's sign-in code, which invalidates every
-// re-login link handed out before. Same permissions as GetGuestToken.
-func ResetGuestToken(ctx context.Context, guestUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
-	if err := canAccessGuestTokens(ctx, requestingUserID, uuid.Nil, &guestUserID); err != nil {
-		return "", err
-	}
-
-	token, err := newGuestToken(ctx)
-	if err != nil {
-		return "", obj.ErrServerError("failed to generate guest token")
-	}
-
-	rows, err := queries().UpdateGuestToken(ctx, UpdateGuestTokenParams{
-		ID:         guestUserID,
-		GuestToken: sql.NullString{String: token, Valid: true},
-		ModifiedBy: uuid.NullUUID{UUID: requestingUserID, Valid: true},
-	})
-	if err != nil {
-		return "", obj.ErrServerError("failed to reset guest token")
-	}
-	if rows == 0 {
-		// Nothing to replace: the account has no word code, so the token just
-		// generated was never stored. Saying so beats handing the leader a code
-		// that will never work - same answer as the read above.
-		return "", obj.ErrNotFound("guest has no access token")
-	}
-	return token, nil
 }

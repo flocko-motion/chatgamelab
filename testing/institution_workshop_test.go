@@ -159,9 +159,8 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 	s.Equal(1, len(totoWorkshops), "Toto should see 1 workshop")
 	s.T().Logf("Toto (staff) can list workshops: %d found", len(totoWorkshops))
 
-	// Steve (not a member) cannot list workshops
-	_, steveListErr := clientSteve.ListWorkshops(institution.Id.String())
-	s.Forbidden(steveListErr, "Steve should not be able to list workshops (not a member)")
+	// Steve (not a member) lists none
+	s.Empty(Must(clientSteve.ListWorkshops(institution.Id.String())), "Steve should not list workshops (not a member)")
 	s.T().Logf("Steve cannot list workshops (expected)")
 
 	// Create workshop invites to test invite visibility
@@ -208,7 +207,7 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 
 	// Steve cannot view private workshop
 	_, steveViewPrivateErr := clientSteve.GetWorkshop(workshop.Id.String())
-	s.Forbidden(steveViewPrivateErr, "Steve should not be able to view private workshop")
+	s.NotFound(steveViewPrivateErr, "Steve should not be able to view private workshop")
 	s.T().Logf("Steve cannot view private workshop (expected)")
 }
 

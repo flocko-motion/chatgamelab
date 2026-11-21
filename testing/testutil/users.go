@@ -81,6 +81,15 @@ func (c caller) SetUserRole(userID, role string) (User, error) {
 	return decode[User](c.api.PostApiUsersIdRoleWithResponse(ctx(), userID, apiclient.SetUserRoleReq{Role: role}))
 }
 
+// SetUserRoleIn gives an account a role in an organisation.
+func (c caller) SetUserRoleIn(userID, role, institutionID string) (User, error) {
+	id, err := uuid.Parse(institutionID)
+	if err != nil {
+		return User{}, err
+	}
+	return decode[User](c.api.PostApiUsersIdRoleWithResponse(ctx(), userID, apiclient.SetUserRoleReq{Role: role, InstitutionId: &id}))
+}
+
 // RemoveUserRole takes an account's role away.
 func (c caller) RemoveUserRole(userID string) error {
 	return done(c.api.DeleteApiUsersIdRoleWithResponse(ctx(), userID))

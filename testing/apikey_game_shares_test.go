@@ -249,7 +249,7 @@ func (s *ApiKeyGameSharesSuite) TestGameSharesEndpointPermission() {
 
 	// user2 should not be able to access user1's game shares (no context)
 	_, err := user2.GetApiKeyGameShares(shareID, "")
-	s.Forbidden(err, "non-owner should not be able to access game shares")
+	s.NotFound(err, "non-owner should not be able to access game shares: for them the key does not exist")
 }
 
 // TestGameSharesEndpointOrgSource verifies the endpoint returns "organization"

@@ -65,7 +65,7 @@ func (s *WorkshopWordTokensTestSuite) TestInviteTokenIsThreeWords() {
 	// Typed with capitals and spaces instead of hyphens.
 	typed := strings.ToUpper(strings.ReplaceAll(*invite.InviteToken, "-", " "))
 	found := Must(s.Public().GetInvite(typed))
-	s.Equal(invite.Id.String(), found.Id)
+	s.Equal(invite.Id, found.Id)
 
 	// Joining with it gives the guest a code of four words.
 	guest := Must(s.JoinWorkshop(typed))

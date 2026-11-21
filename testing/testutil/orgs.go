@@ -200,7 +200,7 @@ func (c caller) ListAllWorkshops() ([]Workshop, error) {
 // false or empty; the public page's slug, text and links left out (nil) keep
 // what they are.
 func (c caller) UpdateWorkshop(workshopID string, update WorkshopUpdate) (Workshop, error) {
-	return decode[Workshop](c.api.PatchApiWorkshopsIdWithResponse(ctx(), workshopID, update))
+	return decode[Workshop](c.api.PatchApiWorkshopsIdWithResponse(ctx(), workshopID, update.request()))
 }
 
 // EditWorkshop reads a workshop, lets edit change its settings, and saves
@@ -314,20 +314,14 @@ func MembersOf(inst Institution) []User {
 
 // WorkshopInvitesOf is the invites a workshop came with; none when the
 // caller may not see them.
-func WorkshopInvitesOf(w Workshop) []Invite {
-	if w.Invites == nil {
-		return nil
-	}
-	return *w.Invites
+func WorkshopInvitesOf(w Workshop) []apiclient.InviteView {
+	return w.Invites
 }
 
 // WorkshopParticipantsOf is the members a workshop came with; none when the
 // caller may not see them.
 func WorkshopParticipantsOf(w Workshop) []WorkshopParticipant {
-	if w.Participants == nil {
-		return nil
-	}
-	return *w.Participants
+	return w.Participants
 }
 
 // RoleOf is a user's role as the caller sees it; empty where they do not

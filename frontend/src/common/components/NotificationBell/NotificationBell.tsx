@@ -20,7 +20,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/providers/AuthProvider";
 import { queryKeys } from "@/api/hooks";
-import type { InviteResp } from "@/api/generated/api.gen";
+import type { InviteCardView } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 import { ROUTES } from "@/common/routes/routes";
 import classes from "./NotificationBell.module.css";
@@ -58,7 +58,7 @@ export function NotificationBell() {
     { open: openDeclineModal, close: closeDeclineModal },
   ] = useDisclosure(false);
   const [inviteToDecline, setInviteToDecline] =
-    useState<InviteResp | null>(null);
+    useState<InviteCardView | null>(null);
   const hasAutoOpened = useRef(false);
 
   // Admins don't have invites - disable query and hide the bell
@@ -76,7 +76,7 @@ export function NotificationBell() {
   const navigate = useNavigate();
 
   const [acceptingInvite, setAcceptingInvite] =
-    useState<InviteResp | null>(null);
+    useState<InviteCardView | null>(null);
 
   const acceptMutation = useMutation({
     mutationFn: async (inviteId: string) => {
@@ -165,17 +165,17 @@ export function NotificationBell() {
 
   const translateRole = useTranslateRole();
 
-  const isWorkshopInvite = (invite: InviteResp) =>
+  const isWorkshopInvite = (invite: InviteCardView) =>
     !!invite.workshopId;
 
-  const getInviteTitle = (invite: InviteResp) => {
+  const getInviteTitle = (invite: InviteCardView) => {
     if (isWorkshopInvite(invite)) {
       return t("notifications.workshopInvite");
     }
     return t("notifications.inviteToJoin");
   };
 
-  const getInviteTarget = (invite: InviteResp) => {
+  const getInviteTarget = (invite: InviteCardView) => {
     if (isWorkshopInvite(invite)) {
       const wsName = invite.workshopName || invite.workshopId;
       const orgName = invite.institutionName;
@@ -184,12 +184,12 @@ export function NotificationBell() {
     return invite.institutionName || invite.institutionId || "-";
   };
 
-  const handleAccept = (invite: InviteResp) => {
+  const handleAccept = (invite: InviteCardView) => {
     setAcceptingInvite(invite);
     acceptMutation.mutate(invite.id!);
   };
 
-  const handleDecline = (invite: InviteResp) => {
+  const handleDecline = (invite: InviteCardView) => {
     setInviteToDecline(invite);
     openDeclineModal();
   };
@@ -261,7 +261,7 @@ export function NotificationBell() {
           </Text>
         ) : (
           <Stack gap="md">
-            {pendingInvites.map((invite: InviteResp) => (
+            {pendingInvites.map((invite: InviteCardView) => (
               <Card key={invite.id} withBorder padding="md">
                 <Stack gap="sm">
                   <Group justify="space-between" align="flex-start">

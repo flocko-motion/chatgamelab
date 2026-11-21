@@ -63,7 +63,7 @@ import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
-import { type WorkshopParticipant } from "@/api/generated/api.gen";
+import { type WorkshopParticipantView } from "@/api/generated/api.gen";
 import {
   getAiQualityTierOptions,
   normalizeAiQualityTier,
@@ -110,10 +110,10 @@ export function SingleWorkshopSettings({
 
   // Participant editing state
   const [editingParticipant, setEditingParticipant] =
-    useState<WorkshopParticipant | null>(null);
+    useState<WorkshopParticipantView | null>(null);
   const [participantNewName, setParticipantNewName] = useState("");
   const [participantToRemove, setParticipantToRemove] =
-    useState<WorkshopParticipant | null>(null);
+    useState<WorkshopParticipantView | null>(null);
   const [linkGuest, setLinkGuest] = useState<{
     id: string;
     name?: string;
@@ -219,7 +219,7 @@ export function SingleWorkshopSettings({
   };
 
   // Participant handlers
-  const handleEditParticipant = (participant: WorkshopParticipant) => {
+  const handleEditParticipant = (participant: WorkshopParticipantView) => {
     setEditingParticipant(participant);
     setParticipantNewName(participant.name || "");
   };

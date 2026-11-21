@@ -9,7 +9,6 @@ import { handleApiError } from "@/config/queryClient";
 import { queryKeys } from "../queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import type {
-  Game,
   GameTemplate,
   GameView,
   GameViewPage,
@@ -17,7 +16,7 @@ import type {
   Error as ApiError,
   CreateGameReq,
   FavouriteResp,
-  GameShareResp,
+  ShareLinkView,
   MessageResp,
   PrivateShareStatusResp,
 } from "../generated/api.gen";
@@ -173,7 +172,7 @@ export function useSponsorGame() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    Game,
+    GameView,
     ApiError,
     { gameId: string; shareId: string }
   >({
@@ -192,7 +191,7 @@ export function useSponsorGame() {
 export function useRemoveGameSponsor() {
   const queryClient = useQueryClient();
 
-  return useMutation<Game, ApiError, string>({
+  return useMutation<GameView, ApiError, string>({
     mutationFn: (gameId) =>
       api.deleteApiGamesIdSponsor(gameId).then((response) => response.data),
     onSuccess: (_, gameId) => {
@@ -247,7 +246,7 @@ export function useCreateGameShare() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    GameShareResp,
+    ShareLinkView,
     ApiError,
     { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null; aiQualityTier?: string | null }
   >({
@@ -296,7 +295,7 @@ export function useUpdateGameShare() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    GameShareResp,
+    ShareLinkView,
     ApiError,
     { gameId: string; shareId: string; maxSessions: number | null; aiQualityTier?: string | null }
   >({

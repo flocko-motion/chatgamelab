@@ -277,7 +277,7 @@ func (s *SessionTestSuite) TestDeletingAKeyKeepsTheSession() {
 	user, gameID, keyID := s.player("sess-del-key")
 	Must(user.CreateSession(testutil.ForGame(gameID)))
 
-	MustSucceed(user.DeleteApiKey(keyID, false))
+	MustSucceed(user.DeleteApiKey(keyID, true))
 
 	sessions := Must(user.ListSessions())
 	s.Require().Len(sessions, 1)

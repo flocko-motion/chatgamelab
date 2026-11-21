@@ -103,48 +103,6 @@ func canAccessWorkshopInvites(ctx context.Context, userID uuid.UUID, institution
 	return obj.ErrForbidden("only admin, head, or staff can view workshop invites")
 }
 
-// canAccessGuestTokens checks if user can view the sign-in codes of Guests in workshops.
-// Only staff and heads of the institution owning the workshop can access tokens
-// targetUserID is optional - if provided, validates that the target is actually a Guest in a workshop
-func canAccessGuestTokens(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, targetUserID *uuid.UUID) error {
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return obj.ErrNotFound("user not found")
-	}
-
-	// Admin can access any guest token
-	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
-		return nil
-	}
-
-	// If target user is specified, verify they are a Guest in a workshop
-	if targetUserID != nil {
-		targetUser, err := GetUserByID(ctx, *targetUserID)
-		if err != nil {
-			return obj.ErrNotFound("guest not found")
-		}
-
-		// Verify the target is a Guest with a workshop and institution
-		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleGuest ||
-			targetUser.Role.Workshop == nil || targetUser.Role.Institution == nil {
-			return obj.ErrNotFound("user is not a Guest in a workshop")
-		}
-
-		// Use the target's institution for permission check
-		// (For a Guest in a workshop, the institution in their role IS the workshop's institution)
-		institutionID = targetUser.Role.Institution.ID
-	}
-
-	// Staff or head of the institution can access guest tokens
-	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
-		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
-			return nil
-		}
-	}
-
-	return obj.ErrForbidden("only staff and heads of the institution can access guest tokens")
-}
-
 // canAccessWorkshopParticipants checks if user can view the members of a workshop
 // Only its Guests, the workshop owner, and institution heads/staff can view the member list
 func canAccessWorkshopParticipants(ctx context.Context, userID uuid.UUID, workshopID uuid.UUID, workshopCreatedBy uuid.UUID, institutionID uuid.UUID) error {
@@ -225,45 +183,6 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 	}
 
 	return obj.ErrForbidden("insufficient permissions to delete users")
-}
-
-// CanUpdateParticipantName checks if user can update a participant's name
-// - Admins can update any user
-// - Staff/heads can only update participants in their institution's workshops
-func CanUpdateParticipantName(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID) error {
-	currentUser, err := GetUserByID(ctx, currentUserID)
-	if err != nil {
-		return obj.ErrNotFound("current user not found")
-	}
-
-	// Admin can update anyone
-	if currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin {
-		return nil
-	}
-
-	// Staff/heads can only update participants in their institution
-	if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleStaff || currentUser.Role.Role == obj.RoleHead) {
-		// Get target user
-		targetUser, err := GetUserByID(ctx, targetUserID)
-		if err != nil {
-			return obj.ErrNotFound("target user not found")
-		}
-
-		// Must be a participant
-		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleGuest {
-			return obj.ErrForbidden("can only update participant names")
-		}
-
-		// Must be in the same institution
-		if targetUser.Role.Institution == nil || currentUser.Role.Institution == nil ||
-			targetUser.Role.Institution.ID != currentUser.Role.Institution.ID {
-			return obj.ErrForbidden("can only update participants in your institution")
-		}
-
-		return nil
-	}
-
-	return obj.ErrForbidden("insufficient permissions to update participant name")
 }
 
 // canAccessWorkshop checks if user can perform a CRUD operation on a workshop
@@ -400,75 +319,6 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 	case OpDelete:
 		// Only admin can delete users
 		return obj.ErrForbidden("only admins can delete users")
-
-	default:
-		return obj.ErrForbidden("unknown operation")
-	}
-}
-
-// CanReadUser checks if the requesting user can read the target user's profile.
-// Exported wrapper around canAccessUser with OpRead.
-func CanReadUser(ctx context.Context, requestingUserID uuid.UUID, targetUserID uuid.UUID) error {
-	return canAccessUser(ctx, requestingUserID, OpRead, targetUserID)
-}
-
-// canAccessInvite checks if user can perform a CRUD operation on invites
-// - operation: the type of CRUD operation
-// - inviteID: pointer to the invite (nil for list operations)
-// - dbInvite: pointer to the database invite record (for read operations)
-// - userID can be zero UUID for anonymous users (only allowed for reading open invites)
-func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperation, dbInvite *UserRoleInvite) error {
-	// Handle anonymous users (zero UUID)
-	isAnonymous := userID == uuid.Nil
-
-	// For anonymous users, only allow reading open invites
-	if isAnonymous {
-		if operation == OpRead && dbInvite != nil {
-			// For open invites (no specific user), anyone can read
-			isOpenInvite := !dbInvite.InvitedUserID.Valid && !dbInvite.InvitedEmail.Valid
-			if isOpenInvite {
-				return nil
-			}
-		}
-		return obj.ErrUnauthorized("authentication required")
-	}
-
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return obj.ErrNotFound("user not found")
-	}
-
-	// Admin can do everything
-	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
-		return nil
-	}
-
-	switch operation {
-	case OpList:
-		// Regular users can list their own pending invites (filtered in query)
-		return nil
-
-	case OpRead:
-		// Check if user can access this specific invite
-		if dbInvite == nil {
-			return obj.ErrValidation("invite required for read operation")
-		}
-
-		// User is the invited user (by ID or email)
-		isInvitedUser := (dbInvite.InvitedUserID.Valid && dbInvite.InvitedUserID.UUID == userID) ||
-			(dbInvite.InvitedEmail.Valid && user.Email != nil && *user.Email == dbInvite.InvitedEmail.String)
-
-		// User is the creator
-		isCreator := dbInvite.CreatedBy.Valid && dbInvite.CreatedBy.UUID == userID
-
-		// For open invites (no specific user), anyone can read
-		isOpenInvite := !dbInvite.InvitedUserID.Valid && !dbInvite.InvitedEmail.Valid
-
-		if isInvitedUser || isCreator || isOpenInvite {
-			return nil
-		}
-
-		return obj.ErrForbidden("not authorized to view this invite")
 
 	default:
 		return obj.ErrForbidden("unknown operation")

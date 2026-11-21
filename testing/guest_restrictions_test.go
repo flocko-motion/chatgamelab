@@ -54,14 +54,13 @@ func (s *GuestRestrictionsTestSuite) TestGuestCannotCreateInstitution() {
 	s.Forbidden(err)
 }
 
-// Only heads and staff list workshops, all of them or their institution's.
+// Only heads and staff list workshops, all of them or their institution's:
+// a guest's lists are empty.
 func (s *GuestRestrictionsTestSuite) TestGuestCannotListWorkshops() {
 	_, guest, instID, _ := s.setupWorkshopWithGuest("lw")
 
-	_, err := guest.ListAllWorkshops()
-	s.Forbidden(err)
-	_, err = guest.ListWorkshops(instID)
-	s.Forbidden(err)
+	s.Empty(Must(guest.ListAllWorkshops()))
+	s.Empty(Must(guest.ListWorkshops(instID)))
 }
 
 // Not even in the institution of their own workshop.
@@ -98,7 +97,7 @@ func (s *GuestRestrictionsTestSuite) TestGuestCannotAccessOtherWorkshop() {
 	otherWorkshop := Must(head2.CreateWorkshop(inst2.Id.String(), "Other Workshop"))
 
 	_, err := guest.GetWorkshop(otherWorkshop.Id.String())
-	s.Forbidden(err)
+	s.NotFound(err)
 }
 
 // Not even into the institution of their own workshop.
