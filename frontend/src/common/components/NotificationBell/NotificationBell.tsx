@@ -23,6 +23,7 @@ import { queryKeys } from "@/api/hooks";
 import type { InviteResp } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 import { ROUTES } from "@/common/routes/routes";
+import classes from "./NotificationBell.module.css";
 
 const SEEN_INVITES_KEY = "cgl_seen_invites";
 
@@ -208,6 +209,12 @@ export function NotificationBell() {
     return null;
   }
 
+  // The bell shows only while something waits; its dialogs stay until closed
+  // (declining the last invite closes them itself).
+  if (pendingCount === 0 && !opened && !declineModalOpened) {
+    return null;
+  }
+
   return (
     <>
       <Indicator
@@ -216,16 +223,18 @@ export function NotificationBell() {
         size={18}
         offset={4}
         position="top-end"
-        color="red"
+        // white on the red bell; the theme's autoContrast writes the count dark
+        color="white"
         disabled={pendingCount === 0}
-        processing={pendingCount > 0}
       >
         <ActionIcon
-          variant="subtle"
-          color="white"
+          variant="filled"
+          color="red"
           size="lg"
+          radius="xl"
           onClick={open}
           aria-label={t("notifications.title")}
+          className={pendingCount > 0 ? classes.ringing : undefined}
         >
           <IconBell size={22} />
         </ActionIcon>

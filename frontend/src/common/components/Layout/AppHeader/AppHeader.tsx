@@ -19,6 +19,7 @@ import logoLandscapeWhite from "@/assets/logos/colorful/ChatGameLab-Logo-2025-La
 import type { AppHeaderProps } from "./types";
 import { DesktopNavigation } from "./DesktopNavigation";
 import { UserActions } from "./UserActions";
+import { NotificationBell } from "../../NotificationBell";
 import {
   ParticipantMobileNavigation,
   WorkshopModeMobileNavigation,
@@ -193,7 +194,9 @@ export function AppHeader({
               />
             )}
 
-            {/* Mobile: Burger menu (not for guests) */}
+            {/* Mobile: the bell (it shows only while something waits), then
+                the burger menu (not for guests) */}
+            {forceMobile && !isGuest && <NotificationBell />}
             {forceMobile && !isGuest && (
               <Burger
                 opened={mobileNavOpened}

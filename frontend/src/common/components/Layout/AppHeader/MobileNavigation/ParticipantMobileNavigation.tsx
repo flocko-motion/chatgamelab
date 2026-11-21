@@ -10,7 +10,7 @@ import {
 import { useModals } from "@mantine/modals";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../providers/AuthProvider";
-import { IconMessage, IconLogout, IconUser } from "@tabler/icons-react";
+import { IconMail, IconLogout, IconUser } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
 import { ROUTES } from "@/common/routes/routes";
 import { LanguageSwitcher } from "../../../LanguageSwitcher";
@@ -144,7 +144,7 @@ export function ParticipantMobileNavigation({
               gap: "8px",
             }}
           >
-            <IconMessage size={18} />
+            <IconMail size={18} />
             <Text size="sm" fw={500}>
               {t("header.contact")}
             </Text>
