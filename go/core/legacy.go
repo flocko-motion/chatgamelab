@@ -33,7 +33,10 @@ func LegacyCaller(ctx context.Context) (*obj.User, error) {
 	// sign-in, the bridge keeps doing so. The core's caller of this request
 	// still holds the role it was resolved with; the promotion counts from the
 	// next request.
-	return db.CheckAndPromoteAdmin(ctx, user), nil
+	if user.Email != nil && makeFirstAdmin(ctx, user.ID, user.Email) {
+		return db.GetUserByID(ctx, user.ID)
+	}
+	return user, nil
 }
 
 // LegacyMaybeCaller is LegacyCaller for AuthOptional endpoints: nil and no

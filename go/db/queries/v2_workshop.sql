@@ -138,3 +138,23 @@ UPDATE game SET workshop_id = NULL WHERE workshop_id = @workshop_id;
 
 -- name: V2SoftDeleteWorkshop :exec
 UPDATE workshop SET deleted_at = now() WHERE id = @id;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2SeedWorkshop :one
+INSERT INTO workshop (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name, institution_id, active, public, default_api_key_share_id,
+  ai_quality_tier, prompt_constraints, show_public_games,
+  show_other_participants_games, is_paused,
+  allow_game_sharing, public_slug
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6, $7, $8, $9, $10,
+  $11, $12, $13,
+  $14, $15,
+  $16, $17
+)
+RETURNING *;

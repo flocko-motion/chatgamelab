@@ -32,8 +32,6 @@ var composition = map[string]bool{
 var legacy = map[string]bool{
 	"api/auth.go":       true,
 	"api/auth/login.go": true,
-	"api/janitor.go":    true,
-	"api/startup.go":    true,
 }
 
 // Only the core reaches the database: no other code of the module imports

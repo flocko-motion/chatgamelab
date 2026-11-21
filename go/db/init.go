@@ -5,13 +5,11 @@
 package db
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 
 	"cgl/obj"
 
-	"github.com/flocko-motion/schemaf/constants"
 	schemafdb "github.com/flocko-motion/schemaf/db"
 )
 
@@ -23,24 +21,6 @@ func sqlDb() *sql.DB {
 // queries returns the generated queries on schemaf's connection.
 func queries() *Queries {
 	return New(sqlDb())
-}
-
-// Open connects schemaf's pool to dsn and applies the project's migrations.
-// It is for the v1 server, which runs outside schemaf's app.
-func Open(ctx context.Context, dsn string) error {
-	if err := schemafdb.Init(dsn); err != nil {
-		return err
-	}
-	return schemafdb.RunSet(ctx, sqlDb(), schemafdb.MigrationSet{Prefix: constants.ProjectName(), Files: Provider()})
-}
-
-// SchemaVersion is the newest of the project's migrations applied to the database.
-func SchemaVersion(ctx context.Context) (int, error) {
-	var version int
-	err := sqlDb().QueryRowContext(ctx,
-		`SELECT COALESCE(MAX(version), 0) FROM schemaf_migrations WHERE prefix = $1`,
-		constants.ProjectName()).Scan(&version)
-	return version, err
 }
 
 func sqlNullStringToMaybeString(ns sql.NullString) *string {

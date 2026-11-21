@@ -412,6 +412,44 @@ func (q *Queries) V2OwnGameSessions(ctx context.Context, arg V2OwnGameSessionsPa
 	return items, nil
 }
 
+const v2PurgeExpiredSessions = `-- name: V2PurgeExpiredSessions :many
+
+DELETE FROM game_session gs WHERE gs.id IN (
+  SELECT old.id FROM game_session old WHERE old.modified_at < $1 ORDER BY old.modified_at LIMIT $2
+) RETURNING gs.id
+`
+
+type V2PurgeExpiredSessionsParams struct {
+	ModifiedAt time.Time `json:"modified_at"`
+	Limit      int32     `json:"limit"`
+}
+
+// Carried over from v1 for the core's system jobs (#344).
+// At most a batch of the sessions idle since the cutoff, so one statement
+// holds its locks briefly.
+func (q *Queries) V2PurgeExpiredSessions(ctx context.Context, arg V2PurgeExpiredSessionsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2PurgeExpiredSessions, arg.ModifiedAt, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2RuleFacts = `-- name: V2RuleFacts :one
 SELECT u.age_group, (u.private_share_id IS NOT NULL)::bool AS link_guest,
   w.name AS workshop_name, w.prompt_constraints AS workshop_rule, wo.name AS workshop_organisation_name,

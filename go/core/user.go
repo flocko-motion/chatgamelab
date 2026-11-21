@@ -337,5 +337,14 @@ func DevCreateUser(ctx context.Context, name string, email *string, language str
 		}
 		return &obj.User{ID: id}, nil
 	}
-	return db.CreateUser(ctx, name, email, "", nil, language)
+	id, err := store.Queries().V2CreateAccount(ctx, db.V2CreateAccountParams{
+		Name: sql.NullString{String: name, Valid: true}, Email: sqlString(email), Language: language,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if err := assignInitialRole(ctx, id, email); err != nil {
+		return nil, err
+	}
+	return &obj.User{ID: id, Name: name, Email: email}, nil
 }

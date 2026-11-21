@@ -13,6 +13,34 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2AccountRoles = `-- name: V2AccountRoles :many
+SELECT role FROM user_role WHERE user_id = $1
+`
+
+// The roles an account holds; an admin is made only of an individual.
+func (q *Queries) V2AccountRoles(ctx context.Context, userID uuid.UUID) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, v2AccountRoles, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var role string
+		if err := rows.Scan(&role); err != nil {
+			return nil, err
+		}
+		items = append(items, role)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2ClearDefaultShare = `-- name: V2ClearDefaultShare :exec
 UPDATE app_user SET default_api_key_share_id = NULL, modified_at = now() WHERE id = $1
 `
@@ -85,6 +113,23 @@ func (q *Queries) V2CompleteRegistration(ctx context.Context, arg V2CompleteRegi
 	return result.RowsAffected()
 }
 
+const v2CountAdmins = `-- name: V2CountAdmins :one
+
+SELECT COUNT(*)::int AS count
+FROM user_role r
+JOIN app_user u ON u.id = r.user_id
+WHERE r.role = 'admin' AND u.deleted_at IS NULL
+`
+
+// Carried over from v1 for the core's system jobs (#344).
+// Count live admins (for the ADMIN_EMAILS bootstrap gate)
+func (q *Queries) V2CountAdmins(ctx context.Context) (int32, error) {
+	row := q.db.QueryRowContext(ctx, v2CountAdmins)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
 const v2CountHeadsByInstitution = `-- name: V2CountHeadsByInstitution :one
 SELECT COUNT(*)::int AS count
 FROM user_role
@@ -108,6 +153,33 @@ func (q *Queries) V2CountUserGames(ctx context.Context, createdBy uuid.NullUUID)
 	var count int32
 	err := row.Scan(&count)
 	return count, err
+}
+
+const v2CreateAccount = `-- name: V2CreateAccount :one
+INSERT INTO app_user (id, name, email, auth0_id, age_group, language)
+VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
+RETURNING id
+`
+
+type V2CreateAccountParams struct {
+	Name     sql.NullString `json:"name"`
+	Email    sql.NullString `json:"email"`
+	Auth0ID  sql.NullString `json:"auth0_id"`
+	AgeGroup sql.NullString `json:"age_group"`
+	Language string         `json:"language"`
+}
+
+func (q *Queries) V2CreateAccount(ctx context.Context, arg V2CreateAccountParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2CreateAccount,
+		arg.Name,
+		arg.Email,
+		arg.Auth0ID,
+		arg.AgeGroup,
+		arg.Language,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const v2CreateUserRole = `-- name: V2CreateUserRole :one
@@ -456,6 +528,51 @@ func (q *Queries) V2KeysOf(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, 
 		return nil, err
 	}
 	return items, nil
+}
+
+const v2SeedRenameUser = `-- name: V2SeedRenameUser :exec
+UPDATE app_user SET
+  name = $2,
+  email = $3,
+  modified_at = now()
+WHERE id = $1
+`
+
+type V2SeedRenameUserParams struct {
+	ID    uuid.UUID      `json:"id"`
+	Name  sql.NullString `json:"name"`
+	Email sql.NullString `json:"email"`
+}
+
+func (q *Queries) V2SeedRenameUser(ctx context.Context, arg V2SeedRenameUserParams) error {
+	_, err := q.db.ExecContext(ctx, v2SeedRenameUser, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const v2SeedUser = `-- name: V2SeedUser :one
+INSERT INTO app_user (id, name, email, auth0_id)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO NOTHING
+RETURNING id
+`
+
+type V2SeedUserParams struct {
+	ID      uuid.UUID      `json:"id"`
+	Name    sql.NullString `json:"name"`
+	Email   sql.NullString `json:"email"`
+	Auth0ID sql.NullString `json:"auth0_id"`
+}
+
+func (q *Queries) V2SeedUser(ctx context.Context, arg V2SeedUserParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2SeedUser,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Auth0ID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const v2SetUserActiveWorkshop = `-- name: V2SetUserActiveWorkshop :exec

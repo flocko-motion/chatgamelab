@@ -28,22 +28,3 @@ func AccountForAuth0(ctx context.Context, auth0ID string) (uuid.UUID, error) {
 	}
 	return id, err
 }
-
-// GuestAccess reports whether an account may act: a *GuestAuthError
-// for a participant account that lost its role or whose workshop is inactive,
-// nil for every other account.
-func GuestAccess(ctx context.Context, id uuid.UUID) error {
-	status, err := queries().GetGuestStatus(ctx, id)
-	if err != nil {
-		return err
-	}
-	switch {
-	case !status.HasToken:
-		return nil
-	case !status.HasRole:
-		return &GuestAuthError{Code: "invalid_token", Message: "no longer a workshop participant"}
-	case !status.WorkshopActive:
-		return &GuestAuthError{Code: "workshop_inactive", Message: "Workshop is inactive"}
-	}
-	return nil
-}

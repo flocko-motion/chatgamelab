@@ -206,15 +206,15 @@ func (DevLoginEndpoint) Handle(ctx context.Context, req DevLoginReq) (DevLoginRe
 
 // devLoginAccounts are the seeded development accounts by preset role.
 var devLoginAccounts = map[string]uuid.UUID{
-	"admin-1":      db.DevAdmin1UserID,
-	"admin-2":      db.DevAdmin2UserID,
-	"head-1":       db.DevHead1UserID,
-	"head-2":       db.DevHead2UserID,
-	"staff-1":      db.DevStaff1UserID,
-	"staff-2":      db.DevStaff2UserID,
-	"individual-1": db.DevIndividual1UserID,
-	"individual-2": db.DevIndividual2UserID,
-	"guest":        db.DevGuestUserID,
+	"admin-1":      core.DevAdmin1UserID,
+	"admin-2":      core.DevAdmin2UserID,
+	"head-1":       core.DevHead1UserID,
+	"head-2":       core.DevHead2UserID,
+	"staff-1":      core.DevStaff1UserID,
+	"staff-2":      core.DevStaff2UserID,
+	"individual-1": core.DevIndividual1UserID,
+	"individual-2": core.DevIndividual2UserID,
+	"guest":        core.DevGuestUserID,
 }
 
 // devNewPerson is the dev login's preset for a fresh account still

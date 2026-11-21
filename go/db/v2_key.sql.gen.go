@@ -484,6 +484,39 @@ func (q *Queries) V2OwnDefaultKeyShare(ctx context.Context, owner uuid.UUID) ([]
 	return items, nil
 }
 
+const v2OwnKeyPlatforms = `-- name: V2OwnKeyPlatforms :many
+SELECT id, platform FROM api_key WHERE user_id = $1
+`
+
+type V2OwnKeyPlatformsRow struct {
+	ID       uuid.UUID `json:"id"`
+	Platform string    `json:"platform"`
+}
+
+// The platforms of a user's own keys (the dev preseed).
+func (q *Queries) V2OwnKeyPlatforms(ctx context.Context, userID uuid.UUID) ([]V2OwnKeyPlatformsRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2OwnKeyPlatforms, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2OwnKeyPlatformsRow
+	for rows.Next() {
+		var i V2OwnKeyPlatformsRow
+		if err := rows.Scan(&i.ID, &i.Platform); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2PayerKey = `-- name: V2PayerKey :one
 SELECT id, name, platform FROM api_key WHERE id = $1
 `

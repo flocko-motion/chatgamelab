@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -98,6 +99,56 @@ SET
 
 func (q *Queries) V2UpdateDefaultAiQualityTier(ctx context.Context, defaultAiQualityTier string) error {
 	_, err := q.db.ExecContext(ctx, v2UpdateDefaultAiQualityTier, defaultAiQualityTier)
+	return err
+}
+
+const v2UpdateFreeUseAiQualityTier = `-- name: V2UpdateFreeUseAiQualityTier :exec
+
+UPDATE system_settings
+SET
+  free_use_ai_quality_tier = $1,
+  modified_at = now()
+`
+
+// Carried over from v1 for the core's system jobs and settings (#344).
+func (q *Queries) V2UpdateFreeUseAiQualityTier(ctx context.Context, freeUseAiQualityTier sql.NullString) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateFreeUseAiQualityTier, freeUseAiQualityTier)
+	return err
+}
+
+const v2UpdatePromptConstraintU13 = `-- name: V2UpdatePromptConstraintU13 :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u13 = $1,
+  modified_at = now()
+`
+
+func (q *Queries) V2UpdatePromptConstraintU13(ctx context.Context, promptConstraintU13 sql.NullString) error {
+	_, err := q.db.ExecContext(ctx, v2UpdatePromptConstraintU13, promptConstraintU13)
+	return err
+}
+
+const v2UpdatePromptConstraintU13p = `-- name: V2UpdatePromptConstraintU13p :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u13p = $1,
+  modified_at = now()
+`
+
+func (q *Queries) V2UpdatePromptConstraintU13p(ctx context.Context, promptConstraintU13p sql.NullString) error {
+	_, err := q.db.ExecContext(ctx, v2UpdatePromptConstraintU13p, promptConstraintU13p)
+	return err
+}
+
+const v2UpdatePromptConstraintU18 = `-- name: V2UpdatePromptConstraintU18 :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u18 = $1,
+  modified_at = now()
+`
+
+func (q *Queries) V2UpdatePromptConstraintU18(ctx context.Context, promptConstraintU18 sql.NullString) error {
+	_, err := q.db.ExecContext(ctx, v2UpdatePromptConstraintU18, promptConstraintU18)
 	return err
 }
 

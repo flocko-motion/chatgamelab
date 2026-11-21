@@ -461,6 +461,39 @@ func (q *Queries) V2GameCover(ctx context.Context, gameID uuid.UUID) (V2GameCove
 	return i, err
 }
 
+const v2GameNamesCreatedBy = `-- name: V2GameNamesCreatedBy :many
+SELECT id, name FROM game WHERE created_by = $1 AND deleted_at IS NULL
+`
+
+type V2GameNamesCreatedByRow struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
+// A user's games by name (the dev preseed matches demo covers to them).
+func (q *Queries) V2GameNamesCreatedBy(ctx context.Context, userID uuid.NullUUID) ([]V2GameNamesCreatedByRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2GameNamesCreatedBy, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2GameNamesCreatedByRow
+	for rows.Next() {
+		var i V2GameNamesCreatedByRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2HardDeleteGame = `-- name: V2HardDeleteGame :exec
 DELETE FROM game WHERE id = $1
 `
@@ -495,6 +528,31 @@ type V2MarkFavoriteParams struct {
 // checked that they may read it. Marking it twice changes nothing.
 func (q *Queries) V2MarkFavorite(ctx context.Context, arg V2MarkFavoriteParams) error {
 	_, err := q.db.ExecContext(ctx, v2MarkFavorite, arg.Caller, arg.GameID)
+	return err
+}
+
+const v2SeedGameHistory = `-- name: V2SeedGameHistory :exec
+
+UPDATE game SET created_at = $2, modified_at = $3, play_count = $4 WHERE id = $1
+`
+
+type V2SeedGameHistoryParams struct {
+	ID         uuid.UUID `json:"id"`
+	CreatedAt  time.Time `json:"created_at"`
+	ModifiedAt time.Time `json:"modified_at"`
+	PlayCount  int32     `json:"play_count"`
+}
+
+// Carried over from v1 for the core's system jobs (#344).
+// Development seeding only: gives a demo game a past, so lists have
+// something to sort by.
+func (q *Queries) V2SeedGameHistory(ctx context.Context, arg V2SeedGameHistoryParams) error {
+	_, err := q.db.ExecContext(ctx, v2SeedGameHistory,
+		arg.ID,
+		arg.CreatedAt,
+		arg.ModifiedAt,
+		arg.PlayCount,
+	)
 	return err
 }
 

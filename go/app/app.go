@@ -1,7 +1,7 @@
 // package: app / wiring
 // type:    wiring
 // job:     registers the cgl app's providers, hooks and services with schemaf, for the binary and the tests alike
-// limits:  holds no business logic (-> api, db)
+// limits:  holds no business logic (-> api, core)
 package app
 
 import (
@@ -22,6 +22,7 @@ func Wire(app *schemaf.App) {
 	app.OnLogin(auth.OnLogin)
 	app.OnRequest(core.Resolve)
 	app.AddService(api.Startup)
-	app.AddService(api.Janitor)
+	app.AddService(core.Bootstrap)
+	app.AddService(core.Janitor(func(id string) { api.Engine.Forget(id) }))
 	app.SetFrontend(FrontendFS())
 }

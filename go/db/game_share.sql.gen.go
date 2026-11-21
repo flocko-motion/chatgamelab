@@ -11,44 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-const deleteGameSharesByGameID = `-- name: DeleteGameSharesByGameID :exec
-DELETE FROM game_share WHERE game_id = $1
-`
-
-func (q *Queries) DeleteGameSharesByGameID(ctx context.Context, gameID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGameSharesByGameID, gameID)
-	return err
-}
-
-const getGameShareByToken = `-- name: GetGameShareByToken :one
-
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE token = $1
-`
-
-// game_share queries
-func (q *Queries) GetGameShareByToken(ctx context.Context, token string) (GameShare, error) {
-	row := q.db.QueryRowContext(ctx, getGameShareByToken, token)
-	var i GameShare
-	err := row.Scan(
-		&i.ID,
-		&i.GameID,
-		&i.Token,
-		&i.ApiKeyShareID,
-		&i.InstitutionID,
-		&i.WorkshopID,
-		&i.Remaining,
-		&i.AiQualityTier,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.PublicPage,
-	)
-	return i, err
-}
-
 const getGameSharesByGameID = `-- name: GetGameSharesByGameID :many
+
 SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page FROM game_share WHERE game_id = $1 ORDER BY created_at
 `
 
+// game_share queries
 func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) ([]GameShare, error) {
 	rows, err := q.db.QueryContext(ctx, getGameSharesByGameID, gameID)
 	if err != nil {

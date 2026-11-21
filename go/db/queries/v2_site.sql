@@ -47,3 +47,29 @@ SET
 -- key, gone with their admin role or their account.
 UPDATE system_settings SET free_use_api_key_id = NULL, modified_at = now()
 WHERE free_use_api_key_id IN (SELECT id FROM api_key WHERE user_id = @user_id);
+
+-- Carried over from v1 for the core's system jobs and settings (#344).
+
+-- name: V2UpdateFreeUseAiQualityTier :exec
+UPDATE system_settings
+SET
+  free_use_ai_quality_tier = $1,
+  modified_at = now();
+
+-- name: V2UpdatePromptConstraintU13 :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u13 = $1,
+  modified_at = now();
+
+-- name: V2UpdatePromptConstraintU13p :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u13p = $1,
+  modified_at = now();
+
+-- name: V2UpdatePromptConstraintU18 :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u18 = $1,
+  modified_at = now();

@@ -122,10 +122,10 @@ func EditSiteSettings(ctx context.Context, c SiteSettingsChange) (*SiteSettings,
 			value *string
 			write func(context.Context, sql.NullString) error
 		}{
-			{c.FreeUseTier, q.UpdateFreeUseAiQualityTier},
-			{c.U13, q.UpdatePromptConstraintU13},
-			{c.U13p, q.UpdatePromptConstraintU13p},
-			{c.U18, q.UpdatePromptConstraintU18},
+			{c.FreeUseTier, q.V2UpdateFreeUseAiQualityTier},
+			{c.U13, q.V2UpdatePromptConstraintU13},
+			{c.U13p, q.V2UpdatePromptConstraintU13p},
+			{c.U18, q.V2UpdatePromptConstraintU18},
 		} {
 			if set.value == nil {
 				continue

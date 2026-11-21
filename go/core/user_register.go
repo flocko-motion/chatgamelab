@@ -78,9 +78,11 @@ func Register(ctx context.Context, r Registration) (*UserCard, error) {
 		if err := completeRegistration(ctx, store.Queries(), id, r); err != nil {
 			return nil, err
 		}
-		// v1's first role: individual, or admin for an admin email while no
-		// admin exists yet (moving to sign-in with #452).
-		db.AssignInitialRole(ctx, id, r.Email)
+		// the first role: individual, or admin for an admin email while no
+		// admin exists yet
+		if err := assignInitialRole(ctx, id, r.Email); err != nil {
+			return nil, err
+		}
 		return ReadUser(ctx, id)
 	}
 	return registerWithOrganisation(ctx, id, r)

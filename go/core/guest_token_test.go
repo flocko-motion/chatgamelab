@@ -1,4 +1,4 @@
-package db
+package core
 
 import "testing"
 
@@ -12,8 +12,8 @@ func TestGuestTokenWords(t *testing.T) {
 		"":                                       "",
 	}
 	for token, want := range cases {
-		if got := GuestTokenWords(token); got != want {
-			t.Errorf("GuestTokenWords(%q) = %q, want %q", token, got, want)
+		if got := guestTokenWords(token); got != want {
+			t.Errorf("guestTokenWords(%q) = %q, want %q", token, got, want)
 		}
 	}
 }

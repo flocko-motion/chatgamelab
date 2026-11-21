@@ -198,3 +198,17 @@ DELETE FROM workshop WHERE institution_id = @organisation_id;
 
 -- name: V2HardDeleteOrganisation :exec
 DELETE FROM institution WHERE id = @organisation_id;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2SeedOrganisation :one
+INSERT INTO institution (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6
+)
+RETURNING *;

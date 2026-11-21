@@ -617,6 +617,61 @@ func (q *Queries) V2RecordWithdrawal(ctx context.Context, arg V2RecordWithdrawal
 	return created_at, err
 }
 
+const v2SeedOrganisation = `-- name: V2SeedOrganisation :one
+
+INSERT INTO institution (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, suspended_at, suspended_reason
+`
+
+type V2SeedOrganisationParams struct {
+	ID         uuid.UUID     `json:"id"`
+	CreatedBy  uuid.NullUUID `json:"created_by"`
+	CreatedAt  time.Time     `json:"created_at"`
+	ModifiedBy uuid.NullUUID `json:"modified_by"`
+	ModifiedAt time.Time     `json:"modified_at"`
+	Name       string        `json:"name"`
+}
+
+// Carried over from v1 for the core's system jobs (#344).
+func (q *Queries) V2SeedOrganisation(ctx context.Context, arg V2SeedOrganisationParams) (Institution, error) {
+	row := q.db.QueryRowContext(ctx, v2SeedOrganisation,
+		arg.ID,
+		arg.CreatedBy,
+		arg.CreatedAt,
+		arg.ModifiedBy,
+		arg.ModifiedAt,
+		arg.Name,
+	)
+	var i Institution
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
+		&i.FreeUseAiQualityTier,
+		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.SuspendedAt,
+		&i.SuspendedReason,
+	)
+	return i, err
+}
+
 const v2SetOrganisationSuspension = `-- name: V2SetOrganisationSuspension :execrows
 UPDATE institution SET
   suspended_at     = $1,

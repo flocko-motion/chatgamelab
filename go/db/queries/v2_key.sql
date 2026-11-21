@@ -186,3 +186,7 @@ SELECT * FROM api_key WHERE id = $1;
 -- name: V2UpdateApiKeyLastUsageSuccess :exec
 UPDATE api_key SET last_usage_success = $2, last_error_code = $3, modified_at = now()
 WHERE id = $1;
+
+-- name: V2OwnKeyPlatforms :many
+-- The platforms of a user's own keys (the dev preseed).
+SELECT id, platform FROM api_key WHERE user_id = @user_id;

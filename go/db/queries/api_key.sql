@@ -1,16 +1,6 @@
 
 -- api_key_share -------------------------------------------------------
 
--- name: CreateApiKeyShare :one
-INSERT INTO api_key_share (
-  id, created_by, created_at, modified_by, modified_at,
-  api_key_id, user_id, workshop_id, institution_id, game_id
-) VALUES (
-  gen_random_uuid(), $1, $2, $3, $4,
-  $5, $6, $7, $8, $9
-)
-RETURNING *;
-
 -- name: GetApiKeyShareByID :one
 SELECT
   s.id,
@@ -87,33 +77,4 @@ FROM api_key_share s
 JOIN api_key k ON k.id = s.api_key_id
 JOIN app_user owner ON owner.id = k.user_id
 WHERE s.user_id = $1;
-
--- name: DeleteApiKeySharesByApiKeyID :exec
-DELETE FROM api_key_share WHERE api_key_id = $1;
-
--- name: ClearUserDefaultApiKeyShareByApiKeyID :exec
-UPDATE app_user
-SET default_api_key_share_id = NULL, modified_at = now()
-WHERE default_api_key_share_id IN (
-  SELECT id FROM api_key_share WHERE api_key_id = $1
-);
-
--- name: ClearWorkshopDefaultApiKeyShareByApiKeyID :exec
--- Clear workshop default API key when an API key is deleted (find shares for that key)
-UPDATE workshop
-SET default_api_key_share_id = NULL, modified_at = now()
-WHERE default_api_key_share_id IN (
-  SELECT id FROM api_key_share WHERE api_key_id = $1
-);
-
--- name: ClearGameSponsoredApiKeyByApiKeyID :exec
--- Clear game sponsoring when an API key is deleted (find shares for that key)
-UPDATE game g
-SET
-  public_sponsored_api_key_share_id = NULL,
-  modified_at = now()
-WHERE g.public_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1);
-
--- name: DeleteApiKeySharesByGameID :exec
-DELETE FROM api_key_share WHERE game_id = $1;
 

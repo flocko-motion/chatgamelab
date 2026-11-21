@@ -229,3 +229,34 @@ UPDATE game SET originally_created_by = NULL WHERE originally_created_by = @user
 -- name: V2DeleteAccount :exec
 -- The account itself; its sessions go with it (ON DELETE CASCADE).
 DELETE FROM app_user WHERE id = @user_id;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2CountAdmins :one
+-- Count live admins (for the ADMIN_EMAILS bootstrap gate)
+SELECT COUNT(*)::int AS count
+FROM user_role r
+JOIN app_user u ON u.id = r.user_id
+WHERE r.role = 'admin' AND u.deleted_at IS NULL;
+
+-- name: V2SeedUser :one
+INSERT INTO app_user (id, name, email, auth0_id)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO NOTHING
+RETURNING id;
+
+-- name: V2SeedRenameUser :exec
+UPDATE app_user SET
+  name = $2,
+  email = $3,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: V2CreateAccount :one
+INSERT INTO app_user (id, name, email, auth0_id, age_group, language)
+VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
+RETURNING id;
+
+-- name: V2AccountRoles :many
+-- The roles an account holds; an admin is made only of an individual.
+SELECT role FROM user_role WHERE user_id = @user_id;

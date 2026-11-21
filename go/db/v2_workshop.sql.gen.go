@@ -214,6 +214,93 @@ func (q *Queries) V2PublicWorkshopGames(ctx context.Context, workshopID uuid.Nul
 	return items, nil
 }
 
+const v2SeedWorkshop = `-- name: V2SeedWorkshop :one
+
+INSERT INTO workshop (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name, institution_id, active, public, default_api_key_share_id,
+  ai_quality_tier, prompt_constraints, show_public_games,
+  show_other_participants_games, is_paused,
+  allow_game_sharing, public_slug
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6, $7, $8, $9, $10,
+  $11, $12, $13,
+  $14, $15,
+  $16, $17
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, is_paused, allow_game_sharing, public_slug, public_description, public_links
+`
+
+type V2SeedWorkshopParams struct {
+	ID                         uuid.UUID      `json:"id"`
+	CreatedBy                  uuid.NullUUID  `json:"created_by"`
+	CreatedAt                  time.Time      `json:"created_at"`
+	ModifiedBy                 uuid.NullUUID  `json:"modified_by"`
+	ModifiedAt                 time.Time      `json:"modified_at"`
+	Name                       string         `json:"name"`
+	InstitutionID              uuid.UUID      `json:"institution_id"`
+	Active                     bool           `json:"active"`
+	Public                     bool           `json:"public"`
+	DefaultApiKeyShareID       uuid.NullUUID  `json:"default_api_key_share_id"`
+	AiQualityTier              sql.NullString `json:"ai_quality_tier"`
+	PromptConstraints          sql.NullString `json:"prompt_constraints"`
+	ShowPublicGames            bool           `json:"show_public_games"`
+	ShowOtherParticipantsGames bool           `json:"show_other_participants_games"`
+	IsPaused                   bool           `json:"is_paused"`
+	AllowGameSharing           bool           `json:"allow_game_sharing"`
+	PublicSlug                 sql.NullString `json:"public_slug"`
+}
+
+// Carried over from v1 for the core's system jobs (#344).
+func (q *Queries) V2SeedWorkshop(ctx context.Context, arg V2SeedWorkshopParams) (Workshop, error) {
+	row := q.db.QueryRowContext(ctx, v2SeedWorkshop,
+		arg.ID,
+		arg.CreatedBy,
+		arg.CreatedAt,
+		arg.ModifiedBy,
+		arg.ModifiedAt,
+		arg.Name,
+		arg.InstitutionID,
+		arg.Active,
+		arg.Public,
+		arg.DefaultApiKeyShareID,
+		arg.AiQualityTier,
+		arg.PromptConstraints,
+		arg.ShowPublicGames,
+		arg.ShowOtherParticipantsGames,
+		arg.IsPaused,
+		arg.AllowGameSharing,
+		arg.PublicSlug,
+	)
+	var i Workshop
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.InstitutionID,
+		&i.Active,
+		&i.Public,
+		&i.DeletedAt,
+		&i.DefaultApiKeyShareID,
+		&i.AiQualityTier,
+		&i.PromptConstraints,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
+		&i.IsPaused,
+		&i.AllowGameSharing,
+		&i.PublicSlug,
+		&i.PublicDescription,
+		&i.PublicLinks,
+	)
+	return i, err
+}
+
 const v2SoftDeleteWorkshop = `-- name: V2SoftDeleteWorkshop :exec
 UPDATE workshop SET deleted_at = now() WHERE id = $1
 `

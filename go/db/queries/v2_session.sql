@@ -164,3 +164,12 @@ WHERE id = $1;
 
 -- name: V2TouchGameSession :exec
 UPDATE game_session SET modified_at = now() WHERE id = $1;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2PurgeExpiredSessions :many
+-- At most a batch of the sessions idle since the cutoff, so one statement
+-- holds its locks briefly.
+DELETE FROM game_session gs WHERE gs.id IN (
+  SELECT old.id FROM game_session old WHERE old.modified_at < $1 ORDER BY old.modified_at LIMIT $2
+) RETURNING gs.id;
