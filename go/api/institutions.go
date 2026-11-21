@@ -29,7 +29,7 @@ type InstitutionApiKeysResp = []obj.ApiKeyShare
 
 // InstitutionIDReq names an institution by its id.
 type InstitutionIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // CreateInstitutionEndpoint creates an institution.
@@ -132,7 +132,7 @@ func (UpdateInstitutionEndpoint) Handle(ctx context.Context, req UpdateInstituti
 
 // UpdateInstitutionReq is the institution from the path and its new name.
 type UpdateInstitutionReq struct {
-	ID   string `path:"id" json:"-"`
+	ID   string `path:"id"`
 	Name string `json:"name"`
 }
 
@@ -209,8 +209,8 @@ func (RemoveInstitutionMemberEndpoint) Handle(ctx context.Context, req RemoveIns
 
 // RemoveInstitutionMemberReq names an institution and one of its members.
 type RemoveInstitutionMemberReq struct {
-	ID     string `path:"id" json:"-"`
-	UserID string `path:"userID" json:"-"`
+	ID     string `path:"id"`
+	UserID string `path:"userID"`
 }
 
 // GetInstitutionApiKeysEndpoint lists the API keys shared with an institution;
@@ -272,7 +272,7 @@ func (SetInstitutionFreeUseApiKeyShareEndpoint) Handle(ctx context.Context, req 
 // SetInstitutionFreeUseKeyReq is the institution from the path and the share
 // to set, or null to clear it.
 type SetInstitutionFreeUseKeyReq struct {
-	ID      string     `path:"id" json:"-"`
+	ID      string     `path:"id"`
 	ShareID *uuid.UUID `json:"shareId"`
 }
 
@@ -315,6 +315,6 @@ func (UpdateInstitutionPromptConstraintsEndpoint) Handle(ctx context.Context, re
 // UpdateInstitutionPromptConstraintsReq is the institution from the path and
 // its new prompt constraints.
 type UpdateInstitutionPromptConstraintsReq struct {
-	ID                string  `path:"id" json:"-"`
+	ID                string  `path:"id"`
 	PromptConstraints *string `json:"promptConstraints"`
 }

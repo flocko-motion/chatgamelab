@@ -31,8 +31,8 @@ func toGameShareResp(gs obj.GameShare) GameShareResp {
 
 // GameShareIDReq names a share of a game by the game's id and the share's id.
 type GameShareIDReq struct {
-	ID      string `path:"id" json:"-"`
-	ShareID string `path:"shareId" json:"-"`
+	ID      string `path:"id"`
+	ShareID string `path:"shareId"`
 }
 
 // CreateGameShareEndpoint creates a share link for a game.
@@ -138,7 +138,7 @@ func (CreateGameShareEndpoint) Handle(ctx context.Context, req CreateGameShareRe
 
 // CreateGameShareReq is the game from the path and the share's configuration.
 type CreateGameShareReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 	// SponsorKeyShareID is required for personal shares; workshop shares ignore it.
 	SponsorKeyShareID *uuid.UUID `json:"sponsorKeyShareId"`
 	// MaxSessions is null for unlimited.
@@ -215,8 +215,8 @@ func (UpdateGameShareEndpoint) Handle(ctx context.Context, req UpdateGameShareRe
 
 // UpdateGameShareReq is the share from the path and its new settings.
 type UpdateGameShareReq struct {
-	ID      string `path:"id" json:"-"`
-	ShareID string `path:"shareId" json:"-"`
+	ID      string `path:"id"`
+	ShareID string `path:"shareId"`
 	// MaxSessions is null for unlimited.
 	MaxSessions *int `json:"maxSessions"`
 	// AiQualityTier is null for the source's default.

@@ -73,7 +73,7 @@ func (c caller) Say(sessionID, text string) error {
 
 // ListSessions is the caller's sessions.
 func (c caller) ListSessions() ([]UserSession, error) {
-	return decode[[]UserSession](c.api.GetApiSessionsWithResponse(ctx()))
+	return decode[[]UserSession](c.api.GetApiSessionsWithResponse(ctx(), &apiclient.GetApiSessionsParams{}))
 }
 
 // GetGameSessions is the caller's own sessions of a game.

@@ -15,7 +15,7 @@ import (
 
 // GuestGameInfoReq names a private share by its token.
 type GuestGameInfoReq struct {
-	Token string `path:"token" json:"-"`
+	Token string `path:"token"`
 }
 
 // GuestGameInfoResp is the public game info for the welcome screen.

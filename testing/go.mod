@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	cgl v0.0.0
 	github.com/drhodes/golorem v0.0.0-20220328165741-da82e5b29246
-	github.com/flocko-motion/schemaf v1.19.0
+	github.com/flocko-motion/schemaf v1.20.0
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.12.1
 )

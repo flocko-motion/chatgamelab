@@ -24,7 +24,7 @@ type WorkshopsResp = []obj.Workshop
 
 // WorkshopIDReq names a workshop by its id.
 type WorkshopIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // CreateWorkshopEndpoint creates a workshop.
@@ -81,22 +81,22 @@ func (ListWorkshopsEndpoint) Handle(ctx context.Context, req ListWorkshopsReq) (
 		return nil, err
 	}
 	var institutionID *uuid.UUID
-	if req.InstitutionID != "" {
-		id, err := parseIDValidation(req.InstitutionID, "Invalid institution ID")
+	if opt(req.InstitutionID) != "" {
+		id, err := parseIDValidation(opt(req.InstitutionID), "Invalid institution ID")
 		if err != nil {
 			return nil, err
 		}
 		institutionID = &id
 	}
 	var activeOnly *bool
-	if req.ActiveOnly == "true" {
+	if opt(req.ActiveOnly) == "true" {
 		t := true
 		activeOnly = &t
 	}
 	workshops, err := db.ListWorkshopsWithOptions(ctx, user.ID, institutionID, db.ListWorkshopsOptions{
-		Search:     req.Search,
-		SortBy:     req.SortBy,
-		SortDir:    req.SortDir,
+		Search:     opt(req.Search),
+		SortBy:     opt(req.SortBy),
+		SortDir:    opt(req.SortDir),
 		ActiveOnly: activeOnly,
 	})
 	if err != nil {
@@ -107,11 +107,11 @@ func (ListWorkshopsEndpoint) Handle(ctx context.Context, req ListWorkshopsReq) (
 
 // ListWorkshopsReq filters and sorts the workshop list.
 type ListWorkshopsReq struct {
-	InstitutionID string `query:"institutionId" json:"-"`
-	Search        string `query:"search" json:"-"`
-	SortBy        string `query:"sortBy" json:"-"`
-	SortDir       string `query:"sortDir" json:"-"`
-	ActiveOnly    string `query:"activeOnly" json:"-"`
+	InstitutionID *string `query:"institutionId"`
+	Search        *string `query:"search"`
+	SortBy        *string `query:"sortBy"`
+	SortDir       *string `query:"sortDir"`
+	ActiveOnly    *string `query:"activeOnly"`
 }
 
 // GetWorkshopEndpoint returns a workshop.
@@ -181,7 +181,7 @@ func (UpdateWorkshopEndpoint) Handle(ctx context.Context, req UpdateWorkshopReq)
 // UpdateWorkshopReq is the workshop from the path and its new settings from
 // the body.
 type UpdateWorkshopReq struct {
-	ID                         string  `path:"id" json:"-"`
+	ID                         string  `path:"id"`
 	Name                       string  `json:"name"`
 	Active                     bool    `json:"active"`
 	Public                     bool    `json:"public"`
@@ -257,7 +257,7 @@ func (SetWorkshopApiKeyEndpoint) Handle(ctx context.Context, req SetWorkshopApiK
 // SetWorkshopApiKeyReq is the workshop from the path and the API key share
 // from the body.
 type SetWorkshopApiKeyReq struct {
-	ID            string  `path:"id" json:"-"`
+	ID            string  `path:"id"`
 	ApiKeyShareID *string `json:"apiKeyShareId"`
 }
 
@@ -294,7 +294,7 @@ func (AddWorkshopMemberEndpoint) Handle(ctx context.Context, req AddWorkshopMemb
 // AddWorkshopMemberReq is the workshop from the path and the user to add from
 // the body.
 type AddWorkshopMemberReq struct {
-	WorkshopID string `path:"id" json:"-"`
+	WorkshopID string `path:"id"`
 	UserID     string `json:"userId"`
 }
 
@@ -327,13 +327,13 @@ func (RemoveWorkshopMemberEndpoint) Handle(ctx context.Context, req RemoveWorksh
 
 // RemoveWorkshopMemberReq names a workshop and the member to remove.
 type RemoveWorkshopMemberReq struct {
-	WorkshopID string `path:"id" json:"-"`
-	UserID     string `path:"userId" json:"-"`
+	WorkshopID string `path:"id"`
+	UserID     string `path:"userId"`
 }
 
 // WorkshopParticipantReq names a workshop participant by their user id.
 type WorkshopParticipantReq struct {
-	ParticipantID string `path:"participantId" json:"-"`
+	ParticipantID string `path:"participantId"`
 }
 
 // WorkshopParticipantTokenResp is a participant's access token.

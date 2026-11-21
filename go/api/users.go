@@ -28,7 +28,7 @@ type UserStatsResp = obj.UserStats
 
 // UserIDReq names a user by their id.
 type UserIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // ListUsersEndpoint lists the users the caller manages.
@@ -361,7 +361,7 @@ func (UpdateUserEndpoint) Handle(ctx context.Context, req UpdateUserReq) (UserRe
 
 // UpdateUserReq is the user from the path and the properties to change.
 type UpdateUserReq struct {
-	UserID string `path:"id" json:"-"`
+	UserID string `path:"id"`
 	// Name and Email are left unchanged when empty.
 	Name                 string     `json:"name,omitempty"`
 	Email                string     `json:"email,omitempty"`

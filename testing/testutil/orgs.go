@@ -160,12 +160,12 @@ func (c caller) GetWorkshop(workshopID string) (Workshop, error) {
 
 // ListWorkshops is an institution's workshops the caller sees.
 func (c caller) ListWorkshops(institutionID string) ([]Workshop, error) {
-	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), query("institutionId", institutionID)))
+	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{InstitutionId: some(institutionID)}))
 }
 
 // ListAllWorkshops is every workshop the caller sees.
 func (c caller) ListAllWorkshops() ([]Workshop, error) {
-	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx()))
+	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{}))
 }
 
 // UpdateWorkshop replaces a workshop's settings. A setting left out is

@@ -51,6 +51,14 @@ func parseIDValidation(raw, msg string) (uuid.UUID, error) {
 	return id, nil
 }
 
+// opt is an optional query parameter's value, empty when it was not sent.
+func opt(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
 // MessageResp is a confirmation for the user.
 type MessageResp struct {
 	Message string `json:"message"`
