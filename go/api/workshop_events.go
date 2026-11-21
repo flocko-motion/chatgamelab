@@ -7,6 +7,7 @@ package api
 import (
 	"context"
 
+	"cgl/core"
 	"cgl/events"
 	"cgl/log"
 
@@ -32,11 +33,12 @@ func (WorkshopEventsEndpoint) Method() string             { return "GET" }
 func (WorkshopEventsEndpoint) Path() string               { return "/api/workshops/{id}/events" }
 func (WorkshopEventsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (WorkshopEventsEndpoint) Stream(ctx context.Context, req WorkshopEventsReq) (<-chan WorkshopEvent, error) {
-	if _, err := caller(ctx); err != nil {
-		return nil, err
-	}
 	workshopID, err := parseIDValidation(req.ID, "Invalid workshop ID")
 	if err != nil {
+		return nil, err
+	}
+	// a workshop's updates are for whoever may see it
+	if _, err := core.ReadWorkshop(ctx, workshopID); err != nil {
 		return nil, err
 	}
 	return workshopEvents(ctx, workshopID), nil

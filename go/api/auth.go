@@ -11,7 +11,6 @@ import (
 	"cgl/api/auth"
 	"cgl/api/wire"
 	"cgl/core"
-	"cgl/db"
 	"cgl/mail"
 	"cgl/obj"
 
@@ -151,7 +150,7 @@ func (GuestLoginEndpoint) Handle(ctx context.Context, req GuestLoginReq) (GuestL
 	if err := tokenLocked(); err != nil {
 		return GuestLoginResp{}, err
 	}
-	userID, err := auth.RedeemGuestToken(ctx, req.Token)
+	userID, err := core.RedeemGuestToken(ctx, req.Token)
 	if errors.Is(err, auth.ErrInvalidGuestToken) {
 		return GuestLoginResp{}, errUnauthorized(err.Error())
 	}
@@ -224,7 +223,7 @@ const devNewPerson = "new-person"
 // devLoginAccount is the account a dev login's preset signs in.
 func devLoginAccount(ctx context.Context, role string) (uuid.UUID, error) {
 	if role == devNewPerson {
-		return db.AccountForAuth0(ctx, "dev|"+uuid.NewString())
+		return core.DevSignInAccount(ctx, uuid.Nil)
 	}
 	userID, ok := devLoginAccounts[role]
 	if !ok {

@@ -454,7 +454,7 @@ func (ListPlatformsEndpoint) Method() string             { return "GET" }
 func (ListPlatformsEndpoint) Path() string               { return "/api/platforms" }
 func (ListPlatformsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (ListPlatformsEndpoint) Handle(ctx context.Context, _ EngineListReq) (PlatformsResp, error) {
-	if _, err := caller(ctx); err != nil {
+	if err := core.RequireSignedIn(ctx); err != nil {
 		return nil, err
 	}
 	return Engine.PlatformList(), nil
@@ -469,7 +469,7 @@ func (ListGenresEndpoint) Method() string             { return "GET" }
 func (ListGenresEndpoint) Path() string               { return "/api/genres" }
 func (ListGenresEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (ListGenresEndpoint) Handle(ctx context.Context, _ EngineListReq) (GenresResp, error) {
-	if _, err := caller(ctx); err != nil {
+	if err := core.RequireSignedIn(ctx); err != nil {
 		return nil, err
 	}
 	return engine.GenreList(), nil
@@ -484,7 +484,7 @@ func (ListThemesEndpoint) Method() string             { return "GET" }
 func (ListThemesEndpoint) Path() string               { return "/api/themes" }
 func (ListThemesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (ListThemesEndpoint) Handle(ctx context.Context, _ EngineListReq) (ThemesResp, error) {
-	if _, err := caller(ctx); err != nil {
+	if err := core.RequireSignedIn(ctx); err != nil {
 		return nil, err
 	}
 	return engine.Themes(), nil

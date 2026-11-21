@@ -331,7 +331,7 @@ func DevCreateUser(ctx context.Context, name string, email *string, language str
 		return nil, ErrNotFound
 	}
 	if strings.TrimSpace(name) == "" {
-		id, err := db.AccountForAuth0(ctx, "dev|"+uuid.NewString())
+		id, err := auth0Account(ctx, "dev|"+uuid.NewString())
 		if err != nil {
 			return nil, err
 		}

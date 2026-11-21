@@ -260,3 +260,27 @@ RETURNING id;
 -- name: V2AccountRoles :many
 -- The roles an account holds; an admin is made only of an individual.
 SELECT role FROM user_role WHERE user_id = @user_id;
+
+-- Signing in (core/signin.go).
+
+-- name: V2Auth0Account :many
+SELECT id FROM app_user WHERE auth0_id = @subject;
+
+-- name: V2CreateAuth0Account :many
+-- An account from its first sign-in: no name yet, so registration is
+-- incomplete. A concurrent first sign-in made it already: no row.
+INSERT INTO app_user (id, auth0_id) VALUES (gen_random_uuid(), @subject)
+ON CONFLICT (auth0_id) DO NOTHING
+RETURNING id;
+
+-- name: V2GuestByToken :many
+-- The workshop guest a login code signs in, and whether their workshop is
+-- running.
+SELECT u.id, (w.active AND w.deleted_at IS NULL)::bool AS workshop_active
+FROM app_user u
+JOIN user_role r ON r.user_id = u.id AND r.role = 'guest'
+JOIN workshop w ON w.id = r.workshop_id
+WHERE u.guest_token = @token AND u.deleted_at IS NULL;
+
+-- name: V2AccountEmail :one
+SELECT email FROM app_user WHERE id = @id;

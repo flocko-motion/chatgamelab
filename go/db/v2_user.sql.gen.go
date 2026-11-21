@@ -13,6 +13,17 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2AccountEmail = `-- name: V2AccountEmail :one
+SELECT email FROM app_user WHERE id = $1
+`
+
+func (q *Queries) V2AccountEmail(ctx context.Context, id uuid.UUID) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, v2AccountEmail, id)
+	var email sql.NullString
+	err := row.Scan(&email)
+	return email, err
+}
+
 const v2AccountRoles = `-- name: V2AccountRoles :many
 SELECT role FROM user_role WHERE user_id = $1
 `
@@ -31,6 +42,35 @@ func (q *Queries) V2AccountRoles(ctx context.Context, userID uuid.UUID) ([]strin
 			return nil, err
 		}
 		items = append(items, role)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2Auth0Account = `-- name: V2Auth0Account :many
+
+SELECT id FROM app_user WHERE auth0_id = $1
+`
+
+// Signing in (core/signin.go).
+func (q *Queries) V2Auth0Account(ctx context.Context, subject sql.NullString) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2Auth0Account, subject)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -180,6 +220,37 @@ func (q *Queries) V2CreateAccount(ctx context.Context, arg V2CreateAccountParams
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const v2CreateAuth0Account = `-- name: V2CreateAuth0Account :many
+INSERT INTO app_user (id, auth0_id) VALUES (gen_random_uuid(), $1)
+ON CONFLICT (auth0_id) DO NOTHING
+RETURNING id
+`
+
+// An account from its first sign-in: no name yet, so registration is
+// incomplete. A concurrent first sign-in made it already: no row.
+func (q *Queries) V2CreateAuth0Account(ctx context.Context, subject sql.NullString) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2CreateAuth0Account, subject)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const v2CreateUserRole = `-- name: V2CreateUserRole :one
@@ -435,6 +506,44 @@ func (q *Queries) V2GetWorkshopParticipants(ctx context.Context, workshopID uuid
 			&i.GamesCount,
 			&i.Permanent,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2GuestByToken = `-- name: V2GuestByToken :many
+SELECT u.id, (w.active AND w.deleted_at IS NULL)::bool AS workshop_active
+FROM app_user u
+JOIN user_role r ON r.user_id = u.id AND r.role = 'guest'
+JOIN workshop w ON w.id = r.workshop_id
+WHERE u.guest_token = $1 AND u.deleted_at IS NULL
+`
+
+type V2GuestByTokenRow struct {
+	ID             uuid.UUID `json:"id"`
+	WorkshopActive bool      `json:"workshop_active"`
+}
+
+// The workshop guest a login code signs in, and whether their workshop is
+// running.
+func (q *Queries) V2GuestByToken(ctx context.Context, token sql.NullString) ([]V2GuestByTokenRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2GuestByToken, token)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2GuestByTokenRow
+	for rows.Next() {
+		var i V2GuestByTokenRow
+		if err := rows.Scan(&i.ID, &i.WorkshopActive); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

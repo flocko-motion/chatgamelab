@@ -8,7 +8,6 @@ import (
 	"github.com/flocko-motion/schemaf/schemaf"
 
 	"cgl/api"
-	"cgl/api/auth"
 	"cgl/core"
 	"cgl/db"
 )
@@ -19,7 +18,7 @@ import (
 func Wire(app *schemaf.App) {
 	app.AddDb(db.Provider)
 	app.AddApi(api.Provider)
-	app.OnLogin(auth.OnLogin)
+	app.OnLogin(core.OnLogin)
 	app.OnRequest(core.Resolve)
 	app.AddService(api.Startup)
 	app.AddService(core.Bootstrap)
