@@ -7,6 +7,7 @@ import (
 	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
 	"cgl/db"
+	"cgl/events"
 	"engine"
 
 	"github.com/google/uuid"
@@ -152,7 +153,9 @@ func insertGame(ctx context.Context, next gameRow, originallyCreatedBy *uuid.UUI
 	if err != nil {
 		return nil, err
 	}
-	db.AfterGameCreated(id, ptrUUID(workshop), by)
+	if workshop.Valid {
+		events.GetBroker().PublishGameCreated(workshop.UUID, id, by) // the workshop hears of it
+	}
 	return ReadGameCard(ctx, id)
 }
 

@@ -358,8 +358,9 @@ func deleteWorkshopPublicPageShares(ctx context.Context, workshopID uuid.UUID) {
 	deletePublicPageShares(ctx, shares)
 }
 
-// deleteGamePublicPageShares revokes the public-page share links of one game.
-func deleteGamePublicPageShares(ctx context.Context, gameID uuid.UUID) {
+// DeleteGamePublicPageShares revokes the public-page share links of one game.
+// v1's share links: the core calls it until share links are ported (#451).
+func DeleteGamePublicPageShares(ctx context.Context, gameID uuid.UUID) {
 	shares, err := queries().GetPublicPageGameSharesByGame(ctx, gameID)
 	if err != nil {
 		log.Warn("failed to load public page share links", "game_id", gameID, "error", err)

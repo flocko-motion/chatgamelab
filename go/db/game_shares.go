@@ -365,6 +365,7 @@ func DeleteGuestDataByShareID(ctx context.Context, shareID uuid.UUID) error {
 }
 
 // DeleteGuestDataByGameID removes all guest data for all shares of a game.
+// v1's share links: the core calls it until share links are ported (#451).
 func DeleteGuestDataByGameID(ctx context.Context, gameID uuid.UUID) error {
 	shares, err := queries().GetGameSharesByGameID(ctx, gameID)
 	if err != nil {

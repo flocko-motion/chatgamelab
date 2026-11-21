@@ -8,6 +8,7 @@ import (
 
 	"cgl/core/internal/store"
 	"cgl/db"
+	"cgl/events"
 	"engine"
 
 	"github.com/google/uuid"
@@ -93,8 +94,12 @@ func UpdateGame(ctx context.Context, id uuid.UUID, ch GameChanges) (*GameCard, e
 		return nil, err
 	}
 
-	unpublished := game.row.public && !next.public
-	db.AfterGameUpdated(ctx, id, game.row.workshopID, unpublished, by)
+	if game.row.public && !next.public {
+		db.DeleteGamePublicPageShares(ctx, id) // a private game leaves the workshops' public pages
+	}
+	if w := game.row.workshopID; w != nil {
+		events.GetBroker().PublishGameUpdated(*w, id, by) // the workshop hears of it
+	}
 	return ReadGameCard(ctx, id)
 }
 
