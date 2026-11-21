@@ -33,15 +33,23 @@
   --dim: var(--gray-5);
   --line: var(--gray-3);
   --flag: #db2777;
-  /* Working must catch the eye; recent is its afterglow, and a block at rest is
-     deliberately quiet so a still graph reads as still. */
-  --live: #1a9baa;
-  --live-soft: #e6fafb;
-  --recent: #8ae6ed;
   /* Which way a wire runs, from the point of view of the block that was
      clicked: what reaches it, and what it feeds. */
-  --wire-in: #16a34a;
-  --wire-out: #dc2626;
+  --wire-in: #2563eb;
+  --wire-out: #b45309;
+  /* What a block is, told by colour: the player's input, the preparation, or
+     the game loop. Each has its line, its calm fill, and the fill it glows
+     with while it works; a block at rest is quiet so a still graph reads as
+     still. */
+  --node-input: #0284c7;
+  --node-input-soft: #e0f2fe;
+  --node-input-glow: #bae6fd;
+  --node-prep: #0d9488;
+  --node-prep-soft: #e8f6f4;
+  --node-prep-glow: #b5e6df;
+  --node-block: #7c3aed;
+  --node-block-soft: #f3effe;
+  --node-block-glow: #dccffc;
 
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;

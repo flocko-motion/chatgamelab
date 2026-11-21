@@ -19,8 +19,9 @@ type PropsStore struct {
 	mu      sync.Mutex
 	current ports.PropMap
 
-	in  ports.PropsInput
-	out ports.PropsBroadcast
+	in    ports.PropsInput
+	out   ports.PropsBroadcast
+	state ports.StateBroadcast
 }
 
 func NewPropsStore(name string, initial map[string]string) *PropsStore {
@@ -32,6 +33,10 @@ func NewPropsStore(name string, initial map[string]string) *PropsStore {
 func (b *PropsStore) NodeName() string                   { return b.name }
 func (b *PropsStore) PropsInPort() chan<- ports.PropMap  { return b.in }
 func (b *PropsStore) PropsOutPort() <-chan ports.PropMap { return b.out.Subscribe() }
+
+// StateOutPort reports each update it takes, so the graph view shows the
+// status change.
+func (b *PropsStore) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 // ExportState carries the values themselves, not a handle to them: unlike a
 // thread token, nothing on a provider's side remembers a player's health.
@@ -66,7 +71,7 @@ func (b *PropsStore) Current() ports.PropMap {
 
 func (b *PropsStore) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
+		defer func() { b.out.Close(); b.state.Close() }()
 		// Always publish once at start, even when empty. A block whose props
 		// input is required waits for this first snapshot, so withholding it
 		// when there is nothing to seed would deadlock that block instead of
@@ -80,11 +85,13 @@ func (b *PropsStore) Start(ctx context.Context) {
 				if !open {
 					return
 				}
+				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 				b.mu.Lock()
 				maps.Copy(b.current, update)
 				snapshot := maps.Clone(b.current)
 				b.mu.Unlock()
 				b.out.Send(snapshot)
+				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 			}
 		}
 	}()

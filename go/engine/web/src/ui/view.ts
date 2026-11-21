@@ -273,7 +273,7 @@ export class View {
   #renderGraph(state: PlaybackEngineState): void {
     if (!state.topology) return;
     this.#flowchart.draw(state.topology);
-    this.#flowchart.update(state.phases, state.usage?.byNode ?? []);
+    this.#flowchart.update(state.phases);
   }
 
   #renderProps(state: PlaybackEngineState): void {

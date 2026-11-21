@@ -70,10 +70,14 @@ Every block reports its state changes, and every report reaches the client,
 which draws the wiring once and then tracks phases.
 
 The drawing is placed by hand. Each genre keeps a layout beside its wiring
-(`adventure_layout.go`, `npclive_layout.go`) that gives every block a grid
-cell, in a reading order a person chose; the topology carries the cells, and a
-test fails when a block has no cell. On a dev server the blocks can be dragged
-to other cells and the layout copied back as Go source.
+(`adventure_layout.go`, `npclive_layout.go`) that gives every block its place,
+in a reading order a person chose; the topology carries the places, and a test
+fails when a block has none. On a dev server the blocks can be dragged
+anywhere and the layout copied back as Go source. Failure sinks (role `failure`: only
+failures reach them) and the wires to them are left out of the drawing; any
+block can fail, and drawing every failure buries the flow of a turn. Outputs (role `sink`)
+are drawn as small symbols hanging off the block that feeds them, the way a
+circuit diagram draws ground, so they need no place in the layout.
 
 ## Genres
 

@@ -22,6 +22,26 @@ export function text(key: TextKey): string {
 }
 
 /**
+ * What a block is called in the pipeline view, by its name in the wiring: a
+ * name like "expand" says nothing to a player, "Narrate" does. A block with no
+ * text keeps its name.
+ */
+export function blockLabel(name: string): string {
+  const own = current.blocks as Partial<Record<string, string>> | undefined;
+  return own?.[name] ?? (english.blocks as Record<string, string>)[name] ?? name;
+}
+
+/**
+ * What a wire is called in the pipeline view, by the blocks it joins: "style"
+ * says more than its kind "props". A wire with no text is called by its kind.
+ */
+export function wireLabel(from: string, to: string, kind: string): string {
+  const key = `${from}>${to}`;
+  const own = current.wires as Partial<Record<string, string>> | undefined;
+  return own?.[key] ?? (english.wires as Record<string, string>)[key] ?? kind;
+}
+
+/**
  * Switches to a language by its BCP 47 tag, read by its primary subtag. A
  * language with no file beside the page, or one that fails to load, leaves
  * English in place.

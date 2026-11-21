@@ -97,12 +97,6 @@ type AvailableKey struct {
 	Source    string             `json:"source"`
 }
 
-// Cell defines model for Cell.
-type Cell struct {
-	Col int `json:"col"`
-	Row int `json:"row"`
-}
-
 // CheckNameResp defines model for CheckNameResp.
 type CheckNameResp struct {
 	Available bool  `json:"available"`
@@ -764,6 +758,12 @@ type ParticipantMeta struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+// Place defines model for Place.
+type Place struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
 // PlatformInfo defines model for PlatformInfo.
 type PlatformInfo struct {
 	Genres   []string              `json:"genres"`
@@ -1069,9 +1069,9 @@ type TopologyEdge struct {
 
 // TopologyNode defines model for TopologyNode.
 type TopologyNode struct {
-	Cell *Cell  `json:"cell,omitempty"`
-	Name string `json:"name"`
-	Role string `json:"role"`
+	Name  string `json:"name"`
+	Place *Place `json:"place,omitempty"`
+	Role  string `json:"role"`
 }
 
 // UpdateApiKeyReq defines model for UpdateApiKeyReq.

@@ -27,6 +27,7 @@ type Compose struct {
 	second ports.TextInput
 	props  ports.PropsInput
 	out    ports.TextBroadcast
+	state  ports.StateBroadcast
 }
 
 func NewCompose(name string, build func(Parts) string) *Compose {
@@ -45,11 +46,15 @@ func (b *Compose) SecondaryTextInPort() chan<- string { return b.second }
 func (b *Compose) PropsInPort() chan<- ports.PropMap  { return b.props }
 func (b *Compose) TextOutPort() <-chan string         { return b.out.Subscribe() }
 
+// StateOutPort reports each text it builds, so the graph view shows it work,
+// however briefly.
+func (b *Compose) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
+
 func (b *Compose) RequiredInputs() []ports.Kind { return []ports.Kind{ports.KindText} }
 
 func (b *Compose) Start(ctx context.Context) {
 	go func() {
-		defer b.out.Close()
+		defer func() { b.out.Close(); b.state.Close() }()
 		var firsts, seconds []string
 		props := ports.PropMap{}
 		for {
@@ -87,7 +92,9 @@ func (b *Compose) Start(ctx context.Context) {
 				}
 			}
 			for len(firsts) > 0 && len(seconds) > 0 {
+				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 				b.out.Send(b.build(Parts{Text: firsts[0], Secondary: seconds[0], Props: maps.Clone(props)}))
+				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 				firsts, seconds = firsts[1:], seconds[1:]
 			}
 		}
