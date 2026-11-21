@@ -1,4 +1,4 @@
-package db
+package core
 
 import (
 	"cgl/obj"
@@ -26,13 +26,13 @@ func TestPublicSlugBase(t *testing.T) {
 
 func TestValidatePublicSlug(t *testing.T) {
 	for _, ok := range []string{"abc", "robotik-ag-mokassin-hausboot", "2026-camp"} {
-		if err := ValidatePublicSlug(ok); err != nil {
-			t.Errorf("ValidatePublicSlug(%q) = %v, want nil", ok, err)
+		if err := validatePublicSlug(ok); err != nil {
+			t.Errorf("validatePublicSlug(%q) = %v, want nil", ok, err)
 		}
 	}
 	for _, bad := range []string{"ab", "-abc", "abc-", "a--b", "a b", "äbc", "ABC"} {
-		if err := ValidatePublicSlug(bad); err == nil {
-			t.Errorf("ValidatePublicSlug(%q) = nil, want an error", bad)
+		if err := validatePublicSlug(bad); err == nil {
+			t.Errorf("validatePublicSlug(%q) = nil, want an error", bad)
 		}
 	}
 }
@@ -49,15 +49,15 @@ func TestValidatePublicLinksRejectsNonHTTP(t *testing.T) {
 		"",
 	}
 	for _, raw := range bad {
-		_, err := ValidatePublicLinks([]obj.PublicWorkshopLink{{Title: "Programm", URL: raw}})
+		_, err := validatePublicLinks([]obj.PublicWorkshopLink{{Title: "Programm", URL: raw}})
 		if err == nil {
-			t.Errorf("ValidatePublicLinks(%q) = nil, want an error", raw)
+			t.Errorf("validatePublicLinks(%q) = nil, want an error", raw)
 		}
 	}
 }
 
 func TestValidatePublicLinks(t *testing.T) {
-	links, err := ValidatePublicLinks([]obj.PublicWorkshopLink{
+	links, err := validatePublicLinks([]obj.PublicWorkshopLink{
 		{Title: "  Programm  ", Description: "  Das Heft  ", URL: "  https://example.org/heft  "},
 		{Title: "", Description: "", URL: ""}, // a row left blank is dropped
 		{Title: "Fotos", URL: "http://example.org/fotos"},
@@ -72,7 +72,7 @@ func TestValidatePublicLinks(t *testing.T) {
 		t.Errorf("first link not trimmed: %+v", links[0])
 	}
 
-	if _, err := ValidatePublicLinks([]obj.PublicWorkshopLink{{URL: "https://example.org"}}); err == nil {
+	if _, err := validatePublicLinks([]obj.PublicWorkshopLink{{URL: "https://example.org"}}); err == nil {
 		t.Error("a link without a title was accepted")
 	}
 
@@ -80,25 +80,25 @@ func TestValidatePublicLinks(t *testing.T) {
 	for i := range many {
 		many[i] = obj.PublicWorkshopLink{Title: "x", URL: "https://example.org"}
 	}
-	if _, err := ValidatePublicLinks(many); err == nil {
+	if _, err := validatePublicLinks(many); err == nil {
 		t.Errorf("%d links were accepted, want an error", len(many))
 	}
 }
 
 func TestPublicLinksRoundTrip(t *testing.T) {
 	want := []obj.PublicWorkshopLink{{Title: "Programm", Description: "Das Heft", URL: "https://example.org"}}
-	raw, err := MarshalPublicLinks(want)
+	raw, err := marshalPublicLinks(want)
 	if err != nil {
 		t.Fatalf("MarshalPublicLinks = %v", err)
 	}
-	got := UnmarshalPublicLinks(raw)
+	got := unmarshalPublicLinks(raw)
 	if len(got) != 1 || got[0] != want[0] {
 		t.Errorf("round trip gave %+v, want %+v", got, want)
 	}
-	if empty, _ := MarshalPublicLinks(nil); empty.Valid {
+	if empty, _ := marshalPublicLinks(nil); empty.Valid {
 		t.Error("no links should store NULL")
 	}
-	if got := UnmarshalPublicLinks(pqtype.NullRawMessage{}); got != nil {
+	if got := unmarshalPublicLinks(pqtype.NullRawMessage{}); got != nil {
 		t.Errorf("NULL gave %+v, want nil", got)
 	}
 }

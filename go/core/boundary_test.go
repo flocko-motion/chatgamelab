@@ -30,11 +30,10 @@ var composition = map[string]bool{
 // file listed here that no longer imports raw access fails the test until
 // its line goes too. Progress is deletion.
 var legacy = map[string]bool{
-	"api/auth.go":             true,
-	"api/auth/login.go":       true,
-	"api/janitor.go":          true,
-	"api/startup.go":          true,
-	"api/workshops_public.go": true,
+	"api/auth.go":       true,
+	"api/auth/login.go": true,
+	"api/janitor.go":    true,
+	"api/startup.go":    true,
 }
 
 // Only the core reaches the database: no other code of the module imports

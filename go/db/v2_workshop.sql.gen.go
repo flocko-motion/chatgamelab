@@ -49,6 +49,126 @@ func (q *Queries) V2CreateWorkshop(ctx context.Context, arg V2CreateWorkshopPara
 	return err
 }
 
+const v2PublicSlugExists = `-- name: V2PublicSlugExists :one
+SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1)::bool
+`
+
+// Deleted workshops keep their slug, so an old link never points at a new workshop.
+func (q *Queries) V2PublicSlugExists(ctx context.Context, slug sql.NullString) (bool, error) {
+	row := q.db.QueryRowContext(ctx, v2PublicSlugExists, slug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const v2PublicWorkshop = `-- name: V2PublicWorkshop :many
+SELECT w.id, w.name, w.public_description, w.public_links, w.default_api_key_share_id,
+  w.institution_id, w.created_by, ks.created_by AS key_share_created_by
+FROM workshop w
+JOIN institution i ON i.id = w.institution_id
+LEFT JOIN api_key_share ks ON ks.id = w.default_api_key_share_id
+WHERE w.public_slug = $1 AND w.deleted_at IS NULL AND w.public
+  AND i.suspended_at IS NULL
+  AND NOT institution_consent_missing(i.id, $2::text, $3::text)
+`
+
+type V2PublicWorkshopParams struct {
+	Slug               sql.NullString `json:"slug"`
+	DeclarationVersion string         `json:"declaration_version"`
+	DeclarationHash    string         `json:"declaration_hash"`
+}
+
+type V2PublicWorkshopRow struct {
+	ID                   uuid.UUID             `json:"id"`
+	Name                 string                `json:"name"`
+	PublicDescription    sql.NullString        `json:"public_description"`
+	PublicLinks          pqtype.NullRawMessage `json:"public_links"`
+	DefaultApiKeyShareID uuid.NullUUID         `json:"default_api_key_share_id"`
+	InstitutionID        uuid.UUID             `json:"institution_id"`
+	CreatedBy            uuid.NullUUID         `json:"created_by"`
+	KeyShareCreatedBy    uuid.NullUUID         `json:"key_share_created_by"`
+}
+
+// The workshop behind a public page's slug, while its page is switched on
+// and its organisation is not suspended (by an admin, or for want of a
+// consent to @declaration_*).
+func (q *Queries) V2PublicWorkshop(ctx context.Context, arg V2PublicWorkshopParams) ([]V2PublicWorkshopRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2PublicWorkshop, arg.Slug, arg.DeclarationVersion, arg.DeclarationHash)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2PublicWorkshopRow
+	for rows.Next() {
+		var i V2PublicWorkshopRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.PublicDescription,
+			&i.PublicLinks,
+			&i.DefaultApiKeyShareID,
+			&i.InstitutionID,
+			&i.CreatedBy,
+			&i.KeyShareCreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2PublicWorkshopGames = `-- name: V2PublicWorkshopGames :many
+SELECT g.id, g.name, g.description,
+  (g.system_message_scenario <> '' AND g.system_message_game_start <> '')::bool AS playable
+FROM game g
+WHERE g.workshop_id = $1 AND g.public AND g.deleted_at IS NULL
+ORDER BY LOWER(g.name), g.id
+`
+
+type V2PublicWorkshopGamesRow struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Playable    bool      `json:"playable"`
+}
+
+// The games on a workshop's public page: its public ones; playable when
+// their scenario and opening are written.
+func (q *Queries) V2PublicWorkshopGames(ctx context.Context, workshopID uuid.NullUUID) ([]V2PublicWorkshopGamesRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2PublicWorkshopGames, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2PublicWorkshopGamesRow
+	for rows.Next() {
+		var i V2PublicWorkshopGamesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Playable,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2UpdateWorkshop = `-- name: V2UpdateWorkshop :exec
 UPDATE workshop SET
   -- card

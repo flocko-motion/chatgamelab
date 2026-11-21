@@ -41,13 +41,6 @@ var (
 // DevUserID is the well-known UUID for the dev user (legacy, use DevAdmin1UserID)
 var DevUserID = DevAdmin1UserID
 
-// Legacy aliases for backward compatibility
-var (
-	DevAdminUserID = DevAdmin1UserID
-	DevHeadUserID  = DevHead1UserID
-	DevStaffUserID = DevStaff1UserID
-)
-
 // Preseed ensures required seed data exists in the database
 func Preseed(ctx context.Context) {
 	log.Debug("running database preseed")

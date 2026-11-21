@@ -7,10 +7,10 @@
 -- v1 let an organisation invite as "individual", and wrote every guest's
 -- role with the organisation. Here:
 --  * an individual of an organisation is detached: an individual, in no
---    organisation. Their keys' shares to that organisation go, with the
---    sponsorships drawn from them, as taking a share back ends them
---    (core/key*.go); a share a share link pays from stays, as the link's
---    guests are marked by it (app_user.private_share_id);
+--    organisation. Their keys' shares to that organisation go, with what
+--    draws from them, as taking a share back ends them (core/key.go,
+--    endShares): sponsorships, and share links with their guests, whose
+--    sessions go with them;
 --  * a guest's role drops the organisation; it is their workshop's;
 --  * a constraint keeps it so.
 
@@ -27,11 +27,16 @@ WHERE s.institution_id IS NOT NULL AND s.game_id IS NULL
 -- and what draws from them
 INSERT INTO dropped_share
 SELECT s.id FROM api_key_share s WHERE s.source_share_id IN (SELECT id FROM dropped_share);
--- a share a link pays from stays, and the share it draws from
-DELETE FROM dropped_share d WHERE EXISTS (SELECT 1 FROM game_share gs WHERE gs.api_key_share_id = d.id);
-DELETE FROM dropped_share d WHERE EXISTS (
-  SELECT 1 FROM api_key_share s JOIN game_share gs ON gs.api_key_share_id = s.id
-  WHERE s.source_share_id = d.id);
+
+-- the share links they pay for end, with their guests (sessions cascade)
+DROP TABLE IF EXISTS dropped_link;
+CREATE TABLE dropped_link AS
+SELECT id FROM game_share WHERE api_key_share_id IN (SELECT id FROM dropped_share);
+DELETE FROM user_role           WHERE user_id IN (SELECT id FROM app_user WHERE private_share_id IN (SELECT id FROM dropped_link));
+DELETE FROM user_favourite_game WHERE user_id IN (SELECT id FROM app_user WHERE private_share_id IN (SELECT id FROM dropped_link));
+DELETE FROM app_user  WHERE private_share_id IN (SELECT id FROM dropped_link);
+DELETE FROM game_share WHERE id IN (SELECT id FROM dropped_link);
+DROP TABLE dropped_link;
 
 UPDATE app_user      SET default_api_key_share_id = NULL          WHERE default_api_key_share_id IN (SELECT id FROM dropped_share);
 UPDATE workshop      SET default_api_key_share_id = NULL          WHERE default_api_key_share_id IN (SELECT id FROM dropped_share);

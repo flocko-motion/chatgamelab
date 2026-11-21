@@ -223,16 +223,18 @@ condensed. A change of role applies from the player's next session.
 1. The shared game's workshop rule, when the game belongs to a workshop.
 2. The shared game's organisation rule, when the game belongs to an
    organisation.
-3. The player's own workshop rule, when the player is in a workshop.
-4. The player's own organisation rule, when the player belongs to one.
+3. The current workshop's rule: the workshop the player takes part in. The
+   organisation owns it; whoever takes part in it plays under its rule.
+4. The organisation's rule: the player's own, for head and staff; otherwise
+   the current workshop's organisation.
 5. The site rule for the player's age group.
 
 The site rule is never empty, so a signed-in player always has a rule. A
 player's own game is not shared, so levels 1 and 2 are empty for it.
 
 - *A shared game brings its protection first.* The organisation that wrote the
-  game shaped its content and knows the right frame for it; the player's own
-  workshop, organisation and age group follow.
+  game shaped its content and knows the right frame for it; the player's
+  current workshop, organisation and age group follow.
 - *An organisation's rule applies whatever the player's age.* The site's age
   groups are mainly for individuals; for a player in an organisation, the site
   rule for their age group stays beneath the organisation's.
@@ -240,11 +242,13 @@ player's own game is not shared, so levels 1 and 2 are empty for it.
 #table(
   columns: 2,
   [Role], [Levels],
-  [Head, Staff], [shared workshop → shared organisation → own workshop → own
-    organisation → site by age],
-  [Participant, also when joined by link], [shared workshop → shared
-    organisation → own workshop → own organisation → site by age],
-  [Individual], [shared workshop → shared organisation → site by age],
+  [Head, Staff], [shared workshop → shared organisation → current workshop →
+    own organisation → site by age],
+  [Guest in a workshop], [shared workshop → shared organisation → current
+    workshop → its organisation → site by age],
+  [Individual], [shared workshop → shared organisation → current workshop →
+    its organisation → site by age; outside a workshop, shared workshop →
+    shared organisation → site by age],
 )
 
 ==== Gäste

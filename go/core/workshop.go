@@ -127,7 +127,7 @@ func workshopCardOf(ctx context.Context, r db.V2WorkshopsRow) (*WorkshopCard, er
 			promptConstraint:  nullString(r.PromptConstraints),
 			keyShare:          ptrUUID(r.DefaultApiKeyShareID),
 			publicDescription: nullString(r.PublicDescription),
-			publicLinks:       db.UnmarshalPublicLinks(r.PublicLinks),
+			publicLinks:       unmarshalPublicLinks(r.PublicLinks),
 		},
 		mayReadSettings:       r.MayReadSettings,
 		mayListParticipants:   r.MayListParticipants,

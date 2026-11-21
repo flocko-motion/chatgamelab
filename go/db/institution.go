@@ -13,29 +13,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetInstitutionName retrieves just the institution name by ID (no permission check, for display only)
-func GetInstitutionName(ctx context.Context, id uuid.UUID) (string, error) {
-	result, err := queries().GetInstitutionByID(ctx, id)
-	if err != nil {
-		return "", obj.ErrNotFound("institution not found")
-	}
-	return result.Name, nil
-}
-
-// GetInstitutionFreeUseTier is the AI quality tier of an institution's free
-// use; nil: the server's default. No permission check: resolving who pays
-// for a session reads it for any player of the institution (until #451).
-func GetInstitutionFreeUseTier(ctx context.Context, id uuid.UUID) (*string, error) {
-	result, err := queries().GetInstitutionByID(ctx, id)
-	if err != nil {
-		return nil, obj.ErrNotFound("institution not found")
-	}
-	if !result.FreeUseAiQualityTier.Valid {
-		return nil, nil
-	}
-	return &result.FreeUseAiQualityTier.String, nil
-}
-
 // DeleteInstitutionCascade deletes an institution and all its data, for the
 // core, which has checked that deletedBy may (core.DeleteOrganisation).
 // Cascade: workshops (with their Guests and games), member users (with their data),

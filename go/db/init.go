@@ -57,13 +57,6 @@ func sqlNullBoolToMaybeBool(nb sql.NullBool) *bool {
 	return nil
 }
 
-func sqlNullInt64ToMaybeInt64(ni sql.NullInt64) *int64 {
-	if ni.Valid {
-		return &ni.Int64
-	}
-	return nil
-}
-
 func stringToRole(s string) (obj.Role, error) {
 	switch s {
 	case string(obj.RoleAdmin):

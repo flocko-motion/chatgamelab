@@ -13,6 +13,40 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2CreatePublicPageLink = `-- name: V2CreatePublicPageLink :one
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, public_page)
+VALUES ($1, $2, $3, $4, $5, $6, $7::uuid, true)
+RETURNING id
+`
+
+type V2CreatePublicPageLinkParams struct {
+	GameID        uuid.UUID     `json:"game_id"`
+	Token         string        `json:"token"`
+	ApiKeyShareID uuid.UUID     `json:"api_key_share_id"`
+	InstitutionID uuid.NullUUID `json:"institution_id"`
+	WorkshopID    uuid.NullUUID `json:"workshop_id"`
+	Remaining     sql.NullInt32 `json:"remaining"`
+	CreatedBy     uuid.UUID     `json:"created_by"`
+}
+
+// A public page's link for one game, paid by @api_key_share_id (drawn from
+// the workshop's key); the unique index game_share_public_page_uniq keeps
+// it one per game and page.
+func (q *Queries) V2CreatePublicPageLink(ctx context.Context, arg V2CreatePublicPageLinkParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2CreatePublicPageLink,
+		arg.GameID,
+		arg.Token,
+		arg.ApiKeyShareID,
+		arg.InstitutionID,
+		arg.WorkshopID,
+		arg.Remaining,
+		arg.CreatedBy,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const v2CreateShareLink = `-- name: V2CreateShareLink :one
 INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by)
 VALUES ($1, $2, $3, $4::uuid, $5::uuid,
@@ -57,6 +91,58 @@ func (q *Queries) V2GameSponsor(ctx context.Context, id uuid.UUID) (uuid.NullUUI
 	var public_sponsored_api_key_share_id uuid.NullUUID
 	err := row.Scan(&public_sponsored_api_key_share_id)
 	return public_sponsored_api_key_share_id, err
+}
+
+const v2PublicPageLinks = `-- name: V2PublicPageLinks :many
+SELECT gs.id, gs.game_id, gs.token, gs.remaining, gs.api_key_share_id
+FROM game_share gs
+WHERE gs.public_page
+  AND ($1::uuid IS NULL OR gs.workshop_id = $1::uuid)
+  AND ($2::uuid IS NULL OR gs.game_id = $2::uuid)
+`
+
+type V2PublicPageLinksParams struct {
+	WorkshopID uuid.NullUUID `json:"workshop_id"`
+	GameID     uuid.NullUUID `json:"game_id"`
+}
+
+type V2PublicPageLinksRow struct {
+	ID            uuid.UUID     `json:"id"`
+	GameID        uuid.UUID     `json:"game_id"`
+	Token         string        `json:"token"`
+	Remaining     sql.NullInt32 `json:"remaining"`
+	ApiKeyShareID uuid.UUID     `json:"api_key_share_id"`
+}
+
+// The share links of a workshop's public page, or of one game's on every
+// page; one per game and page.
+func (q *Queries) V2PublicPageLinks(ctx context.Context, arg V2PublicPageLinksParams) ([]V2PublicPageLinksRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2PublicPageLinks, arg.WorkshopID, arg.GameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2PublicPageLinksRow
+	for rows.Next() {
+		var i V2PublicPageLinksRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.Remaining,
+			&i.ApiKeyShareID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const v2SetGameSponsor = `-- name: V2SetGameSponsor :exec

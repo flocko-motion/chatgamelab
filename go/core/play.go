@@ -152,8 +152,8 @@ type RuleSource struct {
 // PlayerRules are the facts the rule reads about a player.
 type PlayerRules struct {
 	AgeGroup     *string
-	Workshop     *RuleSource // the workshop they are in
-	Organisation *RuleSource // their organisation
+	Workshop     *RuleSource // the current workshop: the one they take part in
+	Organisation *RuleSource // their own (head, staff), else the current workshop's
 }
 
 // PlayRuleFacts are the facts the youth-protection rule of a play reads

@@ -144,10 +144,3 @@ func nullInt32ToIntPtr(ni sql.NullInt32) *int {
 	v := int(ni.Int32)
 	return &v
 }
-
-func intPtrToNullInt32(i *int) sql.NullInt32 {
-	if i == nil {
-		return sql.NullInt32{}
-	}
-	return sql.NullInt32{Int32: int32(*i), Valid: true}
-}

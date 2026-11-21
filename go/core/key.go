@@ -436,7 +436,10 @@ func SetWorkshopKey(ctx context.Context, id uuid.UUID, share *uuid.UUID) (*Works
 	}); err != nil {
 		return nil, err
 	}
-	db.DeleteWorkshopPublicPageShares(ctx, id)
+	// its page's links were paid by the old key
+	if err := endPublicPageLinks(ctx, &id, nil); err != nil {
+		log.Warn("failed to end a workshop's public page links", "workshop_id", id, "error", err)
+	}
 	events.GetBroker().PublishWorkshopUpdated(id)
 	return ReadWorkshop(ctx, id)
 }

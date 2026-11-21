@@ -1,17 +1,17 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     serves the public workshop page /w/<slug> and its game downloads to visitors without an account
-// limits:  play goes through the share-token endpoints; the page's data and visibility live in db
+// limits:  play goes through the share-token endpoints; the page is the core's (core/workshop_public.go)
 package api
 
 import (
 	"context"
 
-	"cgl/db"
+	"cgl/api/wire"
+	"cgl/core"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
-	"github.com/google/uuid"
 )
 
 // PublicWorkshopPageResp is a public workshop page.
@@ -32,9 +32,9 @@ func (GetPublicWorkshopPageEndpoint) Method() string             { return "GET" 
 func (GetPublicWorkshopPageEndpoint) Path() string               { return "/api/public/workshops/{slug}" }
 func (GetPublicWorkshopPageEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
 func (GetPublicWorkshopPageEndpoint) Handle(ctx context.Context, req PublicWorkshopSlugReq) (PublicWorkshopPageResp, error) {
-	page, err := db.GetPublicWorkshopPage(ctx, req.Slug)
+	page, err := core.PublicWorkshopPage(ctx, req.Slug)
 	if err != nil {
-		return obj.PublicWorkshopPage{}, appError(err)
+		return obj.PublicWorkshopPage{}, err
 	}
 	return *page, nil
 }
@@ -58,13 +58,9 @@ func (GetPublicWorkshopGameYAMLEndpoint) Produces() []string {
 	return []string{"application/x-yaml", "application/json"}
 }
 func (GetPublicWorkshopGameYAMLEndpoint) Handle(ctx context.Context, req PublicWorkshopGameReq) (GameFileResp, error) {
-	gameID, err := uuid.Parse(req.ID)
+	gameID, err := parseID(req.ID, "Invalid game ID")
 	if err != nil {
-		return obj.GameFile{}, appError(obj.ErrNotFound("game not found"))
+		return obj.GameFile{}, err
 	}
-	game, err := db.GetPublicWorkshopGame(ctx, req.Slug, gameID)
-	if err != nil {
-		return obj.GameFile{}, appError(err)
-	}
-	return obj.NewGameFile(*game), nil
+	return wire.GameFileOf(core.PublicWorkshopGame(ctx, req.Slug, gameID))
 }

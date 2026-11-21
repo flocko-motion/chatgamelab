@@ -90,3 +90,29 @@ SELECT EXISTS (
   SELECT 1 FROM workshop
   WHERE institution_id = @institution_id AND name = @name::text AND id <> @id::uuid
 )::bool AS taken;
+
+-- name: V2PublicWorkshop :many
+-- The workshop behind a public page's slug, while its page is switched on
+-- and its organisation is not suspended (by an admin, or for want of a
+-- consent to @declaration_*).
+SELECT w.id, w.name, w.public_description, w.public_links, w.default_api_key_share_id,
+  w.institution_id, w.created_by, ks.created_by AS key_share_created_by
+FROM workshop w
+JOIN institution i ON i.id = w.institution_id
+LEFT JOIN api_key_share ks ON ks.id = w.default_api_key_share_id
+WHERE w.public_slug = @slug AND w.deleted_at IS NULL AND w.public
+  AND i.suspended_at IS NULL
+  AND NOT institution_consent_missing(i.id, @declaration_version::text, @declaration_hash::text);
+
+-- name: V2PublicSlugExists :one
+-- Deleted workshops keep their slug, so an old link never points at a new workshop.
+SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = @slug)::bool;
+
+-- name: V2PublicWorkshopGames :many
+-- The games on a workshop's public page: its public ones; playable when
+-- their scenario and opening are written.
+SELECT g.id, g.name, g.description,
+  (g.system_message_scenario <> '' AND g.system_message_game_start <> '')::bool AS playable
+FROM game g
+WHERE g.workshop_id = @workshop_id AND g.public AND g.deleted_at IS NULL
+ORDER BY LOWER(g.name), g.id;

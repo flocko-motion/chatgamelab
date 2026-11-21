@@ -166,10 +166,6 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		return err
 	}
 
-	if existingGame.Public && !game.Public {
-		DeleteGamePublicPageShares(ctx, game.ID)
-	}
-
 	// Publish game_updated event if game belongs to a workshop
 	if existingGame.WorkshopID != nil {
 		events.GetBroker().PublishGameUpdated(*existingGame.WorkshopID, game.ID, userID)

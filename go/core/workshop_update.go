@@ -57,7 +57,7 @@ func CreateWorkshop(ctx context.Context, d WorkshopDraft) (*WorkshopCard, error)
 	if err := checkWorkshopNameFree(ctx, *org, id, d.Name); err != nil {
 		return nil, err
 	}
-	slug, err := db.NewPublicSlug(ctx, d.Name)
+	slug, err := newPublicSlug(ctx, d.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, ch WorkshopChanges) (*Wor
 			return nil, err
 		}
 	}
-	links, err := db.MarshalPublicLinks(next.publicLinks)
+	links, err := marshalPublicLinks(next.publicLinks)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,9 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, ch WorkshopChanges) (*Wor
 		return nil, err
 	}
 	if w.row.public && !next.public {
-		db.DeleteWorkshopPublicPageShares(ctx, id)
+		if err := endPublicPageLinks(ctx, &id, nil); err != nil {
+			log.Warn("failed to end a workshop's public page links", "workshop_id", id, "error", err)
+		}
 	}
 	events.GetBroker().PublishWorkshopUpdated(id)
 	return ReadWorkshop(ctx, id)
@@ -189,9 +191,9 @@ func (ch WorkshopChanges) applyCard(row *workshopRow) (bool, error) {
 	}
 	setOptional(&row.aiQualityTier, ch.AiQualityTier, &changed)
 	if ch.PublicSlug != nil {
-		slug := db.NormalizePublicSlug(*ch.PublicSlug)
+		slug := normalizePublicSlug(*ch.PublicSlug)
 		if row.publicSlug == nil || slug != *row.publicSlug {
-			if err := db.ValidatePublicSlug(slug); err != nil {
+			if err := validatePublicSlug(slug); err != nil {
 				return false, fromV1(err)
 			}
 			row.publicSlug, changed = &slug, true
@@ -213,13 +215,13 @@ func (ch WorkshopChanges) applySettings(row *workshopRow) (bool, error) {
 	}
 	if ch.PublicDescription != nil {
 		description := strings.TrimSpace(*ch.PublicDescription)
-		if utf8.RuneCountInString(description) > db.PublicDescriptionMaxLength {
-			return false, badRequest(obj.ErrCodePublicDescriptionTooLong, "the description has at most %d characters", db.PublicDescriptionMaxLength)
+		if utf8.RuneCountInString(description) > PublicDescriptionMaxLength {
+			return false, badRequest(obj.ErrCodePublicDescriptionTooLong, "the description has at most %d characters", PublicDescriptionMaxLength)
 		}
 		setOptional(&row.publicDescription, &description, &changed)
 	}
 	if ch.PublicLinks != nil {
-		links, err := db.ValidatePublicLinks(*ch.PublicLinks)
+		links, err := validatePublicLinks(*ch.PublicLinks)
 		if err != nil {
 			return false, fromV1(err)
 		}
@@ -241,8 +243,11 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID) error {
 	if !w.MayDelete() {
 		return forbidden("you may not delete this workshop")
 	}
-	// v1's cascade over guests and share links; it moves into the core as
-	// those are ported.
+	// its public page's links end with their guests; then v1's cascade over
+	// its guests, until that moves into the core
+	if err := endPublicPageLinks(ctx, &id, nil); err != nil {
+		return err
+	}
 	if err := db.DeleteWorkshopCascade(ctx, id); err != nil {
 		return err
 	}
@@ -393,7 +398,7 @@ func checkWorkshopNameFree(ctx context.Context, org, id uuid.UUID, name string) 
 
 // checkPublicSlugFree refuses a public page address another workshop has.
 func checkPublicSlugFree(ctx context.Context, slug string) error {
-	taken, err := db.PublicSlugExists(ctx, slug)
+	taken, err := publicSlugExists(ctx, slug)
 	if err != nil {
 		return err
 	}
