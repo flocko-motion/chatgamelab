@@ -83,36 +83,28 @@ func (s *OrganisationAccessTestSuite) TestAGuestSeesOnlyTheCard() {
 	s.Empty(Must(guest.GetInstitutionMembers(id)))
 }
 
-// Every member lists the members: head and staff with their emails, an
-// individual of the organisation their names. Guests are not members.
+// Head and staff are the members (spec, Roles) and list each other with
+// their emails. Guests take part in its workshops and are not members.
 func (s *OrganisationAccessTestSuite) TestMembersListTheMembers() {
 	id, head := s.organisation()
 	staff := s.member(id, "staff")
-	individual := s.member(id, "individual")
 	s.guest(id, head)
 
 	for name, member := range map[string]*testutil.UserClient{"head": head, "staff": staff} {
 		members := Must(member.GetInstitutionMembers(id))
-		s.Len(members, 3, name)
+		s.Len(members, 2, name)
 		for _, m := range members {
 			s.True(m.HasContact, "%s sees how to reach %s", name, m.Name)
 		}
 	}
-	members := Must(individual.GetInstitutionMembers(id))
-	s.Len(members, 3)
-	for _, m := range members {
-		if m.Id.String() != individual.ID {
-			s.False(m.HasContact, "an individual sees the others' names only")
-		}
-	}
 }
 
-// Head and staff rename the organisation and set its restriction; neither an
-// individual of it nor a guest does, and only a head consents.
+// Head and staff rename the organisation and set its restriction; a guest
+// of its workshops does not, and only a head consents.
 func (s *OrganisationAccessTestSuite) TestHeadAndStaffChangeTheOrganisation() {
 	id, head := s.organisation()
 	staff := s.member(id, "staff")
-	individual := s.member(id, "individual")
+	guest := s.guest(id, head)
 
 	renamed := Must(staff.RenameInstitution(id, fmt.Sprintf("Umbenannt %d", s.n)))
 	s.True(renamed.MayEditSettings)
@@ -122,10 +114,10 @@ func (s *OrganisationAccessTestSuite) TestHeadAndStaffChangeTheOrganisation() {
 	cleared := Must(staff.SetInstitutionPromptConstraints(id, ""))
 	s.Nil(cleared.PromptConstraints, "an empty restriction removes it")
 
-	_, err := individual.RenameInstitution(id, "Nein")
-	s.Forbidden(err, "an individual of it")
-	_, err = individual.SetInstitutionPromptConstraints(id, "Nein")
-	s.Forbidden(err, "an individual of it")
+	_, err := guest.RenameInstitution(id, "Nein")
+	s.Forbidden(err, "a guest of its workshops")
+	_, err = guest.SetInstitutionPromptConstraints(id, "Nein")
+	s.Forbidden(err, "a guest of its workshops")
 
 	_, otherHead := s.organisation()
 	_, err = otherHead.RenameInstitution(id, "Nein")
@@ -133,18 +125,19 @@ func (s *OrganisationAccessTestSuite) TestHeadAndStaffChangeTheOrganisation() {
 }
 
 // A head removes members and guests, staff remove guests only, a member
-// leaves; the last head stays. Nobody removes someone of another
-// organisation: for them, that user is not found there.
+// leaves, becoming an individual again; the last head stays. Nobody removes
+// someone of another organisation: for them, that user is not found there.
 func (s *OrganisationAccessTestSuite) TestRemovingMembers() {
 	id, head := s.organisation()
 	staff := s.member(id, "staff")
 	staff2 := s.member(id, "staff")
-	individual := s.member(id, "individual")
+	leaver := s.member(id, "staff")
 	guest := s.guest(id, head)
 
 	s.Forbidden(staff.RemoveMember(id, staff2.ID), "staff remove guests only")
 	s.NoError(staff.RemoveMember(id, guest.ID))
-	s.NoError(individual.RemoveMember(id, individual.ID))
+	s.NoError(leaver.RemoveMember(id, leaver.ID))
+	s.Equal("individual", testutil.RoleOf(Must(leaver.GetMe())), "who leaves is an individual again")
 	s.NoError(head.RemoveMember(id, staff2.ID))
 	s.Refused(head.RemoveMember(id, head.ID), testutil.CodeLastHead, "the last head stays")
 

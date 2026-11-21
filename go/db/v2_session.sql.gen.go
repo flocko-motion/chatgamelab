@@ -81,7 +81,7 @@ LEFT JOIN user_role r ON r.id = (
 )
 LEFT JOIN workshop w    ON w.id = CASE WHEN r.role = 'guest' THEN r.workshop_id ELSE r.active_workshop_id END
 LEFT JOIN institution wo ON wo.id = w.institution_id
-LEFT JOIN institution o ON o.id = r.institution_id
+LEFT JOIN institution o ON o.id = COALESCE(r.institution_id, w.institution_id)
 WHERE u.id = $1
 `
 
@@ -98,6 +98,7 @@ type V2RuleFactsRow struct {
 // What the youth-protection rule reads about a player (or a share link's
 // author): their age group, whether they came through a share link, and the
 // rules and names of the workshop they are in and of their organisation.
+// their organisation (head, staff), or the one of the workshop they take part in
 func (q *Queries) V2RuleFacts(ctx context.Context, id uuid.UUID) (V2RuleFactsRow, error) {
 	row := q.db.QueryRowContext(ctx, v2RuleFacts, id)
 	var i V2RuleFactsRow

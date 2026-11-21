@@ -65,12 +65,12 @@ WHERE u.deleted_at IS NULL
   AND (sqlc.narg(id)::uuid IS NULL OR u.id = sqlc.narg(id)::uuid)
   -- a wish: the members of one organisation (individual, staff, head)
   AND (sqlc.narg(members_of)::uuid IS NULL
-       OR (r.institution_id = sqlc.narg(members_of)::uuid AND r.role IN ('individual', 'staff', 'head')))
+       OR (r.institution_id = sqlc.narg(members_of)::uuid AND r.role IN ('staff', 'head')))
   -- gate
   AND (  (@card_own::bool          AND u.id = sqlc.narg(caller)::uuid)
       OR (@card_organisation::bool AND (r.institution_id = sqlc.narg(own_organisation)::uuid OR w.institution_id = sqlc.narg(own_organisation)::uuid))
       OR (@card_member::bool       AND r.institution_id = sqlc.narg(own_organisation)::uuid
-                                   AND r.role IN ('individual', 'staff', 'head'))
+                                   AND r.role IN ('staff', 'head'))
       OR  @card_everywhere::bool )
 ORDER BY u.created_at DESC, u.id;
 

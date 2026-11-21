@@ -158,7 +158,10 @@ func loadInvites(ctx context.Context, p db.V2InvitesParams) ([]*InviteCard, erro
 }
 
 // The roles an organisation invites as.
-var organisationRoles = []string{string(obj.RoleHead), string(obj.RoleStaff), string(obj.RoleIndividual)}
+// organisationRoles are what an organisation invites as: head and staff are
+// in an organisation, an individual is in none. An individual who accepts
+// becomes head or staff.
+var organisationRoles = []string{string(obj.RoleHead), string(obj.RoleStaff)}
 
 // OrganisationInvite is an invite into an organisation: the role, and the
 // account it is for, by id or email.
@@ -175,7 +178,7 @@ type OrganisationInvite struct {
 // The account must exist; one with a pending invite there is refused (409).
 func InviteToOrganisation(ctx context.Context, in OrganisationInvite) (*InviteCard, error) {
 	if !contains(organisationRoles, in.Role) {
-		return nil, refuse("an organisation invites as head, staff or individual, not %q", in.Role)
+		return nil, refuse("an organisation invites as head or staff, not %q", in.Role)
 	}
 	if !mayCreateInvite(ctx, in.Organisation, in.Role == string(obj.RoleHead)) {
 		return nil, forbidden("you may not invite into this organisation as %s", in.Role)
@@ -373,9 +376,12 @@ type NewGuest struct {
 //     signed in at once.
 //   - An email invite to a workshop gives no role: it enters the workshop
 //     (EnterWorkshop), which takes the right to.
-//   - Following a link, a member of an organisation (head, staff,
-//     individual) keeps their role and works in the workshop; anyone else
-//     takes its role: a guest of another workshop moves.
+//   - Following a workshop's link, head, staff and individuals keep their
+//     role and work in the workshop: taking part makes no one part of its
+//     organisation. Anyone else takes its role.
+//   - A guest accepts none: a guest's place is fixed. A guest of a share
+//     link is in no workshop, a workshop's guest in theirs, and neither
+//     enters or leaves one; that is what tells the two apart.
 //   - Any other targeted invite gives its role, which replaces the
 //     account's.
 func AcceptInvite(ctx context.Context, idOrToken string, language string) (AcceptedInvite, error) {
@@ -390,9 +396,14 @@ func AcceptInvite(ctx context.Context, idOrToken string, language string) (Accep
 	switch {
 	case c.Account() == nil:
 		return joinAsGuest(ctx, inv, language)
+	case c.Role() == rules.Guest:
+		if inv.WorkshopID != nil && c.CurrentWorkshop() != nil && *c.CurrentWorkshop() == *inv.WorkshopID {
+			return AcceptedInvite{}, conflict(obj.ErrCodeConflict, "you are in this workshop already")
+		}
+		return AcceptedInvite{}, forbiddenWith(obj.ErrCodeGuestStays, "a guest stays where they are")
 	case inv.WorkshopID != nil && !inv.open():
 		// an email invite to a workshop gives no role: it enters it
-		if err := EnterWorkshop(ctx, *inv.WorkshopID); err != nil {
+		if err := enterWorkshop(ctx, *inv.WorkshopID, true); err != nil {
 			return AcceptedInvite{}, err
 		}
 		if err := store.Queries().AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)}); err != nil {
@@ -400,7 +411,7 @@ func AcceptInvite(ctx context.Context, idOrToken string, language string) (Accep
 		}
 		return AcceptedInvite{Message: "Workshop entered"}, nil
 	case keepsRole(ctx) && inv.WorkshopID != nil:
-		if err := EnterWorkshop(ctx, *inv.WorkshopID); err != nil {
+		if err := enterWorkshop(ctx, *inv.WorkshopID, true); err != nil {
 			return AcceptedInvite{}, err
 		}
 		return AcceptedInvite{Message: "Workshop entered"}, nil
@@ -410,8 +421,8 @@ func AcceptInvite(ctx context.Context, idOrToken string, language string) (Accep
 	return AcceptedInvite{Message: "Invite accepted"}, takeTargetedInvite(ctx, inv)
 }
 
-// keepsRole says whether the caller is a member of an organisation, who
-// works in a workshop instead of becoming its guest. It is how accepting
+// keepsRole says whether the caller keeps their role in a workshop instead
+// of becoming its guest: head, staff and individuals. It is how accepting
 // behaves, not who may: that is the invite's grants.
 func keepsRole(ctx context.Context) bool {
 	switch from(ctx).Role() {
@@ -505,10 +516,9 @@ func joinAsGuest(ctx context.Context, inv *InviteCard, language string) (Accepte
 			return err
 		}
 		if _, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{
-			UserID:        id,
-			Role:          string(obj.RoleGuest),
-			InstitutionID: uuid.NullUUID{UUID: inv.OrganisationID, Valid: true},
-			WorkshopID:    uuid.NullUUID{UUID: *inv.WorkshopID, Valid: true},
+			UserID:     id,
+			Role:       string(obj.RoleGuest),
+			WorkshopID: uuid.NullUUID{UUID: *inv.WorkshopID, Valid: true}, // a guest's organisation is their workshop's
 		}); err != nil {
 			return err
 		}
@@ -576,15 +586,17 @@ func takeTargetedInvite(ctx context.Context, inv *InviteCard) error {
 	})
 }
 
-// replaceRole makes inv's role the account's only one.
+// replaceRole makes inv's role the account's only one. Only head and staff
+// are in the organisation; a guest is in its workshop.
 func replaceRole(ctx context.Context, q *db.Queries, user uuid.UUID, inv *InviteCard) error {
 	if err := q.DeleteUserRoles(ctx, user); err != nil {
 		return err
 	}
+	inOrganisation := inv.Role == string(obj.RoleHead) || inv.Role == string(obj.RoleStaff)
 	_, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{
 		UserID:        user,
 		Role:          inv.Role,
-		InstitutionID: uuid.NullUUID{UUID: inv.OrganisationID, Valid: true},
+		InstitutionID: uuid.NullUUID{UUID: inv.OrganisationID, Valid: inOrganisation},
 		WorkshopID:    nullUUID(inv.WorkshopID),
 	})
 	return err

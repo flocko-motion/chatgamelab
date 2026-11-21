@@ -51,6 +51,17 @@ func SetRole(ctx context.Context, user uuid.UUID, ch RoleChange) (*UserCard, err
 	case ch.Organisation == nil || *ch.Organisation != *target.row.organisationID:
 		return nil, forbidden("you change roles within your organisation only")
 	}
+	// the role says where someone is: head and staff in an organisation,
+	// everyone else in none; a guest is in a workshop
+	inOrganisation := ch.Role == string(obj.RoleHead) || ch.Role == string(obj.RoleStaff)
+	switch {
+	case inOrganisation && ch.Organisation == nil:
+		return nil, refuse("head and staff are in an organisation: name it")
+	case !inOrganisation && ch.Organisation != nil:
+		return nil, refuse("only head and staff are in an organisation")
+	case ch.Role == string(obj.RoleGuest) && ch.Workshop == nil:
+		return nil, refuse("a guest is in a workshop: name it")
+	}
 	if ch.Role == string(obj.RoleAdmin) && target.row.role != string(obj.RoleIndividual) {
 		return nil, forbidden("only an individual becomes admin")
 	}

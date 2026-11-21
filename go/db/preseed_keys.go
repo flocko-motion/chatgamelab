@@ -116,7 +116,7 @@ func preseedSiteFreeUseKey(ctx context.Context, keys map[string]uuid.UUID) {
 	for _, platform := range devKeyPlatforms {
 		if keyID, ok := keys[platform]; ok {
 			log.Debug("making the dev API key the site's free-use key", "platform", platform)
-			if err := UpdateSystemSettingsFreeUseApiKey(ctx, &keyID); err != nil {
+			if err := queries().UpdateSystemSettingsFreeUseApiKey(ctx, uuid.NullUUID{UUID: keyID, Valid: true}); err != nil {
 				log.Warn("failed to set the site's free-use key", "error", err)
 			}
 			return

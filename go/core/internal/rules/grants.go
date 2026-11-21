@@ -6,10 +6,19 @@ package rules
 // grants (see rules.go).
 type Role string
 
+// The role says where someone is (spec, Roles). Head and staff are in an
+// organisation; an individual is in none. An organisation invites an
+// individual as head or staff, and by accepting they take that role;
+// whoever leaves an organisation, or is removed from it, is an individual
+// again. Workshops belong to an organisation: its head and staff run them,
+// guests take part in them, an individual takes part in none.
 const (
-	Admin      Role = "admin"
-	Head       Role = "head"
-	Staff      Role = "staff"
+	// Admin runs the site.
+	Admin Role = "admin"
+	// Head leads an organisation; Staff runs its workshops.
+	Head  Role = "head"
+	Staff Role = "staff"
+	// Individual uses the platform in no organisation and no workshop.
 	Individual Role = "individual"
 
 	// Guest plays a shared game through a share link, or takes part in a
@@ -62,8 +71,11 @@ const (
 	Use   Action = "use"
 	Share Action = "share"
 
-	// Enter puts the caller into a workshop: workshop mode.
+	// Enter puts the caller into a workshop: workshop mode. Leave takes them
+	// out again. A guest never leaves: their workshop is their place on the
+	// platform, which the model relies on.
 	Enter Action = "enter"
+	Leave Action = "leave"
 
 	// Suspend stops an entity's use, and lifts that again; its data stays.
 	// A suspended organisation's members are refused (see Suspended).
@@ -159,6 +171,13 @@ const (
 	// the user from the organisation; they keep their account, as an
 	// individual.
 	Membership Entity = "membership"
+	// Site is the running platform itself, such as restarting the server.
+	Site Entity = "site"
+	// SiteSettings are the site's settings: its rules, tiers and free-use key.
+	SiteSettings Entity = "site settings"
+	// SiteRules are the site's youth-protection rules per age group, the
+	// fallback below an organisation's.
+	SiteRules Entity = "site rules"
 )
 
 // Relation says which entities a grant covers, seen from the caller. A
@@ -195,6 +214,7 @@ const (
 	// wallet key, it grants access but can never be listed.
 	ViaShareLink      Relation = "via share link"
 	ViaInviteLink     Relation = "via invite link" // an invite link: whoever has it may follow it
+	ViaInvite         Relation = "via invite"      // through an invite to it the caller accepts, a link or one addressed to them
 	ViaGuestSessionID Relation = "via guest session id"
 )
 

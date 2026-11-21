@@ -10,6 +10,10 @@ var Rules = map[Role]Grants{
 	// their sessions.
 	Admin: {
 		Always: {
+			// running the site; its free-use key is one of the admin's own
+			{Read, SiteSettings, Everywhere},
+			{Edit, SiteSettings, Everywhere},
+			{Manage, Site, Everywhere},
 			{Create, OrganisationCard, Everywhere}, // with its operator and address
 			{Read, OrganisationCard, Everywhere},
 			{List, OrganisationCard, Everywhere},
@@ -96,12 +100,13 @@ var Rules = map[Role]Grants{
 			{Read, WorkshopSettings, OfOwnOrganisation},
 			{Edit, WorkshopSettings, OfOwnOrganisation},
 			{List, WorkshopParticipants, OfOwnOrganisation},
-			{Manage, WorkshopParticipants, OfOwnOrganisation}, // its individuals, in and out
+			{Manage, WorkshopParticipants, OfOwnOrganisation}, // taking people out
 			{Create, Invite, OfOwnOrganisation},               // staff invite staff and individuals too
 			{List, Invite, OfOwnOrganisation},
 			{Read, Invite, OfOwnOrganisation},
 			{Delete, Invite, OfOwnOrganisation}, // whoever made it: the organisation is cooperative
 			{Enter, WorkshopCard, OfOwnOrganisation},
+			{Leave, WorkshopCard, Current},
 
 			// the organisation's keys, given by their owners: workshops play
 			// with them, and they pay for sponsored games and share links
@@ -176,12 +181,13 @@ var Rules = map[Role]Grants{
 			{Read, WorkshopSettings, OfOwnOrganisation},
 			{Edit, WorkshopSettings, OfOwnOrganisation},
 			{List, WorkshopParticipants, OfOwnOrganisation},
-			{Manage, WorkshopParticipants, OfOwnOrganisation}, // its individuals, in and out
+			{Manage, WorkshopParticipants, OfOwnOrganisation}, // taking people out
 			{Create, Invite, OfOwnOrganisation},               // staff invite staff and individuals too
 			{List, Invite, OfOwnOrganisation},
 			{Read, Invite, OfOwnOrganisation},
 			{Delete, Invite, OfOwnOrganisation}, // whoever made it: the organisation is cooperative
 			{Enter, WorkshopCard, OfOwnOrganisation},
+			{Leave, WorkshopCard, Current},
 
 			// the organisation's keys, given by their owners: workshops play
 			// with them, and they pay for sponsored games and share links
@@ -230,15 +236,15 @@ var Rules = map[Role]Grants{
 	// workshop, are all a guest holds.
 	Guest: {},
 
-	// Individual may belong to an organisation or to none; in workshop mode,
-	// it is in a workshop like anyone (Everyone, InWorkshop).
+	// Individual is in no organisation: head and staff are in one, an
+	// individual in none, and one an organisation invites becomes head or
+	// staff by accepting. Like anyone, an individual takes part in a workshop
+	// through its invite, which makes them no part of its organisation: they
+	// keep their role, as one watching a film owns no part of the cinema.
 	Individual: {
 		Always: {
-			{Enter, WorkshopCard, Active},
-
-			{List, UserCard, MemberOfOwnOrganisation},    // an individual of an organisation sees who else is in it
-			{Use, ApiKeyShare, FreeUseOfOwnOrganisation}, // members play with it, guests not
-			{Delete, Membership, Own},                    // leaving it
+			{Enter, WorkshopCard, ViaInvite},
+			{Leave, WorkshopCard, Current},
 
 			{Edit, UserContact, Own},
 
@@ -251,6 +257,7 @@ var Rules = map[Role]Grants{
 	// the age group and the payer an account brings.
 	SignedIn: {
 		Always: {
+			{Read, SiteRules, Everywhere}, // the fallback below an organisation's
 			{Read, UserCard, Own},
 			{Edit, UserCard, Own},
 			{Read, UserAccount, Own},
@@ -306,7 +313,8 @@ var Rules = map[Role]Grants{
 	// Everyone is every caller's baseline.
 	Everyone: {
 		Always: {
-			{Read, OrganisationCard, OfOwnOrganisation}, // a member's, or a guest's through their workshop
+			{Read, OrganisationCard, OfOwnOrganisation}, // head's and staff's, theirs
+			{Read, OrganisationCard, OfCurrentWorkshop}, // whoever takes part in a workshop, its organisation's; no membership
 			{Read, WorkshopCard, Public},                // one with a public page
 
 			{Read, GameCard, Public},

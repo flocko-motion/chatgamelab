@@ -34,7 +34,6 @@ import {
   IconPencil,
   IconX,
   IconMail,
-  IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -61,7 +60,6 @@ import { GuestLinkModal } from "./GuestLinkModal";
 import { PublicPageSettings } from "./PublicPageSettings";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
-import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import { type WorkshopParticipantView } from "@/api/generated/api.gen";
 import {
@@ -93,10 +91,6 @@ export function SingleWorkshopSettings({
   const [
     emailInviteModalOpened,
     { open: openEmailInviteModal, close: closeEmailInviteModal },
-  ] = useDisclosure(false);
-  const [
-    addIndividualModalOpened,
-    { open: openAddIndividualModal, close: closeAddIndividualModal },
   ] = useDisclosure(false);
   const [emailInviteError, setEmailInviteError] = useState<string | null>(null);
 
@@ -372,15 +366,6 @@ export function SingleWorkshopSettings({
                 onClick={openEmailInviteModal}
               >
                 <IconMail size={18} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={t("myOrganization.workshops.addIndividual")}>
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                onClick={openAddIndividualModal}
-              >
-                <IconUserPlus size={18} />
               </ActionIcon>
             </Tooltip>
           </Group>
@@ -959,14 +944,6 @@ export function SingleWorkshopSettings({
         onSubmit={handleEmailInvite}
         isLoading={createEmailInvite.isPending}
         error={emailInviteError}
-      />
-
-      {/* Add Individual Modal */}
-      <AddIndividualModal
-        opened={addIndividualModalOpened}
-        onClose={closeAddIndividualModal}
-        workshopId={workshopId}
-        institutionId={institutionId}
       />
 
       {/* Auto-share personal key confirmation */}

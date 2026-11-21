@@ -71,13 +71,13 @@ func (s *InviteAccessTestSuite) TestTheOrganisationRevokes() {
 	org, head, staff := s.org()
 	s.n++
 	newcomer := s.CreateUser(fmt.Sprintf("neu%d", s.n))
-	invite := Must(staff.InviteToInstitution(org, "individual", newcomer.ID))
+	invite := Must(staff.InviteToInstitution(org, "staff", newcomer.ID))
 
 	_, otherHead, _ := s.org()
 	s.NotFound(otherHead.RevokeInvite(invite.Id.String()), "another organisation's head")
 	s.NoError(head.RevokeInvite(invite.Id.String()))
 
-	answered := Must(staff.InviteToInstitution(org, "individual", newcomer.ID))
+	answered := Must(staff.InviteToInstitution(org, "staff", newcomer.ID))
 	Must(newcomer.DeclineInvite(answered.Id.String()))
 	s.Conflict(head.RevokeInvite(answered.Id.String()), "a declined invite stays")
 }

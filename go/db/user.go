@@ -11,7 +11,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -422,11 +421,6 @@ func GetUserByEmail(ctx context.Context, email string) (*obj.User, error) {
 	return GetUserByID(ctx, raw.ID)
 }
 
-// IsNameTaken checks if a username is already taken
-func IsNameTaken(ctx context.Context, name string) (bool, error) {
-	return queries().IsNameTaken(ctx, userName(name))
-}
-
 // IsNameTakenByOther checks if a username is taken by another user (for updates)
 func IsNameTakenByOther(ctx context.Context, name string, excludeUserID uuid.UUID) (bool, error) {
 	return queries().IsNameTakenByOther(ctx, IsNameTakenByOtherParams{
@@ -529,72 +523,6 @@ func uuidPtrToUUID(id *uuid.UUID) uuid.UUID {
 		return uuid.UUID{}
 	}
 	return *id
-}
-
-// SetActiveWorkshop sets the active workshop for a head/staff/individual user (workshop mode)
-// Validates that the user has the right role and the workshop belongs to their institution
-func SetActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID uuid.UUID) error {
-	// Get user to verify role and institution
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return obj.ErrNotFound("user not found")
-	}
-
-	if user.Role == nil {
-		return obj.ErrForbidden("user has no role")
-	}
-
-	// Only head, staff, and individual can set active workshop
-	if user.Role.Role != obj.RoleHead && user.Role.Role != obj.RoleStaff && user.Role.Role != obj.RoleIndividual {
-		return obj.ErrForbidden("only head, staff, and individual users can enter workshop mode")
-	}
-
-	// Get workshop to validate it exists and check institution
-	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
-	if err != nil {
-		return obj.ErrNotFound("workshop not found")
-	}
-
-	// For head/staff: workshop must belong to their institution
-	if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
-		if user.Role.Institution == nil || user.Role.Institution.ID != workshop.InstitutionID {
-			return obj.ErrForbidden("workshop does not belong to your institution")
-		}
-	}
-
-	// For individual: they can enter any active workshop (they don't have an institution)
-	// But the workshop must be active
-	if !workshop.Active {
-		return obj.ErrForbidden("workshop is not active")
-	}
-
-	// Set the active workshop
-	err = queries().SetUserActiveWorkshop(ctx, SetUserActiveWorkshopParams{
-		UserID:           userID,
-		ActiveWorkshopID: uuid.NullUUID{UUID: workshopID, Valid: true},
-	})
-	if err != nil {
-		return fmt.Errorf("failed to set active workshop: %w", err)
-	}
-
-	return nil
-}
-
-// ClearActiveWorkshop clears the active workshop for a user (leave workshop mode).
-// Also cleans up any orphaned participant role for the given workshop.
-func ClearActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID ...uuid.UUID) error {
-	err := queries().ClearUserActiveWorkshop(ctx, userID)
-	if err != nil {
-		return fmt.Errorf("failed to clear active workshop: %w", err)
-	}
-	// Clean up orphaned participant role if workshop ID is provided
-	if len(workshopID) > 0 {
-		_ = queries().DeleteUserGuestRole(ctx, DeleteUserGuestRoleParams{
-			UserID:     userID,
-			WorkshopID: uuid.NullUUID{UUID: workshopID[0], Valid: true},
-		})
-	}
-	return nil
 }
 
 // userName is a name for app_user.name, which stays NULL until registration is

@@ -226,21 +226,11 @@ func (s *InstitutionInviteTestSuite) TestHeadAndStaffCanBothInviteNormalUsers() 
 	s.Equal("staff", me2.Role.Role)
 	s.T().Logf("Staff invited user2 as staff")
 
-	// Head invites as individual
+	// Nobody is invited as individual: an individual is in no organisation
+	// (spec, Roles), and one an organisation invites becomes head or staff
 	user3 := s.CreateUser("bi-user3")
-	invite3, err := head.InviteToInstitution(instIDStr, "individual", user3.ID)
-	s.NoError(err, "head should invite as individual")
-	Must(user3.AcceptInvite(invite3.Id.String()))
-	me3 := Must(user3.GetMe())
-	s.Equal("individual", me3.Role.Role)
-	s.T().Logf("Head invited user3 as individual")
-
-	// Staff invites as individual
-	user4 := s.CreateUser("bi-user4")
-	invite4, err := staff.InviteToInstitution(instIDStr, "individual", user4.ID)
-	s.NoError(err, "staff should invite as individual")
-	Must(user4.AcceptInvite(invite4.Id.String()))
-	me4 := Must(user4.GetMe())
-	s.Equal("individual", me4.Role.Role)
-	s.T().Logf("Staff invited user4 as individual")
+	_, err = head.InviteToInstitution(instIDStr, "individual", user3.ID)
+	s.Error(err, "an organisation invites as head or staff")
+	_, err = staff.InviteToInstitution(instIDStr, "individual", user3.ID)
+	s.Error(err, "an organisation invites as head or staff")
 }

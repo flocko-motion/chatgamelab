@@ -8,6 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/events"
@@ -249,30 +250,6 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-// AddToWorkshop puts an individual of the workshop's organisation into it:
-// it becomes the workshop they work in. It takes {Manage,
-// WorkshopParticipants}; a workshop or user the caller may not read does not
-// exist for them (ErrNotFound).
-func AddToWorkshop(ctx context.Context, id, user uuid.UUID) error {
-	w, member, err := workshopAndUser(ctx, id, user)
-	if err != nil {
-		return err
-	}
-	if member.row.role != string(obj.RoleIndividual) {
-		return refuse("only an individual of the organisation is put into a workshop this way")
-	}
-	if member.row.organisationID == nil || *member.row.organisationID != w.row.organisationID {
-		return forbidden("the user is not of the workshop's organisation")
-	}
-	if err := store.Queries().SetUserActiveWorkshop(ctx, db.SetUserActiveWorkshopParams{
-		UserID: user, ActiveWorkshopID: uuid.NullUUID{UUID: id, Valid: true},
-	}); err != nil {
-		return err
-	}
-	events.GetBroker().PublishMembersUpdated(id)
-	return nil
-}
-
 // RemoveFromWorkshop takes someone out of a workshop: a guest of it loses
 // their place in it, a member working in it leaves it. It takes {Manage,
 // WorkshopParticipants}; a workshop or user the caller may not read does not
@@ -315,10 +292,17 @@ func workshopAndUser(ctx context.Context, id, user uuid.UUID) (*WorkshopCard, *U
 	return w, member, nil
 }
 
-// EnterWorkshop makes workshop id the one the caller works in: {Enter,
-// WorkshopCard}, for a head or staff any running workshop of their
-// organisation, for an individual any running one.
+// EnterWorkshop makes workshop id the one the caller works in, by its id:
+// {Enter, WorkshopCard, OfOwnOrganisation}, for a head or staff any running
+// workshop of their organisation. Anyone else takes part through the
+// workshop's invite (AcceptInvite).
 func EnterWorkshop(ctx context.Context, id uuid.UUID) error {
+	return enterWorkshop(ctx, id, false)
+}
+
+// enterWorkshop enters workshop id, through an invite the caller accepts or
+// by its id: through an invite, {Enter, WorkshopCard, ViaInvite} holds too.
+func enterWorkshop(ctx context.Context, id uuid.UUID, viaInvite bool) error {
 	w, err := store.Queries().GetWorkshopByID(ctx, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrNotFound
@@ -326,7 +310,7 @@ func EnterWorkshop(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	if !mayEnterWorkshop(ctx, w.InstitutionID, w.Active) {
+	if !mayEnterWorkshop(ctx, w.InstitutionID, w.Active, viaInvite) {
 		return forbidden("you may not enter this workshop")
 	}
 	if err := store.Queries().SetUserActiveWorkshop(ctx, db.SetUserActiveWorkshopParams{
@@ -335,6 +319,24 @@ func EnterWorkshop(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 	events.GetBroker().PublishMembersUpdated(id)
+	return nil
+}
+
+// LeaveWorkshop takes the caller out of workshop mode: {Leave,
+// WorkshopCard, Current}, head, staff and individual. A guest never leaves
+// their workshop: the model relies on it.
+func LeaveWorkshop(ctx context.Context) error {
+	current := from(ctx).CurrentWorkshop()
+	if current == nil {
+		return nil // nowhere to leave
+	}
+	if !granted(ctx, rules.Leave, rules.WorkshopCard, rules.Current) {
+		return forbidden("a guest stays in their workshop")
+	}
+	if err := store.Queries().ClearUserActiveWorkshop(ctx, account(ctx).UUID); err != nil {
+		return err
+	}
+	events.GetBroker().PublishMembersUpdated(*current)
 	return nil
 }
 

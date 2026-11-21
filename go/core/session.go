@@ -222,7 +222,6 @@ func CountMessage(ctx context.Context, id uuid.UUID) {
 	}
 }
 
-
 // MayTuneRuleFrequency is a flag for the playback-engine: whether the caller
 // may change, while playing, how often a session repeats the
 // youth-protection rule. Head and staff may ({Edit, SessionRule, Own}).

@@ -232,7 +232,9 @@ WHERE o.deleted_at IS NULL
   AND ($17::uuid IS NULL OR o.id = $17::uuid)
   -- gate
   AND (  ($18::bool AND o.id = $4::uuid)
-      OR  $19::bool )
+      -- the organisation of the workshop the caller takes part in
+      OR ($19::bool AND o.id = (SELECT w.institution_id FROM workshop w WHERE w.id = $20::uuid))
+      OR  $21::bool )
 ORDER BY o.name, o.id
 `
 
@@ -255,6 +257,8 @@ type V2OrganisationsParams struct {
 	SuspendEverywhere        bool          `json:"suspend_everywhere"`
 	ID                       uuid.NullUUID `json:"id"`
 	CardOrganisation         bool          `json:"card_organisation"`
+	CardCurrentWorkshop      bool          `json:"card_current_workshop"`
+	CurrentWorkshop          uuid.NullUUID `json:"current_workshop"`
 	CardEverywhere           bool          `json:"card_everywhere"`
 }
 
@@ -308,6 +312,8 @@ func (q *Queries) V2Organisations(ctx context.Context, arg V2OrganisationsParams
 		arg.SuspendEverywhere,
 		arg.ID,
 		arg.CardOrganisation,
+		arg.CardCurrentWorkshop,
+		arg.CurrentWorkshop,
 		arg.CardEverywhere,
 	)
 	if err != nil {

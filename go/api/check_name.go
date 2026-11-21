@@ -5,13 +5,8 @@
 package api
 
 import (
+	"cgl/core"
 	"context"
-	"fmt"
-	"strings"
-	"unicode/utf8"
-
-	"cgl/constants"
-	"cgl/db"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 )
@@ -26,21 +21,8 @@ func (CheckNameAvailabilityEndpoint) Method() string             { return "GET" 
 func (CheckNameAvailabilityEndpoint) Path() string               { return "/api/auth/check-name" }
 func (CheckNameAvailabilityEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
 func (CheckNameAvailabilityEndpoint) Handle(ctx context.Context, req CheckNameReq) (CheckNameResp, error) {
-	name := strings.TrimSpace(req.Name)
-	if name == "" {
-		return CheckNameResp{}, errBadRequest("Name parameter is required")
-	}
-	if utf8.RuneCountInString(name) > 24 {
-		return CheckNameResp{Available: false}, nil
-	}
-	if constants.IsProfane(name) {
-		return CheckNameResp{Available: false, Profane: true}, nil
-	}
-	taken, err := db.IsNameTaken(ctx, name)
-	if err != nil {
-		return CheckNameResp{}, fmt.Errorf("failed to check name availability: %w", err)
-	}
-	return CheckNameResp{Available: !taken}, nil
+	available, profane, err := core.NameAvailable(ctx, req.Name)
+	return CheckNameResp{Available: available, Profane: profane}, err
 }
 
 // CheckNameReq is the name to check.

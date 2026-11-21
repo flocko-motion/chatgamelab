@@ -229,8 +229,8 @@ func (w *WorkshopCard) MayEditSettings() bool { return w.mayEditSettings }
 // MayDelete says whether the caller may delete it: {Delete, WorkshopCard}.
 func (w *WorkshopCard) MayDelete() bool { return w.mayDelete }
 
-// MayManageParticipants says whether the caller may put individuals of its
-// organisation into it and take people out: {Manage, WorkshopParticipants}.
+// MayManageParticipants says whether the caller may take people out of it:
+// {Manage, WorkshopParticipants}.
 func (w *WorkshopCard) MayManageParticipants() bool { return w.mayManageParticipants }
 
 // Participants are who is in it, for a caller who may list them:

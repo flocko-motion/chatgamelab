@@ -49,7 +49,8 @@ LEFT JOIN user_role r ON r.id = (
 )
 LEFT JOIN workshop w    ON w.id = CASE WHEN r.role = 'guest' THEN r.workshop_id ELSE r.active_workshop_id END
 LEFT JOIN institution wo ON wo.id = w.institution_id
-LEFT JOIN institution o ON o.id = r.institution_id
+-- their organisation (head, staff), or the one of the workshop they take part in
+LEFT JOIN institution o ON o.id = COALESCE(r.institution_id, w.institution_id)
 WHERE u.id = @id;
 
 -- name: V2ShareLinkPlay :many

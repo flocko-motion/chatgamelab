@@ -109,12 +109,12 @@ WHERE u.deleted_at IS NULL
   AND ($21::uuid IS NULL OR u.id = $21::uuid)
   -- a wish: the members of one organisation (individual, staff, head)
   AND ($22::uuid IS NULL
-       OR (r.institution_id = $22::uuid AND r.role IN ('individual', 'staff', 'head')))
+       OR (r.institution_id = $22::uuid AND r.role IN ('staff', 'head')))
   -- gate
   AND (  ($23::bool          AND u.id = $2::uuid)
       OR ($24::bool AND (r.institution_id = $4::uuid OR w.institution_id = $4::uuid))
       OR ($25::bool       AND r.institution_id = $4::uuid
-                                   AND r.role IN ('individual', 'staff', 'head'))
+                                   AND r.role IN ('staff', 'head'))
       OR  $26::bool )
 ORDER BY u.created_at DESC, u.id
 `

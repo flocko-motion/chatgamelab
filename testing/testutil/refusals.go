@@ -43,6 +43,7 @@ const (
 	CodeDeclarationVersionOutdated  = "declaration_version_outdated"
 	CodeInstitutionConsentsRequired = "institution_consents_required"
 	CodeOrganisationSuspended       = "organisation_suspended"
+	CodeGuestStays                  = "guest_stays"
 
 	// the engine's problems, refusing a session
 	CodeDenied      = "denied"

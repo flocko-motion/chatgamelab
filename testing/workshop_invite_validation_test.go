@@ -114,18 +114,13 @@ func (s *WorkshopInviteValidationSuite) TestWorkshopInviteIncludesNames() {
 	s.Equal("inv-names Org", invite.InstitutionName)
 }
 
-// TestCanInviteIndividualOfSameOrg verifies that individual of the same org CAN be invited.
-func (s *WorkshopInviteValidationSuite) TestCanInviteIndividualOfSameOrg() {
-	head, instID, wsID := s.workshopSetup("inv-ind")
-	admin := s.DevUser()
+// TestCanInviteAnIndividual: an individual, in no organisation, is invited
+// to take part in a workshop.
+func (s *WorkshopInviteValidationSuite) TestCanInviteAnIndividual() {
+	head, _, wsID := s.workshopSetup("inv-ind")
 
-	// Create an individual in the same org
 	individual := s.CreateUser("inv-ind-user")
-	indInvite := Must(admin.InviteToInstitution(instID, "individual", individual.ID))
-	Must(individual.AcceptInvite(indInvite.Id.String()))
-
-	// Should be able to invite individual from same org
 	invite, err := head.InviteToWorkshopByEmail(wsID, individual.Email)
-	s.NoError(err, "should be able to invite individual of same org to workshop")
+	s.NoError(err, "an individual is invited to take part in a workshop")
 	s.NotEmpty(invite.Id)
 }

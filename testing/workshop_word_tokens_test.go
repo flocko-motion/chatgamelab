@@ -145,40 +145,46 @@ func (s *WorkshopWordTokensTestSuite) TestOwnGuestCode() {
 	s.Unauthorized(err)
 }
 
-// TestAuthenticatedAcceptKeepsIdentity pins the contract the invite-accept page
-// relies on: a recognised guest who accepts another workshop's invite keeps
-// their account and moves. Sent anonymously, the very same call mints a second
-// account instead, which is right for a new guest only: the page must send
-// the caller's credentials.
-func (s *WorkshopWordTokensTestSuite) TestAuthenticatedAcceptKeepsIdentity() {
+// TestAGuestStaysInTheirWorkshop pins what tells the two kinds of guest
+// apart (spec, Roles): a guest's place is fixed. A recognised guest who
+// accepts another workshop's invite is refused and stays; their own
+// workshop's invite answers "you are in already" (the page sends them
+// there). Sent anonymously, the same invite makes a new guest, which is
+// right for a newcomer only.
+func (s *WorkshopWordTokensTestSuite) TestAGuestStaysInTheirWorkshop() {
 	headA, wsA := s.workshopSetup("ident-a")
 	headB, wsB := s.workshopSetup("ident-b")
 	inviteA := Must(headA.CreateWorkshopInvite(wsA))
 	inviteB := Must(headB.CreateWorkshopInvite(wsB))
 
 	guest := Must(s.JoinWorkshop(*inviteA.InviteToken))
-	code := s.codeOf(guest)
 
-	// Recognised: one account, workshop moved.
-	s.Require().NoError(guest.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
+	s.Refused(guest.AcceptWorkshopInviteByToken(*inviteB.InviteToken), testutil.CodeGuestStays, "a guest moves to no other workshop")
 	me := Must(guest.GetMe())
-	s.Equal(guest.ID, me.Id.String(), "the account must survive the switch")
+	s.Equal(guest.ID, me.Id.String())
 	s.Require().NotNil(me.Role)
 	s.Require().NotNil(me.Role.Workshop)
-	s.Equal(wsB, me.Role.Workshop.Id.String(), "the workshop must have changed")
+	s.Equal(wsA, me.Role.Workshop.Id.String(), "the guest stays in their workshop")
 
-	// The same code still logs the same person in - nothing was reissued.
-	s.Equal(code, Must(headB.GetGuestToken(guest.ID)))
+	s.Conflict(guest.AcceptWorkshopInviteByToken(*inviteA.InviteToken), "their own workshop: in already")
 
-	// Accepting the invite of the workshop they are already in is a conflict, not a
-	// silent second account. The page turns this into "you are already in".
-	s.Conflict(guest.AcceptWorkshopInviteByToken(*inviteB.InviteToken))
-
-	// Anonymously, the same invite still creates a separate account.
 	second := Must(s.AcceptWorkshopInviteAnonymously(*inviteB.InviteToken))
 	s.Require().NotNil(second.User)
-	s.NotEqual(guest.ID, second.User.Id.String(),
-		"an anonymous join must remain a new guest")
+	s.NotEqual(guest.ID, second.User.Id.String(), "an anonymous join is a new guest")
+}
+
+// A guest leaves no workshop: leaving workshop mode is refused, and they
+// stay in it.
+func (s *WorkshopWordTokensTestSuite) TestAGuestLeavesNoWorkshop() {
+	head, ws := s.workshopSetup("stay")
+	guest := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(ws)).InviteToken))
+
+	_, err := guest.SetActiveWorkshop(nil)
+	s.Forbidden(err, "a guest may not leave their workshop")
+	me := Must(guest.GetMe())
+	s.Require().NotNil(me.Role)
+	s.Require().NotNil(me.Role.Workshop)
+	s.Equal(ws, me.Role.Workshop.Id.String(), "the guest stays in their workshop")
 }
 
 // TestResetFailsWhenThereIsNoCode covers the reset of someone who joined with a real

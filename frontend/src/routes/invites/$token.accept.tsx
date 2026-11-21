@@ -105,7 +105,6 @@ function AcceptInvitePage() {
     | "accepting"
     | "success"
     | "error"
-    | "switch-workshop"
     | "already-member"
   >("loading");
   const [invite, setInvite] = useState<InviteDetails | null>(null);
@@ -121,6 +120,9 @@ function AcceptInvitePage() {
     if (errorData.code === ErrorCodes.TOKEN_LOCKED) {
       return t("invites.errors.tokenLocked");
     }
+    if (errorData.code === ErrorCodes.GUEST_STAYS) {
+      return t("invites.errors.guestStays");
+    }
     if (status !== undefined && status >= 500) {
       return t("invites.errors.acceptFailed");
     }
@@ -129,7 +131,6 @@ function AcceptInvitePage() {
 
   // Get current workshop info if user is a Guest
   const currentWorkshopId = backendUser?.role?.workshop?.id;
-  const currentWorkshopName = backendUser?.role?.workshop?.name;
 
   // Fetch invite details on mount
   useEffect(() => {
@@ -179,7 +180,7 @@ function AcceptInvitePage() {
           return;
         }
 
-        // Users with other roles (individual, etc.) → show enter workshop button
+        // Other signed-in users → offer to join; the server decides
         if (isLoggedInNonGuest) {
           setState("already-member");
           return;
@@ -193,17 +194,6 @@ function AcceptInvitePage() {
         ) {
           // Already in this workshop - redirect directly
           navigate({ to: ROUTES.MY_WORKSHOP as "/" });
-          return;
-        }
-
-        // Check if user is in a different workshop
-        if (
-          isGuest &&
-          currentWorkshopId &&
-          data.workshopId !== currentWorkshopId
-        ) {
-          // Different workshop - show switch confirmation
-          setState("switch-workshop");
           return;
         }
 
@@ -327,7 +317,7 @@ function AcceptInvitePage() {
       try {
         // Use the accept endpoint which handles all cases:
         // - Head/staff in same org → enters workshop mode
-        // - Individual → enters the workshop with their own role
+        // - Individual → takes part with their own role, in no organisation
         // - User without role → falls back to AcceptOpenInvite (joins as a Guest)
         try {
           await api.postApiInvitesIdOrTokenAccept(token);
@@ -374,47 +364,6 @@ function AcceptInvitePage() {
                 rightSection={<IconArrowRight size={16} />}
               >
                 {t("invites.alreadyMember.enterButton")}
-              </ActionButton>
-            </Group>
-          </Stack>
-        </Card>
-      </InvitePageLayout>
-    );
-  }
-
-  // Show switch workshop confirmation
-  if (state === "switch-workshop") {
-    return (
-      <InvitePageLayout showBranding={false}>
-        <Card shadow="sm" padding="xl" radius="md" withBorder w="100%">
-          <Stack gap="lg">
-            <Title order={2} ta="center">
-              {t("invites.switchWorkshop.title")}
-            </Title>
-
-            <Alert icon={<IconAlertCircle size={16} />} color="yellow">
-              {t("invites.switchWorkshop.warning", {
-                currentWorkshop: currentWorkshopName,
-                newWorkshop: invite?.workshopName,
-              })}
-            </Alert>
-
-            <Text ta="center" c="dimmed">
-              {t("invites.switchWorkshop.message")}
-            </Text>
-
-            <Group justify="center" gap="md">
-              <TextButton
-                onClick={() => navigate({ to: ROUTES.MY_WORKSHOP as "/" })}
-              >
-                {t("invites.switchWorkshop.stayButton")}
-              </TextButton>
-              <ActionButton
-                onClick={handleAccept}
-                loading={isAccepting}
-                rightSection={<IconArrowRight size={16} />}
-              >
-                {t("invites.switchWorkshop.switchButton")}
               </ActionButton>
             </Group>
           </Stack>

@@ -213,3 +213,16 @@ func (s *SystemSettingsTestSuite) TestFreeUseKeyClearedWhenAdminRoleRemoved() {
 	s.Empty(settings.FreeUseApiKeyPlatform)
 	s.T().Logf("System free-use key correctly cleared after admin role removal")
 }
+
+// The free-use key is one of the admin's own: someone else's key does not
+// exist for them, and the site's key stays as it was.
+func (s *SystemSettingsTestSuite) TestAdminSetsOnlyTheirOwnKeyAsFreeUse() {
+	admin := s.DevUser()
+	other := s.CreateUser("key-owner-free-use")
+	key := Must(other.AddApiKey("mock-key-not-admins", "Someone's key", "openai")).ApiKeyId.String()
+	before := Must(admin.GetSystemSettings())
+
+	_, err := admin.SetSystemFreeUseApiKey(&key)
+	s.NotFound(err, "an admin may not make someone else's key pay for the site")
+	s.Equal(before.FreeUseApiKeyId, Must(admin.GetSystemSettings()).FreeUseApiKeyId, "the site's key stays")
+}

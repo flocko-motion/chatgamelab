@@ -143,7 +143,7 @@ func devUserSlots() []devUserSlot {
 		{DevStaff2UserID, "staff-2", obj.RoleStaff, &DevInstitutionID},
 		{DevIndividual1UserID, "individual-1", obj.RoleIndividual, nil},
 		{DevIndividual2UserID, "individual-2", obj.RoleIndividual, nil},
-		{DevGuestUserID, "guest", obj.RoleGuest, &DevInstitutionID},
+		{DevGuestUserID, "guest", obj.RoleGuest, nil}, // in the dev workshop, which is the organisation's
 	}
 }
 
@@ -413,15 +413,15 @@ func preseedDevSiteConstraints(ctx context.Context) {
 		log.Warn("failed to read system settings for the restriction preseed", "error", err)
 		return
 	}
-	fill := func(level string, current *string, value string, update func(context.Context, *string) error) {
+	fill := func(level string, current *string, value string, update func(context.Context, sql.NullString) error) {
 		if current != nil && *current != "" {
 			return
 		}
-		if err := update(ctx, &value); err != nil {
+		if err := update(ctx, sql.NullString{String: value, Valid: true}); err != nil {
 			log.Warn("failed to preseed a site restriction", "level", level, "error", err)
 		}
 	}
-	fill("u13", settings.PromptConstraintU13, DevSiteConstraintU13, UpdatePromptConstraintU13)
-	fill("u13p", settings.PromptConstraintU13p, devSiteConstraintAdult, UpdatePromptConstraintU13p)
-	fill("u18", settings.PromptConstraintU18, devSiteConstraintAdult, UpdatePromptConstraintU18)
+	fill("u13", settings.PromptConstraintU13, DevSiteConstraintU13, queries().UpdatePromptConstraintU13)
+	fill("u13p", settings.PromptConstraintU13p, devSiteConstraintAdult, queries().UpdatePromptConstraintU13p)
+	fill("u18", settings.PromptConstraintU18, devSiteConstraintAdult, queries().UpdatePromptConstraintU18)
 }

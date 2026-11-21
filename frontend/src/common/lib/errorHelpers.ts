@@ -74,6 +74,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.tokenLocked",
     messageKey: "errors:tokenLocked",
   },
+  [ErrorCodes.GUEST_STAYS]: {
+    titleKey: "errors:titles.guestStays",
+    messageKey: "errors:guestStays",
+  },
   [ErrorCodes.INSTITUTION_AGE_NOT_ALLOWED]: {
     titleKey: "errors:titles.validation",
     messageKey: "auth:organizationRegistration.errors.institution_age_not_allowed",

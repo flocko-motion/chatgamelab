@@ -27,11 +27,6 @@ type AcceptInviteResp struct {
 	User      *NewGuestView `json:"user,omitempty"`
 }
 
-// AddWorkshopMemberReq defines model for AddWorkshopMemberReq.
-type AddWorkshopMemberReq struct {
-	UserId string `json:"userId"`
-}
-
 // ApiKey defines model for ApiKey.
 type ApiKey struct {
 	Id               openapi_types.UUID `json:"id"`
@@ -1538,9 +1533,6 @@ type PatchApiWorkshopsIdJSONRequestBody = UpdateWorkshopReq
 // PutApiWorkshopsIdApiKeyJSONRequestBody defines body for PutApiWorkshopsIdApiKey for application/json ContentType.
 type PutApiWorkshopsIdApiKeyJSONRequestBody = SetWorkshopApiKeyReq
 
-// PostApiWorkshopsIdMembersJSONRequestBody defines body for PostApiWorkshopsIdMembers for application/json ContentType.
-type PostApiWorkshopsIdMembersJSONRequestBody = AddWorkshopMemberReq
-
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -2881,7 +2873,8 @@ type ClientInterface interface {
 	//
 	// key; admins only.
 	//
-	// The admin's own API key is used directly. A null apiKeyId clears it.
+	// Only a key of the admin's own; someone else's is not found. A null
+	// apiKeyId clears it.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -2892,7 +2885,8 @@ type ClientInterface interface {
 	//
 	// key; admins only.
 	//
-	// The admin's own API key is used directly. A null apiKeyId clears it.
+	// Only a key of the admin's own; someone else's is not found. A null
+	// apiKeyId clears it.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -2934,10 +2928,11 @@ type ClientInterface interface {
 
 	// PutApiUsersMeActiveWorkshopWithBody Enters or leaves workshop mode and answers with
 	//
-	// the caller's account.
+	// the caller as GET /api/users/me does.
 	//
 	// Heads, staff and individuals enter a workshop by its id; a null workshopId
-	// leaves workshop mode.
+	// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+	// leaves one.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -2946,10 +2941,11 @@ type ClientInterface interface {
 
 	// PutApiUsersMeActiveWorkshop Enters or leaves workshop mode and answers with
 	//
-	// the caller's account.
+	// the caller as GET /api/users/me does.
 	//
 	// Heads, staff and individuals enter a workshop by its id; a null workshopId
-	// leaves workshop mode.
+	// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+	// leaves one.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -3219,24 +3215,6 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/workshops/{id}/events (the `GetApiWorkshopsIdEvents` operationId).
 	GetApiWorkshopsIdEvents(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PostApiWorkshopsIdMembersWithBody Puts an individual of the workshop's organisation
-	//
-	// into it: it becomes the workshop they work in.
-	//
-	// Takes any type of body and a specified content type.
-	//
-	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-	PostApiWorkshopsIdMembersWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PostApiWorkshopsIdMembers Puts an individual of the workshop's organisation
-	//
-	// into it: it becomes the workshop they work in.
-	//
-	// Takes a body of the `application/json` content type.
-	//
-	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-	PostApiWorkshopsIdMembers(ctx context.Context, id string, body PostApiWorkshopsIdMembersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiWorkshopsIdMembersUserId Takes someone out of a workshop: a guest of it
 	//
@@ -5862,7 +5840,8 @@ func (c *Client) PatchApiSystemSettings(ctx context.Context, body PatchApiSystem
 //
 // key; admins only.
 //
-// The admin's own API key is used directly. A null apiKeyId clears it.
+// Only a key of the admin's own; someone else's is not found. A null
+// apiKeyId clears it.
 //
 // Takes any type of body and a specified content type.
 //
@@ -5883,7 +5862,8 @@ func (c *Client) PatchApiSystemSettingsFreeUseKeyWithBody(ctx context.Context, c
 //
 // key; admins only.
 //
-// The admin's own API key is used directly. A null apiKeyId clears it.
+// Only a key of the admin's own; someone else's is not found. A null
+// apiKeyId clears it.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -5975,10 +5955,11 @@ func (c *Client) GetApiUsersMe(ctx context.Context, reqEditors ...RequestEditorF
 
 // PutApiUsersMeActiveWorkshopWithBody Enters or leaves workshop mode and answers with
 //
-// the caller's account.
+// the caller as GET /api/users/me does.
 //
 // Heads, staff and individuals enter a workshop by its id; a null workshopId
-// leaves workshop mode.
+// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+// leaves one.
 //
 // Takes any type of body and a specified content type.
 //
@@ -5997,10 +5978,11 @@ func (c *Client) PutApiUsersMeActiveWorkshopWithBody(ctx context.Context, conten
 
 // PutApiUsersMeActiveWorkshop Enters or leaves workshop mode and answers with
 //
-// the caller's account.
+// the caller as GET /api/users/me does.
 //
 // Heads, staff and individuals enter a workshop by its id; a null workshopId
-// leaves workshop mode.
+// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+// leaves one.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -6551,44 +6533,6 @@ func (c *Client) PutApiWorkshopsIdApiKey(ctx context.Context, id string, body Pu
 // Corresponds with GET /api/workshops/{id}/events (the `GetApiWorkshopsIdEvents` operationId).
 func (c *Client) GetApiWorkshopsIdEvents(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiWorkshopsIdEventsRequest(c.Server, id)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// PostApiWorkshopsIdMembersWithBody Puts an individual of the workshop's organisation
-//
-// into it: it becomes the workshop they work in.
-//
-// Takes any type of body and a specified content type.
-//
-// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-func (c *Client) PostApiWorkshopsIdMembersWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiWorkshopsIdMembersRequestWithBody(c.Server, id, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// PostApiWorkshopsIdMembers Puts an individual of the workshop's organisation
-//
-// into it: it becomes the workshop they work in.
-//
-// Takes a body of the `application/json` content type.
-//
-// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-func (c *Client) PostApiWorkshopsIdMembers(ctx context.Context, id string, body PostApiWorkshopsIdMembersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiWorkshopsIdMembersRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11622,53 +11566,6 @@ func NewGetApiWorkshopsIdEventsRequest(server string, id string) (*http.Request,
 	return req, nil
 }
 
-// NewPostApiWorkshopsIdMembersRequest calls the generic PostApiWorkshopsIdMembers builder with application/json body
-func NewPostApiWorkshopsIdMembersRequest(server string, id string, body PostApiWorkshopsIdMembersJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPostApiWorkshopsIdMembersRequestWithBody(server, id, "application/json", bodyReader)
-}
-
-// NewPostApiWorkshopsIdMembersRequestWithBody constructs an http.Request for the PostApiWorkshopsIdMembers method, with any body, and a specified content type
-func NewPostApiWorkshopsIdMembersRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/workshops/%s/members", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewDeleteApiWorkshopsIdMembersUserIdRequest constructs an http.Request for the DeleteApiWorkshopsIdMembersUserId method
 func NewDeleteApiWorkshopsIdMembersUserIdRequest(server string, id string, userId string) (*http.Request, error) {
 	var err error
@@ -13166,7 +13063,8 @@ type ClientWithResponsesInterface interface {
 	//
 	// key; admins only.
 	//
-	// The admin's own API key is used directly. A null apiKeyId clears it.
+	// Only a key of the admin's own; someone else's is not found. A null
+	// apiKeyId clears it.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -13177,7 +13075,8 @@ type ClientWithResponsesInterface interface {
 	//
 	// key; admins only.
 	//
-	// The admin's own API key is used directly. A null apiKeyId clears it.
+	// Only a key of the admin's own; someone else's is not found. A null
+	// apiKeyId clears it.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -13227,10 +13126,11 @@ type ClientWithResponsesInterface interface {
 
 	// PutApiUsersMeActiveWorkshopWithBodyWithResponse Enters or leaves workshop mode and answers with
 	//
-	// the caller's account.
+	// the caller as GET /api/users/me does.
 	//
 	// Heads, staff and individuals enter a workshop by its id; a null workshopId
-	// leaves workshop mode.
+	// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+	// leaves one.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -13239,10 +13139,11 @@ type ClientWithResponsesInterface interface {
 
 	// PutApiUsersMeActiveWorkshopWithResponse Enters or leaves workshop mode and answers with
 	//
-	// the caller's account.
+	// the caller as GET /api/users/me does.
 	//
 	// Heads, staff and individuals enter a workshop by its id; a null workshopId
-	// leaves workshop mode.
+	// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+	// leaves one.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -13540,24 +13441,6 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/workshops/{id}/events (the `GetApiWorkshopsIdEvents` operationId).
 	GetApiWorkshopsIdEventsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiWorkshopsIdEventsResponse, error)
-
-	// PostApiWorkshopsIdMembersWithBodyWithResponse Puts an individual of the workshop's organisation
-	//
-	// into it: it becomes the workshop they work in.
-	//
-	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-	PostApiWorkshopsIdMembersWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiWorkshopsIdMembersResponse, error)
-
-	// PostApiWorkshopsIdMembersWithResponse Puts an individual of the workshop's organisation
-	//
-	// into it: it becomes the workshop they work in.
-	//
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-	PostApiWorkshopsIdMembersWithResponse(ctx context.Context, id string, body PostApiWorkshopsIdMembersJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiWorkshopsIdMembersResponse, error)
 
 	// DeleteApiWorkshopsIdMembersUserIdWithResponse Takes someone out of a workshop: a guest of it
 	//
@@ -18742,13 +18625,13 @@ type PutApiUsersMeActiveWorkshopResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *User
+	JSON200 *GetCurrentUserResp
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PutApiUsersMeActiveWorkshopResponse) GetJSON200() *User {
+func (r PutApiUsersMeActiveWorkshopResponse) GetJSON200() *GetCurrentUserResp {
 	return r.JSON200
 }
 
@@ -19774,54 +19657,6 @@ func (r GetApiWorkshopsIdEventsResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiWorkshopsIdEventsResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type PostApiWorkshopsIdMembersResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *MessageResp
-	// JSONDefault the response for an HTTP default `application/json` response
-	JSONDefault *Error
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiWorkshopsIdMembersResponse) GetJSON200() *MessageResp {
-	return r.JSON200
-}
-
-// GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r PostApiWorkshopsIdMembersResponse) GetJSONDefault() *Error {
-	return r.JSONDefault
-}
-
-// GetBody returns the raw response body bytes
-func (r PostApiWorkshopsIdMembersResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r PostApiWorkshopsIdMembersResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PostApiWorkshopsIdMembersResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r PostApiWorkshopsIdMembersResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -22098,7 +21933,8 @@ func (c *ClientWithResponses) PatchApiSystemSettingsWithResponse(ctx context.Con
 //
 // key; admins only.
 //
-// The admin's own API key is used directly. A null apiKeyId clears it.
+// Only a key of the admin's own; someone else's is not found. A null
+// apiKeyId clears it.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22115,7 +21951,8 @@ func (c *ClientWithResponses) PatchApiSystemSettingsFreeUseKeyWithBodyWithRespon
 //
 // key; admins only.
 //
-// The admin's own API key is used directly. A null apiKeyId clears it.
+// Only a key of the admin's own; someone else's is not found. A null
+// apiKeyId clears it.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22195,10 +22032,11 @@ func (c *ClientWithResponses) GetApiUsersMeWithResponse(ctx context.Context, req
 
 // PutApiUsersMeActiveWorkshopWithBodyWithResponse Enters or leaves workshop mode and answers with
 //
-// the caller's account.
+// the caller as GET /api/users/me does.
 //
 // Heads, staff and individuals enter a workshop by its id; a null workshopId
-// leaves workshop mode.
+// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+// leaves one.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22213,10 +22051,11 @@ func (c *ClientWithResponses) PutApiUsersMeActiveWorkshopWithBodyWithResponse(ct
 
 // PutApiUsersMeActiveWorkshopWithResponse Enters or leaves workshop mode and answers with
 //
-// the caller's account.
+// the caller as GET /api/users/me does.
 //
 // Heads, staff and individuals enter a workshop by its id; a null workshopId
-// leaves workshop mode.
+// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+// leaves one.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -22687,36 +22526,6 @@ func (c *ClientWithResponses) GetApiWorkshopsIdEventsWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseGetApiWorkshopsIdEventsResponse(rsp)
-}
-
-// PostApiWorkshopsIdMembersWithBodyWithResponse Puts an individual of the workshop's organisation
-//
-// into it: it becomes the workshop they work in.
-//
-// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-func (c *ClientWithResponses) PostApiWorkshopsIdMembersWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiWorkshopsIdMembersResponse, error) {
-	rsp, err := c.PostApiWorkshopsIdMembersWithBody(ctx, id, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostApiWorkshopsIdMembersResponse(rsp)
-}
-
-// PostApiWorkshopsIdMembersWithResponse Puts an individual of the workshop's organisation
-//
-// into it: it becomes the workshop they work in.
-//
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /api/workshops/{id}/members (the `PostApiWorkshopsIdMembers` operationId).
-func (c *ClientWithResponses) PostApiWorkshopsIdMembersWithResponse(ctx context.Context, id string, body PostApiWorkshopsIdMembersJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiWorkshopsIdMembersResponse, error) {
-	rsp, err := c.PostApiWorkshopsIdMembers(ctx, id, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostApiWorkshopsIdMembersResponse(rsp)
 }
 
 // DeleteApiWorkshopsIdMembersUserIdWithResponse Takes someone out of a workshop: a guest of it
@@ -26316,7 +26125,7 @@ func ParsePutApiUsersMeActiveWorkshopResponse(rsp *http.Response) (*PutApiUsersM
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest User
+		var dest GetCurrentUserResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -27004,39 +26813,6 @@ func ParseGetApiWorkshopsIdEventsResponse(rsp *http.Response) (*GetApiWorkshopsI
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePostApiWorkshopsIdMembersResponse parses an HTTP response from a PostApiWorkshopsIdMembersWithResponse call
-func ParsePostApiWorkshopsIdMembersResponse(rsp *http.Response) (*PostApiWorkshopsIdMembersResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PostApiWorkshopsIdMembersResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest MessageResp
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

@@ -22,8 +22,9 @@ func TestWorkshopAccessSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// setup is an organisation at work with a head, staff, an individual, and a
-// workshop the head created with two guests in it.
+// setup is an organisation at work with a head and staff, an individual
+// (in no organisation), and a workshop the head created with two guests in
+// it.
 func (s *WorkshopAccessTestSuite) setup() (orgID string, head, staff, individual *testutil.UserClient, workshopID string, guests [2]*testutil.UserClient) {
 	s.n++
 	org := Must(s.DevUser().CreateInstitution(fmt.Sprintf("Werkstatt-Org %d", s.n)))
@@ -35,7 +36,9 @@ func (s *WorkshopAccessTestSuite) setup() (orgID string, head, staff, individual
 		Must(user.AcceptInviteByToken(invite.Id.String()))
 		return user
 	}
-	head, staff, individual = member("head"), member("staff"), member("individual")
+	head, staff = member("head"), member("staff")
+	s.n++
+	individual = s.CreateUser(fmt.Sprintf("individual%d", s.n))
 	workshop := Must(head.CreateWorkshop(orgID, fmt.Sprintf("Werkstatt %d", s.n)))
 	workshopID = workshop.Id.String()
 	link := *Must(head.CreateWorkshopInvite(workshopID)).InviteToken
@@ -106,20 +109,4 @@ func (s *WorkshopAccessTestSuite) TestStaffResetAGuestsCode() {
 
 	_, err := guests[1].ResetGuestToken(guests[0].ID)
 	s.Error(err, "a guest resets nobody's code")
-}
-
-// Head and staff put an individual of the organisation into a workshop and
-// take them out again.
-func (s *WorkshopAccessTestSuite) TestPuttingAnIndividualIn() {
-	_, head, staff, individual, workshopID, guests := s.setup()
-
-	s.NoError(staff.AddMemberToWorkshop(workshopID, individual.ID))
-	in := false
-	for _, p := range Must(head.GetWorkshop(workshopID)).Participants {
-		in = in || p.Id.String() == individual.ID
-	}
-	s.True(in, "the individual works in the workshop")
-	s.NoError(head.RemoveMemberFromWorkshop(workshopID, individual.ID))
-
-	s.Forbidden(guests[0].AddMemberToWorkshop(workshopID, individual.ID), "a guest manages nobody")
 }

@@ -164,11 +164,19 @@ run workshops and play.
 == Roles
 
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
-  group.
-- *Head* — leads an organisation: manages its staff, workshops and rules, can also run workshops.
-- *Staff* — runs workshops within an organisation.
-- *Individual* — uses the platform without an organisation.
-- *Guest* — plays a shared game through its link, or takes part in a workshop by joining through its link: a guest outside or in a workshop.
+  group, the AI quality tiers, and the site's free-use key
+- *Head* — is a user who *is* part of an organisation, leads it, manages its staff, workshops and rules, runs workshops.
+- *Staff* — is a user who *is* part of an organisation, runs workshops within it.
+- *Individual* — is a user who is *not* in an organisation, uses the platform on his own.
+- *Guest* — plays a shared game through its link, or takes part in a workshop by joining through its link: a guest outside or in a workshop. A Guest can neither enter nor exit a workshop, he's bound to 
+the state assigned to him via the share link 
+
+If an organisation invites an individual, that indivudal becomes part of that 
+organisation, turning into a head or staff. If a head or staff leaves an organisation 
+he becomes an individual again. 
+Taking part in a workshop makes no one part of its organisation: guests take
+part, and so does an individual through the workshop's invite, keeping their
+role.
 
 Anyone who writes a game is its *designer*: they author its scenario, title,
 image style, theme and genre.

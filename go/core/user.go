@@ -2,12 +2,18 @@ package core
 
 import (
 	"context"
+	"database/sql"
+	"strings"
 	"time"
+	"unicode/utf8"
 
+	"cgl/constants"
 	"cgl/core/internal/identity"
 	"cgl/core/internal/store"
 	"cgl/db"
+	"cgl/obj"
 
+	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
 )
 
@@ -297,4 +303,39 @@ func (a *UserAccount) Stats(ctx context.Context) (UserStats, error) {
 		MessagesSent:      int(messages),
 		TotalPlaysOnGames: int(plays),
 	}, nil
+}
+
+// NameAvailable says whether a name is free to register: at most 24
+// characters, not profane (profane reports that), and held by nobody. It is
+// public, for the registration form.
+func NameAvailable(ctx context.Context, name string) (available, profane bool, err error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return false, false, refuse("a name is required")
+	}
+	if utf8.RuneCountInString(name) > 24 {
+		return false, false, nil
+	}
+	if constants.IsProfane(name) {
+		return false, true, nil
+	}
+	taken, err := store.Queries().IsNameTaken(ctx, sql.NullString{String: name, Valid: true})
+	return err == nil && !taken, false, err
+}
+
+// DevCreateUser makes an account without Auth0, in dev mode only (else
+// ErrNotFound): with a name a registered user with its initial role,
+// without one an account still registering, as a first Auth0 sign-in makes.
+func DevCreateUser(ctx context.Context, name string, email *string, language string) (*obj.User, error) {
+	if !schemafapi.DevMode() {
+		return nil, ErrNotFound
+	}
+	if strings.TrimSpace(name) == "" {
+		id, err := db.AccountForAuth0(ctx, "dev|"+uuid.NewString())
+		if err != nil {
+			return nil, err
+		}
+		return &obj.User{ID: id}, nil
+	}
+	return db.CreateUser(ctx, name, email, "", nil, language)
 }

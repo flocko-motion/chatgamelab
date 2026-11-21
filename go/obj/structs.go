@@ -7,7 +7,6 @@ package obj
 import (
 	"time"
 
-
 	"github.com/google/uuid"
 )
 
@@ -109,6 +108,11 @@ type SystemSettings struct {
 }
 
 // Role identifies a user's permission level within the system.
+//
+// The role says where someone is (spec, Roles): head and staff are in an
+// organisation, an individual is in none, and a guest's place is fixed, in
+// their workshop or, through a share link, outside every workshop. See
+// core/internal/rules for what each role may.
 type Role string
 
 const (

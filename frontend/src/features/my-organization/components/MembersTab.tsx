@@ -49,14 +49,9 @@ export function MembersTab({
     inviteTeacherModalOpened,
     { open: openInviteTeacherModal, close: closeInviteTeacherModal },
   ] = useDisclosure(false);
-  const [
-    inviteUserModalOpened,
-    { open: openInviteUserModal, close: closeInviteUserModal },
-  ] = useDisclosure(false);
   const [inviteTeacherError, setInviteTeacherError] = useState<string | null>(
     null,
   );
-  const [inviteUserError, setInviteUserError] = useState<string | null>(null);
   const [
     promoteModalOpened,
     { open: openPromoteModal, close: closePromoteModal },
@@ -113,28 +108,6 @@ export function MembersTab({
     },
     onError: (error) => {
       setInviteTeacherError(getErrorMessage(error));
-    },
-  });
-
-  const inviteUserMutation = useMutation({
-    mutationFn: async (email: string) => {
-      if (!institutionId) throw new Error("No institution");
-      await api.postApiInvitesInstitution({
-        institutionId,
-        role: "individual",
-        invitedEmail: email,
-      });
-    },
-    onSuccess: () => {
-      setInviteUserError(null);
-      closeInviteUserModal();
-      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.institutionInvites(institutionId!),
-      });
-    },
-    onError: (error) => {
-      setInviteUserError(getErrorMessage(error));
     },
   });
 
@@ -247,11 +220,6 @@ export function MembersTab({
               {t("myOrganization.inviteTeacher")}
             </ActionButton>
           )}
-          {(isHead || isStaff) && (
-            <ActionButton onClick={openInviteUserModal} size="sm">
-              {t("myOrganization.inviteUser")}
-            </ActionButton>
-          )}
         </Group>
 
         {/* Members List */}
@@ -301,19 +269,6 @@ export function MembersTab({
         onSubmit={(email) => inviteTeacherMutation.mutate(email)}
         isLoading={inviteTeacherMutation.isPending}
         error={inviteTeacherError}
-      />
-
-      <InviteModal
-        opened={inviteUserModalOpened}
-        onClose={() => {
-          setInviteUserError(null);
-          closeInviteUserModal();
-        }}
-        title={t("myOrganization.inviteUserTitle")}
-        description={t("myOrganization.inviteUserDescription")}
-        onSubmit={(email) => inviteUserMutation.mutate(email)}
-        isLoading={inviteUserMutation.isPending}
-        error={inviteUserError}
       />
 
       <ConfirmationModal

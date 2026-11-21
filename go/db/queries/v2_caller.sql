@@ -34,8 +34,8 @@ LEFT JOIN workshop pw ON pw.id = r.workshop_id AND r.role = 'guest'
 -- the workshop the caller is in: a guest's own, or the one entered in workshop mode
 LEFT JOIN workshop cw ON cw.id = CASE WHEN r.role = 'guest' THEN r.workshop_id ELSE r.active_workshop_id END
 -- the organisation that may be suspended for the caller: a head's or staff's
--- own, a guest's through their workshop; an individual of it keeps working
--- (v1). It is suspended by an admin, or while its newest entry in the
+-- own, a guest's through their workshop. An individual taking part in a
+-- workshop is in no organisation and keeps working. It is suspended by an admin, or while its newest entry in the
 -- consent log is no consent to the current declaration (@declaration_*).
 LEFT JOIN institution so ON so.id = COALESCE(r.institution_id, pw.institution_id)
                         AND r.role IN ('head', 'staff', 'guest')

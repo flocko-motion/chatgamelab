@@ -66,6 +66,8 @@ WHERE o.deleted_at IS NULL
   AND (sqlc.narg(id)::uuid IS NULL OR o.id = sqlc.narg(id)::uuid)
   -- gate
   AND (  (@card_organisation::bool AND o.id = sqlc.narg(own_organisation)::uuid)
+      -- the organisation of the workshop the caller takes part in
+      OR (@card_current_workshop::bool AND o.id = (SELECT w.institution_id FROM workshop w WHERE w.id = sqlc.narg(current_workshop)::uuid))
       OR  @card_everywhere::bool )
 ORDER BY o.name, o.id;
 
