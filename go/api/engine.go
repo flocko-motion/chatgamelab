@@ -1,17 +1,16 @@
 // package: api / the engine, mounted in-process
 // type:    wiring
 // job:     declares one endpoint per engine route behind the platform's access policy, and supplies the engine's create and resume functions
-// limits:  session creation and resume logic live in game; the engine owns the routes' work and their JSON (-> engine/api)
+// limits:  session creation and resume live in session/, on the secure core; the engine owns the routes' work and their JSON (-> engine/api)
 package api
 
 import (
+	"cgl/core"
 	"context"
+	"errors"
 	"net/http"
 
-	"cgl/db"
-	"cgl/game"
-	"cgl/log"
-	"cgl/obj"
+	"cgl/session"
 	"engine"
 	engineapi "engine/api"
 
@@ -57,40 +56,26 @@ type (
 	EngineSessionEvent  = engine.SessionEvent
 )
 
-// enginePlayer resolves the caller of an engine route, if any, into the
-// context the engine's endpoints run in.
-func enginePlayer(ctx context.Context) (context.Context, error) {
-	user, err := maybeCaller(ctx)
-	if err != nil {
-		return ctx, err
-	}
-	return withPlayer(ctx, user), nil
-}
-
-// engineSession applies the access policy to the session a request names: a
-// session a guest owns is reachable with its id, one a signed-in account owns
-// only by that account. A session the platform no longer holds, deleted or
-// purged, is dropped from memory and unknown.
-func engineSession(ctx context.Context, id string) (context.Context, uuid.UUID, error) {
-	ctx, err := enginePlayer(ctx)
-	if err != nil {
-		return ctx, uuid.Nil, err
-	}
-	unknown := engineapi.Refusal(engine.Refuse(engine.ProblemUnknown, "there is no session "+id))
+// engineSession asks the secure core whether the caller may play the
+// session a request names, or look into it (core.OpenSession): a session a
+// guest from a share link plays is reachable with its id, one an account
+// owns only by that account, and either only while its player may still
+// play it and its workshop is not paused. A session the platform no longer
+// holds, deleted or purged, is dropped from memory and unknown.
+func engineSession(ctx context.Context, id string, use core.SessionUse) (context.Context, uuid.UUID, error) {
 	sessionID, err := uuid.Parse(id)
 	if err != nil {
-		return ctx, uuid.Nil, unknown
+		return ctx, uuid.Nil, engineapi.Refusal(engine.Refuse(engine.ProblemUnknown, "there is no session "+id))
 	}
-	session, err := db.GetGameSession(ctx, sessionID)
-	if err != nil {
-		Engine.Forget(id)
-		return ctx, uuid.Nil, unknown
-	}
-	if !db.IsGuestUser(ctx, session.UserID) {
-		actor := playerFrom(ctx)
-		if actor == nil || actor.ID != session.UserID {
-			return ctx, uuid.Nil, engineapi.Refusal(engine.Refuse(engine.ProblemDenied, "this session belongs to a signed-in account"))
+	if err := core.OpenSession(ctx, sessionID, use); err != nil {
+		var refusal *engine.Refusal
+		if errors.As(err, &refusal) {
+			if refusal.Problem == engine.ProblemUnknown {
+				Engine.Forget(id)
+			}
+			return ctx, uuid.Nil, engineapi.Refusal(err)
 		}
+		return ctx, uuid.Nil, err
 	}
 	return ctx, sessionID, nil
 }
@@ -110,10 +95,6 @@ func (EngineCreateSessionEndpoint) Handle(ctx context.Context, req EngineCreateR
 	if err := tokenLocked(); err != nil {
 		return EngineCreateResp{}, err
 	}
-	ctx, err := enginePlayer(ctx)
-	if err != nil {
-		return EngineCreateResp{}, err
-	}
 	return engineapi.CreateEndpoint{API: Engine}.Handle(ctx, req)
 }
 
@@ -127,7 +108,7 @@ func (EngineInputEndpoint) Method() string             { return "POST" }
 func (EngineInputEndpoint) Path() string               { return "/api/engine/sessions/{id}/input" }
 func (EngineInputEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineInputEndpoint) Handle(ctx context.Context, req EngineInputReq) (EngineAccepted, error) {
-	ctx, sessionID, err := engineSession(ctx, req.ID)
+	ctx, sessionID, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineAccepted{}, err
 	}
@@ -135,9 +116,7 @@ func (EngineInputEndpoint) Handle(ctx context.Context, req EngineInputReq) (Engi
 	if err != nil {
 		return accepted, err
 	}
-	if err := db.CountSessionMessage(ctx, sessionID); err != nil {
-		log.Warn("failed to count a message", "session_id", sessionID, "error", err)
-	}
+	core.CountMessage(ctx, sessionID)
 	return accepted, nil
 }
 
@@ -150,7 +129,7 @@ func (EngineChooseEndpoint) Method() string             { return "POST" }
 func (EngineChooseEndpoint) Path() string               { return "/api/engine/sessions/{id}/choose" }
 func (EngineChooseEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineChooseEndpoint) Handle(ctx context.Context, req EngineChooseReq) (EngineAccepted, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineAccepted{}, err
 	}
@@ -166,7 +145,7 @@ func (EngineTogglesEndpoint) Method() string             { return "POST" }
 func (EngineTogglesEndpoint) Path() string               { return "/api/engine/sessions/{id}/toggles" }
 func (EngineTogglesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineTogglesEndpoint) Handle(ctx context.Context, req EngineToggleReq) (EngineAccepted, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineAccepted{}, err
 	}
@@ -187,21 +166,14 @@ func (EngineConstraintFrequencyEndpoint) Path() string {
 }
 func (EngineConstraintFrequencyEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineConstraintFrequencyEndpoint) Handle(ctx context.Context, req EngineFrequencyReq) (EngineAccepted, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineAccepted{}, err
 	}
-	if !tunesYouthProtection(playerFrom(ctx)) {
+	if !core.MayTuneRuleFrequency(ctx) {
 		return EngineAccepted{}, engineapi.Refusal(engine.Refuse(engine.ProblemDenied, "only staff and heads change how often the youth-protection rule repeats"))
 	}
 	return engineapi.ConstraintFrequencyEndpoint{API: Engine}.Handle(ctx, req)
-}
-
-// tunesYouthProtection says whether a player may change how often a session
-// repeats the youth-protection rule: staff and heads may.
-func tunesYouthProtection(player *obj.User) bool {
-	return player != nil && player.Role != nil &&
-		(player.Role.Role == obj.RoleStaff || player.Role.Role == obj.RoleHead)
 }
 
 // EngineConnectEndpoint brokers the browser's offer to talk to a session's character.
@@ -214,7 +186,7 @@ func (EngineConnectEndpoint) Method() string             { return "POST" }
 func (EngineConnectEndpoint) Path() string               { return "/api/engine/sessions/{id}/connect" }
 func (EngineConnectEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineConnectEndpoint) Handle(ctx context.Context, req EngineConnectReq) (EngineConnectResp, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineConnectResp{}, err
 	}
@@ -230,7 +202,7 @@ func (EnginePauseEndpoint) Method() string             { return "POST" }
 func (EnginePauseEndpoint) Path() string               { return "/api/engine/sessions/{id}/pause" }
 func (EnginePauseEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EnginePauseEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineAccepted, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineAccepted{}, err
 	}
@@ -246,7 +218,7 @@ func (EngineStateEndpoint) Method() string             { return "GET" }
 func (EngineStateEndpoint) Path() string               { return "/api/engine/sessions/{id}/state" }
 func (EngineStateEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineStateEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineSnapshot, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineSnapshot{}, err
 	}
@@ -260,7 +232,7 @@ func (EngineHistoryEndpoint) Method() string             { return "GET" }
 func (EngineHistoryEndpoint) Path() string               { return "/api/engine/sessions/{id}/history" }
 func (EngineHistoryEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineHistoryEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineHistory, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +246,7 @@ func (EngineTopologyEndpoint) Method() string             { return "GET" }
 func (EngineTopologyEndpoint) Path() string               { return "/api/engine/sessions/{id}/topology" }
 func (EngineTopologyEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineTopologyEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineTopology, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
 	if err != nil {
 		return EngineTopology{}, err
 	}
@@ -290,7 +262,7 @@ func (EngineOptionsEndpoint) Method() string             { return "GET" }
 func (EngineOptionsEndpoint) Path() string               { return "/api/engine/sessions/{id}/options" }
 func (EngineOptionsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineOptionsEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineOptions, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
 	if err != nil {
 		return EngineOptions{}, err
 	}
@@ -304,7 +276,7 @@ func (EngineNodeEndpoint) Method() string             { return "GET" }
 func (EngineNodeEndpoint) Path() string               { return "/api/engine/sessions/{id}/nodes/{node}" }
 func (EngineNodeEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineNodeEndpoint) Handle(ctx context.Context, req EngineNodeReq) (EngineNodeDetail, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
 	if err != nil {
 		return EngineNodeDetail{}, err
 	}
@@ -322,7 +294,7 @@ func (EngineEdgeEndpoint) Path() string {
 }
 func (EngineEdgeEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineEdgeEndpoint) Handle(ctx context.Context, req EngineEdgeReq) (EngineEdgeDetail, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
 	if err != nil {
 		return EngineEdgeDetail{}, err
 	}
@@ -336,7 +308,7 @@ func (EnginePromptsEndpoint) Method() string             { return "GET" }
 func (EnginePromptsEndpoint) Path() string               { return "/api/engine/sessions/{id}/prompts" }
 func (EnginePromptsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EnginePromptsEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EnginePrompts, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
 	if err != nil {
 		return nil, err
 	}
@@ -350,7 +322,7 @@ func (EngineGraphEndpoint) Method() string             { return "GET" }
 func (EngineGraphEndpoint) Path() string               { return "/api/engine/sessions/{id}/graph" }
 func (EngineGraphEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineGraphEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineGraphResp, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
 	if err != nil {
 		return EngineGraphResp{}, err
 	}
@@ -364,7 +336,7 @@ func (EngineFlowchartEndpoint) Method() string             { return "GET" }
 func (EngineFlowchartEndpoint) Path() string               { return "/api/engine/sessions/{id}/flowchart" }
 func (EngineFlowchartEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineFlowchartEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineFlowchartResp, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
 	if err != nil {
 		return EngineFlowchartResp{}, err
 	}
@@ -380,7 +352,7 @@ func (EngineStreamEndpoint) Method() string             { return "GET" }
 func (EngineStreamEndpoint) Path() string               { return "/api/engine/sessions/{id}/stream" }
 func (EngineStreamEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineStreamEndpoint) Stream(ctx context.Context, req EngineSessionReq) (<-chan EngineSessionEvent, error) {
-	ctx, _, err := engineSession(ctx, req.ID)
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
 	if err != nil {
 		return nil, err
 	}
@@ -399,11 +371,23 @@ func (EngineLiveEndpoint) Method() string             { return "GET" }
 func (EngineLiveEndpoint) Path() string               { return "/api/engine/sessions/{id}/live" }
 func (EngineLiveEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EngineLiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
-	ctx, _, err := engineSession(r.Context(), r.PathValue("id"))
+	ctx, _, err := engineSession(r.Context(), r.PathValue("id"), core.PlaySession)
 	if err != nil {
 		return err
 	}
-	return engineapi.LiveEndpoint{API: Engine}.HandleRaw(w, r.WithContext(ctx))
+	sessionID, _ := uuid.Parse(r.PathValue("id"))
+	return engineapi.LiveEndpoint{API: Engine, Guard: func(ctx context.Context, turn bool) error {
+		// the same check as every other turn, and a turn counts as one: a
+		// typed line, or a push-to-talk clip; a live voice's flow is checked
+		// and not counted
+		if err := core.OpenSession(ctx, sessionID, core.PlaySession); err != nil {
+			return err
+		}
+		if turn {
+			core.CountMessage(ctx, sessionID)
+		}
+		return nil
+	}}.HandleRaw(w, r.WithContext(ctx))
 }
 
 // EnginePlaybackIndexEndpoint serves the playback-engine's page.
@@ -506,39 +490,22 @@ func (ListThemesEndpoint) Handle(ctx context.Context, _ EngineListReq) (ThemesRe
 	return engine.Themes(), nil
 }
 
-// ctxKeyPlayer carries the signed-in account through the engine's endpoints.
-type ctxKeyPlayer struct{}
-
-func withPlayer(ctx context.Context, user *obj.User) context.Context {
-	if user == nil {
-		return ctx
-	}
-	return context.WithValue(ctx, ctxKeyPlayer{}, user)
-}
-
-// playerFrom is the signed-in account behind an engine request, or nil for a guest.
-func playerFrom(ctx context.Context) *obj.User {
-	user, _ := ctx.Value(ctxKeyPlayer{}).(*obj.User)
-	return user
-}
-
 // createSession is the platform's work behind the engine's POST /sessions:
 // a game for a signed-in player, or a share link for a guest or a signed-in
 // player. The session outlives the request.
 func createSession(ctx context.Context, req EngineCreateReq) (*engine.Session, error) {
-	player := playerFrom(ctx)
 	lifetime := context.WithoutCancel(ctx)
 
-	var created *game.Created
+	var created *session.Created
 	var err error
 	if req.Share != "" {
-		created, err = game.CreateShareSession(lifetime, player, req.Share, req.Language)
+		created, err = session.CreateShareSession(lifetime, req.Share, req.Language)
 	} else {
 		gameID, parseErr := uuid.Parse(req.Game)
 		if parseErr != nil {
 			return nil, engine.Refuse(engine.ProblemDenied, "no such game")
 		}
-		created, err = game.CreateGameSession(lifetime, player, gameID, req.Language)
+		created, err = session.CreateGameSession(lifetime, gameID, req.Language)
 	}
 	if err != nil {
 		return nil, err
@@ -556,15 +523,12 @@ func resumeSession(ctx context.Context, id string) (*engine.Session, error) {
 	if err != nil {
 		return nil, engine.Refuse(engine.ProblemUnknown, "there is no session "+id)
 	}
-	return game.ResumeSession(context.WithoutCancel(ctx), sessionID)
+	return session.ResumeSession(context.WithoutCancel(ctx), sessionID)
 }
 
 // engineCaller names who creates a session, so a one-time key answers only
 // its maker: the signed-in account, or nobody for a guest, whose key the
 // transport already binds to the share token.
 func engineCaller(ctx context.Context) string {
-	if user := playerFrom(ctx); user != nil {
-		return "user:" + user.ID.String()
-	}
-	return ""
+	return core.SessionMaker(ctx)
 }

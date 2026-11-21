@@ -30,10 +30,12 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ActionButton, CancelButton } from "@components/buttons";
 import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
-import { useGame, useGenres, useThemes, useUpdateGame } from "@/api/hooks";
+import { useGame, useGameTemplate, useGenres, useThemes, useUpdateGame } from "@/api/hooks";
+import type { CreateGameReq, GameTemplate } from "@/api/generated/api.gen";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
 import { PrivateShareSection } from "./PrivateShareSection";
 import type { CreateGameFormData } from "../types";
+import { gameChanges, gameCreate, type GameFormFields } from "../lib/gameUpdate";
 
 interface FormValues {
   name: string;
@@ -47,17 +49,53 @@ interface FormValues {
   theme: string;
 }
 
-/** New games are adventures. */
+/** The form values as the fields of a game update. */
+function formFields(v: FormValues): GameFormFields {
+  return {
+    name: v.name,
+    description: v.description,
+    public: v.isPublic,
+    systemMessageScenario: v.systemMessageScenario,
+    systemMessageGameStart: v.systemMessageGameStart,
+    imageStyle: v.imageStyle,
+    statusFields: v.statusFields,
+    genre: v.genre,
+    theme: v.theme,
+  };
+}
+
+/** The template values as the form holds them. */
+function templateFormValues(t: GameTemplate): FormValues {
+  return {
+    name: t.name,
+    description: t.description,
+    isPublic: t.public,
+    systemMessageScenario: t.systemMessageScenario ?? "",
+    systemMessageGameStart: t.systemMessageGameStart ?? "",
+    imageStyle: t.imageStyle ?? "",
+    statusFields: t.statusFields ?? "",
+    genre: t.genre || DEFAULT_GENRE,
+    theme: t.theme ?? "",
+  };
+}
+
+/** Games without a genre are adventures. */
 const DEFAULT_GENRE = "adventure";
+
+/** The sections of a game the caller may change; the server decides. */
+export interface GameEditRights {
+  card: boolean;
+  content: boolean;
+  settings: boolean;
+}
 
 interface GameEditModalProps {
   gameId?: string | null;
   opened: boolean;
   onClose: () => void;
-  onCreate?: (data: CreateGameFormData) => void;
+  /** Creates the game: the template values with the form changes. */
+  onCreate?: (request: CreateGameReq) => void;
   createLoading?: boolean;
-  /** If true, all fields are read-only (view mode) */
-  readOnly?: boolean;
   /** Callback when user clicks Copy button in view mode */
   onCopy?: () => void;
   /** Loading state for copy operation */
@@ -80,7 +118,6 @@ export function GameEditModal({
   onClose,
   onCreate,
   createLoading = false,
-  readOnly = false,
   onCopy,
   copyLoading = false,
   initialData,
@@ -96,7 +133,30 @@ export function GameEditModal({
   const isAdminAction = isAdmin && !isOwner;
 
   const isCreateMode = !gameId;
-  const { data: game, isLoading, error } = useGame(gameId ?? "");
+  const { data: game, isLoading: gameLoading, error: gameError } = useGame(gameId ?? "");
+  // A new game starts from the server's template.
+  const {
+    data: template,
+    isLoading: templateLoading,
+    error: templateError,
+  } = useGameTemplate(isCreateMode && opened);
+  const isLoading = isCreateMode ? templateLoading : gameLoading;
+  const error = isCreateMode ? templateError : gameError;
+  // What the caller may change comes with the game or the template (may*
+  // flags). A new game has no settings yet.
+  const rights: GameEditRights = isCreateMode
+    ? {
+        card: !!template?.mayEditCard,
+        content: !!template?.mayEditContent,
+        settings: false,
+      }
+    : {
+        card: !!game?.mayEditCard,
+        content: !!game?.mayEditContent,
+        settings: !!game?.mayEditSettings,
+      };
+  /** Nothing to change: the dialog only shows the game. */
+  const readOnly = !rights.card && !rights.content && !rights.settings;
   const updateGame = useUpdateGame();
 
   // Form fields
@@ -115,6 +175,8 @@ export function GameEditModal({
 
   // Track initial values for dirty checking
   const initialValues = useRef<FormValues | null>(null);
+  // The template values: a new game sends what differs from them.
+  const templateValues = useRef<FormValues | null>(null);
 
   // Check if form has unsaved changes
   const isDirty = useCallback(() => {
@@ -173,18 +235,20 @@ export function GameEditModal({
       setTheme(values.theme);
     }
     // Initialize for create mode (optionally with pre-populated data)
-    if (isCreateMode && opened && !hasInitialized.current) {
+    if (isCreateMode && opened && template && !hasInitialized.current) {
       hasInitialized.current = true;
+      const base = templateFormValues(template);
+      templateValues.current = base;
       const values: FormValues = {
-        name: initialData?.name ?? "",
-        description: initialData?.description ?? "",
-        isPublic: initialData?.isPublic ?? false,
-        systemMessageScenario: initialData?.systemMessageScenario ?? "",
-        systemMessageGameStart: initialData?.systemMessageGameStart ?? "",
-        imageStyle: initialData?.imageStyle ?? "",
-        statusFields: initialData?.statusFields ?? "",
-        genre: initialData?.genre || DEFAULT_GENRE,
-        theme: initialData?.theme ?? "",
+        name: initialData?.name ?? base.name,
+        description: initialData?.description ?? base.description,
+        isPublic: initialData?.isPublic ?? base.isPublic,
+        systemMessageScenario: initialData?.systemMessageScenario ?? base.systemMessageScenario,
+        systemMessageGameStart: initialData?.systemMessageGameStart ?? base.systemMessageGameStart,
+        imageStyle: initialData?.imageStyle ?? base.imageStyle,
+        statusFields: initialData?.statusFields ?? base.statusFields,
+        genre: initialData?.genre || base.genre,
+        theme: initialData?.theme ?? base.theme,
       };
       initialValues.current = values;
       setName(values.name);
@@ -201,6 +265,7 @@ export function GameEditModal({
     if (!opened) {
       hasInitialized.current = false;
       initialValues.current = null;
+      templateValues.current = null;
       if (isCreateMode) {
         // Reset form for create mode
         setName("");
@@ -215,7 +280,7 @@ export function GameEditModal({
         setNameError("");
       }
     }
-  }, [isCreateMode, game, isLoading, opened, initialData]);
+  }, [isCreateMode, game, isLoading, opened, initialData, template]);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -227,37 +292,32 @@ export function GameEditModal({
       return;
     }
 
+    const edited: GameFormFields = {
+      name: name.trim(),
+      description: description.trim(),
+      public: isPublic,
+      systemMessageScenario: systemMessageScenario.trim(),
+      systemMessageGameStart: systemMessageGameStart.trim(),
+      imageStyle: imageStyle.trim(),
+      statusFields: statusFields.trim(),
+      genre,
+      theme,
+    };
+
     if (isCreateMode) {
-      // Create mode - use onCreate callback
-      onCreate?.({
-        name: name.trim(),
-        description: description.trim(),
-        isPublic,
-        systemMessageScenario: systemMessageScenario.trim() || undefined,
-        systemMessageGameStart: systemMessageGameStart.trim() || undefined,
-        imageStyle: imageStyle.trim() || undefined,
-        statusFields: statusFields.trim() || undefined,
-        genre,
-        theme: theme || undefined,
-      });
-    } else if (game?.id) {
-      // Edit mode - update existing game
+      if (!templateValues.current) return;
+      // A new game: what differs from the template.
+      onCreate?.(gameCreate(formFields(templateValues.current), edited));
+    } else if (game?.id && initialValues.current) {
+      // Edit mode: send only what changed, so an update never touches a
+      // section the caller didn't edit.
+      const changes = gameChanges(formFields(initialValues.current), edited);
+      if (Object.keys(changes).length === 0) {
+        onClose();
+        return;
+      }
       try {
-        await updateGame.mutateAsync({
-          id: game.id,
-          game: {
-            ...game,
-            name: name.trim(),
-            description: description.trim(),
-            public: isPublic,
-            systemMessageScenario: systemMessageScenario.trim(),
-            systemMessageGameStart: systemMessageGameStart.trim(),
-            imageStyle: imageStyle.trim(),
-            statusFields: statusFields.trim(),
-            genre,
-            theme: theme || undefined,
-          },
-        });
+        await updateGame.mutateAsync({ id: game.id, changes });
         onClose();
       } catch {
         // Error handled by mutation
@@ -284,7 +344,7 @@ export function GameEditModal({
     }
   };
 
-  const isLoaderActive = !isCreateMode && isLoading;
+  const isLoaderActive = isLoading;
   const isSaving = isCreateMode ? createLoading : updateGame.isPending;
 
   const modalContent = () => {
@@ -298,7 +358,7 @@ export function GameEditModal({
       );
     }
 
-    if (!isCreateMode && (error || !game)) {
+    if (error || (isCreateMode ? !template : !game)) {
       return (
         <Alert icon={<IconAlertCircle size={16} />} color="red">
           {t("games.errors.loadFailed")}
@@ -350,10 +410,10 @@ export function GameEditModal({
             }}
             error={nameError}
             required
-            readOnly={readOnly}
+            readOnly={!rights.card}
             maxLength={70}
             description={
-              readOnly
+              !rights.card
                 ? undefined
                 : isCreateMode
                   ? `${name.length}/70 · ${t("games.privacyHintShort")}`
@@ -362,7 +422,7 @@ export function GameEditModal({
             data-autofocus
           />
 
-          <GenreSelect value={genre} onChange={setGenre} readOnly={readOnly} />
+          <GenreSelect value={genre} onChange={setGenre} readOnly={!rights.card} />
 
           {/* Scenario */}
           <Textarea
@@ -375,7 +435,7 @@ export function GameEditModal({
             autosize
             maxRows={12}
             required
-            readOnly={readOnly}
+            readOnly={!rights.content}
           />
 
           {/* Game Start */}
@@ -389,7 +449,7 @@ export function GameEditModal({
             autosize
             maxRows={8}
             required
-            readOnly={readOnly}
+            readOnly={!rights.content}
           />
 
           {/* Image Style */}
@@ -400,17 +460,17 @@ export function GameEditModal({
             onChange={(e) => setImageStyle(e.target.value)}
             placeholder="e.g., pixel art, watercolor, realistic..."
             required
-            readOnly={readOnly}
+            readOnly={!rights.content}
           />
 
           {/* Status Fields */}
           <StatusFieldsEditor
             value={statusFields}
             onChange={setStatusFields}
-            readOnly={readOnly}
+            readOnly={!rights.content}
           />
 
-          <ThemeSelect value={theme} onChange={setTheme} readOnly={readOnly} />
+          <ThemeSelect value={theme} onChange={setTheme} readOnly={!rights.card} />
 
           {/* Description - moved to end */}
           <Textarea
@@ -420,7 +480,7 @@ export function GameEditModal({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             minRows={3}
-            readOnly={readOnly}
+            readOnly={!rights.card}
           />
 
           {/* Sharing & Visibility section */}
@@ -429,11 +489,13 @@ export function GameEditModal({
             gameId={isCreateMode ? undefined : gameId!}
             isPublic={isPublic}
             setIsPublic={setIsPublic}
-            readOnly={readOnly}
+            mayEditCard={rights.card}
+            mayPublish={!!(isCreateMode ? template : game)?.mayPublish}
+            wasPublic={!!(isCreateMode ? template : game)?.public}
+            mayShare={!!game?.mayShare}
             onSponsor={!isCreateMode ? onSponsor : undefined}
             showShareSection={!isCreateMode && showShareSection}
             workshopId={workshopId}
-            isOwner={isOwner}
           />
         </Stack>
       </ScrollArea>
@@ -516,11 +578,13 @@ function SharingSection({
   gameId,
   isPublic,
   setIsPublic,
-  readOnly,
+  mayEditCard,
+  mayPublish,
+  wasPublic,
+  mayShare,
   onSponsor,
   showShareSection,
   workshopId,
-  isOwner = true,
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
@@ -529,27 +593,27 @@ function SharingSection({
   gameId?: string;
   isPublic: boolean;
   setIsPublic: (v: boolean) => void;
-  readOnly: boolean;
+  /** Making the game private again is a card change. */
+  mayEditCard: boolean;
+  /** The caller may make the game public (the server's flag). */
+  mayPublish: boolean;
+  /** The game is public as loaded. */
+  wasPublic: boolean;
+  /** The caller may share the game where they are now (the server's flag). */
+  mayShare: boolean;
   onSponsor?: () => void;
   showShareSection?: boolean;
   workshopId?: string;
-  isOwner?: boolean;
 }) {
   const { t } = useTranslation("common");
 
   const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
 
-  // Whoever may edit a workshop game may publish it; any other game only its creator
-  // (server: db.UpdateGame).
-  const canPublish = isOwner || (!readOnly && !!game?.workshopId);
+  const canShowShareInContext = showShareSection && mayShare;
 
-  // Check if game belongs to the current workshop context
-  const gameBelongsToWorkshop = !workshopId || game?.workshopId === workshopId;
-
-  // In workshop mode, only show share section if the game belongs to this workshop
-  // and sharing is enabled. Non-owners can only share public games.
-  const canShowShareInContext =
-    showShareSection && gameBelongsToWorkshop && (!workshopId || isOwner || isPublic);
+  // Switching on needs mayPublish, switching a public game off needs
+  // mayEditCard; taking back an unsaved switch is always possible.
+  const canSwitch = isPublic ? mayEditCard || !wasPublic : mayPublish;
 
   // Only show public sponsoring when game is public
   const canShowSponsoring = onSponsor && isPublic;
@@ -570,14 +634,12 @@ function SharingSection({
             label={t("games.createModal.publicLabel")}
             checked={isPublic}
             onChange={(e) => setIsPublic(e.currentTarget.checked)}
-            disabled={readOnly || (!canPublish && !isPublic)}
+            disabled={!canSwitch}
           />
           <Text size="sm" c="dimmed">
-            {!canPublish && !isPublic
-              ? t("games.createModal.publicOwnerOnly", "Only the game creator can make a game public")
-              : t("games.createModal.publicDescription")}
+            {t("games.createModal.publicDescription")}
           </Text>
-          {!readOnly && (
+          {mayPublish && !isPublic && (
             <Text size="xs" c="orange.8">
               {t("games.privacyHint")}
             </Text>
@@ -587,18 +649,6 @@ function SharingSection({
           <Text size="xs" c="orange" fw={500}>
             {t("games.sponsor.privateWarning")}
           </Text>
-        )}
-
-        {workshopId && !gameBelongsToWorkshop && (
-          <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
-            {t("games.sharing.publicGameWorkshopHint")}
-          </Alert>
-        )}
-
-        {workshopId && gameBelongsToWorkshop && showShareSection && !canPublish && !isPublic && (
-          <Alert icon={<IconAlertCircle size={16} />} color="yellow" variant="light">
-            {t("games.sharing.workshopShareRequiresPublic", "This game must be public before it can be shared in the workshop.")}
-          </Alert>
         )}
 
         {canShowShareInContext && (

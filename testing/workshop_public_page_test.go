@@ -24,15 +24,15 @@ func TestWorkshopPublicPageSuite(t *testing.T) {
 }
 
 type publicPageFixture struct {
-	head        *testutil.UserClient
-	participant *testutil.UserClient
-	wsID        string
-	wsName      string
-	slug        string
+	head   *testutil.UserClient
+	guest  *testutil.UserClient
+	wsID   string
+	wsName string
+	slug   string
 }
 
 // setup creates an institution with a head, a workshop with a working key, and
-// one participant. withKey false leaves the workshop without a key.
+// one guest. withKey false leaves the workshop without a key.
 func (s *WorkshopPublicPageTestSuite) setup(prefix string, withKey bool) publicPageFixture {
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution(prefix + " Org"))
@@ -51,11 +51,11 @@ func (s *WorkshopPublicPageTestSuite) setup(prefix string, withKey bool) publicP
 	}
 
 	invite := Must(head.CreateWorkshopInvite(wsID))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	ws := Must(head.GetWorkshop(wsID))
 	s.Require().NotNil(ws.PublicSlug, "a new workshop must have a public page link")
-	return publicPageFixture{head: head, participant: participant, wsID: wsID, wsName: name, slug: *ws.PublicSlug}
+	return publicPageFixture{head: head, guest: guest, wsID: wsID, wsName: name, slug: *ws.PublicSlug}
 }
 
 // updateWorkshop saves the workshop as the head: active, public or not, and
@@ -114,14 +114,14 @@ func (s *WorkshopPublicPageTestSuite) TestListsOnlyPublicGamesWithoutCreators() 
 	f := s.setup("pubpage-games", true)
 	Must(s.updateWorkshop(f, true, nil))
 
-	shown := Must(f.participant.UploadGame("alien-first-contact"))
-	hidden := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, shown.Id.String(), true)
+	shown := Must(f.guest.UploadGame("alien-first-contact"))
+	hidden := Must(f.guest.UploadGame("alien-first-contact"))
+	s.setGamePublic(f.guest, shown.Id.String(), true)
 
 	// A public game from another workshop stays off this page.
 	other := s.setup("pubpage-games-other", true)
-	foreign := Must(other.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(other.participant, foreign.Id.String(), true)
+	foreign := Must(other.guest.UploadGame("alien-first-contact"))
+	s.setGamePublic(other.guest, foreign.Id.String(), true)
 
 	page := Must(s.page(f.slug))
 	s.True(page.PlayAvailable)
@@ -148,8 +148,8 @@ func (s *WorkshopPublicPageTestSuite) TestListsOnlyPublicGamesWithoutCreators() 
 func (s *WorkshopPublicPageTestSuite) TestNoPlayWithoutWorkshopKey() {
 	f := s.setup("pubpage-nokey", false)
 	Must(s.updateWorkshop(f, true, nil))
-	game := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, game.Id.String(), true)
+	game := Must(f.guest.UploadGame("alien-first-contact"))
+	s.setGamePublic(f.guest, game.Id.String(), true)
 
 	page := Must(s.page(f.slug))
 	s.False(page.PlayAvailable)
@@ -160,8 +160,8 @@ func (s *WorkshopPublicPageTestSuite) TestNoPlayWithoutWorkshopKey() {
 func (s *WorkshopPublicPageTestSuite) TestPlayStaysApartFromHandMadeLinks() {
 	f := s.setup("pubpage-play", true)
 	Must(s.updateWorkshop(f, true, nil))
-	game := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, game.Id.String(), true)
+	game := Must(f.guest.UploadGame("alien-first-contact"))
+	s.setGamePublic(f.guest, game.Id.String(), true)
 
 	play := Must(s.page(f.slug)).Games[0].Play
 	s.Require().NotNil(play)
@@ -179,8 +179,8 @@ func (s *WorkshopPublicPageTestSuite) TestPlayStaysApartFromHandMadeLinks() {
 func (s *WorkshopPublicPageTestSuite) TestLinksRevoked() {
 	f := s.setup("pubpage-revoke", true)
 	Must(s.updateWorkshop(f, true, nil))
-	game := Must(f.participant.UploadGame("alien-first-contact"))
-	s.setGamePublic(f.participant, game.Id.String(), true)
+	game := Must(f.guest.UploadGame("alien-first-contact"))
+	s.setGamePublic(f.guest, game.Id.String(), true)
 
 	// Unpublishing the game revokes its link.
 	token := Must(s.page(f.slug)).Games[0].Play.Token
@@ -236,9 +236,9 @@ func (s *WorkshopPublicPageTestSuite) TestEditSlug() {
 	Must(s.updateWorkshop(f, true, s.withDescription(strings.Repeat("ä", 2000))))
 }
 
-func (s *WorkshopPublicPageTestSuite) TestParticipantCannotChangePage() {
+func (s *WorkshopPublicPageTestSuite) TestGuestCannotChangePage() {
 	f := s.setup("pubpage-perm", true)
-	_, err := f.participant.UpdateWorkshop(f.wsID, testutil.WorkshopUpdate{
+	_, err := f.guest.UpdateWorkshop(f.wsID, testutil.WorkshopUpdate{
 		Name: f.wsName, Active: true, Public: true,
 	})
 	s.Forbidden(err)

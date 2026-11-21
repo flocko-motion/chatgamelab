@@ -30,7 +30,6 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import { useAuth } from "@/providers/AuthProvider";
 import { ActionButton, PlusIconButton, DeleteIconButton, EditIconButton } from "@/common/components/buttons";
 import { CancelButton } from "@/common/components/buttons";
 import {
@@ -47,7 +46,7 @@ import {
   useRevokePrivateShare,
   useUpdateGameShare,
 } from "@/api/hooks";
-import type { ApiKeyShare, EnrichedGameShare } from "@/api/generated/api.gen";
+import type { KeyShareView, ShareLinkView } from "@/api/generated/api.gen";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 
@@ -64,7 +63,6 @@ export function ApiKeysTab({
 }: ApiKeysTabProps) {
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
-  const { backendUser } = useAuth();
   const [shareModalOpened, { open: openShareModal, close: closeShareModal }] =
     useDisclosure(false);
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
@@ -122,13 +120,10 @@ export function ApiKeysTab({
     });
   }, [institutionKeys, searchQuery, platformFilter]);
 
-  // Filter user's own keys that aren't already shared with the institution
+  // The caller's own keys that aren't already given to the institution
   const ownKeys = userKeys?.apiKeys ?? [];
   const ownShares = userKeys?.shares ?? [];
   const availableKeysToShare = ownKeys.filter((key) => {
-    // Only show keys the user owns
-    if (key.userId !== backendUser?.id) return false;
-    // Don't show keys already shared with this institution
     const alreadyShared = institutionKeys?.some(
       (instShare) => instShare.apiKeyId === key.id,
     );
@@ -138,14 +133,9 @@ export function ApiKeysTab({
   const handleShareKey = async () => {
     if (!selectedKeyId) return;
 
-    // Find the user's self-share for this API key (backend expects share ID, not key ID)
+    // The owner's own-use share of this key (backend expects share ID, not key ID)
     const selfShare = ownShares.find(
-      (s) =>
-        s.apiKeyId === selectedKeyId &&
-        s.user &&
-        !s.institution &&
-        !s.workshop &&
-        !s.game,
+      (s) => s.apiKeyId === selectedKeyId && s.self,
     );
     if (!selfShare?.id) return;
 
@@ -160,7 +150,7 @@ export function ApiKeysTab({
 
   const [expandedShareId, setExpandedShareId] = useState<string | null>(null);
 
-  const handleRemoveShare = async (share: ApiKeyShare) => {
+  const handleRemoveShare = async (share: KeyShareView) => {
     if (!share.id) return;
     await removeShare.mutateAsync({
       shareId: share.id,
@@ -496,7 +486,7 @@ export function ApiKeysTab({
 // --- Mobile card for org API key ---
 
 interface OrgKeyRowProps {
-  share: ApiKeyShare;
+  share: KeyShareView;
   expanded: boolean;
   onToggle: () => void;
   onRemove: () => void;
@@ -544,18 +534,21 @@ function OrgKeyCardMobile({
             </Group>
           </Stack>
         </Group>
-        <ActionIcon
-          color="red"
-          variant="subtle"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          loading={isRemoving}
-        >
-          <IconTrash size={14} />
-        </ActionIcon>
+        {share.mayRevoke && (
+          <ActionIcon
+            color="red"
+            variant="subtle"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            loading={isRemoving}
+            aria-label={t("myOrganization.apiKeys.removeShare")}
+          >
+            <IconTrash size={14} />
+          </ActionIcon>
+        )}
       </Group>
       {expanded && <OrgKeyDetails shareId={share.id ?? ""} />}
     </Card>
@@ -597,17 +590,20 @@ function OrgKeyRow({
           <Text size="sm">{share.apiKey?.platform}</Text>
         </Table.Td>
         <Table.Td>
-          <ActionIcon
-            color="red"
-            variant="subtle"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-            loading={isRemoving}
-          >
-            <IconTrash size={16} />
-          </ActionIcon>
+          {share.mayRevoke && (
+            <ActionIcon
+              color="red"
+              variant="subtle"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              loading={isRemoving}
+              aria-label={t("myOrganization.apiKeys.removeShare")}
+            >
+              <IconTrash size={16} />
+            </ActionIcon>
+          )}
         </Table.Td>
       </Table.Tr>
       {expanded && (
@@ -665,7 +661,7 @@ function OrgKeyDetails({ shareId }: { shareId: string }) {
   );
 }
 
-function OrgGameShareRow({ gameShare }: { gameShare: EnrichedGameShare }) {
+function OrgGameShareRow({ gameShare }: { gameShare: ShareLinkView }) {
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
   const revokeShare = useRevokePrivateShare();

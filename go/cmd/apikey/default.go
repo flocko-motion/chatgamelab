@@ -62,21 +62,12 @@ func runDefault(cmd *cobra.Command, args []string) {
 	// Set or clear default
 	arg := args[0]
 
-	email := ""
-	if user.Email != nil {
-		email = *user.Email
-	}
-
 	shareID, err := uuid.Parse(arg)
 	if err != nil {
 		log.Fatalf("Invalid share ID: %v", err)
 	}
 
-	req := api.UpdateUserReq{
-		Name:                 user.Name,
-		Email:                email,
-		DefaultApiKeyShareID: &shareID,
-	}
+	req := api.UpdateUserReq{DefaultApiKeyShareID: &shareID} // only what changes
 	if err := client.ApiPost("users/"+user.ID.String(), req, nil); err != nil {
 		log.Fatalf("Failed to set default API key: %v", err)
 	}

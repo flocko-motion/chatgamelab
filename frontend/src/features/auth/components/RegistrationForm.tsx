@@ -23,7 +23,7 @@ import { authLogger } from '@/config/logger';
 import { takeReturnTo } from '@/common/lib/returnTo';
 
 import { useAuth, type RegistrationData } from '@/providers/AuthProvider';
-import { api, withQuery } from '@/api/client/api';
+import { api } from '@/api/client/api';
 import { AgeGroup, AGE_GROUP_UNDER_13 } from '@/constants/ageGroup';
 
 interface RegistrationFormProps {
@@ -83,7 +83,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
 
       setIsCheckingName(true);
       try {
-        const response = await api.getApiAuthCheckName(withQuery({ name: debouncedName }));
+        const response = await api.getApiAuthCheckName({ name: debouncedName });
         const data = response.data as { available?: boolean; profane?: boolean };
         const available = data.available ?? false;
         setNameAvailable(available);
@@ -121,7 +121,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     setSubmitError(null);
 
     try {
-      await registerUser(data.name.trim(), data.email.trim(), ageGroup);
+      await registerUser({ name: data.name.trim(), email: data.email.trim(), ageGroup });
       navigate({ to: (takeReturnTo() ?? '/dashboard') as '/' });
     } catch (error: unknown) {
       authLogger.error('Registration failed', { error });

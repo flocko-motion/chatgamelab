@@ -298,7 +298,7 @@ func (a *API) SchemafRoutes() []schemafapi.Route {
 		schemafapi.NewRoute(GraphEndpoint{a}, "", ""),
 		schemafapi.NewRoute(FlowchartEndpoint{a}, "", ""),
 		schemafapi.NewStreamRoute(StreamEndpoint{a}, "", ""),
-		schemafapi.NewRawRoute(LiveEndpoint{a}, "", ""),
+		schemafapi.NewRawRoute(LiveEndpoint{API: a}, "", ""),
 		schemafapi.NewRawRoute(PlaybackIndexEndpoint{}, "", ""),
 		schemafapi.NewRawRoute(PlaybackFileEndpoint{}, "", ""),
 		schemafapi.NewRawRoute(PlaybackNestedFileEndpoint{}, "", ""),

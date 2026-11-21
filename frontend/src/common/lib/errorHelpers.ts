@@ -74,6 +74,30 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.tokenLocked",
     messageKey: "errors:tokenLocked",
   },
+  [ErrorCodes.INSTITUTION_AGE_NOT_ALLOWED]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "auth:organizationRegistration.errors.institution_age_not_allowed",
+  },
+  [ErrorCodes.INSTITUTION_NAME_TAKEN]: {
+    titleKey: "errors:titles.error",
+    messageKey: "auth:organizationRegistration.errors.institution_name_taken",
+  },
+  [ErrorCodes.EMAIL_BELONGS_TO_OTHER_ACCOUNT]: {
+    titleKey: "errors:titles.error",
+    messageKey: "auth:organizationRegistration.errors.email_belongs_to_other_account",
+  },
+  [ErrorCodes.DECLARATION_VERSION_OUTDATED]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "auth:organizationRegistration.errors.declaration_version_outdated",
+  },
+  [ErrorCodes.INSTITUTION_CONSENTS_REQUIRED]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "auth:organizationRegistration.errors.institution_consents_required",
+  },
+  [ErrorCodes.ORGANISATION_SUSPENDED]: {
+    titleKey: "errors:titles.organisationSuspended",
+    messageKey: "errors:organisationSuspended",
+  },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:rateLimitExceeded",

@@ -31,7 +31,7 @@ import {
   useUpdateGameShare,
   useWorkshop,
 } from "@/api/hooks";
-import type { EnrichedGameShare } from "@/api/generated/api.gen";
+import type { ShareLinkView } from "@/api/generated/api.gen";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   getAiQualityTierLabel,
@@ -72,7 +72,7 @@ export function PrivateShareSection({
   const [selectedShareId, setSelectedShareId] = useState<string | null>(null);
   const [maxSessions, setMaxSessions] = useState<number | string>("");
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
-  const [editingShare, setEditingShare] = useState<EnrichedGameShare | null>(null);
+  const [editingShare, setEditingShare] = useState<ShareLinkView | null>(null);
   const [editMaxSessions, setEditMaxSessions] = useState<number | string>("");
   const [editTier, setEditTier] = useState<string | null>(null);
 
@@ -88,8 +88,8 @@ export function PrivateShareSection({
       if (!share.id || seenShareIds.has(share.id)) continue;
       const apiKey = keys.find((k) => k.id === share.apiKeyId);
       if (apiKey?.lastUsageSuccess === false) continue;
-      // Only include pure self-shares (no institution, workshop, or game context)
-      if (share.institution || share.workshop || share.game) continue;
+      // Only the owner's own-use shares the caller may draw from
+      if (!share.self || !share.mayShare) continue;
       seenShareIds.add(share.id);
       eligibleKeys.push({
         id: share.id,
@@ -100,6 +100,7 @@ export function PrivateShareSection({
     }
     for (const share of institutionKeys ?? []) {
       if (!share.id || seenShareIds.has(share.id)) continue;
+      if (!share.mayShare) continue;
       if (share.apiKey?.lastUsageSuccess === false) continue;
       seenShareIds.add(share.id);
       eligibleKeys.push({
@@ -160,7 +161,7 @@ export function PrivateShareSection({
     }
   };
 
-  const handleOpenEdit = (share: EnrichedGameShare) => {
+  const handleOpenEdit = (share: ShareLinkView) => {
     setEditingShare(share);
     setEditMaxSessions(share.remaining ?? "");
     setEditTier(normalizeAiQualityTier(share.aiQualityTier) || null);
@@ -417,7 +418,7 @@ function ShareCard({
   isRevoking,
   t,
 }: {
-  share: EnrichedGameShare;
+  share: ShareLinkView;
   onRevoke: () => void;
   onEdit: () => void;
   isRevoking: boolean;

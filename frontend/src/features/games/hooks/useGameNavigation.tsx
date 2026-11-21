@@ -3,13 +3,16 @@ import { useNavigate } from "@tanstack/react-router";
 import { useModals } from "@mantine/modals";
 import { Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import type { Game, UserSessionWithGame } from "@/api/generated/api.gen";
+import type { Game, SessionView } from "@/api/generated/api.gen";
+
+/** What playing needs of a game: a full game or a list card both do. */
+type GameRef = Pick<Game, "id" | "name">;
 import { useDeleteSession } from "@/api/hooks";
 import { forgetRememberedSession } from "@/features/play/playback";
 
 /**
  * Shared hook for game play/continue/restart navigation logic.
- * Used by AllGames, MyGames, and MyWorkshop.
+ * Used by the game lists (GamesTable).
  */
 export function useGameNavigation() {
   const navigate = useNavigate();
@@ -18,7 +21,7 @@ export function useGameNavigation() {
   const deleteSession = useDeleteSession();
 
   const playGame = useCallback(
-    (game: Game) => {
+    (game: GameRef) => {
       if (game.id) {
         navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
       }
@@ -27,7 +30,7 @@ export function useGameNavigation() {
   );
 
   const continueGame = useCallback(
-    (session: UserSessionWithGame) => {
+    (session: SessionView) => {
       if (session.id) {
         navigate({ to: `/sessions/${session.id}` as "/" });
       }
@@ -36,7 +39,7 @@ export function useGameNavigation() {
   );
 
   const restartGame = useCallback(
-    (game: Game, session: UserSessionWithGame) => {
+    (game: GameRef, session: SessionView) => {
       if (!game.id || !session.id) return;
 
       modals.openConfirmModal({

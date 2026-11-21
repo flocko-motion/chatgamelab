@@ -45,7 +45,7 @@ func (CheckNameAvailabilityEndpoint) Handle(ctx context.Context, req CheckNameRe
 
 // CheckNameReq is the name to check.
 type CheckNameReq struct {
-	Name string `query:"name" json:"-"`
+	Name string `query:"name"`
 }
 
 // CheckNameResp says whether the name is free, and whether it is profane.

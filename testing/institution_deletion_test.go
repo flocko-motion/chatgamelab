@@ -21,11 +21,11 @@ func TestInstitutionDeletionSuite(t *testing.T) {
 }
 
 // TestAdminCanDeleteInstitutionWithCascade tests that an admin can delete an institution
-// and all its workshops, participants, member users, games, and API keys are cleaned up.
+// and all its workshops, guests, member users, games, and API keys are cleaned up.
 func (s *InstitutionDeletionTestSuite) TestAdminCanDeleteInstitutionWithCascade() {
 	admin := s.DevUser()
 
-	// Setup: institution + head + staff + workshop + participant + games + API keys
+	// Setup: institution + head + staff + workshop + guest + games + API keys
 	inst := Must(admin.CreateInstitution("Cascade Del Org"))
 	instIDStr := inst.Id.String()
 
@@ -42,17 +42,17 @@ func (s *InstitutionDeletionTestSuite) TestAdminCanDeleteInstitutionWithCascade(
 	Must(head.ShareApiKeyWithInstitution(headKey.Id.String(), instIDStr))
 	s.T().Logf("Head shared key with org")
 
-	// Create workshop with participant
+	// Create workshop with guest
 	workshop := Must(head.CreateWorkshop(instIDStr, "Cascade Del Workshop"))
 	wsIDStr := workshop.Id.String()
 
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
-	s.T().Logf("Participant joined: %s", participant.Name)
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
+	s.T().Logf("Guest joined: %s", guest.Name)
 
-	// Participant creates a game
-	game := Must(participant.UploadGame("alien-first-contact"))
-	s.T().Logf("Participant created game: %s (ID: %s)", game.Name, game.Id)
+	// Guest creates a game
+	game := Must(guest.UploadGame("alien-first-contact"))
+	s.T().Logf("Guest created game: %s (ID: %s)", game.Name, game.Id)
 
 	// Count users before
 	usersBefore := Must(admin.GetUsers())
@@ -68,10 +68,10 @@ func (s *InstitutionDeletionTestSuite) TestAdminCanDeleteInstitutionWithCascade(
 		s.NotEqual(inst.Id, i.Id, "institution should be deleted")
 	}
 
-	// Only participant should be deleted; head and staff survive
+	// Only guest should be deleted; head and staff survive
 	usersAfter := Must(admin.GetUsers())
 	s.T().Logf("Users after deletion: %d", len(usersAfter))
-	s.Equal(len(usersBefore)-1, len(usersAfter), "only participant should be removed")
+	s.Equal(len(usersBefore)-1, len(usersAfter), "only guest should be removed")
 
 	// Head and staff should still exist with individual roles
 	headMe := Must(head.GetMe())
@@ -84,16 +84,16 @@ func (s *InstitutionDeletionTestSuite) TestAdminCanDeleteInstitutionWithCascade(
 	s.Equal("individual", staffMe.Role.Role, "staff should become individual")
 	s.T().Logf("Head and staff survived institution deletion with individual roles")
 
-	// Participant's game should be gone
+	// Guest's game should be gone
 	games := Must(admin.ListGames())
 	for _, g := range games {
-		s.NotEqual(game.Id, g.Id, "participant's game should be deleted")
+		s.NotEqual(game.Id, g.Id, "guest's game should be deleted")
 	}
-	s.T().Logf("Institution deleted: participant + game removed, head + staff survived")
+	s.T().Logf("Institution deleted: guest + game removed, head + staff survived")
 }
 
 // TestAdminDeleteOrgMultipleUsersAndWorkshops tests deleting an org with 2 heads, 2 staff,
-// 2 workshops each with 2 participants. Participants should be deleted, heads/staff should survive.
+// 2 workshops each with 2 guests. Guests should be deleted, heads/staff should survive.
 func (s *InstitutionDeletionTestSuite) TestAdminDeleteOrgMultipleUsersAndWorkshops() {
 	admin := s.DevUser()
 
@@ -116,24 +116,24 @@ func (s *InstitutionDeletionTestSuite) TestAdminDeleteOrgMultipleUsersAndWorksho
 	Must(staff2.AcceptInvite(s2Invite.Id.String()))
 	s.T().Logf("2 heads + 2 staff joined")
 
-	// Create 2 workshops, each with 2 participants
+	// Create 2 workshops, each with 2 guests
 	ws1 := Must(head1.CreateWorkshop(instIDStr, "MU Workshop 1"))
 	ws2 := Must(head1.CreateWorkshop(instIDStr, "MU Workshop 2"))
 
-	var participants []*testutil.UserClient
+	var guests []*testutil.UserClient
 	for _, ws := range []struct{ id string }{{ws1.Id.String()}, {ws2.Id.String()}} {
 		for i := 0; i < 2; i++ {
 			invite := Must(head1.CreateWorkshopInvite(ws.id))
 			p := Must(s.JoinWorkshop(*invite.InviteToken))
-			participants = append(participants, p)
+			guests = append(guests, p)
 		}
 	}
-	s.T().Logf("4 participants joined across 2 workshops")
+	s.T().Logf("4 guests joined across 2 workshops")
 
-	// Participants create games
-	game1 := Must(participants[0].UploadGame("alien-first-contact"))
-	game2 := Must(participants[2].UploadGame("alien-first-contact"))
-	s.T().Logf("Participants created games: %s, %s", game1.Id, game2.Id)
+	// Guests create games
+	game1 := Must(guests[0].UploadGame("alien-first-contact"))
+	game2 := Must(guests[2].UploadGame("alien-first-contact"))
+	s.T().Logf("Guests created games: %s, %s", game1.Id, game2.Id)
 
 	// Staff creates API key and shares with org
 	staffKey := Must(staff1.AddApiKey("mock-mu-staff", "Staff Key", "openai"))
@@ -154,30 +154,30 @@ func (s *InstitutionDeletionTestSuite) TestAdminDeleteOrgMultipleUsersAndWorksho
 		s.NotEqual(inst.Id, i.Id, "institution should be deleted")
 	}
 
-	// 4 participants deleted, 4 non-participants (2 heads + 2 staff) survive
+	// 4 guests deleted, 4 non-guests (2 heads + 2 staff) survive
 	usersAfter := Must(admin.GetUsers())
 	s.T().Logf("Users after: %d", len(usersAfter))
-	s.Equal(len(usersBefore)-4, len(usersAfter), "only 4 participants should be removed")
+	s.Equal(len(usersBefore)-4, len(usersAfter), "only 4 guests should be removed")
 
 	// Verify all heads and staff still exist
 	Must(head1.GetMe())
 	Must(head2.GetMe())
 	Must(staff1.GetMe())
 	Must(staff2.GetMe())
-	s.T().Logf("All 4 non-participants survived")
+	s.T().Logf("All 4 non-guests survived")
 
-	// Verify participant games are gone
+	// Verify guest games are gone
 	games := Must(admin.ListGames())
 	for _, g := range games {
-		s.NotEqual(game1.Id, g.Id, "participant game1 should be deleted")
-		s.NotEqual(game2.Id, g.Id, "participant game2 should be deleted")
+		s.NotEqual(game1.Id, g.Id, "guest game1 should be deleted")
+		s.NotEqual(game2.Id, g.Id, "guest game2 should be deleted")
 	}
-	s.T().Logf("All participant games deleted, all non-participants survived")
+	s.T().Logf("All guest games deleted, all non-guests survived")
 }
 
-// TestDeleteInstitutionUnlinksMemberGamesDeletesParticipantGames tests that when an institution
-// is deleted, participant games are removed but head/staff games are preserved (unlinked from workshop).
-func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDeletesParticipantGames() {
+// TestDeleteInstitutionUnlinksMemberGamesDeletesGuestGames tests that when an institution
+// is deleted, guest games are removed but head/staff games are preserved (unlinked from workshop).
+func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDeletesGuestGames() {
 	admin := s.DevUser()
 
 	inst := Must(admin.CreateInstitution("Game Unlink Org"))
@@ -191,12 +191,12 @@ func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDe
 	staffInvite := Must(head.InviteToInstitution(instIDStr, "staff", staff.ID))
 	Must(staff.AcceptInvite(staffInvite.Id.String()))
 
-	// Create workshop with a participant
+	// Create workshop with a guest
 	workshop := Must(head.CreateWorkshop(instIDStr, "Game Unlink Workshop"))
 	wsIDStr := workshop.Id.String()
 
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	// Head creates a game (member game — should be preserved)
 	headGame := Must(head.UploadGame("alien-first-contact"))
@@ -206,9 +206,9 @@ func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDe
 	staffGame := Must(staff.UploadGame("alien-first-contact"))
 	s.T().Logf("Staff created game: %s (ID: %s)", staffGame.Name, staffGame.Id)
 
-	// Participant creates a game (should be deleted)
-	participantGame := Must(participant.UploadGame("alien-first-contact"))
-	s.T().Logf("Participant created game: %s (ID: %s)", participantGame.Name, participantGame.Id)
+	// Guest creates a game (should be deleted)
+	guestGame := Must(guest.UploadGame("alien-first-contact"))
+	s.T().Logf("Guest created game: %s (ID: %s)", guestGame.Name, guestGame.Id)
 
 	// Delete the institution
 	MustSucceed(admin.DeleteInstitution(instIDStr))
@@ -228,10 +228,10 @@ func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDe
 	s.Nil(fetchedStaffGame.WorkshopId, "staff's game should be unlinked from workshop")
 	s.T().Logf("Staff's game survived and is unlinked")
 
-	// Participant's game should be gone (participant user deleted)
-	_, err = admin.GetGameByID(participantGame.Id.String())
-	s.NotFound(err, "participant's game should be deleted with institution")
-	s.T().Logf("Participant's game correctly deleted")
+	// Guest's game should be gone (guest user deleted)
+	_, err = admin.GetGameByID(guestGame.Id.String())
+	s.NotFound(err, "guest's game should be deleted with institution")
+	s.T().Logf("Guest's game correctly deleted")
 
 	// Head and staff should now have individual roles (not left without a role)
 	headMe := Must(head.GetMe())
@@ -248,7 +248,7 @@ func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDe
 }
 
 // TestDeleteWorkshopUnlinksMemberGames tests that deleting a single workshop
-// unlinks member games and deletes participant games.
+// unlinks member games and deletes guest games.
 func (s *InstitutionDeletionTestSuite) TestDeleteWorkshopUnlinksMemberGames() {
 	admin := s.DevUser()
 
@@ -263,15 +263,15 @@ func (s *InstitutionDeletionTestSuite) TestDeleteWorkshopUnlinksMemberGames() {
 	wsIDStr := workshop.Id.String()
 
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	// Head creates a game in the workshop context
 	headGame := Must(head.UploadGame("alien-first-contact"))
 	s.T().Logf("Head created game: %s", headGame.Id)
 
-	// Participant creates a game
-	participantGame := Must(participant.UploadGame("alien-first-contact"))
-	s.T().Logf("Participant created game: %s", participantGame.Id)
+	// Guest creates a game
+	guestGame := Must(guest.UploadGame("alien-first-contact"))
+	s.T().Logf("Guest created game: %s", guestGame.Id)
 
 	// Delete the workshop (not the institution)
 	MustSucceed(head.DeleteWorkshop(wsIDStr))
@@ -284,10 +284,10 @@ func (s *InstitutionDeletionTestSuite) TestDeleteWorkshopUnlinksMemberGames() {
 	s.Nil(fetchedHeadGame.WorkshopId, "head's game should be unlinked from workshop")
 	s.T().Logf("Head's game survived and is unlinked")
 
-	// Participant's game should be gone
-	_, err = admin.GetGameByID(participantGame.Id.String())
-	s.NotFound(err, "participant's game should be deleted with workshop")
-	s.T().Logf("Participant's game correctly deleted")
+	// Guest's game should be gone
+	_, err = admin.GetGameByID(guestGame.Id.String())
+	s.NotFound(err, "guest's game should be deleted with workshop")
+	s.T().Logf("Guest's game correctly deleted")
 }
 
 // TestHeadCannotDeleteInstitution tests that a head cannot delete their own institution.
@@ -342,8 +342,9 @@ func (s *InstitutionDeletionTestSuite) TestIndividualCannotDeleteInstitution() {
 	inst := Must(admin.CreateInstitution("Ind No Del Org"))
 	individual := s.CreateUser("ind-no-del")
 
-	// Individual tries to delete — should fail
+	// Individual tries to delete — should fail: an organisation they are not
+	// in does not exist for them
 	err := individual.DeleteInstitution(inst.Id.String())
-	s.Forbidden(err, "individual should not be able to delete institution")
+	s.NotFound(err, "individual should not be able to delete institution")
 	s.T().Logf("Individual correctly rejected: %v", err)
 }

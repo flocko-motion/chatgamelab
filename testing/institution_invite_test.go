@@ -103,8 +103,8 @@ func (s *InstitutionInviteTestSuite) TestStaffCanInvite() {
 	s.T().Logf("New user is staff via staff's invite")
 }
 
-// TestParticipantCannotInviteToInstitution tests that a participant cannot create institution invites.
-func (s *InstitutionInviteTestSuite) TestParticipantCannotInviteToInstitution() {
+// TestGuestCannotInviteToInstitution tests that a guest cannot create institution invites.
+func (s *InstitutionInviteTestSuite) TestGuestCannotInviteToInstitution() {
 	admin := s.DevUser()
 
 	inst := Must(admin.CreateInstitution("Part No Invite Org"))
@@ -114,17 +114,17 @@ func (s *InstitutionInviteTestSuite) TestParticipantCannotInviteToInstitution() 
 	headInvite := Must(admin.InviteToInstitution(instIDStr, "head", head.ID))
 	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	// Create workshop + participant
+	// Create workshop + guest
 	workshop := Must(head.CreateWorkshop(instIDStr, "PNI Workshop"))
 	wsInvite := Must(head.CreateWorkshopInvite(workshop.Id.String()))
-	participant := Must(s.JoinWorkshop(*wsInvite.InviteToken))
-	s.T().Logf("Participant joined: %s", participant.Name)
+	guest := Must(s.JoinWorkshop(*wsInvite.InviteToken))
+	s.T().Logf("Guest joined: %s", guest.Name)
 
-	// Participant tries to invite — should fail
+	// Guest tries to invite — should fail
 	newUser := s.CreateUser("pni-target")
-	_, err := participant.InviteToInstitution(instIDStr, "staff", newUser.ID)
-	s.Forbidden(err, "participant should not be able to invite to institution")
-	s.T().Logf("Participant correctly rejected: %v", err)
+	_, err := guest.InviteToInstitution(instIDStr, "staff", newUser.ID)
+	s.Forbidden(err, "guest should not be able to invite to institution")
+	s.T().Logf("Guest correctly rejected: %v", err)
 }
 
 // TestIndividualCannotInviteToInstitution tests that an individual user cannot invite to any institution.

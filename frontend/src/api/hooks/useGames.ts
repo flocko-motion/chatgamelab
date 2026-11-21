@@ -1,4 +1,4 @@
-import { api, withQuery } from "../client/api";
+import { api } from "../client/api";
 import {
   keepPreviousData,
   useMutation,
@@ -9,67 +9,105 @@ import { handleApiError } from "@/config/queryClient";
 import { queryKeys } from "../queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import type {
-  Game,
+  GameTemplate,
+  GameView,
+  GameViewPage,
+  UpdateGameReq,
   Error as ApiError,
   CreateGameReq,
   FavouriteResp,
-  GameShareResp,
+  ShareLinkView,
   MessageResp,
   PrivateShareStatusResp,
 } from "../generated/api.gen";
 
 // Games hooks
-export interface UseGamesParams {
+
+/**
+ * The filters the game list knows. Several combine (AND); none lists every
+ * game the caller can see. In a workshop, that is the workshop's world.
+ */
+export const GAME_LIST_FILTERS = ["own", "others", "public", "favorites", "sponsored"] as const;
+export type GameListFilter = (typeof GAME_LIST_FILTERS)[number];
+
+/** The orders the game list knows. */
+export const GAME_LIST_SORTS = [
+  "createdAt",
+  "modifiedAt",
+  "name",
+  "playCount",
+  "visibility",
+  "creator",
+] as const;
+export type GameListSort = (typeof GAME_LIST_SORTS)[number];
+
+/** A game list query; every part is optional and left out when unset. */
+export interface GameListParams {
+  filters?: GameListFilter[];
   search?: string;
-  sortBy?:
-    | "name"
-    | "createdAt"
-    | "modifiedAt"
-    | "playCount"
-    | "visibility"
-    | "creator";
+  sortBy?: GameListSort;
   sortDir?: "asc" | "desc";
-  filter?:
-    | "all"
-    | "own"
-    | "public"
-    | "organization"
-    | "favorites"
-    | "sponsored";
+  /** Page size; all matches when left out. */
+  limit?: number;
+  offset?: number;
 }
 
-export function useGames(params?: UseGamesParams) {
+/**
+ * A page of the games the caller can see, and how many match in all. The
+ * server filters, searches, sorts and pages, and decides what the caller
+ * may see.
+ */
+export function useGames(params: GameListParams = {}) {
   const { isAuthenticated } = useAuth();
-  const { search, sortBy, sortDir, filter } = params || {};
+  const { filters, search, sortBy, sortDir, limit, offset } = params;
 
-  return useQuery<Game[], ApiError>({
-    queryKey: [...queryKeys.games, { search, sortBy, sortDir, filter }],
+  return useQuery<GameViewPage, ApiError>({
+    queryKey: queryKeys.gameList({ filters, search, sortBy, sortDir, limit, offset }),
     queryFn: () =>
-      api.getApiGames(withQuery({
-            search: search || undefined,
-            sortBy: sortBy || undefined,
-            sortDir: sortDir || undefined,
-            filter: filter || undefined,
-          }))
+      api
+        .getApiGames({
+          filter: filters?.length ? filters : undefined,
+          search: search || undefined,
+          sortBy,
+          sortDir,
+          limit: limit || undefined,
+          offset: offset || undefined,
+        })
         .then((response) => response.data),
     placeholderData: keepPreviousData,
     enabled: isAuthenticated,
   });
 }
 
+/**
+ * One game as the caller sees it, with their rights on it (may* flags).
+ * The server answers 404 for a game the caller may not read.
+ */
 export function useGame(id: string | undefined) {
-
-  return useQuery<Game, ApiError>({
+  return useQuery<GameView, ApiError>({
     queryKey: [...queryKeys.games, id],
     queryFn: () => api.getApiGamesId(id!).then((response) => response.data),
     enabled: !!id,
   });
 }
 
+/**
+ * What a new game starts from, with the caller's rights on it (may* flags).
+ * Loaded only while `enabled`, i.e. while the create dialog is open.
+ */
+export function useGameTemplate(enabled: boolean) {
+  return useQuery<GameTemplate, ApiError>({
+    queryKey: queryKeys.gameTemplate,
+    queryFn: () => api.getApiGamesNew().then((response) => response.data),
+    enabled,
+  });
+}
+
+/** Creates a game: name required, a field left out keeps the template's value. */
 export function useCreateGame() {
   const queryClient = useQueryClient();
 
-  return useMutation<Game, ApiError, CreateGameReq>({
+  return useMutation<GameView, ApiError, CreateGameReq>({
     mutationFn: (request) =>
       api.postApiGamesNew(request).then((response) => response.data),
     onSuccess: () => {
@@ -83,12 +121,13 @@ export function useUpdateGame() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    Game,
+    GameView,
     ApiError,
-    { id: string; game: Game }
+    { id: string; changes: UpdateGameReq }
   >({
-    mutationFn: ({ id, game }) =>
-      api.postApiGamesId(id, game).then((response) => response.data),
+    // Only the changes go out; a field left out stays as it is.
+    mutationFn: ({ id, changes }) =>
+      api.postApiGamesId(id, changes).then((response) => response.data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
@@ -100,7 +139,7 @@ export function useUpdateGame() {
 export function useDeleteGame() {
   const queryClient = useQueryClient();
 
-  return useMutation<Game, ApiError, string>({
+  return useMutation<GameView, ApiError, string>({
     mutationFn: (id) =>
       api.deleteApiGamesId(id).then((response) => response.data),
     onSuccess: (_, id) => {
@@ -133,7 +172,7 @@ export function useSponsorGame() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    Game,
+    GameView,
     ApiError,
     { gameId: string; shareId: string }
   >({
@@ -152,7 +191,7 @@ export function useSponsorGame() {
 export function useRemoveGameSponsor() {
   const queryClient = useQueryClient();
 
-  return useMutation<Game, ApiError, string>({
+  return useMutation<GameView, ApiError, string>({
     mutationFn: (gameId) =>
       api.deleteApiGamesIdSponsor(gameId).then((response) => response.data),
     onSuccess: (_, gameId) => {
@@ -164,15 +203,8 @@ export function useRemoveGameSponsor() {
   });
 }
 
-// Favorite Games hooks
-export function useFavoriteGames() {
-
-  return useQuery<Game[], ApiError>({
-    queryKey: [...queryKeys.games, "favorites"],
-    queryFn: () => api.getApiGamesFavourites().then((response) => response.data),
-  });
-}
-
+// Favorite Games hooks: whether a game is a favorite comes with it
+// (isFavorite); the favorites list is the game list's favorites filter.
 export function useAddFavorite() {
   const queryClient = useQueryClient();
 
@@ -214,7 +246,7 @@ export function useCreateGameShare() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    GameShareResp,
+    ShareLinkView,
     ApiError,
     { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null; aiQualityTier?: string | null }
   >({
@@ -263,7 +295,7 @@ export function useUpdateGameShare() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    GameShareResp,
+    ShareLinkView,
     ApiError,
     { gameId: string; shareId: string; maxSessions: number | null; aiQualityTier?: string | null }
   >({

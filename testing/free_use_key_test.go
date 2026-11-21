@@ -39,6 +39,7 @@ func (s *FreeUseKeyTestSuite) TestSystemFreeUseKeyAllowsPlayWithoutOwnKey() {
 
 	// Admin uploads a game (needed for session creation)
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.NotEmpty(game.Id)
 	s.T().Logf("Admin uploaded game: %s (ID: %s)", game.Name, game.Id)
 
@@ -88,13 +89,14 @@ func (s *FreeUseKeyTestSuite) TestSystemFreeUseKeyAllowsPlayWithoutOwnKey() {
 // ---------------------------------------------------------------------------
 
 // TestInstitutionFreeUseKeyAllowsOrgMembersToPlay verifies that when a head
-// sets an institution free-use key, all org members (head, staff, participant)
+// sets an institution free-use key, all org members (head, staff, guest)
 // can play, but non-org members cannot use that key.
 func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyAllowsOrgMembersToPlay() {
 	admin := s.DevUser()
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s (ID: %s)", game.Name, game.Id)
 
 	// Create institution with head
@@ -121,12 +123,12 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyAllowsOrgMembersToPlay() 
 	Must(staff.AcceptInvite(staffInvite.Id.String()))
 	s.Equal("staff", staff.GetRole())
 
-	// Create a workshop and add a participant
+	// Create a workshop and add a guest
 	workshop := Must(head.CreateWorkshop(inst.Id.String(), "OrgFree Workshop"))
 	wsIDStr := workshop.Id.String()
-	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*participantInvite.InviteToken))
-	s.T().Logf("Participant joined workshop: %s (ID: %s)", participant.Name, participant.ID)
+	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))
+	guest := Must(s.JoinWorkshop(*guestInvite.InviteToken))
+	s.T().Logf("Guest joined workshop: %s (ID: %s)", guest.Name, guest.ID)
 
 	// Head and staff can play (resolved via institution free-use key)
 	for _, user := range []*testutil.UserClient{head, staff} {
@@ -135,11 +137,11 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyAllowsOrgMembersToPlay() 
 		s.T().Logf("%s: API key available = %v (via institution free-use)", user.Name, available)
 	}
 
-	// Participant (anonymous workshop user) should NOT get institution free-use key —
-	// participants can only use the workshop key (priority 1)
-	participantAvailable := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.False(participantAvailable, "participant should NOT have API key via institution free-use (only workshop key works for participants)")
-	s.T().Logf("participant: API key available = %v (correctly denied — no workshop key)", participantAvailable)
+	// A Guest in a workshop should NOT get institution free-use key —
+	// guests can only use the workshop key (priority 1)
+	guestAvailable := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.False(guestAvailable, "guest should NOT have API key via institution free-use (only workshop key works for guests)")
+	s.T().Logf("guest: API key available = %v (correctly denied — no workshop key)", guestAvailable)
 
 	// Non-org member (individual) should NOT have access via institution free-use key
 	outsider := s.CreateUser("outsider-orgfree")
@@ -157,6 +159,7 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyFallbackInWorkshopWithNoK
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("arctic-expedition"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head
@@ -177,10 +180,10 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyFallbackInWorkshopWithNoK
 	wsIDStr := workshop.Id.String()
 	s.Nil(workshop.DefaultApiKeyShareId, "workshop should have no default API key")
 
-	// Create participant in the workshop
-	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*participantInvite.InviteToken))
-	s.T().Logf("Participant joined workshop (no workshop key)")
+	// Create guest in the workshop
+	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))
+	guest := Must(s.JoinWorkshop(*guestInvite.InviteToken))
+	s.T().Logf("Guest joined workshop (no workshop key)")
 
 	// Head enters workshop mode
 	Must(head.SetActiveWorkshop(&wsIDStr))
@@ -190,11 +193,11 @@ func (s *FreeUseKeyTestSuite) TestInstitutionFreeUseKeyFallbackInWorkshopWithNoK
 	s.True(headAvailable, "head should have API key via institution free-use (workshop has no key)")
 	s.T().Logf("head: API key available = %v (institution free-use fallback)", headAvailable)
 
-	// Participant should NOT be able to play — institution free-use key does not
-	// apply to participants; they can only use the workshop key (priority 1)
-	participantAvailable := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.False(participantAvailable, "participant should NOT have API key (institution free-use does not apply to participants)")
-	s.T().Logf("participant: API key available = %v (correctly denied — no workshop key)", participantAvailable)
+	// Guest should NOT be able to play — institution free-use key does not
+	// apply to guests; they can only use the workshop key (priority 1)
+	guestAvailable := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.False(guestAvailable, "guest should NOT have API key (institution free-use does not apply to guests)")
+	s.T().Logf("guest: API key available = %v (correctly denied — no workshop key)", guestAvailable)
 }
 
 // ---------------------------------------------------------------------------
@@ -209,6 +212,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyAllowsWorkshopMembersToPlay() {
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head
@@ -232,19 +236,19 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyAllowsWorkshopMembersToPlay() {
 	// Head enters workshop mode
 	Must(head.SetActiveWorkshop(&wsIDStr))
 
-	// Create participant in the workshop
-	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*participantInvite.InviteToken))
-	s.T().Logf("Participant joined workshop: %s", participant.Name)
+	// Create guest in the workshop
+	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))
+	guest := Must(s.JoinWorkshop(*guestInvite.InviteToken))
+	s.T().Logf("Guest joined workshop: %s", guest.Name)
 
 	// Workshop members can play
 	headAvailable := Must(head.GetApiKeyStatus(game.Id.String()))
 	s.True(headAvailable, "head (in workshop) should have API key via workshop key")
 	s.T().Logf("head: API key available = %v (workshop key)", headAvailable)
 
-	participantAvailable := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.True(participantAvailable, "participant should have API key via workshop key")
-	s.T().Logf("participant: API key available = %v (workshop key)", participantAvailable)
+	guestAvailable := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.True(guestAvailable, "guest should have API key via workshop key")
+	s.T().Logf("guest: API key available = %v (workshop key)", guestAvailable)
 
 	// Staff in the same org but NOT in this workshop should NOT get the workshop key
 	staff := s.CreateUser("staff-wskey")
@@ -266,6 +270,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyDoesNotLeakToOtherWorkshops() {
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("arctic-expedition"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head
@@ -290,25 +295,25 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyDoesNotLeakToOtherWorkshops() {
 	wsBIDStr := workshopB.Id.String()
 	s.T().Logf("Workshop B created without key")
 
-	// Create participant in workshop A
+	// Create guest in workshop A
 	inviteA := Must(head.CreateWorkshopInvite(wsAIDStr))
-	participantA := Must(s.JoinWorkshop(*inviteA.InviteToken))
-	s.T().Logf("Participant A joined Workshop A: %s", participantA.Name)
+	guestA := Must(s.JoinWorkshop(*inviteA.InviteToken))
+	s.T().Logf("Guest A joined Workshop A: %s", guestA.Name)
 
-	// Create participant in workshop B
+	// Create guest in workshop B
 	inviteB := Must(head.CreateWorkshopInvite(wsBIDStr))
-	participantB := Must(s.JoinWorkshop(*inviteB.InviteToken))
-	s.T().Logf("Participant B joined Workshop B: %s", participantB.Name)
+	guestB := Must(s.JoinWorkshop(*inviteB.InviteToken))
+	s.T().Logf("Guest B joined Workshop B: %s", guestB.Name)
 
-	// Participant A (workshop with key) can play
-	availableA := Must(participantA.GetApiKeyStatus(game.Id.String()))
-	s.True(availableA, "participant in Workshop A (has key) should have API key")
-	s.T().Logf("Participant A: API key available = %v", availableA)
+	// Guest A (workshop with key) can play
+	availableA := Must(guestA.GetApiKeyStatus(game.Id.String()))
+	s.True(availableA, "guest in Workshop A (has key) should have API key")
+	s.T().Logf("Guest A: API key available = %v", availableA)
 
-	// Participant B (workshop without key, no institution free-use, no system free-use) cannot play
-	availableB := Must(participantB.GetApiKeyStatus(game.Id.String()))
-	s.False(availableB, "participant in Workshop B (no key) should NOT have API key")
-	s.T().Logf("Participant B: API key available = %v (correctly denied)", availableB)
+	// Guest B (workshop without key, no institution free-use, no system free-use) cannot play
+	availableB := Must(guestB.GetApiKeyStatus(game.Id.String()))
+	s.False(availableB, "guest in Workshop B (no key) should NOT have API key")
+	s.T().Logf("Guest B: API key available = %v (correctly denied)", availableB)
 }
 
 // TestWorkshopKeyTakesPriorityOverInstitutionFreeUse verifies that when both
@@ -320,6 +325,7 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyTakesPriorityOverInstitutionFreeUse
 
 	// Admin uploads a game
 	game := Must(admin.UploadGame("alien-first-contact"))
+	game = Must(admin.SetGamePublic(game.Id.String(), true)) // the players read it: it is public
 	s.T().Logf("Admin uploaded game: %s", game.Name)
 
 	// Create institution with head
@@ -347,26 +353,26 @@ func (s *FreeUseKeyTestSuite) TestWorkshopKeyTakesPriorityOverInstitutionFreeUse
 	Must(head.SetWorkshopApiKey(wsIDStr, &wsShareIDStr))
 	s.T().Logf("Workshop key set")
 
-	// Create participant
-	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*participantInvite.InviteToken))
-	s.T().Logf("Participant joined workshop")
+	// Create guest
+	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))
+	guest := Must(s.JoinWorkshop(*guestInvite.InviteToken))
+	s.T().Logf("Guest joined workshop")
 
-	// Participant can play (workshop key active)
-	available := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.True(available, "participant should have API key (workshop key)")
-	s.T().Logf("Participant: API key available = %v (workshop key active)", available)
+	// Guest can play (workshop key active)
+	available := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.True(available, "guest should have API key (workshop key)")
+	s.T().Logf("Guest: API key available = %v (workshop key active)", available)
 
-	// Remove workshop key — participant loses access (institution free-use
-	// does NOT apply to participants)
+	// Remove workshop key — guest loses access (institution free-use
+	// does NOT apply to guests)
 	Must(head.SetWorkshopApiKey(wsIDStr, nil))
 	s.T().Logf("Workshop key cleared")
 
-	availableAfterWsClear := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.False(availableAfterWsClear, "participant should NOT have API key after workshop key removed")
-	s.T().Logf("Participant: API key available = %v (no workshop key)", availableAfterWsClear)
+	availableAfterWsClear := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.False(availableAfterWsClear, "guest should NOT have API key after workshop key removed")
+	s.T().Logf("Guest: API key available = %v (no workshop key)", availableAfterWsClear)
 
-	// Head (non-participant) should still have access via institution free-use fallback
+	// Head (non-guest) should still have access via institution free-use fallback
 	Must(head.SetActiveWorkshop(&wsIDStr))
 	headAvailable := Must(head.GetApiKeyStatus(game.Id.String()))
 	s.True(headAvailable, "head should still have API key via institution free-use fallback")

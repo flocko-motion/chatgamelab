@@ -306,7 +306,7 @@ SELECT id FROM game WHERE created_by = $1;
 -- name: DeleteGameTagsByGameID :exec
 DELETE FROM game_tag WHERE game_id = $1;
 
--- name: DeleteFavouritesByGameID :exec
+-- name: DeleteFavoritesByGameID :exec
 DELETE FROM user_favourite_game WHERE game_id = $1;
 
 -- name: HardDeleteGamesByCreator :exec
@@ -350,3 +350,8 @@ DELETE FROM game_tag WHERE id = $1;
 -- name: GetPublicGamesByWorkshop :many
 -- Games shown on a workshop's public page.
 SELECT * FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC;
+
+-- name: SetDevGameHistory :exec
+-- Development seeding only: gives a demo game a past, so lists have
+-- something to sort by.
+UPDATE game SET created_at = $2, modified_at = $3, play_count = $4 WHERE id = $1;

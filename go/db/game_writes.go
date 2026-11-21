@@ -19,52 +19,16 @@ import (
 	"github.com/lib/pq"
 )
 
-// DeleteGame soft-deletes a game (sets deleted_at). userID must be the owner.
-func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
-	// Load game and check permission
-	game, err := loadGameByID(ctx, gameID)
-	if err != nil {
-		return obj.ErrNotFound("game not found")
-	}
-	if err := canAccessGame(ctx, userID, OpDelete, game, nil); err != nil {
-		return err
-	}
-
-	// Store workshop ID before deletion for event publishing
-	workshopID := game.WorkshopID
-
-	// Clean up game data: tags, favourites, sessions, shares, game_shares + guest data
-	_ = queries().DeleteGameTagsByGameID(ctx, gameID)
-	_ = queries().DeleteFavouritesByGameID(ctx, gameID)
-	// The game stays as a soft-deleted row, so its sessions go explicitly.
-	_, _ = queries().DeleteGameSessionsByGameID(ctx, gameID)
-	// Clean up game_share guest data before deleting game_shares
-	_ = DeleteGuestDataByGameID(ctx, gameID)
-	_ = queries().DeleteGameSharesByGameID(ctx, gameID)
-	_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
-
-	if err := queries().SoftDeleteGame(ctx, gameID); err != nil {
-		return err
-	}
-
-	// Publish game_deleted event if game belonged to a workshop
-	if workshopID != nil {
-		events.GetBroker().PublishGameDeleted(*workshopID, gameID, userID)
-	}
-
-	return nil
-}
-
 // CreateGame creates a new game. userID is set as the owner (createdBy).
 // If game.WorkshopID is set, validates that user has read access to that workshop.
-// For participants, automatically associates the game with their workshop.
+// For Guests in a workshop, automatically associates the game with their workshop.
 func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	// Check if user can create games (requires authentication)
 	if err := canAccessGame(ctx, userID, OpCreate, nil, nil); err != nil {
 		return err
 	}
 
-	// If no workshop specified, auto-assign user's workshop (for participants)
+	// If no workshop specified, auto-assign user's workshop (for Guests)
 	// Track if we auto-assigned so we can skip permission check (user always has access to their own workshop)
 	autoAssigned := false
 	if game.WorkshopID == nil {
@@ -82,7 +46,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		if err != nil {
 			return obj.ErrForbidden("workshop not found")
 		}
-		// User must be able to see/read the workshop (participant, staff, or head)
+		// User must be able to see/read the workshop (guest, staff, or head)
 		if err := canAccessWorkshop(ctx, userID, OpRead, ws.InstitutionID, game.WorkshopID, uuid.Nil); err != nil {
 			return obj.ErrForbidden("not authorized to create games in this workshop")
 		}
@@ -203,7 +167,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	}
 
 	if existingGame.Public && !game.Public {
-		deleteGamePublicPageShares(ctx, game.ID)
+		DeleteGamePublicPageShares(ctx, game.ID)
 	}
 
 	// Publish game_updated event if game belongs to a workshop

@@ -69,8 +69,8 @@ func (s *UserAccessTestSuite) TestStaffCanListOrgMembers() {
 func (s *UserAccessTestSuite) TestIndividualCannotListUsers() {
 	individual := s.CreateUser("ua-individual")
 
-	_, err := individual.GetUsers()
-	s.Forbidden(err)
+	users := Must(individual.GetUsers())
+	s.Empty(users, "a list shows only what the caller may list: nothing for an individual")
 }
 
 func (s *UserAccessTestSuite) TestHeadCanReadOrgMemberProfile() {
@@ -92,7 +92,7 @@ func (s *UserAccessTestSuite) TestIndividualCannotReadOtherProfile() {
 	other := s.CreateUser("ua-other-read")
 
 	_, err := individual.GetUser(other.ID)
-	s.Forbidden(err)
+	s.NotFound(err, "a user the caller cannot see does not exist for them")
 }
 
 // Anyone reads their own profile by its id.
@@ -113,5 +113,5 @@ func (s *UserAccessTestSuite) TestHeadCannotReadUserOutsideOrg() {
 	outsider := s.CreateUser("ua-outsider2")
 
 	_, err := head.GetUser(outsider.ID)
-	s.Forbidden(err)
+	s.NotFound(err, "a user outside the head's organisation does not exist for them")
 }

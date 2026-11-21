@@ -1,36 +1,25 @@
-import { useMemo } from "react";
-import {
-  useFavoriteGames,
-  useAddFavorite,
-  useRemoveFavorite,
-} from "@/api/hooks";
-import type { Game } from "@/api/generated/api.gen";
+import { useAddFavorite, useRemoveFavorite } from "@/api/hooks";
+import type { GameView } from "@/api/generated/api.gen";
+
+type GameRef = Pick<GameView, "id" | "isFavorite">;
 
 /**
- * Shared hook for game favorites state and toggle logic.
- * Used by AllGames, MyGames, and any other game list view.
+ * The favorite star of the game lists: each game says whether it is the
+ * caller's favorite (isFavorite); toggling marks or unmarks it.
  */
 export function useFavoriteState() {
-  const { data: favoriteGames } = useFavoriteGames();
   const addFavorite = useAddFavorite();
   const removeFavorite = useRemoveFavorite();
 
-  const favoriteGameIds = useMemo(
-    () => new Set(favoriteGames?.map((g) => g.id) ?? []),
-    [favoriteGames],
-  );
+  const isFavorite = (game: GameRef) => game.isFavorite;
 
-  const isFavorite = (game: Game) =>
-    game.id ? favoriteGameIds.has(game.id) : false;
-
-  const toggleFavorite = (game: Game) => {
-    if (!game.id) return;
-    if (isFavorite(game)) {
+  const toggleFavorite = (game: GameRef) => {
+    if (game.isFavorite) {
       removeFavorite.mutate(game.id);
     } else {
       addFavorite.mutate(game.id);
     }
   };
 
-  return { favoriteGameIds, isFavorite, toggleFavorite };
+  return { isFavorite, toggleFavorite };
 }

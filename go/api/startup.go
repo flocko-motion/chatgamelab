@@ -10,6 +10,7 @@ import (
 
 	"cgl/db"
 	"cgl/log"
+	"cgl/mail"
 	"cgl/telemetry"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -23,6 +24,7 @@ func Startup(ctx context.Context) {
 	if schemafapi.DevMode() {
 		log.SetDebug(true)
 		log.Info("development mode enabled", "debug_logging", true)
+		mail.KeepSent()
 		db.Preseed(ctx)
 	}
 	db.PromoteAdminEmails(ctx)

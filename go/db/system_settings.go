@@ -40,11 +40,13 @@ func GetSystemSettings(ctx context.Context) (*obj.SystemSettings, error) {
 	if row.FreeUseApiKeyID.Valid {
 		settings.FreeUseApiKeyID = &row.FreeUseApiKeyID.UUID
 		// Enrich with key details so any admin can see the current key
-		apiKey, err := GetApiKeyByID(ctx, row.FreeUseApiKeyID.UUID)
+		apiKey, err := queries().GetApiKeyByID(ctx, row.FreeUseApiKeyID.UUID)
 		if err == nil {
 			settings.FreeUseApiKeyName = apiKey.Name
 			settings.FreeUseApiKeyPlatform = apiKey.Platform
-			settings.FreeUseApiKeyWorking = apiKey.LastUsageSuccess
+			if apiKey.LastUsageSuccess.Valid {
+				settings.FreeUseApiKeyWorking = &apiKey.LastUsageSuccess.Bool
+			}
 		}
 	}
 	return settings, nil

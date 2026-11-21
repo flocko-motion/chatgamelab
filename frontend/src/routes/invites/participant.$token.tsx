@@ -1,11 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ParticipantLinkPage } from "@/features/auth";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// Re-login links handed out before the role was called Guest, printed or
+// photographed as QR codes, keep working.
 export const Route = createFileRoute("/invites/participant/$token")({
-  component: ParticipantLoginRoute,
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: "/invites/guest/$token",
+      params: { token: params.token },
+      replace: true,
+    });
+  },
 });
-
-function ParticipantLoginRoute() {
-  const { token } = Route.useParams();
-  return <ParticipantLinkPage key={token} token={token} />;
-}

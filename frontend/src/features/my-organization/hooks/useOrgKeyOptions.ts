@@ -4,7 +4,6 @@ import {
   useInstitutionApiKeys,
   useApiKeys,
 } from "@/api/hooks";
-import { useAuth } from "@/providers/AuthProvider";
 import type { ComboboxItemGroup } from "@mantine/core";
 
 export interface OrgKeyOption {
@@ -37,7 +36,6 @@ export function useOrgKeyOptions(
   opts?: { includeEmpty?: boolean; emptyLabel?: string },
 ): UseOrgKeyOptionsResult {
   const { t } = useTranslation("common");
-  const { backendUser } = useAuth();
 
   const { data: institutionKeys, isLoading: instLoading } =
     useInstitutionApiKeys(institutionId);
@@ -64,17 +62,11 @@ export function useOrgKeyOptions(
 
     const personalItems: OrgKeyOption[] = [];
     for (const key of ownKeys) {
-      if (key.userId !== backendUser?.id) continue;
       if (sharedApiKeyIds.has(key.id)) continue;
 
-      // Find the user's self-share for this key (needed for the share API call)
+      // The owner's own-use share of this key (needed for the share API call)
       const selfShare = ownShares.find(
-        (s) =>
-          s.apiKeyId === key.id &&
-          s.user &&
-          !s.institution &&
-          !s.workshop &&
-          !s.game,
+        (s) => s.apiKeyId === key.id && s.self,
       );
       if (!selfShare?.id) continue;
 
@@ -133,7 +125,6 @@ export function useOrgKeyOptions(
   }, [
     institutionKeys,
     userKeysData,
-    backendUser?.id,
     instLoading,
     userLoading,
     t,

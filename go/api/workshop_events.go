@@ -19,7 +19,7 @@ type WorkshopEvent = events.WorkshopEvent
 
 // WorkshopEventsReq names the workshop to follow.
 type WorkshopEventsReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // WorkshopEventsEndpoint streams a workshop's updates as Server-Sent Events.

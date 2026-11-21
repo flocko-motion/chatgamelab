@@ -6,6 +6,7 @@ package institution
 
 import (
 	"cgl/api/client"
+	"cgl/api/wire"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -32,7 +33,7 @@ func runInfo(cmd *cobra.Command, args []string) {
 		log.Fatalf("Invalid UUID: %v", err)
 	}
 
-	var institution obj.Institution
+	var institution wire.OrganisationView
 	if err := client.ApiGet(fmt.Sprintf("institutions/%s", institutionID), &institution); err != nil {
 		log.Fatalf("Failed to fetch institution: %v", err)
 	}
@@ -42,52 +43,45 @@ func runInfo(cmd *cobra.Command, args []string) {
 	fmt.Printf("  ID:   %s\n", institution.ID)
 	fmt.Printf("  Name: %s\n", institution.Name)
 
-	// Display members (only included if user has permission)
+	// Display members (only those the caller may list)
 	if len(institution.Members) > 0 {
-		// Group members by role
-		var heads []obj.InstitutionMember
-		var staff []obj.InstitutionMember
+		var heads, staff []wire.UserView
 		for _, member := range institution.Members {
-			if member.Role == obj.RoleHead {
+			switch roleOf(member) {
+			case string(obj.RoleHead):
 				heads = append(heads, member)
-			} else if member.Role == obj.RoleStaff {
+			case string(obj.RoleStaff):
 				staff = append(staff, member)
 			}
 		}
-
-		// Display heads
-		fmt.Printf("\nHeads (%d):\n", len(heads))
-		if len(heads) == 0 {
-			fmt.Println("  (none)")
-		} else {
-			for _, member := range heads {
-				email := "n/a"
-				if member.Email != nil {
-					email = *member.Email
-				}
-				fmt.Printf("  - %s (%s) - %s\n", member.Name, member.UserID, email)
-			}
-		}
-
-		// Display staff
-		fmt.Printf("\nStaff (%d):\n", len(staff))
-		if len(staff) == 0 {
-			fmt.Println("  (none)")
-		} else {
-			for _, member := range staff {
-				email := "n/a"
-				if member.Email != nil {
-					email = *member.Email
-				}
-				fmt.Printf("  - %s (%s) - %s\n", member.Name, member.UserID, email)
-			}
-		}
+		printMembers("Heads", heads)
+		printMembers("Staff", staff)
 	}
 
-	if institution.Meta.CreatedAt != nil {
-		fmt.Printf("\nCreated: %s\n", institution.Meta.CreatedAt.Format("2006-01-02 15:04:05"))
+	fmt.Printf("\nCreated: %s\n", institution.Meta.CreatedAt.Format("2006-01-02 15:04:05"))
+	fmt.Printf("Modified: %s\n", institution.Meta.ModifiedAt.Format("2006-01-02 15:04:05"))
+}
+
+// roleOf is a member's role, empty where the caller does not see it.
+func roleOf(member wire.UserView) string {
+	if member.Role == nil {
+		return ""
 	}
-	if institution.Meta.ModifiedAt != nil {
-		fmt.Printf("Modified: %s\n", institution.Meta.ModifiedAt.Format("2006-01-02 15:04:05"))
+	return member.Role.Role
+}
+
+// printMembers prints a group of members under its title.
+func printMembers(title string, members []wire.UserView) {
+	fmt.Printf("\n%s (%d):\n", title, len(members))
+	if len(members) == 0 {
+		fmt.Println("  (none)")
+		return
+	}
+	for _, member := range members {
+		email := "n/a"
+		if member.Email != nil {
+			email = *member.Email
+		}
+		fmt.Printf("  - %s (%s) - %s\n", member.Name, member.ID, email)
 	}
 }

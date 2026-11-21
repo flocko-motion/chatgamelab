@@ -28,6 +28,9 @@ const (
 	ProblemUnknown Problem = "unknown"
 	// ProblemDenied: whoever asked may not play this.
 	ProblemDenied Problem = "denied"
+	// ProblemPaused: the workshop it belongs to is paused; it goes on once
+	// the workshop does.
+	ProblemPaused Problem = "paused"
 	// ProblemFailed: anything else.
 	ProblemFailed Problem = "failed"
 )
@@ -36,7 +39,7 @@ const (
 func Problems() []Problem {
 	return []Problem{
 		ProblemNoKey, ProblemGenre, ProblemNoPlays, ProblemKeyRejected, ProblemUnreachable,
-		ProblemStale, ProblemUnknown, ProblemDenied, ProblemFailed,
+		ProblemStale, ProblemUnknown, ProblemDenied, ProblemPaused, ProblemFailed,
 	}
 }
 

@@ -9,15 +9,18 @@ import (
 
 	"cgl/api"
 	"cgl/api/auth"
+	"cgl/core"
 	"cgl/db"
 )
 
-// Wire registers the app's database, API endpoints, sign-in, background
-// services and the embedded frontend.
+// Wire registers the app's database, API endpoints, sign-in, the secure
+// core's caller (resolved once per request), background services and the
+// embedded frontend.
 func Wire(app *schemaf.App) {
 	app.AddDb(db.Provider)
 	app.AddApi(api.Provider)
 	app.OnLogin(auth.OnLogin)
+	app.OnRequest(core.Resolve)
 	app.AddService(api.Startup)
 	app.AddService(api.Janitor)
 	app.SetFrontend(FrontendFS())

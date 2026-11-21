@@ -47,7 +47,7 @@ export function WorkshopHeader({
   const { t: tCommon } = useTranslation("common");
   const { retryBackendFetch } = useAuth();
   const { isMobile } = useResponsiveDesign();
-  // Fetched for everyone, not just staff: participants may read their own
+  // Fetched for everyone, not just staff: Guests may read their own
   // workshop, and they need its slug to reach the public page link.
   const { data: workshop } = useWorkshop(workshopId);
   const updateWorkshop = useUpdateWorkshop();
@@ -257,7 +257,7 @@ function getRoleBadgeColor(role?: string): string {
       return "blue";
     case "individual":
       return "teal";
-    case "participant":
+    case "guest":
       return "gray";
     default:
       return "gray";

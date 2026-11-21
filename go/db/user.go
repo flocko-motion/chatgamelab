@@ -39,7 +39,7 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 		return nil, err
 	}
 
-	assignInitialRole(ctx, id, email)
+	AssignInitialRole(ctx, id, email)
 
 	finalUser, err := GetUserByID(ctx, id)
 	if err != nil {
@@ -54,10 +54,11 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 	return finalUser, nil
 }
 
-// assignInitialRole gives a new account its first role: admin while the admin
+// AssignInitialRole gives a new account its first role (the core calls it when
+// an account registers): admin while the admin
 // bootstrap is open and the email is in ADMIN_EMAILS, otherwise individual.
 // Failures are logged; the account stays.
-func assignInitialRole(ctx context.Context, id uuid.UUID, email *string) {
+func AssignInitialRole(ctx context.Context, id uuid.UUID, email *string) {
 	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
 	promoted := false
 	if email != nil && isAdminEmail(*email) {
@@ -216,82 +217,81 @@ func RemoveUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.
 	return DeleteUser(ctx, targetUserID)
 }
 
-// ParticipantAuthError represents a specific error during participant authentication
-type ParticipantAuthError struct {
+// GuestAuthError represents a specific error during participant authentication
+type GuestAuthError struct {
 	Code    string // "invalid_token", "workshop_inactive"
 	Message string
 }
 
 // Error returns the participant authentication error message.
-func (e *ParticipantAuthError) Error() string {
+func (e *GuestAuthError) Error() string {
 	return e.Message
 }
 
-// ParticipantTokenPrefix marks participant tokens; the auth middleware routes on it.
-const ParticipantTokenPrefix = "participant-"
+// GuestTokenPrefix starts a guest's login code: "guest-" and its words.
+const GuestTokenPrefix = "guest-"
 
-// newParticipantToken returns the prefix plus 4 words (44 bits); brute force is
+// LegacyGuestTokenPrefix started guests' login codes before GuestTokenPrefix,
+// while guests were called participants. Backwards compatibility only: codes
+// issued with it stay valid, because guests' printed links and QR codes carry
+// them; nothing new is issued with it.
+const LegacyGuestTokenPrefix = "participant-"
+
+// NewGuestToken returns the prefix plus 4 words (44 bits); brute force is
 // bounded by the token lock (httpx.TokenLock).
-func newParticipantToken(ctx context.Context) (string, error) {
+func NewGuestToken(ctx context.Context) (string, error) {
 	words, err := wordtoken.GenerateUnique(ctx, 4, func(ctx context.Context, w string) (bool, error) {
-		return isParticipantTokenTaken(ctx, ParticipantTokenPrefix+w)
+		return isGuestTokenTaken(ctx, GuestTokenPrefix+w)
 	})
 	if err != nil {
 		return "", err
 	}
-	return ParticipantTokenPrefix + words, nil
+	return GuestTokenPrefix + words, nil
 }
 
-func isParticipantTokenTaken(ctx context.Context, token string) (bool, error) {
-	return queries().ParticipantTokenExists(ctx, sql.NullString{String: token, Valid: true})
+func isGuestTokenTaken(ctx context.Context, token string) (bool, error) {
+	return queries().GuestTokenExists(ctx, sql.NullString{String: token, Valid: true})
 }
 
-// GetOwnParticipantToken returns the user's participant token, or "" for users
-// without one (Auth0 accounts).
-func GetOwnParticipantToken(ctx context.Context, userID uuid.UUID) (string, error) {
-	userRecord, err := queries().GetUserByID(ctx, userID)
-	if err != nil {
-		return "", obj.ErrNotFound("user not found")
-	}
-	return userRecord.ParticipantToken.String, nil
-}
-
-// ParticipantTokenWords returns the words of a word token, or "" for the
+// GuestTokenWords returns the words of a word token, or "" for the
 // long random tokens issued before word tokens.
-func ParticipantTokenWords(token string) string {
-	words, ok := strings.CutPrefix(token, ParticipantTokenPrefix)
+func GuestTokenWords(token string) string {
+	words, ok := strings.CutPrefix(token, GuestTokenPrefix)
+	if !ok {
+		words, ok = strings.CutPrefix(token, LegacyGuestTokenPrefix) // backwards compatibility only
+	}
 	if !ok || !wordtoken.IsWords(words) {
 		return ""
 	}
 	return words
 }
 
-// ParticipantTokenKnown reports whether a token was ever issued, including
+// GuestTokenKnown reports whether a token was ever issued, including
 // tokens of deleted users or workshops. Unknown tokens are guesses.
-func ParticipantTokenKnown(ctx context.Context, token string) bool {
-	ok, err := isParticipantTokenTaken(ctx, token)
+func GuestTokenKnown(ctx context.Context, token string) bool {
+	ok, err := isGuestTokenTaken(ctx, token)
 	return ok || err != nil
 }
 
-// GetUserByParticipantToken gets a user by their participant token
+// GetUserByGuestToken gets a user by their participant token
 // Returns specific error codes for different failure scenarios
-func GetUserByParticipantToken(ctx context.Context, token string) (*obj.User, error) {
-	res, err := queries().GetUserByParticipantToken(ctx, sql.NullString{String: token, Valid: true})
+func GetUserByGuestToken(ctx context.Context, token string) (*obj.User, error) {
+	res, err := queries().GetUserByGuestToken(ctx, sql.NullString{String: token, Valid: true})
 	if err != nil {
 		// Check if the token exists but workshop is inactive
-		status, statusErr := queries().CheckParticipantTokenStatus(ctx, sql.NullString{String: token, Valid: true})
+		status, statusErr := queries().CheckGuestTokenStatus(ctx, sql.NullString{String: token, Valid: true})
 		if statusErr == nil && status.TokenExists {
 			// Token exists but query failed - likely inactive workshop
 			workshopActive, ok := status.WorkshopActive.(bool)
 			if ok && !workshopActive {
-				return nil, &ParticipantAuthError{
+				return nil, &GuestAuthError{
 					Code:    "workshop_inactive",
 					Message: "Workshop is inactive",
 				}
 			}
 		}
 		// Token doesn't exist or other error
-		return nil, &ParticipantAuthError{
+		return nil, &GuestAuthError{
 			Code:    "invalid_token",
 			Message: "Invalid participant token",
 		}
@@ -444,14 +444,14 @@ func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.U
 }
 
 // DeleteUser hard-deletes a user and cleans up all their data:
-// games, API keys (with cascade), shares, roles, favourites, workshop participant records,
+// games, API keys (with cascade), shares, roles, favorites, workshop participant records,
 // invites, and originally_created_by references.
 func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	// 1. Clean up games created by this user
 	gameIDs, _ := queries().GetGameIDsByCreator(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	for _, gameID := range gameIDs {
 		_ = queries().DeleteGameTagsByGameID(ctx, gameID)
-		_ = queries().DeleteFavouritesByGameID(ctx, gameID)
+		_ = queries().DeleteFavoritesByGameID(ctx, gameID)
 		_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
 		_ = queries().DeleteGameSharesByGameID(ctx, gameID)           // clean up game shares
 		_ = queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, gameID) // clear sponsored refs
@@ -481,11 +481,8 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 		DefaultApiKeyShareID: uuid.NullUUID{},
 	})
 
-	// 4. Delete workshop participant records for this user
-	_ = queries().DeleteWorkshopParticipantsByUserID(ctx, id)
-
-	// 5. Delete favourites
-	_ = queries().DeleteUserFavourites(ctx, id)
+	// 5. Delete favorites
+	_ = queries().DeleteUserFavorites(ctx, id)
 
 	// 6. Delete user roles
 	_ = queries().DeleteUserRoles(ctx, id)
@@ -592,7 +589,7 @@ func ClearActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID ...uu
 	}
 	// Clean up orphaned participant role if workshop ID is provided
 	if len(workshopID) > 0 {
-		_ = queries().DeleteUserParticipantRole(ctx, DeleteUserParticipantRoleParams{
+		_ = queries().DeleteUserGuestRole(ctx, DeleteUserGuestRoleParams{
 			UserID:     userID,
 			WorkshopID: uuid.NullUUID{UUID: workshopID[0], Valid: true},
 		})

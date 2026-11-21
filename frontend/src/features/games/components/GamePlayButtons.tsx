@@ -1,14 +1,16 @@
 import { Stack } from "@mantine/core";
 import { PlayGameButton, TextButton } from "@components/buttons";
-import type { Game, UserSessionWithGame } from "@/api/generated/api.gen";
+import type { Game, SessionView } from "@/api/generated/api.gen";
+
+type GameRef = Pick<Game, "id" | "name">;
 
 interface GamePlayButtonsProps {
-  game: Game;
+  game: GameRef;
   hasSession: boolean;
-  session: UserSessionWithGame | undefined;
-  onPlay: (game: Game) => void;
-  onContinue: (session: UserSessionWithGame) => void;
-  onRestart: (game: Game, session: UserSessionWithGame) => void;
+  session: SessionView | undefined;
+  onPlay: (game: GameRef) => void;
+  onContinue: (session: SessionView) => void;
+  onRestart: (game: GameRef, session: SessionView) => void;
   labels: {
     play: string;
     continue: string;
@@ -18,7 +20,7 @@ interface GamePlayButtonsProps {
 
 /**
  * Shared play/continue/restart button group for game lists.
- * Used by AllGames, MyGames, and MyWorkshop table/card views.
+ * Used by the game lists (GamesTable).
  */
 export function GamePlayButtons({
   game,

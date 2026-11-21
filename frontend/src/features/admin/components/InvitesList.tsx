@@ -24,7 +24,7 @@ import {
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { parseSortValue } from "@/common/lib/sort";
 import { SortSelector, type SortOption } from "@/common/components/controls";
-import type { InviteResp, Institution } from "@/api/generated/api.gen";
+import type { InviteCardView, OrganisationView } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 
 const getStatusColor = (status: string) => {
@@ -44,8 +44,8 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const getDisplayDate = (invite: InviteResp) => {
-  return invite.modifiedAt || invite.createdAt;
+const getDisplayDate = (invite: InviteCardView) => {
+  return invite.meta.modifiedAt || invite.meta.createdAt;
 };
 
 interface InvitesListProps {
@@ -84,7 +84,7 @@ export function InvitesList({
     (instId?: string) => {
       if (!instId || !institutions) return instId || "-";
       const institution = institutions.find(
-        (org: Institution) => org.id === instId,
+        (org: OrganisationView) => org.id === instId,
       );
       return institution?.name || instId;
     },
@@ -261,7 +261,7 @@ export function InvitesList({
         </Group>
         {sortedInvites.length === 0
           ? renderNoResults()
-          : sortedInvites.map((invite: InviteResp) => (
+          : sortedInvites.map((invite: InviteCardView) => (
               <Card key={invite.id} withBorder padding="sm" radius="md">
                 <Stack gap="xs">
                   <Group justify="space-between" wrap="nowrap">
@@ -347,7 +347,7 @@ export function InvitesList({
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {sortedInvites.map((invite: InviteResp) => (
+            {sortedInvites.map((invite: InviteCardView) => (
               <Table.Tr key={invite.id}>
                 {showInstitutionColumn && (
                   <Table.Td>

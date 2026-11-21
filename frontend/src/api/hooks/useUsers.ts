@@ -3,16 +3,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
 import { queryKeys } from "../queryKeys";
 import type {
-  User,
-  UserStats,
+  UserView,
+  UserStatsView,
   Error as ApiError,
-  UserParticipantCodeResp,
+  UserSecretsView,
   UpdateUserReq,
 } from "../generated/api.gen";
 
 export function useCurrentUser() {
 
-  return useQuery<User, ApiError>({
+  return useQuery<UserView, ApiError>({
     queryKey: queryKeys.currentUser,
     queryFn: () =>
       api.getApiUsersMe().then((response) => {
@@ -24,18 +24,17 @@ export function useCurrentUser() {
 
 export function useUserStats() {
 
-  return useQuery<UserStats, ApiError>({
+  return useQuery<UserStatsView, ApiError>({
     queryKey: [...queryKeys.currentUser, "stats"],
     queryFn: () => api.getApiUsersMeStats().then((response) => response.data),
   });
 }
 
-export function useOwnParticipantCode() {
+export function useOwnGuestCode() {
 
-  return useQuery<UserParticipantCodeResp, ApiError>({
-    queryKey: [...queryKeys.currentUser, "participantCode"],
-    queryFn: () =>
-      api.getApiUsersMeParticipantCode().then((response) => response.data),
+  return useQuery<UserSecretsView, ApiError>({
+    queryKey: [...queryKeys.currentUser, "guestCode"],
+    queryFn: () => api.getApiUsersMeSecrets().then((response) => response.data),
   });
 }
 
@@ -43,7 +42,7 @@ export function useUpdateUser() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    User,
+    UserView,
     ApiError,
     { id: string; request: UpdateUserReq }
   >({

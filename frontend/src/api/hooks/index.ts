@@ -27,11 +27,11 @@ export {
   useGame,
   useCreateGame,
   useUpdateGame,
+  useGameTemplate,
   useDeleteGame,
   useExportGameYaml,
   useSponsorGame,
   useRemoveGameSponsor,
-  useFavoriteGames,
   useAddFavorite,
   useRemoveFavorite,
   useApiKeyStatus,
@@ -39,7 +39,11 @@ export {
   useCreateGameShare,
   useRevokePrivateShare,
   useUpdateGameShare,
-  type UseGamesParams,
+  GAME_LIST_FILTERS,
+  GAME_LIST_SORTS,
+  type GameListFilter,
+  type GameListSort,
+  type GameListParams,
 } from "./useGames";
 
 // Sessions
@@ -54,7 +58,7 @@ export {
 export {
   useCurrentUser,
   useUserStats,
-  useOwnParticipantCode,
+  useOwnGuestCode,
   useUpdateUser,
 } from "./useUsers";
 
@@ -87,7 +91,7 @@ export {
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
-  useResetParticipantToken,
+  useResetGuestToken,
   useCreateWorkshopEmailInvite,
   useAddMemberToWorkshop,
 } from "./useWorkshops";
@@ -100,3 +104,13 @@ export { useGamesCacheUpdater } from "./useGamesCacheUpdater";
 
 // Active Workshop (Workshop Mode)
 export { useSetActiveWorkshop } from "./useActiveWorkshop";
+
+// Organisations registering themselves
+export {
+  useDeclaration,
+  useOrganisationConsent,
+  useConsentToDeclaration,
+  useWithdrawConsent,
+  useSetOrganisationSuspension,
+  useRecentlyRegisteredInstitutions,
+} from "./useOrganisationRegistration";

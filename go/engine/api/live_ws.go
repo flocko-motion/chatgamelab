@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
+	"time"
 
 	"github.com/coder/websocket"
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -21,7 +23,18 @@ import (
 // event: a refused binary frame as the `voice_failed` report, so a page waiting
 // for what was heard of a clip stops waiting. On a turn-based genre a binary
 // frame is one whole clip, one utterance.
-type LiveEndpoint struct{ API *API }
+type LiveEndpoint struct {
+	API *API
+	// Guard, if set, is asked before each turn (turn true): a typed line, or
+	// a clip on a genre that takes push-to-talk. While a live voice flows it
+	// is asked at most every guardEvery (turn false). It says whether the
+	// conversation may go on; a refusal goes out on the `problem` stream and
+	// ends the socket.
+	Guard func(ctx context.Context, turn bool) error
+}
+
+// guardEvery is how often a flowing voice conversation is re-checked.
+const guardEvery = 30 * time.Second
 
 func (LiveEndpoint) Method() string             { return "GET" }
 func (LiveEndpoint) Path() string               { return "/api/engine/sessions/{id}/live" }
@@ -74,11 +87,26 @@ func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	// Inbound: binary frames are microphone audio, text frames are typed input.
-	// A live session takes both, and so does this endpoint.
+	// A live session takes both, and so does this endpoint. On a push-to-talk
+	// genre each binary frame is a clip, a turn of its own.
+	clips := slices.Contains(s.Topology().Inputs, "audio-push-to-talk")
+	lastGuard := time.Now()
 	for {
 		typ, data, err := conn.Read(ctx)
 		if err != nil {
 			return nil
+		}
+		if e.Guard != nil {
+			turn := typ != websocket.MessageBinary || clips
+			if turn || time.Since(lastGuard) >= guardEvery {
+				lastGuard = time.Now()
+				if err := e.Guard(ctx, turn); err != nil {
+					refusal := engine.RefusalOf(err)
+					blob, _ := json.Marshal(refusal)
+					_ = wsJSON(ctx, conn, engine.SessionEvent{Stream: "problem", Value: string(blob)})
+					return nil
+				}
+			}
 		}
 
 		var submitErr error

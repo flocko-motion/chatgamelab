@@ -1,20 +1,42 @@
 // package: testutil / the words for institutions, workshops and invites
 // type:    logic
-// job:     creating and running institutions and workshops, their members, invites and participants' tokens, and the system settings
+// job:     creating and running institutions and workshops, their members, invites and guests' tokens, and the system settings
 // limits:  organisation words only; API keys live in apikeys.go, games in games.go
 package testutil
 
 import (
 	"cgl/apiclient"
+	"cgl/legal"
 
 	"github.com/google/uuid"
 )
 
 // --- Institutions ---
 
-// CreateInstitution creates an institution.
+// CreateInstitution creates an institution, as an admin does, that is not
+// suspended: a consent to the current declaration is on file, as its head
+// would give it, so tests about anything else find it at work. An
+// institution still waiting for that consent is CreateSuspendedInstitution's.
 func (c caller) CreateInstitution(name string) (Institution, error) {
+	created, err := c.CreateSuspendedInstitution(name)
+	if err != nil {
+		return created, err
+	}
+	id := created.Id.String()
+	declaration := legal.CurrentDeclaration()
+	c.s.consentOnFile(id, name, declaration.Version, declaration.Hash)
+	return c.GetInstitution(id)
+}
+
+// CreateSuspendedInstitution creates an institution as an admin does: it is
+// suspended until one of its heads consents to the declaration.
+func (c caller) CreateSuspendedInstitution(name string) (Institution, error) {
 	return decode[Institution](c.api.PostApiInstitutionsWithResponse(ctx(), apiclient.CreateInstitutionReq{Name: name}))
+}
+
+// CreateInstitutionWith creates an institution with its details.
+func (c caller) CreateInstitutionWith(institution InstitutionCreate) (Institution, error) {
+	return decode[Institution](c.api.PostApiInstitutionsWithResponse(ctx(), institution))
 }
 
 // GetInstitution is one institution.
@@ -24,7 +46,7 @@ func (c caller) GetInstitution(institutionID string) (Institution, error) {
 
 // ListInstitutions is the institutions the caller sees.
 func (c caller) ListInstitutions() ([]Institution, error) {
-	return decode[[]Institution](c.api.GetApiInstitutionsWithResponse(ctx()))
+	return decode[[]Institution](c.api.GetApiInstitutionsWithResponse(ctx(), nil))
 }
 
 // GetInstitutions is the institutions the caller sees.
@@ -34,7 +56,13 @@ func (c caller) GetInstitutions() ([]Institution, error) {
 
 // RenameInstitution renames an institution.
 func (c caller) RenameInstitution(institutionID, name string) (Institution, error) {
-	return decode[Institution](c.api.PatchApiInstitutionsIdWithResponse(ctx(), institutionID, apiclient.UpdateInstitutionReq{Name: name}))
+	return decode[Institution](c.api.PatchApiInstitutionsIdWithResponse(ctx(), institutionID, apiclient.UpdateInstitutionReq{Name: &name}))
+}
+
+// SetInstitutionPromptConstraints sets an institution's youth-protection
+// restriction; "" removes it.
+func (c caller) SetInstitutionPromptConstraints(institutionID, constraint string) (Institution, error) {
+	return decode[Institution](c.api.PatchApiInstitutionsIdWithResponse(ctx(), institutionID, apiclient.UpdateInstitutionReq{PromptConstraints: &constraint}))
 }
 
 // DeleteInstitution deletes an institution.
@@ -74,7 +102,7 @@ func (c caller) InviteToInstitutionByEmail(institutionID, role, invitedEmail str
 }
 
 // CreateWorkshopInvite creates a workshop's open invite link for
-// participants.
+// guests.
 func (c caller) CreateWorkshopInvite(workshopID string) (Invite, error) {
 	return c.CreateWorkshopInviteWith(WorkshopInvite{WorkshopId: workshopID})
 }
@@ -160,19 +188,19 @@ func (c caller) GetWorkshop(workshopID string) (Workshop, error) {
 
 // ListWorkshops is an institution's workshops the caller sees.
 func (c caller) ListWorkshops(institutionID string) ([]Workshop, error) {
-	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), query("institutionId", institutionID)))
+	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{InstitutionId: some(institutionID)}))
 }
 
 // ListAllWorkshops is every workshop the caller sees.
 func (c caller) ListAllWorkshops() ([]Workshop, error) {
-	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx()))
+	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{}))
 }
 
 // UpdateWorkshop replaces a workshop's settings. A setting left out is
 // false or empty; the public page's slug, text and links left out (nil) keep
 // what they are.
 func (c caller) UpdateWorkshop(workshopID string, update WorkshopUpdate) (Workshop, error) {
-	return decode[Workshop](c.api.PatchApiWorkshopsIdWithResponse(ctx(), workshopID, update))
+	return decode[Workshop](c.api.PatchApiWorkshopsIdWithResponse(ctx(), workshopID, update.request()))
 }
 
 // EditWorkshop reads a workshop, lets edit change its settings, and saves
@@ -230,16 +258,16 @@ func (c caller) SetActiveWorkshop(workshopID *string) (User, error) {
 	return decode[User](c.api.PutApiUsersMeActiveWorkshopWithResponse(ctx(), apiclient.SetActiveWorkshopReq{WorkshopId: id}))
 }
 
-// GetParticipantToken is a participant's token, for a workshop's staff.
-func (c caller) GetParticipantToken(participantID string) (string, error) {
-	resp, err := decode[apiclient.WorkshopParticipantTokenResp](c.api.GetApiWorkshopsParticipantsParticipantIdTokenWithResponse(ctx(), participantID))
+// GetGuestToken is a guest's token, for a workshop's staff.
+func (c caller) GetGuestToken(guestID string) (string, error) {
+	resp, err := decode[apiclient.GuestTokenResp](c.api.GetApiWorkshopsGuestsGuestIdTokenWithResponse(ctx(), guestID))
 	return resp.Token, err
 }
 
-// ResetParticipantToken gives a participant a new token, ending the old one,
+// ResetGuestToken gives a guest a new token, ending the old one,
 // and answers the new one.
-func (c caller) ResetParticipantToken(participantID string) (string, error) {
-	resp, err := decode[apiclient.WorkshopParticipantTokenResp](c.api.PostApiWorkshopsParticipantsParticipantIdTokenResetWithResponse(ctx(), participantID))
+func (c caller) ResetGuestToken(guestID string) (string, error) {
+	resp, err := decode[apiclient.GuestTokenResp](c.api.PostApiWorkshopsGuestsGuestIdTokenResetWithResponse(ctx(), guestID))
 	return resp.Token, err
 }
 
@@ -278,29 +306,29 @@ func parseOptional(id *string) (*uuid.UUID, error) {
 	return &parsed, nil
 }
 
-// MembersOf is the members an institution came with; none when it came
-// without its members.
-func MembersOf(inst Institution) []InstitutionMember {
-	if inst.Members == nil {
-		return nil
-	}
-	return *inst.Members
+// MembersOf is the members an institution came with: those the caller may
+// list.
+func MembersOf(inst Institution) []User {
+	return inst.Members
 }
 
 // WorkshopInvitesOf is the invites a workshop came with; none when the
 // caller may not see them.
-func WorkshopInvitesOf(w Workshop) []Invite {
-	if w.Invites == nil {
-		return nil
-	}
-	return *w.Invites
+func WorkshopInvitesOf(w Workshop) []apiclient.InviteView {
+	return w.Invites
 }
 
 // WorkshopParticipantsOf is the members a workshop came with; none when the
 // caller may not see them.
 func WorkshopParticipantsOf(w Workshop) []WorkshopParticipant {
-	if w.Participants == nil {
-		return nil
+	return w.Participants
+}
+
+// RoleOf is a user's role as the caller sees it; empty where they do not
+// see the user's account.
+func RoleOf(user User) string {
+	if user.Role == nil {
+		return ""
 	}
-	return *w.Participants
+	return user.Role.Role
 }

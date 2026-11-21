@@ -2,6 +2,7 @@ package testing
 
 import (
 	"testing"
+	"time"
 
 	"cgl/testing/testutil"
 
@@ -20,8 +21,14 @@ func (s *MultiUserTestSuite) SetupSuite() {
 	// Call parent SetupSuite to initialize base suite
 	s.BaseSuite.SetupSuite()
 
-	// Verify initial state (should have 9 dev users)
-	initialUsers := Must(s.DevUser().GetUsers())
+	// Verify initial state: the 9 preseeded dev users. Preseeding runs in the
+	// background and the base suite waits only for the admin, so wait until
+	// all of them are there.
+	var initialUsers []testutil.User
+	s.Eventually(func() bool {
+		initialUsers = Must(s.DevUser().GetUsers())
+		return len(initialUsers) >= 9
+	}, 10*time.Second, 100*time.Millisecond, "the preseeded dev users appear")
 	s.Equal(9, len(initialUsers), "should have 9 users (preseeded dev users)")
 	s.T().Logf("Initial users: %d", len(initialUsers))
 
@@ -107,17 +114,15 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	// Harry sees invitation
 	harryInvites := Must(clientHarry.GetInvitesIncoming())
 	s.Equal(1, len(harryInvites), "harry should see 1 pending invite")
-	s.Equal(harryInvite.Id.String(), harryInvites[0].Id)
+	s.Equal(harryInvite.Id, harryInvites[0].Id)
 	s.T().Logf("Harry sees %d pending invite(s)", len(harryInvites))
 
-	// Verify harry can't list institutions (not a member yet)
-	_, err := clientHarry.GetInstitutions()
-	s.Forbidden(err)
-	// ..but can view individual institutions by ID (public data, no members shown)
-	inst1BeforeAccept := Must(clientHarry.GetInstitution(institution1.Id.String()))
-	s.Equal(0, len(testutil.MembersOf(inst1BeforeAccept)), "harry should not see members before joining")
-	inst2BeforeAccept := Must(clientHarry.GetInstitution(institution2.Id.String()))
-	s.Equal(0, len(testutil.MembersOf(inst2BeforeAccept)), "harry should not see members of institution2 (not authorized)")
+	// Verify harry lists no institutions and sees none (not a member yet)
+	s.Empty(Must(clientHarry.GetInstitutions()))
+	_, err := clientHarry.GetInstitution(institution1.Id.String())
+	s.NotFound(err, "harry should not see institution1 before joining")
+	_, err = clientHarry.GetInstitution(institution2.Id.String())
+	s.NotFound(err, "harry should not see institution2 (not authorized)")
 
 	// Harry accepts invitation
 	acceptedHarryInvite := Must(clientHarry.AcceptInvite(harryInvite.Id.String()))
@@ -132,9 +137,9 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	// ..and can see institution 1 by ID - with members
 	inst1AfterAccept := Must(clientHarry.GetInstitution(institution1.Id.String()))
 	s.Equal(1, len(testutil.MembersOf(inst1AfterAccept)), "harry should see 1 member (himself) after accepting")
-	// ..and can view institution 2 public data but not members (not a member)
-	inst2AfterAccept := Must(clientHarry.GetInstitution(institution2.Id.String()))
-	s.Equal(0, len(testutil.MembersOf(inst2AfterAccept)), "harry should not see members of institution2 (not a member)")
+	// ..but not institution 2 (not a member)
+	_, err = clientHarry.GetInstitution(institution2.Id.String())
+	s.NotFound(err, "harry should not see institution2 (not a member)")
 
 	// Verify harry's role in the institution
 	harryUser := Must(clientHarry.GetMe())
@@ -162,17 +167,15 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	// Tanja sees invitation
 	tanjaInvites := Must(clientTanja.GetInvitesIncoming())
 	s.Equal(1, len(tanjaInvites), "tanja should see 1 pending invite")
-	s.Equal(tanjaInvite.Id.String(), tanjaInvites[0].Id)
+	s.Equal(tanjaInvite.Id, tanjaInvites[0].Id)
 	s.T().Logf("Tanja sees %d pending invite(s)", len(tanjaInvites))
 
-	// Verify: Tanja can't list institutions yet (not a member)
-	_, err = clientTanja.GetInstitutions()
-	s.Forbidden(err)
-	// ..but can view institution public data (no members shown)
-	tanjaInst1 := Must(clientTanja.GetInstitution(institution1.Id.String()))
-	s.Equal(0, len(testutil.MembersOf(tanjaInst1)), "tanja should not see members before joining")
-	tanjaInst2 := Must(clientTanja.GetInstitution(institution2.Id.String()))
-	s.Equal(0, len(testutil.MembersOf(tanjaInst2)), "tanja should not see members of institution2")
+	// Verify: Tanja lists and sees no institution yet (not a member)
+	s.Empty(Must(clientTanja.GetInstitutions()))
+	_, err = clientTanja.GetInstitution(institution1.Id.String())
+	s.NotFound(err, "tanja should not see institution1 before joining")
+	_, err = clientTanja.GetInstitution(institution2.Id.String())
+	s.NotFound(err, "tanja should not see institution2")
 
 	// Tanja accepts invitation
 	acceptedTanjaInvite := Must(clientTanja.AcceptInvite(tanjaInvite.Id.String()))
@@ -185,9 +188,9 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	// ..and can view institution1 with members
 	tanjaInst1After := Must(clientTanja.GetInstitution(institution1.Id.String()))
 	s.Equal(2, len(testutil.MembersOf(tanjaInst1After)), "tanja should see 2 members (harry and herself)")
-	// ..and can view institution2 public data but not members
-	tanjaInst2After := Must(clientTanja.GetInstitution(institution2.Id.String()))
-	s.Equal(0, len(testutil.MembersOf(tanjaInst2After)), "tanja should not see members of institution2")
+	// ..but not institution2
+	_, err = clientTanja.GetInstitution(institution2.Id.String())
+	s.NotFound(err, "tanja should not see institution2")
 
 	// Verify tanja's role in the institution
 	tanjaUser := Must(clientTanja.GetMe())
@@ -323,7 +326,7 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadership() {
 	s.Equal(2, len(testutil.MembersOf(instWithHeads)), "should have 2 members")
 	headCount := 0
 	for _, member := range testutil.MembersOf(instWithHeads) {
-		if member.Role == "head" {
+		if testutil.RoleOf(member) == "head" {
 			headCount++
 		}
 	}
@@ -338,7 +341,7 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadership() {
 	instAfterRemoval := Must(clientCharlie.GetInstitution(institution.Id.String()))
 	s.Equal(1, len(testutil.MembersOf(instAfterRemoval)), "should have 1 member (charlie)")
 	s.Equal("charlie", testutil.MembersOf(instAfterRemoval)[0].Name)
-	s.Equal("head", testutil.MembersOf(instAfterRemoval)[0].Role)
+	s.Equal("head", testutil.RoleOf(testutil.MembersOf(instAfterRemoval)[0]))
 	s.T().Logf("Institution now has 1 member: charlie (head)")
 
 	// Charlie re-invites Diana as head
@@ -446,7 +449,7 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadershipSteal() {
 	for _, member := range testutil.MembersOf(inst1WithFrank) {
 		if member.Name == "frank" {
 			frankFound = true
-			s.Equal("head", member.Role)
+			s.Equal("head", testutil.RoleOf(member))
 		}
 	}
 	s.True(frankFound, "frank should be a head in institution1")
@@ -456,7 +459,7 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadershipSteal() {
 	inst2AfterFrankLeft := Must(clientGrace.GetInstitution(institution2.Id.String()))
 	s.Equal(1, len(testutil.MembersOf(inst2AfterFrankLeft)), "institution2 should have 1 member")
 	s.Equal("grace", testutil.MembersOf(inst2AfterFrankLeft)[0].Name)
-	s.Equal("head", testutil.MembersOf(inst2AfterFrankLeft)[0].Role)
+	s.Equal("head", testutil.RoleOf(testutil.MembersOf(inst2AfterFrankLeft)[0]))
 	s.T().Logf("Institution2 now has 1 head: grace (Frank left)")
 
 	// Frank CAN remove himself from institution1 (there are 2 heads: eve and frank)
@@ -519,6 +522,6 @@ func (s *MultiUserTestSuite) TestInviteByEmail() {
 	// Verify Zara is now a member
 	institutionAfter := Must(s.clientAdmin.GetInstitution(institution.Id.String()))
 	s.Equal(1, len(testutil.MembersOf(institutionAfter)), "should have 1 member")
-	s.Equal(zaraMe.Id.String(), testutil.MembersOf(institutionAfter)[0].UserId.String())
-	s.Equal("staff", testutil.MembersOf(institutionAfter)[0].Role)
+	s.Equal(zaraMe.Id.String(), testutil.MembersOf(institutionAfter)[0].Id.String())
+	s.Equal("staff", testutil.RoleOf(testutil.MembersOf(institutionAfter)[0]))
 }

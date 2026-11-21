@@ -19,7 +19,7 @@ type PublicWorkshopPageResp = obj.PublicWorkshopPage
 
 // PublicWorkshopSlugReq names a public workshop page by its slug.
 type PublicWorkshopSlugReq struct {
-	Slug string `path:"slug" json:"-"`
+	Slug string `path:"slug"`
 }
 
 // GetPublicWorkshopPageEndpoint returns a public workshop's name, description
@@ -41,8 +41,8 @@ func (GetPublicWorkshopPageEndpoint) Handle(ctx context.Context, req PublicWorks
 
 // PublicWorkshopGameReq names a game on a public workshop page.
 type PublicWorkshopGameReq struct {
-	Slug string `path:"slug" json:"-"`
-	ID   string `path:"id" json:"-"`
+	Slug string `path:"slug"`
+	ID   string `path:"id"`
 }
 
 // GetPublicWorkshopGameYAMLEndpoint exports a game listed on a public workshop

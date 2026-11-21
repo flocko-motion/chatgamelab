@@ -100,7 +100,7 @@ INSERT INTO api_key_share (
   gen_random_uuid(), $1, $2, $3, $4,
   $5, $6, $7, $8, $9
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, game_id
+RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, game_id, source_share_id
 `
 
 type CreateApiKeyShareParams struct {
@@ -140,6 +140,7 @@ func (q *Queries) CreateApiKeyShare(ctx context.Context, arg CreateApiKeySharePa
 		&i.WorkshopID,
 		&i.InstitutionID,
 		&i.GameID,
+		&i.SourceShareID,
 	)
 	return i, err
 }

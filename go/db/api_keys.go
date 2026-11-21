@@ -7,7 +7,6 @@ package db
 import (
 	"cgl/obj"
 	"context"
-	"database/sql"
 	"engine"
 	"time"
 
@@ -16,20 +15,6 @@ import (
 )
 
 const apiKeyShortenLength = 6
-
-// GetApiKeyByID returns an API key by its ID (no permission check).
-func GetApiKeyByID(ctx context.Context, apiKeyID uuid.UUID) (*obj.ApiKey, error) {
-	key, err := queries().GetApiKeyByID(ctx, apiKeyID)
-	if err != nil {
-		return nil, obj.ErrNotFound("api key not found")
-	}
-	return &obj.ApiKey{
-		ID:       key.ID,
-		Name:     key.Name,
-		Platform: key.Platform,
-		Key:      key.Key,
-	}, nil
-}
 
 // AcceptsKeys says whether a key for the platform may be stored and used: a
 // platform of the engine's that takes users' keys, or the mock in development
@@ -96,92 +81,6 @@ func CreateApiKey(ctx context.Context, userID uuid.UUID, name, platform, key str
 	return &apiKeyID, nil
 }
 
-// CreateApiKeyWithSelfShare creates a new API key and returns the user's self-share.
-func CreateApiKeyWithSelfShare(ctx context.Context, userID uuid.UUID, name, platform, key string) (*obj.ApiKeyShare, error) {
-	// Check permission
-	if err := canAccessApiKey(ctx, userID, OpCreate, uuid.Nil, uuid.Nil, nil, nil, nil); err != nil {
-		return nil, err
-	}
-
-	_, shareID, err := createApiKeyAndSelfShare(ctx, userID, name, platform, key)
-	if err != nil {
-		return nil, err
-	}
-	return GetApiKeyShareByID(ctx, userID, shareID)
-}
-
-// DeleteApiKey deletes the underlying API key and all its shares (owner only).
-func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) error {
-	share, err := queries().GetApiKeyShareByID(ctx, shareID)
-	if err != nil {
-		return obj.ErrNotFound("share not found")
-	}
-
-	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
-	if err != nil {
-		return obj.ErrNotFound("api key not found")
-	}
-
-	// Check permission
-	if err := canAccessApiKey(ctx, userID, OpDelete, key.ID, key.UserID, nil, nil, nil); err != nil {
-		return err
-	}
-
-	// Clear user default_api_key_share_id references before deleting shares
-	if err := queries().ClearUserDefaultApiKeyShareByApiKeyID(ctx, key.ID); err != nil {
-		return obj.ErrServerError("failed to clear user default api key references")
-	}
-
-	// Clear workshop default_api_key_share_id references before deleting shares
-	if err := queries().ClearWorkshopDefaultApiKeyShareByApiKeyID(ctx, key.ID); err != nil {
-		return obj.ErrServerError("failed to clear workshop default api key references")
-	}
-
-	// Clear institution free_use_api_key_share_id references before deleting shares
-	if err := queries().ClearInstitutionFreeUseApiKeyShareByApiKeyID(ctx, key.ID); err != nil {
-		return obj.ErrServerError("failed to clear institution free-use api key references")
-	}
-
-	// Clear game sponsored API key references before deleting the key
-	if err := queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, key.ID); err != nil {
-		return obj.ErrServerError("failed to clear game sponsored api key references")
-	}
-
-	// Clear system free-use key reference if it points to this key
-	if err := queries().ClearSystemSettingsFreeUseApiKey(ctx, uuid.NullUUID{UUID: key.ID, Valid: true}); err != nil {
-		return obj.ErrServerError("failed to clear system free-use api key reference")
-	}
-
-	wasDefault := key.IsDefault
-
-	// Clean up game_shares (and their guest data) before deleting api_key_shares,
-	// because game_share.api_key_share_id has a FK constraint.
-	gameShareIDs, _ := queries().GetGameShareIDsByApiKeyID(ctx, key.ID)
-	for _, gsID := range gameShareIDs {
-		_ = DeleteGuestDataByShareID(ctx, gsID)
-		_ = queries().DeleteGameShare(ctx, gsID)
-	}
-
-	// Delete all shares
-	if err := queries().DeleteApiKeySharesByApiKeyID(ctx, key.ID); err != nil {
-		return obj.ErrServerError("failed to delete shares")
-	}
-
-	if err := queries().DeleteApiKey(ctx, DeleteApiKeyParams{
-		ID:     key.ID,
-		UserID: userID,
-	}); err != nil {
-		return err
-	}
-
-	// If the deleted key was the default, promote the next key
-	if wasDefault {
-		promoteNextDefaultKey(ctx, userID)
-	}
-
-	return nil
-}
-
 // promoteNextDefaultKey sets the oldest remaining key as default for a user.
 // Best-effort: errors are logged but not returned.
 func promoteNextDefaultKey(ctx context.Context, userID uuid.UUID) {
@@ -200,84 +99,4 @@ func promoteNextDefaultKey(ctx context.Context, userID uuid.UUID) {
 			return
 		}
 	}
-}
-
-// SetDefaultApiKey sets the given API key as the user's default (clears any previous default).
-func SetDefaultApiKey(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID) error {
-	// Verify the key belongs to this user
-	key, err := queries().GetApiKeyByID(ctx, apiKeyID)
-	if err != nil {
-		return obj.ErrNotFound("api key not found")
-	}
-	if key.UserID != userID {
-		return obj.ErrForbidden("not the owner of this key")
-	}
-
-	// Clear existing default, then set the new one
-	if err := queries().ClearDefaultApiKey(ctx, userID); err != nil {
-		return obj.ErrServerError("failed to clear default key")
-	}
-	return queries().SetDefaultApiKey(ctx, SetDefaultApiKeyParams{
-		ID:     apiKeyID,
-		UserID: userID,
-	})
-}
-
-// GetDefaultApiKey returns the user's default API key, or nil if none is set.
-func GetDefaultApiKeyForUser(ctx context.Context, userID uuid.UUID) (*obj.ApiKey, error) {
-	key, err := queries().GetDefaultApiKey(ctx, userID)
-	if err != nil {
-		return nil, nil // No default key
-	}
-	return &obj.ApiKey{
-		ID:               key.ID,
-		UserID:           key.UserID,
-		Name:             key.Name,
-		Platform:         key.Platform,
-		Key:              key.Key,
-		IsDefault:        key.IsDefault,
-		LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
-		LastErrorCode:    sqlNullStringToMaybeString(key.LastErrorCode),
-	}, nil
-}
-
-// UpdateApiKeyLastUsageSuccess updates the last_usage_success flag and error code on an API key.
-// On success, the error code is cleared. On failure, the error code is stored.
-func UpdateApiKeyLastUsageSuccess(ctx context.Context, apiKeyID uuid.UUID, success bool, errorCode ...string) {
-	var lastErrorCode sql.NullString
-	if !success && len(errorCode) > 0 && errorCode[0] != "" {
-		lastErrorCode = sql.NullString{String: errorCode[0], Valid: true}
-	}
-	_ = queries().UpdateApiKeyLastUsageSuccess(ctx, UpdateApiKeyLastUsageSuccessParams{
-		ID:               apiKeyID,
-		LastUsageSuccess: sql.NullBool{Bool: success, Valid: true},
-		LastErrorCode:    lastErrorCode,
-	})
-}
-
-// UpdateApiKeyName updates an API key's name (owner only).
-func UpdateApiKeyName(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, name string) error {
-	share, err := queries().GetApiKeyShareByID(ctx, shareID)
-	if err != nil {
-		return obj.ErrNotFound("share not found")
-	}
-
-	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
-	if err != nil {
-		return obj.ErrNotFound("api key not found")
-	}
-
-	// Check permission
-	if err := canAccessApiKey(ctx, userID, OpUpdate, key.ID, key.UserID, nil, nil, nil); err != nil {
-		return err
-	}
-
-	now := time.Now()
-	_, err = queries().UpdateApiKey(ctx, UpdateApiKeyParams{
-		ID:         key.ID,
-		ModifiedBy: uuid.NullUUID{UUID: userID, Valid: true},
-		ModifiedAt: now,
-		Name:       name,
-	})
-	return err
 }

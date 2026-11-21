@@ -460,7 +460,7 @@ export function ApiKeyManagement() {
                           (s) => s.apiKeyId === key.id,
                         );
                         const selfShare = keyShares.find(
-                          (s) => s.user?.id === backendUser?.id,
+                          (s) => s.self,
                         );
                         return (
                           <Box

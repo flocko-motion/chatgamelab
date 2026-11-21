@@ -2,7 +2,12 @@
 
 ## What to read
 
-- `docs/chatgamelab.typ`: the spec, what the product is and does.
+- `docs/chatgamelab.typ`: the spec, what the product is and does. "The spec"
+  means this file only; the `.md` files are docs.
+- `ARCHITECTURE.md` (and `go/engine/ARCHITECTURE.md` for the engine): the
+  arch, the bridge between spec and code. It holds the technical decisions
+  below the concept level and above code details: layers, boundaries, what
+  belongs where.
 - `docs/rules/`: rules beyond the spec. Each names the files it applies to
   (`applies_to`); before changing such a file, read the rules that match it.
 - `docs/workflows/`: recipes for reaching a goal.

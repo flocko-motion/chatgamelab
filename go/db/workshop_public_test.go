@@ -26,13 +26,13 @@ func TestPublicSlugBase(t *testing.T) {
 
 func TestValidatePublicSlug(t *testing.T) {
 	for _, ok := range []string{"abc", "robotik-ag-mokassin-hausboot", "2026-camp"} {
-		if err := validatePublicSlug(ok); err != nil {
-			t.Errorf("validatePublicSlug(%q) = %v, want nil", ok, err)
+		if err := ValidatePublicSlug(ok); err != nil {
+			t.Errorf("ValidatePublicSlug(%q) = %v, want nil", ok, err)
 		}
 	}
 	for _, bad := range []string{"ab", "-abc", "abc-", "a--b", "a b", "äbc", "ABC"} {
-		if err := validatePublicSlug(bad); err == nil {
-			t.Errorf("validatePublicSlug(%q) = nil, want an error", bad)
+		if err := ValidatePublicSlug(bad); err == nil {
+			t.Errorf("ValidatePublicSlug(%q) = nil, want an error", bad)
 		}
 	}
 }
@@ -87,18 +87,18 @@ func TestValidatePublicLinks(t *testing.T) {
 
 func TestPublicLinksRoundTrip(t *testing.T) {
 	want := []obj.PublicWorkshopLink{{Title: "Programm", Description: "Das Heft", URL: "https://example.org"}}
-	raw, err := marshalPublicLinks(want)
+	raw, err := MarshalPublicLinks(want)
 	if err != nil {
-		t.Fatalf("marshalPublicLinks = %v", err)
+		t.Fatalf("MarshalPublicLinks = %v", err)
 	}
-	got := unmarshalPublicLinks(raw)
+	got := UnmarshalPublicLinks(raw)
 	if len(got) != 1 || got[0] != want[0] {
 		t.Errorf("round trip gave %+v, want %+v", got, want)
 	}
-	if empty, _ := marshalPublicLinks(nil); empty.Valid {
+	if empty, _ := MarshalPublicLinks(nil); empty.Valid {
 		t.Error("no links should store NULL")
 	}
-	if got := unmarshalPublicLinks(pqtype.NullRawMessage{}); got != nil {
+	if got := UnmarshalPublicLinks(pqtype.NullRawMessage{}); got != nil {
 		t.Errorf("NULL gave %+v, want nil", got)
 	}
 }

@@ -108,11 +108,10 @@ func (s *WorkshopInviteValidationSuite) TestWorkshopInviteIncludesNames() {
 
 	invite := invites[0]
 	s.Require().NotNil(invite.WorkshopId, "should have workshopId")
-	s.Equal(wsID, *invite.WorkshopId)
+	s.Equal(wsID, invite.WorkshopId.String())
 	s.Require().NotNil(invite.WorkshopName, "should have workshopName")
 	s.Equal("inv-names Workshop", *invite.WorkshopName)
-	s.Require().NotNil(invite.InstitutionName, "should have institutionName")
-	s.Equal("inv-names Org", *invite.InstitutionName)
+	s.Equal("inv-names Org", invite.InstitutionName)
 }
 
 // TestCanInviteIndividualOfSameOrg verifies that individual of the same org CAN be invited.

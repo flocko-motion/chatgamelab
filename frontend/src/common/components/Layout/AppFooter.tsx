@@ -68,6 +68,12 @@ export function AppFooter({ links = defaultLinks, showVersion = true, darkMode =
                   {links[1]?.label}
                 </Anchor>
               </HelperText>
+              <HelperText c={textColor}>|</HelperText>
+              <HelperText c={textColor}>
+                <Anchor href={EXTERNAL_LINKS.CONTACT.href} target="_blank" size="sm" c={linkColor}>
+                  {t('header.contact')}
+                </Anchor>
+              </HelperText>
               {showVersion && (
                 <>
                   <HelperText c={textColor}>|</HelperText>

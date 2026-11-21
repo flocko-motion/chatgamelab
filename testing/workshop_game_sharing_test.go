@@ -89,7 +89,7 @@ func (s *WorkshopGameSharingTestSuite) TestIndividualCannotShareWhenDisabled() {
 	s.Forbidden(err, "individual should NOT be able to share when allowGameSharing is disabled")
 }
 
-// TestGuestCanOpenWorkshopShare verifies that an anonymous guest can open
+// TestGuestCanOpenWorkshopShare verifies that a Guest can open
 // a workshop share link created by an individual.
 func (s *WorkshopGameSharingTestSuite) TestGuestCanOpenWorkshopShare() {
 	_, individual, wsID, gameID := s.setupWorkshopWithSharing("share-play", true)

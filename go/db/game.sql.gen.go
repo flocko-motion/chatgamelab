@@ -181,12 +181,12 @@ func (q *Queries) CreateGameTag(ctx context.Context, arg CreateGameTagParams) (G
 	return i, err
 }
 
-const deleteFavouritesByGameID = `-- name: DeleteFavouritesByGameID :exec
+const deleteFavoritesByGameID = `-- name: DeleteFavoritesByGameID :exec
 DELETE FROM user_favourite_game WHERE game_id = $1
 `
 
-func (q *Queries) DeleteFavouritesByGameID(ctx context.Context, gameID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteFavouritesByGameID, gameID)
+func (q *Queries) DeleteFavoritesByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteFavoritesByGameID, gameID)
 	return err
 }
 
@@ -4416,6 +4416,29 @@ func (q *Queries) SearchPublicGamesSortedByPlayCountAsc(ctx context.Context, dol
 		return nil, err
 	}
 	return items, nil
+}
+
+const setDevGameHistory = `-- name: SetDevGameHistory :exec
+UPDATE game SET created_at = $2, modified_at = $3, play_count = $4 WHERE id = $1
+`
+
+type SetDevGameHistoryParams struct {
+	ID         uuid.UUID `json:"id"`
+	CreatedAt  time.Time `json:"created_at"`
+	ModifiedAt time.Time `json:"modified_at"`
+	PlayCount  int32     `json:"play_count"`
+}
+
+// Development seeding only: gives a demo game a past, so lists have
+// something to sort by.
+func (q *Queries) SetDevGameHistory(ctx context.Context, arg SetDevGameHistoryParams) error {
+	_, err := q.db.ExecContext(ctx, setDevGameHistory,
+		arg.ID,
+		arg.CreatedAt,
+		arg.ModifiedAt,
+		arg.PlayCount,
+	)
+	return err
 }
 
 const softDeleteGame = `-- name: SoftDeleteGame :exec

@@ -1,62 +1,49 @@
 // package: api / schemaf endpoints
 // type:    logic
-// job:     creates, lists, updates and deletes workshops, assigns their API key, manages their members and participant tokens
-// limits:  workshop storage and its permission checks live in db; the event stream (-> workshop_events.go)
+// job:     creates, lists, reads, updates and deletes workshops, puts people in and out of them, and reads and resets guests' login codes
+// limits:  decides nothing: the core does (core/workshop*.go); a workshop's key is apikeys.go's
 package api
 
 import (
 	"context"
-	"fmt"
 
-	"cgl/db"
-	"cgl/events"
+	"cgl/api/wire"
+	"cgl/core"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
 )
 
-// WorkshopResp is a workshop.
-type WorkshopResp = obj.Workshop
+// WorkshopResp is a workshop as the caller sees it.
+type WorkshopResp = wire.WorkshopView
 
 // WorkshopsResp is a list of workshops.
-type WorkshopsResp = []obj.Workshop
+type WorkshopsResp = []wire.WorkshopView
 
 // WorkshopIDReq names a workshop by its id.
 type WorkshopIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
-// CreateWorkshopEndpoint creates a workshop.
+// CreateWorkshopEndpoint creates a workshop in the caller's organisation, or,
+// for the admin, in the one named (institutionId).
 type CreateWorkshopEndpoint struct{}
 
 func (CreateWorkshopEndpoint) Method() string             { return "POST" }
 func (CreateWorkshopEndpoint) Path() string               { return "/api/workshops" }
 func (CreateWorkshopEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (CreateWorkshopEndpoint) Handle(ctx context.Context, req CreateWorkshopReq) (WorkshopResp, error) {
-	user, err := caller(ctx)
+	org, err := optionalID(req.InstitutionID, "Invalid institution ID")
 	if err != nil {
-		return obj.Workshop{}, err
+		return WorkshopResp{}, err
 	}
-	if req.Name == "" {
-		return obj.Workshop{}, appError(obj.ErrValidation("Name is required"))
-	}
-	var institutionID *uuid.UUID
-	if req.InstitutionID != nil {
-		id, err := parseIDValidation(*req.InstitutionID, "Invalid institution ID")
-		if err != nil {
-			return obj.Workshop{}, err
-		}
-		institutionID = &id
-	}
-	workshop, err := db.CreateWorkshop(ctx, user.ID, institutionID, req.Name, req.Active, req.Public)
-	if err != nil {
-		return obj.Workshop{}, appError(err)
-	}
-	return *workshop, nil
+	return wire.WorkshopViewOf(core.CreateWorkshop(ctx, core.WorkshopDraft{
+		Organisation: org, Name: req.Name, Active: req.Active, Public: req.Public,
+	}))
 }
 
-// CreateWorkshopReq is a new workshop's institution, name and flags.
+// CreateWorkshopReq is a new workshop.
 type CreateWorkshopReq struct {
 	InstitutionID *string `json:"institutionId,omitempty"`
 	Name          string  `json:"name"`
@@ -64,335 +51,244 @@ type CreateWorkshopReq struct {
 	Public        bool    `json:"public"`
 }
 
-// ListWorkshopsEndpoint lists the workshops the caller can see, or those of
-// one institution.
+// ListWorkshopsEndpoint lists the workshops the caller may list: an admin
+// all of them, a head or staff their organisation's.
 //
-// Query: institutionId, search (name), sortBy (name, createdAt,
-// participantCount), sortDir (asc, desc), activeOnly ("true" lists active
-// workshops only).
+// institutionId, search and activeOnly narrow the list; sortBy (name,
+// createdAt, participantCount) and sortDir (asc, desc) order it, newest
+// first by default.
 type ListWorkshopsEndpoint struct{}
 
 func (ListWorkshopsEndpoint) Method() string             { return "GET" }
 func (ListWorkshopsEndpoint) Path() string               { return "/api/workshops" }
 func (ListWorkshopsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (ListWorkshopsEndpoint) Handle(ctx context.Context, req ListWorkshopsReq) (WorkshopsResp, error) {
-	user, err := caller(ctx)
+	org, err := optionalID(req.InstitutionID, "Invalid institution ID")
 	if err != nil {
 		return nil, err
 	}
-	var institutionID *uuid.UUID
-	if req.InstitutionID != "" {
-		id, err := parseIDValidation(req.InstitutionID, "Invalid institution ID")
-		if err != nil {
-			return nil, err
-		}
-		institutionID = &id
-	}
-	var activeOnly *bool
-	if req.ActiveOnly == "true" {
-		t := true
-		activeOnly = &t
-	}
-	workshops, err := db.ListWorkshopsWithOptions(ctx, user.ID, institutionID, db.ListWorkshopsOptions{
-		Search:     req.Search,
-		SortBy:     req.SortBy,
-		SortDir:    req.SortDir,
-		ActiveOnly: activeOnly,
-	})
-	if err != nil {
-		return nil, appError(err)
-	}
-	return workshops, nil
+	return wire.WorkshopViewsOf(core.ListWorkshops(ctx, core.WorkshopQuery{
+		Organisation: org,
+		Search:       opt(req.Search),
+		ActiveOnly:   opt(req.ActiveOnly) == "true",
+		SortBy:       opt(req.SortBy),
+		SortDir:      opt(req.SortDir),
+	}))
 }
 
-// ListWorkshopsReq filters and sorts the workshop list.
+// ListWorkshopsReq is what the list is narrowed and ordered by.
 type ListWorkshopsReq struct {
-	InstitutionID string `query:"institutionId" json:"-"`
-	Search        string `query:"search" json:"-"`
-	SortBy        string `query:"sortBy" json:"-"`
-	SortDir       string `query:"sortDir" json:"-"`
-	ActiveOnly    string `query:"activeOnly" json:"-"`
+	InstitutionID *string `query:"institutionId"`
+	Search        *string `query:"search"`
+	SortBy        *string `query:"sortBy"`
+	SortDir       *string `query:"sortDir"`
+	ActiveOnly    *string `query:"activeOnly"`
 }
 
-// GetWorkshopEndpoint returns a workshop.
+// GetWorkshopEndpoint returns a workshop the caller may read: one of their
+// organisation's, the one they are in, one with a public page, or any, for
+// an admin. Others get 404.
 type GetWorkshopEndpoint struct{}
 
 func (GetWorkshopEndpoint) Method() string             { return "GET" }
 func (GetWorkshopEndpoint) Path() string               { return "/api/workshops/{id}" }
 func (GetWorkshopEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (GetWorkshopEndpoint) Handle(ctx context.Context, req WorkshopIDReq) (WorkshopResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid workshop ID")
 	if err != nil {
-		return obj.Workshop{}, err
+		return WorkshopResp{}, err
 	}
-	id, err := parseIDValidation(req.ID, "Invalid workshop ID")
-	if err != nil {
-		return obj.Workshop{}, err
-	}
-	workshop, err := db.GetWorkshopByID(ctx, user.ID, id)
-	if err != nil {
-		return obj.Workshop{}, appError(err)
-	}
-	return *workshop, nil
+	return wire.WorkshopViewOf(core.ReadWorkshop(ctx, id))
 }
 
-// UpdateWorkshopEndpoint updates a workshop's settings and its public page.
+// UpdateWorkshopEndpoint changes a workshop and answers with it as stored.
 //
-// The name is required. Omitting publicSlug, publicDescription or publicLinks
-// keeps the current value; an empty description or list clears it.
+// Only what is given changes. An empty aiQualityTier, promptConstraints or
+// publicDescription removes it; an empty publicLinks list clears the links.
+// Switching public off ends the public page's share links.
 type UpdateWorkshopEndpoint struct{}
 
 func (UpdateWorkshopEndpoint) Method() string             { return "PATCH" }
 func (UpdateWorkshopEndpoint) Path() string               { return "/api/workshops/{id}" }
 func (UpdateWorkshopEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (UpdateWorkshopEndpoint) Handle(ctx context.Context, req UpdateWorkshopReq) (WorkshopResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid workshop ID")
 	if err != nil {
-		return obj.Workshop{}, err
+		return WorkshopResp{}, err
 	}
-	id, err := parseIDValidation(req.ID, "Invalid workshop ID")
-	if err != nil {
-		return obj.Workshop{}, err
-	}
-	if req.Name == "" {
-		return obj.Workshop{}, appError(obj.ErrValidation("Name is required"))
-	}
-	workshop, err := db.UpdateWorkshop(ctx, id, user.ID, db.WorkshopUpdate{
-		Name:                       req.Name,
-		Active:                     req.Active,
-		Public:                     req.Public,
-		AiQualityTier:              req.AiQualityTier,
-		PromptConstraints:          req.PromptConstraints,
-		ShowPublicGames:            req.ShowPublicGames,
-		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
-		IsPaused:                   req.IsPaused,
-		AllowGameSharing:           req.AllowGameSharing,
-		PublicSlug:                 req.PublicSlug,
-		PublicDescription:          req.PublicDescription,
-		PublicLinks:                req.PublicLinks,
-	})
-	if err != nil {
-		return obj.Workshop{}, appError(err)
-	}
-	events.GetBroker().PublishWorkshopUpdated(id)
-	return *workshop, nil
+	return wire.WorkshopViewOf(core.UpdateWorkshop(ctx, id, core.WorkshopChanges{
+		Name:              req.Name,
+		Active:            req.Active,
+		Paused:            req.IsPaused,
+		Public:            req.Public,
+		PublicSlug:        req.PublicSlug,
+		AiQualityTier:     req.AiQualityTier,
+		ShowsPublicGames:  req.ShowPublicGames,
+		ShowsOthersGames:  req.ShowOtherParticipantsGames,
+		AllowsGameSharing: req.AllowGameSharing,
+		PromptConstraint:  req.PromptConstraints,
+		PublicDescription: req.PublicDescription,
+		PublicLinks:       req.PublicLinks,
+	}))
 }
 
-// UpdateWorkshopReq is the workshop from the path and its new settings from
-// the body.
+// UpdateWorkshopReq is the workshop from the path and what changes.
 type UpdateWorkshopReq struct {
-	ID                         string  `path:"id" json:"-"`
-	Name                       string  `json:"name"`
-	Active                     bool    `json:"active"`
-	Public                     bool    `json:"public"`
-	AiQualityTier              *string `json:"aiQualityTier,omitempty"`
-	PromptConstraints          *string `json:"promptConstraints,omitempty"`
-	ShowPublicGames            bool    `json:"showPublicGames"`
-	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
-	IsPaused                   bool    `json:"isPaused"`
-	AllowGameSharing           bool    `json:"allowGameSharing"`
-	// PublicSlug: omitted keeps the current link.
-	PublicSlug *string `json:"publicSlug,omitempty"`
-	// PublicDescription: omitted keeps the current text, "" clears it.
-	PublicDescription *string `json:"publicDescription,omitempty"`
-	// PublicLinks: omitted keeps the current further reading, an empty list clears it.
-	PublicLinks *[]obj.PublicWorkshopLink `json:"publicLinks,omitempty"`
+	ID                         string                    `path:"id"`
+	Name                       *string                   `json:"name,omitempty"`
+	Active                     *bool                     `json:"active,omitempty"`
+	IsPaused                   *bool                     `json:"isPaused,omitempty"`
+	Public                     *bool                     `json:"public,omitempty"`
+	PublicSlug                 *string                   `json:"publicSlug,omitempty"`
+	AiQualityTier              *string                   `json:"aiQualityTier,omitempty"`
+	ShowPublicGames            *bool                     `json:"showPublicGames,omitempty"`
+	ShowOtherParticipantsGames *bool                     `json:"showOtherParticipantsGames,omitempty"`
+	AllowGameSharing           *bool                     `json:"allowGameSharing,omitempty"`
+	PromptConstraints          *string                   `json:"promptConstraints,omitempty"`
+	PublicDescription          *string                   `json:"publicDescription,omitempty"`
+	PublicLinks                *[]obj.PublicWorkshopLink `json:"publicLinks,omitempty"`
 }
 
-// DeleteWorkshopEndpoint soft-deletes a workshop.
+// DeleteWorkshopEndpoint deletes a workshop with its guests; its other games
+// stay with their creators.
 type DeleteWorkshopEndpoint struct{}
 
 func (DeleteWorkshopEndpoint) Method() string             { return "DELETE" }
 func (DeleteWorkshopEndpoint) Path() string               { return "/api/workshops/{id}" }
 func (DeleteWorkshopEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (DeleteWorkshopEndpoint) Handle(ctx context.Context, req WorkshopIDReq) (MessageResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid workshop ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	id, err := parseIDValidation(req.ID, "Invalid workshop ID")
-	if err != nil {
+	if err := core.DeleteWorkshop(ctx, id); err != nil {
 		return MessageResp{}, err
-	}
-	if err := db.DeleteWorkshop(ctx, id, user.ID); err != nil {
-		return MessageResp{}, appError(err)
 	}
 	return MessageResp{Message: "Workshop deleted"}, nil
 }
 
-// SetWorkshopApiKeyEndpoint sets the API key a workshop's participants play
-// with; staff and heads only.
-//
-// A null or empty apiKeyShareId removes it.
-type SetWorkshopApiKeyEndpoint struct{}
-
-func (SetWorkshopApiKeyEndpoint) Method() string             { return "PUT" }
-func (SetWorkshopApiKeyEndpoint) Path() string               { return "/api/workshops/{id}/api-key" }
-func (SetWorkshopApiKeyEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (SetWorkshopApiKeyEndpoint) Handle(ctx context.Context, req SetWorkshopApiKeyReq) (WorkshopResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Workshop{}, err
-	}
-	id, err := parseIDValidation(req.ID, "Invalid workshop ID")
-	if err != nil {
-		return obj.Workshop{}, err
-	}
-	var apiKeyShareID *uuid.UUID
-	if req.ApiKeyShareID != nil && *req.ApiKeyShareID != "" {
-		parsed, err := parseIDValidation(*req.ApiKeyShareID, "Invalid API key share ID")
-		if err != nil {
-			return obj.Workshop{}, err
-		}
-		apiKeyShareID = &parsed
-	}
-	workshop, err := db.SetWorkshopDefaultApiKey(ctx, id, user.ID, apiKeyShareID)
-	if err != nil {
-		return obj.Workshop{}, appError(err)
-	}
-	events.GetBroker().PublishWorkshopUpdated(id)
-	return *workshop, nil
-}
-
-// SetWorkshopApiKeyReq is the workshop from the path and the API key share
-// from the body.
-type SetWorkshopApiKeyReq struct {
-	ID            string  `path:"id" json:"-"`
-	ApiKeyShareID *string `json:"apiKeyShareId"`
-}
-
-// AddWorkshopMemberEndpoint adds a member of the organization to a workshop by
-// making it their active workshop.
+// AddWorkshopMemberEndpoint puts an individual of the workshop's organisation
+// into it: it becomes the workshop they work in.
 type AddWorkshopMemberEndpoint struct{}
 
 func (AddWorkshopMemberEndpoint) Method() string             { return "POST" }
 func (AddWorkshopMemberEndpoint) Path() string               { return "/api/workshops/{id}/members" }
 func (AddWorkshopMemberEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (AddWorkshopMemberEndpoint) Handle(ctx context.Context, req AddWorkshopMemberReq) (MessageResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.WorkshopID, "Invalid workshop ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	workshopID, err := parseIDValidation(req.WorkshopID, "Invalid workshop ID")
+	user, err := parseID(req.UserID, "Invalid user ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	if req.UserID == "" {
-		return MessageResp{}, appError(obj.ErrValidation("userId is required"))
-	}
-	targetUserID, err := parseIDValidation(req.UserID, "Invalid user ID")
-	if err != nil {
+	if err := core.AddToWorkshop(ctx, id, user); err != nil {
 		return MessageResp{}, err
 	}
-	if err := db.AddMemberToWorkshop(ctx, user.ID, workshopID, targetUserID); err != nil {
-		return MessageResp{}, appError(err)
-	}
-	events.GetBroker().PublishMembersUpdated(workshopID)
 	return MessageResp{Message: "Member added to workshop"}, nil
 }
 
 // AddWorkshopMemberReq is the workshop from the path and the user to add from
 // the body.
 type AddWorkshopMemberReq struct {
-	WorkshopID string `path:"id" json:"-"`
+	WorkshopID string `path:"id"`
 	UserID     string `json:"userId"`
 }
 
-// RemoveWorkshopMemberEndpoint removes a member who is not permanent from a
-// workshop by clearing their active workshop.
+// RemoveWorkshopMemberEndpoint takes someone out of a workshop: a guest of it
+// loses their place, a member working in it leaves it.
 type RemoveWorkshopMemberEndpoint struct{}
 
 func (RemoveWorkshopMemberEndpoint) Method() string             { return "DELETE" }
 func (RemoveWorkshopMemberEndpoint) Path() string               { return "/api/workshops/{id}/members/{userId}" }
 func (RemoveWorkshopMemberEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (RemoveWorkshopMemberEndpoint) Handle(ctx context.Context, req RemoveWorkshopMemberReq) (MessageResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.WorkshopID, "Invalid workshop ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	workshopID, err := parseIDValidation(req.WorkshopID, "Invalid workshop ID")
+	user, err := parseID(req.UserID, "Invalid user ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	targetUserID, err := parseIDValidation(req.UserID, "Invalid user ID")
-	if err != nil {
+	if err := core.RemoveFromWorkshop(ctx, id, user); err != nil {
 		return MessageResp{}, err
 	}
-	if err := db.RemoveMemberFromWorkshop(ctx, user.ID, workshopID, targetUserID); err != nil {
-		return MessageResp{}, appError(err)
-	}
-	events.GetBroker().PublishMembersUpdated(workshopID)
 	return MessageResp{Message: "Member removed from workshop"}, nil
 }
 
-// RemoveWorkshopMemberReq names a workshop and the member to remove.
+// RemoveWorkshopMemberReq names a workshop and the person to take out.
 type RemoveWorkshopMemberReq struct {
-	WorkshopID string `path:"id" json:"-"`
-	UserID     string `path:"userId" json:"-"`
+	WorkshopID string `path:"id"`
+	UserID     string `path:"userId"`
 }
 
-// WorkshopParticipantReq names a workshop participant by their user id.
-type WorkshopParticipantReq struct {
-	ParticipantID string `path:"participantId" json:"-"`
+// WorkshopGuestReq names a guest in a workshop by their user id.
+type WorkshopGuestReq struct {
+	GuestID string `path:"guestId"`
 }
 
-// WorkshopParticipantTokenResp is a participant's access token.
-type WorkshopParticipantTokenResp struct {
+// GuestTokenResp is a guest's login code.
+type GuestTokenResp struct {
 	Token string `json:"token"`
 }
 
-// GetParticipantTokenEndpoint returns a workshop participant's access token;
-// staff and heads only.
-type GetParticipantTokenEndpoint struct{}
+// GetGuestTokenEndpoint returns the login code of a guest in one of the
+// caller's organisation's workshops: for its head and staff, helping a guest
+// who lost it.
+type GetGuestTokenEndpoint struct{}
 
-func (GetParticipantTokenEndpoint) Method() string { return "GET" }
-func (GetParticipantTokenEndpoint) Path() string {
-	return "/api/workshops/participants/{participantId}/token"
+func (GetGuestTokenEndpoint) Method() string { return "GET" }
+func (GetGuestTokenEndpoint) Path() string {
+	return "/api/workshops/guests/{guestId}/token"
 }
-func (GetParticipantTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetParticipantTokenEndpoint) Handle(ctx context.Context, req WorkshopParticipantReq) (WorkshopParticipantTokenResp, error) {
-	user, err := caller(ctx)
+func (GetGuestTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetGuestTokenEndpoint) Handle(ctx context.Context, req WorkshopGuestReq) (GuestTokenResp, error) {
+	id, err := parseID(req.GuestID, "Invalid guest ID")
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	participantID, err := parseIDValidation(req.ParticipantID, "Invalid participant ID")
+	secrets, err := wire.UserSecretsViewOf(core.ReadUser(ctx, id))
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	token, err := db.GetWorkshopParticipantToken(ctx, participantID, user.ID)
-	if err != nil {
-		return WorkshopParticipantTokenResp{}, appError(err)
+	if secrets.Token == nil {
+		return GuestTokenResp{}, core.ErrNotFound
 	}
-	return WorkshopParticipantTokenResp{Token: token}, nil
+	return GuestTokenResp{Token: *secrets.Token}, nil
 }
 
-// ResetParticipantTokenEndpoint replaces a workshop participant's access token;
-// staff and heads only.
-//
-// Earlier sign-in links stop working and the participant's sessions end.
-type ResetParticipantTokenEndpoint struct{}
+// ResetGuestTokenEndpoint gives a guest in one of the caller's organisation's
+// workshops a new login code: for its head and staff. Earlier login links
+// stop working and the guest's sessions end.
+type ResetGuestTokenEndpoint struct{}
 
-func (ResetParticipantTokenEndpoint) Method() string { return "POST" }
-func (ResetParticipantTokenEndpoint) Path() string {
-	return "/api/workshops/participants/{participantId}/token/reset"
+func (ResetGuestTokenEndpoint) Method() string { return "POST" }
+func (ResetGuestTokenEndpoint) Path() string {
+	return "/api/workshops/guests/{guestId}/token/reset"
 }
-func (ResetParticipantTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ResetParticipantTokenEndpoint) Handle(ctx context.Context, req WorkshopParticipantReq) (WorkshopParticipantTokenResp, error) {
-	user, err := caller(ctx)
+func (ResetGuestTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (ResetGuestTokenEndpoint) Handle(ctx context.Context, req WorkshopGuestReq) (GuestTokenResp, error) {
+	id, err := parseID(req.GuestID, "Invalid guest ID")
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	participantID, err := parseIDValidation(req.ParticipantID, "Invalid participant ID")
+	code, err := core.ResetLoginCode(ctx, id)
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	token, err := db.ResetWorkshopParticipantToken(ctx, participantID, user.ID)
+	return GuestTokenResp{Token: code}, nil
+}
+
+// optionalID parses an optional id; nil or empty is none.
+func optionalID(raw *string, msg string) (*uuid.UUID, error) {
+	if raw == nil || *raw == "" {
+		return nil, nil
+	}
+	id, err := parseID(*raw, msg)
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, appError(err)
+		return nil, err
 	}
-	// The old token signed sessions in; they end with it.
-	if err := schemafapi.RevokeSubject(ctx, participantID.String()); err != nil {
-		return WorkshopParticipantTokenResp{}, fmt.Errorf("failed to end participant sessions: %w", err)
-	}
-	return WorkshopParticipantTokenResp{Token: token}, nil
+	return &id, nil
 }
