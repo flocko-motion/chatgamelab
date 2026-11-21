@@ -8,6 +8,17 @@ type (
 	AudioChunk []byte
 	ImageData  []byte
 	PropMap    map[string]string
+	// Piece is streamed text: a reply arriving piece by piece. A type of its
+	// own, so a block taking whole text is never wired to a stream.
+	Piece string
+)
+
+// The stream's two markers. A reply ends with PieceClose; PieceDiscard drops
+// the reply still open, as when a broken stream is retried.
+const (
+	PieceClose Piece = ""
+	// PieceDiscard is ASCII CAN, "cancel", which no model writes.
+	PieceDiscard Piece = "\x18"
 )
 
 // Source ports hand out a fresh channel per call: consumers sharing one would steal from each other.
@@ -18,6 +29,7 @@ type (
 	SecondaryTextOut interface{ SecondaryTextOutPort() <-chan string }
 	ImageOut         interface{ ImageOutPort() <-chan ImageData }
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
+	StreamOut        interface{ StreamOutPort() <-chan Piece }
 )
 
 // Phase is what a block is doing; a block reports its initial phase, then only changes.
@@ -64,10 +76,11 @@ type UsageOut interface{ UsageOutPort() <-chan Usage }
 type StateIn interface{ StateInPort() chan<- State }
 
 type (
-	AudioIn interface{ AudioInPort() chan<- AudioChunk }
-	TextIn  interface{ TextInPort() chan<- string }
-	ImageIn interface{ ImageInPort() chan<- ImageData }
-	PropsIn interface{ PropsInPort() chan<- PropMap }
+	AudioIn  interface{ AudioInPort() chan<- AudioChunk }
+	TextIn   interface{ TextInPort() chan<- string }
+	ImageIn  interface{ ImageInPort() chan<- ImageData }
+	PropsIn  interface{ PropsInPort() chan<- PropMap }
+	StreamIn interface{ StreamInPort() chan<- Piece }
 )
 
 type Kind int
@@ -78,6 +91,7 @@ const (
 	KindImage
 	KindProps
 	KindState
+	KindStream
 )
 
 func (k Kind) String() string {
@@ -92,6 +106,8 @@ func (k Kind) String() string {
 		return "props"
 	case KindState:
 		return "state"
+	case KindStream:
+		return "stream"
 	}
 	return "unknown"
 }

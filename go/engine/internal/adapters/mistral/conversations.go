@@ -4,12 +4,18 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
 	"engine/internal/adapters"
 )
+
+// errNotFound is Mistral answering that what a path names does not exist,
+// such as a conversation it no longer holds.
+var errNotFound = errors.New("not found")
 
 // client speaks the parts of Mistral's API the adapters share.
 type client struct {
@@ -84,6 +90,11 @@ func (c *client) file(ctx context.Context, key, id string) ([]byte, error) {
 }
 
 func (c *client) do(ctx context.Context, key, method, path string, body []byte) (*http.Response, error) {
+	return c.send(ctx, key, method, path, body, "")
+}
+
+// send is do with an Accept header, which a streamed reply asks for.
+func (c *client) send(ctx context.Context, key, method, path string, body []byte, accept string) (*http.Response, error) {
 	var reader io.Reader
 	if body != nil {
 		reader = bytes.NewReader(body)
@@ -96,6 +107,9 @@ func (c *client) do(ctx context.Context, key, method, path string, body []byte) 
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+	if accept != "" {
+		req.Header.Set("Accept", accept)
+	}
 
 	resp, err := c.http.Do(req)
 	if err != nil {
@@ -104,7 +118,11 @@ func (c *client) do(ctx context.Context, key, method, path string, body []byte) 
 	if resp.StatusCode != http.StatusOK {
 		detail, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
 		resp.Body.Close()
-		return nil, adapters.StatusError("mistral "+path, resp, ": "+strings.TrimSpace(string(detail)))
+		err := adapters.StatusError("mistral "+path, resp, ": "+strings.TrimSpace(string(detail)))
+		if resp.StatusCode == http.StatusNotFound {
+			err = fmt.Errorf("%w: %w", errNotFound, err)
+		}
+		return nil, err
 	}
 	return resp, nil
 }

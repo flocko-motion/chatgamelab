@@ -35,9 +35,9 @@ func TestPipelines(t *testing.T) {
 				// The rephrase, extraction and expand stages each leave their
 				// mark, in order, which is what makes this a pipeline test
 				// rather than an output test.
-				"text":  {"[prose turn 1] [outline] world reacts to: [mock-tool] I try to cross the bridge"},
+				"text":  {"[story turn 1] [outline] world reacts to: [mock-tool] I try to cross the bridge"},
 				"image": {"<png of dim stone bridge, torchlight>"},
-				"audio": {"<narration of [prose turn 1]"},
+				"audio": {"<narration of [story turn 1]"},
 				"props": {"map[Health:Good]", "map[Health:Good Turn:1]"},
 			},
 		},
@@ -48,7 +48,7 @@ func TestPipelines(t *testing.T) {
 			want: map[string][]string{
 				// Turn 2, not turn 1 again: the threaded block is continuing a
 				// conversation rather than starting one per action.
-				"text": {"[prose turn 1]", "[prose turn 2]"},
+				"text": {"[story turn 1]", "[story turn 2]"},
 			},
 		},
 		{
@@ -115,10 +115,36 @@ func TestPipelines(t *testing.T) {
 				if !wired {
 					t.Fatalf("genre wires no %q output, so nothing can arrive on it", stream)
 				}
+				if stream == "text" && w.Live == nil {
+					// Adventure's text streams piece by piece; a line is a
+					// whole reply. A live conversation at no pace closes none.
+					sink = utterances(sink)
+				}
 				assertInOrder(t, stream, sink, expected)
 			}
 		})
 	}
+}
+
+// utterances joins streamed pieces into whole utterances, each ended by the
+// close; a discard drops the pieces of the open one.
+func utterances(pieces chan string) chan string {
+	whole := make(chan string, 64)
+	go func() {
+		var open strings.Builder
+		for piece := range pieces {
+			switch piece {
+			case string(ports.PieceClose):
+				whole <- open.String()
+				open.Reset()
+			case string(ports.PieceDiscard):
+				open.Reset()
+			default:
+				open.WriteString(piece)
+			}
+		}
+	}()
+	return whole
 }
 
 // assertInOrder consumes a sink until it has seen each expected prefix in turn,
@@ -308,3 +334,29 @@ func (c *silentConn) Answer() string                         { return "mock-sdp-
 func (c *silentConn) Instruct(context.Context, string) error { return nil }
 func (c *silentConn) Events() <-chan adapters.LiveEvent      { return c.events }
 func (c *silentConn) Close() error                           { return nil }
+
+// Adventure's wiring keeps its story thread under its own name, and a wiring
+// restored from it goes on with the same thread rather than starting one.
+func TestAdventureResumesItsThread(t *testing.T) {
+	play := func(w *Wiring, line, want string) {
+		t.Helper()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		w.Graph.Start(ctx)
+		w.Say(line)
+		assertInOrder(t, "text", utterances(w.Sinks()["text"]), []string{want})
+	}
+
+	first := mustAdventure(t, nil)
+	play(first, "I look around", "[story turn 1]")
+	stored := first.Graph.ExportState()
+	if !strings.Contains(stored["story-thread"], `"id":"mock-thread-1"`) {
+		t.Fatalf("stored state = %v, want the story thread's continuation", stored)
+	}
+
+	resumed := mustAdventure(t, nil)
+	if err := resumed.Graph.RestoreState(stored); err != nil {
+		t.Fatal(err)
+	}
+	play(resumed, "I keep walking", "[story turn 2]")
+}

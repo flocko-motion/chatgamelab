@@ -27,6 +27,12 @@ export interface SessionEvent {
 }
 
 /**
+ * A `text` event with this value drops the utterance still open, as when a
+ * broken reply is made again. An empty value closes an utterance.
+ */
+export const TEXT_DISCARD = "\u0018";
+
+/**
  * A block reporting on itself, carried as JSON in a `state` event's value.
  * A block in the turn loop is never finished; `failed` means the game cannot
  * continue, and a `problem` event says why.

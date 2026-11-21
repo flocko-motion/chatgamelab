@@ -188,14 +188,16 @@ func (s *Session) start(settled settlement, changes []string) {
 
 // equip puts the settled offer's adapters in the slots the blocks call.
 func (s *Session) equip() {
-	live, tool, image, err := s.spec.adapters(*s.settled)
+	kit, err := s.spec.adapters(*s.settled)
 	if err != nil {
 		s.post(SessionEvent{Stream: "error", Value: err.Error()})
 		return
 	}
-	s.slots.live.Set(live)
-	s.slots.tool.Set(tool)
-	s.slots.image.Set(image)
+	s.slots.live.Set(kit.live)
+	s.slots.tool.Set(kit.tool)
+	s.slots.image.Set(kit.image)
+	// The thread's continuation holds only on the offer that made it.
+	s.slots.thread.Set(kit.thread, s.settled.offer.ID)
 }
 
 // applySwitches sets every switchable block from the settled toggles.

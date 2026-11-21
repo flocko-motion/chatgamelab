@@ -25,12 +25,13 @@ func (m *meter) bill(used adapters.Usage) {
 	m.mu.Unlock()
 
 	m.usage.Send(ports.Usage{
-		Node:         m.name,
-		Model:        total.Model,
-		InputTokens:  total.InputTokens,
-		OutputTokens: total.OutputTokens,
-		AudioSeconds: total.AudioSeconds,
-		Images:       total.Images,
+		Node:              m.name,
+		Model:             total.Model,
+		InputTokens:       total.InputTokens,
+		CachedInputTokens: total.CachedInputTokens,
+		OutputTokens:      total.OutputTokens,
+		AudioSeconds:      total.AudioSeconds,
+		Images:            total.Images,
 	})
 }
 

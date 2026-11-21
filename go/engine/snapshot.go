@@ -1,8 +1,14 @@
 package engine
 
 import (
+	"strings"
 	"sync"
+
+	"engine/internal/ports"
 )
+
+// TextDiscard on the text stream drops the open utterance; an empty value closes it.
+const TextDiscard = string(ports.PieceDiscard)
 
 // Snapshot is everything a client needs to rebuild its view without having
 // watched the session happen — which is what a page reload is.
@@ -47,6 +53,9 @@ type recorder struct {
 	// what it was, and replaying thirty audio frames per utterance into a
 	// reloaded page would be neither useful nor cheap.
 	history []SessionEvent
+
+	// open is the utterance still streaming, kept whole once closed.
+	open strings.Builder
 }
 
 // historyStreams is what a reload needs to redraw the conversation.
@@ -67,17 +76,35 @@ func newRecorder() *recorder {
 	return &recorder{phases: map[string]string{}, props: map[string]string{}}
 }
 
-// record keeps an event that belongs to the history, and says whether it did.
-func (r *recorder) record(e SessionEvent) bool {
+// record keeps a history event and returns what it kept, to store in order.
+// Text is kept as one event per finished utterance, then the close.
+func (r *recorder) record(e SessionEvent) []SessionEvent {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	if !historyStreams[e.Stream] {
-		return false
+		return nil
 	}
-	r.history = append(r.history, e)
+	kept := []SessionEvent{e}
+	if e.Stream == "text" {
+		switch e.Value {
+		case TextDiscard:
+			r.open.Reset()
+			return nil
+		case "":
+			if r.open.Len() == 0 {
+				return nil
+			}
+			kept = []SessionEvent{{Stream: "text", Value: r.open.String()}, e}
+			r.open.Reset()
+		default:
+			r.open.WriteString(e.Value)
+			return nil
+		}
+	}
+	r.history = append(r.history, kept...)
 	r.trim()
-	return true
+	return kept
 }
 
 // restore takes a stored history back, with the status values its last

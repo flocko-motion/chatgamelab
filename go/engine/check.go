@@ -58,6 +58,7 @@ func (s *Session) watchKeys() {
 	s.slots.live.Report = report
 	s.slots.tool.Report = report
 	s.slots.image.Report = report
+	s.slots.thread.Report = report
 }
 
 // fail ends a game a block cannot go on with, telling the player why. A

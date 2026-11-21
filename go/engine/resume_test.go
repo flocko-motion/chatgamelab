@@ -40,18 +40,35 @@ func TestResumeContinuesTheThread(t *testing.T) {
 	if err := first.Say("I try to cross the bridge"); err != nil {
 		t.Fatal(err)
 	}
-	waitFor(t, first, "text", "[prose turn 1]")
+	// The reply streams; the history keeps it whole once it has closed.
+	waitFor(t, first, "audio", "<narration of [story turn 1]")
+	for deadline := time.Now().Add(3 * time.Second); !hasText(first.History(), "[story turn 1]"); {
+		if time.Now().After(deadline) {
+			t.Fatalf("the history never kept the first turn whole: %q", first.History())
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
 	first.Close()
 
 	resumed := resume(t, store, "s1")
-	if !strings.Contains(textOf(resumed.History()), "[prose turn 1]") {
-		t.Errorf("the restored history lacks the first turn: %v", resumed.History())
+	if !hasText(resumed.History(), "[story turn 1]") {
+		t.Errorf("the restored history lacks the first turn as one utterance: %q", resumed.History())
 	}
 	if err := resumed.Say("I keep going"); err != nil {
 		t.Fatal(err)
 	}
 	// Turn 2, not turn 1: the thread continued.
-	waitFor(t, resumed, "text", "[prose turn 2]")
+	waitFor(t, resumed, "audio", "<narration of [story turn 2]")
+}
+
+// hasText reports whether the history holds a text event starting with prefix.
+func hasText(events []engine.SessionEvent, prefix string) bool {
+	for _, e := range events {
+		if e.Stream == "text" && strings.HasPrefix(e.Value, prefix) {
+			return true
+		}
+	}
+	return false
 }
 
 // The stored spec is the session's: a resume needs nothing but the ID.
@@ -101,7 +118,7 @@ func TestResumeRefusesUnknownBlock(t *testing.T) {
 	if err := store.SaveState(context.Background(), "s3", engine.Stored{
 		Version: engine.SchemaVersion,
 		Spec:    engine.SessionSpec{Genre: engine.GenreAdventure},
-		State:   engine.SessionState{Blocks: map[string]string{"a-block-that-left": "resp-9"}},
+		State:   engine.SessionState{Blocks: map[string]string{"a-block-that-left": "{}"}},
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +145,7 @@ func TestFreshLaunchDoesNotContinue(t *testing.T) {
 	defer s.Close()
 
 	s.Say("I try to cross the bridge")
-	waitFor(t, s, "text", "[prose turn 1]")
+	waitFor(t, s, "audio", "<narration of [story turn 1]")
 }
 
 // Status values are not a handle to something a provider remembers: if the

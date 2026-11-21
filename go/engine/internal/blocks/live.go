@@ -275,7 +275,7 @@ func (b *LiveSession) open(ctx context.Context, waiting offer) (adapters.LiveCon
 	conn, err := b.live.Open(ctx, cfg)
 	if err != nil {
 		waiting.fail <- err
-		b.text.Send("[engine] the conversation could not be opened: " + err.Error())
+		b.notice("[engine] the conversation could not be opened: " + err.Error())
 		b.closeAll()
 		return nil, err
 	}
@@ -352,7 +352,7 @@ func (b *LiveSession) greet(ctx context.Context, conn adapters.LiveConn) {
 	cue := b.cue
 	b.cue = ""
 	if err := conn.Instruct(ctx, cue); err != nil {
-		b.text.Send("[engine] the opening cue was rejected: " + err.Error())
+		b.notice("[engine] the opening cue was rejected: " + err.Error())
 	}
 }
 
@@ -377,7 +377,7 @@ func (b *LiveSession) instruct(ctx context.Context, conn adapters.LiveConn) {
 				return
 			}
 			if err := conn.Instruct(ctx, strings.TrimPrefix(text, steerPrefix)); err != nil {
-				b.text.Send("[engine] instruction rejected: " + err.Error())
+				b.notice("[engine] instruction rejected: " + err.Error())
 			}
 		}
 	}
@@ -512,15 +512,15 @@ func (b *LiveSession) handle(e adapters.LiveEvent) {
 		b.flush()
 		if e.CloseReason == "content" {
 			// Youth protection fired inside the model; say so plainly.
-			b.text.Send("[engine] the conversation was ended by the model's safety filter")
+			b.notice("[engine] the conversation was ended by the model's safety filter")
 			return
 		}
 		if e.CloseReason != "" && e.CloseReason != "close_requested" {
-			b.text.Send("[engine] the conversation ended: " + e.CloseReason)
+			b.notice("[engine] the conversation ended: " + e.CloseReason)
 		}
 
 	case adapters.EventError:
-		b.text.Send("[engine] live error: " + e.Err.Error())
+		b.notice("[engine] live error: " + e.Err.Error())
 	}
 }
 
@@ -560,6 +560,13 @@ func (b *LiveSession) endUtterance() {
 
 	b.text.Send("")
 	b.speak(false)
+}
+
+// notice is an engine message, an utterance of its own, so the history keeps it.
+func (b *LiveSession) notice(text string) {
+	b.endUtterance()
+	b.text.Send(text)
+	b.text.Send("")
 }
 
 // flush closes an utterance left open when the conversation stops.

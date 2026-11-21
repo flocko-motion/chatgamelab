@@ -2,15 +2,13 @@ package mistral
 
 import "engine/internal/adapters"
 
-// Model choices per tier follow the table in TECHNOLOGY.md as of August 2026.
-// Tooling stays on the small model at every tier, as its prompts are short.
-//
-// The image model is the conversation model that calls the image_generation
-// tool; the tool takes no size or quality, so neither is set.
-//
-// Toggles list what this adapter implements: text and pictures.
+// Model choices per tier as of 21 November 2026, on dated or versioned ids so
+// each is priced; mistral-large-4-0 is Large 4's versioned id. The image model
+// is the conversation model calling the image_generation tool, which takes no
+// size or quality.
 var (
-	small = adapters.Model{Name: "mistral-small-latest"}
+	small = adapters.Model{Name: "mistral-small-2603"}
+	large = adapters.Model{Name: "mistral-large-4-0"}
 )
 
 // Platform is Mistral's catalogue entry.
@@ -28,12 +26,12 @@ func Platform() adapters.Platform {
 			},
 			adapters.ModelSet{
 				adapters.ModelTooling: small,
-				adapters.ModelStory:   {Name: "mistral-medium-latest"},
+				adapters.ModelStory:   large,
 				adapters.ModelImage:   small,
 			},
 			adapters.ModelSet{
-				adapters.ModelTooling: small,
-				adapters.ModelStory:   {Name: "mistral-large-latest"},
+				adapters.ModelTooling: large,
+				adapters.ModelStory:   large,
 				adapters.ModelImage:   small,
 			},
 		),

@@ -239,6 +239,8 @@ func TestImagesOffStopsNewPicturesAndTheirBilling(t *testing.T) {
 		t.Fatal(err)
 	}
 	eventually(t, "a picture", func() bool { return spent(s, "image").Images == 1 })
+	eventually(t, "the first prose", func() bool { return spent(s, "expand").OutputTokens > 0 })
+	firstTurn := spent(s, "expand").OutputTokens
 
 	if err := s.SetToggle(ToggleImages, false); err != nil {
 		t.Fatal(err)
@@ -246,7 +248,7 @@ func TestImagesOffStopsNewPicturesAndTheirBilling(t *testing.T) {
 	if err := s.Say("I look around"); err != nil {
 		t.Fatal(err)
 	}
-	eventually(t, "the second turn", func() bool { return spent(s, "expand").OutputTokens > 350 })
+	eventually(t, "the second turn", func() bool { return spent(s, "expand").OutputTokens > firstTurn })
 	time.Sleep(50 * time.Millisecond)
 	if got := spent(s, "image").Images; got != 1 {
 		t.Errorf("pictures billed = %d, want only the one made before images went off", got)
