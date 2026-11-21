@@ -74,29 +74,6 @@ func (q *Queries) GetSystemSettings(ctx context.Context) (SystemSetting, error) 
 	return i, err
 }
 
-const initSystemSettings = `-- name: InitSystemSettings :exec
-INSERT INTO system_settings (id, default_ai_quality_tier)
-VALUES ('00000000-0000-0000-0000-000000000001'::uuid, $1)
-ON CONFLICT DO NOTHING
-`
-
-func (q *Queries) InitSystemSettings(ctx context.Context, defaultAiQualityTier string) error {
-	_, err := q.db.ExecContext(ctx, initSystemSettings, defaultAiQualityTier)
-	return err
-}
-
-const updateDefaultAiQualityTier = `-- name: UpdateDefaultAiQualityTier :exec
-UPDATE system_settings
-SET
-  default_ai_quality_tier = $1,
-  modified_at = now()
-`
-
-func (q *Queries) UpdateDefaultAiQualityTier(ctx context.Context, defaultAiQualityTier string) error {
-	_, err := q.db.ExecContext(ctx, updateDefaultAiQualityTier, defaultAiQualityTier)
-	return err
-}
-
 const updateFreeUseAiQualityTier = `-- name: UpdateFreeUseAiQualityTier :exec
 UPDATE system_settings
 SET
@@ -142,17 +119,5 @@ SET
 
 func (q *Queries) UpdatePromptConstraintU18(ctx context.Context, promptConstraintU18 sql.NullString) error {
 	_, err := q.db.ExecContext(ctx, updatePromptConstraintU18, promptConstraintU18)
-	return err
-}
-
-const updateSystemSettingsFreeUseApiKey = `-- name: UpdateSystemSettingsFreeUseApiKey :exec
-UPDATE system_settings
-SET
-  free_use_api_key_id = $1,
-  modified_at = now()
-`
-
-func (q *Queries) UpdateSystemSettingsFreeUseApiKey(ctx context.Context, freeUseApiKeyID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, updateSystemSettingsFreeUseApiKey, freeUseApiKeyID)
 	return err
 }

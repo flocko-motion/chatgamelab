@@ -34,7 +34,7 @@ func ReadSiteRules(ctx context.Context) (SiteRules, error) {
 	if !granted(ctx, rules.Read, rules.SiteRules, rules.Everywhere) {
 		return SiteRules{}, forbidden("you may not read the site's rules")
 	}
-	s, err := store.Queries().GetSystemSettings(ctx)
+	s, err := store.Queries().V2GetSystemSettings(ctx)
 	if err != nil {
 		return SiteRules{}, err
 	}
@@ -71,7 +71,7 @@ func ReadSiteSettings(ctx context.Context) (*SiteSettings, error) {
 
 func siteSettings(ctx context.Context) (*SiteSettings, error) {
 	q := store.Queries()
-	s, err := q.GetSystemSettings(ctx)
+	s, err := q.V2GetSystemSettings(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func siteSettings(ctx context.Context) (*SiteSettings, error) {
 	}
 	if s.FreeUseApiKeyID.Valid {
 		key := &FreeUseKey{ID: s.FreeUseApiKeyID.UUID}
-		if k, err := q.GetApiKeyByID(ctx, key.ID); err == nil {
+		if k, err := q.V2GetApiKeyByID(ctx, key.ID); err == nil {
 			key.Name, key.Platform = k.Name, k.Platform
 			if k.LastUsageSuccess.Valid {
 				key.Working = &k.LastUsageSuccess.Bool
@@ -114,7 +114,7 @@ func EditSiteSettings(ctx context.Context, c SiteSettingsChange) (*SiteSettings,
 	}
 	err := store.InTx(ctx, func(q *db.Queries) error {
 		if c.DefaultTier != nil {
-			if err := q.UpdateDefaultAiQualityTier(ctx, *c.DefaultTier); err != nil {
+			if err := q.V2UpdateDefaultAiQualityTier(ctx, *c.DefaultTier); err != nil {
 				return err
 			}
 		}
@@ -151,7 +151,7 @@ func SetFreeUseKey(ctx context.Context, key *uuid.UUID) (*SiteSettings, error) {
 		return nil, forbidden("only the admin sets the site's free-use key")
 	}
 	if key != nil {
-		k, err := store.Queries().GetApiKeyByID(ctx, *key)
+		k, err := store.Queries().V2GetApiKeyByID(ctx, *key)
 		if errors.Is(err, sql.ErrNoRows) || (err == nil && k.UserID != account(ctx).UUID) {
 			return nil, ErrNotFound
 		}
@@ -159,7 +159,7 @@ func SetFreeUseKey(ctx context.Context, key *uuid.UUID) (*SiteSettings, error) {
 			return nil, err
 		}
 	}
-	if err := store.Queries().UpdateSystemSettingsFreeUseApiKey(ctx, nullUUID(key)); err != nil {
+	if err := store.Queries().V2UpdateSystemSettingsFreeUseApiKey(ctx, nullUUID(key)); err != nil {
 		return nil, err
 	}
 	log.Info("site free-use key set", "key_id", key, "by", account(ctx).UUID)
@@ -179,7 +179,7 @@ func MayRestart(ctx context.Context) error {
 // LatestBackup is the newest backup run recorded, nil for none. It is
 // public, for nobody in particular: the liveness probe grades it.
 func LatestBackup(ctx context.Context) (*obj.BackupLog, error) {
-	row, err := store.Queries().GetLatestBackup(ctx)
+	row, err := store.Queries().V2GetLatestBackup(ctx)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}

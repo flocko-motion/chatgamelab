@@ -13,6 +13,501 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2ClearDefaultShare = `-- name: V2ClearDefaultShare :exec
+UPDATE app_user SET default_api_key_share_id = NULL, modified_at = now() WHERE id = $1
+`
+
+func (q *Queries) V2ClearDefaultShare(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2ClearDefaultShare, userID)
+	return err
+}
+
+const v2ClearInvitesAcceptedBy = `-- name: V2ClearInvitesAcceptedBy :exec
+UPDATE user_role_invite SET accepted_by = NULL WHERE accepted_by = $1
+`
+
+func (q *Queries) V2ClearInvitesAcceptedBy(ctx context.Context, userID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2ClearInvitesAcceptedBy, userID)
+	return err
+}
+
+const v2ClearOriginalCreator = `-- name: V2ClearOriginalCreator :exec
+UPDATE game SET originally_created_by = NULL WHERE originally_created_by = $1
+`
+
+// Copies of the user's games, owned by others, keep no pointer to them.
+func (q *Queries) V2ClearOriginalCreator(ctx context.Context, userID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2ClearOriginalCreator, userID)
+	return err
+}
+
+const v2ClearUserActiveWorkshop = `-- name: V2ClearUserActiveWorkshop :exec
+
+UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
+WHERE user_id = $1 AND role != 'guest'
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2ClearUserActiveWorkshop(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2ClearUserActiveWorkshop, userID)
+	return err
+}
+
+const v2CompleteRegistration = `-- name: V2CompleteRegistration :execrows
+UPDATE app_user SET
+  name = $2,
+  email = $3,
+  age_group = $4,
+  language = COALESCE(NULLIF($5::text, ''), language),
+  modified_at = now()
+WHERE id = $1 AND name IS NULL
+`
+
+type V2CompleteRegistrationParams struct {
+	ID       uuid.UUID      `json:"id"`
+	Name     sql.NullString `json:"name"`
+	Email    sql.NullString `json:"email"`
+	AgeGroup sql.NullString `json:"age_group"`
+	Language string         `json:"language"`
+}
+
+func (q *Queries) V2CompleteRegistration(ctx context.Context, arg V2CompleteRegistrationParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, v2CompleteRegistration,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.AgeGroup,
+		arg.Language,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+const v2CountHeadsByInstitution = `-- name: V2CountHeadsByInstitution :one
+SELECT COUNT(*)::int AS count
+FROM user_role
+WHERE institution_id = $1 AND role = 'head'
+`
+
+// Count how many heads an institution has (for last-head protection)
+func (q *Queries) V2CountHeadsByInstitution(ctx context.Context, institutionID uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, v2CountHeadsByInstitution, institutionID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const v2CountUserGames = `-- name: V2CountUserGames :one
+SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
+`
+
+func (q *Queries) V2CountUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, v2CountUserGames, createdBy)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const v2CreateUserRole = `-- name: V2CreateUserRole :one
+INSERT INTO user_role (id, user_id, role, institution_id, workshop_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
+RETURNING id
+`
+
+type V2CreateUserRoleParams struct {
+	UserID        uuid.UUID     `json:"user_id"`
+	Role          string        `json:"role"`
+	InstitutionID uuid.NullUUID `json:"institution_id"`
+	WorkshopID    uuid.NullUUID `json:"workshop_id"`
+}
+
+func (q *Queries) V2CreateUserRole(ctx context.Context, arg V2CreateUserRoleParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2CreateUserRole,
+		arg.UserID,
+		arg.Role,
+		arg.InstitutionID,
+		arg.WorkshopID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const v2CreateUserWithGuestToken = `-- name: V2CreateUserWithGuestToken :one
+INSERT INTO app_user (id, name, email, auth0_id, guest_token, language)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (id) DO NOTHING
+RETURNING id
+`
+
+type V2CreateUserWithGuestTokenParams struct {
+	ID         uuid.UUID      `json:"id"`
+	Name       sql.NullString `json:"name"`
+	Email      sql.NullString `json:"email"`
+	Auth0ID    sql.NullString `json:"auth0_id"`
+	GuestToken sql.NullString `json:"guest_token"`
+	Language   string         `json:"language"`
+}
+
+func (q *Queries) V2CreateUserWithGuestToken(ctx context.Context, arg V2CreateUserWithGuestTokenParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2CreateUserWithGuestToken,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Auth0ID,
+		arg.GuestToken,
+		arg.Language,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const v2DeleteAccount = `-- name: V2DeleteAccount :exec
+DELETE FROM app_user WHERE id = $1
+`
+
+// The account itself; its sessions go with it (ON DELETE CASCADE).
+func (q *Queries) V2DeleteAccount(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteAccount, userID)
+	return err
+}
+
+const v2DeleteFavouritesOf = `-- name: V2DeleteFavouritesOf :exec
+DELETE FROM user_favourite_game WHERE user_id = $1
+`
+
+func (q *Queries) V2DeleteFavouritesOf(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteFavouritesOf, userID)
+	return err
+}
+
+const v2DeleteInvitesFor = `-- name: V2DeleteInvitesFor :exec
+DELETE FROM user_role_invite WHERE invited_user_id = $1
+`
+
+// Invites addressed to the user; one cannot just lose its target.
+func (q *Queries) V2DeleteInvitesFor(ctx context.Context, userID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteInvitesFor, userID)
+	return err
+}
+
+const v2DeleteUserGuestRole = `-- name: V2DeleteUserGuestRole :exec
+DELETE FROM user_role WHERE user_id = $1 AND workshop_id = $2 AND role = 'guest'
+`
+
+type V2DeleteUserGuestRoleParams struct {
+	UserID     uuid.UUID     `json:"user_id"`
+	WorkshopID uuid.NullUUID `json:"workshop_id"`
+}
+
+// Delete a specific user's participant role for a workshop
+func (q *Queries) V2DeleteUserGuestRole(ctx context.Context, arg V2DeleteUserGuestRoleParams) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteUserGuestRole, arg.UserID, arg.WorkshopID)
+	return err
+}
+
+const v2DeleteUserRoles = `-- name: V2DeleteUserRoles :exec
+DELETE FROM user_role WHERE user_id = $1
+`
+
+func (q *Queries) V2DeleteUserRoles(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteUserRoles, userID)
+	return err
+}
+
+const v2GamesCreatedBy = `-- name: V2GamesCreatedBy :many
+
+SELECT id FROM game WHERE created_by = $1
+`
+
+// Deleting an account (core/delete.go): what hangs on it, then the account.
+func (q *Queries) V2GamesCreatedBy(ctx context.Context, userID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2GamesCreatedBy, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2GetUserByEmail = `-- name: V2GetUserByEmail :one
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group FROM app_user WHERE email = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) V2GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
+	row := q.db.QueryRowContext(ctx, v2GetUserByEmail, email)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.Email,
+		&i.DeletedAt,
+		&i.Auth0ID,
+		&i.GuestToken,
+		&i.DefaultApiKeyShareID,
+		&i.AiQualityTier,
+		&i.Language,
+		&i.PrivateShareID,
+		&i.AgeGroup,
+	)
+	return i, err
+}
+
+const v2GetUserByID = `-- name: V2GetUserByID :one
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group FROM app_user WHERE id = $1
+`
+
+func (q *Queries) V2GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
+	row := q.db.QueryRowContext(ctx, v2GetUserByID, id)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.Email,
+		&i.DeletedAt,
+		&i.Auth0ID,
+		&i.GuestToken,
+		&i.DefaultApiKeyShareID,
+		&i.AiQualityTier,
+		&i.Language,
+		&i.PrivateShareID,
+		&i.AgeGroup,
+	)
+	return i, err
+}
+
+const v2GetWorkshopParticipants = `-- name: V2GetWorkshopParticipants :many
+SELECT id, name, auth0_id, joined_at, role, games_count, permanent FROM (
+  SELECT DISTINCT ON (u.id)
+    u.id, u.name, u.auth0_id,
+    COALESCE(ur.created_at, w.created_at) as joined_at,
+    ur.role,
+    (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count,
+    CASE
+      WHEN u.id = w.created_by THEN true
+      WHEN ur.workshop_id = $1 AND ur.role = 'guest' THEN true
+      ELSE false
+    END as permanent
+  FROM app_user u
+  INNER JOIN workshop w ON w.id = $1
+  INNER JOIN user_role ur ON u.id = ur.user_id
+  WHERE u.deleted_at IS NULL
+    AND (
+      (ur.workshop_id = $1)
+      OR (ur.active_workshop_id = $1 AND ur.role != 'guest')
+      OR (u.id = w.created_by AND ur.role != 'guest')
+    )
+  ORDER BY u.id,
+    CASE WHEN ur.role = 'guest' THEN 1 ELSE 0 END,
+    ur.created_at ASC
+) members
+ORDER BY joined_at ASC
+`
+
+type V2GetWorkshopParticipantsRow struct {
+	ID         uuid.UUID      `json:"id"`
+	Name       sql.NullString `json:"name"`
+	Auth0ID    sql.NullString `json:"auth0_id"`
+	JoinedAt   time.Time      `json:"joined_at"`
+	Role       string         `json:"role"`
+	GamesCount int32          `json:"games_count"`
+	Permanent  bool           `json:"permanent"`
+}
+
+// Get all members currently associated with a workshop:
+// 1. Participants (permanent members with workshop_id)
+// 2. Workshop creator (always shown)
+// 3. Visitors with active_workshop_id set (individuals, head, staff)
+// Uses DISTINCT ON to deduplicate users who match multiple conditions,
+// preferring their non-participant role (individual/head/staff) over participant.
+func (q *Queries) V2GetWorkshopParticipants(ctx context.Context, workshopID uuid.NullUUID) ([]V2GetWorkshopParticipantsRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2GetWorkshopParticipants, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2GetWorkshopParticipantsRow
+	for rows.Next() {
+		var i V2GetWorkshopParticipantsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Auth0ID,
+			&i.JoinedAt,
+			&i.Role,
+			&i.GamesCount,
+			&i.Permanent,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2GuestTokenExists = `-- name: V2GuestTokenExists :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE guest_token = $1)::bool AS taken
+`
+
+// Unfiltered: soft-deleted users keep their token, so it is never reissued.
+func (q *Queries) V2GuestTokenExists(ctx context.Context, token sql.NullString) (bool, error) {
+	row := q.db.QueryRowContext(ctx, v2GuestTokenExists, token)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
+const v2IsEmailTakenByOther = `-- name: V2IsEmailTakenByOther :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE email = $1 AND id != $2 AND deleted_at IS NULL) AS taken
+`
+
+type V2IsEmailTakenByOtherParams struct {
+	Email sql.NullString `json:"email"`
+	ID    uuid.UUID      `json:"id"`
+}
+
+func (q *Queries) V2IsEmailTakenByOther(ctx context.Context, arg V2IsEmailTakenByOtherParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, v2IsEmailTakenByOther, arg.Email, arg.ID)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
+const v2IsNameTaken = `-- name: V2IsNameTaken :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken
+`
+
+func (q *Queries) V2IsNameTaken(ctx context.Context, name sql.NullString) (bool, error) {
+	row := q.db.QueryRowContext(ctx, v2IsNameTaken, name)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
+const v2IsNameTakenByOther = `-- name: V2IsNameTakenByOther :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND id != $2 AND deleted_at IS NULL) AS taken
+`
+
+type V2IsNameTakenByOtherParams struct {
+	Name sql.NullString `json:"name"`
+	ID   uuid.UUID      `json:"id"`
+}
+
+func (q *Queries) V2IsNameTakenByOther(ctx context.Context, arg V2IsNameTakenByOtherParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, v2IsNameTakenByOther, arg.Name, arg.ID)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
+const v2KeysOf = `-- name: V2KeysOf :many
+SELECT id FROM api_key WHERE user_id = $1
+`
+
+func (q *Queries) V2KeysOf(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2KeysOf, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2SetUserActiveWorkshop = `-- name: V2SetUserActiveWorkshop :exec
+UPDATE user_role SET active_workshop_id = $2, modified_at = now()
+WHERE user_id = $1 AND role != 'guest'
+`
+
+type V2SetUserActiveWorkshopParams struct {
+	UserID           uuid.UUID     `json:"user_id"`
+	ActiveWorkshopID uuid.NullUUID `json:"active_workshop_id"`
+}
+
+func (q *Queries) V2SetUserActiveWorkshop(ctx context.Context, arg V2SetUserActiveWorkshopParams) error {
+	_, err := q.db.ExecContext(ctx, v2SetUserActiveWorkshop, arg.UserID, arg.ActiveWorkshopID)
+	return err
+}
+
+const v2SumPlayCountOfUserGames = `-- name: V2SumPlayCountOfUserGames :one
+SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1
+`
+
+func (q *Queries) V2SumPlayCountOfUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, v2SumPlayCountOfUserGames, createdBy)
+	var total int32
+	err := row.Scan(&total)
+	return total, err
+}
+
+const v2UpdateGuestToken = `-- name: V2UpdateGuestToken :execrows
+
+UPDATE app_user SET guest_token = $2, modified_by = $3, modified_at = now()
+WHERE id = $1 AND guest_token IS NOT NULL
+`
+
+type V2UpdateGuestTokenParams struct {
+	ID         uuid.UUID      `json:"id"`
+	GuestToken sql.NullString `json:"guest_token"`
+	ModifiedBy uuid.NullUUID  `json:"modified_by"`
+}
+
+// User deletion cleanup queries
+// Only replaces an existing token, never mints one: a registered participant has a
+// real login, and a word code would be a second, weaker credential for it. The row
+// count tells the caller whether there was anything to replace.
+func (q *Queries) V2UpdateGuestToken(ctx context.Context, arg V2UpdateGuestTokenParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, v2UpdateGuestToken, arg.ID, arg.GuestToken, arg.ModifiedBy)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const v2UpdateUser = `-- name: V2UpdateUser :exec
 UPDATE app_user SET
   modified_by              = $1::uuid,

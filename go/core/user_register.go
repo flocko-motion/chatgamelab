@@ -112,7 +112,7 @@ func registerWithOrganisation(ctx context.Context, id uuid.UUID, r Registration)
 // completeRegistration stores r on account id, refusing a name or email a
 // concurrent registration took first, and an account registered already.
 func completeRegistration(ctx context.Context, q *db.Queries, id uuid.UUID, r Registration) error {
-	n, err := q.CompleteRegistration(ctx, db.CompleteRegistrationParams{
+	n, err := q.V2CompleteRegistration(ctx, db.V2CompleteRegistrationParams{
 		ID:       id,
 		Name:     sql.NullString{String: r.Name, Valid: true},
 		Email:    sqlString(r.Email),
@@ -134,7 +134,7 @@ func completeRegistration(ctx context.Context, q *db.Queries, id uuid.UUID, r Re
 // checkFree refuses a name or email another account has.
 func (r Registration) checkFree(ctx context.Context, id uuid.UUID) error {
 	q := store.Queries()
-	taken, err := q.IsNameTakenByOther(ctx, db.IsNameTakenByOtherParams{
+	taken, err := q.V2IsNameTakenByOther(ctx, db.V2IsNameTakenByOtherParams{
 		Name: sql.NullString{String: r.Name, Valid: true}, ID: id,
 	})
 	if err != nil {

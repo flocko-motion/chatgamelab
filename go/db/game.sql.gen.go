@@ -133,69 +133,12 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 	return i, err
 }
 
-const createGameTag = `-- name: CreateGameTag :one
-
-INSERT INTO game_tag (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  game_id, tag
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7
-)
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, tag
-`
-
-type CreateGameTagParams struct {
-	ID         uuid.UUID     `json:"id"`
-	CreatedBy  uuid.NullUUID `json:"created_by"`
-	CreatedAt  time.Time     `json:"created_at"`
-	ModifiedBy uuid.NullUUID `json:"modified_by"`
-	ModifiedAt time.Time     `json:"modified_at"`
-	GameID     uuid.UUID     `json:"game_id"`
-	Tag        string        `json:"tag"`
-}
-
-// game_tag -------------------------------------------------------------
-func (q *Queries) CreateGameTag(ctx context.Context, arg CreateGameTagParams) (GameTag, error) {
-	row := q.db.QueryRowContext(ctx, createGameTag,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.GameID,
-		arg.Tag,
-	)
-	var i GameTag
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.GameID,
-		&i.Tag,
-	)
-	return i, err
-}
-
 const deleteFavoritesByGameID = `-- name: DeleteFavoritesByGameID :exec
 DELETE FROM user_favourite_game WHERE game_id = $1
 `
 
 func (q *Queries) DeleteFavoritesByGameID(ctx context.Context, gameID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteFavoritesByGameID, gameID)
-	return err
-}
-
-const deleteGameTag = `-- name: DeleteGameTag :exec
-DELETE FROM game_tag WHERE id = $1
-`
-
-func (q *Queries) DeleteGameTag(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGameTag, id)
 	return err
 }
 
@@ -699,61 +642,11 @@ func (q *Queries) GetGameIDsByCreator(ctx context.Context, createdBy uuid.NullUU
 	return items, nil
 }
 
-const getGameIDsVisibleToUser = `-- name: GetGameIDsVisibleToUser :many
-SELECT id FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2)
-`
-
-type GetGameIDsVisibleToUserParams struct {
-	CreatedBy  uuid.NullUUID `json:"created_by"`
-	WorkshopID uuid.NullUUID `json:"workshop_id"`
-}
-
-func (q *Queries) GetGameIDsVisibleToUser(ctx context.Context, arg GetGameIDsVisibleToUserParams) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getGameIDsVisibleToUser, arg.CreatedBy, arg.WorkshopID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []uuid.UUID
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		items = append(items, id)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getGameTagByID = `-- name: GetGameTagByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_id, tag FROM game_tag WHERE id = $1
-`
-
-func (q *Queries) GetGameTagByID(ctx context.Context, id uuid.UUID) (GameTag, error) {
-	row := q.db.QueryRowContext(ctx, getGameTagByID, id)
-	var i GameTag
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.GameID,
-		&i.Tag,
-	)
-	return i, err
-}
-
 const getGameTagsByGameID = `-- name: GetGameTagsByGameID :many
 SELECT id, created_by, created_at, modified_by, modified_at, game_id, tag FROM game_tag WHERE game_id = $1
 `
 
+// Creator sorting requires joining with user table
 func (q *Queries) GetGameTagsByGameID(ctx context.Context, gameID uuid.UUID) ([]GameTag, error) {
 	rows, err := q.db.QueryContext(ctx, getGameTagsByGameID, gameID)
 	if err != nil {
@@ -854,113 +747,6 @@ type GetGamesVisibleToUserSortedByCreatedAtParams struct {
 
 func (q *Queries) GetGamesVisibleToUserSortedByCreatedAt(ctx context.Context, arg GetGamesVisibleToUserSortedByCreatedAtParams) ([]Game, error) {
 	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByCreatedAt, arg.CreatedBy, arg.WorkshopID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getGamesVisibleToUserSortedByCreator = `-- name: GetGamesVisibleToUserSortedByCreator :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) ASC
-`
-
-// Creator sorting requires joining with user table
-func (q *Queries) GetGamesVisibleToUserSortedByCreator(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByCreator, createdBy)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getGamesVisibleToUserSortedByCreatorDesc = `-- name: GetGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) DESC
-`
-
-func (q *Queries) GetGamesVisibleToUserSortedByCreatorDesc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByCreatorDesc, createdBy)
 	if err != nil {
 		return nil, err
 	}
@@ -1361,7 +1147,6 @@ const getOwnGames = `-- name: GetOwnGames :many
 SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at DESC
 `
 
-// Own games (created by user) queries
 func (q *Queries) GetOwnGames(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
 	rows, err := q.db.QueryContext(ctx, getOwnGames, createdBy)
 	if err != nil {
@@ -1782,172 +1567,12 @@ func (q *Queries) GetOwnGamesSortedByPlayCountAsc(ctx context.Context, createdBy
 	return items, nil
 }
 
-const getOwnGamesSortedByVisibility = `-- name: GetOwnGamesSortedByVisibility :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public DESC, modified_at DESC
-`
-
-func (q *Queries) GetOwnGamesSortedByVisibility(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getOwnGamesSortedByVisibility, createdBy)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getOwnGamesSortedByVisibilityAsc = `-- name: GetOwnGamesSortedByVisibilityAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public ASC, modified_at DESC
-`
-
-func (q *Queries) GetOwnGamesSortedByVisibilityAsc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getOwnGamesSortedByVisibilityAsc, createdBy)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getPublicGames = `-- name: GetPublicGames :many
 SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at DESC
 `
 
 func (q *Queries) GetPublicGames(ctx context.Context) ([]Game, error) {
 	rows, err := q.db.QueryContext(ctx, getPublicGames)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getPublicGamesByWorkshop = `-- name: GetPublicGamesByWorkshop :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC
-`
-
-// Games shown on a workshop's public page.
-func (q *Queries) GetPublicGamesByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getPublicGamesByWorkshop, workshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -2375,30 +2000,12 @@ func (q *Queries) HardDeleteGame(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const hardDeleteGamesByCreator = `-- name: HardDeleteGamesByCreator :exec
-DELETE FROM game WHERE created_by = $1
-`
-
-func (q *Queries) HardDeleteGamesByCreator(ctx context.Context, createdBy uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, hardDeleteGamesByCreator, createdBy)
-	return err
-}
-
 const incrementGameCloneCount = `-- name: IncrementGameCloneCount :exec
 UPDATE game SET clone_count = clone_count + 1 WHERE id = $1
 `
 
 func (q *Queries) IncrementGameCloneCount(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, incrementGameCloneCount, id)
-	return err
-}
-
-const incrementGamePlayCount = `-- name: IncrementGamePlayCount :exec
-UPDATE game SET play_count = play_count + 1 WHERE id = $1
-`
-
-func (q *Queries) IncrementGamePlayCount(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, incrementGamePlayCount, id)
 	return err
 }
 
@@ -2897,122 +2504,6 @@ type SearchGamesVisibleToUserSortedByCreatedAtParams struct {
 
 func (q *Queries) SearchGamesVisibleToUserSortedByCreatedAt(ctx context.Context, arg SearchGamesVisibleToUserSortedByCreatedAtParams) ([]Game, error) {
 	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByCreatedAt, arg.CreatedBy, arg.WorkshopID, arg.Column3)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const searchGamesVisibleToUserSortedByCreator = `-- name: SearchGamesVisibleToUserSortedByCreator :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) ASC
-`
-
-type SearchGamesVisibleToUserSortedByCreatorParams struct {
-	CreatedBy uuid.NullUUID  `json:"created_by"`
-	Column2   sql.NullString `json:"column_2"`
-}
-
-func (q *Queries) SearchGamesVisibleToUserSortedByCreator(ctx context.Context, arg SearchGamesVisibleToUserSortedByCreatorParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByCreator, arg.CreatedBy, arg.Column2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const searchGamesVisibleToUserSortedByCreatorDesc = `-- name: SearchGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC
-`
-
-type SearchGamesVisibleToUserSortedByCreatorDescParams struct {
-	CreatedBy uuid.NullUUID  `json:"created_by"`
-	Column2   sql.NullString `json:"column_2"`
-}
-
-func (q *Queries) SearchGamesVisibleToUserSortedByCreatorDesc(ctx context.Context, arg SearchGamesVisibleToUserSortedByCreatorDescParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByCreatorDesc, arg.CreatedBy, arg.Column2)
 	if err != nil {
 		return nil, err
 	}
@@ -3878,122 +3369,6 @@ func (q *Queries) SearchOwnGamesSortedByPlayCountAsc(ctx context.Context, arg Se
 	return items, nil
 }
 
-const searchOwnGamesSortedByVisibility = `-- name: SearchOwnGamesSortedByVisibility :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public DESC, modified_at DESC
-`
-
-type SearchOwnGamesSortedByVisibilityParams struct {
-	CreatedBy uuid.NullUUID  `json:"created_by"`
-	Column2   sql.NullString `json:"column_2"`
-}
-
-func (q *Queries) SearchOwnGamesSortedByVisibility(ctx context.Context, arg SearchOwnGamesSortedByVisibilityParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchOwnGamesSortedByVisibility, arg.CreatedBy, arg.Column2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const searchOwnGamesSortedByVisibilityAsc = `-- name: SearchOwnGamesSortedByVisibilityAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public ASC, modified_at DESC
-`
-
-type SearchOwnGamesSortedByVisibilityAscParams struct {
-	CreatedBy uuid.NullUUID  `json:"created_by"`
-	Column2   sql.NullString `json:"column_2"`
-}
-
-func (q *Queries) SearchOwnGamesSortedByVisibilityAsc(ctx context.Context, arg SearchOwnGamesSortedByVisibilityAscParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchOwnGamesSortedByVisibilityAsc, arg.CreatedBy, arg.Column2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Game
-	for rows.Next() {
-		var i Game
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.Description,
-			&i.Icon,
-			&i.WorkshopID,
-			&i.Public,
-			&i.PublicSponsoredApiKeyShareID,
-			&i.SystemMessageScenario,
-			&i.SystemMessageGameStart,
-			&i.ImageStyle,
-			&i.Css,
-			&i.StatusFields,
-			&i.Genre,
-			&i.Theme,
-			&i.FirstMessage,
-			&i.FirstStatus,
-			&i.FirstImage,
-			&i.OriginallyCreatedBy,
-			&i.PlayCount,
-			&i.CloneCount,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const searchPublicGames = `-- name: SearchPublicGames :many
 SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_share_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, genre, theme, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC
 `
@@ -4441,24 +3816,6 @@ func (q *Queries) SetDevGameHistory(ctx context.Context, arg SetDevGameHistoryPa
 	return err
 }
 
-const softDeleteGame = `-- name: SoftDeleteGame :exec
-UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1
-`
-
-func (q *Queries) SoftDeleteGame(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, softDeleteGame, id)
-	return err
-}
-
-const unlinkGamesFromWorkshop = `-- name: UnlinkGamesFromWorkshop :exec
-UPDATE game SET workshop_id = NULL WHERE workshop_id = $1
-`
-
-func (q *Queries) UnlinkGamesFromWorkshop(ctx context.Context, workshopID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, unlinkGamesFromWorkshop, workshopID)
-	return err
-}
-
 const updateGame = `-- name: UpdateGame :one
 UPDATE game SET
   created_by = $2,
@@ -4560,51 +3917,6 @@ func (q *Queries) UpdateGame(ctx context.Context, arg UpdateGameParams) (Game, e
 		&i.PlayCount,
 		&i.CloneCount,
 		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const updateGameTag = `-- name: UpdateGameTag :one
-UPDATE game_tag SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  game_id = $6,
-  tag = $7
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, tag
-`
-
-type UpdateGameTagParams struct {
-	ID         uuid.UUID     `json:"id"`
-	CreatedBy  uuid.NullUUID `json:"created_by"`
-	CreatedAt  time.Time     `json:"created_at"`
-	ModifiedBy uuid.NullUUID `json:"modified_by"`
-	ModifiedAt time.Time     `json:"modified_at"`
-	GameID     uuid.UUID     `json:"game_id"`
-	Tag        string        `json:"tag"`
-}
-
-func (q *Queries) UpdateGameTag(ctx context.Context, arg UpdateGameTagParams) (GameTag, error) {
-	row := q.db.QueryRowContext(ctx, updateGameTag,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.GameID,
-		arg.Tag,
-	)
-	var i GameTag
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.GameID,
-		&i.Tag,
 	)
 	return i, err
 }

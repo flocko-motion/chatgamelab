@@ -63,7 +63,7 @@ func RemoveMember(ctx context.Context, id, user uuid.UUID) error {
 		return forbidden("you may not remove this member")
 	}
 	if member.row.role == "head" {
-		heads, err := store.Queries().CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+		heads, err := store.Queries().V2CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
 		if err != nil {
 			return err
 		}
@@ -73,20 +73,20 @@ func RemoveMember(ctx context.Context, id, user uuid.UUID) error {
 	}
 
 	err = store.InTx(ctx, func(q *db.Queries) error {
-		if err := q.DeleteApiKeySharesByOwnerForInstitution(ctx, db.DeleteApiKeySharesByOwnerForInstitutionParams{
+		if err := q.V2DeleteApiKeySharesByOwnerForInstitution(ctx, db.V2DeleteApiKeySharesByOwnerForInstitutionParams{
 			UserID: user, InstitutionID: uuid.NullUUID{UUID: id, Valid: true},
 		}); err != nil {
 			return err
 		}
-		if err := q.DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
+		if err := q.V2DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.V2DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
 			UserID: user, InstitutionID: id,
 		}); err != nil {
 			return err
 		}
-		if err := q.DeleteUserRoles(ctx, user); err != nil {
+		if err := q.V2DeleteUserRoles(ctx, user); err != nil {
 			return err
 		}
-		_, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{UserID: user, Role: string(obj.RoleIndividual)})
+		_, err := q.V2CreateUserRole(ctx, db.V2CreateUserRoleParams{UserID: user, Role: string(obj.RoleIndividual)})
 		return err
 	})
 	if err != nil {

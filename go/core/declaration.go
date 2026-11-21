@@ -20,7 +20,7 @@ type DeclarationForm struct {
 // ReadDeclarationForm is the declaration form, for anyone: the declaration
 // is public, and so is the site's rule it starts from.
 func ReadDeclarationForm(ctx context.Context) (DeclarationForm, error) {
-	settings, err := store.Queries().GetSystemSettings(ctx)
+	settings, err := store.Queries().V2GetSystemSettings(ctx)
 	if err != nil {
 		return DeclarationForm{}, err
 	}

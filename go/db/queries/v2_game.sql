@@ -182,3 +182,21 @@ INSERT INTO game_cover (game_id, image, created_by, created_at)
 VALUES (@game_id::uuid, @image::bytea, @created_by::uuid, now())
 ON CONFLICT (game_id) DO UPDATE SET
   image = EXCLUDED.image, created_by = EXCLUDED.created_by, created_at = now();
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2DeleteFavoritesByGameID :exec
+DELETE FROM user_favourite_game WHERE game_id = $1;
+
+-- name: V2DeleteGameTagsByGameID :exec
+DELETE FROM game_tag WHERE game_id = $1;
+
+-- name: V2IncrementGameCloneCount :exec
+UPDATE game SET clone_count = clone_count + 1 WHERE id = $1;
+
+-- name: V2SoftDeleteGame :exec
+UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1;
+
+-- name: V2HardDeleteGame :exec
+-- A game gone for good, with its deleted creator's account.
+DELETE FROM game WHERE id = @id;

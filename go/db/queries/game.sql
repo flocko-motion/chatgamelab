@@ -71,10 +71,6 @@ SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = tru
 -- name: SearchGamesVisibleToUserSortedByModifiedAtAsc :many
 SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at ASC;
 
--- name: GetGameIDsVisibleToUser :many
-SELECT id FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2);
-
--- Own games (created by user) queries
 -- name: GetOwnGames :many
 SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at DESC;
 
@@ -117,23 +113,11 @@ SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_co
 -- name: GetOwnGamesSortedByPlayCountAsc :many
 SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_count ASC;
 
--- name: GetOwnGamesSortedByVisibility :many
-SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public DESC, modified_at DESC;
-
--- name: GetOwnGamesSortedByVisibilityAsc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public ASC, modified_at DESC;
-
 -- name: SearchOwnGamesSortedByPlayCount :many
 SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
 
 -- name: SearchOwnGamesSortedByPlayCountAsc :many
 SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
-
--- name: SearchOwnGamesSortedByVisibility :many
-SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public DESC, modified_at DESC;
-
--- name: SearchOwnGamesSortedByVisibilityAsc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public ASC, modified_at DESC;
 
 -- name: GetPublicGames :many
 SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at DESC;
@@ -246,18 +230,6 @@ SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = tru
 SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY play_count ASC;
 
 -- Creator sorting requires joining with user table
--- name: GetGamesVisibleToUserSortedByCreator :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) ASC;
-
--- name: GetGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) DESC;
-
--- name: SearchGamesVisibleToUserSortedByCreator :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) ASC;
-
--- name: SearchGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC;
-
 -- name: GetGameTagsByGameID :many
 SELECT * FROM game_tag WHERE game_id = $1;
 
@@ -286,14 +258,8 @@ UPDATE game SET
 WHERE id = $1
 RETURNING *;
 
--- name: IncrementGamePlayCount :exec
-UPDATE game SET play_count = play_count + 1 WHERE id = $1;
-
 -- name: IncrementGameCloneCount :exec
 UPDATE game SET clone_count = clone_count + 1 WHERE id = $1;
-
--- name: SoftDeleteGame :exec
-UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1;
 
 -- name: HardDeleteGame :exec
 DELETE FROM game WHERE id = $1;
@@ -308,48 +274,6 @@ DELETE FROM game_tag WHERE game_id = $1;
 
 -- name: DeleteFavoritesByGameID :exec
 DELETE FROM user_favourite_game WHERE game_id = $1;
-
--- name: HardDeleteGamesByCreator :exec
-DELETE FROM game WHERE created_by = $1;
-
--- name: UnlinkGamesFromWorkshop :exec
-UPDATE game SET workshop_id = NULL WHERE workshop_id = $1;
-
-
--- game_tag -------------------------------------------------------------
-
--- name: CreateGameTag :one
-INSERT INTO game_tag (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  game_id, tag
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7
-)
-RETURNING *;
-
--- name: GetGameTagByID :one
-SELECT * FROM game_tag WHERE id = $1;
-
--- name: UpdateGameTag :one
-UPDATE game_tag SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  game_id = $6,
-  tag = $7
-WHERE id = $1
-RETURNING *;
-
--- name: DeleteGameTag :exec
-DELETE FROM game_tag WHERE id = $1;
-
--- name: GetPublicGamesByWorkshop :many
--- Games shown on a workshop's public page.
-SELECT * FROM game WHERE workshop_id = $1 AND public = true AND deleted_at IS NULL ORDER BY LOWER(name) ASC;
 
 -- name: SetDevGameHistory :exec
 -- Development seeding only: gives a demo game a past, so lists have

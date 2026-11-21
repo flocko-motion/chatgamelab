@@ -104,7 +104,7 @@ func ReadInviteByLink(ctx context.Context, token string) (*InviteCard, error) {
 // word form. A token found in neither form counts as a guess (tokenlock).
 func resolveInviteToken(ctx context.Context, token string) (string, error) {
 	for _, candidate := range []string{token, wordtoken.Normalize(token)} {
-		ok, err := store.Queries().InviteTokenExists(ctx, sql.NullString{String: candidate, Valid: true})
+		ok, err := store.Queries().V2InviteTokenExists(ctx, sql.NullString{String: candidate, Valid: true})
 		if err != nil {
 			return "", err
 		}
@@ -190,7 +190,7 @@ func InviteToOrganisation(ctx context.Context, in OrganisationInvite) (*InviteCa
 	if err := checkNoPendingInvite(ctx, in.Organisation, user, in.Email, nil); err != nil {
 		return nil, err
 	}
-	created, err := store.Queries().CreateTargetedInvite(ctx, db.CreateTargetedInviteParams{
+	created, err := store.Queries().V2CreateTargetedInvite(ctx, db.V2CreateTargetedInviteParams{
 		CreatedBy:     account(ctx),
 		InstitutionID: in.Organisation,
 		Role:          in.Role,
@@ -224,7 +224,7 @@ func InviteToWorkshop(ctx context.Context, l WorkshopLink) (*InviteCard, error) 
 		return nil, forbidden("you may not invite into this workshop")
 	}
 	q := store.Queries()
-	existing, err := q.GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: l.Workshop, Valid: true})
+	existing, err := q.V2GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: l.Workshop, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -240,12 +240,12 @@ func InviteToWorkshop(ctx context.Context, l WorkshopLink) (*InviteCard, error) 
 	}
 	// 3 words = 33 bits; guessing is bounded by the token lock
 	token, err := wordtoken.GenerateUnique(ctx, 3, func(ctx context.Context, t string) (bool, error) {
-		return q.InviteTokenExists(ctx, sql.NullString{String: t, Valid: true})
+		return q.V2InviteTokenExists(ctx, sql.NullString{String: t, Valid: true})
 	})
 	if err != nil {
 		return nil, err
 	}
-	params := db.CreateOpenInviteParams{
+	params := db.V2CreateOpenInviteParams{
 		CreatedBy:     account(ctx),
 		InstitutionID: w.row.organisationID,
 		Role:          string(obj.RoleGuest),
@@ -258,7 +258,7 @@ func InviteToWorkshop(ctx context.Context, l WorkshopLink) (*InviteCard, error) 
 	if l.Expires != nil {
 		params.ExpiresAt = sql.NullTime{Time: *l.Expires, Valid: true}
 	}
-	created, err := q.CreateOpenInvite(ctx, params)
+	created, err := q.V2CreateOpenInvite(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -294,7 +294,7 @@ func InviteToWorkshopByEmail(ctx context.Context, workshop uuid.UUID, email stri
 	if err := checkNoPendingInvite(ctx, w.row.organisationID, user, &email, &workshop); err != nil {
 		return nil, err
 	}
-	created, err := store.Queries().CreateTargetedInvite(ctx, db.CreateTargetedInviteParams{
+	created, err := store.Queries().V2CreateTargetedInvite(ctx, db.V2CreateTargetedInviteParams{
 		CreatedBy:     account(ctx),
 		InstitutionID: w.row.organisationID,
 		Role:          string(obj.RoleGuest),
@@ -312,7 +312,7 @@ func InviteToWorkshopByEmail(ctx context.Context, workshop uuid.UUID, email stri
 // email, which must exist.
 func inviteeOf(ctx context.Context, id *uuid.UUID, email *string) (uuid.UUID, error) {
 	if email != nil {
-		u, err := store.Queries().GetUserByEmail(ctx, sql.NullString{String: *email, Valid: true})
+		u, err := store.Queries().V2GetUserByEmail(ctx, sql.NullString{String: *email, Valid: true})
 		if errors.Is(err, sql.ErrNoRows) {
 			return uuid.Nil, ErrNotFound
 		}
@@ -328,7 +328,7 @@ func inviteeOf(ctx context.Context, id *uuid.UUID, email *string) (uuid.UUID, er
 // pending one into the organisation; with workshop, only one into that
 // workshop.
 func checkNoPendingInvite(ctx context.Context, org, user uuid.UUID, email *string, workshop *uuid.UUID) error {
-	existing, err := store.Queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
+	existing, err := store.Queries().V2GetPendingInviteByTarget(ctx, db.V2GetPendingInviteByTargetParams{
 		InstitutionID: org,
 		InvitedUserID: uuid.NullUUID{UUID: user, Valid: true},
 		InvitedEmail:  sqlString(email),
@@ -406,7 +406,7 @@ func AcceptInvite(ctx context.Context, idOrToken string, language string) (Accep
 		if err := enterWorkshop(ctx, *inv.WorkshopID, true); err != nil {
 			return AcceptedInvite{}, err
 		}
-		if err := store.Queries().AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)}); err != nil {
+		if err := store.Queries().V2AcceptTargetedInvite(ctx, db.V2AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)}); err != nil {
 			return AcceptedInvite{}, err
 		}
 		return AcceptedInvite{Message: "Workshop entered"}, nil
@@ -461,7 +461,7 @@ func RevokeInvite(ctx context.Context, id uuid.UUID) error {
 	if inv.Status != string(obj.InviteStatusPending) {
 		return conflict(obj.ErrCodeConflict, "only a pending invite is revoked; this one is %s", inv.Status)
 	}
-	return store.Queries().DeleteInvite(ctx, id)
+	return store.Queries().V2DeleteInvite(ctx, id)
 }
 
 // ReadInviteRef reads an invite by its id or, otherwise, its link's token
@@ -501,13 +501,13 @@ func joinAsGuest(ctx context.Context, inv *InviteCard, language string) (Accepte
 		ung.WithSeparator("-"),
 	)
 	name := names.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
-	code, err := db.NewGuestToken(ctx)
+	code, err := newGuestToken(ctx)
 	if err != nil {
 		return AcceptedInvite{}, err
 	}
 	id := uuid.New()
 	err = store.InTx(ctx, func(q *db.Queries) error {
-		if _, err := q.CreateUserWithGuestToken(ctx, db.CreateUserWithGuestTokenParams{
+		if _, err := q.V2CreateUserWithGuestToken(ctx, db.V2CreateUserWithGuestTokenParams{
 			ID:         id,
 			Name:       sql.NullString{String: name, Valid: true},
 			GuestToken: sql.NullString{String: code, Valid: true},
@@ -515,14 +515,14 @@ func joinAsGuest(ctx context.Context, inv *InviteCard, language string) (Accepte
 		}); err != nil {
 			return err
 		}
-		if _, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{
+		if _, err := q.V2CreateUserRole(ctx, db.V2CreateUserRoleParams{
 			UserID:     id,
 			Role:       string(obj.RoleGuest),
 			WorkshopID: uuid.NullUUID{UUID: *inv.WorkshopID, Valid: true}, // a guest's organisation is their workshop's
 		}); err != nil {
 			return err
 		}
-		return q.IncrementInviteUses(ctx, inv.ID)
+		return q.V2IncrementInviteUses(ctx, inv.ID)
 	})
 	if err != nil {
 		return AcceptedInvite{}, err
@@ -554,7 +554,7 @@ func takeOpenInvite(ctx context.Context, inv *InviteCard) error {
 		if err := replaceRole(ctx, q, me.row.id, inv); err != nil {
 			return err
 		}
-		if err := q.IncrementInviteUses(ctx, inv.ID); err != nil {
+		if err := q.V2IncrementInviteUses(ctx, inv.ID); err != nil {
 			return err
 		}
 		if inv.MaxUses != nil && inv.UsesCount+1 >= *inv.MaxUses {
@@ -582,18 +582,18 @@ func takeTargetedInvite(ctx context.Context, inv *InviteCard) error {
 		if err := replaceRole(ctx, q, me, inv); err != nil {
 			return err
 		}
-		return q.AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)})
+		return q.V2AcceptTargetedInvite(ctx, db.V2AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)})
 	})
 }
 
 // replaceRole makes inv's role the account's only one. Only head and staff
 // are in the organisation; a guest is in its workshop.
 func replaceRole(ctx context.Context, q *db.Queries, user uuid.UUID, inv *InviteCard) error {
-	if err := q.DeleteUserRoles(ctx, user); err != nil {
+	if err := q.V2DeleteUserRoles(ctx, user); err != nil {
 		return err
 	}
 	inOrganisation := inv.Role == string(obj.RoleHead) || inv.Role == string(obj.RoleStaff)
-	_, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{
+	_, err := q.V2CreateUserRole(ctx, db.V2CreateUserRoleParams{
 		UserID:        user,
 		Role:          inv.Role,
 		InstitutionID: uuid.NullUUID{UUID: inv.OrganisationID, Valid: inOrganisation},
@@ -604,7 +604,7 @@ func replaceRole(ctx context.Context, q *db.Queries, user uuid.UUID, inv *Invite
 
 // setInviteStatus records an invite's new status.
 func setInviteStatus(ctx context.Context, q *db.Queries, id uuid.UUID, status obj.InviteStatus) error {
-	return q.UpdateInviteStatus(ctx, db.UpdateInviteStatusParams{ID: id, Status: string(status)})
+	return q.V2UpdateInviteStatus(ctx, db.V2UpdateInviteStatusParams{ID: id, Status: string(status)})
 }
 
 func contains(list []string, s string) bool {

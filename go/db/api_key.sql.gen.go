@@ -13,17 +13,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const clearGamePublicSponsor = `-- name: ClearGamePublicSponsor :exec
-UPDATE game
-SET public_sponsored_api_key_share_id = NULL, modified_at = now()
-WHERE id = $1
-`
-
-func (q *Queries) ClearGamePublicSponsor(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, clearGamePublicSponsor, id)
-	return err
-}
-
 const clearGameSponsoredApiKeyByApiKeyID = `-- name: ClearGameSponsoredApiKeyByApiKeyID :exec
 UPDATE game g
 SET
@@ -35,20 +24,6 @@ WHERE g.public_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s W
 // Clear game sponsoring when an API key is deleted (find shares for that key)
 func (q *Queries) ClearGameSponsoredApiKeyByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, clearGameSponsoredApiKeyByApiKeyID, apiKeyID)
-	return err
-}
-
-const clearGameSponsoredApiKeyByShareID = `-- name: ClearGameSponsoredApiKeyByShareID :exec
-UPDATE game
-SET
-  public_sponsored_api_key_share_id = NULL,
-  modified_at = now()
-WHERE public_sponsored_api_key_share_id = $1
-`
-
-// Clear game sponsoring when an API key share is deleted
-func (q *Queries) ClearGameSponsoredApiKeyByShareID(ctx context.Context, publicSponsoredApiKeyShareID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, clearGameSponsoredApiKeyByShareID, publicSponsoredApiKeyShareID)
 	return err
 }
 
@@ -76,18 +51,6 @@ WHERE default_api_key_share_id IN (
 // Clear workshop default API key when an API key is deleted (find shares for that key)
 func (q *Queries) ClearWorkshopDefaultApiKeyShareByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, clearWorkshopDefaultApiKeyShareByApiKeyID, apiKeyID)
-	return err
-}
-
-const clearWorkshopDefaultApiKeyShareByShareID = `-- name: ClearWorkshopDefaultApiKeyShareByShareID :exec
-UPDATE workshop
-SET default_api_key_share_id = NULL, modified_at = now()
-WHERE default_api_key_share_id = $1
-`
-
-// Clear workshop default API key when a specific share is deleted
-func (q *Queries) ClearWorkshopDefaultApiKeyShareByShareID(ctx context.Context, defaultApiKeyShareID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, clearWorkshopDefaultApiKeyShareByShareID, defaultApiKeyShareID)
 	return err
 }
 
@@ -145,15 +108,6 @@ func (q *Queries) CreateApiKeyShare(ctx context.Context, arg CreateApiKeySharePa
 	return i, err
 }
 
-const deleteApiKeyShare = `-- name: DeleteApiKeyShare :exec
-DELETE FROM api_key_share WHERE id = $1
-`
-
-func (q *Queries) DeleteApiKeyShare(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteApiKeyShare, id)
-	return err
-}
-
 const deleteApiKeySharesByApiKeyID = `-- name: DeleteApiKeySharesByApiKeyID :exec
 DELETE FROM api_key_share WHERE api_key_id = $1
 `
@@ -169,40 +123,6 @@ DELETE FROM api_key_share WHERE game_id = $1
 
 func (q *Queries) DeleteApiKeySharesByGameID(ctx context.Context, gameID uuid.NullUUID) error {
 	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByGameID, gameID)
-	return err
-}
-
-const deleteApiKeySharesByOwnerForInstitution = `-- name: DeleteApiKeySharesByOwnerForInstitution :exec
-DELETE FROM api_key_share s
-WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
-  AND s.institution_id = $2
-`
-
-type DeleteApiKeySharesByOwnerForInstitutionParams struct {
-	UserID        uuid.UUID     `json:"user_id"`
-	InstitutionID uuid.NullUUID `json:"institution_id"`
-}
-
-// Delete all API key shares owned by a user that target a specific institution
-func (q *Queries) DeleteApiKeySharesByOwnerForInstitution(ctx context.Context, arg DeleteApiKeySharesByOwnerForInstitutionParams) error {
-	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByOwnerForInstitution, arg.UserID, arg.InstitutionID)
-	return err
-}
-
-const deleteApiKeySharesByOwnerForInstitutionWorkshops = `-- name: DeleteApiKeySharesByOwnerForInstitutionWorkshops :exec
-DELETE FROM api_key_share s
-WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
-  AND s.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $2)
-`
-
-type DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams struct {
-	UserID        uuid.UUID `json:"user_id"`
-	InstitutionID uuid.UUID `json:"institution_id"`
-}
-
-// Delete all API key shares owned by a user that target any workshop in a specific institution
-func (q *Queries) DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx context.Context, arg DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams) error {
-	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByOwnerForInstitutionWorkshops, arg.UserID, arg.InstitutionID)
 	return err
 }
 
@@ -363,84 +283,6 @@ func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.U
 	return items, nil
 }
 
-const getApiKeySharesByInstitutionID = `-- name: GetApiKeySharesByInstitutionID :many
-SELECT
-  s.id,
-  s.created_by,
-  s.created_at,
-  s.modified_by,
-  s.modified_at,
-  s.api_key_id,
-  s.user_id,
-  s.workshop_id,
-  s.institution_id,
-  s.game_id,
-
-  k.name AS api_key_name,
-  k.platform AS api_key_platform,
-  k.user_id AS owner_id,
-  owner.name AS owner_name
-FROM api_key_share s
-JOIN api_key k ON k.id = s.api_key_id
-JOIN app_user owner ON owner.id = k.user_id
-WHERE s.institution_id = $1
-`
-
-type GetApiKeySharesByInstitutionIDRow struct {
-	ID             uuid.UUID      `json:"id"`
-	CreatedBy      uuid.NullUUID  `json:"created_by"`
-	CreatedAt      time.Time      `json:"created_at"`
-	ModifiedBy     uuid.NullUUID  `json:"modified_by"`
-	ModifiedAt     time.Time      `json:"modified_at"`
-	ApiKeyID       uuid.UUID      `json:"api_key_id"`
-	UserID         uuid.NullUUID  `json:"user_id"`
-	WorkshopID     uuid.NullUUID  `json:"workshop_id"`
-	InstitutionID  uuid.NullUUID  `json:"institution_id"`
-	GameID         uuid.NullUUID  `json:"game_id"`
-	ApiKeyName     string         `json:"api_key_name"`
-	ApiKeyPlatform string         `json:"api_key_platform"`
-	OwnerID        uuid.UUID      `json:"owner_id"`
-	OwnerName      sql.NullString `json:"owner_name"`
-}
-
-func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutionID uuid.NullUUID) ([]GetApiKeySharesByInstitutionIDRow, error) {
-	rows, err := q.db.QueryContext(ctx, getApiKeySharesByInstitutionID, institutionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetApiKeySharesByInstitutionIDRow
-	for rows.Next() {
-		var i GetApiKeySharesByInstitutionIDRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.ApiKeyID,
-			&i.UserID,
-			&i.WorkshopID,
-			&i.InstitutionID,
-			&i.GameID,
-			&i.ApiKeyName,
-			&i.ApiKeyPlatform,
-			&i.OwnerID,
-			&i.OwnerName,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getApiKeySharesByUserID = `-- name: GetApiKeySharesByUserID :many
 SELECT
   s.id,
@@ -529,47 +371,4 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullU
 		return nil, err
 	}
 	return items, nil
-}
-
-const getWorkshopIDsByInstitution = `-- name: GetWorkshopIDsByInstitution :many
-SELECT id FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL
-`
-
-func (q *Queries) GetWorkshopIDsByInstitution(ctx context.Context, institutionID uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getWorkshopIDsByInstitution, institutionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []uuid.UUID
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		items = append(items, id)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const setGamePublicSponsor = `-- name: SetGamePublicSponsor :exec
-UPDATE game
-SET public_sponsored_api_key_share_id = $2, modified_at = now()
-WHERE id = $1
-`
-
-type SetGamePublicSponsorParams struct {
-	ID                           uuid.UUID     `json:"id"`
-	PublicSponsoredApiKeyShareID uuid.NullUUID `json:"public_sponsored_api_key_share_id"`
-}
-
-func (q *Queries) SetGamePublicSponsor(ctx context.Context, arg SetGamePublicSponsorParams) error {
-	_, err := q.db.ExecContext(ctx, setGamePublicSponsor, arg.ID, arg.PublicSponsoredApiKeyShareID)
-	return err
 }

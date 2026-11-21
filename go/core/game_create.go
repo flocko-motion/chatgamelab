@@ -108,7 +108,7 @@ func CopyGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := store.Queries().IncrementGameCloneCount(ctx, id); err != nil {
+	if err := store.Queries().V2IncrementGameCloneCount(ctx, id); err != nil {
 		return nil, err
 	}
 	return copied, nil

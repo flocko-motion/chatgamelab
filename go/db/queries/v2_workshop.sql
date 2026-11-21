@@ -116,3 +116,25 @@ SELECT g.id, g.name, g.description,
 FROM game g
 WHERE g.workshop_id = @workshop_id AND g.public AND g.deleted_at IS NULL
 ORDER BY LOWER(g.name), g.id;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2GetWorkshopByID :one
+SELECT * FROM workshop WHERE id = $1 AND deleted_at IS NULL;
+
+-- Deleting a workshop (core/delete.go).
+
+-- name: V2WorkshopGuests :many
+SELECT user_id FROM user_role WHERE workshop_id = @workshop_id AND role = 'guest';
+
+-- name: V2LeaveDeletedWorkshop :exec
+-- Whoever works in the workshop (head, staff, an individual taking part)
+-- leaves it.
+UPDATE user_role SET active_workshop_id = NULL, modified_at = now() WHERE active_workshop_id = @workshop_id;
+
+-- name: V2UnlinkWorkshopGames :exec
+-- Its games stay with their creators.
+UPDATE game SET workshop_id = NULL WHERE workshop_id = @workshop_id;
+
+-- name: V2SoftDeleteWorkshop :exec
+UPDATE workshop SET deleted_at = now() WHERE id = @id;

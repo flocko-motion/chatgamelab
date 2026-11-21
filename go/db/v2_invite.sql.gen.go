@@ -13,6 +13,274 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2AcceptTargetedInvite = `-- name: V2AcceptTargetedInvite :exec
+
+UPDATE user_role_invite SET
+  status = 'accepted',
+  accepted_at = now(),
+  accepted_by = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type V2AcceptTargetedInviteParams struct {
+	ID         uuid.UUID     `json:"id"`
+	AcceptedBy uuid.NullUUID `json:"accepted_by"`
+}
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2AcceptTargetedInvite(ctx context.Context, arg V2AcceptTargetedInviteParams) error {
+	_, err := q.db.ExecContext(ctx, v2AcceptTargetedInvite, arg.ID, arg.AcceptedBy)
+	return err
+}
+
+const v2CreateOpenInvite = `-- name: V2CreateOpenInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invite_token, max_uses, expires_at,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6, $7,
+  'pending'
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by
+`
+
+type V2CreateOpenInviteParams struct {
+	CreatedBy     uuid.NullUUID  `json:"created_by"`
+	InstitutionID uuid.UUID      `json:"institution_id"`
+	Role          string         `json:"role"`
+	WorkshopID    uuid.NullUUID  `json:"workshop_id"`
+	InviteToken   sql.NullString `json:"invite_token"`
+	MaxUses       sql.NullInt32  `json:"max_uses"`
+	ExpiresAt     sql.NullTime   `json:"expires_at"`
+}
+
+func (q *Queries) V2CreateOpenInvite(ctx context.Context, arg V2CreateOpenInviteParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, v2CreateOpenInvite,
+		arg.CreatedBy,
+		arg.InstitutionID,
+		arg.Role,
+		arg.WorkshopID,
+		arg.InviteToken,
+		arg.MaxUses,
+		arg.ExpiresAt,
+	)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const v2CreateTargetedInvite = `-- name: V2CreateTargetedInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invited_user_id, invited_email,
+  invite_token,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6,
+  $7,
+  'pending'
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by
+`
+
+type V2CreateTargetedInviteParams struct {
+	CreatedBy     uuid.NullUUID  `json:"created_by"`
+	InstitutionID uuid.UUID      `json:"institution_id"`
+	Role          string         `json:"role"`
+	WorkshopID    uuid.NullUUID  `json:"workshop_id"`
+	InvitedUserID uuid.NullUUID  `json:"invited_user_id"`
+	InvitedEmail  sql.NullString `json:"invited_email"`
+	InviteToken   sql.NullString `json:"invite_token"`
+}
+
+func (q *Queries) V2CreateTargetedInvite(ctx context.Context, arg V2CreateTargetedInviteParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, v2CreateTargetedInvite,
+		arg.CreatedBy,
+		arg.InstitutionID,
+		arg.Role,
+		arg.WorkshopID,
+		arg.InvitedUserID,
+		arg.InvitedEmail,
+		arg.InviteToken,
+	)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const v2DeleteInvite = `-- name: V2DeleteInvite :exec
+DELETE FROM user_role_invite WHERE id = $1
+`
+
+func (q *Queries) V2DeleteInvite(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteInvite, id)
+	return err
+}
+
+const v2GetInvitesByWorkshop = `-- name: V2GetInvitesByWorkshop :many
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite
+WHERE workshop_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC
+`
+
+func (q *Queries) V2GetInvitesByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]UserRoleInvite, error) {
+	rows, err := q.db.QueryContext(ctx, v2GetInvitesByWorkshop, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserRoleInvite
+	for rows.Next() {
+		var i UserRoleInvite
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.InstitutionID,
+			&i.Role,
+			&i.WorkshopID,
+			&i.InvitedUserID,
+			&i.InvitedEmail,
+			&i.InviteToken,
+			&i.MaxUses,
+			&i.UsesCount,
+			&i.ExpiresAt,
+			&i.Status,
+			&i.DeletedAt,
+			&i.AcceptedAt,
+			&i.AcceptedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2GetPendingInviteByTarget = `-- name: V2GetPendingInviteByTarget :one
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite
+WHERE institution_id = $1
+  AND status = 'pending'
+  AND deleted_at IS NULL
+  AND (
+    (invited_user_id IS NOT NULL AND invited_user_id = $2)
+    OR (invited_email IS NOT NULL AND invited_email = $3)
+  )
+LIMIT 1
+`
+
+type V2GetPendingInviteByTargetParams struct {
+	InstitutionID uuid.UUID      `json:"institution_id"`
+	InvitedUserID uuid.NullUUID  `json:"invited_user_id"`
+	InvitedEmail  sql.NullString `json:"invited_email"`
+}
+
+// Check if a pending invite already exists for the same target (user_id or email) and institution
+func (q *Queries) V2GetPendingInviteByTarget(ctx context.Context, arg V2GetPendingInviteByTargetParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, v2GetPendingInviteByTarget, arg.InstitutionID, arg.InvitedUserID, arg.InvitedEmail)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const v2IncrementInviteUses = `-- name: V2IncrementInviteUses :exec
+
+UPDATE user_role_invite SET
+  uses_count = uses_count + 1,
+  modified_at = now()
+WHERE id = $1
+`
+
+// Guest User queries
+func (q *Queries) V2IncrementInviteUses(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2IncrementInviteUses, id)
+	return err
+}
+
+const v2InviteTokenExists = `-- name: V2InviteTokenExists :one
+SELECT EXISTS(SELECT 1 FROM user_role_invite WHERE invite_token = $1) AS taken
+`
+
+func (q *Queries) V2InviteTokenExists(ctx context.Context, inviteToken sql.NullString) (bool, error) {
+	row := q.db.QueryRowContext(ctx, v2InviteTokenExists, inviteToken)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
 const v2Invites = `-- name: V2Invites :many
 
 SELECT i.id, i.created_at, i.modified_at,
@@ -184,6 +452,23 @@ func (q *Queries) V2Invites(ctx context.Context, arg V2InvitesParams) ([]V2Invit
 		return nil, err
 	}
 	return items, nil
+}
+
+const v2UpdateInviteStatus = `-- name: V2UpdateInviteStatus :exec
+UPDATE user_role_invite SET
+  status = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type V2UpdateInviteStatusParams struct {
+	ID     uuid.UUID `json:"id"`
+	Status string    `json:"status"`
+}
+
+func (q *Queries) V2UpdateInviteStatus(ctx context.Context, arg V2UpdateInviteStatusParams) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateInviteStatus, arg.ID, arg.Status)
+	return err
 }
 
 const v2UserEmail = `-- name: V2UserEmail :one

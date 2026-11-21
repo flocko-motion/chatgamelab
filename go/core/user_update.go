@@ -96,7 +96,7 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 		return forbidden("you may not delete this user")
 	}
 	if org := user.row.organisationID; user.row.role == "head" && org != nil {
-		heads, err := store.Queries().CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: *org, Valid: true})
+		heads, err := store.Queries().V2CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: *org, Valid: true})
 		if err != nil {
 			return err
 		}
@@ -104,9 +104,7 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 			return conflict(obj.ErrCodeLastHead, "an organisation needs at least one head")
 		}
 	}
-	// v1's cascade over the user's games, keys, shares and roles; it moves
-	// into the core as those entities are ported.
-	return db.DeleteUser(ctx, id)
+	return deleteAccount(ctx, id)
 }
 
 // applyCard writes the card's changes into row and says whether any differs.
@@ -149,7 +147,7 @@ func validateUser(ctx context.Context, was, next userRow) error {
 		case constants.IsProfane(next.name):
 			return badRequest(obj.ErrCodeProfaneName, "this name is not allowed")
 		}
-		taken, err := q.IsNameTakenByOther(ctx, db.IsNameTakenByOtherParams{
+		taken, err := q.V2IsNameTakenByOther(ctx, db.V2IsNameTakenByOtherParams{
 			Name: sql.NullString{String: next.name, Valid: true}, ID: next.id,
 		})
 		if err != nil {
@@ -160,7 +158,7 @@ func validateUser(ctx context.Context, was, next userRow) error {
 		}
 	}
 	if next.email != nil && (was.email == nil || *next.email != *was.email) {
-		taken, err := q.IsEmailTakenByOther(ctx, db.IsEmailTakenByOtherParams{
+		taken, err := q.V2IsEmailTakenByOther(ctx, db.V2IsEmailTakenByOtherParams{
 			Email: sql.NullString{String: *next.email, Valid: true}, ID: next.id,
 		})
 		if err != nil {

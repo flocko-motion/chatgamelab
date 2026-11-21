@@ -76,6 +76,26 @@ func (q *Queries) V2CreateGame(ctx context.Context, arg V2CreateGameParams) erro
 	return err
 }
 
+const v2DeleteFavoritesByGameID = `-- name: V2DeleteFavoritesByGameID :exec
+
+DELETE FROM user_favourite_game WHERE game_id = $1
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2DeleteFavoritesByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteFavoritesByGameID, gameID)
+	return err
+}
+
+const v2DeleteGameTagsByGameID = `-- name: V2DeleteGameTagsByGameID :exec
+DELETE FROM game_tag WHERE game_id = $1
+`
+
+func (q *Queries) V2DeleteGameTagsByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameTagsByGameID, gameID)
+	return err
+}
+
 const v2GameCards = `-- name: V2GameCards :many
 
 SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at,
@@ -441,6 +461,25 @@ func (q *Queries) V2GameCover(ctx context.Context, gameID uuid.UUID) (V2GameCove
 	return i, err
 }
 
+const v2HardDeleteGame = `-- name: V2HardDeleteGame :exec
+DELETE FROM game WHERE id = $1
+`
+
+// A game gone for good, with its deleted creator's account.
+func (q *Queries) V2HardDeleteGame(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2HardDeleteGame, id)
+	return err
+}
+
+const v2IncrementGameCloneCount = `-- name: V2IncrementGameCloneCount :exec
+UPDATE game SET clone_count = clone_count + 1 WHERE id = $1
+`
+
+func (q *Queries) V2IncrementGameCloneCount(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2IncrementGameCloneCount, id)
+	return err
+}
+
 const v2MarkFavorite = `-- name: V2MarkFavorite :exec
 INSERT INTO user_favourite_game (id, created_by, created_at, modified_by, modified_at, user_id, game_id)
 VALUES (gen_random_uuid(), $1::uuid, now(), $1::uuid, now(), $1::uuid, $2::uuid)
@@ -476,6 +515,15 @@ type V2SetGameCoverParams struct {
 // checked that the caller may edit the game's card.
 func (q *Queries) V2SetGameCover(ctx context.Context, arg V2SetGameCoverParams) error {
 	_, err := q.db.ExecContext(ctx, v2SetGameCover, arg.GameID, arg.Image, arg.CreatedBy)
+	return err
+}
+
+const v2SoftDeleteGame = `-- name: V2SoftDeleteGame :exec
+UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1
+`
+
+func (q *Queries) V2SoftDeleteGame(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2SoftDeleteGame, id)
 	return err
 }
 

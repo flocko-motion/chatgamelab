@@ -15,63 +15,6 @@ RETURNING *;
 -- name: GetInstitutionByID :one
 SELECT * FROM institution WHERE id = $1 AND deleted_at IS NULL;
 
--- name: SetInstitutionFreeUseApiKeyShare :exec
-UPDATE institution
-SET free_use_api_key_share_id = $2, modified_at = now()
-WHERE id = $1;
-
--- name: UpdateInstitutionFreeUseAiQualityTier :exec
-UPDATE institution
-SET free_use_ai_quality_tier = $2, modified_at = now()
-WHERE id = $1;
-
--- name: SoftDeleteInstitution :exec
-UPDATE institution SET deleted_at = now() WHERE id = $1;
-
--- name: HardDeleteInstitution :exec
-DELETE FROM institution WHERE id = $1;
-
--- name: GetGuestUserIDsByInstitution :many
-SELECT DISTINCT u.id
-FROM app_user u
-JOIN user_role r ON u.id = r.user_id
-WHERE r.institution_id = $1
-  AND r.role = 'guest'
-  AND u.deleted_at IS NULL;
-
--- name: GetNonGuestUserIDsByInstitution :many
-SELECT DISTINCT u.id
-FROM app_user u
-JOIN user_role r ON u.id = r.user_id
-WHERE r.institution_id = $1
-  AND r.role != 'guest'
-  AND u.deleted_at IS NULL;
-
--- name: DeleteInvitesByInstitution :exec
-DELETE FROM user_role_invite WHERE institution_id = $1;
-
--- name: DeleteApiKeySharesByInstitution :exec
-DELETE FROM api_key_share WHERE institution_id = $1;
-
--- name: DeleteUserRolesByInstitution :exec
-DELETE FROM user_role WHERE institution_id = $1;
-
--- name: HardDeleteWorkshopsByInstitution :exec
-DELETE FROM workshop WHERE institution_id = $1;
-
--- name: ClearInstitutionFreeUseApiKeyShare :exec
-UPDATE institution SET free_use_api_key_share_id = NULL WHERE id = $1;
-
--- name: ClearInstitutionFreeUseApiKeyShareByApiKeyID :exec
--- Clear institution free-use API key when an API key is deleted (find shares for that key)
-UPDATE institution
-SET free_use_api_key_share_id = NULL, modified_at = now()
-WHERE free_use_api_key_share_id IN (
-  SELECT id FROM api_key_share WHERE api_key_id = $1
-);
-
--- workshop -------------------------------------------------------------
-
 -- name: CreateWorkshop :one
 INSERT INTO workshop (
   id, created_by,
@@ -96,9 +39,6 @@ SELECT * FROM workshop WHERE id = $1 AND deleted_at IS NULL;
 -- name: ListWorkshops :many
 SELECT * FROM workshop WHERE deleted_at IS NULL ORDER BY name;
 
--- name: ListWorkshopsByInstitution :many
-SELECT * FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name;
-
 -- name: UpdateWorkshop :one
 UPDATE workshop SET
   created_by = $2,
@@ -122,21 +62,6 @@ UPDATE workshop SET
 WHERE id = $1
 RETURNING *;
 
--- name: SetWorkshopDefaultApiKey :one
-UPDATE workshop SET
-  modified_by = $2,
-  modified_at = now(),
-  default_api_key_share_id = $3
-WHERE id = $1
-RETURNING *;
-
 -- name: DeleteWorkshop :exec
 UPDATE workshop SET deleted_at = now() WHERE id = $1;
-
--- name: GetWorkshopByPublicSlug :one
-SELECT * FROM workshop WHERE public_slug = $1 AND deleted_at IS NULL;
-
--- name: WorkshopPublicSlugExists :one
--- Deleted workshops keep their slug, so an old link never points at a new workshop.
-SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1) AS exists;
 

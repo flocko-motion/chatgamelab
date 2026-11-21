@@ -83,3 +83,20 @@ WHERE gs.public_page
 INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, public_page)
 VALUES (@game_id, @token, @api_key_share_id, @institution_id, @workshop_id, @remaining, @created_by::uuid, true)
 RETURNING id;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2DeleteGameShare :exec
+DELETE FROM game_share WHERE id = $1;
+
+-- name: V2DeleteGameSharesByGameID :exec
+DELETE FROM game_share WHERE game_id = $1;
+
+-- name: V2DeleteLinkGuests :exec
+-- Deletes the guests who came through share link @link_id (their sessions
+-- go with them), so the link can end.
+DELETE FROM app_user WHERE private_share_id = @link_id;
+
+-- name: V2DeleteGameLinkGuests :exec
+-- Deletes the guests who came through any share link of game @game_id.
+DELETE FROM app_user WHERE private_share_id IN (SELECT id FROM game_share WHERE game_id = @game_id);

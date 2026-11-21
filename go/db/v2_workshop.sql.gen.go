@@ -49,6 +49,51 @@ func (q *Queries) V2CreateWorkshop(ctx context.Context, arg V2CreateWorkshopPara
 	return err
 }
 
+const v2GetWorkshopByID = `-- name: V2GetWorkshopByID :one
+
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, is_paused, allow_game_sharing, public_slug, public_description, public_links FROM workshop WHERE id = $1 AND deleted_at IS NULL
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, error) {
+	row := q.db.QueryRowContext(ctx, v2GetWorkshopByID, id)
+	var i Workshop
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.InstitutionID,
+		&i.Active,
+		&i.Public,
+		&i.DeletedAt,
+		&i.DefaultApiKeyShareID,
+		&i.AiQualityTier,
+		&i.PromptConstraints,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
+		&i.IsPaused,
+		&i.AllowGameSharing,
+		&i.PublicSlug,
+		&i.PublicDescription,
+		&i.PublicLinks,
+	)
+	return i, err
+}
+
+const v2LeaveDeletedWorkshop = `-- name: V2LeaveDeletedWorkshop :exec
+UPDATE user_role SET active_workshop_id = NULL, modified_at = now() WHERE active_workshop_id = $1
+`
+
+// Whoever works in the workshop (head, staff, an individual taking part)
+// leaves it.
+func (q *Queries) V2LeaveDeletedWorkshop(ctx context.Context, workshopID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2LeaveDeletedWorkshop, workshopID)
+	return err
+}
+
 const v2PublicSlugExists = `-- name: V2PublicSlugExists :one
 SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1)::bool
 `
@@ -169,6 +214,25 @@ func (q *Queries) V2PublicWorkshopGames(ctx context.Context, workshopID uuid.Nul
 	return items, nil
 }
 
+const v2SoftDeleteWorkshop = `-- name: V2SoftDeleteWorkshop :exec
+UPDATE workshop SET deleted_at = now() WHERE id = $1
+`
+
+func (q *Queries) V2SoftDeleteWorkshop(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2SoftDeleteWorkshop, id)
+	return err
+}
+
+const v2UnlinkWorkshopGames = `-- name: V2UnlinkWorkshopGames :exec
+UPDATE game SET workshop_id = NULL WHERE workshop_id = $1
+`
+
+// Its games stay with their creators.
+func (q *Queries) V2UnlinkWorkshopGames(ctx context.Context, workshopID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2UnlinkWorkshopGames, workshopID)
+	return err
+}
+
 const v2UpdateWorkshop = `-- name: V2UpdateWorkshop :exec
 UPDATE workshop SET
   -- card
@@ -228,6 +292,35 @@ func (q *Queries) V2UpdateWorkshop(ctx context.Context, arg V2UpdateWorkshopPara
 		arg.ID,
 	)
 	return err
+}
+
+const v2WorkshopGuests = `-- name: V2WorkshopGuests :many
+
+SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'guest'
+`
+
+// Deleting a workshop (core/delete.go).
+func (q *Queries) V2WorkshopGuests(ctx context.Context, workshopID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2WorkshopGuests, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var user_id uuid.UUID
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const v2WorkshopNameTaken = `-- name: V2WorkshopNameTaken :one

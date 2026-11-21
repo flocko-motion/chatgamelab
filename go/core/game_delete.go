@@ -26,14 +26,9 @@ func DeleteGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 	}
 	by := account(ctx).UUID // whoever may edit has an account: a guest owns nothing
 
-	q := store.Queries()
-	_ = q.DeleteGameTagsByGameID(ctx, id)
-	_ = q.DeleteFavoritesByGameID(ctx, id)
-	_, _ = q.DeleteGameSessionsByGameID(ctx, id)
-	_ = db.DeleteGuestDataByGameID(ctx, id) // before the share links it hangs on
-	_ = q.DeleteGameSharesByGameID(ctx, id)
-	_ = q.DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: id, Valid: true})
-	if err := q.SoftDeleteGame(ctx, id); err != nil {
+	// all of it or none
+	err = store.InTx(ctx, func(q *db.Queries) error { return deleteGameRows(ctx, q, id, false) })
+	if err != nil {
 		return nil, err
 	}
 

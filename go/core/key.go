@@ -369,8 +369,10 @@ func endShares(ctx context.Context, shares []sharedLink) error {
 	ids := make([]uuid.UUID, 0, len(shares))
 	for _, s := range shares {
 		if s.link != nil {
-			_ = db.DeleteGuestDataByShareID(ctx, *s.link)
-			if err := q.DeleteGameShare(ctx, *s.link); err != nil {
+			if err := q.V2DeleteLinkGuests(ctx, uuid.NullUUID{UUID: *s.link, Valid: true}); err != nil {
+				return err
+			}
+			if err := q.V2DeleteGameShare(ctx, *s.link); err != nil {
 				return err
 			}
 		}

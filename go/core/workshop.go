@@ -137,7 +137,7 @@ func workshopCardOf(ctx context.Context, r db.V2WorkshopsRow) (*WorkshopCard, er
 		mayManageParticipants: r.MayManageParticipants,
 	}
 	if w.mayListParticipants {
-		rows, err := store.Queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: r.ID, Valid: true})
+		rows, err := store.Queries().V2GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: r.ID, Valid: true})
 		if err != nil {
 			return nil, err
 		}

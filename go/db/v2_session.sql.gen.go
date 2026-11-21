@@ -8,9 +8,184 @@ package db
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 )
+
+const v2AppendGameSessionEvent = `-- name: V2AppendGameSessionEvent :exec
+INSERT INTO game_session_event (session_id, seq, stream, value)
+VALUES (
+  $1,
+  (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_event WHERE session_id = $1),
+  $2, $3
+)
+`
+
+type V2AppendGameSessionEventParams struct {
+	SessionID uuid.UUID `json:"session_id"`
+	Stream    string    `json:"stream"`
+	Value     string    `json:"value"`
+}
+
+func (q *Queries) V2AppendGameSessionEvent(ctx context.Context, arg V2AppendGameSessionEventParams) error {
+	_, err := q.db.ExecContext(ctx, v2AppendGameSessionEvent, arg.SessionID, arg.Stream, arg.Value)
+	return err
+}
+
+const v2CountGameSessionMessage = `-- name: V2CountGameSessionMessage :exec
+
+UPDATE game_session SET messages_sent = messages_sent + 1, modified_at = now() WHERE id = $1
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2CountGameSessionMessage(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2CountGameSessionMessage, id)
+	return err
+}
+
+const v2CountUserGameSessions = `-- name: V2CountUserGameSessions :one
+SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1
+`
+
+func (q *Queries) V2CountUserGameSessions(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, v2CountUserGameSessions, userID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const v2CreateGameSession = `-- name: V2CreateGameSession :exec
+
+INSERT INTO game_session (
+  id, game_id, user_id, workshop_id, game_share_id, api_key_share_id,
+  platform, language, schema_version, spec, state
+) VALUES (
+  $1, $2, $3, $4, $5, $6,
+  $7, $8, $9, $10, $11
+)
+`
+
+type V2CreateGameSessionParams struct {
+	ID            uuid.UUID       `json:"id"`
+	GameID        uuid.UUID       `json:"game_id"`
+	UserID        uuid.UUID       `json:"user_id"`
+	WorkshopID    uuid.NullUUID   `json:"workshop_id"`
+	GameShareID   uuid.NullUUID   `json:"game_share_id"`
+	ApiKeyShareID uuid.NullUUID   `json:"api_key_share_id"`
+	Platform      string          `json:"platform"`
+	Language      string          `json:"language"`
+	SchemaVersion int32           `json:"schema_version"`
+	Spec          json.RawMessage `json:"spec"`
+	State         json.RawMessage `json:"state"`
+}
+
+// The engine's session store (core/internal/sessionstore), carried over from v1.
+// The first state the engine saves creates the row.
+func (q *Queries) V2CreateGameSession(ctx context.Context, arg V2CreateGameSessionParams) error {
+	_, err := q.db.ExecContext(ctx, v2CreateGameSession,
+		arg.ID,
+		arg.GameID,
+		arg.UserID,
+		arg.WorkshopID,
+		arg.GameShareID,
+		arg.ApiKeyShareID,
+		arg.Platform,
+		arg.Language,
+		arg.SchemaVersion,
+		arg.Spec,
+		arg.State,
+	)
+	return err
+}
+
+const v2CreateGuestUser = `-- name: V2CreateGuestUser :one
+INSERT INTO app_user (id, name, email, auth0_id, guest_token, private_share_id)
+VALUES ($1, $2, NULL, NULL, NULL, $3)
+ON CONFLICT (id) DO NOTHING
+RETURNING id
+`
+
+type V2CreateGuestUserParams struct {
+	ID             uuid.UUID      `json:"id"`
+	Name           sql.NullString `json:"name"`
+	PrivateShareID uuid.NullUUID  `json:"private_share_id"`
+}
+
+func (q *Queries) V2CreateGuestUser(ctx context.Context, arg V2CreateGuestUserParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2CreateGuestUser, arg.ID, arg.Name, arg.PrivateShareID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const v2DecrementGameShareRemaining = `-- name: V2DecrementGameShareRemaining :one
+
+UPDATE game_share SET remaining = CASE
+  WHEN remaining IS NULL THEN NULL
+  ELSE remaining - 1
+END
+WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page
+`
+
+// User Statistics queries
+// Atomically decrements the remaining counter. Returns the share if successful.
+// Succeeds when: remaining is NULL (unlimited) or remaining > 0.
+func (q *Queries) V2DecrementGameShareRemaining(ctx context.Context, id uuid.UUID) (GameShare, error) {
+	row := q.db.QueryRowContext(ctx, v2DecrementGameShareRemaining, id)
+	var i GameShare
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.Token,
+		&i.ApiKeyShareID,
+		&i.InstitutionID,
+		&i.WorkshopID,
+		&i.Remaining,
+		&i.AiQualityTier,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.PublicPage,
+	)
+	return i, err
+}
+
+const v2DeleteGameSession = `-- name: V2DeleteGameSession :exec
+DELETE FROM game_session WHERE id = $1
+`
+
+func (q *Queries) V2DeleteGameSession(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameSession, id)
+	return err
+}
+
+const v2DeleteGameSessionsByGameID = `-- name: V2DeleteGameSessionsByGameID :many
+DELETE FROM game_session WHERE game_id = $1 RETURNING id
+`
+
+func (q *Queries) V2DeleteGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2DeleteGameSessionsByGameID, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const v2DeleteSession = `-- name: V2DeleteSession :exec
 DELETE FROM game_session WHERE id = $1
@@ -18,6 +193,174 @@ DELETE FROM game_session WHERE id = $1
 
 func (q *Queries) V2DeleteSession(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, v2DeleteSession, id)
+	return err
+}
+
+const v2GetGameSessionByID = `-- name: V2GetGameSessionByID :one
+SELECT id, created_at, modified_at, game_id, user_id, workshop_id, game_share_id, api_key_share_id, platform, language, messages_sent, schema_version, spec, state FROM game_session WHERE id = $1
+`
+
+func (q *Queries) V2GetGameSessionByID(ctx context.Context, id uuid.UUID) (GameSession, error) {
+	row := q.db.QueryRowContext(ctx, v2GetGameSessionByID, id)
+	var i GameSession
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+		&i.GameID,
+		&i.UserID,
+		&i.WorkshopID,
+		&i.GameShareID,
+		&i.ApiKeyShareID,
+		&i.Platform,
+		&i.Language,
+		&i.MessagesSent,
+		&i.SchemaVersion,
+		&i.Spec,
+		&i.State,
+	)
+	return i, err
+}
+
+const v2GetGameSessionEvents = `-- name: V2GetGameSessionEvents :many
+SELECT stream, value FROM game_session_event WHERE session_id = $1 ORDER BY seq ASC
+`
+
+type V2GetGameSessionEventsRow struct {
+	Stream string `json:"stream"`
+	Value  string `json:"value"`
+}
+
+func (q *Queries) V2GetGameSessionEvents(ctx context.Context, sessionID uuid.UUID) ([]V2GetGameSessionEventsRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2GetGameSessionEvents, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2GetGameSessionEventsRow
+	for rows.Next() {
+		var i V2GetGameSessionEventsRow
+		if err := rows.Scan(&i.Stream, &i.Value); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2GetUserGameSessionIDsForGame = `-- name: V2GetUserGameSessionIDsForGame :many
+SELECT id FROM game_session WHERE user_id = $1 AND game_id = $2
+`
+
+type V2GetUserGameSessionIDsForGameParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	GameID uuid.UUID `json:"game_id"`
+}
+
+func (q *Queries) V2GetUserGameSessionIDsForGame(ctx context.Context, arg V2GetUserGameSessionIDsForGameParams) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2GetUserGameSessionIDsForGame, arg.UserID, arg.GameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2GetUserGameSessions = `-- name: V2GetUserGameSessions :many
+SELECT gs.id, gs.game_id, gs.user_id, gs.workshop_id, gs.platform, gs.language,
+       gs.messages_sent, gs.created_at, gs.modified_at, g.name AS game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1
+  AND g.deleted_at IS NULL
+  AND ($2::text = '' OR LOWER(g.name) LIKE LOWER('%' || $2::text || '%'))
+ORDER BY
+  CASE WHEN $3::text = 'game' THEN LOWER(g.name) END ASC,
+  CASE WHEN $3::text = 'model' THEN gs.platform END ASC,
+  gs.modified_at DESC
+LIMIT 20
+`
+
+type V2GetUserGameSessionsParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	Search string    `json:"search"`
+	SortBy string    `json:"sort_by"`
+}
+
+type V2GetUserGameSessionsRow struct {
+	ID           uuid.UUID     `json:"id"`
+	GameID       uuid.UUID     `json:"game_id"`
+	UserID       uuid.UUID     `json:"user_id"`
+	WorkshopID   uuid.NullUUID `json:"workshop_id"`
+	Platform     string        `json:"platform"`
+	Language     string        `json:"language"`
+	MessagesSent int32         `json:"messages_sent"`
+	CreatedAt    time.Time     `json:"created_at"`
+	ModifiedAt   time.Time     `json:"modified_at"`
+	GameName     string        `json:"game_name"`
+}
+
+// A player's sessions, newest activity first, each with its game's name.
+func (q *Queries) V2GetUserGameSessions(ctx context.Context, arg V2GetUserGameSessionsParams) ([]V2GetUserGameSessionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2GetUserGameSessions, arg.UserID, arg.Search, arg.SortBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2GetUserGameSessionsRow
+	for rows.Next() {
+		var i V2GetUserGameSessionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.UserID,
+			&i.WorkshopID,
+			&i.Platform,
+			&i.Language,
+			&i.MessagesSent,
+			&i.CreatedAt,
+			&i.ModifiedAt,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2IncrementGamePlayCount = `-- name: V2IncrementGamePlayCount :exec
+UPDATE game SET play_count = play_count + 1 WHERE id = $1
+`
+
+func (q *Queries) V2IncrementGamePlayCount(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2IncrementGamePlayCount, id)
 	return err
 }
 
@@ -132,6 +475,35 @@ func (q *Queries) V2RuleSource(ctx context.Context, id uuid.UUID) (V2RuleSourceR
 	var i V2RuleSourceRow
 	err := row.Scan(&i.WorkshopName, &i.WorkshopRule, &i.WorkshopOrganisationName)
 	return i, err
+}
+
+const v2SaveGameSessionState = `-- name: V2SaveGameSessionState :execrows
+UPDATE game_session SET
+  schema_version = $2,
+  spec = $3,
+  state = $4,
+  modified_at = now()
+WHERE id = $1
+`
+
+type V2SaveGameSessionStateParams struct {
+	ID            uuid.UUID       `json:"id"`
+	SchemaVersion int32           `json:"schema_version"`
+	Spec          json.RawMessage `json:"spec"`
+	State         json.RawMessage `json:"state"`
+}
+
+func (q *Queries) V2SaveGameSessionState(ctx context.Context, arg V2SaveGameSessionStateParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, v2SaveGameSessionState,
+		arg.ID,
+		arg.SchemaVersion,
+		arg.Spec,
+		arg.State,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const v2SessionFacts = `-- name: V2SessionFacts :one
@@ -275,6 +647,26 @@ func (q *Queries) V2ShareLinkPlay(ctx context.Context, arg V2ShareLinkPlayParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const v2SumUserGameSessionMessages = `-- name: V2SumUserGameSessionMessages :one
+SELECT COALESCE(SUM(messages_sent), 0)::int AS total FROM game_session WHERE user_id = $1
+`
+
+func (q *Queries) V2SumUserGameSessionMessages(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, v2SumUserGameSessionMessages, userID)
+	var total int32
+	err := row.Scan(&total)
+	return total, err
+}
+
+const v2TouchGameSession = `-- name: V2TouchGameSession :exec
+UPDATE game_session SET modified_at = now() WHERE id = $1
+`
+
+func (q *Queries) V2TouchGameSession(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2TouchGameSession, id)
+	return err
 }
 
 const v2WorkshopPaused = `-- name: V2WorkshopPaused :one

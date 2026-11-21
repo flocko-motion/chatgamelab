@@ -11,17 +11,8 @@ VALUES ($1, $2, $3, $4)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
--- name: CreateUserWithGuestToken :one
-INSERT INTO app_user (id, name, email, auth0_id, guest_token, language)
-VALUES ($1, $2, $3, $4, $5, $6)
-ON CONFLICT (id) DO NOTHING
-RETURNING id;
-
 -- name: GetUserIDByAuth0ID :one
 SELECT id FROM app_user WHERE auth0_id = $1;
-
--- name: GetUserByAuth0ID :one
-SELECT * FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL;
 
 -- name: GetUserByEmail :one
 SELECT * FROM app_user WHERE email = $1 AND deleted_at IS NULL;
@@ -64,19 +55,6 @@ SELECT
 -- name: GuestTokenExists :one
 -- Unfiltered: soft-deleted users keep their token, so it must never be reissued.
 SELECT EXISTS(SELECT 1 FROM app_user WHERE guest_token = $1) AS taken;
-
--- name: InviteTokenExists :one
-SELECT EXISTS(SELECT 1 FROM user_role_invite WHERE invite_token = $1) AS taken;
-
--- name: UpdateGuestToken :execrows
--- Only replaces an existing token, never mints one: a registered participant has a
--- real login, and a word code would be a second, weaker credential for it. The row
--- count tells the caller whether there was anything to replace.
-UPDATE app_user SET guest_token = $2, modified_by = $3, modified_at = now()
-WHERE id = $1 AND guest_token IS NOT NULL;
-
--- name: IsNameTaken :one
-SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
 
 -- name: IsNameTakenByOther :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND id != $2 AND deleted_at IS NULL) AS taken;
@@ -172,22 +150,6 @@ LEFT JOIN workshop w
 WHERE u.deleted_at IS NULL
 ORDER BY u.created_at DESC;
 
--- name: GetUserApiKeys :many
-SELECT
-  k.id,
-  k.created_by,
-  k.created_at,
-  k.modified_by,
-  k.modified_at,
-  k.user_id,
-  u.name AS user_name,
-  k.name,
-  k.platform,
-  k.key
-FROM api_key k
-JOIN app_user u ON u.id = k.user_id
-WHERE k.user_id = $1;
-
 -- name: UpdateUser :exec
 UPDATE app_user SET
   name = $2,
@@ -251,22 +213,6 @@ SELECT EXISTS(
 
 -- active_workshop ------------------------------------------------------
 
--- name: SetUserActiveWorkshop :exec
-UPDATE user_role SET active_workshop_id = $2, modified_at = now()
-WHERE user_id = $1 AND role != 'guest';
-
--- name: ClearUserActiveWorkshop :exec
-UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
-WHERE user_id = $1 AND role != 'guest';
-
--- name: GetUserActiveWorkshopID :one
--- Get the active workshop ID for a user (for game creation context)
-SELECT active_workshop_id FROM user_role
-WHERE user_id = $1 AND active_workshop_id IS NOT NULL
-LIMIT 1;
-
--- api_key --------------------------------------------------------------
-
 -- name: CreateApiKey :one
 INSERT INTO api_key (
   id, created_by,
@@ -282,37 +228,15 @@ RETURNING *;
 -- name: CountApiKeysByUser :one
 SELECT COUNT(*) FROM api_key WHERE user_id = $1;
 
--- name: ClearDefaultApiKey :exec
-UPDATE api_key SET is_default = false, modified_at = now()
-WHERE user_id = $1 AND is_default = true;
-
 -- name: SetDefaultApiKey :exec
 UPDATE api_key SET is_default = true, modified_at = now()
 WHERE id = $1 AND user_id = $2;
 
--- name: GetDefaultApiKey :one
-SELECT * FROM api_key WHERE user_id = $1 AND is_default = true;
-
--- name: UpdateApiKeyLastUsageSuccess :exec
-UPDATE api_key SET last_usage_success = $2, last_error_code = $3, modified_at = now()
-WHERE id = $1;
-
 -- name: GetApiKeyByID :one
 SELECT * FROM api_key WHERE id = $1;
 
--- name: UpdateApiKey :one
-UPDATE api_key SET
-  modified_by = $2,
-  modified_at = $3,
-  name = $4
-WHERE id = $1
-RETURNING *;
-
 -- name: GetApiKeyIDsByUser :many
 SELECT id FROM api_key WHERE user_id = $1;
-
--- name: DeleteApiKey :exec
-DELETE FROM api_key WHERE id = $1 AND user_id = $2;
 
 -- name: DeleteAllApiKeysByUser :exec
 DELETE FROM api_key WHERE user_id = $1;
@@ -329,159 +253,6 @@ WHERE id = $1;
 SELECT default_api_key_share_id FROM app_user WHERE id = $1;
 
 -- user_role_invite -------------------------------------------------------------
-
--- name: CreateTargetedInvite :one
-INSERT INTO user_role_invite (
-  id, created_by, created_at, modified_by, modified_at,
-  institution_id, role, workshop_id,
-  invited_user_id, invited_email,
-  invite_token,
-  status
-) VALUES (
-  gen_random_uuid(), $1, now(), $1, now(),
-  $2, $3, $4,
-  $5, $6,
-  $7,
-  'pending'
-)
-RETURNING *;
-
--- name: CreateOpenInvite :one
-INSERT INTO user_role_invite (
-  id, created_by, created_at, modified_by, modified_at,
-  institution_id, role, workshop_id,
-  invite_token, max_uses, expires_at,
-  status
-) VALUES (
-  gen_random_uuid(), $1, now(), $1, now(),
-  $2, $3, $4,
-  $5, $6, $7,
-  'pending'
-)
-RETURNING *;
-
--- name: GetInvites :many
-SELECT * FROM user_role_invite
-WHERE deleted_at IS NULL
-ORDER BY created_at DESC;
-
--- name: GetInvitesByUser :many
-SELECT * FROM user_role_invite
-WHERE (invited_user_id = $1 OR invited_email = (SELECT email FROM app_user WHERE id = $1))
-  AND deleted_at IS NULL
-  AND status = 'pending'
-ORDER BY created_at DESC;
-
--- name: GetInvitesByWorkshop :many
-SELECT * FROM user_role_invite
-WHERE workshop_id = $1 AND deleted_at IS NULL
-ORDER BY created_at DESC;
-
--- name: GetInvitesByInstitution :many
-SELECT * FROM user_role_invite
-WHERE institution_id = $1 AND deleted_at IS NULL
-ORDER BY created_at DESC;
-
--- name: HasWorkshopRole :one
-SELECT EXISTS(
-    SELECT 1 FROM user_role
-    WHERE user_id = $1 AND workshop_id = $2
-) AS has_role;
-
--- name: GetUsersByWorkshop :many
-SELECT
-  u.id, u.name, u.email,
-  u.created_by, u.created_at, u.modified_by, u.modified_at,
-  u.deleted_at, u.auth0_id,
-  ur.id as role_id, ur.role, ur.institution_id, ur.workshop_id
-FROM app_user u
-INNER JOIN user_role ur ON u.id = ur.user_id
-WHERE ur.workshop_id = $1
-  AND u.deleted_at IS NULL;
-
--- name: GetWorkshopParticipants :many
--- Get all members currently associated with a workshop:
--- 1. Participants (permanent members with workshop_id)
--- 2. Workshop creator (always shown)
--- 3. Visitors with active_workshop_id set (individuals, head, staff)
--- Uses DISTINCT ON to deduplicate users who match multiple conditions,
--- preferring their non-participant role (individual/head/staff) over participant.
-SELECT * FROM (
-  SELECT DISTINCT ON (u.id)
-    u.id, u.name, u.auth0_id,
-    COALESCE(ur.created_at, w.created_at) as joined_at,
-    ur.role,
-    (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count,
-    CASE
-      WHEN u.id = w.created_by THEN true
-      WHEN ur.workshop_id = $1 AND ur.role = 'guest' THEN true
-      ELSE false
-    END as permanent
-  FROM app_user u
-  INNER JOIN workshop w ON w.id = $1
-  INNER JOIN user_role ur ON u.id = ur.user_id
-  WHERE u.deleted_at IS NULL
-    AND (
-      (ur.workshop_id = $1)
-      OR (ur.active_workshop_id = $1 AND ur.role != 'guest')
-      OR (u.id = w.created_by AND ur.role != 'guest')
-    )
-  ORDER BY u.id,
-    CASE WHEN ur.role = 'guest' THEN 1 ELSE 0 END,
-    ur.created_at ASC
-) members
-ORDER BY joined_at ASC;
-
--- name: GetInviteByID :one
-SELECT * FROM user_role_invite WHERE id = $1;
-
--- name: GetInviteByToken :one
-SELECT * FROM user_role_invite WHERE invite_token = $1;
-
--- name: UpdateInviteStatus :exec
-UPDATE user_role_invite SET
-  status = $2,
-  modified_at = now()
-WHERE id = $1;
-
--- name: AcceptTargetedInvite :exec
-UPDATE user_role_invite SET
-  status = 'accepted',
-  accepted_at = now(),
-  accepted_by = $2,
-  modified_at = now()
-WHERE id = $1;
-
--- name: IncrementInviteUses :exec
-UPDATE user_role_invite SET
-  uses_count = uses_count + 1,
-  modified_at = now()
-WHERE id = $1;
-
--- name: DeleteInvite :exec
-DELETE FROM user_role_invite WHERE id = $1;
-
--- name: GetPendingInviteByTarget :one
--- Check if a pending invite already exists for the same target (user_id or email) and institution
-SELECT * FROM user_role_invite
-WHERE institution_id = $1
-  AND status = 'pending'
-  AND deleted_at IS NULL
-  AND (
-    (invited_user_id IS NOT NULL AND invited_user_id = $2)
-    OR (invited_email IS NOT NULL AND invited_email = $3)
-  )
-LIMIT 1;
-
--- Guest User queries
-
--- name: CreateGuestUser :one
-INSERT INTO app_user (id, name, email, auth0_id, guest_token, private_share_id)
-VALUES ($1, $2, NULL, NULL, NULL, $3)
-ON CONFLICT (id) DO NOTHING
-RETURNING id;
-
--- User Statistics queries
 
 -- name: CountUserGames :one
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1;
@@ -507,18 +278,6 @@ FROM user_role r
 JOIN app_user u ON u.id = r.user_id
 WHERE r.role = 'admin' AND u.deleted_at IS NULL;
 
--- name: GetGuestUserIDsByWorkshopID :many
--- Get user IDs of participants in a workshop
-SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'guest';
-
--- name: DeleteUserRolesByWorkshopID :exec
--- Delete all participant roles scoped to a workshop
-DELETE FROM user_role WHERE workshop_id = $1 AND role = 'guest';
-
--- name: DeleteUserGuestRole :exec
--- Delete a specific user's participant role for a workshop
-DELETE FROM user_role WHERE user_id = $1 AND workshop_id = $2 AND role = 'guest';
-
 -- name: DeleteInvitesForUser :exec
 -- Delete invites targeting this user (can't just null invited_user_id due to type check constraint)
 DELETE FROM user_role_invite WHERE invited_user_id = $1;
@@ -538,15 +297,6 @@ INSERT INTO app_user (id, auth0_id)
 VALUES (gen_random_uuid(), $1)
 ON CONFLICT (auth0_id) DO NOTHING
 RETURNING id;
-
--- name: CompleteRegistration :execrows
-UPDATE app_user SET
-  name = $2,
-  email = $3,
-  age_group = $4,
-  language = COALESCE(NULLIF(sqlc.arg(language)::text, ''), language),
-  modified_at = now()
-WHERE id = $1 AND name IS NULL;
 
 -- name: GetGuestStatus :one
 -- has_token marks a participant account; it may sign in while it holds the

@@ -243,12 +243,7 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID) error {
 	if !w.MayDelete() {
 		return forbidden("you may not delete this workshop")
 	}
-	// its public page's links end with their guests; then v1's cascade over
-	// its guests, until that moves into the core
-	if err := endPublicPageLinks(ctx, &id, nil); err != nil {
-		return err
-	}
-	if err := db.DeleteWorkshopCascade(ctx, id); err != nil {
+	if err := deleteWorkshop(ctx, id); err != nil {
 		return err
 	}
 	log.Info("workshop deleted", "workshop_id", id, "by", account(ctx).UUID)
@@ -268,10 +263,10 @@ func RemoveFromWorkshop(ctx context.Context, id, user uuid.UUID) error {
 		return refuse("the user is not in this workshop")
 	}
 	q := store.Queries()
-	if err := q.ClearUserActiveWorkshop(ctx, user); err != nil {
+	if err := q.V2ClearUserActiveWorkshop(ctx, user); err != nil {
 		return err
 	}
-	if err := q.DeleteUserGuestRole(ctx, db.DeleteUserGuestRoleParams{
+	if err := q.V2DeleteUserGuestRole(ctx, db.V2DeleteUserGuestRoleParams{
 		UserID: user, WorkshopID: uuid.NullUUID{UUID: id, Valid: true},
 	}); err != nil {
 		return err
@@ -308,7 +303,7 @@ func EnterWorkshop(ctx context.Context, id uuid.UUID) error {
 // enterWorkshop enters workshop id, through an invite the caller accepts or
 // by its id: through an invite, {Enter, WorkshopCard, ViaInvite} holds too.
 func enterWorkshop(ctx context.Context, id uuid.UUID, viaInvite bool) error {
-	w, err := store.Queries().GetWorkshopByID(ctx, id)
+	w, err := store.Queries().V2GetWorkshopByID(ctx, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrNotFound
 	}
@@ -318,7 +313,7 @@ func enterWorkshop(ctx context.Context, id uuid.UUID, viaInvite bool) error {
 	if !mayEnterWorkshop(ctx, w.InstitutionID, w.Active, viaInvite) {
 		return forbidden("you may not enter this workshop")
 	}
-	if err := store.Queries().SetUserActiveWorkshop(ctx, db.SetUserActiveWorkshopParams{
+	if err := store.Queries().V2SetUserActiveWorkshop(ctx, db.V2SetUserActiveWorkshopParams{
 		UserID: account(ctx).UUID, ActiveWorkshopID: uuid.NullUUID{UUID: id, Valid: true},
 	}); err != nil {
 		return err
@@ -338,7 +333,7 @@ func LeaveWorkshop(ctx context.Context) error {
 	if !granted(ctx, rules.Leave, rules.WorkshopCard, rules.Current) {
 		return forbidden("a guest stays in their workshop")
 	}
-	if err := store.Queries().ClearUserActiveWorkshop(ctx, account(ctx).UUID); err != nil {
+	if err := store.Queries().V2ClearUserActiveWorkshop(ctx, account(ctx).UUID); err != nil {
 		return err
 	}
 	events.GetBroker().PublishMembersUpdated(*current)
@@ -361,11 +356,11 @@ func ResetLoginCode(ctx context.Context, user uuid.UUID) (string, error) {
 	if !mayResetLoginCode(ctx, guest) {
 		return "", forbidden("you may not give this user a new login code")
 	}
-	code, err := db.NewGuestToken(ctx)
+	code, err := newGuestToken(ctx)
 	if err != nil {
 		return "", err
 	}
-	n, err := store.Queries().UpdateGuestToken(ctx, db.UpdateGuestTokenParams{
+	n, err := store.Queries().V2UpdateGuestToken(ctx, db.V2UpdateGuestTokenParams{
 		ID: user, GuestToken: sqlString(&code), ModifiedBy: account(ctx),
 	})
 	if err != nil {

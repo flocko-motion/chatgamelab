@@ -91,7 +91,7 @@ func changeRole(ctx context.Context, target *UserCard, ch RoleChange) error {
 	oldOrg := target.row.organisationID
 	leaves := oldOrg != nil && (ch.Organisation == nil || *ch.Organisation != *oldOrg)
 	if target.row.role == string(obj.RoleHead) && oldOrg != nil && (ch.Role != string(obj.RoleHead) || leaves) {
-		heads, err := q.CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: *oldOrg, Valid: true})
+		heads, err := q.V2CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: *oldOrg, Valid: true})
 		if err != nil {
 			return err
 		}
@@ -101,27 +101,27 @@ func changeRole(ctx context.Context, target *UserCard, ch RoleChange) error {
 	}
 	if target.row.role == string(obj.RoleAdmin) && ch.Role != string(obj.RoleAdmin) {
 		// v1's system settings; they move into the core when ported
-		if err := db.ClearSystemSettingsFreeUseApiKeyByOwner(ctx, target.row.id); err != nil {
+		if err := store.Queries().V2ClearFreeUseKeyOf(ctx, target.row.id); err != nil {
 			return err
 		}
 	}
 	err := store.InTx(ctx, func(q *db.Queries) error {
 		if leaves && target.row.role != string(obj.RoleGuest) {
-			if err := q.DeleteApiKeySharesByOwnerForInstitution(ctx, db.DeleteApiKeySharesByOwnerForInstitutionParams{
+			if err := q.V2DeleteApiKeySharesByOwnerForInstitution(ctx, db.V2DeleteApiKeySharesByOwnerForInstitutionParams{
 				UserID: target.row.id, InstitutionID: nullUUID(oldOrg),
 			}); err != nil {
 				return err
 			}
-			if err := q.DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
+			if err := q.V2DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.V2DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
 				UserID: target.row.id, InstitutionID: *oldOrg,
 			}); err != nil {
 				return err
 			}
 		}
-		if err := q.DeleteUserRoles(ctx, target.row.id); err != nil {
+		if err := q.V2DeleteUserRoles(ctx, target.row.id); err != nil {
 			return err
 		}
-		_, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{
+		_, err := q.V2CreateUserRole(ctx, db.V2CreateUserRoleParams{
 			UserID:        target.row.id,
 			Role:          ch.Role,
 			InstitutionID: nullUUID(ch.Organisation),

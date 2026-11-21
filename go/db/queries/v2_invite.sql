@@ -56,3 +56,80 @@ ORDER BY i.created_at DESC, i.id;
 -- name: V2UserEmail :one
 -- An account's email, to tell the invites addressed to it.
 SELECT email FROM app_user WHERE id = @id AND deleted_at IS NULL;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2AcceptTargetedInvite :exec
+UPDATE user_role_invite SET
+  status = 'accepted',
+  accepted_at = now(),
+  accepted_by = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: V2CreateOpenInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invite_token, max_uses, expires_at,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6, $7,
+  'pending'
+)
+RETURNING *;
+
+-- name: V2CreateTargetedInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invited_user_id, invited_email,
+  invite_token,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6,
+  $7,
+  'pending'
+)
+RETURNING *;
+
+-- name: V2DeleteInvite :exec
+DELETE FROM user_role_invite WHERE id = $1;
+
+-- name: V2GetInvitesByWorkshop :many
+SELECT * FROM user_role_invite
+WHERE workshop_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC;
+
+-- name: V2GetPendingInviteByTarget :one
+-- Check if a pending invite already exists for the same target (user_id or email) and institution
+SELECT * FROM user_role_invite
+WHERE institution_id = $1
+  AND status = 'pending'
+  AND deleted_at IS NULL
+  AND (
+    (invited_user_id IS NOT NULL AND invited_user_id = $2)
+    OR (invited_email IS NOT NULL AND invited_email = $3)
+  )
+LIMIT 1;
+
+-- Guest User queries
+
+-- name: V2IncrementInviteUses :exec
+UPDATE user_role_invite SET
+  uses_count = uses_count + 1,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: V2InviteTokenExists :one
+SELECT EXISTS(SELECT 1 FROM user_role_invite WHERE invite_token = $1) AS taken;
+
+-- name: V2UpdateInviteStatus :exec
+UPDATE user_role_invite SET
+  status = $2,
+  modified_at = now()
+WHERE id = $1;

@@ -81,6 +81,47 @@ func (q *Queries) V2CreateShareLink(ctx context.Context, arg V2CreateShareLinkPa
 	return id, err
 }
 
+const v2DeleteGameLinkGuests = `-- name: V2DeleteGameLinkGuests :exec
+DELETE FROM app_user WHERE private_share_id IN (SELECT id FROM game_share WHERE game_id = $1)
+`
+
+// Deletes the guests who came through any share link of game @game_id.
+func (q *Queries) V2DeleteGameLinkGuests(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameLinkGuests, gameID)
+	return err
+}
+
+const v2DeleteGameShare = `-- name: V2DeleteGameShare :exec
+
+DELETE FROM game_share WHERE id = $1
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2DeleteGameShare(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameShare, id)
+	return err
+}
+
+const v2DeleteGameSharesByGameID = `-- name: V2DeleteGameSharesByGameID :exec
+DELETE FROM game_share WHERE game_id = $1
+`
+
+func (q *Queries) V2DeleteGameSharesByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameSharesByGameID, gameID)
+	return err
+}
+
+const v2DeleteLinkGuests = `-- name: V2DeleteLinkGuests :exec
+DELETE FROM app_user WHERE private_share_id = $1
+`
+
+// Deletes the guests who came through share link @link_id (their sessions
+// go with them), so the link can end.
+func (q *Queries) V2DeleteLinkGuests(ctx context.Context, linkID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteLinkGuests, linkID)
+	return err
+}
+
 const v2GameSponsor = `-- name: V2GameSponsor :one
 SELECT public_sponsored_api_key_share_id FROM game WHERE id = $1::uuid
 `

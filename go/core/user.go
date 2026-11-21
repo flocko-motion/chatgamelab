@@ -246,7 +246,7 @@ func (s *UserSecrets) LoginWords() *string {
 	if s.card.row.loginToken == nil {
 		return nil
 	}
-	words := db.GuestTokenWords(*s.card.row.loginToken)
+	words := guestTokenWords(*s.card.row.loginToken)
 	if words == "" {
 		return nil
 	}
@@ -281,19 +281,19 @@ type UserStats struct {
 func (a *UserAccount) Stats(ctx context.Context) (UserStats, error) {
 	id := a.card.row.id
 	q := store.Queries()
-	created, err := q.CountUserGames(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	created, err := q.V2CountUserGames(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	if err != nil {
 		return UserStats{}, err
 	}
-	plays, err := q.SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	plays, err := q.V2SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	if err != nil {
 		return UserStats{}, err
 	}
-	played, err := q.CountUserGameSessions(ctx, id)
+	played, err := q.V2CountUserGameSessions(ctx, id)
 	if err != nil {
 		return UserStats{}, err
 	}
-	messages, err := q.SumUserGameSessionMessages(ctx, id)
+	messages, err := q.V2SumUserGameSessionMessages(ctx, id)
 	if err != nil {
 		return UserStats{}, err
 	}
@@ -319,7 +319,7 @@ func NameAvailable(ctx context.Context, name string) (available, profane bool, e
 	if constants.IsProfane(name) {
 		return false, true, nil
 	}
-	taken, err := store.Queries().IsNameTaken(ctx, sql.NullString{String: name, Valid: true})
+	taken, err := store.Queries().V2IsNameTaken(ctx, sql.NullString{String: name, Valid: true})
 	return err == nil && !taken, false, err
 }
 

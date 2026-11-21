@@ -136,11 +136,3 @@ func stringPtrToNullString(s *string) sql.NullString {
 	}
 	return sql.NullString{String: *s, Valid: true}
 }
-
-func nullInt32ToIntPtr(ni sql.NullInt32) *int {
-	if !ni.Valid {
-		return nil
-	}
-	v := int(ni.Int32)
-	return &v
-}
