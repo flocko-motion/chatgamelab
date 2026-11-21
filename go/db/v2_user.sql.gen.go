@@ -107,12 +107,15 @@ LEFT JOIN workshop w    ON w.id = CASE WHEN r.role = 'guest' THEN r.workshop_id 
 LEFT JOIN institution o ON o.id = COALESCE(r.institution_id, w.institution_id)
 WHERE u.deleted_at IS NULL
   AND ($21::uuid IS NULL OR u.id = $21::uuid)
+  -- a wish: the members of one organisation (individual, staff, head)
+  AND ($22::uuid IS NULL
+       OR (r.institution_id = $22::uuid AND r.role IN ('individual', 'staff', 'head')))
   -- gate
-  AND (  ($22::bool          AND u.id = $2::uuid)
-      OR ($23::bool AND (r.institution_id = $4::uuid OR w.institution_id = $4::uuid))
-      OR ($24::bool       AND r.institution_id = $4::uuid
+  AND (  ($23::bool          AND u.id = $2::uuid)
+      OR ($24::bool AND (r.institution_id = $4::uuid OR w.institution_id = $4::uuid))
+      OR ($25::bool       AND r.institution_id = $4::uuid
                                    AND r.role IN ('individual', 'staff', 'head'))
-      OR  $25::bool )
+      OR  $26::bool )
 ORDER BY u.created_at DESC, u.id
 `
 
@@ -138,6 +141,7 @@ type V2UsersParams struct {
 	DeleteGuest           bool          `json:"delete_guest"`
 	DeleteEverywhere      bool          `json:"delete_everywhere"`
 	ID                    uuid.NullUUID `json:"id"`
+	MembersOf             uuid.NullUUID `json:"members_of"`
 	CardOwn               bool          `json:"card_own"`
 	CardOrganisation      bool          `json:"card_organisation"`
 	CardMember            bool          `json:"card_member"`
@@ -206,6 +210,7 @@ func (q *Queries) V2Users(ctx context.Context, arg V2UsersParams) ([]V2UsersRow,
 		arg.DeleteGuest,
 		arg.DeleteEverywhere,
 		arg.ID,
+		arg.MembersOf,
 		arg.CardOwn,
 		arg.CardOrganisation,
 		arg.CardMember,

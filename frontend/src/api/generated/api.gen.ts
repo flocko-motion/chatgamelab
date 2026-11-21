@@ -104,16 +104,6 @@ export interface ConnectResponse {
   sdp: string;
 }
 
-export interface ConsentStatus {
-  /** @format date-time */
-  consentedAt?: string;
-  consentedVersion?: string;
-  currentVersion: string;
-  pending: boolean;
-  /** @format date-time */
-  withdrawnAt?: string;
-}
-
 export interface ConsentStatusView {
   /** @format date-time */
   consentedAt?: string;
@@ -498,7 +488,7 @@ export interface GenreInfo {
 
 export interface GetCurrentUserResp {
   institutionSuspension?: string;
-  mayEditInstitution: boolean;
+  mayConsentForInstitution: boolean;
   maySuspendInstitutions: boolean;
   state: string;
   user?: UserView;
@@ -544,41 +534,13 @@ export interface InputRequest {
 }
 
 export interface Institution {
-  city?: string;
-  declaration?: ConsentStatus;
-  freeUseAiQualityTier?: string;
   /** @format uuid */
   freeUseApiKeyShareId?: string;
   /** @format uuid */
   id: string;
-  members?: InstitutionMember[];
   meta: Meta;
   name: string;
-  operator?: string;
-  postalCode?: string;
   promptConstraints?: string;
-  registration?: InstitutionRegistration;
-  street?: string;
-  suspended: boolean;
-  /** @format date-time */
-  suspendedAt?: string;
-  suspendedReason?: string;
-}
-
-export interface InstitutionMember {
-  email?: string;
-  name: string;
-  role: string;
-  /** @format uuid */
-  userId: string;
-}
-
-export interface InstitutionRegistration {
-  /** @format date-time */
-  at: string;
-  email: string;
-  personFunction: string;
-  personName: string;
 }
 
 export interface InviteResp {
@@ -675,6 +637,21 @@ export interface OrganisationConsentView {
   street?: string;
 }
 
+export interface OrganisationMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  modifiedAt: string;
+}
+
+export interface OrganisationRegistrationView {
+  /** @format date-time */
+  at: string;
+  email: string;
+  personFunction: string;
+  personName: string;
+}
+
 export interface OrganisationSignUpReq {
   acceptDeclaration: boolean;
   city: string;
@@ -691,6 +668,36 @@ export interface OrganisationSignUpReq {
 export interface OrganisationSuspensionView {
   /** @format uuid */
   id: string;
+  /** @format date-time */
+  suspendedAt?: string;
+  suspendedReason?: string;
+}
+
+export interface OrganisationView {
+  city?: string;
+  declaration?: ConsentStatusView;
+  freeUseAiQualityTier?: string;
+  /** @format uuid */
+  freeUseApiKeyShareId?: string;
+  hasDetails: boolean;
+  hasRecord: boolean;
+  hasSettings: boolean;
+  /** @format uuid */
+  id: string;
+  mayDelete: boolean;
+  mayEditCard: boolean;
+  mayEditDetails: boolean;
+  mayEditSettings: boolean;
+  maySuspend: boolean;
+  members: UserView[];
+  meta: OrganisationMeta;
+  name: string;
+  operator?: string;
+  postalCode?: string;
+  promptConstraints?: string;
+  registration?: OrganisationRegistrationView;
+  street?: string;
+  suspended: boolean;
   /** @format date-time */
   suspendedAt?: string;
   suspendedReason?: string;
@@ -974,12 +981,9 @@ export interface UpdateGameYAMLReq {
   theme?: string;
 }
 
-export interface UpdateInstitutionPromptConstraintsReq {
-  promptConstraints?: string;
-}
-
 export interface UpdateInstitutionReq {
-  name: string;
+  name?: string;
+  promptConstraints?: string;
 }
 
 export interface UpdateMyLanguageReq {
@@ -2675,10 +2679,10 @@ export class Api<
       }),
 
     /**
-     * @description Admins see each one's suspension reason, consent status and, for one that registered itself, how. The filter "recentlyRegistered" narrows the list to institutions that registered themselves in the last 14 days, which admins check; an unknown filter is refused (400).
+     * @description admin all of them, a head or staff their own. filter narrows the list: "recentlyRegistered", those that registered themselves in the last 14 days, among those whose record the caller sees. An unknown filter is refused.
      *
      * @name GetApiInstitutions
-     * @summary Lists the institutions the caller can see.
+     * @summary Lists the organisations the caller may list: an
      * @request GET:/api/institutions
      * @secure
      */
@@ -2688,7 +2692,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-      this.request<Institution[], Error>({
+      this.request<OrganisationView[], Error>({
         path: `/api/institutions`,
         method: "GET",
         query: query,
@@ -2698,10 +2702,10 @@ export class Api<
       }),
 
     /**
-     * @description The name is required; operator and address are optional.
+     * @description The name is required; operator and address are optional. An organisation registers itself through POST /api/auth/register instead.
      *
      * @name PostApiInstitutions
-     * @summary Creates an institution.
+     * @summary Creates an organisation for others: the admin's.
      * @request POST:/api/institutions
      * @secure
      */
@@ -2709,7 +2713,7 @@ export class Api<
       data: CreateInstitutionReq,
       params: RequestParams = {},
     ) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions`,
         method: "POST",
         body: data,
@@ -2720,10 +2724,10 @@ export class Api<
       }),
 
     /**
-     * @description workshops and the guests in them; heads and staff keep their accounts as individuals. Admins only. To stop an institution without losing anything, suspend it (POST /api/institutions/{id}/suspension).
+     * @description workshops and the guests in them; its members stay, as individuals. Suspending keeps its data instead (POST /api/institutions/{id}/suspension).
      *
      * @name DeleteApiInstitutionsId
-     * @summary Deletes an institution for good, with its
+     * @summary Deletes an organisation for good, with its
      * @request DELETE:/api/institutions/{id}
      * @secure
      */
@@ -2737,15 +2741,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description own, as a member or a guest in one of its workshops; any, for an admin. Others get 404.
      *
      * @name GetApiInstitutionsId
-     * @summary Returns an institution.
+     * @summary Returns an organisation the caller may read: their
      * @request GET:/api/institutions/{id}
      * @secure
      */
     getApiInstitutionsId: (id: string, params: RequestParams = {}) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions/${id}`,
         method: "GET",
         secure: true,
@@ -2754,10 +2758,10 @@ export class Api<
       }),
 
     /**
-     * @description The name is required.
+     * @description youth-protection restriction, or both, and answers with it as stored. Only what is given changes; an empty promptConstraints removes the restriction, so the site's rule applies. Renaming takes mayEditCard, the restriction mayEditSettings; a request with a part the caller may not change is refused as a whole.
      *
      * @name PatchApiInstitutionsId
-     * @summary Renames an institution.
+     * @summary Changes an organisation: its name, its
      * @request PATCH:/api/institutions/{id}
      * @secure
      */
@@ -2766,7 +2770,7 @@ export class Api<
       data: UpdateInstitutionReq,
       params: RequestParams = {},
     ) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions/${id}`,
         method: "PATCH",
         body: data,
@@ -2869,7 +2873,7 @@ export class Api<
       data: SetInstitutionFreeUseKeyReq,
       params: RequestParams = {},
     ) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions/${id}/free-use-key`,
         method: "PATCH",
         body: data,
@@ -2880,15 +2884,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description staff, head): for its members and the admin. Anyone else gets an empty list; an organisation the caller may not read, 404.
      *
      * @name GetApiInstitutionsIdMembers
-     * @summary Lists the members of an institution.
+     * @summary Lists an organisation's members (individual,
      * @request GET:/api/institutions/{id}/members
      * @secure
      */
     getApiInstitutionsIdMembers: (id: string, params: RequestParams = {}) =>
-      this.request<User[], Error>({
+      this.request<UserView[], Error>({
         path: `/api/institutions/${id}/members`,
         method: "GET",
         secure: true,
@@ -2897,10 +2901,10 @@ export class Api<
       }),
 
     /**
-     * @description and admins only.
+     * @description keep their account, as an individual. A head removes members and guests, staff remove guests, a member leaves, an admin removes anyone; the last head stays (409 last_head).
      *
      * @name DeleteApiInstitutionsIdMembersUserId
-     * @summary Removes a member from an institution; heads
+     * @summary Removes a user from an organisation; they
      * @request DELETE:/api/institutions/{id}/members/{userID}
      * @secure
      */
@@ -2913,29 +2917,6 @@ export class Api<
         path: `/api/institutions/${id}/members/${userId}`,
         method: "DELETE",
         secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description prompt constraints and answers with the institution; heads and admins only. An empty or null promptConstraints clears them; they have at most 200 characters.
-     *
-     * @name PatchApiInstitutionsIdPromptConstraints
-     * @summary Sets or clears an institution's
-     * @request PATCH:/api/institutions/{id}/prompt-constraints
-     * @secure
-     */
-    patchApiInstitutionsIdPromptConstraints: (
-      id: string,
-      data: UpdateInstitutionPromptConstraintsReq,
-      params: RequestParams = {},
-    ) =>
-      this.request<Institution, Error>({
-        path: `/api/institutions/${id}/prompt-constraints`,
-        method: "PATCH",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),

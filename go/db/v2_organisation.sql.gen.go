@@ -19,21 +19,24 @@ INSERT INTO institution (
   operator, street, postal_code, city, prompt_constraints
 ) VALUES (
   $1, $2::uuid, $2::uuid, $3,
-  $4::text, $5::text, $6::text, $7::text, $8::text
+  $4::text, $5::text, $6::text,
+  $7::text, $8::text
 )
 `
 
 type V2CreateOrganisationParams struct {
-	ID                uuid.UUID `json:"id"`
-	Creator           uuid.UUID `json:"creator"`
-	Name              string    `json:"name"`
-	Operator          string    `json:"operator"`
-	Street            string    `json:"street"`
-	PostalCode        string    `json:"postal_code"`
-	City              string    `json:"city"`
-	PromptConstraints string    `json:"prompt_constraints"`
+	ID                uuid.UUID      `json:"id"`
+	Creator           uuid.UUID      `json:"creator"`
+	Name              string         `json:"name"`
+	Operator          sql.NullString `json:"operator"`
+	Street            sql.NullString `json:"street"`
+	PostalCode        sql.NullString `json:"postal_code"`
+	City              sql.NullString `json:"city"`
+	PromptConstraints sql.NullString `json:"prompt_constraints"`
 }
 
+// An organisation with its details and restriction; an admin's may leave
+// them out (NULL).
 func (q *Queries) V2CreateOrganisation(ctx context.Context, arg V2CreateOrganisationParams) error {
 	_, err := q.db.ExecContext(ctx, v2CreateOrganisation,
 		arg.ID,
@@ -66,6 +69,53 @@ func (q *Queries) V2EmailOfOtherAccount(ctx context.Context, arg V2EmailOfOtherA
 	var taken bool
 	err := row.Scan(&taken)
 	return taken, err
+}
+
+const v2FirstConsent = `-- name: V2FirstConsent :many
+SELECT user_id, created_at, person_name, person_function, email
+FROM institution_consent
+WHERE institution_id = $1 AND kind = 'consent'
+ORDER BY created_at
+LIMIT 1
+`
+
+type V2FirstConsentRow struct {
+	UserID         uuid.UUID      `json:"user_id"`
+	CreatedAt      time.Time      `json:"created_at"`
+	PersonName     sql.NullString `json:"person_name"`
+	PersonFunction sql.NullString `json:"person_function"`
+	Email          sql.NullString `json:"email"`
+}
+
+// The organisation's first consent, if any: given by its creator, it is how
+// the organisation registered itself.
+func (q *Queries) V2FirstConsent(ctx context.Context, institutionID uuid.UUID) ([]V2FirstConsentRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2FirstConsent, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2FirstConsentRow
+	for rows.Next() {
+		var i V2FirstConsentRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.CreatedAt,
+			&i.PersonName,
+			&i.PersonFunction,
+			&i.Email,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const v2LatestConsent = `-- name: V2LatestConsent :many
@@ -129,39 +179,6 @@ func (q *Queries) V2MakeHead(ctx context.Context, arg V2MakeHeadParams) error {
 	return err
 }
 
-const v2Organisation = `-- name: V2Organisation :one
-SELECT id, name, operator, street, postal_code, city, prompt_constraints
-FROM institution
-WHERE id = $1 AND deleted_at IS NULL
-`
-
-type V2OrganisationRow struct {
-	ID                uuid.UUID      `json:"id"`
-	Name              string         `json:"name"`
-	Operator          sql.NullString `json:"operator"`
-	Street            sql.NullString `json:"street"`
-	PostalCode        sql.NullString `json:"postal_code"`
-	City              sql.NullString `json:"city"`
-	PromptConstraints sql.NullString `json:"prompt_constraints"`
-}
-
-// What a head confirms with the declaration: the organisation's name,
-// details and youth-protection restriction.
-func (q *Queries) V2Organisation(ctx context.Context, id uuid.UUID) (V2OrganisationRow, error) {
-	row := q.db.QueryRowContext(ctx, v2Organisation, id)
-	var i V2OrganisationRow
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Operator,
-		&i.Street,
-		&i.PostalCode,
-		&i.City,
-		&i.PromptConstraints,
-	)
-	return i, err
-}
-
 const v2OrganisationNameTaken = `-- name: V2OrganisationNameTaken :one
 
 SELECT EXISTS (SELECT 1 FROM institution WHERE lower(name) = lower($1::text))::bool AS taken
@@ -177,6 +194,165 @@ func (q *Queries) V2OrganisationNameTaken(ctx context.Context, name string) (boo
 	var taken bool
 	err := row.Scan(&taken)
 	return taken, err
+}
+
+const v2Organisations = `-- name: V2Organisations :many
+SELECT o.id, o.name, o.created_by, o.created_at, o.modified_at,
+  -- settings
+  o.prompt_constraints, o.free_use_api_key_share_id, o.free_use_ai_quality_tier,
+  -- details
+  o.operator, o.street, o.postal_code, o.city,
+  -- record
+  o.suspended_at, o.suspended_reason,
+  (o.suspended_at IS NOT NULL
+   OR institution_consent_missing(o.id, $1::text, $2::text))::bool AS suspended,
+  -- the sections: NULL (no caller, no organisation) is false
+  COALESCE(
+     ($3::bool AND o.id = $4::uuid)
+  OR  $5::bool, false)::bool                       AS may_read_settings,
+  COALESCE(
+     ($6::bool  AND o.id = $4::uuid)
+  OR  $7::bool, false)::bool                        AS may_read_details,
+  COALESCE(
+     ($8::bool   AND o.id = $4::uuid)
+  OR  $9::bool, false)::bool                         AS may_read_record,
+  -- the actions
+  COALESCE(
+     ($10::bool     AND o.id = $4::uuid)
+  OR  $11::bool, false)::bool                      AS may_edit_card,
+  COALESCE(
+     ($12::bool AND o.id = $4::uuid)
+  OR  $13::bool, false)::bool                  AS may_edit_settings,
+  COALESCE(
+     ($14::bool  AND o.id = $4::uuid), false)::bool AS may_edit_details,
+  $15::bool                                           AS may_delete,
+  $16::bool                                          AS may_suspend
+FROM institution o
+WHERE o.deleted_at IS NULL
+  AND ($17::uuid IS NULL OR o.id = $17::uuid)
+  -- gate
+  AND (  ($18::bool AND o.id = $4::uuid)
+      OR  $19::bool )
+ORDER BY o.name, o.id
+`
+
+type V2OrganisationsParams struct {
+	DeclarationVersion       string        `json:"declaration_version"`
+	DeclarationHash          string        `json:"declaration_hash"`
+	SettingsOrganisation     bool          `json:"settings_organisation"`
+	OwnOrganisation          uuid.NullUUID `json:"own_organisation"`
+	SettingsEverywhere       bool          `json:"settings_everywhere"`
+	DetailsOrganisation      bool          `json:"details_organisation"`
+	DetailsEverywhere        bool          `json:"details_everywhere"`
+	RecordOrganisation       bool          `json:"record_organisation"`
+	RecordEverywhere         bool          `json:"record_everywhere"`
+	EditCardOrganisation     bool          `json:"edit_card_organisation"`
+	EditCardEverywhere       bool          `json:"edit_card_everywhere"`
+	EditSettingsOrganisation bool          `json:"edit_settings_organisation"`
+	EditSettingsEverywhere   bool          `json:"edit_settings_everywhere"`
+	EditDetailsOrganisation  bool          `json:"edit_details_organisation"`
+	DeleteEverywhere         bool          `json:"delete_everywhere"`
+	SuspendEverywhere        bool          `json:"suspend_everywhere"`
+	ID                       uuid.NullUUID `json:"id"`
+	CardOrganisation         bool          `json:"card_organisation"`
+	CardEverywhere           bool          `json:"card_everywhere"`
+}
+
+type V2OrganisationsRow struct {
+	ID                   uuid.UUID      `json:"id"`
+	Name                 string         `json:"name"`
+	CreatedBy            uuid.NullUUID  `json:"created_by"`
+	CreatedAt            time.Time      `json:"created_at"`
+	ModifiedAt           time.Time      `json:"modified_at"`
+	PromptConstraints    sql.NullString `json:"prompt_constraints"`
+	FreeUseApiKeyShareID uuid.NullUUID  `json:"free_use_api_key_share_id"`
+	FreeUseAiQualityTier sql.NullString `json:"free_use_ai_quality_tier"`
+	Operator             sql.NullString `json:"operator"`
+	Street               sql.NullString `json:"street"`
+	PostalCode           sql.NullString `json:"postal_code"`
+	City                 sql.NullString `json:"city"`
+	SuspendedAt          sql.NullTime   `json:"suspended_at"`
+	SuspendedReason      sql.NullString `json:"suspended_reason"`
+	Suspended            bool           `json:"suspended"`
+	MayReadSettings      bool           `json:"may_read_settings"`
+	MayReadDetails       bool           `json:"may_read_details"`
+	MayReadRecord        bool           `json:"may_read_record"`
+	MayEditCard          bool           `json:"may_edit_card"`
+	MayEditSettings      bool           `json:"may_edit_settings"`
+	MayEditDetails       bool           `json:"may_edit_details"`
+	MayDelete            bool           `json:"may_delete"`
+	MaySuspend           bool           `json:"may_suspend"`
+}
+
+// The organisations the caller may see, for a list or for one organisation
+// (id set): the List grants on OrganisationCard for a list, the Read grants
+// for one. Its consent log, which the record also shows, is read by
+// V2LatestConsent and V2FirstConsent.
+func (q *Queries) V2Organisations(ctx context.Context, arg V2OrganisationsParams) ([]V2OrganisationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2Organisations,
+		arg.DeclarationVersion,
+		arg.DeclarationHash,
+		arg.SettingsOrganisation,
+		arg.OwnOrganisation,
+		arg.SettingsEverywhere,
+		arg.DetailsOrganisation,
+		arg.DetailsEverywhere,
+		arg.RecordOrganisation,
+		arg.RecordEverywhere,
+		arg.EditCardOrganisation,
+		arg.EditCardEverywhere,
+		arg.EditSettingsOrganisation,
+		arg.EditSettingsEverywhere,
+		arg.EditDetailsOrganisation,
+		arg.DeleteEverywhere,
+		arg.SuspendEverywhere,
+		arg.ID,
+		arg.CardOrganisation,
+		arg.CardEverywhere,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2OrganisationsRow
+	for rows.Next() {
+		var i V2OrganisationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedAt,
+			&i.PromptConstraints,
+			&i.FreeUseApiKeyShareID,
+			&i.FreeUseAiQualityTier,
+			&i.Operator,
+			&i.Street,
+			&i.PostalCode,
+			&i.City,
+			&i.SuspendedAt,
+			&i.SuspendedReason,
+			&i.Suspended,
+			&i.MayReadSettings,
+			&i.MayReadDetails,
+			&i.MayReadRecord,
+			&i.MayEditCard,
+			&i.MayEditSettings,
+			&i.MayEditDetails,
+			&i.MayDelete,
+			&i.MaySuspend,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const v2RecordConsent = `-- name: V2RecordConsent :one
@@ -291,6 +467,34 @@ func (q *Queries) V2SetOrganisationSuspension(ctx context.Context, arg V2SetOrga
 		return 0, err
 	}
 	return result.RowsAffected()
+}
+
+const v2UpdateOrganisation = `-- name: V2UpdateOrganisation :exec
+UPDATE institution SET
+  name               = $1::text,
+  prompt_constraints = $2::text,
+  modified_by        = $3::uuid,
+  modified_at        = now()
+WHERE id = $4::uuid AND deleted_at IS NULL
+`
+
+type V2UpdateOrganisationParams struct {
+	Name              string         `json:"name"`
+	PromptConstraints sql.NullString `json:"prompt_constraints"`
+	ModifiedBy        uuid.UUID      `json:"modified_by"`
+	ID                uuid.UUID      `json:"id"`
+}
+
+// Writes an organisation's card and settings as the caller changed them;
+// core/organisation_update.go has checked that they may.
+func (q *Queries) V2UpdateOrganisation(ctx context.Context, arg V2UpdateOrganisationParams) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateOrganisation,
+		arg.Name,
+		arg.PromptConstraints,
+		arg.ModifiedBy,
+		arg.ID,
+	)
+	return err
 }
 
 const v2UpdateOrganisationDetails = `-- name: V2UpdateOrganisationDetails :exec

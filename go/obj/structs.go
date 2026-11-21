@@ -7,7 +7,6 @@ package obj
 import (
 	"time"
 
-	"cgl/legal"
 
 	"github.com/google/uuid"
 )
@@ -70,52 +69,15 @@ type GameSession struct {
 	ModifiedAt time.Time `json:"modifiedAt"`
 }
 
-// Institution represents an organisation with members and shared settings.
+// Institution is an organisation as v1 code still carries it: in a user's
+// role, a key share or a workshop. The organisation itself, as the API shows
+// it, is the core's (core/organisation.go, api/wire).
 type Institution struct {
-	ID                   uuid.UUID           `json:"id"`
-	Meta                 Meta                `json:"meta"`
-	Name                 string              `json:"name"`
-	Members              []InstitutionMember `json:"members,omitempty"`
-	FreeUseApiKeyShareID *uuid.UUID          `json:"freeUseApiKeyShareId,omitempty"`
-	FreeUseAiQualityTier *string             `json:"freeUseAiQualityTier,omitempty"` // high/medium/low, nil = server default
-	PromptConstraints    *string             `json:"promptConstraints,omitempty"`
-	// Operator (Träger) and address, given when the institution registered
-	// itself, when a head consented to the declaration, or by an admin.
-	Operator   *string `json:"operator,omitempty"`
-	Street     *string `json:"street,omitempty"`
-	PostalCode *string `json:"postalCode,omitempty"`
-	City       *string `json:"city,omitempty"`
-	// Suspended: its heads, staff and guests are refused, because an admin
-	// suspended it (SuspendedAt) or it has no consent to the current
-	// declaration.
-	Suspended bool `json:"suspended"`
-	// SuspendedAt is when an admin suspended the institution; nil while
-	// they have not.
-	SuspendedAt *time.Time `json:"suspendedAt,omitempty"`
-	// SuspendedReason is the admin's note on the suspension (admins' list only).
-	SuspendedReason *string `json:"suspendedReason,omitempty"`
-	// Declaration is the institution's consent status (admins' list only).
-	Declaration *legal.ConsentStatus `json:"declaration,omitempty"`
-	// Registration is how the institution registered itself (admins' list
-	// only); nil for one an admin created.
-	Registration *InstitutionRegistration `json:"registration,omitempty"`
-}
-
-// InstitutionRegistration is how an institution registered itself: when, and
-// the person who signed for it, from its first consent.
-type InstitutionRegistration struct {
-	At             time.Time `json:"at"`
-	PersonName     string    `json:"personName"`
-	PersonFunction string    `json:"personFunction"`
-	Email          string    `json:"email"`
-}
-
-// InstitutionMember represents a user's membership and role within an institution.
-type InstitutionMember struct {
-	UserID uuid.UUID `json:"userId"`
-	Name   string    `json:"name"`
-	Email  *string   `json:"email,omitempty"`
-	Role   Role      `json:"role"`
+	ID                   uuid.UUID  `json:"id"`
+	Meta                 Meta       `json:"meta"`
+	Name                 string     `json:"name"`
+	FreeUseApiKeyShareID *uuid.UUID `json:"freeUseApiKeyShareId,omitempty"`
+	PromptConstraints    *string    `json:"promptConstraints,omitempty"`
 }
 
 // BackupLog is one entry of the database backup logbook, written by docker/db/backup.sh

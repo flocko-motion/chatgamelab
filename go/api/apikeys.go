@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"cgl/api/wire"
+	"cgl/core"
 	"cgl/db"
 	"cgl/log"
 	"cgl/obj"
@@ -360,4 +362,66 @@ type DeleteApiKeyReq struct {
 	ID string `path:"id"`
 	// Cascade "true" deletes the key and all its shares.
 	Cascade *string `query:"cascade"`
+}
+
+// InstitutionApiKeysResp is the API key shares of an institution.
+type InstitutionApiKeysResp = []obj.ApiKeyShare
+
+// GetInstitutionApiKeysEndpoint lists the API keys shared with an institution;
+// heads and staff only.
+type GetInstitutionApiKeysEndpoint struct{}
+
+func (GetInstitutionApiKeysEndpoint) Method() string             { return "GET" }
+func (GetInstitutionApiKeysEndpoint) Path() string               { return "/api/institutions/{id}/apikeys" }
+func (GetInstitutionApiKeysEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetInstitutionApiKeysEndpoint) Handle(ctx context.Context, req InstitutionIDReq) (InstitutionApiKeysResp, error) {
+	user, err := caller(ctx)
+	if err != nil {
+		return nil, err
+	}
+	institutionID, err := parseIDValidation(req.ID, "Invalid institution ID")
+	if err != nil {
+		return nil, err
+	}
+	shares, err := db.GetApiKeySharesByInstitution(ctx, user.ID, institutionID)
+	if err != nil {
+		return nil, appError(err)
+	}
+	return shares, nil
+}
+
+// SetInstitutionFreeUseApiKeyShareEndpoint sets or clears an institution's
+// free-use API key share and answers with the institution.
+//
+// Any member of the institution plays for free with this key. A null shareId
+// clears it.
+type SetInstitutionFreeUseApiKeyShareEndpoint struct{}
+
+func (SetInstitutionFreeUseApiKeyShareEndpoint) Method() string { return "PATCH" }
+func (SetInstitutionFreeUseApiKeyShareEndpoint) Path() string {
+	return "/api/institutions/{id}/free-use-key"
+}
+func (SetInstitutionFreeUseApiKeyShareEndpoint) Auth() schemafapi.AuthLevel {
+	return schemafapi.AuthRequired
+}
+func (SetInstitutionFreeUseApiKeyShareEndpoint) Handle(ctx context.Context, req SetInstitutionFreeUseKeyReq) (InstitutionResp, error) {
+	user, err := caller(ctx)
+	if err != nil {
+		return InstitutionResp{}, err
+	}
+	institutionID, err := parseID(req.ID, "Invalid institution ID")
+	if err != nil {
+		return InstitutionResp{}, err
+	}
+	if err := db.SetInstitutionFreeUseApiKeyShare(ctx, user.ID, institutionID, req.ShareID); err != nil {
+		return InstitutionResp{}, appError(err)
+	}
+	return wire.OrganisationViewOf(core.ReadOrganisation(ctx, institutionID))
+}
+
+// SetInstitutionFreeUseKeyReq is the institution from the path and the share
+// to set, or null to clear it.
+type SetInstitutionFreeUseKeyReq struct {
+	ID      string     `path:"id"`
+	ShareID *uuid.UUID `json:"shareId"`
 }

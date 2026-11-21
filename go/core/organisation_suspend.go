@@ -30,8 +30,7 @@ type OrganisationSuspension struct {
 }
 
 // SuspendOrganisation suspends organisation id, with an optional note on
-// why, and returns the suspension. It takes {Suspend, Organisation,
-// Everywhere}.
+// why, and returns the suspension. It takes {Suspend, OrganisationCard}.
 func SuspendOrganisation(ctx context.Context, id uuid.UUID, reason string) (OrganisationSuspension, error) {
 	now := time.Now()
 	s := OrganisationSuspension{ID: id, SuspendedAt: &now}
@@ -42,16 +41,22 @@ func SuspendOrganisation(ctx context.Context, id uuid.UUID, reason string) (Orga
 }
 
 // LiftSuspension lifts an admin's suspension of organisation id. It takes
-// {Suspend, Organisation, Everywhere}; a suspension for want of a consent
-// stays until a head consents.
+// {Suspend, OrganisationCard}; a suspension for want of a consent stays
+// until a head consents.
 func LiftSuspension(ctx context.Context, id uuid.UUID) (OrganisationSuspension, error) {
 	s := OrganisationSuspension{ID: id}
 	return s, setSuspension(ctx, s)
 }
 
-// setSuspension stores an admin's suspension s, for a caller who may suspend.
+// setSuspension stores an admin's suspension s, for a caller who may
+// suspend the organisation. One the caller may not read does not exist for
+// them (ErrNotFound).
 func setSuspension(ctx context.Context, s OrganisationSuspension) error {
-	if !maySuspendOrganisations(ctx) {
+	org, err := ReadOrganisation(ctx, s.ID)
+	if err != nil {
+		return err
+	}
+	if !org.MaySuspend() {
 		return forbidden("only an admin suspends an organisation")
 	}
 	params := db.V2SetOrganisationSuspensionParams{ID: s.ID, ModifiedBy: account(ctx).UUID}
@@ -78,21 +83,19 @@ const (
 
 // MyOrganisation is what the caller's own view adds about organisations:
 // why theirs is suspended (SuspendedByAdmin, SuspendedNoConsent; empty while
-// it is not), whether they may edit it, and so consent for it, and whether
-// they may suspend organisations.
+// it is not), whether they may consent in its name, and whether they may
+// suspend organisations.
 type MyOrganisation struct {
 	Suspension string
-	MayEdit    bool
+	MayConsent bool
 	MaySuspend bool
 }
 
 // ReadMyOrganisation is the caller's MyOrganisation.
 func ReadMyOrganisation(ctx context.Context) MyOrganisation {
-	c := from(ctx)
-	org := c.Organisation()
 	return MyOrganisation{
-		Suspension: string(c.Suspension()),
-		MayEdit:    org != nil && mayEditOrganisation(ctx, *org),
+		Suspension: string(from(ctx).Suspension()),
+		MayConsent: mayConsentForOwnOrganisation(ctx),
 		MaySuspend: maySuspendOrganisations(ctx),
 	}
 }

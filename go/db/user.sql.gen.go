@@ -1519,63 +1519,6 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 	return id, err
 }
 
-const getUsersByInstitution = `-- name: GetUsersByInstitution :many
-SELECT
-  u.id, u.name, u.email,
-  u.created_by, u.created_at, u.modified_by, u.modified_at,
-  ur.id as role_id, ur.role as role_role
-FROM app_user u
-INNER JOIN user_role ur ON u.id = ur.user_id
-WHERE ur.institution_id = $1
-  AND u.deleted_at IS NULL
-  AND ur.role IN ('individual', 'staff', 'head')
-`
-
-type GetUsersByInstitutionRow struct {
-	ID         uuid.UUID      `json:"id"`
-	Name       sql.NullString `json:"name"`
-	Email      sql.NullString `json:"email"`
-	CreatedBy  uuid.NullUUID  `json:"created_by"`
-	CreatedAt  time.Time      `json:"created_at"`
-	ModifiedBy uuid.NullUUID  `json:"modified_by"`
-	ModifiedAt time.Time      `json:"modified_at"`
-	RoleID     uuid.UUID      `json:"role_id"`
-	RoleRole   string         `json:"role_role"`
-}
-
-func (q *Queries) GetUsersByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]GetUsersByInstitutionRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersByInstitution, institutionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetUsersByInstitutionRow
-	for rows.Next() {
-		var i GetUsersByInstitutionRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Email,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.RoleID,
-			&i.RoleRole,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getUsersByWorkshop = `-- name: GetUsersByWorkshop :many
 SELECT
   u.id, u.name, u.email,

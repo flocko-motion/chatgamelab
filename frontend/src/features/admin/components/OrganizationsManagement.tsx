@@ -25,7 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
-import type { Institution } from "@/api/generated/api.gen";
+import type { OrganisationView } from "@/api/generated/api.gen";
 import { InvitesList } from './InvitesList';
 import { OrganizationMembersRow } from './OrganizationMembersRow';
 import { OrganizationStatusBadges } from './OrganizationStatusBadges';
@@ -41,11 +41,11 @@ export function OrganizationsManagement() {
   const queryClient = useQueryClient();
   const { isMobile } = useResponsiveDesign();
   
-  const [editingOrg, setEditingOrg] = useState<Institution | null>(null);
-  const [inviteOrg, setInviteOrg] = useState<Institution | null>(null);
+  const [editingOrg, setEditingOrg] = useState<OrganisationView | null>(null);
+  const [inviteOrg, setInviteOrg] = useState<OrganisationView | null>(null);
   const [newOrgName, setNewOrgName] = useState('');
   const [newOrgDetails, setNewOrgDetails] = useState(noDetails);
-  const [suspendOrg, setSuspendOrg] = useState<Institution | null>(null);
+  const [suspendOrg, setSuspendOrg] = useState<OrganisationView | null>(null);
   const [editName, setEditName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   
@@ -53,7 +53,7 @@ export function OrganizationsManagement() {
   const [editModalOpened, { open: openEditModal, close: closeEditModal }] = useDisclosure(false);
   const [inviteModalOpened, { open: openInviteModal, close: closeInviteModal }] = useDisclosure(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-  const [orgToDelete, setOrgToDelete] = useState<Institution | null>(null);
+  const [orgToDelete, setOrgToDelete] = useState<OrganisationView | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
 
@@ -158,20 +158,20 @@ export function OrganizationsManagement() {
     },
   });
 
-  const handleEdit = (org: Institution) => {
+  const handleEdit = (org: OrganisationView) => {
     setEditingOrg(org);
     setEditName(org.name || '');
     openEditModal();
   };
 
-  const handleInvite = (org: Institution) => {
+  const handleInvite = (org: OrganisationView) => {
     setInviteOrg(org);
     setInviteEmail('');
     setInviteError(null);
     openInviteModal();
   };
 
-  const handleDelete = (org: Institution) => {
+  const handleDelete = (org: OrganisationView) => {
     setOrgToDelete(org);
     openDeleteModal();
   };

@@ -101,11 +101,11 @@ func (GetCurrentUserEndpoint) Handle(ctx context.Context, _ GetCurrentUserReq) (
 	}
 	my := core.ReadMyOrganisation(ctx)
 	return GetCurrentUserResp{
-		State:                  state,
-		User:                   &view,
-		InstitutionSuspension:  my.Suspension,
-		MayEditInstitution:     my.MayEdit,
-		MaySuspendInstitutions: my.MaySuspend,
+		State:                    state,
+		User:                     &view,
+		InstitutionSuspension:    my.Suspension,
+		MayConsentForInstitution: my.MayConsent,
+		MaySuspendInstitutions:   my.MaySuspend,
 	}, nil
 }
 
@@ -122,9 +122,9 @@ type GetCurrentUserResp struct {
 	// not. Every other endpoint refuses a suspended organisation's members,
 	// but a head may consent (/api/institutions/{id}/declaration-consent).
 	InstitutionSuspension string `json:"institutionSuspension,omitempty"`
-	// MayEditInstitution: the caller may edit their organisation, consenting
-	// to the declaration in its name or withdrawing that.
-	MayEditInstitution bool `json:"mayEditInstitution"`
+	// MayConsentForInstitution: the caller may consent to the declaration
+	// in their organisation's name or withdraw that, editing its details.
+	MayConsentForInstitution bool `json:"mayConsentForInstitution"`
 	// MaySuspendInstitutions: the caller may suspend organisations, and sees
 	// those that registered themselves lately
 	// (GET /api/institutions?filter=recentlyRegistered).

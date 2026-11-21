@@ -284,32 +284,6 @@
         ],
         "type": "object"
       },
-      "ConsentStatus": {
-        "properties": {
-          "consentedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "consentedVersion": {
-            "type": "string"
-          },
-          "currentVersion": {
-            "type": "string"
-          },
-          "pending": {
-            "type": "boolean"
-          },
-          "withdrawnAt": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "required": [
-          "currentVersion",
-          "pending"
-        ],
-        "type": "object"
-      },
       "ConsentStatusView": {
         "properties": {
           "consentedAt": {
@@ -1425,7 +1399,7 @@
           "institutionSuspension": {
             "type": "string"
           },
-          "mayEditInstitution": {
+          "mayConsentForInstitution": {
             "type": "boolean"
           },
           "maySuspendInstitutions": {
@@ -1440,7 +1414,7 @@
         },
         "required": [
           "state",
-          "mayEditInstitution",
+          "mayConsentForInstitution",
           "maySuspendInstitutions"
         ],
         "type": "object"
@@ -1553,15 +1527,6 @@
       },
       "Institution": {
         "properties": {
-          "city": {
-            "type": "string"
-          },
-          "declaration": {
-            "$ref": "#/components/schemas/ConsentStatus"
-          },
-          "freeUseAiQualityTier": {
-            "type": "string"
-          },
           "freeUseApiKeyShareId": {
             "format": "uuid",
             "type": "string"
@@ -1570,96 +1535,20 @@
             "format": "uuid",
             "type": "string"
           },
-          "members": {
-            "items": {
-              "$ref": "#/components/schemas/InstitutionMember"
-            },
-            "type": "array"
-          },
           "meta": {
             "$ref": "#/components/schemas/Meta"
           },
           "name": {
             "type": "string"
           },
-          "operator": {
-            "type": "string"
-          },
-          "postalCode": {
-            "type": "string"
-          },
           "promptConstraints": {
-            "type": "string"
-          },
-          "registration": {
-            "$ref": "#/components/schemas/InstitutionRegistration"
-          },
-          "street": {
-            "type": "string"
-          },
-          "suspended": {
-            "type": "boolean"
-          },
-          "suspendedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "suspendedReason": {
             "type": "string"
           }
         },
         "required": [
           "id",
           "meta",
-          "name",
-          "suspended"
-        ],
-        "type": "object"
-      },
-      "InstitutionMember": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "userId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "userId",
-          "name",
-          "role"
-        ],
-        "type": "object"
-      },
-      "InstitutionRegistration": {
-        "properties": {
-          "at": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "personFunction": {
-            "type": "string"
-          },
-          "personName": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "at",
-          "personName",
-          "personFunction",
-          "email"
+          "name"
         ],
         "type": "object"
       },
@@ -1961,6 +1850,47 @@
         ],
         "type": "object"
       },
+      "OrganisationMeta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "modifiedAt"
+        ],
+        "type": "object"
+      },
+      "OrganisationRegistrationView": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "personFunction": {
+            "type": "string"
+          },
+          "personName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "personName",
+          "personFunction",
+          "email"
+        ],
+        "type": "object"
+      },
       "OrganisationSignUpReq": {
         "properties": {
           "acceptDeclaration": {
@@ -2024,6 +1954,104 @@
         },
         "required": [
           "id"
+        ],
+        "type": "object"
+      },
+      "OrganisationView": {
+        "properties": {
+          "city": {
+            "type": "string"
+          },
+          "declaration": {
+            "$ref": "#/components/schemas/ConsentStatusView"
+          },
+          "freeUseAiQualityTier": {
+            "type": "string"
+          },
+          "freeUseApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "hasDetails": {
+            "type": "boolean"
+          },
+          "hasRecord": {
+            "type": "boolean"
+          },
+          "hasSettings": {
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "mayDelete": {
+            "type": "boolean"
+          },
+          "mayEditCard": {
+            "type": "boolean"
+          },
+          "mayEditDetails": {
+            "type": "boolean"
+          },
+          "mayEditSettings": {
+            "type": "boolean"
+          },
+          "maySuspend": {
+            "type": "boolean"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/UserView"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/OrganisationMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "promptConstraints": {
+            "type": "string"
+          },
+          "registration": {
+            "$ref": "#/components/schemas/OrganisationRegistrationView"
+          },
+          "street": {
+            "type": "string"
+          },
+          "suspended": {
+            "type": "boolean"
+          },
+          "suspendedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "suspendedReason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "meta",
+          "members",
+          "mayEditCard",
+          "mayEditSettings",
+          "mayEditDetails",
+          "mayDelete",
+          "maySuspend",
+          "hasSettings",
+          "hasDetails",
+          "hasRecord",
+          "suspended"
         ],
         "type": "object"
       },
@@ -2850,23 +2878,15 @@
         ],
         "type": "object"
       },
-      "UpdateInstitutionPromptConstraintsReq": {
-        "properties": {
-          "promptConstraints": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "UpdateInstitutionReq": {
         "properties": {
           "name": {
             "type": "string"
+          },
+          "promptConstraints": {
+            "type": "string"
           }
         },
-        "required": [
-          "name"
-        ],
         "type": "object"
       },
       "UpdateMyLanguageReq": {
@@ -6597,7 +6617,7 @@
     },
     "/api/institutions": {
       "get": {
-        "description": "Admins see each one's suspension reason, consent status and, for one that\nregistered itself, how. The filter \"recentlyRegistered\" narrows the list\nto institutions that registered themselves in the last 14 days, which\nadmins check; an unknown filter is refused (400).",
+        "description": "admin all of them, a head or staff their own.\n\nfilter narrows the list: \"recentlyRegistered\", those that registered\nthemselves in the last 14 days, among those whose record the caller sees.\nAn unknown filter is refused.",
         "operationId": "getApiInstitutions",
         "parameters": [
           {
@@ -6620,7 +6640,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/Institution"
+                    "$ref": "#/components/schemas/OrganisationView"
                   },
                   "type": "array"
                 }
@@ -6647,10 +6667,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the institutions the caller can see."
+        "summary": "Lists the organisations the caller may list: an"
       },
       "post": {
-        "description": "The name is required; operator and address are optional.",
+        "description": "The name is required; operator and address are optional. An organisation\nregisters itself through POST /api/auth/register instead.",
         "operationId": "postApiInstitutions",
         "requestBody": {
           "content": {
@@ -6667,7 +6687,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Institution"
+                  "$ref": "#/components/schemas/OrganisationView"
                 }
               }
             },
@@ -6692,12 +6712,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Creates an institution."
+        "summary": "Creates an organisation for others: the admin's."
       }
     },
     "/api/institutions/{id}": {
       "delete": {
-        "description": "workshops and the guests in them; heads and staff keep their accounts as\nindividuals. Admins only. To stop an institution without losing anything,\nsuspend it (POST /api/institutions/{id}/suspension).",
+        "description": "workshops and the guests in them; its members stay, as individuals.\nSuspending keeps its data instead (POST /api/institutions/{id}/suspension).",
         "operationId": "deleteApiInstitutionsId",
         "parameters": [
           {
@@ -6739,9 +6759,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Deletes an institution for good, with its"
+        "summary": "Deletes an organisation for good, with its"
       },
       "get": {
+        "description": "own, as a member or a guest in one of its workshops; any, for an admin.\nOthers get 404.",
         "operationId": "getApiInstitutionsId",
         "parameters": [
           {
@@ -6758,7 +6779,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Institution"
+                  "$ref": "#/components/schemas/OrganisationView"
                 }
               }
             },
@@ -6783,10 +6804,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns an institution."
+        "summary": "Returns an organisation the caller may read: their"
       },
       "patch": {
-        "description": "The name is required.",
+        "description": "youth-protection restriction, or both, and answers with it as stored.\n\nOnly what is given changes; an empty promptConstraints removes the\nrestriction, so the site's rule applies. Renaming takes mayEditCard, the\nrestriction mayEditSettings; a request with a part the caller may not\nchange is refused as a whole.",
         "operationId": "patchApiInstitutionsId",
         "parameters": [
           {
@@ -6813,7 +6834,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Institution"
+                  "$ref": "#/components/schemas/OrganisationView"
                 }
               }
             },
@@ -6838,7 +6859,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Renames an institution."
+        "summary": "Changes an organisation: its name, its"
       }
     },
     "/api/institutions/{id}/apikeys": {
@@ -7067,7 +7088,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Institution"
+                  "$ref": "#/components/schemas/OrganisationView"
                 }
               }
             },
@@ -7097,6 +7118,7 @@
     },
     "/api/institutions/{id}/members": {
       "get": {
+        "description": "staff, head): for its members and the admin. Anyone else gets an empty\nlist; an organisation the caller may not read, 404.",
         "operationId": "getApiInstitutionsIdMembers",
         "parameters": [
           {
@@ -7114,7 +7136,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/User"
+                    "$ref": "#/components/schemas/UserView"
                   },
                   "type": "array"
                 }
@@ -7141,12 +7163,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the members of an institution."
+        "summary": "Lists an organisation's members (individual,"
       }
     },
     "/api/institutions/{id}/members/{userID}": {
       "delete": {
-        "description": "and admins only.",
+        "description": "keep their account, as an individual. A head removes members and guests,\nstaff remove guests, a member leaves, an admin removes anyone; the last\nhead stays (409 last_head).",
         "operationId": "deleteApiInstitutionsIdMembersUserID",
         "parameters": [
           {
@@ -7196,64 +7218,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Removes a member from an institution; heads"
-      }
-    },
-    "/api/institutions/{id}/prompt-constraints": {
-      "patch": {
-        "description": "prompt constraints and answers with the institution; heads and admins only.\n\nAn empty or null promptConstraints clears them; they have at most 200\ncharacters.",
-        "operationId": "patchApiInstitutionsIdPrompt-constraints",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateInstitutionPromptConstraintsReq"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Institution"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "Error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Sets or clears an institution's"
+        "summary": "Removes a user from an organisation; they"
       }
     },
     "/api/institutions/{id}/suspension": {

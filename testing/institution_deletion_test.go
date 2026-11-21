@@ -342,8 +342,9 @@ func (s *InstitutionDeletionTestSuite) TestIndividualCannotDeleteInstitution() {
 	inst := Must(admin.CreateInstitution("Ind No Del Org"))
 	individual := s.CreateUser("ind-no-del")
 
-	// Individual tries to delete — should fail
+	// Individual tries to delete — should fail: an organisation they are not
+	// in does not exist for them
 	err := individual.DeleteInstitution(inst.Id.String())
-	s.Forbidden(err, "individual should not be able to delete institution")
+	s.NotFound(err, "individual should not be able to delete institution")
 	s.T().Logf("Individual correctly rejected: %v", err)
 }

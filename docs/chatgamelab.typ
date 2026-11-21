@@ -183,7 +183,7 @@ own: a binding rule that goes with every AI interaction.
 There are rules at three levels:
 
 - *Workshop* — set by a workshop's staff, per workshop.
-- *Organisation* — set by an organisation's head, per organisation.
+- *Organisation* — set by an organisation's head or staff, per organisation.
 - *Site* — set by the admin, per age group: *U13*, *U13p* and *U18*. It is set
   once when the site is installed and is never empty.
 

@@ -62,7 +62,7 @@ func Register(ctx context.Context, r Registration) (*UserCard, error) {
 		return nil, conflict(obj.ErrCodeConflict, "the account is registered already")
 	case !granted(ctx, rules.Create, rules.UserCard, rules.Own):
 		return nil, forbidden("only an account still registering registers")
-	case r.Organisation != nil && !mayRegisterOrganisation(ctx):
+	case r.Organisation != nil && !mayRegisterAsHead(ctx):
 		return nil, forbidden("you may not register an organisation")
 	}
 	r, err := r.validate()

@@ -1,15 +1,14 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     serves the declaration organisations consent to, with the youth-protection restrictions suggested beside it, from the one embedded source
-// limits:  read-only and public; the texts live in legal; the site's own restriction is read from v1's system settings
+// limits:  read-only and public; the texts live in legal, the site's rule comes through the core
 package api
 
 import (
 	"context"
 
-	"cgl/db"
+	"cgl/core"
 	"cgl/legal"
-	"cgl/log"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 )
@@ -28,8 +27,12 @@ func (GetDeclarationEndpoint) Method() string             { return "GET" }
 func (GetDeclarationEndpoint) Path() string               { return "/api/legal/institution-declaration" }
 func (GetDeclarationEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
 func (GetDeclarationEndpoint) Handle(ctx context.Context, _ GetDeclarationReq) (DeclarationResp, error) {
-	d := legal.CurrentDeclaration()
-	resp := DeclarationResp{
+	form, err := core.ReadDeclarationForm(ctx)
+	if err != nil {
+		return DeclarationResp{}, err
+	}
+	d := form.Declaration
+	return DeclarationResp{
 		Declaration: DeclarationView{
 			Version: d.Version,
 			Date:    d.Date,
@@ -39,15 +42,9 @@ func (GetDeclarationEndpoint) Handle(ctx context.Context, _ GetDeclarationReq) (
 		},
 		BindingLanguage:            legal.BindingLanguage,
 		YouthProtectionSuggestions: legal.YouthProtectionSuggestions(),
+		DefaultPromptConstraint:    form.SiteRule,
 		MaxPromptConstraintLength:  legal.MaxPromptConstraintLength,
-	}
-	settings, err := db.GetSystemSettings(ctx)
-	if err != nil {
-		log.Warn("declaration: site restriction unavailable", "error", err)
-		return resp, nil
-	}
-	resp.DefaultPromptConstraint = settings.PromptConstraintU13
-	return resp, nil
+	}, nil
 }
 
 // GetDeclarationReq takes no parameters.

@@ -56,7 +56,13 @@ func (c caller) GetInstitutions() ([]Institution, error) {
 
 // RenameInstitution renames an institution.
 func (c caller) RenameInstitution(institutionID, name string) (Institution, error) {
-	return decode[Institution](c.api.PatchApiInstitutionsIdWithResponse(ctx(), institutionID, apiclient.UpdateInstitutionReq{Name: name}))
+	return decode[Institution](c.api.PatchApiInstitutionsIdWithResponse(ctx(), institutionID, apiclient.UpdateInstitutionReq{Name: &name}))
+}
+
+// SetInstitutionPromptConstraints sets an institution's youth-protection
+// restriction; "" removes it.
+func (c caller) SetInstitutionPromptConstraints(institutionID, constraint string) (Institution, error) {
+	return decode[Institution](c.api.PatchApiInstitutionsIdWithResponse(ctx(), institutionID, apiclient.UpdateInstitutionReq{PromptConstraints: &constraint}))
 }
 
 // DeleteInstitution deletes an institution.
@@ -300,13 +306,10 @@ func parseOptional(id *string) (*uuid.UUID, error) {
 	return &parsed, nil
 }
 
-// MembersOf is the members an institution came with; none when it came
-// without its members.
-func MembersOf(inst Institution) []InstitutionMember {
-	if inst.Members == nil {
-		return nil
-	}
-	return *inst.Members
+// MembersOf is the members an institution came with: those the caller may
+// list.
+func MembersOf(inst Institution) []User {
+	return inst.Members
 }
 
 // WorkshopInvitesOf is the invites a workshop came with; none when the
@@ -325,4 +328,13 @@ func WorkshopParticipantsOf(w Workshop) []WorkshopParticipant {
 		return nil
 	}
 	return *w.Participants
+}
+
+// RoleOf is a user's role as the caller sees it; empty where they do not
+// see the user's account.
+func RoleOf(user User) string {
+	if user.Role == nil {
+		return ""
+	}
+	return user.Role.Role
 }

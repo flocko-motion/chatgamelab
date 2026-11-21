@@ -40,12 +40,11 @@ func (s *GuestRestrictionsTestSuite) setupWorkshopWithGuest(prefix string) (*tes
 	return head, guest, inst.Id.String(), workshop.Id.String()
 }
 
-// Only admins, heads and staff list institutions.
+// Only admins, heads and staff list organisations: a guest's list is empty.
 func (s *GuestRestrictionsTestSuite) TestGuestCannotListInstitutions() {
 	_, guest, _, _ := s.setupWorkshopWithGuest("li")
 
-	_, err := guest.ListInstitutions()
-	s.Forbidden(err)
+	s.Empty(Must(guest.ListInstitutions()))
 }
 
 func (s *GuestRestrictionsTestSuite) TestGuestCannotCreateInstitution() {

@@ -15,19 +15,6 @@ RETURNING *;
 -- name: GetInstitutionByID :one
 SELECT * FROM institution WHERE id = $1 AND deleted_at IS NULL;
 
--- name: ListInstitutions :many
-SELECT * FROM institution WHERE deleted_at IS NULL ORDER BY name;
-
--- name: UpdateInstitution :one
-UPDATE institution SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  name = $6
-WHERE id = $1
-RETURNING *;
-
 -- name: SetInstitutionFreeUseApiKeyShare :exec
 UPDATE institution
 SET free_use_api_key_share_id = $2, modified_at = now()
@@ -36,11 +23,6 @@ WHERE id = $1;
 -- name: UpdateInstitutionFreeUseAiQualityTier :exec
 UPDATE institution
 SET free_use_ai_quality_tier = $2, modified_at = now()
-WHERE id = $1;
-
--- name: UpdateInstitutionPromptConstraints :exec
-UPDATE institution
-SET prompt_constraints = $2, modified_at = now()
 WHERE id = $1;
 
 -- name: SoftDeleteInstitution :exec
@@ -87,16 +69,6 @@ SET free_use_api_key_share_id = NULL, modified_at = now()
 WHERE free_use_api_key_share_id IN (
   SELECT id FROM api_key_share WHERE api_key_id = $1
 );
-
--- name: GetInstitutionMembers :many
-SELECT u.id, u.name, u.email, r.role
-FROM app_user u
-JOIN user_role r ON u.id = r.user_id
-WHERE r.institution_id = $1
-  AND u.deleted_at IS NULL
-  AND r.role IN ('individual', 'staff', 'head')
-ORDER BY r.role, u.name;
-
 
 -- workshop -------------------------------------------------------------
 
@@ -167,5 +139,4 @@ SELECT * FROM workshop WHERE public_slug = $1 AND deleted_at IS NULL;
 -- name: WorkshopPublicSlugExists :one
 -- Deleted workshops keep their slug, so an old link never points at a new workshop.
 SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1) AS exists;
-
 

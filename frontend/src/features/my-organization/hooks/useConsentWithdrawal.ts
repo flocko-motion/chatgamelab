@@ -9,7 +9,7 @@ import { useAuth } from "@/providers/AuthProvider";
  */
 export function useConsentWithdrawal() {
   const { backendUser, standing, refreshCaller } = useAuth();
-  const institutionId = standing.mayEditInstitution ? backendUser?.role?.institution?.id : undefined;
+  const institutionId = standing.mayConsentForInstitution ? backendUser?.role?.institution?.id : undefined;
   const consent = useOrganisationConsent(institutionId);
   const withdraw = useWithdrawConsent();
   const [confirming, { open, close }] = useDisclosure(false);

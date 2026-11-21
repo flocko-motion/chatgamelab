@@ -7,102 +7,9 @@ package db
 
 import (
 	"context"
-	"database/sql"
-	"time"
 
 	"github.com/google/uuid"
 )
-
-const getFirstInstitutionConsent = `-- name: GetFirstInstitutionConsent :many
-SELECT user_id, created_at, person_name, person_function, email
-FROM institution_consent
-WHERE institution_id = $1 AND kind = 'consent'
-ORDER BY created_at
-LIMIT 1
-`
-
-type GetFirstInstitutionConsentRow struct {
-	UserID         uuid.UUID      `json:"user_id"`
-	CreatedAt      time.Time      `json:"created_at"`
-	PersonName     sql.NullString `json:"person_name"`
-	PersonFunction sql.NullString `json:"person_function"`
-	Email          sql.NullString `json:"email"`
-}
-
-// The institution's first consent, if any: given by its creator, it is how
-// the institution registered itself.
-func (q *Queries) GetFirstInstitutionConsent(ctx context.Context, institutionID uuid.UUID) ([]GetFirstInstitutionConsentRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFirstInstitutionConsent, institutionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetFirstInstitutionConsentRow
-	for rows.Next() {
-		var i GetFirstInstitutionConsentRow
-		if err := rows.Scan(
-			&i.UserID,
-			&i.CreatedAt,
-			&i.PersonName,
-			&i.PersonFunction,
-			&i.Email,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getLatestInstitutionConsent = `-- name: GetLatestInstitutionConsent :many
-SELECT kind, declaration_version, declaration_hash, created_at
-FROM institution_consent
-WHERE institution_id = $1
-ORDER BY created_at DESC
-LIMIT 1
-`
-
-type GetLatestInstitutionConsentRow struct {
-	Kind               string    `json:"kind"`
-	DeclarationVersion string    `json:"declaration_version"`
-	DeclarationHash    string    `json:"declaration_hash"`
-	CreatedAt          time.Time `json:"created_at"`
-}
-
-// The institution's newest entry in the consent log, if any.
-func (q *Queries) GetLatestInstitutionConsent(ctx context.Context, institutionID uuid.UUID) ([]GetLatestInstitutionConsentRow, error) {
-	rows, err := q.db.QueryContext(ctx, getLatestInstitutionConsent, institutionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetLatestInstitutionConsentRow
-	for rows.Next() {
-		var i GetLatestInstitutionConsentRow
-		if err := rows.Scan(
-			&i.Kind,
-			&i.DeclarationVersion,
-			&i.DeclarationHash,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
 
 const isInstitutionSuspended = `-- name: IsInstitutionSuspended :one
 
@@ -116,10 +23,8 @@ type IsInstitutionSuspendedParams struct {
 	ID      uuid.UUID `json:"id"`
 }
 
-// institutions registering themselves, beside the core: the suspension as
-// share links and public pages see it, an institution's details, and its
-// consent log as v1's institution endpoints show it. Registering, consenting
-// and suspending are the core's (v2_organisation.sql).
+// an institution's suspension as v1's share links and public pages see it.
+// Registering, consenting and suspending are the core's (v2_organisation.sql).
 // Whether the institution is suspended: by an admin, or for want of a consent
 // to the declaration in @version and @hash.
 func (q *Queries) IsInstitutionSuspended(ctx context.Context, arg IsInstitutionSuspendedParams) (bool, error) {
@@ -147,30 +52,4 @@ func (q *Queries) IsWorkshopInstitutionSuspended(ctx context.Context, arg IsWork
 	var suspended bool
 	err := row.Scan(&suspended)
 	return suspended, err
-}
-
-const updateInstitutionDetails = `-- name: UpdateInstitutionDetails :exec
-UPDATE institution
-SET operator = $2, street = $3, postal_code = $4, city = $5, modified_at = now()
-WHERE id = $1
-`
-
-type UpdateInstitutionDetailsParams struct {
-	ID         uuid.UUID      `json:"id"`
-	Operator   sql.NullString `json:"operator"`
-	Street     sql.NullString `json:"street"`
-	PostalCode sql.NullString `json:"postal_code"`
-	City       sql.NullString `json:"city"`
-}
-
-// Operator and address, as an admin enters them creating an institution.
-func (q *Queries) UpdateInstitutionDetails(ctx context.Context, arg UpdateInstitutionDetailsParams) error {
-	_, err := q.db.ExecContext(ctx, updateInstitutionDetails,
-		arg.ID,
-		arg.Operator,
-		arg.Street,
-		arg.PostalCode,
-		arg.City,
-	)
-	return err
 }

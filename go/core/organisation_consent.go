@@ -2,8 +2,6 @@ package core
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"net/mail"
 
 	"cgl/core/internal/store"
@@ -21,9 +19,9 @@ import (
 // is suspended, and one of its heads consents to lift that: one head's
 // consent covers the organisation. With it, the head confirms or changes the
 // organisation's operator, address and youth-protection restriction.
-// Consenting and withdrawing are a head's edits of their organisation: they
-// take {Edit, Organisation, OfOwnOrganisation}, which a head holds while the
-// organisation is suspended too.
+// Consenting and withdrawing are a head's edits of their organisation's
+// details: they take {Edit, OrganisationDetails, OfOwnOrganisation}, which a
+// head holds while the organisation is suspended too.
 
 // OrganisationConsent is an organisation as its heads consent for it: its
 // consent status, and the details and restriction a consent confirms.
@@ -39,31 +37,37 @@ type OrganisationConsent struct {
 }
 
 // ReadOrganisationConsent is organisation id as its heads consent for it. It
-// takes {Edit, Organisation, OfOwnOrganisation}.
+// takes {Edit, OrganisationDetails}: a head of that organisation. One the
+// caller may not read does not exist for them (ErrNotFound).
 func ReadOrganisationConsent(ctx context.Context, id uuid.UUID) (OrganisationConsent, error) {
-	if !mayEditOrganisation(ctx, id) {
-		return OrganisationConsent{}, forbidden("only a head of this organisation consents in its name")
-	}
-	org, err := store.Queries().V2Organisation(ctx, id)
-	if errors.Is(err, sql.ErrNoRows) {
-		return OrganisationConsent{}, ErrNotFound
-	}
+	org, err := ReadOrganisation(ctx, id)
 	if err != nil {
 		return OrganisationConsent{}, err
 	}
-	status, err := consentStatus(ctx, id)
+	if !org.MayEditDetails() {
+		return OrganisationConsent{}, forbidden("only a head of this organisation consents in its name")
+	}
+	details, err := org.AsOrganisationDetails()
+	if err != nil {
+		return OrganisationConsent{}, err
+	}
+	settings, err := org.AsOrganisationSettings()
+	if err != nil {
+		return OrganisationConsent{}, err
+	}
+	record, err := org.AsOrganisationRecord()
 	if err != nil {
 		return OrganisationConsent{}, err
 	}
 	return OrganisationConsent{
-		ID:               org.ID,
-		Name:             org.Name,
-		Operator:         nullString(org.Operator),
-		Street:           nullString(org.Street),
-		PostalCode:       nullString(org.PostalCode),
-		City:             nullString(org.City),
-		PromptConstraint: nullString(org.PromptConstraints),
-		Status:           status,
+		ID:               org.ID(),
+		Name:             org.Name(),
+		Operator:         details.Operator(),
+		Street:           details.Street(),
+		PostalCode:       details.PostalCode(),
+		City:             details.City(),
+		PromptConstraint: settings.PromptConstraint(),
+		Status:           record.Consent(),
 	}, nil
 }
 
@@ -87,8 +91,7 @@ type DeclarationConsent struct {
 // ConsentToDeclaration records the caller's consent to the current
 // declaration for organisation id, stores its details, confirms the consent
 // by mail and returns the organisation as its heads consent for it. It
-// takes {Edit, Organisation, OfOwnOrganisation}: a head of that
-// organisation. It lifts a suspension for want of a consent, never an
+// takes {Edit, OrganisationDetails}: a head of that organisation. It lifts a suspension for want of a consent, never an
 // admin's.
 func ConsentToDeclaration(ctx context.Context, id uuid.UUID, d DeclarationConsent) (OrganisationConsent, error) {
 	org, err := ReadOrganisationConsent(ctx, id)
@@ -142,7 +145,7 @@ func ConsentToDeclaration(ctx context.Context, id uuid.UUID, d DeclarationConsen
 // WithdrawConsent withdraws organisation id's standing consent in the
 // caller's name, which suspends the organisation until a head consents
 // again, and returns the organisation as its heads consent for it. It takes
-// {Edit, Organisation, OfOwnOrganisation}; an organisation without a
+// {Edit, OrganisationDetails}; an organisation without a
 // standing consent has none to withdraw (409). The log keeps both entries.
 func WithdrawConsent(ctx context.Context, id uuid.UUID) (OrganisationConsent, error) {
 	org, err := ReadOrganisationConsent(ctx, id)

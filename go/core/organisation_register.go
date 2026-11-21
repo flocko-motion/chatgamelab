@@ -72,11 +72,11 @@ func registerOrganisation(ctx context.Context, q *db.Queries, account uuid.UUID,
 		ID:                id,
 		Creator:           account,
 		Name:              s.Name,
-		Operator:          s.Operator,
-		Street:            s.Street,
-		PostalCode:        s.PostalCode,
-		City:              s.City,
-		PromptConstraints: s.PromptConstraint,
+		Operator:          sqlString(&s.Operator),
+		Street:            sqlString(&s.Street),
+		PostalCode:        sqlString(&s.PostalCode),
+		City:              sqlString(&s.City),
+		PromptConstraints: sqlString(&s.PromptConstraint),
 	})
 	if pqErr := (*pq.Error)(nil); errors.As(err, &pqErr) && pqErr.Code == "23505" {
 		return legal.Consent{}, errOrganisationNameTaken // a concurrent registration was first
@@ -106,6 +106,13 @@ func registerOrganisation(ctx context.Context, q *db.Queries, account uuid.UUID,
 	}
 	log.Info("organisation registered", "institution_id", id, "name", s.Name, "user_id", account)
 	return consent, nil
+}
+
+// mayRegisterAsHead says whether the caller may register an organisation
+// with themselves as its head.
+func mayRegisterAsHead(ctx context.Context) bool {
+	asHead, _ := mayCreateOrganisation(ctx)
+	return asHead
 }
 
 var errOrganisationNameTaken = conflict(obj.ErrCodeInstitutionNameTaken, "an organisation with this name exists already")

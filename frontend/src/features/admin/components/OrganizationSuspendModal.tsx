@@ -4,12 +4,12 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import { BodyText } from "@components/typography";
-import type { Institution } from "@/api/generated/api.gen";
+import type { OrganisationView } from "@/api/generated/api.gen";
 import { useSetOrganisationSuspension } from "@/api/hooks";
 
 interface OrganizationSuspendModalProps {
   /** The organisation to suspend or lift the suspension of; null: closed. */
-  org: Institution | null;
+  org: OrganisationView | null;
   onClose: () => void;
 }
 

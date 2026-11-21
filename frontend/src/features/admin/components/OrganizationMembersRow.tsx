@@ -23,17 +23,17 @@ import {
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
-import type { Institution, User } from "@/api/generated/api.gen";
+import type { OrganisationView, UserView } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 import { headNames } from "../lib/organizationHeads";
 import { OrganizationStatusBadges } from "./OrganizationStatusBadges";
 
 interface OrganizationMembersRowProps {
-  org: Institution;
-  onEdit: (org: Institution) => void;
-  onDelete: (org: Institution) => void;
-  onInvite: (org: Institution) => void;
-  onToggleSuspension: (org: Institution) => void;
+  org: OrganisationView;
+  onEdit: (org: OrganisationView) => void;
+  onDelete: (org: OrganisationView) => void;
+  onInvite: (org: OrganisationView) => void;
+  onToggleSuspension: (org: OrganisationView) => void;
 }
 
 export function OrganizationMembersRow({
@@ -182,7 +182,7 @@ export function OrganizationMembersRow({
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {members.map((member: User) => (
+                        {members.map((member: UserView) => (
                           <Table.Tr key={member.id}>
                             <Table.Td>
                               <Text size="sm">{member.name || "-"}</Text>

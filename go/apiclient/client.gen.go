@@ -121,15 +121,6 @@ type ConnectResponse struct {
 	Sdp string `json:"sdp"`
 }
 
-// ConsentStatus defines model for ConsentStatus.
-type ConsentStatus struct {
-	ConsentedAt      *time.Time `json:"consentedAt,omitempty"`
-	ConsentedVersion *string    `json:"consentedVersion,omitempty"`
-	CurrentVersion   string     `json:"currentVersion"`
-	Pending          bool       `json:"pending"`
-	WithdrawnAt      *time.Time `json:"withdrawnAt,omitempty"`
-}
-
 // ConsentStatusView defines model for ConsentStatusView.
 type ConsentStatusView struct {
 	ConsentedAt      *time.Time `json:"consentedAt,omitempty"`
@@ -498,11 +489,11 @@ type GenreInfo struct {
 
 // GetCurrentUserResp defines model for GetCurrentUserResp.
 type GetCurrentUserResp struct {
-	InstitutionSuspension  *string   `json:"institutionSuspension,omitempty"`
-	MayEditInstitution     bool      `json:"mayEditInstitution"`
-	MaySuspendInstitutions bool      `json:"maySuspendInstitutions"`
-	State                  string    `json:"state"`
-	User                   *UserView `json:"user,omitempty"`
+	InstitutionSuspension    *string   `json:"institutionSuspension,omitempty"`
+	MayConsentForInstitution bool      `json:"mayConsentForInstitution"`
+	MaySuspendInstitutions   bool      `json:"maySuspendInstitutions"`
+	State                    string    `json:"state"`
+	User                     *UserView `json:"user,omitempty"`
 }
 
 // GetVersionResp defines model for GetVersionResp.
@@ -550,38 +541,11 @@ type InputRequest struct {
 
 // Institution defines model for Institution.
 type Institution struct {
-	City                 *string                  `json:"city,omitempty"`
-	Declaration          *ConsentStatus           `json:"declaration,omitempty"`
-	FreeUseAiQualityTier *string                  `json:"freeUseAiQualityTier,omitempty"`
-	FreeUseApiKeyShareId *openapi_types.UUID      `json:"freeUseApiKeyShareId,omitempty"`
-	Id                   openapi_types.UUID       `json:"id"`
-	Members              *[]InstitutionMember     `json:"members,omitempty"`
-	Meta                 Meta                     `json:"meta"`
-	Name                 string                   `json:"name"`
-	Operator             *string                  `json:"operator,omitempty"`
-	PostalCode           *string                  `json:"postalCode,omitempty"`
-	PromptConstraints    *string                  `json:"promptConstraints,omitempty"`
-	Registration         *InstitutionRegistration `json:"registration,omitempty"`
-	Street               *string                  `json:"street,omitempty"`
-	Suspended            bool                     `json:"suspended"`
-	SuspendedAt          *time.Time               `json:"suspendedAt,omitempty"`
-	SuspendedReason      *string                  `json:"suspendedReason,omitempty"`
-}
-
-// InstitutionMember defines model for InstitutionMember.
-type InstitutionMember struct {
-	Email  *string            `json:"email,omitempty"`
-	Name   string             `json:"name"`
-	Role   string             `json:"role"`
-	UserId openapi_types.UUID `json:"userId"`
-}
-
-// InstitutionRegistration defines model for InstitutionRegistration.
-type InstitutionRegistration struct {
-	At             time.Time `json:"at"`
-	Email          string    `json:"email"`
-	PersonFunction string    `json:"personFunction"`
-	PersonName     string    `json:"personName"`
+	FreeUseApiKeyShareId *openapi_types.UUID `json:"freeUseApiKeyShareId,omitempty"`
+	Id                   openapi_types.UUID  `json:"id"`
+	Meta                 Meta                `json:"meta"`
+	Name                 string              `json:"name"`
+	PromptConstraints    *string             `json:"promptConstraints,omitempty"`
 }
 
 // InviteResp defines model for InviteResp.
@@ -682,6 +646,20 @@ type OrganisationConsentView struct {
 	Street            *string            `json:"street,omitempty"`
 }
 
+// OrganisationMeta defines model for OrganisationMeta.
+type OrganisationMeta struct {
+	CreatedAt  time.Time `json:"createdAt"`
+	ModifiedAt time.Time `json:"modifiedAt"`
+}
+
+// OrganisationRegistrationView defines model for OrganisationRegistrationView.
+type OrganisationRegistrationView struct {
+	At             time.Time `json:"at"`
+	Email          string    `json:"email"`
+	PersonFunction string    `json:"personFunction"`
+	PersonName     string    `json:"personName"`
+}
+
 // OrganisationSignUpReq defines model for OrganisationSignUpReq.
 type OrganisationSignUpReq struct {
 	AcceptDeclaration  bool   `json:"acceptDeclaration"`
@@ -701,6 +679,34 @@ type OrganisationSuspensionView struct {
 	Id              openapi_types.UUID `json:"id"`
 	SuspendedAt     *time.Time         `json:"suspendedAt,omitempty"`
 	SuspendedReason *string            `json:"suspendedReason,omitempty"`
+}
+
+// OrganisationView defines model for OrganisationView.
+type OrganisationView struct {
+	City                 *string                       `json:"city,omitempty"`
+	Declaration          *ConsentStatusView            `json:"declaration,omitempty"`
+	FreeUseAiQualityTier *string                       `json:"freeUseAiQualityTier,omitempty"`
+	FreeUseApiKeyShareId *openapi_types.UUID           `json:"freeUseApiKeyShareId,omitempty"`
+	HasDetails           bool                          `json:"hasDetails"`
+	HasRecord            bool                          `json:"hasRecord"`
+	HasSettings          bool                          `json:"hasSettings"`
+	Id                   openapi_types.UUID            `json:"id"`
+	MayDelete            bool                          `json:"mayDelete"`
+	MayEditCard          bool                          `json:"mayEditCard"`
+	MayEditDetails       bool                          `json:"mayEditDetails"`
+	MayEditSettings      bool                          `json:"mayEditSettings"`
+	MaySuspend           bool                          `json:"maySuspend"`
+	Members              []UserView                    `json:"members"`
+	Meta                 OrganisationMeta              `json:"meta"`
+	Name                 string                        `json:"name"`
+	Operator             *string                       `json:"operator,omitempty"`
+	PostalCode           *string                       `json:"postalCode,omitempty"`
+	PromptConstraints    *string                       `json:"promptConstraints,omitempty"`
+	Registration         *OrganisationRegistrationView `json:"registration,omitempty"`
+	Street               *string                       `json:"street,omitempty"`
+	Suspended            bool                          `json:"suspended"`
+	SuspendedAt          *time.Time                    `json:"suspendedAt,omitempty"`
+	SuspendedReason      *string                       `json:"suspendedReason,omitempty"`
 }
 
 // PlatformInfo defines model for PlatformInfo.
@@ -1005,14 +1011,10 @@ type UpdateGameYAMLReq struct {
 	Theme                  *string            `json:"theme,omitempty"`
 }
 
-// UpdateInstitutionPromptConstraintsReq defines model for UpdateInstitutionPromptConstraintsReq.
-type UpdateInstitutionPromptConstraintsReq struct {
-	PromptConstraints *string `json:"promptConstraints,omitempty"`
-}
-
 // UpdateInstitutionReq defines model for UpdateInstitutionReq.
 type UpdateInstitutionReq struct {
-	Name string `json:"name"`
+	Name              *string `json:"name,omitempty"`
+	PromptConstraints *string `json:"promptConstraints,omitempty"`
 }
 
 // UpdateMyLanguageReq defines model for UpdateMyLanguageReq.
@@ -1355,9 +1357,6 @@ type PostApiInstitutionsIdDeclarationConsentJSONRequestBody = ConsentToDeclarati
 
 // PatchApiInstitutionsIdFreeUseKeyJSONRequestBody defines body for PatchApiInstitutionsIdFreeUseKey for application/json ContentType.
 type PatchApiInstitutionsIdFreeUseKeyJSONRequestBody = SetInstitutionFreeUseKeyReq
-
-// PatchApiInstitutionsIdPromptConstraintsJSONRequestBody defines body for PatchApiInstitutionsIdPromptConstraints for application/json ContentType.
-type PatchApiInstitutionsIdPromptConstraintsJSONRequestBody = UpdateInstitutionPromptConstraintsReq
 
 // PostApiInstitutionsIdSuspensionJSONRequestBody defines body for PostApiInstitutionsIdSuspension for application/json ContentType.
 type PostApiInstitutionsIdSuspensionJSONRequestBody = SuspendOrganisationReq
@@ -2231,60 +2230,75 @@ type ClientInterface interface {
 	// Corresponds with GET /api/health (the `GetApiHealth` operationId).
 	GetApiHealth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInstitutions Lists the institutions the caller can see.
+	// GetApiInstitutions Lists the organisations the caller may list: an
 	//
-	// Admins see each one's suspension reason, consent status and, for one that
-	// registered itself, how. The filter "recentlyRegistered" narrows the list
-	// to institutions that registered themselves in the last 14 days, which
-	// admins check; an unknown filter is refused (400).
+	// admin all of them, a head or staff their own.
+	//
+	// filter narrows the list: "recentlyRegistered", those that registered
+	// themselves in the last 14 days, among those whose record the caller sees.
+	// An unknown filter is refused.
 	//
 	// Corresponds with GET /api/institutions (the `GetApiInstitutions` operationId).
 	GetApiInstitutions(ctx context.Context, params *GetApiInstitutionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInstitutionsWithBody Creates an institution.
+	// PostApiInstitutionsWithBody Creates an organisation for others: the admin's.
 	//
-	// The name is required; operator and address are optional.
+	// The name is required; operator and address are optional. An organisation
+	// registers itself through POST /api/auth/register instead.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/institutions (the `PostApiInstitutions` operationId).
 	PostApiInstitutionsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiInstitutions Creates an institution.
+	// PostApiInstitutions Creates an organisation for others: the admin's.
 	//
-	// The name is required; operator and address are optional.
+	// The name is required; operator and address are optional. An organisation
+	// registers itself through POST /api/auth/register instead.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/institutions (the `PostApiInstitutions` operationId).
 	PostApiInstitutions(ctx context.Context, body PostApiInstitutionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiInstitutionsId Deletes an institution for good, with its
+	// DeleteApiInstitutionsId Deletes an organisation for good, with its
 	//
-	// workshops and the guests in them; heads and staff keep their accounts as
-	// individuals. Admins only. To stop an institution without losing anything,
-	// suspend it (POST /api/institutions/{id}/suspension).
+	// workshops and the guests in them; its members stay, as individuals.
+	// Suspending keeps its data instead (POST /api/institutions/{id}/suspension).
 	//
 	// Corresponds with DELETE /api/institutions/{id} (the `DeleteApiInstitutionsId` operationId).
 	DeleteApiInstitutionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInstitutionsId Returns an institution.
+	// GetApiInstitutionsId Returns an organisation the caller may read: their
+	//
+	// own, as a member or a guest in one of its workshops; any, for an admin.
+	// Others get 404.
 	//
 	// Corresponds with GET /api/institutions/{id} (the `GetApiInstitutionsId` operationId).
 	GetApiInstitutionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiInstitutionsIdWithBody Renames an institution.
+	// PatchApiInstitutionsIdWithBody Changes an organisation: its name, its
 	//
-	// The name is required.
+	// youth-protection restriction, or both, and answers with it as stored.
+	//
+	// Only what is given changes; an empty promptConstraints removes the
+	// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+	// restriction mayEditSettings; a request with a part the caller may not
+	// change is refused as a whole.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with PATCH /api/institutions/{id} (the `PatchApiInstitutionsId` operationId).
 	PatchApiInstitutionsIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchApiInstitutionsId Renames an institution.
+	// PatchApiInstitutionsId Changes an organisation: its name, its
 	//
-	// The name is required.
+	// youth-protection restriction, or both, and answers with it as stored.
+	//
+	// Only what is given changes; an empty promptConstraints removes the
+	// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+	// restriction mayEditSettings; a request with a part the caller may not
+	// change is refused as a whole.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -2380,41 +2394,22 @@ type ClientInterface interface {
 	// Corresponds with PATCH /api/institutions/{id}/free-use-key (the `PatchApiInstitutionsIdFreeUseKey` operationId).
 	PatchApiInstitutionsIdFreeUseKey(ctx context.Context, id string, body PatchApiInstitutionsIdFreeUseKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInstitutionsIdMembers Lists the members of an institution.
+	// GetApiInstitutionsIdMembers Lists an organisation's members (individual,
+	//
+	// staff, head): for its members and the admin. Anyone else gets an empty
+	// list; an organisation the caller may not read, 404.
 	//
 	// Corresponds with GET /api/institutions/{id}/members (the `GetApiInstitutionsIdMembers` operationId).
 	GetApiInstitutionsIdMembers(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiInstitutionsIdMembersUserID Removes a member from an institution; heads
+	// DeleteApiInstitutionsIdMembersUserID Removes a user from an organisation; they
 	//
-	// and admins only.
+	// keep their account, as an individual. A head removes members and guests,
+	// staff remove guests, a member leaves, an admin removes anyone; the last
+	// head stays (409 last_head).
 	//
 	// Corresponds with DELETE /api/institutions/{id}/members/{userID} (the `DeleteApiInstitutionsIdMembersUserID` operationId).
 	DeleteApiInstitutionsIdMembersUserID(ctx context.Context, id string, userID string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PatchApiInstitutionsIdPromptConstraintsWithBody Sets or clears an institution's
-	//
-	// prompt constraints and answers with the institution; heads and admins only.
-	//
-	// An empty or null promptConstraints clears them; they have at most 200
-	// characters.
-	//
-	// Takes any type of body and a specified content type.
-	//
-	// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-	PatchApiInstitutionsIdPromptConstraintsWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PatchApiInstitutionsIdPromptConstraints Sets or clears an institution's
-	//
-	// prompt constraints and answers with the institution; heads and admins only.
-	//
-	// An empty or null promptConstraints clears them; they have at most 200
-	// characters.
-	//
-	// Takes a body of the `application/json` content type.
-	//
-	// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-	PatchApiInstitutionsIdPromptConstraints(ctx context.Context, id string, body PatchApiInstitutionsIdPromptConstraintsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiInstitutionsIdSuspension Lifts an admin's suspension of an organisation and
 	//
@@ -4639,12 +4634,13 @@ func (c *Client) GetApiHealth(ctx context.Context, reqEditors ...RequestEditorFn
 	return c.Client.Do(req)
 }
 
-// GetApiInstitutions Lists the institutions the caller can see.
+// GetApiInstitutions Lists the organisations the caller may list: an
 //
-// Admins see each one's suspension reason, consent status and, for one that
-// registered itself, how. The filter "recentlyRegistered" narrows the list
-// to institutions that registered themselves in the last 14 days, which
-// admins check; an unknown filter is refused (400).
+// admin all of them, a head or staff their own.
+//
+// filter narrows the list: "recentlyRegistered", those that registered
+// themselves in the last 14 days, among those whose record the caller sees.
+// An unknown filter is refused.
 //
 // Corresponds with GET /api/institutions (the `GetApiInstitutions` operationId).
 func (c *Client) GetApiInstitutions(ctx context.Context, params *GetApiInstitutionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4659,9 +4655,10 @@ func (c *Client) GetApiInstitutions(ctx context.Context, params *GetApiInstituti
 	return c.Client.Do(req)
 }
 
-// PostApiInstitutionsWithBody Creates an institution.
+// PostApiInstitutionsWithBody Creates an organisation for others: the admin's.
 //
-// The name is required; operator and address are optional.
+// The name is required; operator and address are optional. An organisation
+// registers itself through POST /api/auth/register instead.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4678,9 +4675,10 @@ func (c *Client) PostApiInstitutionsWithBody(ctx context.Context, contentType st
 	return c.Client.Do(req)
 }
 
-// PostApiInstitutions Creates an institution.
+// PostApiInstitutions Creates an organisation for others: the admin's.
 //
-// The name is required; operator and address are optional.
+// The name is required; operator and address are optional. An organisation
+// registers itself through POST /api/auth/register instead.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4697,11 +4695,10 @@ func (c *Client) PostApiInstitutions(ctx context.Context, body PostApiInstitutio
 	return c.Client.Do(req)
 }
 
-// DeleteApiInstitutionsId Deletes an institution for good, with its
+// DeleteApiInstitutionsId Deletes an organisation for good, with its
 //
-// workshops and the guests in them; heads and staff keep their accounts as
-// individuals. Admins only. To stop an institution without losing anything,
-// suspend it (POST /api/institutions/{id}/suspension).
+// workshops and the guests in them; its members stay, as individuals.
+// Suspending keeps its data instead (POST /api/institutions/{id}/suspension).
 //
 // Corresponds with DELETE /api/institutions/{id} (the `DeleteApiInstitutionsId` operationId).
 func (c *Client) DeleteApiInstitutionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4716,7 +4713,10 @@ func (c *Client) DeleteApiInstitutionsId(ctx context.Context, id string, reqEdit
 	return c.Client.Do(req)
 }
 
-// GetApiInstitutionsId Returns an institution.
+// GetApiInstitutionsId Returns an organisation the caller may read: their
+//
+// own, as a member or a guest in one of its workshops; any, for an admin.
+// Others get 404.
 //
 // Corresponds with GET /api/institutions/{id} (the `GetApiInstitutionsId` operationId).
 func (c *Client) GetApiInstitutionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4731,9 +4731,14 @@ func (c *Client) GetApiInstitutionsId(ctx context.Context, id string, reqEditors
 	return c.Client.Do(req)
 }
 
-// PatchApiInstitutionsIdWithBody Renames an institution.
+// PatchApiInstitutionsIdWithBody Changes an organisation: its name, its
 //
-// The name is required.
+// youth-protection restriction, or both, and answers with it as stored.
+//
+// Only what is given changes; an empty promptConstraints removes the
+// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+// restriction mayEditSettings; a request with a part the caller may not
+// change is refused as a whole.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4750,9 +4755,14 @@ func (c *Client) PatchApiInstitutionsIdWithBody(ctx context.Context, id string, 
 	return c.Client.Do(req)
 }
 
-// PatchApiInstitutionsId Renames an institution.
+// PatchApiInstitutionsId Changes an organisation: its name, its
 //
-// The name is required.
+// youth-protection restriction, or both, and answers with it as stored.
+//
+// Only what is given changes; an empty promptConstraints removes the
+// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+// restriction mayEditSettings; a request with a part the caller may not
+// change is refused as a whole.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4928,7 +4938,10 @@ func (c *Client) PatchApiInstitutionsIdFreeUseKey(ctx context.Context, id string
 	return c.Client.Do(req)
 }
 
-// GetApiInstitutionsIdMembers Lists the members of an institution.
+// GetApiInstitutionsIdMembers Lists an organisation's members (individual,
+//
+// staff, head): for its members and the admin. Anyone else gets an empty
+// list; an organisation the caller may not read, 404.
 //
 // Corresponds with GET /api/institutions/{id}/members (the `GetApiInstitutionsIdMembers` operationId).
 func (c *Client) GetApiInstitutionsIdMembers(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4943,57 +4956,15 @@ func (c *Client) GetApiInstitutionsIdMembers(ctx context.Context, id string, req
 	return c.Client.Do(req)
 }
 
-// DeleteApiInstitutionsIdMembersUserID Removes a member from an institution; heads
+// DeleteApiInstitutionsIdMembersUserID Removes a user from an organisation; they
 //
-// and admins only.
+// keep their account, as an individual. A head removes members and guests,
+// staff remove guests, a member leaves, an admin removes anyone; the last
+// head stays (409 last_head).
 //
 // Corresponds with DELETE /api/institutions/{id}/members/{userID} (the `DeleteApiInstitutionsIdMembersUserID` operationId).
 func (c *Client) DeleteApiInstitutionsIdMembersUserID(ctx context.Context, id string, userID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteApiInstitutionsIdMembersUserIDRequest(c.Server, id, userID)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// PatchApiInstitutionsIdPromptConstraintsWithBody Sets or clears an institution's
-//
-// prompt constraints and answers with the institution; heads and admins only.
-//
-// An empty or null promptConstraints clears them; they have at most 200
-// characters.
-//
-// Takes any type of body and a specified content type.
-//
-// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-func (c *Client) PatchApiInstitutionsIdPromptConstraintsWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchApiInstitutionsIdPromptConstraintsRequestWithBody(c.Server, id, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// PatchApiInstitutionsIdPromptConstraints Sets or clears an institution's
-//
-// prompt constraints and answers with the institution; heads and admins only.
-//
-// An empty or null promptConstraints clears them; they have at most 200
-// characters.
-//
-// Takes a body of the `application/json` content type.
-//
-// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-func (c *Client) PatchApiInstitutionsIdPromptConstraints(ctx context.Context, id string, body PatchApiInstitutionsIdPromptConstraintsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchApiInstitutionsIdPromptConstraintsRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9325,53 +9296,6 @@ func NewDeleteApiInstitutionsIdMembersUserIDRequest(server string, id string, us
 	return req, nil
 }
 
-// NewPatchApiInstitutionsIdPromptConstraintsRequest calls the generic PatchApiInstitutionsIdPromptConstraints builder with application/json body
-func NewPatchApiInstitutionsIdPromptConstraintsRequest(server string, id string, body PatchApiInstitutionsIdPromptConstraintsJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPatchApiInstitutionsIdPromptConstraintsRequestWithBody(server, id, "application/json", bodyReader)
-}
-
-// NewPatchApiInstitutionsIdPromptConstraintsRequestWithBody constructs an http.Request for the PatchApiInstitutionsIdPromptConstraints method, with any body, and a specified content type
-func NewPatchApiInstitutionsIdPromptConstraintsRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/institutions/%s/prompt-constraints", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewDeleteApiInstitutionsIdSuspensionRequest constructs an http.Request for the DeleteApiInstitutionsIdSuspension method
 func NewDeleteApiInstitutionsIdSuspensionRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -12284,66 +12208,81 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/health (the `GetApiHealth` operationId).
 	GetApiHealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiHealthResponse, error)
 
-	// GetApiInstitutionsWithResponse Lists the institutions the caller can see.
+	// GetApiInstitutionsWithResponse Lists the organisations the caller may list: an
 	//
-	// Admins see each one's suspension reason, consent status and, for one that
-	// registered itself, how. The filter "recentlyRegistered" narrows the list
-	// to institutions that registered themselves in the last 14 days, which
-	// admins check; an unknown filter is refused (400).
+	// admin all of them, a head or staff their own.
+	//
+	// filter narrows the list: "recentlyRegistered", those that registered
+	// themselves in the last 14 days, among those whose record the caller sees.
+	// An unknown filter is refused.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/institutions (the `GetApiInstitutions` operationId).
 	GetApiInstitutionsWithResponse(ctx context.Context, params *GetApiInstitutionsParams, reqEditors ...RequestEditorFn) (*GetApiInstitutionsResponse, error)
 
-	// PostApiInstitutionsWithBodyWithResponse Creates an institution.
+	// PostApiInstitutionsWithBodyWithResponse Creates an organisation for others: the admin's.
 	//
-	// The name is required; operator and address are optional.
+	// The name is required; operator and address are optional. An organisation
+	// registers itself through POST /api/auth/register instead.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/institutions (the `PostApiInstitutions` operationId).
 	PostApiInstitutionsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiInstitutionsResponse, error)
 
-	// PostApiInstitutionsWithResponse Creates an institution.
+	// PostApiInstitutionsWithResponse Creates an organisation for others: the admin's.
 	//
-	// The name is required; operator and address are optional.
+	// The name is required; operator and address are optional. An organisation
+	// registers itself through POST /api/auth/register instead.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/institutions (the `PostApiInstitutions` operationId).
 	PostApiInstitutionsWithResponse(ctx context.Context, body PostApiInstitutionsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInstitutionsResponse, error)
 
-	// DeleteApiInstitutionsIdWithResponse Deletes an institution for good, with its
+	// DeleteApiInstitutionsIdWithResponse Deletes an organisation for good, with its
 	//
-	// workshops and the guests in them; heads and staff keep their accounts as
-	// individuals. Admins only. To stop an institution without losing anything,
-	// suspend it (POST /api/institutions/{id}/suspension).
+	// workshops and the guests in them; its members stay, as individuals.
+	// Suspending keeps its data instead (POST /api/institutions/{id}/suspension).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/institutions/{id} (the `DeleteApiInstitutionsId` operationId).
 	DeleteApiInstitutionsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiInstitutionsIdResponse, error)
 
-	// GetApiInstitutionsIdWithResponse Returns an institution.
+	// GetApiInstitutionsIdWithResponse Returns an organisation the caller may read: their
+	//
+	// own, as a member or a guest in one of its workshops; any, for an admin.
+	// Others get 404.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/institutions/{id} (the `GetApiInstitutionsId` operationId).
 	GetApiInstitutionsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdResponse, error)
 
-	// PatchApiInstitutionsIdWithBodyWithResponse Renames an institution.
+	// PatchApiInstitutionsIdWithBodyWithResponse Changes an organisation: its name, its
 	//
-	// The name is required.
+	// youth-protection restriction, or both, and answers with it as stored.
+	//
+	// Only what is given changes; an empty promptConstraints removes the
+	// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+	// restriction mayEditSettings; a request with a part the caller may not
+	// change is refused as a whole.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with PATCH /api/institutions/{id} (the `PatchApiInstitutionsId` operationId).
 	PatchApiInstitutionsIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdResponse, error)
 
-	// PatchApiInstitutionsIdWithResponse Renames an institution.
+	// PatchApiInstitutionsIdWithResponse Changes an organisation: its name, its
 	//
-	// The name is required.
+	// youth-protection restriction, or both, and answers with it as stored.
+	//
+	// Only what is given changes; an empty promptConstraints removes the
+	// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+	// restriction mayEditSettings; a request with a part the caller may not
+	// change is refused as a whole.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -12445,45 +12384,26 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with PATCH /api/institutions/{id}/free-use-key (the `PatchApiInstitutionsIdFreeUseKey` operationId).
 	PatchApiInstitutionsIdFreeUseKeyWithResponse(ctx context.Context, id string, body PatchApiInstitutionsIdFreeUseKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdFreeUseKeyResponse, error)
 
-	// GetApiInstitutionsIdMembersWithResponse Lists the members of an institution.
+	// GetApiInstitutionsIdMembersWithResponse Lists an organisation's members (individual,
+	//
+	// staff, head): for its members and the admin. Anyone else gets an empty
+	// list; an organisation the caller may not read, 404.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/institutions/{id}/members (the `GetApiInstitutionsIdMembers` operationId).
 	GetApiInstitutionsIdMembersWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdMembersResponse, error)
 
-	// DeleteApiInstitutionsIdMembersUserIDWithResponse Removes a member from an institution; heads
+	// DeleteApiInstitutionsIdMembersUserIDWithResponse Removes a user from an organisation; they
 	//
-	// and admins only.
+	// keep their account, as an individual. A head removes members and guests,
+	// staff remove guests, a member leaves, an admin removes anyone; the last
+	// head stays (409 last_head).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/institutions/{id}/members/{userID} (the `DeleteApiInstitutionsIdMembersUserID` operationId).
 	DeleteApiInstitutionsIdMembersUserIDWithResponse(ctx context.Context, id string, userID string, reqEditors ...RequestEditorFn) (*DeleteApiInstitutionsIdMembersUserIDResponse, error)
-
-	// PatchApiInstitutionsIdPromptConstraintsWithBodyWithResponse Sets or clears an institution's
-	//
-	// prompt constraints and answers with the institution; heads and admins only.
-	//
-	// An empty or null promptConstraints clears them; they have at most 200
-	// characters.
-	//
-	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-	PatchApiInstitutionsIdPromptConstraintsWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdPromptConstraintsResponse, error)
-
-	// PatchApiInstitutionsIdPromptConstraintsWithResponse Sets or clears an institution's
-	//
-	// prompt constraints and answers with the institution; heads and admins only.
-	//
-	// An empty or null promptConstraints clears them; they have at most 200
-	// characters.
-	//
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-	PatchApiInstitutionsIdPromptConstraintsWithResponse(ctx context.Context, id string, body PatchApiInstitutionsIdPromptConstraintsJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdPromptConstraintsResponse, error)
 
 	// DeleteApiInstitutionsIdSuspensionWithResponse Lifts an admin's suspension of an organisation and
 	//
@@ -16162,13 +16082,13 @@ type GetApiInstitutionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]Institution
+	JSON200 *[]OrganisationView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInstitutionsResponse) GetJSON200() *[]Institution {
+func (r GetApiInstitutionsResponse) GetJSON200() *[]OrganisationView {
 	return r.JSON200
 }
 
@@ -16210,13 +16130,13 @@ type PostApiInstitutionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Institution
+	JSON200 *OrganisationView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiInstitutionsResponse) GetJSON200() *Institution {
+func (r PostApiInstitutionsResponse) GetJSON200() *OrganisationView {
 	return r.JSON200
 }
 
@@ -16306,13 +16226,13 @@ type GetApiInstitutionsIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Institution
+	JSON200 *OrganisationView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInstitutionsIdResponse) GetJSON200() *Institution {
+func (r GetApiInstitutionsIdResponse) GetJSON200() *OrganisationView {
 	return r.JSON200
 }
 
@@ -16354,13 +16274,13 @@ type PatchApiInstitutionsIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Institution
+	JSON200 *OrganisationView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PatchApiInstitutionsIdResponse) GetJSON200() *Institution {
+func (r PatchApiInstitutionsIdResponse) GetJSON200() *OrganisationView {
 	return r.JSON200
 }
 
@@ -16594,13 +16514,13 @@ type PatchApiInstitutionsIdFreeUseKeyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Institution
+	JSON200 *OrganisationView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PatchApiInstitutionsIdFreeUseKeyResponse) GetJSON200() *Institution {
+func (r PatchApiInstitutionsIdFreeUseKeyResponse) GetJSON200() *OrganisationView {
 	return r.JSON200
 }
 
@@ -16642,13 +16562,13 @@ type GetApiInstitutionsIdMembersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]User
+	JSON200 *[]UserView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInstitutionsIdMembersResponse) GetJSON200() *[]User {
+func (r GetApiInstitutionsIdMembersResponse) GetJSON200() *[]UserView {
 	return r.JSON200
 }
 
@@ -16728,54 +16648,6 @@ func (r DeleteApiInstitutionsIdMembersUserIDResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r DeleteApiInstitutionsIdMembersUserIDResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type PatchApiInstitutionsIdPromptConstraintsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Institution
-	// JSONDefault the response for an HTTP default `application/json` response
-	JSONDefault *Error
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PatchApiInstitutionsIdPromptConstraintsResponse) GetJSON200() *Institution {
-	return r.JSON200
-}
-
-// GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r PatchApiInstitutionsIdPromptConstraintsResponse) GetJSONDefault() *Error {
-	return r.JSONDefault
-}
-
-// GetBody returns the raw response body bytes
-func (r PatchApiInstitutionsIdPromptConstraintsResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r PatchApiInstitutionsIdPromptConstraintsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PatchApiInstitutionsIdPromptConstraintsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r PatchApiInstitutionsIdPromptConstraintsResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -20804,12 +20676,13 @@ func (c *ClientWithResponses) GetApiHealthWithResponse(ctx context.Context, reqE
 	return ParseGetApiHealthResponse(rsp)
 }
 
-// GetApiInstitutionsWithResponse Lists the institutions the caller can see.
+// GetApiInstitutionsWithResponse Lists the organisations the caller may list: an
 //
-// Admins see each one's suspension reason, consent status and, for one that
-// registered itself, how. The filter "recentlyRegistered" narrows the list
-// to institutions that registered themselves in the last 14 days, which
-// admins check; an unknown filter is refused (400).
+// admin all of them, a head or staff their own.
+//
+// filter narrows the list: "recentlyRegistered", those that registered
+// themselves in the last 14 days, among those whose record the caller sees.
+// An unknown filter is refused.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20822,9 +20695,10 @@ func (c *ClientWithResponses) GetApiInstitutionsWithResponse(ctx context.Context
 	return ParseGetApiInstitutionsResponse(rsp)
 }
 
-// PostApiInstitutionsWithBodyWithResponse Creates an institution.
+// PostApiInstitutionsWithBodyWithResponse Creates an organisation for others: the admin's.
 //
-// The name is required; operator and address are optional.
+// The name is required; operator and address are optional. An organisation
+// registers itself through POST /api/auth/register instead.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20837,9 +20711,10 @@ func (c *ClientWithResponses) PostApiInstitutionsWithBodyWithResponse(ctx contex
 	return ParsePostApiInstitutionsResponse(rsp)
 }
 
-// PostApiInstitutionsWithResponse Creates an institution.
+// PostApiInstitutionsWithResponse Creates an organisation for others: the admin's.
 //
-// The name is required; operator and address are optional.
+// The name is required; operator and address are optional. An organisation
+// registers itself through POST /api/auth/register instead.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20852,11 +20727,10 @@ func (c *ClientWithResponses) PostApiInstitutionsWithResponse(ctx context.Contex
 	return ParsePostApiInstitutionsResponse(rsp)
 }
 
-// DeleteApiInstitutionsIdWithResponse Deletes an institution for good, with its
+// DeleteApiInstitutionsIdWithResponse Deletes an organisation for good, with its
 //
-// workshops and the guests in them; heads and staff keep their accounts as
-// individuals. Admins only. To stop an institution without losing anything,
-// suspend it (POST /api/institutions/{id}/suspension).
+// workshops and the guests in them; its members stay, as individuals.
+// Suspending keeps its data instead (POST /api/institutions/{id}/suspension).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20869,7 +20743,10 @@ func (c *ClientWithResponses) DeleteApiInstitutionsIdWithResponse(ctx context.Co
 	return ParseDeleteApiInstitutionsIdResponse(rsp)
 }
 
-// GetApiInstitutionsIdWithResponse Returns an institution.
+// GetApiInstitutionsIdWithResponse Returns an organisation the caller may read: their
+//
+// own, as a member or a guest in one of its workshops; any, for an admin.
+// Others get 404.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -20882,9 +20759,14 @@ func (c *ClientWithResponses) GetApiInstitutionsIdWithResponse(ctx context.Conte
 	return ParseGetApiInstitutionsIdResponse(rsp)
 }
 
-// PatchApiInstitutionsIdWithBodyWithResponse Renames an institution.
+// PatchApiInstitutionsIdWithBodyWithResponse Changes an organisation: its name, its
 //
-// The name is required.
+// youth-protection restriction, or both, and answers with it as stored.
+//
+// Only what is given changes; an empty promptConstraints removes the
+// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+// restriction mayEditSettings; a request with a part the caller may not
+// change is refused as a whole.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20897,9 +20779,14 @@ func (c *ClientWithResponses) PatchApiInstitutionsIdWithBodyWithResponse(ctx con
 	return ParsePatchApiInstitutionsIdResponse(rsp)
 }
 
-// PatchApiInstitutionsIdWithResponse Renames an institution.
+// PatchApiInstitutionsIdWithResponse Changes an organisation: its name, its
 //
-// The name is required.
+// youth-protection restriction, or both, and answers with it as stored.
+//
+// Only what is given changes; an empty promptConstraints removes the
+// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+// restriction mayEditSettings; a request with a part the caller may not
+// change is refused as a whole.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21049,7 +20936,10 @@ func (c *ClientWithResponses) PatchApiInstitutionsIdFreeUseKeyWithResponse(ctx c
 	return ParsePatchApiInstitutionsIdFreeUseKeyResponse(rsp)
 }
 
-// GetApiInstitutionsIdMembersWithResponse Lists the members of an institution.
+// GetApiInstitutionsIdMembersWithResponse Lists an organisation's members (individual,
+//
+// staff, head): for its members and the admin. Anyone else gets an empty
+// list; an organisation the caller may not read, 404.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21062,9 +20952,11 @@ func (c *ClientWithResponses) GetApiInstitutionsIdMembersWithResponse(ctx contex
 	return ParseGetApiInstitutionsIdMembersResponse(rsp)
 }
 
-// DeleteApiInstitutionsIdMembersUserIDWithResponse Removes a member from an institution; heads
+// DeleteApiInstitutionsIdMembersUserIDWithResponse Removes a user from an organisation; they
 //
-// and admins only.
+// keep their account, as an individual. A head removes members and guests,
+// staff remove guests, a member leaves, an admin removes anyone; the last
+// head stays (409 last_head).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21075,42 +20967,6 @@ func (c *ClientWithResponses) DeleteApiInstitutionsIdMembersUserIDWithResponse(c
 		return nil, err
 	}
 	return ParseDeleteApiInstitutionsIdMembersUserIDResponse(rsp)
-}
-
-// PatchApiInstitutionsIdPromptConstraintsWithBodyWithResponse Sets or clears an institution's
-//
-// prompt constraints and answers with the institution; heads and admins only.
-//
-// An empty or null promptConstraints clears them; they have at most 200
-// characters.
-//
-// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-func (c *ClientWithResponses) PatchApiInstitutionsIdPromptConstraintsWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdPromptConstraintsResponse, error) {
-	rsp, err := c.PatchApiInstitutionsIdPromptConstraintsWithBody(ctx, id, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePatchApiInstitutionsIdPromptConstraintsResponse(rsp)
-}
-
-// PatchApiInstitutionsIdPromptConstraintsWithResponse Sets or clears an institution's
-//
-// prompt constraints and answers with the institution; heads and admins only.
-//
-// An empty or null promptConstraints clears them; they have at most 200
-// characters.
-//
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with PATCH /api/institutions/{id}/prompt-constraints (the `PatchApiInstitutionsIdPromptConstraints` operationId).
-func (c *ClientWithResponses) PatchApiInstitutionsIdPromptConstraintsWithResponse(ctx context.Context, id string, body PatchApiInstitutionsIdPromptConstraintsJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdPromptConstraintsResponse, error) {
-	rsp, err := c.PatchApiInstitutionsIdPromptConstraints(ctx, id, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePatchApiInstitutionsIdPromptConstraintsResponse(rsp)
 }
 
 // DeleteApiInstitutionsIdSuspensionWithResponse Lifts an admin's suspension of an organisation and
@@ -24311,7 +24167,7 @@ func ParseGetApiInstitutionsResponse(rsp *http.Response) (*GetApiInstitutionsRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Institution
+		var dest []OrganisationView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24344,7 +24200,7 @@ func ParsePostApiInstitutionsResponse(rsp *http.Response) (*PostApiInstitutionsR
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Institution
+		var dest OrganisationView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24410,7 +24266,7 @@ func ParseGetApiInstitutionsIdResponse(rsp *http.Response) (*GetApiInstitutionsI
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Institution
+		var dest OrganisationView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24443,7 +24299,7 @@ func ParsePatchApiInstitutionsIdResponse(rsp *http.Response) (*PatchApiInstituti
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Institution
+		var dest OrganisationView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24608,7 +24464,7 @@ func ParsePatchApiInstitutionsIdFreeUseKeyResponse(rsp *http.Response) (*PatchAp
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Institution
+		var dest OrganisationView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24641,7 +24497,7 @@ func ParseGetApiInstitutionsIdMembersResponse(rsp *http.Response) (*GetApiInstit
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []User
+		var dest []UserView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24675,39 +24531,6 @@ func ParseDeleteApiInstitutionsIdMembersUserIDResponse(rsp *http.Response) (*Del
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest MessageResp
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePatchApiInstitutionsIdPromptConstraintsResponse parses an HTTP response from a PatchApiInstitutionsIdPromptConstraintsWithResponse call
-func ParsePatchApiInstitutionsIdPromptConstraintsResponse(rsp *http.Response) (*PatchApiInstitutionsIdPromptConstraintsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PatchApiInstitutionsIdPromptConstraintsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Institution
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

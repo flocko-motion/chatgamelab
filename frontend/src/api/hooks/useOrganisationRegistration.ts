@@ -9,7 +9,7 @@ import type {
   ConsentToDeclarationReq,
   DeclarationResp,
   Error as ApiError,
-  Institution,
+  OrganisationView,
   OrganisationConsentView,
   OrganisationSuspensionView,
 } from "../generated/api.gen";
@@ -83,7 +83,7 @@ const RECENT_REFRESH_MS = 2 * 60 * 1000;
  * admins check, checked again every two minutes.
  */
 export function useRecentlyRegisteredInstitutions(options: { enabled?: boolean } = {}) {
-  return useQuery<Institution[], ApiError>({
+  return useQuery<OrganisationView[], ApiError>({
     queryKey: queryKeys.recentlyRegisteredInstitutions,
     queryFn: () => api.getApiInstitutions({ filter: ["recentlyRegistered"] }).then((r) => r.data),
     refetchInterval: RECENT_REFRESH_MS,

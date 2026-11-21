@@ -1,13 +1,13 @@
 import { Badge, Group, Tooltip } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import type { Institution } from "@/api/generated/api.gen";
+import type { OrganisationView } from "@/api/generated/api.gen";
 import { formatDate } from "@/common/lib/formatters";
 
 /**
  * An organisation's suspension and consent, as admins see them in their
  * list: suspended by an admin (with the reason), or for want of a consent.
  */
-export function OrganizationStatusBadges({ org }: { org: Institution }) {
+export function OrganizationStatusBadges({ org }: { org: OrganisationView }) {
   const { t, i18n } = useTranslation("common");
   const declaration = org.declaration;
 

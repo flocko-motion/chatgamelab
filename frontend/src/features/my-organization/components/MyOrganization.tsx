@@ -60,9 +60,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
   const updatePromptConstraints = useMutation({
     mutationFn: async (promptConstraints: string) => {
       if (!institutionId) return;
-      await api.patchApiInstitutionsIdPromptConstraints(institutionId, {
-        promptConstraints: promptConstraints || undefined,
-      });
+      await api.patchApiInstitutionsId(institutionId, { promptConstraints });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.institution(institutionId!) });

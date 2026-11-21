@@ -22,8 +22,7 @@ type (
 	AvailableKey        = apiclient.AvailableKey
 	GameSession         = apiclient.GameSession
 	UserSession         = apiclient.UserSessionWithGame
-	Institution         = apiclient.Institution
-	InstitutionMember   = apiclient.InstitutionMember
+	Institution         = apiclient.OrganisationView
 	Workshop            = apiclient.Workshop
 	WorkshopParticipant = apiclient.WorkshopParticipant
 	PublicWorkshopPage  = apiclient.PublicWorkshopPage

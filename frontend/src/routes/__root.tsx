@@ -346,7 +346,7 @@ function RootComponent() {
     const consentWanted = standing.institutionSuspension === "consent";
     return (
       <AppLayout variant="public">
-        {consentWanted && standing.mayEditInstitution ? (
+        {consentWanted && standing.mayConsentForInstitution ? (
           <DeclarationConsentPage onLogout={logout} />
         ) : (
           <OrganisationSuspendedMessage consentWanted={consentWanted} onLogout={logout} />

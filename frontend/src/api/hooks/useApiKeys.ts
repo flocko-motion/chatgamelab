@@ -4,7 +4,7 @@ import { handleApiError } from "@/config/queryClient";
 import { queryKeys } from "../queryKeys";
 import type {
   ApiKeyShare,
-  Institution,
+  OrganisationView,
   Error as ApiError,
   ApiKeysResp,
   CreateApiKeyReq,
@@ -160,7 +160,7 @@ export function useSetInstitutionFreeUseKey() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    Institution,
+    OrganisationView,
     ApiError,
     { institutionId: string; shareId: string | null }
   >({

@@ -24,7 +24,7 @@ import {
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { parseSortValue } from "@/common/lib/sort";
 import { SortSelector, type SortOption } from "@/common/components/controls";
-import type { InviteResp, Institution } from "@/api/generated/api.gen";
+import type { InviteResp, OrganisationView } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 
 const getStatusColor = (status: string) => {
@@ -84,7 +84,7 @@ export function InvitesList({
     (instId?: string) => {
       if (!instId || !institutions) return instId || "-";
       const institution = institutions.find(
-        (org: Institution) => org.id === instId,
+        (org: OrganisationView) => org.id === instId,
       );
       return institution?.name || instId;
     },

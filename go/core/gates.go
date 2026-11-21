@@ -10,6 +10,7 @@ import (
 
 	"cgl/core/internal/rules"
 	"cgl/db"
+	"cgl/legal"
 
 	"github.com/google/uuid"
 )
@@ -138,25 +139,94 @@ func userCardGates(ctx context.Context) db.V2UsersParams {
 	}
 }
 
-// Organisations have no query of their own in the core yet: their gates
-// compare the caller's organisation in Go.
-
-// mayRegisterOrganisation says whether the caller may register an
-// organisation and become its head: {Create, Organisation, Own}.
-func mayRegisterOrganisation(ctx context.Context) bool {
-	return granted(ctx, rules.Create, rules.Organisation, rules.Own)
+// listOrganisationsGates opens V2Organisations for a list: the rows by
+// {List, OrganisationCard}.
+func listOrganisationsGates(ctx context.Context) db.V2OrganisationsParams {
+	p := organisationGates(ctx)
+	p.CardOrganisation = granted(ctx, rules.List, rules.OrganisationCard, rules.OfOwnOrganisation)
+	p.CardEverywhere = granted(ctx, rules.List, rules.OrganisationCard, rules.Everywhere)
+	return p
 }
 
-// mayEditOrganisation says whether the caller may edit organisation id,
-// consenting to the declaration in its name or withdrawing it: {Edit,
-// Organisation, OfOwnOrganisation}.
-func mayEditOrganisation(ctx context.Context, id uuid.UUID) bool {
-	own := from(ctx).Organisation()
-	return granted(ctx, rules.Edit, rules.Organisation, rules.OfOwnOrganisation) && own != nil && *own == id
+// readOrganisationGates opens V2Organisations for one organisation: the row
+// by {Read, OrganisationCard}.
+func readOrganisationGates(ctx context.Context, id uuid.UUID) db.V2OrganisationsParams {
+	p := organisationGates(ctx)
+	p.ID = uuid.NullUUID{UUID: id, Valid: true}
+	p.CardOrganisation = granted(ctx, rules.Read, rules.OrganisationCard, rules.OfOwnOrganisation)
+	p.CardEverywhere = granted(ctx, rules.Read, rules.OrganisationCard, rules.Everywhere)
+	return p
 }
 
-// maySuspendOrganisations says whether the caller may suspend any
-// organisation and lift that: {Suspend, Organisation, Everywhere}.
+// organisationGates opens what list and read share: the sections by
+// {Read, OrganisationSettings}, {Read, OrganisationDetails} and
+// {Read, OrganisationRecord}, the actions by {Edit, <section>},
+// {Delete, OrganisationCard} and {Suspend, OrganisationCard}.
+func organisationGates(ctx context.Context) db.V2OrganisationsParams {
+	declaration := legal.CurrentDeclaration()
+	return db.V2OrganisationsParams{
+		DeclarationVersion: declaration.Version,
+		DeclarationHash:    declaration.Hash,
+		OwnOrganisation:    ownOrganisation(ctx),
+
+		SettingsOrganisation: granted(ctx, rules.Read, rules.OrganisationSettings, rules.OfOwnOrganisation),
+		SettingsEverywhere:   granted(ctx, rules.Read, rules.OrganisationSettings, rules.Everywhere),
+		DetailsOrganisation:  granted(ctx, rules.Read, rules.OrganisationDetails, rules.OfOwnOrganisation),
+		DetailsEverywhere:    granted(ctx, rules.Read, rules.OrganisationDetails, rules.Everywhere),
+		RecordOrganisation:   granted(ctx, rules.Read, rules.OrganisationRecord, rules.OfOwnOrganisation),
+		RecordEverywhere:     granted(ctx, rules.Read, rules.OrganisationRecord, rules.Everywhere),
+
+		EditCardOrganisation:     granted(ctx, rules.Edit, rules.OrganisationCard, rules.OfOwnOrganisation),
+		EditCardEverywhere:       granted(ctx, rules.Edit, rules.OrganisationCard, rules.Everywhere),
+		EditSettingsOrganisation: granted(ctx, rules.Edit, rules.OrganisationSettings, rules.OfOwnOrganisation),
+		EditSettingsEverywhere:   granted(ctx, rules.Edit, rules.OrganisationSettings, rules.Everywhere),
+		EditDetailsOrganisation:  granted(ctx, rules.Edit, rules.OrganisationDetails, rules.OfOwnOrganisation),
+
+		DeleteEverywhere:  granted(ctx, rules.Delete, rules.OrganisationCard, rules.Everywhere),
+		SuspendEverywhere: granted(ctx, rules.Suspend, rules.OrganisationCard, rules.Everywhere),
+	}
+}
+
+// listMembersGates opens V2Users for the members of organisation id: the
+// rows by {List, UserCard}, narrowed to its members.
+func listMembersGates(ctx context.Context, id uuid.UUID) db.V2UsersParams {
+	p := listUserCardsGates(ctx)
+	p.MembersOf = uuid.NullUUID{UUID: id, Valid: true}
+	return p
+}
+
+// mayCreateOrganisation says whether the caller may register an
+// organisation and become its head, {Create, OrganisationCard, Own}, and
+// whether they may create organisations for others, {Create,
+// OrganisationCard, Everywhere}.
+func mayCreateOrganisation(ctx context.Context) (asHead, forOthers bool) {
+	return granted(ctx, rules.Create, rules.OrganisationCard, rules.Own),
+		granted(ctx, rules.Create, rules.OrganisationCard, rules.Everywhere)
+}
+
+// mayConsentForOwnOrganisation says whether the caller may consent to the
+// declaration in their organisation's name, editing its details:
+// {Edit, OrganisationDetails, OfOwnOrganisation}.
+func mayConsentForOwnOrganisation(ctx context.Context) bool {
+	return from(ctx).Organisation() != nil && granted(ctx, rules.Edit, rules.OrganisationDetails, rules.OfOwnOrganisation)
+}
+
+// maySuspendOrganisations says whether the caller may suspend organisations
+// and lift that: {Suspend, OrganisationCard, Everywhere}.
 func maySuspendOrganisations(ctx context.Context) bool {
-	return granted(ctx, rules.Suspend, rules.Organisation, rules.Everywhere)
+	return granted(ctx, rules.Suspend, rules.OrganisationCard, rules.Everywhere)
+}
+
+// mayRemoveMember says whether the caller may remove user from their
+// organisation: {Delete, Membership}. The user's role and organisation come
+// from their loaded row; a membership has no query of its own.
+func mayRemoveMember(ctx context.Context, user *UserCard) bool {
+	own := from(ctx).Organisation()
+	inOwn := own != nil && user.row.organisationID != nil && *user.row.organisationID == *own
+	isGuest := user.row.role == "guest"
+	isSelf := account(ctx).Valid && account(ctx).UUID == user.row.id
+	return granted(ctx, rules.Delete, rules.Membership, rules.Everywhere) ||
+		(granted(ctx, rules.Delete, rules.Membership, rules.MemberOfOwnOrganisation) && inOwn && !isGuest) ||
+		(granted(ctx, rules.Delete, rules.Membership, rules.GuestOfOwnOrganisation) && inOwn && isGuest) ||
+		(granted(ctx, rules.Delete, rules.Membership, rules.Own) && isSelf && !isGuest)
 }

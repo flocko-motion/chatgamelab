@@ -110,7 +110,7 @@ func (s *OrganisationRegistrationTestSuite) TestRegisteringAsAnOrganisation() {
 	s.Require().NotNil(me.User.AgeGroup)
 	s.Equal("u18", *me.User.AgeGroup)
 	s.Empty(me.InstitutionSuspension, "the organisation consented when it registered")
-	s.True(me.MayEditInstitution, "its head may consent for it")
+	s.True(me.MayConsentForInstitution, "its head may consent for it")
 	s.False(Must(head.ReadOrganisationConsent(institutionID)).Declaration.Pending)
 
 	institution := Must(head.GetInstitution(institutionID))
@@ -209,10 +209,13 @@ func (s *OrganisationRegistrationTestSuite) TestAnExistingOrganisationIsSuspende
 
 	for name, member := range map[string]*testutil.UserClient{"head": head1, "staff": staff} {
 		s.Equal(testutil.SuspendedNoConsent, s.suspension(member), name)
-		_, err := member.GetInstitution(institutionID)
-		s.Refused(err, testutil.CodeOrganisationSuspended, name)
 	}
-	_, err := staff.CreateGame("Gesperrt")
+	// a head still reads the organisation, to consent for it; staff see
+	// nothing of it until the suspension ends
+	Must(head1.GetInstitution(institutionID))
+	_, err := staff.GetInstitution(institutionID)
+	s.NotFound(err, "staff")
+	_, err = staff.CreateGame("Gesperrt")
 	s.Error(err, "a suspended member creates nothing")
 
 	pending := Must(head1.ReadOrganisationConsent(institutionID))
@@ -288,7 +291,7 @@ func (s *OrganisationRegistrationTestSuite) TestAHeadWithdrawsTheConsent() {
 	s.NotNil(withdrawn.Declaration.WithdrawnAt)
 	s.Equal(testutil.SuspendedNoConsent, s.suspension(staff))
 	_, err := staff.GetInstitution(institutionID)
-	s.Refused(err, testutil.CodeOrganisationSuspended)
+	s.NotFound(err, "a suspended organisation's staff see nothing of it")
 
 	_, err = head.WithdrawConsent(institutionID)
 	s.Conflict(err, "nothing left to withdraw")
@@ -302,14 +305,13 @@ func (s *OrganisationRegistrationTestSuite) TestOnlyItsHeadsConsentForAnOrganisa
 	institution := Must(s.DevUser().CreateInstitution(fmt.Sprintf("Fremd %d", s.unique())))
 	institutionID := institution.Id.String()
 	staff := s.memberOf(institutionID, "staff")
-	s.False(Must(staff.WhoAmI()).MayEditInstitution, "staff do not consent")
+	s.False(Must(staff.WhoAmI()).MayConsentForInstitution, "staff do not consent")
 
 	otherHead, _, _ := s.registerOrganisation(fmt.Sprintf("andere-%d@jz-test.de", s.unique()))
+	// those who see the organisation are refused
 	for name, caller := range map[string]*testutil.UserClient{
-		"staff":                     staff,
-		"an individual":             s.adultIndividual("aussen"),
-		"another organisation head": otherHead,
-		"an admin":                  s.DevUser(),
+		"staff":    staff,
+		"an admin": s.DevUser(),
 	} {
 		_, err := caller.ReadOrganisationConsent(institutionID)
 		s.Forbidden(err, name)
@@ -317,6 +319,18 @@ func (s *OrganisationRegistrationTestSuite) TestOnlyItsHeadsConsentForAnOrganisa
 		s.Forbidden(err, name)
 		_, err = caller.WithdrawConsent(institutionID)
 		s.Forbidden(err, name)
+	}
+	// for those outside it, it does not exist
+	for name, caller := range map[string]*testutil.UserClient{
+		"an individual":             s.adultIndividual("aussen"),
+		"another organisation head": otherHead,
+	} {
+		_, err := caller.ReadOrganisationConsent(institutionID)
+		s.NotFound(err, name)
+		_, err = caller.ConsentToDeclaration(institutionID, s.consent("x@fremd.test"))
+		s.NotFound(err, name)
+		_, err = caller.WithdrawConsent(institutionID)
+		s.NotFound(err, name)
 	}
 }
 

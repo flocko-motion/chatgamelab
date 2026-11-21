@@ -37,12 +37,10 @@ var legacy = map[string]bool{
 	"api/engine.go":              true,
 	"api/games_private_share.go": true,
 	"api/games_sponsor.go":       true,
-	"api/institutions.go":        true,
 	"api/invites.go":             true,
 	"api/invites_accept.go":      true,
 	"api/invites_create.go":      true,
 	"api/janitor.go":             true,
-	"api/legal.go":               true, // ported v1 organisation self-registration; moves into the core with the organisation
 	"api/sessions.go":            true,
 	"api/startup.go":             true,
 	"api/status.go":              true,

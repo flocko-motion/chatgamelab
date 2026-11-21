@@ -298,14 +298,13 @@ func resolveInstitutionFreeUseKey(ctx context.Context, user *obj.User) (*obj.Api
 		return nil, nil
 	}
 
-	// Load full institution to get the tier
-	institution, err := db.GetInstitutionByID(ctx, user.ID, user.Role.Institution.ID)
+	tier, err := db.GetInstitutionFreeUseTier(ctx, user.Role.Institution.ID)
 	if err != nil {
 		log.Warn("failed to load institution for tier", "institution_id", user.Role.Institution.ID, "error", err)
 		return share, nil
 	}
 
-	return share, institution.FreeUseAiQualityTier
+	return share, tier
 }
 
 // resolveSystemFreeUseKey checks if the admin has configured a global free-use API key in system settings.

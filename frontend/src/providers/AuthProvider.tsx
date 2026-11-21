@@ -43,7 +43,7 @@ const defaultAuthContext: AuthContextType = {
   logout: () => {},
   retryBackendFetch: () => {},
   register: async () => {},
-  standing: { mayEditInstitution: false, maySuspendInstitutions: false },
+  standing: { mayConsentForInstitution: false, maySuspendInstitutions: false },
   refreshCaller: async () => {},
 };
 

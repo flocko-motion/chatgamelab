@@ -14,11 +14,11 @@ export type CallerState = "unknown" | "anonymous" | "registering" | "registered"
 /** What /api/users/me says about the caller and organisations, beside their user. */
 export type CallerStanding = Pick<
   GetCurrentUserResp,
-  "institutionSuspension" | "mayEditInstitution" | "maySuspendInstitutions"
+  "institutionSuspension" | "mayConsentForInstitution" | "maySuspendInstitutions"
 >;
 
 const noStanding: CallerStanding = {
-  mayEditInstitution: false,
+  mayConsentForInstitution: false,
   maySuspendInstitutions: false,
 };
 
@@ -64,7 +64,7 @@ export function useCaller() {
       if (data.state === "registered" && data.user) {
         setStanding({
           institutionSuspension: data.institutionSuspension,
-          mayEditInstitution: data.mayEditInstitution,
+          mayConsentForInstitution: data.mayConsentForInstitution,
           maySuspendInstitutions: data.maySuspendInstitutions,
         });
         applyUser(data.user);

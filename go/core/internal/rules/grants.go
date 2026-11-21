@@ -46,9 +46,9 @@ const (
 	Edit   Action = "edit"
 	Delete Action = "delete"
 	Manage Action = "manage"
-	// Create makes a new entity. It is the caller's own from the start, so a
-	// create grant's relation is Own, and the new entity's rights are the
-	// role's Own grants.
+	// Create makes a new entity. Own: it is the caller's from the start, and
+	// its rights are the role's Own grants. Everywhere: the caller makes it
+	// for others, as an admin makes an organisation.
 	Create Action = "create"
 	// Copy makes a new entity of the caller's from this one.
 	Copy Action = "copy"
@@ -115,10 +115,25 @@ const (
 	UserSecrets Entity = "user secrets"
 
 	Workshop Entity = "workshop"
-	// Organisation is an organisation: its name, operator, address and
-	// youth-protection restriction, and its consent to the declaration, which
-	// a head gives or withdraws by editing it.
-	Organisation Entity = "organisation"
+
+	// OrganisationCard is who an organisation is: its id and name, what its
+	// members and the guests in its workshops see of it.
+	OrganisationCard Entity = "organisation card"
+	// OrganisationSettings is how an organisation runs: its youth-protection
+	// restriction and the key share its free use spends from.
+	OrganisationSettings Entity = "organisation settings"
+	// OrganisationDetails is who stands behind an organisation: its operator
+	// (Träger) and address, which a head confirms with the organisation's
+	// consent to the declaration. Consenting and withdrawing are a head's
+	// edits of it.
+	OrganisationDetails Entity = "organisation details"
+	// OrganisationRecord is an organisation's standing: its consent status,
+	// how it registered itself, and an admin's suspension with its reason.
+	OrganisationRecord Entity = "organisation record"
+	// Membership is a user's role in an organisation. Deleting it removes
+	// the user from the organisation; they keep their account, as an
+	// individual.
+	Membership Entity = "membership"
 )
 
 // Relation says which entities a grant covers, seen from the caller. A

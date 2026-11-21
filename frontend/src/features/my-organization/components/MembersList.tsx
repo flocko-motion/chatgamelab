@@ -27,21 +27,21 @@ import {
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { parseSortValue } from "@/common/lib/sort";
 import { getRoleColor, useTranslateRole } from "@/common/lib/roles";
-import type { User } from "@/api/generated/api.gen";
+import type { UserView } from "@/api/generated/api.gen";
 
 type SortField = "name" | "email" | "role";
 
 export interface MembersListProps {
-  members: User[];
+  members: UserView[];
   isLoading: boolean;
   currentUserId?: string;
   canSeeEmails: boolean;
   canSeeRoles: boolean;
   isHead: boolean;
   isStaff: boolean;
-  onPromote?: (user: User) => void;
-  onDemote?: (user: User) => void;
-  onRemove?: (user: User) => void;
+  onPromote?: (user: UserView) => void;
+  onDemote?: (user: UserView) => void;
+  onRemove?: (user: UserView) => void;
 }
 
 export function MembersList({
@@ -72,7 +72,7 @@ export function MembersList({
   );
 
   const canRemoveMember = useCallback(
-    (member: User) => {
+    (member: UserView) => {
       if (isCurrentUser(member.id)) return false;
       const memberRole = member.role?.role;
       if (isHead) {
