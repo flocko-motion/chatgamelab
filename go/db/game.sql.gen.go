@@ -181,12 +181,12 @@ func (q *Queries) CreateGameTag(ctx context.Context, arg CreateGameTagParams) (G
 	return i, err
 }
 
-const deleteFavouritesByGameID = `-- name: DeleteFavouritesByGameID :exec
+const deleteFavoritesByGameID = `-- name: DeleteFavoritesByGameID :exec
 DELETE FROM user_favourite_game WHERE game_id = $1
 `
 
-func (q *Queries) DeleteFavouritesByGameID(ctx context.Context, gameID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteFavouritesByGameID, gameID)
+func (q *Queries) DeleteFavoritesByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteFavoritesByGameID, gameID)
 	return err
 }
 

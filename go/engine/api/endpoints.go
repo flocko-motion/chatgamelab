@@ -130,7 +130,7 @@ func (e TogglesEndpoint) Handle(ctx context.Context, req ToggleRequest) (Accepte
 // ConstraintFrequencyRequest sets how often a block's calls carry the
 // youth-protection rule.
 type ConstraintFrequencyRequest struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 	// Block names a threaded block, such as "expand".
 	Block string `json:"block"`
 	// Frequency is 1 for every call, up to 10 for every tenth.

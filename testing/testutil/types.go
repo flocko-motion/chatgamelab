@@ -14,6 +14,7 @@ type (
 	CurrentUser         = apiclient.GetCurrentUserResp
 	ParticipantCode     = apiclient.UserParticipantCodeResp
 	Game                = apiclient.Game
+	GameView            = apiclient.GameView
 	GameFile            = apiclient.GameFile
 	GameShare           = apiclient.GameShareResp
 	PrivateShareStatus  = apiclient.PrivateShareStatusResp
@@ -46,6 +47,8 @@ type (
 // What a test sends.
 type (
 	GameUpdate     = apiclient.UpdateGameReq
+	GameCreate     = apiclient.CreateGameReq
+	GameTemplate   = apiclient.GameTemplate
 	WorkshopUpdate = apiclient.UpdateWorkshopReq
 	UserUpdate     = apiclient.UpdateUserReq
 	SettingsUpdate = apiclient.UpdateSystemSettingsReq

@@ -271,9 +271,9 @@ func (s *GamePermissionsTestSuite) TestOwnerCanAccessOwnNonPublicGame() {
 	s.T().Logf("Owner accessed own game: %s", fetched.Name)
 }
 
-// TestWhoCanSetGamePublic tests who may switch a game's public flag on: for a
-// workshop game its creator and whoever may edit it (head, staff, admin); for a
-// game outside a workshop only its creator.
+// TestWhoCanSetGamePublic tests who may switch a game's public flag on: its
+// creator, head and staff for their organisation's workshop games, and the
+// admin for any game, being liable for what is public.
 func (s *GamePermissionsTestSuite) TestWhoCanSetGamePublic() {
 	admin := s.DevUser()
 
@@ -320,14 +320,16 @@ func (s *GamePermissionsTestSuite) TestWhoCanSetGamePublic() {
 	_, err = other.SetGamePublic(game.Id.String(), true)
 	s.Forbidden(err, "another participant must not publish someone else's game")
 
-	// Outside a workshop only the creator may publish, admins included.
+	// Outside a workshop: the creator, and the admin.
 	individual := s.CreateUser("pub-individual")
 	personal := Must(individual.UploadGame("alien-first-contact"))
 	s.Nil(personal.WorkshopId)
-	_, err = admin.SetGamePublic(personal.Id.String(), true)
-	s.Forbidden(err, "admin must not publish someone else's personal game")
 	updated, err = individual.SetGamePublic(personal.Id.String(), true)
 	s.NoError(err)
+	s.True(updated.Public)
+	Must(individual.SetGamePublic(personal.Id.String(), false))
+	updated, err = admin.SetGamePublic(personal.Id.String(), true)
+	s.NoError(err, "the admin may publish any game")
 	s.True(updated.Public)
 }
 

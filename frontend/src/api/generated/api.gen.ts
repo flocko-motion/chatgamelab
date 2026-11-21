@@ -107,10 +107,22 @@ export interface CreateApiKeyReq {
 }
 
 export interface CreateGameReq {
+  css?: string;
   description?: string;
+  /** @format byte */
+  firstImage?: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
   genre?: string;
-  name: string;
+  /** @format byte */
+  icon?: Blob;
+  imageStyle?: string;
+  name?: string;
   public?: boolean;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
+  theme?: string;
 }
 
 export interface CreateGameShareReq {
@@ -280,6 +292,15 @@ export interface GameFile {
   theme?: string;
 }
 
+export interface GameMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  createdBy?: string;
+  /** @format date-time */
+  modifiedAt: string;
+}
+
 export interface GameSession {
   /** @format uuid */
   apiKeyShareId?: string;
@@ -335,6 +356,76 @@ export interface GameTag {
   id: string;
   meta: Meta;
   tag: string;
+}
+
+export interface GameTemplate {
+  css?: string;
+  description: string;
+  /** @format byte */
+  firstImage?: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
+  genre: string;
+  hasContent: boolean;
+  /** @format byte */
+  icon: Blob;
+  imageStyle?: string;
+  mayEditCard: boolean;
+  mayEditContent: boolean;
+  mayPublish: boolean;
+  name: string;
+  public: boolean;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
+  theme?: string;
+}
+
+export interface GameView {
+  cloneCount: number;
+  /** @format uuid */
+  creatorId?: string;
+  creatorName?: string;
+  css?: string;
+  description: string;
+  /** @format byte */
+  firstImage?: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
+  genre: string;
+  hasContent: boolean;
+  hasSettings: boolean;
+  /** @format byte */
+  icon: Blob;
+  /** @format uuid */
+  id: string;
+  imageStyle?: string;
+  isFavorite: boolean;
+  mayCopy: boolean;
+  mayEditCard: boolean;
+  mayEditContent: boolean;
+  mayEditSettings: boolean;
+  mayPublish: boolean;
+  mayShare: boolean;
+  meta: GameMeta;
+  name: string;
+  /** @format uuid */
+  originallyCreatedBy?: string;
+  playCount: number;
+  public: boolean;
+  /** @format uuid */
+  publicSponsoredApiKeyShareId?: string;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
+  theme?: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface GameViewPage {
+  items: GameView[];
+  total: number;
 }
 
 export interface GenreInfo {
@@ -714,40 +805,22 @@ export interface UpdateApiKeyReq {
 }
 
 export interface UpdateGameReq {
-  cloneCount: number;
-  /** @format uuid */
-  creatorId?: string;
-  creatorName?: string;
-  css: string;
-  description: string;
+  css?: string;
+  description?: string;
   /** @format byte */
-  firstImage: Blob;
+  firstImage?: Blob;
   firstMessage?: string;
   firstStatus?: string;
-  genre: string;
+  genre?: string;
   /** @format byte */
-  icon: Blob;
-  /** @format uuid */
-  id: string;
-  imageStyle: string;
-  meta: Meta;
-  name: string;
-  /** @format uuid */
-  originalCreatorId?: string;
-  originalCreatorName?: string;
-  /** @format uuid */
-  originallyCreatedBy?: string;
-  playCount: number;
-  public: boolean;
-  /** @format uuid */
-  publicSponsoredApiKeyShareId?: string;
-  statusFields: string;
-  systemMessageGameStart: string;
-  systemMessageScenario: string;
-  tags: GameTag[];
+  icon?: Blob;
+  imageStyle?: string;
+  name?: string;
+  public?: boolean;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
   theme?: string;
-  /** @format uuid */
-  workshopId?: string;
 }
 
 export interface UpdateGameShareReq {
@@ -1279,10 +1352,17 @@ export class Api<
      * @request DELETE:/api/apikeys/{id}
      * @secure
      */
-    deleteApiApikeysId: (id: string, params: RequestParams = {}) =>
+    deleteApiApikeysId: (
+      id: string,
+      query?: {
+        cascade?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<ApiKeyShare, Error>({
         path: `/api/apikeys/${id}`,
         method: "DELETE",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -1376,10 +1456,17 @@ export class Api<
      * @request GET:/api/apikeys/{id}/game-shares
      * @secure
      */
-    getApiApikeysIdGameShares: (id: string, params: RequestParams = {}) =>
+    getApiApikeysIdGameShares: (
+      id: string,
+      query?: {
+        context?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<EnrichedGameShare[], Error>({
         path: `/api/apikeys/${id}/game-shares`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -1435,10 +1522,16 @@ export class Api<
      * @summary Checks whether a name is free to register.
      * @request GET:/api/auth/check-name
      */
-    getApiAuthCheckName: (params: RequestParams = {}) =>
+    getApiAuthCheckName: (
+      query: {
+        name: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<CheckNameResp, Error>({
         path: `/api/auth/check-name`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -1980,33 +2073,44 @@ export class Api<
       }),
 
     /**
-     * @description Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt, playCount), sortDir (asc, desc), filter (all, own, public, organization, favorites).
+     * @description Query, all optional: filter (own, others, public, favorites, sponsored; repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount, visibility, creator), sortDir (asc, desc), limit, offset.
      *
      * @name GetApiGames
-     * @summary Lists the games the caller can see.
+     * @summary Lists a page of the games the caller can see, and the total.
      * @request GET:/api/games
      * @secure
      */
-    getApiGames: (params: RequestParams = {}) =>
-      this.request<Game[], Error>({
+    getApiGames: (
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: string;
+        sortDir?: string;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<GameViewPage, Error>({
         path: `/api/games`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * No description
+     * @description new game starts with and what the caller may do with it. Nothing is stored; the client fills it in and creates the game with CreateGameEndpoint.
      *
-     * @name GetApiGamesFavourites
-     * @summary Lists the games the caller has marked as favourites.
-     * @request GET:/api/games/favourites
+     * @name GetApiGamesNew
+     * @summary Returns the template for a game the caller creates: what a
+     * @request GET:/api/games/new
      * @secure
      */
-    getApiGamesFavourites: (params: RequestParams = {}) =>
-      this.request<Game[], Error>({
-        path: `/api/games/favourites`,
+    getApiGamesNew: (params: RequestParams = {}) =>
+      this.request<GameTemplate, Error>({
+        path: `/api/games/new`,
         method: "GET",
         secure: true,
         format: "json",
@@ -2014,15 +2118,15 @@ export class Api<
       }),
 
     /**
-     * @description Only the name is required, at most 70 characters; the genre is one of the engine's genres and makes an adventure when empty.
+     * @description template, and answers with it as stored. Only the name is required, at most 70 characters; making it public takes the template's mayPublish. In a workshop, the game belongs to it.
      *
      * @name PostApiGamesNew
-     * @summary Creates a game owned by the caller.
+     * @summary Creates a game owned by the caller from the filled-in
      * @request POST:/api/games/new
      * @secure
      */
     postApiGamesNew: (data: CreateGameReq, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/new`,
         method: "POST",
         body: data,
@@ -2033,15 +2137,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description takes mayEditSettings (403 otherwise).
      *
      * @name DeleteApiGamesId
-     * @summary Deletes a game and answers with it as it was.
+     * @summary Deletes a game and answers with it as it was. Deleting
      * @request DELETE:/api/games/{id}
      * @secure
      */
     deleteApiGamesId: (id: string, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}`,
         method: "DELETE",
         secure: true,
@@ -2058,7 +2162,7 @@ export class Api<
      * @secure
      */
     getApiGamesId: (id: string, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}`,
         method: "GET",
         secure: true,
@@ -2067,10 +2171,10 @@ export class Api<
       }),
 
     /**
-     * @description Takes the whole game; its name is at most 70 characters. Answers with the game as stored.
+     * @description game as stored. Send what changes; a field left out stays as it is, and sending the whole game back is fine: only what differs counts. Changing a section the caller may not edit (mayEditCard, mayEditContent), or making the game public without mayPublish, refuses the whole request (403). The name is at most 70 characters. Workshop, sponsor and creator are not changed here.
      *
      * @name PostApiGamesId
-     * @summary Updates a game's properties.
+     * @summary Changes a game's card and content and answers with the
      * @request POST:/api/games/{id}
      * @secure
      */
@@ -2079,7 +2183,7 @@ export class Api<
       data: UpdateGameReq,
       params: RequestParams = {},
     ) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}`,
         method: "POST",
         body: data,
@@ -2124,15 +2228,15 @@ export class Api<
       }),
 
     /**
-     * @description new private game of the caller's.
+     * @description and answers with the copy. It takes mayCopy (403 otherwise); the copy has the game's card and content, not its images.
      *
      * @name PostApiGamesIdClone
-     * @summary Copies a public game, or one of the caller's own, into a
+     * @summary Copies a game into a new private game of the caller's
      * @request POST:/api/games/{id}/clone
      * @secure
      */
     postApiGamesIdClone: (id: string, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}/clone`,
         method: "POST",
         secure: true,
@@ -2141,10 +2245,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description answers the same whatever the game: it gives nothing away.
      *
      * @name DeleteApiGamesIdFavourite
-     * @summary Removes a game from the caller's favourites.
+     * @summary Removes a game from the caller's favorites. It
      * @request DELETE:/api/games/{id}/favourite
      * @secure
      */
@@ -2158,10 +2262,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description It takes reading the game (404 otherwise); marking twice changes nothing.
      *
      * @name PostApiGamesIdFavourite
-     * @summary Adds a game to the caller's favourites.
+     * @summary Marks a game as one of the caller's favorites.
      * @request POST:/api/games/{id}/favourite
      * @secure
      */
@@ -2317,10 +2421,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description takes seeing the game's content (hasContent; 403 otherwise).
      *
      * @name GetApiGamesIdYaml
-     * @summary Exports a game as a game file, YAML by default.
+     * @summary Exports a game as a game file, YAML by default. It
      * @request GET:/api/games/{id}/yaml
      * @secure
      */
@@ -2334,7 +2438,7 @@ export class Api<
       }),
 
     /**
-     * @description answers with the game. The file's content replaces the game's; its id is ignored.
+     * @description answers with the game as stored. The file replaces the game's card and content; its id is ignored. It takes the same rights as an update (mayEditCard, mayEditContent).
      *
      * @name PutApiGamesIdYaml
      * @summary Updates a game from a game file, YAML or JSON, and
@@ -2346,7 +2450,7 @@ export class Api<
       data: UpdateGameYAMLReq,
       params: RequestParams = {},
     ) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}/yaml`,
         method: "PUT",
         body: data,
@@ -2914,10 +3018,17 @@ export class Api<
      * @request GET:/api/sessions
      * @secure
      */
-    getApiSessions: (params: RequestParams = {}) =>
+    getApiSessions: (
+      query?: {
+        search?: string;
+        sortBy?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<UserSessionWithGame[], Error>({
         path: `/api/sessions`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -3315,10 +3426,20 @@ export class Api<
      * @request GET:/api/workshops
      * @secure
      */
-    getApiWorkshops: (params: RequestParams = {}) =>
+    getApiWorkshops: (
+      query?: {
+        institutionId?: string;
+        search?: string;
+        sortBy?: string;
+        sortDir?: string;
+        activeOnly?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<Workshop[], Error>({
         path: `/api/workshops`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

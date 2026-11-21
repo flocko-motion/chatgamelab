@@ -126,10 +126,20 @@ type CreateApiKeyReq struct {
 
 // CreateGameReq defines model for CreateGameReq.
 type CreateGameReq struct {
-	Description *string `json:"description,omitempty"`
-	Genre       *string `json:"genre,omitempty"`
-	Name        string  `json:"name"`
-	Public      *bool   `json:"public,omitempty"`
+	Css                    *string `json:"css,omitempty"`
+	Description            *string `json:"description,omitempty"`
+	FirstImage             *[]byte `json:"firstImage,omitempty"`
+	FirstMessage           *string `json:"firstMessage,omitempty"`
+	FirstStatus            *string `json:"firstStatus,omitempty"`
+	Genre                  *string `json:"genre,omitempty"`
+	Icon                   *[]byte `json:"icon,omitempty"`
+	ImageStyle             *string `json:"imageStyle,omitempty"`
+	Name                   *string `json:"name,omitempty"`
+	Public                 *bool   `json:"public,omitempty"`
+	StatusFields           *string `json:"statusFields,omitempty"`
+	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
+	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
+	Theme                  *string `json:"theme,omitempty"`
 }
 
 // CreateGameShareReq defines model for CreateGameShareReq.
@@ -301,6 +311,13 @@ type GameFile struct {
 	Theme                  *string            `json:"theme,omitempty"`
 }
 
+// GameMeta defines model for GameMeta.
+type GameMeta struct {
+	CreatedAt  time.Time           `json:"createdAt"`
+	CreatedBy  *openapi_types.UUID `json:"createdBy,omitempty"`
+	ModifiedAt time.Time           `json:"modifiedAt"`
+}
+
 // GameSession defines model for GameSession.
 type GameSession struct {
 	ApiKeyShareId *openapi_types.UUID `json:"apiKeyShareId,omitempty"`
@@ -342,6 +359,70 @@ type GameTag struct {
 	Id     openapi_types.UUID `json:"id"`
 	Meta   Meta               `json:"meta"`
 	Tag    string             `json:"tag"`
+}
+
+// GameTemplate defines model for GameTemplate.
+type GameTemplate struct {
+	Css                    *string `json:"css,omitempty"`
+	Description            string  `json:"description"`
+	FirstImage             *[]byte `json:"firstImage,omitempty"`
+	FirstMessage           *string `json:"firstMessage,omitempty"`
+	FirstStatus            *string `json:"firstStatus,omitempty"`
+	Genre                  string  `json:"genre"`
+	HasContent             bool    `json:"hasContent"`
+	Icon                   []byte  `json:"icon"`
+	ImageStyle             *string `json:"imageStyle,omitempty"`
+	MayEditCard            bool    `json:"mayEditCard"`
+	MayEditContent         bool    `json:"mayEditContent"`
+	MayPublish             bool    `json:"mayPublish"`
+	Name                   string  `json:"name"`
+	Public                 bool    `json:"public"`
+	StatusFields           *string `json:"statusFields,omitempty"`
+	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
+	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
+	Theme                  *string `json:"theme,omitempty"`
+}
+
+// GameView defines model for GameView.
+type GameView struct {
+	CloneCount                   int                 `json:"cloneCount"`
+	CreatorId                    *openapi_types.UUID `json:"creatorId,omitempty"`
+	CreatorName                  *string             `json:"creatorName,omitempty"`
+	Css                          *string             `json:"css,omitempty"`
+	Description                  string              `json:"description"`
+	FirstImage                   *[]byte             `json:"firstImage,omitempty"`
+	FirstMessage                 *string             `json:"firstMessage,omitempty"`
+	FirstStatus                  *string             `json:"firstStatus,omitempty"`
+	Genre                        string              `json:"genre"`
+	HasContent                   bool                `json:"hasContent"`
+	HasSettings                  bool                `json:"hasSettings"`
+	Icon                         []byte              `json:"icon"`
+	Id                           openapi_types.UUID  `json:"id"`
+	ImageStyle                   *string             `json:"imageStyle,omitempty"`
+	IsFavorite                   bool                `json:"isFavorite"`
+	MayCopy                      bool                `json:"mayCopy"`
+	MayEditCard                  bool                `json:"mayEditCard"`
+	MayEditContent               bool                `json:"mayEditContent"`
+	MayEditSettings              bool                `json:"mayEditSettings"`
+	MayPublish                   bool                `json:"mayPublish"`
+	MayShare                     bool                `json:"mayShare"`
+	Meta                         GameMeta            `json:"meta"`
+	Name                         string              `json:"name"`
+	OriginallyCreatedBy          *openapi_types.UUID `json:"originallyCreatedBy,omitempty"`
+	PlayCount                    int                 `json:"playCount"`
+	Public                       bool                `json:"public"`
+	PublicSponsoredApiKeyShareId *openapi_types.UUID `json:"publicSponsoredApiKeyShareId,omitempty"`
+	StatusFields                 *string             `json:"statusFields,omitempty"`
+	SystemMessageGameStart       *string             `json:"systemMessageGameStart,omitempty"`
+	SystemMessageScenario        *string             `json:"systemMessageScenario,omitempty"`
+	Theme                        *string             `json:"theme,omitempty"`
+	WorkshopId                   *openapi_types.UUID `json:"workshopId,omitempty"`
+}
+
+// GameViewPage defines model for GameViewPage.
+type GameViewPage struct {
+	Items []GameView `json:"items"`
+	Total int        `json:"total"`
 }
 
 // GenreInfo defines model for GenreInfo.
@@ -754,32 +835,20 @@ type UpdateApiKeyReq struct {
 
 // UpdateGameReq defines model for UpdateGameReq.
 type UpdateGameReq struct {
-	CloneCount                   int                 `json:"cloneCount"`
-	CreatorId                    *openapi_types.UUID `json:"creatorId,omitempty"`
-	CreatorName                  *string             `json:"creatorName,omitempty"`
-	Css                          string              `json:"css"`
-	Description                  string              `json:"description"`
-	FirstImage                   []byte              `json:"firstImage"`
-	FirstMessage                 *string             `json:"firstMessage,omitempty"`
-	FirstStatus                  *string             `json:"firstStatus,omitempty"`
-	Genre                        string              `json:"genre"`
-	Icon                         []byte              `json:"icon"`
-	Id                           openapi_types.UUID  `json:"id"`
-	ImageStyle                   string              `json:"imageStyle"`
-	Meta                         Meta                `json:"meta"`
-	Name                         string              `json:"name"`
-	OriginalCreatorId            *openapi_types.UUID `json:"originalCreatorId,omitempty"`
-	OriginalCreatorName          *string             `json:"originalCreatorName,omitempty"`
-	OriginallyCreatedBy          *openapi_types.UUID `json:"originallyCreatedBy,omitempty"`
-	PlayCount                    int                 `json:"playCount"`
-	Public                       bool                `json:"public"`
-	PublicSponsoredApiKeyShareId *openapi_types.UUID `json:"publicSponsoredApiKeyShareId,omitempty"`
-	StatusFields                 string              `json:"statusFields"`
-	SystemMessageGameStart       string              `json:"systemMessageGameStart"`
-	SystemMessageScenario        string              `json:"systemMessageScenario"`
-	Tags                         []GameTag           `json:"tags"`
-	Theme                        *string             `json:"theme,omitempty"`
-	WorkshopId                   *openapi_types.UUID `json:"workshopId,omitempty"`
+	Css                    *string `json:"css,omitempty"`
+	Description            *string `json:"description,omitempty"`
+	FirstImage             *[]byte `json:"firstImage,omitempty"`
+	FirstMessage           *string `json:"firstMessage,omitempty"`
+	FirstStatus            *string `json:"firstStatus,omitempty"`
+	Genre                  *string `json:"genre,omitempty"`
+	Icon                   *[]byte `json:"icon,omitempty"`
+	ImageStyle             *string `json:"imageStyle,omitempty"`
+	Name                   *string `json:"name,omitempty"`
+	Public                 *bool   `json:"public,omitempty"`
+	StatusFields           *string `json:"statusFields,omitempty"`
+	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
+	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
+	Theme                  *string `json:"theme,omitempty"`
 }
 
 // UpdateGameShareReq defines model for UpdateGameShareReq.
@@ -996,8 +1065,48 @@ type WorkshopParticipantTokenResp struct {
 	Token string `json:"token"`
 }
 
+// DeleteApiApikeysIdParams defines parameters for DeleteApiApikeysId.
+type DeleteApiApikeysIdParams struct {
+	Cascade *string `form:"cascade,omitempty" json:"cascade,omitempty"`
+}
+
+// GetApiApikeysIdGameSharesParams defines parameters for GetApiApikeysIdGameShares.
+type GetApiApikeysIdGameSharesParams struct {
+	Context *string `form:"context,omitempty" json:"context,omitempty"`
+}
+
+// GetApiAuthCheckNameParams defines parameters for GetApiAuthCheckName.
+type GetApiAuthCheckNameParams struct {
+	Name string `form:"name" json:"name"`
+}
+
 // PostApiAuthProviderLoginJSONBody defines parameters for PostApiAuthProviderLogin.
 type PostApiAuthProviderLoginJSONBody map[string]interface{}
+
+// GetApiGamesParams defines parameters for GetApiGames.
+type GetApiGamesParams struct {
+	Filter  *[]string `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string   `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *string   `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *string   `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int      `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int      `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// GetApiSessionsParams defines parameters for GetApiSessions.
+type GetApiSessionsParams struct {
+	Search *string `form:"search,omitempty" json:"search,omitempty"`
+	SortBy *string `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+}
+
+// GetApiWorkshopsParams defines parameters for GetApiWorkshops.
+type GetApiWorkshopsParams struct {
+	InstitutionId *string `form:"institutionId,omitempty" json:"institutionId,omitempty"`
+	Search        *string `form:"search,omitempty" json:"search,omitempty"`
+	SortBy        *string `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir       *string `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	ActiveOnly    *string `form:"activeOnly,omitempty" json:"activeOnly,omitempty"`
+}
 
 // PostApiApikeysNewJSONRequestBody defines body for PostApiApikeysNew for application/json ContentType.
 type PostApiApikeysNewJSONRequestBody = CreateApiKeyReq
@@ -1224,7 +1333,7 @@ type ClientInterface interface {
 	// With cascade=true it deletes the key and all its shares.
 	//
 	// Corresponds with DELETE /api/apikeys/{id} (the `DeleteApiApikeysId` operationId).
-	DeleteApiApikeysId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteApiApikeysId(ctx context.Context, id string, params *DeleteApiApikeysIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiApikeysId Returns an API key share and the shares linked to it.
 	//
@@ -1276,7 +1385,7 @@ type ClientInterface interface {
 	// context=organization lists only organization and workshop shares.
 	//
 	// Corresponds with GET /api/apikeys/{id}/game-shares (the `GetApiApikeysIdGameShares` operationId).
-	GetApiApikeysIdGameShares(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiApikeysIdGameShares(ctx context.Context, id string, params *GetApiApikeysIdGameSharesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiApikeysIdSharesWithBody Shares an API key with a user, workshop or institution.
 	//
@@ -1316,7 +1425,7 @@ type ClientInterface interface {
 	// unavailable and flagged profane.
 	//
 	// Corresponds with GET /api/auth/check-name (the `GetApiAuthCheckName` operationId).
-	GetApiAuthCheckName(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiAuthCheckName(ctx context.Context, params *GetApiAuthCheckNameParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthDevLoginWithBody Signs in as one of the seeded development accounts.
 	//
@@ -1651,41 +1760,48 @@ type ClientInterface interface {
 	// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
 	GetApiErrorsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGames Lists the games the caller can see.
+	// GetApiGames Lists a page of the games the caller can see, and the total.
 	//
-	// Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt,
-	// playCount), sortDir (asc, desc), filter (all, own, public, organization,
-	// favorites).
+	// Query, all optional: filter (own, others, public, favorites, sponsored;
+	// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
+	// visibility, creator), sortDir (asc, desc), limit, offset.
 	//
 	// Corresponds with GET /api/games (the `GetApiGames` operationId).
-	GetApiGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiGames(ctx context.Context, params *GetApiGamesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGamesFavourites Lists the games the caller has marked as favourites.
+	// GetApiGamesNew Returns the template for a game the caller creates: what a
 	//
-	// Corresponds with GET /api/games/favourites (the `GetApiGamesFavourites` operationId).
-	GetApiGamesFavourites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// new game starts with and what the caller may do with it. Nothing is stored;
+	// the client fills it in and creates the game with CreateGameEndpoint.
+	//
+	// Corresponds with GET /api/games/new (the `GetApiGamesNew` operationId).
+	GetApiGamesNew(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesNewWithBody Creates a game owned by the caller.
+	// PostApiGamesNewWithBody Creates a game owned by the caller from the filled-in
 	//
-	// Only the name is required, at most 70 characters; the genre is one of the
-	// engine's genres and makes an adventure when empty.
+	// template, and answers with it as stored. Only the name is required, at
+	// most 70 characters; making it public takes the template's mayPublish. In
+	// a workshop, the game belongs to it.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/games/new (the `PostApiGamesNew` operationId).
 	PostApiGamesNewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesNew Creates a game owned by the caller.
+	// PostApiGamesNew Creates a game owned by the caller from the filled-in
 	//
-	// Only the name is required, at most 70 characters; the genre is one of the
-	// engine's genres and makes an adventure when empty.
+	// template, and answers with it as stored. Only the name is required, at
+	// most 70 characters; making it public takes the template's mayPublish. In
+	// a workshop, the game belongs to it.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/games/new (the `PostApiGamesNew` operationId).
 	PostApiGamesNew(ctx context.Context, body PostApiGamesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiGamesId Deletes a game and answers with it as it was.
+	// DeleteApiGamesId Deletes a game and answers with it as it was. Deleting
+	//
+	// takes mayEditSettings (403 otherwise).
 	//
 	// Corresponds with DELETE /api/games/{id} (the `DeleteApiGamesId` operationId).
 	DeleteApiGamesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1695,20 +1811,30 @@ type ClientInterface interface {
 	// Corresponds with GET /api/games/{id} (the `GetApiGamesId` operationId).
 	GetApiGamesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesIdWithBody Updates a game's properties.
+	// PostApiGamesIdWithBody Changes a game's card and content and answers with the
 	//
-	// Takes the whole game; its name is at most 70 characters. Answers with the
 	// game as stored.
+	//
+	// Send what changes; a field left out stays as it is, and sending the whole
+	// game back is fine: only what differs counts. Changing a section the caller
+	// may not edit (mayEditCard, mayEditContent), or making the game public
+	// without mayPublish, refuses the whole request (403). The name is at most 70
+	// characters. Workshop, sponsor and creator are not changed here.
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /api/games/{id} (the `PostApiGamesId` operationId).
 	PostApiGamesIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesId Updates a game's properties.
+	// PostApiGamesId Changes a game's card and content and answers with the
 	//
-	// Takes the whole game; its name is at most 70 characters. Answers with the
 	// game as stored.
+	//
+	// Send what changes; a field left out stays as it is, and sending the whole
+	// game back is fine: only what differs counts. Changing a section the caller
+	// may not edit (mayEditCard, mayEditContent), or making the game public
+	// without mayPublish, refuses the whole request (403). The name is at most 70
+	// characters. Workshop, sponsor and creator are not changed here.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -1729,19 +1855,24 @@ type ClientInterface interface {
 	// Corresponds with GET /api/games/{id}/available-keys (the `GetApiGamesIdAvailableKeys` operationId).
 	GetApiGamesIdAvailableKeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesIdClone Copies a public game, or one of the caller's own, into a
+	// PostApiGamesIdClone Copies a game into a new private game of the caller's
 	//
-	// new private game of the caller's.
+	// and answers with the copy. It takes mayCopy (403 otherwise); the copy has
+	// the game's card and content, not its images.
 	//
 	// Corresponds with POST /api/games/{id}/clone (the `PostApiGamesIdClone` operationId).
 	PostApiGamesIdClone(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiGamesIdFavourite Removes a game from the caller's favourites.
+	// DeleteApiGamesIdFavourite Removes a game from the caller's favorites. It
+	//
+	// answers the same whatever the game: it gives nothing away.
 	//
 	// Corresponds with DELETE /api/games/{id}/favourite (the `DeleteApiGamesIdFavourite` operationId).
 	DeleteApiGamesIdFavourite(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiGamesIdFavourite Adds a game to the caller's favourites.
+	// PostApiGamesIdFavourite Marks a game as one of the caller's favorites.
+	//
+	// It takes reading the game (404 otherwise); marking twice changes nothing.
 	//
 	// Corresponds with POST /api/games/{id}/favourite (the `PostApiGamesIdFavourite` operationId).
 	PostApiGamesIdFavourite(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1838,16 +1969,19 @@ type ClientInterface interface {
 	// Corresponds with PUT /api/games/{id}/sponsor (the `PutApiGamesIdSponsor` operationId).
 	PutApiGamesIdSponsor(ctx context.Context, id string, body PutApiGamesIdSponsorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGamesIdYaml Exports a game as a game file, YAML by default.
+	// GetApiGamesIdYaml Exports a game as a game file, YAML by default. It
+	//
+	// takes seeing the game's content (hasContent; 403 otherwise).
 	//
 	// Corresponds with GET /api/games/{id}/yaml (the `GetApiGamesIdYaml` operationId).
 	GetApiGamesIdYaml(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PutApiGamesIdYamlWithBody Updates a game from a game file, YAML or JSON, and
 	//
-	// answers with the game.
+	// answers with the game as stored.
 	//
-	// The file's content replaces the game's; its id is ignored.
+	// The file replaces the game's card and content; its id is ignored. It takes
+	// the same rights as an update (mayEditCard, mayEditContent).
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -1856,9 +1990,10 @@ type ClientInterface interface {
 
 	// PutApiGamesIdYaml Updates a game from a game file, YAML or JSON, and
 	//
-	// answers with the game.
+	// answers with the game as stored.
 	//
-	// The file's content replaces the game's; its id is ignored.
+	// The file replaces the game's card and content; its id is ignored. It takes
+	// the same rights as an update (mayEditCard, mayEditContent).
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -2171,7 +2306,7 @@ type ClientInterface interface {
 	// lastPlayed by default).
 	//
 	// Corresponds with GET /api/sessions (the `GetApiSessions` operationId).
-	GetApiSessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiSessions(ctx context.Context, params *GetApiSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiSessionsId Deletes a session the caller owns and everything it stored.
 	//
@@ -2435,7 +2570,7 @@ type ClientInterface interface {
 	// workshops only).
 	//
 	// Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
-	GetApiWorkshops(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiWorkshops(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiWorkshopsWithBody Creates a workshop.
 	//
@@ -2617,8 +2752,8 @@ func (c *Client) PostApiApikeysNew(ctx context.Context, body PostApiApikeysNewJS
 // With cascade=true it deletes the key and all its shares.
 //
 // Corresponds with DELETE /api/apikeys/{id} (the `DeleteApiApikeysId` operationId).
-func (c *Client) DeleteApiApikeysId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteApiApikeysIdRequest(c.Server, id)
+func (c *Client) DeleteApiApikeysId(ctx context.Context, id string, params *DeleteApiApikeysIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiApikeysIdRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2739,8 +2874,8 @@ func (c *Client) PutApiApikeysIdDefault(ctx context.Context, id string, reqEdito
 // context=organization lists only organization and workshop shares.
 //
 // Corresponds with GET /api/apikeys/{id}/game-shares (the `GetApiApikeysIdGameShares` operationId).
-func (c *Client) GetApiApikeysIdGameShares(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiApikeysIdGameSharesRequest(c.Server, id)
+func (c *Client) GetApiApikeysIdGameShares(ctx context.Context, id string, params *GetApiApikeysIdGameSharesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiApikeysIdGameSharesRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2829,8 +2964,8 @@ func (c *Client) PostApiAuthAuth0Login(ctx context.Context, body PostApiAuthAuth
 // unavailable and flagged profane.
 //
 // Corresponds with GET /api/auth/check-name (the `GetApiAuthCheckName` operationId).
-func (c *Client) GetApiAuthCheckName(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiAuthCheckNameRequest(c.Server)
+func (c *Client) GetApiAuthCheckName(ctx context.Context, params *GetApiAuthCheckNameParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAuthCheckNameRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3564,15 +3699,15 @@ func (c *Client) GetApiErrorsId(ctx context.Context, id string, reqEditors ...Re
 	return c.Client.Do(req)
 }
 
-// GetApiGames Lists the games the caller can see.
+// GetApiGames Lists a page of the games the caller can see, and the total.
 //
-// Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt,
-// playCount), sortDir (asc, desc), filter (all, own, public, organization,
-// favorites).
+// Query, all optional: filter (own, others, public, favorites, sponsored;
+// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
+// visibility, creator), sortDir (asc, desc), limit, offset.
 //
 // Corresponds with GET /api/games (the `GetApiGames` operationId).
-func (c *Client) GetApiGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiGamesRequest(c.Server)
+func (c *Client) GetApiGames(ctx context.Context, params *GetApiGamesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiGamesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3583,11 +3718,14 @@ func (c *Client) GetApiGames(ctx context.Context, reqEditors ...RequestEditorFn)
 	return c.Client.Do(req)
 }
 
-// GetApiGamesFavourites Lists the games the caller has marked as favourites.
+// GetApiGamesNew Returns the template for a game the caller creates: what a
 //
-// Corresponds with GET /api/games/favourites (the `GetApiGamesFavourites` operationId).
-func (c *Client) GetApiGamesFavourites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiGamesFavouritesRequest(c.Server)
+// new game starts with and what the caller may do with it. Nothing is stored;
+// the client fills it in and creates the game with CreateGameEndpoint.
+//
+// Corresponds with GET /api/games/new (the `GetApiGamesNew` operationId).
+func (c *Client) GetApiGamesNew(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiGamesNewRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -3598,10 +3736,11 @@ func (c *Client) GetApiGamesFavourites(ctx context.Context, reqEditors ...Reques
 	return c.Client.Do(req)
 }
 
-// PostApiGamesNewWithBody Creates a game owned by the caller.
+// PostApiGamesNewWithBody Creates a game owned by the caller from the filled-in
 //
-// Only the name is required, at most 70 characters; the genre is one of the
-// engine's genres and makes an adventure when empty.
+// template, and answers with it as stored. Only the name is required, at
+// most 70 characters; making it public takes the template's mayPublish. In
+// a workshop, the game belongs to it.
 //
 // Takes any type of body and a specified content type.
 //
@@ -3618,10 +3757,11 @@ func (c *Client) PostApiGamesNewWithBody(ctx context.Context, contentType string
 	return c.Client.Do(req)
 }
 
-// PostApiGamesNew Creates a game owned by the caller.
+// PostApiGamesNew Creates a game owned by the caller from the filled-in
 //
-// Only the name is required, at most 70 characters; the genre is one of the
-// engine's genres and makes an adventure when empty.
+// template, and answers with it as stored. Only the name is required, at
+// most 70 characters; making it public takes the template's mayPublish. In
+// a workshop, the game belongs to it.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -3638,7 +3778,9 @@ func (c *Client) PostApiGamesNew(ctx context.Context, body PostApiGamesNewJSONRe
 	return c.Client.Do(req)
 }
 
-// DeleteApiGamesId Deletes a game and answers with it as it was.
+// DeleteApiGamesId Deletes a game and answers with it as it was. Deleting
+//
+// takes mayEditSettings (403 otherwise).
 //
 // Corresponds with DELETE /api/games/{id} (the `DeleteApiGamesId` operationId).
 func (c *Client) DeleteApiGamesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3668,10 +3810,15 @@ func (c *Client) GetApiGamesId(ctx context.Context, id string, reqEditors ...Req
 	return c.Client.Do(req)
 }
 
-// PostApiGamesIdWithBody Updates a game's properties.
+// PostApiGamesIdWithBody Changes a game's card and content and answers with the
 //
-// Takes the whole game; its name is at most 70 characters. Answers with the
 // game as stored.
+//
+// Send what changes; a field left out stays as it is, and sending the whole
+// game back is fine: only what differs counts. Changing a section the caller
+// may not edit (mayEditCard, mayEditContent), or making the game public
+// without mayPublish, refuses the whole request (403). The name is at most 70
+// characters. Workshop, sponsor and creator are not changed here.
 //
 // Takes any type of body and a specified content type.
 //
@@ -3688,10 +3835,15 @@ func (c *Client) PostApiGamesIdWithBody(ctx context.Context, id string, contentT
 	return c.Client.Do(req)
 }
 
-// PostApiGamesId Updates a game's properties.
+// PostApiGamesId Changes a game's card and content and answers with the
 //
-// Takes the whole game; its name is at most 70 characters. Answers with the
 // game as stored.
+//
+// Send what changes; a field left out stays as it is, and sending the whole
+// game back is fine: only what differs counts. Changing a section the caller
+// may not edit (mayEditCard, mayEditContent), or making the game public
+// without mayPublish, refuses the whole request (403). The name is at most 70
+// characters. Workshop, sponsor and creator are not changed here.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -3742,9 +3894,10 @@ func (c *Client) GetApiGamesIdAvailableKeys(ctx context.Context, id string, reqE
 	return c.Client.Do(req)
 }
 
-// PostApiGamesIdClone Copies a public game, or one of the caller's own, into a
+// PostApiGamesIdClone Copies a game into a new private game of the caller's
 //
-// new private game of the caller's.
+// and answers with the copy. It takes mayCopy (403 otherwise); the copy has
+// the game's card and content, not its images.
 //
 // Corresponds with POST /api/games/{id}/clone (the `PostApiGamesIdClone` operationId).
 func (c *Client) PostApiGamesIdClone(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3759,7 +3912,9 @@ func (c *Client) PostApiGamesIdClone(ctx context.Context, id string, reqEditors 
 	return c.Client.Do(req)
 }
 
-// DeleteApiGamesIdFavourite Removes a game from the caller's favourites.
+// DeleteApiGamesIdFavourite Removes a game from the caller's favorites. It
+//
+// answers the same whatever the game: it gives nothing away.
 //
 // Corresponds with DELETE /api/games/{id}/favourite (the `DeleteApiGamesIdFavourite` operationId).
 func (c *Client) DeleteApiGamesIdFavourite(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3774,7 +3929,9 @@ func (c *Client) DeleteApiGamesIdFavourite(ctx context.Context, id string, reqEd
 	return c.Client.Do(req)
 }
 
-// PostApiGamesIdFavourite Adds a game to the caller's favourites.
+// PostApiGamesIdFavourite Marks a game as one of the caller's favorites.
+//
+// It takes reading the game (404 otherwise); marking twice changes nothing.
 //
 // Corresponds with POST /api/games/{id}/favourite (the `PostApiGamesIdFavourite` operationId).
 func (c *Client) PostApiGamesIdFavourite(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3981,7 +4138,9 @@ func (c *Client) PutApiGamesIdSponsor(ctx context.Context, id string, body PutAp
 	return c.Client.Do(req)
 }
 
-// GetApiGamesIdYaml Exports a game as a game file, YAML by default.
+// GetApiGamesIdYaml Exports a game as a game file, YAML by default. It
+//
+// takes seeing the game's content (hasContent; 403 otherwise).
 //
 // Corresponds with GET /api/games/{id}/yaml (the `GetApiGamesIdYaml` operationId).
 func (c *Client) GetApiGamesIdYaml(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3998,9 +4157,10 @@ func (c *Client) GetApiGamesIdYaml(ctx context.Context, id string, reqEditors ..
 
 // PutApiGamesIdYamlWithBody Updates a game from a game file, YAML or JSON, and
 //
-// answers with the game.
+// answers with the game as stored.
 //
-// The file's content replaces the game's; its id is ignored.
+// The file replaces the game's card and content; its id is ignored. It takes
+// the same rights as an update (mayEditCard, mayEditContent).
 //
 // Takes any type of body and a specified content type.
 //
@@ -4019,9 +4179,10 @@ func (c *Client) PutApiGamesIdYamlWithBody(ctx context.Context, id string, conte
 
 // PutApiGamesIdYaml Updates a game from a game file, YAML or JSON, and
 //
-// answers with the game.
+// answers with the game as stored.
 //
-// The file's content replaces the game's; its id is ignored.
+// The file replaces the game's card and content; its id is ignored. It takes
+// the same rights as an update (mayEditCard, mayEditContent).
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4714,8 +4875,8 @@ func (c *Client) GetApiRoles(ctx context.Context, reqEditors ...RequestEditorFn)
 // lastPlayed by default).
 //
 // Corresponds with GET /api/sessions (the `GetApiSessions` operationId).
-func (c *Client) GetApiSessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiSessionsRequest(c.Server)
+func (c *Client) GetApiSessions(ctx context.Context, params *GetApiSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiSessionsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5268,8 +5429,8 @@ func (c *Client) GetApiVersion(ctx context.Context, reqEditors ...RequestEditorF
 // workshops only).
 //
 // Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
-func (c *Client) GetApiWorkshops(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiWorkshopsRequest(c.Server)
+func (c *Client) GetApiWorkshops(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiWorkshopsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5603,7 +5764,7 @@ func NewPostApiApikeysNewRequestWithBody(server string, contentType string, body
 }
 
 // NewDeleteApiApikeysIdRequest constructs an http.Request for the DeleteApiApikeysId method
-func NewDeleteApiApikeysIdRequest(server string, id string) (*http.Request, error) {
+func NewDeleteApiApikeysIdRequest(server string, id string, params *DeleteApiApikeysIdParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -5626,6 +5787,33 @@ func NewDeleteApiApikeysIdRequest(server string, id string) (*http.Request, erro
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Cascade != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "cascade", *params.Cascade, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
@@ -5799,7 +5987,7 @@ func NewPutApiApikeysIdDefaultRequest(server string, id string) (*http.Request, 
 }
 
 // NewGetApiApikeysIdGameSharesRequest constructs an http.Request for the GetApiApikeysIdGameShares method
-func NewGetApiApikeysIdGameSharesRequest(server string, id string) (*http.Request, error) {
+func NewGetApiApikeysIdGameSharesRequest(server string, id string, params *GetApiApikeysIdGameSharesParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -5822,6 +6010,33 @@ func NewGetApiApikeysIdGameSharesRequest(server string, id string) (*http.Reques
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Context != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "context", *params.Context, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -5920,7 +6135,7 @@ func NewPostApiAuthAuth0LoginRequestWithBody(server string, contentType string, 
 }
 
 // NewGetApiAuthCheckNameRequest constructs an http.Request for the GetApiAuthCheckName method
-func NewGetApiAuthCheckNameRequest(server string) (*http.Request, error) {
+func NewGetApiAuthCheckNameRequest(server string, params *GetApiAuthCheckNameParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -5936,6 +6151,29 @@ func NewGetApiAuthCheckNameRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "name", params.Name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -7042,7 +7280,7 @@ func NewGetApiErrorsIdRequest(server string, id string) (*http.Request, error) {
 }
 
 // NewGetApiGamesRequest constructs an http.Request for the GetApiGames method
-func NewGetApiGamesRequest(server string) (*http.Request, error) {
+func NewGetApiGamesRequest(server string, params *GetApiGamesParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -7060,6 +7298,93 @@ func NewGetApiGamesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
@@ -7068,8 +7393,8 @@ func NewGetApiGamesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewGetApiGamesFavouritesRequest constructs an http.Request for the GetApiGamesFavourites method
-func NewGetApiGamesFavouritesRequest(server string) (*http.Request, error) {
+// NewGetApiGamesNewRequest constructs an http.Request for the GetApiGamesNew method
+func NewGetApiGamesNewRequest(server string) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -7077,7 +7402,7 @@ func NewGetApiGamesFavouritesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/games/favourites")
+	operationPath := fmt.Sprintf("/api/games/new")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -8827,7 +9152,7 @@ func NewGetApiRolesRequest(server string) (*http.Request, error) {
 }
 
 // NewGetApiSessionsRequest constructs an http.Request for the GetApiSessions method
-func NewGetApiSessionsRequest(server string) (*http.Request, error) {
+func NewGetApiSessionsRequest(server string, params *GetApiSessionsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -8843,6 +9168,45 @@ func NewGetApiSessionsRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -9554,7 +9918,7 @@ func NewGetApiVersionRequest(server string) (*http.Request, error) {
 }
 
 // NewGetApiWorkshopsRequest constructs an http.Request for the GetApiWorkshops method
-func NewGetApiWorkshopsRequest(server string) (*http.Request, error) {
+func NewGetApiWorkshopsRequest(server string, params *GetApiWorkshopsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9570,6 +9934,81 @@ func NewGetApiWorkshopsRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.InstitutionId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "institutionId", *params.InstitutionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ActiveOnly != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "activeOnly", *params.ActiveOnly, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -10054,7 +10493,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/apikeys/{id} (the `DeleteApiApikeysId` operationId).
-	DeleteApiApikeysIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiApikeysIdResponse, error)
+	DeleteApiApikeysIdWithResponse(ctx context.Context, id string, params *DeleteApiApikeysIdParams, reqEditors ...RequestEditorFn) (*DeleteApiApikeysIdResponse, error)
 
 	// GetApiApikeysIdWithResponse Returns an API key share and the shares linked to it.
 	//
@@ -10112,7 +10551,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/apikeys/{id}/game-shares (the `GetApiApikeysIdGameShares` operationId).
-	GetApiApikeysIdGameSharesWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiApikeysIdGameSharesResponse, error)
+	GetApiApikeysIdGameSharesWithResponse(ctx context.Context, id string, params *GetApiApikeysIdGameSharesParams, reqEditors ...RequestEditorFn) (*GetApiApikeysIdGameSharesResponse, error)
 
 	// PostApiApikeysIdSharesWithBodyWithResponse Shares an API key with a user, workshop or institution.
 	//
@@ -10154,7 +10593,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/auth/check-name (the `GetApiAuthCheckName` operationId).
-	GetApiAuthCheckNameWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAuthCheckNameResponse, error)
+	GetApiAuthCheckNameWithResponse(ctx context.Context, params *GetApiAuthCheckNameParams, reqEditors ...RequestEditorFn) (*GetApiAuthCheckNameResponse, error)
 
 	// PostApiAuthDevLoginWithBodyWithResponse Signs in as one of the seeded development accounts.
 	//
@@ -10527,45 +10966,52 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
 	GetApiErrorsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiErrorsIdResponse, error)
 
-	// GetApiGamesWithResponse Lists the games the caller can see.
+	// GetApiGamesWithResponse Lists a page of the games the caller can see, and the total.
 	//
-	// Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt,
-	// playCount), sortDir (asc, desc), filter (all, own, public, organization,
-	// favorites).
+	// Query, all optional: filter (own, others, public, favorites, sponsored;
+	// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
+	// visibility, creator), sortDir (asc, desc), limit, offset.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/games (the `GetApiGames` operationId).
-	GetApiGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiGamesResponse, error)
+	GetApiGamesWithResponse(ctx context.Context, params *GetApiGamesParams, reqEditors ...RequestEditorFn) (*GetApiGamesResponse, error)
 
-	// GetApiGamesFavouritesWithResponse Lists the games the caller has marked as favourites.
+	// GetApiGamesNewWithResponse Returns the template for a game the caller creates: what a
+	//
+	// new game starts with and what the caller may do with it. Nothing is stored;
+	// the client fills it in and creates the game with CreateGameEndpoint.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
-	// Corresponds with GET /api/games/favourites (the `GetApiGamesFavourites` operationId).
-	GetApiGamesFavouritesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiGamesFavouritesResponse, error)
+	// Corresponds with GET /api/games/new (the `GetApiGamesNew` operationId).
+	GetApiGamesNewWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiGamesNewResponse, error)
 
-	// PostApiGamesNewWithBodyWithResponse Creates a game owned by the caller.
+	// PostApiGamesNewWithBodyWithResponse Creates a game owned by the caller from the filled-in
 	//
-	// Only the name is required, at most 70 characters; the genre is one of the
-	// engine's genres and makes an adventure when empty.
+	// template, and answers with it as stored. Only the name is required, at
+	// most 70 characters; making it public takes the template's mayPublish. In
+	// a workshop, the game belongs to it.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/games/new (the `PostApiGamesNew` operationId).
 	PostApiGamesNewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiGamesNewResponse, error)
 
-	// PostApiGamesNewWithResponse Creates a game owned by the caller.
+	// PostApiGamesNewWithResponse Creates a game owned by the caller from the filled-in
 	//
-	// Only the name is required, at most 70 characters; the genre is one of the
-	// engine's genres and makes an adventure when empty.
+	// template, and answers with it as stored. Only the name is required, at
+	// most 70 characters; making it public takes the template's mayPublish. In
+	// a workshop, the game belongs to it.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/games/new (the `PostApiGamesNew` operationId).
 	PostApiGamesNewWithResponse(ctx context.Context, body PostApiGamesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesNewResponse, error)
 
-	// DeleteApiGamesIdWithResponse Deletes a game and answers with it as it was.
+	// DeleteApiGamesIdWithResponse Deletes a game and answers with it as it was. Deleting
+	//
+	// takes mayEditSettings (403 otherwise).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -10579,20 +11025,30 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/games/{id} (the `GetApiGamesId` operationId).
 	GetApiGamesIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdResponse, error)
 
-	// PostApiGamesIdWithBodyWithResponse Updates a game's properties.
+	// PostApiGamesIdWithBodyWithResponse Changes a game's card and content and answers with the
 	//
-	// Takes the whole game; its name is at most 70 characters. Answers with the
 	// game as stored.
+	//
+	// Send what changes; a field left out stays as it is, and sending the whole
+	// game back is fine: only what differs counts. Changing a section the caller
+	// may not edit (mayEditCard, mayEditContent), or making the game public
+	// without mayPublish, refuses the whole request (403). The name is at most 70
+	// characters. Workshop, sponsor and creator are not changed here.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/games/{id} (the `PostApiGamesId` operationId).
 	PostApiGamesIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiGamesIdResponse, error)
 
-	// PostApiGamesIdWithResponse Updates a game's properties.
+	// PostApiGamesIdWithResponse Changes a game's card and content and answers with the
 	//
-	// Takes the whole game; its name is at most 70 characters. Answers with the
 	// game as stored.
+	//
+	// Send what changes; a field left out stays as it is, and sending the whole
+	// game back is fine: only what differs counts. Changing a section the caller
+	// may not edit (mayEditCard, mayEditContent), or making the game public
+	// without mayPublish, refuses the whole request (403). The name is at most 70
+	// characters. Workshop, sponsor and creator are not changed here.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10617,23 +11073,28 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/games/{id}/available-keys (the `GetApiGamesIdAvailableKeys` operationId).
 	GetApiGamesIdAvailableKeysWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdAvailableKeysResponse, error)
 
-	// PostApiGamesIdCloneWithResponse Copies a public game, or one of the caller's own, into a
+	// PostApiGamesIdCloneWithResponse Copies a game into a new private game of the caller's
 	//
-	// new private game of the caller's.
+	// and answers with the copy. It takes mayCopy (403 otherwise); the copy has
+	// the game's card and content, not its images.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/games/{id}/clone (the `PostApiGamesIdClone` operationId).
 	PostApiGamesIdCloneWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiGamesIdCloneResponse, error)
 
-	// DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favourites.
+	// DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favorites. It
+	//
+	// answers the same whatever the game: it gives nothing away.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with DELETE /api/games/{id}/favourite (the `DeleteApiGamesIdFavourite` operationId).
 	DeleteApiGamesIdFavouriteWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiGamesIdFavouriteResponse, error)
 
-	// PostApiGamesIdFavouriteWithResponse Adds a game to the caller's favourites.
+	// PostApiGamesIdFavouriteWithResponse Marks a game as one of the caller's favorites.
+	//
+	// It takes reading the game (404 otherwise); marking twice changes nothing.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -10740,7 +11201,9 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with PUT /api/games/{id}/sponsor (the `PutApiGamesIdSponsor` operationId).
 	PutApiGamesIdSponsorWithResponse(ctx context.Context, id string, body PutApiGamesIdSponsorJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiGamesIdSponsorResponse, error)
 
-	// GetApiGamesIdYamlWithResponse Exports a game as a game file, YAML by default.
+	// GetApiGamesIdYamlWithResponse Exports a game as a game file, YAML by default. It
+	//
+	// takes seeing the game's content (hasContent; 403 otherwise).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -10749,9 +11212,10 @@ type ClientWithResponsesInterface interface {
 
 	// PutApiGamesIdYamlWithBodyWithResponse Updates a game from a game file, YAML or JSON, and
 	//
-	// answers with the game.
+	// answers with the game as stored.
 	//
-	// The file's content replaces the game's; its id is ignored.
+	// The file replaces the game's card and content; its id is ignored. It takes
+	// the same rights as an update (mayEditCard, mayEditContent).
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10760,9 +11224,10 @@ type ClientWithResponsesInterface interface {
 
 	// PutApiGamesIdYamlWithResponse Updates a game from a game file, YAML or JSON, and
 	//
-	// answers with the game.
+	// answers with the game as stored.
 	//
-	// The file's content replaces the game's; its id is ignored.
+	// The file replaces the game's card and content; its id is ignored. It takes
+	// the same rights as an update (mayEditCard, mayEditContent).
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -11123,7 +11588,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/sessions (the `GetApiSessions` operationId).
-	GetApiSessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSessionsResponse, error)
+	GetApiSessionsWithResponse(ctx context.Context, params *GetApiSessionsParams, reqEditors ...RequestEditorFn) (*GetApiSessionsResponse, error)
 
 	// DeleteApiSessionsIdWithResponse Deletes a session the caller owns and everything it stored.
 	//
@@ -11417,7 +11882,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
-	GetApiWorkshopsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiWorkshopsResponse, error)
+	GetApiWorkshopsWithResponse(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*GetApiWorkshopsResponse, error)
 
 	// PostApiWorkshopsWithBodyWithResponse Creates a workshop.
 	//
@@ -13394,13 +13859,13 @@ type GetApiGamesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]Game
+	JSON200 *GameViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiGamesResponse) GetJSON200() *[]Game {
+func (r GetApiGamesResponse) GetJSON200() *GameViewPage {
 	return r.JSON200
 }
 
@@ -13438,32 +13903,32 @@ func (r GetApiGamesResponse) ContentType() string {
 	return ""
 }
 
-type GetApiGamesFavouritesResponse struct {
+type GetApiGamesNewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]Game
+	JSON200 *GameTemplate
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiGamesFavouritesResponse) GetJSON200() *[]Game {
+func (r GetApiGamesNewResponse) GetJSON200() *GameTemplate {
 	return r.JSON200
 }
 
 // GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r GetApiGamesFavouritesResponse) GetJSONDefault() *Error {
+func (r GetApiGamesNewResponse) GetJSONDefault() *Error {
 	return r.JSONDefault
 }
 
 // GetBody returns the raw response body bytes
-func (r GetApiGamesFavouritesResponse) GetBody() []byte {
+func (r GetApiGamesNewResponse) GetBody() []byte {
 	return r.Body
 }
 
 // Status returns HTTPResponse.Status
-func (r GetApiGamesFavouritesResponse) Status() string {
+func (r GetApiGamesNewResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -13471,7 +13936,7 @@ func (r GetApiGamesFavouritesResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetApiGamesFavouritesResponse) StatusCode() int {
+func (r GetApiGamesNewResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -13479,7 +13944,7 @@ func (r GetApiGamesFavouritesResponse) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetApiGamesFavouritesResponse) ContentType() string {
+func (r GetApiGamesNewResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -13490,13 +13955,13 @@ type PostApiGamesNewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiGamesNewResponse) GetJSON200() *Game {
+func (r PostApiGamesNewResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -13538,13 +14003,13 @@ type DeleteApiGamesIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r DeleteApiGamesIdResponse) GetJSON200() *Game {
+func (r DeleteApiGamesIdResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -13586,13 +14051,13 @@ type GetApiGamesIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiGamesIdResponse) GetJSON200() *Game {
+func (r GetApiGamesIdResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -13634,13 +14099,13 @@ type PostApiGamesIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiGamesIdResponse) GetJSON200() *Game {
+func (r PostApiGamesIdResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -13778,13 +14243,13 @@ type PostApiGamesIdCloneResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PostApiGamesIdCloneResponse) GetJSON200() *Game {
+func (r PostApiGamesIdCloneResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -14313,13 +14778,13 @@ type PutApiGamesIdYamlResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Game
+	JSON200 *GameView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r PutApiGamesIdYamlResponse) GetJSON200() *Game {
+func (r PutApiGamesIdYamlResponse) GetJSON200() *GameView {
 	return r.JSON200
 }
 
@@ -17437,8 +17902,8 @@ func (c *ClientWithResponses) PostApiApikeysNewWithResponse(ctx context.Context,
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with DELETE /api/apikeys/{id} (the `DeleteApiApikeysId` operationId).
-func (c *ClientWithResponses) DeleteApiApikeysIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiApikeysIdResponse, error) {
-	rsp, err := c.DeleteApiApikeysId(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DeleteApiApikeysIdWithResponse(ctx context.Context, id string, params *DeleteApiApikeysIdParams, reqEditors ...RequestEditorFn) (*DeleteApiApikeysIdResponse, error) {
+	rsp, err := c.DeleteApiApikeysId(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -17537,8 +18002,8 @@ func (c *ClientWithResponses) PutApiApikeysIdDefaultWithResponse(ctx context.Con
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/apikeys/{id}/game-shares (the `GetApiApikeysIdGameShares` operationId).
-func (c *ClientWithResponses) GetApiApikeysIdGameSharesWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiApikeysIdGameSharesResponse, error) {
-	rsp, err := c.GetApiApikeysIdGameShares(ctx, id, reqEditors...)
+func (c *ClientWithResponses) GetApiApikeysIdGameSharesWithResponse(ctx context.Context, id string, params *GetApiApikeysIdGameSharesParams, reqEditors ...RequestEditorFn) (*GetApiApikeysIdGameSharesResponse, error) {
+	rsp, err := c.GetApiApikeysIdGameShares(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -17609,8 +18074,8 @@ func (c *ClientWithResponses) PostApiAuthAuth0LoginWithResponse(ctx context.Cont
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/auth/check-name (the `GetApiAuthCheckName` operationId).
-func (c *ClientWithResponses) GetApiAuthCheckNameWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAuthCheckNameResponse, error) {
-	rsp, err := c.GetApiAuthCheckName(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiAuthCheckNameWithResponse(ctx context.Context, params *GetApiAuthCheckNameParams, reqEditors ...RequestEditorFn) (*GetApiAuthCheckNameResponse, error) {
+	rsp, err := c.GetApiAuthCheckName(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -18222,40 +18687,44 @@ func (c *ClientWithResponses) GetApiErrorsIdWithResponse(ctx context.Context, id
 	return ParseGetApiErrorsIdResponse(rsp)
 }
 
-// GetApiGamesWithResponse Lists the games the caller can see.
+// GetApiGamesWithResponse Lists a page of the games the caller can see, and the total.
 //
-// Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt,
-// playCount), sortDir (asc, desc), filter (all, own, public, organization,
-// favorites).
+// Query, all optional: filter (own, others, public, favorites, sponsored;
+// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
+// visibility, creator), sortDir (asc, desc), limit, offset.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/games (the `GetApiGames` operationId).
-func (c *ClientWithResponses) GetApiGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiGamesResponse, error) {
-	rsp, err := c.GetApiGames(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiGamesWithResponse(ctx context.Context, params *GetApiGamesParams, reqEditors ...RequestEditorFn) (*GetApiGamesResponse, error) {
+	rsp, err := c.GetApiGames(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseGetApiGamesResponse(rsp)
 }
 
-// GetApiGamesFavouritesWithResponse Lists the games the caller has marked as favourites.
+// GetApiGamesNewWithResponse Returns the template for a game the caller creates: what a
+//
+// new game starts with and what the caller may do with it. Nothing is stored;
+// the client fills it in and creates the game with CreateGameEndpoint.
 //
 // Returns a wrapper object for the known response body format(s).
 //
-// Corresponds with GET /api/games/favourites (the `GetApiGamesFavourites` operationId).
-func (c *ClientWithResponses) GetApiGamesFavouritesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiGamesFavouritesResponse, error) {
-	rsp, err := c.GetApiGamesFavourites(ctx, reqEditors...)
+// Corresponds with GET /api/games/new (the `GetApiGamesNew` operationId).
+func (c *ClientWithResponses) GetApiGamesNewWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiGamesNewResponse, error) {
+	rsp, err := c.GetApiGamesNew(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetApiGamesFavouritesResponse(rsp)
+	return ParseGetApiGamesNewResponse(rsp)
 }
 
-// PostApiGamesNewWithBodyWithResponse Creates a game owned by the caller.
+// PostApiGamesNewWithBodyWithResponse Creates a game owned by the caller from the filled-in
 //
-// Only the name is required, at most 70 characters; the genre is one of the
-// engine's genres and makes an adventure when empty.
+// template, and answers with it as stored. Only the name is required, at
+// most 70 characters; making it public takes the template's mayPublish. In
+// a workshop, the game belongs to it.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18268,10 +18737,11 @@ func (c *ClientWithResponses) PostApiGamesNewWithBodyWithResponse(ctx context.Co
 	return ParsePostApiGamesNewResponse(rsp)
 }
 
-// PostApiGamesNewWithResponse Creates a game owned by the caller.
+// PostApiGamesNewWithResponse Creates a game owned by the caller from the filled-in
 //
-// Only the name is required, at most 70 characters; the genre is one of the
-// engine's genres and makes an adventure when empty.
+// template, and answers with it as stored. Only the name is required, at
+// most 70 characters; making it public takes the template's mayPublish. In
+// a workshop, the game belongs to it.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18284,7 +18754,9 @@ func (c *ClientWithResponses) PostApiGamesNewWithResponse(ctx context.Context, b
 	return ParsePostApiGamesNewResponse(rsp)
 }
 
-// DeleteApiGamesIdWithResponse Deletes a game and answers with it as it was.
+// DeleteApiGamesIdWithResponse Deletes a game and answers with it as it was. Deleting
+//
+// takes mayEditSettings (403 otherwise).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -18310,10 +18782,15 @@ func (c *ClientWithResponses) GetApiGamesIdWithResponse(ctx context.Context, id 
 	return ParseGetApiGamesIdResponse(rsp)
 }
 
-// PostApiGamesIdWithBodyWithResponse Updates a game's properties.
+// PostApiGamesIdWithBodyWithResponse Changes a game's card and content and answers with the
 //
-// Takes the whole game; its name is at most 70 characters. Answers with the
 // game as stored.
+//
+// Send what changes; a field left out stays as it is, and sending the whole
+// game back is fine: only what differs counts. Changing a section the caller
+// may not edit (mayEditCard, mayEditContent), or making the game public
+// without mayPublish, refuses the whole request (403). The name is at most 70
+// characters. Workshop, sponsor and creator are not changed here.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18326,10 +18803,15 @@ func (c *ClientWithResponses) PostApiGamesIdWithBodyWithResponse(ctx context.Con
 	return ParsePostApiGamesIdResponse(rsp)
 }
 
-// PostApiGamesIdWithResponse Updates a game's properties.
+// PostApiGamesIdWithResponse Changes a game's card and content and answers with the
 //
-// Takes the whole game; its name is at most 70 characters. Answers with the
 // game as stored.
+//
+// Send what changes; a field left out stays as it is, and sending the whole
+// game back is fine: only what differs counts. Changing a section the caller
+// may not edit (mayEditCard, mayEditContent), or making the game public
+// without mayPublish, refuses the whole request (403). The name is at most 70
+// characters. Workshop, sponsor and creator are not changed here.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18372,9 +18854,10 @@ func (c *ClientWithResponses) GetApiGamesIdAvailableKeysWithResponse(ctx context
 	return ParseGetApiGamesIdAvailableKeysResponse(rsp)
 }
 
-// PostApiGamesIdCloneWithResponse Copies a public game, or one of the caller's own, into a
+// PostApiGamesIdCloneWithResponse Copies a game into a new private game of the caller's
 //
-// new private game of the caller's.
+// and answers with the copy. It takes mayCopy (403 otherwise); the copy has
+// the game's card and content, not its images.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -18387,7 +18870,9 @@ func (c *ClientWithResponses) PostApiGamesIdCloneWithResponse(ctx context.Contex
 	return ParsePostApiGamesIdCloneResponse(rsp)
 }
 
-// DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favourites.
+// DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favorites. It
+//
+// answers the same whatever the game: it gives nothing away.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -18400,7 +18885,9 @@ func (c *ClientWithResponses) DeleteApiGamesIdFavouriteWithResponse(ctx context.
 	return ParseDeleteApiGamesIdFavouriteResponse(rsp)
 }
 
-// PostApiGamesIdFavouriteWithResponse Adds a game to the caller's favourites.
+// PostApiGamesIdFavouriteWithResponse Marks a game as one of the caller's favorites.
+//
+// It takes reading the game (404 otherwise); marking twice changes nothing.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -18573,7 +19060,9 @@ func (c *ClientWithResponses) PutApiGamesIdSponsorWithResponse(ctx context.Conte
 	return ParsePutApiGamesIdSponsorResponse(rsp)
 }
 
-// GetApiGamesIdYamlWithResponse Exports a game as a game file, YAML by default.
+// GetApiGamesIdYamlWithResponse Exports a game as a game file, YAML by default. It
+//
+// takes seeing the game's content (hasContent; 403 otherwise).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -18588,9 +19077,10 @@ func (c *ClientWithResponses) GetApiGamesIdYamlWithResponse(ctx context.Context,
 
 // PutApiGamesIdYamlWithBodyWithResponse Updates a game from a game file, YAML or JSON, and
 //
-// answers with the game.
+// answers with the game as stored.
 //
-// The file's content replaces the game's; its id is ignored.
+// The file replaces the game's card and content; its id is ignored. It takes
+// the same rights as an update (mayEditCard, mayEditContent).
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18605,9 +19095,10 @@ func (c *ClientWithResponses) PutApiGamesIdYamlWithBodyWithResponse(ctx context.
 
 // PutApiGamesIdYamlWithResponse Updates a game from a game file, YAML or JSON, and
 //
-// answers with the game.
+// answers with the game as stored.
 //
-// The file's content replaces the game's; its id is ignored.
+// The file replaces the game's card and content; its id is ignored. It takes
+// the same rights as an update (mayEditCard, mayEditContent).
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -19196,8 +19687,8 @@ func (c *ClientWithResponses) GetApiRolesWithResponse(ctx context.Context, reqEd
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/sessions (the `GetApiSessions` operationId).
-func (c *ClientWithResponses) GetApiSessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSessionsResponse, error) {
-	rsp, err := c.GetApiSessions(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiSessionsWithResponse(ctx context.Context, params *GetApiSessionsParams, reqEditors ...RequestEditorFn) (*GetApiSessionsResponse, error) {
+	rsp, err := c.GetApiSessions(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -19664,8 +20155,8 @@ func (c *ClientWithResponses) GetApiVersionWithResponse(ctx context.Context, req
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
-func (c *ClientWithResponses) GetApiWorkshopsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiWorkshopsResponse, error) {
-	rsp, err := c.GetApiWorkshops(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiWorkshopsWithResponse(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*GetApiWorkshopsResponse, error) {
+	rsp, err := c.GetApiWorkshops(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -21171,7 +21662,7 @@ func ParseGetApiGamesResponse(rsp *http.Response) (*GetApiGamesResponse, error) 
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Game
+		var dest GameViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21189,22 +21680,22 @@ func ParseGetApiGamesResponse(rsp *http.Response) (*GetApiGamesResponse, error) 
 	return response, nil
 }
 
-// ParseGetApiGamesFavouritesResponse parses an HTTP response from a GetApiGamesFavouritesWithResponse call
-func ParseGetApiGamesFavouritesResponse(rsp *http.Response) (*GetApiGamesFavouritesResponse, error) {
+// ParseGetApiGamesNewResponse parses an HTTP response from a GetApiGamesNewWithResponse call
+func ParseGetApiGamesNewResponse(rsp *http.Response) (*GetApiGamesNewResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetApiGamesFavouritesResponse{
+	response := &GetApiGamesNewResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Game
+		var dest GameTemplate
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21237,7 +21728,7 @@ func ParsePostApiGamesNewResponse(rsp *http.Response) (*PostApiGamesNewResponse,
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21270,7 +21761,7 @@ func ParseDeleteApiGamesIdResponse(rsp *http.Response) (*DeleteApiGamesIdRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21303,7 +21794,7 @@ func ParseGetApiGamesIdResponse(rsp *http.Response) (*GetApiGamesIdResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21336,7 +21827,7 @@ func ParsePostApiGamesIdResponse(rsp *http.Response) (*PostApiGamesIdResponse, e
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21435,7 +21926,7 @@ func ParsePostApiGamesIdCloneResponse(rsp *http.Response) (*PostApiGamesIdCloneR
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21805,7 +22296,7 @@ func ParsePutApiGamesIdYamlResponse(rsp *http.Response) (*PutApiGamesIdYamlRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Game
+		var dest GameView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

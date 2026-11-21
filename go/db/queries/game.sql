@@ -306,7 +306,7 @@ SELECT id FROM game WHERE created_by = $1;
 -- name: DeleteGameTagsByGameID :exec
 DELETE FROM game_tag WHERE game_id = $1;
 
--- name: DeleteFavouritesByGameID :exec
+-- name: DeleteFavoritesByGameID :exec
 DELETE FROM user_favourite_game WHERE game_id = $1;
 
 -- name: HardDeleteGamesByCreator :exec

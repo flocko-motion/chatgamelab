@@ -502,7 +502,7 @@ SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $
 
 -- User deletion cleanup queries
 
--- name: DeleteUserFavourites :exec
+-- name: DeleteUserFavorites :exec
 DELETE FROM user_favourite_game WHERE user_id = $1;
 
 -- name: DeleteWorkshopParticipantsByUserID :exec
