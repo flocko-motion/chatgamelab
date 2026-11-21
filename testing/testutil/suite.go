@@ -130,3 +130,10 @@ func (s *BaseSuite) DevUser() *UserClient {
 func TokenLockTestRequested() bool {
 	return os.Getenv("TOKEN_LOCK_TEST") == "1" && os.Getenv("TOKEN_LOCK_MAX_FAILURES") == "20"
 }
+
+// RawExec runs a statement straight on the database, past the core: for
+// tests that check what the database itself refuses, whoever writes.
+func (s *BaseSuite) RawExec(query string, args ...any) error {
+	_, err := s.inst.DB().Exec(query, args...)
+	return err
+}
