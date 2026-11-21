@@ -20,38 +20,38 @@ func TestUserDeletionSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// TestAdminCanDeleteParticipant tests deleting an anonymous workshop participant.
-func (s *UserDeletionTestSuite) TestAdminCanDeleteParticipant() {
+// TestAdminCanDeleteGuest tests deleting a Guest in a workshop.
+func (s *UserDeletionTestSuite) TestAdminCanDeleteGuest() {
 	admin := s.DevUser()
 
-	// Setup: institution + head + workshop + participant
-	inst := Must(admin.CreateInstitution("Del Participant Org"))
+	// Setup: institution + head + workshop + guest
+	inst := Must(admin.CreateInstitution("Del Guest Org"))
 	head := s.CreateUser("del-part-head")
 	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Del Participant Workshop"))
+	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Del Guest Workshop"))
 	wsIDStr := workshop.Id.String()
 
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
-	s.T().Logf("Participant joined: %s (ID: %s)", participant.Name, participant.ID)
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
+	s.T().Logf("Guest joined: %s (ID: %s)", guest.Name, guest.ID)
 
-	// Verify participant exists
-	me := Must(participant.GetMe())
-	s.Equal(participant.Name, me.Name)
+	// Verify guest exists
+	me := Must(guest.GetMe())
+	s.Equal(guest.Name, me.Name)
 
 	// Count users before
 	usersBefore := Must(admin.GetUsers())
 
-	// Admin deletes the participant
-	MustSucceed(admin.DeleteUser(participant.ID))
-	s.T().Logf("Admin deleted participant")
+	// Admin deletes the guest
+	MustSucceed(admin.DeleteUser(guest.ID))
+	s.T().Logf("Admin deleted guest")
 
-	// Participant should no longer appear in user list (soft-deleted)
+	// Guest should no longer appear in user list (soft-deleted)
 	usersAfter := Must(admin.GetUsers())
 	s.Equal(len(usersBefore)-1, len(usersAfter), "user count should decrease by 1")
-	s.T().Logf("Participant correctly deleted")
+	s.T().Logf("Guest correctly deleted")
 }
 
 // TestAdminCanDeleteIndividualWithGameAndKeys tests deleting an individual user

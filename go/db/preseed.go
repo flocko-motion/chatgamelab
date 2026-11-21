@@ -23,7 +23,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Well-known UUIDs for dev users (two per role + one participant)
+// Well-known UUIDs for dev users (two per role + one guest)
 var (
 	DevAdmin1UserID      = uuid.MustParse("00000000-0000-0000-0000-000000000001")
 	DevAdmin2UserID      = uuid.MustParse("00000000-0000-0000-0000-000000000002")
@@ -33,7 +33,7 @@ var (
 	DevStaff2UserID      = uuid.MustParse("00000000-0000-0000-0000-000000000006")
 	DevIndividual1UserID = uuid.MustParse("00000000-0000-0000-0000-000000000007")
 	DevIndividual2UserID = uuid.MustParse("00000000-0000-0000-0000-000000000008")
-	DevParticipantUserID = uuid.MustParse("00000000-0000-0000-0000-000000000009")
+	DevGuestUserID       = uuid.MustParse("00000000-0000-0000-0000-000000000009")
 	DevInstitutionID     = uuid.MustParse("00000000-0000-0000-0000-000000000010")
 	DevWorkshopID        = uuid.MustParse("00000000-0000-0000-0000-000000000011")
 )
@@ -46,7 +46,6 @@ var (
 	DevAdminUserID = DevAdmin1UserID
 	DevHeadUserID  = DevHead1UserID
 	DevStaffUserID = DevStaff1UserID
-	DevGuestUserID = DevIndividual1UserID
 )
 
 // Preseed ensures required seed data exists in the database
@@ -56,10 +55,10 @@ func Preseed(ctx context.Context) {
 	// Create dev institution first (needed for role assignments)
 	preseedDevInstitution(ctx)
 
-	// Create dev workshop (needed for participant role)
+	// Create dev workshop (needed for the guest role)
 	preseedDevWorkshop(ctx)
 
-	// Create dev users (2 per role + 1 participant)
+	// Create dev users (2 per role + 1 guest)
 	preseedDevUsers(ctx)
 
 	// Create mock API key for first admin user
@@ -123,7 +122,7 @@ type devUserSlot struct {
 	institutionID *uuid.UUID
 }
 
-// devUserSlots lists the dev accounts preseed maintains (2 per role + 1 participant).
+// devUserSlots lists the dev accounts preseed maintains (2 per role + 1 guest).
 func devUserSlots() []devUserSlot {
 	return []devUserSlot{
 		{DevAdmin1UserID, "admin-1", obj.RoleAdmin, nil},
@@ -134,7 +133,7 @@ func devUserSlots() []devUserSlot {
 		{DevStaff2UserID, "staff-2", obj.RoleStaff, &DevInstitutionID},
 		{DevIndividual1UserID, "individual-1", obj.RoleIndividual, nil},
 		{DevIndividual2UserID, "individual-2", obj.RoleIndividual, nil},
-		{DevParticipantUserID, "participant", obj.RoleParticipant, &DevInstitutionID},
+		{DevGuestUserID, "guest", obj.RoleGuest, &DevInstitutionID},
 	}
 }
 
@@ -215,7 +214,7 @@ func setDevUserRole(ctx context.Context, slot devUserSlot) {
 
 	log.Debug("assigning role to dev user", "name", slot.name, "role", slot.role)
 	var workshopID uuid.NullUUID
-	if slot.role == obj.RoleParticipant {
+	if slot.role == obj.RoleGuest {
 		workshopID = uuid.NullUUID{UUID: DevWorkshopID, Valid: true}
 	}
 	arg := CreateUserRoleParams{

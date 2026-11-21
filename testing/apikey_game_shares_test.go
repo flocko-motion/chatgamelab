@@ -110,16 +110,16 @@ func (s *ApiKeyGameSharesSuite) TestWorkshopGameShareVisibleInApiKeys() {
 		AllowGameSharing: true,
 	}))
 
-	// Participant joins and creates workshop share
+	// Guest joins and creates workshop share
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
-	participant := s.CreateUser("gs-ws-participant")
-	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*invite.InviteToken))
-	game := Must(participant.UploadGame("alien-first-contact"))
+	guest := s.CreateUser("gs-ws-guest")
+	s.Require().NoError(guest.AcceptWorkshopInviteByToken(*invite.InviteToken))
+	game := Must(guest.UploadGame("alien-first-contact"))
 	gameID := game.Id.String()
-	Must(participant.SetGamePublic(gameID, true))
-	Must(participant.CreateWorkshopGameShare(gameID, wsIDStr, nil))
+	Must(guest.SetGamePublic(gameID, true))
+	Must(guest.CreateWorkshopGameShare(gameID, wsIDStr, nil))
 
 	// Head should see the workshop game share in API keys response
 	// (the key belongs to head, so game share is under head's key)

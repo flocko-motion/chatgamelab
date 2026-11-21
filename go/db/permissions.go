@@ -147,7 +147,7 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 			return obj.ErrForbidden("you are not a member of this institution")
 		}
 
-		// Staff can remove participants (no role or participant role)
+		// Staff can remove Guests (and users without a role)
 		if user.Role != nil && user.Role.Role == obj.RoleStaff &&
 			user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
 			// Get target user to check their role
@@ -155,11 +155,11 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 			if err != nil {
 				return obj.ErrNotFound("target user not found")
 			}
-			// Staff can only remove participants
-			if targetUser.Role == nil || targetUser.Role.Role == obj.RoleParticipant {
+			// Staff can only remove Guests
+			if targetUser.Role == nil || targetUser.Role.Role == obj.RoleGuest {
 				return nil
 			}
-			return obj.ErrForbidden("staff can only remove participants")
+			return obj.ErrForbidden("staff can only remove guests")
 		}
 
 		return obj.ErrForbidden("only heads, staff, or admins can remove members")
@@ -192,52 +192,52 @@ func canAccessWorkshopInvites(ctx context.Context, userID uuid.UUID, institution
 	return obj.ErrForbidden("only admin, head, or staff can view workshop invites")
 }
 
-// canAccessWorkshopParticipantTokens checks if user can view workshop participant access tokens
+// canAccessGuestTokens checks if user can view the sign-in codes of Guests in workshops.
 // Only staff and heads of the institution owning the workshop can access tokens
-// targetUserID is optional - if provided, validates that the target is actually a workshop participant
-func canAccessWorkshopParticipantTokens(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, targetUserID *uuid.UUID) error {
+// targetUserID is optional - if provided, validates that the target is actually a Guest in a workshop
+func canAccessGuestTokens(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, targetUserID *uuid.UUID) error {
 	user, err := GetUserByID(ctx, userID)
 	if err != nil {
 		return obj.ErrNotFound("user not found")
 	}
 
-	// Admin can access any participant token
+	// Admin can access any guest token
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
 		return nil
 	}
 
-	// If target user is specified, verify they are a workshop participant
+	// If target user is specified, verify they are a Guest in a workshop
 	if targetUserID != nil {
 		targetUser, err := GetUserByID(ctx, *targetUserID)
 		if err != nil {
-			return obj.ErrNotFound("participant not found")
+			return obj.ErrNotFound("guest not found")
 		}
 
-		// Verify the target is a participant with a workshop role and institution
-		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleParticipant ||
+		// Verify the target is a Guest with a workshop and institution
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleGuest ||
 			targetUser.Role.Workshop == nil || targetUser.Role.Institution == nil {
-			return obj.ErrNotFound("user is not a workshop participant")
+			return obj.ErrNotFound("user is not a Guest in a workshop")
 		}
 
 		// Use the target's institution for permission check
-		// (For workshop participants, the institution in their role IS the workshop's institution)
+		// (For a Guest in a workshop, the institution in their role IS the workshop's institution)
 		institutionID = targetUser.Role.Institution.ID
 	}
 
-	// Staff or head of the institution can access participant tokens
+	// Staff or head of the institution can access guest tokens
 	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
 		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
 			return nil
 		}
 	}
 
-	return obj.ErrForbidden("only staff and heads of the institution can access participant tokens")
+	return obj.ErrForbidden("only staff and heads of the institution can access guest tokens")
 }
 
-// canAccessWorkshopParticipants checks if user can view workshop participants
-// Only participants, workshop owner, and institution heads can view the participant list
+// canAccessWorkshopParticipants checks if user can view the members of a workshop
+// Only its Guests, the workshop owner, and institution heads/staff can view the member list
 func canAccessWorkshopParticipants(ctx context.Context, userID uuid.UUID, workshopID uuid.UUID, workshopCreatedBy uuid.UUID, institutionID uuid.UUID) error {
-	// Workshop owner can always see participants
+	// Workshop owner can always see the members
 	if workshopCreatedBy == userID {
 		return nil
 	}
@@ -247,27 +247,27 @@ func canAccessWorkshopParticipants(ctx context.Context, userID uuid.UUID, worksh
 		return obj.ErrNotFound("user not found")
 	}
 
-	// Admin can view all participants
+	// Admin can view all members
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
 		return nil
 	}
 
-	// Participant in this workshop can see other participants
-	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.ID == workshopID && user.Role.Role == obj.RoleParticipant {
+	// A Guest in this workshop can see the other members
+	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.ID == workshopID && user.Role.Role == obj.RoleGuest {
 		return nil
 	}
 
-	// Head or Staff of the institution that owns this workshop can see participants
+	// Head or Staff of the institution that owns this workshop can see the members
 	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
 		return nil
 	}
 
-	return obj.ErrForbidden("only participants, workshop owner, or institution staff/head can view participant list")
+	return obj.ErrForbidden("only guests, workshop owner, or institution staff/head can view the member list")
 }
 
 // CanDeleteUser checks if user can delete another user
 // - Admins can delete any user
-// - Staff/heads can only delete anonymous participants (those with participant_token) in their institution
+// - Staff/heads can only delete Guests (those with a guest_token) in their institution
 func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID) error {
 	currentUser, err := GetUserByID(ctx, currentUserID)
 	if err != nil {
@@ -279,7 +279,7 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 		return nil
 	}
 
-	// Staff/heads can only delete anonymous participants in their institution
+	// Staff/heads can only delete Guests in their institution
 	if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleStaff || currentUser.Role.Role == obj.RoleHead) {
 		// Get target user
 		targetUser, err := GetUserByID(ctx, targetUserID)
@@ -287,27 +287,27 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 			return obj.ErrNotFound("target user not found")
 		}
 
-		// Must be a participant
-		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleParticipant {
-			return obj.ErrForbidden("can only delete anonymous participants")
+		// Must be a Guest
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleGuest {
+			return obj.ErrForbidden("can only delete guests")
 		}
 
 		// Must be in the same institution
 		if targetUser.Role.Institution == nil || currentUser.Role.Institution == nil ||
 			targetUser.Role.Institution.ID != currentUser.Role.Institution.ID {
-			return obj.ErrForbidden("can only delete participants in your institution")
+			return obj.ErrForbidden("can only delete guests in your institution")
 		}
 
-		// Must be an anonymous participant (no auth0_id)
-		// Regular users with Auth0 accounts cannot be deleted by staff/heads, even if they're participants
+		// Must have no Auth0 account (no auth0_id)
+		// Users with Auth0 accounts cannot be deleted by staff/heads, even if their role is Guest
 		rawUser, err := GetUserByIDRaw(ctx, targetUserID)
 		if err != nil {
 			return obj.ErrNotFound("target user not found")
 		}
 
-		// Check if this is truly an anonymous user (no Auth0 account)
+		// Check that the user has no Auth0 account
 		if rawUser.Auth0ID.Valid && rawUser.Auth0ID.String != "" {
-			return obj.ErrForbidden("can only delete anonymous participants, not regular users")
+			return obj.ErrForbidden("can only delete guests, not users with an Auth0 account")
 		}
 
 		return nil
@@ -339,7 +339,7 @@ func CanUpdateParticipantName(ctx context.Context, currentUserID uuid.UUID, targ
 		}
 
 		// Must be a participant
-		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleParticipant {
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleGuest {
 			return obj.ErrForbidden("can only update participant names")
 		}
 
@@ -358,7 +358,7 @@ func CanUpdateParticipantName(ctx context.Context, currentUserID uuid.UUID, targ
 // canAccessWorkshop checks if user can perform a CRUD operation on a workshop
 // - operation: the type of CRUD operation (create, read, update, delete, list)
 // - institutionID: the institution the workshop belongs to
-// - workshopID: pointer to workshop ID (needed for participant read checks)
+// - workshopID: pointer to workshop ID (needed for guest read checks)
 // - createdBy: the user who created the workshop (only needed for update/delete)
 func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOperation, institutionID uuid.UUID, workshopID *uuid.UUID, createdBy uuid.UUID) error {
 	user, err := GetUserByID(ctx, userID)
@@ -378,7 +378,7 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 		}
 	}
 
-	// Members (head/staff/participant) can access their institution's workshops
+	// Members (head/staff/guest) can access their institution's workshops
 	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.ID != institutionID {
 		return obj.ErrForbidden("not authorized to access workshops for this institution")
 	}
@@ -396,13 +396,13 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
 			return nil
 		}
-		// Participants can only read specific workshops they have a role for
-		if user.Role.Role == obj.RoleParticipant && workshopID != nil {
+		// Guests can only read the workshop they have a role for
+		if user.Role.Role == obj.RoleGuest && workshopID != nil {
 			// Check if user's role is scoped to this specific workshop
 			if user.Role.Workshop != nil && user.Role.Workshop.ID == *workshopID {
 				return nil
 			}
-			log.Debug("participant workshop access denied",
+			log.Debug("guest workshop access denied",
 				"user_workshop_id", user.Role.Workshop,
 				"requested_workshop_id", *workshopID,
 				"user_role", user.Role.Role)

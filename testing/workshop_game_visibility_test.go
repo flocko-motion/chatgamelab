@@ -11,7 +11,7 @@ import (
 
 // WorkshopGameVisibilityTestSuite tests that workshop settings
 // (showOtherParticipantsGames, showPublicGames) correctly control
-// what games participants can see.
+// what games guests can see.
 type WorkshopGameVisibilityTestSuite struct {
 	testutil.BaseSuite
 }
@@ -22,8 +22,8 @@ func TestWorkshopGameVisibilitySuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// setupWorkshop creates an institution, head, workshop, and two participants.
-// Returns (head, participant1, participant2, workshopID).
+// setupWorkshop creates an institution, head, workshop, and two guests.
+// Returns (head, guest1, guest2, workshopID).
 func (s *WorkshopGameVisibilityTestSuite) setupWorkshop(prefix string) (*testutil.UserClient, *testutil.UserClient, *testutil.UserClient, string) {
 	admin := s.DevUser()
 
@@ -46,8 +46,8 @@ func (s *WorkshopGameVisibilityTestSuite) setupWorkshop(prefix string) (*testuti
 }
 
 // TestOtherParticipantGamesHiddenByDefault verifies that by default
-// (showOtherParticipantsGames=false), a participant cannot see another
-// participant's game in the list.
+// (showOtherParticipantsGames=false), a guest cannot see another
+// guest's game in the list.
 func (s *WorkshopGameVisibilityTestSuite) TestOtherParticipantGamesHiddenByDefault() {
 	_, p1, p2, _ := s.setupWorkshop("vis-hide")
 
@@ -66,8 +66,8 @@ func (s *WorkshopGameVisibilityTestSuite) TestOtherParticipantGamesHiddenByDefau
 }
 
 // TestOtherParticipantGamesVisibleWhenEnabled verifies that when
-// showOtherParticipantsGames=true, a participant CAN see another
-// participant's game.
+// showOtherParticipantsGames=true, a guest CAN see another
+// guest's game.
 func (s *WorkshopGameVisibilityTestSuite) TestOtherParticipantGamesVisibleWhenEnabled() {
 	head, p1, p2, wsIDStr := s.setupWorkshop("vis-show")
 
@@ -91,7 +91,7 @@ func (s *WorkshopGameVisibilityTestSuite) TestOtherParticipantGamesVisibleWhenEn
 }
 
 // TestPublicGamesHiddenByDefault verifies that by default
-// (showPublicGames=false), a participant cannot see public games.
+// (showPublicGames=false), a guest cannot see public games.
 func (s *WorkshopGameVisibilityTestSuite) TestPublicGamesHiddenByDefault() {
 	_, _, p2, _ := s.setupWorkshop("vis-pub-hide")
 
@@ -104,12 +104,12 @@ func (s *WorkshopGameVisibilityTestSuite) TestPublicGamesHiddenByDefault() {
 
 	// P2 should NOT see the public game (default: showPublicGames=false)
 	p2Games := Must(p2.ListGames())
-	s.False(containsGame(p2Games, game.Id), "participant should NOT see public games when showPublicGames is false")
+	s.False(containsGame(p2Games, game.Id), "guest should NOT see public games when showPublicGames is false")
 	s.T().Logf("P2 sees %d games — public game correctly hidden", len(p2Games))
 }
 
 // TestPublicGamesVisibleWhenEnabled verifies that when
-// showPublicGames=true, a participant CAN see public games.
+// showPublicGames=true, a guest CAN see public games.
 func (s *WorkshopGameVisibilityTestSuite) TestPublicGamesVisibleWhenEnabled() {
 	head, _, p2, wsIDStr := s.setupWorkshop("vis-pub-show")
 
@@ -130,11 +130,11 @@ func (s *WorkshopGameVisibilityTestSuite) TestPublicGamesVisibleWhenEnabled() {
 
 	// P2 should now see the public game
 	p2Games := Must(p2.ListGames())
-	s.True(containsGame(p2Games, game.Id), "participant should see public games when showPublicGames is true")
+	s.True(containsGame(p2Games, game.Id), "guest should see public games when showPublicGames is true")
 	s.T().Logf("P2 sees %d games — public game correctly visible", len(p2Games))
 }
 
-// TestOwnGameAlwaysVisible verifies that a participant always sees their
+// TestOwnGameAlwaysVisible verifies that a guest always sees their
 // own game regardless of workshop settings.
 func (s *WorkshopGameVisibilityTestSuite) TestOwnGameAlwaysVisible() {
 	_, p1, _, _ := s.setupWorkshop("vis-own")
@@ -143,7 +143,7 @@ func (s *WorkshopGameVisibilityTestSuite) TestOwnGameAlwaysVisible() {
 	game := Must(p1.UploadGame("alien-first-contact"))
 
 	p1Games := Must(p1.ListGames())
-	s.True(containsGame(p1Games, game.Id), "participant should always see their own game")
+	s.True(containsGame(p1Games, game.Id), "guest should always see their own game")
 	s.T().Logf("P1 sees own game regardless of settings")
 }
 
@@ -182,7 +182,7 @@ func (s *WorkshopGameVisibilityTestSuite) TestToggleVisibilityOnAndOff() {
 }
 
 // TestHeadAlwaysSeesAllParticipantGamesRegardlessOfSettings verifies that a head
-// in workshop mode sees all participants' games even when showOtherParticipantsGames=false.
+// in workshop mode sees all guests' games even when showOtherParticipantsGames=false.
 func (s *WorkshopGameVisibilityTestSuite) TestHeadAlwaysSeesAllParticipantGamesRegardlessOfSettings() {
 	head, p1, p2, wsIDStr := s.setupWorkshop("head-bypass")
 
@@ -190,7 +190,7 @@ func (s *WorkshopGameVisibilityTestSuite) TestHeadAlwaysSeesAllParticipantGamesR
 	Must(head.SetActiveWorkshop(&wsIDStr))
 	s.T().Logf("Head entered workshop mode (showOtherParticipantsGames=false by default)")
 
-	// Both participants create a game
+	// Both guests create a game
 	game1 := Must(p1.UploadGame("alien-first-contact"))
 	game2 := Must(p2.UploadGame("alien-first-contact"))
 	s.T().Logf("P1 game: %s, P2 game: %s", game1.Id, game2.Id)
@@ -236,7 +236,7 @@ func (s *WorkshopGameVisibilityTestSuite) TestHeadRespectsShowPublicGamesSetting
 }
 
 // TestStaffAlwaysSeesAllParticipantGamesRegardlessOfSettings verifies that staff
-// in workshop mode see all participants' games even when showOtherParticipantsGames=false.
+// in workshop mode see all guests' games even when showOtherParticipantsGames=false.
 func (s *WorkshopGameVisibilityTestSuite) TestStaffAlwaysSeesAllParticipantGamesRegardlessOfSettings() {
 	head, p1, _, wsIDStr := s.setupWorkshop("staff-bypass")
 
@@ -263,7 +263,7 @@ func (s *WorkshopGameVisibilityTestSuite) TestStaffAlwaysSeesAllParticipantGames
 
 	// Staff should see p1's game even though showOtherParticipantsGames=false
 	staffGames := Must(staff.ListGames())
-	s.True(containsGame(staffGames, game1.Id), "staff should see participant's game regardless of showOtherParticipantsGames")
+	s.True(containsGame(staffGames, game1.Id), "staff should see guest's game regardless of showOtherParticipantsGames")
 	s.T().Logf("Staff sees %d games — visible despite showOtherParticipantsGames=false", len(staffGames))
 }
 

@@ -71,7 +71,7 @@ func (CreateGameShareEndpoint) Handle(ctx context.Context, req CreateGameShareRe
 			return GameShareResp{}, errNotFound("Workshop not found")
 		}
 
-		// Head/staff can always share; participants need AllowGameSharing.
+		// Head/staff can always share; everyone else in the workshop needs AllowGameSharing.
 		userObj, err := db.GetUserByID(ctx, user.ID)
 		if err != nil {
 			return GameShareResp{}, fmt.Errorf("failed to load user: %w", err)

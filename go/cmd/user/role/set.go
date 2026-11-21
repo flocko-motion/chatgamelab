@@ -1,6 +1,6 @@
 // package: role / user role management CLI commands
 // type:    cli
-// job:     set a user's role (admin/head/staff/participant) with required institution or workshop scope
+// job:     set a user's role (admin/head/staff/guest) with required institution or workshop scope
 // limits:  validates inputs then posts the request; server enforces authorization (-> api)
 package role
 
@@ -27,7 +27,7 @@ Role types:
   - admin: System administrator (no institution/workshop required)
   - head: Institution head (requires --institution)
   - staff: Institution staff (requires --institution)
-  - participant: Workshop participant (requires --workshop)
+  - guest: Guest in a workshop (requires --workshop)
 
 Examples:
   # Make user an admin
@@ -39,15 +39,15 @@ Examples:
   # Make user staff of an institution
   user role set <user-id> staff --institution <institution-id>
 
-  # Make user a participant in a workshop
-  user role set <user-id> participant --workshop <workshop-id>`,
+  # Make user a Guest in a workshop
+  user role set <user-id> guest --workshop <workshop-id>`,
 	Args: cobra.ExactArgs(2),
 	Run:  runSet,
 }
 
 func init() {
 	setCmd.Flags().StringVar(&institutionFlag, "institution", "", "Institution ID (required for head/staff)")
-	setCmd.Flags().StringVar(&workshopFlag, "workshop", "", "Workshop ID (required for participant)")
+	setCmd.Flags().StringVar(&workshopFlag, "workshop", "", "Workshop ID (required for guest)")
 
 	Cmd.AddCommand(setCmd)
 }
@@ -62,13 +62,13 @@ func runSet(cmd *cobra.Command, args []string) {
 
 	// Validate role
 	validRoles := map[string]bool{
-		"admin":       true,
-		"head":        true,
-		"staff":       true,
-		"participant": true,
+		"admin": true,
+		"head":  true,
+		"staff": true,
+		"guest": true,
 	}
 	if !validRoles[role] {
-		log.Fatalf("Invalid role: %s (must be admin, head, staff, or participant)", role)
+		log.Fatalf("Invalid role: %s (must be admin, head, staff, or guest)", role)
 	}
 
 	// Validate required flags based on role
@@ -81,9 +81,9 @@ func runSet(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if role == "participant" {
+	if role == "guest" {
 		if workshopFlag == "" {
-			log.Fatalf("--workshop is required for participant role")
+			log.Fatalf("--workshop is required for guest role")
 		}
 		if _, err := uuid.Parse(workshopFlag); err != nil {
 			log.Fatalf("Invalid workshop ID: %v", err)

@@ -56,18 +56,18 @@ func (s *GameReadTestSuite) TestOthersMayShareAPublicGame() {
 	s.False(read.MayEditCard)
 }
 
-// A participant may share only while their workshop allows it.
-func (s *GameReadTestSuite) TestAParticipantSharesOnlyWhileTheWorkshopAllows() {
+// A guest may share only while their workshop allows it.
+func (s *GameReadTestSuite) TestAGuestSharesOnlyWhileTheWorkshopAllows() {
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution("Read Share Org"))
 	head := s.CreateUser("read-share-head")
 	Must(head.AcceptInvite(Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID)).Id.String()))
 	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Read Share Workshop"))
 	workshopID := workshop.Id.String()
-	participant := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshopID)).InviteToken))
-	game := Must(participant.UploadGame("alien-first-contact"))
+	guest := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshopID)).InviteToken))
+	game := Must(guest.UploadGame("alien-first-contact"))
 
-	before := Must(participant.ReadGame(game.Id.String()))
+	before := Must(guest.ReadGame(game.Id.String()))
 	s.False(before.MayShare, "sharing is off by default")
 
 	Must(head.UpdateWorkshop(workshopID, testutil.WorkshopUpdate{
@@ -75,7 +75,7 @@ func (s *GameReadTestSuite) TestAParticipantSharesOnlyWhileTheWorkshopAllows() {
 		Active:           true,
 		AllowGameSharing: true,
 	}))
-	after := Must(participant.ReadGame(game.Id.String()))
+	after := Must(guest.ReadGame(game.Id.String()))
 	s.True(after.MayShare, "the workshop allows sharing now")
 }
 

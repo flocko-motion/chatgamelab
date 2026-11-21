@@ -135,7 +135,7 @@ func decrementPrivateShareRemaining(ctx context.Context, shareID uuid.UUID) *obj
 }
 
 // createGuestUser creates an anonymous user for a guest play.
-// The user has no email, no auth0 ID, and no participant token.
+// The user has no email, no auth0 ID, and no guest token.
 func createGuestUser(ctx context.Context, shareID uuid.UUID) (*obj.User, *obj.HTTPError) {
 	nameGenerator := ung.NewUniqueNameGenerator(
 		ung.WithDictionaries([][]string{

@@ -9,7 +9,7 @@ import (
 )
 
 // WorkshopSettingsPermissionsTestSuite tests that only head/staff can
-// update workshop settings. Participants and individuals must be denied.
+// update workshop settings. Guests and individuals must be denied.
 type WorkshopSettingsPermissionsTestSuite struct {
 	testutil.BaseSuite
 }
@@ -20,8 +20,8 @@ func TestWorkshopSettingsPermissionsSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// setupWorkshop creates an institution, head, workshop, and a participant.
-// Returns (head, participant, workshopID).
+// setupWorkshop creates an institution, head, workshop, and a guest.
+// Returns (head, guest, workshopID).
 func (s *WorkshopSettingsPermissionsTestSuite) setupWorkshop(prefix string) (*testutil.UserClient, *testutil.UserClient, string) {
 	admin := s.DevUser()
 
@@ -34,10 +34,10 @@ func (s *WorkshopSettingsPermissionsTestSuite) setupWorkshop(prefix string) (*te
 	wsIDStr := workshop.Id.String()
 
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
 
-	s.T().Logf("Setup: head=%s, participant=%s, ws=%s", head.Name, participant.Name, wsIDStr)
-	return head, participant, wsIDStr
+	s.T().Logf("Setup: head=%s, guest=%s, ws=%s", head.Name, guest.Name, wsIDStr)
+	return head, guest, wsIDStr
 }
 
 // workshopUpdatePayload is a valid set of settings with the given isPaused value.
@@ -63,14 +63,14 @@ func (s *WorkshopSettingsPermissionsTestSuite) TestHeadCanUpdateWorkshopSettings
 	s.False(ws.IsPaused, "head should be able to unpause the workshop")
 }
 
-// TestParticipantCannotUpdateWorkshopSettings verifies that a participant
+// TestGuestCannotUpdateWorkshopSettings verifies that a guest
 // cannot update any workshop settings.
-func (s *WorkshopSettingsPermissionsTestSuite) TestParticipantCannotUpdateWorkshopSettings() {
-	_, participant, wsIDStr := s.setupWorkshop("perm-part")
+func (s *WorkshopSettingsPermissionsTestSuite) TestGuestCannotUpdateWorkshopSettings() {
+	_, guest, wsIDStr := s.setupWorkshop("perm-part")
 
-	// Participant should NOT be able to update workshop settings
-	_, err := participant.UpdateWorkshop(wsIDStr, workshopUpdatePayload(true))
-	s.Forbidden(err, "participant should not be able to update workshop settings")
+	// Guest should NOT be able to update workshop settings
+	_, err := guest.UpdateWorkshop(wsIDStr, workshopUpdatePayload(true))
+	s.Forbidden(err, "guest should not be able to update workshop settings")
 }
 
 // TestIndividualCannotUpdateWorkshopSettings verifies that an individual user
@@ -97,20 +97,20 @@ func (s *WorkshopSettingsPermissionsTestSuite) TestIndividualCannotUpdateWorksho
 	s.Forbidden(err, "individual in workshop mode should not be able to update workshop settings")
 }
 
-// TestParticipantCannotTogglePause verifies specifically that a participant
+// TestGuestCannotTogglePause verifies specifically that a guest
 // cannot toggle the isPaused setting even if they know the workshop ID.
-func (s *WorkshopSettingsPermissionsTestSuite) TestParticipantCannotTogglePause() {
-	head, participant, wsIDStr := s.setupWorkshop("perm-pause")
+func (s *WorkshopSettingsPermissionsTestSuite) TestGuestCannotTogglePause() {
+	head, guest, wsIDStr := s.setupWorkshop("perm-pause")
 
 	// Head pauses the workshop
 	ws := Must(head.UpdateWorkshop(wsIDStr, workshopUpdatePayload(true)))
 	s.True(ws.IsPaused, "head should be able to pause")
 
-	// Participant tries to unpause — should fail
-	_, err := participant.UpdateWorkshop(wsIDStr, workshopUpdatePayload(false))
-	s.Forbidden(err, "participant should not be able to unpause the workshop")
+	// Guest tries to unpause — should fail
+	_, err := guest.UpdateWorkshop(wsIDStr, workshopUpdatePayload(false))
+	s.Forbidden(err, "guest should not be able to unpause the workshop")
 
 	// Verify workshop is still paused
 	ws = Must(head.GetWorkshop(wsIDStr))
-	s.True(ws.IsPaused, "workshop should still be paused after participant's failed attempt")
+	s.True(ws.IsPaused, "workshop should still be paused after guest's failed attempt")
 }

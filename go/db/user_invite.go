@@ -281,7 +281,7 @@ func CreateInstitutionInvite(
 	return dbInviteToObj(result), nil
 }
 
-// CreateWorkshopInvite creates an invitation for unspecified users to join a workshop as participants.
+// CreateWorkshopInvite creates an invitation for unspecified users to join a workshop: anonymous visitors become Guests in it.
 // The institution is automatically looked up from the workshop.
 // The creator must be a head or staff member of the institution that owns the workshop.
 // A cryptographically secure token is automatically generated (32 bytes, ~43 chars, 256 bits entropy).
@@ -300,7 +300,7 @@ func CreateWorkshopInvite(
 	}
 
 	// Check permission: only head or staff of the institution can create workshop invites
-	// (participants have OpRead access to their workshop but must not create invites)
+	// (Guests have OpRead access to their workshop but must not create invites)
 	if err := canAccessWorkshop(ctx, createdBy, OpCreate, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
 		return obj.UserRoleInvite{}, err
 	}
@@ -332,7 +332,7 @@ func CreateWorkshopInvite(
 	arg := CreateOpenInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
 		InstitutionID: workshop.InstitutionID,
-		Role:          string(obj.RoleParticipant),
+		Role:          string(obj.RoleGuest),
 		WorkshopID:    uuid.NullUUID{UUID: workshopID, Valid: true},
 		InviteToken:   sql.NullString{String: inviteToken, Valid: true},
 		MaxUses:       sql.NullInt32{Int32: functional.Deref(maxUses, 0), Valid: maxUses != nil},
@@ -348,8 +348,8 @@ func CreateWorkshopInvite(
 }
 
 // CreateWorkshopEmailInvite creates a targeted invite for a specific user (by email) to join a workshop.
-// When accepted, head/staff/individual users enter workshop mode (SetActiveWorkshop);
-// users without a role become participants.
+// Accepting it gives no role: the user keeps theirs and enters the workshop
+// (-> AcceptTargetedInvite). The stored role is unused.
 func CreateWorkshopEmailInvite(
 	ctx context.Context,
 	createdBy uuid.UUID,
@@ -402,7 +402,7 @@ func CreateWorkshopEmailInvite(
 	arg := CreateTargetedInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
 		InstitutionID: workshop.InstitutionID,
-		Role:          string(obj.RoleParticipant),
+		Role:          string(obj.RoleGuest),
 		WorkshopID:    uuid.NullUUID{UUID: workshopID, Valid: true},
 		InvitedUserID: uuid.NullUUID{UUID: user.ID, Valid: true},
 		InvitedEmail:  sql.NullString{String: invitedEmail, Valid: true},

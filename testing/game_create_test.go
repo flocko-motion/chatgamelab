@@ -66,9 +66,9 @@ func (s *GameCreateTestSuite) TestAGameMadeInAWorkshopBelongsToIt() {
 	head := s.CreateUser("create-head")
 	Must(head.AcceptInvite(Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID)).Id.String()))
 	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Create Workshop"))
-	participant := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshop.Id.String())).InviteToken))
+	guest := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshop.Id.String())).InviteToken))
 
-	game := Must(participant.CreateGameWith(testutil.GameCreate{Name: some("Workshop Game")}))
+	game := Must(guest.CreateGameWith(testutil.GameCreate{Name: some("Workshop Game")}))
 	s.Require().NotNil(game.WorkshopId)
 	s.Equal(workshop.Id, *game.WorkshopId)
 }

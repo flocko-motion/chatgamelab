@@ -55,7 +55,7 @@ func (s *MyTestSuite) TestAnOutsiderCannotOpenTheWorkshop() {
 - **Callers.** `s.CreateUser(name)` creates an account and signs it in with a
   token the instance mints; `s.DevUser()` is the preseeded admin;
   `s.Public()` calls without credentials; `s.JoinWorkshop(inviteToken)` and
-  `s.ParticipantLogin(token)` sign participants in; `s.JoinWorkshopWithCookie`
+  `s.GuestLogin(token)` sign guests in; `s.JoinWorkshopWithCookie`
   gives a caller carrying only the session cookie, as the playback-engine in
   its iframe does.
 - **Answers** are the generated client's types, re-exported from `testutil`

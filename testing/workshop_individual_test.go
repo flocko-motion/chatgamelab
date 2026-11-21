@@ -168,27 +168,27 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCannotTogglePause() {
 	s.True(ws.IsPaused, "workshop should still be paused after individual's failed attempt")
 }
 
-// TestParticipantCannotUpdateSettings verifies that a participant (anonymous user)
+// TestGuestCannotUpdateSettings verifies that a Guest in a workshop
 // also cannot update workshop settings.
-func (s *WorkshopIndividualTestSuite) TestParticipantCannotUpdateSettings() {
+func (s *WorkshopIndividualTestSuite) TestGuestCannotUpdateSettings() {
 	_, wsIDStr, _, inviteToken := s.workshopWithKey("part-settings")
 
-	// Create participant via anonymous invite
-	participant := Must(s.JoinWorkshop(inviteToken))
+	// Create guest via anonymous invite
+	guest := Must(s.JoinWorkshop(inviteToken))
 
-	// Participant should NOT be able to update workshop settings
-	_, err := participant.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
+	// Guest should NOT be able to update workshop settings
+	_, err := guest.UpdateWorkshop(wsIDStr, testutil.WorkshopUpdate{
 		Name:                       "Hacked Workshop",
 		Active:                     true,
 		ShowPublicGames:            true,
 		ShowOtherParticipantsGames: true,
 		IsPaused:                   true,
 	})
-	s.Forbidden(err, "participant should not be able to update workshop settings")
+	s.Forbidden(err, "guest should not be able to update workshop settings")
 }
 
 // TestIndividualRolePreservedAfterJoining verifies that an individual's role is NOT
-// overwritten to participant when joining a workshop via invite token.
+// overwritten to guest when joining a workshop via invite token.
 func (s *WorkshopIndividualTestSuite) TestIndividualRolePreservedAfterJoining() {
 	_, _, _, inviteToken := s.workshopWithKey("ind-role-keep")
 
@@ -199,7 +199,7 @@ func (s *WorkshopIndividualTestSuite) TestIndividualRolePreservedAfterJoining() 
 	// Join workshop via token
 	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
 
-	// Role must still be individual (not participant)
+	// Role must still be individual (not guest)
 	me = Must(individual.GetMe())
 	s.Equal("individual", me.Role.Role, "role must remain individual after joining workshop")
 	s.Require().NotNil(me.Role.Workshop, "should have active workshop set")

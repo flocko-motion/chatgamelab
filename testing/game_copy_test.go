@@ -41,7 +41,7 @@ func (s *GameCopyTestSuite) TestACopyNamesTheOriginalCreator() {
 	s.Equal(1, Must(alice.ReadGame(game.Id.String())).CloneCount)
 }
 
-// Reading a game is not copying it: a participant reads their workshop's
+// Reading a game is not copying it: a guest reads their workshop's
 // games, but copies only public ones and their own.
 func (s *GameCopyTestSuite) TestReadingIsNotCopying() {
 	admin := s.DevUser()
