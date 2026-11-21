@@ -13,8 +13,10 @@ type Graph struct {
 	Name      string
 	inspector *inspector
 	nodes     []any
-	edges     []Edge
-	pumps     []func(context.Context)
+	// shared is state several blocks share, such as a thread.
+	shared []Shared
+	edges  []Edge
+	pumps  []func(context.Context)
 }
 
 type Edge struct {
@@ -91,6 +93,23 @@ func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 		go pumpChan(ctx, stream, dst.TextInPort(), g.watch(src, dst, KindText))
 	})
 }
+
+// ConnectStreamOut wires streamed text, which only a block taking a stream accepts.
+func (g *Graph) ConnectStreamOut(src StreamOut, dst StreamIn) {
+	stream := src.StreamOutPort()
+	g.connect(src, dst, KindStream, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.StreamInPort(), g.watch(src, dst, KindStream))
+	})
+}
+
+// Shared is resumable state several blocks share, exported once under its own name.
+type Shared interface {
+	Named
+	Resumable
+}
+
+// Share registers shared state, so ExportState and RestoreState reach it.
+func (g *Graph) Share(s Shared) { g.shared = append(g.shared, s) }
 
 func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	stream := src.ImageOutPort()
@@ -284,28 +303,35 @@ func (g *Graph) Describe() string {
 // ExportState collects every resumable block's state, keyed by node name.
 func (g *Graph) ExportState() map[string]string {
 	state := map[string]string{}
-	for _, n := range g.nodes {
-		if r, ok := n.(Resumable); ok {
-			if v := r.ExportState(); v != "" {
-				state[NodeName(n)] = v
-			}
+	for name, r := range g.resumables() {
+		if v := r.ExportState(); v != "" {
+			state[name] = v
 		}
 	}
 	return state
 }
 
-// RestoreState errors on an unknown name: the wiring changed under a stored session, so it must invalidate.
-func (g *Graph) RestoreState(state map[string]string) error {
-	known := map[string]bool{}
+// resumables are the resumable blocks and the shared state, by name.
+func (g *Graph) resumables() map[string]Resumable {
+	all := map[string]Resumable{}
 	for _, n := range g.nodes {
-		if _, ok := n.(Resumable); ok {
-			known[NodeName(n)] = true
+		if r, ok := n.(Resumable); ok {
+			all[NodeName(n)] = r
 		}
 	}
+	for _, s := range g.shared {
+		all[s.NodeName()] = s
+	}
+	return all
+}
+
+// RestoreState errors on an unknown name: the wiring changed under a stored session, so it must invalidate.
+func (g *Graph) RestoreState(state map[string]string) error {
+	known := g.resumables()
 
 	var unknown []string
 	for name := range state {
-		if !known[name] {
+		if _, found := known[name]; !found {
 			unknown = append(unknown, name)
 		}
 	}
@@ -315,12 +341,8 @@ func (g *Graph) RestoreState(state map[string]string) error {
 			g.Name, strings.Join(unknown, ", "))
 	}
 
-	for _, n := range g.nodes {
-		r, ok := n.(Resumable)
-		if !ok {
-			continue
-		}
-		if v, found := state[NodeName(n)]; found {
+	for name, r := range known {
+		if v, found := state[name]; found {
 			r.RestoreState(v)
 		}
 	}

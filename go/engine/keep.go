@@ -15,11 +15,13 @@ const saveTimeout = 5 * time.Second
 func (s *Session) log(ev SessionEvent) {
 	s.logMu.Lock()
 	defer s.logMu.Unlock()
-	if !s.recorder.record(ev) {
-		return
+	kept := s.recorder.record(ev)
+	for _, e := range kept {
+		_ = s.spec.Persist.SaveEvent(s.ctx, s.spec.ID, e)
 	}
-	_ = s.spec.Persist.SaveEvent(s.ctx, s.spec.ID, ev)
-	s.checkpoint()
+	if len(kept) > 0 {
+		s.checkpoint()
+	}
 }
 
 // checkpoint asks for the session's state to be saved soon.

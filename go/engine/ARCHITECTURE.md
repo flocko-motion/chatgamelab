@@ -36,6 +36,11 @@ set, written by hand.
 
 - **Ports are typed by the data they carry**, and the compiler checks every
   edge.
+- **The wiring defines the transport.** Streamed text is a port kind of its
+  own, apart from whole text: a block taking whole text waits for the whole, a
+  block taking the stream gets each piece. Adventure's Expand has both: its
+  stream feeds the player's text, so the prose appears as it is written, and
+  its whole reply feeds narration.
 - **Fan-out** gives each consumer its own stream; **a cycle is a back edge**
   like any other. NPC-Live's observer loop is one.
 - **A per-genre test checks completeness**: every required input and output is
@@ -198,7 +203,30 @@ for the game editor.
   mock always passes.
 
 Conversation continuity — the thread, the live conversation — is per-block
-state, keyed by the block's name.
+state, keyed by the block's name. A thread several blocks share, as Outline
+and Expand share the story model's, is exported once, under its own name.
+
+### Threads
+
+A threaded call continues a conversation the provider holds: OpenAI's
+Responses API names the previous response, Mistral's Conversations API
+appends to a stored conversation. The engine keeps the continuation, the
+model and offer it was made on, and the whole transcript. A continuation that
+cannot be used, on another offer or model, past OpenAI's 30-day retention, or
+one the provider no longer knows, gives way to a fresh provider thread seeded
+with the transcript, so a session never ends because a provider forgot its
+thread.
+
+- **One call at a time**, in turn: the next turn's Outline waits for Expand.
+- **Instructions travel with every call**, since neither provider carries
+  them over.
+- **On Mistral**, appending takes neither a model nor instructions, and an
+  input may only be a user's or an assistant's message. A conversation stays
+  on the model it started with, and each call's instructions travel in its
+  user message.
+- **A stream that breaks partway** is made again from the same continuation,
+  as the provider never completed that response; the pieces already sent are
+  dropped first. Only an exhausted retry or a hard failure ends the game.
 
 ## The session spec
 
@@ -242,7 +270,9 @@ key stays on the server.
   session has spent.
 - **History is the ordered log of what a player reads back**: text, pictures,
   status and errors, replayed through the same client path as live events.
-  Live audio, narration, phases and usage are not part of it.
+  Live audio, narration, phases and usage are not part of it. Streamed text
+  is kept as one event per finished utterance, followed by its close, so a
+  reload replays whole utterances; a discarded one is never kept.
 - **Storage is injected** as `engine.Persist`: save an event, save the state,
   load the state, load the history. The state is saved at launch, before it
   returns, and at checkpoints while the session runs; each history event as it
@@ -325,8 +355,10 @@ per block and per model, with a flag for whether every model was priced.
 **The session-scoped event stream is the protocol**, carried according to the
 genre's interaction model: a voice genre uses one duplex connection for audio
 and events; a turn-based genre reads events as server-sent events, one JSON
-event per message, and sends actions as requests. A genre's wired output sinks define its event types. Utterance
-boundaries travel in-band.
+event per message, and sends actions as requests. A genre's wired output
+sinks define its event types. Utterance boundaries travel in-band: on the
+`text` stream an empty value closes the utterance, and the discard marker
+drops the one still open.
 
 **Live audio is browser-direct, watched through a sideband:**
 
@@ -392,11 +424,14 @@ session end to end with the headless playback-engine.
   the key check.
 - Embedded in the platform: it mounts the transport behind its access policy,
   creates sessions from its key cascade and stores them on its tables.
+- The tool call, and the threaded call on OpenAI and Mistral: Adventure's
+  Expand streams its prose on the story model's thread.
 
 ### Missing
 
-- **Adventure's real blocks** — tool call, threaded call, extraction, speech
-  synthesis and transcription. Adventure is wired from dummies.
+- **Adventure's remaining real blocks** — Outline on the story thread with its
+  structured result, image generation, speech synthesis and transcription,
+  which still run as dummies.
 - **The observer's thread** — it judges each line on its own.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the playback-engine needs.

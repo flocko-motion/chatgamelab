@@ -158,9 +158,10 @@ type Session struct {
 // slots hold the adapters the blocks call, filled when the session settles
 // and replaced when it adapts.
 type slots struct {
-	live  adapters.LiveSlot
-	tool  adapters.ToolSlot
-	image adapters.ImageSlot
+	live   adapters.LiveSlot
+	tool   adapters.ToolSlot
+	image  adapters.ImageSlot
+	thread adapters.ThreadSlot
 }
 
 // SessionState is what changes every turn and must survive a restart: what
@@ -233,6 +234,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		var err error
 		w, err = genre.NewAdventure(genre.AdventureConfig{
 			Tool:           &s.slots.tool,
+			Thread:         &s.slots.thread,
 			Status:         spec.Status,
 			Language:       spec.Language,
 			PromptOverride: spec.PromptOverride,
@@ -639,39 +641,48 @@ func (spec SessionSpec) idleAfter() time.Duration {
 	}
 }
 
+// equipment is the adapters a settlement runs on, one per slot.
+type equipment struct {
+	live   adapters.Live
+	tool   adapters.Tool
+	image  adapters.Image
+	thread adapters.Thread
+}
+
 // adapters builds the settled offer's implementations from its tier's models,
 // so a block never chooses its own model. A role the platform cannot fill
 // comes back nil.
-func (spec SessionSpec) adapters(settled settlement) (adapters.Live, adapters.Tool, adapters.Image, error) {
+func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 	entry, _ := catalogueEntry(settled.offer.Platform)
 	models, err := entry.Models(settled.Tier)
 	if err != nil {
-		return nil, nil, nil, err
+		return equipment{}, err
 	}
 
-	var (
-		live  adapters.Live
-		tool  adapters.Tool
-		image adapters.Image
-	)
+	var kit equipment
 	switch settled.offer.Platform {
 	case PlatformMock:
 		pace := time.Duration(spec.MockPaceMs) * time.Millisecond
-		live, tool, image = mock.Live{Pace: pace}, mock.Tool{Pace: pace}, mock.Image{Pace: pace}
+		kit = equipment{live: mock.Live{Pace: pace}, tool: mock.Tool{Pace: pace}, image: mock.Image{Pace: pace}, thread: mock.Thread{Pace: pace}}
 	case PlatformOpenAI:
 		keys := adapters.KeyFunc(settled.offer.Keys)
 		picture := models[adapters.ModelImage]
-		live = openai.NewLive(keys, models[adapters.ModelLive].Name)
-		tool = openai.NewTool(keys, models[adapters.ModelTooling].Name)
-		image = openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize])
+		kit = equipment{
+			live:   openai.NewLive(keys, models[adapters.ModelLive].Name),
+			tool:   openai.NewTool(keys, models[adapters.ModelTooling].Name),
+			image:  openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize]),
+			thread: openai.NewThread(keys, models[adapters.ModelStory].Name),
+		}
 	case PlatformMistral:
 		// Live stays nil: Mistral has no live voice model.
 		keys := adapters.KeyFunc(settled.offer.Keys)
-		tool = mistral.NewTool(keys, models[adapters.ModelTooling].Name)
-		image = mistral.NewImage(keys, models[adapters.ModelImage].Name)
+		kit = equipment{
+			tool:   mistral.NewTool(keys, models[adapters.ModelTooling].Name),
+			image:  mistral.NewImage(keys, models[adapters.ModelImage].Name),
+			thread: mistral.NewThread(keys, models[adapters.ModelStory].Name),
+		}
 	default:
-		return nil, nil, nil, fmt.Errorf("unknown platform %q", settled.offer.Platform)
+		return equipment{}, fmt.Errorf("unknown platform %q", settled.offer.Platform)
 	}
-
-	return live, tool, image, nil
+	return kit, nil
 }

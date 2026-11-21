@@ -3,7 +3,7 @@
  * a full game plays from node.
  */
 import { detailOf, refusalOf, type Choice, type SessionRef, type Settled, type UsageReport } from "./client.js";
-import { isSessionEvent, type BlockState, type Phase, type Refusal, type SessionEvent } from "./protocol.js";
+import { isSessionEvent, TEXT_DISCARD, type BlockState, type Phase, type Refusal, type SessionEvent } from "./protocol.js";
 import type { Conversation, ToggleName } from "./state.js";
 import { emptyState, explain, type PlaybackEngineState } from "./state.js";
 import { notice, type TextKey } from "./texts.js";
@@ -209,8 +209,10 @@ export class PlaybackEngine {
   #apply(event: SessionEvent): void {
     switch (event.Stream) {
       case "text":
-        // An empty delta closes the utterance, ordered against the text it ends.
+        // An empty delta closes the utterance, ordered against the text it ends;
+        // a discard drops it unfinished, as a broken reply is made again.
         if (event.Value === "") this.takeFloor();
+        else if (event.Value === TEXT_DISCARD) this.#discard();
         else this.#extend(event.Value);
         // Something answered, so a fault reported earlier has passed.
         this.state.fault = null;
@@ -418,6 +420,15 @@ export class PlaybackEngine {
       this.state.utterances.push(this.#open);
     }
     this.#open.text += delta;
+  }
+
+  /**
+   * Drops the text of the utterance still open, which is never finished. It
+   * stays open, empty, so the retried reply fills the same place: the feed is
+   * a timeline, and nothing is taken out of it.
+   */
+  #discard(): void {
+    if (this.#open) this.#open.text = "";
   }
 
   #set(connection: PlaybackEngineState["connection"]): void {

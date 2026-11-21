@@ -1,0 +1,178 @@
+package openai
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	"engine/internal/adapters"
+)
+
+// fakeResponses answers the Responses API as a stream, recording each request.
+type fakeResponses struct {
+	mu       sync.Mutex
+	requests []map[string]any
+	// answer writes the response to the nth request.
+	answer func(n int, w http.ResponseWriter)
+}
+
+func (f *fakeResponses) serve(t *testing.T) *httptest.Server {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Errorf("unreadable request: %v", err)
+		}
+		f.mu.Lock()
+		f.requests = append(f.requests, body)
+		n := len(f.requests)
+		f.mu.Unlock()
+		f.answer(n, w)
+	}))
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+// streamed writes a documented stream: deltas, then the completed response.
+func streamed(w http.ResponseWriter, id string, pieces ...string) {
+	w.Header().Set("Content-Type", "text/event-stream")
+	fmt.Fprint(w, "event: response.created\ndata: {\"type\":\"response.created\",\"response\":{\"id\":\""+id+"\"}}\n\n")
+	for _, p := range pieces {
+		delta, _ := json.Marshal(map[string]string{"type": "response.output_text.delta", "delta": p})
+		fmt.Fprintf(w, "event: response.output_text.delta\ndata: %s\n\n", delta)
+	}
+	fmt.Fprintf(w, "event: response.completed\ndata: {\"type\":\"response.completed\",\"response\":{\"id\":%q,"+
+		"\"usage\":{\"input_tokens\":120,\"output_tokens\":30,\"input_tokens_details\":{\"cached_tokens\":100}}}}\n\n", id)
+}
+
+func testThread(srv *httptest.Server) *Thread {
+	th := NewThread(func(context.Context) (string, error) { return "sk-test", nil }, "gpt-5-mini")
+	th.url = srv.URL
+	return th
+}
+
+func TestThreadStreamsAndContinues(t *testing.T) {
+	fake := &fakeResponses{answer: func(n int, w http.ResponseWriter) {
+		streamed(w, fmt.Sprintf("resp_%d", n), "The bridge ", "sways.")
+	}}
+	th := testThread(fake.serve(t))
+
+	var pieces []string
+	reply, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		Instructions: "Expand the outline.",
+		Input:        "The player crosses.",
+		Continuation: adapters.Continuation{ID: "resp_0", Model: "gpt-5-mini", Made: time.Now()},
+		Piece:        func(p string) { pieces = append(pieces, p) },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reply.Text != "The bridge sways." || strings.Join(pieces, "|") != "The bridge |sways." {
+		t.Errorf("reply %q, pieces %q", reply.Text, pieces)
+	}
+	if reply.Continuation.ID != "resp_1" || reply.Continuation.Model != "gpt-5-mini" || reply.Continuation.Made.IsZero() {
+		t.Errorf("continuation = %+v", reply.Continuation)
+	}
+	if reply.Usage.InputTokens != 20 || reply.Usage.CachedInputTokens != 100 || reply.Usage.OutputTokens != 30 {
+		t.Errorf("usage = %+v, want cached input apart", reply.Usage)
+	}
+
+	sent := fake.requests[0]
+	if sent["previous_response_id"] != "resp_0" || sent["input"] != "The player crosses." {
+		t.Errorf("request = %v, want the turn continued from resp_0", sent)
+	}
+	// Instructions are not carried over a previous response, so every call sends them.
+	if sent["instructions"] != "Expand the outline." || sent["store"] != true || sent["stream"] != true {
+		t.Errorf("request = %v, want instructions, store and stream", sent)
+	}
+}
+
+// A previous response OpenAI no longer has is taken over by a fresh thread
+// seeded with the transcript, so the session goes on.
+func TestThreadReseedsWhenTheResponseIsGone(t *testing.T) {
+	fake := &fakeResponses{answer: func(n int, w http.ResponseWriter) {
+		if n == 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprint(w, `{"error":{"code":"previous_response_not_found","message":"Previous response with id 'resp_old' not found."}}`)
+			return
+		}
+		streamed(w, "resp_new", "Again.")
+	}}
+	th := testThread(fake.serve(t))
+
+	reply, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		Input:        "next",
+		Continuation: adapters.Continuation{ID: "resp_old", Model: "gpt-5-mini", Made: time.Now()},
+		Transcript:   []adapters.Exchange{{Input: "first", Reply: "one"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reply.Continuation.ID != "resp_new" {
+		t.Errorf("continuation = %+v", reply.Continuation)
+	}
+	assertSeeded(t, fake.requests[1])
+}
+
+// A continuation older than OpenAI's retention is not even tried.
+func TestThreadReseedsAfterRetention(t *testing.T) {
+	fake := &fakeResponses{answer: func(_ int, w http.ResponseWriter) { streamed(w, "resp_new", "Hello.") }}
+	th := testThread(fake.serve(t))
+
+	_, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		Input:        "next",
+		Continuation: adapters.Continuation{ID: "resp_old", Model: "gpt-5-mini", Made: time.Now().Add(-31 * 24 * time.Hour)},
+		Transcript:   []adapters.Exchange{{Input: "first", Reply: "one"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(fake.requests) != 1 {
+		t.Fatalf("%d requests, want one fresh call", len(fake.requests))
+	}
+	assertSeeded(t, fake.requests[0])
+}
+
+func assertSeeded(t *testing.T, sent map[string]any) {
+	t.Helper()
+	if _, continued := sent["previous_response_id"]; continued {
+		t.Errorf("request = %v, want a fresh thread", sent)
+	}
+	got, _ := json.Marshal(sent["input"])
+	want := `[{"content":"first","role":"user"},{"content":"one","role":"assistant"},{"content":"next","role":"user"}]`
+	if string(got) != want {
+		t.Errorf("input = %s, want the transcript then the turn: %s", got, want)
+	}
+}
+
+// A stream that stops before its completed response may pass, so the block
+// makes the turn again from the same continuation.
+func TestThreadBrokenStreamMayPass(t *testing.T) {
+	fake := &fakeResponses{answer: func(_ int, w http.ResponseWriter) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprint(w, "data: {\"type\":\"response.output_text.delta\",\"delta\":\"The bri\"}\n\n")
+	}}
+	th := testThread(fake.serve(t))
+
+	_, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "x"})
+	if !errors.Is(err, adapters.ErrTransient) {
+		t.Fatalf("got %v, want a failure that may pass", err)
+	}
+}
+
+func TestThreadRejectedKey(t *testing.T) {
+	fake := &fakeResponses{answer: func(_ int, w http.ResponseWriter) { w.WriteHeader(http.StatusUnauthorized) }}
+	th := testThread(fake.serve(t))
+
+	_, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "x"})
+	if !errors.Is(err, adapters.ErrKeyRejected) {
+		t.Fatalf("got %v, want ErrKeyRejected", err)
+	}
+}

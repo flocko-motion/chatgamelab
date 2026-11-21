@@ -3,7 +3,6 @@ package blocks
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -13,76 +12,6 @@ import (
 
 // The dummies bill invented numbers, priced from the mock's table, so the usage
 // view means something without a real model behind it.
-
-// DummyThreaded stands in for a call on a continuing conversation. It reports
-// its turn number so a wiring test can see the thread is actually continuous.
-type DummyThreaded struct {
-	name, role string
-
-	// Guarded because ExportState is called from the caller's goroutine while
-	// the block's own loop is writing — the checkpoint never stops the graph.
-	mu   sync.Mutex
-	turn int
-	// thread stands in for the provider's continuation token — the thing that
-	// makes this role threaded, and the thing a resumed session needs back.
-	thread string
-
-	in    ports.TextInput
-	out   ports.TextBroadcast
-	meter meter
-}
-
-func (b *DummyThreaded) ExportState() string {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	return b.thread
-}
-
-func (b *DummyThreaded) RestoreState(s string) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	b.thread = s
-	// A restored thread continues its numbering rather than restarting, which
-	// is how a test can tell a real resume from a fresh session.
-	if n, err := strconv.Atoi(strings.TrimPrefix(s, "resp-")); err == nil {
-		b.turn = n
-	}
-}
-
-func NewDummyThreaded(name, role string) *DummyThreaded {
-	return &DummyThreaded{name: name, role: role, in: make(ports.TextInput, 16), meter: meter{name: name}}
-}
-
-// UsageOutPort reports what the turns have cost.
-func (b *DummyThreaded) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
-
-func (b *DummyThreaded) NodeName() string             { return b.name }
-func (b *DummyThreaded) TextInPort() chan<- string    { return b.in }
-func (b *DummyThreaded) TextOutPort() <-chan string   { return b.out.Subscribe() }
-func (b *DummyThreaded) RequiredInputs() []ports.Kind { return []ports.Kind{ports.KindText} }
-
-func (b *DummyThreaded) Start(ctx context.Context) {
-	go func() {
-		defer func() { b.out.Close(); b.meter.usage.Close() }()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case v, ok := <-b.in:
-				if !ok {
-					return
-				}
-				b.meter.bill(adapters.Usage{Model: "mock-story", InputTokens: int64(400 + len(v)), OutputTokens: 350})
-				b.mu.Lock()
-				b.turn++
-				turn := b.turn
-				b.thread = fmt.Sprintf("resp-%d", turn)
-				b.mu.Unlock()
-				b.out.Send(fmt.Sprintf("[%s turn %d] %s", b.role, turn, v))
-			}
-		}
-	}()
-}
 
 // DummyExtraction is the block with two text outputs, which is the case that
 // forced SecondaryTextOut: Outline emits a plot line and an image prompt, both

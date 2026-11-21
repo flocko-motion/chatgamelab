@@ -9,7 +9,8 @@ var prices = map[string]adapters.Price{
 	"gpt-5-mini":    {InputPerMTok: 0.25, CachedInputPerMTok: 0.025, OutputPerMTok: 2.00},
 	"gpt-5.6-luna":  {InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20},
 	"gpt-5.6-terra": {InputPerMTok: 2.00, CachedInputPerMTok: 0.20, OutputPerMTok: 12.00},
-	"gpt-5.6-sol":   {InputPerMTok: 5.00, CachedInputPerMTok: 0.50, OutputPerMTok: 30.00},
+	// From https://developers.openai.com/api/docs/pricing, 21 November 2026.
+	"gpt-5.6-sol": {InputPerMTok: 4.00, CachedInputPerMTok: 0.40, OutputPerMTok: 20.00},
 	// Image models use the text rate, as the engine sends no image in; PerImage stays
 	// zero because the reported output tokens already price the picture.
 	"gpt-image-2.5-flare":    {InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 30.00},

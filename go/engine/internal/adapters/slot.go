@@ -78,3 +78,49 @@ func report(to func(error), err error) {
 		to(err)
 	}
 }
+
+// ThreadSlot is a Thread whose implementation can be replaced. It holds the
+// offer the implementation runs on, because a continuation made on another
+// offer or model cannot be used: another key may be another provider account,
+// and a Mistral conversation cannot change model.
+type ThreadSlot struct {
+	held atomic.Pointer[heldThread]
+	// Report hears every error the implementation returns; set before use.
+	Report func(error)
+}
+
+type heldThread struct {
+	thread Thread
+	offer  string
+}
+
+// Set replaces the implementation and names its offer; the next call runs on
+// it, on a fresh provider thread if the offer or the model changed.
+func (s *ThreadSlot) Set(thread Thread, offer string) {
+	s.held.Store(&heldThread{thread: thread, offer: offer})
+}
+
+// Model is what the held implementation runs on, empty before it is set.
+func (s *ThreadSlot) Model() string {
+	held := s.held.Load()
+	if held == nil || held.thread == nil {
+		return ""
+	}
+	return held.thread.Model()
+}
+
+func (s *ThreadSlot) Continue(ctx context.Context, turn ThreadTurn) (ThreadReply, error) {
+	held := s.held.Load()
+	if held == nil || held.thread == nil {
+		return ThreadReply{}, ErrUnset
+	}
+	if turn.Continuation.Offer != held.offer || turn.Continuation.Model != held.thread.Model() {
+		turn.Continuation = Continuation{}
+	}
+	reply, err := held.thread.Continue(ctx, turn)
+	report(s.Report, err)
+	if err == nil {
+		reply.Continuation.Offer = held.offer
+	}
+	return reply, err
+}

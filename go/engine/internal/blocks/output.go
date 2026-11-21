@@ -141,3 +141,28 @@ func (b *PlayerOutputProps) Start(ctx context.Context) {
 		}
 	}()
 }
+
+// PlayerOutputStream is the text sink for a reply streamed piece by piece: each
+// piece goes out as it arrives, with the close and the discard as they come,
+// so the player watches the prose appear.
+type PlayerOutputStream struct {
+	recorder
+	in ports.StreamInput
+}
+
+func NewPlayerOutputStream(name, stream string) *PlayerOutputStream {
+	return &PlayerOutputStream{recorder: newRecorder(name, stream), in: make(ports.StreamInput, 256)}
+}
+
+func (b *PlayerOutputStream) StreamInPort() chan<- ports.Piece { return b.in }
+func (b *PlayerOutputStream) RequiredInputs() []ports.Kind     { return []ports.Kind{ports.KindStream} }
+
+func (b *PlayerOutputStream) Start(ctx context.Context) {
+	go func() {
+		for v := range b.in {
+			if !b.record(ctx, string(v)) {
+				return
+			}
+		}
+	}()
+}

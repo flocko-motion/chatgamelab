@@ -10,6 +10,8 @@ import (
 // AdventureConfig is what the wiring needs from a session spec, already resolved.
 type AdventureConfig struct {
 	Tool adapters.Tool
+	// Thread runs the story model's conversation.
+	Thread adapters.Thread
 
 	// Status seeds the values the game keeps, such as Health.
 	Status map[string]string
@@ -24,6 +26,7 @@ type AdventureConfig struct {
 // Prompt names are constants so a rename fails to compile.
 const (
 	PromptRephrase = "rephrase"
+	PromptExpand   = "expand"
 )
 
 // AdventurePrompts are the mechanics' own prompts; a spec may replace any by name.
@@ -33,6 +36,11 @@ var AdventurePrompts = Prompts{
 		"Return ONLY the rephrased text, nothing else.\n" +
 		"Example: 'I attack the wolf and wrestle him to the ground' → " +
 		"'The player attacks the wolf, hoping to wrestle him to the ground.'",
+	// A first draft, overridable by name.
+	PromptExpand: "You narrate a text adventure. Turn the outline you are given into the next " +
+		"passage of the story: vivid second-person prose, a few sentences long, true to " +
+		"everything told so far. Narrate only what the outline says happens; never decide " +
+		"what the player does next.",
 }
 
 // languageClause asks for the player's language; empty asks for nothing.
@@ -51,15 +59,18 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 		return nil, err
 	}
 	prompts[PromptRephrase] += languageClause(cfg.Language)
+	prompts[PromptExpand] += languageClause(cfg.Language)
 
 	player := blocks.NewPlayerInputText("player-input-text")
 	rephrase := blocks.NewToolCall("rephrase", cfg.Tool, prompts[PromptRephrase])
 	outline := blocks.NewDummyExtraction("outline")
-	expand := blocks.NewDummyThreaded("expand", "prose")
+	// Outline joins this thread, ahead of Expand, once it is a threaded block.
+	story := blocks.NewThread("story-thread", cfg.Thread)
+	expand := blocks.NewThreaded("expand", story, prompts[PromptExpand])
 	image := blocks.NewDummyImage("image")
 	tts := blocks.NewDummyTTS("tts")
 
-	outText := blocks.NewPlayerOutputText("out-text", "text")
+	outText := blocks.NewPlayerOutputStream("out-text", "text")
 	outAudio := blocks.NewPlayerOutputAudio("out-audio", "audio")
 	outImage := blocks.NewPlayerOutputImage("out-image", "image")
 	outProps := blocks.NewPlayerOutputProps("out-props", "props")
@@ -70,6 +81,8 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 
 	g := ports.NewGraph("adventure")
 	g.Track(gate)
+	// The thread is exported once, under its own name, for both its blocks.
+	g.Share(story)
 	// Wired though it opens at once, so every genre has the same lifecycle shape.
 	g.ConnectState(gate, player)
 	g.ConnectTextOut(player, rephrase)
@@ -83,7 +96,8 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	g.ConnectPropsOut(props, outline)
 	g.ConnectPropsOut(props, outProps)
 
-	g.ConnectTextOut(expand, outText)
+	// The player watches the prose appear; narration waits for the whole.
+	g.ConnectStreamOut(expand, outText)
 	g.ConnectTextOut(expand, tts)
 	g.ConnectAudioOut(tts, outAudio)
 	g.ConnectImageOut(image, outImage)

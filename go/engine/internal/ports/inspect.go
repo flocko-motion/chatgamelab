@@ -91,6 +91,14 @@ func describe(value any) string {
 	switch typed := value.(type) {
 	case string:
 		return truncate(typed)
+	case Piece:
+		switch typed {
+		case PieceClose:
+			return "(end of reply)"
+		case PieceDiscard:
+			return "(discard the open reply)"
+		}
+		return truncate(string(typed))
 	case AudioChunk:
 		return fmt.Sprintf("audio, %d bytes", len(typed))
 	case ImageData:
