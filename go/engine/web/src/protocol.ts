@@ -40,11 +40,18 @@ export const TEXT_DISCARD = "\u0018";
 export const AUDIO_DISCARD_BYTES = 0;
 
 /**
- * A block reporting on itself, carried as JSON in a `state` event's value.
- * A block in the turn loop is never finished; `failed` means the game cannot
- * continue, and a `problem` event says why.
+ * A `text` event whose value starts with this replaces the text of the
+ * utterance still open with the rest of the value, as when a reply was
+ * tidied after it streamed.
  */
-export type Phase = "ready" | "working" | "failed";
+export const TEXT_REPLACE = "\u001a";
+
+/**
+ * A block reporting on itself, carried as JSON in a `state` event's value.
+ * A block in the turn loop is never finished. A failed call is the block's:
+ * an `error` or a `problem` event says what it meant for the game.
+ */
+export type Phase = "ready" | "working";
 
 export interface BlockState {
   readonly node: string;
@@ -77,15 +84,26 @@ export const PROBLEMS: readonly Problem[] = [
   "failed",
 ];
 
-/** An error the game goes on after: an `error` event's value. */
+/** An error the game goes on after, named by an `error` event's report. */
 export type ErrorCode =
   | "turn_failed"
+  | "image_failed"
   ;
 
 /** Every error code; any other `error` value is a message for whoever debugs. */
 export const ERROR_CODES: readonly ErrorCode[] = [
   "turn_failed",
+  "image_failed",
 ];
+
+/**
+ * An `error` event's value, as JSON: the code, and the text the failed
+ * block was given.
+ */
+export interface ErrorReport {
+  readonly code: ErrorCode;
+  readonly text: string;
+}
 
 /** The status values a genre tracks: a `props` event's value, as JSON. */
 export type Props = Record<string, string>;

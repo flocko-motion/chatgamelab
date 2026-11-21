@@ -40,20 +40,20 @@ func TestResumeContinuesTheThread(t *testing.T) {
 	if err := first.Say("I try to cross the bridge"); err != nil {
 		t.Fatal(err)
 	}
-	// The reply streams; the history keeps it whole once it has closed.
-	// Outline takes the thread's first turn, Expand its second.
-	waitForTurn(t, first, "[story turn 2]")
+	// The reply streams; the history keeps it whole once it has closed. The
+	// opening takes the thread's first two turns, the action the next two.
+	waitForTurn(t, first, "[story turn 4]")
 	first.Close()
 
 	resumed := resume(t, store, "s1")
-	if !hasText(resumed.History(), "[story turn 2]") {
-		t.Errorf("the restored history lacks the first turn as one utterance: %q", resumed.History())
+	if !hasText(resumed.History(), "[story turn 2]") || !hasText(resumed.History(), "[story turn 4]") {
+		t.Errorf("the restored history lacks the opening and the first turn as utterances: %q", resumed.History())
 	}
 	if err := resumed.Say("I keep going"); err != nil {
 		t.Fatal(err)
 	}
-	// Turn 4, not turn 2: the thread continued.
-	waitForTurn(t, resumed, "[story turn 4]")
+	// Turn 6, not a second opening: the thread continued.
+	waitForTurn(t, resumed, "[story turn 6] NARRATE the outline")
 }
 
 // hasText reports whether the history holds a text event starting with prefix.
@@ -154,13 +154,14 @@ func TestResumeRestoresStatusValues(t *testing.T) {
 		Status: map[string]string{"Health": "Wounded", "Gold": "12"},
 	})
 	first.Say("I press on")
-	// JSON, so values with spaces arrive whole.
-	const afterTurn = `{"Gold":"12 [turn 1]","Health":"Wounded [turn 1]"}`
+	// JSON, so values with spaces arrive whole. The opening set the values,
+	// and the turn went on from them.
+	const afterTurn = `{"Gold":"[turn 3]","Health":"[turn 3]"}`
 	waitFor(t, first, "props", afterTurn)
 	first.Close()
 
 	resumed := resume(t, store, "s4")
-	if got := resumed.Snapshot().Props["Gold"]; got != "12 [turn 1]" {
+	if got := resumed.Snapshot().Props["Gold"]; got != "[turn 3]" {
 		t.Errorf("restored props = %v, want the stored values", resumed.Snapshot().Props)
 	}
 	waitFor(t, resumed, "props", afterTurn)

@@ -58,8 +58,15 @@ func (h *holdUntilReleased[T]) submit(value T, send func(T)) {
 	h.mu.Unlock()
 }
 
-// wait releases on the gate's ready and flushes whatever was kept.
+// wait releases once every release source has reported working then ready,
+// or any has reported a failure, and flushes whatever was kept. Ready only
+// counts once its source has worked, as every block reports ready when it
+// starts; and a failure releases, so a failed opening never locks the player
+// out. Reports after the release are drained, so a source in the turn loop
+// never waits on this one.
 func (h *holdUntilReleased[T]) wait(ctx context.Context, release <-chan ports.State, send func(T)) {
+	worked, finished := map[string]bool{}, map[string]bool{}
+	released := false
 	for {
 		select {
 		case <-ctx.Done():
@@ -68,9 +75,24 @@ func (h *holdUntilReleased[T]) wait(ctx context.Context, release <-chan ports.St
 			if !alive {
 				return
 			}
-			if state.Phase != ports.PhaseReady {
+			if released {
 				continue
 			}
+			switch state.Phase {
+			case ports.PhaseWorking:
+				worked[state.Node] = true
+			case ports.PhaseReady:
+				if worked[state.Node] {
+					finished[state.Node] = true
+				}
+			}
+			h.mu.Lock()
+			expected := h.expected
+			h.mu.Unlock()
+			if len(finished) < expected && !state.Failed() {
+				continue
+			}
+			released = true
 
 			h.mu.Lock()
 			h.released = true
@@ -81,7 +103,6 @@ func (h *holdUntilReleased[T]) wait(ctx context.Context, release <-chan ports.St
 			for _, value := range queued {
 				send(value)
 			}
-			return
 		}
 	}
 }

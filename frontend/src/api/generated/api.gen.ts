@@ -95,6 +95,11 @@ export interface ConnectResponse {
   sdp: string;
 }
 
+export interface ConstraintFrequencyRequest {
+  block: string;
+  frequency: number;
+}
+
 export interface CreateApiKeyReq {
   key: string;
   name: string;
@@ -1677,6 +1682,28 @@ export class Api<
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description repeats the youth-protection rule. Staff and heads only. 1 repeats it with every call, up to 10 with every tenth; the session keeps the change. The System Message and the opening always carry the rule.
+     *
+     * @name PostApiEngineSessionsIdConstraintFrequency
+     * @summary Sets how often a block of a session
+     * @request POST:/api/engine/sessions/{id}/constraint-frequency
+     * @secure
+     */
+    postApiEngineSessionsIdConstraintFrequency: (
+      id: string,
+      data: ConstraintFrequencyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/constraint-frequency`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
 

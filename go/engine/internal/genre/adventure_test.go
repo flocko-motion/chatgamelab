@@ -24,9 +24,18 @@ func TestAdventureHasItsPrompts(t *testing.T) {
 	}
 }
 
-// withMocks runs the config on the mock platform's adapters.
+// withMocks runs the config on the mock platform's adapters, with pictures
+// allowed, unless the config sets adapters of its own.
 func withMocks(cfg AdventureConfig) AdventureConfig {
-	cfg.Tool, cfg.Thread = mock.Tool{}, mock.Thread{}
+	if cfg.Tool == nil {
+		cfg.Tool = mock.Tool{}
+	}
+	if cfg.Thread == nil {
+		cfg.Thread = mock.Thread{}
+	}
+	if cfg.Image == nil {
+		cfg.Image = mock.Image{}
+	}
 	return cfg
 }
 

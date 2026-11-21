@@ -47,21 +47,23 @@ func toAny(names []string) []any {
 
 var outlineResult = blocks.Result{Text: "outline", SecondaryText: "image_prompt", Props: "status"}
 
-// structuredBlock is one started block and what it puts out.
+// structuredBlock is one block, subscribed to what it puts out.
 type structuredBlock struct {
 	*blocks.Structured
 	text, secondary <-chan string
+	failure         <-chan ports.Failure
 	props           <-chan ports.PropMap
 	states          <-chan ports.State
 }
 
 func newStructured(thread *blocks.Thread, status ...string) structuredBlock {
-	b := blocks.NewStructured("outline", thread, "outline the turn", outlineSchema(status...), outlineResult)
+	b := blocks.NewStructured("outline", thread, outlineSchema(status...), outlineResult)
 	b.Backoff = []time.Duration{0, 0}
 	return structuredBlock{
 		Structured: b,
 		text:       b.TextOutPort(),
 		secondary:  b.SecondaryTextOutPort(),
+		failure:    b.FailureOutPort(),
 		props:      b.PropsOutPort(),
 		states:     b.StateOutPort(),
 	}
@@ -75,7 +77,7 @@ func TestStructuredTurnOnTheSharedThread(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	thread := blocks.NewThread("story-thread", mock.Thread{})
+	thread := newThread(mock.Thread{})
 	outline := newStructured(thread, "Health")
 	expand := startThreaded(t, thread, "expand")
 	outline.Start(ctx)
@@ -115,7 +117,7 @@ func TestStructuredRetriesABadReply(t *testing.T) {
 		`{"outline":"x","image_prompt":"y","status":{}}`,
 		`{"outline":"The bridge holds.","image_prompt":"a bridge","status":{"Health":"fine"}}`,
 	}}
-	thread := blocks.NewThread("story-thread", adapter)
+	thread := newThread(adapter)
 	thread.RestoreState(`{"continuation":{"id":"resp_7"}}`)
 	outline := newStructured(thread, "Health")
 	outline.Start(ctx)
@@ -145,7 +147,7 @@ func TestStructuredRetryLeavesAThreadThatKeptTheBadReply(t *testing.T) {
 		"not json",
 		`{"outline":"The bridge holds.","image_prompt":"a bridge","status":{"Health":"fine"}}`,
 	}}
-	thread := blocks.NewThread("story-thread", adapter)
+	thread := newThread(adapter)
 	thread.RestoreState(`{"continuation":{"id":"conv_1"},"transcript":[{"input":"before","reply":"{}"}]}`)
 	outline := newStructured(thread, "Health")
 	outline.Start(ctx)
@@ -175,7 +177,7 @@ func TestStructuredEmptyReplyIsBad(t *testing.T) {
 		"",
 		`{"outline":"On.","image_prompt":"p","status":{"Health":"fine"}}`,
 	}}
-	outline := newStructured(blocks.NewThread("story-thread", adapter), "Health")
+	outline := newStructured(newThread(adapter), "Health")
 	outline.Start(ctx)
 
 	outline.PropsInPort() <- ports.PropMap{"Health": "good"}
@@ -185,10 +187,11 @@ func TestStructuredEmptyReplyIsBad(t *testing.T) {
 	}
 }
 
-// After three bad replies the turn is dropped: nothing goes on, the block is
-// ready again and says the turn failed, and the thread hands the turn past
-// Expand, so the next turn's Outline does not wait for it.
-func TestStructuredDropsTheTurnAfterThreeBadReplies(t *testing.T) {
+// After three bad replies the call fails: nothing goes on its normal
+// outputs, the text goes out on the failure output, the block is ready again
+// with the reason, and the thread hands the turn past Expand, so the next
+// turn's Outline does not wait for it.
+func TestStructuredFailsAfterThreeBadReplies(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -201,7 +204,7 @@ func TestStructuredDropsTheTurnAfterThreeBadReplies(t *testing.T) {
 		},
 		refuse: 3,
 	}
-	thread := blocks.NewThread("story-thread", adapter)
+	thread := newThread(adapter)
 	outline := newStructured(thread, "Health")
 	expand := startThreaded(t, thread, "expand")
 	outline.Start(ctx)
@@ -209,10 +212,12 @@ func TestStructuredDropsTheTurnAfterThreeBadReplies(t *testing.T) {
 
 	outline.PropsInPort() <- ports.PropMap{"Health": "good"}
 	outline.TextInPort() <- "first"
-	expectPhases(t, outline.states, ports.PhaseReady, ports.PhaseWorking)
-	dropped := receive(t, outline.states, "the dropped turn")
-	if dropped.Phase != ports.PhaseReady || dropped.Reason != ports.ReasonTurnFailed {
-		t.Fatalf("state %+v, want ready with %q", dropped, ports.ReasonTurnFailed)
+	if got := receive(t, outline.failure, "the failed text"); got.Input != "first" {
+		t.Errorf("failure output carried %q, want the text the block was given", got)
+	}
+	failed := expectPhases(t, outline.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
+	if failed.Reason != ports.ReasonBadReply {
+		t.Fatalf("state %+v, want ready with %q", failed, ports.ReasonBadReply)
 	}
 
 	outline.TextInPort() <- "second"
@@ -228,7 +233,73 @@ func TestStructuredDropsTheTurnAfterThreeBadReplies(t *testing.T) {
 		t.Error("no image prompt for the second turn")
 	}
 	if n := adapter.calls(); n != 4 {
-		t.Errorf("%d calls, want three for the dropped turn and one for the next", n)
+		t.Errorf("%d calls, want three for the failed turn and one for the next", n)
+	}
+}
+
+// A reply in a markdown fence, or with words around its JSON, is tidied
+// before it counts as bad, and kept.
+func TestStructuredTidiesTheReply(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	adapter := &scriptedStructured{replies: []string{
+		"Here you go:\n```json\n{\"outline\":\"Tidy.\",\"image_prompt\":\"p\",\"status\":{\"Health\":\"ok\"}}\n```\nEnjoy!",
+	}}
+	outline := newStructured(newThread(adapter), "Health")
+	outline.Start(ctx)
+
+	outline.PropsInPort() <- ports.PropMap{"Health": "good"}
+	outline.TextInPort() <- "go"
+	if got := receive(t, outline.text, "the outline"); got != "Tidy." {
+		t.Errorf("outline %q", got)
+	}
+	if n := adapter.calls(); n != 1 {
+		t.Errorf("%d calls, want the tidied reply kept at once", n)
+	}
+}
+
+// The opening cue is sent as it is, as the game's own message, with the
+// constraints; a player's action after it goes as JSON with the current
+// status, the player's message, and at frequency 2 without the constraints.
+// A thread that holds the block's opening already, as a resumed one does,
+// makes no call on the cue and reports a cycle instead.
+func TestStructuredOpening(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	adapter := &scriptedStructured{replies: []string{`{"outline":"Opened.","image_prompt":"p","status":{"Health":"fine"}}`}}
+	thread := newThread(adapter)
+	outline := newStructured(thread, "Health")
+	outline.SetConstraintFrequency(2)
+	outline.Start(ctx)
+
+	outline.PropsInPort() <- ports.PropMap{"Health": "good"}
+	outline.OpeningInPort() <- "Start the game."
+	if got := receive(t, outline.text, "the opening outline"); got != "Opened." {
+		t.Errorf("outline %q", got)
+	}
+	outline.TextInPort() <- "I look around"
+	receive(t, outline.text, "the next outline")
+
+	opening, action := adapter.turns[0], adapter.turns[1]
+	if opening.Input != "Start the game." || !opening.Directive || opening.Constraints == "" {
+		t.Errorf("opening sent %+v, want the bare cue, as the game's own message, with the constraints", opening)
+	}
+	if action.Input != `{"input":"I look around","status":{"Health":"fine"}}` || action.Directive || action.Constraints != "" {
+		t.Errorf("action sent %+v, want JSON as the player's, without the constraints at frequency 2", action)
+	}
+
+	resumed := newThread(adapter)
+	resumed.RestoreState(thread.ExportState())
+	again := newStructured(resumed, "Health")
+	again.Start(ctx)
+	again.PropsInPort() <- ports.PropMap{"Health": "fine"}
+	expectPhases(t, again.states, ports.PhaseReady)
+	again.OpeningInPort() <- "Start the game."
+	expectPhases(t, again.states, ports.PhaseWorking, ports.PhaseReady)
+	if n := adapter.calls(); n != 2 {
+		t.Errorf("%d calls, want the resumed opening to make none", n)
 	}
 }
 
@@ -247,7 +318,7 @@ func TestStructuredWithoutStatus(t *testing.T) {
 		"required":             []any{"outline", "image_prompt"},
 		"additionalProperties": false,
 	}}
-	b := blocks.NewStructured("outline", blocks.NewThread("story-thread", mock.Thread{}), "", schema, outlineResult)
+	b := blocks.NewStructured("outline", newThread(mock.Thread{}), schema, outlineResult)
 	text, props := b.TextOutPort(), b.PropsOutPort()
 	b.Start(ctx)
 

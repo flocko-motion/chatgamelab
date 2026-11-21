@@ -1372,5 +1372,46 @@
     "rooms": "Szobák",
     "serverSettings": "Szerver beállítások",
     "workshopSettings": "Műhely beállítások"
+  },
+  "playbackEngine": {
+    "errors": {
+      "connectionLost": "Megszakadt a kapcsolat a játékkal. Töltsd újra az oldalt, és próbáld meg újra.",
+      "imageFailed": "Nem sikerült elkészíteni a jelenet képét. A történet folytatódik.",
+      "noMicrophone": "Nincs mikrofon. Ellenőrizd a böngésző ezen oldalra vonatkozó engedélyét.",
+      "openingFailed": "A történet nem tudott elkezdődni. Írd le, mit szeretnél tenni, és onnan folytatódik.",
+      "pauseFailed": "Nem sikerült szüneteltetni a beszélgetést.",
+      "serverUnreachable": "A játékszerver nem érhető el.",
+      "startFailed": "Nem sikerült elindítani a játékot.",
+      "switchFailed": "Nem sikerült átváltani ezt a funkciót.",
+      "turnFailed": "A történet nem tudott erre épülni. Küldd el újra, vagy próbálj valami mást.",
+      "voiceFailed": "Nem sikerült csatlakoztatni a hangodat."
+    },
+    "launch": {
+      "continue": "Játék folytatása",
+      "inProgress": "Van egy megkezdett játékod.",
+      "noGame": "Ennek az oldalnak szüksége van egy játékra: nyisd meg egy játék oldaláról.",
+      "startAnew": "Újrakezdés",
+      "starting": "A játék indítása…",
+      "tryAgain": "Újrapróbálkozás"
+    },
+    "problems": {
+      "denied": "Nem játszhatsz ezzel a játékkal.",
+      "failed": "Valami hiba történt, a játék nem folytatódhat.",
+      "genre": "A rendelkezésre álló API-kulcs nem tudja futtatni ezt a játéktípust.",
+      "keyRejected": "A mesterségesintelligencia-szolgáltató elutasította ennek a játéknak a kulcsát, ezért a játék nem folytatódhat. A játékot beállító személynek ellenőriznie kell a kulcsot.",
+      "noKey": "Nincs elérhető API-kulcs a játékhoz.",
+      "noPlays": "Ehhez a megosztott játékhoz már nem maradt több játéklehetőség.",
+      "stale": "Ez a játék már nem folytatható.",
+      "unknown": "Ez a játékmenet nem létezik.",
+      "unreachable": "A mesterségesintelligencia-szolgáltató jelenleg nem válaszol, ezért a játék nem folytatódhat. Próbáld meg újra néhány perc múlva."
+    },
+    "status": {
+      "choose": "A kezdéshez válaszd ki, hogyan szeretnél játszani.",
+      "connecting": "Kapcsolódás…",
+      "ended": "A játék véget ért.",
+      "reconnecting": "Újracsatlakozás…",
+      "settingScene": "A jelenet előkészítése…",
+      "wakingCharacter": "A szereplő felébresztése…"
+    }
   }
 }

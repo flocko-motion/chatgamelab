@@ -1374,5 +1374,46 @@
     "rooms": "Odalar",
     "serverSettings": "Sunucu Ayarları",
     "workshopSettings": "Atölye Ayarları"
+  },
+  "playbackEngine": {
+    "errors": {
+      "connectionLost": "Oyunla bağlantı kesildi. Tekrar denemek için sayfayı yeniden yükle.",
+      "imageFailed": "Bu sahne için görsel oluşturulamadı. Hikâye devam ediyor.",
+      "noMicrophone": "Mikrofon yok. Tarayıcının bu sayfa için izinlerini kontrol et.",
+      "openingFailed": "Hikâye başlayamadı. Ne yapmak istediğini yaz, hikâye oradan başlasın.",
+      "pauseFailed": "Konuşma duraklatılamadı.",
+      "serverUnreachable": "Oyun sunucusuna ulaşılamıyor.",
+      "startFailed": "Oyun başlatılamadı.",
+      "switchFailed": "Bu özellik değiştirilemedi.",
+      "turnFailed": "Hikâye buradan devam edemedi. Tekrar gönder veya başka bir şey dene.",
+      "voiceFailed": "Ses bağlantısı kurulamadı."
+    },
+    "launch": {
+      "continue": "Devam et",
+      "inProgress": "Devam eden bir oyunun var.",
+      "noGame": "Bu sayfada oynanacak bir oyun gerekiyor: Bir oyunun sayfasından aç.",
+      "startAnew": "Baştan başla",
+      "starting": "Oyun başlatılıyor…",
+      "tryAgain": "Tekrar dene"
+    },
+    "problems": {
+      "denied": "Bu oyunu oynamana izin verilmiyor.",
+      "failed": "Bir şeyler ters gitti ve oyun devam edemiyor.",
+      "genre": "Kullanılabilir yapay zekâ anahtarı bu tür bir oyunu çalıştıramıyor.",
+      "keyRejected": "Yapay zekâ sağlayıcısı bu oyunun anahtarını reddetti, bu nedenle oyun devam edemiyor. Oyunu kuran kişinin anahtarı kontrol etmesi gerekiyor.",
+      "noKey": "Bu oyunu oynamak için kullanılabilir bir yapay zekâ anahtarı yok.",
+      "noPlays": "Bu paylaşılan oyunda oynama hakkı kalmadı.",
+      "stale": "Bu oyuna artık devam edilemiyor.",
+      "unknown": "Bu oyun oturumu mevcut değil.",
+      "unreachable": "Yapay zekâ sağlayıcısı şu anda yanıt vermiyor, bu nedenle oyun devam edemiyor. Birkaç dakika sonra tekrar dene."
+    },
+    "status": {
+      "choose": "Başlamak için nasıl oynamak istediğini seç.",
+      "connecting": "Bağlanıyor…",
+      "ended": "Oyun sona erdi.",
+      "reconnecting": "Yeniden bağlanıyor…",
+      "settingScene": "Sahne hazırlanıyor…",
+      "wakingCharacter": "Karakter uyanıyor…"
+    }
   }
 }

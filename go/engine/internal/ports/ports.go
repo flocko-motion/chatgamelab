@@ -13,12 +13,16 @@ type (
 	Piece string
 )
 
-// The stream's two markers. A reply ends with PieceClose; PieceDiscard drops
-// the reply still open, as when a broken stream is retried.
+// The stream's markers. A reply ends with PieceClose; PieceDiscard drops the
+// reply still open, as when a broken stream is retried; a piece starting with
+// PieceReplace replaces the open reply's text with the rest of the piece, as
+// when a reply is cleaned up after it streamed.
 const (
 	PieceClose Piece = ""
 	// PieceDiscard is ASCII CAN, "cancel", which no model writes.
 	PieceDiscard Piece = "\x18"
+	// PieceReplace is ASCII SUB, "substitute", which no model writes.
+	PieceReplace Piece = "\x1a"
 )
 
 // AudioDiscard is the audio stream's one marker, an empty chunk: it drops the
@@ -27,6 +31,9 @@ var AudioDiscard = AudioChunk{}
 
 // Discard reports whether the chunk is AudioDiscard.
 func (c AudioChunk) Discard() bool { return len(c) == 0 }
+
+// Replacement is the piece that replaces the open reply's text with text.
+func Replacement(text string) Piece { return PieceReplace + Piece(text) }
 
 // Source ports hand out a fresh channel per call: consumers sharing one would steal from each other.
 // SecondaryTextOut exists because a struct satisfies an interface once; split a block needing a third.
@@ -37,6 +44,9 @@ type (
 	ImageOut         interface{ ImageOutPort() <-chan ImageData }
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
 	StreamOut        interface{ StreamOutPort() <-chan Piece }
+	// FailureOut carries a block's call that failed for good; its normal
+	// outputs then carry nothing.
+	FailureOut interface{ FailureOutPort() <-chan Failure }
 )
 
 // Phase is what a block is doing; a block reports its initial phase, then only changes.
@@ -45,30 +55,39 @@ type Phase string
 const (
 	PhaseReady   Phase = "ready"
 	PhaseWorking Phase = "working"
-	// PhaseFailed means the game cannot continue; Reason says why.
-	PhaseFailed Phase = "failed"
 )
 
-// Reasons a block failed, named as the session's problems are.
+// Reasons a block's call failed, named as the session's problems are. A
+// failure is the block's: what happens next is its failure edge's.
 const (
 	ReasonKeyRejected = "key_rejected"
 	ReasonUnreachable = "unreachable"
-	ReasonFailed      = "failed"
+	// ReasonBadReply: every attempt answered something the block could not use.
+	ReasonBadReply = "bad_reply"
+	ReasonFailed   = "failed"
 )
-
-// ReasonTurnFailed comes with PhaseReady: the block dropped the turn it was
-// working on, and the game goes on.
-const ReasonTurnFailed = "turn_failed"
 
 // State is a block reporting on itself, named so a gate can tell reporters apart.
 type State struct {
 	Node  string `json:"node"`
 	Phase Phase  `json:"phase"`
-	// Reason and Message are set with PhaseFailed, and with PhaseReady when a
-	// turn was dropped.
+	// Reason and Message are set with the PhaseReady that follows a call that
+	// failed for good: the provider's reason, kept for the graph view.
 	Reason  string `json:"reason,omitempty"`
 	Message string `json:"message,omitempty"`
 }
+
+// Failure is a block's call that failed for good: the input it was given,
+// and the provider's reason, named as State's.
+type Failure struct {
+	Node    string `json:"node"`
+	Input   string `json:"input,omitempty"`
+	Reason  string `json:"reason"`
+	Message string `json:"message"`
+}
+
+// Failed says the report follows a call that failed for good.
+func (s State) Failed() bool { return s.Reason != "" }
 
 type StateOut interface{ StateOutPort() <-chan State }
 
@@ -97,6 +116,12 @@ type (
 	ImageIn  interface{ ImageInPort() chan<- ImageData }
 	PropsIn  interface{ PropsInPort() chan<- PropMap }
 	StreamIn interface{ StreamInPort() chan<- Piece }
+	// SecondaryTextIn is a block's second text input, apart from its first.
+	SecondaryTextIn interface{ SecondaryTextInPort() chan<- string }
+	// OpeningIn takes the cue that opens the game, apart from the turns.
+	OpeningIn interface{ OpeningInPort() chan<- string }
+	// FailureIn takes failures whole, as a sink that reports them does.
+	FailureIn interface{ FailureInPort() chan<- Failure }
 )
 
 type Kind int
@@ -108,6 +133,8 @@ const (
 	KindProps
 	KindState
 	KindStream
+	// KindFailure is a failure edge, drawn apart from the normal flow.
+	KindFailure
 )
 
 func (k Kind) String() string {
@@ -124,6 +151,8 @@ func (k Kind) String() string {
 		return "state"
 	case KindStream:
 		return "stream"
+	case KindFailure:
+		return "failure"
 	}
 	return "unknown"
 }
@@ -165,6 +194,10 @@ type RequiresInputs interface{ RequiredInputs() []Kind }
 
 // RequiresOutputs lists the kinds something must consume, so a character nobody can hear fails validation.
 type RequiresOutputs interface{ RequiredOutputs() []Kind }
+
+// Origin is a block that starts its work itself, as a source does, though
+// answers flow back into it; the completeness check walks from it.
+type Origin interface{ Origin() }
 
 // Starter is implemented by blocks that run their own loop.
 type Starter interface{ Start(ctx context.Context) }

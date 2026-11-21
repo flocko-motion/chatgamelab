@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"sync"
 
@@ -131,6 +132,25 @@ func (s *Session) SetToggle(toggle Toggle, on bool) error {
 	s.applySwitches()
 	// A switch the player made explains nothing new; why the offers narrowed still holds.
 	s.announce(s.changes)
+	return nil
+}
+
+// SetConstraintFrequency sets how often a block's calls carry the
+// youth-protection rule: 1 is every call, up to 10. The change is stored with
+// the spec, so a resumed session keeps it.
+func (s *Session) SetConstraintFrequency(block string, n int) error {
+	if err := s.wiring.SetConstraintFrequency(block, n); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	frequencies := maps.Clone(s.spec.ConstraintFrequency)
+	if frequencies == nil {
+		frequencies = map[string]int{}
+	}
+	frequencies[block] = n
+	s.spec.ConstraintFrequency = frequencies
+	s.mu.Unlock()
+	s.checkpoint()
 	return nil
 }
 

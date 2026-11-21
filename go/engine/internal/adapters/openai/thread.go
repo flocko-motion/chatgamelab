@@ -71,28 +71,49 @@ type turnMessage struct {
 	Content string `json:"content"`
 }
 
+// sent is what one exchange sends: the constraints in a developer message of
+// their own, right before the input, so designer text never shares their
+// message; then the input, as the game's developer message or the player's.
+func sent(e adapters.Exchange) []turnMessage {
+	var out []turnMessage
+	if e.Constraints != "" {
+		out = append(out, turnMessage{Role: "developer", Content: e.Constraints})
+	}
+	role := "user"
+	if e.Directive {
+		role = "developer"
+	}
+	return append(out, turnMessage{Role: role, Content: e.Input})
+}
+
 // call makes one streamed request, continuing from the response named, or on a
 // fresh thread seeded with the transcript when none is.
+//
+// The System Message opens a fresh thread as its first developer message,
+// which is stored with the thread; OpenAI drops instructions over a previous
+// response.
 func (t *Thread) call(ctx context.Context, key string, turn adapters.ThreadTurn, from string) (adapters.ThreadReply, error) {
 	request := map[string]any{
-		"model": t.model,
-		// Instructions are not carried over a previous response.
-		"instructions": turn.Instructions,
-		"store":        true,
-		"stream":       true,
+		"model":  t.model,
+		"store":  true,
+		"stream": true,
 		// Sent on every call, as a format is the call's own: a plain turn on a
 		// thread that answered structured before still answers in text.
 		"text": map[string]any{"format": format(turn.Schema)},
 	}
+	now := sent(turn.Exchange("", ""))
 	if from != "" {
 		request["previous_response_id"] = from
-		request["input"] = turn.Input
+		request["input"] = now
 	} else {
-		input := make([]turnMessage, 0, 2*len(turn.Transcript)+1)
-		for _, e := range turn.Transcript {
-			input = append(input, turnMessage{Role: "user", Content: e.Input}, turnMessage{Role: "assistant", Content: e.Reply})
+		var input []turnMessage
+		if turn.System != "" {
+			input = append(input, turnMessage{Role: "developer", Content: turn.System})
 		}
-		request["input"] = append(input, turnMessage{Role: "user", Content: turn.Input})
+		for _, e := range turn.Transcript {
+			input = append(append(input, sent(e)...), turnMessage{Role: "assistant", Content: e.Reply})
+		}
+		request["input"] = append(input, now...)
 	}
 	body, err := json.Marshal(request)
 	if err != nil {

@@ -285,6 +285,7 @@ func (a *API) SchemafRoutes() []schemafapi.Route {
 		schemafapi.NewRoute(InputEndpoint{a}, "", ""),
 		schemafapi.NewRoute(ChooseEndpoint{a}, "", ""),
 		schemafapi.NewRoute(TogglesEndpoint{a}, "", ""),
+		schemafapi.NewRoute(ConstraintFrequencyEndpoint{a}, "", ""),
 		schemafapi.NewRoute(ConnectEndpoint{a}, "", ""),
 		schemafapi.NewRoute(PauseEndpoint{a}, "", ""),
 		schemafapi.NewRoute(StateEndpoint{a}, "", ""),

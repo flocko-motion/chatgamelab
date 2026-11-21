@@ -1,6 +1,11 @@
 package genre
 
 import (
+	"fmt"
+	"maps"
+	"slices"
+	"strings"
+
 	"engine/internal/adapters"
 	"engine/internal/blocks"
 	"engine/internal/ports"
@@ -32,10 +37,44 @@ type Wiring struct {
 	// Live is set by genres whose browser connects directly, for a transport to broker.
 	Live *blocks.LiveSession
 
+	// Constrained are the blocks whose calls carry the constraints, by name,
+	// so their frequency can change while the game runs.
+	Constrained map[string]blocks.Constrained
+
 	// Switches are the blocks each toggle turns off and on during play. A toggle
 	// with no entry has no block in this genre.
 	Switches map[adapters.Toggle][]ports.Switchable
 }
 
+// The range of a constraint frequency: 1 carries the constraints with every
+// call, 10 with every tenth.
+const (
+	MinConstraintFrequency = 1
+	MaxConstraintFrequency = 10
+)
+
+// CheckConstraintFrequency refuses a block whose calls carry no constraints,
+// of those constrained, or a frequency out of range: the one check for a
+// spec, a wiring and a change during play.
+func CheckConstraintFrequency(constrained []string, block string, n int) error {
+	if !slices.Contains(constrained, block) {
+		return fmt.Errorf("no such constrained block %q (this genre has %s)", block, strings.Join(constrained, ", "))
+	}
+	if n < MinConstraintFrequency || n > MaxConstraintFrequency {
+		return fmt.Errorf("constraint frequency %d: want %d to %d", n, MinConstraintFrequency, MaxConstraintFrequency)
+	}
+	return nil
+}
+
+// SetConstraintFrequency sets how often a block's calls carry the
+// constraints, once checked.
+func (w *Wiring) SetConstraintFrequency(block string, n int) error {
+	if err := CheckConstraintFrequency(slices.Sorted(maps.Keys(w.Constrained)), block, n); err != nil {
+		return err
+	}
+	w.Constrained[block].SetConstraintFrequency(n)
+	return nil
+}
+
 // Sinks is the event schema, read off the graph so outputs follow their edges.
-func (w *Wiring) Sinks() map[string]chan string { return w.Graph.Sinks() }
+func (w *Wiring) Sinks() []ports.Sink { return w.Graph.Sinks() }

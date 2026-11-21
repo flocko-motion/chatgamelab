@@ -71,9 +71,11 @@ func TestThreadStartsThenAppends(t *testing.T) {
 
 	var pieces []string
 	first, err := th.Continue(context.Background(), adapters.ThreadTurn{
-		Instructions: "Expand the outline.",
-		Input:        "The player crosses.",
-		Piece:        func(p string) { pieces = append(pieces, p) },
+		System:      "You are a game master.",
+		Input:       "Start the game.",
+		Directive:   true,
+		Constraints: "NARRATION RULES must be respected: keep it gentle",
+		Piece:       func(p string) { pieces = append(pieces, p) },
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -91,20 +93,34 @@ func TestThreadStartsThenAppends(t *testing.T) {
 	if start.path != "/conversations" || start.body["model"] != "mistral-small-2603" || start.body["store"] != true || start.body["stream"] != true {
 		t.Errorf("start = %+v", start)
 	}
-	// Instructions travel in the user entry, since an append cannot carry them.
-	assertInputs(t, start.body, `[{"content":"Expand the outline.\n\nThe player crosses.","object":"entry","role":"user","type":"message.input"}]`)
+	// The System Message is the conversation's instructions, set as it starts.
+	if start.body["instructions"] != "You are a game master." {
+		t.Errorf("start instructions = %v, want the System Message", start.body["instructions"])
+	}
+	// There is no developer role: the game's message is the user's, and the
+	// constraints go after it, in the same entry.
+	assertInputs(t, start.body, `[{"content":"Start the game.\n\nNARRATION RULES must be respected: keep it gentle",`+
+		`"object":"entry","role":"user","type":"message.input"}]`)
 
-	if _, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "On.", Continuation: first.Continuation}); err != nil {
+	if _, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		System: "You are a game master.", Input: "On.", Continuation: first.Continuation,
+	}); err != nil {
 		t.Fatal(err)
 	}
 	appended := fake.calls[1]
 	if appended.path != "/conversations/conv_1" {
 		t.Errorf("append went to %s", appended.path)
 	}
-	// Appending takes no model: the conversation stays on the one it started with.
+	// Appending takes no model and no instructions: the conversation keeps
+	// the ones it started with, the System Message sent once.
 	if _, has := appended.body["model"]; has {
 		t.Errorf("append = %v, carries a model", appended.body)
 	}
+	if _, has := appended.body["instructions"]; has {
+		t.Errorf("append = %v, carries instructions", appended.body)
+	}
+	// A call without constraints sends its input alone.
+	assertInputs(t, appended.body, `[{"content":"On.","object":"entry","role":"user","type":"message.input"}]`)
 }
 
 // A conversation Mistral no longer holds is taken over by a fresh one, seeded
@@ -121,9 +137,10 @@ func TestThreadReseedsAnUnknownConversation(t *testing.T) {
 	th := testThread(fake.serve(t))
 
 	reply, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		System:       "rules",
 		Input:        "next",
 		Continuation: adapters.Continuation{ID: "conv_old", Model: "mistral-small-2603"},
-		Transcript:   []adapters.Exchange{{Instructions: "Outline.", Input: "first", Reply: "one"}},
+		Transcript:   []adapters.Exchange{{Input: "first", Constraints: "be kind", Reply: "one"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -131,9 +148,13 @@ func TestThreadReseedsAnUnknownConversation(t *testing.T) {
 	if reply.Continuation.ID != "conv_new" || len(fake.calls) != 2 {
 		t.Fatalf("continuation = %+v after %d calls", reply.Continuation, len(fake.calls))
 	}
+	// The fresh conversation starts with the System Message again.
+	if fake.calls[1].body["instructions"] != "rules" {
+		t.Errorf("fresh instructions = %v, want the System Message", fake.calls[1].body["instructions"])
+	}
 	assertInputs(t, fake.calls[1].body, `[`+
-		// Each past call as it was sent, with its own instructions.
-		`{"content":"Outline.\n\nfirst","object":"entry","role":"user","type":"message.input"},`+
+		// Each past call as it was sent, with the constraints it carried.
+		`{"content":"first\n\nbe kind","object":"entry","role":"user","type":"message.input"},`+
 		`{"content":"one","object":"entry","role":"assistant","type":"message.input"},`+
 		`{"content":"next","object":"entry","role":"user","type":"message.input"}]`)
 }

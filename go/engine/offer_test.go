@@ -235,11 +235,9 @@ func TestReloadWhileChoosingShowsTheDialogAgain(t *testing.T) {
 // Pictures off stops new pictures and their billing; pictures already made stay.
 func TestImagesOffStopsNewPicturesAndTheirBilling(t *testing.T) {
 	s := launchOrFail(t, adventure(mockAdventureOffer(false)))
-	if err := s.Say("I cross the bridge"); err != nil {
-		t.Fatal(err)
-	}
-	eventually(t, "a picture", func() bool { return spent(s, "image").Images == 1 })
-	eventually(t, "the first prose", func() bool { return spent(s, "expand").OutputTokens > 0 })
+	// The opening makes the first picture, before the player acts.
+	eventually(t, "the opening's picture", func() bool { return spent(s, "image").Images == 1 })
+	eventually(t, "the opening's prose", func() bool { return spent(s, "expand").OutputTokens > 0 })
 	firstTurn := spent(s, "expand").OutputTokens
 
 	if err := s.SetToggle(ToggleImages, false); err != nil {

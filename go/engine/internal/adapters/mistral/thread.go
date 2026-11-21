@@ -19,9 +19,9 @@ import (
 //
 // Appending takes neither a model nor instructions, and an input entry may only
 // be a user's or an assistant's. A conversation therefore stays on the model it
-// started with, and since the blocks sharing a thread each have their own
-// instructions, a call's instructions travel in its user entry, ahead of the
-// input.
+// started with, and holds the System Message as the instructions it started
+// with. Having no developer role, a call's constraints travel in its user
+// entry, after the input.
 type Thread struct {
 	keys  adapters.KeyFunc
 	model string
@@ -57,14 +57,14 @@ func (t *Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapte
 		return adapters.ThreadReply{}, fmt.Errorf("resolve api key: %w", err)
 	}
 
-	said := withInstructions(turn.Instructions, turn.Input)
+	now := userEntry(turn.Exchange("", ""))
 	// Sent on start and on append, as a format is the call's own: a plain turn
 	// on a conversation that answered structured before still answers in text.
 	args := map[string]any{"response_format": responseFormat(turn.Schema)}
 
 	if id := turn.Continuation.ID; id != "" {
 		reply, err := t.call(ctx, key, "/conversations/"+id, map[string]any{
-			"inputs":          []entry{message("user", said)},
+			"inputs":          []entry{message("user", now)},
 			"completion_args": args,
 			"store":           true,
 			"stream":          true,
@@ -78,15 +78,19 @@ func (t *Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapte
 
 	inputs := make([]entry, 0, 2*len(turn.Transcript)+1)
 	for _, e := range turn.Transcript {
-		inputs = append(inputs, message("user", withInstructions(e.Instructions, e.Input)), message("assistant", e.Reply))
+		inputs = append(inputs, message("user", userEntry(e)), message("assistant", e.Reply))
 	}
-	return t.call(ctx, key, "/conversations", map[string]any{
+	start := map[string]any{
 		"model":           t.model,
-		"inputs":          append(inputs, message("user", said)),
+		"inputs":          append(inputs, message("user", now)),
 		"completion_args": args,
 		"store":           true,
 		"stream":          true,
-	}, turn)
+	}
+	if turn.System != "" {
+		start["instructions"] = turn.System
+	}
+	return t.call(ctx, key, "/conversations", start, turn)
 }
 
 // responseFormat is the Conversations API's format for a turn.
@@ -100,13 +104,13 @@ func responseFormat(schema *adapters.Schema) map[string]any {
 	}
 }
 
-// withInstructions puts a call's instructions ahead of its input, in the one
-// user entry that can carry them.
-func withInstructions(instructions, input string) string {
-	if instructions == "" {
-		return input
+// userEntry is the user entry an exchange sends: its input, with the constraints
+// after it, as there is no message of their own for them.
+func userEntry(e adapters.Exchange) string {
+	if e.Constraints == "" {
+		return e.Input
 	}
-	return instructions + "\n\n" + input
+	return e.Input + "\n\n" + e.Constraints
 }
 
 // streamEvent is the part of each server-sent event the thread reads.

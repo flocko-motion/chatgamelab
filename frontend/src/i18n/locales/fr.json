@@ -1372,5 +1372,46 @@
     "rooms": "Salles",
     "serverSettings": "Paramètres du serveur",
     "workshopSettings": "Paramètres de l’atelier"
+  },
+  "playbackEngine": {
+    "errors": {
+      "connectionLost": "La connexion au jeu a été perdue. Recharge la page pour réessayer.",
+      "imageFailed": "L'image de cette scène n'a pas pu être créée. L'histoire continue.",
+      "noMicrophone": "Aucun microphone. Vérifie les autorisations du navigateur pour cette page.",
+      "openingFailed": "L'histoire n'a pas pu commencer. Écris ce que tu veux faire, et elle commencera à partir de là.",
+      "pauseFailed": "Impossible de mettre la conversation en pause.",
+      "serverUnreachable": "Impossible de joindre le serveur du jeu.",
+      "startFailed": "Impossible de démarrer le jeu.",
+      "switchFailed": "Impossible d'activer ou de désactiver cette fonctionnalité.",
+      "turnFailed": "L'histoire n'a pas pu continuer à partir de là. Envoie à nouveau ton message ou essaie autre chose.",
+      "voiceFailed": "Impossible de connecter ta voix."
+    },
+    "launch": {
+      "continue": "Continuer",
+      "inProgress": "Tu as une partie en cours.",
+      "noGame": "Cette page nécessite un jeu : ouvre-la depuis la page d'un jeu.",
+      "startAnew": "Recommencer",
+      "starting": "Démarrage du jeu…",
+      "tryAgain": "Réessayer"
+    },
+    "problems": {
+      "denied": "Tu n'es pas autorisé à jouer à ce jeu.",
+      "failed": "Un problème est survenu et le jeu ne peut pas continuer.",
+      "genre": "La clé d'IA disponible ne peut pas exécuter ce type de jeu.",
+      "keyRejected": "Le fournisseur d'IA a refusé la clé de ce jeu, qui ne peut donc pas continuer. La personne qui a configuré le jeu doit vérifier la clé.",
+      "noKey": "Aucune clé d'IA n'est disponible pour jouer à ce jeu.",
+      "noPlays": "Il ne reste plus de parties pour ce jeu partagé.",
+      "stale": "Ce jeu ne peut plus être repris.",
+      "unknown": "Cette session de jeu n'existe pas.",
+      "unreachable": "Le fournisseur d'IA ne répond pas pour le moment, le jeu ne peut donc pas continuer. Réessaie dans quelques minutes."
+    },
+    "status": {
+      "choose": "Choisis comment jouer pour commencer.",
+      "connecting": "Connexion…",
+      "ended": "Le jeu est terminé.",
+      "reconnecting": "Reconnexion…",
+      "settingScene": "Mise en place de la scène…",
+      "wakingCharacter": "Réveil du personnage…"
+    }
   }
 }

@@ -252,13 +252,14 @@ func offerFor(c resolvedKey) (engine.Offer, engine.Toggles, bool) {
 // the youth-protection rule resolved for this play.
 func gameSpec(game *obj.Game, language string, rule db.ConstraintResolution) engine.SessionSpec {
 	spec := engine.SessionSpec{
-		Genre:      engine.Genre(game.Genre),
-		Title:      game.Name,
-		Scenario:   game.SystemMessageScenario,
-		InitPrompt: game.SystemMessageGameStart,
-		ImageStyle: game.ImageStyle,
-		Language:   language,
-		Status:     statusValues(game.StatusFields),
+		Genre:       engine.Genre(game.Genre),
+		Title:       game.Name,
+		Description: game.Description,
+		Scenario:    game.SystemMessageScenario,
+		InitPrompt:  game.SystemMessageGameStart,
+		ImageStyle:  game.ImageStyle,
+		Language:    language,
+		Status:      statusValues(game.StatusFields),
 	}
 	if game.Theme != nil {
 		spec.Theme = *game.Theme

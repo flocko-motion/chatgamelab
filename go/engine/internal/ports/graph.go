@@ -94,6 +94,51 @@ func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 	})
 }
 
+// ConnectTextOutToSecondary wires text into a block's second text input.
+func (g *Graph) ConnectTextOutToSecondary(src TextOut, dst SecondaryTextIn) {
+	stream := src.TextOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.SecondaryTextInPort(), g.watch(src, dst, KindText))
+	})
+}
+
+// ConnectOpening wires the cue that opens the game.
+func (g *Graph) ConnectOpening(src TextOut, dst OpeningIn) {
+	stream := src.TextOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.OpeningInPort(), g.watch(src, dst, KindText))
+	})
+}
+
+// ConnectFailure wires a block's failure output to a block that takes
+// failures whole, such as an error sink or the problem sink.
+func (g *Graph) ConnectFailure(src FailureOut, dst FailureIn) {
+	stream := src.FailureOutPort()
+	g.connect(src, dst, KindFailure, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.FailureInPort(), g.watch(src, dst, KindFailure))
+	})
+}
+
+// ConnectFailureText wires a block's failure output to any block that takes
+// text, which receives the input the failed call was given.
+func (g *Graph) ConnectFailureText(src FailureOut, dst TextIn) {
+	stream := src.FailureOutPort()
+	inputs := make(chan string)
+	g.connect(src, dst, KindFailure, func(ctx context.Context) {
+		go func() {
+			defer close(inputs)
+			for f := range stream {
+				select {
+				case inputs <- f.Input:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
+		go pumpChan(ctx, inputs, dst.TextInPort(), g.watch(src, dst, KindFailure))
+	})
+}
+
 // ConnectStreamOut wires streamed text, which only a block taking a stream accepts.
 func (g *Graph) ConnectStreamOut(src StreamOut, dst StreamIn) {
 	stream := src.StreamOutPort()
@@ -218,9 +263,11 @@ func (g *Graph) Validate() error {
 	return fmt.Errorf("graph %q invalid:\n  - %s", g.Name, strings.Join(problems, "\n  - "))
 }
 
+// hasIncoming counts a failure edge as text, as one into a text input
+// carries the failed call's input.
 func (g *Graph) hasIncoming(n any, kind Kind) bool {
 	for _, e := range g.edges {
-		if e.To == n && e.Kind == kind {
+		if e.To == n && (e.Kind == kind || kind == KindText && e.Kind == KindFailure) {
 			return true
 		}
 	}
@@ -254,7 +301,8 @@ func (g *Graph) hasAnyOutgoing(n any) bool {
 	return false
 }
 
-// reachableFromSources walks forward from every node with no inbound edge.
+// reachableFromSources walks forward from every node with no inbound edge,
+// and from every origin.
 func (g *Graph) reachableFromSources() []any {
 	seen := map[any]bool{}
 	var walk func(n any)
@@ -270,7 +318,7 @@ func (g *Graph) reachableFromSources() []any {
 		}
 	}
 	for _, n := range g.nodes {
-		if !g.hasAnyIncoming(n) {
+		if _, origin := n.(Origin); origin || !g.hasAnyIncoming(n) {
 			walk(n)
 		}
 	}
@@ -349,15 +397,17 @@ func (g *Graph) RestoreState(state map[string]string) error {
 	return nil
 }
 
-// Sinks is the genre's event schema, read off the wiring so it cannot drift from it.
-func (g *Graph) Sinks() map[string]chan string {
-	streams := map[string]chan string{}
+// Sinks is the genre's event schema, read off the wiring so it cannot drift
+// from it. Several sinks may share a stream, as error sinks of different
+// codes share `error`.
+func (g *Graph) Sinks() []Sink {
+	var sinks []Sink
 	for _, n := range g.nodes {
 		if sink, ok := n.(Sink); ok {
-			streams[sink.Stream()] = sink.Arrivals()
+			sinks = append(sinks, sink)
 		}
 	}
-	return streams
+	return sinks
 }
 
 // Topology is the wiring in drawable form; showing players how a turn is assembled is part of the product.

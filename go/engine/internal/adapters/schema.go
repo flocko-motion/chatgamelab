@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // Schema is the shape a structured reply takes: a JSON Schema in the
@@ -28,6 +29,24 @@ var (
 // BadReply marks why a reply cannot be used.
 func BadReply(call, why string) error {
 	return fmt.Errorf("%s: %s: %w", call, why, ErrBadReply)
+}
+
+// JSONObject tidies a reply that should be a JSON object: a markdown fence
+// around it and any text before or after it go. A reply with no object comes
+// back as it is, for the schema to refuse.
+func JSONObject(reply string) string {
+	text := strings.TrimSpace(reply)
+	if fenced, ok := strings.CutPrefix(text, "```"); ok {
+		// The opening fence's line, such as ```json, goes with it.
+		if _, rest, found := strings.Cut(fenced, "\n"); found {
+			text = strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(rest), "```"))
+		}
+	}
+	first, last := strings.Index(text, "{"), strings.LastIndex(text, "}")
+	if first < 0 || last < first {
+		return text
+	}
+	return text[first : last+1]
 }
 
 // Has reports whether the schema's object has a property of this name.
