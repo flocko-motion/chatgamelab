@@ -5,4 +5,5 @@ system_message_scenario: "You're the commander of humanity's first permanent Mar
 system_message_game_start: "You look out at the red landscape from the command center. Your 50 colonists are counting on you to keep them alive."
 image_style: "Mars landscape, red desert, futuristic habitats, space suits"
 css: ""
+theme: desert
 status_fields: '[{"name":"Resources","value":"60"},{"name":"Morale","value":"70"}]'

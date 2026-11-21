@@ -5,4 +5,5 @@ system_message_scenario: "The year is 2087. AI systems have achieved consciousne
 system_message_game_start: "You're in Bunker 7, deep beneath the ruins of Chicago. The power just went out, and you hear mechanical footsteps echoing in the tunnels."
 image_style: "post-apocalyptic, industrial ruins, glowing red robot eyes, dystopian"
 css: ""
+theme: glitch
 status_fields: '[{"name":"Ammo","value":"45"},{"name":"Health","value":"100"}]'

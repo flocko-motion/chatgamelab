@@ -62,6 +62,7 @@ export function useCopyGameIntent(scope: string) {
     } else if (newGame.id) {
       navigate({ to: "/games/$gameId", params: { gameId: newGame.id } });
     }
+    return newGame;
   };
 
   return {

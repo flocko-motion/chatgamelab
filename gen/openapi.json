@@ -239,6 +239,21 @@
         ],
         "type": "object"
       },
+      "Cell": {
+        "properties": {
+          "col": {
+            "type": "integer"
+          },
+          "row": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row",
+          "col"
+        ],
+        "type": "object"
+      },
       "CheckNameResp": {
         "properties": {
           "available": {
@@ -1106,6 +1121,10 @@
           "cloneCount": {
             "type": "integer"
           },
+          "coverAt": {
+            "format": "date-time",
+            "type": "string"
+          },
           "creatorId": {
             "format": "uuid",
             "type": "string"
@@ -1685,6 +1704,17 @@
         "required": [
           "label",
           "iso"
+        ],
+        "type": "object"
+      },
+      "MakeGameCoverReq": {
+        "properties": {
+          "hint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "hint"
         ],
         "type": "object"
       },
@@ -2980,6 +3010,9 @@
       },
       "Topology": {
         "properties": {
+          "dev": {
+            "type": "boolean"
+          },
           "edges": {
             "items": {
               "$ref": "#/components/schemas/TopologyEdge"
@@ -3044,6 +3077,9 @@
       },
       "TopologyNode": {
         "properties": {
+          "cell": {
+            "$ref": "#/components/schemas/Cell"
+          },
           "name": {
             "type": "string"
           },
@@ -6343,6 +6379,101 @@
           }
         ],
         "summary": "Copies a game into a new private game of the caller's"
+      }
+    },
+    "/api/games/{id}/cover": {
+      "get": {
+        "description": "game: 404 for a game they may not see or one without a cover. With ?v= (the game's coverAt) the answer may be\ncached for good, as a new cover comes with a new v.",
+        "operationId": "getApiGamesIdCover",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Serves a game's cover picture to whoever may see the"
+      },
+      "post": {
+        "description": "had, and answers with the game as it now is (coverAt set). It takes\nmayEditCard (403 otherwise) and blocks until the picture is made.\n\nThe caller pays as for a session of the game: the first key of theirs\nthat draws pictures, workshop, sponsor, organisation, own, site. None:\n400 no_api_key; a key its provider rejects: 400 invalid_api_key; a\nprovider that fails: 503 ai_error. The hint, at most 300 characters, says\nwhat the cover should show; empty leaves it to the game.",
+        "operationId": "postApiGamesIdCover",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MakeGameCoverReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Draws a new cover for a game, replacing the one it"
       }
     },
     "/api/games/{id}/favourite": {

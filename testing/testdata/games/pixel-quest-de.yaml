@@ -42,4 +42,5 @@ system_message_game_start: |
 
 image_style: "retro pixel art, 8-bit arcade game, neon colors on black background, CRT screen glow, nostalgic 80s gaming aesthetic"
 css: ""
+theme: retro
 status_fields: '[{"name":"Leben","value":"3"},{"name":"Münzen","value":"5"},{"name":"Score","value":"0"},{"name":"Level","value":"Auswahl"}]'

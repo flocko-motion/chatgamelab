@@ -762,7 +762,23 @@
         "audio-in": "Spracheingabe",
         "audio-live": "Live-Sprache"
       },
-      "byCreator": "von {{name}}"
+      "byCreator": "von {{name}}",
+      "cover": {
+        "title": "Titelbild",
+        "alt": "Titelbild von {{name}}",
+        "none": "Noch kein Titelbild",
+        "hint": "Was soll das Titelbild zeigen?",
+        "hintDescription": "Optional. Bleibt das Feld leer, zeigt das Titelbild, worum es im Spiel geht.",
+        "hintPlaceholder": "Zum Beispiel: der Leuchtturm bei Nacht",
+        "draw": "Titelbild zeichnen",
+        "drawAgain": "Neu zeichnen",
+        "drawnOnSave": "Das Titelbild wird gezeichnet, wenn du das Spiel speicherst.",
+        "errors": {
+          "noKey": "Keiner der KI-Schlüssel, die du nutzen kannst, zeichnet Bilder. Das Spiel hat deshalb vorerst kein Titelbild.",
+          "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Das Titelbild konnte nicht gezeichnet werden.",
+          "failed": "Das Titelbild konnte nicht gezeichnet werden. Bitte versuche es noch einmal."
+        }
+      }
     },
     "header": {
       "apiKeys": "API-Schlüssel",
@@ -1506,6 +1522,11 @@
       "hold": "Zum Sprechen gedrückt halten",
       "recording": "Ich höre zu… zum Senden loslassen",
       "hearing": "Deine Worte kommen an…"
+    },
+    "pipeline": {
+      "copyLayout": "Layout kopieren",
+      "copied": "Layout kopiert",
+      "copyFailed": "Keine Zwischenablage: Layout in der Konsole ausgegeben"
     }
   },
   "mail": {

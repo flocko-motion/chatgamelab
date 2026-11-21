@@ -5,4 +5,5 @@ system_message_scenario: "An alien ship has entered Earth's orbit. You're humani
 system_message_game_start: "You board the shuttle to the alien mothership. Through the window, Earth looks small and fragile. The airlock opens, revealing beings unlike anything you've imagined."
 image_style: "alien spacecraft, otherworldly beings, diplomatic chambers, space vista"
 css: ""
+theme: space
 status_fields: '[{"name":"Trust","value":"50"},{"name":"Understanding","value":"10"}]'

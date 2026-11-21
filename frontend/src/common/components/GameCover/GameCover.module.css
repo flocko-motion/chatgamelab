@@ -1,0 +1,50 @@
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-gray-1);
+}
+
+/* Edge to edge in a card's section: the card rounds the corners. */
+.flush {
+  border-radius: 0;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A game without a cover: its initial on a gradient its id picks (coverTile). */
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--mantine-color-white);
+}
+
+/* Scales with the frame: small and large covers show the same tile. */
+.fallbackInitial {
+  height: 70%;
+  fill: currentColor;
+  opacity: 0.35;
+  font-family: var(--mantine-font-family-headings);
+  font-weight: 800;
+  font-size: 72px;
+}
+
+/* While a cover is being drawn. */
+.busy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--mantine-color-black) 35%, transparent);
+}

@@ -114,3 +114,20 @@ aside h2 {
 
 .sample-kind { color: var(--dim); font-size: 0.6875rem; }
 .sample-value { white-space: pre-wrap; word-break: break-word; color: var(--gray-9); }
+
+/* Only on a dev server: hands the rearranged drawing back as Go source. */
+.copy-layout {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  padding: 0.2rem 0.5rem;
+  font: inherit;
+  font-size: 0.6875rem;
+  color: var(--gray-7);
+  background: var(--panel);
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.copy-layout:hover { color: var(--gray-9); border-color: var(--gray-6); }

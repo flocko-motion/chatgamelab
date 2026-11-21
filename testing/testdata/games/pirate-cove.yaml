@@ -5,4 +5,5 @@ system_message_scenario: "The Caribbean, 1715. You've inherited a ship and a cry
 system_message_game_start: "You stand on the deck of your ship, the Salty Dog. Your crew awaits orders as the morning sun rises over the azure waters."
 image_style: "pirate adventure, tropical islands, wooden ships, treasure maps"
 css: ""
+theme: pirate
 status_fields: '[{"name":"Gold","value":"100"},{"name":"Crew Morale","value":"80"}]'

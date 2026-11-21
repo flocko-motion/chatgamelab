@@ -39,6 +39,8 @@ export {
   useCreateGameShare,
   useRevokePrivateShare,
   useUpdateGameShare,
+  useMakeGameCover,
+  gameCoverUrl,
   GAME_LIST_FILTERS,
   GAME_LIST_SORTS,
   type GameListFilter,

@@ -564,6 +564,7 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	gate := blocks.NewGate("start-game", prompts[PromptOpening])
 
 	g := ports.NewGraph("adventure")
+	g.Arrange(adventureLayout)
 	// The thread is exported once, under its own name, for both its blocks.
 	g.Share(story)
 

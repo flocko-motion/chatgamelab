@@ -45,3 +45,13 @@
 .row[data-accent] {
   box-shadow: inset 3px 0 0 var(--row-accent);
 }
+
+/* A grid cell: its card fills it, so the cards of a row are equally tall. */
+.gridCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.gridCell > * {
+  flex: 1;
+}

@@ -254,7 +254,9 @@ func (e TopologyEndpoint) Handle(ctx context.Context, req SessionRequest) (engin
 	if err != nil {
 		return engine.Topology{}, err
 	}
-	return s.Topology(), nil
+	t := s.Topology()
+	t.Dev = e.API.opts.Dev != nil && e.API.opts.Dev()
+	return t, nil
 }
 
 // OptionsEndpoint is what the player may choose from, and what the session settled on.

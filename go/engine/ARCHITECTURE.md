@@ -69,6 +69,12 @@ player's input once the opening's prose is done.
 Every block reports its state changes, and every report reaches the client,
 which draws the wiring once and then tracks phases.
 
+The drawing is placed by hand. Each genre keeps a layout beside its wiring
+(`adventure_layout.go`, `npclive_layout.go`) that gives every block a grid
+cell, in a reading order a person chose; the topology carries the cells, and a
+test fails when a block has no cell. On a dev server the blocks can be dragged
+to other cells and the layout copied back as Go source.
+
 ## Genres
 
 ### Adventure

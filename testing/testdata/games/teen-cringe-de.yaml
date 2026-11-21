@@ -46,4 +46,5 @@ system_message_game_start: |
 
 image_style: "cringey teen aesthetic, German school hallway, TikTok filters, glow up lighting, maximal awkwardness, social media anxiety vibes"
 css: ""
+theme: playful
 status_fields: '[{"name":"Aura","value":"-500"},{"name":"Cringe-Level","value":"30"},{"name":"TikTok-Views","value":"0"},{"name":"Social Status","value":"NPC"}]'

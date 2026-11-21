@@ -167,6 +167,18 @@ func readGame(ctx context.Context, read func() (*core.GameCard, error)) (*gameFa
 // the session's single offer. An empty genre skips the genre check. Without
 // one, the first payer's refusal answers.
 func firstWorkingOffer(ctx context.Context, genre engine.Genre, payers []core.Payer) (engine.Offer, core.Payer, error) {
+	return firstOffer(ctx, payers, func(offer engine.Offer, toggles engine.Toggles) error {
+		if genre != "" && !slices.Contains(engine.PlayableGenres(toggles), genre) {
+			return engine.Refuse(engine.ProblemGenre, fmt.Sprintf("the key on %s cannot run %s", offer.Platform, genre))
+		}
+		return nil
+	}, "no API key is available for this game")
+}
+
+// firstOffer turns the payers, in order, into offers; the first that fits
+// and whose key its provider accepts is the one. Without one, the first
+// payer's refusal answers, or none, a no_key refusal saying none.
+func firstOffer(ctx context.Context, payers []core.Payer, fits func(engine.Offer, engine.Toggles) error, none string) (engine.Offer, core.Payer, error) {
 	var first error
 	refuse := func(err error) {
 		if first == nil {
@@ -179,8 +191,8 @@ func firstWorkingOffer(ctx context.Context, genre engine.Genre, payers []core.Pa
 			refuse(engine.Refuse(engine.ProblemNoKey, fmt.Sprintf("the engine does not run platform %q", p.Platform)))
 			continue
 		}
-		if genre != "" && !slices.Contains(engine.PlayableGenres(toggles), genre) {
-			refuse(engine.Refuse(engine.ProblemGenre, fmt.Sprintf("the key on %s cannot run %s", offer.Platform, genre)))
+		if err := fits(offer, toggles); err != nil {
+			refuse(err)
 			continue
 		}
 		err := engine.CheckOffer(ctx, offer)
@@ -193,7 +205,7 @@ func firstWorkingOffer(ctx context.Context, genre engine.Genre, payers []core.Pa
 		return offer, p, nil
 	}
 	if first == nil {
-		first = engine.Refuse(engine.ProblemNoKey, "no API key is available for this game")
+		first = engine.Refuse(engine.ProblemNoKey, none)
 	}
 	return engine.Offer{}, core.Payer{}, first
 }

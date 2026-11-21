@@ -7,6 +7,7 @@ import { Api, type HttpResponse } from "../../../../frontend/src/api/generated/a
 import { PROBLEMS, type Problem, type Refusal } from "./protocol.js";
 
 export type {
+  Cell,
   Choice,
   CreateRequest,
   EdgeDetail,

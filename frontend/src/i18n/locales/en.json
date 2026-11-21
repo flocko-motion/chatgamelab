@@ -762,7 +762,23 @@
         "audio-in": "voice input",
         "audio-live": "live voice"
       },
-      "byCreator": "by {{name}}"
+      "byCreator": "by {{name}}",
+      "cover": {
+        "title": "Cover",
+        "alt": "Cover of {{name}}",
+        "none": "No cover yet",
+        "hint": "What should the cover show?",
+        "hintDescription": "Optional. Left empty, the cover shows what the game is about.",
+        "hintPlaceholder": "For example: the lighthouse at night",
+        "draw": "Draw cover",
+        "drawAgain": "Draw again",
+        "drawnOnSave": "The cover is drawn when you save the game.",
+        "errors": {
+          "noKey": "None of the AI keys you can use draws pictures, so the game has no cover for now.",
+          "keyRejected": "The AI provider rejected the key. The cover could not be drawn.",
+          "failed": "The cover could not be drawn. Please try again."
+        }
+      }
     },
     "header": {
       "apiKeys": "API Keys",
@@ -1506,6 +1522,11 @@
       "hold": "Hold to talk",
       "recording": "Listening… release to send",
       "hearing": "Hearing what you said…"
+    },
+    "pipeline": {
+      "copyLayout": "Copy layout",
+      "copied": "Layout copied",
+      "copyFailed": "No clipboard: layout logged to the console"
     }
   },
   "mail": {

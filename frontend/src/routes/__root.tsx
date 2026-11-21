@@ -1,5 +1,4 @@
 import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Center, Loader, useMantineTheme } from "@mantine/core";
 import {
   IconMessage,
@@ -365,7 +364,6 @@ function RootComponent() {
         >
           <NewAccountRegistration registrationData={registrationData} />
         </AppLayout>
-        <TanStackRouterDevtools position="bottom-right" />
       </>
     );
   }
@@ -403,7 +401,6 @@ function RootComponent() {
       >
         <Outlet />
       </AppLayout>
-      <TanStackRouterDevtools position="bottom-right" />
     </>
   );
 }

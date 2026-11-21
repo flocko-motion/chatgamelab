@@ -98,6 +98,13 @@ type Game struct {
 	DeletedAt                    sql.NullTime   `json:"deleted_at"`
 }
 
+type GameCover struct {
+	GameID    uuid.UUID     `json:"game_id"`
+	Image     []byte        `json:"image"`
+	CreatedBy uuid.NullUUID `json:"created_by"`
+	CreatedAt time.Time     `json:"created_at"`
+}
+
 type GameSession struct {
 	ID            uuid.UUID       `json:"id"`
 	CreatedAt     time.Time       `json:"created_at"`

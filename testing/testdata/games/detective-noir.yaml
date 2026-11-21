@@ -5,4 +5,5 @@ system_message_scenario: "It's 1947 in New York City. A wealthy businessman has 
 system_message_game_start: "Rain patters against your office window. Your secretary buzzes in - there's a dame at the door, and she looks like trouble."
 image_style: "film noir, black and white, dramatic shadows, rain-slicked streets"
 css: ""
+theme: detective
 status_fields: '[{"name":"Clues","value":"0"},{"name":"Reputation","value":"50"}]'

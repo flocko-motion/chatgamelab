@@ -87,6 +87,11 @@ export interface AvailableKey {
   source: string;
 }
 
+export interface Cell {
+  col: number;
+  row: number;
+}
+
 export interface CheckNameResp {
   available: boolean;
   profane?: boolean;
@@ -383,6 +388,8 @@ export interface GameTemplate {
 
 export interface GameView {
   cloneCount: number;
+  /** @format date-time */
+  coverAt?: string;
   /** @format uuid */
   creatorId?: string;
   creatorName?: string;
@@ -587,6 +594,10 @@ export interface KeyShareView {
 export interface Language {
   iso: string;
   label: string;
+}
+
+export interface MakeGameCoverReq {
+  hint: string;
 }
 
 export interface Message {
@@ -1022,6 +1033,7 @@ export interface Toggles {
 }
 
 export interface Topology {
+  dev?: boolean;
   edges: TopologyEdge[];
   imagery: string;
   inputs: string[];
@@ -1039,6 +1051,7 @@ export interface TopologyEdge {
 }
 
 export interface TopologyNode {
+  cell?: Cell;
   name: string;
   role: string;
 }
@@ -2555,6 +2568,45 @@ export class Api<
         path: `/api/games/${id}/clone`,
         method: "POST",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description game: 404 for a game they may not see or one without a cover. With ?v= (the game's coverAt) the answer may be cached for good, as a new cover comes with a new v.
+     *
+     * @name GetApiGamesIdCover
+     * @summary Serves a game's cover picture to whoever may see the
+     * @request GET:/api/games/{id}/cover
+     * @secure
+     */
+    getApiGamesIdCover: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/games/${id}/cover`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description had, and answers with the game as it now is (coverAt set). It takes mayEditCard (403 otherwise) and blocks until the picture is made. The caller pays as for a session of the game: the first key of theirs that draws pictures, workshop, sponsor, organisation, own, site. None: 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a provider that fails: 503 ai_error. The hint, at most 300 characters, says what the cover should show; empty leaves it to the game.
+     *
+     * @name PostApiGamesIdCover
+     * @summary Draws a new cover for a game, replacing the one it
+     * @request POST:/api/games/{id}/cover
+     * @secure
+     */
+    postApiGamesIdCover: (
+      id: string,
+      data: MakeGameCoverReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<GameView, Error>({
+        path: `/api/games/${id}/cover`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

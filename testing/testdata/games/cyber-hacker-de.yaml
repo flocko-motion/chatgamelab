@@ -40,4 +40,5 @@ system_message_game_start: |
 
 image_style: "cyberpunk teen hacker aesthetic, neon-lit bedroom with multiple monitors, glowing code, pizza boxes, energy drinks, dark humor vibes"
 css: ""
+theme: hacker
 status_fields: '[{"name":"Reputation","value":"50"},{"name":"Tarnung","value":"80"},{"name":"Akku","value":"85"},{"name":"ATLAS Laune","value":"Überheblich"}]'

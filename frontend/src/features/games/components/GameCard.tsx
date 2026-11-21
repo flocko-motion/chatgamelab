@@ -1,4 +1,12 @@
-import { Card, Group, Badge, Stack, Text, Box, Tooltip } from "@mantine/core";
+import {
+  Card,
+  Group,
+  Badge,
+  Stack,
+  Text,
+  Tooltip,
+  VisuallyHidden,
+} from "@mantine/core";
 import {
   IconWorld,
   IconLock,
@@ -6,17 +14,20 @@ import {
   IconStarFilled,
   IconSchool,
   IconHeartFilled,
+  IconPlayerPlay,
+  IconDeviceGamepad2,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import {
-  PlayGameButton,
+  EditButtonWithText,
   TextButton,
-  EditIconButton,
-  DeleteIconButton,
   GenericIconButton,
 } from "@components/buttons";
 import type { GameView } from "@/api/generated/api.gen";
 import type { ReactNode } from "react";
+import { GameCover } from "@components/GameCover";
+import { GameActionIcon } from "./GameListCells";
+import classes from "./GameCard.module.css";
 
 export interface GameCardAction {
   key: string;
@@ -28,11 +39,21 @@ export interface GameCardAction {
 export interface GameCardProps {
   game: Pick<
     GameView,
-    "name" | "description" | "public" | "publicSponsoredApiKeyShareId" | "creatorName"
+    | "id"
+    | "name"
+    | "genre"
+    | "coverAt"
+    | "description"
+    | "public"
+    | "publicSponsoredApiKeyShareId"
+    | "creatorName"
+    | "playCount"
   >;
-  onClick?: () => void;
+  /** Opens the game: to edit it, or to look at it for who may not. */
+  onEdit: () => void;
+  editLabel: string;
 
-  // Play actions
+  // Play actions: a click on the tile plays (or continues)
   onPlay: () => void;
   playLabel: string;
 
@@ -43,7 +64,7 @@ export interface GameCardProps {
   onRestart?: () => void;
   restartLabel?: string;
 
-  // Visibility badge (optional, for owner view)
+  /** Public or private on the cover; otherwise only public games say so. */
   showVisibility?: boolean;
 
   // Owner badge
@@ -66,16 +87,24 @@ export interface GameCardProps {
   // Workshop indicator (for workshop mode)
   isWorkshopGame?: boolean;
 
-  // Extra content rendered below badges (e.g. admin workshop/org info)
+  // Extra content among the facts (e.g. the workshop, for admins)
   extra?: ReactNode;
 }
 
-/** Badge type for rendering multiple badges */
-type GameBadgeType = "owner" | "workshop" | "public" | "sponsored";
-
+/**
+ * GameCard - a game as a tile in a game list
+ *
+ * A click on the tile plays the game, or continues the caller's session of
+ * it. The cover on top carries where the game is seen (public, private,
+ * sponsored) and the favourite star; below it the name, the facts (who
+ * made it, how often it was played, when it changed) and the description;
+ * at the foot the button that opens the game and the actions, which line up
+ * across a row.
+ */
 export function GameCard({
   game,
-  onClick,
+  onEdit,
+  editLabel,
   onPlay,
   playLabel,
   hasSession = false,
@@ -96,246 +125,67 @@ export function GameCard({
   extra,
 }: GameCardProps) {
   const { t } = useTranslation("common");
+  const sponsored = !!game.publicSponsoredApiKeyShareId;
+  const favoriteText = isFavorite ? unfavoriteLabel : favoriteLabel;
+  const continues = hasSession && !!onContinue;
+  const play = continues ? onContinue : onPlay;
+  const playText = continues ? continueLabel : playLabel;
 
-  const renderPlayButtons = () => {
-    if (hasSession && onContinue) {
-      return (
-        <Group gap="xs" wrap="nowrap">
-          <PlayGameButton onClick={onContinue} size="xs">
-            {continueLabel}
-          </PlayGameButton>
-          {onRestart && (
-            <TextButton onClick={onRestart} size="xs">
-              {restartLabel}
-            </TextButton>
-          )}
-        </Group>
-      );
-    }
+  const visibility = game.public ? (
+    <Badge
+      className={classes.overlayBadge}
+      size="sm"
+      color="green"
+      variant="white"
+      leftSection={<IconWorld size={12} />}
+    >
+      {t("games.visibility.public")}
+    </Badge>
+  ) : showVisibility ? (
+    <Badge
+      className={classes.overlayBadge}
+      size="sm"
+      color="gray"
+      variant="white"
+      leftSection={<IconLock size={12} />}
+    >
+      {t("games.visibility.private")}
+    </Badge>
+  ) : null;
 
-    return (
-      <PlayGameButton onClick={onPlay} size="xs">
-        {playLabel}
-      </PlayGameButton>
-    );
-  };
-
-  // Determine which badges to show
-  const getBadges = (): GameBadgeType[] => {
-    const badges: GameBadgeType[] = [];
-    if (isOwner) badges.push("owner");
-    if (game.publicSponsoredApiKeyShareId) badges.push("sponsored");
-    if (isWorkshopGame) badges.push("workshop");
-    if (game.public) badges.push("public");
-    return badges;
-  };
-
-  const renderBadge = (type: GameBadgeType) => {
-    switch (type) {
-      case "owner":
-        return (
-          <Badge
-            key="owner"
-            size="xs"
-            color="violet"
-            variant="light"
-            style={{ flexShrink: 0 }}
-          >
-            {t("games.badges.myGame")}
-          </Badge>
-        );
-      case "workshop":
-        return (
-          <Badge
-            key="workshop"
-            size="xs"
-            color="cyan"
-            variant="light"
-            leftSection={<IconSchool size={10} />}
-            style={{ flexShrink: 0 }}
-          >
-            {t("games.badges.workshop")}
-          </Badge>
-        );
-      case "public":
-        return (
-          <Badge
-            key="public"
-            size="xs"
-            color="green"
-            variant="light"
-            leftSection={<IconWorld size={10} />}
-            style={{ flexShrink: 0 }}
-          >
-            {t("games.badges.public")}
-          </Badge>
-        );
-      case "sponsored":
-        return (
-          <Tooltip
-            key="sponsored"
-            label={t("games.sponsor.sponsoredTooltip")}
-            withArrow
-            multiline
-            w={250}
-          >
-            <Badge
-              size="xs"
-              color="pink"
-              variant="light"
-              leftSection={<IconHeartFilled size={10} />}
-              style={{ flexShrink: 0, cursor: "help" }}
-            >
-              {t("games.sponsor.sponsored")}
-            </Badge>
-          </Tooltip>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const renderBadges = () => {
-    const badges = getBadges();
-    if (badges.length === 0) return null;
-    // In workshop context, stack badges vertically (workshop + public on separate rows)
-    if (isWorkshopGame) {
-      return (
-        <Stack gap={4} align="flex-start">
-          {badges.map(renderBadge)}
-        </Stack>
-      );
-    }
-    return (
-      <Group gap={4} wrap="wrap">
-        {badges.map(renderBadge)}
-      </Group>
-    );
-  };
-
-  // For showVisibility mode (e.g., MyGames page), show public/private badge
-  const renderVisibilityBadge = () => {
-    if (!showVisibility) return null;
-    return game.public ? (
-      <Badge
-        size="xs"
-        color="green"
-        variant="light"
-        leftSection={<IconWorld size={10} />}
-        style={{ whiteSpace: "nowrap", flexShrink: 0 }}
-      >
-        {t("games.visibility.public")}
-      </Badge>
-    ) : (
-      <Badge
-        size="xs"
-        color="gray"
-        variant="light"
-        leftSection={<IconLock size={10} />}
-        style={{ whiteSpace: "nowrap", flexShrink: 0 }}
-      >
-        {t("games.visibility.private")}
-      </Badge>
-    );
-  };
+  const creator = showCreator && !isOwner && game.creatorName;
 
   return (
     <Card
+      className={classes.card}
+      data-sponsored={sponsored || undefined}
       shadow="sm"
-      p="md"
-      radius="md"
+      padding="md"
+      radius="lg"
       withBorder
-      style={{
-        cursor: onClick ? "pointer" : "default",
-        ...(game.publicSponsoredApiKeyShareId
-          ? { borderLeft: "3px solid var(--mantine-color-pink-4)" }
-          : undefined),
-      }}
-      onClick={onClick}
+      onClick={play}
     >
-      <Stack gap="sm">
-        {/* Top row: Title (left, wraps up to 3 lines) + Date + Visibility (right, pinned top) */}
-        <Group justify="space-between" align="flex-start" wrap="nowrap">
-          <Text
-            fw={600}
-            size="md"
-            lineClamp={3}
-            style={{ flex: 1, minWidth: 0 }}
-          >
-            {game.name}
-          </Text>
-          <Group
-            gap="xs"
-            wrap="nowrap"
-            style={{ flexShrink: 0, alignSelf: "flex-start" }}
-          >
-            {/* public badge is rendered in the badges row below */}
-            {renderVisibilityBadge()}
-            {dateLabel && (
-              <Text size="xs" c="gray.5" style={{ whiteSpace: "nowrap" }}>
-                {dateLabel}
-              </Text>
-            )}
-          </Group>
-        </Group>
-
-        {/* Badges row: Owner, Workshop, Public, Sponsored */}
-        {(isWorkshopGame || isOwner || game.public || game.publicSponsoredApiKeyShareId) && (
-          <Box>{renderBadges()}</Box>
-        )}
-
-        {/* Creator, and extra content such as the workshop for admins */}
-        {((showCreator && !isOwner && game.creatorName) || extra) && (
-          <Group gap="xs" wrap="wrap" align="center">
-            {showCreator && !isOwner && game.creatorName && (
-              <Text size="xs" c="gray.5">
-                {t("games.byCreator", { name: game.creatorName })}
-              </Text>
-            )}
-            {extra}
-          </Group>
-        )}
-
-        {/* Description */}
-        {game.description && (
-          <Text size="sm" c="gray.6" lineClamp={2}>
-            {game.description}
-          </Text>
-        )}
-
-        {/* Bottom row: Play buttons (left) + Actions (right) */}
-        <Group justify="space-between" align="flex-end" wrap="wrap">
-          {/* Play/Continue/Restart buttons */}
-          <Box onClick={(e) => e.stopPropagation()}>{renderPlayButtons()}</Box>
-
-          {/* Action buttons + Favorite */}
-          <Group gap={4} wrap="wrap" onClick={(e) => e.stopPropagation()}>
-            {actions.map((action) => (
-              <Tooltip key={action.key} label={action.label} withArrow>
-                {action.key === "edit" ? (
-                  <EditIconButton
-                    onClick={action.onClick}
-                    aria-label={action.label}
-                  />
-                ) : action.key === "delete" ? (
-                  <DeleteIconButton
-                    onClick={action.onClick}
-                    aria-label={action.label}
-                  />
-                ) : (
-                  <GenericIconButton
-                    icon={action.icon}
-                    onClick={action.onClick}
-                    aria-label={action.label}
-                  />
-                )}
-              </Tooltip>
-            ))}
-            {onToggleFavorite && (
-              <Tooltip
-                label={isFavorite ? unfavoriteLabel : favoriteLabel}
-                withArrow
-              >
+      <Card.Section className={classes.cover}>
+        <GameCover game={game} flush />
+        {/* What a click does, shown on hover; the keyboard's way in. */}
+        <button
+          type="button"
+          className={classes.playHint}
+          onClick={(e) => {
+            e.stopPropagation();
+            play();
+          }}
+          aria-label={`${playText}: ${game.name}`}
+        >
+          <span className={classes.playCircle}>
+            <IconDeviceGamepad2 className={classes.playIcon} stroke={1.75} aria-hidden />
+          </span>
+        </button>
+        <div className={classes.overlayTop}>
+          {visibility}
+          {onToggleFavorite && (
+            <div className={classes.star} onClick={(e) => e.stopPropagation()}>
+              <Tooltip label={favoriteText} withArrow>
                 <GenericIconButton
                   icon={
                     isFavorite ? (
@@ -348,16 +198,109 @@ export function GameCard({
                     )
                   }
                   onClick={onToggleFavorite}
-                  aria-label={
-                    (isFavorite ? unfavoriteLabel : favoriteLabel) ||
-                    "Toggle favorite"
-                  }
+                  aria-label={favoriteText ?? ""}
                 />
               </Tooltip>
-            )}
-          </Group>
+            </div>
+          )}
+        </div>
+        {sponsored && (
+          <div className={classes.overlayBottom}>
+            <Tooltip
+              label={t("games.sponsor.sponsoredTooltip")}
+              withArrow
+              multiline
+              w={250}
+            >
+              <Badge
+                className={classes.overlayBadge}
+                size="sm"
+                color="pink"
+                variant="filled"
+                leftSection={<IconHeartFilled size={12} />}
+                style={{ cursor: "help" }}
+              >
+                {t("games.sponsor.sponsored")}
+              </Badge>
+            </Tooltip>
+          </div>
+        )}
+      </Card.Section>
+
+      <Stack gap={6} mt="sm" className={classes.body}>
+        <Text fw={700} size="md" lineClamp={2}>
+          {game.name}
+        </Text>
+
+        {/* The facts: who made it, how often played, when changed. */}
+        <Group gap={6} wrap="wrap" className={classes.facts}>
+          {creator && (
+            <span>{t("games.byCreator", { name: game.creatorName })}</span>
+          )}
+          {creator && <span aria-hidden>·</span>}
+          <Tooltip label={t("games.fields.playCount")} withArrow>
+            <Group gap={2} wrap="nowrap" component="span">
+              <IconPlayerPlay size={12} aria-hidden />
+              <VisuallyHidden>{t("games.fields.playCount")}</VisuallyHidden>
+              <span>{game.playCount}</span>
+            </Group>
+          </Tooltip>
+          {dateLabel && <span aria-hidden>·</span>}
+          {dateLabel && <span>{dateLabel}</span>}
         </Group>
+
+        <Group gap={4} wrap="wrap">
+          <Badge size="xs" color="gray" variant="light">
+            {t(`games.genres.${game.genre}`, { defaultValue: game.genre })}
+          </Badge>
+          {isOwner && (
+            <Badge size="xs" color="violet" variant="light">
+              {t("games.badges.myGame")}
+            </Badge>
+          )}
+          {isWorkshopGame && (
+            <Badge
+              size="xs"
+              color="cyan"
+              variant="light"
+              leftSection={<IconSchool size={10} />}
+            >
+              {t("games.badges.workshop")}
+            </Badge>
+          )}
+          {extra}
+        </Group>
+
+        {game.description && (
+          <Text size="sm" c="gray.6" lineClamp={2}>
+            {game.description}
+          </Text>
+        )}
       </Stack>
+
+      {/* The foot: open the game (left), the actions (right). */}
+      <Group
+        className={classes.foot}
+        justify="space-between"
+        align="center"
+        wrap="wrap"
+        gap="xs"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Group gap="xs" wrap="nowrap">
+          <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
+          {continues && onRestart && (
+            <TextButton onClick={onRestart} size="xs">
+              {restartLabel}
+            </TextButton>
+          )}
+        </Group>
+        <Group gap={2} wrap="nowrap">
+          {actions.map((action) => (
+            <GameActionIcon key={action.key} action={action} />
+          ))}
+        </Group>
+      </Group>
     </Card>
   );
 }

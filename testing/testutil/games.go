@@ -5,6 +5,7 @@
 package testutil
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -298,6 +299,33 @@ func (c caller) GetPrivateShareStatus(gameID string) (PrivateShareStatus, error)
 // GuestGetGameInfo is the game a share link plays.
 func (c caller) GuestGetGameInfo(shareToken string) (GuestGameInfo, error) {
 	return decode[GuestGameInfo](c.api.GetApiPlayTokenInfoWithResponse(ctx(), shareToken))
+}
+
+// --- Covers ---
+
+// MakeCover has a game's cover drawn, with a hint of what it should show
+// (empty: none), and answers with the game as it now is.
+func (c caller) MakeCover(gameID, hint string) (GameView, error) {
+	return decode[GameView](c.api.PostApiGamesIdCoverWithResponse(ctx(), gameID, apiclient.MakeGameCoverReq{Hint: hint}))
+}
+
+// GetCover is a game's cover picture.
+func (c caller) GetCover(gameID string) ([]byte, error) {
+	r, err := c.api.GetApiGamesIdCoverWithResponse(ctx(), gameID)
+	if err := done(r, err); err != nil {
+		return nil, err
+	}
+	return r.Body, nil
+}
+
+// IsJPEG says whether a picture is a JPEG file.
+func IsJPEG(picture []byte) bool {
+	return bytes.HasPrefix(picture, []byte{0xFF, 0xD8, 0xFF})
+}
+
+// IsPNG says whether a picture is a PNG file.
+func IsPNG(picture []byte) bool {
+	return bytes.HasPrefix(picture, []byte("\x89PNG\r\n\x1a\n"))
 }
 
 // --- Catalogues ---

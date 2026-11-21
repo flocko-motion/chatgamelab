@@ -5,4 +5,5 @@ system_message_scenario: "You've accidentally activated your grandfather's time 
 system_message_game_start: "The machine hums to life. Your living room dissolves around you, replaced by swirling colors. When it stops, you're standing in ancient Rome."
 image_style: "time travel effects, multiple eras blending, temporal distortions"
 css: ""
+theme: steampunk
 status_fields: '[{"name":"Temporal Energy","value":"100"},{"name":"Timeline Stability","value":"50"}]'

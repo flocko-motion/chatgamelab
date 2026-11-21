@@ -173,8 +173,10 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
       if (config.openCreatedGame && newGame.id) {
         navigate({ to: "/games/$gameId", params: { gameId: newGame.id } });
       }
+      return newGame;
     } catch {
       // shown by the mutation's error handler
+      return undefined;
     }
   };
 
