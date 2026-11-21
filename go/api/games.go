@@ -6,15 +6,12 @@ package api
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
-	"cgl/db"
-	"cgl/log"
+	"cgl/api/wire"
+	"cgl/core"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
-	"github.com/google/uuid"
 )
 
 // GameResp is a game.
@@ -23,92 +20,87 @@ type GameResp = obj.Game
 // GamesResp is a list of games.
 type GamesResp = []obj.Game
 
+// GameViewResp is a game as the caller sees it.
+type GameViewResp = wire.GameView
+
+// GameViewPageResp is a page of games and the total.
+type GameViewPageResp = wire.GameViewPage
+
 // GameIDReq names a game by its id.
 type GameIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
-// ListGamesEndpoint lists the games the caller can see.
+// ListGamesEndpoint lists a page of the games the caller can see, and the total.
 //
-// Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt,
-// playCount), sortDir (asc, desc), filter (all, own, public, organization,
-// favorites).
+// Query, all optional: filter (own, others, public, favorites, sponsored;
+// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
+// visibility, creator), sortDir (asc, desc), limit, offset.
 type ListGamesEndpoint struct{}
 
 func (ListGamesEndpoint) Method() string             { return "GET" }
 func (ListGamesEndpoint) Path() string               { return "/api/games" }
 func (ListGamesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListGamesEndpoint) Handle(ctx context.Context, req ListGamesReq) (GamesResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return nil, err
-	}
-	games, err := db.GetGames(ctx, &user.ID, &db.GetGamesFilters{
-		Search:    req.Search,
-		SortField: req.SortBy,
-		SortDir:   req.SortDir,
-		Filter:    req.Filter,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to get games: %w", err)
-	}
-	return games, nil
+func (ListGamesEndpoint) Handle(ctx context.Context, req ListGamesReq) (GameViewPageResp, error) {
+	return wire.GameViewPageOf(core.ListGameCards(ctx, req.query()))
 }
 
-// ListGamesReq filters and sorts the game list.
+// ListGamesReq filters, sorts and pages the game list.
 type ListGamesReq struct {
-	Search  string `query:"search" json:"-"`
-	SortBy  string `query:"sortBy" json:"-"`
-	SortDir string `query:"sortDir" json:"-"`
-	Filter  string `query:"filter" json:"-"`
+	Filter  []string `query:"filter"`
+	Search  *string  `query:"search"`
+	SortBy  *string  `query:"sortBy"`
+	SortDir *string  `query:"sortDir"`
+	Limit   *int     `query:"limit"`
+	Offset  *int     `query:"offset"`
 }
 
-// CreateGameEndpoint creates a game owned by the caller.
-//
-// Only the name is required, at most 70 characters; the genre is one of the
-// engine's genres and makes an adventure when empty.
+func (r ListGamesReq) query() core.GameCardQuery {
+	q := core.GameCardQuery{Filter: r.Filter, Search: opt(r.Search), SortBy: opt(r.SortBy), SortDir: opt(r.SortDir)}
+	if r.Limit != nil {
+		q.Limit = *r.Limit
+	}
+	if r.Offset != nil {
+		q.Offset = *r.Offset
+	}
+	return q
+}
+
+// NewGameEndpoint returns the template for a game the caller creates: what a
+// new game starts with and what the caller may do with it. Nothing is stored;
+// the client fills it in and creates the game with CreateGameEndpoint.
+type NewGameEndpoint struct{}
+
+func (NewGameEndpoint) Method() string             { return "GET" }
+func (NewGameEndpoint) Path() string               { return "/api/games/new" }
+func (NewGameEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (NewGameEndpoint) Handle(ctx context.Context, _ NewGameReq) (GameTemplateResp, error) {
+	return wire.GameTemplateOf(core.NewGame(ctx))
+}
+
+// NewGameReq asks for nothing: the template depends only on the caller.
+type NewGameReq struct{}
+
+// GameTemplateResp is a game not yet created.
+type GameTemplateResp = wire.GameTemplate
+
+// CreateGameEndpoint creates a game owned by the caller from the filled-in
+// template, and answers with it as stored. Only the name is required, at
+// most 70 characters; making it public takes the template's mayPublish. In
+// a workshop, the game belongs to it.
 type CreateGameEndpoint struct{}
 
 func (CreateGameEndpoint) Method() string             { return "POST" }
 func (CreateGameEndpoint) Path() string               { return "/api/games/new" }
 func (CreateGameEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (CreateGameEndpoint) Handle(ctx context.Context, req CreateGameReq) (GameResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Game{}, err
-	}
-	name := strings.TrimSpace(req.Name)
-	if name == "" {
-		return obj.Game{}, errBadRequest("Missing required field: name")
-	}
-	if len(name) > 70 {
-		return obj.Game{}, appError(obj.ErrNameTooLong("Game name must be 70 characters or less"))
-	}
-	game := obj.Game{
-		Name:        req.Name,
-		Description: req.Description,
-		Genre:       req.Genre,
-	}
-	if req.Public != nil {
-		game.Public = *req.Public
-	}
-	if err := db.CreateGame(ctx, user.ID, &game); err != nil {
-		return obj.Game{}, appError(err)
-	}
-	created, err := db.GetGameByID(ctx, &user.ID, game.ID)
-	if err != nil {
-		return obj.Game{}, fmt.Errorf("failed to load created game: %w", err)
-	}
-	return *created, nil
+func (CreateGameEndpoint) Handle(ctx context.Context, req CreateGameReq) (GameViewResp, error) {
+	return wire.GameViewOf(core.CreateGame(ctx, req.changes()))
 }
 
-// CreateGameReq is a new game's name, description, visibility and genre.
+// CreateGameReq is a new game's fields; left out, a field keeps the
+// template's value.
 type CreateGameReq struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Public      *bool  `json:"public,omitempty"`
-	// Genre is one of the engine's genres; empty makes an adventure.
-	Genre string `json:"genre,omitempty"`
+	GameFields
 }
 
 // GetGameEndpoint returns a game the caller can see.
@@ -117,143 +109,119 @@ type GetGameEndpoint struct{}
 func (GetGameEndpoint) Method() string             { return "GET" }
 func (GetGameEndpoint) Path() string               { return "/api/games/{id}" }
 func (GetGameEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Game{}, err
-	}
+func (GetGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameViewResp, error) {
 	gameID, err := parseID(req.ID, "Invalid game ID")
 	if err != nil {
-		return obj.Game{}, err
+		return GameViewResp{}, err
 	}
-	game, err := db.GetGameByID(ctx, &user.ID, gameID)
-	if err != nil {
-		return obj.Game{}, errNotFound("Game not found")
-	}
-	return *game, nil
+	return wire.GameViewOf(core.ReadGameCard(ctx, gameID))
 }
 
-// UpdateGameEndpoint updates a game's properties.
-//
-// Takes the whole game; its name is at most 70 characters. Answers with the
+// UpdateGameEndpoint changes a game's card and content and answers with the
 // game as stored.
+//
+// Send what changes; a field left out stays as it is, and sending the whole
+// game back is fine: only what differs counts. Changing a section the caller
+// may not edit (mayEditCard, mayEditContent), or making the game public
+// without mayPublish, refuses the whole request (403). The name is at most 70
+// characters. Workshop, sponsor and creator are not changed here.
 type UpdateGameEndpoint struct{}
 
 func (UpdateGameEndpoint) Method() string             { return "POST" }
 func (UpdateGameEndpoint) Path() string               { return "/api/games/{id}" }
 func (UpdateGameEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (UpdateGameEndpoint) Handle(ctx context.Context, req UpdateGameReq) (GameResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Game{}, err
-	}
+func (UpdateGameEndpoint) Handle(ctx context.Context, req UpdateGameReq) (GameViewResp, error) {
 	gameID, err := parseID(req.GameID, "Invalid game ID")
 	if err != nil {
-		return obj.Game{}, err
+		return GameViewResp{}, err
 	}
-	updated := req.Game
-	updated.ID = gameID
-	if len(strings.TrimSpace(updated.Name)) > 70 {
-		return obj.Game{}, appError(obj.ErrNameTooLong("Game name must be 70 characters or less"))
-	}
-	if err := db.UpdateGame(ctx, user.ID, &updated); err != nil {
-		return obj.Game{}, appError(err)
-	}
-	game, err := db.GetGameByID(ctx, &user.ID, gameID)
-	if err != nil {
-		return obj.Game{}, errNotFound("Game not found")
-	}
-	return *game, nil
+	return wire.GameViewOf(core.UpdateGame(ctx, gameID, req.changes()))
 }
 
-// UpdateGameReq is the game from the path and its new properties from the body.
+// UpdateGameReq is the game from the path and what changes from the body.
 type UpdateGameReq struct {
-	GameID string `path:"id" json:"-"`
-	obj.Game
+	GameID string `path:"id"`
+	GameFields
 }
 
-// DeleteGameEndpoint deletes a game and answers with it as it was.
+// GameFields are a game's fields as a client sends them, under the names a
+// game view has. Left out (or null): unchanged. Icon and firstImage: ""
+// removes. Theme, firstMessage, firstStatus: "" removes. Genre: "" leaves it.
+type GameFields struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Icon        *[]byte `json:"icon"`
+	Genre       *string `json:"genre"`
+	Theme       *string `json:"theme"`
+	Public      *bool   `json:"public"`
+
+	SystemMessageScenario  *string `json:"systemMessageScenario"`
+	SystemMessageGameStart *string `json:"systemMessageGameStart"`
+	ImageStyle             *string `json:"imageStyle"`
+	CSS                    *string `json:"css"`
+	StatusFields           *string `json:"statusFields"`
+	FirstMessage           *string `json:"firstMessage"`
+	FirstStatus            *string `json:"firstStatus"`
+	FirstImage             *[]byte `json:"firstImage"`
+}
+
+// deref is a given byte field, "" (removed) included, or nil when left out.
+func deref(b *[]byte) []byte {
+	if b == nil {
+		return nil
+	}
+	if *b == nil {
+		return []byte{}
+	}
+	return *b
+}
+
+func (r GameFields) changes() core.GameChanges {
+	return core.GameChanges{
+		Name:         r.Name,
+		Description:  r.Description,
+		Icon:         deref(r.Icon),
+		Genre:        r.Genre,
+		Theme:        r.Theme,
+		Public:       r.Public,
+		Scenario:     r.SystemMessageScenario,
+		GameStart:    r.SystemMessageGameStart,
+		ImageStyle:   r.ImageStyle,
+		CSS:          r.CSS,
+		StatusFields: r.StatusFields,
+		FirstMessage: r.FirstMessage,
+		FirstStatus:  r.FirstStatus,
+		FirstImage:   deref(r.FirstImage),
+	}
+}
+
+// DeleteGameEndpoint deletes a game and answers with it as it was. Deleting
+// takes mayEditSettings (403 otherwise).
 type DeleteGameEndpoint struct{}
 
 func (DeleteGameEndpoint) Method() string             { return "DELETE" }
 func (DeleteGameEndpoint) Path() string               { return "/api/games/{id}" }
 func (DeleteGameEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (DeleteGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Game{}, err
-	}
+func (DeleteGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameViewResp, error) {
 	gameID, err := parseID(req.ID, "Invalid game ID")
 	if err != nil {
-		return obj.Game{}, err
+		return GameViewResp{}, err
 	}
-	deleted, err := db.GetGameByID(ctx, &user.ID, gameID)
-	if err != nil {
-		return obj.Game{}, errNotFound("Game not found")
-	}
-	if err := db.DeleteGame(ctx, user.ID, gameID); err != nil {
-		return obj.Game{}, fmt.Errorf("failed to delete game: %w", err)
-	}
-	return *deleted, nil
+	return wire.GameViewOf(core.DeleteGame(ctx, gameID))
 }
 
-// CloneGameEndpoint copies a public game, or one of the caller's own, into a
-// new private game of the caller's.
+// CloneGameEndpoint copies a game into a new private game of the caller's
+// and answers with the copy. It takes mayCopy (403 otherwise); the copy has
+// the game's card and content, not its images.
 type CloneGameEndpoint struct{}
 
 func (CloneGameEndpoint) Method() string             { return "POST" }
 func (CloneGameEndpoint) Path() string               { return "/api/games/{id}/clone" }
 func (CloneGameEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (CloneGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Game{}, err
-	}
+func (CloneGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameViewResp, error) {
 	gameID, err := parseID(req.ID, "Invalid game ID")
 	if err != nil {
-		return obj.Game{}, err
+		return GameViewResp{}, err
 	}
-	source, err := db.GetGameByID(ctx, nil, gameID)
-	if err != nil {
-		return obj.Game{}, errNotFound("Game not found")
-	}
-	isOwner := source.Meta.CreatedBy.Valid && source.Meta.CreatedBy.UUID == user.ID
-	if !source.Public && !isOwner {
-		return obj.Game{}, errNotFound("Game not found")
-	}
-
-	// The original creator carries over from copy to copy.
-	var originalCreator *uuid.UUID
-	if source.OriginallyCreatedBy != nil {
-		originalCreator = source.OriginallyCreatedBy
-	} else if source.Meta.CreatedBy.Valid {
-		originalCreator = &source.Meta.CreatedBy.UUID
-	}
-
-	clone := obj.Game{
-		Name:                   source.Name + " (Copy)",
-		Description:            source.Description,
-		Public:                 false,
-		ImageStyle:             source.ImageStyle,
-		SystemMessageScenario:  source.SystemMessageScenario,
-		SystemMessageGameStart: source.SystemMessageGameStart,
-		StatusFields:           source.StatusFields,
-		Genre:                  source.Genre,
-		Theme:                  source.Theme,
-		FirstMessage:           source.FirstMessage,
-		FirstStatus:            source.FirstStatus,
-		CSS:                    source.CSS,
-		OriginallyCreatedBy:    originalCreator,
-	}
-	if err := db.CreateGame(ctx, user.ID, &clone); err != nil {
-		return obj.Game{}, fmt.Errorf("failed to clone game: %w", err)
-	}
-	if err := db.IncrementGameCloneCount(ctx, gameID); err != nil {
-		log.Warn("failed to increment clone count", "error", err)
-	}
-	created, err := db.GetGameByID(ctx, &user.ID, clone.ID)
-	if err != nil {
-		return obj.Game{}, fmt.Errorf("failed to load cloned game: %w", err)
-	}
-	return *created, nil
+	return wire.GameViewOf(core.CopyGame(ctx, gameID))
 }

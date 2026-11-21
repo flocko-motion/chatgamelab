@@ -1,15 +1,14 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     exports a game as a game file and updates a game from one
-// limits:  the file's shape lives in obj (GameFile); storage in db
+// limits:  the file's shape lives in obj (GameFile); rights and storage in the core
 package api
 
 import (
 	"context"
-	"fmt"
 
-	"cgl/db"
-	"cgl/log"
+	"cgl/api/wire"
+	"cgl/core"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -18,7 +17,8 @@ import (
 // GameFileResp is a game as a file.
 type GameFileResp = obj.GameFile
 
-// GetGameYAMLEndpoint exports a game as a game file, YAML by default.
+// GetGameYAMLEndpoint exports a game as a game file, YAML by default. It
+// takes seeing the game's content (hasContent; 403 otherwise).
 type GetGameYAMLEndpoint struct{}
 
 func (GetGameYAMLEndpoint) Method() string             { return "GET" }
@@ -28,33 +28,25 @@ func (GetGameYAMLEndpoint) Produces() []string {
 	return []string{"application/x-yaml", "application/json"}
 }
 func (GetGameYAMLEndpoint) Handle(ctx context.Context, req GameIDReq) (GameFileResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.GameFile{}, err
-	}
 	gameID, err := parseID(req.ID, "Invalid game ID")
 	if err != nil {
 		return obj.GameFile{}, err
 	}
-	log.Debug("exporting game as YAML", "game_id", gameID, "user_id", user.ID)
-	game, err := db.GetGameByID(ctx, &user.ID, gameID)
-	if err != nil {
-		return obj.GameFile{}, errNotFound("Game not found")
-	}
-	return obj.NewGameFile(*game), nil
+	return wire.GameFileOf(core.ReadGameCard(ctx, gameID))
 }
 
 // UpdateGameYAMLReq is the game from the path and the game file to update it
 // from.
 type UpdateGameYAMLReq struct {
-	GameID string `path:"id" json:"-"`
+	GameID string `path:"id"`
 	obj.GameFile
 }
 
 // UpdateGameYAMLEndpoint updates a game from a game file, YAML or JSON, and
-// answers with the game.
+// answers with the game as stored.
 //
-// The file's content replaces the game's; its id is ignored.
+// The file replaces the game's card and content; its id is ignored. It takes
+// the same rights as an update (mayEditCard, mayEditContent).
 type UpdateGameYAMLEndpoint struct{}
 
 func (UpdateGameYAMLEndpoint) Method() string             { return "PUT" }
@@ -63,22 +55,10 @@ func (UpdateGameYAMLEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.Au
 func (UpdateGameYAMLEndpoint) Consumes() []string {
 	return []string{"application/x-yaml", "application/json"}
 }
-func (UpdateGameYAMLEndpoint) Handle(ctx context.Context, req UpdateGameYAMLReq) (GameResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Game{}, err
-	}
+func (UpdateGameYAMLEndpoint) Handle(ctx context.Context, req UpdateGameYAMLReq) (GameViewResp, error) {
 	gameID, err := parseID(req.GameID, "Invalid game ID")
 	if err != nil {
-		return obj.Game{}, err
+		return GameViewResp{}, err
 	}
-	log.Debug("updating game from a game file", "game_id", gameID, "user_id", user.ID)
-	if err := db.UpdateGameFromFile(ctx, user.ID, gameID, req.GameFile); err != nil {
-		return obj.Game{}, fmt.Errorf("failed to update game: %w", appError(err))
-	}
-	updated, err := db.GetGameByID(ctx, &user.ID, gameID)
-	if err != nil {
-		return obj.Game{}, errNotFound("Game not found")
-	}
-	return *updated, nil
+	return wire.GameViewOf(core.ImportGameFile(ctx, gameID, req.GameFile))
 }

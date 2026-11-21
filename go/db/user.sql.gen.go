@@ -596,14 +596,14 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const deleteUserFavourites = `-- name: DeleteUserFavourites :exec
+const deleteUserFavorites = `-- name: DeleteUserFavorites :exec
 
 DELETE FROM user_favourite_game WHERE user_id = $1
 `
 
 // User deletion cleanup queries
-func (q *Queries) DeleteUserFavourites(ctx context.Context, userID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteUserFavourites, userID)
+func (q *Queries) DeleteUserFavorites(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserFavorites, userID)
 	return err
 }
 

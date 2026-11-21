@@ -278,10 +278,30 @@
       },
       "CreateGameReq": {
         "properties": {
+          "css": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
+          "firstImage": {
+            "format": "byte",
+            "type": "string"
+          },
+          "firstMessage": {
+            "type": "string"
+          },
+          "firstStatus": {
+            "type": "string"
+          },
           "genre": {
+            "type": "string"
+          },
+          "icon": {
+            "format": "byte",
+            "type": "string"
+          },
+          "imageStyle": {
             "type": "string"
           },
           "name": {
@@ -289,11 +309,20 @@
           },
           "public": {
             "type": "boolean"
+          },
+          "statusFields": {
+            "type": "string"
+          },
+          "systemMessageGameStart": {
+            "type": "string"
+          },
+          "systemMessageScenario": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
           }
         },
-        "required": [
-          "name"
-        ],
         "type": "object"
       },
       "CreateGameShareReq": {
@@ -775,6 +804,27 @@
         ],
         "type": "object"
       },
+      "GameMeta": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "modifiedAt"
+        ],
+        "type": "object"
+      },
       "GameSession": {
         "properties": {
           "apiKeyShareId": {
@@ -918,6 +968,224 @@
           "meta",
           "gameId",
           "tag"
+        ],
+        "type": "object"
+      },
+      "GameTemplate": {
+        "properties": {
+          "css": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "firstImage": {
+            "format": "byte",
+            "type": "string"
+          },
+          "firstMessage": {
+            "type": "string"
+          },
+          "firstStatus": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "hasContent": {
+            "type": "boolean"
+          },
+          "icon": {
+            "format": "byte",
+            "type": "string"
+          },
+          "imageStyle": {
+            "type": "string"
+          },
+          "mayEditCard": {
+            "type": "boolean"
+          },
+          "mayEditContent": {
+            "type": "boolean"
+          },
+          "mayPublish": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "statusFields": {
+            "type": "string"
+          },
+          "systemMessageGameStart": {
+            "type": "string"
+          },
+          "systemMessageScenario": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "icon",
+          "genre",
+          "public",
+          "mayEditCard",
+          "mayEditContent",
+          "mayPublish",
+          "hasContent"
+        ],
+        "type": "object"
+      },
+      "GameView": {
+        "properties": {
+          "cloneCount": {
+            "type": "integer"
+          },
+          "creatorId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "creatorName": {
+            "type": "string"
+          },
+          "css": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "firstImage": {
+            "format": "byte",
+            "type": "string"
+          },
+          "firstMessage": {
+            "type": "string"
+          },
+          "firstStatus": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "hasContent": {
+            "type": "boolean"
+          },
+          "hasSettings": {
+            "type": "boolean"
+          },
+          "icon": {
+            "format": "byte",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "imageStyle": {
+            "type": "string"
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "mayCopy": {
+            "type": "boolean"
+          },
+          "mayEditCard": {
+            "type": "boolean"
+          },
+          "mayEditContent": {
+            "type": "boolean"
+          },
+          "mayEditSettings": {
+            "type": "boolean"
+          },
+          "mayPublish": {
+            "type": "boolean"
+          },
+          "mayShare": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/GameMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "originallyCreatedBy": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "playCount": {
+            "type": "integer"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "publicSponsoredApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "statusFields": {
+            "type": "string"
+          },
+          "systemMessageGameStart": {
+            "type": "string"
+          },
+          "systemMessageScenario": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "meta",
+          "name",
+          "description",
+          "icon",
+          "genre",
+          "public",
+          "playCount",
+          "cloneCount",
+          "mayEditCard",
+          "mayEditContent",
+          "mayEditSettings",
+          "mayCopy",
+          "mayShare",
+          "mayPublish",
+          "isFavorite",
+          "hasContent",
+          "hasSettings"
+        ],
+        "type": "object"
+      },
+      "GameViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GameView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
         ],
         "type": "object"
       },
@@ -2061,16 +2329,6 @@
       },
       "UpdateGameReq": {
         "properties": {
-          "cloneCount": {
-            "type": "integer"
-          },
-          "creatorId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "creatorName": {
-            "type": "string"
-          },
           "css": {
             "type": "string"
           },
@@ -2094,39 +2352,14 @@
             "format": "byte",
             "type": "string"
           },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
           "imageStyle": {
             "type": "string"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/Meta"
           },
           "name": {
             "type": "string"
           },
-          "originalCreatorId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "originalCreatorName": {
-            "type": "string"
-          },
-          "originallyCreatedBy": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "playCount": {
-            "type": "integer"
-          },
           "public": {
             "type": "boolean"
-          },
-          "publicSponsoredApiKeyShareId": {
-            "format": "uuid",
-            "type": "string"
           },
           "statusFields": {
             "type": "string"
@@ -2137,38 +2370,10 @@
           "systemMessageScenario": {
             "type": "string"
           },
-          "tags": {
-            "items": {
-              "$ref": "#/components/schemas/GameTag"
-            },
-            "type": "array"
-          },
           "theme": {
-            "type": "string"
-          },
-          "workshopId": {
-            "format": "uuid",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "meta",
-          "name",
-          "description",
-          "icon",
-          "public",
-          "systemMessageScenario",
-          "systemMessageGameStart",
-          "imageStyle",
-          "css",
-          "statusFields",
-          "genre",
-          "firstImage",
-          "tags",
-          "playCount",
-          "cloneCount"
-        ],
         "type": "object"
       },
       "UpdateGameShareReq": {
@@ -2932,6 +3137,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "cascade",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3178,6 +3391,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "context",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3315,6 +3536,16 @@
       "get": {
         "description": "A name longer than 24 characters is unavailable; a profane one is\nunavailable and flagged profane.",
         "operationId": "getApiAuthCheck-name",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -4629,17 +4860,69 @@
     },
     "/api/games": {
       "get": {
-        "description": "Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt,\nplayCount), sortDir (asc, desc), filter (all, own, public, organization,\nfavorites).",
+        "description": "Query, all optional: filter (own, others, public, favorites, sponsored;\nrepeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,\nvisibility, creator), sortDir (asc, desc), limit, offset.",
         "operationId": "getApiGames",
+        "parameters": [
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Game"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/GameViewPage"
                 }
               }
             },
@@ -4664,51 +4947,47 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the games the caller can see."
-      }
-    },
-    "/api/games/favourites": {
-      "get": {
-        "operationId": "getApiGamesFavourites",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Game"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "Error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Lists the games the caller has marked as favourites."
+        "summary": "Lists a page of the games the caller can see, and the total."
       }
     },
     "/api/games/new": {
+      "get": {
+        "description": "new game starts with and what the caller may do with it. Nothing is stored;\nthe client fills it in and creates the game with CreateGameEndpoint.",
+        "operationId": "getApiGamesNew",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameTemplate"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns the template for a game the caller creates: what a"
+      },
       "post": {
-        "description": "Only the name is required, at most 70 characters; the genre is one of the\nengine's genres and makes an adventure when empty.",
+        "description": "template, and answers with it as stored. Only the name is required, at\nmost 70 characters; making it public takes the template's mayPublish. In\na workshop, the game belongs to it.",
         "operationId": "postApiGamesNew",
         "requestBody": {
           "content": {
@@ -4725,7 +5004,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -4750,11 +5029,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Creates a game owned by the caller."
+        "summary": "Creates a game owned by the caller from the filled-in"
       }
     },
     "/api/games/{id}": {
       "delete": {
+        "description": "takes mayEditSettings (403 otherwise).",
         "operationId": "deleteApiGamesId",
         "parameters": [
           {
@@ -4771,7 +5051,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -4796,7 +5076,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Deletes a game and answers with it as it was."
+        "summary": "Deletes a game and answers with it as it was. Deleting"
       },
       "get": {
         "operationId": "getApiGamesId",
@@ -4815,7 +5095,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -4843,7 +5123,7 @@
         "summary": "Returns a game the caller can see."
       },
       "post": {
-        "description": "Takes the whole game; its name is at most 70 characters. Answers with the\ngame as stored.",
+        "description": "game as stored.\n\nSend what changes; a field left out stays as it is, and sending the whole\ngame back is fine: only what differs counts. Changing a section the caller\nmay not edit (mayEditCard, mayEditContent), or making the game public\nwithout mayPublish, refuses the whole request (403). The name is at most 70\ncharacters. Workshop, sponsor and creator are not changed here.",
         "operationId": "postApiGamesId",
         "parameters": [
           {
@@ -4870,7 +5150,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -4895,7 +5175,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Updates a game's properties."
+        "summary": "Changes a game's card and content and answers with the"
       }
     },
     "/api/games/{id}/api-key-status": {
@@ -4997,7 +5277,7 @@
     },
     "/api/games/{id}/clone": {
       "post": {
-        "description": "new private game of the caller's.",
+        "description": "and answers with the copy. It takes mayCopy (403 otherwise); the copy has\nthe game's card and content, not its images.",
         "operationId": "postApiGamesIdClone",
         "parameters": [
           {
@@ -5014,7 +5294,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -5039,11 +5319,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Copies a public game, or one of the caller's own, into a"
+        "summary": "Copies a game into a new private game of the caller's"
       }
     },
     "/api/games/{id}/favourite": {
       "delete": {
+        "description": "answers the same whatever the game: it gives nothing away.",
         "operationId": "deleteApiGamesIdFavourite",
         "parameters": [
           {
@@ -5085,9 +5366,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Removes a game from the caller's favourites."
+        "summary": "Removes a game from the caller's favorites. It"
       },
       "post": {
+        "description": "It takes reading the game (404 otherwise); marking twice changes nothing.",
         "operationId": "postApiGamesIdFavourite",
         "parameters": [
           {
@@ -5129,7 +5411,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Adds a game to the caller's favourites."
+        "summary": "Marks a game as one of the caller's favorites."
       }
     },
     "/api/games/{id}/private-share": {
@@ -5507,6 +5789,7 @@
     },
     "/api/games/{id}/yaml": {
       "get": {
+        "description": "takes seeing the game's content (hasContent; 403 otherwise).",
         "operationId": "getApiGamesIdYaml",
         "parameters": [
           {
@@ -5553,10 +5836,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Exports a game as a game file, YAML by default."
+        "summary": "Exports a game as a game file, YAML by default. It"
       },
       "put": {
-        "description": "answers with the game.\n\nThe file's content replaces the game's; its id is ignored.",
+        "description": "answers with the game as stored.\n\nThe file replaces the game's card and content; its id is ignored. It takes\nthe same rights as an update (mayEditCard, mayEditContent).",
         "operationId": "putApiGamesIdYaml",
         "parameters": [
           {
@@ -5588,7 +5871,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Game"
+                  "$ref": "#/components/schemas/GameView"
                 }
               }
             },
@@ -6974,6 +7257,24 @@
       "get": {
         "description": "Query: search (game name), sortBy (game, model for the AI platform,\nlastPlayed by default).",
         "operationId": "getApiSessions",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -7886,6 +8187,48 @@
       "get": {
         "description": "one institution.\n\nQuery: institutionId, search (name), sortBy (name, createdAt,\nparticipantCount), sortDir (asc, desc), activeOnly (\"true\" lists active\nworkshops only).",
         "operationId": "getApiWorkshops",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "institutionId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "activeOnly",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {

@@ -444,14 +444,14 @@ func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.U
 }
 
 // DeleteUser hard-deletes a user and cleans up all their data:
-// games, API keys (with cascade), shares, roles, favourites, workshop participant records,
+// games, API keys (with cascade), shares, roles, favorites, workshop participant records,
 // invites, and originally_created_by references.
 func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	// 1. Clean up games created by this user
 	gameIDs, _ := queries().GetGameIDsByCreator(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	for _, gameID := range gameIDs {
 		_ = queries().DeleteGameTagsByGameID(ctx, gameID)
-		_ = queries().DeleteFavouritesByGameID(ctx, gameID)
+		_ = queries().DeleteFavoritesByGameID(ctx, gameID)
 		_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
 		_ = queries().DeleteGameSharesByGameID(ctx, gameID)           // clean up game shares
 		_ = queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, gameID) // clear sponsored refs
@@ -484,8 +484,8 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	// 4. Delete workshop participant records for this user
 	_ = queries().DeleteWorkshopParticipantsByUserID(ctx, id)
 
-	// 5. Delete favourites
-	_ = queries().DeleteUserFavourites(ctx, id)
+	// 5. Delete favorites
+	_ = queries().DeleteUserFavorites(ctx, id)
 
 	// 6. Delete user roles
 	_ = queries().DeleteUserRoles(ctx, id)
