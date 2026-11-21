@@ -19,28 +19,6 @@ import (
 	"github.com/lib/pq"
 )
 
-// RemoveGame deletes a game with what hangs on it (tags, favorites, sessions,
-// share links and their guests, the game's key shares) and tells its workshop.
-// It checks no rights: the secure core (core.DeleteGame) has.
-func RemoveGame(ctx context.Context, gameID uuid.UUID, workshopID *uuid.UUID, by uuid.UUID) error {
-	_ = queries().DeleteGameTagsByGameID(ctx, gameID)
-	_ = queries().DeleteFavoritesByGameID(ctx, gameID)
-	// The game stays as a soft-deleted row, so its sessions go explicitly.
-	_, _ = queries().DeleteGameSessionsByGameID(ctx, gameID)
-	// Clean up game_share guest data before deleting game_shares
-	_ = DeleteGuestDataByGameID(ctx, gameID)
-	_ = queries().DeleteGameSharesByGameID(ctx, gameID)
-	_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
-
-	if err := queries().SoftDeleteGame(ctx, gameID); err != nil {
-		return err
-	}
-	if workshopID != nil {
-		events.GetBroker().PublishGameDeleted(*workshopID, gameID, by)
-	}
-	return nil
-}
-
 // CreateGame creates a new game. userID is set as the owner (createdBy).
 // If game.WorkshopID is set, validates that user has read access to that workshop.
 // For participants, automatically associates the game with their workshop.
@@ -189,7 +167,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	}
 
 	if existingGame.Public && !game.Public {
-		deleteGamePublicPageShares(ctx, game.ID)
+		DeleteGamePublicPageShares(ctx, game.ID)
 	}
 
 	// Publish game_updated event if game belongs to a workshop
@@ -198,26 +176,6 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	}
 
 	return nil
-}
-
-// AfterGameCreated is v1's side effect of creating a game, for the secure
-// core's create (core.CreateGame): a workshop's members hear of it.
-func AfterGameCreated(gameID uuid.UUID, workshopID *uuid.UUID, by uuid.UUID) {
-	if workshopID != nil {
-		events.GetBroker().PublishGameCreated(*workshopID, gameID, by)
-	}
-}
-
-// AfterGameUpdated is v1's side effects of changing a game, for the secure
-// core's update (core.UpdateGame): a game made private loses its links on
-// workshops' public pages, and a workshop's members hear of the change.
-func AfterGameUpdated(ctx context.Context, gameID uuid.UUID, workshopID *uuid.UUID, unpublished bool, by uuid.UUID) {
-	if unpublished {
-		deleteGamePublicPageShares(ctx, gameID)
-	}
-	if workshopID != nil {
-		events.GetBroker().PublishGameUpdated(*workshopID, gameID, by)
-	}
 }
 
 // UpdateGameFromFile replaces a game's content with a game file's. userID
