@@ -127,6 +127,36 @@ func (e TogglesEndpoint) Handle(ctx context.Context, req ToggleRequest) (Accepte
 	return Accepted{}, nil
 }
 
+// ConstraintFrequencyRequest sets how often a block's calls carry the
+// youth-protection rule.
+type ConstraintFrequencyRequest struct {
+	ID string `path:"id" json:"-"`
+	// Block names a threaded block, such as "expand".
+	Block string `json:"block"`
+	// Frequency is 1 for every call, up to 10 for every tenth.
+	Frequency int `json:"frequency"`
+}
+
+// ConstraintFrequencyEndpoint changes a block's constraint frequency during
+// play; the session keeps the change.
+type ConstraintFrequencyEndpoint struct{ API *API }
+
+func (ConstraintFrequencyEndpoint) Method() string { return "POST" }
+func (ConstraintFrequencyEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/constraint-frequency"
+}
+func (ConstraintFrequencyEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e ConstraintFrequencyEndpoint) Handle(ctx context.Context, req ConstraintFrequencyRequest) (Accepted, error) {
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return Accepted{}, err
+	}
+	if err := s.SetConstraintFrequency(req.Block, req.Frequency); err != nil {
+		return Accepted{}, rejected(err)
+	}
+	return Accepted{}, nil
+}
+
 // ConnectRequest carries the browser's offer to talk to the character.
 type ConnectRequest struct {
 	ID string `path:"id" json:"-"`

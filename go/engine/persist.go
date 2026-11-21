@@ -9,7 +9,7 @@ import (
 // SchemaVersion is the shape of what a session stores. A stored session of
 // another version is refused on resume: sessions are disposable, and the
 // player starts anew.
-const SchemaVersion = 1
+const SchemaVersion = 2
 
 // Stored is what a session keeps beside its event log: the spec with the
 // player's preference, never offers, and the state its blocks export.

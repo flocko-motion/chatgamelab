@@ -59,7 +59,8 @@ type (
 	ImageInput  = chan ImageData
 	PropsInput  = chan PropMap
 	StateInput  = chan State
-	StreamInput = chan Piece
+	StreamInput  = chan Piece
+	FailureInput = chan Failure
 )
 
 type (
@@ -69,5 +70,6 @@ type (
 	PropsBroadcast  = Broadcast[PropMap]
 	StateBroadcast  = Broadcast[State]
 	UsageBroadcast  = Broadcast[Usage]
-	StreamBroadcast = Broadcast[Piece]
+	StreamBroadcast  = Broadcast[Piece]
+	FailureBroadcast = Broadcast[Failure]
 )

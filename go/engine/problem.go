@@ -1,6 +1,10 @@
 package engine
 
-import "errors"
+import (
+	"errors"
+
+	"engine/internal/genre"
+)
 
 // Problem names why a session cannot start or go on, so the playback-engine
 // can tell the player in its own words.
@@ -40,12 +44,23 @@ func Problems() []Problem {
 // event, so the playback-engine can tell the player in its own words.
 type ErrorCode string
 
-// ErrorTurnFailed: the player's turn was dropped, as the model gave no usable
-// answer; the player may send it again.
-const ErrorTurnFailed ErrorCode = "turn_failed"
+const (
+	// ErrorTurnFailed: a call of the player's turn failed, so the turn was
+	// dropped; the player may send their line again.
+	ErrorTurnFailed ErrorCode = genre.CodeTurnFailed
+	// ErrorImageFailed: a picture could not be made; the turn stands.
+	ErrorImageFailed ErrorCode = genre.CodeImageFailed
+)
 
 // ErrorCodes is every error code, the source of the generated TypeScript union.
-func ErrorCodes() []ErrorCode { return []ErrorCode{ErrorTurnFailed} }
+func ErrorCodes() []ErrorCode { return []ErrorCode{ErrorTurnFailed, ErrorImageFailed} }
+
+// ErrorReport is an error the game goes on after, as JSON in an `error`
+// event's value: the code, and the text the failed block was given.
+type ErrorReport struct {
+	Code ErrorCode `json:"code"`
+	Text string    `json:"text"`
+}
 
 // Refusal is an error that names its problem. It travels as JSON in a
 // transport's error body and on the `problem` stream.

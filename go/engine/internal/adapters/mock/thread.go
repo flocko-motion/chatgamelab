@@ -17,18 +17,14 @@ import (
 // is the turn the thread has reached.
 const threadPrefix = "mock-thread-"
 
-// Thread answers each call with its turn number, so a resumed thread is told
-// apart from a fresh one: a continuation goes on counting, a fresh thread
-// seeded with a transcript counts on from its exchanges, and a fresh thread
-// starts at one. The reply streams word by word, spread over the Pace.
+// Thread answers each call with its turn number, which a continuation or a
+// seeding transcript carries on, streamed word by word over the Pace.
 //
 // A plain turn answers "[story turn N]" and its input. A structured turn
-// answers JSON of its schema's shape, read from an input that is a JSON
-// object, as the structured block sends it: each text field says
-// "[<field> N]" and the input's "input" field, and each field of an object,
-// such as a status value, carries the input's value forward marked
-// "[turn N]", so a test sees it change.
-// A spoken turn follows each word with a PCM16 tone, billed as audio tokens.
+// answers JSON of its schema: each text field "[<field> N]" and the action,
+// each object field its value carried on, marked "[turn N]". A cue that is no
+// JSON stands in for the action. A spoken turn follows each word with a PCM16
+// tone, billed as audio tokens.
 type Thread struct {
 	Pace Pace
 	// Name is the model the thread runs on; empty is mock-story.
@@ -79,7 +75,10 @@ func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapter
 		}
 	}
 
-	seen := len(turn.Instructions) + len(turn.Input)
+	seen := len(turn.Input) + len(turn.Constraints)
+	if turn.Continuation.ID == "" {
+		seen += len(turn.System)
+	}
 	used := adapters.Usage{
 		Model:        t.Model(),
 		InputTokens:  int64(400 + seen),
@@ -100,13 +99,15 @@ func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapter
 }
 
 // marker is the turn mark a carried value ends in, replaced on each turn.
-var marker = regexp.MustCompile(` \[turn \d+\]$`)
+var marker = regexp.MustCompile(`\s*\[turn \d+\]$`)
 
 // structured builds a reply of the schema's shape for turn n.
 func structured(schema map[string]any, input string, n int) string {
 	var in map[string]any
-	_ = json.Unmarshal([]byte(input), &in)
-	said, _ := in["input"].(string)
+	said := input
+	if json.Unmarshal([]byte(input), &in) == nil {
+		said, _ = in["input"].(string)
+	}
 
 	reply := map[string]any{}
 	for name, property := range properties(schema) {

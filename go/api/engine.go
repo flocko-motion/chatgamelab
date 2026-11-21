@@ -39,6 +39,7 @@ type (
 	EngineAccepted      = engineapi.Accepted
 	EngineChooseReq     = engineapi.ChooseRequest
 	EngineToggleReq     = engineapi.ToggleRequest
+	EngineFrequencyReq  = engineapi.ConstraintFrequencyRequest
 	EngineConnectReq    = engineapi.ConnectRequest
 	EngineConnectResp   = engineapi.ConnectResponse
 	EngineSessionReq    = engineapi.SessionRequest
@@ -170,6 +171,37 @@ func (EngineTogglesEndpoint) Handle(ctx context.Context, req EngineToggleReq) (E
 		return EngineAccepted{}, err
 	}
 	return engineapi.TogglesEndpoint{API: Engine}.Handle(ctx, req)
+}
+
+// EngineConstraintFrequencyEndpoint sets how often a block of a session
+// repeats the youth-protection rule.
+//
+// Staff and heads only. 1 repeats it with every call, up to 10 with every
+// tenth; the session keeps the change. The System Message and the opening
+// always carry the rule.
+type EngineConstraintFrequencyEndpoint struct{}
+
+func (EngineConstraintFrequencyEndpoint) Method() string { return "POST" }
+func (EngineConstraintFrequencyEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/constraint-frequency"
+}
+func (EngineConstraintFrequencyEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineConstraintFrequencyEndpoint) Handle(ctx context.Context, req EngineFrequencyReq) (EngineAccepted, error) {
+	ctx, _, err := engineSession(ctx, req.ID)
+	if err != nil {
+		return EngineAccepted{}, err
+	}
+	if !tunesYouthProtection(playerFrom(ctx)) {
+		return EngineAccepted{}, engineapi.Refusal(engine.Refuse(engine.ProblemDenied, "only staff and heads change how often the youth-protection rule repeats"))
+	}
+	return engineapi.ConstraintFrequencyEndpoint{API: Engine}.Handle(ctx, req)
+}
+
+// tunesYouthProtection says whether a player may change how often a session
+// repeats the youth-protection rule: staff and heads may.
+func tunesYouthProtection(player *obj.User) bool {
+	return player != nil && player.Role != nil &&
+		(player.Role.Role == obj.RoleStaff || player.Role.Role == obj.RoleHead)
 }
 
 // EngineConnectEndpoint brokers the browser's offer to talk to a session's character.

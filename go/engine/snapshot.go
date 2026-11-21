@@ -13,6 +13,9 @@ const TextDiscard = string(ports.PieceDiscard)
 // AudioDiscard, an empty audio frame, drops the speech playing and queued.
 var AudioDiscard = string(ports.AudioDiscard)
 
+// TextReplace starts a value that replaces the open utterance's text.
+const TextReplace = string(ports.PieceReplace)
+
 // Snapshot is everything a client needs to rebuild its view without having
 // watched the session happen — which is what a page reload is.
 //
@@ -90,6 +93,11 @@ func (r *recorder) record(e SessionEvent) []SessionEvent {
 	}
 	kept := []SessionEvent{e}
 	if e.Stream == "text" {
+		if replacement, ok := strings.CutPrefix(e.Value, TextReplace); ok {
+			r.open.Reset()
+			r.open.WriteString(replacement)
+			return nil
+		}
 		switch e.Value {
 		case TextDiscard:
 			r.open.Reset()

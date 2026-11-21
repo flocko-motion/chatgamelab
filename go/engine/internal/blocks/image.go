@@ -2,6 +2,8 @@ package blocks
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"engine/internal/adapters"
 	"engine/internal/ports"
@@ -11,10 +13,18 @@ import (
 // else: how often it runs is settled by whatever feeds it, so the same block is
 // NPC-Live's one portrait when the init stem hands it a single prompt, and
 // Adventure's per-turn illustration when the loop does.
+//
+// A failure that may pass is retried after each Backoff; a call that fails
+// for good sends its prompt on the failure output.
 type Image struct {
 	Switch
+	failing
 	name  string
 	image adapters.Image
+
+	// Backoff is the wait before each retry of a failure that may pass. Set
+	// before Start.
+	Backoff []time.Duration
 
 	in    ports.TextInput
 	out   ports.ImageBroadcast
@@ -31,7 +41,12 @@ func NewImage(name string, image adapters.Image) *Image {
 	if image == nil {
 		panic("blocks: " + name + " needs an image adapter")
 	}
-	return &Image{name: name, image: image, in: make(ports.TextInput, 16)}
+	return &Image{
+		name:    name,
+		image:   image,
+		Backoff: []time.Duration{time.Second, 2 * time.Second, 4 * time.Second},
+		in:      make(ports.TextInput, 16),
+	}
 }
 
 func (b *Image) NodeName() string                     { return b.name }
@@ -48,7 +63,7 @@ func (b *Image) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 func (b *Image) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.out.Close(); b.state.Close(); b.usage.Close() }()
+		defer func() { b.out.Close(); b.failure.Close(); b.state.Close(); b.usage.Close() }()
 
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 
@@ -63,20 +78,45 @@ func (b *Image) Start(ctx context.Context) {
 
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 				// Off, the prompt is dropped; the cycle still completes for the gate.
-				if b.Active() {
-					data, used, err := b.image.Generate(ctx, adapters.ImageRequest{Prompt: prompt})
-					if err == nil {
-						b.report(used)
-						b.out.Send(ports.ImageData(data))
-					}
+				if !b.Active() {
+					b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+					continue
 				}
-				// Reported even when the call failed: a block owes the gate a
-				// working-then-ready cycle whatever came of the work, or one
-				// broken optional step holds the game shut forever.
+				data, err := b.generate(ctx, prompt)
+				if ctx.Err() != nil {
+					return
+				}
+				if err != nil {
+					// Ready all the same: a block owes the gate a
+					// working-then-ready cycle whatever came of the work.
+					b.fail(&b.state, b.name, prompt, err)
+					continue
+				}
+				b.out.Send(ports.ImageData(data))
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 			}
 		}
 	}()
+}
+
+// generate makes the picture, retrying a failure that may pass after each backoff.
+func (b *Image) generate(ctx context.Context, prompt string) ([]byte, error) {
+	for attempt := 0; ; attempt++ {
+		data, used, err := b.image.Generate(ctx, adapters.ImageRequest{Prompt: prompt})
+		if err == nil {
+			b.report(used)
+			return data, nil
+		}
+		if !errors.Is(err, adapters.ErrTransient) {
+			return nil, err
+		}
+		if attempt == len(b.Backoff) {
+			return nil, errExhausted{err}
+		}
+		if !sleep(ctx, b.Backoff[attempt]) {
+			return nil, ctx.Err()
+		}
+	}
 }
 
 // report accumulates and publishes the running total, so a late subscriber sees

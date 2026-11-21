@@ -2,6 +2,7 @@ package blocks_test
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"testing"
@@ -13,20 +14,28 @@ import (
 	"engine/internal/ports"
 )
 
-// threadedBlock is one started block and what it puts out.
+// threadedBlock is one block, subscribed to what it puts out.
 type threadedBlock struct {
 	*blocks.Threaded
-	stream <-chan ports.Piece
-	whole  <-chan string
-	states <-chan ports.State
+	stream  <-chan ports.Piece
+	whole   <-chan string
+	failure <-chan string
+	states  <-chan ports.State
 }
 
+// startThreaded builds a block whose message is "first as <name>" right after
+// the game's own message on the thread, "then as <name>" otherwise; the
+// caller starts it. A threaded block's own message is the game's, so a block
+// after another on the thread sends its first.
 func startThreaded(t *testing.T, thread *blocks.Thread, name string) threadedBlock {
 	t.Helper()
-	b := blocks.NewThreaded(name, thread, "act as "+name)
+	b := blocks.NewThreaded(name, thread, blocks.Prompt{First: "first as " + name, Then: "then as " + name})
 	b.Backoff = []time.Duration{0, 0}
-	tb := threadedBlock{Threaded: b, stream: b.StreamOutPort(), whole: b.TextOutPort(), states: b.StateOutPort()}
-	return tb
+	return threadedBlock{Threaded: b, stream: b.StreamOutPort(), whole: b.TextOutPort(), failure: b.FailureOutPort(), states: b.StateOutPort()}
+}
+
+func newThread(adapter adapters.Thread) *blocks.Thread {
+	return blocks.NewThread("story-thread", adapter, "the system message", "NARRATION RULES must be respected: be kind")
 }
 
 // reply collects one streamed reply up to its close.
@@ -50,13 +59,14 @@ func joined(pieces []ports.Piece) string {
 	return b.String()
 }
 
-// Outline and Expand are two blocks on one thread: Expand's call continues
-// the conversation Outline's call left, and the thread's state carries both.
+// Two blocks on one thread: the second's call continues the conversation the
+// first's call left, and the thread's state carries both. The text a block
+// receives makes the call; its message is its prompt.
 func TestTwoThreadedBlocksShareOneThread(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	thread := blocks.NewThread("story-thread", mock.Thread{})
+	thread := newThread(mock.Thread{})
 	outline := startThreaded(t, thread, "outline")
 	expand := startThreaded(t, thread, "expand")
 	outline.Start(ctx)
@@ -64,7 +74,7 @@ func TestTwoThreadedBlocksShareOneThread(t *testing.T) {
 
 	outline.TextInPort() <- "The player crosses."
 	plot := receive(t, outline.whole, "the outline")
-	if plot != "[story turn 1] The player crosses." {
+	if plot != "[story turn 1] then as outline" {
 		t.Fatalf("outline said %q", plot)
 	}
 	if got := joined(reply(t, outline.stream)); got != plot {
@@ -78,7 +88,7 @@ func TestTwoThreadedBlocksShareOneThread(t *testing.T) {
 	}
 
 	state := thread.ExportState()
-	for _, want := range []string{`"id":"mock-thread-2"`, `"model":"mock-story"`, `"input":"The player crosses."`} {
+	for _, want := range []string{`"id":"mock-thread-2"`, `"model":"mock-story"`, `"block":"outline"`, `"input":"then as outline"`} {
 		if !strings.Contains(state, want) {
 			t.Errorf("exported state %s lacks %s", state, want)
 		}
@@ -90,7 +100,7 @@ func TestRestoredThreadContinues(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	first := blocks.NewThread("story-thread", mock.Thread{})
+	first := newThread(mock.Thread{})
 	b := startThreaded(t, first, "expand")
 	b.Start(ctx)
 	b.TextInPort() <- "one"
@@ -100,10 +110,13 @@ func TestRestoredThreadContinues(t *testing.T) {
 
 	ctx2, cancel2 := context.WithCancel(context.Background())
 	defer cancel2()
-	resumed := blocks.NewThread("story-thread", mock.Thread{})
+	resumed := newThread(mock.Thread{})
 	resumed.RestoreState(stored)
 	again := startThreaded(t, resumed, "expand")
 	again.Start(ctx2)
+	// The block made its first call before the session was stored, so it owes
+	// whatever waits on that call a cycle as it starts.
+	expectPhases(t, again.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 	again.TextInPort() <- "two"
 	if got := receive(t, again.whole, "the resumed reply"); !strings.HasPrefix(got, "[story turn 2]") {
 		t.Errorf("a resumed thread said %q, want turn 2", got)
@@ -117,7 +130,7 @@ func TestThreadRunsInTurn(t *testing.T) {
 	defer cancel()
 
 	adapter := &scriptedThread{}
-	thread := blocks.NewThread("story-thread", adapter)
+	thread := newThread(adapter)
 	outline := startThreaded(t, thread, "outline")
 	expand := startThreaded(t, thread, "expand")
 	outline.Start(ctx)
@@ -132,7 +145,7 @@ func TestThreadRunsInTurn(t *testing.T) {
 	receive(t, expand.whole, "expand 1")
 	receive(t, outline.whole, "outline 2")
 
-	if got := adapter.inputs(); strings.Join(got, ",") != "turn 1,expand 1,turn 2" {
+	if got := adapter.inputs(); strings.Join(got, ",") != "then as outline,first as expand,first as outline" {
 		t.Errorf("calls ran as %v, want in turn", got)
 	}
 }
@@ -144,7 +157,7 @@ func TestThreadedRetriesABrokenStream(t *testing.T) {
 	defer cancel()
 
 	adapter := &scriptedThread{breaks: 1}
-	thread := blocks.NewThread("story-thread", adapter)
+	thread := newThread(adapter)
 	thread.RestoreState(`{"continuation":{"id":"resp_7"}}`)
 	b := startThreaded(t, thread, "expand")
 	b.Start(ctx)
@@ -171,7 +184,7 @@ func TestThreadedRetryDiscardsSpokenAudio(t *testing.T) {
 	defer cancel()
 
 	adapter := &scriptedThread{breaks: 1}
-	b := startThreaded(t, blocks.NewThread("story-thread", adapter), "expand")
+	b := startThreaded(t, newThread(adapter), "expand")
 	b.Narration().SetActive(true)
 	audio := b.AudioOutPort()
 	b.Start(ctx)
@@ -194,7 +207,7 @@ func TestThreadedSpeaksWhileNarrationIsOn(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	thread := blocks.NewThread("story-thread", mock.Thread{Name: "mock-realtime"})
+	thread := newThread(mock.Thread{Name: "mock-realtime"})
 	outline := startThreaded(t, thread, "outline")
 	expand := startThreaded(t, thread, "expand")
 	audio := expand.AudioOutPort()
@@ -244,7 +257,7 @@ func TestThreadSwitchesModelMidGame(t *testing.T) {
 
 	var slot adapters.ThreadSlot
 	slot.Set(mock.Thread{}, "offer")
-	thread := blocks.NewThread("story-thread", &slot)
+	thread := newThread(&slot)
 	// A continuation that counts apart from its transcript, so a continued
 	// thread and a reseeded one say different turns.
 	thread.RestoreState(`{"continuation":{"id":"mock-thread-7","offer":"offer","model":"mock-story"},` +
@@ -269,19 +282,31 @@ func TestThreadSwitchesModelMidGame(t *testing.T) {
 	}
 }
 
-// A failure that will not pass ends the game, naming a rejected key.
+// A failure that will not pass is not made again: the text the block was
+// given goes out on the failure output, naming a rejected key, the thread's
+// turn is handed on, and the block is ready for the next.
 func TestThreadedFailsOnAHardError(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	adapter := &scriptedThread{hard: adapters.ErrKeyRejected}
-	b := startThreaded(t, blocks.NewThread("story-thread", adapter), "expand")
+	b := startThreaded(t, newThread(adapter), "expand")
 	b.Start(ctx)
 
-	b.TextInPort() <- "go"
-	failed := expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseFailed)
+	b.TextInPort() <- "the outline"
+	if got := receive(t, b.failure, "the failed text"); got != "the outline" {
+		t.Errorf("failure output carried %q, want the text the block was given", got)
+	}
+	failed := expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 	if failed.Reason != ports.ReasonKeyRejected {
 		t.Errorf("reason %q, want %q", failed.Reason, ports.ReasonKeyRejected)
+	}
+
+	// The turn came back round, so the next call is made.
+	adapter.heal()
+	b.TextInPort() <- "the next outline"
+	if got := receive(t, b.whole, "the next reply"); got != "whole reply" {
+		t.Errorf("after a failure, said %q", got)
 	}
 }
 
@@ -291,18 +316,109 @@ func TestThreadedGivesUp(t *testing.T) {
 	defer cancel()
 
 	adapter := &scriptedThread{breaks: 10}
-	b := startThreaded(t, blocks.NewThread("story-thread", adapter), "expand")
+	b := startThreaded(t, newThread(adapter), "expand")
 	b.Start(ctx)
 
 	b.TextInPort() <- "go"
-	failed := expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseFailed)
+	receive(t, b.failure, "the failed text")
+	failed := expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 	if failed.Reason != ports.ReasonUnreachable {
 		t.Errorf("reason %q, want %q", failed.Reason, ports.ReasonUnreachable)
 	}
 }
 
+// The thread sends its System Message with every turn, for the adapter to
+// open a provider thread with; the block's message is the game's own; and the
+// constraints come with every call of a block at frequency 1, with every
+// third at 3, counted per block from the transcript.
+func TestConstraintFrequency(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	adapter := &scriptedThread{}
+	b := startThreaded(t, newThread(adapter), "expand")
+	if err := b.SetConstraintFrequency(3); err != nil {
+		t.Fatal(err)
+	}
+	b.Start(ctx)
+	for i := range 4 {
+		b.TextInPort() <- "go"
+		receive(t, b.whole, fmt.Sprintf("reply %d", i))
+	}
+
+	var carried []bool
+	for _, turn := range adapter.turns() {
+		if turn.System != "the system message" || !turn.Directive {
+			t.Errorf("turn %+v, want the System Message and the game's own message", turn)
+		}
+		carried = append(carried, turn.Constraints == "NARRATION RULES must be respected: be kind")
+	}
+	if fmt.Sprint(carried) != "[true false false true]" {
+		t.Errorf("constraints carried %v, want on the first call and every third", carried)
+	}
+
+	for _, n := range []int{0, 11} {
+		if err := b.SetConstraintFrequency(n); err == nil {
+			t.Errorf("frequency %d accepted", n)
+		}
+	}
+}
+
+// A reply tidied after it streamed is replaced on the stream before it
+// closes, and the whole reply is the tidied one.
+func TestThreadedReplacesATidiedReply(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	b := startThreaded(t, newThread(&scriptedThread{}), "expand")
+	b.Clean = func(s string) string { return strings.ToUpper(s) }
+	b.Start(ctx)
+
+	b.TextInPort() <- "go"
+	pieces := reply(t, b.stream)
+	want := []ports.Piece{"whole ", "reply", ports.Replacement("WHOLE REPLY"), ports.PieceClose}
+	if fmt.Sprint(pieces) != fmt.Sprint(want) {
+		t.Errorf("streamed %q, want %q", pieces, want)
+	}
+	if got := receive(t, b.whole, "the reply"); got != "WHOLE REPLY" {
+		t.Errorf("whole reply %q, want the tidied one", got)
+	}
+}
+
+// A reply with nothing left once tidied is discarded and asked again; after
+// three, the call fails.
+func TestThreadedAsksAgainWhenNothingIsLeft(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	adapter := &scriptedThread{}
+	b := startThreaded(t, newThread(adapter), "expand")
+	b.Clean = func(string) string { return "" }
+	b.Start(ctx)
+
+	b.TextInPort() <- "the outline"
+	if got := receive(t, b.failure, "the failed text"); got != "the outline" {
+		t.Errorf("failure output carried %q", got)
+	}
+	failed := expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
+	if failed.Reason != ports.ReasonBadReply {
+		t.Errorf("reason %q, want %q", failed.Reason, ports.ReasonBadReply)
+	}
+	if n := len(adapter.turns()); n != 3 {
+		t.Errorf("%d calls, want 3", n)
+	}
+	var pieces []ports.Piece
+	for range 9 {
+		pieces = append(pieces, receive(t, b.stream, "a piece"))
+	}
+	attempt := fmt.Sprint([]ports.Piece{"whole ", "reply", ports.PieceDiscard})
+	if fmt.Sprint(pieces[0:3]) != attempt || fmt.Sprint(pieces[3:6]) != attempt || fmt.Sprint(pieces[6:9]) != attempt {
+		t.Errorf("streamed %q, want each attempt discarded", pieces)
+	}
+}
+
 // scriptedThread answers "whole reply", after breaking partway the first
-// breaks times, or fails with hard.
+// breaks times, or fails with hard until healed.
 type scriptedThread struct {
 	mu     sync.Mutex
 	breaks int
@@ -319,10 +435,11 @@ func (s *scriptedThread) Continue(_ context.Context, turn adapters.ThreadTurn) (
 	if breaking {
 		s.breaks--
 	}
+	hard := s.hard
 	s.mu.Unlock()
 
-	if s.hard != nil {
-		return adapters.ThreadReply{}, s.hard
+	if hard != nil {
+		return adapters.ThreadReply{}, hard
 	}
 	if breaking {
 		turn.Hear("half ")
@@ -341,6 +458,18 @@ func (s *scriptedThread) Continue(_ context.Context, turn adapters.ThreadTurn) (
 		Usage:        adapters.Usage{Model: "fake-story", InputTokens: 10, OutputTokens: 2},
 		Continuation: adapters.Continuation{ID: "resp_next", Model: "fake-story"},
 	}, nil
+}
+
+func (s *scriptedThread) heal() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.hard = nil
+}
+
+func (s *scriptedThread) turns() []adapters.ThreadTurn {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]adapters.ThreadTurn(nil), s.calls...)
 }
 
 func (s *scriptedThread) inputs() []string {

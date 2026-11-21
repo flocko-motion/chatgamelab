@@ -61,23 +61,33 @@ func (s *Session) watchKeys() {
 	s.slots.thread.Report = report
 }
 
-// fail ends a game a block cannot go on with, telling the player why. A
-// rejected key the slots have already told is not told twice.
-func (s *Session) fail(state ports.State) {
-	problem := ProblemFailed
-	switch state.Reason {
+// failed ends a game a problem sink was reached in, telling the player why,
+// by the failed call's reason. A rejected key the slots have already told is
+// not told twice.
+func (s *Session) failed(value string) {
+	var failure ports.Failure
+	_ = json.Unmarshal([]byte(value), &failure)
+	problem := problemOf(failure.Reason)
+	s.ended.Do(func() {
+		s.mu.Lock()
+		told := problem == ProblemKeyRejected && s.toldRejected
+		s.mu.Unlock()
+		if !told {
+			s.problem(&Refusal{Problem: problem, Message: fmt.Sprintf("%s: %s", failure.Node, failure.Message)})
+		}
+		s.endAfterDelivery()
+	})
+}
+
+// problemOf names the problem a block's failure reason is.
+func problemOf(reason string) Problem {
+	switch reason {
 	case ports.ReasonKeyRejected:
-		problem = ProblemKeyRejected
+		return ProblemKeyRejected
 	case ports.ReasonUnreachable:
-		problem = ProblemUnreachable
+		return ProblemUnreachable
 	}
-	s.mu.Lock()
-	told := problem == ProblemKeyRejected && s.toldRejected
-	s.mu.Unlock()
-	if !told {
-		s.problem(&Refusal{Problem: problem, Message: fmt.Sprintf("%s: %s", state.Node, state.Message)})
-	}
-	s.endAfterDelivery()
+	return ProblemFailed
 }
 
 // problem puts a refusal on the `problem` stream.

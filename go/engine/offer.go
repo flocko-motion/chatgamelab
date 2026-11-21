@@ -119,6 +119,18 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 		}
 	}
 
+	for _, name := range slices.Sorted(maps.Keys(spec.ConstraintFrequency)) {
+		if err := genre.CheckConstraintFrequency(genreConstrained(spec.Genre), name, spec.ConstraintFrequency[name]); err != nil {
+			report(SeverityError, "constraintFrequency."+name, "%v", err)
+		}
+	}
+
+	for i, value := range spec.Dice {
+		if value < 1 || value > 100 {
+			report(SeverityError, fmt.Sprintf("dice[%d]", i), "value %d: want 1 to 100", value)
+		}
+	}
+
 	if spec.Theme != "" && !knownTheme(spec.Theme) {
 		report(SeverityWarning, "theme", "unknown theme %q, so the default look applies", spec.Theme)
 	}
@@ -460,6 +472,14 @@ func genrePrompts(g Genre) []string {
 		return slices.Sorted(maps.Keys(genre.AdventurePrompts))
 	case GenreNPCLive:
 		return slices.Sorted(maps.Keys(genre.NPCLivePrompts))
+	}
+	return nil
+}
+
+// genreConstrained is every block whose constraint frequency a spec may set.
+func genreConstrained(g Genre) []string {
+	if g == GenreAdventure {
+		return genre.AdventureConstrained()
 	}
 	return nil
 }

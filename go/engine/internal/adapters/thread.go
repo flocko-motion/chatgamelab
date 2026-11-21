@@ -8,10 +8,15 @@ import (
 // Exchange is one call on a thread: what was sent and the whole reply. A
 // thread's transcript is its exchanges, oldest first.
 type Exchange struct {
-	// Instructions are the call's own: blocks sharing a thread differ in them.
-	Instructions string `json:"instructions,omitempty"`
-	Input        string `json:"input"`
-	Reply        string `json:"reply"`
+	// Block is the block that made the call, so each block counts its own.
+	Block string `json:"block,omitempty"`
+	Input string `json:"input"`
+	// Directive says the input is the game's own message, not the player's.
+	Directive bool `json:"directive,omitempty"`
+	// Constraints are what the call carried of the youth-protection rule,
+	// worded; empty when the call carried none.
+	Constraints string `json:"constraints,omitempty"`
+	Reply       string `json:"reply"`
 }
 
 // Continuation is what continuing a provider's thread needs back: the
@@ -30,9 +35,18 @@ type Continuation struct {
 
 // ThreadTurn is one call that continues a thread.
 type ThreadTurn struct {
-	// Instructions are sent with every call, as a thread carries none over.
-	Instructions string
-	Input        string
+	// System is the thread's System Message. It is sent once, at the start of
+	// a provider thread, a fresh one seeded from the transcript included; a
+	// continued thread already holds it.
+	System string
+	Input  string
+	// Directive sends the input as the game's own message: a developer
+	// message on OpenAI. Mistral has no such role, and sends it as the user's.
+	Directive bool
+	// Constraints are the youth-protection rule, worded, for this call; empty
+	// sends none. They never share a message with designer text where the
+	// provider has a message of their own for them.
+	Constraints string
 	// Schema makes the turn structured: the reply is JSON of this shape. Nil
 	// is a plain turn, its reply free text.
 	Schema *Schema
@@ -51,6 +65,11 @@ type ThreadTurn struct {
 	// Audio hears each chunk of a spoken reply as it arrives, 24 kHz mono
 	// PCM16; nil hears nothing.
 	Audio func([]byte)
+}
+
+// Exchange is the turn as its transcript keeps it, once the reply is in.
+func (t ThreadTurn) Exchange(block, reply string) Exchange {
+	return Exchange{Block: block, Input: t.Input, Directive: t.Directive, Constraints: t.Constraints, Reply: reply}
 }
 
 // ThreadReply is a finished call: the whole reply, what it cost, and the

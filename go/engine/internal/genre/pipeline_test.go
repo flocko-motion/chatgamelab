@@ -28,7 +28,7 @@ func TestPipelines(t *testing.T) {
 		want map[string][]string
 	}{
 		{
-			name: "adventure runs one action through the whole pipeline",
+			name: "adventure opens, then runs one action through the whole pipeline",
 			build: func() *Wiring {
 				w := mustAdventure(t, map[string]string{"Health": "Good"})
 				narrate(w, true)
@@ -36,15 +36,14 @@ func TestPipelines(t *testing.T) {
 			},
 			say: []string{"I try to cross the bridge"},
 			want: map[string][]string{
-				// The rephrase, outline and expand stages each leave their
-				// mark, in order, which is what makes this a pipeline test
-				// rather than an output test. Outline takes the thread's first
-				// turn, Expand its second.
-				"text":  {"[story turn 2] [outline 1] [mock-tool] I try to cross the bridge"},
-				"image": {"<png of [image_prompt 1] [mock-tool] I try to cross the bridge>"},
-				// Expand's turn is spoken; any audio frame is a start.
-				"audio": {""},
-				"props": {`{"Health":"Good"}`, `{"Health":"Good [turn 1]"}`},
+				// The world opens: Outline takes the thread's first turn on
+				// the cue, Expand its second on the opening prompt. Then the
+				// player's action: Outline's third, Expand's fourth.
+				"text":  {"[story turn 2] NARRATE the opening scene", "[story turn 4] NARRATE the outline"},
+				"image": {"data:image/png;base64,", "data:image/png;base64,"},
+				// Expand's turns are spoken; any audio frame is a start.
+				"audio": {"", ""},
+				"props": {`{"Health":"Good"}`, `{"Health":"[turn 1]"}`, `{"Health":"[turn 3]"}`},
 			},
 		},
 		{
@@ -52,9 +51,9 @@ func TestPipelines(t *testing.T) {
 			build: func() *Wiring { return mustAdventure(t, nil) },
 			say:   []string{"I look around", "I keep walking"},
 			want: map[string][]string{
-				// Turn 4, not turn 2 again: Outline and Expand continue one
+				// Turn 6, not turn 2 again: Outline and Expand continue one
 				// conversation rather than starting one per action.
-				"text": {"[story turn 2]", "[story turn 4]"},
+				"text": {"[story turn 2]", "[story turn 4]", "[story turn 6]"},
 			},
 		},
 		{
@@ -117,8 +116,8 @@ func TestPipelines(t *testing.T) {
 			}
 
 			for stream, expected := range tc.want {
-				sink, wired := w.Sinks()[stream]
-				if !wired {
+				sink := streamOf(w, stream)
+				if sink == nil {
 					t.Fatalf("genre wires no %q output, so nothing can arrive on it", stream)
 				}
 				if stream == "text" && w.Live == nil {
@@ -207,7 +206,7 @@ func TestLiveGenreTalksWithoutTypedInput(t *testing.T) {
 		t.Fatalf("connect: %v", err)
 	}
 
-	assertInOrder(t, "text", w.Sinks()["text"], []string{
+	assertInOrder(t, "text", streamOf(w, "text"), []string{
 		"You shall not pass.",
 		"I suppose the rules bend",
 	})
@@ -350,19 +349,22 @@ func TestAdventureResumesItsThread(t *testing.T) {
 		defer cancel()
 		w.Graph.Start(ctx)
 		w.Say(line)
-		assertInOrder(t, "text", utterances(w.Sinks()["text"]), []string{want})
+		assertInOrder(t, "text", utterances(streamOf(w, "text")), []string{want})
 	}
 
 	first := mustAdventure(t, nil)
-	play(first, "I look around", "[story turn 2]")
+	play(first, "I look around", "[story turn 4]")
 	stored := first.Graph.ExportState()
-	if !strings.Contains(stored["story-thread"], `"id":"mock-thread-2"`) {
+	if !strings.Contains(stored["story-thread"], `"id":"mock-thread-4"`) {
 		t.Fatalf("stored state = %v, want the story thread's continuation", stored)
 	}
 
+	// The resumed game opens no second time, releases the player at once, and
+	// goes on with the same thread: its next prose is turn 6, not a new
+	// opening at turn 6 and the action at turn 8.
 	resumed := mustAdventure(t, nil)
 	if err := resumed.Graph.RestoreState(stored); err != nil {
 		t.Fatal(err)
 	}
-	play(resumed, "I keep walking", "[story turn 4]")
+	play(resumed, "I keep walking", "[story turn 6] NARRATE the outline")
 }

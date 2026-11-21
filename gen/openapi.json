@@ -257,6 +257,21 @@
         ],
         "type": "object"
       },
+      "ConstraintFrequencyRequest": {
+        "properties": {
+          "block": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "block",
+          "frequency"
+        ],
+        "type": "object"
+      },
       "CreateApiKeyReq": {
         "properties": {
           "key": {
@@ -3890,6 +3905,57 @@
           }
         ],
         "summary": "Brokers the browser's offer to talk to a session's character."
+      }
+    },
+    "/api/engine/sessions/{id}/constraint-frequency": {
+      "post": {
+        "description": "repeats the youth-protection rule.\n\nStaff and heads only. 1 repeats it with every call, up to 10 with every\ntenth; the session keeps the change. The System Message and the opening\nalways carry the rule.",
+        "operationId": "postApiEngineSessionsIdConstraint-frequency",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstraintFrequencyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets how often a block of a session"
       }
     },
     "/api/engine/sessions/{id}/edges/{from}/{to}/{kind}": {

@@ -171,3 +171,64 @@ func (b *PlayerOutputStream) Start(ctx context.Context) {
 		}
 	}()
 }
+
+// ErrorSink is where a failure the game goes on after ends: each goes out on
+// the `error` stream with the sink's code and the failed call's input, as the
+// JSON object {"code", "text"}, so the playback-engine tells the player in
+// their language, and may give the text back.
+type ErrorSink struct {
+	recorder
+	code string
+	in   ports.FailureInput
+}
+
+func NewErrorSink(name, code string) *ErrorSink {
+	return &ErrorSink{recorder: newRecorder(name, "error"), code: code, in: make(ports.FailureInput, 16)}
+}
+
+func (b *ErrorSink) FailureInPort() chan<- ports.Failure { return b.in }
+func (b *ErrorSink) RequiredInputs() []ports.Kind        { return []ports.Kind{ports.KindFailure} }
+
+func (b *ErrorSink) Start(ctx context.Context) {
+	go func() {
+		for f := range b.in {
+			blob, err := json.Marshal(map[string]string{"code": b.code, "text": f.Input})
+			if err != nil {
+				continue
+			}
+			if !b.record(ctx, string(blob)) {
+				return
+			}
+		}
+	}()
+}
+
+// ProblemSink is where a failure the game cannot go on after ends: each
+// arrives as the JSON object {"node", "reason", "message"}, without the input,
+// for the session to put on the `problem` stream, named by its reason, and end.
+type ProblemSink struct {
+	recorder
+	in ports.FailureInput
+}
+
+func NewProblemSink(name string) *ProblemSink {
+	return &ProblemSink{recorder: newRecorder(name, "problem"), in: make(ports.FailureInput, 16)}
+}
+
+func (b *ProblemSink) FailureInPort() chan<- ports.Failure { return b.in }
+func (b *ProblemSink) RequiredInputs() []ports.Kind        { return []ports.Kind{ports.KindFailure} }
+
+func (b *ProblemSink) Start(ctx context.Context) {
+	go func() {
+		for f := range b.in {
+			f.Input = ""
+			blob, err := json.Marshal(f)
+			if err != nil {
+				continue
+			}
+			if !b.record(ctx, string(blob)) {
+				return
+			}
+		}
+	}()
+}

@@ -69,6 +69,7 @@ func TestGameSpec(t *testing.T) {
 	game := &obj.Game{
 		Genre:                  "npc-live",
 		Name:                   "Bridge",
+		Description:            "Talk your way past a troll.",
 		SystemMessageScenario:  "A troll guards a bridge.",
 		SystemMessageGameStart: "Greet the traveller.",
 		ImageStyle:             "woodcut",
@@ -83,7 +84,8 @@ func TestGameSpec(t *testing.T) {
 	}
 	if spec.Genre != want.Genre || spec.Title != want.Title || spec.Scenario != want.Scenario ||
 		spec.InitPrompt != want.InitPrompt || spec.ImageStyle != want.ImageStyle || spec.Theme != want.Theme ||
-		spec.Language != want.Language || spec.Guardrail != want.Guardrail || spec.Status["Mood"] != "grumpy" {
+		spec.Language != want.Language || spec.Guardrail != want.Guardrail || spec.Status["Mood"] != "grumpy" ||
+		spec.Description != "Talk your way past a troll." {
 		t.Errorf("spec %+v, want %+v", spec, want)
 	}
 }

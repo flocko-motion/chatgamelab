@@ -111,6 +111,12 @@ type ConnectResponse struct {
 	Sdp string `json:"sdp"`
 }
 
+// ConstraintFrequencyRequest defines model for ConstraintFrequencyRequest.
+type ConstraintFrequencyRequest struct {
+	Block     string `json:"block"`
+	Frequency int    `json:"frequency"`
+}
+
 // CreateApiKeyReq defines model for CreateApiKeyReq.
 type CreateApiKeyReq struct {
 	Key      string `json:"key"`
@@ -1029,6 +1035,9 @@ type PostApiEngineSessionsIdChooseJSONRequestBody = ChooseRequest
 // PostApiEngineSessionsIdConnectJSONRequestBody defines body for PostApiEngineSessionsIdConnect for application/json ContentType.
 type PostApiEngineSessionsIdConnectJSONRequestBody = ConnectRequest
 
+// PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody defines body for PostApiEngineSessionsIdConstraintFrequency for application/json ContentType.
+type PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody = ConstraintFrequencyRequest
+
 // PostApiEngineSessionsIdInputJSONRequestBody defines body for PostApiEngineSessionsIdInput for application/json ContentType.
 type PostApiEngineSessionsIdInputJSONRequestBody = InputRequest
 
@@ -1495,6 +1504,32 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
 	PostApiEngineSessionsIdConnect(ctx context.Context, id string, body PostApiEngineSessionsIdConnectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdConstraintFrequencyWithBody Sets how often a block of a session
+	//
+	// repeats the youth-protection rule.
+	//
+	// Staff and heads only. 1 repeats it with every call, up to 10 with every
+	// tenth; the session keeps the change. The System Message and the opening
+	// always carry the rule.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+	PostApiEngineSessionsIdConstraintFrequencyWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdConstraintFrequency Sets how often a block of a session
+	//
+	// repeats the youth-protection rule.
+	//
+	// Staff and heads only. 1 repeats it with every call, up to 10 with every
+	// tenth; the session keeps the change. The System Message and the opening
+	// always carry the rule.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+	PostApiEngineSessionsIdConstraintFrequency(ctx context.Context, id string, body PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiEngineSessionsIdEdgesFromToKind Answers what one wire of a session has carried.
 	//
@@ -3183,6 +3218,52 @@ func (c *Client) PostApiEngineSessionsIdConnectWithBody(ctx context.Context, id 
 // Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
 func (c *Client) PostApiEngineSessionsIdConnect(ctx context.Context, id string, body PostApiEngineSessionsIdConnectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiEngineSessionsIdConnectRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdConstraintFrequencyWithBody Sets how often a block of a session
+//
+// repeats the youth-protection rule.
+//
+// Staff and heads only. 1 repeats it with every call, up to 10 with every
+// tenth; the session keeps the change. The System Message and the opening
+// always carry the rule.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+func (c *Client) PostApiEngineSessionsIdConstraintFrequencyWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdConstraintFrequencyRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdConstraintFrequency Sets how often a block of a session
+//
+// repeats the youth-protection rule.
+//
+// Staff and heads only. 1 repeats it with every call, up to 10 with every
+// tenth; the session keeps the change. The System Message and the opening
+// always carry the rule.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+func (c *Client) PostApiEngineSessionsIdConstraintFrequency(ctx context.Context, id string, body PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdConstraintFrequencyRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6330,6 +6411,53 @@ func NewPostApiEngineSessionsIdConnectRequestWithBody(server string, id string, 
 	}
 
 	operationPath := fmt.Sprintf("/api/engine/sessions/%s/connect", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdConstraintFrequencyRequest calls the generic PostApiEngineSessionsIdConstraintFrequency builder with application/json body
+func NewPostApiEngineSessionsIdConstraintFrequencyRequest(server string, id string, body PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiEngineSessionsIdConstraintFrequencyRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiEngineSessionsIdConstraintFrequencyRequestWithBody constructs an http.Request for the PostApiEngineSessionsIdConstraintFrequency method, with any body, and a specified content type
+func NewPostApiEngineSessionsIdConstraintFrequencyRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/constraint-frequency", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -10227,6 +10355,32 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/engine/sessions/{id}/connect (the `PostApiEngineSessionsIdConnect` operationId).
 	PostApiEngineSessionsIdConnectWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdConnectJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConnectResponse, error)
 
+	// PostApiEngineSessionsIdConstraintFrequencyWithBodyWithResponse Sets how often a block of a session
+	//
+	// repeats the youth-protection rule.
+	//
+	// Staff and heads only. 1 repeats it with every call, up to 10 with every
+	// tenth; the session keeps the change. The System Message and the opening
+	// always carry the rule.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+	PostApiEngineSessionsIdConstraintFrequencyWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConstraintFrequencyResponse, error)
+
+	// PostApiEngineSessionsIdConstraintFrequencyWithResponse Sets how often a block of a session
+	//
+	// repeats the youth-protection rule.
+	//
+	// Staff and heads only. 1 repeats it with every call, up to 10 with every
+	// tenth; the session keeps the change. The System Message and the opening
+	// always carry the rule.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+	PostApiEngineSessionsIdConstraintFrequencyWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConstraintFrequencyResponse, error)
+
 	// GetApiEngineSessionsIdEdgesFromToKindWithResponse Answers what one wire of a session has carried.
 	//
 	// The wire is named by its ends and its kind.
@@ -12504,6 +12658,47 @@ func (r PostApiEngineSessionsIdConnectResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PostApiEngineSessionsIdConnectResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdConstraintFrequencyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdConstraintFrequencyResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdConstraintFrequencyResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdConstraintFrequencyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdConstraintFrequencyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdConstraintFrequencyResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -17741,6 +17936,44 @@ func (c *ClientWithResponses) PostApiEngineSessionsIdConnectWithResponse(ctx con
 	return ParsePostApiEngineSessionsIdConnectResponse(rsp)
 }
 
+// PostApiEngineSessionsIdConstraintFrequencyWithBodyWithResponse Sets how often a block of a session
+//
+// repeats the youth-protection rule.
+//
+// Staff and heads only. 1 repeats it with every call, up to 10 with every
+// tenth; the session keeps the change. The System Message and the opening
+// always carry the rule.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdConstraintFrequencyWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConstraintFrequencyResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdConstraintFrequencyWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdConstraintFrequencyResponse(rsp)
+}
+
+// PostApiEngineSessionsIdConstraintFrequencyWithResponse Sets how often a block of a session
+//
+// repeats the youth-protection rule.
+//
+// Staff and heads only. 1 repeats it with every call, up to 10 with every
+// tenth; the session keeps the change. The System Message and the opening
+// always carry the rule.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/constraint-frequency (the `PostApiEngineSessionsIdConstraintFrequency` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdConstraintFrequencyWithResponse(ctx context.Context, id string, body PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdConstraintFrequencyResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdConstraintFrequency(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdConstraintFrequencyResponse(rsp)
+}
+
 // GetApiEngineSessionsIdEdgesFromToKindWithResponse Answers what one wire of a session has carried.
 //
 // The wire is named by its ends and its kind.
@@ -20409,6 +20642,35 @@ func ParsePostApiEngineSessionsIdConnectResponse(rsp *http.Response) (*PostApiEn
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdConstraintFrequencyResponse parses an HTTP response from a PostApiEngineSessionsIdConstraintFrequencyWithResponse call
+func ParsePostApiEngineSessionsIdConstraintFrequencyResponse(rsp *http.Response) (*PostApiEngineSessionsIdConstraintFrequencyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdConstraintFrequencyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

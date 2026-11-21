@@ -109,6 +109,8 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	g.ConnectTextOut(portraitPrompt, portrait)
 	g.ConnectImageOut(portrait, outImage)
 	g.ConnectState(portrait, gate)
+	// A portrait that fails costs the portrait; the conversation goes on.
+	g.ConnectFailure(portrait, blocks.NewErrorSink("image-failed", CodeImageFailed))
 
 	// Speech only: GPT-Live cannot deliver user text into a conversation.
 	w := &Wiring{

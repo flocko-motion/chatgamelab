@@ -50,15 +50,19 @@ func TestToolCallRetriesTransientErrors(t *testing.T) {
 	expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 }
 
-// Five attempts and still failing: the game cannot go on, and says the
-// provider is unreachable.
+// Five attempts and still failing: the text goes out on the failure output,
+// the block is ready again and says the provider is unreachable.
 func TestToolCallGivesUpAfterFiveAttempts(t *testing.T) {
 	tool := &scriptedTool{reply: "never", errs: []error{transient(), transient(), transient(), transient(), transient(), transient()}}
 	b, out, states, _ := startToolCall(t, tool)
+	failure := b.FailureOutPort()
 
 	b.TextInPort() <- "I cross"
 
-	failed := expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseFailed)
+	if got := receive(t, failure, "the failed text"); got != "I cross" {
+		t.Errorf("the failure output carried %q, want the text the block was given", got)
+	}
+	failed := expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 	if failed.Reason != ports.ReasonUnreachable {
 		t.Errorf("reason %q, want %q", failed.Reason, ports.ReasonUnreachable)
 	}
@@ -74,8 +78,9 @@ func TestToolCallGivesUpAfterFiveAttempts(t *testing.T) {
 	}
 }
 
-// A failure that will not pass is not asked again: the game fails at once,
-// naming a rejected key apart from anything else.
+// A failure that will not pass is not asked again: the call fails at once,
+// naming a rejected key apart from anything else, and the block goes on with
+// the next text.
 func TestToolCallFailsAtOnceOnHardErrors(t *testing.T) {
 	for name, tc := range map[string]struct {
 		err    error
@@ -86,12 +91,14 @@ func TestToolCallFailsAtOnceOnHardErrors(t *testing.T) {
 		"no platform":   {adapters.ErrUnset, ports.ReasonFailed},
 	} {
 		t.Run(name, func(t *testing.T) {
-			tool := &scriptedTool{reply: "never", errs: []error{tc.err}}
-			b, _, states, _ := startToolCall(t, tool)
+			tool := &scriptedTool{reply: "fine", errs: []error{tc.err}}
+			b, out, states, _ := startToolCall(t, tool)
+			failure := b.FailureOutPort()
 
 			b.TextInPort() <- "I cross"
 
-			failed := expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseFailed)
+			receive(t, failure, "the failed text")
+			failed := expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 			if failed.Reason != tc.reason {
 				t.Errorf("reason %q, want %q", failed.Reason, tc.reason)
 			}
@@ -100,6 +107,11 @@ func TestToolCallFailsAtOnceOnHardErrors(t *testing.T) {
 			}
 			if n := len(tool.seen()); n != 1 {
 				t.Errorf("the tool was asked %d times, want 1", n)
+			}
+
+			b.TextInPort() <- "I wait"
+			if got := receive(t, out, "the next reply"); got != "fine" {
+				t.Errorf("after a failure, passed on %q", got)
 			}
 		})
 	}

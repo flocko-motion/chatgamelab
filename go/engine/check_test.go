@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
@@ -110,14 +109,55 @@ func (brokenTool) Query(context.Context, string, string) (string, adapters.Usage
 	return "", adapters.Usage{}, errors.New("responses api: 404 model not found")
 }
 
-// A tool call the game cannot do without ends the game when it fails, and the
-// player is told why.
-func TestAFailedToolCallEndsTheGame(t *testing.T) {
+// A failed call during play costs the turn, not the game: the player is told
+// with the turn_failed code and the line they sent, and the session goes on.
+func TestAFailedTurnGoesOn(t *testing.T) {
 	s := launchOrFail(t, adventure(MockOffer()))
+	waitStarted(t, s)
 	s.slots.tool.Set(brokenTool{})
 	if err := s.Say("I cross the bridge"); err != nil {
 		t.Fatal(err)
 	}
+
+	deadline := time.After(2 * time.Second)
+	for reported := false; !reported; {
+		select {
+		case ev := <-s.Events():
+			if ev.Stream == "problem" {
+				t.Fatalf("a failed turn ended the game: %s", ev.Value)
+			}
+			if ev.Stream != "error" {
+				continue
+			}
+			var report ErrorReport
+			if err := json.Unmarshal([]byte(ev.Value), &report); err != nil ||
+				report != (ErrorReport{Code: ErrorTurnFailed, Text: "I cross the bridge"}) {
+				t.Fatalf("error event %q, want turn_failed with the line", ev.Value)
+			}
+			reported = true
+		case <-deadline:
+			t.Fatal("no error event for a failed turn")
+		}
+	}
+	if s.ctx.Err() != nil {
+		t.Error("the session ended after a failed turn")
+	}
+}
+
+// A preparation call the game cannot start without ends the game when it
+// fails, and the player is told.
+func TestAFailedPreparationEndsTheGame(t *testing.T) {
+	// A key that cannot be had fails every call at once, the first being
+	// preparation's.
+	keyless := Offer{
+		Platform: PlatformOpenAI, ID: "share",
+		Keys: func(context.Context) (string, error) { return "", errors.New("the key is gone") },
+		Caveats: Caveats{
+			Allow:   map[Tier]Toggles{TierMedium: {Images: true}},
+			Default: Choice{Tier: TierMedium, Toggles: Toggles{Images: true}},
+		},
+	}
+	s := launchOrFail(t, adventure(keyless))
 
 	deadline := time.After(2 * time.Second)
 	for problem := false; !problem; {
@@ -130,17 +170,24 @@ func TestAFailedToolCallEndsTheGame(t *testing.T) {
 			if err := json.Unmarshal([]byte(ev.Value), &r); err != nil || r.Problem != ProblemFailed {
 				t.Fatalf("problem event %q, want failed", ev.Value)
 			}
-			if !strings.Contains(r.Message, "model not found") {
-				t.Errorf("the problem does not say what failed: %q", r.Message)
-			}
 			problem = true
 		case <-deadline:
-			t.Fatal("no problem event for a failed tool call")
+			t.Fatal("no problem event for a failed preparation call")
 		}
 	}
 	select {
 	case <-s.ctx.Done():
 	case <-time.After(time.Second):
 		t.Error("the session kept running after the game failed")
+	}
+}
+
+// waitStarted waits for the gate to open.
+func waitStarted(t *testing.T, s *Session) {
+	t.Helper()
+	select {
+	case <-s.Ready():
+	case <-time.After(2 * time.Second):
+		t.Fatal("the game never started")
 	}
 }

@@ -37,7 +37,7 @@ func TestValidateCatchesUnwiredBlock(t *testing.T) {
 	g := ports.NewGraph("broken")
 	player := blocks.NewPlayerInputText("player")
 	rephrase := blocks.NewToolCall("rephrase", mock.Tool{}, "rephrase")
-	orphan := blocks.NewDummyImage("orphan-image")
+	orphan := blocks.NewImage("orphan-image", mock.Image{})
 	outText := blocks.NewPlayerOutputText("out-text", "text")
 	outImage := blocks.NewPlayerOutputImage("out-image", "image")
 
@@ -54,6 +54,30 @@ func TestValidateCatchesUnwiredBlock(t *testing.T) {
 	}
 }
 
+// A block whose failure output is left unwired fails validation: what a
+// failure leads to is the genre's to say, never left to chance.
+func TestValidateCatchesAnUnwiredFailure(t *testing.T) {
+	g := ports.NewGraph("unwired-failure")
+	player := blocks.NewPlayerInputText("player")
+	rephrase := blocks.NewToolCall("rephrase", mock.Tool{}, "rephrase")
+	outText := blocks.NewPlayerOutputText("out-text", "text")
+	g.ConnectTextOut(player, rephrase)
+	g.ConnectTextOut(rephrase, outText)
+
+	err := g.Validate()
+	if err == nil || !strings.Contains(err.Error(), "nothing consumes failure on rephrase") {
+		t.Fatalf("expected the unwired failure output to be caught, got: %v", err)
+	}
+
+	g.ConnectFailure(rephrase, blocks.NewErrorSink("turn-failed", "turn_failed"))
+	if err := g.Validate(); err != nil {
+		t.Fatalf("wired, the graph is still refused: %v", err)
+	}
+}
+
+// The world opens the game: before the player acts, the opening runs through
+// Outline and Expand into narration, a picture and the initial status. Then
+// the player's turn runs through Rephrase, Outline and Expand.
 func TestAdventureFlow(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -63,35 +87,51 @@ func TestAdventureFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	narrate(a, true)
+	text, props := utterances(streamOf(a, "text")), streamOf(a, "props")
 	a.Graph.Start(ctx)
-	a.Say("I try to cross the bridge")
 
-	// Outline takes the thread's first turn, Expand its second.
-	const prose = "[story turn 2] [outline 1] [mock-tool] I try to cross the bridge"
+	// Seeded values reach the player first, so a status bar never starts
+	// empty; then the opening's initial values.
+	expect(t, props, `{"Health":"Good"}`)
+	// The opening's prose: Expand's second seat on the thread, on its
+	// opening prompt.
+	opening := receiveLine(t, text, "the opening's prose")
+	if !strings.HasPrefix(opening, "[story turn 2] NARRATE the opening scene") {
+		t.Errorf("opening prose %q", opening)
+	}
+	expect(t, props, `{"Health":"[turn 1]"}`)
+	if got := receiveLine(t, streamOf(a, "image"), "the opening's picture"); !strings.HasPrefix(got, "data:image/png;base64,") {
+		t.Errorf("opening picture %q", got)
+	}
 	// The prose streams as it is spoken; the transcript is the prose.
-	expect(t, utterances(a.Sinks()["text"]), prose)
-	expect(t, a.Sinks()["image"], "<png of [image_prompt 1] [mock-tool] I try to cross the bridge>")
-	// Seeded values reach the player before the first turn, then the turn's
-	// update follows. Order matters: a status bar should not start empty.
-	expect(t, a.Sinks()["props"], `{"Health":"Good"}`)
-	expect(t, a.Sinks()["props"], `{"Health":"Good [turn 1]"}`)
-	if chunk := receiveLine(t, a.Sinks()["audio"]); len(chunk) == 0 || len(chunk)%2 != 0 {
+	if chunk := receiveLine(t, streamOf(a, "audio"), "the opening's narration"); len(chunk) == 0 || len(chunk)%2 != 0 {
 		t.Errorf("audio of %d bytes, want spoken PCM16", len(chunk))
 	}
+
+	a.Say("I try to cross the bridge")
+	prose := receiveLine(t, text, "the turn's prose")
+	if !strings.HasPrefix(prose, "[story turn 4] NARRATE the outline into prose") {
+		t.Errorf("turn prose %q", prose)
+	}
+	expect(t, props, `{"Health":"[turn 3]"}`)
+	// The turn's picture prompt carries the rephrased action through Outline.
+	waitForImagePrompt(t, a, "The visual should show: [image_prompt 3] [mock-tool] I try to cross the bridge")
 }
 
-// Narration off, Adventure's turn is silent: the prose arrives, no audio.
+// Narration off, Adventure's turns are silent: the prose arrives, no audio.
 func TestAdventureSilentWithoutNarration(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	a := mustAdventure(t, nil)
 	narrate(a, false)
+	text := utterances(streamOf(a, "text"))
 	a.Graph.Start(ctx)
-	a.Say("I look around")
-	expect(t, utterances(a.Sinks()["text"]), "[story turn 2] [outline 1] [mock-tool] I look around")
+	if got := receiveLine(t, text, "the opening's prose"); !strings.HasPrefix(got, "[story turn 2] NARRATE the opening scene") {
+		t.Errorf("opening prose %q", got)
+	}
 	select {
-	case chunk := <-a.Sinks()["audio"]:
+	case chunk := <-streamOf(a, "audio"):
 		t.Errorf("narration off, the player heard %d bytes", len(chunk))
 	case <-time.After(20 * time.Millisecond):
 	}
@@ -104,16 +144,49 @@ func narrate(w *Wiring, on bool) {
 	}
 }
 
-// receiveLine waits for one line on a sink.
-func receiveLine(t *testing.T, ch chan string) string {
+// receiveLine waits for one value on a stream.
+func receiveLine(t *testing.T, ch <-chan string, what string) string {
 	t.Helper()
 	select {
 	case got := <-ch:
 		return got
-	case <-time.After(2 * time.Second):
-		t.Fatal("nothing arrived")
+	case <-time.After(3 * time.Second):
+		t.Fatalf("never received %s", what)
+		return ""
 	}
-	return ""
+}
+
+// waitForImagePrompt waits until the picture prompt block has put out a
+// prompt containing want, read back off the graph.
+func waitForImagePrompt(t *testing.T, w *Wiring, want string) {
+	t.Helper()
+	deadline := time.Now().Add(3 * time.Second)
+	var seen []string
+	for time.Now().Before(deadline) {
+		seen = seen[:0]
+		if detail, found := w.Graph.Inspect("image-prompt"); found {
+			for _, out := range detail.Outputs {
+				seen = append(seen, out.Value)
+				if strings.Contains(out.Value, want) {
+					return
+				}
+			}
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	t.Fatalf("no picture prompt contains %q\nsaw:\n%s", want, strings.Join(seen, "\n---\n"))
+}
+
+// streamOf is the arrivals of the wiring's sink for a stream, nil when the
+// genre wires none. A stream several sinks share, as `error` is, gives the
+// first.
+func streamOf(w *Wiring, stream string) chan string {
+	for _, sink := range w.Sinks() {
+		if sink.Stream() == stream {
+			return sink.Arrivals()
+		}
+	}
+	return nil
 }
 
 // The observer's steering has to reach the block whose output triggered it.
@@ -132,7 +205,7 @@ func TestNPCLiveObserverClosesTheLoop(t *testing.T) {
 	deadline := time.After(5 * time.Second)
 	for {
 		select {
-		case v := <-n.Sinks()["text"]:
+		case v := <-streamOf(n, "text"):
 			seen = append(seen, v)
 			if strings.HasPrefix(v, "The bridge stays closed. (steered:") {
 				return
@@ -160,7 +233,7 @@ func TestMutedObserverJudgesNothingAndBlocksNobody(t *testing.T) {
 	deadline := time.After(5 * time.Second)
 	for {
 		select {
-		case v := <-n.Sinks()["text"]:
+		case v := <-streamOf(n, "text"):
 			if !strings.Contains(v, "won't stop you") {
 				continue
 			}
@@ -242,7 +315,7 @@ func expect(t *testing.T, ch chan string, want string) {
 func TestStructuredRequiresPropsEdge(t *testing.T) {
 	g := ports.NewGraph("no-props")
 	player := blocks.NewPlayerInputText("player")
-	outline := blocks.NewStructured("outline", blocks.NewThread("story-thread", mock.Thread{}), "", OutlineSchema(nil), outlineResult)
+	outline := blocks.NewStructured("outline", blocks.NewThread("story-thread", mock.Thread{}, "", ""), OutlineSchema(nil), outlineResult)
 	outText := blocks.NewPlayerOutputText("out-text", "text")
 
 	g.ConnectTextOut(player, outline)
@@ -254,34 +327,36 @@ func TestStructuredRequiresPropsEdge(t *testing.T) {
 	}
 }
 
-// A block whose props input is required must not act on a player action before
-// the current values have reached it. Without that guarantee it decides from
-// defaults and then overwrites the real values on the way out — which shows up
-// as a status bar that resets on the first turn, intermittently.
-func TestSeededStatusSurvivesTheFirstTurn(t *testing.T) {
-	for i := 0; i < 50; i++ {
+// A block whose props input is required must not act before the current
+// values have reached it, and a player's first turn carries the values the
+// opening set, not the defaults. Without that guarantee it decides from
+// defaults and overwrites the real values on the way out — which shows up as
+// a status bar that resets on the first turn, intermittently.
+func TestOpeningStatusSurvivesTheFirstTurn(t *testing.T) {
+	for i := 0; i < 20; i++ {
 		ctx, cancel := context.WithCancel(context.Background())
 
 		a := mustAdventure(t, map[string]string{"Health": "Wounded", "Gold": "12"})
+		props := streamOf(a, "props")
 		a.Graph.Start(ctx)
 		a.Say("I press on")
 
-		deadline := time.After(2 * time.Second)
+		deadline := time.After(3 * time.Second)
 		var sawTurn bool
 		for !sawTurn {
 			select {
-			case v := <-a.Sinks()["props"]:
-				if !strings.Contains(v, "[turn 1]") {
+			case v := <-props:
+				if !strings.Contains(v, "[turn 3]") {
 					continue
 				}
 				sawTurn = true
-				if !strings.Contains(v, `"Health":"Wounded [turn 1]"`) {
+				if !strings.Contains(v, `"Health":"[turn 3]"`) || strings.Contains(v, "Wounded") {
 					cancel()
-					t.Fatalf("run %d: seeded value lost on the first turn: %s", i, v)
+					t.Fatalf("run %d: the first turn did not go on from the opening's values: %s", i, v)
 				}
 			case <-deadline:
 				cancel()
-				t.Fatalf("run %d: no turn-1 props", i)
+				t.Fatalf("run %d: no props for the first turn", i)
 			}
 		}
 		cancel()
@@ -307,7 +382,7 @@ func TestPortraitIsMadeOnceHoweverLongPlayRuns(t *testing.T) {
 	connect(t, ctx, n)
 
 	select {
-	case <-n.Sinks()["image"]:
+	case <-streamOf(n, "image"):
 	case <-time.After(3 * time.Second):
 		t.Fatal("no portrait, and nobody spoke to trigger one")
 	}
@@ -316,7 +391,7 @@ func TestPortraitIsMadeOnceHoweverLongPlayRuns(t *testing.T) {
 	// caught by now.
 	for turns := 0; turns < 3; turns++ {
 		select {
-		case <-n.Sinks()["text"]:
+		case <-streamOf(n, "text"):
 		case <-time.After(3 * time.Second):
 			t.Fatalf("the conversation stopped after %d turns", turns)
 		}
@@ -326,7 +401,7 @@ func TestPortraitIsMadeOnceHoweverLongPlayRuns(t *testing.T) {
 		t.Errorf("the image adapter was called %d times, want 1", got)
 	}
 	select {
-	case v := <-n.Sinks()["image"]:
+	case v := <-streamOf(n, "image"):
 		t.Errorf("a second portrait arrived: %q", v)
 	default:
 	}
@@ -365,7 +440,7 @@ func TestObserverFindingsGoNowhere(t *testing.T) {
 	if err := n.Graph.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if _, wired := n.Sinks()["flag"]; wired {
+	if streamOf(n, "flag") != nil {
 		t.Error("the genre still advertises a stream for what the observer found")
 	}
 	n.Graph.Start(ctx)
@@ -376,7 +451,7 @@ func TestObserverFindingsGoNowhere(t *testing.T) {
 	deadline := time.After(5 * time.Second)
 	for {
 		select {
-		case v := <-n.Sinks()["text"]:
+		case v := <-streamOf(n, "text"):
 			if strings.Contains(v, "VIOLATION") {
 				t.Fatalf("a finding reached the conversation: %q", v)
 			}
@@ -404,16 +479,16 @@ func TestEventSchemaComesFromTheGraph(t *testing.T) {
 			if len(w.Sinks()) == 0 {
 				t.Fatal("a genre with no streams cannot show anybody anything")
 			}
-			for stream, ch := range w.Sinks() {
-				if ch == nil {
-					t.Errorf("stream %q is advertised with nothing behind it", stream)
-				}
+			known := map[string]bool{}
+			for _, name := range []string{"text", "audio", "image", "props", "error", "problem"} {
+				known[name] = true
 			}
-			// Derived, so the two cannot drift: the same call is the only
-			// source of both.
-			for stream := range w.Graph.Sinks() {
-				if _, found := w.Sinks()[stream]; !found {
-					t.Errorf("the graph produces %q but the genre does not advertise it", stream)
+			for _, sink := range w.Sinks() {
+				if sink.Arrivals() == nil {
+					t.Errorf("stream %q is advertised with nothing behind it", sink.Stream())
+				}
+				if !known[sink.Stream()] {
+					t.Errorf("sink %s puts out %q, a stream the session does not carry", sink.NodeName(), sink.Stream())
 				}
 			}
 		})
@@ -617,7 +692,7 @@ func TestTheCharacterOpensTheConversation(t *testing.T) {
 	connect(t, ctx, n)
 
 	select {
-	case line := <-n.Sinks()["text"]:
+	case line := <-streamOf(n, "text"):
 		if line == "" {
 			t.Error("the character opened the conversation with nothing")
 		}
@@ -646,7 +721,7 @@ func TestTheOpeningCueWaitsForTheSessionToStart(t *testing.T) {
 	connect(t, ctx, n)
 
 	select {
-	case line := <-n.Sinks()["text"]:
+	case line := <-streamOf(n, "text"):
 		t.Fatalf("the character was cued before the session was running: %q", line)
 	case <-time.After(300 * time.Millisecond):
 	}
@@ -748,7 +823,7 @@ func waitForStanding(t *testing.T, w *Wiring, want string) {
 func waitForSpeech(t *testing.T, w *Wiring) {
 	t.Helper()
 	select {
-	case <-w.Sinks()["text"]:
+	case <-streamOf(w, "text"):
 	case <-time.After(5 * time.Second):
 		t.Fatal("the character never said anything to continue from")
 	}

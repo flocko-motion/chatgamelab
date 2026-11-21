@@ -176,11 +176,13 @@ func TestRealtimeSpokenTurn(t *testing.T) {
 	var pieces []string
 	var audio [][]byte
 	reply, err := r.Continue(context.Background(), adapters.ThreadTurn{
-		Instructions: "Narrate.",
-		Input:        "NARRATE",
-		Speak:        true,
-		Piece:        func(p string) { pieces = append(pieces, p) },
-		Audio:        func(c []byte) { audio = append(audio, c) },
+		System:      "You are a game master.",
+		Input:       "NARRATE",
+		Directive:   true,
+		Constraints: "NARRATION RULES must be respected: keep it gentle",
+		Speak:       true,
+		Piece:       func(p string) { pieces = append(pieces, p) },
+		Audio:       func(c []byte) { audio = append(audio, c) },
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -207,19 +209,23 @@ func TestRealtimeSpokenTurn(t *testing.T) {
 		t.Fatalf("%d session updates, want one", len(update))
 	}
 	session, _ := json.Marshal(update[0]["session"])
-	for _, want := range []string{`"voice":"cedar"`, `"turn_detection":null`, `"type":"audio/pcm"`, `"rate":24000`} {
+	// The System Message is the session's instructions, set once as it opens.
+	for _, want := range []string{`"instructions":"You are a game master."`, `"voice":"cedar"`, `"turn_detection":null`, `"type":"audio/pcm"`, `"rate":24000`} {
 		if !strings.Contains(string(session), want) {
 			t.Errorf("session %s lacks %s", session, want)
 		}
 	}
 	created := fake.sent(1, "response.create")
 	response, _ := json.Marshal(created[0]["response"])
-	if !strings.Contains(string(response), `"instructions":"Narrate."`) || !strings.Contains(string(response), `"output_modalities":["audio"]`) {
-		t.Errorf("response.create = %s, want the instructions and audio out", response)
+	// A response sets no instructions, which would replace the session's.
+	if strings.Contains(string(response), `"instructions"`) || !strings.Contains(string(response), `"output_modalities":["audio"]`) {
+		t.Errorf("response.create = %s, want audio out and no instructions", response)
 	}
-	item, _ := json.Marshal(fake.sent(1, "conversation.item.create")[0]["item"])
-	if !strings.Contains(string(item), `"role":"user"`) || !strings.Contains(string(item), `"text":"NARRATE"`) {
-		t.Errorf("item = %s, want the input as a user message", item)
+	// The constraints go in a system message of their own, then the game's
+	// own message as a system message.
+	if got := items(fake.sent(1, "conversation.item.create")); got !=
+		"system/input_text:NARRATION RULES must be respected: keep it gentle system/input_text:NARRATE" {
+		t.Errorf("items %s, want the constraints apart, then the game's message", got)
 	}
 }
 
@@ -320,24 +326,44 @@ func TestRealtimeSeedsAFreshSession(t *testing.T) {
 	defer r.Close()
 
 	_, err := r.Continue(context.Background(), adapters.ThreadTurn{
+		System:       "rules",
 		Input:        "next",
 		Speak:        true,
 		Continuation: adapters.Continuation{ID: "sess_gone/4", Model: "gpt-realtime-2.1-mini"},
-		Transcript:   []adapters.Exchange{{Input: "first", Reply: "one"}},
+		Transcript: []adapters.Exchange{
+			{Input: "open", Directive: true, Constraints: "be kind", Reply: "zero"},
+			{Input: "first", Reply: "one"},
+		},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	var items []string
-	for _, e := range fake.sent(1, "conversation.item.create") {
+	// The fresh session gets the System Message again, and each exchange as
+	// it was sent.
+	update, _ := json.Marshal(fake.sent(1, "session.update")[0]["session"])
+	if !strings.Contains(string(update), `"instructions":"rules"`) {
+		t.Errorf("session %s, want the System Message", update)
+	}
+	want := "system/input_text:be kind system/input_text:open assistant/output_text:zero " +
+		"user/input_text:first assistant/output_text:one user/input_text:next"
+	if got := items(fake.sent(1, "conversation.item.create")); got != want {
+		t.Errorf("items %s\nwant  %s", got, want)
+	}
+}
+
+// items reads created conversation items as role/part:text.
+func items(created []map[string]any) string {
+	var out []string
+	for _, e := range created {
 		item, _ := e["item"].(map[string]any)
 		content, _ := item["content"].([]any)
+		if len(content) == 0 {
+			continue
+		}
 		part, _ := content[0].(map[string]any)
-		items = append(items, fmt.Sprintf("%s/%s:%s", item["role"], part["type"], part["text"]))
+		out = append(out, fmt.Sprintf("%s/%s:%s", item["role"], part["type"], part["text"]))
 	}
-	if got := strings.Join(items, " "); got != "user/input_text:first assistant/output_text:one user/input_text:next" {
-		t.Errorf("items %s, want the transcript then the turn", got)
-	}
+	return strings.Join(out, " ")
 }
 
 // A session near OpenAI's limit is replaced before the call, seeded again.

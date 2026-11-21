@@ -85,11 +85,18 @@ func generate() []byte {
 	fmt.Fprintf(&b, "export const AUDIO_DISCARD_BYTES = %d;\n\n", len(engine.AudioDiscard))
 
 	b.WriteString("/**\n")
-	b.WriteString(" * A block reporting on itself, carried as JSON in a `state` event's value.\n")
-	b.WriteString(" * A block in the turn loop is never finished; `failed` means the game cannot\n")
-	b.WriteString(" * continue, and a `problem` event says why.\n")
+	b.WriteString(" * A `text` event whose value starts with this replaces the text of the\n")
+	b.WriteString(" * utterance still open with the rest of the value, as when a reply was\n")
+	b.WriteString(" * tidied after it streamed.\n")
 	b.WriteString(" */\n")
-	b.WriteString("export type Phase = \"ready\" | \"working\" | \"failed\";\n\n")
+	fmt.Fprintf(&b, "export const TEXT_REPLACE = \"\\u%04x\";\n\n", []rune(engine.TextReplace)[0])
+
+	b.WriteString("/**\n")
+	b.WriteString(" * A block reporting on itself, carried as JSON in a `state` event's value.\n")
+	b.WriteString(" * A block in the turn loop is never finished. A failed call is the block's:\n")
+	b.WriteString(" * an `error` or a `problem` event says what it meant for the game.\n")
+	b.WriteString(" */\n")
+	b.WriteString("export type Phase = \"ready\" | \"working\";\n\n")
 	b.WriteString("export interface BlockState {\n")
 	for _, field := range tsFields(reflect.TypeOf(engine.BlockState{})) {
 		ts := field.tsType
@@ -112,7 +119,7 @@ func generate() []byte {
 		fmt.Fprintf(&b, "  %q,\n", problem)
 	}
 	b.WriteString("];\n\n")
-	b.WriteString("/** An error the game goes on after: an `error` event's value. */\n")
+	b.WriteString("/** An error the game goes on after, named by an `error` event's report. */\n")
 	b.WriteString("export type ErrorCode =\n")
 	for _, code := range engine.ErrorCodes() {
 		fmt.Fprintf(&b, "  | %q\n", code)
@@ -124,6 +131,11 @@ func generate() []byte {
 		fmt.Fprintf(&b, "  %q,\n", code)
 	}
 	b.WriteString("];\n\n")
+	b.WriteString("/**\n")
+	b.WriteString(" * An `error` event's value, as JSON: the code, and the text the failed\n")
+	b.WriteString(" * block was given.\n")
+	b.WriteString(" */\n")
+	writeInterface(&b, "ErrorReport", reflect.TypeOf(engine.ErrorReport{}))
 	b.WriteString("/** The status values a genre tracks: a `props` event's value, as JSON. */\n")
 	b.WriteString("export type Props = Record<string, string>;\n\n")
 
@@ -187,6 +199,9 @@ func tsFields(t reflect.Type) []tsField {
 		ts := tsType(f.Type)
 		if f.Type == reflect.TypeOf(engine.Problem("")) {
 			ts = "Problem"
+		}
+		if f.Type == reflect.TypeOf(engine.ErrorCode("")) {
+			ts = "ErrorCode"
 		}
 		// The stream is the one field whose values are closed, so it carries
 		// the union rather than a bare string.

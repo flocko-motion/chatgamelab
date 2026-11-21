@@ -13,10 +13,11 @@ import (
 // translate, condense, …) is the system prompt it is built with, and the text
 // it receives is the user message.
 //
-// Its output is structural, so it has no switch, and a failure is never
-// skipped: what may pass is retried, and what will not reports the phase
-// failed, which ends the game.
+// Its output is structural, so it has no switch. A failure that may pass is
+// retried; one that will not, or an exhausted retry, sends the text on the
+// failure output, and the block goes on with the next.
 type ToolCall struct {
+	failing
 	name, system string
 	tool         adapters.Tool
 
@@ -53,13 +54,13 @@ func (b *ToolCall) RequiredInputs() []ports.Kind { return []ports.Kind{ports.Kin
 // UsageOutPort reports what the calls have cost.
 func (b *ToolCall) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
 
-// StateOutPort reports what this block is doing; the session reads a failure
-// off it, so it needs no edge.
+// StateOutPort reports what this block is doing, with the provider's reason
+// after a failed call.
 func (b *ToolCall) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 func (b *ToolCall) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.out.Close(); b.state.Close(); b.meter.usage.Close() }()
+		defer func() { b.out.Close(); b.failure.Close(); b.state.Close(); b.meter.usage.Close() }()
 
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 
@@ -78,9 +79,8 @@ func (b *ToolCall) Start(ctx context.Context) {
 					return
 				}
 				if err != nil {
-					// The game cannot go on, so neither does the block.
-					b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseFailed, Reason: reason(err), Message: err.Error()})
-					return
+					b.fail(&b.state, b.name, text, err)
+					continue
 				}
 				b.out.Send(reply)
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
@@ -109,6 +109,25 @@ func (b *ToolCall) query(ctx context.Context, text string) (string, error) {
 	}
 }
 
+// failing is a block's failure output: each call that failed for good, with
+// the input it was given. The completeness check refuses it unwired.
+type failing struct{ failure ports.FailureBroadcast }
+
+// FailureOutPort carries each call that failed for good.
+func (f *failing) FailureOutPort() <-chan ports.Failure { return f.failure.Subscribe() }
+
+// RequiredOutputs has the failure output: what a failure leads to is the
+// genre's to say.
+func (f *failing) RequiredOutputs() []ports.Kind { return []ports.Kind{ports.KindFailure} }
+
+// fail sends the failure, then reports the block ready again with the
+// provider's reason.
+func (f *failing) fail(state *ports.StateBroadcast, name, input string, err error) {
+	why := reason(err)
+	f.failure.Send(ports.Failure{Node: name, Input: input, Reason: why, Message: err.Error()})
+	state.Send(ports.State{Node: name, Phase: ports.PhaseReady, Reason: why, Message: err.Error()})
+}
+
 // errExhausted is a failure that might have passed, still there after the
 // last attempt: the provider is unreachable.
 type errExhausted struct{ error }
@@ -120,6 +139,8 @@ func reason(err error) string {
 	switch {
 	case errors.As(err, &exhausted):
 		return ports.ReasonUnreachable
+	case errors.Is(err, adapters.ErrBadReply):
+		return ports.ReasonBadReply
 	case errors.Is(err, adapters.ErrKeyRejected):
 		return ports.ReasonKeyRejected
 	}

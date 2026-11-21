@@ -20,6 +20,23 @@ type AdventureConfig struct {
 	Tool adapters.Tool
 	// Thread runs the story model's conversation.
 	Thread adapters.Thread
+	Image  adapters.Image
+
+	// Scenario and Guardrail stay apart: nothing a designer writes shares a
+	// message with the youth-protection rule where a provider can keep them
+	// apart.
+	Scenario  string
+	Guardrail string
+
+	// Description is the game's idea in a sentence, for the picture prompt.
+	Description string
+
+	// ImageStyle is the designer's look; empty takes AdventureImageStyle.
+	ImageStyle string
+
+	// StartingMessage is how the game starts, in the designer's words: part
+	// of the System Message, left out when empty.
+	StartingMessage string
 
 	// Status seeds the values the game keeps, such as Health.
 	Status map[string]string
@@ -33,6 +50,10 @@ type AdventureConfig struct {
 
 	// PromptOverride retunes the genre's prompts by name, without a new build.
 	PromptOverride map[string]string
+
+	// ConstraintFrequency sets, by block name, how often a threaded block's
+	// calls carry the constraints: 1, the default, is every call, up to 10.
+	ConstraintFrequency map[string]int
 }
 
 // Prompt names are constants so a rename fails to compile.
@@ -56,8 +77,9 @@ const AdventureImageStyle = "simple illustration, minimalist"
 // Each is a text/template, filled when the wiring is built from
 // adventurePromptData: an override may use the same fields.
 var AdventurePrompts = Prompts{
-	// The one system message of the story thread, with every call on it.
-	// The input example is filled in with the game's own status fields.
+	// The game engine prompt, the head of the story thread's System Message,
+	// sent once as the thread's first message. The input example is filled in
+	// with the game's own status fields.
 	PromptGameMaster: `You are a text-adventure game master. You receive player actions and respond as the game world.
 
 Your role:
@@ -96,7 +118,8 @@ NARRATIVE STYLE:
 		"'The player attacks the wolf, hoping to wrestle him to the ground.'" +
 		"{{with .Language}}\nKeep the response in {{.}}.{{end}}",
 
-	// Outline's input on the first turn. The status sentence only when the
+	// The Initialization Prompt: Outline's message on the first turn, sent by
+	// the gate as the game's own message. The status sentence only when the
 	// game has status fields: without them the model pushes invented status
 	// into the narration. The player knows nothing yet, so the outline sets up
 	// role and situation, with one or two things to engage with, so the
@@ -112,7 +135,8 @@ NARRATIVE STYLE:
 		"base the choice on these values instead of your own preference " +
 		"(e.g. the first value modulo the number of options). Never mention these values to the player.{{end}}",
 
-	// Expand's message on every turn after the first.
+	// The Expand Prompt: Expand's message on every turn after the first.
+	// The outline is on the thread already, as the reply before.
 	PromptExpand: "NARRATE the outline into prose in the players language{{with .Language}} ({{.}}){{end}}. " +
 		"STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. " +
 		"Output plain prose only: no JSON, no curly braces, no field names, no status values. " +
@@ -308,11 +332,116 @@ func OutlineSchema(status map[string]string) adapters.Schema {
 	}}
 }
 
-// NewAdventure is the turn-based genre: rephrase, then Outline decides the
-// plot, image prompt and status in one structured call, then Expand writes
-// the prose on the same thread and the turn fans out to media. While
-// narration is on, Expand's turns are spoken: the prose's transcript and its
-// audio reach the player as they come.
+// The threaded blocks, whose constraint frequency a spec may set by name.
+const (
+	BlockOutline = "outline"
+	BlockExpand  = "expand"
+)
+
+// AdventureConstrained is every block whose calls carry the constraints.
+func AdventureConstrained() []string { return []string{BlockExpand, BlockOutline} }
+
+// constraintsLead introduces the youth-protection rule, wherever it goes.
+const constraintsLead = "NARRATION RULES must be respected: "
+
+// worded is the youth-protection rule as a message carries it; none is empty.
+func worded(guardrail string) string {
+	if strings.TrimSpace(guardrail) == "" {
+		return ""
+	}
+	return constraintsLead + guardrail
+}
+
+// systemMessage is the story thread's System Message: the game engine prompt,
+// the scenario, how the game starts when the designer says so, and the
+// constraints.
+func systemMessage(gameMaster, scenario, start, constraints string) string {
+	parts := []string{gameMaster, "The scenario:\n" + scenario}
+	if strings.TrimSpace(start) != "" {
+		parts = append(parts, "How to start the game:\n"+start)
+	}
+	if constraints != "" {
+		parts = append(parts, constraints)
+	}
+	return strings.Join(parts, "\n\n")
+}
+
+// longScenario is the length past which a scenario is condensed for the
+// picture prompts.
+const longScenario = 500
+
+// The props preparation hands the picture prompt.
+const (
+	partScenario = "scenario"
+	partStyle    = "style"
+)
+
+// imagePrompt builds a picture prompt from one reply of Outline's, in the
+// order the image model reads best: the scene frame's first line, the game's
+// idea and scenario, the scene and what the picture shows, the style, and the
+// frame's last line. The scenario is the condensed one when there is one, the
+// style the adapted one, otherwise AdventureImageStyle.
+func imagePrompt(scene, description, scenario string) func(blocks.Parts) string {
+	lines := strings.Split(strings.TrimSpace(scene), "\n")
+	first, last := lines[0], lines[len(lines)-1]
+	return func(p blocks.Parts) string {
+		parts := []string{first}
+		if description != "" {
+			parts = append(parts, "The game idea is: "+description)
+		}
+		setting := scenario
+		if condensed := p.Props[partScenario]; condensed != "" {
+			setting = condensed
+		}
+		if setting != "" {
+			parts = append(parts, "The game scenario is: "+setting)
+		}
+		if p.Secondary != "" {
+			parts = append(parts, "The current scene is: "+p.Secondary)
+		}
+		if p.Text != "" {
+			parts = append(parts, "The visual should show: "+p.Text)
+		}
+		style := p.Props[partStyle]
+		if style == "" {
+			style = AdventureImageStyle
+		}
+		parts = append(parts, "The artistic style should be: "+style)
+		if len(lines) > 1 {
+			parts = append(parts, last)
+		}
+		return strings.Join(parts, "\n")
+	}
+}
+
+// styleMessage is the image-style preparation's message: the style, and the
+// youth-protection rule it is adapted to.
+func styleMessage(style, guardrail string) string {
+	if strings.TrimSpace(style) == "" {
+		style = AdventureImageStyle
+	}
+	message := "Image Style: " + style
+	if strings.TrimSpace(guardrail) != "" {
+		message += "\n\nWorkshop Constraints:\n" + guardrail
+	}
+	return message
+}
+
+// The codes the genres' error sinks report, which the engine names as its
+// error codes.
+const (
+	CodeTurnFailed  = "turn_failed"
+	CodeImageFailed = "image_failed"
+)
+
+// NewAdventure is the turn-based genre. Preparation condenses a long scenario
+// and adapts the image style; then the world opens the game: the gate sends
+// the Initialization Prompt to Outline. Each turn after, Rephrase turns the
+// player's action into third person, Outline decides the plot, image prompt
+// and status in one structured call, Expand writes the prose on the same
+// thread, and the turn fans out to media. While narration is on, Expand's
+// turns are spoken: the prose's transcript and its audio reach the player as
+// they come. The player's input is released once the opening's prose is done.
 func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	prompts, err := Resolve(AdventurePrompts, cfg.PromptOverride)
 	if err != nil {
@@ -328,49 +457,95 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 		return nil, err
 	}
 
+	constraints := worded(cfg.Guardrail)
 	player := blocks.NewPlayerInputText("player-input-text")
 	rephrase := blocks.NewToolCall("rephrase", cfg.Tool, prompts[PromptRephrase])
 	// Outline takes the thread's first seat, Expand the second.
-	story := blocks.NewThread("story-thread", cfg.Thread)
-	outline := blocks.NewStructured("outline", story, prompts[PromptGameMaster], OutlineSchema(cfg.Status), outlineResult)
-	expand := blocks.NewThreaded("expand", story, prompts[PromptExpand])
-	image := blocks.NewDummyImage("image")
+	story := blocks.NewThread("story-thread", cfg.Thread,
+		systemMessage(prompts[PromptGameMaster], cfg.Scenario, cfg.StartingMessage, constraints), constraints)
+	outline := blocks.NewStructured(BlockOutline, story, OutlineSchema(cfg.Status), outlineResult)
+	expand := blocks.NewThreaded(BlockExpand, story, blocks.Prompt{First: prompts[PromptOpeningExpand], Then: prompts[PromptExpand]})
+	expand.Clean = cleanNarration
+	constrained := map[string]blocks.Constrained{outline.NodeName(): outline, expand.NodeName(): expand}
+
+	picturePrompt := blocks.NewCompose("image-prompt", imagePrompt(prompts[PromptScene], cfg.Description, cfg.Scenario))
+	image := blocks.NewImage("image", cfg.Image)
 
 	outText := blocks.NewPlayerOutputStream("out-text", "text")
 	outAudio := blocks.NewPlayerOutputAudio("out-audio", "audio")
 	outImage := blocks.NewPlayerOutputImage("out-image", "image")
 	outProps := blocks.NewPlayerOutputProps("out-props", "props")
 	props := blocks.NewPropsStore("props-store", cfg.Status)
+	turnFailed := blocks.NewErrorSink("turn-failed", CodeTurnFailed)
+	imageFailed := blocks.NewErrorSink("image-failed", CodeImageFailed)
+	problem := blocks.NewProblemSink("problem")
 
-	// No opening line: Adventure begins when the player acts.
-	gate := blocks.NewGate("start-game", "")
+	// Preparation: each keep asks its tool call once. A short scenario needs
+	// no condensing, so its keep asks nothing.
+	condenseRequest := ""
+	if len([]rune(cfg.Scenario)) > longScenario {
+		condenseRequest = "Scenario:\n" + cfg.Scenario
+	}
+	condenser := blocks.NewToolCall("condense-scenario", cfg.Tool, prompts[PromptCondenseScenario])
+	condensed := blocks.NewKeep("condensed-scenario", partScenario, condenseRequest)
+	adapter := blocks.NewToolCall("image-style", cfg.Tool, prompts[PromptImageStyle])
+	adapted := blocks.NewKeep("adapted-style", partStyle, styleMessage(cfg.ImageStyle, cfg.Guardrail))
+
+	// The world has the initiative: once preparation is done, the gate sends
+	// the Initialization Prompt.
+	gate := blocks.NewGate("start-game", prompts[PromptOpening])
 
 	g := ports.NewGraph("adventure")
-	g.Track(gate)
 	// The thread is exported once, under its own name, for both its blocks.
 	g.Share(story)
-	// Wired though it opens at once, so every genre has the same lifecycle shape.
-	g.ConnectState(gate, player)
+
+	g.ConnectTextOut(condensed, condenser)
+	g.ConnectTextOut(condenser, condensed)
+	g.ConnectTextOut(adapted, adapter)
+	g.ConnectTextOut(adapter, adapted)
+	// Both are tool calls before the game, so the game cannot start without them.
+	g.ConnectFailure(condenser, problem)
+	g.ConnectFailure(adapter, problem)
+	g.ConnectState(condensed, gate)
+	g.ConnectState(adapted, gate)
+	g.ConnectPropsOut(condensed, picturePrompt)
+	g.ConnectPropsOut(adapted, picturePrompt)
+
+	// The opening skips Rephrase: it is the game's own message, not an action.
+	g.ConnectOpening(gate, outline)
 	g.ConnectTextOut(player, rephrase)
 	g.ConnectTextOut(rephrase, outline)
+	g.ConnectFailure(rephrase, turnFailed)
 
 	g.ConnectTextOut(outline, expand)
-	// The block's second text output, on its own method so the two edges stay distinct.
-	g.ConnectSecondaryTextOut(outline, image)
+	// The picture prompt pairs one reply's image prompt with its outline.
+	g.ConnectSecondaryTextOut(outline, picturePrompt)
+	g.ConnectTextOutToSecondary(outline, picturePrompt)
 	// The store holds status values and is the one place to seed or correct them.
 	g.ConnectPropsOut(outline, props)
 	g.ConnectPropsOut(props, outline)
 	g.ConnectPropsOut(props, outProps)
+	g.ConnectFailure(outline, turnFailed)
 
 	// The player watches the prose appear, and hears it as it is spoken.
 	g.ConnectStreamOut(expand, outText)
 	g.ConnectAudioOut(expand, outAudio)
-	g.ConnectImageOut(image, outImage)
+	g.ConnectFailure(expand, turnFailed)
 
-	return &Wiring{
-		Graph:   g,
-		Gate:    gate,
-		Prompts: prompts,
+	g.ConnectTextOut(picturePrompt, image)
+	g.ConnectImageOut(image, outImage)
+	// A picture that fails costs the picture; the turn stands.
+	g.ConnectFailure(image, imageFailed)
+
+	// The player acts once the opening's prose is done, or once it failed.
+	g.ConnectState(outline, player)
+	g.ConnectState(expand, player)
+
+	w := &Wiring{
+		Graph:       g,
+		Gate:        gate,
+		Prompts:     prompts,
+		Constrained: constrained,
 		// The graph's shape is fixed; a toggle that is off stops its block
 		// working. Narration has Expand's turns spoken, and the session runs
 		// the story thread on the tier's speaking model meanwhile.
@@ -383,5 +558,11 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 		Inputs: []ports.InputMode{ports.InputText},
 		// A picture per turn, each belonging to the scene it illustrates.
 		Imagery: ports.ImageryPerTurn,
-	}, nil
+	}
+	for _, block := range slices.Sorted(maps.Keys(cfg.ConstraintFrequency)) {
+		if err := w.SetConstraintFrequency(block, cfg.ConstraintFrequency[block]); err != nil {
+			return nil, err
+		}
+	}
+	return w, nil
 }

@@ -8,8 +8,9 @@ import {
   ERROR_CODES,
   isSessionEvent,
   TEXT_DISCARD,
+  TEXT_REPLACE,
   type BlockState,
-  type ErrorCode,
+  type ErrorReport,
   type Phase,
   type Props,
   type Refusal,
@@ -234,6 +235,7 @@ export class PlaybackEngine {
         // a discard drops it unfinished, as a broken reply is made again.
         if (event.Value === "") this.takeFloor();
         else if (event.Value === TEXT_DISCARD) this.#discard();
+        else if (event.Value.startsWith(TEXT_REPLACE)) this.#replace(event.Value.slice(TEXT_REPLACE.length));
         else this.#extend(event.Value);
         // Something answered, so a fault reported earlier has passed.
         this.state.fault = null;
@@ -392,22 +394,34 @@ export class PlaybackEngine {
   }
 
   /**
-   * An error the game goes on after. A dropped turn of a line this page sent
-   * is said to the player, and the line is given back to send again with one
-   * press; one replayed from history is long past. Anything else is kept as a
-   * note.
+   * An error the game goes on after, reported as its code and the text the
+   * failed block was given. A dropped turn of a line this page sent is said to
+   * the player, and the line is given back to send again with one press; one
+   * replayed from history is long past. A turn that failed before any prose
+   * is the opening's, said so the player knows to begin; the next text clears
+   * it. A picture that failed is said, and the turn stands. Anything else is
+   * kept as a note.
    */
   #applyError(value: string): void {
-    if (!(ERROR_CODES as readonly string[]).includes(value)) {
+    const report = parseErrorReport(value);
+    if (report === null) {
       this.state.notes.push(`error: ${value}`);
       return;
     }
-    switch (value as ErrorCode) {
+    switch (report.code) {
       case "turn_failed":
-        if (this.#said === null) break;
+        if (this.#said === null) {
+          if (!this.state.utterances.some((u) => u.complete && u.text !== "")) {
+            this.state.fault = notice("errors.openingFailed");
+          }
+          break;
+        }
         this.state.fault = notice("errors.turnFailed");
         this.state.redo = this.#said;
         this.#said = null;
+        break;
+      case "image_failed":
+        this.state.fault = notice("errors.imageFailed");
         break;
     }
   }
@@ -483,6 +497,12 @@ export class PlaybackEngine {
     this.#open.text += delta;
   }
 
+  /** Replaces the text of the utterance still open, as when a reply was tidied after it streamed. */
+  #replace(text: string): void {
+    if (this.#open) this.#open.text = text;
+    else this.#extend(text);
+  }
+
   /**
    * Drops the text of the utterance still open, which is never finished. It
    * stays open, empty, so the retried reply fills the same place: the feed is
@@ -503,6 +523,20 @@ export class PlaybackEngine {
 }
 
 type Utterance = PlaybackEngineState["utterances"][number];
+
+/** Reads an error event's value, a report of a known code; anything else is null. */
+function parseErrorReport(value: string): ErrorReport | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const report = parsed as Partial<ErrorReport>;
+  if (typeof report.code !== "string" || !(ERROR_CODES as readonly string[]).includes(report.code)) return null;
+  return { code: report.code, text: typeof report.text === "string" ? report.text : "" };
+}
 
 /** Reads a props event's value, a JSON object of strings; one that does not read is null. */
 function parseProps(value: string): Props | null {

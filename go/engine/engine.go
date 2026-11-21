@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"sync"
 	"time"
 
@@ -71,8 +72,23 @@ type SessionSpec struct {
 	// Language is the player's, fixed at creation, as a BCP 47 tag such as "de".
 	Language string `json:"language,omitempty"`
 
-	// InitPrompt is sent once preparation is done, so the character speaks first.
+	// InitPrompt is the game's starting message. NPC-Live's gate sends it once
+	// preparation is done, so the character speaks first; Adventure's System
+	// Message carries it as how the game starts.
 	InitPrompt string `json:"initPrompt,omitempty"`
+
+	// Description is the game's idea in a sentence, which Adventure's picture
+	// prompts carry.
+	Description string `json:"description,omitempty"`
+
+	// Dice are Adventure's random values, each 1 to 100, rolled once at launch
+	// and stored, so a resumed opening is the same one.
+	Dice []int `json:"dice,omitempty"`
+
+	// ConstraintFrequency sets, by block name, how often a threaded block's
+	// calls carry the youth-protection rule: 1, the default, is every call, up
+	// to 10. A change during play is stored here.
+	ConstraintFrequency map[string]int `json:"constraintFrequency,omitempty"`
 
 	// Preference is the player's stored wish, fitted to the offers at launch.
 	// Without one the player chooses, unless a single fixed offer leaves nothing
@@ -135,6 +151,8 @@ type Session struct {
 	changes []string
 	// toldRejected says the slots have told the player their key was rejected.
 	toldRejected bool
+	// ended says a problem sink has ended the session, so it ends once.
+	ended sync.Once
 	// pending holds events posted under mu, until flush hands them to the sender.
 	pending []SessionEvent
 	// out is the sender's queue; the sender alone writes to the stream.
@@ -219,7 +237,22 @@ type resumption struct {
 // session's first state is saved before Launch returns, and a failed save
 // refuses the launch.
 func Launch(ctx context.Context, spec SessionSpec, offers []Offer) (*Session, error) {
+	if spec.Genre == GenreAdventure && len(spec.Dice) == 0 {
+		spec.Dice = rollDice()
+	}
 	return launch(ctx, spec, offers, nil)
+}
+
+// diceCount is how many values Adventure's opening rolls.
+const diceCount = 5
+
+// rollDice rolls the opening's values, each 1 to 100.
+func rollDice() []int {
+	values := make([]int, diceCount)
+	for i := range values {
+		values[i] = rand.IntN(100) + 1
+	}
+	return values
 }
 
 func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumption) (*Session, error) {
@@ -238,11 +271,19 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	case GenreAdventure:
 		var err error
 		w, err = genre.NewAdventure(genre.AdventureConfig{
-			Tool:           &s.slots.tool,
-			Thread:         &s.slots.thread,
-			Status:         spec.Status,
-			Language:       spec.Language,
-			PromptOverride: spec.PromptOverride,
+			Tool:                &s.slots.tool,
+			Thread:              &s.slots.thread,
+			Image:               &s.slots.image,
+			Scenario:            spec.Scenario,
+			Guardrail:           spec.Guardrail,
+			Description:         spec.Description,
+			ImageStyle:          spec.ImageStyle,
+			StartingMessage:     spec.InitPrompt,
+			Status:              spec.Status,
+			Language:            spec.Language,
+			Dice:                spec.Dice,
+			PromptOverride:      spec.PromptOverride,
+			ConstraintFrequency: spec.ConstraintFrequency,
 		})
 		if err != nil {
 			return nil, err
@@ -332,9 +373,10 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	return s, nil
 }
 
-// merge folds every wired sink into one session-scoped stream.
+// merge folds every wired sink into one session-scoped stream. What reaches
+// a problem sink ends the session instead.
 func (s *Session) merge(ctx context.Context) {
-	for name, ch := range s.wiring.Sinks() {
+	for _, sink := range s.wiring.Sinks() {
 		go func(name string, ch chan string) {
 			for {
 				select {
@@ -343,6 +385,10 @@ func (s *Session) merge(ctx context.Context) {
 				case v, ok := <-ch:
 					if !ok {
 						return
+					}
+					if name == "problem" {
+						s.failed(v)
+						continue
 					}
 					ev := SessionEvent{Stream: name, Value: v}
 					s.log(ev)
@@ -358,7 +404,7 @@ func (s *Session) merge(ctx context.Context) {
 					}
 				}
 			}
-		}(name, ch)
+		}(sink.Stream(), sink.Arrivals())
 	}
 }
 
@@ -387,19 +433,6 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 				case s.events <- ev:
 				case <-ctx.Done():
 					return
-				}
-				if state.Phase == ports.PhaseFailed {
-					s.fail(state)
-				}
-				if state.Phase == ports.PhaseReady && state.Reason == ports.ReasonTurnFailed {
-					// The game goes on; the player is told, and history keeps it.
-					dropped := SessionEvent{Stream: "error", Value: string(ErrorTurnFailed)}
-					s.log(dropped)
-					select {
-					case s.events <- dropped:
-					case <-ctx.Done():
-						return
-					}
 				}
 			}
 		}

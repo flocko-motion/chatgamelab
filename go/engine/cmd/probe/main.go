@@ -130,9 +130,9 @@ func main() {
 			thread := p.thread(keys, model)
 			for i := range *rounds {
 				turn := adapters.ThreadTurn{
-					Instructions: instructions + "\n\n" + shapes[i%len(shapes)],
-					Input:        string(input),
-					Schema:       &schema,
+					System: instructions + "\n\n" + shapes[i%len(shapes)],
+					Input:  string(input),
+					Schema: &schema,
 				}
 				reply := start.probe(thread, turn, schema, p.prices)
 				if reply.Continuation.ID == "" {
@@ -141,8 +141,8 @@ func main() {
 					continue
 				}
 				turn.Continuation = reply.Continuation
-				turn.Transcript = []adapters.Exchange{{Instructions: turn.Instructions, Input: turn.Input, Reply: reply.Text}}
-				turn.Instructions = instructions + "\n\n" + shapes[(i+1)%len(shapes)]
+				// The appended turn carries the System Message already.
+				turn.Transcript = []adapters.Exchange{turn.Exchange("probe", reply.Text)}
 				appended.probe(thread, turn, schema, p.prices)
 
 				// A fresh adapter holds no session, as after a restart: the
@@ -199,7 +199,8 @@ func speak(p platform, keys adapters.KeyFunc, model, instructions string, rounds
 		began := time.Now()
 		var firstPiece, firstAudio time.Duration
 		turn := adapters.ThreadTurn{
-			Instructions: instructions,
+			System:       instructions,
+			Directive:    true,
 			Input:        fmt.Sprintf("NARRATE: The player reaches stretch %d of the rope bridge as the storm grows. 3 sentences.", i+1),
 			Speak:        true,
 			Continuation: from,
@@ -232,7 +233,7 @@ func speak(p platform, keys adapters.KeyFunc, model, instructions string, rounds
 		r.audioOut = append(r.audioOut, reply.Usage.AudioOutputTokens)
 		r.audioIn = append(r.audioIn, reply.Usage.AudioInputTokens+reply.Usage.CachedAudioInputTokens)
 		from = reply.Continuation
-		transcript = append(transcript, adapters.Exchange{Instructions: instructions, Input: turn.Input, Reply: reply.Text})
+		transcript = append(transcript, turn.Exchange("probe", reply.Text))
 	}
 	return r
 }

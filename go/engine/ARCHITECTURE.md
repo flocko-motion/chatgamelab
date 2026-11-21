@@ -45,6 +45,15 @@ set, written by hand.
   like any other. NPC-Live's observer loop is one.
 - **A per-genre test checks completeness**: every required input and output is
   wired, and every block is reachable from an input.
+- **A failure is a block's, never a turn's.** Every block that makes a model
+  call has a failure output: after its retries, a failed call sends the input
+  it was given there, and nothing on its normal outputs; on a shared thread it
+  hands the thread's turn on. The genre wires each failure output to an error
+  sink built with a code, which tells the player and lets the game go on; to
+  the problem sink, which ends the session; or to any block that takes text.
+  The completeness check refuses a failure output left unwired. The provider's
+  reason stays on the block's state report, for the graph view, which draws
+  failure edges apart as a pale red line.
 - Two genres justify neither a DSL nor a generic scheduler, so the graph stays
   Go and keeps its type safety.
 
@@ -52,9 +61,10 @@ set, written by hand.
 
 A genre's graph is **P-shaped**: an init stem that runs once, a **gate**, and
 the loop. The gate waits for the blocks wired into it to report
-working-then-ready, releases the player's inputs, and sends the opening message:
-the scenario followed by the cue. What gates is a wiring decision; NPC-Live
-gates on its portrait.
+working-then-ready and sends the cue that opens the game. What gates is a
+wiring decision: NPC-Live gates on its portrait and releases the player's
+voice with the gate; Adventure gates on its preparation and releases the
+player's input once the opening's prose is done.
 
 Every block reports its state changes, and every report reaches the client,
 which draws the wiring once and then tracks phases.
@@ -67,6 +77,21 @@ which draws the wiring once and then tracks phases.
 is too willing to do what the player asked. Rephrase turns the input into third
 person with an uncertain outcome; Outline models a plausible world reacting to
 it; Expand turns the outline into prose.
+
+- **Preparation** runs two tool calls in parallel before the gate opens:
+  condensing a scenario over 500 characters, and adapting the image style to
+  the youth-protection rule. Both are skipped when no offer allows pictures;
+  either failing ends the start. Their results are kept, so a resumed session
+  never makes them again.
+- **The world has the initiative.** The gate sends the Initialization Prompt
+  straight to Outline, skipping Rephrase, and the opening runs through Outline
+  and Expand into narration, a picture and the initial status. The opening's
+  dice are rolled at launch and stored with the spec.
+- **The picture prompt** is built without a model call from one reply's image
+  prompt and outline, the game's description, the condensed or full scenario
+  and the adapted style, inside the scene frame.
+- **A failed call during play** costs the turn: Rephrase, Outline and Expand
+  lead to the `turn_failed` error sink, the picture to `image_failed`.
 
 ```mermaid
 graph TB
@@ -217,15 +242,35 @@ with the transcript, so a session never ends because a provider forgot its
 thread.
 
 - **One call at a time**, in turn: the next turn's Outline waits for Expand.
-- **Instructions travel with every call**, since neither provider carries
-  them over.
+- **The System Message is sent once**, as the thread's first message: on
+  OpenAI a developer message at the start of the first call's input, since
+  OpenAI carries no `instructions` over a previous response while input
+  messages are stored; on Mistral the conversation's instructions as it
+  starts. A fresh provider thread seeded from the transcript begins with it
+  again. Adventure's System Message is the game engine prompt, the scenario,
+  how the game starts, and the youth-protection rule.
+- **Each call's message is a block's**: the player's action, or the game's
+  own message, such as the Initialization Prompt and Expand's prompt, sent as
+  a developer message on OpenAI and as the user's on Mistral.
+- **The youth-protection rule travels with the calls**, worded "NARRATION
+  RULES must be respected: …": on OpenAI in a developer message of its own,
+  right before the call's message, so designer text never shares it; on
+  Mistral, which has no developer role, appended to the user message. How
+  often a threaded block's calls carry it is its **constraint frequency**,
+  from 1, every call, to 10, counted per block from the transcript; the
+  System Message and the opening always carry it. A spec sets it by block
+  name, and it may change during play, stored with the spec.
 - **On Mistral**, appending takes neither a model nor instructions, and an
   input may only be a user's or an assistant's message. A conversation stays
-  on the model it started with, and each call's instructions travel in its
-  user message.
+  on the model it started with.
 - **A stream that breaks partway** is made again from the same continuation,
   as the provider never completed that response; the pieces already sent are
-  dropped first. Only an exhausted retry or a hard failure ends the game.
+  dropped first. An exhausted retry or a hard failure fails the call, and the
+  block's failure edge decides what follows.
+- **Expand's prose is tidied** once finished: prose taken out of JSON, a JSON
+  block cut off its end, markdown emphasis dropped. Prose that changed
+  replaces the open utterance; a reply with no prose left is made again, up
+  to three times.
 - **A turn may be structured**: the thread adapter takes an optional JSON
   schema, sent in the provider's strict mode, so one thread carries
   Outline's structured turns and Expand's plain ones. Every call states its
@@ -243,11 +288,13 @@ thread.
 - **On OpenAI's speaking models**, gpt-realtime, the thread runs over the
   Realtime API's server-side WebSocket. The continuation is the session, held
   open between calls; the session's 60-minute limit, a dropped connection or
-  an engine restart reseed a fresh one from the transcript. Instructions go
-  with each response. Realtime has no JSON schema format, so a structured turn
-  is a forced function call, named after the schema with the schema as its
-  parameters, and the caller checks its arguments against the schema; a reply
-  not kept is deleted from the session.
+  an engine restart reseed a fresh one from the transcript. The System Message
+  is the session's instructions; the youth-protection rule and the game's own
+  message are system messages, the player's a user message, and a response
+  sets no instructions of its own. Realtime has no JSON schema format, so a
+  structured turn is a forced function call, named after the schema with the
+  schema as its parameters, and the caller checks its arguments against the
+  schema; a reply not kept is deleted from the session.
 
 ### A structured result
 
@@ -256,14 +303,15 @@ the outline, the image prompt, and the status, one property per status field
 of the session, every one in every reply. Each call sends the action with the
 current status values, so the thread's memory is not trusted for them.
 
-- **Parsing is part of the call.** A reply that does not parse against the
-  schema, a refusal or one cut short is a bad reply: it is never kept on the
-  thread, and the call is made again from the same continuation.
-- **Three bad replies drop the turn; the game goes on.** Nothing goes to
-  Expand, the image or the status; the thread hands the turn past Expand; the
-  block is ready again; and the player gets the `turn_failed` error, with the
-  line they sent back in the input box. This budget is apart from the
-  network's retries.
+- **Parsing is part of the call.** A reply is tidied first: a markdown fence
+  and any text around the JSON object go. One that still does not parse
+  against the schema, a refusal or one cut short is a bad reply: it is never
+  kept on the thread, and the call is made again from the same continuation.
+- **Three bad replies fail the call.** Nothing goes to Expand, the image or
+  the status; the thread hands the turn past Expand; the block is ready again;
+  and its failure edge leads to the `turn_failed` error, with the line the
+  player sent back in the input box. This budget is apart from the network's
+  retries.
 - **`cmd/probe`** (`make probe`) measures, on real keys and by hand, how
   reliably each platform's story models answer a structured turn, streamed,
   fresh, appended and on a fresh thread seeded with the transcript: valid,
@@ -279,6 +327,11 @@ resolves nothing against platform data.
 
 - **Scenario and guardrail** — the designer's text and the platform's
   youth-protection constraint, already resolved.
+- **Starting message and description** — how the game starts, in the
+  designer's words, and the game's idea in a sentence.
+- **Dice and constraint frequencies** — Adventure's opening values, rolled at
+  launch, and how often each threaded block repeats the youth-protection
+  rule.
 - **Genre prompts** — the mechanics, belonging to the genre as a named map. A
   spec may replace any of them.
 - **Genre, title, image style.**
@@ -402,12 +455,14 @@ genre's interaction model: a voice genre uses one duplex connection for audio
 and events; a turn-based genre reads events as server-sent events, one JSON
 event per message, and sends actions as requests. A genre's wired output
 sinks define its event types. Utterance boundaries travel in-band: on the
-`text` stream an empty value closes the utterance, and the discard marker
-drops the one still open; on the `audio` stream an empty frame drops the
-speech still playing and queued, so a reply made again speaks from its
-start. A `props` value is the status values as a JSON object; an `error`
-value the game goes on after is a code, such as `turn_failed`, which the
-playback-engine says in the player's language.
+`text` stream an empty value closes the utterance, the discard marker drops
+the one still open, and a value starting with the replace marker replaces its
+text with the rest; on the `audio` stream an empty frame drops the speech
+still playing and queued, so a reply made again speaks from its start. A
+`props` value is the status values as a JSON object; an `error` value the
+game goes on after is a JSON object of a code, such as `turn_failed` or
+`image_failed`, which the playback-engine says in the player's language, and
+the text the failed block was given.
 
 **Live audio is browser-direct, watched through a sideband:**
 
@@ -484,14 +539,15 @@ session end to end with the headless playback-engine.
 - Narration: Expand's turns spoken on OpenAI's gpt-realtime models over the
   Realtime API, the story thread switching model with `audio-out`, and the
   playback-engine playing the audio as it comes.
+- Adventure wired to its spec: the System Message once, the youth-protection
+  rule with every call at its frequency, preparation, the world's opening with
+  its dice, the real image block with its picture prompt, tidied replies, and
+  failure edges on every block that calls a model.
 
 ### Missing
 
-- **Adventure's remaining real blocks** — image generation and
-  transcription, which still run as dummies.
-- **Adventure's prompts in play** — the game master's message on Expand's
-  calls, the opening and its dice, the scenario and the youth-protection rule
-  on the story thread, the picture prompt and the two preparation calls.
+- **Adventure's remaining real blocks** — transcription, which still runs as
+  a dummy.
 - **The observer's thread** — it judges each line on its own.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the playback-engine needs.

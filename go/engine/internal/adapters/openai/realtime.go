@@ -51,6 +51,11 @@ func ValidRealtimeVoice(name string) bool { return realtimeVoices[name] }
 // the transcript. A reply the caller did not keep is deleted from the session
 // when the next call goes on from the handle before it.
 //
+// The System Message is the session's instructions, set as it opens, and set
+// again on a session seeded fresh. A call's constraints go in a system message
+// of their own, right before its input, which is the game's own system message
+// or the player's user message.
+//
 // A spoken turn asks for audio, which comes with its transcript; a plain turn
 // asks for text. A JSON turn is a forced function call, named after the
 // schema with the schema as its parameters, its arguments the reply: Realtime
@@ -139,7 +144,7 @@ func (r *Realtime) ready(ctx context.Context, turn adapters.ThreadTurn) (*realti
 		}
 	}
 	r.drop()
-	s, err := r.open(ctx, turn.Transcript)
+	s, err := r.open(ctx, turn.System, turn.Transcript)
 	if err != nil {
 		return nil, err
 	}
@@ -155,9 +160,9 @@ func (r *Realtime) drop() {
 	}
 }
 
-// open connects a fresh session, configures it, and seeds it with the
-// transcript.
-func (r *Realtime) open(ctx context.Context, transcript []adapters.Exchange) (*realtimeSession, error) {
+// open connects a fresh session, configures it with the System Message, and
+// seeds it with the transcript, each exchange as it was sent.
+func (r *Realtime) open(ctx context.Context, system string, transcript []adapters.Exchange) (*realtimeSession, error) {
 	key, err := r.keys(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("resolve api key: %w", err)
@@ -191,6 +196,7 @@ func (r *Realtime) open(ctx context.Context, transcript []adapters.Exchange) (*r
 	// and asks for each response itself.
 	err = s.send(ctx, map[string]any{"type": "session.update", "session": map[string]any{
 		"type":              "realtime",
+		"instructions":      system,
 		"output_modalities": []string{"audio"},
 		"audio": map[string]any{
 			"input":  map[string]any{"turn_detection": nil},
@@ -201,7 +207,7 @@ func (r *Realtime) open(ctx context.Context, transcript []adapters.Exchange) (*r
 		if err != nil {
 			break
 		}
-		if err = s.add(ctx, textItem("user", "input_text", e.Input)); err == nil {
+		if _, err = s.say(ctx, e); err == nil {
 			err = s.add(ctx, textItem("assistant", "output_text", e.Reply))
 		}
 	}
@@ -365,6 +371,29 @@ func (s *realtimeSession) addItem(ctx context.Context, item map[string]any) (str
 	return id, s.send(ctx, map[string]any{"type": "conversation.item.create", "item": item})
 }
 
+// say adds what an exchange sends: its constraints in a system message of
+// their own, then its input, as the game's system message or the player's
+// user message. It returns the items it added.
+func (s *realtimeSession) say(ctx context.Context, e adapters.Exchange) ([]string, error) {
+	var added []string
+	if e.Constraints != "" {
+		id, err := s.addItem(ctx, textItem("system", "input_text", e.Constraints))
+		if err != nil {
+			return added, err
+		}
+		added = append(added, id)
+	}
+	role := "user"
+	if e.Directive {
+		role = "system"
+	}
+	id, err := s.addItem(ctx, textItem(role, "input_text", e.Input))
+	if err != nil {
+		return added, err
+	}
+	return append(added, id), nil
+}
+
 // textItem is a conversation item of one text part.
 func textItem(role, part, text string) map[string]any {
 	return map[string]any{
@@ -398,17 +427,17 @@ func (s *realtimeSession) forget(ctx context.Context, items []string) error {
 	return nil
 }
 
-// respond makes one turn in the session: the input as a user message, then a
+// respond makes one turn in the session: what the turn sends, then a
 // response, read to its end. The items it adds are pending until it is kept.
+// The response sets no instructions, which would replace the session's.
 func (s *realtimeSession) respond(ctx context.Context, turn adapters.ThreadTurn) (adapters.ThreadReply, error) {
-	s.pending = nil
-	input, err := s.addItem(ctx, textItem("user", "input_text", turn.Input))
+	added, err := s.say(ctx, turn.Exchange("", ""))
+	s.pending = added
 	if err != nil {
 		return adapters.ThreadReply{}, err
 	}
-	s.pending = append(s.pending, input)
 
-	response := map[string]any{"instructions": turn.Instructions, "output_modalities": []string{"text"}}
+	response := map[string]any{"output_modalities": []string{"text"}}
 	switch {
 	case turn.Schema != nil:
 		response["tools"] = []map[string]any{{"type": "function", "name": turn.Schema.Name, "parameters": turn.Schema.Body}}

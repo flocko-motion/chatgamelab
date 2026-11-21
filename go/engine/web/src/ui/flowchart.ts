@@ -19,6 +19,21 @@ function token(name: string, fallback: string): string {
   return value || fallback;
 }
 
+/** Mixes two #rrggbb colours, weight of the first; anything else gives the first. */
+function mix(first: string, second: string, weight: number): string {
+  const rgb = (hex: string): number[] | null => {
+    const m = /^#([0-9a-f]{6})$/i.exec(hex);
+    if (!m) return null;
+    const n = parseInt(m[1]!, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  const a = rgb(first);
+  const b = rgb(second);
+  if (!a || !b) return first;
+  const mixed = a.map((v, i) => Math.round(v * weight + b[i]! * (1 - weight)));
+  return `#${mixed.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+}
+
 /**
  * Every class a selection puts on, cleared together: a stale mark from the last
  * selection is worse than none, because it reads as part of this one.
@@ -65,6 +80,9 @@ export class Flowchart {
     const recent = token("--recent", "#9ec9b4");
     const into = token("--wire-in", "#16a34a");
     const outOf = token("--wire-out", "#dc2626");
+    // A failure edge is the outgoing wire's red faded into the background,
+    // pale on a light pane and dark on a dark one.
+    const failure = mix(outOf, bg, 0.35);
 
     this.#cy = cytoscape({
       container: this.container,
@@ -157,6 +175,12 @@ export class Flowchart {
             "arrow-scale": 0.7,
             "curve-style": "bezier",
           },
+        },
+        {
+          // Where a block's failed call goes: pale and dashed, apart from the
+          // flow a turn takes when all goes well.
+          selector: 'edge[label = "failure"]',
+          style: { "line-color": failure, "target-arrow-color": failure, "line-style": "dashed" },
         },
         // Declared last on purpose: cytoscape resolves a conflict in favour of
         // the later rule, so selection styles have to follow the base ones they
