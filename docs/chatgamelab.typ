@@ -155,11 +155,10 @@ run workshops and play.
 
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
   group.
-- *Head* — leads an organisation: manages its staff, workshops and rules.
+- *Head* — leads an organisation: manages its staff, workshops and rules, can also run workshops.
 - *Staff* — runs workshops within an organisation.
-- *Participant* — takes part in a workshop, including by joining through a link.
 - *Individual* — uses the platform without an organisation.
-- *Guest* — plays a shared game without an account.
+- *Guest* — plays a shared game anonymously or takes part in a workshop by joining through a link.
 
 Anyone who writes a game is its *designer*: they author its scenario, title,
 image style, theme and genre.
