@@ -1470,6 +1470,7 @@
       "stale": "Dieses Spiel kann nicht mehr fortgesetzt werden.",
       "unknown": "Diese Spielsitzung gibt es nicht.",
       "denied": "Du darfst dieses Spiel nicht spielen.",
+      "paused": "Der Workshop ist pausiert. Das Spiel geht weiter, sobald er fortgesetzt wird.",
       "failed": "Etwas ist schiefgelaufen, das Spiel kann nicht weitergehen."
     },
     "errors": {

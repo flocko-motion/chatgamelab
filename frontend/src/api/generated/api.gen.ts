@@ -344,28 +344,6 @@ export interface GameMeta {
   modifiedAt: string;
 }
 
-export interface GameSession {
-  /** @format uuid */
-  apiKeyShareId?: string;
-  /** @format date-time */
-  createdAt: string;
-  /** @format uuid */
-  gameId: string;
-  /** @format uuid */
-  gameShareId?: string;
-  /** @format uuid */
-  id: string;
-  language: string;
-  messagesSent: number;
-  /** @format date-time */
-  modifiedAt: string;
-  platform: string;
-  /** @format uuid */
-  userId: string;
-  /** @format uuid */
-  workshopId?: string;
-}
-
 export interface GameSponsorReq {
   /** @format uuid */
   shareId: string;
@@ -862,6 +840,29 @@ export interface SessionEvent {
   Value: string;
 }
 
+export interface SessionView {
+  /** @format uuid */
+  apiKeyShareId?: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  gameId: string;
+  gameName?: string;
+  /** @format uuid */
+  gameShareId?: string;
+  /** @format uuid */
+  id: string;
+  language: string;
+  messagesSent: number;
+  /** @format date-time */
+  modifiedAt: string;
+  platform: string;
+  /** @format uuid */
+  userId: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
 export interface SetActiveWorkshopReq {
   /** @format uuid */
   workshopId?: string;
@@ -1195,29 +1196,6 @@ export interface UserRoleRef {
 export interface UserSecretsView {
   token?: string;
   words?: string;
-}
-
-export interface UserSessionWithGame {
-  /** @format uuid */
-  apiKeyShareId?: string;
-  /** @format date-time */
-  createdAt: string;
-  /** @format uuid */
-  gameId: string;
-  gameName: string;
-  /** @format uuid */
-  gameShareId?: string;
-  /** @format uuid */
-  id: string;
-  language: string;
-  messagesSent: number;
-  /** @format date-time */
-  modifiedAt: string;
-  platform: string;
-  /** @format uuid */
-  userId: string;
-  /** @format uuid */
-  workshopId?: string;
 }
 
 export interface UserStatsView {
@@ -2613,15 +2591,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description read; another's game they may not read is 404.
      *
      * @name GetApiGamesIdSessions
-     * @summary Lists the caller's own sessions of a game.
+     * @summary Lists the caller's sessions of a game they may
      * @request GET:/api/games/{id}/sessions
      * @secure
      */
     getApiGamesIdSessions: (id: string, params: RequestParams = {}) =>
-      this.request<GameSession[], Error>({
+      this.request<SessionView[], Error>({
         path: `/api/games/${id}/sessions`,
         method: "GET",
         secure: true,
@@ -3432,10 +3410,10 @@ export class Api<
       }),
 
     /**
-     * @description Query: search (game name), sortBy (game, model for the AI platform, lastPlayed by default).
+     * @description first, at most 20. search narrows them to games whose name holds it; sortBy "game" or "model" orders them by game name or AI platform.
      *
      * @name GetApiSessions
-     * @summary Lists the caller's recent sessions with their games' names.
+     * @summary Lists the caller's sessions, newest activity
      * @request GET:/api/sessions
      * @secure
      */
@@ -3446,7 +3424,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-      this.request<UserSessionWithGame[], Error>({
+      this.request<SessionView[], Error>({
         path: `/api/sessions`,
         method: "GET",
         query: query,
@@ -3456,10 +3434,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description else's does not exist for them (404).
      *
      * @name DeleteApiSessionsId
-     * @summary Deletes a session the caller owns and everything it stored.
+     * @summary Deletes one of the caller's sessions; someone
      * @request DELETE:/api/sessions/{id}
      * @secure
      */
@@ -3617,7 +3595,7 @@ export class Api<
       }),
 
     /**
-     * @description The state is "anonymous" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A guest whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering, and a member of a suspended organisation; this one reports both.
+     * @description The state is "guest" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A guest whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering, and a member of a suspended organisation; this one reports both.
      *
      * @name GetApiUsersMe
      * @summary Reports who is calling.

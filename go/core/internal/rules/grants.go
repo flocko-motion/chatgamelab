@@ -88,7 +88,11 @@ const (
 	// the key that pays, its creator.
 	GameSettings Entity = "game settings"
 
+	// Session is a game being played: its story, state and insights.
 	Session Entity = "session"
+	// SessionRule is how a session applies the youth-protection rule: how
+	// often each of its blocks repeats it.
+	SessionRule Entity = "session rule"
 	// ShareLink is a voucher: someone's money, for plays of one game, for
 	// whoever holds the link. It belongs to neither the game nor the key; the
 	// payer is the weightier side, so whoever pays for it may see it.

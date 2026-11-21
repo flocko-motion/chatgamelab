@@ -20,8 +20,8 @@ type (
 	PrivateShareStatus  = apiclient.PrivateShareStatusResp
 	GuestGameInfo       = apiclient.GuestGameInfoResp
 	AvailableKey        = apiclient.AvailableKey
-	GameSession         = apiclient.GameSession
-	UserSession         = apiclient.UserSessionWithGame
+	GameSession         = apiclient.SessionView
+	UserSession         = apiclient.SessionView
 	Institution         = apiclient.OrganisationView
 	Workshop            = apiclient.WorkshopView
 	WorkshopParticipant = apiclient.WorkshopParticipantView

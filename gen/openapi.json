@@ -992,62 +992,6 @@
         ],
         "type": "object"
       },
-      "GameSession": {
-        "properties": {
-          "apiKeyShareId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "gameId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "gameShareId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          },
-          "messagesSent": {
-            "type": "integer"
-          },
-          "modifiedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "platform": {
-            "type": "string"
-          },
-          "userId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "workshopId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "gameId",
-          "userId",
-          "platform",
-          "language",
-          "messagesSent",
-          "createdAt",
-          "modifiedAt"
-        ],
-        "type": "object"
-      },
       "GameSponsorReq": {
         "properties": {
           "shareId": {
@@ -2528,6 +2472,65 @@
         ],
         "type": "object"
       },
+      "SessionView": {
+        "properties": {
+          "apiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "gameId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "gameName": {
+            "type": "string"
+          },
+          "gameShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "messagesSent": {
+            "type": "integer"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workshopId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "gameId",
+          "userId",
+          "platform",
+          "language",
+          "messagesSent",
+          "createdAt",
+          "modifiedAt"
+        ],
+        "type": "object"
+      },
       "SetActiveWorkshopReq": {
         "properties": {
           "workshopId": {
@@ -3474,66 +3477,6 @@
             "type": "string"
           }
         },
-        "type": "object"
-      },
-      "UserSessionWithGame": {
-        "properties": {
-          "apiKeyShareId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "gameId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "gameName": {
-            "type": "string"
-          },
-          "gameShareId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          },
-          "messagesSent": {
-            "type": "integer"
-          },
-          "modifiedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "platform": {
-            "type": "string"
-          },
-          "userId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "workshopId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "gameId",
-          "userId",
-          "platform",
-          "language",
-          "messagesSent",
-          "createdAt",
-          "modifiedAt",
-          "gameName"
-        ],
         "type": "object"
       },
       "UserStatsView": {
@@ -6474,6 +6417,7 @@
     },
     "/api/games/{id}/sessions": {
       "get": {
+        "description": "read; another's game they may not read is 404.",
         "operationId": "getApiGamesIdSessions",
         "parameters": [
           {
@@ -6491,7 +6435,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/GameSession"
+                    "$ref": "#/components/schemas/SessionView"
                   },
                   "type": "array"
                 }
@@ -6518,7 +6462,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the caller's own sessions of a game."
+        "summary": "Lists the caller's sessions of a game they may"
       }
     },
     "/api/games/{id}/shares": {
@@ -8507,7 +8451,7 @@
     },
     "/api/sessions": {
       "get": {
-        "description": "Query: search (game name), sortBy (game, model for the AI platform,\nlastPlayed by default).",
+        "description": "first, at most 20. search narrows them to games whose name holds it;\nsortBy \"game\" or \"model\" orders them by game name or AI platform.",
         "operationId": "getApiSessions",
         "parameters": [
           {
@@ -8533,7 +8477,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/UserSessionWithGame"
+                    "$ref": "#/components/schemas/SessionView"
                   },
                   "type": "array"
                 }
@@ -8560,11 +8504,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the caller's recent sessions with their games' names."
+        "summary": "Lists the caller's sessions, newest activity"
       }
     },
     "/api/sessions/{id}": {
       "delete": {
+        "description": "else's does not exist for them (404).",
         "operationId": "deleteApiSessionsId",
         "parameters": [
           {
@@ -8606,7 +8551,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Deletes a session the caller owns and everything it stored."
+        "summary": "Deletes one of the caller's sessions; someone"
       }
     },
     "/api/status": {
@@ -8923,7 +8868,7 @@
     },
     "/api/users/me": {
       "get": {
-        "description": "The state is \"anonymous\" without a sign-in, \"registering\" for an account\nwhose registration is incomplete, and \"registered\" with the account and its\nrole. A guest whose workshop is inactive, or an account that is gone, is\nrefused with 403. Every other endpoint refuses an account that is still\nregistering, and a member of a suspended organisation; this one reports\nboth.",
+        "description": "The state is \"guest\" without a sign-in, \"registering\" for an account\nwhose registration is incomplete, and \"registered\" with the account and its\nrole. A guest whose workshop is inactive, or an account that is gone, is\nrefused with 403. Every other endpoint refuses an account that is still\nregistering, and a member of a suspended organisation; this one reports\nboth.",
         "operationId": "getApiUsersMe",
         "responses": {
           "200": {

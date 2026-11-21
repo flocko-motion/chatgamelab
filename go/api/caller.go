@@ -19,7 +19,7 @@ func caller(ctx context.Context) (*obj.User, error) {
 }
 
 // maybeCaller is the registered account calling an AuthOptional endpoint, or
-// nil for an anonymous caller.
+// nil for a guest nobody signed in.
 func maybeCaller(ctx context.Context) (*obj.User, error) {
 	return core.LegacyMaybeCaller(ctx)
 }

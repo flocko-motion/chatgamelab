@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     started.current = true;
     void (async () => {
       const state = await fetchCaller();
-      if (state === "anonymous" && auth0.isAuthenticated && !exchanged.current) {
+      if (state === "guest" && auth0.isAuthenticated && !exchanged.current) {
         exchanged.current = true;
         if (await exchange()) await fetchCaller();
       }

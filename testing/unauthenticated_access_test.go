@@ -25,11 +25,11 @@ func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedCannotListUsers() {
 	s.Unauthorized(err)
 }
 
-// Asking who is calling answers an anonymous caller: anonymous, without an
-// account.
-func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedIsAnonymous() {
+// Asking who is calling answers a caller nobody signed in: a guest, without
+// an account.
+func (s *UnauthenticatedAccessTestSuite) TestUnauthenticatedIsAGuest() {
 	me := Must(s.Public().WhoAmI())
-	s.Equal("anonymous", me.State)
+	s.Equal("guest", me.State)
 	s.Nil(me.User)
 
 	_, err := s.Public().GetStats()

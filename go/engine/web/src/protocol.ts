@@ -68,6 +68,7 @@ export type Problem =
   | "stale"
   | "unknown"
   | "denied"
+  | "paused"
   | "failed"
   ;
 
@@ -81,6 +82,7 @@ export const PROBLEMS: readonly Problem[] = [
   "stale",
   "unknown",
   "denied",
+  "paused",
   "failed",
 ];
 

@@ -25,7 +25,7 @@ import (
 // Caller. Its facts are loaded once per request; it lives for that request
 // and is never cached beyond it.
 type Caller struct {
-	account         *uuid.UUID // nil: anonymous; owns nothing
+	account         *uuid.UUID // nil: a guest nobody signed in; owns nothing
 	role            rules.Role
 	organisation    *uuid.UUID
 	currentWorkshop *uuid.UUID // a guest: their own, fixed; others: workshop mode
@@ -40,13 +40,14 @@ type Caller struct {
 	legacy *obj.User // v1's view of the caller, loaded by Legacy on first use
 }
 
-// anonymous is the caller nobody signed in: a guest, holding only Everyone's
+// guest is the caller nobody signed in: a guest without an account yet,
+// holding only Everyone's
 // grants.
-var anonymous = &Caller{role: rules.Guest}
+var guest = &Caller{role: rules.Guest}
 
-// Anonymous is the caller of a request nobody signed in to, and of a context
+// Guest is the caller of a request nobody signed in to, and of a context
 // nobody resolved: no rights by accident.
-func Anonymous() *Caller { return anonymous }
+func Guest() *Caller { return guest }
 
 // New is the caller of the request whose admission adm is. It is the only way
 // to an account's caller, and works only inside the OnRequest hook: adm panics
@@ -59,7 +60,7 @@ func Anonymous() *Caller { return anonymous }
 func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
 	subject, ok := adm.Subject()
 	if !ok {
-		return anonymous, nil
+		return guest, nil
 	}
 	id, err := uuid.Parse(subject)
 	if err != nil {
@@ -113,7 +114,7 @@ func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
 // bound to that workshop.
 const dbGuest = "guest"
 
-// Account is the caller's account, or nil for anonymous.
+// Account is the caller's account, or nil for a guest nobody signed in.
 func (c *Caller) Account() *uuid.UUID { return c.account }
 
 // Role is the caller's role: Guest for a caller nobody signed in.
@@ -180,7 +181,7 @@ func suspensionOf(byAdmin, consentMissing bool) Suspension {
 }
 
 // Legacy is v1's view of the caller, for the legacy bridge only; nil for
-// anonymous. It loads on first use, so only code not yet ported pays for it.
+// a guest nobody signed in. It loads on first use, so only code not yet ported pays for it.
 func (c *Caller) Legacy(ctx context.Context) (*obj.User, error) {
 	if c.account == nil {
 		return nil, nil

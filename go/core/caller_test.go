@@ -13,7 +13,7 @@ import (
 // own), never SignedIn's.
 func TestUnresolvedContextIsAnonymous(t *testing.T) {
 	c := from(context.Background())
-	if c != identity.Anonymous() {
+	if c != identity.Guest() {
 		t.Fatalf("unresolved context has caller %+v, want anonymous", c)
 	}
 	got := roles(c)
@@ -27,7 +27,7 @@ func TestUnresolvedContextIsAnonymous(t *testing.T) {
 
 // The caller put into a context is the one read out of it.
 func TestCallerTravelsInContext(t *testing.T) {
-	want := identity.Anonymous()
+	want := identity.Guest()
 	got := from(withCaller(context.Background(), want))
 	if got != want {
 		t.Fatalf("from(withCaller(c)) = %p, want %p", got, want)

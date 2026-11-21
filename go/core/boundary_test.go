@@ -33,17 +33,12 @@ var legacy = map[string]bool{
 	"api/auth.go":             true,
 	"api/auth/login.go":       true,
 	"api/check_name.go":       true,
-	"api/engine.go":           true,
 	"api/janitor.go":          true,
-	"api/sessions.go":         true,
 	"api/startup.go":          true,
 	"api/status.go":           true,
 	"api/system_settings.go":  true,
 	"api/users.go":            true,
 	"api/workshops_public.go": true,
-	"game/guest.go":           true,
-	"game/session.go":         true,
-	"game/session_test.go":    true,
 }
 
 // Only the core reaches the database: no other code of the module imports

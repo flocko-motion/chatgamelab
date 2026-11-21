@@ -1470,6 +1470,7 @@
       "stale": "This game can no longer be continued.",
       "unknown": "This game session does not exist.",
       "denied": "You may not play this game.",
+      "paused": "The workshop is paused. The game goes on when it resumes.",
       "failed": "Something went wrong, and the game cannot go on."
     },
     "errors": {

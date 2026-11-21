@@ -79,7 +79,7 @@ func (r CompleteRegistrationReq) registration() core.Registration {
 
 // GetCurrentUserEndpoint reports who is calling.
 //
-// The state is "anonymous" without a sign-in, "registering" for an account
+// The state is "guest" without a sign-in, "registering" for an account
 // whose registration is incomplete, and "registered" with the account and its
 // role. A guest whose workshop is inactive, or an account that is gone, is
 // refused with 403. Every other endpoint refuses an account that is still
@@ -109,7 +109,7 @@ func (GetCurrentUserEndpoint) Handle(ctx context.Context, _ GetCurrentUserReq) (
 	}, nil
 }
 
-// GetCurrentUserResp is the caller's state (anonymous, registering,
+// GetCurrentUserResp is the caller's state (guest, registering,
 // registered), and their user once registered: the same view as
 // GET /api/users/{id} with their id.
 type GetCurrentUserResp struct {

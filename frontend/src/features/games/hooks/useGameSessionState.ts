@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { useGameSessionMap } from "@/api/hooks";
-import type { Game, UserSessionWithGame } from "@/api/generated/api.gen";
+import type { Game, SessionView } from "@/api/generated/api.gen";
 
 export interface GameSessionState {
   hasSession: boolean;
-  session: UserSessionWithGame | undefined;
+  session: SessionView | undefined;
 }
 
 /**

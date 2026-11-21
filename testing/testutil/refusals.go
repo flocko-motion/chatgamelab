@@ -45,6 +45,7 @@ const (
 
 	// the engine's problems, refusing a session
 	CodeDenied      = "denied"
+	CodePaused      = "paused"
 	CodeUnknown     = "unknown"
 	CodeNoKey       = "no_key"
 	CodeNoPlays     = "no_plays"

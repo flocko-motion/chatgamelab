@@ -369,21 +369,6 @@ type GameMeta struct {
 	ModifiedAt time.Time           `json:"modifiedAt"`
 }
 
-// GameSession defines model for GameSession.
-type GameSession struct {
-	ApiKeyShareId *openapi_types.UUID `json:"apiKeyShareId,omitempty"`
-	CreatedAt     time.Time           `json:"createdAt"`
-	GameId        openapi_types.UUID  `json:"gameId"`
-	GameShareId   *openapi_types.UUID `json:"gameShareId,omitempty"`
-	Id            openapi_types.UUID  `json:"id"`
-	Language      string              `json:"language"`
-	MessagesSent  int                 `json:"messagesSent"`
-	ModifiedAt    time.Time           `json:"modifiedAt"`
-	Platform      string              `json:"platform"`
-	UserId        openapi_types.UUID  `json:"userId"`
-	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
-}
-
 // GameSponsorReq defines model for GameSponsorReq.
 type GameSponsorReq struct {
 	ShareId openapi_types.UUID `json:"shareId"`
@@ -876,6 +861,22 @@ type SessionEvent struct {
 	Value  string `json:"Value"`
 }
 
+// SessionView defines model for SessionView.
+type SessionView struct {
+	ApiKeyShareId *openapi_types.UUID `json:"apiKeyShareId,omitempty"`
+	CreatedAt     time.Time           `json:"createdAt"`
+	GameId        openapi_types.UUID  `json:"gameId"`
+	GameName      *string             `json:"gameName,omitempty"`
+	GameShareId   *openapi_types.UUID `json:"gameShareId,omitempty"`
+	Id            openapi_types.UUID  `json:"id"`
+	Language      string              `json:"language"`
+	MessagesSent  int                 `json:"messagesSent"`
+	ModifiedAt    time.Time           `json:"modifiedAt"`
+	Platform      string              `json:"platform"`
+	UserId        openapi_types.UUID  `json:"userId"`
+	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
+}
+
 // SetActiveWorkshopReq defines model for SetActiveWorkshopReq.
 type SetActiveWorkshopReq struct {
 	WorkshopId *openapi_types.UUID `json:"workshopId,omitempty"`
@@ -1210,22 +1211,6 @@ type UserRoleRef struct {
 type UserSecretsView struct {
 	Token *string `json:"token,omitempty"`
 	Words *string `json:"words,omitempty"`
-}
-
-// UserSessionWithGame defines model for UserSessionWithGame.
-type UserSessionWithGame struct {
-	ApiKeyShareId *openapi_types.UUID `json:"apiKeyShareId,omitempty"`
-	CreatedAt     time.Time           `json:"createdAt"`
-	GameId        openapi_types.UUID  `json:"gameId"`
-	GameName      string              `json:"gameName"`
-	GameShareId   *openapi_types.UUID `json:"gameShareId,omitempty"`
-	Id            openapi_types.UUID  `json:"id"`
-	Language      string              `json:"language"`
-	MessagesSent  int                 `json:"messagesSent"`
-	ModifiedAt    time.Time           `json:"modifiedAt"`
-	Platform      string              `json:"platform"`
-	UserId        openapi_types.UUID  `json:"userId"`
-	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
 // UserStatsView defines model for UserStatsView.
@@ -2228,7 +2213,9 @@ type ClientInterface interface {
 	// Corresponds with GET /api/games/{id}/private-share (the `GetApiGamesIdPrivateShare` operationId).
 	GetApiGamesIdPrivateShare(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGamesIdSessions Lists the caller's own sessions of a game.
+	// GetApiGamesIdSessions Lists the caller's sessions of a game they may
+	//
+	// read; another's game they may not read is 404.
 	//
 	// Corresponds with GET /api/games/{id}/sessions (the `GetApiGamesIdSessions` operationId).
 	GetApiGamesIdSessions(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2752,15 +2739,17 @@ type ClientInterface interface {
 	// Corresponds with GET /api/roles (the `GetApiRoles` operationId).
 	GetApiRoles(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiSessions Lists the caller's recent sessions with their games' names.
+	// GetApiSessions Lists the caller's sessions, newest activity
 	//
-	// Query: search (game name), sortBy (game, model for the AI platform,
-	// lastPlayed by default).
+	// first, at most 20. search narrows them to games whose name holds it;
+	// sortBy "game" or "model" orders them by game name or AI platform.
 	//
 	// Corresponds with GET /api/sessions (the `GetApiSessions` operationId).
 	GetApiSessions(ctx context.Context, params *GetApiSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiSessionsId Deletes a session the caller owns and everything it stored.
+	// DeleteApiSessionsId Deletes one of the caller's sessions; someone
+	//
+	// else's does not exist for them (404).
 	//
 	// Corresponds with DELETE /api/sessions/{id} (the `DeleteApiSessionsId` operationId).
 	DeleteApiSessionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2854,7 +2843,7 @@ type ClientInterface interface {
 
 	// GetApiUsersMe Reports who is calling.
 	//
-	// The state is "anonymous" without a sign-in, "registering" for an account
+	// The state is "guest" without a sign-in, "registering" for an account
 	// whose registration is incomplete, and "registered" with the account and its
 	// role. A guest whose workshop is inactive, or an account that is gone, is
 	// refused with 403. Every other endpoint refuses an account that is still
@@ -4515,7 +4504,9 @@ func (c *Client) GetApiGamesIdPrivateShare(ctx context.Context, id string, reqEd
 	return c.Client.Do(req)
 }
 
-// GetApiGamesIdSessions Lists the caller's own sessions of a game.
+// GetApiGamesIdSessions Lists the caller's sessions of a game they may
+//
+// read; another's game they may not read is 404.
 //
 // Corresponds with GET /api/games/{id}/sessions (the `GetApiGamesIdSessions` operationId).
 func (c *Client) GetApiGamesIdSessions(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5589,10 +5580,10 @@ func (c *Client) GetApiRoles(ctx context.Context, reqEditors ...RequestEditorFn)
 	return c.Client.Do(req)
 }
 
-// GetApiSessions Lists the caller's recent sessions with their games' names.
+// GetApiSessions Lists the caller's sessions, newest activity
 //
-// Query: search (game name), sortBy (game, model for the AI platform,
-// lastPlayed by default).
+// first, at most 20. search narrows them to games whose name holds it;
+// sortBy "game" or "model" orders them by game name or AI platform.
 //
 // Corresponds with GET /api/sessions (the `GetApiSessions` operationId).
 func (c *Client) GetApiSessions(ctx context.Context, params *GetApiSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5607,7 +5598,9 @@ func (c *Client) GetApiSessions(ctx context.Context, params *GetApiSessionsParam
 	return c.Client.Do(req)
 }
 
-// DeleteApiSessionsId Deletes a session the caller owns and everything it stored.
+// DeleteApiSessionsId Deletes one of the caller's sessions; someone
+//
+// else's does not exist for them (404).
 //
 // Corresponds with DELETE /api/sessions/{id} (the `DeleteApiSessionsId` operationId).
 func (c *Client) DeleteApiSessionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5811,7 +5804,7 @@ func (c *Client) GetApiUsers(ctx context.Context, reqEditors ...RequestEditorFn)
 
 // GetApiUsersMe Reports who is calling.
 //
-// The state is "anonymous" without a sign-in, "registering" for an account
+// The state is "guest" without a sign-in, "registering" for an account
 // whose registration is incomplete, and "registered" with the account and its
 // role. A guest whose workshop is inactive, or an account that is gone, is
 // refused with 403. Every other endpoint refuses an account that is still
@@ -12240,7 +12233,9 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/games/{id}/private-share (the `GetApiGamesIdPrivateShare` operationId).
 	GetApiGamesIdPrivateShareWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdPrivateShareResponse, error)
 
-	// GetApiGamesIdSessionsWithResponse Lists the caller's own sessions of a game.
+	// GetApiGamesIdSessionsWithResponse Lists the caller's sessions of a game they may
+	//
+	// read; another's game they may not read is 404.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12826,17 +12821,19 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/roles (the `GetApiRoles` operationId).
 	GetApiRolesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiRolesResponse, error)
 
-	// GetApiSessionsWithResponse Lists the caller's recent sessions with their games' names.
+	// GetApiSessionsWithResponse Lists the caller's sessions, newest activity
 	//
-	// Query: search (game name), sortBy (game, model for the AI platform,
-	// lastPlayed by default).
+	// first, at most 20. search narrows them to games whose name holds it;
+	// sortBy "game" or "model" orders them by game name or AI platform.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/sessions (the `GetApiSessions` operationId).
 	GetApiSessionsWithResponse(ctx context.Context, params *GetApiSessionsParams, reqEditors ...RequestEditorFn) (*GetApiSessionsResponse, error)
 
-	// DeleteApiSessionsIdWithResponse Deletes a session the caller owns and everything it stored.
+	// DeleteApiSessionsIdWithResponse Deletes one of the caller's sessions; someone
+	//
+	// else's does not exist for them (404).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12944,7 +12941,7 @@ type ClientWithResponsesInterface interface {
 
 	// GetApiUsersMeWithResponse Reports who is calling.
 	//
-	// The state is "anonymous" without a sign-in, "registering" for an account
+	// The state is "guest" without a sign-in, "registering" for an account
 	// whose registration is incomplete, and "registered" with the account and its
 	// role. A guest whose workshop is inactive, or an account that is gone, is
 	// refused with 403. Every other endpoint refuses an account that is still
@@ -15771,13 +15768,13 @@ type GetApiGamesIdSessionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]GameSession
+	JSON200 *[]SessionView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiGamesIdSessionsResponse) GetJSON200() *[]GameSession {
+func (r GetApiGamesIdSessionsResponse) GetJSON200() *[]SessionView {
 	return r.JSON200
 }
 
@@ -17856,13 +17853,13 @@ type GetApiSessionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]UserSessionWithGame
+	JSON200 *[]SessionView
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiSessionsResponse) GetJSON200() *[]UserSessionWithGame {
+func (r GetApiSessionsResponse) GetJSON200() *[]SessionView {
 	return r.JSON200
 }
 
@@ -20647,7 +20644,9 @@ func (c *ClientWithResponses) GetApiGamesIdPrivateShareWithResponse(ctx context.
 	return ParseGetApiGamesIdPrivateShareResponse(rsp)
 }
 
-// GetApiGamesIdSessionsWithResponse Lists the caller's own sessions of a game.
+// GetApiGamesIdSessionsWithResponse Lists the caller's sessions of a game they may
+//
+// read; another's game they may not read is 404.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21563,10 +21562,10 @@ func (c *ClientWithResponses) GetApiRolesWithResponse(ctx context.Context, reqEd
 	return ParseGetApiRolesResponse(rsp)
 }
 
-// GetApiSessionsWithResponse Lists the caller's recent sessions with their games' names.
+// GetApiSessionsWithResponse Lists the caller's sessions, newest activity
 //
-// Query: search (game name), sortBy (game, model for the AI platform,
-// lastPlayed by default).
+// first, at most 20. search narrows them to games whose name holds it;
+// sortBy "game" or "model" orders them by game name or AI platform.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21579,7 +21578,9 @@ func (c *ClientWithResponses) GetApiSessionsWithResponse(ctx context.Context, pa
 	return ParseGetApiSessionsResponse(rsp)
 }
 
-// DeleteApiSessionsIdWithResponse Deletes a session the caller owns and everything it stored.
+// DeleteApiSessionsIdWithResponse Deletes one of the caller's sessions; someone
+//
+// else's does not exist for them (404).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21753,7 +21754,7 @@ func (c *ClientWithResponses) GetApiUsersWithResponse(ctx context.Context, reqEd
 
 // GetApiUsersMeWithResponse Reports who is calling.
 //
-// The state is "anonymous" without a sign-in, "registering" for an account
+// The state is "guest" without a sign-in, "registering" for an account
 // whose registration is incomplete, and "registered" with the account and its
 // role. A guest whose workshop is inactive, or an account that is gone, is
 // refused with 403. Every other endpoint refuses an account that is still
@@ -24029,7 +24030,7 @@ func ParseGetApiGamesIdSessionsResponse(rsp *http.Response) (*GetApiGamesIdSessi
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []GameSession
+		var dest []SessionView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -25469,7 +25470,7 @@ func ParseGetApiSessionsResponse(rsp *http.Response) (*GetApiSessionsResponse, e
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []UserSessionWithGame
+		var dest []SessionView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

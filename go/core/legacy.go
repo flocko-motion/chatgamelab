@@ -14,7 +14,7 @@ import (
 )
 
 // LegacyCaller is the registered account calling an AuthRequired endpoint, as
-// v1's caller(ctx) returned it. It refuses anonymous (ErrNoCaller), an
+// v1's caller(ctx) returned it. It refuses a guest nobody signed in (ErrNoCaller), an
 // account still registering (ErrRegistrationIncomplete) and a member of a
 // suspended organisation (ErrOrganisationSuspended).
 func LegacyCaller(ctx context.Context) (*obj.User, error) {
@@ -37,7 +37,7 @@ func LegacyCaller(ctx context.Context) (*obj.User, error) {
 }
 
 // LegacyMaybeCaller is LegacyCaller for AuthOptional endpoints: nil and no
-// error for anonymous.
+// error for a guest nobody signed in.
 func LegacyMaybeCaller(ctx context.Context) (*obj.User, error) {
 	if from(ctx).Account() == nil {
 		return nil, nil

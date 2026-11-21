@@ -43,12 +43,12 @@ func withCaller(ctx context.Context, c *identity.Caller) context.Context {
 }
 
 // from is the caller in ctx, put there by Resolve. Without one, the caller is
-// anonymous: a context nobody resolved holds no rights.
+// a guest nobody signed in: a context nobody resolved holds no rights.
 func from(ctx context.Context) *identity.Caller {
 	if c, ok := ctx.Value(ctxKeyCaller{}).(*identity.Caller); ok && c != nil {
 		return c
 	}
-	return identity.Anonymous()
+	return identity.Guest()
 }
 
 // roles are the grant lists that apply to c: Everyone, their role (a caller
@@ -70,7 +70,7 @@ func granted(ctx context.Context, action rules.Action, entity rules.Entity, rela
 	return access.Relations(roles(c), c.Contexts(), action, entity)[relation]
 }
 
-// account is the caller's account as a query parameter: NULL for anonymous,
+// account is the caller's account as a query parameter: NULL for a guest nobody signed in,
 // so "own" matches nothing.
 func account(ctx context.Context) uuid.NullUUID {
 	return nullUUID(from(ctx).Account())

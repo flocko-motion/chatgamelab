@@ -112,6 +112,23 @@ func ReadGameCard(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 	return gameCardOf(ctx, rows[0]), nil
 }
 
+// ReadGameCardByLink opens the game behind a share link's token, for
+// whoever holds it: {Read, GameCard, ViaShareLink}, and its content and
+// play by the link's grants. Otherwise it does not exist for them
+// (ErrNotFound).
+func ReadGameCardByLink(ctx context.Context, id uuid.UUID, token string) (*GameCard, error) {
+	p := readGameCardGates(ctx, id)
+	p.ShareToken = sql.NullString{String: token, Valid: true}
+	rows, err := store.Queries().V2GameCards(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+	if len(rows) == 0 {
+		return nil, ErrNotFound
+	}
+	return gameCardOf(ctx, rows[0]), nil
+}
+
 // gameCardOf is a loaded row as the caller's card, with their rights on it.
 func gameCardOf(ctx context.Context, r db.V2GameCardsRow) *GameCard {
 	return &GameCard{
@@ -125,6 +142,7 @@ func gameCardOf(ctx context.Context, r db.V2GameCardsRow) *GameCard {
 		mayCopy:         r.MayCopy,
 		mayShare:        r.MayShare,
 		mayPublish:      r.MayPublish,
+		mayPlay:         r.MayPlay,
 		mayDelete:       r.MayDelete,
 		isFavorite:      r.IsFavorite,
 	}
@@ -222,6 +240,7 @@ type GameCard struct {
 	mayCopy         bool
 	mayShare        bool
 	mayPublish      bool
+	mayPlay         bool
 	mayDelete       bool
 
 	isFavorite bool // the caller's own mark
@@ -268,6 +287,10 @@ func (g *GameCard) MayShare() bool { return g.mayShare }
 // MayPublish says whether the caller may make the game public:
 // {Publish, GameCard}. Making it private again is editing the card.
 func (g *GameCard) MayPublish() bool { return g.mayPublish }
+
+// MayPlay says whether the caller may start a session of it: {Play,
+// GameCard}.
+func (g *GameCard) MayPlay() bool { return g.mayPlay }
 
 // IsFavorite says whether the caller marked the game as a favorite: their own
 // mark, no right.

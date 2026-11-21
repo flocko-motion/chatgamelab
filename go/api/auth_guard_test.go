@@ -39,6 +39,7 @@ var openEndpoints = map[string]schemafapi.AuthLevel{
 	"POST /api/engine/sessions/{id}/input":                   schemafapi.AuthOptional,
 	"POST /api/engine/sessions/{id}/pause":                   schemafapi.AuthOptional,
 	"POST /api/engine/sessions/{id}/toggles":                 schemafapi.AuthOptional,
+	"POST /api/engine/sessions/{id}/constraint-frequency":    schemafapi.AuthOptional,
 	"GET /api/engine/sessions/{id}/edges/{from}/{to}/{kind}": schemafapi.AuthOptional,
 	"GET /api/engine/sessions/{id}/flowchart":                schemafapi.AuthOptional,
 	"GET /api/engine/sessions/{id}/graph":                    schemafapi.AuthOptional,

@@ -7,10 +7,8 @@ package db
 import (
 	"cgl/functional"
 	"cgl/obj"
-	"cgl/tokenlock"
 	"context"
 	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -73,27 +71,6 @@ func insertGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 		return nil, obj.ErrServerError("failed to create game share")
 	}
 
-	return dbGameShareToObj(gs), nil
-}
-
-// GetGameShareByToken loads a game share by its token.
-func GetGameShareByToken(ctx context.Context, token string) (*obj.GameShare, error) {
-	gs, err := queries().GetGameShareByToken(ctx, token)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			tokenlock.Fail()
-		}
-		return nil, obj.ErrNotFound("share not found")
-	}
-	return dbGameShareToObj(gs), nil
-}
-
-// GetGameShareByID loads a game share by its ID.
-func GetGameShareByID(ctx context.Context, shareID uuid.UUID) (*obj.GameShare, error) {
-	gs, err := queries().GetGameShareByID(ctx, shareID)
-	if err != nil {
-		return nil, obj.ErrNotFound("share not found")
-	}
 	return dbGameShareToObj(gs), nil
 }
 

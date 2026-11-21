@@ -85,40 +85,50 @@ SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g
   OR ($2::bool           AND g.created_by     = $3::uuid)
   OR ($4::bool      AND g.workshop_id    = $5::uuid)
   OR ($6::bool  AND w.institution_id = $7::uuid)
-  OR  $8::bool, false)::bool                          AS may_read_content,
+  OR ($8::bool     AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text))
+  OR  $10::bool, false)::bool                          AS may_read_content,
   COALESCE(
-     ($9::bool       AND g.public)
-  OR ($10::bool          AND g.created_by     = $3::uuid)
-  OR ($11::bool     AND g.workshop_id    = $5::uuid)
-  OR ($12::bool AND w.institution_id = $7::uuid)
-  OR  $13::bool, false)::bool                         AS may_read_settings,
+     ($11::bool       AND g.public)
+  OR ($12::bool          AND g.created_by     = $3::uuid)
+  OR ($13::bool     AND g.workshop_id    = $5::uuid)
+  OR ($14::bool AND w.institution_id = $7::uuid)
+  OR  $15::bool, false)::bool                         AS may_read_settings,
   -- the actions
   COALESCE(
-     ($14::bool              AND g.created_by     = $3::uuid)
-  OR ($15::bool     AND w.institution_id = $7::uuid)
-  OR  $16::bool, false)::bool                        AS may_edit_card,
+     ($16::bool              AND g.created_by     = $3::uuid)
+  OR ($17::bool     AND w.institution_id = $7::uuid)
+  OR  $18::bool, false)::bool                        AS may_edit_card,
   COALESCE(
-     ($17::bool           AND g.created_by     = $3::uuid)
-  OR ($18::bool  AND w.institution_id = $7::uuid)
-  OR  $19::bool, false)::bool                     AS may_edit_content,
+     ($19::bool           AND g.created_by     = $3::uuid)
+  OR ($20::bool  AND w.institution_id = $7::uuid)
+  OR  $21::bool, false)::bool                     AS may_edit_content,
   COALESCE(
-     ($20::bool          AND g.created_by     = $3::uuid)
-  OR ($21::bool AND w.institution_id = $7::uuid)
-  OR  $22::bool, false)::bool                    AS may_edit_settings,
+     ($22::bool          AND g.created_by     = $3::uuid)
+  OR ($23::bool AND w.institution_id = $7::uuid)
+  OR  $24::bool, false)::bool                    AS may_edit_settings,
   COALESCE(
-     ($23::bool          AND g.created_by     = $3::uuid)
-  OR ($24::bool AND w.institution_id = $7::uuid)
-  OR  $25::bool, false)::bool                         AS may_delete,
+     ($25::bool          AND g.created_by     = $3::uuid)
+  OR ($26::bool AND w.institution_id = $7::uuid)
+  OR  $27::bool, false)::bool                         AS may_delete,
   COALESCE(
-     ($26::bool  AND g.public)
-  OR ($27::bool     AND g.created_by = $3::uuid), false)::bool  AS may_copy,
+     ($28::bool  AND g.public)
+  OR ($29::bool     AND g.created_by = $3::uuid), false)::bool  AS may_copy,
   COALESCE(
-     ($28::bool AND g.public)
-  OR ($29::bool    AND g.created_by = $3::uuid), false)::bool  AS may_share,
+     ($30::bool AND g.public)
+  OR ($31::bool    AND g.created_by = $3::uuid), false)::bool  AS may_share,
   COALESCE(
-     ($30::bool          AND g.created_by     = $3::uuid)
-  OR ($31::bool AND w.institution_id = $7::uuid)
-  OR  $32::bool, false)::bool                         AS may_publish,
+     ($32::bool          AND g.created_by     = $3::uuid)
+  OR ($33::bool AND w.institution_id = $7::uuid)
+  OR  $34::bool, false)::bool                         AS may_publish,
+  COALESCE(
+     ($35::bool       AND g.public)
+  OR ($36::bool          AND g.created_by     = $3::uuid)
+  OR ($37::bool     AND g.workshop_id    = $5::uuid)
+  OR ($38::bool AND w.institution_id = $7::uuid)
+  OR ($39::bool    AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text))
+  OR  $40::bool, false)::bool                             AS may_play,
   -- the caller's own mark, no right: false for a guest
   EXISTS (SELECT 1 FROM user_favourite_game f
           WHERE f.game_id = g.id AND f.user_id = $3::uuid)  AS is_favorite,
@@ -128,43 +138,43 @@ FROM game g
 LEFT JOIN app_user cu ON cu.id = g.created_by  -- the creator's public profile name
 LEFT JOIN workshop w  ON w.id  = g.workshop_id -- its organisation, for "of own organisation"
 WHERE g.deleted_at IS NULL
-  AND ($33::uuid IS NULL OR g.id = $33::uuid)
+  AND ($41::uuid IS NULL OR g.id = $41::uuid)
   -- gate
-  AND (  ($34::bool           AND g.public)
-      OR ($35::bool              AND g.created_by     = $3::uuid)
-      OR ($36::bool AND g.public
+  AND (  ($42::bool           AND g.public)
+      OR ($43::bool              AND g.created_by     = $3::uuid)
+      OR ($44::bool AND g.public
                                        AND g.workshop_id IS DISTINCT FROM $5::uuid)
-      OR ($37::bool  AND g.workshop_id    = $5::uuid
+      OR ($45::bool  AND g.workshop_id    = $5::uuid
                                        AND g.created_by     = $3::uuid)
-      OR ($38::bool         AND g.workshop_id    = $5::uuid)
-      OR ($39::bool     AND w.institution_id = $7::uuid)
-      OR ($40::bool        AND g.id = (
-            SELECT gs.game_id FROM game_share gs WHERE gs.token = $41::text))
-      OR  $42::bool )
+      OR ($46::bool         AND g.workshop_id    = $5::uuid)
+      OR ($47::bool     AND w.institution_id = $7::uuid)
+      OR ($48::bool        AND g.id = (
+            SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text))
+      OR  $49::bool )
   -- wishes
-  AND (NOT $43::bool       OR g.created_by = $3::uuid)
-  AND (NOT $44::bool    OR g.created_by IS DISTINCT FROM $3::uuid)
-  AND (NOT $45::bool    OR g.public)
-  AND (NOT $46::bool OR EXISTS (
+  AND (NOT $50::bool       OR g.created_by = $3::uuid)
+  AND (NOT $51::bool    OR g.created_by IS DISTINCT FROM $3::uuid)
+  AND (NOT $52::bool    OR g.public)
+  AND (NOT $53::bool OR EXISTS (
         SELECT 1 FROM user_favourite_game f
         WHERE f.game_id = g.id AND f.user_id = $3::uuid))
-  AND (NOT $47::bool OR g.public_sponsored_api_key_share_id IS NOT NULL)
-  AND ($48::text = ''        OR lower(g.name) LIKE '%' || lower($48::text) || '%')
+  AND (NOT $54::bool OR g.public_sponsored_api_key_share_id IS NOT NULL)
+  AND ($55::text = ''        OR lower(g.name) LIKE '%' || lower($55::text) || '%')
 ORDER BY
-  CASE WHEN $49::text = 'name'       AND $50::bool     THEN lower(g.name) END DESC,
-  CASE WHEN $49::text = 'name'       AND NOT $50::bool THEN lower(g.name) END ASC,
-  CASE WHEN $49::text = 'modifiedAt' AND $50::bool     THEN g.modified_at END DESC,
-  CASE WHEN $49::text = 'modifiedAt' AND NOT $50::bool THEN g.modified_at END ASC,
-  CASE WHEN $49::text = 'playCount'  AND $50::bool     THEN g.play_count END DESC,
-  CASE WHEN $49::text = 'playCount'  AND NOT $50::bool THEN g.play_count END ASC,
-  CASE WHEN $49::text = 'visibility' AND $50::bool     THEN g.public END DESC,
-  CASE WHEN $49::text = 'visibility' AND NOT $50::bool THEN g.public END ASC,
-  CASE WHEN $49::text = 'creator'    AND $50::bool     THEN lower(cu.name) END DESC,
-  CASE WHEN $49::text = 'creator'    AND NOT $50::bool THEN lower(cu.name) END ASC,
-  CASE WHEN $49::text = 'createdAt'  AND NOT $50::bool THEN g.created_at END ASC,
+  CASE WHEN $56::text = 'name'       AND $57::bool     THEN lower(g.name) END DESC,
+  CASE WHEN $56::text = 'name'       AND NOT $57::bool THEN lower(g.name) END ASC,
+  CASE WHEN $56::text = 'modifiedAt' AND $57::bool     THEN g.modified_at END DESC,
+  CASE WHEN $56::text = 'modifiedAt' AND NOT $57::bool THEN g.modified_at END ASC,
+  CASE WHEN $56::text = 'playCount'  AND $57::bool     THEN g.play_count END DESC,
+  CASE WHEN $56::text = 'playCount'  AND NOT $57::bool THEN g.play_count END ASC,
+  CASE WHEN $56::text = 'visibility' AND $57::bool     THEN g.public END DESC,
+  CASE WHEN $56::text = 'visibility' AND NOT $57::bool THEN g.public END ASC,
+  CASE WHEN $56::text = 'creator'    AND $57::bool     THEN lower(cu.name) END DESC,
+  CASE WHEN $56::text = 'creator'    AND NOT $57::bool THEN lower(cu.name) END ASC,
+  CASE WHEN $56::text = 'createdAt'  AND NOT $57::bool THEN g.created_at END ASC,
   g.created_at DESC,
   g.id
-LIMIT $52::int OFFSET $51::int
+LIMIT $59::int OFFSET $58::int
 `
 
 type V2GameCardsParams struct {
@@ -175,6 +185,8 @@ type V2GameCardsParams struct {
 	CurrentWorkshop          uuid.NullUUID  `json:"current_workshop"`
 	ContentOrganisation      bool           `json:"content_organisation"`
 	OwnOrganisation          uuid.NullUUID  `json:"own_organisation"`
+	ContentViaShare          bool           `json:"content_via_share"`
+	ShareToken               sql.NullString `json:"share_token"`
 	ContentEverywhere        bool           `json:"content_everywhere"`
 	SettingsPublic           bool           `json:"settings_public"`
 	SettingsOwn              bool           `json:"settings_own"`
@@ -200,6 +212,12 @@ type V2GameCardsParams struct {
 	PublishOwn               bool           `json:"publish_own"`
 	PublishOrganisation      bool           `json:"publish_organisation"`
 	PublishEverywhere        bool           `json:"publish_everywhere"`
+	PlayPublic               bool           `json:"play_public"`
+	PlayOwn                  bool           `json:"play_own"`
+	PlayWorkshop             bool           `json:"play_workshop"`
+	PlayOrganisation         bool           `json:"play_organisation"`
+	PlayViaShare             bool           `json:"play_via_share"`
+	PlayEverywhere           bool           `json:"play_everywhere"`
 	ID                       uuid.NullUUID  `json:"id"`
 	CardPublic               bool           `json:"card_public"`
 	CardOwn                  bool           `json:"card_own"`
@@ -208,7 +226,6 @@ type V2GameCardsParams struct {
 	CardWorkshop             bool           `json:"card_workshop"`
 	CardOrganisation         bool           `json:"card_organisation"`
 	CardViaShare             bool           `json:"card_via_share"`
-	ShareToken               sql.NullString `json:"share_token"`
 	CardEverywhere           bool           `json:"card_everywhere"`
 	OnlyOwn                  bool           `json:"only_own"`
 	OnlyOthers               bool           `json:"only_others"`
@@ -257,6 +274,7 @@ type V2GameCardsRow struct {
 	MayCopy                      bool           `json:"may_copy"`
 	MayShare                     bool           `json:"may_share"`
 	MayPublish                   bool           `json:"may_publish"`
+	MayPlay                      bool           `json:"may_play"`
 	IsFavorite                   bool           `json:"is_favorite"`
 	CreatorName                  sql.NullString `json:"creator_name"`
 	Total                        int64          `json:"total"`
@@ -288,6 +306,8 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		arg.CurrentWorkshop,
 		arg.ContentOrganisation,
 		arg.OwnOrganisation,
+		arg.ContentViaShare,
+		arg.ShareToken,
 		arg.ContentEverywhere,
 		arg.SettingsPublic,
 		arg.SettingsOwn,
@@ -313,6 +333,12 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		arg.PublishOwn,
 		arg.PublishOrganisation,
 		arg.PublishEverywhere,
+		arg.PlayPublic,
+		arg.PlayOwn,
+		arg.PlayWorkshop,
+		arg.PlayOrganisation,
+		arg.PlayViaShare,
+		arg.PlayEverywhere,
 		arg.ID,
 		arg.CardPublic,
 		arg.CardOwn,
@@ -321,7 +347,6 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		arg.CardWorkshop,
 		arg.CardOrganisation,
 		arg.CardViaShare,
-		arg.ShareToken,
 		arg.CardEverywhere,
 		arg.OnlyOwn,
 		arg.OnlyOthers,
@@ -376,6 +401,7 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 			&i.MayCopy,
 			&i.MayShare,
 			&i.MayPublish,
+			&i.MayPlay,
 			&i.IsFavorite,
 			&i.CreatorName,
 			&i.Total,

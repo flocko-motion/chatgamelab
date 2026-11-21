@@ -44,7 +44,7 @@ called the *player*.
 A session is one player playing one game. Creating it takes:
 
 - the game;
-- the player, who may be an anonymous guest;
+- the player, who may be a guest;
 - one or more shared API keys;
 - optionally, the player's preferences.
 
@@ -164,7 +164,7 @@ run workshops and play.
 - *Head* — leads an organisation: manages its staff, workshops and rules, can also run workshops.
 - *Staff* — runs workshops within an organisation.
 - *Individual* — uses the platform without an organisation.
-- *Guest* — plays a shared game anonymously or takes part in a workshop by joining through a link.
+- *Guest* — plays a shared game through its link, or takes part in a workshop by joining through its link: a guest outside or in a workshop.
 
 Anyone who writes a game is its *designer*: they author its scenario, title,
 image style, theme and genre.

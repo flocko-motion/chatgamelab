@@ -49,6 +49,7 @@ var Rules = map[Role]Grants{
 			{Read, GameSettings, Everywhere},
 			{Edit, GameSettings, Everywhere},
 			{Delete, GameCard, Everywhere},
+			{Play, GameCard, Everywhere},    // with their own money: they read every game already
 			{Publish, GameCard, Everywhere}, // the admin is liable for what is public, so controls it both ways; v1: only workshop games and the admin's own
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
@@ -122,6 +123,8 @@ var Rules = map[Role]Grants{
 			{Edit, GameSettings, OfOwnOrganisation},
 			{Delete, GameCard, OfOwnOrganisation},
 			{Publish, GameCard, OfOwnOrganisation},
+			{Play, GameCard, OfOwnOrganisation},
+			{Edit, SessionRule, Own}, // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
@@ -200,6 +203,8 @@ var Rules = map[Role]Grants{
 			{Edit, GameSettings, OfOwnOrganisation},
 			{Delete, GameCard, OfOwnOrganisation},
 			{Publish, GameCard, OfOwnOrganisation},
+			{Play, GameCard, OfOwnOrganisation},
+			{Edit, SessionRule, Own}, // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
@@ -254,6 +259,12 @@ var Rules = map[Role]Grants{
 			{Read, UserSecrets, Own},
 			// changing the own email is the roles' (a guest has none); nobody
 			// deletes their own account
+
+			// an account's sessions are its own: nobody else lists, plays or
+			// deletes them, the admin included
+			{List, Session, Own},
+			{Play, Session, Own},
+			{Delete, Session, Own},
 
 			{Create, GameCard, Own}, // in a workshop, it belongs to that workshop
 			{Play, GameCard, Public},
@@ -311,12 +322,13 @@ var Rules = map[Role]Grants{
 			{Delete, GameCard, Own},
 			{Publish, GameCard, Own},
 
-			{Read, GameCard, ViaShareLink}, // the card only: v1 hides the content here
+			{Read, GameCard, ViaShareLink},
+			{Read, GameContent, ViaShareLink}, // playing includes its insights: prompts, graph
 			{Play, GameCard, ViaShareLink},
 
 			{Play, Session, ViaGuestSessionID},
 
-			{Read, Invite, ViaInviteLink}, // a link joins a workshop, anonymously too
+			{Read, Invite, ViaInviteLink}, // a link joins a workshop, without an account too
 			{Use, Invite, ViaInviteLink},
 		},
 		OutsideWorkshop: {

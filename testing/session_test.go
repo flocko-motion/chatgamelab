@@ -289,7 +289,7 @@ func (s *SessionTestSuite) TestDeletingASession() {
 	other := s.CreateUser("sess-del-own-other")
 	id := Must(user.CreateSession(testutil.ForGame(gameID)))
 
-	s.Forbidden(other.DeleteSession(id))
+	s.NotFound(other.DeleteSession(id), "someone else's session does not exist for them")
 	MustSucceed(user.DeleteSession(id))
 
 	s.Empty(Must(user.ListSessions()))

@@ -21,6 +21,8 @@ SELECT g.*,
   OR (@content_own::bool           AND g.created_by     = sqlc.narg(caller)::uuid)
   OR (@content_workshop::bool      AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
   OR (@content_organisation::bool  AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@content_via_share::bool     AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text))
   OR  @content_everywhere::bool, false)::bool                          AS may_read_content,
   COALESCE(
      (@settings_public::bool       AND g.public)
@@ -55,6 +57,14 @@ SELECT g.*,
      (@publish_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
   OR (@publish_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
   OR  @publish_everywhere::bool, false)::bool                         AS may_publish,
+  COALESCE(
+     (@play_public::bool       AND g.public)
+  OR (@play_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
+  OR (@play_workshop::bool     AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
+  OR (@play_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@play_via_share::bool    AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text))
+  OR  @play_everywhere::bool, false)::bool                             AS may_play,
   -- the caller's own mark, no right: false for a guest
   EXISTS (SELECT 1 FROM user_favourite_game f
           WHERE f.game_id = g.id AND f.user_id = sqlc.narg(caller)::uuid)  AS is_favorite,

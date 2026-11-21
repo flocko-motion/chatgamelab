@@ -9,7 +9,7 @@ import { authLogger } from "@/config/logger";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
 import i18n from "@/i18n";
 
-export type CallerState = "unknown" | "anonymous" | "registering" | "registered";
+export type CallerState = "unknown" | "guest" | "registering" | "registered";
 
 /** What /api/users/me says about the caller and organisations, beside their user. */
 export type CallerStanding = Pick<
@@ -72,7 +72,7 @@ export function useCaller() {
       }
       setUser(null);
       setStanding(noStanding);
-      const next = data.state === "registering" ? "registering" : "anonymous";
+      const next = data.state === "registering" ? "registering" : "guest";
       setState(next);
       return next;
     } catch (err) {
@@ -80,13 +80,13 @@ export function useCaller() {
       if (extractRawErrorCode(err) === ErrorCodes.AUTH_WORKSHOP_INACTIVE) {
         authLogger.info("Guest's workshop is inactive");
         setIsWorkshopInactive(true);
-        setState("anonymous");
-        return "anonymous";
+        setState("guest");
+        return "guest";
       }
       authLogger.error("Failed to fetch the current user", { error: err });
       setError(tRef.current("errors.backendUserFetch"));
-      setState("anonymous");
-      return "anonymous";
+      setState("guest");
+      return "guest";
     }
   }, [applyUser]);
 
@@ -114,7 +114,7 @@ export function useCaller() {
   const clear = useCallback(() => {
     setUser(null);
     setStanding(noStanding);
-    setState("anonymous");
+    setState("guest");
     setError(null);
   }, []);
 

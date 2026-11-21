@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useModals } from "@mantine/modals";
 import { Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import type { Game, UserSessionWithGame } from "@/api/generated/api.gen";
+import type { Game, SessionView } from "@/api/generated/api.gen";
 
 /** What playing needs of a game: a full game or a list card both do. */
 type GameRef = Pick<Game, "id" | "name">;
@@ -30,7 +30,7 @@ export function useGameNavigation() {
   );
 
   const continueGame = useCallback(
-    (session: UserSessionWithGame) => {
+    (session: SessionView) => {
       if (session.id) {
         navigate({ to: `/sessions/${session.id}` as "/" });
       }
@@ -39,7 +39,7 @@ export function useGameNavigation() {
   );
 
   const restartGame = useCallback(
-    (game: GameRef, session: UserSessionWithGame) => {
+    (game: GameRef, session: SessionView) => {
       if (!game.id || !session.id) return;
 
       modals.openConfirmModal({

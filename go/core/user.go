@@ -46,7 +46,7 @@ func ReadUser(ctx context.Context, id uuid.UUID) (*UserCard, error) {
 
 // The states of the caller's own account, as ReadMe reports them.
 const (
-	MeAnonymous   = "anonymous"   // nobody signed in
+	MeGuest       = "guest"       // nobody signed in
 	MeRegistering = "registering" // signed in, registration not yet complete
 	MeRegistered  = "registered"  // the account is complete
 )
@@ -58,7 +58,7 @@ func ReadMe(ctx context.Context) (string, *UserCard, error) {
 	c := from(ctx)
 	switch {
 	case c.Account() == nil:
-		return MeAnonymous, nil, nil
+		return MeGuest, nil, nil
 	case c.Registering():
 		return MeRegistering, nil, nil
 	}

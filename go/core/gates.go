@@ -43,8 +43,8 @@ func readGameCardGates(ctx context.Context, id uuid.UUID) db.V2GameCardsParams {
 
 // gameCardGates opens what list and read share: the sections by
 // {Read, GameContent} and {Read, GameSettings}, the actions by {Edit, <section>},
-// {Delete, GameCard}, {Copy, GameContent}, {Share, GameCard} and
-// {Publish, GameCard}.
+// {Delete, GameCard}, {Copy, GameContent}, {Share, GameCard},
+// {Publish, GameCard} and {Play, GameCard}.
 func gameCardGates(ctx context.Context) db.V2GameCardsParams {
 	return db.V2GameCardsParams{
 		Caller:          account(ctx),
@@ -56,6 +56,14 @@ func gameCardGates(ctx context.Context) db.V2GameCardsParams {
 		ContentWorkshop:     granted(ctx, rules.Read, rules.GameContent, rules.OfCurrentWorkshop),
 		ContentOrganisation: granted(ctx, rules.Read, rules.GameContent, rules.OfOwnOrganisation),
 		ContentEverywhere:   granted(ctx, rules.Read, rules.GameContent, rules.Everywhere),
+		ContentViaShare:     granted(ctx, rules.Read, rules.GameContent, rules.ViaShareLink),
+
+		PlayPublic:       granted(ctx, rules.Play, rules.GameCard, rules.Public),
+		PlayOwn:          granted(ctx, rules.Play, rules.GameCard, rules.Own),
+		PlayWorkshop:     granted(ctx, rules.Play, rules.GameCard, rules.OfCurrentWorkshop),
+		PlayOrganisation: granted(ctx, rules.Play, rules.GameCard, rules.OfOwnOrganisation),
+		PlayViaShare:     granted(ctx, rules.Play, rules.GameCard, rules.ViaShareLink),
+		PlayEverywhere:   granted(ctx, rules.Play, rules.GameCard, rules.Everywhere),
 
 		SettingsPublic:       granted(ctx, rules.Read, rules.GameSettings, rules.Public),
 		SettingsOwn:          granted(ctx, rules.Read, rules.GameSettings, rules.Own),

@@ -1,16 +1,16 @@
 import { Stack } from "@mantine/core";
 import { PlayGameButton, TextButton } from "@components/buttons";
-import type { Game, UserSessionWithGame } from "@/api/generated/api.gen";
+import type { Game, SessionView } from "@/api/generated/api.gen";
 
 type GameRef = Pick<Game, "id" | "name">;
 
 interface GamePlayButtonsProps {
   game: GameRef;
   hasSession: boolean;
-  session: UserSessionWithGame | undefined;
+  session: SessionView | undefined;
   onPlay: (game: GameRef) => void;
-  onContinue: (session: UserSessionWithGame) => void;
-  onRestart: (game: GameRef, session: UserSessionWithGame) => void;
+  onContinue: (session: SessionView) => void;
+  onRestart: (game: GameRef, session: SessionView) => void;
   labels: {
     play: string;
     continue: string;

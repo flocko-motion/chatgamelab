@@ -7,7 +7,6 @@ package db
 import (
 	"cgl/obj"
 	"context"
-	"database/sql"
 	"engine"
 	"time"
 
@@ -16,20 +15,6 @@ import (
 )
 
 const apiKeyShortenLength = 6
-
-// GetApiKeyByID returns an API key by its ID (no permission check).
-func GetApiKeyByID(ctx context.Context, apiKeyID uuid.UUID) (*obj.ApiKey, error) {
-	key, err := queries().GetApiKeyByID(ctx, apiKeyID)
-	if err != nil {
-		return nil, obj.ErrNotFound("api key not found")
-	}
-	return &obj.ApiKey{
-		ID:       key.ID,
-		Name:     key.Name,
-		Platform: key.Platform,
-		Key:      key.Key,
-	}, nil
-}
 
 // AcceptsKeys says whether a key for the platform may be stored and used: a
 // platform of the engine's that takes users' keys, or the mock in development
@@ -114,18 +99,4 @@ func promoteNextDefaultKey(ctx context.Context, userID uuid.UUID) {
 			return
 		}
 	}
-}
-
-// UpdateApiKeyLastUsageSuccess updates the last_usage_success flag and error code on an API key.
-// On success, the error code is cleared. On failure, the error code is stored.
-func UpdateApiKeyLastUsageSuccess(ctx context.Context, apiKeyID uuid.UUID, success bool, errorCode ...string) {
-	var lastErrorCode sql.NullString
-	if !success && len(errorCode) > 0 && errorCode[0] != "" {
-		lastErrorCode = sql.NullString{String: errorCode[0], Valid: true}
-	}
-	_ = queries().UpdateApiKeyLastUsageSuccess(ctx, UpdateApiKeyLastUsageSuccessParams{
-		ID:               apiKeyID,
-		LastUsageSuccess: sql.NullBool{Bool: success, Valid: true},
-		LastErrorCode:    lastErrorCode,
-	})
 }

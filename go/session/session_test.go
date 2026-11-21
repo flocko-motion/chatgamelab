@@ -1,20 +1,20 @@
-package game
+package session
 
 import (
 	"testing"
 
-	"cgl/db"
-	"cgl/obj"
+	"cgl/core"
 	"engine"
 
 	"github.com/google/uuid"
 )
 
-func candidate(platform, tier string, shareID uuid.UUID) resolvedKey {
-	return resolvedKey{
-		Share:         &obj.ApiKeyShare{ID: shareID, ApiKey: &obj.ApiKey{ID: uuid.New(), Platform: platform}},
-		AiQualityTier: tier,
+func candidate(platform, tier string, shareID uuid.UUID) core.Payer {
+	p := core.Payer{KeyID: uuid.New(), Platform: platform, Tier: tier}
+	if shareID != uuid.Nil {
+		p.ShareID = &shareID
 	}
+	return p
 }
 
 // An offer allows the resolved tier alone, with every toggle its platform
@@ -46,14 +46,11 @@ func TestOfferForAllowsTheResolvedTierOnly(t *testing.T) {
 func TestOfferForTheSystemKeyIsNamedByTheKey(t *testing.T) {
 	c := candidate("openai", "max", uuid.Nil)
 	offer, _, _ := offerFor(c)
-	if offer.ID != c.Share.ApiKey.ID.String() {
-		t.Errorf("offer ID %q, want the key's %q", offer.ID, c.Share.ApiKey.ID)
+	if offer.ID != c.KeyID.String() {
+		t.Errorf("offer ID %q, want the key's %q", offer.ID, c.KeyID)
 	}
 	if _, ok := offer.Caveats.Allow[engine.TierHigh]; !ok {
 		t.Errorf("max is not read as high: %v", offer.Caveats.Allow)
-	}
-	if shareID(c) != nil {
-		t.Error("the system key names a share")
 	}
 }
 
@@ -66,17 +63,17 @@ func TestOfferForAnUnknownPlatform(t *testing.T) {
 func TestGameSpec(t *testing.T) {
 	theme := "noir"
 	rule := "Keep it gentle."
-	game := &obj.Game{
-		Genre:                  "npc-live",
-		Name:                   "Bridge",
-		Description:            "Talk your way past a troll.",
-		SystemMessageScenario:  "A troll guards a bridge.",
-		SystemMessageGameStart: "Greet the traveller.",
-		ImageStyle:             "woodcut",
-		Theme:                  &theme,
-		StatusFields:           `[{"name":"Mood","value":"grumpy"}]`,
+	game := &gameFacts{
+		Genre:        "npc-live",
+		Name:         "Bridge",
+		Description:  "Talk your way past a troll.",
+		Scenario:     "A troll guards a bridge.",
+		GameStart:    "Greet the traveller.",
+		ImageStyle:   "woodcut",
+		Theme:        &theme,
+		StatusFields: `[{"name":"Mood","value":"grumpy"}]`,
 	}
-	spec := gameSpec(game, "de", dbRule(&rule))
+	spec := gameSpec(game, "de", Rule{Text: &rule})
 	want := engine.SessionSpec{
 		Genre: engine.GenreNPCLive, Title: "Bridge", Scenario: "A troll guards a bridge.",
 		InitPrompt: "Greet the traveller.", ImageStyle: "woodcut", Theme: "noir", Language: "de",
@@ -91,21 +88,14 @@ func TestGameSpec(t *testing.T) {
 }
 
 func TestPlayerLanguage(t *testing.T) {
-	signedIn := &obj.User{Language: "fr"}
-	cases := []struct {
-		player    *obj.User
-		requested string
-		want      string
-	}{
-		{signedIn, "de", "fr"},
-		{&obj.User{}, "de", "de"},
-		{nil, "", "en"},
+	cases := []struct{ profile, requested, want string }{
+		{"fr", "de", "fr"},
+		{"", "de", "de"},
+		{"", "", "en"},
 	}
 	for _, c := range cases {
-		if got := playerLanguage(c.player, c.requested); got != c.want {
-			t.Errorf("playerLanguage(%v, %q) = %q, want %q", c.player, c.requested, got, c.want)
+		if got := playerLanguage(c.profile, c.requested); got != c.want {
+			t.Errorf("playerLanguage(%q, %q) = %q, want %q", c.profile, c.requested, got, c.want)
 		}
 	}
 }
-
-func dbRule(text *string) db.ConstraintResolution { return db.ConstraintResolution{Text: text} }

@@ -356,14 +356,14 @@ func (s *MultiUserTestSuite) TestWorkshopInvites() {
 	s.NotNil(workshopInvite.InviteToken)
 	s.T().Logf("Created workshop invite with token: %s", *workshopInvite.InviteToken)
 
-	// Anonymous user accepts invite via token (no authentication)
+	// A guest without an account accepts the invite via token
 	// This should create an ad-hoc user account with a funny name and return auth token
 	guest1Response, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
 	s.NoError(err, "should be able to accept workshop invite anonymously")
 	s.NotNil(guest1Response.User)
 	s.NotEmpty(guest1Response.User.Name)
 	s.NotNil(guest1Response.AuthToken)
-	s.T().Logf("Anonymous user 1 created: %s (token: %s...)", guest1Response.User.Name, (*guest1Response.AuthToken)[:10])
+	s.T().Logf("Guest 1 created: %s (token: %s...)", guest1Response.User.Name, (*guest1Response.AuthToken)[:10])
 
 	// Create client for guest 1 using ONLY their auth token (low-barrier login)
 	clientGuest1 := Must(s.GuestLogin(*guest1Response.AuthToken))
@@ -380,7 +380,7 @@ func (s *MultiUserTestSuite) TestWorkshopInvites() {
 	s.NotNil(guest2Response.User)
 	s.NotEmpty(guest2Response.User.Name)
 	s.NotEqual(guest1Response.User.Name, guest2Response.User.Name, "guests should have different names")
-	s.T().Logf("Anonymous user 2 created: %s", guest2Response.User.Name)
+	s.T().Logf("Guest 2 created: %s", guest2Response.User.Name)
 
 	// Guest can see workshop and all other guests (they're in the same workshop!)
 	workshopFromGuest := Must(clientGuest1.GetWorkshop(workshop.Id.String()))

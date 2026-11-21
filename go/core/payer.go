@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"cgl/core/internal/store"
+	"cgl/db"
 	"cgl/obj"
 
 	"engine"
@@ -15,7 +16,7 @@ import (
 )
 
 // Who pays for a session: the first of these that applies and whose key
-// works (the engine checks it, game/session.go), at most maxPayers:
+// works (the engine checks it, session/session.go), at most maxPayers:
 //
 //  1. the key of the workshop the player is in, at the workshop's tier;
 //  2. the share sponsoring the game, for whoever plays it;
@@ -39,6 +40,34 @@ type Payer struct {
 	Platform string
 	Tier     string // high, medium or low, never empty
 	Source   string // obj.ApiKeyType*
+
+	chosen bool // the core picked it: only then its key is read
+}
+
+// Secret is the payer's key, read fresh on every call so a rotated key
+// applies at once. Only a payer the core picked has one: a Payer made
+// elsewhere reads nothing.
+func (p Payer) Secret(ctx context.Context) (string, error) {
+	if !p.chosen {
+		return "", forbidden("this key is not yours to use")
+	}
+	key, err := store.Queries().GetApiKeyByID(ctx, p.KeyID)
+	if err != nil {
+		return "", fmt.Errorf("the API key is gone: %w", err)
+	}
+	return key.Key, nil
+}
+
+// RecordCheck records whether the payer's key worked: on a refusal with its
+// problem, so its owner sees why.
+func (p Payer) RecordCheck(ctx context.Context, worked bool, problem string) {
+	if !p.chosen {
+		return
+	}
+	code := sql.NullString{String: problem, Valid: !worked && problem != ""}
+	_ = store.Queries().UpdateApiKeyLastUsageSuccess(ctx, db.UpdateApiKeyLastUsageSuccessParams{
+		ID: p.KeyID, LastUsageSuccess: sql.NullBool{Bool: worked, Valid: true}, LastErrorCode: code,
+	})
 }
 
 // PayerStep is one step of looking for payers, for telemetry.
@@ -84,6 +113,7 @@ func Payers(ctx context.Context, game uuid.UUID, platform string) ([]Payer, []Pa
 		case platform != "" && p.Platform != platform:
 			steps = append(steps, PayerStep{Source: source, Result: "filtered", Detail: fmt.Sprintf("platform %s != %s", p.Platform, platform), Payer: &p})
 		default:
+			p.chosen = true
 			seen[p.KeyID] = true
 			payers = append(payers, p)
 			steps = append(steps, PayerStep{Source: source, Result: "selected", Payer: &p})

@@ -6,7 +6,7 @@ import { queryKeys } from "../queryKeys";
 import type {
   Error as ApiError,
   SessionDeletedResp,
-  UserSessionWithGame,
+  SessionView,
 } from "../generated/api.gen";
 
 // User Sessions hooks (last played)
@@ -18,7 +18,7 @@ export interface UseUserSessionsParams {
 export function useUserSessions(params?: UseUserSessionsParams) {
   const { search, sortBy } = params || {};
 
-  return useQuery<UserSessionWithGame[], ApiError>({
+  return useQuery<SessionView[], ApiError>({
     queryKey: [...queryKeys.userSessions, { search, sortBy }],
     queryFn: () =>
       api.getApiSessions({ search, sortBy })
@@ -31,8 +31,8 @@ export function useGameSessionMap() {
   const { data: sessions, isLoading, error } = useUserSessions();
 
   const sessionMap = useMemo(() => {
-    if (!sessions) return new Map<string, UserSessionWithGame>();
-    const map = new Map<string, UserSessionWithGame>();
+    if (!sessions) return new Map<string, SessionView>();
+    const map = new Map<string, SessionView>();
     for (const session of sessions) {
       if (session.gameId) {
         map.set(session.gameId, session);

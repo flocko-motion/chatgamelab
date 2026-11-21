@@ -156,4 +156,8 @@ var vocabulary = map[string]string{
 	"ShareLink":                 string(rules.ShareLink),
 	"OfOwnGame":                 string(rules.OfOwnGame),
 	"FreeUseOfOwnOrganisation":  string(rules.FreeUseOfOwnOrganisation),
+	"Play":                      string(rules.Play),
+	"Session":                   string(rules.Session),
+	"SessionRule":               string(rules.SessionRule),
+	"ViaGuestSessionID":         string(rules.ViaGuestSessionID),
 }
