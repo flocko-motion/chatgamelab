@@ -66,6 +66,59 @@ func TestAdventureThroughPublicAPI(t *testing.T) {
 	}
 }
 
+// Adventure plays without pictures, as it does on a platform that offers none,
+// such as Mistral: the turn still tells its story and updates its status, and
+// no picture arrives.
+func TestAdventureWithoutImages(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	offer := engine.MockOffer()
+	offer.Caveats = engine.Caveats{
+		Allow:   map[engine.Tier]engine.Toggles{engine.TierLow: {}},
+		Default: engine.Choice{Tier: engine.TierLow},
+	}
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreAdventure,
+		ID:    "adventure-without-images",
+	}, []engine.Offer{offer})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	if err := s.Say("I try to cross the bridge"); err != nil {
+		t.Fatal(err)
+	}
+
+	want := map[string]bool{"text": false, "props": false}
+	deadline := time.After(10 * time.Second)
+	for remaining(want) > 0 {
+		select {
+		case e := <-s.Events():
+			if e.Stream == "image" {
+				t.Fatal("a picture arrived with images off")
+			}
+			want[e.Stream] = true
+		case <-deadline:
+			t.Fatalf("the turn never completed, still missing %d: %v", remaining(want), want)
+		}
+	}
+
+	// The mock draws at once, so a picture would have come with the turn.
+	settle := time.After(200 * time.Millisecond)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream == "image" {
+				t.Fatal("a picture arrived with images off")
+			}
+		case <-settle:
+			return
+		}
+	}
+}
+
 // A live genre is spoken, and says so. GPT-Live has no event that delivers user
 // text into a conversation, so a text box on this genre would be a control that
 // cannot work — and silently swallowing what was typed would look to a player

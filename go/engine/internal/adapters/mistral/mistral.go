@@ -1,11 +1,11 @@
 // Package mistral implements the adapter roles against Mistral.
 //
-// Every role runs through the Conversations API: text as a one-shot
-// conversation that is not stored, pictures as a one-shot conversation with
-// the built-in image_generation tool, fetched afterwards from the Files API.
+// Every role runs through the Conversations API, and every role is text: the
+// tooling queries and the story thread.
 //
-// Mistral has no full-duplex voice model, so there is no Live adapter and a
-// genre that needs one cannot run on this platform.
+// Mistral offers no picture, voice or transcription adapter, so a game on a
+// Mistral key plays as text, and a genre that needs more cannot run on this
+// platform.
 package mistral
 
 import (

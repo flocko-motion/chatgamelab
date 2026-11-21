@@ -29,25 +29,19 @@ type input struct {
 	Content string `json:"content"`
 }
 
-type tool struct {
-	Type string `json:"type"`
-}
-
 // start is a new conversation. Store is always false: every call is one-shot,
 // so nothing needs to be kept on Mistral's side.
 type start struct {
 	Model        string  `json:"model"`
 	Instructions string  `json:"instructions,omitempty"`
 	Inputs       []input `json:"inputs"`
-	Tools        []tool  `json:"tools,omitempty"`
 	Store        bool    `json:"store"`
 }
 
 type reply struct {
 	Outputs []struct {
 		Role string `json:"role"`
-		// Content is a string for plain text, and an array of chunks once a
-		// tool has produced something.
+		// Content is a string for plain text, or an array of chunks.
 		Content json.RawMessage `json:"content"`
 	} `json:"outputs"`
 	Usage struct {
@@ -57,9 +51,8 @@ type reply struct {
 }
 
 type chunk struct {
-	Type   string `json:"type"`
-	Text   string `json:"text"`
-	FileID string `json:"file_id"`
+	Type string `json:"type"`
+	Text string `json:"text"`
 }
 
 func (c *client) converse(ctx context.Context, key string, req start) (reply, error) {
@@ -77,16 +70,6 @@ func (c *client) converse(ctx context.Context, key string, req start) (reply, er
 
 	err = json.NewDecoder(resp.Body).Decode(&out)
 	return out, err
-}
-
-// file fetches a file a tool produced, such as a generated picture.
-func (c *client) file(ctx context.Context, key, id string) ([]byte, error) {
-	resp, err := c.do(ctx, key, http.MethodGet, "/files/"+id+"/content", nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	return io.ReadAll(resp.Body)
 }
 
 func (c *client) do(ctx context.Context, key, method, path string, body []byte) (*http.Response, error) {
@@ -146,21 +129,6 @@ func (r reply) text() string {
 		}
 	}
 	return sb.String()
-}
-
-// fileID is the first file a tool produced.
-func (r reply) fileID() string {
-	for _, o := range r.Outputs {
-		if o.Role != "assistant" {
-			continue
-		}
-		for _, c := range r.chunks(o.Content) {
-			if c.Type == "tool_file" && c.FileID != "" {
-				return c.FileID
-			}
-		}
-	}
-	return ""
 }
 
 func (reply) chunks(raw json.RawMessage) []chunk {
