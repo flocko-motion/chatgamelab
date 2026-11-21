@@ -2,7 +2,8 @@ package openai
 
 import "engine/internal/adapters"
 
-// Model choices per tier follow the table in TECHNOLOGY.md as of August 2026.
+// Model choices per tier.
+//
 // Tooling does not move with the tier: its prompts are short, so a flagship
 // model buys nothing there.
 //

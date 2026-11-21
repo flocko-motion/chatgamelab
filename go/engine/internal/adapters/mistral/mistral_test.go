@@ -12,8 +12,8 @@ import (
 
 func key(context.Context) (string, error) { return "test-key", nil }
 
-// fake answers /conversations with reply and serves one file, recording the
-// last conversation request it saw.
+// fake answers /conversations with reply, recording the last conversation
+// request it saw.
 func fake(t *testing.T, reply string, seen *start) *httptest.Server {
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -27,8 +27,6 @@ func fake(t *testing.T, reply string, seen *start) *httptest.Server {
 				t.Errorf("decode request: %v", err)
 			}
 			_, _ = w.Write([]byte(reply))
-		case "/files/file-1/content":
-			_, _ = w.Write([]byte("PNG"))
 		default:
 			http.NotFound(w, r)
 		}
@@ -74,41 +72,5 @@ func TestToolReadsChunkedContent(t *testing.T) {
 	}
 	if text != "in character" {
 		t.Errorf("text = %q", text)
-	}
-}
-
-func TestImageDownloadsTheToolFile(t *testing.T) {
-	var seen start
-	srv := fake(t, `{"outputs":[{"role":"assistant","content":[
-		{"type":"tool_file","tool":"image_generation","file_id":"file-1"}]}],
-		"usage":{"prompt_tokens":40,"completion_tokens":5}}`, &seen)
-
-	image := NewImage(key, "mistral-small-latest")
-	image.api.base = srv.URL
-
-	got, used, err := image.Generate(context.Background(), adapters.ImageRequest{Prompt: "a bridge"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(got) != "PNG" {
-		t.Errorf("image = %q", got)
-	}
-	if used.Images != 1 || used.InputTokens != 40 {
-		t.Errorf("usage = %+v", used)
-	}
-	if len(seen.Tools) != 1 || seen.Tools[0].Type != "image_generation" {
-		t.Errorf("tools = %+v", seen.Tools)
-	}
-}
-
-func TestImageWithoutFileFails(t *testing.T) {
-	var seen start
-	srv := fake(t, `{"outputs":[{"role":"assistant","content":"I cannot draw that."}]}`, &seen)
-
-	image := NewImage(key, "m")
-	image.api.base = srv.URL
-
-	if _, _, err := image.Generate(context.Background(), adapters.ImageRequest{Prompt: "x"}); err == nil {
-		t.Fatal("want an error when no file comes back")
 	}
 }

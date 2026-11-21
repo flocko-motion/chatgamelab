@@ -63,15 +63,21 @@ continue it later under that ID, for as long as the session is kept.
 #todo[How long a session is kept.] A finished session can be read back as it
 was played.
 
-A session plays on one *AI platform* (e.g. OpenAI) at one *quality tier*:
-economy, balanced or high. A tier presets the AI models a session uses,
-including the size and quality of its pictures. Which *features* exist depends
-on the platform: *images* (pictures), *audio-out* (spoken narration), *audio-in*
-(voice input) and *audio-live* (live voice).
+A session plays on one AI platform at one quality tier (@platforms). The
+optional features *images*, *audio-in* and *audio-out* can be switched off or on
+at any time during play, if available. 
 
-The optional features *images*, *audio-in* and *audio-out* can be switched off
-or on at any time during play, as far as the key in use allows the feature.
-Switching one off affects only what is made from then on.
+== AI platforms and tiers <platforms>
+
+A session plays on one *AI platform*, such as OpenAI or Mistral, at one
+*quality tier*: economy, balanced or high. Together they pick the AI model for
+each task in a session:
+
+A tier changes how well a session plays, never which features it has. Which
+*features* exist depends on the platform: *images* (pictures), *audio-out*
+(spoken narration), *audio-in* (voice input) and *audio-live* (live voice).
+
+The platform shows, for each platform and tier, which AI model runs each task.
 
 == Genres
 
