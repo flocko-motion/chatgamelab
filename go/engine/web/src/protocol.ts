@@ -70,6 +70,19 @@ export const PROBLEMS: readonly Problem[] = [
   "failed",
 ];
 
+/** An error the game goes on after: an `error` event's value. */
+export type ErrorCode =
+  | "turn_failed"
+  ;
+
+/** Every error code; any other `error` value is a message for whoever debugs. */
+export const ERROR_CODES: readonly ErrorCode[] = [
+  "turn_failed",
+];
+
+/** The status values a genre tracks: a `props` event's value, as JSON. */
+export type Props = Record<string, string>;
+
 /**
  * A refusal: a `problem` event's value. A route's refusal is its error
  * response, whose code is the problem.

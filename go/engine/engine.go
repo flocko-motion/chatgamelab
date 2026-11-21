@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -341,7 +340,9 @@ func (s *Session) merge(ctx context.Context) {
 					ev := SessionEvent{Stream: name, Value: v}
 					s.log(ev)
 					if name == "props" {
-						s.recorder.recordProps(parseProps(v))
+						if props := readProps(v); props != nil {
+							s.recorder.recordProps(props)
+						}
 					}
 					select {
 					case s.events <- ev:
@@ -382,6 +383,16 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 				}
 				if state.Phase == ports.PhaseFailed {
 					s.fail(state)
+				}
+				if state.Phase == ports.PhaseReady && state.Reason == ports.ReasonTurnFailed {
+					// The game goes on; the player is told, and history keeps it.
+					dropped := SessionEvent{Stream: "error", Value: string(ErrorTurnFailed)}
+					s.log(dropped)
+					select {
+					case s.events <- dropped:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
 		}
@@ -605,16 +616,12 @@ func (s *Session) Close() {
 	<-s.kept
 }
 
-// parseProps reads back the rendered map a props sink emits; remove once props are structured on the wire.
-func parseProps(value string) map[string]string {
-	inner := strings.TrimSuffix(strings.TrimPrefix(value, "map["), "]")
-	props := map[string]string{}
-	for _, pair := range strings.Fields(inner) {
-		key, val, found := strings.Cut(pair, ":")
-		if !found {
-			continue
-		}
-		props[key] = val
+// readProps reads a props event's value, the status values as a JSON object;
+// one that does not read is nil.
+func readProps(value string) map[string]string {
+	var props map[string]string
+	if json.Unmarshal([]byte(value), &props) != nil {
+		return nil
 	}
 	return props
 }
@@ -674,11 +681,10 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 			thread: openai.NewThread(keys, models[adapters.ModelStory].Name),
 		}
 	case PlatformMistral:
-		// Live stays nil: Mistral has no live voice model.
+		// Live and image stay nil: the platform offers neither.
 		keys := adapters.KeyFunc(settled.offer.Keys)
 		kit = equipment{
 			tool:   mistral.NewTool(keys, models[adapters.ModelTooling].Name),
-			image:  mistral.NewImage(keys, models[adapters.ModelImage].Name),
 			thread: mistral.NewThread(keys, models[adapters.ModelStory].Name),
 		}
 	default:

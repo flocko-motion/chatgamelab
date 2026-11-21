@@ -105,6 +105,21 @@ func generate() []byte {
 		fmt.Fprintf(&b, "  %q,\n", problem)
 	}
 	b.WriteString("];\n\n")
+	b.WriteString("/** An error the game goes on after: an `error` event's value. */\n")
+	b.WriteString("export type ErrorCode =\n")
+	for _, code := range engine.ErrorCodes() {
+		fmt.Fprintf(&b, "  | %q\n", code)
+	}
+	b.WriteString("  ;\n\n")
+	b.WriteString("/** Every error code; any other `error` value is a message for whoever debugs. */\n")
+	b.WriteString("export const ERROR_CODES: readonly ErrorCode[] = [\n")
+	for _, code := range engine.ErrorCodes() {
+		fmt.Fprintf(&b, "  %q,\n", code)
+	}
+	b.WriteString("];\n\n")
+	b.WriteString("/** The status values a genre tracks: a `props` event's value, as JSON. */\n")
+	b.WriteString("export type Props = Record<string, string>;\n\n")
+
 	b.WriteString("/**\n")
 	b.WriteString(" * A refusal: a `problem` event's value. A route's refusal is its error\n")
 	b.WriteString(" * response, whose code is the problem.\n")

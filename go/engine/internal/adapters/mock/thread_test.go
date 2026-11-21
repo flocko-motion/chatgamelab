@@ -51,3 +51,36 @@ func TestThreadSeededFromATranscriptCountsOn(t *testing.T) {
 		t.Errorf("a seeded thread said %q, want turn 3", reply.Text)
 	}
 }
+
+// A structured turn streams JSON of the schema's shape: each text field marks
+// the turn and the input, and each status value is carried forward with the
+// turn it was last seen, so a test sees it change.
+func TestThreadStructuredTurnAnswersTheSchema(t *testing.T) {
+	schema := &adapters.Schema{Name: "outline", Body: map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"outline": map[string]any{"type": "string"},
+			"status": map[string]any{
+				"type":       "object",
+				"properties": map[string]any{"Health": map[string]any{"type": "string"}, "Gold": map[string]any{"type": "string"}},
+			},
+		},
+	}}
+	var pieces []string
+	reply, err := Thread{}.Continue(context.Background(), adapters.ThreadTurn{
+		Input:        `{"input":"I cross","status":{"Health":"badly wounded [turn 1]","Gold":"12"}}`,
+		Schema:       schema,
+		Continuation: adapters.Continuation{ID: "mock-thread-1"},
+		Piece:        func(p string) { pieces = append(pieces, p) },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{"outline":"[outline 2] I cross","status":{"Gold":"12 [turn 2]","Health":"badly wounded [turn 2]"}}`
+	if reply.Text != want {
+		t.Errorf("reply %s\nwant  %s", reply.Text, want)
+	}
+	if strings.Join(pieces, "") != reply.Text || len(pieces) < 2 {
+		t.Errorf("pieces %q should stream the reply word by word", pieces)
+	}
+}

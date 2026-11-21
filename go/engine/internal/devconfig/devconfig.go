@@ -1,4 +1,10 @@
-package main
+// Package devconfig reads the keys a developer keeps for running the engine
+// by hand, as the standalone launcher and the probe do.
+//
+// The engine never reads a key from disk: it receives a resolved SessionSpec
+// and nothing else. Resolution happens in a launcher, the standalone
+// counterpart of the cascade the platform runs.
+package devconfig
 
 import (
 	"fmt"
@@ -7,15 +13,6 @@ import (
 
 	"gopkg.in/yaml.v3"
 )
-
-// The engine never reads a key from disk: it receives a resolved SessionSpec
-// and nothing else. Resolution happens here, in the launcher, which is the
-// standalone counterpart of the cascade the portal runs.
-
-// A spec's apiKey field either holds the real key, or one of these sentinels
-// asking the launcher to resolve one. Anything else — including empty — is
-// taken literally, so a session can never run on a key nobody chose.
-var resolveSentinels = map[string]bool{"auto": true, "dev": true}
 
 // The placeholder the repo's CLI writes into a fresh config file. It is not a
 // key, and must not be mistaken for one.
@@ -29,7 +26,8 @@ type cliConfig struct {
 	} `yaml:"platforms"`
 }
 
-func configPath() (string, error) {
+// Path is where the config file lives.
+func Path() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -37,11 +35,11 @@ func configPath() (string, error) {
 	return filepath.Join(home, ".chatgamelab", "config.yaml"), nil
 }
 
-// apiKeyFromConfig returns the configured key for a platform, or "" when there
-// is no usable one. A missing file is not an error at this level; the caller
+// APIKey returns the configured key for a platform, or "" when there is no
+// usable one. A missing file is not an error at this level; the caller
 // decides whether that is fatal.
-func apiKeyFromConfig(platform string) (string, error) {
-	path, err := configPath()
+func APIKey(platform string) (string, error) {
+	path, err := Path()
 	if err != nil {
 		return "", err
 	}

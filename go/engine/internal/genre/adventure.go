@@ -2,6 +2,9 @@
 package genre
 
 import (
+	"maps"
+	"slices"
+
 	"engine/internal/adapters"
 	"engine/internal/blocks"
 	"engine/internal/ports"
@@ -26,6 +29,7 @@ type AdventureConfig struct {
 // Prompt names are constants so a rename fails to compile.
 const (
 	PromptRephrase = "rephrase"
+	PromptOutline  = "outline"
 	PromptExpand   = "expand"
 )
 
@@ -36,6 +40,12 @@ var AdventurePrompts = Prompts{
 		"Return ONLY the rephrased text, nothing else.\n" +
 		"Example: 'I attack the wolf and wrestle him to the ground' → " +
 		"'The player attacks the wolf, hoping to wrestle him to the ground.'",
+	// A placeholder, overridable by name.
+	PromptOutline: "You run a text adventure. You are given the player's action, told in third " +
+		"person with its outcome open, and the game's current status. Decide what plausibly " +
+		"happens as the world reacts, true to everything told so far. Answer with the outline " +
+		"of what happens in a few plain sentences, a prompt for a picture of the scene, and " +
+		"every status field with its value after this turn, changed or not.",
 	// A first draft, overridable by name.
 	PromptExpand: "You narrate a text adventure. Turn the outline you are given into the next " +
 		"passage of the story: vivid second-person prose, a few sentences long, true to " +
@@ -51,21 +61,65 @@ func languageClause(tag string) string {
 	return "\n\nKeep the response in the language with BCP 47 tag `" + tag + "`."
 }
 
-// NewAdventure is the turn-based genre: rephrase, extract plot, image prompt and
-// status in one call, then expand and fan out to media.
+// The fields of Outline's reply.
+const (
+	outlineText        = "outline"
+	outlineImagePrompt = "image_prompt"
+	outlineStatus      = "status"
+)
+
+// outlineResult feeds Outline's outputs from its reply.
+var outlineResult = blocks.Result{Text: outlineText, SecondaryText: outlineImagePrompt, Props: outlineStatus}
+
+// OutlineSchema is the shape of Outline's reply, a call parameter of the
+// genre's: the outline, the image prompt, and the status, one property per
+// status field of the session, every one in every reply. A game without status
+// fields has no status in its schema. Strict mode allows no free-form map, so
+// the fields are listed.
+func OutlineSchema(status map[string]string) adapters.Schema {
+	text := map[string]any{"type": "string"}
+	properties := map[string]any{outlineText: text, outlineImagePrompt: text}
+	required := []string{outlineText, outlineImagePrompt}
+	if len(status) > 0 {
+		fields := map[string]any{}
+		names := slices.Sorted(maps.Keys(status))
+		for _, name := range names {
+			fields[name] = text
+		}
+		properties[outlineStatus] = map[string]any{
+			"type":                 "object",
+			"properties":           fields,
+			"required":             names,
+			"additionalProperties": false,
+		}
+		required = append(required, outlineStatus)
+	}
+	return adapters.Schema{Name: "outline", Body: map[string]any{
+		"type":                 "object",
+		"properties":           properties,
+		"required":             required,
+		"additionalProperties": false,
+	}}
+}
+
+// NewAdventure is the turn-based genre: rephrase, then Outline decides the
+// plot, image prompt and status in one structured call, then Expand writes
+// the prose on the same thread and the turn fans out to media.
 func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	prompts, err := Resolve(AdventurePrompts, cfg.PromptOverride)
 	if err != nil {
 		return nil, err
 	}
 	prompts[PromptRephrase] += languageClause(cfg.Language)
+	// The status values reach the player, so they are in the player's language.
+	prompts[PromptOutline] += languageClause(cfg.Language)
 	prompts[PromptExpand] += languageClause(cfg.Language)
 
 	player := blocks.NewPlayerInputText("player-input-text")
 	rephrase := blocks.NewToolCall("rephrase", cfg.Tool, prompts[PromptRephrase])
-	outline := blocks.NewDummyExtraction("outline")
-	// Outline joins this thread, ahead of Expand, once it is a threaded block.
+	// Outline takes the thread's first seat, Expand the second.
 	story := blocks.NewThread("story-thread", cfg.Thread)
+	outline := blocks.NewStructured("outline", story, prompts[PromptOutline], OutlineSchema(cfg.Status), outlineResult)
 	expand := blocks.NewThreaded("expand", story, prompts[PromptExpand])
 	image := blocks.NewDummyImage("image")
 	tts := blocks.NewDummyTTS("tts")

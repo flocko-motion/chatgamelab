@@ -160,3 +160,42 @@ func TestThreadBrokenStreamMayPass(t *testing.T) {
 		t.Fatalf("got %v, want a failure that may pass", err)
 	}
 }
+
+// A structured turn asks for its schema in strict mode, on start and on
+// append; a plain turn asks for text, so a format stored on the conversation
+// never reaches the next turn.
+func TestThreadSendsTheTurnsFormat(t *testing.T) {
+	fake := &fakeConversations{answer: func(_ int, _ string, w http.ResponseWriter) {
+		streamed(w, "conv_1", `{"outline":"x"}`)
+	}}
+	th := testThread(fake.serve(t))
+	schema := &adapters.Schema{Name: "outline", Body: map[string]any{
+		"type":                 "object",
+		"properties":           map[string]any{"outline": map[string]any{"type": "string"}},
+		"required":             []any{"outline"},
+		"additionalProperties": false,
+	}}
+
+	first, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "a", Schema: schema})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "b", Schema: schema, Continuation: first.Continuation}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "c", Continuation: first.Continuation}); err != nil {
+		t.Fatal(err)
+	}
+
+	want := `{"response_format":{"json_schema":{"name":"outline","schema":{"additionalProperties":false,` +
+		`"properties":{"outline":{"type":"string"}},"required":["outline"],"type":"object"},"strict":true},` +
+		`"type":"json_schema"}}`
+	for i, c := range fake.calls[:2] {
+		if got, _ := json.Marshal(c.body["completion_args"]); string(got) != want {
+			t.Errorf("call %d (%s) completion_args = %s, want %s", i, c.path, got, want)
+		}
+	}
+	if got, _ := json.Marshal(fake.calls[2].body["completion_args"]); string(got) != `{"response_format":{"type":"text"}}` {
+		t.Errorf("plain completion_args = %s, want the text format", got)
+	}
+}

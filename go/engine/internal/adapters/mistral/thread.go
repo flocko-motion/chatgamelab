@@ -58,12 +58,16 @@ func (t *Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapte
 	}
 
 	said := withInstructions(turn.Instructions, turn.Input)
+	// Sent on start and on append, as a format is the call's own: a plain turn
+	// on a conversation that answered structured before still answers in text.
+	args := map[string]any{"response_format": responseFormat(turn.Schema)}
 
 	if id := turn.Continuation.ID; id != "" {
 		reply, err := t.call(ctx, key, "/conversations/"+id, map[string]any{
-			"inputs": []entry{message("user", said)},
-			"store":  true,
-			"stream": true,
+			"inputs":          []entry{message("user", said)},
+			"completion_args": args,
+			"store":           true,
+			"stream":          true,
 		}, turn)
 		// Mistral no longer holding the conversation is answered by a fresh
 		// one, seeded with the transcript; anything else is the turn's failure.
@@ -77,11 +81,23 @@ func (t *Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapte
 		inputs = append(inputs, message("user", withInstructions(e.Instructions, e.Input)), message("assistant", e.Reply))
 	}
 	return t.call(ctx, key, "/conversations", map[string]any{
-		"model":  t.model,
-		"inputs": append(inputs, message("user", said)),
-		"store":  true,
-		"stream": true,
+		"model":           t.model,
+		"inputs":          append(inputs, message("user", said)),
+		"completion_args": args,
+		"store":           true,
+		"stream":          true,
 	}, turn)
+}
+
+// responseFormat is the Conversations API's format for a turn.
+func responseFormat(schema *adapters.Schema) map[string]any {
+	if schema == nil {
+		return map[string]any{"type": "text"}
+	}
+	return map[string]any{
+		"type":        "json_schema",
+		"json_schema": map[string]any{"name": schema.Name, "schema": schema.Body, "strict": true},
+	}
 }
 
 // withInstructions puts a call's instructions ahead of its input, in the one
@@ -150,7 +166,9 @@ func (t *Thread) call(ctx context.Context, key, path string, request map[string]
 	if done == nil {
 		return adapters.ThreadReply{}, adapters.Transient("mistral conversations stream", io.ErrUnexpectedEOF)
 	}
-	if text.Len() == 0 {
+	// A plain turn's empty reply fails; a structured turn's is its caller's to
+	// judge, as it judges any reply against the schema.
+	if text.Len() == 0 && turn.Schema == nil {
 		return adapters.ThreadReply{}, fmt.Errorf("mistral conversations: empty output")
 	}
 	if id == "" {

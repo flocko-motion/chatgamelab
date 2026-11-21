@@ -441,8 +441,8 @@ func TestNPCLiveRefusesMistral(t *testing.T) {
 		ID:       "mistral",
 		Keys:     func(context.Context) (string, error) { return "k", nil },
 		Caveats: engine.Caveats{
-			Allow:   map[engine.Tier]engine.Toggles{engine.TierLow: {Images: true}},
-			Default: engine.Choice{Tier: engine.TierLow, Toggles: engine.Toggles{Images: true}},
+			Allow:   map[engine.Tier]engine.Toggles{engine.TierLow: {}},
+			Default: engine.Choice{Tier: engine.TierLow},
 		},
 	}})
 	if err == nil || !strings.Contains(err.Error(), "audio-live") {

@@ -17,8 +17,8 @@ and configured by prompt into whatever role a genre needs:
 | Block | Mechanism | Roles |
 | --- | --- | --- |
 | **Tool call** | one single-shot text-in/text-out call | rephrase, condense, translate, observer |
-| **Threaded call** | a call on a continuing conversation | Outline and Expand, sharing one thread |
-| **Structured extraction** | a call returning a typed properties map | status tracking, theme generation |
+| **Threaded call** | a call on a continuing conversation | Expand, sharing Outline's thread |
+| **Threaded call with a structured result** | a threaded call whose reply is JSON of a schema | Outline: its outline, image prompt and status |
 | **Image generation** | prompt in, image out | scene illustration, portrait |
 | **Speech synthesis** | text in, audio out | narration |
 | **Transcription** | audio in, text out | voice input on a turn-based genre |
@@ -227,6 +227,31 @@ thread.
 - **A stream that breaks partway** is made again from the same continuation,
   as the provider never completed that response; the pieces already sent are
   dropped first. Only an exhausted retry or a hard failure ends the game.
+- **A turn may be structured**: the thread adapter takes an optional JSON
+  schema, sent in the provider's strict mode, so one thread carries
+  Outline's structured turns and Expand's plain ones. Every call states its
+  format, a plain one as text, so a format never carries over to the next
+  turn.
+
+### A structured result
+
+Outline's schema belongs to the genre, a call parameter no spec overrides:
+the outline, the image prompt, and the status, one property per status field
+of the session, every one in every reply. Each call sends the action with the
+current status values, so the thread's memory is not trusted for them.
+
+- **Parsing is part of the call.** A reply that does not parse against the
+  schema, a refusal or one cut short is a bad reply: it is never kept on the
+  thread, and the call is made again from the same continuation.
+- **Three bad replies drop the turn; the game goes on.** Nothing goes to
+  Expand, the image or the status; the thread hands the turn past Expand; the
+  block is ready again; and the player gets the `turn_failed` error, with the
+  line they sent back in the input box. This budget is apart from the
+  network's retries.
+- **`cmd/probe`** (`make probe`) measures, on real keys and by hand, how
+  reliably each platform's story models answer a structured turn, streamed,
+  fresh and appended: valid, invalid, refused, cut short, failed, whether it
+  streamed, latency and cost. It gives stats, no verdict.
 
 ## The session spec
 
@@ -358,7 +383,9 @@ and events; a turn-based genre reads events as server-sent events, one JSON
 event per message, and sends actions as requests. A genre's wired output
 sinks define its event types. Utterance boundaries travel in-band: on the
 `text` stream an empty value closes the utterance, and the discard marker
-drops the one still open.
+drops the one still open. A `props` value is the status values as a JSON
+object; an `error` value the game goes on after is a code, such as
+`turn_failed`, which the playback-engine says in the player's language.
 
 **Live audio is browser-direct, watched through a sideband:**
 
@@ -425,13 +452,13 @@ session end to end with the headless playback-engine.
 - Embedded in the platform: it mounts the transport behind its access policy,
   creates sessions from its key cascade and stores them on its tables.
 - The tool call, and the threaded call on OpenAI and Mistral: Adventure's
-  Expand streams its prose on the story model's thread.
+  Outline answers its structured result and Expand streams its prose, both on
+  the story model's thread.
 
 ### Missing
 
-- **Adventure's remaining real blocks** — Outline on the story thread with its
-  structured result, image generation, speech synthesis and transcription,
-  which still run as dummies.
+- **Adventure's remaining real blocks** — image generation, speech synthesis
+  and transcription, which still run as dummies.
 - **The observer's thread** — it judges each line on its own.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the playback-engine needs.

@@ -3,7 +3,17 @@
  * a full game plays from node.
  */
 import { detailOf, refusalOf, type Choice, type SessionRef, type Settled, type UsageReport } from "./client.js";
-import { isSessionEvent, TEXT_DISCARD, type BlockState, type Phase, type Refusal, type SessionEvent } from "./protocol.js";
+import {
+  ERROR_CODES,
+  isSessionEvent,
+  TEXT_DISCARD,
+  type BlockState,
+  type ErrorCode,
+  type Phase,
+  type Props,
+  type Refusal,
+  type SessionEvent,
+} from "./protocol.js";
 import type { Conversation, ToggleName } from "./state.js";
 import { emptyState, explain, type PlaybackEngineState } from "./state.js";
 import { notice, type TextKey } from "./texts.js";
@@ -18,6 +28,8 @@ export class PlaybackEngine {
   #listeners = new Set<Listener>();
   #nextUtterance = 1;
   #open: Utterance | null = null;
+  /** The player's last typed line, given back if the engine drops its turn. */
+  #said: string | null = null;
 
   /** Optional, so a headless run can watch a conversation it cannot join. */
   constructor(
@@ -137,6 +149,8 @@ export class PlaybackEngine {
 
   /** Sends typed input, which live and turn-based genres both take. */
   say(text: string): void {
+    this.#said = text;
+    this.state.redo = null;
     this.transport.send(JSON.stringify({ text }));
   }
 
@@ -224,7 +238,10 @@ export class PlaybackEngine {
         this.state.image = event.Value;
         break;
       case "props":
-        this.state.props = parseProps(event.Value);
+        this.state.props = parseProps(event.Value) ?? this.state.props;
+        break;
+      case "error":
+        this.#applyError(event.Value);
         break;
       case "state":
         this.#applyBlockState(event.Value);
@@ -367,6 +384,27 @@ export class PlaybackEngine {
     this.#notify();
   }
 
+  /**
+   * An error the game goes on after. A dropped turn of a line this page sent
+   * is said to the player, and the line is given back to send again with one
+   * press; one replayed from history is long past. Anything else is kept as a
+   * note.
+   */
+  #applyError(value: string): void {
+    if (!(ERROR_CODES as readonly string[]).includes(value)) {
+      this.state.notes.push(`error: ${value}`);
+      return;
+    }
+    switch (value as ErrorCode) {
+      case "turn_failed":
+        if (this.#said === null) break;
+        this.state.fault = notice("errors.turnFailed");
+        this.state.redo = this.#said;
+        this.#said = null;
+        break;
+    }
+  }
+
   /** A key failing during play: told apart from a lost connection, and not blocking. */
   #applyProblem(value: string): void {
     try {
@@ -443,15 +481,18 @@ export class PlaybackEngine {
 
 type Utterance = PlaybackEngineState["utterances"][number];
 
-/** Parses the props stream's Go map formatting, `map[Health:Good Gold:12]`, into fields. */
-function parseProps(value: string): Record<string, string> {
-  const inner = value.replace(/^map\[/, "").replace(/\]$/, "");
+/** Reads a props event's value, a JSON object of strings; one that does not read is null. */
+function parseProps(value: string): Props | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return null;
   const props: Record<string, string> = {};
-  for (const pair of inner.split(" ")) {
-    if (!pair) continue;
-    const separator = pair.indexOf(":");
-    if (separator < 0) continue;
-    props[pair.slice(0, separator)] = pair.slice(separator + 1);
+  for (const [name, field] of Object.entries(parsed)) {
+    if (typeof field === "string") props[name] = field;
   }
   return props;
 }

@@ -1362,7 +1362,8 @@
       "switchFailed": "Diese Funktion konnte nicht umgeschaltet werden.",
       "voiceFailed": "Deine Stimme konnte nicht verbunden werden.",
       "noMicrophone": "Kein Mikrofon. Prüfe die Berechtigung des Browsers für diese Seite.",
-      "connectionLost": "Die Verbindung zum Spiel ist abgebrochen. Lade die Seite neu, um es erneut zu versuchen."
+      "connectionLost": "Die Verbindung zum Spiel ist abgebrochen. Lade die Seite neu, um es erneut zu versuchen.",
+      "turnFailed": "Die Geschichte konnte daran nicht anknüpfen. Schick es noch einmal oder versuch etwas anderes."
     },
     "launch": {
       "noGame": "Diese Seite braucht ein Spiel: Öffne sie über die Seite eines Spiels.",

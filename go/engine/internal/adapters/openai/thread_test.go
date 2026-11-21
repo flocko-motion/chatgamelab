@@ -176,3 +176,81 @@ func TestThreadRejectedKey(t *testing.T) {
 		t.Fatalf("got %v, want ErrKeyRejected", err)
 	}
 }
+
+var schema = &adapters.Schema{Name: "outline", Body: map[string]any{
+	"type":                 "object",
+	"properties":           map[string]any{"outline": map[string]any{"type": "string"}},
+	"required":             []any{"outline"},
+	"additionalProperties": false,
+}}
+
+// A structured turn asks for its schema in strict mode, on a continued
+// response as on a fresh one; a plain turn asks for text, so no format is
+// left to chance.
+func TestThreadSendsTheTurnsFormat(t *testing.T) {
+	fake := &fakeResponses{answer: func(n int, w http.ResponseWriter) {
+		streamed(w, fmt.Sprintf("resp_%d", n), `{"outline":"x"}`)
+	}}
+	th := testThread(fake.serve(t))
+
+	if _, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "a", Schema: schema}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		Input:        "b",
+		Continuation: adapters.Continuation{ID: "resp_1", Model: "gpt-5-mini", Made: time.Now()},
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	structured, _ := json.Marshal(fake.requests[0]["text"])
+	want := `{"format":{"name":"outline","schema":{"additionalProperties":false,` +
+		`"properties":{"outline":{"type":"string"}},"required":["outline"],"type":"object"},` +
+		`"strict":true,"type":"json_schema"}}`
+	if string(structured) != want {
+		t.Errorf("structured text = %s, want %s", structured, want)
+	}
+	plain, _ := json.Marshal(fake.requests[1]["text"])
+	if string(plain) != `{"format":{"type":"text"}}` {
+		t.Errorf("plain text = %s, want the text format", plain)
+	}
+}
+
+// A refusal is a bad reply: the provider answered, and the turn may be made again.
+func TestThreadRefusalIsABadReply(t *testing.T) {
+	fake := &fakeResponses{answer: func(_ int, w http.ResponseWriter) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprint(w, `data: {"type":"response.refusal.delta","delta":"I can't help with that."}`+"\n\n")
+		fmt.Fprint(w, `data: {"type":"response.completed","response":{"id":"resp_r",`+
+			`"usage":{"input_tokens":50,"output_tokens":6}}}`+"\n\n")
+	}}
+	th := testThread(fake.serve(t))
+
+	reply, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "x", Schema: schema})
+	if !errors.Is(err, adapters.ErrBadReply) {
+		t.Fatalf("got %v, want a bad reply", err)
+	}
+	if reply.Usage.OutputTokens != 6 {
+		t.Errorf("usage = %+v, want the refusal billed", reply.Usage)
+	}
+}
+
+// A structured reply cut short cannot parse, so it is a bad reply too.
+func TestThreadIncompleteStructuredReplyIsBad(t *testing.T) {
+	fake := &fakeResponses{answer: func(_ int, w http.ResponseWriter) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprint(w, `data: {"type":"response.output_text.delta","delta":"{\"outl"}`+"\n\n")
+		fmt.Fprint(w, `data: {"type":"response.incomplete","response":{"id":"resp_i",`+
+			`"incomplete_details":{"reason":"max_output_tokens"},`+
+			`"usage":{"input_tokens":50,"output_tokens":900}}}`+"\n\n")
+	}}
+	th := testThread(fake.serve(t))
+
+	reply, err := th.Continue(context.Background(), adapters.ThreadTurn{Input: "x", Schema: schema})
+	if !errors.Is(err, adapters.ErrBadReply) || !strings.Contains(err.Error(), "max_output_tokens") {
+		t.Fatalf("got %v, want a bad reply naming why it stopped", err)
+	}
+	if reply.Usage.OutputTokens != 900 {
+		t.Errorf("usage = %+v, want the cut reply billed", reply.Usage)
+	}
+}

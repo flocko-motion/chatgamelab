@@ -1,7 +1,7 @@
 # Engine subproject. Self-contained on purpose: the engine is its own Go module,
 # so its build and test commands live with it rather than in the root Makefile.
 
-.PHONY: help all build test race vet fmt check run dev describe tidy clean \
+.PHONY: help all build test race vet fmt check run dev describe probe tidy clean \
         port-free web web-dev web-deps web-toolchain web-clean protocol protocol-check \
         lint lint-md lint-go
 
@@ -20,6 +20,7 @@ help: ## List the targets worth knowing about
 	@echo "Variables:"
 	@echo "  SPEC=<file>      the game to run              (default: $(SPEC))"
 	@echo "  ADDR=<addr>      listen address               (default: $(ADDR))"
+	@echo "  ROUNDS=<n>       rounds per model, for probe  (default: $(ROUNDS))"
 	@echo
 	@echo "Examples:"
 	@echo "  make dev                                  play against the mock platform, no key needed"
@@ -117,6 +118,13 @@ port-free: ## Report whatever holds the dev port, and offer to end it
 
 describe: ## Print a genre's wiring and exit
 	@go run ./cmd/engineserver -describe $(SPEC)
+
+# Real calls on the keys in ~/.chatgamelab/config.yaml, so it costs money and
+# is never part of `make test`.
+ROUNDS ?= 10
+
+probe: ## Measure how reliably each story model answers a structured turn (real keys, costs money)
+	@go run ./cmd/probe -rounds $(ROUNDS)
 
 # --- Protocol ---------------------------------------------------------------
 # The session protocol is a WebSocket, which OpenAPI cannot describe, so the

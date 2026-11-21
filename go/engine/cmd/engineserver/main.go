@@ -31,6 +31,7 @@ import (
 
 	"engine"
 	"engine/api"
+	"engine/internal/devconfig"
 )
 
 func main() {
@@ -174,11 +175,11 @@ func keyFunc(platform engine.Platform, override string) (engine.KeyFunc, string,
 			fingerprint(override) + " (--api-key flag)", nil
 	}
 
-	key, err := apiKeyFromConfig(string(platform))
+	key, err := devconfig.APIKey(string(platform))
 	if err != nil {
 		return nil, "", err
 	}
-	cfg, _ := configPath()
+	cfg, _ := devconfig.Path()
 	if key == "" {
 		return nil, "", fmt.Errorf("no API key for platform %q: pass --api-key, or set platforms.%s.apikey in %s",
 			platform, platform, cfg)

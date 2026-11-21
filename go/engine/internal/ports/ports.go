@@ -49,11 +49,16 @@ const (
 	ReasonFailed      = "failed"
 )
 
+// ReasonTurnFailed comes with PhaseReady: the block dropped the turn it was
+// working on, and the game goes on.
+const ReasonTurnFailed = "turn_failed"
+
 // State is a block reporting on itself, named so a gate can tell reporters apart.
 type State struct {
 	Node  string `json:"node"`
 	Phase Phase  `json:"phase"`
-	// Reason and Message are set only with PhaseFailed.
+	// Reason and Message are set with PhaseFailed, and with PhaseReady when a
+	// turn was dropped.
 	Reason  string `json:"reason,omitempty"`
 	Message string `json:"message,omitempty"`
 }

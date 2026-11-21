@@ -80,6 +80,9 @@ func (t *Thread) call(ctx context.Context, key string, turn adapters.ThreadTurn,
 		"instructions": turn.Instructions,
 		"store":        true,
 		"stream":       true,
+		// Sent on every call, as a format is the call's own: a plain turn on a
+		// thread that answered structured before still answers in text.
+		"text": map[string]any{"format": format(turn.Schema)},
 	}
 	if from != "" {
 		request["previous_response_id"] = from
@@ -120,6 +123,14 @@ func (t *Thread) call(ctx context.Context, key string, turn adapters.ThreadTurn,
 	return t.read(resp.Body, turn)
 }
 
+// format is the Responses API's text format for a turn.
+func format(schema *adapters.Schema) map[string]any {
+	if schema == nil {
+		return map[string]any{"type": "text"}
+	}
+	return map[string]any{"type": "json_schema", "name": schema.Name, "schema": schema.Body, "strict": true}
+}
+
 // gone reports whether a refusal says the previous response does not exist.
 func gone(status int, detail []byte) bool {
 	return status == http.StatusNotFound || bytes.Contains(detail, []byte("previous_response_not_found"))
@@ -132,7 +143,10 @@ type streamEvent struct {
 	Code     string `json:"code"`
 	Message  string `json:"message"`
 	Response struct {
-		ID    string `json:"id"`
+		ID                string `json:"id"`
+		IncompleteDetails *struct {
+			Reason string `json:"reason"`
+		} `json:"incomplete_details"`
 		Error *struct {
 			Code    string `json:"code"`
 			Message string `json:"message"`
@@ -150,8 +164,9 @@ type streamEvent struct {
 // read follows the stream to its completed response, handing on each piece.
 func (t *Thread) read(body io.Reader, turn adapters.ThreadTurn) (adapters.ThreadReply, error) {
 	var (
-		text strings.Builder
-		done *streamEvent
+		text    strings.Builder
+		done    *streamEvent
+		refused bool
 	)
 	err := adapters.ReadEvents("responses api stream", body, func(data []byte) error {
 		var e streamEvent
@@ -162,9 +177,13 @@ func (t *Thread) read(body io.Reader, turn adapters.ThreadTurn) (adapters.Thread
 		case "response.output_text.delta":
 			text.WriteString(e.Delta)
 			turn.Hear(e.Delta)
-		case "response.completed":
+		case "response.refusal.delta":
+			refused = true
+		case "response.completed", "response.incomplete":
+			// An incomplete response is finished but cut short: the provider
+			// is fine, the reply cannot be used.
 			done = &e
-		case "response.failed", "response.incomplete":
+		case "response.failed":
 			code, msg := e.Type, ""
 			if e.Response.Error != nil {
 				code, msg = e.Response.Error.Code, e.Response.Error.Message
@@ -181,20 +200,33 @@ func (t *Thread) read(body io.Reader, turn adapters.ThreadTurn) (adapters.Thread
 	if done == nil {
 		return adapters.ThreadReply{}, adapters.Transient("responses api stream", io.ErrUnexpectedEOF)
 	}
-	if text.Len() == 0 {
-		return adapters.ThreadReply{}, fmt.Errorf("responses api: empty output")
-	}
 
 	usage := done.Response.Usage
 	cached := usage.InputTokensDetails.CachedTokens
+	used := adapters.Usage{
+		Model:             t.model,
+		InputTokens:       usage.InputTokens - cached,
+		CachedInputTokens: cached,
+		OutputTokens:      usage.OutputTokens,
+	}
+	// A bad reply is billed all the same, so its usage comes back with it.
+	switch {
+	case done.Type == "response.incomplete":
+		why := "incomplete"
+		if d := done.Response.IncompleteDetails; d != nil && d.Reason != "" {
+			why = d.Reason
+		}
+		return adapters.ThreadReply{Usage: used}, fmt.Errorf("responses api: %s: %w", why, adapters.ErrTruncated)
+	case refused:
+		return adapters.ThreadReply{Usage: used}, fmt.Errorf("responses api: %w", adapters.ErrRefused)
+	case text.Len() == 0 && turn.Schema == nil:
+		// A plain turn's empty reply fails; a structured turn's is its
+		// caller's to judge, as it judges any reply against the schema.
+		return adapters.ThreadReply{}, fmt.Errorf("responses api: empty output")
+	}
 	return adapters.ThreadReply{
-		Text: text.String(),
-		Usage: adapters.Usage{
-			Model:             t.model,
-			InputTokens:       usage.InputTokens - cached,
-			CachedInputTokens: cached,
-			OutputTokens:      usage.OutputTokens,
-		},
+		Text:         text.String(),
+		Usage:        used,
 		Continuation: adapters.Continuation{ID: done.Response.ID, Model: t.model, Made: t.now().UTC()},
 	}, nil
 }
