@@ -103,15 +103,20 @@ type Live interface {
 	Open(ctx context.Context, cfg LiveConfig) (LiveConn, error)
 }
 
-// Usage is what a call cost, in the units the provider bills.
+// Usage is what a call cost, in the units the provider bills. Tokens are
+// text tokens; the Audio tokens are a speaking model's audio, in and out,
+// billed at their own rate.
 type Usage struct {
-	Model string `json:"model"`
+	Model                  string `json:"model"`
+	InputTokens            int64  `json:"inputTokens,omitempty"`
+	CachedInputTokens      int64  `json:"cachedInputTokens,omitempty"`
+	OutputTokens           int64  `json:"outputTokens,omitempty"`
+	AudioInputTokens       int64  `json:"audioInputTokens,omitempty"`
+	CachedAudioInputTokens int64  `json:"cachedAudioInputTokens,omitempty"`
+	AudioOutputTokens      int64  `json:"audioOutputTokens,omitempty"`
 	// AudioSeconds counts time the session is open: a silent minute costs a minute.
-	InputTokens       int64   `json:"inputTokens,omitempty"`
-	CachedInputTokens int64   `json:"cachedInputTokens,omitempty"`
-	OutputTokens      int64   `json:"outputTokens,omitempty"`
-	AudioSeconds      float64 `json:"audioSeconds,omitempty"`
-	Images            int64   `json:"images,omitempty"`
+	AudioSeconds float64 `json:"audioSeconds,omitempty"`
+	Images       int64   `json:"images,omitempty"`
 }
 
 // Add folds in another call's usage, so a block reports its running total.
@@ -122,6 +127,9 @@ func (u *Usage) Add(other Usage) {
 	u.InputTokens += other.InputTokens
 	u.CachedInputTokens += other.CachedInputTokens
 	u.OutputTokens += other.OutputTokens
+	u.AudioInputTokens += other.AudioInputTokens
+	u.CachedAudioInputTokens += other.CachedAudioInputTokens
+	u.AudioOutputTokens += other.AudioOutputTokens
 	u.AudioSeconds += other.AudioSeconds
 	u.Images += other.Images
 }
@@ -131,8 +139,12 @@ type Price struct {
 	InputPerMTok       float64
 	CachedInputPerMTok float64
 	OutputPerMTok      float64
-	AudioPerMinute     float64
-	PerImage           float64
+	// The audio rates price a speaking model's audio tokens.
+	AudioInputPerMTok       float64
+	CachedAudioInputPerMTok float64
+	AudioOutputPerMTok      float64
+	AudioPerMinute          float64
+	PerImage                float64
 }
 
 // Cost is an estimate; only the provider's bill is authoritative.
@@ -141,6 +153,9 @@ func (p Price) Cost(u Usage) float64 {
 	return float64(u.InputTokens)/perMillion*p.InputPerMTok +
 		float64(u.CachedInputTokens)/perMillion*p.CachedInputPerMTok +
 		float64(u.OutputTokens)/perMillion*p.OutputPerMTok +
+		float64(u.AudioInputTokens)/perMillion*p.AudioInputPerMTok +
+		float64(u.CachedAudioInputTokens)/perMillion*p.CachedAudioInputPerMTok +
+		float64(u.AudioOutputTokens)/perMillion*p.AudioOutputPerMTok +
 		u.AudioSeconds/60*p.AudioPerMinute +
 		float64(u.Images)*p.PerImage
 }

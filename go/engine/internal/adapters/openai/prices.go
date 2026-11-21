@@ -20,6 +20,17 @@ var prices = map[string]adapters.Price{
 	"gpt-image-1":            {InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 40.00},
 	"gpt-image-1-mini":       {InputPerMTok: 2.00, CachedInputPerMTok: 0.20, OutputPerMTok: 8.00},
 
+	// The speaking story models bill text and audio tokens apart. From
+	// https://developers.openai.com/api/docs/pricing, 21 November 2026.
+	"gpt-realtime-2.1": {
+		InputPerMTok: 4.00, CachedInputPerMTok: 0.40, OutputPerMTok: 24.00,
+		AudioInputPerMTok: 32.00, CachedAudioInputPerMTok: 0.40, AudioOutputPerMTok: 64.00,
+	},
+	"gpt-realtime-2.1-mini": {
+		InputPerMTok: 0.60, CachedInputPerMTok: 0.06, OutputPerMTok: 2.40,
+		AudioInputPerMTok: 10.00, CachedAudioInputPerMTok: 0.30, AudioOutputPerMTok: 20.00,
+	},
+
 	// GPT-Live bills per second a session stays open, so a silent minute costs a minute.
 	"gpt-live-1": {AudioPerMinute: 0.05},
 }

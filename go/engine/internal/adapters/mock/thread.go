@@ -28,9 +28,25 @@ const threadPrefix = "mock-thread-"
 // "[<field> N]" and the input's "input" field, and each field of an object,
 // such as a status value, carries the input's value forward marked
 // "[turn N]", so a test sees it change.
-type Thread struct{ Pace Pace }
+// A spoken turn follows each word with a PCM16 tone, billed as audio tokens.
+type Thread struct {
+	Pace Pace
+	// Name is the model the thread runs on; empty is mock-story.
+	Name string
+}
 
-func (Thread) Model() string { return "mock-story" }
+func (t Thread) Model() string {
+	if t.Name == "" {
+		return "mock-story"
+	}
+	return t.Name
+}
+
+// A spoken word's length, and audio tokens per second as OpenAI bills them.
+const (
+	wordSeconds          = 0.1
+	audioTokensPerSecond = 20
+)
 
 func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapters.ThreadReply, error) {
 	n := len(turn.Transcript) + 1
@@ -44,27 +60,37 @@ func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapter
 	if turn.Schema != nil {
 		text = structured(turn.Schema.Body, turn.Input, n)
 	}
+	spoken := turn.Speak && turn.Schema == nil
 	words := strings.SplitAfter(text, " ")
 	step := time.Duration(0)
 	if t.Pace > 0 {
 		step = t.Pace / time.Duration(len(words))
 	}
-	for _, word := range words {
+	for i, word := range words {
 		wait(ctx, step)
 		if err := ctx.Err(); err != nil {
 			return adapters.ThreadReply{}, err
 		}
 		turn.Hear(word)
+		if spoken {
+			for _, frame := range tone(i, wordSeconds) {
+				turn.HearAudio(frame)
+			}
+		}
 	}
 
 	seen := len(turn.Instructions) + len(turn.Input)
+	used := adapters.Usage{
+		Model:        t.Model(),
+		InputTokens:  int64(400 + seen),
+		OutputTokens: int64(len(text)),
+	}
+	if spoken {
+		used.AudioOutputTokens = int64(float64(len(words)) * wordSeconds * audioTokensPerSecond)
+	}
 	return adapters.ThreadReply{
-		Text: text,
-		Usage: adapters.Usage{
-			Model:        t.Model(),
-			InputTokens:  int64(400 + seen),
-			OutputTokens: int64(len(text)),
-		},
+		Text:  text,
+		Usage: used,
 		Continuation: adapters.Continuation{
 			ID:    threadPrefix + strconv.Itoa(n),
 			Model: t.Model(),

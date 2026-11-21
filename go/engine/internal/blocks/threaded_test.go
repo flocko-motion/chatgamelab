@@ -164,6 +164,111 @@ func TestThreadedRetriesABrokenStream(t *testing.T) {
 	expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 }
 
+// A spoken reply broken partway drops its audio with the text: the retried
+// reply speaks from its start.
+func TestThreadedRetryDiscardsSpokenAudio(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	adapter := &scriptedThread{breaks: 1}
+	b := startThreaded(t, blocks.NewThread("story-thread", adapter), "expand")
+	b.Narration().SetActive(true)
+	audio := b.AudioOutPort()
+	b.Start(ctx)
+
+	b.TextInPort() <- "go"
+	reply(t, b.stream)
+	var got []ports.AudioChunk
+	for range 3 {
+		got = append(got, receive(t, audio, "a chunk"))
+	}
+	if len(got[0]) != 2 || got[0][0] != 1 || !got[1].Discard() || len(got[2]) != 2 || got[2][0] != 2 {
+		t.Errorf("audio %v, want the broken chunk, the discard, the retried chunk", got)
+	}
+}
+
+// Narration on, Expand's turn on the shared thread is spoken: the transcript
+// streams as text, the audio beside it, and the transcript is the reply the
+// thread keeps. Off, the same turn is silent.
+func TestThreadedSpeaksWhileNarrationIsOn(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	thread := blocks.NewThread("story-thread", mock.Thread{Name: "mock-realtime"})
+	outline := startThreaded(t, thread, "outline")
+	expand := startThreaded(t, thread, "expand")
+	audio := expand.AudioOutPort()
+	usage := expand.UsageOutPort()
+	outline.Start(ctx)
+	expand.Start(ctx)
+
+	expand.Narration().SetActive(true)
+	outline.TextInPort() <- "plot"
+	receive(t, outline.whole, "the outline")
+	expand.TextInPort() <- "NARRATE"
+	prose := receive(t, expand.whole, "the prose")
+	if got := joined(reply(t, expand.stream)); got != prose || !strings.HasPrefix(prose, "[story turn 2]") {
+		t.Errorf("streamed %q, whole %q: the transcript is the reply", got, prose)
+	}
+	if chunk := receive(t, audio, "spoken audio"); len(chunk) == 0 {
+		t.Error("the first chunk was empty")
+	}
+	if spent := receive(t, usage, "usage"); spent.AudioOutputTokens == 0 || spent.Model != "mock-realtime" {
+		t.Errorf("usage = %+v, want audio billed on the speaking model", spent)
+	}
+	if state := thread.ExportState(); !strings.Contains(state, `"reply":"`+prose+`"`) {
+		t.Errorf("the thread kept %s, want the transcript", state)
+	}
+
+	expand.Narration().SetActive(false)
+	outline.TextInPort() <- "plot"
+	receive(t, outline.whole, "the outline")
+	for len(audio) > 0 {
+		<-audio
+	}
+	expand.TextInPort() <- "NARRATE"
+	receive(t, expand.whole, "the silent prose")
+	select {
+	case chunk := <-audio:
+		t.Errorf("narration off, the turn still spoke %d bytes", len(chunk))
+	case <-time.After(20 * time.Millisecond):
+	}
+}
+
+// The session switches the thread's model when narration goes on: the next
+// call opens a fresh provider thread on the other model, seeded with the
+// transcript, so the story goes on where it was.
+func TestThreadSwitchesModelMidGame(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var slot adapters.ThreadSlot
+	slot.Set(mock.Thread{}, "offer")
+	thread := blocks.NewThread("story-thread", &slot)
+	// A continuation that counts apart from its transcript, so a continued
+	// thread and a reseeded one say different turns.
+	thread.RestoreState(`{"continuation":{"id":"mock-thread-7","offer":"offer","model":"mock-story"},` +
+		`"transcript":[{"input":"a","reply":"b"},{"input":"c","reply":"d"}]}`)
+	expand := startThreaded(t, thread, "expand")
+	expand.Start(ctx)
+
+	expand.TextInPort() <- "one"
+	if got := receive(t, expand.whole, "the reply on mock-story"); !strings.HasPrefix(got, "[story turn 8]") {
+		t.Fatalf("said %q, want the stored thread continued", got)
+	}
+
+	slot.Set(mock.Thread{Name: "mock-realtime"}, "offer")
+	expand.Narration().SetActive(true)
+	expand.TextInPort() <- "two"
+	if got := receive(t, expand.whole, "the reply on mock-realtime"); !strings.HasPrefix(got, "[story turn 4]") {
+		t.Errorf("said %q, want a fresh thread seeded with the three exchanges", got)
+	}
+	state := thread.ExportState()
+	if !strings.Contains(state, `"id":"mock-thread-4","offer":"offer","model":"mock-realtime"`) {
+		t.Errorf("exported state %s, want a continuation made on mock-realtime", state)
+	}
+}
+
 // A failure that will not pass ends the game, naming a rejected key.
 func TestThreadedFailsOnAHardError(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -221,9 +326,15 @@ func (s *scriptedThread) Continue(_ context.Context, turn adapters.ThreadTurn) (
 	}
 	if breaking {
 		turn.Hear("half ")
+		if turn.Speak {
+			turn.HearAudio([]byte{1, 0})
+		}
 		return adapters.ThreadReply{}, transient()
 	}
 	turn.Hear("whole ")
+	if turn.Speak {
+		turn.HearAudio([]byte{2, 0})
+	}
 	turn.Hear("reply")
 	return adapters.ThreadReply{
 		Text:         "whole reply",

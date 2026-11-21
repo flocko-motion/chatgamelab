@@ -84,3 +84,51 @@ func TestThreadStructuredTurnAnswersTheSchema(t *testing.T) {
 		t.Errorf("pieces %q should stream the reply word by word", pieces)
 	}
 }
+
+// A spoken turn streams its transcript word by word and its audio as PCM16
+// tones beside it, and bills audio output tokens on the thread's model.
+func TestThreadSpokenTurnStreamsTranscriptAndAudio(t *testing.T) {
+	var pieces []string
+	var chunks [][]byte
+	reply, err := Thread{Name: "mock-realtime"}.Continue(context.Background(), adapters.ThreadTurn{
+		Input: "NARRATE",
+		Speak: true,
+		Piece: func(p string) { pieces = append(pieces, p) },
+		Audio: func(c []byte) { chunks = append(chunks, c) },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reply.Text != "[story turn 1] NARRATE" || strings.Join(pieces, "") != reply.Text {
+		t.Errorf("reply %q, pieces %q: the transcript is the reply", reply.Text, pieces)
+	}
+	if len(chunks) < len(pieces) {
+		t.Fatalf("%d audio chunks for %d words, want each word spoken", len(chunks), len(pieces))
+	}
+	for _, c := range chunks {
+		if len(c) == 0 || len(c)%2 != 0 {
+			t.Fatalf("chunk of %d bytes, want PCM16 samples", len(c))
+		}
+	}
+	if reply.Usage.Model != "mock-realtime" || reply.Usage.AudioOutputTokens == 0 {
+		t.Errorf("usage = %+v, want audio output billed on mock-realtime", reply.Usage)
+	}
+	if reply.Continuation.Model != "mock-realtime" {
+		t.Errorf("continuation = %+v, want it made on the thread's model", reply.Continuation)
+	}
+}
+
+// A plain turn says nothing aloud, even with an audio listener.
+func TestThreadPlainTurnIsSilent(t *testing.T) {
+	spoke := false
+	reply, err := Thread{}.Continue(context.Background(), adapters.ThreadTurn{
+		Input: "x",
+		Audio: func([]byte) { spoke = true },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if spoke || reply.Usage.AudioOutputTokens != 0 {
+		t.Errorf("a plain turn spoke: usage %+v", reply.Usage)
+	}
+}

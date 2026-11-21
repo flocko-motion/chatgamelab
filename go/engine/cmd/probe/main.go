@@ -10,6 +10,13 @@
 // reply really streamed; the latency; and the cost. It gives stats, no
 // verdict: a model that does badly stays available as a bad option.
 //
+// The speaking story models, gpt-realtime, are probed too: their structured
+// turn is a forced function call, and a third call kind, seed, opens a fresh
+// session seeded with the transcript, as after a restart. A second table
+// follows their spoken turns: the lag between the transcript and its audio,
+// and whether the audio spoken earlier stays in the session's context and
+// inflates the next turn's audio input tokens.
+//
 //	go run ./cmd/probe                     # every platform with a key, 10 rounds
 //	go run ./cmd/probe -rounds 3 -platform mistral
 package main
@@ -59,11 +66,19 @@ type platform struct {
 	tiers  []adapters.TierModels
 }
 
+// speaking reports a gpt-realtime model, which the Realtime adapter drives.
+func speaking(model string) bool { return strings.HasPrefix(model, "gpt-realtime") }
+
 func platforms() []platform {
 	return []platform{
 		{
-			id:     "openai",
-			thread: func(k adapters.KeyFunc, m string) adapters.Thread { return openai.NewThread(k, m) },
+			id: "openai",
+			thread: func(k adapters.KeyFunc, m string) adapters.Thread {
+				if speaking(m) {
+					return openai.NewRealtime(k, m, "")
+				}
+				return openai.NewThread(k, m)
+			},
 			prices: openai.Prices,
 			tiers:  openai.Platform().Tiers,
 		},
@@ -96,6 +111,7 @@ func main() {
 	})
 
 	var rows []row
+	var spoken []voiceRow
 	for _, p := range platforms() {
 		if *only != "" && *only != p.id {
 			continue
@@ -110,6 +126,7 @@ func main() {
 		for _, model := range storyModels(p.tiers) {
 			fmt.Fprintf(os.Stderr, "%s %s: %d rounds\n", p.id, model, *rounds)
 			start, appended := row{platform: p.id, model: model, call: "start"}, row{platform: p.id, model: model, call: "append"}
+			seeded := row{platform: p.id, model: model, call: "seed"}
 			thread := p.thread(keys, model)
 			for i := range *rounds {
 				turn := adapters.ThreadTurn{
@@ -120,25 +137,152 @@ func main() {
 				reply := start.probe(thread, turn, schema, p.prices)
 				if reply.Continuation.ID == "" {
 					appended.skipped++
+					seeded.skipped++
 					continue
 				}
 				turn.Continuation = reply.Continuation
 				turn.Transcript = []adapters.Exchange{{Instructions: turn.Instructions, Input: turn.Input, Reply: reply.Text}}
 				turn.Instructions = instructions + "\n\n" + shapes[(i+1)%len(shapes)]
 				appended.probe(thread, turn, schema, p.prices)
+
+				// A fresh adapter holds no session, as after a restart: the
+				// turn opens one seeded with the transcript.
+				fresh := p.thread(keys, model)
+				seeded.probe(fresh, turn, schema, p.prices)
+				closeThread(fresh)
 			}
-			rows = append(rows, start, appended)
+			closeThread(thread)
+			rows = append(rows, start, appended, seeded)
+			if speaking(model) {
+				spoken = append(spoken, speak(p, keys, model, instructions, *rounds))
+			}
 		}
 	}
 	report(rows)
+	reportVoices(spoken)
 }
 
-// storyModels are a platform's story models, cheapest tier first, each once.
+// closeThread ends what a thread adapter holds open.
+func closeThread(thread adapters.Thread) {
+	if closer, ok := thread.(interface{ Close() error }); ok {
+		_ = closer.Close()
+	}
+}
+
+// voiceRow is what a speaking model did on its spoken turns.
+type voiceRow struct {
+	platform, model string
+
+	spoken, errored int
+	// lag is from the transcript's first piece to the first audio chunk;
+	// negative when the audio came first.
+	lag []time.Duration
+	// audioOut is each spoken turn's audio output tokens; audioIn each
+	// turn's audio input tokens, which grow if earlier audio stays in the
+	// session's context.
+	audioOut, audioIn []int64
+	cost              float64
+	priced            bool
+	lastError         string
+}
+
+// speak narrates rounds turns in one session, each after the last.
+func speak(p platform, keys adapters.KeyFunc, model, instructions string, rounds int) voiceRow {
+	r := voiceRow{platform: p.id, model: model}
+	thread := p.thread(keys, model)
+	defer closeThread(thread)
+	fmt.Fprintf(os.Stderr, "%s %s: %d spoken turns\n", p.id, model, rounds)
+
+	var from adapters.Continuation
+	var transcript []adapters.Exchange
+	for i := range rounds {
+		began := time.Now()
+		var firstPiece, firstAudio time.Duration
+		turn := adapters.ThreadTurn{
+			Instructions: instructions,
+			Input:        fmt.Sprintf("NARRATE: The player reaches stretch %d of the rope bridge as the storm grows. 3 sentences.", i+1),
+			Speak:        true,
+			Continuation: from,
+			Transcript:   transcript,
+			Piece: func(string) {
+				if firstPiece == 0 {
+					firstPiece = time.Since(began)
+				}
+			},
+			Audio: func([]byte) {
+				if firstAudio == 0 {
+					firstAudio = time.Since(began)
+				}
+			},
+		}
+		reply, err := thread.Continue(context.Background(), turn)
+		if price, ok := p.prices(model); ok {
+			r.cost += price.Cost(reply.Usage)
+			r.priced = true
+		}
+		if err != nil {
+			r.errored++
+			r.lastError = err.Error()
+			continue
+		}
+		r.spoken++
+		if firstPiece > 0 && firstAudio > 0 {
+			r.lag = append(r.lag, firstAudio-firstPiece)
+		}
+		r.audioOut = append(r.audioOut, reply.Usage.AudioOutputTokens)
+		r.audioIn = append(r.audioIn, reply.Usage.AudioInputTokens+reply.Usage.CachedAudioInputTokens)
+		from = reply.Continuation
+		transcript = append(transcript, adapters.Exchange{Instructions: instructions, Input: turn.Input, Reply: reply.Text})
+	}
+	return r
+}
+
+func reportVoices(rows []voiceRow) {
+	if len(rows) == 0 {
+		return
+	}
+	fmt.Println()
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', tabwriter.AlignRight)
+	fmt.Fprintln(w, "platform\tmodel\tspoken\terrored\taudio lag\taudio out/turn\taudio in per turn\tcost\t")
+	for _, r := range rows {
+		cost := "unpriced"
+		if r.priced {
+			cost = fmt.Sprintf("$%.4f", r.cost)
+		}
+		in := make([]string, len(r.audioIn))
+		for i, n := range r.audioIn {
+			in[i] = fmt.Sprint(n)
+		}
+		fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\t\n",
+			r.platform, r.model, r.spoken, r.errored, median(r.lag), medianTokens(r.audioOut), strings.Join(in, " "), cost)
+	}
+	_ = w.Flush()
+	for _, r := range rows {
+		if r.lastError != "" {
+			fmt.Printf("\n%s %s spoken, last problem: %s", r.platform, r.model, strings.TrimSpace(r.lastError))
+		}
+	}
+	fmt.Println()
+}
+
+func medianTokens(ns []int64) string {
+	if len(ns) == 0 {
+		return "-"
+	}
+	sorted := slices.Clone(ns)
+	slices.Sort(sorted)
+	return fmt.Sprint(sorted[len(sorted)/2])
+}
+
+// storyModels are a platform's story models, text and speaking, cheapest
+// tier first, each once.
 func storyModels(tiers []adapters.TierModels) []string {
 	var models []string
-	for _, t := range tiers {
-		if m, ok := t.Models[adapters.ModelStory]; ok && !slices.Contains(models, m.Name) {
-			models = append(models, m.Name)
+	for _, kind := range []adapters.ModelType{adapters.ModelStory, adapters.ModelSpeech} {
+		for _, t := range tiers {
+			if m, ok := t.Models[kind]; ok && !slices.Contains(models, m.Name) {
+				models = append(models, m.Name)
+			}
 		}
 	}
 	return models

@@ -231,10 +231,13 @@ func (t Tool) Query(ctx context.Context, system, user string) (string, adapters.
 
 // prices let a keyless run exercise the cost display.
 var prices = map[string]adapters.Price{
-	"mock-tool":     {InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20},
-	"mock-story":    {InputPerMTok: 1.50, CachedInputPerMTok: 0.15, OutputPerMTok: 6.00},
-	"mock-image":    {InputPerMTok: 5.00, PerImage: 0.04},
-	"mock-speech":   {AudioPerMinute: 0.015},
+	"mock-tool":  {InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20},
+	"mock-story": {InputPerMTok: 1.50, CachedInputPerMTok: 0.15, OutputPerMTok: 6.00},
+	"mock-image": {InputPerMTok: 5.00, PerImage: 0.04},
+	"mock-realtime": {
+		InputPerMTok: 0.60, CachedInputPerMTok: 0.06, OutputPerMTok: 2.40,
+		AudioInputPerMTok: 10.00, CachedAudioInputPerMTok: 0.30, AudioOutputPerMTok: 20.00,
+	},
 	"gpt-live-mock": {AudioPerMinute: 0.05},
 }
 

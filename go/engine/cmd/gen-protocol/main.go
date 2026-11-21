@@ -78,6 +78,13 @@ func generate() []byte {
 	fmt.Fprintf(&b, "export const TEXT_DISCARD = \"\\u%04x\";\n\n", []rune(engine.TextDiscard)[0])
 
 	b.WriteString("/**\n")
+	b.WriteString(" * A binary audio frame of this many bytes drops the speech still playing and\n")
+	b.WriteString(" * queued, as when a broken reply is made again. Every other frame is 24 kHz\n")
+	b.WriteString(" * mono PCM16.\n")
+	b.WriteString(" */\n")
+	fmt.Fprintf(&b, "export const AUDIO_DISCARD_BYTES = %d;\n\n", len(engine.AudioDiscard))
+
+	b.WriteString("/**\n")
 	b.WriteString(" * A block reporting on itself, carried as JSON in a `state` event's value.\n")
 	b.WriteString(" * A block in the turn loop is never finished; `failed` means the game cannot\n")
 	b.WriteString(" * continue, and a `problem` event says why.\n")

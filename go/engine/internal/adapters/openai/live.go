@@ -46,11 +46,12 @@ var builtinVoices = map[string]bool{
 	"vesper": true, "willow": true,
 }
 
-// DefaultVoice is GPT-Live's own default, used when a spec names none.
+// DefaultVoice is GPT-Live's own default, and gpt-realtime speaks it too; it
+// is used when a spec names none.
 const DefaultVoice = "marin"
 
-// ValidVoice reports whether a name is one GPT-Live knows.
-func ValidVoice(name string) bool { return builtinVoices[name] }
+// ValidLiveVoice reports whether a name is one GPT-Live knows.
+func ValidLiveVoice(name string) bool { return builtinVoices[name] }
 
 func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.LiveConn, error) {
 	if cfg.Offer == "" {
@@ -60,7 +61,7 @@ func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.Live
 	if voice == "" {
 		voice = DefaultVoice
 	}
-	if !ValidVoice(voice) {
+	if !ValidLiveVoice(voice) {
 		return nil, fmt.Errorf("gpt-live: unknown voice %q", voice)
 	}
 

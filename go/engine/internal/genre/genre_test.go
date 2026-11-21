@@ -62,19 +62,58 @@ func TestAdventureFlow(t *testing.T) {
 	if err := a.Graph.Validate(); err != nil {
 		t.Fatal(err)
 	}
+	narrate(a, true)
 	a.Graph.Start(ctx)
 	a.Say("I try to cross the bridge")
 
 	// Outline takes the thread's first turn, Expand its second.
 	const prose = "[story turn 2] [outline 1] [mock-tool] I try to cross the bridge"
-	// The prose streams; whole, it is what the narration reads.
+	// The prose streams as it is spoken; the transcript is the prose.
 	expect(t, utterances(a.Sinks()["text"]), prose)
 	expect(t, a.Sinks()["image"], "<png of [image_prompt 1] [mock-tool] I try to cross the bridge>")
 	// Seeded values reach the player before the first turn, then the turn's
 	// update follows. Order matters: a status bar should not start empty.
 	expect(t, a.Sinks()["props"], `{"Health":"Good"}`)
 	expect(t, a.Sinks()["props"], `{"Health":"Good [turn 1]"}`)
-	expect(t, a.Sinks()["audio"], "<narration of "+prose+">")
+	if chunk := receiveLine(t, a.Sinks()["audio"]); len(chunk) == 0 || len(chunk)%2 != 0 {
+		t.Errorf("audio of %d bytes, want spoken PCM16", len(chunk))
+	}
+}
+
+// Narration off, Adventure's turn is silent: the prose arrives, no audio.
+func TestAdventureSilentWithoutNarration(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	a := mustAdventure(t, nil)
+	narrate(a, false)
+	a.Graph.Start(ctx)
+	a.Say("I look around")
+	expect(t, utterances(a.Sinks()["text"]), "[story turn 2] [outline 1] [mock-tool] I look around")
+	select {
+	case chunk := <-a.Sinks()["audio"]:
+		t.Errorf("narration off, the player heard %d bytes", len(chunk))
+	case <-time.After(20 * time.Millisecond):
+	}
+}
+
+// narrate sets the audio-out toggle's blocks, as a session does.
+func narrate(w *Wiring, on bool) {
+	for _, block := range w.Switches[adapters.ToggleAudioOut] {
+		block.SetActive(on)
+	}
+}
+
+// receiveLine waits for one line on a sink.
+func receiveLine(t *testing.T, ch chan string) string {
+	t.Helper()
+	select {
+	case got := <-ch:
+		return got
+	case <-time.After(2 * time.Second):
+		t.Fatal("nothing arrived")
+	}
+	return ""
 }
 
 // The observer's steering has to reach the block whose output triggered it.

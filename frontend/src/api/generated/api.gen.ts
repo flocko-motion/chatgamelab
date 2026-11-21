@@ -809,7 +809,10 @@ export interface UpdateWorkshopReq {
 }
 
 export interface UsageRecord {
+  audioInputTokens?: number;
+  audioOutputTokens?: number;
   audioSeconds?: number;
+  cachedAudioInputTokens?: number;
   cachedInputTokens?: number;
   cost: number;
   images?: number;

@@ -12,16 +12,20 @@ import (
 )
 
 // UsageRecord is what one block spent on one model, cumulatively. Units differ
-// because providers bill differently: text per token, live audio per minute,
-// and pictures per picture.
+// because providers bill differently: text per token, a speaking model's audio
+// per token at its own rate, live audio per minute, and pictures per picture.
 type UsageRecord struct {
-	Node              string  `json:"node,omitempty"`
-	Model             string  `json:"model"`
-	InputTokens       int64   `json:"inputTokens,omitempty"`
-	CachedInputTokens int64   `json:"cachedInputTokens,omitempty"`
-	OutputTokens      int64   `json:"outputTokens,omitempty"`
-	AudioSeconds      float64 `json:"audioSeconds,omitempty"`
-	Images            int64   `json:"images,omitempty"`
+	Node              string `json:"node,omitempty"`
+	Model             string `json:"model"`
+	InputTokens       int64  `json:"inputTokens,omitempty"`
+	CachedInputTokens int64  `json:"cachedInputTokens,omitempty"`
+	OutputTokens      int64  `json:"outputTokens,omitempty"`
+	// The audio tokens are a speaking model's audio, in and out.
+	AudioInputTokens       int64   `json:"audioInputTokens,omitempty"`
+	CachedAudioInputTokens int64   `json:"cachedAudioInputTokens,omitempty"`
+	AudioOutputTokens      int64   `json:"audioOutputTokens,omitempty"`
+	AudioSeconds           float64 `json:"audioSeconds,omitempty"`
+	Images                 int64   `json:"images,omitempty"`
 	// Cost is an estimate from a hand-maintained price table, because providers
 	// do not publish prices through their APIs. Zero when the model is unpriced,
 	// which Priced distinguishes from genuinely free.
@@ -76,13 +80,16 @@ func (l *usageLedger) restore(records []UsageRecord) {
 	defer l.mu.Unlock()
 	for _, r := range records {
 		l.latest[usageKey{node: r.Node, model: r.Model}] = ports.Usage{
-			Node:              r.Node,
-			Model:             r.Model,
-			InputTokens:       r.InputTokens,
-			CachedInputTokens: r.CachedInputTokens,
-			OutputTokens:      r.OutputTokens,
-			AudioSeconds:      r.AudioSeconds,
-			Images:            r.Images,
+			Node:                   r.Node,
+			Model:                  r.Model,
+			InputTokens:            r.InputTokens,
+			CachedInputTokens:      r.CachedInputTokens,
+			OutputTokens:           r.OutputTokens,
+			AudioInputTokens:       r.AudioInputTokens,
+			CachedAudioInputTokens: r.CachedAudioInputTokens,
+			AudioOutputTokens:      r.AudioOutputTokens,
+			AudioSeconds:           r.AudioSeconds,
+			Images:                 r.Images,
 		}
 	}
 }
@@ -112,6 +119,9 @@ func (l *usageLedger) report() UsageReport {
 		total.InputTokens += record.InputTokens
 		total.CachedInputTokens += record.CachedInputTokens
 		total.OutputTokens += record.OutputTokens
+		total.AudioInputTokens += record.AudioInputTokens
+		total.CachedAudioInputTokens += record.CachedAudioInputTokens
+		total.AudioOutputTokens += record.AudioOutputTokens
 		total.AudioSeconds += record.AudioSeconds
 		total.Images += record.Images
 		total.Cost += record.Cost
@@ -134,13 +144,16 @@ func (l *usageLedger) report() UsageReport {
 
 func (l *usageLedger) priced(node, model string, used ports.Usage) UsageRecord {
 	record := UsageRecord{
-		Node:              node,
-		Model:             model,
-		InputTokens:       used.InputTokens,
-		CachedInputTokens: used.CachedInputTokens,
-		OutputTokens:      used.OutputTokens,
-		AudioSeconds:      used.AudioSeconds,
-		Images:            used.Images,
+		Node:                   node,
+		Model:                  model,
+		InputTokens:            used.InputTokens,
+		CachedInputTokens:      used.CachedInputTokens,
+		OutputTokens:           used.OutputTokens,
+		AudioInputTokens:       used.AudioInputTokens,
+		CachedAudioInputTokens: used.CachedAudioInputTokens,
+		AudioOutputTokens:      used.AudioOutputTokens,
+		AudioSeconds:           used.AudioSeconds,
+		Images:                 used.Images,
 	}
 
 	price, known := l.prices(model)
@@ -149,12 +162,15 @@ func (l *usageLedger) priced(node, model string, used ports.Usage) UsageRecord {
 	}
 	record.Priced = true
 	record.Cost = price.Cost(adapters.Usage{
-		Model:             model,
-		InputTokens:       used.InputTokens,
-		CachedInputTokens: used.CachedInputTokens,
-		OutputTokens:      used.OutputTokens,
-		AudioSeconds:      used.AudioSeconds,
-		Images:            used.Images,
+		Model:                  model,
+		InputTokens:            used.InputTokens,
+		CachedInputTokens:      used.CachedInputTokens,
+		OutputTokens:           used.OutputTokens,
+		AudioInputTokens:       used.AudioInputTokens,
+		CachedAudioInputTokens: used.CachedAudioInputTokens,
+		AudioOutputTokens:      used.AudioOutputTokens,
+		AudioSeconds:           used.AudioSeconds,
+		Images:                 used.Images,
 	})
 	return record
 }

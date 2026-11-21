@@ -35,13 +35,22 @@ type ThreadTurn struct {
 	Input        string
 	// Schema makes the turn structured: the reply is JSON of this shape. Nil
 	// is a plain turn, its reply free text.
-	Schema       *Schema
+	Schema *Schema
+	// Speak makes a plain turn spoken: the model says its reply, the
+	// transcript streams to Piece and the audio to Audio, and the reply's
+	// Text is the transcript, so the transcript stays text. Valid only
+	// without a Schema. A thread on a model that cannot speak answers a
+	// spoken turn as a plain one.
+	Speak        bool
 	Continuation Continuation
 	// Transcript seeds a fresh provider thread when the continuation cannot be
 	// used, so a session never ends because a provider forgot its thread.
 	Transcript []Exchange
 	// Piece hears each piece of the reply as it arrives; nil hears nothing.
 	Piece func(string)
+	// Audio hears each chunk of a spoken reply as it arrives, 24 kHz mono
+	// PCM16; nil hears nothing.
+	Audio func([]byte)
 }
 
 // ThreadReply is a finished call: the whole reply, what it cost, and the
@@ -59,6 +68,14 @@ type Thread interface {
 	// Continue makes one call. A failure leaves the thread as it was, so the
 	// same turn may be made again.
 	Continue(ctx context.Context, turn ThreadTurn) (ThreadReply, error)
+}
+
+// HearAudio hands a chunk of spoken reply to the turn's audio listener, if
+// it has one.
+func (t ThreadTurn) HearAudio(chunk []byte) {
+	if t.Audio != nil && len(chunk) > 0 {
+		t.Audio(chunk)
+	}
 }
 
 // Hear hands a piece to the turn's listener, if it has one.

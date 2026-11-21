@@ -310,7 +310,9 @@ func OutlineSchema(status map[string]string) adapters.Schema {
 
 // NewAdventure is the turn-based genre: rephrase, then Outline decides the
 // plot, image prompt and status in one structured call, then Expand writes
-// the prose on the same thread and the turn fans out to media.
+// the prose on the same thread and the turn fans out to media. While
+// narration is on, Expand's turns are spoken: the prose's transcript and its
+// audio reach the player as they come.
 func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	prompts, err := Resolve(AdventurePrompts, cfg.PromptOverride)
 	if err != nil {
@@ -333,7 +335,6 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	outline := blocks.NewStructured("outline", story, prompts[PromptGameMaster], OutlineSchema(cfg.Status), outlineResult)
 	expand := blocks.NewThreaded("expand", story, prompts[PromptExpand])
 	image := blocks.NewDummyImage("image")
-	tts := blocks.NewDummyTTS("tts")
 
 	outText := blocks.NewPlayerOutputStream("out-text", "text")
 	outAudio := blocks.NewPlayerOutputAudio("out-audio", "audio")
@@ -361,20 +362,21 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	g.ConnectPropsOut(props, outline)
 	g.ConnectPropsOut(props, outProps)
 
-	// The player watches the prose appear; narration waits for the whole.
+	// The player watches the prose appear, and hears it as it is spoken.
 	g.ConnectStreamOut(expand, outText)
-	g.ConnectTextOut(expand, tts)
-	g.ConnectAudioOut(tts, outAudio)
+	g.ConnectAudioOut(expand, outAudio)
 	g.ConnectImageOut(image, outImage)
 
 	return &Wiring{
 		Graph:   g,
 		Gate:    gate,
 		Prompts: prompts,
-		// The graph's shape is fixed; a toggle that is off stops its block working.
+		// The graph's shape is fixed; a toggle that is off stops its block
+		// working. Narration has Expand's turns spoken, and the session runs
+		// the story thread on the tier's speaking model meanwhile.
 		Switches: map[adapters.Toggle][]ports.Switchable{
 			adapters.ToggleImages:   {image},
-			adapters.ToggleAudioOut: {tts},
+			adapters.ToggleAudioOut: {expand.Narration()},
 		},
 		Say: player.Say,
 		// Typed only until Adventure wires push-to-talk transcription.

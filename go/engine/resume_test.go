@@ -42,13 +42,7 @@ func TestResumeContinuesTheThread(t *testing.T) {
 	}
 	// The reply streams; the history keeps it whole once it has closed.
 	// Outline takes the thread's first turn, Expand its second.
-	waitFor(t, first, "audio", "<narration of [story turn 2]")
-	for deadline := time.Now().Add(3 * time.Second); !hasText(first.History(), "[story turn 2]"); {
-		if time.Now().After(deadline) {
-			t.Fatalf("the history never kept the first turn whole: %q", first.History())
-		}
-		time.Sleep(5 * time.Millisecond)
-	}
+	waitForTurn(t, first, "[story turn 2]")
 	first.Close()
 
 	resumed := resume(t, store, "s1")
@@ -59,7 +53,7 @@ func TestResumeContinuesTheThread(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Turn 4, not turn 2: the thread continued.
-	waitFor(t, resumed, "audio", "<narration of [story turn 4]")
+	waitForTurn(t, resumed, "[story turn 4]")
 }
 
 // hasText reports whether the history holds a text event starting with prefix.
@@ -146,7 +140,7 @@ func TestFreshLaunchDoesNotContinue(t *testing.T) {
 	defer s.Close()
 
 	s.Say("I try to cross the bridge")
-	waitFor(t, s, "audio", "<narration of [story turn 2]")
+	waitForTurn(t, s, "[story turn 2]")
 }
 
 // Status values are not a handle to something a provider remembers: if the
@@ -221,6 +215,17 @@ func countStream(events []engine.SessionEvent, stream string) int {
 		}
 	}
 	return n
+}
+
+// waitForTurn waits until the history keeps a whole reply starting prefix.
+func waitForTurn(t *testing.T, s *engine.Session, prefix string) {
+	t.Helper()
+	for deadline := time.Now().Add(3 * time.Second); !hasText(s.History(), prefix); {
+		if time.Now().After(deadline) {
+			t.Fatalf("the history never kept %q whole: %q", prefix, s.History())
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
 }
 
 func waitFor(t *testing.T, s *engine.Session, stream, prefix string) {

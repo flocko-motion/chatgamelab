@@ -10,6 +10,9 @@ import (
 // TextDiscard on the text stream drops the open utterance; an empty value closes it.
 const TextDiscard = string(ports.PieceDiscard)
 
+// AudioDiscard, an empty audio frame, drops the speech playing and queued.
+var AudioDiscard = string(ports.AudioDiscard)
+
 // Snapshot is everything a client needs to rebuild its view without having
 // watched the session happen — which is what a page reload is.
 //

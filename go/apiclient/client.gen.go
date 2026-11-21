@@ -847,15 +847,18 @@ type UpdateWorkshopReq struct {
 
 // UsageRecord defines model for UsageRecord.
 type UsageRecord struct {
-	AudioSeconds      *float32 `json:"audioSeconds,omitempty"`
-	CachedInputTokens *int     `json:"cachedInputTokens,omitempty"`
-	Cost              float32  `json:"cost"`
-	Images            *int     `json:"images,omitempty"`
-	InputTokens       *int     `json:"inputTokens,omitempty"`
-	Model             string   `json:"model"`
-	Node              *string  `json:"node,omitempty"`
-	OutputTokens      *int     `json:"outputTokens,omitempty"`
-	Priced            bool     `json:"priced"`
+	AudioInputTokens       *int     `json:"audioInputTokens,omitempty"`
+	AudioOutputTokens      *int     `json:"audioOutputTokens,omitempty"`
+	AudioSeconds           *float32 `json:"audioSeconds,omitempty"`
+	CachedAudioInputTokens *int     `json:"cachedAudioInputTokens,omitempty"`
+	CachedInputTokens      *int     `json:"cachedInputTokens,omitempty"`
+	Cost                   float32  `json:"cost"`
+	Images                 *int     `json:"images,omitempty"`
+	InputTokens            *int     `json:"inputTokens,omitempty"`
+	Model                  string   `json:"model"`
+	Node                   *string  `json:"node,omitempty"`
+	OutputTokens           *int     `json:"outputTokens,omitempty"`
+	Priced                 bool     `json:"priced"`
 }
 
 // UsageReport defines model for UsageReport.

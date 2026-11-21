@@ -2,7 +2,7 @@
 # so its build and test commands live with it rather than in the root Makefile.
 
 .PHONY: help all build test race vet fmt check run dev describe probe tidy clean \
-        port-free web web-dev web-deps web-toolchain web-clean protocol protocol-check \
+        port-free web web-dev web-test web-deps web-toolchain web-clean protocol protocol-check \
         lint lint-md lint-go
 
 # A bare `make` explains itself rather than doing something unasked.
@@ -145,8 +145,11 @@ protocol-check: ## Fail if the generated protocol is stale
 NODE := $(shell command -v node 2>/dev/null)
 NPM  := $(shell command -v npm 2>/dev/null)
 
-web: protocol web-deps ## Typecheck and bundle the playback-engine into web/dist
+web: protocol web-deps ## Typecheck, test and bundle the playback-engine into web/dist
 	@cd web && npm run build
+
+web-test: protocol web-deps ## Run the playback-engine's own tests
+	@cd web && npm test
 
 web-dev: protocol web-deps ## Bundle the playback-engine unminified, for reading a stack trace
 	@cd web && DEV=1 npm run build
