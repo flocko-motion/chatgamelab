@@ -14,7 +14,7 @@ import {
   IconUser,
   IconLogout,
   IconKey,
-  IconMessage,
+  IconMail,
 } from "@tabler/icons-react";
 import { LanguageSwitcher } from "../../../LanguageSwitcher";
 import { VersionDisplay } from "../../../VersionDisplay";
@@ -157,7 +157,7 @@ export function MobileNavigation({
               gap: "8px",
             }}
           >
-            <IconMessage size={18} />
+            <IconMail size={18} />
             <Text size="sm" fw={500}>
               {t("header.contact")}
             </Text>

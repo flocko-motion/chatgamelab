@@ -1,0 +1,41 @@
+/* The bell only shows when something waits for the user, so it rings: a
+   short swing every few seconds, hung from its top. */
+.ringing {
+  animation: ring 2.5s ease-in-out infinite;
+  transform-origin: 50% 4px;
+}
+
+@keyframes ring {
+  0%,
+  40%,
+  100% {
+    rotate: 0deg;
+  }
+  5% {
+    rotate: 18deg;
+  }
+  10% {
+    rotate: -16deg;
+  }
+  15% {
+    rotate: 12deg;
+  }
+  20% {
+    rotate: -10deg;
+  }
+  25% {
+    rotate: 6deg;
+  }
+  30% {
+    rotate: -4deg;
+  }
+  35% {
+    rotate: 0deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ringing {
+    animation: none;
+  }
+}
