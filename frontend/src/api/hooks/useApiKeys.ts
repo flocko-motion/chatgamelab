@@ -1,4 +1,4 @@
-import { api, withQuery } from "../client/api";
+import { api } from "../client/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
 import { queryKeys } from "../queryKeys";
@@ -47,7 +47,7 @@ export function useDeleteApiKey() {
     { id: string; cascade?: boolean }
   >({
     mutationFn: ({ id, cascade }) =>
-      api.deleteApiApikeysId(id, withQuery({ cascade }))
+      api.deleteApiApikeysId(id, { cascade: cascade === undefined ? undefined : String(cascade) })
         .then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
@@ -98,7 +98,7 @@ export function useApiKeyGameShares(
   return useQuery<EnrichedGameShare[], ApiError>({
     queryKey: [...queryKeys.apiKeyGameShares(shareId ?? ""), context ?? "all"],
     queryFn: () =>
-      api.getApiApikeysIdGameShares(shareId!, withQuery({ context }))
+      api.getApiApikeysIdGameShares(shareId!, { context })
         .then((response) => response.data),
     enabled: !!shareId,
   });
@@ -139,7 +139,7 @@ export function useRemoveInstitutionApiKeyShare() {
     { shareId: string; institutionId: string }
   >({
     mutationFn: ({ shareId }) =>
-      api.deleteApiApikeysId(shareId, withQuery({ cascade: false }))
+      api.deleteApiApikeysId(shareId, { cascade: "false" })
         .then((response) => response.data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });

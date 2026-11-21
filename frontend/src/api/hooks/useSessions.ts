@@ -1,4 +1,4 @@
-import { api, withQuery } from "../client/api";
+import { api } from "../client/api";
 import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/config/queryClient";
@@ -21,7 +21,7 @@ export function useUserSessions(params?: UseUserSessionsParams) {
   return useQuery<UserSessionWithGame[], ApiError>({
     queryKey: [...queryKeys.userSessions, { search, sortBy }],
     queryFn: () =>
-      api.getApiSessions(withQuery({ search, sortBy }))
+      api.getApiSessions({ search, sortBy })
         .then((response) => response.data),
   });
 }

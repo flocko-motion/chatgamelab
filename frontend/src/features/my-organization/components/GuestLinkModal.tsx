@@ -4,43 +4,43 @@ import { Alert, Center, Loader, Modal } from "@mantine/core";
 import { IconAlertCircle, IconLink, IconRefresh } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useResetParticipantToken } from "@/api/hooks";
+import { useResetGuestToken } from "@/api/hooks";
 import { FullscreenQrOverlay } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { buildShareUrl } from "@/common/lib/url";
 import { ErrorCodes } from "@/common/types/errorCodes";
-import { participantShareLinkPath } from "@/common/lib/wordToken";
+import { guestShareLinkPath } from "@/common/lib/wordToken";
 import { ConfirmationModal } from "./ConfirmationModal";
 
-interface ParticipantLinkModalProps {
+interface GuestLinkModalProps {
   /** Opens the modal when set. */
-  participantId: string | null;
-  participantName?: string;
+  guestId: string | null;
+  guestName?: string;
   onClose: () => void;
 }
 
-/** A participant's re-login link as QR code, with "reset access". */
-export function ParticipantLinkModal({
-  participantId,
-  participantName,
+/** The re-login link of a Guest in a workshop as QR code, with "reset access". */
+export function GuestLinkModal({
+  guestId,
+  guestName,
   onClose,
-}: ParticipantLinkModalProps) {
+}: GuestLinkModalProps) {
   const { t } = useTranslation("common");
   const queryClient = useQueryClient();
-  const resetToken = useResetParticipantToken();
+  const resetToken = useResetGuestToken();
   const [confirmReset, setConfirmReset] = useState(false);
   const [justReset, setJustReset] = useState(false);
 
-  const queryKey = ["participantToken", participantId];
+  const queryKey = ["guestToken", guestId];
   const { data: token, isError } = useQuery({
     queryKey,
     queryFn: async () => {
-      const response = await api.getApiWorkshopsParticipantsParticipantIdToken(
-        participantId!,
+      const response = await api.getApiWorkshopsGuestsGuestIdToken(
+        guestId!,
       );
       return response.data?.token ?? null;
     },
-    enabled: !!participantId,
+    enabled: !!guestId,
     staleTime: 0,
     gcTime: 0,
   });
@@ -59,9 +59,9 @@ export function ParticipantLinkModal({
   };
 
   const handleReset = async () => {
-    if (!participantId) return;
+    if (!guestId) return;
     try {
-      const result = await resetToken.mutateAsync(participantId);
+      const result = await resetToken.mutateAsync(guestId);
       if (result?.token) {
         queryClient.setQueryData(queryKey, result.token);
         setJustReset(true);
@@ -74,20 +74,20 @@ export function ParticipantLinkModal({
     }
   };
 
-  const title = participantName
-    ? t("myOrganization.workshops.participantLinkTitleNamed", {
-        name: participantName,
+  const title = guestName
+    ? t("myOrganization.workshops.guestLinkTitleNamed", {
+        name: guestName,
       })
-    : t("myOrganization.workshops.participantLinkTitle");
+    : t("myOrganization.workshops.guestLinkTitle");
 
-  if (!participantId) return null;
+  if (!guestId) return null;
 
   if (!token) {
     return (
       <Modal opened onClose={handleClose} title={title} size="md">
         {isError || token === null ? (
           <Alert color="red" icon={<IconAlertCircle size={16} />}>
-            {t("myOrganization.workshops.noParticipantToken")}
+            {t("myOrganization.workshops.noGuestToken")}
           </Alert>
         ) : (
           <Center py="xl">
@@ -106,7 +106,7 @@ export function ParticipantLinkModal({
         title={title}
         icon={<IconLink size={28} />}
         color="blue"
-        url={buildShareUrl(participantShareLinkPath(token))}
+        url={buildShareUrl(guestShareLinkPath(token))}
         actions={
           <DangerButton
             size="md"
@@ -138,7 +138,7 @@ export function ParticipantLinkModal({
             ? resetErrorIsNotFound
               ? // Nothing to reset: this account has no word code. Retrying cannot
                 // help, so say what the read side says instead of "try again".
-                t("myOrganization.workshops.noParticipantToken")
+                t("myOrganization.workshops.noGuestToken")
               : t("myOrganization.workshops.resetAccessError")
             : null
         }

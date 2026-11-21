@@ -1,4 +1,4 @@
 export { QrCode } from "./QrCode";
-export { ParticipantCodeDisplay } from "./ParticipantCodeDisplay";
+export { GuestCodeDisplay } from "./GuestCodeDisplay";
 export { FullscreenQrOverlay } from "./FullscreenQrOverlay";
 export { PublicPageQrOverlay } from "./PublicPageQrOverlay";

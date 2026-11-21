@@ -26,11 +26,11 @@
         "title": "Weiterleitung zu Auth0..."
       },
       "unavailable": {
-        "message": "Auf dieser Instanz ist keine Anmeldung eingerichtet. Workshop-Teilnehmende können stattdessen ihren Code eingeben.",
+        "message": "Auf dieser Instanz ist keine Anmeldung eingerichtet. Gäste in einem Workshop können stattdessen ihren Code eingeben.",
         "title": "Anmeldung nicht verfügbar"
       }
     },
-    "participant": {
+    "guest": {
       "leaveConfirm": {
         "confirm": "Workshop verlassen",
         "message": "Bist du sicher, dass du diesen Workshop verlassen möchtest? Du benötigst einen neuen Einladungslink, um erneut beizutreten.",
@@ -38,7 +38,7 @@
       },
       "leaveWorkshop": "Workshop verlassen",
       "organization": "Organisation",
-      "role": "Workshop-Teilnehmer",
+      "role": "Gast",
       "workshop": "Workshop"
     },
     "profile": {
@@ -54,14 +54,14 @@
         "admin": "Administrator",
         "head": "Organisationsleiter",
         "individual": "Individual",
-        "participant": "Teilnehmer",
+        "guest": "Gast",
         "staff": "Workshopleiter"
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
       "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele",
       "workshopSection": "Workshop \u0026 Organisation",
-      "participantCode": {
+      "guestCode": {
         "title": "Dein Zugangscode",
         "hint": "Fotografiere oder notiere dir diesen Code und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto, auch an einem anderen Gerät: Gib die Wörter auf der Startseite unter „Code eingeben“ ein oder scanne den QR-Code.",
         "longTokenHint": "Fotografiere den QR-Code oder speichere den Link und gib ihn niemandem weiter. Damit kommst du jederzeit wieder in dein Konto. Einen kurzen Code aus vier Wörtern bekommst du von deiner Workshopleitung, wenn sie deinen Zugang zurücksetzt.",
@@ -729,7 +729,7 @@
         "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen."
       },
       "goHome": "Zur Startseite",
-      "participant": {
+      "guest": {
         "loggingIn": "Du wirst angemeldet..."
       },
       "success": {
@@ -901,7 +901,7 @@
         "aiQualityTierHint": "Qualitätsstufe für KI-Antworten. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer verwendet die Servereinstellung.",
         "allowGameSharing": "Spielfreigabe erlauben",
         "allowGameSharingHint": "Wenn aktiviert, können Teilnehmer Freigabelinks für ihre Spiele mit dem API-Schlüssel des Workshops erstellen",
-        "anonymousParticipant": "Anonymer Teilnehmer",
+        "unnamedParticipant": "Unbenannter Teilnehmer",
         "create": "Workshop erstellen",
         "createFirst": "Ersten Workshop erstellen",
         "createInviteLink": "Einladungslink erstellen",
@@ -940,13 +940,13 @@
         "noDefaultApiKey": "Kein Standard-Schlüssel",
         "noDefaultModel": "Plattform-Standard verwenden",
         "noIndividuals": "Keine einzelnen Benutzer in dieser Organisation.",
-        "noParticipantToken": "Dieser Teilnehmer hat keinen Einladungslink. Nur anonyme Teilnehmer (Gäste) haben wiederverwendbare Einladungslinks.",
+        "noGuestToken": "Dieses Mitglied hat keinen Link zum erneuten Anmelden. Nur Gäste haben einen.",
         "noParticipants": "Noch keine Teilnehmer",
         "notAuthorized": "Sie haben keine Berechtigung, Workshops zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
         "participantGames": "{{count}} Spiele",
         "participantJoined": "Beigetreten am {{date}}",
-        "participantLinkTitle": "Link zum erneuten Anmelden",
-        "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
+        "guestLinkTitle": "Link zum erneuten Anmelden",
+        "guestLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
         "promptConstraintsFallbackOrg": "Organisations-Einschränkung wird als Standard verwendet: {{constraint}}",
@@ -969,7 +969,7 @@
         "revokeInvite": "Einladungslink widerrufen",
         "selectApiKey": "API-Schlüssel auswählen",
         "settings": "Einstellungen",
-        "shareParticipantLink": "Link zum erneuten Anmelden anzeigen",
+        "shareGuestLink": "Link zum erneuten Anmelden anzeigen",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
         "showOtherParticipantsGamesHint": "Leitung und Mitarbeitende können zur Moderation immer alle Spiele der Teilnehmer sehen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",

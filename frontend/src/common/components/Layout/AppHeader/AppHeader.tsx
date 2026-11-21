@@ -21,7 +21,7 @@ import { DesktopNavigation } from "./DesktopNavigation";
 import { UserActions } from "./UserActions";
 import { NotificationBell } from "../../NotificationBell";
 import {
-  ParticipantMobileNavigation,
+  GuestMobileNavigation,
   WorkshopModeMobileNavigation,
   MobileNavigation,
 } from "./MobileNavigation";
@@ -32,8 +32,8 @@ export function AppHeader({
   onProfileClick,
   onApiKeysClick,
   onLogoutClick,
-  isParticipant = false,
   isGuest = false,
+  isSignedOut = false,
   isInWorkshopMode = false,
   workshopName,
   onExitWorkshopMode,
@@ -108,8 +108,8 @@ export function AppHeader({
             onProfileClick={onProfileClick}
             onApiKeysClick={onApiKeysClick}
             onLogoutClick={onLogoutClick}
-            isParticipant={isParticipant}
             isGuest={isGuest}
+            isSignedOut={isSignedOut}
             isInWorkshopMode={isInWorkshopMode}
             workshopName={workshopName}
             onExitWorkshopMode={onExitWorkshopMode}
@@ -135,11 +135,11 @@ export function AppHeader({
         >
           {/* Left section: Logo + Navigation (desktop) */}
           <Group gap="lg" align="center" wrap="nowrap">
-            {/* Logo - navigates to workshop for participants/workshop mode, dashboard otherwise */}
+            {/* Logo - navigates to workshop for Guests/workshop mode, dashboard otherwise */}
             <UnstyledButton
               onClick={() =>
                 navigate({
-                  to: (isParticipant || isInWorkshopMode
+                  to: (isGuest || isInWorkshopMode
                     ? ROUTES.MY_WORKSHOP
                     : ROUTES.DASHBOARD) as "/",
                 })
@@ -179,15 +179,15 @@ export function AppHeader({
 
           {/* Right section */}
           <Group gap="sm" align="center" wrap="nowrap">
-            {/* Desktop: Full user actions, or always inline for guests */}
-            {(!forceMobile || isGuest) && (
+            {/* Desktop: Full user actions, or always inline when signed out */}
+            {(!forceMobile || isSignedOut) && (
               <UserActions
                 onSettingsClick={onSettingsClick}
                 onProfileClick={onProfileClick}
                 onApiKeysClick={onApiKeysClick}
                 onLogoutClick={onLogoutClick}
-                isParticipant={isParticipant}
                 isGuest={isGuest}
+                isSignedOut={isSignedOut}
                 isInWorkshopMode={isInWorkshopMode}
                 workshopName={workshopName}
                 onExitWorkshopMode={onExitWorkshopMode}
@@ -195,9 +195,9 @@ export function AppHeader({
             )}
 
             {/* Mobile: the bell (it shows only while something waits), then
-                the burger menu (not for guests) */}
-            {forceMobile && !isGuest && <NotificationBell />}
-            {forceMobile && !isGuest && (
+                the burger menu (not when signed out) */}
+            {forceMobile && !isSignedOut && <NotificationBell />}
+            {forceMobile && !isSignedOut && (
               <Burger
                 opened={mobileNavOpened}
                 onClick={openMobileNav}
@@ -255,8 +255,8 @@ export function AppHeader({
           />
         }
       >
-        {isParticipant ? (
-          <ParticipantMobileNavigation
+        {isGuest ? (
+          <GuestMobileNavigation
             items={navItems}
             onClose={closeMobileNav}
           />

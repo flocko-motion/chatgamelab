@@ -1,7 +1,7 @@
 /**
  * Shared types for the auth module.
  */
-import type { User } from "@/api/generated/api.gen";
+import type { UserView } from "@/api/generated/api.gen";
 
 export interface AuthUser {
   sub: string;
@@ -19,19 +19,19 @@ export interface AuthContextType {
   /** The signed-in account, in brief; null while anonymous or registering. */
   user: AuthUser | null;
   /** The signed-in account (from /api/users/me). */
-  backendUser: User | null;
+  backendUser: UserView | null;
   isLoading: boolean;
-  /** True once a registered account or a participant is signed in. */
+  /** True once a registered account or a Guest is signed in. */
   isAuthenticated: boolean;
-  /** True if the account is a workshop participant. */
-  isParticipant: boolean;
+  /** True if the account is a Guest. */
+  isGuest: boolean;
   /** True while a signed-in account has not completed registration. */
   needsRegistration: boolean;
   /** Suggestions to pre-fill the registration form. */
   registrationData: RegistrationData | null;
   /** Error fetching the account: the app is not operational. */
   backendError: string | null;
-  /** True if the participant's workshop is inactive. */
+  /** True if the workshop of a Guest in a workshop is inactive. */
   isWorkshopInactive: boolean;
   /** True if this instance offers Auth0 sign-in. */
   auth0Enabled: boolean;

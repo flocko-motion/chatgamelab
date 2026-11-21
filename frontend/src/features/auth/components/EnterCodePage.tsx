@@ -16,18 +16,18 @@ import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
 import { ROUTES } from "@/common/routes/routes";
 import { buildShareUrl } from "@/common/lib/url";
-import { participantLogin, type ParticipantLoginResult } from "@/providers/AuthProvider";
+import { guestLogin, type GuestLoginResult } from "@/providers/AuthProvider";
 import {
   INVITE_WORD_COUNT,
-  PARTICIPANT_WORD_COUNT,
+  GUEST_WORD_COUNT,
   inviteLinkPath,
   normalizeWordToken,
-  toParticipantToken,
+  toGuestToken,
   wordCount,
 } from "@/common/lib/wordToken";
 
-/** What a failed sign-in with a code tells the participant. */
-const LOGIN_FAILURE_MESSAGE: Record<Exclude<ParticipantLoginResult, "ok">, string> = {
+/** What a failed sign-in with a code tells the Guest. */
+const LOGIN_FAILURE_MESSAGE: Record<Exclude<GuestLoginResult, "ok">, string> = {
   locked: "invites.errors.tokenLocked",
   inactive: "workshop.inactive.description",
   unknown: "enterCode.unknown",
@@ -57,14 +57,14 @@ export function EnterCodePage({ initialCode }: EnterCodePageProps) {
       navigate({ to: inviteLinkPath(code), replace: !!initialCode });
       return;
     }
-    if (words !== PARTICIPANT_WORD_COUNT) {
+    if (words !== GUEST_WORD_COUNT) {
       setError(t("enterCode.wrongLength"));
       return;
     }
 
     setSubmitting(true);
     try {
-      const result = await participantLogin(toParticipantToken(code));
+      const result = await guestLogin(toGuestToken(code));
       if (result === "ok") {
         window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
         return;

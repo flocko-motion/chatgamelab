@@ -75,7 +75,7 @@ import { isUsableInvite } from "@/common/lib/invite";
 import { inviteShareLinkPath } from "@/common/lib/wordToken";
 import { FullscreenQrOverlay } from "@components/share";
 import { ConfirmationModal } from "./ConfirmationModal";
-import { ParticipantLinkModal } from "./ParticipantLinkModal";
+import { GuestLinkModal } from "./GuestLinkModal";
 import { PublicPageSettings } from "./PublicPageSettings";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
@@ -164,7 +164,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
   const [participantNewName, setParticipantNewName] = useState("");
   const [participantToRemove, setParticipantToRemove] =
     useState<WorkshopParticipant | null>(null);
-  const [linkParticipant, setLinkParticipant] = useState<{
+  const [linkGuest, setLinkGuest] = useState<{
     id: string;
     name?: string;
   } | null>(null);
@@ -360,11 +360,8 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     setParticipantNewName("");
   };
 
-  const handleGetParticipantShareLink = (
-    participantId: string,
-    name?: string,
-  ) => {
-    setLinkParticipant({ id: participantId, name });
+  const handleGetGuestShareLink = (guestId: string, name?: string) => {
+    setLinkGuest({ id: guestId, name });
   };
 
   const handleConfirmRemoveParticipant = async () => {
@@ -1062,7 +1059,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                               <Text size="sm" fw={500} truncate>
                                                 {participant.name ||
                                                   t(
-                                                    "myOrganization.workshops.anonymousParticipant",
+                                                    "myOrganization.workshops.unnamedParticipant",
                                                   )}
                                               </Text>
                                               <Group gap="sm">
@@ -1134,10 +1131,10 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                           ) : (
                                             <>
                                               {participant.role ===
-                                                RoleName.Participant && (
+                                                RoleName.Guest && (
                                                   <Tooltip
                                                     label={t(
-                                                      "myOrganization.workshops.shareParticipantLink",
+                                                      "myOrganization.workshops.shareGuestLink",
                                                     )}
                                                   >
                                                     <ActionIcon
@@ -1147,7 +1144,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                                       onClick={(e) => {
                                                         e.stopPropagation();
                                                         if (participant.id) {
-                                                          handleGetParticipantShareLink(
+                                                          handleGetGuestShareLink(
                                                             participant.id,
                                                             participant.name,
                                                           );
@@ -1260,7 +1257,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                             <Text size="sm" fw={500}>
                                               {participant.name ||
                                                 t(
-                                                  "myOrganization.workshops.anonymousParticipant",
+                                                  "myOrganization.workshops.unnamedParticipant",
                                                 )}
                                             </Text>
                                           )}
@@ -1310,10 +1307,10 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                             ) : (
                                               <>
                                                 {participant.role ===
-                                                  RoleName.Participant && (
+                                                  RoleName.Guest && (
                                                     <Tooltip
                                                       label={t(
-                                                        "myOrganization.workshops.shareParticipantLink",
+                                                        "myOrganization.workshops.shareGuestLink",
                                                       )}
                                                     >
                                                       <ActionIcon
@@ -1323,7 +1320,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                                                         onClick={(e) => {
                                                           e.stopPropagation();
                                                           if (participant.id) {
-                                                            handleGetParticipantShareLink(
+                                                            handleGetGuestShareLink(
                                                               participant.id,
                                                               participant.name,
                                                             );
@@ -1553,10 +1550,10 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
         );
       })()}
 
-      <ParticipantLinkModal
-        participantId={linkParticipant?.id ?? null}
-        participantName={linkParticipant?.name}
-        onClose={() => setLinkParticipant(null)}
+      <GuestLinkModal
+        guestId={linkGuest?.id ?? null}
+        guestName={linkGuest?.name}
+        onClose={() => setLinkGuest(null)}
       />
 
       {/* Remove Participant Confirmation Modal */}
@@ -1569,7 +1566,7 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
           t("myOrganization.workshops.removeParticipantMessage", {
             name:
               participantToRemove?.name ||
-              t("myOrganization.workshops.anonymousParticipant"),
+              t("myOrganization.workshops.unnamedParticipant"),
           })}
         warning={t(
           participantToRemove?.permanent !== false

@@ -11,12 +11,12 @@ import { useAuth0Session } from "./auth/useAuth0Session";
 
 export type { AuthUser, RegistrationData, AuthContextType } from "./auth/types";
 export {
-  participantLogin,
-  rememberParticipantCode,
-  rememberedParticipantCode,
-  type ParticipantLoginResult,
-} from "./auth/participantLogin";
-import { forgetParticipantCode } from "./auth/participantLogin";
+  guestLogin,
+  rememberGuestCode,
+  rememberedGuestCode,
+  type GuestLoginResult,
+} from "./auth/guestLogin";
+import { forgetGuestCode } from "./auth/guestLogin";
 
 // The preset dev accounts sign in only on the dev server; the backend refuses
 // them outside development mode too.
@@ -30,7 +30,7 @@ const defaultAuthContext: AuthContextType = {
   backendUser: null,
   isLoading: true,
   isAuthenticated: false,
-  isParticipant: false,
+  isGuest: false,
   needsRegistration: false,
   registrationData: null,
   backendError: null,
@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authLogger.debug("Logout request failed", { error });
     }
     caller.clear();
-    forgetParticipantCode();
+    forgetGuestCode();
     if (auth0.isAuthenticated) {
       await auth0.logoutAtAuth0();
       return;
@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     backendUser,
     isLoading: !settled,
     isAuthenticated: caller.state === "registered",
-    isParticipant: backendUser?.role?.role === RoleName.Participant || caller.isWorkshopInactive,
+    isGuest: backendUser?.role?.role === RoleName.Guest || caller.isWorkshopInactive,
     needsRegistration,
     registrationData: needsRegistration ? { name: suggestedName(auth0.auth0User) } : null,
     backendError: caller.error,

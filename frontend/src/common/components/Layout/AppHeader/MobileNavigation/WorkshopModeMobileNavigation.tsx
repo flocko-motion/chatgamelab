@@ -24,7 +24,7 @@ export interface WorkshopModeMobileNavigationProps {
 /**
  * Simplified mobile navigation for staff/head/individual users in workshop mode.
  * Shows workshop nav items, workshop info, contact, and exit workshop mode.
- * Similar to participant view but with "Leave Workshop Mode" instead of logout.
+ * Similar to the view of a Guest in a workshop but with "Leave Workshop Mode" instead of logout.
  */
 export function WorkshopModeMobileNavigation({
   items,

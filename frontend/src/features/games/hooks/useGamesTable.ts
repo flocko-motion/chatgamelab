@@ -120,7 +120,7 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
         isOwner: !!userId && game.creatorId === userId,
         rights,
         canEdit: rights.card || rights.content || rights.settings,
-        canDelete: rights.settings,
+        canDelete: game.mayDelete,
         canCopy: game.mayCopy,
       };
     },

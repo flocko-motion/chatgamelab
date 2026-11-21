@@ -42,7 +42,7 @@ interface WorkshopModeProviderProps {
 }
 
 export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
-  const { backendUser, isParticipant, retryBackendFetch } = useAuth();
+  const { backendUser, isGuest, retryBackendFetch } = useAuth();
   const setActiveWorkshop = useSetActiveWorkshop();
   const [showInfoModal, setShowInfoModal] = useState(false);
   // Track which workshop ID we already showed (or skipped) the modal for,
@@ -51,12 +51,12 @@ export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
 
   // Workshop mode is derived from backend user data
   // For head/staff/individual: backendUser.role.workshop is set when in workshop mode (can leave)
-  // For participants: backendUser.role.workshop is always their assigned workshop (can't leave)
-  // isInWorkshopMode only applies to non-participants who chose to enter
+  // For Guests: backendUser.role.workshop is always their assigned workshop (can't leave)
+  // isInWorkshopMode only applies to other roles who chose to enter
   const workshop = backendUser?.role?.workshop;
   const hasWorkshop = workshop !== undefined && workshop !== null;
-  // Participants are always in their workshop but NOT in "workshop mode" (they can't exit)
-  const isInWorkshopMode = hasWorkshop && !isParticipant;
+  // Guests are always in their workshop but NOT in "workshop mode" (they can't exit)
+  const isInWorkshopMode = hasWorkshop && !isGuest;
   const activeWorkshopId = workshop?.id ?? null;
   const activeWorkshopName = workshop?.name ?? null;
 
