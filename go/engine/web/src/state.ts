@@ -15,8 +15,11 @@ export type ConnectionState =
 
 export interface Utterance {
   readonly id: number;
-  /** Who is speaking. The player's own speech is never transcribed. */
-  readonly speaker: "npc";
+  /**
+   * Who is speaking: the game, or the player, whose lines come from the
+   * engine on the `said` stream, typed or as it heard them.
+   */
+  readonly speaker: "npc" | "player";
   text: string;
   /** Set once the utterance is known to be finished. */
   complete: boolean;
@@ -47,6 +50,8 @@ export interface PlaybackEngineState {
   fault: Notice | null;
   /** A line the player sent whose turn the engine dropped, given back to send again. */
   redo: string | null;
+  /** Whether a spoken line was sent and what was heard has not come back yet. */
+  hearing: boolean;
   /** The wiring, fetched once. Null until it arrives. */
   topology: Topology | null;
   /** What each block is doing right now, keyed by node name. */
@@ -86,6 +91,7 @@ export function emptyState(): PlaybackEngineState {
     refusal: null,
     fault: null,
     redo: null,
+    hearing: false,
     topology: null,
     phases: {},
     usage: null,
@@ -161,6 +167,14 @@ export function voiceMode(state: PlaybackEngineState): VoiceMode {
 }
 
 /**
+ * Whether the player may hold a button to talk now: the genre takes
+ * push-to-talk and the session settled with voice input on.
+ */
+export function holdsToTalk(state: PlaybackEngineState): boolean {
+  return voiceMode(state) === "push-to-talk" && (state.settled?.choice.toggles["audio-in"] ?? false);
+}
+
+/**
  * What the audio control draws. Each transition lasts until the far end confirms
  * the change, as both take a round trip; null while there is nothing to press.
  */
@@ -188,7 +202,7 @@ function accepts(state: PlaybackEngineState, kind: string): boolean {
   return state.topology?.inputs?.includes(kind) ?? false;
 }
 
-/** The transcript as plain text, which is what a headless assertion wants. */
+/** The transcript as plain text, the player's lines marked, which is what a headless assertion wants. */
 export function transcript(state: PlaybackEngineState): string {
-  return state.utterances.map((u) => u.text).join("\n");
+  return state.utterances.map((u) => (u.speaker === "player" ? `> ${u.text}` : u.text)).join("\n");
 }

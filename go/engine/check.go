@@ -59,6 +59,7 @@ func (s *Session) watchKeys() {
 	s.slots.tool.Report = report
 	s.slots.image.Report = report
 	s.slots.thread.Report = report
+	s.slots.hearing.Report = report
 }
 
 // failed ends a game a problem sink was reached in, telling the player why,

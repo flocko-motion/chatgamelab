@@ -622,6 +622,15 @@ type Model struct {
 	Params *map[string]string `json:"params,omitempty"`
 }
 
+// ModelFacts defines model for ModelFacts.
+type ModelFacts struct {
+	In     []string `json:"in"`
+	Out    []string `json:"out"`
+	Price  Price    `json:"price"`
+	Read   string   `json:"read"`
+	Source string   `json:"source"`
+}
+
 // NamedRef defines model for NamedRef.
 type NamedRef struct {
 	Id   openapi_types.UUID `json:"id"`
@@ -745,12 +754,13 @@ type ParticipantMeta struct {
 
 // PlatformInfo defines model for PlatformInfo.
 type PlatformInfo struct {
-	Genres   []string     `json:"genres"`
-	Id       string       `json:"id"`
-	Name     string       `json:"name"`
-	Tiers    []TierModels `json:"tiers"`
-	Toggles  Toggles      `json:"toggles"`
-	UserKeys bool         `json:"userKeys"`
+	Genres   []string              `json:"genres"`
+	Id       string                `json:"id"`
+	Models   map[string]ModelFacts `json:"models"`
+	Name     string                `json:"name"`
+	Tiers    []TierModels          `json:"tiers"`
+	Toggles  Toggles               `json:"toggles"`
+	UserKeys bool                  `json:"userKeys"`
 }
 
 // Preference defines model for Preference.
@@ -759,6 +769,18 @@ type Preference struct {
 	Platform string  `json:"platform"`
 	Tier     string  `json:"tier"`
 	Toggles  Toggles `json:"toggles"`
+}
+
+// Price defines model for Price.
+type Price struct {
+	AudioInputPerMTok       *float32 `json:"audioInputPerMTok,omitempty"`
+	AudioOutputPerMTok      *float32 `json:"audioOutputPerMTok,omitempty"`
+	AudioPerMinute          *float32 `json:"audioPerMinute,omitempty"`
+	CachedAudioInputPerMTok *float32 `json:"cachedAudioInputPerMTok,omitempty"`
+	CachedInputPerMTok      *float32 `json:"cachedInputPerMTok,omitempty"`
+	InputPerMTok            *float32 `json:"inputPerMTok,omitempty"`
+	OutputPerMTok           *float32 `json:"outputPerMTok,omitempty"`
+	PerImage                *float32 `json:"perImage,omitempty"`
 }
 
 // PrivateShareStatusResp defines model for PrivateShareStatusResp.

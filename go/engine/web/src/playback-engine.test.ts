@@ -73,3 +73,67 @@ test("a headless run counts frames and discards with no speaker", () => {
   assert.equal(playback.state.audioChunks, 1);
   assert.equal(playback.state.audioDiscards, 1);
 });
+
+/** An event on the session's stream, as the engine frames it. */
+function event(stream: string, value: string): string {
+  return JSON.stringify({ Stream: stream, Value: value });
+}
+
+test("a typed line is drawn when the engine sends it back on said", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport);
+  playback.connect();
+
+  playback.say("I cross the bridge");
+  assert.equal(playback.state.utterances.length, 0, "the player's line comes from the engine");
+
+  transport.receive(event("said", "I cross the bridge"));
+  assert.deepEqual(
+    playback.state.utterances.map((u) => [u.speaker, u.text]),
+    [["player", "I cross the bridge"]],
+  );
+  assert.equal(playback.state.hearing, false);
+});
+
+test("a spoken line waits for what was heard, which is given back if its turn fails", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport);
+  playback.connect();
+  transport.receive(event("text", "The troll looks up."));
+
+  playback.speak(new ArrayBuffer(48_000));
+  assert.equal(playback.state.hearing, true);
+
+  transport.receive(event("said", "ich überquere die Brücke"));
+  assert.equal(playback.state.hearing, false);
+  assert.deepEqual(
+    playback.state.utterances.map((u) => [u.speaker, u.text, u.complete]),
+    [["npc", "The troll looks up.", true], ["player", "ich überquere die Brücke", true]],
+    "the player's line ends the reply before it",
+  );
+
+  transport.receive(event("error", JSON.stringify({ code: "turn_failed", text: "The player crosses." })));
+  assert.equal(playback.state.redo, "ich überquere die Brücke", "what was heard goes back into the box");
+});
+
+test("a clip of which nothing came through ends its wait and says so", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport);
+  playback.connect();
+
+  playback.speak(new ArrayBuffer(48_000));
+  transport.receive(event("error", JSON.stringify({ code: "voice_failed", text: "" })));
+
+  assert.equal(playback.state.hearing, false);
+  assert.equal(playback.state.fault?.key, "errors.notHeard");
+  assert.equal(playback.state.utterances.length, 0);
+});
+
+test("a replayed voice failure is long past", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport);
+  playback.connect();
+
+  transport.receive(event("error", JSON.stringify({ code: "voice_failed", text: "" })));
+  assert.equal(playback.state.fault, null);
+});

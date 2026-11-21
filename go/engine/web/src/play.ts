@@ -18,16 +18,22 @@
  * and must still be choosing, and --choose is the choice that starts the game.
  * A choice is an offer's ID, optionally with a tier and the toggles to turn on.
  *
- * What it cannot do is speak. A live genre's audio runs over WebRTC between a
- * browser and the model, and node has neither a microphone nor a peer
- * connection. So this asserts everything up to the moment a player would join —
- * the wiring, the portrait, the gate opening, the invitation to connect — and
- * stops there rather than pretending to hold a conversation.
+ * What it cannot do is hold a live conversation. A live genre's audio runs
+ * over WebRTC between a browser and the model, and node has neither a
+ * microphone nor a peer connection. So this asserts everything up to the moment
+ * a player would join — the wiring, the portrait, the gate opening, the
+ * invitation to connect — and stops there rather than pretending to.
+ *
+ * A push-to-talk genre takes a clip over the session's own connection, so with
+ * --speak it sends one, a tone the mock platform hears by its length, and
+ * waits for the player's line and the reply:
+ *
+ *   node dist/play.js <origin> <session> --speak
  */
 import { engineClient, liveURL, type Choice, type SessionRef } from "./client.js";
 import { create, transientMemory, type Selector } from "./launch.js";
 import { PlaybackEngine } from "./playback-engine.js";
-import { transcript } from "./state.js";
+import { holdsToTalk, transcript, voiceMode } from "./state.js";
 import { NoticeError, describe } from "./texts.js";
 import { WebSocketTransport } from "./transport.js";
 
@@ -84,7 +90,18 @@ try {
   // portrait is made and the gate opens before a player is asked for anything.
   await playback.until((state) => state.image !== null, 10_000);
   await playback.until((state) => state.started, 10_000);
-  await playback.until((state) => state.invited, 10_000);
+  if (voiceMode(playback.state) === "full-duplex") await playback.until((state) => state.invited, 10_000);
+
+  if (process.argv.includes("--speak")) {
+    if (!holdsToTalk(playback.state)) throw new Error("--speak: the session takes no push-to-talk");
+    // The opening's prose first, as a player would wait for it.
+    await playback.until((state) => state.utterances.some((u) => u.speaker === "npc" && u.text !== ""), 10_000);
+    playback.speak(spokenClip(1.5));
+    const heard = await playback.until((state) => state.utterances.some((u) => u.speaker === "player"), 10_000);
+    console.log(`said:       ${heard.utterances.find((u) => u.speaker === "player")?.text}`);
+    await playback.until((state) => state.utterances.at(-1)?.speaker === "npc" && state.utterances.at(-1)?.text !== "", 10_000);
+    console.log(`replied:    true`);
+  }
 
   const state = playback.state;
   console.log("--- session ---");
@@ -128,6 +145,16 @@ async function createSession(wanted: string): Promise<string> {
     console.log(`repeated:   ${"id" in again && again.id === created.id ? "same" : "different"}`);
   }
   return created.id;
+}
+
+/** A clip of a tone lasting seconds, PCM16 at 24 kHz mono, as the page records speech. */
+function spokenClip(seconds: number): ArrayBuffer {
+  const rate = 24_000;
+  const samples = new Int16Array(Math.round(seconds * rate));
+  for (let i = 0; i < samples.length; i++) {
+    samples[i] = Math.round(Math.sin((2 * Math.PI * 220 * i) / rate) * 0.3 * 32767);
+  }
+  return samples.buffer;
 }
 
 /** Reads "own-key:low:images,audio-live" as that offer at low with those toggles on. */

@@ -1378,6 +1378,7 @@
       "connectionLost": "La connexion au jeu a été perdue. Recharge la page pour réessayer.",
       "imageFailed": "L'image de cette scène n'a pas pu être créée. L'histoire continue.",
       "noMicrophone": "Aucun microphone. Vérifie les autorisations du navigateur pour cette page.",
+      "notHeard": "Vos paroles ne sont pas parvenues. Parlez à nouveau ou écrivez.",
       "openingFailed": "L'histoire n'a pas pu commencer. Écris ce que tu veux faire, et elle commencera à partir de là.",
       "pauseFailed": "Impossible de mettre la conversation en pause.",
       "serverUnreachable": "Impossible de joindre le serveur du jeu.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Reconnexion…",
       "settingScene": "Mise en place de la scène…",
       "wakingCharacter": "Réveil du personnage…"
+    },
+    "talk": {
+      "hearing": "J'écoute ce que vous dites…",
+      "hold": "Maintenez pour parler",
+      "recording": "J'écoute… relâchez pour envoyer"
     }
   }
 }

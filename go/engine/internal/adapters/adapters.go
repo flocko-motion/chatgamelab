@@ -114,7 +114,9 @@ type Usage struct {
 	AudioInputTokens       int64  `json:"audioInputTokens,omitempty"`
 	CachedAudioInputTokens int64  `json:"cachedAudioInputTokens,omitempty"`
 	AudioOutputTokens      int64  `json:"audioOutputTokens,omitempty"`
-	// AudioSeconds counts time the session is open: a silent minute costs a minute.
+	// AudioSeconds is audio billed by its length: the time a live session is
+	// open, where a silent minute costs a minute, or the length of a clip a
+	// model heard.
 	AudioSeconds float64 `json:"audioSeconds,omitempty"`
 	Images       int64   `json:"images,omitempty"`
 }
@@ -136,15 +138,17 @@ func (u *Usage) Add(other Usage) {
 
 // Price is supplied by the caller: providers publish no prices through their APIs.
 type Price struct {
-	InputPerMTok       float64
-	CachedInputPerMTok float64
-	OutputPerMTok      float64
-	// The audio rates price a speaking model's audio tokens.
-	AudioInputPerMTok       float64
-	CachedAudioInputPerMTok float64
-	AudioOutputPerMTok      float64
-	AudioPerMinute          float64
-	PerImage                float64
+	InputPerMTok       float64 `json:"inputPerMTok,omitempty"`
+	CachedInputPerMTok float64 `json:"cachedInputPerMTok,omitempty"`
+	OutputPerMTok      float64 `json:"outputPerMTok,omitempty"`
+	// The audio rates price a speaking or hearing model's audio tokens.
+	AudioInputPerMTok       float64 `json:"audioInputPerMTok,omitempty"`
+	CachedAudioInputPerMTok float64 `json:"cachedAudioInputPerMTok,omitempty"`
+	AudioOutputPerMTok      float64 `json:"audioOutputPerMTok,omitempty"`
+	// AudioPerMinute prices audio billed by its length: a live session's
+	// open time, or a clip a model heard.
+	AudioPerMinute float64 `json:"audioPerMinute,omitempty"`
+	PerImage       float64 `json:"perImage,omitempty"`
 }
 
 // Cost is an estimate; only the provider's bill is authoritative.

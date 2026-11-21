@@ -1,6 +1,7 @@
 package engine_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -207,10 +208,8 @@ func TestConnectIsRefusedByATurnBasedGenre(t *testing.T) {
 
 // A genre that genuinely takes no input of a kind must say so rather than
 // swallow it: input vanishing into a genre would surface as a mute character
-// rather than as an error.
-//
-// Adventure will gain audio input once it wires a transcription block, which is
-// what v1 does today. Until then it is the genre with one input kind.
+// rather than as an error. Adventure takes both: typed lines, and speech, one
+// clip per utterance, while voice input is on.
 func TestUnsupportedInputKindIsRejected(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -221,11 +220,17 @@ func TestUnsupportedInputKindIsRejected(t *testing.T) {
 	}
 	defer s.Close()
 
-	if err := s.Speak([]byte("spoken at a typed genre")); err == nil {
-		t.Error("expected Speak to be refused by adventure")
+	if err := s.Speak(spokenClip()); err != nil {
+		t.Errorf("Speak should be accepted by adventure: %v", err)
 	}
 	if err := s.Say("I try to cross the bridge"); err != nil {
 		t.Errorf("Say should be accepted by adventure: %v", err)
+	}
+	if err := s.SetToggle(engine.ToggleAudioIn, false); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Speak(spokenClip()); err == nil {
+		t.Error("Speak was accepted with voice input off")
 	}
 }
 
@@ -516,6 +521,10 @@ func openaiOffer(keys engine.KeyFunc) engine.Offer {
 		},
 	}
 }
+
+// spokenClip is a second of loud PCM16 at 24 kHz mono, as the playback-engine
+// records it.
+func spokenClip() []byte { return bytes.Repeat([]byte{0x00, 0x10}, 24_000) }
 
 // mockOffers is what a test runs on: the mock, with nothing to choose.
 func mockOffers() []engine.Offer { return []engine.Offer{engine.MockOffer()} }

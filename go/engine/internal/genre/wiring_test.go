@@ -465,3 +465,59 @@ func TestAdventureGoesOnAfterAFailedTurn(t *testing.T) {
 		t.Errorf("the next turn said %q", got)
 	}
 }
+
+// The player speaks a turn: what was heard becomes their line on `said`, and
+// the action made of it runs through Outline and Expand. A clip in which
+// nothing was heard is the `voice_failed` error and starts no turn. A typed
+// line reaches `said` as it is.
+func TestAdventureSpeaksATurn(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	w := adventure(t, AdventureConfig{})
+	text, said, voiceFailed := utterances(streamOf(w, "text")), streamOf(w, "said"), sinkNamed(t, w, "voice-failed")
+	w.Graph.Start(ctx)
+	receiveLine(t, text, "the opening's prose")
+
+	if err := w.Speak(mock.SilentClip(1)); err != nil {
+		t.Fatal(err)
+	}
+	if got := receiveLine(t, voiceFailed, "the failed voice"); got != `{"code":"voice_failed","text":""}` {
+		t.Errorf("voice-failed received %q", got)
+	}
+
+	if err := w.Speak(mock.SpokenClip(1.5)); err != nil {
+		t.Fatal(err)
+	}
+	if got := receiveLine(t, said, "the player's spoken line"); got != "[mock-hearing] 1.5 s of speech" {
+		t.Errorf("said %q", got)
+	}
+	if got := receiveLine(t, text, "the spoken turn's prose"); !strings.HasPrefix(got, "[story turn 4] NARRATE the outline") {
+		t.Errorf("the spoken turn said %q: nothing heard must start no turn", got)
+	}
+	waitForImagePrompt(t, w, "The visual should show: [image_prompt 3] [mock-hearing] 1.5 s of speech")
+
+	w.Say("I cross")
+	if got := receiveLine(t, said, "the player's typed line"); got != "I cross" {
+		t.Errorf("said %q", got)
+	}
+	receiveLine(t, text, "the typed turn's prose")
+}
+
+// Speech is refused while voice input is off, and so is a clip too short to
+// hold words or longer than a recording runs.
+func TestAdventureRefusesSpeechItCannotTake(t *testing.T) {
+	w := adventure(t, AdventureConfig{})
+	if err := w.Speak(mock.SpokenClip(0.1)); err == nil {
+		t.Error("a clip of a tenth of a second was taken")
+	}
+	if err := w.Speak(mock.SpokenClip(40)); err == nil {
+		t.Error("a clip of 40 seconds was taken")
+	}
+	for _, block := range w.Switches[adapters.ToggleAudioIn] {
+		block.SetActive(false)
+	}
+	if err := w.Speak(mock.SpokenClip(1)); !errors.Is(err, ErrVoiceOff) {
+		t.Errorf("voice off, Speak answered %v", err)
+	}
+}

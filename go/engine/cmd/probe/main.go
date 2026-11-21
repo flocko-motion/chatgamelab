@@ -17,8 +17,18 @@
 // and whether the audio spoken earlier stays in the session's context and
 // inflates the next turn's audio input tokens.
 //
+// With -hearing it probes the hearing models instead: each candidate hears
+// the clips in a directory, WAV files of PCM16 at 24 kHz mono named after the
+// words they hold, and a clip of silence, with Adventure's rephrase-audio
+// prompt and schema. It counts the replies that fit the schema, how faithful
+// "heard" is to the clip's words, whether silence is heard as nothing, the
+// latency and the cost per spoken second. On macOS a clip is made with
+//
+//	say -o "I open the door.wav" --data-format=LEI16@24000 "I open the door"
+//
 //	go run ./cmd/probe                     # every platform with a key, 10 rounds
 //	go run ./cmd/probe -rounds 3 -platform mistral
+//	go run ./cmd/probe -hearing -clips ~/clips -language de -rounds 2
 package main
 
 import (
@@ -62,8 +72,11 @@ var status = map[string]string{"Health": "good", "Gold": "12"}
 type platform struct {
 	id     string
 	thread func(keys adapters.KeyFunc, model string) adapters.Thread
-	prices func(model string) (adapters.Price, bool)
+	prices adapters.ModelTable
 	tiers  []adapters.TierModels
+	// hearing are the hearing candidates, by model: the tiers' and any
+	// other worth weighing.
+	hearing map[string]func(keys adapters.KeyFunc) adapters.Hearing
 }
 
 // speaking reports a gpt-realtime model, which the Realtime adapter drives.
@@ -79,14 +92,20 @@ func platforms() []platform {
 				}
 				return openai.NewThread(k, m)
 			},
-			prices: openai.Prices,
+			prices: openai.Models,
 			tiers:  openai.Platform().Tiers,
+			hearing: map[string]func(adapters.KeyFunc) adapters.Hearing{
+				"gpt-audio-mini": func(k adapters.KeyFunc) adapters.Hearing { return openai.NewHearing(k, "gpt-audio-mini") },
+			},
 		},
 		{
 			id:     "mistral",
 			thread: func(k adapters.KeyFunc, m string) adapters.Thread { return mistral.NewThread(k, m) },
-			prices: mistral.Prices,
+			prices: mistral.Models,
 			tiers:  mistral.Platform().Tiers,
+			hearing: map[string]func(adapters.KeyFunc) adapters.Hearing{
+				"voxtral-small-2507": func(k adapters.KeyFunc) adapters.Hearing { return mistral.NewHearing(k, "voxtral-small-2507") },
+			},
 		},
 	}
 }
@@ -94,12 +113,20 @@ func platforms() []platform {
 func main() {
 	rounds := flag.Int("rounds", 10, "rounds per model; each makes a fresh call and an appended one")
 	only := flag.String("platform", "", "probe only this platform (openai, mistral)")
+	hearing := flag.Bool("hearing", false, "probe the hearing models instead of the story models")
+	clips := flag.String("clips", "", "with -hearing: a directory of WAV clips, each named after its words")
+	language := flag.String("language", "", "with -hearing: the player's language, as a game sets it, such as de")
 	flag.Parse()
+
+	if *hearing {
+		probeHearing(*only, *clips, *language, *rounds)
+		return
+	}
 
 	schema := genre.OutlineSchema(status)
 	// Outline runs on the game master's system message, filled in as a game
 	// with these status fields would have it.
-	adventure, err := genre.NewAdventure(genre.AdventureConfig{Tool: mock.Tool{}, Thread: mock.Thread{}, Status: status})
+	adventure, err := genre.NewAdventure(genre.AdventureConfig{Tool: mock.Tool{}, Hearing: mock.Hearing{}, Thread: mock.Thread{}, Image: mock.Image{}, Status: status})
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -217,7 +244,7 @@ func speak(p platform, keys adapters.KeyFunc, model, instructions string, rounds
 			},
 		}
 		reply, err := thread.Continue(context.Background(), turn)
-		if price, ok := p.prices(model); ok {
+		if price, ok := p.prices.Price(model); ok {
 			r.cost += price.Cost(reply.Usage)
 			r.priced = true
 		}
@@ -305,7 +332,7 @@ type row struct {
 }
 
 // probe makes one call and counts what came back.
-func (r *row) probe(thread adapters.Thread, turn adapters.ThreadTurn, schema adapters.Schema, prices func(string) (adapters.Price, bool)) adapters.ThreadReply {
+func (r *row) probe(thread adapters.Thread, turn adapters.ThreadTurn, schema adapters.Schema, prices adapters.ModelTable) adapters.ThreadReply {
 	began := time.Now()
 	pieces := 0
 	turn.Piece = func(string) {
@@ -319,7 +346,7 @@ func (r *row) probe(thread adapters.Thread, turn adapters.ThreadTurn, schema ada
 	if pieces > 1 {
 		r.streamed++
 	}
-	if price, ok := prices(thread.Model()); ok {
+	if price, ok := prices.Price(thread.Model()); ok {
 		r.cost += price.Cost(reply.Usage)
 		r.priced = true
 	}

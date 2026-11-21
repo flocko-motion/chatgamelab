@@ -124,3 +124,23 @@ func (s *ThreadSlot) Continue(ctx context.Context, turn ThreadTurn) (ThreadReply
 	}
 	return reply, err
 }
+
+// HearingSlot is a Hearing whose implementation can be replaced.
+type HearingSlot struct {
+	held atomic.Pointer[Hearing]
+	// Report hears every error the implementation returns; set before use.
+	Report func(error)
+}
+
+// Set replaces the implementation; the next clip is heard by it.
+func (s *HearingSlot) Set(hearing Hearing) { s.held.Store(&hearing) }
+
+func (s *HearingSlot) Hear(ctx context.Context, system string, clip Clip, schema Schema) (string, Usage, error) {
+	held := s.held.Load()
+	if held == nil || *held == nil {
+		return "", Usage{}, ErrUnset
+	}
+	reply, used, err := (*held).Hear(ctx, system, clip, schema)
+	report(s.Report, err)
+	return reply, used, err
+}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/coder/websocket"
@@ -19,14 +20,17 @@ import (
 // typed input, a JSON LiveInput; it receives the session's events back on the
 // same connection, binary frames for audio and text frames of JSON
 // SessionEvent for everything else. A rejected input comes back as an `error`
-// event. The turn-based genres use input and stream instead; which one a
-// client opens is decided by the genre's declared interaction model.
+// event: a refused binary frame as the `voice_failed` report, so a page waiting
+// for what was heard of a clip stops waiting. On a turn-based genre a binary
+// frame is one whole clip, one utterance.
 type LiveEndpoint struct {
 	API *API
-	// Guard, if set, is asked before typed input (typed true) and, while
-	// audio flows, at most every guardEvery: whether the conversation may go
-	// on. A refusal goes out on the `problem` stream and ends the socket.
-	Guard func(ctx context.Context, typed bool) error
+	// Guard, if set, is asked before each turn (turn true): a typed line, or
+	// a clip on a genre that takes push-to-talk. While a live voice flows it
+	// is asked at most every guardEvery (turn false). It says whether the
+	// conversation may go on; a refusal goes out on the `problem` stream and
+	// ends the socket.
+	Guard func(ctx context.Context, turn bool) error
 }
 
 // guardEvery is how often a flowing voice conversation is re-checked.
@@ -83,7 +87,9 @@ func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	// Inbound: binary frames are microphone audio, text frames are typed input.
-	// A live session takes both, and so does this endpoint.
+	// A live session takes both, and so does this endpoint. On a push-to-talk
+	// genre each binary frame is a clip, a turn of its own.
+	clips := slices.Contains(s.Topology().Inputs, "audio-push-to-talk")
 	lastGuard := time.Now()
 	for {
 		typ, data, err := conn.Read(ctx)
@@ -91,10 +97,10 @@ func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 			return nil
 		}
 		if e.Guard != nil {
-			typed := typ != websocket.MessageBinary
-			if typed || time.Since(lastGuard) >= guardEvery {
+			turn := typ != websocket.MessageBinary || clips
+			if turn || time.Since(lastGuard) >= guardEvery {
 				lastGuard = time.Now()
-				if err := e.Guard(ctx, typed); err != nil {
+				if err := e.Guard(ctx, turn); err != nil {
 					refusal := engine.RefusalOf(err)
 					blob, _ := json.Marshal(refusal)
 					_ = wsJSON(ctx, conn, engine.SessionEvent{Stream: "problem", Value: string(blob)})
@@ -118,7 +124,12 @@ func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 		if submitErr != nil {
 			// Report and keep going: a client mistake is not a reason to end
 			// someone's conversation.
-			if err := wsJSON(ctx, conn, engine.SessionEvent{Stream: "error", Value: submitErr.Error()}); err != nil {
+			refused := submitErr.Error()
+			if typ == websocket.MessageBinary {
+				report, _ := json.Marshal(engine.ErrorReport{Code: engine.ErrorVoiceFailed})
+				refused = string(report)
+			}
+			if err := wsJSON(ctx, conn, engine.SessionEvent{Stream: "error", Value: refused}); err != nil {
 				return nil
 			}
 		}

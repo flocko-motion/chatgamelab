@@ -9,11 +9,11 @@ import (
 	"engine/internal/adapters/mock"
 )
 
-// Adventure has its eight prompts, each under its own name.
+// Adventure has its nine prompts, each under its own name.
 func TestAdventureHasItsPrompts(t *testing.T) {
 	want := []string{
 		"condense-scenario", "expand", "game-master", "image-style",
-		"opening", "opening-expand", "rephrase", "scene",
+		"opening", "opening-expand", "rephrase", "rephrase-audio", "scene",
 	}
 	if got := slices.Sorted(maps.Keys(AdventurePrompts)); !slices.Equal(got, want) {
 		t.Errorf("Adventure's prompts are %v, want %v", got, want)
@@ -29,6 +29,9 @@ func TestAdventureHasItsPrompts(t *testing.T) {
 func withMocks(cfg AdventureConfig) AdventureConfig {
 	if cfg.Tool == nil {
 		cfg.Tool = mock.Tool{}
+	}
+	if cfg.Hearing == nil {
+		cfg.Hearing = mock.Hearing{}
 	}
 	if cfg.Thread == nil {
 		cfg.Thread = mock.Thread{}
@@ -54,6 +57,7 @@ func TestAdventurePromptsNameThePlayersLanguage(t *testing.T) {
 	w := adventure(t, AdventureConfig{Language: "de"})
 	for name, want := range map[string]string{
 		PromptRephrase:      "\nKeep the response in Deutsch.",
+		PromptRephraseAudio: "\nWrite \"action\" in Deutsch.",
 		PromptExpand:        "NARRATE the outline into prose in the players language (Deutsch). ",
 		PromptOpeningExpand: "NARRATE the opening scene into prose in the players language (Deutsch). ",
 	} {

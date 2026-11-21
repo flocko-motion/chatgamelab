@@ -17,18 +17,22 @@ import "engine/internal/adapters"
 // takes that model's smallest size, a square.
 //
 // GPT-Live publishes no tier ladder, so every tier resolves to the same voice
-// model. Transcription has one model, so it does not move with the tier
-// either.
+// model. Hearing, the tooling model that takes the player's speech, does not
+// move with the tier either: its prompt is short, as tooling's are. It is
+// gpt-audio-mini over plain HTTP: probed on 21 November 2026 against
+// gpt-realtime-2.1-mini, each clip in a session of its own, it heard as
+// faithfully, in half the time (0.8 s to 1.7 s), at a little less per spoken
+// minute, and without a WebSocket held for one shot.
 //
 // Speech is the story model, speaking: while narration is on, the story
 // thread runs on a gpt-realtime model, which writes the prose and says it.
 // The mini model serves low and medium, the full one high.
 var (
-	live          = adapters.Model{Name: "gpt-live-1"}
-	tooling       = adapters.Model{Name: "gpt-5.6-luna"}
-	speechMini    = speaking("gpt-realtime-2.1-mini")
-	speechFull    = speaking("gpt-realtime-2.1")
-	transcription = adapters.Model{Name: "gpt-4o-mini-transcribe"}
+	live       = adapters.Model{Name: "gpt-live-1"}
+	tooling    = adapters.Model{Name: "gpt-5.6-luna"}
+	speechMini = speaking("gpt-realtime-2.1-mini")
+	speechFull = speaking("gpt-realtime-2.1")
+	hearing    = adapters.Model{Name: "gpt-audio-mini"}
 )
 
 // speaking is a gpt-realtime model with the voice it speaks in unless a game
@@ -48,32 +52,33 @@ func Platform() adapters.Platform {
 		Name:     "OpenAI",
 		UserKeys: true,
 		Toggles:  adapters.Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true},
+		Facts:    Models,
 		Tiers: adapters.Ladder(
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
 				adapters.ModelStory:   {Name: "gpt-5.6-luna"},
 				// The cheapest picture on offer: a workshop runs on low, a room
 				// of young people playing at once, so the saving multiplies.
-				adapters.ModelImage:         image("gpt-image-1-mini", "low", "1024x1024"),
-				adapters.ModelLive:          live,
-				adapters.ModelSpeech:        speechMini,
-				adapters.ModelTranscription: transcription,
+				adapters.ModelImage:   image("gpt-image-1-mini", "low", "1024x1024"),
+				adapters.ModelLive:    live,
+				adapters.ModelSpeech:  speechMini,
+				adapters.ModelHearing: hearing,
 			},
 			adapters.ModelSet{
-				adapters.ModelTooling:       tooling,
-				adapters.ModelStory:         {Name: "gpt-5-mini"},
-				adapters.ModelImage:         image("gpt-image-2.5-flare", "medium", "1024x672"),
-				adapters.ModelLive:          live,
-				adapters.ModelSpeech:        speechMini,
-				adapters.ModelTranscription: transcription,
+				adapters.ModelTooling: tooling,
+				adapters.ModelStory:   {Name: "gpt-5-mini"},
+				adapters.ModelImage:   image("gpt-image-2.5-flare", "medium", "1024x672"),
+				adapters.ModelLive:    live,
+				adapters.ModelSpeech:  speechMini,
+				adapters.ModelHearing: hearing,
 			},
 			adapters.ModelSet{
-				adapters.ModelTooling:       tooling,
-				adapters.ModelStory:         {Name: "gpt-5.1"},
-				adapters.ModelImage:         image("gpt-image-2.5-flare", "high", "1024x672"),
-				adapters.ModelLive:          live,
-				adapters.ModelSpeech:        speechFull,
-				adapters.ModelTranscription: transcription,
+				adapters.ModelTooling: tooling,
+				adapters.ModelStory:   {Name: "gpt-5.1"},
+				adapters.ModelImage:   image("gpt-image-2.5-flare", "high", "1024x672"),
+				adapters.ModelLive:    live,
+				adapters.ModelSpeech:  speechFull,
+				adapters.ModelHearing: hearing,
 			},
 		),
 	}

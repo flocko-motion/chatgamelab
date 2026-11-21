@@ -1380,6 +1380,7 @@
       "connectionLost": "Oyunla bağlantı kesildi. Tekrar denemek için sayfayı yeniden yükle.",
       "imageFailed": "Bu sahne için görsel oluşturulamadı. Hikâye devam ediyor.",
       "noMicrophone": "Mikrofon yok. Tarayıcının bu sayfa için izinlerini kontrol et.",
+      "notHeard": "Söylediklerin duyulmadı. Tekrar konuş veya yaz.",
       "openingFailed": "Hikâye başlayamadı. Ne yapmak istediğini yaz, hikâye oradan başlasın.",
       "pauseFailed": "Konuşma duraklatılamadı.",
       "serverUnreachable": "Oyun sunucusuna ulaşılamıyor.",
@@ -1414,6 +1415,11 @@
       "reconnecting": "Yeniden bağlanıyor…",
       "settingScene": "Sahne hazırlanıyor…",
       "wakingCharacter": "Karakter uyanıyor…"
+    },
+    "talk": {
+      "hearing": "Söylediklerini duyuyorum…",
+      "hold": "Konuşmak için basılı tut",
+      "recording": "Dinliyorum… göndermek için bırak"
     }
   }
 }

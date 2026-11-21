@@ -1483,7 +1483,8 @@
       "connectionLost": "Die Verbindung zum Spiel ist abgebrochen. Lade die Seite neu, um es erneut zu versuchen.",
       "turnFailed": "Die Geschichte konnte daran nicht anknüpfen. Schick es noch einmal oder versuch etwas anderes.",
       "openingFailed": "Die Geschichte konnte nicht beginnen. Schreib, was du tun möchtest, dann geht es von dort los.",
-      "imageFailed": "Das Bild zu dieser Szene konnte nicht entstehen. Die Geschichte geht weiter."
+      "imageFailed": "Das Bild zu dieser Szene konnte nicht entstehen. Die Geschichte geht weiter.",
+      "notHeard": "Deine Worte sind nicht angekommen. Sprich noch einmal oder schreib es."
     },
     "launch": {
       "noGame": "Diese Seite braucht ein Spiel: Öffne sie über die Seite eines Spiels.",
@@ -1500,6 +1501,11 @@
       "choose": "Wähle, wie du spielen möchtest, um zu beginnen.",
       "settingScene": "Die Szene entsteht…",
       "wakingCharacter": "Die Figur erwacht…"
+    },
+    "talk": {
+      "hold": "Zum Sprechen gedrückt halten",
+      "recording": "Ich höre zu… zum Senden loslassen",
+      "hearing": "Deine Worte kommen an…"
     }
   },
   "mail": {

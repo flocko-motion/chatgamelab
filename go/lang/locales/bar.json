@@ -1384,6 +1384,7 @@
       "connectionLost": "Die Verbindung zum Spui is abbrocha. Lad d Seitn neu, dass'd es no amoi probiern kannst.",
       "imageFailed": "Des Buidl für de Szene hod ned erstellt wern kenna. De Gschicht geht weida.",
       "noMicrophone": "Koans Mikrofon. Prüaf de Browser-Erlaubnis für de Seitn.",
+      "notHeard": "Dei Weda san ned durchkemma. Red no amoi, oder schreibs.",
       "openingFailed": "De Gschicht hod ned anfangen kenna. Schreib, wos'd macha mechtst, nachad geht's von do aus los.",
       "pauseFailed": "Des Gespräch hod ned pausiert wern kenna.",
       "serverUnreachable": "Der Spuiserver is ned erreichbar.",
@@ -1418,6 +1419,11 @@
       "reconnecting": "No amoi verbinden …",
       "settingScene": "De Szene wird hergricht …",
       "wakingCharacter": "De Figur wacht auf …"
+    },
+    "talk": {
+      "hearing": "I hör, wos'd sogst…",
+      "hold": "Zum Redn gedrückt hoitn",
+      "recording": "I los zua… zum Schicka loslossn"
     }
   }
 }

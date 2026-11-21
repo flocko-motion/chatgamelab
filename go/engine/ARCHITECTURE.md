@@ -17,10 +17,10 @@ and configured by prompt into whatever role a genre needs:
 | Block | Mechanism | Roles |
 | --- | --- | --- |
 | **Tool call** | one single-shot text-in/text-out call | rephrase, condense, translate, observer |
+| **Tool call that takes audio** | one clip of speech in, a structured result out | rephrase of a spoken action |
 | **Threaded call** | a call on a continuing conversation, spoken while narration is on | Expand, sharing Outline's thread, and narration |
 | **Threaded call with a structured result** | a threaded call whose reply is JSON of a schema | Outline: its outline, image prompt and status |
 | **Image generation** | prompt in, image out | scene illustration, portrait |
-| **Transcription** | audio in, text out | voice input on a turn-based genre |
 | **Live session** | a long-lived, full-duplex speech-to-speech connection | NPC-Live's conversation |
 
 A new short transformation is a prompt on an existing block, which keeps the
@@ -90,27 +90,39 @@ it; Expand turns the outline into prose.
 - **The picture prompt** is built without a model call from one reply's image
   prompt and outline, the game's description, the condensed or full scenario
   and the adapted style, inside the scene frame.
+- **The player types or speaks**, on two inputs always wired. A typed line
+  goes to Rephrase, and at once to the player's line on the `said` stream. A
+  spoken clip goes to Rephrase's spoken twin on the hearing model, whose reply
+  is a schema the genre owns: what was heard, the player's words verbatim in
+  their language, for the player's line, and the action, rephrased as
+  Rephrase does, for Outline. The `said` stream is kept in the history like
+  the prose, so a reload replays both speakers.
 - **A failed call during play** costs the turn: Rephrase, Outline and Expand
-  lead to the `turn_failed` error sink, the picture to `image_failed`.
+  lead to the `turn_failed` error sink, the picture to `image_failed`. A clip
+  of which nothing came through, the spoken Rephrase failing or hearing no
+  words, leads to `voice_failed` and starts no turn.
 
 ```mermaid
 graph TB
-    INPUT["Player input
-    (text and/or audio)"]
-    CAP{"Tooling model
-    accepts audio input?"}
-    TRANSCRIBE(["Transcribe
-    (transcription model)"])
-    PREPROCESS(["Preprocess / Rephrase
-    (tooling model, pluggable)"])
+    TYPED["Player input text"]
+    SPOKEN["Player input audio
+    (one clip per press)"]
+    PREPROCESS(["Rephrase
+    (tooling model)"])
+    HEAR(["Rephrase audio
+    (hearing model, takes audio)"])
+    SAID(("Player's line
+    (said)"))
 
-    INPUT --> CAP
-    CAP -- no --> TRANSCRIBE --> PREPROCESS
-    CAP -- yes --> PREPROCESS
+    TYPED --> PREPROCESS
+    TYPED --> SAID
+    SPOKEN --> HEAR
+    HEAR -- heard --> SAID
 
     OUTLINE(["Outline
     (story model — starts/continues the thread)"])
     PREPROCESS --> OUTLINE
+    HEAR -- action --> OUTLINE
 
     OUTTEXT["outline text"]
     PROPS["properties map"]
@@ -138,11 +150,12 @@ graph TB
     PROPS --> OUT
 ```
 
-Transcribe runs only when the model resolved into the Preprocess slot takes text
-alone. Image and Expand's audio are always wired. The session's `images`
-toggle switches the image block on and off; `audio-out` has Expand's turns
-spoken, and the story thread runs on the tier's speech model meanwhile, so the
-model that writes the prose speaks it.
+Both inputs, the image and Expand's audio are always wired. The session's
+`images` toggle switches the image block on and off; `audio-in` switches the
+spoken Rephrase, so speech is refused while it is off, though a clip already
+sent is heard; `audio-out` has Expand's turns spoken, and the story thread runs
+on the tier's speech model meanwhile, so the model that writes the prose
+speaks it.
 
 ### NPC-Live
 
@@ -184,11 +197,15 @@ written into the engine.
 | — | **story** | Outline and Expand, on one continuing conversation |
 | `images` | **image** | image generation |
 | `audio-out` | **speech** | the story model, speaking: Outline and Expand while narration is on |
-| `audio-in` | **transcription** | transcription |
+| `audio-in` | **hearing** | the tool call that takes audio: Rephrase of a spoken action |
 | `audio-live` | **live** | the live-session block |
 
 Tiers have capabilities and model choices: a model and its parameters are set
-in the tier table and nowhere else.
+in the tier table and nowhere else. Beside the tiers, each platform has a
+**model table**, keyed by model id, saying what each model is: the kinds it
+takes and makes (text, audio, image) and its price, dated, with its source. A
+test requires an entry for every model a tier names, and that each model takes
+and makes what its type needs, such as the hearing model audio.
 
 - **An offer** is one way a session may run: a platform, a key and the
   **caveats** on using it, named by a unique ID such as the shared key's.
@@ -317,8 +334,10 @@ current status values, so the thread's memory is not trusted for them.
   fresh, appended and on a fresh thread seeded with the transcript: valid,
   invalid, refused, cut short, failed, whether it streamed, latency and cost.
   For the speaking models it also follows spoken turns: the lag between
-  transcript and audio, and whether earlier audio inflates the input. It gives
-  stats, no verdict.
+  transcript and audio, and whether earlier audio inflates the input. With
+  `-hearing` it has the hearing models hear clips of speech and silence: valid
+  replies, how faithful "heard" is, silence heard as nothing, latency and cost
+  per spoken minute. It gives stats, no verdict.
 
 ## The session spec
 
@@ -443,10 +462,12 @@ process, which matters once a standalone engine runs more than one replica.
 ## Usage and cost
 
 Blocks report **cumulative totals** on a port of their own, in four units: text
-per token (cached input apart), a speaking model's audio per token (in, cached
-in and out, apart from its text), live conversation per second, pictures per
-picture. The engine prices them from a hand-maintained, dated table and reports
-per block and per model, with a flag for whether every model was priced.
+per token (cached input apart), a speaking or hearing model's audio per token
+(in, cached in and out, apart from its text), audio by its length, a live
+conversation's open time or a heard clip where the provider bills per minute,
+and pictures per picture. The engine prices them from the platform's model
+table and reports per block and per model, with a flag for whether every model
+was priced.
 
 ## Protocol
 
@@ -459,10 +480,20 @@ sinks define its event types. Utterance boundaries travel in-band: on the
 the one still open, and a value starting with the replace marker replaces its
 text with the rest; on the `audio` stream an empty frame drops the speech
 still playing and queued, so a reply made again speaks from its start. A
+`said` value is one whole line of the player's, typed or as heard, which the
+playback-engine draws as the player's bubble. A
 `props` value is the status values as a JSON object; an `error` value the
-game goes on after is a JSON object of a code, such as `turn_failed` or
-`image_failed`, which the playback-engine says in the player's language, and
-the text the failed block was given.
+game goes on after is a JSON object of a code, such as `turn_failed`,
+`image_failed` or `voice_failed`, which the playback-engine says in the
+player's language, and the text the failed block was given.
+
+**Push-to-talk sends one clip per press**: the playback-engine records PCM16
+at 24 kHz mono while the button is held and sends it on release as one binary
+frame on the session's WebSocket, which the engine takes as one utterance. A
+recording stops and sends at 30 seconds; a press under 0.3 seconds sends
+nothing. A clip refused, as while voice input is off, comes back as the
+`voice_failed` error. An adapter wraps the clip as WAV where its provider
+wants a file.
 
 **Live audio is browser-direct, watched through a sideband:**
 
@@ -543,11 +574,12 @@ session end to end with the headless playback-engine.
   rule with every call at its frequency, preparation, the world's opening with
   its dice, the real image block with its picture prompt, tidied replies, and
   failure edges on every block that calls a model.
+- Voice input on Adventure: push-to-talk in the playback-engine, one clip per
+  press over the session's connection, heard and rephrased in one call on
+  OpenAI's gpt-audio-mini or Mistral's Voxtral, the player's line on `said`.
 
 ### Missing
 
-- **Adventure's remaining real blocks** — transcription, which still runs as
-  a dummy.
 - **The observer's thread** — it judges each line on its own.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the playback-engine needs.

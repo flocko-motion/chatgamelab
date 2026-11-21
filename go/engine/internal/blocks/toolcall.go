@@ -143,6 +143,8 @@ func reason(err error) string {
 		return ports.ReasonBadReply
 	case errors.Is(err, adapters.ErrKeyRejected):
 		return ports.ReasonKeyRejected
+	case errors.Is(err, errNothingHeard):
+		return ports.ReasonNothingHeard
 	}
 	return ports.ReasonFailed
 }

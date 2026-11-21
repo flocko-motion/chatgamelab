@@ -791,6 +791,72 @@ main[data-indicator-blink] .bubble::before { animation: cursor-blink 1s step-end
   50% { opacity: 0.35; }
 }
 
+/* ── Push-to-talk ───────────────────────────────────────────────────────
+
+   Held while the player speaks, beside the text box, which stays usable. While
+   it records it turns red, and a ring fills towards the longest recording, so
+   a player sees how long they have left. */
+.hold-button {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: rgba(127, 127, 127, 0.16);
+  color: inherit;
+  cursor: pointer;
+  /* A held press is the control, so the page must not scroll or select under it. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.hold-button:hover:not([disabled]) { filter: brightness(1.06); }
+
+.hold-button .icon-mic {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hold-button[data-state="recording"] {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.hold-ring {
+  position: absolute;
+  inset: -5px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.hold-ring circle {
+  fill: none;
+  stroke: #dc2626;
+  stroke-width: 2.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--progress, 0));
+  opacity: 0;
+}
+
+.hold-button[data-state="recording"] .hold-ring circle { opacity: 1; }
+
+/* A spoken line on its way: the bubble stands in its place, faint. */
+.player-action.pending .bubble { opacity: 0.6; font-style: italic; }
+
 /* A reason the game cannot be played is content of the bar, in the place the
    controls would be — not a second bar taking the first one's turn. The bar is
    one shape whatever it holds, and a message that brought its own would move

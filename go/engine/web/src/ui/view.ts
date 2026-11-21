@@ -6,6 +6,7 @@ import {
   acceptsTypedInput,
   audioState,
   hasStandingImage,
+  holdsToTalk,
   voiceMode,
   type AudioState,
   type PlaybackEngineState,
@@ -32,6 +33,8 @@ export interface ViewElements {
   audio: HTMLElement;
   audioLabel: HTMLElement;
   typed: HTMLInputElement;
+  /** Push-to-talk: held while the player speaks. */
+  hold: HTMLButtonElement;
   /** The whole input bar, which only exists once the game can take input. */
   compose: HTMLElement;
   /** The typed half of it, for genres that have somewhere to put words. */
@@ -114,8 +117,10 @@ export class View {
   #fields: Painted[] = [];
   /** A picture that arrived before the line it illustrates. */
   #pendingImage: string | null = null;
-  /** Set once the player has spoken or typed, until the reply begins. */
-  #awaiting = false;
+  /** Set once the player has sent a line, until it or a reply comes back. */
+  #sent = false;
+  /** The bubble standing for a spoken line until what was heard comes back. */
+  #pendingLine: HTMLElement | null = null;
   #theme: GameTheme = mergeTheme(undefined);
   #stopBackground: () => void = () => {};
   #last: PlaybackEngineState | null = null;
@@ -182,6 +187,10 @@ export class View {
     this.elements.compose.classList.toggle("no-typing", !typing);
     this.elements.typed.disabled = !typing;
     this.elements.send.disabled = !typing;
+    // Held to talk beside the text box, while voice input is on.
+    const talking = blocked === null && holdsToTalk(state);
+    show(this.elements.hold, talking);
+    this.elements.hold.disabled = !talking;
 
     // The author's title, with the genre standing in until there is one.
     this.elements.title.textContent = state.topology?.title || state.topology?.name || "…";
@@ -215,25 +224,37 @@ export class View {
     this.#renderedNotes = 0;
     this.#shownImage = null;
     this.#pendingImage = null;
-  }
-
-  /** Echoes what the player typed, which the engine never sends back. */
-  echo(text: string): void {
-    const action = element("div", "player-action");
-    const bubble = element("div", "bubble");
-    const words = element("span", "bubble-text");
-    bubble.append(words);
-    action.append(bubble);
-    this.#paint(words, "playerMessages", text);
-    this.#append(action);
-    this.awaitReply();
+    this.#pendingLine = null;
   }
 
   /** Shows that a reply is coming, from the moment the player hands over. */
   awaitReply(): void {
-    this.#awaiting = true;
+    this.#sent = true;
     this.elements.thinking.hidden = false;
     this.#scrollToEnd();
+  }
+
+  /** A line of the player's, typed or as heard, as a bubble on the right. */
+  #playerLine(text: string, pending = false): HTMLElement {
+    const action = element("div", pending ? "player-action pending" : "player-action");
+    const bubble = element("div", "bubble");
+    const words = element("span", "bubble-text");
+    bubble.append(words);
+    action.append(bubble);
+    if (pending) words.textContent = text;
+    else this.#paint(words, "playerMessages", text);
+    return action;
+  }
+
+  /** Stands a bubble for a spoken line while what was heard is on its way, last in the feed. */
+  #renderPendingLine(state: PlaybackEngineState): void {
+    if (!state.hearing) {
+      this.#pendingLine?.remove();
+      this.#pendingLine = null;
+      return;
+    }
+    this.#pendingLine ??= this.#playerLine(text("talk.hearing"), true);
+    this.#append(this.#pendingLine);
   }
 
   #renderer(scope: Scope, target: HTMLElement): TextRenderer {
@@ -337,10 +358,17 @@ export class View {
   }
 
   #renderFeed(state: PlaybackEngineState): void {
+    // A line that came back replaces its pending bubble, so the bubble goes first.
+    if (!state.hearing) this.#renderPendingLine(state);
+    const before = this.#renderedUtterances;
     // Append-only: the feed is a timeline.
     for (let i = this.#renderedUtterances; i < state.utterances.length; i++) {
       const utterance = state.utterances[i];
       if (!utterance) continue;
+      if (utterance.speaker === "player") {
+        this.#append(this.#playerLine(utterance.text));
+        continue;
+      }
       if (this.elements.feed.childElementCount > 0) this.#append(divider());
       const card = sceneCard();
       this.#cards.set(utterance.id, card);
@@ -352,8 +380,10 @@ export class View {
       }
       this.#append(card);
     }
-    if (state.utterances.length > this.#renderedUtterances) this.#awaiting = false;
     this.#renderedUtterances = state.utterances.length;
+    if (state.hearing) this.#renderPendingLine(state);
+    // What was sent has come back, as the player's line or a reply, or failed.
+    if (state.utterances.length > before || state.fault) this.#sent = false;
 
     // Only the newest two can still change. A turn-based genre never closes its last line,
     // so streaming also needs a working block.
@@ -381,7 +411,9 @@ export class View {
   /** A coming reply, or a fault that leaves the controls working, shown just above the bar. */
   #renderThinking(state: PlaybackEngineState, blocked: Unavailable | null): void {
     const fault = blocked === null ? (state.problem ?? state.fault) : null;
-    this.elements.thinking.hidden = blocked !== null || !(fault || this.#awaiting);
+    // A reply is coming while the player's line is the last word, or on its way.
+    const awaiting = this.#sent || state.hearing || state.utterances.at(-1)?.speaker === "player";
+    this.elements.thinking.hidden = blocked !== null || !(fault || awaiting);
     this.elements.thinking.classList.toggle("fault", fault !== null);
     this.elements.thinkingText.textContent = fault ? text(fault.key) : this.#theme.thinking.text;
   }

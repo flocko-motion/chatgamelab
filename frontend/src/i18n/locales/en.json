@@ -1483,7 +1483,8 @@
       "connectionLost": "Lost the connection to the game. Reload to try again.",
       "turnFailed": "The story could not go on from that. Send it again, or try something else.",
       "openingFailed": "The story could not begin. Write what you want to do, and it starts from there.",
-      "imageFailed": "The picture for this scene could not be made. The story goes on."
+      "imageFailed": "The picture for this scene could not be made. The story goes on.",
+      "notHeard": "Your words did not come through. Speak again, or type."
     },
     "launch": {
       "noGame": "This page needs a game to play: open it from a game's page.",
@@ -1500,6 +1501,11 @@
       "choose": "Choose how to play to begin.",
       "settingScene": "Setting the scene…",
       "wakingCharacter": "Waking the character…"
+    },
+    "talk": {
+      "hold": "Hold to talk",
+      "recording": "Listening… release to send",
+      "hearing": "Hearing what you said…"
     }
   },
   "mail": {

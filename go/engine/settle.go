@@ -219,6 +219,7 @@ func (s *Session) equip() {
 	s.slots.live.Set(kit.live)
 	s.slots.tool.Set(kit.tool)
 	s.slots.image.Set(kit.image)
+	s.slots.hearing.Set(kit.hearing)
 }
 
 // applySwitches sets every switchable block from the settled toggles, and

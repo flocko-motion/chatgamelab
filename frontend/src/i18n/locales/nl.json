@@ -1378,6 +1378,7 @@
       "connectionLost": "De verbinding met het spel is verbroken. Laad de pagina opnieuw om het nog eens te proberen.",
       "imageFailed": "De afbeelding voor deze scène kon niet worden gemaakt. Het verhaal gaat verder.",
       "noMicrophone": "Geen microfoon. Controleer de browsertoestemming voor deze pagina.",
+      "notHeard": "Je woorden zijn niet overgekomen. Spreek opnieuw of typ.",
       "openingFailed": "Het verhaal kon niet beginnen. Schrijf op wat je wilt doen, dan gaat het vanaf daar verder.",
       "pauseFailed": "Het gesprek kon niet worden gepauzeerd.",
       "serverUnreachable": "De spelserver is niet bereikbaar.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Opnieuw verbinden…",
       "settingScene": "De scène wordt opgebouwd…",
       "wakingCharacter": "Het personage wordt wakker…"
+    },
+    "talk": {
+      "hearing": "Ik hoor wat je zegt…",
+      "hold": "Ingedrukt houden om te praten",
+      "recording": "Luisteren… loslaten om te verzenden"
     }
   }
 }

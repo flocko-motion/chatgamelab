@@ -1378,6 +1378,7 @@
       "connectionLost": "与游戏的连接已丢失。重新加载页面后再试。",
       "imageFailed": "无法生成这个场景的图片。故事将继续进行。",
       "noMicrophone": "未检测到麦克风。请检查浏览器对本页面的权限设置。",
+      "notHeard": "没有听清你说的话。请再说一次，或输入文字。",
       "openingFailed": "故事无法开始。写下你想做什么，故事就会从那里开始。",
       "pauseFailed": "无法暂停对话。",
       "serverUnreachable": "无法连接到游戏服务器。",
@@ -1412,6 +1413,11 @@
       "reconnecting": "正在重新连接……",
       "settingScene": "正在设置场景……",
       "wakingCharacter": "正在唤醒角色……"
+    },
+    "talk": {
+      "hearing": "正在听你说的话…",
+      "hold": "按住说话",
+      "recording": "正在聆听…松开即可发送"
     }
   }
 }

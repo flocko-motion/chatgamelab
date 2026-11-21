@@ -19,8 +19,10 @@ type Wiring struct {
 	Prompts Prompts
 
 	// Say and Speak are nil where a genre lacks that input or a dummy drives the graph.
+	// Speak refuses what the genre cannot take now, such as speech while
+	// voice input is off.
 	Say   func(string)
-	Speak func([]byte)
+	Speak func([]byte) error
 
 	// Inputs is how the game is played, stated by the genre; clients pick controls from it.
 	Inputs []ports.InputMode

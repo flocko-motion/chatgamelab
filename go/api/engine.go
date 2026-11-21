@@ -376,13 +376,14 @@ func (EngineLiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 	sessionID, _ := uuid.Parse(r.PathValue("id"))
-	return engineapi.LiveEndpoint{API: Engine, Guard: func(ctx context.Context, typed bool) error {
-		// the same check as every other turn, and a typed message counts as
-		// one; spoken turns are not counted yet: the engine reports none
+	return engineapi.LiveEndpoint{API: Engine, Guard: func(ctx context.Context, turn bool) error {
+		// the same check as every other turn, and a turn counts as one: a
+		// typed line, or a push-to-talk clip; a live voice's flow is checked
+		// and not counted
 		if err := core.OpenSession(ctx, sessionID, core.PlaySession); err != nil {
 			return err
 		}
-		if typed {
+		if turn {
 			core.CountMessage(ctx, sessionID)
 		}
 		return nil

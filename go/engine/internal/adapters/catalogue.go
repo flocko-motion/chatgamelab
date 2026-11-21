@@ -60,13 +60,15 @@ const (
 	ModelLive    ModelType = "live"
 	// ModelSpeech is the story model, speaking: the model a story thread
 	// runs on while narration is on, which writes the prose and says it.
-	ModelSpeech        ModelType = "speech"
-	ModelTranscription ModelType = "transcription"
+	ModelSpeech ModelType = "speech"
+	// ModelHearing is a tooling model that takes the player's speech: it
+	// hears a clip and answers in text.
+	ModelHearing ModelType = "hearing"
 )
 
 // ModelTypes is every model type, in display order.
 func ModelTypes() []ModelType {
-	return []ModelType{ModelTooling, ModelStory, ModelImage, ModelLive, ModelSpeech, ModelTranscription}
+	return []ModelType{ModelTooling, ModelStory, ModelImage, ModelLive, ModelSpeech, ModelHearing}
 }
 
 // Model parameter names.
@@ -109,7 +111,7 @@ func (t Toggle) ModelType() ModelType {
 	case ToggleAudioOut:
 		return ModelSpeech
 	case ToggleAudioIn:
-		return ModelTranscription
+		return ModelHearing
 	case ToggleAudioLive:
 		return ModelLive
 	}
@@ -210,12 +212,14 @@ func Ladder(low, medium, high ModelSet) []TierModels {
 }
 
 // Platform is what a person choosing a platform and a tier needs to know.
+// Facts says what each model is, one entry for every model a tier names.
 type Platform struct {
 	ID       string       `json:"id"`
 	Name     string       `json:"name"`
 	UserKeys bool         `json:"userKeys"`
 	Toggles  Toggles      `json:"toggles"`
 	Tiers    []TierModels `json:"tiers"`
+	Facts    ModelTable   `json:"models"`
 }
 
 // Models is one tier's model set, a copy the caller may change.
@@ -236,6 +240,7 @@ func (p Platform) Clone() Platform {
 		tiers[i] = TierModels{Tier: t.Tier, Label: t.Label, Models: t.Models.clone()}
 	}
 	p.Tiers = tiers
+	p.Facts = p.Facts.Clone()
 	return p
 }
 

@@ -1378,6 +1378,7 @@
       "connectionLost": "Megszakadt a kapcsolat a játékkal. Töltsd újra az oldalt, és próbáld meg újra.",
       "imageFailed": "Nem sikerült elkészíteni a jelenet képét. A történet folytatódik.",
       "noMicrophone": "Nincs mikrofon. Ellenőrizd a böngésző ezen oldalra vonatkozó engedélyét.",
+      "notHeard": "Nem érkezett meg, amit mondtál. Mondd el újra, vagy írd be.",
       "openingFailed": "A történet nem tudott elkezdődni. Írd le, mit szeretnél tenni, és onnan folytatódik.",
       "pauseFailed": "Nem sikerült szüneteltetni a beszélgetést.",
       "serverUnreachable": "A játékszerver nem érhető el.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Újracsatlakozás…",
       "settingScene": "A jelenet előkészítése…",
       "wakingCharacter": "A szereplő felébresztése…"
+    },
+    "talk": {
+      "hearing": "Hallgatom, amit mondasz…",
+      "hold": "A beszédhez tartsd lenyomva",
+      "recording": "Hallgatom… a küldéshez engedd el"
     }
   }
 }

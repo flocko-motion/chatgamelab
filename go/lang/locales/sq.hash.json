@@ -1064,6 +1064,7 @@
   "playbackEngine.errors.connectionLost": "b43e7b89f1c4e3b3",
   "playbackEngine.errors.imageFailed": "09f4a1f82bc27151",
   "playbackEngine.errors.noMicrophone": "901e01c3d6fa63ad",
+  "playbackEngine.errors.notHeard": "17f0f223e0472663",
   "playbackEngine.errors.openingFailed": "6e278d87fd43c8a3",
   "playbackEngine.errors.pauseFailed": "04b6f7e99c6271d9",
   "playbackEngine.errors.serverUnreachable": "356517f3995b0699",
@@ -1091,5 +1092,8 @@
   "playbackEngine.status.ended": "b8894aa0052c52be",
   "playbackEngine.status.reconnecting": "a2565efc9b8fcdca",
   "playbackEngine.status.settingScene": "aa7b19ce06ae0281",
-  "playbackEngine.status.wakingCharacter": "e6be2d7b55ced042"
+  "playbackEngine.status.wakingCharacter": "e6be2d7b55ced042",
+  "playbackEngine.talk.hearing": "9ea4452acf733996",
+  "playbackEngine.talk.hold": "e516e9559b7d19d7",
+  "playbackEngine.talk.recording": "bc454d84b99ecef9"
 }

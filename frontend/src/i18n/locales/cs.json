@@ -1378,6 +1378,7 @@
       "connectionLost": "Spojení se hrou bylo přerušeno. Načti stránku znovu a zkus to znovu.",
       "imageFailed": "Obrázek této scény se nepodařilo vytvořit. Příběh pokračuje.",
       "noMicrophone": "Žádný mikrofon. Zkontroluj oprávnění prohlížeče pro tuto stránku.",
+      "notHeard": "Vaše slova nebyla zaznamenána. Řekněte to znovu nebo napište.",
       "openingFailed": "Příběh nemohl začít. Napiš, co chceš udělat, a od toho se bude pokračovat.",
       "pauseFailed": "Konverzaci se nepodařilo pozastavit.",
       "serverUnreachable": "Herní server není dostupný.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Opětovné připojování…",
       "settingScene": "Připravuje se scéna…",
       "wakingCharacter": "Postava se probouzí…"
+    },
+    "talk": {
+      "hearing": "Slyším, co říkáte…",
+      "hold": "Podržením tlačítka mluvte",
+      "recording": "Poslouchám… uvolněním odešlete"
     }
   }
 }

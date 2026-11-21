@@ -1381,6 +1381,7 @@
       "connectionLost": "Conexiunea cu jocul s-a pierdut. Reîncarcă pagina pentru a încerca din nou.",
       "imageFailed": "Imaginea pentru această scenă nu a putut fi creată. Povestea continuă.",
       "noMicrophone": "Nu există niciun microfon. Verifică permisiunea browserului pentru această pagină.",
+      "notHeard": "Nu s-au auzit cuvintele tale. Vorbește din nou sau scrie.",
       "openingFailed": "Povestea nu a putut începe. Scrie ce vrei să faci, iar de acolo va începe.",
       "pauseFailed": "Conversația nu a putut fi pusă pe pauză.",
       "serverUnreachable": "Serverul jocului nu poate fi accesat.",
@@ -1415,6 +1416,11 @@
       "reconnecting": "Se reconectează…",
       "settingScene": "Se pregătește scena…",
       "wakingCharacter": "Personajul se trezește…"
+    },
+    "talk": {
+      "hearing": "Îți ascult cuvintele…",
+      "hold": "Ține apăsat pentru a vorbi",
+      "recording": "Ascult… eliberează pentru a trimite"
     }
   }
 }

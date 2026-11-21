@@ -66,7 +66,9 @@ type recorder struct {
 
 // historyStreams is what a reload needs to redraw the conversation.
 var historyStreams = map[string]bool{
-	"text":  true,
+	"text": true,
+	// The player's lines, each whole, so a reload replays both speakers.
+	"said":  true,
 	"image": true,
 	"props": true,
 	"error": true,

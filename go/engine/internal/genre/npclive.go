@@ -127,7 +127,7 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	g.ConnectState(gate, mic)
 	// The cue shares the observer's port: the provider treats both as appended instructions.
 	g.ConnectTextOut(gate, live)
-	w.Speak = func(b []byte) { mic.Speak(b) }
+	w.Speak = func(b []byte) error { mic.Speak(b); return nil }
 
 	g.ConnectAudioOut(live, outAudio) // speech to the player
 	g.ConnectTextOut(live, outText)   // transcript as chat history

@@ -13,8 +13,8 @@ func Platform() adapters.Platform {
 			adapters.ModelLive:    {Name: "gpt-live-mock"},
 			// The story model, speaking: the story thread runs on it while
 			// narration is on.
-			adapters.ModelSpeech:        {Name: "mock-realtime", Params: map[string]string{adapters.ParamVoice: "marin"}},
-			adapters.ModelTranscription: {Name: "mock-transcription"},
+			adapters.ModelSpeech:  {Name: "mock-realtime", Params: map[string]string{adapters.ParamVoice: "marin"}},
+			adapters.ModelHearing: {Name: "mock-hearing"},
 		}
 	}
 	return adapters.Platform{
@@ -22,5 +22,6 @@ func Platform() adapters.Platform {
 		Name:    "Mock",
 		Toggles: adapters.Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true},
 		Tiers:   adapters.Ladder(models(), models(), models()),
+		Facts:   Models,
 	}
 }

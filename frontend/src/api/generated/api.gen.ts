@@ -617,6 +617,14 @@ export interface Model {
   params?: Record<string, string>;
 }
 
+export interface ModelFacts {
+  in: string[];
+  out: string[];
+  price: Price;
+  read: string;
+  source: string;
+}
+
 export interface NamedRef {
   /** @format uuid */
   id: string;
@@ -741,6 +749,7 @@ export interface ParticipantMeta {
 export interface PlatformInfo {
   genres: string[];
   id: string;
+  models: Record<string, ModelFacts>;
   name: string;
   tiers: TierModels[];
   toggles: Toggles;
@@ -752,6 +761,17 @@ export interface Preference {
   platform: string;
   tier: string;
   toggles: Toggles;
+}
+
+export interface Price {
+  audioInputPerMTok?: number;
+  audioOutputPerMTok?: number;
+  audioPerMinute?: number;
+  cachedAudioInputPerMTok?: number;
+  cachedInputPerMTok?: number;
+  inputPerMTok?: number;
+  outputPerMTok?: number;
+  perImage?: number;
 }
 
 export interface PrivateShareStatusResp {
