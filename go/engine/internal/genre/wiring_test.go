@@ -183,7 +183,7 @@ func TestAdventurePreparationShapesThePicture(t *testing.T) {
 	tool, image := &recordingTool{}, &recordingImage{}
 	long := strings.Repeat("The gorge is deep and the troll is old. ", 15)
 	w := adventure(t, AdventureConfig{
-		Tool: tool, Image: image, Images: true, Scenario: long, Guardrail: testGuardrail,
+		Tool: tool, Image: image, Scenario: long, Guardrail: testGuardrail,
 		ImageStyle: "Holzschnitt", Description: "Talk your way past a troll.",
 	})
 	play(t, w)
@@ -240,27 +240,22 @@ func (r *recordingImage) expect(t *testing.T, want string) {
 	t.Fatalf("no picture was asked for as\n%s\nasked:\n%s", want, strings.Join(r.prompts, "\n---\n"))
 }
 
-// A short scenario is not condensed, and the picture prompt carries it whole;
-// without pictures allowed, preparation makes no call, and the game opens all
-// the same.
-func TestAdventurePreparationIsSkipped(t *testing.T) {
+// A short scenario is not condensed, and the picture prompt carries it
+// whole; the image style is adapted all the same, whatever the offers allow.
+func TestAdventureShortScenarioIsNotCondensed(t *testing.T) {
 	tool := &recordingTool{}
 	w := adventure(t, AdventureConfig{Tool: tool, Scenario: testScenario})
 	play(t, w)
 	waitForImagePrompt(t, w, "The game scenario is: "+testScenario+"\n")
+	adapted := false
 	for _, call := range tool.seen() {
 		if call[0] == w.Prompts[PromptCondenseScenario] {
 			t.Error("a short scenario was condensed")
 		}
+		adapted = adapted || call[0] == w.Prompts[PromptImageStyle]
 	}
-
-	tool = &recordingTool{}
-	w = adventure(t, AdventureConfig{Tool: tool, Scenario: testScenario, Image: mock.Image{}, Images: false})
-	play(t, w, "I cross")
-	for _, call := range tool.seen() {
-		if call[0] != w.Prompts[PromptRephrase] {
-			t.Errorf("without pictures, preparation asked %q", call[0])
-		}
+	if !adapted {
+		t.Error("the image style was not adapted")
 	}
 }
 
@@ -384,18 +379,18 @@ func TestAdventureFailureEdges(t *testing.T) {
 		},
 		{
 			name: "image",
-			cfg:  AdventureConfig{Image: failingImage{}, Images: true},
+			cfg:  AdventureConfig{Image: failingImage{}},
 			sink: "image-failed", want: `{"code":"image_failed","text":"You are generating scene illustrations`,
 		},
 		{
 			name: "image-style",
 			cfg:  AdventureConfig{Tool: failingTool{system: AdventurePrompts[PromptImageStyle]}},
-			sink: "problem", want: "Image Style: " + AdventureImageStyle,
+			sink: "problem", want: `{"node":"image-style","reason":"failed",`,
 		},
 		{
 			name: "condense-scenario",
 			cfg:  AdventureConfig{Tool: failingTool{system: AdventurePrompts[PromptCondenseScenario]}, Scenario: strings.Repeat("long ", 120)},
-			sink: "problem", want: "Scenario:\n",
+			sink: "problem", want: `{"node":"condense-scenario","reason":"failed",`,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

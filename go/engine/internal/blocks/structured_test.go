@@ -50,9 +50,10 @@ var outlineResult = blocks.Result{Text: "outline", SecondaryText: "image_prompt"
 // structuredBlock is one block, subscribed to what it puts out.
 type structuredBlock struct {
 	*blocks.Structured
-	text, secondary, failure <-chan string
-	props                    <-chan ports.PropMap
-	states                   <-chan ports.State
+	text, secondary <-chan string
+	failure         <-chan ports.Failure
+	props           <-chan ports.PropMap
+	states          <-chan ports.State
 }
 
 func newStructured(thread *blocks.Thread, status ...string) structuredBlock {
@@ -211,7 +212,7 @@ func TestStructuredFailsAfterThreeBadReplies(t *testing.T) {
 
 	outline.PropsInPort() <- ports.PropMap{"Health": "good"}
 	outline.TextInPort() <- "first"
-	if got := receive(t, outline.failure, "the failed text"); got != "first" {
+	if got := receive(t, outline.failure, "the failed text"); got.Input != "first" {
 		t.Errorf("failure output carried %q, want the text the block was given", got)
 	}
 	failed := expectPhases(t, outline.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
@@ -270,9 +271,7 @@ func TestStructuredOpening(t *testing.T) {
 	adapter := &scriptedStructured{replies: []string{`{"outline":"Opened.","image_prompt":"p","status":{"Health":"fine"}}`}}
 	thread := newThread(adapter)
 	outline := newStructured(thread, "Health")
-	if err := outline.SetConstraintFrequency(2); err != nil {
-		t.Fatal(err)
-	}
+	outline.SetConstraintFrequency(2)
 	outline.Start(ctx)
 
 	outline.PropsInPort() <- ports.PropMap{"Health": "good"}

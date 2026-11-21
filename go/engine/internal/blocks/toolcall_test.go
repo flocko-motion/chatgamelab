@@ -59,7 +59,7 @@ func TestToolCallGivesUpAfterFiveAttempts(t *testing.T) {
 
 	b.TextInPort() <- "I cross"
 
-	if got := receive(t, failure, "the failed text"); got != "I cross" {
+	if got := receive(t, failure, "the failed text"); got.Input != "I cross" {
 		t.Errorf("the failure output carried %q, want the text the block was given", got)
 	}
 	failed := expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)

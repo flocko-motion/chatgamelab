@@ -1372,5 +1372,46 @@
     "rooms": "Sobe",
     "serverSettings": "Postavke poslužitelja",
     "workshopSettings": "Postavke radionice"
+  },
+  "playbackEngine": {
+    "errors": {
+      "connectionLost": "Veza s igrom je prekinuta. Ponovno učitaj stranicu i pokušaj opet.",
+      "imageFailed": "Slika za ovu scenu nije se mogla izraditi. Priča se nastavlja.",
+      "noMicrophone": "Nema mikrofona. Provjeri dopuštenje preglednika za ovu stranicu.",
+      "openingFailed": "Priča nije mogla započeti. Napiši što želiš učiniti i odatle će krenuti.",
+      "pauseFailed": "Razgovor se nije mogao pauzirati.",
+      "serverUnreachable": "Poslužitelj igre nije dostupan.",
+      "startFailed": "Igra se nije mogla pokrenuti.",
+      "switchFailed": "Ova se značajka nije mogla uključiti ili isključiti.",
+      "turnFailed": "Priča se nije mogla nastaviti na temelju toga. Pošalji ponovno ili pokušaj nešto drugo.",
+      "voiceFailed": "Tvoj se glas nije mogao povezati."
+    },
+    "launch": {
+      "continue": "Nastavi igrati",
+      "inProgress": "Imaš započetu igru.",
+      "noGame": "Ovoj je stranici potrebna igra: otvori je sa stranice neke igre.",
+      "startAnew": "Započni ispočetka",
+      "starting": "Igra se pokreće…",
+      "tryAgain": "Pokušaj ponovno"
+    },
+    "problems": {
+      "denied": "Ne smiješ igrati ovu igru.",
+      "failed": "Nešto je pošlo po zlu i igra se ne može nastaviti.",
+      "genre": "Dostupni ključ umjetne inteligencije ne može pokretati ovu vrstu igre.",
+      "keyRejected": "Pružatelj usluge umjetne inteligencije odbio je ključ ove igre, pa se igra ne može nastaviti. Osoba koja je postavila igru mora provjeriti ključ.",
+      "noKey": "Nema dostupnog ključa umjetne inteligencije za igranje ove igre.",
+      "noPlays": "U ovoj dijeljenoj igri više nema preostalih igranja.",
+      "stale": "Ova se igra više ne može nastaviti.",
+      "unknown": "Ova sesija igre ne postoji.",
+      "unreachable": "Pružatelj usluge umjetne inteligencije trenutačno ne odgovara, pa se igra ne može nastaviti. Pokušaj ponovno za nekoliko minuta."
+    },
+    "status": {
+      "choose": "Odaberi način igranja za početak.",
+      "connecting": "Povezivanje…",
+      "ended": "Igra je završila.",
+      "reconnecting": "Ponovno povezivanje…",
+      "settingScene": "Postavljanje scene…",
+      "wakingCharacter": "Buđenje lika…"
+    }
   }
 }

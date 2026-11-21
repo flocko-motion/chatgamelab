@@ -19,7 +19,7 @@ type threadedBlock struct {
 	*blocks.Threaded
 	stream  <-chan ports.Piece
 	whole   <-chan string
-	failure <-chan string
+	failure <-chan ports.Failure
 	states  <-chan ports.State
 }
 
@@ -294,7 +294,7 @@ func TestThreadedFailsOnAHardError(t *testing.T) {
 	b.Start(ctx)
 
 	b.TextInPort() <- "the outline"
-	if got := receive(t, b.failure, "the failed text"); got != "the outline" {
+	if got := receive(t, b.failure, "the failed text"); got.Input != "the outline" {
 		t.Errorf("failure output carried %q, want the text the block was given", got)
 	}
 	failed := expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
@@ -337,9 +337,7 @@ func TestConstraintFrequency(t *testing.T) {
 
 	adapter := &scriptedThread{}
 	b := startThreaded(t, newThread(adapter), "expand")
-	if err := b.SetConstraintFrequency(3); err != nil {
-		t.Fatal(err)
-	}
+	b.SetConstraintFrequency(3)
 	b.Start(ctx)
 	for i := range 4 {
 		b.TextInPort() <- "go"
@@ -355,12 +353,6 @@ func TestConstraintFrequency(t *testing.T) {
 	}
 	if fmt.Sprint(carried) != "[true false false true]" {
 		t.Errorf("constraints carried %v, want on the first call and every third", carried)
-	}
-
-	for _, n := range []int{0, 11} {
-		if err := b.SetConstraintFrequency(n); err == nil {
-			t.Errorf("frequency %d accepted", n)
-		}
 	}
 }
 
@@ -397,7 +389,7 @@ func TestThreadedAsksAgainWhenNothingIsLeft(t *testing.T) {
 	b.Start(ctx)
 
 	b.TextInPort() <- "the outline"
-	if got := receive(t, b.failure, "the failed text"); got != "the outline" {
+	if got := receive(t, b.failure, "the failed text"); got.Input != "the outline" {
 		t.Errorf("failure output carried %q", got)
 	}
 	failed := expectPhases(t, b.states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)

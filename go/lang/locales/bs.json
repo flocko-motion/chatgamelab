@@ -1372,5 +1372,46 @@
     "rooms": "Sobe",
     "serverSettings": "Postavke servera",
     "workshopSettings": "Postavke radionice"
+  },
+  "playbackEngine": {
+    "errors": {
+      "connectionLost": "Veza s igrom je prekinuta. Ponovo učitaj stranicu i pokušaj još jednom.",
+      "imageFailed": "Sliku za ovu scenu nije bilo moguće napraviti. Priča se nastavlja.",
+      "noMicrophone": "Nema mikrofona. Provjeri dozvolu preglednika za ovu stranicu.",
+      "openingFailed": "Priča nije mogla početi. Napiši šta želiš uraditi i odatle će početi.",
+      "pauseFailed": "Razgovor nije bilo moguće pauzirati.",
+      "serverUnreachable": "Nije moguće povezati se sa serverom igre.",
+      "startFailed": "Igru nije bilo moguće pokrenuti.",
+      "switchFailed": "Ovu funkciju nije bilo moguće prebaciti.",
+      "turnFailed": "Priča nije mogla nastaviti od toga. Pošalji ponovo ili pokušaj nešto drugo.",
+      "voiceFailed": "Nije bilo moguće povezati tvoj glas."
+    },
+    "launch": {
+      "continue": "Nastavi igrati",
+      "inProgress": "Imaš započetu igru.",
+      "noGame": "Ovoj stranici je potrebna igra: otvori je sa stranice neke igre.",
+      "startAnew": "Počni ispočetka",
+      "starting": "Igra se pokreće…",
+      "tryAgain": "Pokušaj ponovo"
+    },
+    "problems": {
+      "denied": "Ne smiješ igrati ovu igru.",
+      "failed": "Nešto je pošlo po zlu i igra ne može nastaviti.",
+      "genre": "Dostupni AI ključ ne može pokrenuti ovu vrstu igre.",
+      "keyRejected": "AI provajder je odbio ključ ove igre, pa igra ne može nastaviti. Osoba koja je postavila igru treba provjeriti ključ.",
+      "noKey": "Nema dostupnog AI ključa za igranje ove igre.",
+      "noPlays": "U ovoj dijeljenoj igri više nema dostupnih igranja.",
+      "stale": "Ova igra se više ne može nastaviti.",
+      "unknown": "Ova sesija igre ne postoji.",
+      "unreachable": "AI provajder trenutno ne odgovara, pa igra ne može nastaviti. Pokušaj ponovo za nekoliko minuta."
+    },
+    "status": {
+      "choose": "Odaberi kako želiš igrati da bi počeo.",
+      "connecting": "Povezivanje…",
+      "ended": "Igra je završena.",
+      "reconnecting": "Ponovno povezivanje…",
+      "settingScene": "Postavljanje scene…",
+      "wakingCharacter": "Buđenje lika…"
+    }
   }
 }

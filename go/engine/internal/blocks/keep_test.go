@@ -2,6 +2,7 @@ package blocks_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -9,44 +10,82 @@ import (
 	"engine/internal/ports"
 )
 
-// A keep reports working until its value arrives, hands it on under its key,
-// and exports it; a resumed keep hands on what it kept without being asked.
+// A keep sends its request, reports working until the answer arrives, hands
+// it on under its key, and exports it; a resumed keep hands on what it kept
+// without asking.
 func TestKeepHoldsItsValueAcrossAResume(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	keep := blocks.NewKeep("adapted-style", "style", true)
-	out, states := keep.PropsOutPort(), keep.StateOutPort()
+	keep := blocks.NewKeep("adapted-style", "style", "Image Style: woodcut")
+	asked, out, states := keep.TextOutPort(), keep.PropsOutPort(), keep.StateOutPort()
 	keep.Start(ctx)
 	expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking)
+	if got := receive(t, asked, "the request"); got != "Image Style: woodcut" {
+		t.Errorf("asked %q", got)
+	}
 	keep.TextInPort() <- "woodcut, gentle"
 	if got := receive(t, out, "the value"); got["style"] != "woodcut, gentle" {
 		t.Errorf("handed on %v", got)
 	}
 	expectPhases(t, states, ports.PhaseReady)
 
-	resumed := blocks.NewKeep("adapted-style", "style", true)
+	resumed := blocks.NewKeep("adapted-style", "style", "Image Style: woodcut")
 	resumed.RestoreState(keep.ExportState())
-	out, states = resumed.PropsOutPort(), resumed.StateOutPort()
+	asked, out, states = resumed.TextOutPort(), resumed.PropsOutPort(), resumed.StateOutPort()
 	resumed.Start(ctx)
 	if got := receive(t, out, "the kept value"); got["style"] != "woodcut, gentle" {
 		t.Errorf("a resumed keep handed on %v", got)
 	}
 	expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
+	select {
+	case got := <-asked:
+		t.Errorf("a keep holding its value asked again: %q", got)
+	case <-time.After(30 * time.Millisecond):
+	}
 }
 
-// A keep that expects nothing is ready at once and hands on nothing.
-func TestKeepExpectingNothing(t *testing.T) {
+// A session stored after the request went out and before the answer came
+// asks again when it is resumed, so it never waits for an answer that is gone.
+func TestKeepAsksAgainWhenTheAnswerNeverCame(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	keep := blocks.NewKeep("condensed-scenario", "scenario", false)
-	out, states := keep.PropsOutPort(), keep.StateOutPort()
+	first := blocks.NewKeep("condensed-scenario", "scenario", "Scenario: long")
+	asked := first.TextOutPort()
+	first.Start(ctx)
+	receive(t, asked, "the first request")
+	stored := first.ExportState()
+	cancel()
+
+	ctx2, cancel2 := context.WithCancel(context.Background())
+	defer cancel2()
+	resumed := blocks.NewKeep("condensed-scenario", "scenario", "Scenario: long")
+	if stored != "" {
+		resumed.RestoreState(stored)
+	}
+	asked = resumed.TextOutPort()
+	resumed.Start(ctx2)
+	if got := receive(t, asked, "the request again"); got != "Scenario: long" {
+		t.Errorf("asked %q", got)
+	}
+}
+
+// A keep with an empty request asks nothing, is ready at once and hands on
+// nothing.
+func TestKeepWithNothingToAsk(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	keep := blocks.NewKeep("condensed-scenario", "scenario", "")
+	asked, out, states := keep.TextOutPort(), keep.PropsOutPort(), keep.StateOutPort()
 	keep.Start(ctx)
 	expectPhases(t, states, ports.PhaseReady, ports.PhaseWorking, ports.PhaseReady)
 	select {
 	case got := <-out:
 		t.Errorf("handed on %v", got)
+	case got := <-asked:
+		t.Errorf("asked %q", got)
 	case <-time.After(30 * time.Millisecond):
 	}
 	if state := keep.ExportState(); state != "" {
@@ -86,7 +125,7 @@ func TestErrorSinkReportsItsCode(t *testing.T) {
 
 	sink := blocks.NewErrorSink("turn-failed", "turn_failed")
 	sink.Start(ctx)
-	sink.TextInPort() <- `I "cross"`
+	sink.FailureInPort() <- ports.Failure{Node: "rephrase", Input: `I "cross"`, Reason: ports.ReasonFailed}
 	if sink.Stream() != "error" {
 		t.Errorf("stream %q", sink.Stream())
 	}
@@ -145,5 +184,30 @@ func TestPlayerInputReleases(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// A failure edge may lead into any block that takes text: it receives the
+// input the failed call was given.
+func TestFailureIntoABlockThatTakesText(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	g := ports.NewGraph("failure-to-text")
+	player := blocks.NewPlayerInputText("player")
+	rephrase := blocks.NewToolCall("rephrase", &scriptedTool{errs: []error{errors.New("refused")}}, "rephrase it")
+	said := blocks.NewPlayerOutputText("out-text", "text")
+	fallback := blocks.NewPlayerOutputText("out-fallback", "fallback")
+	g.ConnectTextOut(player, rephrase)
+	g.ConnectTextOut(rephrase, said)
+	g.ConnectFailureText(rephrase, fallback)
+	if err := g.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	g.Start(ctx)
+
+	player.Say("I cross")
+	if got := receive(t, fallback.Arrivals(), "the failed line"); got != "I cross" {
+		t.Errorf("the text block received %q, want the failed call's input", got)
 	}
 }

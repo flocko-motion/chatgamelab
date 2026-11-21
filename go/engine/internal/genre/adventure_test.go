@@ -35,7 +35,6 @@ func withMocks(cfg AdventureConfig) AdventureConfig {
 	}
 	if cfg.Image == nil {
 		cfg.Image = mock.Image{}
-		cfg.Images = true
 	}
 	return cfg
 }

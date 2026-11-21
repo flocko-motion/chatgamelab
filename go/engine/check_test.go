@@ -12,6 +12,7 @@ import (
 
 	"engine/internal/adapters"
 	"engine/internal/adapters/openai"
+	"engine/internal/ports"
 )
 
 func keyed(key string) KeyFunc {
@@ -189,5 +190,49 @@ func waitStarted(t *testing.T, s *Session) {
 	case <-s.Ready():
 	case <-time.After(2 * time.Second):
 		t.Fatal("the game never started")
+	}
+}
+
+// A failure reaching the problem sink is told by its reason, so the player
+// hears that the key was refused or the provider is away, once, and the
+// session ends.
+func TestAProblemNamesTheFailuresReason(t *testing.T) {
+	for reason, want := range map[string]Problem{
+		ports.ReasonKeyRejected: ProblemKeyRejected,
+		ports.ReasonUnreachable: ProblemUnreachable,
+		ports.ReasonBadReply:    ProblemFailed,
+	} {
+		t.Run(reason, func(t *testing.T) {
+			s := launchOrFail(t, adventure(MockOffer()))
+			waitStarted(t, s)
+			failure := `{"node":"image-style","reason":"` + reason + `","message":"the provider said no"}`
+			s.failed(failure)
+			s.failed(failure)
+
+			var problems []Refusal
+			deadline := time.After(time.Second)
+		read:
+			for {
+				select {
+				case ev := <-s.Events():
+					if ev.Stream != "problem" {
+						continue
+					}
+					var r Refusal
+					if err := json.Unmarshal([]byte(ev.Value), &r); err != nil {
+						t.Fatal(err)
+					}
+					problems = append(problems, r)
+				case <-deadline:
+					break read
+				}
+			}
+			if len(problems) != 1 || problems[0].Problem != want || problems[0].Message != "image-style: the provider said no" {
+				t.Errorf("problems %+v, want one %s naming the block", problems, want)
+			}
+			if s.ctx.Err() == nil {
+				t.Error("the session kept running")
+			}
+		})
 	}
 }

@@ -1372,5 +1372,46 @@
     "rooms": "Sobe",
     "serverSettings": "Nastavitve strežnika",
     "workshopSettings": "Nastavitve delavnice"
+  },
+  "playbackEngine": {
+    "errors": {
+      "connectionLost": "Povezava z igro je bila prekinjena. Znova naloži stran in poskusi še enkrat.",
+      "imageFailed": "Slike za ta prizor ni bilo mogoče ustvariti. Zgodba se nadaljuje.",
+      "noMicrophone": "Ni mikrofona. Preveri dovoljenje brskalnika za to stran.",
+      "openingFailed": "Zgodba se ni mogla začeti. Napiši, kaj želiš storiti, in začela se bo od tam.",
+      "pauseFailed": "Pogovora ni bilo mogoče zaustaviti.",
+      "serverUnreachable": "Igralni strežnik ni dosegljiv.",
+      "startFailed": "Igre ni bilo mogoče zagnati.",
+      "switchFailed": "Te funkcije ni bilo mogoče preklopiti.",
+      "turnFailed": "Zgodba se od tega ni mogla nadaljevati. Pošlji še enkrat ali poskusi nekaj drugega.",
+      "voiceFailed": "Povezave s tvojim glasom ni bilo mogoče vzpostaviti."
+    },
+    "launch": {
+      "continue": "Nadaljuj",
+      "inProgress": "Imaš igro v teku.",
+      "noGame": "Ta stran za igranje potrebuje igro: odpri jo s strani igre.",
+      "startAnew": "Začni znova",
+      "starting": "Igra se začenja…",
+      "tryAgain": "Poskusi znova"
+    },
+    "problems": {
+      "denied": "Te igre ne smeš igrati.",
+      "failed": "Nekaj je šlo narobe in igra se ne more nadaljevati.",
+      "genre": "Razpoložljivi ključ AI ne more izvajati te vrste igre.",
+      "keyRejected": "Ponudnik AI je zavrnil ključ te igre, zato se igra ne more nadaljevati. Oseba, ki je nastavila igro, mora preveriti ključ.",
+      "noKey": "Za igranje te igre ni na voljo ključa AI.",
+      "noPlays": "Ta deljena igra nima več preostalih igranj.",
+      "stale": "Te igre ni več mogoče nadaljevati.",
+      "unknown": "Ta igralna seja ne obstaja.",
+      "unreachable": "Ponudnik AI trenutno ne odgovarja, zato se igra ne more nadaljevati. Poskusi znova čez nekaj minut."
+    },
+    "status": {
+      "choose": "Izberi način igranja za začetek.",
+      "connecting": "Povezovanje…",
+      "ended": "Igra se je končala.",
+      "reconnecting": "Ponovno povezovanje…",
+      "settingScene": "Pripravljanje prizora…",
+      "wakingCharacter": "Prebujanje lika…"
+    }
   }
 }

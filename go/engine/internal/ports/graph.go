@@ -263,9 +263,11 @@ func (g *Graph) Validate() error {
 	return fmt.Errorf("graph %q invalid:\n  - %s", g.Name, strings.Join(problems, "\n  - "))
 }
 
+// hasIncoming counts a failure edge as text, as one into a text input
+// carries the failed call's input.
 func (g *Graph) hasIncoming(n any, kind Kind) bool {
 	for _, e := range g.edges {
-		if e.To == n && e.Kind == kind {
+		if e.To == n && (e.Kind == kind || kind == KindText && e.Kind == KindFailure) {
 			return true
 		}
 	}

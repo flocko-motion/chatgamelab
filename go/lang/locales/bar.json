@@ -1378,5 +1378,46 @@
     "rooms": "Räume",
     "serverSettings": "Server-Einstellungen",
     "workshopSettings": "Workshop-Einstellungen"
+  },
+  "playbackEngine": {
+    "errors": {
+      "connectionLost": "Die Verbindung zum Spui is abbrocha. Lad d Seitn neu, dass'd es no amoi probiern kannst.",
+      "imageFailed": "Des Buidl für de Szene hod ned erstellt wern kenna. De Gschicht geht weida.",
+      "noMicrophone": "Koans Mikrofon. Prüaf de Browser-Erlaubnis für de Seitn.",
+      "openingFailed": "De Gschicht hod ned anfangen kenna. Schreib, wos'd macha mechtst, nachad geht's von do aus los.",
+      "pauseFailed": "Des Gespräch hod ned pausiert wern kenna.",
+      "serverUnreachable": "Der Spuiserver is ned erreichbar.",
+      "startFailed": "Des Spui hod ned gstartet wern kenna.",
+      "switchFailed": "De Funktion hod ned umgschaltet wern kenna.",
+      "turnFailed": "De Gschicht hod do ned weitermacha kenna. Schick's no amoi oder probier wos Anders.",
+      "voiceFailed": "Dei Stimm hod ned verbunden wern kenna."
+    },
+    "launch": {
+      "continue": "Weiterspuiln",
+      "inProgress": "Du host a angefangenes Spui.",
+      "noGame": "De Seitn braucht a Spui: Mach's über de Seitn von am Spui auf.",
+      "startAnew": "Neu anfangen",
+      "starting": "Des Spui startet …",
+      "tryAgain": "No amoi probiern"
+    },
+    "problems": {
+      "denied": "Du derfst des Spui ned spuiln.",
+      "failed": "Da is wos schiefganga, des Spui kann ned weitagehn.",
+      "genre": "Da verfügbare KI-Schlüssel kann so a Art Spui ned ausfüahn.",
+      "keyRejected": "Da KI-Anbieter hod den Schlüssel von dem Spui abglehnt, drum geht's ned weida. Wer des Spui eingerichtet hod, muaß den Schlüssel prüfen.",
+      "noKey": "Für des Spui gibt's koan verfügbaren KI-Schlüssel.",
+      "noPlays": "Für des geteilte Spui san koane Spielrunden mehr übrig.",
+      "stale": "Des Spui kann nimmer fortgsetzt wern.",
+      "unknown": "De Spuisitzung gibt's ned.",
+      "unreachable": "Da KI-Anbieter antwortet grad ned, drum geht's ned weida. Probier's in a paar Minuten no amoi."
+    },
+    "status": {
+      "choose": "Wähl aus, wia'd spuiln mechtst, damit's losgehn kann.",
+      "connecting": "Verbinden …",
+      "ended": "Des Spui is aus.",
+      "reconnecting": "No amoi verbinden …",
+      "settingScene": "De Szene wird hergricht …",
+      "wakingCharacter": "De Figur wacht auf …"
+    }
   }
 }
