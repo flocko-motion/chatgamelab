@@ -140,10 +140,18 @@ const options = new OptionsDialog({
   onToggle: (toggle, on) => void playback.setToggle(session, toggle, on),
 });
 
+// A dropped turn's line goes back into the box once, unless the player has
+// started typing something else, so sending it again is one press.
+let givenBack: string | null = null;
+
 playback.subscribe((state) => {
   view.render(state);
   options.render(state);
   details.refresh(state);
+  if (state.redo !== givenBack) {
+    givenBack = state.redo;
+    if (givenBack !== null && !typed.value) typed.value = givenBack;
+  }
 });
 
 // A dropped socket misses whatever was said while it was away, so coming back

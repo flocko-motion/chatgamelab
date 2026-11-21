@@ -43,6 +43,8 @@ export interface PlaybackEngineState {
   refusal: Refusal | null;
   /** A fault during play that leaves the controls working, such as a rejected key. */
   fault: Notice | null;
+  /** A line the player sent whose turn the engine dropped, given back to send again. */
+  redo: string | null;
   /** The wiring, fetched once. Null until it arrives. */
   topology: Topology | null;
   /** What each block is doing right now, keyed by node name. */
@@ -80,6 +82,7 @@ export function emptyState(): PlaybackEngineState {
     problem: null,
     refusal: null,
     fault: null,
+    redo: null,
     topology: null,
     phases: {},
     usage: null,

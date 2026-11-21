@@ -78,16 +78,37 @@ func (t *Thread) pass(seat int) {
 	t.seats[(seat+1)%len(t.seats)] <- struct{}{}
 }
 
+// drop hands the turn back to the seat, skipping the seats after it this
+// round: a block that drops its turn gives them no input, so they make no
+// call. Only the seat that opens the round may drop it.
+func (t *Thread) drop(seat int) {
+	t.seats[seat] <- struct{}{}
+}
+
+// threadCall is one block's call on the thread.
+type threadCall struct {
+	instructions, input string
+	// schema makes the call structured; nil is plain.
+	schema *adapters.Schema
+	// piece hears each piece of the reply as it arrives; nil hears nothing.
+	piece func(string)
+	// accept checks a finished reply before it is kept; an error makes it a
+	// bad reply. Nil accepts any.
+	accept func(text string) error
+}
+
 // call continues the thread from its state and keeps a finished call: the new
-// continuation and the exchange. A failure leaves the state as it was.
-func (t *Thread) call(ctx context.Context, instructions, input string, piece func(string)) (adapters.ThreadReply, error) {
+// continuation and the exchange. A failure, or a reply the call does not
+// accept, leaves the state as it was; the reply's usage comes back either way.
+func (t *Thread) call(ctx context.Context, c threadCall) (adapters.ThreadReply, error) {
 	t.mu.Lock()
 	turn := adapters.ThreadTurn{
-		Instructions: instructions,
-		Input:        input,
+		Instructions: c.instructions,
+		Input:        c.input,
+		Schema:       c.schema,
 		Continuation: t.state.Continuation,
 		Transcript:   slices.Clone(t.state.Transcript),
-		Piece:        piece,
+		Piece:        c.piece,
 	}
 	t.mu.Unlock()
 
@@ -95,10 +116,24 @@ func (t *Thread) call(ctx context.Context, instructions, input string, piece fun
 	if err != nil {
 		return reply, err
 	}
+	if c.accept != nil {
+		if err := c.accept(reply.Text); err != nil {
+			t.mu.Lock()
+			if id := reply.Continuation.ID; id != "" && id == t.state.Continuation.ID {
+				// The provider continued in place, as Mistral appends to its
+				// stored conversation, so it holds the reply the call refuses:
+				// the next call goes to a fresh thread seeded with the
+				// transcript, which holds only kept replies.
+				t.state.Continuation = adapters.Continuation{}
+			}
+			t.mu.Unlock()
+			return reply, adapters.BadReply(t.name, err.Error())
+		}
+	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.state.Continuation = reply.Continuation
-	t.state.Transcript = append(t.state.Transcript, adapters.Exchange{Instructions: instructions, Input: input, Reply: reply.Text})
+	t.state.Transcript = append(t.state.Transcript, adapters.Exchange{Instructions: c.instructions, Input: c.input, Reply: reply.Text})
 	return reply, nil
 }
 
@@ -223,10 +258,10 @@ func (b *Threaded) Start(ctx context.Context) {
 func (b *Threaded) call(ctx context.Context, input string) (string, error) {
 	for attempt := 0; ; attempt++ {
 		streamed := false
-		reply, err := b.thread.call(ctx, b.instructions, input, func(piece string) {
+		reply, err := b.thread.call(ctx, threadCall{instructions: b.instructions, input: input, piece: func(piece string) {
 			streamed = true
 			b.stream.Send(ports.Piece(piece))
-		})
+		}})
 		if err == nil {
 			b.meter.bill(reply.Usage)
 			return reply.Text, nil

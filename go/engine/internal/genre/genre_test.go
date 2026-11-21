@@ -65,14 +65,15 @@ func TestAdventureFlow(t *testing.T) {
 	a.Graph.Start(ctx)
 	a.Say("I try to cross the bridge")
 
-	const prose = "[story turn 1] [outline] world reacts to: [mock-tool] I try to cross the bridge"
+	// Outline takes the thread's first turn, Expand its second.
+	const prose = "[story turn 2] [outline 1] [mock-tool] I try to cross the bridge"
 	// The prose streams; whole, it is what the narration reads.
 	expect(t, utterances(a.Sinks()["text"]), prose)
-	expect(t, a.Sinks()["image"], "<png of dim stone bridge, torchlight>")
+	expect(t, a.Sinks()["image"], "<png of [image_prompt 1] [mock-tool] I try to cross the bridge>")
 	// Seeded values reach the player before the first turn, then the turn's
 	// update follows. Order matters: a status bar should not start empty.
-	expect(t, a.Sinks()["props"], "map[Health:Good]")
-	expect(t, a.Sinks()["props"], "map[Health:Good Turn:1]")
+	expect(t, a.Sinks()["props"], `{"Health":"Good"}`)
+	expect(t, a.Sinks()["props"], `{"Health":"Good [turn 1]"}`)
 	expect(t, a.Sinks()["audio"], "<narration of "+prose+">")
 }
 
@@ -238,10 +239,10 @@ func expect(t *testing.T, ch chan string, want string) {
 
 // A genre that forgets to wire the current values must fail validation, rather
 // than quietly leaving a block to rely on the model remembering them.
-func TestExtractionRequiresPropsEdge(t *testing.T) {
+func TestStructuredRequiresPropsEdge(t *testing.T) {
 	g := ports.NewGraph("no-props")
 	player := blocks.NewPlayerInputText("player")
-	outline := blocks.NewDummyExtraction("outline")
+	outline := blocks.NewStructured("outline", blocks.NewThread("story-thread", mock.Thread{}), "", OutlineSchema(nil), outlineResult)
 	outText := blocks.NewPlayerOutputText("out-text", "text")
 
 	g.ConnectTextOut(player, outline)
@@ -270,11 +271,11 @@ func TestSeededStatusSurvivesTheFirstTurn(t *testing.T) {
 		for !sawTurn {
 			select {
 			case v := <-a.Sinks()["props"]:
-				if !strings.Contains(v, "Turn:1") {
+				if !strings.Contains(v, "[turn 1]") {
 					continue
 				}
 				sawTurn = true
-				if !strings.Contains(v, "Health:Wounded") {
+				if !strings.Contains(v, `"Health":"Wounded [turn 1]"`) {
 					cancel()
 					t.Fatalf("run %d: seeded value lost on the first turn: %s", i, v)
 				}

@@ -41,8 +41,9 @@ func TestResumeContinuesTheThread(t *testing.T) {
 		t.Fatal(err)
 	}
 	// The reply streams; the history keeps it whole once it has closed.
-	waitFor(t, first, "audio", "<narration of [story turn 1]")
-	for deadline := time.Now().Add(3 * time.Second); !hasText(first.History(), "[story turn 1]"); {
+	// Outline takes the thread's first turn, Expand its second.
+	waitFor(t, first, "audio", "<narration of [story turn 2]")
+	for deadline := time.Now().Add(3 * time.Second); !hasText(first.History(), "[story turn 2]"); {
 		if time.Now().After(deadline) {
 			t.Fatalf("the history never kept the first turn whole: %q", first.History())
 		}
@@ -51,14 +52,14 @@ func TestResumeContinuesTheThread(t *testing.T) {
 	first.Close()
 
 	resumed := resume(t, store, "s1")
-	if !hasText(resumed.History(), "[story turn 1]") {
+	if !hasText(resumed.History(), "[story turn 2]") {
 		t.Errorf("the restored history lacks the first turn as one utterance: %q", resumed.History())
 	}
 	if err := resumed.Say("I keep going"); err != nil {
 		t.Fatal(err)
 	}
-	// Turn 2, not turn 1: the thread continued.
-	waitFor(t, resumed, "audio", "<narration of [story turn 2]")
+	// Turn 4, not turn 2: the thread continued.
+	waitFor(t, resumed, "audio", "<narration of [story turn 4]")
 }
 
 // hasText reports whether the history holds a text event starting with prefix.
@@ -145,7 +146,7 @@ func TestFreshLaunchDoesNotContinue(t *testing.T) {
 	defer s.Close()
 
 	s.Say("I try to cross the bridge")
-	waitFor(t, s, "audio", "<narration of [story turn 1]")
+	waitFor(t, s, "audio", "<narration of [story turn 2]")
 }
 
 // Status values are not a handle to something a provider remembers: if the
@@ -159,14 +160,16 @@ func TestResumeRestoresStatusValues(t *testing.T) {
 		Status: map[string]string{"Health": "Wounded", "Gold": "12"},
 	})
 	first.Say("I press on")
-	waitFor(t, first, "props", "map[Gold:12 Health:Wounded")
+	// JSON, so values with spaces arrive whole.
+	const afterTurn = `{"Gold":"12 [turn 1]","Health":"Wounded [turn 1]"}`
+	waitFor(t, first, "props", afterTurn)
 	first.Close()
 
 	resumed := resume(t, store, "s4")
-	if got := resumed.Snapshot().Props["Gold"]; got != "12" {
+	if got := resumed.Snapshot().Props["Gold"]; got != "12 [turn 1]" {
 		t.Errorf("restored props = %v, want the stored values", resumed.Snapshot().Props)
 	}
-	waitFor(t, resumed, "props", "map[Gold:12 Health:Wounded")
+	waitFor(t, resumed, "props", afterTurn)
 }
 
 // A live conversation open before a restart is not re-attached: it comes back

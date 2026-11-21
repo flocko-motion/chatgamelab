@@ -36,6 +36,17 @@ func Problems() []Problem {
 	}
 }
 
+// ErrorCode names an error the game goes on after, the value of an `error`
+// event, so the playback-engine can tell the player in its own words.
+type ErrorCode string
+
+// ErrorTurnFailed: the player's turn was dropped, as the model gave no usable
+// answer; the player may send it again.
+const ErrorTurnFailed ErrorCode = "turn_failed"
+
+// ErrorCodes is every error code, the source of the generated TypeScript union.
+func ErrorCodes() []ErrorCode { return []ErrorCode{ErrorTurnFailed} }
+
 // Refusal is an error that names its problem. It travels as JSON in a
 // transport's error body and on the `problem` stream.
 type Refusal struct {

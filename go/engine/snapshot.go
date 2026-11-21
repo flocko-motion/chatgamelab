@@ -117,8 +117,11 @@ func (r *recorder) restore(history []SessionEvent) {
 			continue
 		}
 		r.history = append(r.history, e)
-		if e.Stream == "props" {
-			r.props = parseProps(e.Value)
+		if e.Stream != "props" {
+			continue
+		}
+		if props := readProps(e.Value); props != nil {
+			r.props = props
 		}
 	}
 	r.trim()

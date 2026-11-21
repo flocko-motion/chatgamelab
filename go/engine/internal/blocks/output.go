@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"fmt"
+	"encoding/json"
 
 	"engine/internal/ports"
 )
@@ -135,7 +135,12 @@ func (b *PlayerOutputProps) RequiredInputs() []ports.Kind      { return []ports.
 func (b *PlayerOutputProps) Start(ctx context.Context) {
 	go func() {
 		for v := range b.in {
-			if !b.record(ctx, fmt.Sprint(map[string]string(v))) {
+			// JSON, so a value with spaces or colons arrives whole.
+			blob, err := json.Marshal(map[string]string(v))
+			if err != nil {
+				continue
+			}
+			if !b.record(ctx, string(blob)) {
 				return
 			}
 		}

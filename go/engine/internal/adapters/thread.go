@@ -33,6 +33,9 @@ type ThreadTurn struct {
 	// Instructions are sent with every call, as a thread carries none over.
 	Instructions string
 	Input        string
+	// Schema makes the turn structured: the reply is JSON of this shape. Nil
+	// is a plain turn, its reply free text.
+	Schema       *Schema
 	Continuation Continuation
 	// Transcript seeds a fresh provider thread when the continuation cannot be
 	// used, so a session never ends because a provider forgot its thread.

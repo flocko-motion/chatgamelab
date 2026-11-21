@@ -440,7 +440,7 @@ func TestValidateErrors(t *testing.T) {
 		"unknown prompt":     {game{spec: SessionSpec{Genre: GenreNPCLive, PromptOverride: map[string]string{"portrait-x": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.portrait-x"},
 		"invalid voice":      {game{spec: SessionSpec{Genre: GenreNPCLive, Voice: "nobody"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, live)}}, "voice"},
 		"adventure override": {game{spec: SessionSpec{Genre: GenreAdventure, PromptOverride: map[string]string{"observer": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.observer"},
-		"no offer runs it":   {game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{Images: true})}}, "offers"},
+		"no offer runs it":   {game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{})}}, "offers"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if issues := check(tc.spec); !hasErrorAt(issues, tc.field) {

@@ -32,13 +32,14 @@ func TestPipelines(t *testing.T) {
 			build: func() *Wiring { return mustAdventure(t, map[string]string{"Health": "Good"}) },
 			say:   []string{"I try to cross the bridge"},
 			want: map[string][]string{
-				// The rephrase, extraction and expand stages each leave their
+				// The rephrase, outline and expand stages each leave their
 				// mark, in order, which is what makes this a pipeline test
-				// rather than an output test.
-				"text":  {"[story turn 1] [outline] world reacts to: [mock-tool] I try to cross the bridge"},
-				"image": {"<png of dim stone bridge, torchlight>"},
-				"audio": {"<narration of [story turn 1]"},
-				"props": {"map[Health:Good]", "map[Health:Good Turn:1]"},
+				// rather than an output test. Outline takes the thread's first
+				// turn, Expand its second.
+				"text":  {"[story turn 2] [outline 1] [mock-tool] I try to cross the bridge"},
+				"image": {"<png of [image_prompt 1] [mock-tool] I try to cross the bridge>"},
+				"audio": {"<narration of [story turn 2]"},
+				"props": {`{"Health":"Good"}`, `{"Health":"Good [turn 1]"}`},
 			},
 		},
 		{
@@ -46,9 +47,9 @@ func TestPipelines(t *testing.T) {
 			build: func() *Wiring { return mustAdventure(t, nil) },
 			say:   []string{"I look around", "I keep walking"},
 			want: map[string][]string{
-				// Turn 2, not turn 1 again: the threaded block is continuing a
+				// Turn 4, not turn 2 again: Outline and Expand continue one
 				// conversation rather than starting one per action.
-				"text": {"[story turn 1]", "[story turn 2]"},
+				"text": {"[story turn 2]", "[story turn 4]"},
 			},
 		},
 		{
@@ -348,9 +349,9 @@ func TestAdventureResumesItsThread(t *testing.T) {
 	}
 
 	first := mustAdventure(t, nil)
-	play(first, "I look around", "[story turn 1]")
+	play(first, "I look around", "[story turn 2]")
 	stored := first.Graph.ExportState()
-	if !strings.Contains(stored["story-thread"], `"id":"mock-thread-1"`) {
+	if !strings.Contains(stored["story-thread"], `"id":"mock-thread-2"`) {
 		t.Fatalf("stored state = %v, want the story thread's continuation", stored)
 	}
 
@@ -358,5 +359,5 @@ func TestAdventureResumesItsThread(t *testing.T) {
 	if err := resumed.Graph.RestoreState(stored); err != nil {
 		t.Fatal(err)
 	}
-	play(resumed, "I keep walking", "[story turn 2]")
+	play(resumed, "I keep walking", "[story turn 4]")
 }

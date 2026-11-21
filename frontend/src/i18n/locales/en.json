@@ -1362,7 +1362,8 @@
       "switchFailed": "Could not switch this feature.",
       "voiceFailed": "Could not connect your voice.",
       "noMicrophone": "No microphone. Check the browser's permission for this page.",
-      "connectionLost": "Lost the connection to the game. Reload to try again."
+      "connectionLost": "Lost the connection to the game. Reload to try again.",
+      "turnFailed": "The story could not go on from that. Send it again, or try something else."
     },
     "launch": {
       "noGame": "This page needs a game to play: open it from a game's page.",
