@@ -46,7 +46,7 @@ func (SetGameSponsorEndpoint) Handle(ctx context.Context, req GameSponsorReq) (G
 
 // GameSponsorReq is the game from the path and the API key share that sponsors it.
 type GameSponsorReq struct {
-	ID      string    `path:"id" json:"-"`
+	ID      string    `path:"id"`
 	ShareID uuid.UUID `json:"shareId"`
 }
 

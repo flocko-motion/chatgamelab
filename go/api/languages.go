@@ -41,7 +41,7 @@ type Language struct {
 
 // LocaleReq names a language by its code.
 type LocaleReq struct {
-	Code string `path:"code" json:"-"`
+	Code string `path:"code"`
 }
 
 // LocaleResp is a language's translations by their keys.

@@ -27,7 +27,7 @@ trap 'rc=$?; echo "ERROR: schemaf.sh failed at line ${LINENO}: \"${BASH_COMMAND}
 PROJECT_NAME="chatgamelab"
 # load reads the installed run-side script's version from this exact line
 # (_schemaf_script_version), so it never replaces a newer script with an older one.
-SCHEMAF_VER="v1.19.0"
+SCHEMAF_VER="v1.20.0"
 ORIG_PWD="$PWD"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 USER_DIR="$HOME/.${PROJECT_NAME}"
@@ -177,6 +177,48 @@ _schemaf_check_runtime() {
       exit 1
       ;;
   esac
+  _schemaf_check_podman_socket
+}
+
+# _schemaf_check_podman_socket — podman compose hands off to docker-compose,
+# which talks to podman through its API socket: DOCKER_HOST if set, else
+# podman's own (on Linux the user's podman.socket). Fails when it doesn't
+# answer, pinged with podman's remote client. On macOS the podman machine
+# provides it. Never starts anything. Mirrors Go's checkPodmanSocket; the
+# message is rendered from Go's (cli.PodmanSocketText).
+_schemaf_check_podman_socket() {
+  local sock fix out said
+  [ "${SCHEMAF_RUNTIME:-podman}" = podman ] || return 0
+  [ "$(uname)" != Darwin ] || return 0
+  # podman compose passes an existing DOCKER_HOST on as is, even an empty one.
+  if [ -n "${DOCKER_HOST+set}" ] && [ -z "$DOCKER_HOST" ]; then
+    echo "ERROR: DOCKER_HOST is set but empty: podman compose passes it on as is, so docker-compose would not reach podman. Unset it, or point it at podman's socket." >&2
+    exit 1
+  fi
+  if [ -n "${DOCKER_HOST:-}" ]; then
+    sock="$DOCKER_HOST" fix="The address comes from DOCKER_HOST: point DOCKER_HOST at podman's socket, or unset it to use podman's own (start that once: systemctl --user enable --now podman.socket)."
+  else
+    fix="Start it once (it stays enabled):
+  systemctl --user enable --now podman.socket"
+    sock=$(_schemaf_container info --format '{{.Host.RemoteSocket.Path}}' 2>/dev/null) || sock=""
+    if [ -z "$sock" ]; then
+      echo "ERROR: podman compose hands off to docker-compose, which needs podman's API socket, but podman info doesn't report its path (podman info --format '{{.Host.RemoteSocket.Path}}')" >&2
+      exit 1
+    fi
+    case "$sock" in *://*) ;; *) sock="unix://$sock" ;; esac
+  fi
+  # stderr only: on failure, version still prints the client part to stdout.
+  out=$(_schemaf_container --remote --url "$sock" version 2>&1 >/dev/null) && return 0
+  said=$(printf '%s\n' "$out" | sed 's/^/  /')
+  [ -n "$out" ] || said="  (no output)"
+  cat >&2 <<EOF
+ERROR: podman's API socket isn't running: nothing answers at ${sock}.
+podman compose hands off to docker-compose, which talks to podman through that socket.
+${fix}
+podman said:
+${said}
+EOF
+  exit 1
 }
 
 # Refuse to start when the other runtime holds the project's Postgres volume

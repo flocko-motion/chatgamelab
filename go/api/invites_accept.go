@@ -61,7 +61,7 @@ func (AcceptInviteEndpoint) Handle(ctx context.Context, req AcceptInviteReq) (Ac
 
 // AcceptInviteReq names an invite by its id or its token.
 type AcceptInviteReq struct {
-	IDOrToken string `path:"idOrToken" json:"-"`
+	IDOrToken string `path:"idOrToken"`
 }
 
 // acceptInviteAnonymously creates a participant for a workshop invite token
@@ -185,7 +185,7 @@ func enterInviteWorkshop(ctx context.Context, user *obj.User, invite obj.UserRol
 
 // InviteIDReq names an invite by its id.
 type InviteIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // DeclineInviteEndpoint declines an invite and answers with its id and its

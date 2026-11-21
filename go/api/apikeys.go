@@ -24,7 +24,7 @@ type ApiKeyShareResp = obj.ApiKeyShare
 
 // ApiKeyIDReq names an API key share by its id.
 type ApiKeyIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // ListApiKeysEndpoint lists the caller's API keys and all their linked shares
@@ -159,7 +159,7 @@ func (ListApiKeyGameSharesEndpoint) Handle(ctx context.Context, req ApiKeyGameSh
 	if err != nil {
 		return nil, errForbidden("Not authorized to view this share")
 	}
-	if req.Context == "personal" && share.ApiKey.UserID != user.ID {
+	if opt(req.Context) == "personal" && share.ApiKey.UserID != user.ID {
 		return nil, errForbidden("Only the key owner can view personal shares")
 	}
 
@@ -181,7 +181,7 @@ func (ListApiKeyGameSharesEndpoint) Handle(ctx context.Context, req ApiKeyGameSh
 		} else if gs.InstitutionID != nil {
 			source = "organization"
 		}
-		if req.Context == "organization" && source == "personal" {
+		if opt(req.Context) == "organization" && source == "personal" {
 			continue
 		}
 		result = append(result, EnrichedGameShare{
@@ -197,9 +197,9 @@ func (ListApiKeyGameSharesEndpoint) Handle(ctx context.Context, req ApiKeyGameSh
 
 // ApiKeyGameSharesReq names an API key share and filters its game shares.
 type ApiKeyGameSharesReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 	// Context is "personal" or "organization".
-	Context string `query:"context" json:"-"`
+	Context *string `query:"context"`
 }
 
 // ApiKeyGameSharesResp is a list of game shares that use an API key.
@@ -253,7 +253,7 @@ func shareApiKey(ctx context.Context, req ShareApiKeyReq) (obj.ApiKeyShare, erro
 // ShareApiKeyReq is the share from the path and the target from the body: a
 // user, a workshop or an institution.
 type ShareApiKeyReq struct {
-	ID            string     `path:"id" json:"-"`
+	ID            string     `path:"id"`
 	UserID        *uuid.UUID `json:"userId,omitempty"`
 	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`
 	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
@@ -288,7 +288,7 @@ func (UpdateApiKeyEndpoint) Handle(ctx context.Context, req UpdateApiKeyReq) (Ap
 
 // UpdateApiKeyReq is the share from the path and the key's new name.
 type UpdateApiKeyReq struct {
-	ID   string  `path:"id" json:"-"`
+	ID   string  `path:"id"`
 	Name *string `json:"name,omitempty"`
 }
 
@@ -343,7 +343,7 @@ func (DeleteApiKeyEndpoint) Handle(ctx context.Context, req DeleteApiKeyReq) (Ap
 	if err != nil {
 		return obj.ApiKeyShare{}, errNotFound("Share not found")
 	}
-	if req.Cascade == "true" {
+	if opt(req.Cascade) == "true" {
 		if err := db.DeleteApiKey(ctx, user.ID, shareID); err != nil {
 			return obj.ApiKeyShare{}, fmt.Errorf("failed to delete key: %w", err)
 		}
@@ -357,7 +357,7 @@ func (DeleteApiKeyEndpoint) Handle(ctx context.Context, req DeleteApiKeyReq) (Ap
 
 // DeleteApiKeyReq is the share from the path and whether to delete the whole key.
 type DeleteApiKeyReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 	// Cascade "true" deletes the key and all its shares.
-	Cascade string `query:"cascade" json:"-"`
+	Cascade *string `query:"cascade"`
 }

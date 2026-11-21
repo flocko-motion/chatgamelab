@@ -45,7 +45,7 @@ func (SetUserRoleEndpoint) Handle(ctx context.Context, req SetUserRoleReq) (User
 
 // SetUserRoleReq is the user from the path and their new role and its scope.
 type SetUserRoleReq struct {
-	UserID        string     `path:"id" json:"-"`
+	UserID        string     `path:"id"`
 	Role          string     `json:"role"`
 	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
 	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`

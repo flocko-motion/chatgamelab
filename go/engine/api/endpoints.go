@@ -28,7 +28,7 @@ type CreateResponse struct {
 
 // SessionRequest names a session.
 type SessionRequest struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // Accepted says the session took the request; what follows comes on its stream.
@@ -49,7 +49,7 @@ func (e CreateEndpoint) Handle(ctx context.Context, req CreateRequest) (CreateRe
 
 // InputRequest is one player action, typed or spoken.
 type InputRequest struct {
-	ID    string `path:"id" json:"-"`
+	ID    string `path:"id"`
 	Text  string `json:"text,omitempty"`
 	Audio []byte `json:"audio,omitempty"`
 }
@@ -81,7 +81,7 @@ func (e InputEndpoint) Handle(ctx context.Context, req InputRequest) (Accepted, 
 
 // ChooseRequest is the player's choice among the session's offers.
 type ChooseRequest struct {
-	ID     string         `path:"id" json:"-"`
+	ID     string         `path:"id"`
 	Offer  string         `json:"offer"`
 	Choice *engine.Choice `json:"choice,omitempty"`
 }
@@ -105,7 +105,7 @@ func (e ChooseEndpoint) Handle(ctx context.Context, req ChooseRequest) (Accepted
 
 // ToggleRequest switches one feature on or off.
 type ToggleRequest struct {
-	ID     string        `path:"id" json:"-"`
+	ID     string        `path:"id"`
 	Toggle engine.Toggle `json:"toggle"`
 	On     bool          `json:"on"`
 }
@@ -129,7 +129,7 @@ func (e TogglesEndpoint) Handle(ctx context.Context, req ToggleRequest) (Accepte
 
 // ConnectRequest carries the browser's offer to talk to the character.
 type ConnectRequest struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 	// SDP is the browser's offer; answering it creates the billed conversation.
 	SDP string `json:"sdp"`
 }
@@ -243,8 +243,8 @@ func (e OptionsEndpoint) Handle(ctx context.Context, req SessionRequest) (engine
 
 // NodeRequest names one block of a session.
 type NodeRequest struct {
-	ID   string `path:"id" json:"-"`
-	Node string `path:"node" json:"-"`
+	ID   string `path:"id"`
+	Node string `path:"node"`
 }
 
 // NodeEndpoint is what one block is and has been doing.
@@ -268,10 +268,10 @@ func (e NodeEndpoint) Handle(ctx context.Context, req NodeRequest) (engine.NodeD
 
 // EdgeRequest names one wire of a session by its ends and kind.
 type EdgeRequest struct {
-	ID   string `path:"id" json:"-"`
-	From string `path:"from" json:"-"`
-	To   string `path:"to" json:"-"`
-	Kind string `path:"kind" json:"-"`
+	ID   string `path:"id"`
+	From string `path:"from"`
+	To   string `path:"to"`
+	Kind string `path:"kind"`
 }
 
 // EdgeEndpoint is what one wire has carried.

@@ -5,6 +5,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/flocko-motion/schemaf v1.19.0 h1:iK4ylfXJhyvPRpqOYUGykFKQmJfQqYevSYJ53QeS6nw=
 github.com/flocko-motion/schemaf v1.19.0/go.mod h1:PgnGtB79tgIDxjuDKuVFD150s93WOdSRFYA70WB52pw=
+github.com/flocko-motion/schemaf v1.20.0 h1:bwHqvDFCGf2pAjuLcPKThUvk2orHCv4dwIJPVisKpjg=
+github.com/flocko-motion/schemaf v1.20.0/go.mod h1:PgnGtB79tgIDxjuDKuVFD150s93WOdSRFYA70WB52pw=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/kr/fs v0.1.0 h1:Jskdu9ieNAYnjxsi0LbQp1ulIKZV1LAFgK1tWhpZgl8=

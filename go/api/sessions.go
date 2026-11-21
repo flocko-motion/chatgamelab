@@ -29,8 +29,8 @@ func (ListUserSessionsEndpoint) Handle(ctx context.Context, req ListUserSessions
 		return nil, err
 	}
 	sessions, err := db.GetGameSessionsByUserID(ctx, user.ID, db.GetUserSessionsFilters{
-		Search:    req.Search,
-		SortField: req.SortBy,
+		Search:    opt(req.Search),
+		SortField: opt(req.SortBy),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sessions: %w", err)
@@ -40,8 +40,8 @@ func (ListUserSessionsEndpoint) Handle(ctx context.Context, req ListUserSessions
 
 // ListUserSessionsReq filters and sorts the session list.
 type ListUserSessionsReq struct {
-	Search string `query:"search" json:"-"`
-	SortBy string `query:"sortBy" json:"-"`
+	Search *string `query:"search"`
+	SortBy *string `query:"sortBy"`
 }
 
 // UserSessionsResp is a list of the caller's sessions with their games' names.
@@ -96,7 +96,7 @@ func (DeleteSessionEndpoint) Handle(ctx context.Context, req SessionIDReq) (Sess
 
 // SessionIDReq names a session by its id.
 type SessionIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
 // SessionDeletedResp confirms a session's deletion with status "deleted".

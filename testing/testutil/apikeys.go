@@ -38,9 +38,9 @@ func (c caller) RenameApiKey(shareID, name string) (ApiKeyShare, error) {
 // and every share of it.
 func (c caller) DeleteApiKey(shareID string, cascade bool) error {
 	if cascade {
-		return done(c.api.DeleteApiApikeysIdWithResponse(ctx(), shareID, query("cascade", "true")))
+		return done(c.api.DeleteApiApikeysIdWithResponse(ctx(), shareID, &apiclient.DeleteApiApikeysIdParams{Cascade: some("true")}))
 	}
-	return done(c.api.DeleteApiApikeysIdWithResponse(ctx(), shareID))
+	return done(c.api.DeleteApiApikeysIdWithResponse(ctx(), shareID, &apiclient.DeleteApiApikeysIdParams{}))
 }
 
 // SetDefaultApiKey makes a key share the caller's default.
@@ -79,9 +79,9 @@ func (c caller) ShareApiKeyWithUser(shareID, userID string) (ApiKeyShare, error)
 // ("" for all).
 func (c caller) GetApiKeyGameShares(shareID, context string) ([]ApiKeyGameShare, error) {
 	if context != "" {
-		return decode[[]ApiKeyGameShare](c.api.GetApiApikeysIdGameSharesWithResponse(ctx(), shareID, query("context", context)))
+		return decode[[]ApiKeyGameShare](c.api.GetApiApikeysIdGameSharesWithResponse(ctx(), shareID, &apiclient.GetApiApikeysIdGameSharesParams{Context: some(context)}))
 	}
-	return decode[[]ApiKeyGameShare](c.api.GetApiApikeysIdGameSharesWithResponse(ctx(), shareID))
+	return decode[[]ApiKeyGameShare](c.api.GetApiApikeysIdGameSharesWithResponse(ctx(), shareID, &apiclient.GetApiApikeysIdGameSharesParams{}))
 }
 
 // GetInstitutionApiKeys is the keys shared with an institution.

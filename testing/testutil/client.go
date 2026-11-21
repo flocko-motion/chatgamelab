@@ -146,6 +146,9 @@ func refused(r response) error {
 	return ref
 }
 
+// some is a pointer to v, for the optional parameters of the generated client.
+func some[T any](v T) *T { return &v }
+
 // decode reads a successful answer's body as T, or returns the refusal.
 func decode[T any](r response, err error) (T, error) {
 	var out T

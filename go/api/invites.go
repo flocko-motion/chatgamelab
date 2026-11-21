@@ -131,7 +131,7 @@ func (ListAllInvitesEndpoint) Handle(ctx context.Context, _ ListInvitesReq) (Inv
 
 // InstitutionInvitesReq names an institution by its id.
 type InstitutionInvitesReq struct {
-	InstitutionID string `path:"institutionId" json:"-"`
+	InstitutionID string `path:"institutionId"`
 }
 
 // ListInvitesByInstitutionEndpoint lists the invites to join an institution.
@@ -162,7 +162,7 @@ func (ListInvitesByInstitutionEndpoint) Handle(ctx context.Context, req Institut
 
 // InviteIDOrTokenReq names an invite by its id or its token.
 type InviteIDOrTokenReq struct {
-	IDOrToken string `path:"idOrToken" json:"-"`
+	IDOrToken string `path:"idOrToken"`
 }
 
 // GetInviteEndpoint returns an invite by its id or its token.
