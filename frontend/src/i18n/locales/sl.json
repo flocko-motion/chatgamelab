@@ -1378,6 +1378,7 @@
       "connectionLost": "Povezava z igro je bila prekinjena. Znova naloži stran in poskusi še enkrat.",
       "imageFailed": "Slike za ta prizor ni bilo mogoče ustvariti. Zgodba se nadaljuje.",
       "noMicrophone": "Ni mikrofona. Preveri dovoljenje brskalnika za to stran.",
+      "notHeard": "Tvojih besed nisem zaznal. Spregovori znova ali jih vnesi.",
       "openingFailed": "Zgodba se ni mogla začeti. Napiši, kaj želiš storiti, in začela se bo od tam.",
       "pauseFailed": "Pogovora ni bilo mogoče zaustaviti.",
       "serverUnreachable": "Igralni strežnik ni dosegljiv.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Ponovno povezovanje…",
       "settingScene": "Pripravljanje prizora…",
       "wakingCharacter": "Prebujanje lika…"
+    },
+    "talk": {
+      "hearing": "Poslušam, kaj govoriš …",
+      "hold": "Pridrži za govorjenje",
+      "recording": "Poslušam … spusti za pošiljanje"
     }
   }
 }

@@ -3,12 +3,14 @@ package genre
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"engine/internal/adapters"
 	"engine/internal/blocks"
@@ -18,6 +20,8 @@ import (
 // AdventureConfig is what the wiring needs from a session spec, already resolved.
 type AdventureConfig struct {
 	Tool adapters.Tool
+	// Hearing takes the player's speech.
+	Hearing adapters.Hearing
 	// Thread runs the story model's conversation.
 	Thread adapters.Thread
 	Image  adapters.Image
@@ -60,6 +64,7 @@ type AdventureConfig struct {
 const (
 	PromptGameMaster       = "game-master"
 	PromptRephrase         = "rephrase"
+	PromptRephraseAudio    = "rephrase-audio"
 	PromptOpening          = "opening"
 	PromptExpand           = "expand"
 	PromptOpeningExpand    = "opening-expand"
@@ -117,6 +122,19 @@ NARRATIVE STYLE:
 		"Example: 'I attack the wolf and wrestle him to the ground' → " +
 		"'The player attacks the wolf, hoping to wrestle him to the ground.'" +
 		"{{with .Language}}\nKeep the response in {{.}}.{{end}}",
+
+	// Rephrase for spoken input: the model hears the player and answers in
+	// SpokenSchema, their words as they said them and the action rephrased.
+	PromptRephraseAudio: "You hear the player of a text adventure say what they do next. Reply with two fields.\n" +
+		`"heard": a transcript of the player's words, word for word, in the language they spoke. ` +
+		`Do not translate it, rephrase it or change its person: if the player says "I", write "I".` +
+		`{{with .Language}} The player most likely speaks {{.}}; write down whatever language they speak.{{end}}` + "\n" +
+		`"action": what the player said, rephrased in third person, making the outcome uncertain.` + "\n" +
+		"If you hear no words, leave both fields empty.\n" +
+		"Example: the player says 'I climb the old tower and jump onto the roof' → " +
+		`{"heard": "I climb the old tower and jump onto the roof", ` +
+		`"action": "The player climbs the old tower, hoping to jump onto the roof."}` +
+		`{{with .Language}}` + "\n" + `Write "action" in {{.}}.{{end}}`,
 
 	// The Initialization Prompt: Outline's message on the first turn, sent by
 	// the gate as the game's own message. The status sentence only when the
@@ -332,6 +350,40 @@ func OutlineSchema(status map[string]string) adapters.Schema {
 	}}
 }
 
+// The fields of Rephrase's reply to speech.
+const (
+	spokenHeard  = "heard"
+	spokenAction = "action"
+)
+
+// spokenResult feeds the action to Outline and what was heard to the player's line.
+var spokenResult = blocks.Result{Text: spokenAction, SecondaryText: spokenHeard}
+
+// SpokenSchema is the shape of Rephrase's reply to speech, a call parameter of
+// the genre's: the player's words verbatim, in their language, and the action,
+// in third person with the outcome uncertain.
+func SpokenSchema() adapters.Schema {
+	return adapters.Schema{Name: "spoken", Body: map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			spokenHeard:  map[string]any{"type": "string", "description": "The player's words verbatim, in the language they spoke"},
+			spokenAction: map[string]any{"type": "string", "description": "The action in third person, its outcome uncertain"},
+		},
+		"required":             []string{spokenHeard, spokenAction},
+		"additionalProperties": false,
+	}}
+}
+
+// The length a clip of speech may have: a press shorter than the shortest
+// sends nothing, and a recording stops at the longest. The engine takes a
+// clip up to clipSlack past the longest, the frames a page records while it
+// stops.
+const (
+	ShortestClip = 300 * time.Millisecond
+	LongestClip  = 30 * time.Second
+	clipSlack    = time.Second
+)
+
 // The threaded blocks, whose constraint frequency a spec may set by name.
 const (
 	BlockOutline = "outline"
@@ -432,7 +484,12 @@ func styleMessage(style, guardrail string) string {
 const (
 	CodeTurnFailed  = "turn_failed"
 	CodeImageFailed = "image_failed"
+	// CodeVoiceFailed: nothing came through of what the player said.
+	CodeVoiceFailed = "voice_failed"
 )
+
+// ErrVoiceOff refuses speech while voice input is off.
+var ErrVoiceOff = errors.New("voice input is off")
 
 // NewAdventure is the turn-based genre. Preparation condenses a long scenario
 // and adapts the image style; then the world opens the game: the gate sends
@@ -442,6 +499,12 @@ const (
 // thread, and the turn fans out to media. While narration is on, Expand's
 // turns are spoken: the prose's transcript and its audio reach the player as
 // they come. The player's input is released once the opening's prose is done.
+//
+// The player types or speaks. A typed line goes to Rephrase and, at once, to
+// the player's line on the `said` stream; a spoken clip goes to Rephrase's
+// spoken twin, on the hearing model, which answers what it heard, for the
+// player's line, and the action, for Outline. Voice input switches the spoken
+// twin, and nothing coming through of a clip is the `voice_failed` error.
 func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	prompts, err := Resolve(AdventurePrompts, cfg.PromptOverride)
 	if err != nil {
@@ -460,6 +523,9 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	constraints := worded(cfg.Guardrail)
 	player := blocks.NewPlayerInputText("player-input-text")
 	rephrase := blocks.NewToolCall("rephrase", cfg.Tool, prompts[PromptRephrase])
+	// Like Rephrase, it carries no youth-protection rule: it only restates.
+	speaker := blocks.NewPlayerInputClips("player-input-audio")
+	hearing := blocks.NewHearingCall("rephrase-audio", cfg.Hearing, prompts[PromptRephraseAudio], SpokenSchema(), spokenResult)
 	// Outline takes the thread's first seat, Expand the second.
 	story := blocks.NewThread("story-thread", cfg.Thread,
 		systemMessage(prompts[PromptGameMaster], cfg.Scenario, cfg.StartingMessage, constraints), constraints)
@@ -472,12 +538,14 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	image := blocks.NewImage("image", cfg.Image)
 
 	outText := blocks.NewPlayerOutputStream("out-text", "text")
+	outSaid := blocks.NewPlayerOutputText("out-said", "said")
 	outAudio := blocks.NewPlayerOutputAudio("out-audio", "audio")
 	outImage := blocks.NewPlayerOutputImage("out-image", "image")
 	outProps := blocks.NewPlayerOutputProps("out-props", "props")
 	props := blocks.NewPropsStore("props-store", cfg.Status)
 	turnFailed := blocks.NewErrorSink("turn-failed", CodeTurnFailed)
 	imageFailed := blocks.NewErrorSink("image-failed", CodeImageFailed)
+	voiceFailed := blocks.NewErrorSink("voice-failed", CodeVoiceFailed)
 	problem := blocks.NewProblemSink("problem")
 
 	// Preparation: each keep asks its tool call once. A short scenario needs
@@ -517,6 +585,13 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	g.ConnectTextOut(rephrase, outline)
 	g.ConnectFailure(rephrase, turnFailed)
 
+	// The player's line: typed at once, spoken once heard.
+	g.ConnectTextOut(player, outSaid)
+	g.ConnectAudioOut(speaker, hearing)
+	g.ConnectTextOut(hearing, outline)
+	g.ConnectSecondaryTextOut(hearing, outSaid)
+	g.ConnectFailure(hearing, voiceFailed)
+
 	g.ConnectTextOut(outline, expand)
 	// The picture prompt pairs one reply's image prompt with its outline.
 	g.ConnectSecondaryTextOut(outline, picturePrompt)
@@ -540,6 +615,8 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	// The player acts once the opening's prose is done, or once it failed.
 	g.ConnectState(outline, player)
 	g.ConnectState(expand, player)
+	g.ConnectState(outline, speaker)
+	g.ConnectState(expand, speaker)
 
 	w := &Wiring{
 		Graph:       g,
@@ -552,10 +629,12 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 		Switches: map[adapters.Toggle][]ports.Switchable{
 			adapters.ToggleImages:   {image},
 			adapters.ToggleAudioOut: {expand.Narration()},
+			adapters.ToggleAudioIn:  {hearing},
 		},
-		Say: player.Say,
-		// Typed only until Adventure wires push-to-talk transcription.
-		Inputs: []ports.InputMode{ports.InputText},
+		Say:   player.Say,
+		Speak: speak(hearing, speaker),
+		// The player holds a button to talk, or types.
+		Inputs: []ports.InputMode{ports.InputText, ports.InputAudioPushToTalk},
 		// A picture per turn, each belonging to the scene it illustrates.
 		Imagery: ports.ImageryPerTurn,
 	}
@@ -565,4 +644,21 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 		}
 	}
 	return w, nil
+}
+
+// speak takes one clip of the player's speech, as one utterance, while voice
+// input is on; a clip too short to hold words, or longer than a recording
+// runs, is refused.
+func speak(hearing *blocks.HearingCall, speaker *blocks.PlayerInputAudio) func([]byte) error {
+	return func(clip []byte) error {
+		if !hearing.Active() {
+			return ErrVoiceOff
+		}
+		length := time.Duration(adapters.Clip(clip).Seconds() * float64(time.Second))
+		if length < ShortestClip || length > LongestClip+clipSlack {
+			return fmt.Errorf("a clip of %s: want %s to %s", length.Round(time.Millisecond), ShortestClip, LongestClip)
+		}
+		speaker.Speak(clip)
+		return nil
+	}
 }

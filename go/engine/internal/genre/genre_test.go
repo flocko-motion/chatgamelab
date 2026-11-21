@@ -480,7 +480,7 @@ func TestEventSchemaComesFromTheGraph(t *testing.T) {
 				t.Fatal("a genre with no streams cannot show anybody anything")
 			}
 			known := map[string]bool{}
-			for _, name := range []string{"text", "audio", "image", "props", "error", "problem"} {
+			for _, name := range []string{"text", "said", "audio", "image", "props", "error", "problem"} {
 				known[name] = true
 			}
 			for _, sink := range w.Sinks() {
@@ -866,7 +866,7 @@ func TestDeclaredInputsMatchTheWiring(t *testing.T) {
 		build func() *Wiring
 		want  []ports.InputMode
 	}{
-		{"adventure", func() *Wiring { return mustAdventure(t, nil) }, []ports.InputMode{ports.InputText}},
+		{"adventure", func() *Wiring { return mustAdventure(t, nil) }, []ports.InputMode{ports.InputText, ports.InputAudioPushToTalk}},
 		{"npc-live", func() *Wiring { return mustNPCLive(t, mockNPCConfig("refuse passage")) }, []ports.InputMode{ports.InputAudioFullDuplex}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

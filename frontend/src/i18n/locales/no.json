@@ -1378,6 +1378,7 @@
       "connectionLost": "Forbindelsen til spillet gikk tapt. Last inn siden på nytt for å prøve igjen.",
       "imageFailed": "Bildet til denne scenen kunne ikke opprettes. Historien fortsetter.",
       "noMicrophone": "Ingen mikrofon. Sjekk nettleserens tillatelse for denne siden.",
+      "notHeard": "Jeg hørte ikke ordene dine. Snakk igjen, eller skriv.",
       "openingFailed": "Historien kunne ikke begynne. Skriv hva du vil gjøre, så starter den derfra.",
       "pauseFailed": "Kunne ikke sette samtalen på pause.",
       "serverUnreachable": "Kan ikke nå spillserveren.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Kobler til på nytt…",
       "settingScene": "Setter scenen…",
       "wakingCharacter": "Vekker figuren…"
+    },
+    "talk": {
+      "hearing": "Hører hva du sa…",
+      "hold": "Hold inne for å snakke",
+      "recording": "Lytter… slipp for å sende"
     }
   }
 }

@@ -1223,6 +1223,39 @@
         ],
         "type": "object"
       },
+      "ModelFacts": {
+        "properties": {
+          "in": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "out": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "price": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "read": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "in",
+          "out",
+          "price",
+          "read",
+          "source"
+        ],
+        "type": "object"
+      },
       "NodeDetail": {
         "properties": {
           "inputs": {
@@ -1356,6 +1389,12 @@
           "id": {
             "type": "string"
           },
+          "models": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ModelFacts"
+            },
+            "type": "object"
+          },
           "name": {
             "type": "string"
           },
@@ -1378,7 +1417,8 @@
           "userKeys",
           "toggles",
           "genres",
-          "tiers"
+          "tiers",
+          "models"
         ],
         "type": "object"
       },
@@ -1402,6 +1442,35 @@
           "tier",
           "toggles"
         ],
+        "type": "object"
+      },
+      "Price": {
+        "properties": {
+          "audioInputPerMTok": {
+            "type": "number"
+          },
+          "audioOutputPerMTok": {
+            "type": "number"
+          },
+          "audioPerMinute": {
+            "type": "number"
+          },
+          "cachedAudioInputPerMTok": {
+            "type": "number"
+          },
+          "cachedInputPerMTok": {
+            "type": "number"
+          },
+          "inputPerMTok": {
+            "type": "number"
+          },
+          "outputPerMTok": {
+            "type": "number"
+          },
+          "perImage": {
+            "type": "number"
+          }
+        },
         "type": "object"
       },
       "PrivateShareStatusResp": {

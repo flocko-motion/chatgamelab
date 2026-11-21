@@ -130,7 +130,7 @@ Here's a full list - and remember: each is just a piece of text.
 
 **Created by players:**
 - Player Input Text — typed actions during gameplay
-- Player Input Audio — spoken actions (transcribed to text)
+- Player Input Audio — spoken actions, one clip per press of the talk button
 
 **Set by organizations/workshops:**
 - Constraints — rules set by a teacher or facilitator (e.g. age-appropriate content)
@@ -142,6 +142,7 @@ Here's a full list - and remember: each is just a piece of text.
 - Game Engine Prompt — the template that defines how the AI behaves as a game master
 - Template Image Prompt — the template for generating scene images
 - Rephrase Prompt — rewrites player input to third person with uncertain outcome
+- Rephrase Audio Prompt — the same for spoken input, heard by a model that takes audio
 - Expand Prompt — turns a plot outline into narrative prose
 
 **Accumulated during gameplay:**
@@ -236,7 +237,7 @@ The game starts by feeding the **System Message** into the AI chat — this prim
 
 From there, the game falls into a loop: the player sends an action, the engine generates a response. Each response goes through the same steps — whether it's the opening scene or the 50th turn.
 
-**Rephrase Player Input** — The player's raw input is rewritten into third person with an uncertain outcome. For example, *"I attack the wolf"* becomes *"The player attacks the wolf, hoping to wrestle it to the ground."* This prevents the player from dictating outcomes and keeps the AI in control of the story. If the player used voice input, the audio is first transcribed to text.
+**Rephrase Player Input** — The player's raw input is rewritten into third person with an uncertain outcome. For example, *"I attack the wolf"* becomes *"The player attacks the wolf, hoping to wrestle it to the ground."* This prevents the player from dictating outcomes and keeps the AI in control of the story. If the player spoke, a model that hears does both in one call: it writes down what the player said, word for word in their language, which appears as the player's line, and the rephrased action, which goes on to Generate Scene. If nothing came through, the player is asked to speak again or type.
 
 **Generate Scene** — This is the core AI call. It receives the rephrased player input along with the full chat history (all previous turns) and produces three things: a short **plot outline** describing what happens next, **updated status fields** (e.g. Health drops from "Good" to "Injured"), and an **image prompt** describing the scene visually. The plot outline is kept deliberately brief — just 1-2 sentences in telegraph style — because it serves as a skeleton that the next step will flesh out.
 
@@ -305,8 +306,10 @@ graph TB
 
     PLAYERVOC["Player Input Audio"]
 
-    PLAYERVOC --> TRANSCRIBE(["Transcribe Audio"])
-    TRANSCRIBE --> REPHRASE
+    PLAYERVOC --> HEAR(["Rephrase Spoken Input
+    • what was heard
+    • 3rd person +"])
+    HEAR --> EXECUTE
 
 ```
 
@@ -379,6 +382,17 @@ Rewrites the player's input into third person with uncertain outcome:
 > Keep the response in *(player's language)*.
 >
 > Player Input: *(player's message)*
+
+### Rephrase Audio Prompt
+
+Heard together with the player's clip; the reply is JSON of two fields, `heard` and `action`:
+
+> You hear the player of a text adventure say what they do next. Reply with two fields.
+> "heard": a transcript of the player's words, word for word, in the language they spoke. Do not translate it, rephrase it or change its person: if the player says "I", write "I". The player most likely speaks *(player's language)*; write down whatever language they speak.
+> "action": what the player said, rephrased in third person, making the outcome uncertain.
+> If you hear no words, leave both fields empty.
+> Example: the player says 'I climb the old tower and jump onto the roof' → {"heard": "I climb the old tower and jump onto the roof", "action": "The player climbs the old tower, hoping to jump onto the roof."}
+> Write "action" in *(player's language)*.
 
 ### Generate Scene Reminder
 

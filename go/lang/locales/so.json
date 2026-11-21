@@ -2034,6 +2034,7 @@
       "connectionLost": "Xidhiidhkii ciyaarta wuu lumay. Dib u cusboonaysii bogga si aad mar kale isugu daydo.",
       "imageFailed": "Sawirka muuqaalkan lama samayn karin. Sheekadu way sii soconaysaa.",
       "noMicrophone": "Makarafoon ma jiro. Hubi oggolaanshaha browser-ka ee boggan.",
+      "notHeard": "Hadalkaaga ma soo gaadhin. Mar kale hadal, ama qor.",
       "openingFailed": "Sheekadu ma bilaaban karin. Qor waxaad rabto inaad samayso, halkaas ayayna ka bilaabanaysaa.",
       "pauseFailed": "Wada hadalka lama hakin karin.",
       "serverUnreachable": "Lama gaadhi karo server-ka ciyaarta.",
@@ -2068,6 +2069,11 @@
       "reconnecting": "Xidhiidhka ayaa dib loo samaynayaa…",
       "settingScene": "Muuqaalka ayaa la diyaarinayaa…",
       "wakingCharacter": "Dabeecadda ayaa la toosinayaa…"
+    },
+    "talk": {
+      "hearing": "Waxaan maqlayaa waxaad sheegtay…",
+      "hold": "Qabo si aad u hadasho",
+      "recording": "Waan dhagaysanayaa… sii daa si aad u dirto"
     }
   }
 }

@@ -1378,6 +1378,7 @@
       "connectionLost": "Veza s igrom je prekinuta. Ponovo učitaj stranicu i pokušaj još jednom.",
       "imageFailed": "Sliku za ovu scenu nije bilo moguće napraviti. Priča se nastavlja.",
       "noMicrophone": "Nema mikrofona. Provjeri dozvolu preglednika za ovu stranicu.",
+      "notHeard": "Tvoje riječi nisu stigle. Govori ponovo ili piši.",
       "openingFailed": "Priča nije mogla početi. Napiši šta želiš uraditi i odatle će početi.",
       "pauseFailed": "Razgovor nije bilo moguće pauzirati.",
       "serverUnreachable": "Nije moguće povezati se sa serverom igre.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Ponovno povezivanje…",
       "settingScene": "Postavljanje scene…",
       "wakingCharacter": "Buđenje lika…"
+    },
+    "talk": {
+      "hearing": "Čujem šta govoriš…",
+      "hold": "Drži pritisnuto za govor",
+      "recording": "Slušam… pusti za slanje"
     }
   }
 }

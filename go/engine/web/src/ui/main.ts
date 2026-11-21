@@ -14,12 +14,13 @@ import {
   type Opening,
   type Selector,
 } from "../launch.js";
-import { explain } from "../state.js";
+import { explain, holdsToTalk } from "../state.js";
 import { notice, text, useLanguage, type Notice } from "../texts.js";
 import { WebSocketTransport } from "../transport.js";
 import { LaunchPanel } from "./launch.js";
 import { AudioIO } from "./audio.js";
 import { WebRTCVoice } from "./voice.js";
+import { HoldToTalk } from "./talk.js";
 import { mountSplit } from "./split.js";
 import { View } from "./view.js";
 import { Details } from "./details.js";
@@ -71,13 +72,15 @@ const session: SessionRef = { client, id: sessionID };
 let recover = (): void => {};
 
 // The speaker plays a spoken reply's audio as it arrives over the session's
-// connection, as an Adventure's narration does.
+// connection, as an Adventure's narration does; it also records push-to-talk.
+const audio = new AudioIO(new URL("./mic-worklet.js", import.meta.url).href);
 const playback = new PlaybackEngine(
   new WebSocketTransport(liveURL(session, location.origin), () => recover()),
   new WebRTCVoice(session),
-  new AudioIO(new URL("./mic-worklet.js", import.meta.url).href),
+  audio,
 );
 const typed = required<HTMLInputElement>("#typed");
+const hold = required<HTMLButtonElement>("#hold");
 
 const details = new Details(
   required<HTMLElement>("#details-title"),
@@ -99,6 +102,7 @@ const view = new View({
   audio: required<HTMLElement>("#audio"),
   audioLabel: required<HTMLElement>("#audio-label"),
   typed,
+  hold,
   compose: required<HTMLElement>("#compose"),
   inputs: required<HTMLElement>(".input-wrap"),
   notice: required<HTMLElement>("#notice"),
@@ -148,8 +152,19 @@ const options = new OptionsDialog({
 // started typing something else, so sending it again is one press.
 let givenBack: string | null = null;
 
+// Hold to talk, or Space while not typing; release sends what was said.
+const talk = new HoldToTalk(hold, audio, {
+  onClip: (clip) => {
+    view.awaitReply();
+    playback.speak(clip);
+  },
+  onDenied: () => playback.fault(notice("errors.noMicrophone")),
+}, () => document.activeElement === typed);
+
 playback.subscribe((state) => {
   view.render(state);
+  // Voice input went off, or the game cannot be played: a recording goes.
+  if (!holdsToTalk(state) || hold.disabled) talk.cancel();
   options.render(state);
   details.refresh(state);
   if (state.redo !== givenBack) {
@@ -174,6 +189,7 @@ void playback.restore(session).then(async () => {
     // The session's language is fixed at creation, and wins over the page's.
     document.documentElement.lang = topology.language;
     await useLanguage(topology.language, location.href);
+    talk.refresh();
     view.render(playback.state);
   }
   playback.connect();
@@ -183,9 +199,9 @@ void playback.restore(session).then(async () => {
 // worth being in: open, where the character hears everything and the meter
 // runs, and let go, which costs nothing and remembers everything. The view
 // decides how it looks; this only says which way the press goes.
-const talk = required<HTMLButtonElement>("#talk");
-talk.addEventListener("click", () => {
-  if (talk.disabled) return;
+const pause = required<HTMLButtonElement>("#talk");
+pause.addEventListener("click", () => {
+  if (pause.disabled) return;
   if (playback.state.paused) playback.resume();
   else void playback.pause(session);
 });
@@ -198,8 +214,8 @@ compose.addEventListener("submit", (event) => {
   const text = typed.value.trim();
   if (!text || typed.disabled) return;
   typed.value = "";
-  view.echo(text);
-  playback.takeFloor();
+  // The player's line comes back from the engine, on `said`.
+  view.awaitReply();
   playback.say(text);
 });
 

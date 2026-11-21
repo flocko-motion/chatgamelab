@@ -18,7 +18,7 @@ import {
 } from "./protocol.js";
 import type { Conversation, ToggleName } from "./state.js";
 import { emptyState, explain, type PlaybackEngineState } from "./state.js";
-import { notice, type TextKey } from "./texts.js";
+import { notice, type Notice, type TextKey } from "./texts.js";
 import type { Transport, TransportMessage } from "./transport.js";
 import type { Speaker } from "./speaker.js";
 import type { Voice } from "./voice.js";
@@ -31,8 +31,12 @@ export class PlaybackEngine {
   #listeners = new Set<Listener>();
   #nextUtterance = 1;
   #open: Utterance | null = null;
-  /** The player's last typed line, given back if the engine drops its turn. */
+  /** The player's last line, typed or as heard, given back if the engine drops its turn. */
   #said: string | null = null;
+  /** Typed lines sent and not yet back on `said`, oldest first. */
+  #typed: string[] = [];
+  /** Spoken clips sent whose words have not come back on `said`, nor failed. */
+  #clips = 0;
 
   /**
    * The voice and the speaker are optional, so a headless run can watch a
@@ -68,6 +72,10 @@ export class PlaybackEngine {
     this.state.notes = [];
     this.#open = null;
     this.#nextUtterance = 1;
+    // What was heard of a clip still pending comes back with the history.
+    this.#typed = [];
+    this.#clips = 0;
+    this.state.hearing = false;
     this.#notify();
     await this.restore(session);
   }
@@ -150,16 +158,32 @@ export class PlaybackEngine {
     this.#notify();
   }
 
-  /** Sends one frame of player speech, which is never transcribed into the state. */
-  speak(pcm: ArrayBuffer): void {
-    this.transport.send(pcm);
+  /**
+   * Sends one clip of the player's speech, PCM16 at 24 kHz mono, as one
+   * utterance. The player's line is pending until the engine says what it
+   * heard, on `said`, or that nothing came through.
+   */
+  speak(clip: ArrayBuffer): void {
+    this.#clips++;
+    this.state.hearing = true;
+    this.state.redo = null;
+    this.state.fault = null;
+    this.transport.send(clip);
+    this.#notify();
   }
 
   /** Sends typed input, which live and turn-based genres both take. */
   say(text: string): void {
     this.#said = text;
+    this.#typed.push(text);
     this.state.redo = null;
     this.transport.send(JSON.stringify({ text }));
+  }
+
+  /** Tells the player of a fault that leaves the controls working, such as a microphone refused. */
+  fault(said: Notice): void {
+    this.state.fault = said;
+    this.#notify();
   }
 
   /** Marks the player taking the floor, so the next reply starts a new line. */
@@ -239,6 +263,9 @@ export class PlaybackEngine {
         else this.#extend(event.Value);
         // Something answered, so a fault reported earlier has passed.
         this.state.fault = null;
+        break;
+      case "said":
+        this.#applySaid(event.Value);
         break;
       case "problem":
         this.#applyProblem(event.Value);
@@ -399,8 +426,9 @@ export class PlaybackEngine {
    * the player, and the line is given back to send again with one press; one
    * replayed from history is long past. A turn that failed before any prose
    * is the opening's, said so the player knows to begin; the next text clears
-   * it. A picture that failed is said, and the turn stands. Anything else is
-   * kept as a note.
+   * it. A picture that failed is said, and the turn stands. A clip of which
+   * nothing came through ends its wait, and the player is told to speak again
+   * or type. Anything else is kept as a note.
    */
   #applyError(value: string): void {
     const report = parseErrorReport(value);
@@ -411,7 +439,7 @@ export class PlaybackEngine {
     switch (report.code) {
       case "turn_failed":
         if (this.#said === null) {
-          if (!this.state.utterances.some((u) => u.complete && u.text !== "")) {
+          if (!this.state.utterances.some((u) => u.speaker === "npc" && u.complete && u.text !== "")) {
             this.state.fault = notice("errors.openingFailed");
           }
           break;
@@ -423,7 +451,38 @@ export class PlaybackEngine {
       case "image_failed":
         this.state.fault = notice("errors.imageFailed");
         break;
+      case "voice_failed":
+        // Only a clip this page sent: one replayed from history is long past.
+        if (this.#clips === 0) break;
+        this.#settleClip();
+        this.state.fault = notice("errors.notHeard");
+        break;
     }
+  }
+
+  /** Ends the wait of the oldest clip sent, heard or failed. */
+  #settleClip(): void {
+    this.#clips--;
+    this.state.hearing = this.#clips > 0;
+  }
+
+  /**
+   * A line of the player's, typed or as the engine heard it: it ends the
+   * reply before it and joins the conversation. A line heard from a clip this
+   * page sent ends that clip's wait, and is the line given back if its turn
+   * is dropped; a typed one was kept when it was sent.
+   */
+  #applySaid(line: string): void {
+    this.takeFloor();
+    this.state.utterances.push({ id: this.#nextUtterance++, speaker: "player", text: line, complete: true });
+    if (this.#typed[0] === line) {
+      this.#typed.shift();
+    } else if (this.#clips > 0) {
+      this.#settleClip();
+      this.#said = line;
+    }
+    // Something answered, so a fault reported earlier has passed.
+    this.state.fault = null;
   }
 
   /** A key failing during play: told apart from a lost connection, and not blocking. */

@@ -50,10 +50,15 @@ const (
 	ErrorTurnFailed ErrorCode = genre.CodeTurnFailed
 	// ErrorImageFailed: a picture could not be made; the turn stands.
 	ErrorImageFailed ErrorCode = genre.CodeImageFailed
+	// ErrorVoiceFailed: nothing came through of what the player said; they
+	// speak again or type.
+	ErrorVoiceFailed ErrorCode = genre.CodeVoiceFailed
 )
 
 // ErrorCodes is every error code, the source of the generated TypeScript union.
-func ErrorCodes() []ErrorCode { return []ErrorCode{ErrorTurnFailed, ErrorImageFailed} }
+func ErrorCodes() []ErrorCode {
+	return []ErrorCode{ErrorTurnFailed, ErrorImageFailed, ErrorVoiceFailed}
+}
 
 // ErrorReport is an error the game goes on after, as JSON in an `error`
 // event's value: the code, and the text the failed block was given.

@@ -80,6 +80,56 @@ func TestHeadlessPlaybackEngineFollowsASession(t *testing.T) {
 	}
 }
 
+// The headless playback-engine speaks an Adventure turn: one clip over the
+// session's connection, heard by the mock, comes back as the player's line,
+// and the story replies.
+func TestHeadlessPlaybackEngineSpeaksATurn(t *testing.T) {
+	node, err := exec.LookPath("node")
+	if err != nil {
+		t.Skip("node not installed; skipping the headless playback-engine integration test")
+	}
+	harness, err := filepath.Abs("../web/dist/play.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:     engine.GenreAdventure,
+		ID:        "spoken",
+		Scenario:  "A troll guards a bridge.",
+		Guardrail: "Suitable for a 13-year-old.",
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "spoken", session)
+
+	runCtx, cancelRun := context.WithTimeout(ctx, 30*time.Second)
+	defer cancelRun()
+
+	out, err := exec.CommandContext(runCtx, node, harness, srv.URL, "spoken", "--speak").CombinedOutput()
+	t.Logf("headless run:\n%s", out)
+	if err != nil {
+		t.Fatalf("headless playback-engine failed: %v", err)
+	}
+	text := string(out)
+	for _, want := range []string{
+		"said:       [mock-hearing] 1.5 s of speech",
+		"replied:    true",
+		"> [mock-hearing] 1.5 s of speech",
+		"rephrase-audio",
+	} {
+		if !strings.Contains(text, want) {
+			t.Errorf("headless output missing %q", want)
+		}
+	}
+}
+
 // The headless playback-engine goes through the options dialog: it finds the session
 // choosing, has a choice outside the caveats refused, reloads and finds the
 // dialog again, then chooses and follows the game as before.

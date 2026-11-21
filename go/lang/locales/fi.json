@@ -1384,6 +1384,7 @@
       "connectionLost": "Yhteys peliin katkesi. Lataa sivu uudelleen yrittääksesi uudelleen.",
       "imageFailed": "Tämän kohtauksen kuvaa ei voitu luoda. Tarina jatkuu.",
       "noMicrophone": "Mikrofonia ei ole. Tarkista selaimen tälle sivulle myöntämä lupa.",
+      "notHeard": "Sanojasi ei kuultu. Puhu uudelleen tai kirjoita.",
       "openingFailed": "Tarinaa ei voitu aloittaa. Kirjoita, mitä haluat tehdä, niin tarina alkaa siitä.",
       "pauseFailed": "Keskustelua ei voitu keskeyttää.",
       "serverUnreachable": "Pelipalvelimeen ei saada yhteyttä.",
@@ -1418,6 +1419,11 @@
       "reconnecting": "Yhdistetään uudelleen…",
       "settingScene": "Kohtausta valmistellaan…",
       "wakingCharacter": "Hahmo herää…"
+    },
+    "talk": {
+      "hearing": "Kuunnellaan, mitä sanoit…",
+      "hold": "Pidä painettuna puhuaksesi",
+      "recording": "Kuuntelen… vapauta lähettääksesi"
     }
   }
 }

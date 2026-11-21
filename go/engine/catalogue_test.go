@@ -128,3 +128,47 @@ func TestPlatformsAreCopies(t *testing.T) {
 		t.Error("a tier's model set shares its parameters with the table")
 	}
 }
+
+// Every model a tier names has an entry in its platform's model table, so
+// every model is priced and its media are known.
+func TestEveryTierModelHasFacts(t *testing.T) {
+	for _, p := range Platforms() {
+		for _, tier := range p.Tiers {
+			for kind, model := range tier.Models {
+				facts, known := p.Models[model.Name]
+				if !known {
+					t.Errorf("%s/%s/%s: %s has no entry in the model table", p.ID, tier.Tier, kind, model.Name)
+					continue
+				}
+				if facts.Read == "" || facts.Source == "" {
+					t.Errorf("%s: %s's price says neither when nor where it was read", p.ID, model.Name)
+				}
+			}
+		}
+	}
+}
+
+// What a model type does needs what its model takes and makes: the hearing
+// model takes audio, the speech model makes it, the image model makes
+// pictures, and every model answers in text unless it only draws.
+func TestTierModelsTakeAndMakeWhatTheirTypeNeeds(t *testing.T) {
+	needs := map[ModelType]struct{ in, out adapters.Medium }{
+		ModelTooling: {adapters.MediumText, adapters.MediumText},
+		ModelStory:   {adapters.MediumText, adapters.MediumText},
+		ModelImage:   {adapters.MediumText, adapters.MediumImage},
+		ModelSpeech:  {adapters.MediumText, adapters.MediumAudio},
+		ModelHearing: {adapters.MediumAudio, adapters.MediumText},
+		ModelLive:    {adapters.MediumAudio, adapters.MediumAudio},
+	}
+	for _, p := range Platforms() {
+		for _, tier := range p.Tiers {
+			for kind, model := range tier.Models {
+				facts, need := p.Models[model.Name], needs[kind]
+				if !facts.Takes(need.in) || !facts.Makes(need.out) {
+					t.Errorf("%s/%s: %s model %s takes %v and makes %v, want it to take %s and make %s",
+						p.ID, tier.Tier, kind, model.Name, facts.In, facts.Out, need.in, need.out)
+				}
+			}
+		}
+	}
+}

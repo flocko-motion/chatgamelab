@@ -1384,6 +1384,7 @@
       "connectionLost": "Utracono połączenie z grą. Odśwież stronę, aby spróbować ponownie.",
       "imageFailed": "Nie udało się stworzyć obrazu do tej sceny. Historia toczy się dalej.",
       "noMicrophone": "Brak mikrofonu. Sprawdź uprawnienia przeglądarki dla tej strony.",
+      "notHeard": "Nie udało się usłyszeć Twoich słów. Powiedz jeszcze raz albo wpisz tekst.",
       "openingFailed": "Nie udało się rozpocząć historii. Napisz, co chcesz zrobić, a historia zacznie się od tego.",
       "pauseFailed": "Nie udało się wstrzymać rozmowy.",
       "serverUnreachable": "Nie można połączyć się z serwerem gry.",
@@ -1418,6 +1419,11 @@
       "reconnecting": "Ponowne łączenie…",
       "settingScene": "Przygotowywanie sceny…",
       "wakingCharacter": "Budzę postać…"
+    },
+    "talk": {
+      "hearing": "Słyszę, co mówisz…",
+      "hold": "Przytrzymaj, aby mówić",
+      "recording": "Słucham… puść, aby wysłać"
     }
   }
 }

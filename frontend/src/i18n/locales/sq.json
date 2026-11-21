@@ -1384,6 +1384,7 @@
       "connectionLost": "Lidhja me lojën u ndërpre. Ringarko faqen për të provuar sërish.",
       "imageFailed": "Imazhi për këtë skenë nuk mund të krijohej. Historia vazhdon.",
       "noMicrophone": "Nuk ka mikrofon. Kontrollo lejen e shfletuesit për këtë faqe.",
+      "notHeard": "Fjalët e tua nuk u dëgjuan. Fol përsëri ose shkruaj.",
       "openingFailed": "Historia nuk mund të fillonte. Shkruaj çfarë dëshiron të bësh dhe ajo nis prej aty.",
       "pauseFailed": "Biseda nuk mund të vendosej në pauzë.",
       "serverUnreachable": "Serveri i lojës nuk mund të kontaktohet.",
@@ -1418,6 +1419,11 @@
       "reconnecting": "Po lidhet sërish…",
       "settingScene": "Po krijohet skena…",
       "wakingCharacter": "Po zgjohet personazhi…"
+    },
+    "talk": {
+      "hearing": "Po dëgjoj çfarë the…",
+      "hold": "Mbaje shtypur për të folur",
+      "recording": "Po dëgjoj… lëshoje për ta dërguar"
     }
   }
 }

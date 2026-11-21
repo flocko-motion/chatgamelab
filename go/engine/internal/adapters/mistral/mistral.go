@@ -1,10 +1,11 @@
 // Package mistral implements the adapter roles against Mistral.
 //
-// Every role runs through the Conversations API, and every role is text: the
-// tooling queries and the story thread.
+// The tooling queries and the story thread run through the Conversations API,
+// as text; hearing the player's voice runs on Voxtral through Chat
+// Completions, the one API that takes audio with instructions.
 //
-// Mistral offers no picture, voice or transcription adapter, so a game on a
-// Mistral key plays as text, and a genre that needs more cannot run on this
+// Mistral offers no picture, narration or live voice, so a game on a Mistral
+// key is told in text, and a genre that needs more cannot run on this
 // platform.
 package mistral
 

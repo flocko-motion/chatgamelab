@@ -64,7 +64,9 @@ const (
 	ReasonUnreachable = "unreachable"
 	// ReasonBadReply: every attempt answered something the block could not use.
 	ReasonBadReply = "bad_reply"
-	ReasonFailed   = "failed"
+	// ReasonNothingHeard: the model heard no words in the player's speech.
+	ReasonNothingHeard = "nothing_heard"
+	ReasonFailed       = "failed"
 )
 
 // State is a block reporting on itself, named so a gate can tell reporters apart.

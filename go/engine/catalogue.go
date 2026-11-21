@@ -17,6 +17,10 @@ type (
 	Model      = adapters.Model
 	ModelSet   = adapters.ModelSet
 	TierModels = adapters.TierModels
+	Medium     = adapters.Medium
+	ModelFacts = adapters.ModelFacts
+	ModelTable = adapters.ModelTable
+	Price      = adapters.Price
 )
 
 const (
@@ -25,16 +29,18 @@ const (
 	ToggleAudioIn   = adapters.ToggleAudioIn
 	ToggleAudioLive = adapters.ToggleAudioLive
 
-	ModelTooling       = adapters.ModelTooling
-	ModelStory         = adapters.ModelStory
-	ModelImage         = adapters.ModelImage
-	ModelLive          = adapters.ModelLive
-	ModelSpeech        = adapters.ModelSpeech
-	ModelTranscription = adapters.ModelTranscription
+	ModelTooling = adapters.ModelTooling
+	ModelStory   = adapters.ModelStory
+	ModelImage   = adapters.ModelImage
+	ModelLive    = adapters.ModelLive
+	ModelSpeech  = adapters.ModelSpeech
+	ModelHearing = adapters.ModelHearing
 )
 
 // PlatformInfo is one AI platform the engine can run: what a person choosing a
-// platform and a tier needs to know. Genres follow from Toggles.
+// platform and a tier needs to know. Genres follow from Toggles. Models says
+// what each model is: what it takes and makes, and its price, dated, with its
+// source.
 type PlatformInfo struct {
 	ID       Platform     `json:"id"`
 	Name     string       `json:"name"`
@@ -42,6 +48,7 @@ type PlatformInfo struct {
 	Toggles  Toggles      `json:"toggles"`
 	Genres   []Genre      `json:"genres"`
 	Tiers    []TierModels `json:"tiers"`
+	Models   ModelTable   `json:"models"`
 }
 
 // catalogueEntries is every platform the engine runs, the mock last.
@@ -62,6 +69,7 @@ func Platforms() []PlatformInfo {
 			Toggles:  p.Toggles,
 			Genres:   PlayableGenres(p.Toggles),
 			Tiers:    p.Tiers,
+			Models:   p.Facts,
 		})
 	}
 	return out

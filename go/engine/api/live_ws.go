@@ -18,8 +18,9 @@ import (
 // typed input, a JSON LiveInput; it receives the session's events back on the
 // same connection, binary frames for audio and text frames of JSON
 // SessionEvent for everything else. A rejected input comes back as an `error`
-// event. The turn-based genres use input and stream instead; which one a
-// client opens is decided by the genre's declared interaction model.
+// event: a refused binary frame as the `voice_failed` report, so a page waiting
+// for what was heard of a clip stops waiting. On a turn-based genre a binary
+// frame is one whole clip, one utterance.
 type LiveEndpoint struct{ API *API }
 
 func (LiveEndpoint) Method() string             { return "GET" }
@@ -95,7 +96,12 @@ func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 		if submitErr != nil {
 			// Report and keep going: a client mistake is not a reason to end
 			// someone's conversation.
-			if err := wsJSON(ctx, conn, engine.SessionEvent{Stream: "error", Value: submitErr.Error()}); err != nil {
+			refused := submitErr.Error()
+			if typ == websocket.MessageBinary {
+				report, _ := json.Marshal(engine.ErrorReport{Code: engine.ErrorVoiceFailed})
+				refused = string(report)
+			}
+			if err := wsJSON(ctx, conn, engine.SessionEvent{Stream: "error", Value: refused}); err != nil {
 				return nil
 			}
 		}

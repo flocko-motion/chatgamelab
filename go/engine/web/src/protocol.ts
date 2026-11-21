@@ -8,6 +8,7 @@
  */
 export type StreamName =
   | "text"
+  | "said"
   | "audio"
   | "image"
   | "props"
@@ -88,12 +89,14 @@ export const PROBLEMS: readonly Problem[] = [
 export type ErrorCode =
   | "turn_failed"
   | "image_failed"
+  | "voice_failed"
   ;
 
 /** Every error code; any other `error` value is a message for whoever debugs. */
 export const ERROR_CODES: readonly ErrorCode[] = [
   "turn_failed",
   "image_failed",
+  "voice_failed",
 ];
 
 /**

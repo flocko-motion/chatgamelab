@@ -1378,6 +1378,7 @@
       "connectionLost": "Koneksi ke permainan terputus. Muat ulang untuk mencoba lagi.",
       "imageFailed": "Gambar untuk adegan ini tidak dapat dibuat. Cerita terus berlanjut.",
       "noMicrophone": "Tidak ada mikrofon. Periksa izin browser untuk halaman ini.",
+      "notHeard": "Kata-katamu tidak terdengar. Ucapkan lagi, atau ketik.",
       "openingFailed": "Cerita tidak dapat dimulai. Tuliskan apa yang ingin kamu lakukan, lalu cerita akan dimulai dari sana.",
       "pauseFailed": "Percakapan tidak dapat dijeda.",
       "serverUnreachable": "Server permainan tidak dapat dijangkau.",
@@ -1412,6 +1413,11 @@
       "reconnecting": "Menghubungkan kembali…",
       "settingScene": "Menyiapkan adegan…",
       "wakingCharacter": "Membangunkan karakter…"
+    },
+    "talk": {
+      "hearing": "Mendengarkan ucapanmu…",
+      "hold": "Tekan dan tahan untuk berbicara",
+      "recording": "Sedang mendengarkan… lepaskan untuk mengirim"
     }
   }
 }

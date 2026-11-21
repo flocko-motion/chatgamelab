@@ -56,6 +56,13 @@ func NewPlayerInputAudio(name string) *PlayerInputAudio {
 	return &PlayerInputAudio{name: name, release: make(ports.StateInput, 4), held: holdUntilReleased[ports.AudioChunk]{discard: true}}
 }
 
+// NewPlayerInputClips is the source of push-to-talk: each chunk is a whole
+// clip, one utterance. A clip that arrives while held is kept and sent on
+// release, as a typed line is, since the player pressed to say it.
+func NewPlayerInputClips(name string) *PlayerInputAudio {
+	return &PlayerInputAudio{name: name, release: make(ports.StateInput, 4)}
+}
+
 func (b *PlayerInputAudio) NodeName() string                      { return b.name }
 func (b *PlayerInputAudio) AudioOutPort() <-chan ports.AudioChunk { return b.out.Subscribe() }
 func (b *PlayerInputAudio) StateInPort() chan<- ports.State       { return b.release }

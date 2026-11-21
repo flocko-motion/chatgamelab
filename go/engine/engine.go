@@ -136,7 +136,7 @@ type BlockState struct {
 
 // StreamNames is every stream a genre can wire, and the source of the generated TypeScript union.
 func StreamNames() []string {
-	return []string{"text", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem"}
+	return []string{"text", "said", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem"}
 }
 
 type Session struct {
@@ -181,10 +181,11 @@ type Session struct {
 // slots hold the adapters the blocks call, filled when the session settles
 // and replaced when it adapts.
 type slots struct {
-	live   adapters.LiveSlot
-	tool   adapters.ToolSlot
-	image  adapters.ImageSlot
-	thread adapters.ThreadSlot
+	live    adapters.LiveSlot
+	tool    adapters.ToolSlot
+	image   adapters.ImageSlot
+	thread  adapters.ThreadSlot
+	hearing adapters.HearingSlot
 }
 
 // SessionState is what changes every turn and must survive a restart: what
@@ -272,6 +273,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		var err error
 		w, err = genre.NewAdventure(genre.AdventureConfig{
 			Tool:                &s.slots.tool,
+			Hearing:             &s.slots.hearing,
 			Thread:              &s.slots.thread,
 			Image:               &s.slots.image,
 			Scenario:            spec.Scenario,
@@ -600,7 +602,9 @@ func (s *Session) Say(text string) error {
 	return nil
 }
 
-// Speak submits player audio.
+// Speak submits player audio: on a turn-based genre one clip of PCM16 at
+// 24 kHz mono is one utterance. It is refused while the genre cannot take it,
+// such as while voice input is off.
 func (s *Session) Speak(audio []byte) error {
 	if err := s.playing(); err != nil {
 		return err
@@ -608,8 +612,7 @@ func (s *Session) Speak(audio []byte) error {
 	if s.wiring.Speak == nil {
 		return fmt.Errorf("genre %q takes no audio input", s.spec.Genre)
 	}
-	s.wiring.Speak(audio)
-	return nil
+	return s.wiring.Speak(audio)
 }
 
 // Pause closes the per-second-billed live conversation; the session stays and a resume continues it.
@@ -710,11 +713,12 @@ func (spec SessionSpec) voice(model adapters.Model) string {
 // one, which it runs on while narration is on; speech is nil on a platform
 // without narration.
 type equipment struct {
-	live   adapters.Live
-	tool   adapters.Tool
-	image  adapters.Image
-	thread adapters.Thread
-	speech adapters.Thread
+	live    adapters.Live
+	tool    adapters.Tool
+	image   adapters.Image
+	thread  adapters.Thread
+	speech  adapters.Thread
+	hearing adapters.Hearing
 }
 
 // story is the story thread's adapter for the narration toggle.
@@ -727,7 +731,7 @@ func (kit equipment) story(narrating bool) adapters.Thread {
 
 // close ends what the adapters hold open, such as a Realtime session.
 func (kit equipment) close() {
-	for _, held := range []any{kit.live, kit.tool, kit.image, kit.thread, kit.speech} {
+	for _, held := range []any{kit.live, kit.tool, kit.image, kit.thread, kit.speech, kit.hearing} {
 		if closer, ok := held.(io.Closer); ok {
 			_ = closer.Close()
 		}
@@ -750,28 +754,31 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 	case PlatformMock:
 		pace := time.Duration(spec.MockPaceMs) * time.Millisecond
 		kit = equipment{
-			live:   mock.Live{Pace: pace},
-			tool:   mock.Tool{Pace: pace},
-			image:  mock.Image{Pace: pace},
-			thread: mock.Thread{Pace: pace, Name: story.Name},
-			speech: mock.Thread{Pace: pace, Name: speech.Name},
+			live:    mock.Live{Pace: pace},
+			tool:    mock.Tool{Pace: pace},
+			image:   mock.Image{Pace: pace},
+			thread:  mock.Thread{Pace: pace, Name: story.Name},
+			speech:  mock.Thread{Pace: pace, Name: speech.Name},
+			hearing: mock.Hearing{Pace: pace},
 		}
 	case PlatformOpenAI:
 		keys := adapters.KeyFunc(settled.offer.Keys)
 		picture := models[adapters.ModelImage]
 		kit = equipment{
-			live:   openai.NewLive(keys, models[adapters.ModelLive].Name),
-			tool:   openai.NewTool(keys, models[adapters.ModelTooling].Name),
-			image:  openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize]),
-			thread: openai.NewThread(keys, story.Name),
-			speech: openai.NewRealtime(keys, speech.Name, spec.voice(speech)),
+			live:    openai.NewLive(keys, models[adapters.ModelLive].Name),
+			tool:    openai.NewTool(keys, models[adapters.ModelTooling].Name),
+			image:   openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize]),
+			thread:  openai.NewThread(keys, story.Name),
+			speech:  openai.NewRealtime(keys, speech.Name, spec.voice(speech)),
+			hearing: openai.NewHearing(keys, models[adapters.ModelHearing].Name),
 		}
 	case PlatformMistral:
 		// Live and image stay nil: the platform offers neither.
 		keys := adapters.KeyFunc(settled.offer.Keys)
 		kit = equipment{
-			tool:   mistral.NewTool(keys, models[adapters.ModelTooling].Name),
-			thread: mistral.NewThread(keys, models[adapters.ModelStory].Name),
+			tool:    mistral.NewTool(keys, models[adapters.ModelTooling].Name),
+			thread:  mistral.NewThread(keys, models[adapters.ModelStory].Name),
+			hearing: mistral.NewHearing(keys, models[adapters.ModelHearing].Name),
 		}
 	default:
 		return equipment{}, fmt.Errorf("unknown platform %q", settled.offer.Platform)

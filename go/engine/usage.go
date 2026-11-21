@@ -5,9 +5,7 @@ import (
 	"sync"
 
 	"engine/internal/adapters"
-	"engine/internal/adapters/mistral"
 	"engine/internal/adapters/mock"
-	"engine/internal/adapters/openai"
 	"engine/internal/ports"
 )
 
@@ -26,7 +24,7 @@ type UsageRecord struct {
 	AudioOutputTokens      int64   `json:"audioOutputTokens,omitempty"`
 	AudioSeconds           float64 `json:"audioSeconds,omitempty"`
 	Images                 int64   `json:"images,omitempty"`
-	// Cost is an estimate from a hand-maintained price table, because providers
+	// Cost is an estimate from the platform's hand-maintained model table, because providers
 	// do not publish prices through their APIs. Zero when the model is unpriced,
 	// which Priced distinguishes from genuinely free.
 	Cost   float64 `json:"cost"`
@@ -50,24 +48,21 @@ type UsageReport struct {
 type usageLedger struct {
 	mu     sync.Mutex
 	latest map[usageKey]ports.Usage
-	prices func(string) (adapters.Price, bool)
+	prices adapters.ModelTable
 }
 
 type usageKey struct{ node, model string }
 
 // newUsageLedger prices from the mock's table until the session settles on a platform.
 func newUsageLedger() *usageLedger {
-	return &usageLedger{latest: map[usageKey]ports.Usage{}, prices: mock.Prices}
+	return &usageLedger{latest: map[usageKey]ports.Usage{}, prices: mock.Models}
 }
 
-// price switches to the settled platform's table.
+// price switches to the settled platform's model table.
 func (l *usageLedger) price(platform Platform) {
-	lookup := mock.Prices
-	switch platform {
-	case PlatformOpenAI:
-		lookup = openai.Prices
-	case PlatformMistral:
-		lookup = mistral.Prices
+	lookup := mock.Models
+	if entry, known := catalogueEntry(platform); known {
+		lookup = entry.Facts
 	}
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -156,7 +151,7 @@ func (l *usageLedger) priced(node, model string, used ports.Usage) UsageRecord {
 		Images:                 used.Images,
 	}
 
-	price, known := l.prices(model)
+	price, known := l.prices.Price(model)
 	if !known {
 		return record
 	}

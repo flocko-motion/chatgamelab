@@ -1384,6 +1384,7 @@
       "connectionLost": "Anslutningen till spelet förlorades. Ladda om sidan för att försöka igen.",
       "imageFailed": "Bilden för den här scenen kunde inte skapas. Berättelsen fortsätter.",
       "noMicrophone": "Ingen mikrofon. Kontrollera webbläsarens behörighet för den här sidan.",
+      "notHeard": "Dina ord kom inte fram. Tala igen eller skriv.",
       "openingFailed": "Berättelsen kunde inte börja. Skriv vad du vill göra, så börjar den därifrån.",
       "pauseFailed": "Det gick inte att pausa samtalet.",
       "serverUnreachable": "Det går inte att nå spelservern.",
@@ -1418,6 +1419,11 @@
       "reconnecting": "Ansluter igen…",
       "settingScene": "Förbereder scenen…",
       "wakingCharacter": "Väcker karaktären…"
+    },
+    "talk": {
+      "hearing": "Lyssnar på vad du sa…",
+      "hold": "Håll ned för att prata",
+      "recording": "Lyssnar… släpp för att skicka"
     }
   }
 }
