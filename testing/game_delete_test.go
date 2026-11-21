@@ -9,7 +9,7 @@ import (
 )
 
 // GameDeleteTestSuite tests deleting a game through the secure core: it takes
-// the right to edit the game's settings, and a deleted game is gone.
+// the right to delete it (mayDelete), and a deleted game is gone.
 type GameDeleteTestSuite struct {
 	testutil.BaseSuite
 }
@@ -38,14 +38,14 @@ func (s *GameDeleteTestSuite) TestAHeadDeletesAWorkshopGame() {
 	head := s.CreateUser("delete-head")
 	Must(head.AcceptInvite(Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID)).Id.String()))
 	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Delete Workshop"))
-	participant := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshop.Id.String())).InviteToken))
-	game := Must(participant.UploadGame("alien-first-contact"))
-	Must(participant.SetGamePublic(game.Id.String(), true))
+	guest := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshop.Id.String())).InviteToken))
+	game := Must(guest.UploadGame("alien-first-contact"))
+	Must(guest.SetGamePublic(game.Id.String(), true))
 
 	bob := s.CreateUser("delete-bob")
-	s.False(Must(bob.ReadGame(game.Id.String())).MayEditSettings)
+	s.False(Must(bob.ReadGame(game.Id.String())).MayDelete)
 	s.Forbidden(bob.DeleteGame(game.Id.String()), "reading is not deleting")
 
-	s.True(Must(head.ReadGame(game.Id.String())).MayEditSettings)
+	s.True(Must(head.ReadGame(game.Id.String())).MayDelete)
 	s.Require().NoError(head.DeleteGame(game.Id.String()))
 }

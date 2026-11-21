@@ -7,17 +7,25 @@ package rules
 type Role string
 
 const (
-	Admin       Role = "admin"
-	Head        Role = "head"
-	Staff       Role = "staff"
-	Participant Role = "participant"
-	Individual  Role = "individual"
+	Admin      Role = "admin"
+	Head       Role = "head"
+	Staff      Role = "staff"
+	Individual Role = "individual"
 
-	// Everyone is every caller, signed in or not, on top of their role. It is
-	// the baseline: a guest, who plays without an account, has exactly this.
+	// Guest plays a shared game through a share link, or takes part in a
+	// workshop through its invite link under an animal name. A guest through
+	// a share link never signs in and is never in a workshop; a guest in a
+	// workshop signs in (so SignedIn holds too) and is always in its
+	// workshop: no grant lets a guest enter or leave one. A caller nobody
+	// signed in is a guest too.
+	Guest Role = "guest"
+
+	// Everyone is every caller, signed in or not, on top of their role.
 	Everyone Role = "everyone"
 
-	// SignedIn is every caller with an account, on top of Everyone.
+	// SignedIn is every caller with an account that completed registration,
+	// on top of Everyone. While registering, an account holds only what
+	// Everyone may in the Registering context.
 	SignedIn Role = "signed in"
 )
 
@@ -32,8 +40,11 @@ const (
 	Read Action = "read"
 	List Action = "list"
 	Play Action = "play"
-	// Edit changes an entity, deleting it included.
+	// Edit changes an entity. Deleting it is Delete: whoever may change an
+	// entity may not always remove it (everyone edits their own account,
+	// nobody deletes it).
 	Edit   Action = "edit"
+	Delete Action = "delete"
 	Manage Action = "manage"
 	// Create makes a new entity. It is the caller's own from the start, so a
 	// create grant's relation is Own, and the new entity's rights are the
@@ -85,6 +96,20 @@ const (
 	// are data on the share, not rules here.
 	ApiKeyShare Entity = "api key share"
 
+	// UserCard is who a user is: their id and public profile name, the name
+	// games show as their creator's.
+	UserCard Entity = "user card"
+	// UserAccount is how a user's account is set up: language, age group,
+	// AI quality tier, default key, role (with its organisation and
+	// workshop), timestamps and statistics.
+	UserAccount Entity = "user account"
+	// UserContact is how to reach a user: their email. Seen like the account,
+	// changed by its owner; a guest has none.
+	UserContact Entity = "user contact"
+	// UserSecrets is how a user logs in without signing up: a guest's login
+	// code. Whoever holds it is that guest.
+	UserSecrets Entity = "user secrets"
+
 	Workshop     Entity = "workshop"
 	Organisation Entity = "organisation"
 )
@@ -105,9 +130,12 @@ const (
 
 	Assigned          Relation = "assigned"            // the caller is assigned to it
 	OfCurrentWorkshop Relation = "of current workshop" // the workshop the caller is in
-	OfOwnOrganisation Relation = "of own organisation" // belongs to the caller's organisation, e.g. a game of one of its workshops
-	OfOwnGame         Relation = "of own game"         // belongs to a game the caller created
-	PaidByOwnKey      Relation = "paid by own key"     // spends from an API key the caller owns
+	OfOwnOrganisation Relation = "of own organisation" // belongs to the caller's organisation, e.g. a game of one of its workshops, a member, a guest in one of its workshops
+
+	MemberOfOwnOrganisation Relation = "member of own organisation" // a user holding a role in the caller's organisation (individual, staff, head)
+	GuestOfOwnOrganisation  Relation = "guest of own organisation"  // a guest in one of the caller's organisation's workshops
+	OfOwnGame               Relation = "of own game"                // belongs to a game the caller created
+	PaidByOwnKey            Relation = "paid by own key"            // spends from an API key the caller owns
 
 	OwnOfCurrentWorkshop Relation = "own, of the current workshop" // created by the caller, in the workshop they are in
 	PublicElsewhere      Relation = "public, elsewhere"            // public, not of the workshop the caller is in
@@ -127,12 +155,13 @@ const (
 type Context string
 
 const (
-	Always            Context = "always"
-	InWorkshop        Context = "in a workshop"      // the caller is in a workshop
-	OutsideWorkshop   Context = "outside a workshop" // the caller is in none
-	PublicShown       Context = "public shown"       // the caller's workshop shows public games
-	ParticipantsShown Context = "participants shown" // the caller's workshop shows participants' games
-	SharingAllowed    Context = "sharing allowed"    // the caller's workshop lets participants share games
+	Always          Context = "always"
+	InWorkshop      Context = "in a workshop"      // the caller is in a workshop
+	OutsideWorkshop Context = "outside a workshop" // the caller is in none
+	PublicShown     Context = "public shown"       // the caller's workshop shows public games
+	OthersShown     Context = "others shown"       // the caller's workshop shows the games of the others in it
+	SharingAllowed  Context = "sharing allowed"    // the caller's workshop lets those in it share games through its key
+	Registering     Context = "registering"        // the caller signed in, but has not completed registration
 )
 
 // Grants are a role's grants by context.

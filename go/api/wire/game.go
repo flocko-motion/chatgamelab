@@ -29,11 +29,11 @@ type GameView struct {
 	PlayCount   int       `json:"playCount"`
 	CloneCount  int       `json:"cloneCount"`
 
-	// The caller's rights on the game, by section. Editing the settings
-	// covers deleting the game.
+	// The caller's rights on the game, by section, and on the whole game.
 	MayEditCard     bool `json:"mayEditCard"`
 	MayEditContent  bool `json:"mayEditContent"`
 	MayEditSettings bool `json:"mayEditSettings"`
+	MayDelete       bool `json:"mayDelete"`
 	MayCopy         bool `json:"mayCopy"`
 	MayShare        bool `json:"mayShare"`   // in the caller's situation, if sharing is possible at all
 	MayPublish      bool `json:"mayPublish"` // making it private again is editing the card
@@ -95,6 +95,7 @@ func gameView(card *core.GameCard) GameView {
 		MayEditCard:     card.MayEditCard(),
 		MayEditContent:  card.MayEditContent(),
 		MayEditSettings: card.MayEditSettings(),
+		MayDelete:       card.MayDelete(),
 		MayCopy:         card.MayCopy(),
 		MayShare:        card.MayShare(),
 		MayPublish:      card.MayPublish(),

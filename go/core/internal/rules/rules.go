@@ -25,10 +25,23 @@ var Rules = map[Role]Grants{
 			{Edit, GameContent, Everywhere},
 			{Read, GameSettings, Everywhere},
 			{Edit, GameSettings, Everywhere},
+			{Delete, GameCard, Everywhere},
 			{Publish, GameCard, Everywhere}, // the admin is liable for what is public, so controls it both ways; v1: only workshop games and the admin's own
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
+
+			{Read, UserCard, Everywhere},
+			{List, UserCard, Everywhere},
+			{Edit, UserCard, Everywhere},
+			{Read, UserAccount, Everywhere},
+			{List, UserAccount, Everywhere},
+			{Edit, UserAccount, Everywhere},
+			{Read, UserContact, Everywhere},
+			{List, UserContact, Everywhere},
+			{Edit, UserContact, Everywhere},
+			{Delete, UserCard, Everywhere}, // never an organisation's last head
+			// no UserSecrets: the admin does not log in as a guest
 		},
 	},
 	Head: {
@@ -50,16 +63,26 @@ var Rules = map[Role]Grants{
 			{Edit, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
 			{Edit, GameContent, OfOwnOrganisation},
 			{Edit, GameSettings, OfOwnOrganisation},
+			{Delete, GameCard, OfOwnOrganisation},
 			{Publish, GameCard, OfOwnOrganisation},
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
+
+			{Read, UserCard, OfOwnOrganisation}, // members, and guests in its workshops
+			{Read, UserAccount, OfOwnOrganisation},
+			{Read, UserContact, OfOwnOrganisation},
+			{Read, UserSecrets, OfOwnOrganisation},    // a guest's login code: helping a guest who lost it
+			{List, UserCard, MemberOfOwnOrganisation}, // listing is narrower: no guests
+			{List, UserAccount, MemberOfOwnOrganisation},
+			{List, UserContact, MemberOfOwnOrganisation},
+			{Edit, UserCard, GuestOfOwnOrganisation},
+			{Edit, UserAccount, GuestOfOwnOrganisation},
+			{Delete, UserCard, GuestOfOwnOrganisation},
+			{Edit, UserContact, Own},
 		},
 		InWorkshop: {
 			{List, GameCard, OfCurrentWorkshop}, // all of them, whatever the workshop's settings
-			{Read, GameCard, OfCurrentWorkshop},
-			{Read, GameContent, OfCurrentWorkshop},
-			{Read, GameSettings, OfCurrentWorkshop},
 		},
 	},
 	Staff: {
@@ -79,62 +102,42 @@ var Rules = map[Role]Grants{
 			{Edit, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
 			{Edit, GameContent, OfOwnOrganisation},
 			{Edit, GameSettings, OfOwnOrganisation},
+			{Delete, GameCard, OfOwnOrganisation},
 			{Publish, GameCard, OfOwnOrganisation},
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
+
+			{Read, UserCard, OfOwnOrganisation}, // members, and guests in its workshops
+			{Read, UserAccount, OfOwnOrganisation},
+			{Read, UserContact, OfOwnOrganisation},
+			{Read, UserSecrets, OfOwnOrganisation},    // a guest's login code: helping a guest who lost it
+			{List, UserCard, MemberOfOwnOrganisation}, // listing is narrower: no guests
+			{List, UserAccount, MemberOfOwnOrganisation},
+			{List, UserContact, MemberOfOwnOrganisation},
+			{Edit, UserCard, GuestOfOwnOrganisation},
+			{Edit, UserAccount, GuestOfOwnOrganisation},
+			{Delete, UserCard, GuestOfOwnOrganisation},
+			{Edit, UserContact, Own},
 		},
 		InWorkshop: {
 			{List, GameCard, OfCurrentWorkshop}, // all of them, whatever the workshop's settings
-			{Read, GameCard, OfCurrentWorkshop},
-			{Read, GameContent, OfCurrentWorkshop},
-			{Read, GameSettings, OfCurrentWorkshop},
 		},
 	},
-	// Participant is always in its workshop.
-	Participant: {
-		InWorkshop: {
-			{List, GameCard, OwnOfCurrentWorkshop},
-			{Read, GameCard, OfCurrentWorkshop}, // reading is wider than listing
-			{Play, GameCard, OfCurrentWorkshop},
-			{Read, GameContent, OfCurrentWorkshop},
-			{Read, GameSettings, OfCurrentWorkshop},
+	// Guest has no grants of its own: Everyone's, and SignedIn's in a
+	// workshop, are all a guest holds.
+	Guest: {},
 
-			{List, ShareLink, OfCurrentWorkshop},
-
-			{Use, ApiKeyShare, SharedWithCurrentWorkshop},
-			// no Share on ApiKeyShare: a participant shares games, never the key
-		},
-		ParticipantsShown: {
-			{List, GameCard, OfCurrentWorkshop},
-		},
-		// a participant has no key of their own: they share only through the
-		// workshop's key, while the workshop allows it
-		SharingAllowed: {
-			{Share, GameCard, Own},
-			{Share, GameCard, Public},
-		},
-	},
-	// Individual has no organisation; in workshop mode, it is in a workshop
-	// like a participant.
+	// Individual may belong to an organisation or to none; in workshop mode,
+	// it is in a workshop like anyone (Everyone, InWorkshop).
 	Individual: {
 		Always: {
 			{Enter, Workshop, Active},
 
+			{Edit, UserContact, Own},
+
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
-		},
-		InWorkshop: {
-			{Read, Workshop, Current},
-
-			{List, GameCard, OwnOfCurrentWorkshop},
-			{Read, GameCard, OfCurrentWorkshop}, // reading is wider than listing
-			{Play, GameCard, OfCurrentWorkshop},
-			{Read, GameContent, OfCurrentWorkshop},
-			{Read, GameSettings, OfCurrentWorkshop},
-		},
-		ParticipantsShown: {
-			{List, GameCard, OfCurrentWorkshop},
 		},
 	},
 
@@ -142,6 +145,15 @@ var Rules = map[Role]Grants{
 	// the age group and the payer an account brings.
 	SignedIn: {
 		Always: {
+			{Read, UserCard, Own},
+			{Edit, UserCard, Own},
+			{Read, UserAccount, Own},
+			{Edit, UserAccount, Own},
+			{Read, UserContact, Own},
+			{Read, UserSecrets, Own},
+			// changing the own email is the roles' (a guest has none); nobody
+			// deletes their own account
+
 			{Create, GameCard, Own}, // in a workshop, it belongs to that workshop
 			{Play, GameCard, Public},
 			{Read, GameSettings, Public}, // v1 shows a public game's settings to every account
@@ -172,7 +184,7 @@ var Rules = map[Role]Grants{
 		},
 	},
 
-	// Everyone is the baseline: a guest has exactly this.
+	// Everyone is every caller's baseline.
 	Everyone: {
 		Always: {
 			{Read, GameCard, Public},
@@ -185,6 +197,7 @@ var Rules = map[Role]Grants{
 			{Edit, GameContent, Own},
 			{Read, GameSettings, Own},
 			{Edit, GameSettings, Own},
+			{Delete, GameCard, Own},
 			{Publish, GameCard, Own},
 
 			{Read, GameCard, ViaShareLink}, // the card only: v1 hides the content here
@@ -196,8 +209,42 @@ var Rules = map[Role]Grants{
 			{List, GameCard, Public},
 			{List, GameCard, Own},
 		},
+		// Anyone in a workshop: a guest in a workshop, always and only in theirs, or
+		// head, staff and individuals in workshop mode. A guest through a share
+		// link is never in a workshop.
+		InWorkshop: {
+			{Read, Workshop, Current},
+
+			{List, GameCard, OwnOfCurrentWorkshop},
+			{Read, GameCard, OfCurrentWorkshop}, // reading is wider than listing
+			{Play, GameCard, OfCurrentWorkshop},
+			{Read, GameContent, OfCurrentWorkshop},
+			{Read, GameSettings, OfCurrentWorkshop},
+
+			{List, ShareLink, OfCurrentWorkshop},
+
+			{Use, ApiKeyShare, SharedWithCurrentWorkshop},
+			// no Share on ApiKeyShare here: being in a workshop shares games, never its key
+		},
 		PublicShown: {
 			{List, GameCard, PublicElsewhere}, // own games outside the workshop are not listed
+		},
+		OthersShown: {
+			{List, GameCard, OfCurrentWorkshop},
+		},
+		// an account signed in but not yet registered completes its own user,
+		// and sees it; nothing else of SignedIn holds until then
+		Registering: {
+			{Create, UserCard, Own},
+			{Read, UserCard, Own},
+			{Read, UserAccount, Own},
+			{Read, UserContact, Own},
+		},
+		// sharing through the workshop's key, while the workshop allows it;
+		// roles with a key of their own share always
+		SharingAllowed: {
+			{Share, GameCard, Own},
+			{Share, GameCard, Public},
 		},
 	},
 }

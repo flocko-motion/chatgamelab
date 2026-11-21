@@ -1,8 +1,7 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     marks and unmarks the caller's favorite games
-// limits:  decides nothing: the core does (core.MarkFavorite); a game view
-//          says whether it is a favorite (isFavorite), the list filters by it
+// limits:  decides nothing: the core does (core.MarkFavorite); a game view says whether it is a favorite, the list filters by it
 package api
 
 import (

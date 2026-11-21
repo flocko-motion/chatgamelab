@@ -8,11 +8,11 @@ import "cgl/apiclient"
 
 // What the API answers.
 type (
-	User                = apiclient.User
-	UserRole            = apiclient.UserRole
-	UserStats           = apiclient.UserStats
+	User                = apiclient.UserView
+	UserRole            = apiclient.UserRoleRef
+	UserStats           = apiclient.UserStatsView
 	CurrentUser         = apiclient.GetCurrentUserResp
-	ParticipantCode     = apiclient.UserParticipantCodeResp
+	GuestCode           = apiclient.UserSecretsView
 	Game                = apiclient.Game
 	GameView            = apiclient.GameView
 	GameFile            = apiclient.GameFile
@@ -47,6 +47,7 @@ type (
 // What a test sends.
 type (
 	GameUpdate     = apiclient.UpdateGameReq
+	Registration   = apiclient.CompleteRegistrationReq
 	GameCreate     = apiclient.CreateGameReq
 	GameTemplate   = apiclient.GameTemplate
 	WorkshopUpdate = apiclient.UpdateWorkshopReq

@@ -94,6 +94,17 @@ func (s *BaseSuite) CreateUser(nameAndEmail ...string) *UserClient {
 	return s.signedIn(created.Id.String(), name, email)
 }
 
+// CreateRegisteringUser creates an account as a first Auth0 sign-in does,
+// with no name and no role, and signs it in: it is still registering.
+func (s *BaseSuite) CreateRegisteringUser() *UserClient {
+	s.T().Helper()
+	created, err := decode[User](s.Public().api.PostApiUsersNewWithResponse(ctx(), apiclient.CreateUserReq{}))
+	if err != nil {
+		s.T().Fatalf("creating a registering account: %v", err)
+	}
+	return s.signedIn(created.Id.String(), "", "")
+}
+
 // Role gives the user a role, as the dev admin.
 func (s *BaseSuite) Role(user *UserClient, role string) {
 	s.T().Helper()

@@ -87,6 +87,13 @@ export interface ChooseRequest {
   offer: string;
 }
 
+export interface CompleteRegistrationReq {
+  ageGroup: string;
+  email?: string;
+  language?: string;
+  name: string;
+}
+
 export interface ConnectRequest {
   sdp: string;
 }
@@ -397,6 +404,7 @@ export interface GameView {
   imageStyle?: string;
   isFavorite: boolean;
   mayCopy: boolean;
+  mayDelete: boolean;
   mayEditCard: boolean;
   mayEditContent: boolean;
   mayEditSettings: boolean;
@@ -430,7 +438,7 @@ export interface GenreInfo {
 
 export interface GetCurrentUserResp {
   state: string;
-  user?: User;
+  user?: UserView;
 }
 
 export interface GetVersionResp {
@@ -450,6 +458,20 @@ export interface GuestGameInfoResp {
   name: string;
   public: boolean;
   remaining?: number;
+}
+
+export interface GuestLoginReq {
+  token: string;
+}
+
+export interface GuestLoginResp {
+  token: string;
+  /** @format uuid */
+  userId: string;
+}
+
+export interface GuestTokenResp {
+  token: string;
 }
 
 export interface InputRequest {
@@ -521,6 +543,12 @@ export interface Model {
   params?: Record<string, string>;
 }
 
+export interface NamedRef {
+  /** @format uuid */
+  id: string;
+  name: string;
+}
+
 export interface NodeDetail {
   inputs: Sample[];
   name: string;
@@ -544,16 +572,6 @@ export interface Options {
   choosing: boolean;
   offers: OfferOption[];
   settled?: Settled;
-}
-
-export interface ParticipantLoginReq {
-  token: string;
-}
-
-export interface ParticipantLoginResp {
-  token: string;
-  /** @format uuid */
-  userId: string;
 }
 
 export interface PlatformInfo {
@@ -602,13 +620,6 @@ export interface PublicWorkshopPlay {
   limit: number;
   remaining: number;
   token: string;
-}
-
-export interface Registration {
-  ageGroup: string;
-  email?: string;
-  language?: string;
-  name: string;
 }
 
 export interface RolesResp {
@@ -845,6 +856,10 @@ export interface UpdateInstitutionReq {
   name: string;
 }
 
+export interface UpdateMyLanguageReq {
+  language: string;
+}
+
 export interface UpdateSystemSettingsReq {
   defaultAiQualityTier?: string;
   freeUseAiQualityTier?: string;
@@ -853,16 +868,13 @@ export interface UpdateSystemSettingsReq {
   promptConstraintU18?: string;
 }
 
-export interface UpdateUserLanguageReq {
-  language: string;
-}
-
 export interface UpdateUserReq {
   ageGroup?: string;
   aiQualityTier?: string;
   /** @format uuid */
   defaultApiKeyShareId?: string;
   email?: string;
+  language?: string;
   name?: string;
 }
 
@@ -916,9 +928,11 @@ export interface User {
   role?: UserRole;
 }
 
-export interface UserParticipantCodeResp {
-  token?: string;
-  words?: string;
+export interface UserMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  modifiedAt: string;
 }
 
 export interface UserRole {
@@ -956,6 +970,17 @@ export interface UserRoleInvite {
   workshopId?: string;
 }
 
+export interface UserRoleRef {
+  institution?: NamedRef;
+  role: string;
+  workshop?: NamedRef;
+}
+
+export interface UserSecretsView {
+  token?: string;
+  words?: string;
+}
+
 export interface UserSessionWithGame {
   /** @format uuid */
   apiKeyShareId?: string;
@@ -979,11 +1004,31 @@ export interface UserSessionWithGame {
   workshopId?: string;
 }
 
-export interface UserStats {
+export interface UserStatsView {
   gamesCreated: number;
   gamesPlayed: number;
   messagesSent: number;
   totalPlaysOnGames: number;
+}
+
+export interface UserView {
+  ageGroup?: string;
+  aiQualityTier?: string;
+  /** @format uuid */
+  defaultApiKeyShareId?: string;
+  email?: string;
+  hasAccount: boolean;
+  hasContact: boolean;
+  /** @format uuid */
+  id: string;
+  language?: string;
+  mayDelete: boolean;
+  mayEditAccount: boolean;
+  mayEditCard: boolean;
+  mayEditContact: boolean;
+  meta?: UserMeta;
+  name: string;
+  role?: UserRoleRef;
 }
 
 export interface Workshop {
@@ -1031,10 +1076,6 @@ export interface WorkshopParticipant {
   role: string;
   /** @format uuid */
   workshopId: string;
-}
-
-export interface WorkshopParticipantTokenResp {
-  token: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1529,7 +1570,7 @@ export class Api<
       }),
 
     /**
-     * @description Development only: outside development mode it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "participant"), starts a session for its account and sets the session cookie.
+     * @description Development only: outside development mode it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "guest"), starts a session for its account and sets the session cookie.
      *
      * @name PostApiAuthDevLogin
      * @summary Signs in as one of the seeded development accounts.
@@ -1538,6 +1579,23 @@ export class Api<
     postApiAuthDevLogin: (data: DevLoginReq, params: RequestParams = {}) =>
       this.request<DevLoginResp, Error>({
         path: `/api/auth/dev-login`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Takes the participant token whole, or its words from a link, QR code or typed code. Starts a session, sets the session cookie and answers with the session token, for Bearer clients, and the participant's id.
+     *
+     * @name PostApiAuthGuestLogin
+     * @summary Signs a workshop participant in with their token.
+     * @request POST:/api/auth/guest-login
+     */
+    postApiAuthGuestLogin: (data: GuestLoginReq, params: RequestParams = {}) =>
+      this.request<GuestLoginResp, Error>({
+        path: `/api/auth/guest-login`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -1560,26 +1618,6 @@ export class Api<
       }),
 
     /**
-     * @description Takes the participant token whole, or its words from a link, QR code or typed code. Starts a session, sets the session cookie and answers with the session token, for Bearer clients, and the participant's id.
-     *
-     * @name PostApiAuthParticipantLogin
-     * @summary Signs a workshop participant in with their token.
-     * @request POST:/api/auth/participant-login
-     */
-    postApiAuthParticipantLogin: (
-      data: ParticipantLoginReq,
-      params: RequestParams = {},
-    ) =>
-      this.request<ParticipantLoginResp, Error>({
-        path: `/api/auth/participant-login`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
      * No description
      *
      * @name PostApiAuthRefresh
@@ -1597,15 +1635,18 @@ export class Api<
       }),
 
     /**
-     * @description An account exists from its first Auth0 sign-in and is unusable until it has a name and an age group; the email is optional. An account registers once.
+     * @description answers with their user. An account exists from its first Auth0 sign-in and is unusable until it has a name (at most 24 characters) and an age group; the email is optional. An account registers once (409 afterwards). The rights in the answer are those of the registering caller; GET /api/users/me shows the registered account's.
      *
      * @name PostApiAuthRegister
-     * @summary Completes the caller's registration.
+     * @summary Completes the caller's registration and
      * @request POST:/api/auth/register
      * @secure
      */
-    postApiAuthRegister: (data: Registration, params: RequestParams = {}) =>
-      this.request<User, Error>({
+    postApiAuthRegister: (
+      data: CompleteRegistrationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<UserView, Error>({
         path: `/api/auth/register`,
         method: "POST",
         body: data,
@@ -2107,7 +2148,7 @@ export class Api<
       }),
 
     /**
-     * @description takes mayEditSettings (403 otherwise).
+     * @description takes mayDelete (403 otherwise).
      *
      * @name DeleteApiGamesId
      * @summary Deletes a game and answers with it as it was. Deleting
@@ -2736,7 +2777,7 @@ export class Api<
       }),
 
     /**
-     * @description workshop as participants.
+     * @description workshop as Guests.
      *
      * @name PostApiInvitesWorkshop
      * @summary Creates an open invite for users to join a
@@ -2797,7 +2838,7 @@ export class Api<
       }),
 
     /**
-     * @description An anonymous caller accepts a workshop invite by token: this creates a participant account in the browser's language, starts its session, sets the session cookie and answers with the account and its token. A signed-in participant switches to the invite's workshop; a head, staff member or individual enters it and keeps their role; anyone else joins as a participant. An invite by id needs a signed-in caller; an institution invite gives the caller its role.
+     * @description An anonymous caller accepts a workshop invite by token: this creates a Guest in the browser's language, starts its session, sets the session cookie and answers with the account and its token. A signed-in Guest switches to the invite's workshop; a head, staff member or individual enters it and keeps their role; anyone else joins as a Guest. An invite by id needs a signed-in caller: a workshop invite lets them enter the workshop with their own role, an institution invite gives them its role.
      *
      * @name PostApiInvitesIdOrTokenAccept
      * @summary Accepts an invite by its id or its token.
@@ -3149,15 +3190,15 @@ export class Api<
       }),
 
     /**
-     * @description Admins see every user; heads and staff see the members of their institution. Everyone else is refused.
+     * @description heads and staff the members of their organisation.
      *
      * @name GetApiUsers
-     * @summary Lists the users the caller manages.
+     * @summary Lists the users the caller may list: admins every user,
      * @request GET:/api/users
      * @secure
      */
     getApiUsers: (params: RequestParams = {}) =>
-      this.request<User[], Error>({
+      this.request<UserView[], Error>({
         path: `/api/users`,
         method: "GET",
         secure: true,
@@ -3166,7 +3207,7 @@ export class Api<
       }),
 
     /**
-     * @description The state is "anonymous" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A participant whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering; this one reports it.
+     * @description The state is "anonymous" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A guest whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering; this one reports it.
      *
      * @name GetApiUsersMe
      * @summary Reports who is calling.
@@ -3205,18 +3246,18 @@ export class Api<
       }),
 
     /**
-     * @description their account. The language is an ISO 639-1 code the platform supports.
+     * @description user: UpdateUserEndpoint with their id and only the language. The language is an ISO 639-1 code the platform supports.
      *
      * @name PatchApiUsersMeLanguage
-     * @summary Sets the caller's language and answers with
+     * @summary Sets the caller's language and answers with their
      * @request PATCH:/api/users/me/language
      * @secure
      */
     patchApiUsersMeLanguage: (
-      data: UpdateUserLanguageReq,
+      data: UpdateMyLanguageReq,
       params: RequestParams = {},
     ) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/me/language`,
         method: "PATCH",
         body: data,
@@ -3227,16 +3268,16 @@ export class Api<
       }),
 
     /**
-     * @description Both fields are null for an account without one.
+     * @description with their id.
      *
-     * @name GetApiUsersMeParticipantCode
-     * @summary Returns the caller's own re-login code.
-     * @request GET:/api/users/me/participant-code
+     * @name GetApiUsersMeSecrets
+     * @summary Is the caller's own login code: GetUserSecretsEndpoint
+     * @request GET:/api/users/me/secrets
      * @secure
      */
-    getApiUsersMeParticipantCode: (params: RequestParams = {}) =>
-      this.request<UserParticipantCodeResp, Error>({
-        path: `/api/users/me/participant-code`,
+    getApiUsersMeSecrets: (params: RequestParams = {}) =>
+      this.request<UserSecretsView, Error>({
+        path: `/api/users/me/secrets`,
         method: "GET",
         secure: true,
         format: "json",
@@ -3244,15 +3285,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description with their id.
      *
      * @name GetApiUsersMeStats
-     * @summary Returns the caller's statistics.
+     * @summary Is the caller's own statistics: GetUserStatsEndpoint
      * @request GET:/api/users/me/stats
      * @secure
      */
     getApiUsersMeStats: (params: RequestParams = {}) =>
-      this.request<UserStats, Error>({
+      this.request<UserStatsView, Error>({
         path: `/api/users/me/stats`,
         method: "GET",
         secure: true,
@@ -3261,7 +3302,7 @@ export class Api<
       }),
 
     /**
-     * @description The name is required. The account's language follows the request's Accept-Language.
+     * @description The account's language follows the request's Accept-Language. Without a name it creates an account still registering, as a first Auth0 sign-in does (for testing registration).
      *
      * @name PostApiUsersNew
      * @summary Creates a user without Auth0; in dev mode only.
@@ -3278,10 +3319,10 @@ export class Api<
       }),
 
     /**
-     * @description record.
+     * @description roles. It takes mayDelete (403 otherwise); an organisation's last head is refused (409).
      *
      * @name DeleteApiUsersId
-     * @summary Removes a user, such as a participant, keeping their
+     * @summary Deletes a user with their games, keys, shares and
      * @request DELETE:/api/users/{id}
      * @secure
      */
@@ -3294,15 +3335,15 @@ export class Api<
       }),
 
     /**
-     * @description The caller reads their own account; admins read anyone; heads and staff read the members of their institution.
+     * @description heads and staff their organisation's members and the guests in its workshops; admins anyone. 404 otherwise.
      *
      * @name GetApiUsersId
-     * @summary Returns a user.
+     * @summary Returns a user the caller may see: themselves, and for
      * @request GET:/api/users/{id}
      * @secure
      */
     getApiUsersId: (id: string, params: RequestParams = {}) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/${id}`,
         method: "GET",
         secure: true,
@@ -3311,10 +3352,10 @@ export class Api<
       }),
 
     /**
-     * @description The caller updates themselves; admins update anyone; heads and staff update the participants of their institution's workshops. Only admins change an email. An empty name or email leaves it unchanged; an empty aiQualityTier clears it. The age group is "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent) or "u18" (18+).
+     * @description Send what changes; a field left out stays as it is. Each changed section must be one the caller may edit (mayEditCard for the name, mayEditAccount for language, age group, AI quality tier and default key, mayEditContact for the email); otherwise the whole request is refused (403). The age group is "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent) or "u18" (18+). An empty aiQualityTier or email removes it.
      *
      * @name PostApiUsersId
-     * @summary Updates a user and answers with them.
+     * @summary Changes a user and answers with them as stored.
      * @request POST:/api/users/{id}
      * @secure
      */
@@ -3323,7 +3364,7 @@ export class Api<
       data: UpdateUserReq,
       params: RequestParams = {},
     ) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/${id}`,
         method: "POST",
         body: data,
@@ -3369,6 +3410,40 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description for heads and staff the guests' in their organisation's workshops, to help a guest who lost theirs. Both fields are null for an account without one.
+     *
+     * @name GetApiUsersIdSecrets
+     * @summary Returns a user's login code: the guest's own, and
+     * @request GET:/api/users/{id}/secrets
+     * @secure
+     */
+    getApiUsersIdSecrets: (id: string, params: RequestParams = {}) =>
+      this.request<UserSecretsView, Error>({
+        path: `/api/users/${id}/secrets`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description takes seeing their account (403 otherwise).
+     *
+     * @name GetApiUsersIdStats
+     * @summary Returns what a user did on the platform, counted. It
+     * @request GET:/api/users/{id}/stats
+     * @secure
+     */
+    getApiUsersIdStats: (id: string, params: RequestParams = {}) =>
+      this.request<UserStatsView, Error>({
+        path: `/api/users/${id}/stats`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -3437,17 +3512,17 @@ export class Api<
     /**
      * @description staff and heads only.
      *
-     * @name GetApiWorkshopsParticipantsParticipantIdToken
-     * @summary Returns a workshop participant's access token;
-     * @request GET:/api/workshops/participants/{participantId}/token
+     * @name GetApiWorkshopsGuestsGuestIdToken
+     * @summary Returns the sign-in code of a Guest in a workshop;
+     * @request GET:/api/workshops/guests/{guestId}/token
      * @secure
      */
-    getApiWorkshopsParticipantsParticipantIdToken: (
-      participantId: string,
+    getApiWorkshopsGuestsGuestIdToken: (
+      guestId: string,
       params: RequestParams = {},
     ) =>
-      this.request<WorkshopParticipantTokenResp, Error>({
-        path: `/api/workshops/participants/${participantId}/token`,
+      this.request<GuestTokenResp, Error>({
+        path: `/api/workshops/guests/${guestId}/token`,
         method: "GET",
         secure: true,
         format: "json",
@@ -3455,19 +3530,19 @@ export class Api<
       }),
 
     /**
-     * @description staff and heads only. Earlier sign-in links stop working and the participant's sessions end.
+     * @description staff and heads only. Earlier sign-in links stop working and the Guest's sessions end.
      *
-     * @name PostApiWorkshopsParticipantsParticipantIdTokenReset
-     * @summary Replaces a workshop participant's access token;
-     * @request POST:/api/workshops/participants/{participantId}/token/reset
+     * @name PostApiWorkshopsGuestsGuestIdTokenReset
+     * @summary Replaces the sign-in code of a Guest in a workshop;
+     * @request POST:/api/workshops/guests/{guestId}/token/reset
      * @secure
      */
-    postApiWorkshopsParticipantsParticipantIdTokenReset: (
-      participantId: string,
+    postApiWorkshopsGuestsGuestIdTokenReset: (
+      guestId: string,
       params: RequestParams = {},
     ) =>
-      this.request<WorkshopParticipantTokenResp, Error>({
-        path: `/api/workshops/participants/${participantId}/token/reset`,
+      this.request<GuestTokenResp, Error>({
+        path: `/api/workshops/guests/${guestId}/token/reset`,
         method: "POST",
         secure: true,
         format: "json",
@@ -3535,7 +3610,7 @@ export class Api<
      * @description with; staff and heads only. A null or empty apiKeyShareId removes it.
      *
      * @name PutApiWorkshopsIdApiKey
-     * @summary Sets the API key a workshop's participants play
+     * @summary Sets the API key a workshop's members play
      * @request PUT:/api/workshops/{id}/api-key
      * @secure
      */

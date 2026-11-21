@@ -28,7 +28,7 @@ func (s *UserTestSuite) TestUserLanguagePreference() {
 
 	// Get current user info - should have default language (empty or "en")
 	user := Must(clientAlice.GetMe())
-	s.T().Logf("Initial user language: '%s'", user.Language)
+	s.T().Logf("Initial user language: '%s'", *user.Language)
 
 	// Set language to German
 	err := clientAlice.SetUserLanguage("de")
@@ -37,8 +37,8 @@ func (s *UserTestSuite) TestUserLanguagePreference() {
 
 	// Verify language was updated
 	user = Must(clientAlice.GetMe())
-	s.Equal("de", user.Language, "User language should be updated to 'de'")
-	s.T().Logf("Verified user language: %s", user.Language)
+	s.Equal("de", *user.Language, "User language should be updated to 'de'")
+	s.T().Logf("Verified user language: %s", *user.Language)
 
 	// Set language to French
 	err = clientAlice.SetUserLanguage("fr")
@@ -47,11 +47,11 @@ func (s *UserTestSuite) TestUserLanguagePreference() {
 
 	// Verify language was updated again
 	user = Must(clientAlice.GetMe())
-	s.Equal("fr", user.Language, "User language should be updated to 'fr'")
-	s.T().Logf("Verified user language: %s", user.Language)
+	s.Equal("fr", *user.Language, "User language should be updated to 'fr'")
+	s.T().Logf("Verified user language: %s", *user.Language)
 
 	// Verify Bob's language is independent
 	userBob := Must(clientBob.GetMe())
-	s.NotEqual("fr", userBob.Language, "Bob's language should be independent from Alice's")
-	s.T().Logf("Bob's language (independent): '%s'", userBob.Language)
+	s.NotEqual("fr", *userBob.Language, "Bob's language should be independent from Alice's")
+	s.T().Logf("Bob's language (independent): '%s'", *userBob.Language)
 }

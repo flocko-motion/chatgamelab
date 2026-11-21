@@ -51,12 +51,13 @@ func from(ctx context.Context) *identity.Caller {
 	return identity.Anonymous()
 }
 
-// roles are the grant lists that apply to c: Everyone, and for an account
-// SignedIn and their role.
+// roles are the grant lists that apply to c: Everyone, their role (a caller
+// nobody signed in is a guest), and SignedIn for an account that completed
+// registration.
 func roles(c *identity.Caller) []rules.Role {
-	rs := []rules.Role{rules.Everyone}
-	if c.Account() != nil {
-		rs = append(rs, rules.SignedIn, c.Role())
+	rs := []rules.Role{rules.Everyone, c.Role()}
+	if c.Account() != nil && !c.Registering() {
+		rs = append(rs, rules.SignedIn)
 	}
 	return rs
 }

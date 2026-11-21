@@ -1,6 +1,6 @@
 // package: auth / who is calling
 // type:    logic
-// job:     the ways in: an Auth0 identity mapped to its account, and a participant's token redeemed
+// job:     the ways in: an Auth0 identity mapped to its account, and a guest's login code redeemed
 // limits:  schemaf verifies the Auth0 ID token and starts the session; no HTTP (-> api)
 package auth
 
@@ -39,34 +39,47 @@ func OnLogin(ctx context.Context, id schemafapi.Identity) (string, error) {
 }
 
 var (
-	// ErrInvalidParticipantToken: no participant signs in with this token.
-	ErrInvalidParticipantToken = errors.New("invalid or expired token")
-	// ErrNoParticipantToken: the request names no token.
-	ErrNoParticipantToken = fmt.Errorf("a token is required: %w", schemafapi.ErrBadRequest)
+	// ErrInvalidGuestToken: no guest signs in with this code.
+	ErrInvalidGuestToken = errors.New("invalid or expired token")
+	// ErrNoGuestToken: the request names no token.
+	ErrNoGuestToken = fmt.Errorf("a token is required: %w", schemafapi.ErrBadRequest)
 )
 
-// RedeemParticipantToken returns the participant a token signs in. The token
-// comes whole (participant-…) or as its words, from a link, QR code or typed
-// code. An unknown token counts towards the token lock.
-func RedeemParticipantToken(ctx context.Context, token string) (uuid.UUID, error) {
+// RedeemGuestToken returns the guest a login code signs in. The code comes
+// whole (guest-…) or as its words, from a link, QR code or typed code. An
+// unknown code counts towards the token lock.
+//
+// Codes issued before "guest-" start with db.LegacyGuestTokenPrefix
+// ("participant-"): they stay valid, for backwards compatibility only, so
+// typed words are tried with both prefixes.
+func RedeemGuestToken(ctx context.Context, token string) (uuid.UUID, error) {
 	token = strings.TrimSpace(token)
 	if token == "" {
-		return uuid.Nil, ErrNoParticipantToken
+		return uuid.Nil, ErrNoGuestToken
 	}
-	if !strings.HasPrefix(token, db.ParticipantTokenPrefix) {
-		token = db.ParticipantTokenPrefix + wordtoken.Normalize(token)
+	candidates := []string{token}
+	if !strings.HasPrefix(token, db.GuestTokenPrefix) && !strings.HasPrefix(token, db.LegacyGuestTokenPrefix) {
+		words := wordtoken.Normalize(token)
+		candidates = []string{
+			db.GuestTokenPrefix + words,
+			db.LegacyGuestTokenPrefix + words, // backwards compatibility only
+		}
 	}
 
-	user, err := db.GetUserByParticipantToken(ctx, token)
-	if err != nil {
-		if !db.ParticipantTokenKnown(ctx, token) {
-			tokenlock.Fail()
+	known := false
+	for _, candidate := range candidates {
+		user, err := db.GetUserByGuestToken(ctx, candidate)
+		if err == nil {
+			return user.ID, nil
 		}
-		var perr *db.ParticipantAuthError
+		var perr *db.GuestAuthError
 		if errors.As(err, &perr) && perr.Code == "workshop_inactive" {
 			return uuid.Nil, ErrWorkshopInactive
 		}
-		return uuid.Nil, ErrInvalidParticipantToken
+		known = known || db.GuestTokenKnown(ctx, candidate)
 	}
-	return user.ID, nil
+	if !known {
+		tokenlock.Fail()
+	}
+	return uuid.Nil, ErrInvalidGuestToken
 }

@@ -1,4 +1,4 @@
-package auth
+package core
 
 import (
 	"errors"
@@ -7,6 +7,8 @@ import (
 	schemafapi "github.com/flocko-motion/schemaf/api"
 )
 
+// A registration needs a name of at most 24 characters and an age group; a
+// blank email is none, a malformed one is refused.
 func TestRegistrationValidate(t *testing.T) {
 	email := "ada@example.org"
 	valid := []Registration{
@@ -15,7 +17,7 @@ func TestRegistrationValidate(t *testing.T) {
 		{Name: "abcdefghijklmnopqrstuvwx", AgeGroup: "u13p"}, // 24 runes
 	}
 	for _, r := range valid {
-		if _, err := r.Validate(); err != nil {
+		if _, err := r.validate(); err != nil {
 			t.Errorf("%+v: unexpected error %v", r, err)
 		}
 	}
@@ -31,12 +33,12 @@ func TestRegistrationValidate(t *testing.T) {
 		{Name: "Ada", AgeGroup: "u18", Email: &bad},
 	}
 	for _, r := range invalid {
-		if _, err := r.Validate(); !errors.Is(err, schemafapi.ErrBadRequest) {
-			t.Errorf("%+v: want ErrBadRequest, got %v", r, err)
+		if _, err := r.validate(); !errors.Is(err, schemafapi.ErrBadRequest) {
+			t.Errorf("%+v: want a bad request, got %v", r, err)
 		}
 	}
 
-	got, err := Registration{Name: " Ada ", AgeGroup: "u18", Email: &blank}.Validate()
+	got, err := Registration{Name: " Ada ", AgeGroup: "u18", Email: &blank}.validate()
 	if err != nil {
 		t.Fatal(err)
 	}

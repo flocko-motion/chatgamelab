@@ -235,6 +235,27 @@
         ],
         "type": "object"
       },
+      "CompleteRegistrationReq": {
+        "properties": {
+          "ageGroup": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "ageGroup"
+        ],
+        "type": "object"
+      },
       "ConnectRequest": {
         "properties": {
           "sdp": {
@@ -1097,6 +1118,9 @@
           "mayCopy": {
             "type": "boolean"
           },
+          "mayDelete": {
+            "type": "boolean"
+          },
           "mayEditCard": {
             "type": "boolean"
           },
@@ -1162,6 +1186,7 @@
           "mayEditCard",
           "mayEditContent",
           "mayEditSettings",
+          "mayDelete",
           "mayCopy",
           "mayShare",
           "mayPublish",
@@ -1213,7 +1238,7 @@
             "type": "string"
           },
           "user": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/UserView"
           }
         },
         "required": [
@@ -1274,6 +1299,44 @@
           "gameId",
           "public",
           "name"
+        ],
+        "type": "object"
+      },
+      "GuestLoginReq": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "GuestLoginResp": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "GuestTokenResp": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
         ],
         "type": "object"
       },
@@ -1476,6 +1539,22 @@
         ],
         "type": "object"
       },
+      "NamedRef": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
       "NodeDetail": {
         "properties": {
           "inputs": {
@@ -1568,33 +1647,6 @@
         "required": [
           "choosing",
           "offers"
-        ],
-        "type": "object"
-      },
-      "ParticipantLoginReq": {
-        "properties": {
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "token"
-        ],
-        "type": "object"
-      },
-      "ParticipantLoginResp": {
-        "properties": {
-          "token": {
-            "type": "string"
-          },
-          "userId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "token",
-          "userId"
         ],
         "type": "object"
       },
@@ -1760,27 +1812,6 @@
           "token",
           "remaining",
           "limit"
-        ],
-        "type": "object"
-      },
-      "Registration": {
-        "properties": {
-          "ageGroup": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name",
-          "ageGroup"
         ],
         "type": "object"
       },
@@ -2453,6 +2484,17 @@
         ],
         "type": "object"
       },
+      "UpdateMyLanguageReq": {
+        "properties": {
+          "language": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "language"
+        ],
+        "type": "object"
+      },
       "UpdateSystemSettingsReq": {
         "properties": {
           "defaultAiQualityTier": {
@@ -2473,17 +2515,6 @@
         },
         "type": "object"
       },
-      "UpdateUserLanguageReq": {
-        "properties": {
-          "language": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "language"
-        ],
-        "type": "object"
-      },
       "UpdateUserReq": {
         "properties": {
           "ageGroup": {
@@ -2497,6 +2528,9 @@
             "type": "string"
           },
           "email": {
+            "type": "string"
+          },
+          "language": {
             "type": "string"
           },
           "name": {
@@ -2674,15 +2708,21 @@
         ],
         "type": "object"
       },
-      "UserParticipantCodeResp": {
+      "UserMeta": {
         "properties": {
-          "token": {
+          "createdAt": {
+            "format": "date-time",
             "type": "string"
           },
-          "words": {
+          "modifiedAt": {
+            "format": "date-time",
             "type": "string"
           }
         },
+        "required": [
+          "createdAt",
+          "modifiedAt"
+        ],
         "type": "object"
       },
       "UserRole": {
@@ -2778,6 +2818,34 @@
         ],
         "type": "object"
       },
+      "UserRoleRef": {
+        "properties": {
+          "institution": {
+            "$ref": "#/components/schemas/NamedRef"
+          },
+          "role": {
+            "type": "string"
+          },
+          "workshop": {
+            "$ref": "#/components/schemas/NamedRef"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "type": "object"
+      },
+      "UserSecretsView": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "words": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "UserSessionWithGame": {
         "properties": {
           "apiKeyShareId": {
@@ -2838,7 +2906,7 @@
         ],
         "type": "object"
       },
-      "UserStats": {
+      "UserStatsView": {
         "properties": {
           "gamesCreated": {
             "type": "integer"
@@ -2858,6 +2926,68 @@
           "gamesCreated",
           "messagesSent",
           "totalPlaysOnGames"
+        ],
+        "type": "object"
+      },
+      "UserView": {
+        "properties": {
+          "ageGroup": {
+            "type": "string"
+          },
+          "aiQualityTier": {
+            "type": "string"
+          },
+          "defaultApiKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "hasAccount": {
+            "type": "boolean"
+          },
+          "hasContact": {
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "mayDelete": {
+            "type": "boolean"
+          },
+          "mayEditAccount": {
+            "type": "boolean"
+          },
+          "mayEditCard": {
+            "type": "boolean"
+          },
+          "mayEditContact": {
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/UserMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRoleRef"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "mayEditCard",
+          "mayEditAccount",
+          "mayEditContact",
+          "mayDelete",
+          "hasAccount",
+          "hasContact"
         ],
         "type": "object"
       },
@@ -3007,17 +3137,6 @@
           "active",
           "gamesCount",
           "permanent"
-        ],
-        "type": "object"
-      },
-      "WorkshopParticipantTokenResp": {
-        "properties": {
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "token"
         ],
         "type": "object"
       }
@@ -3573,7 +3692,7 @@
     },
     "/api/auth/dev-login": {
       "post": {
-        "description": "Development only: outside development mode it answers 404. Takes a preset role\n(\"admin-1\", \"admin-2\", \"head-1\", \"head-2\", \"staff-1\", \"staff-2\",\n\"individual-1\", \"individual-2\", \"participant\"), starts a session for its\naccount and sets the session cookie.",
+        "description": "Development only: outside development mode it answers 404. Takes a preset role\n(\"admin-1\", \"admin-2\", \"head-1\", \"head-2\", \"staff-1\", \"staff-2\",\n\"individual-1\", \"individual-2\", \"guest\"), starts a session for its\naccount and sets the session cookie.",
         "operationId": "postApiAuthDev-login",
         "requestBody": {
           "content": {
@@ -3610,6 +3729,45 @@
         "summary": "Signs in as one of the seeded development accounts."
       }
     },
+    "/api/auth/guest-login": {
+      "post": {
+        "description": "Takes the participant token whole, or its words from a link, QR code or\ntyped code. Starts a session, sets the session cookie and answers with the\nsession token, for Bearer clients, and the participant's id.",
+        "operationId": "postApiAuthGuest-login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestLoginReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestLoginResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Signs a workshop participant in with their token."
+      }
+    },
     "/api/auth/logout": {
       "post": {
         "description": "Revokes the current session (if any) and clears the session cookie.",
@@ -3630,45 +3788,6 @@
           }
         },
         "summary": "End the current session"
-      }
-    },
-    "/api/auth/participant-login": {
-      "post": {
-        "description": "Takes the participant token whole, or its words from a link, QR code or\ntyped code. Starts a session, sets the session cookie and answers with the\nsession token, for Bearer clients, and the participant's id.",
-        "operationId": "postApiAuthParticipant-login",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ParticipantLoginReq"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParticipantLoginResp"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "Error"
-          }
-        },
-        "summary": "Signs a workshop participant in with their token."
       }
     },
     "/api/auth/refresh": {
@@ -3709,13 +3828,13 @@
     },
     "/api/auth/register": {
       "post": {
-        "description": "An account exists from its first Auth0 sign-in and is unusable until it has a\nname and an age group; the email is optional. An account registers once.",
+        "description": "answers with their user.\n\nAn account exists from its first Auth0 sign-in and is unusable until it has\na name (at most 24 characters) and an age group; the email is optional. An\naccount registers once (409 afterwards). The rights in the answer are\nthose of the registering caller; GET /api/users/me shows the registered\naccount's.",
         "operationId": "postApiAuthRegister",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Registration"
+                "$ref": "#/components/schemas/CompleteRegistrationReq"
               }
             }
           },
@@ -3726,7 +3845,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserView"
                 }
               }
             },
@@ -3751,7 +3870,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Completes the caller's registration."
+        "summary": "Completes the caller's registration and"
       }
     },
     "/api/auth/{provider}/login": {
@@ -5034,7 +5153,7 @@
     },
     "/api/games/{id}": {
       "delete": {
-        "description": "takes mayEditSettings (403 otherwise).",
+        "description": "takes mayDelete (403 otherwise).",
         "operationId": "deleteApiGamesId",
         "parameters": [
           {
@@ -6658,7 +6777,7 @@
     },
     "/api/invites/workshop": {
       "post": {
-        "description": "workshop as participants.",
+        "description": "workshop as Guests.",
         "operationId": "postApiInvitesWorkshop",
         "requestBody": {
           "content": {
@@ -6800,7 +6919,7 @@
     },
     "/api/invites/{idOrToken}/accept": {
       "post": {
-        "description": "An anonymous caller accepts a workshop invite by token: this creates a\nparticipant account in the browser's language, starts its session, sets the\nsession cookie and answers with the account and its token. A signed-in\nparticipant switches to the invite's workshop; a head, staff member or\nindividual enters it and keeps their role; anyone else joins as a\nparticipant. An invite by id needs a signed-in caller; an institution invite\ngives the caller its role.",
+        "description": "An anonymous caller accepts a workshop invite by token: this creates a\nGuest in the browser's language, starts its session, sets the\nsession cookie and answers with the account and its token. A signed-in\nGuest switches to the invite's workshop; a head, staff member or\nindividual enters it and keeps their role; anyone else joins as a\nGuest. An invite by id needs a signed-in caller: a workshop invite\nlets them enter the workshop with their own role, an institution invite\ngives them its role.",
         "operationId": "postApiInvitesIdOrTokenAccept",
         "parameters": [
           {
@@ -7631,7 +7750,7 @@
     },
     "/api/users": {
       "get": {
-        "description": "Admins see every user; heads and staff see the members of their\ninstitution. Everyone else is refused.",
+        "description": "heads and staff the members of their organisation.",
         "operationId": "getApiUsers",
         "responses": {
           "200": {
@@ -7639,7 +7758,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/User"
+                    "$ref": "#/components/schemas/UserView"
                   },
                   "type": "array"
                 }
@@ -7666,12 +7785,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the users the caller manages."
+        "summary": "Lists the users the caller may list: admins every user,"
       }
     },
     "/api/users/me": {
       "get": {
-        "description": "The state is \"anonymous\" without a sign-in, \"registering\" for an account\nwhose registration is incomplete, and \"registered\" with the account and its\nrole. A participant whose workshop is inactive, or an account that is gone,\nis refused with 403. Every other endpoint refuses an account that is still\nregistering; this one reports it.",
+        "description": "The state is \"anonymous\" without a sign-in, \"registering\" for an account\nwhose registration is incomplete, and \"registered\" with the account and its\nrole. A guest whose workshop is inactive, or an account that is gone, is\nrefused with 403. Every other endpoint refuses an account that is still\nregistering; this one reports it.",
         "operationId": "getApiUsersMe",
         "responses": {
           "200": {
@@ -7756,13 +7875,13 @@
     },
     "/api/users/me/language": {
       "patch": {
-        "description": "their account.\n\nThe language is an ISO 639-1 code the platform supports.",
+        "description": "user: UpdateUserEndpoint with their id and only the language. The\nlanguage is an ISO 639-1 code the platform supports.",
         "operationId": "patchApiUsersMeLanguage",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateUserLanguageReq"
+                "$ref": "#/components/schemas/UpdateMyLanguageReq"
               }
             }
           },
@@ -7773,7 +7892,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserView"
                 }
               }
             },
@@ -7798,19 +7917,19 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Sets the caller's language and answers with"
+        "summary": "Sets the caller's language and answers with their"
       }
     },
-    "/api/users/me/participant-code": {
+    "/api/users/me/secrets": {
       "get": {
-        "description": "Both fields are null for an account without one.",
-        "operationId": "getApiUsersMeParticipant-code",
+        "description": "with their id.",
+        "operationId": "getApiUsersMeSecrets",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserParticipantCodeResp"
+                  "$ref": "#/components/schemas/UserSecretsView"
                 }
               }
             },
@@ -7835,18 +7954,19 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns the caller's own re-login code."
+        "summary": "Is the caller's own login code: GetUserSecretsEndpoint"
       }
     },
     "/api/users/me/stats": {
       "get": {
+        "description": "with their id.",
         "operationId": "getApiUsersMeStats",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserStats"
+                  "$ref": "#/components/schemas/UserStatsView"
                 }
               }
             },
@@ -7871,12 +7991,12 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns the caller's statistics."
+        "summary": "Is the caller's own statistics: GetUserStatsEndpoint"
       }
     },
     "/api/users/new": {
       "post": {
-        "description": "The name is required. The account's language follows the request's\nAccept-Language.",
+        "description": "The account's language follows the request's Accept-Language. Without a\nname it creates an account still registering, as a first Auth0 sign-in\ndoes (for testing registration).",
         "operationId": "postApiUsersNew",
         "requestBody": {
           "content": {
@@ -7915,7 +8035,7 @@
     },
     "/api/users/{id}": {
       "delete": {
-        "description": "record.",
+        "description": "roles. It takes mayDelete (403 otherwise); an organisation's last head is\nrefused (409).",
         "operationId": "deleteApiUsersId",
         "parameters": [
           {
@@ -7950,10 +8070,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Removes a user, such as a participant, keeping their"
+        "summary": "Deletes a user with their games, keys, shares and"
       },
       "get": {
-        "description": "The caller reads their own account; admins read anyone; heads and staff\nread the members of their institution.",
+        "description": "heads and staff their organisation's members and the guests in its\nworkshops; admins anyone. 404 otherwise.",
         "operationId": "getApiUsersId",
         "parameters": [
           {
@@ -7970,7 +8090,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserView"
                 }
               }
             },
@@ -7995,10 +8115,10 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns a user."
+        "summary": "Returns a user the caller may see: themselves, and for"
       },
       "post": {
-        "description": "The caller updates themselves; admins update anyone; heads and staff update\nthe participants of their institution's workshops. Only admins change an\nemail. An empty name or email leaves it unchanged; an empty aiQualityTier\nclears it. The age group is \"u13\" (13-17, no parental consent), \"u13p\"\n(13-17, with parental consent) or \"u18\" (18+).",
+        "description": "Send what changes; a field left out stays as it is. Each changed section\nmust be one the caller may edit (mayEditCard for the name, mayEditAccount\nfor language, age group, AI quality tier and default key, mayEditContact\nfor the email); otherwise the whole request is refused (403). The age group\nis \"u13\" (13-17, no parental consent), \"u13p\" (13-17, with parental\nconsent) or \"u18\" (18+). An empty aiQualityTier or email removes it.",
         "operationId": "postApiUsersId",
         "parameters": [
           {
@@ -8025,7 +8145,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserView"
                 }
               }
             },
@@ -8050,7 +8170,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Updates a user and answers with them."
+        "summary": "Changes a user and answers with them as stored."
       }
     },
     "/api/users/{id}/role": {
@@ -8152,6 +8272,100 @@
           }
         ],
         "summary": "Sets a user's role and answers with the user."
+      }
+    },
+    "/api/users/{id}/secrets": {
+      "get": {
+        "description": "for heads and staff the guests' in their organisation's workshops, to help\na guest who lost theirs. Both fields are null for an account without one.",
+        "operationId": "getApiUsersIdSecrets",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSecretsView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns a user's login code: the guest's own, and"
+      }
+    },
+    "/api/users/{id}/stats": {
+      "get": {
+        "description": "takes seeing their account (403 otherwise).",
+        "operationId": "getApiUsersIdStats",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStatsView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns what a user did on the platform, counted. It"
       }
     },
     "/api/version": {
@@ -8309,14 +8523,14 @@
         "summary": "Creates a workshop."
       }
     },
-    "/api/workshops/participants/{participantId}/token": {
+    "/api/workshops/guests/{guestId}/token": {
       "get": {
         "description": "staff and heads only.",
-        "operationId": "getApiWorkshopsParticipantsParticipantIdToken",
+        "operationId": "getApiWorkshopsGuestsGuestIdToken",
         "parameters": [
           {
             "in": "path",
-            "name": "participantId",
+            "name": "guestId",
             "required": true,
             "schema": {
               "type": "string"
@@ -8328,7 +8542,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkshopParticipantTokenResp"
+                  "$ref": "#/components/schemas/GuestTokenResp"
                 }
               }
             },
@@ -8353,17 +8567,17 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Returns a workshop participant's access token;"
+        "summary": "Returns the sign-in code of a Guest in a workshop;"
       }
     },
-    "/api/workshops/participants/{participantId}/token/reset": {
+    "/api/workshops/guests/{guestId}/token/reset": {
       "post": {
-        "description": "staff and heads only.\n\nEarlier sign-in links stop working and the participant's sessions end.",
-        "operationId": "postApiWorkshopsParticipantsParticipantIdTokenReset",
+        "description": "staff and heads only.\n\nEarlier sign-in links stop working and the Guest's sessions end.",
+        "operationId": "postApiWorkshopsGuestsGuestIdTokenReset",
         "parameters": [
           {
             "in": "path",
-            "name": "participantId",
+            "name": "guestId",
             "required": true,
             "schema": {
               "type": "string"
@@ -8375,7 +8589,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkshopParticipantTokenResp"
+                  "$ref": "#/components/schemas/GuestTokenResp"
                 }
               }
             },
@@ -8400,7 +8614,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Replaces a workshop participant's access token;"
+        "summary": "Replaces the sign-in code of a Guest in a workshop;"
       }
     },
     "/api/workshops/{id}": {
@@ -8602,7 +8816,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Sets the API key a workshop's participants play"
+        "summary": "Sets the API key a workshop's members play"
       }
     },
     "/api/workshops/{id}/events": {

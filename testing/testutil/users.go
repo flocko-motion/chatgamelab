@@ -1,6 +1,6 @@
-// package: testutil / the words for accounts and participants
+// package: testutil / the words for accounts and guests
 // type:    logic
-// job:     who is calling, profiles, roles, languages, statistics, and how participants join a workshop and sign in
+// job:     who is calling, profiles, roles, languages, statistics, and how guests join a workshop and sign in
 // limits:  accounts only; institutions, workshops and invites live in orgs.go
 package testutil
 
@@ -73,7 +73,7 @@ func (u *UserClient) SetUserAiQualityTier(tier string) error {
 
 // SetUserLanguage sets the caller's interface language.
 func (c caller) SetUserLanguage(language string) error {
-	return done(c.api.PatchApiUsersMeLanguageWithResponse(ctx(), apiclient.UpdateUserLanguageReq{Language: language}))
+	return done(c.api.PatchApiUsersMeLanguageWithResponse(ctx(), apiclient.UpdateMyLanguageReq{Language: language}))
 }
 
 // SetUserRole gives an account a role, with no institution or workshop.
@@ -96,23 +96,34 @@ func (c caller) GetStats() (UserStats, error) {
 	return decode[UserStats](c.api.GetApiUsersMeStatsWithResponse(ctx()))
 }
 
-// GetParticipantCode is the caller's own participant code: empty for an
-// account that isn't a participant.
-func (c caller) GetParticipantCode() (ParticipantCode, error) {
-	return decode[ParticipantCode](c.api.GetApiUsersMeParticipantCodeWithResponse(ctx()))
+// GetGuestCode is the caller's own guest code: empty for an
+// account that isn't a guest.
+func (c caller) GetGuestCode() (GuestCode, error) {
+	return decode[GuestCode](c.api.GetApiUsersMeSecretsWithResponse(ctx()))
 }
 
-// --- Participants ---
+// Register completes the caller's registration and answers their user.
+func (c caller) Register(registration Registration) (User, error) {
+	return decode[User](c.api.PostApiAuthRegisterWithResponse(ctx(), registration))
+}
+
+// GetUserSecrets is another account's login code, as GetGuestCode is the
+// caller's own.
+func (c caller) GetUserSecrets(userID string) (GuestCode, error) {
+	return decode[GuestCode](c.api.GetApiUsersIdSecretsWithResponse(ctx(), userID))
+}
+
+// --- Guests ---
 
 // AcceptWorkshopInviteAnonymously accepts a workshop invite without signing
-// in, which creates a participant and answers with their account and token.
+// in, which creates a guest and answers with their account and token.
 func (s *BaseSuite) AcceptWorkshopInviteAnonymously(inviteToken string) (AcceptedInvite, error) {
 	s.T().Helper()
 	return s.Public().AcceptInviteByToken(inviteToken)
 }
 
-// JoinWorkshop accepts a workshop invite as a new participant and signs them
-// in with the participant token they got, as they would sign in again.
+// JoinWorkshop accepts a workshop invite as a new guest and signs them
+// in with the guest token they got, as they would sign in again.
 func (s *BaseSuite) JoinWorkshop(inviteToken string) (*UserClient, error) {
 	s.T().Helper()
 	accepted, err := s.AcceptWorkshopInviteAnonymously(inviteToken)
@@ -122,10 +133,10 @@ func (s *BaseSuite) JoinWorkshop(inviteToken string) (*UserClient, error) {
 	if accepted.AuthToken == nil {
 		return nil, fmt.Errorf("accepting the invite answered no token: %s", accepted.Message)
 	}
-	return s.ParticipantLogin(*accepted.AuthToken)
+	return s.GuestLogin(*accepted.AuthToken)
 }
 
-// JoinWorkshopWithCookie accepts a workshop invite as a new participant, as
+// JoinWorkshopWithCookie accepts a workshop invite as a new guest, as
 // a browser does, and answers the caller carrying only the session cookie
 // the platform set.
 func (s *BaseSuite) JoinWorkshopWithCookie(inviteToken string) (*CookieClient, error) {
@@ -150,8 +161,8 @@ func (s *BaseSuite) WithForgedCookie(real *CookieClient) *CookieClient {
 }
 
 // signedInWithSession is the caller signed in with a session token, as
-// participant-login answers it. A participant token is no session token: sign
-// in with ParticipantLogin.
+// guest-login answers it. A guest token is no session token: sign
+// in with GuestLogin.
 func (s *BaseSuite) signedInWithSession(token string) *UserClient {
 	s.T().Helper()
 	user := &UserClient{caller: newCaller(s, bearer(s, token)), Token: token}
@@ -163,11 +174,11 @@ func (s *BaseSuite) signedInWithSession(token string) *UserClient {
 	return user
 }
 
-// ParticipantLogin signs a participant in with their participant token, or
+// GuestLogin signs a guest in with their guest token, or
 // its words, and answers them signed in with the session token they got.
-func (s *BaseSuite) ParticipantLogin(participantToken string) (*UserClient, error) {
+func (s *BaseSuite) GuestLogin(guestToken string) (*UserClient, error) {
 	s.T().Helper()
-	resp, err := decode[apiclient.ParticipantLoginResp](s.Public().api.PostApiAuthParticipantLoginWithResponse(ctx(), apiclient.ParticipantLoginReq{Token: participantToken}))
+	resp, err := decode[apiclient.GuestLoginResp](s.Public().api.PostApiAuthGuestLoginWithResponse(ctx(), apiclient.GuestLoginReq{Token: guestToken}))
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +187,7 @@ func (s *BaseSuite) ParticipantLogin(participantToken string) (*UserClient, erro
 
 // AcceptWorkshopInviteAnonymouslyInLanguage accepts a workshop invite
 // without signing in, as a browser whose Accept-Language header is
-// acceptLanguage ("" sends none), which creates a participant.
+// acceptLanguage ("" sends none), which creates a guest.
 func (s *BaseSuite) AcceptWorkshopInviteAnonymouslyInLanguage(inviteToken, acceptLanguage string) (AcceptedInvite, error) {
 	s.T().Helper()
 	var editors []apiclient.RequestEditorFn

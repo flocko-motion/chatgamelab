@@ -8,14 +8,20 @@ import (
 	"cgl/core/internal/rules"
 )
 
-// A context nobody resolved holds the anonymous caller: no rights by accident.
+// A context nobody resolved holds the anonymous caller, a guest: no rights
+// by accident, only Everyone's and the Guest role's (which has none of its
+// own), never SignedIn's.
 func TestUnresolvedContextIsAnonymous(t *testing.T) {
 	c := from(context.Background())
 	if c != identity.Anonymous() {
 		t.Fatalf("unresolved context has caller %+v, want anonymous", c)
 	}
-	if got := roles(c); len(got) != 1 || got[0] != rules.Everyone {
-		t.Fatalf("anonymous roles = %v, want [everyone]", got)
+	got := roles(c)
+	if len(got) != 2 || got[0] != rules.Everyone || got[1] != rules.Guest {
+		t.Fatalf("anonymous roles = %v, want [everyone guest]", got)
+	}
+	if len(rules.Rules[rules.Guest].For(c.Contexts())) != 0 {
+		t.Fatalf("the Guest role grants something of its own")
 	}
 }
 

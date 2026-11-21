@@ -41,7 +41,8 @@ func readGameCardGates(ctx context.Context, id uuid.UUID) db.V2GameCardsParams {
 
 // gameCardGates opens what list and read share: the sections by
 // {Read, GameContent} and {Read, GameSettings}, the actions by {Edit, <section>},
-// {Copy, GameContent}, {Share, GameCard} and {Publish, GameCard}.
+// {Delete, GameCard}, {Copy, GameContent}, {Share, GameCard} and
+// {Publish, GameCard}.
 func gameCardGates(ctx context.Context) db.V2GameCardsParams {
 	return db.V2GameCardsParams{
 		Caller:          account(ctx),
@@ -70,6 +71,10 @@ func gameCardGates(ctx context.Context) db.V2GameCardsParams {
 		EditSettingsOrganisation: granted(ctx, rules.Edit, rules.GameSettings, rules.OfOwnOrganisation),
 		EditSettingsEverywhere:   granted(ctx, rules.Edit, rules.GameSettings, rules.Everywhere),
 
+		DeleteOwn:          granted(ctx, rules.Delete, rules.GameCard, rules.Own),
+		DeleteOrganisation: granted(ctx, rules.Delete, rules.GameCard, rules.OfOwnOrganisation),
+		DeleteEverywhere:   granted(ctx, rules.Delete, rules.GameCard, rules.Everywhere),
+
 		CopyPublic: granted(ctx, rules.Copy, rules.GameContent, rules.Public),
 		CopyOwn:    granted(ctx, rules.Copy, rules.GameContent, rules.Own),
 
@@ -79,5 +84,56 @@ func gameCardGates(ctx context.Context) db.V2GameCardsParams {
 		PublishOwn:          granted(ctx, rules.Publish, rules.GameCard, rules.Own),
 		PublishOrganisation: granted(ctx, rules.Publish, rules.GameCard, rules.OfOwnOrganisation),
 		PublishEverywhere:   granted(ctx, rules.Publish, rules.GameCard, rules.Everywhere),
+	}
+}
+
+// listUserCardsGates opens V2Users for a list: the rows by {List, UserCard}.
+func listUserCardsGates(ctx context.Context) db.V2UsersParams {
+	p := userCardGates(ctx)
+	p.CardMember = granted(ctx, rules.List, rules.UserCard, rules.MemberOfOwnOrganisation)
+	p.CardEverywhere = granted(ctx, rules.List, rules.UserCard, rules.Everywhere)
+	return p
+}
+
+// readUserCardGates opens V2Users for one user: the row by {Read, UserCard}.
+func readUserCardGates(ctx context.Context, id uuid.UUID) db.V2UsersParams {
+	p := userCardGates(ctx)
+	p.ID = uuid.NullUUID{UUID: id, Valid: true}
+	p.CardOwn = granted(ctx, rules.Read, rules.UserCard, rules.Own)
+	p.CardOrganisation = granted(ctx, rules.Read, rules.UserCard, rules.OfOwnOrganisation)
+	p.CardEverywhere = granted(ctx, rules.Read, rules.UserCard, rules.Everywhere)
+	return p
+}
+
+// userCardGates opens what list and read share: the sections by
+// {Read, UserAccount}, {Read, UserContact} and {Read, UserSecrets}, the
+// actions by {Edit, <section>} and {Delete, UserCard}.
+func userCardGates(ctx context.Context) db.V2UsersParams {
+	return db.V2UsersParams{
+		Caller:          account(ctx),
+		OwnOrganisation: ownOrganisation(ctx),
+
+		AccountOwn:          granted(ctx, rules.Read, rules.UserAccount, rules.Own),
+		AccountOrganisation: granted(ctx, rules.Read, rules.UserAccount, rules.OfOwnOrganisation),
+		AccountEverywhere:   granted(ctx, rules.Read, rules.UserAccount, rules.Everywhere),
+
+		ContactOwn:          granted(ctx, rules.Read, rules.UserContact, rules.Own),
+		ContactOrganisation: granted(ctx, rules.Read, rules.UserContact, rules.OfOwnOrganisation),
+		ContactEverywhere:   granted(ctx, rules.Read, rules.UserContact, rules.Everywhere),
+
+		SecretsOwn:          granted(ctx, rules.Read, rules.UserSecrets, rules.Own),
+		SecretsOrganisation: granted(ctx, rules.Read, rules.UserSecrets, rules.OfOwnOrganisation),
+
+		EditCardOwn:           granted(ctx, rules.Edit, rules.UserCard, rules.Own),
+		EditCardGuest:         granted(ctx, rules.Edit, rules.UserCard, rules.GuestOfOwnOrganisation),
+		EditCardEverywhere:    granted(ctx, rules.Edit, rules.UserCard, rules.Everywhere),
+		EditAccountOwn:        granted(ctx, rules.Edit, rules.UserAccount, rules.Own),
+		EditAccountGuest:      granted(ctx, rules.Edit, rules.UserAccount, rules.GuestOfOwnOrganisation),
+		EditAccountEverywhere: granted(ctx, rules.Edit, rules.UserAccount, rules.Everywhere),
+		EditContactOwn:        granted(ctx, rules.Edit, rules.UserContact, rules.Own),
+		EditContactEverywhere: granted(ctx, rules.Edit, rules.UserContact, rules.Everywhere),
+
+		DeleteGuest:      granted(ctx, rules.Delete, rules.UserCard, rules.GuestOfOwnOrganisation),
+		DeleteEverywhere: granted(ctx, rules.Delete, rules.UserCard, rules.Everywhere),
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"errors"
 
 	"cgl/api/auth"
+	"cgl/api/wire"
 	"cgl/core"
 	"cgl/db"
 	"cgl/obj"
@@ -17,37 +18,42 @@ import (
 	"github.com/google/uuid"
 )
 
-// CompleteRegistrationEndpoint completes the caller's registration.
+// CompleteRegistrationEndpoint completes the caller's registration and
+// answers with their user.
 //
-// An account exists from its first Auth0 sign-in and is unusable until it has a
-// name and an age group; the email is optional. An account registers once.
+// An account exists from its first Auth0 sign-in and is unusable until it has
+// a name (at most 24 characters) and an age group; the email is optional. An
+// account registers once (409 afterwards). The rights in the answer are
+// those of the registering caller; GET /api/users/me shows the registered
+// account's.
 type CompleteRegistrationEndpoint struct{}
 
 func (CompleteRegistrationEndpoint) Method() string             { return "POST" }
 func (CompleteRegistrationEndpoint) Path() string               { return "/api/auth/register" }
 func (CompleteRegistrationEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (CompleteRegistrationEndpoint) Handle(ctx context.Context, req CompleteRegistrationReq) (UserResp, error) {
-	caller, err := core.LegacyRegistering(ctx)
-	if err != nil {
-		return obj.User{}, err
-	}
-	reg, err := req.Validate()
-	if err != nil {
-		return obj.User{}, err
-	}
-	user, err := db.CompleteRegistration(ctx, caller.ID, reg.Name, reg.Email, reg.AgeGroup, reg.Language)
-	if err != nil {
-		return obj.User{}, appError(err)
-	}
-	return *user, nil
+func (CompleteRegistrationEndpoint) Handle(ctx context.Context, req CompleteRegistrationReq) (UserViewResp, error) {
+	return wire.UserViewOf(core.Register(ctx, core.Registration(req)))
+}
+
+// CompleteRegistrationReq is the name, age group, optional email and
+// interface language that complete an account.
+type CompleteRegistrationReq struct {
+	Name  string  `json:"name"`
+	Email *string `json:"email,omitempty"`
+	// AgeGroup is "u13" (13–17 without parental consent), "u13p" (13–17 with
+	// parental consent) or "u18" (18 and over).
+	AgeGroup string `json:"ageGroup"`
+	// Language is the ISO 639-1 code of the interface the person registered
+	// in; the account keeps its language when it is empty.
+	Language string `json:"language,omitempty"`
 }
 
 // GetCurrentUserEndpoint reports who is calling.
 //
 // The state is "anonymous" without a sign-in, "registering" for an account
 // whose registration is incomplete, and "registered" with the account and its
-// role. A participant whose workshop is inactive, or an account that is gone,
-// is refused with 403. Every other endpoint refuses an account that is still
+// role. A guest whose workshop is inactive, or an account that is gone, is
+// refused with 403. Every other endpoint refuses an account that is still
 // registering; this one reports it.
 type GetCurrentUserEndpoint struct{}
 
@@ -55,35 +61,21 @@ func (GetCurrentUserEndpoint) Method() string             { return "GET" }
 func (GetCurrentUserEndpoint) Path() string               { return "/api/users/me" }
 func (GetCurrentUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (GetCurrentUserEndpoint) Handle(ctx context.Context, _ GetCurrentUserReq) (GetCurrentUserResp, error) {
-	user, err := core.LegacyMaybeRegistering(ctx)
-	if err != nil {
-		return GetCurrentUserResp{}, err
+	state, user, err := core.ReadMe(ctx)
+	if err != nil || user == nil {
+		return GetCurrentUserResp{State: state}, err
 	}
-	if user == nil {
-		return GetCurrentUserResp{State: CallerAnonymous}, nil
-	}
-	if user.Name == "" {
-		return GetCurrentUserResp{State: CallerRegistering}, nil
-	}
-	return GetCurrentUserResp{State: CallerRegistered, User: user}, nil
+	view, err := wire.UserViewOf(user, nil)
+	return GetCurrentUserResp{State: state, User: &view}, err
 }
 
-// The states GetCurrentUserEndpoint reports.
-const (
-	CallerAnonymous   = "anonymous"
-	CallerRegistering = "registering"
-	CallerRegistered  = "registered"
-)
-
-// GetCurrentUserResp is the caller's state, and their account once registered.
+// GetCurrentUserResp is the caller's state (anonymous, registering,
+// registered), and their user once registered: the same view as
+// GET /api/users/{id} with their id.
 type GetCurrentUserResp struct {
-	State string    `json:"state"`
-	User  *UserResp `json:"user,omitempty"`
+	State string        `json:"state"`
+	User  *UserViewResp `json:"user,omitempty"`
 }
-
-// CompleteRegistrationReq is the name, age group, optional email and
-// interface language that complete an account.
-type CompleteRegistrationReq = auth.Registration
 
 // UserResp is an account with its role.
 type UserResp = obj.User
@@ -91,41 +83,41 @@ type UserResp = obj.User
 // GetCurrentUserReq takes no parameters.
 type GetCurrentUserReq struct{}
 
-// ParticipantLoginEndpoint signs a workshop participant in with their token.
+// GuestLoginEndpoint signs a workshop participant in with their token.
 //
 // Takes the participant token whole, or its words from a link, QR code or
 // typed code. Starts a session, sets the session cookie and answers with the
 // session token, for Bearer clients, and the participant's id.
-type ParticipantLoginEndpoint struct{}
+type GuestLoginEndpoint struct{}
 
-func (ParticipantLoginEndpoint) Method() string             { return "POST" }
-func (ParticipantLoginEndpoint) Path() string               { return "/api/auth/participant-login" }
-func (ParticipantLoginEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
-func (ParticipantLoginEndpoint) Handle(ctx context.Context, req ParticipantLoginReq) (ParticipantLoginResp, error) {
+func (GuestLoginEndpoint) Method() string             { return "POST" }
+func (GuestLoginEndpoint) Path() string               { return "/api/auth/guest-login" }
+func (GuestLoginEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (GuestLoginEndpoint) Handle(ctx context.Context, req GuestLoginReq) (GuestLoginResp, error) {
 	if err := tokenLocked(); err != nil {
-		return ParticipantLoginResp{}, err
+		return GuestLoginResp{}, err
 	}
-	userID, err := auth.RedeemParticipantToken(ctx, req.Token)
-	if errors.Is(err, auth.ErrInvalidParticipantToken) {
-		return ParticipantLoginResp{}, errUnauthorized(err.Error())
+	userID, err := auth.RedeemGuestToken(ctx, req.Token)
+	if errors.Is(err, auth.ErrInvalidGuestToken) {
+		return GuestLoginResp{}, errUnauthorized(err.Error())
 	}
 	if err != nil {
-		return ParticipantLoginResp{}, err
+		return GuestLoginResp{}, err
 	}
 	token, err := schemafapi.StartSessionCtx(ctx, userID.String())
 	if err != nil {
-		return ParticipantLoginResp{}, err
+		return GuestLoginResp{}, err
 	}
-	return ParticipantLoginResp{Token: token, UserID: userID}, nil
+	return GuestLoginResp{Token: token, UserID: userID}, nil
 }
 
-// ParticipantLoginReq is a participant's token.
-type ParticipantLoginReq struct {
+// GuestLoginReq is a participant's token.
+type GuestLoginReq struct {
 	Token string `json:"token"`
 }
 
-// ParticipantLoginResp is the session token and the signed-in participant.
-type ParticipantLoginResp struct {
+// GuestLoginResp is the session token and the signed-in participant.
+type GuestLoginResp struct {
 	Token  string    `json:"token"`
 	UserID uuid.UUID `json:"userId"`
 }
@@ -134,7 +126,7 @@ type ParticipantLoginResp struct {
 //
 // Development only: outside development mode it answers 404. Takes a preset role
 // ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2",
-// "individual-1", "individual-2", "participant"), starts a session for its
+// "individual-1", "individual-2", "guest"), starts a session for its
 // account and sets the session cookie.
 type DevLoginEndpoint struct{}
 
@@ -166,7 +158,7 @@ var devLoginAccounts = map[string]uuid.UUID{
 	"staff-2":      db.DevStaff2UserID,
 	"individual-1": db.DevIndividual1UserID,
 	"individual-2": db.DevIndividual2UserID,
-	"participant":  db.DevParticipantUserID,
+	"guest":        db.DevGuestUserID,
 }
 
 // DevLoginReq is a preset role of a seeded development account.

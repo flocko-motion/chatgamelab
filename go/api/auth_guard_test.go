@@ -13,11 +13,11 @@ import (
 // this list in the same review.
 var openEndpoints = map[string]schemafapi.AuthLevel{
 	// signing in and registering
-	"GET /api/auth/check-name":         schemafapi.AuthNone,
-	"POST /api/auth/dev-login":         schemafapi.AuthNone, // dev mode only
-	"POST /api/auth/participant-login": schemafapi.AuthNone,
-	"POST /api/users/new":              schemafapi.AuthNone, // dev mode only
-	"GET /api/users/me":                schemafapi.AuthOptional,
+	"GET /api/auth/check-name":   schemafapi.AuthNone,
+	"POST /api/auth/dev-login":   schemafapi.AuthNone, // dev mode only
+	"POST /api/auth/guest-login": schemafapi.AuthNone,
+	"POST /api/users/new":        schemafapi.AuthNone, // dev mode only
+	"GET /api/users/me":          schemafapi.AuthOptional,
 
 	// invites: an anonymous caller joins a workshop by token
 	"GET /api/invites/{idOrToken}":         schemafapi.AuthOptional,

@@ -1,4 +1,3 @@
-go/api/auth/*.go
 go/api/wire/*.go
 go/db/*.go
 go/engine/*.go

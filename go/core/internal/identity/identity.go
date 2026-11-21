@@ -27,19 +27,20 @@ type Caller struct {
 	account         *uuid.UUID // nil: anonymous; owns nothing
 	role            rules.Role
 	organisation    *uuid.UUID
-	currentWorkshop *uuid.UUID // participant: fixed; others: workshop mode
+	currentWorkshop *uuid.UUID // a guest: their own, fixed; others: workshop mode
 	registering     bool       // signed in, registration not yet complete
 
 	// the current workshop's settings
-	workshopShowsPublic       bool
-	workshopShowsParticipants bool
-	workshopAllowsSharing     bool
+	workshopShowsPublic   bool
+	workshopShowsOthers   bool
+	workshopAllowsSharing bool
 
 	legacy *obj.User // v1's view of the caller, loaded by Legacy on first use
 }
 
-// anonymous is the caller without an account: it holds only Everyone's grants.
-var anonymous = &Caller{}
+// anonymous is the caller nobody signed in: a guest, holding only Everyone's
+// grants.
+var anonymous = &Caller{role: rules.Guest}
 
 // Anonymous is the caller of a request nobody signed in to, and of a context
 // nobody resolved: no rights by accident.
@@ -50,7 +51,7 @@ func Anonymous() *Caller { return anonymous }
 // once the hook has returned. One query loads everything (V2ReadCaller).
 //
 // It refuses what is refused on every route: a subject that names no account,
-// a deleted account, a participant who left their workshop or whose workshop
+// a deleted account, a guest who left their workshop or whose workshop
 // is inactive. An account still registering is a caller; the bridge refuses
 // it where v1 did.
 func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
@@ -70,38 +71,44 @@ func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
 		return nil, err
 	}
 
-	role := rules.Role(row.Role.String)
+	guest := row.Role.String == dbGuest // a guest's account: always in its workshop
 	switch {
 	case row.Deleted:
 		return nil, auth.ErrNoAccount
-	case row.ParticipantAccount && role != rules.Participant:
+	case row.GuestAccount && !guest:
 		return nil, auth.ErrNoAccount // left their workshop
-	case role == rules.Participant && !row.ParticipantWorkshopActive:
+	case guest && !row.GuestWorkshopActive:
 		return nil, auth.ErrWorkshopInactive
 	}
 
 	c := &Caller{
 		account:      &row.ID,
-		role:         role,
 		registering:  row.Registering,
 		organisation: nullable(row.InstitutionID),
 
-		workshopShowsPublic:       row.WorkshopShowsPublic,
-		workshopShowsParticipants: row.WorkshopShowsParticipants,
-		workshopAllowsSharing:     row.WorkshopAllowsSharing,
+		workshopShowsPublic:   row.WorkshopShowsPublic,
+		workshopShowsOthers:   row.WorkshopShowsOthers,
+		workshopAllowsSharing: row.WorkshopAllowsSharing,
 	}
-	if role == rules.Participant {
+	if guest {
+		// a guest, always in their own workshop: no workshop mode to leave
+		c.role = rules.Guest
 		c.currentWorkshop = nullable(row.WorkshopID)
 	} else {
+		c.role = rules.Role(row.Role.String)
 		c.currentWorkshop = nullable(row.ActiveWorkshopID)
 	}
 	return c, nil
 }
 
+// dbGuest is how the database stores the role of a guest in a workshop,
+// bound to that workshop.
+const dbGuest = "guest"
+
 // Account is the caller's account, or nil for anonymous.
 func (c *Caller) Account() *uuid.UUID { return c.account }
 
-// Role is the caller's role; empty for anonymous.
+// Role is the caller's role: Guest for a caller nobody signed in.
 func (c *Caller) Role() rules.Role { return c.role }
 
 // Organisation is the caller's organisation, if any.
@@ -113,6 +120,9 @@ func (c *Caller) CurrentWorkshop() *uuid.UUID { return c.currentWorkshop }
 // Contexts are the situations the caller is in, which decide which of their
 // grants hold.
 func (c *Caller) Contexts() []rules.Context {
+	if c.registering {
+		return []rules.Context{rules.Always, rules.OutsideWorkshop, rules.Registering}
+	}
 	if c.currentWorkshop == nil {
 		return []rules.Context{rules.Always, rules.OutsideWorkshop}
 	}
@@ -120,8 +130,8 @@ func (c *Caller) Contexts() []rules.Context {
 	if c.workshopShowsPublic {
 		contexts = append(contexts, rules.PublicShown)
 	}
-	if c.workshopShowsParticipants {
-		contexts = append(contexts, rules.ParticipantsShown)
+	if c.workshopShowsOthers {
+		contexts = append(contexts, rules.OthersShown)
 	}
 	if c.workshopAllowsSharing {
 		contexts = append(contexts, rules.SharingAllowed)

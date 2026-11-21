@@ -11,8 +11,8 @@ VALUES ($1, $2, $3, $4)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
--- name: CreateUserWithParticipantToken :one
-INSERT INTO app_user (id, name, email, auth0_id, participant_token, language)
+-- name: CreateUserWithGuestToken :one
+INSERT INTO app_user (id, name, email, auth0_id, guest_token, language)
 VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
@@ -26,54 +26,54 @@ SELECT * FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL;
 -- name: GetUserByEmail :one
 SELECT * FROM app_user WHERE email = $1 AND deleted_at IS NULL;
 
--- name: GetUserByParticipantToken :one
+-- name: GetUserByGuestToken :one
 -- Get user by participant token, but only if they're linked to an active workshop
 SELECT u.*
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
-WHERE u.participant_token = $1
+WHERE u.guest_token = $1
   AND u.deleted_at IS NULL
-  AND ur.role = 'participant'
+  AND ur.role = 'guest'
   AND w.active = true
   AND w.deleted_at IS NULL;
 
--- name: CheckParticipantTokenStatus :one
+-- name: CheckGuestTokenStatus :one
 -- Check if a participant token exists and get the workshop active status
 -- Returns: exists (bool), workshop_active (bool)
 SELECT
   EXISTS(
     SELECT 1 FROM app_user u
     INNER JOIN user_role ur ON u.id = ur.user_id
-    WHERE u.participant_token = $1
+    WHERE u.guest_token = $1
       AND u.deleted_at IS NULL
-      AND ur.role = 'participant'
+      AND ur.role = 'guest'
   ) AS token_exists,
   COALESCE(
     (SELECT w.active FROM app_user u
      INNER JOIN user_role ur ON u.id = ur.user_id
      INNER JOIN workshop w ON ur.workshop_id = w.id
-     WHERE u.participant_token = $1
+     WHERE u.guest_token = $1
        AND u.deleted_at IS NULL
-       AND ur.role = 'participant'
+       AND ur.role = 'guest'
        AND w.deleted_at IS NULL
      LIMIT 1),
     false
   ) AS workshop_active;
 
--- name: ParticipantTokenExists :one
+-- name: GuestTokenExists :one
 -- Unfiltered: soft-deleted users keep their token, so it must never be reissued.
-SELECT EXISTS(SELECT 1 FROM app_user WHERE participant_token = $1) AS taken;
+SELECT EXISTS(SELECT 1 FROM app_user WHERE guest_token = $1) AS taken;
 
 -- name: InviteTokenExists :one
 SELECT EXISTS(SELECT 1 FROM user_role_invite WHERE invite_token = $1) AS taken;
 
--- name: UpdateParticipantToken :execrows
+-- name: UpdateGuestToken :execrows
 -- Only replaces an existing token, never mints one: a registered participant has a
 -- real login, and a word code would be a second, weaker credential for it. The row
 -- count tells the caller whether there was anything to replace.
-UPDATE app_user SET participant_token = $2, modified_by = $3, modified_at = now()
-WHERE id = $1 AND participant_token IS NOT NULL;
+UPDATE app_user SET guest_token = $2, modified_by = $3, modified_at = now()
+WHERE id = $1 AND guest_token IS NOT NULL;
 
 -- name: IsNameTaken :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
@@ -129,7 +129,7 @@ LEFT JOIN user_role r ON r.id = (
   SELECT ur.id
   FROM user_role ur
   WHERE ur.user_id = u.id
-  ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
+  ORDER BY CASE WHEN ur.role = 'guest' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
 )
 LEFT JOIN institution i
@@ -162,7 +162,7 @@ LEFT JOIN user_role r ON r.id = (
   SELECT ur.id
   FROM user_role ur
   WHERE ur.user_id = u.id
-  ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
+  ORDER BY CASE WHEN ur.role = 'guest' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
 )
 LEFT JOIN institution i
@@ -264,11 +264,11 @@ SELECT EXISTS(
 
 -- name: SetUserActiveWorkshop :exec
 UPDATE user_role SET active_workshop_id = $2, modified_at = now()
-WHERE user_id = $1 AND role != 'participant';
+WHERE user_id = $1 AND role != 'guest';
 
 -- name: ClearUserActiveWorkshop :exec
 UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
-WHERE user_id = $1 AND role != 'participant';
+WHERE user_id = $1 AND role != 'guest';
 
 -- name: GetUserActiveWorkshopID :one
 -- Get the active workshop ID for a user (for game creation context)
@@ -425,7 +425,7 @@ SELECT * FROM (
     (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count,
     CASE
       WHEN u.id = w.created_by THEN true
-      WHEN ur.workshop_id = $1 AND ur.role = 'participant' THEN true
+      WHEN ur.workshop_id = $1 AND ur.role = 'guest' THEN true
       ELSE false
     END as permanent
   FROM app_user u
@@ -434,11 +434,11 @@ SELECT * FROM (
   WHERE u.deleted_at IS NULL
     AND (
       (ur.workshop_id = $1)
-      OR (ur.active_workshop_id = $1 AND ur.role != 'participant')
-      OR (u.id = w.created_by AND ur.role != 'participant')
+      OR (ur.active_workshop_id = $1 AND ur.role != 'guest')
+      OR (u.id = w.created_by AND ur.role != 'guest')
     )
   ORDER BY u.id,
-    CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END,
+    CASE WHEN ur.role = 'guest' THEN 1 ELSE 0 END,
     ur.created_at ASC
 ) members
 ORDER BY joined_at ASC;
@@ -487,7 +487,7 @@ LIMIT 1;
 -- Guest User queries
 
 -- name: CreateGuestUser :one
-INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_id)
+INSERT INTO app_user (id, name, email, auth0_id, guest_token, private_share_id)
 VALUES ($1, $2, NULL, NULL, NULL, $3)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
@@ -505,11 +505,6 @@ SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $
 -- name: DeleteUserFavorites :exec
 DELETE FROM user_favourite_game WHERE user_id = $1;
 
--- name: DeleteWorkshopParticipantsByUserID :exec
-DELETE FROM workshop_participant WHERE workshop_id IN (
-  SELECT workshop_id FROM user_role WHERE user_id = $1 AND role = 'participant' AND workshop_id IS NOT NULL
-);
-
 -- name: CountHeadsByInstitution :one
 -- Count how many heads an institution has (for last-head protection)
 SELECT COUNT(*)::int AS count
@@ -523,17 +518,17 @@ FROM user_role r
 JOIN app_user u ON u.id = r.user_id
 WHERE r.role = 'admin' AND u.deleted_at IS NULL;
 
--- name: GetParticipantUserIDsByWorkshopID :many
+-- name: GetGuestUserIDsByWorkshopID :many
 -- Get user IDs of participants in a workshop
-SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'participant';
+SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'guest';
 
 -- name: DeleteUserRolesByWorkshopID :exec
 -- Delete all participant roles scoped to a workshop
-DELETE FROM user_role WHERE workshop_id = $1 AND role = 'participant';
+DELETE FROM user_role WHERE workshop_id = $1 AND role = 'guest';
 
--- name: DeleteUserParticipantRole :exec
+-- name: DeleteUserGuestRole :exec
 -- Delete a specific user's participant role for a workshop
-DELETE FROM user_role WHERE user_id = $1 AND workshop_id = $2 AND role = 'participant';
+DELETE FROM user_role WHERE user_id = $1 AND workshop_id = $2 AND role = 'guest';
 
 -- name: DeleteInvitesForUser :exec
 -- Delete invites targeting this user (can't just null invited_user_id due to type check constraint)
@@ -564,19 +559,19 @@ UPDATE app_user SET
   modified_at = now()
 WHERE id = $1 AND name IS NULL;
 
--- name: GetParticipantStatus :one
+-- name: GetGuestStatus :one
 -- has_token marks a participant account; it may sign in while it holds the
 -- participant role in an active workshop.
 SELECT
-  (u.participant_token IS NOT NULL)::bool AS has_token,
+  (u.guest_token IS NOT NULL)::bool AS has_token,
   EXISTS(
     SELECT 1 FROM user_role ur
-    WHERE ur.user_id = u.id AND ur.role = 'participant'
+    WHERE ur.user_id = u.id AND ur.role = 'guest'
   ) AS has_role,
   EXISTS(
     SELECT 1 FROM user_role ur
     JOIN workshop w ON w.id = ur.workshop_id
-    WHERE ur.user_id = u.id AND ur.role = 'participant'
+    WHERE ur.user_id = u.id AND ur.role = 'guest'
       AND w.active AND w.deleted_at IS NULL
   ) AS workshop_active
 FROM app_user u
