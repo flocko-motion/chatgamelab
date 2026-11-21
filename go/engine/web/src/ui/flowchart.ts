@@ -6,31 +6,16 @@
  * and the core neither imports this nor knows it exists.
  */
 import cytoscape from "cytoscape";
-import type { Cell, UsageRecord } from "../client.js";
+import type { Place } from "../client.js";
 import type { Phase } from "../protocol.js";
-import type { Topology } from "../client.js";
+import type { Topology, TopologyEdge } from "../client.js";
 import { layoutCode, parked } from "../layout.js";
-import { text } from "../texts.js";
+import { blockLabel, text, wireLabel } from "../texts.js";
 
 /** Reads a CSS custom property, so the diagram follows the page's theme. */
 function token(name: string, fallback: string): string {
   const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return value || fallback;
-}
-
-/** Mixes two #rrggbb colours, weight of the first; anything else gives the first. */
-function mix(first: string, second: string, weight: number): string {
-  const rgb = (hex: string): number[] | null => {
-    const m = /^#([0-9a-f]{6})$/i.exec(hex);
-    if (!m) return null;
-    const n = parseInt(m[1]!, 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  };
-  const a = rgb(first);
-  const b = rgb(second);
-  if (!a || !b) return first;
-  const mixed = a.map((v, i) => Math.round(v * weight + b[i]! * (1 - weight)));
-  return `#${mixed.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
 /**
@@ -48,20 +33,11 @@ export class Flowchart {
   #drawn = false;
   #phases = new Map<string, Phase>();
   #fading = new Map<string, ReturnType<typeof setTimeout>>();
-  /** Where each block is drawn; on a dev server, where it has been dragged to. */
-  #cells = new Map<string, Cell>();
-  /** The cell a dragged block left, so a block it lands on can take it. */
-  #grabbed: Cell | null = null;
-
-  /** One grid step, in model units: a column fits the longest block name. */
-  static readonly column = 150;
-  static readonly row = 64;
-
   /**
    * How long a finished block keeps its afterglow: long enough to be seen,
    * short enough that a busy graph is not permanently lit.
    */
-  static readonly afterglowMs = 700;
+  static readonly afterglowMs = 2500;
 
   constructor(
     private readonly container: HTMLElement,
@@ -74,28 +50,63 @@ export class Flowchart {
    * Draws the graph once. The wiring does not change during a session, so
    * redrawing it would only throw away the layout.
    */
-  draw(topology: Topology): void {
+  draw(full: Topology): void {
     if (this.#drawn) return;
     this.#drawn = true;
+    const topology = withoutFailures(full);
 
     const fg = token("--fg", "#1b1a19");
     const dim = token("--dim", "#6b6a68");
     const line = token("--line", "#e2e0dc");
     const bg = token("--bg", "#faf9f7");
-    const live = token("--live", "#2f7d5a");
-    const liveSoft = token("--live-soft", "#d9ece2");
-    const recent = token("--recent", "#9ec9b4");
     const into = token("--wire-in", "#16a34a");
     const outOf = token("--wire-out", "#dc2626");
-    // A failure edge is the outgoing wire's red faded into the background,
-    // pale on a light pane and dark on a dark one.
-    const failure = mix(outOf, bg, 0.35);
+    const symbol = token("--gray-6", "#475569");
+    // Each group's colour: its line, its calm fill, and the fill it glows with
+    // while working, so activity reads as the block itself lighting up.
+    const hues = {
+      input: group("input", "#0284c7", "#e0f2fe", "#bae6fd"),
+      preparation: group("prep", "#0d9488", "#e8f6f4", "#b5e6df"),
+      loop: group("block", "#7c3aed", "#f3effe", "#dccffc"),
+    };
+    const flag = token("--flag", "#db2777");
+
+    // Outputs are not blocks of their own in the drawing: each is a small
+    // symbol hanging off the block that feeds it, the way a circuit diagram
+    // draws ground, so the eye stays on the blocks that do the work.
+    const outputs = new Set(
+      topology.nodes.filter((node) => node.role === "sink").map((node) => node.name),
+    );
+    const blocks = topology.nodes.filter((node) => !outputs.has(node.name));
+    const inputs = new Set(
+      topology.nodes.filter((node) => node.role === "source").map((node) => node.name),
+    );
+    // What the player typed, shown back to them, is no step of the story.
+    const feeds = topology.edges.filter((edge) => outputs.has(edge.to) && !inputs.has(edge.from));
+    // The signal that hands the turn back to the player is plumbing, not part
+    // of the story's flow, and drawn it reads as the story running backwards.
+    // Two wires of one kind between the same blocks, such as the two texts
+    // Outline hands the picture prompt, are one connection to a reader.
+    const seen = new Set<string>();
+    const wires = topology.edges.filter((edge) => {
+      if (outputs.has(edge.to) || (edge.kind === "state" && inputs.has(edge.to))) return false;
+      const key = `${edge.from}>${edge.to}:${edge.kind}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     // The genre places every block by hand. One the layout misses is parked
     // below the drawing and marked, until a developer gives it a place.
-    for (const node of topology.nodes) if (node.cell) this.#cells.set(node.name, node.cell);
-    const unplaced = topology.nodes.filter((node) => !node.cell).map((node) => node.name);
-    for (const [name, cell] of parked(this.#cells, unplaced)) this.#cells.set(name, cell);
+    const places = new Map<string, Place>();
+    for (const node of blocks) if (node.place) places.set(node.name, node.place);
+    const unplaced = blocks.filter((node) => !node.place).map((node) => node.name);
+    for (const [name, place] of parked(places, unplaced)) places.set(name, place);
+
+    // Preparation is everything the start waits for, and the start itself;
+    // the rest is the game loop. Coloured apart, the two phases of a session
+    // read as two parts of the drawing.
+    const preparation = preparationOf(topology);
 
     this.#cy = cytoscape({
       container: this.container,
@@ -106,19 +117,55 @@ export class Flowchart {
       boxSelectionEnabled: false,
       autoungrabify: !topology.dev,
       elements: [
-        ...topology.nodes.map((node) => ({
-          data: { id: node.name, label: node.name, role: node.role },
-          position: Flowchart.#at(this.#cells.get(node.name)!),
-          classes: node.cell ? "" : "unplaced",
-        })),
-        ...topology.edges.map((edge, index) => ({
+        ...blocks.map((node) => {
+          // The player's inputs are drawn as symbols too, but keep their place:
+          // the story starts from them.
+          const kind = node.role === "source" ? inputKind(node.name, topology.edges) : null;
+          const hue = kind
+            ? hues.input
+            : preparation.has(node.name)
+              ? hues.preparation
+              : hues.loop;
+          return {
+            data: {
+              id: node.name,
+              label: blockLabel(node.name),
+              role: node.role,
+              ...hue,
+              ...(kind ? { icon: icon(`in-${kind}`, hue.hue) } : {}),
+            },
+            position: { ...places.get(node.name)! },
+            classes: [kind ? "input" : "", node.place ? "" : "unplaced"].join(" ").trim(),
+          };
+        }),
+        ...wires.map((edge, index) => ({
           data: {
             id: `e${index}`,
             source: edge.from,
             target: edge.to,
-            label: edge.kind,
+            kind: edge.kind,
+            label: wireLabel(edge.from, edge.to, edge.kind),
           },
         })),
+        ...feeds.flatMap((edge) => {
+          const id = symbolId(edge);
+          return [
+            {
+              data: {
+                id,
+                output: edge.to,
+                kind: edge.kind,
+                icon: icon(edge.kind, symbol),
+                hue: symbol,
+                soft: bg,
+                glow: bg,
+              },
+              classes: "output",
+              grabbable: false,
+            },
+            { data: { id: `${id}:stub`, source: edge.from, target: id }, classes: "stub" },
+          ];
+        }),
       ],
       style: [
         {
@@ -130,55 +177,73 @@ export class Flowchart {
             color: fg,
             "text-valign": "center",
             "text-halign": "center",
-            // The cost goes on its own line under the name rather than beside
-            // it, so a long model name never pushes a node wide.
             "text-wrap": "wrap",
             shape: "round-rectangle",
             width: "label",
             height: 22,
             padding: "6px",
-            "background-color": bg,
+            "background-color": "data(soft)",
             "border-width": 1,
-            "border-color": line,
+            "border-color": "data(hue)",
             // Every style that changes is animated, so a turn reads as motion
             // through the graph rather than as a sequence of stills.
             "transition-property":
               "border-color, border-width, background-color, overlay-opacity",
-            "transition-duration": 180,
+            // Slow enough that the afterglow fades rather than switches off.
+            "transition-duration": 400,
             "transition-timing-function": "ease-out",
-            "overlay-color": live,
+            "overlay-color": "data(hue)",
             "overlay-opacity": 0,
             "overlay-padding": 6,
           },
         },
-        // Sources and sinks are shaped differently so the stem and the sinks
-        // are findable without reading every label.
-        { selector: 'node[role = "source"]', style: { shape: "round-tag" } },
-        { selector: 'node[role = "sink"]', style: { shape: "round-diamond", height: 28 } },
-        // The gate is where the stem joins the loop, so it is shaped like a
-        // join rather than like the blocks on either side of it.
-        { selector: 'node[role = "gate"]', style: { shape: "round-hexagon", height: 26 } },
+        // The player's input, the preparation and the game loop have their
+        // own colours (data(hue), data(soft)), so they are told apart before
+        // any label is read. The gate is drawn as a block: where the game
+        // starts matters to the engine, not to someone reading a turn.
+        {
+          selector: "node.output, node.input",
+          style: {
+            label: "",
+            shape: "ellipse",
+            width: 24,
+            height: 24,
+            padding: "0px",
+            "border-width": 0,
+            "background-opacity": 0,
+            "background-image": "data(icon)",
+            "background-fit": "contain",
+          },
+        },
+        { selector: "node.input", style: { width: 34, height: 34 } },
         {
           // A block the genre's layout misses: findable, so it gets placed.
           selector: "node.unplaced",
-          style: { "border-style": "dashed", "border-color": outOf },
+          style: { "border-style": "dashed", "border-color": flag },
+        },
+        {
+          // The afterglow, declared before working so a block that starts
+          // again while still glowing shows as working. Without it a block
+          // that finishes in 40 ms is never seen at all.
+          selector: "node.recent",
+          style: {
+            "border-width": 2,
+            "background-color": "data(glow)",
+            "background-opacity": 0.6,
+            "overlay-opacity": 0.08,
+          },
         },
         {
           selector: "node.working",
           style: {
-            "border-color": live,
-            "border-width": 2,
-            "background-color": liveSoft,
+            "border-width": 4,
+            "background-color": "data(glow)",
+            "background-opacity": 1,
             // A halo, so a working block is findable at a glance on a graph
             // with a dozen nodes.
-            "overlay-opacity": 0.12,
+            "overlay-opacity": 0.25,
+            "overlay-padding": 8,
           },
-        },
-        {
-          // The afterglow. Without it a block that finishes in 40 ms never
-          // renders at all, and the observer is exactly that fast.
-          selector: "node.recent",
-          style: { "border-color": recent, "border-width": 2 },
         },
         {
           selector: "edge",
@@ -198,10 +263,15 @@ export class Flowchart {
           },
         },
         {
-          // Where a block's failed call goes: pale and dashed, apart from the
-          // flow a turn takes when all goes well.
-          selector: 'edge[label = "failure"]',
-          style: { "line-color": failure, "target-arrow-color": failure, "line-style": "dashed" },
+          // The short lead from a block to its output symbol: no label, no
+          // arrowhead, like the stub to a ground symbol.
+          selector: "edge.stub",
+          style: {
+            label: "",
+            "target-arrow-shape": "none",
+            "curve-style": "straight",
+            "line-color": dim,
+          },
         },
         // Declared last on purpose: cytoscape resolves a conflict in favour of
         // the later rule, so selection styles have to follow the base ones they
@@ -237,16 +307,24 @@ export class Flowchart {
       layout: { name: "preset", fit: false },
     });
 
+    this.#hangOutputs();
+    // A block moved by a developer takes its symbols along.
+    this.#cy.on("position", "node", (event) => {
+      if (!event.target.hasClass("output")) this.#hangOutputs(event.target);
+    });
+
     if (topology.dev) this.#rearrangeable(topology.name);
 
     this.#cy.on("tap", "node", (event) => {
-      this.select(event.target.id());
-      this.onNodeClick(event.target.id());
+      // A symbol stands for its output, which is what the details describe.
+      const name = event.target.data("output") ?? event.target.id();
+      this.select(name);
+      this.onNodeClick(name);
     });
     this.#cy.on("tap", "edge", (event) => {
       const edge = event.target;
       this.selectEdge(edge.id());
-      this.onEdgeClick(edge.data("source"), edge.data("target"), edge.data("label"));
+      this.onEdgeClick(edge.data("source"), edge.data("target"), edge.data("kind"));
     });
     this.#cy.on("tap", (event) => {
       // A tap on the background rather than on a block clears the selection,
@@ -267,50 +345,54 @@ export class Flowchart {
     }).observe(this.container);
   }
 
-  /** A cell's place in model units. */
-  static #at(cell: Cell): cytoscape.Position {
-    return { x: cell.col * Flowchart.column, y: cell.row * Flowchart.row };
+  /** How far below its block an output symbol hangs, and how far apart. */
+  static readonly symbolDrop = 40;
+  static readonly symbolStep = 30;
+
+  /**
+   * Hangs each block's output symbols in a row under it, centred, or only
+   * those of one block. Their places follow from the block's, so a layout
+   * never has to name them.
+   */
+  #hangOutputs(only?: cytoscape.NodeSingular): void {
+    const cy = this.#cy;
+    if (!cy) return;
+    const owners = only ? cy.collection(only) : blocksOf(cy);
+    cy.batch(() => {
+      owners.forEach((owner) => {
+        const symbols = owner.outgoers("node.output");
+        const { x, y } = owner.position();
+        const below = y + owner.outerHeight() / 2 + Flowchart.symbolDrop - 16;
+        symbols.forEach((symbol, i) => {
+          symbol.position({
+            x: x + (i - (symbols.length - 1) / 2) * Flowchart.symbolStep,
+            y: below,
+          });
+        });
+      });
+    });
   }
 
   /**
-   * Lets a developer drag blocks into place and copy the layout as Go source.
-   * A dropped block snaps to the nearest cell; a block already there swaps
-   * into the cell the dropped one left, so two never share a place.
+   * Lets a developer drag blocks anywhere and copy the layout as Go source:
+   * where the blocks stand when the button is pressed is the layout.
    */
   #rearrangeable(genre: string): void {
     const cy = this.#cy;
     if (!cy) return;
 
-    cy.on("grab", "node", (event) => {
-      this.#grabbed = this.#cells.get(event.target.id()) ?? null;
-    });
-    cy.on("free", "node", (event) => {
-      const node: cytoscape.NodeSingular = event.target;
-      const { x, y } = node.position();
-      const cell = { row: Math.round(y / Flowchart.row), col: Math.round(x / Flowchart.column) };
-      const left = this.#grabbed;
-      this.#grabbed = null;
-
-      cy.batch(() => {
-        const other = [...this.#cells].find(
-          ([name, c]) => name !== node.id() && c.row === cell.row && c.col === cell.col,
-        );
-        if (other && left) {
-          this.#cells.set(other[0], left);
-          cy.getElementById(other[0]).position(Flowchart.#at(left));
-        }
-        this.#cells.set(node.id(), cell);
-        node.position(Flowchart.#at(cell));
-        node.removeClass("unplaced");
-      });
-    });
+    // A parked block that has been moved has a place now.
+    cy.on("free", "node", (event) => event.target.removeClass("unplaced"));
 
     const button = document.createElement("button");
     button.type = "button";
     button.className = "copy-layout";
     button.textContent = text("pipeline.copyLayout");
     button.addEventListener("click", async () => {
-      const code = layoutCode(genre, this.#cells);
+      const layout = new Map(
+        blocksOf(cy).map((node) => [node.id(), node.position()] as const),
+      );
+      const code = layoutCode(genre, layout);
       try {
         await navigator.clipboard.writeText(code);
         button.textContent = text("pipeline.copied");
@@ -384,7 +466,9 @@ export class Flowchart {
       cy.elements().removeClass(MARKS);
       if (!name) return;
 
-      const node = cy.getElementById(name);
+      // An output is drawn as one symbol under each block that feeds it.
+      let node = cy.getElementById(name);
+      if (node.empty()) node = cy.nodes(".output").filter((n) => n.data("output") === name);
       if (node.empty()) return;
       node.addClass("selected");
       node.incomers("edge").addClass("into");
@@ -406,13 +490,16 @@ export class Flowchart {
     });
   }
 
-  /** Lights the blocks that are working, and labels each with what it spent. */
-  update(phases: Record<string, Phase>, spent: UsageRecord[]): void {
+  /**
+   * Lights the blocks that are working. What each spent is left to the
+   * details pane: in the boxes it is more than a reader takes in.
+   */
+  update(phases: Record<string, Phase>): void {
     const cy = this.#cy;
     if (!cy) return;
 
     cy.batch(() => {
-      for (const node of cy.nodes()) {
+      for (const node of blocksOf(cy)) {
         const id = node.id();
         const phase = phases[id] ?? "ready";
         const previous = this.#phases.get(id);
@@ -422,10 +509,6 @@ export class Flowchart {
           node.toggleClass("working", phase === "working");
           if (previous === "working" && phase === "ready") this.#afterglow(node);
         }
-
-        const record = spent.find((entry) => entry.node === id);
-        const price = record ? cost(record) : "";
-        node.data("label", price ? `${id}\n${price}` : id);
       }
     });
   }
@@ -449,6 +532,102 @@ export class Flowchart {
   }
 }
 
+/** A group's colours from the page's tokens, with fallbacks. */
+function group(name: string, hue: string, soft: string, glow: string) {
+  return {
+    hue: token(`--node-${name}`, hue),
+    soft: token(`--node-${name}-soft`, soft),
+    glow: token(`--node-${name}-glow`, glow),
+  };
+}
+
+/**
+ * The blocks the start waits for, followed back through every wire, and the
+ * start itself: the session's preparation.
+ */
+function preparationOf(topology: Topology): Set<string> {
+  const gate = topology.nodes.find((node) => node.role === "gate");
+  if (!gate) return new Set();
+  const found = new Set([gate.name]);
+  const queue = [gate.name];
+  while (queue.length) {
+    const name = queue.pop()!;
+    for (const edge of topology.edges) {
+      if (edge.to === name && !found.has(edge.from)) {
+        found.add(edge.from);
+        queue.push(edge.from);
+      }
+    }
+  }
+  return found;
+}
+
+/** The drawing's blocks, without the output symbols hanging off them. */
+function blocksOf(cy: cytoscape.Core): cytoscape.NodeCollection {
+  return cy.nodes().filter((node) => !node.hasClass("output"));
+}
+
+/** One symbol per feeding block, so an output fed twice hangs under both. */
+function symbolId(edge: TopologyEdge): string {
+  return `${edge.from}>${edge.to}`;
+}
+
+/** Line-art glyphs in a 24-unit box, one per kind of input and output. */
+const GLYPHS: Record<string, string> = {
+  // The player speaks: a microphone.
+  "in-audio":
+    '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
+  // The player types: a keyboard.
+  "in-text":
+    '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 14h8"/>',
+  // A speaker with a sound wave.
+  audio:
+    '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
+  // A framed picture with a hill and a sun.
+  image:
+    '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/>',
+  // Two sliders: values the game keeps.
+  props: '<path d="M4 8h16M4 16h16"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>',
+  // A speech bubble with lines of text.
+  text: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
+};
+
+/**
+ * What a player's input takes in, read off the wires leaving it: audio for a
+ * microphone, text for typing.
+ */
+function inputKind(name: string, edges: readonly TopologyEdge[]): "audio" | "text" {
+  const kinds = edges.filter((edge) => edge.from === name).map((edge) => edge.kind);
+  return kinds.includes("audio") ? "audio" : "text";
+}
+
+/** A symbol for a kind of wire or input, as an image cytoscape can paint. */
+function icon(kind: string, colour: string): string {
+  const glyph = GLYPHS[kind === "stream" ? "text" : kind] ?? GLYPHS.text!;
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" ` +
+    `stroke="${colour}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${glyph}</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * The wiring without where failures go. Any block can fail, so drawing every
+ * failure sink and the wire to it buries the flow a turn takes. A failure
+ * still reaches the player; it is only not drawn.
+ */
+function withoutFailures(topology: Topology): Topology {
+  const failures = new Set(
+    topology.nodes.filter((node) => node.role === "failure").map((node) => node.name),
+  );
+  return {
+    ...topology,
+    nodes: topology.nodes.filter((node) => !failures.has(node.name)),
+    edges: topology.edges.filter(
+      (edge) => edge.kind !== "failure" && !failures.has(edge.from) && !failures.has(edge.to),
+    ),
+  };
+}
+
 /**
  * How far to move a span [low, high] so it stays within [0, size], keeping
  * `lead` clear before it and `trail` after it.
@@ -462,9 +641,3 @@ function shift(low: number, high: number, size: number, lead: number, trail: num
   return 0;
 }
 
-/** Cost is an estimate from a hand-maintained table, so it is shown coarsely. */
-function cost(record: UsageRecord): string {
-  if (!record.cost) return "";
-  if (record.cost < 0.01) return "<1¢";
-  return `$${record.cost.toFixed(2)}`;
-}

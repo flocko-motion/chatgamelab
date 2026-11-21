@@ -432,19 +432,20 @@ type Topology struct {
 type TopologyNode struct {
 	Name string `json:"name"`
 	Role string `json:"role"`
-	// Cell is where the block is drawn; a block the layout misses has none.
-	Cell *Cell `json:"cell,omitempty"`
+	// Place is where the block is drawn; a block the layout misses has none.
+	Place *Place `json:"place,omitempty"`
 }
 
-// Cell is a place in the drawing's grid: rows run top to bottom, columns left to right.
-type Cell struct {
-	Row int `json:"row"`
-	Col int `json:"col"`
+// Place is a block's centre in the drawing, in its own units: x runs left to
+// right, y top to bottom.
+type Place struct {
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 // Layout places a genre's blocks by name. A wiring changes only with code, so
 // its drawing is placed by hand, in a reading order a person chose.
-type Layout map[string]Cell
+type Layout map[string]Place
 
 // Arrange gives the graph its drawing.
 func (g *Graph) Arrange(layout Layout) { g.layout = layout }
@@ -460,8 +461,8 @@ func (g *Graph) Topology() Topology {
 	t := Topology{Name: g.Name, Inputs: []string{}}
 	for _, n := range g.nodes {
 		node := TopologyNode{Name: NodeName(n), Role: g.role(n)}
-		if cell, ok := g.layout[node.Name]; ok {
-			node.Cell = &cell
+		if place, ok := g.layout[node.Name]; ok {
+			node.Place = &place
 		}
 		t.Nodes = append(t.Nodes, node)
 	}
@@ -482,13 +483,14 @@ func (g *Graph) role(n any) string {
 		return "gate"
 	}
 
-	in, out := false, false
+	in, out, onlyFailures := false, false, true
 	for _, e := range g.edges {
 		if e.Kind == KindState {
 			continue
 		}
 		if e.To == n {
 			in = true
+			onlyFailures = onlyFailures && e.Kind == KindFailure
 		}
 		if e.From == n {
 			out = true
@@ -498,6 +500,9 @@ func (g *Graph) role(n any) string {
 	switch {
 	case !in && out:
 		return "source"
+	// A sink that only failures reach: where a block's failed call goes.
+	case in && !out && onlyFailures:
+		return "failure"
 	case in && !out:
 		return "sink"
 	default:
@@ -514,7 +519,7 @@ func (g *Graph) Mermaid() string {
 		switch g.role(n) {
 		case "source":
 			fmt.Fprintf(&b, "  %s[/%s/]\n", id(name), name)
-		case "sink":
+		case "sink", "failure":
 			fmt.Fprintf(&b, "  %s[\\%s\\]\n", id(name), name)
 		case "gate":
 			fmt.Fprintf(&b, "  %s{{%s}}\n", id(name), name)

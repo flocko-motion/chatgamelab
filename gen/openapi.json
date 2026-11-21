@@ -239,21 +239,6 @@
         ],
         "type": "object"
       },
-      "Cell": {
-        "properties": {
-          "col": {
-            "type": "integer"
-          },
-          "row": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "row",
-          "col"
-        ],
-        "type": "object"
-      },
       "CheckNameResp": {
         "properties": {
           "available": {
@@ -2213,6 +2198,21 @@
         ],
         "type": "object"
       },
+      "Place": {
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "type": "object"
+      },
       "PlatformInfo": {
         "properties": {
           "genres": {
@@ -3077,11 +3077,11 @@
       },
       "TopologyNode": {
         "properties": {
-          "cell": {
-            "$ref": "#/components/schemas/Cell"
-          },
           "name": {
             "type": "string"
+          },
+          "place": {
+            "$ref": "#/components/schemas/Place"
           },
           "role": {
             "type": "string"

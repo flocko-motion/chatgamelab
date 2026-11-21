@@ -87,11 +87,6 @@ export interface AvailableKey {
   source: string;
 }
 
-export interface Cell {
-  col: number;
-  row: number;
-}
-
 export interface CheckNameResp {
   available: boolean;
   profane?: boolean;
@@ -757,6 +752,11 @@ export interface ParticipantMeta {
   createdAt: string;
 }
 
+export interface Place {
+  x: number;
+  y: number;
+}
+
 export interface PlatformInfo {
   genres: string[];
   id: string;
@@ -1051,8 +1051,8 @@ export interface TopologyEdge {
 }
 
 export interface TopologyNode {
-  cell?: Cell;
   name: string;
+  place?: Place;
   role: string;
 }
 

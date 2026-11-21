@@ -6,20 +6,20 @@ test("the copied layout is the Go literal, shifted to the origin and in reading 
   const code = layoutCode(
     "npc-live",
     new Map([
-      ["out-text", { row: 3, col: 2 }],
-      ["start-game", { row: 1, col: 3 }],
-      ["live-session", { row: 2, col: 2 }],
-      ["portrait", { row: 1, col: 1 }],
+      ["out-text", { x: 160.4, y: 300 }],
+      ["start-game", { x: 330, y: 100 }],
+      ["live-session", { x: 160, y: 199.6 }],
+      ["portrait", { x: 40, y: 100 }],
     ]),
   );
   assert.equal(
     code,
     [
       "var npcLiveLayout = ports.Layout{",
-      '\t"portrait":     {Row: 0, Col: 0},',
-      '\t"start-game":   {Row: 0, Col: 2},',
-      '\t"live-session": {Row: 1, Col: 1},',
-      '\t"out-text":     {Row: 2, Col: 1},',
+      '\t"portrait":     {X: 0, Y: 0},',
+      '\t"start-game":   {X: 290, Y: 0},',
+      '\t"live-session": {X: 120, Y: 100},',
+      '\t"out-text":     {X: 120, Y: 200},',
       "}",
       "",
     ].join("\n"),
@@ -27,7 +27,7 @@ test("the copied layout is the Go literal, shifted to the origin and in reading 
 });
 
 test("unplaced blocks wait in a row of their own below the drawing", () => {
-  const cells = parked(new Map([["outline", { row: 4, col: 2 }]]), ["new-block", "other"]);
-  assert.deepEqual(cells.get("new-block"), { row: 6, col: 0 });
-  assert.deepEqual(cells.get("other"), { row: 6, col: 1 });
+  const places = parked(new Map([["outline", { x: 300, y: 256 }]]), ["new-block", "other"]);
+  assert.deepEqual(places.get("new-block"), { x: 0, y: 384 });
+  assert.deepEqual(places.get("other"), { x: 150, y: 384 });
 });
