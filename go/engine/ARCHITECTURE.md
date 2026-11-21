@@ -454,11 +454,17 @@ session end to end with the headless playback-engine.
 - The tool call, and the threaded call on OpenAI and Mistral: Adventure's
   Outline answers its structured result and Expand streams its prose, both on
   the story model's thread.
+- Adventure's prompts: the game master's system message,
+  rephrase, the opening, the two narration prompts, the scene frame and the
+  two preparation prompts, filled in for the session when the wiring is built.
 
 ### Missing
 
 - **Adventure's remaining real blocks** — image generation, speech synthesis
   and transcription, which still run as dummies.
+- **Adventure's prompts in play** — the game master's message on Expand's
+  calls, the opening and its dice, the scenario and the youth-protection rule
+  on the story thread, the picture prompt and the two preparation calls.
 - **The observer's thread** — it judges each line on its own.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the playback-engine needs.

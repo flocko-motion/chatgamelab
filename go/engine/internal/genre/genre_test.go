@@ -152,48 +152,9 @@ func TestPromptOverride(t *testing.T) {
 	}
 }
 
-// Adventure's prompts are configured by the genre, in the player's language,
-// and a spec may replace each by name.
-func TestAdventureRephrasePrompt(t *testing.T) {
-	w := mustAdventure(t, nil)
-	if got := w.Prompts[PromptRephrase]; got != AdventurePrompts[PromptRephrase] {
-		t.Errorf("without a language the prompt is %q", got)
-	}
-
-	w, err := NewAdventure(AdventureConfig{Tool: mock.Tool{}, Thread: mock.Thread{}, Language: "de"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, name := range []string{PromptRephrase, PromptExpand} {
-		if got := w.Prompts[name]; !strings.HasSuffix(got, "Keep the response in the language with BCP 47 tag `de`.") {
-			t.Errorf("%s does not ask for the player's language: %q", name, got)
-		}
-	}
-
-	w, err = NewAdventure(AdventureConfig{Tool: mock.Tool{}, Thread: mock.Thread{}, PromptOverride: map[string]string{
-		PromptRephrase: "Say it as a pirate.", PromptExpand: "Tell it in verse.",
-	}})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := w.Prompts[PromptRephrase]; got != "Say it as a pirate." {
-		t.Errorf("override ignored, prompt is %q", got)
-	}
-	if got := w.Prompts[PromptExpand]; got != "Tell it in verse." {
-		t.Errorf("override ignored, expand prompt is %q", got)
-	}
-	if _, err := NewAdventure(AdventureConfig{Tool: mock.Tool{}, Thread: mock.Thread{}, PromptOverride: map[string]string{"observer": "x"}}); err == nil {
-		t.Error("a prompt Adventure does not have was accepted")
-	}
-}
-
 func mustAdventure(t testing.TB, status map[string]string) *Wiring {
 	t.Helper()
-	w, err := NewAdventure(AdventureConfig{Tool: mock.Tool{}, Thread: mock.Thread{}, Status: status})
-	if err != nil {
-		t.Fatalf("wiring adventure: %v", err)
-	}
-	return w
+	return adventure(t, AdventureConfig{Status: status})
 }
 
 func mockNPCConfig(guardrail string) NPCLiveConfig {

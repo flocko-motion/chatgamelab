@@ -29,6 +29,7 @@ import (
 
 	"engine/internal/adapters"
 	"engine/internal/adapters/mistral"
+	"engine/internal/adapters/mock"
 	"engine/internal/adapters/openai"
 	"engine/internal/devconfig"
 	"engine/internal/genre"
@@ -81,7 +82,14 @@ func main() {
 	flag.Parse()
 
 	schema := genre.OutlineSchema(status)
-	instructions := genre.AdventurePrompts[genre.PromptOutline]
+	// Outline runs on the game master's system message, filled in as a game
+	// with these status fields would have it.
+	adventure, err := genre.NewAdventure(genre.AdventureConfig{Tool: mock.Tool{}, Thread: mock.Thread{}, Status: status})
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	instructions := adventure.Prompts[genre.PromptGameMaster]
 	input, _ := json.Marshal(map[string]any{
 		"input":  "The player tries to cross the rope bridge in the storm, hoping it holds.",
 		"status": status,
