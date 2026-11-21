@@ -1,18 +1,26 @@
 // package: db / database access and repository layer
 // type:    data
-// job:     seed well-known dev users, institutions, and workshops for local development.
+// job:     seed well-known dev users, institutions, workshops and demo games for local development.
 // limits:  does not define SQL queries (-> db/queries) or run in production.
 package db
 
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"errors"
+	"hash/fnv"
+	"math"
+	"math/rand/v2"
+	"os"
+	"path/filepath"
 	"time"
 
 	"cgl/log"
 	"cgl/obj"
 
 	"github.com/google/uuid"
+	"gopkg.in/yaml.v3"
 )
 
 // Well-known UUIDs for dev users (two per role + one participant)
@@ -57,8 +65,8 @@ func Preseed(ctx context.Context) {
 	// Create mock API key for first admin user
 	preseedDevApiKey(ctx, DevAdmin1UserID)
 
-	// Create a dummy game for the first admin user
-	preseedDevGame(ctx, DevAdmin1UserID)
+	// Create the demo games, spread across the dev users
+	preseedDevGames(ctx)
 
 	log.Debug("database preseed completed")
 }
@@ -253,26 +261,147 @@ func preseedDevApiKey(ctx context.Context, userID uuid.UUID) {
 	}
 }
 
-// preseedDevGame creates a dummy game for the given user if they don't have one
-func preseedDevGame(ctx context.Context, userID uuid.UUID) {
-	games, err := GetGames(ctx, &userID, nil)
+// devGamesDir holds the demo game files, relative to the checkout root.
+var devGamesDir = filepath.Join("testing", "testdata", "games")
+
+// preseedDevGames creates a game from every demo game file, owned by the dev
+// users in turn (round-robin over devUserSlots, in file name order); every
+// second one is public (devGamePublic). It only
+// runs on a fresh instance, while no dev user owns a game yet, so games
+// deleted or changed during development stay that way.
+func preseedDevGames(ctx context.Context) {
+	slots := devUserSlots()
+	for _, slot := range slots {
+		owned, err := GetGames(ctx, &slot.id, &GetGamesFilters{Filter: "own"})
+		if err != nil {
+			log.Warn("failed to get games", "user_id", slot.id, "error", err)
+			return
+		}
+		if len(owned) > 0 {
+			return
+		}
+	}
+
+	dir, err := checkoutPath(devGamesDir)
 	if err != nil {
-		log.Warn("failed to get games", "error", err)
+		log.Warn("no demo games to seed", "error", err)
 		return
 	}
-	if len(games) == 0 {
-		log.Debug("creating dummy game for dev user", "user_id", userID)
-		game := &obj.Game{
-			Name:                   "Dev Test Game",
-			Description:            "A simple test game for development",
-			Public:                 false,
-			SystemMessageScenario:  `An example game for testing purposes. Full of stereotypical characters and situations. Perfect for demonstrating basic gameplay mechanics.`,
-			SystemMessageGameStart: "Welcome to the tavern! What would you like to do? I heard there's a dragon nearby...",
-			ImageStyle:             "fantasy pixel art, 16-bit style",
-			StatusFields:           `[{"name": "Health", "value": "100"}, {"name": "Gold", "value": "5"}, {"name": "XP", "value": "0"}, {"name": "Level", "value": "1"}]`,
+	paths, err := filepath.Glob(filepath.Join(dir, "*.yaml"))
+	if err != nil || len(paths) == 0 {
+		log.Warn("no demo games to seed", "dir", dir, "error", err)
+		return
+	}
+
+	log.Debug("seeding demo games", "count", len(paths), "dir", dir)
+	now := time.Now()
+	for i, path := range paths {
+		owner := slots[i%len(slots)].id
+		public := devGamePublic(i)
+		history := devGameHistory(filepath.Base(path), public, now)
+		if err := preseedDevGame(ctx, owner, path, public, history); err != nil {
+			log.Warn("failed to seed demo game", "file", filepath.Base(path), "user_id", owner, "error", err)
 		}
-		if err := CreateGame(ctx, userID, game); err != nil {
-			log.Warn("failed to create dummy game", "error", err)
+	}
+}
+
+// devGamePublic says whether the i-th demo game is public: every second one,
+// so lists and their public filter have games to show. With an odd number of
+// dev users, each of them owns public and private games.
+func devGamePublic(i int) bool {
+	return i%2 == 0
+}
+
+// gameHistory is a demo game's past: when it was made and last changed,
+// and how often it was played.
+type gameHistory struct {
+	createdAt  time.Time
+	modifiedAt time.Time
+	playCount  int32
+}
+
+// devGameHistory makes up a past for a demo game, so lists have something to
+// sort by: created within the last year, changed at some point since, and
+// played a few times to a few hundred (public games far more than private
+// ones). It is random but fixed per file name: every fresh instance looks the
+// same.
+func devGameHistory(file string, public bool, now time.Time) gameHistory {
+	h := fnv.New64a()
+	h.Write([]byte(file))
+	r := rand.New(rand.NewPCG(h.Sum64(), 0x5eed))
+
+	year := 365 * 24 * time.Hour
+	created := now.Add(-time.Duration(r.Float64() * float64(year))).Truncate(time.Second)
+	modified := created.Add(time.Duration(r.Float64() * float64(now.Sub(created)))).Truncate(time.Second)
+
+	// A long tail: most games are played a little, a few a lot.
+	most := 20.0
+	if public {
+		most = 500
+	}
+	plays := int32(math.Exp(r.Float64()*math.Log(most+1))) - 1
+
+	return gameHistory{createdAt: created, modifiedAt: modified, playCount: plays}
+}
+
+// preseedDevGame creates a game for owner from the game file at path, with
+// the given visibility and past.
+func preseedDevGame(ctx context.Context, owner uuid.UUID, path string, public bool, history gameHistory) error {
+	file, err := readGameFile(path)
+	if err != nil {
+		return err
+	}
+	game := &obj.Game{Name: file.Name, Genre: file.Genre, Public: public}
+	if err := CreateGame(ctx, owner, game); err != nil {
+		return err
+	}
+	if err := UpdateGameFromFile(ctx, owner, game.ID, file); err != nil {
+		return err
+	}
+	return queries().SetDevGameHistory(ctx, SetDevGameHistoryParams{
+		ID:         game.ID,
+		CreatedAt:  history.createdAt,
+		ModifiedAt: history.modifiedAt,
+		PlayCount:  history.playCount,
+	})
+}
+
+// readGameFile reads a game file. Like the game file endpoints, it reads the
+// YAML through JSON, so the JSON field names apply.
+func readGameFile(path string) (obj.GameFile, error) {
+	var file obj.GameFile
+	blob, err := os.ReadFile(path)
+	if err != nil {
+		return file, err
+	}
+	var doc any
+	if err := yaml.Unmarshal(blob, &doc); err != nil {
+		return file, err
+	}
+	j, err := json.Marshal(doc)
+	if err != nil {
+		return file, err
+	}
+	err = json.Unmarshal(j, &file)
+	return file, err
+}
+
+// checkoutPath resolves rel against the checkout root: the nearest directory
+// up from the working directory that holds schemaf.toml. The dev backend runs
+// from the checkout.
+func checkoutPath(rel string) (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "schemaf.toml")); err == nil {
+			return filepath.Join(dir, rel), nil
 		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", errors.New("schemaf.toml not found above the working directory")
+		}
+		dir = parent
 	}
 }
