@@ -57,8 +57,8 @@ func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 		if game.WorkshopID != nil {
 			user, err := GetUserByID(ctx, userID)
 			if err == nil && user.Role != nil {
-				// Participant or individual with role for this specific workshop can read
-				if (user.Role.Role == obj.RoleParticipant || user.Role.Role == obj.RoleIndividual) && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
+				// Guest or individual in this specific workshop can read
+				if (user.Role.Role == obj.RoleGuest || user.Role.Role == obj.RoleIndividual) && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
 					return nil
 				}
 				// Head/staff of the workshop's institution can read
@@ -102,60 +102,6 @@ func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 	default:
 		return obj.ErrForbidden("unknown operation")
 	}
-}
-
-// CanPlayGame checks whether a user may start playing a game: public games are
-// open to everyone, workshop games to the workshop's members and to guests of a
-// share link. workshopID, when given, is the workshop the play happens in.
-func CanPlayGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, workshopID *uuid.UUID) error {
-	// Load game to check if it belongs to a workshop
-	game, err := queries().GetGameByID(ctx, gameID)
-	if err != nil {
-		return obj.ErrNotFound("game not found")
-	}
-
-	// Public games can be played by anyone
-	if game.Public {
-		return nil
-	}
-
-	// If game belongs to a workshop, user must have read access to that workshop.
-	// Guest users (created via share tokens) are pre-authorized, so skip this check.
-	if game.WorkshopID.Valid {
-		isGuest := false
-		if userID != uuid.Nil {
-			appUser, err := queries().GetUserByID(ctx, userID)
-			if err == nil && appUser.PrivateShareID.Valid {
-				isGuest = true
-			}
-		} else {
-			isGuest = true
-		}
-		if !isGuest {
-			workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
-			if err != nil {
-				return obj.ErrNotFound("workshop not found")
-			}
-			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
-				return obj.ErrForbidden("not authorized to play games in this workshop")
-			}
-		}
-	}
-
-	// If explicit workshopID is provided, validate access to it as well
-	if workshopID != nil {
-		// Get the workshop to find its institution ID
-		workshop, err := queries().GetWorkshopByID(ctx, *workshopID)
-		if err != nil {
-			return obj.ErrNotFound("workshop not found")
-		}
-		if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, workshopID, uuid.Nil); err != nil {
-			return obj.ErrForbidden("not authorized to play games in this workshop")
-		}
-	}
-
-	// Otherwise any authenticated user can play
-	return nil
 }
 
 // canAccessApiKey checks if user can perform a CRUD operation on an API key

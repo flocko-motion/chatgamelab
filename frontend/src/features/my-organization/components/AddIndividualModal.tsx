@@ -21,7 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { queryKeys } from "@/api/queryKeys";
 import { useAddMemberToWorkshop } from "@/api/hooks";
-import { type User } from "@/api/generated/api.gen";
+import { type UserView } from "@/api/generated/api.gen";
 
 interface AddIndividualModalProps {
   opened: boolean;
@@ -39,7 +39,7 @@ export function AddIndividualModal({
   const { t } = useTranslation("common");
   const addMember = useAddMemberToWorkshop();
 
-  const { data: members = [], isLoading } = useQuery<User[]>({
+  const { data: members = [], isLoading } = useQuery<UserView[]>({
     queryKey: queryKeys.institutionMembers(institutionId),
     queryFn: async () => {
       const response = await api.getApiInstitutionsIdMembers(institutionId);
@@ -52,7 +52,7 @@ export function AddIndividualModal({
     (m) => m.role?.role === RoleName.Individual,
   );
 
-  const handleAdd = async (user: User) => {
+  const handleAdd = async (user: UserView) => {
     if (!user.id) return;
     try {
       await addMember.mutateAsync({ workshopId, userId: user.id });

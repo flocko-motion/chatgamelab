@@ -17,18 +17,23 @@ import {
   IconTrash,
   IconSend,
   IconEdit,
+  IconLock,
+  IconLockOpen,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
-import type { Institution, User } from "@/api/generated/api.gen";
+import type { OrganisationView, UserView } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
+import { headNames } from "../lib/organizationHeads";
+import { OrganizationStatusBadges } from "./OrganizationStatusBadges";
 
 interface OrganizationMembersRowProps {
-  org: Institution;
-  onEdit: (org: Institution) => void;
-  onDelete: (org: Institution) => void;
-  onInvite: (org: Institution) => void;
+  org: OrganisationView;
+  onEdit: (org: OrganisationView) => void;
+  onDelete: (org: OrganisationView) => void;
+  onInvite: (org: OrganisationView) => void;
+  onToggleSuspension: (org: OrganisationView) => void;
 }
 
 export function OrganizationMembersRow({
@@ -36,6 +41,7 @@ export function OrganizationMembersRow({
   onEdit,
   onDelete,
   onInvite,
+  onToggleSuspension,
 }: OrganizationMembersRowProps) {
   const { t } = useTranslation("common");
   const queryClient = useQueryClient();
@@ -86,8 +92,21 @@ export function OrganizationMembersRow({
                 <IconChevronRight size={16} />
               )}
             </ActionIcon>
-            <Text fw={500}>{org.name}</Text>
+            <Stack gap={0}>
+              <Text fw={500}>{org.name}</Text>
+              {(org.operator || org.city) && (
+                <Text size="xs" c="dimmed">
+                  {[org.operator, org.city].filter(Boolean).join(" · ")}
+                </Text>
+              )}
+            </Stack>
           </Group>
+        </Table.Td>
+        <Table.Td>
+          <Text size="sm">{headNames(org) || "–"}</Text>
+        </Table.Td>
+        <Table.Td>
+          <OrganizationStatusBadges org={org} />
         </Table.Td>
         <Table.Td>
           <Badge variant="light" color="blue">
@@ -114,6 +133,14 @@ export function OrganizationMembersRow({
             </ActionIcon>
             <ActionIcon
               variant="subtle"
+              color={org.suspendedAt ? "green" : "orange"}
+              onClick={() => onToggleSuspension(org)}
+              title={org.suspendedAt ? t("admin.organizations.lift") : t("admin.organizations.suspend")}
+            >
+              {org.suspendedAt ? <IconLockOpen size={16} /> : <IconLock size={16} />}
+            </ActionIcon>
+            <ActionIcon
+              variant="subtle"
               color="red"
               onClick={() => onDelete(org)}
               title={t("delete")}
@@ -125,7 +152,7 @@ export function OrganizationMembersRow({
       </Table.Tr>
       {expanded && (
         <Table.Tr>
-          <Table.Td colSpan={3} style={{ padding: 0 }}>
+          <Table.Td colSpan={5} style={{ padding: 0 }}>
             <Collapse in={expanded}>
               <Box bg="gray.0" p="md">
                 {membersLoading ? (
@@ -155,7 +182,7 @@ export function OrganizationMembersRow({
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {members.map((member: User) => (
+                        {members.map((member: UserView) => (
                           <Table.Tr key={member.id}>
                             <Table.Td>
                               <Text size="sm">{member.name || "-"}</Text>

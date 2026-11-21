@@ -15,7 +15,7 @@ import {
   DeleteIconButton,
   GenericIconButton,
 } from "@components/buttons";
-import type { Game } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/generated/api.gen";
 import type { ReactNode } from "react";
 
 export interface GameCardAction {
@@ -26,7 +26,10 @@ export interface GameCardAction {
 }
 
 export interface GameCardProps {
-  game: Game;
+  game: Pick<
+    GameView,
+    "name" | "description" | "public" | "publicSponsoredApiKeyShareId" | "creatorName"
+  >;
   onClick?: () => void;
 
   // Play actions
@@ -43,10 +46,10 @@ export interface GameCardProps {
   // Visibility badge (optional, for owner view)
   showVisibility?: boolean;
 
-  // Creator info (optional, for AllGames view)
-  showCreator?: boolean;
+  // Owner badge
   isOwner?: boolean;
-  creatorLabel?: string;
+  // Who made the game, for games that aren't the caller's
+  showCreator?: boolean;
 
   // Favorite
   isFavorite?: boolean;
@@ -81,9 +84,8 @@ export function GameCard({
   onRestart,
   restartLabel,
   showVisibility = false,
-  showCreator = false,
   isOwner = false,
-  creatorLabel,
+  showCreator = false,
   isFavorite = false,
   onToggleFavorite,
   favoriteLabel,
@@ -139,7 +141,7 @@ export function GameCard({
             variant="light"
             style={{ flexShrink: 0 }}
           >
-            {creatorLabel || t("games.badges.myGame")}
+            {t("games.badges.myGame")}
           </Badge>
         );
       case "workshop":
@@ -282,11 +284,13 @@ export function GameCard({
           <Box>{renderBadges()}</Box>
         )}
 
-        {/* Creator name + extra content (e.g. workshop/org) on same line when space allows */}
-        {(showCreator && !isOwner && game.creatorName || extra) && (
+        {/* Creator, and extra content such as the workshop for admins */}
+        {((showCreator && !isOwner && game.creatorName) || extra) && (
           <Group gap="xs" wrap="wrap" align="center">
             {showCreator && !isOwner && game.creatorName && (
-              <Text size="xs" c="gray.5">{"by "}{game.creatorName}</Text>
+              <Text size="xs" c="gray.5">
+                {t("games.byCreator", { name: game.creatorName })}
+              </Text>
             )}
             {extra}
           </Group>

@@ -13,7 +13,7 @@
 export interface AcceptInviteResp {
   authToken?: string;
   message: string;
-  user?: User;
+  user?: NewGuestView;
 }
 
 export interface AddWorkshopMemberReq {
@@ -36,8 +36,8 @@ export interface ApiKey {
 }
 
 export interface ApiKeyInfoResp {
-  linkedShares: ApiKeyShare[];
-  share?: ApiKeyShare;
+  linkedShares: KeyShareView[];
+  share?: KeyShareView;
 }
 
 export interface ApiKeyShare {
@@ -58,9 +58,24 @@ export interface ApiKeyShare {
   workshop?: Workshop;
 }
 
+export interface ApiKeyView {
+  /** @format uuid */
+  id: string;
+  isDefault: boolean;
+  keyShortened: string;
+  lastErrorCode?: string;
+  lastUsageSuccess?: boolean;
+  meta: KeyMeta;
+  name: string;
+  platform: string;
+  /** @format uuid */
+  userId: string;
+  userName: string;
+}
+
 export interface ApiKeysResp {
-  apiKeys: ApiKey[];
-  shares: ApiKeyShare[];
+  apiKeys: ApiKeyView[];
+  shares: KeyShareView[];
 }
 
 export interface AvailableKey {
@@ -87,12 +102,44 @@ export interface ChooseRequest {
   offer: string;
 }
 
+export interface CompleteRegistrationReq {
+  acceptTerms?: boolean;
+  ageGroup: string;
+  email?: string;
+  language?: string;
+  name: string;
+  organisation?: OrganisationSignUpReq;
+}
+
 export interface ConnectRequest {
   sdp: string;
 }
 
 export interface ConnectResponse {
   sdp: string;
+}
+
+export interface ConsentStatusView {
+  /** @format date-time */
+  consentedAt?: string;
+  consentedVersion?: string;
+  currentVersion: string;
+  pending: boolean;
+  /** @format date-time */
+  withdrawnAt?: string;
+}
+
+export interface ConsentToDeclarationReq {
+  acceptDeclaration: boolean;
+  city: string;
+  declarationVersion: string;
+  email: string;
+  operator: string;
+  personFunction: string;
+  personName: string;
+  postalCode: string;
+  promptConstraint: string;
+  street: string;
 }
 
 export interface ConstraintFrequencyRequest {
@@ -107,10 +154,22 @@ export interface CreateApiKeyReq {
 }
 
 export interface CreateGameReq {
+  css?: string;
   description?: string;
+  /** @format byte */
+  firstImage?: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
   genre?: string;
-  name: string;
+  /** @format byte */
+  icon?: Blob;
+  imageStyle?: string;
+  name?: string;
   public?: boolean;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
+  theme?: string;
 }
 
 export interface CreateGameShareReq {
@@ -130,7 +189,11 @@ export interface CreateInstitutionInviteReq {
 }
 
 export interface CreateInstitutionReq {
+  city?: string;
   name: string;
+  operator?: string;
+  postalCode?: string;
+  street?: string;
 }
 
 export interface CreateRequest {
@@ -167,6 +230,22 @@ export interface CreateWorkshopReq {
   public: boolean;
 }
 
+export interface DeclarationResp {
+  bindingLanguage: string;
+  declaration: DeclarationView;
+  defaultPromptConstraint?: string;
+  maxPromptConstraintLength: number;
+  youthProtectionSuggestions: YouthProtectionSuggestion[];
+}
+
+export interface DeclarationView {
+  consent: string;
+  date: string;
+  hash: string;
+  text: string;
+  version: string;
+}
+
 export interface DevLoginReq {
   role: string;
 }
@@ -182,30 +261,6 @@ export interface EdgeDetail {
   kind: string;
   recent: Sample[];
   to: string;
-}
-
-export interface EnrichedGameShare {
-  aiQualityTier?: string;
-  /** @format uuid */
-  apiKeyShareId: string;
-  /** @format date-time */
-  createdAt: string;
-  /** @format uuid */
-  createdBy?: string;
-  /** @format uuid */
-  gameId: string;
-  gameName?: string;
-  /** @format uuid */
-  id: string;
-  /** @format uuid */
-  institutionId?: string;
-  remaining?: number;
-  shareUrl: string;
-  source: string;
-  token: string;
-  /** @format uuid */
-  workshopId?: string;
-  workshopName?: string;
 }
 
 export interface Error {
@@ -280,47 +335,13 @@ export interface GameFile {
   theme?: string;
 }
 
-export interface GameSession {
-  /** @format uuid */
-  apiKeyShareId?: string;
-  /** @format date-time */
-  createdAt: string;
-  /** @format uuid */
-  gameId: string;
-  /** @format uuid */
-  gameShareId?: string;
-  /** @format uuid */
-  id: string;
-  language: string;
-  messagesSent: number;
-  /** @format date-time */
-  modifiedAt: string;
-  platform: string;
-  /** @format uuid */
-  userId: string;
-  /** @format uuid */
-  workshopId?: string;
-}
-
-export interface GameShareResp {
-  aiQualityTier?: string;
-  /** @format uuid */
-  apiKeyShareId: string;
+export interface GameMeta {
   /** @format date-time */
   createdAt: string;
   /** @format uuid */
   createdBy?: string;
-  /** @format uuid */
-  gameId: string;
-  /** @format uuid */
-  id: string;
-  /** @format uuid */
-  institutionId?: string;
-  remaining?: number;
-  shareUrl: string;
-  token: string;
-  /** @format uuid */
-  workshopId?: string;
+  /** @format date-time */
+  modifiedAt: string;
 }
 
 export interface GameSponsorReq {
@@ -337,14 +358,88 @@ export interface GameTag {
   tag: string;
 }
 
+export interface GameTemplate {
+  css?: string;
+  description: string;
+  /** @format byte */
+  firstImage?: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
+  genre: string;
+  hasContent: boolean;
+  /** @format byte */
+  icon: Blob;
+  imageStyle?: string;
+  mayEditCard: boolean;
+  mayEditContent: boolean;
+  mayPublish: boolean;
+  name: string;
+  public: boolean;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
+  theme?: string;
+}
+
+export interface GameView {
+  cloneCount: number;
+  /** @format uuid */
+  creatorId?: string;
+  creatorName?: string;
+  css?: string;
+  description: string;
+  /** @format byte */
+  firstImage?: Blob;
+  firstMessage?: string;
+  firstStatus?: string;
+  genre: string;
+  hasContent: boolean;
+  hasSettings: boolean;
+  /** @format byte */
+  icon: Blob;
+  /** @format uuid */
+  id: string;
+  imageStyle?: string;
+  isFavorite: boolean;
+  mayCopy: boolean;
+  mayDelete: boolean;
+  mayEditCard: boolean;
+  mayEditContent: boolean;
+  mayEditSettings: boolean;
+  mayPublish: boolean;
+  mayShare: boolean;
+  meta: GameMeta;
+  name: string;
+  /** @format uuid */
+  originallyCreatedBy?: string;
+  playCount: number;
+  public: boolean;
+  /** @format uuid */
+  publicSponsoredApiKeyShareId?: string;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
+  theme?: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface GameViewPage {
+  items: GameView[];
+  total: number;
+}
+
 export interface GenreInfo {
   id: string;
   needs: string[];
 }
 
 export interface GetCurrentUserResp {
+  institutionSuspension?: string;
+  mayConsentForInstitution: boolean;
+  maySuspendInstitutions: boolean;
   state: string;
-  user?: User;
+  user?: UserView;
 }
 
 export interface GetVersionResp {
@@ -366,6 +461,20 @@ export interface GuestGameInfoResp {
   remaining?: number;
 }
 
+export interface GuestLoginReq {
+  token: string;
+}
+
+export interface GuestLoginResp {
+  token: string;
+  /** @format uuid */
+  userId: string;
+}
+
+export interface GuestTokenResp {
+  token: string;
+}
+
 export interface InputRequest {
   /** @format byte */
   audio?: Blob;
@@ -373,46 +482,119 @@ export interface InputRequest {
 }
 
 export interface Institution {
-  freeUseAiQualityTier?: string;
   /** @format uuid */
   freeUseApiKeyShareId?: string;
   /** @format uuid */
   id: string;
-  members?: InstitutionMember[];
   meta: Meta;
   name: string;
   promptConstraints?: string;
 }
 
-export interface InstitutionMember {
-  email?: string;
-  name: string;
-  role: string;
+export interface InviteCardView {
+  /** @format date-time */
+  acceptedAt?: string;
   /** @format uuid */
-  userId: string;
-}
-
-export interface InviteResp {
-  createdAt: string;
+  acceptedBy?: string;
+  /** @format date-time */
   expiresAt?: string;
+  /** @format uuid */
   id: string;
+  /** @format uuid */
   institutionId: string;
-  institutionName?: string;
+  institutionName: string;
   inviteToken?: string;
   invitedEmail?: string;
+  /** @format uuid */
   invitedUserId?: string;
   maxUses?: number;
-  modifiedAt?: string;
+  mayAnswer: boolean;
+  mayRevoke: boolean;
+  meta: InviteMeta;
   role: string;
   status: string;
   usesCount: number;
+  /** @format uuid */
   workshopId?: string;
   workshopName?: string;
+}
+
+export interface InviteMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  modifiedAt: string;
+}
+
+export interface InviteView {
+  /** @format date-time */
+  acceptedAt?: string;
+  /** @format uuid */
+  acceptedBy?: string;
+  /** @format date-time */
+  expiresAt?: string;
+  /** @format uuid */
+  id: string;
+  /** @format uuid */
+  institutionId: string;
+  inviteToken?: string;
+  invitedEmail?: string;
+  /** @format uuid */
+  invitedUserId?: string;
+  maxUses?: number;
+  meta: InviteMeta;
+  role: string;
+  status: string;
+  usesCount: number;
+  /** @format uuid */
+  workshopId?: string;
+}
+
+export interface KeyMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  modifiedAt: string;
+}
+
+export interface KeyShareMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  createdBy?: string;
+}
+
+export interface KeyShareView {
+  apiKey: ApiKeyView;
+  /** @format uuid */
+  apiKeyId: string;
+  game?: NamedRef;
+  /** @format uuid */
+  gameShareId?: string;
+  /** @format uuid */
+  id: string;
+  institution?: NamedRef;
+  isPrivateShare?: boolean;
+  mayRevoke: boolean;
+  mayShare: boolean;
+  meta: KeyShareMeta;
+  remaining?: number;
+  self: boolean;
+  /** @format uuid */
+  sourceShareId?: string;
 }
 
 export interface Language {
   iso: string;
   label: string;
+}
+
+export interface Message {
+  body: string;
+  /** @format date-time */
+  sentAt: string;
+  subject: string;
+  to: string;
 }
 
 export interface MessageResp {
@@ -433,6 +615,19 @@ export interface Meta {
 export interface Model {
   name: string;
   params?: Record<string, string>;
+}
+
+export interface NamedRef {
+  /** @format uuid */
+  id: string;
+  name: string;
+}
+
+export interface NewGuestView {
+  /** @format uuid */
+  id: string;
+  language: string;
+  name: string;
 }
 
 export interface NodeDetail {
@@ -460,14 +655,87 @@ export interface Options {
   settled?: Settled;
 }
 
-export interface ParticipantLoginReq {
-  token: string;
+export interface OrganisationConsentView {
+  city?: string;
+  declaration: ConsentStatusView;
+  /** @format uuid */
+  id: string;
+  name: string;
+  operator?: string;
+  postalCode?: string;
+  promptConstraints?: string;
+  street?: string;
 }
 
-export interface ParticipantLoginResp {
-  token: string;
+export interface OrganisationMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  modifiedAt: string;
+}
+
+export interface OrganisationRegistrationView {
+  /** @format date-time */
+  at: string;
+  email: string;
+  personFunction: string;
+  personName: string;
+}
+
+export interface OrganisationSignUpReq {
+  acceptDeclaration: boolean;
+  city: string;
+  declarationVersion: string;
+  institutionName: string;
+  operator: string;
+  personFunction: string;
+  personName: string;
+  postalCode: string;
+  promptConstraint: string;
+  street: string;
+}
+
+export interface OrganisationSuspensionView {
   /** @format uuid */
-  userId: string;
+  id: string;
+  /** @format date-time */
+  suspendedAt?: string;
+  suspendedReason?: string;
+}
+
+export interface OrganisationView {
+  city?: string;
+  declaration?: ConsentStatusView;
+  freeUseAiQualityTier?: string;
+  /** @format uuid */
+  freeUseApiKeyShareId?: string;
+  hasDetails: boolean;
+  hasRecord: boolean;
+  hasSettings: boolean;
+  /** @format uuid */
+  id: string;
+  mayDelete: boolean;
+  mayEditCard: boolean;
+  mayEditDetails: boolean;
+  mayEditSettings: boolean;
+  maySuspend: boolean;
+  members: UserView[];
+  meta: OrganisationMeta;
+  name: string;
+  operator?: string;
+  postalCode?: string;
+  promptConstraints?: string;
+  registration?: OrganisationRegistrationView;
+  street?: string;
+  suspended: boolean;
+  /** @format date-time */
+  suspendedAt?: string;
+  suspendedReason?: string;
+}
+
+export interface ParticipantMeta {
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface PlatformInfo {
@@ -487,7 +755,7 @@ export interface Preference {
 }
 
 export interface PrivateShareStatusResp {
-  shares: EnrichedGameShare[];
+  shares: ShareLinkView[];
 }
 
 export interface PublicWorkshopGame {
@@ -516,13 +784,6 @@ export interface PublicWorkshopPlay {
   limit: number;
   remaining: number;
   token: string;
-}
-
-export interface Registration {
-  ageGroup: string;
-  email?: string;
-  language?: string;
-  name: string;
 }
 
 export interface RolesResp {
@@ -579,6 +840,29 @@ export interface SessionEvent {
   Value: string;
 }
 
+export interface SessionView {
+  /** @format uuid */
+  apiKeyShareId?: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  gameId: string;
+  gameName?: string;
+  /** @format uuid */
+  gameShareId?: string;
+  /** @format uuid */
+  id: string;
+  language: string;
+  messagesSent: number;
+  /** @format date-time */
+  modifiedAt: string;
+  platform: string;
+  /** @format uuid */
+  userId: string;
+  /** @format uuid */
+  workshopId?: string;
+}
+
 export interface SetActiveWorkshopReq {
   /** @format uuid */
   workshopId?: string;
@@ -623,6 +907,32 @@ export interface ShareApiKeyReq {
   workshopId?: string;
 }
 
+export interface ShareLinkView {
+  aiQualityTier?: string;
+  /** @format uuid */
+  apiKeyShareId: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  createdBy?: string;
+  /** @format uuid */
+  gameId: string;
+  gameName?: string;
+  /** @format uuid */
+  id: string;
+  /** @format uuid */
+  institutionId?: string;
+  keyName: string;
+  mayManage: boolean;
+  remaining?: number;
+  shareUrl: string;
+  source: string;
+  token: string;
+  /** @format uuid */
+  workshopId?: string;
+  workshopName?: string;
+}
+
 export interface Snapshot {
   choosing: boolean;
   conversation?: string;
@@ -631,6 +941,10 @@ export interface Snapshot {
   settled?: Settled;
   started: boolean;
   usage: UsageReport;
+}
+
+export interface SuspendOrganisationReq {
+  reason?: string;
 }
 
 export interface SystemConstraintsResp {
@@ -710,44 +1024,26 @@ export interface TopologyNode {
 }
 
 export interface UpdateApiKeyReq {
-  name?: string;
+  name: string;
 }
 
 export interface UpdateGameReq {
-  cloneCount: number;
-  /** @format uuid */
-  creatorId?: string;
-  creatorName?: string;
-  css: string;
-  description: string;
+  css?: string;
+  description?: string;
   /** @format byte */
-  firstImage: Blob;
+  firstImage?: Blob;
   firstMessage?: string;
   firstStatus?: string;
-  genre: string;
+  genre?: string;
   /** @format byte */
-  icon: Blob;
-  /** @format uuid */
-  id: string;
-  imageStyle: string;
-  meta: Meta;
-  name: string;
-  /** @format uuid */
-  originalCreatorId?: string;
-  originalCreatorName?: string;
-  /** @format uuid */
-  originallyCreatedBy?: string;
-  playCount: number;
-  public: boolean;
-  /** @format uuid */
-  publicSponsoredApiKeyShareId?: string;
-  statusFields: string;
-  systemMessageGameStart: string;
-  systemMessageScenario: string;
-  tags: GameTag[];
+  icon?: Blob;
+  imageStyle?: string;
+  name?: string;
+  public?: boolean;
+  statusFields?: string;
+  systemMessageGameStart?: string;
+  systemMessageScenario?: string;
   theme?: string;
-  /** @format uuid */
-  workshopId?: string;
 }
 
 export interface UpdateGameShareReq {
@@ -769,12 +1065,13 @@ export interface UpdateGameYAMLReq {
   theme?: string;
 }
 
-export interface UpdateInstitutionPromptConstraintsReq {
+export interface UpdateInstitutionReq {
+  name?: string;
   promptConstraints?: string;
 }
 
-export interface UpdateInstitutionReq {
-  name: string;
+export interface UpdateMyLanguageReq {
+  language: string;
 }
 
 export interface UpdateSystemSettingsReq {
@@ -785,32 +1082,29 @@ export interface UpdateSystemSettingsReq {
   promptConstraintU18?: string;
 }
 
-export interface UpdateUserLanguageReq {
-  language: string;
-}
-
 export interface UpdateUserReq {
   ageGroup?: string;
   aiQualityTier?: string;
   /** @format uuid */
   defaultApiKeyShareId?: string;
   email?: string;
+  language?: string;
   name?: string;
 }
 
 export interface UpdateWorkshopReq {
-  active: boolean;
+  active?: boolean;
   aiQualityTier?: string;
-  allowGameSharing: boolean;
-  isPaused: boolean;
-  name: string;
+  allowGameSharing?: boolean;
+  isPaused?: boolean;
+  name?: string;
   promptConstraints?: string;
-  public: boolean;
+  public?: boolean;
   publicDescription?: string;
   publicLinks?: PublicWorkshopLink[];
   publicSlug?: string;
-  showOtherParticipantsGames: boolean;
-  showPublicGames: boolean;
+  showOtherParticipantsGames?: boolean;
+  showPublicGames?: boolean;
 }
 
 export interface UsageRecord {
@@ -851,9 +1145,11 @@ export interface User {
   role?: UserRole;
 }
 
-export interface UserParticipantCodeResp {
-  token?: string;
-  words?: string;
+export interface UserMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  modifiedAt: string;
 }
 
 export interface UserRole {
@@ -891,34 +1187,42 @@ export interface UserRoleInvite {
   workshopId?: string;
 }
 
-export interface UserSessionWithGame {
-  /** @format uuid */
-  apiKeyShareId?: string;
-  /** @format date-time */
-  createdAt: string;
-  /** @format uuid */
-  gameId: string;
-  gameName: string;
-  /** @format uuid */
-  gameShareId?: string;
-  /** @format uuid */
-  id: string;
-  language: string;
-  messagesSent: number;
-  /** @format date-time */
-  modifiedAt: string;
-  platform: string;
-  /** @format uuid */
-  userId: string;
-  /** @format uuid */
-  workshopId?: string;
+export interface UserRoleRef {
+  institution?: NamedRef;
+  role: string;
+  workshop?: NamedRef;
 }
 
-export interface UserStats {
+export interface UserSecretsView {
+  token?: string;
+  words?: string;
+}
+
+export interface UserStatsView {
   gamesCreated: number;
   gamesPlayed: number;
   messagesSent: number;
   totalPlaysOnGames: number;
+}
+
+export interface UserView {
+  ageGroup?: string;
+  aiQualityTier?: string;
+  /** @format uuid */
+  defaultApiKeyShareId?: string;
+  email?: string;
+  hasAccount: boolean;
+  hasContact: boolean;
+  /** @format uuid */
+  id: string;
+  language?: string;
+  mayDelete: boolean;
+  mayEditAccount: boolean;
+  mayEditCard: boolean;
+  mayEditContact: boolean;
+  meta?: UserMeta;
+  name: string;
+  role?: UserRoleRef;
 }
 
 export interface Workshop {
@@ -954,6 +1258,13 @@ export interface WorkshopEvent {
   workshopId?: string;
 }
 
+export interface WorkshopMeta {
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  modifiedAt: string;
+}
+
 export interface WorkshopParticipant {
   accessToken: string;
   active: boolean;
@@ -968,8 +1279,50 @@ export interface WorkshopParticipant {
   workshopId: string;
 }
 
-export interface WorkshopParticipantTokenResp {
-  token: string;
+export interface WorkshopParticipantView {
+  gamesCount: number;
+  /** @format uuid */
+  id: string;
+  meta: ParticipantMeta;
+  name: string;
+  permanent: boolean;
+  role: string;
+  /** @format uuid */
+  workshopId: string;
+}
+
+export interface WorkshopView {
+  active: boolean;
+  aiQualityTier?: string;
+  allowGameSharing: boolean;
+  /** @format uuid */
+  defaultApiKeyShareId?: string;
+  hasParticipants: boolean;
+  hasSettings: boolean;
+  /** @format uuid */
+  id: string;
+  institution: NamedRef;
+  invites: InviteView[];
+  isPaused: boolean;
+  mayDelete: boolean;
+  mayEditCard: boolean;
+  mayEditSettings: boolean;
+  mayManageParticipants: boolean;
+  meta: WorkshopMeta;
+  name: string;
+  participants: WorkshopParticipantView[];
+  promptConstraints?: string;
+  public: boolean;
+  publicDescription?: string;
+  publicLinks?: PublicWorkshopLink[];
+  publicSlug?: string;
+  showOtherParticipantsGames: boolean;
+  showPublicGames: boolean;
+}
+
+export interface YouthProtectionSuggestion {
+  minAge: number;
+  text: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1236,10 +1589,10 @@ export class Api<
 > extends HttpClient<SecurityDataType> {
   api = {
     /**
-     * @description (organization shares, sponsorships).
+     * @description own use of each, the organisation they gave it to, and the sponsored games and share links it pays for.
      *
      * @name GetApiApikeys
-     * @summary Lists the caller's API keys and all their linked shares
+     * @summary Lists the caller's keys and every share of them: their
      * @request GET:/api/apikeys
      * @secure
      */
@@ -1253,15 +1606,15 @@ export class Api<
       }),
 
     /**
-     * @description Platform and key are required; surrounding whitespace is trimmed. Without a name the key is named after its platform and today's date, e.g. "Mistral 12.02.26".
+     * @description own use of it. Platform and key are required; surrounding whitespace is trimmed. Without a name the key is named after its platform and today's date, e.g. "Mistral 12.02.26". The caller's first key becomes their default.
      *
      * @name PostApiApikeysNew
-     * @summary Creates an API key and shares it with the caller.
+     * @summary Stores a key of the caller's and answers with their
      * @request POST:/api/apikeys/new
      * @secure
      */
     postApiApikeysNew: (data: CreateApiKeyReq, params: RequestParams = {}) =>
-      this.request<ApiKeyShare, Error>({
+      this.request<KeyShareView, Error>({
         path: `/api/apikeys/new`,
         method: "POST",
         body: data,
@@ -1272,27 +1625,34 @@ export class Api<
       }),
 
     /**
-     * @description With cascade=true it deletes the key and all its shares.
+     * @description owner any share of their key, a head their organisation's, head and staff what draws from it. With cascade=true the owner deletes the key itself, with every share of it. The owner's own use of a key goes only with the key.
      *
      * @name DeleteApiApikeysId
-     * @summary Removes an API key share and answers with it as it was.
+     * @summary Takes a share back, stopping what draws from it: the
      * @request DELETE:/api/apikeys/{id}
      * @secure
      */
-    deleteApiApikeysId: (id: string, params: RequestParams = {}) =>
-      this.request<ApiKeyShare, Error>({
+    deleteApiApikeysId: (
+      id: string,
+      query?: {
+        cascade?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<MessageResp, Error>({
         path: `/api/apikeys/${id}`,
         method: "DELETE",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * No description
+     * @description owner every share of the key (linkedShares).
      *
      * @name GetApiApikeysId
-     * @summary Returns an API key share and the shares linked to it.
+     * @summary Returns a share the caller may see, and for the key's
      * @request GET:/api/apikeys/{id}
      * @secure
      */
@@ -1309,7 +1669,7 @@ export class Api<
      * No description
      *
      * @name PatchApiApikeysId
-     * @summary Renames an API key.
+     * @summary Renames a key, for its owner.
      * @request PATCH:/api/apikeys/{id}
      * @secure
      */
@@ -1318,7 +1678,7 @@ export class Api<
       data: UpdateApiKeyReq,
       params: RequestParams = {},
     ) =>
-      this.request<ApiKeyShare, Error>({
+      this.request<KeyShareView, Error>({
         path: `/api/apikeys/${id}`,
         method: "PATCH",
         body: data,
@@ -1329,10 +1689,10 @@ export class Api<
       }),
 
     /**
-     * @description institution, at the path older clients use.
+     * No description
      *
      * @name PostApiApikeysId
-     * @summary Shares an API key with a user, workshop or
+     * @summary Is ShareApiKeyEndpoint at v1's path.
      * @request POST:/api/apikeys/{id}
      * @secure
      */
@@ -1341,7 +1701,7 @@ export class Api<
       data: ShareApiKeyReq,
       params: RequestParams = {},
     ) =>
-      this.request<ApiKeyShare, Error>({
+      this.request<KeyShareView, Error>({
         path: `/api/apikeys/${id}`,
         method: "POST",
         body: data,
@@ -1352,15 +1712,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description play with themselves.
      *
      * @name PutApiApikeysIdDefault
-     * @summary Makes an API key the caller's default for new sessions.
+     * @summary Makes a key its owner's default: the one they
      * @request PUT:/api/apikeys/{id}/default
      * @secure
      */
     putApiApikeysIdDefault: (id: string, params: RequestParams = {}) =>
-      this.request<ApiKeyShare, Error>({
+      this.request<KeyShareView, Error>({
         path: `/api/apikeys/${id}/default`,
         method: "PUT",
         secure: true,
@@ -1369,27 +1729,34 @@ export class Api<
       }),
 
     /**
-     * @description with each game's name and where the share comes from. Query: context=personal lists all shares and requires owning the key; context=organization lists only organization and workshop shares.
+     * @description of its shares: for the key's owner all of them, for head and staff those their organisation pays for. context=personal needs the owner's own share; context=organization leaves out the owner's personal links.
      *
      * @name GetApiApikeysIdGameShares
-     * @summary Lists the game share links that use an API key,
+     * @summary Lists the share links a key pays for, by one
      * @request GET:/api/apikeys/{id}/game-shares
      * @secure
      */
-    getApiApikeysIdGameShares: (id: string, params: RequestParams = {}) =>
-      this.request<EnrichedGameShare[], Error>({
+    getApiApikeysIdGameShares: (
+      id: string,
+      query?: {
+        context?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ShareLinkView[], Error>({
         path: `/api/apikeys/${id}/game-shares`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * No description
+     * @description workshops may play with it, its head and staff sponsor games and make share links with it. A key is shared with an organisation only, never with users or workshops, and never across organisations.
      *
      * @name PostApiApikeysIdShares
-     * @summary Shares an API key with a user, workshop or institution.
+     * @summary Gives a key to its owner's own organisation: its
      * @request POST:/api/apikeys/{id}/shares
      * @secure
      */
@@ -1398,7 +1765,7 @@ export class Api<
       data: ShareApiKeyReq,
       params: RequestParams = {},
     ) =>
-      this.request<ApiKeyShare, Error>({
+      this.request<KeyShareView, Error>({
         path: `/api/apikeys/${id}/shares`,
         method: "POST",
         body: data,
@@ -1435,16 +1802,22 @@ export class Api<
      * @summary Checks whether a name is free to register.
      * @request GET:/api/auth/check-name
      */
-    getApiAuthCheckName: (params: RequestParams = {}) =>
+    getApiAuthCheckName: (
+      query: {
+        name: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<CheckNameResp, Error>({
         path: `/api/auth/check-name`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
 
     /**
-     * @description Development only: outside development mode it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "participant"), starts a session for its account and sets the session cookie.
+     * @description Development only: outside development mode it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "guest"), starts a session for its account and sets the session cookie. "new-person" signs in a fresh account still registering, as a first Auth0 sign-in does, to try registration without Auth0.
      *
      * @name PostApiAuthDevLogin
      * @summary Signs in as one of the seeded development accounts.
@@ -1453,6 +1826,23 @@ export class Api<
     postApiAuthDevLogin: (data: DevLoginReq, params: RequestParams = {}) =>
       this.request<DevLoginResp, Error>({
         path: `/api/auth/dev-login`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Takes the participant token whole, or its words from a link, QR code or typed code. Starts a session, sets the session cookie and answers with the session token, for Bearer clients, and the participant's id.
+     *
+     * @name PostApiAuthGuestLogin
+     * @summary Signs a workshop participant in with their token.
+     * @request POST:/api/auth/guest-login
+     */
+    postApiAuthGuestLogin: (data: GuestLoginReq, params: RequestParams = {}) =>
+      this.request<GuestLoginResp, Error>({
+        path: `/api/auth/guest-login`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -1475,26 +1865,6 @@ export class Api<
       }),
 
     /**
-     * @description Takes the participant token whole, or its words from a link, QR code or typed code. Starts a session, sets the session cookie and answers with the session token, for Bearer clients, and the participant's id.
-     *
-     * @name PostApiAuthParticipantLogin
-     * @summary Signs a workshop participant in with their token.
-     * @request POST:/api/auth/participant-login
-     */
-    postApiAuthParticipantLogin: (
-      data: ParticipantLoginReq,
-      params: RequestParams = {},
-    ) =>
-      this.request<ParticipantLoginResp, Error>({
-        path: `/api/auth/participant-login`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
      * No description
      *
      * @name PostApiAuthRefresh
@@ -1512,15 +1882,18 @@ export class Api<
       }),
 
     /**
-     * @description An account exists from its first Auth0 sign-in and is unusable until it has a name and an age group; the email is optional. An account registers once.
+     * @description answers with their user. An account exists from its first Auth0 sign-in and is unusable until it has a name (at most 24 characters) and an age group; the email is optional. An account registers once (409 afterwards). An email another account has is refused (409 email_belongs_to_other_account). The rights in the answer are those of the registering caller; GET /api/users/me shows the registered account's. With an organisation, the account registers it too and becomes its head instead of an individual. That takes the age group u18 (403 institution_age_not_allowed otherwise), an email and acceptTerms; the organisation is as in POST /api/users/me/organisation. Account and organisation are stored together or not at all.
      *
      * @name PostApiAuthRegister
-     * @summary Completes the caller's registration.
+     * @summary Completes the caller's registration and
      * @request POST:/api/auth/register
      * @secure
      */
-    postApiAuthRegister: (data: Registration, params: RequestParams = {}) =>
-      this.request<User, Error>({
+    postApiAuthRegister: (
+      data: CompleteRegistrationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<UserView, Error>({
         path: `/api/auth/register`,
         method: "POST",
         body: data,
@@ -1561,6 +1934,21 @@ export class Api<
     getApiConfig: (params: RequestParams = {}) =>
       this.request<Record<string, string>, Error>({
         path: `/api/config`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description newest first, at most 50. Development only: outside development mode it answers 404. For tests and for trying mails without a mail server.
+     *
+     * @name GetApiDevMails
+     * @summary Lists the mails the server sent since it started,
+     * @request GET:/api/dev/mails
+     */
+    getApiDevMails: (params: RequestParams = {}) =>
+      this.request<Message[], Error>({
+        path: `/api/dev/mails`,
         method: "GET",
         format: "json",
         ...params,
@@ -1980,33 +2368,44 @@ export class Api<
       }),
 
     /**
-     * @description Query: search (name, case-insensitive), sortBy (name, createdAt, modifiedAt, playCount), sortDir (asc, desc), filter (all, own, public, organization, favorites).
+     * @description Query, all optional: filter (own, others, public, favorites, sponsored; repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount, visibility, creator), sortDir (asc, desc), limit, offset.
      *
      * @name GetApiGames
-     * @summary Lists the games the caller can see.
+     * @summary Lists a page of the games the caller can see, and the total.
      * @request GET:/api/games
      * @secure
      */
-    getApiGames: (params: RequestParams = {}) =>
-      this.request<Game[], Error>({
+    getApiGames: (
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: string;
+        sortDir?: string;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<GameViewPage, Error>({
         path: `/api/games`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * No description
+     * @description new game starts with and what the caller may do with it. Nothing is stored; the client fills it in and creates the game with CreateGameEndpoint.
      *
-     * @name GetApiGamesFavourites
-     * @summary Lists the games the caller has marked as favourites.
-     * @request GET:/api/games/favourites
+     * @name GetApiGamesNew
+     * @summary Returns the template for a game the caller creates: what a
+     * @request GET:/api/games/new
      * @secure
      */
-    getApiGamesFavourites: (params: RequestParams = {}) =>
-      this.request<Game[], Error>({
-        path: `/api/games/favourites`,
+    getApiGamesNew: (params: RequestParams = {}) =>
+      this.request<GameTemplate, Error>({
+        path: `/api/games/new`,
         method: "GET",
         secure: true,
         format: "json",
@@ -2014,15 +2413,15 @@ export class Api<
       }),
 
     /**
-     * @description Only the name is required, at most 70 characters; the genre is one of the engine's genres and makes an adventure when empty.
+     * @description template, and answers with it as stored. Only the name is required, at most 70 characters; making it public takes the template's mayPublish. In a workshop, the game belongs to it.
      *
      * @name PostApiGamesNew
-     * @summary Creates a game owned by the caller.
+     * @summary Creates a game owned by the caller from the filled-in
      * @request POST:/api/games/new
      * @secure
      */
     postApiGamesNew: (data: CreateGameReq, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/new`,
         method: "POST",
         body: data,
@@ -2033,15 +2432,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description takes mayDelete (403 otherwise).
      *
      * @name DeleteApiGamesId
-     * @summary Deletes a game and answers with it as it was.
+     * @summary Deletes a game and answers with it as it was. Deleting
      * @request DELETE:/api/games/{id}
      * @secure
      */
     deleteApiGamesId: (id: string, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}`,
         method: "DELETE",
         secure: true,
@@ -2058,7 +2457,7 @@ export class Api<
      * @secure
      */
     getApiGamesId: (id: string, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}`,
         method: "GET",
         secure: true,
@@ -2067,10 +2466,10 @@ export class Api<
       }),
 
     /**
-     * @description Takes the whole game; its name is at most 70 characters. Answers with the game as stored.
+     * @description game as stored. Send what changes; a field left out stays as it is, and sending the whole game back is fine: only what differs counts. Changing a section the caller may not edit (mayEditCard, mayEditContent), or making the game public without mayPublish, refuses the whole request (403). The name is at most 70 characters. Workshop, sponsor and creator are not changed here.
      *
      * @name PostApiGamesId
-     * @summary Updates a game's properties.
+     * @summary Changes a game's card and content and answers with the
      * @request POST:/api/games/{id}
      * @secure
      */
@@ -2079,7 +2478,7 @@ export class Api<
       data: UpdateGameReq,
       params: RequestParams = {},
     ) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}`,
         method: "POST",
         body: data,
@@ -2090,10 +2489,10 @@ export class Api<
       }),
 
     /**
-     * @description caller playing a game.
+     * @description caller's plays of a game they may read.
      *
      * @name GetApiGamesIdApiKeyStatus
-     * @summary Answers whether an API key resolves for the
+     * @summary Answers whether a key would pay for the
      * @request GET:/api/games/{id}/api-key-status
      * @secure
      */
@@ -2107,10 +2506,10 @@ export class Api<
       }),
 
     /**
-     * @description with, in order of priority.
+     * @description caller's plays of a game they may read, in the order they are tried.
      *
      * @name GetApiGamesIdAvailableKeys
-     * @summary Lists the API keys the caller can play a game
+     * @summary Lists the keys that would pay for the
      * @request GET:/api/games/{id}/available-keys
      * @secure
      */
@@ -2124,15 +2523,15 @@ export class Api<
       }),
 
     /**
-     * @description new private game of the caller's.
+     * @description and answers with the copy. It takes mayCopy (403 otherwise); the copy has the game's card and content, not its images.
      *
      * @name PostApiGamesIdClone
-     * @summary Copies a public game, or one of the caller's own, into a
+     * @summary Copies a game into a new private game of the caller's
      * @request POST:/api/games/{id}/clone
      * @secure
      */
     postApiGamesIdClone: (id: string, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}/clone`,
         method: "POST",
         secure: true,
@@ -2141,10 +2540,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description answers the same whatever the game: it gives nothing away.
      *
      * @name DeleteApiGamesIdFavourite
-     * @summary Removes a game from the caller's favourites.
+     * @summary Removes a game from the caller's favorites. It
      * @request DELETE:/api/games/{id}/favourite
      * @secure
      */
@@ -2158,10 +2557,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description It takes reading the game (404 otherwise); marking twice changes nothing.
      *
      * @name PostApiGamesIdFavourite
-     * @summary Adds a game to the caller's favourites.
+     * @summary Marks a game as one of the caller's favorites.
      * @request POST:/api/games/{id}/favourite
      * @secure
      */
@@ -2175,10 +2574,10 @@ export class Api<
       }),
 
     /**
-     * @description has access to. These are the caller's own personal and organisation shares, their institution's shares for head, staff and admins, the shares of the workshop they are in, and for head and staff outside a workshop the shares of every workshop of their institution.
+     * @description see: those they made, of their game, paid by their keys or their organisation's, and their workshop's. A game they may not read is 404.
      *
      * @name GetApiGamesIdPrivateShare
-     * @summary Lists the share links of a game the caller
+     * @summary Lists a game's share links the caller may
      * @request GET:/api/games/{id}/private-share
      * @secure
      */
@@ -2192,15 +2591,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description read; another's game they may not read is 404.
      *
      * @name GetApiGamesIdSessions
-     * @summary Lists the caller's own sessions of a game.
+     * @summary Lists the caller's sessions of a game they may
      * @request GET:/api/games/{id}/sessions
      * @secure
      */
     getApiGamesIdSessions: (id: string, params: RequestParams = {}) =>
-      this.request<GameSession[], Error>({
+      this.request<SessionView[], Error>({
         path: `/api/games/${id}/sessions`,
         method: "GET",
         secure: true,
@@ -2209,10 +2608,10 @@ export class Api<
       }),
 
     /**
-     * @description A workshop share (workshopId set) plays on the workshop's default API key and is reused when the game already has one in that workshop. A personal or organisation share needs sponsorKeyShareId; it is an organisation share when that key share belongs to an institution.
+     * @description share: paid by a key share they may draw from (sponsorKeyShareId), or by the workshop's key (workshopId) for the workshop's head and staff, and for those in it while it allows sharing. A workshop has one link per game; an existing one is answered. maxSessions limits the plays; null: unlimited.
      *
      * @name PostApiGamesIdShares
-     * @summary Creates a share link for a game.
+     * @summary Makes a share link for a game the caller may
      * @request POST:/api/games/{id}/shares
      * @secure
      */
@@ -2221,7 +2620,7 @@ export class Api<
       data: CreateGameShareReq,
       params: RequestParams = {},
     ) =>
-      this.request<GameShareResp, Error>({
+      this.request<ShareLinkView, Error>({
         path: `/api/games/${id}/shares`,
         method: "POST",
         body: data,
@@ -2232,10 +2631,10 @@ export class Api<
       }),
 
     /**
-     * @description The share's creator, the game's owner, members of the share's workshop and head or staff of its institution may revoke it.
+     * @description maker, the game's owner, the key's owner, and head and staff when their organisation's key pays.
      *
      * @name DeleteApiGamesIdSharesShareId
-     * @summary Revokes a share link and cleans up its guest data.
+     * @summary Stops a share link: its guests go with it. For its
      * @request DELETE:/api/games/{id}/shares/{shareId}
      * @secure
      */
@@ -2253,10 +2652,10 @@ export class Api<
       }),
 
     /**
-     * @description Whoever may revoke the share may update it.
+     * @description may stop it. Both are set: a null maxSessions makes it unlimited, a null aiQualityTier plays at the source's default.
      *
      * @name PatchApiGamesIdSharesShareId
-     * @summary Updates a share link's settings.
+     * @summary Sets a share link's limit and tier, for those who
      * @request PATCH:/api/games/{id}/shares/{shareId}
      * @secure
      */
@@ -2266,7 +2665,7 @@ export class Api<
       data: UpdateGameShareReq,
       params: RequestParams = {},
     ) =>
-      this.request<GameShareResp, Error>({
+      this.request<ShareLinkView, Error>({
         path: `/api/games/${id}/shares/${shareId}`,
         method: "PATCH",
         body: data,
@@ -2277,15 +2676,15 @@ export class Api<
       }),
 
     /**
-     * @description answers with the game.
+     * @description the game, the key's owner, and head and staff when their organisation's key pays.
      *
      * @name DeleteApiGamesIdSponsor
-     * @summary Removes the public sponsorship from a game and
+     * @summary Stops a game's sponsorship: for those who edit
      * @request DELETE:/api/games/{id}/sponsor
      * @secure
      */
     deleteApiGamesIdSponsor: (id: string, params: RequestParams = {}) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}/sponsor`,
         method: "DELETE",
         secure: true,
@@ -2294,10 +2693,10 @@ export class Api<
       }),
 
     /**
-     * @description API key shares and answers with the game.
+     * @description replacing what paid before: for those who edit the game, with a share they may draw from. A key known to fail is refused.
      *
      * @name PutApiGamesIdSponsor
-     * @summary Sponsors a game publicly with one of the caller's
+     * @summary Makes a key share pay for a game's public plays,
      * @request PUT:/api/games/{id}/sponsor
      * @secure
      */
@@ -2306,7 +2705,7 @@ export class Api<
       data: GameSponsorReq,
       params: RequestParams = {},
     ) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}/sponsor`,
         method: "PUT",
         body: data,
@@ -2317,10 +2716,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description takes seeing the game's content (hasContent; 403 otherwise).
      *
      * @name GetApiGamesIdYaml
-     * @summary Exports a game as a game file, YAML by default.
+     * @summary Exports a game as a game file, YAML by default. It
      * @request GET:/api/games/{id}/yaml
      * @secure
      */
@@ -2334,7 +2733,7 @@ export class Api<
       }),
 
     /**
-     * @description answers with the game. The file's content replaces the game's; its id is ignored.
+     * @description answers with the game as stored. The file replaces the game's card and content; its id is ignored. It takes the same rights as an update (mayEditCard, mayEditContent).
      *
      * @name PutApiGamesIdYaml
      * @summary Updates a game from a game file, YAML or JSON, and
@@ -2346,7 +2745,7 @@ export class Api<
       data: UpdateGameYAMLReq,
       params: RequestParams = {},
     ) =>
-      this.request<Game, Error>({
+      this.request<GameView, Error>({
         path: `/api/games/${id}/yaml`,
         method: "PUT",
         body: data,
@@ -2389,27 +2788,33 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description admin all of them, a head or staff their own. filter narrows the list: "recentlyRegistered", those that registered themselves in the last 14 days, among those whose record the caller sees. An unknown filter is refused.
      *
      * @name GetApiInstitutions
-     * @summary Lists the institutions the caller can see.
+     * @summary Lists the organisations the caller may list: an
      * @request GET:/api/institutions
      * @secure
      */
-    getApiInstitutions: (params: RequestParams = {}) =>
-      this.request<Institution[], Error>({
+    getApiInstitutions: (
+      query?: {
+        filter?: string[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationView[], Error>({
         path: `/api/institutions`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * @description The name is required.
+     * @description The name is required; operator and address are optional. An organisation registers itself through POST /api/auth/register instead.
      *
      * @name PostApiInstitutions
-     * @summary Creates an institution.
+     * @summary Creates an organisation for others: the admin's.
      * @request POST:/api/institutions
      * @secure
      */
@@ -2417,7 +2822,7 @@ export class Api<
       data: CreateInstitutionReq,
       params: RequestParams = {},
     ) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions`,
         method: "POST",
         body: data,
@@ -2428,10 +2833,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description workshops and the guests in them; its members stay, as individuals. Suspending keeps its data instead (POST /api/institutions/{id}/suspension).
      *
      * @name DeleteApiInstitutionsId
-     * @summary Deletes an institution; admins only.
+     * @summary Deletes an organisation for good, with its
      * @request DELETE:/api/institutions/{id}
      * @secure
      */
@@ -2445,15 +2850,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description own, as a member or a guest in one of its workshops; any, for an admin. Others get 404.
      *
      * @name GetApiInstitutionsId
-     * @summary Returns an institution.
+     * @summary Returns an organisation the caller may read: their
      * @request GET:/api/institutions/{id}
      * @secure
      */
     getApiInstitutionsId: (id: string, params: RequestParams = {}) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions/${id}`,
         method: "GET",
         secure: true,
@@ -2462,10 +2867,10 @@ export class Api<
       }),
 
     /**
-     * @description The name is required.
+     * @description youth-protection restriction, or both, and answers with it as stored. Only what is given changes; an empty promptConstraints removes the restriction, so the site's rule applies. Renaming takes mayEditCard, the restriction mayEditSettings; a request with a part the caller may not change is refused as a whole.
      *
      * @name PatchApiInstitutionsId
-     * @summary Renames an institution.
+     * @summary Changes an organisation: its name, its
      * @request PATCH:/api/institutions/{id}
      * @secure
      */
@@ -2474,7 +2879,7 @@ export class Api<
       data: UpdateInstitutionReq,
       params: RequestParams = {},
     ) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions/${id}`,
         method: "PATCH",
         body: data,
@@ -2485,15 +2890,15 @@ export class Api<
       }),
 
     /**
-     * @description heads and staff only.
+     * @description its head and staff.
      *
      * @name GetApiInstitutionsIdApikeys
-     * @summary Lists the API keys shared with an institution;
+     * @summary Lists the keys given to an organisation: for
      * @request GET:/api/institutions/{id}/apikeys
      * @secure
      */
     getApiInstitutionsIdApikeys: (id: string, params: RequestParams = {}) =>
-      this.request<ApiKeyShare[], Error>({
+      this.request<KeyShareView[], Error>({
         path: `/api/institutions/${id}/apikeys`,
         method: "GET",
         secure: true,
@@ -2502,10 +2907,73 @@ export class Api<
       }),
 
     /**
-     * @description free-use API key share and answers with the institution. Any member of the institution plays for free with this key. A null shareId clears it.
+     * @description declaration and answers with the organisation as its heads consent for it. For a head of that organisation (403 otherwise). The organisation is suspended until a head consents again; one without a standing consent has none to withdraw (409). The consent log keeps the consent and its withdrawal.
+     *
+     * @name DeleteApiInstitutionsIdDeclarationConsent
+     * @summary Withdraws a head's organisation's consent to the
+     * @request DELETE:/api/institutions/{id}/declaration-consent
+     * @secure
+     */
+    deleteApiInstitutionsIdDeclarationConsent: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationConsentView, Error>({
+        path: `/api/institutions/${id}/declaration-consent`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description consent for it. For a head of that organisation (403 otherwise), also while it is suspended: its consent status (pending while it has no consent to the current declaration, which suspends it) and the operator, address and youth-protection restriction a consent confirms.
+     *
+     * @name GetApiInstitutionsIdDeclarationConsent
+     * @summary Returns an organisation as its heads
+     * @request GET:/api/institutions/{id}/declaration-consent
+     * @secure
+     */
+    getApiInstitutionsIdDeclarationConsent: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationConsentView, Error>({
+        path: `/api/institutions/${id}/declaration-consent`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description declaration for their organisation and answers with the organisation as its heads consent for it. For a head of that organisation (403 otherwise), also while it is suspended; one head's consent covers the organisation and lifts its suspension for want of a consent (an admin's stays). It stores the operator, the address and the youth-protection restriction (at most 200 characters) given with it, and confirms the consent by mail, with a copy to the operator.
+     *
+     * @name PostApiInstitutionsIdDeclarationConsent
+     * @summary Records a head's consent to the current
+     * @request POST:/api/institutions/{id}/declaration-consent
+     * @secure
+     */
+    postApiInstitutionsIdDeclarationConsent: (
+      id: string,
+      data: ConsentToDeclarationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationConsentView, Error>({
+        path: `/api/institutions/${id}/declaration-consent`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description organisation's members play with for free: one of the keys given to it. A null shareId clears it.
      *
      * @name PatchApiInstitutionsIdFreeUseKey
-     * @summary Sets or clears an institution's
+     * @summary Sets or clears the key an
      * @request PATCH:/api/institutions/{id}/free-use-key
      * @secure
      */
@@ -2514,7 +2982,7 @@ export class Api<
       data: SetInstitutionFreeUseKeyReq,
       params: RequestParams = {},
     ) =>
-      this.request<Institution, Error>({
+      this.request<OrganisationView, Error>({
         path: `/api/institutions/${id}/free-use-key`,
         method: "PATCH",
         body: data,
@@ -2525,15 +2993,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description staff, head): for its members and the admin. Anyone else gets an empty list; an organisation the caller may not read, 404.
      *
      * @name GetApiInstitutionsIdMembers
-     * @summary Lists the members of an institution.
+     * @summary Lists an organisation's members (individual,
      * @request GET:/api/institutions/{id}/members
      * @secure
      */
     getApiInstitutionsIdMembers: (id: string, params: RequestParams = {}) =>
-      this.request<User[], Error>({
+      this.request<UserView[], Error>({
         path: `/api/institutions/${id}/members`,
         method: "GET",
         secure: true,
@@ -2542,10 +3010,10 @@ export class Api<
       }),
 
     /**
-     * @description and admins only.
+     * @description keep their account, as an individual. A head removes members and guests, staff remove guests, a member leaves, an admin removes anyone; the last head stays (409 last_head).
      *
      * @name DeleteApiInstitutionsIdMembersUserId
-     * @summary Removes a member from an institution; heads
+     * @summary Removes a user from an organisation; they
      * @request DELETE:/api/institutions/{id}/members/{userID}
      * @secure
      */
@@ -2563,21 +3031,41 @@ export class Api<
       }),
 
     /**
-     * @description prompt constraints and answers with the institution; heads and admins only. An empty or null promptConstraints clears them.
+     * @description answers with the suspension, now empty. Admins only (403 otherwise); an organisation without a consent to the current declaration stays suspended until a head consents.
      *
-     * @name PatchApiInstitutionsIdPromptConstraints
-     * @summary Sets or clears an institution's
-     * @request PATCH:/api/institutions/{id}/prompt-constraints
+     * @name DeleteApiInstitutionsIdSuspension
+     * @summary Lifts an admin's suspension of an organisation and
+     * @request DELETE:/api/institutions/{id}/suspension
      * @secure
      */
-    patchApiInstitutionsIdPromptConstraints: (
+    deleteApiInstitutionsIdSuspension: (
       id: string,
-      data: UpdateInstitutionPromptConstraintsReq,
       params: RequestParams = {},
     ) =>
-      this.request<Institution, Error>({
-        path: `/api/institutions/${id}/prompt-constraints`,
-        method: "PATCH",
+      this.request<OrganisationSuspensionView, Error>({
+        path: `/api/institutions/${id}/suspension`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description suspension. Admins only (403 otherwise). Its heads, staff and the guests in its workshops are refused everywhere but GET /api/users/me (which reports the suspension) and logout; its share links and public workshop pages stop. Nothing is deleted; lifting the suspension reverses it. The reason is an optional note for admins.
+     *
+     * @name PostApiInstitutionsIdSuspension
+     * @summary Suspends an organisation and answers with the
+     * @request POST:/api/institutions/{id}/suspension
+     * @secure
+     */
+    postApiInstitutionsIdSuspension: (
+      id: string,
+      data: SuspendOrganisationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationSuspensionView, Error>({
+        path: `/api/institutions/${id}/suspension`,
+        method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -2586,15 +3074,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description account or email: what they may accept or decline.
      *
      * @name GetApiInvites
-     * @summary Lists the invites addressed to the caller.
+     * @summary Lists the pending invites addressed to the caller, by
      * @request GET:/api/invites
      * @secure
      */
     getApiInvites: (params: RequestParams = {}) =>
-      this.request<InviteResp[], Error>({
+      this.request<InviteCardView[], Error>({
         path: `/api/invites`,
         method: "GET",
         secure: true,
@@ -2603,15 +3091,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description admin, all of them.
      *
      * @name GetApiInvitesAll
-     * @summary Lists every invite; admins only.
+     * @summary Lists every invite the caller may list: for the
      * @request GET:/api/invites/all
      * @secure
      */
     getApiInvitesAll: (params: RequestParams = {}) =>
-      this.request<InviteResp[], Error>({
+      this.request<InviteCardView[], Error>({
         path: `/api/invites/all`,
         method: "GET",
         secure: true,
@@ -2620,10 +3108,10 @@ export class Api<
       }),
 
     /**
-     * @description head, staff or individual. The role defaults to staff. The invite names the invited user by id or email.
+     * @description an organisation as head, staff or individual (staff by default). Head and staff invite into their organisation, only heads as head; the admin into any.
      *
      * @name PostApiInvitesInstitution
-     * @summary Invites a user to join an institution as
+     * @summary Invites an account, by id or email, into
      * @request POST:/api/invites/institution
      * @secure
      */
@@ -2631,7 +3119,7 @@ export class Api<
       data: CreateInstitutionInviteReq,
       params: RequestParams = {},
     ) =>
-      this.request<UserRoleInvite, Error>({
+      this.request<InviteCardView, Error>({
         path: `/api/invites/institution`,
         method: "POST",
         body: data,
@@ -2642,10 +3130,10 @@ export class Api<
       }),
 
     /**
-     * @description The caller is head or staff of the institution, or an admin.
+     * @description caller may list: its head and staff (staff without the invites to become head), and the admin.
      *
      * @name GetApiInvitesInstitutionInstitutionId
-     * @summary Lists the invites to join an institution.
+     * @summary Lists an organisation's invites the
      * @request GET:/api/invites/institution/{institutionId}
      * @secure
      */
@@ -2653,7 +3141,7 @@ export class Api<
       institutionId: string,
       params: RequestParams = {},
     ) =>
-      this.request<InviteResp[], Error>({
+      this.request<InviteCardView[], Error>({
         path: `/api/invites/institution/${institutionId}`,
         method: "GET",
         secure: true,
@@ -2662,10 +3150,10 @@ export class Api<
       }),
 
     /**
-     * @description workshop as participants.
+     * @description a new one. Whoever follows it becomes a guest there, or, a member of an organisation, works in it.
      *
      * @name PostApiInvitesWorkshop
-     * @summary Creates an open invite for users to join a
+     * @summary Returns a workshop's link: its usable one, or
      * @request POST:/api/invites/workshop
      * @secure
      */
@@ -2673,7 +3161,7 @@ export class Api<
       data: CreateWorkshopInviteReq,
       params: RequestParams = {},
     ) =>
-      this.request<UserRoleInvite, Error>({
+      this.request<InviteCardView, Error>({
         path: `/api/invites/workshop`,
         method: "POST",
         body: data,
@@ -2684,10 +3172,10 @@ export class Api<
       }),
 
     /**
-     * @description join a workshop. A second pending invite for the same user and workshop is refused with 409.
+     * @description into a workshop: accepting, they keep their role and work in it.
      *
      * @name PostApiInvitesWorkshopEmail
-     * @summary Invites a registered user, by email, to
+     * @summary Invites the account with this email
      * @request POST:/api/invites/workshop/email
      * @secure
      */
@@ -2695,7 +3183,7 @@ export class Api<
       data: CreateWorkshopEmailInviteReq,
       params: RequestParams = {},
     ) =>
-      this.request<InviteResp, Error>({
+      this.request<InviteCardView, Error>({
         path: `/api/invites/workshop/email`,
         method: "POST",
         body: data,
@@ -2706,15 +3194,15 @@ export class Api<
       }),
 
     /**
-     * @description An id needs a signed-in caller: admins see any invite, everyone else the invites addressed to them or created by them. A token also answers an anonymous caller, for open invites.
+     * @description its link's token, for anyone who has it, signed in or not. Repeated guesses at tokens are slowed down (429).
      *
      * @name GetApiInvitesIdOrToken
-     * @summary Returns an invite by its id or its token.
+     * @summary Returns an invite: by id, for those who may read it; by
      * @request GET:/api/invites/{idOrToken}
      * @secure
      */
     getApiInvitesIdOrToken: (idOrToken: string, params: RequestParams = {}) =>
-      this.request<InviteResp, Error>({
+      this.request<InviteCardView, Error>({
         path: `/api/invites/${idOrToken}`,
         method: "GET",
         secure: true,
@@ -2723,10 +3211,10 @@ export class Api<
       }),
 
     /**
-     * @description An anonymous caller accepts a workshop invite by token: this creates a participant account in the browser's language, starts its session, sets the session cookie and answers with the account and its token. A signed-in participant switches to the invite's workshop; a head, staff member or individual enters it and keeps their role; anyone else joins as a participant. An invite by id needs a signed-in caller; an institution invite gives the caller its role.
+     * @description Following a link without an account joins its workshop as a new guest, signed in at once. A member of an organisation keeps their role and works in the workshop; anyone else takes the invite's role. Only a pending invite is accepted (409). Repeated guesses at tokens are slowed down (429).
      *
      * @name PostApiInvitesIdOrTokenAccept
-     * @summary Accepts an invite by its id or its token.
+     * @summary Accepts an invite, by its id or its link's token.
      * @request POST:/api/invites/{idOrToken}/accept
      * @secure
      */
@@ -2743,10 +3231,10 @@ export class Api<
       }),
 
     /**
-     * @description Its creator and admins can revoke it, and institution staff a workshop invite.
+     * @description and staff (staff not the invites to become head), and the admin. An answered invite stays (409).
      *
      * @name DeleteApiInvitesId
-     * @summary Revokes a pending invite.
+     * @summary Deletes a pending invite: for its organisation's head
      * @request DELETE:/api/invites/{id}
      * @secure
      */
@@ -2760,15 +3248,15 @@ export class Api<
       }),
 
     /**
-     * @description status "declined".
+     * No description
      *
      * @name PostApiInvitesIdDecline
-     * @summary Declines an invite and answers with its id and its
+     * @summary Declines a pending invite addressed to the caller.
      * @request POST:/api/invites/{id}/decline
      * @secure
      */
     postApiInvitesIdDecline: (id: string, params: RequestParams = {}) =>
-      this.request<UserRoleInvite, Error>({
+      this.request<MessageResp, Error>({
         path: `/api/invites/${id}/decline`,
         method: "POST",
         secure: true,
@@ -2801,6 +3289,21 @@ export class Api<
     getApiLanguagesCode: (code: string, params: RequestParams = {}) =>
       this.request<Record<string, any>, Error>({
         path: `/api/languages/${code}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Public. The current version of the Einverständniserklärung: its binding German text (Markdown, title in bold on the first line), the sentence a person ticks to agree, version, date and SHA-256 hash; the suggested youth-protection restrictions; the site's restriction for 13–17 year olds without parental consent, which an organisation's form starts with; and the longest restriction an organisation may set.
+     *
+     * @name GetApiLegalInstitutionDeclaration
+     * @summary Returns the declaration organisations consent to.
+     * @request GET:/api/legal/institution-declaration
+     */
+    getApiLegalInstitutionDeclaration: (params: RequestParams = {}) =>
+      this.request<DeclarationResp, Error>({
+        path: `/api/legal/institution-declaration`,
         method: "GET",
         format: "json",
         ...params,
@@ -2907,27 +3410,34 @@ export class Api<
       }),
 
     /**
-     * @description Query: search (game name), sortBy (game, model for the AI platform, lastPlayed by default).
+     * @description first, at most 20. search narrows them to games whose name holds it; sortBy "game" or "model" orders them by game name or AI platform.
      *
      * @name GetApiSessions
-     * @summary Lists the caller's recent sessions with their games' names.
+     * @summary Lists the caller's sessions, newest activity
      * @request GET:/api/sessions
      * @secure
      */
-    getApiSessions: (params: RequestParams = {}) =>
-      this.request<UserSessionWithGame[], Error>({
+    getApiSessions: (
+      query?: {
+        search?: string;
+        sortBy?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<SessionView[], Error>({
         path: `/api/sessions`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * No description
+     * @description else's does not exist for them (404).
      *
      * @name DeleteApiSessionsId
-     * @summary Deletes a session the caller owns and everything it stored.
+     * @summary Deletes one of the caller's sessions; someone
      * @request DELETE:/api/sessions/{id}
      * @secure
      */
@@ -3068,15 +3578,15 @@ export class Api<
       }),
 
     /**
-     * @description Admins see every user; heads and staff see the members of their institution. Everyone else is refused.
+     * @description heads and staff the members of their organisation.
      *
      * @name GetApiUsers
-     * @summary Lists the users the caller manages.
+     * @summary Lists the users the caller may list: admins every user,
      * @request GET:/api/users
      * @secure
      */
     getApiUsers: (params: RequestParams = {}) =>
-      this.request<User[], Error>({
+      this.request<UserView[], Error>({
         path: `/api/users`,
         method: "GET",
         secure: true,
@@ -3085,7 +3595,7 @@ export class Api<
       }),
 
     /**
-     * @description The state is "anonymous" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A participant whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering; this one reports it.
+     * @description The state is "guest" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A guest whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering, and a member of a suspended organisation; this one reports both.
      *
      * @name GetApiUsersMe
      * @summary Reports who is calling.
@@ -3124,18 +3634,18 @@ export class Api<
       }),
 
     /**
-     * @description their account. The language is an ISO 639-1 code the platform supports.
+     * @description user: UpdateUserEndpoint with their id and only the language. The language is an ISO 639-1 code the platform supports.
      *
      * @name PatchApiUsersMeLanguage
-     * @summary Sets the caller's language and answers with
+     * @summary Sets the caller's language and answers with their
      * @request PATCH:/api/users/me/language
      * @secure
      */
     patchApiUsersMeLanguage: (
-      data: UpdateUserLanguageReq,
+      data: UpdateMyLanguageReq,
       params: RequestParams = {},
     ) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/me/language`,
         method: "PATCH",
         body: data,
@@ -3146,16 +3656,16 @@ export class Api<
       }),
 
     /**
-     * @description Both fields are null for an account without one.
+     * @description with their id.
      *
-     * @name GetApiUsersMeParticipantCode
-     * @summary Returns the caller's own re-login code.
-     * @request GET:/api/users/me/participant-code
+     * @name GetApiUsersMeSecrets
+     * @summary Is the caller's own login code: GetUserSecretsEndpoint
+     * @request GET:/api/users/me/secrets
      * @secure
      */
-    getApiUsersMeParticipantCode: (params: RequestParams = {}) =>
-      this.request<UserParticipantCodeResp, Error>({
-        path: `/api/users/me/participant-code`,
+    getApiUsersMeSecrets: (params: RequestParams = {}) =>
+      this.request<UserSecretsView, Error>({
+        path: `/api/users/me/secrets`,
         method: "GET",
         secure: true,
         format: "json",
@@ -3163,15 +3673,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description with their id.
      *
      * @name GetApiUsersMeStats
-     * @summary Returns the caller's statistics.
+     * @summary Is the caller's own statistics: GetUserStatsEndpoint
      * @request GET:/api/users/me/stats
      * @secure
      */
     getApiUsersMeStats: (params: RequestParams = {}) =>
-      this.request<UserStats, Error>({
+      this.request<UserStatsView, Error>({
         path: `/api/users/me/stats`,
         method: "GET",
         secure: true,
@@ -3180,7 +3690,7 @@ export class Api<
       }),
 
     /**
-     * @description The name is required. The account's language follows the request's Accept-Language.
+     * @description The account's language follows the request's Accept-Language. Without a name it creates an account still registering, as a first Auth0 sign-in does (for testing registration).
      *
      * @name PostApiUsersNew
      * @summary Creates a user without Auth0; in dev mode only.
@@ -3197,10 +3707,10 @@ export class Api<
       }),
 
     /**
-     * @description record.
+     * @description roles. It takes mayDelete (403 otherwise); an organisation's last head is refused (409).
      *
      * @name DeleteApiUsersId
-     * @summary Removes a user, such as a participant, keeping their
+     * @summary Deletes a user with their games, keys, shares and
      * @request DELETE:/api/users/{id}
      * @secure
      */
@@ -3213,15 +3723,15 @@ export class Api<
       }),
 
     /**
-     * @description The caller reads their own account; admins read anyone; heads and staff read the members of their institution.
+     * @description heads and staff their organisation's members and the guests in its workshops; admins anyone. 404 otherwise.
      *
      * @name GetApiUsersId
-     * @summary Returns a user.
+     * @summary Returns a user the caller may see: themselves, and for
      * @request GET:/api/users/{id}
      * @secure
      */
     getApiUsersId: (id: string, params: RequestParams = {}) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/${id}`,
         method: "GET",
         secure: true,
@@ -3230,10 +3740,10 @@ export class Api<
       }),
 
     /**
-     * @description The caller updates themselves; admins update anyone; heads and staff update the participants of their institution's workshops. Only admins change an email. An empty name or email leaves it unchanged; an empty aiQualityTier clears it. The age group is "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent) or "u18" (18+).
+     * @description Send what changes; a field left out stays as it is. Each changed section must be one the caller may edit (mayEditCard for the name, mayEditAccount for language, age group, AI quality tier and default key, mayEditContact for the email); otherwise the whole request is refused (403). The age group is "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent) or "u18" (18+). An empty aiQualityTier or email removes it.
      *
      * @name PostApiUsersId
-     * @summary Updates a user and answers with them.
+     * @summary Changes a user and answers with them as stored.
      * @request POST:/api/users/{id}
      * @secure
      */
@@ -3242,7 +3752,7 @@ export class Api<
       data: UpdateUserReq,
       params: RequestParams = {},
     ) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/${id}`,
         method: "POST",
         body: data,
@@ -3253,15 +3763,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description an individual of no organisation. A head removes a member from the organisation instead (DELETE /api/institutions/{id}/members/{userID}).
      *
      * @name DeleteApiUsersIdRole
-     * @summary Removes a user's role and answers with the user.
+     * @summary Takes a user's role away, the admin's: they become
      * @request DELETE:/api/users/{id}/role
      * @secure
      */
     deleteApiUsersIdRole: (id: string, params: RequestParams = {}) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/${id}/role`,
         method: "DELETE",
         secure: true,
@@ -3270,10 +3780,10 @@ export class Api<
       }),
 
     /**
-     * @description The role is scoped to an institution or a workshop by their ids.
+     * @description The admin gives any role, scoped to an organisation or a workshop by their ids; a head makes a member of their organisation head or staff there. Only an individual becomes admin, and an organisation keeps its last head (409 last_head).
      *
      * @name PostApiUsersIdRole
-     * @summary Sets a user's role and answers with the user.
+     * @summary Gives a user a new role and answers with them.
      * @request POST:/api/users/{id}/role
      * @secure
      */
@@ -3282,12 +3792,46 @@ export class Api<
       data: SetUserRoleReq,
       params: RequestParams = {},
     ) =>
-      this.request<User, Error>({
+      this.request<UserView, Error>({
         path: `/api/users/${id}/role`,
         method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description for heads and staff the guests' in their organisation's workshops, to help a guest who lost theirs. Both fields are null for an account without one.
+     *
+     * @name GetApiUsersIdSecrets
+     * @summary Returns a user's login code: the guest's own, and
+     * @request GET:/api/users/{id}/secrets
+     * @secure
+     */
+    getApiUsersIdSecrets: (id: string, params: RequestParams = {}) =>
+      this.request<UserSecretsView, Error>({
+        path: `/api/users/${id}/secrets`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description takes seeing their account (403 otherwise).
+     *
+     * @name GetApiUsersIdStats
+     * @summary Returns what a user did on the platform, counted. It
+     * @request GET:/api/users/{id}/stats
+     * @secure
+     */
+    getApiUsersIdStats: (id: string, params: RequestParams = {}) =>
+      this.request<UserStatsView, Error>({
+        path: `/api/users/${id}/stats`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -3308,32 +3852,42 @@ export class Api<
       }),
 
     /**
-     * @description one institution. Query: institutionId, search (name), sortBy (name, createdAt, participantCount), sortDir (asc, desc), activeOnly ("true" lists active workshops only).
+     * @description all of them, a head or staff their organisation's. institutionId, search and activeOnly narrow the list; sortBy (name, createdAt, participantCount) and sortDir (asc, desc) order it, newest first by default.
      *
      * @name GetApiWorkshops
-     * @summary Lists the workshops the caller can see, or those of
+     * @summary Lists the workshops the caller may list: an admin
      * @request GET:/api/workshops
      * @secure
      */
-    getApiWorkshops: (params: RequestParams = {}) =>
-      this.request<Workshop[], Error>({
+    getApiWorkshops: (
+      query?: {
+        institutionId?: string;
+        search?: string;
+        sortBy?: string;
+        sortDir?: string;
+        activeOnly?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<WorkshopView[], Error>({
         path: `/api/workshops`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * No description
+     * @description for the admin, in the one named (institutionId).
      *
      * @name PostApiWorkshops
-     * @summary Creates a workshop.
+     * @summary Creates a workshop in the caller's organisation, or,
      * @request POST:/api/workshops
      * @secure
      */
     postApiWorkshops: (data: CreateWorkshopReq, params: RequestParams = {}) =>
-      this.request<Workshop, Error>({
+      this.request<WorkshopView, Error>({
         path: `/api/workshops`,
         method: "POST",
         body: data,
@@ -3344,19 +3898,19 @@ export class Api<
       }),
 
     /**
-     * @description staff and heads only.
+     * @description caller's organisation's workshops: for its head and staff, helping a guest who lost it.
      *
-     * @name GetApiWorkshopsParticipantsParticipantIdToken
-     * @summary Returns a workshop participant's access token;
-     * @request GET:/api/workshops/participants/{participantId}/token
+     * @name GetApiWorkshopsGuestsGuestIdToken
+     * @summary Returns the login code of a guest in one of the
+     * @request GET:/api/workshops/guests/{guestId}/token
      * @secure
      */
-    getApiWorkshopsParticipantsParticipantIdToken: (
-      participantId: string,
+    getApiWorkshopsGuestsGuestIdToken: (
+      guestId: string,
       params: RequestParams = {},
     ) =>
-      this.request<WorkshopParticipantTokenResp, Error>({
-        path: `/api/workshops/participants/${participantId}/token`,
+      this.request<GuestTokenResp, Error>({
+        path: `/api/workshops/guests/${guestId}/token`,
         method: "GET",
         secure: true,
         format: "json",
@@ -3364,19 +3918,19 @@ export class Api<
       }),
 
     /**
-     * @description staff and heads only. Earlier sign-in links stop working and the participant's sessions end.
+     * @description workshops a new login code: for its head and staff. Earlier login links stop working and the guest's sessions end.
      *
-     * @name PostApiWorkshopsParticipantsParticipantIdTokenReset
-     * @summary Replaces a workshop participant's access token;
-     * @request POST:/api/workshops/participants/{participantId}/token/reset
+     * @name PostApiWorkshopsGuestsGuestIdTokenReset
+     * @summary Gives a guest in one of the caller's organisation's
+     * @request POST:/api/workshops/guests/{guestId}/token/reset
      * @secure
      */
-    postApiWorkshopsParticipantsParticipantIdTokenReset: (
-      participantId: string,
+    postApiWorkshopsGuestsGuestIdTokenReset: (
+      guestId: string,
       params: RequestParams = {},
     ) =>
-      this.request<WorkshopParticipantTokenResp, Error>({
-        path: `/api/workshops/participants/${participantId}/token/reset`,
+      this.request<GuestTokenResp, Error>({
+        path: `/api/workshops/guests/${guestId}/token/reset`,
         method: "POST",
         secure: true,
         format: "json",
@@ -3384,10 +3938,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description stay with their creators.
      *
      * @name DeleteApiWorkshopsId
-     * @summary Soft-deletes a workshop.
+     * @summary Deletes a workshop with its guests; its other games
      * @request DELETE:/api/workshops/{id}
      * @secure
      */
@@ -3401,15 +3955,15 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description organisation's, the one they are in, one with a public page, or any, for an admin. Others get 404.
      *
      * @name GetApiWorkshopsId
-     * @summary Returns a workshop.
+     * @summary Returns a workshop the caller may read: one of their
      * @request GET:/api/workshops/{id}
      * @secure
      */
     getApiWorkshopsId: (id: string, params: RequestParams = {}) =>
-      this.request<Workshop, Error>({
+      this.request<WorkshopView, Error>({
         path: `/api/workshops/${id}`,
         method: "GET",
         secure: true,
@@ -3418,10 +3972,10 @@ export class Api<
       }),
 
     /**
-     * @description The name is required. Omitting publicSlug, publicDescription or publicLinks keeps the current value; an empty description or list clears it.
+     * @description Only what is given changes. An empty aiQualityTier, promptConstraints or publicDescription removes it; an empty publicLinks list clears the links. Switching public off ends the public page's share links.
      *
      * @name PatchApiWorkshopsId
-     * @summary Updates a workshop's settings and its public page.
+     * @summary Changes a workshop and answers with it as stored.
      * @request PATCH:/api/workshops/{id}
      * @secure
      */
@@ -3430,7 +3984,7 @@ export class Api<
       data: UpdateWorkshopReq,
       params: RequestParams = {},
     ) =>
-      this.request<Workshop, Error>({
+      this.request<WorkshopView, Error>({
         path: `/api/workshops/${id}`,
         method: "PATCH",
         body: data,
@@ -3441,10 +3995,10 @@ export class Api<
       }),
 
     /**
-     * @description with; staff and heads only. A null or empty apiKeyShareId removes it.
+     * @description keys given to its organisation; null or empty clears it, and the workshop plays no more until one is picked.
      *
      * @name PutApiWorkshopsIdApiKey
-     * @summary Sets the API key a workshop's participants play
+     * @summary Sets the key a workshop plays with: one of the
      * @request PUT:/api/workshops/{id}/api-key
      * @secure
      */
@@ -3453,7 +4007,7 @@ export class Api<
       data: SetWorkshopApiKeyReq,
       params: RequestParams = {},
     ) =>
-      this.request<Workshop, Error>({
+      this.request<WorkshopView, Error>({
         path: `/api/workshops/${id}/api-key`,
         method: "PUT",
         body: data,
@@ -3480,10 +4034,10 @@ export class Api<
       }),
 
     /**
-     * @description making it their active workshop.
+     * @description into it: it becomes the workshop they work in.
      *
      * @name PostApiWorkshopsIdMembers
-     * @summary Adds a member of the organization to a workshop by
+     * @summary Puts an individual of the workshop's organisation
      * @request POST:/api/workshops/{id}/members
      * @secure
      */
@@ -3503,10 +4057,10 @@ export class Api<
       }),
 
     /**
-     * @description workshop by clearing their active workshop.
+     * @description loses their place, a member working in it leaves it.
      *
      * @name DeleteApiWorkshopsIdMembersUserId
-     * @summary Removes a member who is not permanent from a
+     * @summary Takes someone out of a workshop: a guest of it
      * @request DELETE:/api/workshops/{id}/members/{userId}
      * @secure
      */

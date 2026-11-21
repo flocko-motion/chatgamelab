@@ -1,4 +1,4 @@
-import { api, withQuery } from "../client/api";
+import { api } from "../client/api";
 import {
   useQuery,
   useMutation,
@@ -6,7 +6,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
-import type { PublicWorkshopLink, Workshop } from "../generated/api.gen";
+import type { PublicWorkshopLink, WorkshopView } from "../generated/api.gen";
 
 /**
  * Parameters for listing workshops with filtering and sorting
@@ -32,13 +32,13 @@ export function useWorkshops(params: UseWorkshopsParams) {
     ],
     queryFn: async () => {
       if (!institutionId) return [];
-      const response = await api.getApiWorkshops(withQuery({
+      const response = await api.getApiWorkshops({
           institutionId,
           search: search || undefined,
           sortBy: sortBy || undefined,
           sortDir: sortDir || undefined,
-          activeOnly: activeOnly || undefined,
-        }));
+          activeOnly: activeOnly ? "true" : undefined,
+        });
       return response.data;
     },
     enabled: !!institutionId,
@@ -209,7 +209,7 @@ export function useSetWorkshopApiKey() {
     },
     onSuccess: (updatedWorkshop, variables) => {
       // Update the workshop in the cache immediately with the new data
-      queryClient.setQueryData<Workshop[]>(["workshops"], (old) => {
+      queryClient.setQueryData<WorkshopView[]>(["workshops"], (old) => {
         if (!old) return old;
         return old.map((w) =>
           w.id === variables.workshopId ? updatedWorkshop : w,
@@ -245,14 +245,14 @@ export function useUpdateParticipant() {
 }
 
 /**
- * Hook to replace a participant's login token; earlier re-login links stop working.
+ * Hook to replace the login token of a Guest in a workshop; earlier re-login links stop working.
  */
-export function useResetParticipantToken() {
+export function useResetGuestToken() {
 
   return useMutation({
-    mutationFn: async (participantId: string) => {
+    mutationFn: async (guestId: string) => {
       const response =
-        await api.postApiWorkshopsParticipantsParticipantIdTokenReset(participantId);
+        await api.postApiWorkshopsGuestsGuestIdTokenReset(guestId);
       return response.data;
     },
   });
@@ -260,7 +260,7 @@ export function useResetParticipantToken() {
 
 /**
  * Hook to remove a member from a workshop.
- * Permanent members (participants) are HARD-deleted: db.DeleteUser removes the
+ * Permanent members (Guests) are HARD-deleted: db.DeleteUser removes the
  * account row and every game they created, with its sessions and shared links.
  * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
  */

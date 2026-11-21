@@ -5,7 +5,6 @@
 package db
 
 import (
-	"cgl/obj"
 	"context"
 	"encoding/json"
 	"errors"
@@ -25,7 +24,10 @@ type SessionStore struct{}
 
 var _ engine.Persist = SessionStore{}
 
-// NewSession is the bookkeeping of a session about to launch.
+// NewSession is the bookkeeping of a session about to launch, and what its
+// start takes besides: a guest's account, a play of its share link, the
+// player's earlier sessions of the game. All of it happens with the first
+// save, in one transaction, or not at all.
 type NewSession struct {
 	GameID        uuid.UUID
 	UserID        uuid.UUID
@@ -34,7 +36,20 @@ type NewSession struct {
 	ApiKeyShareID *uuid.UUID
 	Platform      string
 	Language      string
+
+	Guest          *NewGuest // the account made for a guest playing through a link (UserID)
+	ConsumesPlay   bool      // takes a play from the share link (GameShareID)
+	ReplaceEarlier bool      // deletes the player's earlier sessions of the game
 }
+
+// NewGuest is the account of a guest playing through a share link.
+type NewGuest struct {
+	Name    string
+	ShareID uuid.UUID
+}
+
+// ErrNoPlaysLeft: the share link has no plays left.
+var ErrNoPlaysLeft = errors.New("the share link has no plays left")
 
 // Launching is the store for a session about to launch. The engine saves a
 // session's first state before Launch returns and only once it has validated
@@ -46,9 +61,20 @@ func Launching(meta NewSession) engine.Persist {
 
 type launchStore struct {
 	SessionStore
-	mu      sync.Mutex
-	meta    NewSession
-	created bool
+	mu       sync.Mutex
+	meta     NewSession
+	created  bool
+	replaced []uuid.UUID
+}
+
+// Replaced are the earlier sessions the launch deleted.
+func Replaced(store engine.Persist) []uuid.UUID {
+	if l, ok := store.(*launchStore); ok {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+		return l.replaced
+	}
+	return nil
 }
 
 func (l *launchStore) SaveState(ctx context.Context, sessionID string, stored engine.Stored) error {
@@ -72,6 +98,31 @@ func (l *launchStore) SaveState(ctx context.Context, sessionID string, stored en
 	}
 	defer tx.Rollback()
 	q := queries().WithTx(tx)
+	if g := l.meta.Guest; g != nil {
+		if _, err := q.CreateGuestUser(ctx, CreateGuestUserParams{
+			ID: l.meta.UserID, Name: userName(g.Name), PrivateShareID: uuid.NullUUID{UUID: g.ShareID, Valid: true},
+		}); err != nil {
+			return fmt.Errorf("create the guest: %w", err)
+		}
+	}
+	if l.meta.ConsumesPlay && l.meta.GameShareID != nil {
+		if _, err := q.DecrementGameShareRemaining(ctx, *l.meta.GameShareID); err != nil {
+			return ErrNoPlaysLeft
+		}
+	}
+	var replaced []uuid.UUID
+	if l.meta.ReplaceEarlier {
+		ids, err := q.GetUserGameSessionIDsForGame(ctx, GetUserGameSessionIDsForGameParams{UserID: l.meta.UserID, GameID: l.meta.GameID})
+		if err != nil {
+			return fmt.Errorf("find earlier sessions: %w", err)
+		}
+		for _, old := range ids {
+			if err := q.DeleteGameSession(ctx, old); err != nil {
+				return fmt.Errorf("replace earlier session: %w", err)
+			}
+		}
+		replaced = ids
+	}
 	if err := q.CreateGameSession(ctx, CreateGameSessionParams{
 		ID:            id,
 		GameID:        l.meta.GameID,
@@ -95,6 +146,7 @@ func (l *launchStore) SaveState(ctx context.Context, sessionID string, stored en
 		return fmt.Errorf("commit session creation: %w", err)
 	}
 	l.created = true
+	l.replaced = replaced
 	return nil
 }
 
@@ -186,139 +238,6 @@ func (SessionStore) LoadHistory(ctx context.Context, sessionID string) ([]engine
 		events = append(events, engine.SessionEvent{Stream: r.Stream, Value: r.Value})
 	}
 	return events, nil
-}
-
-// ErrSessionNotFound is a session the platform does not hold.
-var ErrSessionNotFound = errors.New("session not found")
-
-// GetGameSession is a session's bookkeeping, with no permission check: the
-// caller decides who may reach it.
-func GetGameSession(ctx context.Context, sessionID uuid.UUID) (*obj.GameSession, error) {
-	row, err := queries().GetGameSessionByID(ctx, sessionID)
-	if err != nil {
-		return nil, ErrSessionNotFound
-	}
-	return &obj.GameSession{
-		ID:            row.ID,
-		GameID:        row.GameID,
-		UserID:        row.UserID,
-		WorkshopID:    nullUUIDToPtr(row.WorkshopID),
-		GameShareID:   nullUUIDToPtr(row.GameShareID),
-		ApiKeyShareID: nullUUIDToPtr(row.ApiKeyShareID),
-		Platform:      row.Platform,
-		Language:      row.Language,
-		MessagesSent:  int(row.MessagesSent),
-		CreatedAt:     row.CreatedAt,
-		ModifiedAt:    row.ModifiedAt,
-	}, nil
-}
-
-// CountSessionMessage counts one input the player sent.
-func CountSessionMessage(ctx context.Context, sessionID uuid.UUID) error {
-	return queries().CountGameSessionMessage(ctx, sessionID)
-}
-
-// UserSessionWithGame is a session with its game's name, for the player's list.
-type UserSessionWithGame struct {
-	obj.GameSession
-	GameName string `json:"gameName"`
-}
-
-// GetUserSessionsFilters narrows the player's list.
-type GetUserSessionsFilters struct {
-	Search    string // part of the game's name
-	SortField string // game, model (the AI platform), lastPlayed (default)
-}
-
-// GetGameSessionsByUserID is a player's most recent sessions with their games' names.
-func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters GetUserSessionsFilters) ([]UserSessionWithGame, error) {
-	rows, err := queries().GetUserGameSessions(ctx, GetUserGameSessionsParams{
-		UserID: userID,
-		Search: filters.Search,
-		SortBy: filters.SortField,
-	})
-	if err != nil {
-		return nil, obj.ErrServerError("failed to get user sessions")
-	}
-	sessions := make([]UserSessionWithGame, 0, len(rows))
-	for _, r := range rows {
-		sessions = append(sessions, UserSessionWithGame{
-			GameSession: obj.GameSession{
-				ID:           r.ID,
-				GameID:       r.GameID,
-				UserID:       r.UserID,
-				WorkshopID:   nullUUIDToPtr(r.WorkshopID),
-				Platform:     r.Platform,
-				Language:     r.Language,
-				MessagesSent: int(r.MessagesSent),
-				CreatedAt:    r.CreatedAt,
-				ModifiedAt:   r.ModifiedAt,
-			},
-			GameName: r.GameName,
-		})
-	}
-	return sessions, nil
-}
-
-// GetGameSessionsByGameID lists the player's own sessions of a game they may read.
-func GetGameSessionsByGameID(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]obj.GameSession, error) {
-	game, err := loadGameByID(ctx, gameID)
-	if err != nil {
-		return nil, err
-	}
-	if err := canAccessGame(ctx, userID, OpRead, game, nil); err != nil {
-		return nil, err
-	}
-	rows, err := queries().GetGameSessionsByGameID(ctx, gameID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get sessions: %w", err)
-	}
-	sessions := []obj.GameSession{}
-	for _, r := range rows {
-		// A session id plays the session, so only the player's own are listed.
-		if r.UserID != userID {
-			continue
-		}
-		sessions = append(sessions, obj.GameSession{
-			ID:           r.ID,
-			GameID:       r.GameID,
-			UserID:       r.UserID,
-			WorkshopID:   nullUUIDToPtr(r.WorkshopID),
-			Platform:     r.Platform,
-			Language:     r.Language,
-			MessagesSent: int(r.MessagesSent),
-			CreatedAt:    r.CreatedAt,
-			ModifiedAt:   r.ModifiedAt,
-		})
-	}
-	return sessions, nil
-}
-
-// DeleteGameSession deletes a session and its events; userID must own it.
-func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
-	session, err := GetGameSession(ctx, sessionID)
-	if err != nil {
-		return obj.ErrNotFound("session not found")
-	}
-	if session.UserID != userID {
-		return obj.ErrForbidden("not the owner of this session")
-	}
-	return queries().DeleteGameSession(ctx, sessionID)
-}
-
-// DeleteUserGameSessions deletes a player's sessions of one game, as starting
-// the game anew does, and answers their ids.
-func DeleteUserGameSessions(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]uuid.UUID, error) {
-	ids, err := queries().GetUserGameSessionIDsForGame(ctx, GetUserGameSessionIDsForGameParams{UserID: userID, GameID: gameID})
-	if err != nil {
-		return nil, fmt.Errorf("failed to find sessions: %w", err)
-	}
-	for _, id := range ids {
-		if err := queries().DeleteGameSession(ctx, id); err != nil {
-			return nil, fmt.Errorf("failed to delete session: %w", err)
-		}
-	}
-	return ids, nil
 }
 
 // purgeBatchSize caps how many sessions one DELETE statement touches, keeping

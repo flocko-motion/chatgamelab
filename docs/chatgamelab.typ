@@ -44,7 +44,7 @@ called the *player*.
 A session is one player playing one game. Creating it takes:
 
 - the game;
-- the player, who may be an anonymous guest;
+- the player, who may be a guest;
 - one or more shared API keys;
 - optionally, the player's preferences.
 
@@ -161,11 +161,10 @@ run workshops and play.
 
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
   group.
-- *Head* — leads an organisation: manages its staff, workshops and rules.
+- *Head* — leads an organisation: manages its staff, workshops and rules, can also run workshops.
 - *Staff* — runs workshops within an organisation.
-- *Participant* — takes part in a workshop, including by joining through a link.
 - *Individual* — uses the platform without an organisation.
-- *Guest* — plays a shared game without an account.
+- *Guest* — plays a shared game through its link, or takes part in a workshop by joining through its link: a guest outside or in a workshop.
 
 Anyone who writes a game is its *designer*: they author its scenario, title,
 image style, theme and genre.
@@ -184,7 +183,7 @@ own: a binding rule that goes with every AI interaction.
 There are rules at three levels:
 
 - *Workshop* — set by a workshop's staff, per workshop.
-- *Organisation* — set by an organisation's head, per organisation.
+- *Organisation* — set by an organisation's head or staff, per organisation.
 - *Site* — set by the admin, per age group: *U13*, *U13p* and *U18*. It is set
   once when the site is installed and is never empty.
 
@@ -264,8 +263,8 @@ The first sign-in creates an account; the account is usable once registration
 is complete. Registration asks for:
 
 1. *Nutzertyp.* "Anmeldung als Nutzer" leads on to the Altersabfrage.
-   "Anmeldung als Fachkraft / Organisation" explains how an organisation
-   registers, by email, and asks the person to register as a user first.
+   "Als Organisation registrieren" leads on to the organisation's
+   registration (below).
 2. *Altersabfrage*, by Selbstauskunft:
    - under 13: no account of their own; ChatGameLab only through a
      Jugendeinrichtung;
@@ -279,6 +278,21 @@ is complete. Registration asks for:
 as owning an API key, does not hold up legally, and whoever gives a false age
 puts themselves in the wrong.
 
+=== Registration as Organisations
+
+A new organisation can be registered by signing up a new user in the 
+"as organisation" flow. The new user fills out all the required details 
+and ends up as the head of the newly founded organisation.
+
+- *The person* is an adult (U18), reached at their account's email. They give
+  their name and function, and agree to the terms of use and the privacy
+  policy.
+- He give the *organisations* name, its Träger and its address, and sets its
+  youth-protection rule.
+- *The Einverständniserklärung* binds the organisation, in German, in a
+  numbered version. The person agrees to it in the organisation's name; the
+  consent is kept as proof.
+
 == Paying
 
 Whoever pays for a session — a workshop, an organisation or the player — is
@@ -286,6 +300,12 @@ resolved by the platform. Whoever shares a key decides how it may be used: which
 tiers, which features at each tier, a default, and whether players may choose
 within that. Several shared keys can be offered at once, and the player picks
 one. A revoked key stops working on the next turn.
+
+*An API-key share is like a credit-line, it allows it's holder to spend money.* 
+It belongs to the user who owns the API-key it, and only they share it
+or take it back. If user is member of an organisation it can shared with that organisation. 
+All members of that organisation can then use the key within that organisation 
+and its workshops. 
 
 == Data
 

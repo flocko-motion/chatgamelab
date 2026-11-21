@@ -36,7 +36,7 @@ func runModify(cmd *cobra.Command, args []string) {
 	}
 
 	req := api.UpdateApiKeyReq{
-		Name: &modifyName,
+		Name: modifyName,
 	}
 
 	if err := client.ApiPatch("apikeys/"+apiKeyID, req, nil); err != nil {

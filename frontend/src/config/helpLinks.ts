@@ -15,8 +15,6 @@
 export const CONTACT_EMAILS = {
   /** General support / contact email */
   SUPPORT: "chatgamelab@jff.de",
-  /** Email for organization registration requests (educators / professionals) */
-  ORGANIZATION_REQUEST: "chatgamelab@jff.de",
 } as const;
 
 /**

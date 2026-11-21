@@ -48,7 +48,7 @@ INSERT INTO institution (
   $3, $4, $5,
   $6
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, suspended_at, suspended_reason
 `
 
 type CreateInstitutionParams struct {
@@ -82,6 +82,12 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.FreeUseApiKeyShareID,
 		&i.FreeUseAiQualityTier,
 		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.SuspendedAt,
+		&i.SuspendedReason,
 	)
 	return i, err
 }
@@ -173,60 +179,6 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 	return i, err
 }
 
-const createWorkshopParticipant = `-- name: CreateWorkshopParticipant :one
-
-INSERT INTO workshop_participant (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  workshop_id, name, access_token, active
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8, $9
-)
-RETURNING id, created_by, created_at, modified_by, modified_at, workshop_id, name, access_token, active
-`
-
-type CreateWorkshopParticipantParams struct {
-	ID          uuid.UUID     `json:"id"`
-	CreatedBy   uuid.NullUUID `json:"created_by"`
-	CreatedAt   time.Time     `json:"created_at"`
-	ModifiedBy  uuid.NullUUID `json:"modified_by"`
-	ModifiedAt  time.Time     `json:"modified_at"`
-	WorkshopID  uuid.UUID     `json:"workshop_id"`
-	Name        string        `json:"name"`
-	AccessToken string        `json:"access_token"`
-	Active      bool          `json:"active"`
-}
-
-// workshop_participant -------------------------------------------------
-func (q *Queries) CreateWorkshopParticipant(ctx context.Context, arg CreateWorkshopParticipantParams) (WorkshopParticipant, error) {
-	row := q.db.QueryRowContext(ctx, createWorkshopParticipant,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.WorkshopID,
-		arg.Name,
-		arg.AccessToken,
-		arg.Active,
-	)
-	var i WorkshopParticipant
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.WorkshopID,
-		&i.Name,
-		&i.AccessToken,
-		&i.Active,
-	)
-	return i, err
-}
-
 const deleteApiKeySharesByInstitution = `-- name: DeleteApiKeySharesByInstitution :exec
 DELETE FROM api_key_share WHERE institution_id = $1
 `
@@ -263,102 +215,17 @@ func (q *Queries) DeleteWorkshop(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const deleteWorkshopParticipant = `-- name: DeleteWorkshopParticipant :exec
-DELETE FROM workshop_participant WHERE id = $1
-`
-
-func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipant, id)
-	return err
-}
-
-const deleteWorkshopParticipantsByWorkshopID = `-- name: DeleteWorkshopParticipantsByWorkshopID :exec
-DELETE FROM workshop_participant WHERE workshop_id = $1
-`
-
-func (q *Queries) DeleteWorkshopParticipantsByWorkshopID(ctx context.Context, workshopID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipantsByWorkshopID, workshopID)
-	return err
-}
-
-const getInstitutionByID = `-- name: GetInstitutionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints FROM institution WHERE id = $1 AND deleted_at IS NULL
-`
-
-func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
-	row := q.db.QueryRowContext(ctx, getInstitutionByID, id)
-	var i Institution
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.Name,
-		&i.DeletedAt,
-		&i.FreeUseApiKeyShareID,
-		&i.FreeUseAiQualityTier,
-		&i.PromptConstraints,
-	)
-	return i, err
-}
-
-const getInstitutionMembers = `-- name: GetInstitutionMembers :many
-SELECT u.id, u.name, u.email, r.role
-FROM app_user u
-JOIN user_role r ON u.id = r.user_id
-WHERE r.institution_id = $1
-  AND u.deleted_at IS NULL
-  AND r.role IN ('individual', 'staff', 'head')
-ORDER BY r.role, u.name
-`
-
-type GetInstitutionMembersRow struct {
-	ID    uuid.UUID      `json:"id"`
-	Name  sql.NullString `json:"name"`
-	Email sql.NullString `json:"email"`
-	Role  string         `json:"role"`
-}
-
-func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.NullUUID) ([]GetInstitutionMembersRow, error) {
-	rows, err := q.db.QueryContext(ctx, getInstitutionMembers, institutionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetInstitutionMembersRow
-	for rows.Next() {
-		var i GetInstitutionMembersRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Email,
-			&i.Role,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getNonParticipantUserIDsByInstitution = `-- name: GetNonParticipantUserIDsByInstitution :many
+const getGuestUserIDsByInstitution = `-- name: GetGuestUserIDsByInstitution :many
 SELECT DISTINCT u.id
 FROM app_user u
 JOIN user_role r ON u.id = r.user_id
 WHERE r.institution_id = $1
-  AND r.role != 'participant'
+  AND r.role = 'guest'
   AND u.deleted_at IS NULL
 `
 
-func (q *Queries) GetNonParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getNonParticipantUserIDsByInstitution, institutionID)
+func (q *Queries) GetGuestUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getGuestUserIDsByInstitution, institutionID)
 	if err != nil {
 		return nil, err
 	}
@@ -380,17 +247,45 @@ func (q *Queries) GetNonParticipantUserIDsByInstitution(ctx context.Context, ins
 	return items, nil
 }
 
-const getParticipantUserIDsByInstitution = `-- name: GetParticipantUserIDsByInstitution :many
+const getInstitutionByID = `-- name: GetInstitutionByID :one
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, suspended_at, suspended_reason FROM institution WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
+	row := q.db.QueryRowContext(ctx, getInstitutionByID, id)
+	var i Institution
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
+		&i.FreeUseAiQualityTier,
+		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.SuspendedAt,
+		&i.SuspendedReason,
+	)
+	return i, err
+}
+
+const getNonGuestUserIDsByInstitution = `-- name: GetNonGuestUserIDsByInstitution :many
 SELECT DISTINCT u.id
 FROM app_user u
 JOIN user_role r ON u.id = r.user_id
 WHERE r.institution_id = $1
-  AND r.role = 'participant'
+  AND r.role != 'guest'
   AND u.deleted_at IS NULL
 `
 
-func (q *Queries) GetParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getParticipantUserIDsByInstitution, institutionID)
+func (q *Queries) GetNonGuestUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getNonGuestUserIDsByInstitution, institutionID)
 	if err != nil {
 		return nil, err
 	}
@@ -476,27 +371,6 @@ func (q *Queries) GetWorkshopByPublicSlug(ctx context.Context, publicSlug sql.Nu
 	return i, err
 }
 
-const getWorkshopParticipantByID = `-- name: GetWorkshopParticipantByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, workshop_id, name, access_token, active FROM workshop_participant WHERE id = $1
-`
-
-func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) (WorkshopParticipant, error) {
-	row := q.db.QueryRowContext(ctx, getWorkshopParticipantByID, id)
-	var i WorkshopParticipant
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.WorkshopID,
-		&i.Name,
-		&i.AccessToken,
-		&i.Active,
-	)
-	return i, err
-}
-
 const hardDeleteInstitution = `-- name: HardDeleteInstitution :exec
 DELETE FROM institution WHERE id = $1
 `
@@ -513,44 +387,6 @@ DELETE FROM workshop WHERE institution_id = $1
 func (q *Queries) HardDeleteWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, hardDeleteWorkshopsByInstitution, institutionID)
 	return err
-}
-
-const listInstitutions = `-- name: ListInstitutions :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints FROM institution WHERE deleted_at IS NULL ORDER BY name
-`
-
-func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
-	rows, err := q.db.QueryContext(ctx, listInstitutions)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Institution
-	for rows.Next() {
-		var i Institution
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.ModifiedBy,
-			&i.ModifiedAt,
-			&i.Name,
-			&i.DeletedAt,
-			&i.FreeUseApiKeyShareID,
-			&i.FreeUseAiQualityTier,
-			&i.PromptConstraints,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const listWorkshops = `-- name: ListWorkshops :many
@@ -717,51 +553,6 @@ func (q *Queries) SoftDeleteInstitution(ctx context.Context, id uuid.UUID) error
 	return err
 }
 
-const updateInstitution = `-- name: UpdateInstitution :one
-UPDATE institution SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  name = $6
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints
-`
-
-type UpdateInstitutionParams struct {
-	ID         uuid.UUID     `json:"id"`
-	CreatedBy  uuid.NullUUID `json:"created_by"`
-	CreatedAt  time.Time     `json:"created_at"`
-	ModifiedBy uuid.NullUUID `json:"modified_by"`
-	ModifiedAt time.Time     `json:"modified_at"`
-	Name       string        `json:"name"`
-}
-
-func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionParams) (Institution, error) {
-	row := q.db.QueryRowContext(ctx, updateInstitution,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.Name,
-	)
-	var i Institution
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.Name,
-		&i.DeletedAt,
-		&i.FreeUseApiKeyShareID,
-		&i.FreeUseAiQualityTier,
-		&i.PromptConstraints,
-	)
-	return i, err
-}
-
 const updateInstitutionFreeUseAiQualityTier = `-- name: UpdateInstitutionFreeUseAiQualityTier :exec
 UPDATE institution
 SET free_use_ai_quality_tier = $2, modified_at = now()
@@ -775,22 +566,6 @@ type UpdateInstitutionFreeUseAiQualityTierParams struct {
 
 func (q *Queries) UpdateInstitutionFreeUseAiQualityTier(ctx context.Context, arg UpdateInstitutionFreeUseAiQualityTierParams) error {
 	_, err := q.db.ExecContext(ctx, updateInstitutionFreeUseAiQualityTier, arg.ID, arg.FreeUseAiQualityTier)
-	return err
-}
-
-const updateInstitutionPromptConstraints = `-- name: UpdateInstitutionPromptConstraints :exec
-UPDATE institution
-SET prompt_constraints = $2, modified_at = now()
-WHERE id = $1
-`
-
-type UpdateInstitutionPromptConstraintsParams struct {
-	ID                uuid.UUID      `json:"id"`
-	PromptConstraints sql.NullString `json:"prompt_constraints"`
-}
-
-func (q *Queries) UpdateInstitutionPromptConstraints(ctx context.Context, arg UpdateInstitutionPromptConstraintsParams) error {
-	_, err := q.db.ExecContext(ctx, updateInstitutionPromptConstraints, arg.ID, arg.PromptConstraints)
 	return err
 }
 
@@ -884,59 +659,6 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		&i.PublicSlug,
 		&i.PublicDescription,
 		&i.PublicLinks,
-	)
-	return i, err
-}
-
-const updateWorkshopParticipant = `-- name: UpdateWorkshopParticipant :one
-UPDATE workshop_participant SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  workshop_id = $6,
-  name = $7,
-  access_token = $8,
-  active = $9
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, workshop_id, name, access_token, active
-`
-
-type UpdateWorkshopParticipantParams struct {
-	ID          uuid.UUID     `json:"id"`
-	CreatedBy   uuid.NullUUID `json:"created_by"`
-	CreatedAt   time.Time     `json:"created_at"`
-	ModifiedBy  uuid.NullUUID `json:"modified_by"`
-	ModifiedAt  time.Time     `json:"modified_at"`
-	WorkshopID  uuid.UUID     `json:"workshop_id"`
-	Name        string        `json:"name"`
-	AccessToken string        `json:"access_token"`
-	Active      bool          `json:"active"`
-}
-
-func (q *Queries) UpdateWorkshopParticipant(ctx context.Context, arg UpdateWorkshopParticipantParams) (WorkshopParticipant, error) {
-	row := q.db.QueryRowContext(ctx, updateWorkshopParticipant,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.WorkshopID,
-		arg.Name,
-		arg.AccessToken,
-		arg.Active,
-	)
-	var i WorkshopParticipant
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.WorkshopID,
-		&i.Name,
-		&i.AccessToken,
-		&i.Active,
 	)
 	return i, err
 }

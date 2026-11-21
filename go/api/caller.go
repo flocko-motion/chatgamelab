@@ -1,13 +1,13 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     gives endpoints the account calling them, and parses the ids they take
-// limits:  resolution and the registration lock live in api/auth; permissions stay in the handlers and db
+// limits:  the caller is resolved by the secure core (core.Resolve); these are its legacy bridge, gone once every endpoint is ported
 package api
 
 import (
 	"context"
 
-	"cgl/api/auth"
+	"cgl/core"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -15,13 +15,13 @@ import (
 
 // caller is the registered account calling an AuthRequired endpoint.
 func caller(ctx context.Context) (*obj.User, error) {
-	return auth.User(ctx)
+	return core.LegacyCaller(ctx)
 }
 
 // maybeCaller is the registered account calling an AuthOptional endpoint, or
-// nil for an anonymous caller.
+// nil for a guest nobody signed in.
 func maybeCaller(ctx context.Context) (*obj.User, error) {
-	return auth.MaybeUser(ctx)
+	return core.LegacyMaybeCaller(ctx)
 }
 
 // idOf is the account's id, or nil without an account.
@@ -49,6 +49,14 @@ func parseIDValidation(raw, msg string) (uuid.UUID, error) {
 		return uuid.Nil, appError(obj.ErrValidation(msg))
 	}
 	return id, nil
+}
+
+// opt is an optional query parameter's value, empty when it was not sent.
+func opt(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 // MessageResp is a confirmation for the user.

@@ -1,13 +1,13 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     answers what a share token offers: the game and how many plays are left
-// limits:  token validation lives in game; share management (-> games_private_share.go)
+// limits:  the share link is read by the core (core.ShareLinkPlay); share management (-> games_private_share.go)
 package api
 
 import (
 	"context"
 
-	"cgl/game"
+	"cgl/core"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
@@ -15,7 +15,7 @@ import (
 
 // GuestGameInfoReq names a private share by its token.
 type GuestGameInfoReq struct {
-	Token string `path:"token" json:"-"`
+	Token string `path:"token"`
 }
 
 // GuestGameInfoResp is the public game info for the welcome screen.
@@ -44,15 +44,20 @@ func (GetGuestGameInfoEndpoint) Handle(ctx context.Context, req GuestGameInfoReq
 	if req.Token == "" {
 		return GuestGameInfoResp{}, errBadRequest("Missing share token")
 	}
-	gameShare, gameObj, httpErr := game.ValidatePrivateShareToken(ctx, req.Token)
-	if httpErr != nil {
-		return GuestGameInfoResp{}, httpError(httpErr)
+	play, err := core.ShareLinkPlay(ctx, req.Token)
+	if err != nil {
+		return GuestGameInfoResp{}, err
+	}
+	var remaining *int
+	if play.Remaining != nil {
+		r := int(*play.Remaining)
+		remaining = &r
 	}
 	return GuestGameInfoResp{
-		GameID:      gameObj.ID,
-		Public:      gameObj.Public,
-		Name:        gameObj.Name,
-		Description: gameObj.Description,
-		Remaining:   gameShare.Remaining,
+		GameID:      play.Game.ID(),
+		Public:      play.Game.Public(),
+		Name:        play.Game.Name(),
+		Description: play.Game.Description(),
+		Remaining:   remaining,
 	}, nil
 }

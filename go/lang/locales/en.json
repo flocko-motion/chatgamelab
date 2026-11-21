@@ -1383,5 +1383,27 @@
       "settingScene": "Setting the scene…",
       "wakingCharacter": "Waking the character…"
     }
+  },
+  "mail": {
+    "consent": {
+      "subjectRegistered": "ChatGameLab: organisation “{{organisation}}” is active – declaration of consent",
+      "subjectRenewed": "ChatGameLab: declaration of consent for “{{organisation}}” confirmed (version {{version}})",
+      "copySubject": "Copy: {{subject}}",
+      "greeting": "Hello {{name}},",
+      "registered": "the organisation “{{organisation}}” is now active on ChatGameLab. You are its head and can create workshops now.",
+      "renewed": "thank you! ChatGameLab now has the organisation “{{organisation}}”'s consent to the current declaration of consent.",
+      "agreed": "In the name of your organisation, you agreed to the following declaration of consent.",
+      "bindingInGerman": "The declaration is binding in German, so it follows in German.",
+      "organisation": "Organisation",
+      "operator": "Operator",
+      "address": "Address",
+      "declaredBy": "Declared by",
+      "date": "Date",
+      "dateValue": "{{date}} (Berlin time)",
+      "version": "Version",
+      "versionValue": "{{version}} (as of {{date}})",
+      "checksum": "Checksum",
+      "signature": "Your ChatGameLab team\nJFF – Jugend Film Fernsehen e.V."
+    }
   }
 }

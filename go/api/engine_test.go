@@ -9,8 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"cgl/obj"
-
 	engineapi "engine/api"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -78,22 +76,5 @@ func TestAnUnknownSessionAnswersErrorAndCode(t *testing.T) {
 	want := map[string]any{"error": "there is no session not-a-session", "code": "unknown"}
 	if fmt.Sprint(body) != fmt.Sprint(want) {
 		t.Errorf("body = %v, want %v", body, want)
-	}
-}
-
-// Only staff and heads change how often a session repeats the
-// youth-protection rule.
-func TestOnlyStaffAndHeadsTuneYouthProtection(t *testing.T) {
-	for role, want := range map[obj.Role]bool{
-		obj.RoleStaff: true, obj.RoleHead: true,
-		obj.RoleAdmin: false, obj.RoleIndividual: false, obj.RoleParticipant: false,
-	} {
-		player := &obj.User{Role: &obj.UserRole{Role: role}}
-		if got := tunesYouthProtection(player); got != want {
-			t.Errorf("%s may tune: %v, want %v", role, got, want)
-		}
-	}
-	if tunesYouthProtection(nil) || tunesYouthProtection(&obj.User{}) {
-		t.Error("a guest or a player without a role may tune")
 	}
 }

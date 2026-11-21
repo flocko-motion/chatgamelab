@@ -16,7 +16,7 @@ import (
 var workshopCmd = &cobra.Command{
 	Use:   "workshop <workshopId> [--max-uses=<n>] [--expires-at=<RFC3339>]",
 	Short: "Create a workshop invite",
-	Long:  "Create an open invite for users to join a workshop as participants.",
+	Long:  "Create an open invite for users to join a workshop as Guests.",
 	Args:  cobra.ExactArgs(1),
 	Run:   runWorkshopInvite,
 }
@@ -54,7 +54,7 @@ func runWorkshopInvite(cmd *cobra.Command, args []string) {
 	fmt.Printf("✓ Workshop invite created successfully\n")
 	fmt.Printf("  Invite ID:   %v\n", result["id"])
 	fmt.Printf("  Workshop ID: %s\n", workshopID)
-	fmt.Printf("  Role:        participant\n")
+	fmt.Printf("  Role:        guest\n")
 	if maxUses > 0 {
 		fmt.Printf("  Max Uses:    %d\n", maxUses)
 	} else {

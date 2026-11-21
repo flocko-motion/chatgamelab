@@ -16,7 +16,7 @@ const (
 )
 
 // Prompt-constraint source labels: name where the active constraint comes from
-// (db.ResolveConstraint). Stable wire values.
+// (session/rule.go). Stable wire values.
 const (
 	ConstraintSourceWorkshop     = "workshop"
 	ConstraintSourceOrganisation = "organisation"

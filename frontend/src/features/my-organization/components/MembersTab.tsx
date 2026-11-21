@@ -24,12 +24,12 @@ import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { MembersList } from "./MembersList";
 import { InviteModal } from "./InviteModal";
 import { ConfirmationModal } from "./ConfirmationModal";
-import type { User, Institution } from "@/api/generated/api.gen";
+import type { UserView, OrganisationView } from "@/api/generated/api.gen";
 
 interface MembersTabProps {
-  members: User[];
+  members: UserView[];
   isLoading: boolean;
-  institution: Institution | null | undefined;
+  institution: OrganisationView | null | undefined;
 }
 
 export function MembersTab({
@@ -41,9 +41,9 @@ export function MembersTab({
   const queryClient = useQueryClient();
   const { backendUser, retryBackendFetch } = useAuth();
 
-  const [userToPromote, setUserToPromote] = useState<User | null>(null);
-  const [userToDemote, setUserToDemote] = useState<User | null>(null);
-  const [userToRemove, setUserToRemove] = useState<User | null>(null);
+  const [userToPromote, setUserToPromote] = useState<UserView | null>(null);
+  const [userToDemote, setUserToDemote] = useState<UserView | null>(null);
+  const [userToRemove, setUserToRemove] = useState<UserView | null>(null);
 
   const [
     inviteTeacherModalOpened,
@@ -214,7 +214,7 @@ export function MembersTab({
 
   // Handlers
   const handlePromote = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       setUserToPromote(user);
       openPromoteModal();
     },
@@ -222,7 +222,7 @@ export function MembersTab({
   );
 
   const handleDemote = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       setUserToDemote(user);
       openDemoteModal();
     },
@@ -230,7 +230,7 @@ export function MembersTab({
   );
 
   const handleRemove = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       setUserToRemove(user);
       openRemoveModal();
     },

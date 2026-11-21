@@ -35,7 +35,7 @@ func runInfo(cmd *cobra.Command, args []string) {
 		log.Fatalf("Failed to fetch API key info: %v", err)
 	}
 
-	if resp.Share == nil || resp.Share.ApiKey == nil {
+	if resp.Share == nil {
 		log.Fatalf("Share not found")
 	}
 
@@ -55,18 +55,15 @@ func runInfo(cmd *cobra.Command, args []string) {
 			shareType := ""
 			target := ""
 
-			if s.User != nil {
-				shareType = "user"
-				target = s.User.Name
-				if s.User.ID == k.UserID {
-					target += " (owner)"
-				}
-			} else if s.Workshop != nil {
-				shareType = "workshop"
-				target = s.Workshop.Name
-			} else if s.Institution != nil {
-				shareType = "institution"
-				target = s.Institution.Name
+			switch {
+			case s.Self:
+				shareType, target = "own use", k.UserName+" (owner)"
+			case s.Institution != nil:
+				shareType, target = "institution", s.Institution.Name
+			case s.Game != nil && s.IsPrivateShare:
+				shareType, target = "share link", s.Game.Name
+			case s.Game != nil:
+				shareType, target = "sponsored game", s.Game.Name
 			}
 
 			table.Append([]string{

@@ -7,7 +7,7 @@ package institution
 import (
 	"cgl/api"
 	"cgl/api/client"
-	"cgl/obj"
+	"cgl/api/wire"
 	"fmt"
 	"log"
 
@@ -33,7 +33,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 		Name: name,
 	}
 
-	var institution obj.Institution
+	var institution wire.OrganisationView
 	if err := client.ApiPost("institutions", req, &institution); err != nil {
 		log.Fatalf("Failed to create institution: %v", err)
 	}

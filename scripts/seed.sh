@@ -10,4 +10,4 @@ set -ex
 
 cd "$(dirname "$0")/../go"
 
-time go run . game put ../testdata/games
+time go run . game put ../testing/testdata/games

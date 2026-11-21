@@ -3,7 +3,7 @@ import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/creations/create')({
   beforeLoad: () => {
-    throw redirect({ to: ROUTES.MY_GAMES + '/create' as '/' });
+    throw redirect({ to: ROUTES.GAME_CREATE as '/' });
   },
   component: () => null,
 });

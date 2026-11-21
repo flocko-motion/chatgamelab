@@ -24,6 +24,14 @@ export const ErrorCodes = {
   AUTH_WORKSHOP_INACTIVE: "auth_workshop_inactive",
   // Site-wide lock after too many guessed invite/re-login codes (server: tokenlock)
   TOKEN_LOCKED: "token_locked",
+  // Organisations registering themselves
+  INSTITUTION_AGE_NOT_ALLOWED: "institution_age_not_allowed",
+  INSTITUTION_NAME_TAKEN: "institution_name_taken",
+  EMAIL_BELONGS_TO_OTHER_ACCOUNT: "email_belongs_to_other_account",
+  DECLARATION_VERSION_OUTDATED: "declaration_version_outdated",
+  INSTITUTION_CONSENTS_REQUIRED: "institution_consents_required",
+  // The caller's organisation is suspended: by an admin, or for want of a consent
+  ORGANISATION_SUSPENDED: "organisation_suspended",
   // AI-related error codes
   INVALID_API_KEY: "invalid_api_key",
   NO_API_KEY: "no_api_key",

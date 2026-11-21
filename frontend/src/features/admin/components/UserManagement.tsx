@@ -37,8 +37,12 @@ import {
 } from "@/common/components/controls";
 import { useAuth } from "@/providers/AuthProvider";
 import { parseSortValue } from "@/common/lib/sort";
-import { getRoleColor, useTranslateRole, type RoleString } from "@/common/lib/roles";
-import type { User, } from "@/api/generated/api.gen";
+import {
+  getRoleColor,
+  useTranslateRole,
+  type RoleString,
+} from "@/common/lib/roles";
+import type { UserView } from "@/api/generated/api.gen";
 
 type SortField = "name" | "email" | "role" | "organization" | "joined";
 
@@ -52,12 +56,12 @@ export function UserManagement() {
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
   const [hideGuests, setHideGuests] = useState(true);
   const [sortValue, setSortValue] = useState("name-asc");
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [userToPromote, setUserToPromote] = useState<User | null>(null);
-  const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<User | null>(
+  const [userToDelete, setUserToDelete] = useState<UserView | null>(null);
+  const [userToPromote, setUserToPromote] = useState<UserView | null>(null);
+  const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<UserView | null>(
     null,
   );
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [userToEdit, setUserToEdit] = useState<UserView | null>(null);
   const [editName, setEditName] = useState("");
   const [
     deleteModalOpened,
@@ -150,34 +154,34 @@ export function UserManagement() {
     [backendUser?.id],
   );
 
-  const isAdmin = useCallback((user: User) => {
+  const isAdmin = useCallback((user: UserView) => {
     return user.role?.role === "admin";
   }, []);
 
-  const isIndividual = useCallback((user: User) => {
+  const isIndividual = useCallback((user: UserView) => {
     return user.role?.role === "individual";
   }, []);
 
   const canPromoteToAdmin = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       return !isCurrentUser(user.id) && isIndividual(user);
     },
     [isCurrentUser, isIndividual],
   );
 
   const canRemoveAdmin = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       return !isCurrentUser(user.id) && isAdmin(user);
     },
     [isCurrentUser, isAdmin],
   );
 
-  const getOrganizationName = useCallback((user: User) => {
+  const getOrganizationName = useCallback((user: UserView) => {
     return user.role?.institution?.name || "-";
   }, []);
 
   const handleDelete = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       setUserToDelete(user);
       openDeleteModal();
     },
@@ -185,7 +189,7 @@ export function UserManagement() {
   );
 
   const handlePromote = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       setUserToPromote(user);
       openPromoteModal();
     },
@@ -193,7 +197,7 @@ export function UserManagement() {
   );
 
   const handleRemoveAdmin = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       setUserToRemoveAdmin(user);
       openRemoveAdminModal();
     },
@@ -201,7 +205,7 @@ export function UserManagement() {
   );
 
   const handleEdit = useCallback(
-    (user: User) => {
+    (user: UserView) => {
       setUserToEdit(user);
       setEditName(user.name || "");
       openEditModal();
@@ -238,11 +242,8 @@ export function UserManagement() {
     if (!users) return [];
 
     return users.filter((user) => {
-      // Filter out guests and participants if toggle is on
-      if (
-        hideGuests &&
-        (!user.role?.role || user.role.role === "participant")
-      ) {
+      // Filter out Guests and users without a role if toggle is on
+      if (hideGuests && (!user.role?.role || user.role.role === "guest")) {
         return false;
       }
 
@@ -307,8 +308,7 @@ export function UserManagement() {
   // Count guests for display
   const guestCount = useMemo(() => {
     if (!users) return 0;
-    return users.filter((u) => !u.role?.role || u.role.role === "participant")
-      .length;
+    return users.filter((u) => !u.role?.role || u.role.role === "guest").length;
   }, [users]);
 
   if (error) {
@@ -460,17 +460,19 @@ export function UserManagement() {
                               </ActionIcon>
                             </Tooltip>
                           )}
-                          <Tooltip label={t("admin.users.editName")}>
-                            <ActionIcon
-                              variant="subtle"
-                              color="blue"
-                              size="sm"
-                              onClick={() => handleEdit(user)}
-                            >
-                              <IconEdit size={14} />
-                            </ActionIcon>
-                          </Tooltip>
-                          {!isCurrentUser(user.id) && (
+                          {user.mayEditCard && (
+                            <Tooltip label={t("admin.users.editName")}>
+                              <ActionIcon
+                                variant="subtle"
+                                color="blue"
+                                size="sm"
+                                onClick={() => handleEdit(user)}
+                              >
+                                <IconEdit size={14} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                          {user.mayDelete && (
                             <ActionIcon
                               variant="subtle"
                               color="red"
@@ -568,16 +570,18 @@ export function UserManagement() {
                               </ActionIcon>
                             </Tooltip>
                           )}
-                          <Tooltip label={t("admin.users.editName")}>
-                            <ActionIcon
-                              variant="subtle"
-                              color="blue"
-                              onClick={() => handleEdit(user)}
-                            >
-                              <IconEdit size={16} />
-                            </ActionIcon>
-                          </Tooltip>
-                          {!isCurrentUser(user.id) && (
+                          {user.mayEditCard && (
+                            <Tooltip label={t("admin.users.editName")}>
+                              <ActionIcon
+                                variant="subtle"
+                                color="blue"
+                                onClick={() => handleEdit(user)}
+                              >
+                                <IconEdit size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                          {user.mayDelete && (
                             <ActionIcon
                               variant="subtle"
                               color="red"

@@ -32,7 +32,7 @@ interface FullscreenQrOverlayProps {
   /**
    * Offers opening the link. Off by default: following an invite or re-login
    * link would make the leader join their own workshop, or sign in as the
-   * participant whose link is on screen.
+   * Guest whose link is on screen.
    */
   visitable?: boolean;
 }

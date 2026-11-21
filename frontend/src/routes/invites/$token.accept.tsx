@@ -22,11 +22,11 @@ import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
 import { api } from "@/api/client/api";
-import { useAuth, rememberParticipantCode } from "@/providers/AuthProvider";
+import { useAuth, rememberGuestCode } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl } from "@/common/lib/url";
-import type { AcceptInviteResp, InviteResp } from "@/api/generated/api.gen";
+import type { AcceptInviteResp, InviteCardView } from "@/api/generated/api.gen";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 export const Route = createFileRoute("/invites/$token/accept")({
@@ -91,13 +91,13 @@ function AcceptInvitePage() {
   const { token } = Route.useParams();
   const navigate = useNavigate();
   const {
-    isParticipant,
+    isGuest,
     isAuthenticated,
     backendUser,
     isLoading: authLoading,
   } = useAuth();
-  // Check if user is a non-participant authenticated user (admin, head, staff, individual)
-  const isLoggedInNonParticipant = isAuthenticated && !isParticipant;
+  // Check if user is a signed-in user with another role (admin, head, staff, individual)
+  const isLoggedInNonGuest = isAuthenticated && !isGuest;
 
   const [state, setState] = useState<
     | "loading"
@@ -113,7 +113,7 @@ function AcceptInvitePage() {
   const [isAccepting, setIsAccepting] = useState(false);
 
   // status >= 500 carries a raw English server sentence; never show that to a
-  // participant, who may be a teenager on a phone.
+  // Guest, who may be a teenager on a phone.
   const acceptErrorMessage = (
     errorData: { code?: string; error?: string },
     status?: number,
@@ -127,7 +127,7 @@ function AcceptInvitePage() {
     return errorData.error || t("invites.errors.acceptFailed");
   };
 
-  // Get current workshop info if user is a participant
+  // Get current workshop info if user is a Guest
   const currentWorkshopId = backendUser?.role?.workshop?.id;
   const currentWorkshopName = backendUser?.role?.workshop?.name;
 
@@ -138,7 +138,7 @@ function AcceptInvitePage() {
 
     async function fetchInvite() {
       try {
-        let data: InviteResp;
+        let data: InviteCardView;
         try {
           data = (await api.getApiInvitesIdOrToken(token)).data;
         } catch (err) {
@@ -161,7 +161,7 @@ function AcceptInvitePage() {
         // Head/staff clicking a workshop invite link → auto-enter the workshop
         const userRole = backendUser?.role?.role;
         if (
-          isLoggedInNonParticipant &&
+          isLoggedInNonGuest &&
           data.workshopId &&
           (userRole === "head" || userRole === "staff")
         ) {
@@ -179,15 +179,15 @@ function AcceptInvitePage() {
           return;
         }
 
-        // Other non-participant users (individual, etc.) → show enter workshop button
-        if (isLoggedInNonParticipant) {
+        // Users with other roles (individual, etc.) → show enter workshop button
+        if (isLoggedInNonGuest) {
           setState("already-member");
           return;
         }
 
         // Check if user is already in this workshop
         if (
-          isParticipant &&
+          isGuest &&
           currentWorkshopId &&
           data.workshopId === currentWorkshopId
         ) {
@@ -198,7 +198,7 @@ function AcceptInvitePage() {
 
         // Check if user is in a different workshop
         if (
-          isParticipant &&
+          isGuest &&
           currentWorkshopId &&
           data.workshopId !== currentWorkshopId
         ) {
@@ -219,8 +219,8 @@ function AcceptInvitePage() {
     token,
     t,
     authLoading,
-    isParticipant,
-    isLoggedInNonParticipant,
+    isGuest,
+    isLoggedInNonGuest,
     backendUser,
     currentWorkshopId,
     navigate,
@@ -232,7 +232,7 @@ function AcceptInvitePage() {
 
     try {
       // The session cookie tells the server who is asking, so a signed-in
-      // participant keeps their account instead of getting a second one.
+      // Guest keeps their account instead of getting a second one.
       let result: AcceptInviteResp;
       try {
         result = (await api.postApiInvitesIdOrTokenAccept(token)).data;
@@ -250,10 +250,10 @@ function AcceptInvitePage() {
         return;
       }
 
-      // An anonymous join signs the new participant in and returns their code;
+      // An anonymous join signs the new Guest in and returns their code;
       // keep it to show again. A recognised caller keeps the code they have.
       if (result.authToken) {
-        rememberParticipantCode(result.authToken);
+        rememberGuestCode(result.authToken);
       }
 
       setState("success");
@@ -327,7 +327,8 @@ function AcceptInvitePage() {
       try {
         // Use the accept endpoint which handles all cases:
         // - Head/staff in same org → enters workshop mode
-        // - Individual/user without role → falls back to AcceptOpenInvite (joins as participant)
+        // - Individual → enters the workshop with their own role
+        // - User without role → falls back to AcceptOpenInvite (joins as a Guest)
         try {
           await api.postApiInvitesIdOrTokenAccept(token);
         } catch (err) {

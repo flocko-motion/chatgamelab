@@ -8,7 +8,7 @@ import (
 )
 
 // WorkshopApiKeyTestSuite tests the workshop API key lifecycle:
-// sharing keys with orgs, setting workshop keys, participant access, and cascade cleanup.
+// sharing keys with orgs, setting workshop keys, guest access, and cascade cleanup.
 type WorkshopApiKeyTestSuite struct {
 	testutil.BaseSuite
 }
@@ -22,9 +22,9 @@ func TestWorkshopApiKeySuite(t *testing.T) {
 // TestWorkshopKeyLifecycle tests the full lifecycle:
 // 1. Head creates API key, shares with org
 // 2. Head creates workshop, sets shared key as workshop key
-// 3. Participant joins workshop and can see API key is available
+// 3. Guest joins workshop and can see API key is available
 // 4. Head deletes the API key (cascade) — workshop key is cleared automatically
-// 5. Participant can no longer see an available API key
+// 5. Guest can no longer see an available API key
 func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyLifecycle() {
 	admin := s.DevUser()
 
@@ -58,30 +58,31 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyLifecycle() {
 	s.NotNil(updatedWs.DefaultApiKeyShareId, "workshop should have a default API key")
 	s.T().Logf("Workshop key set to orgShare: %s", orgShareIDStr)
 
-	// Head uploads a game (needed for API key status check)
-	game := Must(head.UploadGame("alien-first-contact"))
-	s.NotEmpty(game.Id)
-	s.T().Logf("Head uploaded game: %s (ID: %s)", game.Name, game.Id)
-
 	// Head enters workshop mode
 	Must(head.SetActiveWorkshop(&wsIDStr))
 	s.T().Logf("Head entered workshop mode")
+
+	// Head uploads a game in the workshop, which its guests read (needed for
+	// API key status check)
+	game := Must(head.UploadGame("alien-first-contact"))
+	s.NotEmpty(game.Id)
+	s.T().Logf("Head uploaded game: %s (ID: %s)", game.Name, game.Id)
 
 	// Verify head can see API key is available for the game
 	headAvailable := Must(head.GetApiKeyStatus(game.Id.String()))
 	s.True(headAvailable, "head should have API key available via workshop key")
 	s.T().Logf("Head: API key available = %v", headAvailable)
 
-	// Create a participant via anonymous workshop invite
-	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr))
-	s.Require().NotNil(participantInvite.InviteToken)
-	participant := Must(s.JoinWorkshop(*participantInvite.InviteToken))
-	s.T().Logf("Participant joined workshop: %s (ID: %s)", participant.Name, participant.ID)
+	// Create a Guest through the workshop invite link
+	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))
+	s.Require().NotNil(guestInvite.InviteToken)
+	guest := Must(s.JoinWorkshop(*guestInvite.InviteToken))
+	s.T().Logf("Guest joined workshop: %s (ID: %s)", guest.Name, guest.ID)
 
-	// Participant can see API key is available (resolved via workshop key)
-	participantAvailable := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.True(participantAvailable, "participant should have API key available via workshop key")
-	s.T().Logf("Participant: API key available = %v", participantAvailable)
+	// Guest can see API key is available (resolved via workshop key)
+	guestAvailable := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.True(guestAvailable, "guest should have API key available via workshop key")
+	s.T().Logf("Guest: API key available = %v", guestAvailable)
 
 	// Head deletes the API key (cascade: removes key + all shares including org share)
 	MustSucceed(head.DeleteApiKey(keyShare.Id.String(), true))
@@ -92,10 +93,10 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyLifecycle() {
 	s.Nil(clearedWs.DefaultApiKeyShareId, "workshop key should be cleared after API key deletion")
 	s.T().Logf("Workshop key correctly cleared after API key deletion")
 
-	// Participant can no longer see an available API key
-	participantAvailableAfter := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.False(participantAvailableAfter, "participant should NOT have API key available after key deletion")
-	s.T().Logf("Participant: API key available after deletion = %v", participantAvailableAfter)
+	// Guest can no longer see an available API key
+	guestAvailableAfter := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.False(guestAvailableAfter, "guest should NOT have API key available after key deletion")
+	s.T().Logf("Guest: API key available after deletion = %v", guestAvailableAfter)
 }
 
 // TestWorkshopKeyRemovedViaOrgShareDeletion tests that removing the org share
@@ -122,22 +123,22 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyRemovedViaOrgShareDeletion() {
 	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
 	s.T().Logf("Workshop key set")
 
-	// Head uploads a game
-	game := Must(head.UploadGame("arctic-expedition"))
-	s.T().Logf("Head uploaded game: %s", game.Name)
-
 	// Head enters workshop mode
 	Must(head.SetActiveWorkshop(&wsIDStr))
 
-	// Create participant
-	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*participantInvite.InviteToken))
-	s.T().Logf("Participant joined: %s", participant.Name)
+	// Head uploads a game in the workshop
+	game := Must(head.UploadGame("arctic-expedition"))
+	s.T().Logf("Head uploaded game: %s", game.Name)
 
-	// Participant can see API key is available
-	available := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.True(available, "participant should have API key available")
-	s.T().Logf("Participant: API key available = %v", available)
+	// Create guest
+	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))
+	guest := Must(s.JoinWorkshop(*guestInvite.InviteToken))
+	s.T().Logf("Guest joined: %s", guest.Name)
+
+	// Guest can see API key is available
+	available := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.True(available, "guest should have API key available")
+	s.T().Logf("Guest: API key available = %v", available)
 
 	// Head removes ONLY the org share (not the underlying key)
 	// This is a non-cascade delete of the org share
@@ -149,10 +150,10 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyRemovedViaOrgShareDeletion() {
 	s.Nil(clearedWs.DefaultApiKeyShareId, "workshop key should be cleared after org share removal")
 	s.T().Logf("Workshop key correctly cleared after org share removal")
 
-	// Participant can no longer see an available API key
-	availableAfter := Must(participant.GetApiKeyStatus(game.Id.String()))
-	s.False(availableAfter, "participant should NOT have API key available after org share removal")
-	s.T().Logf("Participant: API key available after share removal = %v", availableAfter)
+	// Guest can no longer see an available API key
+	availableAfter := Must(guest.GetApiKeyStatus(game.Id.String()))
+	s.False(availableAfter, "guest should NOT have API key available after org share removal")
+	s.T().Logf("Guest: API key available after share removal = %v", availableAfter)
 
 	// The underlying key still exists (head's personal share)
 	keys := Must(head.GetApiKeys())
@@ -258,7 +259,7 @@ func (s *WorkshopApiKeyTestSuite) TestColleagueCanRemoveOrgShare() {
 //   - head (in workshop mode)
 //   - staff (in workshop mode)
 //   - individual (in workshop mode)
-//   - participant (always in workshop context, no mode switch needed)
+//   - guest (always in workshop context, no mode switch needed)
 func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyAvailableToAllRoles() {
 	admin := s.DevUser()
 
@@ -310,10 +311,10 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyAvailableToAllRoles() {
 	MustSucceed(individual.AcceptWorkshopInviteByToken(*individualInvite.InviteToken))
 	s.T().Logf("Individual joined workshop via invite")
 
-	// Participant joins workshop anonymously (always in workshop context)
-	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant := Must(s.JoinWorkshop(*participantInvite.InviteToken))
-	s.T().Logf("Participant joined workshop: %s", participant.Name)
+	// Guest joins workshop anonymously (always in workshop context)
+	guestInvite := Must(head.CreateWorkshopInvite(wsIDStr))
+	guest := Must(s.JoinWorkshop(*guestInvite.InviteToken))
+	s.T().Logf("Guest joined workshop: %s", guest.Name)
 
 	// All four roles must get the workshop key resolved
 	type roleCase struct {
@@ -324,7 +325,7 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyAvailableToAllRoles() {
 		{head, "head"},
 		{staff, "staff"},
 		{individual, "individual"},
-		{participant, "participant"},
+		{guest, "guest"},
 	}
 
 	for _, tc := range cases {
@@ -334,9 +335,9 @@ func (s *WorkshopApiKeyTestSuite) TestWorkshopKeyAvailableToAllRoles() {
 	}
 }
 
-// TestDeleteWorkshopCleansUpParticipants tests that deleting a workshop also
-// deletes the anonymous participant accounts that were created for it.
-func (s *WorkshopApiKeyTestSuite) TestDeleteWorkshopCleansUpParticipants() {
+// TestDeleteWorkshopCleansUpGuests tests that deleting a workshop also
+// deletes the Guests that joined it.
+func (s *WorkshopApiKeyTestSuite) TestDeleteWorkshopCleansUpGuests() {
 	admin := s.DevUser()
 
 	// Setup: institution with head
@@ -351,21 +352,21 @@ func (s *WorkshopApiKeyTestSuite) TestDeleteWorkshopCleansUpParticipants() {
 	wsIDStr := workshop.Id.String()
 	s.T().Logf("Created workshop: %s", wsIDStr)
 
-	// Create two participants via anonymous invites
+	// Create two guests via anonymous invites
 	invite1 := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant1 := Must(s.JoinWorkshop(*invite1.InviteToken))
-	s.T().Logf("Participant 1 joined: %s (ID: %s)", participant1.Name, participant1.ID)
+	guest1 := Must(s.JoinWorkshop(*invite1.InviteToken))
+	s.T().Logf("Guest 1 joined: %s (ID: %s)", guest1.Name, guest1.ID)
 
 	invite2 := Must(head.CreateWorkshopInvite(wsIDStr))
-	participant2 := Must(s.JoinWorkshop(*invite2.InviteToken))
-	s.T().Logf("Participant 2 joined: %s (ID: %s)", participant2.Name, participant2.ID)
+	guest2 := Must(s.JoinWorkshop(*invite2.InviteToken))
+	s.T().Logf("Guest 2 joined: %s (ID: %s)", guest2.Name, guest2.ID)
 
-	// Verify participants exist (they can call GetMe)
-	me1 := Must(participant1.GetMe())
-	s.Equal(participant1.Name, me1.Name)
-	me2 := Must(participant2.GetMe())
-	s.Equal(participant2.Name, me2.Name)
-	s.T().Logf("Both participants verified")
+	// Verify guests exist (they can call GetMe)
+	me1 := Must(guest1.GetMe())
+	s.Equal(guest1.Name, me1.Name)
+	me2 := Must(guest2.GetMe())
+	s.Equal(guest2.Name, me2.Name)
+	s.T().Logf("Both guests verified")
 
 	// Count users before deletion
 	usersBefore := Must(admin.GetUsers())
@@ -375,13 +376,13 @@ func (s *WorkshopApiKeyTestSuite) TestDeleteWorkshopCleansUpParticipants() {
 	MustSucceed(head.DeleteWorkshop(wsIDStr))
 	s.T().Logf("Workshop deleted")
 
-	// Participants no longer exist: their accounts are gone, so their
+	// Guests no longer exist: their accounts are gone, so their
 	// sessions are refused
-	_, err := participant1.WhoAmI()
-	s.Forbidden(err, "participant 1 should no longer exist after workshop deletion")
+	_, err := guest1.WhoAmI()
+	s.Forbidden(err, "guest 1 should no longer exist after workshop deletion")
 
-	_, err = participant2.WhoAmI()
-	s.Forbidden(err, "participant 2 should no longer exist after workshop deletion")
+	_, err = guest2.WhoAmI()
+	s.Forbidden(err, "guest 2 should no longer exist after workshop deletion")
 
 	// Count users after deletion — should be 2 fewer
 	usersAfter := Must(admin.GetUsers())

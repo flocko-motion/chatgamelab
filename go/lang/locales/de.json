@@ -1383,5 +1383,27 @@
       "settingScene": "Die Szene entsteht…",
       "wakingCharacter": "Die Figur erwacht…"
     }
+  },
+  "mail": {
+    "consent": {
+      "subjectRegistered": "ChatGameLab: Organisation „{{organisation}}“ freigeschaltet – Einverständniserklärung",
+      "subjectRenewed": "ChatGameLab: Einverständniserklärung für „{{organisation}}“ bestätigt (Version {{version}})",
+      "copySubject": "Kopie: {{subject}}",
+      "greeting": "Hallo {{name}},",
+      "registered": "die Organisation „{{organisation}}“ ist im ChatGameLab freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.",
+      "renewed": "danke! Für die Organisation „{{organisation}}“ im ChatGameLab liegt jetzt die Zustimmung zur aktuellen Einverständniserklärung vor.",
+      "agreed": "Du hast im Namen deiner Einrichtung der folgenden Einverständniserklärung zugestimmt.",
+      "bindingInGerman": "Die Erklärung ist auf Deutsch verbindlich und folgt deshalb auf Deutsch.",
+      "organisation": "Einrichtung",
+      "operator": "Träger",
+      "address": "Anschrift",
+      "declaredBy": "Erklärt von",
+      "date": "Datum",
+      "dateValue": "{{date}} Uhr",
+      "version": "Version",
+      "versionValue": "{{version}} (Stand {{date}})",
+      "checksum": "Prüfsumme",
+      "signature": "Dein ChatGameLab-Team\nJFF – Jugend Film Fernsehen e.V."
+    }
   }
 }

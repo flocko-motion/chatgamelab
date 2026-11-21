@@ -42,7 +42,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
   } = options;
   const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
-  const { isParticipant } = useAuth();
+  const { isGuest } = useAuth();
   const eventSourceRef = useRef<EventSource | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -109,7 +109,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
 
         uiLogger.debug("Connecting to workshop SSE", {
           workshopId,
-          isParticipant,
+          isGuest,
         });
 
         eventSource = new EventSource(url);
@@ -223,7 +223,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
       eventSourceRef.current = null;
       setIsConnected(false);
     };
-  }, [workshopId, enabled, queryClient, isParticipant]);
+  }, [workshopId, enabled, queryClient, isGuest]);
 
   return { isConnected };
 }

@@ -7,6 +7,7 @@ package obj
 import (
 	"time"
 
+
 	"github.com/google/uuid"
 )
 
@@ -68,23 +69,15 @@ type GameSession struct {
 	ModifiedAt time.Time `json:"modifiedAt"`
 }
 
-// Institution represents an organisation with members and shared settings.
+// Institution is an organisation as v1 code still carries it: in a user's
+// role, a key share or a workshop. The organisation itself, as the API shows
+// it, is the core's (core/organisation.go, api/wire).
 type Institution struct {
-	ID                   uuid.UUID           `json:"id"`
-	Meta                 Meta                `json:"meta"`
-	Name                 string              `json:"name"`
-	Members              []InstitutionMember `json:"members,omitempty"`
-	FreeUseApiKeyShareID *uuid.UUID          `json:"freeUseApiKeyShareId,omitempty"`
-	FreeUseAiQualityTier *string             `json:"freeUseAiQualityTier,omitempty"` // high/medium/low, nil = server default
-	PromptConstraints    *string             `json:"promptConstraints,omitempty"`
-}
-
-// InstitutionMember represents a user's membership and role within an institution.
-type InstitutionMember struct {
-	UserID uuid.UUID `json:"userId"`
-	Name   string    `json:"name"`
-	Email  *string   `json:"email,omitempty"`
-	Role   Role      `json:"role"`
+	ID                   uuid.UUID  `json:"id"`
+	Meta                 Meta       `json:"meta"`
+	Name                 string     `json:"name"`
+	FreeUseApiKeyShareID *uuid.UUID `json:"freeUseApiKeyShareId,omitempty"`
+	PromptConstraints    *string    `json:"promptConstraints,omitempty"`
 }
 
 // BackupLog is one entry of the database backup logbook, written by docker/db/backup.sh
@@ -119,11 +112,11 @@ type SystemSettings struct {
 type Role string
 
 const (
-	RoleAdmin       Role = "admin"
-	RoleHead        Role = "head"
-	RoleStaff       Role = "staff"
-	RoleParticipant Role = "participant"
-	RoleIndividual  Role = "individual"
+	RoleAdmin      Role = "admin"
+	RoleHead       Role = "head"
+	RoleStaff      Role = "staff"
+	RoleGuest      Role = "guest"
+	RoleIndividual Role = "individual"
 )
 
 // InviteStatus represents the lifecycle state of a role invite.
@@ -204,7 +197,8 @@ type PublicWorkshopPlay struct {
 	Limit     int    `json:"limit"`
 }
 
-// WorkshopParticipant represents a participant enrolled in a workshop.
+// WorkshopParticipant is someone taking part in a workshop, in any role;
+// Permanent marks a Guest bound to it.
 type WorkshopParticipant struct {
 	ID          uuid.UUID `json:"id"`
 	Meta        Meta      `json:"meta"`

@@ -10,13 +10,14 @@ import { useCaller } from "./auth/useCaller";
 import { useAuth0Session } from "./auth/useAuth0Session";
 
 export type { AuthUser, RegistrationData, AuthContextType } from "./auth/types";
+export type { CallerStanding, Registration } from "./auth/useCaller";
 export {
-  participantLogin,
-  rememberParticipantCode,
-  rememberedParticipantCode,
-  type ParticipantLoginResult,
-} from "./auth/participantLogin";
-import { forgetParticipantCode } from "./auth/participantLogin";
+  guestLogin,
+  rememberGuestCode,
+  rememberedGuestCode,
+  type GuestLoginResult,
+} from "./auth/guestLogin";
+import { forgetGuestCode } from "./auth/guestLogin";
 
 // The preset dev accounts sign in only on the dev server; the backend refuses
 // them outside development mode too.
@@ -30,7 +31,7 @@ const defaultAuthContext: AuthContextType = {
   backendUser: null,
   isLoading: true,
   isAuthenticated: false,
-  isParticipant: false,
+  isGuest: false,
   needsRegistration: false,
   registrationData: null,
   backendError: null,
@@ -42,6 +43,8 @@ const defaultAuthContext: AuthContextType = {
   logout: () => {},
   retryBackendFetch: () => {},
   register: async () => {},
+  standing: { mayConsentForInstitution: false, maySuspendInstitutions: false },
+  refreshCaller: async () => {},
 };
 
 export function useAuth() {
@@ -88,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     started.current = true;
     void (async () => {
       const state = await fetchCaller();
-      if (state === "anonymous" && auth0.isAuthenticated && !exchanged.current) {
+      if (state === "guest" && auth0.isAuthenticated && !exchanged.current) {
         exchanged.current = true;
         if (await exchange()) await fetchCaller();
       }
@@ -113,6 +116,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     void fetchCaller();
   }, [fetchCaller]);
 
+  const refreshCaller = useCallback(async () => {
+    await fetchCaller();
+  }, [fetchCaller]);
+
   const logout = async () => {
     authLogger.debug("Signing out");
     // Keep loading, so no route redirects before the browser leaves.
@@ -123,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authLogger.debug("Logout request failed", { error });
     }
     caller.clear();
-    forgetParticipantCode();
+    forgetGuestCode();
     if (auth0.isAuthenticated) {
       await auth0.logoutAtAuth0();
       return;
@@ -147,9 +154,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     backendUser,
     isLoading: !settled,
     isAuthenticated: caller.state === "registered",
-    isParticipant: backendUser?.role?.role === RoleName.Participant || caller.isWorkshopInactive,
+    isGuest: backendUser?.role?.role === RoleName.Guest || caller.isWorkshopInactive,
     needsRegistration,
-    registrationData: needsRegistration ? { name: suggestedName(auth0.auth0User) } : null,
+    registrationData: needsRegistration
+      ? { name: suggestedName(auth0.auth0User), email: auth0.auth0User?.email ?? "" }
+      : null,
     backendError: caller.error,
     isWorkshopInactive: caller.isWorkshopInactive,
     auth0Enabled: auth0.enabled,
@@ -159,6 +168,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     retryBackendFetch,
     register: caller.register,
+    standing: caller.standing,
+    refreshCaller,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

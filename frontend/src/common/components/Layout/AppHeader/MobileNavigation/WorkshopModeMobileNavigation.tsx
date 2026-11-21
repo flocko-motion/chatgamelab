@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../providers/AuthProvider";
-import { IconLogout, IconMessage } from "@tabler/icons-react";
+import { IconLogout, IconMail } from "@tabler/icons-react";
 import { LanguageSwitcher } from "../../../LanguageSwitcher";
 import { VersionDisplay } from "../../../VersionDisplay";
 import { EXTERNAL_LINKS } from "../../../../../config/externalLinks";
@@ -24,7 +24,7 @@ export interface WorkshopModeMobileNavigationProps {
 /**
  * Simplified mobile navigation for staff/head/individual users in workshop mode.
  * Shows workshop nav items, workshop info, contact, and exit workshop mode.
- * Similar to participant view but with "Leave Workshop Mode" instead of logout.
+ * Similar to the view of a Guest in a workshop but with "Leave Workshop Mode" instead of logout.
  */
 export function WorkshopModeMobileNavigation({
   items,
@@ -126,7 +126,7 @@ export function WorkshopModeMobileNavigation({
               gap: "8px",
             }}
           >
-            <IconMessage size={18} />
+            <IconMail size={18} />
             <Text size="sm" fw={500}>
               {t("header.contact")}
             </Text>

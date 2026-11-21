@@ -29,23 +29,21 @@ export const ROUTES = {
 
   // Invite routes (public - no auth required)
   INVITES: "/invites",
-  PARTICIPANT_LOGIN: "/invites/participant/$token",
+  GUEST_LOGIN: "/invites/guest/$token",
   // Typed invite or re-login code (words)
   CODE: "/code",
   // Public workshop page (public - no auth required)
   PUBLIC_WORKSHOP: "/w/$slug",
 
-  // Participant workshop route
+  // Workshop route of a Guest in a workshop
   MY_WORKSHOP: "/my-workshop",
   MY_WORKSHOP_SETTINGS: "/my-workshop/settings",
 
-  // My Games (user's own games - create/edit/play)
-  MY_GAMES: "/my-games",
-  MY_GAME_DETAIL: "/my-games/$gameId",
-  MY_GAME_CREATE: "/my-games/create",
-
-  // All Games (browse all public + own games)
+  // Games: every game the caller sees, one list with toggles (own,
+  // sponsored, public, favorites); /my-games redirects to it.
   ALL_GAMES: "/games",
+  GAME_DETAIL: "/games/$gameId",
+  GAME_CREATE: "/games/create",
 
   // Game play routes (actual gameplay)
   GAME_PLAY: "/games/$gameId/play",
@@ -80,7 +78,6 @@ export const NAVIGATION_GROUPS = {
   MAIN: [ROUTES.HOME, ROUTES.LANDING, ROUTES.DASHBOARD],
   AUTH: [ROUTES.AUTH_LOGIN, ROUTES.AUTH_REGISTER],
   USER: [ROUTES.PROFILE, ROUTES.SETTINGS, ROUTES.API_KEYS],
-  MY_GAMES: [ROUTES.MY_GAMES],
   ALL_GAMES: [ROUTES.ALL_GAMES],
   ROOMS: [ROUTES.ROOMS, ROUTES.ROOM_CREATE],
   DEBUG: [ROUTES.DEBUG],
@@ -94,9 +91,7 @@ export type RouteParams = {
 };
 
 // Helper functions for dynamic routes
-export const createGameDetailRoute = (gameId: string) => `/my-games/${gameId}`;
+export const createGameDetailRoute = (gameId: string) => `/games/${gameId}`;
 export const createGamePlayRoute = (gameId: string) => `/games/${gameId}/play`;
-export const createGameEditRoute = (gameId: string) =>
-  `/my-games/${gameId}/edit`;
 export const createRoomDetailRoute = (roomId: string) => `/rooms/${roomId}`;
 export const createRoomJoinRoute = (roomId: string) => `/rooms/${roomId}/join`;

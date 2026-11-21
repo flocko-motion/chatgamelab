@@ -6,7 +6,7 @@ package institution
 
 import (
 	"cgl/api/client"
-	"cgl/obj"
+	"cgl/api/wire"
 	"fmt"
 	"log"
 
@@ -25,7 +25,7 @@ func init() {
 }
 
 func runList(cmd *cobra.Command, args []string) {
-	var institutions []obj.Institution
+	var institutions []wire.OrganisationView
 	if err := client.ApiGet("institutions", &institutions); err != nil {
 		log.Fatalf("Failed to list institutions: %v", err)
 	}

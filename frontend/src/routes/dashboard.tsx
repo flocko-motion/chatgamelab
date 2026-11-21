@@ -12,17 +12,17 @@ export const Route = createFileRoute(ROUTES.DASHBOARD)({
 function DashboardPage() {
   const navigate = useNavigate();
   const { isInWorkshopMode } = useWorkshopMode();
-  const { isParticipant, isLoading } = useAuth();
+  const { isGuest, isLoading } = useAuth();
 
   // Redirect workshop mode users to /my-workshop
   useEffect(() => {
-    if (!isLoading && (isInWorkshopMode || isParticipant)) {
+    if (!isLoading && (isInWorkshopMode || isGuest)) {
       navigate({ to: ROUTES.MY_WORKSHOP as '/' });
     }
-  }, [isLoading, isInWorkshopMode, isParticipant, navigate]);
+  }, [isLoading, isInWorkshopMode, isGuest, navigate]);
 
   // Show nothing while redirecting
-  if (!isLoading && (isInWorkshopMode || isParticipant)) {
+  if (!isLoading && (isInWorkshopMode || isGuest)) {
     return null;
   }
 

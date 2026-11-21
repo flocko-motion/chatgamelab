@@ -111,6 +111,7 @@ const PROBLEM_TEXT: Record<Problem, TextKey> = {
   stale: "problems.stale",
   unknown: "problems.unknown",
   denied: "problems.denied",
+  paused: "problems.paused",
   failed: "problems.failed",
 };
 

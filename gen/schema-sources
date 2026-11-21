@@ -1,8 +1,9 @@
-go/api/auth/*.go
-go/db/*.go
+go/api/wire/*.go
 go/engine/*.go
 go/engine/api/*.go
 go/engine/internal/adapters/*.go
 go/engine/internal/ports/*.go
 go/events/*.go
+go/legal/*.go
+go/mail/*.go
 go/obj/*.go

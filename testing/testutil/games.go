@@ -1,6 +1,6 @@
 // package: testutil / the words for games and their shares
 // type:    logic
-// job:     creating games (empty or from a game file in testdata/games), reading, listing, changing, cloning and deleting them, their sponsors, favourites and share links
+// job:     creating games (empty or from a game file in testdata/games), reading, listing, changing, cloning and deleting them, their sponsors, favorites and share links
 // limits:  game words only; playing a game lives in sessions.go
 package testutil
 
@@ -23,7 +23,17 @@ const (
 
 // CreateGame creates an empty game.
 func (c caller) CreateGame(name string) (Game, error) {
-	return decode[Game](c.api.PostApiGamesNewWithResponse(ctx(), apiclient.CreateGameReq{Name: name}))
+	return decode[Game](c.api.PostApiGamesNewWithResponse(ctx(), GameCreate{Name: &name}))
+}
+
+// NewGame is the template for a game the caller creates.
+func (c caller) NewGame() (GameTemplate, error) {
+	return decode[GameTemplate](c.api.GetApiGamesNewWithResponse(ctx()))
+}
+
+// CreateGameWith creates a game from a filled-in template.
+func (c caller) CreateGameWith(fields GameCreate) (GameView, error) {
+	return decode[GameView](c.api.PostApiGamesNewWithResponse(ctx(), fields))
 }
 
 // UploadGame creates a game from testdata/games/<name>.yaml, under a unique
@@ -78,6 +88,11 @@ func accept(contentType string) apiclient.RequestEditorFn {
 	return header("Accept", contentType)
 }
 
+// ReadGame is one game as the caller sees it, with their rights on it.
+func (c caller) ReadGame(gameID string) (GameView, error) {
+	return decode[GameView](c.api.GetApiGamesIdWithResponse(ctx(), gameID))
+}
+
 // GetGameByID is one game.
 func (c caller) GetGameByID(gameID string) (Game, error) {
 	return decode[Game](c.api.GetApiGamesIdWithResponse(ctx(), gameID))
@@ -85,24 +100,100 @@ func (c caller) GetGameByID(gameID string) (Game, error) {
 
 // ListGames is the games the caller sees.
 func (c caller) ListGames() ([]Game, error) {
-	return decode[[]Game](c.api.GetApiGamesWithResponse(ctx()))
+	return c.listGames(apiclient.GetApiGamesParams{})
 }
 
 // ListGamesWithFilter is the games the caller sees, filtered ("own",
 // "public", …).
 func (c caller) ListGamesWithFilter(filter string) ([]Game, error) {
-	return decode[[]Game](c.api.GetApiGamesWithResponse(ctx(), query("filter", filter)))
+	return c.listGames(apiclient.GetApiGamesParams{Filter: some([]string{filter})})
 }
 
 // ListGamesWithSearch is the games the caller sees that match a search.
 func (c caller) ListGamesWithSearch(search string) ([]Game, error) {
-	return decode[[]Game](c.api.GetApiGamesWithResponse(ctx(), query("search", search)))
+	return c.listGames(apiclient.GetApiGamesParams{Search: some(search)})
+}
+
+// GamePage is one page of the game list, and how many games match in all.
+type GamePage struct {
+	Items []Game `json:"items"`
+	Total int    `json:"total"`
+}
+
+// ListGamesPage is one page of the caller's game list, newest first, narrowed
+// by every filter given ("own", "favorites", …); limit 0 is all.
+func (c caller) ListGamesPage(limit, offset int, filters ...string) (GamePage, error) {
+	return decode[GamePage](c.api.GetApiGamesWithResponse(ctx(), &apiclient.GetApiGamesParams{
+		Filter: some(filters), Limit: some(limit), Offset: some(offset),
+	}))
+}
+
+// ListGamesSorted is the caller's game list in an order ("name", "asc").
+func (c caller) ListGamesSorted(sortBy, sortDir string, filters ...string) ([]Game, error) {
+	params := apiclient.GetApiGamesParams{SortBy: some(sortBy), SortDir: some(sortDir)}
+	if len(filters) > 0 {
+		params.Filter = &filters
+	}
+	return c.listGames(params)
+}
+
+// ListGamesUnasked is the caller's game list with no parameter sent at all,
+// as a client sends it that leaves every option out.
+func (c caller) ListGamesUnasked() (GamePage, error) {
+	return decode[GamePage](c.api.GetApiGamesWithResponse(ctx(), nil))
+}
+
+// GameInList is a game as the caller's game list shows it, with what the
+// caller may do with it (MayEditCard, MayEditContent, MayEditSettings, MayCopy).
+func (c caller) GameInList(gameID string) (GameView, error) {
+	page, err := decode[struct {
+		Items []GameView `json:"items"`
+	}](c.api.GetApiGamesWithResponse(ctx(), &apiclient.GetApiGamesParams{}))
+	if err != nil {
+		return GameView{}, err
+	}
+	for _, g := range page.Items {
+		if g.Id.String() == gameID {
+			return g, nil
+		}
+	}
+	return GameView{}, fmt.Errorf("game %s is not in the list", gameID)
+}
+
+// listGames reads every game of the list, from its first page holding all.
+// The list's items carry a game's keys, so they read as games.
+func (c caller) listGames(params apiclient.GetApiGamesParams) ([]Game, error) {
+	page, err := decode[struct {
+		Items []Game `json:"items"`
+	}](c.api.GetApiGamesWithResponse(ctx(), &params))
+	return page.Items, err
 }
 
 // UpdateGame saves a game's properties; change the game a test read and pass
-// it back.
+// it back whole.
 func (c caller) UpdateGame(gameID string, game Game) (Game, error) {
-	return decode[Game](c.api.PostApiGamesIdWithResponse(ctx(), gameID, GameUpdate(game)))
+	return decode[Game](c.api.PostApiGamesIdWithResponse(ctx(), gameID, GameUpdate{
+		Name:                   &game.Name,
+		Description:            &game.Description,
+		Icon:                   &game.Icon,
+		Genre:                  &game.Genre,
+		Theme:                  game.Theme,
+		Public:                 &game.Public,
+		SystemMessageScenario:  &game.SystemMessageScenario,
+		SystemMessageGameStart: &game.SystemMessageGameStart,
+		ImageStyle:             &game.ImageStyle,
+		Css:                    &game.Css,
+		StatusFields:           &game.StatusFields,
+		FirstMessage:           game.FirstMessage,
+		FirstStatus:            game.FirstStatus,
+		FirstImage:             &game.FirstImage,
+	}))
+}
+
+// ChangeGame sends only the changes in update, and answers with the game as
+// the caller now sees it.
+func (c caller) ChangeGame(gameID string, update GameUpdate) (GameView, error) {
+	return decode[GameView](c.api.PostApiGamesIdWithResponse(ctx(), gameID, update))
 }
 
 // RenameGame renames a game, keeping everything else.
@@ -150,19 +241,14 @@ func (c caller) RemoveGameSponsor(gameID string) (Game, error) {
 	return decode[Game](c.api.DeleteApiGamesIdSponsorWithResponse(ctx(), gameID))
 }
 
-// FavouriteGame marks a game as a favourite.
-func (c caller) FavouriteGame(gameID string) error {
+// FavoriteGame marks a game as a favorite.
+func (c caller) FavoriteGame(gameID string) error {
 	return done(c.api.PostApiGamesIdFavouriteWithResponse(ctx(), gameID))
 }
 
-// UnfavouriteGame removes a game from the favourites.
-func (c caller) UnfavouriteGame(gameID string) error {
+// UnfavoriteGame removes a game from the favorites.
+func (c caller) UnfavoriteGame(gameID string) error {
 	return done(c.api.DeleteApiGamesIdFavouriteWithResponse(ctx(), gameID))
-}
-
-// ListFavouriteGames is the caller's favourite games.
-func (c caller) ListFavouriteGames() ([]Game, error) {
-	return decode[[]Game](c.api.GetApiGamesFavouritesWithResponse(ctx()))
 }
 
 // --- Shares ---

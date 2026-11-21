@@ -1,0 +1,92 @@
+-- v2: the secure core's queries for workshops (#344). core/workshop*.go has
+-- checked that the caller may; these read and write what they are told.
+
+-- name: V2Workshops :many
+-- The workshops the caller may see, for a list or for one workshop (id set):
+-- the List grants on WorkshopCard for a list, the Read grants for one.
+-- Wishes narrow it: one organisation, a name containing @search, active
+-- ones only.
+SELECT w.id, w.name, w.institution_id, o.name AS organisation_name,
+  w.created_at, w.modified_at,
+  -- card
+  w.active, w.is_paused, w.public, w.public_slug, w.ai_quality_tier,
+  w.show_public_games, w.show_other_participants_games, w.allow_game_sharing,
+  -- settings
+  w.prompt_constraints, w.default_api_key_share_id, w.public_description, w.public_links,
+  -- the sections: NULL (no caller, no organisation, no workshop) is false
+  COALESCE(
+     (@settings_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR  @settings_everywhere::bool, false)::bool                            AS may_read_settings,
+  COALESCE(
+     (@participants_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@participants_current::bool      AND w.id = sqlc.narg(current_workshop)::uuid)
+  OR  @participants_everywhere::bool, false)::bool                        AS may_list_participants,
+  -- the actions
+  COALESCE(
+     (@edit_card_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR  @edit_card_everywhere::bool, false)::bool                           AS may_edit_card,
+  COALESCE(
+     (@edit_settings_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR  @edit_settings_everywhere::bool, false)::bool                       AS may_edit_settings,
+  COALESCE(
+     (@delete_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR  @delete_everywhere::bool, false)::bool                              AS may_delete,
+  COALESCE(
+     (@manage_participants_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR  @manage_participants_everywhere::bool, false)::bool                 AS may_manage_participants
+FROM workshop w
+JOIN institution o ON o.id = w.institution_id
+WHERE w.deleted_at IS NULL
+  AND (sqlc.narg(id)::uuid IS NULL OR w.id = sqlc.narg(id)::uuid)
+  -- wishes
+  AND (sqlc.narg(organisation)::uuid IS NULL OR w.institution_id = sqlc.narg(organisation)::uuid)
+  AND (sqlc.narg(search)::text IS NULL OR position(lower(sqlc.narg(search)::text) IN lower(w.name)) > 0)
+  AND (NOT @active_only::bool OR w.active)
+  -- gate
+  AND (  (@card_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+      OR (@card_current::bool      AND w.id = sqlc.narg(current_workshop)::uuid)
+      OR (@card_public::bool       AND w.public)
+      OR  @card_everywhere::bool )
+ORDER BY w.created_at DESC, w.id;
+
+-- name: V2CreateWorkshop :exec
+-- A new workshop shows its participants nothing beyond their own games and
+-- lets them share nothing, until its staff switch that on (v1).
+INSERT INTO workshop (
+  id, created_by, modified_by, name, institution_id, active, public, public_slug,
+  show_public_games, show_other_participants_games, is_paused, allow_game_sharing
+) VALUES (
+  @id, @creator::uuid, @creator::uuid, @name, @institution_id, @active, @public, @public_slug::text,
+  false, false, false, false
+);
+
+-- name: V2UpdateWorkshop :exec
+-- Writes a workshop's card and settings as the caller changed them;
+-- core/workshop_update.go has checked that they may. Its key is apikeys.go's
+-- until key shares are ported (#451).
+UPDATE workshop SET
+  -- card
+  name                          = @name::text,
+  active                        = @active::bool,
+  is_paused                     = @is_paused::bool,
+  public                        = @public::bool,
+  public_slug                   = @public_slug::text,
+  ai_quality_tier               = sqlc.narg(ai_quality_tier)::text,
+  show_public_games             = @show_public_games::bool,
+  show_other_participants_games = @show_other_participants_games::bool,
+  allow_game_sharing            = @allow_game_sharing::bool,
+  -- settings
+  prompt_constraints            = sqlc.narg(prompt_constraints)::text,
+  public_description            = sqlc.narg(public_description)::text,
+  public_links                  = sqlc.narg(public_links)::jsonb,
+  modified_by                   = @modified_by::uuid,
+  modified_at                   = now()
+WHERE id = @id::uuid AND deleted_at IS NULL;
+
+-- name: V2WorkshopNameTaken :one
+-- Whether another workshop of the organisation has this name (the column is
+-- unique per organisation).
+SELECT EXISTS (
+  SELECT 1 FROM workshop
+  WHERE institution_id = @institution_id AND name = @name::text AND id <> @id::uuid
+)::bool AS taken;

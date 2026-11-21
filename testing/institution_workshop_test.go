@@ -159,9 +159,8 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 	s.Equal(1, len(totoWorkshops), "Toto should see 1 workshop")
 	s.T().Logf("Toto (staff) can list workshops: %d found", len(totoWorkshops))
 
-	// Steve (not a member) cannot list workshops
-	_, steveListErr := clientSteve.ListWorkshops(institution.Id.String())
-	s.Forbidden(steveListErr, "Steve should not be able to list workshops (not a member)")
+	// Steve (not a member) lists none
+	s.Empty(Must(clientSteve.ListWorkshops(institution.Id.String())), "Steve should not list workshops (not a member)")
 	s.T().Logf("Steve cannot list workshops (expected)")
 
 	// Create workshop invites to test invite visibility
@@ -208,13 +207,13 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 
 	// Steve cannot view private workshop
 	_, steveViewPrivateErr := clientSteve.GetWorkshop(workshop.Id.String())
-	s.Forbidden(steveViewPrivateErr, "Steve should not be able to view private workshop")
+	s.NotFound(steveViewPrivateErr, "Steve should not be able to view private workshop")
 	s.T().Logf("Steve cannot view private workshop (expected)")
 }
 
-// TestUpdateParticipantName tests that Head/Staff can update participant names in their workshops
-// but cannot update names of participants in other institutions or update regular users
-func (s *MultiUserTestSuite) TestUpdateParticipantName() {
+// TestUpdateGuestName tests that Head/Staff can update guest names in their workshops
+// but cannot update names of guests in other institutions or update regular users
+func (s *MultiUserTestSuite) TestUpdateGuestName() {
 	// Create users for institution A
 	clientHeadA := s.CreateUser("head-inst-a")
 	clientStaffA := s.CreateUser("staff-inst-a")
@@ -222,7 +221,7 @@ func (s *MultiUserTestSuite) TestUpdateParticipantName() {
 	// Create users for institution B
 	clientHeadB := s.CreateUser("head-inst-b")
 
-	// Create a regular user (not a participant)
+	// Create a regular user (not a guest)
 	clientRegularUser := s.CreateUser("regular-user")
 
 	// Admin creates institution A
@@ -256,41 +255,41 @@ func (s *MultiUserTestSuite) TestUpdateParticipantName() {
 	s.NotNil(workshopInvite.InviteToken)
 	s.T().Logf("Created workshop invite with token")
 
-	// Anonymous participant joins the workshop
-	participantResponse, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
+	// A Guest joins the workshop
+	guestResponse, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
 	s.NoError(err)
-	s.NotNil(participantResponse.User)
-	participantID := participantResponse.User.Id.String()
-	originalName := participantResponse.User.Name
-	s.T().Logf("Participant joined workshop A: %s (ID: %s)", originalName, participantID)
+	s.NotNil(guestResponse.User)
+	guestID := guestResponse.User.Id.String()
+	originalName := guestResponse.User.Name
+	s.T().Logf("Guest joined workshop A: %s (ID: %s)", originalName, guestID)
 
-	// === Test 1: Staff A can update participant name in their workshop ===
-	newName := "Updated Participant Name"
-	updatedUser, err := clientStaffA.UpdateUserName(participantID, newName)
-	s.NoError(err, "Staff A should be able to update participant name in their workshop")
+	// === Test 1: Staff A can update guest name in their workshop ===
+	newName := "Updated Guest Name"
+	updatedUser, err := clientStaffA.UpdateUserName(guestID, newName)
+	s.NoError(err, "Staff A should be able to update guest name in their workshop")
 	s.Equal(newName, updatedUser.Name)
-	s.T().Logf("✓ Staff A updated participant name to: %s", newName)
+	s.T().Logf("✓ Staff A updated guest name to: %s", newName)
 
-	// === Test 2: Head A can update participant name in their institution's workshop ===
+	// === Test 2: Head A can update guest name in their institution's workshop ===
 	newName2 := "Head Updated Name"
-	updatedUser2, err := clientHeadA.UpdateUserName(participantID, newName2)
-	s.NoError(err, "Head A should be able to update participant name in their institution's workshop")
+	updatedUser2, err := clientHeadA.UpdateUserName(guestID, newName2)
+	s.NoError(err, "Head A should be able to update guest name in their institution's workshop")
 	s.Equal(newName2, updatedUser2.Name)
-	s.T().Logf("✓ Head A updated participant name to: %s", newName2)
+	s.T().Logf("✓ Head A updated guest name to: %s", newName2)
 
-	// === Test 3: Head B (different institution) CANNOT update participant name ===
-	_, err = clientHeadB.UpdateUserName(participantID, "Forbidden Name")
-	s.Forbidden(err, "Head B should NOT be able to update participant in another institution")
-	s.T().Logf("✓ Head B correctly denied - cannot update participant in another institution")
+	// === Test 3: Head B (different institution) CANNOT update guest name ===
+	_, err = clientHeadB.UpdateUserName(guestID, "Forbidden Name")
+	s.NotFound(err, "Head B should NOT be able to update guest in another institution") // they cannot see that user
+	s.T().Logf("✓ Head B correctly denied - cannot update guest in another institution")
 
 	// === Test 4: Staff A CANNOT update a regular user's name ===
 	_, err = clientStaffA.UpdateUserName(clientRegularUser.ID, "Hacked Name")
-	s.Forbidden(err, "Staff A should NOT be able to update a regular user's name")
+	s.NotFound(err, "Staff A should NOT be able to update a regular user's name") // they cannot see that user
 	s.T().Logf("✓ Staff A correctly denied - cannot update regular user's name")
 
 	// === Test 5: Head A CANNOT update a regular user's name ===
 	_, err = clientHeadA.UpdateUserName(clientRegularUser.ID, "Hacked Name")
-	s.Forbidden(err, "Head A should NOT be able to update a regular user's name")
+	s.NotFound(err, "Head A should NOT be able to update a regular user's name") // they cannot see that user
 	s.T().Logf("✓ Head A correctly denied - cannot update regular user's name")
 
 	// === Test 6: Regular user CAN update their own name ===
@@ -302,20 +301,20 @@ func (s *MultiUserTestSuite) TestUpdateParticipantName() {
 	workshop := Must(clientHeadA.GetWorkshop(workshopA.Id.String()))
 	found := false
 	for _, p := range testutil.WorkshopParticipantsOf(workshop) {
-		if p.Id.String() == participantID {
-			s.Equal(newName2, p.Name, "Participant name should be the last updated value")
+		if p.Id.String() == guestID {
+			s.Equal(newName2, p.Name, "Guest name should be the last updated value")
 			found = true
 			break
 		}
 	}
-	s.True(found, "Participant should still be in workshop")
-	s.T().Logf("✓ Final verification: participant name is correct in workshop")
+	s.True(found, "Guest should still be in workshop")
+	s.T().Logf("✓ Final verification: guest name is correct in workshop")
 }
 
 // TestWorkshopInvites tests the complete workshop invite workflow:
 // institution with one head and one staff member, creating one workshop,
 // creating public invite, anonymous users coming with such a token get a
-// ad-hoc created user account and are added to the workshop as participant - they are signed in right away and keep a participant token to sign in again
+// ad-hoc created user account and are added to the workshop as guest - they are signed in right away and keep a guest token to sign in again
 // workshop owner(s) can list such users and deactivate them at will (user account is deleted)
 // they can revoke the invite to stop new users coming in
 func (s *MultiUserTestSuite) TestWorkshopInvites() {
@@ -346,9 +345,9 @@ func (s *MultiUserTestSuite) TestWorkshopInvites() {
 	s.T().Logf("Staff joined institution")
 
 	// Staff creates a workshop
-	workshop := Must(clientStaff.CreateWorkshop(institution.Id.String(), "Anonymous Participant Workshop"))
+	workshop := Must(clientStaff.CreateWorkshop(institution.Id.String(), "Guest Workshop"))
 	s.NotEmpty(workshop.Id)
-	s.Equal("Anonymous Participant Workshop", workshop.Name)
+	s.Equal("Guest Workshop", workshop.Name)
 	s.T().Logf("Created workshop: %s", workshop.Name)
 
 	// Staff creates a workshop invite (open invite with token)
@@ -357,63 +356,63 @@ func (s *MultiUserTestSuite) TestWorkshopInvites() {
 	s.NotNil(workshopInvite.InviteToken)
 	s.T().Logf("Created workshop invite with token: %s", *workshopInvite.InviteToken)
 
-	// Anonymous user accepts invite via token (no authentication)
+	// A guest without an account accepts the invite via token
 	// This should create an ad-hoc user account with a funny name and return auth token
-	participant1Response, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
+	guest1Response, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
 	s.NoError(err, "should be able to accept workshop invite anonymously")
-	s.NotNil(participant1Response.User)
-	s.NotEmpty(participant1Response.User.Name)
-	s.NotNil(participant1Response.AuthToken)
-	s.T().Logf("Anonymous user 1 created: %s (token: %s...)", participant1Response.User.Name, (*participant1Response.AuthToken)[:10])
+	s.NotNil(guest1Response.User)
+	s.NotEmpty(guest1Response.User.Name)
+	s.NotNil(guest1Response.AuthToken)
+	s.T().Logf("Guest 1 created: %s (token: %s...)", guest1Response.User.Name, (*guest1Response.AuthToken)[:10])
 
-	// Create client for participant 1 using ONLY their auth token (low-barrier login)
-	clientParticipant1 := Must(s.ParticipantLogin(*participant1Response.AuthToken))
-	s.Equal(participant1Response.User.Name, clientParticipant1.Name)
-	s.T().Logf("Participant 1 authenticated with token only")
+	// Create client for guest 1 using ONLY their auth token (low-barrier login)
+	clientGuest1 := Must(s.GuestLogin(*guest1Response.AuthToken))
+	s.Equal(guest1Response.User.Name, clientGuest1.Name)
+	s.T().Logf("Guest 1 authenticated with token only")
 
-	// Participant 1 can see workshop
-	_ = Must(clientParticipant1.GetWorkshop(workshop.Id.String()))
-	s.T().Logf("Participant 1 can see workshop")
+	// Guest 1 can see workshop
+	_ = Must(clientGuest1.GetWorkshop(workshop.Id.String()))
+	s.T().Logf("Guest 1 can see workshop")
 
 	// Another anonymous user accepts the same invite
-	participant2Response, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
+	guest2Response, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
 	s.NoError(err, "should be able to accept workshop invite anonymously")
-	s.NotNil(participant2Response.User)
-	s.NotEmpty(participant2Response.User.Name)
-	s.NotEqual(participant1Response.User.Name, participant2Response.User.Name, "participants should have different names")
-	s.T().Logf("Anonymous user 2 created: %s", participant2Response.User.Name)
+	s.NotNil(guest2Response.User)
+	s.NotEmpty(guest2Response.User.Name)
+	s.NotEqual(guest1Response.User.Name, guest2Response.User.Name, "guests should have different names")
+	s.T().Logf("Guest 2 created: %s", guest2Response.User.Name)
 
-	// Participant can see workshop and all other participants (they're in the same workshop!)
-	workshopFromParticipant := Must(clientParticipant1.GetWorkshop(workshop.Id.String()))
-	s.Equal(workshop.Id, workshopFromParticipant.Id)
-	// Should see: workshop owner (staff) + 2 anonymous participants = 3 total
-	s.Equal(3, len(testutil.WorkshopParticipantsOf(workshopFromParticipant)), "should see workshop owner + 2 anonymous participants")
-	s.T().Logf("Participant 1 can see %d participants (owner + anonymous users)", len(testutil.WorkshopParticipantsOf(workshopFromParticipant)))
+	// Guest can see workshop and all other guests (they're in the same workshop!)
+	workshopFromGuest := Must(clientGuest1.GetWorkshop(workshop.Id.String()))
+	s.Equal(workshop.Id, workshopFromGuest.Id)
+	// Should see: workshop owner (staff) + 2 Guests = 3 total
+	s.Equal(3, len(testutil.WorkshopParticipantsOf(workshopFromGuest)), "should see workshop owner + 2 Guests")
+	s.T().Logf("Guest 1 can see %d guests (owner + anonymous users)", len(testutil.WorkshopParticipantsOf(workshopFromGuest)))
 
-	// Staff can see workshop participants
+	// Staff can see the Guests in the workshop
 	workshopFromStaff := Must(clientStaff.GetWorkshop(workshop.Id.String()))
 	s.Equal(workshop.Id, workshopFromStaff.Id)
-	s.Equal(3, len(testutil.WorkshopParticipantsOf(workshopFromStaff)), "should see workshop owner + 2 anonymous participants")
-	s.T().Logf("Staff can see %d participants (owner + anonymous users)", len(testutil.WorkshopParticipantsOf(workshopFromStaff)))
+	s.Equal(3, len(testutil.WorkshopParticipantsOf(workshopFromStaff)), "should see workshop owner + 2 Guests")
+	s.T().Logf("Staff can see %d guests (owner + anonymous users)", len(testutil.WorkshopParticipantsOf(workshopFromStaff)))
 
-	// Let's pick one of the participants..
-	participant := testutil.WorkshopParticipantsOf(workshopFromStaff)[1]
-	s.Equal("participant", participant.Role)
-	// ..and assume, he lost his access token by closing his browser - the workshop leader can read out his participant token
-	participantToken := Must(clientStaff.GetParticipantToken(participant.Id.String()))
-	s.NotEmpty(participantToken)
-	s.T().Logf("Participant token provided for participant: %s", participantToken)
-	// ..and the participant signs in with it
-	clientParticipantRecovered := Must(s.ParticipantLogin(participantToken))
-	participantRecoveredMe := Must(clientParticipantRecovered.GetMe())
-	s.Equal(participant.Name, participantRecoveredMe.Name)
-	s.T().Logf("The participant signed in again with their participant token")
+	// Let's pick one of the guests..
+	guest := testutil.WorkshopParticipantsOf(workshopFromStaff)[1]
+	s.Equal("guest", guest.Role)
+	// ..and assume, he lost his access token by closing his browser - the workshop leader can read out his guest token
+	guestToken := Must(clientStaff.GetGuestToken(guest.Id.String()))
+	s.NotEmpty(guestToken)
+	s.T().Logf("Guest token provided for guest: %s", guestToken)
+	// ..and the guest signs in with it
+	clientGuestRecovered := Must(s.GuestLogin(guestToken))
+	guestRecoveredMe := Must(clientGuestRecovered.GetMe())
+	s.Equal(guest.Name, guestRecoveredMe.Name)
+	s.T().Logf("The guest signed in again with their guest token")
 
-	// Head can see workshop participants
+	// Head can see the Guests in the workshop
 	headWorkshopView := Must(clientHead.GetWorkshop(workshop.Id.String()))
 	s.Equal(workshop.Id, headWorkshopView.Id)
-	s.Equal(3, len(testutil.WorkshopParticipantsOf(headWorkshopView)), "should see workshop owner + 2 anonymous participants")
-	s.T().Logf("Head can see %d participants (owner + anonymous users)", len(testutil.WorkshopParticipantsOf(headWorkshopView)))
+	s.Equal(3, len(testutil.WorkshopParticipantsOf(headWorkshopView)), "should see workshop owner + 2 Guests")
+	s.T().Logf("Head can see %d guests (owner + anonymous users)", len(testutil.WorkshopParticipantsOf(headWorkshopView)))
 
 	// Staff revokes the invite to stop new users from joining
 	MustSucceed(clientStaff.RevokeInvite(workshopInvite.Id.String()))
@@ -427,24 +426,24 @@ func (s *MultiUserTestSuite) TestWorkshopInvites() {
 	// New anonymous user cannot accept revoked invite
 	_, acceptRevokedErr := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
 	s.NotFound(acceptRevokedErr, "should not be able to accept revoked invite")
-	s.T().Logf("Revoked invite correctly rejected new participant")
+	s.T().Logf("Revoked invite correctly rejected new guest")
 
-	// Staff can deactivate/remove a participant (deletes user account)
-	MustSucceed(clientStaff.DeleteUser(participant1Response.User.Id.String()))
-	s.T().Logf("Staff removed participant 1 (user account deleted)")
+	// Staff can deactivate/remove a guest (deletes user account)
+	MustSucceed(clientStaff.DeleteUser(guest1Response.User.Id.String()))
+	s.T().Logf("Staff removed guest 1 (user account deleted)")
 
-	// Verify participant 1 is deleted (cannot authenticate anymore)
-	_, getDeletedUserErr := clientParticipant1.GetMe()
-	s.Forbidden(getDeletedUserErr, "deleted participant's session no longer names an account")
-	s.T().Logf("Deleted participant cannot authenticate (expected)")
+	// Verify guest 1 is deleted (cannot authenticate anymore)
+	_, getDeletedUserErr := clientGuest1.GetMe()
+	s.Forbidden(getDeletedUserErr, "deleted guest's session no longer names an account")
+	s.T().Logf("Deleted guest cannot authenticate (expected)")
 
-	// Participant 2 should still be able to authenticate
-	clientParticipant2 := Must(s.ParticipantLogin(*participant2Response.AuthToken))
-	participant2Me := Must(clientParticipant2.GetMe())
-	s.Equal(participant2Response.User.Name, participant2Me.Name)
-	s.T().Logf("Participant 2 can still authenticate")
+	// Guest 2 should still be able to authenticate
+	clientGuest2 := Must(s.GuestLogin(*guest2Response.AuthToken))
+	guest2Me := Must(clientGuest2.GetMe())
+	s.Equal(guest2Response.User.Name, guest2Me.Name)
+	s.T().Logf("Guest 2 can still authenticate")
 
-	// Head can also remove participants
-	MustSucceed(clientHead.DeleteUser(participant2Response.User.Id.String()))
-	s.T().Logf("Head removed participant 2 (user account deleted)")
+	// Head can also remove guests
+	MustSucceed(clientHead.DeleteUser(guest2Response.User.Id.String()))
+	s.T().Logf("Head removed guest 2 (user account deleted)")
 }

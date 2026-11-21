@@ -11,5 +11,5 @@ import (
 var Cmd = &cobra.Command{
 	Use:   "role",
 	Short: "Manage user roles",
-	Long:  "Commands for managing user roles (admin, head, staff, participant).",
+	Long:  "Commands for managing user roles (admin, head, staff, guest).",
 }

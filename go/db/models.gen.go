@@ -39,6 +39,7 @@ type ApiKeyShare struct {
 	WorkshopID    uuid.NullUUID `json:"workshop_id"`
 	InstitutionID uuid.NullUUID `json:"institution_id"`
 	GameID        uuid.NullUUID `json:"game_id"`
+	SourceShareID uuid.NullUUID `json:"source_share_id"`
 }
 
 type AppUser struct {
@@ -51,7 +52,7 @@ type AppUser struct {
 	Email                sql.NullString `json:"email"`
 	DeletedAt            sql.NullTime   `json:"deleted_at"`
 	Auth0ID              sql.NullString `json:"auth0_id"`
-	ParticipantToken     sql.NullString `json:"participant_token"`
+	GuestToken           sql.NullString `json:"guest_token"`
 	DefaultApiKeyShareID uuid.NullUUID  `json:"default_api_key_share_id"`
 	AiQualityTier        sql.NullString `json:"ai_quality_tier"`
 	Language             string         `json:"language"`
@@ -157,6 +158,30 @@ type Institution struct {
 	FreeUseApiKeyShareID uuid.NullUUID  `json:"free_use_api_key_share_id"`
 	FreeUseAiQualityTier sql.NullString `json:"free_use_ai_quality_tier"`
 	PromptConstraints    sql.NullString `json:"prompt_constraints"`
+	Operator             sql.NullString `json:"operator"`
+	Street               sql.NullString `json:"street"`
+	PostalCode           sql.NullString `json:"postal_code"`
+	City                 sql.NullString `json:"city"`
+	SuspendedAt          sql.NullTime   `json:"suspended_at"`
+	SuspendedReason      sql.NullString `json:"suspended_reason"`
+}
+
+type InstitutionConsent struct {
+	ID                  uuid.UUID      `json:"id"`
+	CreatedAt           time.Time      `json:"created_at"`
+	InstitutionID       uuid.UUID      `json:"institution_id"`
+	UserID              uuid.UUID      `json:"user_id"`
+	Kind                string         `json:"kind"`
+	Email               sql.NullString `json:"email"`
+	PersonName          sql.NullString `json:"person_name"`
+	PersonFunction      sql.NullString `json:"person_function"`
+	InstitutionName     string         `json:"institution_name"`
+	InstitutionOperator sql.NullString `json:"institution_operator"`
+	Street              sql.NullString `json:"street"`
+	PostalCode          sql.NullString `json:"postal_code"`
+	City                sql.NullString `json:"city"`
+	DeclarationVersion  string         `json:"declaration_version"`
+	DeclarationHash     string         `json:"declaration_hash"`
 }
 
 type SystemSetting struct {
@@ -236,16 +261,4 @@ type Workshop struct {
 	PublicSlug                 sql.NullString        `json:"public_slug"`
 	PublicDescription          sql.NullString        `json:"public_description"`
 	PublicLinks                pqtype.NullRawMessage `json:"public_links"`
-}
-
-type WorkshopParticipant struct {
-	ID          uuid.UUID     `json:"id"`
-	CreatedBy   uuid.NullUUID `json:"created_by"`
-	CreatedAt   time.Time     `json:"created_at"`
-	ModifiedBy  uuid.NullUUID `json:"modified_by"`
-	ModifiedAt  time.Time     `json:"modified_at"`
-	WorkshopID  uuid.UUID     `json:"workshop_id"`
-	Name        string        `json:"name"`
-	AccessToken string        `json:"access_token"`
-	Active      bool          `json:"active"`
 }

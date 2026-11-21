@@ -57,13 +57,13 @@ import { inviteShareLinkPath } from "@/common/lib/wordToken";
 import { FullscreenQrOverlay } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
-import { ParticipantLinkModal } from "./ParticipantLinkModal";
+import { GuestLinkModal } from "./GuestLinkModal";
 import { PublicPageSettings } from "./PublicPageSettings";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
-import { type WorkshopParticipant } from "@/api/generated/api.gen";
+import { type WorkshopParticipantView } from "@/api/generated/api.gen";
 import {
   getAiQualityTierOptions,
   normalizeAiQualityTier,
@@ -110,11 +110,11 @@ export function SingleWorkshopSettings({
 
   // Participant editing state
   const [editingParticipant, setEditingParticipant] =
-    useState<WorkshopParticipant | null>(null);
+    useState<WorkshopParticipantView | null>(null);
   const [participantNewName, setParticipantNewName] = useState("");
   const [participantToRemove, setParticipantToRemove] =
-    useState<WorkshopParticipant | null>(null);
-  const [linkParticipant, setLinkParticipant] = useState<{
+    useState<WorkshopParticipantView | null>(null);
+  const [linkGuest, setLinkGuest] = useState<{
     id: string;
     name?: string;
   } | null>(null);
@@ -219,7 +219,7 @@ export function SingleWorkshopSettings({
   };
 
   // Participant handlers
-  const handleEditParticipant = (participant: WorkshopParticipant) => {
+  const handleEditParticipant = (participant: WorkshopParticipantView) => {
     setEditingParticipant(participant);
     setParticipantNewName(participant.name || "");
   };
@@ -249,11 +249,9 @@ export function SingleWorkshopSettings({
     setParticipantToRemove(null);
   };
 
-  const handleGetParticipantShareLink = (participantId: string) => {
-    const participant = workshop?.participants?.find(
-      (p) => p.id === participantId,
-    );
-    setLinkParticipant({ id: participantId, name: participant?.name });
+  const handleGetGuestShareLink = (guestId: string) => {
+    const guest = workshop?.participants?.find((p) => p.id === guestId);
+    setLinkGuest({ id: guestId, name: guest?.name });
   };
 
   // Workshop settings handler
@@ -573,7 +571,7 @@ export function SingleWorkshopSettings({
                                   <Text size="sm" fw={500} truncate>
                                     {participant.name ||
                                       t(
-                                        "myOrganization.workshops.anonymousParticipant",
+                                        "myOrganization.workshops.unnamedParticipant",
                                       )}
                                   </Text>
                                   <Group gap="sm">
@@ -633,10 +631,10 @@ export function SingleWorkshopSettings({
                               ) : (
                                 <>
                                   {participant.role ===
-                                    RoleName.Participant && (
+                                    RoleName.Guest && (
                                       <Tooltip
                                         label={t(
-                                          "myOrganization.workshops.shareParticipantLink",
+                                          "myOrganization.workshops.shareGuestLink",
                                         )}
                                       >
                                         <ActionIcon
@@ -646,7 +644,7 @@ export function SingleWorkshopSettings({
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             if (participant.id) {
-                                              handleGetParticipantShareLink(
+                                              handleGetGuestShareLink(
                                                 participant.id,
                                               );
                                             }
@@ -751,7 +749,7 @@ export function SingleWorkshopSettings({
                                   <Text size="sm">
                                     {participant.name ||
                                       t(
-                                        "myOrganization.workshops.anonymousParticipant",
+                                        "myOrganization.workshops.unnamedParticipant",
                                       )}
                                   </Text>
                                 </Group>
@@ -794,10 +792,10 @@ export function SingleWorkshopSettings({
                                 ) : (
                                   <>
                                     {participant.role ===
-                                      RoleName.Participant && (
+                                      RoleName.Guest && (
                                         <Tooltip
                                           label={t(
-                                            "myOrganization.workshops.shareParticipantLink",
+                                            "myOrganization.workshops.shareGuestLink",
                                           )}
                                         >
                                           <ActionIcon
@@ -807,7 +805,7 @@ export function SingleWorkshopSettings({
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               if (participant.id) {
-                                                handleGetParticipantShareLink(
+                                                handleGetGuestShareLink(
                                                   participant.id,
                                                 );
                                               }
@@ -920,10 +918,10 @@ export function SingleWorkshopSettings({
         </Modal>
       )}
 
-      <ParticipantLinkModal
-        participantId={linkParticipant?.id ?? null}
-        participantName={linkParticipant?.name}
-        onClose={() => setLinkParticipant(null)}
+      <GuestLinkModal
+        guestId={linkGuest?.id ?? null}
+        guestName={linkGuest?.name}
+        onClose={() => setLinkGuest(null)}
       />
 
       {/* Remove Participant Confirmation Modal */}
@@ -937,7 +935,7 @@ export function SingleWorkshopSettings({
           t("myOrganization.workshops.removeParticipantMessage", {
             name:
               participantToRemove?.name ||
-              t("myOrganization.workshops.anonymousParticipant"),
+              t("myOrganization.workshops.unnamedParticipant"),
           })}
         warning={t(
           participantToRemove?.permanent !== false

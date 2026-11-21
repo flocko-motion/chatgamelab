@@ -24,7 +24,7 @@ func TestUserLanguageSuite(t *testing.T) {
 
 // acceptInviteAnonymouslyWithLanguage joins a workshop through an invite link
 // with the given Accept-Language header, as a browser does, and answers the
-// new participant.
+// new guest.
 func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(token, acceptLanguage string) testutil.AcceptedInvite {
 	s.T().Helper()
 	out := Must(s.AcceptWorkshopInviteAnonymouslyInLanguage(token, acceptLanguage))
@@ -33,7 +33,7 @@ func (s *UserLanguageTestSuite) acceptInviteAnonymouslyWithLanguage(token, accep
 }
 
 // workshopInviteToken creates an institution, head and an active workshop, and
-// returns an open participant invite token for it.
+// returns an open guest invite token for it.
 func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 	s.T().Helper()
 	admin := s.DevUser()
@@ -43,7 +43,7 @@ func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 	headInvite := Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID))
 	Must(head.AcceptInvite(headInvite.Id.String()))
 
-	// Anonymous joins require an active workshop with a usable API key.
+	// Guests joining without an account require an active workshop with a usable API key.
 	keyShare := Must(head.AddApiKey("mock-lang-key-"+prefix, prefix+" Key", "openai"))
 	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.Id.String(), inst.Id.String()))
 
@@ -62,19 +62,19 @@ func (s *UserLanguageTestSuite) workshopInviteToken(prefix string) string {
 	return *invite.InviteToken
 }
 
-// A participant joining through a link never sees a registration form, so the
+// A guest joining through a link never sees a registration form, so the
 // browser's Accept-Language header is the only signal available.
-func (s *UserLanguageTestSuite) TestParticipantInheritsBrowserLanguage() {
+func (s *UserLanguageTestSuite) TestGuestInheritsBrowserLanguage() {
 	token := s.workshopInviteToken("lang-de")
 
 	resp := s.acceptInviteAnonymouslyWithLanguage(token, "de-DE,de;q=0.9,en;q=0.8")
 
 	s.Equal("de", resp.User.Language,
-		"participant with a German browser must be stored as German, otherwise their game starts in English")
+		"guest with a German browser must be stored as German, otherwise their game starts in English")
 }
 
 // A region-only tag must still resolve to the base language.
-func (s *UserLanguageTestSuite) TestParticipantLanguageStripsRegion() {
+func (s *UserLanguageTestSuite) TestGuestLanguageStripsRegion() {
 	token := s.workshopInviteToken("lang-region")
 
 	resp := s.acceptInviteAnonymouslyWithLanguage(token, "de-AT")
@@ -84,7 +84,7 @@ func (s *UserLanguageTestSuite) TestParticipantLanguageStripsRegion() {
 
 // Unsupported or missing languages must fall back to English rather than
 // storing something the game engine cannot use.
-func (s *UserLanguageTestSuite) TestParticipantLanguageFallsBackToEnglish() {
+func (s *UserLanguageTestSuite) TestGuestLanguageFallsBackToEnglish() {
 	unsupported := s.workshopInviteToken("lang-unsupported")
 	resp := s.acceptInviteAnonymouslyWithLanguage(unsupported, "zz-ZZ")
 	s.Equal("en", resp.User.Language, "unsupported language must fall back to English")
@@ -95,7 +95,7 @@ func (s *UserLanguageTestSuite) TestParticipantLanguageFallsBackToEnglish() {
 }
 
 // The first supported entry wins, even when unsupported ones come first.
-func (s *UserLanguageTestSuite) TestParticipantLanguagePicksFirstSupported() {
+func (s *UserLanguageTestSuite) TestGuestLanguagePicksFirstSupported() {
 	token := s.workshopInviteToken("lang-order")
 
 	resp := s.acceptInviteAnonymouslyWithLanguage(token, "zz,de;q=0.9,en;q=0.8")

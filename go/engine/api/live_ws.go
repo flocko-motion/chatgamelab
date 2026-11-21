@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/coder/websocket"
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -20,7 +21,16 @@ import (
 // SessionEvent for everything else. A rejected input comes back as an `error`
 // event. The turn-based genres use input and stream instead; which one a
 // client opens is decided by the genre's declared interaction model.
-type LiveEndpoint struct{ API *API }
+type LiveEndpoint struct {
+	API *API
+	// Guard, if set, is asked before typed input (typed true) and, while
+	// audio flows, at most every guardEvery: whether the conversation may go
+	// on. A refusal goes out on the `problem` stream and ends the socket.
+	Guard func(ctx context.Context, typed bool) error
+}
+
+// guardEvery is how often a flowing voice conversation is re-checked.
+const guardEvery = 30 * time.Second
 
 func (LiveEndpoint) Method() string             { return "GET" }
 func (LiveEndpoint) Path() string               { return "/api/engine/sessions/{id}/live" }
@@ -74,10 +84,23 @@ func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 
 	// Inbound: binary frames are microphone audio, text frames are typed input.
 	// A live session takes both, and so does this endpoint.
+	lastGuard := time.Now()
 	for {
 		typ, data, err := conn.Read(ctx)
 		if err != nil {
 			return nil
+		}
+		if e.Guard != nil {
+			typed := typ != websocket.MessageBinary
+			if typed || time.Since(lastGuard) >= guardEvery {
+				lastGuard = time.Now()
+				if err := e.Guard(ctx, typed); err != nil {
+					refusal := engine.RefusalOf(err)
+					blob, _ := json.Marshal(refusal)
+					_ = wsJSON(ctx, conn, engine.SessionEvent{Stream: "problem", Value: string(blob)})
+					return nil
+				}
+			}
 		}
 
 		var submitErr error

@@ -14,40 +14,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetSelfShareForApiKey returns the user's self-share for a given API key.
-// A self-share is a share where the share's user_id matches the key owner.
-func GetSelfShareForApiKey(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID) (*obj.ApiKeyShare, error) {
-	shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
-	if err != nil {
-		return nil, obj.ErrNotFound("no shares found for API key")
-	}
-	for _, s := range shares {
-		if s.UserID.Valid && s.UserID.UUID == userID {
-			return GetApiKeyShareByID(ctx, userID, s.ID)
-		}
-	}
-	return nil, obj.ErrNotFound("self-share not found for API key")
-}
-
-// CreateApiKeyShare creates a new share for an API key via an existing share. Verifies ownership first.
-func CreateApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, targetUserID, workshopID, institutionID *uuid.UUID) (*uuid.UUID, error) {
-	share, err := queries().GetApiKeyShareByID(ctx, shareID)
-	if err != nil {
-		return nil, obj.ErrNotFound("share not found")
-	}
-
-	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
-	if err != nil {
-		return nil, obj.ErrNotFound("api key not found")
-	}
-
-	if key.UserID != userID {
-		return nil, obj.ErrForbidden("only the owner can share this key")
-	}
-
-	return createApiKeyShareInternal(ctx, userID, key.ID, targetUserID, workshopID, institutionID, nil)
-}
-
 // createApiKeyShareInternal creates a share without ownership verification (for internal use)
 func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID, targetUserID, workshopID, institutionID, gameID *uuid.UUID) (*uuid.UUID, error) {
 	now := time.Now()
@@ -68,53 +34,6 @@ func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID u
 		return nil, err
 	}
 	return &result.ID, nil
-}
-
-// DeleteApiKeyShare deletes a single share.
-// Allowed by: key owner, share target user, or head/staff of the institution the share targets.
-func DeleteApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) error {
-	share, err := queries().GetApiKeyShareByID(ctx, shareID)
-	if err != nil {
-		return obj.ErrNotFound("share not found")
-	}
-
-	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
-	if err != nil {
-		return obj.ErrNotFound("api key not found")
-	}
-
-	isOwner := key.UserID == userID
-	isOwnShare := share.UserID.Valid && share.UserID.UUID == userID
-
-	// Head/staff of the target institution can remove org-scoped shares from colleagues
-	isOrgMember := false
-	if share.InstitutionID.Valid {
-		user, lookupErr := GetUserByID(ctx, userID)
-		if lookupErr == nil && user.Role != nil && user.Role.Institution != nil &&
-			user.Role.Institution.ID == share.InstitutionID.UUID &&
-			(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
-			isOrgMember = true
-		}
-	}
-
-	if !isOwner && !isOwnShare && !isOrgMember {
-		return obj.ErrForbidden("not authorized to delete this share")
-	}
-
-	// Clear workshop default_api_key_share_id if it references this share
-	_ = queries().ClearWorkshopDefaultApiKeyShareByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true})
-
-	// Clear game sponsor references if they reference this share
-	_ = queries().ClearGameSponsoredApiKeyByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true})
-
-	// Clean up game_shares that reference this api_key_share (delete guest data first)
-	gsIDs, _ := queries().GetGameShareIDsByApiKeyShareID(ctx, shareID)
-	for _, gsID := range gsIDs {
-		_ = DeleteGuestDataByShareID(ctx, gsID)
-	}
-	_ = queries().DeleteGameSharesByApiKeyShareID(ctx, shareID)
-
-	return queries().DeleteApiKeyShare(ctx, shareID)
 }
 
 // GetApiKeyShareByID returns an API key share by its ID, including the full API key.
@@ -219,55 +138,6 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 				LastUsageSuccess: sqlNullBoolToMaybeBool(s.ApiKeyLastUsageSuccess),
 				LastErrorCode:    sqlNullStringToMaybeString(s.ApiKeyLastErrorCode),
 			},
-		}
-		result = append(result, share)
-	}
-
-	return result, nil
-}
-
-// GetApiKeySharesByInstitution returns all API key shares for an institution (heads/staff only)
-func GetApiKeySharesByInstitution(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID) ([]obj.ApiKeyShare, error) {
-	// Check permission - user must be head or staff of this institution
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, obj.ErrNotFound("user not found")
-	}
-
-	// User must have a role in this institution and be head or staff
-	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.ID != institutionID {
-		return nil, obj.ErrForbidden("not a member of this institution")
-	}
-	if user.Role.Role != obj.RoleHead && user.Role.Role != obj.RoleStaff {
-		return nil, obj.ErrForbidden("only heads and staff can view institution API keys")
-	}
-
-	shares, err := queries().GetApiKeySharesByInstitutionID(ctx, uuid.NullUUID{UUID: institutionID, Valid: true})
-	if err != nil {
-		return nil, obj.ErrServerError("failed to get institution API key shares")
-	}
-
-	result := make([]obj.ApiKeyShare, 0, len(shares))
-	for _, s := range shares {
-		share := obj.ApiKeyShare{
-			ID: s.ID,
-			Meta: obj.Meta{
-				CreatedBy:  s.CreatedBy,
-				CreatedAt:  &s.CreatedAt,
-				ModifiedBy: s.ModifiedBy,
-				ModifiedAt: &s.ModifiedAt,
-			},
-			ApiKeyID: s.ApiKeyID,
-			ApiKey: &obj.ApiKey{
-				ID:       s.ApiKeyID,
-				UserID:   s.OwnerID,
-				UserName: s.OwnerName.String,
-				Name:     s.ApiKeyName,
-				Platform: s.ApiKeyPlatform,
-				// Key is never exposed
-			},
-
-			Institution: &obj.Institution{ID: institutionID},
 		}
 		result = append(result, share)
 	}

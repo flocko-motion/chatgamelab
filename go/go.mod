@@ -5,12 +5,12 @@ go 1.26.0
 require (
 	engine v0.0.0-00010101000000-000000000000
 	github.com/dillonstreator/go-unique-name-generator v1.0.2
-	github.com/flocko-motion/schemaf v1.19.0
+	github.com/flocko-motion/schemaf v1.20.0
 	github.com/getsentry/sentry-go v0.42.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.11.2
-	github.com/oapi-codegen/runtime v1.9.1
+	github.com/oapi-codegen/runtime v1.8.0
 	github.com/olekukonko/tablewriter v1.1.2
 	github.com/spf13/cobra v1.10.2
 	github.com/sqlc-dev/pqtype v0.3.0

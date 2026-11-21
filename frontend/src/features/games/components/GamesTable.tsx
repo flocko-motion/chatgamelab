@@ -1,131 +1,180 @@
-import { Table, Group, Badge, Text, Stack } from '@mantine/core';
-import { IconWorld, IconLock } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { PlayGameButton, EditButtonWithText, DeleteButtonWithText, ExportButtonWithText } from '@components/buttons';
-import { useAuth } from '@/providers/AuthProvider';
-import type { Game } from "@/api/generated/api.gen";
+import { useRef, type ReactNode } from "react";
+import { Tooltip } from "@mantine/core";
+import { IconArrowBigUpLineFilled, IconTools } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import type { GameView } from "@/api/generated/api.gen";
+import { ListTable } from "@components/ListTable";
+import { ActionButton, GenericIconButton } from "@components/buttons";
+import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
+import { GAME_LIST_PRESETS, presetFilterNamespace } from "../lib/gameListPresets";
+import { emptyListDescription, getGameDateLabel } from "../lib";
+import { useGamesTable, type UseGamesTableOptions } from "../hooks/useGamesTable";
+import { useGameActions, useGameColumns } from "./useGameColumns";
+import { GameCard } from "./GameCard";
+import { GameEditModal } from "./GameEditModal";
+import { DeleteGameModal } from "./DeleteGameModal";
+import { SponsorGameModal } from "./SponsorGameModal";
+import { WorkshopBadges } from "./WorkshopBadges";
 
-interface GamesTableProps {
-  games: Game[];
-  onView: (game: Game) => void;
-  onEdit: (game: Game) => void;
-  onDelete: (game: Game) => void;
-  onExport: (game: Game) => void;
-  onPlay: (game: Game) => void;
-  fillHeight?: boolean;
-}
+export type GamesTableProps = UseGamesTableOptions;
 
-export function GamesTable({ games, onView, onEdit, onDelete, onExport, onPlay, fillHeight = false }: GamesTableProps) {
-  const { t } = useTranslation('common');
-  const { backendUser } = useAuth();
+/**
+ * A game list: one of the presets (all games, the workshop's
+ * games) with its filters, orders, columns, actions and modals. The server
+ * filters, sorts and pages; the query lives in the URL.
+ */
+export function GamesTable(props: GamesTableProps) {
+  const { t, i18n } = useTranslation("common");
+  const { t: tFilters } = useTranslation(presetFilterNamespace(props.preset));
+  const { t: tEmpty } = useTranslation(GAME_LIST_PRESETS[props.preset].empty.ns ?? "common");
+  const { isMobile } = useResponsiveDesign();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const state = useGamesTable(props, { fileInputRef });
+  const columns = useGameColumns(state);
+  const actionsFor = useGameActions(state);
+  const { config, controls } = state;
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString();
+  // An empty list says what narrowed it, when anything did; otherwise there
+  // simply are no games.
+  const narrowed =
+    config.toggles.length > 0
+      ? emptyListDescription(t, i18n.language, controls.query.only, controls.query.search)
+      : null;
+  const empty = narrowed
+    ? { title: narrowed }
+    : { title: tEmpty(config.empty.titleKey), description: tEmpty(config.empty.descriptionKey) };
+
+  const renderCard = (game: GameView) => {
+    const { hasSession, session } = state.getSessionState(game);
+    const p = state.permissions(game);
+    const favorites = config.columns.includes("favorite");
+    return (
+      <GameCard
+        game={game}
+        onClick={() => state.view(game)}
+        onPlay={() => state.playGame(game)}
+        playLabel={t("allGames.play")}
+        hasSession={hasSession}
+        onContinue={session ? () => state.continueGame(session) : undefined}
+        continueLabel={t("allGames.continue")}
+        onRestart={session ? () => state.restartGame(game, session) : undefined}
+        restartLabel={t("allGames.restart")}
+        showVisibility={config.columns.includes("visibility")}
+        isOwner={p.isOwner}
+        showCreator={config.columns.includes("creator")}
+        isFavorite={favorites && state.isFavorite(game)}
+        onToggleFavorite={favorites ? () => state.toggleFavorite(game) : undefined}
+        favoriteLabel={t("allGames.favorite")}
+        unfavoriteLabel={t("allGames.unfavorite")}
+        actions={actionsFor(game)}
+        dateLabel={getGameDateLabel(game, controls.query.sortBy)}
+        isWorkshopGame={state.isWorkshopGame(game)}
+        extra={
+          game.workshopId && config.columns.includes("workshop") ? (
+            <WorkshopBadges workshopId={game.workshopId} />
+          ) : undefined
+        }
+      />
+    );
   };
 
+  let createActions: ReactNode = null;
+  if (config.canCreate) {
+    createActions = isMobile ? (
+      <>
+        <Tooltip label={t("games.createButton")} withArrow>
+          <GenericIconButton
+            icon={<IconTools size={16} />}
+            onClick={state.openCreate}
+            variant="filled"
+            color="accent"
+            aria-label={t("games.createButton")}
+          />
+        </Tooltip>
+        <Tooltip label={t("games.importExport.importButton")} withArrow>
+          <GenericIconButton
+            icon={<IconArrowBigUpLineFilled size={16} />}
+            onClick={state.openImport}
+            variant="filled"
+            color="accent"
+            aria-label={t("games.importExport.importButton")}
+          />
+        </Tooltip>
+      </>
+    ) : (
+      <>
+        <ActionButton onClick={state.openCreate} leftSection={<IconTools size={16} />}>
+          {t("games.createButton")}
+        </ActionButton>
+        <ActionButton onClick={state.openImport} leftSection={<IconArrowBigUpLineFilled size={16} />}>
+          {t("games.importExport.importButton")}
+        </ActionButton>
+      </>
+    );
+  }
+
   return (
-    <Table.ScrollContainer minWidth={500} style={fillHeight ? { overflowY: 'auto', flex: 1 } : undefined}>
-      <Table verticalSpacing="md" horizontalSpacing="lg" stickyHeader={fillHeight}>
-        <Table.Thead>
-          <Table.Tr style={{ borderBottom: '2px solid var(--mantine-color-gray-2)' }}>
-            <Table.Th w={120} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {/* Play column - no header text */}
-            </Table.Th>
-            <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {t('games.fields.name')}
-            </Table.Th>
-            <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {t('games.fields.creator')}
-            </Table.Th>
-            <Table.Th w={80} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {t('games.fields.playCount')}
-            </Table.Th>
-            <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {t('games.fields.visibility')}
-            </Table.Th>
-            <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {t('games.fields.modified')}
-            </Table.Th>
-            <Table.Th w={280} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {t('actions')}
-            </Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {games.map((game) => (
-            <Table.Tr 
-              key={game.id}
-              style={{ 
-                cursor: 'pointer',
-                transition: 'background-color 150ms ease',
-              }}
-              onClick={() => onView(game)}
-            >
-              <Table.Td onClick={(e) => e.stopPropagation()}>
-                <PlayGameButton onClick={() => onPlay(game)}>
-                  {t('games.playNow')}
-                </PlayGameButton>
-              </Table.Td>
-              <Table.Td>
-                <Stack gap={2}>
-                  <Text fw={600} size="sm" c="gray.8" lineClamp={1}>
-                    {game.name}
-                  </Text>
-                  {game.description && (
-                    <Text size="xs" c="gray.5" lineClamp={1}>
-                      {game.description}
-                    </Text>
-                  )}
-                </Stack>
-              </Table.Td>
-              <Table.Td>
-                {backendUser?.id && game.creatorId === backendUser.id ? (
-                  <Badge size="sm" color="violet" variant="light">
-                    {t('games.fields.me')}
-                  </Badge>
-                ) : (
-                  <Text size="sm" c="gray.6" lineClamp={1}>
-                    {game.creatorName || '-'}
-                  </Text>
-                )}
-              </Table.Td>
-              <Table.Td>
-                <Text size="sm" c="gray.6" ta="center">
-                  {game.playCount ?? 0}
-                </Text>
-              </Table.Td>
-              <Table.Td>
-                {game.public ? (
-                  <Badge size="sm" color="green" variant="light" leftSection={<IconWorld size={12} />}>
-                    {t('games.visibility.public')}
-                  </Badge>
-                ) : (
-                  <Badge size="sm" color="gray" variant="light" leftSection={<IconLock size={12} />}>
-                    {t('games.visibility.private')}
-                  </Badge>
-                )}
-              </Table.Td>
-              <Table.Td>
-                <Text size="sm" c="gray.5">{formatDate(game.meta?.modifiedAt)}</Text>
-              </Table.Td>
-              <Table.Td onClick={(e) => e.stopPropagation()}>
-                <Group gap="xs" wrap="nowrap">
-                  <EditButtonWithText onClick={() => onEdit(game)}>
-                    {t('edit')}
-                  </EditButtonWithText>
-                  <ExportButtonWithText onClick={() => onExport(game)}>
-                    {t('games.importExport.exportButton')}
-                  </ExportButtonWithText>
-                  <DeleteButtonWithText onClick={() => onDelete(game)}>
-                    {t('delete')}
-                  </DeleteButtonWithText>
-                </Group>
-              </Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
-    </Table.ScrollContainer>
+    <>
+      {config.canCreate && (
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={state.importFile}
+          accept=".yaml,.yml"
+          style={{ display: "none" }}
+        />
+      )}
+
+      <ListTable
+        list={state.list}
+        controls={controls}
+        columns={columns}
+        getRowKey={(game) => game.id}
+        renderCard={renderCard}
+        onRowClick={state.view}
+        getRowAccent={(game) => (game.publicSponsoredApiKeyShareId ? "pink" : undefined)}
+        filters={config.filters.map((f) => ({ value: f.value, label: tFilters(f.labelKey) }))}
+        toggles={config.toggles.map((o) => ({ value: o.value, label: tFilters(o.labelKey) }))}
+        sorts={config.sorts.map((s) => ({ ...s, label: t(`games.sort.${s.by}-${s.dir}`) }))}
+        actions={createActions}
+        empty={empty}
+        errorMessage={t("games.errors.loadFailed")}
+      />
+
+      <GameEditModal
+        opened={state.createModal.opened}
+        onClose={state.createModal.close}
+        onCreate={state.createModal.submit}
+        createLoading={state.createModal.loading}
+        initialData={state.createModal.initialData}
+      />
+
+      <GameEditModal
+        gameId={state.viewModal.gameId}
+        opened={state.viewModal.opened}
+        onClose={state.viewModal.close}
+        isOwner={state.viewModal.isOwner}
+        onCopy={state.viewModal.onCopy}
+        onSponsor={state.viewModal.onSponsor}
+        showShareSection
+        workshopId={state.viewModal.workshopId}
+      />
+
+      <DeleteGameModal
+        opened={state.deleteModal.opened}
+        onClose={state.deleteModal.close}
+        onConfirm={state.deleteModal.confirm}
+        gameName={state.deleteModal.game?.name ?? ""}
+        loading={state.deleteModal.loading}
+        isOwner={state.deleteModal.isOwner}
+        isModeratorAction={state.deleteModal.isOthersWorkshopGame}
+      />
+
+      <SponsorGameModal
+        game={state.sponsorModal.game}
+        opened={state.sponsorModal.opened}
+        onClose={state.sponsorModal.close}
+      />
+    </>
   );
 }

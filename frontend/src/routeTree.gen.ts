@@ -29,15 +29,18 @@ import { Route as PlayTokenRouteImport } from './routes/play/$token'
 import { Route as MyWorkshopSettingsRouteImport } from './routes/my-workshop/settings'
 import { Route as MyGamesCreateRouteImport } from './routes/my-games/create'
 import { Route as MyGamesGameIdRouteImport } from './routes/my-games/$gameId'
+import { Route as GamesCreateRouteImport } from './routes/games/create'
 import { Route as CreationsCreateRouteImport } from './routes/creations/create'
 import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
 import { Route as CodeCodeRouteImport } from './routes/code/$code'
+import { Route as GamesGameIdIndexRouteImport } from './routes/games/$gameId/index'
 import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminServerSettingsIndexRouteImport } from './routes/admin/server-settings/index'
 import { Route as AdminOrganizationsIndexRouteImport } from './routes/admin/organizations/index'
 import { Route as InvitesParticipantTokenRouteImport } from './routes/invites/participant.$token'
+import { Route as InvitesGuestTokenRouteImport } from './routes/invites/guest.$token'
 import { Route as InvitesTokenAcceptRouteImport } from './routes/invites/$token.accept'
 import { Route as GamesGameIdPlayRouteImport } from './routes/games/$gameId/play'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
@@ -143,6 +146,11 @@ const MyGamesGameIdRoute = MyGamesGameIdRouteImport.update({
   path: '/my-games/$gameId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesCreateRoute = GamesCreateRouteImport.update({
+  id: '/games/create',
+  path: '/games/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreationsCreateRoute = CreationsCreateRouteImport.update({
   id: '/creations/create',
   path: '/creations/create',
@@ -156,6 +164,11 @@ const CreationsGameIdRoute = CreationsGameIdRouteImport.update({
 const CodeCodeRoute = CodeCodeRouteImport.update({
   id: '/code/$code',
   path: '/code/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesGameIdIndexRoute = GamesGameIdIndexRouteImport.update({
+  id: '/games/$gameId/',
+  path: '/games/$gameId/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterIndexRoute = AuthRegisterIndexRouteImport.update({
@@ -189,6 +202,11 @@ const InvitesParticipantTokenRoute = InvitesParticipantTokenRouteImport.update({
   path: '/invites/participant/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvitesGuestTokenRoute = InvitesGuestTokenRouteImport.update({
+  id: '/invites/guest/$token',
+  path: '/invites/guest/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InvitesTokenAcceptRoute = InvitesTokenAcceptRouteImport.update({
   id: '/invites/$token/accept',
   path: '/invites/$token/accept',
@@ -220,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/code/$code': typeof CodeCodeRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
+  '/games/create': typeof GamesCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
@@ -236,12 +255,14 @@ export interface FileRoutesByFullPath {
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
+  '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
+  '/games/$gameId': typeof GamesGameIdIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
 }
@@ -255,6 +276,7 @@ export interface FileRoutesByTo {
   '/code/$code': typeof CodeCodeRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
+  '/games/create': typeof GamesCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
@@ -271,12 +293,14 @@ export interface FileRoutesByTo {
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
+  '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
+  '/games/$gameId': typeof GamesGameIdIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
 }
@@ -291,6 +315,7 @@ export interface FileRoutesById {
   '/code/$code': typeof CodeCodeRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
+  '/games/create': typeof GamesCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
@@ -307,12 +332,14 @@ export interface FileRoutesById {
   '/sessions/': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
+  '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations/': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings/': typeof AdminServerSettingsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
+  '/games/$gameId/': typeof GamesGameIdIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
 }
@@ -328,6 +355,7 @@ export interface FileRouteTypes {
     | '/code/$code'
     | '/creations/$gameId'
     | '/creations/create'
+    | '/games/create'
     | '/my-games/$gameId'
     | '/my-games/create'
     | '/my-workshop/settings'
@@ -344,12 +372,14 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/games/$gameId/play'
     | '/invites/$token/accept'
+    | '/invites/guest/$token'
     | '/invites/participant/$token'
     | '/admin/organizations'
     | '/admin/server-settings'
     | '/admin/users'
     | '/auth/login'
     | '/auth/register'
+    | '/games/$gameId'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   fileRoutesByTo: FileRoutesByTo
@@ -363,6 +393,7 @@ export interface FileRouteTypes {
     | '/code/$code'
     | '/creations/$gameId'
     | '/creations/create'
+    | '/games/create'
     | '/my-games/$gameId'
     | '/my-games/create'
     | '/my-workshop/settings'
@@ -379,12 +410,14 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/games/$gameId/play'
     | '/invites/$token/accept'
+    | '/invites/guest/$token'
     | '/invites/participant/$token'
     | '/admin/organizations'
     | '/admin/server-settings'
     | '/admin/users'
     | '/auth/login'
     | '/auth/register'
+    | '/games/$gameId'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   id:
@@ -398,6 +431,7 @@ export interface FileRouteTypes {
     | '/code/$code'
     | '/creations/$gameId'
     | '/creations/create'
+    | '/games/create'
     | '/my-games/$gameId'
     | '/my-games/create'
     | '/my-workshop/settings'
@@ -414,12 +448,14 @@ export interface FileRouteTypes {
     | '/sessions/'
     | '/games/$gameId/play'
     | '/invites/$token/accept'
+    | '/invites/guest/$token'
     | '/invites/participant/$token'
     | '/admin/organizations/'
     | '/admin/server-settings/'
     | '/admin/users/'
     | '/auth/login/'
     | '/auth/register/'
+    | '/games/$gameId/'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   fileRoutesById: FileRoutesById
@@ -434,6 +470,7 @@ export interface RootRouteChildren {
   CodeCodeRoute: typeof CodeCodeRoute
   CreationsGameIdRoute: typeof CreationsGameIdRoute
   CreationsCreateRoute: typeof CreationsCreateRoute
+  GamesCreateRoute: typeof GamesCreateRoute
   MyGamesGameIdRoute: typeof MyGamesGameIdRoute
   MyGamesCreateRoute: typeof MyGamesCreateRoute
   MyWorkshopSettingsRoute: typeof MyWorkshopSettingsRoute
@@ -450,12 +487,14 @@ export interface RootRouteChildren {
   SessionsIndexRoute: typeof SessionsIndexRoute
   GamesGameIdPlayRoute: typeof GamesGameIdPlayRoute
   InvitesTokenAcceptRoute: typeof InvitesTokenAcceptRoute
+  InvitesGuestTokenRoute: typeof InvitesGuestTokenRoute
   InvitesParticipantTokenRoute: typeof InvitesParticipantTokenRoute
   AdminOrganizationsIndexRoute: typeof AdminOrganizationsIndexRoute
   AdminServerSettingsIndexRoute: typeof AdminServerSettingsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
+  GamesGameIdIndexRoute: typeof GamesGameIdIndexRoute
   AuthLoginAuth0CallbackRoute: typeof AuthLoginAuth0CallbackRoute
   AuthLogoutAuth0CallbackRoute: typeof AuthLogoutAuth0CallbackRoute
 }
@@ -602,6 +641,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyGamesGameIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/create': {
+      id: '/games/create'
+      path: '/games/create'
+      fullPath: '/games/create'
+      preLoaderRoute: typeof GamesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/creations/create': {
       id: '/creations/create'
       path: '/creations/create'
@@ -621,6 +667,13 @@ declare module '@tanstack/react-router' {
       path: '/code/$code'
       fullPath: '/code/$code'
       preLoaderRoute: typeof CodeCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/$gameId/': {
+      id: '/games/$gameId/'
+      path: '/games/$gameId'
+      fullPath: '/games/$gameId'
+      preLoaderRoute: typeof GamesGameIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register/': {
@@ -665,6 +718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvitesParticipantTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invites/guest/$token': {
+      id: '/invites/guest/$token'
+      path: '/invites/guest/$token'
+      fullPath: '/invites/guest/$token'
+      preLoaderRoute: typeof InvitesGuestTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invites/$token/accept': {
       id: '/invites/$token/accept'
       path: '/invites/$token/accept'
@@ -706,6 +766,7 @@ const rootRouteChildren: RootRouteChildren = {
   CodeCodeRoute: CodeCodeRoute,
   CreationsGameIdRoute: CreationsGameIdRoute,
   CreationsCreateRoute: CreationsCreateRoute,
+  GamesCreateRoute: GamesCreateRoute,
   MyGamesGameIdRoute: MyGamesGameIdRoute,
   MyGamesCreateRoute: MyGamesCreateRoute,
   MyWorkshopSettingsRoute: MyWorkshopSettingsRoute,
@@ -722,12 +783,14 @@ const rootRouteChildren: RootRouteChildren = {
   SessionsIndexRoute: SessionsIndexRoute,
   GamesGameIdPlayRoute: GamesGameIdPlayRoute,
   InvitesTokenAcceptRoute: InvitesTokenAcceptRoute,
+  InvitesGuestTokenRoute: InvitesGuestTokenRoute,
   InvitesParticipantTokenRoute: InvitesParticipantTokenRoute,
   AdminOrganizationsIndexRoute: AdminOrganizationsIndexRoute,
   AdminServerSettingsIndexRoute: AdminServerSettingsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
+  GamesGameIdIndexRoute: GamesGameIdIndexRoute,
   AuthLoginAuth0CallbackRoute: AuthLoginAuth0CallbackRoute,
   AuthLogoutAuth0CallbackRoute: AuthLogoutAuth0CallbackRoute,
 }

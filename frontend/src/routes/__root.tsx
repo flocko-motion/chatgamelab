@@ -2,8 +2,7 @@ import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Center, Loader, useMantineTheme } from "@mantine/core";
 import {
-  IconPlayerPlay,
-  IconWorld,
+  IconMessage,
   IconHome,
   IconBuilding,
   IconUsers,
@@ -18,7 +17,8 @@ import { AppLayout, type NavItem } from "../common/components/Layout";
 import { InactiveWorkshopMessage } from "../common/components/InactiveWorkshopMessage";
 import { useAuth } from "../providers/AuthProvider";
 import { useWorkshopMode } from "../providers/WorkshopModeProvider";
-import { RegistrationForm } from "../features/auth";
+import { OrganisationSuspendedMessage } from "../common/components/OrganisationSuspendedMessage";
+import { NewAccountRegistration, DeclarationConsentPage } from "../features/organization-registration";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
 import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
@@ -43,8 +43,9 @@ function RootComponent() {
     registrationData,
     isAuthenticated,
     backendUser,
-    isParticipant,
+    isGuest,
     isWorkshopInactive,
+    standing,
     logout,
   } = useAuth();
   const { isInWorkshopMode, activeWorkshopName, exitWorkshopMode } =
@@ -56,8 +57,8 @@ function RootComponent() {
   const pathname = location.pathname;
   const isHomePage = pathname === ROUTES.HOME;
 
-  // Workshop mode: true participants OR staff/head who entered workshop mode
-  const isInWorkshopUI = isParticipant || isInWorkshopMode;
+  // Workshop mode: Guests OR staff/head who entered workshop mode
+  const isInWorkshopUI = isGuest || isInWorkshopMode;
 
   // Guest play route (anonymous access via share token)
   const isGuestPlayRoute = pathname.startsWith("/play/");
@@ -81,8 +82,8 @@ function RootComponent() {
     // A guest's session is reachable with its id; an account's is refused in the frame
     pathname.startsWith("/sessions/");
 
-  // Routes that participants are allowed to access
-  const isParticipantAllowedRoute =
+  // Routes that Guests are allowed to access
+  const isGuestAllowedRoute =
     pathname === ROUTES.MY_WORKSHOP ||
     pathname === ROUTES.PROFILE ||
     pathname.startsWith("/sessions/") ||
@@ -103,9 +104,9 @@ function RootComponent() {
   const shouldRedirectNoBackendUser =
     !isLoading && isAuthenticated && !backendUser && !needsRegistration && !isPublicRoute;
 
-  // Redirect participants to my-workshop if they try to access other routes
-  const shouldRedirectParticipant =
-    !isLoading && isParticipant && !isPublicRoute && !isParticipantAllowedRoute;
+  // Redirect Guests to my-workshop if they try to access other routes
+  const shouldRedirectGuest =
+    !isLoading && isGuest && !isPublicRoute && !isGuestAllowedRoute;
 
   // Redirect workshop mode users from dashboard to my-workshop
   const shouldRedirectWorkshopMode =
@@ -119,12 +120,12 @@ function RootComponent() {
     }
   }, [shouldRedirect, navigate]);
 
-  // Redirect participants to my-workshop
+  // Redirect Guests to my-workshop
   useEffect(() => {
-    if (shouldRedirectParticipant) {
+    if (shouldRedirectGuest) {
       navigate({ to: ROUTES.MY_WORKSHOP as "/" });
     }
-  }, [shouldRedirectParticipant, navigate]);
+  }, [shouldRedirectGuest, navigate]);
 
   // Redirect workshop mode users from dashboard to my-workshop
   useEffect(() => {
@@ -146,7 +147,7 @@ function RootComponent() {
     hasRole(backendUser, Role.Head) || hasRole(backendUser, Role.Staff);
 
   // Navigation items for authenticated header
-  // Workshop mode users (participants OR staff/head in workshop mode) see "My Workshop"
+  // Workshop mode users (Guests OR staff/head in workshop mode) see "My Workshop"
   // Staff/Head in workshop mode also see "Workshop Settings" to manage workshops
   const workshopNavItems: NavItem[] = [
     {
@@ -160,18 +161,18 @@ function RootComponent() {
     },
   ];
 
-  // Add Create Game for Staff/Head in workshop mode (not for participants)
-  if (!isParticipant) {
+  // Add Create Game for Staff/Head in workshop mode (not for Guests)
+  if (!isGuest) {
     workshopNavItems.push({
       label: t("createGame"),
       icon: <IconTools size={18} />,
-      onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
+      onClick: () => navigate({ to: ROUTES.GAME_CREATE as "/" }),
       active: false,
     });
   }
 
-  // Add Workshop Settings for Staff/Head in workshop mode (not for participants)
-  if (isInWorkshopMode && !isParticipant && canManageOrgApiKeys) {
+  // Add Workshop Settings for Staff/Head in workshop mode (not for Guests)
+  if (isInWorkshopMode && !isGuest && canManageOrgApiKeys) {
     workshopNavItems.push({
       label: t("workshopSettings"),
       icon: <IconSettings size={18} />,
@@ -179,8 +180,6 @@ function RootComponent() {
       active: pathname === ROUTES.MY_WORKSHOP_SETTINGS,
     });
   }
-
-  const isAdminUser = isAdmin(backendUser);
 
   const navItems: NavItem[] = isInWorkshopUI
     ? workshopNavItems
@@ -194,29 +193,16 @@ function RootComponent() {
         {
           label: t("createGame"),
           icon: <IconTools size={18} />,
-          onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
+          onClick: () => navigate({ to: ROUTES.GAME_CREATE as "/" }),
           active: false,
         },
-        ...(!isAdminUser
-          ? [
-              {
-                label: t("myGames"),
-                icon: <IconPlayerPlay size={18} />,
-                onClick: () => navigate({ to: ROUTES.MY_GAMES as "/" }),
-                active:
-                  pathname.startsWith(ROUTES.MY_GAMES) &&
-                  pathname !== ROUTES.MY_GAME_CREATE,
-              } as NavItem,
-            ]
-          : []),
         {
           label: t("allGames"),
-          icon: <IconWorld size={18} />,
+          icon: <IconMessage size={18} />,
           onClick: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
           active:
-            pathname.startsWith(ROUTES.ALL_GAMES) ||
-            pathname.startsWith(ROUTES.SESSIONS) ||
-            (isAdminUser && pathname.startsWith(ROUTES.MY_GAMES)),
+            (pathname.startsWith(ROUTES.ALL_GAMES) && pathname !== ROUTES.GAME_CREATE) ||
+            pathname.startsWith(ROUTES.SESSIONS),
         },
       ];
 
@@ -264,11 +250,11 @@ function RootComponent() {
   }
 
   // Header navigation callbacks
-  // Participants have minimal access, staff/head/individual in workshop mode keep full user actions
+  // Guests have minimal access, staff/head/individual in workshop mode keep full user actions
   const headerProps = useAuthenticatedLayout
     ? isInWorkshopUI
       ? {
-          isParticipant: isParticipant, // True participants show minimal header
+          isGuest: isGuest, // Guests show minimal header
           isInWorkshopMode: isInWorkshopMode, // Staff/head/individual in workshop mode
           workshopName: activeWorkshopName,
           onExitWorkshopMode: isInWorkshopMode
@@ -298,7 +284,7 @@ function RootComponent() {
   // mounted when the address becomes the session's. Guests get the header with
   // logo, Contact and Language. Checked before auth loading; the host waits
   // for it before mounting the frame.
-  if (playback && !shouldRedirect && !shouldRedirectParticipant) {
+  if (playback && !shouldRedirect && !shouldRedirectGuest) {
     return (
       <AppLayout
         variant="authenticated"
@@ -306,14 +292,14 @@ function RootComponent() {
         darkMode={true}
         withContainer={false}
         navItems={isFullyAuthenticated ? navItems : []}
-        headerProps={isFullyAuthenticated ? headerProps : { isGuest: true }}
+        headerProps={isFullyAuthenticated ? headerProps : { isSignedOut: true }}
       >
         <PlaybackHost target={playback} />
       </AppLayout>
     );
   }
 
-  // A visitor of a public workshop page who is not logged in gets the guest
+  // A visitor of a public workshop page who is not logged in gets the signed-out
   // header on a light page, also while auth is still initializing.
   if (
     pathname.startsWith(PUBLIC_WORKSHOP_PREFIX) &&
@@ -326,7 +312,7 @@ function RootComponent() {
         background={theme.other.colors.bgLandingGradient}
         navItems={[]}
         headerProps={{
-          isGuest: true,
+          isSignedOut: true,
         }}
       >
         <Outlet />
@@ -345,11 +331,26 @@ function RootComponent() {
     );
   }
 
-  // Show inactive workshop message for participants
+  // Show inactive workshop message for Guests
   if (isWorkshopInactive) {
     return (
       <AppLayout variant="public">
         <InactiveWorkshopMessage onLogout={logout} />
+      </AppLayout>
+    );
+  }
+
+  // The members of a suspended organisation see only why; a head whose
+  // organisation lacks the consent gives it
+  if (standing.institutionSuspension && !isPublicRoute) {
+    const consentWanted = standing.institutionSuspension === "consent";
+    return (
+      <AppLayout variant="public">
+        {consentWanted && standing.mayConsentForInstitution ? (
+          <DeclarationConsentPage onLogout={logout} />
+        ) : (
+          <OrganisationSuspendedMessage consentWanted={consentWanted} onLogout={logout} />
+        )}
       </AppLayout>
     );
   }
@@ -362,7 +363,7 @@ function RootComponent() {
           variant="public"
           background={theme.other.colors.bgRegistrationGradient}
         >
-          <RegistrationForm registrationData={registrationData} />
+          <NewAccountRegistration registrationData={registrationData} />
         </AppLayout>
         <TanStackRouterDevtools position="bottom-right" />
       </>

@@ -29,6 +29,14 @@ const (
 	ErrCodePublicDescriptionTooLong  = "public_description_too_long"
 	ErrCodePublicLinksInvalid        = "public_links_invalid"
 
+	// Organisations registering themselves
+	ErrCodeInstitutionAgeNotAllowed    = "institution_age_not_allowed"    // only an adult registers an organisation
+	ErrCodeInstitutionNameTaken        = "institution_name_taken"         // another organisation has the name
+	ErrCodeEmailBelongsToOtherAccount  = "email_belongs_to_other_account" // the email is another account's
+	ErrCodeDeclarationVersionOutdated  = "declaration_version_outdated"   // the declaration changed since it was shown
+	ErrCodeInstitutionConsentsRequired = "institution_consents_required"  // a consent the form asks for is missing
+	ErrCodeOrganisationSuspended       = "organisation_suspended"         // the caller's organisation is suspended
+
 	// AI-specific error codes
 	ErrCodeAiError                  = "ai_error"
 	ErrCodeInvalidJsonSchema        = "invalid_json_schema"

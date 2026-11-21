@@ -1,186 +1,160 @@
 // package: api / schemaf endpoints
 // type:    logic
-// job:     creates, lists, updates and deletes institutions, and manages their members, API keys and prompt constraints
-// limits:  institution storage and its permission checks live in db
+// job:     creates, lists, reads, updates and deletes organisations, and lists and removes their members
+// limits:  decides nothing: the core does (core/organisation*.go, core/membership.go); key shares and the free-use key are apikeys.go's
 package api
 
 import (
 	"context"
-	"fmt"
 
-	"cgl/db"
-	"cgl/obj"
+	"cgl/api/wire"
+	"cgl/core"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
-	"github.com/google/uuid"
 )
 
-// InstitutionResp is an institution.
-type InstitutionResp = obj.Institution
+// InstitutionResp is an organisation as the caller sees it.
+type InstitutionResp = wire.OrganisationView
 
-// InstitutionsResp is a list of institutions.
-type InstitutionsResp = []obj.Institution
+// InstitutionsResp is a list of organisations.
+type InstitutionsResp = []wire.OrganisationView
 
-// InstitutionMembersResp is the members of an institution.
-type InstitutionMembersResp = []obj.User
+// InstitutionMembersResp is the members of an organisation.
+type InstitutionMembersResp = []wire.UserView
 
-// InstitutionApiKeysResp is the API key shares of an institution.
-type InstitutionApiKeysResp = []obj.ApiKeyShare
-
-// InstitutionIDReq names an institution by its id.
+// InstitutionIDReq names an organisation by its id.
 type InstitutionIDReq struct {
-	ID string `path:"id" json:"-"`
+	ID string `path:"id"`
 }
 
-// CreateInstitutionEndpoint creates an institution.
+// CreateInstitutionEndpoint creates an organisation for others: the admin's.
 //
-// The name is required.
+// The name is required; operator and address are optional. An organisation
+// registers itself through POST /api/auth/register instead.
 type CreateInstitutionEndpoint struct{}
 
 func (CreateInstitutionEndpoint) Method() string             { return "POST" }
 func (CreateInstitutionEndpoint) Path() string               { return "/api/institutions" }
 func (CreateInstitutionEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (CreateInstitutionEndpoint) Handle(ctx context.Context, req CreateInstitutionReq) (InstitutionResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Institution{}, err
-	}
-	if req.Name == "" {
-		return obj.Institution{}, appError(obj.ErrValidation("Name is required"))
-	}
-	institution, err := db.CreateInstitution(ctx, user.ID, req.Name)
-	if err != nil {
-		return obj.Institution{}, appError(err)
-	}
-	return *institution, nil
+	return wire.OrganisationViewOf(core.CreateOrganisation(ctx, core.OrganisationDraft(req)))
 }
 
-// CreateInstitutionReq is a new institution's name.
+// CreateInstitutionReq is a new organisation's name, and optionally its
+// operator (Träger) and address.
 type CreateInstitutionReq struct {
-	Name string `json:"name"`
+	Name       string `json:"name"`
+	Operator   string `json:"operator,omitempty"`
+	Street     string `json:"street,omitempty"`
+	PostalCode string `json:"postalCode,omitempty"`
+	City       string `json:"city,omitempty"`
 }
 
-// ListInstitutionsEndpoint lists the institutions the caller can see.
+// ListInstitutionsEndpoint lists the organisations the caller may list: an
+// admin all of them, a head or staff their own.
+//
+// filter narrows the list: "recentlyRegistered", those that registered
+// themselves in the last 14 days, among those whose record the caller sees.
+// An unknown filter is refused.
 type ListInstitutionsEndpoint struct{}
 
 func (ListInstitutionsEndpoint) Method() string             { return "GET" }
 func (ListInstitutionsEndpoint) Path() string               { return "/api/institutions" }
 func (ListInstitutionsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListInstitutionsEndpoint) Handle(ctx context.Context, _ ListInstitutionsReq) (InstitutionsResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return nil, err
-	}
-	institutions, err := db.ListInstitutions(ctx, user.ID)
-	if err != nil {
-		return nil, appError(err)
-	}
-	return institutions, nil
+func (ListInstitutionsEndpoint) Handle(ctx context.Context, req ListInstitutionsReq) (InstitutionsResp, error) {
+	return wire.OrganisationViewsOf(core.ListOrganisations(ctx, req.Filter))
 }
 
-// ListInstitutionsReq takes no parameters.
-type ListInstitutionsReq struct{}
+// ListInstitutionsReq is the filters the list is narrowed by.
+type ListInstitutionsReq struct {
+	Filter []string `query:"filter"`
+}
 
-// GetInstitutionEndpoint returns an institution.
+// GetInstitutionEndpoint returns an organisation the caller may read: their
+// own, as a member or a guest in one of its workshops; any, for an admin.
+// Others get 404.
 type GetInstitutionEndpoint struct{}
 
 func (GetInstitutionEndpoint) Method() string             { return "GET" }
 func (GetInstitutionEndpoint) Path() string               { return "/api/institutions/{id}" }
 func (GetInstitutionEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (GetInstitutionEndpoint) Handle(ctx context.Context, req InstitutionIDReq) (InstitutionResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid institution ID")
 	if err != nil {
-		return obj.Institution{}, err
+		return InstitutionResp{}, err
 	}
-	id, err := parseIDValidation(req.ID, "Invalid institution ID")
-	if err != nil {
-		return obj.Institution{}, err
-	}
-	institution, err := db.GetInstitutionByID(ctx, user.ID, id)
-	if err != nil {
-		return obj.Institution{}, appError(err)
-	}
-	return *institution, nil
+	return wire.OrganisationViewOf(core.ReadOrganisation(ctx, id))
 }
 
-// UpdateInstitutionEndpoint renames an institution.
+// UpdateInstitutionEndpoint changes an organisation: its name, its
+// youth-protection restriction, or both, and answers with it as stored.
 //
-// The name is required.
+// Only what is given changes; an empty promptConstraints removes the
+// restriction, so the site's rule applies. Renaming takes mayEditCard, the
+// restriction mayEditSettings; a request with a part the caller may not
+// change is refused as a whole.
 type UpdateInstitutionEndpoint struct{}
 
 func (UpdateInstitutionEndpoint) Method() string             { return "PATCH" }
 func (UpdateInstitutionEndpoint) Path() string               { return "/api/institutions/{id}" }
 func (UpdateInstitutionEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (UpdateInstitutionEndpoint) Handle(ctx context.Context, req UpdateInstitutionReq) (InstitutionResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid institution ID")
 	if err != nil {
-		return obj.Institution{}, err
+		return InstitutionResp{}, err
 	}
-	id, err := parseIDValidation(req.ID, "Invalid institution ID")
-	if err != nil {
-		return obj.Institution{}, err
-	}
-	if req.Name == "" {
-		return obj.Institution{}, appError(obj.ErrValidation("Name is required"))
-	}
-	institution, err := db.UpdateInstitution(ctx, id, user.ID, req.Name)
-	if err != nil {
-		return obj.Institution{}, appError(err)
-	}
-	return *institution, nil
+	return wire.OrganisationViewOf(core.UpdateOrganisation(ctx, id, core.OrganisationChanges{
+		Name:             req.Name,
+		PromptConstraint: req.PromptConstraints,
+	}))
 }
 
-// UpdateInstitutionReq is the institution from the path and its new name.
+// UpdateInstitutionReq is the organisation from the path and what changes.
 type UpdateInstitutionReq struct {
-	ID   string `path:"id" json:"-"`
-	Name string `json:"name"`
+	ID                string  `path:"id"`
+	Name              *string `json:"name,omitempty"`
+	PromptConstraints *string `json:"promptConstraints,omitempty"`
 }
 
-// DeleteInstitutionEndpoint deletes an institution; admins only.
+// DeleteInstitutionEndpoint deletes an organisation for good, with its
+// workshops and the guests in them; its members stay, as individuals.
+// Suspending keeps its data instead (POST /api/institutions/{id}/suspension).
 type DeleteInstitutionEndpoint struct{}
 
 func (DeleteInstitutionEndpoint) Method() string             { return "DELETE" }
 func (DeleteInstitutionEndpoint) Path() string               { return "/api/institutions/{id}" }
 func (DeleteInstitutionEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (DeleteInstitutionEndpoint) Handle(ctx context.Context, req InstitutionIDReq) (MessageResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid institution ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	id, err := parseIDValidation(req.ID, "Invalid institution ID")
-	if err != nil {
+	if err := core.DeleteOrganisation(ctx, id); err != nil {
 		return MessageResp{}, err
-	}
-	if err := db.DeleteInstitution(ctx, id, user.ID); err != nil {
-		return MessageResp{}, appError(err)
 	}
 	return MessageResp{Message: "Institution deleted"}, nil
 }
 
-// GetInstitutionMembersEndpoint lists the members of an institution.
+// GetInstitutionMembersEndpoint lists an organisation's members (individual,
+// staff, head): for its members and the admin. Anyone else gets an empty
+// list; an organisation the caller may not read, 404.
 type GetInstitutionMembersEndpoint struct{}
 
 func (GetInstitutionMembersEndpoint) Method() string             { return "GET" }
 func (GetInstitutionMembersEndpoint) Path() string               { return "/api/institutions/{id}/members" }
 func (GetInstitutionMembersEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (GetInstitutionMembersEndpoint) Handle(ctx context.Context, req InstitutionIDReq) (InstitutionMembersResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid institution ID")
 	if err != nil {
 		return nil, err
 	}
-	institutionID, err := parseIDValidation(req.ID, "Invalid institution ID")
-	if err != nil {
-		return nil, err
-	}
-	members, err := db.GetInstitutionMembers(ctx, institutionID, user.ID)
-	if err != nil {
-		return nil, appError(err)
-	}
-	return members, nil
+	return wire.UserViewsOf(core.ListMembers(ctx, id))
 }
 
-// RemoveInstitutionMemberEndpoint removes a member from an institution; heads
-// and admins only.
+// RemoveInstitutionMemberEndpoint removes a user from an organisation; they
+// keep their account, as an individual. A head removes members and guests,
+// staff remove guests, a member leaves, an admin removes anyone; the last
+// head stays (409 last_head).
 type RemoveInstitutionMemberEndpoint struct{}
 
 func (RemoveInstitutionMemberEndpoint) Method() string { return "DELETE" }
@@ -189,132 +163,22 @@ func (RemoveInstitutionMemberEndpoint) Path() string {
 }
 func (RemoveInstitutionMemberEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (RemoveInstitutionMemberEndpoint) Handle(ctx context.Context, req RemoveInstitutionMemberReq) (MessageResp, error) {
-	user, err := caller(ctx)
+	id, err := parseID(req.ID, "Invalid institution ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	institutionID, err := parseIDValidation(req.ID, "Invalid institution ID")
+	user, err := parseID(req.UserID, "Invalid user ID")
 	if err != nil {
 		return MessageResp{}, err
 	}
-	userID, err := parseIDValidation(req.UserID, "Invalid user ID")
-	if err != nil {
+	if err := core.RemoveMember(ctx, id, user); err != nil {
 		return MessageResp{}, err
-	}
-	if err := db.RemoveInstitutionMember(ctx, institutionID, userID, user.ID); err != nil {
-		return MessageResp{}, appError(err)
 	}
 	return MessageResp{Message: "Member removed"}, nil
 }
 
-// RemoveInstitutionMemberReq names an institution and one of its members.
+// RemoveInstitutionMemberReq names an organisation and one of its members.
 type RemoveInstitutionMemberReq struct {
-	ID     string `path:"id" json:"-"`
-	UserID string `path:"userID" json:"-"`
-}
-
-// GetInstitutionApiKeysEndpoint lists the API keys shared with an institution;
-// heads and staff only.
-type GetInstitutionApiKeysEndpoint struct{}
-
-func (GetInstitutionApiKeysEndpoint) Method() string             { return "GET" }
-func (GetInstitutionApiKeysEndpoint) Path() string               { return "/api/institutions/{id}/apikeys" }
-func (GetInstitutionApiKeysEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetInstitutionApiKeysEndpoint) Handle(ctx context.Context, req InstitutionIDReq) (InstitutionApiKeysResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return nil, err
-	}
-	institutionID, err := parseIDValidation(req.ID, "Invalid institution ID")
-	if err != nil {
-		return nil, err
-	}
-	shares, err := db.GetApiKeySharesByInstitution(ctx, user.ID, institutionID)
-	if err != nil {
-		return nil, appError(err)
-	}
-	return shares, nil
-}
-
-// SetInstitutionFreeUseApiKeyShareEndpoint sets or clears an institution's
-// free-use API key share and answers with the institution.
-//
-// Any member of the institution plays for free with this key. A null shareId
-// clears it.
-type SetInstitutionFreeUseApiKeyShareEndpoint struct{}
-
-func (SetInstitutionFreeUseApiKeyShareEndpoint) Method() string { return "PATCH" }
-func (SetInstitutionFreeUseApiKeyShareEndpoint) Path() string {
-	return "/api/institutions/{id}/free-use-key"
-}
-func (SetInstitutionFreeUseApiKeyShareEndpoint) Auth() schemafapi.AuthLevel {
-	return schemafapi.AuthRequired
-}
-func (SetInstitutionFreeUseApiKeyShareEndpoint) Handle(ctx context.Context, req SetInstitutionFreeUseKeyReq) (InstitutionResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Institution{}, err
-	}
-	institutionID, err := parseID(req.ID, "Invalid institution ID")
-	if err != nil {
-		return obj.Institution{}, err
-	}
-	if err := db.SetInstitutionFreeUseApiKeyShare(ctx, user.ID, institutionID, req.ShareID); err != nil {
-		return obj.Institution{}, appError(err)
-	}
-	institution, err := db.GetInstitutionByID(ctx, user.ID, institutionID)
-	if err != nil {
-		return obj.Institution{}, fmt.Errorf("failed to get updated institution: %w", err)
-	}
-	return *institution, nil
-}
-
-// SetInstitutionFreeUseKeyReq is the institution from the path and the share
-// to set, or null to clear it.
-type SetInstitutionFreeUseKeyReq struct {
-	ID      string     `path:"id" json:"-"`
-	ShareID *uuid.UUID `json:"shareId"`
-}
-
-// UpdateInstitutionPromptConstraintsEndpoint sets or clears an institution's
-// prompt constraints and answers with the institution; heads and admins only.
-//
-// An empty or null promptConstraints clears them.
-type UpdateInstitutionPromptConstraintsEndpoint struct{}
-
-func (UpdateInstitutionPromptConstraintsEndpoint) Method() string { return "PATCH" }
-func (UpdateInstitutionPromptConstraintsEndpoint) Path() string {
-	return "/api/institutions/{id}/prompt-constraints"
-}
-func (UpdateInstitutionPromptConstraintsEndpoint) Auth() schemafapi.AuthLevel {
-	return schemafapi.AuthRequired
-}
-func (UpdateInstitutionPromptConstraintsEndpoint) Handle(ctx context.Context, req UpdateInstitutionPromptConstraintsReq) (InstitutionResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.Institution{}, err
-	}
-	institutionID, err := parseID(req.ID, "Invalid institution ID")
-	if err != nil {
-		return obj.Institution{}, err
-	}
-	constraint := req.PromptConstraints
-	if constraint != nil && *constraint == "" {
-		constraint = nil
-	}
-	if err := db.UpdateInstitutionPromptConstraints(ctx, user.ID, institutionID, constraint); err != nil {
-		return obj.Institution{}, appError(err)
-	}
-	institution, err := db.GetInstitutionByID(ctx, user.ID, institutionID)
-	if err != nil {
-		return obj.Institution{}, fmt.Errorf("failed to get updated institution: %w", err)
-	}
-	return *institution, nil
-}
-
-// UpdateInstitutionPromptConstraintsReq is the institution from the path and
-// its new prompt constraints.
-type UpdateInstitutionPromptConstraintsReq struct {
-	ID                string  `path:"id" json:"-"`
-	PromptConstraints *string `json:"promptConstraints"`
+	ID     string `path:"id"`
+	UserID string `path:"userID"`
 }

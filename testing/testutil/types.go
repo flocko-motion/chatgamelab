@@ -8,33 +8,33 @@ import "cgl/apiclient"
 
 // What the API answers.
 type (
-	User                = apiclient.User
-	UserRole            = apiclient.UserRole
-	UserStats           = apiclient.UserStats
+	User                = apiclient.UserView
+	UserRole            = apiclient.UserRoleRef
+	UserStats           = apiclient.UserStatsView
 	CurrentUser         = apiclient.GetCurrentUserResp
-	ParticipantCode     = apiclient.UserParticipantCodeResp
+	GuestCode           = apiclient.UserSecretsView
 	Game                = apiclient.Game
+	GameView            = apiclient.GameView
 	GameFile            = apiclient.GameFile
-	GameShare           = apiclient.GameShareResp
+	GameShare           = apiclient.ShareLinkView
 	PrivateShareStatus  = apiclient.PrivateShareStatusResp
 	GuestGameInfo       = apiclient.GuestGameInfoResp
 	AvailableKey        = apiclient.AvailableKey
-	GameSession         = apiclient.GameSession
-	UserSession         = apiclient.UserSessionWithGame
-	Institution         = apiclient.Institution
-	InstitutionMember   = apiclient.InstitutionMember
-	Workshop            = apiclient.Workshop
-	WorkshopParticipant = apiclient.WorkshopParticipant
+	GameSession         = apiclient.SessionView
+	UserSession         = apiclient.SessionView
+	Institution         = apiclient.OrganisationView
+	Workshop            = apiclient.WorkshopView
+	WorkshopParticipant = apiclient.WorkshopParticipantView
 	PublicWorkshopPage  = apiclient.PublicWorkshopPage
 	PublicWorkshopLink  = apiclient.PublicWorkshopLink
-	Invite              = apiclient.UserRoleInvite
-	InviteDetails       = apiclient.InviteResp
+	Invite              = apiclient.InviteCardView
+	InviteDetails       = apiclient.InviteCardView
 	AcceptedInvite      = apiclient.AcceptInviteResp
-	ApiKey              = apiclient.ApiKey
-	ApiKeyShare         = apiclient.ApiKeyShare
+	ApiKey              = apiclient.ApiKeyView
+	ApiKeyShare         = apiclient.KeyShareView
 	ApiKeyInfo          = apiclient.ApiKeyInfoResp
 	ApiKeys             = apiclient.ApiKeysResp
-	ApiKeyGameShare     = apiclient.EnrichedGameShare
+	ApiKeyGameShare     = apiclient.ShareLinkView
 	SystemSettings      = apiclient.SystemSettings
 	Genre               = apiclient.GenreInfo
 	Theme               = apiclient.ThemeInfo
@@ -45,9 +45,51 @@ type (
 
 // What a test sends.
 type (
-	GameUpdate     = apiclient.UpdateGameReq
-	WorkshopUpdate = apiclient.UpdateWorkshopReq
-	UserUpdate     = apiclient.UpdateUserReq
-	SettingsUpdate = apiclient.UpdateSystemSettingsReq
-	WorkshopInvite = apiclient.CreateWorkshopInviteReq
+	GameUpdate        = apiclient.UpdateGameReq
+	Registration      = apiclient.CompleteRegistrationReq
+	GameCreate        = apiclient.CreateGameReq
+	GameTemplate      = apiclient.GameTemplate
+	UserUpdate        = apiclient.UpdateUserReq
+	SettingsUpdate    = apiclient.UpdateSystemSettingsReq
+	WorkshopInvite    = apiclient.CreateWorkshopInviteReq
+	InstitutionCreate = apiclient.CreateInstitutionReq
 )
+
+// WorkshopUpdate is a workshop's settings as a test sets them, all at once:
+// UpdateWorkshop sends every field (an empty name, and nil pointers, are
+// left out), as the app's settings form does.
+type WorkshopUpdate struct {
+	Name                       string
+	Active                     bool
+	Public                     bool
+	AiQualityTier              *string
+	PromptConstraints          *string
+	ShowPublicGames            bool
+	ShowOtherParticipantsGames bool
+	IsPaused                   bool
+	AllowGameSharing           bool
+	PublicSlug                 *string
+	PublicDescription          *string
+	PublicLinks                *[]apiclient.PublicWorkshopLink
+}
+
+// request is u as the API takes it.
+func (u WorkshopUpdate) request() apiclient.UpdateWorkshopReq {
+	r := apiclient.UpdateWorkshopReq{
+		Active:                     &u.Active,
+		Public:                     &u.Public,
+		AiQualityTier:              u.AiQualityTier,
+		PromptConstraints:          u.PromptConstraints,
+		ShowPublicGames:            &u.ShowPublicGames,
+		ShowOtherParticipantsGames: &u.ShowOtherParticipantsGames,
+		IsPaused:                   &u.IsPaused,
+		AllowGameSharing:           &u.AllowGameSharing,
+		PublicSlug:                 u.PublicSlug,
+		PublicDescription:          u.PublicDescription,
+		PublicLinks:                u.PublicLinks,
+	}
+	if u.Name != "" {
+		r.Name = &u.Name
+	}
+	return r
+}

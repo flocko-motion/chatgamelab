@@ -35,8 +35,17 @@ const (
 	CodeTokenLocked              = "token_locked"
 	CodeWorkshopInactive         = "auth_workshop_inactive"
 
+	// organisations registering themselves
+	CodeInstitutionAgeNotAllowed    = "institution_age_not_allowed"
+	CodeInstitutionNameTaken        = "institution_name_taken"
+	CodeEmailBelongsToOtherAccount  = "email_belongs_to_other_account"
+	CodeDeclarationVersionOutdated  = "declaration_version_outdated"
+	CodeInstitutionConsentsRequired = "institution_consents_required"
+	CodeOrganisationSuspended       = "organisation_suspended"
+
 	// the engine's problems, refusing a session
 	CodeDenied      = "denied"
+	CodePaused      = "paused"
 	CodeUnknown     = "unknown"
 	CodeNoKey       = "no_key"
 	CodeNoPlays     = "no_plays"

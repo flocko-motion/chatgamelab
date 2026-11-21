@@ -28,6 +28,11 @@ export const queryKeys = {
 
   // Games
   games: ["games"] as const,
+  gameTemplate: ["games", "template"] as const,
+  /** Every game list; under `games`, so invalidating games refreshes them. */
+  gameLists: ["games", "list"] as const,
+  gameList: (params: Record<string, unknown>) =>
+    ["games", "list", params] as const,
   game: (id: string) => ["games", id] as const,
   gameWithParams: (params: {
     search?: string;
@@ -60,6 +65,13 @@ export const queryKeys = {
   institution: (id: string) => ["institution", id] as const,
   institutionMembers: (institutionId: string) =>
     ["institution-members", institutionId] as const,
+
+  // Organisations registering themselves
+  declaration: ["declaration"] as const,
+  organisationConsent: (institutionId: string) =>
+    ["organisation-consent", institutionId] as const,
+  /** Under `institutions`, so changing institutions refreshes it. */
+  recentlyRegisteredInstitutions: ["institutions", "recently-registered"] as const,
 
   // Invites
   invites: ["invites"] as const,

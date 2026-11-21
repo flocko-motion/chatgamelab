@@ -71,7 +71,7 @@ function LoginComponent() {
     { key: "staff-2", label: "Staff 2 (Orga)", color: "blue" },
     { key: "individual-1", label: "Individual 1", color: "gray" },
     { key: "individual-2", label: "Individual 2", color: "gray" },
-    { key: "participant", label: "Participant (Workshop)", color: "teal" },
+    { key: "guest", label: "Guest (Workshop)", color: "teal" },
   ];
 
   return (
