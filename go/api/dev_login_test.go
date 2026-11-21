@@ -30,7 +30,7 @@ func TestDevLoginRefusesAnUnknownRole(t *testing.T) {
 }
 
 func TestDevLoginKnowsEverySeededAccount(t *testing.T) {
-	for _, role := range []string{"admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "participant"} {
+	for _, role := range []string{"admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "guest"} {
 		if _, ok := devLoginAccounts[role]; !ok {
 			t.Errorf("no account for role %q", role)
 		}

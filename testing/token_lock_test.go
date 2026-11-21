@@ -40,20 +40,20 @@ func (s *TokenLockTestSuite) TestOnlyGuessesCountAndLockBlocksAll() {
 
 	// A whole workshop logging in, many times over, never counts.
 	for range 50 {
-		_, err := s.ParticipantLogin(token)
+		_, err := s.GuestLogin(token)
 		s.Require().NoError(err)
 	}
 
 	// 20 guesses are tolerated; the 21st is refused like them and engages
 	// the lock.
 	for i := range 21 {
-		_, err := s.ParticipantLogin(fmt.Sprintf("apfel-otter-turm-%d", i))
+		_, err := s.GuestLogin(fmt.Sprintf("apfel-otter-turm-%d", i))
 		s.Require().True(s.Unauthorized(err), "guess %d", i+1)
 	}
 
 	// Locked: correct tokens are refused too, on every token route.
-	_, err := s.ParticipantLogin(token)
-	s.Refused(err, testutil.CodeTokenLocked, "signing in with the participant's token")
+	_, err := s.GuestLogin(token)
+	s.Refused(err, testutil.CodeTokenLocked, "signing in with the guest's token")
 	_, err = s.Public().GetInvite(inviteToken)
 	s.Refused(err, testutil.CodeTokenLocked, "reading the invite by its token")
 	_, err = s.AcceptWorkshopInviteAnonymously(inviteToken)

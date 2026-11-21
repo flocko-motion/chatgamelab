@@ -16,7 +16,7 @@ import (
 )
 
 // AcceptInviteResp confirms an accepted invite; an anonymous caller also gets
-// the participant account created for them and its token.
+// the Guest's account created for them and its sign-in code.
 type AcceptInviteResp struct {
 	User      *obj.User `json:"user,omitempty"`
 	AuthToken *string   `json:"authToken,omitempty"`
@@ -26,12 +26,13 @@ type AcceptInviteResp struct {
 // AcceptInviteEndpoint accepts an invite by its id or its token.
 //
 // An anonymous caller accepts a workshop invite by token: this creates a
-// participant account in the browser's language, starts its session, sets the
+// Guest in the browser's language, starts its session, sets the
 // session cookie and answers with the account and its token. A signed-in
-// participant switches to the invite's workshop; a head, staff member or
+// Guest switches to the invite's workshop; a head, staff member or
 // individual enters it and keeps their role; anyone else joins as a
-// participant. An invite by id needs a signed-in caller; an institution invite
-// gives the caller its role.
+// Guest. An invite by id needs a signed-in caller: a workshop invite
+// lets them enter the workshop with their own role, an institution invite
+// gives them its role.
 type AcceptInviteEndpoint struct{}
 
 func (AcceptInviteEndpoint) Method() string             { return "POST" }
@@ -64,15 +65,15 @@ type AcceptInviteReq struct {
 	IDOrToken string `path:"idOrToken"`
 }
 
-// acceptInviteAnonymously creates a participant for a workshop invite token
+// acceptInviteAnonymously creates a Guest for a workshop invite token
 // and signs them in. The browser's Accept-Language header is the only language
-// signal a link-joining participant gives.
+// signal a link-joining Guest gives.
 func acceptInviteAnonymously(ctx context.Context, token string) (AcceptInviteResp, error) {
 	createdUser, authToken, err := db.AcceptWorkshopInviteAnonymously(ctx, token, preferredLanguage(ctx))
 	if err != nil {
 		return AcceptInviteResp{}, appError(err)
 	}
-	// The participant's token stays their code to sign in again.
+	// The Guest's token stays their code to sign in again.
 	if _, err := schemafapi.StartSessionCtx(ctx, createdUser.ID.String()); err != nil {
 		return AcceptInviteResp{}, err
 	}
@@ -88,8 +89,8 @@ func acceptInviteAnonymously(ctx context.Context, token string) (AcceptInviteRes
 
 // acceptInviteByToken accepts an open invite for a signed-in caller.
 func acceptInviteByToken(ctx context.Context, user *obj.User, token string) (AcceptInviteResp, error) {
-	// A participant switches workshops with a new role assignment.
-	if user.Role != nil && user.Role.Role == obj.RoleParticipant {
+	// A Guest switches workshops with a new role assignment.
+	if user.Role != nil && user.Role.Role == obj.RoleGuest {
 		invite, _ := db.GetInviteByToken(ctx, uuid.Nil, token)
 		if _, err := db.AcceptOpenInvite(ctx, token, user.ID); err != nil {
 			return AcceptInviteResp{}, appError(err)
@@ -112,7 +113,7 @@ func acceptInviteByToken(ctx context.Context, user *obj.User, token string) (Acc
 		return enterInviteWorkshop(ctx, user, invite)
 	}
 
-	// Anyone else joins as a participant.
+	// Anyone else joins as a Guest.
 	invite, _ := db.GetInviteByToken(ctx, uuid.Nil, token)
 	if _, err := db.AcceptOpenInvite(ctx, token, user.ID); err != nil {
 		return AcceptInviteResp{}, appError(err)
@@ -132,7 +133,7 @@ func acceptInviteByID(ctx context.Context, user *obj.User, inviteID uuid.UUID) (
 
 	if invite.InviteToken != nil {
 		// Open invite (workshop): head, staff and individual enter the
-		// workshop, anyone else joins as a participant.
+		// workshop, anyone else joins as a Guest.
 		if keepsRoleInWorkshop(user) {
 			return enterInviteWorkshop(ctx, user, invite)
 		}
@@ -145,21 +146,14 @@ func acceptInviteByID(ctx context.Context, user *obj.User, inviteID uuid.UUID) (
 		return AcceptInviteResp{Message: "Invite accepted"}, nil
 	}
 
-	// A targeted workshop invite lets head, staff and individual enter the
-	// workshop instead of changing their role.
-	if invite.WorkshopID != nil && keepsRoleInWorkshop(user) {
-		if err := db.SetActiveWorkshop(ctx, user.ID, *invite.WorkshopID); err != nil {
-			return AcceptInviteResp{}, appError(err)
-		}
-		_ = db.UpdateInviteStatus(ctx, user.ID, inviteID, obj.InviteStatusAccepted)
-		events.GetBroker().PublishMembersUpdated(*invite.WorkshopID)
-		return AcceptInviteResp{Message: "Workshop entered"}, nil
-	}
-
-	// A targeted institution invite gives the caller its role. The invite is
-	// not fetched again: the caller's permissions may have changed.
+	// A targeted workshop invite lets the caller enter the workshop with their
+	// own role; a targeted institution invite gives the caller its role.
 	if _, err := db.AcceptTargetedInvite(ctx, inviteID, "", user.ID); err != nil {
 		return AcceptInviteResp{}, appError(err)
+	}
+	if invite.WorkshopID != nil {
+		events.GetBroker().PublishMembersUpdated(*invite.WorkshopID)
+		return AcceptInviteResp{Message: "Workshop entered"}, nil
 	}
 	return AcceptInviteResp{Message: "Invite accepted"}, nil
 }

@@ -67,8 +67,8 @@ func (s *GameUpdateTestSuite) TestHeadPublishesAWorkshopGame() {
 	head := s.CreateUser("update-publish-head")
 	Must(head.AcceptInvite(Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID)).Id.String()))
 	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Update Publish Workshop"))
-	participant := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshop.Id.String())).InviteToken))
-	game := Must(participant.UploadGame("alien-first-contact"))
+	guest := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshop.Id.String())).InviteToken))
+	game := Must(guest.UploadGame("alien-first-contact"))
 
 	s.True(Must(head.ReadGame(game.Id.String())).MayPublish)
 	updated := Must(head.ChangeGame(game.Id.String(), testutil.GameUpdate{Public: some(true)}))

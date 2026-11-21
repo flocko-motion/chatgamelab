@@ -1,6 +1,6 @@
 // package: api / schemaf endpoints
 // type:    logic
-// job:     creates, lists, updates and deletes workshops, assigns their API key, manages their members and participant tokens
+// job:     creates, lists, updates and deletes workshops, assigns their API key, manages their members and their Guests' sign-in codes
 // limits:  workshop storage and its permission checks live in db; the event stream (-> workshop_events.go)
 package api
 
@@ -220,7 +220,7 @@ func (DeleteWorkshopEndpoint) Handle(ctx context.Context, req WorkshopIDReq) (Me
 	return MessageResp{Message: "Workshop deleted"}, nil
 }
 
-// SetWorkshopApiKeyEndpoint sets the API key a workshop's participants play
+// SetWorkshopApiKeyEndpoint sets the API key a workshop's members play
 // with; staff and heads only.
 //
 // A null or empty apiKeyShareId removes it.
@@ -331,68 +331,68 @@ type RemoveWorkshopMemberReq struct {
 	UserID     string `path:"userId"`
 }
 
-// WorkshopParticipantReq names a workshop participant by their user id.
-type WorkshopParticipantReq struct {
-	ParticipantID string `path:"participantId"`
+// WorkshopGuestReq names a Guest in a workshop by their user id.
+type WorkshopGuestReq struct {
+	GuestID string `path:"guestId"`
 }
 
-// WorkshopParticipantTokenResp is a participant's access token.
-type WorkshopParticipantTokenResp struct {
+// GuestTokenResp is a Guest's sign-in code.
+type GuestTokenResp struct {
 	Token string `json:"token"`
 }
 
-// GetParticipantTokenEndpoint returns a workshop participant's access token;
+// GetGuestTokenEndpoint returns the sign-in code of a Guest in a workshop;
 // staff and heads only.
-type GetParticipantTokenEndpoint struct{}
+type GetGuestTokenEndpoint struct{}
 
-func (GetParticipantTokenEndpoint) Method() string { return "GET" }
-func (GetParticipantTokenEndpoint) Path() string {
-	return "/api/workshops/participants/{participantId}/token"
+func (GetGuestTokenEndpoint) Method() string { return "GET" }
+func (GetGuestTokenEndpoint) Path() string {
+	return "/api/workshops/guests/{guestId}/token"
 }
-func (GetParticipantTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetParticipantTokenEndpoint) Handle(ctx context.Context, req WorkshopParticipantReq) (WorkshopParticipantTokenResp, error) {
+func (GetGuestTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetGuestTokenEndpoint) Handle(ctx context.Context, req WorkshopGuestReq) (GuestTokenResp, error) {
 	user, err := caller(ctx)
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	participantID, err := parseIDValidation(req.ParticipantID, "Invalid participant ID")
+	guestID, err := parseIDValidation(req.GuestID, "Invalid guest ID")
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	token, err := db.GetWorkshopParticipantToken(ctx, participantID, user.ID)
+	token, err := db.GetGuestToken(ctx, guestID, user.ID)
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, appError(err)
+		return GuestTokenResp{}, appError(err)
 	}
-	return WorkshopParticipantTokenResp{Token: token}, nil
+	return GuestTokenResp{Token: token}, nil
 }
 
-// ResetParticipantTokenEndpoint replaces a workshop participant's access token;
+// ResetGuestTokenEndpoint replaces the sign-in code of a Guest in a workshop;
 // staff and heads only.
 //
-// Earlier sign-in links stop working and the participant's sessions end.
-type ResetParticipantTokenEndpoint struct{}
+// Earlier sign-in links stop working and the Guest's sessions end.
+type ResetGuestTokenEndpoint struct{}
 
-func (ResetParticipantTokenEndpoint) Method() string { return "POST" }
-func (ResetParticipantTokenEndpoint) Path() string {
-	return "/api/workshops/participants/{participantId}/token/reset"
+func (ResetGuestTokenEndpoint) Method() string { return "POST" }
+func (ResetGuestTokenEndpoint) Path() string {
+	return "/api/workshops/guests/{guestId}/token/reset"
 }
-func (ResetParticipantTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ResetParticipantTokenEndpoint) Handle(ctx context.Context, req WorkshopParticipantReq) (WorkshopParticipantTokenResp, error) {
+func (ResetGuestTokenEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (ResetGuestTokenEndpoint) Handle(ctx context.Context, req WorkshopGuestReq) (GuestTokenResp, error) {
 	user, err := caller(ctx)
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	participantID, err := parseIDValidation(req.ParticipantID, "Invalid participant ID")
+	guestID, err := parseIDValidation(req.GuestID, "Invalid guest ID")
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, err
+		return GuestTokenResp{}, err
 	}
-	token, err := db.ResetWorkshopParticipantToken(ctx, participantID, user.ID)
+	token, err := db.ResetGuestToken(ctx, guestID, user.ID)
 	if err != nil {
-		return WorkshopParticipantTokenResp{}, appError(err)
+		return GuestTokenResp{}, appError(err)
 	}
 	// The old token signed sessions in; they end with it.
-	if err := schemafapi.RevokeSubject(ctx, participantID.String()); err != nil {
-		return WorkshopParticipantTokenResp{}, fmt.Errorf("failed to end participant sessions: %w", err)
+	if err := schemafapi.RevokeSubject(ctx, guestID.String()); err != nil {
+		return GuestTokenResp{}, fmt.Errorf("failed to end guest sessions: %w", err)
 	}
-	return WorkshopParticipantTokenResp{Token: token}, nil
+	return GuestTokenResp{Token: token}, nil
 }

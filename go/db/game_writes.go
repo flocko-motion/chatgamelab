@@ -21,14 +21,14 @@ import (
 
 // CreateGame creates a new game. userID is set as the owner (createdBy).
 // If game.WorkshopID is set, validates that user has read access to that workshop.
-// For participants, automatically associates the game with their workshop.
+// For Guests in a workshop, automatically associates the game with their workshop.
 func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	// Check if user can create games (requires authentication)
 	if err := canAccessGame(ctx, userID, OpCreate, nil, nil); err != nil {
 		return err
 	}
 
-	// If no workshop specified, auto-assign user's workshop (for participants)
+	// If no workshop specified, auto-assign user's workshop (for Guests)
 	// Track if we auto-assigned so we can skip permission check (user always has access to their own workshop)
 	autoAssigned := false
 	if game.WorkshopID == nil {
@@ -46,7 +46,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		if err != nil {
 			return obj.ErrForbidden("workshop not found")
 		}
-		// User must be able to see/read the workshop (participant, staff, or head)
+		// User must be able to see/read the workshop (guest, staff, or head)
 		if err := canAccessWorkshop(ctx, userID, OpRead, ws.InstitutionID, game.WorkshopID, uuid.Nil); err != nil {
 			return obj.ErrForbidden("not authorized to create games in this workshop")
 		}

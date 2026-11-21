@@ -121,7 +121,7 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteIndividualEntersWorkshop
 	s.T().Logf("Individual entered workshop mode via email invite")
 }
 
-func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteNewUserBecomesParticipant() {
+func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteNewUserKeepsIndividualRole() {
 	head, _, wsID := s.workshopSetup("email-new")
 
 	// A fresh user
@@ -135,9 +135,50 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteNewUserBecomesParticipan
 	// New user accepts → should enter workshop mode (individual stays individual)
 	Must(newUser.AcceptInvite(invite.Id))
 	me = Must(newUser.GetMe())
+	s.Equal("individual", me.Role.Role, "role should stay individual")
 	s.Require().NotNil(me.Role.Workshop, "should have active workshop after accepting")
 	s.Equal(wsID, me.Role.Workshop.Id.String(), "should be in the right workshop")
 	s.T().Logf("New user accepted workshop email invite, role=%s", me.Role.Role)
+}
+
+// TestEmailInviteStaffOfOtherOrgKeepsRole: staff of another organisation may
+// be invited, but enters only its own organisation's workshops. Accepting is
+// refused and the role stays.
+func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteStaffOfOtherOrgKeepsRole() {
+	head, _, wsID := s.workshopSetup("email-otherstaff")
+	admin := s.DevUser()
+
+	otherInst := Must(admin.CreateInstitution("email-otherstaff Other Org"))
+	staff := s.CreateUser("email-otherstaff-user")
+	staffInvite := Must(admin.InviteToInstitution(otherInst.Id.String(), "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.Id.String()))
+
+	invite := Must(head.InviteToWorkshopByEmail(wsID, staff.Email))
+	_, err := staff.AcceptInvite(invite.Id)
+	s.Forbidden(err, "staff of another organisation cannot enter the workshop")
+
+	me := Must(staff.GetMe())
+	s.Equal("staff", me.Role.Role, "role should stay staff")
+	s.Require().NotNil(me.Role.Institution, "should stay in its organisation")
+	s.Equal(otherInst.Id.String(), me.Role.Institution.Id.String())
+	s.Nil(me.Role.Workshop, "should not be in the workshop")
+}
+
+// TestEmailInviteAdminKeepsRole: an admin never becomes a Guest by accepting
+// a workshop invite; admins have no workshop mode, so accepting is refused.
+func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteAdminKeepsRole() {
+	head, _, wsID := s.workshopSetup("email-admin")
+
+	target := s.CreateUser("email-admin-user")
+	s.Role(target, "admin")
+
+	invite := Must(head.InviteToWorkshopByEmail(wsID, target.Email))
+	_, err := target.AcceptInvite(invite.Id)
+	s.Forbidden(err, "an admin cannot enter a workshop")
+
+	me := Must(target.GetMe())
+	s.Equal("admin", me.Role.Role, "role should stay admin")
+	s.Nil(me.Role.Workshop, "should not be in the workshop")
 }
 
 func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteDuplicateRejected() {
@@ -154,19 +195,19 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteDuplicateRejected() {
 	s.Conflict(err, "duplicate workshop email invite should be rejected")
 }
 
-func (s *WorkshopInviteMethodsTestSuite) TestParticipantCannotInviteByEmail() {
+func (s *WorkshopInviteMethodsTestSuite) TestGuestCannotInviteByEmail() {
 	head, _, wsID := s.workshopSetup("email-perm")
 
-	// Create a workshop invite link and have someone join as participant
+	// Create a workshop invite link and have someone join as guest
 	invite := Must(head.CreateWorkshopInvite(wsID))
 	s.Require().NotNil(invite.InviteToken)
 
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
 
-	// Participant tries to invite by email — should fail
+	// Guest tries to invite by email — should fail
 	target := s.CreateUser("email-perm-target")
-	_, err := participant.InviteToWorkshopByEmail(wsID, target.Email)
-	s.Forbidden(err, "participant should not be able to invite by email")
+	_, err := guest.InviteToWorkshopByEmail(wsID, target.Email)
+	s.Forbidden(err, "guest should not be able to invite by email")
 }
 
 // --- Add org individual tests ---
@@ -245,19 +286,19 @@ func (s *WorkshopInviteMethodsTestSuite) TestCannotAddUserFromDifferentOrg() {
 	s.Forbidden(err, "should not be able to add user from different org")
 }
 
-func (s *WorkshopInviteMethodsTestSuite) TestParticipantCannotAddMember() {
+func (s *WorkshopInviteMethodsTestSuite) TestGuestCannotAddMember() {
 	head, _, wsID := s.workshopSetup("add-perm")
 
-	// Create a workshop invite link and have someone join as participant
+	// Create a workshop invite link and have someone join as guest
 	invite := Must(head.CreateWorkshopInvite(wsID))
 	s.Require().NotNil(invite.InviteToken)
 
-	participant := Must(s.JoinWorkshop(*invite.InviteToken))
+	guest := Must(s.JoinWorkshop(*invite.InviteToken))
 
-	// Participant tries to add a member — should fail
+	// Guest tries to add a member — should fail
 	target := s.CreateUser("add-perm-target")
-	err := participant.AddMemberToWorkshop(wsID, target.ID)
-	s.Forbidden(err, "participant should not be able to add members")
+	err := guest.AddMemberToWorkshop(wsID, target.ID)
+	s.Forbidden(err, "guest should not be able to add members")
 }
 
 func (s *WorkshopInviteMethodsTestSuite) TestAddedIndividualCanLeaveWorkshop() {

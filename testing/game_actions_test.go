@@ -58,17 +58,17 @@ func (s *GameActionsTestSuite) TestAnAdminMayEditAPrivateGameButNotCopyIt() {
 	s.False(listed.MayCopy)
 }
 
-// A head may edit a participant's game of their organisation's workshop, not
+// A head may edit a guest's game of their organisation's workshop, not
 // copy it.
-func (s *GameActionsTestSuite) TestAHeadMayEditAParticipantsGame() {
+func (s *GameActionsTestSuite) TestAHeadMayEditAGuestsGame() {
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution("Actions Org"))
 	head := s.CreateUser("actions-head")
 	Must(head.AcceptInvite(Must(admin.InviteToInstitution(inst.Id.String(), "head", head.ID)).Id.String()))
 	workshop := Must(head.CreateWorkshop(inst.Id.String(), "Actions Workshop"))
 	workshopID := workshop.Id.String()
-	participant := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshopID)).InviteToken))
-	game := Must(participant.UploadGame("alien-first-contact"))
+	guest := Must(s.JoinWorkshop(*Must(head.CreateWorkshopInvite(workshopID)).InviteToken))
+	game := Must(guest.UploadGame("alien-first-contact"))
 
 	Must(head.SetActiveWorkshop(&workshopID))
 	listed := Must(head.GameInList(game.Id.String()))
@@ -77,8 +77,8 @@ func (s *GameActionsTestSuite) TestAHeadMayEditAParticipantsGame() {
 	s.True(listed.MayEditSettings)
 	s.False(listed.MayCopy)
 
-	// The participant, in their workshop, may edit their own game too.
-	own := Must(participant.GameInList(game.Id.String()))
+	// The guest, in their workshop, may edit their own game too.
+	own := Must(guest.GameInList(game.Id.String()))
 	s.True(own.MayEditCard)
 	s.True(own.MayEditContent)
 	s.True(own.MayEditSettings)

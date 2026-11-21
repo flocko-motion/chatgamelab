@@ -119,11 +119,11 @@ type SystemSettings struct {
 type Role string
 
 const (
-	RoleAdmin       Role = "admin"
-	RoleHead        Role = "head"
-	RoleStaff       Role = "staff"
-	RoleParticipant Role = "participant"
-	RoleIndividual  Role = "individual"
+	RoleAdmin      Role = "admin"
+	RoleHead       Role = "head"
+	RoleStaff      Role = "staff"
+	RoleGuest      Role = "guest"
+	RoleIndividual Role = "individual"
 )
 
 // InviteStatus represents the lifecycle state of a role invite.
@@ -204,7 +204,8 @@ type PublicWorkshopPlay struct {
 	Limit     int    `json:"limit"`
 }
 
-// WorkshopParticipant represents a participant enrolled in a workshop.
+// WorkshopParticipant is someone taking part in a workshop, in any role;
+// Permanent marks a Guest bound to it.
 type WorkshopParticipant struct {
 	ID          uuid.UUID `json:"id"`
 	Meta        Meta      `json:"meta"`

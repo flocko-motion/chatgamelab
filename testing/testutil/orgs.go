@@ -1,6 +1,6 @@
 // package: testutil / the words for institutions, workshops and invites
 // type:    logic
-// job:     creating and running institutions and workshops, their members, invites and participants' tokens, and the system settings
+// job:     creating and running institutions and workshops, their members, invites and guests' tokens, and the system settings
 // limits:  organisation words only; API keys live in apikeys.go, games in games.go
 package testutil
 
@@ -74,7 +74,7 @@ func (c caller) InviteToInstitutionByEmail(institutionID, role, invitedEmail str
 }
 
 // CreateWorkshopInvite creates a workshop's open invite link for
-// participants.
+// guests.
 func (c caller) CreateWorkshopInvite(workshopID string) (Invite, error) {
 	return c.CreateWorkshopInviteWith(WorkshopInvite{WorkshopId: workshopID})
 }
@@ -230,16 +230,16 @@ func (c caller) SetActiveWorkshop(workshopID *string) (User, error) {
 	return decode[User](c.api.PutApiUsersMeActiveWorkshopWithResponse(ctx(), apiclient.SetActiveWorkshopReq{WorkshopId: id}))
 }
 
-// GetParticipantToken is a participant's token, for a workshop's staff.
-func (c caller) GetParticipantToken(participantID string) (string, error) {
-	resp, err := decode[apiclient.WorkshopParticipantTokenResp](c.api.GetApiWorkshopsParticipantsParticipantIdTokenWithResponse(ctx(), participantID))
+// GetGuestToken is a guest's token, for a workshop's staff.
+func (c caller) GetGuestToken(guestID string) (string, error) {
+	resp, err := decode[apiclient.GuestTokenResp](c.api.GetApiWorkshopsGuestsGuestIdTokenWithResponse(ctx(), guestID))
 	return resp.Token, err
 }
 
-// ResetParticipantToken gives a participant a new token, ending the old one,
+// ResetGuestToken gives a guest a new token, ending the old one,
 // and answers the new one.
-func (c caller) ResetParticipantToken(participantID string) (string, error) {
-	resp, err := decode[apiclient.WorkshopParticipantTokenResp](c.api.PostApiWorkshopsParticipantsParticipantIdTokenResetWithResponse(ctx(), participantID))
+func (c caller) ResetGuestToken(guestID string) (string, error) {
+	resp, err := decode[apiclient.GuestTokenResp](c.api.PostApiWorkshopsGuestsGuestIdTokenResetWithResponse(ctx(), guestID))
 	return resp.Token, err
 }
 

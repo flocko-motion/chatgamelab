@@ -143,16 +143,16 @@ func GetAvailableKeysForGame(ctx context.Context, userID uuid.UUID, gameID uuid.
 		return nil, obj.ErrNotFound("user not found")
 	}
 
-	// Workshop participants ONLY get the workshop's default API key
+	// Guests in a workshop ONLY get the workshop's default API key
 	// They should not see personal keys or other options
-	if user.Role != nil && user.Role.Role == obj.RoleParticipant && user.Role.Workshop != nil {
-		log.Debug("user is workshop participant, checking for workshop default API key",
+	if user.Role != nil && user.Role.Role == obj.RoleGuest && user.Role.Workshop != nil {
+		log.Debug("user is a guest in a workshop, checking for workshop default API key",
 			"user_id", userID, "workshop_id", user.Role.Workshop.ID)
 
 		// Get the workshop to check for default API key
 		workshop, err := queries().GetWorkshopByID(ctx, user.Role.Workshop.ID)
 		if err != nil {
-			log.Warn("failed to get workshop for participant", "workshop_id", user.Role.Workshop.ID, "error", err)
+			log.Warn("failed to get workshop for guest", "workshop_id", user.Role.Workshop.ID, "error", err)
 			return result, nil // Return empty - no keys available
 		}
 
@@ -175,7 +175,7 @@ func GetAvailableKeysForGame(ctx context.Context, userID uuid.UUID, gameID uuid.
 			return result, nil // Return empty - key not found
 		}
 
-		log.Info("workshop participant using workshop default API key",
+		log.Info("guest using workshop default API key",
 			"user_id", userID, "workshop_id", user.Role.Workshop.ID,
 			"key_name", key.Name, "key_platform", key.Platform, "share_id", share.ID)
 

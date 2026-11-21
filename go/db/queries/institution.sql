@@ -49,20 +49,20 @@ UPDATE institution SET deleted_at = now() WHERE id = $1;
 -- name: HardDeleteInstitution :exec
 DELETE FROM institution WHERE id = $1;
 
--- name: GetParticipantUserIDsByInstitution :many
+-- name: GetGuestUserIDsByInstitution :many
 SELECT DISTINCT u.id
 FROM app_user u
 JOIN user_role r ON u.id = r.user_id
 WHERE r.institution_id = $1
-  AND r.role = 'participant'
+  AND r.role = 'guest'
   AND u.deleted_at IS NULL;
 
--- name: GetNonParticipantUserIDsByInstitution :many
+-- name: GetNonGuestUserIDsByInstitution :many
 SELECT DISTINCT u.id
 FROM app_user u
 JOIN user_role r ON u.id = r.user_id
 WHERE r.institution_id = $1
-  AND r.role != 'participant'
+  AND r.role != 'guest'
   AND u.deleted_at IS NULL;
 
 -- name: DeleteInvitesByInstitution :exec
@@ -169,38 +169,3 @@ SELECT * FROM workshop WHERE public_slug = $1 AND deleted_at IS NULL;
 SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1) AS exists;
 
 
--- workshop_participant -------------------------------------------------
-
--- name: CreateWorkshopParticipant :one
-INSERT INTO workshop_participant (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  workshop_id, name, access_token, active
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8, $9
-)
-RETURNING *;
-
--- name: GetWorkshopParticipantByID :one
-SELECT * FROM workshop_participant WHERE id = $1;
-
--- name: UpdateWorkshopParticipant :one
-UPDATE workshop_participant SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  workshop_id = $6,
-  name = $7,
-  access_token = $8,
-  active = $9
-WHERE id = $1
-RETURNING *;
-
--- name: DeleteWorkshopParticipant :exec
-DELETE FROM workshop_participant WHERE id = $1;
-
--- name: DeleteWorkshopParticipantsByWorkshopID :exec
-DELETE FROM workshop_participant WHERE workshop_id = $1;

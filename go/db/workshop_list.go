@@ -1,6 +1,6 @@
 // package: db / database access and repository layer
 // type:    data
-// job:     list workshops with filters and load their participant and invite collections.
+// job:     list workshops with filters and load their member and invite collections.
 // limits:  does not create or mutate individual workshops (-> workshop.go).
 package db
 
@@ -47,8 +47,8 @@ func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.
 		// Parse role from database
 		role, err := stringToRole(p.Role)
 		if err != nil {
-			// Default to participant if role parsing fails
-			role = obj.RoleParticipant
+			// Default to Guest if role parsing fails
+			role = obj.RoleGuest
 		}
 
 		participant := obj.WorkshopParticipant{

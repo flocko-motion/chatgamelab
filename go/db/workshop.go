@@ -1,7 +1,7 @@
 // package: db / database access and repository layer
 // type:    data
-// job:     create, read, update, delete a single workshop and its default key/participant token.
-// limits:  does not list workshops or fetch participant/invite collections (-> workshop_list.go).
+// job:     create, read, update, delete a single workshop and its default key and its Guests' sign-in codes.
+// limits:  does not list workshops or fetch member/invite collections (-> workshop_list.go).
 package db
 
 import (
@@ -198,8 +198,8 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 			// Parse role from database
 			role, err := stringToRole(p.Role)
 			if err != nil {
-				// Default to participant if role parsing fails
-				role = obj.RoleParticipant
+				// Default to Guest if role parsing fails
+				role = obj.RoleGuest
 			}
 
 			participant := obj.WorkshopParticipant{
@@ -524,12 +524,11 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 
 	wsNullUUID := uuid.NullUUID{UUID: id, Valid: true}
 
-	// Clean up participants: collect user IDs, delete roles, participant rows, and user accounts
-	participantUserIDs, _ := queries().GetParticipantUserIDsByWorkshopID(ctx, wsNullUUID)
+	// Clean up Guests: collect user IDs, delete roles and user accounts
+	guestUserIDs, _ := queries().GetGuestUserIDsByWorkshopID(ctx, wsNullUUID)
 	_ = queries().DeleteUserRolesByWorkshopID(ctx, wsNullUUID)
-	_ = queries().DeleteWorkshopParticipantsByWorkshopID(ctx, id)
-	for _, uid := range participantUserIDs {
-		// Delete each participant's user account (these are anonymous accounts)
+	for _, uid := range guestUserIDs {
+		// Delete each Guest's account
 		_ = DeleteUser(ctx, uid)
 	}
 
@@ -545,54 +544,52 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 	return nil
 }
 
-// GetWorkshopParticipantToken retrieves the access token for a workshop participant
-// Only staff and heads of the institution owning the workshop can access this
-// participantUserID is the user ID of the participant (not workshop_participant table ID)
-func GetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
-	// Check permission using centralized function (validates participant and checks access)
-	if err := canAccessWorkshopParticipantTokens(ctx, requestingUserID, uuid.Nil, &participantUserID); err != nil {
+// GetGuestToken retrieves the sign-in code of a Guest in a workshop.
+// Only staff and heads of the institution owning the workshop can access this.
+func GetGuestToken(ctx context.Context, guestUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
+	// Check permission using centralized function (validates the Guest and checks access)
+	if err := canAccessGuestTokens(ctx, requestingUserID, uuid.Nil, &guestUserID); err != nil {
 		return "", err
 	}
 
-	// Get the raw user record to access participant_token field
-	userRecord, err := queries().GetUserByID(ctx, participantUserID)
+	// Get the raw user record to access the guest_token field
+	userRecord, err := queries().GetUserByID(ctx, guestUserID)
 	if err != nil {
 		return "", obj.ErrNotFound("user not found")
 	}
 
-	if !userRecord.ParticipantToken.Valid || userRecord.ParticipantToken.String == "" {
-		return "", obj.ErrNotFound("participant has no access token")
+	if !userRecord.GuestToken.Valid || userRecord.GuestToken.String == "" {
+		return "", obj.ErrNotFound("guest has no access token")
 	}
 
-	return userRecord.ParticipantToken.String, nil
+	return userRecord.GuestToken.String, nil
 }
 
-// ResetWorkshopParticipantToken replaces a participant's access token, which
-// invalidates every re-login link handed out before. Same permissions as
-// GetWorkshopParticipantToken.
-func ResetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
-	if err := canAccessWorkshopParticipantTokens(ctx, requestingUserID, uuid.Nil, &participantUserID); err != nil {
+// ResetGuestToken replaces a Guest's sign-in code, which invalidates every
+// re-login link handed out before. Same permissions as GetGuestToken.
+func ResetGuestToken(ctx context.Context, guestUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
+	if err := canAccessGuestTokens(ctx, requestingUserID, uuid.Nil, &guestUserID); err != nil {
 		return "", err
 	}
 
-	token, err := newParticipantToken(ctx)
+	token, err := newGuestToken(ctx)
 	if err != nil {
-		return "", obj.ErrServerError("failed to generate participant token")
+		return "", obj.ErrServerError("failed to generate guest token")
 	}
 
-	rows, err := queries().UpdateParticipantToken(ctx, UpdateParticipantTokenParams{
-		ID:               participantUserID,
-		ParticipantToken: sql.NullString{String: token, Valid: true},
-		ModifiedBy:       uuid.NullUUID{UUID: requestingUserID, Valid: true},
+	rows, err := queries().UpdateGuestToken(ctx, UpdateGuestTokenParams{
+		ID:         guestUserID,
+		GuestToken: sql.NullString{String: token, Valid: true},
+		ModifiedBy: uuid.NullUUID{UUID: requestingUserID, Valid: true},
 	})
 	if err != nil {
-		return "", obj.ErrServerError("failed to reset participant token")
+		return "", obj.ErrServerError("failed to reset guest token")
 	}
 	if rows == 0 {
 		// Nothing to replace: the account has no word code, so the token just
 		// generated was never stored. Saying so beats handing the leader a code
 		// that will never work - same answer as the read above.
-		return "", obj.ErrNotFound("participant has no access token")
+		return "", obj.ErrNotFound("guest has no access token")
 	}
 	return token, nil
 }

@@ -213,8 +213,8 @@ func describeInstitutionSkip(user *obj.User) string {
 	if user.Role == nil || user.Role.Institution == nil {
 		return "no institution"
 	}
-	if user.Role.Role == obj.RoleParticipant {
-		return "participant role excluded"
+	if user.Role.Role == obj.RoleGuest {
+		return "guest role excluded"
 	}
 	if user.Role.Institution.FreeUseApiKeyShareID == nil {
 		return "no free-use key configured"
@@ -283,12 +283,12 @@ func resolveSponsoredGameKey(ctx context.Context, userID uuid.UUID, gameID uuid.
 }
 
 // resolveInstitutionFreeUseKey checks if the user's institution has a free-use API key configured.
-// Participants are excluded — they can only use the workshop key (priority 1).
+// Guests are excluded — they can only use the workshop key (priority 1).
 func resolveInstitutionFreeUseKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, *string) {
 	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.FreeUseApiKeyShareID == nil {
 		return nil, nil
 	}
-	if user.Role.Role == obj.RoleParticipant {
+	if user.Role.Role == obj.RoleGuest {
 		return nil, nil
 	}
 

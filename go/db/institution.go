@@ -267,7 +267,7 @@ func SetInstitutionFreeUseApiKeyShare(ctx context.Context, userID uuid.UUID, ins
 }
 
 // DeleteInstitution deletes an institution and all its data (admin only).
-// Cascade: workshops (with participants/games), member users (with their data),
+// Cascade: workshops (with their Guests and games), member users (with their data),
 // invites, API key shares, free-use key ref.
 func DeleteInstitution(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) error {
 	// Check permission - only admin can delete institutions
@@ -275,21 +275,21 @@ func DeleteInstitution(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) e
 		return err
 	}
 
-	// 1. Delete all workshops (cascades to participants, games, etc.)
+	// 1. Delete all workshops (cascades to their Guests, games, etc.)
 	workshopIDs, _ := queries().GetWorkshopIDsByInstitution(ctx, id)
 	for _, wsID := range workshopIDs {
 		// Use deletedBy (admin) to bypass per-workshop permission checks
 		_ = DeleteWorkshop(ctx, wsID, deletedBy)
 	}
 
-	// 2. Delete participant users only (anonymous workshop users)
-	participantIDs, _ := queries().GetParticipantUserIDsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
-	for _, participantID := range participantIDs {
-		_ = DeleteUser(ctx, participantID)
+	// 2. Delete the remaining Guests
+	guestIDs, _ := queries().GetGuestUserIDsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	for _, guestID := range guestIDs {
+		_ = DeleteUser(ctx, guestID)
 	}
 
-	// 3. Collect non-participant members (head/staff) before removing roles
-	memberIDs, _ := queries().GetNonParticipantUserIDsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	// 3. Collect the other members (head/staff/individual) before removing roles
+	memberIDs, _ := queries().GetNonGuestUserIDsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
 
 	// 4. Clean up remaining FK references before hard-delete
 	_ = queries().DeleteInvitesByInstitution(ctx, id)

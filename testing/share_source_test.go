@@ -100,23 +100,23 @@ func (s *ShareSourceTestSuite) TestWorkshopShareCreatesWorkshopSource() {
 		AllowGameSharing: true,
 	}))
 
-	// Create workshop invite for participant
+	// Create workshop invite for guest
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
-	// Participant joins workshop and uploads a game (must be public for sharing)
-	participant := s.CreateUser("src-ws-participant")
-	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*invite.InviteToken))
-	game := Must(participant.UploadGame("alien-first-contact"))
+	// Guest joins workshop and uploads a game (must be public for sharing)
+	guest := s.CreateUser("src-ws-guest")
+	s.Require().NoError(guest.AcceptWorkshopInviteByToken(*invite.InviteToken))
+	game := Must(guest.UploadGame("alien-first-contact"))
 	gameID := game.Id.String()
-	Must(participant.SetGamePublic(gameID, true))
+	Must(guest.SetGamePublic(gameID, true))
 
-	// Participant creates workshop share
-	created := Must(participant.CreateWorkshopGameShare(gameID, wsIDStr, nil))
+	// Guest creates workshop share
+	created := Must(guest.CreateWorkshopGameShare(gameID, wsIDStr, nil))
 	s.NotEmpty(created.Token, "share should have a token")
 
 	// Check status — should be "workshop"
-	status := Must(participant.GetPrivateShareStatus(gameID))
+	status := Must(guest.GetPrivateShareStatus(gameID))
 	s.Require().Len(status.Shares, 1, "should have exactly 1 share")
 	s.Equal("workshop", status.Shares[0].Source, "share source should be workshop")
 	s.NotNil(status.Shares[0].WorkshopId, "share should have workshopId set")
@@ -151,17 +151,17 @@ func (s *ShareSourceTestSuite) TestHeadSeesWorkshopSharesOutsideWorkshopMode() {
 		AllowGameSharing: true,
 	}))
 
-	// Create workshop invite for participant
+	// Create workshop invite for guest
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	s.Require().NotNil(invite.InviteToken)
 
-	// Participant joins, uploads game (must be public for sharing), creates workshop share
-	participant := s.CreateUser("src-outside-part")
-	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*invite.InviteToken))
-	game := Must(participant.UploadGame("alien-first-contact"))
+	// Guest joins, uploads game (must be public for sharing), creates workshop share
+	guest := s.CreateUser("src-outside-part")
+	s.Require().NoError(guest.AcceptWorkshopInviteByToken(*invite.InviteToken))
+	game := Must(guest.UploadGame("alien-first-contact"))
 	gameID := game.Id.String()
-	Must(participant.SetGamePublic(gameID, true))
-	Must(participant.CreateWorkshopGameShare(gameID, wsIDStr, nil))
+	Must(guest.SetGamePublic(gameID, true))
+	Must(guest.CreateWorkshopGameShare(gameID, wsIDStr, nil))
 
 	// Head (outside workshop mode) should see the workshop share
 	status := Must(head.GetPrivateShareStatus(gameID))

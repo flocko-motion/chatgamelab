@@ -123,10 +123,13 @@ func UpdateInviteStatus(ctx context.Context, userID uuid.UUID, inviteID uuid.UUI
 	return updateInviteStatusUnchecked(ctx, inviteID, status)
 }
 
-// AcceptTargetedInvite accepts a targeted invite (by invite ID or token) and creates a user role.
+// AcceptTargetedInvite accepts a targeted invite (by invite ID or token).
+// An institution invite replaces the user's role with the invite's; a workshop
+// invite keeps the user's role and makes the workshop their active one.
 // Either inviteID or inviteToken must be provided (pass uuid.Nil for inviteID if using token).
 // The userID must match either the invited_user_id or the user associated with invited_email.
-// Returns the created role ID or an error if the invite is invalid or already processed.
+// Returns the created role ID (uuid.Nil for a workshop invite) or an error if
+// the invite is invalid or already processed.
 func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken string, userID uuid.UUID) (uuid.UUID, error) {
 	// Get the invite (by ID or token)
 	var invite UserRoleInvite
@@ -179,6 +182,22 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 		}
 	}
 
+	// A workshop invite gives no role: the user keeps theirs and enters the
+	// workshop. SetActiveWorkshop decides who may (head and staff of the
+	// workshop's institution, individuals).
+	if invite.WorkshopID.Valid {
+		if err := SetActiveWorkshop(ctx, userID, invite.WorkshopID.UUID); err != nil {
+			return uuid.Nil, err
+		}
+		if err := queries().AcceptTargetedInvite(ctx, AcceptTargetedInviteParams{
+			ID:         invite.ID,
+			AcceptedBy: uuid.NullUUID{UUID: userID, Valid: true},
+		}); err != nil {
+			return uuid.Nil, obj.ErrServerError("failed to mark invite as accepted")
+		}
+		return uuid.Nil, nil
+	}
+
 	// Use a transaction to ensure atomicity (delete old role + create new role + mark invite accepted)
 	tx, err := sqlDb().BeginTx(ctx, nil)
 	if err != nil {
@@ -209,7 +228,7 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 
 	// Mark invite as accepted
 	if err := txQueries.AcceptTargetedInvite(ctx, AcceptTargetedInviteParams{
-		ID:         inviteID,
+		ID:         invite.ID,
 		AcceptedBy: uuid.NullUUID{UUID: userID, Valid: true},
 	}); err != nil {
 		return uuid.Nil, obj.ErrServerError("failed to mark invite as accepted")
@@ -361,7 +380,7 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 	}
 
 	if user.Role != nil {
-		// Check if user is already a participant of this specific workshop
+		// Check if user is already in this specific workshop
 		if invite.WorkshopID.Valid && user.Role.Workshop != nil && user.Role.Workshop.ID == invite.WorkshopID.UUID {
 			return uuid.Nil, obj.ErrConflict("you are already a member of this workshop")
 		}
@@ -421,16 +440,16 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 }
 
 // AcceptWorkshopInviteAnonymously accepts a workshop invite token without authentication.
-// Creates an ad-hoc user account with a generated name and assigns them as a participant.
+// Creates an ad-hoc user account with a generated name and makes them a Guest in its workshop.
 // Returns the created user and their authentication token.
 //
-// IMPORTANT CONSTRAINTS for anonymous participants:
-// - They are bound to their workshop via the participant role and CANNOT change roles
+// IMPORTANT CONSTRAINTS for a Guest in a workshop:
+// - They are bound to their workshop via the guest role and CANNOT change roles
 // - They can only acquire a JWT (short-lived) if the workshop is still active
 // - The auth token is their permanent credential stored in the auth0_id field
 //
 // language is an ISO 639-1 code resolved from the request
-// (-> httpx.PreferredLanguage). Participants join through a link and never see
+// (-> httpx.PreferredLanguage). Guests join through a link and never see
 // a registration form, so their browser language is the only signal we have.
 func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, language string) (*obj.User, string, error) {
 	// Get the invite by token
@@ -459,7 +478,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 		return nil, "", obj.ErrValidation("invite has reached maximum uses")
 	}
 
-	// Generate funny readable name for anonymous participant (e.g., "red-dragon-a1b2").
+	// Generate funny readable name for the Guest (e.g., "red-dragon-a1b2").
 	// Append a short random suffix to guarantee uniqueness — the readable
 	// color+animal pair has limited combinations and can collide under load.
 	nameGenerator := ung.NewUniqueNameGenerator(
@@ -473,9 +492,9 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	)
 	anonymousName := nameGenerator.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
 
-	participantToken, err := newParticipantToken(ctx)
+	guestToken, err := newGuestToken(ctx)
 	if err != nil {
-		return nil, "", obj.ErrServerError("failed to generate participant token")
+		return nil, "", obj.ErrServerError("failed to generate guest token")
 	}
 
 	// Use a transaction to ensure atomicity (create user + create role + increment uses)
@@ -490,31 +509,31 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 	// Generate user ID
 	userID := uuid.New()
 
-	// Create anonymous user with participant token (no email, no auth0_id)
-	userArg := CreateUserWithParticipantTokenParams{
-		ID:               userID,
-		Name:             userName(anonymousName),
-		Email:            sql.NullString{Valid: false},
-		Auth0ID:          sql.NullString{Valid: false},
-		ParticipantToken: sql.NullString{String: participantToken, Valid: true},
-		Language:         language,
+	// Create the Guest's account with its sign-in code (no email, no auth0_id)
+	userArg := CreateUserWithGuestTokenParams{
+		ID:         userID,
+		Name:       userName(anonymousName),
+		Email:      sql.NullString{Valid: false},
+		Auth0ID:    sql.NullString{Valid: false},
+		GuestToken: sql.NullString{String: guestToken, Valid: true},
+		Language:   language,
 	}
-	_, err = txQueries.CreateUserWithParticipantToken(ctx, userArg)
+	_, err = txQueries.CreateUserWithGuestToken(ctx, userArg)
 	if err != nil {
-		log.Error("failed to create participant user", "name", anonymousName, "error", err)
+		log.Error("failed to create guest user", "name", anonymousName, "error", err)
 		return nil, "", obj.ErrServerError("failed to create user: " + err.Error())
 	}
 
-	// Create participant role for the workshop
+	// Create the guest role for the workshop
 	roleArg := CreateUserRoleParams{
 		UserID:        userID,
-		Role:          string(obj.RoleParticipant),
+		Role:          string(obj.RoleGuest),
 		InstitutionID: uuid.NullUUID{UUID: invite.InstitutionID, Valid: true},
 		WorkshopID:    invite.WorkshopID,
 	}
 	_, err = txQueries.CreateUserRole(ctx, roleArg)
 	if err != nil {
-		return nil, "", obj.ErrServerError("failed to create participant role")
+		return nil, "", obj.ErrServerError("failed to create guest role")
 	}
 
 	// Increment uses count
@@ -533,7 +552,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, la
 		return nil, "", obj.ErrServerErrorf("failed to retrieve created user: %v", err)
 	}
 
-	// Return the user and their participant token (prefixed with "participant-")
+	// Return the user and their sign-in code (prefixed with GuestTokenPrefix)
 	// This token will be detected by auth middleware and handled via DB lookup
-	return user, participantToken, nil
+	return user, guestToken, nil
 }

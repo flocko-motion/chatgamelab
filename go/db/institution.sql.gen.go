@@ -173,60 +173,6 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 	return i, err
 }
 
-const createWorkshopParticipant = `-- name: CreateWorkshopParticipant :one
-
-INSERT INTO workshop_participant (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  workshop_id, name, access_token, active
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8, $9
-)
-RETURNING id, created_by, created_at, modified_by, modified_at, workshop_id, name, access_token, active
-`
-
-type CreateWorkshopParticipantParams struct {
-	ID          uuid.UUID     `json:"id"`
-	CreatedBy   uuid.NullUUID `json:"created_by"`
-	CreatedAt   time.Time     `json:"created_at"`
-	ModifiedBy  uuid.NullUUID `json:"modified_by"`
-	ModifiedAt  time.Time     `json:"modified_at"`
-	WorkshopID  uuid.UUID     `json:"workshop_id"`
-	Name        string        `json:"name"`
-	AccessToken string        `json:"access_token"`
-	Active      bool          `json:"active"`
-}
-
-// workshop_participant -------------------------------------------------
-func (q *Queries) CreateWorkshopParticipant(ctx context.Context, arg CreateWorkshopParticipantParams) (WorkshopParticipant, error) {
-	row := q.db.QueryRowContext(ctx, createWorkshopParticipant,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.WorkshopID,
-		arg.Name,
-		arg.AccessToken,
-		arg.Active,
-	)
-	var i WorkshopParticipant
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.WorkshopID,
-		&i.Name,
-		&i.AccessToken,
-		&i.Active,
-	)
-	return i, err
-}
-
 const deleteApiKeySharesByInstitution = `-- name: DeleteApiKeySharesByInstitution :exec
 DELETE FROM api_key_share WHERE institution_id = $1
 `
@@ -263,22 +209,36 @@ func (q *Queries) DeleteWorkshop(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const deleteWorkshopParticipant = `-- name: DeleteWorkshopParticipant :exec
-DELETE FROM workshop_participant WHERE id = $1
+const getGuestUserIDsByInstitution = `-- name: GetGuestUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role = 'guest'
+  AND u.deleted_at IS NULL
 `
 
-func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipant, id)
-	return err
-}
-
-const deleteWorkshopParticipantsByWorkshopID = `-- name: DeleteWorkshopParticipantsByWorkshopID :exec
-DELETE FROM workshop_participant WHERE workshop_id = $1
-`
-
-func (q *Queries) DeleteWorkshopParticipantsByWorkshopID(ctx context.Context, workshopID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipantsByWorkshopID, workshopID)
-	return err
+func (q *Queries) GetGuestUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getGuestUserIDsByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getInstitutionByID = `-- name: GetInstitutionByID :one
@@ -348,49 +308,17 @@ func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.
 	return items, nil
 }
 
-const getNonParticipantUserIDsByInstitution = `-- name: GetNonParticipantUserIDsByInstitution :many
+const getNonGuestUserIDsByInstitution = `-- name: GetNonGuestUserIDsByInstitution :many
 SELECT DISTINCT u.id
 FROM app_user u
 JOIN user_role r ON u.id = r.user_id
 WHERE r.institution_id = $1
-  AND r.role != 'participant'
+  AND r.role != 'guest'
   AND u.deleted_at IS NULL
 `
 
-func (q *Queries) GetNonParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getNonParticipantUserIDsByInstitution, institutionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []uuid.UUID
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		items = append(items, id)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getParticipantUserIDsByInstitution = `-- name: GetParticipantUserIDsByInstitution :many
-SELECT DISTINCT u.id
-FROM app_user u
-JOIN user_role r ON u.id = r.user_id
-WHERE r.institution_id = $1
-  AND r.role = 'participant'
-  AND u.deleted_at IS NULL
-`
-
-func (q *Queries) GetParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getParticipantUserIDsByInstitution, institutionID)
+func (q *Queries) GetNonGuestUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getNonGuestUserIDsByInstitution, institutionID)
 	if err != nil {
 		return nil, err
 	}
@@ -472,27 +400,6 @@ func (q *Queries) GetWorkshopByPublicSlug(ctx context.Context, publicSlug sql.Nu
 		&i.PublicSlug,
 		&i.PublicDescription,
 		&i.PublicLinks,
-	)
-	return i, err
-}
-
-const getWorkshopParticipantByID = `-- name: GetWorkshopParticipantByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, workshop_id, name, access_token, active FROM workshop_participant WHERE id = $1
-`
-
-func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) (WorkshopParticipant, error) {
-	row := q.db.QueryRowContext(ctx, getWorkshopParticipantByID, id)
-	var i WorkshopParticipant
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.WorkshopID,
-		&i.Name,
-		&i.AccessToken,
-		&i.Active,
 	)
 	return i, err
 }
@@ -884,59 +791,6 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		&i.PublicSlug,
 		&i.PublicDescription,
 		&i.PublicLinks,
-	)
-	return i, err
-}
-
-const updateWorkshopParticipant = `-- name: UpdateWorkshopParticipant :one
-UPDATE workshop_participant SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  workshop_id = $6,
-  name = $7,
-  access_token = $8,
-  active = $9
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, workshop_id, name, access_token, active
-`
-
-type UpdateWorkshopParticipantParams struct {
-	ID          uuid.UUID     `json:"id"`
-	CreatedBy   uuid.NullUUID `json:"created_by"`
-	CreatedAt   time.Time     `json:"created_at"`
-	ModifiedBy  uuid.NullUUID `json:"modified_by"`
-	ModifiedAt  time.Time     `json:"modified_at"`
-	WorkshopID  uuid.UUID     `json:"workshop_id"`
-	Name        string        `json:"name"`
-	AccessToken string        `json:"access_token"`
-	Active      bool          `json:"active"`
-}
-
-func (q *Queries) UpdateWorkshopParticipant(ctx context.Context, arg UpdateWorkshopParticipantParams) (WorkshopParticipant, error) {
-	row := q.db.QueryRowContext(ctx, updateWorkshopParticipant,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.WorkshopID,
-		arg.Name,
-		arg.AccessToken,
-		arg.Active,
-	)
-	var i WorkshopParticipant
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.WorkshopID,
-		&i.Name,
-		&i.AccessToken,
-		&i.Active,
 	)
 	return i, err
 }

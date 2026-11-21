@@ -91,7 +91,7 @@ type CreateInstitutionInviteReq struct {
 }
 
 // CreateWorkshopInviteEndpoint creates an open invite for users to join a
-// workshop as participants.
+// workshop as Guests.
 type CreateWorkshopInviteEndpoint struct{}
 
 func (CreateWorkshopInviteEndpoint) Method() string             { return "POST" }
