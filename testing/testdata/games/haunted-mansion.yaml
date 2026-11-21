@@ -5,4 +5,5 @@ system_message_scenario: "Blackwood Manor has been abandoned for 50 years. Local
 system_message_game_start: "Thunder crashes as you push open the creaking front door. Dust swirls in the beam of your flashlight. Behind you, the door slams shut."
 image_style: "gothic horror, candlelit shadows, Victorian architecture, ghostly apparitions"
 css: ""
+theme: horror
 status_fields: '[{"name":"Sanity","value":"100"},{"name":"Courage","value":"75"}]'

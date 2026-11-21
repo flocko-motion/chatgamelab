@@ -5,4 +5,5 @@ system_message_scenario: "Victorian London, 1888. Vampires walk among the living
 system_message_game_start: "Fog rolls through the cobblestone streets. Your silver weapons feel cold against your skin. A scream echoes from a nearby alley."
 image_style: "Victorian gothic, foggy streets, gas lamps, dark alleys"
 css: ""
+theme: noir
 status_fields: '[{"name":"Silver Bullets","value":"12"},{"name":"Health","value":"100"}]'

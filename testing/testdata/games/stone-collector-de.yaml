@@ -17,4 +17,5 @@ system_message_game_start: |
 
 image_style: "funky pixels"
 css: ""
+theme: minimal
 status_fields: '[{"name":"Gold","value":"100"},{"name":"Score","value":"77"},{"name":"Tag","value":"1"},{"name":"Steine","value":"0"},{"name":"Haarfarbe","value":"schwarz"}]'

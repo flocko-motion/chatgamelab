@@ -176,6 +176,7 @@ type gameRow struct {
 	cloneCount  int
 	createdAt   time.Time
 	modifiedAt  time.Time
+	coverAt     *time.Time // when its cover was made; nil: none yet
 
 	// content
 	scenario     string
@@ -208,6 +209,7 @@ func gameRowFrom(r db.V2GameCardsRow) gameRow {
 		cloneCount:  int(r.CloneCount),
 		createdAt:   r.CreatedAt,
 		modifiedAt:  r.ModifiedAt,
+		coverAt:     nullTime(r.CoverAt),
 
 		scenario:     r.SystemMessageScenario,
 		gameStart:    r.SystemMessageGameStart,
@@ -258,6 +260,10 @@ func (g *GameCard) PlayCount() int        { return g.row.playCount }
 func (g *GameCard) CloneCount() int       { return g.row.cloneCount }
 func (g *GameCard) CreatedAt() time.Time  { return g.row.createdAt }
 func (g *GameCard) ModifiedAt() time.Time { return g.row.modifiedAt }
+
+// CoverAt is when the game's cover was made, nil while it has none. The
+// picture itself is ReadGameCover's.
+func (g *GameCard) CoverAt() *time.Time { return g.row.coverAt }
 
 // MayEditCard says whether the caller may change the game's card:
 // {Edit, GameCard}.

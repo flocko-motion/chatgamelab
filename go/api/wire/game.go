@@ -28,6 +28,10 @@ type GameView struct {
 	Public      bool      `json:"public"`
 	PlayCount   int       `json:"playCount"`
 	CloneCount  int       `json:"cloneCount"`
+	// CoverAt is when the game's cover was made; absent while it has none.
+	// The picture is GET /api/games/{id}/cover, with ?v= this time to bust
+	// caches when it changes.
+	CoverAt *time.Time `json:"coverAt,omitempty"`
 
 	// The caller's rights on the game, by section, and on the whole game.
 	MayEditCard     bool `json:"mayEditCard"`
@@ -92,6 +96,7 @@ func gameView(card *core.GameCard) GameView {
 		Public:          card.Public(),
 		PlayCount:       card.PlayCount(),
 		CloneCount:      card.CloneCount(),
+		CoverAt:         card.CoverAt(),
 		MayEditCard:     card.MayEditCard(),
 		MayEditContent:  card.MayEditContent(),
 		MayEditSettings: card.MayEditSettings(),

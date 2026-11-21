@@ -17,4 +17,5 @@ system_message_game_start: |
 
 image_style: "simple flat illustration, minimalist"
 css: ""
+theme: minimal
 status_fields: '[{"name":"Day","value":"1"},{"name":"Stones","value":"0"}]'

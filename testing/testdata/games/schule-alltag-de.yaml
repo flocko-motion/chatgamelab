@@ -33,4 +33,5 @@ system_message_game_start: |
 
 image_style: "normal German school setting, classroom, simple lighting"
 css: ""
+theme: school
 status_fields: '[{"name":"Stimmung","value":"gut"},{"name":"Hausaufgaben","value":"offen"},{"name":"Stunde","value":"1"}]'

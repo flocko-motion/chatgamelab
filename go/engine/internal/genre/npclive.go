@@ -106,6 +106,7 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	gate := blocks.NewGate("start-game", cfg.InitPrompt)
 
 	g := ports.NewGraph("npc-live")
+	g.Arrange(npcLiveLayout)
 	g.ConnectTextOut(portraitPrompt, portrait)
 	g.ConnectImageOut(portrait, outImage)
 	g.ConnectState(portrait, gate)

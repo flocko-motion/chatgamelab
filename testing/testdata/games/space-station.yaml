@@ -5,4 +5,5 @@ system_message_scenario: "You are aboard Space Station Alpha, a massive orbital 
 system_message_game_start: "You wake up in the medical bay. The lights are flickering, and an alarm is softly beeping in the distance."
 image_style: "cyberpunk sci-fi, neon lights, metallic corridors, holographic displays"
 css: ""
+theme: scifi
 status_fields: '[{"name":"Oxygen","value":"100"},{"name":"Energy","value":"75"}]'

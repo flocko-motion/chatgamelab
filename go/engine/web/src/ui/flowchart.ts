@@ -6,12 +6,11 @@
  * and the core neither imports this nor knows it exists.
  */
 import cytoscape from "cytoscape";
-import dagre from "cytoscape-dagre";
-import type { UsageRecord } from "../client.js";
+import type { Cell, UsageRecord } from "../client.js";
 import type { Phase } from "../protocol.js";
 import type { Topology } from "../client.js";
-
-cytoscape.use(dagre);
+import { layoutCode, parked } from "../layout.js";
+import { text } from "../texts.js";
 
 /** Reads a CSS custom property, so the diagram follows the page's theme. */
 function token(name: string, fallback: string): string {
@@ -49,6 +48,14 @@ export class Flowchart {
   #drawn = false;
   #phases = new Map<string, Phase>();
   #fading = new Map<string, ReturnType<typeof setTimeout>>();
+  /** Where each block is drawn; on a dev server, where it has been dragged to. */
+  #cells = new Map<string, Cell>();
+  /** The cell a dragged block left, so a block it lands on can take it. */
+  #grabbed: Cell | null = null;
+
+  /** One grid step, in model units: a column fits the longest block name. */
+  static readonly column = 150;
+  static readonly row = 64;
 
   /**
    * How long a finished block keeps its afterglow: long enough to be seen,
@@ -84,16 +91,25 @@ export class Flowchart {
     // pale on a light pane and dark on a dark one.
     const failure = mix(outOf, bg, 0.35);
 
+    // The genre places every block by hand. One the layout misses is parked
+    // below the drawing and marked, until a developer gives it a place.
+    for (const node of topology.nodes) if (node.cell) this.#cells.set(node.name, node.cell);
+    const unplaced = topology.nodes.filter((node) => !node.cell).map((node) => node.name);
+    for (const [name, cell] of parked(this.#cells, unplaced)) this.#cells.set(name, cell);
+
     this.#cy = cytoscape({
       container: this.container,
-      // A teaching diagram, not a toy to drag apart.
+      // A teaching diagram, not a toy to drag apart; only a developer
+      // rearranges it, to copy the layout back into the genre.
       userPanningEnabled: true,
       userZoomingEnabled: true,
       boxSelectionEnabled: false,
-      autoungrabify: true,
+      autoungrabify: !topology.dev,
       elements: [
         ...topology.nodes.map((node) => ({
           data: { id: node.name, label: node.name, role: node.role },
+          position: Flowchart.#at(this.#cells.get(node.name)!),
+          classes: node.cell ? "" : "unplaced",
         })),
         ...topology.edges.map((edge, index) => ({
           data: {
@@ -142,6 +158,11 @@ export class Flowchart {
         // The gate is where the stem joins the loop, so it is shaped like a
         // join rather than like the blocks on either side of it.
         { selector: 'node[role = "gate"]', style: { shape: "round-hexagon", height: 26 } },
+        {
+          // A block the genre's layout misses: findable, so it gets placed.
+          selector: "node.unplaced",
+          style: { "border-style": "dashed", "border-color": outOf },
+        },
         {
           selector: "node.working",
           style: {
@@ -210,18 +231,13 @@ export class Flowchart {
           style: { "line-color": outOf, "target-arrow-color": outOf, width: 2, color: outOf },
         },
       ],
-      layout: {
-        name: "dagre",
-        // Top down, so the P reads the way the document draws it: the init
-        // stem above, the turn loop below.
-        rankDir: "TB",
-        nodeSep: 18,
-        rankSep: 34,
-        // The observer's correction makes the graph cyclic on purpose, which
-        // the layout has to tolerate rather than reject.
-        acyclicer: "greedy",
-      } as cytoscape.LayoutOptions,
+      // The positions are the genre's own, so nothing is laid out here. The
+      // layout's own fit is off: it would measure the wires before they are
+      // drawn, and #fit does the fitting.
+      layout: { name: "preset", fit: false },
     });
+
+    if (topology.dev) this.#rearrangeable(topology.name);
 
     this.#cy.on("tap", "node", (event) => {
       this.select(event.target.id());
@@ -251,6 +267,63 @@ export class Flowchart {
     }).observe(this.container);
   }
 
+  /** A cell's place in model units. */
+  static #at(cell: Cell): cytoscape.Position {
+    return { x: cell.col * Flowchart.column, y: cell.row * Flowchart.row };
+  }
+
+  /**
+   * Lets a developer drag blocks into place and copy the layout as Go source.
+   * A dropped block snaps to the nearest cell; a block already there swaps
+   * into the cell the dropped one left, so two never share a place.
+   */
+  #rearrangeable(genre: string): void {
+    const cy = this.#cy;
+    if (!cy) return;
+
+    cy.on("grab", "node", (event) => {
+      this.#grabbed = this.#cells.get(event.target.id()) ?? null;
+    });
+    cy.on("free", "node", (event) => {
+      const node: cytoscape.NodeSingular = event.target;
+      const { x, y } = node.position();
+      const cell = { row: Math.round(y / Flowchart.row), col: Math.round(x / Flowchart.column) };
+      const left = this.#grabbed;
+      this.#grabbed = null;
+
+      cy.batch(() => {
+        const other = [...this.#cells].find(
+          ([name, c]) => name !== node.id() && c.row === cell.row && c.col === cell.col,
+        );
+        if (other && left) {
+          this.#cells.set(other[0], left);
+          cy.getElementById(other[0]).position(Flowchart.#at(left));
+        }
+        this.#cells.set(node.id(), cell);
+        node.position(Flowchart.#at(cell));
+        node.removeClass("unplaced");
+      });
+    });
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "copy-layout";
+    button.textContent = text("pipeline.copyLayout");
+    button.addEventListener("click", async () => {
+      const code = layoutCode(genre, this.#cells);
+      try {
+        await navigator.clipboard.writeText(code);
+        button.textContent = text("pipeline.copied");
+      } catch {
+        // A page without clipboard access still hands the layout over.
+        console.log(code);
+        button.textContent = text("pipeline.copyFailed");
+      }
+      setTimeout(() => (button.textContent = text("pipeline.copyLayout")), 1500);
+    });
+    this.container.parentElement?.append(button);
+  }
+
   /**
    * Fits the whole graph into the box, and makes that the furthest a reader can
    * zoom out: any further only shrinks the graph into empty space.
@@ -259,7 +332,9 @@ export class Flowchart {
     const cy = this.#cy;
     if (!cy) return;
     cy.minZoom(1e-50);
-    cy.fit(undefined, Flowchart.heading);
+    // Fitted to the blocks alone: measuring a wire before it is first drawn
+    // caches an empty box for it, and the renderer then culls it as off-screen.
+    cy.fit(cy.nodes(), Flowchart.heading);
     cy.minZoom(cy.zoom());
     cy.maxZoom(Math.max(cy.zoom(), 3));
   }
@@ -270,15 +345,24 @@ export class Flowchart {
    */
   #contain(): void {
     const cy = this.#cy;
-    if (!cy) return;
-    const box = cy.elements().renderedBoundingBox();
+    if (!cy || this.#containing) return;
+    // Measured by the blocks alone: the wires run between them, and a wire not
+    // yet drawn has no settled geometry, so measuring it moves the box under
+    // the correction and the correction never ends.
+    const box = cy.nodes().renderedBoundingBox();
     const m = Flowchart.margin;
     const dx = shift(box.x1, box.x2, cy.width(), m, m);
     const dy = shift(box.y1, box.y2, cy.height(), Flowchart.heading, m);
-    // The correction fires another viewport event, which then finds nothing
-    // left to correct.
-    if (dx || dy) cy.panBy({ x: dx, y: dy });
+    if (!dx && !dy) return;
+    // The correction fires another viewport event, which must not correct again.
+    this.#containing = true;
+    try {
+      cy.panBy({ x: dx, y: dy });
+    } finally {
+      this.#containing = false;
+    }
   }
+  #containing = false;
 
   static readonly margin = 12;
   /** Room at the top for the heading laid over the box. */

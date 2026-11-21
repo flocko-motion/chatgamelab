@@ -51,7 +51,8 @@ export function GamesTable(props: GamesTableProps) {
     return (
       <GameCard
         game={game}
-        onClick={() => state.view(game)}
+        onEdit={() => state.view(game)}
+        editLabel={p.canEdit ? t("editGame") : t("viewGame")}
         onPlay={() => state.playGame(game)}
         playLabel={t("allGames.play")}
         hasSession={hasSession}
@@ -131,8 +132,8 @@ export function GamesTable(props: GamesTableProps) {
         columns={columns}
         getRowKey={(game) => game.id}
         renderCard={renderCard}
+        layout="grid"
         onRowClick={state.view}
-        getRowAccent={(game) => (game.publicSponsoredApiKeyShareId ? "pink" : undefined)}
         filters={config.filters.map((f) => ({ value: f.value, label: tFilters(f.labelKey) }))}
         toggles={config.toggles.map((o) => ({ value: o.value, label: tFilters(o.labelKey) }))}
         sorts={config.sorts.map((s) => ({ ...s, label: t(`games.sort.${s.by}-${s.dir}`) }))}

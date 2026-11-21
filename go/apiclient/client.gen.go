@@ -97,6 +97,12 @@ type AvailableKey struct {
 	Source    string             `json:"source"`
 }
 
+// Cell defines model for Cell.
+type Cell struct {
+	Col int `json:"col"`
+	Row int `json:"row"`
+}
+
 // CheckNameResp defines model for CheckNameResp.
 type CheckNameResp struct {
 	Available bool  `json:"available"`
@@ -407,6 +413,7 @@ type GameTemplate struct {
 // GameView defines model for GameView.
 type GameView struct {
 	CloneCount                   int                 `json:"cloneCount"`
+	CoverAt                      *time.Time          `json:"coverAt,omitempty"`
 	CreatorId                    *openapi_types.UUID `json:"creatorId,omitempty"`
 	CreatorName                  *string             `json:"creatorName,omitempty"`
 	Css                          *string             `json:"css,omitempty"`
@@ -593,6 +600,11 @@ type KeyShareView struct {
 type Language struct {
 	Iso   string `json:"iso"`
 	Label string `json:"label"`
+}
+
+// MakeGameCoverReq defines model for MakeGameCoverReq.
+type MakeGameCoverReq struct {
+	Hint string `json:"hint"`
 }
 
 // Message defines model for Message.
@@ -1037,6 +1049,7 @@ type Toggles struct {
 
 // Topology defines model for Topology.
 type Topology struct {
+	Dev      *bool          `json:"dev,omitempty"`
 	Edges    []TopologyEdge `json:"edges"`
 	Imagery  string         `json:"imagery"`
 	Inputs   []string       `json:"inputs"`
@@ -1056,6 +1069,7 @@ type TopologyEdge struct {
 
 // TopologyNode defines model for TopologyNode.
 type TopologyNode struct {
+	Cell *Cell  `json:"cell,omitempty"`
 	Name string `json:"name"`
 	Role string `json:"role"`
 }
@@ -1454,6 +1468,9 @@ type PostApiGamesNewJSONRequestBody = CreateGameReq
 
 // PostApiGamesIdJSONRequestBody defines body for PostApiGamesId for application/json ContentType.
 type PostApiGamesIdJSONRequestBody = UpdateGameReq
+
+// PostApiGamesIdCoverJSONRequestBody defines body for PostApiGamesIdCover for application/json ContentType.
+type PostApiGamesIdCoverJSONRequestBody = MakeGameCoverReq
 
 // PostApiGamesIdSharesJSONRequestBody defines body for PostApiGamesIdShares for application/json ContentType.
 type PostApiGamesIdSharesJSONRequestBody = CreateGameShareReq
@@ -2212,6 +2229,46 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /api/games/{id}/clone (the `PostApiGamesIdClone` operationId).
 	PostApiGamesIdClone(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiGamesIdCover Serves a game's cover picture to whoever may see the
+	//
+	// game: 404 for a game they may not see or one without a cover. With ?v= (the game's coverAt) the answer may be
+	// cached for good, as a new cover comes with a new v.
+	//
+	// Corresponds with GET /api/games/{id}/cover (the `GetApiGamesIdCover` operationId).
+	GetApiGamesIdCover(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiGamesIdCoverWithBody Draws a new cover for a game, replacing the one it
+	//
+	// had, and answers with the game as it now is (coverAt set). It takes
+	// mayEditCard (403 otherwise) and blocks until the picture is made.
+	//
+	// The caller pays as for a session of the game: the first key of theirs
+	// that draws pictures, workshop, sponsor, organisation, own, site. None:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+	// what the cover should show; empty leaves it to the game.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+	PostApiGamesIdCoverWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiGamesIdCover Draws a new cover for a game, replacing the one it
+	//
+	// had, and answers with the game as it now is (coverAt set). It takes
+	// mayEditCard (403 otherwise) and blocks until the picture is made.
+	//
+	// The caller pays as for a session of the game: the first key of theirs
+	// that draws pictures, workshop, sponsor, organisation, own, site. None:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+	// what the cover should show; empty leaves it to the game.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+	PostApiGamesIdCover(ctx context.Context, id string, body PostApiGamesIdCoverJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiGamesIdFavourite Removes a game from the caller's favorites. It
 	//
@@ -4464,6 +4521,76 @@ func (c *Client) GetApiGamesIdAvailableKeys(ctx context.Context, id string, reqE
 // Corresponds with POST /api/games/{id}/clone (the `PostApiGamesIdClone` operationId).
 func (c *Client) PostApiGamesIdClone(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiGamesIdCloneRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiGamesIdCover Serves a game's cover picture to whoever may see the
+//
+// game: 404 for a game they may not see or one without a cover. With ?v= (the game's coverAt) the answer may be
+// cached for good, as a new cover comes with a new v.
+//
+// Corresponds with GET /api/games/{id}/cover (the `GetApiGamesIdCover` operationId).
+func (c *Client) GetApiGamesIdCover(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiGamesIdCoverRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiGamesIdCoverWithBody Draws a new cover for a game, replacing the one it
+//
+// had, and answers with the game as it now is (coverAt set). It takes
+// mayEditCard (403 otherwise) and blocks until the picture is made.
+//
+// The caller pays as for a session of the game: the first key of theirs
+// that draws pictures, workshop, sponsor, organisation, own, site. None:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+// what the cover should show; empty leaves it to the game.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+func (c *Client) PostApiGamesIdCoverWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiGamesIdCoverRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiGamesIdCover Draws a new cover for a game, replacing the one it
+//
+// had, and answers with the game as it now is (coverAt set). It takes
+// mayEditCard (403 otherwise) and blocks until the picture is made.
+//
+// The caller pays as for a session of the game: the first key of theirs
+// that draws pictures, workshop, sponsor, organisation, own, site. None:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+// what the cover should show; empty leaves it to the game.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+func (c *Client) PostApiGamesIdCover(ctx context.Context, id string, body PostApiGamesIdCoverJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiGamesIdCoverRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8497,6 +8624,87 @@ func NewPostApiGamesIdCloneRequest(server string, id string) (*http.Request, err
 	return req, nil
 }
 
+// NewGetApiGamesIdCoverRequest constructs an http.Request for the GetApiGamesIdCover method
+func NewGetApiGamesIdCoverRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/games/%s/cover", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiGamesIdCoverRequest calls the generic PostApiGamesIdCover builder with application/json body
+func NewPostApiGamesIdCoverRequest(server string, id string, body PostApiGamesIdCoverJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiGamesIdCoverRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiGamesIdCoverRequestWithBody constructs an http.Request for the PostApiGamesIdCover method, with any body, and a specified content type
+func NewPostApiGamesIdCoverRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/games/%s/cover", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeleteApiGamesIdFavouriteRequest constructs an http.Request for the DeleteApiGamesIdFavourite method
 func NewDeleteApiGamesIdFavouriteRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -12227,6 +12435,48 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/games/{id}/clone (the `PostApiGamesIdClone` operationId).
 	PostApiGamesIdCloneWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiGamesIdCloneResponse, error)
 
+	// GetApiGamesIdCoverWithResponse Serves a game's cover picture to whoever may see the
+	//
+	// game: 404 for a game they may not see or one without a cover. With ?v= (the game's coverAt) the answer may be
+	// cached for good, as a new cover comes with a new v.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/games/{id}/cover (the `GetApiGamesIdCover` operationId).
+	GetApiGamesIdCoverWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdCoverResponse, error)
+
+	// PostApiGamesIdCoverWithBodyWithResponse Draws a new cover for a game, replacing the one it
+	//
+	// had, and answers with the game as it now is (coverAt set). It takes
+	// mayEditCard (403 otherwise) and blocks until the picture is made.
+	//
+	// The caller pays as for a session of the game: the first key of theirs
+	// that draws pictures, workshop, sponsor, organisation, own, site. None:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+	// what the cover should show; empty leaves it to the game.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+	PostApiGamesIdCoverWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiGamesIdCoverResponse, error)
+
+	// PostApiGamesIdCoverWithResponse Draws a new cover for a game, replacing the one it
+	//
+	// had, and answers with the game as it now is (coverAt set). It takes
+	// mayEditCard (403 otherwise) and blocks until the picture is made.
+	//
+	// The caller pays as for a session of the game: the first key of theirs
+	// that draws pictures, workshop, sponsor, organisation, own, site. None:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+	// what the cover should show; empty leaves it to the game.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+	PostApiGamesIdCoverWithResponse(ctx context.Context, id string, body PostApiGamesIdCoverJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesIdCoverResponse, error)
+
 	// DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favorites. It
 	//
 	// answers the same whatever the game: it gives nothing away.
@@ -15636,6 +15886,95 @@ func (r PostApiGamesIdCloneResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PostApiGamesIdCloneResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiGamesIdCoverResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiGamesIdCoverResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiGamesIdCoverResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiGamesIdCoverResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiGamesIdCoverResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiGamesIdCoverResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiGamesIdCoverResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GameView
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiGamesIdCoverResponse) GetJSON200() *GameView {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiGamesIdCoverResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiGamesIdCoverResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiGamesIdCoverResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiGamesIdCoverResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiGamesIdCoverResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -20620,6 +20959,66 @@ func (c *ClientWithResponses) PostApiGamesIdCloneWithResponse(ctx context.Contex
 	return ParsePostApiGamesIdCloneResponse(rsp)
 }
 
+// GetApiGamesIdCoverWithResponse Serves a game's cover picture to whoever may see the
+//
+// game: 404 for a game they may not see or one without a cover. With ?v= (the game's coverAt) the answer may be
+// cached for good, as a new cover comes with a new v.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/games/{id}/cover (the `GetApiGamesIdCover` operationId).
+func (c *ClientWithResponses) GetApiGamesIdCoverWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdCoverResponse, error) {
+	rsp, err := c.GetApiGamesIdCover(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiGamesIdCoverResponse(rsp)
+}
+
+// PostApiGamesIdCoverWithBodyWithResponse Draws a new cover for a game, replacing the one it
+//
+// had, and answers with the game as it now is (coverAt set). It takes
+// mayEditCard (403 otherwise) and blocks until the picture is made.
+//
+// The caller pays as for a session of the game: the first key of theirs
+// that draws pictures, workshop, sponsor, organisation, own, site. None:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+// what the cover should show; empty leaves it to the game.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+func (c *ClientWithResponses) PostApiGamesIdCoverWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiGamesIdCoverResponse, error) {
+	rsp, err := c.PostApiGamesIdCoverWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiGamesIdCoverResponse(rsp)
+}
+
+// PostApiGamesIdCoverWithResponse Draws a new cover for a game, replacing the one it
+//
+// had, and answers with the game as it now is (coverAt set). It takes
+// mayEditCard (403 otherwise) and blocks until the picture is made.
+//
+// The caller pays as for a session of the game: the first key of theirs
+// that draws pictures, workshop, sponsor, organisation, own, site. None:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error. The hint, at most 300 characters, says
+// what the cover should show; empty leaves it to the game.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
+func (c *ClientWithResponses) PostApiGamesIdCoverWithResponse(ctx context.Context, id string, body PostApiGamesIdCoverJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesIdCoverResponse, error) {
+	rsp, err := c.PostApiGamesIdCover(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiGamesIdCoverResponse(rsp)
+}
+
 // DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favorites. It
 //
 // answers the same whatever the game: it gives nothing away.
@@ -23914,6 +24313,68 @@ func ParsePostApiGamesIdCloneResponse(rsp *http.Response) (*PostApiGamesIdCloneR
 	}
 
 	response := &PostApiGamesIdCloneResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GameView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiGamesIdCoverResponse parses an HTTP response from a GetApiGamesIdCoverWithResponse call
+func ParseGetApiGamesIdCoverResponse(rsp *http.Response) (*GetApiGamesIdCoverResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiGamesIdCoverResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiGamesIdCoverResponse parses an HTTP response from a PostApiGamesIdCoverWithResponse call
+func ParsePostApiGamesIdCoverResponse(rsp *http.Response) (*PostApiGamesIdCoverResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiGamesIdCoverResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

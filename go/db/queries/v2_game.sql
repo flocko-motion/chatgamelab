@@ -69,10 +69,12 @@ SELECT g.*,
   EXISTS (SELECT 1 FROM user_favourite_game f
           WHERE f.game_id = g.id AND f.user_id = sqlc.narg(caller)::uuid)  AS is_favorite,
   cu.name                                                                  AS creator_name,
+  gc.created_at                                                            AS cover_at,
   count(*) OVER ()                                                         AS total
 FROM game g
 LEFT JOIN app_user cu ON cu.id = g.created_by  -- the creator's public profile name
 LEFT JOIN workshop w  ON w.id  = g.workshop_id -- its organisation, for "of own organisation"
+LEFT JOIN game_cover gc ON gc.game_id = g.id   -- when its cover was made, not the picture
 WHERE g.deleted_at IS NULL
   AND (sqlc.narg(id)::uuid IS NULL OR g.id = sqlc.narg(id)::uuid)
   -- gate
@@ -166,3 +168,17 @@ ON CONFLICT (user_id, game_id) DO NOTHING;
 -- name: V2UnmarkFavorite :exec
 -- Removes the caller's own mark, whether or not there was one.
 DELETE FROM user_favourite_game WHERE user_id = @caller::uuid AND game_id = @game_id::uuid;
+
+-- name: V2GameCover :one
+-- A game's cover picture; core/game_cover.go has checked that the caller may
+-- read the game's card.
+SELECT image, created_at FROM game_cover WHERE game_id = @game_id::uuid;
+
+
+-- name: V2SetGameCover :exec
+-- Stores a game's cover, replacing the one it had; core/game_cover.go has
+-- checked that the caller may edit the game's card.
+INSERT INTO game_cover (game_id, image, created_by, created_at)
+VALUES (@game_id::uuid, @image::bytea, @created_by::uuid, now())
+ON CONFLICT (game_id) DO UPDATE SET
+  image = EXCLUDED.image, created_by = EXCLUDED.created_by, created_at = now();

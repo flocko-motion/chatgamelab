@@ -136,6 +136,34 @@ export function useUpdateGame() {
   });
 }
 
+/**
+ * Where a game's cover picture is, or null while it has none. The URL names
+ * when the cover was made, so a new cover is never served from the cache.
+ */
+export function gameCoverUrl(game: Pick<GameView, "id" | "coverAt">): string | null {
+  if (!game.coverAt) return null;
+  return `/api/games/${game.id}/cover?v=${encodeURIComponent(game.coverAt)}`;
+}
+
+/**
+ * Has a game's cover drawn, replacing the one it had; the hint says what it
+ * should show. The server picks the key, and the call takes as long as the
+ * picture does. Its errors are the caller's to show: the editor tells them
+ * in place, and drawing on save stays silent.
+ */
+export function useMakeGameCover() {
+  const queryClient = useQueryClient();
+
+  return useMutation<GameView, ApiError, { id: string; hint?: string }>({
+    mutationFn: ({ id, hint }) =>
+      api.postApiGamesIdCover(id, { hint: hint ?? "" }).then((response) => response.data),
+    onSuccess: (game, { id }) => {
+      queryClient.setQueryData(queryKeys.game(id), game);
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    },
+  });
+}
+
 export function useDeleteGame() {
   const queryClient = useQueryClient();
 

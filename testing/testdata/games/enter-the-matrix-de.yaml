@@ -38,4 +38,5 @@ system_message_game_start: |
 
 image_style: "cinematic dark sci-fi, green digital rain, noir lighting, high contrast, Matrix aesthetic, dark cyberpunk atmosphere"
 css: ""
+theme: matrix
 status_fields: '[{"name":"Fokus","value":"100"},{"name":"Signal","value":"100"},{"name":"Bedrohung","value":"10"},{"name":"Ort","value":"Das Netz"}]'

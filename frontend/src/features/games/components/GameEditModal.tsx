@@ -4,11 +4,9 @@ import {
   Group,
   TextInput,
   Textarea,
-  Switch,
   Skeleton,
   Alert,
   ScrollArea,
-  Divider,
   rem,
   Text,
   Badge,
@@ -19,7 +17,6 @@ import {
   IconCopy,
   IconDeviceGamepad2,
   IconHeartFilled,
-  IconShare,
 } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
@@ -31,9 +28,12 @@ import { ActionButton, CancelButton } from "@components/buttons";
 import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
 import { useGame, useGameTemplate, useGenres, useThemes, useUpdateGame } from "@/api/hooks";
-import type { CreateGameReq, GameTemplate } from "@/api/generated/api.gen";
+import type { CreateGameReq, GameTemplate, GameView } from "@/api/generated/api.gen";
+import { Label } from "@components/typography";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
-import { PrivateShareSection } from "./PrivateShareSection";
+import { SharingSection } from "./GameSharingSection";
+import { GameCoverSection } from "./GameCoverSection";
+import { useDrawCoverOnSave } from "../hooks";
 import type { CreateGameFormData } from "../types";
 import { gameChanges, gameCreate, type GameFormFields } from "../lib/gameUpdate";
 
@@ -93,8 +93,11 @@ interface GameEditModalProps {
   gameId?: string | null;
   opened: boolean;
   onClose: () => void;
-  /** Creates the game: the template values with the form changes. */
-  onCreate?: (request: CreateGameReq) => void;
+  /**
+   * Creates the game: the template values with the form changes. Answers
+   * with the game as created, so the editor can have its cover drawn.
+   */
+  onCreate?: (request: CreateGameReq) => Promise<GameView | undefined> | void;
   createLoading?: boolean;
   /** Callback when user clicks Copy button in view mode */
   onCopy?: () => void;
@@ -158,6 +161,7 @@ export function GameEditModal({
   /** Nothing to change: the dialog only shows the game. */
   const readOnly = !rights.card && !rights.content && !rights.settings;
   const updateGame = useUpdateGame();
+  const drawCoverOnSave = useDrawCoverOnSave();
 
   // Form fields
   const [name, setName] = useState("");
@@ -307,17 +311,18 @@ export function GameEditModal({
     if (isCreateMode) {
       if (!templateValues.current) return;
       // A new game: what differs from the template.
-      onCreate?.(gameCreate(formFields(templateValues.current), edited));
+      drawCoverOnSave(await onCreate?.(gameCreate(formFields(templateValues.current), edited)) ?? undefined);
     } else if (game?.id && initialValues.current) {
       // Edit mode: send only what changed, so an update never touches a
       // section the caller didn't edit.
       const changes = gameChanges(formFields(initialValues.current), edited);
       if (Object.keys(changes).length === 0) {
+        drawCoverOnSave(game);
         onClose();
         return;
       }
       try {
-        await updateGame.mutateAsync({ id: game.id, changes });
+        drawCoverOnSave(await updateGame.mutateAsync({ id: game.id, changes }));
         onClose();
       } catch {
         // Error handled by mutation
@@ -463,6 +468,15 @@ export function GameEditModal({
             readOnly={!rights.content}
           />
 
+          {/* Cover */}
+          <Stack gap="xs">
+            <Label>{t("games.cover.title")}</Label>
+            <GameCoverSection
+              game={isCreateMode ? undefined : game}
+              mayEdit={rights.card}
+            />
+          </Stack>
+
           {/* Status Fields */}
           <StatusFieldsEditor
             value={statusFields}
@@ -570,134 +584,6 @@ export function GameEditModal({
         </Group>
       </Stack>
     </Modal>
-  );
-}
-
-function SharingSection({
-  game,
-  gameId,
-  isPublic,
-  setIsPublic,
-  mayEditCard,
-  mayPublish,
-  wasPublic,
-  mayShare,
-  onSponsor,
-  showShareSection,
-  workshopId,
-}: {
-  game?: {
-    publicSponsoredApiKeyShareId?: string;
-    workshopId?: string;
-  } | null;
-  gameId?: string;
-  isPublic: boolean;
-  setIsPublic: (v: boolean) => void;
-  /** Making the game private again is a card change. */
-  mayEditCard: boolean;
-  /** The caller may make the game public (the server's flag). */
-  mayPublish: boolean;
-  /** The game is public as loaded. */
-  wasPublic: boolean;
-  /** The caller may share the game where they are now (the server's flag). */
-  mayShare: boolean;
-  onSponsor?: () => void;
-  showShareSection?: boolean;
-  workshopId?: string;
-}) {
-  const { t } = useTranslation("common");
-
-  const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
-
-  const canShowShareInContext = showShareSection && mayShare;
-
-  // Switching on needs mayPublish, switching a public game off needs
-  // mayEditCard; taking back an unsaved switch is always possible.
-  const canSwitch = isPublic ? mayEditCard || !wasPublic : mayPublish;
-
-  // Only show public sponsoring when game is public
-  const canShowSponsoring = onSponsor && isPublic;
-
-  return (
-    <>
-      <Divider my="xs" />
-      <Group gap="xs" align="center">
-        <IconShare size={22} />
-        <Text size="lg" fw={700}>
-          {t("games.sharing.sectionTitle")}
-        </Text>
-      </Group>
-
-      <Stack gap="lg">
-        <Stack gap={4}>
-          <Switch
-            label={t("games.createModal.publicLabel")}
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.currentTarget.checked)}
-            disabled={!canSwitch}
-          />
-          <Text size="sm" c="dimmed">
-            {t("games.createModal.publicDescription")}
-          </Text>
-          {mayPublish && !isPublic && (
-            <Text size="xs" c="orange.8">
-              {t("games.privacyHint")}
-            </Text>
-          )}
-        </Stack>
-        {!isPublic && game?.publicSponsoredApiKeyShareId && (
-          <Text size="xs" c="orange" fw={500}>
-            {t("games.sponsor.privateWarning")}
-          </Text>
-        )}
-
-        {canShowShareInContext && (
-          <Stack gap="xs">
-            <Divider />
-            <Text size="md" fw={600}>
-              {t("games.sharing.privateShareLink")}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {t("games.sharing.privateShareLinkDescription")}
-            </Text>
-            <PrivateShareSection gameId={gameId!} workshopId={workshopId} />
-          </Stack>
-        )}
-
-        {canShowSponsoring && (
-          <Stack gap="xs">
-            <Divider />
-            <Text size="md" fw={600}>
-              {t("games.sharing.publicSponsoring")}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {t("games.sharing.publicSponsoringDescription")}
-            </Text>
-            <Group gap="sm" align="center">
-              <ActionButton
-                onClick={onSponsor}
-                size="xs"
-                leftSection={<IconHeartFilled size={16} />}
-              >
-                {hasSponsoring
-                  ? t("games.sponsor.manageSponsor")
-                  : t("games.sponsor.sponsorGame")}
-              </ActionButton>
-              {hasSponsoring && (
-                <Badge
-                  size="xs"
-                  color="pink"
-                  variant="light"
-                  leftSection={<IconHeartFilled size={10} />}
-                >
-                  {t("games.sponsor.sponsored")}
-                </Badge>
-              )}
-            </Group>
-          </Stack>
-        )}
-      </Stack>
-    </>
   );
 }
 

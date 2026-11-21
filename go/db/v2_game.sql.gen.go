@@ -133,10 +133,12 @@ SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g
   EXISTS (SELECT 1 FROM user_favourite_game f
           WHERE f.game_id = g.id AND f.user_id = $3::uuid)  AS is_favorite,
   cu.name                                                                  AS creator_name,
+  gc.created_at                                                            AS cover_at,
   count(*) OVER ()                                                         AS total
 FROM game g
 LEFT JOIN app_user cu ON cu.id = g.created_by  -- the creator's public profile name
 LEFT JOIN workshop w  ON w.id  = g.workshop_id -- its organisation, for "of own organisation"
+LEFT JOIN game_cover gc ON gc.game_id = g.id   -- when its cover was made, not the picture
 WHERE g.deleted_at IS NULL
   AND ($41::uuid IS NULL OR g.id = $41::uuid)
   -- gate
@@ -277,6 +279,7 @@ type V2GameCardsRow struct {
 	MayPlay                      bool           `json:"may_play"`
 	IsFavorite                   bool           `json:"is_favorite"`
 	CreatorName                  sql.NullString `json:"creator_name"`
+	CoverAt                      sql.NullTime   `json:"cover_at"`
 	Total                        int64          `json:"total"`
 }
 
@@ -404,6 +407,7 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 			&i.MayPlay,
 			&i.IsFavorite,
 			&i.CreatorName,
+			&i.CoverAt,
 			&i.Total,
 		); err != nil {
 			return nil, err
@@ -417,6 +421,24 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		return nil, err
 	}
 	return items, nil
+}
+
+const v2GameCover = `-- name: V2GameCover :one
+SELECT image, created_at FROM game_cover WHERE game_id = $1::uuid
+`
+
+type V2GameCoverRow struct {
+	Image     []byte    `json:"image"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// A game's cover picture; core/game_cover.go has checked that the caller may
+// read the game's card.
+func (q *Queries) V2GameCover(ctx context.Context, gameID uuid.UUID) (V2GameCoverRow, error) {
+	row := q.db.QueryRowContext(ctx, v2GameCover, gameID)
+	var i V2GameCoverRow
+	err := row.Scan(&i.Image, &i.CreatedAt)
+	return i, err
 }
 
 const v2MarkFavorite = `-- name: V2MarkFavorite :exec
@@ -434,6 +456,26 @@ type V2MarkFavoriteParams struct {
 // checked that they may read it. Marking it twice changes nothing.
 func (q *Queries) V2MarkFavorite(ctx context.Context, arg V2MarkFavoriteParams) error {
 	_, err := q.db.ExecContext(ctx, v2MarkFavorite, arg.Caller, arg.GameID)
+	return err
+}
+
+const v2SetGameCover = `-- name: V2SetGameCover :exec
+INSERT INTO game_cover (game_id, image, created_by, created_at)
+VALUES ($1::uuid, $2::bytea, $3::uuid, now())
+ON CONFLICT (game_id) DO UPDATE SET
+  image = EXCLUDED.image, created_by = EXCLUDED.created_by, created_at = now()
+`
+
+type V2SetGameCoverParams struct {
+	GameID    uuid.UUID `json:"game_id"`
+	Image     []byte    `json:"image"`
+	CreatedBy uuid.UUID `json:"created_by"`
+}
+
+// Stores a game's cover, replacing the one it had; core/game_cover.go has
+// checked that the caller may edit the game's card.
+func (q *Queries) V2SetGameCover(ctx context.Context, arg V2SetGameCoverParams) error {
+	_, err := q.db.ExecContext(ctx, v2SetGameCover, arg.GameID, arg.Image, arg.CreatedBy)
 	return err
 }
 

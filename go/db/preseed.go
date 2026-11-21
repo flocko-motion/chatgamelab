@@ -64,8 +64,15 @@ func Preseed(ctx context.Context) {
 	// Create mock API key for first admin user
 	preseedDevApiKey(ctx, DevAdmin1UserID)
 
+	// Give them the real keys the developer keeps in ~/.chatgamelab/config.yaml;
+	// the first becomes the site's free-use key
+	preseedDevPlatformKeys(ctx, DevAdmin1UserID)
+
 	// Create the demo games, spread across the dev users
 	preseedDevGames(ctx)
+
+	// Give the demo games the covers kept beside their files
+	preseedDevCovers(ctx)
 
 	// Fill empty site restrictions, so an organisation's form has a default
 	preseedDevSiteConstraints(ctx)
@@ -246,20 +253,7 @@ func preseedDevApiKey(ctx context.Context, userID uuid.UUID) {
 			return
 		}
 
-		// Set it as the default
-		shares, err := GetApiKeySharesByUser(ctx, userID)
-		if err != nil {
-			log.Warn("failed to get shares", "error", err)
-			return
-		}
-		for _, share := range shares {
-			if share.ApiKeyID == *keyID {
-				if err := SetUserDefaultApiKeyShare(ctx, userID, &share.ID); err != nil {
-					log.Warn("failed to set default API key", "error", err)
-				}
-				break
-			}
-		}
+		setDevDefaultKey(ctx, userID, *keyID)
 	}
 }
 
@@ -284,18 +278,13 @@ func preseedDevGames(ctx context.Context) {
 		}
 	}
 
-	dir, err := checkoutPath(devGamesDir)
-	if err != nil {
+	paths, err := DevGameFiles()
+	if err != nil || len(paths) == 0 {
 		log.Warn("no demo games to seed", "error", err)
 		return
 	}
-	paths, err := filepath.Glob(filepath.Join(dir, "*.yaml"))
-	if err != nil || len(paths) == 0 {
-		log.Warn("no demo games to seed", "dir", dir, "error", err)
-		return
-	}
 
-	log.Debug("seeding demo games", "count", len(paths), "dir", dir)
+	log.Debug("seeding demo games", "count", len(paths))
 	now := time.Now()
 	for i, path := range paths {
 		owner := slots[i%len(slots)].id
@@ -409,9 +398,10 @@ func checkoutPath(rel string) (string, error) {
 }
 
 // The site restrictions development starts with, the examples of
-// JUGENDSCHUTZ.md; on a live server an admin sets them.
+// JUGENDSCHUTZ.md; on a live server an admin sets them. The demo games'
+// covers are drawn under DevSiteConstraintU13 (cmd/seedcovers).
 const (
-	devSiteConstraintU13   = "Erlaube spürbare Konflikte und stärkere Spannung; greife bei realistischer, detaillierter oder eskalierender Gewalt ein und verhindere Verherrlichung und Überforderung."
+	DevSiteConstraintU13   = "Erlaube spürbare Konflikte und stärkere Spannung; greife bei realistischer, detaillierter oder eskalierender Gewalt ein und verhindere Verherrlichung und Überforderung."
 	devSiteConstraintAdult = "Erlaube realistische, auch deutlich intensivere Inhalte; unterbinde exzessive oder verherrlichte Gewalt sowie extreme, entwürdigende oder diskriminierende Darstellungen konsequent."
 )
 
@@ -431,7 +421,7 @@ func preseedDevSiteConstraints(ctx context.Context) {
 			log.Warn("failed to preseed a site restriction", "level", level, "error", err)
 		}
 	}
-	fill("u13", settings.PromptConstraintU13, devSiteConstraintU13, UpdatePromptConstraintU13)
+	fill("u13", settings.PromptConstraintU13, DevSiteConstraintU13, UpdatePromptConstraintU13)
 	fill("u13p", settings.PromptConstraintU13p, devSiteConstraintAdult, UpdatePromptConstraintU13p)
 	fill("u18", settings.PromptConstraintU18, devSiteConstraintAdult, UpdatePromptConstraintU18)
 }

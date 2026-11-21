@@ -5,6 +5,7 @@ import {
   Group,
   Pagination,
   Select,
+  SimpleGrid,
   Skeleton,
   Stack,
   Table,
@@ -82,8 +83,14 @@ export interface ListTableProps<T, F extends string, S extends string> {
   controls: ListQueryControls<F, S>;
   columns: ListColumn<T, S>[];
   getRowKey: (item: T) => string;
-  /** How an item looks on a phone, where the table becomes cards. */
+  /** How an item looks as a card: on a phone, and in the grid layout. */
   renderCard: (item: T) => ReactNode;
+  /**
+   * "table" (default): rows with sortable headers, cards on a phone.
+   * "grid": cards on every screen, as many side by side as fit; the
+   * toolbar holds the order and the header shortcuts, as on a phone.
+   */
+  layout?: "table" | "grid";
   onRowClick?: (item: T) => void;
   /** A colour stripe on the row's left edge, e.g. for sponsored games. */
   getRowAccent?: (item: T) => MantineColor | undefined;
@@ -110,6 +117,7 @@ export function ListTable<T, F extends string, S extends string>({
   columns,
   getRowKey,
   renderCard,
+  layout = "table",
   onRowClick,
   getRowAccent,
   filters,
@@ -122,6 +130,8 @@ export function ListTable<T, F extends string, S extends string>({
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
   const { query } = controls;
+  // Cards have no headers: their sorts and shortcuts go to the toolbar.
+  const cards = isMobile || layout === "grid";
 
   // Always open: on a phone it takes what the icons leave, on a wider
   // screen up to a comfortable width.
@@ -155,7 +165,7 @@ export function ListTable<T, F extends string, S extends string>({
             an icon: star, filter, sort, search. There the group takes the
             free space, so an opened search grows only up to the actions. */}
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: isMobile ? 1 : undefined }}>
-          {isMobile &&
+          {cards &&
             columns.map(
               (column) =>
                 column.headerToggle && (
@@ -177,7 +187,7 @@ export function ListTable<T, F extends string, S extends string>({
               options={filters}
             />
           )}
-          {isMobile && sortSelector}
+          {cards && sortSelector}
           {isMobile && search}
         </Group>
         {/* Right: the search on a wider screen (its headers sort), then the
@@ -203,6 +213,7 @@ export function ListTable<T, F extends string, S extends string>({
           columns={columns}
           getRowKey={getRowKey}
           renderCard={renderCard}
+          layout={layout}
           onRowClick={onRowClick}
           getRowAccent={getRowAccent}
           empty={empty}
@@ -224,6 +235,7 @@ function ListBody<T, F extends string, S extends string>({
   columns,
   getRowKey,
   renderCard,
+  layout,
   onRowClick,
   getRowAccent,
   empty,
@@ -233,6 +245,7 @@ function ListBody<T, F extends string, S extends string>({
   isMobile: boolean;
 }) {
   const { t } = useTranslation("common");
+  const grid = layout === "grid";
 
   if (list.error) {
     return (
@@ -243,6 +256,15 @@ function ListBody<T, F extends string, S extends string>({
   }
 
   if (list.isInitialLoading) {
+    if (grid) {
+      return (
+        <SimpleGrid cols={GRID_COLS} spacing="lg">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} height={320} radius="lg" />
+          ))}
+        </SimpleGrid>
+      );
+    }
     return isMobile ? (
       <Stack gap="md">
         {[1, 2, 3].map((i) => (
@@ -262,16 +284,29 @@ function ListBody<T, F extends string, S extends string>({
     </Stack>
   );
 
-  // On a phone the toolbar holds every control, so an empty list is a card.
-  // On a wider screen the table keeps its header even when empty: its sorts
-  // and toggles (e.g. "only favorites") must stay reachable to undo a filter
-  // that left nothing.
-  if (list.items.length === 0 && isMobile) {
+  // With cards the toolbar holds every control, so an empty list is a card.
+  // A table keeps its header even when empty: its sorts and toggles (e.g.
+  // "only favorites") must stay reachable to undo a filter that left nothing.
+  if (list.items.length === 0 && (isMobile || grid)) {
     return (
       <DimmedLoader visible={list.isRefetching} loaderSize="lg">
         <Card shadow="sm" p="xl" radius="md" withBorder>
           {emptyContent}
         </Card>
+      </DimmedLoader>
+    );
+  }
+
+  if (grid) {
+    return (
+      <DimmedLoader visible={list.isRefetching} loaderSize="lg">
+        <SimpleGrid cols={GRID_COLS} spacing="lg" verticalSpacing="lg">
+          {list.items.map((item) => (
+            <div key={getRowKey(item)} className={classes.gridCell}>
+              {renderCard(item)}
+            </div>
+          ))}
+        </SimpleGrid>
       </DimmedLoader>
     );
   }
@@ -373,6 +408,9 @@ function ListBody<T, F extends string, S extends string>({
     </DimmedLoader>
   );
 }
+
+/** The grid layout's columns: as many cards side by side as fit comfortably. */
+const GRID_COLS = { base: 1, xs: 2, md: 3, xl: 4 };
 
 function ListFooter<T, F extends string, S extends string>({
   list,

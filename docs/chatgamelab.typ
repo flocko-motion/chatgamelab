@@ -39,6 +39,10 @@ called the *player*.
 - *Image style* describes how the game's pictures look.
 - *Theme* picks the look of the playback-engine around the game.
 
+A game has a *cover*: one picture of it, drawn in its image style under the
+youth-protection rule for the youngest players, since anyone who sees the game
+sees its cover. 
+
 == Sessions
 
 A session is one player playing one game. Creating it takes:
@@ -300,6 +304,9 @@ resolved by the platform. Whoever shares a key decides how it may be used: which
 tiers, which features at each tier, a default, and whether players may choose
 within that. Several shared keys can be offered at once, and the player picks
 one. A revoked key stops working on the next turn.
+
+Drawing a game's cover is paid like a session of that game, for whoever has it
+drawn. 
 
 *An API-key share is like a credit-line, it allows it's holder to spend money.* 
 It belongs to the user who owns the API-key it, and only they share it

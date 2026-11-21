@@ -5,4 +5,5 @@ system_message_scenario: "You're creating ChatGameLab - a platform where teacher
 system_message_game_start: "Your whiteboard is covered in sticky notes and half-erased diagrams. Cascade appears on your screen: 'Okay, let's design ChatGameLab! I've been thinking about the user flow. We have three types of users - Admins who manage everything, Teachers who create games and run workshops, and Students who play. But here's my first question: should Students need to log in at all? A teacher might just want to share a link... What do you think?'"
 image_style: "creative workspace, whiteboard with wireframes, sticky notes, user journey diagrams, personas on cards, cozy brainstorming session, laptop with chat interface"
 css: ""
+theme: educational
 status_fields: '[{"name":"Code Quality","value":"100"},{"name":"Consistency","value":"100"},{"name":"Feature Creep","value":"0"},{"name":"Coffee","value":"80"},{"name":"User Happiness","value":"0"},{"name":"Launch Ready","value":"0"}]'

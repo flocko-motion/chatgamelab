@@ -5,4 +5,5 @@ system_message_scenario: "You have the rare ability to enter other people's drea
 system_message_game_start: "You close your eyes and focus. Reality melts away. You find yourself in a twisted version of a childhood playground. The swings move by themselves."
 image_style: "surreal dreamscapes, impossible geometry, shifting reality, ethereal atmosphere"
 css: ""
+theme: abstract
 status_fields: '[{"name":"Lucidity","value":"100"},{"name":"Sanity","value":"80"}]'

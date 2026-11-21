@@ -5,4 +5,5 @@ system_message_scenario: "Dragons have returned to the realm after centuries of 
 system_message_game_start: "You stand in the dragon hatchery. A silver egg cracks open before you, and a pair of intelligent eyes meet yours. Your destiny begins."
 image_style: "epic fantasy, dragons in flight, mountain peaks, medieval kingdoms"
 css: ""
+theme: medieval
 status_fields: '[{"name":"Dragon Bond","value":"30"},{"name":"Honor","value":"100"}]'

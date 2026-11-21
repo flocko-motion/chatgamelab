@@ -1,0 +1,141 @@
+/* A game's tile: cover on top, then name, facts and description, and the
+   play button at the foot, which lines up across a row of tiles. */
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.card {
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+.card[data-sponsored] {
+  border-color: var(--mantine-color-pink-3);
+}
+
+/* The cover, with badges and the star laid over it. */
+.cover {
+  position: relative;
+}
+
+.cover img {
+  transition: transform 300ms ease;
+}
+
+.card:hover .cover img {
+  transform: scale(1.04);
+}
+
+/* Over the cover, on hover (and for the keyboard on focus): a big round
+   button with a gamepad, as a video shows its play button; neutral grey, so
+   it sits on any cover. */
+.playHint {
+  all: unset;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--mantine-color-black) 20%, transparent);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.card:hover .playHint,
+.playHint:focus-visible {
+  opacity: 1;
+}
+
+.playHint:focus-visible .playCircle {
+  outline: 3px solid var(--mantine-color-white);
+  outline-offset: 3px;
+}
+
+/* Grows with the tile: about a quarter of its width. */
+.playCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(56px, 26%, 88px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  /* Frosted grey glass over any cover; the accent only in a thin ring. */
+  background: color-mix(in srgb, var(--mantine-color-dark-9) 45%, transparent);
+  backdrop-filter: blur(6px);
+  border: 2px solid color-mix(in srgb, var(--mantine-color-accent-3) 70%, transparent);
+  color: var(--mantine-color-white);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--mantine-color-black) 35%, transparent);
+  transform: scale(0.85);
+  transition: transform 200ms ease;
+}
+
+.card:hover .playCircle,
+.playHint:focus-visible .playCircle {
+  transform: scale(1);
+}
+
+.playIcon {
+  width: 55%;
+  height: 55%;
+}
+
+.overlayTop,
+.overlayBottom {
+  position: absolute;
+  left: var(--mantine-spacing-xs);
+  right: var(--mantine-spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-xs);
+  pointer-events: none;
+}
+
+.overlayTop {
+  top: var(--mantine-spacing-xs);
+}
+
+.overlayBottom {
+  bottom: var(--mantine-spacing-xs);
+}
+
+.overlayTop > *,
+.overlayBottom > * {
+  pointer-events: auto;
+}
+
+.overlayBadge {
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+/* Pushed right, also when there is no badge on its left. */
+.star {
+  margin-left: auto;
+  border-radius: var(--mantine-radius-xl);
+  background: color-mix(in srgb, var(--mantine-color-white) 85%, transparent);
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+/* Takes the free height, so the foot sits at the bottom. */
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.facts {
+  color: var(--mantine-color-gray-6);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.foot {
+  margin-top: var(--mantine-spacing-md);
+}

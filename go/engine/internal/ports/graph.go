@@ -17,6 +17,8 @@ type Graph struct {
 	shared []Shared
 	edges  []Edge
 	pumps  []func(context.Context)
+	// layout is where each block is drawn, by name.
+	layout Layout
 }
 
 type Edge struct {
@@ -423,12 +425,29 @@ type Topology struct {
 	// Theme and Language come from the session's spec, for the playback-engine to apply.
 	Theme    string `json:"theme,omitempty"`
 	Language string `json:"language,omitempty"`
+	// Dev lets a developer rearrange the drawing and copy the layout back into code.
+	Dev bool `json:"dev,omitempty"`
 }
 
 type TopologyNode struct {
 	Name string `json:"name"`
 	Role string `json:"role"`
+	// Cell is where the block is drawn; a block the layout misses has none.
+	Cell *Cell `json:"cell,omitempty"`
 }
+
+// Cell is a place in the drawing's grid: rows run top to bottom, columns left to right.
+type Cell struct {
+	Row int `json:"row"`
+	Col int `json:"col"`
+}
+
+// Layout places a genre's blocks by name. A wiring changes only with code, so
+// its drawing is placed by hand, in a reading order a person chose.
+type Layout map[string]Cell
+
+// Arrange gives the graph its drawing.
+func (g *Graph) Arrange(layout Layout) { g.layout = layout }
 
 type TopologyEdge struct {
 	From string `json:"from"`
@@ -440,7 +459,11 @@ func (g *Graph) Topology() Topology {
 	// Inputs is left for the genre to fill.
 	t := Topology{Name: g.Name, Inputs: []string{}}
 	for _, n := range g.nodes {
-		t.Nodes = append(t.Nodes, TopologyNode{Name: NodeName(n), Role: g.role(n)})
+		node := TopologyNode{Name: NodeName(n), Role: g.role(n)}
+		if cell, ok := g.layout[node.Name]; ok {
+			node.Cell = &cell
+		}
+		t.Nodes = append(t.Nodes, node)
 	}
 	for _, e := range g.edges {
 		t.Edges = append(t.Edges, TopologyEdge{

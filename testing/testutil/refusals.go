@@ -34,6 +34,7 @@ const (
 	CodePublicLinksInvalid       = "public_links_invalid"
 	CodeTokenLocked              = "token_locked"
 	CodeWorkshopInactive         = "auth_workshop_inactive"
+	CodeNoApiKey                 = "no_api_key"
 
 	// organisations registering themselves
 	CodeInstitutionAgeNotAllowed    = "institution_age_not_allowed"

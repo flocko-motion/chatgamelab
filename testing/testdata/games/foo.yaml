@@ -5,4 +5,5 @@ system_message_scenario: "it's a goblle di doo"
 system_message_game_start: "you are in the middle of hobble dobble"
 image_style: "strawberries all over the place"
 css: ""
+theme: candy
 status_fields: '[{"name":"Gold","value":"100"}]'
