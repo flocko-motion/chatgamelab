@@ -1,7 +1,7 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     the platform's ways in beside schemaf's own login routes: completing registration, a participant's sign-in, and the account behind a request
-// limits:  who is calling is resolved in api/auth; schemaf serves Auth0 login, /api/user/me, refresh and logout
+// limits:  who is calling is resolved by the secure core (core.Resolve); schemaf serves Auth0 login, /api/user/me, refresh and logout
 package api
 
 import (
@@ -9,6 +9,7 @@ import (
 	"errors"
 
 	"cgl/api/auth"
+	"cgl/core"
 	"cgl/db"
 	"cgl/obj"
 
@@ -26,7 +27,7 @@ func (CompleteRegistrationEndpoint) Method() string             { return "POST" 
 func (CompleteRegistrationEndpoint) Path() string               { return "/api/auth/register" }
 func (CompleteRegistrationEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (CompleteRegistrationEndpoint) Handle(ctx context.Context, req CompleteRegistrationReq) (UserResp, error) {
-	caller, err := auth.Registering(ctx)
+	caller, err := core.LegacyRegistering(ctx)
 	if err != nil {
 		return obj.User{}, err
 	}
@@ -54,12 +55,12 @@ func (GetCurrentUserEndpoint) Method() string             { return "GET" }
 func (GetCurrentUserEndpoint) Path() string               { return "/api/users/me" }
 func (GetCurrentUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (GetCurrentUserEndpoint) Handle(ctx context.Context, _ GetCurrentUserReq) (GetCurrentUserResp, error) {
-	if _, ok := schemafapi.Subject(ctx); !ok {
-		return GetCurrentUserResp{State: CallerAnonymous}, nil
-	}
-	user, err := auth.Registering(ctx)
+	user, err := core.LegacyMaybeRegistering(ctx)
 	if err != nil {
 		return GetCurrentUserResp{}, err
+	}
+	if user == nil {
+		return GetCurrentUserResp{State: CallerAnonymous}, nil
 	}
 	if user.Name == "" {
 		return GetCurrentUserResp{State: CallerRegistering}, nil
