@@ -276,7 +276,8 @@ func TestToggleOnNeedsTheOffersAllowance(t *testing.T) {
 	}
 }
 
-// A toggle off at the start has a wired block that does nothing.
+// A toggle off at the start has a wired block that does nothing: narration
+// off, Expand speaks nothing and bills no audio, and stays wired.
 func TestToggleOffLeavesItsBlockUnbilled(t *testing.T) {
 	s := launchOrFail(t, adventure(mockAdventureOffer(false)))
 	if err := s.Say("I cross the bridge"); err != nil {
@@ -284,11 +285,11 @@ func TestToggleOffLeavesItsBlockUnbilled(t *testing.T) {
 	}
 	eventually(t, "the turn", func() bool { return spent(s, "expand").OutputTokens > 0 })
 	time.Sleep(50 * time.Millisecond)
-	if got := spent(s, "tts"); got.AudioSeconds != 0 {
+	if got := spent(s, "expand"); got.AudioOutputTokens != 0 {
 		t.Errorf("narration billed %v with its toggle off", got)
 	}
-	if !slices.ContainsFunc(s.Topology().Nodes, func(n ports.TopologyNode) bool { return n.Name == "tts" }) {
-		t.Error("the narration block must stay wired")
+	if !slices.ContainsFunc(s.Topology().Edges, func(e ports.TopologyEdge) bool { return e.From == "expand" && e.To == "out-audio" }) {
+		t.Error("the narration must stay wired")
 	}
 }
 
@@ -435,16 +436,33 @@ func TestValidateErrors(t *testing.T) {
 		spec  game
 		field string
 	}{
-		"no offer":           {adventure(), "offers"},
-		"unknown genre":      {game{spec: SessionSpec{Genre: "quiz"}, offers: []Offer{MockOffer()}}, "genre"},
-		"unknown prompt":     {game{spec: SessionSpec{Genre: GenreNPCLive, PromptOverride: map[string]string{"portrait-x": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.portrait-x"},
-		"invalid voice":      {game{spec: SessionSpec{Genre: GenreNPCLive, Voice: "nobody"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, live)}}, "voice"},
-		"adventure override": {game{spec: SessionSpec{Genre: GenreAdventure, PromptOverride: map[string]string{"observer": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.observer"},
-		"no offer runs it":   {game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{})}}, "offers"},
+		"no offer":       {adventure(), "offers"},
+		"unknown genre":  {game{spec: SessionSpec{Genre: "quiz"}, offers: []Offer{MockOffer()}}, "genre"},
+		"unknown prompt": {game{spec: SessionSpec{Genre: GenreNPCLive, PromptOverride: map[string]string{"portrait-x": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.portrait-x"},
+		"invalid voice":  {game{spec: SessionSpec{Genre: GenreNPCLive, Voice: "nobody"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, live)}}, "voice"},
+		// beacon is a GPT-Live voice, which gpt-realtime does not speak in.
+		"live voice narrating": {game{spec: SessionSpec{Genre: GenreAdventure, Voice: "beacon"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, Toggles{AudioOut: true})}}, "voice"},
+		"adventure override":   {game{spec: SessionSpec{Genre: GenreAdventure, PromptOverride: map[string]string{"observer": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.observer"},
+		"no offer runs it":     {game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{})}}, "offers"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if issues := check(tc.spec); !hasErrorAt(issues, tc.field) {
 				t.Errorf("issues = %v, want an error at %s", issues, tc.field)
+			}
+		})
+	}
+}
+
+// A voice is checked against the genre's speaking model: gpt-realtime's for
+// Adventure's narration, GPT-Live's for NPC-Live.
+func TestVoiceFitsTheGenresSpeakingModel(t *testing.T) {
+	for name, spec := range map[string]game{
+		"realtime voice narrating": {spec: SessionSpec{Genre: GenreAdventure, Voice: "cedar"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, Toggles{AudioOut: true})}},
+		"live voice in npc-live":   {spec: SessionSpec{Genre: GenreNPCLive, Voice: "beacon"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, live)}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if issues := check(spec); hasErrorAt(issues, "voice") {
+				t.Errorf("issues = %v, want the voice accepted", issues)
 			}
 		})
 	}

@@ -23,9 +23,12 @@ const (
 var pitches = []float64{196.00, 246.94, 293.66, 329.63, 392.00}
 
 // speech renders one utterance as a sequence of PCM16 frames.
-func speech(index int) [][]byte {
+func speech(index int) [][]byte { return tone(index, utteranceSecs) }
+
+// tone renders a tone of the index's pitch, lasting seconds, as PCM16 frames.
+func tone(index int, seconds float64) [][]byte {
 	pitch := pitches[index%len(pitches)]
-	total := int(utteranceSecs * sampleRate)
+	total := int(seconds * sampleRate)
 
 	var frames [][]byte
 	for start := 0; start < total; start += frameSamples {

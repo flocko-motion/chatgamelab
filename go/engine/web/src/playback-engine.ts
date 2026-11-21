@@ -4,6 +4,7 @@
  */
 import { detailOf, refusalOf, type Choice, type SessionRef, type Settled, type UsageReport } from "./client.js";
 import {
+  AUDIO_DISCARD_BYTES,
   ERROR_CODES,
   isSessionEvent,
   TEXT_DISCARD,
@@ -18,6 +19,7 @@ import type { Conversation, ToggleName } from "./state.js";
 import { emptyState, explain, type PlaybackEngineState } from "./state.js";
 import { notice, type TextKey } from "./texts.js";
 import type { Transport, TransportMessage } from "./transport.js";
+import type { Speaker } from "./speaker.js";
 import type { Voice } from "./voice.js";
 
 export type Listener = (state: PlaybackEngineState) => void;
@@ -31,10 +33,14 @@ export class PlaybackEngine {
   /** The player's last typed line, given back if the engine drops its turn. */
   #said: string | null = null;
 
-  /** Optional, so a headless run can watch a conversation it cannot join. */
+  /**
+   * The voice and the speaker are optional, so a headless run can watch a
+   * conversation it can neither join nor hear.
+   */
   constructor(
     private readonly transport: Transport,
     private readonly voice?: Voice,
+    private readonly speaker?: Speaker,
   ) {}
 
   /** `immediate` is opt-out so a waiter is not called before its unsubscribe handle exists. */
@@ -67,6 +73,7 @@ export class PlaybackEngine {
 
   close(): void {
     this.voice?.close();
+    this.speaker?.discard();
     this.transport.close();
     this.#set("closed");
   }
@@ -205,7 +212,7 @@ export class PlaybackEngine {
 
   #receive(data: TransportMessage): void {
     if (data instanceof ArrayBuffer) {
-      this.state.audioChunks++;
+      this.#hear(data);
       this.#notify();
       return;
     }
@@ -450,6 +457,22 @@ export class PlaybackEngine {
     } catch {
       // A malformed report costs a display update, not the conversation.
     }
+  }
+
+  /**
+   * Plays a frame of spoken reply as it arrives, queued after the one before;
+   * a discard stops the speech and drops the queue, so a reply made again
+   * speaks from its start. A live voice connection plays the character
+   * itself, so the frames that mirror it are only counted.
+   */
+  #hear(frame: ArrayBuffer): void {
+    if (frame.byteLength === AUDIO_DISCARD_BYTES) {
+      this.state.audioDiscards++;
+      this.speaker?.discard();
+      return;
+    }
+    this.state.audioChunks++;
+    if (this.state.voice !== "live") this.speaker?.play(frame);
   }
 
   #extend(delta: string): void {

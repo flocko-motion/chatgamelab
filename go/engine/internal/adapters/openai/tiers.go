@@ -17,14 +17,25 @@ import "engine/internal/adapters"
 // takes that model's smallest size, a square.
 //
 // GPT-Live publishes no tier ladder, so every tier resolves to the same voice
-// model. Speech and transcription each have one model, so they do not move
-// with the tier either.
+// model. Transcription has one model, so it does not move with the tier
+// either.
+//
+// Speech is the story model, speaking: while narration is on, the story
+// thread runs on a gpt-realtime model, which writes the prose and says it.
+// The mini model serves low and medium, the full one high.
 var (
 	live          = adapters.Model{Name: "gpt-live-1"}
 	tooling       = adapters.Model{Name: "gpt-5.6-luna"}
-	speech        = adapters.Model{Name: "gpt-4o-mini-tts", Params: map[string]string{adapters.ParamVoice: DefaultVoice, adapters.ParamFormat: "pcm"}}
+	speechMini    = speaking("gpt-realtime-2.1-mini")
+	speechFull    = speaking("gpt-realtime-2.1")
 	transcription = adapters.Model{Name: "gpt-4o-mini-transcribe"}
 )
+
+// speaking is a gpt-realtime model with the voice it speaks in unless a game
+// names another.
+func speaking(name string) adapters.Model {
+	return adapters.Model{Name: name, Params: map[string]string{adapters.ParamVoice: DefaultVoice}}
+}
 
 func image(name, quality, size string) adapters.Model {
 	return adapters.Model{Name: name, Params: map[string]string{adapters.ParamQuality: quality, adapters.ParamSize: size}}
@@ -45,7 +56,7 @@ func Platform() adapters.Platform {
 				// of young people playing at once, so the saving multiplies.
 				adapters.ModelImage:         image("gpt-image-1-mini", "low", "1024x1024"),
 				adapters.ModelLive:          live,
-				adapters.ModelSpeech:        speech,
+				adapters.ModelSpeech:        speechMini,
 				adapters.ModelTranscription: transcription,
 			},
 			adapters.ModelSet{
@@ -53,7 +64,7 @@ func Platform() adapters.Platform {
 				adapters.ModelStory:         {Name: "gpt-5-mini"},
 				adapters.ModelImage:         image("gpt-image-2.5-flare", "medium", "1024x672"),
 				adapters.ModelLive:          live,
-				adapters.ModelSpeech:        speech,
+				adapters.ModelSpeech:        speechMini,
 				adapters.ModelTranscription: transcription,
 			},
 			adapters.ModelSet{
@@ -61,7 +72,7 @@ func Platform() adapters.Platform {
 				adapters.ModelStory:         {Name: "gpt-5.1"},
 				adapters.ModelImage:         image("gpt-image-2.5-flare", "high", "1024x672"),
 				adapters.ModelLive:          live,
-				adapters.ModelSpeech:        speech,
+				adapters.ModelSpeech:        speechFull,
 				adapters.ModelTranscription: transcription,
 			},
 		),

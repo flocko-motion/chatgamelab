@@ -186,26 +186,34 @@ func (s *Session) start(settled settlement, changes []string) {
 	s.wiring.Graph.Start(s.ctx)
 }
 
-// equip puts the settled offer's adapters in the slots the blocks call.
+// equip puts the settled offer's adapters in the slots the blocks call, and
+// closes those they replace.
 func (s *Session) equip() {
 	kit, err := s.spec.adapters(*s.settled)
 	if err != nil {
 		s.post(SessionEvent{Stream: "error", Value: err.Error()})
 		return
 	}
+	s.kit.close()
+	s.kit = kit
 	s.slots.live.Set(kit.live)
 	s.slots.tool.Set(kit.tool)
 	s.slots.image.Set(kit.image)
-	// The thread's continuation holds only on the offer that made it.
-	s.slots.thread.Set(kit.thread, s.settled.offer.ID)
 }
 
-// applySwitches sets every switchable block from the settled toggles.
+// applySwitches sets every switchable block from the settled toggles, and
+// the story thread's model: the speaking one while narration is on. A change
+// of model applies from the next call, which opens a fresh provider thread
+// seeded with the transcript, as a continuation holds only on the model, and
+// the offer, that made it.
 func (s *Session) applySwitches() {
 	for toggle, blocks := range s.wiring.Switches {
 		for _, block := range blocks {
 			block.SetActive(s.settled.Toggles.Has(toggle))
 		}
+	}
+	if story := s.kit.story(s.settled.Toggles.Has(ToggleAudioOut)); story != nil {
+		s.slots.thread.Set(story, s.settled.offer.ID)
 	}
 }
 

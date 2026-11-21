@@ -21,6 +21,13 @@ const (
 	PieceDiscard Piece = "\x18"
 )
 
+// AudioDiscard is the audio stream's one marker, an empty chunk: it drops the
+// spoken reply still playing and queued, as when a broken stream is retried.
+var AudioDiscard = AudioChunk{}
+
+// Discard reports whether the chunk is AudioDiscard.
+func (c AudioChunk) Discard() bool { return len(c) == 0 }
+
 // Source ports hand out a fresh channel per call: consumers sharing one would steal from each other.
 // SecondaryTextOut exists because a struct satisfies an interface once; split a block needing a third.
 type (
@@ -68,13 +75,17 @@ type StateOut interface{ StateOutPort() <-chan State }
 // Usage is a block's cumulative spend for the session: totals, so a dropped event costs
 // accuracy only for an instant and a late subscriber sees the whole session.
 type Usage struct {
-	Node              string  `json:"node"`
-	Model             string  `json:"model"`
-	InputTokens       int64   `json:"inputTokens,omitempty"`
-	CachedInputTokens int64   `json:"cachedInputTokens,omitempty"`
-	OutputTokens      int64   `json:"outputTokens,omitempty"`
-	AudioSeconds      float64 `json:"audioSeconds,omitempty"`
-	Images            int64   `json:"images,omitempty"`
+	Node              string `json:"node"`
+	Model             string `json:"model"`
+	InputTokens       int64  `json:"inputTokens,omitempty"`
+	CachedInputTokens int64  `json:"cachedInputTokens,omitempty"`
+	OutputTokens      int64  `json:"outputTokens,omitempty"`
+	// The audio tokens are a speaking model's audio, billed apart from text.
+	AudioInputTokens       int64   `json:"audioInputTokens,omitempty"`
+	CachedAudioInputTokens int64   `json:"cachedAudioInputTokens,omitempty"`
+	AudioOutputTokens      int64   `json:"audioOutputTokens,omitempty"`
+	AudioSeconds           float64 `json:"audioSeconds,omitempty"`
+	Images                 int64   `json:"images,omitempty"`
 }
 
 type UsageOut interface{ UsageOutPort() <-chan Usage }

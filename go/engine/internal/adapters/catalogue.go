@@ -54,10 +54,12 @@ func (t Tier) Label() string {
 type ModelType string
 
 const (
-	ModelTooling       ModelType = "tooling"
-	ModelStory         ModelType = "story"
-	ModelImage         ModelType = "image"
-	ModelLive          ModelType = "live"
+	ModelTooling ModelType = "tooling"
+	ModelStory   ModelType = "story"
+	ModelImage   ModelType = "image"
+	ModelLive    ModelType = "live"
+	// ModelSpeech is the story model, speaking: the model a story thread
+	// runs on while narration is on, which writes the prose and says it.
 	ModelSpeech        ModelType = "speech"
 	ModelTranscription ModelType = "transcription"
 )
@@ -72,7 +74,6 @@ const (
 	ParamSize    = "size"
 	ParamQuality = "quality"
 	ParamVoice   = "voice"
-	ParamFormat  = "format"
 )
 
 // Model is one model and the parameters it is called with.

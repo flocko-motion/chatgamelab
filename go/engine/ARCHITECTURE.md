@@ -17,10 +17,9 @@ and configured by prompt into whatever role a genre needs:
 | Block | Mechanism | Roles |
 | --- | --- | --- |
 | **Tool call** | one single-shot text-in/text-out call | rephrase, condense, translate, observer |
-| **Threaded call** | a call on a continuing conversation | Expand, sharing Outline's thread |
+| **Threaded call** | a call on a continuing conversation, spoken while narration is on | Expand, sharing Outline's thread, and narration |
 | **Threaded call with a structured result** | a threaded call whose reply is JSON of a schema | Outline: its outline, image prompt and status |
 | **Image generation** | prompt in, image out | scene illustration, portrait |
-| **Speech synthesis** | text in, audio out | narration |
 | **Transcription** | audio in, text out | voice input on a turn-based genre |
 | **Live session** | a long-lived, full-duplex speech-to-speech connection | NPC-Live's conversation |
 
@@ -38,9 +37,10 @@ set, written by hand.
   edge.
 - **The wiring defines the transport.** Streamed text is a port kind of its
   own, apart from whole text: a block taking whole text waits for the whole, a
-  block taking the stream gets each piece. Adventure's Expand has both: its
-  stream feeds the player's text, so the prose appears as it is written, and
-  its whole reply feeds narration.
+  block taking the stream gets each piece. Adventure's Expand streams the
+  player's text, so the prose appears as it is written; while narration is on
+  its turns are spoken, and the audio reaches the player beside the text, as
+  it comes.
 - **Fan-out** gives each consumer its own stream; **a cycle is a back edge**
   like any other. NPC-Live's observer loop is one.
 - **A per-genre test checks completeness**: every required input and output is
@@ -95,7 +95,8 @@ graph TB
     OUTLINE --> IMGPROMPT
 
     EXPAND(["Expand
-    (story model — same thread)"])
+    (story model — same thread,
+    spoken while narration is on)"])
     IMAGE(["Image
     (image model, optional)"])
     VETO(["Veto / fact-check
@@ -105,20 +106,18 @@ graph TB
     IMGPROMPT --> IMAGE
     OUTTEXT -.-> VETO
 
-    AUDIO(["Audio / TTS
-    (speech model, optional)"])
-    EXPAND --> AUDIO
-
     OUT(("Turn output"))
-    EXPAND --> OUT
+    EXPAND -- text --> OUT
+    EXPAND -. "audio (optional)" .-> OUT
     IMAGE --> OUT
-    AUDIO --> OUT
     PROPS --> OUT
 ```
 
 Transcribe runs only when the model resolved into the Preprocess slot takes text
-alone. Image and Audio are always wired; the session's `images` and `audio-out`
-toggles switch them on and off.
+alone. Image and Expand's audio are always wired. The session's `images`
+toggle switches the image block on and off; `audio-out` has Expand's turns
+spoken, and the story thread runs on the tier's speech model meanwhile, so the
+model that writes the prose speaks it.
 
 ### NPC-Live
 
@@ -151,7 +150,7 @@ written into the engine.
   `low`, `medium` and `high`, labelled Economy, Balanced and High; `max` is
   read as `high`.
 - **Each tier lists a model per model type**, with the parameters it is called
-  with, such as a picture's size and quality or a voice's name and format.
+  with, such as a picture's size and quality or a voice's name.
   `tooling` and `story` are always listed; each toggle that is on adds one:
 
 | Toggle | Model type | Used by |
@@ -159,7 +158,7 @@ written into the engine.
 | — | **tooling** | rephrase, translate, observer |
 | — | **story** | Outline and Expand, on one continuing conversation |
 | `images` | **image** | image generation |
-| `audio-out` | **speech** | speech synthesis |
+| `audio-out` | **speech** | the story model, speaking: Outline and Expand while narration is on |
 | `audio-in` | **transcription** | transcription |
 | `audio-live` | **live** | the live-session block |
 
@@ -232,6 +231,23 @@ thread.
   Outline's structured turns and Expand's plain ones. Every call states its
   format, a plain one as text, so a format never carries over to the next
   turn.
+- **A plain turn may be spoken**: the model says its reply, the transcript
+  streams as text and the audio, 24 kHz PCM16, beside it. The reply the
+  thread keeps is the transcript, so the transcript stays text. A thread on a
+  model that cannot speak answers in text.
+- **The thread's model follows narration.** While `audio-out` is on, the
+  story thread runs on the tier's speech model, off on its story model. A
+  switch applies from the next call: the continuation made on the other model
+  is dropped, and a fresh provider thread is seeded with the transcript, for
+  one uncached call per switch.
+- **On OpenAI's speaking models**, gpt-realtime, the thread runs over the
+  Realtime API's server-side WebSocket. The continuation is the session, held
+  open between calls; the session's 60-minute limit, a dropped connection or
+  an engine restart reseed a fresh one from the transcript. Instructions go
+  with each response. Realtime has no JSON schema format, so a structured turn
+  is a forced function call, named after the schema with the schema as its
+  parameters, and the caller checks its arguments against the schema; a reply
+  not kept is deleted from the session.
 
 ### A structured result
 
@@ -250,8 +266,11 @@ current status values, so the thread's memory is not trusted for them.
   network's retries.
 - **`cmd/probe`** (`make probe`) measures, on real keys and by hand, how
   reliably each platform's story models answer a structured turn, streamed,
-  fresh and appended: valid, invalid, refused, cut short, failed, whether it
-  streamed, latency and cost. It gives stats, no verdict.
+  fresh, appended and on a fresh thread seeded with the transcript: valid,
+  invalid, refused, cut short, failed, whether it streamed, latency and cost.
+  For the speaking models it also follows spoken turns: the lag between
+  transcript and audio, and whether earlier audio inflates the input. It gives
+  stats, no verdict.
 
 ## The session spec
 
@@ -370,8 +389,9 @@ process, which matters once a standalone engine runs more than one replica.
 
 ## Usage and cost
 
-Blocks report **cumulative totals** on a port of their own, in three units: text
-per token (cached input apart), live conversation per second, pictures per
+Blocks report **cumulative totals** on a port of their own, in four units: text
+per token (cached input apart), a speaking model's audio per token (in, cached
+in and out, apart from its text), live conversation per second, pictures per
 picture. The engine prices them from a hand-maintained, dated table and reports
 per block and per model, with a flag for whether every model was priced.
 
@@ -383,9 +403,11 @@ and events; a turn-based genre reads events as server-sent events, one JSON
 event per message, and sends actions as requests. A genre's wired output
 sinks define its event types. Utterance boundaries travel in-band: on the
 `text` stream an empty value closes the utterance, and the discard marker
-drops the one still open. A `props` value is the status values as a JSON
-object; an `error` value the game goes on after is a code, such as
-`turn_failed`, which the playback-engine says in the player's language.
+drops the one still open; on the `audio` stream an empty frame drops the
+speech still playing and queued, so a reply made again speaks from its
+start. A `props` value is the status values as a JSON object; an `error`
+value the game goes on after is a code, such as `turn_failed`, which the
+playback-engine says in the player's language.
 
 **Live audio is browser-direct, watched through a sideband:**
 
@@ -414,7 +436,9 @@ wants to own when things render.
 
 - **The headless core is the playback-engine.** It owns the whole session state, so a
   full game plays without a browser; the UI paints that state and pipes input
-  back.
+  back. Spoken audio is handed to a speaker, which the page supplies and plays
+  each frame through as it arrives, back to back; the headless core counts the
+  frames.
 - **The build output is committed** and embedded, so building the engine needs
   no JavaScript toolchain.
 - **One playback-engine** serves the platform and every embedder, through the same
@@ -457,11 +481,14 @@ session end to end with the headless playback-engine.
 - Adventure's prompts: the game master's system message,
   rephrase, the opening, the two narration prompts, the scene frame and the
   two preparation prompts, filled in for the session when the wiring is built.
+- Narration: Expand's turns spoken on OpenAI's gpt-realtime models over the
+  Realtime API, the story thread switching model with `audio-out`, and the
+  playback-engine playing the audio as it comes.
 
 ### Missing
 
-- **Adventure's remaining real blocks** — image generation, speech synthesis
-  and transcription, which still run as dummies.
+- **Adventure's remaining real blocks** — image generation and
+  transcription, which still run as dummies.
 - **Adventure's prompts in play** — the game master's message on Expand's
   calls, the opening and its dice, the scenario and the youth-protection rule
   on the story thread, the picture prompt and the two preparation calls.

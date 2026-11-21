@@ -28,9 +28,13 @@ func TestPipelines(t *testing.T) {
 		want map[string][]string
 	}{
 		{
-			name:  "adventure runs one action through the whole pipeline",
-			build: func() *Wiring { return mustAdventure(t, map[string]string{"Health": "Good"}) },
-			say:   []string{"I try to cross the bridge"},
+			name: "adventure runs one action through the whole pipeline",
+			build: func() *Wiring {
+				w := mustAdventure(t, map[string]string{"Health": "Good"})
+				narrate(w, true)
+				return w
+			},
+			say: []string{"I try to cross the bridge"},
 			want: map[string][]string{
 				// The rephrase, outline and expand stages each leave their
 				// mark, in order, which is what makes this a pipeline test
@@ -38,7 +42,8 @@ func TestPipelines(t *testing.T) {
 				// turn, Expand its second.
 				"text":  {"[story turn 2] [outline 1] [mock-tool] I try to cross the bridge"},
 				"image": {"<png of [image_prompt 1] [mock-tool] I try to cross the bridge>"},
-				"audio": {"<narration of [story turn 2]"},
+				// Expand's turn is spoken; any audio frame is a start.
+				"audio": {""},
 				"props": {`{"Health":"Good"}`, `{"Health":"Good [turn 1]"}`},
 			},
 		},

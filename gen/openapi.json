@@ -2355,8 +2355,17 @@
       },
       "UsageRecord": {
         "properties": {
+          "audioInputTokens": {
+            "type": "integer"
+          },
+          "audioOutputTokens": {
+            "type": "integer"
+          },
           "audioSeconds": {
             "type": "number"
+          },
+          "cachedAudioInputTokens": {
+            "type": "integer"
           },
           "cachedInputTokens": {
             "type": "integer"

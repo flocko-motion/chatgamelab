@@ -18,6 +18,7 @@ import { explain } from "../state.js";
 import { notice, text, useLanguage, type Notice } from "../texts.js";
 import { WebSocketTransport } from "../transport.js";
 import { LaunchPanel } from "./launch.js";
+import { AudioIO } from "./audio.js";
 import { WebRTCVoice } from "./voice.js";
 import { mountSplit } from "./split.js";
 import { View } from "./view.js";
@@ -69,9 +70,12 @@ const session: SessionRef = { client, id: sessionID };
 // circle is handed over afterwards.
 let recover = (): void => {};
 
+// The speaker plays a spoken reply's audio as it arrives over the session's
+// connection, as an Adventure's narration does.
 const playback = new PlaybackEngine(
   new WebSocketTransport(liveURL(session, location.origin), () => recover()),
   new WebRTCVoice(session),
+  new AudioIO(new URL("./mic-worklet.js", import.meta.url).href),
 );
 const typed = required<HTMLInputElement>("#typed");
 

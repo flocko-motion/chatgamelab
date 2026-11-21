@@ -150,7 +150,13 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 	for i, offer := range offers {
 		speaksOpenAI = speaksOpenAI || (sound[i] && offer.Platform == PlatformOpenAI)
 	}
-	if speaksOpenAI && spec.Voice != "" && !openai.ValidVoice(spec.Voice) {
+	// The voice is the genre's speaking model's: gpt-realtime narrates an
+	// Adventure, GPT-Live is NPC-Live's character.
+	valid := openai.ValidLiveVoice
+	if spec.Genre == GenreAdventure {
+		valid = openai.ValidRealtimeVoice
+	}
+	if speaksOpenAI && spec.Voice != "" && !valid(spec.Voice) {
 		report(SeverityError, "voice", "unknown voice %q", spec.Voice)
 	}
 	if !knownGenre {

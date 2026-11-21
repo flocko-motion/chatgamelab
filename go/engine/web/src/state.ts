@@ -35,6 +35,8 @@ export interface PlaybackEngineState {
   image: string | null;
   /** Audio chunks received; a headless run asserts on the count, not the sound. */
   audioChunks: number;
+  /** Audio discards received, each dropping the speech of a reply made again. */
+  audioDiscards: number;
   /** Anything the client did not recognise, kept rather than dropped. */
   notes: string[];
   /** What has gone wrong, said so a player can act on it. */
@@ -78,6 +80,7 @@ export function emptyState(): PlaybackEngineState {
     props: {},
     image: null,
     audioChunks: 0,
+    audioDiscards: 0,
     notes: [],
     problem: null,
     refusal: null,

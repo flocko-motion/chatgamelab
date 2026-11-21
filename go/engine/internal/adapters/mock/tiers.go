@@ -7,11 +7,13 @@ import "engine/internal/adapters"
 func Platform() adapters.Platform {
 	models := func() adapters.ModelSet {
 		return adapters.ModelSet{
-			adapters.ModelTooling:       {Name: "mock-tool"},
-			adapters.ModelStory:         {Name: "mock-story"},
-			adapters.ModelImage:         {Name: "mock-image"},
-			adapters.ModelLive:          {Name: "gpt-live-mock"},
-			adapters.ModelSpeech:        {Name: "mock-speech"},
+			adapters.ModelTooling: {Name: "mock-tool"},
+			adapters.ModelStory:   {Name: "mock-story"},
+			adapters.ModelImage:   {Name: "mock-image"},
+			adapters.ModelLive:    {Name: "gpt-live-mock"},
+			// The story model, speaking: the story thread runs on it while
+			// narration is on.
+			adapters.ModelSpeech:        {Name: "mock-realtime", Params: map[string]string{adapters.ParamVoice: "marin"}},
 			adapters.ModelTranscription: {Name: "mock-transcription"},
 		}
 	}

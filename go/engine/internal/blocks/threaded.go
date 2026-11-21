@@ -6,6 +6,7 @@ import (
 	"errors"
 	"slices"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"engine/internal/adapters"
@@ -90,8 +91,12 @@ type threadCall struct {
 	instructions, input string
 	// schema makes the call structured; nil is plain.
 	schema *adapters.Schema
+	// speak makes a plain call spoken.
+	speak bool
 	// piece hears each piece of the reply as it arrives; nil hears nothing.
 	piece func(string)
+	// audio hears each chunk of a spoken reply; nil hears nothing.
+	audio func([]byte)
 	// accept checks a finished reply before it is kept; an error makes it a
 	// bad reply. Nil accepts any.
 	accept func(text string) error
@@ -106,9 +111,11 @@ func (t *Thread) call(ctx context.Context, c threadCall) (adapters.ThreadReply, 
 		Instructions: c.instructions,
 		Input:        c.input,
 		Schema:       c.schema,
+		Speak:        c.speak,
 		Continuation: t.state.Continuation,
 		Transcript:   slices.Clone(t.state.Transcript),
 		Piece:        c.piece,
+		Audio:        c.audio,
 	}
 	t.mu.Unlock()
 
@@ -161,14 +168,19 @@ func (t *Thread) RestoreState(s string) {
 }
 
 // Threaded is one block's part in a thread: its role is the instructions it is
-// built with, and the text it receives is its input. It has two outputs: the
+// built with, and the text it receives is its input. Its outputs are the
 // reply streamed piece by piece, each reply closed with PieceClose, and the
 // whole reply once finished.
+//
+// While its Narration switch is on, its turns are spoken: the model says the
+// reply, the transcript streams and is the reply, and the audio goes out on a
+// third output as it comes.
 //
 // Like ToolCall, a failure that may pass is retried and one that will not
 // reports the phase failed, which ends the game. A retry goes on from the same
 // continuation, as the provider never completed the broken response; the
-// pieces already streamed are dropped with PieceDiscard first.
+// pieces already streamed are dropped with PieceDiscard first, and the audio
+// already spoken with AudioDiscard.
 type Threaded struct {
 	name, instructions string
 	thread             *Thread
@@ -178,12 +190,19 @@ type Threaded struct {
 	// call is made len(Backoff)+1 times at most. Set before Start.
 	Backoff []time.Duration
 
-	in     ports.TextInput
-	stream ports.StreamBroadcast
-	whole  ports.TextBroadcast
-	state  ports.StateBroadcast
-	meter  meter
+	in        ports.TextInput
+	stream    ports.StreamBroadcast
+	whole     ports.TextBroadcast
+	audio     ports.AudioBroadcast
+	state     ports.StateBroadcast
+	meter     meter
+	narration narration
 }
+
+// narration is the switch that has a block's turns spoken; off until set.
+type narration struct{ on atomic.Bool }
+
+func (n *narration) SetActive(on bool) { n.on.Store(on) }
 
 // NewThreaded builds a block that takes part in the thread, in turn after the
 // blocks built on it before.
@@ -209,6 +228,14 @@ func (b *Threaded) StreamOutPort() <-chan ports.Piece { return b.stream.Subscrib
 // TextOutPort is the whole reply, once finished.
 func (b *Threaded) TextOutPort() <-chan string { return b.whole.Subscribe() }
 
+// AudioOutPort is a spoken reply's audio as it arrives, AudioDiscard dropping
+// what was spoken of a reply made again.
+func (b *Threaded) AudioOutPort() <-chan ports.AudioChunk { return b.audio.Subscribe() }
+
+// Narration is the switch that has the block's turns spoken, off until set; a
+// turn already running keeps what it started with.
+func (b *Threaded) Narration() ports.Switchable { return &b.narration }
+
 // UsageOutPort reports what the calls have cost.
 func (b *Threaded) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
 
@@ -218,7 +245,7 @@ func (b *Threaded) StateOutPort() <-chan ports.State { return b.state.Subscribe(
 
 func (b *Threaded) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.stream.Close(); b.whole.Close(); b.state.Close(); b.meter.usage.Close() }()
+		defer func() { b.stream.Close(); b.whole.Close(); b.audio.Close(); b.state.Close(); b.meter.usage.Close() }()
 
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 
@@ -256,18 +283,31 @@ func (b *Threaded) Start(ctx context.Context) {
 
 // call continues the thread, retrying a failure that may pass after each backoff.
 func (b *Threaded) call(ctx context.Context, input string) (string, error) {
+	speak := b.narration.on.Load()
 	for attempt := 0; ; attempt++ {
-		streamed := false
-		reply, err := b.thread.call(ctx, threadCall{instructions: b.instructions, input: input, piece: func(piece string) {
-			streamed = true
-			b.stream.Send(ports.Piece(piece))
-		}})
+		streamed, spoken := false, false
+		reply, err := b.thread.call(ctx, threadCall{
+			instructions: b.instructions,
+			input:        input,
+			speak:        speak,
+			piece: func(piece string) {
+				streamed = true
+				b.stream.Send(ports.Piece(piece))
+			},
+			audio: func(chunk []byte) {
+				spoken = true
+				b.audio.Send(ports.AudioChunk(chunk))
+			},
+		})
 		if err == nil {
 			b.meter.bill(reply.Usage)
 			return reply.Text, nil
 		}
 		if streamed {
 			b.stream.Send(ports.PieceDiscard)
+		}
+		if spoken {
+			b.audio.Send(ports.AudioDiscard)
 		}
 		if !errors.Is(err, adapters.ErrTransient) {
 			return "", err

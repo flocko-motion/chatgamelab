@@ -186,6 +186,9 @@ function amount(record: UsageRecord): string {
   if (record.audioSeconds) parts.push(`${record.audioSeconds.toFixed(0)}s`);
   const tokens = (record.inputTokens ?? 0) + (record.cachedInputTokens ?? 0) + (record.outputTokens ?? 0);
   if (tokens) parts.push(`${tokens} tok`);
+  // A speaking model's audio is billed apart from its text, so it is shown apart.
+  const audio = (record.audioInputTokens ?? 0) + (record.cachedAudioInputTokens ?? 0) + (record.audioOutputTokens ?? 0);
+  if (audio) parts.push(`${audio} audio tok`);
   return parts.join(" ") || "—";
 }
 

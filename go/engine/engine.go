@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"sync"
 	"time"
 
@@ -79,7 +80,9 @@ type SessionSpec struct {
 	// rebuilt from the platform's key cascade on every launch and resume.
 	Preference *Preference `json:"preference,omitempty"`
 
-	// Voice is a provider built-in voice name, fixed once the session exists.
+	// Voice is a provider built-in voice name, fixed once the session exists:
+	// one the genre's speaking model knows, gpt-realtime's for Adventure's
+	// narration and GPT-Live's for NPC-Live. Empty takes the tier's.
 	Voice string `json:"voice,omitempty"`
 
 	// PromptOverride replaces a genre prompt by name; an unknown name errors so a typo cannot pass silently.
@@ -137,8 +140,11 @@ type Session struct {
 	// out is the sender's queue; the sender alone writes to the stream.
 	out outbox
 
-	spec     SessionSpec
-	slots    slots
+	spec  SessionSpec
+	slots slots
+	// kit is the adapters in the slots, kept to switch the story thread's
+	// model and to close them; guarded by mu.
+	kit      equipment
 	wiring   *genre.Wiring
 	usage    *usageLedger
 	recorder *recorder
@@ -299,6 +305,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	}
 	go s.keep()
 	go s.deliver()
+	go s.release()
 
 	// Subscribed before Start, or the opening phases and the one invitation would be missed.
 	states := w.Graph.ObserveStates(s.ctx)
@@ -610,6 +617,15 @@ func (s *Session) Mermaid() string { return s.wiring.Graph.Mermaid() }
 // ID is the session's ID, the handle that plays it.
 func (s *Session) ID() string { return s.spec.ID }
 
+// release closes the adapters once the session has ended.
+func (s *Session) release() {
+	<-s.ctx.Done()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.kit.close()
+	s.kit = equipment{}
+}
+
 // Close ends the session once its last checkpoint is written.
 func (s *Session) Close() {
 	s.once.Do(s.cancel)
@@ -648,12 +664,41 @@ func (spec SessionSpec) idleAfter() time.Duration {
 	}
 }
 
-// equipment is the adapters a settlement runs on, one per slot.
+// voice is what a speaking model speaks in: the spec's, or the tier's.
+func (spec SessionSpec) voice(model adapters.Model) string {
+	if spec.Voice != "" {
+		return spec.Voice
+	}
+	return model.Params[adapters.ParamVoice]
+}
+
+// equipment is the adapters a settlement runs on, one per slot. The story
+// thread has two: thread on the text story model, and speech on the speaking
+// one, which it runs on while narration is on; speech is nil on a platform
+// without narration.
 type equipment struct {
 	live   adapters.Live
 	tool   adapters.Tool
 	image  adapters.Image
 	thread adapters.Thread
+	speech adapters.Thread
+}
+
+// story is the story thread's adapter for the narration toggle.
+func (kit equipment) story(narrating bool) adapters.Thread {
+	if narrating && kit.speech != nil {
+		return kit.speech
+	}
+	return kit.thread
+}
+
+// close ends what the adapters hold open, such as a Realtime session.
+func (kit equipment) close() {
+	for _, held := range []any{kit.live, kit.tool, kit.image, kit.thread, kit.speech} {
+		if closer, ok := held.(io.Closer); ok {
+			_ = closer.Close()
+		}
+	}
 }
 
 // adapters builds the settled offer's implementations from its tier's models,
@@ -666,11 +711,18 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 		return equipment{}, err
 	}
 
+	story, speech := models[adapters.ModelStory], models[adapters.ModelSpeech]
 	var kit equipment
 	switch settled.offer.Platform {
 	case PlatformMock:
 		pace := time.Duration(spec.MockPaceMs) * time.Millisecond
-		kit = equipment{live: mock.Live{Pace: pace}, tool: mock.Tool{Pace: pace}, image: mock.Image{Pace: pace}, thread: mock.Thread{Pace: pace}}
+		kit = equipment{
+			live:   mock.Live{Pace: pace},
+			tool:   mock.Tool{Pace: pace},
+			image:  mock.Image{Pace: pace},
+			thread: mock.Thread{Pace: pace, Name: story.Name},
+			speech: mock.Thread{Pace: pace, Name: speech.Name},
+		}
 	case PlatformOpenAI:
 		keys := adapters.KeyFunc(settled.offer.Keys)
 		picture := models[adapters.ModelImage]
@@ -678,7 +730,8 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 			live:   openai.NewLive(keys, models[adapters.ModelLive].Name),
 			tool:   openai.NewTool(keys, models[adapters.ModelTooling].Name),
 			image:  openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize]),
-			thread: openai.NewThread(keys, models[adapters.ModelStory].Name),
+			thread: openai.NewThread(keys, story.Name),
+			speech: openai.NewRealtime(keys, speech.Name, spec.voice(speech)),
 		}
 	case PlatformMistral:
 		// Live and image stay nil: the platform offers neither.

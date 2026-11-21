@@ -33,6 +33,13 @@ export interface SessionEvent {
 export const TEXT_DISCARD = "\u0018";
 
 /**
+ * A binary audio frame of this many bytes drops the speech still playing and
+ * queued, as when a broken reply is made again. Every other frame is 24 kHz
+ * mono PCM16.
+ */
+export const AUDIO_DISCARD_BYTES = 0;
+
+/**
  * A block reporting on itself, carried as JSON in a `state` event's value.
  * A block in the turn loop is never finished; `failed` means the game cannot
  * continue, and a `problem` event says why.

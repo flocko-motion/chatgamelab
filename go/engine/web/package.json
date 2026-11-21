@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "esbuild src/*.test.ts --bundle --platform=node --format=esm --outdir=.test --out-extension:.js=.mjs --log-level=warning && node --test .test/",
     "bundle": "node build.mjs",
-    "build": "npm run typecheck && npm run bundle"
+    "build": "npm run typecheck && npm test && npm run bundle"
   },
   "devDependencies": {
     "@dagrejs/dagre": "^3.1.1",
