@@ -4418,6 +4418,29 @@ func (q *Queries) SearchPublicGamesSortedByPlayCountAsc(ctx context.Context, dol
 	return items, nil
 }
 
+const setDevGameHistory = `-- name: SetDevGameHistory :exec
+UPDATE game SET created_at = $2, modified_at = $3, play_count = $4 WHERE id = $1
+`
+
+type SetDevGameHistoryParams struct {
+	ID         uuid.UUID `json:"id"`
+	CreatedAt  time.Time `json:"created_at"`
+	ModifiedAt time.Time `json:"modified_at"`
+	PlayCount  int32     `json:"play_count"`
+}
+
+// Development seeding only: gives a demo game a past, so lists have
+// something to sort by.
+func (q *Queries) SetDevGameHistory(ctx context.Context, arg SetDevGameHistoryParams) error {
+	_, err := q.db.ExecContext(ctx, setDevGameHistory,
+		arg.ID,
+		arg.CreatedAt,
+		arg.ModifiedAt,
+		arg.PlayCount,
+	)
+	return err
+}
+
 const softDeleteGame = `-- name: SoftDeleteGame :exec
 UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1
 `
