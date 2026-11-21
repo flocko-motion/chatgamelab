@@ -23,19 +23,19 @@ import { UserAvatar } from "../UserAvatar";
 import { getUserAvatarColor } from "@/common/lib/userUtils";
 import { ROUTES } from "@/common/routes/routes";
 
-interface ParticipantUserMenuProps {
+interface GuestUserMenuProps {
   workshopName?: string;
   organizationName?: string;
 }
 
 /**
- * Simplified user menu for workshop participants.
+ * Simplified user menu for a Guest in a workshop.
  * Shows name, workshop, organization info, the profile link and logout.
  */
-export function ParticipantUserMenu({
+export function GuestUserMenu({
   workshopName,
   organizationName,
-}: ParticipantUserMenuProps) {
+}: GuestUserMenuProps) {
   const { t } = useTranslation("common");
   const { t: tAuth } = useTranslation("auth");
   const { logout, backendUser } = useAuth();
@@ -44,17 +44,17 @@ export function ParticipantUserMenu({
   const [opened, { close, toggle }] = useDisclosure(false);
   const navigate = useNavigate();
 
-  const userName = backendUser?.name || "Participant";
+  const userName = backendUser?.name || tAuth("guest.role");
 
   const handleLeaveWorkshop = () => {
     close();
     modals.openConfirmModal({
-      title: tAuth("participant.leaveConfirm.title"),
+      title: tAuth("guest.leaveConfirm.title"),
       children: (
-        <Text size="sm">{tAuth("participant.leaveConfirm.message")}</Text>
+        <Text size="sm">{tAuth("guest.leaveConfirm.message")}</Text>
       ),
       labels: {
-        confirm: tAuth("participant.leaveConfirm.confirm"),
+        confirm: tAuth("guest.leaveConfirm.confirm"),
         cancel: t("cancel"),
       },
       confirmProps: { color: "red" },
@@ -115,7 +115,7 @@ export function ParticipantUserMenu({
                 {userName}
               </Text>
               <Text size="xs" c="dimmed">
-                {tAuth("participant.role")}
+                {tAuth("guest.role")}
               </Text>
             </Box>
           </Group>
@@ -131,7 +131,7 @@ export function ParticipantUserMenu({
               />
               <Box style={{ flex: 1, minWidth: 0 }}>
                 <Text size="xs" c="dimmed">
-                  {tAuth("participant.workshop")}
+                  {tAuth("guest.workshop")}
                 </Text>
                 <Text size="sm" fw={500} truncate>
                   {workshopName}
@@ -149,7 +149,7 @@ export function ParticipantUserMenu({
               />
               <Box style={{ flex: 1, minWidth: 0 }}>
                 <Text size="xs" c="dimmed">
-                  {tAuth("participant.organization")}
+                  {tAuth("guest.organization")}
                 </Text>
                 <Text size="sm" fw={500} truncate>
                   {organizationName}
@@ -211,7 +211,7 @@ export function ParticipantUserMenu({
           >
             <IconDoorExit size={16} />
             <Text size="sm" fw={500}>
-              {tAuth("participant.leaveWorkshop")}
+              {tAuth("guest.leaveWorkshop")}
             </Text>
           </UnstyledButton>
         </Stack>

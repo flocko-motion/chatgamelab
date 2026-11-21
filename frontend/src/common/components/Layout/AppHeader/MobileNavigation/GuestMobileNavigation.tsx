@@ -18,19 +18,19 @@ import { VersionDisplay } from "../../../VersionDisplay";
 import { EXTERNAL_LINKS } from "../../../../../config/externalLinks";
 import type { NavItem } from "../types";
 
-export interface ParticipantMobileNavigationProps {
+export interface GuestMobileNavigationProps {
   items: NavItem[];
   onClose: () => void;
 }
 
 /**
- * Simplified mobile navigation for workshop participants.
+ * Simplified mobile navigation for a Guest in a workshop.
  * Shows only: My Workshop, Contact, Profile, Language, Workshop info, Leave Workshop
  */
-export function ParticipantMobileNavigation({
+export function GuestMobileNavigation({
   items,
   onClose,
-}: ParticipantMobileNavigationProps) {  
+}: GuestMobileNavigationProps) {  
   const { t } = useTranslation("common");
   const { t: tAuth } = useTranslation("auth");
   const { logout: authLogout, backendUser } = useAuth();
@@ -40,14 +40,14 @@ export function ParticipantMobileNavigation({
 
   const handleLeaveWorkshop = () => {
     modals.openConfirmModal({
-      title: tAuth("participant.leaveConfirm.title"),
+      title: tAuth("guest.leaveConfirm.title"),
       children: (
         <Text size="sm">
-          {tAuth("participant.leaveConfirm.message")}
+          {tAuth("guest.leaveConfirm.message")}
         </Text>
       ),
       labels: {
-        confirm: tAuth("participant.leaveConfirm.confirm"),
+        confirm: tAuth("guest.leaveConfirm.confirm"),
         cancel: t("cancel"),
       },
       confirmProps: { color: "red" },
@@ -106,7 +106,7 @@ export function ParticipantMobileNavigation({
           {workshopName && (
             <Group gap="xs">
               <Text size="xs" c="dimmed">
-                {tAuth("participant.workshop")}:
+                {tAuth("guest.workshop")}:
               </Text>
               <Text size="sm" fw={500} c="white">
                 {workshopName}
@@ -116,7 +116,7 @@ export function ParticipantMobileNavigation({
           {organizationName && (
             <Group gap="xs">
               <Text size="xs" c="dimmed">
-                {tAuth("participant.organization")}:
+                {tAuth("guest.organization")}:
               </Text>
               <Text size="sm" fw={500} c="white">
                 {organizationName}
@@ -186,7 +186,7 @@ export function ParticipantMobileNavigation({
           >
             <IconLogout size={18} />
             <Text size="sm" fw={500}>
-              {tAuth("participant.leaveWorkshop")}
+              {tAuth("guest.leaveWorkshop")}
             </Text>
           </UnstyledButton>
         </Stack>

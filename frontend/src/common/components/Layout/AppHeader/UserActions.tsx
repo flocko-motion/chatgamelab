@@ -18,7 +18,7 @@ import { LanguageSwitcher } from "../../LanguageSwitcher";
 import { DropdownMenu } from "../../DropdownMenu";
 import { UserAvatar } from "../../UserAvatar";
 import { NotificationBell } from "../../NotificationBell";
-import { ParticipantUserMenu } from "../ParticipantUserMenu";
+import { GuestUserMenu } from "../GuestUserMenu";
 import { getUserAvatarColor } from "@/common/lib/userUtils";
 import { EXTERNAL_LINKS } from "../../../../config/externalLinks";
 import type { AppHeaderProps } from "./types";
@@ -28,8 +28,8 @@ export function UserActions({
   onProfileClick,
   onApiKeysClick,
   onLogoutClick,
-  isParticipant = false,
   isGuest = false,
+  isSignedOut = false,
   isInWorkshopMode = false,
   workshopName: _workshopName,
   onExitWorkshopMode,
@@ -39,8 +39,8 @@ export function UserActions({
   | "onProfileClick"
   | "onApiKeysClick"
   | "onLogoutClick"
-  | "isParticipant"
   | "isGuest"
+  | "isSignedOut"
   | "isInWorkshopMode"
   | "workshopName"
   | "onExitWorkshopMode"
@@ -54,8 +54,8 @@ export function UserActions({
     onLogoutClick?.();
   };
 
-  // Guest mode: Contact + Language switcher only, no user menu (signed-in users find Contact in the footer)
-  if (isGuest) {
+  // Signed out: Contact + Language switcher only, no user menu (signed-in users find Contact in the footer)
+  if (isSignedOut) {
     return (
       <Group gap="sm" wrap="nowrap">
         <Tooltip
@@ -211,12 +211,12 @@ export function UserActions({
     );
   }
 
-  // For participants, show simplified menu
-  if (isParticipant) {
+  // For a Guest in a workshop, show simplified menu
+  if (isGuest) {
     return (
       <Group gap="sm" wrap="nowrap">
         <LanguageSwitcher size="sm" variant="compact" />
-        <ParticipantUserMenu
+        <GuestUserMenu
           workshopName={backendUser?.role?.workshop?.name}
           organizationName={backendUser?.role?.institution?.name}
         />

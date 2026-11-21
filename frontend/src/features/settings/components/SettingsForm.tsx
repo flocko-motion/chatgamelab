@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
 import { uiLogger } from "@/config/logger";
 import { useUpdateUser } from "@/api/hooks";
-import { api, withQuery } from "@/api/client/api";
+import { api } from "@/api/client/api";
 import { AgeGroup } from "@/constants/ageGroup";
 
 export function SettingsForm() {
@@ -72,7 +72,7 @@ export function SettingsForm() {
 
       setIsCheckingName(true);
       try {
-        const response = await api.getApiAuthCheckName(withQuery({ name: debouncedName }));
+        const response = await api.getApiAuthCheckName({ name: debouncedName });
         const data = response.data as {
           available?: boolean;
           profane?: boolean;

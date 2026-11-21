@@ -40,6 +40,7 @@ import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminServerSettingsIndexRouteImport } from './routes/admin/server-settings/index'
 import { Route as AdminOrganizationsIndexRouteImport } from './routes/admin/organizations/index'
 import { Route as InvitesParticipantTokenRouteImport } from './routes/invites/participant.$token'
+import { Route as InvitesGuestTokenRouteImport } from './routes/invites/guest.$token'
 import { Route as InvitesTokenAcceptRouteImport } from './routes/invites/$token.accept'
 import { Route as GamesGameIdPlayRouteImport } from './routes/games/$gameId/play'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
@@ -201,6 +202,11 @@ const InvitesParticipantTokenRoute = InvitesParticipantTokenRouteImport.update({
   path: '/invites/participant/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvitesGuestTokenRoute = InvitesGuestTokenRouteImport.update({
+  id: '/invites/guest/$token',
+  path: '/invites/guest/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InvitesTokenAcceptRoute = InvitesTokenAcceptRouteImport.update({
   id: '/invites/$token/accept',
   path: '/invites/$token/accept',
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
+  '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByTo {
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
+  '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
@@ -324,6 +332,7 @@ export interface FileRoutesById {
   '/sessions/': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
+  '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations/': typeof AdminOrganizationsIndexRoute
   '/admin/server-settings/': typeof AdminServerSettingsIndexRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/games/$gameId/play'
     | '/invites/$token/accept'
+    | '/invites/guest/$token'
     | '/invites/participant/$token'
     | '/admin/organizations'
     | '/admin/server-settings'
@@ -400,6 +410,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/games/$gameId/play'
     | '/invites/$token/accept'
+    | '/invites/guest/$token'
     | '/invites/participant/$token'
     | '/admin/organizations'
     | '/admin/server-settings'
@@ -437,6 +448,7 @@ export interface FileRouteTypes {
     | '/sessions/'
     | '/games/$gameId/play'
     | '/invites/$token/accept'
+    | '/invites/guest/$token'
     | '/invites/participant/$token'
     | '/admin/organizations/'
     | '/admin/server-settings/'
@@ -475,6 +487,7 @@ export interface RootRouteChildren {
   SessionsIndexRoute: typeof SessionsIndexRoute
   GamesGameIdPlayRoute: typeof GamesGameIdPlayRoute
   InvitesTokenAcceptRoute: typeof InvitesTokenAcceptRoute
+  InvitesGuestTokenRoute: typeof InvitesGuestTokenRoute
   InvitesParticipantTokenRoute: typeof InvitesParticipantTokenRoute
   AdminOrganizationsIndexRoute: typeof AdminOrganizationsIndexRoute
   AdminServerSettingsIndexRoute: typeof AdminServerSettingsIndexRoute
@@ -705,6 +718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvitesParticipantTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invites/guest/$token': {
+      id: '/invites/guest/$token'
+      path: '/invites/guest/$token'
+      fullPath: '/invites/guest/$token'
+      preLoaderRoute: typeof InvitesGuestTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invites/$token/accept': {
       id: '/invites/$token/accept'
       path: '/invites/$token/accept'
@@ -763,6 +783,7 @@ const rootRouteChildren: RootRouteChildren = {
   SessionsIndexRoute: SessionsIndexRoute,
   GamesGameIdPlayRoute: GamesGameIdPlayRoute,
   InvitesTokenAcceptRoute: InvitesTokenAcceptRoute,
+  InvitesGuestTokenRoute: InvitesGuestTokenRoute,
   InvitesParticipantTokenRoute: InvitesParticipantTokenRoute,
   AdminOrganizationsIndexRoute: AdminOrganizationsIndexRoute,
   AdminServerSettingsIndexRoute: AdminServerSettingsIndexRoute,

@@ -1,2 +1,2 @@
 export { ProfileView } from './ProfileView';
-export { ParticipantCodeCard } from './ParticipantCodeCard';
+export { GuestCodeCard } from './GuestCodeCard';

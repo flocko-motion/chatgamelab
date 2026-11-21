@@ -10,13 +10,13 @@ import {
 import { IconAlertCircle, IconKey } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
-import { useOwnParticipantCode } from "@/api/hooks";
-import { ParticipantCodeDisplay } from "@components/share";
+import { useOwnGuestCode } from "@/api/hooks";
+import { GuestCodeDisplay } from "@components/share";
 
-/** The participant's own re-login code, laid out to be photographed in one shot. */
-export function ParticipantCodeCard() {
+/** The Guest's own re-login code, laid out to be photographed in one shot. */
+export function GuestCodeCard() {
   const { t } = useTranslation("auth");
-  const { data, isLoading, isError } = useOwnParticipantCode();
+  const { data, isLoading, isError } = useOwnGuestCode();
 
   return (
     <Card shadow="sm" padding="xl" radius="md" withBorder>
@@ -25,25 +25,25 @@ export function ParticipantCodeCard() {
           <ThemeIcon variant="light" size="lg" color="accent">
             <IconKey size={20} />
           </ThemeIcon>
-          <Title order={3}>{t("profile.participantCode.title")}</Title>
+          <Title order={3}>{t("profile.guestCode.title")}</Title>
         </Group>
 
         {isLoading && <Skeleton height={160} />}
 
         {(isError || (data && !data.token)) && (
           <Alert color="red" icon={<IconAlertCircle size={16} />}>
-            {t("profile.participantCode.error")}
+            {t("profile.guestCode.error")}
           </Alert>
         )}
 
         {data?.token && (
-          <ParticipantCodeDisplay
+          <GuestCodeDisplay
             token={data.token}
             words={data.words}
             hint={
               data.words
-                ? t("profile.participantCode.hint")
-                : t("profile.participantCode.longTokenHint")
+                ? t("profile.guestCode.hint")
+                : t("profile.guestCode.longTokenHint")
             }
           />
         )}

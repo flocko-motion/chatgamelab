@@ -33,11 +33,11 @@ import {
   getRoleColor,
   useTranslateRole,
 } from "@/common/lib/roles";
-import { ParticipantCodeCard } from "./ParticipantCodeCard";
+import { GuestCodeCard } from "./GuestCodeCard";
 
 export function ProfileView() {
   const { t } = useTranslation("auth");
-  const { backendUser, isParticipant, retryBackendFetch } = useAuth();
+  const { backendUser, isGuest, retryBackendFetch } = useAuth();
   const { data: stats, isLoading: statsLoading } = useUserStats();
   const updateUser = useUpdateUser();
 
@@ -147,11 +147,11 @@ export function ProfileView() {
     </Card>
   );
 
-  // Participants see no age group: it would let them loosen their own youth protection (spec, Jugendschutz).
-  if (isParticipant) {
+  // Guests see no age group: it would let them loosen their own youth protection (spec, Jugendschutz).
+  if (isGuest) {
     return (
       <Stack gap="xl">
-        <ParticipantCodeCard />
+        <GuestCodeCard />
         {userInfoCard}
         <Card shadow="sm" padding="xl" radius="md" withBorder>
           <Stack gap="md">
@@ -164,7 +164,7 @@ export function ProfileView() {
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
               <Stack gap="xs">
                 <Text size="sm" c="dimmed">
-                  {t("participant.workshop")}
+                  {t("guest.workshop")}
                 </Text>
                 <Text fw={500}>{backendUser.role?.workshop?.name ?? "-"}</Text>
               </Stack>

@@ -26,11 +26,11 @@
         "title": "Redirecting to Auth0..."
       },
       "unavailable": {
-        "message": "This instance offers no sign-in. Workshop participants can enter their code instead.",
+        "message": "This instance offers no sign-in. Guests in a workshop can enter their code instead.",
         "title": "Sign-in is not available"
       }
     },
-    "participant": {
+    "guest": {
       "leaveConfirm": {
         "confirm": "Leave Workshop",
         "message": "Are you sure you want to leave this workshop? You will need a new invite link to rejoin.",
@@ -38,7 +38,7 @@
       },
       "leaveWorkshop": "Leave Workshop",
       "organization": "Organization",
-      "role": "Workshop Participant",
+      "role": "Guest",
       "workshop": "Workshop"
     },
     "profile": {
@@ -54,14 +54,14 @@
         "admin": "Administrator",
         "head": "Head of Organization",
         "individual": "Individual",
-        "participant": "Participant",
+        "guest": "Guest",
         "staff": "Workshop Leader"
       },
       "statisticsSection": "Statistics",
       "title": "Profile",
       "totalPlaysOnGames": "Total Plays on My Games",
       "workshopSection": "Workshop \u0026 Organization",
-      "participantCode": {
+      "guestCode": {
         "title": "Your access code",
         "hint": "Take a photo of this code or write it down, and keep it to yourself. It gets you back into your account at any time, on any device: enter the words under “Enter code” on the home page or scan the QR code.",
         "longTokenHint": "Take a photo of the QR code or save the link, and keep it to yourself. It gets you back into your account at any time. Your workshop leader can give you a short four-word code by resetting your access.",
@@ -729,7 +729,7 @@
         "tokenLocked": "Too many failed attempts – please try again later."
       },
       "goHome": "Go to Home",
-      "participant": {
+      "guest": {
         "loggingIn": "Logging you in..."
       },
       "success": {
@@ -901,7 +901,7 @@
         "aiQualityTierHint": "Quality level for AI responses. Higher tiers cost more but may have higher quality. Empty uses server default.",
         "allowGameSharing": "Allow game sharing",
         "allowGameSharingHint": "When enabled, participants can create share links for their games using the workshop's API key",
-        "anonymousParticipant": "Anonymous participant",
+        "unnamedParticipant": "Unnamed participant",
         "create": "Create Workshop",
         "createFirst": "Create Your First Workshop",
         "createInviteLink": "Create Invite Link",
@@ -940,13 +940,13 @@
         "noDefaultApiKey": "No default API key",
         "noDefaultModel": "Use platform default",
         "noIndividuals": "No individual users in this organization.",
-        "noParticipantToken": "This participant doesn't have an invite link. Only anonymous participants (guests) have reusable invite links.",
+        "noGuestToken": "This member has no re-login link. Only Guests have one.",
         "noParticipants": "No participants yet",
         "notAuthorized": "You don't have permission to manage workshops. Only heads and teachers can access this page.",
         "participantGames": "{{count}} games",
         "participantJoined": "Joined {{date}}",
-        "participantLinkTitle": "Re-login link",
-        "participantLinkTitleNamed": "Re-login link for {{name}}",
+        "guestLinkTitle": "Re-login link",
+        "guestLinkTitleNamed": "Re-login link for {{name}}",
         "participantName": "Participant name",
         "participants": "Participants",
         "promptConstraintsFallbackOrg": "Using organization constraint as default: {{constraint}}",
@@ -965,11 +965,11 @@
         "resetAccessError": "Access could not be reset. Please try again.",
         "resetAccessMessage": "A new link with a new code will be created.",
         "resetAccessTitle": "Reset access?",
-        "resetAccessWarning": "The previous link and code stop working – including on devices where the participant is currently logged in.",
+        "resetAccessWarning": "The previous link and code stop working – including on devices where the Guest is currently logged in.",
         "revokeInvite": "Revoke Invite Link",
         "selectApiKey": "Select an API key",
         "settings": "Settings",
-        "shareParticipantLink": "Show re-login link",
+        "shareGuestLink": "Show re-login link",
         "showOtherParticipantsGames": "Show other participants' games",
         "showOtherParticipantsGamesHint": "Head and staff can always see all participants' games for moderation",
         "showPublicGames": "Show public games to participants",

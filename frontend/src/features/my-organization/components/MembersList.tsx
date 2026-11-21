@@ -77,11 +77,11 @@ export function MembersList({
       const memberRole = member.role?.role;
       if (isHead) {
         return (
-          memberRole === "staff" || memberRole === "participant" || !memberRole
+          memberRole === "staff" || memberRole === "guest" || !memberRole
         );
       }
       if (isStaff) {
-        return memberRole === "participant" || !memberRole;
+        return memberRole === "guest" || !memberRole;
       }
       return false;
     },

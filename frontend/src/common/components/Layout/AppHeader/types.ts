@@ -14,10 +14,10 @@ export interface AppHeaderProps {
   onApiKeysClick?: () => void;
   onLogoutClick?: () => void;
   userName?: string;
-  /** If true, shows simplified participant UI (anonymous participant) */
-  isParticipant?: boolean;
-  /** If true, shows minimal guest header (Contact + Language only, no user menu) */
+  /** If true, shows the simplified UI of a Guest in a workshop */
   isGuest?: boolean;
+  /** If true, shows the minimal signed-out header (Contact + Language only, no user menu) */
+  isSignedOut?: boolean;
   /** If true, staff/head has entered workshop mode (keep user bubble, show exit button) */
   isInWorkshopMode?: boolean;
   /** Name of the workshop when in workshop mode */

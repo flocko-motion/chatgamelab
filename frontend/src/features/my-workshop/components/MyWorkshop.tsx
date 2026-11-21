@@ -2,7 +2,7 @@ import { Stack } from "@mantine/core";
 import { GamesTable } from "@/features/games";
 import { useAuth } from "@/providers/AuthProvider";
 import { hasRole, Role } from "@/common/lib/roles";
-import { useWorkshopEvents, useGamesCacheUpdater } from "@/api/hooks";
+import { useWorkshopEvents, useGamesCacheUpdater, useWorkshop } from "@/api/hooks";
 import { WorkshopHeader } from "./WorkshopHeader";
 import { WorkshopPausedOverlay } from "./WorkshopPausedOverlay";
 
@@ -13,9 +13,11 @@ export function MyWorkshop() {
     useGamesCacheUpdater();
 
   const workshop = backendUser?.role?.workshop;
+  // The workshop's settings come from reading the workshop itself.
+  const { data: settings, refetch: refetchSettings } = useWorkshop(workshop?.id);
   const moderates = hasRole(backendUser, Role.Head) || hasRole(backendUser, Role.Staff);
-  // A paused workshop stops participants and individuals, not its staff.
-  const isPausedForUser = !moderates && (workshop?.isPaused ?? false);
+  // A paused workshop stops Guests and individuals, not its staff.
+  const isPausedForUser = !moderates && (settings?.isPaused ?? false);
 
   // Settings changes and games created, changed or deleted by others. The
   // settings decide what the server lists, so they refetch the list too.
@@ -23,6 +25,7 @@ export function MyWorkshop() {
     workshopId: workshop?.id,
     onSettingsUpdate: () => {
       retryBackendFetch();
+      void refetchSettings();
       refetchLists();
     },
     onGameCreated: addGameToCache,

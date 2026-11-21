@@ -3,8 +3,8 @@ import { Stack, Text, Card, Center, Button, Divider } from "@mantine/core";
 import { IconSchoolOff, IconQrcode } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
-import { ParticipantCodeDisplay } from "./share";
-import { rememberedParticipantCode } from "@/providers/AuthProvider";
+import { GuestCodeDisplay } from "./share";
+import { rememberedGuestCode } from "@/providers/AuthProvider";
 import { speakableCode } from "@/common/lib/wordToken";
 
 interface InactiveWorkshopMessageProps {
@@ -17,7 +17,7 @@ export function InactiveWorkshopMessage({
   const { t } = useTranslation("common");
   // Read once: logging out clears the token, and a later render must not lose the
   // code while it is still on screen.
-  const [token] = useState(() => rememberedParticipantCode());
+  const [token] = useState(() => rememberedGuestCode());
   const [showCode, setShowCode] = useState(false);
 
   return (
@@ -53,7 +53,7 @@ export function InactiveWorkshopMessage({
           {token && showCode && (
             <>
               <Divider w="100%" />
-              <ParticipantCodeDisplay
+              <GuestCodeDisplay
                 token={token}
                 words={speakableCode(token)}
               />

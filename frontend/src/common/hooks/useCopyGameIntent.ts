@@ -23,7 +23,7 @@ import type { CreateGameFormData } from "@/features/games/types";
  */
 export function useCopyGameIntent(scope: string) {
   const navigate = useNavigate();
-  const { isAuthenticated, isParticipant, backendUser } = useAuth();
+  const { isAuthenticated, isGuest, backendUser } = useAuth();
   const createGame = useCreateGame();
   const [copyData, setCopyData] = useState<Partial<CreateGameFormData> | null>(
     null,
@@ -57,7 +57,7 @@ export function useCopyGameIntent(scope: string) {
     const newGame = await createGame.mutateAsync(request);
     close();
     setCopyData(null);
-    if (isParticipant) {
+    if (isGuest) {
       navigate({ to: ROUTES.MY_WORKSHOP as "/" });
     } else if (newGame.id) {
       navigate({ to: "/games/$gameId", params: { gameId: newGame.id } });

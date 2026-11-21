@@ -29,13 +29,13 @@ export const ROUTES = {
 
   // Invite routes (public - no auth required)
   INVITES: "/invites",
-  PARTICIPANT_LOGIN: "/invites/participant/$token",
+  GUEST_LOGIN: "/invites/guest/$token",
   // Typed invite or re-login code (words)
   CODE: "/code",
   // Public workshop page (public - no auth required)
   PUBLIC_WORKSHOP: "/w/$slug",
 
-  // Participant workshop route
+  // Workshop route of a Guest in a workshop
   MY_WORKSHOP: "/my-workshop",
   MY_WORKSHOP_SETTINGS: "/my-workshop/settings",
 
