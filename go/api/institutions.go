@@ -7,8 +7,11 @@ package api
 import (
 	"context"
 	"fmt"
+	"time"
+	"unicode/utf8"
 
 	"cgl/db"
+	"cgl/legal"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -34,7 +37,7 @@ type InstitutionIDReq struct {
 
 // CreateInstitutionEndpoint creates an institution.
 //
-// The name is required.
+// The name is required; operator and address are optional.
 type CreateInstitutionEndpoint struct{}
 
 func (CreateInstitutionEndpoint) Method() string             { return "POST" }
@@ -48,38 +51,69 @@ func (CreateInstitutionEndpoint) Handle(ctx context.Context, req CreateInstituti
 	if req.Name == "" {
 		return obj.Institution{}, appError(obj.ErrValidation("Name is required"))
 	}
-	institution, err := db.CreateInstitution(ctx, user.ID, req.Name)
+	institution, err := db.CreateInstitution(ctx, user.ID, req.Name, req.details())
 	if err != nil {
 		return obj.Institution{}, appError(err)
 	}
 	return *institution, nil
 }
 
-// CreateInstitutionReq is a new institution's name.
+// CreateInstitutionReq is a new institution's name, and optionally its
+// operator (Träger) and address.
 type CreateInstitutionReq struct {
-	Name string `json:"name"`
+	Name       string `json:"name"`
+	Operator   string `json:"operator,omitempty"`
+	Street     string `json:"street,omitempty"`
+	PostalCode string `json:"postalCode,omitempty"`
+	City       string `json:"city,omitempty"`
+}
+
+func (r CreateInstitutionReq) details() db.InstitutionDetails {
+	return db.InstitutionDetails{Operator: r.Operator, Street: r.Street, PostalCode: r.PostalCode, City: r.City}
 }
 
 // ListInstitutionsEndpoint lists the institutions the caller can see.
+//
+// Admins see each one's suspension reason, consent status and, for one that
+// registered itself, how. The filter "recentlyRegistered" narrows the list
+// to institutions that registered themselves in the last 14 days, which
+// admins check; an unknown filter is refused (400).
 type ListInstitutionsEndpoint struct{}
 
 func (ListInstitutionsEndpoint) Method() string             { return "GET" }
 func (ListInstitutionsEndpoint) Path() string               { return "/api/institutions" }
 func (ListInstitutionsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListInstitutionsEndpoint) Handle(ctx context.Context, _ ListInstitutionsReq) (InstitutionsResp, error) {
+func (ListInstitutionsEndpoint) Handle(ctx context.Context, req ListInstitutionsReq) (InstitutionsResp, error) {
 	user, err := caller(ctx)
 	if err != nil {
 		return nil, err
 	}
-	institutions, err := db.ListInstitutions(ctx, user.ID)
+	var registeredSince *time.Time
+	for _, f := range req.Filter {
+		if f != filterRecentlyRegistered {
+			return nil, appError(obj.ErrValidationf("unknown filter %q; known: %s", f, filterRecentlyRegistered))
+		}
+		since := time.Now().AddDate(0, 0, -recentlyRegisteredDays)
+		registeredSince = &since
+	}
+	institutions, err := db.ListInstitutions(ctx, user.ID, registeredSince)
 	if err != nil {
 		return nil, appError(err)
 	}
 	return institutions, nil
 }
 
-// ListInstitutionsReq takes no parameters.
-type ListInstitutionsReq struct{}
+// filterRecentlyRegistered narrows the institutions to those that registered
+// themselves in the last recentlyRegisteredDays days.
+const (
+	filterRecentlyRegistered = "recentlyRegistered"
+	recentlyRegisteredDays   = 14
+)
+
+// ListInstitutionsReq is the filters the list is narrowed by.
+type ListInstitutionsReq struct {
+	Filter []string `query:"filter"`
+}
 
 // GetInstitutionEndpoint returns an institution.
 type GetInstitutionEndpoint struct{}
@@ -136,7 +170,10 @@ type UpdateInstitutionReq struct {
 	Name string `json:"name"`
 }
 
-// DeleteInstitutionEndpoint deletes an institution; admins only.
+// DeleteInstitutionEndpoint deletes an institution for good, with its
+// workshops and the guests in them; heads and staff keep their accounts as
+// individuals. Admins only. To stop an institution without losing anything,
+// suspend it (POST /api/institutions/{id}/suspension).
 type DeleteInstitutionEndpoint struct{}
 
 func (DeleteInstitutionEndpoint) Method() string             { return "DELETE" }
@@ -279,7 +316,8 @@ type SetInstitutionFreeUseKeyReq struct {
 // UpdateInstitutionPromptConstraintsEndpoint sets or clears an institution's
 // prompt constraints and answers with the institution; heads and admins only.
 //
-// An empty or null promptConstraints clears them.
+// An empty or null promptConstraints clears them; they have at most 200
+// characters.
 type UpdateInstitutionPromptConstraintsEndpoint struct{}
 
 func (UpdateInstitutionPromptConstraintsEndpoint) Method() string { return "PATCH" }
@@ -301,6 +339,9 @@ func (UpdateInstitutionPromptConstraintsEndpoint) Handle(ctx context.Context, re
 	constraint := req.PromptConstraints
 	if constraint != nil && *constraint == "" {
 		constraint = nil
+	}
+	if constraint != nil && utf8.RuneCountInString(*constraint) > legal.MaxPromptConstraintLength {
+		return obj.Institution{}, appError(obj.ErrValidationf("prompt constraints have at most %d characters", legal.MaxPromptConstraintLength))
 	}
 	if err := db.UpdateInstitutionPromptConstraints(ctx, user.ID, institutionID, constraint); err != nil {
 		return obj.Institution{}, appError(err)

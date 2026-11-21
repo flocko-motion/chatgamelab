@@ -88,10 +88,12 @@ export interface ChooseRequest {
 }
 
 export interface CompleteRegistrationReq {
+  acceptTerms?: boolean;
   ageGroup: string;
   email?: string;
   language?: string;
   name: string;
+  organisation?: OrganisationSignUpReq;
 }
 
 export interface ConnectRequest {
@@ -100,6 +102,39 @@ export interface ConnectRequest {
 
 export interface ConnectResponse {
   sdp: string;
+}
+
+export interface ConsentStatus {
+  /** @format date-time */
+  consentedAt?: string;
+  consentedVersion?: string;
+  currentVersion: string;
+  pending: boolean;
+  /** @format date-time */
+  withdrawnAt?: string;
+}
+
+export interface ConsentStatusView {
+  /** @format date-time */
+  consentedAt?: string;
+  consentedVersion?: string;
+  currentVersion: string;
+  pending: boolean;
+  /** @format date-time */
+  withdrawnAt?: string;
+}
+
+export interface ConsentToDeclarationReq {
+  acceptDeclaration: boolean;
+  city: string;
+  declarationVersion: string;
+  email: string;
+  operator: string;
+  personFunction: string;
+  personName: string;
+  postalCode: string;
+  promptConstraint: string;
+  street: string;
 }
 
 export interface ConstraintFrequencyRequest {
@@ -149,7 +184,11 @@ export interface CreateInstitutionInviteReq {
 }
 
 export interface CreateInstitutionReq {
+  city?: string;
   name: string;
+  operator?: string;
+  postalCode?: string;
+  street?: string;
 }
 
 export interface CreateRequest {
@@ -184,6 +223,22 @@ export interface CreateWorkshopReq {
   institutionId?: string;
   name: string;
   public: boolean;
+}
+
+export interface DeclarationResp {
+  bindingLanguage: string;
+  declaration: DeclarationView;
+  defaultPromptConstraint?: string;
+  maxPromptConstraintLength: number;
+  youthProtectionSuggestions: YouthProtectionSuggestion[];
+}
+
+export interface DeclarationView {
+  consent: string;
+  date: string;
+  hash: string;
+  text: string;
+  version: string;
 }
 
 export interface DevLoginReq {
@@ -442,6 +497,9 @@ export interface GenreInfo {
 }
 
 export interface GetCurrentUserResp {
+  institutionSuspension?: string;
+  mayEditInstitution: boolean;
+  maySuspendInstitutions: boolean;
   state: string;
   user?: UserView;
 }
@@ -486,6 +544,8 @@ export interface InputRequest {
 }
 
 export interface Institution {
+  city?: string;
+  declaration?: ConsentStatus;
   freeUseAiQualityTier?: string;
   /** @format uuid */
   freeUseApiKeyShareId?: string;
@@ -494,7 +554,15 @@ export interface Institution {
   members?: InstitutionMember[];
   meta: Meta;
   name: string;
+  operator?: string;
+  postalCode?: string;
   promptConstraints?: string;
+  registration?: InstitutionRegistration;
+  street?: string;
+  suspended: boolean;
+  /** @format date-time */
+  suspendedAt?: string;
+  suspendedReason?: string;
 }
 
 export interface InstitutionMember {
@@ -503,6 +571,14 @@ export interface InstitutionMember {
   role: string;
   /** @format uuid */
   userId: string;
+}
+
+export interface InstitutionRegistration {
+  /** @format date-time */
+  at: string;
+  email: string;
+  personFunction: string;
+  personName: string;
 }
 
 export interface InviteResp {
@@ -526,6 +602,14 @@ export interface InviteResp {
 export interface Language {
   iso: string;
   label: string;
+}
+
+export interface Message {
+  body: string;
+  /** @format date-time */
+  sentAt: string;
+  subject: string;
+  to: string;
 }
 
 export interface MessageResp {
@@ -577,6 +661,39 @@ export interface Options {
   choosing: boolean;
   offers: OfferOption[];
   settled?: Settled;
+}
+
+export interface OrganisationConsentView {
+  city?: string;
+  declaration: ConsentStatusView;
+  /** @format uuid */
+  id: string;
+  name: string;
+  operator?: string;
+  postalCode?: string;
+  promptConstraints?: string;
+  street?: string;
+}
+
+export interface OrganisationSignUpReq {
+  acceptDeclaration: boolean;
+  city: string;
+  declarationVersion: string;
+  institutionName: string;
+  operator: string;
+  personFunction: string;
+  personName: string;
+  postalCode: string;
+  promptConstraint: string;
+  street: string;
+}
+
+export interface OrganisationSuspensionView {
+  /** @format uuid */
+  id: string;
+  /** @format date-time */
+  suspendedAt?: string;
+  suspendedReason?: string;
 }
 
 export interface PlatformInfo {
@@ -733,6 +850,10 @@ export interface Snapshot {
   settled?: Settled;
   started: boolean;
   usage: UsageReport;
+}
+
+export interface SuspendOrganisationReq {
+  reason?: string;
 }
 
 export interface SystemConstraintsResp {
@@ -1084,6 +1205,11 @@ export interface WorkshopParticipant {
   role: string;
   /** @format uuid */
   workshopId: string;
+}
+
+export interface YouthProtectionSuggestion {
+  minAge: number;
+  text: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1578,7 +1704,7 @@ export class Api<
       }),
 
     /**
-     * @description Development only: outside development mode it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "guest"), starts a session for its account and sets the session cookie.
+     * @description Development only: outside development mode it answers 404. Takes a preset role ("admin-1", "admin-2", "head-1", "head-2", "staff-1", "staff-2", "individual-1", "individual-2", "guest"), starts a session for its account and sets the session cookie. "new-person" signs in a fresh account still registering, as a first Auth0 sign-in does, to try registration without Auth0.
      *
      * @name PostApiAuthDevLogin
      * @summary Signs in as one of the seeded development accounts.
@@ -1643,7 +1769,7 @@ export class Api<
       }),
 
     /**
-     * @description answers with their user. An account exists from its first Auth0 sign-in and is unusable until it has a name (at most 24 characters) and an age group; the email is optional. An account registers once (409 afterwards). The rights in the answer are those of the registering caller; GET /api/users/me shows the registered account's.
+     * @description answers with their user. An account exists from its first Auth0 sign-in and is unusable until it has a name (at most 24 characters) and an age group; the email is optional. An account registers once (409 afterwards). An email another account has is refused (409 email_belongs_to_other_account). The rights in the answer are those of the registering caller; GET /api/users/me shows the registered account's. With an organisation, the account registers it too and becomes its head instead of an individual. That takes the age group u18 (403 institution_age_not_allowed otherwise), an email and acceptTerms; the organisation is as in POST /api/users/me/organisation. Account and organisation are stored together or not at all.
      *
      * @name PostApiAuthRegister
      * @summary Completes the caller's registration and
@@ -1695,6 +1821,21 @@ export class Api<
     getApiConfig: (params: RequestParams = {}) =>
       this.request<Record<string, string>, Error>({
         path: `/api/config`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description newest first, at most 50. Development only: outside development mode it answers 404. For tests and for trying mails without a mail server.
+     *
+     * @name GetApiDevMails
+     * @summary Lists the mails the server sent since it started,
+     * @request GET:/api/dev/mails
+     */
+    getApiDevMails: (params: RequestParams = {}) =>
+      this.request<Message[], Error>({
+        path: `/api/dev/mails`,
         method: "GET",
         format: "json",
         ...params,
@@ -2534,24 +2675,30 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description Admins see each one's suspension reason, consent status and, for one that registered itself, how. The filter "recentlyRegistered" narrows the list to institutions that registered themselves in the last 14 days, which admins check; an unknown filter is refused (400).
      *
      * @name GetApiInstitutions
      * @summary Lists the institutions the caller can see.
      * @request GET:/api/institutions
      * @secure
      */
-    getApiInstitutions: (params: RequestParams = {}) =>
+    getApiInstitutions: (
+      query?: {
+        filter?: string[];
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<Institution[], Error>({
         path: `/api/institutions`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
       }),
 
     /**
-     * @description The name is required.
+     * @description The name is required; operator and address are optional.
      *
      * @name PostApiInstitutions
      * @summary Creates an institution.
@@ -2573,10 +2720,10 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description workshops and the guests in them; heads and staff keep their accounts as individuals. Admins only. To stop an institution without losing anything, suspend it (POST /api/institutions/{id}/suspension).
      *
      * @name DeleteApiInstitutionsId
-     * @summary Deletes an institution; admins only.
+     * @summary Deletes an institution for good, with its
      * @request DELETE:/api/institutions/{id}
      * @secure
      */
@@ -2647,6 +2794,69 @@ export class Api<
       }),
 
     /**
+     * @description declaration and answers with the organisation as its heads consent for it. For a head of that organisation (403 otherwise). The organisation is suspended until a head consents again; one without a standing consent has none to withdraw (409). The consent log keeps the consent and its withdrawal.
+     *
+     * @name DeleteApiInstitutionsIdDeclarationConsent
+     * @summary Withdraws a head's organisation's consent to the
+     * @request DELETE:/api/institutions/{id}/declaration-consent
+     * @secure
+     */
+    deleteApiInstitutionsIdDeclarationConsent: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationConsentView, Error>({
+        path: `/api/institutions/${id}/declaration-consent`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description consent for it. For a head of that organisation (403 otherwise), also while it is suspended: its consent status (pending while it has no consent to the current declaration, which suspends it) and the operator, address and youth-protection restriction a consent confirms.
+     *
+     * @name GetApiInstitutionsIdDeclarationConsent
+     * @summary Returns an organisation as its heads
+     * @request GET:/api/institutions/{id}/declaration-consent
+     * @secure
+     */
+    getApiInstitutionsIdDeclarationConsent: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationConsentView, Error>({
+        path: `/api/institutions/${id}/declaration-consent`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description declaration for their organisation and answers with the organisation as its heads consent for it. For a head of that organisation (403 otherwise), also while it is suspended; one head's consent covers the organisation and lifts its suspension for want of a consent (an admin's stays). It stores the operator, the address and the youth-protection restriction (at most 200 characters) given with it, and confirms the consent by mail, with a copy to the operator.
+     *
+     * @name PostApiInstitutionsIdDeclarationConsent
+     * @summary Records a head's consent to the current
+     * @request POST:/api/institutions/{id}/declaration-consent
+     * @secure
+     */
+    postApiInstitutionsIdDeclarationConsent: (
+      id: string,
+      data: ConsentToDeclarationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationConsentView, Error>({
+        path: `/api/institutions/${id}/declaration-consent`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description free-use API key share and answers with the institution. Any member of the institution plays for free with this key. A null shareId clears it.
      *
      * @name PatchApiInstitutionsIdFreeUseKey
@@ -2708,7 +2918,7 @@ export class Api<
       }),
 
     /**
-     * @description prompt constraints and answers with the institution; heads and admins only. An empty or null promptConstraints clears them.
+     * @description prompt constraints and answers with the institution; heads and admins only. An empty or null promptConstraints clears them; they have at most 200 characters.
      *
      * @name PatchApiInstitutionsIdPromptConstraints
      * @summary Sets or clears an institution's
@@ -2723,6 +2933,49 @@ export class Api<
       this.request<Institution, Error>({
         path: `/api/institutions/${id}/prompt-constraints`,
         method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description answers with the suspension, now empty. Admins only (403 otherwise); an organisation without a consent to the current declaration stays suspended until a head consents.
+     *
+     * @name DeleteApiInstitutionsIdSuspension
+     * @summary Lifts an admin's suspension of an organisation and
+     * @request DELETE:/api/institutions/{id}/suspension
+     * @secure
+     */
+    deleteApiInstitutionsIdSuspension: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationSuspensionView, Error>({
+        path: `/api/institutions/${id}/suspension`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description suspension. Admins only (403 otherwise). Its heads, staff and the guests in its workshops are refused everywhere but GET /api/users/me (which reports the suspension) and logout; its share links and public workshop pages stop. Nothing is deleted; lifting the suspension reverses it. The reason is an optional note for admins.
+     *
+     * @name PostApiInstitutionsIdSuspension
+     * @summary Suspends an organisation and answers with the
+     * @request POST:/api/institutions/{id}/suspension
+     * @secure
+     */
+    postApiInstitutionsIdSuspension: (
+      id: string,
+      data: SuspendOrganisationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<OrganisationSuspensionView, Error>({
+        path: `/api/institutions/${id}/suspension`,
+        method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -2946,6 +3199,21 @@ export class Api<
     getApiLanguagesCode: (code: string, params: RequestParams = {}) =>
       this.request<Record<string, any>, Error>({
         path: `/api/languages/${code}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Public. The current version of the Einverständniserklärung: its binding German text (Markdown, title in bold on the first line), the sentence a person ticks to agree, version, date and SHA-256 hash; the suggested youth-protection restrictions; the site's restriction for 13–17 year olds without parental consent, which an organisation's form starts with; and the longest restriction an organisation may set.
+     *
+     * @name GetApiLegalInstitutionDeclaration
+     * @summary Returns the declaration organisations consent to.
+     * @request GET:/api/legal/institution-declaration
+     */
+    getApiLegalInstitutionDeclaration: (params: RequestParams = {}) =>
+      this.request<DeclarationResp, Error>({
+        path: `/api/legal/institution-declaration`,
         method: "GET",
         format: "json",
         ...params,
@@ -3237,7 +3505,7 @@ export class Api<
       }),
 
     /**
-     * @description The state is "anonymous" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A guest whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering; this one reports it.
+     * @description The state is "anonymous" without a sign-in, "registering" for an account whose registration is incomplete, and "registered" with the account and its role. A guest whose workshop is inactive, or an account that is gone, is refused with 403. Every other endpoint refuses an account that is still registering, and a member of a suspended organisation; this one reports both.
      *
      * @name GetApiUsersMe
      * @summary Reports who is calling.

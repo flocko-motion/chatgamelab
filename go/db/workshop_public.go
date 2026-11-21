@@ -184,7 +184,8 @@ func unmarshalPublicLinks(raw pqtype.NullRawMessage) []obj.PublicWorkshopLink {
 // loadPublicWorkshop returns the workshop behind a slug while its page is switched on.
 func loadPublicWorkshop(ctx context.Context, slug string) (*Workshop, error) {
 	ws, err := queries().GetWorkshopByPublicSlug(ctx, sql.NullString{String: NormalizePublicSlug(slug), Valid: true})
-	if err != nil || !ws.Public {
+	// A suspended institution's public pages are gone while it is suspended.
+	if err != nil || !ws.Public || IsWorkshopInstitutionSuspended(ctx, ws.ID) {
 		return nil, obj.ErrNotFound("workshop page not found")
 	}
 	return &ws, nil

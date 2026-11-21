@@ -157,6 +157,30 @@ type Institution struct {
 	FreeUseApiKeyShareID uuid.NullUUID  `json:"free_use_api_key_share_id"`
 	FreeUseAiQualityTier sql.NullString `json:"free_use_ai_quality_tier"`
 	PromptConstraints    sql.NullString `json:"prompt_constraints"`
+	Operator             sql.NullString `json:"operator"`
+	Street               sql.NullString `json:"street"`
+	PostalCode           sql.NullString `json:"postal_code"`
+	City                 sql.NullString `json:"city"`
+	SuspendedAt          sql.NullTime   `json:"suspended_at"`
+	SuspendedReason      sql.NullString `json:"suspended_reason"`
+}
+
+type InstitutionConsent struct {
+	ID                  uuid.UUID      `json:"id"`
+	CreatedAt           time.Time      `json:"created_at"`
+	InstitutionID       uuid.UUID      `json:"institution_id"`
+	UserID              uuid.UUID      `json:"user_id"`
+	Kind                string         `json:"kind"`
+	Email               sql.NullString `json:"email"`
+	PersonName          sql.NullString `json:"person_name"`
+	PersonFunction      sql.NullString `json:"person_function"`
+	InstitutionName     string         `json:"institution_name"`
+	InstitutionOperator sql.NullString `json:"institution_operator"`
+	Street              sql.NullString `json:"street"`
+	PostalCode          sql.NullString `json:"postal_code"`
+	City                sql.NullString `json:"city"`
+	DeclarationVersion  string         `json:"declaration_version"`
+	DeclarationHash     string         `json:"declaration_hash"`
 }
 
 type SystemSetting struct {

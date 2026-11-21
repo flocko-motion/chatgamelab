@@ -8,13 +8,15 @@ import (
 	"context"
 
 	"cgl/api/auth"
+	"cgl/core/internal/identity"
 	"cgl/db"
 	"cgl/obj"
 )
 
 // LegacyCaller is the registered account calling an AuthRequired endpoint, as
-// v1's caller(ctx) returned it. It refuses anonymous (ErrNoCaller) and an
-// account still registering (ErrRegistrationIncomplete).
+// v1's caller(ctx) returned it. It refuses anonymous (ErrNoCaller), an
+// account still registering (ErrRegistrationIncomplete) and a member of a
+// suspended organisation (ErrOrganisationSuspended).
 func LegacyCaller(ctx context.Context) (*obj.User, error) {
 	user, err := from(ctx).Legacy(ctx)
 	switch {
@@ -24,6 +26,8 @@ func LegacyCaller(ctx context.Context) (*obj.User, error) {
 		return nil, auth.ErrNoCaller
 	case from(ctx).Registering():
 		return nil, auth.ErrRegistrationIncomplete
+	case from(ctx).Suspension() != identity.NotSuspended:
+		return nil, auth.ErrOrganisationSuspended
 	}
 	// v1 promotes admin emails on every request; until #452 moves it to
 	// sign-in, the bridge keeps doing so. The core's caller of this request

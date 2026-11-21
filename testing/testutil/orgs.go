@@ -6,15 +6,37 @@ package testutil
 
 import (
 	"cgl/apiclient"
+	"cgl/legal"
 
 	"github.com/google/uuid"
 )
 
 // --- Institutions ---
 
-// CreateInstitution creates an institution.
+// CreateInstitution creates an institution, as an admin does, that is not
+// suspended: a consent to the current declaration is on file, as its head
+// would give it, so tests about anything else find it at work. An
+// institution still waiting for that consent is CreateSuspendedInstitution's.
 func (c caller) CreateInstitution(name string) (Institution, error) {
+	created, err := c.CreateSuspendedInstitution(name)
+	if err != nil {
+		return created, err
+	}
+	id := created.Id.String()
+	declaration := legal.CurrentDeclaration()
+	c.s.consentOnFile(id, name, declaration.Version, declaration.Hash)
+	return c.GetInstitution(id)
+}
+
+// CreateSuspendedInstitution creates an institution as an admin does: it is
+// suspended until one of its heads consents to the declaration.
+func (c caller) CreateSuspendedInstitution(name string) (Institution, error) {
 	return decode[Institution](c.api.PostApiInstitutionsWithResponse(ctx(), apiclient.CreateInstitutionReq{Name: name}))
+}
+
+// CreateInstitutionWith creates an institution with its details.
+func (c caller) CreateInstitutionWith(institution InstitutionCreate) (Institution, error) {
+	return decode[Institution](c.api.PostApiInstitutionsWithResponse(ctx(), institution))
 }
 
 // GetInstitution is one institution.
@@ -24,7 +46,7 @@ func (c caller) GetInstitution(institutionID string) (Institution, error) {
 
 // ListInstitutions is the institutions the caller sees.
 func (c caller) ListInstitutions() ([]Institution, error) {
-	return decode[[]Institution](c.api.GetApiInstitutionsWithResponse(ctx()))
+	return decode[[]Institution](c.api.GetApiInstitutionsWithResponse(ctx(), nil))
 }
 
 // GetInstitutions is the institutions the caller sees.

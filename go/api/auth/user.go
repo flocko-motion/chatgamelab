@@ -19,6 +19,11 @@ var (
 	// ErrRegistrationIncomplete: the account has no name yet. Every endpoint
 	// refuses it, except completing registration, /api/user/me and logout.
 	ErrRegistrationIncomplete = schemafapi.Error(schemafapi.ErrForbidden, obj.ErrCodeUserNotRegistered, "registration incomplete")
+	// ErrOrganisationSuspended: the caller's organisation is suspended, by an
+	// admin or for want of a consent to the declaration. Every endpoint
+	// refuses its members, except /api/users/me, which reports it, logout,
+	// and the consent its head may give.
+	ErrOrganisationSuspended = schemafapi.Error(schemafapi.ErrForbidden, obj.ErrCodeOrganisationSuspended, "your organisation is suspended")
 	// ErrWorkshopInactive: the participant's workshop is inactive.
 	ErrWorkshopInactive = schemafapi.Error(schemafapi.ErrForbidden, "auth_workshop_inactive", "workshop is inactive")
 	// ErrNoAccount: the subject names no usable account: unknown, deleted, or

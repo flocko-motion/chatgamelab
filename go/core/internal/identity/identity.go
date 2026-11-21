@@ -13,6 +13,7 @@ import (
 	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
 	"cgl/db"
+	"cgl/legal"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -29,6 +30,7 @@ type Caller struct {
 	organisation    *uuid.UUID
 	currentWorkshop *uuid.UUID // a guest: their own, fixed; others: workshop mode
 	registering     bool       // signed in, registration not yet complete
+	suspension      Suspension // their organisation's, if it is suspended
 
 	// the current workshop's settings
 	workshopShowsPublic   bool
@@ -63,7 +65,12 @@ func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
 	if err != nil {
 		return nil, auth.ErrNoAccount
 	}
-	row, err := store.Queries().V2ReadCaller(ctx, id)
+	declaration := legal.CurrentDeclaration()
+	row, err := store.Queries().V2ReadCaller(ctx, db.V2ReadCallerParams{
+		ID:                 id,
+		DeclarationVersion: declaration.Version,
+		DeclarationHash:    declaration.Hash,
+	})
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, auth.ErrNoAccount
 	}
@@ -84,6 +91,7 @@ func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
 	c := &Caller{
 		account:      &row.ID,
 		registering:  row.Registering,
+		suspension:   suspensionOf(row.SuspendedByAdmin, row.ConsentMissing),
 		organisation: nullable(row.InstitutionID),
 
 		workshopShowsPublic:   row.WorkshopShowsPublic,
@@ -120,6 +128,9 @@ func (c *Caller) CurrentWorkshop() *uuid.UUID { return c.currentWorkshop }
 // Contexts are the situations the caller is in, which decide which of their
 // grants hold.
 func (c *Caller) Contexts() []rules.Context {
+	if c.suspension != NotSuspended {
+		return []rules.Context{rules.Suspended}
+	}
 	if c.registering {
 		return []rules.Context{rules.Always, rules.OutsideWorkshop, rules.Registering}
 	}
@@ -141,6 +152,32 @@ func (c *Caller) Contexts() []rules.Context {
 
 // Registering says the caller signed in but has not completed registration.
 func (c *Caller) Registering() bool { return c.registering }
+
+// Suspension is why the caller's organisation is suspended, if it is: as a
+// head, staff or a guest in one of its workshops, the caller then holds only
+// what Suspended grants.
+func (c *Caller) Suspension() Suspension { return c.suspension }
+
+// Suspension is why an organisation is suspended.
+type Suspension string
+
+const (
+	NotSuspended       Suspension = ""
+	SuspendedByAdmin   Suspension = "admin"   // an admin suspended it; only an admin lifts it
+	SuspendedNoConsent Suspension = "consent" // its newest consent does not cover the current declaration
+)
+
+// suspensionOf is the suspension of both causes; an admin's goes first, as no
+// consent lifts it.
+func suspensionOf(byAdmin, consentMissing bool) Suspension {
+	switch {
+	case byAdmin:
+		return SuspendedByAdmin
+	case consentMissing:
+		return SuspendedNoConsent
+	}
+	return NotSuspended
+}
 
 // Legacy is v1's view of the caller, for the legacy bridge only; nil for
 // anonymous. It loads on first use, so only code not yet ported pays for it.

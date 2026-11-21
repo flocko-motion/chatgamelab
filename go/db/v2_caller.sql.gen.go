@@ -26,7 +26,10 @@ SELECT
   COALESCE(pw.active AND pw.deleted_at IS NULL, false)::bool    AS guest_workshop_active,
   COALESCE(cw.show_public_games, false)::bool                   AS workshop_shows_public,
   COALESCE(cw.show_other_participants_games, false)::bool       AS workshop_shows_others,
-  COALESCE(cw.allow_game_sharing, false)::bool                  AS workshop_allows_sharing
+  COALESCE(cw.allow_game_sharing, false)::bool                  AS workshop_allows_sharing,
+  (so.suspended_at IS NOT NULL)::bool                           AS suspended_by_admin,
+  (so.id IS NOT NULL
+   AND institution_consent_missing(so.id, $1::text, $2::text))::bool AS consent_missing
 FROM app_user u
 LEFT JOIN user_role r ON r.id = (
   SELECT ur.id
@@ -37,8 +40,16 @@ LEFT JOIN user_role r ON r.id = (
 )
 LEFT JOIN workshop pw ON pw.id = r.workshop_id AND r.role = 'guest'
 LEFT JOIN workshop cw ON cw.id = CASE WHEN r.role = 'guest' THEN r.workshop_id ELSE r.active_workshop_id END
-WHERE u.id = $1
+LEFT JOIN institution so ON so.id = COALESCE(r.institution_id, pw.institution_id)
+                        AND r.role IN ('head', 'staff', 'guest')
+WHERE u.id = $3
 `
+
+type V2ReadCallerParams struct {
+	DeclarationVersion string    `json:"declaration_version"`
+	DeclarationHash    string    `json:"declaration_hash"`
+	ID                 uuid.UUID `json:"id"`
+}
 
 type V2ReadCallerRow struct {
 	ID                    uuid.UUID      `json:"id"`
@@ -53,6 +64,8 @@ type V2ReadCallerRow struct {
 	WorkshopShowsPublic   bool           `json:"workshop_shows_public"`
 	WorkshopShowsOthers   bool           `json:"workshop_shows_others"`
 	WorkshopAllowsSharing bool           `json:"workshop_allows_sharing"`
+	SuspendedByAdmin      bool           `json:"suspended_by_admin"`
+	ConsentMissing        bool           `json:"consent_missing"`
 }
 
 // v2: the secure core's caller (#344).
@@ -62,8 +75,12 @@ type V2ReadCallerRow struct {
 // The role is chosen exactly as v1 does (GetUserDetailsByID): one role per
 // account, a guest's last, newest first.
 // the workshop the caller is in: a guest's own, or the one entered in workshop mode
-func (q *Queries) V2ReadCaller(ctx context.Context, id uuid.UUID) (V2ReadCallerRow, error) {
-	row := q.db.QueryRowContext(ctx, v2ReadCaller, id)
+// the organisation that may be suspended for the caller: a head's or staff's
+// own, a guest's through their workshop; an individual of it keeps working
+// (v1). It is suspended by an admin, or while its newest entry in the
+// consent log is no consent to the current declaration (@declaration_*).
+func (q *Queries) V2ReadCaller(ctx context.Context, arg V2ReadCallerParams) (V2ReadCallerRow, error) {
+	row := q.db.QueryRowContext(ctx, v2ReadCaller, arg.DeclarationVersion, arg.DeclarationHash, arg.ID)
 	var i V2ReadCallerRow
 	err := row.Scan(
 		&i.ID,
@@ -78,6 +95,8 @@ func (q *Queries) V2ReadCaller(ctx context.Context, id uuid.UUID) (V2ReadCallerR
 		&i.WorkshopShowsPublic,
 		&i.WorkshopShowsOthers,
 		&i.WorkshopAllowsSharing,
+		&i.SuspendedByAdmin,
+		&i.ConsentMissing,
 	)
 	return i, err
 }

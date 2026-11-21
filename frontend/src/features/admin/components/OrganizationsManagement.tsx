@@ -18,7 +18,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconAlertCircle, IconSend, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
+import { IconPlus, IconAlertCircle, IconSend, IconEdit, IconTrash, IconSearch, IconLock, IconLockOpen } from '@tabler/icons-react';
 import { ExpandableSearch } from '@/common/components/controls';
 import { PlusIconButton } from '@/common/components/buttons';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +28,13 @@ import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
 import type { Institution } from "@/api/generated/api.gen";
 import { InvitesList } from './InvitesList';
 import { OrganizationMembersRow } from './OrganizationMembersRow';
+import { OrganizationStatusBadges } from './OrganizationStatusBadges';
+import { OrganizationSuspendModal } from './OrganizationSuspendModal';
+import { RecentRegistrationsList } from './RecentRegistrationsList';
+import { headNames } from '../lib/organizationHeads';
+
+/** An organisation's operator and address, as an admin enters them. */
+const noDetails = { operator: '', street: '', postalCode: '', city: '' };
 
 export function OrganizationsManagement() {
   const { t } = useTranslation('common');
@@ -37,6 +44,8 @@ export function OrganizationsManagement() {
   const [editingOrg, setEditingOrg] = useState<Institution | null>(null);
   const [inviteOrg, setInviteOrg] = useState<Institution | null>(null);
   const [newOrgName, setNewOrgName] = useState('');
+  const [newOrgDetails, setNewOrgDetails] = useState(noDetails);
+  const [suspendOrg, setSuspendOrg] = useState<Institution | null>(null);
   const [editName, setEditName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   
@@ -76,21 +85,28 @@ export function OrganizationsManagement() {
     if (!searchQuery.trim()) return organizations;
     
     const query = searchQuery.toLowerCase();
-    return organizations.filter((org) => 
-      org.name?.toLowerCase().includes(query)
+    return organizations.filter((org) =>
+      [org.name, org.operator, org.city, headNames(org)].some((v) => v?.toLowerCase().includes(query))
     );
   }, [organizations, searchQuery]);
 
   // Create institution mutation
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
-      const response = await api.postApiInstitutions({ name });
+      const response = await api.postApiInstitutions({
+        name,
+        operator: newOrgDetails.operator.trim(),
+        street: newOrgDetails.street.trim(),
+        postalCode: newOrgDetails.postalCode.trim(),
+        city: newOrgDetails.city.trim(),
+      });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
       closeCreateModal();
       setNewOrgName('');
+      setNewOrgDetails(noDetails);
     },
   });
 
@@ -219,6 +235,13 @@ export function OrganizationsManagement() {
                           {org.members?.length || 0} {t('admin.organizations.membersCount')}
                         </Badge>
                       </Group>
+                      {(org.operator || org.city) && (
+                        <Text size="xs" c="dimmed">{[org.operator, org.city].filter(Boolean).join(' · ')}</Text>
+                      )}
+                      {headNames(org) && (
+                        <Text size="xs">{t('admin.organizations.heads')}: {headNames(org)}</Text>
+                      )}
+                      <OrganizationStatusBadges org={org} />
                       <Group gap="xs" justify="flex-end">
                         <ActionIcon
                           variant="subtle"
@@ -240,6 +263,15 @@ export function OrganizationsManagement() {
                         </ActionIcon>
                         <ActionIcon
                           variant="subtle"
+                          color={org.suspendedAt ? 'green' : 'orange'}
+                          size="sm"
+                          onClick={() => setSuspendOrg(org)}
+                          title={org.suspendedAt ? t('admin.organizations.lift') : t('admin.organizations.suspend')}
+                        >
+                          {org.suspendedAt ? <IconLockOpen size={14} /> : <IconLock size={14} />}
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
                           color="red"
                           size="sm"
                           onClick={() => handleDelete(org)}
@@ -257,8 +289,10 @@ export function OrganizationsManagement() {
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>{t('admin.organizations.name')}</Table.Th>
+                    <Table.Th>{t('admin.organizations.heads')}</Table.Th>
+                    <Table.Th>{t('admin.organizations.status')}</Table.Th>
                     <Table.Th>{t('admin.organizations.members')}</Table.Th>
-                    <Table.Th style={{ width: 150 }}>{t('admin.organizations.actions')}</Table.Th>
+                    <Table.Th style={{ width: 190 }}>{t('admin.organizations.actions')}</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -269,6 +303,7 @@ export function OrganizationsManagement() {
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       onInvite={handleInvite}
+                      onToggleSuspension={setSuspendOrg}
                     />
                   ))}
                 </Table.Tbody>
@@ -279,6 +314,13 @@ export function OrganizationsManagement() {
               {t('admin.organizations.empty')}
             </Text>
           )}
+        </Card>
+
+        {/* Organisations that registered themselves lately */}
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Title order={3} mb={4}>{t('admin.registrations.title')}</Title>
+          <Text size="sm" c="dimmed" mb="md">{t('admin.registrations.description')}</Text>
+          <RecentRegistrationsList />
         </Card>
 
         {/* Pending Invites Section */}
@@ -297,6 +339,29 @@ export function OrganizationsManagement() {
             value={newOrgName}
             onChange={(e) => setNewOrgName(e.currentTarget.value)}
           />
+          <Text size="sm" c="dimmed">{t('admin.organizations.detailsOptional')}</Text>
+          <TextInput
+            label={t('admin.organizations.operator')}
+            value={newOrgDetails.operator}
+            onChange={(e) => { const operator = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, operator })); }}
+          />
+          <TextInput
+            label={t('admin.organizations.street')}
+            value={newOrgDetails.street}
+            onChange={(e) => { const street = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, street })); }}
+          />
+          <Group grow>
+            <TextInput
+              label={t('admin.organizations.postalCode')}
+              value={newOrgDetails.postalCode}
+              onChange={(e) => { const postalCode = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, postalCode })); }}
+            />
+            <TextInput
+              label={t('admin.organizations.city')}
+              value={newOrgDetails.city}
+              onChange={(e) => { const city = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, city })); }}
+            />
+          </Group>
           <Group justify="flex-end">
             <Button variant="subtle" onClick={closeCreateModal}>
               {t('cancel')}
@@ -368,6 +433,8 @@ export function OrganizationsManagement() {
           </Group>
         </Stack>
       </Modal>
+
+      <OrganizationSuspendModal org={suspendOrg} onClose={() => setSuspendOrg(null)} />
 
       {/* Delete Confirmation Modal */}
       <Modal opened={deleteModalOpened} onClose={closeDeleteModal} title={t('admin.organizations.deleteTitle')}>

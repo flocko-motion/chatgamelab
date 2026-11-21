@@ -10,6 +10,7 @@ import { useCaller } from "./auth/useCaller";
 import { useAuth0Session } from "./auth/useAuth0Session";
 
 export type { AuthUser, RegistrationData, AuthContextType } from "./auth/types";
+export type { CallerStanding, Registration } from "./auth/useCaller";
 export {
   guestLogin,
   rememberGuestCode,
@@ -42,6 +43,8 @@ const defaultAuthContext: AuthContextType = {
   logout: () => {},
   retryBackendFetch: () => {},
   register: async () => {},
+  standing: { mayEditInstitution: false, maySuspendInstitutions: false },
+  refreshCaller: async () => {},
 };
 
 export function useAuth() {
@@ -113,6 +116,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     void fetchCaller();
   }, [fetchCaller]);
 
+  const refreshCaller = useCallback(async () => {
+    await fetchCaller();
+  }, [fetchCaller]);
+
   const logout = async () => {
     authLogger.debug("Signing out");
     // Keep loading, so no route redirects before the browser leaves.
@@ -149,7 +156,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: caller.state === "registered",
     isGuest: backendUser?.role?.role === RoleName.Guest || caller.isWorkshopInactive,
     needsRegistration,
-    registrationData: needsRegistration ? { name: suggestedName(auth0.auth0User) } : null,
+    registrationData: needsRegistration
+      ? { name: suggestedName(auth0.auth0User), email: auth0.auth0User?.email ?? "" }
+      : null,
     backendError: caller.error,
     isWorkshopInactive: caller.isWorkshopInactive,
     auth0Enabled: auth0.enabled,
@@ -159,6 +168,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     retryBackendFetch,
     register: caller.register,
+    standing: caller.standing,
+    refreshCaller,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

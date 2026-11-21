@@ -13,6 +13,7 @@ var Rules = map[Role]Grants{
 			{Read, Organisation, Everywhere},
 			{List, Organisation, Everywhere},
 			{Manage, Organisation, Everywhere},
+			{Suspend, Organisation, Everywhere}, // and lift it; keeps its data, where deleting is for good
 
 			{Read, Workshop, Everywhere},
 			{List, Workshop, Everywhere},
@@ -47,6 +48,7 @@ var Rules = map[Role]Grants{
 	Head: {
 		Always: {
 			{Manage, Organisation, OfOwnOrganisation},
+			{Edit, Organisation, OfOwnOrganisation}, // consenting to the declaration in its name, or withdrawing it; one head's consent covers it
 
 			{Manage, Workshop, OfOwnOrganisation},
 			{Enter, Workshop, OfOwnOrganisation},
@@ -83,6 +85,11 @@ var Rules = map[Role]Grants{
 		},
 		InWorkshop: {
 			{List, GameCard, OfCurrentWorkshop}, // all of them, whatever the workshop's settings
+		},
+		// a head lifts their organisation's suspension for want of a consent
+		// by consenting; an admin's suspension stays (organisation_consent.go)
+		Suspended: {
+			{Edit, Organisation, OfOwnOrganisation},
 		},
 	},
 	Staff: {
@@ -236,6 +243,14 @@ var Rules = map[Role]Grants{
 		// and sees it; nothing else of SignedIn holds until then
 		Registering: {
 			{Create, UserCard, Own},
+			{Create, Organisation, Own}, // registering as its head; that it takes an adult is validation in code (organisation_register.go), not this grant
+			{Read, UserCard, Own},
+			{Read, UserAccount, Own},
+			{Read, UserContact, Own},
+		},
+		// a member of a suspended organisation sees who they are, so the app
+		// can tell them; nothing else holds until the suspension ends
+		Suspended: {
 			{Read, UserCard, Own},
 			{Read, UserAccount, Own},
 			{Read, UserContact, Own},

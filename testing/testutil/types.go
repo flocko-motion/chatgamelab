@@ -46,12 +46,13 @@ type (
 
 // What a test sends.
 type (
-	GameUpdate     = apiclient.UpdateGameReq
-	Registration   = apiclient.CompleteRegistrationReq
-	GameCreate     = apiclient.CreateGameReq
-	GameTemplate   = apiclient.GameTemplate
-	WorkshopUpdate = apiclient.UpdateWorkshopReq
-	UserUpdate     = apiclient.UpdateUserReq
-	SettingsUpdate = apiclient.UpdateSystemSettingsReq
-	WorkshopInvite = apiclient.CreateWorkshopInviteReq
+	GameUpdate        = apiclient.UpdateGameReq
+	Registration      = apiclient.CompleteRegistrationReq
+	GameCreate        = apiclient.CreateGameReq
+	GameTemplate      = apiclient.GameTemplate
+	WorkshopUpdate    = apiclient.UpdateWorkshopReq
+	UserUpdate        = apiclient.UpdateUserReq
+	SettingsUpdate    = apiclient.UpdateSystemSettingsReq
+	WorkshopInvite    = apiclient.CreateWorkshopInviteReq
+	InstitutionCreate = apiclient.CreateInstitutionReq
 )

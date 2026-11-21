@@ -93,6 +93,9 @@ func ValidatePrivateShareToken(ctx context.Context, token string) (*obj.GameShar
 	if err != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "Invalid or expired share link")
 	}
+	if shareOfSuspendedInstitution(ctx, gameShare) {
+		return nil, nil, obj.NewHTTPErrorWithCode(403, obj.ErrCodeOrganisationSuspended, "This organisation is suspended")
+	}
 
 	game, err := db.GetGameByIDWithShareToken(ctx, gameShare.GameID, token)
 	if err != nil {
@@ -105,6 +108,18 @@ func ValidatePrivateShareToken(ctx context.Context, token string) (*obj.GameShar
 	}
 
 	return gameShare, game, nil
+}
+
+// shareOfSuspendedInstitution reports whether the share link belongs to a
+// suspended institution, directly or through one of its workshops.
+func shareOfSuspendedInstitution(ctx context.Context, share *obj.GameShare) bool {
+	switch {
+	case share.InstitutionID != nil:
+		return db.IsInstitutionSuspended(ctx, *share.InstitutionID)
+	case share.WorkshopID != nil:
+		return db.IsWorkshopInstitutionSuspended(ctx, *share.WorkshopID)
+	}
+	return false
 }
 
 // resolvePrivateShareKey loads the API key from the game share's api_key_share_id.

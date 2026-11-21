@@ -63,6 +63,10 @@ const (
 
 	// Enter puts the caller into a workshop: workshop mode.
 	Enter Action = "enter"
+
+	// Suspend stops an entity's use, and lifts that again; its data stays.
+	// A suspended organisation's members are refused (see Suspended).
+	Suspend Action = "suspend"
 )
 
 // Entity is a kind of thing in the system, named in the singular. Where
@@ -110,7 +114,10 @@ const (
 	// code. Whoever holds it is that guest.
 	UserSecrets Entity = "user secrets"
 
-	Workshop     Entity = "workshop"
+	Workshop Entity = "workshop"
+	// Organisation is an organisation: its name, operator, address and
+	// youth-protection restriction, and its consent to the declaration, which
+	// a head gives or withdraws by editing it.
 	Organisation Entity = "organisation"
 )
 
@@ -162,6 +169,10 @@ const (
 	OthersShown     Context = "others shown"       // the caller's workshop shows the games of the others in it
 	SharingAllowed  Context = "sharing allowed"    // the caller's workshop lets those in it share games through its key
 	Registering     Context = "registering"        // the caller signed in, but has not completed registration
+	// Suspended: the caller's organisation is suspended, by an admin or for
+	// want of a consent to the current declaration. It is the caller's only
+	// context, so of all their grants only Suspended ones hold.
+	Suspended Context = "organisation suspended"
 )
 
 // Grants are a role's grants by context.

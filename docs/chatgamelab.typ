@@ -263,8 +263,8 @@ The first sign-in creates an account; the account is usable once registration
 is complete. Registration asks for:
 
 1. *Nutzertyp.* "Anmeldung als Nutzer" leads on to the Altersabfrage.
-   "Anmeldung als Fachkraft / Organisation" explains how an organisation
-   registers, by email, and asks the person to register as a user first.
+   "Als Organisation registrieren" leads on to the organisation's
+   registration (below).
 2. *Altersabfrage*, by Selbstauskunft:
    - under 13: no account of their own; ChatGameLab only through a
      Jugendeinrichtung;
@@ -277,6 +277,21 @@ is complete. Registration asks for:
 *Age is a Selbstauskunft.* It is the legally sound way: a technical check, such
 as owning an API key, does not hold up legally, and whoever gives a false age
 puts themselves in the wrong.
+
+=== Registration as Organisations
+
+A new organisation can be registered by signing up a new user in the 
+"as organisation" flow. The new user fills out all the required details 
+and ends up as the head of the newly founded organisation.
+
+- *The person* is an adult (U18), reached at their account's email. They give
+  their name and function, and agree to the terms of use and the privacy
+  policy.
+- He give the *organisations* name, its Träger and its address, and sets its
+  youth-protection rule.
+- *The Einverständniserklärung* binds the organisation, in German, in a
+  numbered version. The person agrees to it in the organisation's name; the
+  consent is kept as proof.
 
 == Paying
 

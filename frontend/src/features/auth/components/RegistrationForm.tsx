@@ -121,7 +121,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     setSubmitError(null);
 
     try {
-      await registerUser(data.name.trim(), data.email.trim(), ageGroup);
+      await registerUser({ name: data.name.trim(), email: data.email.trim(), ageGroup });
       navigate({ to: (takeReturnTo() ?? '/dashboard') as '/' });
     } catch (error: unknown) {
       authLogger.error('Registration failed', { error });

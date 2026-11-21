@@ -17,7 +17,8 @@ import { AppLayout, type NavItem } from "../common/components/Layout";
 import { InactiveWorkshopMessage } from "../common/components/InactiveWorkshopMessage";
 import { useAuth } from "../providers/AuthProvider";
 import { useWorkshopMode } from "../providers/WorkshopModeProvider";
-import { RegistrationForm } from "../features/auth";
+import { OrganisationSuspendedMessage } from "../common/components/OrganisationSuspendedMessage";
+import { NewAccountRegistration, DeclarationConsentPage } from "../features/organization-registration";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
 import { PUBLIC_WORKSHOP_PREFIX } from "../common/lib/publicWorkshop";
@@ -44,6 +45,7 @@ function RootComponent() {
     backendUser,
     isGuest,
     isWorkshopInactive,
+    standing,
     logout,
   } = useAuth();
   const { isInWorkshopMode, activeWorkshopName, exitWorkshopMode } =
@@ -338,6 +340,21 @@ function RootComponent() {
     );
   }
 
+  // The members of a suspended organisation see only why; a head whose
+  // organisation lacks the consent gives it
+  if (standing.institutionSuspension && !isPublicRoute) {
+    const consentWanted = standing.institutionSuspension === "consent";
+    return (
+      <AppLayout variant="public">
+        {consentWanted && standing.mayEditInstitution ? (
+          <DeclarationConsentPage onLogout={logout} />
+        ) : (
+          <OrganisationSuspendedMessage consentWanted={consentWanted} onLogout={logout} />
+        )}
+      </AppLayout>
+    );
+  }
+
   // Show registration form if user needs to complete registration
   if (needsRegistration && registrationData) {
     return (
@@ -346,7 +363,7 @@ function RootComponent() {
           variant="public"
           background={theme.other.colors.bgRegistrationGradient}
         >
-          <RegistrationForm registrationData={registrationData} />
+          <NewAccountRegistration registrationData={registrationData} />
         </AppLayout>
         <TanStackRouterDevtools position="bottom-right" />
       </>

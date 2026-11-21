@@ -128,4 +128,7 @@ var vocabulary = map[string]string{
 	"UserSecrets":             string(rules.UserSecrets),
 	"MemberOfOwnOrganisation": string(rules.MemberOfOwnOrganisation),
 	"GuestOfOwnOrganisation":  string(rules.GuestOfOwnOrganisation),
+	"Create":                  string(rules.Create),
+	"Suspend":                 string(rules.Suspend),
+	"Organisation":            string(rules.Organisation),
 }

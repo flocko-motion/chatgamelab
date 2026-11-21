@@ -3,6 +3,7 @@ package core
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"cgl/obj"
 
@@ -26,6 +27,11 @@ func refuse(format string, args ...any) error {
 // forbidden: the caller may see it, but not do this to it: 403.
 func forbidden(format string, args ...any) error {
 	return schemafapi.Error(schemafapi.ErrForbidden, obj.ErrCodeForbidden, fmt.Sprintf(format, args...))
+}
+
+// forbiddenWith: 403 with a code of its own, e.g. institution_age_not_allowed.
+func forbiddenWith(code, format string, args ...any) error {
+	return schemafapi.Error(schemafapi.ErrForbidden, code, fmt.Sprintf(format, args...))
 }
 
 // badRequest: 400 with a code of its own, e.g. profane_name.
@@ -70,4 +76,11 @@ func sqlString(s *string) sql.NullString {
 		return sql.NullString{}
 	}
 	return sql.NullString{String: *s, Valid: true}
+}
+
+func nullTime(t sql.NullTime) *time.Time {
+	if !t.Valid {
+		return nil
+	}
+	return &t.Time
 }

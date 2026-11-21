@@ -4,16 +4,37 @@
  */
 import { useCallback, useRef, useState } from "react";
 import { api } from "@/api/client/api";
-import type { UserView } from "@/api/generated/api.gen";
+import type { GetCurrentUserResp, OrganisationSignUpReq, UserView } from "@/api/generated/api.gen";
 import { authLogger } from "@/config/logger";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
 import i18n from "@/i18n";
 
 export type CallerState = "unknown" | "anonymous" | "registering" | "registered";
 
+/** What /api/users/me says about the caller and organisations, beside their user. */
+export type CallerStanding = Pick<
+  GetCurrentUserResp,
+  "institutionSuspension" | "mayEditInstitution" | "maySuspendInstitutions"
+>;
+
+const noStanding: CallerStanding = {
+  mayEditInstitution: false,
+  maySuspendInstitutions: false,
+};
+
+/** What completes an account; with an organisation, registered together with it. */
+export interface Registration {
+  name: string;
+  email: string;
+  ageGroup: string;
+  organisation?: OrganisationSignUpReq;
+  acceptTerms?: boolean;
+}
+
 export function useCaller() {
   const [state, setState] = useState<CallerState>("unknown");
   const [user, setUser] = useState<UserView | null>(null);
+  const [standing, setStanding] = useState<CallerStanding>(noStanding);
   const [error, setError] = useState<string | null>(null);
   const [isWorkshopInactive, setIsWorkshopInactive] = useState(false);
 
@@ -41,10 +62,16 @@ export function useCaller() {
     try {
       const { data } = await api.getApiUsersMe();
       if (data.state === "registered" && data.user) {
+        setStanding({
+          institutionSuspension: data.institutionSuspension,
+          mayEditInstitution: data.mayEditInstitution,
+          maySuspendInstitutions: data.maySuspendInstitutions,
+        });
         applyUser(data.user);
         return "registered";
       }
       setUser(null);
+      setStanding(noStanding);
       const next = data.state === "registering" ? "registering" : "anonymous";
       setState(next);
       return next;
@@ -65,7 +92,7 @@ export function useCaller() {
 
   /** Completes registration of the signed-in account. */
   const register = useCallback(
-    async (name: string, email: string, ageGroup: string) => {
+    async ({ name, email, ageGroup, organisation, acceptTerms }: Registration) => {
       // The language the user registers in becomes their stored preference,
       // and game sessions are locked to it at launch.
       const { data } = await api.postApiAuthRegister({
@@ -73,6 +100,8 @@ export function useCaller() {
         email: email || undefined,
         ageGroup,
         language: i18n.resolvedLanguage ?? i18n.language?.split("-")[0] ?? "en",
+        organisation,
+        acceptTerms,
       });
       authLogger.info("User registered", { userId: data.id });
       // The account is read as /api/users/me answers it.
@@ -84,6 +113,7 @@ export function useCaller() {
   /** Forgets the caller, after signing out. */
   const clear = useCallback(() => {
     setUser(null);
+    setStanding(noStanding);
     setState("anonymous");
     setError(null);
   }, []);
@@ -91,6 +121,7 @@ export function useCaller() {
   return {
     state,
     user,
+    standing,
     error,
     isWorkshopInactive,
     fetchCaller,

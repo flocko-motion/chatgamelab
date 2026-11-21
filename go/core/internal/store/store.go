@@ -5,6 +5,8 @@
 package store
 
 import (
+	"context"
+
 	"cgl/db"
 
 	schemafdb "github.com/flocko-motion/schemaf/db"
@@ -13,4 +15,18 @@ import (
 // Queries are the generated queries on schemaf's connection.
 func Queries() *db.Queries {
 	return db.New(schemafdb.DB())
+}
+
+// InTx runs fn on the generated queries in one transaction: every write of
+// fn is stored, or, when fn fails, none.
+func InTx(ctx context.Context, fn func(q *db.Queries) error) error {
+	tx, err := schemafdb.DB().BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if err := fn(db.New(tx)); err != nil {
+		return err
+	}
+	return tx.Commit()
 }

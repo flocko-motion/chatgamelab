@@ -19,6 +19,7 @@ import { getUserInstitutionId, isAtLeastHead, isAtLeastStaff } from '@/common/li
 import { MembersTab } from './MembersTab';
 import { WorkshopsTab } from './WorkshopsTab';
 import { ApiKeysTab } from './ApiKeysTab';
+import { OrganisationDeclarationCard } from './OrganisationDeclarationCard';
 
 interface MyOrganizationProps {
   /** Auto-open the create workshop modal on mount */
@@ -109,6 +110,8 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
             <Text c="dimmed" size="sm">{institution.name}</Text>
           )}
         </Stack>
+
+        <OrganisationDeclarationCard />
 
         <Tabs defaultValue="members">
           <Tabs.List>

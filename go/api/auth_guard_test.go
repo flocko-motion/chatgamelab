@@ -18,6 +18,10 @@ var openEndpoints = map[string]schemafapi.AuthLevel{
 	"POST /api/auth/guest-login": schemafapi.AuthNone,
 	"POST /api/users/new":        schemafapi.AuthNone, // dev mode only
 	"GET /api/users/me":          schemafapi.AuthOptional,
+	"GET /api/dev/mails":         schemafapi.AuthNone, // dev mode only
+
+	// the declaration an organisation consents to, read before signing up
+	"GET /api/legal/institution-declaration": schemafapi.AuthNone,
 
 	// invites: an anonymous caller joins a workshop by token
 	"GET /api/invites/{idOrToken}":         schemafapi.AuthOptional,

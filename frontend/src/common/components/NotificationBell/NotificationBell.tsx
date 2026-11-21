@@ -24,6 +24,7 @@ import type { InviteResp } from "@/api/generated/api.gen";
 import { useTranslateRole } from "@/common/lib/roles";
 import { ROUTES } from "@/common/routes/routes";
 import classes from "./NotificationBell.module.css";
+import { AdminRegistrationBell } from "./AdminRegistrationBell";
 
 const SEEN_INVITES_KEY = "cgl_seen_invites";
 
@@ -49,7 +50,7 @@ function markInvitesAsSeen(inviteIds: string[]): void {
 
 export function NotificationBell() {
   const { t } = useTranslation("common");
-  const { backendUser, retryBackendFetch } = useAuth();
+  const { backendUser, retryBackendFetch, standing } = useAuth();
   const queryClient = useQueryClient();
   const [opened, { open, close }] = useDisclosure(false);
   const [
@@ -204,7 +205,11 @@ export function NotificationBell() {
     }
   };
 
-  // Hide bell for admin users
+  // Admins have no invites; whoever may suspend organisations is told about
+  // the organisations registered lately instead.
+  if (standing.maySuspendInstitutions) {
+    return <AdminRegistrationBell />;
+  }
   if (isAdmin) {
     return null;
   }

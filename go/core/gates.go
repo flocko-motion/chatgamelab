@@ -137,3 +137,26 @@ func userCardGates(ctx context.Context) db.V2UsersParams {
 		DeleteEverywhere: granted(ctx, rules.Delete, rules.UserCard, rules.Everywhere),
 	}
 }
+
+// Organisations have no query of their own in the core yet: their gates
+// compare the caller's organisation in Go.
+
+// mayRegisterOrganisation says whether the caller may register an
+// organisation and become its head: {Create, Organisation, Own}.
+func mayRegisterOrganisation(ctx context.Context) bool {
+	return granted(ctx, rules.Create, rules.Organisation, rules.Own)
+}
+
+// mayEditOrganisation says whether the caller may edit organisation id,
+// consenting to the declaration in its name or withdrawing it: {Edit,
+// Organisation, OfOwnOrganisation}.
+func mayEditOrganisation(ctx context.Context, id uuid.UUID) bool {
+	own := from(ctx).Organisation()
+	return granted(ctx, rules.Edit, rules.Organisation, rules.OfOwnOrganisation) && own != nil && *own == id
+}
+
+// maySuspendOrganisations says whether the caller may suspend any
+// organisation and lift that: {Suspend, Organisation, Everywhere}.
+func maySuspendOrganisations(ctx context.Context) bool {
+	return granted(ctx, rules.Suspend, rules.Organisation, rules.Everywhere)
+}

@@ -66,6 +66,13 @@ export const queryKeys = {
   institutionMembers: (institutionId: string) =>
     ["institution-members", institutionId] as const,
 
+  // Organisations registering themselves
+  declaration: ["declaration"] as const,
+  organisationConsent: (institutionId: string) =>
+    ["organisation-consent", institutionId] as const,
+  /** Under `institutions`, so changing institutions refreshes it. */
+  recentlyRegisteredInstitutions: ["institutions", "recently-registered"] as const,
+
   // Invites
   invites: ["invites"] as const,
   institutionInvitesBase: ["institution-invites"] as const,

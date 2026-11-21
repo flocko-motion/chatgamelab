@@ -67,6 +67,9 @@ func Preseed(ctx context.Context) {
 	// Create the demo games, spread across the dev users
 	preseedDevGames(ctx)
 
+	// Fill empty site restrictions, so an organisation's form has a default
+	preseedDevSiteConstraints(ctx)
+
 	log.Debug("database preseed completed")
 }
 
@@ -403,4 +406,32 @@ func checkoutPath(rel string) (string, error) {
 		}
 		dir = parent
 	}
+}
+
+// The site restrictions development starts with, the examples of
+// JUGENDSCHUTZ.md; on a live server an admin sets them.
+const (
+	devSiteConstraintU13   = "Erlaube spürbare Konflikte und stärkere Spannung; greife bei realistischer, detaillierter oder eskalierender Gewalt ein und verhindere Verherrlichung und Überforderung."
+	devSiteConstraintAdult = "Erlaube realistische, auch deutlich intensivere Inhalte; unterbinde exzessive oder verherrlichte Gewalt sowie extreme, entwürdigende oder diskriminierende Darstellungen konsequent."
+)
+
+// preseedDevSiteConstraints fills the site restrictions still empty; set ones
+// stay.
+func preseedDevSiteConstraints(ctx context.Context) {
+	settings, err := GetSystemSettings(ctx)
+	if err != nil {
+		log.Warn("failed to read system settings for the restriction preseed", "error", err)
+		return
+	}
+	fill := func(level string, current *string, value string, update func(context.Context, *string) error) {
+		if current != nil && *current != "" {
+			return
+		}
+		if err := update(ctx, &value); err != nil {
+			log.Warn("failed to preseed a site restriction", "level", level, "error", err)
+		}
+	}
+	fill("u13", settings.PromptConstraintU13, devSiteConstraintU13, UpdatePromptConstraintU13)
+	fill("u13p", settings.PromptConstraintU13p, devSiteConstraintAdult, UpdatePromptConstraintU13p)
+	fill("u18", settings.PromptConstraintU18, devSiteConstraintAdult, UpdatePromptConstraintU18)
 }

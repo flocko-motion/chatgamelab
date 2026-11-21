@@ -2,6 +2,7 @@
  * Shared types for the auth module.
  */
 import type { UserView } from "@/api/generated/api.gen";
+import type { CallerStanding, Registration } from "./useCaller";
 
 export interface AuthUser {
   sub: string;
@@ -10,9 +11,10 @@ export interface AuthUser {
   role?: string;
 }
 
-/** Suggestions that pre-fill the registration form. */
+/** Suggestions that pre-fill the registration form, from the sign-in. */
 export interface RegistrationData {
   name: string;
+  email: string;
 }
 
 export interface AuthContextType {
@@ -44,5 +46,9 @@ export interface AuthContextType {
   /** Fetch the account again, after an error or a change. */
   retryBackendFetch: () => void;
   /** Complete the registration of the signed-in account. */
-  register: (name: string, email: string, ageGroup: string) => Promise<void>;
+  register: (registration: Registration) => Promise<void>;
+  /** The caller's standing with organisations, from /api/users/me. */
+  standing: CallerStanding;
+  /** Fetch the account again and wait for it, after a change. */
+  refreshCaller: () => Promise<void>;
 }

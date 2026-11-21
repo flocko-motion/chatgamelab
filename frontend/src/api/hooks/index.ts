@@ -104,3 +104,13 @@ export { useGamesCacheUpdater } from "./useGamesCacheUpdater";
 
 // Active Workshop (Workshop Mode)
 export { useSetActiveWorkshop } from "./useActiveWorkshop";
+
+// Organisations registering themselves
+export {
+  useDeclaration,
+  useOrganisationConsent,
+  useConsentToDeclaration,
+  useWithdrawConsent,
+  useSetOrganisationSuspension,
+  useRecentlyRegisteredInstitutions,
+} from "./useOrganisationRegistration";

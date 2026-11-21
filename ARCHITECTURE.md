@@ -23,8 +23,9 @@ That floor is enforced automatically.
   grouped by context, one grant per line as `{Action, Entity, Relation}`. Not
   listed means refused; admin is no exception. Code never checks a role.
 - **Contexts are the caller's situation**: always, in or outside a workshop,
-  and the workshop's settings. A grant holds in one context; a caller holds
-  the grants of every context they are in.
+  the workshop's settings, still registering, and a suspended organisation
+  (its members' only context, so only its grants hold). A grant holds
+  in one context; a caller holds the grants of every context they are in.
 - **Entities split into sections where visibility differs** (`GameCard`,
   `GameContent`, `GameSettings`). No field is in two sections. A loaded entity
   is its base section; others unlock with `AsX()`, a check of flags the query
