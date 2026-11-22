@@ -24,22 +24,53 @@
     }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  body { margin: 0; font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
          background: var(--bg); color: var(--fg); display: flex; flex-direction: column; height: 100vh; }
   header { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap;
            gap: 8px 16px; align-items: center; }
-  header h1 { font-size: 16px; margin: 0; }
+  header h1 { font-size: 18px; margin: 0; }
   header .meta { color: var(--muted); font-size: 12px; }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
   input[type=search] { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px;
                        background: var(--bg); color: var(--fg); width: 180px; }
   button, select { padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px;
                    background: var(--panel); color: var(--fg); cursor: pointer; font: inherit; }
-  label { color: var(--muted); font-size: 13px; }
+  label { color: var(--muted); font-size: 14px; }
   main { flex: 1; display: flex; min-height: 0; }
-  #graph { flex: 1; min-width: 0; }
-  aside { width: 300px; border-left: 1px solid var(--line); background: var(--panel); overflow: auto;
-          padding: 12px 14px; font-size: 13px; }
+  #graphs { flex: 1; min-width: 0; position: relative; }
+  #graph, #overview { position: absolute; inset: 0; }
+  #overview { display: none; overflow: auto; padding: 20px 24px 40px; }
+  body.epics-only .graph-only { display: none; }
+  /* Epics only: a grid, one row per epic, one column per milestone, in a size
+     for reading at a glance. */
+  .ov { border-collapse: separate; border-spacing: 10px 8px; font-size: 18px; }
+  .ov th { font-size: 17px; text-align: left; padding: 10px 14px; border-radius: 8px; white-space: nowrap;
+           background: var(--milestone); border: 2px solid var(--milestone-line); position: sticky; top: -20px; z-index: 1; }
+  .ov th.ok { background: var(--ready); border-color: var(--ready-line); }
+  .ov th small { display: block; font-weight: normal; color: var(--muted); font-size: 14px; }
+  .ov th.corner { background: var(--bg); border-color: transparent; }
+  .ov td { vertical-align: middle; }
+  .ov .name { min-width: 260px; max-width: 420px; padding: 6px 4px; }
+  .ov .name a { font-weight: 600; text-decoration: none; }
+  .ov .name a:hover { text-decoration: underline; }
+  .ov .name .sub { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .ov .cell { display: block; min-width: 170px; padding: 10px 14px; border-radius: 8px; border: 2px solid;
+              text-decoration: none; color: var(--fg); font-weight: 600; background: var(--epic); }
+  .ov .cell .bar { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .ov .cell .bar i { display: block; height: 100%; }
+  .ov .cell.ready { border-color: var(--ready-line); } .ov .cell.ready .bar i { background: var(--ready-line); }
+  .ov .cell.blocked { border-color: var(--blocked-line); } .ov .cell.blocked .bar i { background: var(--blocked-line); }
+  .ov .cell.done { border-color: var(--done-line); color: var(--muted); } .ov .cell.done .bar i { background: var(--done-line); }
+  .ov tr.hit .name a { background: #d2992255; border-radius: 4px; }
+  .ov tr.dim { opacity: .25; }
+  .ov-empty { color: var(--muted); font-size: 18px; }
+  body.epics-only #graph { display: none; }
+  body.epics-only #overview { display: block; }
+  .toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .toggle button { border: 0; border-radius: 0; background: var(--bg); color: var(--muted); }
+  .toggle button[aria-pressed=true] { background: var(--panel); color: var(--fg); font-weight: 600; }
+  aside { width: 340px; border-left: 1px solid var(--line); background: var(--panel); overflow: auto;
+          padding: 14px 16px; font-size: 15px; }
   aside h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
              margin: 14px 0 6px; }
   aside h2:first-child { margin-top: 0; }
@@ -50,8 +81,8 @@
                  margin-right: 4px; border: 1px solid; }
   .legend div { margin: 3px 0; }
   #tip { position: fixed; pointer-events: none; background: var(--bg); color: var(--fg);
-         border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-size: 12px;
-         max-width: 320px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 10; }
+         border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px;
+         max-width: 420px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 10; }
   @media (max-width: 720px) { main { flex-direction: column; } aside { width: auto; border-left: 0;
     border-top: 1px solid var(--line); max-height: 40vh; } }
 </style>
@@ -61,16 +92,20 @@
   <h1>ChatGameLab Roadmap</h1>
   <span class="meta" id="generated"></span>
   <div class="controls">
+    <div class="toggle" role="group" aria-label="View">
+      <button id="viewIssues" aria-pressed="true" title="Every issue, inside its epic">Issues</button>
+      <button id="viewEpics" aria-pressed="false" title="Epics only: one card per epic and milestone, for the overview">Epics only</button>
+    </div>
     <input type="search" id="search" placeholder="Search issues…">
     <select id="epic"><option value="">All epics</option></select>
     <label><input type="checkbox" id="showDone"> show done</label>
-    <button id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
-    <button id="fit">Fit</button>
+    <button class="graph-only" id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
+    <button class="graph-only" id="fit">Fit</button>
     <button id="update" title="Opens the roadmap workflow on GitHub: click Run workflow there (needs write access). This page reloads by itself once the update is out.">Update ↻</button>
   </div>
 </header>
 <main>
-  <div id="graph"></div>
+  <div id="graphs"><div id="graph"></div><div id="overview"></div></div>
   <aside>
     <h2>Next up</h2><ul id="next"></ul>
     <h2>How to read it</h2>
@@ -80,7 +115,8 @@
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
       <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date</div>
       <div>Boxes are epics, one per milestone they have issues in; a broad band joins the pieces of one epic. Arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
-      <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, click a card to open its issue.</div>
+      <div><b>Epics only</b>: a row per epic, a column per milestone; each cell is the epic's issues in that milestone, its bar the share done. “after” names the epics it waits for.</div>
+      <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move, Fit to see it all; click a card to open its issue.</div>
     </div>
     <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
   </aside>
@@ -211,13 +247,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     style: [
       { selector: "node[kind='epic']", style: {
           "background-color": css("--epic"), "border-color": css("--line"), "border-width": 1,
-          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -6,
+          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -8,
           "text-background-color": css("--bg"), "text-background-opacity": 1, "text-background-padding": 3,
-          "font-size": 13, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 440,
+          "font-size": 20, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 560,
           shape: "round-rectangle", padding: 24 } },
       { selector: "node[kind='issue']", style: {
-          width: 210, height: 54, shape: "round-rectangle", label: "data(label)",
-          "text-wrap": "wrap", "text-max-width": 190, "font-size": 11, color: css("--fg"),
+          width: 280, height: 84, shape: "round-rectangle", label: "data(label)",
+          "text-wrap": "wrap", "text-max-width": 256, "font-size": 16, color: css("--fg"),
           "text-valign": "center", "text-halign": "center", "border-width": 1.5 } },
       ...Object.entries(COLORS).map(([s, [fill, line]]) => ({
         selector: `node[state='${s}']`, style: { "background-color": fill, "border-color": line } })),
@@ -226,7 +262,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
                                    "target-arrow-shape": "triangle", "curve-style": "bezier", "arrow-scale": 0.9 } },
       { selector: "edge[kind='epicEdge']", style: { width: 3, "line-style": "dashed" } },
       { selector: "node[kind='milestone']", style: {
-          shape: "round-rectangle", width: 320, height: 30, label: "data(label)", "font-size": 13,
+          shape: "round-rectangle", width: 320, height: 44, label: "data(label)", "font-size": 20,
           "font-weight": "bold", color: css("--fg"), "text-valign": "center", "text-halign": "center",
           "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
       // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
@@ -332,16 +368,31 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // Epic boxes are placed by hand after ELK has laid out each box's inside,
   // in slots (x positions) and, within a band, sub-rows: a split epic stays on
   // one vertical across the bars.
-  const GAP_X = 60, GAP_Y = 70, BAR_GAP = 50;
+  const GAP_X = 70, GAP_Y = 90, BAR_GAP = 64;
+  // The start view: the roadmap's top, as wide as fits, but never smaller than
+  // READABLE, so the text stays legible; Fit shows everything, Epics only is
+  // the overview.
+  const READABLE = 0.8;
+  function home() {
+    const shown = cy.elements().filter(e => e.visible());
+    if (!shown.length) return;
+    const bb = shown.boundingBox(), pad = 30;
+    const zoom = Math.min(cy.maxZoom(), Math.max(READABLE, (cy.width() - 2 * pad) / bb.w));
+    cy.zoom(zoom);
+    cy.pan({ x: bb.w * zoom + 2 * pad <= cy.width() ? (cy.width() - bb.w * zoom) / 2 - bb.x1 * zoom : pad - bb.x1 * zoom,
+             y: pad - bb.y1 * zoom });
+  }
   function arrangeBands() {
     const boxes = cy.nodes("[kind='epic']").filter(n => n.visible());
     if (!boxes.length) return;
     const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
     const byEpic = new Map();
     boxes.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
-    // Split epics (pieces in several bands) each get a slot of their own for
-    // their whole span, from first band to last, so the band joining their
-    // pieces runs clear; split epics with disjoint spans may share a slot.
+    // Split epics (pieces in several bands) each keep one slot for their whole
+    // span, from first band to last; split epics with disjoint spans may share
+    // a slot. The slot is taken only where the band joining two pieces runs,
+    // between pieces in neighbouring bands; in a band between two pieces that
+    // are further apart the slot is free, and no band is drawn across it.
     // Every other epic fills the free slots of its band, wrapping into
     // sub-rows. There are at least EPICS_PER_ROW slots, more when more split
     // epics overlap.
@@ -350,28 +401,34 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const order = (a, b) => epicOrder.get(a) - epicOrder.get(b);
     const split = [...byEpic.keys()].filter(e => byEpic.get(e).length > 1)
       .sort((a, b) => span(a)[0] - span(b)[0] || order(a, b));
-    const slotSpans = [];  // per slot, the spans taken by split epics
-    const placed = new Map();  // epic -> { slot }, box id -> { slot, sub }
+    const ranksAll = [...new Set(boxes.map(rankOf))].sort((a, b) => a - b);
+    const nextRank = new Map(ranksAll.map((r, k) => [r, ranksAll[k + 1]]));
+    const pieceRanks = e => new Set(byEpic.get(e).map(rankOf));
+    // A band joins two pieces only when they sit in neighbouring bands.
+    const joinsDown = (e, r) => pieceRanks(e).has(r) && pieceRanks(e).has(nextRank.get(r));
+    const slotEpics = [];  // per slot, the split epics in it
+    const placed = new Map();  // box id -> { slot, sub }
     for (const e of split) {
       const [lo, hi] = span(e);
-      let s = slotSpans.findIndex(spans => spans.every(([a, b]) => hi < a || lo > b));
-      if (s < 0) { s = slotSpans.length; slotSpans.push([]); }
-      slotSpans[s].push([lo, hi]);
+      let s = slotEpics.findIndex(es => es.every(o => { const [a, b] = span(o); return hi < a || lo > b; }));
+      if (s < 0) { s = slotEpics.length; slotEpics.push([]); }
+      slotEpics[s].push(e);
       byEpic.get(e).forEach(b => placed.set(b.id(), { slot: s, sub: 0 }));
     }
-    const slots = Math.max(EPICS_PER_ROW, slotSpans.length);
-    // In band r a split epic's slot is blocked while its band runs on below
-    // (r before its last band); in its last band the slot is free below its
-    // piece, from sub-row 1.
+    const slots = Math.max(EPICS_PER_ROW, slotEpics.length);
+    // In band r a split epic's piece sits at the top of its slot; below it the
+    // slot is blocked while its band runs on to the next band, else free from
+    // sub-row 1. Where the epic has no piece, the slot is free.
     const startRow = (r, s) => {
       let row = 0;
-      for (const [a, b] of slotSpans[s] || []) {
-        if (r >= a && r < b) return null;
-        if (r === b) row = 1;
+      for (const e of slotEpics[s] || []) {
+        if (joinsDown(e, r)) return null;
+        if (pieceRanks(e).has(r)) row = 1;
       }
       return row;
     };
-    const ranksAll = [...new Set(boxes.map(rankOf))];
+    cy.edges("[kind='epicLink']").forEach(l =>
+      l.style("display", nextRank.get(rankOf(l.source())) === rankOf(l.target()) ? "element" : "none"));
     for (const r of ranksAll) {
       const next = new Map();
       for (let s = 0; s < slots; s++) { const row = startRow(r, s); if (row !== null) next.set(s, row); }
@@ -398,7 +455,10 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     let y = 0;
     for (const r of ranks) {
       const bar = cy.nodes(`[kind='milestone'][rank = ${r}]`).filter(n => n.visible());
-      if (bar.length) { bar.style("width", width); bar.position({ x: width / 2, y }); y += BAR_GAP; }
+      // The label at the bar's left end, where the view starts; about 11px per
+      // character at this font size.
+      if (bar.length) { bar.style({ width, "text-margin-x": Math.min(0, -width / 2 + bar.data("label").length * 5.6 + 24) });
+                        bar.position({ x: width / 2, y }); y += BAR_GAP; }
       const inBand = boxes.filter(b => b.data("rank") === r);
       const subs = [...new Set(inBand.map(subOf))].sort((a, b) => a - b);
       for (const sub of subs) {
@@ -437,31 +497,110 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       (e.data("kind") === "issueEdge" && e.source().parent().same(e.target().parent()));
     const eles = cy.elements().filter(e => inside(e) && (e.isNode() ? shown(e) : shown(e) && shown(e.source()) && shown(e.target())));
     const l = eles.not(backwards).layout(layout);
-    l.one("layoutstop", () => { arrangeBands(); cy.fit(undefined, 30); });
+    l.one("layoutstop", () => { arrangeBands(); home(); });
     l.run();
   };
   run();
-  showDone.addEventListener("change", () => { applyDone(); run(); });
+
+  // Epics only: a grid, a row per epic (in roadmap order), a column per
+  // milestone; a cell holds the epic's issues in that milestone.
+  const overview = document.getElementById("overview");
+  const msCols = ranks.map(r => milestones[r] ? { rank: r, m: milestones[r] } : { rank: r, m: null });
+  function pieceState(p) {
+    if (p.issues.every(i => i.state === "done")) return "done";
+    return p.issues.some(i => i.state === "ready") ? "ready" : "blocked";
+  }
+  function renderOverview() {
+    const rows = data.epics.filter(e => showDone.checked || e.state !== "done");
+    if (!rows.length) { overview.innerHTML = `<p class="ov-empty">Every epic is done; tick “show done” to see them.</p>`; return; }
+    const head = msCols.map(({ m }) => {
+      if (!m) return `<th>No milestone</th>`;
+      const due = m.due ? `due ${new Date(m.due).toLocaleDateString()}` : "no due date";
+      return `<th class="${m.open === 0 ? "ok" : ""}"><a href="${m.url}" target="_blank" rel="noopener">◆ ${escapeHtml(m.title)}</a>` +
+             `<small>${due} · ${m.closed}/${m.open + m.closed} done</small></th>`;
+    }).join("");
+    const body = rows.map(e => {
+      const mine = new Map(piecesOf(e.number).map(p => [p.rank, p]));
+      const after = e.waitsOn.length ? ` · after ${e.waitsOn.map(n => `#${n}`).join(", ")}` : "";
+      const search = `#${e.number} ${e.title} ${(mine.size ? [...mine.values()].flatMap(p => p.issues) : [])
+        .map(i => `#${i.number} ${i.title} ${i.assignees.join(" ")} ${i.labels.join(" ")}`).join(" ")}`.toLowerCase();
+      const cells = msCols.map(({ rank }) => {
+        const p = mine.get(rank);
+        if (!p) return `<td></td>`;
+        const done = p.issues.filter(i => i.state === "done").length, st = pieceState(p);
+        const open = p.issues.filter(i => i.state !== "done");
+        const tipText = open.length ? open.slice(0, 15).map(i => `#${i.number} ${i.title} (${i.state})`).join("\n") +
+          (open.length > 15 ? `\n… ${open.length - 15} more` : "") : "all done";
+        return `<td><a class="cell ${st}" href="${e.url}" target="_blank" rel="noopener" data-tip="${escapeHtml(tipText)}">` +
+               `${done} / ${p.issues.length} · ${st}<span class="bar"><i style="width:${Math.round(100 * done / p.issues.length)}%"></i></span></a></td>`;
+      }).join("");
+      return `<tr data-epic="${e.number}" data-search="${escapeHtml(search)}"><td class="name">` +
+             `<a href="${e.url}" target="_blank" rel="noopener">#${e.number} ${escapeHtml(e.title)}</a>` +
+             `<div class="sub">${e.done}/${e.total} done · ${e.state}${after}</div></td>${cells}</tr>`;
+    }).join("");
+    overview.innerHTML = `<table class="ov"><thead><tr><th class="corner"></th>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  }
+  overview.addEventListener("mouseover", ev => {
+    const c = ev.target.closest("[data-tip]");
+    if (!c) return;
+    tip.innerHTML = escapeHtml(c.dataset.tip).replace(/\n/g, "<br>");
+    tip.style.display = "block";
+  });
+  overview.addEventListener("mouseout", ev => { if (ev.target.closest("[data-tip]")) tip.style.display = "none"; });
+  overview.addEventListener("mousemove", ev => { tip.style.left = ev.clientX + 14 + "px"; tip.style.top = ev.clientY + 14 + "px"; });
+
+  // The view lives in the URL (#epics), so the overview can be linked.
+  const epicsOnly = () => document.body.classList.contains("epics-only");
+  function setView(epics) {
+    document.body.classList.toggle("epics-only", epics);
+    document.getElementById("viewIssues").setAttribute("aria-pressed", String(!epics));
+    document.getElementById("viewEpics").setAttribute("aria-pressed", String(epics));
+    history.replaceState(null, "", epics ? "#epics" : location.pathname + location.search);
+    if (epics) renderOverview();
+    else { cy.resize(); home(); }
+    applyFilter(); applySearch();
+  }
+  document.getElementById("viewIssues").addEventListener("click", () => setView(false));
+  document.getElementById("viewEpics").addEventListener("click", () => setView(true));
+
+  showDone.addEventListener("change", () => { applyDone(); run(); if (epicsOnly()) { renderOverview(); applyFilter(); applySearch(); } });
   document.getElementById("relayout").addEventListener("click", run);
   document.getElementById("fit").addEventListener("click", () => cy.fit(undefined, 30));
 
-  select.addEventListener("change", () => {
+  function applyFilter() {
+    if (epicsOnly()) {
+      const rows = overview.querySelectorAll("tr[data-epic]");
+      rows.forEach(r => r.classList.toggle("dim", !!select.value && r.dataset.epic !== select.value));
+      const row = select.value && overview.querySelector(`tr[data-epic="${select.value}"]`);
+      if (row) row.scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
     cy.elements().removeClass("faded");
-    if (!select.value) return cy.fit(undefined, 30);
+    if (!select.value) return home();
     const epic = cy.nodes(`[kind='epic'][epic = ${Number(select.value)}]`);
     const keep = epic.union(epic.descendants()).union(epic.connectedEdges("[kind='epicLink']"));
     cy.elements().not(keep).not(keep.connectedEdges()).addClass("faded");
     cy.fit(keep, 40);
-  });
+  }
+  select.addEventListener("change", applyFilter);
 
-  document.getElementById("search").addEventListener("input", ev => {
-    const q = ev.target.value.trim().toLowerCase();
+  const search = document.getElementById("search");
+  function applySearch() {
+    const q = search.value.trim().toLowerCase();
+    if (epicsOnly()) {
+      const rows = [...overview.querySelectorAll("tr[data-epic]")];
+      rows.forEach(r => r.classList.toggle("hit", !!q && r.dataset.search.includes(q)));
+      const first = rows.find(r => r.classList.contains("hit"));
+      if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
     cy.nodes().removeClass("hit");
     if (!q) return;
     const hits = cy.nodes("[kind='issue']").filter(n => n.data("search").includes(q) && n.visible());
     hits.addClass("hit");
     if (hits.length) cy.fit(hits, 80);
-  });
+  }
+  search.addEventListener("input", applySearch);
 
   // A click (not a drag) opens the issue or epic.
   cy.on("tap", "node", ev => { const url = ev.target.data("url"); if (url) window.open(url, "_blank", "noopener"); });
@@ -474,6 +613,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   });
   cy.on("mouseout", "node", () => { tip.style.display = "none"; });
   cy.on("mousemove", ev => { const e = ev.originalEvent; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY + 14 + "px"; });
+  if (location.hash === "#epics") setView(true);
 }).catch(err => {
   document.getElementById("graph").innerHTML = `<p style="padding:16px">Could not load roadmap.json: ${err}</p>`;
 });
