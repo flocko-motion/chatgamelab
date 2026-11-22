@@ -371,6 +371,72 @@ func (e Role) Valid() bool {
 	}
 }
 
+// Defines values for SchemafUpdateStateInstallState.
+const (
+	SchemafUpdateStateInstallStateFailed         SchemafUpdateStateInstallState = "failed"
+	SchemafUpdateStateInstallStateInstalled      SchemafUpdateStateInstallState = "installed"
+	SchemafUpdateStateInstallStateInstalling     SchemafUpdateStateInstallState = "installing"
+	SchemafUpdateStateInstallStateRollbackFailed SchemafUpdateStateInstallState = "rollback-failed"
+	SchemafUpdateStateInstallStateRolledBack     SchemafUpdateStateInstallState = "rolled-back"
+)
+
+// Valid indicates whether the value is a known member of the SchemafUpdateStateInstallState enum.
+func (e SchemafUpdateStateInstallState) Valid() bool {
+	switch e {
+	case SchemafUpdateStateInstallStateFailed:
+		return true
+	case SchemafUpdateStateInstallStateInstalled:
+		return true
+	case SchemafUpdateStateInstallStateInstalling:
+		return true
+	case SchemafUpdateStateInstallStateRollbackFailed:
+		return true
+	case SchemafUpdateStateInstallStateRolledBack:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SchemafUpdateStateRequestState.
+const (
+	SchemafUpdateStateRequestStateAccepted SchemafUpdateStateRequestState = "accepted"
+	SchemafUpdateStateRequestStateRejected SchemafUpdateStateRequestState = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the SchemafUpdateStateRequestState enum.
+func (e SchemafUpdateStateRequestState) Valid() bool {
+	switch e {
+	case SchemafUpdateStateRequestStateAccepted:
+		return true
+	case SchemafUpdateStateRequestStateRejected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SchemafUpdateStateStatus.
+const (
+	SchemafUpdateStateStatusIdle              SchemafUpdateStateStatus = "idle"
+	SchemafUpdateStateStatusInstalling        SchemafUpdateStateStatus = "installing"
+	SchemafUpdateStateStatusUpdaterNotEnabled SchemafUpdateStateStatus = "updater not enabled"
+)
+
+// Valid indicates whether the value is a known member of the SchemafUpdateStateStatus enum.
+func (e SchemafUpdateStateStatus) Valid() bool {
+	switch e {
+	case SchemafUpdateStateStatusIdle:
+		return true
+	case SchemafUpdateStateStatusInstalling:
+		return true
+	case SchemafUpdateStateStatusUpdaterNotEnabled:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SortDir.
 const (
 	SortDirAsc  SortDir = "asc"
@@ -1447,6 +1513,47 @@ type SchemafRefreshResponse struct {
 	Token string `json:"token"`
 }
 
+// SchemafUpdateRequest defines model for SchemafUpdateRequest.
+type SchemafUpdateRequest struct {
+	Version string `json:"version"`
+}
+
+// SchemafUpdateState defines model for SchemafUpdateState.
+type SchemafUpdateState struct {
+	Available []struct {
+		Notes   string `json:"notes"`
+		Version string `json:"version"`
+	} `json:"available"`
+	Checked *string `json:"checked,omitempty"`
+	Install *struct {
+		Finished string                         `json:"finished"`
+		From     string                         `json:"from"`
+		Message  string                         `json:"message"`
+		Started  string                         `json:"started"`
+		State    SchemafUpdateStateInstallState `json:"state"`
+		Version  string                         `json:"version"`
+	} `json:"install,omitempty"`
+	Request *struct {
+		Message string                         `json:"message"`
+		State   SchemafUpdateStateRequestState `json:"state"`
+		Time    string                         `json:"time"`
+		Version string                         `json:"version"`
+	} `json:"request,omitempty"`
+
+	// Running The running version; empty in development.
+	Running string                   `json:"running"`
+	Status  SchemafUpdateStateStatus `json:"status"`
+}
+
+// SchemafUpdateStateInstallState defines model for SchemafUpdateState.Install.State.
+type SchemafUpdateStateInstallState string
+
+// SchemafUpdateStateRequestState defines model for SchemafUpdateState.Request.State.
+type SchemafUpdateStateRequestState string
+
+// SchemafUpdateStateStatus defines model for SchemafUpdateState.Status.
+type SchemafUpdateStateStatus string
+
 // SchemafUser defines model for SchemafUser.
 type SchemafUser struct {
 	Id string `json:"id"`
@@ -2206,6 +2313,9 @@ type PatchApiSystemSettingsJSONRequestBody = UpdateSystemSettingsReq
 
 // PatchApiSystemSettingsFreeUseKeyJSONRequestBody defines body for PatchApiSystemSettingsFreeUseKey for application/json ContentType.
 type PatchApiSystemSettingsFreeUseKeyJSONRequestBody = SetSystemFreeUseApiKeyReq
+
+// PostApiUpdatesRequestJSONRequestBody defines body for PostApiUpdatesRequest for application/json ContentType.
+type PostApiUpdatesRequestJSONRequestBody = SchemafUpdateRequest
 
 // PutApiUsersMeActiveWorkshopJSONRequestBody defines body for PutApiUsersMeActiveWorkshop for application/json ContentType.
 type PutApiUsersMeActiveWorkshopJSONRequestBody = SetActiveWorkshopReq
@@ -3602,6 +3712,31 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/themes (the `GetApiThemes` operationId).
 	GetApiThemes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiUpdates The instance's updates
+	//
+	// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+	//
+	// Corresponds with GET /api/updates (the `GetApiUpdates` operationId).
+	GetApiUpdates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiUpdatesRequestWithBody Request the install of a version
+	//
+	// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+	PostApiUpdatesRequestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiUpdatesRequest Request the install of a version
+	//
+	// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+	PostApiUpdatesRequest(ctx context.Context, body PostApiUpdatesRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiUserMe The authenticated caller
 	//
@@ -6611,6 +6746,61 @@ func (c *Client) PatchApiSystemSettingsFreeUseKey(ctx context.Context, body Patc
 // Corresponds with GET /api/themes (the `GetApiThemes` operationId).
 func (c *Client) GetApiThemes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiThemesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiUpdates The instance's updates
+//
+// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+//
+// Corresponds with GET /api/updates (the `GetApiUpdates` operationId).
+func (c *Client) GetApiUpdates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiUpdatesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiUpdatesRequestWithBody Request the install of a version
+//
+// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+func (c *Client) PostApiUpdatesRequestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiUpdatesRequestRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiUpdatesRequest Request the install of a version
+//
+// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+func (c *Client) PostApiUpdatesRequest(ctx context.Context, body PostApiUpdatesRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiUpdatesRequestRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11890,6 +12080,73 @@ func NewGetApiThemesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewGetApiUpdatesRequest constructs an http.Request for the GetApiUpdates method
+func NewGetApiUpdatesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/updates")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiUpdatesRequestRequest calls the generic PostApiUpdatesRequest builder with application/json body
+func NewPostApiUpdatesRequestRequest(server string, body PostApiUpdatesRequestJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiUpdatesRequestRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiUpdatesRequestRequestWithBody constructs an http.Request for the PostApiUpdatesRequest method, with any body, and a specified content type
+func NewPostApiUpdatesRequestRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/updates/request")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetApiUserMeRequest constructs an http.Request for the GetApiUserMe method
 func NewGetApiUserMeRequest(server string) (*http.Request, error) {
 	var err error
@@ -14606,6 +14863,33 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/themes (the `GetApiThemes` operationId).
 	GetApiThemesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiThemesResponse, error)
+
+	// GetApiUpdatesWithResponse The instance's updates
+	//
+	// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/updates (the `GetApiUpdates` operationId).
+	GetApiUpdatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUpdatesResponse, error)
+
+	// PostApiUpdatesRequestWithBodyWithResponse Request the install of a version
+	//
+	// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+	PostApiUpdatesRequestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiUpdatesRequestResponse, error)
+
+	// PostApiUpdatesRequestWithResponse Request the install of a version
+	//
+	// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+	PostApiUpdatesRequestWithResponse(ctx context.Context, body PostApiUpdatesRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiUpdatesRequestResponse, error)
 
 	// GetApiUserMeWithResponse The authenticated caller
 	//
@@ -20041,6 +20325,102 @@ func (r GetApiThemesResponse) ContentType() string {
 	return ""
 }
 
+type GetApiUpdatesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *SchemafUpdateState
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiUpdatesResponse) GetJSON200() *SchemafUpdateState {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiUpdatesResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiUpdatesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiUpdatesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiUpdatesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiUpdatesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiUpdatesRequestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON202 the response for an HTTP 202 `application/json` response
+	JSON202 *SchemafUpdateRequest
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON202 returns the response for an HTTP 202 `application/json` response
+func (r PostApiUpdatesRequestResponse) GetJSON202() *SchemafUpdateRequest {
+	return r.JSON202
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiUpdatesRequestResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiUpdatesRequestResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiUpdatesRequestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiUpdatesRequestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiUpdatesRequestResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiUserMeResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -23603,6 +23983,51 @@ func (c *ClientWithResponses) GetApiThemesWithResponse(ctx context.Context, reqE
 		return nil, err
 	}
 	return ParseGetApiThemesResponse(rsp)
+}
+
+// GetApiUpdatesWithResponse The instance's updates
+//
+// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/updates (the `GetApiUpdates` operationId).
+func (c *ClientWithResponses) GetApiUpdatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUpdatesResponse, error) {
+	rsp, err := c.GetApiUpdates(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiUpdatesResponse(rsp)
+}
+
+// PostApiUpdatesRequestWithBodyWithResponse Request the install of a version
+//
+// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+func (c *ClientWithResponses) PostApiUpdatesRequestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiUpdatesRequestResponse, error) {
+	rsp, err := c.PostApiUpdatesRequestWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiUpdatesRequestResponse(rsp)
+}
+
+// PostApiUpdatesRequestWithResponse Request the install of a version
+//
+// Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/updates/request (the `PostApiUpdatesRequest` operationId).
+func (c *ClientWithResponses) PostApiUpdatesRequestWithResponse(ctx context.Context, body PostApiUpdatesRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiUpdatesRequestResponse, error) {
+	rsp, err := c.PostApiUpdatesRequest(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiUpdatesRequestResponse(rsp)
 }
 
 // GetApiUserMeWithResponse The authenticated caller
@@ -27666,6 +28091,72 @@ func ParseGetApiThemesResponse(rsp *http.Response) (*GetApiThemesResponse, error
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiUpdatesResponse parses an HTTP response from a GetApiUpdatesWithResponse call
+func ParseGetApiUpdatesResponse(rsp *http.Response) (*GetApiUpdatesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiUpdatesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SchemafUpdateState
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiUpdatesRequestResponse parses an HTTP response from a PostApiUpdatesRequestWithResponse call
+func ParsePostApiUpdatesRequestResponse(rsp *http.Response) (*PostApiUpdatesRequestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiUpdatesRequestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest SchemafUpdateRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
