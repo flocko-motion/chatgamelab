@@ -21,6 +21,7 @@ export type {
   PlatformInfo,
   PublicWorkshopGame,
   PublicWorkshopLink,
+  SchemafUpdateState as UpdateState,
   SessionView,
   ShareLinkView,
   TierModels,

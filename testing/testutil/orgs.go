@@ -273,6 +273,11 @@ func (c caller) GetSystemSettings() (SystemSettings, error) {
 	return decode[SystemSettings](c.api.GetApiSystemSettingsWithResponse(ctx()))
 }
 
+// GetUpdates is the site's running version and the versions it may upgrade to.
+func (c caller) GetUpdates() (UpdateState, error) {
+	return decode[UpdateState](c.api.GetApiUpdatesWithResponse(ctx()))
+}
+
 // UpdateSystemSettings changes the platform's settings; a setting left out
 // (nil) stays.
 func (c caller) UpdateSystemSettings(update SettingsUpdate) (SystemSettings, error) {

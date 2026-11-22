@@ -1234,7 +1234,27 @@
         "title": "Free-Use AI Quality Tier"
       },
       "notAuthorized": "You don't have permission to access server settings. Admin access required.",
-      "title": "Server Settings"
+      "title": "Server Settings",
+      "updates": {
+        "title": "Updates",
+        "running": "Running version:",
+        "noVersion": "none (development)",
+        "notEnabled": "This server installs no updates from the app: its updater is not set up.",
+        "lastInstall": "Last upgrade: {{version}} (from {{from}})",
+        "installState": {
+          "installing": "Upgrading",
+          "installed": "Installed",
+          "rolled-back": "Rolled back",
+          "failed": "Failed",
+          "rollback-failed": "Rollback failed: the site is stopped"
+        },
+        "rejected": "The server refused the upgrade to {{version}}.",
+        "upToDate": "The site runs the newest version.",
+        "upgrade": "Upgrade",
+        "upgradeTo": "Upgrade to {{version}}",
+        "upgradeConfirm": "The site backs up its database, switches to {{version}} and is unreachable for a minute or two. If the new version fails to start, it returns to the running version.",
+        "checked": "Last checked for new versions: {{time}}"
+      }
     },
     "settings": "Settings",
     "share": {
@@ -1402,7 +1422,8 @@
       "validation": "Validation Error",
       "workshopInactive": "Workshop Inactive",
       "organisationSuspended": "Organisation suspended",
-      "guestStays": "You stay where you are"
+      "guestStays": "You stay where you are",
+      "updates": "Updates"
     },
     "tokenLocked": "Too many failed attempts – please try again later.",
     "unauthorized": "Please log in to continue.",
@@ -1414,7 +1435,10 @@
     "publicSlugInvalid": "Use a–z, 0–9 and single hyphens, 3 to 60 characters.",
     "publicDescriptionTooLong": "The description may be at most 2000 characters long.",
     "organisationSuspended": "Your organisation is suspended. Your data is kept.",
-    "guestStays": "As a guest, you stay where you joined. To take part in another workshop, open its invite link without signing in: you join it as a new guest."
+    "guestStays": "As a guest, you stay where you joined. To take part in another workshop, open its invite link without signing in: you join it as a new guest.",
+    "updaterNotEnabled": "This server installs no updates from the app.",
+    "versionNotAvailable": "This version cannot be installed on this server.",
+    "installRunning": "An upgrade is already running."
   },
   "myWorkshop": {
     "empty": {

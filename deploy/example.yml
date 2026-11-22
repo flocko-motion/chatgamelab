@@ -1,0 +1,46 @@
+# An instance's configuration. Name the file after the instance's domain
+# (e.g. chatgamelab.example.org.yml) and run:
+#
+#   deploy/setup.sh path/to/chatgamelab.example.org.yml [--admin <email>] [--backup-key <file>]
+#
+# Every value here is public or infrastructure, none is a secret: the Auth0
+# domain and client id and the frontend's Sentry DSN reach every browser, and a
+# Sentry DSN is a write-only ingest URL. The secrets live on the box only: the
+# Postgres password is generated there, the backup key is copied there by
+# --backup-key, and the first admin's address is given by --admin.
+
+# Which releases the instance's admin can install: stable (releases only) or
+# prerelease (releases and prereleases, e.g. 2.0.0-dev.3).
+release_channel: stable
+
+# Let's Encrypt account address for the instance's certificate.
+certbot_email: webmaster@example.org
+
+# Public SSH keys allowed in as the run user `cgl`. The first run connects as
+# root (key installed through the provider's console); every later run and
+# every hand on the box uses `cgl`.
+ssh_keys:
+  - "ssh-ed25519 AAAA... operator@laptop"
+
+# The Auth0 Single Page Application serving this domain. Its Allowed Callback
+# URLs, Allowed Logout URLs and Allowed Web Origins hold https://<domain>.
+auth0_domain: example.eu.auth0.com
+auth0_client_id: ""
+
+# Error reports. Empty switches reporting off.
+sentry_dsn_frontend: ""
+sentry_dsn_backend: ""
+# The environment name the reports carry.
+sentry_environment: production
+
+# Where the "home" link of the app points. Empty: the app's own start page.
+homepage_url: ""
+
+# Nightly database backups over SFTP (schemaf's built-in backup). An empty
+# host switches backups off. The private key comes from --backup-key.
+backup_ssh_host: ""
+backup_ssh_port: 22
+backup_ssh_user: ""
+backup_path: /backups
+backup_retain: 30 # days
+backup_hour: 3 # local hour of the nightly backup

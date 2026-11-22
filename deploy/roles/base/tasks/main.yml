@@ -1,0 +1,153 @@
+---
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - ufw
+      - fail2ban
+      - unattended-upgrades
+      - needrestart
+      - curl
+      - jq
+      # Rootless podman: newuidmap/newgidmap set up the user namespace, pasta
+      # is podman 5's rootless network.
+      - uidmap
+      - passt
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+# The one unprivileged user: it runs the stack and owns the database volume.
+- name: Create the run user
+  ansible.builtin.user:
+    name: "{{ run_user }}"
+    home: "{{ run_home }}"
+    shell: /bin/bash
+    create_home: true
+    system: true
+
+- name: Ensure the subordinate id files exist
+  ansible.builtin.copy:
+    dest: "{{ item }}"
+    content: ""
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
+  loop:
+    - /etc/subuid
+    - /etc/subgid
+
+- name: Read the subordinate ranges already assigned
+  ansible.builtin.slurp:
+    src: /etc/subuid
+  register: subuid_file
+
+# Checked against the file: usermod --add-subuids appends a second range on
+# every run otherwise. The colon keeps "cgl" from matching "cgl-build".
+- name: Give the run user a subordinate uid/gid range
+  ansible.builtin.command: >
+    usermod --add-subuids 200000-265535 --add-subgids 200000-265535 {{ run_user }}
+  when: (run_user ~ ':') not in (subuid_file.content | b64decode)
+  changed_when: true
+
+- name: Read the run user's uid
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ run_user }}"
+
+- name: Hold the uid for the other roles
+  ansible.builtin.set_fact:
+    run_uid: "{{ ansible_facts['getent_passwd'][run_user][1] }}"
+
+# User units run with nobody logged in.
+- name: Enable lingering for the run user
+  ansible.builtin.command: "loginctl enable-linger {{ run_user }}"
+  changed_when: false
+
+# A user manager started by an SSH login before lingering existed comes up
+# without its session bus; podman then falls back and warns on every command.
+# Restarted only while the bus is missing, so a running stack stays up.
+- name: Check for the run user's session bus
+  ansible.builtin.stat:
+    path: "/run/user/{{ run_uid }}/bus"
+  register: user_bus
+
+- name: Restart the run user's manager when its bus is missing
+  ansible.builtin.systemd_service:
+    name: "user@{{ run_uid }}.service"
+    state: restarted
+  when: not user_bus.stat.exists
+
+- name: Authorize the instance's SSH keys for the run user
+  ansible.posix.authorized_key:
+    user: "{{ run_user }}"
+    key: "{{ ssh_keys | join('\n') }}"
+    exclusive: true
+
+- name: Harden sshd
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
+    content: |
+      PasswordAuthentication no
+      PermitRootLogin prohibit-password
+      MaxAuthTries 3
+      X11Forwarding no
+      AllowTcpForwarding no
+      ClientAliveInterval 300
+      ClientAliveCountMax 2
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: reload sshd
+
+# Services patched by unattended-upgrades restart at once.
+- name: Restart patched services automatically
+  ansible.builtin.copy:
+    dest: /etc/needrestart/conf.d/50-autorestart.conf
+    content: |
+      $nrconf{restart} = 'a';
+    mode: "0644"
+
+# journald keeps logs across reboots when this directory exists.
+- name: Keep the journal across reboots
+  ansible.builtin.file:
+    path: /var/log/journal
+    state: directory
+    mode: "0755"
+  notify: restart journald
+
+- name: Allow SSH, HTTP and HTTPS
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+  loop: ["22", "80", "443"]
+
+- name: Enable the firewall, incoming denied by default
+  community.general.ufw:
+    state: enabled
+    policy: deny
+
+- name: Enable unattended-upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+      APT::Periodic::AutocleanInterval "7";
+    mode: "0644"
+
+# Security updates; a kernel update reboots at 03:00 and the stack comes back
+# through the podman role's boot unit.
+- name: Configure unattended-upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    content: |
+      Unattended-Upgrade::Origins-Pattern {
+              "origin=Debian,codename=${distro_codename},label=Debian";
+              "origin=Debian,codename=${distro_codename},label=Debian-Security";
+              "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";
+      };
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+      Unattended-Upgrade::Automatic-Reboot "true";
+      Unattended-Upgrade::Automatic-Reboot-Time "03:00";
+    mode: "0644"

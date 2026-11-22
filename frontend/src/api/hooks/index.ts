@@ -89,6 +89,10 @@ export {
   useSetSystemFreeUseKey,
   useVersion,
   useSystemConstraints,
+  useUpdates,
+  useRequestUpgrade,
+  upgradeRunning,
+  upgradeHandled,
 } from "./useSystem";
 
 // Invites

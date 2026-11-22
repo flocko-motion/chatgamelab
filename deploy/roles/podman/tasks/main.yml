@@ -1,0 +1,90 @@
+---
+# Debian's podman (5.x on trixie) and docker-compose, which schemaf requires
+# as podman's compose provider. docker-compose talks to the run user's podman
+# socket; no Docker daemon runs anywhere.
+- name: Install podman and docker-compose
+  ansible.builtin.apt:
+    name:
+      - podman
+      - docker-compose
+    state: present
+
+# Short image names (postgres:17-alpine) resolve to Docker Hub only.
+- name: Resolve short image names to Docker Hub
+  ansible.builtin.copy:
+    dest: /etc/containers/registries.conf.d/00-unqualified-search.conf
+    content: |
+      unqualified-search-registries = ["docker.io"]
+    mode: "0644"
+
+- name: Create the run user's config directories
+  ansible.builtin.file:
+    path: "{{ run_home }}/.config/{{ item }}"
+    state: directory
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0755"
+  loop:
+    - containers
+    - systemd/user
+
+# cgroupfs: podman needs no user D-Bus for it, and the stack declares no
+# resource limits that systemd would manage.
+- name: Point podman at the cgroupfs manager
+  ansible.builtin.copy:
+    dest: "{{ run_home }}/.config/containers/containers.conf"
+    content: |
+      # Managed by deploy/roles/podman.
+      [engine]
+      cgroup_manager = "cgroupfs"
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0644"
+
+- name: Enable the run user's podman socket
+  ansible.builtin.systemd_service:
+    name: podman.socket
+    scope: user
+    enabled: true
+    state: started
+  become: true
+  become_user: "{{ run_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ run_uid }}"
+
+# Rootless podman has no daemon that restores containers after a reboot. This
+# unit starts the stack's containers (restart: unless-stopped) at boot; a
+# container stopped by hand stays stopped.
+- name: Install the boot unit
+  ansible.builtin.copy:
+    dest: "{{ run_home }}/.config/systemd/user/chatgamelab-boot.service"
+    content: |
+      # Managed by deploy/roles/podman.
+      [Unit]
+      Description=Start the chatgamelab stack at boot
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=/usr/bin/podman start --all --filter restart-policy=unless-stopped
+      Restart=on-failure
+      RestartSec=30s
+
+      [Install]
+      WantedBy=default.target
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0644"
+
+- name: Enable the boot unit
+  ansible.builtin.systemd_service:
+    name: chatgamelab-boot.service
+    scope: user
+    enabled: true
+    daemon_reload: true
+  become: true
+  become_user: "{{ run_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ run_uid }}"

@@ -92,6 +92,7 @@ export const queryKeys = {
   // System
   version: ["version"] as const,
   systemSettings: ["systemSettings"] as const,
+  updates: ["updates"] as const,
   systemConstraints: ["systemConstraints"] as const,
 
   // Translations

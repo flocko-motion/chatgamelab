@@ -953,6 +953,40 @@ export interface SchemafRefreshResponse {
   token: string;
 }
 
+export interface SchemafUpdateRequest {
+  version: string;
+}
+
+export interface SchemafUpdateState {
+  available: {
+    notes: string;
+    version: string;
+  }[];
+  checked?: string;
+  install?: {
+    finished: string;
+    from: string;
+    message: string;
+    started: string;
+    state:
+      | "installing"
+      | "installed"
+      | "rolled-back"
+      | "failed"
+      | "rollback-failed";
+    version: string;
+  };
+  request?: {
+    message: string;
+    state: "accepted" | "rejected";
+    time: string;
+    version: string;
+  };
+  /** The running version; empty in development. */
+  running: string;
+  status: "updater not enabled" | "idle" | "installing";
+}
+
 export interface SchemafUser {
   id: string;
 }
@@ -3826,6 +3860,45 @@ export class Api<
         path: `/api/themes`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+     *
+     * @name GetApiUpdates
+     * @summary The instance's updates
+     * @request GET:/api/updates
+     * @secure
+     */
+    getApiUpdates: (params: RequestParams = {}) =>
+      this.request<SchemafUpdateState, Error>({
+        path: `/api/updates`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.
+     *
+     * @name PostApiUpdatesRequest
+     * @summary Request the install of a version
+     * @request POST:/api/updates/request
+     * @secure
+     */
+    postApiUpdatesRequest: (
+      data: SchemafUpdateRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<SchemafUpdateRequest, Error>({
+        path: `/api/updates/request`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
         format: "json",
         ...params,
       }),

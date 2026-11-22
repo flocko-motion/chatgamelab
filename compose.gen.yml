@@ -40,6 +40,7 @@ services:
       SCHEMAF_DEV: "" # production; beats a SCHEMAF_DEV in env_file
       DB_PASS: ${DB_PASS:-dev}
       PORT: "7100"
+      SCHEMAF_IMAGE: ${SCHEMAF_IMAGE} # api.Updates: the running version
       BACKUP_SSH_HOST: ${BACKUP_SSH_HOST:-}
       BACKUP_SSH_PORT: ${BACKUP_SSH_PORT:-22}
       BACKUP_SSH_USER: ${BACKUP_SSH_USER:-}
@@ -49,6 +50,11 @@ services:
       BACKUP_HOUR: ${BACKUP_HOUR:-3}
     ports:
       - "7100:7100"
+    # The run host's updates (EXTEND.md › Updates): read-only, and the request
+    # file writable. schemaf.sh creates them before it starts the stack.
+    volumes:
+      - ${HOME}/.chatgamelab/updates:/schemaf/updates:ro
+      - ${HOME}/.chatgamelab/updates/request:/schemaf/updates/request
     secrets:
       - backup_key
     networks:

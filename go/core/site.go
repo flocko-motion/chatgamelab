@@ -176,6 +176,16 @@ func MayRestart(ctx context.Context) error {
 	return nil
 }
 
+// MayManageUpdates refuses seeing the site's available versions and
+// requesting an upgrade, unless the caller runs the site: {Manage, Site,
+// Everywhere}, the admin. schemaf's update endpoints ask it on every request.
+func MayManageUpdates(ctx context.Context) error {
+	if !granted(ctx, rules.Manage, rules.Site, rules.Everywhere) {
+		return forbidden("only the admin manages updates")
+	}
+	return nil
+}
+
 // LatestBackup is the newest backup run recorded, nil for none. It is
 // public, for nobody in particular: the liveness probe grades it.
 func LatestBackup(ctx context.Context) (*obj.BackupLog, error) {
