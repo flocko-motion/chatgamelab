@@ -12,17 +12,17 @@ import "engine/internal/adapters"
 // engine decides what a picture costs, and a wiring only decides that it wants
 // one.
 //
-// Medium and high ask for landscape, the shape that sits well above a
-// conversation. Low runs on an older model without custom dimensions, so it
-// takes that model's smallest size, a square.
+// Every tier draws on the same image model and asks for landscape, the shape
+// that sits well above a conversation; the tier sets the quality.
 //
 // GPT-Live publishes no tier ladder, so every tier resolves to the same voice
 // model. Hearing, the tooling model that takes the player's speech, does not
-// move with the tier either: its prompt is short, as tooling's are. It is
-// gpt-audio-mini over plain HTTP: probed on 21 November 2026 against
-// gpt-realtime-2.1-mini, each clip in a session of its own, it heard as
-// faithfully, in half the time (0.8 s to 1.7 s), at a little less per spoken
-// minute, and without a WebSocket held for one shot.
+// move with the tier either: its prompt is short, as tooling's are. It is an
+// audio model over plain HTTP: probed on 21 November 2026 against
+// gpt-realtime-2.1-mini, each clip in a session of its own, gpt-audio-mini
+// heard as faithfully, in half the time (0.8 s to 1.7 s), and without a
+// WebSocket held for one shot. OpenAI retires gpt-audio-mini on 20 January
+// 2027 for gpt-audio-1.5, on the same path.
 //
 // Speech is the story model, speaking: while narration is on, the story
 // thread runs on a gpt-realtime model, which writes the prose and says it.
@@ -32,7 +32,7 @@ var (
 	tooling    = adapters.Model{Name: "gpt-5.6-luna"}
 	speechMini = speaking("gpt-realtime-2.1-mini")
 	speechFull = speaking("gpt-realtime-2.1")
-	hearing    = adapters.Model{Name: "gpt-audio-mini"}
+	hearing    = adapters.Model{Name: "gpt-audio-1.5"}
 )
 
 // speaking is a gpt-realtime model with the voice it speaks in unless a game
@@ -57,16 +57,16 @@ func Platform() adapters.Platform {
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
 				adapters.ModelStory:   {Name: "gpt-5.6-luna"},
-				// The cheapest picture on offer: a workshop runs on low, a room
+				// The lowest quality on offer: a workshop runs on low, a room
 				// of young people playing at once, so the saving multiplies.
-				adapters.ModelImage:   image("gpt-image-1-mini", "low", "1024x1024"),
+				adapters.ModelImage:   image("gpt-image-2.5-flare", "low", "1024x672"),
 				adapters.ModelLive:    live,
 				adapters.ModelSpeech:  speechMini,
 				adapters.ModelHearing: hearing,
 			},
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
-				adapters.ModelStory:   {Name: "gpt-5-mini"},
+				adapters.ModelStory:   {Name: "gpt-6.1-terra"},
 				adapters.ModelImage:   image("gpt-image-2.5-flare", "medium", "1024x672"),
 				adapters.ModelLive:    live,
 				adapters.ModelSpeech:  speechMini,
@@ -74,7 +74,7 @@ func Platform() adapters.Platform {
 			},
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
-				adapters.ModelStory:   {Name: "gpt-5.1"},
+				adapters.ModelStory:   {Name: "gpt-6.2-sol"},
 				adapters.ModelImage:   image("gpt-image-2.5-flare", "high", "1024x672"),
 				adapters.ModelLive:    live,
 				adapters.ModelSpeech:  speechFull,

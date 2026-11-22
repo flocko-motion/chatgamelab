@@ -15,7 +15,7 @@ import (
 var spokenSchema = adapters.Schema{Name: "spoken", Body: map[string]any{"type": "object"}}
 
 func testHearing(srv string) *Hearing {
-	h := NewHearing(func(context.Context) (string, error) { return "sk-test", nil }, "gpt-audio-mini")
+	h := NewHearing(func(context.Context) (string, error) { return "sk-test", nil }, "gpt-audio-1.5")
 	h.url = srv
 	return h
 }
@@ -37,12 +37,12 @@ func TestHearingSendsTheClipAndReadsTheCall(t *testing.T) {
 	if reply != `{"heard":"hi"}` {
 		t.Errorf("reply %q", reply)
 	}
-	if used != (adapters.Usage{Model: "gpt-audio-mini", InputTokens: 100, CachedInputTokens: 10, AudioInputTokens: 40, OutputTokens: 20}) {
+	if used != (adapters.Usage{Model: "gpt-audio-1.5", InputTokens: 100, CachedInputTokens: 10, AudioInputTokens: 40, OutputTokens: 20}) {
 		t.Errorf("usage %+v", used)
 	}
 
 	req := fake.requests[0]
-	if req["model"] != "gpt-audio-mini" || fmt.Sprint(req["tool_choice"]) != "map[function:map[name:spoken] type:function]" {
+	if req["model"] != "gpt-audio-1.5" || fmt.Sprint(req["tool_choice"]) != "map[function:map[name:spoken] type:function]" {
 		t.Errorf("request %v", req)
 	}
 	messages := req["messages"].([]any)

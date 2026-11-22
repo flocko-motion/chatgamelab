@@ -53,7 +53,7 @@ func streamed(w http.ResponseWriter, id string, pieces ...string) {
 }
 
 func testThread(srv *httptest.Server) *Thread {
-	th := NewThread(func(context.Context) (string, error) { return "sk-test", nil }, "gpt-5-mini")
+	th := NewThread(func(context.Context) (string, error) { return "sk-test", nil }, "gpt-6.1-terra")
 	th.url = srv.URL
 	return th
 }
@@ -68,7 +68,7 @@ func TestThreadStreamsAndContinues(t *testing.T) {
 	reply, err := th.Continue(context.Background(), adapters.ThreadTurn{
 		System:       "You are a game master.",
 		Input:        "The player crosses.",
-		Continuation: adapters.Continuation{ID: "resp_0", Model: "gpt-5-mini", Made: time.Now()},
+		Continuation: adapters.Continuation{ID: "resp_0", Model: "gpt-6.1-terra", Made: time.Now()},
 		Piece:        func(p string) { pieces = append(pieces, p) },
 	})
 	if err != nil {
@@ -77,7 +77,7 @@ func TestThreadStreamsAndContinues(t *testing.T) {
 	if reply.Text != "The bridge sways." || strings.Join(pieces, "|") != "The bridge |sways." {
 		t.Errorf("reply %q, pieces %q", reply.Text, pieces)
 	}
-	if reply.Continuation.ID != "resp_1" || reply.Continuation.Model != "gpt-5-mini" || reply.Continuation.Made.IsZero() {
+	if reply.Continuation.ID != "resp_1" || reply.Continuation.Model != "gpt-6.1-terra" || reply.Continuation.Made.IsZero() {
 		t.Errorf("continuation = %+v", reply.Continuation)
 	}
 	if reply.Usage.InputTokens != 20 || reply.Usage.CachedInputTokens != 100 || reply.Usage.OutputTokens != 30 {
@@ -134,7 +134,7 @@ func TestThreadOpensWithTheSystemMessage(t *testing.T) {
 func TestThreadConstraintsTravelApart(t *testing.T) {
 	fake := &fakeResponses{answer: func(n int, w http.ResponseWriter) { streamed(w, fmt.Sprintf("resp_%d", n), "ok") }}
 	th := testThread(fake.serve(t))
-	from := adapters.Continuation{ID: "resp_0", Model: "gpt-5-mini", Made: time.Now()}
+	from := adapters.Continuation{ID: "resp_0", Model: "gpt-6.1-terra", Made: time.Now()}
 
 	for _, turn := range []adapters.ThreadTurn{
 		{Input: `{"input":"I cross"}`, Constraints: "NARRATION RULES must be respected: no gore", Continuation: from},
@@ -171,7 +171,7 @@ func TestThreadReseedsWhenTheResponseIsGone(t *testing.T) {
 	reply, err := th.Continue(context.Background(), adapters.ThreadTurn{
 		System:       "rules",
 		Input:        "next",
-		Continuation: adapters.Continuation{ID: "resp_old", Model: "gpt-5-mini", Made: time.Now()},
+		Continuation: adapters.Continuation{ID: "resp_old", Model: "gpt-6.1-terra", Made: time.Now()},
 		Transcript:   seedTranscript,
 	})
 	if err != nil {
@@ -191,7 +191,7 @@ func TestThreadReseedsAfterRetention(t *testing.T) {
 	_, err := th.Continue(context.Background(), adapters.ThreadTurn{
 		System:       "rules",
 		Input:        "next",
-		Continuation: adapters.Continuation{ID: "resp_old", Model: "gpt-5-mini", Made: time.Now().Add(-31 * 24 * time.Hour)},
+		Continuation: adapters.Continuation{ID: "resp_old", Model: "gpt-6.1-terra", Made: time.Now().Add(-31 * 24 * time.Hour)},
 		Transcript:   seedTranscript,
 	})
 	if err != nil {
@@ -272,7 +272,7 @@ func TestThreadSendsTheTurnsFormat(t *testing.T) {
 	}
 	if _, err := th.Continue(context.Background(), adapters.ThreadTurn{
 		Input:        "b",
-		Continuation: adapters.Continuation{ID: "resp_1", Model: "gpt-5-mini", Made: time.Now()},
+		Continuation: adapters.Continuation{ID: "resp_1", Model: "gpt-6.1-terra", Made: time.Now()},
 	}); err != nil {
 		t.Fatal(err)
 	}

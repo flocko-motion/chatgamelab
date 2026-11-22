@@ -28,18 +28,11 @@ func facts(in, out []adapters.Medium, read string, price adapters.Price) adapter
 // GPT-Live bills per second a session stays open, so a silent minute costs a
 // minute.
 var Models = adapters.ModelTable{
-	"gpt-5.1":       facts(textImage, text, "2026-08-11", adapters.Price{InputPerMTok: 1.25, CachedInputPerMTok: 0.125, OutputPerMTok: 10.00}),
-	"gpt-5-mini":    facts(textImage, text, "2026-08-11", adapters.Price{InputPerMTok: 0.25, CachedInputPerMTok: 0.025, OutputPerMTok: 2.00}),
+	"gpt-6.2-sol":   facts(textImage, text, "2026-11-22", adapters.Price{InputPerMTok: 2.00, CachedInputPerMTok: 0.10, OutputPerMTok: 10.00}),
+	"gpt-6.1-terra": facts(textImage, text, "2026-11-22", adapters.Price{InputPerMTok: 1.00, CachedInputPerMTok: 0.05, OutputPerMTok: 5.00}),
 	"gpt-5.6-luna":  facts(textImage, text, "2026-08-11", adapters.Price{InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20}),
-	"gpt-5.6-terra": facts(textImage, text, "2026-08-11", adapters.Price{InputPerMTok: 2.00, CachedInputPerMTok: 0.20, OutputPerMTok: 12.00}),
-	"gpt-5.6-sol":   facts(textImage, text, "2026-11-21", adapters.Price{InputPerMTok: 4.00, CachedInputPerMTok: 0.40, OutputPerMTok: 20.00}),
 
-	"gpt-image-2.5-flare":    facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 30.00}),
-	"gpt-image-2.5-sunburst": facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 30.00}),
-	"gpt-image-2":            facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 30.00}),
-	"gpt-image-1.5":          facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 32.00}),
-	"gpt-image-1":            facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 40.00}),
-	"gpt-image-1-mini":       facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 2.00, CachedInputPerMTok: 0.20, OutputPerMTok: 8.00}),
+	"gpt-image-2.5-flare": facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 30.00}),
 
 	"gpt-realtime-2.1": facts(realtimeIn, textAudio, "2026-11-21", adapters.Price{
 		InputPerMTok: 4.00, CachedInputPerMTok: 0.40, OutputPerMTok: 24.00,
@@ -50,8 +43,8 @@ var Models = adapters.ModelTable{
 		AudioInputPerMTok: 10.00, CachedAudioInputPerMTok: 0.30, AudioOutputPerMTok: 20.00,
 	}),
 	// No cached rate is listed.
-	"gpt-audio-mini": facts(textAudio, textAudio, "2026-11-21", adapters.Price{
-		InputPerMTok: 0.60, OutputPerMTok: 2.40, AudioInputPerMTok: 10.00,
+	"gpt-audio-1.5": facts(textAudio, textAudio, "2026-11-22", adapters.Price{
+		InputPerMTok: 2.50, OutputPerMTok: 10.00, AudioInputPerMTok: 32.00,
 	}),
 
 	"gpt-live-1": facts(textAudio, textAudio, "2026-08-11", adapters.Price{AudioPerMinute: 0.05}),
