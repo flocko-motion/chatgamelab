@@ -30,8 +30,22 @@ git fetch --quiet --tags origin "$branch"
 
 if [ "$(git rev-parse --abbrev-ref HEAD)" = "$branch" ]; then
   [ -z "$(git status --porcelain)" ] || { echo "commit or remove your changes first: a release names one commit" >&2; exit 1; }
-  [ "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$branch")" ] || {
-    echo "$branch differs from origin/$branch: pull or push first" >&2; exit 1; }
+  if [ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/$branch")" ]; then
+    if git merge-base --is-ancestor HEAD "origin/$branch"; then
+      behind="$(git rev-list --count "HEAD..origin/$branch")"
+      echo "your $branch is $behind commit(s) behind origin/$branch:"
+      git -c color.ui=never log --oneline "HEAD..origin/$branch" | sed 's/^/   /'
+      printf 'pull them (fast-forward) and release origin/%s? [y/N] ' "$branch"
+      read -r reply < /dev/tty || reply=""
+      case "$reply" in
+        [yY]|[yY][eE][sS]) git merge --quiet --ff-only "origin/$branch" ;;
+        *) echo "aborted" >&2; exit 1 ;;
+      esac
+    else
+      echo "your $branch has commits origin/$branch lacks: push them (through a pull request) first" >&2
+      exit 1
+    fi
+  fi
   dir="$PWD"
 else
   # The local branch follows origin; a branch checked out elsewhere, or one

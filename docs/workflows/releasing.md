@@ -15,12 +15,12 @@ instance; releases reach every instance. `scripts/release.sh <branch>
 
 ## What happens
 
-1. `scripts/release.sh` takes the branch as origin has it (in place when it is
-   checked out, clean and equal to origin; otherwise in a temporary worktree)
-   and runs semantic-release with the `gh` token. semantic-release picks the
-   next version from the conventional commits since the last release
-   (`.releaserc.json`), creates the GitHub release with the notes and pushes
-   the tag `v<version>`. A release comments on the issues and pull requests it
+1. `scripts/release.sh` takes the branch as origin has it: in place when it is
+   checked out and clean (a checkout behind origin is offered a fast-forward
+   pull), otherwise in a temporary worktree. It runs semantic-release with the
+   `gh` token, which picks the next version from the conventional commits
+   since the last release (`.releaserc.json`), creates the GitHub release with
+   the notes and pushes the tag `v<version>`. A release comments on the issues and pull requests it
    ships and labels them; a prerelease does neither.
 2. The tag starts `.github/workflows/release.gen.yml` (written by schemaf's
    codegen). It builds the artifact `chatgamelab-<version>.run`, signs it with
