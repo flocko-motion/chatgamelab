@@ -38,6 +38,9 @@ func deleteGameRows(ctx context.Context, q *db.Queries, id uuid.UUID, forGood bo
 		return err
 	}
 	if forGood {
+		if err := q.V2DeleteGameCover(ctx, id); err != nil {
+			return err
+		}
 		return q.V2HardDeleteGame(ctx, id)
 	}
 	return q.V2SoftDeleteGame(ctx, id)
@@ -87,6 +90,7 @@ func deleteAccount(ctx context.Context, user uuid.UUID) error {
 			func() error { return q.V2DeleteInvitesFor(ctx, id) },
 			func() error { return q.V2ClearInvitesAcceptedBy(ctx, id) },
 			func() error { return q.V2ClearOriginalCreator(ctx, id) },
+			func() error { return q.V2ClearCoverCreator(ctx, id) },
 			func() error { return q.V2DeleteAccount(ctx, user) },
 		} {
 			if err := step(); err != nil {

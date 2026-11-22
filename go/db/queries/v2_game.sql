@@ -211,3 +211,11 @@ UPDATE game SET created_at = $2, modified_at = $3, play_count = $4 WHERE id = $1
 -- name: V2GameNamesCreatedBy :many
 -- A user's games by name (the dev preseed matches demo covers to them).
 SELECT id, name FROM game WHERE created_by = @user_id AND deleted_at IS NULL;
+
+-- name: V2DeleteGameCover :exec
+-- A game's cover goes with the game, when it goes for good.
+DELETE FROM game_cover WHERE game_id = @game_id;
+
+-- name: V2ClearCoverCreator :exec
+-- Covers someone drew stay with their games when the account goes.
+UPDATE game_cover SET created_by = NULL WHERE created_by = @user_id;

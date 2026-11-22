@@ -93,3 +93,14 @@ func (s *GameCoverTestSuite) TestALongHintIsRefused() {
 	s.BadRequest(err)
 	s.Nil(Must(user.ReadGame(gameID)).CoverAt)
 }
+
+// A cover goes with its game: deleting an account deletes its games for
+// good, covers included.
+func (s *GameCoverTestSuite) TestDeletingAnAccountTakesItsCovers() {
+	designer := s.CreateUser("cover-gone")
+	Must(designer.AddApiKey("mock-cover-gone", "Cover Key", "mock"))
+	game := Must(designer.UploadGame("alien-first-contact")).Id.String()
+	Must(designer.MakeCover(game, ""))
+
+	s.NoError(s.DevUser().DeleteUser(designer.ID), "an account with a covered game is deleted")
+}

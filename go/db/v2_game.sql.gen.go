@@ -13,6 +13,16 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2ClearCoverCreator = `-- name: V2ClearCoverCreator :exec
+UPDATE game_cover SET created_by = NULL WHERE created_by = $1
+`
+
+// Covers someone drew stay with their games when the account goes.
+func (q *Queries) V2ClearCoverCreator(ctx context.Context, userID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2ClearCoverCreator, userID)
+	return err
+}
+
 const v2CreateGame = `-- name: V2CreateGame :exec
 INSERT INTO game (
   id, created_by, created_at, modified_by, modified_at, workshop_id,
@@ -84,6 +94,16 @@ DELETE FROM user_favourite_game WHERE game_id = $1
 // Carried over from v1 unchanged (#344); the core uses these.
 func (q *Queries) V2DeleteFavoritesByGameID(ctx context.Context, gameID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, v2DeleteFavoritesByGameID, gameID)
+	return err
+}
+
+const v2DeleteGameCover = `-- name: V2DeleteGameCover :exec
+DELETE FROM game_cover WHERE game_id = $1
+`
+
+// A game's cover goes with the game, when it goes for good.
+func (q *Queries) V2DeleteGameCover(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameCover, gameID)
 	return err
 }
 
