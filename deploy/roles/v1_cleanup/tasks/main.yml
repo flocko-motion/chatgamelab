@@ -92,6 +92,33 @@
         state: absent
         remove: true
 
+    # The SFTP backup key carries over, so the instance keeps backing up to
+    # the same target without --backup-key.
+    - name: Look for the 1.x backup key
+      ansible.builtin.stat:
+        path: "{{ run_home }}/backup_key"
+      register: v1_backup_key
+
+    - name: Create the app's config directory
+      ansible.builtin.file:
+        path: "{{ run_home }}/.chatgamelab/etc"
+        state: directory
+        owner: "{{ run_user }}"
+        group: "{{ run_user }}"
+        mode: "0700"
+      when: v1_backup_key.stat.exists and v1_backup_key.stat.size > 0
+
+    - name: Carry the backup key over
+      ansible.builtin.copy:
+        src: "{{ run_home }}/backup_key"
+        dest: "{{ run_home }}/.chatgamelab/etc/backup_key"
+        remote_src: true
+        owner: "{{ run_user }}"
+        group: "{{ run_user }}"
+        mode: "0600"
+        force: false
+      when: v1_backup_key.stat.exists and v1_backup_key.stat.size > 0
+
     - name: Remove the run user's 1.x files
       ansible.builtin.file:
         path: "{{ run_home }}/{{ item }}"
