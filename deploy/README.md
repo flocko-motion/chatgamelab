@@ -61,3 +61,5 @@ By hand, as `cgl`:
 
 `setup.sh` converts it: it removes the 1.x stack with its database, its units,
 the build user `cgl-build` and the 1.x files, then sets the box up as above.
+The SFTP backup key carries over; the backup target goes into the instance
+file.
