@@ -49,14 +49,14 @@
            overflow: hidden; container-type: size; border-radius: 10px; }
   /* Sizes follow the box: a low box gets a smaller title, so the progress
      line still fits. */
-  .cover h3 { margin: 0; font-size: min(48px, 9.5cqw, 24cqh); line-height: 1.12; flex: none; }
+  .cover h3 { margin: 0; font-size: min(42px, 8.5cqw, 21cqh); line-height: 1.12; flex: none; }
   .cover .prog { flex: none; font-size: min(22px, 5.5cqw, 13cqh); font-weight: 600; }
   .cover .prog .bar { height: min(10px, 5cqh); border-radius: 5px; background: var(--line); margin-top: 6px; overflow: hidden; }
   .cover .prog .bar i { display: block; height: 100%; }
   .cover.ready .bar i { background: var(--ready-line); }
   .cover.blocked .bar i { background: var(--blocked-line); }
   .cover.done { color: var(--muted); } .cover.done .bar i { background: var(--done-line); }
-  .cover p { margin: 0; flex: 1 1 0; min-height: 0; overflow: hidden; font-size: min(22px, 5.5cqw);
+  .cover p { margin: 0; flex: 1 1 0; min-height: 0; overflow: hidden; font-size: min(28px, 7cqw, 14cqh);
              line-height: 1.4; color: var(--muted);
              mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent); }
   .cover.faded { opacity: .15; }
@@ -288,7 +288,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
                                    "target-arrow-shape": "triangle", "curve-style": "bezier", "arrow-scale": 0.9 } },
       { selector: "edge[kind='epicEdge']", style: { width: 3, "line-style": "dashed" } },
       { selector: "node[kind='milestone']", style: {
-          shape: "round-rectangle", width: 320, height: 44, label: "data(label)", "font-size": 20,
+          shape: "round-rectangle", width: 320, height: 60, label: "data(label)", "font-size": 30,
           "font-weight": "bold", color: css("--fg"), "text-valign": "center", "text-halign": "center",
           "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
       // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
@@ -401,7 +401,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // Epic boxes are placed by hand after ELK has laid out each box's inside,
   // in slots (x positions) and, within a band, sub-rows: a split epic stays on
   // one vertical across the bars.
-  const GAP_X = 70, GAP_Y = 90, BAR_GAP = 64;
+  const GAP_X = 70, GAP_Y = 90, BAR_GAP = 80;
   // The start view: the roadmap's top, as wide as fits, but never smaller than
   // READABLE, so the text stays legible; Fit shows everything, Epics only is
   // the overview.
@@ -488,9 +488,9 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     let y = 0;
     for (const r of ranks) {
       const bar = cy.nodes(`[kind='milestone'][rank = ${r}]`).filter(n => n.visible());
-      // The label at the bar's left end, where the view starts; about 11px per
+      // The label at the bar's left end, where the view starts; about 17px per
       // character at this font size.
-      if (bar.length) { bar.style({ width, "text-margin-x": Math.min(0, -width / 2 + bar.data("label").length * 5.6 + 24) });
+      if (bar.length) { bar.style({ width, "text-margin-x": Math.min(0, -width / 2 + bar.data("label").length * 8.4 + 30) });
                         bar.position({ x: width / 2, y }); y += BAR_GAP; }
       const inBand = boxes.filter(b => b.data("rank") === r);
       const subs = [...new Set(inBand.map(subOf))].sort((a, b) => a - b);
