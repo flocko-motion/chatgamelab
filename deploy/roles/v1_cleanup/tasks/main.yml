@@ -12,6 +12,52 @@
 - name: Convert a chatgamelab 1.x box
   when: v1_setup.stat.exists
   block:
+    # What the instance file has to take over from 1.x: the Sentry DSNs, and
+    # the backup target when 1.x backs up. Missing is a required one the file
+    # leaves empty; the message then lists every 1.x value, to copy as a set.
+    # The run stops before anything changes; the 1.x files go only once the
+    # file holds them.
+    - name: Compare the 1.x settings with the instance file
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - |
+            import json, sys
+            path, settings, required, instance = sys.argv[1], *map(json.loads, sys.argv[2:])
+            env = {}
+            try:
+                for line in open(path):
+                    key, sep, value = line.rstrip("\n").partition("=")
+                    if sep:
+                        env[key] = value
+            except FileNotFoundError:
+                pass
+            backup_on = env.get("BACKUP_ENABLED") == "true"
+            wanted = {k: env[v] for k, v in settings.items()
+                      if env.get(v) and (backup_on or not k.startswith("backup_"))}
+            missing = [k for k in required if k in wanted and str(instance.get(k, "")) == ""]
+            print(json.dumps({"wanted": wanted, "missing": missing}))
+          - "{{ run_home }}/env.secret"
+          - "{{ v1_settings | to_json }}"
+          - "{{ v1_required | to_json }}"
+          - "{{ dict(v1_settings.keys() | list | zip(query('vars', *(v1_settings.keys() | list), default=''))) | to_json }}"
+      register: v1_compare
+      changed_when: false
+      no_log: true
+
+    - name: Stop until the instance file holds the 1.x settings
+      ansible.builtin.fail:
+        msg: |-
+          This box runs chatgamelab 1.x with settings the instance file
+          {{ inventory_hostname }}.yml leaves empty. Nothing on the box has
+          changed. Add these lines to the file, then run again:
+
+          {% for k, v in (v1_compare.stdout | from_json).wanted.items() %}
+          {{ k }}: {{ v | to_json }}
+          {% endfor %}
+      when: (v1_compare.stdout | from_json).missing | length > 0
+
     - name: Stop and disable the 1.x units
       ansible.builtin.systemd_service:
         name: "{{ item }}"

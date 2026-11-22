@@ -1,0 +1,17 @@
+---
+# Instance file key: the 1.x env.secret variable it takes over.
+v1_settings:
+  sentry_dsn_backend: SENTRY_DSN_BACKEND
+  sentry_dsn_frontend: SENTRY_DSN_FRONTEND
+  backup_ssh_host: BACKUP_SSH_HOST
+  backup_ssh_port: BACKUP_SSH_PORT
+  backup_ssh_user: BACKUP_SSH_USER
+  backup_path: BACKUP_PATH
+
+# The ones whose absence stops a conversion; port and path have defaults and
+# come along in the message.
+v1_required:
+  - sentry_dsn_backend
+  - sentry_dsn_frontend
+  - backup_ssh_host
+  - backup_ssh_user
