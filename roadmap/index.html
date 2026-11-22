@@ -575,6 +575,9 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // of the layout: it would form a cycle with the bars, and the bars keep
   // the milestones in order.
   const bandOf = n => n.parent().length ? n.parent().data("rank") : n.data("rank");
+  // A target picked while hidden (a done issue with "show done" off) is
+  // brought into view once the layout that shows it has run.
+  let pendingFocus = null;
   const run = () => {
     rows();
     const backwards = cy.edges("[kind='issueEdge'], [kind='epicEdge']").filter(e => bandOf(e.source()) > bandOf(e.target()));
@@ -592,6 +595,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       placeCovers();
       if (restore && restore.sel) showDetails(restore.sel.kind, restore.sel.n);
       restore = null;
+      if (pendingFocus) { const [k, n] = pendingFocus; pendingFocus = null; mark(k, n, true); }
     });
     l.run();
   };
@@ -737,10 +741,53 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       const nodes = kind === "issue" ? cy.getElementById(`i${n}`)
         : kind === "epic" ? cy.nodes(`[kind='epic'][epic = ${n}]`) : cy.getElementById(`m${n}`);
       nodes.addClass("sel");
-      if (focus && nodes.length && nodes.visible()) cy.animate({ center: { eles: nodes }, duration: 300 });
+      if (focus && nodes.length && !nodes.visible() && !showDone.checked && nodes.some(n => done.contains(n))) {
+        showDone.checked = true;
+        applyDone();
+        pendingFocus = [kind, n];
+        run();
+      } else if (focus && nodes.length && nodes.visible()) flyTo(fitsReadably(nodes) ? nodes : firstOpenPiece(nodes));
     }
     placeCovers();
   }
+  // Brings the target to the middle of the graph at a readable zoom: no
+  // smaller than READABLE (unless the target would not fit), no larger than
+  // fits. The view's centre and the zoom move together, so the target glides
+  // straight in; a new target, a drag or a scroll stops the move.
+  let flight = 0;
+  function flyTo(nodes) {
+    const bb = nodes.boundingBox({ includeLabels: false }), pad = 60;
+    const w = cy.width(), h = cy.height();
+    const fits = Math.min((w - 2 * pad) / bb.w, (h - 2 * pad) / bb.h);
+    const z1 = Math.max(cy.minZoom(), Math.min(Math.max(cy.zoom(), READABLE), fits, cy.maxZoom()));
+    const c1 = { x: (bb.x1 + bb.x2) / 2, y: (bb.y1 + bb.y2) / 2 };
+    const z0 = cy.zoom(), p0 = cy.pan();
+    const c0 = { x: (w / 2 - p0.x) / z0, y: (h / 2 - p0.y) / z0 };
+    const id = ++flight, start = performance.now(), ms = 450;
+    const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const step = now => {
+      if (id !== flight) return;
+      const t = ease(Math.min(1, (now - start) / ms));
+      const z = z0 * Math.pow(z1 / z0, t);
+      const c = { x: c0.x + (c1.x - c0.x) * t, y: c0.y + (c1.y - c0.y) * t };
+      cy.viewport({ zoom: z, pan: { x: w / 2 - c.x * z, y: h / 2 - c.y * z } });
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  // An epic split across milestones is shown whole while that stays readable,
+  // else from its first piece with work left.
+  function fitsReadably(nodes) {
+    const bb = nodes.boundingBox({ includeLabels: false });
+    return Math.min((cy.width() - 120) / bb.w, (cy.height() - 120) / bb.h) >= READABLE / 2;
+  }
+  function firstOpenPiece(nodes) {
+    const shown = nodes.filter(n => n.visible()).sort((a, b) => a.data("rank") - b.data("rank"));
+    return shown.filter(n => n.data("pstate") !== "done")[0] || shown[0];
+  }
+  const graphEl = document.getElementById("graph");
+  for (const ev of ["mousedown", "wheel", "touchstart"]) graphEl.addEventListener(ev, () => { flight++; }, { passive: true });
+
   function showDetails(kind, n, focus) {
     const d = detailsHtml(kind, n);
     if (!d) return;
@@ -852,6 +899,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   });
   search.addEventListener("blur", closeResults);
 
+  // A click on the background lets go of what is selected.
+  cy.on("tap", ev => { if (ev.target === cy && selected) hideDetails(); });
   cy.on("tap", "node", ev => {
     const d = ev.target.data(), o = ev.originalEvent || {};
     if (o.metaKey || o.ctrlKey) { if (d.url) window.open(d.url, "_blank", "noopener"); return; }
