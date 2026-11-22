@@ -36,3 +36,9 @@ docs/build/
 
 # macOS Finder metadata
 .DS_Store
+
+# Rule reviews (scripts/review.py) — read locally, not for the repo
+.reviews/
+
+# Python bytecode (scripts/review.py and roadmap/)
+__pycache__/
