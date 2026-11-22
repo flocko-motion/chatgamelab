@@ -1407,7 +1407,27 @@
         "title": "Gratis-KI-Qualitätsstufn"
       },
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
-      "title": "Server-Einstellungen"
+      "title": "Server-Einstellungen",
+      "updates": {
+        "checked": "Zuletzt nach neien Versionen gsuacht: {{time}}",
+        "installState": {
+          "failed": "Fehlgschlogn",
+          "installed": "Installiert",
+          "installing": "Upgrade lafft",
+          "rollback-failed": "Zurücksetzen fehlgschlogn: D Seit is gstoppt",
+          "rolled-back": "Zurückgsetzt"
+        },
+        "lastInstall": "Letzts Upgrade: {{version}} (von {{from}})",
+        "noVersion": "koane (Entwicklung)",
+        "notEnabled": "Der Server installiert koa Updates aus da App: Sein Updater is ned eingerichtet.",
+        "rejected": "Der Server hod s Upgrade auf {{version}} abglehnt.",
+        "running": "Laufende Version:",
+        "title": "Updates",
+        "upToDate": "D Seit lafft mit da neiestn Version.",
+        "upgrade": "Upgrade",
+        "upgradeConfirm": "D Seit sichert ihre Datenbank, wechselt auf {{version}} und is a bis zwoa Minutn ned erreichbar. Wenn d neue Version ned startet, gehts zruck auf d laufende Version.",
+        "upgradeTo": "Upgrade auf {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Unbenannts Spui"
@@ -1510,6 +1530,7 @@
     "forbidden": "Du host koa Berechtigung fia de Aktion.",
     "generic": "Da is wos schief ganga. Probier's no amoi.",
     "guestStays": "Als Gast bleibst du dort, wo du beigetreten bist. Um bei am andern Workshop mitzumachen, öffne seinen Einladungslink, ohne di anzumelden: Du trittst als neuer Gast bei.",
+    "installRunning": "Es lafft bereits a Upgrade.",
     "insufficientQuota": "Dei API-Schlüssl hod koane Guthaben mehr. Lad was nach oder nutz an andern.",
     "invalidApiKey": "Dei API-Schlüssl is ungültig oder abglaufn. Schau in den Einstellungen noch.",
     "invalidJsonSchema": "D'Spui-Konfiguration hod a ungültigs Schema fia d'KI erzeugt. Des liegt am Spui-Aufbau, ned am API-Schlüssl. Überprüf d'Status-Felder und probier's no amoi.",
@@ -1542,14 +1563,17 @@
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",
       "tokenLocked": "Vorübergehend g sperrt",
+      "updates": "Updates",
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv"
     },
     "tokenLocked": "Z'vui fehlgschlagene Versuach – probier's später no amoi.",
     "unauthorized": "Bitte log di ei, damitst weidermacha kannst.",
     "unexpected": "A unerwarteter Fehler is passiert.",
+    "updaterNotEnabled": "Der Server installiert koa Updates aus da App.",
     "userNotRegistered": "Vervollständig zuerst dei Registrierung.",
     "validation": "Überprüf dei Eingaben und probier's no amoi.",
+    "versionNotAvailable": "Die Version ko ned auf dem Server installiert werdn.",
     "workshopInactive": "Dieser Workshop is deaktiviert. Bitte meld di bei da Lehrkraft oder Organisation."
   },
   "mail": {
@@ -1676,6 +1700,9 @@
       "tryAgain": "No amoi probiern"
     },
     "pipeline": {
+      "compact": "Thread komprimieren",
+      "compactFailed": "Komprimieren fehlgschlogn",
+      "compacting": "Wird komprimiert…",
       "copied": "Layout kopiert",
       "copyFailed": "Koa Zwischenablage: Layout in da Konsole ausgegeben",
       "copyLayout": "Layout kopieren"

@@ -1402,7 +1402,27 @@
         "title": "Tingkat Kualitas AI Penggunaan Gratis"
       },
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
-      "title": "Pengaturan Server"
+      "title": "Pengaturan Server",
+      "updates": {
+        "checked": "Terakhir memeriksa versi baru: {{time}}",
+        "installState": {
+          "failed": "Gagal",
+          "installed": "Terinstal",
+          "installing": "Sedang meningkatkan",
+          "rollback-failed": "Gagal membatalkan perubahan: situs dihentikan",
+          "rolled-back": "Perubahan dibatalkan"
+        },
+        "lastInstall": "Peningkatan terakhir: {{version}} (dari {{from}})",
+        "noVersion": "tidak ada (pengembangan)",
+        "notEnabled": "Server ini tidak menginstal pembaruan dari aplikasi: pemutakhirnya belum disiapkan.",
+        "rejected": "Server menolak peningkatan ke {{version}}.",
+        "running": "Versi yang berjalan:",
+        "title": "Pembaruan",
+        "upToDate": "Situs menjalankan versi terbaru.",
+        "upgrade": "Tingkatkan",
+        "upgradeConfirm": "Situs akan mencadangkan databasenya, beralih ke {{version}}, dan tidak dapat diakses selama satu atau dua menit. Jika versi baru gagal dimulai, situs akan kembali ke versi yang sedang berjalan.",
+        "upgradeTo": "Tingkatkan ke {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Game Tanpa Judul"
@@ -1504,6 +1524,7 @@
     "forbidden": "Anda tidak memiliki izin untuk melakukan tindakan ini.",
     "generic": "Terjadi kesalahan. Silakan coba lagi.",
     "guestStays": "Sebagai tamu, Anda tetap berada di tempat Anda bergabung. Untuk mengikuti lokakarya lain, buka tautan undangannya tanpa masuk: Anda akan bergabung sebagai tamu baru.",
+    "installRunning": "Peningkatan sedang berlangsung.",
     "insufficientQuota": "Kunci API Anda kehabisan kredit. Silakan tambahkan kredit atau gunakan kunci API lain.",
     "invalidApiKey": "Kunci API Anda tidak valid atau kedaluwarsa. Silakan periksa kunci API Anda di Pengaturan.",
     "invalidJsonSchema": "Konfigurasi gim menghasilkan skema yang tidak valid untuk AI. Ini masalah pengaturan gim, bukan masalah kunci API. Periksa kolom status gim dan coba lagi.",
@@ -1536,14 +1557,17 @@
       "permission": "Izin Ditolak",
       "server": "Kesalahan Server",
       "tokenLocked": "Dikunci sementara",
+      "updates": "Pembaruan",
       "validation": "Kesalahan Validasi",
       "workshopInactive": "Lokakarya Tidak Aktif"
     },
     "tokenLocked": "Terlalu banyak percobaan gagal – silakan coba lagi nanti.",
     "unauthorized": "Silakan masuk untuk melanjutkan.",
     "unexpected": "Terjadi kesalahan tak terduga.",
+    "updaterNotEnabled": "Server ini tidak menginstal pembaruan dari aplikasi.",
     "userNotRegistered": "Anda perlu menyelesaikan pendaftaran sebelum melanjutkan.",
     "validation": "Harap periksa input Anda dan coba lagi.",
+    "versionNotAvailable": "Versi ini tidak dapat diinstal di server ini.",
     "workshopInactive": "Lokakarya ini telah dinonaktifkan. Silakan hubungi guru atau penyelenggara lokakarya Anda."
   },
   "mail": {
@@ -1670,6 +1694,9 @@
       "tryAgain": "Coba lagi"
     },
     "pipeline": {
+      "compact": "Padatkan utas",
+      "compactFailed": "Gagal memadatkan",
+      "compacting": "Sedang memadatkan…",
       "copied": "Tata letak disalin",
       "copyFailed": "Tidak ada clipboard: tata letak dicatat di konsol",
       "copyLayout": "Salin tata letak"

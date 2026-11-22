@@ -1402,7 +1402,27 @@
         "title": "Nivel de calidad de IA para clave de uso gratuito"
       },
       "notAuthorized": "No tienes permiso para acceder a la configuración del servidor. Se requiere acceso de administrador.",
-      "title": "Configuración del servidor"
+      "title": "Configuración del servidor",
+      "updates": {
+        "checked": "Última comprobación de nuevas versiones: {{time}}",
+        "installState": {
+          "failed": "Fallido",
+          "installed": "Instalado",
+          "installing": "Actualización en curso",
+          "rollback-failed": "Error al revertir: el sitio está detenido",
+          "rolled-back": "Revertido"
+        },
+        "lastInstall": "Última actualización: {{version}} (desde {{from}})",
+        "noVersion": "ninguna (desarrollo)",
+        "notEnabled": "Este servidor no instala actualizaciones desde la aplicación: su actualizador no está configurado.",
+        "rejected": "El servidor rechazó la actualización a {{version}}.",
+        "running": "Versión en ejecución:",
+        "title": "Actualizaciones",
+        "upToDate": "El sitio utiliza la versión más reciente.",
+        "upgrade": "Actualizar",
+        "upgradeConfirm": "El sitio hará una copia de seguridad de su base de datos, cambiará a {{version}} y no estará disponible durante uno o dos minutos. Si la nueva versión no se inicia, volverá a la versión en ejecución.",
+        "upgradeTo": "Actualizar a {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Juego sin título"
@@ -1504,6 +1524,7 @@
     "forbidden": "No tienes permiso para realizar esta acción.",
     "generic": "Algo salió mal. Inténtalo de nuevo.",
     "guestStays": "Como invitado, te quedas donde te uniste. Para participar en otro taller, abre su enlace de invitación sin iniciar sesión: te unirás a él como invitado nuevo.",
+    "installRunning": "Ya hay una actualización en curso.",
     "insufficientQuota": "Tu clave API se quedó sin créditos. Añade más créditos o usa otra clave API.",
     "invalidApiKey": "Tu clave API es inválida o caducó. Revisa tu clave en Configuración.",
     "invalidJsonSchema": "La configuración del juego generó un esquema inválido para la IA. Es un problema de configuración del juego, no de la clave API. Revisa los valores de estado del juego y vuelve a intentarlo.",
@@ -1536,14 +1557,17 @@
       "permission": "Permiso denegado",
       "server": "Error del servidor",
       "tokenLocked": "Bloqueado temporalmente",
+      "updates": "Actualizaciones",
       "validation": "Error de validación",
       "workshopInactive": "Taller inactivo"
     },
     "tokenLocked": "Demasiados intentos fallidos; inténtalo de nuevo más tarde.",
     "unauthorized": "Inicia sesión para continuar.",
     "unexpected": "Ocurrió un error inesperado.",
+    "updaterNotEnabled": "Este servidor no instala actualizaciones desde la aplicación.",
     "userNotRegistered": "Debes completar el registro antes de continuar.",
     "validation": "Revisa tus datos e inténtalo de nuevo.",
+    "versionNotAvailable": "Esta versión no se puede instalar en este servidor.",
     "workshopInactive": "Este taller ha sido desactivado. Contacta a tu docente o al organizador del taller."
   },
   "mail": {
@@ -1670,6 +1694,9 @@
       "tryAgain": "Intentar de nuevo"
     },
     "pipeline": {
+      "compact": "Compactar hilo",
+      "compactFailed": "No se pudo compactar",
+      "compacting": "Compactando…",
       "copied": "Diseño copiado",
       "copyFailed": "Sin portapapeles: el diseño se ha registrado en la consola",
       "copyLayout": "Copiar diseño"

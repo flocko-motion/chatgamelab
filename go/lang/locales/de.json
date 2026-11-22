@@ -1234,7 +1234,27 @@
         "title": "Freie KI-Qualitätsstufe"
       },
       "notAuthorized": "Sie haben keine Berechtigung, auf die Servereinstellungen zuzugreifen. Administratorzugang erforderlich.",
-      "title": "Servereinstellungen"
+      "title": "Servereinstellungen",
+      "updates": {
+        "title": "Updates",
+        "running": "Laufende Version:",
+        "noVersion": "keine (Entwicklung)",
+        "notEnabled": "Dieser Server installiert keine Updates aus der App: sein Updater ist nicht eingerichtet.",
+        "lastInstall": "Letztes Upgrade: {{version}} (von {{from}})",
+        "installState": {
+          "installing": "Upgrade läuft",
+          "installed": "Installiert",
+          "rolled-back": "Zurückgesetzt",
+          "failed": "Fehlgeschlagen",
+          "rollback-failed": "Zurücksetzen fehlgeschlagen: die Seite ist gestoppt"
+        },
+        "rejected": "Der Server hat das Upgrade auf {{version}} abgelehnt.",
+        "upToDate": "Die Seite läuft mit der neuesten Version.",
+        "upgrade": "Upgrade",
+        "upgradeTo": "Upgrade auf {{version}}",
+        "upgradeConfirm": "Die Seite sichert ihre Datenbank, wechselt auf {{version}} und ist ein bis zwei Minuten nicht erreichbar. Startet die neue Version nicht, kehrt sie zur laufenden Version zurück.",
+        "checked": "Zuletzt nach neuen Versionen gesucht: {{time}}"
+      }
     },
     "settings": "Einstellungen",
     "share": {
@@ -1402,7 +1422,8 @@
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv",
       "organisationSuspended": "Organisation ausgesetzt",
-      "guestStays": "Du bleibst, wo du bist"
+      "guestStays": "Du bleibst, wo du bist",
+      "updates": "Updates"
     },
     "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen.",
     "unauthorized": "Bitte melde dich an, um fortzufahren.",
@@ -1414,7 +1435,10 @@
     "publicSlugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
     "publicDescriptionTooLong": "Die Beschreibung darf höchstens 2000 Zeichen lang sein.",
     "organisationSuspended": "Deine Organisation ist ausgesetzt. Deine Daten bleiben erhalten.",
-    "guestStays": "Als Gast bleibst du dort, wo du beigetreten bist. Um bei einem anderen Workshop mitzumachen, öffne seinen Einladungslink, ohne dich anzumelden: Du trittst ihm als neuer Gast bei."
+    "guestStays": "Als Gast bleibst du dort, wo du beigetreten bist. Um bei einem anderen Workshop mitzumachen, öffne seinen Einladungslink, ohne dich anzumelden: Du trittst ihm als neuer Gast bei.",
+    "updaterNotEnabled": "Dieser Server installiert keine Updates aus der App.",
+    "versionNotAvailable": "Diese Version kann auf diesem Server nicht installiert werden.",
+    "installRunning": "Es läuft bereits ein Upgrade."
   },
   "myWorkshop": {
     "empty": {
@@ -1524,7 +1548,10 @@
     "pipeline": {
       "copyLayout": "Layout kopieren",
       "copied": "Layout kopiert",
-      "copyFailed": "Keine Zwischenablage: Layout in der Konsole ausgegeben"
+      "copyFailed": "Keine Zwischenablage: Layout in der Konsole ausgegeben",
+      "compact": "Thread verdichten",
+      "compacting": "Wird verdichtet…",
+      "compactFailed": "Verdichten fehlgeschlagen"
     },
     "blocks": {
       "image-style": "Stil anpassen",

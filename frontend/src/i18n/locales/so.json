@@ -2086,6 +2086,26 @@
         "u18Hint": "Waxaa lagu dura AI prompt kasta isticmaalayaasha soo galay ee da'doodu tahay 18 iyo ka badan.",
         "u18Label": "Xaddidaadda isticmaalayaasha 18 jir iyo ka weyn (U18)",
         "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."
+      },
+      "updates": {
+        "checked": "Markii ugu dambaysay ee la hubiyay noocyo cusub: {{time}}",
+        "installState": {
+          "failed": "Fashilmay",
+          "installed": "La rakibay",
+          "installing": "La casriyeynayo",
+          "rollback-failed": "Dib-u-celintu way fashilantay: boggu wuu joogsaday",
+          "rolled-back": "Dib ayaa loo celiyay"
+        },
+        "lastInstall": "Casriyeyntii ugu dambaysay: {{version}} (laga soo bilaabo {{from}})",
+        "noVersion": "midna (horumarineed)",
+        "notEnabled": "Server-kan wax cusboonaysiin ah kama rakibo app-ka: cusboonaysiiyehiisa lama diyaarin.",
+        "rejected": "Server-ku wuu diiday casriyeynta loo samaynayo {{version}}.",
+        "running": "Nooca socda:",
+        "title": "Cusboonaysiinnada",
+        "upToDate": "Boggu wuxuu ku shaqeeyaa nooca ugu dambeeya.",
+        "upgrade": "Casriyeyn",
+        "upgradeConfirm": "Boggu wuxuu kaydinayaa keydkiisa xogta, wuxuu u wareegayaa {{version}}, waxaana aan la heli karin hal ama laba daqiiqo. Haddii nooca cusub uu bilaaban waayo, wuxuu ugu laabanayaa nooca socda.",
+        "upgradeTo": "Casriyey {{version}}"
       }
     },
     "sessions": {
@@ -2178,6 +2198,7 @@
     "forbidden": "Ma haysid oggolaansho aad ficilkan ku fuliso.",
     "generic": "Wax qaldamay. Fadlan isku day mar kale.",
     "guestStays": "Marti ahaan waxaad ku sii jiraysaa meesha aad ku biirtay. Si aad uga qaybqaadato aqoon-is-weydaarsi kale, fur xiriirkiisa casuumaadda adigoon gelin: waxaad ugu biiraysaa marti cusub ahaan.",
+    "installRunning": "Casriyeyn ayaa durba socota.",
     "insufficientQuota": "Furahaaga API-ga wuxuu ka dhamaaday credit-ka. Fadlan ku dar credit ama isticmaal fure kale.",
     "invalidApiKey": "Furahaaga API-ga waa mid aan sax ahayn ama dhacay. Fadlan hubi furahaaga Settings.",
     "invalidPlatform": "Madal aan sax ahayn ayaa la doortay. Fadlan dooro ikhtiyaar sax ah.",
@@ -2203,14 +2224,17 @@
       "permission": "Ogolaansho La'aan",
       "server": "Khalad Server",
       "tokenLocked": "Si ku-meel-gaar ah ayaa loo xiray",
+      "updates": "Cusboonaysiinnada",
       "validation": "Khalad Xaqiijin",
       "workshopInactive": "Workshop Aan Firfircoonayn"
     },
     "tokenLocked": "Isku-dayo badan oo fashilmay – fadlan mar kale isku day goor dambe.",
     "unauthorized": "Fadlan gasho si aad u sii waddo.",
     "unexpected": "Khalad lama filaan ah ayaa dhacay.",
+    "updaterNotEnabled": "Server-kan wax cusboonaysiin ah kama rakibo app-ka.",
     "userNotRegistered": "Waa inaad dhammaystirtaa diiwaangelinta ka hor inta aadan sii wadin.",
     "validation": "Fadlan hubi xogtaada oo isku day mar kale.",
+    "versionNotAvailable": "Noocan laguma rakibi karo server-kan.",
     "workshopInactive": "Workshop-kan waa la naafoobay. Fadlan la xiriir macallinka ama qabanqaabiyaha workshop-ka."
   },
   "mail": {
@@ -2326,6 +2350,9 @@
       "tryAgain": "Mar kale isku day"
     },
     "pipeline": {
+      "compact": "Soo koob mawduuca",
+      "compactFailed": "Soo koobiddii way fashilantay",
+      "compacting": "Waa la soo koobayaa…",
       "copied": "Qaabka waa la koobiyeeyay",
       "copyFailed": "Sabuurad lama hayo: qaabka waxaa lagu qoray konsolka",
       "copyLayout": "Koobiyee qaabka"

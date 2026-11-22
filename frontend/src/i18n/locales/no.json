@@ -1402,7 +1402,27 @@
         "title": "Fritt-bruk AI-kvalitetsnivå"
       },
       "notAuthorized": "Du har ikke tillatelse til å få tilgang til serverinnstillinger. Krever admin-tilgang.",
-      "title": "Serverinnstillinger"
+      "title": "Serverinnstillinger",
+      "updates": {
+        "checked": "Sist sjekket etter nye versjoner: {{time}}",
+        "installState": {
+          "failed": "Mislyktes",
+          "installed": "Installert",
+          "installing": "Oppgradering pågår",
+          "rollback-failed": "Tilbakestilling mislyktes: nettstedet er stoppet",
+          "rolled-back": "Tilbakestilt"
+        },
+        "lastInstall": "Siste oppgradering: {{version}} (fra {{from}})",
+        "noVersion": "ingen (utvikling)",
+        "notEnabled": "Denne serveren installerer ingen oppdateringer fra appen: oppdateringsprogrammet er ikke konfigurert.",
+        "rejected": "Serveren avviste oppgraderingen til {{version}}.",
+        "running": "Gjeldende versjon:",
+        "title": "Oppdateringer",
+        "upToDate": "Nettstedet kjører den nyeste versjonen.",
+        "upgrade": "Oppgrader",
+        "upgradeConfirm": "Nettstedet sikkerhetskopierer databasen, bytter til {{version}} og er utilgjengelig i ett eller to minutter. Hvis den nye versjonen ikke starter, går det tilbake til den gjeldende versjonen.",
+        "upgradeTo": "Oppgrader til {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Spill uten navn"
@@ -1504,6 +1524,7 @@
     "forbidden": "Du har ikke tillatelse til å utføre denne handlingen.",
     "generic": "Noe gikk galt. Prøv igjen.",
     "guestStays": "Som gjest blir du værende der du ble med. For å delta i en annen workshop åpner du invitasjonslenken uten å logge inn: Du blir med som en ny gjest.",
+    "installRunning": "En oppgradering pågår allerede.",
     "insufficientQuota": "API-nøkkelen din har ikke flere kreditter. Legg til flere kreditter eller bruk en annen API-nøkkel.",
     "invalidApiKey": "API-nøkkelen din er ugyldig eller utløpt. Sjekk API-nøkkelen i Innstillinger.",
     "invalidJsonSchema": "Spillkonfigurasjonen produserte et ugyldig skjema for AI-en. Dette er et spilloppsettproblem, ikke et API-nøkkelproblem. Kontroller spillets statusfelt og prøv igjen.",
@@ -1536,14 +1557,17 @@
       "permission": "Tilgang nektet",
       "server": "Serverfeil",
       "tokenLocked": "Midlertidig låst",
+      "updates": "Oppdateringer",
       "validation": "Valideringsfeil",
       "workshopInactive": "Workshop er inaktiv"
     },
     "tokenLocked": "For mange mislykkede forsøk – prøv igjen senere.",
     "unauthorized": "Logg inn for å fortsette.",
     "unexpected": "Det oppstod en uventet feil.",
+    "updaterNotEnabled": "Denne serveren installerer ingen oppdateringer fra appen.",
     "userNotRegistered": "Du må fullføre registreringen før du fortsetter.",
     "validation": "Kontroller inndataene dine og prøv igjen.",
+    "versionNotAvailable": "Denne versjonen kan ikke installeres på denne serveren.",
     "workshopInactive": "Denne workshopen er deaktivert. Kontakt læreren eller workshop-arrangøren."
   },
   "mail": {
@@ -1670,6 +1694,9 @@
       "tryAgain": "Prøv igjen"
     },
     "pipeline": {
+      "compact": "Komprimer tråd",
+      "compactFailed": "Kunne ikke komprimere",
+      "compacting": "Komprimerer…",
       "copied": "Oppsett kopiert",
       "copyFailed": "Ingen utklippstavle: Oppsettet er logget i konsollen",
       "copyLayout": "Kopier oppsett"
