@@ -625,6 +625,9 @@ export interface ModelFacts {
   price: Price;
   read: string;
   source: string;
+  window?: number;
+  windowRead?: string;
+  windowSource?: string;
 }
 
 export interface NamedRef {
@@ -646,6 +649,7 @@ export interface NodeDetail {
   outputs: Sample[];
   phase: string;
   role: string;
+  thread?: ThreadFill;
   type: string;
   usage?: UsageRecord;
 }
@@ -1001,6 +1005,11 @@ export interface SystemSettings {
 
 export interface ThemeInfo {
   id: string;
+}
+
+export interface ThreadFill {
+  tokens: number;
+  window: number;
 }
 
 export interface TierModels {
@@ -2254,6 +2263,26 @@ export class Api<
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The thread summarises whatever its fill, the block working meanwhile and paying for the summary; for testing how well compaction keeps a story. A block on no thread is refused.
+     *
+     * @name PostApiEngineSessionsIdNodesNodeCompact
+     * @summary Asks a block's thread to compact now.
+     * @request POST:/api/engine/sessions/{id}/nodes/{node}/compact
+     * @secure
+     */
+    postApiEngineSessionsIdNodesNodeCompact: (
+      id: string,
+      node: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/nodes/${node}/compact`,
+        method: "POST",
+        secure: true,
         ...params,
       }),
 

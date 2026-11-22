@@ -91,7 +91,7 @@ func sent(e adapters.Exchange) []turnMessage {
 //
 // The System Message opens a fresh thread as its first developer message,
 // which is stored with the thread; OpenAI drops instructions over a previous
-// response.
+// response. A summary follows it, as the game's developer message.
 func (t *Thread) call(ctx context.Context, key string, turn adapters.ThreadTurn, from string) (adapters.ThreadReply, error) {
 	request := map[string]any{
 		"model":  t.model,
@@ -109,6 +109,9 @@ func (t *Thread) call(ctx context.Context, key string, turn adapters.ThreadTurn,
 		var input []turnMessage
 		if turn.System != "" {
 			input = append(input, turnMessage{Role: "developer", Content: turn.System})
+		}
+		if turn.Summary != "" {
+			input = append(input, turnMessage{Role: "developer", Content: turn.Summary})
 		}
 		for _, e := range turn.Transcript {
 			input = append(append(input, sent(e)...), turnMessage{Role: "assistant", Content: e.Reply})

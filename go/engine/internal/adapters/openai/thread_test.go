@@ -328,3 +328,27 @@ func TestThreadIncompleteStructuredReplyIsBad(t *testing.T) {
 		t.Errorf("usage = %+v, want the cut reply billed", reply.Usage)
 	}
 }
+
+// A compacted thread is seeded with its summary, as the game's developer
+// message, between the System Message and the exchanges after it.
+func TestThreadSeedsTheSummary(t *testing.T) {
+	fake := &fakeResponses{answer: func(_ int, w http.ResponseWriter) { streamed(w, "resp_new", "On.") }}
+	th := testThread(fake.serve(t))
+
+	_, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		System:     "rules",
+		Summary:    "the story so far",
+		Input:      "next",
+		Transcript: seedTranscript[1:],
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, _ := json.Marshal(fake.requests[0]["input"])
+	want := `[{"content":"rules","role":"developer"},{"content":"the story so far","role":"developer"},` +
+		`{"content":"first","role":"user"},{"content":"two","role":"assistant"},` +
+		`{"content":"next","role":"user"}]`
+	if string(got) != want {
+		t.Errorf("input = %s\nwant    %s", got, want)
+	}
+}

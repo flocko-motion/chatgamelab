@@ -485,3 +485,26 @@ func eventually(t *testing.T, ok func() bool) {
 		time.Sleep(5 * time.Millisecond)
 	}
 }
+
+// A compacted thread's fresh session is seeded with its summary, as the
+// game's system message, before the exchanges after it.
+func TestRealtimeSeedsTheSummary(t *testing.T) {
+	fake := &fakeRealtime{}
+	r := testRealtime(fake.serve(t))
+	defer r.Close()
+
+	_, err := r.Continue(context.Background(), adapters.ThreadTurn{
+		System:     "rules",
+		Summary:    "the story so far",
+		Input:      "next",
+		Speak:      true,
+		Transcript: []adapters.Exchange{{Input: "first", Reply: "one"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "system/input_text:the story so far user/input_text:first assistant/output_text:one user/input_text:next"
+	if got := items(fake.sent(1, "conversation.item.create")); got != want {
+		t.Errorf("items %s\nwant  %s", got, want)
+	}
+}

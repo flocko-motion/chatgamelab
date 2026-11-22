@@ -220,3 +220,28 @@ func TestThreadSendsTheTurnsFormat(t *testing.T) {
 		t.Errorf("plain completion_args = %s, want the text format", got)
 	}
 }
+
+// A compacted thread starts a fresh conversation with its summary, the
+// game's own message and so the user's, before the exchanges after it.
+func TestThreadSeedsTheSummary(t *testing.T) {
+	fake := &fakeConversations{answer: func(_ int, _ string, w http.ResponseWriter) { streamed(w, "conv_new", "On.") }}
+	th := testThread(fake.serve(t))
+
+	_, err := th.Continue(context.Background(), adapters.ThreadTurn{
+		System:     "rules",
+		Summary:    "the story so far",
+		Input:      "next",
+		Transcript: []adapters.Exchange{{Input: "first", Reply: "one"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fake.calls[0].body["instructions"] != "rules" {
+		t.Errorf("instructions = %v, want the System Message", fake.calls[0].body["instructions"])
+	}
+	assertInputs(t, fake.calls[0].body, `[`+
+		`{"content":"the story so far","object":"entry","role":"user","type":"message.input"},`+
+		`{"content":"first","object":"entry","role":"user","type":"message.input"},`+
+		`{"content":"one","object":"entry","role":"assistant","type":"message.input"},`+
+		`{"content":"next","object":"entry","role":"user","type":"message.input"}]`)
+}

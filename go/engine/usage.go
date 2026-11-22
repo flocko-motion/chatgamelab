@@ -69,6 +69,14 @@ func (l *usageLedger) price(platform Platform) {
 	l.prices = lookup
 }
 
+// window is a model's context window from the settled platform's model
+// table, zero when the table does not know it.
+func (l *usageLedger) window(model string) int {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.prices.Window(model)
+}
+
 // restore takes back what a stored session had spent.
 func (l *usageLedger) restore(records []UsageRecord) {
 	l.mu.Lock()

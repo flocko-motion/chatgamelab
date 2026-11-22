@@ -5,16 +5,21 @@ import "engine/internal/adapters"
 // Models is the mock's model table. Its prices are invented, so a keyless run
 // exercises the cost display.
 var Models = adapters.ModelTable{
-	"mock-tool":  invented(text, text, adapters.Price{InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20}),
-	"mock-story": invented(text, text, adapters.Price{InputPerMTok: 1.50, CachedInputPerMTok: 0.15, OutputPerMTok: 6.00}),
+	"mock-tool": invented(text, text, adapters.Price{InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20}),
+	"mock-story": invented(text, text, adapters.Price{InputPerMTok: 1.50, CachedInputPerMTok: 0.15, OutputPerMTok: 6.00}).
+		Windowed(Window, "2026-11-22", "invented for the mock"),
 	"mock-image": invented(text, []adapters.Medium{adapters.MediumImage}, adapters.Price{InputPerMTok: 5.00, PerImage: 0.04}),
 	"mock-realtime": invented(textAudio, textAudio, adapters.Price{
 		InputPerMTok: 0.60, CachedInputPerMTok: 0.06, OutputPerMTok: 2.40,
 		AudioInputPerMTok: 10.00, CachedAudioInputPerMTok: 0.30, AudioOutputPerMTok: 20.00,
-	}),
+	}).Windowed(Window, "2026-11-22", "invented for the mock"),
 	"mock-hearing":  invented(textAudio, text, adapters.Price{InputPerMTok: 0.60, OutputPerMTok: 2.40, AudioInputPerMTok: 10.00}),
 	"gpt-live-mock": invented(textAudio, textAudio, adapters.Price{AudioPerMinute: 0.05}),
 }
+
+// Window is the story models' context window, small, so a game on the mock
+// reaches the point where its thread compacts within a few turns.
+const Window = 6000
 
 var (
 	text      = []adapters.Medium{adapters.MediumText}

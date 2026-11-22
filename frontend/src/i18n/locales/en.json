@@ -1513,7 +1513,10 @@
     "pipeline": {
       "copyLayout": "Copy layout",
       "copied": "Layout copied",
-      "copyFailed": "No clipboard: layout logged to the console"
+      "copyFailed": "No clipboard: layout logged to the console",
+      "compact": "Compact thread",
+      "compacting": "Compacting…",
+      "compactFailed": "Could not compact"
     },
     "blocks": {
       "image-style": "Adapt style",

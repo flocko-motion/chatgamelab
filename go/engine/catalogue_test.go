@@ -172,3 +172,26 @@ func TestTierModelsTakeAndMakeWhatTheirTypeNeeds(t *testing.T) {
 		}
 	}
 }
+
+// Every model a story thread runs on, the story model and the speech model,
+// has a context window, so the thread compacts before it overflows; the
+// window says when and where it was read.
+func TestThreadModelsHaveAContextWindow(t *testing.T) {
+	for _, p := range Platforms() {
+		for _, tier := range p.Tiers {
+			for _, kind := range []ModelType{ModelStory, ModelSpeech} {
+				model, listed := tier.Models[kind]
+				if !listed {
+					continue
+				}
+				facts := p.Models[model.Name]
+				if facts.Window <= 0 {
+					t.Errorf("%s/%s: %s model %s has no context window", p.ID, tier.Tier, kind, model.Name)
+				}
+				if facts.WindowRead == "" || facts.WindowSource == "" {
+					t.Errorf("%s: %s's window says neither when nor where it was read", p.ID, model.Name)
+				}
+			}
+		}
+	}
+}

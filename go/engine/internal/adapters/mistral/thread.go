@@ -76,7 +76,11 @@ func (t *Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapte
 		}
 	}
 
-	inputs := make([]entry, 0, 2*len(turn.Transcript)+1)
+	inputs := make([]entry, 0, 2*len(turn.Transcript)+2)
+	if turn.Summary != "" {
+		// The game's own message, which Mistral takes as the user's.
+		inputs = append(inputs, message("user", turn.Summary))
+	}
 	for _, e := range turn.Transcript {
 		inputs = append(inputs, message("user", userEntry(e)), message("assistant", e.Reply))
 	}

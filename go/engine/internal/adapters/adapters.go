@@ -121,6 +121,16 @@ type Usage struct {
 	Images       int64   `json:"images,omitempty"`
 }
 
+// Context is how much a call's input held, cached or not, text and audio
+// alike: what it took of the model's context window.
+func (u Usage) Context() int64 {
+	return u.InputTokens + u.CachedInputTokens + u.AudioInputTokens + u.CachedAudioInputTokens
+}
+
+// HeardAudio says the call's input carried audio, as a Realtime session
+// holds earlier spoken replies as audio.
+func (u Usage) HeardAudio() bool { return u.AudioInputTokens+u.CachedAudioInputTokens > 0 }
+
 // Add folds in another call's usage, so a block reports its running total.
 func (u *Usage) Add(other Usage) {
 	if other.Model != "" {

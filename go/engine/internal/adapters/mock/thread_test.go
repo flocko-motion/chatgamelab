@@ -132,3 +132,48 @@ func TestThreadPlainTurnIsSilent(t *testing.T) {
 		t.Errorf("a plain turn spoke: usage %+v", reply.Usage)
 	}
 }
+
+// The input grows with the thread, so a long game nears the window: a
+// continued thread bills more input each turn, and the spoken replies it
+// holds bill audio input; a fresh thread seeded from text holds no audio.
+func TestThreadInputGrowsWithTheThread(t *testing.T) {
+	ctx := context.Background()
+	speech := Thread{Name: "mock-realtime"}
+	first, err := speech.Continue(ctx, adapters.ThreadTurn{Input: "a", Speak: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Usage.HeardAudio() {
+		t.Errorf("the first call's input carried audio: %+v", first.Usage)
+	}
+	next, err := speech.Continue(ctx, adapters.ThreadTurn{Input: "a", Continuation: first.Continuation})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next.Usage.Context() <= first.Usage.Context() || !next.Usage.HeardAudio() {
+		t.Errorf("input %+v after %+v, want it grown, with the spoken reply as audio", next.Usage, first.Usage)
+	}
+	reseeded, err := speech.Continue(ctx, adapters.ThreadTurn{Input: "a",
+		Transcript: []adapters.Exchange{{Input: "a", Reply: first.Text}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reseeded.Usage.HeardAudio() {
+		t.Errorf("a thread seeded from text carried audio: %+v", reseeded.Usage)
+	}
+}
+
+// A summary seeds a fresh thread as one more turn it holds.
+func TestThreadSeededWithASummaryCountsIt(t *testing.T) {
+	reply, err := Thread{}.Continue(context.Background(), adapters.ThreadTurn{
+		Input:      "I go on",
+		Summary:    "the story so far",
+		Transcript: []adapters.Exchange{{Input: "a", Reply: "b"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasPrefix(reply.Text, "[story turn 3]") {
+		t.Errorf("a thread seeded with a summary said %q, want turn 3", reply.Text)
+	}
+}
