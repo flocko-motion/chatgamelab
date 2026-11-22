@@ -14,6 +14,17 @@
       "under13Blocker": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi ChatGameLab doar printr-o organizație de tineret.",
       "under13Description": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi ChatGameLab doar printr-o organizație de tineret."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Deconectare",
+        "message": "Rămâi în acest atelier. Cu codul tău te poți conecta din nou oricând, de pe orice dispozitiv: la „Introdu codul” pe pagina de pornire.",
+        "title": "Te deconectezi?"
+      },
+      "leaveWorkshop": "Deconectare",
+      "organization": "Organizație",
+      "role": "Invitat",
+      "workshop": "Atelier"
+    },
     "login": {
       "auth0Button": "Autentifică-te cu Auth0",
       "devMode": "Mod dezvoltare",
@@ -22,6 +33,8 @@
         "title": "Mod dezvoltare"
       },
       "devModeDescription": "Autentificare rapidă pentru dezvoltare și testare",
+      "devNewOrganisation": "Persoană nouă (înregistrează o organizație)",
+      "devNewPerson": "Persoană nouă (fără alegere încă, ca după „Înregistrare”)",
       "redirecting": {
         "message": "Te rugăm să aștepți în timp ce te redirecționăm către pagina de autentificare.",
         "title": "Redirecționare către Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Autentifică-te ca Profesor"
       },
       "unavailable": {
-        "message": "Pe această instanță nu este disponibilă autentificarea. Participanții la atelier pot introduce în schimb codul lor.",
+        "message": "Această instanță nu oferă conectare. Invitații dintr-un atelier își pot introduce codul.",
         "title": "Autentificarea nu este disponibilă"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Așa apari în ChatGameLab (maximum 24 de caractere).",
+      "accountNameLabel": "Nume afișat",
+      "cityLabel": "Localitate",
+      "confirmAdult": "Am cel puțin 18 ani.",
+      "consentPage": {
+        "constraintIntro": "Prin această declarație, instituția ta se angajează să stabilească o restricție pentru solicitările de protecție a minorilor, potrivită grupului țintă. Mai jos este cea utilizată în prezent de organizația ta. Verific-o și ajusteaz-o dacă este necesar.",
+        "emailDescription": "Trimitem la această adresă confirmarea împreună cu textul declarației.",
+        "introExisting": "Organizația ta „{{name}}” are acum o declarație confirmată online. Aceasta înlocuiește acordul de utilizare semnat anterior. Citește-o și aprob-o în numele instituției tale.",
+        "introNewVersion": "Declarația a fost actualizată (versiunea {{version}}). Citește noua versiune și aprob-o în numele organizației tale „{{name}}”.",
+        "introWithdrawn": "Aprobarea declarației de către organizația ta „{{name}}” a fost retrasă, astfel că aceasta este suspendată. Citește declarația și aprob-o în numele instituției tale pentru a utiliza din nou ChatGameLab.",
+        "logout": "Deconectare",
+        "oneHeadIsEnough": "Este suficient ca un singur reprezentant al organizației să aprobe declarația. Până atunci, organizația ta este suspendată: membrii săi nu pot utiliza ChatGameLab.",
+        "submit": "Aprob",
+        "title": "Confirmă declarația"
+      },
+      "consentSection": "Confirmări",
+      "declarationGermanOnly": "Declarația este disponibilă doar în limba germană. Textul german este obligatoriu.",
+      "declarationVersion": "Versiunea {{version}}, din {{date}}",
+      "emailConfirmHint": "După trimiterea formularului, organizația este creată imediat. Confirmarea împreună cu textul declarației va fi trimisă la adresa ta de e-mail.",
+      "emailDescription": "Trimitem la această adresă confirmarea declarației.",
+      "emailFromLogin": "Aceasta este adresa contului tău.",
+      "emailLabel": "Adresă de e-mail profesională",
+      "errors": {
+        "conflict": "Există deja un cont pentru această autentificare. Conectează-te și folosește opțiunea de upgrade din setări.",
+        "declaration_version_outdated": "Declarația a fost actualizată. Reîncarcă pagina și citește versiunea curentă.",
+        "duplicate_name": "Acest nume afișat este deja folosit.",
+        "emailInvalid": "Introdu o adresă de e-mail validă.",
+        "email_belongs_to_other_account": "Există deja un cont cu această adresă de e-mail. Conectează-te cu acesta și alege „Treci la organizație” din setări.",
+        "formIncomplete": "Completează toate câmpurile obligatorii și confirmă toate punctele.",
+        "generic": "Ceva nu a funcționat. Încearcă din nou.",
+        "institution_age_not_allowed": "O organizație poate fi înregistrată doar cu un cont de adult (18+).",
+        "institution_consents_required": "Confirmă toate punctele.",
+        "institution_name_taken": "Există deja o organizație cu acest nume. Extinde numele, de exemplu cu localitatea.",
+        "loadFailed": "Declarația nu a putut fi încărcată. Reîncarcă pagina.",
+        "name_too_long": "Numele afișat poate avea maximum 24 de caractere.",
+        "profane_name": "Acest nume afișat nu este permis.",
+        "required": "Obligatoriu",
+        "validation_error": "Verifică datele introduse."
+      },
+      "institutionNameLabel": "Numele instituției",
+      "institutionSection": "Despre instituție",
+      "operatorDescription": "de ex. oraș, asociație, parohie",
+      "operatorLabel": "Administrator",
+      "personFunctionLabel": "Rolul în instituție",
+      "personFunctionPlaceholder": "de ex. director, lucrător pentru tineret",
+      "personNameLabel": "Nume și prenume",
+      "personSection": "Despre tine",
+      "postalCodeLabel": "Cod poștal",
+      "registered": {
+        "text": "Organizația ta este activată. Ești reprezentantul ei și poți crea ateliere acum.",
+        "title": "Organizație înregistrată"
+      },
+      "streetLabel": "Stradă și număr",
+      "submit": "Înregistrează organizația",
+      "subtitle": "După trimiterea formularului, organizația ta este activată imediat, iar tu devii reprezentantul ei.",
+      "switchToPersonal": "Înapoi la alegere",
+      "titleRegister": "Înregistrează o organizație",
+      "toMyOrganization": "Mergi la organizația mea",
+      "youthProtection": {
+        "changeHint": "Poți modifica această setare oricând și o poți configura diferit pentru anumite ateliere.",
+        "defaultOption": "Implicit de la 13 ani",
+        "fieldLabel": "Restricția organizației tale pentru solicitările de protecție a minorilor",
+        "intro": "Inteligența artificială primește această instrucțiune în fiecare joc al organizației tale. Alege o variantă potrivită vârstei grupului țintă.",
+        "responsibilityHint": "Sugestiile nu reprezintă o clasificare oficială pe vârste. Instituția ta decide setarea și este responsabilă pentru aceasta.",
+        "suggestionAdults": "pentru adulți de la {{age}} ani",
+        "suggestionChildren": "pentru copii de aproximativ {{age}} ani",
+        "suggestionTeens": "pentru adolescenți de aproximativ {{age}} ani",
+        "suggestionsLabel": "Sugestii (un clic înlocuiește textul):",
+        "title": "Restricția solicitărilor de protecție a minorilor",
+        "tooLong": "Maximum {{max}} de caractere. Scurtează textul sau alege o sugestie."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Jocuri create",
       "gamesPlayed": "Jocuri jucate",
+      "guestCode": {
+        "error": "Codul tău de acces nu a putut fi încărcat.",
+        "hint": "Fotografiază acest cod sau notează-l și păstrează-l secret. Cu el poți reveni oricând în cont, de pe orice dispozitiv: introdu cuvintele la „Introdu codul” pe pagina de pornire sau scanează codul QR.",
+        "longTokenHint": "Fotografiază codul QR sau salvează linkul și păstrează-l secret. Cu el poți reveni oricând în cont. Liderul atelierului îți poate oferi un cod scurt din patru cuvinte prin resetarea accesului.",
+        "title": "Codul tău de acces"
+      },
       "memberSince": "Înregistrat din",
       "messagesSent": "Mesaje trimise",
       "noOrganization": "Fără organizație",
@@ -71,6 +163,7 @@
       "role": "Rol",
       "roles": {
         "admin": "Administrator",
+        "guest": "Invitat",
         "head": "Conducător organizație",
         "individual": "Persoană fizică",
         "participant": "Participant",
@@ -140,6 +233,12 @@
       "individualDescription": "Creează și joacă aventuri text bazate pe AI",
       "individualTitle": "Cont personal",
       "loginLink": "Autentifică-te",
+      "organizationExistingAccount": "Organizațiile se înregistrează cu o autentificare nouă. Ai deja un cont?",
+      "organizationIntro": "Pentru centre de tineret, școli și alte instituții care doresc să utilizeze ChatGameLab în ateliere.",
+      "organizationStep1": "Îți creezi datele de conectare prin Auth0 (e-mail și parolă).",
+      "organizationStep2": "Introduci date despre tine și instituția ta, configurezi restricția pentru solicitările de protecție a minorilor și aprobi declarația.",
+      "organizationStep3": "După trimiterea formularului, organizația este activată imediat și poți crea ateliere.",
+      "organizationTitle": "Înregistrează-te ca organizație",
       "privacyPolicy": "Politica de confidențialitate",
       "termsOfService": "Termeni de utilizare",
       "title": "Creează-ți contul"
@@ -207,16 +306,26 @@
       },
       "organizations": {
         "actions": "Acțiuni",
+        "city": "Localitate",
+        "consentGiven": "Declarația v{{version}} · {{date}}",
+        "consentMissing": "Declarație în așteptare",
+        "consentOutdated": "Declarație învechită (v{{version}})",
+        "consentWithdrawn": "Declarație retrasă",
         "create": "Creează organizație",
         "createTitle": "Creează organizație nouă",
-        "deleteConfirm": "Sigur vrei să ștergi „{{name}}”? Această acțiune nu poate fi anulată.",
+        "deleteConfirm": "Ștergi definitiv „{{name}}”? Toate atelierele și participanții organizației vor fi șterși; reprezentanții și liderii atelierelor își păstrează conturile. Acțiunea nu poate fi anulată. Dacă organizația trebuie doar să piardă accesul, suspend-o în schimb.",
         "deleteTitle": "Șterge organizația",
+        "detailsOptional": "Opțional: administrator și adresă",
         "editTitle": "Editează organizația",
         "email": "Adresă de email",
         "emailPlaceholder": "Introdu adresa de email",
         "empty": "Încă nu există organizații. Creează una pentru a începe.",
+        "heads": "Reprezentanți",
         "inviteDescription": "Trimite o invitație pentru a se alătura {{name}} ca lider al organizației.",
         "inviteTitle": "Invită în organizație",
+        "lift": "Anulează suspendarea",
+        "liftConfirm": "Anulezi suspendarea organizației „{{name}}”? Toți membrii o vor putea utiliza din nou ca înainte, dacă a aprobat declarația curentă.",
+        "liftTitle": "Anulează suspendarea",
         "memberEmail": "Email",
         "memberName": "Nume",
         "memberRole": "Rol",
@@ -226,11 +335,44 @@
         "name": "Nume",
         "namePlaceholder": "Introdu numele organizației",
         "noMembers": "Nu există membri în această organizație.",
+        "operator": "Administrator",
+        "postalCode": "Cod poștal",
         "removeMember": "Elimină membru",
         "removeMemberConfirm": "Sigur vrei să-l elimini pe {{name}} din această organizație?",
         "searchPlaceholder": "Caută organizații...",
         "sendInvite": "Trimite invitație",
+        "status": "Stare și aprobare",
+        "statusActive": "Activă",
+        "statusSuspended": "Suspendată",
+        "statusSuspendedConsent": "Suspendată: declarație în așteptare",
+        "street": "Stradă și număr",
+        "suspend": "Suspendă",
+        "suspendConfirm": "Suspenzi organizația „{{name}}”? Reprezentanții, liderii atelierelor și participanții nu vor mai putea utiliza organizația. Linkurile partajate ale jocurilor și paginile publice ale atelierelor nu vor mai funcționa. Nu se șterg date, iar suspendarea poate fi anulată oricând.",
+        "suspendError": "Acțiunea nu a reușit. Încearcă din nou.",
+        "suspendReason": "Motiv (opțional)",
+        "suspendReasonDescription": "Vizibil doar pentru administratori.",
+        "suspendTitle": "Suspendă organizația",
+        "suspendedNoReason": "Suspendată fără motiv",
         "title": "Gestionează organizațiile"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Nicio organizație nu s-a înregistrat în ultimele două săptămâni.",
+          "intro_one": "Această organizație s-a înregistrat în ultimele două săptămâni și este deja activată.",
+          "intro_other": "Aceste {{count}} organizații s-au înregistrat în ultimele două săptămâni și sunt deja activate.",
+          "label": "Organizații noi",
+          "later": "Mai târziu",
+          "open": "Mergi la prezentare generală",
+          "suspendHint": "Adresele de e-mail nu sunt confirmate momentan. Verifică rapid organizațiile noi și suspendă-le din prezentarea generală dacă ceva nu este în regulă.",
+          "title": "Organizații noi"
+        },
+        "date": "Înregistrată",
+        "description": "Organizații care s-au înregistrat singure în ultimele două săptămâni. Sunt active imediat, fără confirmarea adresei de e-mail; verifică-le și suspendă-le dacă ceva nu este în regulă.",
+        "empty": "Nicio organizație nu s-a înregistrat singură în ultimele două săptămâni.",
+        "institution": "Instituție",
+        "loadError": "Înregistrările nu au putut fi încărcate.",
+        "person": "Semnat de",
+        "title": "Înregistrări noi"
       },
       "users": {
         "actions": "Acțiuni",
@@ -297,7 +439,16 @@
       },
       "copyGame": "Copiază jocul",
       "empty": {
+        "conditions": {
+          "favorites": "printre favoritele tale",
+          "own": "creat de tine",
+          "public": "public",
+          "sponsored": "sponsorizat"
+        },
         "description": "Încearcă să ajustezi filtrele sau revino mai târziu pentru jocuri noi.",
+        "is": "Niciun joc nu este {{conditions}}.",
+        "isAndNamed": "Niciun joc nu este {{conditions}} și nu are „{{search}}” în nume.",
+        "named": "Niciun joc nu are „{{search}}” în nume.",
         "title": "Nu s-au găsit jocuri"
       },
       "favorite": "Adaugă la favorite",
@@ -308,10 +459,11 @@
         "public": "Publice",
         "sponsored": "Sponsorizate"
       },
+      "onlyFavorites": "Afișează doar favoritele",
       "play": "Joacă",
       "reportGame": "Raportează jocul",
       "restart": "Repornește",
-      "title": "Toate jocurile",
+      "title": "Jocuri",
       "unfavorite": "Elimină din favorite",
       "workshop": "Atelier / Org"
     },
@@ -441,6 +593,23 @@
         "myGame": "Jocul meu",
         "public": "Public",
         "workshop": "Joc de atelier"
+      },
+      "byCreator": "de {{name}}",
+      "cover": {
+        "alt": "Coperta lui {{name}}",
+        "draw": "Desenează coperta",
+        "drawAgain": "Desenează din nou",
+        "drawnOnSave": "Coperta este desenată când salvezi jocul.",
+        "errors": {
+          "failed": "Coperta nu a putut fi desenată. Încearcă din nou.",
+          "keyRejected": "Furnizorul AI a respins cheia. Coperta nu a putut fi desenată.",
+          "noKey": "Niciuna dintre cheile AI pe care le poți utiliza nu poate desena imagini, astfel că jocul nu are momentan copertă."
+        },
+        "hint": "Ce ar trebui să arate coperta?",
+        "hintDescription": "Opțional. Dacă este lăsat necompletat, câmpul va arăta despre ce este jocul.",
+        "hintPlaceholder": "De exemplu: farul noaptea",
+        "none": "Nicio copertă încă",
+        "title": "Copertă"
       },
       "createButton": "Creează joc",
       "createModal": {
@@ -762,11 +931,15 @@
       "errors": {
         "acceptFailed": "Invitația nu a putut fi acceptată. Te rugăm să încerci din nou.",
         "expired": "Acest link de invitație a expirat.",
+        "guestStays": "Ca invitat, rămâi acolo unde te-ai alăturat. Pentru a participa la un alt atelier, deschide linkul de invitație fără să te conectezi: te vei alătura ca invitat nou.",
         "loadFailed": "Nu s-au putut încărca detaliile invitației. Te rugăm să încerci din nou.",
         "notFound": "Acest link de invitație este invalid sau a fost revocat.",
         "tokenLocked": "Prea multe încercări eșuate – încearcă din nou mai târziu."
       },
       "goHome": "Mergi la pagina principală",
+      "guest": {
+        "loggingIn": "Conectare..."
+      },
       "participant": {
         "loggingIn": "Te autentificăm..."
       },
@@ -794,6 +967,18 @@
     "leaveOrganization": "Părăsește organizația",
     "leaveTitle": "Părăsește organizația",
     "leaveWarning": "Vei pierde accesul la toate resursele și membrii organizației.",
+    "list": {
+      "clearSearch": "Șterge căutarea",
+      "filter": "Filtru",
+      "pagination": {
+        "first": "Prima pagină",
+        "last": "Ultima pagină",
+        "next": "Pagina următoare",
+        "previous": "Pagina anterioară"
+      },
+      "perPage": "Pe pagină",
+      "range": "{{from}}–{{to}} din {{total}}"
+    },
     "loading": "Se încarcă...",
     "logout": "Deconectează-te",
     "me": "Eu",
@@ -847,6 +1032,7 @@
         "owner": "Proprietar",
         "platform": "Platformă",
         "publicSponsoring": "Sponsorizare publică",
+        "removeShare": "Elimină din organizație",
         "searchPlaceholder": "Caută după nume sau proprietar...",
         "selectKey": "Selectează cheie API",
         "selectKeyPlaceholder": "Alege o cheie de partajat...",
@@ -861,6 +1047,14 @@
         "confirmTitle": "Partajează cheia cu organizația",
         "orgKeyGroup": "Chei ale organizației",
         "personalKeyGroup": "Chei personale"
+      },
+      "declaration": {
+        "consented": "Organizația ta a aprobat versiunea {{version}} la data de {{date}}.",
+        "title": "Declarație de aprobare",
+        "withdraw": "Retrage aprobarea",
+        "withdrawConfirm": "Fără aprobare, organizația ta este suspendată: niciun membru nu poate utiliza ChatGameLab până când un reprezentant nu aprobă din nou. Datele sunt păstrate.",
+        "withdrawFailed": "Acțiunea nu a reușit. Încearcă din nou.",
+        "withdrawTitle": "Retragi aprobarea?"
       },
       "demoteConfirm": "Sigur vrei să îl retrogradezi pe „{{name}}” ({{email}}) la profesor?",
       "demoteTitle": "Retrogradează la profesor",
@@ -894,13 +1088,13 @@
       "promoteToHead": "Promovează la conducător",
       "promoteWarning": "Acest utilizator va putea gestiona membrii organizației și invita profesorii.",
       "promptConstraintsFallbackEmpty": "(neconfigurat)",
-      "promptConstraintsFallbackHint": "Nu este configurată nicio restricție de organizație. Se aplică valoarea implicită la nivel de site pentru grupa de vârstă a jucătorului:",
+      "promptConstraintsFallbackHint": "Nu este configurată nicio restricție pentru organizație. Se aplică setarea implicită a site-ului pentru grupa de vârstă a jucătorului:",
       "promptConstraintsFallbackTitle": "Mecanism de rezervă activ la nivelul site-ului",
       "promptConstraintsFallbackU13": "Sub 13",
       "promptConstraintsFallbackU13p": "13–17 (cu consimțământul părinților)",
       "promptConstraintsFallbackU18": "18 și peste",
       "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din această organizație. Se aplică atunci când nu este setată o constrângere la nivel de atelier și pentru jocurile partajate prin link.",
-      "promptConstraintsLabel": "Constrângeri de prompt ale organizației",
+      "promptConstraintsLabel": "Restricția organizației pentru solicitările de protecție a minorilor",
       "promptConstraintsPlaceholder": "ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
       "publicPage": {
         "changeLinkMessage": "Pagina va fi apoi disponibilă la {{url}}.",
@@ -982,6 +1176,8 @@
         "empty": "Încă nu există ateliere.",
         "enterWorkshop": "Intră în modul atelier",
         "games": "Jocuri",
+        "guestLinkTitle": "Link de reconectare",
+        "guestLinkTitleNamed": "Link de reconectare pentru {{name}}",
         "hideInactive": "Ascunde inactivii",
         "inactive": "Inactiv",
         "inviteByEmail": "Invită prin e-mail",
@@ -1007,6 +1203,7 @@
         "noActiveInvite": "Niciun link activ de invitație disponibil.",
         "noDefaultApiKey": "Fără cheie implicită",
         "noDefaultModel": "Folosește implicitul platformei",
+        "noGuestToken": "Acest membru nu are un link de reconectare. Doar invitații au unul.",
         "noIndividuals": "Nu există utilizatori individuali în această organizație.",
         "noParticipantToken": "Acest participant nu are link de invitație. Doar participanții anonimi (vizitatori) au linkuri reutilizabile.",
         "noParticipants": "Încă nu există participanți",
@@ -1017,10 +1214,10 @@
         "participantLinkTitleNamed": "Link de reconectare pentru {{name}}",
         "participantName": "Numele participantului",
         "participants": "Participanți",
-        "promptConstraintsFallbackOrg": "Se folosește constrângerea organizației ca implicită: {{constraint}}",
-        "promptConstraintsFallbackSite": "Se folosește constrângerea platformei ca implicită",
+        "promptConstraintsFallbackOrg": "Se utilizează ca implicită restricția organizației: {{constraint}}",
+        "promptConstraintsFallbackSite": "Se utilizează ca implicită restricția site-ului",
         "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din acest atelier.",
-        "promptConstraintsLabel": "Constrângeri ale promptului",
+        "promptConstraintsLabel": "Restricția pentru solicitările de protecție a minorilor",
         "promptConstraintsPlaceholder": "de ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
         "removeParticipant": "Elimină participantul",
         "removeParticipantConfirm": "Sigur vrei să îl elimini pe „{{name}}” din acest atelier?",
@@ -1033,10 +1230,11 @@
         "resetAccessError": "Accesul nu a putut fi resetat. Încearcă din nou.",
         "resetAccessMessage": "Va fi creat un link nou cu un cod nou.",
         "resetAccessTitle": "Resetezi accesul?",
-        "resetAccessWarning": "Linkul și codul anterior nu mai funcționează – inclusiv pe dispozitivele pe care participantul este conectat în prezent.",
+        "resetAccessWarning": "Linkul și codul anterior nu vor mai funcționa – nici pe dispozitivele pe care invitatul este conectat în prezent.",
         "revokeInvite": "Revocă linkul de invitație",
         "selectApiKey": "Selectează o cheie API",
         "settings": "Setări",
+        "shareGuestLink": "Afișează linkul de reconectare",
         "shareParticipantLink": "Afișează linkul de reconectare",
         "showOtherParticipantsGames": "Arată jocurile celorlalți participanți",
         "showOtherParticipantsGamesHint": "Responsabilii și personalul pot vedea oricând toate jocurile participanților pentru moderare",
@@ -1052,6 +1250,7 @@
         },
         "subtitle": "Gestionează atelierele și invită participanții să colaboreze la jocuri.",
         "title": "Ateliere",
+        "unnamedParticipant": "Participant fără nume",
         "unpause": "Repornește atelierul",
         "usedCount": "{{count}} utilizări",
         "viewInviteLink": "Vezi linkul de invitație"
@@ -1074,6 +1273,13 @@
       "title": "Notificări",
       "workshopInvite": "Invitație la atelier",
       "workshopInviteDescription": "Ai fost invitat să te alături acestui atelier."
+    },
+    "organisationSuspended": {
+      "byAdmin": "Administratorul a suspendat accesul organizației tale la ChatGameLab. Datele tale sunt păstrate.",
+      "consentWanted": "Accesul organizației tale la ChatGameLab este suspendat până când unul dintre reprezentanți aprobă declarația curentă. Datele tale sunt păstrate.",
+      "contact": "Dacă ai întrebări, contactează",
+      "logout": "Deconectare",
+      "title": "Organizație suspendată"
     },
     "play": {
       "cloneGame": "Clonează în jocurile mele",
@@ -1142,16 +1348,16 @@
     "searchPlaceholder": "Caută membri...",
     "serverSettings": {
       "constraints": {
-        "description": "Definește reguli AI obligatorii în funcție de grupa de vârstă a jucătorului. Aceste constrângeri sunt injectate în fiecare răspuns al AI. Se aplică tuturor utilizatorilor autentificați în afara modului atelier.",
-        "title": "Prompturi de constrângere bazate pe vârstă",
+        "description": "Definește reguli AI obligatorii pe baza grupei de vârstă a jucătorului. Aceste restricții sunt introduse în fiecare răspuns AI. Se aplică tuturor utilizatorilor conectați din afara modului atelier.",
+        "title": "Solicitări de restricționare bazate pe vârstă",
         "u13Hint": "Este injectată în fiecare prompt AI pentru utilizatorii autentificați cu vârsta între 13-17 ani fără consimțământ parental înregistrat.",
-        "u13Label": "Restricție pentru utilizatori cu vârsta 13-17 ani, fără consimțământ parental (U13)",
+        "u13Label": "Restricție pentru utilizatorii cu vârsta între 13 și 17 ani, fără acordul părinților (U13)",
         "u13Placeholder": "ex. Păstrează tot conținutul strict adecvat adolescenților. Fără violență, fără conținut romantic, fără teme de groază.",
         "u13pHint": "Este injectată în fiecare prompt AI pentru utilizatorii autentificați cu vârsta între 13-17 ani cu consimțământ parental înregistrat.",
-        "u13pLabel": "Restricție pentru utilizatori cu vârsta 13-17 ani, cu consimțământ parental (U13p)",
+        "u13pLabel": "Restricție pentru utilizatorii cu vârsta între 13 și 17 ani, cu acordul părinților (U13p)",
         "u13pPlaceholder": "ex. Conținut adecvat vârstei pentru adolescenți ale căror părinți și-au dat acordul. Sunt permise unele teme mature, fără conținut explicit.",
         "u18Hint": "Injectat în fiecare prompt AI pentru utilizatorii autentificați cu vârsta de 18 ani și peste.",
-        "u18Label": "Constrângere pentru utilizatori de 18+ (U18)",
+        "u18Label": "Restricție pentru utilizatorii cu vârsta de peste 18 ani (U18)",
         "u18Placeholder": "ex. Păstrează conținutul adecvat. Evită violența explicită sau conținutul sexual."
       },
       "defaultTier": {
@@ -1276,6 +1482,7 @@
     "duplicateName": "Numele acestui joc este deja folosit. Te rugăm să alegi altul.",
     "forbidden": "Nu ai permisiunea de a efectua această acțiune.",
     "generic": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
+    "guestStays": "Ca invitat, rămâi acolo unde te-ai alăturat. Pentru a participa la un alt atelier, deschide linkul de invitație fără să te conectezi: te vei alătura ca invitat nou.",
     "insufficientQuota": "Cheia ta API a rămas fără credite. Încarcă fonduri sau folosește o altă cheie.",
     "invalidApiKey": "Cheia ta API este invalidă sau expirată. Verifică cheia în setări.",
     "invalidJsonSchema": "Configurația jocului a generat o schemă invalidă pentru IA. Este o problemă de configurare a jocului, nu a cheii API. Verifică câmpurile de stare ale jocului și încearcă din nou.",
@@ -1287,6 +1494,7 @@
     "noApiKey": "Nu există o cheie API disponibilă pentru acest joc. Sponsorul poate fi eliminat cheia sau trebuie să îți configurezi propria cheie.",
     "notFound": "Resursa solicitată nu a fost găsită.",
     "orgVerificationRequired": "Organizația ta OpenAI trebuie verificată pentru a folosi funcția de generare a imaginilor. Verifică la https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Organizația ta este suspendată. Datele tale sunt păstrate.",
     "previousResponseNotFound": "IA a pierdut firul conversației. Se poate întâmpla după o pauză lungă. Începe o sesiune nouă pentru a continua.",
     "publicDescriptionTooLong": "Descrierea poate avea cel mult 2000 de caractere.",
     "publicSlugInvalid": "Folosește a–z, 0–9 și cratime simple, între 3 și 60 de caractere.",
@@ -1299,9 +1507,11 @@
       "billing": "Eroare de facturare",
       "error": "Eroare",
       "gameConfig": "Eroare de configurare a jocului",
+      "guestStays": "Rămâi acolo unde ești",
       "network": "Eroare de rețea",
       "noApiKey": "Fără cheie API",
       "notFound": "Negăsit",
+      "organisationSuspended": "Organizație suspendată",
       "permission": "Acces refuzat",
       "server": "Eroare de server",
       "tokenLocked": "Blocat temporar",
@@ -1314,6 +1524,28 @@
     "userNotRegistered": "Trebuie să finalizezi înregistrarea înainte de a continua.",
     "validation": "Verifică datele introduse și încearcă din nou.",
     "workshopInactive": "Acest atelier a fost dezactivat. Contactează profesorul sau organizatorul atelierului."
+  },
+  "mail": {
+    "consent": {
+      "address": "Adresă",
+      "agreed": "În numele organizației tale, ai aprobat următoarea declarație.",
+      "bindingInGerman": "Declarația este obligatorie în limba germană, de aceea urmează în limba germană.",
+      "checksum": "Sumă de verificare",
+      "copySubject": "Copie: {{subject}}",
+      "date": "Data",
+      "dateValue": "{{date}} (ora Berlinului)",
+      "declaredBy": "Declarat de",
+      "greeting": "Bună, {{name}},",
+      "operator": "Administrator",
+      "organisation": "Organizație",
+      "registered": "organizația „{{organisation}}” este acum activă în ChatGameLab. Ești reprezentantul ei și poți crea ateliere.",
+      "renewed": "mulțumim! Organizația „{{organisation}}” are acum aprobarea pentru declarația curentă în ChatGameLab.",
+      "signature": "Echipa ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: organizația „{{organisation}}” este activă – declarație",
+      "subjectRenewed": "ChatGameLab: declarația pentru „{{organisation}}” a fost confirmată (versiunea {{version}})",
+      "version": "Versiune",
+      "versionValue": "{{version}} (din {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1356,7 +1588,7 @@
   },
   "navigation": {
     "adminPanel": "Panou de administrare",
-    "allGames": "Toate jocurile",
+    "allGames": "Jocuri",
     "create": "Creează-ți propriul joc",
     "createGame": "Creează joc",
     "dashboard": "Panou",
@@ -1368,7 +1600,7 @@
     "myOrganization": "Organizația mea",
     "myWorkshop": "Atelierul meu",
     "orgApiKeys": "Chei API",
-    "orgConstraints": "Constrângeri",
+    "orgConstraints": "Restricția solicitărilor de protecție a minorilor",
     "orgMembers": "Membri",
     "orgWorkshops": "Ateliere",
     "play": "Joacă un joc",
@@ -1377,6 +1609,24 @@
     "workshopSettings": "Setări atelier"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Stil",
+      "condense-scenario": "Scurtează scenariul",
+      "condensed-scenario": "Scenariu",
+      "expand": "Relatează",
+      "image": "Desenează imaginea",
+      "image-prompt": "Descrie imaginea",
+      "image-style": "Adaptează stilul",
+      "live-session": "Personaj",
+      "observer": "Observator",
+      "outline": "Planifică scena",
+      "portrait": "Desenează portretul",
+      "portrait-prompt": "Descrie portretul",
+      "props-store": "Starea jocului",
+      "rephrase": "Reformulează acțiunea",
+      "rephrase-audio": "Înțelege vorbirea",
+      "start-game": "Start"
+    },
     "errors": {
       "connectionLost": "Conexiunea cu jocul s-a pierdut. Reîncarcă pagina pentru a încerca din nou.",
       "imageFailed": "Imaginea pentru această scenă nu a putut fi creată. Povestea continuă.",
@@ -1398,6 +1648,11 @@
       "starting": "Jocul pornește…",
       "tryAgain": "Încearcă din nou"
     },
+    "pipeline": {
+      "copied": "Aspect copiat",
+      "copyFailed": "Clipboard indisponibil: aspectul a fost înregistrat în consolă",
+      "copyLayout": "Copiază aspectul"
+    },
     "problems": {
       "denied": "Nu ai voie să joci acest joc.",
       "failed": "Ceva nu a mers bine, iar jocul nu poate continua.",
@@ -1405,6 +1660,7 @@
       "keyRejected": "Furnizorul AI a respins cheia acestui joc, așa că jocul nu poate continua. Persoana care a configurat jocul trebuie să verifice cheia.",
       "noKey": "Nu există nicio cheie AI disponibilă pentru a juca acest joc.",
       "noPlays": "Acest joc distribuit nu mai are runde disponibile.",
+      "paused": "Atelierul este pus pe pauză. Jocul va continua când este reluat.",
       "stale": "Acest joc nu mai poate fi continuat.",
       "unknown": "Această sesiune de joc nu există.",
       "unreachable": "Furnizorul AI nu răspunde momentan, așa că jocul nu poate continua. Încearcă din nou peste câteva minute."
@@ -1421,6 +1677,32 @@
       "hearing": "Îți ascult cuvintele…",
       "hold": "Ține apăsat pentru a vorbi",
       "recording": "Ascult… eliberează pentru a trimite"
+    },
+    "wires": {
+      "adapted-style\u0003eimage-prompt": "stil",
+      "adapted-style\u0003eimage-style": "solicitare",
+      "adapted-style\u0003estart-game": "pregătit",
+      "condense-scenario\u0003econdensed-scenario": "răspuns",
+      "condensed-scenario\u0003econdense-scenario": "solicitare",
+      "condensed-scenario\u0003eimage-prompt": "scenariu",
+      "condensed-scenario\u0003estart-game": "pregătit",
+      "image-prompt\u0003eimage": "solicitare",
+      "image-style\u0003eadapted-style": "răspuns",
+      "live-session\u0003eobserver": "transcriere",
+      "observer\u0003elive-session": "indiciu",
+      "outline\u0003eexpand": "plan",
+      "outline\u0003eimage-prompt": "scenă",
+      "outline\u0003eprops-store": "modificări",
+      "player-input-audio\u0003elive-session": "vorbire",
+      "player-input-audio\u0003erephrase-audio": "vorbire",
+      "player-input-text\u0003erephrase": "acțiune",
+      "portrait\u0003estart-game": "pregătit",
+      "portrait-prompt\u0003eportrait": "solicitare",
+      "props-store\u0003eoutline": "stare",
+      "rephrase\u0003eoutline": "acțiune",
+      "rephrase-audio\u0003eoutline": "acțiune",
+      "start-game\u0003elive-session": "indicație",
+      "start-game\u0003eoutline": "solicitare"
     }
   }
 }

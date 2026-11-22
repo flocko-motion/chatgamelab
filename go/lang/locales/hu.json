@@ -14,6 +14,17 @@
       "under13Blocker": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, csak ifjúsági szervezeten keresztül használhatod a ChatGameLabot.",
       "under13Description": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, csak ifjúsági szervezeten keresztül használhatod a ChatGameLabot."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Kijelentkezés",
+        "message": "Ebben a műhelyben maradsz. A kódoddal bármikor, bármilyen eszközön újra bejelentkezhetsz: a kezdőlapon a „Kód megadása” alatt.",
+        "title": "Kijelentkezel?"
+      },
+      "leaveWorkshop": "Kijelentkezés",
+      "organization": "Szervezet",
+      "role": "Vendég",
+      "workshop": "Műhely"
+    },
     "login": {
       "auth0Button": "Bejelentkezés Auth0-val",
       "devMode": "Fejlesztői mód",
@@ -22,6 +33,8 @@
         "title": "Fejlesztői mód"
       },
       "devModeDescription": "Gyors bejelentkezés fejlesztéshez és teszteléshez",
+      "devNewOrganisation": "Új személy (szervezet regisztrálása)",
+      "devNewPerson": "Új személy (még nincs választás, mint a regisztráció után)",
       "redirecting": {
         "message": "Kérjük, várj, amíg átirányítunk a bejelentkezési oldalra.",
         "title": "Átirányítás Auth0-ra..."
@@ -33,8 +46,81 @@
         "teacher": "Bejelentkezés tanárként"
       },
       "unavailable": {
-        "message": "Ezen a példányon nincs beállítva a bejelentkezés. A workshop résztvevői ehelyett megadhatják a kódjukat.",
+        "message": "Ezen a példányon nincs bejelentkezés. A műhely vendégei ehelyett megadhatják a kódjukat.",
         "title": "A bejelentkezés nem érhető el"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Így jelensz meg a ChatGameLabban (legfeljebb 24 karakter).",
+      "accountNameLabel": "Megjelenítési név",
+      "cityLabel": "Település",
+      "confirmAdult": "Legalább 18 éves vagyok.",
+      "consentPage": {
+        "constraintIntro": "A nyilatkozattal az intézményed vállalja, hogy a célcsoportodnak megfelelő gyermekvédelmi promptkorlátozást állít be. Alább látható a szervezeted által jelenleg használt beállítás. Kérjük, ellenőrizd, és szükség esetén módosítsd.",
+        "emailDescription": "A nyilatkozat szövegét tartalmazó visszaigazolást erre a címre küldjük.",
+        "introExisting": "A „{{name}}” szervezetednek mostantól online megerősített nyilatkozata van. Ez felváltja a korábban aláírt felhasználási megállapodást. Kérjük, olvasd el, és az intézményed nevében fogadd el.",
+        "introNewVersion": "A nyilatkozat frissült ({{version}}. verzió). Kérjük, olvasd el az új változatot, és a „{{name}}” szervezeted nevében fogadd el.",
+        "introWithdrawn": "A „{{name}}” szervezeted nyilatkozathoz adott hozzájárulását visszavonták, ezért a szervezet fel van függesztve. Kérjük, olvasd el a nyilatkozatot, és az intézményed nevében fogadd el, hogy újra használhasd a ChatGameLabot.",
+        "logout": "Kijelentkezés",
+        "oneHeadIsEnough": "Elég, ha a szervezet egyik vezetője elfogadja. Addig a szervezeted fel van függesztve: tagjai nem használhatják a ChatGameLabot.",
+        "submit": "Elfogadom",
+        "title": "A nyilatkozat megerősítése"
+      },
+      "consentSection": "Megerősítések",
+      "declarationGermanOnly": "A nyilatkozat csak németül érhető el. A német szöveg a mérvadó.",
+      "declarationVersion": "{{version}}. verzió, keltezés: {{date}}",
+      "emailConfirmHint": "Az űrlap elküldése után a szervezet azonnal létrejön. A nyilatkozat szövegét tartalmazó visszaigazolást az e-mail-címedre küldjük.",
+      "emailDescription": "A nyilatkozat megerősítését erre a címre küldjük.",
+      "emailFromLogin": "Ez a bejelentkezésedhez tartozó cím.",
+      "emailLabel": "Munkahelyi e-mail-cím",
+      "errors": {
+        "conflict": "Ehhez a bejelentkezéshez már tartozik egy fiók. Kérjük, jelentkezz be, és használd a beállításokban található frissítési lehetőséget.",
+        "declaration_version_outdated": "A nyilatkozat frissült. Kérjük, töltsd újra az oldalt, és olvasd el az aktuális verziót.",
+        "duplicate_name": "Ez a megjelenítési név már foglalt.",
+        "emailInvalid": "Kérjük, adj meg érvényes e-mail-címet.",
+        "email_belongs_to_other_account": "Ehhez az e-mail-címhez már tartozik egy fiók. Kérjük, jelentkezz be vele, és válaszd a beállításokban a „Frissítés szervezetre” lehetőséget.",
+        "formIncomplete": "Kérjük, töltsd ki az összes kötelező mezőt, és erősítsd meg az összes pontot.",
+        "generic": "Hiba történt. Kérjük, próbáld újra.",
+        "institution_age_not_allowed": "Szervezet csak felnőttfiókkal (18+) regisztrálható.",
+        "institution_consents_required": "Kérjük, erősítsd meg az összes pontot.",
+        "institution_name_taken": "Már létezik ilyen nevű szervezet. Kérjük, egészítsd ki a nevet, például a település nevével.",
+        "loadFailed": "A nyilatkozatot nem sikerült betölteni. Kérjük, töltsd újra az oldalt.",
+        "name_too_long": "A megjelenítési név legfeljebb 24 karakter hosszú lehet.",
+        "profane_name": "Ez a megjelenítési név nem engedélyezett.",
+        "required": "Kötelező",
+        "validation_error": "Kérjük, ellenőrizd az adataidat."
+      },
+      "institutionNameLabel": "Az intézmény neve",
+      "institutionSection": "Az intézményről",
+      "operatorDescription": "pl. település, egyesület, egyházközség",
+      "operatorLabel": "Fenntartó",
+      "personFunctionLabel": "Az intézményben betöltött szerep",
+      "personFunctionPlaceholder": "pl. vezető, ifjúságsegítő",
+      "personNameLabel": "Vezeték- és keresztnév",
+      "personSection": "Rólad",
+      "postalCodeLabel": "Irányítószám",
+      "registered": {
+        "text": "A szervezeted aktiválva van. Te vagy a vezetője, és mostantól műhelyeket hozhatsz létre.",
+        "title": "A szervezet regisztrálva"
+      },
+      "streetLabel": "Utca és házszám",
+      "submit": "Szervezet regisztrálása",
+      "subtitle": "Az űrlap elküldése után a szervezeted azonnal aktiválódik, és te leszel a vezetője.",
+      "switchToPersonal": "Vissza a választáshoz",
+      "titleRegister": "Szervezet regisztrálása",
+      "toMyOrganization": "A szervezetemhez",
+      "youthProtection": {
+        "changeHint": "Ezt a beállítást bármikor módosíthatod, és az egyes műhelyekhez eltérően is megadhatod.",
+        "defaultOption": "Alapértelmezés 13 éves kortól",
+        "fieldLabel": "A szervezet gyermekvédelmi promptkorlátozása",
+        "intro": "A mesterséges intelligencia ezt az utasítást kapja a szervezeted minden játékában. A célcsoportod életkorának megfelelően válaszd ki.",
+        "responsibilityHint": "A javaslatok nem hivatalos korhatár-besorolások. A beállításról az intézményed dönt, és ő felel érte.",
+        "suggestionAdults": "{{age}} éves kortól felnőtteknek",
+        "suggestionChildren": "körülbelül {{age}} éves kortól gyermekeknek",
+        "suggestionTeens": "körülbelül {{age}} éves kortól fiataloknak",
+        "suggestionsLabel": "Javaslatok (egy kattintás lecseréli a szöveget):",
+        "title": "Gyermekvédelmi promptkorlátozás",
+        "tooLong": "Legfeljebb {{max}} karakter. Kérjük, rövidítsd le, vagy válassz egy javaslatot."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Létrehozott játékok",
       "gamesPlayed": "Lejátszott játékok",
+      "guestCode": {
+        "error": "A hozzáférési kódodat nem sikerült betölteni.",
+        "hint": "Fényképezd le ezt a kódot, vagy írd fel, és tartsd meg magadnak. Ezzel bármikor, bármilyen eszközön visszajuthatsz a fiókodba: a kezdőlapon a „Kód megadása” alatt írd be a szavakat, vagy olvasd be a QR-kódot.",
+        "longTokenHint": "Fényképezd le a QR-kódot, vagy mentsd el a hivatkozást, és tartsd meg magadnak. Ezzel bármikor visszajuthatsz a fiókodba. A műhely vezetője rövid, négy szóból álló kódot adhat, ha alaphelyzetbe állítja a hozzáférésedet.",
+        "title": "A hozzáférési kódod"
+      },
       "memberSince": "Regisztrált ekkor",
       "messagesSent": "Elküldött üzenetek",
       "noOrganization": "Nincs szervezet",
@@ -71,6 +163,7 @@
       "role": "Szerepkör",
       "roles": {
         "admin": "Adminisztrátor",
+        "guest": "Vendég",
         "head": "Szervezetvezető",
         "individual": "Egyéni",
         "participant": "Résztvevő",
@@ -140,6 +233,12 @@
       "individualDescription": "Készíts és játssz mesterséges intelligenciával támogatott szöveges kalandokat",
       "individualTitle": "Személyes fiók",
       "loginLink": "Bejelentkezés",
+      "organizationExistingAccount": "A szervezetek új bejelentkezéssel regisztrálhatnak. Már van fiókod?",
+      "organizationIntro": "Ifjúsági központok, iskolák és más intézmények számára, amelyek műhelyekben szeretnék használni a ChatGameLabot.",
+      "organizationStep1": "Létrehozod a bejelentkezésedet az Auth0 segítségével (e-mail-cím és jelszó).",
+      "organizationStep2": "Megadod a saját és az intézményed adatait, beállítod a gyermekvédelmi promptkorlátozást, és elfogadod a nyilatkozatot.",
+      "organizationStep3": "Az űrlap elküldése után a szervezet azonnal aktiválódik, és műhelyeket hozhatsz létre.",
+      "organizationTitle": "Regisztráció szervezetként",
       "privacyPolicy": "Adatvédelmi irányelvek",
       "termsOfService": "Szolgáltatási feltételek",
       "title": "Hozd létre a fiókodat"
@@ -207,16 +306,26 @@
       },
       "organizations": {
         "actions": "Műveletek",
+        "city": "Település",
+        "consentGiven": "Nyilatkozat v{{version}} · {{date}}",
+        "consentMissing": "Nyilatkozat függőben",
+        "consentOutdated": "Elavult nyilatkozat (v{{version}})",
+        "consentWithdrawn": "Nyilatkozat visszavonva",
         "create": "Szervezet létrehozása",
         "createTitle": "Új szervezet létrehozása",
-        "deleteConfirm": "Biztosan törölni szeretnéd a(z) „{{name}}” szervezetet? Ez a művelet nem vonható vissza.",
+        "deleteConfirm": "Véglegesen törlöd a „{{name}}” szervezetet? A szervezet összes műhelye és résztvevője törlődik; a vezetők és a műhelyvezetők megtarthatják a fiókjukat. Ez nem vonható vissza. Ha a szervezetnek csak a hozzáférését szeretnéd megszüntetni, inkább függeszd fel.",
         "deleteTitle": "Szervezet törlése",
+        "detailsOptional": "Nem kötelező: fenntartó és cím",
         "editTitle": "Szervezet szerkesztése",
         "email": "E-mail-cím",
         "emailPlaceholder": "Add meg az e-mail-címet",
         "empty": "Még nincs szervezet. Hozz létre egyet a kezdéshez.",
+        "heads": "Vezetők",
         "inviteDescription": "Küldj meghívót, hogy valaki csatlakozzon a(z) {{name}} szervezethez szervezetvezetőként.",
         "inviteTitle": "Meghívás a szervezetbe",
+        "lift": "Felfüggesztés megszüntetése",
+        "liftConfirm": "Megszünteted a „{{name}}” felfüggesztését? Ezután minden tag a korábbiak szerint használhatja a szervezetet, ha az elfogadta az aktuális nyilatkozatot.",
+        "liftTitle": "Felfüggesztés megszüntetése",
         "memberEmail": "E-mail",
         "memberName": "Név",
         "memberRole": "Szerepkör",
@@ -226,11 +335,44 @@
         "name": "Név",
         "namePlaceholder": "Add meg a szervezet nevét",
         "noMembers": "Ebben a szervezetben nincsenek tagok.",
+        "operator": "Fenntartó",
+        "postalCode": "Irányítószám",
         "removeMember": "Tag eltávolítása",
         "removeMemberConfirm": "Biztosan eltávolítod {{name}}-t ebből a szervezetből?",
         "searchPlaceholder": "Keresés a szervezetek között...",
         "sendInvite": "Meghívó küldése",
+        "status": "Állapot és hozzájárulás",
+        "statusActive": "Aktív",
+        "statusSuspended": "Felfüggesztve",
+        "statusSuspendedConsent": "Felfüggesztve: nyilatkozat függőben",
+        "street": "Utca és házszám",
+        "suspend": "Felfüggesztés",
+        "suspendConfirm": "Felfüggeszted a „{{name}}” szervezetet? A vezetők, a műhelyvezetők és a résztvevők ezután nem használhatják a szervezetet. A megosztott játéklinkek és a nyilvános műhelyoldalak nem működnek tovább. Nem törlünk adatokat, és a felfüggesztés bármikor megszüntethető.",
+        "suspendError": "Ez nem sikerült. Kérjük, próbáld újra.",
+        "suspendReason": "Indok (nem kötelező)",
+        "suspendReasonDescription": "Csak az adminisztrátorok láthatják.",
+        "suspendTitle": "Szervezet felfüggesztése",
+        "suspendedNoReason": "Indoklás nélkül felfüggesztve",
         "title": "Szervezetek kezelése"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Az elmúlt két hétben egyetlen szervezet sem regisztrált.",
+          "intro_one": "Ez a szervezet az elmúlt két hétben regisztrált, és már aktiválva van.",
+          "intro_other": "Ez a {{count}} szervezet az elmúlt két hétben regisztrált, és már aktiválva van.",
+          "label": "Új szervezetek",
+          "later": "Később",
+          "open": "Áttekintés megnyitása",
+          "suspendHint": "Az e-mail-címeket jelenleg nem erősítjük meg. Nézd át röviden az új szervezeteket, és az áttekintésben függeszd fel őket, ha valami nincs rendben.",
+          "title": "Új szervezetek"
+        },
+        "date": "Regisztrálva",
+        "description": "Az elmúlt két hétben önállóan regisztrált szervezetek. Az e-mail-cím megerősítése nélkül is azonnal aktívak; nézd át őket, és függeszd fel azt, amelyikkel valami nincs rendben.",
+        "empty": "Az elmúlt két hétben egyetlen szervezet sem regisztrált önállóan.",
+        "institution": "Intézmény",
+        "loadError": "A regisztrációkat nem sikerült betölteni.",
+        "person": "Bejelentette",
+        "title": "Új regisztrációk"
       },
       "users": {
         "actions": "Műveletek",
@@ -297,7 +439,16 @@
       },
       "copyGame": "Játék másolása",
       "empty": {
+        "conditions": {
+          "favorites": "a kedvenceid között",
+          "own": "a te játékod",
+          "public": "nyilvános",
+          "sponsored": "támogatott"
+        },
         "description": "Próbáld módosítani a szűrőket, vagy nézz vissza később új játékokért.",
+        "is": "Nincs olyan játék, amely {{conditions}}.",
+        "isAndNamed": "Nincs olyan játék, amely {{conditions}}, és a nevében szerepel a „{{search}}”.",
+        "named": "Nincs olyan játék, amelynek nevében szerepel a „{{search}}”.",
         "title": "Nem található játék"
       },
       "favorite": "Hozzáadás a kedvencekhez",
@@ -308,10 +459,11 @@
         "public": "Nyilvános",
         "sponsored": "Szponzorált"
       },
+      "onlyFavorites": "Csak a kedvencek megjelenítése",
       "play": "Játék",
       "reportGame": "Játék jelentése",
       "restart": "Újrakezdés",
-      "title": "Összes játék",
+      "title": "Játékok",
       "unfavorite": "Eltávolítás a kedvencekből",
       "workshop": "Műhely / szervezet"
     },
@@ -441,6 +593,23 @@
         "myGame": "Saját játék",
         "public": "Nyilvános",
         "workshop": "Műhelyjáték"
+      },
+      "byCreator": "{{name}} készítette",
+      "cover": {
+        "alt": "{{name}} borítóképe",
+        "draw": "Borítókép készítése",
+        "drawAgain": "Újrarajzolás",
+        "drawnOnSave": "A borítókép a játék mentésekor készül el.",
+        "errors": {
+          "failed": "A borítóképet nem sikerült elkészíteni. Kérjük, próbáld újra.",
+          "keyRejected": "A mesterségesintelligencia-szolgáltató elutasította a kulcsot. A borítóképet nem sikerült elkészíteni.",
+          "noKey": "A használható mesterségesintelligencia-kulcsok egyike sem tud képet készíteni, ezért a játéknak egyelőre nincs borítóképe."
+        },
+        "hint": "Mit ábrázoljon a borítókép?",
+        "hintDescription": "Nem kötelező. Ha üresen hagyod, a borítókép azt ábrázolja, miről szól a játék.",
+        "hintPlaceholder": "Például: a világítótorony éjszaka",
+        "none": "Még nincs borítókép",
+        "title": "Borítókép"
       },
       "createButton": "Játék létrehozása",
       "createModal": {
@@ -759,11 +928,15 @@
       "errors": {
         "acceptFailed": "Nem sikerült elfogadni a meghívót. Próbáld újra.",
         "expired": "Ez a meghívó link lejárt.",
+        "guestStays": "Vendégként ott maradsz, ahol csatlakoztál. Ha egy másik műhelyben szeretnél részt venni, bejelentkezés nélkül nyisd meg a meghívólinkjét: új vendégként csatlakozol hozzá.",
         "loadFailed": "Nem sikerült betölteni a meghívó adatait. Próbáld újra.",
         "notFound": "Ez a meghívó link érvénytelen vagy visszavonták.",
         "tokenLocked": "Túl sok sikertelen próbálkozás – próbáld újra később."
       },
       "goHome": "Vissza a kezdőlapra",
+      "guest": {
+        "loggingIn": "Bejelentkeztetünk..."
+      },
       "participant": {
         "loggingIn": "Bejelentkeztetés..."
       },
@@ -791,6 +964,18 @@
     "leaveOrganization": "Szervezet elhagyása",
     "leaveTitle": "Szervezet elhagyása",
     "leaveWarning": "Elveszíted a szervezet erőforrásaihoz és tagjaihoz való hozzáférést.",
+    "list": {
+      "clearSearch": "Keresés törlése",
+      "filter": "Szűrő",
+      "pagination": {
+        "first": "Első oldal",
+        "last": "Utolsó oldal",
+        "next": "Következő oldal",
+        "previous": "Előző oldal"
+      },
+      "perPage": "Oldalanként",
+      "range": "{{from}}–{{to}} / {{total}}"
+    },
     "loading": "Betöltés...",
     "logout": "Kijelentkezés",
     "me": "Én",
@@ -844,6 +1029,7 @@
         "owner": "Tulajdonos",
         "platform": "Platform",
         "publicSponsoring": "Nyilvános szponzoráció",
+        "removeShare": "Eltávolítás a szervezetből",
         "searchPlaceholder": "Keresés név vagy tulajdonos alapján...",
         "selectKey": "API-kulcs kiválasztása",
         "selectKeyPlaceholder": "Válassz megosztandó kulcsot...",
@@ -858,6 +1044,14 @@
         "confirmTitle": "Kulcs megosztása a szervezettel",
         "orgKeyGroup": "Szervezeti kulcsok",
         "personalKeyGroup": "Személyes kulcsok"
+      },
+      "declaration": {
+        "consented": "A szervezeted {{date}} napján elfogadta a {{version}}. verziót.",
+        "title": "Hozzájárulási nyilatkozat",
+        "withdraw": "Hozzájárulás visszavonása",
+        "withdrawConfirm": "Hozzájárulás nélkül a szervezeted fel van függesztve: egyetlen tag sem használhatja a ChatGameLabot, amíg egy vezető újra el nem fogadja a nyilatkozatot. Az adatok megmaradnak.",
+        "withdrawFailed": "Ez nem sikerült. Kérjük, próbáld újra.",
+        "withdrawTitle": "Visszavonod a hozzájárulást?"
       },
       "demoteConfirm": "Biztosan lefokozod „{{name}}” ({{email}}) felhasználót tanárrá?",
       "demoteTitle": "Lefokozás tanárrá",
@@ -891,13 +1085,13 @@
       "promoteToHead": "Előléptetés vezetővé",
       "promoteWarning": "A felhasználó jogosultságot kap a szervezeti tagok kezelésére és tanárok meghívására.",
       "promptConstraintsFallbackEmpty": "(nincs beállítva)",
-      "promptConstraintsFallbackHint": "Nincs szervezeti korlátozás beállítva. Az oldal teljes egészére érvényes alapértelmezés érvényes a játékos korcsoportjára:",
+      "promptConstraintsFallbackHint": "Nincs beállítva szervezeti korlátozás. A játékos korcsoportjára vonatkozó, webhelyszintű alapértelmezés érvényes:",
       "promptConstraintsFallbackTitle": "Aktív, egész oldalra érvényes tartalék",
       "promptConstraintsFallbackU13": "13 év alatt",
       "promptConstraintsFallbackU13p": "13–17 (szülői beleegyezéssel)",
       "promptConstraintsFallbackU18": "18 és idősebb",
       "promptConstraintsHint": "További MI-utasítások a szervezet összes munkamenetére. Akkor lép életbe, ha nincs műhelyszintű korlátozás, illetve a linken megosztott játékokra is vonatkozik.",
-      "promptConstraintsLabel": "Szervezeti promptkorlátozások",
+      "promptConstraintsLabel": "A szervezet gyermekvédelmi promptkorlátozása",
       "promptConstraintsPlaceholder": "Pl.: A történet maradjon korosztálynak megfelelő, kerülje az erőszakos tartalmat.",
       "publicPage": {
         "changeLinkMessage": "Az oldal ezután itt lesz elérhető: {{url}}.",
@@ -979,6 +1173,8 @@
         "empty": "Még nincs műhely.",
         "enterWorkshop": "Belépés műhely módba",
         "games": "Játékok",
+        "guestLinkTitle": "Újrabejelentkezési link",
+        "guestLinkTitleNamed": "Újrabejelentkezési link {{name}} számára",
         "hideInactive": "Inaktívak elrejtése",
         "inactive": "Inaktív",
         "inviteByEmail": "Meghívás e-mailben",
@@ -1004,6 +1200,7 @@
         "noActiveInvite": "Nincs aktív meghívó link.",
         "noDefaultApiKey": "Nincs alapértelmezett API-kulcs",
         "noDefaultModel": "Platform alapértelmezés használata",
+        "noGuestToken": "Ennek a tagnak nincs újrabejelentkezési linkje. Ilyennel csak a vendégek rendelkeznek.",
         "noIndividuals": "Nincsenek egyéni felhasználók ebben a szervezetben.",
         "noParticipantToken": "Ennek a résztvevőnek nincs meghívó linkje. Csak a névtelen résztvevők (vendégek) rendelkeznek újrafelhasználható meghívó linkkel.",
         "noParticipants": "Még nincs résztvevő",
@@ -1014,10 +1211,10 @@
         "participantLinkTitleNamed": "Újrabejelentkezési hivatkozás – {{name}}",
         "participantName": "Résztvevő neve",
         "participants": "Résztvevők",
-        "promptConstraintsFallbackOrg": "Szervezeti korlátozás használata alapértelmezettként: {{constraint}}",
-        "promptConstraintsFallbackSite": "Webhelyszintű korlátozás használata alapértelmezettként",
+        "promptConstraintsFallbackOrg": "A szervezeti korlátozás használata alapértelmezésként: {{constraint}}",
+        "promptConstraintsFallbackSite": "A webhely korlátozásának használata alapértelmezésként",
         "promptConstraintsHint": "További MI-utasítások a műhely minden munkamenetére.",
-        "promptConstraintsLabel": "Promptkorlátozások",
+        "promptConstraintsLabel": "Gyermekvédelmi promptkorlátozás",
         "promptConstraintsPlaceholder": "pl. Tartsd a történetet korosztálynak megfelelően, és kerüld az erőszakos tartalmat.",
         "removeParticipant": "Résztvevő eltávolítása",
         "removeParticipantConfirm": "Biztosan eltávolítod „{{name}}” résztvevőt ebből a műhelyből?",
@@ -1030,10 +1227,11 @@
         "resetAccessError": "A hozzáférés nem állítható vissza. Próbáld újra.",
         "resetAccessMessage": "Új hivatkozás jön létre új kóddal.",
         "resetAccessTitle": "Visszaállítod a hozzáférést?",
-        "resetAccessWarning": "Az előző hivatkozás és kód nem fog többé működni – azokon az eszközökön sem, amelyeken a résztvevő jelenleg be van jelentkezve.",
+        "resetAccessWarning": "A korábbi link és kód nem fog többé működni – azokon az eszközökön sem, amelyeken a vendég jelenleg be van jelentkezve.",
         "revokeInvite": "Meghívó link visszavonása",
         "selectApiKey": "Válassz API-kulcsot",
         "settings": "Beállítások",
+        "shareGuestLink": "Újrabejelentkezési link megjelenítése",
         "shareParticipantLink": "Újrabejelentkezési hivatkozás megjelenítése",
         "showOtherParticipantsGames": "Mutassa más résztvevők játékait",
         "showOtherParticipantsGamesHint": "A vezetők és a stáb mindig láthatják az összes résztvevő játékát moderáció céljából",
@@ -1049,6 +1247,7 @@
         },
         "subtitle": "Műhelyek kezelése és résztvevők meghívása közös játékfejlesztésre.",
         "title": "Műhelyek",
+        "unnamedParticipant": "Névtelen résztvevő",
         "unpause": "Műhely folytatása",
         "usedCount": "{{count}} felhasználás",
         "viewInviteLink": "Meghívó link megtekintése"
@@ -1071,6 +1270,13 @@
       "title": "Értesítések",
       "workshopInvite": "Műhelymeghívás",
       "workshopInviteDescription": "Meghívtak, hogy csatlakozz ehhez a műhelyhez."
+    },
+    "organisationSuspended": {
+      "byAdmin": "Az üzemeltető felfüggesztette szervezeted ChatGameLab-hozzáférését. Az adataid megmaradnak.",
+      "consentWanted": "Szervezeted ChatGameLab-hozzáférése fel van függesztve, amíg egyik vezetője el nem fogadja az aktuális hozzájárulási nyilatkozatot. Az adataid megmaradnak.",
+      "contact": "Kérdés esetén fordulj hozzá:",
+      "logout": "Kijelentkezés",
+      "title": "A szervezet fel van függesztve"
     },
     "play": {
       "cloneGame": "Másolás a saját játékaimba",
@@ -1139,16 +1345,16 @@
     "searchPlaceholder": "Keresés a tagok között...",
     "serverSettings": {
       "constraints": {
-        "description": "Határozd meg a kötelező MI-szabályokat a játékos korosztálya alapján. Ezek a korlátozások minden MI-válaszba belekerülnek. Az összes, műhely módon kívüli, bejelentkezett felhasználóra vonatkoznak.",
-        "title": "Életkor alapú korlátozó promptok",
+        "description": "Határozz meg kötelező mesterségesintelligencia-szabályokat a játékos korcsoportja alapján. Ezek a korlátozások minden mesterségesintelligencia-válaszba bekerülnek. A műhelymódon kívüli, bejelentkezett felhasználókra vonatkoznak.",
+        "title": "Életkoron alapuló korlátozó promptok",
         "u13Hint": "Beillesztve minden AI promptba a bejelentkezett, 13–17 éves, szülői beleegyezéssel nem rendelkező felhasználók számára.",
-        "u13Label": "Korlátozás a 13–17 éves, szülői beleegyezés nélküli felhasználók számára (U13)",
+        "u13Label": "Korlátozás 13–17 éves, szülői hozzájárulással nem rendelkező felhasználók számára (U13)",
         "u13Placeholder": "Pl.: A tartalom legyen szigorúan tinédzsereknek megfelelő. Ne legyen erőszak, romantikus vagy horror tartalom.",
         "u13pHint": "Beillesztve minden AI promptba a bejelentkezett, 13–17 éves, szülői beleegyezéssel rendelkező felhasználók számára.",
-        "u13pLabel": "Korlátozás a 13–17 éves, szülői beleegyezéssel rendelkező felhasználók számára (U13p)",
+        "u13pLabel": "Korlátozás 13–17 éves, szülői hozzájárulással rendelkező felhasználók számára (U13p)",
         "u13pPlaceholder": "pl. Korosztályuknak megfelelő tartalom olyan tinédzsereknek, akiknek a szülei beleegyeztek. Néhány érettebb téma engedélyezett, explicit tartalom nem.",
         "u18Hint": "Minden 18 éves vagy idősebb bejelentkezett felhasználó AI-promptjába befecskendezve.",
-        "u18Label": "Korlátozás 18+ felhasználóknak (U18)",
+        "u18Label": "Korlátozás 18 éves és idősebb felhasználók számára (U18)",
         "u18Placeholder": "Pl.: Maradjon megfelelő a tartalom. Kerüld a nyílt erőszakot vagy szexuális tartalmat."
       },
       "defaultTier": {
@@ -1273,6 +1479,7 @@
     "duplicateName": "Ezt a játéknevet már használják. Válassz másikat.",
     "forbidden": "Nincs jogosultságod a művelet végrehajtásához.",
     "generic": "Valami hiba történt. Próbáld újra.",
+    "guestStays": "Vendégként ott maradsz, ahol csatlakoztál. Ha egy másik műhelyben szeretnél részt venni, bejelentkezés nélkül nyisd meg a meghívólinkjét: új vendégként csatlakozol hozzá.",
     "insufficientQuota": "Az API-kulcsod kerete elfogyott. Töltsd fel vagy használj másik kulcsot.",
     "invalidApiKey": "Az API-kulcsod érvénytelen vagy lejárt. Ellenőrizd a Beállításokban.",
     "invalidJsonSchema": "A játékbeállítás érvénytelen sémát hozott létre az MI számára. Ez játékbeállítási probléma, nem API-kulcs hiba. Ellenőrizd a játék állapotmezőit, majd próbáld újra.",
@@ -1284,6 +1491,7 @@
     "noApiKey": "Ehhez a játékhoz nem áll rendelkezésre API-kulcs. A szponzor eltávolíthatta a kulcsát, vagy saját API-kulcsot kell beállítanod.",
     "notFound": "A kért erőforrás nem található.",
     "orgVerificationRequired": "Az OpenAI szervezetednek hitelesítésre van szüksége a képgeneráló funkció használatához. Hitelesíts itt: https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "A szervezeted fel van függesztve. Az adataid megmaradnak.",
     "previousResponseNotFound": "Az MI elvesztette a beszélgetés fonalát. Ez előfordulhat, ha a munkamenet hosszabb ideje inaktív. Kezdj új munkamenetet a folytatáshoz.",
     "publicDescriptionTooLong": "A leírás legfeljebb 2000 karakter hosszú lehet.",
     "publicSlugInvalid": "Használj a–z betűket, 0–9 számokat és önálló kötőjeleket, 3–60 karakterben.",
@@ -1296,9 +1504,11 @@
       "billing": "Számlázási hiba",
       "error": "Hiba",
       "gameConfig": "Játékbeállítási hiba",
+      "guestStays": "Ott maradsz, ahol vagy",
       "network": "Hálózati hiba",
       "noApiKey": "Nincs API-kulcs",
       "notFound": "Nem található",
+      "organisationSuspended": "A szervezet fel van függesztve",
       "permission": "Hozzáférés megtagadva",
       "server": "Szerverhiba",
       "tokenLocked": "Ideiglenesen zárolva",
@@ -1311,6 +1521,28 @@
     "userNotRegistered": "A folytatás előtt be kell fejezned a regisztrációt.",
     "validation": "Ellenőrizd a bevitt adatokat, majd próbáld újra.",
     "workshopInactive": "Ez a műhely deaktiválva lett. Vedd fel a kapcsolatot a tanároddal vagy szerveződdel."
+  },
+  "mail": {
+    "consent": {
+      "address": "Cím",
+      "agreed": "Szervezeted nevében elfogadtad az alábbi hozzájárulási nyilatkozatot.",
+      "bindingInGerman": "A nyilatkozat németül kötelező érvényű, ezért német nyelven következik.",
+      "checksum": "Ellenőrzőösszeg",
+      "copySubject": "Másolat: {{subject}}",
+      "date": "Dátum",
+      "dateValue": "{{date}} (berlini idő szerint)",
+      "declaredBy": "Nyilatkozó",
+      "greeting": "Szia, {{name}}!",
+      "operator": "Fenntartó",
+      "organisation": "Szervezet",
+      "registered": "a „{{organisation}}” szervezet mostantól aktív a ChatGameLabban. Te vagy a vezetője, és mostantól műhelyeket hozhatsz létre.",
+      "renewed": "köszönjük! A ChatGameLabban mostantól hozzájárulás áll rendelkezésre a „{{organisation}}” szervezet aktuális nyilatkozatához.",
+      "signature": "A ChatGameLab csapata\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: a „{{organisation}}” szervezet aktív – hozzájárulási nyilatkozat",
+      "subjectRenewed": "ChatGameLab: a „{{organisation}}” hozzájárulási nyilatkozata megerősítve ({{version}}. verzió)",
+      "version": "Verzió",
+      "versionValue": "{{version}} (állapot: {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1353,7 +1585,7 @@
   },
   "navigation": {
     "adminPanel": "Admin felület",
-    "allGames": "Összes játék",
+    "allGames": "Játékok",
     "create": "Készíts saját játékot",
     "createGame": "Játék létrehozása",
     "dashboard": "Irányítópult",
@@ -1365,7 +1597,7 @@
     "myOrganization": "Szervezetem",
     "myWorkshop": "Saját műhelyem",
     "orgApiKeys": "API-kulcsok",
-    "orgConstraints": "Korlátozások",
+    "orgConstraints": "Gyermekvédelmi promptkorlátozás",
     "orgMembers": "Tagok",
     "orgWorkshops": "Műhelyek",
     "play": "Játssz egy játékot",
@@ -1374,6 +1606,24 @@
     "workshopSettings": "Műhely beállítások"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Stílus",
+      "condense-scenario": "Forgatókönyv rövidítése",
+      "condensed-scenario": "Forgatókönyv",
+      "expand": "Elbeszélés",
+      "image": "Kép rajzolása",
+      "image-prompt": "Kép leírása",
+      "image-style": "Stílus módosítása",
+      "live-session": "Karakter",
+      "observer": "Megfigyelő",
+      "outline": "Jelenet megtervezése",
+      "portrait": "Portré rajzolása",
+      "portrait-prompt": "Portré leírása",
+      "props-store": "Játékállás",
+      "rephrase": "Cselekvés újrafogalmazása",
+      "rephrase-audio": "Beszéd megértése",
+      "start-game": "Indítás"
+    },
     "errors": {
       "connectionLost": "Megszakadt a kapcsolat a játékkal. Töltsd újra az oldalt, és próbáld meg újra.",
       "imageFailed": "Nem sikerült elkészíteni a jelenet képét. A történet folytatódik.",
@@ -1395,6 +1645,11 @@
       "starting": "A játék indítása…",
       "tryAgain": "Újrapróbálkozás"
     },
+    "pipeline": {
+      "copied": "Elrendezés másolva",
+      "copyFailed": "Nincs vágólap: az elrendezés a konzolba lett kiírva",
+      "copyLayout": "Elrendezés másolása"
+    },
     "problems": {
       "denied": "Nem játszhatsz ezzel a játékkal.",
       "failed": "Valami hiba történt, a játék nem folytatódhat.",
@@ -1402,6 +1657,7 @@
       "keyRejected": "A mesterségesintelligencia-szolgáltató elutasította ennek a játéknak a kulcsát, ezért a játék nem folytatódhat. A játékot beállító személynek ellenőriznie kell a kulcsot.",
       "noKey": "Nincs elérhető API-kulcs a játékhoz.",
       "noPlays": "Ehhez a megosztott játékhoz már nem maradt több játéklehetőség.",
+      "paused": "A műhely szünetel. A játék a folytatásakor tovább zajlik.",
       "stale": "Ez a játék már nem folytatható.",
       "unknown": "Ez a játékmenet nem létezik.",
       "unreachable": "A mesterségesintelligencia-szolgáltató jelenleg nem válaszol, ezért a játék nem folytatódhat. Próbáld meg újra néhány perc múlva."
@@ -1418,6 +1674,32 @@
       "hearing": "Hallgatom, amit mondasz…",
       "hold": "A beszédhez tartsd lenyomva",
       "recording": "Hallgatom… a küldéshez engedd el"
+    },
+    "wires": {
+      "adapted-style\u001eimage-prompt": "stílus",
+      "adapted-style\u001eimage-style": "kérés",
+      "adapted-style\u001estart-game": "kész",
+      "condense-scenario\u001econdensed-scenario": "válasz",
+      "condensed-scenario\u001econdense-scenario": "kérés",
+      "condensed-scenario\u001eimage-prompt": "forgatókönyv",
+      "condensed-scenario\u001estart-game": "kész",
+      "image-prompt\u001eimage": "prompt",
+      "image-style\u001eadapted-style": "válasz",
+      "live-session\u001eobserver": "átirat",
+      "observer\u001elive-session": "tipp",
+      "outline\u001eexpand": "terv",
+      "outline\u001eimage-prompt": "jelenet",
+      "outline\u001eprops-store": "változások",
+      "player-input-audio\u001elive-session": "beszéd",
+      "player-input-audio\u001erephrase-audio": "beszéd",
+      "player-input-text\u001erephrase": "cselekvés",
+      "portrait\u001estart-game": "kész",
+      "portrait-prompt\u001eportrait": "prompt",
+      "props-store\u001eoutline": "állapot",
+      "rephrase\u001eoutline": "cselekvés",
+      "rephrase-audio\u001eoutline": "cselekvés",
+      "start-game\u001elive-session": "felütés",
+      "start-game\u001eoutline": "prompt"
     }
   }
 }

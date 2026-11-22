@@ -14,6 +14,17 @@
       "under13Blocker": "Zaenkrat še ne morete ustvariti lastnega računa. Če ste mlajši od 13 let, lahko ChatGameLab uporabljate le prek mladinske organizacije.",
       "under13Description": "Zaenkrat še ne morete ustvariti lastnega računa. Če ste mlajši od 13 let, lahko ChatGameLab uporabljate le prek mladinske organizacije."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Odjava",
+        "message": "Ostajate v tej delavnici. S svojo kodo se lahko kadar koli in v kateri koli napravi znova prijavite: na začetni strani pod »Vnesi kodo«.",
+        "title": "Odjava?"
+      },
+      "leaveWorkshop": "Odjava",
+      "organization": "Organizacija",
+      "role": "Gost",
+      "workshop": "Delavnica"
+    },
     "login": {
       "auth0Button": "Prijava z Auth0",
       "devMode": "Razvojni način",
@@ -22,6 +33,8 @@
         "title": "Razvojni način"
       },
       "devModeDescription": "Hitra prijava za razvoj in testiranje",
+      "devNewOrganisation": "Nova oseba (registracija organizacije)",
+      "devNewPerson": "Nova oseba (še brez izbire, kot po »Registraciji«)",
       "redirecting": {
         "message": "Prosimo, počakajte, da vas preusmerimo na prijavno stran.",
         "title": "Preusmerjanje na Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Prijava kot učitelj"
       },
       "unavailable": {
-        "message": "Ta različica ne omogoča prijave. Udeleženci delavnice lahko namesto tega vnesejo svojo kodo.",
+        "message": "Ta različica ne omogoča prijave. Gosti v delavnici lahko namesto tega vnesejo svojo kodo.",
         "title": "Prijava ni na voljo"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Tako ste prikazani v ChatGameLabu (največ 24 znakov).",
+      "accountNameLabel": "Prikazno ime",
+      "cityLabel": "Kraj",
+      "confirmAdult": "Star/a sem najmanj 18 let.",
+      "consentPage": {
+        "constraintIntro": "Z izjavo se vaša ustanova zavezuje, da bo določila omejitev pozivov za zaščito mladih, ki ustreza vaši ciljni skupini. Spodaj je omejitev, ki jo vaša organizacija trenutno uporablja. Preverite jo in jo po potrebi prilagodite.",
+        "emailDescription": "Na ta naslov bomo poslali potrdilo z besedilom izjave.",
+        "introExisting": "Vaša organizacija »{{name}}« ima zdaj izjavo o soglasju, ki jo potrdite prek spleta. Ta nadomešča uporabniški sporazum, ki ste ga podpisali prej. Preberite jo in v imenu svoje ustanove soglašajte z njo.",
+        "introNewVersion": "Izjava o soglasju je bila posodobljena (različica {{version}}). Preberite novo različico in v imenu svoje organizacije »{{name}}« soglašajte z njo.",
+        "introWithdrawn": "Soglasje vaše organizacije »{{name}}« k izjavi o soglasju je bilo preklicano, zato je začasno onemogočeno. Preberite izjavo in v imenu svoje ustanove soglašajte z njo, da boste lahko znova uporabljali ChatGameLab.",
+        "logout": "Odjava",
+        "oneHeadIsEnough": "Dovolj je, če soglaša ena oseba iz vodstva organizacije. Do takrat je vaša organizacija začasno onemogočena: njeni člani ne morejo uporabljati ChatGameLaba.",
+        "submit": "Soglašaj",
+        "title": "Potrdi izjavo o soglasju"
+      },
+      "consentSection": "Potrditve",
+      "declarationGermanOnly": "Izjava je na voljo samo v nemščini. Pravno zavezujoče je nemško besedilo.",
+      "declarationVersion": "Različica {{version}}, z dne {{date}}",
+      "emailConfirmHint": "Po oddaji obrazca bo organizacija takoj ustvarjena. Potrdilo z besedilom izjave bo poslano na vaš e-poštni naslov.",
+      "emailDescription": "Na ta naslov bomo poslali potrdilo o izjavi o soglasju.",
+      "emailFromLogin": "To je naslov, ki ga uporabljate za prijavo.",
+      "emailLabel": "Službeni e-poštni naslov",
+      "errors": {
+        "conflict": "Za to prijavo račun že obstaja. Prijavite se in v nastavitvah uporabite nadgradnjo.",
+        "declaration_version_outdated": "Izjava je bila posodobljena. Znova naložite stran in preberite trenutno različico.",
+        "duplicate_name": "To prikazno ime je že zasedeno.",
+        "emailInvalid": "Vnesite veljaven e-poštni naslov.",
+        "email_belongs_to_other_account": "S tem e-poštnim naslovom račun že obstaja. Prijavite se z njim in v nastavitvah izberite »Nadgradi v organizacijo«.",
+        "formIncomplete": "Izpolnite vsa obvezna polja in potrdite vse točke.",
+        "generic": "Prišlo je do napake. Poskusite znova.",
+        "institution_age_not_allowed": "Organizacijo je mogoče registrirati samo z računom odrasle osebe (18+).",
+        "institution_consents_required": "Potrdite vse točke.",
+        "institution_name_taken": "Organizacija s tem imenom že obstaja. Ime razširite, na primer z navedbo kraja.",
+        "loadFailed": "Izjave ni bilo mogoče naložiti. Znova naložite stran.",
+        "name_too_long": "Prikazno ime ima lahko največ 24 znakov.",
+        "profane_name": "To prikazno ime ni dovoljeno.",
+        "required": "Obvezno",
+        "validation_error": "Preverite svoje podatke."
+      },
+      "institutionNameLabel": "Ime ustanove",
+      "institutionSection": "O ustanovi",
+      "operatorDescription": "npr. mesto, društvo, župnija",
+      "operatorLabel": "Upravljavec",
+      "personFunctionLabel": "Vloga v ustanovi",
+      "personFunctionPlaceholder": "npr. vodstvo, mladinski delavec",
+      "personNameLabel": "Ime in priimek",
+      "personSection": "O vas",
+      "postalCodeLabel": "Poštna številka",
+      "registered": {
+        "text": "Vaša organizacija je aktivirana. Ste njen vodja oziroma vodja organizacije in zdaj lahko ustvarjate delavnice.",
+        "title": "Organizacija je registrirana"
+      },
+      "streetLabel": "Ulica in hišna številka",
+      "submit": "Registriraj organizacijo",
+      "subtitle": "Po oddaji obrazca bo vaša organizacija takoj aktivirana, vi pa boste njen vodja.",
+      "switchToPersonal": "Nazaj na izbiro",
+      "titleRegister": "Registriraj organizacijo",
+      "toMyOrganization": "Pojdi v mojo organizacijo",
+      "youthProtection": {
+        "changeHint": "To nastavitev lahko kadar koli spremenite in jo za posamezne delavnice določite drugače.",
+        "defaultOption": "Privzeto od 13. leta",
+        "fieldLabel": "Omejitev pozivov za zaščito mladih v vaši organizaciji",
+        "intro": "Umetna inteligenca prejme to navodilo pri vsaki igri vaše organizacije. Izberite ga tako, da ustreza starosti vaše ciljne skupine.",
+        "responsibilityHint": "Predlogi niso uradna starostna ocena. O nastavitvi odloča vaša ustanova in je zanjo odgovorna.",
+        "suggestionAdults": "za odrasle od {{age}} let",
+        "suggestionChildren": "za otroke približno od {{age}} let",
+        "suggestionTeens": "za mlade približno od {{age}} let",
+        "suggestionsLabel": "Predlogi (s klikom zamenjate besedilo):",
+        "title": "Omejitev pozivov za zaščito mladih",
+        "tooLong": "Največ {{max}} znakov. Skrajšajte besedilo ali izberite predlog."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Ustvarjene igre",
       "gamesPlayed": "Igrane igre",
+      "guestCode": {
+        "error": "Dostopne kode ni bilo mogoče naložiti.",
+        "hint": "Kodo fotografirajte ali si jo zapišite in jo obdržite zase. Z njo lahko kadar koli in v kateri koli napravi znova dostopate do svojega računa: besede vnesite na začetni strani pod »Vnesi kodo« ali optično preberite kodo QR.",
+        "longTokenHint": "Fotografirajte kodo QR ali shranite povezavo in jo obdržite zase. Z njo lahko kadar koli znova dostopate do svojega računa. Vodja delavnice vam lahko z obnovitvijo dostopa izda kratko kodo s štirimi besedami.",
+        "title": "Vaša dostopna koda"
+      },
       "memberSince": "Registriran od",
       "messagesSent": "Poslana sporočila",
       "noOrganization": "Brez organizacije",
@@ -71,6 +163,7 @@
       "role": "Vloga",
       "roles": {
         "admin": "Administrator",
+        "guest": "Gost",
         "head": "Vodja organizacije",
         "individual": "Posameznik",
         "participant": "Udeleženec",
@@ -140,6 +233,12 @@
       "individualDescription": "Ustvarjaj in igraj besedilne avanture, ki jih poganja UI",
       "individualTitle": "Osebni račun",
       "loginLink": "Prijava",
+      "organizationExistingAccount": "Organizacije se registrirajo z novo prijavo. Že imate račun?",
+      "organizationIntro": "Za mladinske centre, šole in druge ustanove, ki želijo uporabljati ChatGameLab na delavnicah.",
+      "organizationStep1": "Ustvarite svojo prijavo prek Auth0 (e-pošta in geslo).",
+      "organizationStep2": "Vnesete podatke o sebi in svoji ustanovi, določite omejitev pozivov za zaščito mladih ter soglašate z izjavo.",
+      "organizationStep3": "Po oddaji obrazca bo organizacija takoj aktivirana in lahko boste ustvarjali delavnice.",
+      "organizationTitle": "Registriraj se kot organizacija",
       "privacyPolicy": "Politika zasebnosti",
       "termsOfService": "Pogoji uporabe",
       "title": "Ustvari svoj račun"
@@ -207,16 +306,26 @@
       },
       "organizations": {
         "actions": "Dejanja",
+        "city": "Kraj",
+        "consentGiven": "Izjava v{{version}} · {{date}}",
+        "consentMissing": "Izjava čaka na potrditev",
+        "consentOutdated": "Izjava je zastarela (v{{version}})",
+        "consentWithdrawn": "Izjava je preklicana",
         "create": "Ustvari organizacijo",
         "createTitle": "Ustvari novo organizacijo",
-        "deleteConfirm": "Ali ste prepričani, da želite izbrisati »{{name}}«? Tega dejanja ni mogoče razveljaviti.",
+        "deleteConfirm": "Želite trajno izbrisati »{{name}}«? Izbrisane bodo vse delavnice in udeleženci organizacije; vodje in vodje delavnic bodo obdržali svoje račune. Tega ni mogoče razveljaviti. Če naj organizacija le izgubi dostop, jo namesto tega začasno onemogočite.",
         "deleteTitle": "Izbriši organizacijo",
+        "detailsOptional": "Izbirno: upravljavec in naslov",
         "editTitle": "Uredi organizacijo",
         "email": "E-poštni naslov",
         "emailPlaceholder": "Vnesite e-poštni naslov",
         "empty": "Ni še organizacij. Ustvarite eno za začetek.",
+        "heads": "Vodstvo",
         "inviteDescription": "Pošljite povabilo, da se pridružijo {{name}} kot vodja organizacije.",
         "inviteTitle": "Povabi v organizacijo",
+        "lift": "Odpravi začasno onemogočitev",
+        "liftConfirm": "Želite odpraviti začasno onemogočitev »{{name}}«? Vsi člani bodo lahko organizacijo znova uporabljali kot prej, če je soglašala s trenutno izjavo.",
+        "liftTitle": "Odpravi začasno onemogočitev",
         "memberEmail": "E-pošta",
         "memberName": "Ime",
         "memberRole": "Vloga",
@@ -226,11 +335,44 @@
         "name": "Ime",
         "namePlaceholder": "Vnesite ime organizacije",
         "noMembers": "V tej organizaciji ni članov.",
+        "operator": "Upravljavec",
+        "postalCode": "Poštna številka",
         "removeMember": "Odstrani člana",
         "removeMemberConfirm": "Ali ste prepričani, da želite odstraniti {{name}} iz te organizacije?",
         "searchPlaceholder": "Išči organizacije...",
         "sendInvite": "Pošlji povabilo",
+        "status": "Stanje in soglasje",
+        "statusActive": "Aktivno",
+        "statusSuspended": "Začasno onemogočeno",
+        "statusSuspendedConsent": "Začasno onemogočeno: izjava čaka na potrditev",
+        "street": "Ulica in hišna številka",
+        "suspend": "Začasno onemogoči",
+        "suspendConfirm": "Želite začasno onemogočiti »{{name}}«? Vodstvo, vodje delavnic in udeleženci organizacije je nato ne bodo mogli več uporabljati. Skupne povezave do iger in javne strani delavnic bodo prenehale delovati. Podatki ne bodo izbrisani, začasno onemogočitev pa lahko kadar koli odpravite.",
+        "suspendError": "To ni uspelo. Poskusite znova.",
+        "suspendReason": "Razlog (izbirno)",
+        "suspendReasonDescription": "Vidno samo skrbnikom.",
+        "suspendTitle": "Začasno onemogoči organizacijo",
+        "suspendedNoReason": "Začasno onemogočeno brez razloga",
         "title": "Upravljanje organizacij"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "V zadnjih dveh tednih se ni registrirala nobena organizacija.",
+          "intro_one": "Ta organizacija se je registrirala v zadnjih dveh tednih in je že aktivirana.",
+          "intro_other": "Teh {{count}} organizacij se je registriralo v zadnjih dveh tednih in so že aktivirane.",
+          "label": "Nove organizacije",
+          "later": "Pozneje",
+          "open": "Pojdi na pregled",
+          "suspendHint": "E-poštni naslovi trenutno niso potrjeni. Na hitro preglejte nove organizacije in jih na pregledu začasno onemogočite, če je kaj narobe.",
+          "title": "Nove organizacije"
+        },
+        "date": "Registrirano",
+        "description": "Organizacije, ki so se same registrirale v zadnjih dveh tednih. Takoj so aktivne, brez potrditve e-poštnega naslova; preglejte jih in katero začasno onemogočite, če je kaj narobe.",
+        "empty": "V zadnjih dveh tednih se ni sama registrirala nobena organizacija.",
+        "institution": "Ustanova",
+        "loadError": "Registracij ni bilo mogoče naložiti.",
+        "person": "Podpisal/a",
+        "title": "Nove registracije"
       },
       "users": {
         "actions": "Dejanja",
@@ -297,7 +439,16 @@
       },
       "copyGame": "Kopiraj igro",
       "empty": {
+        "conditions": {
+          "favorites": "med vašimi priljubljenimi",
+          "own": "vaša",
+          "public": "javna",
+          "sponsored": "sponzorirana"
+        },
         "description": "Poskusite prilagoditi filtre ali preverite kasneje za nove igre.",
+        "is": "Nobena igra ni {{conditions}}.",
+        "isAndNamed": "Nobena igra ni {{conditions}} in nima »{{search}}« v imenu.",
+        "named": "Nobena igra nima »{{search}}« v imenu.",
         "title": "Ni najdenih iger"
       },
       "favorite": "Dodaj med priljubljene",
@@ -308,10 +459,11 @@
         "public": "Javne",
         "sponsored": "Sponzorirane"
       },
+      "onlyFavorites": "Prikaži samo priljubljene",
       "play": "Igraj",
       "reportGame": "Prijavi igro",
       "restart": "Začni znova",
-      "title": "Vse igre",
+      "title": "Igre",
       "unfavorite": "Odstrani iz priljubljenih",
       "workshop": "Delavnica / organizacija"
     },
@@ -441,6 +593,23 @@
         "myGame": "Moja igra",
         "public": "Javna",
         "workshop": "Delavniška igra"
+      },
+      "byCreator": "ustvaril/a {{name}}",
+      "cover": {
+        "alt": "Naslovna slika za {{name}}",
+        "draw": "Nariši naslovno sliko",
+        "drawAgain": "Nariši znova",
+        "drawnOnSave": "Naslovna slika bo narisana, ko shranite igro.",
+        "errors": {
+          "failed": "Naslovne slike ni bilo mogoče narisati. Poskusite znova.",
+          "keyRejected": "Ponudnik umetne inteligence je ključ zavrnil. Naslovne slike ni bilo mogoče narisati.",
+          "noKey": "Noben ključ umetne inteligence, ki ga lahko uporabite, ne ustvarja slik, zato igra za zdaj nima naslovne slike."
+        },
+        "hint": "Kaj naj prikazuje naslovna slika?",
+        "hintDescription": "Izbirno. Če pustite prazno, bo naslovna slika prikazovala, o čem govori igra.",
+        "hintPlaceholder": "Na primer: svetilnik ponoči",
+        "none": "Še brez naslovne slike",
+        "title": "Naslovna slika"
       },
       "createButton": "Ustvari igro",
       "createModal": {
@@ -759,11 +928,15 @@
       "errors": {
         "acceptFailed": "Sprejem povabila ni uspel. Poskusite znova.",
         "expired": "Ta povezava za povabilo je potekla.",
+        "guestStays": "Kot gost ostanete tam, kjer ste se pridružili. Če želite sodelovati v drugi delavnici, odprite njeno povezavo s povabilom, ne da bi se prijavili: pridružili se ji boste kot nov gost.",
         "loadFailed": "Podrobnosti povabila ni bilo mogoče naložiti. Poskusite znova.",
         "notFound": "Ta povezava za povabilo je neveljavna ali je bila preklicana.",
         "tokenLocked": "Preveč neuspešnih poskusov – poskusite znova pozneje."
       },
       "goHome": "Pojdi na domačo stran",
+      "guest": {
+        "loggingIn": "Prijava v teku ..."
+      },
       "participant": {
         "loggingIn": "Prijavljamo vas..."
       },
@@ -791,6 +964,18 @@
     "leaveOrganization": "Zapusti organizacijo",
     "leaveTitle": "Zapusti organizacijo",
     "leaveWarning": "Izgubili boste dostop do vseh virov in članov organizacije.",
+    "list": {
+      "clearSearch": "Počisti iskanje",
+      "filter": "Filter",
+      "pagination": {
+        "first": "Prva stran",
+        "last": "Zadnja stran",
+        "next": "Naslednja stran",
+        "previous": "Prejšnja stran"
+      },
+      "perPage": "Na stran",
+      "range": "{{from}}–{{to}} od {{total}}"
+    },
     "loading": "Nalaganje...",
     "logout": "Odjava",
     "me": "Jaz",
@@ -844,6 +1029,7 @@
         "owner": "Lastnik",
         "platform": "Platforma",
         "publicSponsoring": "Javno sponzoriranje",
+        "removeShare": "Odstrani iz organizacije",
         "searchPlaceholder": "Išči po imenu ali lastniku...",
         "selectKey": "Izberite ključ API",
         "selectKeyPlaceholder": "Izberite ključ za deljenje...",
@@ -858,6 +1044,14 @@
         "confirmTitle": "Deli ključ z organizacijo",
         "orgKeyGroup": "Organizacijski ključi",
         "personalKeyGroup": "Osebni ključi"
+      },
+      "declaration": {
+        "consented": "Vaša organizacija je soglašala z različico {{version}} dne {{date}}.",
+        "title": "Izjava o soglasju",
+        "withdraw": "Prekliči soglasje",
+        "withdrawConfirm": "Brez soglasja je vaša organizacija začasno onemogočena: noben član ne more uporabljati ChatGameLaba, dokler vodstvo znova ne soglaša. Njeni podatki se ohranijo.",
+        "withdrawFailed": "To ni uspelo. Poskusite znova.",
+        "withdrawTitle": "Želite preklicati soglasje?"
       },
       "demoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) degradirati na učitelja?",
       "demoteTitle": "Degradiraj na učitelja",
@@ -891,13 +1085,13 @@
       "promoteToHead": "Povišaj v vodjo",
       "promoteWarning": "Ta uporabnik bo lahko upravljal člane organizacije in vabil učitelje.",
       "promptConstraintsFallbackEmpty": "(ni konfigurirano)",
-      "promptConstraintsFallbackHint": "Omejitev organizacije ni konfigurirana. Uporabi se privzeta nastavitev za starostno skupino igralca na ravni celotnega spletnega mesta:",
+      "promptConstraintsFallbackHint": "Za organizacijo ni nastavljena omejitev. Uporablja se privzeta nastavitev spletnega mesta za starostno skupino igralca:",
       "promptConstraintsFallbackTitle": "Aktivno zasilno pravilo za celotno spletno mesto",
       "promptConstraintsFallbackU13": "Mlajši od 13 let",
       "promptConstraintsFallbackU13p": "13–17 (s soglasjem staršev)",
       "promptConstraintsFallbackU18": "18 in več",
       "promptConstraintsHint": "Dodatna navodila za UI za vse seje v tej organizaciji. Velja, če na ravni delavnice ni določenih omejitev, in za igre, deljene prek povezave.",
-      "promptConstraintsLabel": "Organizacijske omejitve pozivov",
+      "promptConstraintsLabel": "Omejitev pozivov za zaščito mladih v organizaciji",
       "promptConstraintsPlaceholder": "npr. Naj bo zgodba primerna starosti in se izogiba nasilni vsebini.",
       "publicPage": {
         "changeLinkMessage": "Stran bo nato na naslovu {{url}}.",
@@ -979,6 +1173,8 @@
         "empty": "Še ni delavnic.",
         "enterWorkshop": "Vstopi v način delavnice",
         "games": "Igre",
+        "guestLinkTitle": "Povezava za ponovno prijavo",
+        "guestLinkTitleNamed": "Povezava za ponovno prijavo za {{name}}",
         "hideInactive": "Skrij neaktivne",
         "inactive": "Neaktivna",
         "inviteByEmail": "Povabi po e-pošti",
@@ -1004,6 +1200,7 @@
         "noActiveInvite": "Ni aktivne povezave s povabilom.",
         "noDefaultApiKey": "Ni privzetega ključa API",
         "noDefaultModel": "Uporabi privzeto platforme",
+        "noGuestToken": "Ta član nima povezave za ponovno prijavo. Imajo jo samo gosti.",
         "noIndividuals": "V tej organizaciji ni posameznih uporabnikov.",
         "noParticipantToken": "Ta udeleženec nima povezave s povabilom. Le anonimni udeleženci (gosti) imajo ponovno uporabne povezave.",
         "noParticipants": "Še ni udeležencev",
@@ -1014,10 +1211,10 @@
         "participantLinkTitleNamed": "Povezava za ponovno prijavo za {{name}}",
         "participantName": "Ime udeleženca",
         "participants": "Udeleženci",
-        "promptConstraintsFallbackOrg": "Uporaba organizacijske omejitve kot privzete: {{constraint}}",
-        "promptConstraintsFallbackSite": "Uporablja se privzeta omejitev strani",
+        "promptConstraintsFallbackOrg": "Kot privzeta se uporablja omejitev organizacije: {{constraint}}",
+        "promptConstraintsFallbackSite": "Kot privzeta se uporablja omejitev spletnega mesta",
         "promptConstraintsHint": "Dodatna navodila za UI za vse seje v tej delavnici.",
-        "promptConstraintsLabel": "Omejitve poziva",
+        "promptConstraintsLabel": "Omejitev pozivov za zaščito mladih",
         "promptConstraintsPlaceholder": "npr. Naj bo zgodba primerna starosti in se izogibaj nasilni vsebini.",
         "removeParticipant": "Odstrani udeleženca",
         "removeParticipantConfirm": "Ali ste prepričani, da želite odstraniti »{{name}}« iz te delavnice?",
@@ -1030,10 +1227,11 @@
         "resetAccessError": "Dostopa ni bilo mogoče ponastaviti. Poskusite znova.",
         "resetAccessMessage": "Ustvarjena bo nova povezava z novo kodo.",
         "resetAccessTitle": "Želite ponastaviti dostop?",
-        "resetAccessWarning": "Prejšnja povezava in koda bosta prenehali delovati – tudi v napravah, v katerih je udeleženec trenutno prijavljen.",
+        "resetAccessWarning": "Prejšnja povezava in koda ne bosta več delovali – tudi v napravah, v katerih je gost trenutno prijavljen.",
         "revokeInvite": "Prekliči povezavo s povabilom",
         "selectApiKey": "Izberite ključ API",
         "settings": "Nastavitve",
+        "shareGuestLink": "Prikaži povezavo za ponovno prijavo",
         "shareParticipantLink": "Prikaži povezavo za ponovno prijavo",
         "showOtherParticipantsGames": "Prikaži igre drugih udeležencev",
         "showOtherParticipantsGamesHint": "Vodje in osebje lahko vedno vidijo igre vseh udeležencev zaradi moderiranja",
@@ -1049,6 +1247,7 @@
         },
         "subtitle": "Upravljajte delavnice in povabite udeležence k sodelovanju pri igrah.",
         "title": "Delavnice",
+        "unnamedParticipant": "Neimenovani udeleženec",
         "unpause": "Nadaljuj delavnico",
         "usedCount": "{{count}} uporab",
         "viewInviteLink": "Prikaži povezavo s povabilom"
@@ -1071,6 +1270,13 @@
       "title": "Obvestila",
       "workshopInvite": "Povabilo v delavnico",
       "workshopInviteDescription": "Povabljeni ste, da se pridružite tej delavnici."
+    },
+    "organisationSuspended": {
+      "byAdmin": "Upravljavec je začasno onemogočil dostop vaše organizacije do ChatGameLaba. Vaši podatki se ohranijo.",
+      "consentWanted": "Dostop vaše organizacije do ChatGameLaba je začasno onemogočen, dokler eden od vodij ne soglaša s trenutno izjavo o soglasju. Vaši podatki se ohranijo.",
+      "contact": "Če imate vprašanja, se obrnite na",
+      "logout": "Odjava",
+      "title": "Organizacija je začasno onemogočena"
     },
     "play": {
       "cloneGame": "Kloniraj v moje igre",
@@ -1139,8 +1345,8 @@
     "searchPlaceholder": "Išči člane...",
     "serverSettings": {
       "constraints": {
-        "description": "Določi obvezna pravila za UI glede na starostno skupino igralca. Ta pravila se vključijo v vsak AI odziv. Veljajo za vse prijavljene uporabnike zunaj načina delavnice.",
-        "title": "Pozivi z omejitvami glede na starost",
+        "description": "Določite obvezna pravila umetne inteligence glede na starostno skupino igralca. Te omejitve se vključijo v vsak odgovor umetne inteligence. Veljajo za vse prijavljene uporabnike zunaj načina delavnice.",
+        "title": "Starostno določene omejitve pozivov",
         "u13Hint": "Vstavljen v vsak poziv za UI za prijavljene uporabnike, stare 13–17 let, brez soglasja staršev v evidenci.",
         "u13Label": "Omejitev za uporabnike, stare 13–17 let, brez soglasja staršev (U13)",
         "u13Placeholder": "npr. Vsebina naj bo strogo primerna za najstnike. Brez nasilja, romantičnih vsebin ali tem grozljivk.",
@@ -1148,7 +1354,7 @@
         "u13pLabel": "Omejitev za uporabnike, stare 13–17 let, s soglasjem staršev (U13p)",
         "u13pPlaceholder": "npr. Starosti primerna vsebina za najstnike, za katere so starši dali soglasje. Dovoljene nekatere zrelejše teme, brez eksplicitne vsebine.",
         "u18Hint": "Vstavljeno v vsak AI poziv za prijavljene uporabnike, stare 18 let in več.",
-        "u18Label": "Omejitev za uporabnike stare 18+ (U18)",
+        "u18Label": "Omejitev za uporabnike, stare 18 let ali več (U18)",
         "u18Placeholder": "npr. Vsebina naj bo primerna. Izogibaj se izrecnemu nasilju ali spolni vsebini."
       },
       "defaultTier": {
@@ -1273,6 +1479,7 @@
     "duplicateName": "Ime te igre je že v uporabi. Izberite drugo ime.",
     "forbidden": "Nimate dovoljenja za izvedbo tega dejanja.",
     "generic": "Nekaj je šlo narobe. Poskusite znova.",
+    "guestStays": "Kot gost ostanete tam, kjer ste se pridružili. Če želite sodelovati v drugi delavnici, odprite njeno povezavo s povabilom, ne da bi se prijavili: pridružili se ji boste kot nov gost.",
     "insufficientQuota": "Vaš ključ API je porabil kredite. Dodajte več kreditov ali uporabite drug ključ API.",
     "invalidApiKey": "Vaš ključ API je neveljaven ali potekel. Preverite ga v nastavitvah.",
     "invalidJsonSchema": "Konfiguracija igre je ustvarila neveljavno shemo za AI. To je težava nastavitve igre, ne ključa API. Preverite vrednosti stanja igre in poskusite znova.",
@@ -1284,6 +1491,7 @@
     "noApiKey": "Za to igro ni na voljo ključa API. Sponzor igre ga je morda odstranil ali pa morate konfigurirati svoj ključ API.",
     "notFound": "Zahtevani vir ni bil najden.",
     "orgVerificationRequired": "Vaša organizacija OpenAI potrebuje verifikacijo za uporabo funkcije ustvarjanja slik. Preverite na https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Vaša organizacija je začasno onemogočena. Vaši podatki se ohranijo.",
     "previousResponseNotFound": "AI je izgubil sled pogovora. To se lahko zgodi, ko je seja nekaj časa neaktivna. Za nadaljevanje začnite novo sejo.",
     "publicDescriptionTooLong": "Opis lahko vsebuje največ 2000 znakov.",
     "publicSlugInvalid": "Uporabite a–z, 0–9 in posamezne vezaje, od 3 do 60 znakov.",
@@ -1296,9 +1504,11 @@
       "billing": "Napaka pri zaračunavanju",
       "error": "Napaka",
       "gameConfig": "Napaka konfiguracije igre",
+      "guestStays": "Ostanete, kjer ste",
       "network": "Omrežna napaka",
       "noApiKey": "Ni ključa API",
       "notFound": "Ni najdeno",
+      "organisationSuspended": "Organizacija je začasno onemogočena",
       "permission": "Dovoljenje zavrnjeno",
       "server": "Napaka strežnika",
       "tokenLocked": "Začasno zaklenjeno",
@@ -1311,6 +1521,28 @@
     "userNotRegistered": "Pred nadaljevanjem morate dokončati registracijo.",
     "validation": "Preverite svoje vnose in poskusite znova.",
     "workshopInactive": "Ta delavnica je deaktivirana. Obrnite se na učitelja ali organizatorja delavnice."
+  },
+  "mail": {
+    "consent": {
+      "address": "Naslov",
+      "agreed": "V imenu svoje organizacije ste soglašali z naslednjo izjavo o soglasju.",
+      "bindingInGerman": "Izjava je zavezujoča v nemščini, zato je v nadaljevanju navedena v nemščini.",
+      "checksum": "Kontrolna vsota",
+      "copySubject": "Kopija: {{subject}}",
+      "date": "Datum",
+      "dateValue": "{{date}} (po berlinskem času)",
+      "declaredBy": "Izjavil/a",
+      "greeting": "Pozdravljeni, {{name}},",
+      "operator": "Upravljavec",
+      "organisation": "Organizacija",
+      "registered": "organizacija »{{organisation}}« je zdaj aktivna v ChatGameLabu. Ste njen vodja in zdaj lahko ustvarjate delavnice.",
+      "renewed": "hvala! ChatGameLab ima zdaj soglasje organizacije »{{organisation}}« k trenutni izjavi o soglasju.",
+      "signature": "Vaša ekipa ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: organizacija »{{organisation}}« je aktivna – izjava o soglasju",
+      "subjectRenewed": "ChatGameLab: izjava o soglasju za »{{organisation}}« potrjena (različica {{version}})",
+      "version": "Različica",
+      "versionValue": "{{version}} (stanje na dan {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1353,7 +1585,7 @@
   },
   "navigation": {
     "adminPanel": "Administratorska plošča",
-    "allGames": "Vse igre",
+    "allGames": "Igre",
     "create": "Ustvari svojo igro",
     "createGame": "Ustvari igro",
     "dashboard": "Nadzorna plošča",
@@ -1365,7 +1597,7 @@
     "myOrganization": "Moja organizacija",
     "myWorkshop": "Moja delavnica",
     "orgApiKeys": "Ključi API",
-    "orgConstraints": "Omejitve",
+    "orgConstraints": "Omejitev pozivov za zaščito mladih",
     "orgMembers": "Člani",
     "orgWorkshops": "Delavnice",
     "play": "Igraj igro",
@@ -1374,6 +1606,24 @@
     "workshopSettings": "Nastavitve delavnice"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Slog",
+      "condense-scenario": "Skrajšaj scenarij",
+      "condensed-scenario": "Scenarij",
+      "expand": "Pripoveduj",
+      "image": "Nariši sliko",
+      "image-prompt": "Opiši sliko",
+      "image-style": "Prilagodi slog",
+      "live-session": "Lik",
+      "observer": "Opazovalec",
+      "outline": "Načrtuj prizor",
+      "portrait": "Nariši portret",
+      "portrait-prompt": "Opiši portret",
+      "props-store": "Stanje igre",
+      "rephrase": "Povej dejanje drugače",
+      "rephrase-audio": "Razumi govor",
+      "start-game": "Začni"
+    },
     "errors": {
       "connectionLost": "Povezava z igro je bila prekinjena. Znova naloži stran in poskusi še enkrat.",
       "imageFailed": "Slike za ta prizor ni bilo mogoče ustvariti. Zgodba se nadaljuje.",
@@ -1395,6 +1645,11 @@
       "starting": "Igra se začenja…",
       "tryAgain": "Poskusi znova"
     },
+    "pipeline": {
+      "copied": "Postavitev kopirana",
+      "copyFailed": "Odložišče ni na voljo: postavitev je izpisana v konzoli",
+      "copyLayout": "Kopiraj postavitev"
+    },
     "problems": {
       "denied": "Te igre ne smeš igrati.",
       "failed": "Nekaj je šlo narobe in igra se ne more nadaljevati.",
@@ -1402,6 +1657,7 @@
       "keyRejected": "Ponudnik AI je zavrnil ključ te igre, zato se igra ne more nadaljevati. Oseba, ki je nastavila igro, mora preveriti ključ.",
       "noKey": "Za igranje te igre ni na voljo ključa AI.",
       "noPlays": "Ta deljena igra nima več preostalih igranj.",
+      "paused": "Delavnica je začasno ustavljena. Igra se bo nadaljevala, ko bo znova zagnana.",
       "stale": "Te igre ni več mogoče nadaljevati.",
       "unknown": "Ta igralna seja ne obstaja.",
       "unreachable": "Ponudnik AI trenutno ne odgovarja, zato se igra ne more nadaljevati. Poskusi znova čez nekaj minut."
@@ -1418,6 +1674,32 @@
       "hearing": "Poslušam, kaj govoriš …",
       "hold": "Pridrži za govorjenje",
       "recording": "Poslušam … spusti za pošiljanje"
+    },
+    "wires": {
+      "adapted-style\u0003eimage-prompt": "slog",
+      "adapted-style\u0003eimage-style": "zahteva",
+      "adapted-style\u0003estart-game": "pripravljeno",
+      "condense-scenario\u0003econdensed-scenario": "odgovor",
+      "condensed-scenario\u0003econdense-scenario": "zahteva",
+      "condensed-scenario\u0003eimage-prompt": "scenarij",
+      "condensed-scenario\u0003estart-game": "pripravljeno",
+      "image-prompt\u0003eimage": "poziv",
+      "image-style\u0003eadapted-style": "odgovor",
+      "live-session\u0003eobserver": "prepis",
+      "observer\u0003elive-session": "namig",
+      "outline\u0003eexpand": "načrt",
+      "outline\u0003eimage-prompt": "prizor",
+      "outline\u0003eprops-store": "spremembe",
+      "player-input-audio\u0003elive-session": "govor",
+      "player-input-audio\u0003erephrase-audio": "govor",
+      "player-input-text\u0003erephrase": "dejanje",
+      "portrait\u0003estart-game": "pripravljeno",
+      "portrait-prompt\u0003eportrait": "poziv",
+      "props-store\u0003eoutline": "stanje",
+      "rephrase\u0003eoutline": "dejanje",
+      "rephrase-audio\u0003eoutline": "dejanje",
+      "start-game\u0003elive-session": "uvod",
+      "start-game\u0003eoutline": "poziv"
     }
   }
 }

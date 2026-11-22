@@ -14,6 +14,17 @@
       "under13Blocker": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn.",
       "under13Description": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Abmoin",
+        "message": "Du bleibst in dem Workshop. Mit deim Code kannst di jederzeit wieda oimoin, auf jedem Gerät: unter „Code eingeben“ auf da Startseitn.",
+        "title": "Abmoin?"
+      },
+      "leaveWorkshop": "Abmoin",
+      "organization": "Organisation",
+      "role": "Gast",
+      "workshop": "Workshop"
+    },
     "login": {
       "auth0Button": "Mit Auth0 einloggn",
       "devMode": "Entwicklungsmodus",
@@ -22,6 +33,8 @@
         "title": "Entwicklungsmodus"
       },
       "devModeDescription": "Schnella Login fia Entwicklung und Tests",
+      "devNewOrganisation": "Neue Person (Organisation registriern)",
+      "devNewPerson": "Neue Person (no koa Vorauswahl, wia nach „Sign up“)",
       "redirecting": {
         "message": "Bitte wart a kloans Augnblick, während ma di auf d'Login-Seitn umleiten.",
         "title": "Umleitung zu Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Als Lehrer/in einloggn"
       },
       "unavailable": {
-        "message": "Auf dera Instanz gibt’s koa Anmeldung. Workshop-Teilnehmer kenna stattdessen ihren Code eingeben.",
+        "message": "Auf dera Instanz is koa Anmeldung eingerichtet. Gäst in am Workshop kenna stattdessen ihrn Code eingeben.",
         "title": "Anmeldung ned verfügbar"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "So erscheinst in ChatGameLab (höchstens 24 Zeichn).",
+      "accountNameLabel": "Anzeigenam",
+      "cityLabel": "Ort",
+      "confirmAdult": "I bin mindestens 18 Jahr oid.",
+      "consentPage": {
+        "constraintIntro": "Mit da Erklärung verpflichtet si eure Einrichtung, a zum Zielpublikum passende Jugendschutz-Prompt-Einschränkung festzulegen. Unten steht de, de eure Organisation grad verwendet. Bitte schauts nach und passt s bei Bedarf o.",
+        "emailDescription": "An de Adresse schicka ma de Bestätigung mitm Text vo da Erklärung.",
+        "introExisting": "Für eure Organisation „{{name}}“ gibt’s jetzt a Einverständniserklärung, de online bestätigt wird. Sie ersetzt de bisher unterschriebene Nutzungsvereinbarung. Bitte lies sie und stimm im Nam vo eurer Einrichtung zua.",
+        "introNewVersion": "De Einverständniserklärung is aktualisiert worn (Version {{version}}). Bitte lies de neue Fassung und stimm im Nam vo eurer Organisation „{{name}}“ zua.",
+        "introWithdrawn": "De Zustimmung eurer Organisation „{{name}}“ zur Einverständniserklärung is widerrufen worn, drum is sie ausgsetzt. Bitte lies de Erklärung und stimm im Nam vo eurer Einrichtung zua, damit ChatGameLab wieda genutzt wern ko.",
+        "logout": "Abmoin",
+        "oneHeadIsEnough": "Es reicht, wenn oane aus da Organisationsleitung zustimmt. Bis dahin is eure Organisation ausgsetzt: Ihre Mitglieder kenna ChatGameLab ned nutzen.",
+        "submit": "Zustimmen",
+        "title": "Einverständniserklärung bestätigen"
+      },
+      "consentSection": "Bestätigungen",
+      "declarationGermanOnly": "De Einverständniserklärung gibt’s bloß auf Deutsch. Verbindlich is da deutsche Text.",
+      "declarationVersion": "Version {{version}}, Stand {{date}}",
+      "emailConfirmHint": "Nachm Abschicka is de Organisation sofort angelegt. De Bestätigung mitm Text vo da Einverständniserklärung geht an dei E-Mail-Adresse.",
+      "emailDescription": "An de Adresse schicka ma de Bestätigung vo da Einverständniserklärung.",
+      "emailFromLogin": "Des is de Adresse vo deiner Anmeldung.",
+      "emailLabel": "Dienstliche E-Mail-Adresse",
+      "errors": {
+        "conflict": "Für den Login gibt’s scho a Konto. Bitte moid di o und nutz s Upgrade in de Einstellungen.",
+        "declaration_version_outdated": "De Einverständniserklärung is inzwischen aktualisiert worn. Bitte lad de Seitn neu und lies de aktuelle Fassung.",
+        "duplicate_name": "Den Anzeigenam gibt’s scho.",
+        "emailInvalid": "Bitte gib a gültige E-Mail-Adresse ei.",
+        "email_belongs_to_other_account": "Zu dera E-Mail-Adresse gibt’s scho a Konto. Bitte moid di damit o und wähl in de Einstellungen „Auf Organisation upgraden“.",
+        "formIncomplete": "Bitte füll alle Pflichtfelder aus und bestätige alle Punkte.",
+        "generic": "Des hod leider ned hihaut. Bitte probier’s no amoi.",
+        "institution_age_not_allowed": "A Organisation ko nur mit am Erwachsenenkonto (18+) registriert wern.",
+        "institution_consents_required": "Bitte bestätige alle Punkte.",
+        "institution_name_taken": "A Organisation mit dem Nam gibt’s scho. Bitte ergänz den Nam, zum Beispiel um den Ort.",
+        "loadFailed": "De Einverständniserklärung hod ned geladen wern kenna. Bitte lad de Seitn neu.",
+        "name_too_long": "Da Anzeigenam derf höchstens 24 Zeichn lang sei.",
+        "profane_name": "Der Anzeigenam is ned erlaubt.",
+        "required": "Pflichtfeld",
+        "validation_error": "Bitte schau dei Angaben no amoi nach."
+      },
+      "institutionNameLabel": "Nam vo da Einrichtung",
+      "institutionSection": "Angaben zur Einrichtung",
+      "operatorDescription": "z. B. Stadt, Verein, Kirchengemeind",
+      "operatorLabel": "Träger",
+      "personFunctionLabel": "Funktion in da Einrichtung",
+      "personFunctionPlaceholder": "z. B. Leitung, pädagogische Fachkraft",
+      "personNameLabel": "Vor- und Nachnam",
+      "personSection": "Angaben zu deiner Person",
+      "postalCodeLabel": "PLZ",
+      "registered": {
+        "text": "Eure Organisation is freigschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.",
+        "title": "Organisation registriert"
+      },
+      "streetLabel": "Straß und Hausnummer",
+      "submit": "Organisation registriern",
+      "subtitle": "Nachm Abschicka is eure Organisation sofort freigschaltet und du bist Organisationsleitung.",
+      "switchToPersonal": "Zruck zur Auswahl",
+      "titleRegister": "Organisation registriern",
+      "toMyOrganization": "Zu meiner Organisation",
+      "youthProtection": {
+        "changeHint": "Ihr könnt de Einstellung jederzeit ändern und für einzelne Workshops anders festlegen.",
+        "defaultOption": "Standard ab 13 Jahr",
+        "fieldLabel": "Jugendschutz-Prompt-Einschränkung eurer Organisation",
+        "intro": "De Anweisung gibt de KI bei allen Spielen eurer Organisation mit. Legt sie passend zum Alter eurer Zielgruppe fest.",
+        "responsibilityHint": "De Vorschläge san koa offizielle Alterskennzeichnung. Eure Einrichtung entscheidet über de Einstellung und is dafür verantwortlich.",
+        "suggestionAdults": "für Erwachsene ab {{age}} Jahr",
+        "suggestionChildren": "für Kinder ab ungefähr {{age}} Jahr",
+        "suggestionTeens": "für Jugendliche ab ungefähr {{age}} Jahr",
+        "suggestionsLabel": "Vorschläge (a Klick ersetzt den Text):",
+        "title": "Jugendschutz-Prompt-Einschränkung",
+        "tooLong": "Höchstens {{max}} Zeichn. Bitte kürzer macha oder an Vorschlag auswählen."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+ Joa",
       "gamesCreated": "Spui erstellt",
       "gamesPlayed": "Gspuite Spui",
+      "guestCode": {
+        "error": "Dein Zugangscode hod ned geladen wern kenna.",
+        "hint": "Fotografier oder schreib da den Code auf und gib eam ned weiter. Damit kummst jederzeit wieda in dei Konto, aa auf am andern Gerät: Gib de Wörter auf da Startseitn unter „Code eingeben“ ei oder scann den QR-Code.",
+        "longTokenHint": "Fotografier den QR-Code oder speicher den Link und gib eam ned weiter. Damit kummst jederzeit wieda in dei Konto. A kurzen Code aus vier Wörtern griagst vo deiner Workshopleitung, wenn sie dein Zugang zrucksetzt.",
+        "title": "Dein Zugangscode"
+      },
       "memberSince": "Registriert seit",
       "messagesSent": "Gschickte Nochrichtn",
       "noOrganization": "Koane Organisation",
@@ -71,6 +163,7 @@
       "role": "Roll",
       "roles": {
         "admin": "Administrator/in",
+        "guest": "Gast",
         "head": "Leitung vo da Organisation",
         "individual": "Privatperson",
         "participant": "Teilnehmer/in",
@@ -140,6 +233,12 @@
       "individualDescription": "Erstell und spiel KI-gstützte Textabenteia",
       "individualTitle": "Privats Konto",
       "loginLink": "Einloggn",
+      "organizationExistingAccount": "Organisationen registriern si mit am neuen Login. Host scho a Konto?",
+      "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, de ChatGameLab in Workshops nutzen woin.",
+      "organizationStep1": "Du legst über Auth0 dein Zugang o (E-Mail und Passwort).",
+      "organizationStep2": "Du gibst de Angaben zu dir und deiner Einrichtung ei, legst de Jugendschutz-Prompt-Einschränkung fest und stimmst da Einverständniserklärung zua.",
+      "organizationStep3": "Nachm Abschicka is de Organisation sofort freigschaltet und du kannst Workshops anlegen.",
+      "organizationTitle": "Als Organisation registriern",
       "privacyPolicy": "Datenschutz",
       "termsOfService": "Nutzungsbedingunga",
       "title": "Leg dei Konto o"
@@ -207,16 +306,26 @@
       },
       "organizations": {
         "actions": "Aktionen",
+        "city": "Ort",
+        "consentGiven": "Erklärung v{{version}} · {{date}}",
+        "consentMissing": "Erklärung ausstehend",
+        "consentOutdated": "Erklärung veraltet (v{{version}})",
+        "consentWithdrawn": "Erklärung widerrufen",
         "create": "Organisation erstellen",
         "createTitle": "Neie Organisation erstellen",
-        "deleteConfirm": "Bist da sicha, dassd \"{{name}}\" löschn mogst? Des laßt si nimma rückgängig macha.",
+        "deleteConfirm": "„{{name}}“ endgültig löschen? Dabei wern alle Workshops und Teilnehmenden vo da Organisation gelöscht; Leitungen und Workshopleitungen behalten ihr Konto. Des lässt si ned rückgängig macha. Soll de Organisation bloß da Zugang gnomma wern, setz sie stattdessen aus.",
         "deleteTitle": "Organisation löschn",
+        "detailsOptional": "Optional: Träger und Anschrift",
         "editTitle": "Organisation bearbeitn",
         "email": "E-Mail-Adress",
         "emailPlaceholder": "E-Mail-Adress eigebn",
         "empty": "No koane Organisationen. Leg glei oane o, damits losgeh kann.",
+        "heads": "Leitung",
         "inviteDescription": "Schick a Einladung, damit {{name}} as Organisationshaupt werd.",
         "inviteTitle": "In Organisation einladen",
+        "lift": "Aussetzung aufheben",
+        "liftConfirm": "De Aussetzung vo „{{name}}“ aufheben? Alle Mitglieder kenna de Organisation danach wieda wia vorher nutzen, wenn sie da aktuellen Erklärung zugestimmt hod.",
+        "liftTitle": "Aussetzung aufheben",
         "memberEmail": "E-Mail",
         "memberName": "Nam",
         "memberRole": "Roll",
@@ -226,11 +335,44 @@
         "name": "Nam",
         "namePlaceholder": "Organisationsnam eigebn",
         "noMembers": "In dera Organisation gibt's no koane Mitglida.",
+        "operator": "Träger",
+        "postalCode": "PLZ",
         "removeMember": "Mitglied entfern",
         "removeMemberConfirm": "Bist da sicha, dassd {{name}} aus dera Organisation entfernen mogst?",
         "searchPlaceholder": "Organisationen durchsua...",
         "sendInvite": "Einladung schicka",
+        "status": "Status und Zustimmung",
+        "statusActive": "Aktiv",
+        "statusSuspended": "Ausgesetzt",
+        "statusSuspendedConsent": "Ausgesetzt: Erklärung fehlt",
+        "street": "Straß und Hausnummer",
+        "suspend": "Aussetzen",
+        "suspendConfirm": "„{{name}}“ aussetzen? Leitungen, Workshopleitungen und Teilnehmende kenna de Organisation dann nimma nutzen. Geteilte Spiellinks und öffentliche Workshop-Seitn funktionieren nimma. Es wern koa Daten gelöscht, und de Aussetzung lässt si jederzeit aufheben.",
+        "suspendError": "Des hod ned hihaut. Bitte probier’s no amoi.",
+        "suspendReason": "Grund (optional)",
+        "suspendReasonDescription": "Nur für Admins sichtbar.",
+        "suspendTitle": "Organisation aussetzen",
+        "suspendedNoReason": "Ohne Begründung ausgesetzt",
         "title": "Organisationen verwalten"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "In de letzten zwoa Wochen hod si koa Organisation registriert.",
+          "intro_one": "De Organisation hod si in de letzten zwoa Wochen registriert und is scho freigschaltet.",
+          "intro_other": "De {{count}} Organisationen ham si in de letzten zwoa Wochen registriert und san scho freigschaltet.",
+          "label": "Neue Organisationen",
+          "later": "Später",
+          "open": "Zur Übersicht",
+          "suspendHint": "E-Mail-Adressen wern grad ned bestätigt. Schau da neue Organisationen kurz o und setz sie in da Übersicht aus, wenn wos ned stimmt.",
+          "title": "Neue Organisationen"
+        },
+        "date": "Registriert",
+        "description": "Organisationen, de si in de letzten zwoa Wochen selber registriert ham. Sie san sofort freigschaltet, ohne Bestätigung vo da E-Mail-Adresse; schau sie da o und setz oane aus, wenn wos ned stimmt.",
+        "empty": "In de letzten zwoa Wochen hod si koa Organisation selber registriert.",
+        "institution": "Einrichtung",
+        "loadError": "De Registrierungen ham ned geladen wern kenna.",
+        "person": "Erklärt vo",
+        "title": "Neue Registrierungen"
       },
       "users": {
         "actions": "Aktionen",
@@ -297,7 +439,16 @@
       },
       "copyGame": "Spui kopiern",
       "empty": {
+        "conditions": {
+          "favorites": "oan vo deine Favoriten",
+          "own": "vo dir",
+          "public": "öffentlich",
+          "sponsored": "gesponsert"
+        },
         "description": "Probier dei Filter anzupassn oder schau späder no amoi vorbei.",
+        "is": "Koa Spiel is {{conditions}}.",
+        "isAndNamed": "Koa Spiel is {{conditions}} und hod „{{search}}“ im Nam.",
+        "named": "Koa Spiel hod „{{search}}“ im Nam.",
         "title": "Koane Spiele gfundn"
       },
       "favorite": "Zu Favoriten dazuah",
@@ -308,10 +459,11 @@
         "public": "Öffentlich",
         "sponsored": "G'sponsert"
       },
+      "onlyFavorites": "Nur Favoriten anzeigen",
       "play": "Spuin",
       "reportGame": "Spui melden",
       "restart": "Neu startn",
-      "title": "Alle Spiele",
+      "title": "Spiele",
       "unfavorite": "Aus Favoriten entferna",
       "workshop": "Workshop / Org"
     },
@@ -441,6 +593,23 @@
         "myGame": "Mei Spui",
         "public": "Öffentlich",
         "workshop": "Workshop-Spui"
+      },
+      "byCreator": "vo {{name}}",
+      "cover": {
+        "alt": "Titelbild vo {{name}}",
+        "draw": "Titelbild zeichnen",
+        "drawAgain": "No amoi zeichnen",
+        "drawnOnSave": "Des Titelbild wird gezeichnet, wennst s Spiel speicherst.",
+        "errors": {
+          "failed": "Des Titelbild hod ned gezeichnet wern kenna. Bitte probier’s no amoi.",
+          "keyRejected": "Da KI-Anbieter hod den Schlüssel abglehnt. Des Titelbild hod ned gezeichnet wern kenna.",
+          "noKey": "Koa KI-Schlüssel, denst nutzen kannst, zeichnet Bilder. Des Spiel hod drum vorerst koa Titelbild."
+        },
+        "hint": "Was soll des Titelbild zeigen?",
+        "hintDescription": "Optional. Wenn des Feld leer bleibt, zeigt s Titelbild, worum’s im Spiel geht.",
+        "hintPlaceholder": "Zum Beispiel: da Leuchtturm bei da Nacht",
+        "none": "No koa Titelbild",
+        "title": "Titelbild"
       },
       "createButton": "Spui erstellen",
       "createModal": {
@@ -759,11 +928,15 @@
       "errors": {
         "acceptFailed": "Einladung konnt ned angenommen werdn. Probier's no amoi.",
         "expired": "Diesen Einladungslink is abglaufn.",
+        "guestStays": "Als Gast bleibst dort, wo du beigetreten bist. Um bei am andern Workshop mitzumacha, öffne sein Einladungslink, ohne di anzumelden: Du trittst eam als neuer Gast bei.",
         "loadFailed": "Einladungsdetails ham si ned laden lassn. Probier's no amoi.",
         "notFound": "Dieser Link is ungültig oder widerrufen.",
         "tokenLocked": "Z'vui fehlgschlagene Versuach – probier's später no amoi."
       },
       "goHome": "Zur Startseitn",
+      "guest": {
+        "loggingIn": "Du wirst angemeldet ..."
+      },
       "participant": {
         "loggingIn": "Du wirst eingloggt..."
       },
@@ -791,6 +964,18 @@
     "leaveOrganization": "Organisation verlaffa",
     "leaveTitle": "Organisation verlaffa",
     "leaveWarning": "Du verlierst den Zugriff auf oise Ressourcen und Mitglida.",
+    "list": {
+      "clearSearch": "Suche leeren",
+      "filter": "Filter",
+      "pagination": {
+        "first": "Erste Seitn",
+        "last": "Letzte Seitn",
+        "next": "Nächste Seitn",
+        "previous": "Vorherige Seitn"
+      },
+      "perPage": "Pro Seitn",
+      "range": "{{from}}–{{to}} vo {{total}}"
+    },
     "loading": "Lädt...",
     "logout": "Ausloggn",
     "me": "I",
@@ -844,6 +1029,7 @@
         "owner": "Besitzer/in",
         "platform": "Plattform",
         "publicSponsoring": "Öffentliches Sponsoring",
+        "removeShare": "Aus da Organisation entfernen",
         "searchPlaceholder": "Nach Nam oder Besitzer/in suacha...",
         "selectKey": "API-Schlüssl auswähln",
         "selectKeyPlaceholder": "Schlüssl zum Teilen auswähln...",
@@ -858,6 +1044,14 @@
         "confirmTitle": "Schlissl mit da Organisation teilen",
         "orgKeyGroup": "Organisations-Schlissl",
         "personalKeyGroup": "Persönliche Schlissl"
+      },
+      "declaration": {
+        "consented": "Eure Organisation hod am {{date}} da Version {{version}} zugestimmt.",
+        "title": "Einverständniserklärung",
+        "withdraw": "Zustimmung widerrufen",
+        "withdrawConfirm": "Ohne Zustimmung is eure Organisation ausgsetzt: Koa Mitglied ko ChatGameLab nutzen, bis oane aus da Leitung wieda zustimmt. De Daten bleiben erhalten.",
+        "withdrawFailed": "Des hod ned hihaut. Bitte probier’s no amoi.",
+        "withdrawTitle": "Zustimmung widerrufen?"
       },
       "demoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zum Lehrer/zur Lehrerin zurückstufst?",
       "demoteTitle": "Zum Lehrer/zur Lehrerin zurückstufn",
@@ -891,13 +1085,13 @@
       "promoteToHead": "Zur Leitn machn",
       "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
       "promptConstraintsFallbackEmpty": "(ned konfiguriert)",
-      "promptConstraintsFallbackHint": "Koane Organisationsvorgabn hinterlegt. Es gilt da seitenweite Standard fia de Oitgruppe vom Spieler:",
+      "promptConstraintsFallbackHint": "Für de Organisation is koa Jugendschutz-Prompt-Einschränkung festgelegt. Stattdessen gilt de Webseiten-Standardeinstellung für de jeweilige Altersgruppe:",
       "promptConstraintsFallbackTitle": "Aktiva seitenweite Ersatzregel",
       "promptConstraintsFallbackU13": "Unter 13",
       "promptConstraintsFallbackU13p": "13–17 (mit Elternerlaubnis)",
       "promptConstraintsFallbackU18": "18 und oider",
       "promptConstraintsHint": "Zusätzliche KI-Vorgaben fia olle Sitzunga in dera Organisation. Gilt, wenn koan Workshop-Level-Vorgab da is, und fia Spuin, de per Link gteil wern.",
-      "promptConstraintsLabel": "Organisations-Prompt-Vorgabn",
+      "promptConstraintsLabel": "Jugendschutz-Prompt-Einschränkung da Organisation",
       "promptConstraintsPlaceholder": "z.B. Gschicht altersgerecht hoitn und koane g'walttätign Inhalte.",
       "publicPage": {
         "changeLinkMessage": "D'Seitn is dann unter {{url}} erreichbar.",
@@ -983,6 +1177,8 @@
         "empty": "No koane Workshops.",
         "enterWorkshop": "Workshop-Modus betretn",
         "games": "Spui",
+        "guestLinkTitle": "Link zum erneuten Anmelden",
+        "guestLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "hideInactive": "Inaktive versteckn",
         "inactive": "Inaktiv",
         "inviteByEmail": "Per E-Mail ei'lodn",
@@ -1008,6 +1204,7 @@
         "noActiveInvite": "Koan aktiven Einladungslink.",
         "noDefaultApiKey": "Koan Standard-API-Schlüssl",
         "noDefaultModel": "Plattform-Standard nutzn",
+        "noGuestToken": "Des Mitglied hod koan Link zum erneuten Anmelden. Nur Gäst ham oan.",
         "noIndividuals": "Koane einzelnen Nutzer in der Organisation.",
         "noParticipantToken": "Diese Teilnehmer/in hod koan Einladungslink. Nua anonyme Teilnehmer/innen (Gäste) ham wiederverwendbare Links.",
         "noParticipants": "Noch koane Teilnehmer/innen",
@@ -1018,10 +1215,10 @@
         "participantLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmer-Nam",
         "participants": "Teilnehmer/innen",
-        "promptConstraintsFallbackOrg": "Organisations-Vorgab ois Standard: {{constraint}}",
-        "promptConstraintsFallbackSite": "Seitn-Vorgab ois Standard",
+        "promptConstraintsFallbackOrg": "De Jugendschutz-Prompt-Einschränkung da Organisation wird als Standard verwendet: {{constraint}}",
+        "promptConstraintsFallbackSite": "De Jugendschutz-Prompt-Einschränkung vo da Website wird als Standard verwendet",
         "promptConstraintsHint": "Zusätzliche KI-Vorgabn fia olle Sitzunga in dem Workshop.",
-        "promptConstraintsLabel": "Prompt-Einschränkungen",
+        "promptConstraintsLabel": "Jugendschutz-Prompt-Einschränkung",
         "promptConstraintsPlaceholder": "z. B. Schaug, dass d'Gschicht altersgerecht bleibt und vermeid g'waltige Inhalte.",
         "removeParticipant": "Teilnehmer/in entfern",
         "removeParticipantConfirm": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst?",
@@ -1034,11 +1231,12 @@
         "resetAccessError": "Der Zugang hod ned zurückgesetzt werdn kenna. Bitte probier's no amoi.",
         "resetAccessMessage": "Es wird a neier Link mit am neien Code erstellt.",
         "resetAccessTitle": "Zugang zurücksetzen?",
-        "resetAccessWarning": "Der vorige Link und Code funktionieren nimma – aa auf Geräten, auf denen der Teilnehmer grad angmeldet is.",
+        "resetAccessWarning": "Da bisherige Link und Code funktionieren danach nimma – aa ned auf Geräten, auf denen de Person grad angemeldet is.",
         "revokeInvite": "Einladungslink sperrn",
         "selectApiKey": "API-Schlüssl auswähln",
         "serverDefault": "Server Default",
         "settings": "Einstellungen",
+        "shareGuestLink": "Link zum erneuten Anmelden anzeigen",
         "shareParticipantLink": "Link zum erneuten Anmelden anzeigen",
         "showOtherParticipantsGames": "Spui vo andern Teilnehmer/innen anzeigen",
         "showOtherParticipantsGamesHint": "Leitung und Staff seng sowieso olle Spuin vo de Teilnehmenden zur Moderation",
@@ -1054,6 +1252,7 @@
         },
         "subtitle": "Verwalt Workshops und lad Teilnehmer/innen zum Mitmachn ei.",
         "title": "Workshops",
+        "unnamedParticipant": "Teilnehmer ohne Nam",
         "unpause": "Workshop fortsetzn",
         "usedCount": "{{count}} Nutzungen",
         "viewInviteLink": "Einladungslink anzeigen"
@@ -1076,6 +1275,13 @@
       "title": "Benachrichtigungen",
       "workshopInvite": "Workshop-Eilodung",
       "workshopInviteDescription": "Du bist eigloadn worn, bei dem Workshop mitzumacha."
+    },
+    "organisationSuspended": {
+      "byAdmin": "Da Betreiber hod den Zugang eurer Organisation zu ChatGameLab ausgsetzt. De Daten bleiben erhalten.",
+      "consentWanted": "Da Zugang eurer Organisation zu ChatGameLab is ausgsetzt, bis oane aus da Leitung da aktuellen Einverständniserklärung zustimmt. De Daten bleiben erhalten.",
+      "contact": "Bei Fragen wend di an",
+      "logout": "Abmoin",
+      "title": "Organisation ausgsetzt"
     },
     "play": {
       "cloneGame": "Zu meine Spiele kopiern",
@@ -1144,16 +1350,16 @@
     "searchPlaceholder": "Mitglida durchsua...",
     "serverSettings": {
       "constraints": {
-        "description": "Leit verpflichtende KI-Regeln je nach Altersgruppn fest. De Vorgabn wern in jede KI-Antwort eig'schobn. Gilt fia olle eigloggten Nutzer ausserhalb vom Workshop-Modus.",
-        "title": "Altersbasierte Constraint-Prompts",
+        "description": "Leg verbindliche KI-Regeln anhand vo da Altersgruppe da Spieler fest. De Einschränkungen wern in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb vom Workshop-Modus.",
+        "title": "Altersbasierte Jugendschutz-Prompt-Einschränkungen",
         "u13Hint": "Wird in jeda KI-Aufforderung eig'schobn fia eigloggte Nutzr mit 13–17 Joahr, wo koane Elternerlaubnis hintlegt is.",
-        "u13Label": "Vorgabn fia Nutzr mit 13–17 Joahr, koane Elternerlaubnis (U13)",
+        "u13Label": "Einschränkung für Nutzer vo 13–17 Jahr, ohne elterliche Einwilligung (U13)",
         "u13Placeholder": "z.B. Inhalte strikt jugendgerecht hoitn. Koane G'wald, koa romantischer Inhalt, koa Horrorthema.",
         "u13pHint": "Wird in jeda KI-Aufforderung eig'schobn fia eigloggte Nutzr mit 13–17 Joahr, wo a Elternerlaubnis hintlegt is.",
-        "u13pLabel": "Vorgabn fia Nutzr mit 13–17 Joahr, mit Elternerlaubnis (U13p)",
+        "u13pLabel": "Einschränkung für Nutzer vo 13–17 Jahr, mit elterlicher Einwilligung (U13p)",
         "u13pPlaceholder": "z.B. oitaspassende Inhoit fia Teenies, deren Eltern z'stimmt ham. A paar reifere Themen san erlaubt, aba koana explizite Inhoit.",
         "u18Hint": "Wird in jede KI-Aufforderung fia Nutzer ab 18 eigsetzt.",
-        "u18Label": "Vorgab fia Nutzer ab 18 (U18)",
+        "u18Label": "Einschränkung für Nutzer ab 18 Jahr (U18)",
         "u18Placeholder": "z.B. Inhalt angemessen hoitn. Koa explizite G'wald oder sexuelle Inhalte."
       },
       "defaultTier": {
@@ -1279,6 +1485,7 @@
     "duplicateName": "Diesen Spuinam is scho vergeban. Bitte andern auswählen.",
     "forbidden": "Du host koa Berechtigung fia de Aktion.",
     "generic": "Da is wos schief ganga. Probier's no amoi.",
+    "guestStays": "Als Gast bleibst dort, wo du beigetreten bist. Um bei am andern Workshop mitzumacha, öffne sein Einladungslink, ohne di anzumelden: Du trittst eam als neuer Gast bei.",
     "insufficientQuota": "Dei API-Schlüssl hod koane Guthaben mehr. Lad was nach oder nutz an andern.",
     "invalidApiKey": "Dei API-Schlüssl is ungültig oder abglaufn. Schau in den Einstellungen noch.",
     "invalidJsonSchema": "D'Spui-Konfiguration hod a ungültigs Schema fia d'KI erzeugt. Des liegt am Spui-Aufbau, ned am API-Schlüssl. Überprüf d'Status-Felder und probier's no amoi.",
@@ -1290,6 +1497,7 @@
     "noApiKey": "Fia dieses Spui is koan API-Schlüssl verfiegbar. Entweda hod da Sponsor sei Schlüssl entfernt oder du brauchst an eigenen.",
     "notFound": "Des gwünschte Objekt hod si ned findn lassn.",
     "orgVerificationRequired": "Dei OpenAI-Organisation braucht a Verifizierung fia d'Bildfunktion. Mach des auf https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Deine Organisation is ausgsetzt. De Daten bleiben erhalten.",
     "previousResponseNotFound": "D'KI hod den Gesprächsverlauf valorn. Passiert bei längerer Pause. Fang a neie Session o.",
     "publicDescriptionTooLong": "De Beschreibung derf höchstens 2000 Zeichen lang sei.",
     "publicSlugInvalid": "Nimm a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
@@ -1302,9 +1510,11 @@
       "billing": "Abrechnungsfehler",
       "error": "Fehler",
       "gameConfig": "Spui-Konfigurationsfehler",
+      "guestStays": "Du bleibst, wo du bist",
       "network": "Netzwerkfehler",
       "noApiKey": "Koan API-Schlüssl",
       "notFound": "Ned gfundn",
+      "organisationSuspended": "Organisation ausgsetzt",
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",
       "tokenLocked": "Vorübergehend g sperrt",
@@ -1317,6 +1527,28 @@
     "userNotRegistered": "Vervollständig zuerst dei Registrierung.",
     "validation": "Überprüf dei Eingaben und probier's no amoi.",
     "workshopInactive": "Dieser Workshop is deaktiviert. Bitte meld di bei da Lehrkraft oder Organisation."
+  },
+  "mail": {
+    "consent": {
+      "address": "Anschrift",
+      "agreed": "Du hodst im Nam vo deiner Einrichtung da folgenden Einverständniserklärung zugestimmt.",
+      "bindingInGerman": "De Erklärung is auf Deutsch verbindlich und folgt drum auf Deutsch.",
+      "checksum": "Prüfsumme",
+      "copySubject": "Kopie: {{subject}}",
+      "date": "Datum",
+      "dateValue": "{{date}} Uhr",
+      "declaredBy": "Erklärt vo",
+      "greeting": "Servus {{name}},",
+      "operator": "Träger",
+      "organisation": "Einrichtung",
+      "registered": "De Organisation „{{organisation}}“ is in ChatGameLab freigschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.",
+      "renewed": "Danke! Für de Organisation „{{organisation}}“ in ChatGameLab liegt jetzt de Zustimmung zur aktuellen Einverständniserklärung vor.",
+      "signature": "Dei ChatGameLab-Team\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: Organisation „{{organisation}}“ freigschaltet – Einverständniserklärung",
+      "subjectRenewed": "ChatGameLab: Einverständniserklärung für „{{organisation}}“ bestätigt (Version {{version}})",
+      "version": "Version",
+      "versionValue": "{{version}} (Stand {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1359,7 +1591,7 @@
   },
   "navigation": {
     "adminPanel": "Admin-Bereich",
-    "allGames": "Alle Spiele",
+    "allGames": "Spiele",
     "create": "Dei eigenes Spui erstellen",
     "createGame": "Spui erstellen",
     "dashboard": "Dashboard",
@@ -1371,7 +1603,7 @@
     "myOrganization": "Meine Organisation",
     "myWorkshop": "Mein Workshop",
     "orgApiKeys": "API-Schlüssel",
-    "orgConstraints": "Vorgabn",
+    "orgConstraints": "Jugendschutz-Prompt-Einschränkung",
     "orgMembers": "Mitglida",
     "orgWorkshops": "Workshops",
     "play": "A Spui spuin",
@@ -1380,6 +1612,24 @@
     "workshopSettings": "Workshop-Einstellungen"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Stil",
+      "condense-scenario": "Szenario kürzer macha",
+      "condensed-scenario": "Szenario",
+      "expand": "Erzählen",
+      "image": "Bild malen",
+      "image-prompt": "Bild beschreiben",
+      "image-style": "Stil anpassen",
+      "live-session": "Figur",
+      "observer": "Beobachter",
+      "outline": "Szene planen",
+      "portrait": "Porträt malen",
+      "portrait-prompt": "Porträt beschreiben",
+      "props-store": "Spielstand",
+      "rephrase": "Aktion umformulieren",
+      "rephrase-audio": "Sprache verstehen",
+      "start-game": "Start"
+    },
     "errors": {
       "connectionLost": "Die Verbindung zum Spui is abbrocha. Lad d Seitn neu, dass'd es no amoi probiern kannst.",
       "imageFailed": "Des Buidl für de Szene hod ned erstellt wern kenna. De Gschicht geht weida.",
@@ -1401,6 +1651,11 @@
       "starting": "Des Spui startet …",
       "tryAgain": "No amoi probiern"
     },
+    "pipeline": {
+      "copied": "Layout kopiert",
+      "copyFailed": "Koa Zwischenablage: Layout in da Konsole ausgegeben",
+      "copyLayout": "Layout kopieren"
+    },
     "problems": {
       "denied": "Du derfst des Spui ned spuiln.",
       "failed": "Da is wos schiefganga, des Spui kann ned weitagehn.",
@@ -1408,6 +1663,7 @@
       "keyRejected": "Da KI-Anbieter hod den Schlüssel von dem Spui abglehnt, drum geht's ned weida. Wer des Spui eingerichtet hod, muaß den Schlüssel prüfen.",
       "noKey": "Für des Spui gibt's koan verfügbaren KI-Schlüssel.",
       "noPlays": "Für des geteilte Spui san koane Spielrunden mehr übrig.",
+      "paused": "Da Workshop is pausiert. Des Spiel geht weiter, sobald er fortgesetzt wird.",
       "stale": "Des Spui kann nimmer fortgsetzt wern.",
       "unknown": "De Spuisitzung gibt's ned.",
       "unreachable": "Da KI-Anbieter antwortet grad ned, drum geht's ned weida. Probier's in a paar Minuten no amoi."
@@ -1424,6 +1680,32 @@
       "hearing": "I hör, wos'd sogst…",
       "hold": "Zum Redn gedrückt hoitn",
       "recording": "I los zua… zum Schicka loslossn"
+    },
+    "wires": {
+      "adapted-style\u00003eimage-prompt": "Stil",
+      "adapted-style\u00003eimage-style": "Anfrage",
+      "adapted-style\u00003estart-game": "fertig",
+      "condense-scenario\u00003econdensed-scenario": "Antwort",
+      "condensed-scenario\u00003econdense-scenario": "Anfrage",
+      "condensed-scenario\u00003eimage-prompt": "Szenario",
+      "condensed-scenario\u00003estart-game": "fertig",
+      "image-prompt\u00003eimage": "Prompt",
+      "image-style\u00003eadapted-style": "Antwort",
+      "live-session\u00003eobserver": "Mitschrift",
+      "observer\u00003elive-session": "Hinweis",
+      "outline\u00003eexpand": "Plan",
+      "outline\u00003eimage-prompt": "Szene",
+      "outline\u00003eprops-store": "Änderungen",
+      "player-input-audio\u00003elive-session": "Sprache",
+      "player-input-audio\u00003erephrase-audio": "Sprache",
+      "player-input-text\u00003erephrase": "Aktion",
+      "portrait\u00003estart-game": "fertig",
+      "portrait-prompt\u00003eportrait": "Prompt",
+      "props-store\u00003eoutline": "Stand",
+      "rephrase\u00003eoutline": "Aktion",
+      "rephrase-audio\u00003eoutline": "Aktion",
+      "start-game\u00003elive-session": "Einstieg",
+      "start-game\u00003eoutline": "Prompt"
     }
   }
 }

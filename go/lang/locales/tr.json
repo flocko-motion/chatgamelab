@@ -15,6 +15,17 @@
       "under13Blocker": "Henüz kendi hesabınızı oluşturamazsınız. 13 yaşın altındaysanız, ChatGameLab'i yalnızca bir gençlik organizasyonu aracılığıyla kullanabilirsiniz.",
       "under13Description": "Henüz kendi hesabınızı oluşturamazsınız. 13 yaşın altındaysanız, ChatGameLab'i yalnızca bir gençlik organizasyonu aracılığıyla kullanabilirsiniz."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Oturumu kapat",
+        "message": "Bu atölyede kalırsın. Kodunla istediğin zaman ve herhangi bir cihazdan tekrar giriş yapabilirsin: ana sayfadaki “Kod gir” bölümünden.",
+        "title": "Oturum kapatılsın mı?"
+      },
+      "leaveWorkshop": "Oturumu kapat",
+      "organization": "Kuruluş",
+      "role": "Konuk",
+      "workshop": "Atölye"
+    },
     "login": {
       "auth0Button": "Auth0 ile giriş yap",
       "devMode": "Geliştirme Modu",
@@ -23,6 +34,8 @@
         "title": "Geliştirme Modu"
       },
       "devModeDescription": "Geliştirme ve test için hızlı giriş",
+      "devNewOrganisation": "Yeni kişi (kuruluş kaydet)",
+      "devNewPerson": "Yeni kişi (henüz seçim yok, Kayıt ol sonrasındaki gibi)",
       "redirecting": {
         "message": "Sizi giriş sayfasına yönlendirirken lütfen bekleyin.",
         "title": "Auth0'ya yönlendiriliyor..."
@@ -34,8 +47,81 @@
         "teacher": "Öğretmen olarak giriş yap"
       },
       "unavailable": {
-        "message": "Bu sunucuda oturum açma seçeneği bulunmuyor. Atölye katılımcıları bunun yerine kodlarını girebilir.",
+        "message": "Bu örnekte giriş yapılandırılmamış. Bir atölyedeki konuklar bunun yerine kodlarını girebilir.",
         "title": "Oturum açma kullanılamıyor"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "ChatGameLab'de bu şekilde görünürsün (en fazla 24 karakter).",
+      "accountNameLabel": "Görünen ad",
+      "cityLabel": "Şehir",
+      "confirmAdult": "En az 18 yaşındayım.",
+      "consentPage": {
+        "constraintIntro": "Beyanla birlikte kurumunuz, hedef grubunuza uygun bir çocuk ve genç koruma istem kısıtlaması belirlemeyi taahhüt eder. Aşağıda kuruluşunuzun şu anda kullandığı kısıtlama yer alıyor. Lütfen kontrol edin ve gerekirse düzenleyin.",
+        "emailDescription": "Beyanın metnini içeren onayı bu adrese gönderiyoruz.",
+        "introExisting": "Kuruluşunuz “{{name}}” için artık çevrim içi olarak onaylanan bir beyan var. Bu beyan, daha önce imzaladığınız kullanıcı sözleşmesinin yerini alır. Lütfen okuyun ve kurumunuz adına kabul edin.",
+        "introNewVersion": "Beyan güncellendi (sürüm {{version}}). Lütfen yeni sürümü okuyun ve kuruluşunuz “{{name}}” adına kabul edin.",
+        "introWithdrawn": "Kuruluşunuz “{{name}}”in beyana verdiği onay geri çekildiği için askıya alındı. ChatGameLab'i tekrar kullanmak için lütfen beyanı okuyun ve kurumunuz adına kabul edin.",
+        "logout": "Oturumu kapat",
+        "oneHeadIsEnough": "Kuruluş yöneticilerinden birinin kabul etmesi yeterlidir. O zamana kadar kuruluşunuz askıdadır: üyeleri ChatGameLab'i kullanamaz.",
+        "submit": "Kabul et",
+        "title": "Beyanı onayla"
+      },
+      "consentSection": "Onaylar",
+      "declarationGermanOnly": "Beyan yalnızca Almanca olarak sunulmaktadır. Bağlayıcı olan Almanca metindir.",
+      "declarationVersion": "Sürüm {{version}}, tarih {{date}}",
+      "emailConfirmHint": "Formu gönderdikten sonra kuruluş hemen oluşturulur. Beyanın metnini içeren onay e-posta adresinize gönderilir.",
+      "emailDescription": "Beyanın onayını bu adrese gönderiyoruz.",
+      "emailFromLogin": "Bu, giriş adresinizdir.",
+      "emailLabel": "İş e-posta adresi",
+      "errors": {
+        "conflict": "Bu giriş için zaten bir hesap var. Lütfen giriş yapın ve ayarlardaki yükseltme seçeneğini kullanın.",
+        "declaration_version_outdated": "Beyan güncellendi. Lütfen sayfayı yeniden yükleyin ve güncel sürümü okuyun.",
+        "duplicate_name": "Bu görünen ad zaten kullanılıyor.",
+        "emailInvalid": "Lütfen geçerli bir e-posta adresi girin.",
+        "email_belongs_to_other_account": "Bu e-posta adresiyle zaten bir hesap var. Lütfen bu hesapla giriş yapın ve ayarlardan “Kuruluşa yükselt” seçeneğini seçin.",
+        "formIncomplete": "Lütfen tüm zorunlu alanları doldurun ve tüm maddeleri onaylayın.",
+        "generic": "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.",
+        "institution_age_not_allowed": "Bir kuruluş yalnızca yetişkin hesabıyla (18+) kaydedilebilir.",
+        "institution_consents_required": "Lütfen tüm maddeleri onaylayın.",
+        "institution_name_taken": "Bu ada sahip bir kuruluş zaten var. Lütfen ada, örneğin şehri ekleyerek, uzatın.",
+        "loadFailed": "Beyan yüklenemedi. Lütfen sayfayı yeniden yükleyin.",
+        "name_too_long": "Görünen ad en fazla 24 karakter uzunluğunda olabilir.",
+        "profane_name": "Bu görünen ada izin verilmiyor.",
+        "required": "Zorunlu",
+        "validation_error": "Lütfen bilgilerinizi kontrol edin."
+      },
+      "institutionNameLabel": "Kurumun adı",
+      "institutionSection": "Kurum hakkında",
+      "operatorDescription": "örn. şehir, dernek, cemaat",
+      "operatorLabel": "İşleten kuruluş",
+      "personFunctionLabel": "Kurumdaki rol",
+      "personFunctionPlaceholder": "örn. yönetici, gençlik çalışanı",
+      "personNameLabel": "Ad ve soyad",
+      "personSection": "Hakkınızda",
+      "postalCodeLabel": "Posta kodu",
+      "registered": {
+        "text": "Kuruluşunuz etkinleştirildi. Yöneticisisiniz ve artık atölye oluşturabilirsiniz.",
+        "title": "Kuruluş kaydedildi"
+      },
+      "streetLabel": "Cadde ve kapı numarası",
+      "submit": "Kuruluşu kaydet",
+      "subtitle": "Formu gönderdikten sonra kuruluşunuz hemen etkinleştirilir ve yöneticisi siz olursunuz.",
+      "switchToPersonal": "Seçime geri dön",
+      "titleRegister": "Kuruluş kaydet",
+      "toMyOrganization": "Kuruluşuma git",
+      "youthProtection": {
+        "changeHint": "Bu ayarı istediğiniz zaman değiştirebilir ve ayrı atölyeler için farklı belirleyebilirsiniz.",
+        "defaultOption": "13 yaşından itibaren varsayılan",
+        "fieldLabel": "Kuruluşunuzun çocuk ve genç koruma istem kısıtlaması",
+        "intro": "Yapay zekâ, kuruluşunuzun her oyununda bu talimatı alır. Hedef grubunuzun yaşına uygun olacak şekilde seçin.",
+        "responsibilityHint": "Öneriler resmî bir yaş derecelendirmesi değildir. Ayara kurumunuz karar verir ve bundan kurumunuz sorumludur.",
+        "suggestionAdults": "{{age}} yaşından itibaren yetişkinler için",
+        "suggestionChildren": "yaklaşık {{age}} yaşından itibaren çocuklar için",
+        "suggestionTeens": "yaklaşık {{age}} yaşından itibaren gençler için",
+        "suggestionsLabel": "Öneriler (bir öneriye tıklamak metni değiştirir):",
+        "title": "Çocuk ve genç koruma istem kısıtlaması",
+        "tooLong": "En fazla {{max}} karakter. Lütfen kısaltın veya bir öneri seçin."
       }
     },
     "participant": {
@@ -57,6 +143,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Oluşturulan Oyunlar",
       "gamesPlayed": "Oynanan Oyunlar",
+      "guestCode": {
+        "error": "Erişim kodunuz yüklenemedi.",
+        "hint": "Bu kodun fotoğrafını çekin veya bir yere not edin ve kimseyle paylaşmayın. Bu kod, istediğiniz zaman ve herhangi bir cihazdan hesabınıza dönmenizi sağlar: ana sayfadaki “Kod gir” bölümüne kelimeleri girin veya QR kodunu tarayın.",
+        "longTokenHint": "QR kodunun fotoğrafını çekin veya bağlantıyı kaydedin ve kimseyle paylaşmayın. Bu bağlantı, istediğiniz zaman hesabınıza dönmenizi sağlar. Atölye yöneticiniz, erişiminizi sıfırlayarak size dört kelimelik kısa bir kod verebilir.",
+        "title": "Erişim kodunuz"
+      },
       "memberSince": "Kayıt tarihi",
       "messagesSent": "Gönderilen Mesajlar",
       "noOrganization": "Organizasyon yok",
@@ -72,6 +164,7 @@
       "role": "Rol",
       "roles": {
         "admin": "Yönetici",
+        "guest": "Konuk",
         "head": "Organizasyon Başkanı",
         "individual": "Bireysel",
         "participant": "Katılımcı",
@@ -141,6 +234,12 @@
       "individualDescription": "Yapay zekâ destekli metin maceraları oluşturup oynayın",
       "individualTitle": "Kişisel Hesap",
       "loginLink": "Giriş yap",
+      "organizationExistingAccount": "Kuruluşlar yeni bir girişle kaydolur. Zaten hesabınız var mı?",
+      "organizationIntro": "ChatGameLab'i atölyelerde kullanmak isteyen gençlik merkezleri, okullar ve diğer kurumlar için.",
+      "organizationStep1": "Auth0 üzerinden girişinizi oluşturursunuz (e-posta ve parola).",
+      "organizationStep2": "Kendiniz ve kurumunuz hakkındaki bilgileri girer, çocuk ve genç koruma istem kısıtlamasını belirler ve beyanı kabul edersiniz.",
+      "organizationStep3": "Formu gönderdikten sonra kuruluş hemen etkinleştirilir ve atölye oluşturabilirsiniz.",
+      "organizationTitle": "Kuruluş olarak kaydol",
       "privacyPolicy": "Gizlilik Politikası",
       "termsOfService": "Hizmet Şartları",
       "title": "Hesabınızı Oluşturun"
@@ -209,16 +308,26 @@
       },
       "organizations": {
         "actions": "Eylemler",
+        "city": "Şehir",
+        "consentGiven": "Beyan v{{version}} · {{date}}",
+        "consentMissing": "Beyan beklemede",
+        "consentOutdated": "Beyan güncel değil (v{{version}})",
+        "consentWithdrawn": "Beyan geri çekildi",
         "create": "Organizasyon Oluştur",
         "createTitle": "Yeni Organizasyon Oluştur",
-        "deleteConfirm": "\"{{name}}\" organizasyonunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "deleteConfirm": "“{{name}}” kalıcı olarak silinsin mi? Kuruluşun tüm atölyeleri ve katılımcıları silinir; yöneticiler ve atölye yöneticileri hesaplarını korur. Bu işlem geri alınamaz. Kuruluş yalnızca erişimini kaybetmeli ise bunun yerine askıya alın.",
         "deleteTitle": "Organizasyonu Sil",
+        "detailsOptional": "İsteğe bağlı: işleten kuruluş ve adres",
         "editTitle": "Organizasyonu Düzenle",
         "email": "E-posta Adresi",
         "emailPlaceholder": "E-posta adresi girin",
         "empty": "Henüz organizasyon yok. Başlamak için bir tane oluşturun.",
+        "heads": "Yöneticiler",
         "inviteDescription": "{{name}} organizasyonuna başkan olarak katılmaları için davetiye gönderin.",
         "inviteTitle": "Organizasyona Davet",
+        "lift": "Askıya almayı kaldır",
+        "liftConfirm": "“{{name}}” için askıya alma kaldırılsın mı? Güncel beyanı kabul etmişse tüm üyeler kuruluşu yeniden eskisi gibi kullanabilir.",
+        "liftTitle": "Askıya almayı kaldır",
         "memberEmail": "E-posta",
         "memberName": "İsim",
         "memberRole": "Rol",
@@ -228,11 +337,44 @@
         "name": "İsim",
         "namePlaceholder": "Organizasyon adı girin",
         "noMembers": "Bu organizasyonda üye yok.",
+        "operator": "İşleten kuruluş",
+        "postalCode": "Posta kodu",
         "removeMember": "Üyeyi kaldır",
         "removeMemberConfirm": "{{name}} kişisini bu organizasyondan kaldırmak istediğinizden emin misiniz?",
         "searchPlaceholder": "Organizasyon ara...",
         "sendInvite": "Davet Gönder",
+        "status": "Durum ve onay",
+        "statusActive": "Etkin",
+        "statusSuspended": "Askıya alındı",
+        "statusSuspendedConsent": "Askıya alındı: beyan beklemede",
+        "street": "Cadde ve kapı numarası",
+        "suspend": "Askıya al",
+        "suspendConfirm": "“{{name}}” askıya alınsın mı? Yöneticiler, atölye yöneticileri ve katılımcılar kuruluşu artık kullanamaz. Paylaşılan oyun bağlantıları ve herkese açık atölye sayfaları çalışmaz. Veriler silinmez ve askıya alma istediğiniz zaman kaldırılabilir.",
+        "suspendError": "Bu işlem gerçekleştirilemedi. Lütfen tekrar deneyin.",
+        "suspendReason": "Neden (isteğe bağlı)",
+        "suspendReasonDescription": "Yalnızca yöneticiler görebilir.",
+        "suspendTitle": "Kuruluşu askıya al",
+        "suspendedNoReason": "Nedensiz olarak askıya alındı",
         "title": "Organizasyonları Yönet"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Son iki hafta içinde hiçbir kuruluş kaydolmadı.",
+          "intro_one": "Bu kuruluş son iki hafta içinde kaydoldu ve zaten etkinleştirildi.",
+          "intro_other": "Bu {{count}} kuruluş son iki hafta içinde kaydoldu ve zaten etkinleştirildi.",
+          "label": "Yeni kuruluşlar",
+          "later": "Daha sonra",
+          "open": "Genel bakışa git",
+          "suspendHint": "E-posta adresleri şu anda doğrulanmıyor. Yeni kuruluşlara kısaca göz atın ve bir sorun varsa genel bakıştan askıya alın.",
+          "title": "Yeni kuruluşlar"
+        },
+        "date": "Kayıt tarihi",
+        "description": "Son iki hafta içinde kendileri kaydolan kuruluşlar. E-posta adresini doğrulamadan hemen etkinleşirler; göz atın ve bir sorun varsa kuruluşu askıya alın.",
+        "empty": "Son iki hafta içinde hiçbir kuruluş kendiliğinden kaydolmadı.",
+        "institution": "Kurum",
+        "loadError": "Kayıtlar yüklenemedi.",
+        "person": "Beyan eden",
+        "title": "Yeni kayıtlar"
       },
       "users": {
         "actions": "Eylemler",
@@ -299,7 +441,16 @@
       },
       "copyGame": "Oyunu Kopyala",
       "empty": {
+        "conditions": {
+          "favorites": "favorilerinizden biri",
+          "own": "size ait",
+          "public": "herkese açık",
+          "sponsored": "desteklenen"
+        },
         "description": "Filtrelerinizi değiştirin veya yeni oyunlar için daha sonra tekrar bakın.",
+        "is": "{{conditions}} hiçbir oyun yok.",
+        "isAndNamed": "{{conditions}} ve adında “{{search}}” bulunan hiçbir oyun yok.",
+        "named": "Adında “{{search}}” bulunan hiçbir oyun yok.",
         "title": "Oyun bulunamadı"
       },
       "favorite": "Favorilere ekle",
@@ -310,10 +461,11 @@
         "public": "Herkese Açık",
         "sponsored": "Sponsorlu"
       },
+      "onlyFavorites": "Yalnızca favorileri göster",
       "play": "Oyna",
       "reportGame": "Oyunu bildir",
       "restart": "Yeniden Başlat",
-      "title": "Tüm Oyunlar",
+      "title": "Oyunlar",
       "unfavorite": "Favorilerden çıkar",
       "workshop": "Atölye / Kuruluş"
     },
@@ -443,6 +595,23 @@
         "myGame": "Oyunum",
         "public": "Herkese Açık",
         "workshop": "Atölye Oyunu"
+      },
+      "byCreator": "{{name}} tarafından",
+      "cover": {
+        "alt": "{{name}} oyununun kapak görseli",
+        "draw": "Kapak görseli oluştur",
+        "drawAgain": "Yeniden oluştur",
+        "drawnOnSave": "Kapak görseli oyunu kaydettiğinizde oluşturulur.",
+        "errors": {
+          "failed": "Kapak görseli oluşturulamadı. Lütfen tekrar deneyin.",
+          "keyRejected": "Yapay zekâ sağlayıcısı anahtarı reddetti. Kapak görseli oluşturulamadı.",
+          "noKey": "Kullanabileceğiniz yapay zekâ anahtarlarından hiçbiri görsel oluşturmuyor; bu nedenle oyunun şimdilik kapak görseli yok."
+        },
+        "hint": "Kapak görselinde ne gösterilmeli?",
+        "hintDescription": "İsteğe bağlı. Boş bırakılırsa kapak görseli oyunun ne hakkında olduğunu gösterir.",
+        "hintPlaceholder": "Örneğin: geceleyin deniz feneri",
+        "none": "Henüz kapak görseli yok",
+        "title": "Kapak görseli"
       },
       "createButton": "Oyun Oluştur",
       "createModal": {
@@ -761,11 +930,15 @@
       "errors": {
         "acceptFailed": "Davet kabul edilemedi. Lütfen tekrar deneyin.",
         "expired": "Bu davet bağlantısının süresi dolmuş.",
+        "guestStays": "Konuk olarak katıldığınız yerde kalırsınız. Başka bir atölyeye katılmak için davet bağlantısını giriş yapmadan açın: yeni bir konuk olarak katılırsınız.",
         "loadFailed": "Davet detayları yüklenemedi. Lütfen tekrar deneyin.",
         "notFound": "Bu davet bağlantısı geçersiz veya iptal edilmiş.",
         "tokenLocked": "Çok fazla başarısız deneme yapıldı – lütfen daha sonra tekrar deneyin."
       },
       "goHome": "Ana sayfaya git",
+      "guest": {
+        "loggingIn": "Giriş yapılıyor..."
+      },
       "participant": {
         "loggingIn": "Giriş yapılıyor..."
       },
@@ -793,6 +966,18 @@
     "leaveOrganization": "Organizasyondan Ayrıl",
     "leaveTitle": "Organizasyondan Ayrıl",
     "leaveWarning": "Organizasyon kaynaklarına ve üyelerine erişiminizi kaybedeceksiniz.",
+    "list": {
+      "clearSearch": "Aramayı temizle",
+      "filter": "Filtre",
+      "pagination": {
+        "first": "İlk sayfa",
+        "last": "Son sayfa",
+        "next": "Sonraki sayfa",
+        "previous": "Önceki sayfa"
+      },
+      "perPage": "Sayfa başına",
+      "range": "{{from}}–{{to}} / {{total}}"
+    },
     "loading": "Yükleniyor...",
     "logout": "Çıkış Yap",
     "me": "Ben",
@@ -846,6 +1031,7 @@
         "owner": "Sahip",
         "platform": "Platform",
         "publicSponsoring": "Herkese Açık Sponsor",
+        "removeShare": "Kuruluştan kaldır",
         "searchPlaceholder": "İsme veya sahibine göre ara...",
         "selectKey": "API Anahtarı Seç",
         "selectKeyPlaceholder": "Paylaşmak için bir anahtar seçin...",
@@ -860,6 +1046,14 @@
         "confirmTitle": "Anahtarı Kuruluşla Paylaş",
         "orgKeyGroup": "Kuruluş Anahtarları",
         "personalKeyGroup": "Kişisel Anahtarlar"
+      },
+      "declaration": {
+        "consented": "Kuruluşunuz {{date}} tarihinde {{version}} sürümünü kabul etti.",
+        "title": "Onay beyanı",
+        "withdraw": "Onayı geri çek",
+        "withdrawConfirm": "Onay olmadan kuruluşunuz askıya alınır: bir yönetici yeniden kabul edene kadar hiçbir üye ChatGameLab'i kullanamaz. Verileri korunur.",
+        "withdrawFailed": "Bu işlem gerçekleştirilemedi. Lütfen tekrar deneyin.",
+        "withdrawTitle": "Onay geri çekilsin mi?"
       },
       "demoteConfirm": "\"{{name}}\" ({{email}}) kullanıcısını Öğretmen rolüne düşürmek istediğinizden emin misiniz?",
       "demoteTitle": "Öğretmenliğe Düşür",
@@ -893,13 +1087,13 @@
       "promoteToHead": "Başkan Yap",
       "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
       "promptConstraintsFallbackEmpty": "(yapılandırılmadı)",
-      "promptConstraintsFallbackHint": "Kurumsal bir kısıtlama yapılandırılmadı. Oyuncunun yaş grubuna yönelik site genelindeki varsayılan ayar uygulanır:",
+      "promptConstraintsFallbackHint": "Kuruluş için herhangi bir kısıtlama yapılandırılmamış. Bunun yerine oyuncunun yaş grubu için site genelindeki varsayılan uygulanır:",
       "promptConstraintsFallbackTitle": "Etkin site genelindeki geri dönüş",
       "promptConstraintsFallbackU13": "13 yaş altı",
       "promptConstraintsFallbackU13p": "13–17 (ebeveyn izniyle)",
       "promptConstraintsFallbackU18": "18 ve üzeri",
       "promptConstraintsHint": "Bu kuruluşta tüm oturumlar için ek yapay zekâ talimatları. Atölye düzeyinde bir kısıtlama ayarlanmadığında ve bağlantı yoluyla paylaşılan oyunlarda geçerlidir.",
-      "promptConstraintsLabel": "Kuruluş istem kısıtlamaları",
+      "promptConstraintsLabel": "Kuruluşun çocuk ve genç koruma istem kısıtlaması",
       "promptConstraintsPlaceholder": "ör. Hikâyeyi yaşa uygun tut ve şiddet içeriğinden kaçın.",
       "publicPage": {
         "changeLinkMessage": "Sayfa bundan sonra {{url}} adresinde olacaktır.",
@@ -981,6 +1175,8 @@
         "empty": "Henüz atölye yok.",
         "enterWorkshop": "Atölye Moduna Gir",
         "games": "Oyunlar",
+        "guestLinkTitle": "Yeniden giriş bağlantısı",
+        "guestLinkTitleNamed": "{{name}} için yeniden giriş bağlantısı",
         "hideInactive": "Pasifleri gizle",
         "inactive": "Pasif",
         "inviteByEmail": "E-posta ile davet et",
@@ -1006,6 +1202,7 @@
         "noActiveInvite": "Aktif bir davet bağlantısı yok.",
         "noDefaultApiKey": "Varsayılan API anahtarı yok",
         "noDefaultModel": "Platform varsayılanını kullan",
+        "noGuestToken": "Bu üyenin yeniden giriş bağlantısı yok. Yalnızca konukların böyle bir bağlantısı vardır.",
         "noIndividuals": "Bu kuruluşta bireysel kullanıcı yok.",
         "noParticipantToken": "Bu katılımcının davet bağlantısı yok. Yalnızca anonim katılımcıların (misafirlerin) yeniden kullanılabilir davet bağlantıları vardır.",
         "noParticipants": "Henüz katılımcı yok",
@@ -1016,10 +1213,10 @@
         "participantLinkTitleNamed": "{{name}} için yeniden giriş bağlantısı",
         "participantName": "Katılımcı adı",
         "participants": "Katılımcılar",
-        "promptConstraintsFallbackOrg": "Varsayılan olarak kuruluş kısıtlaması kullanılıyor: {{constraint}}",
-        "promptConstraintsFallbackSite": "Varsayılan olarak site kısıtlaması kullanılıyor",
+        "promptConstraintsFallbackOrg": "Kuruluş kısıtlaması varsayılan olarak kullanılıyor: {{constraint}}",
+        "promptConstraintsFallbackSite": "Site kısıtlaması varsayılan olarak kullanılıyor",
         "promptConstraintsHint": "Bu atölyedeki tüm oturumlar için ek yapay zekâ talimatları.",
-        "promptConstraintsLabel": "İstem kısıtlamaları",
+        "promptConstraintsLabel": "Çocuk ve genç koruma istem kısıtlaması",
         "promptConstraintsPlaceholder": "örn. Hikayeyi yaşa uygun tutun ve şiddet içeriğinden kaçının.",
         "removeParticipant": "Katılımcıyı kaldır",
         "removeParticipantConfirm": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz?",
@@ -1032,10 +1229,11 @@
         "resetAccessError": "Erişim sıfırlanamadı. Lütfen tekrar deneyin.",
         "resetAccessMessage": "Yeni bir kod içeren yeni bir bağlantı oluşturulacak.",
         "resetAccessTitle": "Erişim sıfırlansın mı?",
-        "resetAccessWarning": "Katılımcının şu anda giriş yapmış olduğu cihazlar da dâhil olmak üzere önceki bağlantı ve kod çalışmayı durdurur.",
+        "resetAccessWarning": "Önceki bağlantı ve kod artık çalışmaz; konuğun şu anda giriş yapmış olduğu cihazlarda da çalışmaz.",
         "revokeInvite": "Davet Bağlantısını İptal Et",
         "selectApiKey": "Bir API anahtarı seçin",
         "settings": "Ayarlar",
+        "shareGuestLink": "Yeniden giriş bağlantısını göster",
         "shareParticipantLink": "Yeniden giriş bağlantısını göster",
         "showOtherParticipantsGames": "Diğer katılımcıların oyunlarını göster",
         "showOtherParticipantsGamesHint": "Yönetici ve personel moderasyon için her zaman tüm katılımcıların oyunlarını görebilir",
@@ -1051,6 +1249,7 @@
         },
         "subtitle": "Atölyeleri yönetin ve katılımcıları oyunlarda iş birliği yapmaya davet edin.",
         "title": "Atölyeler",
+        "unnamedParticipant": "Adsız katılımcı",
         "unpause": "Atölyeyi sürdür",
         "usedCount": "{{count}} kullanım",
         "viewInviteLink": "Davet Bağlantısını Görüntüle"
@@ -1073,6 +1272,13 @@
       "title": "Bildirimler",
       "workshopInvite": "Atölye Daveti",
       "workshopInviteDescription": "Bu atölyeye katılmanız için davet edildiniz."
+    },
+    "organisationSuspended": {
+      "byAdmin": "İşleten kuruluş, kuruluşunuzun ChatGameLab erişimini askıya aldı. Verileriniz korunur.",
+      "consentWanted": "Kuruluşunuzun ChatGameLab erişimi, yöneticilerinden biri güncel onay beyanını kabul edene kadar askıya alınmıştır. Verileriniz korunur.",
+      "contact": "Sorularınız varsa şu kişiyle iletişime geçin",
+      "logout": "Oturumu kapat",
+      "title": "Kuruluş askıya alındı"
     },
     "play": {
       "cloneGame": "Oyunu oyunlarıma kopyala",
@@ -1142,15 +1348,15 @@
     "serverSettings": {
       "constraints": {
         "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları tanımlayın. Bu kısıtlamalar her yapay zekâ yanıtına eklenir. Atölye modu dışındaki tüm giriş yapmış kullanıcılar için geçerlidir.",
-        "title": "Yaşa Göre Kısıtlama İstemleri",
+        "title": "Yaşa dayalı kısıtlama istemleri",
         "u13Hint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunmayan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
-        "u13Label": "13-17 yaş arası, ebeveyn izni olmayan kullanıcılar için kısıtlama (U13)",
+        "u13Label": "13–17 yaş arası, ebeveyn onayı olmayan kullanıcılar için kısıtlama (U13)",
         "u13Placeholder": "ör. Tüm içeriği gençler için kesinlikle yaşa uygun tutun. Şiddet, romantik içerik veya korku teması yok.",
         "u13pHint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
-        "u13pLabel": "13-17 yaş arası, ebeveyn izni olan kullanıcılar için kısıtlama (U13p)",
+        "u13pLabel": "13–17 yaş arası, ebeveyn onayı olan kullanıcılar için kısıtlama (U13p)",
         "u13pPlaceholder": "örn. Ebeveynleri izin vermiş ergenler için yaşa uygun içerik. Bazı olgun temalara izin verilir, açık içerik yok.",
         "u18Hint": "18 yaş ve üzeri giriş yapmış kullanıcılar için her yapay zekâ istemine eklenir.",
-        "u18Label": "18+ kullanıcılar için kısıtlama (U18)",
+        "u18Label": "18 yaş ve üzeri kullanıcılar için kısıtlama (U18)",
         "u18Placeholder": "ör. İçeriği uygun tutun. Açık şiddet veya cinsel içerikten kaçının."
       },
       "defaultTier": {
@@ -1275,6 +1481,7 @@
     "duplicateName": "Bu oyun adı zaten kullanılıyor. Lütfen farklı bir ad seçin.",
     "forbidden": "Bu işlemi gerçekleştirmek için izniniz yok.",
     "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
+    "guestStays": "Konuk olarak katıldığınız yerde kalırsınız. Başka bir atölyeye katılmak için davet bağlantısını giriş yapmadan açın: yeni bir konuk olarak katılırsınız.",
     "insufficientQuota": "API anahtarınızın kredisi bitti. Lütfen kredi ekleyin veya başka bir API anahtarı kullanın.",
     "invalidApiKey": "API anahtarınız geçersiz veya süresi dolmuş. Lütfen Ayarlar'dan kontrol edin.",
     "invalidJsonSchema": "Oyun yapılandırması yapay zekâ için geçersiz bir şema üretti. Bu bir oyun ayarı sorunudur, API anahtarı değil. Lütfen oyun değerlerini kontrol edip tekrar deneyin.",
@@ -1286,6 +1493,7 @@
     "noApiKey": "Bu oyun için API anahtarı yok. Sponsor anahtarını kaldırmış olabilir veya kendi API anahtarınızı eklemeniz gerekebilir.",
     "notFound": "İstenen kaynak bulunamadı.",
     "orgVerificationRequired": "OpenAI organizasyonunuzun görsel üretimi kullanabilmesi için doğrulanması gerekiyor. Lütfen https://platform.openai.com/settings/organization/general adresinden doğrulayın.",
+    "organisationSuspended": "Kuruluşunuz askıya alındı. Verileriniz korunur.",
     "previousResponseNotFound": "Yapay zekâ bu konuşmanın geçmişini kaybetti. Bu, oturum uzun süre aktif olmadığında olabilir. Devam etmek için lütfen yeni bir oturum başlatın.",
     "publicDescriptionTooLong": "Açıklama en fazla 2000 karakter uzunluğunda olabilir.",
     "publicSlugInvalid": "a–z, 0–9 ve tekli tireler kullanın; 3 ila 60 karakter olmalıdır.",
@@ -1298,9 +1506,11 @@
       "billing": "Faturalama Hatası",
       "error": "Hata",
       "gameConfig": "Oyun Yapılandırma Hatası",
+      "guestStays": "Olduğun yerde kalırsın",
       "network": "Ağ Hatası",
       "noApiKey": "API Anahtarı Yok",
       "notFound": "Bulunamadı",
+      "organisationSuspended": "Kuruluş askıya alındı",
       "permission": "İzin Reddedildi",
       "server": "Sunucu Hatası",
       "tokenLocked": "Geçici olarak kilitlendi",
@@ -1313,6 +1523,28 @@
     "userNotRegistered": "Devam etmeden önce kaydı tamamlamanız gerekir.",
     "validation": "Lütfen girdinizi kontrol edip tekrar deneyin.",
     "workshopInactive": "Bu atölye devre dışı bırakıldı. Lütfen öğretmeniniz veya atölye organizatörünüzle iletişime geçin."
+  },
+  "mail": {
+    "consent": {
+      "address": "Adres",
+      "agreed": "Kurumunuz adına aşağıdaki onay beyanını kabul ettiniz.",
+      "bindingInGerman": "Beyan Almanca olarak bağlayıcıdır; bu nedenle aşağıda Almanca olarak yer almaktadır.",
+      "checksum": "Sağlama toplamı",
+      "copySubject": "Kopya: {{subject}}",
+      "date": "Tarih",
+      "dateValue": "{{date}} (Berlin saati)",
+      "declaredBy": "Beyan eden",
+      "greeting": "Merhaba {{name}},",
+      "operator": "İşleten kuruluş",
+      "organisation": "Kuruluş",
+      "registered": "“{{organisation}}” kuruluşu artık ChatGameLab'de etkin. Yöneticisisiniz ve artık atölye oluşturabilirsiniz.",
+      "renewed": "teşekkürler! ChatGameLab'de “{{organisation}}” kuruluşunun güncel onay beyanına verdiği onay artık mevcut.",
+      "signature": "ChatGameLab ekibiniz\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: “{{organisation}}” kuruluşu etkin – onay beyanı",
+      "subjectRenewed": "ChatGameLab: “{{organisation}}” için onay beyanı onaylandı (sürüm {{version}})",
+      "version": "Sürüm",
+      "versionValue": "{{version}} ({{date}} tarihi itibarıyla)"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1355,7 +1587,7 @@
   },
   "navigation": {
     "adminPanel": "Yönetici Paneli",
-    "allGames": "Tüm Oyunlar",
+    "allGames": "Oyunlar",
     "create": "Kendi Oyununuzu Oluşturun",
     "createGame": "Oyun Oluştur",
     "dashboard": "Pano",
@@ -1367,7 +1599,7 @@
     "myOrganization": "Organizasyonum",
     "myWorkshop": "Atölyem",
     "orgApiKeys": "API Anahtarları",
-    "orgConstraints": "Kısıtlamalar",
+    "orgConstraints": "Çocuk ve genç koruma istem kısıtlaması",
     "orgMembers": "Üyeler",
     "orgWorkshops": "Atölyeler",
     "play": "Oyun Oyna",
@@ -1376,6 +1608,24 @@
     "workshopSettings": "Atölye Ayarları"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Stil",
+      "condense-scenario": "Senaryoyu kısalt",
+      "condensed-scenario": "Senaryo",
+      "expand": "Anlat",
+      "image": "Resim çiz",
+      "image-prompt": "Resmi betimle",
+      "image-style": "Stili uyarla",
+      "live-session": "Karakter",
+      "observer": "Gözlemci",
+      "outline": "Sahneyi planla",
+      "portrait": "Portre çiz",
+      "portrait-prompt": "Portreyi betimle",
+      "props-store": "Oyun durumu",
+      "rephrase": "Eylemi yeniden anlat",
+      "rephrase-audio": "Konuşmayı anla",
+      "start-game": "Başlat"
+    },
     "errors": {
       "connectionLost": "Oyunla bağlantı kesildi. Tekrar denemek için sayfayı yeniden yükle.",
       "imageFailed": "Bu sahne için görsel oluşturulamadı. Hikâye devam ediyor.",
@@ -1397,6 +1647,11 @@
       "starting": "Oyun başlatılıyor…",
       "tryAgain": "Tekrar dene"
     },
+    "pipeline": {
+      "copied": "Düzen kopyalandı",
+      "copyFailed": "Pano yok: düzen konsola yazdırıldı",
+      "copyLayout": "Düzeni kopyala"
+    },
     "problems": {
       "denied": "Bu oyunu oynamana izin verilmiyor.",
       "failed": "Bir şeyler ters gitti ve oyun devam edemiyor.",
@@ -1404,6 +1659,7 @@
       "keyRejected": "Yapay zekâ sağlayıcısı bu oyunun anahtarını reddetti, bu nedenle oyun devam edemiyor. Oyunu kuran kişinin anahtarı kontrol etmesi gerekiyor.",
       "noKey": "Bu oyunu oynamak için kullanılabilir bir yapay zekâ anahtarı yok.",
       "noPlays": "Bu paylaşılan oyunda oynama hakkı kalmadı.",
+      "paused": "Atölye duraklatıldı. Oyun devam ettirildiğinde kaldığı yerden sürer.",
       "stale": "Bu oyuna artık devam edilemiyor.",
       "unknown": "Bu oyun oturumu mevcut değil.",
       "unreachable": "Yapay zekâ sağlayıcısı şu anda yanıt vermiyor, bu nedenle oyun devam edemiyor. Birkaç dakika sonra tekrar dene."
@@ -1420,6 +1676,32 @@
       "hearing": "Söylediklerini duyuyorum…",
       "hold": "Konuşmak için basılı tut",
       "recording": "Dinliyorum… göndermek için bırak"
+    },
+    "wires": {
+      "adapted-style\u001eimage-prompt": "stil",
+      "adapted-style\u001eimage-style": "istek",
+      "adapted-style\u001estart-game": "hazır",
+      "condense-scenario\u001econdensed-scenario": "yanıt",
+      "condensed-scenario\u001econdense-scenario": "istek",
+      "condensed-scenario\u001eimage-prompt": "senaryo",
+      "condensed-scenario\u001estart-game": "hazır",
+      "image-prompt\u001eimage": "istem",
+      "image-style\u001eadapted-style": "yanıt",
+      "live-session\u001eobserver": "döküm",
+      "observer\u001elive-session": "ipucu",
+      "outline\u001eexpand": "plan",
+      "outline\u001eimage-prompt": "sahne",
+      "outline\u001eprops-store": "değişiklikler",
+      "player-input-audio\u001elive-session": "konuşma",
+      "player-input-audio\u001erephrase-audio": "konuşma",
+      "player-input-text\u001erephrase": "eylem",
+      "portrait\u001estart-game": "hazır",
+      "portrait-prompt\u001eportrait": "istem",
+      "props-store\u001eoutline": "durum",
+      "rephrase\u001eoutline": "eylem",
+      "rephrase-audio\u001eoutline": "eylem",
+      "start-game\u001elive-session": "ipucu",
+      "start-game\u001eoutline": "istem"
     }
   }
 }

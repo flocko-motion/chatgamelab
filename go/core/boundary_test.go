@@ -28,6 +28,7 @@ var composition = map[string]bool{
 // Only the core reaches the database: no other code of the module imports
 // raw access, except the composition root.
 // The engine is a module of its own and cannot import cgl/db.
+// (seal check: this pull request is never merged)
 func TestOnlyTheCoreReachesTheDatabase(t *testing.T) {
 	root := ".." // the module, go/
 	var sideDoors []string

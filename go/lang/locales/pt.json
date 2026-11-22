@@ -14,6 +14,17 @@
       "under13Blocker": "Você ainda não pode criar sua própria conta. Se tiver menos de 13 anos, só poderá usar o ChatGameLab por meio de uma organização juvenil.",
       "under13Description": "Você ainda não pode criar sua própria conta. Se tiver menos de 13 anos, só poderá usar o ChatGameLab por meio de uma organização juvenil."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Sair",
+        "message": "Você permanece neste workshop. Com seu código, pode entrar novamente a qualquer momento, em qualquer dispositivo: em “Inserir código” na página inicial.",
+        "title": "Sair?"
+      },
+      "leaveWorkshop": "Sair",
+      "organization": "Organização",
+      "role": "Convidado",
+      "workshop": "Workshop"
+    },
     "login": {
       "auth0Button": "Entrar com Auth0",
       "devMode": "Modo de Desenvolvimento",
@@ -22,6 +33,8 @@
         "title": "Modo de Desenvolvimento"
       },
       "devModeDescription": "Login rápido para desenvolvimento e testes",
+      "devNewOrganisation": "Nova pessoa (registrar uma organização)",
+      "devNewPerson": "Nova pessoa (sem escolha ainda, como após o cadastro)",
       "redirecting": {
         "message": "Aguarde enquanto o redirecionamos para a página de login.",
         "title": "Redirecionando para o Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Entrar como Professor"
       },
       "unavailable": {
-        "message": "Esta instância não oferece login. Os participantes do workshop podem inserir o código.",
+        "message": "Esta instância não oferece login. Em vez disso, os convidados de um workshop podem inserir seu código.",
         "title": "Login indisponível"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Como você aparece no ChatGameLab (no máximo 24 caracteres).",
+      "accountNameLabel": "Nome de exibição",
+      "cityLabel": "Cidade",
+      "confirmAdult": "Tenho pelo menos 18 anos.",
+      "consentPage": {
+        "constraintIntro": "Com a declaração, sua instituição se compromete a definir uma restrição de prompts de proteção de crianças e adolescentes adequada ao seu público-alvo. Abaixo está a restrição que sua organização usa atualmente. Verifique-a e ajuste-a, se necessário.",
+        "emailDescription": "Enviaremos a confirmação com o texto da declaração para este endereço.",
+        "introExisting": "Sua organização “{{name}}” agora tem uma declaração confirmada online. Ela substitui o acordo de uso que você assinou anteriormente. Leia-a e concorde em nome da sua instituição.",
+        "introNewVersion": "A declaração foi atualizada (versão {{version}}). Leia a nova versão e concorde em nome da sua organização “{{name}}”.",
+        "introWithdrawn": "O consentimento da sua organização “{{name}}” à declaração foi retirado, por isso ela está suspensa. Leia a declaração e concorde em nome da sua instituição para usar o ChatGameLab novamente.",
+        "logout": "Sair",
+        "oneHeadIsEnough": "Basta que uma pessoa responsável pela organização concorde. Até lá, sua organização ficará suspensa: seus membros não poderão usar o ChatGameLab.",
+        "submit": "Concordar",
+        "title": "Confirmar a declaração"
+      },
+      "consentSection": "Confirmações",
+      "declarationGermanOnly": "A declaração está disponível apenas em alemão. O texto em alemão é juridicamente vinculante.",
+      "declarationVersion": "Versão {{version}}, de {{date}}",
+      "emailConfirmHint": "Assim que você enviar o formulário, a organização será criada imediatamente. A confirmação com o texto da declaração será enviada para seu endereço de e-mail.",
+      "emailDescription": "Enviaremos a confirmação da declaração para este endereço.",
+      "emailFromLogin": "Este é o endereço do seu login.",
+      "emailLabel": "E-mail profissional",
+      "errors": {
+        "conflict": "Já existe uma conta para este login. Faça login e use a opção de upgrade nas configurações.",
+        "declaration_version_outdated": "A declaração foi atualizada. Recarregue a página e leia a versão atual.",
+        "duplicate_name": "Este nome de exibição já está em uso.",
+        "emailInvalid": "Insira um endereço de e-mail válido.",
+        "email_belongs_to_other_account": "Já existe uma conta com este endereço de e-mail. Faça login com ela e escolha “Fazer upgrade para organização” nas configurações.",
+        "formIncomplete": "Preencha todos os campos obrigatórios e confirme todos os pontos.",
+        "generic": "Algo deu errado. Tente novamente.",
+        "institution_age_not_allowed": "Uma organização só pode ser registrada com uma conta de adulto (18+).",
+        "institution_consents_required": "Confirme todos os pontos.",
+        "institution_name_taken": "Já existe uma organização com este nome. Amplie o nome, por exemplo, com a cidade.",
+        "loadFailed": "Não foi possível carregar a declaração. Recarregue a página.",
+        "name_too_long": "O nome de exibição pode ter no máximo 24 caracteres.",
+        "profane_name": "Este nome de exibição não é permitido.",
+        "required": "Obrigatório",
+        "validation_error": "Verifique seus dados."
+      },
+      "institutionNameLabel": "Nome da instituição",
+      "institutionSection": "Sobre a instituição",
+      "operatorDescription": "ex.: cidade, associação, paróquia",
+      "operatorLabel": "Responsável",
+      "personFunctionLabel": "Função na instituição",
+      "personFunctionPlaceholder": "ex.: direção, educador(a)",
+      "personNameLabel": "Nome e sobrenome",
+      "personSection": "Sobre você",
+      "postalCodeLabel": "CEP",
+      "registered": {
+        "text": "Sua organização foi ativada. Você é responsável por ela e já pode criar workshops.",
+        "title": "Organização registrada"
+      },
+      "streetLabel": "Rua e número",
+      "submit": "Registrar organização",
+      "subtitle": "Assim que você enviar o formulário, sua organização será ativada imediatamente e você será responsável por ela.",
+      "switchToPersonal": "Voltar à escolha",
+      "titleRegister": "Registrar uma organização",
+      "toMyOrganization": "Ir para minha organização",
+      "youthProtection": {
+        "changeHint": "Você pode alterar esta configuração a qualquer momento e defini-la de forma diferente para workshops individuais.",
+        "defaultOption": "Padrão a partir dos 13 anos",
+        "fieldLabel": "Restrição de prompts de proteção de crianças e adolescentes da sua organização",
+        "intro": "A IA recebe esta instrução em todos os jogos da sua organização. Escolha uma configuração adequada à idade do seu público-alvo.",
+        "responsibilityHint": "As sugestões não são uma classificação etária oficial. Sua instituição decide a configuração e é responsável por ela.",
+        "suggestionAdults": "para adultos a partir de {{age}} anos",
+        "suggestionChildren": "para crianças a partir de aproximadamente {{age}} anos",
+        "suggestionTeens": "para adolescentes a partir de aproximadamente {{age}} anos",
+        "suggestionsLabel": "Sugestões (um clique substitui o texto):",
+        "title": "Restrição de prompts de proteção de crianças e adolescentes",
+        "tooLong": "No máximo {{max}} caracteres. Encurte o texto ou escolha uma sugestão."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Jogos Criados",
       "gamesPlayed": "Partidas jogadas",
+      "guestCode": {
+        "error": "Não foi possível carregar seu código de acesso.",
+        "hint": "Fotografe este código ou anote-o e não o compartilhe com ninguém. Ele permite que você volte à sua conta a qualquer momento, em qualquer dispositivo: insira as palavras em “Inserir código” na página inicial ou escaneie o código QR.",
+        "longTokenHint": "Fotografe o código QR ou salve o link e não o compartilhe com ninguém. Ele permite que você volte à sua conta a qualquer momento. O responsável pelo workshop pode fornecer um código curto de quatro palavras ao redefinir seu acesso.",
+        "title": "Seu código de acesso"
+      },
       "memberSince": "Registrado desde",
       "messagesSent": "Mensagens enviadas",
       "noOrganization": "Sem organização",
@@ -71,6 +163,7 @@
       "role": "Função",
       "roles": {
         "admin": "Administrador",
+        "guest": "Convidado",
         "head": "Chefe da Organização",
         "individual": "Individual",
         "participant": "Participante",
@@ -140,6 +233,12 @@
       "individualDescription": "Crie e jogue aventuras em texto com IA",
       "individualTitle": "Conta pessoal",
       "loginLink": "Entrar",
+      "organizationExistingAccount": "As organizações se registram com um novo login. Você já tem uma conta?",
+      "organizationIntro": "Para centros de juventude, escolas e outras instituições que desejam usar o ChatGameLab em workshops.",
+      "organizationStep1": "Você cria seu login com o Auth0 (e-mail e senha).",
+      "organizationStep2": "Você informa seus dados e os dados da instituição, define a restrição de prompts de proteção de crianças e adolescentes e concorda com a declaração.",
+      "organizationStep3": "Assim que enviar o formulário, a organização será ativada imediatamente e você poderá criar workshops.",
+      "organizationTitle": "Registrar-se como organização",
       "privacyPolicy": "Política de Privacidade",
       "termsOfService": "Termos de Serviço",
       "title": "Crie sua conta"
@@ -207,16 +306,26 @@
       },
       "organizations": {
         "actions": "Ações",
+        "city": "Cidade",
+        "consentGiven": "Declaração v{{version}} · {{date}}",
+        "consentMissing": "Declaração pendente",
+        "consentOutdated": "Declaração desatualizada (v{{version}})",
+        "consentWithdrawn": "Declaração retirada",
         "create": "Criar Organização",
         "createTitle": "Criar Nova Organização",
-        "deleteConfirm": "Tem certeza de que deseja excluir \"{{name}}\"? Esta ação não pode ser desfeita.",
+        "deleteConfirm": "Excluir “{{name}}” permanentemente? Todos os workshops e participantes da organização serão excluídos; responsáveis e líderes de workshops manterão suas contas. Isso não pode ser desfeito. Se a organização deve apenas perder o acesso, suspenda-a.",
         "deleteTitle": "Excluir Organização",
+        "detailsOptional": "Opcional: responsável e endereço",
         "editTitle": "Editar Organização",
         "email": "Endereço de E-mail",
         "emailPlaceholder": "Digite o endereço de e-mail",
         "empty": "Ainda não há organizações. Crie uma para começar.",
+        "heads": "Responsáveis",
         "inviteDescription": "Envie um convite para ingressar em {{name}} como o chefe da organização.",
         "inviteTitle": "Convidar para a Organização",
+        "lift": "Suspensão",
+        "liftConfirm": "Suspender a suspensão de “{{name}}”? Depois disso, todos os membros poderão usar a organização como antes, caso ela tenha concordado com a declaração atual.",
+        "liftTitle": "Suspender a suspensão",
         "memberEmail": "E-mail",
         "memberName": "Nome",
         "memberRole": "Função",
@@ -226,11 +335,44 @@
         "name": "Nome",
         "namePlaceholder": "Digite o nome da organização",
         "noMembers": "Nenhum membro nesta organização.",
+        "operator": "Responsável",
+        "postalCode": "CEP",
         "removeMember": "Remover membro",
         "removeMemberConfirm": "Tem certeza de que deseja remover {{name}} desta organização?",
         "searchPlaceholder": "Pesquisar organizações...",
         "sendInvite": "Enviar Convite",
+        "status": "Status e consentimento",
+        "statusActive": "Ativa",
+        "statusSuspended": "Suspensa",
+        "statusSuspendedConsent": "Suspensa: declaração pendente",
+        "street": "Rua e número",
+        "suspend": "Suspender",
+        "suspendConfirm": "Suspender “{{name}}”? Responsáveis, líderes de workshops e participantes não poderão mais usar a organização. Links de jogos compartilhados e páginas públicas de workshops deixarão de funcionar. Nenhum dado será excluído, e a suspensão poderá ser cancelada a qualquer momento.",
+        "suspendError": "Isso não funcionou. Tente novamente.",
+        "suspendReason": "Motivo (opcional)",
+        "suspendReasonDescription": "Visível apenas para administradores.",
+        "suspendTitle": "Suspender organização",
+        "suspendedNoReason": "Suspensa sem motivo",
         "title": "Gerenciar Organizações"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Nenhuma organização se registrou nas últimas duas semanas.",
+          "intro_one": "Esta organização se registrou nas últimas duas semanas e já foi ativada.",
+          "intro_other": "Estas {{count}} organizações se registraram nas últimas duas semanas e já foram ativadas.",
+          "label": "Novas organizações",
+          "later": "Mais tarde",
+          "open": "Ir para a visão geral",
+          "suspendHint": "Os endereços de e-mail ainda não são confirmados. Verifique rapidamente as novas organizações e suspenda-as na visão geral se houver algo errado.",
+          "title": "Novas organizações"
+        },
+        "date": "Registrada em",
+        "description": "Organizações que se registraram nas últimas duas semanas. Elas são ativadas imediatamente, sem confirmar o endereço de e-mail; verifique-as e suspenda uma delas se houver algo errado.",
+        "empty": "Nenhuma organização se registrou nas últimas duas semanas.",
+        "institution": "Instituição",
+        "loadError": "Não foi possível carregar os registros.",
+        "person": "Assinado por",
+        "title": "Novos registros"
       },
       "users": {
         "actions": "Ações",
@@ -297,7 +439,16 @@
       },
       "copyGame": "Copiar Jogo",
       "empty": {
+        "conditions": {
+          "favorites": "um dos seus favoritos",
+          "own": "seu",
+          "public": "público",
+          "sponsored": "patrocinado"
+        },
         "description": "Tente ajustar seus filtros ou volte mais tarde para novos jogos.",
+        "is": "Nenhum jogo é {{conditions}}.",
+        "isAndNamed": "Nenhum jogo é {{conditions}} e tem “{{search}}” no nome.",
+        "named": "Nenhum jogo tem “{{search}}” no nome.",
         "title": "Nenhum jogo encontrado"
       },
       "favorite": "Adicionar aos favoritos",
@@ -308,10 +459,11 @@
         "public": "Público",
         "sponsored": "Patrocinados"
       },
+      "onlyFavorites": "Mostrar apenas favoritos",
       "play": "Jogar",
       "reportGame": "Denunciar jogo",
       "restart": "Reiniciar",
-      "title": "Todos os Jogos",
+      "title": "Jogos",
       "unfavorite": "Remover dos favoritos",
       "workshop": "Workshop / Org"
     },
@@ -441,6 +593,23 @@
         "myGame": "Meu Jogo",
         "public": "Público",
         "workshop": "Jogo de workshop"
+      },
+      "byCreator": "por {{name}}",
+      "cover": {
+        "alt": "Capa de {{name}}",
+        "draw": "Criar capa",
+        "drawAgain": "Criar novamente",
+        "drawnOnSave": "A capa será criada quando você salvar o jogo.",
+        "errors": {
+          "failed": "Não foi possível criar a capa. Tente novamente.",
+          "keyRejected": "O provedor de IA rejeitou a chave. Não foi possível criar a capa.",
+          "noKey": "Nenhuma das chaves de IA que você pode usar cria imagens, então o jogo não tem capa por enquanto."
+        },
+        "hint": "O que a capa deve mostrar?",
+        "hintDescription": "Opcional. Se ficar vazio, a capa mostrará sobre o que é o jogo.",
+        "hintPlaceholder": "Por exemplo: o farol à noite",
+        "none": "Ainda não há capa",
+        "title": "Capa"
       },
       "createButton": "Criar Jogo",
       "createModal": {
@@ -759,11 +928,15 @@
       "errors": {
         "acceptFailed": "Falha ao aceitar o convite. Tente novamente.",
         "expired": "Este link de convite expirou.",
+        "guestStays": "Como convidado, você permanece no workshop ao qual entrou. Para participar de outro workshop, abra o link de convite sem fazer login: você entrará nele como um novo convidado.",
         "loadFailed": "Falha ao carregar detalhes do convite. Tente novamente.",
         "notFound": "Este link de convite é inválido ou foi revogado.",
         "tokenLocked": "Demasiadas tentativas falhadas – tente novamente mais tarde."
       },
       "goHome": "Ir para a Home",
+      "guest": {
+        "loggingIn": "Fazendo seu login..."
+      },
       "participant": {
         "loggingIn": "Fazendo login..."
       },
@@ -791,6 +964,18 @@
     "leaveOrganization": "Sair da Organização",
     "leaveTitle": "Sair da Organização",
     "leaveWarning": "Você perderá acesso a todos os recursos e membros da organização.",
+    "list": {
+      "clearSearch": "Limpar busca",
+      "filter": "Filtrar",
+      "pagination": {
+        "first": "Primeira página",
+        "last": "Última página",
+        "next": "Próxima página",
+        "previous": "Página anterior"
+      },
+      "perPage": "Por página",
+      "range": "{{from}}–{{to}} de {{total}}"
+    },
     "loading": "Carregando...",
     "logout": "Sair",
     "me": "Eu",
@@ -844,6 +1029,7 @@
         "owner": "Proprietário",
         "platform": "Plataforma",
         "publicSponsoring": "Patrocínio Público",
+        "removeShare": "Remover da organização",
         "searchPlaceholder": "Pesquisar por nome ou proprietário...",
         "selectKey": "Selecionar Chave de API",
         "selectKeyPlaceholder": "Escolha uma chave para compartilhar...",
@@ -858,6 +1044,14 @@
         "confirmTitle": "Compartilhar chave com a organização",
         "orgKeyGroup": "Chaves da organização",
         "personalKeyGroup": "Chaves pessoais"
+      },
+      "declaration": {
+        "consented": "Sua organização concordou com a versão {{version}} em {{date}}.",
+        "title": "Declaração de consentimento",
+        "withdraw": "Retirar consentimento",
+        "withdrawConfirm": "Sem o consentimento, sua organização será suspensa: nenhum membro poderá usar o ChatGameLab até que um responsável concorde novamente. Os dados serão mantidos.",
+        "withdrawFailed": "Isso não funcionou. Tente novamente.",
+        "withdrawTitle": "Retirar o consentimento?"
       },
       "demoteConfirm": "Tem certeza de que deseja rebaixar \"{{name}}\" ({{email}}) para Professor?",
       "demoteTitle": "Rebaixar para Professor",
@@ -891,13 +1085,13 @@
       "promoteToHead": "Promover a Chefe",
       "promoteWarning": "Este usuário poderá gerenciar membros da organização e convidar professores.",
       "promptConstraintsFallbackEmpty": "(não configurado)",
-      "promptConstraintsFallbackHint": "Nenhuma restrição da organização configurada. Será aplicado o padrão do site para a faixa etária do jogador:",
+      "promptConstraintsFallbackHint": "Nenhuma restrição da organização foi configurada. Aplica-se o padrão geral do site para a faixa etária do jogador:",
       "promptConstraintsFallbackTitle": "Alternativa geral do site ativa",
       "promptConstraintsFallbackU13": "Menor de 13",
       "promptConstraintsFallbackU13p": "13–17 (com consentimento dos pais)",
       "promptConstraintsFallbackU18": "18 ou mais",
       "promptConstraintsHint": "Instruções adicionais de IA para todas as sessões nesta organização. Aplica-se quando não há restrição em nível de workshop e também a jogos compartilhados por link.",
-      "promptConstraintsLabel": "Restrições de prompt da organização",
+      "promptConstraintsLabel": "Restrição de prompts de proteção de crianças e adolescentes da organização",
       "promptConstraintsPlaceholder": "ex.: Mantenha a história apropriada para a idade e evite conteúdo violento.",
       "publicPage": {
         "changeLinkMessage": "A página ficará disponível em {{url}}.",
@@ -979,6 +1173,8 @@
         "empty": "Ainda não há workshops.",
         "enterWorkshop": "Entrar no Modo Workshop",
         "games": "Jogos",
+        "guestLinkTitle": "Link para fazer login novamente",
+        "guestLinkTitleNamed": "Link para fazer login novamente de {{name}}",
         "hideInactive": "Ocultar inativos",
         "inactive": "Inativo",
         "inviteByEmail": "Convidar por e-mail",
@@ -1004,6 +1200,7 @@
         "noActiveInvite": "Nenhum link de convite ativo disponível.",
         "noDefaultApiKey": "Nenhuma chave de API padrão",
         "noDefaultModel": "Usar padrão da plataforma",
+        "noGuestToken": "Este membro não tem um link para fazer login novamente. Apenas convidados têm um.",
         "noIndividuals": "Nenhum usuário individual nesta organização.",
         "noParticipantToken": "Este participante não tem um link de convite. Apenas participantes anônimos (convidados) têm links de convite reutilizáveis.",
         "noParticipants": "Ainda não há participantes",
@@ -1017,7 +1214,7 @@
         "promptConstraintsFallbackOrg": "Usando a restrição da organização como padrão: {{constraint}}",
         "promptConstraintsFallbackSite": "Usando a restrição do site como padrão",
         "promptConstraintsHint": "Instruções adicionais de IA para todas as sessões neste workshop.",
-        "promptConstraintsLabel": "Restrições do prompt",
+        "promptConstraintsLabel": "Restrição de prompts de proteção de crianças e adolescentes",
         "promptConstraintsPlaceholder": "ex.: mantenha a história apropriada para a idade e evite conteúdo violento.",
         "removeParticipant": "Remover participante",
         "removeParticipantConfirm": "Tem certeza de que deseja remover \"{{name}}\" deste workshop?",
@@ -1030,10 +1227,11 @@
         "resetAccessError": "Não foi possível repor o acesso. Tente novamente.",
         "resetAccessMessage": "Será criada uma nova ligação com um novo código.",
         "resetAccessTitle": "Repor o acesso?",
-        "resetAccessWarning": "A ligação e o código anteriores deixarão de funcionar – incluindo nos dispositivos onde o participante tem atualmente sessão iniciada.",
+        "resetAccessWarning": "O link e o código anteriores deixarão de funcionar, inclusive nos dispositivos em que o convidado estiver conectado no momento.",
         "revokeInvite": "Revogar Link de Convite",
         "selectApiKey": "Selecione uma chave de API",
         "settings": "Configurações",
+        "shareGuestLink": "Mostrar link para fazer login novamente",
         "shareParticipantLink": "Mostrar ligação para voltar a iniciar sessão",
         "showOtherParticipantsGames": "Mostrar jogos de outros participantes",
         "showOtherParticipantsGamesHint": "Responsáveis e equipe sempre podem ver todos os jogos dos participantes para moderação",
@@ -1049,6 +1247,7 @@
         },
         "subtitle": "Gerencie workshops e convide participantes para colaborar em jogos.",
         "title": "Workshops",
+        "unnamedParticipant": "Participante sem nome",
         "unpause": "Retomar workshop",
         "usedCount": "{{count}} usos",
         "viewInviteLink": "Ver Link de Convite"
@@ -1071,6 +1270,13 @@
       "title": "Notificações",
       "workshopInvite": "Convite para workshop",
       "workshopInviteDescription": "Você foi convidado a participar deste workshop."
+    },
+    "organisationSuspended": {
+      "byAdmin": "O responsável suspendeu o acesso da sua organização ao ChatGameLab. Seus dados foram mantidos.",
+      "consentWanted": "O acesso da sua organização ao ChatGameLab está suspenso até que um dos responsáveis concorde com a declaração de consentimento atual. Seus dados foram mantidos.",
+      "contact": "Se tiver dúvidas, entre em contato com",
+      "logout": "Sair",
+      "title": "Organização suspensa"
     },
     "play": {
       "cloneGame": "Clonar para meus jogos",
@@ -1140,15 +1346,15 @@
     "serverSettings": {
       "constraints": {
         "description": "Defina regras obrigatórias de IA com base na faixa etária do jogador. Essas restrições são inseridas em todas as respostas da IA. Elas se aplicam a todos os usuários conectados fora do modo workshop.",
-        "title": "Prompts de restrição baseados em idade",
+        "title": "Prompts de restrição baseados na idade",
         "u13Hint": "Inserido em cada prompt de IA para usuários conectados de 13 a 17 anos sem consentimento dos pais registrado.",
-        "u13Label": "Restrição para usuários de 13 a 17 anos, sem consentimento dos pais (U13)",
+        "u13Label": "Restrição para usuários de 13 a 17 anos, sem consentimento dos responsáveis (U13)",
         "u13Placeholder": "ex.: Mantenha todo o conteúdo estritamente apropriado para adolescentes. Sem violência, conteúdo romântico ou temas de terror.",
         "u13pHint": "Inserido em cada prompt de IA para usuários conectados de 13 a 17 anos com consentimento dos pais registrado.",
-        "u13pLabel": "Restrição para usuários de 13 a 17 anos, com consentimento dos pais (U13p)",
+        "u13pLabel": "Restrição para usuários de 13 a 17 anos, com consentimento dos responsáveis (U13p)",
         "u13pPlaceholder": "ex.: Conteúdo adequado à idade para adolescentes cujos pais autorizaram. Alguns temas maduros são permitidos, sem conteúdo explícito.",
         "u18Hint": "Inserido em cada prompt de IA para usuários conectados com 18 anos ou mais.",
-        "u18Label": "Restrição para usuários de 18+ (U18)",
+        "u18Label": "Restrição para usuários com 18 anos ou mais (U18)",
         "u18Placeholder": "ex.: Mantenha o conteúdo apropriado. Evite violência explícita ou conteúdo sexual."
       },
       "defaultTier": {
@@ -1273,6 +1479,7 @@
     "duplicateName": "O nome deste jogo já está em uso. Escolha um nome diferente.",
     "forbidden": "Você não tem permissão para executar esta ação.",
     "generic": "Algo deu errado. Tente novamente.",
+    "guestStays": "Como convidado, você permanece no workshop ao qual entrou. Para participar de outro workshop, abra o link de convite sem fazer login: você entrará nele como um novo convidado.",
     "insufficientQuota": "Sua chave de API ficou sem créditos. Adicione mais créditos ou use outra chave de API.",
     "invalidApiKey": "Sua chave de API é inválida ou expirou. Verifique sua chave de API em Configurações.",
     "invalidJsonSchema": "A configuração do jogo produziu um esquema inválido para a IA. Trata-se de um problema de configuração do jogo, não da chave de API. Verifique os campos de status do jogo e tente novamente.",
@@ -1284,6 +1491,7 @@
     "noApiKey": "Nenhuma chave de API está disponível para este jogo. O patrocinador pode ter removido a chave ou você precisa configurar a sua.",
     "notFound": "O recurso solicitado não foi encontrado.",
     "orgVerificationRequired": "Sua organização OpenAI precisa de verificação para usar o recurso de geração de imagens. Verifique em https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Sua organização está suspensa. Seus dados foram mantidos.",
     "previousResponseNotFound": "A IA perdeu o contexto desta conversa. Isso pode acontecer quando uma sessão fica inativa por um tempo. Inicie uma nova sessão para continuar jogando.",
     "publicDescriptionTooLong": "A descrição pode ter, no máximo, 2000 caracteres.",
     "publicSlugInvalid": "Utilize a–z, 0–9 e hífenes simples, entre 3 e 60 caracteres.",
@@ -1296,9 +1504,11 @@
       "billing": "Erro de Cobrança",
       "error": "Erro",
       "gameConfig": "Erro de Configuração do Jogo",
+      "guestStays": "Você permanece onde está",
       "network": "Erro de Rede",
       "noApiKey": "Sem Chave de API",
       "notFound": "Não Encontrado",
+      "organisationSuspended": "Organização suspensa",
       "permission": "Permissão Negada",
       "server": "Erro do Servidor",
       "tokenLocked": "Temporariamente bloqueado",
@@ -1311,6 +1521,28 @@
     "userNotRegistered": "Você precisa concluir o cadastro antes de continuar.",
     "validation": "Verifique sua entrada e tente novamente.",
     "workshopInactive": "Este workshop foi desativado. Contate seu professor ou organizador do workshop."
+  },
+  "mail": {
+    "consent": {
+      "address": "Endereço",
+      "agreed": "Em nome da sua organização, você concordou com a seguinte declaração de consentimento.",
+      "bindingInGerman": "A declaração é juridicamente vinculante em alemão, por isso segue em alemão.",
+      "checksum": "Soma de verificação",
+      "copySubject": "Cópia: {{subject}}",
+      "date": "Data",
+      "dateValue": "{{date}} (horário de Berlim)",
+      "declaredBy": "Declarado por",
+      "greeting": "Olá, {{name}},",
+      "operator": "Responsável",
+      "organisation": "Organização",
+      "registered": "a organização “{{organisation}}” agora está ativa no ChatGameLab. Você é responsável por ela e já pode criar workshops.",
+      "renewed": "obrigado! O ChatGameLab agora tem o consentimento da organização “{{organisation}}” para a declaração de consentimento atual.",
+      "signature": "Sua equipe do ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: organização “{{organisation}}” está ativa – declaração de consentimento",
+      "subjectRenewed": "ChatGameLab: declaração de consentimento de “{{organisation}}” confirmada (versão {{version}})",
+      "version": "Versão",
+      "versionValue": "{{version}} (de {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1353,7 +1585,7 @@
   },
   "navigation": {
     "adminPanel": "Painel de Admin",
-    "allGames": "Todos os Jogos",
+    "allGames": "Jogos",
     "create": "Crie Seu Próprio Jogo",
     "createGame": "Criar Jogo",
     "dashboard": "Painel",
@@ -1365,7 +1597,7 @@
     "myOrganization": "Minha Organização",
     "myWorkshop": "Meu Workshop",
     "orgApiKeys": "Chaves de API",
-    "orgConstraints": "Restrições",
+    "orgConstraints": "Restrição de prompts de proteção de crianças e adolescentes",
     "orgMembers": "Membros",
     "orgWorkshops": "Workshops",
     "play": "Jogar um Jogo",
@@ -1374,6 +1606,24 @@
     "workshopSettings": "Configurações do Workshop"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Estilo",
+      "condense-scenario": "Encurtar cenário",
+      "condensed-scenario": "Cenário",
+      "expand": "Narrar",
+      "image": "Criar imagem",
+      "image-prompt": "Descrever imagem",
+      "image-style": "Adaptar estilo",
+      "live-session": "Personagem",
+      "observer": "Observador",
+      "outline": "Planejar cena",
+      "portrait": "Criar retrato",
+      "portrait-prompt": "Descrever retrato",
+      "props-store": "Estado do jogo",
+      "rephrase": "Recontar ação",
+      "rephrase-audio": "Entender fala",
+      "start-game": "Iniciar"
+    },
     "errors": {
       "connectionLost": "A conexão com o jogo foi perdida. Recarregue a página para tentar novamente.",
       "imageFailed": "Não foi possível criar a imagem desta cena. A história continua.",
@@ -1395,6 +1645,11 @@
       "starting": "Iniciando o jogo…",
       "tryAgain": "Tentar novamente"
     },
+    "pipeline": {
+      "copied": "Layout copiado",
+      "copyFailed": "Sem área de transferência: layout registrado no console",
+      "copyLayout": "Copiar layout"
+    },
     "problems": {
       "denied": "Você não pode jogar este jogo.",
       "failed": "Algo deu errado, e o jogo não pode continuar.",
@@ -1402,6 +1657,7 @@
       "keyRejected": "O provedor de IA recusou a chave deste jogo, portanto ele não pode continuar. Quem configurou o jogo precisa verificar a chave.",
       "noKey": "Não há nenhuma chave de IA disponível para jogar este jogo.",
       "noPlays": "Este jogo compartilhado não tem mais partidas disponíveis.",
+      "paused": "O workshop está pausado. O jogo continuará quando ele for retomado.",
       "stale": "Não é mais possível continuar este jogo.",
       "unknown": "Esta sessão de jogo não existe.",
       "unreachable": "O provedor de IA não está respondendo no momento, portanto o jogo não pode continuar. Tente novamente daqui a alguns minutos."
@@ -1418,6 +1674,32 @@
       "hearing": "Ouvindo o que você disse…",
       "hold": "Mantenha pressionado para falar",
       "recording": "Ouvindo… solte para enviar"
+    },
+    "wires": {
+      "adapted-style\u0003eimage-prompt": "estilo",
+      "adapted-style\u0003eimage-style": "solicitação",
+      "adapted-style\u0003estart-game": "pronto",
+      "condense-scenario\u0003econdensed-scenario": "resposta",
+      "condensed-scenario\u0003econdense-scenario": "solicitação",
+      "condensed-scenario\u0003eimage-prompt": "cenário",
+      "condensed-scenario\u0003estart-game": "pronto",
+      "image-prompt\u0003eimage": "prompt",
+      "image-style\u0003eadapted-style": "resposta",
+      "live-session\u0003eobserver": "transcrição",
+      "observer\u0003elive-session": "dica",
+      "outline\u0003eexpand": "plano",
+      "outline\u0003eimage-prompt": "cena",
+      "outline\u0003eprops-store": "alterações",
+      "player-input-audio\u0003elive-session": "fala",
+      "player-input-audio\u0003erephrase-audio": "fala",
+      "player-input-text\u0003erephrase": "ação",
+      "portrait\u0003estart-game": "pronto",
+      "portrait-prompt\u0003eportrait": "prompt",
+      "props-store\u0003eoutline": "estado",
+      "rephrase\u0003eoutline": "ação",
+      "rephrase-audio\u0003eoutline": "ação",
+      "start-game\u0003elive-session": "deixa",
+      "start-game\u0003eoutline": "prompt"
     }
   }
 }
