@@ -59,7 +59,9 @@ By hand, as `cgl`:
 
 ## A box that ran chatgamelab 1.x
 
-`setup.sh` converts it: it removes the 1.x stack with its database, its units,
-the build user `cgl-build` and the 1.x files, then sets the box up as above.
-The SFTP backup key carries over; the backup target goes into the instance
-file.
+`setup.sh` converts it. First it compares the 1.x settings with the instance
+file: when 1.x reports errors to Sentry or backs up, and the file leaves those
+values empty, the run stops before changing anything and prints the lines to
+add. Then it removes the 1.x stack with its database, its units, the build user
+`cgl-build` and the 1.x files, keeps the SFTP backup key, and sets the box up
+as above.
