@@ -18,6 +18,17 @@ the `make` commands below. `gh auth login` once and it remembers.
 Setup, dependencies and how to run the thing locally are in
 [README.md](README.md). This file is only about how a change travels.
 
+## What to read before you change something
+
+- **[The spec](docs/chatgamelab.typ)** says what the product is and does.
+- **[Rules](docs/rules/)** are what to keep in mind beyond the spec, one rule
+  per file. Each names the files it applies to; before you change such a
+  file, read the rules that match it. Reviews check a change against them.
+- **[Workflows](docs/workflows/)** are recipes for reaching a goal, such as
+  [opening the seal](docs/workflows/opening-the-seal.md) on the secure core.
+- **[AGENTS.md](AGENTS.md)** is the entry point for AI agents (`CLAUDE.md`
+  links to it). It is short and worth a read for people too.
+
 ## Things that save everyone time
 
 **Small changes, often.** The single best thing you can do for review speed.
