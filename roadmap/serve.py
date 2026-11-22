@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Serves the roadmap page on this machine (make roadmap-local) and reloads
-its data on request: POST /api/reload reads every issue fresh (about a
-minute), POST /api/reload?issue=N only what concerns issue N (seconds). GitHub's
+its data on request: POST /api/reload reads every issue fresh (about
+five seconds), POST /api/reload?issue=N only what concerns issue N (two). GitHub's
 answers are kept in DIR/cache between reloads. The page finds this server
 through GET /api/local and then shows its reload buttons.
 

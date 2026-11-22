@@ -316,7 +316,7 @@ roadmap:
 # The interactive roadmap on this machine: the data comes from the issues
 # through gh (your login), the page is the current roadmap/index.html, served
 # by roadmap/serve.py, which also reloads the data from the page's buttons
-# (one issue in seconds, all in about a minute). When issues from an earlier
+# (one issue in about two seconds, all in about five). When issues from an earlier
 # run are there it asks whether to read them all fresh; Enter keeps them.
 # Ctrl-C stops it.
 ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
@@ -326,7 +326,7 @@ roadmap-local:
 	@json="$(ROADMAP_LOCAL)/roadmap.json"; fresh=; \
 	if [ -s "$$json" ]; then \
 		age=$$(( ($$(date +%s) - $$(date -r "$$json" +%s)) / 60 )); \
-		printf "Issues from %s min ago are there. Read them fresh from GitHub (~1 min)? [y/N] " "$$age"; \
+		printf "Issues from %s min ago are there. Read them fresh from GitHub (~5 s)? [y/N] " "$$age"; \
 		read answer || answer=; case "$$answer" in [yY]*) fresh=--fresh;; esac; \
 	fi; \
 	(sleep 1 && while ! curl -sf -o /dev/null http://localhost:8765/api/local; do sleep 1; done; \

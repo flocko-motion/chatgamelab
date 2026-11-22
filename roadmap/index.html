@@ -202,7 +202,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       .catch(err => { button.disabled = false; button.textContent = before; generated.textContent = `reload failed: ${err.message}`; });
   }
   document.getElementById("update").addEventListener("click", ev => {
-    if (local) return reloadData(null, ev.currentTarget, "Reading all issues… (~1 min)");
+    if (local) return reloadData(null, ev.currentTarget, "Reading all issues…");
     // A link click rather than window.open, which some browsers turn into an empty window.
     Object.assign(document.createElement("a"), {
       href: `https://github.com/${data.repo}/actions/workflows/roadmap.yml`, target: "_blank", rel: "noopener" }).click();

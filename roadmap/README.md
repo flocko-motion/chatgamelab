@@ -15,4 +15,4 @@ To change the roadmap, change the issues: put them under an epic (sub-issues), g
 ## Commands
 
 - `make roadmap`: rebuild it now, e.g. after a new *blocked by*, which sends no event. The page's *Update* button opens the same workflow.
-- `make roadmap-local`: the page on this machine, on http://localhost:8765, from the live issues (your `gh` login), with the reload buttons. When issues from an earlier run are there, it asks whether to read them all fresh (about a minute); Enter keeps them.
+- `make roadmap-local`: the page on this machine, on http://localhost:8765, from the live issues (your `gh` login), with the reload buttons. When issues from an earlier run are there, it asks whether to read them all fresh (a few seconds); Enter keeps them.
