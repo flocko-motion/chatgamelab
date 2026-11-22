@@ -16,7 +16,7 @@ help:
 	@echo "make translate        translate changed UI texts into every language (before pushing)"
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
 	@echo "make roadmap          rebuild the interactive roadmap from the issues now"
-	@echo "make roadmap-local    the interactive roadmap, from the live issues, on http://localhost:8765"
+	@echo "make roadmap-local    the interactive roadmap on http://localhost:8765, from the live issues or the last ones read"
 
 # The spec is Typst; the PDFs are build output.
 docs:
@@ -313,13 +313,22 @@ roadmap:
 		[ "$$result" = success ]; exit $$?; \
 	done
 
-# The interactive roadmap on this machine: the data comes from the live issues
-# through gh (your login), the page is the one Pages serves. Ctrl-C stops it.
+# The interactive roadmap on this machine: the data comes from the issues
+# through gh (your login), the page is the current roadmap/index.html, served
+# by roadmap/serve.py, which also reloads the data from the page's buttons
+# (one issue in about two seconds, all in about five). When issues from an earlier
+# run are there it asks whether to read them all fresh; Enter keeps them.
+# Ctrl-C stops it.
 ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
 roadmap-local:
 	@mkdir -p "$(ROADMAP_LOCAL)"
-	python3 roadmap/roadmap.py > "$(ROADMAP_LOCAL)/roadmap.json"
 	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
-	@echo "→ http://localhost:8765"
-	@(sleep 1 && (open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true)) &
-	python3 -m http.server 8765 --bind 127.0.0.1 --directory "$(ROADMAP_LOCAL)"
+	@json="$(ROADMAP_LOCAL)/roadmap.json"; fresh=; \
+	if [ -s "$$json" ]; then \
+		age=$$(( ($$(date +%s) - $$(date -r "$$json" +%s)) / 60 )); \
+		printf "Issues from %s min ago are there. Read them fresh from GitHub (~5 s)? [y/N] " "$$age"; \
+		read answer || answer=; case "$$answer" in [yY]*) fresh=--fresh;; esac; \
+	fi; \
+	(sleep 1 && while ! curl -sf -o /dev/null http://localhost:8765/api/local; do sleep 1; done; \
+	 open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true) & \
+	python3 roadmap/serve.py "$(ROADMAP_LOCAL)" 8765 $$fresh

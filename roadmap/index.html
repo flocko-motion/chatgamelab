@@ -13,33 +13,61 @@
     --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --line: #d0d7de; --panel: #f6f8fa;
     --ready: #d8f5d8; --ready-line: #4caf50; --blocked: #fbe3e3; --blocked-line: #d98c8c;
     --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc;
-    --milestone: #fff3cd; --milestone-line: #d29922;
+    --milestone: #fff3cd; --milestone-line: #d29922; --accent: #0969da;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --line: #30363d; --panel: #161b22;
       --ready: #1f3d24; --ready-line: #3fb950; --blocked: #4a2526; --blocked-line: #c96a6a;
       --done: #262b31; --done-line: #3d444d; --epic: #11161d;
-      --milestone: #3d2e00; --milestone-line: #d29922;
+      --milestone: #3d2e00; --milestone-line: #d29922; --accent: #4493f8;
     }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  body { margin: 0; font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
          background: var(--bg); color: var(--fg); display: flex; flex-direction: column; height: 100vh; }
   header { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap;
            gap: 8px 16px; align-items: center; }
-  header h1 { font-size: 16px; margin: 0; }
+  header h1 { font-size: 18px; margin: 0; }
   header .meta { color: var(--muted); font-size: 12px; }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
   input[type=search] { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px;
                        background: var(--bg); color: var(--fg); width: 180px; }
   button, select { padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px;
                    background: var(--panel); color: var(--fg); cursor: pointer; font: inherit; }
-  label { color: var(--muted); font-size: 13px; }
+  label { color: var(--muted); font-size: 14px; }
   main { flex: 1; display: flex; min-height: 0; }
-  #graph { flex: 1; min-width: 0; }
-  aside { width: 300px; border-left: 1px solid var(--line); background: var(--panel); overflow: auto;
-          padding: 12px 14px; font-size: 13px; }
+  #graphs { flex: 1; min-width: 0; position: relative; }
+  #graph, #covers { position: absolute; inset: 0; }
+  /* Epics only: the same graph with the issues hidden; each epic box carries
+     its title, description and progress, laid over the canvas in HTML and
+     moved with its zoom and pan. The text is cut where the box ends. */
+  #covers { pointer-events: none; overflow: hidden; display: none; }
+  body.epics-only #covers { display: block; }
+  #covers .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .cover { position: absolute; padding: 16px 22px; display: flex; flex-direction: column; gap: 8px;
+           overflow: hidden; border-radius: 10px; }
+  /* One size for every box; what does not fit is cut. A title takes at most
+     two lines. */
+  .cover h3 { margin: 0; font-size: 36px; line-height: 1.12; flex: none; overflow: hidden;
+              display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .cover .prog { flex: none; font-size: 20px; font-weight: 600; }
+  .cover .prog .bar { height: 10px; border-radius: 5px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .cover .prog .bar i { display: block; height: 100%; }
+  .cover.ready .bar i { background: var(--ready-line); }
+  .cover.blocked .bar i { background: var(--blocked-line); }
+  .cover.done { color: var(--muted); } .cover.done .bar i { background: var(--done-line); }
+  .cover p { margin: 0; flex: 1 1 0; min-height: 0; overflow: hidden; font-size: 24px;
+             line-height: 1.4; color: var(--muted);
+             mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent); }
+  .cover.faded { opacity: .15; }
+  .cover.hit { outline: 5px solid #d29922; }
+  .cover.sel { outline: 5px solid var(--accent); }
+  .toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .toggle button { border: 0; border-radius: 0; background: var(--bg); color: var(--muted); }
+  .toggle button[aria-pressed=true] { background: var(--panel); color: var(--fg); font-weight: 600; }
+  aside { width: 340px; border-left: 1px solid var(--line); background: var(--panel); overflow: auto;
+          padding: 14px 16px; font-size: 15px; }
   aside h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
              margin: 14px 0 6px; }
   aside h2:first-child { margin-top: 0; }
@@ -49,9 +77,35 @@
   .legend span { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px;
                  margin-right: 4px; border: 1px solid; }
   .legend div { margin: 3px 0; }
+  /* The details of what was clicked, at the top of the side pane. */
+  #details { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
+             margin-bottom: 18px; position: relative; }
+  #details[hidden] { display: none; }
+  #details .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px;
+                    line-height: 1; padding: 2px 6px; color: var(--muted); }
+  #details .kind { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+  #details h3 { font-size: 20px; line-height: 1.3; margin: 4px 24px 10px 0; }
+  #details h3 a.gh { text-decoration: none; }
+  #details h3 a.gh:hover { text-decoration: underline; color: var(--accent); }
+  #details dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 12px; }
+  #details dt { color: var(--muted); }
+  #details dd { margin: 0; }
+  #details h4 { font-size: 14px; margin: 12px 0 4px; color: var(--muted); }
+  #details ul { padding-left: 0; list-style: none; }
+  #details li { margin: 4px 0; }
+  #details .actions { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  #details .reload { padding: 6px 12px; font-weight: 600; }
+  #details .open { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600;
+                   background: var(--accent); color: #fff; text-decoration: none; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 13px; border: 1px solid; }
+  .badge.ready { background: var(--ready); border-color: var(--ready-line); }
+  .badge.blocked { background: var(--blocked); border-color: var(--blocked-line); }
+  .badge.done, .badge.backlog { background: var(--done); border-color: var(--done-line); }
+  .progress { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 2px 0 10px; }
+  .progress i { display: block; height: 100%; background: var(--ready-line); }
   #tip { position: fixed; pointer-events: none; background: var(--bg); color: var(--fg);
-         border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-size: 12px;
-         max-width: 320px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 10; }
+         border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px;
+         max-width: 420px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 10; }
   @media (max-width: 720px) { main { flex-direction: column; } aside { width: auto; border-left: 0;
     border-top: 1px solid var(--line); max-height: 40vh; } }
 </style>
@@ -61,6 +115,10 @@
   <h1>ChatGameLab Roadmap</h1>
   <span class="meta" id="generated"></span>
   <div class="controls">
+    <div class="toggle" role="group" aria-label="View">
+      <button id="viewIssues" aria-pressed="true" title="Every issue, inside its epic">Issues</button>
+      <button id="viewEpics" aria-pressed="false" title="Epics only: the same roadmap with the issues hidden, each epic box labelled, for the overview">Epics only</button>
+    </div>
     <input type="search" id="search" placeholder="Search issues…">
     <select id="epic"><option value="">All epics</option></select>
     <label><input type="checkbox" id="showDone"> show done</label>
@@ -70,8 +128,9 @@
   </div>
 </header>
 <main>
-  <div id="graph"></div>
+  <div id="graphs"><div id="graph"></div><div id="covers"><div class="world"></div></div></div>
   <aside>
+    <section id="details" hidden></section>
     <h2>Next up</h2><ul id="next"></ul>
     <h2>How to read it</h2>
     <div class="legend">
@@ -80,7 +139,8 @@
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
       <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date</div>
       <div>Boxes are epics, one per milestone they have issues in; a broad band joins the pieces of one epic. Arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
-      <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, click a card to open its issue.</div>
+      <div><b>Epics only</b>: the same roadmap with the issues hidden; each box shows its epic and how much of it is done in that milestone.</div>
+      <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move, Fit to see it all; click an issue, epic or milestone for its details (cmd-click opens it on GitHub).</div>
     </div>
     <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
   </aside>
@@ -107,7 +167,7 @@ const EPICS_PER_ROW = 3;
 
 function li(item) {
   const who = item.assignees.length ? ` — ${item.assignees.join(", ")}` : "";
-  return `<li><a href="${item.url}" target="_blank" rel="noopener">#${item.number}</a> ${escapeHtml(item.title)}${who}</li>`;
+  return `<li><a href="${item.url}" target="_blank" rel="noopener" data-show="issue:${item.number}">#${item.number}</a> ${escapeHtml(item.title)}${who}</li>`;
 }
 function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
@@ -116,8 +176,36 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // are checked; this page then watches roadmap.json and reloads once a newer
   // one is published.
   const generated = document.getElementById("generated");
-  document.getElementById("update").addEventListener("click", () => {
-    window.open(`https://github.com/${data.repo}/actions/workflows/roadmap.yml`, "_blank", "noopener");
+  // Served by roadmap/serve.py (make roadmap-local), the page reloads its data
+  // through that server instead: all issues from the top bar, one issue from
+  // the side pane. The view, the selection and the zoom survive the reload.
+  let local = false;
+  fetch("api/local", { cache: "no-store" }).then(r => r.ok && r.json()).then(j => {
+    local = !!(j && j.local);
+    if (local && selected) showDetails(selected.kind, selected.n);  // add the pane's Update button
+  }).catch(() => {});
+  const STATE = "roadmap-restore";
+  let restore = null;
+  try { restore = JSON.parse(sessionStorage.getItem(STATE)); sessionStorage.removeItem(STATE); } catch (e) {}
+  function reloadData(issue, button, label) {
+    const before = button.textContent;
+    button.disabled = true;
+    button.textContent = label;
+    fetch(issue ? `api/reload?issue=${issue}` : "api/reload", { method: "POST" })
+      .then(r => r.json().then(j => { if (!r.ok) throw new Error(j.error || r.statusText); }))
+      .then(() => {
+        try {
+          sessionStorage.setItem(STATE, JSON.stringify({ zoom: cy.zoom(), pan: cy.pan(), sel: selected }));
+        } catch (e) {}
+        location.reload();
+      })
+      .catch(err => { button.disabled = false; button.textContent = before; generated.textContent = `reload failed: ${err.message}`; });
+  }
+  document.getElementById("update").addEventListener("click", ev => {
+    if (local) return reloadData(null, ev.currentTarget, "Reading all issues…");
+    // A link click rather than window.open, which some browsers turn into an empty window.
+    Object.assign(document.createElement("a"), {
+      href: `https://github.com/${data.repo}/actions/workflows/roadmap.yml`, target: "_blank", rel: "noopener" }).click();
     generated.textContent = "waiting for the update… (click Run workflow on GitHub)";
     const until = Date.now() + 10 * 60 * 1000;
     const timer = setInterval(() => {
@@ -153,12 +241,17 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     if (!pieces.has(id)) pieces.set(id, { id, epic: i.epic, rank: rank(i.milestone), issues: [] });
     pieces.get(id).issues.push(i);
   }
+  function pieceState(p) {
+    if (p.issues.every(i => i.state === "done")) return "done";
+    return p.issues.some(i => i.state === "ready") ? "ready" : "blocked";
+  }
   const piecesOf = epic => [...pieces.values()].filter(p => p.epic === epic).sort((a, b) => a.rank - b.rank);
   for (const p of pieces.values()) {
     const e = epicOf[p.epic];
     const done = p.issues.filter(i => i.state === "done").length;
     elements.push({ data: { id: p.id, label: `#${e.number} ${e.title} — ${done}/${p.issues.length}`,
-                            url: e.url, kind: "epic", epic: e.number, rank: p.rank } });
+                            url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
+                            done, total: p.issues.length } });
   }
   for (const i of data.issues) {
     const meta = [i.assignees.length ? "👤 " + i.assignees.join(", ") : "", i.labels.length ? "🏷 " + i.labels.join(", ") : ""]
@@ -182,18 +275,21 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
 
   // The bars, in milestone order, and invisible edges holding each piece
   // between its bar and the next.
-  const ranks = [...new Set([...pieces.values()].map(p => p.rank))].sort((a, b) => a - b);
+  // Every open milestone gets its bar, also one without issues; "No milestone"
+  // only when issues lack one.
+  const ranks = [...new Set([...milestones.keys(), ...[...pieces.values()].map(p => p.rank)])].sort((a, b) => a - b);
   const bars = ranks.map(r => {
     const m = milestones[r];
     if (!m) return { id: "m-none", rank: r, url: null, done: false, label: "No milestone" };
     const due = m.due ? `due ${new Date(m.due).toLocaleDateString()}` : "no due date";
-    return { id: `m${m.number}`, rank: r, url: m.url, done: m.open === 0,
+    // Done once its issues are closed; an empty milestone is not done yet.
+    return { id: `m${m.number}`, number: m.number, rank: r, url: m.url, done: m.open === 0 && m.closed > 0,
              label: `◆ ${m.title} — ${due} — ${m.closed}/${m.open + m.closed} done` };
   });
   // The helper edges attach to the issues, not to the epic boxes: ELK holds a
   // leaf to its level, a box it only places around its children.
   if (bars.length > 1 || (bars.length === 1 && bars[0].id !== "m-none")) bars.forEach((bar, k) => {
-    elements.push({ data: { id: bar.id, label: bar.label, url: bar.url, kind: "milestone", rank: bar.rank,
+    elements.push({ data: { id: bar.id, number: bar.number, label: bar.label, url: bar.url, kind: "milestone", rank: bar.rank,
                             state: bar.done ? "ready" : "open" } });
     const members = [...pieces.values()].filter(p => p.rank === bar.rank).flatMap(p => p.issues);
     for (const i of members)
@@ -211,13 +307,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     style: [
       { selector: "node[kind='epic']", style: {
           "background-color": css("--epic"), "border-color": css("--line"), "border-width": 1,
-          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -6,
+          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -10,
           "text-background-color": css("--bg"), "text-background-opacity": 1, "text-background-padding": 3,
-          "font-size": 13, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 440,
+          "font-size": 28, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 600,
           shape: "round-rectangle", padding: 24 } },
       { selector: "node[kind='issue']", style: {
-          width: 210, height: 54, shape: "round-rectangle", label: "data(label)",
-          "text-wrap": "wrap", "text-max-width": 190, "font-size": 11, color: css("--fg"),
+          width: 280, height: 84, shape: "round-rectangle", label: "data(label)",
+          "text-wrap": "wrap", "text-max-width": 256, "font-size": 16, color: css("--fg"),
           "text-valign": "center", "text-halign": "center", "border-width": 1.5 } },
       ...Object.entries(COLORS).map(([s, [fill, line]]) => ({
         selector: `node[state='${s}']`, style: { "background-color": fill, "border-color": line } })),
@@ -226,7 +322,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
                                    "target-arrow-shape": "triangle", "curve-style": "bezier", "arrow-scale": 0.9 } },
       { selector: "edge[kind='epicEdge']", style: { width: 3, "line-style": "dashed" } },
       { selector: "node[kind='milestone']", style: {
-          shape: "round-rectangle", width: 320, height: 30, label: "data(label)", "font-size": 13,
+          shape: "round-rectangle", width: 320, height: 60, label: "data(label)", "font-size": 30,
           "font-weight": "bold", color: css("--fg"), "text-valign": "center", "text-halign": "center",
           "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
       // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
@@ -238,6 +334,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       { selector: "edge[kind='row']", style: { opacity: 0, events: "no", "target-arrow-shape": "none" } },
       { selector: ".faded", style: { opacity: 0.15 } },
       { selector: ".hit", style: { "border-width": 3, "border-color": "#d29922" } },
+      { selector: ".sel", style: { "border-width": 4, "border-color": css("--accent") } },
+      // Epics only: the issues stay in place, unseen and untouchable; the box
+      // label moves inside, into the cover.
+      { selector: "node[kind='epic'].covered", style: { "text-opacity": 0, "text-background-opacity": 0, "border-width": 3 } },
+      ...Object.entries(COLORS).map(([s, [, line]]) => ({
+        selector: `node[kind='epic'].covered[pstate='${s}']`, style: { "border-color": line } })),
+      { selector: ".ghost", style: { opacity: 0, events: "no" } },
     ],
   });
 
@@ -249,9 +352,10 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // A bar shows only while its band holds a visible epic box.
   function applyDone() {
     showDone.checked ? done.style("display", "element") : done.style("display", "none");
+    // A bar always shows, but "No milestone" only while it holds a visible box.
     cy.nodes("[kind='milestone']").forEach(bar => {
       const rank = bar.data("rank");
-      const shown = cy.nodes("[kind='epic']").some(p => p.data("rank") === rank && p.visible());
+      const shown = bar.id() !== "m-none" || cy.nodes("[kind='epic']").some(p => p.data("rank") === rank && p.visible());
       bar.style("display", shown ? "element" : "none");
     });
   }
@@ -332,16 +436,30 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // Epic boxes are placed by hand after ELK has laid out each box's inside,
   // in slots (x positions) and, within a band, sub-rows: a split epic stays on
   // one vertical across the bars.
-  const GAP_X = 60, GAP_Y = 70, BAR_GAP = 50;
+  const GAP_X = 70, GAP_Y = 90, BAR_GAP = 80;
+  // The start view: the roadmap's top, as wide as fits, but never smaller than
+  // READABLE, so the text stays legible; Fit shows everything, Epics only is
+  // the overview.
+  const READABLE = 0.8;
+  function home() {
+    const shown = cy.elements().filter(e => e.visible());
+    if (!shown.length) return;
+    const bb = shown.boundingBox(), pad = 30;
+    const zoom = Math.min(cy.maxZoom(), Math.max(READABLE, (cy.width() - 2 * pad) / bb.w));
+    cy.zoom(zoom);
+    cy.pan({ x: bb.w * zoom + 2 * pad <= cy.width() ? (cy.width() - bb.w * zoom) / 2 - bb.x1 * zoom : pad - bb.x1 * zoom,
+             y: pad - bb.y1 * zoom });
+  }
   function arrangeBands() {
     const boxes = cy.nodes("[kind='epic']").filter(n => n.visible());
-    if (!boxes.length) return;
     const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
     const byEpic = new Map();
     boxes.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
-    // Split epics (pieces in several bands) each get a slot of their own for
-    // their whole span, from first band to last, so the band joining their
-    // pieces runs clear; split epics with disjoint spans may share a slot.
+    // Split epics (pieces in several bands) each keep one slot for their whole
+    // span, from first band to last; split epics with disjoint spans may share
+    // a slot. The slot is taken only where the band joining two pieces runs,
+    // between pieces in neighbouring bands; in a band between two pieces that
+    // are further apart the slot is free, and no band is drawn across it.
     // Every other epic fills the free slots of its band, wrapping into
     // sub-rows. There are at least EPICS_PER_ROW slots, more when more split
     // epics overlap.
@@ -350,28 +468,34 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const order = (a, b) => epicOrder.get(a) - epicOrder.get(b);
     const split = [...byEpic.keys()].filter(e => byEpic.get(e).length > 1)
       .sort((a, b) => span(a)[0] - span(b)[0] || order(a, b));
-    const slotSpans = [];  // per slot, the spans taken by split epics
-    const placed = new Map();  // epic -> { slot }, box id -> { slot, sub }
+    const ranksAll = [...new Set(boxes.map(rankOf))].sort((a, b) => a - b);
+    const nextRank = new Map(ranksAll.map((r, k) => [r, ranksAll[k + 1]]));
+    const pieceRanks = e => new Set(byEpic.get(e).map(rankOf));
+    // A band joins two pieces only when they sit in neighbouring bands.
+    const joinsDown = (e, r) => pieceRanks(e).has(r) && pieceRanks(e).has(nextRank.get(r));
+    const slotEpics = [];  // per slot, the split epics in it
+    const placed = new Map();  // box id -> { slot, sub }
     for (const e of split) {
       const [lo, hi] = span(e);
-      let s = slotSpans.findIndex(spans => spans.every(([a, b]) => hi < a || lo > b));
-      if (s < 0) { s = slotSpans.length; slotSpans.push([]); }
-      slotSpans[s].push([lo, hi]);
+      let s = slotEpics.findIndex(es => es.every(o => { const [a, b] = span(o); return hi < a || lo > b; }));
+      if (s < 0) { s = slotEpics.length; slotEpics.push([]); }
+      slotEpics[s].push(e);
       byEpic.get(e).forEach(b => placed.set(b.id(), { slot: s, sub: 0 }));
     }
-    const slots = Math.max(EPICS_PER_ROW, slotSpans.length);
-    // In band r a split epic's slot is blocked while its band runs on below
-    // (r before its last band); in its last band the slot is free below its
-    // piece, from sub-row 1.
+    const slots = Math.max(EPICS_PER_ROW, slotEpics.length);
+    // In band r a split epic's piece sits at the top of its slot; below it the
+    // slot is blocked while its band runs on to the next band, else free from
+    // sub-row 1. Where the epic has no piece, the slot is free.
     const startRow = (r, s) => {
       let row = 0;
-      for (const [a, b] of slotSpans[s] || []) {
-        if (r >= a && r < b) return null;
-        if (r === b) row = 1;
+      for (const e of slotEpics[s] || []) {
+        if (joinsDown(e, r)) return null;
+        if (pieceRanks(e).has(r)) row = 1;
       }
       return row;
     };
-    const ranksAll = [...new Set(boxes.map(rankOf))];
+    cy.edges("[kind='epicLink']").forEach(l =>
+      l.style("display", nextRank.get(rankOf(l.source())) === rankOf(l.target()) ? "element" : "none"));
     for (const r of ranksAll) {
       const next = new Map();
       for (let s = 0; s < slots; s++) { const row = startRow(r, s); if (row !== null) next.set(s, row); }
@@ -393,13 +517,20 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     boxes.forEach(b => { const s = slotOf(b); slotWidth[s] = Math.max(slotWidth[s] || 0, size.get(b.id()).w); });
     const slotX = []; let x = 0;
     for (let s = 0; s < slotWidth.length; s++) { slotX[s] = x; x += (slotWidth[s] || 0) + GAP_X; }
-    const width = x - GAP_X;
-    const ranks = [...new Set(boxes.map(b => b.data("rank")))].sort((a, b) => a - b);
+    const width = Math.max(x - GAP_X, 900);
+    // Bands in milestone order, empty milestones included: their bar stands
+    // alone, followed by the next one.
+    const barRanks = cy.nodes("[kind='milestone']").filter(n => n.visible()).map(n => n.data("rank"));
+    const ranks = [...new Set([...boxes.map(b => b.data("rank")), ...barRanks])].sort((a, b) => a - b);
     let y = 0;
     for (const r of ranks) {
       const bar = cy.nodes(`[kind='milestone'][rank = ${r}]`).filter(n => n.visible());
-      if (bar.length) { bar.style("width", width); bar.position({ x: width / 2, y }); y += BAR_GAP; }
+      // The label at the bar's left end, where the view starts; about 17px per
+      // character at this font size.
+      if (bar.length) { bar.style({ width, "text-margin-x": Math.min(0, -width / 2 + bar.data("label").length * 8.4 + 30) });
+                        bar.position({ x: width / 2, y }); y += BAR_GAP; }
       const inBand = boxes.filter(b => b.data("rank") === r);
+      if (!inBand.length) y += GAP_Y / 2;
       const subs = [...new Set(inBand.map(subOf))].sort((a, b) => a - b);
       for (const sub of subs) {
         const row = inBand.filter(b => subOf(b) === sub);
@@ -437,34 +568,204 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       (e.data("kind") === "issueEdge" && e.source().parent().same(e.target().parent()));
     const eles = cy.elements().filter(e => inside(e) && (e.isNode() ? shown(e) : shown(e) && shown(e.source()) && shown(e.target())));
     const l = eles.not(backwards).layout(layout);
-    l.one("layoutstop", () => { arrangeBands(); cy.fit(undefined, 30); });
+    l.one("layoutstop", () => {
+      arrangeBands();
+      if (restore && restore.zoom) { cy.zoom(restore.zoom); cy.pan(restore.pan); } else home();
+      placeCovers();
+      if (restore && restore.sel) showDetails(restore.sel.kind, restore.sel.n);
+      restore = null;
+    });
     l.run();
   };
   run();
+
+  // Epics only: the covers, one per visible epic box, at the box's place and
+  // size in graph coordinates; the world they sit in follows zoom and pan.
+  const world = document.querySelector("#covers .world");
+  const covers = new Map();
+  function cover(box) {
+    if (covers.has(box.id())) return covers.get(box.id());
+    const d = box.data(), e = epicOf[d.epic];
+    const el = document.createElement("div");
+    el.className = `cover ${d.pstate}`;
+    el.innerHTML = `<h3>#${e.number} ${escapeHtml(e.title)}</h3>` +
+      `<div class="prog">${d.done} / ${d.total} done<div class="bar"><i style="width:${Math.round(100 * d.done / d.total)}%"></i></div></div>` +
+      (e.description ? `<p>${escapeHtml(e.description)}</p>` : "");
+    world.appendChild(el);
+    covers.set(box.id(), el);
+    return el;
+  }
+  function placeCovers() {
+    if (!epicsOnly()) return;
+    cy.nodes("[kind='epic']").forEach(box => {
+      const el = cover(box);
+      if (!box.visible()) { el.style.display = "none"; return; }
+      const bb = box.boundingBox({ includeLabels: false });
+      Object.assign(el.style, { display: "", left: bb.x1 + "px", top: bb.y1 + "px", width: bb.w + "px", height: bb.h + "px" });
+      el.classList.toggle("faded", box.hasClass("faded"));
+      el.classList.toggle("hit", box.children().some(c => c.hasClass("hit")));
+      el.classList.toggle("sel", box.hasClass("sel") || box.children().some(c => c.hasClass("sel")));
+    });
+    followViewport();
+  }
+  function followViewport() {
+    const { x, y } = cy.pan();
+    world.style.transform = `translate(${x}px, ${y}px) scale(${cy.zoom()})`;
+  }
+  cy.on("viewport", () => { if (epicsOnly()) followViewport(); });
+  let placing = 0;
+  cy.on("position", "node", () => {
+    if (epicsOnly() && !placing) placing = requestAnimationFrame(() => { placing = 0; placeCovers(); });
+  });
+
+  // The view lives in the URL (#epics), so the overview can be linked.
+  const epicsOnly = () => document.body.classList.contains("epics-only");
+  function setView(epics) {
+    document.body.classList.toggle("epics-only", epics);
+    document.getElementById("viewIssues").setAttribute("aria-pressed", String(!epics));
+    document.getElementById("viewEpics").setAttribute("aria-pressed", String(epics));
+    history.replaceState(null, "", epics ? "#epics" : location.pathname + location.search);
+    cy.nodes("[kind='issue']").toggleClass("ghost", epics);
+    cy.edges("[kind='issueEdge']").toggleClass("ghost", epics);
+    cy.nodes("[kind='epic']").toggleClass("covered", epics);
+    placeCovers();
+  }
+  document.getElementById("viewIssues").addEventListener("click", () => setView(false));
+  document.getElementById("viewEpics").addEventListener("click", () => setView(true));
+
   showDone.addEventListener("change", () => { applyDone(); run(); });
   document.getElementById("relayout").addEventListener("click", run);
   document.getElementById("fit").addEventListener("click", () => cy.fit(undefined, 30));
 
-  select.addEventListener("change", () => {
+  function applyFilter() {
     cy.elements().removeClass("faded");
-    if (!select.value) return cy.fit(undefined, 30);
+    if (!select.value) { placeCovers(); return home(); }
     const epic = cy.nodes(`[kind='epic'][epic = ${Number(select.value)}]`);
     const keep = epic.union(epic.descendants()).union(epic.connectedEdges("[kind='epicLink']"));
     cy.elements().not(keep).not(keep.connectedEdges()).addClass("faded");
+    placeCovers();
     cy.fit(keep, 40);
-  });
+  }
+  select.addEventListener("change", applyFilter);
 
-  document.getElementById("search").addEventListener("input", ev => {
-    const q = ev.target.value.trim().toLowerCase();
+  const search = document.getElementById("search");
+  function applySearch() {
+    const q = search.value.trim().toLowerCase();
     cy.nodes().removeClass("hit");
-    if (!q) return;
-    const hits = cy.nodes("[kind='issue']").filter(n => n.data("search").includes(q) && n.visible());
+    const hits = q ? cy.nodes("[kind='issue']").filter(n => n.data("search").includes(q) && n.visible()) : cy.collection();
     hits.addClass("hit");
+    placeCovers();
     if (hits.length) cy.fit(hits, 80);
-  });
+  }
+  search.addEventListener("input", applySearch);
 
-  // A click (not a drag) opens the issue or epic.
-  cy.on("tap", "node", ev => { const url = ev.target.data("url"); if (url) window.open(url, "_blank", "noopener"); });
+  // A click (not a drag) shows the details in the side pane; cmd- or
+  // ctrl-click opens the issue, epic or milestone on GitHub right away.
+  const issueBy = Object.fromEntries([...data.issues, ...data.backlog].map(i => [i.number, i]));
+  const msBy = Object.fromEntries(milestones.map(m => [m.number, m]));
+  const details = document.getElementById("details");
+  const aside = document.querySelector("aside");
+  let selected = null;
+  // The title in the side pane is the link to GitHub.
+  const gh = (url, text) => `<a class="gh" href="${url}" target="_blank" rel="noopener" title="Open on GitHub">${text} ↗</a>`;
+  const badge = st => `<span class="badge ${st}">${st}</span>`;
+  const show = (kind, n, text) => `<a href="#" data-show="${kind}:${n}">${text}</a>`;
+  const issueLine = i => `<li>${badge(i.state)} ${show("issue", i.number, `#${i.number}`)} ${escapeHtml(i.title)}</li>`;
+  const issueRef = n => issueBy[n] ? issueLine(issueBy[n]) : `<li>#${n}</li>`;
+  const epicRef = n => epicOf[n] ? `<li>${badge(epicOf[n].state)} ${show("epic", n, `#${n}`)} ${escapeHtml(epicOf[n].title)}</li>` : `<li>#${n}</li>`;
+  const progress = (done, total) => `<div class="progress"><i style="width:${total ? Math.round(100 * done / total) : 0}%"></i></div>`;
+  const msTitle = n => msBy[n] ? show("milestone", n, `◆ ${escapeHtml(msBy[n].title)}`) : "none";
+  function detailsHtml(kind, n) {
+    if (kind === "issue") {
+      const i = issueBy[n];
+      if (!i) return null;
+      const blocks = data.issues.filter(o => o.blockedBy.includes(n));
+      const rows = [
+        ["State", badge(i.state)],
+        ["Epic", i.epic ? show("epic", i.epic, `#${i.epic} ${escapeHtml(epicOf[i.epic].title)}`) : "none (backlog)"],
+        ["Milestone", i.epic ? msTitle(i.milestone) : ""],
+        ["Assignees", escapeHtml(i.assignees.join(", "))],
+        ["Labels", escapeHtml(i.labels.join(", "))],
+        ["Priority", i.priority ? `P${i.priority}` : ""],
+        ["Closed", i.closedAt ? new Date(i.closedAt).toLocaleDateString() : ""],
+      ].filter(([, v]) => v);
+      return { url: i.url, html: `<div class="kind">Issue</div><h3>${gh(i.url, `#${i.number} ${escapeHtml(i.title)}`)}</h3>` +
+        `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>` +
+        (i.blockedBy.length ? `<h4>Waits for</h4><ul>${i.blockedBy.map(issueRef).join("")}</ul>` : "") +
+        (blocks.length ? `<h4>Blocks</h4><ul>${blocks.map(issueLine).join("")}</ul>` : "") };
+    }
+    if (kind === "epic") {
+      const e = epicOf[n];
+      if (!e) return null;
+      const groups = piecesOf(n).map(p => {
+        const m = milestones[p.rank];
+        return `<h4>${m ? msTitle(m.number) : "No milestone"} · ${p.issues.filter(i => i.state === "done").length}/${p.issues.length}</h4>` +
+          `<ul>${p.issues.slice().sort((a, b) => (a.state === "done") - (b.state === "done") || a.number - b.number).map(issueLine).join("")}</ul>`;
+      }).join("");
+      const waitedBy = data.epics.filter(o => o.waitsOn.includes(n)).map(o => o.number);
+      return { url: e.url, html: `<div class="kind">Epic</div><h3>${gh(e.url, `#${e.number} ${escapeHtml(e.title)}`)}</h3>` +
+        `<dl><dt>State</dt><dd>${badge(e.state)}</dd><dt>Done</dt><dd>${e.done} / ${e.total}</dd></dl>${progress(e.done, e.total)}` +
+        (e.waitsOn.length ? `<h4>Waits for</h4><ul>${e.waitsOn.map(epicRef).join("")}</ul>` : "") +
+        (waitedBy.length ? `<h4>Blocks</h4><ul>${waitedBy.map(epicRef).join("")}</ul>` : "") + groups };
+    }
+    if (kind === "milestone") {
+      const m = msBy[n];
+      if (!m) return null;
+      const rank = msRank.get(n);
+      const inIt = data.epics.filter(e => piecesOf(e.number).some(p => p.rank === rank)).map(e => e.number);
+      return { url: m.url, html: `<div class="kind">Milestone</div><h3>${gh(m.url, `◆ ${escapeHtml(m.title)}`)}</h3>` +
+        `<dl><dt>Due</dt><dd>${m.due ? new Date(m.due).toLocaleDateString() : "no due date"}</dd>` +
+        `<dt>Done</dt><dd>${m.closed} / ${m.open + m.closed}</dd></dl>${progress(m.closed, m.open + m.closed)}` +
+        (inIt.length ? `<h4>Epics</h4><ul>${inIt.map(epicRef).join("")}</ul>` : "") };
+    }
+    return null;
+  }
+  // What is selected, marked in the graph; from the side pane it
+  // is also brought into view.
+  function mark(kind, n, focus) {
+    cy.elements().removeClass("sel");
+    if (kind != null) {
+      const nodes = kind === "issue" ? cy.getElementById(`i${n}`)
+        : kind === "epic" ? cy.nodes(`[kind='epic'][epic = ${n}]`) : cy.getElementById(`m${n}`);
+      nodes.addClass("sel");
+      if (focus && nodes.length && nodes.visible()) cy.animate({ center: { eles: nodes }, duration: 300 });
+    }
+    placeCovers();
+  }
+  function showDetails(kind, n, focus) {
+    const d = detailsHtml(kind, n);
+    if (!d) return;
+    selected = { kind, n };
+    details.innerHTML = `<button class="close" title="Close (Esc)" aria-label="Close">×</button>${d.html}` +
+      `<div class="actions"><a class="open" href="${d.url}" target="_blank" rel="noopener">Open on GitHub ↗</a>` +
+      (local && kind !== "milestone" ? `<button class="reload" title="Read this ${kind} fresh from GitHub">Update ↻</button>` : "") + `</div>`;
+    details.hidden = false;
+    aside.scrollTop = 0;
+    mark(kind, n, focus);
+  }
+  function hideDetails() { details.hidden = true; selected = null; mark(null); }
+  details.addEventListener("click", ev => {
+    if (ev.target.closest(".close")) hideDetails();
+    const b = ev.target.closest(".reload");
+    if (b && selected) reloadData(selected.n, b, "Updating…");
+  });
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !details.hidden) hideDetails(); });
+  // Links marked data-show (in the side pane) show details on a plain click and
+  // open GitHub on cmd-, ctrl- or middle click, as links do.
+  document.addEventListener("click", ev => {
+    const a = ev.target.closest("[data-show]");
+    if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) return;
+    ev.preventDefault();
+    const [kind, n] = a.dataset.show.split(":");
+    showDetails(kind, Number(n), true);
+  });
+  cy.on("tap", "node", ev => {
+    const d = ev.target.data(), o = ev.originalEvent || {};
+    if (o.metaKey || o.ctrlKey) { if (d.url) window.open(d.url, "_blank", "noopener"); return; }
+    if (d.kind === "issue") showDetails("issue", Number(d.id.slice(1)));
+    else if (d.kind === "epic") showDetails("epic", d.epic);
+    else if (d.kind === "milestone" && d.number != null) showDetails("milestone", d.number);
+  });
 
   const tip = document.getElementById("tip");
   cy.on("mouseover", "node[kind='issue']", ev => {
@@ -474,6 +775,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   });
   cy.on("mouseout", "node", () => { tip.style.display = "none"; });
   cy.on("mousemove", ev => { const e = ev.originalEvent; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY + 14 + "px"; });
+  if (location.hash === "#epics") setView(true);
 }).catch(err => {
   document.getElementById("graph").innerHTML = `<p style="padding:16px">Could not load roadmap.json: ${err}</p>`;
 });
