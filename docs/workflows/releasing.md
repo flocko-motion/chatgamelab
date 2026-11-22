@@ -20,7 +20,8 @@ instance; releases reach every instance. `scripts/release.sh <branch>
    and runs semantic-release with the `gh` token. semantic-release picks the
    next version from the conventional commits since the last release
    (`.releaserc.json`), creates the GitHub release with the notes and pushes
-   the tag `v<version>`.
+   the tag `v<version>`. A release comments on the issues and pull requests it
+   ships and labels them; a prerelease does neither.
 2. The tag starts `.github/workflows/release.gen.yml` (written by schemaf's
    codegen). It builds the artifact `chatgamelab-<version>.run`, signs it with
    a keyless Sigstore attestation, attaches both to the release and rebuilds
