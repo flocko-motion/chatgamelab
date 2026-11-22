@@ -46,17 +46,18 @@
   body.epics-only #covers { display: block; }
   #covers .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
   .cover { position: absolute; padding: 16px 22px; display: flex; flex-direction: column; gap: 8px;
-           overflow: hidden; container-type: size; border-radius: 10px; }
-  /* Sizes follow the box: a low box gets a smaller title, so the progress
-     line still fits. */
-  .cover h3 { margin: 0; font-size: min(42px, 8.5cqw, 21cqh); line-height: 1.12; flex: none; }
-  .cover .prog { flex: none; font-size: min(22px, 5.5cqw, 13cqh); font-weight: 600; }
-  .cover .prog .bar { height: min(10px, 5cqh); border-radius: 5px; background: var(--line); margin-top: 6px; overflow: hidden; }
+           overflow: hidden; border-radius: 10px; }
+  /* One size for every box; what does not fit is cut. A title takes at most
+     two lines. */
+  .cover h3 { margin: 0; font-size: 36px; line-height: 1.12; flex: none; overflow: hidden;
+              display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .cover .prog { flex: none; font-size: 20px; font-weight: 600; }
+  .cover .prog .bar { height: 10px; border-radius: 5px; background: var(--line); margin-top: 6px; overflow: hidden; }
   .cover .prog .bar i { display: block; height: 100%; }
   .cover.ready .bar i { background: var(--ready-line); }
   .cover.blocked .bar i { background: var(--blocked-line); }
   .cover.done { color: var(--muted); } .cover.done .bar i { background: var(--done-line); }
-  .cover p { margin: 0; flex: 1 1 0; min-height: 0; overflow: hidden; font-size: min(28px, 7cqw, 14cqh);
+  .cover p { margin: 0; flex: 1 1 0; min-height: 0; overflow: hidden; font-size: 24px;
              line-height: 1.4; color: var(--muted);
              mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent); }
   .cover.faded { opacity: .15; }
