@@ -102,6 +102,18 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.organisationSuspended",
     messageKey: "errors:organisationSuspended",
   },
+  [ErrorCodes.UPDATER_NOT_ENABLED]: {
+    titleKey: "errors:titles.updates",
+    messageKey: "errors:updaterNotEnabled",
+  },
+  [ErrorCodes.VERSION_NOT_AVAILABLE]: {
+    titleKey: "errors:titles.updates",
+    messageKey: "errors:versionNotAvailable",
+  },
+  [ErrorCodes.INSTALL_RUNNING]: {
+    titleKey: "errors:titles.updates",
+    messageKey: "errors:installRunning",
+  },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:rateLimitExceeded",
