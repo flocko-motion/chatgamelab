@@ -1190,6 +1190,9 @@
           "playCount": {
             "type": "integer"
           },
+          "playability": {
+            "type": "string"
+          },
           "public": {
             "type": "boolean"
           },
@@ -1232,6 +1235,7 @@
           "mayShare",
           "mayPublish",
           "isFavorite",
+          "playability",
           "hasContent",
           "hasSettings"
         ],
@@ -1347,6 +1351,9 @@
           "name": {
             "type": "string"
           },
+          "playability": {
+            "type": "string"
+          },
           "public": {
             "type": "boolean"
           },
@@ -1357,7 +1364,8 @@
         "required": [
           "gameId",
           "public",
-          "name"
+          "name",
+          "playability"
         ],
         "type": "object"
       },

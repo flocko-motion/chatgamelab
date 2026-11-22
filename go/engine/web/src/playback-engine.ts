@@ -25,11 +25,16 @@ import type { Voice } from "./voice.js";
 
 export type Listener = (state: PlaybackEngineState) => void;
 
+/** How many runs the Insights feed keeps; older ones fall off its top. */
+const MAX_RUNS = 200;
+
 export class PlaybackEngine {
   readonly state: PlaybackEngineState = emptyState();
 
   #listeners = new Set<Listener>();
   #nextUtterance = 1;
+  /** The last run's id. */
+  #runs = 0;
   #open: Utterance | null = null;
   /** The player's last line, typed or as heard, given back if the engine drops its turn. */
   #said: string | null = null;
@@ -511,8 +516,29 @@ export class PlaybackEngine {
     const report = parsed as Partial<BlockState>;
     if (typeof report.node !== "string" || typeof report.phase !== "string") return;
 
+    const was = this.state.phases[report.node];
     this.state.phases[report.node] = report.phase;
+    this.#recordRun(report.node, was, report.phase);
     this.#recomputeStarted();
+  }
+
+  /** A block that starts working is a new run; one that is ready again finished its latest. */
+  #recordRun(node: string, was: Phase | undefined, phase: Phase): void {
+    const runs = this.state.runs;
+    if (phase === "working" && was !== "working") {
+      runs.push({ id: ++this.#runs, node, done: false });
+      if (runs.length > MAX_RUNS) runs.splice(0, runs.length - MAX_RUNS);
+      return;
+    }
+    if (phase === "ready") {
+      for (let i = runs.length - 1; i >= 0; i--) {
+        const run = runs[i]!;
+        if (run.node === node && !run.done) {
+          run.done = true;
+          break;
+        }
+      }
+    }
   }
 
   #applySettled(value: string): void {

@@ -1323,7 +1323,34 @@
       "playNow": "Hemen oyna",
       "selectGameTitle": "Bir Oyun Seç",
       "title": "Oyun Seç",
-      "unfavorite": "Favorilerden çıkar"
+      "unfavorite": "Favorilerden çıkar",
+      "launch": {
+        "backToGames": "Oyunlara dön",
+        "cannotOpen": "Bu oyun devam edemez",
+        "cannotStart": "Bu oyun başlatılamaz",
+        "continue": "Devam et",
+        "inProgress": "Devam eden bir oyunun var",
+        "inProgressHint": "Kaldığın yerden devam et veya baştan başla.",
+        "noPlaysLeft": "Bu bağlantının oyun hakkı kalmadı, bu nedenle oyun yeniden başlatılamaz.",
+        "offline": "Oyun sunucusuna ulaşılamıyor.",
+        "opening": "Oyun açılıyor…",
+        "startAnew": "Baştan başla",
+        "startAnewUsesPlay": "Baştan başlamak, bu bağlantının oyun haklarından birini kullanır.",
+        "starting": "Oyun başlatılıyor…",
+        "tryAgain": "Tekrar dene"
+      },
+      "unplayable": {
+        "denied": "Bu oyunu oynamana izin verilmiyor",
+        "failed": "Şu anda oynanamıyor",
+        "genre": "Yapay zekâ anahtarı bu tür bir oyunu çalıştıramıyor",
+        "key_rejected": "Yapay zekâ anahtarı reddedildi",
+        "no_key": "Kullanılabilir yapay zekâ anahtarı yok",
+        "no_plays": "Oyun hakkı kalmadı",
+        "paused": "Atölye duraklatıldı",
+        "stale": "Artık oynanamıyor",
+        "unknown": "Kullanılamıyor",
+        "unreachable": "Yapay zekâ sağlayıcısı yanıt vermiyor"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "\"{{name}}\" ({{email}}) kullanıcısını Başkan yapmak istediğinizden emin misiniz?",
@@ -1688,12 +1715,8 @@
       "voiceFailed": "Ses bağlantısı kurulamadı."
     },
     "launch": {
-      "continue": "Devam et",
-      "inProgress": "Devam eden bir oyunun var.",
       "noGame": "Bu sayfada oynanacak bir oyun gerekiyor: Bir oyunun sayfasından aç.",
-      "startAnew": "Baştan başla",
-      "starting": "Oyun başlatılıyor…",
-      "tryAgain": "Tekrar dene"
+      "starting": "Oyun başlatılıyor…"
     },
     "pipeline": {
       "compact": "Konuyu sıkıştır",
@@ -1753,6 +1776,14 @@
       "rephrase-audio\u0003eoutline": "eylem",
       "start-game\u0003elive-session": "ipucu",
       "start-game\u0003eoutline": "istem"
+    },
+    "insights": {
+      "close": "Kapat",
+      "empty": "Henüz hiçbir şey çalıştırılmadı.",
+      "feed": "Ne oldu",
+      "hide": "İçgörüleri gizle",
+      "label": "İçgörüler",
+      "show": "İçgörüleri göster"
     }
   }
 }

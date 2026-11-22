@@ -31,11 +31,13 @@ func MakeGameCover(ctx context.Context, gameID uuid.UUID, hint string) (*core.Ga
 	if err != nil {
 		return nil, err
 	}
-	traceKeys(gameID, "", payers, steps)
-	offer, payer, err := firstOffer(ctx, payers, drawsPictures, "no API key that draws pictures is available")
+	traceKeys(gameID, "", steps)
+	offers, refused := core.Offers(payers, drawsPictures)
+	chosen, err := firstWorking(ctx, offers, refused, "no API key that draws pictures is available")
 	if err != nil {
 		return nil, core.CoverRefusal(err)
 	}
+	offer, payer := chosen.Offer, chosen.Payer
 
 	spec := engine.CoverSpec{
 		Title: facts.Title, Description: facts.Description, Scenario: facts.Scenario,
@@ -48,7 +50,7 @@ func MakeGameCover(ctx context.Context, gameID uuid.UUID, hint string) (*core.Ga
 	log.Info("cover drawn", "game_id", gameID, "platform", offer.Platform, "offer", offer.ID, "source", payer.Source,
 		"cost", cover.Usage.TotalCost, "priced", cover.Usage.Complete, "error", err)
 	if errors.Is(err, engine.ErrKeyRejected) {
-		recordKeyCheck(ctx, payer, err)
+		payer.RecordCheck(ctx, false, string(engine.ProblemKeyRejected))
 	}
 	if err != nil {
 		return nil, core.CoverRefusal(err)
@@ -62,9 +64,9 @@ func MakeGameCover(ctx context.Context, gameID uuid.UUID, hint string) (*core.Ga
 }
 
 // drawsPictures lets through an offer that allows pictures at some tier.
-func drawsPictures(offer engine.Offer, _ engine.Toggles) error {
-	if _, ok := engine.CoverTier(offer); !ok {
-		return engine.Refuse(engine.ProblemNoKey, fmt.Sprintf("the key on %s draws no pictures", offer.Platform))
+func drawsPictures(o core.PayerOffer) error {
+	if _, ok := engine.CoverTier(o.Offer); !ok {
+		return engine.Refuse(engine.ProblemNoKey, fmt.Sprintf("the key on %s draws no pictures", o.Offer.Platform))
 	}
 	return nil
 }

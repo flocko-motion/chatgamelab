@@ -1,11 +1,14 @@
+/* eslint-disable react-refresh/only-export-components -- the provider and its hook belong together, as in AuthProvider */
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { useAuth } from "./AuthProvider";
 import { useSetActiveWorkshop } from "@/api/hooks";
+import { WorkshopModeInfoModal } from "@/features/my-workshop/components/WorkshopModeInfoModal";
 import {
-  WorkshopModeInfoModal,
+  markWorkshopModeEntered,
   shouldShowInfoModal,
-} from "@/features/my-workshop/components/WorkshopModeInfoModal";
+  takeWorkshopModeEntered,
+} from "@/features/my-workshop/lib/infoModal";
 
 interface WorkshopModeContextType {
   /** True if staff/head/individual has entered workshop mode */
@@ -73,15 +76,14 @@ export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
     shownForWorkshopRef.current = activeWorkshopId;
 
     // Check if we have a pending "just entered" flag (set by enterWorkshopMode or invite flow)
-    const pending = sessionStorage.getItem("cgl_workshop_mode_pending");
-    if (pending && shouldShowInfoModal()) {
-      sessionStorage.removeItem("cgl_workshop_mode_pending");
+    if (takeWorkshopModeEntered() && shouldShowInfoModal()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- shown from a flag in sessionStorage, an outside store read once per workshop
       setShowInfoModal(true);
     }
   }, [isInWorkshopMode, activeWorkshopId]);
 
   const enterWorkshopMode = useCallback(
-    async (workshopId: string, _workshopName: string) => {
+    async (workshopId: string) => {
       // Skip if already in this workshop or mutation is pending
       if (activeWorkshopId === workshopId || setActiveWorkshop.isPending) {
         return;
@@ -91,7 +93,7 @@ export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
       // Refetch backend user to get updated workshop context
       retryBackendFetch();
       // Flag for info modal (picked up by useEffect after backendUser updates)
-      try { sessionStorage.setItem("cgl_workshop_mode_pending", "true"); } catch {};
+      markWorkshopModeEntered();
     },
     [activeWorkshopId, setActiveWorkshop, retryBackendFetch],
   );

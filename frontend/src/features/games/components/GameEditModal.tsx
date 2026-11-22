@@ -27,13 +27,15 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ActionButton, CancelButton } from "@components/buttons";
 import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
-import { useGame, useGameTemplate, useGenres, useThemes, useUpdateGame } from "@/api/hooks";
+import { useGame, useGameSessionMap, useGameTemplate, useGenres, useThemes, useUpdateGame } from "@/api/hooks";
 import type { CreateGameReq, GameTemplate, GameView } from "@/api/types";
 import { Label } from "@components/typography";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
 import { SharingSection } from "./GameSharingSection";
 import { GameCoverSection } from "./GameCoverSection";
 import { useDrawCoverOnSave } from "../hooks";
+import { useGameNavigation } from "../hooks/useGameNavigation";
+import { GamePlayButtons } from "./GamePlayButtons";
 import type { CreateGameFormData } from "../types";
 import { gameChanges, gameCreate, type GameFormFields } from "../lib/gameUpdate";
 
@@ -162,6 +164,9 @@ export function GameEditModal({
   const readOnly = !rights.card && !rights.content && !rights.settings;
   const updateGame = useUpdateGame();
   const drawCoverOnSave = useDrawCoverOnSave();
+  const { playGame, continueGame, restartGame } = useGameNavigation();
+  const { sessionMap } = useGameSessionMap();
+  const session = gameId ? sessionMap.get(gameId) : undefined;
 
   // Form fields
   const [name, setName] = useState("");
@@ -556,31 +561,53 @@ export function GameEditModal({
       <Stack gap="md">
         {modalContent()}
 
-        <Group justify="flex-end" mt="md" gap="sm">
-          {readOnly ? (
-            <>
-              <CancelButton onClick={onClose}>{t("close")}</CancelButton>
-              {onCopy && (
-                <ActionButton
-                  onClick={onCopy}
-                  loading={copyLoading}
-                  size="sm"
-                  leftSection={<IconCopy size={16} />}
-                >
-                  {t("copyGame")}
-                </ActionButton>
-              )}
-            </>
+        <Group justify="space-between" align="flex-start" mt="md" gap="sm">
+          {/* The game page plays the game too, or says why it cannot. */}
+          {!isCreateMode && game ? (
+            <div style={{ width: 180 }}>
+              <GamePlayButtons
+                game={game}
+                hasSession={!!session}
+                session={session}
+                onPlay={playGame}
+                onContinue={continueGame}
+                onRestart={restartGame}
+                labels={{
+                  play: t("allGames.play"),
+                  continue: t("allGames.continue"),
+                  restart: t("allGames.restart"),
+                }}
+              />
+            </div>
           ) : (
-            <>
-              <CancelButton onClick={handleModalClose} disabled={isSaving}>
-                {t("cancel")}
-              </CancelButton>
-              <ActionButton onClick={handleSave} loading={isSaving} size="sm">
-                {isCreateMode ? t("games.createModal.submit") : t("save")}
-              </ActionButton>
-            </>
+            <span />
           )}
+          <Group justify="flex-end" gap="sm">
+            {readOnly ? (
+              <>
+                <CancelButton onClick={onClose}>{t("close")}</CancelButton>
+                {onCopy && (
+                  <ActionButton
+                    onClick={onCopy}
+                    loading={copyLoading}
+                    size="sm"
+                    leftSection={<IconCopy size={16} />}
+                  >
+                    {t("copyGame")}
+                  </ActionButton>
+                )}
+              </>
+            ) : (
+              <>
+                <CancelButton onClick={handleModalClose} disabled={isSaving}>
+                  {t("cancel")}
+                </CancelButton>
+                <ActionButton onClick={handleSave} loading={isSaving} size="sm">
+                  {isCreateMode ? t("games.createModal.submit") : t("save")}
+                </ActionButton>
+              </>
+            )}
+          </Group>
         </Group>
       </Stack>
     </Modal>

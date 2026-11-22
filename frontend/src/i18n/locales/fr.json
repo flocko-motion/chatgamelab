@@ -1321,7 +1321,34 @@
       "playNow": "Jouer maintenant",
       "selectGameTitle": "Choisissez un jeu",
       "title": "Choisissez un jeu",
-      "unfavorite": "Retirer des favoris"
+      "unfavorite": "Retirer des favoris",
+      "launch": {
+        "backToGames": "Retour aux jeux",
+        "cannotOpen": "Ce jeu ne peut pas continuer",
+        "cannotStart": "Ce jeu ne peut pas démarrer",
+        "continue": "Continuer",
+        "inProgress": "Vous avez une partie en cours",
+        "inProgressHint": "Reprenez là où vous vous êtes arrêté, ou recommencez depuis le début.",
+        "noPlaysLeft": "Ce lien n'a plus de parties disponibles, le jeu ne peut donc pas recommencer.",
+        "offline": "Impossible de joindre le serveur de jeu.",
+        "opening": "Ouverture du jeu…",
+        "startAnew": "Recommencer",
+        "startAnewUsesPlay": "Recommencer utilise l'une des parties disponibles via ce lien.",
+        "starting": "Démarrage du jeu…",
+        "tryAgain": "Réessayer"
+      },
+      "unplayable": {
+        "denied": "Vous ne pouvez pas jouer à ce jeu",
+        "failed": "Impossible d'y jouer pour le moment",
+        "genre": "La clé d'IA ne peut pas exécuter ce type de jeu",
+        "key_rejected": "La clé d'IA a été refusée",
+        "no_key": "Aucune clé d'IA disponible",
+        "no_plays": "Plus aucune partie disponible",
+        "paused": "L'atelier est en pause",
+        "stale": "Ce jeu ne peut plus être utilisé",
+        "unknown": "Indisponible",
+        "unreachable": "Le fournisseur d'IA ne répond pas"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Voulez-vous vraiment promouvoir « {{name}} » ({{email}}) en responsable ?",
@@ -1686,12 +1713,8 @@
       "voiceFailed": "Impossible de connecter ta voix."
     },
     "launch": {
-      "continue": "Continuer",
-      "inProgress": "Tu as une partie en cours.",
       "noGame": "Cette page nécessite un jeu : ouvre-la depuis la page d'un jeu.",
-      "startAnew": "Recommencer",
-      "starting": "Démarrage du jeu…",
-      "tryAgain": "Réessayer"
+      "starting": "Démarrage du jeu…"
     },
     "pipeline": {
       "compact": "Condense le fil",
@@ -1751,6 +1774,14 @@
       "rephrase-audio\u0000outline": "action",
       "start-game\u0000live-session": "indication",
       "start-game\u0000outline": "prompt"
+    },
+    "insights": {
+      "close": "Fermer",
+      "empty": "Rien ne s'est encore exécuté.",
+      "feed": "Ce qui s'est passé",
+      "hide": "Masquer les informations",
+      "label": "Informations",
+      "show": "Afficher les informations"
     }
   }
 }

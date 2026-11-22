@@ -2037,7 +2037,34 @@
       "playNow": "Hadda Ciyaar",
       "selectGameTitle": "Dooro Ciyaar",
       "title": "Dooro Ciyaar",
-      "unfavorite": "Ka saar kuwa la jecel yahay"
+      "unfavorite": "Ka saar kuwa la jecel yahay",
+      "launch": {
+        "backToGames": "Ku noqo ciyaaraha",
+        "cannotOpen": "Ciyaartan lama sii wadi karo",
+        "cannotStart": "Ciyaartan lama bilaabi karo",
+        "continue": "Sii wad",
+        "inProgress": "Waxaad haysataa ciyaar socota",
+        "inProgressHint": "Halka aad kaga tagtay ka sii wad, ama bilowga dib uga bilow.",
+        "noPlaysLeft": "Xiriiriyahan wax ciyaaro ah kama harin, sidaas darteed ciyaarta dib looma bilaabi karo.",
+        "offline": "Lama gaadhi karo server-ka ciyaarta.",
+        "opening": "Ciyaarta ayaa la furayaa…",
+        "startAnew": "Dib u bilow",
+        "startAnewUsesPlay": "Dib u bilaabistu waxay isticmaashaa mid ka mid ah ciyaarista xiriiriyahan.",
+        "starting": "Ciyaarta ayaa bilaabanaysa…",
+        "tryAgain": "Mar kale isku day"
+      },
+      "unplayable": {
+        "denied": "Looma oggola inaad ciyaartan ciyaarto",
+        "failed": "Hadda lama ciyaari karo",
+        "genre": "Furaha AI-gu ma wadi karo noocan ciyaar ah",
+        "key_rejected": "Furaha AI-ga waa la diiday",
+        "no_key": "Ma jiro fure AI ah oo la heli karo",
+        "no_plays": "Ciyaaro kama hadhin",
+        "paused": "Workshop-ku wuu hakaday",
+        "stale": "Mar dambe lama ciyaari karo",
+        "unknown": "Lama heli karo",
+        "unreachable": "Bixiyaha AI-gu kama jawaabayo"
+      }
     },
     "profile": "Xogta",
     "publicWorkshop": {
@@ -2342,12 +2369,8 @@
       "voiceFailed": "Codkaaga lama xidhiidhin karin."
     },
     "launch": {
-      "continue": "Sii wad ciyaarta",
-      "inProgress": "Waxaad haysataa ciyaar socota.",
       "noGame": "Boggan wuxuu u baahan yahay ciyaar lagu ciyaaro: ka fur bogga ciyaar.",
-      "startAnew": "Bilow cusub",
-      "starting": "Ciyaarta ayaa bilaabanaysa…",
-      "tryAgain": "Mar kale isku day"
+      "starting": "Ciyaarta ayaa bilaabanaysa…"
     },
     "pipeline": {
       "compact": "Soo koob mawduuca",
@@ -2407,6 +2430,14 @@
       "rephrase-audio\u0003eoutline": "fal",
       "start-game\u0003elive-session": "bilow",
       "start-game\u0003eoutline": "tilmaan"
+    },
+    "insights": {
+      "close": "Xir",
+      "empty": "Weli waxba ma socon.",
+      "feed": "Wixii dhacay",
+      "hide": "Qari aragtiyada",
+      "label": "Aragtiyo",
+      "show": "Muuji aragtiyada"
     }
   }
 }

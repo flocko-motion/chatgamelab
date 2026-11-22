@@ -60,5 +60,5 @@ func (UpdateGameYAMLEndpoint) Handle(ctx context.Context, req UpdateGameYAMLReq)
 	if err != nil {
 		return GameViewResp{}, err
 	}
-	return wire.GameViewOf(core.ImportGameFile(ctx, gameID, req.GameFile))
+	return wire.GameViewOf(ctx)(core.ImportGameFile(ctx, gameID, req.GameFile))
 }

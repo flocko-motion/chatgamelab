@@ -58,3 +58,14 @@ That floor is enforced automatically.
   caller as `obj.User`. Each call marks code not yet ported.
 - **Readability over performance.** The core is the code people review for
   rights; it is written to be read.
+
+### Insights are part of playing (#455)
+
+- **Every player has them.** Insights (spec: Insights) show the workings of
+  a session to whoever plays it, on the platform as on the standalone
+  server, at every screen width. They are the transparency the platform
+  teaches with.
+- **The secure core decides who sees them.** Inspecting a session is playing
+  it and reading its game's content; the session guard (`core.OpenSession`
+  with `InspectSession`) checks both. Insights show in production as in dev
+  mode.

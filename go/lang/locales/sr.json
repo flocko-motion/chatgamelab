@@ -1326,7 +1326,34 @@
       "playNow": "Играј сада",
       "selectGameTitle": "Изаберите игру",
       "title": "Изаберите игру",
-      "unfavorite": "Уклони из фаворита"
+      "unfavorite": "Уклони из фаворита",
+      "launch": {
+        "backToGames": "Назад на игре",
+        "cannotOpen": "Ова игра не може да се настави",
+        "cannotStart": "Ова игра не може да започне",
+        "continue": "Настави",
+        "inProgress": "Имате игру у току",
+        "inProgressHint": "Наставите тамо где сте стали или почните испочетка.",
+        "noPlaysLeft": "Овај линк нема више играња, па игра не може да започне испочетка.",
+        "offline": "Није могуће повезати се са сервером игре.",
+        "opening": "Игра се отвара…",
+        "startAnew": "Почни испочетка",
+        "startAnewUsesPlay": "Почетак испочетка троши једно од играња овог линка.",
+        "starting": "Игра започиње…",
+        "tryAgain": "Покушај поново"
+      },
+      "unplayable": {
+        "denied": "Није вам дозвољено да играте ову игру",
+        "failed": "Тренутно није могуће играти",
+        "genre": "Кључ вештачке интелигенције не може да покрене ову врсту игре",
+        "key_rejected": "Кључ вештачке интелигенције је одбијен",
+        "no_key": "Кључ вештачке интелигенције није доступан",
+        "no_plays": "Нема више играња",
+        "paused": "Радионица је паузирана",
+        "stale": "Више се не може играти",
+        "unknown": "Није доступно",
+        "unreachable": "Пружалац услуга вештачке интелигенције не одговара"
+      }
     },
     "profile": "Профил",
     "promoteConfirm": "Да ли сте сигурни да желите да унапредите „{{name}}“ ({{email}}) у руководиоца?",
@@ -1692,12 +1719,8 @@
       "voiceFailed": "Tvoj glas nije mogao da se poveže."
     },
     "launch": {
-      "continue": "Nastavi",
-      "inProgress": "Imaš igru koja je u toku.",
       "noGame": "Ovoj stranici je potrebna igra: otvori je sa stranice igre.",
-      "startAnew": "Počni iznova",
-      "starting": "Pokretanje igre…",
-      "tryAgain": "Pokušaj ponovo"
+      "starting": "Pokretanje igre…"
     },
     "pipeline": {
       "compact": "Сажми нит",
@@ -1757,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "радња",
       "start-game\u0003elive-session": "увод",
       "start-game\u0003eoutline": "упит"
+    },
+    "insights": {
+      "close": "Затвори",
+      "empty": "Још ништа није покренуто.",
+      "feed": "Шта се догодило",
+      "hide": "Сакриј увиде",
+      "label": "Увиди",
+      "show": "Прикажи увиде"
     }
   }
 }

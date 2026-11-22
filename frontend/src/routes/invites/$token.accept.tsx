@@ -27,6 +27,7 @@ import { ROUTES } from "@/common/routes/routes";
 import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl } from "@/common/lib/url";
 import type { AcceptInviteResp, InviteCardView } from "@/api/types";
+import { markWorkshopModeEntered } from "@/features/my-workshop/lib/infoModal";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 export const Route = createFileRoute("/invites/$token/accept")({
@@ -169,9 +170,7 @@ function AcceptInvitePage() {
           // Auto-accept to enter workshop mode, then redirect
           try {
             await acceptInvite(token).catch(() => {});
-            try {
-              sessionStorage.setItem("cgl_workshop_mode_pending", "true");
-            } catch {}
+            markWorkshopModeEntered();
             window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
           } catch {
             // Fallback to showing the enter button
@@ -330,9 +329,7 @@ function AcceptInvitePage() {
         }
 
         // Force page reload to refresh auth state and workshop context
-        try {
-          sessionStorage.setItem("cgl_workshop_mode_pending", "true");
-        } catch {}
+        markWorkshopModeEntered();
         window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
       } catch {
         setError(t("invites.errors.acceptFailed"));

@@ -27,8 +27,8 @@ body[data-dragging] {
   cursor: col-resize;
 }
 
-/* Stacked below a laptop width, where there are no columns to divide. */
-@media (max-width: 60rem) {
+/* Stacked on a phone, where there are no columns to divide. */
+@media (max-width: 47.99rem) {
   #split { display: none; }
 }
 

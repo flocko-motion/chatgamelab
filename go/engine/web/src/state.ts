@@ -28,6 +28,14 @@ export interface Utterance {
 /** "open" is a conversation running with nobody on this end, as a reload leaves it. */
 export type Conversation = "idle" | "awaiting" | "open" | "paused";
 
+/** A block that ran, as the Insights feed lists it. */
+export interface Run {
+  readonly id: number;
+  readonly node: string;
+  /** Set once the block is ready again. */
+  done: boolean;
+}
+
 export interface PlaybackEngineState {
   connection: ConnectionState;
   /** The conversation so far, oldest first. */
@@ -56,6 +64,8 @@ export interface PlaybackEngineState {
   topology: Topology | null;
   /** What each block is doing right now, keyed by node name. */
   phases: Record<string, Phase>;
+  /** What happened, oldest first: each block that ran since the page opened, the latest ones kept. */
+  runs: Run[];
   /** What the session has spent, per block and per model. Null until reported. */
   usage: UsageReport | null;
   /** Whether the gate has released the player's inputs after preparation. */
@@ -94,6 +104,7 @@ export function emptyState(): PlaybackEngineState {
     hearing: false,
     topology: null,
     phases: {},
+    runs: [],
     usage: null,
     started: false,
     invited: false,

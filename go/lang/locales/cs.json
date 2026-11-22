@@ -1321,7 +1321,34 @@
       "playNow": "Hrát nyní",
       "selectGameTitle": "Vyberte hru",
       "title": "Vyberte hru",
-      "unfavorite": "Odebrat z oblíbených"
+      "unfavorite": "Odebrat z oblíbených",
+      "launch": {
+        "backToGames": "Zpět ke hrám",
+        "cannotOpen": "Tuto hru nelze spustit",
+        "cannotStart": "Tuto hru nelze začít",
+        "continue": "Pokračovat",
+        "inProgress": "Máte rozehranou hru",
+        "inProgressHint": "Pokračujte tam, kde jste skončili, nebo začněte znovu od začátku.",
+        "noPlaysLeft": "Tento odkaz už nemá žádná zbývající hraní, takže hru nelze začít znovu.",
+        "offline": "Nelze se připojit k hernímu serveru.",
+        "opening": "Hra se otevírá…",
+        "startAnew": "Začít znovu",
+        "startAnewUsesPlay": "Začátek od začátku využije jedno z hraní tohoto odkazu.",
+        "starting": "Hra se spouští…",
+        "tryAgain": "Zkusit znovu"
+      },
+      "unplayable": {
+        "denied": "Tuto hru nesmíte hrát",
+        "failed": "Momentálně ji nelze hrát",
+        "genre": "Klíč AI nemůže spustit tento typ hry",
+        "key_rejected": "Klíč AI byl odmítnut",
+        "no_key": "Není k dispozici žádný klíč AI",
+        "no_plays": "Žádná hraní nezbývají",
+        "paused": "Dílna je pozastavena",
+        "stale": "Tuto hru už nelze hrát",
+        "unknown": "Není k dispozici",
+        "unreachable": "Poskytovatel AI neodpovídá"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Opravdu chcete povýšit „{{name}}“ ({{email}}) na vedoucího?",
@@ -1686,12 +1713,8 @@
       "voiceFailed": "Nepodařilo se připojit tvůj hlas."
     },
     "launch": {
-      "continue": "Pokračovat ve hře",
-      "inProgress": "Máš rozehranou hru.",
       "noGame": "Tato stránka potřebuje hru: otevři ji ze stránky hry.",
-      "startAnew": "Začít znovu",
-      "starting": "Hra se spouští…",
-      "tryAgain": "Zkusit znovu"
+      "starting": "Hra se spouští…"
     },
     "pipeline": {
       "compact": "Zkomprimovat vlákno",
@@ -1751,6 +1774,14 @@
       "rephrase-audio\u001eoutline": "akce",
       "start-game\u001elive-session": "podnět",
       "start-game\u001eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Zavřít",
+      "empty": "Zatím nic neproběhlo.",
+      "feed": "Co se stalo",
+      "hide": "Skrýt přehled",
+      "label": "Přehled",
+      "show": "Zobrazit přehled"
     }
   }
 }

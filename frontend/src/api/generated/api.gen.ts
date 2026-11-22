@@ -476,6 +476,7 @@ export interface GameView {
   /** @format uuid */
   originallyCreatedBy?: string;
   playCount: number;
+  playability: string;
   public: boolean;
   /** @format uuid */
   publicSponsoredApiKeyShareId?: string;
@@ -520,6 +521,7 @@ export interface GuestGameInfoResp {
   /** @format uuid */
   gameId: string;
   name: string;
+  playability: string;
   public: boolean;
   remaining?: number;
 }

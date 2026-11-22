@@ -148,13 +148,13 @@ FROM api_key_share WHERE id = @id;
 
 -- name: V2PayerShare :one
 -- The key behind a share, as a session or a share link pays with it.
-SELECT s.id, k.id AS key_id, k.name, k.platform, k.last_usage_success
+SELECT s.id, k.id AS key_id, k.name, k.platform, k.last_usage_success, k.last_error_code
 FROM api_key_share s JOIN api_key k ON k.id = s.api_key_id
 WHERE s.id = @id;
 
 -- name: V2PayerKey :one
 -- A key as a session pays with it without a share: the site's free use.
-SELECT id, name, platform FROM api_key WHERE id = @id;
+SELECT id, name, platform, last_usage_success, last_error_code FROM api_key WHERE id = @id;
 
 -- name: V2OwnDefaultKeyShare :many
 -- The caller's default key, by their own use of it.

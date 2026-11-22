@@ -137,3 +137,34 @@ test("a replayed voice failure is long past", () => {
   transport.receive(event("error", JSON.stringify({ code: "voice_failed", text: "" })));
   assert.equal(playback.state.fault, null);
 });
+
+test("each block that runs is one entry in what happened, finished once it is ready again", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport);
+  playback.connect();
+  const block = (node: string, phase: string) => transport.receive(event("state", JSON.stringify({ node, phase })));
+
+  block("expand", "working");
+  block("image", "working");
+  block("expand", "ready");
+  block("expand", "working");
+
+  assert.deepEqual(
+    playback.state.runs.map((r) => [r.node, r.done]),
+    [
+      ["expand", true],
+      ["image", false],
+      ["expand", false],
+    ],
+  );
+});
+
+test("a block reported ready without having run adds nothing", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport);
+  playback.connect();
+
+  transport.receive(event("state", JSON.stringify({ node: "gate", phase: "ready" })));
+
+  assert.deepEqual(playback.state.runs, []);
+});

@@ -1,6 +1,6 @@
 import { Modal, Stack, Text, Button, Group, ThemeIcon } from '@mantine/core';
 import { IconAlertTriangle, IconX } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { translateError, translateErrorCode } from '../lib/errorHelpers';
 import { TextWithLinks } from './TextWithLinks';
@@ -46,10 +46,15 @@ export function ErrorModal({
 }: ErrorModalProps) {
   const { t } = useTranslation();
 
-  const [timestamp, setTimestamp] = useState<string | null>(null);
-  useEffect(() => {
-    if (opened) setTimestamp(new Date().toLocaleString());
-  }, [opened]);
+  // When the modal opened: stamped as it opens, during render, so the first
+  // paint already shows it.
+  const now = () => new Date().toLocaleString();
+  const [timestamp, setTimestamp] = useState<string | null>(() => (opened ? now() : null));
+  const [wasOpened, setWasOpened] = useState(opened);
+  if (opened !== wasOpened) {
+    setWasOpened(opened);
+    if (opened) setTimestamp(now());
+  }
 
   // Resolve error to translated text
   const translated = error 

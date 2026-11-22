@@ -1321,7 +1321,34 @@
       "playNow": "Spill nå",
       "selectGameTitle": "Velg et spill",
       "title": "Velg et spill",
-      "unfavorite": "Fjern fra favoritter"
+      "unfavorite": "Fjern fra favoritter",
+      "launch": {
+        "backToGames": "Tilbake til spillene",
+        "cannotOpen": "Dette spillet kan ikke fortsette",
+        "cannotStart": "Dette spillet kan ikke startes",
+        "continue": "Fortsett",
+        "inProgress": "Du har et påbegynt spill",
+        "inProgressHint": "Fortsett der du slapp, eller start på nytt fra begynnelsen.",
+        "noPlaysLeft": "Denne lenken har ingen spill igjen, så spillet kan ikke startes på nytt.",
+        "offline": "Får ikke kontakt med spillserveren.",
+        "opening": "Åpner spillet…",
+        "startAnew": "Start på nytt",
+        "startAnewUsesPlay": "Å starte på nytt bruker ett av spillene på denne lenken.",
+        "starting": "Starter spillet…",
+        "tryAgain": "Prøv igjen"
+      },
+      "unplayable": {
+        "denied": "Du kan ikke spille dette spillet",
+        "failed": "Kan ikke spilles akkurat nå",
+        "genre": "KI-nøkkelen kan ikke kjøre denne typen spill",
+        "key_rejected": "KI-nøkkelen ble avvist",
+        "no_key": "Ingen KI-nøkkel tilgjengelig",
+        "no_plays": "Ingen spill igjen",
+        "paused": "Verkstedet er satt på pause",
+        "stale": "Kan ikke spilles lenger",
+        "unknown": "Ikke tilgjengelig",
+        "unreachable": "KI-leverandøren svarer ikke"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Er du sikker på at du vil forfremme \"{{name}}\" ({{email}}) til leder?",
@@ -1686,12 +1713,8 @@
       "voiceFailed": "Kunne ikke koble til stemmen din."
     },
     "launch": {
-      "continue": "Fortsett",
-      "inProgress": "Du har et pågående spill.",
       "noGame": "Denne siden trenger et spill for å kunne spilles: Åpne den fra siden til et spill.",
-      "startAnew": "Start på nytt",
-      "starting": "Starter spillet…",
-      "tryAgain": "Prøv igjen"
+      "starting": "Starter spillet…"
     },
     "pipeline": {
       "compact": "Komprimer tråd",
@@ -1751,6 +1774,14 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "innledning",
       "start-game\u0003eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Lukk",
+      "empty": "Ingenting har blitt kjørt ennå.",
+      "feed": "Dette skjedde",
+      "hide": "Skjul innsikt",
+      "label": "Innsikt",
+      "show": "Vis innsikt"
     }
   }
 }

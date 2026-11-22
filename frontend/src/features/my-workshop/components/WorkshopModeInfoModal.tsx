@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Modal, Stack, Text, Checkbox, Button, Alert } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-
-const STORAGE_KEY = "cgl_workshop_mode_info_dismissed";
+import { dismissInfoModal } from "../lib/infoModal";
 
 interface WorkshopModeInfoModalProps {
   opened: boolean;
@@ -22,13 +21,7 @@ export function WorkshopModeInfoModal({
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   const handleClose = () => {
-    if (dontShowAgain) {
-      try {
-        localStorage.setItem(STORAGE_KEY, "true");
-      } catch {
-        // Ignore storage errors
-      }
-    }
+    if (dontShowAgain) dismissInfoModal();
     onClose();
   };
 
@@ -78,12 +71,4 @@ export function WorkshopModeInfoModal({
       </Stack>
     </Modal>
   );
-}
-
-export function shouldShowInfoModal(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) !== "true";
-  } catch {
-    return true;
-  }
 }

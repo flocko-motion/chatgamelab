@@ -1316,12 +1316,39 @@
         "own": "Moje igre",
         "public": "Javne"
       },
+      "launch": {
+        "backToGames": "Nazad na igre",
+        "cannotOpen": "Ova igra se ne može nastaviti",
+        "cannotStart": "Ova igra ne može početi",
+        "continue": "Nastavi",
+        "inProgress": "Imate igru u toku",
+        "inProgressHint": "Nastavite gdje ste stali ili počnite ponovo od početka.",
+        "noPlaysLeft": "Ovom linku nisu preostala igranja, pa se igra ne može pokrenuti iznova.",
+        "offline": "Nije moguće povezati se sa serverom igre.",
+        "opening": "Otvaranje igre…",
+        "startAnew": "Počni iznova",
+        "startAnewUsesPlay": "Početak iznova koristi jedno od igranja ovog linka.",
+        "starting": "Pokretanje igre…",
+        "tryAgain": "Pokušaj ponovo"
+      },
       "owner": "Moje",
       "playGame": "Igraj ovu igru",
       "playNow": "Igraj sada",
       "selectGameTitle": "Odaberite igru",
       "title": "Odaberite igru",
-      "unfavorite": "Ukloni iz favorita"
+      "unfavorite": "Ukloni iz favorita",
+      "unplayable": {
+        "denied": "Ne smijete igrati ovu igru",
+        "failed": "Trenutno se ne može igrati",
+        "genre": "AI ključ ne može pokretati ovu vrstu igre",
+        "key_rejected": "AI ključ je odbijen",
+        "no_key": "Nema dostupnog AI ključa",
+        "no_plays": "Nema preostalih igranja",
+        "paused": "Radionica je pauzirana",
+        "stale": "Više se ne može igrati",
+        "unknown": "Nije dostupno",
+        "unreachable": "AI pružalac usluge ne odgovara"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Jeste li sigurni da želite unaprijediti \"{{name}}\" ({{email}}) u voditelja?",
@@ -1685,13 +1712,17 @@
       "turnFailed": "Priča nije mogla nastaviti od toga. Pošalji ponovo ili pokušaj nešto drugo.",
       "voiceFailed": "Nije bilo moguće povezati tvoj glas."
     },
+    "insights": {
+      "close": "Zatvori",
+      "empty": "Još ništa nije pokrenuto.",
+      "feed": "Šta se desilo",
+      "hide": "Sakrij uvide",
+      "label": "Uvidi",
+      "show": "Prikaži uvide"
+    },
     "launch": {
-      "continue": "Nastavi igrati",
-      "inProgress": "Imaš započetu igru.",
       "noGame": "Ovoj stranici je potrebna igra: otvori je sa stranice neke igre.",
-      "startAnew": "Počni ispočetka",
-      "starting": "Igra se pokreće…",
-      "tryAgain": "Pokušaj ponovo"
+      "starting": "Igra se pokreće…"
     },
     "pipeline": {
       "compact": "Sažmi nit",

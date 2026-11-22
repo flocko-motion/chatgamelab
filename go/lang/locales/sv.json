@@ -1326,7 +1326,34 @@
       "playNow": "Spela nu",
       "selectGameTitle": "Välj ett spel",
       "title": "Välj ett spel",
-      "unfavorite": "Ta bort från favoriter"
+      "unfavorite": "Ta bort från favoriter",
+      "launch": {
+        "backToGames": "Tillbaka till spelen",
+        "cannotOpen": "Det här spelet kan inte fortsätta",
+        "cannotStart": "Det här spelet kan inte starta",
+        "continue": "Fortsätt",
+        "inProgress": "Du har ett pågående spel",
+        "inProgressHint": "Fortsätt där du slutade eller börja om från början.",
+        "noPlaysLeft": "Den här länken har inga spel kvar, så spelet kan inte startas om.",
+        "offline": "Det går inte att nå spelservern.",
+        "opening": "Öppnar spelet…",
+        "startAnew": "Börja om",
+        "startAnewUsesPlay": "Att börja om använder en av länkens spelomgångar.",
+        "starting": "Startar spelet…",
+        "tryAgain": "Försök igen"
+      },
+      "unplayable": {
+        "denied": "Du får inte spela det här spelet",
+        "failed": "Kan inte spelas just nu",
+        "genre": "AI-nyckeln kan inte köra den här typen av spel",
+        "key_rejected": "AI-nyckeln avvisades",
+        "no_key": "Ingen AI-nyckel tillgänglig",
+        "no_plays": "Inga spel kvar",
+        "paused": "Verkstaden är pausad",
+        "stale": "Kan inte längre spelas",
+        "unknown": "Inte tillgängligt",
+        "unreachable": "AI-leverantören svarar inte"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Är du säker på att du vill befordra \"{{name}}\" ({{email}}) till chef?",
@@ -1692,12 +1719,8 @@
       "voiceFailed": "Det gick inte att ansluta din röst."
     },
     "launch": {
-      "continue": "Fortsätt",
-      "inProgress": "Du har ett pågående spel.",
       "noGame": "Den här sidan behöver ett spel för att kunna spelas: öppna den från ett spels sida.",
-      "startAnew": "Börja om",
-      "starting": "Startar spelet…",
-      "tryAgain": "Försök igen"
+      "starting": "Startar spelet…"
     },
     "pipeline": {
       "compact": "Komprimera tråd",
@@ -1757,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "signal",
       "start-game\u0003eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Stäng",
+      "empty": "Inget har körts ännu.",
+      "feed": "Vad som hände",
+      "hide": "Dölj insikter",
+      "label": "Insikter",
+      "show": "Visa insikter"
     }
   }
 }

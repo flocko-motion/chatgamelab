@@ -1326,7 +1326,34 @@
       "playNow": "Zagraj teraz",
       "selectGameTitle": "Wybierz grę",
       "title": "Wybierz grę",
-      "unfavorite": "Usuń z ulubionych"
+      "unfavorite": "Usuń z ulubionych",
+      "launch": {
+        "backToGames": "Wróć do gier",
+        "cannotOpen": "Nie można kontynuować tej gry",
+        "cannotStart": "Nie można rozpocząć tej gry",
+        "continue": "Kontynuuj",
+        "inProgress": "Masz rozpoczętą grę",
+        "inProgressHint": "Kontynuuj od miejsca, w którym skończyłeś, albo zacznij od początku.",
+        "noPlaysLeft": "Ten link nie ma już dostępnych rozgrywek, więc nie można rozpocząć gry od nowa.",
+        "offline": "Nie można połączyć się z serwerem gry.",
+        "opening": "Otwieranie gry…",
+        "startAnew": "Zacznij od nowa",
+        "startAnewUsesPlay": "Rozpoczęcie od nowa wykorzysta jedną z rozgrywek dostępnych dla tego linku.",
+        "starting": "Rozpoczynanie gry…",
+        "tryAgain": "Spróbuj ponownie"
+      },
+      "unplayable": {
+        "denied": "Nie możesz grać w tę grę",
+        "failed": "Nie można teraz rozpocząć gry",
+        "genre": "Klucz AI nie może uruchomić tego rodzaju gry",
+        "key_rejected": "Klucz AI został odrzucony",
+        "no_key": "Brak dostępnego klucza AI",
+        "no_plays": "Brak dostępnych rozgrywek",
+        "paused": "Warsztat jest wstrzymany",
+        "stale": "Nie można już grać",
+        "unknown": "Niedostępne",
+        "unreachable": "Dostawca AI nie odpowiada"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Czy na pewno chcesz awansować \"{{name}}\" ({{email}}) na kierownika?",
@@ -1692,12 +1719,8 @@
       "voiceFailed": "Nie udało się połączyć z twoim głosem."
     },
     "launch": {
-      "continue": "Kontynuuj",
-      "inProgress": "Masz rozpoczętą grę.",
       "noGame": "Ta strona wymaga gry: otwórz ją ze strony gry.",
-      "startAnew": "Rozpocznij od nowa",
-      "starting": "Uruchamianie gry…",
-      "tryAgain": "Spróbuj ponownie"
+      "starting": "Uruchamianie gry…"
     },
     "pipeline": {
       "compact": "Kompaktuj wątek",
@@ -1757,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "działanie",
       "start-game\u0003elive-session": "wprowadzenie",
       "start-game\u0003eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Zamknij",
+      "empty": "Nic jeszcze nie zostało uruchomione.",
+      "feed": "Co się wydarzyło",
+      "hide": "Ukryj informacje",
+      "label": "Informacje",
+      "show": "Pokaż informacje"
     }
   }
 }

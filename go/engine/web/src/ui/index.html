@@ -13,8 +13,15 @@
           <strong id="title">…</strong>
         </div>
         <div class="game-tools">
-          <button id="pictures" class="tool-toggle" type="button" aria-pressed="true" hidden>Pictures on</button>
-          <select id="theme" aria-label="Theme" title="Theme"></select>
+          <button id="pictures" class="tool-toggle" type="button" aria-pressed="true" hidden>
+            <svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="M5 17l4.5-4.5 3 3L15 13l4 4" /></svg>
+            <span class="tool-label">Pictures</span>
+          </button>
+          <select id="theme" aria-label="Theme" title="Theme" hidden></select>
+          <button id="insights-toggle" class="tool-toggle" type="button" aria-pressed="true" aria-controls="insights">
+            <svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.2" /><circle cx="18" cy="12" r="2.2" /><circle cx="6" cy="18" r="2.2" /><path d="M8.1 6.9l7.8 4.2M8.1 17.1l7.8-4.2" /></svg>
+            <span id="insights-label" class="tool-label">Insights</span>
+          </button>
         </div>
       </header>
       <div id="props" class="statusbar" hidden></div>
@@ -74,13 +81,22 @@
 
     <div id="split" role="separator" aria-orientation="vertical" aria-label="Resize the panels"></div>
 
-    <aside>
-      <section>
+    <aside id="insights">
+      <section class="insights-graph">
         <h2>pipeline</h2>
         <div id="graph"></div>
       </section>
-      <section>
-        <h2 id="details-title">usage</h2>
+      <section class="insights-feed">
+        <h2 id="runs-title">What happened</h2>
+        <ol id="runs" class="runs"></ol>
+      </section>
+      <section class="insights-details">
+        <div class="details-head">
+          <h2 id="details-title">usage</h2>
+          <button id="details-close" class="details-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+        </div>
         <div id="details"></div>
       </section>
     </aside>

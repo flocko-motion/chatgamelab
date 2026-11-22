@@ -36,6 +36,8 @@ export function useOrgKeyOptions(
   opts?: { includeEmpty?: boolean; emptyLabel?: string },
 ): UseOrgKeyOptionsResult {
   const { t } = useTranslation("common");
+  const includeEmpty = opts?.includeEmpty;
+  const emptyLabel = opts?.emptyLabel;
 
   const { data: institutionKeys, isLoading: instLoading } =
     useInstitutionApiKeys(institutionId);
@@ -87,10 +89,10 @@ export function useOrgKeyOptions(
     // Build grouped options
     const options: (OrgKeyOption | ComboboxItemGroup)[] = [];
 
-    if (opts?.includeEmpty) {
+    if (includeEmpty) {
       options.push({
         value: "",
-        label: opts.emptyLabel || t("myOrganization.workshops.noDefaultApiKey"),
+        label: emptyLabel || t("myOrganization.workshops.noDefaultApiKey"),
       });
     }
 
@@ -128,7 +130,7 @@ export function useOrgKeyOptions(
     instLoading,
     userLoading,
     t,
-    opts?.includeEmpty,
-    opts?.emptyLabel,
+    includeEmpty,
+    emptyLabel,
   ]);
 }

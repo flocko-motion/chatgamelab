@@ -7,8 +7,6 @@ import type { Game, SessionView } from "@/api/types";
 
 /** What playing needs of a game: a full game or a list card both do. */
 type GameRef = Pick<Game, "id" | "name">;
-import { useDeleteSession } from "@/api/hooks";
-import { forgetRememberedSession } from "@/features/play/playback";
 
 /**
  * Shared hook for game play/continue/restart navigation logic.
@@ -18,7 +16,6 @@ export function useGameNavigation() {
   const navigate = useNavigate();
   const modals = useModals();
   const { t } = useTranslation("common");
-  const deleteSession = useDeleteSession();
 
   const playGame = useCallback(
     (game: GameRef) => {
@@ -56,13 +53,9 @@ export function useGameNavigation() {
           cancel: t("cancel"),
         },
         confirmProps: { color: "red" },
-        onConfirm: async () => {
-          try {
-            await deleteSession.mutateAsync(session.id!);
-          } catch {
-            // Session may have been deleted already, ignore and continue
-          }
-          forgetRememberedSession(game.id!);
+        // Starting a game is starting it anew: the new session replaces the
+        // player's earlier ones of the game.
+        onConfirm: () => {
           navigate({
             to: "/games/$gameId/play",
             params: { gameId: game.id! },
@@ -70,7 +63,7 @@ export function useGameNavigation() {
         },
       });
     },
-    [modals, t, deleteSession, navigate],
+    [modals, t, navigate],
   );
 
   return { playGame, continueGame, restartGame };

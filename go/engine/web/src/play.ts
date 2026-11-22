@@ -131,17 +131,17 @@ async function createSession(wanted: string): Promise<string> {
   const [kind, ...rest] = wanted.split(":");
   if (kind !== "game" && kind !== "share") throw new Error(`--new=${wanted}: name game:<id> or share:<token>`);
   const selector: Selector = { kind, id: rest.join(":") };
-  const memories = { sessions: transientMemory(), pending: transientMemory() };
+  const pending = transientMemory();
   const once = flag("once");
 
-  const created = await create(client, selector, "en", memories, once);
+  const created = await create(client, selector, "en", pending, once);
   if ("notice" in created) {
     console.log(`refused:    ${describe(created.notice)}`);
     throw new NoticeError(created.notice);
   }
   console.log(`created:    ${created.id}`);
   if (once) {
-    const again = await create(client, selector, "en", memories, once);
+    const again = await create(client, selector, "en", pending, once);
     console.log(`repeated:   ${"id" in again && again.id === created.id ? "same" : "different"}`);
   }
   return created.id;

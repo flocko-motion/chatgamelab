@@ -10,8 +10,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"slices"
 
 	"cgl/core"
 	"cgl/log"
@@ -32,23 +30,20 @@ type Created struct {
 // a game anew, it replaces their earlier sessions of that game. The context
 // outlives the request, as the session's lifetime.
 func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string) (*Created, error) {
-	if err := core.MayStartPlaying(ctx, gameID); err != nil {
-		return nil, err
-	}
-	game, err := readGame(ctx, func() (*core.GameCard, error) { return core.ReadGameCard(ctx, gameID) })
-	if err != nil {
-		return nil, err
-	}
-	payers, steps, err := core.Payers(ctx, gameID, "")
+	start, err := core.StartGame(ctx, gameID)
 	if err != nil {
 		return nil, core.PlayRefusal(err)
 	}
-	traceKeys(gameID, "", payers, steps)
-	offer, payer, err := firstWorkingOffer(ctx, engine.Genre(game.Genre), payers)
+	traceKeys(gameID, "", start.Steps)
+	game, err := readGame(ctx, func() (*core.GameCard, error) { return start.Game, nil })
 	if err != nil {
 		return nil, err
 	}
-	return launch(ctx, game, offer, payer, nil, language, true)
+	chosen, err := firstWorking(ctx, start.Offers, start.Refused, core.NoKey)
+	if err != nil {
+		return nil, err
+	}
+	return launch(ctx, game, chosen.Offer, chosen.Payer, nil, language, true)
 }
 
 // CreateShareSession launches a session from a share link, for a guest or a
@@ -59,18 +54,19 @@ func CreateShareSession(ctx context.Context, token string, language string) (*Cr
 	if err != nil {
 		return nil, core.PlayRefusal(err)
 	}
-	if link.Remaining != nil && *link.Remaining <= 0 {
-		return nil, engine.Refuse(engine.ProblemNoPlays, "this share link has reached its play limit")
+	start, err := core.StartShare(ctx, link)
+	if err != nil {
+		return nil, core.PlayRefusal(err)
 	}
-	game, err := readGame(ctx, func() (*core.GameCard, error) { return link.Game, nil })
+	game, err := readGame(ctx, func() (*core.GameCard, error) { return start.Game, nil })
 	if err != nil {
 		return nil, err
 	}
-	offer, payer, err := firstWorkingOffer(ctx, engine.Genre(game.Genre), []core.Payer{link.Payer})
+	chosen, err := firstWorking(ctx, start.Offers, start.Refused, core.NoKey)
 	if err != nil {
 		return nil, err
 	}
-	return launch(ctx, game, offer, payer, link, language, false)
+	return launch(ctx, game, chosen.Offer, chosen.Payer, link, language, false)
 }
 
 // launch starts the session under a fresh id, in the store the core hands
@@ -121,14 +117,15 @@ func ResumeSession(ctx context.Context, sessionID uuid.UUID) (*engine.Session, e
 		if err != nil {
 			return nil, core.PlayRefusal(err)
 		}
-		traceKeys(r.GameID, r.Platform, payers, steps)
+		traceKeys(r.GameID, r.Platform, steps)
 	}
 	// The stored session already ran on this platform, so its genre fits.
-	offer, _, err := firstWorkingOffer(ctx, "", payers)
+	offers, refused := core.Offers(payers, nil)
+	chosen, err := firstWorking(ctx, offers, refused, core.NoKey)
 	if err != nil {
 		return nil, err
 	}
-	return engine.Resume(ctx, sessionID.String(), r.Store, []engine.Offer{offer})
+	return engine.Resume(ctx, sessionID.String(), r.Store, []engine.Offer{chosen.Offer})
 }
 
 // gameFacts are what a session's spec is built from.
@@ -162,95 +159,17 @@ func readGame(ctx context.Context, read func() (*core.GameCard, error)) (*gameFa
 	}, nil
 }
 
-// firstWorkingOffer turns the payers, in order, into offers and checks each
-// with its provider; the first that can run the genre and whose key works is
-// the session's single offer. An empty genre skips the genre check. Without
-// one, the first payer's refusal answers.
-func firstWorkingOffer(ctx context.Context, genre engine.Genre, payers []core.Payer) (engine.Offer, core.Payer, error) {
-	return firstOffer(ctx, payers, func(offer engine.Offer, toggles engine.Toggles) error {
-		if genre != "" && !slices.Contains(engine.PlayableGenres(toggles), genre) {
-			return engine.Refuse(engine.ProblemGenre, fmt.Sprintf("the key on %s cannot run %s", offer.Platform, genre))
-		}
-		return nil
-	}, "no API key is available for this game")
-}
-
-// firstOffer turns the payers, in order, into offers; the first that fits
-// and whose key its provider accepts is the one. Without one, the first
-// payer's refusal answers, or none, a no_key refusal saying none.
-func firstOffer(ctx context.Context, payers []core.Payer, fits func(engine.Offer, engine.Toggles) error, none string) (engine.Offer, core.Payer, error) {
-	var first error
-	refuse := func(err error) {
-		if first == nil {
-			first = err
-		}
-	}
-	for _, p := range payers {
-		offer, toggles, ok := offerFor(p)
-		if !ok {
-			refuse(engine.Refuse(engine.ProblemNoKey, fmt.Sprintf("the engine does not run platform %q", p.Platform)))
-			continue
-		}
-		if err := fits(offer, toggles); err != nil {
-			refuse(err)
-			continue
-		}
-		err := engine.CheckOffer(ctx, offer)
-		recordKeyCheck(ctx, p, err)
+// firstWorking is the first offer whose key its provider accepts, asked
+// now; each check is recorded on its key. Without one, the refusal of the
+// payer earliest in the order answers.
+func firstWorking(ctx context.Context, offers []core.PayerOffer, refused error, none string) (core.PayerOffer, error) {
+	return core.FirstPlayable(offers, refused, func(o core.PayerOffer) error {
+		err := core.CheckLive(ctx, o)
 		if err != nil {
-			log.Info("key check failed", "offer", offer.ID, "platform", offer.Platform, "source", p.Source, "error", err)
-			refuse(err)
-			continue
+			log.Info("key check failed", "offer", o.Offer.ID, "platform", o.Offer.Platform, "source", o.Payer.Source, "error", err)
 		}
-		return offer, p, nil
-	}
-	if first == nil {
-		first = engine.Refuse(engine.ProblemNoKey, none)
-	}
-	return engine.Offer{}, core.Payer{}, first
-}
-
-// recordKeyCheck keeps the outcome on the key, as its last usage shows to its
-// owner. An unreachable provider says nothing about the key.
-func recordKeyCheck(ctx context.Context, p core.Payer, err error) {
-	switch {
-	case err == nil:
-		p.RecordCheck(ctx, true, "")
-	case errors.Is(err, engine.ErrUnreachable):
-	default:
-		p.RecordCheck(ctx, false, string(engine.RefusalOf(err).Problem))
-	}
-}
-
-// offerFor makes a payer an offer: its tier the only one allowed, every
-// toggle its platform has on there by default, and no choice for the player.
-// Its ID is the key share's, or the key's for the site's free-use key, which
-// has no share. The key is read on every call, so a rotated key applies at
-// once.
-func offerFor(p core.Payer) (engine.Offer, engine.Toggles, bool) {
-	platform := engine.Platform(p.Platform)
-	i := slices.IndexFunc(engine.Platforms(), func(info engine.PlatformInfo) bool { return info.ID == platform })
-	if i < 0 {
-		return engine.Offer{}, engine.Toggles{}, false
-	}
-	toggles := engine.Platforms()[i].Toggles
-	tier := engine.Tier(p.Tier).Normal()
-	if !tier.Known() {
-		tier = engine.TierMedium
-	}
-	id := p.KeyID.String()
-	if p.ShareID != nil {
-		id = p.ShareID.String()
-	}
-	return engine.Offer{
-		Platform: platform,
-		ID:       id,
-		Keys:     p.Secret,
-		Caveats: engine.Caveats{
-			Allow:   map[engine.Tier]engine.Toggles{tier: toggles},
-			Default: engine.Choice{Tier: tier, Toggles: toggles},
-		},
-	}, toggles, true
+		return err
+	}, none)
 }
 
 // gameSpec assembles a session spec from a game, the player's language and

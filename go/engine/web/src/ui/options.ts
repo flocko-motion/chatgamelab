@@ -72,13 +72,14 @@ export class OptionsDialog {
     if (!settled) return;
     const on = settled.choice.toggles.images;
     button.setAttribute("aria-pressed", String(on));
-    button.textContent = on ? "Pictures on" : "Pictures off";
     button.disabled = !on && !allows(state, "images");
     button.title = button.disabled
       ? "Pictures are not available with this key"
       : on
         ? "Stop making new pictures"
         : "Make pictures again";
+    // The label goes at a phone's width, so the button names itself.
+    button.setAttribute("aria-label", button.title);
   }
 
   #selected(): OfferOption | undefined {

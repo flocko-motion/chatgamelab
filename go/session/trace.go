@@ -15,10 +15,14 @@ import (
 )
 
 // traceKeys sends the payer resolution of a session of game to Sentry: each
-// source, whether it counted, and why.
-func traceKeys(gameID uuid.UUID, platform string, payers []core.Payer, steps []core.PayerStep) {
+// source, whether it counted, and why; the payers are the selected ones.
+func traceKeys(gameID uuid.UUID, platform string, steps []core.PayerStep) {
+	var payers []core.Payer
 	lines := make([]string, len(steps))
 	for i, st := range steps {
+		if st.Result == "selected" && st.Payer != nil {
+			payers = append(payers, *st.Payer)
+		}
 		line := fmt.Sprintf("%d. [%s] %s", i+1, st.Source, st.Result)
 		if st.Payer != nil {
 			line += fmt.Sprintf(" key=%q platform=%s", st.Payer.KeyName, st.Payer.Platform)

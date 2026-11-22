@@ -136,10 +136,11 @@ session keeps for its lifetime.
 - *A safety stop is shown as one.* When the AI provider ends a conversation for
   its content, the player is told so, distinct from a lost connection.
 
-== Seeing how it works
+== Insights (Seeing How It Works)<insights>
 
 Transparency is one of ChatGameLab's main goals, as its games are educational.
-The playback-engine has a view showing the inner workings of the game:
+*Insights* show every player the inner workings of the game they are playing,
+alongside the game itself:
 
 - *The steps of a turn* — which AI calls run, in which order, with which
   prompts and results, and which are working right now.
@@ -270,7 +271,7 @@ signed-in players.
 
 === Transparency
 
-The view of a game's workings shows which rules went into the session's rule,
+Insights (@insights) show which rules went into the session's rule,
 where each came from — a workshop, an organisation, or the site rule for U13,
 U13p or U18 — and the rule the session plays under.
 

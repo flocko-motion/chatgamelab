@@ -31,7 +31,7 @@ func (SetGameSponsorEndpoint) Handle(ctx context.Context, req GameSponsorReq) (G
 	if req.ShareID == uuid.Nil {
 		return GameViewResp{}, errBadRequest("Missing required field: shareId")
 	}
-	return wire.GameViewOf(core.SponsorGame(ctx, game, req.ShareID))
+	return wire.GameViewOf(ctx)(core.SponsorGame(ctx, game, req.ShareID))
 }
 
 // GameSponsorReq is the game and the key share to sponsor it with.
@@ -56,7 +56,7 @@ func (RemoveGameSponsorEndpoint) Handle(ctx context.Context, req GameIDReq) (Gam
 	if err := core.EndSponsorship(ctx, game); err != nil {
 		return GameViewResp{}, err
 	}
-	return wire.GameViewOf(core.ReadGameCard(ctx, game))
+	return wire.GameViewOf(ctx)(core.ReadGameCard(ctx, game))
 }
 
 // GameAvailableKeysResp is the keys that would pay for the caller's plays.

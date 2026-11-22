@@ -133,7 +133,7 @@ func linkPlay(ctx context.Context, token sql.NullString, id uuid.NullUUID) (*lin
 			Payer: Payer{
 				ShareID: &k.ID, KeyID: k.KeyID, KeyName: k.Name, Platform: k.Platform,
 				Tier: tier.String, Source: obj.ApiKeyTypeSponsor, chosen: true,
-			},
+			}.lastChecked(k.LastUsageSuccess, k.LastErrorCode),
 		},
 		gameID: r.GameID,
 	}

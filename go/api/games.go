@@ -40,7 +40,7 @@ func (ListGamesEndpoint) Method() string             { return "GET" }
 func (ListGamesEndpoint) Path() string               { return "/api/games" }
 func (ListGamesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (ListGamesEndpoint) Handle(ctx context.Context, req ListGamesReq) (GameViewPageResp, error) {
-	return wire.GameViewPageOf(core.List(ctx, core.GameCards, req.query()))
+	return wire.GameViewPageOf(ctx)(core.List(ctx, core.GameCards, req.query()))
 }
 
 // GameFilter narrows the game list; several combine.
@@ -99,7 +99,7 @@ func (CreateGameEndpoint) Method() string             { return "POST" }
 func (CreateGameEndpoint) Path() string               { return "/api/games/new" }
 func (CreateGameEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (CreateGameEndpoint) Handle(ctx context.Context, req CreateGameReq) (GameViewResp, error) {
-	return wire.GameViewOf(core.CreateGame(ctx, req.changes()))
+	return wire.GameViewOf(ctx)(core.CreateGame(ctx, req.changes()))
 }
 
 // CreateGameReq is a new game's fields; left out, a field keeps the
@@ -119,7 +119,7 @@ func (GetGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameViewResp,
 	if err != nil {
 		return GameViewResp{}, err
 	}
-	return wire.GameViewOf(core.ReadGameCard(ctx, gameID))
+	return wire.GameViewOf(ctx)(core.ReadGameCard(ctx, gameID))
 }
 
 // UpdateGameEndpoint changes a game's card and content and answers with the
@@ -140,7 +140,7 @@ func (UpdateGameEndpoint) Handle(ctx context.Context, req UpdateGameReq) (GameVi
 	if err != nil {
 		return GameViewResp{}, err
 	}
-	return wire.GameViewOf(core.UpdateGame(ctx, gameID, req.changes()))
+	return wire.GameViewOf(ctx)(core.UpdateGame(ctx, gameID, req.changes()))
 }
 
 // UpdateGameReq is the game from the path and what changes from the body.
@@ -212,7 +212,7 @@ func (DeleteGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameViewRe
 	if err != nil {
 		return GameViewResp{}, err
 	}
-	return wire.GameViewOf(core.DeleteGame(ctx, gameID))
+	return wire.GameViewOf(ctx)(core.DeleteGame(ctx, gameID))
 }
 
 // CloneGameEndpoint copies a game into a new private game of the caller's
@@ -228,5 +228,5 @@ func (CloneGameEndpoint) Handle(ctx context.Context, req GameIDReq) (GameViewRes
 	if err != nil {
 		return GameViewResp{}, err
 	}
-	return wire.GameViewOf(core.CopyGame(ctx, gameID))
+	return wire.GameViewOf(ctx)(core.CopyGame(ctx, gameID))
 }

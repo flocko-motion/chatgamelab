@@ -61,20 +61,26 @@
 body {
   margin: 0;
   height: 100vh;
+  height: 100dvh;
   background: var(--panel);
   color: var(--gray-7);
   font: 16px/1.55 var(--platform-font);
   -webkit-font-smoothing: antialiased;
-  /* Split screen: the game on the left, how the AI plays it on the right,
-     evenly until somebody drags the divider. --split is what dragging writes.
-     Below a laptop width they stack instead. */
+  /* Split screen: the game on the left, its Insights on the right, evenly
+     until somebody drags the divider. --split is what dragging writes. On a
+     phone the Insights are a pane below the game instead. */
   display: grid;
   grid-template-columns: minmax(0, var(--split, 1fr)) auto minmax(0, 1fr);
 }
 
-@media (max-width: 60rem) {
+/* Insights closed: the game alone. */
+body[data-insights="closed"] { grid-template-columns: minmax(0, 1fr); }
+body[data-insights="closed"] #split,
+body[data-insights="closed"] aside { display: none; }
+
+@media (max-width: 47.99rem) {
   /* Stacked, so a remembered column width means nothing here. */
-  body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto auto; }
+  body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
 }
 
 button, input, select { font: inherit; }

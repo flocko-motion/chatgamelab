@@ -5,10 +5,12 @@
 package wire
 
 import (
+	"context"
 	"time"
 
 	"cgl/core"
 	"cgl/obj"
+	"engine"
 
 	"github.com/google/uuid"
 )
@@ -44,6 +46,13 @@ type GameView struct {
 
 	IsFavorite bool `json:"isFavorite"` // the caller's own mark
 
+	// Playability is whether the caller can start the game now: "playable",
+	// or the refusal a start would answer, as an engine problem code
+	// (denied, paused, no_key, genre, key_rejected, …). It follows the
+	// start's own steps, by the keys' last recorded checks; the start checks
+	// the key with its provider once more.
+	Playability string `json:"playability"`
+
 	// HasContent: the caller sees how the game works; the fields below are set.
 	HasContent             bool    `json:"hasContent"`
 	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
@@ -73,17 +82,31 @@ type GameMeta struct {
 
 // GameViewOf converts one game card, passing a loading error through:
 //
-//	return wire.GameViewOf(core.ReadGameCard(ctx, id))
-func GameViewOf(card *core.GameCard, err error) (GameView, error) {
-	if err != nil {
-		return GameView{}, err
+//	return wire.GameViewOf(ctx)(core.ReadGameCard(ctx, id))
+func GameViewOf(ctx context.Context) func(card *core.GameCard, err error) (GameView, error) {
+	return func(card *core.GameCard, err error) (GameView, error) {
+		if err != nil {
+			return GameView{}, err
+		}
+		return gameView(card, core.Playability(ctx, card)[card.ID()]), nil
 	}
-	return gameView(card), nil
 }
 
-// gameView converts a game card, with every section the caller may see. It
-// unlocks the sections on card itself, so a view never mixes two games.
-func gameView(card *core.GameCard) GameView {
+// Playable is the playability of a game the caller can start.
+const Playable = "playable"
+
+// Playability is a start's refusal as a game view says it.
+func Playability(refusal error) string {
+	if refusal == nil {
+		return Playable
+	}
+	return string(engine.RefusalOf(refusal).Problem)
+}
+
+// gameView converts a game card, with every section the caller may see and
+// whether they can start it. It unlocks the sections on card itself, so a
+// view never mixes two games.
+func gameView(card *core.GameCard, refusal error) GameView {
 	v := GameView{
 		ID:              card.ID(),
 		Meta:            GameMeta{CreatedAt: card.CreatedAt(), ModifiedAt: card.ModifiedAt()},
@@ -105,6 +128,7 @@ func gameView(card *core.GameCard) GameView {
 		MayShare:        card.MayShare(),
 		MayPublish:      card.MayPublish(),
 		IsFavorite:      card.IsFavorite(),
+		Playability:     Playability(refusal),
 	}
 	if c, err := card.AsGameContent(); err == nil {
 		v.HasContent = true
@@ -129,11 +153,17 @@ func gameView(card *core.GameCard) GameView {
 }
 
 // GameViewPageOf converts a page of game cards, passing a loading error
-// through:
+// through; whether each can be started is worked out for the page at once:
 //
-//	return wire.GameViewPageOf(core.List(ctx, core.GameCards, q))
-func GameViewPageOf(p core.Page[*core.GameCard], err error) (Page[GameView], error) {
-	return pageOf(p, err, gameView)
+//	return wire.GameViewPageOf(ctx)(core.List(ctx, core.GameCards, q))
+func GameViewPageOf(ctx context.Context) func(p core.Page[*core.GameCard], err error) (Page[GameView], error) {
+	return func(p core.Page[*core.GameCard], err error) (Page[GameView], error) {
+		if err != nil {
+			return Page[GameView]{}, err
+		}
+		refusals := core.Playability(ctx, p.Items...)
+		return pageOf(p, nil, func(card *core.GameCard) GameView { return gameView(card, refusals[card.ID()]) })
+	}
 }
 
 func ptr[T any](v T) *T { return &v }

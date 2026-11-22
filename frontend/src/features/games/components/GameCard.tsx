@@ -18,6 +18,8 @@ import {
   IconDeviceGamepad2,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { blocksContinue, unplayable } from "@/common/lib/playability";
+import { UnplayableNote } from "@components/UnplayableNote";
 import {
   EditButtonWithText,
   TextButton,
@@ -48,6 +50,7 @@ export interface GameCardProps {
     | "publicSponsoredApiKeyShareId"
     | "creatorName"
     | "playCount"
+    | "playability"
   >;
   /** Opens the game: to edit it, or to look at it for who may not. */
   onEdit: () => void;
@@ -128,7 +131,10 @@ export function GameCard({
   const sponsored = !!game.publicSponsoredApiKeyShareId;
   const favoriteText = isFavorite ? unfavoriteLabel : favoriteLabel;
   const continues = hasSession && !!onContinue;
-  const play = continues ? onContinue : onPlay;
+  // A game the caller cannot start says why, and a click on it plays nothing.
+  const problem = unplayable(game);
+  const held = problem !== null && (!continues || blocksContinue(problem));
+  const play = held ? undefined : continues ? onContinue : onPlay;
   const playText = continues ? continueLabel : playLabel;
 
   const visibility = game.public ? (
@@ -164,6 +170,7 @@ export function GameCard({
       radius="lg"
       withBorder
       onClick={play}
+      data-unplayable={held || undefined}
     >
       <Card.Section className={classes.cover}>
         <GameCover game={game} flush />
@@ -173,12 +180,17 @@ export function GameCard({
           className={classes.playHint}
           onClick={(e) => {
             e.stopPropagation();
-            play();
+            play?.();
           }}
+          disabled={!play}
           aria-label={`${playText}: ${game.name}`}
         >
           <span className={classes.playCircle}>
-            <IconDeviceGamepad2 className={classes.playIcon} stroke={1.75} aria-hidden />
+            <IconDeviceGamepad2
+              className={classes.playIcon}
+              stroke={1.75}
+              aria-hidden
+            />
           </span>
         </button>
         <div className={classes.overlayTop}>
@@ -276,6 +288,8 @@ export function GameCard({
             {game.description}
           </Text>
         )}
+
+        {problem && <UnplayableNote problem={problem} />}
       </Stack>
 
       {/* The foot: open the game (left), the actions (right). */}
@@ -289,7 +303,7 @@ export function GameCard({
       >
         <Group gap="xs" wrap="nowrap">
           <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
-          {continues && onRestart && (
+          {continues && onRestart && !problem && (
             <TextButton onClick={onRestart} size="xs">
               {restartLabel}
             </TextButton>

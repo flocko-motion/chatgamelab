@@ -1321,7 +1321,34 @@
       "playNow": "Jogar agora",
       "selectGameTitle": "Selecione um Jogo",
       "title": "Selecione um Jogo",
-      "unfavorite": "Remover dos favoritos"
+      "unfavorite": "Remover dos favoritos",
+      "launch": {
+        "backToGames": "Voltar aos jogos",
+        "cannotOpen": "Este jogo não pode continuar",
+        "cannotStart": "Este jogo não pode começar",
+        "continue": "Continuar",
+        "inProgress": "Você tem um jogo em andamento",
+        "inProgressHint": "Continue de onde parou ou comece novamente do início.",
+        "noPlaysLeft": "Este link não tem mais jogadas disponíveis, então o jogo não pode começar novamente.",
+        "offline": "Não foi possível conectar ao servidor do jogo.",
+        "opening": "Abrindo o jogo…",
+        "startAnew": "Começar novamente",
+        "startAnewUsesPlay": "Começar novamente usa uma das jogadas deste link.",
+        "starting": "Iniciando o jogo…",
+        "tryAgain": "Tentar novamente"
+      },
+      "unplayable": {
+        "denied": "Você não pode jogar este jogo",
+        "failed": "Não é possível jogar no momento",
+        "genre": "A chave de IA não pode executar este tipo de jogo",
+        "key_rejected": "A chave de IA foi recusada",
+        "no_key": "Nenhuma chave de IA disponível",
+        "no_plays": "Nenhuma jogada restante",
+        "paused": "O workshop está pausado",
+        "stale": "Não pode mais ser jogado",
+        "unknown": "Indisponível",
+        "unreachable": "O provedor de IA não está respondendo"
+      }
     },
     "profile": "Perfil",
     "promoteConfirm": "Tem certeza de que deseja promover \"{{name}}\" ({{email}}) a Chefe?",
@@ -1686,12 +1713,8 @@
       "voiceFailed": "Não foi possível conectar sua voz."
     },
     "launch": {
-      "continue": "Continuar",
-      "inProgress": "Você tem um jogo em andamento.",
       "noGame": "Esta página precisa de um jogo para jogar: abra-a pela página de um jogo.",
-      "startAnew": "Começar de novo",
-      "starting": "Iniciando o jogo…",
-      "tryAgain": "Tentar novamente"
+      "starting": "Iniciando o jogo…"
     },
     "pipeline": {
       "compact": "Compactar tópico",
@@ -1751,6 +1774,14 @@
       "rephrase-audio\u0003eoutline": "ação",
       "start-game\u0003elive-session": "entrada",
       "start-game\u0003eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Fechar",
+      "empty": "Nada foi executado ainda.",
+      "feed": "O que aconteceu",
+      "hide": "Ocultar informações",
+      "label": "Informações",
+      "show": "Mostrar informações"
     }
   }
 }

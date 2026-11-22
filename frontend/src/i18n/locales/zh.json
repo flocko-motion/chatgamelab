@@ -1321,7 +1321,34 @@
       "playNow": "立即游玩",
       "selectGameTitle": "选择一个游戏",
       "title": "选择游戏",
-      "unfavorite": "移出收藏"
+      "unfavorite": "移出收藏",
+      "launch": {
+        "backToGames": "返回游戏列表",
+        "cannotOpen": "此游戏无法继续",
+        "cannotStart": "此游戏无法开始",
+        "continue": "继续游戏",
+        "inProgress": "你有一个正在进行的游戏",
+        "inProgressHint": "从你离开的地方继续，或从头开始。",
+        "noPlaysLeft": "此链接没有剩余次数，因此无法重新开始游戏。",
+        "offline": "无法连接到游戏服务器。",
+        "opening": "正在打开游戏…",
+        "startAnew": "重新开始",
+        "startAnewUsesPlay": "重新开始会消耗此链接的一次游戏次数。",
+        "starting": "正在开始游戏…",
+        "tryAgain": "重试"
+      },
+      "unplayable": {
+        "denied": "你无法玩此游戏",
+        "failed": "当前无法进行游戏",
+        "genre": "AI 密钥无法运行此类游戏",
+        "key_rejected": "AI 密钥被拒绝",
+        "no_key": "没有可用的 AI 密钥",
+        "no_plays": "没有剩余游戏次数",
+        "paused": "工作坊已暂停",
+        "stale": "已无法进行游戏",
+        "unknown": "不可用",
+        "unreachable": "AI 服务提供商没有响应"
+      }
     },
     "profile": "个人资料",
     "promoteConfirm": "确定要将“{{name}}”（{{email}}）提升为负责人吗？",
@@ -1686,12 +1713,8 @@
       "voiceFailed": "无法连接你的语音。"
     },
     "launch": {
-      "continue": "继续游戏",
-      "inProgress": "你有一个正在进行的游戏。",
       "noGame": "此页面需要一个游戏才能游玩：请从游戏页面打开它。",
-      "startAnew": "重新开始",
-      "starting": "正在开始游戏……",
-      "tryAgain": "重试"
+      "starting": "正在开始游戏……"
     },
     "pipeline": {
       "compact": "压缩主题串",
@@ -1751,6 +1774,14 @@
       "rephrase-audio\u001eoutline": "行动",
       "start-game\u001elive-session": "引导",
       "start-game\u001eoutline": "提示"
+    },
+    "insights": {
+      "close": "关闭",
+      "empty": "尚未运行任何内容。",
+      "feed": "发生了什么",
+      "hide": "隐藏洞察",
+      "label": "洞察",
+      "show": "显示洞察"
     }
   }
 }

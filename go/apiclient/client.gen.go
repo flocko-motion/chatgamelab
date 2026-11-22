@@ -992,6 +992,7 @@ type GameView struct {
 	Name                         string              `json:"name"`
 	OriginallyCreatedBy          *openapi_types.UUID `json:"originallyCreatedBy,omitempty"`
 	PlayCount                    int                 `json:"playCount"`
+	Playability                  string              `json:"playability"`
 	Public                       bool                `json:"public"`
 	PublicSponsoredApiKeyShareId *openapi_types.UUID `json:"publicSponsoredApiKeyShareId,omitempty"`
 	StatusFields                 *string             `json:"statusFields,omitempty"`
@@ -1042,6 +1043,7 @@ type GuestGameInfoResp struct {
 	Description *string            `json:"description,omitempty"`
 	GameId      openapi_types.UUID `json:"gameId"`
 	Name        string             `json:"name"`
+	Playability string             `json:"playability"`
 	Public      bool               `json:"public"`
 	Remaining   *int               `json:"remaining,omitempty"`
 }

@@ -1316,12 +1316,39 @@
         "own": "Moje igre",
         "public": "Javne"
       },
+      "launch": {
+        "backToGames": "Nazaj k igram",
+        "cannotOpen": "Te igre ni mogoče nadaljevati",
+        "cannotStart": "Te igre ni mogoče začeti",
+        "continue": "Nadaljuj",
+        "inProgress": "Imaš igro v teku",
+        "inProgressHint": "Nadaljuj tam, kjer si končal, ali začni znova od začetka.",
+        "noPlaysLeft": "Na tej povezavi ni več razpoložljivih igranj, zato igre ni mogoče začeti znova.",
+        "offline": "Povezava s strežnikom igre ni mogoča.",
+        "opening": "Odpiranje igre …",
+        "startAnew": "Začni znova",
+        "startAnewUsesPlay": "Začetek znova porabi eno od igranj te povezave.",
+        "starting": "Začenjanje igre …",
+        "tryAgain": "Poskusi znova"
+      },
       "owner": "Moje",
       "playGame": "Igraj to igro",
       "playNow": "Igraj zdaj",
       "selectGameTitle": "Izberite igro",
       "title": "Izberite igro",
-      "unfavorite": "Odstrani iz priljubljenih"
+      "unfavorite": "Odstrani iz priljubljenih",
+      "unplayable": {
+        "denied": "Te igre ne smeš igrati",
+        "failed": "Trenutno je ni mogoče igrati",
+        "genre": "Ključ UI ne more izvajati te vrste igre",
+        "key_rejected": "Ključ UI je bil zavrnjen",
+        "no_key": "Ključ UI ni na voljo",
+        "no_plays": "Ni več razpoložljivih igranj",
+        "paused": "Delavnica je začasno ustavljena",
+        "stale": "Igre ni več mogoče igrati",
+        "unknown": "Ni na voljo",
+        "unreachable": "Ponudnik UI ne odgovarja"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) povišati v vodjo?",
@@ -1685,13 +1712,17 @@
       "turnFailed": "Zgodba se od tega ni mogla nadaljevati. Pošlji še enkrat ali poskusi nekaj drugega.",
       "voiceFailed": "Povezave s tvojim glasom ni bilo mogoče vzpostaviti."
     },
+    "insights": {
+      "close": "Zapri",
+      "empty": "Zaenkrat se še ni nič izvedlo.",
+      "feed": "Kaj se je zgodilo",
+      "hide": "Skrij vpoglede",
+      "label": "Vpogledi",
+      "show": "Prikaži vpoglede"
+    },
     "launch": {
-      "continue": "Nadaljuj",
-      "inProgress": "Imaš igro v teku.",
       "noGame": "Ta stran za igranje potrebuje igro: odpri jo s strani igre.",
-      "startAnew": "Začni znova",
-      "starting": "Igra se začenja…",
-      "tryAgain": "Poskusi znova"
+      "starting": "Igra se začenja…"
     },
     "pipeline": {
       "compact": "Strni nit",
