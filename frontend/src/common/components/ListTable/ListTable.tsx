@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { Fragment, useState, type CSSProperties, type ReactNode } from "react";
 import {
   Alert,
   Card,
@@ -17,16 +17,17 @@ import {
   IconAlertCircle,
   IconArrowDown,
   IconArrowUp,
+  IconChevronDown,
+  IconChevronUp,
   IconMoodEmpty,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import type { ListQueryControls } from "@/common/hooks/useListQuery";
-import type { ServerList } from "@/common/hooks/useServerList";
-import { PAGE_SIZES, listOffset, pageCount, type SortDir } from "@/common/lib/listQuery";
+import type { List } from "@/api/lists";
+import { PAGE_SIZES, listOffset, pageCount } from "@/common/lib/listQuery";
 import { DimmedLoader } from "@components/LoadingAnimation";
 import { HelperText } from "@components/typography";
-import { ToggleIconButton } from "@components/buttons";
+import { TextButton, ToggleIconButton } from "@components/buttons";
 import {
   FilterSegmentedControl,
   FilterToggles,
@@ -48,12 +49,12 @@ export interface ListColumn<T, S extends string = string> {
   sortBy?: S | readonly S[];
   /** Show the column only from this breakpoint up (the table is wide). */
   visibleFrom?: MantineBreakpoint;
-  /** Clicks in this cell don't open the row (buttons, toggles). */
+  /** Clicks in this cell don't open or expand the row (buttons, toggles). */
   interactive?: boolean;
   /**
    * A toggle in the header that narrows the list to the column's subject,
    * e.g. a star for "only favorites". A shortcut only: the same toggle is
-   * among the list's `toggles`. On a phone (cards, no headers) it sits in the
+   * among the preset's `toggles`. On a phone (cards, no headers) it sits in the
    * toolbar.
    */
   headerToggle?: ListHeaderToggle;
@@ -67,20 +68,9 @@ export interface ListHeaderToggle {
   label: string;
 }
 
-export interface ListFilterOption<F extends string> {
-  value: F;
-  label: string;
-}
-
-export interface ListSortOption<S extends string> {
-  by: S;
-  dir: SortDir;
-  label: string;
-}
-
 export interface ListTableProps<T, F extends string, S extends string> {
-  list: ServerList<T>;
-  controls: ListQueryControls<F, S>;
+  /** The list, from its entity hook: page, state, query and the ways to change it. */
+  list: List<T, F, S>;
   columns: ListColumn<T, S>[];
   getRowKey: (item: T) => string;
   /** How an item looks as a card: on a phone, and in the grid layout. */
@@ -94,42 +84,54 @@ export interface ListTableProps<T, F extends string, S extends string> {
   onRowClick?: (item: T) => void;
   /** A colour stripe on the row's left edge, e.g. for sponsored games. */
   getRowAccent?: (item: T) => MantineColor | undefined;
-  filters?: ListFilterOption<F>[];
-  /** Filters that are each on or off and combine (the query's `only`). */
-  toggles?: ListFilterOption<string>[];
-  /** The orders offered in the sort menu. */
-  sorts?: ListSortOption<S>[];
+  /**
+   * What a row shows below itself when opened (e.g. an organisation's
+   * members); a click on the row opens and closes it. Null: nothing to open.
+   * On a phone a button below the card opens it.
+   */
+  renderExpanded?: (item: T) => ReactNode | null;
   /** Actions shown at the right end of the toolbar, e.g. create and import. */
   actions?: ReactNode;
   empty: { title: string; description?: string; icon?: ReactNode };
   errorMessage: string;
+  /**
+   * For a list inside another view (a row, a card, a settings page): no
+   * toolbar, a plain table without a card around it. Paging shows only when
+   * the list holds more than a page.
+   */
+  compact?: boolean;
 }
 
 /**
  * A list the server filters, sorts and pages: toolbar (search, filter, sort),
  * a table with sortable headers (cards on a phone), and a footer with the
- * pages. It renders only; the query lives in `useListQuery`, the page in
- * `useServerList`.
+ * pages. It renders only; the list comes from its entity hook in `api/`.
  */
 export function ListTable<T, F extends string, S extends string>({
   list,
-  controls,
   columns,
   getRowKey,
   renderCard,
   layout = "table",
   onRowClick,
   getRowAccent,
-  filters,
-  toggles,
-  sorts,
+  renderExpanded,
   actions,
   empty,
   errorMessage,
+  compact = false,
 }: ListTableProps<T, F, S>) {
-  const { t } = useTranslation("common");
+  const { preset } = list;
+  const { t } = useTranslation(["common", ...presetNamespaces(preset)]);
+  const label = (option: { label?: string; text?: string }) =>
+    option.text ?? (option.label ? t(option.label) : "");
+  const filters = (preset.filters ?? []).map((f) => ({ value: f.value, label: label(f) }));
+  const toggles = (preset.toggles ?? []).map((o) => ({ value: o.value, label: label(o) }));
+  const sorts = preset.sorts
+    .filter((s) => s.label)
+    .map((s) => ({ by: s.by, dir: s.dir, label: label(s) }));
   const { isMobile } = useResponsiveDesign();
-  const { query } = controls;
+  const { query } = list;
   // Cards have no headers: their sorts and shortcuts go to the toolbar.
   const cards = isMobile || layout === "grid";
 
@@ -138,24 +140,54 @@ export function ListTable<T, F extends string, S extends string>({
   const search = (
     <div style={{ display: "flex", flex: 1, minWidth: 0, maxWidth: isMobile ? undefined : 320 }}>
       <SearchInput
-        value={controls.searchInput}
-        onChange={controls.setSearch}
+        value={list.searchInput}
+        onChange={list.setSearch}
         placeholder={t("search")}
         clearLabel={t("list.clearSearch")}
       />
     </div>
   );
-  const sortSelector = sorts && sorts.length > 0 && (
+  const sortSelector = sorts.length > 0 && (
     <SortSelector
       options={sorts.map((s) => ({ value: `${s.by}-${s.dir}`, label: s.label }))}
       value={`${query.sortBy}-${query.sortDir}`}
       onChange={(v) => {
         const match = sorts.find((s) => `${s.by}-${s.dir}` === v);
-        if (match) controls.setSort(match.by, match.dir);
+        if (match) list.setSort(match.by, match.dir);
       }}
       label={t("games.sort.label")}
     />
   );
+
+  const body = (
+    <ListBody
+      list={list}
+      columns={columns}
+      getRowKey={getRowKey}
+      renderCard={renderCard}
+      layout={layout}
+      onRowClick={onRowClick}
+      getRowAccent={getRowAccent}
+      renderExpanded={renderExpanded}
+      empty={empty}
+      errorMessage={errorMessage}
+      isMobile={isMobile}
+      compact={compact}
+    />
+  );
+
+  const footer = !list.isInitialLoading && !list.error && list.total > 0 && (
+    <ListFooter list={list} compact={compact} />
+  );
+
+  if (compact) {
+    return (
+      <div className={classes.root}>
+        {body}
+        {list.total > list.items.length && footer}
+      </div>
+    );
+  }
 
   return (
     <div className={classes.root}>
@@ -172,18 +204,18 @@ export function ListTable<T, F extends string, S extends string>({
                   <ToggleIconButton key={column.key} {...column.headerToggle} />
                 ),
             )}
-          {toggles && toggles.length > 0 && (
+          {toggles.length > 0 && (
             <FilterToggles
               active={query.only}
-              onToggle={controls.toggleOnly}
+              onToggle={list.toggleOnly}
               options={toggles}
               menuLabel={t("list.filter")}
             />
           )}
-          {filters && filters.length > 1 && (
+          {filters.length > 1 && (
             <FilterSegmentedControl<F>
               value={query.filter}
-              onChange={controls.setFilter}
+              onChange={list.setFilter}
               options={filters}
             />
           )}
@@ -196,9 +228,7 @@ export function ListTable<T, F extends string, S extends string>({
           gap="sm"
           wrap="nowrap"
           style={
-            isMobile
-              ? { flexShrink: 0 }
-              : { flex: 1, justifyContent: "flex-end", minWidth: 0 }
+            isMobile ? { flexShrink: 0 } : { flex: 1, justifyContent: "flex-end", minWidth: 0 }
           }
         >
           {!isMobile && search}
@@ -206,45 +236,38 @@ export function ListTable<T, F extends string, S extends string>({
         </Group>
       </Group>
 
-      <div>
-        <ListBody
-          list={list}
-          controls={controls}
-          columns={columns}
-          getRowKey={getRowKey}
-          renderCard={renderCard}
-          layout={layout}
-          onRowClick={onRowClick}
-          getRowAccent={getRowAccent}
-          empty={empty}
-          errorMessage={errorMessage}
-          isMobile={isMobile}
-        />
-      </div>
+      <div>{body}</div>
 
-      {!list.isInitialLoading && !list.error && list.total > 0 && (
-        <ListFooter list={list} controls={controls} />
-      )}
+      {footer}
     </div>
   );
 }
 
 function ListBody<T, F extends string, S extends string>({
   list,
-  controls,
   columns,
   getRowKey,
   renderCard,
   layout,
   onRowClick,
   getRowAccent,
+  renderExpanded,
   empty,
   errorMessage,
   isMobile,
-}: Omit<ListTableProps<T, F, S>, "filters" | "toggles" | "sorts" | "actions"> & {
+  compact,
+}: Omit<ListTableProps<T, F, S>, "actions"> & {
   isMobile: boolean;
 }) {
   const { t } = useTranslation("common");
+  // Which rows are open: UI state, kept here.
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
+  const toggleOpen = (key: string) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(key)) next.add(key);
+      return next;
+    });
   const grid = layout === "grid";
 
   if (list.error) {
@@ -315,96 +338,142 @@ function ListBody<T, F extends string, S extends string>({
     return (
       <DimmedLoader visible={list.isRefetching} loaderSize="lg">
         <Stack gap="md">
-          {list.items.map((item) => (
-            <div key={getRowKey(item)}>{renderCard(item)}</div>
-          ))}
+          {list.items.map((item) => {
+            const key = getRowKey(item);
+            const expanded = renderExpanded?.(item);
+            const isOpen = !!expanded && open.has(key);
+            return (
+              <div key={key}>
+                {renderCard(item)}
+                {expanded && (
+                  <TextButton
+                    size="xs"
+                    onClick={() => toggleOpen(key)}
+                    rightSection={
+                      isOpen ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
+                    }
+                  >
+                    {isOpen ? t("list.hideDetails") : t("list.showDetails")}
+                  </TextButton>
+                )}
+                {isOpen && <div className={classes.cardExpanded}>{expanded}</div>}
+              </div>
+            );
+          })}
         </Stack>
       </DimmedLoader>
     );
   }
 
-  const { query } = controls;
+  const { query } = list;
+  const table = (
+    <Table.ScrollContainer minWidth={compact ? undefined : 600} type="native">
+      <Table
+        verticalSpacing={compact ? "xs" : "md"}
+        horizontalSpacing={compact ? "sm" : "lg"}
+        stickyHeader={!compact}
+        highlightOnHover
+      >
+        <Table.Thead>
+          <Table.Tr className={classes.headRow}>
+            {columns.map((column) => {
+              const orders = sortOrders(column);
+              const active = orders.includes(query.sortBy);
+              return (
+                <Table.Th
+                  key={column.key}
+                  w={column.width}
+                  visibleFrom={column.visibleFrom}
+                  className={classes.th}
+                  aria-sort={
+                    active ? (query.sortDir === "asc" ? "ascending" : "descending") : undefined
+                  }
+                >
+                  {orders.length > 0 ? (
+                    <UnstyledButton
+                      className={classes.sortButton}
+                      data-active={active || undefined}
+                      onClick={() => sortByHeader(list, orders)}
+                    >
+                      {column.header}
+                      {active &&
+                        (query.sortDir === "asc" ? (
+                          <IconArrowUp size={12} />
+                        ) : (
+                          <IconArrowDown size={12} />
+                        ))}
+                    </UnstyledButton>
+                  ) : column.headerToggle ? (
+                    <ToggleIconButton {...column.headerToggle} size="sm" />
+                  ) : (
+                    column.header
+                  )}
+                </Table.Th>
+              );
+            })}
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {list.items.length === 0 && (
+            <Table.Tr>
+              <Table.Td colSpan={columns.length}>{emptyContent}</Table.Td>
+            </Table.Tr>
+          )}
+          {list.items.map((item) => {
+            const key = getRowKey(item);
+            const accent = getRowAccent?.(item);
+            const expanded = renderExpanded ? renderExpanded(item) : null;
+            const isOpen = !!expanded && open.has(key);
+            const onClick = onRowClick
+              ? () => onRowClick(item)
+              : expanded
+                ? () => toggleOpen(key)
+                : undefined;
+            return (
+              <Fragment key={key}>
+                <Table.Tr
+                  className={classes.row}
+                  data-clickable={onClick ? true : undefined}
+                  data-accent={accent ? true : undefined}
+                  aria-expanded={expanded ? isOpen : undefined}
+                  style={
+                    accent
+                      ? ({ "--row-accent": `var(--mantine-color-${accent}-4)` } as CSSProperties)
+                      : undefined
+                  }
+                  onClick={onClick}
+                >
+                  {columns.map((column) => (
+                    <Table.Td
+                      key={column.key}
+                      visibleFrom={column.visibleFrom}
+                      onClick={column.interactive ? (e) => e.stopPropagation() : undefined}
+                    >
+                      {column.render(item)}
+                    </Table.Td>
+                  ))}
+                </Table.Tr>
+                {isOpen && (
+                  <Table.Tr className={classes.expandedRow}>
+                    <Table.Td colSpan={columns.length}>{expanded}</Table.Td>
+                  </Table.Tr>
+                )}
+              </Fragment>
+            );
+          })}
+        </Table.Tbody>
+      </Table>
+    </Table.ScrollContainer>
+  );
   return (
     <DimmedLoader visible={list.isRefetching} loaderSize="lg">
-      <Card shadow="sm" p={0} radius="md" withBorder>
-        <Table.ScrollContainer minWidth={600} type="native">
-          <Table verticalSpacing="md" horizontalSpacing="lg" stickyHeader highlightOnHover>
-            <Table.Thead>
-              <Table.Tr className={classes.headRow}>
-                {columns.map((column) => {
-                  const orders = sortOrders(column);
-                  const active = orders.includes(query.sortBy);
-                  return (
-                    <Table.Th
-                      key={column.key}
-                      w={column.width}
-                      visibleFrom={column.visibleFrom}
-                      className={classes.th}
-                      aria-sort={
-                        active ? (query.sortDir === "asc" ? "ascending" : "descending") : undefined
-                      }
-                    >
-                      {orders.length > 0 ? (
-                        <UnstyledButton
-                          className={classes.sortButton}
-                          data-active={active || undefined}
-                          onClick={() => sortByHeader(controls, orders)}
-                        >
-                          {column.header}
-                          {active &&
-                            (query.sortDir === "asc" ? (
-                              <IconArrowUp size={12} />
-                            ) : (
-                              <IconArrowDown size={12} />
-                            ))}
-                        </UnstyledButton>
-                      ) : column.headerToggle ? (
-                        <ToggleIconButton {...column.headerToggle} size="sm" />
-                      ) : (
-                        column.header
-                      )}
-                    </Table.Th>
-                  );
-                })}
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {list.items.length === 0 && (
-                <Table.Tr>
-                  <Table.Td colSpan={columns.length}>{emptyContent}</Table.Td>
-                </Table.Tr>
-              )}
-              {list.items.map((item) => {
-                const accent = getRowAccent?.(item);
-                return (
-                  <Table.Tr
-                    key={getRowKey(item)}
-                    className={classes.row}
-                    data-clickable={onRowClick ? true : undefined}
-                    data-accent={accent ? true : undefined}
-                    style={
-                      accent
-                        ? ({ "--row-accent": `var(--mantine-color-${accent}-4)` } as CSSProperties)
-                        : undefined
-                    }
-                    onClick={onRowClick ? () => onRowClick(item) : undefined}
-                  >
-                    {columns.map((column) => (
-                      <Table.Td
-                        key={column.key}
-                        visibleFrom={column.visibleFrom}
-                        onClick={column.interactive ? (e) => e.stopPropagation() : undefined}
-                      >
-                        {column.render(item)}
-                      </Table.Td>
-                    ))}
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-      </Card>
+      {compact ? (
+        table
+      ) : (
+        <Card shadow="sm" p={0} radius="md" withBorder>
+          {table}
+        </Card>
+      )}
     </DimmedLoader>
   );
 }
@@ -414,13 +483,14 @@ const GRID_COLS = { base: 1, xs: 2, md: 3, xl: 4 };
 
 function ListFooter<T, F extends string, S extends string>({
   list,
-  controls,
+  compact = false,
 }: {
-  list: ServerList<T>;
-  controls: ListQueryControls<F, S>;
+  list: List<T, F, S>;
+  /** Range and pages only: an embedded list keeps its page size. */
+  compact?: boolean;
 }) {
   const { t } = useTranslation("common");
-  const { query } = controls;
+  const { query } = list;
   const pages = pageCount(list.total, query.pageSize);
   const from = listOffset(query) + 1;
   const to = Math.min(listOffset(query) + list.items.length, list.total);
@@ -432,7 +502,7 @@ function ListFooter<T, F extends string, S extends string>({
         <Pagination
           total={pages}
           value={Math.min(query.page, pages)}
-          onChange={controls.setPage}
+          onChange={list.setPage}
           size="sm"
           siblings={1}
           boundaries={1}
@@ -441,20 +511,33 @@ function ListFooter<T, F extends string, S extends string>({
           })}
         />
       )}
-      <Group gap="xs" wrap="nowrap">
-        <HelperText>{t("list.perPage")}</HelperText>
-        <Select
-          aria-label={t("list.perPage")}
-          data={PAGE_SIZES.map(String)}
-          value={String(query.pageSize)}
-          onChange={(v) => v && controls.setPageSize(Number(v))}
-          size="xs"
-          w={80}
-          allowDeselect={false}
-        />
-      </Group>
+      {!compact && (
+        <Group gap="xs" wrap="nowrap">
+          <HelperText>{t("list.perPage")}</HelperText>
+          <Select
+            aria-label={t("list.perPage")}
+            data={PAGE_SIZES.map(String)}
+            value={String(query.pageSize)}
+            onChange={(v) => v && list.setPageSize(Number(v))}
+            size="xs"
+            w={80}
+            allowDeselect={false}
+          />
+        </Group>
+      )}
     </Group>
   );
+}
+
+/** The namespaces a preset's labels name (`ns:key`), besides common. */
+function presetNamespaces(preset: List<unknown>["preset"]): string[] {
+  const keys = [
+    ...(preset.filters ?? []).map((f) => f.label),
+    ...(preset.toggles ?? []).map((o) => o.label),
+    ...preset.sorts.map((s) => s.label),
+  ];
+  const namespaces = keys.flatMap((k) => (k && k.includes(":") ? [k.split(":")[0]] : []));
+  return [...new Set(namespaces)];
 }
 
 /** The orders a column's header sorts by: none, one, or several to cycle. */
@@ -467,17 +550,17 @@ function sortOrders<T, S extends string>(column: ListColumn<T, S>): readonly S[]
  * A click on a sorting header: one order toggles as before; several are
  * cycled, each descending then ascending, then on to the next.
  */
-function sortByHeader<F extends string, S extends string>(
-  controls: ListQueryControls<F, S>,
+function sortByHeader<T, F extends string, S extends string>(
+  list: List<T, F, S>,
   orders: readonly S[],
 ) {
   if (orders.length === 1) {
-    controls.toggleSort(orders[0]);
+    list.toggleSort(orders[0]);
     return;
   }
-  const { sortBy, sortDir } = controls.query;
+  const { sortBy, sortDir } = list.query;
   const at = orders.indexOf(sortBy);
-  if (at === -1) controls.setSort(orders[0], "desc");
-  else if (sortDir === "desc") controls.setSort(sortBy, "asc");
-  else controls.setSort(orders[(at + 1) % orders.length], "desc");
+  if (at === -1) list.setSort(orders[0], "desc");
+  else if (sortDir === "desc") list.setSort(sortBy, "asc");
+  else list.setSort(orders[(at + 1) % orders.length], "desc");
 }

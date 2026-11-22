@@ -85,7 +85,8 @@ const RECENT_REFRESH_MS = 2 * 60 * 1000;
 export function useRecentlyRegisteredInstitutions(options: { enabled?: boolean } = {}) {
   return useQuery<OrganisationView[], ApiError>({
     queryKey: queryKeys.recentlyRegisteredInstitutions,
-    queryFn: () => api.getApiInstitutions({ filter: ["recentlyRegistered"] }).then((r) => r.data),
+    queryFn: () =>
+      api.getApiInstitutions({ filter: ["recentlyRegistered"] }).then((r) => r.data.items),
     refetchInterval: RECENT_REFRESH_MS,
     enabled: options.enabled ?? true,
   });

@@ -1,9 +1,8 @@
-import { api } from "@/api/client/api";
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
-import { useCreateGame } from "@/api/hooks";
-import type { CreateGameReq } from "@/api/generated/api.gen";
+import { fetchGame, useCreateGame } from "@/api/hooks";
+import type { CreateGameReq } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import {
@@ -40,7 +39,7 @@ export function useCopyGameIntent(scope: string) {
       navigate({ to: ROUTES.AUTH_LOGIN });
       return;
     }
-    const full = (await api.getApiGamesId(gameId)).data;
+    const full = await fetchGame(gameId);
     setCopyData(gameToFormData(full));
     open();
   };

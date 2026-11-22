@@ -89,6 +89,9 @@ type OrganisationView struct {
 	MayEditDetails  bool `json:"mayEditDetails"`
 	MayDelete       bool `json:"mayDelete"`
 	MaySuspend      bool `json:"maySuspend"`
+	// Who may invite into it; who may, sees its invites too.
+	MayInviteStaff bool `json:"mayInviteStaff"`
+	MayInviteHead  bool `json:"mayInviteHead"`
 
 	// HasSettings: the caller sees how the organisation runs.
 	HasSettings          bool       `json:"hasSettings"`
@@ -165,6 +168,8 @@ func organisationView(org *core.OrganisationCard) OrganisationView {
 		MayEditDetails:  org.MayEditDetails(),
 		MayDelete:       org.MayDelete(),
 		MaySuspend:      org.MaySuspend(),
+		MayInviteStaff:  org.MayInviteStaff(),
+		MayInviteHead:   org.MayInviteHead(),
 	}
 	if s, err := org.AsOrganisationSettings(); err == nil {
 		v.HasSettings = true

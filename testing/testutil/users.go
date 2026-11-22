@@ -52,7 +52,7 @@ func (c caller) GetUser(userID string) (User, error) {
 
 // GetUsers lists every account.
 func (c caller) GetUsers() ([]User, error) {
-	return decode[[]User](c.api.GetApiUsersWithResponse(ctx()))
+	return decodeItems[User](c.api.GetApiUsersWithResponse(ctx(), nil))
 }
 
 // UpdateUser changes an account's profile.

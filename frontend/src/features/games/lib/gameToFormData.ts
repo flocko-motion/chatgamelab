@@ -1,4 +1,4 @@
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import type { CreateGameFormData } from "../types";
 
 /**

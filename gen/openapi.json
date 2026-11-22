@@ -179,27 +179,6 @@
         ],
         "type": "object"
       },
-      "ApiKeysResp": {
-        "properties": {
-          "apiKeys": {
-            "items": {
-              "$ref": "#/components/schemas/ApiKeyView"
-            },
-            "type": "array"
-          },
-          "shares": {
-            "items": {
-              "$ref": "#/components/schemas/KeyShareView"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "apiKeys",
-          "shares"
-        ],
-        "type": "object"
-      },
       "AvailableKey": {
         "properties": {
           "isDefault": {
@@ -245,7 +224,7 @@
       "Choice": {
         "properties": {
           "tier": {
-            "type": "string"
+            "$ref": "#/components/schemas/Tier"
           },
           "toggles": {
             "$ref": "#/components/schemas/Toggles"
@@ -768,6 +747,17 @@
         ],
         "type": "object"
       },
+      "EventType": {
+        "enum": [
+          "workshop_updated",
+          "game_created",
+          "game_updated",
+          "game_deleted",
+          "members_updated",
+          "connected"
+        ],
+        "type": "string"
+      },
       "FavouriteResp": {
         "properties": {
           "favourite": {
@@ -960,6 +950,16 @@
         ],
         "type": "object"
       },
+      "GameFilter": {
+        "enum": [
+          "own",
+          "others",
+          "public",
+          "favorites",
+          "sponsored"
+        ],
+        "type": "string"
+      },
       "GameMeta": {
         "properties": {
           "createdAt": {
@@ -980,6 +980,17 @@
           "modifiedAt"
         ],
         "type": "object"
+      },
+      "GameSort": {
+        "enum": [
+          "createdAt",
+          "modifiedAt",
+          "name",
+          "playCount",
+          "visibility",
+          "creator"
+        ],
+        "type": "string"
       },
       "GameSponsorReq": {
         "properties": {
@@ -1244,14 +1255,21 @@
         ],
         "type": "object"
       },
+      "Genre": {
+        "enum": [
+          "adventure",
+          "npc-live"
+        ],
+        "type": "string"
+      },
       "GenreInfo": {
         "properties": {
           "id": {
-            "type": "string"
+            "$ref": "#/components/schemas/Genre"
           },
           "needs": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Toggle"
             },
             "type": "array"
           }
@@ -1497,6 +1515,24 @@
         ],
         "type": "object"
       },
+      "InviteCardViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InviteCardView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
       "InviteMeta": {
         "properties": {
           "createdAt": {
@@ -1513,6 +1549,25 @@
           "modifiedAt"
         ],
         "type": "object"
+      },
+      "InviteSort": {
+        "enum": [
+          "role",
+          "organisation",
+          "status",
+          "modifiedAt"
+        ],
+        "type": "string"
+      },
+      "InviteStatus": {
+        "enum": [
+          "pending",
+          "accepted",
+          "declined",
+          "expired",
+          "revoked"
+        ],
+        "type": "string"
       },
       "InviteView": {
         "properties": {
@@ -1666,6 +1721,24 @@
         ],
         "type": "object"
       },
+      "KeyShareViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/KeyShareView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
       "Language": {
         "properties": {
           "iso": {
@@ -1691,6 +1764,22 @@
           "hint"
         ],
         "type": "object"
+      },
+      "Medium": {
+        "enum": [
+          "text",
+          "audio",
+          "image"
+        ],
+        "type": "string"
+      },
+      "MemberSort": {
+        "enum": [
+          "name",
+          "email",
+          "role"
+        ],
+        "type": "string"
       },
       "Message": {
         "properties": {
@@ -1775,13 +1864,13 @@
         "properties": {
           "in": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Medium"
             },
             "type": "array"
           },
           "out": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Medium"
             },
             "type": "array"
           },
@@ -1895,7 +1984,7 @@
             "type": "string"
           },
           "platform": {
-            "type": "string"
+            "$ref": "#/components/schemas/Platform"
           },
           "tiers": {
             "items": {
@@ -1969,6 +2058,20 @@
           "declaration"
         ],
         "type": "object"
+      },
+      "OrganisationFilter": {
+        "enum": [
+          "recentlyRegistered"
+        ],
+        "type": "string"
+      },
+      "OrganisationKeySort": {
+        "enum": [
+          "name",
+          "owner",
+          "platform"
+        ],
+        "type": "string"
       },
       "OrganisationMeta": {
         "properties": {
@@ -2058,6 +2161,14 @@
         ],
         "type": "object"
       },
+      "OrganisationSort": {
+        "enum": [
+          "name",
+          "createdAt",
+          "registeredAt"
+        ],
+        "type": "string"
+      },
       "OrganisationSuspensionView": {
         "properties": {
           "id": {
@@ -2117,6 +2228,12 @@
           "mayEditSettings": {
             "type": "boolean"
           },
+          "mayInviteHead": {
+            "type": "boolean"
+          },
+          "mayInviteStaff": {
+            "type": "boolean"
+          },
           "maySuspend": {
             "type": "boolean"
           },
@@ -2168,10 +2285,79 @@
           "mayEditDetails",
           "mayDelete",
           "maySuspend",
+          "mayInviteStaff",
+          "mayInviteHead",
           "hasSettings",
           "hasDetails",
           "hasRecord",
           "suspended"
+        ],
+        "type": "object"
+      },
+      "OrganisationViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrganisationView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "OwnApiKeySort": {
+        "enum": [
+          "createdAt",
+          "name",
+          "platform",
+          "status"
+        ],
+        "type": "string"
+      },
+      "OwnApiKeyView": {
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/ApiKeyView"
+          },
+          "selfShare": {
+            "$ref": "#/components/schemas/KeyShareView"
+          },
+          "shares": {
+            "items": {
+              "$ref": "#/components/schemas/KeyShareView"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "selfShare",
+          "shares"
+        ],
+        "type": "object"
+      },
+      "OwnApiKeyViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OwnApiKeyView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
         ],
         "type": "object"
       },
@@ -2186,6 +2372,15 @@
           "createdAt"
         ],
         "type": "object"
+      },
+      "ParticipantSort": {
+        "enum": [
+          "name",
+          "role",
+          "gamesCount",
+          "createdAt"
+        ],
+        "type": "string"
       },
       "Place": {
         "properties": {
@@ -2202,16 +2397,24 @@
         ],
         "type": "object"
       },
+      "Platform": {
+        "enum": [
+          "mock",
+          "openai",
+          "mistral"
+        ],
+        "type": "string"
+      },
       "PlatformInfo": {
         "properties": {
           "genres": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Genre"
             },
             "type": "array"
           },
           "id": {
-            "type": "string"
+            "$ref": "#/components/schemas/Platform"
           },
           "models": {
             "additionalProperties": {
@@ -2252,10 +2455,10 @@
             "type": "string"
           },
           "platform": {
-            "type": "string"
+            "$ref": "#/components/schemas/Platform"
           },
           "tier": {
-            "type": "string"
+            "$ref": "#/components/schemas/Tier"
           },
           "toggles": {
             "$ref": "#/components/schemas/Toggles"
@@ -2403,11 +2606,21 @@
         ],
         "type": "object"
       },
+      "Role": {
+        "enum": [
+          "admin",
+          "head",
+          "staff",
+          "guest",
+          "individual"
+        ],
+        "type": "string"
+      },
       "RolesResp": {
         "properties": {
           "roles": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Role"
             },
             "type": "array"
           }
@@ -2688,7 +2901,7 @@
             "type": "string"
           },
           "platform": {
-            "type": "string"
+            "$ref": "#/components/schemas/Platform"
           },
           "preference": {
             "$ref": "#/components/schemas/Preference"
@@ -2829,6 +3042,13 @@
         ],
         "type": "object"
       },
+      "SortDir": {
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "type": "string"
+      },
       "SuspendOrganisationReq": {
         "properties": {
           "reason": {
@@ -2911,10 +3131,18 @@
         ],
         "type": "object"
       },
+      "Tier": {
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "type": "string"
+      },
       "TierModels": {
         "properties": {
           "id": {
-            "type": "string"
+            "$ref": "#/components/schemas/Tier"
           },
           "label": {
             "type": "string"
@@ -2945,7 +3173,7 @@
             "type": "object"
           },
           "tier": {
-            "type": "string"
+            "$ref": "#/components/schemas/Tier"
           },
           "toggles": {
             "$ref": "#/components/schemas/Toggles"
@@ -2959,13 +3187,22 @@
         ],
         "type": "object"
       },
+      "Toggle": {
+        "enum": [
+          "images",
+          "audio-out",
+          "audio-in",
+          "audio-live"
+        ],
+        "type": "string"
+      },
       "ToggleRequest": {
         "properties": {
           "on": {
             "type": "boolean"
           },
           "toggle": {
-            "type": "string"
+            "$ref": "#/components/schemas/Toggle"
           }
         },
         "required": [
@@ -3435,6 +3672,12 @@
         ],
         "type": "object"
       },
+      "UserFilter": {
+        "enum": [
+          "noGuests"
+        ],
+        "type": "string"
+      },
       "UserMeta": {
         "properties": {
           "createdAt": {
@@ -3465,7 +3708,7 @@
             "$ref": "#/components/schemas/Meta"
           },
           "role": {
-            "type": "string"
+            "$ref": "#/components/schemas/Role"
           },
           "userId": {
             "format": "uuid",
@@ -3522,10 +3765,10 @@
             "$ref": "#/components/schemas/Meta"
           },
           "role": {
-            "type": "string"
+            "$ref": "#/components/schemas/Role"
           },
           "status": {
-            "type": "string"
+            "$ref": "#/components/schemas/InviteStatus"
           },
           "usesCount": {
             "type": "integer"
@@ -3572,6 +3815,16 @@
           }
         },
         "type": "object"
+      },
+      "UserSort": {
+        "enum": [
+          "name",
+          "email",
+          "role",
+          "organisation",
+          "createdAt"
+        ],
+        "type": "string"
       },
       "UserStatsView": {
         "properties": {
@@ -3624,6 +3877,12 @@
           "language": {
             "type": "string"
           },
+          "mayChangeAnyRole": {
+            "type": "boolean"
+          },
+          "mayChangeRole": {
+            "type": "boolean"
+          },
           "mayDelete": {
             "type": "boolean"
           },
@@ -3634,6 +3893,9 @@
             "type": "boolean"
           },
           "mayEditContact": {
+            "type": "boolean"
+          },
+          "mayRemoveMember": {
             "type": "boolean"
           },
           "meta": {
@@ -3653,8 +3915,29 @@
           "mayEditAccount",
           "mayEditContact",
           "mayDelete",
+          "mayChangeAnyRole",
+          "mayChangeRole",
+          "mayRemoveMember",
           "hasAccount",
           "hasContact"
+        ],
+        "type": "object"
+      },
+      "UserViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
         ],
         "type": "object"
       },
@@ -3750,7 +4033,7 @@
             "type": "string"
           },
           "type": {
-            "type": "string"
+            "$ref": "#/components/schemas/EventType"
           },
           "workshopId": {
             "format": "uuid",
@@ -3761,6 +4044,12 @@
           "type"
         ],
         "type": "object"
+      },
+      "WorkshopFilter": {
+        "enum": [
+          "active"
+        ],
+        "type": "string"
       },
       "WorkshopMeta": {
         "properties": {
@@ -3804,7 +4093,7 @@
             "type": "boolean"
           },
           "role": {
-            "type": "string"
+            "$ref": "#/components/schemas/Role"
           },
           "workshopId": {
             "format": "uuid",
@@ -3860,6 +4149,33 @@
           "permanent"
         ],
         "type": "object"
+      },
+      "WorkshopParticipantViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WorkshopParticipantView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "WorkshopSort": {
+        "enum": [
+          "name",
+          "createdAt",
+          "modifiedAt",
+          "participantCount"
+        ],
+        "type": "string"
       },
       "WorkshopView": {
         "properties": {
@@ -3969,6 +4285,24 @@
         ],
         "type": "object"
       },
+      "WorkshopViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WorkshopView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
       "YouthProtectionSuggestion": {
         "properties": {
           "minAge": {
@@ -4008,12 +4342,67 @@
       "get": {
         "description": "own use of each, the organisation they gave it to, and the sponsored games\nand share links it pays for.",
         "operationId": "getApiApikeys",
+        "parameters": [
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/OwnApiKeySort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiKeysResp"
+                  "$ref": "#/components/schemas/OwnApiKeyViewPage"
                 }
               }
             },
@@ -5908,7 +6297,7 @@
     },
     "/api/games": {
       "get": {
-        "description": "Query, all optional: filter (own, others, public, favorites, sponsored;\nrepeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,\nvisibility, creator), sortDir (asc, desc), limit, offset.",
+        "description": "total. It narrows what the caller may see, never widens it; the order uses\ncard fields only.",
         "operationId": "getApiGames",
         "parameters": [
           {
@@ -5918,7 +6307,7 @@
             "required": false,
             "schema": {
               "items": {
-                "type": "string"
+                "$ref": "#/components/schemas/GameFilter"
               },
               "type": "array"
             },
@@ -5937,7 +6326,7 @@
             "name": "sortBy",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/GameSort"
             }
           },
           {
@@ -5945,7 +6334,7 @@
             "name": "sortDir",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/SortDir"
             }
           },
           {
@@ -5995,7 +6384,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists a page of the games the caller can see, and the total."
+        "summary": "Lists a page of the games the caller can see, and the"
       }
     },
     "/api/games/new": {
@@ -7130,7 +7519,7 @@
     },
     "/api/institutions": {
       "get": {
-        "description": "admin all of them, a head or staff their own.\n\nfilter narrows the list: \"recentlyRegistered\", those that registered\nthemselves in the last 14 days, among those whose record the caller sees.\nAn unknown filter is refused.",
+        "description": "list, and the total: an admin all of them, a head or staff their own.",
         "operationId": "getApiInstitutions",
         "parameters": [
           {
@@ -7140,11 +7529,51 @@
             "required": false,
             "schema": {
               "items": {
-                "type": "string"
+                "$ref": "#/components/schemas/OrganisationFilter"
               },
               "type": "array"
             },
             "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/OrganisationSort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -7152,10 +7581,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/OrganisationView"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/OrganisationViewPage"
                 }
               }
             },
@@ -7180,7 +7606,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the organisations the caller may list: an"
+        "summary": "Lists a page of the organisations the caller may"
       },
       "post": {
         "description": "The name is required; operator and address are optional. An organisation\nregisters itself through POST /api/auth/register instead.",
@@ -7387,6 +7813,59 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/OrganisationKeySort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -7394,10 +7873,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/KeyShareView"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/KeyShareViewPage"
                 }
               }
             },
@@ -7631,7 +8107,7 @@
     },
     "/api/institutions/{id}/members": {
       "get": {
-        "description": "staff, head): for its members and the admin. Anyone else gets an empty\nlist; an organisation the caller may not read, 404.",
+        "description": "(individual, staff, head), and the total: for its members and the admin.\nAnyone else gets an empty list; an organisation the caller may not read,\n404.",
         "operationId": "getApiInstitutionsIdMembers",
         "parameters": [
           {
@@ -7641,6 +8117,59 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MemberSort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -7648,10 +8177,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/UserView"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/UserViewPage"
                 }
               }
             },
@@ -7676,7 +8202,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists an organisation's members (individual,"
+        "summary": "Lists a page of an organisation's members"
       }
     },
     "/api/institutions/{id}/members/{userID}": {
@@ -7878,17 +8404,69 @@
     },
     "/api/invites/all": {
       "get": {
-        "description": "admin, all of them.",
+        "description": "and the total: for the admin, all of them.",
         "operationId": "getApiInvitesAll",
+        "parameters": [
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/InviteSort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/InviteCardView"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/InviteCardViewPage"
                 }
               }
             },
@@ -7913,7 +8491,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists every invite the caller may list: for the"
+        "summary": "Lists a page of every invite the caller may list,"
       }
     },
     "/api/invites/institution": {
@@ -7965,7 +8543,7 @@
     },
     "/api/invites/institution/{institutionId}": {
       "get": {
-        "description": "caller may list: its head and staff (staff without the invites to become\nhead), and the admin.",
+        "description": "the caller may list, and the total: its head and staff (staff without the invites to become\nhead), and the admin.",
         "operationId": "getApiInvitesInstitutionInstitutionId",
         "parameters": [
           {
@@ -7975,6 +8553,59 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/InviteSort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -7982,10 +8613,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/InviteCardView"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/InviteCardViewPage"
                 }
               }
             },
@@ -8010,7 +8638,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists an organisation's invites the"
+        "summary": "Lists a page of an organisation's invites"
       }
     },
     "/api/invites/workshop": {
@@ -9017,17 +9645,69 @@
     },
     "/api/users": {
       "get": {
-        "description": "heads and staff the members of their organisation.",
+        "description": "total: admins every user, heads and staff the members of their\norganisation.",
         "operationId": "getApiUsers",
+        "parameters": [
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/UserFilter"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UserSort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/UserView"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/UserViewPage"
                 }
               }
             },
@@ -9052,7 +9732,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the users the caller may list: admins every user,"
+        "summary": "Lists a page of the users the caller may list, and the"
       }
     },
     "/api/users/me": {
@@ -9667,7 +10347,7 @@
     },
     "/api/workshops": {
       "get": {
-        "description": "all of them, a head or staff their organisation's.\n\ninstitutionId, search and activeOnly narrow the list; sortBy (name,\ncreatedAt, participantCount) and sortDir (asc, desc) order it, newest\nfirst by default.",
+        "description": "and the total: an admin all of them, a head or staff their\norganisation's. institutionId narrows it to one organisation.",
         "operationId": "getApiWorkshops",
         "parameters": [
           {
@@ -9677,6 +10357,19 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/WorkshopFilter"
+              },
+              "type": "array"
+            },
+            "style": "form"
           },
           {
             "in": "query",
@@ -9691,7 +10384,7 @@
             "name": "sortBy",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/WorkshopSort"
             }
           },
           {
@@ -9699,15 +10392,23 @@
             "name": "sortDir",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/SortDir"
             }
           },
           {
             "in": "query",
-            "name": "activeOnly",
+            "name": "limit",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
             }
           }
         ],
@@ -9716,10 +10417,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/WorkshopView"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/WorkshopViewPage"
                 }
               }
             },
@@ -9744,7 +10442,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Lists the workshops the caller may list: an admin"
+        "summary": "Lists a page of the workshops the caller may list,"
       },
       "post": {
         "description": "for the admin, in the one named (institutionId).",
@@ -10190,6 +10888,106 @@
           }
         ],
         "summary": "Takes someone out of a workshop: a guest of it"
+      }
+    },
+    "/api/workshops/{id}/participants": {
+      "get": {
+        "description": "the total: for those who may list them (an empty list for others); a\nworkshop the caller may not read, 404.",
+        "operationId": "getApiWorkshopsIdParticipants",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ParticipantSort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopParticipantViewPage"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists a page of a workshop's participants, and"
       }
     }
   }

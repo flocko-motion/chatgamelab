@@ -14,6 +14,17 @@
       "under13Blocker": "Weli ma samaysan kartid akoon kuu gaar ah. Haddii aad ka yar tahay 13, ChatGameLab waxaad ku isticmaali kartaa oo keliya urur dhalinyaro.",
       "under13Description": "Weli ma samaysan kartid akoon kuu gaar ah. Haddii aad ka yar tahay 13, ChatGameLab waxaad ku isticmaali kartaa oo keliya urur dhalinyaro."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Ka bax",
+        "message": "Waxaad ku sii jiraysaa aqoon-is-weydaarsigan. Koodhkaaga ayaad mar kasta oo aad rabto, qalab kasta, dib ugu soo geli kartaa: bogga hore ka dooro “Geli koodh”.",
+        "title": "Ma ka baxaysaa?"
+      },
+      "leaveWorkshop": "Ka bax",
+      "organization": "Urur",
+      "role": "Marti",
+      "workshop": "Aqoon-is-weydaarsi"
+    },
     "login": {
       "auth0Button": "Gal koonto adoo adeegsanaya Auth0",
       "devMode": "Hab Horumarineed",
@@ -22,6 +33,8 @@
         "title": "Hab Horumarineed"
       },
       "devModeDescription": "Gelitaan degdeg ah oo loogu talagalay horumarinta iyo tijaabinta",
+      "devNewOrganisation": "Qof cusub (diiwaangeli urur)",
+      "devNewPerson": "Qof cusub (weli doorasho ma jirto, sida marka la iska diiwaangeliyo)",
       "redirecting": {
         "message": "Fadlan sug inta aan kuugu leexinayo bogga gelitaanka.",
         "title": "Waxaa laguugu leexinayaa Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Gal sidii Macallin"
       },
       "unavailable": {
-        "message": "Adeeggan ma bixiyo gelitaan. Ka-qaybgalayaasha aqoon-is-weydaarsigu waxay beddelkeeda geli karaan koodhkooda.",
+        "message": "Adeeggan ma taageero gelitaanka. Martida ku jirta aqoon-is-weydaarsi waxay beddelkeeda geli karaan koodhkooda.",
         "title": "Gelitaanku ma jiro"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Sida aad uga muuqanayso ChatGameLab (ugu badnaan 24 xaraf).",
+      "accountNameLabel": "Magaca muuqda",
+      "cityLabel": "Magaalada",
+      "confirmAdult": "Waxaan jiraa ugu yaraan 18 sano.",
+      "consentPage": {
+        "constraintIntro": "Bayaankan, hay'addiinnu waxay ballanqaadaysaa inay dejiso xaddidaad ku habboon kooxda ay beegsanayso oo ku saabsan tilmaamaha ilaalinta carruurta iyo dhallinyarada. Hoos waxaa ku qoran xaddidaadda ururkiinnu hadda isticmaalo. Fadlan hubi oo hagaaji haddii loo baahdo.",
+        "emailDescription": "Cinwaankan ayaan ugu diraynaa xaqiijinta ay ku jirto qoraalka bayaanka.",
+        "introExisting": "Ururkiinna “{{name}}” hadda wuxuu leeyahay bayaan oggolaansho oo internetka lagu xaqiijinayo. Wuxuu beddelayaa heshiiskii isticmaalka ee aad hore u saxiixdeen. Fadlan akhri oo ku oggolow magaca hay'addiinna.",
+        "introNewVersion": "Bayaanka oggolaanshaha waa la cusboonaysiiyay (nooca {{version}}). Fadlan akhri nooca cusub oo ku oggolow magaca ururkiinna “{{name}}”.",
+        "introWithdrawn": "Oggolaanshihii ururkiinna “{{name}}” ee bayaanka waa laga noqday, sidaas darteed waa la hakiyay. Fadlan akhri bayaanka oo ku oggolow magaca hay'addiinna si aad mar kale u isticmaashaan ChatGameLab.",
+        "logout": "Ka bax",
+        "oneHeadIsEnough": "Waxaa ku filan in hal hoggaan oo ururka ahi oggolaado. Ilaa taas la sameeyo, ururkiinnu wuu hakadanyahay: xubnihiisu ma isticmaali karaan ChatGameLab.",
+        "submit": "Oggolow",
+        "title": "Xaqiiji bayaanka"
+      },
+      "consentSection": "Xaqiijinnada",
+      "declarationGermanOnly": "Bayaanku wuxuu ku qoran yahay Jarmal oo keliya. Qoraalka Jarmalka ayaa ah kan sharci ahaan la raacayo.",
+      "declarationVersion": "Nooca {{version}}, taariikhdu waa {{date}}",
+      "emailConfirmHint": "Markaad foomka dirto, ururka isla markiiba waa la abuuri doonaa. Xaqiijinta ay ku jirto qoraalka bayaanka waxaa loo diri doonaa cinwaankaaga iimaylka.",
+      "emailDescription": "Cinwaankan ayaan ugu diraynaa xaqiijinta bayaanka.",
+      "emailFromLogin": "Kani waa cinwaanka gelitaankaaga.",
+      "emailLabel": "Cinwaanka iimaylka shaqada",
+      "errors": {
+        "conflict": "Akoon hore ayaa ugu jira gelitaankan. Fadlan gal oo isticmaal ikhtiyaarka cusboonaysiinta ee dejimaha.",
+        "declaration_version_outdated": "Bayaanka waa la cusboonaysiiyay. Fadlan dib u soo geli bogga oo akhri nooca hadda jira.",
+        "duplicate_name": "Magacan muuqda hore ayaa loo qaatay.",
+        "emailInvalid": "Fadlan geli cinwaan iimayl oo sax ah.",
+        "email_belongs_to_other_account": "Akoon hore ayaa ugu jira cinwaankan iimaylka. Fadlan ku gal akoonkaas oo dejimaha ka dooro “U beddel urur”.",
+        "formIncomplete": "Fadlan buuxi dhammaan meelaha khasabka ah oo xaqiiji dhammaan qodobbada.",
+        "generic": "Waxbaa qaldamay. Fadlan mar kale isku day.",
+        "institution_age_not_allowed": "Urur waxaa lagu diiwaangelin karaa oo keliya akoon qof weyn (18+).",
+        "institution_consents_required": "Fadlan xaqiiji dhammaan qodobbada.",
+        "institution_name_taken": "Urur magacan leh hore ayuu u jiraa. Fadlan magaca ku dar wax kale, tusaale ahaan magaalada.",
+        "loadFailed": "Bayaanka lama soo dejin karin. Fadlan dib u soo geli bogga.",
+        "name_too_long": "Magaca muuqda waa inuu ahaadaa ugu badnaan 24 xaraf.",
+        "profane_name": "Magacan muuqda lama oggola.",
+        "required": "Qasab",
+        "validation_error": "Fadlan hubi xogta aad gelisay."
+      },
+      "institutionNameLabel": "Magaca hay'adda",
+      "institutionSection": "Macluumaadka hay'adda",
+      "operatorDescription": "tusaale ahaan: magaalo, urur, kaniisad",
+      "operatorLabel": "Maamulaha",
+      "personFunctionLabel": "Doorkaaga hay'adda",
+      "personFunctionPlaceholder": "tusaale ahaan: hoggaan, shaqaale dhallinyaro",
+      "personNameLabel": "Magaca hore iyo kan dambe",
+      "personSection": "Adiga kugu saabsan",
+      "postalCodeLabel": "Koodhka boostada",
+      "registered": {
+        "text": "Ururkiinna waa la hawlgeliyay. Waxaad tahay hoggaankiisa, hadda waad abuuri kartaa aqoon-is-weydaarsiyo.",
+        "title": "Ururka waa la diiwaangeliyay"
+      },
+      "streetLabel": "Waddada iyo lambarka",
+      "submit": "Diiwaangeli urur",
+      "subtitle": "Markaad foomka dirto, ururkiinna isla markiiba waa la hawlgelinayaa, adiguna waxaad noqonaysaa hoggaankiisa.",
+      "switchToPersonal": "Ku noqo doorashada",
+      "titleRegister": "Diiwaangeli urur",
+      "toMyOrganization": "Tag ururkayga",
+      "youthProtection": {
+        "changeHint": "Dejintan waad beddeli kartaa wakhti kasta, aqoon-is-weydaarsiyo gaar ahna si ka duwan ayaad ugu dejin kartaa.",
+        "defaultOption": "Heerka caadiga ah laga bilaabo 13 jir",
+        "fieldLabel": "Xaddidaadda tilmaamaha ilaalinta dhallinyarada ee ururkaaga",
+        "intro": "AI-du waxay tilmaantan heli doontaa ciyaar kasta oo ururkaaga ah. U dooro si ay ugu habboonaato da'da kooxda aad beegsanayso.",
+        "responsibilityHint": "Talooyinkani ma aha qiimayn rasmi ah oo da'. Hay'addiinnu ayaa go'aamisa dejinta, iyadaa na mas'uul ka ah.",
+        "suggestionAdults": "dadka waaweyn laga bilaabo {{age}} jir",
+        "suggestionChildren": "carruurta laga bilaabo qiyaastii {{age}} jir",
+        "suggestionTeens": "dhallinyarada laga bilaabo qiyaastii {{age}} jir",
+        "suggestionsLabel": "Talooyin (gujintu waxay beddeshaa qoraalka):",
+        "title": "Xaddidaadda tilmaamaha ilaalinta dhallinyarada",
+        "tooLong": "Ugu badnaan {{max}} xaraf. Fadlan soo gaabi ama dooro talo."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Ciyaaro la abuuray",
       "gamesPlayed": "Ciyaaro la ciyaaray",
+      "guestCode": {
+        "error": "Koodhka gelitaankaaga lama soo dejin karin.",
+        "hint": "Sawir ka qaad koodhkan ama meel ku qor, cidna ha la wadaagin. Waxaad mar kasta oo aad rabto, qalab kasta, ugu soo noqon kartaa akoonkaaga: bogga hore hoostiisa “Geli koodh” ku qor erayada ama sawir QR-koodhka.",
+        "longTokenHint": "Sawir ka qaad QR-koodhka ama kaydi xiriirka, cidna ha la wadaagin. Waxaad mar kasta ugu soo noqon kartaa akoonkaaga. Hoggaanka aqoon-is-weydaarsiga ayaa ku siin kara koodh gaaban oo afar eray ah marka uu dib u dejiyo gelitaankaaga.",
+        "title": "Koodhka gelitaankaaga"
+      },
       "memberSince": "Diiwaangashan tan iyo",
       "messagesSent": "Fariimo la diray",
       "noOrganization": "Urur la'aan",
@@ -71,6 +163,7 @@
       "role": "Door",
       "roles": {
         "admin": "Maamule",
+        "guest": "Marti",
         "head": "Madaxa Ururka",
         "individual": "Qof gaar ah",
         "participant": "Ka-qaybgalaha",
@@ -140,6 +233,12 @@
       "individualDescription": "Abuur oo ciyaar tacabur qoraal ah oo AI ku shaqeeya",
       "individualTitle": "Akoon Shakhsiyeed",
       "loginLink": "Soo gal",
+      "organizationExistingAccount": "Ururradu waxay iska diiwaangeliyaan gelitaan cusub. Akoon ma hore ayaad u leedahay?",
+      "organizationIntro": "Loogu talagalay xarumaha dhallinyarada, dugsiyada iyo hay'adaha kale ee doonaya inay ChatGameLab ku isticmaalaan aqoon-is-weydaarsiyo.",
+      "organizationStep1": "Waxaad Auth0 ku samaysanaysaa gelitaankaaga ( iimayl iyo eray-sir).",
+      "organizationStep2": "Waxaad gelinaysaa macluumaadka adiga iyo hay'addaada, dejinaysaa xaddidaadda tilmaamaha ilaalinta dhallinyarada, oo oggolaanaysaa bayaanka.",
+      "organizationStep3": "Markaad foomka dirto, ururka isla markiiba waa la hawlgelinayaa, waxaadna abuuri kartaa aqoon-is-weydaarsiyo.",
+      "organizationTitle": "Iska diiwaangeli urur ahaan",
       "privacyPolicy": "Qaanuunka Arrimaha Khaaska ah",
       "termsOfService": "Shuruudaha Adeegga",
       "title": "Abuur Akoonkaaga"
@@ -174,6 +273,7 @@
         "actions": "Ficillo",
         "empty": "Ma jiraan casuumaado sugaya.",
         "invitedEmail": "Iimaylka la casuumay",
+        "loadError": "Casuumaadaha lama soo dejin karin.",
         "modifiedAt": "La beddelay",
         "noResults": "Wax casuumaado ah oo ku habboon raadintaada lama helin.",
         "organization": "Urur",
@@ -207,30 +307,75 @@
       },
       "organizations": {
         "actions": "Ficillo",
+        "city": "Magaalada",
+        "consentGiven": "Bayaanka v{{version}} · {{date}}",
+        "consentMissing": "Bayaanka waa la sugayaa",
+        "consentOutdated": "Bayaanka waa duugoobay (v{{version}})",
+        "consentWithdrawn": "Bayaanka waa laga noqday",
         "create": "Samee Urur",
         "createTitle": "Abuur Urur Cusub",
-        "deleteConfirm": "Ma hubtaa inaad tirtirto \"{{name}}\"? Tallaabadan lama celin karo.",
+        "deleteConfirm": "Si joogto ah ma loo tirtiraa “{{name}}”? Dhammaan aqoon-is-weydaarsiyada iyo ka qaybgalayaasha ururka waa la tirtirayaa; hoggaamiyayaasha iyo hoggaamiyayaasha aqoon-is-weydaarsiyadu akoonnadooda way haynayaan. Tani lama soo celin karo. Haddii ururka keliya laga joojinayo gelitaanka, beddelkeeda hakad geli.",
         "deleteTitle": "Tirtir Urur",
+        "detailsOptional": "Ikhtiyaari: maamulaha iyo cinwaanka",
         "editTitle": "Wax ka beddel Urur",
         "email": "Cinwaanka iimaylka",
         "emailPlaceholder": "Geli cinwaan iimayl",
         "empty": "Weli ururro ma jiraan. Mid samee si aad u bilowdo.",
+        "heads": "Hoggaamiyayaal",
         "inviteDescription": "U dir casuumaad si uu ugu biiro {{name}} madaxa urur ahaan.",
         "inviteTitle": "Ku casuum Ururka",
+        "lift": "Ka qaad hakinta",
+        "liftConfirm": "Ma laga qaadaa hakinta “{{name}}”? Dhammaan xubnuhu markaas ururka sidii hore ayay u isticmaali karaan, haddii uu oggolaaday bayaanka hadda jira.",
+        "liftTitle": "Ka qaad hakinta",
+        "loadError": "Ururrada lama soo dejin karin.",
         "memberEmail": "Iimayl",
         "memberName": "Magac",
         "memberRole": "Door",
         "members": "Xubno",
         "membersCount": "xubno",
         "membersList": "Xubnaha",
+        "membersLoadError": "Xubnaha lama soo dejin karin.",
         "name": "Magac",
         "namePlaceholder": "Geli magaca ururka",
         "noMembers": "Ururkan xubno kuma jiraan.",
+        "operator": "Maamulaha",
+        "postalCode": "Koodhka boostada",
         "removeMember": "Ka saar xubin",
         "removeMemberConfirm": "Ma hubtaa inaad ka saarto {{name}} ururkan?",
         "searchPlaceholder": "Ka raadi ururrada...",
         "sendInvite": "Dir Casuumaad",
+        "status": "Xaalad iyo oggolaansho",
+        "statusActive": "Firfircoon",
+        "statusSuspended": "Hakadsan",
+        "statusSuspendedConsent": "Hakadsan: bayaanka waa la sugayaa",
+        "street": "Waddada iyo lambarka",
+        "suspend": "Hakad geli",
+        "suspendConfirm": "Ma la hakad geliyaa “{{name}}”? Hoggaamiyayaasha, hoggaamiyayaasha aqoon-is-weydaarsiyada iyo ka qaybgalayaashu markaas ma isticmaali karaan ururka. Xiriirrada ciyaaraha la wadaagay iyo bogagga dadweynaha ee aqoon-is-weydaarsiyadu ma shaqayn doonaan. Xog lama tirtirayo, hakintana wakhti kasta waa laga qaadi karaa.",
+        "suspendError": "Taasi ma shaqayn. Fadlan mar kale isku day.",
+        "suspendReason": "Sababta (ikhtiyaari)",
+        "suspendReasonDescription": "Maamulayaasha oo keliya ayaa arki kara.",
+        "suspendTitle": "Hakad geli ururka",
+        "suspendedNoReason": "Hakad geli iyadoo aan sabab la sheegin",
         "title": "Maamul Ururrada"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Labadii toddobaad ee u dambeeyay wax urur ah isma diiwaangelin.",
+          "intro_one": "Ururkan wuxuu isdiiwaangeliyay labadii toddobaad ee u dambeeyay, waana la hawlgeliyay.",
+          "intro_other": "{{count}}-kan urur waxay isdiiwaangeliyeen labadii toddobaad ee u dambeeyay, waana la hawlgeliyay.",
+          "label": "Ururrada cusub",
+          "later": "Mar dambe",
+          "open": "Tag dulmarka",
+          "suspendHint": "Cinwaannada iimaylka hadda lama xaqiijiyo. Si kooban u hubi ururrada cusub, haddii wax qaldan yihiin na dulmarka ka hakad geli.",
+          "title": "Ururrada cusub"
+        },
+        "date": "La diiwaangeliyay",
+        "description": "Ururradii isdiiwaangeliyay labadii toddobaad ee u dambeeyay. Isla markiiba waa la hawlgeliyay iyada oo aan cinwaanka iimaylka la xaqiijin; hubi oo hakad geli mid haddii wax qaldan yihiin.",
+        "empty": "Labadii toddobaad ee u dambeeyay wax urur ah isma diiwaangelin.",
+        "institution": "Hay'ad",
+        "loadError": "Diiwaangelinnada lama soo dejin karin.",
+        "person": "Waxaa saxiixay",
+        "title": "Diiwaangelinno cusub"
       },
       "users": {
         "actions": "Ficillo",
@@ -242,6 +387,10 @@
         "email": "Iimayl",
         "emailPlaceholder": "Geli cinwaan iimayl",
         "empty": "Wax isticmaaleyaal ah lama helin.",
+        "filters": {
+          "all": "Dhammaan isticmaalayaasha",
+          "noGuests": "Marti la'aan"
+        },
         "hideGuests": "Qari martida ({{count}})",
         "hideGuestsShort": "Marti ({{count}})",
         "joined": "Ku biiray",
@@ -297,7 +446,16 @@
       },
       "copyGame": "Nuqul Ciyaarta",
       "empty": {
+        "conditions": {
+          "favorites": "mid ka mid ah kuwa aad jeceshahay",
+          "own": "adiga kuu gaar ah",
+          "public": "dadweyne",
+          "sponsored": "la maalgeliyay"
+        },
         "description": "Iska beddel sifeynta ama dib u fiiri markale si aad u aragto ciyaaro cusub.",
+        "is": "Ciyaar {{conditions}} ahi ma jirto.",
+        "isAndNamed": "Ciyaar {{conditions}} ah oo magaceeda ku jirto “{{search}}” ma jirto.",
+        "named": "Ciyaar magaceeda ku jirto “{{search}}” ma jirto.",
         "title": "Ciyaaro lama helin"
       },
       "favorite": "Ku dar kuwa aad jeceshahay",
@@ -308,10 +466,11 @@
         "public": "Guud",
         "sponsored": "La kafaalo qaaday"
       },
+      "onlyFavorites": "Muuji kuwa la jecel yahay oo keliya",
       "play": "Ciyaar",
       "reportGame": "Sheeg ciyaarta",
       "restart": "Dib u bilow",
-      "title": "Ciyaaraha oo dhan",
+      "title": "Ciyaaraha",
       "unfavorite": "Ka saar kuwa aad jeceshahay",
       "workshop": "Aqoon-is-weydaarsi / Urur"
     },
@@ -346,6 +505,7 @@
         "title": "Tirtir Furaha API",
         "warning": "Tallaabadan lama celin karo. Furaha si joogto ah ayaa loo tirtiri doonaa."
       },
+      "empty": "Weli ma jiraan furayaal API ah. Ku dar mid si aad u bilowdo.",
       "errors": {
         "invalidPlatform": "Madasha la doortay waa khalad. Fadlan dooro madal AI oo sax ah.",
         "keyRequired": "Furaha API waa lagama maarmaan",
@@ -355,6 +515,7 @@
       },
       "key": "fure",
       "keys": "furayaal",
+      "noResults": "Ma jiraan furayaal ku habboon raadintaada ama shaandhayntaada.",
       "platform": "Madal",
       "setDefault": "U deji mid caadi ah",
       "shares": {
@@ -381,11 +542,20 @@
         "unknownWorkshop": "Aqoon-is-weydaarsi aan la aqoon",
         "unlimited": "Isticmaal aan xad lahayn"
       },
+      "sort": {
+        "createdAt-asc": "Ugu horreeya kuwii ugu da'da weynaa",
+        "createdAt-desc": "Ugu horreeya kuwii ugu dambeeyay",
+        "name-asc": "Magaca A–Z",
+        "name-desc": "Magaca Z–A",
+        "platform-asc": "Madasha A–Z",
+        "status-asc": "Ugu horreeya furayaasha shaqaynaya"
+      },
       "status": {
         "failed": "Furaha ma shaqeynayo",
         "unknown": "Furaha weli lama adeegsan",
         "working": "Furaha wuu shaqeynayaa"
       },
+      "statusColumn": "Xaalad",
       "subtitle": "Maamul furayaasha API ee madallada AI.",
       "title": "Maamulka Furayaasha API",
       "unnamed": "Fure magac la'aan",
@@ -541,6 +711,23 @@
         "myGame": "Ciyaartayda",
         "public": "Guud",
         "workshop": "Ciyaarta Aqoon-is-weydaarsiga"
+      },
+      "byCreator": "Waxaa sameeyay {{name}}",
+      "cover": {
+        "alt": "Sawirka daboolka ee {{name}}",
+        "draw": "Samee sawirka daboolka",
+        "drawAgain": "Mar kale samee",
+        "drawnOnSave": "Sawirka daboolka waxaa la samaynayaa markaad ciyaarta kaydiso.",
+        "errors": {
+          "failed": "Sawirka daboolka lama samayn karin. Fadlan mar kale isku day.",
+          "keyRejected": "Bixiyaha AI-gu wuu diiday furaha. Sawirka daboolka lama samayn karin.",
+          "noKey": "Midkoodna furayaasha AI ee aad isticmaali karto ma sameeyo sawirro, sidaas darteed ciyaartu hadda ma laha sawir dabool ah."
+        },
+        "hint": "Muxuu sawirka daboolku muujinayaa?",
+        "hintDescription": "Ikhtiyaari. Haddii bannaan laga tago, sawirka daboolku wuxuu muujinayaa waxa ciyaartu ku saabsan tahay.",
+        "hintPlaceholder": "Tusaale ahaan: nalka hagaha maraakiibta habeenkii",
+        "none": "Weli sawir dabool ah ma jiro",
+        "title": "Sawirka daboolka"
       },
       "createButton": "Abuur Ciyaar",
       "createModal": {
@@ -1439,11 +1626,15 @@
       "errors": {
         "acceptFailed": "Aqbalidda casuumadu way ku guuldareysatay. Fadlan isku day mar kale.",
         "expired": "Link-gan casuumaad wuu dhamaaday.",
+        "guestStays": "Marti ahaan waxaad ku sii jiraysaa meesha aad ku biirtay. Si aad uga qaybqaadato aqoon-is-weydaarsi kale, fur xiriirkiisa casuumaadda adigoon gelin: waxaad ugu biiraysaa marti cusub ahaan.",
         "loadFailed": "Faahfaahinta casuumadda lama soo dejin karo. Fadlan isku day mar kale.",
         "notFound": "Link-gan casuumaad ma saxna ama waa la joojiyey.",
         "tokenLocked": "Isku-dayo badan oo fashilmay – fadlan mar kale isku day goor dambe."
       },
       "goHome": "Tag Bogga Hore",
+      "guest": {
+        "loggingIn": "Waa lagu gelinayaa..."
+      },
       "participant": {
         "loggingIn": "Waxaa lagu soo galinayaa..."
       },
@@ -1466,6 +1657,20 @@
     "languageSwitcher": {
       "wipHint": "Luqado dheeraad ah weli waa shaqo socota. Hadda kaliya Ingiriisi iyo Jarmal ayaa la heli karaa.",
       "wipLabel": "WIP"
+    },
+    "list": {
+      "clearSearch": "Nadiifi raadinta",
+      "filter": "Shaandhee",
+      "hideDetails": "Qari faahfaahinta",
+      "pagination": {
+        "first": "Bogga koowaad",
+        "last": "Bogga ugu dambeeya",
+        "next": "Bogga xiga",
+        "previous": "Bogga hore"
+      },
+      "perPage": "Bog kasta",
+      "range": "{{from}}–{{to}} ee {{total}}",
+      "showDetails": "Muuji faahfaahinta"
     },
     "loading": "La rarayo...",
     "logout": "Ka bax",
@@ -1501,6 +1706,7 @@
       "apiKeys": {
         "aboutDescription": "Furayaasha API ee halkan lagu wadaagaa waxay u furnaayeen dhammaan xubnaha ururkaaga si ay ciyaaraha u ciyaaraan.",
         "aboutTitle": "Furayaasha API ee Ururka",
+        "allPlatforms": "Dhammaan madallada",
         "allowPublicSponsoring": "U oggolow kafaala-qaad dadweyne",
         "allowPublicSponsoringDesc": "Furehan waxaa loo isticmaali karaa in lagu kafaala-qaado ciyaaro dhammaan isticmaalayaasha.",
         "filterByPlatform": "Sifee iyadoo la adeegsanayo madal",
@@ -1516,6 +1722,7 @@
         "owner": "Milkiile",
         "platform": "Madal",
         "publicSponsoring": "Kafaala-qaad Dadweyne",
+        "removeShare": "Ka saar ururka",
         "searchPlaceholder": "Raadi magac ama milkiile...",
         "selectKey": "Dooro Fure API",
         "selectKeyPlaceholder": "Dooro fure aad la wadaagi doonto...",
@@ -1530,6 +1737,14 @@
         "confirmTitle": "La wadaag Furaha Ururka",
         "orgKeyGroup": "Furayaasha Ururka",
         "personalKeyGroup": "Furayaasha Shakhsiyeed"
+      },
+      "declaration": {
+        "consented": "Ururkiinnu wuxuu oggolaaday nooca {{version}} taariikhda {{date}}.",
+        "title": "Bayaanka oggolaanshaha",
+        "withdraw": "Ka noqo oggolaanshaha",
+        "withdrawConfirm": "Oggolaansho la'aan ururkiinnu wuu hakadanyahay: xubinna ma isticmaali karto ChatGameLab ilaa hoggaamiye mar kale oggolaado. Xogtiisu way sii jiraysaa.",
+        "withdrawFailed": "Taasi ma shaqayn. Fadlan mar kale isku day.",
+        "withdrawTitle": "Ma laga noqonayaa oggolaanshaha?"
       },
       "demoteConfirm": "Ma hubtaa inaad hoos u dhigayso \"{{name}}\" ({{email}}) una dhigto Macalin?",
       "demoteTitle": "Hoos u dhig Macalin",
@@ -1549,6 +1764,7 @@
       "leaveOrganization": "Ka bax Ururka",
       "leaveTitle": "Ka bax Ururka",
       "leaveWarning": "Waxaad waayi doontaa helitaanka dhammaan agabyada iyo xubnaha ururka.",
+      "loadError": "Xubnaha lama soo dejin karin.",
       "me": "Aniga",
       "name": "Magac",
       "noEmail": "E-mail ma jiro",
@@ -1561,13 +1777,13 @@
       "promoteToHead": "U Dallacsiin Madaxa",
       "promoteWarning": "Isticmaalahan wuxuu heli doonaa awood uu ku maamulo xubnaha ururka iyo inuu casuumo macalimiinta.",
       "promptConstraintsFallbackEmpty": "(lama dejin)",
-      "promptConstraintsFallbackHint": "Xayiraad urur lama dejin. Doorashada caadiga ah ee goobta oo dhan ee kooxda da'da ciyaaryahanka ayaa shaqaynaysa:",
+      "promptConstraintsFallbackHint": "Wax xaddidaad ah looma dejin ururka. Taa beddelkeeda waxaa shaqaynaya dejinta caadiga ah ee guud ee kooxda da'da ciyaaryahanka:",
       "promptConstraintsFallbackTitle": "Ku-tiirsanaanta goobta oo dhan ee firfircoon",
       "promptConstraintsFallbackU13": "Ka yar 13",
       "promptConstraintsFallbackU13p": "13–17 (iyadoo oggolaansho waalid jiro)",
       "promptConstraintsFallbackU18": "18 iyo ka weyn",
       "promptConstraintsHint": "Tilmaamo AI oo dheeraad ah oo loogu talagalay fadhi kasta oo ururkan ka mid ah. Waxay dhaqangalaan marka aan la dejin xaddidaad heer aqoon-is-weydaarsi ah, sidoo kalena waxay khuseeyaan ciyaaraha isku-xirka lagu wadaago.",
-      "promptConstraintsLabel": "Xaddidaadaha kicinta ururka",
+      "promptConstraintsLabel": "Xaddidaadda tilmaamaha ilaalinta dhallinyarada ee ururka",
       "promptConstraintsPlaceholder": "tusaale ahaan: Ka dhig sheekada ku habboon da'da oo ka fogow nuxurka rabshadaha.",
       "publicPage": {
         "changeLinkMessage": "Boggu markaas wuxuu ahaan doonaa {{url}}.",
@@ -1653,6 +1869,8 @@
         "empty": "Weli ma jiraan workshops.",
         "enterWorkshop": "Gali Habka Workshop",
         "games": "Ciyaaro",
+        "guestLinkTitle": "Xiriirka dib loogu galo",
+        "guestLinkTitleNamed": "Xiriirka dib loogu galo ee {{name}}",
         "hideInactive": "Qari kuwa aan firfircoonayn",
         "inactive": "Aan firfircoonayn",
         "inviteByEmail": "Casuum iimayl ahaan",
@@ -1676,9 +1894,11 @@
         "noActiveInvite": "Link casuumaad firfircoon ma jiro.",
         "noDefaultApiKey": "Fure API caadi ah ma jiro",
         "noDefaultModel": "Isticmaal moodelka madal-ka",
+        "noGuestToken": "Xubintan ma laha xiriir dib loogu galo. Martida oo keliya ayaa leh.",
         "noIndividuals": "Xubin shakhsiyeed oo ku jira ururkan ma jiro.",
         "noParticipantToken": "Kaqaybgalahan ma haysto link casuumaad. Kaliya kaqaybgalayaasha martida ah ayaa leh links dib loo isticmaali karo.",
         "noParticipants": "Weli kaqaybgalayaal ma jiraan",
+        "noResults": "Ma jiraan aqoon-is-weydaarsiyo ku habboon raadintaada ama shaandhayntaada.",
         "notAuthorized": "Ma haysid oggolaansho aad ku maamusho workshops. Kaliya madaxda iyo macalimiintu waxay geli karaan boggan.",
         "participantGames": "{{count}} ciyaaro",
         "participantJoined": "Ku biiray {{date}}",
@@ -1686,10 +1906,10 @@
         "participantLinkTitleNamed": "Xiriirka dib-u-gelitaanka ee {{name}}",
         "participantName": "Magaca kaqaybgalaha",
         "participants": "Kaqaybgalayaal",
-        "promptConstraintsFallbackOrg": "Loo adeegsanayo xaddidaadda ururka sidii caadi: {{constraint}}",
-        "promptConstraintsFallbackSite": "Loo adeegsanayo xaddidaadda goobta sidii caadi",
+        "promptConstraintsFallbackOrg": "Xaddidaadda ururka ayaa loo isticmaalayaa sidii caadi: {{constraint}}",
+        "promptConstraintsFallbackSite": "Xaddidaadda bogga ayaa loo isticmaalayaa sidii caadi",
         "promptConstraintsHint": "Tilmaamo AI oo dheeraad ah oo loogu talagalay fadhi kasta oo aqoon-is-weydaarsigan ah.",
-        "promptConstraintsLabel": "Xaddidaadda tilmaamaha",
+        "promptConstraintsLabel": "Xaddidaadda tilmaamaha ilaalinta dhallinyarada",
         "promptConstraintsPlaceholder": "tusaale ahaan. Ka dhig sheekada mid ku habboon carruurta oo ka fogow waxyaabaha rabshadaha ah.",
         "removeParticipant": "Ka saar kaqaybgalaha",
         "removeParticipantConfirm": "Ma hubtaa inaad ka saari rabto \"{{name}}\" workshop-kan?",
@@ -1702,11 +1922,12 @@
         "resetAccessError": "Gelitaanka dib looma dejin karin. Fadlan mar kale isku day.",
         "resetAccessMessage": "Xiriir cusub oo leh koodh cusub ayaa la samayn doonaa.",
         "resetAccessTitle": "Dib ma loo dejiyaa gelitaanka?",
-        "resetAccessWarning": "Xiriirkii iyo koodhkii hore way shaqayn waayaan – oo ay ku jiraan qalabka uu ka-qaybgaluhu hadda ku galay.",
+        "resetAccessWarning": "Xiriirkii iyo koodhkii hore ma sii shaqayn doonaan – xitaa qalabka uu Martidu hadda kaga jiro.",
         "revokeInvite": "Jooji Link Casuumaad",
         "selectApiKey": "Dooro Fure API",
         "serverDefault": "Server Default",
         "settings": "Dejimaha",
+        "shareGuestLink": "Muuji xiriirka dib loogu galo",
         "shareParticipantLink": "Muuji xiriirka dib-u-gelitaanka",
         "showOtherParticipantsGames": "Muuji ciyaaraha kaqaybgalayaasha kale",
         "showOtherParticipantsGamesHint": "Madax iyo shaqaaluhu mar walba way arki karaan dhammaan ciyaaraha kaqaybgalayaasha si ay u kormeeraan",
@@ -1720,8 +1941,10 @@
           "participantsAsc": "Kaqaybgalayaal ugu yar",
           "participantsDesc": "Kaqaybgalayaal ugu badan"
         },
+        "status": "Xaalad",
         "subtitle": "Maaree workshops-ka oo ku casuum kaqaybgalayaasha si ay uga wada shaqeeyaan ciyaaro.",
         "title": "Workshops",
+        "unnamedParticipant": "Ka qaybgalaha aan magaca lahayn",
         "usedCount": "{{count}} isticmaal",
         "viewInviteLink": "Muuji Link Casuumaad"
       }
@@ -1788,6 +2011,13 @@
       "workshopInvite": "Casuumad Aqoon-is-weydaarsi",
       "workshopInviteDescription": "Waxaa lagugu casuumay inaad ku biirto aqoon-is-weydaarsigan."
     },
+    "organisationSuspended": {
+      "byAdmin": "Maamuluhu wuxuu hakiyay gelitaanka ururkiinna ee ChatGameLab. Xogtiinnu way sii jiraysaa.",
+      "consentWanted": "Gelitaanka ururkiinna ee ChatGameLab waa la hakiyay ilaa mid ka mid ah hoggaamiyayaashiinnu oggolaado bayaanka oggolaanshaha ee hadda jira. Xogtiinnu way sii jiraysaa.",
+      "contact": "Haddii aad su'aalo qabto, la xiriir",
+      "logout": "Ka bax",
+      "title": "Ururka waa la hakiyay"
+    },
     "play": {
       "cloneGame": "Nuqul ku samee ciyaarahayga",
       "empty": {
@@ -1845,16 +2075,16 @@
     "search": "Raadi",
     "serverSettings": {
       "constraints": {
-        "description": "Qeex xeerar AI oo khasab ah oo ku saleysan kooxda da'da ciyaaryahanka. Xaddidaadahan waxaa lagu duraa jawaab kasta oo AI ah. Waxay khuseeyaan dhammaan isticmaalayaasha soo galay ee ka baxsan habka aqoon-is-weydaarsiga.",
-        "title": "Kicinta Xaddidaadaha Ku saleysan Da'da",
+        "description": "Qeex xeerarka AI-ga ee khasabka ah adigoo ku salaynaya kooxda da'da ciyaaryahanka. Xaddidaadahan waxaa lagu daraa jawaab kasta oo AI ah. Waxay khuseeyaan dhammaan isticmaalayaasha galay, marka laga reebo qaabka aqoon-is-weydaarsiga.",
+        "title": "Tilmaamaha xaddidaadda ku salaysan da'da",
         "u13Hint": "Waxay ku dhex jirtaa jab kasta oo AI ah ee isticmaaleyaasha soo galay ee da'doodu tahay 13-17 iyadoo aan oggolaansho waalid keydka ku jirin.",
-        "u13Label": "Xayiraadda isticmaalayaasha da'doodu tahay 13-17, oggolaansho waalid la' (U13)",
+        "u13Label": "Xaddidaadda isticmaalayaasha 13–17 jir ah, oggolaansho waalid la'aan (U13)",
         "u13Placeholder": "tusaale ahaan: Ka dhig dhammaan nuxurka si adag ugu habboon dhallinyarada. Rabshad ma jirto, nuxur jacayl ma jiro, mowduucyo argagax ma jiraan.",
         "u13pHint": "Waxay ku dhex jirtaa jab kasta oo AI ah ee isticmaaleyaasha soo galay ee da'doodu tahay 13-17 iyadoo oggolaansho waalid keydka ku jiro.",
-        "u13pLabel": "Xayiraadda isticmaalayaasha da'doodu tahay 13-17, iyadoo oggolaansho waalid jiro (U13p)",
+        "u13pLabel": "Xaddidaadda isticmaalayaasha 13–17 jir ah, oggolaansho waalid leh (U13p)",
         "u13pPlaceholder": "tusaale ahaan: Nuxur ku habboon da'da dhalinyarada ay waalidkoodu oggolaadeen. Qaar ka mid ah mowduucyo qaangaar ah waa la oggol yahay, nuxur cad-cad lama oggola.",
         "u18Hint": "Waxaa lagu dura AI prompt kasta isticmaalayaasha soo galay ee da'doodu tahay 18 iyo ka badan.",
-        "u18Label": "Xaddidaad isticmaalayaasha da'doodu tahay 18+ (U18)",
+        "u18Label": "Xaddidaadda isticmaalayaasha 18 jir iyo ka weyn (U18)",
         "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."
       }
     },
@@ -1947,6 +2177,7 @@
     "contentFiltered": "Codsigaaga waxaa shaandheeyay siyaasadda nuxurka ee AI. Fadlan dib u habee codsigaaga.",
     "forbidden": "Ma haysid oggolaansho aad ficilkan ku fuliso.",
     "generic": "Wax qaldamay. Fadlan isku day mar kale.",
+    "guestStays": "Marti ahaan waxaad ku sii jiraysaa meesha aad ku biirtay. Si aad uga qaybqaadato aqoon-is-weydaarsi kale, fur xiriirkiisa casuumaadda adigoon gelin: waxaad ugu biiraysaa marti cusub ahaan.",
     "insufficientQuota": "Furahaaga API-ga wuxuu ka dhamaaday credit-ka. Fadlan ku dar credit ama isticmaal fure kale.",
     "invalidApiKey": "Furahaaga API-ga waa mid aan sax ahayn ama dhacay. Fadlan hubi furahaaga Settings.",
     "invalidPlatform": "Madal aan sax ahayn ayaa la doortay. Fadlan dooro ikhtiyaar sax ah.",
@@ -1954,6 +2185,7 @@
     "network": "Khalad shabakad. Fadlan hubi xiriirkaaga.",
     "notFound": "Khayraadka la codsaday lama helin.",
     "orgVerificationRequired": "Ururkaaga OpenAI wuxuu u baahan yahay xaqiijin si loo isticmaalo sifooyinka abuurista sawirka. Fadlan xaqiiji: https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Ururkaaga waa la hakiyay. Xogtaadu way sii jiraysaa.",
     "publicDescriptionTooLong": "Sharraxaaddu waxay noqon kartaa ugu badnaan 2000 xaraf.",
     "publicSlugInvalid": "Isticmaal a–z, 0–9 iyo xarriiqooyin hal ah, 3 ilaa 60 xaraf.",
     "publicSlugTaken": "Xiriirkan hore ayaa loo qaatay.",
@@ -1964,8 +2196,10 @@
       "authentication": "Khalad Aqoonsi",
       "billing": "Khalad Lacag-bixin",
       "error": "Khalad",
+      "guestStays": "Waxaad ku sii jiraysaa meesha aad joogto",
       "network": "Khalad Shabakad",
       "notFound": "Lama Helin",
+      "organisationSuspended": "Ururka waa la hakiyay",
       "permission": "Ogolaansho La'aan",
       "server": "Khalad Server",
       "tokenLocked": "Si ku-meel-gaar ah ayaa loo xiray",
@@ -1978,6 +2212,28 @@
     "userNotRegistered": "Waa inaad dhammaystirtaa diiwaangelinta ka hor inta aadan sii wadin.",
     "validation": "Fadlan hubi xogtaada oo isku day mar kale.",
     "workshopInactive": "Workshop-kan waa la naafoobay. Fadlan la xiriir macallinka ama qabanqaabiyaha workshop-ka."
+  },
+  "mail": {
+    "consent": {
+      "address": "Cinwaan",
+      "agreed": "Magaca hay'addaada ayaad ku oggolaatay bayaanka oggolaanshaha ee soo socda.",
+      "bindingInGerman": "Bayaanku wuxuu si rasmi ah ugu dhaqan yahay Jarmal, sidaas darteed Jarmal ayuu ku xigaa.",
+      "checksum": "Hubinta xogta",
+      "copySubject": "Nuqul: {{subject}}",
+      "date": "Taariikh",
+      "dateValue": "{{date}} (waqtiga Berlin)",
+      "declaredBy": "Waxaa caddeeyay",
+      "greeting": "Salaan {{name}},",
+      "operator": "Maamulaha",
+      "organisation": "Urur",
+      "registered": "ururka “{{organisation}}” hadda wuxuu ka hawlgalay ChatGameLab. Waxaad tahay hoggaankiisa, hadda waad abuuri kartaa aqoon-is-weydaarsiyo.",
+      "renewed": "mahadsanid! ChatGameLab hadda wuxuu hayaa oggolaanshaha ururka “{{organisation}}” ee bayaanka oggolaanshaha ee hadda jira.",
+      "signature": "Kooxdaada ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: ururka “{{organisation}}” waa hawlgalay – bayaanka oggolaanshaha",
+      "subjectRenewed": "ChatGameLab: bayaanka oggolaanshaha ee “{{organisation}}” waa la xaqiijiyay (nooca {{version}})",
+      "version": "Nooca",
+      "versionValue": "{{version}} (taariikhda {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -2011,7 +2267,7 @@
     "you": "Adiga"
   },
   "navigation": {
-    "allGames": "Dhammaan Ciyaaraha",
+    "allGames": "Ciyaaraha",
     "create": "Abuur Ciyaartaada",
     "dashboard": "Dashboard",
     "games": "Ciyaaraha",
@@ -2022,7 +2278,7 @@
     "myOrganization": "Ururkayga",
     "myWorkshop": "Workshop-kayga",
     "orgApiKeys": "Furayaasha API",
-    "orgConstraints": "Xaddidaadaha",
+    "orgConstraints": "Xaddidaadda tilmaamaha ilaalinta dhallinyarada",
     "orgMembers": "Xubnaha",
     "orgWorkshops": "Workshops",
     "play": "Ciyaar Ciyaar",
@@ -2030,6 +2286,24 @@
     "workshopSettings": "Dejinta Workshop"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Qaab",
+      "condense-scenario": "Soo gaabi dhacdada",
+      "condensed-scenario": "Dhacdo",
+      "expand": "Sheekee",
+      "image": "Sawir samee",
+      "image-prompt": "Sharax sawirka",
+      "image-style": "Hagaaji qaabka",
+      "live-session": "Dabeecad",
+      "observer": "Kormeere",
+      "outline": "Qorshee muuqaalka",
+      "portrait": "Samee sawir qofeed",
+      "portrait-prompt": "Sharax sawirka qofeed",
+      "props-store": "Xaaladda ciyaarta",
+      "rephrase": "Dib u sheeg falka",
+      "rephrase-audio": "Faham hadalka",
+      "start-game": "Bilow"
+    },
     "errors": {
       "connectionLost": "Xidhiidhkii ciyaarta wuu lumay. Dib u cusboonaysii bogga si aad mar kale isugu daydo.",
       "imageFailed": "Sawirka muuqaalkan lama samayn karin. Sheekadu way sii soconaysaa.",
@@ -2051,6 +2325,11 @@
       "starting": "Ciyaarta ayaa bilaabanaysa…",
       "tryAgain": "Mar kale isku day"
     },
+    "pipeline": {
+      "copied": "Qaabka waa la koobiyeeyay",
+      "copyFailed": "Sabuurad lama hayo: qaabka waxaa lagu qoray konsolka",
+      "copyLayout": "Koobiyee qaabka"
+    },
     "problems": {
       "denied": "Laguuma oggola inaad ciyaartan ciyaarto.",
       "failed": "Waxbaa khaldamay, ciyaartu ma sii socon karto.",
@@ -2058,6 +2337,7 @@
       "keyRejected": "Bixiyaha AI wuu diiday furaha ciyaartan, sidaas darteed ciyaartu ma sii socon karto. Qofkii ciyaarta dejiyay waa inuu hubiyaa furaha.",
       "noKey": "Ma jiro furaha AI ee loo heli karo ciyaartan.",
       "noPlays": "Ciyaartan la wadaagay wax ciyaaro ah kama hadhin.",
+      "paused": "Aqoon-is-weydaarsigu wuu hakadanyahay. Ciyaartu way sii socon doontaa marka dib loo bilaabo.",
       "stale": "Ciyaartan mar dambe lama sii wadi karo.",
       "unknown": "Kalfadhigan ciyaartu ma jiro.",
       "unreachable": "Bixiyaha AI hadda kama jawaabayo, sidaas darteed ciyaartu ma sii socon karto. Dhowr daqiiqo ka dib mar kale isku day."
@@ -2074,6 +2354,32 @@
       "hearing": "Waxaan maqlayaa waxaad sheegtay…",
       "hold": "Qabo si aad u hadasho",
       "recording": "Waan dhagaysanayaa… sii daa si aad u dirto"
+    },
+    "wires": {
+      "adapted-style\u0003eimage-prompt": "qaab",
+      "adapted-style\u0003eimage-style": "codsi",
+      "adapted-style\u0003estart-game": "diyaar",
+      "condense-scenario\u0003econdensed-scenario": "jawaab",
+      "condensed-scenario\u0003econdense-scenario": "codsi",
+      "condensed-scenario\u0003eimage-prompt": "dhacdo",
+      "condensed-scenario\u0003estart-game": "diyaar",
+      "image-prompt\u0003eimage": "tilmaan",
+      "image-style\u0003eadapted-style": "jawaab",
+      "live-session\u0003eobserver": "qoraal",
+      "observer\u0003elive-session": "tilmaan",
+      "outline\u0003eexpand": "qorshe",
+      "outline\u0003eimage-prompt": "muuqaal",
+      "outline\u0003eprops-store": "isbeddello",
+      "player-input-audio\u0003elive-session": "hadal",
+      "player-input-audio\u0003erephrase-audio": "hadal",
+      "player-input-text\u0003erephrase": "fal",
+      "portrait\u0003estart-game": "diyaar",
+      "portrait-prompt\u0003eportrait": "tilmaan",
+      "props-store\u0003eoutline": "xaalad",
+      "rephrase\u0003eoutline": "fal",
+      "rephrase-audio\u0003eoutline": "fal",
+      "start-game\u0003elive-session": "bilow",
+      "start-game\u0003eoutline": "tilmaan"
     }
   }
 }

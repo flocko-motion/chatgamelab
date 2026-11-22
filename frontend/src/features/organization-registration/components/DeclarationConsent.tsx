@@ -2,7 +2,7 @@ import { Alert, Checkbox, Stack } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { HelperText } from "@components/typography";
-import type { DeclarationView } from "@/api/generated/api.gen";
+import type { DeclarationView } from "@/api/types";
 import { DeclarationText } from "./DeclarationText";
 
 interface DeclarationConsentProps {

@@ -1,342 +1,123 @@
-import { api } from "@/api/client/api";
-import { useState, useCallback } from "react";
-import { Stack, Card, Group, Title } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import {
-  IconCrown,
-  IconCrownOff,
-  IconTrash,
-  IconLogout,
-} from "@tabler/icons-react";
+import { Stack, Card, Group } from "@mantine/core";
+import { IconCrown, IconCrownOff, IconTrash, IconLogout } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/api/queryKeys";
-import { useNavigate } from "@tanstack/react-router";
-import { useAuth } from "@/providers/AuthProvider";
-import {
-  isAtLeastHead,
-  getUserInstitutionId,
-  Role,
-  hasRole,
-} from "@/common/lib/roles";
 import { InvitesList } from "@/features/admin/components/InvitesList";
-import { ActionButton } from "@/common/components/buttons/ActionButton";
+import { ActionButton, DangerButton } from "@components/buttons";
+import { CardTitle } from "@components/typography";
+import type { OrganisationView } from "@/api/types";
+import { useMembersTab } from "../hooks/useMembersTab";
 import { MembersList } from "./MembersList";
 import { InviteModal } from "./InviteModal";
 import { ConfirmationModal } from "./ConfirmationModal";
-import type { UserView, OrganisationView } from "@/api/generated/api.gen";
 
 interface MembersTabProps {
-  members: UserView[];
-  isLoading: boolean;
   institution: OrganisationView | null | undefined;
 }
 
-export function MembersTab({
-  members,
-  isLoading,
-  institution,
-}: MembersTabProps) {
+export function MembersTab({ institution }: MembersTabProps) {
   const { t } = useTranslation("common");
-  const queryClient = useQueryClient();
-  const { backendUser, retryBackendFetch } = useAuth();
-
-  const [userToPromote, setUserToPromote] = useState<UserView | null>(null);
-  const [userToDemote, setUserToDemote] = useState<UserView | null>(null);
-  const [userToRemove, setUserToRemove] = useState<UserView | null>(null);
-
-  const [
-    inviteTeacherModalOpened,
-    { open: openInviteTeacherModal, close: closeInviteTeacherModal },
-  ] = useDisclosure(false);
-  const [inviteTeacherError, setInviteTeacherError] = useState<string | null>(
-    null,
-  );
-  const [
-    promoteModalOpened,
-    { open: openPromoteModal, close: closePromoteModal },
-  ] = useDisclosure(false);
-  const [
-    demoteModalOpened,
-    { open: openDemoteModal, close: closeDemoteModal },
-  ] = useDisclosure(false);
-  const [
-    removeModalOpened,
-    { open: openRemoveModal, close: closeRemoveModal },
-  ] = useDisclosure(false);
-  const [leaveModalOpened, { open: openLeaveModal, close: closeLeaveModal }] =
-    useDisclosure(false);
-  const [leaveError, setLeaveError] = useState<string | null>(null);
-
-  const institutionId = getUserInstitutionId(backendUser);
-  const isHead = hasRole(backendUser, Role.Head);
-  const isStaff = hasRole(backendUser, Role.Staff);
-  const isIndividual = hasRole(backendUser, Role.Individual);
-  const canSeeEmails = isAtLeastHead(backendUser) || isStaff;
-  const canSeeRoles = !isIndividual;
-
-  // Helper to extract error message from API error
-  const getErrorMessage = (error: unknown): string => {
-    if (error && typeof error === "object" && "error" in error) {
-      const apiError = error as { error?: { error?: string } };
-      const message = apiError.error?.error || "";
-      if (message.includes("pending invite already exists")) {
-        return t("myOrganization.inviteAlreadyExists");
-      }
-      return message || t("myOrganization.inviteError");
-    }
-    return t("myOrganization.inviteError");
-  };
-
-  // Mutations
-  const inviteTeacherMutation = useMutation({
-    mutationFn: async (email: string) => {
-      if (!institutionId) throw new Error("No institution");
-      await api.postApiInvitesInstitution({
-        institutionId,
-        role: "staff",
-        invitedEmail: email,
-      });
-    },
-    onSuccess: () => {
-      setInviteTeacherError(null);
-      closeInviteTeacherModal();
-      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.institutionInvites(institutionId!),
-      });
-    },
-    onError: (error) => {
-      setInviteTeacherError(getErrorMessage(error));
-    },
-  });
-
-  const promoteMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      if (!institutionId) throw new Error("No institution");
-      await api.postApiUsersIdRole(userId, { role: "head", institutionId });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.institutionMembers(institutionId!),
-      });
-      closePromoteModal();
-      setUserToPromote(null);
-    },
-  });
-
-  const demoteMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      if (!institutionId) throw new Error("No institution");
-      await api.postApiUsersIdRole(userId, { role: "staff", institutionId });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.institutionMembers(institutionId!),
-      });
-      closeDemoteModal();
-      setUserToDemote(null);
-    },
-  });
-
-  const removeMemberMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      if (!institutionId) throw new Error("No institution");
-      await api.deleteApiInstitutionsIdMembersUserId(institutionId, userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.institutionMembers(institutionId!),
-      });
-      closeRemoveModal();
-      setUserToRemove(null);
-    },
-  });
-
-  const navigate = useNavigate();
-
-  const leaveOrganizationMutation = useMutation({
-    mutationFn: async () => {
-      if (!institutionId || !backendUser?.id)
-        throw new Error("No institution or user");
-      await api.deleteApiInstitutionsIdMembersUserId(institutionId, backendUser.id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.institutionMembers(institutionId!),
-      });
-      queryClient.invalidateQueries({ queryKey: queryKeys.backendUser });
-      retryBackendFetch(); // Refresh user data to update header
-      setLeaveError(null);
-      closeLeaveModal();
-      navigate({ to: "/dashboard" });
-    },
-    onError: (error: unknown) => {
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as {
-          error?: { code?: string; message?: string };
-        };
-        if (apiError.error?.code === "last_head") {
-          setLeaveError(t("myOrganization.lastHeadError"));
-          return;
-        }
-      }
-      setLeaveError(t("myOrganization.leaveError"));
-    },
-  });
-
-  // Handlers
-  const handlePromote = useCallback(
-    (user: UserView) => {
-      setUserToPromote(user);
-      openPromoteModal();
-    },
-    [openPromoteModal],
-  );
-
-  const handleDemote = useCallback(
-    (user: UserView) => {
-      setUserToDemote(user);
-      openDemoteModal();
-    },
-    [openDemoteModal],
-  );
-
-  const handleRemove = useCallback(
-    (user: UserView) => {
-      setUserToRemove(user);
-      openRemoveModal();
-    },
-    [openRemoveModal],
-  );
+  const state = useMembersTab(institution);
+  const { mayInvite, seesInvites, institutionId } = state;
+  const { inviteModal, promoteModal, demoteModal, removeModal, leaveModal } = state;
 
   return (
     <>
       <Stack gap="lg">
         {/* Action buttons */}
         <Group gap="sm" wrap="wrap">
-          {isHead && (
-            <ActionButton onClick={openInviteTeacherModal} size="sm">
+          {mayInvite && (
+            <ActionButton onClick={inviteModal.open} size="sm">
               {t("myOrganization.inviteTeacher")}
             </ActionButton>
           )}
         </Group>
 
-        {/* Members List */}
-        <MembersList
-          members={members}
-          isLoading={isLoading}
-          currentUserId={backendUser?.id}
-          canSeeEmails={canSeeEmails}
-          canSeeRoles={canSeeRoles}
-          isHead={isHead}
-          isStaff={isStaff}
-          onPromote={handlePromote}
-          onDemote={handleDemote}
-          onRemove={handleRemove}
-        />
+        <MembersList state={state} />
 
         {/* Pending Invites */}
-        {(isHead || isStaff) && institutionId && (
+        {seesInvites && institutionId && (
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Title order={3} mb="md">
-              {t("admin.invites.title")}
-            </Title>
-            <InvitesList
-              institutionId={institutionId}
-              showInstitutionColumn={false}
-            />
+            <Stack gap="md">
+              <CardTitle>{t("admin.invites.title")}</CardTitle>
+              <InvitesList institutionId={institutionId} showInstitutionColumn={false} />
+            </Stack>
           </Card>
         )}
 
         {/* Leave Organization */}
         <Group justify="flex-start">
-          <ActionButton onClick={openLeaveModal} color="red" size="sm">
+          <DangerButton onClick={leaveModal.open} size="sm">
             {t("myOrganization.leaveOrganization")}
-          </ActionButton>
+          </DangerButton>
         </Group>
       </Stack>
 
       {/* Modals */}
       <InviteModal
-        opened={inviteTeacherModalOpened}
-        onClose={() => {
-          setInviteTeacherError(null);
-          closeInviteTeacherModal();
-        }}
+        opened={inviteModal.opened}
+        onClose={inviteModal.close}
         title={t("myOrganization.inviteTeacherTitle")}
         description={t("myOrganization.inviteTeacherDescription")}
-        onSubmit={(email) => inviteTeacherMutation.mutate(email)}
-        isLoading={inviteTeacherMutation.isPending}
-        error={inviteTeacherError}
+        onSubmit={inviteModal.submit}
+        isLoading={inviteModal.loading}
+        error={inviteModal.error}
       />
 
       <ConfirmationModal
-        opened={promoteModalOpened}
-        onClose={closePromoteModal}
+        opened={!!promoteModal.member}
+        onClose={promoteModal.close}
         title={t("myOrganization.promoteTitle")}
         message={t("myOrganization.promoteConfirm", {
-          name: userToPromote?.name,
-          email: userToPromote?.email || t("myOrganization.noEmail"),
+          name: promoteModal.member?.name,
+          email: promoteModal.member?.email || t("myOrganization.noEmail"),
         })}
         warning={t("myOrganization.promoteWarning")}
         warningColor="yellow"
         confirmIcon={<IconCrown size={16} />}
         confirmColor="violet"
-        onConfirm={() =>
-          userToPromote?.id && promoteMutation.mutate(userToPromote.id)
-        }
-        isLoading={promoteMutation.isPending}
+        onConfirm={promoteModal.confirm}
+        isLoading={promoteModal.loading}
       />
 
       <ConfirmationModal
-        opened={demoteModalOpened}
-        onClose={closeDemoteModal}
+        opened={!!demoteModal.member}
+        onClose={demoteModal.close}
         title={t("myOrganization.demoteTitle")}
         message={t("myOrganization.demoteConfirm", {
-          name: userToDemote?.name,
-          email: userToDemote?.email || t("myOrganization.noEmail"),
+          name: demoteModal.member?.name,
+          email: demoteModal.member?.email || t("myOrganization.noEmail"),
         })}
         confirmIcon={<IconCrownOff size={16} />}
         confirmColor="gray"
-        onConfirm={() =>
-          userToDemote?.id && demoteMutation.mutate(userToDemote.id)
-        }
-        isLoading={demoteMutation.isPending}
+        onConfirm={demoteModal.confirm}
+        isLoading={demoteModal.loading}
       />
 
       <ConfirmationModal
-        opened={removeModalOpened}
-        onClose={closeRemoveModal}
+        opened={!!removeModal.member}
+        onClose={removeModal.close}
         title={t("myOrganization.removeTitle")}
-        message={t("myOrganization.removeConfirm", {
-          name: userToRemove?.name,
-        })}
+        message={t("myOrganization.removeConfirm", { name: removeModal.member?.name })}
         warning={t("myOrganization.removeWarning")}
         warningColor="orange"
         confirmIcon={<IconTrash size={16} />}
         confirmColor="red"
-        onConfirm={() =>
-          userToRemove?.id && removeMemberMutation.mutate(userToRemove.id)
-        }
-        isLoading={removeMemberMutation.isPending}
+        onConfirm={removeModal.confirm}
+        isLoading={removeModal.loading}
       />
 
       <ConfirmationModal
-        opened={leaveModalOpened}
-        onClose={() => {
-          setLeaveError(null);
-          closeLeaveModal();
-        }}
+        opened={leaveModal.opened}
+        onClose={leaveModal.close}
         title={t("myOrganization.leaveTitle")}
         message={t("myOrganization.leaveConfirm", { name: institution?.name })}
         warning={t("myOrganization.leaveWarning")}
         warningColor="red"
         confirmIcon={<IconLogout size={16} />}
         confirmColor="red"
-        onConfirm={() => leaveOrganizationMutation.mutate()}
-        isLoading={leaveOrganizationMutation.isPending}
-        error={leaveError}
+        onConfirm={leaveModal.confirm}
+        isLoading={leaveModal.loading}
+        error={leaveModal.error}
       />
     </>
   );

@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import type { PlatformInfo } from "@/api/generated/api.gen";
+import type { PlatformInfo } from "@/api/types";
 
 /** The engine's tiers, cheapest first. A tier decides quality, never which features exist. */
 export const AI_QUALITY_TIERS = ["low", "medium", "high"] as const;

@@ -3,7 +3,7 @@ import { Loader } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { gameCoverUrl } from "@/api/hooks";
 import { coverTile } from "@/common/lib/coverTile";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import classes from "./GameCover.module.css";
 
 export interface GameCoverProps {

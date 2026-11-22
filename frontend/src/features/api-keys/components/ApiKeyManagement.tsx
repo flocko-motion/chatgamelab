@@ -1,671 +1,286 @@
-import { useState } from "react";
-import {
-  Stack,
-  Group,
-  Card,
-  Modal,
-  TextInput,
-  Select,
-  Text,
-  Alert,
-  Box,
-  SimpleGrid,
-  Skeleton,
-  ActionIcon,
-  ThemeIcon,
-  useMantineTheme,
-} from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { Alert, Badge, Card, Group, Modal, Select, Stack, TextInput, ThemeIcon, Tooltip } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import {
-  IconPlus,
   IconAlertCircle,
   IconCircle,
   IconCircleCheckFilled,
-  IconCircleCheck,
-  IconCircleX,
-  IconCircleMinus,
   IconKey,
+  IconPlus,
 } from "@tabler/icons-react";
 import {
   ActionButton,
-  TextButton,
   DangerButton,
   DeleteIconButton,
+  GenericIconButton,
+  TextButton,
 } from "@components/buttons";
 import { InfoCard } from "@components/cards";
-import { PageTitle } from "@components/typography";
+import { ListTable, type ListColumn } from "@components/ListTable";
+import { BodyText, HelperText, Label, PageTitle } from "@components/typography";
 import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
-import {
-  useApiKeys,
-  useCreateApiKey,
-  useDeleteApiKey,
-  useSetDefaultApiKey,
-  usePlatforms,
-  useUpdateUser,
-} from "@/api/hooks";
-import { useAuth } from "@/providers/AuthProvider";
+import type { OwnApiKey, OwnKeyListSort } from "@/api/hooks";
 import {
   getAiQualityTierLabel,
   getAiQualityTierOptions,
   normalizeAiQualityTier,
 } from "@/common/lib/aiQualityTier";
-import type { TierModels } from "@/api/generated/api.gen";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
+import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
+import { keyShareGroups } from "../lib/keyShareGroups";
+import { useApiKeyManagement } from "../hooks/useApiKeyManagement";
 import { ApiKeyShares } from "./ApiKeyShares";
+import { KeyStatus } from "./KeyStatus";
 
+/**
+ * The caller's API keys: the default key and quality tier, and every key in
+ * one table, whatever its platform, with what it is shared as.
+ */
 export function ApiKeyManagement() {
   const { t } = useTranslation("common");
-  const theme = useMantineTheme();
-  const { backendUser, retryBackendFetch } = useAuth();
-  const updateUser = useUpdateUser();
-  const [
-    createModalOpened,
-    { open: openCreateModal, close: closeCreateModal },
-  ] = useDisclosure(false);
+  const { isMobile } = useResponsiveDesign();
+  const state = useApiKeyManagement(t);
+  const { list, defaultKey } = state;
 
-  // Create form state
-  const [createName, setCreateName] = useState("");
-  const [createPlatform, setCreatePlatform] = useState("openai");
-  const [createKey, setCreateKey] = useState("");
-  const [createErrors, setCreateErrors] = useState<{
-    name?: string;
-    platform?: string;
-    key?: string;
-  }>({});
+  const keyName = (item: OwnApiKey) => item.key.name || t("apiKeys.unnamed");
+  const addedOn = (item: OwnApiKey) =>
+    item.key.meta?.createdAt ? new Date(item.key.meta.createdAt).toLocaleString() : "-";
+  const lastError = (item: OwnApiKey) =>
+    item.key.lastUsageSuccess === false && item.key.lastErrorCode
+      ? translateErrorCode(item.key.lastErrorCode)?.message || item.key.lastErrorCode
+      : null;
+  const sharedCount = (item: OwnApiKey) => keyShareGroups(item.shares).total;
 
-  const { data: apiKeysData, isLoading, error } = useApiKeys();
-  const apiKeys = apiKeysData?.apiKeys ?? [];
-  const allShares = apiKeysData?.shares ?? [];
-  const { data: platforms, isLoading: platformsLoading } = usePlatforms();
-  // A card per platform that takes keys, plus one per platform the engine does
-  // not run keys for yet but which still has stored keys.
-  const platformCards: {
-    id: string;
-    name: string;
-    supported: boolean;
-    tiers: TierModels[];
-  }[] = [
-    ...(platforms ?? [])
-      .filter((p) => p.userKeys)
-      .map((p) => ({
-        id: p.id ?? "",
-        name: p.name ?? p.id ?? "",
-        supported: true,
-        tiers: p.tiers ?? [],
-      })),
-    ...[...new Set(apiKeys.map((k) => k.platform ?? ""))]
-      .filter((id) => id && !platforms?.some((p) => p.id === id && p.userKeys))
-      .map((id) => ({
-        id,
-        name: platforms?.find((p) => p.id === id)?.name ?? id,
-        supported: false,
-        tiers: [],
-      })),
+  const defaultToggle = (item: OwnApiKey) =>
+    item.key.isDefault ? (
+      <Tooltip label={t("apiKeys.default")} withArrow>
+        <IconCircleCheckFilled size={22} color="var(--mantine-color-accent-5)" />
+      </Tooltip>
+    ) : (
+      <GenericIconButton
+        icon={<IconCircle size={20} />}
+        onClick={() => state.makeDefault(item)}
+        disabled={state.makingDefault || !item.selfShare}
+        aria-label={t("apiKeys.setDefault")}
+      />
+    );
+
+  const platformCell = (item: OwnApiKey) => {
+    const platform = state.platformOf(item.key.platform);
+    return (
+      <Group gap={6} wrap="nowrap">
+        <BodyText size="sm">{platform?.name ?? item.key.platform}</BodyText>
+        {platform && !platform.supported && (
+          <Tooltip label={t("apiKeys.unsupportedPlatform.hint")} multiline w={260} withArrow>
+            <Badge size="xs" color="red" variant="light">
+              {t("apiKeys.unsupportedPlatform.badge")}
+            </Badge>
+          </Tooltip>
+        )}
+      </Group>
+    );
+  };
+
+  const deleteButton = (item: OwnApiKey) => (
+    <DeleteIconButton onClick={() => state.deleteModal.open(item)} aria-label={t("delete")} />
+  );
+
+  const columns: ListColumn<OwnApiKey, OwnKeyListSort>[] = [
+    { key: "default", header: t("apiKeys.default"), render: defaultToggle, width: 80, interactive: true },
+    {
+      key: "name",
+      header: t("name"),
+      sortBy: "name",
+      render: (item) => (
+        <Stack gap={2}>
+          <BodyText size="sm" fw={item.key.isDefault ? 700 : 500}>
+            {keyName(item)}
+          </BodyText>
+          {lastError(item) && <HelperText c="red.6">{lastError(item)}</HelperText>}
+        </Stack>
+      ),
+    },
+    { key: "platform", header: t("apiKeys.platform"), sortBy: "platform", render: platformCell },
+    {
+      key: "status",
+      header: t("apiKeys.statusColumn"),
+      sortBy: "status",
+      render: (item) => <KeyStatus success={item.key.lastUsageSuccess} />,
+    },
+    {
+      key: "shares",
+      header: t("apiKeys.shares.toggle"),
+      visibleFrom: "md",
+      render: (item) =>
+        sharedCount(item) > 0 ? (
+          <Badge size="sm" variant="light" color="gray">
+            {sharedCount(item)}
+          </Badge>
+        ) : null,
+    },
+    {
+      key: "added",
+      header: t("apiKeys.addedOn"),
+      sortBy: "createdAt",
+      visibleFrom: "lg",
+      render: (item) => <HelperText>{addedOn(item)}</HelperText>,
+    },
+    { key: "actions", header: "", render: deleteButton, width: 60, interactive: true },
   ];
-  const createApiKey = useCreateApiKey();
-  const deleteApiKey = useDeleteApiKey();
-  const setDefaultApiKey = useSetDefaultApiKey();
 
-  const [
-    deleteModalOpened,
-    { open: openDeleteModal, close: closeDeleteModal },
-  ] = useDisclosure(false);
-  const [selectedKey, setSelectedKey] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const renderCard = (item: OwnApiKey) => (
+    <Card withBorder radius="md" padding="sm">
+      <Group justify="space-between" wrap="nowrap" align="flex-start">
+        <Group gap="sm" wrap="nowrap" align="flex-start" style={{ minWidth: 0 }}>
+          {defaultToggle(item)}
+          <Stack gap={2} style={{ minWidth: 0 }}>
+            <BodyText size="sm" fw={item.key.isDefault ? 700 : 500}>
+              {keyName(item)}
+            </BodyText>
+            {platformCell(item)}
+            <KeyStatus success={item.key.lastUsageSuccess} />
+            {lastError(item) && <HelperText c="red.6">{lastError(item)}</HelperText>}
+            <HelperText>
+              {t("apiKeys.addedOn")}: {addedOn(item)}
+            </HelperText>
+          </Stack>
+        </Group>
+        {deleteButton(item)}
+      </Group>
+    </Card>
+  );
 
-  const validateCreateForm = () => {
-    const errors: { name?: string; platform?: string; key?: string } = {};
-    if (createName.trim().length === 0)
-      errors.name = t("apiKeys.errors.nameRequired");
-    if (createPlatform.length === 0)
-      errors.platform = t("apiKeys.errors.platformRequired");
-    if (createKey.trim().length === 0)
-      errors.key = t("apiKeys.errors.keyRequired");
-    setCreateErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+  const addButton = state.canCreate &&
+    (isMobile ? (
+      <GenericIconButton
+        icon={<IconPlus size={16} />}
+        onClick={state.openCreate}
+        variant="filled"
+        color="accent"
+        aria-label={t("apiKeys.addKey")}
+      />
+    ) : (
+      <ActionButton onClick={state.openCreate} leftSection={<IconPlus size={16} />}>
+        {t("apiKeys.addKey")}
+      </ActionButton>
+    ));
 
-  const handleCreateKey = async () => {
-    if (!validateCreateForm()) return;
-    try {
-      await createApiKey.mutateAsync({
-        name: createName,
-        platform: createPlatform,
-        key: createKey,
-      });
-      setCreateName("");
-      setCreatePlatform("openai");
-      setCreateKey("");
-      setCreateErrors({});
-      closeCreateModal();
-    } catch {
-      // Error is handled by the mutation
-    }
-  };
-
-  const formatDefaultKeyName = (platformId: string) => {
-    const userName = backendUser?.name || "";
-    const platform = platformId.charAt(0).toUpperCase() + platformId.slice(1);
-    const now = new Date();
-    const dd = String(now.getDate()).padStart(2, "0");
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const yy = String(now.getFullYear()).slice(-2);
-    return userName
-      ? `${userName} ${platform} ${dd}.${mm}.${yy}`
-      : `${platform} ${dd}.${mm}.${yy}`;
-  };
-
-  const openCreateForPlatform = (platform: { id: string }) => {
-    setCreatePlatform(platform.id || "openai");
-    setCreateName(formatDefaultKeyName(platform.id || "openai"));
-    setCreateKey("");
-    setCreateErrors({});
-    openCreateModal();
-  };
-
-  const handleDeleteKey = async () => {
-    if (!selectedKey?.id) return;
-    try {
-      await deleteApiKey.mutateAsync({
-        id: selectedKey.id,
-        cascade: true,
-      });
-      closeDeleteModal();
-      setSelectedKey(null);
-    } catch {
-      // Error is handled by the mutation
-    }
-  };
-
-  const openDelete = (keyId: string, keyName: string) => {
-    setSelectedKey({ id: keyId, name: keyName });
-    openDeleteModal();
-  };
-
-  if (isLoading) {
-    return (
-      <Stack gap="xl">
-        <Skeleton height={40} width="50%" />
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          {[1, 2].map((i) => (
-            <Card key={i} shadow="sm" p="lg" radius="md" withBorder>
-              <Stack gap="md">
-                <Box>
-                  <Skeleton height={28} width="60%" mb="xs" />
-                  <Skeleton height={16} width="40%" />
-                </Box>
-                <Skeleton height={20} width="30%" />
-              </Stack>
-            </Card>
-          ))}
-        </SimpleGrid>
-      </Stack>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert
-        icon={<IconAlertCircle size={16} />}
-        title={t("errors:titles.error")}
-        color="red"
-      >
-        {t("apiKeys.errors.loadFailed")}
-      </Alert>
-    );
-  }
+  const { createModal, deleteModal, qualityTier } = state;
 
   return (
     <Stack gap="xl">
-      <Box>
+      <Stack gap="xs">
         <Group gap="sm" align="center">
           <PageTitle>{t("apiKeys.title")}</PageTitle>
           <HelpLink href={HELP_LINKS.API_KEY_FAQ} />
         </Group>
-        <Text c="dimmed" mt="xs">
-          {t("apiKeys.subtitle")}
-        </Text>
-      </Box>
+        <HelperText>{t("apiKeys.subtitle")}</HelperText>
+      </Stack>
 
-      {/* Info Block */}
       <InfoCard title={t("apiKeys.aboutSection.title")}>
         {t("apiKeys.aboutSection.description")}
       </InfoCard>
 
-      {/* Current Default Key */}
-      {(() => {
-        const defaultKey = apiKeys.find((k) => k.isDefault);
-        const platformName = platforms?.find(
-          (p) => p.id === defaultKey?.platform,
-        )?.name;
-        return (
-          <Card
-            shadow="sm"
-            p="lg"
-            radius="md"
-            withBorder
-            style={{ borderLeft: "4px solid var(--mantine-color-accent-5)" }}
-          >
-            <Group gap="md" align="center">
-              <ThemeIcon variant="light" color="accent" size="lg" radius="md">
-                <IconKey size={20} />
-              </ThemeIcon>
-              {defaultKey ? (
-                <Box style={{ flex: 1 }}>
-                  <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                    {t("apiKeys.currentDefault.label")}
-                  </Text>
-                  <Text size="sm" fw={700} mt={2}>
-                    {defaultKey.name || t("apiKeys.unnamed")}
-                  </Text>
-                  <Group gap="md" mt={4}>
-                    <Text size="xs" c="dimmed">
-                      {t("apiKeys.platform")}:{" "}
-                      {platformName || defaultKey.platform}
-                    </Text>
-                    <Group gap={4} align="center">
-                      {defaultKey.lastUsageSuccess === true && (
-                        <>
-                          <IconCircleCheck
-                            size={14}
-                            color="var(--mantine-color-green-6)"
-                          />
-                          <Text size="xs" c="green.7" fw={600}>
-                            {t("apiKeys.status.working")}
-                          </Text>
-                        </>
-                      )}
-                      {defaultKey.lastUsageSuccess === false && (
-                        <>
-                          <IconCircleX
-                            size={14}
-                            color="var(--mantine-color-red-6)"
-                          />
-                          <Text size="xs" c="red.7" fw={600}>
-                            {t("apiKeys.status.failed")}
-                          </Text>
-                        </>
-                      )}
-                      {defaultKey.lastUsageSuccess == null && (
-                        <>
-                          <IconCircleMinus
-                            size={14}
-                            color="var(--mantine-color-gray-5)"
-                          />
-                          <Text size="xs" c="dimmed" fw={600}>
-                            {t("apiKeys.status.unknown")}
-                          </Text>
-                        </>
-                      )}
-                    </Group>
-                  </Group>
-                  {defaultKey.lastUsageSuccess === false &&
-                    defaultKey.lastErrorCode && (
-                      <Text size="xs" c="red.5" mt={4}>
-                        {translateErrorCode(defaultKey.lastErrorCode)
-                          ?.message || defaultKey.lastErrorCode}
-                      </Text>
-                    )}
-                </Box>
-              ) : (
-                <Box style={{ flex: 1 }}>
-                  <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                    {t("apiKeys.currentDefault.label")}
-                  </Text>
-                  <Text size="sm" c="dimmed" mt={2}>
-                    {t("apiKeys.currentDefault.none")}
-                  </Text>
-                </Box>
-              )}
-            </Group>
-          </Card>
-        );
-      })()}
+      <Card
+        shadow="sm"
+        p="lg"
+        radius="md"
+        withBorder
+        style={{ borderLeft: "4px solid var(--mantine-color-accent-5)" }}
+      >
+        <Group gap="md" align="center">
+          <ThemeIcon variant="light" color="accent" size="lg" radius="md">
+            <IconKey size={20} />
+          </ThemeIcon>
+          <Stack gap={2} style={{ flex: 1 }}>
+            <Label uppercase>{t("apiKeys.currentDefault.label")}</Label>
+            {defaultKey ? (
+              <>
+                <BodyText size="sm" fw={700}>
+                  {defaultKey.name || t("apiKeys.unnamed")}
+                </BodyText>
+                <Group gap="md">
+                  <HelperText>
+                    {t("apiKeys.platform")}: {state.defaultKeyPlatformName}
+                  </HelperText>
+                  <KeyStatus success={defaultKey.lastUsageSuccess} />
+                </Group>
+                {defaultKey.lastUsageSuccess === false && defaultKey.lastErrorCode && (
+                  <HelperText c="red.6">
+                    {translateErrorCode(defaultKey.lastErrorCode)?.message ||
+                      defaultKey.lastErrorCode}
+                  </HelperText>
+                )}
+              </>
+            ) : (
+              <HelperText>{t("apiKeys.currentDefault.none")}</HelperText>
+            )}
+          </Stack>
+        </Group>
+      </Card>
 
-      {/* User AI Quality Tier */}
-      {(() => {
-        const defaultKey = apiKeys.find((k) => k.isDefault);
-        const defaultPlatform = platforms?.find(
-          (p) => p.id === defaultKey?.platform,
-        );
-        return (
-          <Card shadow="sm" p="lg" radius="md" withBorder>
-            <Stack gap="sm">
-              <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                {t("aiQualityTier.label")}
-              </Text>
-              <Text size="sm" c="dimmed">
-                {t("apiKeys.aiQualityTier.description")}
-              </Text>
-              <Select
-                data={getAiQualityTierOptions(t, {
-                  includeEmpty: true,
-                  platform: defaultPlatform,
-                })}
-                value={normalizeAiQualityTier(backendUser?.aiQualityTier)}
-                onChange={(value) => {
-                  if (!backendUser?.id) return;
-                  updateUser.mutate(
-                    {
-                      id: backendUser.id,
-                      request: { aiQualityTier: value || "" },
-                    },
-                    { onSuccess: () => retryBackendFetch() },
-                  );
-                }}
-                disabled={updateUser.isPending}
-                size="sm"
-                style={{ maxWidth: 300 }}
-              />
-              <Text size="xs" c="dimmed" fs="italic">
-                {t("aiQualityTier.newSessionsOnly")}
-              </Text>
-            </Stack>
-          </Card>
-        );
-      })()}
+      <Card shadow="sm" p="lg" radius="md" withBorder>
+        <Stack gap="sm">
+          <Label uppercase>{t("aiQualityTier.label")}</Label>
+          <HelperText>{t("apiKeys.aiQualityTier.description")}</HelperText>
+          <Select
+            data={getAiQualityTierOptions(t, { includeEmpty: true, platform: qualityTier.platform })}
+            value={normalizeAiQualityTier(qualityTier.value)}
+            onChange={qualityTier.set}
+            disabled={qualityTier.saving}
+            size="sm"
+            style={{ maxWidth: 300 }}
+          />
+          <HelperText>{t("aiQualityTier.newSessionsOnly")}</HelperText>
+        </Stack>
+      </Card>
 
-      {/* Platform Cards */}
-      {platformsLoading ? (
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          {[1, 2].map((i) => (
-            <Card key={i} shadow="sm" p="lg" radius="md" withBorder>
-              <Stack gap="md">
-                <Box>
-                  <Skeleton height={28} width="60%" mb="xs" />
-                  <Skeleton height={16} width="40%" />
-                </Box>
-                <Skeleton height={20} width="30%" />
-              </Stack>
-            </Card>
-          ))}
-        </SimpleGrid>
-      ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          {platformCards.map((platform) => {
-            const platformKeys = apiKeys
-              .filter((k) => k.platform === platform.id)
-              .sort((a, b) => {
-                const dateA = a.meta?.createdAt
-                  ? new Date(a.meta.createdAt).getTime()
-                  : 0;
-                const dateB = b.meta?.createdAt
-                  ? new Date(b.meta.createdAt).getTime()
-                  : 0;
-                return dateA - dateB;
-              });
-            return (
-              <Card
-                key={platform.id}
-                shadow="sm"
-                p="lg"
-                radius="md"
-                withBorder
-                style={{
-                  borderTop: platform.supported
-                    ? "3px solid var(--mantine-color-accent-5)"
-                    : "3px solid var(--mantine-color-red-5)",
-                }}
-              >
-                <Stack gap="md">
-                  <Group justify="space-between" align="flex-start">
-                    <Box>
-                      <Group gap="xs" align="center">
-                        <Text size="lg" fw={700}>
-                          {platform.name}
-                        </Text>
-                        {!platform.supported && (
-                          <Text size="xs" c="red" fw={600}>
-                            ({t("apiKeys.unsupportedPlatform.badge")})
-                          </Text>
-                        )}
-                      </Group>
-                      <Text size="sm" c="dimmed">
-                        {platformKeys.length}{" "}
-                        {platformKeys.length === 1
-                          ? t("apiKeys.key")
-                          : t("apiKeys.keys")}
-                      </Text>
-                      {!platform.supported && (
-                        <Text size="xs" c="red" mt={4}>
-                          {t("apiKeys.unsupportedPlatform.hint")}
-                        </Text>
-                      )}
-                      {platform.tiers.map((tier) => (
-                        <Text key={tier.id} size="xs" c="dimmed">
-                          {getAiQualityTierLabel(t, tier.id ?? "")}:{" "}
-                          {tier.models?.story?.name}
-                        </Text>
-                      ))}
-                    </Box>
-                  </Group>
+      <ListTable
+        list={list}
+        columns={columns}
+        getRowKey={(item) => item.key.id}
+        renderCard={renderCard}
+        getRowAccent={(item) => (item.key.isDefault ? "accent" : undefined)}
+        renderExpanded={(item) =>
+          sharedCount(item) > 0 ? <ApiKeyShares shares={item.shares} /> : null
+        }
+        actions={addButton}
+        empty={{ title: state.narrowed ? t("apiKeys.noResults") : t("apiKeys.empty") }}
+        errorMessage={t("apiKeys.errors.loadFailed")}
+      />
 
-                  {platformKeys.length > 0 && (
-                    <Stack
-                      gap={0}
-                      style={{
-                        backgroundColor: theme.colors.gray[0],
-                        borderRadius: theme.radius.sm,
-                        border: `1px solid ${theme.colors.gray[2]}`,
-                      }}
-                    >
-                      {platformKeys.map((key, index) => {
-                        const isDefault = key.isDefault;
-                        const usageStatus = key.lastUsageSuccess;
-                        const keyShares = allShares.filter(
-                          (s) => s.apiKeyId === key.id,
-                        );
-                        const selfShare = keyShares.find(
-                          (s) => s.self,
-                        );
-                        return (
-                          <Box
-                            key={key.id}
-                            style={{
-                              borderTop:
-                                index === 0
-                                  ? "none"
-                                  : `1px solid ${theme.colors.gray[2]}`,
-                              ...(isDefault
-                                ? {
-                                    backgroundColor:
-                                      "var(--mantine-color-accent-0)",
-                                  }
-                                : {}),
-                            }}
-                          >
-                            <Group
-                              justify="space-between"
-                              align="center"
-                              px="sm"
-                              py="xs"
-                              wrap="nowrap"
-                            >
-                              <Box
-                                style={{
-                                  flexShrink: 0,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  width: 26,
-                                  height: 26,
-                                }}
-                              >
-                                {isDefault ? (
-                                  <IconCircleCheckFilled
-                                    size={26}
-                                    color="var(--mantine-color-accent-5)"
-                                  />
-                                ) : (
-                                  <ActionIcon
-                                    variant="transparent"
-                                    color="gray"
-                                    size="md"
-                                    onClick={() =>
-                                      selfShare?.id &&
-                                      setDefaultApiKey.mutate({
-                                        id: selfShare.id,
-                                      })
-                                    }
-                                    loading={setDefaultApiKey.isPending}
-                                    title={t("apiKeys.setDefault")}
-                                  >
-                                    <IconCircle size={22} />
-                                  </ActionIcon>
-                                )}
-                              </Box>
-                              <Box style={{ flex: 1, minWidth: 0 }}>
-                                <Text
-                                  size="sm"
-                                  fw={isDefault ? 700 : 600}
-                                  style={{ wordBreak: "break-word" }}
-                                >
-                                  {key.name || t("apiKeys.unnamed")}
-                                </Text>
-                                <Text
-                                  size="xs"
-                                  c="dimmed"
-                                  mt={2}
-                                  title={key.meta?.createdAt || "no date"}
-                                >
-                                  {t("apiKeys.addedOn")}:{" "}
-                                  {key.meta?.createdAt
-                                    ? new Date(
-                                        key.meta.createdAt,
-                                      ).toLocaleString()
-                                    : "-"}
-                                </Text>
-                                {usageStatus === false && key.lastErrorCode && (
-                                  <Text size="xs" c="red.5" mt={2}>
-                                    {translateErrorCode(key.lastErrorCode)
-                                      ?.message || key.lastErrorCode}
-                                  </Text>
-                                )}
-                              </Box>
-                              <Group
-                                gap={4}
-                                align="center"
-                                wrap="nowrap"
-                                style={{
-                                  flexShrink: 0,
-                                  justifyContent: "flex-end",
-                                }}
-                              >
-                                {usageStatus === true && (
-                                  <Group gap={4} align="center" wrap="nowrap">
-                                    <IconCircleCheck
-                                      size={14}
-                                      color="var(--mantine-color-green-6)"
-                                      style={{ flexShrink: 0 }}
-                                    />
-                                    <Text
-                                      size="xs"
-                                      c="green.7"
-                                      fw={600}
-                                      style={{ whiteSpace: "nowrap" }}
-                                    >
-                                      {t("apiKeys.status.working")}
-                                    </Text>
-                                  </Group>
-                                )}
-                                {usageStatus === false && (
-                                  <Group gap={4} align="center" wrap="nowrap">
-                                    <IconCircleX
-                                      size={14}
-                                      color="var(--mantine-color-red-6)"
-                                      style={{ flexShrink: 0 }}
-                                    />
-                                    <Text
-                                      size="xs"
-                                      c="red.7"
-                                      fw={600}
-                                      style={{ whiteSpace: "nowrap" }}
-                                    >
-                                      {t("apiKeys.status.failed")}
-                                    </Text>
-                                  </Group>
-                                )}
-                                {usageStatus == null && (
-                                  <Group gap={4} align="center" wrap="nowrap">
-                                    <IconCircleMinus
-                                      size={14}
-                                      color="var(--mantine-color-gray-5)"
-                                      style={{ flexShrink: 0 }}
-                                    />
-                                    <Text
-                                      size="xs"
-                                      c="dimmed"
-                                      fw={600}
-                                      style={{ whiteSpace: "nowrap" }}
-                                    >
-                                      {t("apiKeys.status.unknown")}
-                                    </Text>
-                                  </Group>
-                                )}
-                                <DeleteIconButton
-                                  onClick={() =>
-                                    openDelete(
-                                      selfShare?.id || "",
-                                      key.name || t("apiKeys.unnamed"),
-                                    )
-                                  }
-                                  aria-label={t("delete")}
-                                />
-                              </Group>
-                            </Group>
-                            <ApiKeyShares shares={keyShares} />
-                          </Box>
-                        );
-                      })}
-                    </Stack>
-                  )}
-
-                  {platform.supported && (
-                    <TextButton
-                      size="xs"
-                      leftSection={<IconPlus size={14} />}
-                      onClick={() => openCreateForPlatform(platform)}
-                    >
-                      {t("apiKeys.addKey")}
-                    </TextButton>
-                  )}
-                </Stack>
-              </Card>
-            );
-          })}
-        </SimpleGrid>
-      )}
-
-      {/* Create Modal */}
       <Modal
-        opened={createModalOpened}
-        onClose={closeCreateModal}
+        opened={createModal.opened}
+        onClose={createModal.close}
         title={t("apiKeys.createModal.title")}
         size="md"
       >
         <Stack gap="md">
-          <TextInput
-            label={t("apiKeys.createModal.nameLabel")}
-            placeholder={`My ${createPlatform.charAt(0).toUpperCase() + createPlatform.slice(1)}`}
-            value={createName}
-            onChange={(e) => setCreateName(e.currentTarget.value)}
-            error={createErrors.name}
-          />
           <Select
             label={t("apiKeys.createModal.platformLabel")}
             placeholder={t("apiKeys.createModal.platformPlaceholder")}
-            data={platformCards
-              .filter((p) => p.supported)
-              .map((p) => ({ value: p.id, label: p.name }))}
+            data={createModal.platforms.map((p) => ({ value: p.id, label: p.name }))}
             required
-            value={createPlatform}
-            onChange={(value) => setCreatePlatform(value || "openai")}
-            error={createErrors.platform}
-            disabled
+            value={createModal.platform || null}
+            onChange={(value) => value && createModal.setPlatform(value)}
+            error={createModal.errors.platform}
+            allowDeselect={false}
+          />
+          {createModal.tiers.length > 0 && (
+            <Stack gap={0}>
+              {createModal.tiers.map((tier) => (
+                <HelperText key={tier.id}>
+                  {getAiQualityTierLabel(t, tier.id ?? "")}: {tier.models?.story?.name}
+                </HelperText>
+              ))}
+            </Stack>
+          )}
+          <TextInput
+            label={t("apiKeys.createModal.nameLabel")}
+            placeholder={t("apiKeys.createModal.namePlaceholder")}
+            value={createModal.name}
+            onChange={(e) => createModal.setName(e.currentTarget.value)}
+            error={createModal.errors.name}
           />
           <TextInput
             label={t("apiKeys.createModal.keyLabel")}
@@ -673,49 +288,37 @@ export function ApiKeyManagement() {
             description={t("apiKeys.createModal.keyDescription")}
             required
             type="password"
-            value={createKey}
-            onChange={(e) => setCreateKey(e.currentTarget.value)}
-            error={createErrors.key}
+            value={createModal.key}
+            onChange={(e) => createModal.setKey(e.currentTarget.value)}
+            error={createModal.errors.key}
           />
           <Group justify="flex-end" mt="md">
-            <TextButton onClick={closeCreateModal}>{t("cancel")}</TextButton>
-            <ActionButton
-              size="md"
-              onClick={handleCreateKey}
-              loading={createApiKey.isPending}
-            >
+            <TextButton onClick={createModal.close}>{t("cancel")}</TextButton>
+            <ActionButton size="md" onClick={createModal.submit} loading={createModal.loading}>
               {t("apiKeys.createModal.submit")}
             </ActionButton>
           </Group>
         </Stack>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
-        opened={deleteModalOpened}
-        onClose={closeDeleteModal}
+        opened={deleteModal.opened}
+        onClose={deleteModal.close}
         title={t("apiKeys.deleteModal.title")}
         size="sm"
       >
         <Stack gap="md">
-          <Text>
+          <BodyText>
             {t("apiKeys.deleteModal.message", {
-              name: selectedKey?.name || t("apiKeys.unnamed"),
+              name: deleteModal.item ? keyName(deleteModal.item) : t("apiKeys.unnamed"),
             })}
-          </Text>
-          <Alert
-            icon={<IconAlertCircle size={16} />}
-            color="red"
-            variant="light"
-          >
+          </BodyText>
+          <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
             {t("apiKeys.deleteModal.warning")}
           </Alert>
           <Group justify="flex-end" mt="md">
-            <TextButton onClick={closeDeleteModal}>{t("cancel")}</TextButton>
-            <DangerButton
-              onClick={handleDeleteKey}
-              loading={deleteApiKey.isPending}
-            >
+            <TextButton onClick={deleteModal.close}>{t("cancel")}</TextButton>
+            <DangerButton onClick={deleteModal.confirm} loading={deleteModal.loading}>
               {t("delete")}
             </DangerButton>
           </Group>

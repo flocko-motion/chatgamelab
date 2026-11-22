@@ -1,399 +1,139 @@
-import { useMemo, useState, useCallback } from "react";
-import {
-  Card,
-  Group,
-  TextInput,
-  Table,
-  Text,
-  Stack,
-  Badge,
-  ActionIcon,
-  Tooltip,
-  LoadingOverlay,
-} from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
-import {
-  IconSearch,
-  IconCrown,
-  IconCrownOff,
-  IconTrash,
-} from "@tabler/icons-react";
+import { Card, Group, Stack, Badge, Tooltip } from "@mantine/core";
+import { IconCrown, IconCrownOff } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import {
-  SortSelector,
-  type SortOption,
-  ExpandableSearch,
-} from "@/common/components/controls";
-import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import { parseSortValue } from "@/common/lib/sort";
+import type { MemberListSort } from "@/api/hooks";
+import type { UserView } from "@/api/types";
+import { ListTable, type ListColumn } from "@components/ListTable";
+import { DeleteIconButton, GenericIconButton } from "@components/buttons";
+import { BodyText, HelperText } from "@components/typography";
 import { getRoleColor, useTranslateRole } from "@/common/lib/roles";
-import type { UserView } from "@/api/generated/api.gen";
+import type { MemberColumnKey } from "../lib/memberListPresets";
+import type { MembersTabState } from "../hooks/useMembersTab";
 
-type SortField = "name" | "email" | "role";
+type MemberColumn = ListColumn<UserView, MemberListSort>;
 
-export interface MembersListProps {
-  members: UserView[];
-  isLoading: boolean;
-  currentUserId?: string;
-  canSeeEmails: boolean;
-  canSeeRoles: boolean;
-  isHead: boolean;
-  isStaff: boolean;
-  onPromote?: (user: UserView) => void;
-  onDemote?: (user: UserView) => void;
-  onRemove?: (user: UserView) => void;
-}
-
-export function MembersList({
-  members,
-  isLoading,
-  currentUserId,
-  canSeeEmails,
-  canSeeRoles,
-  isHead,
-  isStaff,
-  onPromote,
-  onDemote,
-  onRemove,
-}: MembersListProps) {
+/** The organisation's members: search, order, pages; each with its actions. */
+export function MembersList({ state }: { state: MembersTabState }) {
   const { t } = useTranslation("common");
-  const { isMobile } = useResponsiveDesign();
   const translateRole = useTranslateRole(t("myOrganization.noRole"));
+  const { list } = state;
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
-  const [sortValue, setSortValue] = useState("name-asc");
+  const nameWithMe = (member: UserView, strong = false) => (
+    <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
+      <BodyText size="sm" fw={strong ? 600 : undefined}>
+        {member.name}
+      </BodyText>
+      {state.isCurrentUser(member) && (
+        <Badge size="xs" variant="filled" color="violet">
+          {t("myOrganization.me")}
+        </Badge>
+      )}
+    </Group>
+  );
 
-  const isCurrentUser = useCallback(
-    (userId?: string) => {
-      return userId === currentUserId;
+  const roleBadge = (member: UserView) => (
+    <Badge color={getRoleColor(member.role?.role)} variant="light" size="sm">
+      {translateRole(member.role?.role)}
+    </Badge>
+  );
+
+  const actions = (member: UserView) => (
+    <Group gap="xs" wrap="nowrap">
+      {state.canPromote(member) && (
+        <Tooltip label={t("myOrganization.promoteToHead")}>
+          <GenericIconButton
+            icon={<IconCrown size={16} />}
+            color="violet"
+            onClick={() => state.requestPromote(member)}
+            aria-label={t("myOrganization.promoteToHead")}
+          />
+        </Tooltip>
+      )}
+      {state.canDemote(member) && (
+        <Tooltip label={t("myOrganization.demoteToStaff")}>
+          <GenericIconButton
+            icon={<IconCrownOff size={16} />}
+            onClick={() => state.requestDemote(member)}
+            aria-label={t("myOrganization.demoteToStaff")}
+          />
+        </Tooltip>
+      )}
+      {state.canRemove(member) && (
+        <Tooltip label={t("myOrganization.removeMember")}>
+          <DeleteIconButton
+            onClick={() => state.requestRemove(member)}
+            aria-label={t("myOrganization.removeMember")}
+          />
+        </Tooltip>
+      )}
+    </Group>
+  );
+
+  const allColumns: Record<MemberColumnKey, MemberColumn> = {
+    name: {
+      key: "name",
+      header: t("myOrganization.name"),
+      sortBy: "name",
+      render: (member) => nameWithMe(member),
     },
-    [currentUserId],
-  );
-
-  const canRemoveMember = useCallback(
-    (member: UserView) => {
-      if (isCurrentUser(member.id)) return false;
-      const memberRole = member.role?.role;
-      if (isHead) {
-        return (
-          memberRole === "staff" || memberRole === "guest" || !memberRole
-        );
-      }
-      if (isStaff) {
-        return memberRole === "guest" || !memberRole;
-      }
-      return false;
+    email: {
+      key: "email",
+      header: t("myOrganization.email"),
+      sortBy: "email",
+      visibleFrom: "sm",
+      render: (member) => <HelperText>{member.email || "-"}</HelperText>,
     },
-    [isHead, isStaff, isCurrentUser],
-  );
+    role: {
+      key: "role",
+      header: t("myOrganization.role"),
+      sortBy: "role",
+      width: 140,
+      render: roleBadge,
+    },
+    actions: {
+      key: "actions",
+      header: t("myOrganization.actions"),
+      width: 120,
+      interactive: true,
+      render: actions,
+    },
+  };
+  const columns = state.columns.map((key) => allColumns[key]);
+  const showsEmail = state.columns.includes("email");
 
-  const [sortField, sortDirection] = parseSortValue<SortField>(sortValue);
-
-  const sortOptions: SortOption[] = useMemo(
-    () => [
-      { value: "name-asc", label: t("myOrganization.sort.name-asc") },
-      { value: "name-desc", label: t("myOrganization.sort.name-desc") },
-      ...(canSeeRoles
-        ? [
-            { value: "role-asc", label: t("myOrganization.sort.role-asc") },
-            { value: "role-desc", label: t("myOrganization.sort.role-desc") },
-          ]
-        : []),
-    ],
-    [t, canSeeRoles],
-  );
-
-  const filteredMembers = useMemo(() => {
-    if (!members) return [];
-
-    return members.filter((member) => {
-      if (debouncedSearch) {
-        const search = debouncedSearch.toLowerCase();
-        const name = (member.name || "").toLowerCase();
-
-        if (!canSeeEmails && !canSeeRoles) {
-          return name.includes(search);
-        }
-
-        const email = canSeeEmails ? (member.email || "").toLowerCase() : "";
-        const role = canSeeRoles ? (member.role?.role || "").toLowerCase() : "";
-
-        return (
-          name.includes(search) ||
-          email.includes(search) ||
-          role.includes(search)
-        );
-      }
-      return true;
-    });
-  }, [members, debouncedSearch, canSeeEmails, canSeeRoles]);
-
-  const sortedMembers = useMemo(() => {
-    if (filteredMembers.length === 0) return [];
-
-    return [...filteredMembers].sort((a, b) => {
-      let aVal: string;
-      let bVal: string;
-
-      switch (sortField) {
-        case "name":
-          aVal = a.name || "";
-          bVal = b.name || "";
-          break;
-        case "email":
-          aVal = a.email || "";
-          bVal = b.email || "";
-          break;
-        case "role":
-          aVal = a.role?.role || "";
-          bVal = b.role?.role || "";
-          break;
-        default:
-          return 0;
-      }
-
-      const comparison = aVal.localeCompare(bVal);
-      return sortDirection === "asc" ? comparison : -comparison;
-    });
-  }, [filteredMembers, sortField, sortDirection]);
-
-  const showActions = isHead || isStaff;
-
-  return (
-    <Card withBorder pos="relative" p={isMobile ? "sm" : undefined}>
-      <LoadingOverlay visible={isLoading} />
-
-      <Stack gap="md">
-        {isMobile ? (
-          <Group gap="sm" wrap="nowrap">
-            <ExpandableSearch
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder={t("myOrganization.searchPlaceholder")}
-            />
-            <SortSelector
-              options={sortOptions}
-              value={sortValue}
-              onChange={setSortValue}
-              label={t("myOrganization.sort.label")}
-            />
+  const renderCard = (member: UserView) => (
+    <Card
+      withBorder
+      padding="sm"
+      radius="md"
+      bg={state.isCurrentUser(member) ? "violet.0" : undefined}
+    >
+      <Stack gap="xs">
+        <Group justify="space-between" wrap="nowrap">
+          {nameWithMe(member, true)}
+          {state.canSeeRoles && member.role?.role && roleBadge(member)}
+        </Group>
+        {showsEmail && member.email && <HelperText>{member.email}</HelperText>}
+        {state.columns.includes("actions") && (
+          <Group gap="xs" justify="flex-end">
+            {actions(member)}
           </Group>
-        ) : (
-          <Group justify="space-between" gap="md">
-            <TextInput
-              placeholder={t("myOrganization.searchPlaceholder")}
-              leftSection={<IconSearch size={16} />}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              style={{ flex: 1, maxWidth: 400 }}
-            />
-            <SortSelector
-              options={sortOptions}
-              value={sortValue}
-              onChange={setSortValue}
-              label={t("myOrganization.sort.label")}
-              width={200}
-            />
-          </Group>
-        )}
-
-        <Text size="sm" c="dimmed">
-          {t("myOrganization.showing", { count: sortedMembers.length })}
-        </Text>
-
-        {isMobile ? (
-          <Stack gap="sm">
-            {sortedMembers.map((member) => (
-              <Card
-                key={member.id}
-                withBorder
-                padding="sm"
-                radius="md"
-                bg={isCurrentUser(member.id) ? "violet.0" : undefined}
-              >
-                <Stack gap="xs">
-                  <Group justify="space-between" wrap="nowrap">
-                    <Group gap="xs">
-                      <Text fw={600} lineClamp={1}>
-                        {member.name}
-                      </Text>
-                      {isCurrentUser(member.id) && (
-                        <Badge size="xs" variant="filled" color="violet">
-                          {t("myOrganization.me")}
-                        </Badge>
-                      )}
-                    </Group>
-                    {canSeeRoles && member.role?.role && (
-                      <Badge
-                        color={getRoleColor(member.role.role)}
-                        variant="light"
-                        size="sm"
-                      >
-                        {translateRole(member.role.role)}
-                      </Badge>
-                    )}
-                  </Group>
-                  {canSeeEmails && member.email && (
-                    <Text size="xs" c="dimmed">
-                      {member.email}
-                    </Text>
-                  )}
-                  {!isCurrentUser(member.id) && (
-                    <Group gap="xs" justify="flex-end">
-                      {isHead && member.role?.role === "staff" && onPromote && (
-                        <Tooltip label={t("myOrganization.promoteToHead")}>
-                          <ActionIcon
-                            variant="light"
-                            color="violet"
-                            size="sm"
-                            onClick={() => onPromote(member)}
-                          >
-                            <IconCrown size={14} />
-                          </ActionIcon>
-                        </Tooltip>
-                      )}
-                      {isHead && member.role?.role === "head" && onDemote && (
-                        <Tooltip label={t("myOrganization.demoteToStaff")}>
-                          <ActionIcon
-                            variant="light"
-                            color="gray"
-                            size="sm"
-                            onClick={() => onDemote(member)}
-                          >
-                            <IconCrownOff size={14} />
-                          </ActionIcon>
-                        </Tooltip>
-                      )}
-                      {canRemoveMember(member) && onRemove && (
-                        <Tooltip label={t("myOrganization.removeMember")}>
-                          <ActionIcon
-                            variant="light"
-                            color="red"
-                            size="sm"
-                            onClick={() => onRemove(member)}
-                          >
-                            <IconTrash size={14} />
-                          </ActionIcon>
-                        </Tooltip>
-                      )}
-                    </Group>
-                  )}
-                </Stack>
-              </Card>
-            ))}
-          </Stack>
-        ) : (
-          <Table striped highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>{t("myOrganization.name")}</Table.Th>
-                {canSeeEmails && (
-                  <Table.Th>{t("myOrganization.email")}</Table.Th>
-                )}
-                {canSeeRoles && <Table.Th>{t("myOrganization.role")}</Table.Th>}
-                {showActions && (
-                  <Table.Th style={{ width: 100 }}>
-                    {t("myOrganization.actions")}
-                  </Table.Th>
-                )}
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {sortedMembers.map((member) => (
-                <Table.Tr
-                  key={member.id}
-                  bg={isCurrentUser(member.id) ? "violet.0" : undefined}
-                >
-                  <Table.Td>
-                    <Group gap="xs">
-                      <Text size="sm">{member.name}</Text>
-                      {isCurrentUser(member.id) && (
-                        <Badge size="xs" variant="filled" color="violet">
-                          {t("myOrganization.me")}
-                        </Badge>
-                      )}
-                    </Group>
-                  </Table.Td>
-                  {canSeeEmails && (
-                    <Table.Td>
-                      <Text size="sm" c="dimmed">
-                        {member.email || "-"}
-                      </Text>
-                    </Table.Td>
-                  )}
-                  {canSeeRoles && (
-                    <Table.Td>
-                      <Badge
-                        color={getRoleColor(member.role?.role)}
-                        variant="light"
-                        size="sm"
-                      >
-                        {translateRole(member.role?.role)}
-                      </Badge>
-                    </Table.Td>
-                  )}
-                  {showActions && (
-                    <Table.Td>
-                      <Group gap="xs">
-                        {!isCurrentUser(member.id) &&
-                          isHead &&
-                          member.role?.role === "staff" &&
-                          onPromote && (
-                            <Tooltip label={t("myOrganization.promoteToHead")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="violet"
-                                onClick={() => onPromote(member)}
-                              >
-                                <IconCrown size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                        {!isCurrentUser(member.id) &&
-                          isHead &&
-                          member.role?.role === "head" &&
-                          onDemote && (
-                            <Tooltip label={t("myOrganization.demoteToStaff")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="gray"
-                                onClick={() => onDemote(member)}
-                              >
-                                <IconCrownOff size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                        {!isCurrentUser(member.id) &&
-                          canRemoveMember(member) &&
-                          onRemove && (
-                            <Tooltip label={t("myOrganization.removeMember")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="red"
-                                onClick={() => onRemove(member)}
-                              >
-                                <IconTrash size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                      </Group>
-                    </Table.Td>
-                  )}
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        )}
-
-        {sortedMembers.length === 0 && !isLoading && (
-          <Text c="dimmed" ta="center" py="xl">
-            {debouncedSearch
-              ? t("myOrganization.noResults")
-              : t("myOrganization.empty")}
-          </Text>
         )}
       </Stack>
     </Card>
+  );
+
+  return (
+    <ListTable
+      list={list}
+      columns={columns}
+      getRowKey={(member) => member.id}
+      renderCard={renderCard}
+      getRowAccent={(member) => (state.isCurrentUser(member) ? "violet" : undefined)}
+      empty={{
+        title: state.narrowed ? t("myOrganization.noResults") : t("myOrganization.empty"),
+      }}
+      errorMessage={t("myOrganization.loadError")}
+    />
   );
 }

@@ -42,7 +42,7 @@ function MyGames() {
 - Used by one feature: `features/<feature>/` (`components/`, `hooks/`, …).
 - Used by several features: `common/` (`components/`, `hooks/`, `lib/`,
   `types/`).
-- Talking to the API: `api/` (`client/`, `hooks/`).
+- Talking to the API: `api/` (`client/`, `hooks/`, `lists/`, `types.ts`).
 - Global configuration: `config/`; app-wide providers: `providers/`; texts:
   `i18n/`.
 - Routes are thin: they compose features and hold no logic.
@@ -56,6 +56,23 @@ A new component, hook or helper does not duplicate one that exists in
 
 `common/` and `config/` do not import from `features/`; features do not
 import from `routes/`.
+
+## The API layer
+
+`api/` is the web app's one way to the server.
+
+- **List logic lives in `api/`**: the entity hooks return a `List<T>`, built
+  by the list layer (`api/lists/`) from the query, the page the server
+  returns and its loading state. Features configure a list (its preset) and
+  render the page it holds (`list-table`).
+- **Every call to the server is a hook in `api/hooks/`**, queries and
+  mutations alike, with the cache keys they read and refresh. Feature hooks
+  call them and keep the UI state around them.
+- **The generated client stays inside `api/`**: only `src/api/` imports from
+  `api/generated/`, values and types alike. Features use the hooks in
+  `@/api/hooks` and the types `@/api/types` re-exports; a type a feature
+  needs is added there. ESLint (`no-restricted-imports`) enforces it; the one
+  exception is `main.tsx`'s first import, which schemaf's codegen requires.
 
 ## Generated files
 

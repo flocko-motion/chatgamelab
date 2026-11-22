@@ -12,10 +12,8 @@ github.com/dillonstreator/go-unique-name-generator v1.0.2 h1:0xcsNOvlRHFTVHmsbX5
 github.com/dillonstreator/go-unique-name-generator v1.0.2/go.mod h1:9rSQgkM4cHzPu37cWmaEFkR6g17/EuUIZMm/Zpecops=
 github.com/drhodes/golorem v0.0.0-20220328165741-da82e5b29246 h1:m0+1paUpmLlBpUxldAEvJZVCrNQpt2iyecCw4TdHdOc=
 github.com/drhodes/golorem v0.0.0-20220328165741-da82e5b29246/go.mod h1:NsKVpF4h4j13Vm6Cx7Kf0V03aJKjfaStvm5rvK4+FyQ=
-github.com/flocko-motion/schemaf v1.19.0 h1:iK4ylfXJhyvPRpqOYUGykFKQmJfQqYevSYJ53QeS6nw=
-github.com/flocko-motion/schemaf v1.19.0/go.mod h1:PgnGtB79tgIDxjuDKuVFD150s93WOdSRFYA70WB52pw=
-github.com/flocko-motion/schemaf v1.20.0 h1:bwHqvDFCGf2pAjuLcPKThUvk2orHCv4dwIJPVisKpjg=
-github.com/flocko-motion/schemaf v1.20.0/go.mod h1:PgnGtB79tgIDxjuDKuVFD150s93WOdSRFYA70WB52pw=
+github.com/flocko-motion/schemaf v1.21.1 h1:cX1adbepuK/rdqyslfeeGiWjg/nj69y2CxMgy6D1w0w=
+github.com/flocko-motion/schemaf v1.21.1/go.mod h1:PgnGtB79tgIDxjuDKuVFD150s93WOdSRFYA70WB52pw=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=

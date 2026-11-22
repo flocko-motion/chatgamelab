@@ -31,7 +31,7 @@ import {
   useUpdateGameShare,
   useWorkshop,
 } from "@/api/hooks";
-import type { ShareLinkView } from "@/api/generated/api.gen";
+import type { ShareLinkView } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   getAiQualityTierLabel,

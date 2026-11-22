@@ -1,7 +1,7 @@
 import { Group, Text, Tooltip } from "@mantine/core";
 import { IconCopy, IconDownload, IconStar, IconStarFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import type { GameListSort } from "@/api/hooks";
 import type { ListColumn } from "@components/ListTable";
 import { GenericIconButton } from "@components/buttons";
@@ -18,7 +18,7 @@ type GameColumn = ListColumn<GameView, GameListSort>;
 /** The columns of a game list, in the order its preset names them. */
 export function useGameColumns(state: GamesTableState): GameColumn[] {
   const { t } = useTranslation("common");
-  const { sortBy } = state.controls.query;
+  const { sortBy } = state.list.query;
   const actions = useGameActions(state);
 
   const columns: Record<GameColumnKey, GameColumn | null> = {
@@ -29,8 +29,8 @@ export function useGameColumns(state: GamesTableState): GameColumn[] {
       interactive: true,
       // a shortcut to the "favorites" toggle of the filters
       headerToggle: {
-        active: state.controls.query.only.includes("favorites"),
-        onToggle: () => state.controls.toggleOnly("favorites"),
+        active: state.list.query.only.includes("favorites"),
+        onToggle: () => state.list.toggleOnly("favorites"),
         icon: <IconStar size={18} />,
         activeIcon: <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" />,
         label: t("allGames.onlyFavorites"),

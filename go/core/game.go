@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"slices"
-	"strings"
 	"time"
 
 	"cgl/core/internal/identity"
@@ -19,45 +18,30 @@ import (
 // base type: whatever passes the gate is a card; the other sections stay
 // locked until asked for.
 
-// GameCardQuery is what the caller asks of a game list: wishes, not rights. It
-// can only narrow what the grants let through, never widen it.
-type GameCardQuery struct {
-	Filter  []string // see GameCardFilters; combined, each narrows; none for all
-	Search  string   // part of the name, any case
-	SortBy  string   // see GameCardSorts; empty for createdAt
-	SortDir string   // asc, desc; empty for desc
-	Limit   int      // page size; 0 for all
-	Offset  int      // matches to skip
+// GameCards is the game list: {List, GameCard}, the games whose card the
+// caller may see. Its orders are card fields only: sorting by a locked
+// field would reveal it through the order.
+var GameCards Lister[*GameCard] = gameCards{}
+
+type gameCards struct{}
+
+// Spec: the filters own, others, public, favorites and sponsored; the
+// orders createdAt (default, newest first), modifiedAt, name, playCount,
+// visibility and creator.
+func (gameCards) Spec() ListSpec {
+	return ListSpec{
+		Filters:     []string{"own", "others", "public", "favorites", "sponsored"},
+		Sorts:       []string{"createdAt", "modifiedAt", "name", "playCount", "visibility", "creator"},
+		DefaultSort: "createdAt",
+		DefaultDir:  "desc",
+	}
 }
 
-// GameCardFilters are the filters a game list knows.
-var GameCardFilters = []string{"own", "others", "public", "favorites", "sponsored"}
-
-// GameCardSorts are the orders a game list knows. Only card fields: sorting by
-// a locked field would reveal it through the order.
-var GameCardSorts = []string{"createdAt", "modifiedAt", "name", "playCount", "visibility", "creator"}
-
-// validate refuses what the list does not know, naming what it does: an
-// unknown wish is an error, never silently ignored.
-func (q GameCardQuery) validate() error {
-	for _, f := range q.Filter {
-		if !slices.Contains(GameCardFilters, f) {
-			return refuse("unknown filter %q; known: %s", f, strings.Join(GameCardFilters, ", "))
-		}
-	}
-	switch {
-	case q.SortBy != "" && !slices.Contains(GameCardSorts, q.SortBy):
-		return refuse("unknown sortBy %q; known: %s", q.SortBy, strings.Join(GameCardSorts, ", "))
-	case q.SortDir != "" && q.SortDir != "asc" && q.SortDir != "desc":
-		return refuse("unknown sortDir %q; known: asc, desc", q.SortDir)
-	case q.Limit < 0 || q.Offset < 0:
-		return refuse("limit and offset cannot be negative")
-	}
-	return nil
-}
-
-// wishes puts the query into the list's parameters.
-func (q GameCardQuery) wishes(p *db.V2GameCardsParams) {
+// Query lists a page in one query, with the number of all matches; which
+// grants open which of its fragments is in gates.go.
+func (gameCards) Query(ctx context.Context, q ListQuery) (Page[*GameCard], error) {
+	params := listGameCardsGates(ctx)
+	p := &params
 	p.OnlyOwn = slices.Contains(q.Filter, "own")
 	p.OnlyOthers = slices.Contains(q.Filter, "others")
 	p.OnlyPublic = slices.Contains(q.Filter, "public")
@@ -65,38 +49,25 @@ func (q GameCardQuery) wishes(p *db.V2GameCardsParams) {
 	p.OnlySponsored = slices.Contains(q.Filter, "sponsored")
 	p.Search = q.Search
 	p.SortBy = q.SortBy
-	p.SortDesc = q.SortDir != "asc"
+	p.SortDesc = q.SortDir == "desc"
 	p.PageOffset = int32(q.Offset)
 	if q.Limit > 0 {
 		p.PageSize = sql.NullInt32{Int32: int32(q.Limit), Valid: true}
 	}
-}
-
-// ListGameCards lists a page of the games whose card the caller may see:
-// {List, GameCard}, narrowed by q. It returns the page and the number of all
-// matches across pages. One query; which grants open which of its fragments
-// is in gates.go.
-func ListGameCards(ctx context.Context, q GameCardQuery) ([]*GameCard, int, error) {
-	if err := q.validate(); err != nil {
-		return nil, 0, err
-	}
-	params := listGameCardsGates(ctx)
-	q.wishes(&params)
 	rows, err := store.Queries().V2GameCards(ctx, params)
 	if err != nil {
-		return nil, 0, err
+		return Page[*GameCard]{}, err
 	}
 	if len(rows) == 0 && params.PageOffset > 0 {
 		total, err := countGameCards(ctx, params)
-		return nil, total, err
+		return Page[*GameCard]{Total: total}, err
 	}
-	total := 0
-	cards := make([]*GameCard, 0, len(rows))
+	page := Page[*GameCard]{Items: make([]*GameCard, 0, len(rows))}
 	for _, r := range rows {
-		total = int(r.Total)
-		cards = append(cards, gameCardOf(ctx, r))
+		page.Total = int(r.Total)
+		page.Items = append(page.Items, gameCardOf(ctx, r))
 	}
-	return cards, total, nil
+	return page, nil
 }
 
 // ReadGameCard opens one game's card, if the caller may read it:

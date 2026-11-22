@@ -1,8 +1,6 @@
-import { api } from "@/api/client/api";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/api/queryKeys";
-import { apiLogger } from "@/config/logger";
+import { queryKeys, useSetLanguage } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { isStaticLanguage, DEFAULT_LANGUAGE } from "../../i18n/config";
 import { LANGUAGE_OPTIONS } from "../../i18n/languages";
@@ -46,16 +44,13 @@ export const useBackendTranslation = (namespace = "common") => {
 export const useLanguageSwitcher = () => {
   const { i18n } = useTranslation();
   const { isAuthenticated } = useAuth();
+  const setLanguage = useSetLanguage();
 
   const changeLanguage = async (language: string) => {
     await i18n.changeLanguage(language);
     // Persist language preference to backend (best-effort, don't block UI)
     if (!isAuthenticated) return;
-    api.patchApiUsersMeLanguage({ language }).catch((err) => {
-      apiLogger.warning("Failed to persist language preference", {
-        error: err,
-      });
-    });
+    setLanguage.mutate(language);
   };
 
   const allLanguages = LANGUAGE_OPTIONS.map((lang) => ({

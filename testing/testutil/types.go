@@ -33,7 +33,6 @@ type (
 	ApiKey              = apiclient.ApiKeyView
 	ApiKeyShare         = apiclient.KeyShareView
 	ApiKeyInfo          = apiclient.ApiKeyInfoResp
-	ApiKeys             = apiclient.ApiKeysResp
 	ApiKeyGameShare     = apiclient.ShareLinkView
 	SystemSettings      = apiclient.SystemSettings
 	Genre               = apiclient.GenreInfo
@@ -92,4 +91,10 @@ func (u WorkshopUpdate) request() apiclient.UpdateWorkshopReq {
 		r.Name = &u.Name
 	}
 	return r
+}
+
+// ApiKeys is the caller's keys and every share of them.
+type ApiKeys struct {
+	ApiKeys []ApiKey
+	Shares  []ApiKeyShare
 }

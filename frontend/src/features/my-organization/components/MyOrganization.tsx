@@ -1,9 +1,6 @@
-import { api } from "@/api/client/api";
 import {
   Card,
   Container,
-  Title,
-  Text,
   Textarea,
   Stack,
   Tabs,
@@ -12,10 +9,11 @@ import {
 } from '@mantine/core';
 import { IconAlertCircle, IconUsers, IconSchool, IconKey, IconShieldLock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
+import { BodyText, HelperText, Label, PageTitle } from '@components/typography';
+import { useOrganisation, useSystemConstraints, useUpdateOrganisation } from '@/api/hooks';
 import { useAuth } from '@/providers/AuthProvider';
-import { getUserInstitutionId, isAtLeastHead, isAtLeastStaff } from '@/common/lib/roles';
+import { getUserInstitutionId, isAtLeastStaff } from '@/common/lib/roles';
+import { useOrganisationTabs, type OrganisationTab } from '../hooks/useOrganisationTabs';
 import { MembersTab } from './MembersTab';
 import { WorkshopsTab } from './WorkshopsTab';
 import { ApiKeysTab } from './ApiKeysTab';
@@ -24,58 +22,30 @@ import { OrganisationDeclarationCard } from './OrganisationDeclarationCard';
 interface MyOrganizationProps {
   /** Auto-open the create workshop modal on mount */
   autoCreateWorkshop?: boolean;
+  /** The tab in the URL, if any. */
+  tab?: OrganisationTab;
 }
 
-export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
+export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizationProps) {
   const { t } = useTranslation('common');
   const { backendUser } = useAuth();
-  const queryClient = useQueryClient();
 
   const institutionId = getUserInstitutionId(backendUser);
   const canManage = isAtLeastStaff(backendUser);
-  const canEditSettings = isAtLeastHead(backendUser);
-
-  // Fetch institution members
-  const { data: members = [], isLoading, error } = useQuery({
-    queryKey: queryKeys.institutionMembers(institutionId!),
-    queryFn: async () => {
-      if (!institutionId) return [];
-      const response = await api.getApiInstitutionsIdMembers(institutionId);
-      return response.data;
-    },
-    enabled: !!institutionId,
+  const { data: institution } = useOrganisation(institutionId);
+  // Whether the caller may change the organisation's settings: the server's flag.
+  const canEditSettings = !!institution?.mayEditSettings;
+  const { tab, setTab } = useOrganisationTabs({
+    tab: urlTab,
+    autoCreateWorkshop,
+    canManage,
+    canEditSettings,
   });
 
-  // Fetch institution details
-  const { data: institution } = useQuery({
-    queryKey: queryKeys.institution(institutionId!),
-    queryFn: async () => {
-      if (!institutionId) return null;
-      const response = await api.getApiInstitutionsId(institutionId);
-      return response.data;
-    },
-    enabled: !!institutionId,
-  });
-
-  const updatePromptConstraints = useMutation({
-    mutationFn: async (promptConstraints: string) => {
-      if (!institutionId) return;
-      await api.patchApiInstitutionsId(institutionId, { promptConstraints });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.institution(institutionId!) });
-    },
-  });
-
+  const updateOrganisation = useUpdateOrganisation();
   const orgConstraintEmpty = !institution?.promptConstraints?.trim();
-  const { data: siteConstraints } = useQuery({
-    queryKey: ['systemConstraints'] as const,
-    queryFn: async () => {
-      const response = await api.getApiSystemConstraints();
-      return response.data;
-    },
-    enabled: canEditSettings && orgConstraintEmpty,
-  });
+  // The site's fallback, shown while the organisation sets no constraint.
+  const { data: siteConstraints } = useSystemConstraints(canEditSettings && orgConstraintEmpty);
 
   // Early returns for error states
   if (!institutionId) {
@@ -88,30 +58,21 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
     );
   }
 
-  if (error) {
-    return (
-      <Container size="xl" py="xl">
-        <Alert icon={<IconAlertCircle size={16} />} title={t('error')} color="red">
-          {error instanceof Error ? error.message : 'Failed to load organization'}
-        </Alert>
-      </Container>
-    );
-  }
-
   return (
     <Container size="xl" py="xl">
       <Stack gap="lg">
         {/* Header */}
         <Stack gap={0}>
-          <Title order={2}>{t('myOrganization.title')}</Title>
+          <PageTitle>{t('myOrganization.title')}</PageTitle>
           {institution?.name && (
-            <Text c="dimmed" size="sm">{institution.name}</Text>
+            <HelperText>{institution.name}</HelperText>
           )}
         </Stack>
 
         <OrganisationDeclarationCard />
 
-        <Tabs defaultValue="members">
+        {/* One panel at a time: each tab's list keeps its query in the URL. */}
+        <Tabs value={tab} onChange={setTab} keepMounted={false}>
           <Tabs.List>
             <Tabs.Tab value="members" leftSection={<IconUsers size={16} />}>
               {t('navigation:orgMembers')}
@@ -134,11 +95,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
           </Tabs.List>
 
           <Tabs.Panel value="members" pt="md">
-            <MembersTab
-              members={members}
-              isLoading={isLoading}
-              institution={institution}
-            />
+            <MembersTab institution={institution} />
           </Tabs.Panel>
 
           {canManage && (
@@ -146,7 +103,6 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
               <WorkshopsTab
                 institutionId={institutionId}
                 institutionName={institution?.name}
-                institutionPromptConstraints={institution?.promptConstraints}
                 autoCreate={autoCreateWorkshop}
               />
             </Tabs.Panel>
@@ -177,23 +133,21 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
                     maxLength={200}
                     defaultValue={institution?.promptConstraints || ''}
                     key={`prompt-constraints-${institutionId}-${institution?.promptConstraints || ''}`}
-                    disabled={updatePromptConstraints.isPending}
+                    disabled={updateOrganisation.isPending}
                     onBlur={(event) => {
                       const nextValue = event.currentTarget.value;
                       if ((institution?.promptConstraints || '') === nextValue) return;
-                      updatePromptConstraints.mutate(nextValue);
+                      updateOrganisation.mutate({ id: institutionId, promptConstraints: nextValue });
                     }}
                   />
                   {orgConstraintEmpty && siteConstraints && (
                     <>
                       <Divider />
                       <Stack gap="xs">
-                        <Text size="sm" fw={600}>
-                          {t('myOrganization.promptConstraintsFallbackTitle')}
-                        </Text>
-                        <Text size="xs" c="dimmed">
+                        <Label>{t('myOrganization.promptConstraintsFallbackTitle')}</Label>
+                        <HelperText>
                           {t('myOrganization.promptConstraintsFallbackHint')}
-                        </Text>
+                        </HelperText>
                         {(['U13', 'U13p', 'U18'] as const).map((bucket) => {
                           const value =
                             bucket === 'U13'
@@ -203,12 +157,14 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
                                 : siteConstraints.promptConstraintU18;
                           return (
                             <Stack key={bucket} gap={2}>
-                              <Text size="xs" fw={500}>
+                              <BodyText size="sm" fw={500}>
                                 {t(`myOrganization.promptConstraintsFallback${bucket}`)}
-                              </Text>
-                              <Text size="xs" c={value ? undefined : 'dimmed'} fs={value ? undefined : 'italic'}>
-                                {value || t('myOrganization.promptConstraintsFallbackEmpty')}
-                              </Text>
+                              </BodyText>
+                              {value ? (
+                                <BodyText size="sm">{value}</BodyText>
+                              ) : (
+                                <HelperText>{t('myOrganization.promptConstraintsFallbackEmpty')}</HelperText>
+                              )}
                             </Stack>
                           );
                         })}

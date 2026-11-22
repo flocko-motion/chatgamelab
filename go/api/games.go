@@ -24,46 +24,51 @@ type GamesResp = []obj.Game
 type GameViewResp = wire.GameView
 
 // GameViewPageResp is a page of games and the total.
-type GameViewPageResp = wire.GameViewPage
+type GameViewPageResp = wire.Page[wire.GameView]
 
 // GameIDReq names a game by its id.
 type GameIDReq struct {
 	ID string `path:"id"`
 }
 
-// ListGamesEndpoint lists a page of the games the caller can see, and the total.
-//
-// Query, all optional: filter (own, others, public, favorites, sponsored;
-// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
-// visibility, creator), sortDir (asc, desc), limit, offset.
+// ListGamesEndpoint lists a page of the games the caller can see, and the
+// total. It narrows what the caller may see, never widens it; the order uses
+// card fields only.
 type ListGamesEndpoint struct{}
 
 func (ListGamesEndpoint) Method() string             { return "GET" }
 func (ListGamesEndpoint) Path() string               { return "/api/games" }
 func (ListGamesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (ListGamesEndpoint) Handle(ctx context.Context, req ListGamesReq) (GameViewPageResp, error) {
-	return wire.GameViewPageOf(core.ListGameCards(ctx, req.query()))
+	return wire.GameViewPageOf(core.List(ctx, core.GameCards, req.query()))
 }
+
+// GameFilter narrows the game list; several combine.
+type GameFilter string
+
+const (
+	GameFilterOwn       GameFilter = "own"       // the caller's games
+	GameFilterOthers    GameFilter = "others"    // everyone else's
+	GameFilterPublic    GameFilter = "public"    // public games
+	GameFilterFavorites GameFilter = "favorites" // the caller's favorites
+	GameFilterSponsored GameFilter = "sponsored" // games a key sponsors
+)
+
+// GameSort orders the game list; the default is createdAt, newest first.
+type GameSort string
+
+const (
+	GameSortCreatedAt  GameSort = "createdAt"
+	GameSortModifiedAt GameSort = "modifiedAt"
+	GameSortName       GameSort = "name"
+	GameSortPlayCount  GameSort = "playCount"
+	GameSortVisibility GameSort = "visibility"
+	GameSortCreator    GameSort = "creator"
+)
 
 // ListGamesReq filters, sorts and pages the game list.
 type ListGamesReq struct {
-	Filter  []string `query:"filter"`
-	Search  *string  `query:"search"`
-	SortBy  *string  `query:"sortBy"`
-	SortDir *string  `query:"sortDir"`
-	Limit   *int     `query:"limit"`
-	Offset  *int     `query:"offset"`
-}
-
-func (r ListGamesReq) query() core.GameCardQuery {
-	q := core.GameCardQuery{Filter: r.Filter, Search: opt(r.Search), SortBy: opt(r.SortBy), SortDir: opt(r.SortDir)}
-	if r.Limit != nil {
-		q.Limit = *r.Limit
-	}
-	if r.Offset != nil {
-		q.Offset = *r.Offset
-	}
-	return q
+	ListParams[GameFilter, GameSort]
 }
 
 // NewGameEndpoint returns the template for a game the caller creates: what a

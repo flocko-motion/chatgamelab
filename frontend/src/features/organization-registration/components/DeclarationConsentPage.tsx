@@ -3,7 +3,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { ActionButton, TextButton } from "@components/buttons";
 import { BodyText, CardTitle, HelperText, SectionTitle } from "@components/typography";
-import type { ConsentStatusView } from "@/api/generated/api.gen";
+import type { ConsentStatusView } from "@/api/types";
 import { useDeclarationConsentForm } from "../hooks/useDeclarationConsentForm";
 import { DeclarationConsent } from "./DeclarationConsent";
 import { YouthProtectionField } from "./YouthProtectionField";

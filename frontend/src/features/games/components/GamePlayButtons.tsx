@@ -1,6 +1,6 @@
 import { Stack } from "@mantine/core";
 import { PlayGameButton, TextButton } from "@components/buttons";
-import type { Game, SessionView } from "@/api/generated/api.gen";
+import type { Game, SessionView } from "@/api/types";
 
 type GameRef = Pick<Game, "id" | "name">;
 

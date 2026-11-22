@@ -10,6 +10,76 @@
  * ---------------------------------------------------------------
  */
 
+export type WorkshopSort =
+  | "name"
+  | "createdAt"
+  | "modifiedAt"
+  | "participantCount";
+
+export type WorkshopFilter = "active";
+
+export type UserSort = "name" | "email" | "role" | "organisation" | "createdAt";
+
+export type UserFilter = "noGuests";
+
+export type Toggle = "images" | "audio-out" | "audio-in" | "audio-live";
+
+export type Tier = "low" | "medium" | "high";
+
+export type SortDir = "asc" | "desc";
+
+export type Role = "admin" | "head" | "staff" | "guest" | "individual";
+
+export type Platform = "mock" | "openai" | "mistral";
+
+export type ParticipantSort = "name" | "role" | "gamesCount" | "createdAt";
+
+export type OwnApiKeySort = "createdAt" | "name" | "platform" | "status";
+
+export type OrganisationSort = "name" | "createdAt" | "registeredAt";
+
+export type OrganisationKeySort = "name" | "owner" | "platform";
+
+export type OrganisationFilter = "recentlyRegistered";
+
+export type MemberSort = "name" | "email" | "role";
+
+export type Medium = "text" | "audio" | "image";
+
+export type InviteStatus =
+  | "pending"
+  | "accepted"
+  | "declined"
+  | "expired"
+  | "revoked";
+
+export type InviteSort = "role" | "organisation" | "status" | "modifiedAt";
+
+export type Genre = "adventure" | "npc-live";
+
+export type GameSort =
+  | "createdAt"
+  | "modifiedAt"
+  | "name"
+  | "playCount"
+  | "visibility"
+  | "creator";
+
+export type GameFilter =
+  | "own"
+  | "others"
+  | "public"
+  | "favorites"
+  | "sponsored";
+
+export type EventType =
+  | "workshop_updated"
+  | "game_created"
+  | "game_updated"
+  | "game_deleted"
+  | "members_updated"
+  | "connected";
+
 export interface AcceptInviteResp {
   authToken?: string;
   message: string;
@@ -69,11 +139,6 @@ export interface ApiKeyView {
   userName: string;
 }
 
-export interface ApiKeysResp {
-  apiKeys: ApiKeyView[];
-  shares: KeyShareView[];
-}
-
 export interface AvailableKey {
   isDefault: boolean;
   name: string;
@@ -89,7 +154,7 @@ export interface CheckNameResp {
 }
 
 export interface Choice {
-  tier: string;
+  tier: Tier;
   toggles: Toggles;
 }
 
@@ -428,8 +493,8 @@ export interface GameViewPage {
 }
 
 export interface GenreInfo {
-  id: string;
-  needs: string[];
+  id: Genre;
+  needs: Toggle[];
 }
 
 export interface GetCurrentUserResp {
@@ -517,6 +582,11 @@ export interface InviteCardView {
   workshopName?: string;
 }
 
+export interface InviteCardViewPage {
+  items: InviteCardView[];
+  total: number;
+}
+
 export interface InviteMeta {
   /** @format date-time */
   createdAt: string;
@@ -582,6 +652,11 @@ export interface KeyShareView {
   sourceShareId?: string;
 }
 
+export interface KeyShareViewPage {
+  items: KeyShareView[];
+  total: number;
+}
+
 export interface Language {
   iso: string;
   label: string;
@@ -620,8 +695,8 @@ export interface Model {
 }
 
 export interface ModelFacts {
-  in: string[];
-  out: string[];
+  in: Medium[];
+  out: Medium[];
   price: Price;
   read: string;
   source: string;
@@ -655,7 +730,7 @@ export interface OfferOption {
   default: Choice;
   name: string;
   offer: string;
-  platform: string;
+  platform: Platform;
   tiers: TierOption[];
 }
 
@@ -728,6 +803,8 @@ export interface OrganisationView {
   mayEditCard: boolean;
   mayEditDetails: boolean;
   mayEditSettings: boolean;
+  mayInviteHead: boolean;
+  mayInviteStaff: boolean;
   maySuspend: boolean;
   members: UserView[];
   meta: OrganisationMeta;
@@ -743,6 +820,22 @@ export interface OrganisationView {
   suspendedReason?: string;
 }
 
+export interface OrganisationViewPage {
+  items: OrganisationView[];
+  total: number;
+}
+
+export interface OwnApiKeyView {
+  key: ApiKeyView;
+  selfShare: KeyShareView;
+  shares: KeyShareView[];
+}
+
+export interface OwnApiKeyViewPage {
+  items: OwnApiKeyView[];
+  total: number;
+}
+
 export interface ParticipantMeta {
   /** @format date-time */
   createdAt: string;
@@ -754,8 +847,8 @@ export interface Place {
 }
 
 export interface PlatformInfo {
-  genres: string[];
-  id: string;
+  genres: Genre[];
+  id: Platform;
   models: Record<string, ModelFacts>;
   name: string;
   tiers: TierModels[];
@@ -765,8 +858,8 @@ export interface PlatformInfo {
 
 export interface Preference {
   offer?: string;
-  platform: string;
-  tier: string;
+  platform: Platform;
+  tier: Tier;
   toggles: Toggles;
 }
 
@@ -814,7 +907,7 @@ export interface PublicWorkshopPlay {
 }
 
 export interface RolesResp {
-  roles: string[];
+  roles: Role[];
 }
 
 export interface Sample {
@@ -921,7 +1014,7 @@ export interface Settled {
   changes?: string[];
   choice: Choice;
   offer: string;
-  platform: string;
+  platform: Platform;
   preference: Preference;
 }
 
@@ -1004,7 +1097,7 @@ export interface ThemeInfo {
 }
 
 export interface TierModels {
-  id: string;
+  id: Tier;
   label: string;
   models: Record<string, Model>;
 }
@@ -1012,13 +1105,13 @@ export interface TierModels {
 export interface TierOption {
   label: string;
   models: Record<string, string>;
-  tier: string;
+  tier: Tier;
   toggles: Toggles;
 }
 
 export interface ToggleRequest {
   on: boolean;
-  toggle: string;
+  toggle: Toggle;
 }
 
 export interface Toggles {
@@ -1186,7 +1279,7 @@ export interface UserRole {
   id: string;
   institution?: Institution;
   meta: Meta;
-  role: string;
+  role: Role;
   /** @format uuid */
   userId: string;
   workshop?: Workshop;
@@ -1209,8 +1302,8 @@ export interface UserRoleInvite {
   invitedUserId?: string;
   maxUses?: number;
   meta: Meta;
-  role: string;
-  status: string;
+  role: Role;
+  status: InviteStatus;
   usesCount: number;
   /** @format uuid */
   workshopId?: string;
@@ -1245,13 +1338,21 @@ export interface UserView {
   /** @format uuid */
   id: string;
   language?: string;
+  mayChangeAnyRole: boolean;
+  mayChangeRole: boolean;
   mayDelete: boolean;
   mayEditAccount: boolean;
   mayEditCard: boolean;
   mayEditContact: boolean;
+  mayRemoveMember: boolean;
   meta?: UserMeta;
   name: string;
   role?: UserRoleRef;
+}
+
+export interface UserViewPage {
+  items: UserView[];
+  total: number;
 }
 
 export interface Workshop {
@@ -1282,7 +1383,7 @@ export interface WorkshopEvent {
   gameId?: string;
   /** @format uuid */
   triggeredBy?: string;
-  type: string;
+  type: EventType;
   /** @format uuid */
   workshopId?: string;
 }
@@ -1303,7 +1404,7 @@ export interface WorkshopParticipant {
   meta: Meta;
   name: string;
   permanent: boolean;
-  role: string;
+  role: Role;
   /** @format uuid */
   workshopId: string;
 }
@@ -1318,6 +1419,11 @@ export interface WorkshopParticipantView {
   role: string;
   /** @format uuid */
   workshopId: string;
+}
+
+export interface WorkshopParticipantViewPage {
+  items: WorkshopParticipantView[];
+  total: number;
 }
 
 export interface WorkshopView {
@@ -1347,6 +1453,11 @@ export interface WorkshopView {
   publicSlug?: string;
   showOtherParticipantsGames: boolean;
   showPublicGames: boolean;
+}
+
+export interface WorkshopViewPage {
+  items: WorkshopView[];
+  total: number;
 }
 
 export interface YouthProtectionSuggestion {
@@ -1398,13 +1509,12 @@ export interface HttpResponse<D extends unknown, E extends unknown = unknown>
 
 type CancelToken = Symbol | string | number;
 
-export enum ContentType {
-  Json = "application/json",
-  JsonApi = "application/vnd.api+json",
-  FormData = "multipart/form-data",
-  UrlEncoded = "application/x-www-form-urlencoded",
-  Text = "text/plain",
-}
+export type ContentType =
+  | "application/json"
+  | "application/vnd.api+json"
+  | "multipart/form-data"
+  | "application/x-www-form-urlencoded"
+  | "text/plain";
 
 export class HttpClient<SecurityDataType = unknown> {
   public baseUrl: string = "";
@@ -1463,19 +1573,19 @@ export class HttpClient<SecurityDataType = unknown> {
   }
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
-    [ContentType.Json]: (input: any) =>
+    ["application/json"]: (input: any) =>
       input !== null && (typeof input === "object" || typeof input === "string")
         ? JSON.stringify(input)
         : input,
-    [ContentType.JsonApi]: (input: any) =>
+    ["application/vnd.api+json"]: (input: any) =>
       input !== null && (typeof input === "object" || typeof input === "string")
         ? JSON.stringify(input)
         : input,
-    [ContentType.Text]: (input: any) =>
+    ["text/plain"]: (input: any) =>
       input !== null && typeof input !== "string"
         ? JSON.stringify(input)
         : input,
-    [ContentType.FormData]: (input: any) => {
+    ["multipart/form-data"]: (input: any) => {
       if (input instanceof FormData) {
         return input;
       }
@@ -1493,7 +1603,8 @@ export class HttpClient<SecurityDataType = unknown> {
         return formData;
       }, new FormData());
     },
-    [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
+    ["application/x-www-form-urlencoded"]: (input: any) =>
+      this.toQueryString(input),
   };
 
   protected mergeRequestParams(
@@ -1555,7 +1666,7 @@ export class HttpClient<SecurityDataType = unknown> {
       {};
     const requestParams = this.mergeRequestParams(params, secureParams);
     const queryString = query && this.toQueryString(query);
-    const payloadFormatter = this.contentFormatters[type || ContentType.Json];
+    const payloadFormatter = this.contentFormatters[type || "application/json"];
     const responseFormat = format || requestParams.format;
 
     return this.customFetch(
@@ -1564,7 +1675,7 @@ export class HttpClient<SecurityDataType = unknown> {
         ...requestParams,
         headers: {
           ...(requestParams.headers || {}),
-          ...(type && type !== ContentType.FormData
+          ...(type && type !== "multipart/form-data"
             ? { "Content-Type": type }
             : {}),
         },
@@ -1625,10 +1736,21 @@ export class Api<
      * @request GET:/api/apikeys
      * @secure
      */
-    getApiApikeys: (params: RequestParams = {}) =>
-      this.request<ApiKeysResp, Error>({
+    getApiApikeys: (
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: OwnApiKeySort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<OwnApiKeyViewPage, Error>({
         path: `/api/apikeys`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -1648,7 +1770,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1712,7 +1834,7 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1735,7 +1857,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1799,7 +1921,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1819,7 +1941,7 @@ export class Api<
         path: `/api/auth/auth0/login`,
         method: "POST",
         body: data,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1857,7 +1979,7 @@ export class Api<
         path: `/api/auth/dev-login`,
         method: "POST",
         body: data,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1874,7 +1996,7 @@ export class Api<
         path: `/api/auth/guest-login`,
         method: "POST",
         body: data,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1927,7 +2049,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -1948,7 +2070,7 @@ export class Api<
         path: `/api/auth/${provider}/login`,
         method: "POST",
         body: data,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2052,7 +2174,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2075,7 +2197,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         ...params,
       }),
 
@@ -2097,7 +2219,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2120,7 +2242,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         ...params,
       }),
 
@@ -2216,7 +2338,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         ...params,
       }),
 
@@ -2358,7 +2480,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         ...params,
       }),
 
@@ -2397,19 +2519,19 @@ export class Api<
       }),
 
     /**
-     * @description Query, all optional: filter (own, others, public, favorites, sponsored; repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount, visibility, creator), sortDir (asc, desc), limit, offset.
+     * @description total. It narrows what the caller may see, never widens it; the order uses card fields only.
      *
      * @name GetApiGames
-     * @summary Lists a page of the games the caller can see, and the total.
+     * @summary Lists a page of the games the caller can see, and the
      * @request GET:/api/games
      * @secure
      */
     getApiGames: (
       query?: {
-        filter?: string[];
+        filter?: GameFilter[];
         search?: string;
-        sortBy?: string;
-        sortDir?: string;
+        sortBy?: GameSort;
+        sortDir?: SortDir;
         limit?: number;
         offset?: number;
       },
@@ -2455,7 +2577,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2512,7 +2634,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2602,7 +2724,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2693,7 +2815,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2738,7 +2860,7 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2778,7 +2900,7 @@ export class Api<
         method: "PUT",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2818,7 +2940,7 @@ export class Api<
         method: "PUT",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2856,20 +2978,25 @@ export class Api<
       }),
 
     /**
-     * @description admin all of them, a head or staff their own. filter narrows the list: "recentlyRegistered", those that registered themselves in the last 14 days, among those whose record the caller sees. An unknown filter is refused.
+     * @description list, and the total: an admin all of them, a head or staff their own.
      *
      * @name GetApiInstitutions
-     * @summary Lists the organisations the caller may list: an
+     * @summary Lists a page of the organisations the caller may
      * @request GET:/api/institutions
      * @secure
      */
     getApiInstitutions: (
       query?: {
-        filter?: string[];
+        filter?: OrganisationFilter[];
+        search?: string;
+        sortBy?: OrganisationSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<OrganisationView[], Error>({
+      this.request<OrganisationViewPage, Error>({
         path: `/api/institutions`,
         method: "GET",
         query: query,
@@ -2895,7 +3022,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2952,7 +3079,7 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -2965,10 +3092,22 @@ export class Api<
      * @request GET:/api/institutions/{id}/apikeys
      * @secure
      */
-    getApiInstitutionsIdApikeys: (id: string, params: RequestParams = {}) =>
-      this.request<KeyShareView[], Error>({
+    getApiInstitutionsIdApikeys: (
+      id: string,
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: OrganisationKeySort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<KeyShareViewPage, Error>({
         path: `/api/institutions/${id}/apikeys`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -3032,7 +3171,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3055,23 +3194,35 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
 
     /**
-     * @description staff, head): for its members and the admin. Anyone else gets an empty list; an organisation the caller may not read, 404.
+     * @description (individual, staff, head), and the total: for its members and the admin. Anyone else gets an empty list; an organisation the caller may not read, 404.
      *
      * @name GetApiInstitutionsIdMembers
-     * @summary Lists an organisation's members (individual,
+     * @summary Lists a page of an organisation's members
      * @request GET:/api/institutions/{id}/members
      * @secure
      */
-    getApiInstitutionsIdMembers: (id: string, params: RequestParams = {}) =>
-      this.request<UserView[], Error>({
+    getApiInstitutionsIdMembers: (
+      id: string,
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: MemberSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<UserViewPage, Error>({
         path: `/api/institutions/${id}/members`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -3136,7 +3287,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3159,17 +3310,28 @@ export class Api<
       }),
 
     /**
-     * @description admin, all of them.
+     * @description and the total: for the admin, all of them.
      *
      * @name GetApiInvitesAll
-     * @summary Lists every invite the caller may list: for the
+     * @summary Lists a page of every invite the caller may list,
      * @request GET:/api/invites/all
      * @secure
      */
-    getApiInvitesAll: (params: RequestParams = {}) =>
-      this.request<InviteCardView[], Error>({
+    getApiInvitesAll: (
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: InviteSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<InviteCardViewPage, Error>({
         path: `/api/invites/all`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -3192,26 +3354,35 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
 
     /**
-     * @description caller may list: its head and staff (staff without the invites to become head), and the admin.
+     * @description the caller may list, and the total: its head and staff (staff without the invites to become head), and the admin.
      *
      * @name GetApiInvitesInstitutionInstitutionId
-     * @summary Lists an organisation's invites the
+     * @summary Lists a page of an organisation's invites
      * @request GET:/api/invites/institution/{institutionId}
      * @secure
      */
     getApiInvitesInstitutionInstitutionId: (
       institutionId: string,
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: InviteSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
       params: RequestParams = {},
     ) =>
-      this.request<InviteCardView[], Error>({
+      this.request<InviteCardViewPage, Error>({
         path: `/api/invites/institution/${institutionId}`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -3234,7 +3405,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3256,7 +3427,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3584,7 +3755,7 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3606,7 +3777,7 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3646,17 +3817,28 @@ export class Api<
       }),
 
     /**
-     * @description heads and staff the members of their organisation.
+     * @description total: admins every user, heads and staff the members of their organisation.
      *
      * @name GetApiUsers
-     * @summary Lists the users the caller may list: admins every user,
+     * @summary Lists a page of the users the caller may list, and the
      * @request GET:/api/users
      * @secure
      */
-    getApiUsers: (params: RequestParams = {}) =>
-      this.request<UserView[], Error>({
+    getApiUsers: (
+      query?: {
+        filter?: UserFilter[];
+        search?: string;
+        sortBy?: UserSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<UserViewPage, Error>({
         path: `/api/users`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -3696,7 +3878,7 @@ export class Api<
         method: "PUT",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3718,7 +3900,7 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3769,7 +3951,7 @@ export class Api<
         path: `/api/users/new`,
         method: "POST",
         body: data,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3825,7 +4007,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3865,7 +4047,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -3920,24 +4102,26 @@ export class Api<
       }),
 
     /**
-     * @description all of them, a head or staff their organisation's. institutionId, search and activeOnly narrow the list; sortBy (name, createdAt, participantCount) and sortDir (asc, desc) order it, newest first by default.
+     * @description and the total: an admin all of them, a head or staff their organisation's. institutionId narrows it to one organisation.
      *
      * @name GetApiWorkshops
-     * @summary Lists the workshops the caller may list: an admin
+     * @summary Lists a page of the workshops the caller may list,
      * @request GET:/api/workshops
      * @secure
      */
     getApiWorkshops: (
       query?: {
         institutionId?: string;
+        filter?: WorkshopFilter[];
         search?: string;
-        sortBy?: string;
-        sortDir?: string;
-        activeOnly?: string;
+        sortBy?: WorkshopSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<WorkshopView[], Error>({
+      this.request<WorkshopViewPage, Error>({
         path: `/api/workshops`,
         method: "GET",
         query: query,
@@ -3960,7 +4144,7 @@ export class Api<
         method: "POST",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -4057,7 +4241,7 @@ export class Api<
         method: "PATCH",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -4080,7 +4264,7 @@ export class Api<
         method: "PUT",
         body: data,
         secure: true,
-        type: ContentType.Json,
+        type: "application/json",
         format: "json",
         ...params,
       }),
@@ -4117,6 +4301,35 @@ export class Api<
       this.request<MessageResp, Error>({
         path: `/api/workshops/${id}/members/${userId}`,
         method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description the total: for those who may list them (an empty list for others); a workshop the caller may not read, 404.
+     *
+     * @name GetApiWorkshopsIdParticipants
+     * @summary Lists a page of a workshop's participants, and
+     * @request GET:/api/workshops/{id}/participants
+     * @secure
+     */
+    getApiWorkshopsIdParticipants: (
+      id: string,
+      query?: {
+        filter?: string[];
+        search?: string;
+        sortBy?: ParticipantSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<WorkshopParticipantViewPage, Error>({
+        path: `/api/workshops/${id}/participants`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

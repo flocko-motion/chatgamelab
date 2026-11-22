@@ -1,5 +1,5 @@
 import { useAddFavorite, useRemoveFavorite } from "@/api/hooks";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 
 type GameRef = Pick<GameView, "id" | "isFavorite">;
 

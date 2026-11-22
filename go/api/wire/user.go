@@ -23,6 +23,14 @@ type UserView struct {
 	MayEditContact bool `json:"mayEditContact"`
 	MayDelete      bool `json:"mayDelete"`
 
+	// The caller's rights on the user's membership: any role, the admin's
+	// (only an individual becomes admin); head or staff of the caller's
+	// organisation, a head's; taking them out of their organisation (for the
+	// caller themselves, leaving it). An organisation keeps its last head.
+	MayChangeAnyRole bool `json:"mayChangeAnyRole"`
+	MayChangeRole    bool `json:"mayChangeRole"`
+	MayRemoveMember  bool `json:"mayRemoveMember"`
+
 	// HasAccount: the caller sees how the account is set up; the fields
 	// below are set.
 	HasAccount           bool         `json:"hasAccount"`
@@ -91,6 +99,10 @@ func userView(user *core.UserCard) UserView {
 		MayEditAccount: user.MayEditAccount(),
 		MayEditContact: user.MayEditContact(),
 		MayDelete:      user.MayDelete(),
+
+		MayChangeAnyRole: user.MayChangeAnyRole(),
+		MayChangeRole:    user.MayChangeRole(),
+		MayRemoveMember:  user.MayRemoveMember(),
 	}
 	if a, err := user.AsUserAccount(); err == nil {
 		v.HasAccount = true

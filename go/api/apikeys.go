@@ -30,29 +30,29 @@ type ListApiKeysEndpoint struct{}
 func (ListApiKeysEndpoint) Method() string             { return "GET" }
 func (ListApiKeysEndpoint) Path() string               { return "/api/apikeys" }
 func (ListApiKeysEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListApiKeysEndpoint) Handle(ctx context.Context, _ ListApiKeysReq) (ApiKeysResp, error) {
-	shares, err := core.MyKeys(ctx)
-	if err != nil {
-		return ApiKeysResp{}, err
-	}
-	resp := ApiKeysResp{ApiKeys: []wire.ApiKeyView{}, Shares: []wire.KeyShareView{}}
-	resp.Shares, _ = wire.KeyShareViewsOf(shares, nil)
-	for _, s := range shares {
-		if s.Self {
-			resp.ApiKeys = append(resp.ApiKeys, wire.ApiKeyViewOf(s))
-		}
-	}
-	return resp, nil
+func (ListApiKeysEndpoint) Handle(ctx context.Context, req ListApiKeysReq) (OwnApiKeyPageResp, error) {
+	return wire.OwnApiKeyViewPageOf(core.List(ctx, core.OwnKeys, req.query()))
 }
 
-// ListApiKeysReq takes no parameters.
-type ListApiKeysReq struct{}
+// OwnApiKeySort orders the caller's keys; the default is createdAt, oldest
+// first. status orders working keys first, then those not used yet, then
+// failed ones.
+type OwnApiKeySort string
 
-// ApiKeysResp is the caller's keys and the shares of them.
-type ApiKeysResp struct {
-	ApiKeys []wire.ApiKeyView   `json:"apiKeys"`
-	Shares  []wire.KeyShareView `json:"shares"`
+const (
+	OwnApiKeySortCreatedAt OwnApiKeySort = "createdAt"
+	OwnApiKeySortName      OwnApiKeySort = "name"
+	OwnApiKeySortPlatform  OwnApiKeySort = "platform"
+	OwnApiKeySortStatus    OwnApiKeySort = "status"
+)
+
+// ListApiKeysReq filters, sorts and pages the caller's keys.
+type ListApiKeysReq struct {
+	ListParams[KeyFilter, OwnApiKeySort]
 }
+
+// OwnApiKeyPageResp is a page of the caller's keys, each with its shares, and the total.
+type OwnApiKeyPageResp = wire.Page[wire.OwnApiKeyView]
 
 // CreateApiKeyEndpoint stores a key of the caller's and answers with their
 // own use of it. Platform and key are required; surrounding whitespace is
@@ -270,7 +270,7 @@ type DeleteApiKeyReq struct {
 }
 
 // InstitutionApiKeysResp is the keys given to an organisation.
-type InstitutionApiKeysResp = []wire.KeyShareView
+type InstitutionApiKeysResp = wire.Page[wire.KeyShareView]
 
 // GetInstitutionApiKeysEndpoint lists the keys given to an organisation: for
 // its head and staff.
@@ -279,12 +279,28 @@ type GetInstitutionApiKeysEndpoint struct{}
 func (GetInstitutionApiKeysEndpoint) Method() string             { return "GET" }
 func (GetInstitutionApiKeysEndpoint) Path() string               { return "/api/institutions/{id}/apikeys" }
 func (GetInstitutionApiKeysEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetInstitutionApiKeysEndpoint) Handle(ctx context.Context, req InstitutionIDReq) (InstitutionApiKeysResp, error) {
+func (GetInstitutionApiKeysEndpoint) Handle(ctx context.Context, req ListOrganisationKeysReq) (InstitutionApiKeysResp, error) {
 	org, err := parseID(req.ID, "Invalid institution ID")
 	if err != nil {
-		return nil, err
+		return InstitutionApiKeysResp{}, err
 	}
-	return wire.KeyShareViewsOf(core.ListKeyShares(ctx, core.KeyShareFilter{Organisation: &org}))
+	return wire.KeyShareViewPageOf(core.List(ctx, core.OrganisationKeys(org), req.query()))
+}
+
+// OrganisationKeySort orders the keys given to an organisation; the default is name.
+type OrganisationKeySort string
+
+const (
+	OrganisationKeySortName     OrganisationKeySort = "name"
+	OrganisationKeySortOwner    OrganisationKeySort = "owner"
+	OrganisationKeySortPlatform OrganisationKeySort = "platform"
+)
+
+// ListOrganisationKeysReq names the organisation, and filters, sorts and
+// pages the keys given to it.
+type ListOrganisationKeysReq struct {
+	ID string `path:"id"`
+	ListParams[KeyFilter, OrganisationKeySort]
 }
 
 // SetInstitutionFreeUseApiKeyShareEndpoint sets or clears the key an

@@ -20,10 +20,10 @@ import { IconUser, IconMail, IconCheck, IconX, IconAlertCircle } from '@tabler/i
 import { useTranslation } from 'react-i18next';
 import { useDebouncedValue } from '@mantine/hooks';
 import { authLogger } from '@/config/logger';
+import { checkName } from '@/api/hooks';
 import { takeReturnTo } from '@/common/lib/returnTo';
 
 import { useAuth, type RegistrationData } from '@/providers/AuthProvider';
-import { api } from '@/api/client/api';
 import { AgeGroup, AGE_GROUP_UNDER_13 } from '@/constants/ageGroup';
 
 interface RegistrationFormProps {
@@ -83,8 +83,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
 
       setIsCheckingName(true);
       try {
-        const response = await api.getApiAuthCheckName({ name: debouncedName });
-        const data = response.data as { available?: boolean; profane?: boolean };
+        const data = await checkName(debouncedName);
         const available = data.available ?? false;
         setNameAvailable(available);
         

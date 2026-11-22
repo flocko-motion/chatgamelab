@@ -20,4 +20,24 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // The generated client is the API layer's business: features use the
+    // hooks and the types `src/api/` re-exports (`@/api/types`).
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/api/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '(^|/)api/generated(/|$)',
+              message:
+                'Only src/api/ imports the generated client; use the hooks in @/api/hooks and the types in @/api/types.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ])

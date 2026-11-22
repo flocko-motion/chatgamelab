@@ -27,7 +27,7 @@ trap 'rc=$?; echo "ERROR: schemaf.sh failed at line ${LINENO}: \"${BASH_COMMAND}
 PROJECT_NAME="chatgamelab"
 # load reads the installed run-side script's version from this exact line
 # (_schemaf_script_version), so it never replaces a newer script with an older one.
-SCHEMAF_VER="v1.20.0"
+SCHEMAF_VER="v1.21.1"
 ORIG_PWD="$PWD"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 USER_DIR="$HOME/.${PROJECT_NAME}"

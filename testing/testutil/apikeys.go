@@ -21,7 +21,13 @@ func (c caller) AddApiKey(apiKey, name, platform string) (ApiKeyShare, error) {
 
 // GetApiKeys is the caller's keys and the shares they can use.
 func (c caller) GetApiKeys() (ApiKeys, error) {
-	return decode[ApiKeys](c.api.GetApiApikeysWithResponse(ctx()))
+	keys, err := decodeItems[apiclient.OwnApiKeyView](c.api.GetApiApikeysWithResponse(ctx(), nil))
+	out := ApiKeys{ApiKeys: []ApiKey{}, Shares: []ApiKeyShare{}}
+	for _, k := range keys {
+		out.ApiKeys = append(out.ApiKeys, k.Key)
+		out.Shares = append(out.Shares, k.Shares...)
+	}
+	return out, err
 }
 
 // GetApiKeyInfo is what the caller may know about a key share.
@@ -86,7 +92,7 @@ func (c caller) GetApiKeyGameShares(shareID, context string) ([]ApiKeyGameShare,
 
 // GetInstitutionApiKeys is the keys shared with an institution.
 func (c caller) GetInstitutionApiKeys(institutionID string) ([]ApiKeyShare, error) {
-	return decode[[]ApiKeyShare](c.api.GetApiInstitutionsIdApikeysWithResponse(ctx(), institutionID))
+	return decodeItems[ApiKeyShare](c.api.GetApiInstitutionsIdApikeysWithResponse(ctx(), institutionID, nil))
 }
 
 // SetInstitutionFreeUseApiKey sets the key an institution's people play with

@@ -21,12 +21,12 @@ import { useState, useEffect, type ReactNode } from "react";
 import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
-import { api } from "@/api/client/api";
+import { acceptInvite, fetchInvite } from "@/api/hooks";
 import { useAuth, rememberGuestCode } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl } from "@/common/lib/url";
-import type { AcceptInviteResp, InviteCardView } from "@/api/generated/api.gen";
+import type { AcceptInviteResp, InviteCardView } from "@/api/types";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
 export const Route = createFileRoute("/invites/$token/accept")({
@@ -137,11 +137,11 @@ function AcceptInvitePage() {
     // Wait for auth to finish loading
     if (authLoading) return;
 
-    async function fetchInvite() {
+    async function loadInvite() {
       try {
         let data: InviteCardView;
         try {
-          data = (await api.getApiInvitesIdOrToken(token)).data;
+          data = await fetchInvite(token);
         } catch (err) {
           const { status, body } = failure(err);
           if (status === undefined) throw err;
@@ -168,7 +168,7 @@ function AcceptInvitePage() {
         ) {
           // Auto-accept to enter workshop mode, then redirect
           try {
-            await api.postApiInvitesIdOrTokenAccept(token).catch(() => {});
+            await acceptInvite(token).catch(() => {});
             try {
               sessionStorage.setItem("cgl_workshop_mode_pending", "true");
             } catch {}
@@ -204,7 +204,7 @@ function AcceptInvitePage() {
       }
     }
 
-    fetchInvite();
+    loadInvite();
   }, [
     token,
     t,
@@ -225,7 +225,7 @@ function AcceptInvitePage() {
       // Guest keeps their account instead of getting a second one.
       let result: AcceptInviteResp;
       try {
-        result = (await api.postApiInvitesIdOrTokenAccept(token)).data;
+        result = await acceptInvite(token);
       } catch (err) {
         const { status, body } = failure(err);
         if (status === undefined) throw err;
@@ -320,7 +320,7 @@ function AcceptInvitePage() {
         // - Individual → takes part with their own role, in no organisation
         // - User without role → falls back to AcceptOpenInvite (joins as a Guest)
         try {
-          await api.postApiInvitesIdOrTokenAccept(token);
+          await acceptInvite(token);
         } catch (err) {
           const { status, body } = failure(err);
           if (status === undefined) throw err;

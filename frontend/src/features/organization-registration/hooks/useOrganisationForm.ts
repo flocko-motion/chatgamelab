@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeclaration } from "@/api/hooks";
-import type { OrganisationSignUpReq } from "@/api/generated/api.gen";
+import type { OrganisationSignUpReq } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import { AgeGroup } from "@/constants/ageGroup";
 import { authLogger } from "@/config/logger";

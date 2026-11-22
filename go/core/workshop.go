@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"database/sql"
-	"sort"
 	"strings"
 	"time"
 
@@ -25,20 +24,10 @@ type WorkshopQuery struct {
 	Organisation *uuid.UUID // only this organisation's
 	Search       string     // a name containing it, ignoring case
 	ActiveOnly   bool       // only those that run
-	SortBy       string     // WorkshopSortName, WorkshopSortCreatedAt (the default), WorkshopSortParticipants
-	SortDir      string     // "asc" or "desc"; the default is ascending, but newest first for the default order
 }
 
-// The orders a list of workshops knows.
-const (
-	WorkshopSortName         = "name"
-	WorkshopSortCreatedAt    = "createdAt"
-	WorkshopSortParticipants = "participantCount"
-)
-
 // ListWorkshops lists the workshops whose card the caller may list,
-// {List, WorkshopCard}, narrowed and ordered by q; an unknown order is
-// refused. One query; which grants open which of its fragments is in
+// {List, WorkshopCard}, narrowed by q, newest first. One query; which grants open which of its fragments is in
 // gates.go.
 func ListWorkshops(ctx context.Context, q WorkshopQuery) ([]*WorkshopCard, error) {
 	p := listWorkshopsGates(ctx)
@@ -47,10 +36,6 @@ func ListWorkshops(ctx context.Context, q WorkshopQuery) ([]*WorkshopCard, error
 		p.Search = sql.NullString{String: s, Valid: true}
 	}
 	p.ActiveOnly = q.ActiveOnly
-	less, err := workshopOrder(q.SortBy, q.SortDir)
-	if err != nil {
-		return nil, err
-	}
 	rows, err := store.Queries().V2Workshops(ctx, p)
 	if err != nil {
 		return nil, err
@@ -61,33 +46,7 @@ func ListWorkshops(ctx context.Context, q WorkshopQuery) ([]*WorkshopCard, error
 			return nil, err
 		}
 	}
-	if less != nil {
-		sort.SliceStable(workshops, func(i, j int) bool { return less(workshops[i], workshops[j]) })
-	}
 	return workshops, nil
-}
-
-// workshopOrder is how to order a list by sortBy and sortDir; nil keeps the
-// query's order, newest first.
-func workshopOrder(sortBy, sortDir string) (func(a, b *WorkshopCard) bool, error) {
-	desc := sortDir == "desc"
-	if sortDir != "" && sortDir != "asc" && !desc {
-		return nil, refuse("unknown sort direction %q; known: asc, desc", sortDir)
-	}
-	switch sortBy {
-	case "":
-		return nil, nil
-	case WorkshopSortName:
-		return func(a, b *WorkshopCard) bool { return (a.row.name < b.row.name) != desc }, nil
-	case WorkshopSortCreatedAt:
-		if sortDir == "" {
-			desc = true // newest first, as without an order
-		}
-		return func(a, b *WorkshopCard) bool { return a.row.createdAt.Before(b.row.createdAt) != desc }, nil
-	case WorkshopSortParticipants:
-		return func(a, b *WorkshopCard) bool { return (len(a.participants) < len(b.participants)) != desc }, nil
-	}
-	return nil, refuse("unknown order %q; known: %s, %s, %s", sortBy, WorkshopSortName, WorkshopSortCreatedAt, WorkshopSortParticipants)
 }
 
 // ReadWorkshop opens one workshop's card, if the caller may read it:

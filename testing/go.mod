@@ -5,8 +5,9 @@ go 1.26.0
 require (
 	cgl v0.0.0
 	github.com/drhodes/golorem v0.0.0-20220328165741-da82e5b29246
-	github.com/flocko-motion/schemaf v1.20.0
+	github.com/flocko-motion/schemaf v1.21.1
 	github.com/google/uuid v1.6.0
+	github.com/lib/pq v1.11.2
 	github.com/stretchr/testify v1.12.1
 )
 
@@ -23,7 +24,6 @@ require (
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/lib/pq v1.11.2 // indirect
 	github.com/oapi-codegen/runtime v1.9.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pkg/sftp v1.13.10 // indirect

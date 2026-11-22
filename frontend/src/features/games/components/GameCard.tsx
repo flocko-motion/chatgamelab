@@ -23,7 +23,7 @@ import {
   TextButton,
   GenericIconButton,
 } from "@components/buttons";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import type { ReactNode } from "react";
 import { GameCover } from "@components/GameCover";
 import { GameActionIcon } from "./GameListCells";

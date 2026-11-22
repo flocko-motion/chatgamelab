@@ -19,7 +19,7 @@ import { useState } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import { useApiKeys, useInstitutionApiKeys, useSponsorGame, useRemoveGameSponsor } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
-import type { GameView, KeyShareView } from "@/api/generated/api.gen";
+import type { GameView, KeyShareView } from "@/api/types";
 
 interface SponsorGameModalProps {
   game: Pick<GameView, "id" | "name" | "publicSponsoredApiKeyShareId"> | null;

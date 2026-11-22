@@ -39,6 +39,14 @@ That floor is enforced automatically.
   relation no gate opens.
 - **Wishes only narrow.** Filters, search, sorting and paging come from the
   caller and narrow what the gates let through. An unknown wish is refused.
+- **Every list is one contract.** A list (`core.Lister`: its `ListSpec` and
+  its one query) answers a `core.ListQuery` with a `core.Page`, through
+  `core.List`, which refuses an unknown wish, naming the known ones. Every
+  list endpoint embeds `ListParams` and answers `Page[XView]`; its filters
+  and orders are enums in the API, so the generated clients carry them.
+- **Rights come with the item.** What the caller may do with an item is a
+  `may*` flag on it, computed by the gate the action checks; clients read the
+  flags and work out no right themselves.
 - **The API owns the wire format.** `go/api/wire` converts the core's types
   into JSON, through their public getters and unlocked sections only. A view
   is flat; `hasX` says which sections it holds.

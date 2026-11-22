@@ -7,17 +7,30 @@ import type {
   MessageResp,
   OrganisationView,
   Error as ApiError,
-  ApiKeysResp,
+  ApiKeyView,
   CreateApiKeyReq,
+  OwnApiKeyView,
+  OwnApiKeySort,
+  OrganisationKeySort,
   ShareLinkView,
 } from "../generated/api.gen";
+import { useEntityList, type List, type ListPreset } from "../lists";
 
-// API Keys hooks
+/** The caller's keys and every share of them, for choosing a key. */
+export interface OwnKeysAndShares {
+  apiKeys: ApiKeyView[];
+  shares: KeyShareView[];
+}
+
+/** Every one of the caller's keys, with every share of them (all pages). */
 export function useApiKeys() {
-
-  return useQuery<ApiKeysResp, ApiError>({
-    queryKey: queryKeys.apiKeys,
-    queryFn: () => api.getApiApikeys().then((response) => response.data),
+  return useQuery<OwnKeysAndShares, ApiError>({
+    queryKey: [...queryKeys.apiKeys, "all"],
+    queryFn: () =>
+      api.getApiApikeys().then(({ data }) => ({
+        apiKeys: data.items.map((k) => k.key),
+        shares: data.items.flatMap((k) => k.shares),
+      })),
   });
 }
 
@@ -81,10 +94,10 @@ export function useSetDefaultApiKey() {
 export function useInstitutionApiKeys(institutionId: string) {
 
   return useQuery<KeyShareView[], ApiError>({
-    queryKey: queryKeys.institutionApiKeys(institutionId),
+    queryKey: [...queryKeys.institutionApiKeys(institutionId), "all"],
     queryFn: () =>
       api.getApiInstitutionsIdApikeys(institutionId)
-        .then((response) => response.data),
+        .then((response) => response.data.items),
     enabled: !!institutionId,
   });
 }
@@ -183,3 +196,51 @@ export function useSetInstitutionFreeUseKey() {
 }
 
 
+
+/** An order of the organisation's key list (the server's enum). Its filters are `platform:<id>`. */
+export type OrganisationKeyListSort = OrganisationKeySort;
+
+/** The filter that keeps the keys of one platform. */
+export const platformFilter = (platformId: string) => `platform:${platformId}`;
+
+/** The keys given to an organisation, as a list. */
+export function useOrganisationApiKeys<F extends string>(
+  institutionId: string | undefined,
+  preset: ListPreset<F, OrganisationKeyListSort>,
+): List<KeyShareView, F, OrganisationKeyListSort> {
+  return useEntityList<KeyShareView, F, OrganisationKeyListSort>(
+    preset,
+    {
+      key: (params) => [...queryKeys.institutionApiKeys(institutionId ?? ""), { ...params }],
+      fetch: (params) =>
+        api
+          .getApiInstitutionsIdApikeys(institutionId!, params as KeyListQuery)
+          .then((r) => r.data),
+    },
+    { enabled: !!institutionId },
+  );
+}
+
+/**
+ * One of the caller's own keys: the key, their own use of it (`selfShare`:
+ * what makes it the default or deletes it) and every share of it.
+ */
+export type OwnApiKey = OwnApiKeyView;
+
+/** An order of the own key list (the server's enum). Its filters are `platform:<id>`. */
+export type OwnKeyListSort = OwnApiKeySort;
+
+/** The caller's own keys, as a list. */
+export function useOwnApiKeys<F extends string>(
+  preset: ListPreset<F, OwnKeyListSort>,
+): List<OwnApiKey, F, OwnKeyListSort> {
+  return useEntityList<OwnApiKey, F, OwnKeyListSort>(preset, {
+    key: (params) => [...queryKeys.apiKeys, { ...params }],
+    fetch: (params) => api.getApiApikeys(params as OwnKeyListQuery).then((r) => r.data),
+  });
+}
+
+// A list's parameters come from presets typed by the server's enums; the
+// server refuses what it does not know.
+type KeyListQuery = Parameters<typeof api.getApiInstitutionsIdApikeys>[1];
+type OwnKeyListQuery = Parameters<typeof api.getApiApikeys>[0];

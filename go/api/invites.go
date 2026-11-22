@@ -33,24 +33,43 @@ func (ListInvitesEndpoint) Handle(ctx context.Context, _ ListInvitesReq) (Invite
 	return wire.InviteCardViewsOf(core.ListInvites(ctx, core.InviteFilter{Mine: true}))
 }
 
-// ListAllInvitesEndpoint lists every invite the caller may list: for the
-// admin, all of them.
+// ListAllInvitesEndpoint lists a page of every invite the caller may list,
+// and the total: for the admin, all of them.
 type ListAllInvitesEndpoint struct{}
 
 func (ListAllInvitesEndpoint) Method() string             { return "GET" }
 func (ListAllInvitesEndpoint) Path() string               { return "/api/invites/all" }
 func (ListAllInvitesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListAllInvitesEndpoint) Handle(ctx context.Context, _ ListInvitesReq) (InvitesResp, error) {
-	return wire.InviteCardViewsOf(core.ListInvites(ctx, core.InviteFilter{}))
+func (ListAllInvitesEndpoint) Handle(ctx context.Context, req ListAllInvitesReq) (InvitePageResp, error) {
+	return wire.InviteCardViewPageOf(core.List(ctx, core.Invites(core.InviteFilter{}), req.query()))
 }
 
-// InstitutionInvitesReq names an organisation.
+// InvitePageResp is a page of invites and the total.
+type InvitePageResp = wire.Page[wire.InviteCardView]
+
+// InviteSort orders an invite list; the default is modifiedAt, newest first.
+type InviteSort string
+
+const (
+	InviteSortRole         InviteSort = "role"
+	InviteSortOrganisation InviteSort = "organisation"
+	InviteSortStatus       InviteSort = "status"
+	InviteSortModifiedAt   InviteSort = "modifiedAt"
+)
+
+// ListAllInvitesReq sorts and pages the invite list.
+type ListAllInvitesReq struct {
+	ListParams[NoFilter, InviteSort]
+}
+
+// InstitutionInvitesReq names an organisation, and sorts and pages its invites.
 type InstitutionInvitesReq struct {
 	InstitutionID string `path:"institutionId"`
+	ListParams[NoFilter, InviteSort]
 }
 
-// ListInvitesByInstitutionEndpoint lists an organisation's invites the
-// caller may list: its head and staff (staff without the invites to become
+// ListInvitesByInstitutionEndpoint lists a page of an organisation's invites
+// the caller may list, and the total: its head and staff (staff without the invites to become
 // head), and the admin.
 type ListInvitesByInstitutionEndpoint struct{}
 
@@ -59,12 +78,12 @@ func (ListInvitesByInstitutionEndpoint) Path() string {
 	return "/api/invites/institution/{institutionId}"
 }
 func (ListInvitesByInstitutionEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListInvitesByInstitutionEndpoint) Handle(ctx context.Context, req InstitutionInvitesReq) (InvitesResp, error) {
+func (ListInvitesByInstitutionEndpoint) Handle(ctx context.Context, req InstitutionInvitesReq) (InvitePageResp, error) {
 	org, err := parseID(req.InstitutionID, "Invalid institution ID")
 	if err != nil {
-		return nil, err
+		return InvitePageResp{}, err
 	}
-	return wire.InviteCardViewsOf(core.ListInvites(ctx, core.InviteFilter{Organisation: &org}))
+	return wire.InviteCardViewPageOf(core.List(ctx, core.Invites(core.InviteFilter{Organisation: &org}), req.query()))
 }
 
 // InviteIDOrTokenReq names an invite by its id, or by its link's token.

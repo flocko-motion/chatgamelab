@@ -17,10 +17,12 @@ import (
 type InstitutionResp = wire.OrganisationView
 
 // InstitutionsResp is a list of organisations.
-type InstitutionsResp = []wire.OrganisationView
+// OrganisationViewPageResp is a page of organisations and the total.
+type OrganisationViewPageResp = wire.Page[wire.OrganisationView]
 
 // InstitutionMembersResp is the members of an organisation.
-type InstitutionMembersResp = []wire.UserView
+// MemberPageResp is a page of an organisation's members and the total.
+type MemberPageResp = wire.Page[wire.UserView]
 
 // InstitutionIDReq names an organisation by its id.
 type InstitutionIDReq struct {
@@ -50,24 +52,38 @@ type CreateInstitutionReq struct {
 	City       string `json:"city,omitempty"`
 }
 
-// ListInstitutionsEndpoint lists the organisations the caller may list: an
-// admin all of them, a head or staff their own.
-//
-// filter narrows the list: "recentlyRegistered", those that registered
-// themselves in the last 14 days, among those whose record the caller sees.
-// An unknown filter is refused.
+// ListInstitutionsEndpoint lists a page of the organisations the caller may
+// list, and the total: an admin all of them, a head or staff their own.
 type ListInstitutionsEndpoint struct{}
 
 func (ListInstitutionsEndpoint) Method() string             { return "GET" }
 func (ListInstitutionsEndpoint) Path() string               { return "/api/institutions" }
 func (ListInstitutionsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListInstitutionsEndpoint) Handle(ctx context.Context, req ListInstitutionsReq) (InstitutionsResp, error) {
-	return wire.OrganisationViewsOf(core.ListOrganisations(ctx, req.Filter))
+func (ListInstitutionsEndpoint) Handle(ctx context.Context, req ListInstitutionsReq) (OrganisationViewPageResp, error) {
+	return wire.OrganisationViewPageOf(core.List(ctx, core.Organisations, req.query()))
 }
 
-// ListInstitutionsReq is the filters the list is narrowed by.
+// OrganisationFilter narrows the organisation list.
+type OrganisationFilter string
+
+const (
+	// OrganisationFilterRecentlyRegistered keeps those that registered
+	// themselves in the last 14 days, among those whose record the caller sees.
+	OrganisationFilterRecentlyRegistered OrganisationFilter = "recentlyRegistered"
+)
+
+// OrganisationSort orders the organisation list; the default is name.
+type OrganisationSort string
+
+const (
+	OrganisationSortName         OrganisationSort = "name"
+	OrganisationSortCreatedAt    OrganisationSort = "createdAt"
+	OrganisationSortRegisteredAt OrganisationSort = "registeredAt"
+)
+
+// ListInstitutionsReq filters, sorts and pages the organisation list.
 type ListInstitutionsReq struct {
-	Filter []string `query:"filter"`
+	ListParams[OrganisationFilter, OrganisationSort]
 }
 
 // GetInstitutionEndpoint returns an organisation the caller may read: their
@@ -135,20 +151,36 @@ func (DeleteInstitutionEndpoint) Handle(ctx context.Context, req InstitutionIDRe
 	return MessageResp{Message: "Institution deleted"}, nil
 }
 
-// GetInstitutionMembersEndpoint lists an organisation's members (individual,
-// staff, head): for its members and the admin. Anyone else gets an empty
-// list; an organisation the caller may not read, 404.
+// GetInstitutionMembersEndpoint lists a page of an organisation's members
+// (individual, staff, head), and the total: for its members and the admin.
+// Anyone else gets an empty list; an organisation the caller may not read,
+// 404.
 type GetInstitutionMembersEndpoint struct{}
 
 func (GetInstitutionMembersEndpoint) Method() string             { return "GET" }
 func (GetInstitutionMembersEndpoint) Path() string               { return "/api/institutions/{id}/members" }
 func (GetInstitutionMembersEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetInstitutionMembersEndpoint) Handle(ctx context.Context, req InstitutionIDReq) (InstitutionMembersResp, error) {
+func (GetInstitutionMembersEndpoint) Handle(ctx context.Context, req ListMembersReq) (MemberPageResp, error) {
 	id, err := parseID(req.ID, "Invalid institution ID")
 	if err != nil {
-		return nil, err
+		return MemberPageResp{}, err
 	}
-	return wire.UserViewsOf(core.ListMembers(ctx, id))
+	return wire.UserViewPageOf(core.List(ctx, core.Members(id), req.query()))
+}
+
+// MemberSort orders an organisation's member list; the default is name.
+type MemberSort string
+
+const (
+	MemberSortName  MemberSort = "name"
+	MemberSortEmail MemberSort = "email"
+	MemberSortRole  MemberSort = "role"
+)
+
+// ListMembersReq names the organisation, and sorts and pages its members.
+type ListMembersReq struct {
+	ID string `path:"id"`
+	ListParams[NoFilter, MemberSort]
 }
 
 // RemoveInstitutionMemberEndpoint removes a user from an organisation; they

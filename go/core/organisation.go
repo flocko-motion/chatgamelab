@@ -107,6 +107,10 @@ func organisationCardOf(ctx context.Context, r db.V2OrganisationsRow) (*Organisa
 		mayDelete:       r.MayDelete,
 		maySuspend:      r.MaySuspend,
 	}
+	// the invite rights, from the gate CreateInvite checks; who may invite
+	// lists the invites too (the grant table grants both together)
+	org.mayInviteStaff = mayCreateInvite(ctx, r.ID, false)
+	org.mayInviteHead = mayCreateInvite(ctx, r.ID, true)
 	if org.mayReadRecord {
 		if err := org.loadConsentLog(ctx, r.CreatedBy); err != nil {
 			return nil, err
@@ -193,6 +197,9 @@ type OrganisationCard struct {
 	mayEditDetails  bool
 	mayDelete       bool
 	maySuspend      bool
+
+	mayInviteStaff bool
+	mayInviteHead  bool
 }
 
 func (o *OrganisationCard) ID() uuid.UUID         { return o.row.id }
@@ -224,6 +231,14 @@ func (o *OrganisationCard) MayDelete() bool { return o.mayDelete }
 // MaySuspend says whether the caller may suspend the organisation and lift
 // that: {Suspend, OrganisationCard}.
 func (o *OrganisationCard) MaySuspend() bool { return o.maySuspend }
+
+// MayInviteStaff says whether the caller may invite someone to work in the
+// organisation: {Create, Invite}, in their own organisation or anywhere.
+func (o *OrganisationCard) MayInviteStaff() bool { return o.mayInviteStaff }
+
+// MayInviteHead says whether the caller may invite someone to head the
+// organisation: {Create, HeadInvite}, in their own organisation or anywhere.
+func (o *OrganisationCard) MayInviteHead() bool { return o.mayInviteHead }
 
 // AsOrganisationSettings unlocks how the organisation runs: a flag check, no
 // query.

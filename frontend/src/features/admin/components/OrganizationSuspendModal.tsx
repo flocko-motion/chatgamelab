@@ -4,7 +4,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import { BodyText } from "@components/typography";
-import type { OrganisationView } from "@/api/generated/api.gen";
+import type { OrganisationView } from "@/api/types";
 import { useSetOrganisationSuspension } from "@/api/hooks";
 
 interface OrganizationSuspendModalProps {

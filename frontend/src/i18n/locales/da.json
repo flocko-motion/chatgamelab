@@ -14,6 +14,17 @@
       "under13Blocker": "Du kan ikke oprette din egen konto endnu. Hvis du er under 13, kan du kun bruge ChatGameLab gennem en ungdomsorganisation.",
       "under13Description": "Du kan ikke oprette din egen konto endnu. Hvis du er under 13, kan du kun bruge ChatGameLab gennem en ungdomsorganisation."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Log ud",
+        "message": "Du bliver i denne workshop. Med din kode kan du logge ind igen når som helst på enhver enhed: under “Indtast kode” på startsiden.",
+        "title": "Log ud?"
+      },
+      "leaveWorkshop": "Log ud",
+      "organization": "Organisation",
+      "role": "Gæst",
+      "workshop": "Workshop"
+    },
     "login": {
       "auth0Button": "Log ind med Auth0",
       "devMode": "Udviklingstilstand",
@@ -22,6 +33,8 @@
         "title": "Udviklingstilstand"
       },
       "devModeDescription": "Hurtigt login til udvikling og test",
+      "devNewOrganisation": "Ny person (registrér en organisation)",
+      "devNewPerson": "Ny person (intet valg endnu, som efter tilmelding)",
       "redirecting": {
         "message": "Vent venligst, mens vi omdirigerer dig til login-siden.",
         "title": "Omdirigerer til Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Log ind som lærer"
       },
       "unavailable": {
-        "message": "Der er ingen loginmulighed på denne instans. Workshopdeltagere kan i stedet indtaste deres kode.",
+        "message": "Denne instans tilbyder ikke login. Gæster i en workshop kan i stedet indtaste deres kode.",
         "title": "Login er ikke tilgængeligt"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Sådan vises du i ChatGameLab (højst 24 tegn).",
+      "accountNameLabel": "Visningsnavn",
+      "cityLabel": "By",
+      "confirmAdult": "Jeg er mindst 18 år gammel.",
+      "consentPage": {
+        "constraintIntro": "Med erklæringen forpligter jeres institution sig til at fastsætte en promptbegrænsning for beskyttelse af unge, der passer til jeres målgruppe. Herunder vises den, jeres organisation bruger lige nu. Kontrollér den, og tilpas den om nødvendigt.",
+        "emailDescription": "Vi sender bekræftelsen med erklæringens tekst til denne adresse.",
+        "introExisting": "Jeres organisation “{{name}}” har nu en erklæring, der bekræftes online. Den erstatter den brugeraftale, du tidligere underskrev. Læs den, og godkend den på vegne af jeres institution.",
+        "introNewVersion": "Erklæringen er blevet opdateret (version {{version}}). Læs den nye version, og godkend den på vegne af jeres organisation “{{name}}”.",
+        "introWithdrawn": "Jeres organisations “{{name}}” samtykke til erklæringen blev trukket tilbage, så den er suspenderet. Læs erklæringen, og godkend den på vegne af jeres institution for at bruge ChatGameLab igen.",
+        "logout": "Log ud",
+        "oneHeadIsEnough": "Det er nok, at én organisationsleder godkender. Indtil da er jeres organisation suspenderet: Dens medlemmer kan ikke bruge ChatGameLab.",
+        "submit": "Godkend",
+        "title": "Bekræft erklæringen"
+      },
+      "consentSection": "Bekræftelser",
+      "declarationGermanOnly": "Erklæringen findes kun på tysk. Den tyske tekst er bindende.",
+      "declarationVersion": "Version {{version}}, dateret {{date}}",
+      "emailConfirmHint": "Når du sender formularen, oprettes organisationen med det samme. Bekræftelsen med erklæringens tekst sendes til din e-mailadresse.",
+      "emailDescription": "Vi sender bekræftelsen af erklæringen til denne adresse.",
+      "emailFromLogin": "Dette er adressen til dit login.",
+      "emailLabel": "Arbejdsmailadresse",
+      "errors": {
+        "conflict": "Der findes allerede en konto til dette login. Log ind, og brug opgraderingen i indstillingerne.",
+        "declaration_version_outdated": "Erklæringen er blevet opdateret. Genindlæs siden, og læs den aktuelle version.",
+        "duplicate_name": "Dette visningsnavn er allerede taget.",
+        "emailInvalid": "Indtast en gyldig e-mailadresse.",
+        "email_belongs_to_other_account": "Der findes allerede en konto med denne e-mailadresse. Log ind med den, og vælg “Opgrader til organisation” i indstillingerne.",
+        "formIncomplete": "Udfyld alle obligatoriske felter, og bekræft alle punkter.",
+        "generic": "Noget gik galt. Prøv igen.",
+        "institution_age_not_allowed": "En organisation kan kun registreres med en voksenkonto (18+).",
+        "institution_consents_required": "Bekræft alle punkter.",
+        "institution_name_taken": "Der findes allerede en organisation med dette navn. Udvid navnet, f.eks. med byen.",
+        "loadFailed": "Erklæringen kunne ikke indlæses. Genindlæs siden.",
+        "name_too_long": "Visningsnavnet må højst være på 24 tegn.",
+        "profane_name": "Dette visningsnavn er ikke tilladt.",
+        "required": "Obligatorisk",
+        "validation_error": "Kontrollér dine oplysninger."
+      },
+      "institutionNameLabel": "Institutionens navn",
+      "institutionSection": "Om institutionen",
+      "operatorDescription": "f.eks. by, forening, sogn",
+      "operatorLabel": "Operatør",
+      "personFunctionLabel": "Rolle i institutionen",
+      "personFunctionPlaceholder": "f.eks. leder, ungdomsmedarbejder",
+      "personNameLabel": "For- og efternavn",
+      "personSection": "Om dig",
+      "postalCodeLabel": "Postnummer",
+      "registered": {
+        "text": "Jeres organisation er aktiveret. Du er dens leder og kan nu oprette workshops.",
+        "title": "Organisation registreret"
+      },
+      "streetLabel": "Vej og nummer",
+      "submit": "Registrér organisation",
+      "subtitle": "Når du sender formularen, aktiveres jeres organisation med det samme, og du bliver dens leder.",
+      "switchToPersonal": "Tilbage til valget",
+      "titleRegister": "Registrér en organisation",
+      "toMyOrganization": "Gå til min organisation",
+      "youthProtection": {
+        "changeHint": "Du kan til enhver tid ændre denne indstilling og fastsætte den anderledes for enkelte workshops.",
+        "defaultOption": "Standard fra 13 år",
+        "fieldLabel": "Organisationens promptbegrænsning for beskyttelse af unge",
+        "intro": "AI'en modtager denne instruktion i alle spil i jeres organisation. Vælg den, så den passer til målgruppens alder.",
+        "responsibilityHint": "Forslagene er ikke en officiel aldersklassificering. Jeres institution beslutter indstillingen og er ansvarlig for den.",
+        "suggestionAdults": "for voksne fra {{age}} år",
+        "suggestionChildren": "for børn fra cirka {{age}} år",
+        "suggestionTeens": "for unge fra cirka {{age}} år",
+        "suggestionsLabel": "Forslag (et klik erstatter teksten):",
+        "title": "Promptbegrænsning for beskyttelse af unge",
+        "tooLong": "Højst {{max}} tegn. Forkort den, eller vælg et forslag."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Spil oprettet",
       "gamesPlayed": "Spillede spil",
+      "guestCode": {
+        "error": "Din adgangskode kunne ikke indlæses.",
+        "hint": "Tag et billede af denne kode, eller skriv den ned, og hold den for dig selv. Den giver dig adgang til din konto igen når som helst på enhver enhed: Indtast ordene under “Indtast kode” på startsiden, eller scan QR-koden.",
+        "longTokenHint": "Tag et billede af QR-koden, eller gem linket, og hold det for dig selv. Det giver dig adgang til din konto igen når som helst. Din workshopleder kan give dig en kort kode på fire ord ved at nulstille din adgang.",
+        "title": "Din adgangskode"
+      },
       "memberSince": "Registreret siden",
       "messagesSent": "Sendte beskeder",
       "noOrganization": "Ingen organisation",
@@ -71,6 +163,7 @@
       "role": "Rolle",
       "roles": {
         "admin": "Administrator",
+        "guest": "Gæst",
         "head": "Organisationsleder",
         "individual": "Individ",
         "participant": "Deltager",
@@ -140,6 +233,12 @@
       "individualDescription": "Skab og spil AI-drevne teksteventyr",
       "individualTitle": "Personlig konto",
       "loginLink": "Log ind",
+      "organizationExistingAccount": "Organisationer registrerer sig med et nyt login. Har du allerede en konto?",
+      "organizationIntro": "Til ungdomscentre, skoler og andre institutioner, der vil bruge ChatGameLab i workshops.",
+      "organizationStep1": "Du opretter dit login hos Auth0 (e-mail og adgangskode).",
+      "organizationStep2": "Du indtaster oplysninger om dig selv og din institution, angiver promptbegrænsningen for beskyttelse af unge og godkender erklæringen.",
+      "organizationStep3": "Når du sender formularen, aktiveres organisationen med det samme, og du kan oprette workshops.",
+      "organizationTitle": "Registrér som organisation",
       "privacyPolicy": "Privatlivspolitik",
       "termsOfService": "Vilkår for tjenesten",
       "title": "Opret din konto"
@@ -174,6 +273,7 @@
         "actions": "Handlinger",
         "empty": "Ingen afventende invitationer.",
         "invitedEmail": "Inviteret e-mail",
+        "loadError": "Invitationer kunne ikke indlæses.",
         "modifiedAt": "Ændret",
         "noResults": "Ingen invitationer matcher din søgning.",
         "organization": "Organisation",
@@ -207,30 +307,75 @@
       },
       "organizations": {
         "actions": "Handlinger",
+        "city": "By",
+        "consentGiven": "Erklæring v{{version}} · {{date}}",
+        "consentMissing": "Erklæring afventer",
+        "consentOutdated": "Forældet erklæring (v{{version}})",
+        "consentWithdrawn": "Erklæring trukket tilbage",
         "create": "Opret organisation",
         "createTitle": "Opret ny organisation",
-        "deleteConfirm": "Er du sikker på, at du vil slette \"{{name}}\"? Denne handling kan ikke fortrydes.",
+        "deleteConfirm": "Slet “{{name}}” permanent? Alle workshops og deltagere i organisationen slettes; ledere og workshopledere beholder deres konti. Dette kan ikke fortrydes. Hvis organisationen kun skal miste adgangen, skal du suspendere den i stedet.",
         "deleteTitle": "Slet organisation",
+        "detailsOptional": "Valgfrit: operatør og adresse",
         "editTitle": "Rediger organisation",
         "email": "E-mailadresse",
         "emailPlaceholder": "Indtast e-mailadresse",
         "empty": "Ingen organisationer endnu. Opret en for at komme i gang.",
+        "heads": "Ledere",
         "inviteDescription": "Send en invitation til at tilslutte sig {{name}} som organisationsleder.",
         "inviteTitle": "Inviter til organisation",
+        "lift": "Ophæv suspension",
+        "liftConfirm": "Ophæv suspensionen af “{{name}}”? Alle medlemmer kan derefter bruge organisationen som før, hvis den har godkendt den aktuelle erklæring.",
+        "liftTitle": "Ophæv suspension",
+        "loadError": "Organisationer kunne ikke indlæses.",
         "memberEmail": "E-mail",
         "memberName": "Navn",
         "memberRole": "Rolle",
         "members": "Medlemmer",
         "membersCount": "medlemmer",
         "membersList": "Medlemmer",
+        "membersLoadError": "Medlemmerne kunne ikke indlæses.",
         "name": "Navn",
         "namePlaceholder": "Indtast organisationsnavn",
         "noMembers": "Ingen medlemmer i denne organisation.",
+        "operator": "Operatør",
+        "postalCode": "Postnummer",
         "removeMember": "Fjern medlem",
         "removeMemberConfirm": "Er du sikker på, at du vil fjerne {{name}} fra denne organisation?",
         "searchPlaceholder": "Søg i organisationer...",
         "sendInvite": "Send invitation",
+        "status": "Status og samtykke",
+        "statusActive": "Aktiv",
+        "statusSuspended": "Suspenderet",
+        "statusSuspendedConsent": "Suspenderet: erklæring afventer",
+        "street": "Vej og nummer",
+        "suspend": "Suspender",
+        "suspendConfirm": "Suspendér “{{name}}”? Ledere, workshopledere og deltagere kan derefter ikke længere bruge organisationen. Delte spillinks og offentlige workshopsider holder op med at fungere. Ingen data slettes, og suspensionen kan ophæves når som helst.",
+        "suspendError": "Det virkede ikke. Prøv igen.",
+        "suspendReason": "Årsag (valgfrit)",
+        "suspendReasonDescription": "Kun synlig for administratorer.",
+        "suspendTitle": "Suspendér organisation",
+        "suspendedNoReason": "Suspenderet uden angivelse af årsag",
         "title": "Administrer organisationer"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Ingen organisationer har registreret sig de sidste to uger.",
+          "intro_one": "Denne organisation registrerede sig de sidste to uger og er allerede aktiveret.",
+          "intro_other": "Disse {{count}} organisationer registrerede sig de sidste to uger og er allerede aktiveret.",
+          "label": "Nye organisationer",
+          "later": "Senere",
+          "open": "Gå til oversigten",
+          "suspendHint": "E-mailadresser bekræftes ikke i øjeblikket. Se kort på nye organisationer, og suspendér dem i oversigten, hvis noget er forkert.",
+          "title": "Nye organisationer"
+        },
+        "date": "Registreret",
+        "description": "Organisationer, der selv har registreret sig de sidste to uger. De er aktive med det samme uden at bekræfte e-mailadressen; se på dem, og suspendér en, hvis noget er forkert.",
+        "empty": "Ingen organisationer har selv registreret sig de sidste to uger.",
+        "institution": "Institution",
+        "loadError": "Registreringerne kunne ikke indlæses.",
+        "person": "Underskrevet af",
+        "title": "Nye registreringer"
       },
       "users": {
         "actions": "Handlinger",
@@ -242,6 +387,10 @@
         "email": "E-mail",
         "emailPlaceholder": "Indtast e-mailadresse",
         "empty": "Ingen brugere fundet.",
+        "filters": {
+          "all": "Alle brugere",
+          "noGuests": "Uden gæster"
+        },
         "hideGuests": "Skjul gæster ({{count}})",
         "hideGuestsShort": "Gæster ({{count}})",
         "joined": "Tilsluttet",
@@ -297,7 +446,16 @@
       },
       "copyGame": "Kopiér spil",
       "empty": {
+        "conditions": {
+          "favorites": "en af dine favoritter",
+          "own": "dit",
+          "public": "offentligt",
+          "sponsored": "sponsoreret"
+        },
         "description": "Prøv at justere dine filtre, eller kig forbi senere for nye spil.",
+        "is": "Intet spil er {{conditions}}.",
+        "isAndNamed": "Intet spil er {{conditions}} og har “{{search}}” i navnet.",
+        "named": "Intet spil har “{{search}}” i navnet.",
         "title": "Ingen spil fundet"
       },
       "favorite": "Føj til favoritter",
@@ -308,10 +466,11 @@
         "public": "Offentlige",
         "sponsored": "Sponsorerede"
       },
+      "onlyFavorites": "Vis kun favoritter",
       "play": "Spil",
       "reportGame": "Rapportér spil",
       "restart": "Genstart",
-      "title": "Alle spil",
+      "title": "Spil",
       "unfavorite": "Fjern fra favoritter",
       "workshop": "Workshop / Org"
     },
@@ -346,6 +505,7 @@
         "title": "Slet API-nøgle",
         "warning": "Denne handling kan ikke fortrydes. Nøglen bliver slettet permanent."
       },
+      "empty": "Ingen API-nøgler endnu. Tilføj en for at komme i gang.",
       "errors": {
         "invalidPlatform": "Ugyldig platform valgt. Vælg en gyldig AI-platform.",
         "keyRequired": "API-nøgle er påkrævet",
@@ -355,6 +515,7 @@
       },
       "key": "nøgle",
       "keys": "nøgler",
+      "noResults": "Ingen nøgler matcher din søgning eller dit filter.",
       "platform": "Platform",
       "setDefault": "Angiv som standard",
       "shares": {
@@ -381,11 +542,20 @@
         "unknownWorkshop": "Ukendt workshop",
         "unlimited": "Ubegrænset antal brug"
       },
+      "sort": {
+        "createdAt-asc": "Ældste først",
+        "createdAt-desc": "Nyeste først",
+        "name-asc": "Navn A–Å",
+        "name-desc": "Navn Å–A",
+        "platform-asc": "Platform A–Å",
+        "status-asc": "Fungerende nøgler først"
+      },
       "status": {
         "failed": "Nøglen virker ikke",
         "unknown": "Nøglen er endnu ikke brugt",
         "working": "Nøglen virker"
       },
+      "statusColumn": "Status",
       "subtitle": "Administrer dine API-nøgler til AI-platforme.",
       "title": "API-nøgleadministration",
       "unnamed": "Nøgle uden navn",
@@ -441,6 +611,23 @@
         "myGame": "Mit spil",
         "public": "Offentligt",
         "workshop": "Workshopspil"
+      },
+      "byCreator": "af {{name}}",
+      "cover": {
+        "alt": "Forside til {{name}}",
+        "draw": "Tegn forside",
+        "drawAgain": "Tegn igen",
+        "drawnOnSave": "Forsiden tegnes, når du gemmer spillet.",
+        "errors": {
+          "failed": "Forsiden kunne ikke tegnes. Prøv igen.",
+          "keyRejected": "AI-udbyderen afviste nøglen. Forsiden kunne ikke tegnes.",
+          "noKey": "Ingen af de AI-nøgler, du kan bruge, kan tegne billeder, så spillet har ingen forside endnu."
+        },
+        "hint": "Hvad skal forsiden vise?",
+        "hintDescription": "Valgfrit. Hvis feltet er tomt, viser forsiden, hvad spillet handler om.",
+        "hintPlaceholder": "For eksempel: fyrtårnet om natten",
+        "none": "Ingen forside endnu",
+        "title": "Forside"
       },
       "createButton": "Opret spil",
       "createModal": {
@@ -759,11 +946,15 @@
       "errors": {
         "acceptFailed": "Kunne ikke acceptere invitationen. Prøv igen.",
         "expired": "Dette invitationslink er udløbet.",
+        "guestStays": "Som gæst bliver du dér, hvor du deltog. Hvis du vil deltage i en anden workshop, skal du åbne dens invitationslink uden at logge ind: Du deltager som en ny gæst.",
         "loadFailed": "Kunne ikke indlæse invitationsdetaljer. Prøv igen.",
         "notFound": "Dette invitationslink er ugyldigt eller er blevet tilbagekaldt.",
         "tokenLocked": "For mange mislykkede forsøg – prøv igen senere."
       },
       "goHome": "Gå til forsiden",
+      "guest": {
+        "loggingIn": "Logger dig ind..."
+      },
       "participant": {
         "loggingIn": "Logger dig ind..."
       },
@@ -791,6 +982,20 @@
     "leaveOrganization": "Forlad organisation",
     "leaveTitle": "Forlad organisation",
     "leaveWarning": "Du mister adgang til alle organisationsressourcer og medlemmer.",
+    "list": {
+      "clearSearch": "Ryd søgning",
+      "filter": "Filter",
+      "hideDetails": "Skjul detaljer",
+      "pagination": {
+        "first": "Første side",
+        "last": "Sidste side",
+        "next": "Næste side",
+        "previous": "Forrige side"
+      },
+      "perPage": "Pr. side",
+      "range": "{{from}}–{{to}} af {{total}}",
+      "showDetails": "Vis detaljer"
+    },
     "loading": "Indlæser...",
     "logout": "Log ud",
     "me": "Mig",
@@ -826,6 +1031,7 @@
       "apiKeys": {
         "aboutDescription": "API-nøgler, der deles her, er tilgængelige for alle medlemmer af din organisation til at spille spil.",
         "aboutTitle": "Organisationens API-nøgler",
+        "allPlatforms": "Alle platforme",
         "allowPublicSponsoring": "Tillad offentlig sponsorering",
         "allowPublicSponsoringDesc": "Denne nøgle kan bruges til at sponsorere spil for alle brugere.",
         "filterByPlatform": "Filtrér efter platform",
@@ -844,6 +1050,7 @@
         "owner": "Ejer",
         "platform": "Platform",
         "publicSponsoring": "Offentlig sponsorering",
+        "removeShare": "Fjern fra organisationen",
         "searchPlaceholder": "Søg efter navn eller ejer...",
         "selectKey": "Vælg API-nøgle",
         "selectKeyPlaceholder": "Vælg en nøgle at dele...",
@@ -858,6 +1065,14 @@
         "confirmTitle": "Del nøgle med organisation",
         "orgKeyGroup": "Organisationsnøgler",
         "personalKeyGroup": "Personlige nøgler"
+      },
+      "declaration": {
+        "consented": "Jeres organisation godkendte version {{version}} den {{date}}.",
+        "title": "Samtykkeerklæring",
+        "withdraw": "Træk samtykke tilbage",
+        "withdrawConfirm": "Uden samtykke suspenderes jeres organisation: Ingen medlemmer kan bruge ChatGameLab, før en leder godkender igen. Dataene bevares.",
+        "withdrawFailed": "Det virkede ikke. Prøv igen.",
+        "withdrawTitle": "Træk samtykket tilbage?"
       },
       "demoteConfirm": "Er du sikker på, at du vil degradere \"{{name}}\" ({{email}}) til lærer?",
       "demoteTitle": "Degrader til lærer",
@@ -879,6 +1094,7 @@
       "leaveOrganization": "Forlad organisation",
       "leaveTitle": "Forlad organisation",
       "leaveWarning": "Du mister adgang til alle organisationsressourcer og medlemmer.",
+      "loadError": "Medlemmerne kunne ikke indlæses.",
       "me": "Mig",
       "name": "Navn",
       "noEmail": "Ingen e-mail",
@@ -891,13 +1107,13 @@
       "promoteToHead": "Forfrem til leder",
       "promoteWarning": "Denne bruger får mulighed for at administrere organisationsmedlemmer og invitere lærere.",
       "promptConstraintsFallbackEmpty": "(ikke konfigureret)",
-      "promptConstraintsFallbackHint": "Ingen organisationsbegrænsning er konfigureret. Standardindstillingen for spillerens aldersgruppe på hele siden gælder:",
+      "promptConstraintsFallbackHint": "Der er ikke konfigureret nogen organisationsbegrænsning. Den webstedsdækkende standard for spillerens aldersgruppe gælder:",
       "promptConstraintsFallbackTitle": "Aktivt fallback for hele siden",
       "promptConstraintsFallbackU13": "Under 13",
       "promptConstraintsFallbackU13p": "13–17 (med forældresamtykke)",
       "promptConstraintsFallbackU18": "18 og derover",
       "promptConstraintsHint": "Yderligere AI-instruktioner for alle sessioner i denne organisation. Gælder når der ikke er sat en workshopbegrænsning og for spil, der deles via link.",
-      "promptConstraintsLabel": "Organisationsprompt-begrænsninger",
+      "promptConstraintsLabel": "Organisationens promptbegrænsning for beskyttelse af unge",
       "promptConstraintsPlaceholder": "f.eks. Hold historien alderssvarende og undgå voldeligt indhold.",
       "publicPage": {
         "changeLinkMessage": "Siden vil derefter være tilgængelig på {{url}}.",
@@ -979,6 +1195,8 @@
         "empty": "Ingen workshops endnu.",
         "enterWorkshop": "Gå ind i workshoptilstand",
         "games": "Spil",
+        "guestLinkTitle": "Link til login igen",
+        "guestLinkTitleNamed": "Link til login igen for {{name}}",
         "hideInactive": "Skjul inaktive",
         "inactive": "Inaktiv",
         "inviteByEmail": "Invitér via e-mail",
@@ -1004,9 +1222,11 @@
         "noActiveInvite": "Intet aktivt invitationslink tilgængeligt.",
         "noDefaultApiKey": "Ingen standard API-nøgle",
         "noDefaultModel": "Brug platformstandard",
+        "noGuestToken": "Dette medlem har ikke noget link til login igen. Kun gæster har et.",
         "noIndividuals": "Ingen individuelle brugere i denne organisation.",
         "noParticipantToken": "Denne deltager har ikke et invitationslink. Kun anonyme deltagere (gæster) har genanvendelige invitationslinks.",
         "noParticipants": "Ingen deltagere endnu",
+        "noResults": "Ingen workshops matcher din søgning eller dit filter.",
         "notAuthorized": "Du har ikke tilladelse til at administrere workshops. Kun ledere og lærere har adgang til denne side.",
         "participantGames": "{{count}} spil",
         "participantJoined": "Deltog {{date}}",
@@ -1014,10 +1234,10 @@
         "participantLinkTitleNamed": "Link til at logge ind igen for {{name}}",
         "participantName": "Deltagernavn",
         "participants": "Deltagere",
-        "promptConstraintsFallbackOrg": "Bruger organisationens begrænsning som standard: {{constraint}}",
-        "promptConstraintsFallbackSite": "Bruger sidens begrænsning som standard",
+        "promptConstraintsFallbackOrg": "Organisationens begrænsning bruges som standard: {{constraint}}",
+        "promptConstraintsFallbackSite": "Webstedets begrænsning bruges som standard",
         "promptConstraintsHint": "Yderligere AI-instruktioner for alle sessioner i denne workshop.",
-        "promptConstraintsLabel": "Prompt-begrænsninger",
+        "promptConstraintsLabel": "Promptbegrænsning for beskyttelse af unge",
         "promptConstraintsPlaceholder": "f.eks. Sørg for, at historien er alderssvarende og undgå voldeligt indhold.",
         "removeParticipant": "Fjern deltager",
         "removeParticipantConfirm": "Er du sikker på, at du vil fjerne \"{{name}}\" fra denne workshop?",
@@ -1030,10 +1250,11 @@
         "resetAccessError": "Adgangen kunne ikke nulstilles. Prøv igen.",
         "resetAccessMessage": "Der oprettes et nyt link med en ny kode.",
         "resetAccessTitle": "Vil du nulstille adgangen?",
-        "resetAccessWarning": "Det tidligere link og den tidligere kode holder op med at virke – også på enheder, hvor deltageren i øjeblikket er logget ind.",
+        "resetAccessWarning": "Det tidligere link og den tidligere kode holder op med at virke – også på enheder, hvor gæsten allerede er logget ind.",
         "revokeInvite": "Tilbagekald invitationslink",
         "selectApiKey": "Vælg en API-nøgle",
         "settings": "Indstillinger",
+        "shareGuestLink": "Vis link til login igen",
         "shareParticipantLink": "Vis link til at logge ind igen",
         "showOtherParticipantsGames": "Vis andre deltageres spil",
         "showOtherParticipantsGamesHint": "Ledere og personale kan altid se alle deltageres spil til moderation",
@@ -1047,8 +1268,10 @@
           "participantsAsc": "Færrest deltagere",
           "participantsDesc": "Flest deltagere"
         },
+        "status": "Status",
         "subtitle": "Administrer workshops og inviter deltagere til at samarbejde om spil.",
         "title": "Workshops",
+        "unnamedParticipant": "Deltager uden navn",
         "unpause": "Genoptag workshop",
         "usedCount": "{{count}} anvendelser",
         "viewInviteLink": "Vis invitationslink"
@@ -1071,6 +1294,13 @@
       "title": "Notifikationer",
       "workshopInvite": "Workshopinvitation",
       "workshopInviteDescription": "Du er blevet inviteret til at deltage i denne workshop."
+    },
+    "organisationSuspended": {
+      "byAdmin": "Operatøren har suspenderet din organisations adgang til ChatGameLab. Dine data bevares.",
+      "consentWanted": "Din organisations adgang til ChatGameLab er suspenderet, indtil en af dens ledere godkender den aktuelle samtykkeerklæring. Dine data bevares.",
+      "contact": "Hvis du har spørgsmål, kan du kontakte",
+      "logout": "Log ud",
+      "title": "Organisation suspenderet"
     },
     "play": {
       "cloneGame": "Klon til mine spil",
@@ -1139,16 +1369,16 @@
     "searchPlaceholder": "Søg efter medlemmer...",
     "serverSettings": {
       "constraints": {
-        "description": "Definér obligatoriske AI-regler baseret på spillerens aldersgruppe. Disse begrænsninger indsættes i hvert AI-svar. De gælder for alle loggede brugere uden for workshoptilstand.",
-        "title": "Aldersbaserede prompt-begrænsninger",
+        "description": "Definér obligatoriske AI-regler baseret på spillerens aldersgruppe. Disse begrænsninger indsættes i hvert AI-svar. De gælder for alle brugere, der er logget ind, uden for workshoptilstand.",
+        "title": "Aldersbaserede begrænsningsprompter",
         "u13Hint": "Indsættes i hver AI-prompt for indloggede brugere på 13-17 år uden forældresamtykke registreret.",
-        "u13Label": "Begrænsning for brugere på 13-17 år, uden forældresamtykke (U13)",
+        "u13Label": "Begrænsning for brugere på 13-17 år uden forældresamtykke (U13)",
         "u13Placeholder": "f.eks. Hold alt indhold strengt alderssvarende for teenagere. Ingen vold, ingen romantisk indhold, ingen horror.",
         "u13pHint": "Indsættes i hver AI-prompt for indloggede brugere på 13-17 år med forældresamtykke registreret.",
-        "u13pLabel": "Begrænsning for brugere på 13-17 år, med forældresamtykke (U13p)",
+        "u13pLabel": "Begrænsning for brugere på 13-17 år med forældresamtykke (U13p)",
         "u13pPlaceholder": "f.eks. alderssvarende indhold for teenagere, hvis forældre har givet samtykke. Visse modne temaer tilladt, intet eksplicit indhold.",
         "u18Hint": "Indsættes i hver AI-prompt for loggede brugere på 18 år og derover.",
-        "u18Label": "Begrænsning for brugere 18+ (U18)",
+        "u18Label": "Begrænsning for brugere på 18 år eller derover (U18)",
         "u18Placeholder": "f.eks. Hold indholdet passende. Undgå eksplicit vold eller seksuelt indhold."
       },
       "defaultTier": {
@@ -1273,6 +1503,7 @@
     "duplicateName": "Navnet på dette spil er allerede i brug. Vælg et andet navn.",
     "forbidden": "Du har ikke tilladelse til at udføre denne handling.",
     "generic": "Noget gik galt. Prøv igen.",
+    "guestStays": "Som gæst bliver du dér, hvor du deltog. Hvis du vil deltage i en anden workshop, skal du åbne dens invitationslink uden at logge ind: Du deltager som en ny gæst.",
     "insufficientQuota": "Din API-nøgle er løbet tør for credits. Tilføj flere credits eller brug en anden API-nøgle.",
     "invalidApiKey": "Din API-nøgle er ugyldig eller udløbet. Kontrollér din API-nøgle i indstillinger.",
     "invalidJsonSchema": "Spilkonfigurationen genererede et ugyldigt skema til AI'en. Dette er et spilopsætningsproblem, ikke et API-nøgleproblem. Kontrollér spillets statusfelter og prøv igen.",
@@ -1284,6 +1515,7 @@
     "noApiKey": "Der er ingen API-nøgle tilgængelig til dette spil. Sponsoren kan have fjernet sin nøgle, eller du skal konfigurere din egen API-nøgle.",
     "notFound": "Den ønskede ressource blev ikke fundet.",
     "orgVerificationRequired": "Din OpenAI-organisation skal verificeres for at bruge billedgenereringsfunktionen. Verificer på https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Din organisation er suspenderet. Dine data bevares.",
     "previousResponseNotFound": "AI'en mistede overblikket over denne samtale. Det kan ske, når en session har været inaktiv i et stykke tid. Start en ny session for at fortsætte.",
     "publicDescriptionTooLong": "Beskrivelsen må højst være 2000 tegn lang.",
     "publicSlugInvalid": "Brug a–z, 0–9 og enkelte bindestreger, 3 til 60 tegn.",
@@ -1296,9 +1528,11 @@
       "billing": "Faktureringsfejl",
       "error": "Fejl",
       "gameConfig": "Spilkonfigurationsfejl",
+      "guestStays": "Du bliver, hvor du er",
       "network": "Netværksfejl",
       "noApiKey": "Ingen API-nøgle",
       "notFound": "Ikke fundet",
+      "organisationSuspended": "Organisation suspenderet",
       "permission": "Tilladelse nægtet",
       "server": "Serverfejl",
       "tokenLocked": "Midlertidigt låst",
@@ -1311,6 +1545,28 @@
     "userNotRegistered": "Du skal færdiggøre registreringen, før du fortsætter.",
     "validation": "Kontrollér din indtastning og prøv igen.",
     "workshopInactive": "Denne workshop er deaktiveret. Kontakt din lærer eller workshoparrangør."
+  },
+  "mail": {
+    "consent": {
+      "address": "Adresse",
+      "agreed": "På vegne af din organisation har du godkendt følgende samtykkeerklæring.",
+      "bindingInGerman": "Erklæringen er bindende på tysk og følger derfor på tysk.",
+      "checksum": "Kontrolsum",
+      "copySubject": "Kopi: {{subject}}",
+      "date": "Dato",
+      "dateValue": "{{date}} (Berlin-tid)",
+      "declaredBy": "Erklæret af",
+      "greeting": "Hej {{name}},",
+      "operator": "Operatør",
+      "organisation": "Organisation",
+      "registered": "organisationen “{{organisation}}” er nu aktiv på ChatGameLab. Du er dens leder og kan nu oprette workshops.",
+      "renewed": "tak! ChatGameLab har nu organisationen “{{organisation}}”s samtykke til den aktuelle samtykkeerklæring.",
+      "signature": "Dit ChatGameLab-team\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: organisationen “{{organisation}}” er aktiv – samtykkeerklæring",
+      "subjectRenewed": "ChatGameLab: samtykkeerklæring for “{{organisation}}” bekræftet (version {{version}})",
+      "version": "Version",
+      "versionValue": "{{version}} (pr. {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1353,7 +1609,7 @@
   },
   "navigation": {
     "adminPanel": "Adminpanel",
-    "allGames": "Alle spil",
+    "allGames": "Spil",
     "create": "Skab dit eget spil",
     "createGame": "Opret spil",
     "dashboard": "Dashboard",
@@ -1365,7 +1621,7 @@
     "myOrganization": "Min organisation",
     "myWorkshop": "Min workshop",
     "orgApiKeys": "API-nøgler",
-    "orgConstraints": "Begrænsninger",
+    "orgConstraints": "Promptbegrænsning for beskyttelse af unge",
     "orgMembers": "Medlemmer",
     "orgWorkshops": "Workshops",
     "play": "Spil et spil",
@@ -1374,6 +1630,24 @@
     "workshopSettings": "Workshopindstillinger"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Stil",
+      "condense-scenario": "Forkort scenarie",
+      "condensed-scenario": "Scenarie",
+      "expand": "Fortæl",
+      "image": "Tegn billede",
+      "image-prompt": "Beskriv billede",
+      "image-style": "Tilpas stil",
+      "live-session": "Figur",
+      "observer": "Observatør",
+      "outline": "Planlæg scene",
+      "portrait": "Tegn portræt",
+      "portrait-prompt": "Beskriv portræt",
+      "props-store": "Spilstatus",
+      "rephrase": "Genfortæl handling",
+      "rephrase-audio": "Forstå tale",
+      "start-game": "Start"
+    },
     "errors": {
       "connectionLost": "Forbindelsen til spillet blev afbrudt. Genindlæs for at prøve igen.",
       "imageFailed": "Billedet til denne scene kunne ikke oprettes. Historien fortsætter.",
@@ -1395,6 +1669,11 @@
       "starting": "Starter spillet…",
       "tryAgain": "Prøv igen"
     },
+    "pipeline": {
+      "copied": "Layout kopieret",
+      "copyFailed": "Ingen udklipsholder: Layout logget i konsollen",
+      "copyLayout": "Kopiér layout"
+    },
     "problems": {
       "denied": "Du må ikke spille dette spil.",
       "failed": "Noget gik galt, og spillet kan ikke fortsætte.",
@@ -1402,6 +1681,7 @@
       "keyRejected": "AI-udbyderen afviste dette spils nøgle, så spillet kan ikke fortsætte. Den, der satte spillet op, skal kontrollere nøglen.",
       "noKey": "Der er ingen AI-nøgle tilgængelig til at spille dette spil.",
       "noPlays": "Dette delte spil har ikke flere spilrunder tilbage.",
+      "paused": "Workshoppen er sat på pause. Spillet fortsætter, når den genoptages.",
       "stale": "Dette spil kan ikke længere fortsættes.",
       "unknown": "Denne spilsession findes ikke.",
       "unreachable": "AI-udbyderen svarer ikke lige nu, så spillet kan ikke fortsætte. Prøv igen om et par minutter."
@@ -1418,6 +1698,32 @@
       "hearing": "Hører, hvad du sagde…",
       "hold": "Hold nede for at tale",
       "recording": "Lytter… slip for at sende"
+    },
+    "wires": {
+      "adapted-style\u0003eimage-prompt": "stil",
+      "adapted-style\u0003eimage-style": "anmodning",
+      "adapted-style\u0003estart-game": "klar",
+      "condense-scenario\u0003econdensed-scenario": "svar",
+      "condensed-scenario\u0003econdense-scenario": "anmodning",
+      "condensed-scenario\u0003eimage-prompt": "scenarie",
+      "condensed-scenario\u0003estart-game": "klar",
+      "image-prompt\u0003eimage": "prompt",
+      "image-style\u0003eadapted-style": "svar",
+      "live-session\u0003eobserver": "transskription",
+      "observer\u0003elive-session": "tip",
+      "outline\u0003eexpand": "plan",
+      "outline\u0003eimage-prompt": "scene",
+      "outline\u0003eprops-store": "ændringer",
+      "player-input-audio\u0003elive-session": "tale",
+      "player-input-audio\u0003erephrase-audio": "tale",
+      "player-input-text\u0003erephrase": "handling",
+      "portrait\u0003estart-game": "klar",
+      "portrait-prompt\u0003eportrait": "prompt",
+      "props-store\u0003eoutline": "status",
+      "rephrase\u0003eoutline": "handling",
+      "rephrase-audio\u0003eoutline": "handling",
+      "start-game\u0003elive-session": "signal",
+      "start-game\u0003eoutline": "prompt"
     }
   }
 }

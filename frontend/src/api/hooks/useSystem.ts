@@ -10,6 +10,7 @@ import type {
   Error as ApiError,
   GetVersionResp,
   UpdateSystemSettingsReq,
+  SystemConstraintsResp,
 } from "../generated/api.gen";
 
 // Platforms hook (requires authentication)
@@ -97,5 +98,14 @@ export function useSetSystemFreeUseKey() {
       queryClient.invalidateQueries({ queryKey: queryKeys.systemSettings });
     },
     onError: handleApiError,
+  });
+}
+
+/** The platform's own prompt constraints; loaded only while `enabled`. */
+export function useSystemConstraints(enabled = true) {
+  return useQuery<SystemConstraintsResp, ApiError>({
+    queryKey: queryKeys.systemConstraints,
+    queryFn: () => api.getApiSystemConstraints().then((r) => r.data),
+    enabled,
   });
 }

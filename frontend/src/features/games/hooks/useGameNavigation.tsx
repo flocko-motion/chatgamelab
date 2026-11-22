@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useModals } from "@mantine/modals";
 import { Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import type { Game, SessionView } from "@/api/generated/api.gen";
+import type { Game, SessionView } from "@/api/types";
 
 /** What playing needs of a game: a full game or a list card both do. */
 type GameRef = Pick<Game, "id" | "name">;

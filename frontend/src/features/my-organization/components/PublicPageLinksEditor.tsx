@@ -17,7 +17,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { PublicWorkshopLink } from "@/api/generated/api.gen";
+import type { PublicWorkshopLink } from "@/api/types";
 import { PUBLIC_LINKS_MAX } from "@/common/lib/publicWorkshop";
 
 interface PublicPageLinksEditorProps {

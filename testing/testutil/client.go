@@ -166,6 +166,18 @@ func decode[T any](r response, err error) (T, error) {
 	return out, nil
 }
 
+// page is how every list endpoint answers: one page and the total.
+type page[T any] struct {
+	Items []T `json:"items"`
+	Total int `json:"total"`
+}
+
+// decodeItems reads a list endpoint's page as its items.
+func decodeItems[T any](r response, err error) ([]T, error) {
+	p, err := decode[page[T]](r, err)
+	return p.Items, err
+}
+
 // done reports whether the call succeeded, ignoring any body.
 func done(r response, err error) error {
 	if err != nil {
