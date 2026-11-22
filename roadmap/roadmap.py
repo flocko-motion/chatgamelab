@@ -209,7 +209,23 @@ for i in backlog:
     issues[i["number"]] = i
 
 # The roadmap as data, for the interactive page.
+import re
 from datetime import datetime, timezone
+
+
+def summary(body, limit=600):
+    """An epic's first prose paragraph, markdown stripped, for the page to show
+    as many lines of as fit. Headings, tables, lists and code are skipped."""
+    for para in re.split(r"\n\s*\n", body or ""):
+        para = para.strip()
+        if not para or para[0] in "#|-*>`<" or re.match(r"\d+\.\s", para):
+            continue
+        text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", para)
+        text = re.sub(r"[`*_]{1,2}([^`*_]+)[`*_]{1,2}", r"\1", text)
+        text = " ".join(text.split())
+        return text if len(text) <= limit else text[:limit].rsplit(" ", 1)[0] + "…"
+    return ""
+
 
 def item(n):
     i = issues[n]
@@ -234,6 +250,7 @@ data = {
         "number": epic["number"],
         "title": epic["title"],
         "url": epic["html_url"],
+        "description": summary(epic.get("body")),
         "done": sum(1 for n in nums if not is_open(n)),
         "total": len(nums),
         "waitsOn": sorted(waits_on[epic["number"]]),
