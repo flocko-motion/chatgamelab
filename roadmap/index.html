@@ -84,6 +84,8 @@
                     line-height: 1; padding: 2px 6px; color: var(--muted); }
   #details .kind { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
   #details h3 { font-size: 20px; line-height: 1.3; margin: 4px 24px 10px 0; }
+  #details h3 a.gh { text-decoration: none; }
+  #details h3 a.gh:hover { text-decoration: underline; color: var(--accent); }
   #details dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 12px; }
   #details dt { color: var(--muted); }
   #details dd { margin: 0; }
@@ -620,6 +622,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const details = document.getElementById("details");
   const aside = document.querySelector("aside");
   let selected = null;
+  // The title in the side pane is the link to GitHub.
+  const gh = (url, text) => `<a class="gh" href="${url}" target="_blank" rel="noopener" title="Open on GitHub">${text} ↗</a>`;
   const badge = st => `<span class="badge ${st}">${st}</span>`;
   const show = (kind, n, text) => `<a href="#" data-show="${kind}:${n}">${text}</a>`;
   const issueLine = i => `<li>${badge(i.state)} ${show("issue", i.number, `#${i.number}`)} ${escapeHtml(i.title)}</li>`;
@@ -641,7 +645,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
         ["Priority", i.priority ? `P${i.priority}` : ""],
         ["Closed", i.closedAt ? new Date(i.closedAt).toLocaleDateString() : ""],
       ].filter(([, v]) => v);
-      return { url: i.url, html: `<div class="kind">Issue</div><h3>#${i.number} ${escapeHtml(i.title)}</h3>` +
+      return { url: i.url, html: `<div class="kind">Issue</div><h3>${gh(i.url, `#${i.number} ${escapeHtml(i.title)}`)}</h3>` +
         `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>` +
         (i.blockedBy.length ? `<h4>Waits for</h4><ul>${i.blockedBy.map(issueRef).join("")}</ul>` : "") +
         (blocks.length ? `<h4>Blocks</h4><ul>${blocks.map(issueLine).join("")}</ul>` : "") };
@@ -655,7 +659,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
           `<ul>${p.issues.slice().sort((a, b) => (a.state === "done") - (b.state === "done") || a.number - b.number).map(issueLine).join("")}</ul>`;
       }).join("");
       const waitedBy = data.epics.filter(o => o.waitsOn.includes(n)).map(o => o.number);
-      return { url: e.url, html: `<div class="kind">Epic</div><h3>#${e.number} ${escapeHtml(e.title)}</h3>` +
+      return { url: e.url, html: `<div class="kind">Epic</div><h3>${gh(e.url, `#${e.number} ${escapeHtml(e.title)}`)}</h3>` +
         `<dl><dt>State</dt><dd>${badge(e.state)}</dd><dt>Done</dt><dd>${e.done} / ${e.total}</dd></dl>${progress(e.done, e.total)}` +
         (e.waitsOn.length ? `<h4>Waits for</h4><ul>${e.waitsOn.map(epicRef).join("")}</ul>` : "") +
         (waitedBy.length ? `<h4>Blocks</h4><ul>${waitedBy.map(epicRef).join("")}</ul>` : "") + groups };
@@ -665,7 +669,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       if (!m) return null;
       const rank = msRank.get(n);
       const inIt = data.epics.filter(e => piecesOf(e.number).some(p => p.rank === rank)).map(e => e.number);
-      return { url: m.url, html: `<div class="kind">Milestone</div><h3>◆ ${escapeHtml(m.title)}</h3>` +
+      return { url: m.url, html: `<div class="kind">Milestone</div><h3>${gh(m.url, `◆ ${escapeHtml(m.title)}`)}</h3>` +
         `<dl><dt>Due</dt><dd>${m.due ? new Date(m.due).toLocaleDateString() : "no due date"}</dd>` +
         `<dt>Done</dt><dd>${m.closed} / ${m.open + m.closed}</dd></dl>${progress(m.closed, m.open + m.closed)}` +
         (inIt.length ? `<h4>Epics</h4><ul>${inIt.map(epicRef).join("")}</ul>` : "") };
