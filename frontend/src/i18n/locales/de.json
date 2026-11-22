@@ -1524,7 +1524,10 @@
     "pipeline": {
       "copyLayout": "Layout kopieren",
       "copied": "Layout kopiert",
-      "copyFailed": "Keine Zwischenablage: Layout in der Konsole ausgegeben"
+      "copyFailed": "Keine Zwischenablage: Layout in der Konsole ausgegeben",
+      "compact": "Thread verdichten",
+      "compacting": "Wird verdichtet…",
+      "compactFailed": "Verdichten fehlgeschlagen"
     },
     "blocks": {
       "image-style": "Stil anpassen",

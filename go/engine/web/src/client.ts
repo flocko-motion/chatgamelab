@@ -17,6 +17,7 @@ export type {
   Sample,
   Settled,
   Snapshot,
+  ThreadFill,
   TierOption,
   Toggles,
   Topology,

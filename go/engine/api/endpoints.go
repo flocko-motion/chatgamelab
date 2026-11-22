@@ -298,6 +298,27 @@ func (e NodeEndpoint) Handle(ctx context.Context, req NodeRequest) (engine.NodeD
 	return detail, nil
 }
 
+// CompactEndpoint asks a block's thread to compact now, between calls: it
+// summarises the thread whatever its fill, the block working meanwhile and
+// paying for the summary. A block on no thread is refused.
+type CompactEndpoint struct{ API *API }
+
+func (CompactEndpoint) Method() string { return "POST" }
+func (CompactEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/compact"
+}
+func (CompactEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e CompactEndpoint) Handle(ctx context.Context, req NodeRequest) (Accepted, error) {
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return Accepted{}, err
+	}
+	if err := s.Compact(req.Node); err != nil {
+		return Accepted{}, rejected(err)
+	}
+	return Accepted{}, nil
+}
+
 // EdgeRequest names one wire of a session by its ends and kind.
 type EdgeRequest struct {
 	ID   string `path:"id"`

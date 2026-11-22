@@ -131,3 +131,16 @@ aside h2 {
   cursor: pointer;
 }
 .copy-layout:hover { color: var(--gray-9); border-color: var(--gray-6); }
+
+/* Compacts a block's thread now, to test how well a summary keeps the story. */
+.compact {
+  margin-top: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.6875rem;
+  color: var(--gray-7);
+  background: var(--panel);
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.compact:hover:not([disabled]) { color: var(--gray-9); border-color: var(--gray-6); }

@@ -12,8 +12,9 @@ const (
 )
 
 // ModelFacts is what the engine knows of one model: what it takes, what it
-// makes, and its price, read on a date from a source, as providers publish no
-// prices through their APIs.
+// makes, its price, read on a date from a source, as providers publish no
+// prices through their APIs, and, for a model a story thread runs on, its
+// context window, read the same way.
 type ModelFacts struct {
 	In    []Medium `json:"in"`
 	Out   []Medium `json:"out"`
@@ -21,6 +22,21 @@ type ModelFacts struct {
 	// Read is the date the price was read, as YYYY-MM-DD.
 	Read   string `json:"read"`
 	Source string `json:"source"`
+	// Window is the context window in tokens: the most a call's input and
+	// reply may hold together. Zero is unknown, and a thread on the model
+	// never compacts.
+	Window int `json:"window,omitempty"`
+	// WindowRead is the date the window was read, as YYYY-MM-DD, and
+	// WindowSource where.
+	WindowRead   string `json:"windowRead,omitempty"`
+	WindowSource string `json:"windowSource,omitempty"`
+}
+
+// Windowed is the entry with the model's context window, read on a date from
+// a source.
+func (f ModelFacts) Windowed(tokens int, read, source string) ModelFacts {
+	f.Window, f.WindowRead, f.WindowSource = tokens, read, source
+	return f
 }
 
 // Takes reports whether the model takes a medium.
@@ -40,6 +56,10 @@ func (t ModelTable) Price(model string) (Price, bool) {
 	facts, ok := t[model]
 	return facts.Price, ok
 }
+
+// Window reports a model's context window in tokens, zero when the table
+// does not know it.
+func (t ModelTable) Window(model string) int { return t[model].Window }
 
 // Clone is a copy sharing no slice with the table.
 func (t ModelTable) Clone() ModelTable {

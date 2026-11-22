@@ -700,6 +700,9 @@ export interface ModelFacts {
   price: Price;
   read: string;
   source: string;
+  window?: number;
+  windowRead?: string;
+  windowSource?: string;
 }
 
 export interface NamedRef {
@@ -721,6 +724,7 @@ export interface NodeDetail {
   outputs: Sample[];
   phase: string;
   role: string;
+  thread?: ThreadFill;
   type: string;
   usage?: UsageRecord;
 }
@@ -1096,6 +1100,11 @@ export interface SystemSettings {
 
 export interface ThemeInfo {
   id: string;
+}
+
+export interface ThreadFill {
+  tokens: number;
+  window: number;
 }
 
 export interface TierModels {
@@ -2382,6 +2391,26 @@ export class Api<
       }),
 
     /**
+     * @description The thread summarises whatever its fill, the block working meanwhile and paying for the summary; for testing how well compaction keeps a story. A block on no thread is refused.
+     *
+     * @name PostApiEngineSessionsIdNodesNodeCompact
+     * @summary Asks a block's thread to compact now.
+     * @request POST:/api/engine/sessions/{id}/nodes/{node}/compact
+     * @secure
+     */
+    postApiEngineSessionsIdNodesNodeCompact: (
+      id: string,
+      node: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/nodes/${node}/compact`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description And what the session settled on.
      *
      * @name GetApiEngineSessionsIdOptions
@@ -3202,7 +3231,7 @@ export class Api<
       }),
 
     /**
-     * @description (individual, staff, head), and the total: for its members and the admin. Anyone else gets an empty list; an organisation the caller may not read, 404.
+     * @description (head and staff), and the total: for its members and the admin. Anyone else gets an empty list; an organisation the caller may not read, 404.
      *
      * @name GetApiInstitutionsIdMembers
      * @summary Lists a page of an organisation's members
@@ -3340,7 +3369,7 @@ export class Api<
       }),
 
     /**
-     * @description an organisation as head, staff or individual (staff by default). Head and staff invite into their organisation, only heads as head; the admin into any.
+     * @description an organisation as head or staff (staff by default): accepting, they become it. Head and staff invite into their organisation, only heads as head; the admin into any.
      *
      * @name PostApiInvitesInstitution
      * @summary Invites an account, by id or email, into

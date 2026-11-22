@@ -144,7 +144,7 @@ func (r *Realtime) ready(ctx context.Context, turn adapters.ThreadTurn) (*realti
 		}
 	}
 	r.drop()
-	s, err := r.open(ctx, turn.System, turn.Transcript)
+	s, err := r.open(ctx, turn.System, turn.Summary, turn.Transcript)
 	if err != nil {
 		return nil, err
 	}
@@ -161,8 +161,9 @@ func (r *Realtime) drop() {
 }
 
 // open connects a fresh session, configures it with the System Message, and
-// seeds it with the transcript, each exchange as it was sent.
-func (r *Realtime) open(ctx context.Context, system string, transcript []adapters.Exchange) (*realtimeSession, error) {
+// seeds it with the summary, as the game's system message, and the
+// transcript, each exchange as it was sent.
+func (r *Realtime) open(ctx context.Context, system, summary string, transcript []adapters.Exchange) (*realtimeSession, error) {
 	key, err := r.keys(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("resolve api key: %w", err)
@@ -203,6 +204,9 @@ func (r *Realtime) open(ctx context.Context, system string, transcript []adapter
 			"output": map[string]any{"voice": r.voice, "format": map[string]any{"type": "audio/pcm", "rate": 24000}},
 		},
 	}})
+	if err == nil && summary != "" {
+		err = s.add(ctx, textItem("system", "input_text", summary))
+	}
 	for _, e := range transcript {
 		if err != nil {
 			break

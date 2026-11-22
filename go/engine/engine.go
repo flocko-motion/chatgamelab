@@ -14,6 +14,7 @@ import (
 	"engine/internal/adapters/mistral"
 	"engine/internal/adapters/mock"
 	"engine/internal/adapters/openai"
+	"engine/internal/blocks"
 	"engine/internal/genre"
 	"engine/internal/ports"
 )
@@ -275,6 +276,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 			Tool:                &s.slots.tool,
 			Hearing:             &s.slots.hearing,
 			Thread:              &s.slots.thread,
+			Window:              s.usage.window,
 			Image:               &s.slots.image,
 			Scenario:            spec.Scenario,
 			Guardrail:           spec.Guardrail,
@@ -555,7 +557,15 @@ type NodeDetail struct {
 	ports.NodeDetail
 	Phase string       `json:"phase"`
 	Usage *UsageRecord `json:"usage,omitempty"`
+	// Thread is how full the block's thread is, for a block on a thread; such
+	// a block can compact it on demand.
+	Thread *ThreadFill `json:"thread,omitempty"`
 }
+
+// ThreadFill is how full a thread is: the input of its last call, in tokens,
+// and the context window of the model it ran on, zero when unknown. Both are
+// zero before a call, and after a compaction until the next one.
+type ThreadFill = blocks.ThreadFill
 
 // Inspect reports what is known about one block.
 func (s *Session) Inspect(name string) (NodeDetail, bool) {
@@ -576,7 +586,21 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 			break
 		}
 	}
+	if b, onThread := s.wiring.OnThread[name]; onThread {
+		fill := b.Thread().Fill()
+		detail.Thread = &fill
+	}
 	return detail, true
+}
+
+// Compact asks a block's thread to compact now, between calls: it summarises
+// the thread whatever its fill, the block working meanwhile and paying for
+// the summary. A block on no thread is refused.
+func (s *Session) Compact(block string) error {
+	if err := s.playing(); err != nil {
+		return err
+	}
+	return s.wiring.Compact(block)
 }
 
 // InspectEdge reports what one wire has carried.

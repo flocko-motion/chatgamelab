@@ -15,10 +15,9 @@ import (
 	"engine/internal/ports"
 )
 
-// Thread is one conversation on the story model, shared by the threaded
-// blocks that take part in it, such as Outline and Expand. It runs one call
-// at a time, in the order the blocks joined: the next turn's Outline waits
-// for Expand.
+// Thread is one conversation on a model, shared by the threaded blocks that
+// take part in it. It runs one call at a time, in the order the blocks joined: each block holds
+// a seat, and calls when its seat holds the turn.
 //
 // The thread holds the System Message, sent once as the start of the provider
 // thread, and the constraints, worded, which a block's call carries as often
@@ -27,6 +26,17 @@ import (
 // Its state is exported once, under its own name: the continuation, the model
 // and offer it was made on, and the transcript, which seeds a fresh provider
 // thread when the continuation cannot be used.
+//
+// The thread compacts itself before it outgrows its model's context window:
+// right after a call whose input passed CompactAt of its model's window,
+// before the thread hands the turn on, so the next call waits. Input that
+// carried audio, as a Realtime session holds spoken replies, is answered by a fresh provider
+// thread seeded from the transcript, which holds every reply as text. Input
+// that carried none is answered by a summary: the model is sent the summary
+// request, on the thread itself, and a fresh provider thread is seeded with the
+// System Message, the summary and the last KeptExchanges exchanges. The
+// transcript keeps every exchange. A compaction that fails leaves the thread
+// as it was, and it tries again after its next call.
 type Thread struct {
 	name    string
 	adapter adapters.Thread
@@ -34,22 +44,83 @@ type Thread struct {
 	// worded for a call to carry, empty when there is none.
 	system, constraints string
 
+	// Compaction is when and how the thread compacts. Set before Start.
+	Compaction Compaction
+
 	// seats pass the turn round: a block calls when it holds its seat, and
 	// hands the turn to the next one when its call is done.
 	seats []chan struct{}
+
+	// calling holds one provider call at a time: a block's call, or a
+	// compaction, asked for by the thread or on demand.
+	calling sync.Mutex
 
 	// Guarded because ExportState is called from the caller's goroutine while
 	// the blocks are calling.
 	mu    sync.Mutex
 	state threadState
+	// last is the usage of the last call kept, which says whether the thread
+	// compacts; zero once it has been read.
+	last adapters.Usage
+	// fill is the usage of the last call kept, how full the provider thread
+	// is; zero once a compaction replaced it, until the next call.
+	fill adapters.Usage
+}
+
+// ThreadFill is how full a thread is: the input of its last call, in tokens, and
+// the context window of the model it ran on, zero when unknown. Both are
+// zero before a call, and after a compaction until the next one.
+type ThreadFill struct {
+	Tokens int64 `json:"tokens"`
+	Window int   `json:"window"`
+}
+
+// Fill reports how full the thread is.
+func (t *Thread) Fill() ThreadFill {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	fill := ThreadFill{Tokens: t.fill.Context()}
+	if t.Compaction.Window != nil && t.fill.Model != "" {
+		fill.Window = t.Compaction.Window(t.fill.Model)
+	}
+	return fill
 }
 
 // threadState is what a stored session keeps of the thread.
 type threadState struct {
 	Continuation adapters.Continuation `json:"continuation"`
-	// Transcript holds whole replies only.
+	// Transcript holds whole replies only, every one the thread kept.
 	Transcript []adapters.Exchange `json:"transcript,omitempty"`
+	// Summary is the transcript before From, condensed; empty before the thread
+	// first compacted. From is the first exchange after it, where a seed's
+	// transcript starts.
+	Summary string `json:"summary,omitempty"`
+	From    int    `json:"from,omitempty"`
 }
+
+// Compaction is what a thread needs to compact itself: its model's context
+// window and the summary request. A thread missing either never compacts.
+type Compaction struct {
+	// Window is a model's context window in tokens, zero when unknown.
+	Window func(model string) int
+	// Request asks the model for a summary of the thread so far, sent as the
+	// game's own message; its reply goes to the engine only.
+	Request string
+}
+
+// seed is the part of the transcript a fresh provider thread is seeded with:
+// the exchanges after the summary. Called with mu held.
+func (s threadState) seed() []adapters.Exchange {
+	return slices.Clone(s.Transcript[min(s.From, len(s.Transcript)):])
+}
+
+// CompactAt is the share of its model's context window a call's input may
+// take before the thread compacts.
+const CompactAt = 0.5
+
+// KeptExchanges is how many of the last exchanges a summary leaves word for
+// word, seeded after it.
+const KeptExchanges = 6
 
 // NewThread builds a conversation that starts with the System Message; the
 // constraints are what a call carries of the youth-protection rule.
@@ -85,8 +156,15 @@ func (t *Thread) take(ctx context.Context, seat int) bool {
 	}
 }
 
-// pass hands the turn to the next seat.
-func (t *Thread) pass(seat int) {
+// pass hands the turn to the next seat, once the thread has compacted if the
+// call just kept crowded its window. The block that made the call waits,
+// working, and pays for the summary.
+func (t *Thread) pass(ctx context.Context, seat int, m *meter, backoff []time.Duration) {
+	if last, crowded := t.takeLast(); crowded {
+		if used := t.compact(ctx, last.HeardAudio(), backoff); used != (adapters.Usage{}) {
+			m.bill(used)
+		}
+	}
 	t.seats[(seat+1)%len(t.seats)] <- struct{}{}
 }
 
@@ -143,6 +221,8 @@ type threadCall struct {
 // continuation and the exchange. A failure, or a reply the call does not
 // accept, leaves the state as it was; the reply's usage comes back either way.
 func (t *Thread) call(ctx context.Context, c threadCall) (adapters.ThreadReply, error) {
+	t.calling.Lock()
+	defer t.calling.Unlock()
 	t.mu.Lock()
 	turn := adapters.ThreadTurn{
 		System:       t.system,
@@ -151,7 +231,8 @@ func (t *Thread) call(ctx context.Context, c threadCall) (adapters.ThreadReply, 
 		Schema:       c.schema,
 		Speak:        c.speak,
 		Continuation: t.state.Continuation,
-		Transcript:   slices.Clone(t.state.Transcript),
+		Summary:      t.state.Summary,
+		Transcript:   t.state.seed(),
 		Piece:        c.piece,
 		Audio:        c.audio,
 	}
@@ -182,7 +263,90 @@ func (t *Thread) call(ctx context.Context, c threadCall) (adapters.ThreadReply, 
 	defer t.mu.Unlock()
 	t.state.Continuation = reply.Continuation
 	t.state.Transcript = append(t.state.Transcript, turn.Exchange(c.block, reply.Text))
+	t.last, t.fill = reply.Usage, reply.Usage
 	return reply, nil
+}
+
+// takeLast hands over the usage of the last call kept, and whether it took
+// more of its model's window than CompactAt. It forgets the call, so the call
+// is answered once.
+func (t *Thread) takeLast() (adapters.Usage, bool) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	last := t.last
+	t.last = adapters.Usage{}
+	if t.Compaction.Window == nil || t.Compaction.Request == "" || last.Model == "" {
+		return last, false
+	}
+	window := t.Compaction.Window(last.Model)
+	return last, window > 0 && float64(last.Context()) > CompactAt*float64(window)
+}
+
+// CompactNow compacts the thread at once, between calls, with a summary
+// whatever the last call's input carried, as a block asks for it on demand.
+// It reports what the summary request cost; a thread without a summary
+// request does nothing.
+func (t *Thread) CompactNow(ctx context.Context, backoff []time.Duration) adapters.Usage {
+	if t.Compaction.Request == "" {
+		return adapters.Usage{}
+	}
+	return t.compact(ctx, false, backoff)
+}
+
+// compact replaces the provider thread: with a fresh one seeded from the
+// transcript when reseed says so, as for a call whose input carried audio,
+// otherwise with one seeded from a summary. A summary request that may pass
+// is made again after each backoff. It reports what the request cost, and
+// leaves the thread as it was when it fails.
+func (t *Thread) compact(ctx context.Context, reseed bool, backoff []time.Duration) adapters.Usage {
+	t.calling.Lock()
+	defer t.calling.Unlock()
+	t.mu.Lock()
+	if reseed {
+		t.state.Continuation = adapters.Continuation{}
+		t.fill = adapters.Usage{}
+		t.mu.Unlock()
+		return adapters.Usage{}
+	}
+	turn := adapters.ThreadTurn{
+		System:       t.system,
+		Input:        t.Compaction.Request,
+		Directive:    true,
+		Constraints:  t.constraints,
+		Continuation: t.state.Continuation,
+		Summary:      t.state.Summary,
+		Transcript:   t.state.seed(),
+	}
+	t.mu.Unlock()
+
+	var spent adapters.Usage
+	for retries := 0; ; retries++ {
+		reply, err := t.adapter.Continue(ctx, turn)
+		spent.Add(reply.Usage)
+		if err == nil && strings.TrimSpace(reply.Text) == "" {
+			err = adapters.BadReply(t.name, "an empty summary")
+		}
+		if err == nil {
+			t.mu.Lock()
+			defer t.mu.Unlock()
+			t.state.Summary = strings.TrimSpace(reply.Text)
+			t.state.From = max(len(t.state.Transcript)-KeptExchanges, 0)
+			t.state.Continuation = adapters.Continuation{}
+			t.fill = adapters.Usage{}
+			return spent
+		}
+		if id := reply.Continuation.ID; id != "" && id == turn.Continuation.ID {
+			// The provider continued in place, as Mistral appends to its
+			// stored conversation, so it holds the request: the next call
+			// goes to a fresh thread seeded from the transcript.
+			t.mu.Lock()
+			t.state.Continuation = adapters.Continuation{}
+			t.mu.Unlock()
+		}
+		if !errors.Is(err, adapters.ErrTransient) || retries == len(backoff) || !sleep(ctx, backoff[retries]) {
+			return spent
+		}
+	}
 }
 
 func (t *Thread) ExportState() string {
@@ -206,6 +370,32 @@ func (t *Thread) RestoreState(s string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.state = state
+}
+
+// OnThread is a block that takes part in a thread: it names the thread, and
+// asks it to compact on demand.
+type OnThread interface {
+	ports.Named
+	Thread() *Thread
+	Compact()
+}
+
+// request asks once: a request while one waits is the same request.
+func request(asks chan struct{}) {
+	select {
+	case asks <- struct{}{}:
+	default:
+	}
+}
+
+// compactNow compacts a block's thread on its request, the block working
+// meanwhile and paying for the summary.
+func compactNow(ctx context.Context, t *Thread, name string, state *ports.StateBroadcast, m *meter, backoff []time.Duration) {
+	state.Send(ports.State{Node: name, Phase: ports.PhaseWorking})
+	if used := t.CompactNow(ctx, backoff); used != (adapters.Usage{}) {
+		m.bill(used)
+	}
+	state.Send(ports.State{Node: name, Phase: ports.PhaseReady})
 }
 
 // Constrained is a block whose calls carry the constraints, as often as its
@@ -257,11 +447,10 @@ func (p Prompt) message(cued bool) string {
 
 // Threaded is one block's part in a thread: the text it receives makes the
 // call, and its message is its prompt, the game's own message on the thread.
-// Expand is one: the outline it narrates is already on the thread, as the
-// reply before. Its outputs are the reply streamed piece by piece, each reply
+// Its outputs are the reply streamed piece by piece, each reply
 // closed with PieceClose, and the whole reply once finished.
 //
-// While its Narration switch is on, its turns are spoken: the model says the
+// While its Spoken switch is on, its calls are spoken: the model says the
 // reply, the transcript streams and is the reply, and the audio goes out on a
 // third output as it comes.
 //
@@ -294,19 +483,20 @@ type Threaded struct {
 	// before Start.
 	Clean func(string) string
 
-	in        ports.TextInput
-	stream    ports.StreamBroadcast
-	whole     ports.TextBroadcast
-	audio     ports.AudioBroadcast
-	state     ports.StateBroadcast
-	meter     meter
-	narration narration
+	in       ports.TextInput
+	compacts chan struct{}
+	stream   ports.StreamBroadcast
+	whole    ports.TextBroadcast
+	audio    ports.AudioBroadcast
+	state    ports.StateBroadcast
+	meter    meter
+	spoken   spoken
 }
 
-// narration is the switch that has a block's turns spoken; off until set.
-type narration struct{ on atomic.Bool }
+// spoken is the switch that has a block's calls spoken; off until set.
+type spoken struct{ on atomic.Bool }
 
-func (n *narration) SetActive(on bool) { n.on.Store(on) }
+func (s *spoken) SetActive(on bool) { s.on.Store(on) }
 
 // NewThreaded builds a block that takes part in the thread, in turn after the
 // blocks built on it before.
@@ -319,9 +509,18 @@ func NewThreaded(name string, thread *Thread, prompt Prompt) *Threaded {
 		Backoff:  []time.Duration{time.Second, 2 * time.Second, 4 * time.Second, 8 * time.Second},
 		Attempts: 3,
 		in:       make(ports.TextInput, 16),
+		compacts: make(chan struct{}, 1),
 		meter:    meter{name: name},
 	}
 }
+
+// Thread is the thread the block takes part in.
+func (b *Threaded) Thread() *Thread { return b.thread }
+
+// Compact asks the block's thread to compact now, between calls; the block
+// shows working meanwhile and pays for the summary. A request while one waits
+// is the same request.
+func (b *Threaded) Compact() { request(b.compacts) }
 
 func (b *Threaded) NodeName() string             { return b.name }
 func (b *Threaded) TextInPort() chan<- string    { return b.in }
@@ -337,9 +536,9 @@ func (b *Threaded) TextOutPort() <-chan string { return b.whole.Subscribe() }
 // what was spoken of a reply made again.
 func (b *Threaded) AudioOutPort() <-chan ports.AudioChunk { return b.audio.Subscribe() }
 
-// Narration is the switch that has the block's turns spoken, off until set; a
-// turn already running keeps what it started with.
-func (b *Threaded) Narration() ports.Switchable { return &b.narration }
+// Spoken is the switch that has the block's calls spoken, off until set; a
+// call already running keeps what it started with.
+func (b *Threaded) Spoken() ports.Switchable { return &b.spoken }
 
 // UsageOutPort reports what the calls have cost, bad replies included.
 func (b *Threaded) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subscribe() }
@@ -371,6 +570,8 @@ func (b *Threaded) Start(ctx context.Context) {
 			select {
 			case <-ctx.Done():
 				return
+			case <-b.compacts:
+				compactNow(ctx, b.thread, b.name, &b.state, &b.meter, b.Backoff)
 			case text, open := <-b.in:
 				if !open {
 					return
@@ -389,9 +590,9 @@ func (b *Threaded) Start(ctx context.Context) {
 					b.fail(&b.state, b.name, text, err)
 					continue
 				}
-				b.thread.pass(b.seat)
 				b.stream.Send(ports.PieceClose)
 				b.whole.Send(reply)
+				b.thread.pass(ctx, b.seat, &b.meter, b.Backoff)
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 			}
 		}
@@ -403,7 +604,7 @@ func (b *Threaded) Start(ctx context.Context) {
 func (b *Threaded) call(ctx context.Context) (string, error) {
 	calls := b.thread.calls(b.name)
 	message, constrain := b.prompt.message(b.thread.cued()), b.due(calls)
-	speak := b.narration.on.Load()
+	speak := b.spoken.on.Load()
 	bad, retries := 0, 0
 	for {
 		streamed, spoken := false, false

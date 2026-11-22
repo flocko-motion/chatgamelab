@@ -9,6 +9,29 @@ This document sits between the spec and the code. The spec
 (`docs/chatgamelab.typ`) says what the platform does; this outlines how the
 engine is built to do it; the code holds the details.
 
+## Two layers: blocks and genres
+
+The engine is a **generic game engine**: a pipeline of blocks. A block is one
+mechanism: it knows its own inputs, outputs, calls and state, the player and
+the game's own messages, and nothing of the blocks around it or of the genre
+they make. A **genre** is one use of the blocks, wired by hand into a kind of
+game. Turns, the opening, Outline then Expand, the player
+reading while the next call waits: these are patterns of a genre, Adventure,
+built on blocks that know none of them.
+
+| Layer | Its words | Lives in |
+| --- | --- | --- |
+| Blocks | player, the player's input, the game's own message, call, reply, exchange, transcript, continuation, seat (a block's place in a shared thread's order of calls), context window, spoken, failure output, switch | `internal/blocks`, `internal/adapters` |
+| Genres | turn, opening, Outline, Expand, Rephrase, narration, the story | `internal/genre` |
+
+- **A block's rules are stated in its own words.** A rule that needs a
+  genre's word belongs to the genre: in its wiring, its prompts, or a
+  parameter it passes the block.
+- **A block's description names no genre.** What a genre does with a block,
+  its prompts, its wiring, the parameters it sets, is told under that genre.
+- **A block depends on no other block**: it never asks which blocks share its
+  thread, which seat is last, or what follows its output.
+
 ## Blocks
 
 The engine ships a library of **building blocks**, each wrapping one mechanism
@@ -67,7 +90,10 @@ voice with the gate; Adventure gates on its preparation and releases the
 player's input once the opening's prose is done.
 
 Every block reports its state changes, and every report reaches the client,
-which draws the wiring once and then tracks phases.
+which draws the wiring once and then tracks phases. That drawing, with the
+details of a selected block or wire beside it, is **insights**: what each
+block is doing, what it has carried and spent, and, for a block on a thread,
+how full the thread is.
 
 The drawing is placed by hand. Each genre keeps a layout beside its wiring
 (`adventure_layout.go`, `npclive_layout.go`) that gives every block its place,
@@ -107,6 +133,16 @@ it; Expand turns the outline into prose.
   their language, for the player's line, and the action, rephrased as
   Rephrase does, for Outline. The `said` stream is kept in the history like
   the prose, so a reload replays both speakers.
+- **The story thread** is one thread that Outline and Expand share, Outline
+  in the first seat and Expand in the second, so the next turn's Outline
+  waits for Expand. Its System Message is the game engine prompt, the
+  scenario, how the game starts, and the youth-protection rule; the opening
+  carries the rule always. Outline's schema is the outline, the image prompt
+  and the status, one property per status field of the session, every one in
+  every reply. Expand's replies are tidied: prose taken out of JSON, a JSON
+  block cut off its end, markdown emphasis dropped. Its summary request, one
+  of the genre's prompts, asks for the story so far: the world and its places, the characters and their
+  state, what the player holds, open threads and promises, the tone.
 - **A failed call during play** costs the turn: Rephrase, Outline and Expand
   lead to the `turn_failed` error sink, the picture to `image_failed`. A clip
   of which nothing came through, the spoken Rephrase failing or hearing no
@@ -213,9 +249,11 @@ written into the engine.
 Tiers have capabilities and model choices: a model and its parameters are set
 in the tier table and nowhere else. Beside the tiers, each platform has a
 **model table**, keyed by model id, saying what each model is: the kinds it
-takes and makes (text, audio, image) and its price, dated, with its source. A
-test requires an entry for every model a tier names, and that each model takes
-and makes what its type needs, such as the hearing model audio.
+takes and makes (text, audio, image) and its price, dated, with its source;
+for a story or speech model also its context window, dated, with its source.
+A test requires an entry for every model a tier names, that each model takes
+and makes what its type needs, such as the hearing model audio, and that
+every story and speech model has a window.
 
 - **An offer** is one way a session may run: a platform, a key and the
   **caveats** on using it, named by a unique ID such as the shared key's.
@@ -254,8 +292,8 @@ for the game editor.
   mock always passes.
 
 Conversation continuity — the thread, the live conversation — is per-block
-state, keyed by the block's name. A thread several blocks share, as Outline
-and Expand share the story model's, is exported once, under its own name.
+state, keyed by the block's name. A thread several blocks share is exported
+once, under its own name.
 
 ### Threads
 
@@ -268,25 +306,25 @@ one the provider no longer knows, gives way to a fresh provider thread seeded
 with the transcript, so a session never ends because a provider forgot its
 thread.
 
-- **One call at a time**, in turn: the next turn's Outline waits for Expand.
+- **One call at a time**, in seat order: each block that joins a thread takes
+  the next seat, and calls when it holds the turn.
 - **The System Message is sent once**, as the thread's first message: on
   OpenAI a developer message at the start of the first call's input, since
   OpenAI carries no `instructions` over a previous response while input
   messages are stored; on Mistral the conversation's instructions as it
   starts. A fresh provider thread seeded from the transcript begins with it
-  again. Adventure's System Message is the game engine prompt, the scenario,
-  how the game starts, and the youth-protection rule.
-- **Each call's message is a block's**: the player's action, or the game's
-  own message, such as the Initialization Prompt and Expand's prompt, sent as
-  a developer message on OpenAI and as the user's on Mistral.
+  again. The genre writes it.
+- **Each call's message is a block's**: the player's input, or the game's own
+  message, such as a block's prompt, sent as a developer
+  message on OpenAI and as the user's on Mistral.
 - **The youth-protection rule travels with the calls**, worded "NARRATION
   RULES must be respected: …": on OpenAI in a developer message of its own,
   right before the call's message, so designer text never shares it; on
   Mistral, which has no developer role, appended to the user message. How
   often a threaded block's calls carry it is its **constraint frequency**,
   from 1, every call, to 10, counted per block from the transcript; the
-  System Message and the opening always carry it. A spec sets it by block
-  name, and it may change during play, stored with the spec.
+  System Message and each block's first call always carry it. A spec sets it
+  by block name, and it may change during play, stored with the spec.
 - **On Mistral**, appending takes neither a model nor instructions, and an
   input may only be a user's or an assistant's message. A conversation stays
   on the model it started with.
@@ -294,24 +332,22 @@ thread.
   as the provider never completed that response; the pieces already sent are
   dropped first. An exhausted retry or a hard failure fails the call, and the
   block's failure edge decides what follows.
-- **Expand's prose is tidied** once finished: prose taken out of JSON, a JSON
-  block cut off its end, markdown emphasis dropped. Prose that changed
-  replaces the open utterance; a reply with no prose left is made again, up
-  to three times.
-- **A turn may be structured**: the thread adapter takes an optional JSON
+- **A block may tidy a finished reply**, with a function the genre sets. A
+  reply that changed replaces the open utterance; one with nothing left is
+  made again, up to three times.
+- **A call may be structured**: the thread adapter takes an optional JSON
   schema, sent in the provider's strict mode, so one thread carries
-  Outline's structured turns and Expand's plain ones. Every call states its
-  format, a plain one as text, so a format never carries over to the next
-  turn.
-- **A plain turn may be spoken**: the model says its reply, the transcript
+  structured and plain calls. Every call
+  states its format, a plain one as text, so a format never carries over to
+  the next call.
+- **A plain call may be spoken**: the model says its reply, the transcript
   streams as text and the audio, 24 kHz PCM16, beside it. The reply the
   thread keeps is the transcript, so the transcript stays text. A thread on a
   model that cannot speak answers in text.
-- **The thread's model follows narration.** While `audio-out` is on, the
-  story thread runs on the tier's speech model, off on its story model. A
-  switch applies from the next call: the continuation made on the other model
-  is dropped, and a fresh provider thread is seeded with the transcript, for
-  one uncached call per switch.
+- **A thread runs on the model its slot holds.** A switch applies from the
+  next call: the continuation made on the other model is dropped, and a fresh
+  provider thread is seeded with the transcript, for one uncached call per
+  switch.
 - **On OpenAI's speaking models**, gpt-realtime, the thread runs over the
   Realtime API's server-side WebSocket. The continuation is the session, held
   open between calls; the session's 60-minute limit, a dropped connection or
@@ -319,28 +355,49 @@ thread.
   is the session's instructions; the youth-protection rule and the game's own
   message are system messages, the player's a user message, and a response
   sets no instructions of its own. Realtime has no JSON schema format, so a
-  structured turn is a forced function call, named after the schema with the
+  structured call is a forced function call, named after the schema with the
   schema as its parameters, and the caller checks its arguments against the
   schema; a reply not kept is deleted from the session.
+- **The thread compacts itself near its model's context window**, right
+  after a call whose input passed half the window of the model it ran on,
+  whichever block made it. The thread hands the turn on once compaction is
+  done, so the next call waits; the block that made the call stays working
+  meanwhile and pays for the summary. Input that carried audio, as a Realtime
+  session holds spoken replies, is answered by a fresh provider thread seeded
+  from the transcript, all text. Input without audio is answered by a
+  summary: one plain call on the thread itself sends the summary request, a
+  parameter the genre sets, as the game's own message; the reply goes to the
+  engine only, and the transcript keeps only the blocks' exchanges. A fresh provider
+  thread is then seeded with the System Message, the summary as the game's
+  own message, and the last six exchanges word for word. The thread's state
+  keeps the whole transcript, the summary and where the exchanges after it
+  begin, so every later seed, after a restore or a model switch included,
+  starts from the summary; a later compaction folds the summary into a new
+  one. A compaction that fails leaves the thread as it was, and it tries
+  again after its next call. A thread without a window or a summary request
+  never compacts; a live session handles its own context.
+- **A block on a thread reports how full it is**: its last call's input, and
+  the window of the model it ran on. Insights shows it as a share of the
+  window, and offers to **compact on demand**: the block asks its thread to
+  summarise at once, between calls, whatever its fill, working meanwhile and
+  paying for the summary, so how well a summary keeps a game can be tried at
+  any point.
 
 ### A structured result
 
-Outline's schema belongs to the genre, a call parameter no spec overrides:
-the outline, the image prompt, and the status, one property per status field
-of the session, every one in every reply. Each call sends the action with the
-current status values, so the thread's memory is not trusted for them.
+A structured call's schema is a call parameter the genre sets, which no spec
+overrides. Each call sends its input with the current values of the block's
+props, so the thread's memory is not trusted for them.
 
 - **Parsing is part of the call.** A reply is tidied first: a markdown fence
   and any text around the JSON object go. One that still does not parse
   against the schema, a refusal or one cut short is a bad reply: it is never
   kept on the thread, and the call is made again from the same continuation.
-- **Three bad replies fail the call.** Nothing goes to Expand, the image or
-  the status; the thread hands the turn past Expand; the block is ready again;
-  and its failure edge leads to the `turn_failed` error, with the line the
-  player sent back in the input box. This budget is apart from the network's
-  retries.
+- **Three bad replies fail the call.** Nothing goes on the block's outputs;
+  the thread's turn skips the seats after it, which get no input; the block
+  is ready again; and its failure edge decides what follows. This budget is apart from the network's retries.
 - **`cmd/probe`** (`make probe`) measures, on real keys and by hand, how
-  reliably each platform's story models answer a structured turn, streamed,
+  reliably each platform's story models answer a structured call, streamed,
   fresh, appended and on a fresh thread seeded with the transcript: valid,
   invalid, refused, cut short, failed, whether it streamed, latency and cost.
   For the speaking models it also follows spoken turns: the lag between
@@ -565,7 +622,7 @@ session end to end with the headless playback-engine.
 - NPC-Live end to end on real adapters: portrait, live session with sideband,
   observer, idle close and resume, cost reporting.
 - The HTTP transport, the standalone launcher, and the headless playback-engine with its
-  instrumentation view.
+  insights view.
 - The mock platform.
 - Persistence, resume with schema-version refusal, the create endpoint and
   the key check.
@@ -575,8 +632,9 @@ session end to end with the headless playback-engine.
   Outline answers its structured result and Expand streams its prose, both on
   the story model's thread.
 - Adventure's prompts: the game master's system message,
-  rephrase, the opening, the two narration prompts, the scene frame and the
-  two preparation prompts, filled in for the session when the wiring is built.
+  rephrase, the opening, the two narration prompts, the scene frame, the
+  two preparation prompts and the story thread's summary request, filled in
+  for the session when the wiring is built.
 - Narration: Expand's turns spoken on OpenAI's gpt-realtime models over the
   Realtime API, the story thread switching model with `audio-out`, and the
   playback-engine playing the audio as it comes.
@@ -584,6 +642,9 @@ session end to end with the headless playback-engine.
   rule with every call at its frequency, preparation, the world's opening with
   its dice, the real image block with its picture prompt, tidied replies, and
   failure edges on every block that calls a model.
+- The story thread compacting itself near its model's context window: a
+  reseed from text after spoken input, a summary otherwise; its fill shown in
+  insights, and compaction on demand from there.
 - Voice input on Adventure: push-to-talk in the playback-engine, one clip per
   press over the session's connection, heard and rephrased in one call on
   OpenAI's gpt-audio-1.5 or Mistral's Voxtral, the player's line on `said`.
