@@ -371,7 +371,7 @@ func (s *InstitutionDeletionTestSuite) TestDeletingEndsLinksAndTheirGuests() {
 	s.NoError(admin.DeleteInstitution(org), "an organisation with a played share link is deleted")
 
 	_, err := s.Public().CreateSession(testutil.ForShare(link.Token))
-	s.Error(err, "its share link plays no more")
+	s.Refused(err, testutil.CodeDenied, "its share link plays no more")
 	me := Must(head.GetMe())
 	s.Equal("individual", me.Role.Role, "its head is an individual again")
 	s.Nil(me.Role.Institution, "in no organisation")

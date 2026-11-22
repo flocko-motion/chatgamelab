@@ -36,13 +36,13 @@ func (s *GuestPlaceTestSuite) TestTheDatabaseKeepsAGuestsPlace() {
 		"entering a workshop":        fmt.Sprintf("UPDATE user_role SET active_workshop_id = '%s' WHERE user_id = '%s'", other, guest.ID),
 		"turning into staff":         fmt.Sprintf("UPDATE user_role SET role = 'staff' WHERE user_id = '%s'", guest.ID),
 	} {
-		s.Error(s.RawExec(stmt), "the database refuses a guest %s", name)
+		s.DatabaseRefuses(stmt, "a guest %s", name)
 	}
-	s.Error(s.RawExec(fmt.Sprintf("UPDATE user_role SET workshop_id = '%s' WHERE user_id = '%s'", ws, head.ID)),
+	s.DatabaseRefuses(fmt.Sprintf("UPDATE user_role SET workshop_id = '%s' WHERE user_id = '%s'", ws, head.ID),
 		"only a guest is in a workshop by their role; head and staff take part in workshop mode")
 
 	// what may be true still is: head and staff take part in workshop mode
-	s.NoError(s.RawExec(fmt.Sprintf("UPDATE user_role SET active_workshop_id = '%s' WHERE user_id = '%s'", ws, head.ID)))
+	s.DatabaseAccepts(fmt.Sprintf("UPDATE user_role SET active_workshop_id = '%s' WHERE user_id = '%s'", ws, head.ID))
 
 	me := Must(guest.GetMe())
 	s.Require().NotNil(me.Role.Workshop)
@@ -55,10 +55,10 @@ func (s *GuestPlaceTestSuite) TestTheDatabaseKeepsIndividualsOutOfOrganisations(
 	admin := s.DevUser()
 	org := Must(admin.CreateInstitution("Ohne Org")).Id.String()
 	individual := s.CreateUser("ohne-org")
-	s.Error(s.RawExec(fmt.Sprintf("UPDATE user_role SET institution_id = '%s' WHERE user_id = '%s'", org, individual.ID)),
+	s.DatabaseRefuses(fmt.Sprintf("UPDATE user_role SET institution_id = '%s' WHERE user_id = '%s'", org, individual.ID),
 		"an individual is in no organisation")
 	head := s.CreateUser("ohne-org-head")
 	Must(head.AcceptInvite(Must(admin.InviteToInstitution(org, "head", head.ID)).Id.String()))
-	s.NoError(s.RawExec(fmt.Sprintf("UPDATE user_role SET institution_id = '%s' WHERE user_id = '%s'", org, head.ID)),
+	s.DatabaseAccepts(fmt.Sprintf("UPDATE user_role SET institution_id = '%s' WHERE user_id = '%s'", org, head.ID),
 		"a head is in one")
 }

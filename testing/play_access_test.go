@@ -86,5 +86,5 @@ func (s *PlayAccessTestSuite) TestARemovedGuestStops() {
 
 	s.NoError(head.RemoveMemberFromWorkshop(workshopID, guest.ID))
 	_, err := guest.SessionState(id)
-	s.Error(err, "a removed guest plays no more")
+	s.Forbidden(err, "a removed guest plays no more")
 }

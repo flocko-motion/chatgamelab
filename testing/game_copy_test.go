@@ -81,3 +81,20 @@ func (s *GameCopyTestSuite) TestImportTakesTheRightToEdit() {
 	s.Forbidden(bob.PutGameYAML(game.Id.String(), strings.Replace(yaml, game.Name, "Taken Over", 1)))
 	s.Equal(game.Name, Must(alice.ReadGame(game.Id.String())).Name)
 }
+
+// Game names are unique: a copy takes the first free "(Copy)" name, so
+// everyone copies a game however often it was copied; renaming to a taken
+// name is refused as such.
+func (s *GameCopyTestSuite) TestCopiesFindAFreeName() {
+	author := s.CreateUser("copy-name-author")
+	game := Must(author.UploadGame("alien-first-contact"))
+	Must(author.SetGamePublic(game.Id.String(), true))
+
+	first := Must(s.CreateUser("copy-name-a").CloneGame(game.Id.String()))
+	second := Must(s.CreateUser("copy-name-b").CloneGame(game.Id.String()))
+	s.Equal(game.Name+" (Copy)", first.Name)
+	s.Equal(game.Name+" (Copy 2)", second.Name)
+
+	_, err := author.RenameGame(game.Id.String(), first.Name)
+	s.Refused(err, testutil.CodeDuplicateName, "a taken name")
+}

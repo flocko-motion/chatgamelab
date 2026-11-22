@@ -122,3 +122,35 @@ func (s *BaseSuite) RefusedWithErrorAndCode(err error, code string) bool {
 	msg, isString := body["error"].(string)
 	return s.True(isString && msg != "", "error is a message: %s", ref.Body) && ok
 }
+
+// ErrNothingListed is a list that showed the caller nothing: how a list
+// refuses (an outsider gets an empty list, not 403).
+var ErrNothingListed = errors.New("nothing listed")
+
+// NothingListed is ErrNothingListed for an empty list, else err.
+func NothingListed[T any](items []T, err error) error {
+	if err == nil && len(items) == 0 {
+		return ErrNothingListed
+	}
+	return err
+}
+
+// DeniedAccess says whether err is the API refusing access: no sign-in
+// (unauthorized), not for this caller (forbidden), not there for them
+// (not_found; the engine's denied and unknown for a session), or a list
+// that showed nothing. A server error or a refused
+// input is no denial.
+func DeniedAccess(err error) bool {
+	if errors.Is(err, ErrNothingListed) {
+		return true
+	}
+	var ref *Refusal
+	if !errors.As(err, &ref) {
+		return false
+	}
+	switch ref.Code {
+	case CodeUnauthorized, CodeForbidden, CodeNotFound, CodeDenied, CodeUnknown:
+		return true
+	}
+	return false
+}

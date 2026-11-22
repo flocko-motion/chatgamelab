@@ -230,7 +230,7 @@ func (s *InstitutionInviteTestSuite) TestHeadAndStaffCanBothInviteNormalUsers() 
 	// (spec, Roles), and one an organisation invites becomes head or staff
 	user3 := s.CreateUser("bi-user3")
 	_, err = head.InviteToInstitution(instIDStr, "individual", user3.ID)
-	s.Error(err, "an organisation invites as head or staff")
+	s.Invalid(err, "an organisation invites as head or staff")
 	_, err = staff.InviteToInstitution(instIDStr, "individual", user3.ID)
-	s.Error(err, "an organisation invites as head or staff")
+	s.Invalid(err, "an organisation invites as head or staff")
 }

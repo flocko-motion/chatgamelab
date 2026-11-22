@@ -271,7 +271,7 @@ func (s *WorkshopIndividualTestSuite) TestNoInviteAsIndividual() {
 	target := s.CreateUser("ind-target")
 
 	_, err := admin.InviteToInstitution(inst.Id.String(), "individual", target.ID)
-	s.Error(err, "nobody is invited into an organisation as individual")
+	s.Invalid(err, "nobody is invited into an organisation as individual")
 	me := Must(target.GetMe())
 	s.Equal("individual", me.Role.Role)
 	s.Nil(me.Role.Institution, "an individual is in no organisation")

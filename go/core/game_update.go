@@ -91,6 +91,9 @@ func UpdateGame(ctx context.Context, id uuid.UUID, ch GameChanges) (*GameCard, e
 		FirstStatus:  sqlString(next.firstStatus),
 		FirstImage:   next.firstImage,
 	})
+	if isDuplicateGameName(err) {
+		return nil, errDuplicateGameName
+	}
 	if err != nil {
 		return nil, err
 	}

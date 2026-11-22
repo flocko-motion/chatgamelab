@@ -2,15 +2,19 @@ package core
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/events"
+	"cgl/obj"
 	"engine"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // A new game is the caller's own from the start: its rights are the caller's
@@ -87,7 +91,6 @@ func CopyGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 
 	from := source.row
 	next := gameRow{
-		name:         copyName(from.name),
 		description:  from.description,
 		genre:        from.genre,
 		theme:        from.theme,
@@ -104,7 +107,15 @@ func CopyGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 		original = from.creatorID
 	}
 
-	copied, err := insertGame(ctx, next, original)
+	// game names are unique: a copy takes the first free "(Copy)" name
+	var copied *GameCard
+	for n := 1; ; n++ {
+		next.name = copyName(from.name, n)
+		copied, err = insertGame(ctx, next, original)
+		if !errors.Is(err, errDuplicateGameName) || n == maxCopyNames {
+			break
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -114,9 +125,16 @@ func CopyGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 	return copied, nil
 }
 
-// copyName is a copy's name: the original's, marked, within the name's limit.
-func copyName(name string) string {
-	const mark = " (Copy)"
+// maxCopyNames is how many numbered copy names a copy tries.
+const maxCopyNames = 100
+
+// copyName is a copy's name: the original's, marked "(Copy)", or "(Copy n)"
+// from the second, within the name's limit.
+func copyName(name string, n int) string {
+	mark := " (Copy)"
+	if n > 1 {
+		mark = fmt.Sprintf(" (Copy %d)", n)
+	}
 	runes := []rune(name)
 	for len(string(runes))+len(mark) > maxGameName && len(runes) > 0 {
 		runes = runes[:len(runes)-1]
@@ -150,6 +168,9 @@ func insertGame(ctx context.Context, next gameRow, originallyCreatedBy *uuid.UUI
 		FirstStatus:         sqlString(next.firstStatus),
 		FirstImage:          next.firstImage,
 	})
+	if isDuplicateGameName(err) {
+		return nil, errDuplicateGameName
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -180,3 +201,13 @@ func (t *GameTemplate) FirstImage() []byte    { return t.row.firstImage }
 func (t *GameTemplate) MayEditCard() bool    { return t.mayEditCard }
 func (t *GameTemplate) MayEditContent() bool { return t.mayEditContent }
 func (t *GameTemplate) MayPublish() bool     { return t.mayPublish }
+
+// errDuplicateGameName: game names are unique, and this one is taken (409).
+var errDuplicateGameName = conflict(obj.ErrCodeDuplicateName, "a game with this name exists already")
+
+// isDuplicateGameName says whether err is the database refusing a taken
+// game name.
+func isDuplicateGameName(err error) bool {
+	var pqErr *pq.Error
+	return errors.As(err, &pqErr) && pqErr.Code == "23505" && pqErr.Constraint == "game_name_key"
+}
