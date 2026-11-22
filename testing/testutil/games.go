@@ -107,7 +107,7 @@ func (c caller) ListGames() ([]Game, error) {
 // ListGamesWithFilter is the games the caller sees, filtered ("own",
 // "public", …).
 func (c caller) ListGamesWithFilter(filter string) ([]Game, error) {
-	return c.listGames(apiclient.GetApiGamesParams{Filter: some([]string{filter})})
+	return c.listGames(apiclient.GetApiGamesParams{Filter: some(gameFilters(filter))})
 }
 
 // ListGamesWithSearch is the games the caller sees that match a search.
@@ -125,15 +125,18 @@ type GamePage struct {
 // by every filter given ("own", "favorites", …); limit 0 is all.
 func (c caller) ListGamesPage(limit, offset int, filters ...string) (GamePage, error) {
 	return decode[GamePage](c.api.GetApiGamesWithResponse(ctx(), &apiclient.GetApiGamesParams{
-		Filter: some(filters), Limit: some(limit), Offset: some(offset),
+		Filter: some(gameFilters(filters...)), Limit: some(limit), Offset: some(offset),
 	}))
 }
 
 // ListGamesSorted is the caller's game list in an order ("name", "asc").
 func (c caller) ListGamesSorted(sortBy, sortDir string, filters ...string) ([]Game, error) {
-	params := apiclient.GetApiGamesParams{SortBy: some(sortBy), SortDir: some(sortDir)}
+	params := apiclient.GetApiGamesParams{
+		SortBy:  some(apiclient.GameSort(sortBy)),
+		SortDir: some(apiclient.SortDir(sortDir)),
+	}
 	if len(filters) > 0 {
-		params.Filter = &filters
+		params.Filter = some(gameFilters(filters...))
 	}
 	return c.listGames(params)
 }
@@ -383,4 +386,14 @@ func (c caller) GetPublicWorkshopPageJSON(slug string) (string, error) {
 		return "", err
 	}
 	return string(r.Body), nil
+}
+
+// gameFilters is filters by name as the client's type; the server refuses
+// those it does not know.
+func gameFilters(names ...string) []apiclient.GameFilter {
+	out := make([]apiclient.GameFilter, len(names))
+	for i, n := range names {
+		out[i] = apiclient.GameFilter(n)
+	}
+	return out
 }

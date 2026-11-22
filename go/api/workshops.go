@@ -19,7 +19,8 @@ import (
 type WorkshopResp = wire.WorkshopView
 
 // WorkshopsResp is a list of workshops.
-type WorkshopsResp = []wire.WorkshopView
+// WorkshopViewPageResp is a page of workshops and the total.
+type WorkshopViewPageResp = wire.Page[wire.WorkshopView]
 
 // WorkshopIDReq names a workshop by its id.
 type WorkshopIDReq struct {
@@ -51,38 +52,80 @@ type CreateWorkshopReq struct {
 	Public        bool    `json:"public"`
 }
 
-// ListWorkshopsEndpoint lists the workshops the caller may list: an admin
-// all of them, a head or staff their organisation's.
-//
-// institutionId, search and activeOnly narrow the list; sortBy (name,
-// createdAt, participantCount) and sortDir (asc, desc) order it, newest
-// first by default.
+// ListWorkshopsEndpoint lists a page of the workshops the caller may list,
+// and the total: an admin all of them, a head or staff their
+// organisation's. institutionId narrows it to one organisation.
 type ListWorkshopsEndpoint struct{}
 
 func (ListWorkshopsEndpoint) Method() string             { return "GET" }
 func (ListWorkshopsEndpoint) Path() string               { return "/api/workshops" }
 func (ListWorkshopsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListWorkshopsEndpoint) Handle(ctx context.Context, req ListWorkshopsReq) (WorkshopsResp, error) {
+func (ListWorkshopsEndpoint) Handle(ctx context.Context, req ListWorkshopsReq) (WorkshopViewPageResp, error) {
 	org, err := optionalID(req.InstitutionID, "Invalid institution ID")
 	if err != nil {
-		return nil, err
+		return WorkshopViewPageResp{}, err
 	}
-	return wire.WorkshopViewsOf(core.ListWorkshops(ctx, core.WorkshopQuery{
-		Organisation: org,
-		Search:       opt(req.Search),
-		ActiveOnly:   opt(req.ActiveOnly) == "true",
-		SortBy:       opt(req.SortBy),
-		SortDir:      opt(req.SortDir),
-	}))
+	return wire.WorkshopViewPageOf(core.List(ctx, core.Workshops(org), req.query()))
 }
 
-// ListWorkshopsReq is what the list is narrowed and ordered by.
+// WorkshopFilter narrows the workshop list.
+type WorkshopFilter string
+
+const (
+	WorkshopFilterActive WorkshopFilter = "active" // the active workshops
+)
+
+// WorkshopSort orders the workshop list; the default is createdAt, newest first.
+type WorkshopSort string
+
+const (
+	WorkshopSortName             WorkshopSort = "name"
+	WorkshopSortCreatedAt        WorkshopSort = "createdAt"
+	WorkshopSortModifiedAt       WorkshopSort = "modifiedAt"
+	WorkshopSortParticipantCount WorkshopSort = "participantCount"
+)
+
+// ListWorkshopsReq narrows the list to an organisation, and filters, sorts
+// and pages it.
 type ListWorkshopsReq struct {
 	InstitutionID *string `query:"institutionId"`
-	Search        *string `query:"search"`
-	SortBy        *string `query:"sortBy"`
-	SortDir       *string `query:"sortDir"`
-	ActiveOnly    *string `query:"activeOnly"`
+	ListParams[WorkshopFilter, WorkshopSort]
+}
+
+// ListParticipantsEndpoint lists a page of a workshop's participants, and
+// the total: for those who may list them (an empty list for others); a
+// workshop the caller may not read, 404.
+type ListParticipantsEndpoint struct{}
+
+func (ListParticipantsEndpoint) Method() string             { return "GET" }
+func (ListParticipantsEndpoint) Path() string               { return "/api/workshops/{id}/participants" }
+func (ListParticipantsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (ListParticipantsEndpoint) Handle(ctx context.Context, req ListParticipantsReq) (ParticipantPageResp, error) {
+	id, err := parseID(req.ID, "Invalid workshop ID")
+	if err != nil {
+		return ParticipantPageResp{}, err
+	}
+	return wire.WorkshopParticipantViewPageOf(id)(core.List(ctx, core.Participants(id), req.query()))
+}
+
+// ParticipantPageResp is a page of a workshop's participants and the total.
+type ParticipantPageResp = wire.Page[wire.WorkshopParticipantView]
+
+// ParticipantSort orders a workshop's participants; the default is
+// createdAt (when they joined), first first.
+type ParticipantSort string
+
+const (
+	ParticipantSortName       ParticipantSort = "name"
+	ParticipantSortRole       ParticipantSort = "role"
+	ParticipantSortGamesCount ParticipantSort = "gamesCount"
+	ParticipantSortCreatedAt  ParticipantSort = "createdAt"
+)
+
+// ListParticipantsReq names the workshop, and sorts and pages its participants.
+type ListParticipantsReq struct {
+	ID string `path:"id"`
+	ListParams[NoFilter, ParticipantSort]
 }
 
 // GetWorkshopEndpoint returns a workshop the caller may read: one of their

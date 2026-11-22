@@ -1,29 +1,21 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ChangeEvent,
   type RefObject,
 } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { api } from "@/api/client/api";
-import { queryKeys } from "@/api/queryKeys";
 import {
-  GAME_LIST_SORTS,
-  type GameListFilter,
   useCreateGame,
   useDeleteGame,
   useExportGameYaml,
+  useFetchGame,
   useGame,
   useGames,
 } from "@/api/hooks";
-import type { CreateGameReq, GameView } from "@/api/generated/api.gen";
-import { useListQuery } from "@/common/hooks/useListQuery";
-import { useServerList } from "@/common/hooks/useServerList";
-import { listOffset } from "@/common/lib/listQuery";
+import type { CreateGameReq, GameView } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import type { CreateGameFormData } from "../types";
 import {
@@ -78,30 +70,12 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   const { preset, initialGameId, initialCreate, autoImport, onModalClose } = options;
   const config = GAME_LIST_PRESETS[preset];
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { backendUser } = useAuth();
   const userId = backendUser?.id;
   const workshopId = preset === "workshop" ? backendUser?.role?.workshop?.id : undefined;
 
   // ── The list ────────────────────────────────────────────────────────────
-  const toggles = useMemo<GameListFilter[]>(() => config.toggles.map((o) => o.value), [config]);
-  const controls = useListQuery({
-    filters: config.filters.map((f) => f.value),
-    only: toggles,
-    sorts: GAME_LIST_SORTS.filter((s) => config.sorts.some((o) => o.by === s)),
-    defaultSort: config.defaultSort,
-  });
-  const { query } = controls;
-  const picked = config.filters.find((f) => f.value === query.filter);
-  const result = useGames({
-    filters: [...config.baseFilters, ...(picked?.apply ?? []), ...query.only],
-    search: query.search,
-    sortBy: query.sortBy,
-    sortDir: query.sortDir,
-    limit: query.pageSize,
-    offset: listOffset(query),
-  });
-  const list = useServerList<GameView>(controls, result);
+  const list = useGames(config.list);
 
   // ── Who may do what: the server's flags ────────────────────────────────
   /** The game belongs to the workshop the caller is in (a fact, for badges). */
@@ -156,6 +130,7 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
 
   // ── Creating, copying, importing ────────────────────────────────────────
   const createGame = useCreateGame();
+  const fetchGame = useFetchGame();
   const [creating, setCreating] = useState<{ initialData: Partial<CreateGameFormData> | null } | null>(
     initialCreate ? { initialData: null } : null,
   );
@@ -182,10 +157,7 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
 
   /** Copies a game, loaded with all the caller may read of it. */
   const copy = async (gameId: string) => {
-    const full = await queryClient.fetchQuery<GameView>({
-      queryKey: queryKeys.game(gameId),
-      queryFn: () => api.getApiGamesId(gameId).then((r) => r.data),
-    });
+    const full = await fetchGame(gameId);
     setViewingId(null);
     setCreating({ initialData: gameToFormData(full) });
   };
@@ -238,7 +210,6 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
 
   return {
     config,
-    controls,
     list: { ...list, isInitialLoading: list.isInitialLoading || sessionsLoading },
     permissions,
     isWorkshopGame,

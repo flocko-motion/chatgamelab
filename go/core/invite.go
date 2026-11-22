@@ -157,7 +157,6 @@ func loadInvites(ctx context.Context, p db.V2InvitesParams) ([]*InviteCard, erro
 	return invites, nil
 }
 
-// The roles an organisation invites as.
 // organisationRoles are what an organisation invites as: head and staff are
 // in an organisation, an individual is in none. An individual who accepts
 // becomes head or staff.
@@ -167,14 +166,14 @@ var organisationRoles = []string{string(obj.RoleHead), string(obj.RoleStaff)}
 // account it is for, by id or email.
 type OrganisationInvite struct {
 	Organisation uuid.UUID
-	Role         string // head, staff or individual
+	Role         string // head or staff
 	User         *uuid.UUID
 	Email        *string
 }
 
 // InviteToOrganisation invites an account into an organisation and returns
-// the invite. As head it takes {Create, HeadInvite}, as staff or individual
-// {Create, Invite}: in the caller's organisation, or, for the admin, in any.
+// the invite. As head it takes {Create, HeadInvite}, as staff {Create,
+// Invite}: in the caller's organisation, or, for the admin, in any.
 // The account must exist; one with a pending invite there is refused (409).
 func InviteToOrganisation(ctx context.Context, in OrganisationInvite) (*InviteCard, error) {
 	if !contains(organisationRoles, in.Role) {

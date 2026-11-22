@@ -153,10 +153,7 @@ func workshopView(w *core.WorkshopCard) WorkshopView {
 		v.PublicLinks = s.PublicLinks()
 	}
 	for _, p := range w.Participants() {
-		v.Participants = append(v.Participants, WorkshopParticipantView{
-			ID: p.ID, WorkshopID: w.ID(), Name: p.Name, Role: p.Role, Meta: ParticipantMeta{CreatedAt: p.JoinedAt},
-			GamesCount: p.GamesCount, Permanent: p.Permanent,
-		})
+		v.Participants = append(v.Participants, participantView(w.ID(), p))
 	}
 	for _, inv := range w.Invites() {
 		v.Invites = append(v.Invites, inviteView(inv))
@@ -181,5 +178,12 @@ func inviteView(inv core.Invite) InviteView {
 		Status:        inv.Status,
 		AcceptedAt:    inv.AcceptedAt,
 		AcceptedBy:    inv.AcceptedBy,
+	}
+}
+
+func participantView(workshop uuid.UUID, p core.WorkshopParticipant) WorkshopParticipantView {
+	return WorkshopParticipantView{
+		ID: p.ID, WorkshopID: workshop, Name: p.Name, Role: p.Role, Meta: ParticipantMeta{CreatedAt: p.JoinedAt},
+		GamesCount: p.GamesCount, Permanent: p.Permanent,
 	}
 }

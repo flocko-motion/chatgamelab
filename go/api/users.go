@@ -20,7 +20,8 @@ import (
 type UserViewResp = wire.UserView
 
 // UserViewsResp is a list of users.
-type UserViewsResp = []wire.UserView
+// UserViewPageResp is a page of users and the total.
+type UserViewPageResp = wire.Page[wire.UserView]
 
 // UserStatsResp is a user's statistics.
 type UserStatsResp = wire.UserStatsView
@@ -49,19 +50,40 @@ func me(ctx context.Context) (uuid.UUID, error) {
 	return user.ID(), nil
 }
 
-// ListUsersEndpoint lists the users the caller may list: admins every user,
-// heads and staff the members of their organisation.
+// ListUsersEndpoint lists a page of the users the caller may list, and the
+// total: admins every user, heads and staff the members of their
+// organisation.
 type ListUsersEndpoint struct{}
 
 func (ListUsersEndpoint) Method() string             { return "GET" }
 func (ListUsersEndpoint) Path() string               { return "/api/users" }
 func (ListUsersEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (ListUsersEndpoint) Handle(ctx context.Context, _ ListUsersReq) (UserViewsResp, error) {
-	return wire.UserViewsOf(core.ListUsers(ctx))
+func (ListUsersEndpoint) Handle(ctx context.Context, req ListUsersReq) (UserViewPageResp, error) {
+	return wire.UserViewPageOf(core.List(ctx, core.Users, req.query()))
 }
 
-// ListUsersReq takes no parameters.
-type ListUsersReq struct{}
+// UserFilter narrows the user list.
+type UserFilter string
+
+const (
+	UserFilterNoGuests UserFilter = "noGuests" // leaves out guests and users without a role
+)
+
+// UserSort orders the user list; the default is name.
+type UserSort string
+
+const (
+	UserSortName         UserSort = "name"
+	UserSortEmail        UserSort = "email"
+	UserSortRole         UserSort = "role"
+	UserSortOrganisation UserSort = "organisation"
+	UserSortCreatedAt    UserSort = "createdAt"
+)
+
+// ListUsersReq filters, sorts and pages the user list.
+type ListUsersReq struct {
+	ListParams[UserFilter, UserSort]
+}
 
 // GetUserEndpoint returns a user the caller may see: themselves, and for
 // heads and staff their organisation's members and the guests in its

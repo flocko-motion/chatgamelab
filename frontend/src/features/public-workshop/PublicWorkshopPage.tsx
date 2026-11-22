@@ -22,14 +22,13 @@ import {
   IconSparkles,
   IconWorldOff,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { api } from "@/api/client/api";
+import { usePublicWorkshop, usePublicWorkshopGameYaml } from "@/api/hooks";
 import type {
   PublicWorkshopGame,
   PublicWorkshopLink,
-} from "@/api/generated/api.gen";
+} from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
@@ -66,20 +65,13 @@ export function PublicWorkshopPage({
     if (backendUser) takeReturnTo();
   }, [backendUser]);
 
-  const { data: page, isLoading, isError } = useQuery({
-    queryKey: ["publicWorkshop", slug],
-    queryFn: async () => (await api.getApiPublicWorkshopsSlug(slug)).data,
-    retry: false,
-  });
+  const { data: page, isLoading, isError } = usePublicWorkshop(slug);
+  const gameYaml = usePublicWorkshopGameYaml();
 
   const handleDownload = async (game: PublicWorkshopGame) => {
     if (!game.id) return;
     try {
-      const response = await api.getApiPublicWorkshopsSlugGamesIdYaml(slug, game.id, {
-        headers: { Accept: "application/x-yaml" },
-        format: "text",
-      });
-      downloadYamlFile(response.data as unknown as string, game.name);
+      downloadYamlFile(await gameYaml.mutateAsync({ slug, gameId: game.id }), game.name);
     } catch {
       // Nothing to download.
     }

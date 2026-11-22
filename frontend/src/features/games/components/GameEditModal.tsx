@@ -28,7 +28,7 @@ import { ActionButton, CancelButton } from "@components/buttons";
 import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
 import { useGame, useGameTemplate, useGenres, useThemes, useUpdateGame } from "@/api/hooks";
-import type { CreateGameReq, GameTemplate, GameView } from "@/api/generated/api.gen";
+import type { CreateGameReq, GameTemplate, GameView } from "@/api/types";
 import { Label } from "@components/typography";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
 import { SharingSection } from "./GameSharingSection";
@@ -606,7 +606,7 @@ function GenreSelect({ value, onChange, readOnly }: ChoiceProps) {
       .join(", ");
     return t("games.editFields.genreNeeds", { features });
   };
-  const options = (genres ?? []).map((g) => ({
+  const options: { value: string; label: string }[] = (genres ?? []).map((g) => ({
     value: g.id ?? "",
     label: t(`games.genres.${g.id}`, { defaultValue: g.id }),
   }));

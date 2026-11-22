@@ -140,12 +140,12 @@ const (
 	// youth-protection restriction, the key share it plays with, and its
 	// public page's text and links.
 	WorkshopSettings Entity = "workshop settings"
-	// WorkshopParticipants is who is in a workshop: its guests, and the
-	// members of its organisation working in it. Managing it puts an
-	// individual of the organisation into the workshop or takes them out.
+	// WorkshopParticipants is who is in a workshop: its guests, and the head,
+	// staff and individuals working in it. Managing it takes someone out of
+	// the workshop; taking part makes no one part of its organisation.
 	WorkshopParticipants Entity = "workshop participants"
-	// Invite brings someone into an organisation as staff or individual, or
-	// into a workshop: for an account or an email, or as a link anyone may
+	// Invite brings someone into an organisation as staff (as head: a
+	// HeadInvite), or into a workshop: for an account or an email, or as a link anyone may
 	// follow. Listing it hands out its link. Using it answers it: accepting
 	// or declining.
 	Invite Entity = "invite"
@@ -196,7 +196,7 @@ const (
 	OfCurrentWorkshop Relation = "of current workshop" // the workshop the caller is in
 	OfOwnOrganisation Relation = "of own organisation" // belongs to the caller's organisation, e.g. a game of one of its workshops, a member, a guest in one of its workshops
 
-	MemberOfOwnOrganisation Relation = "member of own organisation" // a user holding a role in the caller's organisation (individual, staff, head)
+	MemberOfOwnOrganisation Relation = "member of own organisation" // head or staff of the caller's organisation; an individual is in none
 	GuestOfOwnOrganisation  Relation = "guest of own organisation"  // a guest in one of the caller's organisation's workshops
 	OfOwnGame               Relation = "of own game"                // belongs to a game the caller created
 	PaidByOwnKey            Relation = "paid by own key"            // spends from an API key the caller owns

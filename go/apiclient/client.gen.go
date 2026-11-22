@@ -20,6 +20,501 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for EventType.
+const (
+	EventTypeConnected       EventType = "connected"
+	EventTypeGameCreated     EventType = "game_created"
+	EventTypeGameDeleted     EventType = "game_deleted"
+	EventTypeGameUpdated     EventType = "game_updated"
+	EventTypeMembersUpdated  EventType = "members_updated"
+	EventTypeWorkshopUpdated EventType = "workshop_updated"
+)
+
+// Valid indicates whether the value is a known member of the EventType enum.
+func (e EventType) Valid() bool {
+	switch e {
+	case EventTypeConnected:
+		return true
+	case EventTypeGameCreated:
+		return true
+	case EventTypeGameDeleted:
+		return true
+	case EventTypeGameUpdated:
+		return true
+	case EventTypeMembersUpdated:
+		return true
+	case EventTypeWorkshopUpdated:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GameFilter.
+const (
+	GameFilterFavorites GameFilter = "favorites"
+	GameFilterOthers    GameFilter = "others"
+	GameFilterOwn       GameFilter = "own"
+	GameFilterPublic    GameFilter = "public"
+	GameFilterSponsored GameFilter = "sponsored"
+)
+
+// Valid indicates whether the value is a known member of the GameFilter enum.
+func (e GameFilter) Valid() bool {
+	switch e {
+	case GameFilterFavorites:
+		return true
+	case GameFilterOthers:
+		return true
+	case GameFilterOwn:
+		return true
+	case GameFilterPublic:
+		return true
+	case GameFilterSponsored:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GameSort.
+const (
+	GameSortCreatedAt  GameSort = "createdAt"
+	GameSortCreator    GameSort = "creator"
+	GameSortModifiedAt GameSort = "modifiedAt"
+	GameSortName       GameSort = "name"
+	GameSortPlayCount  GameSort = "playCount"
+	GameSortVisibility GameSort = "visibility"
+)
+
+// Valid indicates whether the value is a known member of the GameSort enum.
+func (e GameSort) Valid() bool {
+	switch e {
+	case GameSortCreatedAt:
+		return true
+	case GameSortCreator:
+		return true
+	case GameSortModifiedAt:
+		return true
+	case GameSortName:
+		return true
+	case GameSortPlayCount:
+		return true
+	case GameSortVisibility:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Genre.
+const (
+	GenreAdventure Genre = "adventure"
+	GenreNpcLive   Genre = "npc-live"
+)
+
+// Valid indicates whether the value is a known member of the Genre enum.
+func (e Genre) Valid() bool {
+	switch e {
+	case GenreAdventure:
+		return true
+	case GenreNpcLive:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for InviteSort.
+const (
+	InviteSortModifiedAt   InviteSort = "modifiedAt"
+	InviteSortOrganisation InviteSort = "organisation"
+	InviteSortRole         InviteSort = "role"
+	InviteSortStatus       InviteSort = "status"
+)
+
+// Valid indicates whether the value is a known member of the InviteSort enum.
+func (e InviteSort) Valid() bool {
+	switch e {
+	case InviteSortModifiedAt:
+		return true
+	case InviteSortOrganisation:
+		return true
+	case InviteSortRole:
+		return true
+	case InviteSortStatus:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for InviteStatus.
+const (
+	InviteStatusAccepted InviteStatus = "accepted"
+	InviteStatusDeclined InviteStatus = "declined"
+	InviteStatusExpired  InviteStatus = "expired"
+	InviteStatusPending  InviteStatus = "pending"
+	InviteStatusRevoked  InviteStatus = "revoked"
+)
+
+// Valid indicates whether the value is a known member of the InviteStatus enum.
+func (e InviteStatus) Valid() bool {
+	switch e {
+	case InviteStatusAccepted:
+		return true
+	case InviteStatusDeclined:
+		return true
+	case InviteStatusExpired:
+		return true
+	case InviteStatusPending:
+		return true
+	case InviteStatusRevoked:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Medium.
+const (
+	MediumAudio Medium = "audio"
+	MediumImage Medium = "image"
+	MediumText  Medium = "text"
+)
+
+// Valid indicates whether the value is a known member of the Medium enum.
+func (e Medium) Valid() bool {
+	switch e {
+	case MediumAudio:
+		return true
+	case MediumImage:
+		return true
+	case MediumText:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MemberSort.
+const (
+	MemberSortEmail MemberSort = "email"
+	MemberSortName  MemberSort = "name"
+	MemberSortRole  MemberSort = "role"
+)
+
+// Valid indicates whether the value is a known member of the MemberSort enum.
+func (e MemberSort) Valid() bool {
+	switch e {
+	case MemberSortEmail:
+		return true
+	case MemberSortName:
+		return true
+	case MemberSortRole:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OrganisationFilter.
+const (
+	OrganisationFilterRecentlyRegistered OrganisationFilter = "recentlyRegistered"
+)
+
+// Valid indicates whether the value is a known member of the OrganisationFilter enum.
+func (e OrganisationFilter) Valid() bool {
+	switch e {
+	case OrganisationFilterRecentlyRegistered:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OrganisationKeySort.
+const (
+	OrganisationKeySortName     OrganisationKeySort = "name"
+	OrganisationKeySortOwner    OrganisationKeySort = "owner"
+	OrganisationKeySortPlatform OrganisationKeySort = "platform"
+)
+
+// Valid indicates whether the value is a known member of the OrganisationKeySort enum.
+func (e OrganisationKeySort) Valid() bool {
+	switch e {
+	case OrganisationKeySortName:
+		return true
+	case OrganisationKeySortOwner:
+		return true
+	case OrganisationKeySortPlatform:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OrganisationSort.
+const (
+	OrganisationSortCreatedAt    OrganisationSort = "createdAt"
+	OrganisationSortName         OrganisationSort = "name"
+	OrganisationSortRegisteredAt OrganisationSort = "registeredAt"
+)
+
+// Valid indicates whether the value is a known member of the OrganisationSort enum.
+func (e OrganisationSort) Valid() bool {
+	switch e {
+	case OrganisationSortCreatedAt:
+		return true
+	case OrganisationSortName:
+		return true
+	case OrganisationSortRegisteredAt:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OwnApiKeySort.
+const (
+	OwnApiKeySortCreatedAt OwnApiKeySort = "createdAt"
+	OwnApiKeySortName      OwnApiKeySort = "name"
+	OwnApiKeySortPlatform  OwnApiKeySort = "platform"
+	OwnApiKeySortStatus    OwnApiKeySort = "status"
+)
+
+// Valid indicates whether the value is a known member of the OwnApiKeySort enum.
+func (e OwnApiKeySort) Valid() bool {
+	switch e {
+	case OwnApiKeySortCreatedAt:
+		return true
+	case OwnApiKeySortName:
+		return true
+	case OwnApiKeySortPlatform:
+		return true
+	case OwnApiKeySortStatus:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ParticipantSort.
+const (
+	ParticipantSortCreatedAt  ParticipantSort = "createdAt"
+	ParticipantSortGamesCount ParticipantSort = "gamesCount"
+	ParticipantSortName       ParticipantSort = "name"
+	ParticipantSortRole       ParticipantSort = "role"
+)
+
+// Valid indicates whether the value is a known member of the ParticipantSort enum.
+func (e ParticipantSort) Valid() bool {
+	switch e {
+	case ParticipantSortCreatedAt:
+		return true
+	case ParticipantSortGamesCount:
+		return true
+	case ParticipantSortName:
+		return true
+	case ParticipantSortRole:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Platform.
+const (
+	PlatformMistral Platform = "mistral"
+	PlatformMock    Platform = "mock"
+	PlatformOpenai  Platform = "openai"
+)
+
+// Valid indicates whether the value is a known member of the Platform enum.
+func (e Platform) Valid() bool {
+	switch e {
+	case PlatformMistral:
+		return true
+	case PlatformMock:
+		return true
+	case PlatformOpenai:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Role.
+const (
+	RoleAdmin      Role = "admin"
+	RoleGuest      Role = "guest"
+	RoleHead       Role = "head"
+	RoleIndividual Role = "individual"
+	RoleStaff      Role = "staff"
+)
+
+// Valid indicates whether the value is a known member of the Role enum.
+func (e Role) Valid() bool {
+	switch e {
+	case RoleAdmin:
+		return true
+	case RoleGuest:
+		return true
+	case RoleHead:
+		return true
+	case RoleIndividual:
+		return true
+	case RoleStaff:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SortDir.
+const (
+	SortDirAsc  SortDir = "asc"
+	SortDirDesc SortDir = "desc"
+)
+
+// Valid indicates whether the value is a known member of the SortDir enum.
+func (e SortDir) Valid() bool {
+	switch e {
+	case SortDirAsc:
+		return true
+	case SortDirDesc:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Tier.
+const (
+	TierHigh   Tier = "high"
+	TierLow    Tier = "low"
+	TierMedium Tier = "medium"
+)
+
+// Valid indicates whether the value is a known member of the Tier enum.
+func (e Tier) Valid() bool {
+	switch e {
+	case TierHigh:
+		return true
+	case TierLow:
+		return true
+	case TierMedium:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Toggle.
+const (
+	ToggleAudioIn   Toggle = "audio-in"
+	ToggleAudioLive Toggle = "audio-live"
+	ToggleAudioOut  Toggle = "audio-out"
+	ToggleImages    Toggle = "images"
+)
+
+// Valid indicates whether the value is a known member of the Toggle enum.
+func (e Toggle) Valid() bool {
+	switch e {
+	case ToggleAudioIn:
+		return true
+	case ToggleAudioLive:
+		return true
+	case ToggleAudioOut:
+		return true
+	case ToggleImages:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for UserFilter.
+const (
+	UserFilterNoGuests UserFilter = "noGuests"
+)
+
+// Valid indicates whether the value is a known member of the UserFilter enum.
+func (e UserFilter) Valid() bool {
+	switch e {
+	case UserFilterNoGuests:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for UserSort.
+const (
+	UserSortCreatedAt    UserSort = "createdAt"
+	UserSortEmail        UserSort = "email"
+	UserSortName         UserSort = "name"
+	UserSortOrganisation UserSort = "organisation"
+	UserSortRole         UserSort = "role"
+)
+
+// Valid indicates whether the value is a known member of the UserSort enum.
+func (e UserSort) Valid() bool {
+	switch e {
+	case UserSortCreatedAt:
+		return true
+	case UserSortEmail:
+		return true
+	case UserSortName:
+		return true
+	case UserSortOrganisation:
+		return true
+	case UserSortRole:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkshopFilter.
+const (
+	WorkshopFilterActive WorkshopFilter = "active"
+)
+
+// Valid indicates whether the value is a known member of the WorkshopFilter enum.
+func (e WorkshopFilter) Valid() bool {
+	switch e {
+	case WorkshopFilterActive:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkshopSort.
+const (
+	WorkshopSortCreatedAt        WorkshopSort = "createdAt"
+	WorkshopSortModifiedAt       WorkshopSort = "modifiedAt"
+	WorkshopSortName             WorkshopSort = "name"
+	WorkshopSortParticipantCount WorkshopSort = "participantCount"
+)
+
+// Valid indicates whether the value is a known member of the WorkshopSort enum.
+func (e WorkshopSort) Valid() bool {
+	switch e {
+	case WorkshopSortCreatedAt:
+		return true
+	case WorkshopSortModifiedAt:
+		return true
+	case WorkshopSortName:
+		return true
+	case WorkshopSortParticipantCount:
+		return true
+	default:
+		return false
+	}
+}
+
 // AcceptInviteResp defines model for AcceptInviteResp.
 type AcceptInviteResp struct {
 	AuthToken *string       `json:"authToken,omitempty"`
@@ -77,12 +572,6 @@ type ApiKeyView struct {
 	UserName         string             `json:"userName"`
 }
 
-// ApiKeysResp defines model for ApiKeysResp.
-type ApiKeysResp struct {
-	ApiKeys []ApiKeyView   `json:"apiKeys"`
-	Shares  []KeyShareView `json:"shares"`
-}
-
 // AvailableKey defines model for AvailableKey.
 type AvailableKey struct {
 	IsDefault bool               `json:"isDefault"`
@@ -100,7 +589,7 @@ type CheckNameResp struct {
 
 // Choice defines model for Choice.
 type Choice struct {
-	Tier    string  `json:"tier"`
+	Tier    Tier    `json:"tier"`
 	Toggles Toggles `json:"toggles"`
 }
 
@@ -298,6 +787,9 @@ type Error struct {
 	Id *string `json:"id,omitempty"`
 }
 
+// EventType defines model for EventType.
+type EventType string
+
 // FavouriteResp defines model for FavouriteResp.
 type FavouriteResp struct {
 	Favourite bool `json:"favourite"`
@@ -357,12 +849,18 @@ type GameFile struct {
 	Theme                  *string            `json:"theme,omitempty"`
 }
 
+// GameFilter defines model for GameFilter.
+type GameFilter string
+
 // GameMeta defines model for GameMeta.
 type GameMeta struct {
 	CreatedAt  time.Time           `json:"createdAt"`
 	CreatedBy  *openapi_types.UUID `json:"createdBy,omitempty"`
 	ModifiedAt time.Time           `json:"modifiedAt"`
 }
+
+// GameSort defines model for GameSort.
+type GameSort string
 
 // GameSponsorReq defines model for GameSponsorReq.
 type GameSponsorReq struct {
@@ -443,10 +941,13 @@ type GameViewPage struct {
 	Total int        `json:"total"`
 }
 
+// Genre defines model for Genre.
+type Genre string
+
 // GenreInfo defines model for GenreInfo.
 type GenreInfo struct {
-	Id    string   `json:"id"`
-	Needs []string `json:"needs"`
+	Id    Genre    `json:"id"`
+	Needs []Toggle `json:"needs"`
 }
 
 // GetCurrentUserResp defines model for GetCurrentUserResp.
@@ -532,11 +1033,23 @@ type InviteCardView struct {
 	WorkshopName    *string             `json:"workshopName,omitempty"`
 }
 
+// InviteCardViewPage defines model for InviteCardViewPage.
+type InviteCardViewPage struct {
+	Items []InviteCardView `json:"items"`
+	Total int              `json:"total"`
+}
+
 // InviteMeta defines model for InviteMeta.
 type InviteMeta struct {
 	CreatedAt  time.Time `json:"createdAt"`
 	ModifiedAt time.Time `json:"modifiedAt"`
 }
+
+// InviteSort defines model for InviteSort.
+type InviteSort string
+
+// InviteStatus defines model for InviteStatus.
+type InviteStatus string
 
 // InviteView defines model for InviteView.
 type InviteView struct {
@@ -585,6 +1098,12 @@ type KeyShareView struct {
 	SourceShareId  *openapi_types.UUID `json:"sourceShareId,omitempty"`
 }
 
+// KeyShareViewPage defines model for KeyShareViewPage.
+type KeyShareViewPage struct {
+	Items []KeyShareView `json:"items"`
+	Total int            `json:"total"`
+}
+
 // Language defines model for Language.
 type Language struct {
 	Iso   string `json:"iso"`
@@ -595,6 +1114,12 @@ type Language struct {
 type MakeGameCoverReq struct {
 	Hint string `json:"hint"`
 }
+
+// Medium defines model for Medium.
+type Medium string
+
+// MemberSort defines model for MemberSort.
+type MemberSort string
 
 // Message defines model for Message.
 type Message struct {
@@ -625,8 +1150,8 @@ type Model struct {
 
 // ModelFacts defines model for ModelFacts.
 type ModelFacts struct {
-	In           []string `json:"in"`
-	Out          []string `json:"out"`
+	In           []Medium `json:"in"`
+	Out          []Medium `json:"out"`
 	Price        Price    `json:"price"`
 	Read         string   `json:"read"`
 	Source       string   `json:"source"`
@@ -666,7 +1191,7 @@ type OfferOption struct {
 	Default      Choice       `json:"default"`
 	Name         string       `json:"name"`
 	Offer        string       `json:"offer"`
-	Platform     string       `json:"platform"`
+	Platform     Platform     `json:"platform"`
 	Tiers        []TierOption `json:"tiers"`
 }
 
@@ -688,6 +1213,12 @@ type OrganisationConsentView struct {
 	PromptConstraints *string            `json:"promptConstraints,omitempty"`
 	Street            *string            `json:"street,omitempty"`
 }
+
+// OrganisationFilter defines model for OrganisationFilter.
+type OrganisationFilter string
+
+// OrganisationKeySort defines model for OrganisationKeySort.
+type OrganisationKeySort string
 
 // OrganisationMeta defines model for OrganisationMeta.
 type OrganisationMeta struct {
@@ -717,6 +1248,9 @@ type OrganisationSignUpReq struct {
 	Street             string `json:"street"`
 }
 
+// OrganisationSort defines model for OrganisationSort.
+type OrganisationSort string
+
 // OrganisationSuspensionView defines model for OrganisationSuspensionView.
 type OrganisationSuspensionView struct {
 	Id              openapi_types.UUID `json:"id"`
@@ -734,10 +1268,14 @@ type OrganisationView struct {
 	HasRecord            bool                          `json:"hasRecord"`
 	HasSettings          bool                          `json:"hasSettings"`
 	Id                   openapi_types.UUID            `json:"id"`
+	MayCreateWorkshop    bool                          `json:"mayCreateWorkshop"`
 	MayDelete            bool                          `json:"mayDelete"`
 	MayEditCard          bool                          `json:"mayEditCard"`
 	MayEditDetails       bool                          `json:"mayEditDetails"`
 	MayEditSettings      bool                          `json:"mayEditSettings"`
+	MayInviteHead        bool                          `json:"mayInviteHead"`
+	MayInviteStaff       bool                          `json:"mayInviteStaff"`
+	MayListApiKeys       bool                          `json:"mayListApiKeys"`
 	MaySuspend           bool                          `json:"maySuspend"`
 	Members              []UserView                    `json:"members"`
 	Meta                 OrganisationMeta              `json:"meta"`
@@ -752,10 +1290,35 @@ type OrganisationView struct {
 	SuspendedReason      *string                       `json:"suspendedReason,omitempty"`
 }
 
+// OrganisationViewPage defines model for OrganisationViewPage.
+type OrganisationViewPage struct {
+	Items []OrganisationView `json:"items"`
+	Total int                `json:"total"`
+}
+
+// OwnApiKeySort defines model for OwnApiKeySort.
+type OwnApiKeySort string
+
+// OwnApiKeyView defines model for OwnApiKeyView.
+type OwnApiKeyView struct {
+	Key       ApiKeyView     `json:"key"`
+	SelfShare KeyShareView   `json:"selfShare"`
+	Shares    []KeyShareView `json:"shares"`
+}
+
+// OwnApiKeyViewPage defines model for OwnApiKeyViewPage.
+type OwnApiKeyViewPage struct {
+	Items []OwnApiKeyView `json:"items"`
+	Total int             `json:"total"`
+}
+
 // ParticipantMeta defines model for ParticipantMeta.
 type ParticipantMeta struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
+
+// ParticipantSort defines model for ParticipantSort.
+type ParticipantSort string
 
 // Place defines model for Place.
 type Place struct {
@@ -763,10 +1326,13 @@ type Place struct {
 	Y int `json:"y"`
 }
 
+// Platform defines model for Platform.
+type Platform string
+
 // PlatformInfo defines model for PlatformInfo.
 type PlatformInfo struct {
-	Genres   []string              `json:"genres"`
-	Id       string                `json:"id"`
+	Genres   []Genre               `json:"genres"`
+	Id       Platform              `json:"id"`
 	Models   map[string]ModelFacts `json:"models"`
 	Name     string                `json:"name"`
 	Tiers    []TierModels          `json:"tiers"`
@@ -776,10 +1342,10 @@ type PlatformInfo struct {
 
 // Preference defines model for Preference.
 type Preference struct {
-	Offer    *string `json:"offer,omitempty"`
-	Platform string  `json:"platform"`
-	Tier     string  `json:"tier"`
-	Toggles  Toggles `json:"toggles"`
+	Offer    *string  `json:"offer,omitempty"`
+	Platform Platform `json:"platform"`
+	Tier     Tier     `json:"tier"`
+	Toggles  Toggles  `json:"toggles"`
 }
 
 // Price defines model for Price.
@@ -830,9 +1396,12 @@ type PublicWorkshopPlay struct {
 	Token     string `json:"token"`
 }
 
+// Role defines model for Role.
+type Role string
+
 // RolesResp defines model for RolesResp.
 type RolesResp struct {
-	Roles []string `json:"roles"`
+	Roles []Role `json:"roles"`
 }
 
 // Sample defines model for Sample.
@@ -942,7 +1511,7 @@ type Settled struct {
 	Changes    *[]string  `json:"changes,omitempty"`
 	Choice     Choice     `json:"choice"`
 	Offer      string     `json:"offer"`
-	Platform   string     `json:"platform"`
+	Platform   Platform   `json:"platform"`
 	Preference Preference `json:"preference"`
 }
 
@@ -984,6 +1553,9 @@ type Snapshot struct {
 	Usage        UsageReport       `json:"usage"`
 }
 
+// SortDir defines model for SortDir.
+type SortDir string
+
 // SuspendOrganisationReq defines model for SuspendOrganisationReq.
 type SuspendOrganisationReq struct {
 	Reason *string `json:"reason,omitempty"`
@@ -1023,9 +1595,12 @@ type ThreadFill struct {
 	Window int `json:"window"`
 }
 
+// Tier defines model for Tier.
+type Tier string
+
 // TierModels defines model for TierModels.
 type TierModels struct {
-	Id     string           `json:"id"`
+	Id     Tier             `json:"id"`
 	Label  string           `json:"label"`
 	Models map[string]Model `json:"models"`
 }
@@ -1034,14 +1609,17 @@ type TierModels struct {
 type TierOption struct {
 	Label   string            `json:"label"`
 	Models  map[string]string `json:"models"`
-	Tier    string            `json:"tier"`
+	Tier    Tier              `json:"tier"`
 	Toggles Toggles           `json:"toggles"`
 }
+
+// Toggle defines model for Toggle.
+type Toggle string
 
 // ToggleRequest defines model for ToggleRequest.
 type ToggleRequest struct {
 	On     bool   `json:"on"`
-	Toggle string `json:"toggle"`
+	Toggle Toggle `json:"toggle"`
 }
 
 // Toggles defines model for Toggles.
@@ -1207,6 +1785,9 @@ type User struct {
 	Role          *UserRole          `json:"role,omitempty"`
 }
 
+// UserFilter defines model for UserFilter.
+type UserFilter string
+
 // UserMeta defines model for UserMeta.
 type UserMeta struct {
 	CreatedAt  time.Time `json:"createdAt"`
@@ -1218,7 +1799,7 @@ type UserRole struct {
 	Id          openapi_types.UUID `json:"id"`
 	Institution *Institution       `json:"institution,omitempty"`
 	Meta        Meta               `json:"meta"`
-	Role        string             `json:"role"`
+	Role        Role               `json:"role"`
 	UserId      openapi_types.UUID `json:"userId"`
 	Workshop    *Workshop          `json:"workshop,omitempty"`
 }
@@ -1235,8 +1816,8 @@ type UserRoleInvite struct {
 	InvitedUserId *openapi_types.UUID `json:"invitedUserId,omitempty"`
 	MaxUses       *int                `json:"maxUses,omitempty"`
 	Meta          Meta                `json:"meta"`
-	Role          string              `json:"role"`
-	Status        string              `json:"status"`
+	Role          Role                `json:"role"`
+	Status        InviteStatus        `json:"status"`
 	UsesCount     int                 `json:"usesCount"`
 	WorkshopId    *openapi_types.UUID `json:"workshopId,omitempty"`
 }
@@ -1253,6 +1834,9 @@ type UserSecretsView struct {
 	Token *string `json:"token,omitempty"`
 	Words *string `json:"words,omitempty"`
 }
+
+// UserSort defines model for UserSort.
+type UserSort string
 
 // UserStatsView defines model for UserStatsView.
 type UserStatsView struct {
@@ -1272,13 +1856,22 @@ type UserView struct {
 	HasContact           bool                `json:"hasContact"`
 	Id                   openapi_types.UUID  `json:"id"`
 	Language             *string             `json:"language,omitempty"`
+	MayChangeAnyRole     bool                `json:"mayChangeAnyRole"`
+	MayChangeRole        bool                `json:"mayChangeRole"`
 	MayDelete            bool                `json:"mayDelete"`
 	MayEditAccount       bool                `json:"mayEditAccount"`
 	MayEditCard          bool                `json:"mayEditCard"`
 	MayEditContact       bool                `json:"mayEditContact"`
+	MayRemoveMember      bool                `json:"mayRemoveMember"`
 	Meta                 *UserMeta           `json:"meta,omitempty"`
 	Name                 string              `json:"name"`
 	Role                 *UserRoleRef        `json:"role,omitempty"`
+}
+
+// UserViewPage defines model for UserViewPage.
+type UserViewPage struct {
+	Items []UserView `json:"items"`
+	Total int        `json:"total"`
 }
 
 // Workshop defines model for Workshop.
@@ -1307,9 +1900,12 @@ type Workshop struct {
 type WorkshopEvent struct {
 	GameId      *openapi_types.UUID `json:"gameId,omitempty"`
 	TriggeredBy *openapi_types.UUID `json:"triggeredBy,omitempty"`
-	Type        string              `json:"type"`
+	Type        EventType           `json:"type"`
 	WorkshopId  *openapi_types.UUID `json:"workshopId,omitempty"`
 }
+
+// WorkshopFilter defines model for WorkshopFilter.
+type WorkshopFilter string
 
 // WorkshopMeta defines model for WorkshopMeta.
 type WorkshopMeta struct {
@@ -1326,7 +1922,7 @@ type WorkshopParticipant struct {
 	Meta        Meta               `json:"meta"`
 	Name        string             `json:"name"`
 	Permanent   bool               `json:"permanent"`
-	Role        string             `json:"role"`
+	Role        Role               `json:"role"`
 	WorkshopId  openapi_types.UUID `json:"workshopId"`
 }
 
@@ -1340,6 +1936,15 @@ type WorkshopParticipantView struct {
 	Role       string             `json:"role"`
 	WorkshopId openapi_types.UUID `json:"workshopId"`
 }
+
+// WorkshopParticipantViewPage defines model for WorkshopParticipantViewPage.
+type WorkshopParticipantViewPage struct {
+	Items []WorkshopParticipantView `json:"items"`
+	Total int                       `json:"total"`
+}
+
+// WorkshopSort defines model for WorkshopSort.
+type WorkshopSort string
 
 // WorkshopView defines model for WorkshopView.
 type WorkshopView struct {
@@ -1369,10 +1974,26 @@ type WorkshopView struct {
 	ShowPublicGames            bool                      `json:"showPublicGames"`
 }
 
+// WorkshopViewPage defines model for WorkshopViewPage.
+type WorkshopViewPage struct {
+	Items []WorkshopView `json:"items"`
+	Total int            `json:"total"`
+}
+
 // YouthProtectionSuggestion defines model for YouthProtectionSuggestion.
 type YouthProtectionSuggestion struct {
 	MinAge int    `json:"minAge"`
 	Text   string `json:"text"`
+}
+
+// GetApiApikeysParams defines parameters for GetApiApikeys.
+type GetApiApikeysParams struct {
+	Filter  *[]string      `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string        `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *OwnApiKeySort `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir       `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int           `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int           `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // DeleteApiApikeysIdParams defines parameters for DeleteApiApikeysId.
@@ -1395,17 +2016,62 @@ type PostApiAuthProviderLoginJSONBody map[string]interface{}
 
 // GetApiGamesParams defines parameters for GetApiGames.
 type GetApiGamesParams struct {
-	Filter  *[]string `form:"filter,omitempty" json:"filter,omitempty"`
-	Search  *string   `form:"search,omitempty" json:"search,omitempty"`
-	SortBy  *string   `form:"sortBy,omitempty" json:"sortBy,omitempty"`
-	SortDir *string   `form:"sortDir,omitempty" json:"sortDir,omitempty"`
-	Limit   *int      `form:"limit,omitempty" json:"limit,omitempty"`
-	Offset  *int      `form:"offset,omitempty" json:"offset,omitempty"`
+	Filter  *[]GameFilter `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string       `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *GameSort     `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir      `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int          `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int          `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // GetApiInstitutionsParams defines parameters for GetApiInstitutions.
 type GetApiInstitutionsParams struct {
-	Filter *[]string `form:"filter,omitempty" json:"filter,omitempty"`
+	Filter  *[]OrganisationFilter `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string               `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *OrganisationSort     `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir              `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int                  `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int                  `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// GetApiInstitutionsIdApikeysParams defines parameters for GetApiInstitutionsIdApikeys.
+type GetApiInstitutionsIdApikeysParams struct {
+	Filter  *[]string            `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string              `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *OrganisationKeySort `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir             `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int                 `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int                 `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// GetApiInstitutionsIdMembersParams defines parameters for GetApiInstitutionsIdMembers.
+type GetApiInstitutionsIdMembersParams struct {
+	Filter  *[]string   `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string     `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *MemberSort `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir    `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int        `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int        `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// GetApiInvitesAllParams defines parameters for GetApiInvitesAll.
+type GetApiInvitesAllParams struct {
+	Filter  *[]string   `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string     `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *InviteSort `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir    `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int        `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int        `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// GetApiInvitesInstitutionInstitutionIdParams defines parameters for GetApiInvitesInstitutionInstitutionId.
+type GetApiInvitesInstitutionInstitutionIdParams struct {
+	Filter  *[]string   `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string     `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *InviteSort `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir    `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int        `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int        `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // GetApiSessionsParams defines parameters for GetApiSessions.
@@ -1414,13 +2080,35 @@ type GetApiSessionsParams struct {
 	SortBy *string `form:"sortBy,omitempty" json:"sortBy,omitempty"`
 }
 
+// GetApiUsersParams defines parameters for GetApiUsers.
+type GetApiUsersParams struct {
+	Filter  *[]UserFilter `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string       `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *UserSort     `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir      `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int          `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int          `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
 // GetApiWorkshopsParams defines parameters for GetApiWorkshops.
 type GetApiWorkshopsParams struct {
-	InstitutionId *string `form:"institutionId,omitempty" json:"institutionId,omitempty"`
-	Search        *string `form:"search,omitempty" json:"search,omitempty"`
-	SortBy        *string `form:"sortBy,omitempty" json:"sortBy,omitempty"`
-	SortDir       *string `form:"sortDir,omitempty" json:"sortDir,omitempty"`
-	ActiveOnly    *string `form:"activeOnly,omitempty" json:"activeOnly,omitempty"`
+	InstitutionId *string           `form:"institutionId,omitempty" json:"institutionId,omitempty"`
+	Filter        *[]WorkshopFilter `form:"filter,omitempty" json:"filter,omitempty"`
+	Search        *string           `form:"search,omitempty" json:"search,omitempty"`
+	SortBy        *WorkshopSort     `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir       *SortDir          `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit         *int              `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset        *int              `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// GetApiWorkshopsIdParticipantsParams defines parameters for GetApiWorkshopsIdParticipants.
+type GetApiWorkshopsIdParticipantsParams struct {
+	Filter  *[]string        `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string          `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *ParticipantSort `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir         `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int             `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int             `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // PostApiApikeysNewJSONRequestBody defines body for PostApiApikeysNew for application/json ContentType.
@@ -1623,7 +2311,7 @@ type ClientInterface interface {
 	// and share links it pays for.
 	//
 	// Corresponds with GET /api/apikeys (the `GetApiApikeys` operationId).
-	GetApiApikeys(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiApikeys(ctx context.Context, params *GetApiApikeysParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiApikeysNewWithBody Stores a key of the caller's and answers with their
 	//
@@ -2138,11 +2826,10 @@ type ClientInterface interface {
 	// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
 	GetApiErrorsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiGames Lists a page of the games the caller can see, and the total.
+	// GetApiGames Lists a page of the games the caller can see, and the
 	//
-	// Query, all optional: filter (own, others, public, favorites, sponsored;
-	// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
-	// visibility, creator), sortDir (asc, desc), limit, offset.
+	// total. It narrows what the caller may see, never widens it; the order uses
+	// card fields only.
 	//
 	// Corresponds with GET /api/games (the `GetApiGames` operationId).
 	GetApiGames(ctx context.Context, params *GetApiGamesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2435,13 +3122,9 @@ type ClientInterface interface {
 	// Corresponds with GET /api/health (the `GetApiHealth` operationId).
 	GetApiHealth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInstitutions Lists the organisations the caller may list: an
+	// GetApiInstitutions Lists a page of the organisations the caller may
 	//
-	// admin all of them, a head or staff their own.
-	//
-	// filter narrows the list: "recentlyRegistered", those that registered
-	// themselves in the last 14 days, among those whose record the caller sees.
-	// An unknown filter is refused.
+	// list, and the total: an admin all of them, a head or staff their own.
 	//
 	// Corresponds with GET /api/institutions (the `GetApiInstitutions` operationId).
 	GetApiInstitutions(ctx context.Context, params *GetApiInstitutionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2515,7 +3198,7 @@ type ClientInterface interface {
 	// its head and staff.
 	//
 	// Corresponds with GET /api/institutions/{id}/apikeys (the `GetApiInstitutionsIdApikeys` operationId).
-	GetApiInstitutionsIdApikeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiInstitutionsIdApikeys(ctx context.Context, id string, params *GetApiInstitutionsIdApikeysParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiInstitutionsIdDeclarationConsent Withdraws a head's organisation's consent to the
 	//
@@ -2595,13 +3278,14 @@ type ClientInterface interface {
 	// Corresponds with PATCH /api/institutions/{id}/free-use-key (the `PatchApiInstitutionsIdFreeUseKey` operationId).
 	PatchApiInstitutionsIdFreeUseKey(ctx context.Context, id string, body PatchApiInstitutionsIdFreeUseKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInstitutionsIdMembers Lists an organisation's members (individual,
+	// GetApiInstitutionsIdMembers Lists a page of an organisation's members
 	//
-	// staff, head): for its members and the admin. Anyone else gets an empty
-	// list; an organisation the caller may not read, 404.
+	// (head and staff), and the total: for its members and the admin.
+	// Anyone else gets an empty list; an organisation the caller may not read,
+	// 404.
 	//
 	// Corresponds with GET /api/institutions/{id}/members (the `GetApiInstitutionsIdMembers` operationId).
-	GetApiInstitutionsIdMembers(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiInstitutionsIdMembers(ctx context.Context, id string, params *GetApiInstitutionsIdMembersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiInstitutionsIdMembersUserID Removes a user from an organisation; they
 	//
@@ -2658,18 +3342,18 @@ type ClientInterface interface {
 	// Corresponds with GET /api/invites (the `GetApiInvites` operationId).
 	GetApiInvites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInvitesAll Lists every invite the caller may list: for the
+	// GetApiInvitesAll Lists a page of every invite the caller may list,
 	//
-	// admin, all of them.
+	// and the total: for the admin, all of them.
 	//
 	// Corresponds with GET /api/invites/all (the `GetApiInvitesAll` operationId).
-	GetApiInvitesAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiInvitesAll(ctx context.Context, params *GetApiInvitesAllParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiInvitesInstitutionWithBody Invites an account, by id or email, into
 	//
-	// an organisation as head, staff or individual (staff by default). Head and
-	// staff invite into their organisation, only heads as head; the admin into
-	// any.
+	// an organisation as head or staff (staff by default): accepting, they
+	// become it. Head and staff invite into their organisation, only heads as
+	// head; the admin into any.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -2678,22 +3362,22 @@ type ClientInterface interface {
 
 	// PostApiInvitesInstitution Invites an account, by id or email, into
 	//
-	// an organisation as head, staff or individual (staff by default). Head and
-	// staff invite into their organisation, only heads as head; the admin into
-	// any.
+	// an organisation as head or staff (staff by default): accepting, they
+	// become it. Head and staff invite into their organisation, only heads as
+	// head; the admin into any.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/invites/institution (the `PostApiInvitesInstitution` operationId).
 	PostApiInvitesInstitution(ctx context.Context, body PostApiInvitesInstitutionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiInvitesInstitutionInstitutionId Lists an organisation's invites the
+	// GetApiInvitesInstitutionInstitutionId Lists a page of an organisation's invites
 	//
-	// caller may list: its head and staff (staff without the invites to become
+	// the caller may list, and the total: its head and staff (staff without the invites to become
 	// head), and the admin.
 	//
 	// Corresponds with GET /api/invites/institution/{institutionId} (the `GetApiInvitesInstitutionInstitutionId` operationId).
-	GetApiInvitesInstitutionInstitutionId(ctx context.Context, institutionId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiInvitesInstitutionInstitutionId(ctx context.Context, institutionId string, params *GetApiInvitesInstitutionInstitutionIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiInvitesWorkshopWithBody Returns a workshop's link: its usable one, or
 	//
@@ -2926,12 +3610,13 @@ type ClientInterface interface {
 	// Corresponds with GET /api/user/me (the `GetApiUserMe` operationId).
 	GetApiUserMe(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiUsers Lists the users the caller may list: admins every user,
+	// GetApiUsers Lists a page of the users the caller may list, and the
 	//
-	// heads and staff the members of their organisation.
+	// total: admins every user, heads and staff the members of their
+	// organisation.
 	//
 	// Corresponds with GET /api/users (the `GetApiUsers` operationId).
-	GetApiUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiUsers(ctx context.Context, params *GetApiUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiUsersMe Reports who is calling.
 	//
@@ -3125,13 +3810,10 @@ type ClientInterface interface {
 	// Corresponds with GET /api/version (the `GetApiVersion` operationId).
 	GetApiVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiWorkshops Lists the workshops the caller may list: an admin
+	// GetApiWorkshops Lists a page of the workshops the caller may list,
 	//
-	// all of them, a head or staff their organisation's.
-	//
-	// institutionId, search and activeOnly narrow the list; sortBy (name,
-	// createdAt, participantCount) and sortDir (asc, desc) order it, newest
-	// first by default.
+	// and the total: an admin all of them, a head or staff their
+	// organisation's. institutionId narrows it to one organisation.
 	//
 	// Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
 	GetApiWorkshops(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3241,6 +3923,14 @@ type ClientInterface interface {
 	//
 	// Corresponds with DELETE /api/workshops/{id}/members/{userId} (the `DeleteApiWorkshopsIdMembersUserId` operationId).
 	DeleteApiWorkshopsIdMembersUserId(ctx context.Context, id string, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiWorkshopsIdParticipants Lists a page of a workshop's participants, and
+	//
+	// the total: for those who may list them (an empty list for others); a
+	// workshop the caller may not read, 404.
+	//
+	// Corresponds with GET /api/workshops/{id}/participants (the `GetApiWorkshopsIdParticipants` operationId).
+	GetApiWorkshopsIdParticipants(ctx context.Context, id string, params *GetApiWorkshopsIdParticipantsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 // GetApiApikeys Lists the caller's keys and every share of them: their
@@ -3249,8 +3939,8 @@ type ClientInterface interface {
 // and share links it pays for.
 //
 // Corresponds with GET /api/apikeys (the `GetApiApikeys` operationId).
-func (c *Client) GetApiApikeys(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiApikeysRequest(c.Server)
+func (c *Client) GetApiApikeys(ctx context.Context, params *GetApiApikeysParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiApikeysRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -4334,11 +5024,10 @@ func (c *Client) GetApiErrorsId(ctx context.Context, id string, reqEditors ...Re
 	return c.Client.Do(req)
 }
 
-// GetApiGames Lists a page of the games the caller can see, and the total.
+// GetApiGames Lists a page of the games the caller can see, and the
 //
-// Query, all optional: filter (own, others, public, favorites, sponsored;
-// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
-// visibility, creator), sortDir (asc, desc), limit, offset.
+// total. It narrows what the caller may see, never widens it; the order uses
+// card fields only.
 //
 // Corresponds with GET /api/games (the `GetApiGames` operationId).
 func (c *Client) GetApiGames(ctx context.Context, params *GetApiGamesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4941,13 +5630,9 @@ func (c *Client) GetApiHealth(ctx context.Context, reqEditors ...RequestEditorFn
 	return c.Client.Do(req)
 }
 
-// GetApiInstitutions Lists the organisations the caller may list: an
+// GetApiInstitutions Lists a page of the organisations the caller may
 //
-// admin all of them, a head or staff their own.
-//
-// filter narrows the list: "recentlyRegistered", those that registered
-// themselves in the last 14 days, among those whose record the caller sees.
-// An unknown filter is refused.
+// list, and the total: an admin all of them, a head or staff their own.
 //
 // Corresponds with GET /api/institutions (the `GetApiInstitutions` operationId).
 func (c *Client) GetApiInstitutions(ctx context.Context, params *GetApiInstitutionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5091,8 +5776,8 @@ func (c *Client) PatchApiInstitutionsId(ctx context.Context, id string, body Pat
 // its head and staff.
 //
 // Corresponds with GET /api/institutions/{id}/apikeys (the `GetApiInstitutionsIdApikeys` operationId).
-func (c *Client) GetApiInstitutionsIdApikeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiInstitutionsIdApikeysRequest(c.Server, id)
+func (c *Client) GetApiInstitutionsIdApikeys(ctx context.Context, id string, params *GetApiInstitutionsIdApikeysParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiInstitutionsIdApikeysRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5241,14 +5926,15 @@ func (c *Client) PatchApiInstitutionsIdFreeUseKey(ctx context.Context, id string
 	return c.Client.Do(req)
 }
 
-// GetApiInstitutionsIdMembers Lists an organisation's members (individual,
+// GetApiInstitutionsIdMembers Lists a page of an organisation's members
 //
-// staff, head): for its members and the admin. Anyone else gets an empty
-// list; an organisation the caller may not read, 404.
+// (head and staff), and the total: for its members and the admin.
+// Anyone else gets an empty list; an organisation the caller may not read,
+// 404.
 //
 // Corresponds with GET /api/institutions/{id}/members (the `GetApiInstitutionsIdMembers` operationId).
-func (c *Client) GetApiInstitutionsIdMembers(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiInstitutionsIdMembersRequest(c.Server, id)
+func (c *Client) GetApiInstitutionsIdMembers(ctx context.Context, id string, params *GetApiInstitutionsIdMembersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiInstitutionsIdMembersRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5364,13 +6050,13 @@ func (c *Client) GetApiInvites(ctx context.Context, reqEditors ...RequestEditorF
 	return c.Client.Do(req)
 }
 
-// GetApiInvitesAll Lists every invite the caller may list: for the
+// GetApiInvitesAll Lists a page of every invite the caller may list,
 //
-// admin, all of them.
+// and the total: for the admin, all of them.
 //
 // Corresponds with GET /api/invites/all (the `GetApiInvitesAll` operationId).
-func (c *Client) GetApiInvitesAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiInvitesAllRequest(c.Server)
+func (c *Client) GetApiInvitesAll(ctx context.Context, params *GetApiInvitesAllParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiInvitesAllRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5383,9 +6069,9 @@ func (c *Client) GetApiInvitesAll(ctx context.Context, reqEditors ...RequestEdit
 
 // PostApiInvitesInstitutionWithBody Invites an account, by id or email, into
 //
-// an organisation as head, staff or individual (staff by default). Head and
-// staff invite into their organisation, only heads as head; the admin into
-// any.
+// an organisation as head or staff (staff by default): accepting, they
+// become it. Head and staff invite into their organisation, only heads as
+// head; the admin into any.
 //
 // Takes any type of body and a specified content type.
 //
@@ -5404,9 +6090,9 @@ func (c *Client) PostApiInvitesInstitutionWithBody(ctx context.Context, contentT
 
 // PostApiInvitesInstitution Invites an account, by id or email, into
 //
-// an organisation as head, staff or individual (staff by default). Head and
-// staff invite into their organisation, only heads as head; the admin into
-// any.
+// an organisation as head or staff (staff by default): accepting, they
+// become it. Head and staff invite into their organisation, only heads as
+// head; the admin into any.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -5423,14 +6109,14 @@ func (c *Client) PostApiInvitesInstitution(ctx context.Context, body PostApiInvi
 	return c.Client.Do(req)
 }
 
-// GetApiInvitesInstitutionInstitutionId Lists an organisation's invites the
+// GetApiInvitesInstitutionInstitutionId Lists a page of an organisation's invites
 //
-// caller may list: its head and staff (staff without the invites to become
+// the caller may list, and the total: its head and staff (staff without the invites to become
 // head), and the admin.
 //
 // Corresponds with GET /api/invites/institution/{institutionId} (the `GetApiInvitesInstitutionInstitutionId` operationId).
-func (c *Client) GetApiInvitesInstitutionInstitutionId(ctx context.Context, institutionId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiInvitesInstitutionInstitutionIdRequest(c.Server, institutionId)
+func (c *Client) GetApiInvitesInstitutionInstitutionId(ctx context.Context, institutionId string, params *GetApiInvitesInstitutionInstitutionIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiInvitesInstitutionInstitutionIdRequest(c.Server, institutionId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5952,13 +6638,14 @@ func (c *Client) GetApiUserMe(ctx context.Context, reqEditors ...RequestEditorFn
 	return c.Client.Do(req)
 }
 
-// GetApiUsers Lists the users the caller may list: admins every user,
+// GetApiUsers Lists a page of the users the caller may list, and the
 //
-// heads and staff the members of their organisation.
+// total: admins every user, heads and staff the members of their
+// organisation.
 //
 // Corresponds with GET /api/users (the `GetApiUsers` operationId).
-func (c *Client) GetApiUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiUsersRequest(c.Server)
+func (c *Client) GetApiUsers(ctx context.Context, params *GetApiUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiUsersRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6351,13 +7038,10 @@ func (c *Client) GetApiVersion(ctx context.Context, reqEditors ...RequestEditorF
 	return c.Client.Do(req)
 }
 
-// GetApiWorkshops Lists the workshops the caller may list: an admin
+// GetApiWorkshops Lists a page of the workshops the caller may list,
 //
-// all of them, a head or staff their organisation's.
-//
-// institutionId, search and activeOnly narrow the list; sortBy (name,
-// createdAt, participantCount) and sortDir (asc, desc) order it, newest
-// first by default.
+// and the total: an admin all of them, a head or staff their
+// organisation's. institutionId narrows it to one organisation.
 //
 // Corresponds with GET /api/workshops (the `GetApiWorkshops` operationId).
 func (c *Client) GetApiWorkshops(ctx context.Context, params *GetApiWorkshopsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -6598,8 +7282,26 @@ func (c *Client) DeleteApiWorkshopsIdMembersUserId(ctx context.Context, id strin
 	return c.Client.Do(req)
 }
 
+// GetApiWorkshopsIdParticipants Lists a page of a workshop's participants, and
+//
+// the total: for those who may list them (an empty list for others); a
+// workshop the caller may not read, 404.
+//
+// Corresponds with GET /api/workshops/{id}/participants (the `GetApiWorkshopsIdParticipants` operationId).
+func (c *Client) GetApiWorkshopsIdParticipants(ctx context.Context, id string, params *GetApiWorkshopsIdParticipantsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiWorkshopsIdParticipantsRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // NewGetApiApikeysRequest constructs an http.Request for the GetApiApikeys method
-func NewGetApiApikeysRequest(server string) (*http.Request, error) {
+func NewGetApiApikeysRequest(server string, params *GetApiApikeysParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -6615,6 +7317,93 @@ func NewGetApiApikeysRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -9262,6 +10051,66 @@ func NewGetApiInstitutionsRequest(server string, params *GetApiInstitutionsParam
 
 		}
 
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -9432,7 +10281,7 @@ func NewPatchApiInstitutionsIdRequestWithBody(server string, id string, contentT
 }
 
 // NewGetApiInstitutionsIdApikeysRequest constructs an http.Request for the GetApiInstitutionsIdApikeys method
-func NewGetApiInstitutionsIdApikeysRequest(server string, id string) (*http.Request, error) {
+func NewGetApiInstitutionsIdApikeysRequest(server string, id string, params *GetApiInstitutionsIdApikeysParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9455,6 +10304,93 @@ func NewGetApiInstitutionsIdApikeysRequest(server string, id string) (*http.Requ
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -9628,7 +10564,7 @@ func NewPatchApiInstitutionsIdFreeUseKeyRequestWithBody(server string, id string
 }
 
 // NewGetApiInstitutionsIdMembersRequest constructs an http.Request for the GetApiInstitutionsIdMembers method
-func NewGetApiInstitutionsIdMembersRequest(server string, id string) (*http.Request, error) {
+func NewGetApiInstitutionsIdMembersRequest(server string, id string, params *GetApiInstitutionsIdMembersParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9651,6 +10587,93 @@ func NewGetApiInstitutionsIdMembersRequest(server string, id string) (*http.Requ
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -9811,7 +10834,7 @@ func NewGetApiInvitesRequest(server string) (*http.Request, error) {
 }
 
 // NewGetApiInvitesAllRequest constructs an http.Request for the GetApiInvitesAll method
-func NewGetApiInvitesAllRequest(server string) (*http.Request, error) {
+func NewGetApiInvitesAllRequest(server string, params *GetApiInvitesAllParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9827,6 +10850,93 @@ func NewGetApiInvitesAllRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -9878,7 +10988,7 @@ func NewPostApiInvitesInstitutionRequestWithBody(server string, contentType stri
 }
 
 // NewGetApiInvitesInstitutionInstitutionIdRequest constructs an http.Request for the GetApiInvitesInstitutionInstitutionId method
-func NewGetApiInvitesInstitutionInstitutionIdRequest(server string, institutionId string) (*http.Request, error) {
+func NewGetApiInvitesInstitutionInstitutionIdRequest(server string, institutionId string, params *GetApiInvitesInstitutionInstitutionIdParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9901,6 +11011,93 @@ func NewGetApiInvitesInstitutionInstitutionIdRequest(server string, institutionI
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -10721,7 +11918,7 @@ func NewGetApiUserMeRequest(server string) (*http.Request, error) {
 }
 
 // NewGetApiUsersRequest constructs an http.Request for the GetApiUsers method
-func NewGetApiUsersRequest(server string) (*http.Request, error) {
+func NewGetApiUsersRequest(server string, params *GetApiUsersParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10737,6 +11934,93 @@ func NewGetApiUsersRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -11279,6 +12563,18 @@ func NewGetApiWorkshopsRequest(server string, params *GetApiWorkshopsParams) (*h
 
 		}
 
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.Search != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -11315,9 +12611,21 @@ func NewGetApiWorkshopsRequest(server string, params *GetApiWorkshopsParams) (*h
 
 		}
 
-		if params.ActiveOnly != nil {
+		if params.Limit != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "activeOnly", *params.ActiveOnly, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -11686,6 +12994,127 @@ func NewDeleteApiWorkshopsIdMembersUserIdRequest(server string, id string, userI
 	return req, nil
 }
 
+// NewGetApiWorkshopsIdParticipantsRequest constructs an http.Request for the GetApiWorkshopsIdParticipants method
+func NewGetApiWorkshopsIdParticipantsRequest(server string, id string, params *GetApiWorkshopsIdParticipantsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/workshops/%s/participants", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -11738,7 +13167,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/apikeys (the `GetApiApikeys` operationId).
-	GetApiApikeysWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiApikeysResponse, error)
+	GetApiApikeysWithResponse(ctx context.Context, params *GetApiApikeysParams, reqEditors ...RequestEditorFn) (*GetApiApikeysResponse, error)
 
 	// PostApiApikeysNewWithBodyWithResponse Stores a key of the caller's and answers with their
 	//
@@ -12305,11 +13734,10 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/errors/{id} (the `GetApiErrorsId` operationId).
 	GetApiErrorsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiErrorsIdResponse, error)
 
-	// GetApiGamesWithResponse Lists a page of the games the caller can see, and the total.
+	// GetApiGamesWithResponse Lists a page of the games the caller can see, and the
 	//
-	// Query, all optional: filter (own, others, public, favorites, sponsored;
-	// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
-	// visibility, creator), sortDir (asc, desc), limit, offset.
+	// total. It narrows what the caller may see, never widens it; the order uses
+	// card fields only.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12636,13 +14064,9 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/health (the `GetApiHealth` operationId).
 	GetApiHealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiHealthResponse, error)
 
-	// GetApiInstitutionsWithResponse Lists the organisations the caller may list: an
+	// GetApiInstitutionsWithResponse Lists a page of the organisations the caller may
 	//
-	// admin all of them, a head or staff their own.
-	//
-	// filter narrows the list: "recentlyRegistered", those that registered
-	// themselves in the last 14 days, among those whose record the caller sees.
-	// An unknown filter is refused.
+	// list, and the total: an admin all of them, a head or staff their own.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -12724,7 +14148,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/institutions/{id}/apikeys (the `GetApiInstitutionsIdApikeys` operationId).
-	GetApiInstitutionsIdApikeysWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdApikeysResponse, error)
+	GetApiInstitutionsIdApikeysWithResponse(ctx context.Context, id string, params *GetApiInstitutionsIdApikeysParams, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdApikeysResponse, error)
 
 	// DeleteApiInstitutionsIdDeclarationConsentWithResponse Withdraws a head's organisation's consent to the
 	//
@@ -12808,15 +14232,16 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with PATCH /api/institutions/{id}/free-use-key (the `PatchApiInstitutionsIdFreeUseKey` operationId).
 	PatchApiInstitutionsIdFreeUseKeyWithResponse(ctx context.Context, id string, body PatchApiInstitutionsIdFreeUseKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiInstitutionsIdFreeUseKeyResponse, error)
 
-	// GetApiInstitutionsIdMembersWithResponse Lists an organisation's members (individual,
+	// GetApiInstitutionsIdMembersWithResponse Lists a page of an organisation's members
 	//
-	// staff, head): for its members and the admin. Anyone else gets an empty
-	// list; an organisation the caller may not read, 404.
+	// (head and staff), and the total: for its members and the admin.
+	// Anyone else gets an empty list; an organisation the caller may not read,
+	// 404.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/institutions/{id}/members (the `GetApiInstitutionsIdMembers` operationId).
-	GetApiInstitutionsIdMembersWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdMembersResponse, error)
+	GetApiInstitutionsIdMembersWithResponse(ctx context.Context, id string, params *GetApiInstitutionsIdMembersParams, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdMembersResponse, error)
 
 	// DeleteApiInstitutionsIdMembersUserIDWithResponse Removes a user from an organisation; they
 	//
@@ -12879,20 +14304,20 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/invites (the `GetApiInvites` operationId).
 	GetApiInvitesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiInvitesResponse, error)
 
-	// GetApiInvitesAllWithResponse Lists every invite the caller may list: for the
+	// GetApiInvitesAllWithResponse Lists a page of every invite the caller may list,
 	//
-	// admin, all of them.
+	// and the total: for the admin, all of them.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/invites/all (the `GetApiInvitesAll` operationId).
-	GetApiInvitesAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiInvitesAllResponse, error)
+	GetApiInvitesAllWithResponse(ctx context.Context, params *GetApiInvitesAllParams, reqEditors ...RequestEditorFn) (*GetApiInvitesAllResponse, error)
 
 	// PostApiInvitesInstitutionWithBodyWithResponse Invites an account, by id or email, into
 	//
-	// an organisation as head, staff or individual (staff by default). Head and
-	// staff invite into their organisation, only heads as head; the admin into
-	// any.
+	// an organisation as head or staff (staff by default): accepting, they
+	// become it. Head and staff invite into their organisation, only heads as
+	// head; the admin into any.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -12901,24 +14326,24 @@ type ClientWithResponsesInterface interface {
 
 	// PostApiInvitesInstitutionWithResponse Invites an account, by id or email, into
 	//
-	// an organisation as head, staff or individual (staff by default). Head and
-	// staff invite into their organisation, only heads as head; the admin into
-	// any.
+	// an organisation as head or staff (staff by default): accepting, they
+	// become it. Head and staff invite into their organisation, only heads as
+	// head; the admin into any.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/invites/institution (the `PostApiInvitesInstitution` operationId).
 	PostApiInvitesInstitutionWithResponse(ctx context.Context, body PostApiInvitesInstitutionJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInvitesInstitutionResponse, error)
 
-	// GetApiInvitesInstitutionInstitutionIdWithResponse Lists an organisation's invites the
+	// GetApiInvitesInstitutionInstitutionIdWithResponse Lists a page of an organisation's invites
 	//
-	// caller may list: its head and staff (staff without the invites to become
+	// the caller may list, and the total: its head and staff (staff without the invites to become
 	// head), and the admin.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/invites/institution/{institutionId} (the `GetApiInvitesInstitutionInstitutionId` operationId).
-	GetApiInvitesInstitutionInstitutionIdWithResponse(ctx context.Context, institutionId string, reqEditors ...RequestEditorFn) (*GetApiInvitesInstitutionInstitutionIdResponse, error)
+	GetApiInvitesInstitutionInstitutionIdWithResponse(ctx context.Context, institutionId string, params *GetApiInvitesInstitutionInstitutionIdParams, reqEditors ...RequestEditorFn) (*GetApiInvitesInstitutionInstitutionIdResponse, error)
 
 	// PostApiInvitesWorkshopWithBodyWithResponse Returns a workshop's link: its usable one, or
 	//
@@ -13191,14 +14616,15 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/user/me (the `GetApiUserMe` operationId).
 	GetApiUserMeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUserMeResponse, error)
 
-	// GetApiUsersWithResponse Lists the users the caller may list: admins every user,
+	// GetApiUsersWithResponse Lists a page of the users the caller may list, and the
 	//
-	// heads and staff the members of their organisation.
+	// total: admins every user, heads and staff the members of their
+	// organisation.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/users (the `GetApiUsers` operationId).
-	GetApiUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUsersResponse, error)
+	GetApiUsersWithResponse(ctx context.Context, params *GetApiUsersParams, reqEditors ...RequestEditorFn) (*GetApiUsersResponse, error)
 
 	// GetApiUsersMeWithResponse Reports who is calling.
 	//
@@ -13410,13 +14836,10 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/version (the `GetApiVersion` operationId).
 	GetApiVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiVersionResponse, error)
 
-	// GetApiWorkshopsWithResponse Lists the workshops the caller may list: an admin
+	// GetApiWorkshopsWithResponse Lists a page of the workshops the caller may list,
 	//
-	// all of them, a head or staff their organisation's.
-	//
-	// institutionId, search and activeOnly narrow the list; sortBy (name,
-	// createdAt, participantCount) and sortDir (asc, desc) order it, newest
-	// first by default.
+	// and the total: an admin all of them, a head or staff their
+	// organisation's. institutionId narrows it to one organisation.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -13540,19 +14963,29 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with DELETE /api/workshops/{id}/members/{userId} (the `DeleteApiWorkshopsIdMembersUserId` operationId).
 	DeleteApiWorkshopsIdMembersUserIdWithResponse(ctx context.Context, id string, userId string, reqEditors ...RequestEditorFn) (*DeleteApiWorkshopsIdMembersUserIdResponse, error)
+
+	// GetApiWorkshopsIdParticipantsWithResponse Lists a page of a workshop's participants, and
+	//
+	// the total: for those who may list them (an empty list for others); a
+	// workshop the caller may not read, 404.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/workshops/{id}/participants (the `GetApiWorkshopsIdParticipants` operationId).
+	GetApiWorkshopsIdParticipantsWithResponse(ctx context.Context, id string, params *GetApiWorkshopsIdParticipantsParams, reqEditors ...RequestEditorFn) (*GetApiWorkshopsIdParticipantsResponse, error)
 }
 
 type GetApiApikeysResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ApiKeysResp
+	JSON200 *OwnApiKeyViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiApikeysResponse) GetJSON200() *ApiKeysResp {
+func (r GetApiApikeysResponse) GetJSON200() *OwnApiKeyViewPage {
 	return r.JSON200
 }
 
@@ -16637,13 +18070,13 @@ type GetApiInstitutionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]OrganisationView
+	JSON200 *OrganisationViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInstitutionsResponse) GetJSON200() *[]OrganisationView {
+func (r GetApiInstitutionsResponse) GetJSON200() *OrganisationViewPage {
 	return r.JSON200
 }
 
@@ -16877,13 +18310,13 @@ type GetApiInstitutionsIdApikeysResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]KeyShareView
+	JSON200 *KeyShareViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInstitutionsIdApikeysResponse) GetJSON200() *[]KeyShareView {
+func (r GetApiInstitutionsIdApikeysResponse) GetJSON200() *KeyShareViewPage {
 	return r.JSON200
 }
 
@@ -17117,13 +18550,13 @@ type GetApiInstitutionsIdMembersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]UserView
+	JSON200 *UserViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInstitutionsIdMembersResponse) GetJSON200() *[]UserView {
+func (r GetApiInstitutionsIdMembersResponse) GetJSON200() *UserViewPage {
 	return r.JSON200
 }
 
@@ -17357,13 +18790,13 @@ type GetApiInvitesAllResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]InviteCardView
+	JSON200 *InviteCardViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInvitesAllResponse) GetJSON200() *[]InviteCardView {
+func (r GetApiInvitesAllResponse) GetJSON200() *InviteCardViewPage {
 	return r.JSON200
 }
 
@@ -17453,13 +18886,13 @@ type GetApiInvitesInstitutionInstitutionIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]InviteCardView
+	JSON200 *InviteCardViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiInvitesInstitutionInstitutionIdResponse) GetJSON200() *[]InviteCardView {
+func (r GetApiInvitesInstitutionInstitutionIdResponse) GetJSON200() *InviteCardViewPage {
 	return r.JSON200
 }
 
@@ -18660,13 +20093,13 @@ type GetApiUsersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]UserView
+	JSON200 *UserViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiUsersResponse) GetJSON200() *[]UserView {
+func (r GetApiUsersResponse) GetJSON200() *UserViewPage {
 	return r.JSON200
 }
 
@@ -19373,13 +20806,13 @@ type GetApiWorkshopsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]WorkshopView
+	JSON200 *WorkshopViewPage
 	// JSONDefault the response for an HTTP default `application/json` response
 	JSONDefault *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetApiWorkshopsResponse) GetJSON200() *[]WorkshopView {
+func (r GetApiWorkshopsResponse) GetJSON200() *WorkshopViewPage {
 	return r.JSON200
 }
 
@@ -19842,6 +21275,54 @@ func (r DeleteApiWorkshopsIdMembersUserIdResponse) ContentType() string {
 	return ""
 }
 
+type GetApiWorkshopsIdParticipantsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WorkshopParticipantViewPage
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiWorkshopsIdParticipantsResponse) GetJSON200() *WorkshopParticipantViewPage {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiWorkshopsIdParticipantsResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiWorkshopsIdParticipantsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiWorkshopsIdParticipantsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiWorkshopsIdParticipantsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiWorkshopsIdParticipantsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 // GetApiApikeysWithResponse Lists the caller's keys and every share of them: their
 //
 // own use of each, the organisation they gave it to, and the sponsored games
@@ -19850,8 +21331,8 @@ func (r DeleteApiWorkshopsIdMembersUserIdResponse) ContentType() string {
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/apikeys (the `GetApiApikeys` operationId).
-func (c *ClientWithResponses) GetApiApikeysWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiApikeysResponse, error) {
-	rsp, err := c.GetApiApikeys(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiApikeysWithResponse(ctx context.Context, params *GetApiApikeysParams, reqEditors ...RequestEditorFn) (*GetApiApikeysResponse, error) {
+	rsp, err := c.GetApiApikeys(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -20759,11 +22240,10 @@ func (c *ClientWithResponses) GetApiErrorsIdWithResponse(ctx context.Context, id
 	return ParseGetApiErrorsIdResponse(rsp)
 }
 
-// GetApiGamesWithResponse Lists a page of the games the caller can see, and the total.
+// GetApiGamesWithResponse Lists a page of the games the caller can see, and the
 //
-// Query, all optional: filter (own, others, public, favorites, sponsored;
-// repeat to combine), search, sortBy (createdAt, modifiedAt, name, playCount,
-// visibility, creator), sortDir (asc, desc), limit, offset.
+// total. It narrows what the caller may see, never widens it; the order uses
+// card fields only.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21276,13 +22756,9 @@ func (c *ClientWithResponses) GetApiHealthWithResponse(ctx context.Context, reqE
 	return ParseGetApiHealthResponse(rsp)
 }
 
-// GetApiInstitutionsWithResponse Lists the organisations the caller may list: an
+// GetApiInstitutionsWithResponse Lists a page of the organisations the caller may
 //
-// admin all of them, a head or staff their own.
-//
-// filter narrows the list: "recentlyRegistered", those that registered
-// themselves in the last 14 days, among those whose record the caller sees.
-// An unknown filter is refused.
+// list, and the total: an admin all of them, a head or staff their own.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -21406,8 +22882,8 @@ func (c *ClientWithResponses) PatchApiInstitutionsIdWithResponse(ctx context.Con
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/institutions/{id}/apikeys (the `GetApiInstitutionsIdApikeys` operationId).
-func (c *ClientWithResponses) GetApiInstitutionsIdApikeysWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdApikeysResponse, error) {
-	rsp, err := c.GetApiInstitutionsIdApikeys(ctx, id, reqEditors...)
+func (c *ClientWithResponses) GetApiInstitutionsIdApikeysWithResponse(ctx context.Context, id string, params *GetApiInstitutionsIdApikeysParams, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdApikeysResponse, error) {
+	rsp, err := c.GetApiInstitutionsIdApikeys(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -21532,16 +23008,17 @@ func (c *ClientWithResponses) PatchApiInstitutionsIdFreeUseKeyWithResponse(ctx c
 	return ParsePatchApiInstitutionsIdFreeUseKeyResponse(rsp)
 }
 
-// GetApiInstitutionsIdMembersWithResponse Lists an organisation's members (individual,
+// GetApiInstitutionsIdMembersWithResponse Lists a page of an organisation's members
 //
-// staff, head): for its members and the admin. Anyone else gets an empty
-// list; an organisation the caller may not read, 404.
+// (head and staff), and the total: for its members and the admin.
+// Anyone else gets an empty list; an organisation the caller may not read,
+// 404.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/institutions/{id}/members (the `GetApiInstitutionsIdMembers` operationId).
-func (c *ClientWithResponses) GetApiInstitutionsIdMembersWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdMembersResponse, error) {
-	rsp, err := c.GetApiInstitutionsIdMembers(ctx, id, reqEditors...)
+func (c *ClientWithResponses) GetApiInstitutionsIdMembersWithResponse(ctx context.Context, id string, params *GetApiInstitutionsIdMembersParams, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdMembersResponse, error) {
+	rsp, err := c.GetApiInstitutionsIdMembers(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -21639,15 +23116,15 @@ func (c *ClientWithResponses) GetApiInvitesWithResponse(ctx context.Context, req
 	return ParseGetApiInvitesResponse(rsp)
 }
 
-// GetApiInvitesAllWithResponse Lists every invite the caller may list: for the
+// GetApiInvitesAllWithResponse Lists a page of every invite the caller may list,
 //
-// admin, all of them.
+// and the total: for the admin, all of them.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/invites/all (the `GetApiInvitesAll` operationId).
-func (c *ClientWithResponses) GetApiInvitesAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiInvitesAllResponse, error) {
-	rsp, err := c.GetApiInvitesAll(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiInvitesAllWithResponse(ctx context.Context, params *GetApiInvitesAllParams, reqEditors ...RequestEditorFn) (*GetApiInvitesAllResponse, error) {
+	rsp, err := c.GetApiInvitesAll(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -21656,9 +23133,9 @@ func (c *ClientWithResponses) GetApiInvitesAllWithResponse(ctx context.Context, 
 
 // PostApiInvitesInstitutionWithBodyWithResponse Invites an account, by id or email, into
 //
-// an organisation as head, staff or individual (staff by default). Head and
-// staff invite into their organisation, only heads as head; the admin into
-// any.
+// an organisation as head or staff (staff by default): accepting, they
+// become it. Head and staff invite into their organisation, only heads as
+// head; the admin into any.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21673,9 +23150,9 @@ func (c *ClientWithResponses) PostApiInvitesInstitutionWithBodyWithResponse(ctx 
 
 // PostApiInvitesInstitutionWithResponse Invites an account, by id or email, into
 //
-// an organisation as head, staff or individual (staff by default). Head and
-// staff invite into their organisation, only heads as head; the admin into
-// any.
+// an organisation as head or staff (staff by default): accepting, they
+// become it. Head and staff invite into their organisation, only heads as
+// head; the admin into any.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -21688,16 +23165,16 @@ func (c *ClientWithResponses) PostApiInvitesInstitutionWithResponse(ctx context.
 	return ParsePostApiInvitesInstitutionResponse(rsp)
 }
 
-// GetApiInvitesInstitutionInstitutionIdWithResponse Lists an organisation's invites the
+// GetApiInvitesInstitutionInstitutionIdWithResponse Lists a page of an organisation's invites
 //
-// caller may list: its head and staff (staff without the invites to become
+// the caller may list, and the total: its head and staff (staff without the invites to become
 // head), and the admin.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/invites/institution/{institutionId} (the `GetApiInvitesInstitutionInstitutionId` operationId).
-func (c *ClientWithResponses) GetApiInvitesInstitutionInstitutionIdWithResponse(ctx context.Context, institutionId string, reqEditors ...RequestEditorFn) (*GetApiInvitesInstitutionInstitutionIdResponse, error) {
-	rsp, err := c.GetApiInvitesInstitutionInstitutionId(ctx, institutionId, reqEditors...)
+func (c *ClientWithResponses) GetApiInvitesInstitutionInstitutionIdWithResponse(ctx context.Context, institutionId string, params *GetApiInvitesInstitutionInstitutionIdParams, reqEditors ...RequestEditorFn) (*GetApiInvitesInstitutionInstitutionIdResponse, error) {
+	rsp, err := c.GetApiInvitesInstitutionInstitutionId(ctx, institutionId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -22143,15 +23620,16 @@ func (c *ClientWithResponses) GetApiUserMeWithResponse(ctx context.Context, reqE
 	return ParseGetApiUserMeResponse(rsp)
 }
 
-// GetApiUsersWithResponse Lists the users the caller may list: admins every user,
+// GetApiUsersWithResponse Lists a page of the users the caller may list, and the
 //
-// heads and staff the members of their organisation.
+// total: admins every user, heads and staff the members of their
+// organisation.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /api/users (the `GetApiUsers` operationId).
-func (c *ClientWithResponses) GetApiUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUsersResponse, error) {
-	rsp, err := c.GetApiUsers(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiUsersWithResponse(ctx context.Context, params *GetApiUsersParams, reqEditors ...RequestEditorFn) (*GetApiUsersResponse, error) {
+	rsp, err := c.GetApiUsers(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -22482,13 +23960,10 @@ func (c *ClientWithResponses) GetApiVersionWithResponse(ctx context.Context, req
 	return ParseGetApiVersionResponse(rsp)
 }
 
-// GetApiWorkshopsWithResponse Lists the workshops the caller may list: an admin
+// GetApiWorkshopsWithResponse Lists a page of the workshops the caller may list,
 //
-// all of them, a head or staff their organisation's.
-//
-// institutionId, search and activeOnly narrow the list; sortBy (name,
-// createdAt, participantCount) and sortDir (asc, desc) order it, newest
-// first by default.
+// and the total: an admin all of them, a head or staff their
+// organisation's. institutionId narrows it to one organisation.
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -22691,6 +24166,22 @@ func (c *ClientWithResponses) DeleteApiWorkshopsIdMembersUserIdWithResponse(ctx 
 	return ParseDeleteApiWorkshopsIdMembersUserIdResponse(rsp)
 }
 
+// GetApiWorkshopsIdParticipantsWithResponse Lists a page of a workshop's participants, and
+//
+// the total: for those who may list them (an empty list for others); a
+// workshop the caller may not read, 404.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/workshops/{id}/participants (the `GetApiWorkshopsIdParticipants` operationId).
+func (c *ClientWithResponses) GetApiWorkshopsIdParticipantsWithResponse(ctx context.Context, id string, params *GetApiWorkshopsIdParticipantsParams, reqEditors ...RequestEditorFn) (*GetApiWorkshopsIdParticipantsResponse, error) {
+	rsp, err := c.GetApiWorkshopsIdParticipants(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiWorkshopsIdParticipantsResponse(rsp)
+}
+
 // ParseGetApiApikeysResponse parses an HTTP response from a GetApiApikeysWithResponse call
 func ParseGetApiApikeysResponse(rsp *http.Response) (*GetApiApikeysResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -22706,7 +24197,7 @@ func ParseGetApiApikeysResponse(rsp *http.Response) (*GetApiApikeysResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ApiKeysResp
+		var dest OwnApiKeyViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24843,7 +26334,7 @@ func ParseGetApiInstitutionsResponse(rsp *http.Response) (*GetApiInstitutionsRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []OrganisationView
+		var dest OrganisationViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -25008,7 +26499,7 @@ func ParseGetApiInstitutionsIdApikeysResponse(rsp *http.Response) (*GetApiInstit
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []KeyShareView
+		var dest KeyShareViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -25173,7 +26664,7 @@ func ParseGetApiInstitutionsIdMembersResponse(rsp *http.Response) (*GetApiInstit
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []UserView
+		var dest UserViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -25338,7 +26829,7 @@ func ParseGetApiInvitesAllResponse(rsp *http.Response) (*GetApiInvitesAllRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []InviteCardView
+		var dest InviteCardViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -25404,7 +26895,7 @@ func ParseGetApiInvitesInstitutionInstitutionIdResponse(rsp *http.Response) (*Ge
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []InviteCardView
+		var dest InviteCardViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -26236,7 +27727,7 @@ func ParseGetApiUsersResponse(rsp *http.Response) (*GetApiUsersResponse, error) 
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []UserView
+		var dest UserViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -26727,7 +28218,7 @@ func ParseGetApiWorkshopsResponse(rsp *http.Response) (*GetApiWorkshopsResponse,
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []WorkshopView
+		var dest WorkshopViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -27018,6 +28509,39 @@ func ParseDeleteApiWorkshopsIdMembersUserIdResponse(rsp *http.Response) (*Delete
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest MessageResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiWorkshopsIdParticipantsResponse parses an HTTP response from a GetApiWorkshopsIdParticipantsWithResponse call
+func ParseGetApiWorkshopsIdParticipantsResponse(rsp *http.Response) (*GetApiWorkshopsIdParticipantsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiWorkshopsIdParticipantsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WorkshopParticipantViewPage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

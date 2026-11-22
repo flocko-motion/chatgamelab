@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { api } from "@/api/client/api";
+import { signInDev, signOut } from "@/api/hooks/authentication";
 import { authLogger } from "../config/logger";
 import { getHomepageUrl } from "../common/lib/url";
 import { RoleName } from "../common/lib/roles";
@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isDevMode) return;
     setSettled(false);
     try {
-      await api.postApiAuthDevLogin({ role });
+      await signInDev(role);
       authLogger.info("Dev sign-in", { role });
     } catch (error) {
       authLogger.error("Dev sign-in failed", { role, error });
@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Keep loading, so no route redirects before the browser leaves.
     setSettled(false);
     try {
-      await api.postApiAuthLogout();
+      await signOut();
     } catch (error) {
       authLogger.debug("Logout request failed", { error });
     }

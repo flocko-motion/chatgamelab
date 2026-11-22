@@ -48,7 +48,7 @@ func SetRole(ctx context.Context, user uuid.UUID, ch RoleChange) (*UserCard, err
 		return nil, forbidden("you may not change this user's role")
 	case ch.Role != string(obj.RoleHead) && ch.Role != string(obj.RoleStaff):
 		return nil, forbidden("in your organisation, you make members head or staff")
-	case ch.Organisation == nil || *ch.Organisation != *target.row.organisationID:
+	case ch.Organisation == nil || target.row.memberOf == nil || *ch.Organisation != *target.row.memberOf:
 		return nil, forbidden("you change roles within your organisation only")
 	}
 	// the role says where someone is: head and staff in an organisation,
@@ -88,7 +88,7 @@ func RemoveRole(ctx context.Context, user uuid.UUID) (*UserCard, error) {
 // makes ch the account's only role.
 func changeRole(ctx context.Context, target *UserCard, ch RoleChange) error {
 	q := store.Queries()
-	oldOrg := target.row.organisationID
+	oldOrg := target.row.memberOf
 	leaves := oldOrg != nil && (ch.Organisation == nil || *ch.Organisation != *oldOrg)
 	if target.row.role == string(obj.RoleHead) && oldOrg != nil && (ch.Role != string(obj.RoleHead) || leaves) {
 		heads, err := q.V2CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: *oldOrg, Valid: true})

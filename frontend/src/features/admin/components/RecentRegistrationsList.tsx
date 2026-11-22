@@ -1,74 +1,90 @@
-import { Alert, Group, Loader, ScrollArea, Stack, Table } from "@mantine/core";
-import { IconAlertCircle } from "@tabler/icons-react";
+import { Card, Group, Stack } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import type { OrganisationListSort } from "@/api/hooks";
+import { useOrganisations } from "@/api/hooks";
+import type { OrganisationView } from "@/api/types";
+import { ListTable, type ListColumn } from "@components/ListTable";
 import { BodyText, HelperText } from "@components/typography";
-import { useRecentlyRegisteredInstitutions } from "@/api/hooks";
 import { formatDateTime } from "@/common/lib/formatters";
+import {
+  RECENT_REGISTRATION_PRESET,
+  type RecentRegistrationColumnKey,
+} from "../lib/organisationListPresets";
+import { operatorAndCity } from "../lib/organizationHeads";
 import { OrganizationStatusBadges } from "./OrganizationStatusBadges";
 
-/** The organisations that registered themselves in the last two weeks, with who signed for them. */
+type RegistrationColumn = ListColumn<OrganisationView, OrganisationListSort>;
+
+/**
+ * The organisations that registered themselves in the last two weeks, with
+ * who signed for them. Embedded in the organisation page; it refreshes itself.
+ */
 export function RecentRegistrationsList() {
   const { t, i18n } = useTranslation("common");
-  const { data, isLoading, error } = useRecentlyRegisteredInstitutions();
+  const list = useOrganisations(RECENT_REGISTRATION_PRESET.list);
 
-  if (isLoading) {
-    return (
-      <Group justify="center" py="md">
-        <Loader size="sm" />
-      </Group>
+  const registeredAt = (org: OrganisationView) =>
+    formatDateTime(org.registration?.at, i18n.language);
+  const organisation = (org: OrganisationView) => (
+    <Stack gap={0}>
+      <BodyText size="sm" fw={500}>
+        {org.name}
+      </BodyText>
+      <HelperText>{operatorAndCity(org)}</HelperText>
+    </Stack>
+  );
+  const person = (org: OrganisationView) =>
+    org.registration && (
+      <Stack gap={0}>
+        <BodyText size="sm">{`${org.registration.personName} (${org.registration.personFunction})`}</BodyText>
+        <HelperText>{org.registration.email}</HelperText>
+      </Stack>
     );
-  }
-  if (error) {
-    return (
-      <Alert color="red" icon={<IconAlertCircle size={16} />}>
-        {t("admin.registrations.loadError")}
-      </Alert>
-    );
-  }
-  if (!data || data.length === 0) {
-    return <HelperText ta="center">{t("admin.registrations.empty")}</HelperText>;
-  }
+
+  const columns: Record<RecentRegistrationColumnKey, RegistrationColumn> = {
+    registered: {
+      key: "registered",
+      header: t("admin.registrations.date"),
+      sortBy: "registeredAt",
+      width: 180,
+      render: (org) => <BodyText size="sm">{registeredAt(org)}</BodyText>,
+    },
+    organisation: {
+      key: "organisation",
+      header: t("admin.registrations.institution"),
+      sortBy: "name",
+      render: organisation,
+    },
+    person: { key: "person", header: t("admin.registrations.person"), render: person },
+    status: {
+      key: "status",
+      header: t("admin.organizations.status"),
+      render: (org) => <OrganizationStatusBadges org={org} />,
+    },
+  };
+
+  const renderCard = (org: OrganisationView) => (
+    <Card withBorder padding="sm" radius="md">
+      <Stack gap="xs">
+        <Group justify="space-between" wrap="nowrap" align="flex-start">
+          {organisation(org)}
+          <HelperText>{registeredAt(org)}</HelperText>
+        </Group>
+        {person(org)}
+        <OrganizationStatusBadges org={org} />
+      </Stack>
+    </Card>
+  );
 
   return (
-    <ScrollArea>
-      <Table striped highlightOnHover miw={760}>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>{t("admin.registrations.date")}</Table.Th>
-            <Table.Th>{t("admin.registrations.institution")}</Table.Th>
-            <Table.Th>{t("admin.registrations.person")}</Table.Th>
-            <Table.Th>{t("admin.organizations.status")}</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {data.map((org) => (
-            <Table.Tr key={org.id}>
-              <Table.Td>
-                <BodyText size="sm">{formatDateTime(org.registration?.at, i18n.language)}</BodyText>
-              </Table.Td>
-              <Table.Td>
-                <Stack gap={0}>
-                  <BodyText size="sm" fw={500}>
-                    {org.name}
-                  </BodyText>
-                  <HelperText>{[org.operator, org.city].filter(Boolean).join(" · ")}</HelperText>
-                </Stack>
-              </Table.Td>
-              <Table.Td>
-                {org.registration && (
-                  <Stack gap={0}>
-                    <BodyText size="sm">{`${org.registration.personName} (${org.registration.personFunction})`}</BodyText>
-                    <HelperText>{org.registration.email}</HelperText>
-                  </Stack>
-                )}
-              </Table.Td>
-              <Table.Td>
-                <OrganizationStatusBadges org={org} />
-              </Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
-    </ScrollArea>
+    <ListTable
+      compact
+      list={list}
+      columns={RECENT_REGISTRATION_PRESET.columns.map((key) => columns[key])}
+      getRowKey={(org) => org.id}
+      renderCard={renderCard}
+      empty={{ title: t("admin.registrations.empty") }}
+      errorMessage={t("admin.registrations.loadError")}
+    />
   );
 }

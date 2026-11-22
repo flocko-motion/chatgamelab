@@ -77,7 +77,7 @@ func ReadMe(ctx context.Context) (string, *UserCard, error) {
 
 // userCardOf is a loaded row as the caller's card, with their rights on it.
 func userCardOf(ctx context.Context, r db.V2UsersRow) *UserCard {
-	return &UserCard{
+	u := &UserCard{
 		caller: from(ctx),
 		row: userRow{
 			id:   r.ID,
@@ -89,6 +89,7 @@ func userCardOf(ctx context.Context, r db.V2UsersRow) *UserCard {
 			defaultKeyShare:  ptrUUID(r.DefaultApiKeyShareID),
 			role:             r.Role.String,
 			organisationID:   ptrUUID(r.OrganisationID),
+			memberOf:         ptrUUID(r.MemberOf),
 			organisationName: nullString(r.OrganisationName),
 			workshopID:       ptrUUID(r.WorkshopID),
 			workshopName:     nullString(r.WorkshopName),
@@ -107,6 +108,11 @@ func userCardOf(ctx context.Context, r db.V2UsersRow) *UserCard {
 		mayEditContact: r.MayEditContact,
 		mayDelete:      r.MayDelete,
 	}
+	// the membership rights, from the same gates SetRole, RemoveRole and
+	// RemoveMember check
+	u.mayChangeAnyRole, u.mayChangeRole = mayChangeRole(ctx, u)
+	u.mayRemoveMember = mayRemoveMember(ctx, u)
+	return u
 }
 
 // userRow is a user's full row, loaded once. It never leaves the core; each
@@ -122,7 +128,8 @@ type userRow struct {
 	aiQualityTier    *string
 	defaultKeyShare  *uuid.UUID
 	role             string
-	organisationID   *uuid.UUID
+	organisationID   *uuid.UUID // their role's, or their workshop's: shown
+	memberOf         *uuid.UUID // their role's only: head and staff are members, no one else
 	organisationName *string
 	workshopID       *uuid.UUID
 	workshopName     *string
@@ -150,6 +157,10 @@ type UserCard struct {
 	mayEditAccount bool
 	mayEditContact bool
 	mayDelete      bool
+
+	mayChangeAnyRole bool
+	mayChangeRole    bool
+	mayRemoveMember  bool
 }
 
 func (u *UserCard) ID() uuid.UUID { return u.row.id }
@@ -172,6 +183,21 @@ func (u *UserCard) MayEditContact() bool { return u.mayEditContact }
 // MayDelete says whether the caller may delete the user: {Delete,
 // UserCard}. An organisation's last head is refused even so.
 func (u *UserCard) MayDelete() bool { return u.mayDelete }
+
+// MayChangeAnyRole says whether the caller may give the user any role or
+// take theirs away: {Edit, Membership, Everywhere}, the admin's. Only an
+// individual becomes admin, and an organisation keeps its last head.
+func (u *UserCard) MayChangeAnyRole() bool { return u.mayChangeAnyRole }
+
+// MayChangeRole says whether the caller may make the user head or staff of
+// the caller's organisation: {Edit, Membership, MemberOfOwnOrganisation},
+// a head's, for a member there. The last head stays.
+func (u *UserCard) MayChangeRole() bool { return u.mayChangeRole }
+
+// MayRemoveMember says whether the caller may take the user out of their
+// organisation: {Delete, Membership}; for the caller themselves, leaving it.
+// The last head stays.
+func (u *UserCard) MayRemoveMember() bool { return u.mayRemoveMember }
 
 // AsUserAccount unlocks how the account is set up: a flag check, no query.
 func (u *UserCard) AsUserAccount() (*UserAccount, error) {

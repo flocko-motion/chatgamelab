@@ -15,9 +15,9 @@ import (
 )
 
 // CreateInstitutionInviteEndpoint invites an account, by id or email, into
-// an organisation as head, staff or individual (staff by default). Head and
-// staff invite into their organisation, only heads as head; the admin into
-// any.
+// an organisation as head or staff (staff by default): accepting, they
+// become it. Head and staff invite into their organisation, only heads as
+// head; the admin into any.
 type CreateInstitutionInviteEndpoint struct{}
 
 func (CreateInstitutionInviteEndpoint) Method() string             { return "POST" }

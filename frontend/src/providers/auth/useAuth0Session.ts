@@ -6,7 +6,7 @@
 import { useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useTranslation } from "react-i18next";
-import { api } from "@/api/client/api";
+import { signInWithAuth0 } from "@/api/hooks/authentication";
 import { auth0Config } from "@/config/auth0";
 import { authLogger } from "@/config/logger";
 
@@ -34,7 +34,7 @@ export function useAuth0Session() {
         claims = await getIdTokenClaims();
       }
       if (!claims?.__raw) return false;
-      await api.postApiAuthAuth0Login({ id_token: claims.__raw });
+      await signInWithAuth0(claims.__raw);
       authLogger.info("Auth0 sign-in exchanged for a session");
       return true;
     } catch (error) {

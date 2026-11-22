@@ -16,8 +16,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { uiLogger } from "@/config/logger";
-import { useUpdateUser } from "@/api/hooks";
-import { api } from "@/api/client/api";
+import { checkName, useUpdateUser } from "@/api/hooks";
 import { AgeGroup } from "@/constants/ageGroup";
 
 export function SettingsForm() {
@@ -58,7 +57,7 @@ export function SettingsForm() {
 
   // Debounced name availability + profanity check
   useEffect(() => {
-    const checkName = async () => {
+    const checkNameAvailability = async () => {
       // Skip if name is empty, too long, or unchanged from current
       if (
         !debouncedName ||
@@ -72,11 +71,7 @@ export function SettingsForm() {
 
       setIsCheckingName(true);
       try {
-        const response = await api.getApiAuthCheckName({ name: debouncedName });
-        const data = response.data as {
-          available?: boolean;
-          profane?: boolean;
-        };
+        const data = await checkName(debouncedName);
         const available = data.available ?? false;
         setNameAvailable(available);
 
@@ -98,7 +93,7 @@ export function SettingsForm() {
       }
     };
 
-    checkName();
+    checkNameAvailability();
   }, [
     debouncedName,
     backendUser?.name,

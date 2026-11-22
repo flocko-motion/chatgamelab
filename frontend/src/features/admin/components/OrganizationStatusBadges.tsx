@@ -1,6 +1,6 @@
 import { Badge, Group, Tooltip } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import type { OrganisationView } from "@/api/generated/api.gen";
+import type { OrganisationView } from "@/api/types";
 import { formatDate } from "@/common/lib/formatters";
 
 /**

@@ -4,7 +4,7 @@
  *
  * Every value here is readable by the browser. Never put a secret here.
  */
-import { config as runtimeConfig } from '@/api/generated/config.gen';
+import { config as runtimeConfig } from '@/api/config';
 
 type AppConfig = {
   /** Auth0 tenant domain; with AUTH0_CLIENT_ID, Auth0 sign-in is offered. */

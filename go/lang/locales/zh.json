@@ -14,6 +14,17 @@
       "under13Blocker": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。",
       "under13Description": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。"
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "退出登录",
+        "message": "你会留在此工作坊中。使用你的代码，你可以随时在任何设备上重新登录：在主页点击“输入代码”。",
+        "title": "退出登录？"
+      },
+      "leaveWorkshop": "退出登录",
+      "organization": "组织",
+      "role": "访客",
+      "workshop": "工作坊"
+    },
     "login": {
       "auth0Button": "使用 Auth0 登录",
       "devMode": "开发模式",
@@ -22,6 +33,8 @@
         "title": "开发模式"
       },
       "devModeDescription": "用于开发和测试的快速登录",
+      "devNewOrganisation": "新用户（注册组织）",
+      "devNewPerson": "新用户（暂不选择，如注册后的状态）",
       "redirecting": {
         "message": "请稍候，我们正在将你重定向到登录页面。",
         "title": "正在重定向到 Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "以教师身份登录"
       },
       "unavailable": {
-        "message": "此实例不提供登录功能。参加工作坊的用户可以改为输入代码。",
+        "message": "此实例未提供登录功能。工作坊中的访客可以改为输入自己的代码。",
         "title": "登录不可用"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "你在 ChatGameLab 中显示的名称（最多 24 个字符）。",
+      "accountNameLabel": "显示名称",
+      "cityLabel": "城市",
+      "confirmAdult": "我已年满 18 岁。",
+      "consentPage": {
+        "constraintIntro": "通过该声明，你所在的机构承诺设置适合目标群体的青少年保护提示限制。下方显示的是你的组织当前使用的限制。请检查并在需要时进行调整。",
+        "emailDescription": "我们会将包含声明文本的确认邮件发送到此地址。",
+        "introExisting": "你的组织“{{name}}”现在有一份已在线确认的声明。它取代了你之前签署的用户协议。请阅读声明，并代表你的机构同意。",
+        "introNewVersion": "声明已更新（版本 {{version}}）。请阅读新版本，并代表你的组织“{{name}}”同意。",
+        "introWithdrawn": "你的组织“{{name}}”对该声明的同意已被撤回，因此组织目前已暂停。请阅读声明，并代表你的机构同意，以便再次使用 ChatGameLab。",
+        "logout": "退出登录",
+        "oneHeadIsEnough": "只需一名组织负责人同意即可。在此之前，你的组织将处于暂停状态：其成员无法使用 ChatGameLab。",
+        "submit": "同意",
+        "title": "确认声明"
+      },
+      "consentSection": "确认",
+      "declarationGermanOnly": "该声明仅提供德语版本。具有约束力的是德语文本。",
+      "declarationVersion": "版本 {{version}}，日期 {{date}}",
+      "emailConfirmHint": "提交表单后，组织将立即创建。包含声明文本的确认邮件会发送到你的电子邮箱地址。",
+      "emailDescription": "我们会将声明确认发送到此地址。",
+      "emailFromLogin": "这是你的登录邮箱地址。",
+      "emailLabel": "工作邮箱地址",
+      "errors": {
+        "conflict": "此登录信息已有对应账户。请登录，然后在设置中使用升级功能。",
+        "declaration_version_outdated": "声明已更新。请重新加载页面并阅读当前版本。",
+        "duplicate_name": "该显示名称已被占用。",
+        "emailInvalid": "请输入有效的电子邮箱地址。",
+        "email_belongs_to_other_account": "该电子邮箱地址已有对应账户。请使用该账户登录，并在设置中选择“升级为组织”。",
+        "formIncomplete": "请填写所有必填字段，并确认所有项目。",
+        "generic": "出了点问题。请重试。",
+        "institution_age_not_allowed": "只有成人账户（18 岁以上）才能注册组织。",
+        "institution_consents_required": "请确认所有项目。",
+        "institution_name_taken": "该名称的组织已存在。请扩展名称，例如添加城市。",
+        "loadFailed": "无法加载声明。请重新加载页面。",
+        "name_too_long": "显示名称最多只能包含 24 个字符。",
+        "profane_name": "不允许使用此显示名称。",
+        "required": "必填",
+        "validation_error": "请检查你填写的信息。"
+      },
+      "institutionNameLabel": "机构名称",
+      "institutionSection": "机构信息",
+      "operatorDescription": "例如：城市、协会、教区",
+      "operatorLabel": "运营方",
+      "personFunctionLabel": "在机构中的职务",
+      "personFunctionPlaceholder": "例如：负责人、青少年工作者",
+      "personNameLabel": "姓名",
+      "personSection": "个人信息",
+      "postalCodeLabel": "邮政编码",
+      "registered": {
+        "text": "你的组织已激活。你是组织负责人，现在可以创建工作坊。",
+        "title": "组织已注册"
+      },
+      "streetLabel": "街道和门牌号",
+      "submit": "注册组织",
+      "subtitle": "提交表单后，你的组织将立即激活，你将成为组织负责人。",
+      "switchToPersonal": "返回选择",
+      "titleRegister": "注册组织",
+      "toMyOrganization": "前往我的组织",
+      "youthProtection": {
+        "changeHint": "你可以随时更改此设置，也可以为不同的工作坊单独设置。",
+        "defaultOption": "默认从 13 岁起",
+        "fieldLabel": "组织的青少年保护提示限制",
+        "intro": "在你组织的每场游戏中，AI 都会收到此指令。请选择适合目标群体年龄的设置。",
+        "responsibilityHint": "这些建议不是官方年龄分级。你的机构决定并负责此设置。",
+        "suggestionAdults": "适用于 {{age}} 岁以上的成年人",
+        "suggestionChildren": "适用于约 {{age}} 岁以上的儿童",
+        "suggestionTeens": "适用于约 {{age}} 岁以上的青少年",
+        "suggestionsLabel": "建议（点击后将替换文本）：",
+        "title": "青少年保护提示限制",
+        "tooLong": "最多 {{max}} 个字符。请缩短内容或选择一条建议。"
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18 岁及以上",
       "gamesCreated": "已创建的游戏",
       "gamesPlayed": "已游玩游戏",
+      "guestCode": {
+        "error": "无法加载你的访问代码。",
+        "hint": "请拍照或记下此代码，并妥善保管，不要告诉他人。使用它，你可以随时在任何设备上重新进入账户：在主页“输入代码”下输入这些词，或扫描二维码。",
+        "longTokenHint": "请拍照保存二维码或保存链接，并妥善保管，不要告诉他人。使用它，你可以随时重新进入账户。工作坊负责人重置你的访问权限后，可以为你提供一个由四个词组成的短代码。",
+        "title": "你的访问代码"
+      },
       "memberSince": "注册时间",
       "messagesSent": "已发送消息",
       "noOrganization": "无组织",
@@ -71,6 +163,7 @@
       "role": "角色",
       "roles": {
         "admin": "管理员",
+        "guest": "访客",
         "head": "组织负责人",
         "individual": "个人用户",
         "participant": "参与者",
@@ -140,6 +233,12 @@
       "individualDescription": "创建并游玩由 AI 驱动的文字冒险",
       "individualTitle": "个人账号",
       "loginLink": "登录",
+      "organizationExistingAccount": "组织需要使用新的登录信息进行注册。已经有账户了吗？",
+      "organizationIntro": "适用于希望在工作坊中使用 ChatGameLab 的青少年中心、学校和其他机构。",
+      "organizationStep1": "通过 Auth0 创建登录信息（电子邮箱和密码）。",
+      "organizationStep2": "填写你和机构的信息，设置青少年保护提示限制，并同意该声明。",
+      "organizationStep3": "提交表单后，组织将立即激活，你可以创建工作坊。",
+      "organizationTitle": "注册为组织",
       "privacyPolicy": "隐私政策",
       "termsOfService": "服务条款",
       "title": "创建你的账号"
@@ -174,6 +273,7 @@
         "actions": "操作",
         "empty": "暂无待处理邀请。",
         "invitedEmail": "受邀邮箱",
+        "loadError": "无法加载邀请。",
         "modifiedAt": "修改时间",
         "noResults": "没有符合搜索条件的邀请。",
         "organization": "组织",
@@ -207,30 +307,75 @@
       },
       "organizations": {
         "actions": "操作",
+        "city": "城市",
+        "consentGiven": "声明 v{{version}} · {{date}}",
+        "consentMissing": "声明待确认",
+        "consentOutdated": "声明已过期（v{{version}}）",
+        "consentWithdrawn": "声明已撤回",
         "create": "创建组织",
         "createTitle": "创建新组织",
-        "deleteConfirm": "确定要删除“{{name}}”吗？该操作无法撤销。",
+        "deleteConfirm": "永久删除“{{name}}”？该组织的所有工作坊和参与者都会被删除；负责人和工作坊负责人将保留其账户。此操作无法撤销。如果只想让组织失去访问权限，请改为暂停组织。",
         "deleteTitle": "删除组织",
+        "detailsOptional": "可选：运营方和地址",
         "editTitle": "编辑组织",
         "email": "电子邮箱地址",
         "emailPlaceholder": "输入邮箱地址",
         "empty": "尚无组织，创建一个开始吧。",
+        "heads": "负责人",
         "inviteDescription": "发送邀请，邀请对方以组织负责人的身份加入 {{name}}。",
         "inviteTitle": "邀请加入组织",
+        "lift": "解除暂停",
+        "liftConfirm": "解除“{{name}}”的暂停状态？如果组织已同意当前声明，所有成员之后都可以像以前一样使用该组织。",
+        "liftTitle": "解除暂停",
+        "loadError": "无法加载组织。",
         "memberEmail": "邮箱",
         "memberName": "姓名",
         "memberRole": "角色",
         "members": "成员",
         "membersCount": "名成员",
         "membersList": "成员",
+        "membersLoadError": "无法加载成员。",
         "name": "名称",
         "namePlaceholder": "输入组织名称",
         "noMembers": "该组织暂无成员。",
+        "operator": "运营方",
+        "postalCode": "邮政编码",
         "removeMember": "移除成员",
         "removeMemberConfirm": "确定要将 {{name}} 移出该组织吗？",
         "searchPlaceholder": "搜索组织...",
         "sendInvite": "发送邀请",
+        "status": "状态和同意情况",
+        "statusActive": "活跃",
+        "statusSuspended": "已暂停",
+        "statusSuspendedConsent": "已暂停：声明待确认",
+        "street": "街道和门牌号",
+        "suspend": "暂停",
+        "suspendConfirm": "暂停“{{name}}”？负责人、工作坊负责人和参与者将无法再使用该组织。共享的游戏链接和公开工作坊页面也将停止工作。不会删除任何数据，且可以随时解除暂停。",
+        "suspendError": "操作未成功。请重试。",
+        "suspendReason": "原因（可选）",
+        "suspendReasonDescription": "仅管理员可见。",
+        "suspendTitle": "暂停组织",
+        "suspendedNoReason": "暂停，未提供原因",
         "title": "管理组织"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "过去两周没有组织注册。",
+          "intro_one": "该组织在过去两周内注册，且已经激活。",
+          "intro_other": "这 {{count}} 个组织在过去两周内注册，且已经激活。",
+          "label": "新组织",
+          "later": "稍后",
+          "open": "前往概览",
+          "suspendHint": "目前不会验证电子邮箱地址。请快速查看新组织，如果发现问题，可在概览中暂停它们。",
+          "title": "新组织"
+        },
+        "date": "注册时间",
+        "description": "过去两周内自行注册的组织。它们无需确认电子邮箱地址即可立即激活；请查看这些组织，如果发现问题，可暂停相应组织。",
+        "empty": "过去两周没有组织自行注册。",
+        "institution": "机构",
+        "loadError": "无法加载注册信息。",
+        "person": "签署人",
+        "title": "新注册"
       },
       "users": {
         "actions": "操作",
@@ -242,6 +387,10 @@
         "email": "邮箱",
         "emailPlaceholder": "输入邮箱地址",
         "empty": "未找到用户。",
+        "filters": {
+          "all": "所有用户",
+          "noGuests": "不含访客"
+        },
         "hideGuests": "隐藏访客（{{count}}）",
         "hideGuestsShort": "访客（{{count}}）",
         "joined": "加入时间",
@@ -297,7 +446,16 @@
       },
       "copyGame": "复制游戏",
       "empty": {
+        "conditions": {
+          "favorites": "你的收藏",
+          "own": "你创建的",
+          "public": "公开的",
+          "sponsored": "赞助的"
+        },
         "description": "尝试调整筛选条件，或稍后再来看看新游戏。",
+        "is": "没有{{conditions}}的游戏。",
+        "isAndNamed": "没有{{conditions}}且名称中包含“{{search}}”的游戏。",
+        "named": "没有名称中包含“{{search}}”的游戏。",
         "title": "未找到游戏"
       },
       "favorite": "加入收藏",
@@ -308,10 +466,11 @@
         "public": "公开",
         "sponsored": "赞助"
       },
+      "onlyFavorites": "仅显示收藏",
       "play": "游玩",
       "reportGame": "举报游戏",
       "restart": "重新开始",
-      "title": "全部游戏",
+      "title": "游戏",
       "unfavorite": "移出收藏",
       "workshop": "工作坊 / 组织"
     },
@@ -346,6 +505,7 @@
         "title": "删除 API 密钥",
         "warning": "该操作无法撤销，密钥将被永久删除。"
       },
+      "empty": "还没有 API 密钥。添加一个即可开始。",
       "errors": {
         "invalidPlatform": "选择的平台无效，请选择受支持的 AI 平台。",
         "keyRequired": "API 密钥是必填项",
@@ -355,6 +515,7 @@
       },
       "key": "个密钥",
       "keys": "个密钥",
+      "noResults": "没有符合搜索或筛选条件的密钥。",
       "platform": "平台",
       "setDefault": "设为默认",
       "shares": {
@@ -381,11 +542,20 @@
         "unknownWorkshop": "未知工作坊",
         "unlimited": "无限次使用"
       },
+      "sort": {
+        "createdAt-asc": "最早创建的优先",
+        "createdAt-desc": "最近创建的优先",
+        "name-asc": "名称 A–Z",
+        "name-desc": "名称 Z–A",
+        "platform-asc": "平台 A–Z",
+        "status-asc": "可用密钥优先"
+      },
       "status": {
         "failed": "密钥不可用",
         "unknown": "尚未使用密钥",
         "working": "密钥正常"
       },
+      "statusColumn": "状态",
       "subtitle": "管理你用于 AI 平台的 API 密钥。",
       "title": "API 密钥管理",
       "unnamed": "未命名密钥",
@@ -441,6 +611,23 @@
         "myGame": "我的游戏",
         "public": "公开",
         "workshop": "工作坊游戏"
+      },
+      "byCreator": "由 {{name}} 创建",
+      "cover": {
+        "alt": "{{name}} 的封面",
+        "draw": "绘制封面",
+        "drawAgain": "重新绘制",
+        "drawnOnSave": "保存游戏时将绘制封面。",
+        "errors": {
+          "failed": "无法绘制封面。请重试。",
+          "keyRejected": "AI 提供商拒绝了该密钥。无法绘制封面。",
+          "noKey": "你可以使用的 AI 密钥都不支持绘图，因此该游戏暂时没有封面。"
+        },
+        "hint": "封面应该显示什么？",
+        "hintDescription": "可选。如果留空，封面将显示游戏的主题。",
+        "hintPlaceholder": "例如：夜晚的灯塔",
+        "none": "还没有封面",
+        "title": "封面"
       },
       "createButton": "创建游戏",
       "createModal": {
@@ -759,11 +946,15 @@
       "errors": {
         "acceptFailed": "接受邀请失败，请重试。",
         "expired": "该邀请链接已过期。",
+        "guestStays": "作为访客，你会留在加入的地方。要参加其他工作坊，请在未登录的情况下打开其邀请链接：你会作为新访客加入。",
         "loadFailed": "加载邀请详情失败，请重试。",
         "notFound": "邀请链接无效或已被撤销。",
         "tokenLocked": "失败次数过多——请稍后再试。"
       },
       "goHome": "返回首页",
+      "guest": {
+        "loggingIn": "正在登录……"
+      },
       "participant": {
         "loggingIn": "正在为你登录..."
       },
@@ -791,6 +982,20 @@
     "leaveOrganization": "离开组织",
     "leaveTitle": "离开组织",
     "leaveWarning": "你将失去对所有组织资源和成员的访问权。",
+    "list": {
+      "clearSearch": "清除搜索",
+      "filter": "筛选",
+      "hideDetails": "隐藏详情",
+      "pagination": {
+        "first": "第一页",
+        "last": "最后一页",
+        "next": "下一页",
+        "previous": "上一页"
+      },
+      "perPage": "每页",
+      "range": "{{from}}–{{to}}，共 {{total}}",
+      "showDetails": "显示详情"
+    },
     "loading": "加载中...",
     "logout": "登出",
     "me": "我",
@@ -826,6 +1031,7 @@
       "apiKeys": {
         "aboutDescription": "在此共享的 API 密钥可供组织的所有成员用来游玩游戏。",
         "aboutTitle": "组织 API 密钥",
+        "allPlatforms": "所有平台",
         "allowPublicSponsoring": "允许公开赞助",
         "allowPublicSponsoringDesc": "该密钥可用于为所有用户赞助游戏。",
         "filterByPlatform": "按平台筛选",
@@ -844,6 +1050,7 @@
         "owner": "拥有者",
         "platform": "平台",
         "publicSponsoring": "公开赞助",
+        "removeShare": "从组织中移除",
         "searchPlaceholder": "按名称或拥有者搜索...",
         "selectKey": "选择 API 密钥",
         "selectKeyPlaceholder": "选择要共享的密钥...",
@@ -858,6 +1065,14 @@
         "confirmTitle": "将密钥共享给组织",
         "orgKeyGroup": "组织密钥",
         "personalKeyGroup": "个人密钥"
+      },
+      "declaration": {
+        "consented": "你的组织于 {{date}} 同意了版本 {{version}}。",
+        "title": "同意声明",
+        "withdraw": "撤回同意",
+        "withdrawConfirm": "撤回同意后，你的组织将处于暂停状态：在负责人再次同意之前，任何成员都无法使用 ChatGameLab。组织数据会保留。",
+        "withdrawFailed": "操作未成功。请重试。",
+        "withdrawTitle": "撤回同意？"
       },
       "demoteConfirm": "确定要将“{{name}}”（{{email}}）降为教师吗？",
       "demoteTitle": "降级为教师",
@@ -879,6 +1094,7 @@
       "leaveOrganization": "离开组织",
       "leaveTitle": "离开组织",
       "leaveWarning": "你将失去对组织资源和成员的访问权限。",
+      "loadError": "无法加载成员。",
       "me": "我",
       "name": "姓名",
       "noEmail": "无邮箱",
@@ -891,13 +1107,13 @@
       "promoteToHead": "提升为负责人",
       "promoteWarning": "该用户将获得管理组织成员和邀请教师的权限。",
       "promptConstraintsFallbackEmpty": "（未配置）",
-      "promptConstraintsFallbackHint": "未配置组织约束。将使用该年龄组玩家的站点默认设置：",
+      "promptConstraintsFallbackHint": "未配置组织级限制。将使用适用于玩家年龄组的全站默认设置：",
       "promptConstraintsFallbackTitle": "启用的站点级回退",
       "promptConstraintsFallbackU13": "13 岁以下",
       "promptConstraintsFallbackU13p": "13–17 岁（已获得家长同意）",
       "promptConstraintsFallbackU18": "18 岁及以上",
       "promptConstraintsHint": "组织中所有会话的额外 AI 指令。若未设置工作坊级约束，并对通过链接分享的游戏生效。",
-      "promptConstraintsLabel": "组织提示约束",
+      "promptConstraintsLabel": "组织的青少年保护提示限制",
       "promptConstraintsPlaceholder": "例如：让故事适合相应年龄，避免暴力内容。",
       "publicPage": {
         "changeLinkMessage": "之后页面地址将变为 {{url}}。",
@@ -979,6 +1195,8 @@
         "empty": "暂时没有工作坊。",
         "enterWorkshop": "进入工作坊模式",
         "games": "游戏",
+        "guestLinkTitle": "重新登录链接",
+        "guestLinkTitleNamed": "{{name}} 的重新登录链接",
         "hideInactive": "隐藏未启用",
         "inactive": "未启用",
         "inviteByEmail": "通过邮箱邀请",
@@ -1004,9 +1222,11 @@
         "noActiveInvite": "暂无有效邀请链接。",
         "noDefaultApiKey": "无默认 API 密钥",
         "noDefaultModel": "使用平台默认",
+        "noGuestToken": "该成员没有重新登录链接。只有访客拥有此链接。",
         "noIndividuals": "此组织中没有个人用户。",
         "noParticipantToken": "此参与者没有邀请链接。只有匿名参与者（访客）拥有可重复使用的邀请链接。",
         "noParticipants": "暂无参与者",
+        "noResults": "没有符合搜索或筛选条件的工作坊。",
         "notAuthorized": "你无权管理工作坊，只有负责人和教师可以访问此页面。",
         "participantGames": "{{count}} 个游戏",
         "participantJoined": "加入于 {{date}}",
@@ -1014,10 +1234,10 @@
         "participantLinkTitleNamed": "{{name}} 的重新登录链接",
         "participantName": "参与者姓名",
         "participants": "参与者",
-        "promptConstraintsFallbackOrg": "使用组织约束作为默认值：{{constraint}}",
-        "promptConstraintsFallbackSite": "使用站点约束作为默认值",
+        "promptConstraintsFallbackOrg": "使用组织限制作为默认设置：{{constraint}}",
+        "promptConstraintsFallbackSite": "使用网站限制作为默认设置",
         "promptConstraintsHint": "此工作坊中所有会话的额外 AI 指令。",
-        "promptConstraintsLabel": "提示约束",
+        "promptConstraintsLabel": "青少年保护提示限制",
         "promptConstraintsPlaceholder": "例如：保持故事适合相应年龄，避免暴力内容。",
         "removeParticipant": "移除参与者",
         "removeParticipantConfirm": "确定要将“{{name}}”移出该工作坊吗？",
@@ -1030,10 +1250,11 @@
         "resetAccessError": "无法重置访问权限。请重试。",
         "resetAccessMessage": "将创建一个包含新代码的新链接。",
         "resetAccessTitle": "重置访问权限？",
-        "resetAccessWarning": "之前的链接和代码将停止工作，包括参与者当前已登录的设备。",
+        "resetAccessWarning": "之前的链接和代码将停止工作——包括访客当前已登录的设备。",
         "revokeInvite": "撤销邀请链接",
         "selectApiKey": "选择一把 API 密钥",
         "settings": "设置",
+        "shareGuestLink": "显示重新登录链接",
         "shareParticipantLink": "显示重新登录链接",
         "showOtherParticipantsGames": "向参与者展示他人的游戏",
         "showOtherParticipantsGamesHint": "负责人和职员始终可以查看所有参与者的游戏以便审核",
@@ -1047,8 +1268,10 @@
           "participantsAsc": "参与者最少",
           "participantsDesc": "参与者最多"
         },
+        "status": "状态",
         "subtitle": "管理工作坊并邀请参与者协作制作游戏。",
         "title": "工作坊",
+        "unnamedParticipant": "未命名参与者",
         "unpause": "取消暂停",
         "usedCount": "已使用 {{count}} 次",
         "viewInviteLink": "查看邀请链接"
@@ -1071,6 +1294,13 @@
       "title": "通知",
       "workshopInvite": "工作坊邀请",
       "workshopInviteDescription": "你已被邀请加入此工作坊。"
+    },
+    "organisationSuspended": {
+      "byAdmin": "运营方已暂停你的组织访问 ChatGameLab 的权限。你的数据会保留。",
+      "consentWanted": "你的组织访问 ChatGameLab 的权限已暂停，直到其中一名负责人同意当前的同意声明。你的数据会保留。",
+      "contact": "如有疑问，请联系",
+      "logout": "退出登录",
+      "title": "组织已暂停"
     },
     "play": {
       "cloneGame": "克隆到我的游戏",
@@ -1139,16 +1369,16 @@
     "searchPlaceholder": "搜索成员...",
     "serverSettings": {
       "constraints": {
-        "description": "根据玩家年龄组定义强制性的 AI 规则。这些约束将注入每次 AI 响应，适用于工作坊模式之外的所有登录用户。",
-        "title": "按年龄划分的约束提示",
+        "description": "根据玩家的年龄组定义强制性的 AI 规则。这些限制会被注入每条 AI 回复中，并适用于工作坊模式之外的所有已登录用户。",
+        "title": "基于年龄的限制提示",
         "u13Hint": "会注入到所有登录且未有家长同意记录的 13–17 岁用户的 AI 提示中。",
-        "u13Label": "适用于 13–17 岁无家长同意用户的约束（U13）",
+        "u13Label": "13–17 岁用户的限制（无家长同意，U13）",
         "u13Placeholder": "例如：确保所有内容严格适合青少年。不允许暴力、浪漫内容或恐怖主题。",
         "u13pHint": "会注入到所有登录且已有家长同意记录的 13–17 岁用户的 AI 提示中。",
-        "u13pLabel": "适用于 13–17 岁有家长同意用户的约束（U13p）",
+        "u13pLabel": "13–17 岁用户的限制（有家长同意，U13p）",
         "u13pPlaceholder": "例如：适合父母已同意的青少年内容。允许部分成熟主题，但不含露骨内容。",
         "u18Hint": "注入到所有 18 岁及以上登录用户的每个 AI 提示中。",
-        "u18Label": "18 岁以上用户（U18）的约束",
+        "u18Label": "18 岁以上用户的限制（U18）",
         "u18Placeholder": "例如：保持内容适当。避免明显的暴力或色情内容。"
       },
       "defaultTier": {
@@ -1273,6 +1503,7 @@
     "duplicateName": "该游戏名称已被使用，请选择其他名称。",
     "forbidden": "你没有执行此操作的权限。",
     "generic": "出现问题，请重试。",
+    "guestStays": "作为访客，你会留在加入的地方。要参加其他工作坊，请在未登录的情况下打开其邀请链接：你会作为新访客加入。",
     "insufficientQuota": "你的 API 密钥余额不足，请充值或使用其他密钥。",
     "invalidApiKey": "你的 API 密钥无效或已过期，请在设置中检查。",
     "invalidJsonSchema": "游戏配置生成了无效的 AI 模式，这属于游戏设置问题，请检查状态字段后重试。",
@@ -1284,6 +1515,7 @@
     "noApiKey": "此游戏没有可用 API 密钥。赞助者可能移除了密钥，或者你需要配置自己的密钥。",
     "notFound": "未找到请求的资源。",
     "orgVerificationRequired": "你的 OpenAI 组织需要验证才能使用图像生成功能。请前往 https://platform.openai.com/settings/organization/general 验证。",
+    "organisationSuspended": "你的组织已暂停。你的数据会保留。",
     "previousResponseNotFound": "AI 丢失了对话上下文。会话长时间未活动时可能发生此情况，请重新开始会话。",
     "publicDescriptionTooLong": "描述最多只能包含 2000 个字符。",
     "publicSlugInvalid": "请使用 a–z、0–9 和单个连字符，长度为 3 至 60 个字符。",
@@ -1296,9 +1528,11 @@
       "billing": "账单错误",
       "error": "错误",
       "gameConfig": "游戏配置错误",
+      "guestStays": "你会留在当前的位置",
       "network": "网络错误",
       "noApiKey": "无 API 密钥",
       "notFound": "未找到",
+      "organisationSuspended": "组织已暂停",
       "permission": "权限不足",
       "server": "服务器错误",
       "tokenLocked": "暂时锁定",
@@ -1311,6 +1545,28 @@
     "userNotRegistered": "继续之前需要完成注册。",
     "validation": "请检查输入后重试。",
     "workshopInactive": "该工作坊已停用，请联系教师或组织者。"
+  },
+  "mail": {
+    "consent": {
+      "address": "地址",
+      "agreed": "你已代表所在组织同意以下声明。",
+      "bindingInGerman": "该声明以德语版本为准，因此以下内容以德语提供。",
+      "checksum": "校验和",
+      "copySubject": "副本：{{subject}}",
+      "date": "日期",
+      "dateValue": "{{date}}（柏林时间）",
+      "declaredBy": "声明人",
+      "greeting": "你好，{{name}}：",
+      "operator": "运营方",
+      "organisation": "组织",
+      "registered": "组织“{{organisation}}”现已在 ChatGameLab 中激活。你是组织负责人，现在可以创建工作坊。",
+      "renewed": "谢谢！组织“{{organisation}}”现在已同意当前的同意声明。",
+      "signature": "你的 ChatGameLab 团队\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab：组织“{{organisation}}”已激活 – 同意声明",
+      "subjectRenewed": "ChatGameLab：已确认“{{organisation}}”的同意声明（版本 {{version}}）",
+      "version": "版本",
+      "versionValue": "{{version}}（截至 {{date}}）"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1353,7 +1609,7 @@
   },
   "navigation": {
     "adminPanel": "管理面板",
-    "allGames": "全部游戏",
+    "allGames": "游戏",
     "create": "创建你的游戏",
     "createGame": "创建游戏",
     "dashboard": "仪表盘",
@@ -1365,7 +1621,7 @@
     "myOrganization": "我的组织",
     "myWorkshop": "我的工作坊",
     "orgApiKeys": "API 密钥",
-    "orgConstraints": "约束",
+    "orgConstraints": "青少年保护提示限制",
     "orgMembers": "成员",
     "orgWorkshops": "工作坊",
     "play": "游玩游戏",
@@ -1374,6 +1630,24 @@
     "workshopSettings": "工作坊设置"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "风格",
+      "condense-scenario": "缩短场景",
+      "condensed-scenario": "场景",
+      "expand": "叙述",
+      "image": "绘制图片",
+      "image-prompt": "描述图片",
+      "image-style": "调整风格",
+      "live-session": "角色",
+      "observer": "观察者",
+      "outline": "规划场景",
+      "portrait": "绘制肖像",
+      "portrait-prompt": "描述肖像",
+      "props-store": "游戏状态",
+      "rephrase": "重述行动",
+      "rephrase-audio": "理解语音",
+      "start-game": "开始"
+    },
     "errors": {
       "connectionLost": "与游戏的连接已丢失。重新加载页面后再试。",
       "imageFailed": "无法生成这个场景的图片。故事将继续进行。",
@@ -1395,6 +1669,11 @@
       "starting": "正在开始游戏……",
       "tryAgain": "重试"
     },
+    "pipeline": {
+      "copied": "布局已复制",
+      "copyFailed": "没有剪贴板：布局已记录到控制台",
+      "copyLayout": "复制布局"
+    },
     "problems": {
       "denied": "你无权游玩此游戏。",
       "failed": "出了点问题，游戏无法继续。",
@@ -1402,6 +1681,7 @@
       "keyRejected": "AI 服务商拒绝了此游戏的密钥，因此游戏无法继续。设置游戏的人需要检查该密钥。",
       "noKey": "没有可用于游玩此游戏的 AI 密钥。",
       "noPlays": "这个共享游戏没有剩余游玩次数。",
+      "paused": "工作坊已暂停。恢复后游戏将继续。",
       "stale": "此游戏已无法继续。",
       "unknown": "此游戏会话不存在。",
       "unreachable": "AI 服务商目前没有响应，因此游戏无法继续。请几分钟后再试。"
@@ -1418,6 +1698,32 @@
       "hearing": "正在听你说的话…",
       "hold": "按住说话",
       "recording": "正在聆听…松开即可发送"
+    },
+    "wires": {
+      "adapted-style\u001eimage-prompt": "风格",
+      "adapted-style\u001eimage-style": "请求",
+      "adapted-style\u001estart-game": "就绪",
+      "condense-scenario\u001econdensed-scenario": "回答",
+      "condensed-scenario\u001econdense-scenario": "请求",
+      "condensed-scenario\u001eimage-prompt": "场景",
+      "condensed-scenario\u001estart-game": "就绪",
+      "image-prompt\u001eimage": "提示",
+      "image-style\u001eadapted-style": "回答",
+      "live-session\u001eobserver": "文字记录",
+      "observer\u001elive-session": "提示",
+      "outline\u001eexpand": "计划",
+      "outline\u001eimage-prompt": "场景",
+      "outline\u001eprops-store": "变更",
+      "player-input-audio\u001elive-session": "语音",
+      "player-input-audio\u001erephrase-audio": "语音",
+      "player-input-text\u001erephrase": "行动",
+      "portrait\u001estart-game": "就绪",
+      "portrait-prompt\u001eportrait": "提示",
+      "props-store\u001eoutline": "状态",
+      "rephrase\u001eoutline": "行动",
+      "rephrase-audio\u001eoutline": "行动",
+      "start-game\u001elive-session": "引导",
+      "start-game\u001eoutline": "提示"
     }
   }
 }

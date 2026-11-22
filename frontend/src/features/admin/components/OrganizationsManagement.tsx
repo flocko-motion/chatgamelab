@@ -1,461 +1,344 @@
-import { api } from "@/api/client/api";
-import { useState, useMemo } from 'react';
+import type { ReactNode } from "react";
 import {
-  Container,
-  Title,
-  Text,
-  Stack,
-  Card,
-  Group,
-  TextInput,
-  Button,
-  Table,
-  Modal,
-  LoadingOverlay,
   Alert,
   Badge,
-  ActionIcon,
+  Card,
+  Container,
+  Group,
+  Modal,
+  Stack,
+  TextInput,
   Tooltip,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconAlertCircle, IconSend, IconEdit, IconTrash, IconSearch, IconLock, IconLockOpen } from '@tabler/icons-react';
-import { ExpandableSearch } from '@/common/components/controls';
-import { PlusIconButton } from '@/common/components/buttons';
-import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
-import type { OrganisationView } from "@/api/generated/api.gen";
-import { InvitesList } from './InvitesList';
-import { OrganizationMembersRow } from './OrganizationMembersRow';
-import { OrganizationStatusBadges } from './OrganizationStatusBadges';
-import { OrganizationSuspendModal } from './OrganizationSuspendModal';
-import { RecentRegistrationsList } from './RecentRegistrationsList';
-import { headNames } from '../lib/organizationHeads';
+} from "@mantine/core";
+import {
+  IconAlertCircle,
+  IconEdit,
+  IconLock,
+  IconLockOpen,
+  IconPlus,
+  IconSend,
+  IconTrash,
+} from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import type { OrganisationListSort } from "@/api/hooks";
+import type { OrganisationView } from "@/api/types";
+import { ListTable, type ListColumn } from "@components/ListTable";
+import {
+  ActionButton,
+  DangerButton,
+  GenericIconButton,
+  PlusIconButton,
+  TextButton,
+} from "@components/buttons";
+import { BodyText, CardTitle, HelperText, PageTitle } from "@components/typography";
+import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
+import {
+  ORGANISATION_LIST_PRESET,
+  type OrganisationColumnKey,
+} from "../lib/organisationListPresets";
+import { headNames, operatorAndCity } from "../lib/organizationHeads";
+import {
+  useOrganizationsManagement,
+  type OrganizationsManagementState,
+} from "../hooks/useOrganizationsManagement";
+import { InvitesList } from "./InvitesList";
+import { OrganisationMembers } from "./OrganisationMembers";
+import { OrganizationStatusBadges } from "./OrganizationStatusBadges";
+import { OrganizationSuspendModal } from "./OrganizationSuspendModal";
+import { RecentRegistrationsList } from "./RecentRegistrationsList";
 
-/** An organisation's operator and address, as an admin enters them. */
-const noDetails = { operator: '', street: '', postalCode: '', city: '' };
+type OrganisationColumn = ListColumn<OrganisationView, OrganisationListSort>;
 
+/**
+ * The admins' organisation page: every organisation (its query in the URL; a
+ * click on one opens its members), the recent self-registrations and every
+ * invite (both embedded, their queries kept locally so the lists don't share
+ * the URL).
+ */
 export function OrganizationsManagement() {
-  const { t } = useTranslation('common');
-  const queryClient = useQueryClient();
+  const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
-  
-  const [editingOrg, setEditingOrg] = useState<OrganisationView | null>(null);
-  const [inviteOrg, setInviteOrg] = useState<OrganisationView | null>(null);
-  const [newOrgName, setNewOrgName] = useState('');
-  const [newOrgDetails, setNewOrgDetails] = useState(noDetails);
-  const [suspendOrg, setSuspendOrg] = useState<OrganisationView | null>(null);
-  const [editName, setEditName] = useState('');
-  const [inviteEmail, setInviteEmail] = useState('');
-  
-  const [createModalOpened, { open: openCreateModal, close: closeCreateModal }] = useDisclosure(false);
-  const [editModalOpened, { open: openEditModal, close: closeEditModal }] = useDisclosure(false);
-  const [inviteModalOpened, { open: openInviteModal, close: closeInviteModal }] = useDisclosure(false);
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-  const [orgToDelete, setOrgToDelete] = useState<OrganisationView | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [inviteError, setInviteError] = useState<string | null>(null);
+  const state = useOrganizationsManagement();
+  const { list } = state;
 
-  // Helper to extract error message from API error
-  const getErrorMessage = (error: unknown): string => {
-    if (error && typeof error === 'object' && 'error' in error) {
-      const apiError = error as { error?: { error?: string } };
-      const message = apiError.error?.error || '';
-      if (message.includes('pending invite already exists')) {
-        return t('myOrganization.inviteAlreadyExists');
-      }
-      return message || t('myOrganization.inviteError');
-    }
-    return t('myOrganization.inviteError');
+  const membersBadge = (org: OrganisationView, size?: "sm") => (
+    <Badge variant="light" color="blue" size={size}>
+      {org.members?.length || 0} {t("admin.organizations.membersCount")}
+    </Badge>
+  );
+
+  const columns: Record<OrganisationColumnKey, OrganisationColumn> = {
+    name: {
+      key: "name",
+      header: t("admin.organizations.name"),
+      sortBy: "name",
+      render: (org) => (
+        <Stack gap={0}>
+          <BodyText size="sm" fw={500}>
+            {org.name}
+          </BodyText>
+          {operatorAndCity(org) && <HelperText>{operatorAndCity(org)}</HelperText>}
+        </Stack>
+      ),
+    },
+    heads: {
+      key: "heads",
+      header: t("admin.organizations.heads"),
+      visibleFrom: "md",
+      render: (org) => <BodyText size="sm">{headNames(org) || "–"}</BodyText>,
+    },
+    status: {
+      key: "status",
+      header: t("admin.organizations.status"),
+      render: (org) => <OrganizationStatusBadges org={org} />,
+    },
+    members: {
+      key: "members",
+      header: t("admin.organizations.members"),
+      render: (org) => membersBadge(org),
+    },
+    actions: {
+      key: "actions",
+      header: t("admin.organizations.actions"),
+      width: 190,
+      interactive: true,
+      render: (org) => <OrganisationActions org={org} state={state} />,
+    },
   };
 
-  // Fetch all institutions
-  const { data: organizations, isLoading, error } = useQuery({
-    queryKey: queryKeys.institutions,
-    queryFn: async () => {
-      const response = await api.getApiInstitutions();
-      return response.data;
-    },
-  });
+  const renderCard = (org: OrganisationView) => (
+    <Card withBorder padding="sm" radius="md">
+      <Stack gap="xs">
+        <Group justify="space-between" wrap="nowrap">
+          <BodyText fw={600}>{org.name}</BodyText>
+          {membersBadge(org, "sm")}
+        </Group>
+        {operatorAndCity(org) && <HelperText>{operatorAndCity(org)}</HelperText>}
+        {headNames(org) && (
+          <BodyText size="sm">
+            {t("admin.organizations.heads")}: {headNames(org)}
+          </BodyText>
+        )}
+        <OrganizationStatusBadges org={org} />
+        <Group justify="flex-end">
+          <OrganisationActions org={org} state={state} size="sm" />
+        </Group>
+      </Stack>
+    </Card>
+  );
 
-  // Filter organizations by search query
-  const filteredOrganizations = useMemo(() => {
-    if (!organizations) return [];
-    if (!searchQuery.trim()) return organizations;
-    
-    const query = searchQuery.toLowerCase();
-    return organizations.filter((org) =>
-      [org.name, org.operator, org.city, headNames(org)].some((v) => v?.toLowerCase().includes(query))
-    );
-  }, [organizations, searchQuery]);
+  const createAction = isMobile ? (
+    <Tooltip label={t("admin.organizations.create")} withArrow>
+      <PlusIconButton
+        onClick={state.openCreate}
+        variant="filled"
+        aria-label={t("admin.organizations.create")}
+      />
+    </Tooltip>
+  ) : (
+    <ActionButton leftSection={<IconPlus size={16} />} onClick={state.openCreate}>
+      {t("admin.organizations.create")}
+    </ActionButton>
+  );
 
-  // Create institution mutation
-  const createMutation = useMutation({
-    mutationFn: async (name: string) => {
-      const response = await api.postApiInstitutions({
-        name,
-        operator: newOrgDetails.operator.trim(),
-        street: newOrgDetails.street.trim(),
-        postalCode: newOrgDetails.postalCode.trim(),
-        city: newOrgDetails.city.trim(),
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
-      closeCreateModal();
-      setNewOrgName('');
-      setNewOrgDetails(noDetails);
-    },
-  });
-
-  // Update institution mutation
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const response = await api.patchApiInstitutionsId(id, { name });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
-      closeEditModal();
-      setEditingOrg(null);
-      setEditName('');
-    },
-  });
-
-  // Delete institution mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await api.deleteApiInstitutionsId(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
-      closeDeleteModal();
-      setOrgToDelete(null);
-    },
-  });
-
-  // Send invite mutation
-  const inviteMutation = useMutation({
-    mutationFn: async ({ institutionId, email }: { institutionId: string; email: string }) => {
-      const response = await api.postApiInvitesInstitution({ 
-        institutionId, 
-        role: 'head',
-        invitedEmail: email 
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      setInviteError(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
-      closeInviteModal();
-      setInviteOrg(null);
-      setInviteEmail('');
-    },
-    onError: (error) => {
-      setInviteError(getErrorMessage(error));
-    },
-  });
-
-  const handleEdit = (org: OrganisationView) => {
-    setEditingOrg(org);
-    setEditName(org.name || '');
-    openEditModal();
-  };
-
-  const handleInvite = (org: OrganisationView) => {
-    setInviteOrg(org);
-    setInviteEmail('');
-    setInviteError(null);
-    openInviteModal();
-  };
-
-  const handleDelete = (org: OrganisationView) => {
-    setOrgToDelete(org);
-    openDeleteModal();
-  };
-
-  if (error) {
-    return (
-      <Container size="xl" py="xl">
-        <Alert icon={<IconAlertCircle size={16} />} title={t('error')} color="red">
-          {error instanceof Error ? error.message : 'Failed to load organizations'}
-        </Alert>
-      </Container>
-    );
-  }
+  const { createModal, editModal, inviteModal, deleteModal } = state;
 
   return (
     <Container size="xl" py="xl">
       <Stack gap="lg">
-        <Group justify="space-between" align="center">
-          <Title order={2}>{t('admin.organizations.title')}</Title>
-          {isMobile ? (
-            <Tooltip label={t('admin.organizations.create')} withArrow>
-              <PlusIconButton onClick={openCreateModal} variant="filled" aria-label={t('admin.organizations.create')} />
-            </Tooltip>
-          ) : (
-            <Button leftSection={<IconPlus size={16} />} onClick={openCreateModal}>
-              {t('admin.organizations.create')}
-            </Button>
-          )}
-        </Group>
+        <PageTitle>{t("admin.organizations.title")}</PageTitle>
 
-        <Card withBorder pos="relative" p={isMobile ? 'sm' : undefined}>
-          <LoadingOverlay visible={isLoading} />
-          
-          {isMobile ? (
-            <Group gap="sm" wrap="nowrap" mb="md">
-              <ExpandableSearch
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder={t('admin.organizations.searchPlaceholder')}
-              />
-            </Group>
-          ) : (
-            <TextInput
-              placeholder={t('admin.organizations.searchPlaceholder')}
-              leftSection={<IconSearch size={16} />}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              mb="md"
-            />
-          )}
-          
-          {filteredOrganizations && filteredOrganizations.length > 0 ? (
-            isMobile ? (
-              <Stack gap="sm">
-                {filteredOrganizations.map((org) => (
-                  <Card key={org.id} withBorder padding="sm" radius="md">
-                    <Stack gap="xs">
-                      <Group justify="space-between" wrap="nowrap">
-                        <Text fw={600} lineClamp={1}>{org.name}</Text>
-                        <Badge variant="light" color="blue" size="sm">
-                          {org.members?.length || 0} {t('admin.organizations.membersCount')}
-                        </Badge>
-                      </Group>
-                      {(org.operator || org.city) && (
-                        <Text size="xs" c="dimmed">{[org.operator, org.city].filter(Boolean).join(' · ')}</Text>
-                      )}
-                      {headNames(org) && (
-                        <Text size="xs">{t('admin.organizations.heads')}: {headNames(org)}</Text>
-                      )}
-                      <OrganizationStatusBadges org={org} />
-                      <Group gap="xs" justify="flex-end">
-                        <ActionIcon
-                          variant="subtle"
-                          color="blue"
-                          size="sm"
-                          onClick={() => handleInvite(org)}
-                          title={t('admin.organizations.sendInvite')}
-                        >
-                          <IconSend size={14} />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color="gray"
-                          size="sm"
-                          onClick={() => handleEdit(org)}
-                          title={t('edit')}
-                        >
-                          <IconEdit size={14} />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color={org.suspendedAt ? 'green' : 'orange'}
-                          size="sm"
-                          onClick={() => setSuspendOrg(org)}
-                          title={org.suspendedAt ? t('admin.organizations.lift') : t('admin.organizations.suspend')}
-                        >
-                          {org.suspendedAt ? <IconLockOpen size={14} /> : <IconLock size={14} />}
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size="sm"
-                          onClick={() => handleDelete(org)}
-                          title={t('delete')}
-                        >
-                          <IconTrash size={14} />
-                        </ActionIcon>
-                      </Group>
-                    </Stack>
-                  </Card>
-                ))}
-              </Stack>
-            ) : (
-              <Table striped highlightOnHover>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>{t('admin.organizations.name')}</Table.Th>
-                    <Table.Th>{t('admin.organizations.heads')}</Table.Th>
-                    <Table.Th>{t('admin.organizations.status')}</Table.Th>
-                    <Table.Th>{t('admin.organizations.members')}</Table.Th>
-                    <Table.Th style={{ width: 190 }}>{t('admin.organizations.actions')}</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {filteredOrganizations.map((org) => (
-                    <OrganizationMembersRow
-                      key={org.id}
-                      org={org}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onInvite={handleInvite}
-                      onToggleSuspension={setSuspendOrg}
-                    />
-                  ))}
-                </Table.Tbody>
-              </Table>
-            )
-          ) : (
-            <Text c="dimmed" ta="center" py="xl">
-              {t('admin.organizations.empty')}
-            </Text>
-          )}
-        </Card>
+        <ListTable
+          list={list}
+          columns={ORGANISATION_LIST_PRESET.columns.map((key) => columns[key])}
+          getRowKey={(org) => org.id}
+          renderCard={renderCard}
+          renderExpanded={(org) => <OrganisationMembers org={org} />}
+          actions={createAction}
+          empty={{ title: t("admin.organizations.empty") }}
+          errorMessage={t("admin.organizations.loadError")}
+        />
 
         {/* Organisations that registered themselves lately */}
         <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <Title order={3} mb={4}>{t('admin.registrations.title')}</Title>
-          <Text size="sm" c="dimmed" mb="md">{t('admin.registrations.description')}</Text>
-          <RecentRegistrationsList />
+          <Stack gap="xs">
+            <CardTitle>{t("admin.registrations.title")}</CardTitle>
+            <HelperText>{t("admin.registrations.description")}</HelperText>
+            <RecentRegistrationsList />
+          </Stack>
         </Card>
 
-        {/* Pending Invites Section */}
         <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <Title order={3} mb="md">{t('admin.invites.title')}</Title>
-          <InvitesList showInstitutionColumn={true} />
+          <Stack gap="md">
+            <CardTitle>{t("admin.invites.title")}</CardTitle>
+            <InvitesList showInstitutionColumn />
+          </Stack>
         </Card>
       </Stack>
 
-      {/* Create Modal */}
-      <Modal opened={createModalOpened} onClose={closeCreateModal} title={t('admin.organizations.createTitle')}>
+      <Modal
+        opened={createModal.opened}
+        onClose={createModal.close}
+        title={t("admin.organizations.createTitle")}
+      >
         <Stack gap="md">
           <TextInput
-            label={t('admin.organizations.name')}
-            placeholder={t('admin.organizations.namePlaceholder')}
-            value={newOrgName}
-            onChange={(e) => setNewOrgName(e.currentTarget.value)}
+            label={t("admin.organizations.name")}
+            placeholder={t("admin.organizations.namePlaceholder")}
+            value={createModal.name}
+            onChange={(e) => createModal.setName(e.currentTarget.value)}
           />
-          <Text size="sm" c="dimmed">{t('admin.organizations.detailsOptional')}</Text>
+          <HelperText>{t("admin.organizations.detailsOptional")}</HelperText>
           <TextInput
-            label={t('admin.organizations.operator')}
-            value={newOrgDetails.operator}
-            onChange={(e) => { const operator = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, operator })); }}
+            label={t("admin.organizations.operator")}
+            value={createModal.details.operator}
+            onChange={(e) => createModal.setDetail("operator", e.currentTarget.value)}
           />
           <TextInput
-            label={t('admin.organizations.street')}
-            value={newOrgDetails.street}
-            onChange={(e) => { const street = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, street })); }}
+            label={t("admin.organizations.street")}
+            value={createModal.details.street}
+            onChange={(e) => createModal.setDetail("street", e.currentTarget.value)}
           />
           <Group grow>
             <TextInput
-              label={t('admin.organizations.postalCode')}
-              value={newOrgDetails.postalCode}
-              onChange={(e) => { const postalCode = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, postalCode })); }}
+              label={t("admin.organizations.postalCode")}
+              value={createModal.details.postalCode}
+              onChange={(e) => createModal.setDetail("postalCode", e.currentTarget.value)}
             />
             <TextInput
-              label={t('admin.organizations.city')}
-              value={newOrgDetails.city}
-              onChange={(e) => { const city = e.currentTarget.value; setNewOrgDetails((d) => ({ ...d, city })); }}
+              label={t("admin.organizations.city")}
+              value={createModal.details.city}
+              onChange={(e) => createModal.setDetail("city", e.currentTarget.value)}
             />
           </Group>
           <Group justify="flex-end">
-            <Button variant="subtle" onClick={closeCreateModal}>
-              {t('cancel')}
-            </Button>
-            <Button
-              onClick={() => createMutation.mutate(newOrgName)}
-              loading={createMutation.isPending}
-              disabled={!newOrgName.trim()}
+            <TextButton onClick={createModal.close}>{t("cancel")}</TextButton>
+            <ActionButton
+              onClick={createModal.confirm}
+              loading={createModal.loading}
+              disabled={!createModal.canConfirm}
             >
-              {t('create')}
-            </Button>
+              {t("create")}
+            </ActionButton>
           </Group>
         </Stack>
       </Modal>
 
-      {/* Edit Modal */}
-      <Modal opened={editModalOpened} onClose={closeEditModal} title={t('admin.organizations.editTitle')}>
+      <Modal
+        opened={editModal.opened}
+        onClose={editModal.close}
+        title={t("admin.organizations.editTitle")}
+      >
         <Stack gap="md">
           <TextInput
-            label={t('admin.organizations.name')}
-            value={editName}
-            onChange={(e) => setEditName(e.currentTarget.value)}
+            label={t("admin.organizations.name")}
+            value={editModal.name}
+            onChange={(e) => editModal.setName(e.currentTarget.value)}
           />
           <Group justify="flex-end">
-            <Button variant="subtle" onClick={closeEditModal}>
-              {t('cancel')}
-            </Button>
-            <Button
-              onClick={() => editingOrg?.id && updateMutation.mutate({ id: editingOrg.id, name: editName })}
-              loading={updateMutation.isPending}
-              disabled={!editName.trim()}
+            <TextButton onClick={editModal.close}>{t("cancel")}</TextButton>
+            <ActionButton
+              onClick={editModal.confirm}
+              loading={editModal.loading}
+              disabled={!editModal.canConfirm}
             >
-              {t('save')}
-            </Button>
+              {t("save")}
+            </ActionButton>
           </Group>
         </Stack>
       </Modal>
 
-      {/* Invite Modal */}
-      <Modal opened={inviteModalOpened} onClose={() => { setInviteError(null); closeInviteModal(); }} title={t('admin.organizations.inviteTitle')}>
+      <Modal
+        opened={inviteModal.opened}
+        onClose={inviteModal.close}
+        title={t("admin.organizations.inviteTitle")}
+      >
         <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t('admin.organizations.inviteDescription', { name: inviteOrg?.name })}
-          </Text>
+          <HelperText>
+            {t("admin.organizations.inviteDescription", { name: inviteModal.org?.name })}
+          </HelperText>
           <TextInput
-            label={t('admin.organizations.email')}
-            placeholder={t('admin.organizations.emailPlaceholder')}
+            label={t("admin.organizations.email")}
+            placeholder={t("admin.organizations.emailPlaceholder")}
             type="email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.currentTarget.value)}
+            value={inviteModal.email}
+            onChange={(e) => inviteModal.setEmail(e.currentTarget.value)}
           />
-          {inviteError && (
+          {inviteModal.error && (
             <Alert color="red" icon={<IconAlertCircle size={16} />}>
-              {inviteError}
+              {inviteModal.error}
             </Alert>
           )}
           <Group justify="flex-end">
-            <Button variant="subtle" onClick={closeInviteModal}>
-              {t('cancel')}
-            </Button>
-            <Button
-              onClick={() => inviteOrg?.id && inviteMutation.mutate({ institutionId: inviteOrg.id, email: inviteEmail })}
-              loading={inviteMutation.isPending}
-              disabled={!inviteEmail.trim()}
+            <TextButton onClick={inviteModal.close}>{t("cancel")}</TextButton>
+            <ActionButton
+              onClick={inviteModal.confirm}
+              loading={inviteModal.loading}
+              disabled={!inviteModal.canConfirm}
               leftSection={<IconSend size={16} />}
             >
-              {t('admin.organizations.sendInvite')}
-            </Button>
+              {t("admin.organizations.sendInvite")}
+            </ActionButton>
           </Group>
         </Stack>
       </Modal>
 
-      <OrganizationSuspendModal org={suspendOrg} onClose={() => setSuspendOrg(null)} />
+      <OrganizationSuspendModal org={state.suspendModal.org} onClose={state.suspendModal.close} />
 
-      {/* Delete Confirmation Modal */}
-      <Modal opened={deleteModalOpened} onClose={closeDeleteModal} title={t('admin.organizations.deleteTitle')}>
+      <Modal
+        opened={deleteModal.opened}
+        onClose={deleteModal.close}
+        title={t("admin.organizations.deleteTitle")}
+      >
         <Stack gap="md">
-          <Text>
-            {t('admin.organizations.deleteConfirm', { name: orgToDelete?.name })}
-          </Text>
+          <BodyText>
+            {t("admin.organizations.deleteConfirm", { name: deleteModal.org?.name })}
+          </BodyText>
           <Group justify="flex-end">
-            <Button variant="subtle" onClick={closeDeleteModal}>
-              {t('cancel')}
-            </Button>
-            <Button
-              color="red"
-              onClick={() => orgToDelete?.id && deleteMutation.mutate(orgToDelete.id)}
-              loading={deleteMutation.isPending}
-            >
-              {t('delete')}
-            </Button>
+            <TextButton onClick={deleteModal.close}>{t("cancel")}</TextButton>
+            <DangerButton onClick={deleteModal.confirm} loading={deleteModal.loading}>
+              {t("delete")}
+            </DangerButton>
           </Group>
         </Stack>
       </Modal>
     </Container>
+  );
+}
+
+/** An organisation's admin actions, as far as the server's flags allow them. */
+function OrganisationActions({
+  org,
+  state,
+  size,
+}: {
+  org: OrganisationView;
+  state: OrganizationsManagementState;
+  size?: "sm";
+}) {
+  const { t } = useTranslation("common");
+  const iconSize = size === "sm" ? 14 : 16;
+  const action = (label: string, color: string, icon: ReactNode, onClick: () => void) => (
+    <Tooltip label={label} withArrow>
+      <GenericIconButton icon={icon} color={color} size={size} onClick={onClick} aria-label={label} />
+    </Tooltip>
+  );
+  return (
+    <Group gap="xs" wrap="nowrap">
+      {action(t("admin.organizations.sendInvite"), "blue", <IconSend size={iconSize} />, () =>
+        state.requestInvite(org),
+      )}
+      {state.canEdit(org) &&
+        action(t("edit"), "gray", <IconEdit size={iconSize} />, () => state.requestEdit(org))}
+      {state.canSuspend(org) &&
+        action(
+          org.suspendedAt ? t("admin.organizations.lift") : t("admin.organizations.suspend"),
+          org.suspendedAt ? "green" : "orange",
+          org.suspendedAt ? <IconLockOpen size={iconSize} /> : <IconLock size={iconSize} />,
+          () => state.requestSuspension(org),
+        )}
+      {state.canDelete(org) &&
+        action(t("delete"), "red", <IconTrash size={iconSize} />, () => state.requestDelete(org))}
+    </Group>
   );
 }

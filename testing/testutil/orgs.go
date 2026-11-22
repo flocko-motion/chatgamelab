@@ -46,7 +46,7 @@ func (c caller) GetInstitution(institutionID string) (Institution, error) {
 
 // ListInstitutions is the institutions the caller sees.
 func (c caller) ListInstitutions() ([]Institution, error) {
-	return decode[[]Institution](c.api.GetApiInstitutionsWithResponse(ctx(), nil))
+	return decodeItems[Institution](c.api.GetApiInstitutionsWithResponse(ctx(), nil))
 }
 
 // GetInstitutions is the institutions the caller sees.
@@ -72,7 +72,7 @@ func (c caller) DeleteInstitution(institutionID string) error {
 
 // GetInstitutionMembers is an institution's members.
 func (c caller) GetInstitutionMembers(institutionID string) ([]User, error) {
-	return decode[[]User](c.api.GetApiInstitutionsIdMembersWithResponse(ctx(), institutionID))
+	return decodeItems[User](c.api.GetApiInstitutionsIdMembersWithResponse(ctx(), institutionID, nil))
 }
 
 // RemoveMember removes a member from an institution.
@@ -128,12 +128,12 @@ func (c caller) GetInvitesIncoming() ([]InviteDetails, error) {
 
 // GetAllInvites is every invite, for an admin.
 func (c caller) GetAllInvites() ([]InviteDetails, error) {
-	return decode[[]InviteDetails](c.api.GetApiInvitesAllWithResponse(ctx()))
+	return decodeItems[InviteDetails](c.api.GetApiInvitesAllWithResponse(ctx(), nil))
 }
 
 // GetInvitesOutgoing is an institution's invites.
 func (c caller) GetInvitesOutgoing(institutionID string) ([]InviteDetails, error) {
-	return decode[[]InviteDetails](c.api.GetApiInvitesInstitutionInstitutionIdWithResponse(ctx(), institutionID))
+	return decodeItems[InviteDetails](c.api.GetApiInvitesInstitutionInstitutionIdWithResponse(ctx(), institutionID, nil))
 }
 
 // GetInvite is one invite, by its id or its token.
@@ -188,12 +188,12 @@ func (c caller) GetWorkshop(workshopID string) (Workshop, error) {
 
 // ListWorkshops is an institution's workshops the caller sees.
 func (c caller) ListWorkshops(institutionID string) ([]Workshop, error) {
-	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{InstitutionId: some(institutionID)}))
+	return decodeItems[Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{InstitutionId: some(institutionID)}))
 }
 
 // ListAllWorkshops is every workshop the caller sees.
 func (c caller) ListAllWorkshops() ([]Workshop, error) {
-	return decode[[]Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{}))
+	return decodeItems[Workshop](c.api.GetApiWorkshopsWithResponse(ctx(), &apiclient.GetApiWorkshopsParams{}))
 }
 
 // UpdateWorkshop replaces a workshop's settings. A setting left out is

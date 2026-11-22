@@ -1,780 +1,308 @@
-import { api } from "@/api/client/api";
-import { useState, useMemo, useCallback } from "react";
+import type { ReactNode } from "react";
 import {
-  Container,
-  Title,
-  Text,
-  Stack,
-  Card,
-  Group,
-  TextInput,
-  Table,
-  Modal,
-  LoadingOverlay,
   Alert,
   Badge,
-  ActionIcon,
-  Switch,
+  Card,
+  Container,
+  Group,
+  Modal,
+  Stack,
+  TextInput,
   Tooltip,
 } from "@mantine/core";
-import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import {
-  IconTrash,
   IconAlertCircle,
-  IconSearch,
+  IconEdit,
   IconShieldCheck,
   IconShieldOff,
-  IconEdit,
+  IconTrash,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/api/queryKeys";
-import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import {
-  SortSelector,
-  type SortOption,
-  ExpandableSearch,
-} from "@/common/components/controls";
-import { useAuth } from "@/providers/AuthProvider";
-import { parseSortValue } from "@/common/lib/sort";
-import {
-  getRoleColor,
-  useTranslateRole,
-  type RoleString,
-} from "@/common/lib/roles";
-import type { UserView } from "@/api/generated/api.gen";
+import type { UserListSort } from "@/api/hooks";
+import type { UserView } from "@/api/types";
+import { ListTable, type ListColumn } from "@components/ListTable";
+import { ActionButton, DangerButton, GenericIconButton, TextButton } from "@components/buttons";
+import { BodyText, HelperText, PageTitle } from "@components/typography";
+import { getRoleColor, useTranslateRole } from "@/common/lib/roles";
+import { formatDate } from "@/common/lib/formatters";
+import { USER_LIST_PRESET, type UserColumnKey } from "../lib/userListPresets";
+import { useUserManagement, type UserManagementState } from "../hooks/useUserManagement";
 
-type SortField = "name" | "email" | "role" | "organization" | "joined";
+type UserColumn = ListColumn<UserView, UserListSort>;
 
+/** The admins' user list: search, guests in or out, orders, and per user the admin actions. */
 export function UserManagement() {
-  const { t } = useTranslation("common");
-  const queryClient = useQueryClient();
-  const { isMobile } = useResponsiveDesign();
-  const { backendUser } = useAuth();
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
-  const [hideGuests, setHideGuests] = useState(true);
-  const [sortValue, setSortValue] = useState("name-asc");
-  const [userToDelete, setUserToDelete] = useState<UserView | null>(null);
-  const [userToPromote, setUserToPromote] = useState<UserView | null>(null);
-  const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<UserView | null>(
-    null,
-  );
-  const [userToEdit, setUserToEdit] = useState<UserView | null>(null);
-  const [editName, setEditName] = useState("");
-  const [
-    deleteModalOpened,
-    { open: openDeleteModal, close: closeDeleteModal },
-  ] = useDisclosure(false);
-  const [
-    promoteModalOpened,
-    { open: openPromoteModal, close: closePromoteModal },
-  ] = useDisclosure(false);
-  const [
-    removeAdminModalOpened,
-    { open: openRemoveAdminModal, close: closeRemoveAdminModal },
-  ] = useDisclosure(false);
-  const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
-    useDisclosure(false);
-
-  // Fetch all users
-  const {
-    data: users,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: queryKeys.adminUsers,
-    queryFn: async () => {
-      const response = await api.getApiUsers();
-      return response.data;
-    },
-  });
-
-  // Delete user mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      await api.deleteApiUsersId(userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
-      closeDeleteModal();
-      setUserToDelete(null);
-    },
-  });
-
-  // Make admin mutation
-  const makeAdminMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      await api.postApiUsersIdRole(userId, { role: "admin" });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
-      closePromoteModal();
-      setUserToPromote(null);
-    },
-  });
-
-  // Remove admin mutation
-  const removeAdminMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      await api.deleteApiUsersIdRole(userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
-      closeRemoveAdminModal();
-      setUserToRemoveAdmin(null);
-    },
-  });
-
-  // Update user mutation
-  const updateUserMutation = useMutation({
-    mutationFn: async ({ userId, name }: { userId: string; name: string }) => {
-      await api.postApiUsersId(userId, { name });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
-      closeEditModal();
-      setUserToEdit(null);
-      setEditName("");
-    },
-  });
-
+  const { t, i18n } = useTranslation("common");
+  const state = useUserManagement();
   const translateRole = useTranslateRole(t("admin.users.noRole"));
+  const { list } = state;
 
-  const formatDate = useCallback((dateStr?: string) => {
-    if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleDateString();
-  }, []);
-
-  const isCurrentUser = useCallback(
-    (userId?: string) => {
-      return userId === backendUser?.id;
-    },
-    [backendUser?.id],
-  );
-
-  const isAdmin = useCallback((user: UserView) => {
-    return user.role?.role === "admin";
-  }, []);
-
-  const isIndividual = useCallback((user: UserView) => {
-    return user.role?.role === "individual";
-  }, []);
-
-  const canPromoteToAdmin = useCallback(
-    (user: UserView) => {
-      return !isCurrentUser(user.id) && isIndividual(user);
-    },
-    [isCurrentUser, isIndividual],
-  );
-
-  const canRemoveAdmin = useCallback(
-    (user: UserView) => {
-      return !isCurrentUser(user.id) && isAdmin(user);
-    },
-    [isCurrentUser, isAdmin],
-  );
-
-  const getOrganizationName = useCallback((user: UserView) => {
-    return user.role?.institution?.name || "-";
-  }, []);
-
-  const handleDelete = useCallback(
-    (user: UserView) => {
-      setUserToDelete(user);
-      openDeleteModal();
-    },
-    [openDeleteModal],
-  );
-
-  const handlePromote = useCallback(
-    (user: UserView) => {
-      setUserToPromote(user);
-      openPromoteModal();
-    },
-    [openPromoteModal],
-  );
-
-  const handleRemoveAdmin = useCallback(
-    (user: UserView) => {
-      setUserToRemoveAdmin(user);
-      openRemoveAdminModal();
-    },
-    [openRemoveAdminModal],
-  );
-
-  const handleEdit = useCallback(
-    (user: UserView) => {
-      setUserToEdit(user);
-      setEditName(user.name || "");
-      openEditModal();
-    },
-    [openEditModal],
-  );
-
-  const [sortField, sortDirection] = parseSortValue<SortField>(sortValue);
-
-  const sortOptions: SortOption[] = useMemo(
-    () => [
-      { value: "name-asc", label: t("admin.users.sort.name-asc") },
-      { value: "name-desc", label: t("admin.users.sort.name-desc") },
-      { value: "email-asc", label: t("admin.users.sort.email-asc") },
-      { value: "email-desc", label: t("admin.users.sort.email-desc") },
-      { value: "role-asc", label: t("admin.users.sort.role-asc") },
-      { value: "role-desc", label: t("admin.users.sort.role-desc") },
-      {
-        value: "organization-asc",
-        label: t("admin.users.sort.organization-asc"),
-      },
-      {
-        value: "organization-desc",
-        label: t("admin.users.sort.organization-desc"),
-      },
-      { value: "joined-asc", label: t("admin.users.sort.joined-asc") },
-      { value: "joined-desc", label: t("admin.users.sort.joined-desc") },
-    ],
-    [t],
-  );
-
-  // Filter users based on search and guest toggle
-  const filteredUsers = useMemo(() => {
-    if (!users) return [];
-
-    return users.filter((user) => {
-      // Filter out Guests and users without a role if toggle is on
-      if (hideGuests && (!user.role?.role || user.role.role === "guest")) {
-        return false;
-      }
-
-      // Search filter
-      if (debouncedSearch) {
-        const search = debouncedSearch.toLowerCase();
-        const name = (user.name || "").toLowerCase();
-        const email = (user.email || "").toLowerCase();
-        const org = getOrganizationName(user).toLowerCase();
-        const role = (user.role?.role || "").toLowerCase();
-
-        return (
-          name.includes(search) ||
-          email.includes(search) ||
-          org.includes(search) ||
-          role.includes(search)
-        );
-      }
-
-      return true;
-    });
-  }, [users, hideGuests, debouncedSearch, getOrganizationName]);
-
-  // Sort filtered users
-  const sortedUsers = useMemo(() => {
-    if (filteredUsers.length === 0) return [];
-
-    return [...filteredUsers].sort((a, b) => {
-      let aVal: string;
-      let bVal: string;
-
-      switch (sortField) {
-        case "name":
-          aVal = a.name || "";
-          bVal = b.name || "";
-          break;
-        case "email":
-          aVal = a.email || "";
-          bVal = b.email || "";
-          break;
-        case "role":
-          aVal = a.role?.role || "";
-          bVal = b.role?.role || "";
-          break;
-        case "organization":
-          aVal = getOrganizationName(a);
-          bVal = getOrganizationName(b);
-          break;
-        case "joined":
-          aVal = a.meta?.createdAt || "";
-          bVal = b.meta?.createdAt || "";
-          break;
-        default:
-          return 0;
-      }
-
-      const comparison = aVal.localeCompare(bVal);
-      return sortDirection === "asc" ? comparison : -comparison;
-    });
-  }, [filteredUsers, sortField, sortDirection, getOrganizationName]);
-
-  // Count guests for display
-  const guestCount = useMemo(() => {
-    if (!users) return 0;
-    return users.filter((u) => !u.role?.role || u.role.role === "guest").length;
-  }, [users]);
-
-  if (error) {
-    return (
-      <Container size="xl" py="xl">
-        <Alert
-          icon={<IconAlertCircle size={16} />}
-          title={t("error")}
-          color="red"
-        >
-          {error instanceof Error ? error.message : t("admin.users.loadError")}
-        </Alert>
-      </Container>
+  const roleBadge = (user: UserView, size?: "sm") =>
+    user.role?.role ? (
+      <Badge variant="light" color={getRoleColor(user.role.role)} size={size}>
+        {translateRole(user.role.role)}
+      </Badge>
+    ) : (
+      <HelperText>{t("admin.users.noRole")}</HelperText>
     );
-  }
+
+  const nameWithMe = (user: UserView) => (
+    <Group gap="xs" wrap="nowrap">
+      <BodyText size="sm" fw={500}>
+        {user.name}
+      </BodyText>
+      {state.isCurrentUser(user) && (
+        <Badge size="xs" variant="filled" color="violet">
+          {t("admin.users.me")}
+        </Badge>
+      )}
+    </Group>
+  );
+
+  const joined = (user: UserView) => formatDate(user.meta?.createdAt, i18n.language) || "-";
+
+  const columns: Record<UserColumnKey, UserColumn> = {
+    name: { key: "name", header: t("admin.users.name"), sortBy: "name", render: nameWithMe },
+    email: {
+      key: "email",
+      header: t("admin.users.email"),
+      sortBy: "email",
+      visibleFrom: "md",
+      render: (user) => <HelperText>{user.email || "-"}</HelperText>,
+    },
+    role: {
+      key: "role",
+      header: t("admin.users.role"),
+      sortBy: "role",
+      render: (user) => roleBadge(user),
+    },
+    organisation: {
+      key: "organisation",
+      header: t("admin.users.organization"),
+      sortBy: "organisation",
+      visibleFrom: "lg",
+      render: (user) => <BodyText size="sm">{user.role?.institution?.name || "-"}</BodyText>,
+    },
+    joined: {
+      key: "joined",
+      header: t("admin.users.joined"),
+      sortBy: "createdAt",
+      width: 120,
+      render: (user) => <HelperText>{joined(user)}</HelperText>,
+    },
+    actions: {
+      key: "actions",
+      header: t("admin.users.actions"),
+      width: 160,
+      interactive: true,
+      render: (user) => <UserActions user={user} state={state} />,
+    },
+  };
+
+  const renderCard = (user: UserView) => (
+    <Card
+      withBorder
+      padding="sm"
+      radius="md"
+      bg={state.isCurrentUser(user) ? "violet.0" : undefined}
+    >
+      <Stack gap="xs">
+        <Group justify="space-between" wrap="nowrap">
+          {nameWithMe(user)}
+          {user.role?.role && roleBadge(user, "sm")}
+        </Group>
+        {user.email && <HelperText>{user.email}</HelperText>}
+        {user.role?.institution?.name && <HelperText>{user.role.institution.name}</HelperText>}
+        <Group justify="space-between">
+          <HelperText>
+            {t("admin.users.joined")}: {joined(user)}
+          </HelperText>
+          <UserActions user={user} state={state} size="sm" />
+        </Group>
+      </Stack>
+    </Card>
+  );
 
   return (
     <Container size="xl" py="xl">
       <Stack gap="lg">
-        <Title order={2}>{t("admin.users.title")}</Title>
+        <PageTitle>{t("admin.users.title")}</PageTitle>
 
-        {/* Filters */}
-        <Card withBorder p="md">
-          {isMobile ? (
-            <Group gap="sm" wrap="nowrap">
-              <ExpandableSearch
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder={t("admin.users.searchPlaceholder")}
-              />
-              <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
-                <Switch
-                  label={t("admin.users.hideGuestsShort", {
-                    count: guestCount,
-                  })}
-                  checked={hideGuests}
-                  onChange={(e) => setHideGuests(e.currentTarget.checked)}
-                  size="xs"
-                />
-                <SortSelector
-                  options={sortOptions}
-                  value={sortValue}
-                  onChange={setSortValue}
-                  label={t("admin.users.sort.label")}
-                />
-              </Group>
-            </Group>
-          ) : (
-            <Group justify="space-between" wrap="wrap" gap="md">
-              <TextInput
-                placeholder={t("admin.users.searchPlaceholder")}
-                leftSection={<IconSearch size={16} />}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                style={{ flex: 1, minWidth: 200 }}
-              />
-              <Group gap="md" wrap="wrap">
-                <Switch
-                  label={t("admin.users.hideGuests", { count: guestCount })}
-                  checked={hideGuests}
-                  onChange={(e) => setHideGuests(e.currentTarget.checked)}
-                />
-                <SortSelector
-                  options={sortOptions}
-                  value={sortValue}
-                  onChange={setSortValue}
-                  label={t("admin.users.sort.label")}
-                  width={200}
-                />
-              </Group>
-            </Group>
-          )}
-        </Card>
-
-        {/* Users Table/Cards */}
-        <Card withBorder pos="relative" p={isMobile ? "sm" : undefined}>
-          <LoadingOverlay visible={isLoading} />
-
-          {sortedUsers.length > 0 ? (
-            isMobile ? (
-              <Stack gap="sm">
-                {sortedUsers.map((user) => (
-                  <Card
-                    key={user.id}
-                    withBorder
-                    padding="sm"
-                    radius="md"
-                    bg={isCurrentUser(user.id) ? "violet.0" : undefined}
-                  >
-                    <Stack gap="xs">
-                      <Group justify="space-between" wrap="nowrap">
-                        <Group gap="xs">
-                          <Text fw={600} lineClamp={1}>
-                            {user.name}
-                          </Text>
-                          {isCurrentUser(user.id) && (
-                            <Badge size="xs" variant="filled" color="violet">
-                              {t("admin.users.me")}
-                            </Badge>
-                          )}
-                        </Group>
-                        {user.role?.role && (
-                          <Badge
-                            variant="light"
-                            color={getRoleColor(user.role.role as RoleString)}
-                            size="sm"
-                          >
-                            {translateRole(user.role.role)}
-                          </Badge>
-                        )}
-                      </Group>
-                      {user.email && (
-                        <Text size="sm" c="dimmed" lineClamp={1}>
-                          {user.email}
-                        </Text>
-                      )}
-                      {user.role?.institution?.name && (
-                        <Text size="xs" c="dimmed">
-                          {user.role.institution.name}
-                        </Text>
-                      )}
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">
-                          {t("admin.users.joined")}:{" "}
-                          {formatDate(user.meta?.createdAt)}
-                        </Text>
-                        <Group gap="xs">
-                          {canPromoteToAdmin(user) && (
-                            <Tooltip label={t("admin.users.makeAdmin")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="green"
-                                size="sm"
-                                onClick={() => handlePromote(user)}
-                              >
-                                <IconShieldCheck size={14} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          {canRemoveAdmin(user) && (
-                            <Tooltip label={t("admin.users.removeAdmin")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="red"
-                                size="sm"
-                                onClick={() => handleRemoveAdmin(user)}
-                              >
-                                <IconShieldOff size={14} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          {user.mayEditCard && (
-                            <Tooltip label={t("admin.users.editName")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="blue"
-                                size="sm"
-                                onClick={() => handleEdit(user)}
-                              >
-                                <IconEdit size={14} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          {user.mayDelete && (
-                            <ActionIcon
-                              variant="subtle"
-                              color="red"
-                              size="sm"
-                              onClick={() => handleDelete(user)}
-                              title={t("delete")}
-                            >
-                              <IconTrash size={14} />
-                            </ActionIcon>
-                          )}
-                        </Group>
-                      </Group>
-                    </Stack>
-                  </Card>
-                ))}
-              </Stack>
-            ) : (
-              <Table striped highlightOnHover>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>{t("admin.users.name")}</Table.Th>
-                    <Table.Th>{t("admin.users.email")}</Table.Th>
-                    <Table.Th>{t("admin.users.role")}</Table.Th>
-                    <Table.Th>{t("admin.users.organization")}</Table.Th>
-                    <Table.Th>{t("admin.users.joined")}</Table.Th>
-                    <Table.Th style={{ width: 100 }}>
-                      {t("admin.users.actions")}
-                    </Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {sortedUsers.map((user) => (
-                    <Table.Tr
-                      key={user.id}
-                      bg={isCurrentUser(user.id) ? "violet.0" : undefined}
-                    >
-                      <Table.Td>
-                        <Group gap="xs">
-                          <Text fw={500}>{user.name}</Text>
-                          {isCurrentUser(user.id) && (
-                            <Badge size="xs" variant="filled" color="violet">
-                              {t("admin.users.me")}
-                            </Badge>
-                          )}
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm" c="dimmed">
-                          {user.email || "-"}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        {user.role?.role ? (
-                          <Badge
-                            variant="light"
-                            color={getRoleColor(user.role.role as RoleString)}
-                          >
-                            {translateRole(user.role.role)}
-                          </Badge>
-                        ) : (
-                          <Text size="sm" c="dimmed">
-                            {t("admin.users.noRole")}
-                          </Text>
-                        )}
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm">{getOrganizationName(user)}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm" c="dimmed">
-                          {formatDate(user.meta?.createdAt)}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap="xs">
-                          {canPromoteToAdmin(user) && (
-                            <Tooltip label={t("admin.users.makeAdmin")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="green"
-                                onClick={() => handlePromote(user)}
-                              >
-                                <IconShieldCheck size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          {canRemoveAdmin(user) && (
-                            <Tooltip label={t("admin.users.removeAdmin")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="red"
-                                onClick={() => handleRemoveAdmin(user)}
-                              >
-                                <IconShieldOff size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          {user.mayEditCard && (
-                            <Tooltip label={t("admin.users.editName")}>
-                              <ActionIcon
-                                variant="subtle"
-                                color="blue"
-                                onClick={() => handleEdit(user)}
-                              >
-                                <IconEdit size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          {user.mayDelete && (
-                            <ActionIcon
-                              variant="subtle"
-                              color="red"
-                              onClick={() => handleDelete(user)}
-                              title={t("delete")}
-                            >
-                              <IconTrash size={16} />
-                            </ActionIcon>
-                          )}
-                        </Group>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            )
-          ) : (
-            <Text c="dimmed" ta="center" py="xl">
-              {debouncedSearch
-                ? t("admin.users.noResults")
-                : t("admin.users.empty")}
-            </Text>
-          )}
-        </Card>
-
-        {/* Stats */}
-        <Text size="sm" c="dimmed" ta="right">
-          {t("admin.users.showing", {
-            count: sortedUsers.length,
-            total: users?.length || 0,
-          })}
-        </Text>
+        <ListTable
+          list={list}
+          columns={USER_LIST_PRESET.columns.map((key) => columns[key])}
+          getRowKey={(user) => user.id}
+          renderCard={renderCard}
+          getRowAccent={(user) => (state.isCurrentUser(user) ? "violet" : undefined)}
+          empty={{
+            title: list.query.search ? t("admin.users.noResults") : t("admin.users.empty"),
+          }}
+          errorMessage={t("admin.users.loadError")}
+        />
       </Stack>
 
-      {/* Delete Confirmation Modal */}
       <Modal
-        opened={deleteModalOpened}
-        onClose={closeDeleteModal}
+        opened={state.deleteModal.opened}
+        onClose={state.deleteModal.close}
         title={t("admin.users.deleteTitle")}
       >
         <Stack gap="md">
-          <Text>
-            {t("admin.users.deleteConfirm", { name: userToDelete?.name })}
-          </Text>
-          <Group justify="flex-end">
-            <Text
-              size="sm"
-              c="dimmed"
-              style={{ cursor: "pointer" }}
-              onClick={closeDeleteModal}
-            >
-              {t("cancel")}
-            </Text>
-            <ActionIcon
-              color="red"
-              variant="filled"
-              size="lg"
-              onClick={() =>
-                userToDelete?.id && deleteMutation.mutate(userToDelete.id)
-              }
-              loading={deleteMutation.isPending}
-            >
-              <IconTrash size={16} />
-            </ActionIcon>
-          </Group>
+          <BodyText>{t("admin.users.deleteConfirm", { name: state.deleteModal.user?.name })}</BodyText>
+          <ConfirmRow
+            onCancel={state.deleteModal.close}
+            onConfirm={state.deleteModal.confirm}
+            loading={state.deleteModal.loading}
+            danger
+            icon={<IconTrash size={16} />}
+            label={t("delete")}
+          />
         </Stack>
       </Modal>
 
-      {/* Promote to Admin Confirmation Modal */}
       <Modal
-        opened={promoteModalOpened}
-        onClose={closePromoteModal}
+        opened={state.promoteModal.opened}
+        onClose={state.promoteModal.close}
         title={t("admin.users.promoteTitle")}
       >
         <Stack gap="md">
-          <Text>
+          <BodyText>
             {t("admin.users.promoteConfirm", {
-              name: userToPromote?.name,
-              email: userToPromote?.email || t("admin.users.noEmail"),
+              name: state.promoteModal.user?.name,
+              email: state.promoteModal.user?.email || t("admin.users.noEmail"),
             })}
-          </Text>
+          </BodyText>
           <Alert color="yellow" icon={<IconAlertCircle size={16} />}>
             {t("admin.users.promoteWarning")}
           </Alert>
-          <Group justify="flex-end">
-            <Text
-              size="sm"
-              c="dimmed"
-              style={{ cursor: "pointer" }}
-              onClick={closePromoteModal}
-            >
-              {t("cancel")}
-            </Text>
-            <ActionIcon
-              color="green"
-              variant="filled"
-              size="lg"
-              onClick={() =>
-                userToPromote?.id && makeAdminMutation.mutate(userToPromote.id)
-              }
-              loading={makeAdminMutation.isPending}
-            >
-              <IconShieldCheck size={16} />
-            </ActionIcon>
-          </Group>
+          <ConfirmRow
+            onCancel={state.promoteModal.close}
+            onConfirm={state.promoteModal.confirm}
+            loading={state.promoteModal.loading}
+            icon={<IconShieldCheck size={16} />}
+            label={t("admin.users.makeAdmin")}
+          />
         </Stack>
       </Modal>
 
-      {/* Remove Admin Confirmation Modal */}
       <Modal
-        opened={removeAdminModalOpened}
-        onClose={closeRemoveAdminModal}
+        opened={state.removeAdminModal.opened}
+        onClose={state.removeAdminModal.close}
         title={t("admin.users.removeAdminTitle")}
       >
         <Stack gap="md">
-          <Text>
+          <BodyText>
             {t("admin.users.removeAdminConfirm", {
-              name: userToRemoveAdmin?.name,
-              email: userToRemoveAdmin?.email || t("admin.users.noEmail"),
+              name: state.removeAdminModal.user?.name,
+              email: state.removeAdminModal.user?.email || t("admin.users.noEmail"),
             })}
-          </Text>
+          </BodyText>
           <Alert color="orange" icon={<IconAlertCircle size={16} />}>
             {t("admin.users.removeAdminWarning")}
           </Alert>
-          <Group justify="flex-end">
-            <Text
-              size="sm"
-              c="dimmed"
-              style={{ cursor: "pointer" }}
-              onClick={closeRemoveAdminModal}
-            >
-              {t("cancel")}
-            </Text>
-            <ActionIcon
-              color="red"
-              variant="filled"
-              size="lg"
-              onClick={() =>
-                userToRemoveAdmin?.id &&
-                removeAdminMutation.mutate(userToRemoveAdmin.id)
-              }
-              loading={removeAdminMutation.isPending}
-            >
-              <IconShieldOff size={16} />
-            </ActionIcon>
-          </Group>
+          <ConfirmRow
+            onCancel={state.removeAdminModal.close}
+            onConfirm={state.removeAdminModal.confirm}
+            loading={state.removeAdminModal.loading}
+            danger
+            icon={<IconShieldOff size={16} />}
+            label={t("admin.users.removeAdmin")}
+          />
         </Stack>
       </Modal>
 
-      {/* Edit User Modal */}
       <Modal
-        opened={editModalOpened}
-        onClose={closeEditModal}
+        opened={state.editModal.opened}
+        onClose={state.editModal.close}
         title={t("admin.users.editTitle")}
       >
         <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t("admin.users.editingUser", { name: userToEdit?.name })}
-          </Text>
+          <HelperText>
+            {t("admin.users.editingUser", { name: state.editModal.user?.name })}
+          </HelperText>
           <TextInput
             label={t("admin.users.name")}
             placeholder={t("admin.users.namePlaceholder")}
-            value={editName}
-            onChange={(e) => setEditName(e.currentTarget.value)}
+            value={state.editModal.name}
+            onChange={(e) => state.editModal.setName(e.currentTarget.value)}
           />
-          <Group justify="flex-end">
-            <Text
-              size="sm"
-              c="dimmed"
-              style={{ cursor: "pointer" }}
-              onClick={closeEditModal}
-            >
-              {t("cancel")}
-            </Text>
-            <ActionIcon
-              color="blue"
-              variant="filled"
-              size="lg"
-              onClick={() =>
-                userToEdit?.id &&
-                updateUserMutation.mutate({
-                  userId: userToEdit.id,
-                  name: editName,
-                })
-              }
-              loading={updateUserMutation.isPending}
-              disabled={editName === (userToEdit?.name || "")}
-            >
-              <IconEdit size={16} />
-            </ActionIcon>
-          </Group>
+          <ConfirmRow
+            onCancel={state.editModal.close}
+            onConfirm={state.editModal.confirm}
+            loading={state.editModal.loading}
+            disabled={state.editModal.unchanged}
+            icon={<IconEdit size={16} />}
+            label={t("admin.users.editName")}
+          />
         </Stack>
       </Modal>
     </Container>
+  );
+}
+
+/** A user's admin actions, as far as the caller may take them. */
+function UserActions({
+  user,
+  state,
+  size,
+}: {
+  user: UserView;
+  state: UserManagementState;
+  size?: "sm";
+}) {
+  const { t } = useTranslation("common");
+  const iconSize = size === "sm" ? 14 : 16;
+  const action = (label: string, color: string, icon: ReactNode, onClick: () => void) => (
+    <Tooltip label={label} withArrow>
+      <GenericIconButton icon={icon} color={color} size={size} onClick={onClick} aria-label={label} />
+    </Tooltip>
+  );
+  return (
+    <Group gap="xs" wrap="nowrap">
+      {state.canPromote(user) &&
+        action(t("admin.users.makeAdmin"), "green", <IconShieldCheck size={iconSize} />, () =>
+          state.requestPromote(user),
+        )}
+      {state.canRemoveAdmin(user) &&
+        action(t("admin.users.removeAdmin"), "red", <IconShieldOff size={iconSize} />, () =>
+          state.requestRemoveAdmin(user),
+        )}
+      {state.canEdit(user) &&
+        action(t("admin.users.editName"), "blue", <IconEdit size={iconSize} />, () =>
+          state.requestEdit(user),
+        )}
+      {state.canDelete(user) &&
+        action(t("delete"), "red", <IconTrash size={iconSize} />, () => state.requestDelete(user))}
+    </Group>
+  );
+}
+
+/** A dialog's cancel and confirm, as the user dialogs have them. */
+function ConfirmRow({
+  onCancel,
+  onConfirm,
+  loading,
+  disabled,
+  danger,
+  icon,
+  label,
+}: {
+  onCancel: () => void;
+  onConfirm: () => void;
+  loading: boolean;
+  disabled?: boolean;
+  /** The action takes something away (deleting, demoting). */
+  danger?: boolean;
+  icon: ReactNode;
+  label: string;
+}) {
+  const { t } = useTranslation("common");
+  const Confirm = danger ? DangerButton : ActionButton;
+  return (
+    <Group justify="flex-end">
+      <TextButton onClick={onCancel}>{t("cancel")}</TextButton>
+      <Confirm onClick={onConfirm} loading={loading} disabled={disabled} leftSection={icon}>
+        {label}
+      </Confirm>
+    </Group>
   );
 }

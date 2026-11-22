@@ -128,26 +128,12 @@ func gameView(card *core.GameCard) GameView {
 	return v
 }
 
-// GameViewPage is one page of a game list, and how many games match across
-// all pages.
-type GameViewPage struct {
-	Items []GameView `json:"items"`
-	Total int        `json:"total"`
-}
-
 // GameViewPageOf converts a page of game cards, passing a loading error
 // through:
 //
-//	return wire.GameViewPageOf(core.ListGameCards(ctx, q))
-func GameViewPageOf(cards []*core.GameCard, total int, err error) (GameViewPage, error) {
-	if err != nil {
-		return GameViewPage{}, err
-	}
-	page := GameViewPage{Items: make([]GameView, len(cards)), Total: total}
-	for i, card := range cards {
-		page.Items[i] = gameView(card)
-	}
-	return page, nil
+//	return wire.GameViewPageOf(core.List(ctx, core.GameCards, q))
+func GameViewPageOf(p core.Page[*core.GameCard], err error) (Page[GameView], error) {
+	return pageOf(p, err, gameView)
 }
 
 func ptr[T any](v T) *T { return &v }

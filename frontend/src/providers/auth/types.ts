@@ -1,7 +1,7 @@
 /**
  * Shared types for the auth module.
  */
-import type { UserView } from "@/api/generated/api.gen";
+import type { UserView } from "@/api/types";
 import type { CallerStanding, Registration } from "./useCaller";
 
 export interface AuthUser {

@@ -1,4 +1,6 @@
 // Loads runtime config (/api/config) before the app renders. Keep it first.
+// schemaf's codegen requires this exact first import (runtime config before render).
+// eslint-disable-next-line no-restricted-imports
 import './api/generated/config.gen';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

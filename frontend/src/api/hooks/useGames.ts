@@ -14,34 +14,25 @@ import type {
   GameViewPage,
   UpdateGameReq,
   Error as ApiError,
+  GameFilter,
+  GameSort,
   CreateGameReq,
   FavouriteResp,
   ShareLinkView,
   MessageResp,
   PrivateShareStatusResp,
 } from "../generated/api.gen";
+import { useEntityList, type List, type ListParams, type ListPreset } from "../lists";
 
 // Games hooks
 
-/**
- * The filters the game list knows. Several combine (AND); none lists every
- * game the caller can see. In a workshop, that is the workshop's world.
- */
-export const GAME_LIST_FILTERS = ["own", "others", "public", "favorites", "sponsored"] as const;
-export type GameListFilter = (typeof GAME_LIST_FILTERS)[number];
+/** A filter of the game list (the server's enum); several combine (AND). */
+export type GameListFilter = GameFilter;
 
-/** The orders the game list knows. */
-export const GAME_LIST_SORTS = [
-  "createdAt",
-  "modifiedAt",
-  "name",
-  "playCount",
-  "visibility",
-  "creator",
-] as const;
-export type GameListSort = (typeof GAME_LIST_SORTS)[number];
+/** An order of the game list (the server's enum). */
+export type GameListSort = GameSort;
 
-/** A game list query; every part is optional and left out when unset. */
+/** A fixed game query (a dashboard card); every part is optional. */
 export interface GameListParams {
   filters?: GameListFilter[];
   search?: string;
@@ -52,28 +43,45 @@ export interface GameListParams {
   offset?: number;
 }
 
+// The list's parameters come from presets typed by the enums; the server
+// refuses what it does not know.
+const fetchGamePage = (params: ListParams) =>
+  api.getApiGames(params as GamePageQuery).then((response) => response.data);
+
+type GamePageQuery = Parameters<typeof api.getApiGames>[0];
+
 /**
- * A page of the games the caller can see, and how many match in all. The
- * server filters, searches, sorts and pages, and decides what the caller
- * may see.
+ * The games the caller can see, as a list: the server filters, searches,
+ * sorts and pages, and decides what the caller may see. The preset's toggles
+ * and the filters' `apply` are game filters.
  */
-export function useGames(params: GameListParams = {}) {
+export function useGames<F extends string>(
+  preset: ListPreset<F, GameListSort, GameListFilter>,
+): List<GameView, F, GameListSort, GameListFilter> {
+  const { isAuthenticated } = useAuth();
+  return useEntityList<GameView, F, GameListSort, GameListFilter>(
+    preset,
+    { key: (params) => queryKeys.gameList({ ...params }), fetch: fetchGamePage },
+    { enabled: isAuthenticated },
+  );
+}
+
+/** One fixed page of games, e.g. a dashboard card's few. */
+export function useGamePage(params: GameListParams = {}) {
   const { isAuthenticated } = useAuth();
   const { filters, search, sortBy, sortDir, limit, offset } = params;
+  const request: ListParams = {
+    filter: filters?.length ? filters : undefined,
+    search: search || undefined,
+    sortBy,
+    sortDir,
+    limit: limit || undefined,
+    offset: offset || undefined,
+  };
 
   return useQuery<GameViewPage, ApiError>({
-    queryKey: queryKeys.gameList({ filters, search, sortBy, sortDir, limit, offset }),
-    queryFn: () =>
-      api
-        .getApiGames({
-          filter: filters?.length ? filters : undefined,
-          search: search || undefined,
-          sortBy,
-          sortDir,
-          limit: limit || undefined,
-          offset: offset || undefined,
-        })
-        .then((response) => response.data),
+    queryKey: queryKeys.gameList({ ...request }),
+    queryFn: () => fetchGamePage(request),
     placeholderData: keepPreviousData,
     enabled: isAuthenticated,
   });
@@ -90,6 +98,26 @@ export function useGame(id: string | undefined) {
     enabled: !!id,
   });
 }
+
+/**
+ * Loads one game on demand (e.g. to copy it), through the cache `useGame`
+ * shares: a fresh cached game is returned as it is.
+ */
+export function useFetchGame() {
+  const queryClient = useQueryClient();
+  return (id: string) =>
+    queryClient.fetchQuery<GameView>({
+      queryKey: queryKeys.game(id),
+      queryFn: () => api.getApiGamesId(id).then((response) => response.data),
+    });
+}
+
+/**
+ * One game, read imperatively and past the cache: always what the server
+ * says now. Errors are the caller's.
+ */
+export const fetchGame = (id: string): Promise<GameView> =>
+  api.getApiGamesId(id).then((response) => response.data);
 
 /**
  * What a new game starts from, with the caller's rights on it (may* flags).

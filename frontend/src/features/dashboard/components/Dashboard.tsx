@@ -9,12 +9,14 @@ import { EXTERNAL_LINKS } from "@/config/externalLinks";
 import { HELP_LINKS } from "@/config/helpLinks";
 import { formatRelativeTime } from "@/common/lib/formatters";
 import {
-  useGames,
+  useGamePage,
   useUserSessions,
   useGameSessionMap,
   useCurrentUser,
-  useWorkshops,
+  useOrganisation,
+  useWorkshopList,
 } from "@/api/hooks";
+import { RECENT_WORKSHOPS_PRESET } from "../lib/recentWorkshops";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import {
   IconPlayerPlay,
@@ -26,7 +28,6 @@ import {
   IconDeviceGamepad2,
   IconDownload,
 } from "@tabler/icons-react";
-import { hasRole, Role } from "@/common/lib/roles";
 import { useAdmin } from "@/common/hooks/useAdmin";
 import { InformationalCard, type ListItem } from "./InformationalCard";
 import { QuickActionCard } from "./QuickActionCard";
@@ -36,7 +37,7 @@ import { LinksCard, type LinkItem } from "./LinkCard";
 function MyGamesCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: page, isLoading } = useGames({
+  const { data: page, isLoading } = useGamePage({
     sortBy: "modifiedAt",
     sortDir: "desc",
     filters: ["own"],
@@ -72,24 +73,10 @@ function MyWorkshopsCard() {
 
   const institutionId = currentUser?.role?.institution?.id;
 
-  const { data: workshops, isLoading } = useWorkshops({
+  const { items: recentWorkshops, isInitialLoading: isLoading } = useWorkshopList(
     institutionId,
-    activeOnly: true,
-    sortBy: "createdAt",
-    sortDir: "desc",
-  });
-
-  // Sort by modifiedAt (fallback to createdAt) and take top 5
-  const recentWorkshops = useMemo(() => {
-    if (!workshops) return [];
-    return [...workshops]
-      .sort((a, b) => {
-        const dateA = a.meta?.modifiedAt ?? a.meta?.createdAt ?? "";
-        const dateB = b.meta?.modifiedAt ?? b.meta?.createdAt ?? "";
-        return dateB.localeCompare(dateA);
-      })
-      .slice(0, 5);
-  }, [workshops]);
+    RECENT_WORKSHOPS_PRESET,
+  );
 
   const handleWorkshopClick = async (
     workshopId: string,
@@ -102,9 +89,7 @@ function MyWorkshopsCard() {
   const items: ListItem[] = recentWorkshops.map((workshop) => ({
     id: workshop.id ?? "",
     label: workshop.name ?? t("untitled"),
-    sublabel: formatRelativeTime(
-      workshop.meta?.modifiedAt ?? workshop.meta?.createdAt,
-    ),
+    sublabel: formatRelativeTime(workshop.meta?.modifiedAt ?? workshop.meta?.createdAt),
     onClick: () => handleWorkshopClick(workshop.id ?? "", workshop.name ?? ""),
   }));
 
@@ -119,7 +104,9 @@ function MyWorkshopsCard() {
       items={items}
       emptyMessage={t("cards.myWorkshops.empty")}
       viewAllLabel={t("cards.myWorkshops.viewAll")}
-      onViewAll={() => navigate({ to: ROUTES.MY_ORGANIZATION as "/" })}
+      onViewAll={() =>
+        navigate({ to: ROUTES.MY_ORGANIZATION as "/my-organization", search: { tab: "workshops" } })
+      }
       isLoading={isLoading}
     />
   );
@@ -161,7 +148,7 @@ function LastPlayedCard() {
 function PopularGamesCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: page, isLoading: gamesLoading } = useGames({
+  const { data: page, isLoading: gamesLoading } = useGamePage({
     sortBy: "playCount",
     sortDir: "desc",
     filters: ["public"],
@@ -203,7 +190,7 @@ function PopularGamesCard() {
 function NewGamesCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: page, isLoading: gamesLoading } = useGames({
+  const { data: page, isLoading: gamesLoading } = useGamePage({
     sortBy: "createdAt",
     sortDir: "desc",
     filters: ["public", "others"],
@@ -283,8 +270,9 @@ function QuickActionsCard() {
   const navigate = useNavigate();
   const { data: currentUser } = useCurrentUser();
 
-  const canManageWorkshops =
-    hasRole(currentUser, Role.Head) || hasRole(currentUser, Role.Staff);
+  // Whether the caller may create workshops in their organisation: the server's flag.
+  const { data: organisation } = useOrganisation(currentUser?.role?.institution?.id);
+  const canManageWorkshops = !!organisation?.mayCreateWorkshop;
 
   const actions = [
     {

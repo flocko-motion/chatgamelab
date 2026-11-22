@@ -1,78 +1,26 @@
-import { useState } from "react";
-import {
-  Stack,
-  Group,
-  Text,
-  Collapse,
-  UnstyledButton,
-  Badge,
-} from "@mantine/core";
-import {
-  IconChevronDown,
-  IconChevronRight,
-  IconBuilding,
-  IconHeartFilled,
-  IconExternalLink,
-  IconLink,
-} from "@tabler/icons-react";
+import { Stack, Group, UnstyledButton, Badge } from "@mantine/core";
+import { IconBuilding, IconHeartFilled, IconExternalLink, IconLink } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { DeleteIconButton } from "@components/buttons";
+import { BodyText, HelperText, Label } from "@components/typography";
 import { useRemoveGameSponsor, useRevokePrivateShare } from "@/api/hooks";
-import type { KeyShareView } from "@/api/generated/api.gen";
-import {
-  useKeyShareGroups,
-  type ShareLinkEntry,
-} from "../hooks/useKeyShareGroups";
+import type { KeyShareView } from "@/api/types";
+import { keyShareGroups, type ShareLinkEntry } from "../lib/keyShareGroups";
 
 interface ApiKeySharesProps {
   shares: KeyShareView[];
 }
 
+/** What a key is shared as, by kind: organisations, sponsored games, share links. */
 export function ApiKeyShares({ shares }: ApiKeySharesProps) {
-  const { t } = useTranslation("common");
-  const [opened, setOpened] = useState(false);
-
-  const {
-    organisations: orgShares,
-    sponsorships: publicSponsorships,
-    shareLinks: gameShares,
-    total: totalShares,
-  } = useKeyShareGroups(shares);
-
-  if (totalShares === 0) return null;
+  const { organisations, sponsorships, shareLinks } = keyShareGroups(shares);
 
   return (
-    <Stack gap={0}>
-      <UnstyledButton onClick={() => setOpened((o) => !o)} px="sm" py={6}>
-        <Group gap={6} align="center">
-          {opened ? (
-            <IconChevronDown size={18} color="var(--mantine-color-dimmed)" />
-          ) : (
-            <IconChevronRight size={18} color="var(--mantine-color-dimmed)" />
-          )}
-          <Text size="sm" c="dimmed" fw={500}>
-            {t("apiKeys.shares.toggle")}
-          </Text>
-          {!opened && totalShares > 0 && (
-            <Badge size="sm" variant="light" color="gray">
-              {totalShares}
-            </Badge>
-          )}
-        </Group>
-      </UnstyledButton>
-
-      <Collapse in={opened}>
-        <Stack gap="sm" px="sm" pb="sm">
-          {orgShares.length > 0 && <OrgSharesSection shares={orgShares} />}
-          {publicSponsorships.length > 0 && (
-            <SponsorshipsSection shares={publicSponsorships} />
-          )}
-          {gameShares.length > 0 && (
-            <GameSharesSection shares={gameShares} />
-          )}
-        </Stack>
-      </Collapse>
+    <Stack gap="sm">
+      {organisations.length > 0 && <OrgSharesSection shares={organisations} />}
+      {sponsorships.length > 0 && <SponsorshipsSection shares={sponsorships} />}
+      {shareLinks.length > 0 && <GameSharesSection shares={shareLinks} />}
     </Stack>
   );
 }
@@ -85,18 +33,14 @@ function OrgSharesSection({ shares }: { shares: KeyShareView[] }) {
     <Stack gap={4}>
       <Group gap={8} align="center">
         <IconBuilding size={18} />
-        <Text size="sm" fw={600} c="dimmed" tt="uppercase">
-          {t("apiKeys.shares.orgShares")} ({shares.length})
-        </Text>
+        <Label uppercase>{t("apiKeys.shares.orgShares")} ({shares.length})</Label>
       </Group>
       <Stack gap={6} pl="md">
         {shares.map((share) => {
           const name = share.institution?.name || "-";
           return (
             <Group key={share.id} gap="sm" align="center">
-              <Text size="sm" fw={500}>
-                {name}
-              </Text>
+              <BodyText size="sm" fw={500}>{name}</BodyText>
               {share.institution?.id && (
                 <UnstyledButton
                   onClick={() => navigate({ to: "/my-organization" })}
@@ -106,9 +50,7 @@ function OrgSharesSection({ shares }: { shares: KeyShareView[] }) {
                       size={16}
                       color="var(--mantine-color-accent-5)"
                     />
-                    <Text size="sm" c="accent.5" fw={500}>
-                      {t("apiKeys.shares.goToOrg")}
-                    </Text>
+                    <BodyText size="sm" c="accent.5" fw={500}>{t("apiKeys.shares.goToOrg")}</BodyText>
                   </Group>
                 </UnstyledButton>
               )}
@@ -128,16 +70,12 @@ function SponsorshipsSection({ shares }: { shares: KeyShareView[] }) {
     <Stack gap={4}>
       <Group gap={8} align="center">
         <IconHeartFilled size={18} color="var(--mantine-color-pink-5)" />
-        <Text size="sm" fw={600} c="dimmed" tt="uppercase">
-          {t("apiKeys.shares.sponsorships")} ({shares.length})
-        </Text>
+        <Label uppercase>{t("apiKeys.shares.sponsorships")} ({shares.length})</Label>
       </Group>
       <Stack gap={6} pl="md">
         {shares.map((share) => (
           <Group key={share.id} gap="sm" align="center" justify="space-between">
-            <Text size="sm">
-              {share.game?.name || t("apiKeys.shares.unknownGame")}
-            </Text>
+            <BodyText size="sm">{share.game?.name || t("apiKeys.shares.unknownGame")}</BodyText>
             {share.mayRevoke && (
               <DeleteIconButton
                 size="sm"
@@ -169,9 +107,7 @@ function GameSharesSection({ shares }: { shares: ShareLinkEntry[] }) {
     <Stack gap={4}>
       <Group gap={8} align="center">
         <IconLink size={18} color="var(--mantine-color-accent-5)" />
-        <Text size="sm" fw={600} c="dimmed" tt="uppercase">
-          {t("apiKeys.shares.gameShares")} ({shares.length})
-        </Text>
+        <Label uppercase>{t("apiKeys.shares.gameShares")} ({shares.length})</Label>
       </Group>
       <Stack gap={6} pl="md">
         {shares.map(({ share, source }) => (
@@ -182,17 +118,13 @@ function GameSharesSection({ shares }: { shares: ShareLinkEntry[] }) {
             justify="space-between"
           >
             <Group gap="xs">
-              <Text size="sm" fw={500}>
-                {share.game?.name || t("apiKeys.shares.unknownGame")}
-              </Text>
+              <BodyText size="sm" fw={500}>{share.game?.name || t("apiKeys.shares.unknownGame")}</BodyText>
               <Badge size="xs" variant="light" color="gray">
                 {source === "organization"
                   ? t("apiKeys.shares.context.organization")
                   : t("apiKeys.shares.context.personal")}
               </Badge>
-              <Text size="xs" c="dimmed">
-                {getRemainingLabel(share)}
-              </Text>
+              <HelperText>{getRemainingLabel(share)}</HelperText>
             </Group>
             {share.mayRevoke && (
               <DeleteIconButton

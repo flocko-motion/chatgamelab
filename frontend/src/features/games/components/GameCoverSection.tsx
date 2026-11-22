@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ActionButton } from "@components/buttons";
 import { HelperText } from "@components/typography";
 import { GameCover } from "@components/GameCover";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import { COVER_HINT_MAX, useGameCover } from "../hooks";
 
 interface GameCoverSectionProps {

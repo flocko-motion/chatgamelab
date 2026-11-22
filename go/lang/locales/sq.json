@@ -14,6 +14,17 @@
       "under13Blocker": "Nuk mund të krijoni ende llogarinë tuaj. Nëse jeni nën 13 vjeç, mund të përdorni ChatGameLab vetëm përmes një organizate rinore.",
       "under13Description": "Nuk mund të krijoni ende llogarinë tuaj. Nëse jeni nën 13 vjeç, mund të përdorni ChatGameLab vetëm përmes një organizate rinore."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Dil",
+        "message": "Ti qëndron në këtë workshop. Me kodin tënd mund të identifikohesh përsëri në çdo kohë dhe në çdo pajisje: te “Fut kodin” në faqen kryesore.",
+        "title": "Të dalësh?"
+      },
+      "leaveWorkshop": "Dil",
+      "organization": "Organizatë",
+      "role": "I ftuar",
+      "workshop": "Workshop"
+    },
     "login": {
       "auth0Button": "Hyni me Auth0",
       "devMode": "Modaliteti i zhvillimit",
@@ -22,6 +33,8 @@
         "title": "Modaliteti i zhvillimit"
       },
       "devModeDescription": "Hyrje e shpejtë për zhvillim dhe testim",
+      "devNewOrganisation": "Person i ri (regjistro një organizatë)",
+      "devNewPerson": "Person i ri (ende pa zgjedhje, si pas regjistrimit)",
       "redirecting": {
         "message": "Ju lutemi prisni ndërsa ju ridrejtojmë te faqja e hyrjes.",
         "title": "Duke ridrejtuar te Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Hyni si Mësues"
       },
       "unavailable": {
-        "message": "Kjo instancë nuk ofron hyrje. Pjesëmarrësit e workshop-it mund të fusin kodin e tyre në vend të kësaj.",
+        "message": "Ky instancë nuk ofron identifikim. Të ftuarit në një workshop mund të fusin kodin e tyre.",
         "title": "Hyrja nuk është e disponueshme"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Kështu shfaqesh në ChatGameLab (maksimumi 24 karaktere).",
+      "accountNameLabel": "Emri i shfaqur",
+      "cityLabel": "Qyteti",
+      "confirmAdult": "Jam të paktën 18 vjeç.",
+      "consentPage": {
+        "constraintIntro": "Me deklaratën, institucioni juaj angazhohet të përcaktojë një kufizim të udhëzimeve të mbrojtjes së të rinjve që i përshtatet grupit tuaj të synuar. Më poshtë është kufizimi që përdor aktualisht organizata juaj. Ju lutemi kontrollojeni dhe përshtateni nëse është e nevojshme.",
+        "emailDescription": "Në këtë adresë do të dërgojmë konfirmimin me tekstin e deklaratës.",
+        "introExisting": "Organizata juaj “{{name}}” tani ka një deklaratë pëlqimi që konfirmohet online. Ajo zëvendëson marrëveshjen e përdorimit që keni nënshkruar më parë. Ju lutemi lexojeni dhe jepni pëlqimin në emër të institucionit tuaj.",
+        "introNewVersion": "Deklarata është përditësuar (versioni {{version}}). Ju lutemi lexoni versionin e ri dhe jepni pëlqimin në emër të organizatës suaj “{{name}}”.",
+        "introWithdrawn": "Pëlqimi i organizatës suaj “{{name}}” për deklaratën është tërhequr, ndaj ajo është pezulluar. Ju lutemi lexojeni deklaratën dhe jepni pëlqimin në emër të institucionit tuaj për të përdorur përsëri ChatGameLab.",
+        "logout": "Dil",
+        "oneHeadIsEnough": "Mjafton që një drejtues i organizatës të japë pëlqimin. Deri atëherë organizata juaj është pezulluar: anëtarët e saj nuk mund të përdorin ChatGameLab.",
+        "submit": "Prano",
+        "title": "Konfirmo deklaratën"
+      },
+      "consentSection": "Konfirmime",
+      "declarationGermanOnly": "Deklarata është e disponueshme vetëm në gjermanisht. Teksti gjerman është detyrues.",
+      "declarationVersion": "Versioni {{version}}, datë {{date}}",
+      "emailConfirmHint": "Pas dërgimit të formularit, organizata krijohet menjëherë. Konfirmimi me tekstin e deklaratës dërgohet në adresën tuaj të emailit.",
+      "emailDescription": "Në këtë adresë do të dërgojmë konfirmimin e deklaratës.",
+      "emailFromLogin": "Kjo është adresa e identifikimit tuaj.",
+      "emailLabel": "Adresa e emailit të punës",
+      "errors": {
+        "conflict": "Ekziston tashmë një llogari për këtë identifikim. Ju lutemi identifikohuni dhe përdorni përmirësimin te cilësimet.",
+        "declaration_version_outdated": "Deklarata është përditësuar. Ju lutemi ringarkoni faqen dhe lexoni versionin aktual.",
+        "duplicate_name": "Ky emër i shfaqur është tashmë i zënë.",
+        "emailInvalid": "Ju lutemi vendosni një adresë të vlefshme emaili.",
+        "email_belongs_to_other_account": "Ekziston tashmë një llogari me këtë adresë emaili. Ju lutemi identifikohuni me të dhe zgjidhni “Përmirëso në organizatë” te cilësimet.",
+        "formIncomplete": "Ju lutemi plotësoni të gjitha fushat e detyrueshme dhe konfirmoni të gjitha pikat.",
+        "generic": "Diçka shkoi keq. Ju lutemi provoni përsëri.",
+        "institution_age_not_allowed": "Një organizatë mund të regjistrohet vetëm me një llogari të një të rrituri (18+).",
+        "institution_consents_required": "Ju lutemi konfirmoni të gjitha pikat.",
+        "institution_name_taken": "Ekziston tashmë një organizatë me këtë emër. Ju lutemi zgjateni emrin, për shembull duke shtuar qytetin.",
+        "loadFailed": "Deklarata nuk mund të ngarkohej. Ju lutemi ringarkoni faqen.",
+        "name_too_long": "Emri i shfaqur mund të ketë maksimumi 24 karaktere.",
+        "profane_name": "Ky emër i shfaqur nuk lejohet.",
+        "required": "E detyrueshme",
+        "validation_error": "Ju lutemi kontrolloni të dhënat tuaja."
+      },
+      "institutionNameLabel": "Emri i institucionit",
+      "institutionSection": "Rreth institucionit",
+      "operatorDescription": "p.sh. qytet, shoqatë, famulli",
+      "operatorLabel": "Drejtuesi",
+      "personFunctionLabel": "Roli në institucion",
+      "personFunctionPlaceholder": "p.sh. drejtues, punonjës për të rinjtë",
+      "personNameLabel": "Emri dhe mbiemri",
+      "personSection": "Rreth jush",
+      "postalCodeLabel": "Kodi postar",
+      "registered": {
+        "text": "Organizata juaj është aktivizuar. Ju jeni drejtuesi i saj dhe tani mund të krijoni workshope.",
+        "title": "Organizata u regjistrua"
+      },
+      "streetLabel": "Rruga dhe numri",
+      "submit": "Regjistro organizatën",
+      "subtitle": "Pas dërgimit të formularit, organizata juaj aktivizohet menjëherë dhe ju bëheni drejtuesi i saj.",
+      "switchToPersonal": "Kthehu te zgjedhja",
+      "titleRegister": "Regjistro një organizatë",
+      "toMyOrganization": "Shko te organizata ime",
+      "youthProtection": {
+        "changeHint": "Mund ta ndryshoni këtë cilësim në çdo kohë dhe ta përcaktoni ndryshe për workshope të veçanta.",
+        "defaultOption": "Parazgjedhje nga mosha 13 vjeç",
+        "fieldLabel": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve të organizatës suaj",
+        "intro": "AI-ja e merr këtë udhëzim në çdo lojë të organizatës suaj. Zgjidheni sipas moshës së grupit tuaj të synuar.",
+        "responsibilityHint": "Sugjerimet nuk janë një klasifikim zyrtar moshe. Institucioni juaj vendos për cilësimin dhe është përgjegjës për të.",
+        "suggestionAdults": "për të rritur nga {{age}} vjeç",
+        "suggestionChildren": "për fëmijë nga rreth {{age}} vjeç",
+        "suggestionTeens": "për të rinj nga rreth {{age}} vjeç",
+        "suggestionsLabel": "Sugjerime (një klikim zëvendëson tekstin):",
+        "title": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve",
+        "tooLong": "Maksimumi {{max}} karaktere. Ju lutemi shkurtojeni ose zgjidhni një sugjerim."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Lojëra të krijuara",
       "gamesPlayed": "Lojëra të luajtura",
+      "guestCode": {
+        "error": "Kodi juaj i hyrjes nuk mund të ngarkohej.",
+        "hint": "Fotografoni këtë kod ose shënojeni dhe mbajeni vetëm për vete. Me të mund të hyni përsëri në llogarinë tuaj në çdo kohë dhe në çdo pajisje: futni fjalët te “Fut kodin” në faqen kryesore ose skanoni kodin QR.",
+        "longTokenHint": "Fotografoni kodin QR ose ruani lidhjen dhe mbajeni vetëm për vete. Me të mund të hyni përsëri në llogarinë tuaj në çdo kohë. Drejtuesi i workshopit mund t'ju japë një kod të shkurtër me katër fjalë duke rivendosur hyrjen tuaj.",
+        "title": "Kodi juaj i hyrjes"
+      },
       "memberSince": "I regjistruar që nga",
       "messagesSent": "Mesazhe të dërguara",
       "noOrganization": "Pa organizatë",
@@ -71,6 +163,7 @@
       "role": "Roli",
       "roles": {
         "admin": "Administrator",
+        "guest": "I ftuar",
         "head": "Kreu i organizatës",
         "individual": "Individual",
         "participant": "Pjesëmarrës",
@@ -140,6 +233,12 @@
       "individualDescription": "Krijoni dhe luani aventura tekstuale të fuqizuara nga AI",
       "individualTitle": "Llogari Personale",
       "loginLink": "Hyni",
+      "organizationExistingAccount": "Organizatat regjistrohen me një identifikim të ri. Keni tashmë një llogari?",
+      "organizationIntro": "Për qendra rinore, shkolla dhe institucione të tjera që duan të përdorin ChatGameLab në workshope.",
+      "organizationStep1": "Krijoni identifikimin tuaj me Auth0 (email dhe fjalëkalim).",
+      "organizationStep2": "Vendosni të dhënat tuaja dhe të institucionit, përcaktoni kufizimin e udhëzimeve për mbrojtjen e të rinjve dhe pranoni deklaratën.",
+      "organizationStep3": "Pas dërgimit të formularit, organizata aktivizohet menjëherë dhe mund të krijoni workshope.",
+      "organizationTitle": "Regjistrohu si organizatë",
       "privacyPolicy": "Politika e Privatësisë",
       "termsOfService": "Kushtet e Shërbimit",
       "title": "Krijoni Llogarinë Tuaj"
@@ -174,6 +273,7 @@
         "actions": "Veprime",
         "empty": "Nuk ka ftesa në pritje.",
         "invitedEmail": "Emaili i ftuar",
+        "loadError": "Ftesat nuk mund të ngarkoheshin.",
         "modifiedAt": "Modifikuar",
         "noResults": "Asnjë ftesë nuk përputhet me kërkimin tuaj.",
         "organization": "Organizata",
@@ -207,30 +307,75 @@
       },
       "organizations": {
         "actions": "Veprime",
+        "city": "Qyteti",
+        "consentGiven": "Deklarata v{{version}} · {{date}}",
+        "consentMissing": "Deklarata në pritje",
+        "consentOutdated": "Deklarata e vjetruar (v{{version}})",
+        "consentWithdrawn": "Deklarata e tërhequr",
         "create": "Krijo organizatë",
         "createTitle": "Krijo organizatë të re",
-        "deleteConfirm": "Jeni i sigurt që doni të fshini \"{{name}}\"? Ky veprim nuk mund të zhbëhet.",
+        "deleteConfirm": "Të fshihet përgjithmonë “{{name}}”? Të gjitha workshopet dhe pjesëmarrësit e organizatës do të fshihen; drejtuesit dhe drejtuesit e workshopeve do t'i ruajnë llogaritë e tyre. Ky veprim nuk mund të zhbëhet. Nëse organizata duhet vetëm të humbasë aksesin, pezullojeni në vend që ta fshini.",
         "deleteTitle": "Fshi organizatën",
+        "detailsOptional": "Opsionale: drejtuesi dhe adresa",
         "editTitle": "Përpuno organizatën",
         "email": "Adresa e emailit",
         "emailPlaceholder": "Shkruani adresën e emailit",
         "empty": "Ende nuk ka organizata. Krijoni një për të filluar.",
+        "heads": "Drejtuesit",
         "inviteDescription": "Dërgoni një ftesë për t'u bashkuar me {{name}} si kreu i organizatës.",
         "inviteTitle": "Fto në organizatë",
+        "lift": "Hiq pezullimin",
+        "liftConfirm": "Të hiqet pezullimi i “{{name}}”? Më pas të gjithë anëtarët mund ta përdorin organizatën si më parë, nëse ajo ka pranuar deklaratën aktuale.",
+        "liftTitle": "Hiq pezullimin",
+        "loadError": "Organizatat nuk mund të ngarkoheshin.",
         "memberEmail": "Email",
         "memberName": "Emri",
         "memberRole": "Roli",
         "members": "Anëtarët",
         "membersCount": "anëtarë",
         "membersList": "Anëtarët",
+        "membersLoadError": "Anëtarët nuk mund të ngarkoheshin.",
         "name": "Emri",
         "namePlaceholder": "Shkruani emrin e organizatës",
         "noMembers": "Nuk ka anëtarë në këtë organizatë.",
+        "operator": "Drejtuesi",
+        "postalCode": "Kodi postar",
         "removeMember": "Hiq anëtarin",
         "removeMemberConfirm": "Jeni i sigurt që doni ta hiqni {{name}} nga kjo organizatë?",
         "searchPlaceholder": "Kërko organizata...",
         "sendInvite": "Dërgo ftesën",
+        "status": "Statusi dhe pëlqimi",
+        "statusActive": "Aktive",
+        "statusSuspended": "E pezulluar",
+        "statusSuspendedConsent": "E pezulluar: deklarata në pritje",
+        "street": "Rruga dhe numri",
+        "suspend": "Pezullo",
+        "suspendConfirm": "Të pezullohet “{{name}}”? Drejtuesit, drejtuesit e workshopeve dhe pjesëmarrësit nuk do të mund ta përdorin më organizatën. Lidhjet e përbashkëta të lojërave dhe faqet publike të workshopeve do të ndalojnë së funksionuari. Nuk fshihet asnjë e dhënë dhe pezullimi mund të hiqet në çdo kohë.",
+        "suspendError": "Kjo nuk funksionoi. Ju lutemi provoni përsëri.",
+        "suspendReason": "Arsyeja (opsionale)",
+        "suspendReasonDescription": "E dukshme vetëm për administratorët.",
+        "suspendTitle": "Pezullo organizatën",
+        "suspendedNoReason": "E pezulluar pa arsye",
         "title": "Menaxho organizatat"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Asnjë organizatë nuk është regjistruar gjatë dy javëve të fundit.",
+          "intro_one": "Kjo organizatë u regjistrua gjatë dy javëve të fundit dhe tashmë është aktivizuar.",
+          "intro_other": "Këto {{count}} organizata u regjistruan gjatë dy javëve të fundit dhe tashmë janë aktivizuar.",
+          "label": "Organizata të reja",
+          "later": "Më vonë",
+          "open": "Shko te përmbledhja",
+          "suspendHint": "Adresat e emailit aktualisht nuk konfirmohen. Kontrolloni shkurt organizatat e reja dhe pezullojini në përmbledhje nëse diçka nuk është në rregull.",
+          "title": "Organizata të reja"
+        },
+        "date": "Regjistruar",
+        "description": "Organizatat që janë regjistruar vetë gjatë dy javëve të fundit. Ato aktivizohen menjëherë, pa konfirmuar adresën e emailit; kontrollojini dhe pezulloni një prej tyre nëse diçka nuk është në rregull.",
+        "empty": "Asnjë organizatë nuk është regjistruar vetë gjatë dy javëve të fundit.",
+        "institution": "Institucioni",
+        "loadError": "Regjistrimet nuk mund të ngarkoheshin.",
+        "person": "Deklaruar nga",
+        "title": "Regjistrime të reja"
       },
       "users": {
         "actions": "Veprime",
@@ -242,6 +387,10 @@
         "email": "Email",
         "emailPlaceholder": "Shkruani adresën e emailit",
         "empty": "Nuk u gjetën përdorues.",
+        "filters": {
+          "all": "Të gjithë përdoruesit",
+          "noGuests": "Pa të ftuar"
+        },
         "hideGuests": "Fshih vizitorët ({{count}})",
         "hideGuestsShort": "Vizitorë ({{count}})",
         "joined": "U bashkua",
@@ -297,7 +446,16 @@
       },
       "copyGame": "Kopjo lojën",
       "empty": {
+        "conditions": {
+          "favorites": "një nga të preferuarat tuaja",
+          "own": "i juaji",
+          "public": "publik",
+          "sponsored": "i sponsorizuar"
+        },
         "description": "Provoni të rregulloni filtrat ose kontrolloni më vonë për lojëra të reja.",
+        "is": "Nuk ka lojë {{conditions}}.",
+        "isAndNamed": "Nuk ka lojë {{conditions}} dhe me “{{search}}” në emër.",
+        "named": "Asnjë lojë nuk ka “{{search}}” në emër.",
         "title": "Nuk u gjetën lojëra"
       },
       "favorite": "Shto te të preferuarat",
@@ -308,10 +466,11 @@
         "public": "Publike",
         "sponsored": "Të sponsorizuara"
       },
+      "onlyFavorites": "Shfaq vetëm të preferuarat",
       "play": "Luaj",
       "reportGame": "Raporto lojën",
       "restart": "Rinis",
-      "title": "Të gjitha lojërat",
+      "title": "Lojërat",
       "unfavorite": "Hiq nga të preferuarat",
       "workshop": "Punëtori / Org"
     },
@@ -346,6 +505,7 @@
         "title": "Fshi çelësin API",
         "warning": "Ky veprim nuk mund të zhbëhet. Çelësi do të fshihet përgjithmonë."
       },
+      "empty": "Ende nuk ka çelësa API. Shtoni një për të filluar.",
       "errors": {
         "invalidPlatform": "Platformë e pavlefshme e zgjedhur. Ju lutemi zgjidhni një platformë të vlefshme AI.",
         "keyRequired": "Çelësi API është i detyrueshëm",
@@ -355,6 +515,7 @@
       },
       "key": "çelës",
       "keys": "çelësa",
+      "noResults": "Asnjë çelës nuk përputhet me kërkimin ose filtrin tuaj.",
       "platform": "Platforma",
       "setDefault": "Vendos si parazgjedhje",
       "shares": {
@@ -381,11 +542,20 @@
         "unknownWorkshop": "Punëtori e panjohur",
         "unlimited": "Përdorime të pakufizuara"
       },
+      "sort": {
+        "createdAt-asc": "Më të vjetrit në fillim",
+        "createdAt-desc": "Më të rinjtë në fillim",
+        "name-asc": "Emri A–Z",
+        "name-desc": "Emri Z–A",
+        "platform-asc": "Platforma A–Z",
+        "status-asc": "Çelësat funksionalë në fillim"
+      },
       "status": {
         "failed": "Çelësi nuk funksionon",
         "unknown": "Çelësi nuk është përdorur ende",
         "working": "Çelësi funksionon"
       },
+      "statusColumn": "Statusi",
       "subtitle": "Menaxhoni çelësat tuaj API për platformat e AI.",
       "title": "Menaxhimi i çelësave API",
       "unnamed": "Çelës pa emër",
@@ -441,6 +611,23 @@
         "myGame": "Lojë e imja",
         "public": "Publike",
         "workshop": "Lojë Punëtorie"
+      },
+      "byCreator": "nga {{name}}",
+      "cover": {
+        "alt": "Kopertina e {{name}}",
+        "draw": "Vizato kopertinën",
+        "drawAgain": "Vizato përsëri",
+        "drawnOnSave": "Kopertina vizatohet kur ruani lojën.",
+        "errors": {
+          "failed": "Kopertina nuk mund të vizatohej. Ju lutemi provoni përsëri.",
+          "keyRejected": "Ofruesi i AI-së e refuzoi çelësin. Kopertina nuk mund të vizatohej.",
+          "noKey": "Asnjë nga çelësat e AI-së që mund të përdorni nuk vizaton figura, ndaj loja nuk ka ende kopertinë."
+        },
+        "hint": "Çfarë duhet të tregojë kopertina?",
+        "hintDescription": "Opsionale. Nëse lihet bosh, kopertina tregon se për çfarë bëhet fjalë loja.",
+        "hintPlaceholder": "Për shembull: fari natën",
+        "none": "Ende pa kopertinë",
+        "title": "Kopertina"
       },
       "createButton": "Krijo lojë",
       "createModal": {
@@ -759,11 +946,15 @@
       "errors": {
         "acceptFailed": "Dështoi pranimi i ftesës. Ju lutemi provoni përsëri.",
         "expired": "Kjo lidhje ftese ka skaduar.",
+        "guestStays": "Si i ftuar, qëndron aty ku u bashkove. Për të marrë pjesë në një workshop tjetër, hapni lidhjen e ftesës pa u identifikuar: do t'i bashkoheni si i ftuar i ri.",
         "loadFailed": "Dështoi ngarkimi i detajeve të ftesës. Ju lutemi provoni përsëri.",
         "notFound": "Kjo lidhje ftese është e pavlefshme ose është revokuar.",
         "tokenLocked": "Shumë përpjekje të pasuksesshme – provo përsëri më vonë."
       },
       "goHome": "Shko në faqen kryesore",
+      "guest": {
+        "loggingIn": "Po ju identifikojmë..."
+      },
       "participant": {
         "loggingIn": "Duke ju futur..."
       },
@@ -791,6 +982,20 @@
     "leaveOrganization": "Lër organizatën",
     "leaveTitle": "Lër organizatën",
     "leaveWarning": "Do të humbni aksesin në të gjitha burimet dhe anëtarët e organizatës.",
+    "list": {
+      "clearSearch": "Pastro kërkimin",
+      "filter": "Filtro",
+      "hideDetails": "Fshih hollësitë",
+      "pagination": {
+        "first": "Faqja e parë",
+        "last": "Faqja e fundit",
+        "next": "Faqja tjetër",
+        "previous": "Faqja e mëparshme"
+      },
+      "perPage": "Për faqe",
+      "range": "{{from}}–{{to}} nga {{total}}",
+      "showDetails": "Shfaq hollësitë"
+    },
     "loading": "Duke ngarkuar...",
     "logout": "Dil",
     "me": "Unë",
@@ -826,6 +1031,7 @@
       "apiKeys": {
         "aboutDescription": "Çelësat API të ndarë këtu janë të disponueshëm për të gjithë anëtarët e organizatës suaj për të luajtur lojëra.",
         "aboutTitle": "Çelësat API të organizatës",
+        "allPlatforms": "Të gjitha platformat",
         "allowPublicSponsoring": "Lejo sponsorizim publik",
         "allowPublicSponsoringDesc": "Ky çelës mund të përdoret për të sponsorizuar lojëra për të gjithë përdoruesit.",
         "filterByPlatform": "Filtro sipas platformës",
@@ -844,6 +1050,7 @@
         "owner": "Pronari",
         "platform": "Platforma",
         "publicSponsoring": "Sponsorizim publik",
+        "removeShare": "Hiqe nga organizata",
         "searchPlaceholder": "Kërko sipas emrit ose pronarit...",
         "selectKey": "Zgjidh çelës API",
         "selectKeyPlaceholder": "Zgjidh një çelës për ta ndarë...",
@@ -858,6 +1065,14 @@
         "confirmTitle": "Ndaj çelësin me organizatën",
         "orgKeyGroup": "Çelësat e organizatës",
         "personalKeyGroup": "Çelësat personalë"
+      },
+      "declaration": {
+        "consented": "Organizata juaj pranoi versionin {{version}} më {{date}}.",
+        "title": "Deklarata e pëlqimit",
+        "withdraw": "Tërhiq pëlqimin",
+        "withdrawConfirm": "Pa pëlqimin, organizata juaj pezullohet: asnjë anëtar nuk mund të përdorë ChatGameLab derisa një drejtues të japë përsëri pëlqimin. Të dhënat e saj ruhen.",
+        "withdrawFailed": "Kjo nuk funksionoi. Ju lutemi provoni përsëri.",
+        "withdrawTitle": "Të tërhiqet pëlqimi?"
       },
       "demoteConfirm": "A jeni i sigurt që doni ta ulni \"{{name}}\" ({{email}}) në Mësues?",
       "demoteTitle": "Ul në Mësues",
@@ -879,6 +1094,7 @@
       "leaveOrganization": "Lër organizatën",
       "leaveTitle": "Lër organizatën",
       "leaveWarning": "Do të humbni aksesin në të gjitha burimet dhe anëtarët e organizatës.",
+      "loadError": "Anëtarët nuk mund të ngarkoheshin.",
       "me": "Unë",
       "name": "Emri",
       "noEmail": "Pa email",
@@ -891,13 +1107,13 @@
       "promoteToHead": "Promovo në Kreu",
       "promoteWarning": "Ky përdorues do të fitojë aftësinë për të menaxhuar anëtarët e organizatës dhe për të ftuar mësues.",
       "promptConstraintsFallbackEmpty": "(e pakonfiguruar)",
-      "promptConstraintsFallbackHint": "Nuk ka kufizim organizate të konfiguruar. Zbatohet parazgjedhja e faqes për grupmoshën e lojtarit:",
+      "promptConstraintsFallbackHint": "Nuk është konfiguruar asnjë kufizim i organizatës. Zbatohet parazgjedhja e faqes për grupmoshën e lojtarit:",
       "promptConstraintsFallbackTitle": "Parazgjedhje aktive në nivel faqeje",
       "promptConstraintsFallbackU13": "Nën 13",
       "promptConstraintsFallbackU13p": "13–17 (me pëlqimin prindëror)",
       "promptConstraintsFallbackU18": "18 dhe më të mëdhenj",
       "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë organizatë. Zbatohen kur nuk ka vendosur kufizim në nivel punëtorie dhe për lojërat e ndara me lidhje.",
-      "promptConstraintsLabel": "Kufizimet e prompt-it të organizatës",
+      "promptConstraintsLabel": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve të organizatës",
       "promptConstraintsPlaceholder": "p.sh. Mbajeni historinë të përshtatshme për moshën dhe shmangni përmbajtjen e dhunshme.",
       "publicPage": {
         "changeLinkMessage": "Më pas faqja do të jetë te {{url}}.",
@@ -983,6 +1199,8 @@
         "empty": "Ende nuk ka punëtori.",
         "enterWorkshop": "Hyr në modalitetin e punëtorisë",
         "games": "Lojëra",
+        "guestLinkTitle": "Lidhja për ri-identifikim",
+        "guestLinkTitleNamed": "Lidhja për ri-identifikim për {{name}}",
         "hideInactive": "Fshih jo-aktive",
         "inactive": "Joaktive",
         "inviteByEmail": "Fto me Email",
@@ -1008,9 +1226,11 @@
         "noActiveInvite": "Nuk ka asnjë lidhje ftese aktive.",
         "noDefaultApiKey": "Pa çelës API parazgjedhje",
         "noDefaultModel": "Përdor parazgjedhjen e platformës",
+        "noGuestToken": "Ky anëtar nuk ka lidhje për ri-identifikim. Vetëm të ftuarit kanë një të tillë.",
         "noIndividuals": "Nuk ka përdorues individualë në këtë organizatë.",
         "noParticipantToken": "Ky pjesëmarrës nuk ka një lidhje ftese. Vetëm pjesëmarrësit anonimë (vizitorë) kanë lidhje të ripërdorshme ftese.",
         "noParticipants": "Ende nuk ka pjesëmarrës",
+        "noResults": "Asnjë workshop nuk përputhet me kërkimin ose filtrin tuaj.",
         "notAuthorized": "Nuk keni leje të menaxhoni punëtoritë. Vetëm krerët dhe mësuesit kanë akses në këtë faqe.",
         "participantGames": "{{count}} lojëra",
         "participantJoined": "U bashkua më {{date}}",
@@ -1018,10 +1238,10 @@
         "participantLinkTitleNamed": "Lidhja për hyrje përsëri për {{name}}",
         "participantName": "Emri i pjesëmarrësit",
         "participants": "Pjesëmarrësit",
-        "promptConstraintsFallbackOrg": "Duke përdorur kufizimin e organizatës si parazgjedhje: {{constraint}}",
-        "promptConstraintsFallbackSite": "Duke përdorur kufizimin e faqes si parazgjedhje",
+        "promptConstraintsFallbackOrg": "Kufizimi i organizatës përdoret si parazgjedhje: {{constraint}}",
+        "promptConstraintsFallbackSite": "Kufizimi i faqes përdoret si parazgjedhje",
         "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë punëtori.",
-        "promptConstraintsLabel": "Kufizimet e promptit",
+        "promptConstraintsLabel": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve",
         "promptConstraintsPlaceholder": "p.sh. Mbaje historinë të përshtatshme për moshën dhe shmang përmbajtjen e dhunshme.",
         "removeParticipant": "Hiq pjesëmarrësin",
         "removeParticipantConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori?",
@@ -1034,11 +1254,12 @@
         "resetAccessError": "Aksesi nuk mund të rivendosej. Provo përsëri.",
         "resetAccessMessage": "Do të krijohet një lidhje e re me një kod të ri.",
         "resetAccessTitle": "Të rivendoset aksesi?",
-        "resetAccessWarning": "Lidhja dhe kodi i mëparshëm nuk do të funksionojnë më – përfshirë në pajisjet ku pjesëmarrësi është aktualisht i identifikuar.",
+        "resetAccessWarning": "Lidhja dhe kodi i mëparshëm nuk do të funksionojnë më – edhe në pajisjet ku i ftuari është aktualisht i identifikuar.",
         "revokeInvite": "Revoko lidhjen e ftesës",
         "selectApiKey": "Zgjidh një çelës API",
         "serverDefault": "Server Default",
         "settings": "Cilësimet",
+        "shareGuestLink": "Shfaq lidhjen për ri-identifikim",
         "shareParticipantLink": "Shfaq lidhjen për hyrje përsëri",
         "showOtherParticipantsGames": "Shfaq lojërat e pjesëmarrësve të tjerë",
         "showOtherParticipantsGamesHint": "Drejtuesit dhe stafi mund të shohin gjithmonë të gjitha lojërat e pjesëmarrësve për moderim",
@@ -1052,8 +1273,10 @@
           "participantsAsc": "Më pak pjesëmarrës",
           "participantsDesc": "Më shumë pjesëmarrës"
         },
+        "status": "Statusi",
         "subtitle": "Menaxhoni punëtoritë dhe ftoni pjesëmarrësit të bashkëpunojnë në lojëra.",
         "title": "Punëtoritë",
+        "unnamedParticipant": "Pjesëmarrës pa emër",
         "unpause": "Vazhdo punëtorinë",
         "usedCount": "{{count}} përdorime",
         "viewInviteLink": "Shiko lidhjen e ftesës"
@@ -1076,6 +1299,13 @@
       "title": "Njoftimet",
       "workshopInvite": "Ftesë për Punëtori",
       "workshopInviteDescription": "Jeni ftuar t’i bashkoheni kësaj punëtorie."
+    },
+    "organisationSuspended": {
+      "byAdmin": "Operatori ka pezulluar aksesin e organizatës suaj në ChatGameLab. Të dhënat tuaja ruhen.",
+      "consentWanted": "Aksesi i organizatës suaj në ChatGameLab është pezulluar derisa një nga drejtuesit e saj të pranojë deklaratën aktuale të pëlqimit. Të dhënat tuaja ruhen.",
+      "contact": "Nëse keni pyetje, kontaktoni",
+      "logout": "Dil",
+      "title": "Organizata është pezulluar"
     },
     "play": {
       "cloneGame": "Klono te lojërat e mia",
@@ -1144,16 +1374,16 @@
     "searchPlaceholder": "Kërko anëtarët...",
     "serverSettings": {
       "constraints": {
-        "description": "Përcaktoni rregulla të detyrueshme të AI bazuar në grupmoshën e lojtarit. Këto kufizime futen në çdo përgjigje të AI. Ato zbatohen për të gjithë përdoruesit e kyçur jashtë modalitetit të punëtorisë.",
-        "title": "Prompt-e Kufizuese të bazuara në moshë",
+        "description": "Përcaktoni rregulla të detyrueshme të AI-së bazuar në grupmoshën e lojtarit. Këto kufizime futen në çdo përgjigje të AI-së. Ato zbatohen për të gjithë përdoruesit e identifikuar jashtë mënyrës së workshopit.",
+        "title": "Udhëzime kufizuese të bazuara në moshë",
         "u13Hint": "Futet në çdo kërkesë të IA-s për përdoruesit e kyçur të moshës 13-17 pa pëlqim prindëror të regjistruar.",
-        "u13Label": "Kufizim për përdoruesit 13-17 vjeç, pa pëlqim prindëror (U13)",
+        "u13Label": "Kufizim për përdoruesit 13–17 vjeç, pa pëlqim prindëror (U13)",
         "u13Placeholder": "p.sh. Mbajeni gjithë përmbajtjen rreptësisht të përshtatshme për adoleshentët. Pa dhunë, pa përmbajtje romantike, pa tema horror.",
         "u13pHint": "Futet në çdo kërkesë të IA-s për përdoruesit e kyçur të moshës 13-17 me pëlqim prindëror të regjistruar.",
-        "u13pLabel": "Kufizim për përdoruesit 13-17 vjeç, me pëlqim prindëror (U13p)",
+        "u13pLabel": "Kufizim për përdoruesit 13–17 vjeç, me pëlqim prindëror (U13p)",
         "u13pPlaceholder": "p.sh. Përmbajtje e përshtatshme për moshën për adoleshentët që kanë marrë pëlqimin e prindërve. Lejohen disa tema të pjekura, pa përmbajtje eksplicite.",
         "u18Hint": "Futet në çdo prompt të AI për përdoruesit e kyçur 18 vjeç e sipër.",
-        "u18Label": "Kufizim për përdoruesit 18+ (U18)",
+        "u18Label": "Kufizim për përdoruesit 18+ vjeç (U18)",
         "u18Placeholder": "p.sh. Mbajeni përmbajtjen të përshtatshme. Shmangni dhunën e qartë ose përmbajtjen seksuale."
       },
       "defaultTier": {
@@ -1279,6 +1509,7 @@
     "duplicateName": "Emri për këtë lojë është tashmë në përdorim. Ju lutemi zgjidhni një emër tjetër.",
     "forbidden": "Nuk keni leje ta kryeni këtë veprim.",
     "generic": "Diçka shkoi keq. Ju lutemi provoni përsëri.",
+    "guestStays": "Si i ftuar, qëndron aty ku u bashkove. Për të marrë pjesë në një workshop tjetër, hapni lidhjen e ftesës pa u identifikuar: do t'i bashkoheni si i ftuar i ri.",
     "insufficientQuota": "Çelësi juaj API ka mbetur pa kredite. Shtoni më shumë kredi ose përdorni një çelës tjetër API.",
     "invalidApiKey": "Çelësi juaj API është i pavlefshëm ose ka skaduar. Ju lutemi kontrolloni çelësin në Cilësime.",
     "invalidJsonSchema": "Konfigurimi i lojës prodhoi një skemë të pavlefshme për AI-në. Kjo është çështje konfigurimi loje, jo çelësi API. Ju lutemi kontrolloni fushat e statusit të lojës dhe provoni përsëri.",
@@ -1290,6 +1521,7 @@
     "noApiKey": "Nuk ka çelës API të disponueshëm për këtë lojë. Sponsori mund të ketë hequr çelësin e tij ose duhet të konfiguroni çelësin tuaj.",
     "notFound": "Burimi i kërkuar nuk u gjet.",
     "orgVerificationRequired": "Organizata juaj OpenAI ka nevojë për verifikim për të përdorur funksionin e gjenerimit të imazheve. Ju lutemi verifikoni në https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Organizata juaj është pezulluar. Të dhënat tuaja ruhen.",
     "previousResponseNotFound": "AI humbi gjurmët e kësaj bisede. Kjo mund të ndodhë kur një sesion ka qenë joaktiv për një kohë. Ju lutemi nisni një sesion të ri për të vazhduar lojën.",
     "publicDescriptionTooLong": "Përshkrimi mund të ketë maksimumi 2000 karaktere.",
     "publicSlugInvalid": "Përdor a–z, 0–9 dhe viza të vetme, nga 3 deri në 60 karaktere.",
@@ -1302,9 +1534,11 @@
       "billing": "Gabim faturimi",
       "error": "Gabim",
       "gameConfig": "Gabim konfigurimi loje",
+      "guestStays": "Qëndron aty ku je",
       "network": "Gabim rrjeti",
       "noApiKey": "Pa çelës API",
       "notFound": "Nuk u gjet",
+      "organisationSuspended": "Organizata është pezulluar",
       "permission": "Leja u refuzua",
       "server": "Gabim serveri",
       "tokenLocked": "Bllokuar përkohësisht",
@@ -1317,6 +1551,28 @@
     "userNotRegistered": "Duhet të plotësoni regjistrimin përpara se të vazhdoni.",
     "validation": "Ju lutemi kontrolloni të dhënat tuaja dhe provoni përsëri.",
     "workshopInactive": "Kjo punëtori është çaktivizuar. Ju lutemi kontaktoni mësuesin ose organizatorin e punëtorisë."
+  },
+  "mail": {
+    "consent": {
+      "address": "Adresa",
+      "agreed": "Në emër të organizatës suaj, ju pranuat deklaratën e mëposhtme të pëlqimit.",
+      "bindingInGerman": "Deklarata është detyruese në gjermanisht, ndaj vijon në gjermanisht.",
+      "checksum": "Shuma e kontrollit",
+      "copySubject": "Kopje: {{subject}}",
+      "date": "Data",
+      "dateValue": "{{date}} (ora e Berlinit)",
+      "declaredBy": "Deklaruar nga",
+      "greeting": "Përshëndetje {{name}},",
+      "operator": "Drejtuesi",
+      "organisation": "Organizata",
+      "registered": "organizata “{{organisation}}” tani është aktive në ChatGameLab. Ju jeni drejtuesi i saj dhe mund të krijoni workshope.",
+      "renewed": "faleminderit! ChatGameLab tani ka pëlqimin e organizatës “{{organisation}}” për deklaratën aktuale të pëlqimit.",
+      "signature": "Ekipi juaj i ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: organizata “{{organisation}}” është aktive – deklarata e pëlqimit",
+      "subjectRenewed": "ChatGameLab: deklarata e pëlqimit për “{{organisation}}” u konfirmua (versioni {{version}})",
+      "version": "Versioni",
+      "versionValue": "{{version}} (më {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1359,7 +1615,7 @@
   },
   "navigation": {
     "adminPanel": "Paneli i administratorit",
-    "allGames": "Të gjitha lojërat",
+    "allGames": "Lojërat",
     "create": "Krijo lojën tënde",
     "createGame": "Krijo lojë",
     "dashboard": "Paneli",
@@ -1371,7 +1627,7 @@
     "myOrganization": "Organizata ime",
     "myWorkshop": "Punëtoria ime",
     "orgApiKeys": "Çelësat API",
-    "orgConstraints": "Kufizimet",
+    "orgConstraints": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve",
     "orgMembers": "Anëtarët",
     "orgWorkshops": "Punëtoritë",
     "play": "Luaj një lojë",
@@ -1380,6 +1636,24 @@
     "workshopSettings": "Cilësimet e punëtorisë"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Stili",
+      "condense-scenario": "Shkurto skenarin",
+      "condensed-scenario": "Skenari",
+      "expand": "Trego",
+      "image": "Vizato figurë",
+      "image-prompt": "Përshkruaj figurën",
+      "image-style": "Përshtat stilin",
+      "live-session": "Personazhi",
+      "observer": "Vëzhguesi",
+      "outline": "Planifiko skenën",
+      "portrait": "Vizato portret",
+      "portrait-prompt": "Përshkruaj portretin",
+      "props-store": "Gjendja e lojës",
+      "rephrase": "Riformulo veprimin",
+      "rephrase-audio": "Kupto të folurën",
+      "start-game": "Fillo"
+    },
     "errors": {
       "connectionLost": "Lidhja me lojën u ndërpre. Ringarko faqen për të provuar sërish.",
       "imageFailed": "Imazhi për këtë skenë nuk mund të krijohej. Historia vazhdon.",
@@ -1401,6 +1675,11 @@
       "starting": "Po nis loja…",
       "tryAgain": "Provo sërish"
     },
+    "pipeline": {
+      "copied": "Paraqitja u kopjua",
+      "copyFailed": "Pa kujtesë të fragmenteve: paraqitja u regjistrua në konsolë",
+      "copyLayout": "Kopjo paraqitjen"
+    },
     "problems": {
       "denied": "Nuk ke leje ta luash këtë lojë.",
       "failed": "Diçka shkoi keq dhe loja nuk mund të vazhdojë.",
@@ -1408,6 +1687,7 @@
       "keyRejected": "Ofruesi i IA-së refuzoi çelësin e kësaj loje, ndaj loja nuk mund të vazhdojë. Personi që e konfiguroi lojën duhet të kontrollojë çelësin.",
       "noKey": "Nuk ka asnjë çelës të IA-së të disponueshëm për të luajtur këtë lojë.",
       "noPlays": "Kjo lojë e ndarë nuk ka më raunde për të luajtur.",
+      "paused": "Workshopi është vendosur në pauzë. Loja vazhdon kur të rifillojë.",
       "stale": "Kjo lojë nuk mund të vazhdohet më.",
       "unknown": "Kjo seancë loje nuk ekziston.",
       "unreachable": "Ofruesi i IA-së nuk po përgjigjet për momentin, ndaj loja nuk mund të vazhdojë. Provo sërish pas disa minutash."
@@ -1424,6 +1704,32 @@
       "hearing": "Po dëgjoj çfarë the…",
       "hold": "Mbaje shtypur për të folur",
       "recording": "Po dëgjoj… lëshoje për ta dërguar"
+    },
+    "wires": {
+      "adapted-style\u0003eimage-prompt": "stil",
+      "adapted-style\u0003eimage-style": "kërkesë",
+      "adapted-style\u0003estart-game": "gati",
+      "condense-scenario\u0003econdensed-scenario": "përgjigje",
+      "condensed-scenario\u0003econdense-scenario": "kërkesë",
+      "condensed-scenario\u0003eimage-prompt": "skenar",
+      "condensed-scenario\u0003estart-game": "gati",
+      "image-prompt\u0003eimage": "udhëzim",
+      "image-style\u0003eadapted-style": "përgjigje",
+      "live-session\u0003eobserver": "transkript",
+      "observer\u0003elive-session": "ndihmë",
+      "outline\u0003eexpand": "plan",
+      "outline\u0003eimage-prompt": "skenë",
+      "outline\u0003eprops-store": "ndryshime",
+      "player-input-audio\u0003elive-session": "të folur",
+      "player-input-audio\u0003erephrase-audio": "të folur",
+      "player-input-text\u0003erephrase": "veprim",
+      "portrait\u0003estart-game": "gati",
+      "portrait-prompt\u0003eportrait": "udhëzim",
+      "props-store\u0003eoutline": "status",
+      "rephrase\u0003eoutline": "veprim",
+      "rephrase-audio\u0003eoutline": "veprim",
+      "start-game\u0003elive-session": "hyrje",
+      "start-game\u0003eoutline": "udhëzim"
     }
   }
 }

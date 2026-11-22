@@ -2,7 +2,7 @@ import { Alert, Chip, Group, Stack, Textarea } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { BodyText, CardTitle } from "@components/typography";
-import type { DeclarationResp } from "@/api/generated/api.gen";
+import type { DeclarationResp } from "@/api/types";
 
 /** The label of a suggestion, worded so organisations of children find theirs. */
 function suggestionLabelKey(minAge: number): string {

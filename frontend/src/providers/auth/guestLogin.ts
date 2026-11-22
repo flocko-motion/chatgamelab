@@ -1,4 +1,4 @@
-import { api } from "@/api/client/api";
+import { signInGuest } from "@/api/hooks/authentication";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
 
 export type GuestLoginResult = "ok" | "locked" | "inactive" | "unknown" | "failed";
@@ -9,7 +9,7 @@ export type GuestLoginResult = "ok" | "locked" | "inactive" | "unknown" | "faile
  */
 export async function guestLogin(token: string): Promise<GuestLoginResult> {
   try {
-    await api.postApiAuthGuestLogin({ token });
+    await signInGuest(token);
     rememberGuestCode(token);
     return "ok";
   } catch (error) {

@@ -5,7 +5,7 @@
 // Every function of core works for the caller in its ctx, without exception:
 // the caller is resolved once per request by a hook and travels in the ctx,
 // so no code hands a caller around, and none can slip in another. Names follow
-// the actions of the grant table: ListGameCards is {List, GameCard},
+// the actions of the grant table: the game list (GameCards) is {List, GameCard},
 // ReadGameCard is {Read, GameCard}.
 package core
 

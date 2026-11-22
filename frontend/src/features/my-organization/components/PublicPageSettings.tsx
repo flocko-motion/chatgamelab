@@ -22,7 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useUpdateWorkshop } from "@/api/hooks";
-import type { PublicWorkshopLink, WorkshopView } from "@/api/generated/api.gen";
+import type { PublicWorkshopLink, WorkshopView } from "@/api/types";
 import { PublicPageQrOverlay } from "@components/share";
 import { buildShareUrl } from "@/common/lib/url";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";

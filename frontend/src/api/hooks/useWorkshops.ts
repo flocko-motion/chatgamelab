@@ -3,47 +3,24 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  keepPreviousData,
 } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
-import type { PublicWorkshopLink, WorkshopView } from "../generated/api.gen";
+import type {
+  Error as ApiError,
+  PublicWorkshopPage,
+  PublicWorkshopLink,
+  ParticipantSort,
+  WorkshopFilter,
+  WorkshopParticipantView,
+  WorkshopSort,
+  WorkshopView,
+} from "../generated/api.gen";
+import { useEntityList, type List, type ListPreset } from "../lists";
 
-/**
- * Parameters for listing workshops with filtering and sorting
- */
-export interface UseWorkshopsParams {
-  institutionId: string | undefined;
-  search?: string;
-  sortBy?: "name" | "createdAt" | "participantCount";
-  sortDir?: "asc" | "desc";
-  activeOnly?: boolean;
-}
-
-/**
- * Hook to fetch workshops for a specific institution with filtering and sorting
- */
-export function useWorkshops(params: UseWorkshopsParams) {
-  const { institutionId, search, sortBy, sortDir, activeOnly } = params;
-
-  return useQuery({
-    queryKey: [
-      ...queryKeys.workshopsByInstitution(institutionId || ""),
-      { search, sortBy, sortDir, activeOnly },
-    ],
-    queryFn: async () => {
-      if (!institutionId) return [];
-      const response = await api.getApiWorkshops({
-          institutionId,
-          search: search || undefined,
-          sortBy: sortBy || undefined,
-          sortDir: sortDir || undefined,
-          activeOnly: activeOnly ? "true" : undefined,
-        });
-      return response.data;
-    },
-    enabled: !!institutionId,
-    placeholderData: keepPreviousData,
-  });
+/** One workshop, or null without an id; `useParticipants` shares the query. */
+function fetchWorkshop(workshopId: string | undefined): Promise<WorkshopView | null> {
+  if (!workshopId) return Promise.resolve(null);
+  return api.getApiWorkshopsId(workshopId).then((response) => response.data);
 }
 
 /**
@@ -53,11 +30,7 @@ export function useWorkshop(workshopId: string | undefined) {
 
   return useQuery({
     queryKey: queryKeys.workshop(workshopId || ""),
-    queryFn: async () => {
-      if (!workshopId) return null;
-      const response = await api.getApiWorkshopsId(workshopId);
-      return response.data;
-    },
+    queryFn: () => fetchWorkshop(workshopId),
     enabled: !!workshopId,
   });
 }
@@ -247,7 +220,9 @@ export function useUpdateParticipant() {
 /**
  * Hook to replace the login token of a Guest in a workshop; earlier re-login links stop working.
  */
+/** Replaces a guest's sign-in token; the new one replaces the cached one. */
 export function useResetGuestToken() {
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (guestId: string) => {
@@ -255,14 +230,18 @@ export function useResetGuestToken() {
         await api.postApiWorkshopsGuestsGuestIdTokenReset(guestId);
       return response.data;
     },
+    onSuccess: (result, guestId) => {
+      queryClient.setQueryData(queryKeys.guestToken(guestId), result?.token ?? null);
+    },
   });
 }
 
 /**
- * Hook to remove a member from a workshop.
- * Permanent members (Guests) are HARD-deleted: db.DeleteUser removes the
+ * Takes a participant out of a workshop.
+ * Permanent participants (Guests) are HARD-deleted: db.DeleteUser removes the
  * account row and every game they created, with its sessions and shared links.
- * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
+ * Others taking part (head, staff, individuals) have their active workshop
+ * cleared; taking part made no one part of the organisation.
  */
 export function useRemoveParticipant() {
   const queryClient = useQueryClient();
@@ -314,3 +293,94 @@ export function useCreateWorkshopEmailInvite() {
   });
 }
 
+
+/** A filter of the workshop list (the server's enum): `active` keeps the active workshops. */
+export type WorkshopListFilter = WorkshopFilter;
+
+/** An order of the workshop list (the server's enum). */
+export type WorkshopListSort = WorkshopSort;
+
+/** An organisation's workshops, as a list. */
+export function useWorkshopList<F extends string, O extends WorkshopListFilter = never>(
+  institutionId: string | undefined,
+  preset: ListPreset<F, WorkshopListSort, O>,
+): List<WorkshopView, F, WorkshopListSort, O> {
+  return useEntityList<WorkshopView, F, WorkshopListSort, O>(
+    preset,
+    {
+      key: (params) => [...queryKeys.workshopsByInstitution(institutionId ?? ""), { ...params }],
+      fetch: (params) =>
+        api
+          .getApiWorkshops({ ...(params as WorkshopListQuery), institutionId: institutionId! })
+          .then((r) => r.data),
+    },
+    { enabled: !!institutionId },
+  );
+}
+
+/** An order of the participant list (the server's enum). */
+export type ParticipantListSort = ParticipantSort;
+
+/** A workshop's participants, as a list. */
+export function useParticipants<F extends string>(
+  workshopId: string | undefined,
+  preset: ListPreset<F, ParticipantListSort>,
+): List<WorkshopParticipantView, F, ParticipantListSort> {
+  return useEntityList<WorkshopParticipantView, F, ParticipantListSort>(
+    preset,
+    {
+      key: (params) => [...queryKeys.workshop(workshopId ?? ""), "participants", { ...params }],
+      fetch: (params) =>
+        api
+          .getApiWorkshopsIdParticipants(workshopId!, params as ParticipantListQuery)
+          .then((r) => r.data),
+    },
+    { enabled: !!workshopId },
+  );
+}
+
+// A list's parameters come from presets typed by the server's enums; the
+// server refuses what it does not know.
+type WorkshopListQuery = NonNullable<Parameters<typeof api.getApiWorkshops>[0]>;
+type ParticipantListQuery = Parameters<typeof api.getApiWorkshopsIdParticipants>[1];
+
+/**
+ * A guest's sign-in token, read fresh each time (never cached): it is a
+ * secret, shown only while the guest link is open.
+ */
+export function useGuestToken(guestId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.guestToken(guestId ?? ""),
+    queryFn: () =>
+      api.getApiWorkshopsGuestsGuestIdToken(guestId!).then((r) => r.data?.token ?? null),
+    enabled: !!guestId,
+    staleTime: 0,
+    gcTime: 0,
+  });
+}
+
+/**
+ * The page a workshop shows the world at /w/<slug>. Not retried: a slug that
+ * is unknown or not public answers at once.
+ */
+export function usePublicWorkshop(slug: string) {
+  return useQuery<PublicWorkshopPage, ApiError>({
+    queryKey: queryKeys.publicWorkshop(slug),
+    queryFn: () => api.getApiPublicWorkshopsSlug(slug).then((r) => r.data),
+    retry: false,
+  });
+}
+
+/** A game on a public workshop page as a YAML file; errors are the caller's. */
+export function usePublicWorkshopGameYaml() {
+  return useMutation<string, ApiError, { slug: string; gameId: string }>({
+    mutationFn: ({ slug, gameId }) =>
+      api
+        .getApiPublicWorkshopsSlugGamesIdYaml(slug, gameId, {
+          headers: { Accept: "application/x-yaml" },
+          format: "text",
+        })
+        .then((r) => r.data as unknown as string),
+    retry: false,
+  });
+}

@@ -1,4 +1,4 @@
-import type { CreateGameReq, UpdateGameReq } from "@/api/generated/api.gen";
+import type { CreateGameReq, UpdateGameReq } from "@/api/types";
 
 /**
  * A game update: only the fields that change. A field left out stays as it

@@ -1,7 +1,6 @@
 import { Stack } from "@mantine/core";
 import { GamesTable } from "@/features/games";
 import { useAuth } from "@/providers/AuthProvider";
-import { hasRole, Role } from "@/common/lib/roles";
 import { useWorkshopEvents, useGamesCacheUpdater, useWorkshop } from "@/api/hooks";
 import { WorkshopHeader } from "./WorkshopHeader";
 import { WorkshopPausedOverlay } from "./WorkshopPausedOverlay";
@@ -15,9 +14,9 @@ export function MyWorkshop() {
   const workshop = backendUser?.role?.workshop;
   // The workshop's settings come from reading the workshop itself.
   const { data: settings, refetch: refetchSettings } = useWorkshop(workshop?.id);
-  const moderates = hasRole(backendUser, Role.Head) || hasRole(backendUser, Role.Staff);
-  // A paused workshop stops Guests and individuals, not its staff.
-  const isPausedForUser = !moderates && (settings?.isPaused ?? false);
+  // A paused workshop shows its pause to those who cannot lift it: who may
+  // change its settings (the server's flag) works on.
+  const isPausedForUser = !settings?.mayEditSettings && (settings?.isPaused ?? false);
 
   // Settings changes and games created, changed or deleted by others. The
   // settings decide what the server lists, so they refetch the list too.
@@ -41,7 +40,7 @@ export function MyWorkshop() {
         workshopName={workshop?.name}
         organizationName={backendUser?.role?.institution?.name}
         workshopId={workshop?.id}
-        showMembers={moderates}
+        showMembers={!!settings?.mayManageParticipants}
       />
       <GamesTable preset="workshop" />
     </Stack>

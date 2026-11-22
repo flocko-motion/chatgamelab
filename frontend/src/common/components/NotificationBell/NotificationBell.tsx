@@ -1,4 +1,3 @@
-import { api } from "@/api/client/api";
 import { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import {
   ActionIcon,
@@ -16,11 +15,10 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { IconBell } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/providers/AuthProvider";
-import { queryKeys } from "@/api/hooks";
-import type { InviteCardView } from "@/api/generated/api.gen";
+import { useAcceptInvite, useDeclineInvite, useMyInvites } from "@/api/hooks";
+import type { InviteCardView } from "@/api/types";
 import { useTranslateRole } from "@/common/lib/roles";
 import { ROUTES } from "@/common/routes/routes";
 import classes from "./NotificationBell.module.css";
@@ -51,7 +49,6 @@ function markInvitesAsSeen(inviteIds: string[]): void {
 export function NotificationBell() {
   const { t } = useTranslation("common");
   const { backendUser, retryBackendFetch, standing } = useAuth();
-  const queryClient = useQueryClient();
   const [opened, { open, close }] = useDisclosure(false);
   const [
     declineModalOpened,
@@ -64,25 +61,14 @@ export function NotificationBell() {
   // Admins don't have invites - disable query and hide the bell
   const isAdmin = backendUser?.role?.role === "admin";
 
-  const { data: invites, isLoading } = useQuery({
-    queryKey: queryKeys.invites,
-    queryFn: async () => {
-      const response = await api.getApiInvites();
-      return response.data;
-    },
-    enabled: !isAdmin, // Don't fetch invites for admins
-  });
+  const { data: invites, isLoading } = useMyInvites(!isAdmin); // Don't fetch invites for admins
 
   const navigate = useNavigate();
 
   const [acceptingInvite, setAcceptingInvite] =
     useState<InviteCardView | null>(null);
 
-  const acceptMutation = useMutation({
-    mutationFn: async (inviteId: string) => {
-      const response = await api.postApiInvitesIdOrTokenAccept(inviteId);
-      return response.data;
-    },
+  const acceptMutation = useAcceptInvite({
     onSuccess: () => {
       // Mark all invites as seen to prevent auto-reopen
       const inviteIds = pendingInvites
@@ -92,8 +78,6 @@ export function NotificationBell() {
         markInvitesAsSeen(inviteIds);
       }
 
-      queryClient.refetchQueries({ queryKey: queryKeys.invites });
-      queryClient.refetchQueries({ queryKey: queryKeys.currentUser });
       retryBackendFetch(); // Refresh user's organization data
       close(); // Close the notifications modal
 
@@ -111,13 +95,8 @@ export function NotificationBell() {
     },
   });
 
-  const declineMutation = useMutation({
-    mutationFn: async (inviteId: string) => {
-      const response = await api.postApiInvitesIdDecline(inviteId);
-      return response.data;
-    },
+  const declineMutation = useDeclineInvite({
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: queryKeys.invites });
       closeDeclineModal();
       setInviteToDecline(null);
       // If no more pending invites, close the main modal

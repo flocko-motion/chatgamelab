@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMakeGameCover } from "@/api/hooks";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import { extractRawErrorCode } from "@/common/types/errorCodes";
 
 /** At most this many characters of hint go to the server. */

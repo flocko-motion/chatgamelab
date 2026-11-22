@@ -1,4 +1,4 @@
-import type { KeyShareView } from "@/api/generated/api.gen";
+import type { KeyShareView } from "@/api/types";
 
 /** Where a share link draws its key from. */
 export type ShareLinkSource = "organization" | "personal";
@@ -22,7 +22,7 @@ export interface KeyShareGroups {
  * Groups the shares of one key by kind: given to an organisation, sponsoring
  * a game, or paying for a share link. The owner's own use (self) is left out.
  */
-export function useKeyShareGroups(shares: KeyShareView[]): KeyShareGroups {
+export function keyShareGroups(shares: KeyShareView[]): KeyShareGroups {
   const organisations = shares.filter(
     (s) => s.institution && !s.game && !s.isPrivateShare,
   );

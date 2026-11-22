@@ -14,6 +14,17 @@
       "under13Blocker": "Anda belum dapat membuat akun sendiri. Jika Anda berusia di bawah 13 tahun, Anda hanya dapat menggunakan ChatGameLab melalui organisasi pemuda.",
       "under13Description": "Anda belum dapat membuat akun sendiri. Jika Anda berusia di bawah 13 tahun, Anda hanya dapat menggunakan ChatGameLab melalui organisasi pemuda."
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "Keluar",
+        "message": "Anda tetap berada di lokakarya ini. Dengan kode Anda, Anda dapat masuk kembali kapan saja, di perangkat apa pun: melalui “Masukkan kode” di beranda.",
+        "title": "Keluar?"
+      },
+      "leaveWorkshop": "Keluar",
+      "organization": "Organisasi",
+      "role": "Tamu",
+      "workshop": "Lokakarya"
+    },
     "login": {
       "auth0Button": "Masuk dengan Auth0",
       "devMode": "Mode Pengembangan",
@@ -22,6 +33,8 @@
         "title": "Mode Pengembangan"
       },
       "devModeDescription": "Login cepat untuk pengembangan dan pengujian",
+      "devNewOrganisation": "Orang baru (daftarkan organisasi)",
+      "devNewPerson": "Orang baru (belum memilih, seperti setelah Mendaftar)",
       "redirecting": {
         "message": "Harap tunggu sementara kami mengarahkan Anda ke halaman login.",
         "title": "Mengalihkan ke Auth0..."
@@ -33,8 +46,81 @@
         "teacher": "Masuk sebagai Guru"
       },
       "unavailable": {
-        "message": "Instans ini tidak menyediakan login. Peserta lokakarya dapat memasukkan kode mereka sebagai gantinya.",
+        "message": "Instans ini tidak menyediakan fitur masuk. Tamu dalam lokakarya dapat memasukkan kode mereka sebagai gantinya.",
         "title": "Login tidak tersedia"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "Nama yang ditampilkan kepada Anda di ChatGameLab (maksimal 24 karakter).",
+      "accountNameLabel": "Nama tampilan",
+      "cityLabel": "Kota",
+      "confirmAdult": "Saya berusia minimal 18 tahun.",
+      "consentPage": {
+        "constraintIntro": "Dengan deklarasi ini, lembaga Anda berkomitmen untuk menetapkan pembatasan prompt perlindungan anak yang sesuai dengan kelompok sasaran Anda. Di bawah ini adalah pengaturan yang sedang digunakan organisasi Anda. Silakan periksa dan sesuaikan jika diperlukan.",
+        "emailDescription": "Kami mengirimkan konfirmasi beserta teks deklarasi ke alamat ini.",
+        "introExisting": "Organisasi Anda, “{{name}}”, kini memiliki deklarasi yang dikonfirmasi secara online. Deklarasi ini menggantikan perjanjian pengguna yang Anda tanda tangani sebelumnya. Silakan baca dan setujui atas nama lembaga Anda.",
+        "introNewVersion": "Deklarasi telah diperbarui (versi {{version}}). Silakan baca versi baru dan setujui atas nama organisasi Anda, “{{name}}”.",
+        "introWithdrawn": "Persetujuan organisasi Anda, “{{name}}”, terhadap deklarasi telah ditarik sehingga aksesnya ditangguhkan. Silakan baca deklarasi dan setujui atas nama lembaga Anda agar dapat menggunakan ChatGameLab kembali.",
+        "logout": "Keluar",
+        "oneHeadIsEnough": "Cukup satu pimpinan organisasi yang menyetujuinya. Sampai saat itu, organisasi Anda ditangguhkan: para anggotanya tidak dapat menggunakan ChatGameLab.",
+        "submit": "Setujui",
+        "title": "Konfirmasi deklarasi"
+      },
+      "consentSection": "Konfirmasi",
+      "declarationGermanOnly": "Deklarasi hanya tersedia dalam bahasa Jerman. Teks bahasa Jerman adalah teks yang mengikat.",
+      "declarationVersion": "Versi {{version}}, tertanggal {{date}}",
+      "emailConfirmHint": "Setelah formulir dikirim, organisasi akan langsung dibuat. Konfirmasi beserta teks deklarasi akan dikirim ke alamat email Anda.",
+      "emailDescription": "Kami mengirimkan konfirmasi deklarasi ke alamat ini.",
+      "emailFromLogin": "Ini adalah alamat email untuk masuk Anda.",
+      "emailLabel": "Alamat email kantor",
+      "errors": {
+        "conflict": "Sudah ada akun untuk login ini. Silakan masuk dan gunakan fitur peningkatan di pengaturan.",
+        "declaration_version_outdated": "Deklarasi telah diperbarui. Silakan muat ulang halaman dan baca versi terbaru.",
+        "duplicate_name": "Nama tampilan ini sudah digunakan.",
+        "emailInvalid": "Silakan masukkan alamat email yang valid.",
+        "email_belongs_to_other_account": "Sudah ada akun dengan alamat email ini. Silakan masuk menggunakan akun tersebut dan pilih “Tingkatkan ke organisasi” di pengaturan.",
+        "formIncomplete": "Silakan isi semua kolom wajib dan konfirmasi semua poin.",
+        "generic": "Terjadi kesalahan. Silakan coba lagi.",
+        "institution_age_not_allowed": "Organisasi hanya dapat didaftarkan dengan akun dewasa (18+).",
+        "institution_consents_required": "Silakan konfirmasi semua poin.",
+        "institution_name_taken": "Organisasi dengan nama ini sudah ada. Silakan tambahkan keterangan pada nama, misalnya kota.",
+        "loadFailed": "Deklarasi tidak dapat dimuat. Silakan muat ulang halaman.",
+        "name_too_long": "Nama tampilan boleh terdiri dari maksimal 24 karakter.",
+        "profane_name": "Nama tampilan ini tidak diperbolehkan.",
+        "required": "Wajib diisi",
+        "validation_error": "Silakan periksa data Anda."
+      },
+      "institutionNameLabel": "Nama lembaga",
+      "institutionSection": "Tentang lembaga",
+      "operatorDescription": "misalnya kota, asosiasi, paroki",
+      "operatorLabel": "Pengelola",
+      "personFunctionLabel": "Peran di lembaga",
+      "personFunctionPlaceholder": "misalnya pimpinan, pekerja muda",
+      "personNameLabel": "Nama depan dan belakang",
+      "personSection": "Tentang Anda",
+      "postalCodeLabel": "Kode pos",
+      "registered": {
+        "text": "Organisasi Anda telah diaktifkan. Anda adalah pimpinannya dan kini dapat membuat lokakarya.",
+        "title": "Organisasi terdaftar"
+      },
+      "streetLabel": "Jalan dan nomor",
+      "submit": "Daftarkan organisasi",
+      "subtitle": "Setelah formulir dikirim, organisasi Anda langsung diaktifkan dan Anda menjadi pimpinannya.",
+      "switchToPersonal": "Kembali ke pilihan",
+      "titleRegister": "Daftarkan organisasi",
+      "toMyOrganization": "Buka organisasi saya",
+      "youthProtection": {
+        "changeHint": "Anda dapat mengubah pengaturan ini kapan saja dan menetapkannya secara berbeda untuk setiap lokakarya.",
+        "defaultOption": "Default mulai usia 13 tahun",
+        "fieldLabel": "Pembatasan prompt perlindungan anak untuk organisasi Anda",
+        "intro": "AI menerima instruksi ini dalam setiap permainan organisasi Anda. Pilih pengaturan yang sesuai dengan usia kelompok sasaran Anda.",
+        "responsibilityHint": "Saran ini bukan klasifikasi usia resmi. Lembaga Anda menentukan pengaturan tersebut dan bertanggung jawab atasnya.",
+        "suggestionAdults": "untuk orang dewasa mulai usia {{age}} tahun",
+        "suggestionChildren": "untuk anak-anak mulai sekitar usia {{age}} tahun",
+        "suggestionTeens": "untuk remaja mulai sekitar usia {{age}} tahun",
+        "suggestionsLabel": "Saran (klik untuk mengganti teks):",
+        "title": "Pembatasan prompt perlindungan anak",
+        "tooLong": "Maksimal {{max}} karakter. Silakan persingkat atau pilih salah satu saran."
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18+",
       "gamesCreated": "Gim yang Dibuat",
       "gamesPlayed": "Game yang Dimainkan",
+      "guestCode": {
+        "error": "Kode akses Anda tidak dapat dimuat.",
+        "hint": "Foto kode ini atau catat, dan jangan berikan kepada orang lain. Kode ini memungkinkan Anda masuk kembali ke akun kapan saja, di perangkat apa pun: masukkan kata-katanya melalui “Masukkan kode” di beranda atau pindai kode QR.",
+        "longTokenHint": "Foto kode QR atau simpan tautannya, dan jangan berikan kepada orang lain. Tautan ini memungkinkan Anda masuk kembali ke akun kapan saja. Pimpinan lokakarya dapat memberikan kode singkat yang terdiri dari empat kata dengan mengatur ulang akses Anda.",
+        "title": "Kode akses Anda"
+      },
       "memberSince": "Terdaftar sejak",
       "messagesSent": "Pesan yang Dikirim",
       "noOrganization": "Tidak ada organisasi",
@@ -71,6 +163,7 @@
       "role": "Peran",
       "roles": {
         "admin": "Administrator",
+        "guest": "Tamu",
         "head": "Kepala Organisasi",
         "individual": "Individu",
         "participant": "Peserta",
@@ -140,6 +233,12 @@
       "individualDescription": "Buat dan mainkan petualangan teks bertenaga AI",
       "individualTitle": "Akun Pribadi",
       "loginLink": "Masuk",
+      "organizationExistingAccount": "Organisasi mendaftar dengan login baru. Sudah memiliki akun?",
+      "organizationIntro": "Untuk pusat kegiatan anak muda, sekolah, dan lembaga lain yang ingin menggunakan ChatGameLab dalam lokakarya.",
+      "organizationStep1": "Buat login Anda melalui Auth0 (email dan kata sandi).",
+      "organizationStep2": "Masukkan data diri dan lembaga Anda, tetapkan pembatasan prompt perlindungan anak, lalu setujui deklarasi.",
+      "organizationStep3": "Setelah formulir dikirim, organisasi langsung diaktifkan dan Anda dapat membuat lokakarya.",
+      "organizationTitle": "Daftar sebagai organisasi",
       "privacyPolicy": "Kebijakan Privasi",
       "termsOfService": "Ketentuan Layanan",
       "title": "Buat Akun Anda"
@@ -174,6 +273,7 @@
         "actions": "Tindakan",
         "empty": "Tidak ada undangan tertunda.",
         "invitedEmail": "Email yang Diundang",
+        "loadError": "Undangan gagal dimuat.",
         "modifiedAt": "Diubah",
         "noResults": "Tidak ada undangan yang cocok dengan pencarian Anda.",
         "organization": "Organisasi",
@@ -207,30 +307,75 @@
       },
       "organizations": {
         "actions": "Tindakan",
+        "city": "Kota",
+        "consentGiven": "Deklarasi v{{version}} · {{date}}",
+        "consentMissing": "Deklarasi tertunda",
+        "consentOutdated": "Deklarasi kedaluwarsa (v{{version}})",
+        "consentWithdrawn": "Deklarasi ditarik",
         "create": "Buat Organisasi",
         "createTitle": "Buat Organisasi Baru",
-        "deleteConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"? Tindakan ini tidak dapat dibatalkan.",
+        "deleteConfirm": "Hapus “{{name}}” secara permanen? Semua lokakarya dan peserta organisasi akan dihapus; pimpinan dan pemimpin lokakarya tetap memiliki akun mereka. Tindakan ini tidak dapat dibatalkan. Jika organisasi hanya perlu kehilangan akses, tangguhkan organisasi tersebut sebagai gantinya.",
         "deleteTitle": "Hapus Organisasi",
+        "detailsOptional": "Opsional: pengelola dan alamat",
         "editTitle": "Edit Organisasi",
         "email": "Alamat Email",
         "emailPlaceholder": "Masukkan alamat email",
         "empty": "Belum ada organisasi. Buat satu untuk memulai.",
+        "heads": "Pimpinan",
         "inviteDescription": "Kirim undangan untuk bergabung dengan {{name}} sebagai kepala organisasi.",
         "inviteTitle": "Undang ke Organisasi",
+        "lift": "Cabut penangguhan",
+        "liftConfirm": "Cabut penangguhan “{{name}}”? Semua anggota kemudian dapat kembali menggunakan organisasi seperti sebelumnya, jika organisasi tersebut telah menyetujui deklarasi terbaru.",
+        "liftTitle": "Cabut penangguhan",
+        "loadError": "Organisasi gagal dimuat.",
         "memberEmail": "Email",
         "memberName": "Nama",
         "memberRole": "Peran",
         "members": "Anggota",
         "membersCount": "anggota",
         "membersList": "Anggota",
+        "membersLoadError": "Anggota gagal dimuat.",
         "name": "Nama",
         "namePlaceholder": "Masukkan nama organisasi",
         "noMembers": "Tidak ada anggota dalam organisasi ini.",
+        "operator": "Pengelola",
+        "postalCode": "Kode pos",
         "removeMember": "Hapus anggota",
         "removeMemberConfirm": "Apakah Anda yakin ingin menghapus {{name}} dari organisasi ini?",
         "searchPlaceholder": "Cari organisasi...",
         "sendInvite": "Kirim Undangan",
+        "status": "Status dan persetujuan",
+        "statusActive": "Aktif",
+        "statusSuspended": "Ditangguhkan",
+        "statusSuspendedConsent": "Ditangguhkan: deklarasi tertunda",
+        "street": "Jalan dan nomor",
+        "suspend": "Tangguhkan",
+        "suspendConfirm": "Tangguhkan “{{name}}”? Pimpinan, pemimpin lokakarya, dan peserta tidak akan dapat menggunakan organisasi tersebut. Tautan permainan bersama dan halaman lokakarya publik akan berhenti berfungsi. Tidak ada data yang dihapus, dan penangguhan dapat dicabut kapan saja.",
+        "suspendError": "Tindakan tersebut gagal. Silakan coba lagi.",
+        "suspendReason": "Alasan (opsional)",
+        "suspendReasonDescription": "Hanya terlihat oleh admin.",
+        "suspendTitle": "Tangguhkan organisasi",
+        "suspendedNoReason": "Ditangguhkan tanpa alasan",
         "title": "Kelola Organisasi"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "Tidak ada organisasi yang mendaftar dalam dua minggu terakhir.",
+          "intro_one": "Organisasi ini mendaftar dalam dua minggu terakhir dan sudah diaktifkan.",
+          "intro_other": "{{count}} organisasi ini mendaftar dalam dua minggu terakhir dan sudah diaktifkan.",
+          "label": "Organisasi baru",
+          "later": "Nanti",
+          "open": "Buka ikhtisar",
+          "suspendHint": "Alamat email saat ini belum dikonfirmasi. Periksa organisasi baru dengan cepat dan tangguhkan dari ikhtisar jika ada yang tidak beres.",
+          "title": "Organisasi baru"
+        },
+        "date": "Terdaftar",
+        "description": "Organisasi yang mendaftar sendiri dalam dua minggu terakhir. Organisasi tersebut langsung aktif tanpa konfirmasi alamat email; periksa dan tangguhkan jika ada yang tidak beres.",
+        "empty": "Tidak ada organisasi yang mendaftar sendiri dalam dua minggu terakhir.",
+        "institution": "Lembaga",
+        "loadError": "Pendaftaran tidak dapat dimuat.",
+        "person": "Dinyatakan oleh",
+        "title": "Pendaftaran baru"
       },
       "users": {
         "actions": "Tindakan",
@@ -242,6 +387,10 @@
         "email": "Email",
         "emailPlaceholder": "Masukkan alamat email",
         "empty": "Tidak ada pengguna ditemukan.",
+        "filters": {
+          "all": "Semua pengguna",
+          "noGuests": "Tanpa tamu"
+        },
         "hideGuests": "Sembunyikan tamu ({{count}})",
         "hideGuestsShort": "Tamu ({{count}})",
         "joined": "Bergabung",
@@ -297,7 +446,16 @@
       },
       "copyGame": "Salin Gim",
       "empty": {
+        "conditions": {
+          "favorites": "salah satu favorit Anda",
+          "own": "milik Anda",
+          "public": "publik",
+          "sponsored": "disponsori"
+        },
         "description": "Cobalah menyesuaikan filter Anda atau kembali lagi nanti untuk gim baru.",
+        "is": "Tidak ada permainan yang {{conditions}}.",
+        "isAndNamed": "Tidak ada permainan yang {{conditions}} dan memiliki “{{search}}” dalam namanya.",
+        "named": "Tidak ada permainan yang memiliki “{{search}}” dalam namanya.",
         "title": "Tidak ada gim ditemukan"
       },
       "favorite": "Tambahkan ke favorit",
@@ -308,10 +466,11 @@
         "public": "Publik",
         "sponsored": "Disponsori"
       },
+      "onlyFavorites": "Tampilkan hanya favorit",
       "play": "Mainkan",
       "reportGame": "Laporkan gim",
       "restart": "Mulai Ulang",
-      "title": "Semua Gim",
+      "title": "Permainan",
       "unfavorite": "Hapus dari favorit",
       "workshop": "Lokakarya / Organisasi"
     },
@@ -346,6 +505,7 @@
         "title": "Hapus Kunci API",
         "warning": "Tindakan ini tidak dapat dibatalkan. Kunci akan dihapus permanen."
       },
+      "empty": "Belum ada kunci API. Tambahkan satu untuk memulai.",
       "errors": {
         "invalidPlatform": "Platform yang dipilih tidak valid. Silakan pilih platform AI yang valid.",
         "keyRequired": "Kunci API wajib diisi",
@@ -355,6 +515,7 @@
       },
       "key": "kunci",
       "keys": "kunci",
+      "noResults": "Tidak ada kunci yang cocok dengan pencarian atau filter Anda.",
       "platform": "Platform",
       "setDefault": "Tetapkan sebagai default",
       "shares": {
@@ -381,11 +542,20 @@
         "unknownWorkshop": "Lokakarya tidak dikenal",
         "unlimited": "Penggunaan tanpa batas"
       },
+      "sort": {
+        "createdAt-asc": "Terlama terlebih dahulu",
+        "createdAt-desc": "Terbaru terlebih dahulu",
+        "name-asc": "Nama A–Z",
+        "name-desc": "Nama Z–A",
+        "platform-asc": "Platform A–Z",
+        "status-asc": "Kunci yang berfungsi terlebih dahulu"
+      },
       "status": {
         "failed": "Kunci tidak berfungsi",
         "unknown": "Kunci belum digunakan",
         "working": "Kunci berfungsi"
       },
+      "statusColumn": "Status",
       "subtitle": "Kelola kunci API Anda untuk platform AI.",
       "title": "Manajemen Kunci API",
       "unnamed": "Kunci Tanpa Nama",
@@ -441,6 +611,23 @@
         "myGame": "Gim Saya",
         "public": "Publik",
         "workshop": "Gim Lokakarya"
+      },
+      "byCreator": "oleh {{name}}",
+      "cover": {
+        "alt": "Sampul {{name}}",
+        "draw": "Buat sampul",
+        "drawAgain": "Buat ulang",
+        "drawnOnSave": "Sampul dibuat saat Anda menyimpan permainan.",
+        "errors": {
+          "failed": "Sampul tidak dapat dibuat. Silakan coba lagi.",
+          "keyRejected": "Penyedia AI menolak kunci tersebut. Sampul tidak dapat dibuat.",
+          "noKey": "Tidak satu pun kunci AI yang dapat Anda gunakan mendukung pembuatan gambar, sehingga permainan belum memiliki sampul."
+        },
+        "hint": "Apa yang harus ditampilkan di sampul?",
+        "hintDescription": "Opsional. Jika dibiarkan kosong, sampul akan menampilkan hal yang menjadi isi permainan.",
+        "hintPlaceholder": "Contoh: mercusuar pada malam hari",
+        "none": "Belum ada sampul",
+        "title": "Sampul"
       },
       "createButton": "Buat Gim",
       "createModal": {
@@ -759,11 +946,15 @@
       "errors": {
         "acceptFailed": "Gagal menerima undangan. Silakan coba lagi.",
         "expired": "Tautan undangan ini telah kedaluwarsa.",
+        "guestStays": "Sebagai tamu, Anda tetap berada di tempat Anda bergabung. Untuk mengikuti lokakarya lain, buka tautan undangannya tanpa masuk: Anda akan bergabung sebagai tamu baru.",
         "loadFailed": "Gagal memuat detail undangan. Silakan coba lagi.",
         "notFound": "Tautan undangan ini tidak valid atau telah dicabut.",
         "tokenLocked": "Terlalu banyak percobaan gagal – silakan coba lagi nanti."
       },
       "goHome": "Pergi ke Beranda",
+      "guest": {
+        "loggingIn": "Sedang memasukkan Anda..."
+      },
       "participant": {
         "loggingIn": "Sedang memasukkan Anda..."
       },
@@ -791,6 +982,20 @@
     "leaveOrganization": "Tinggalkan Organisasi",
     "leaveTitle": "Tinggalkan Organisasi",
     "leaveWarning": "Anda akan kehilangan akses ke semua sumber daya dan anggota organisasi.",
+    "list": {
+      "clearSearch": "Hapus pencarian",
+      "filter": "Filter",
+      "hideDetails": "Sembunyikan detail",
+      "pagination": {
+        "first": "Halaman pertama",
+        "last": "Halaman terakhir",
+        "next": "Halaman berikutnya",
+        "previous": "Halaman sebelumnya"
+      },
+      "perPage": "Per halaman",
+      "range": "{{from}}–{{to}} dari {{total}}",
+      "showDetails": "Tampilkan detail"
+    },
     "loading": "Memuat...",
     "logout": "Keluar",
     "me": "Saya",
@@ -826,6 +1031,7 @@
       "apiKeys": {
         "aboutDescription": "Kunci API yang dibagikan di sini tersedia bagi semua anggota organisasi Anda untuk memainkan gim.",
         "aboutTitle": "Kunci API Organisasi",
+        "allPlatforms": "Semua platform",
         "allowPublicSponsoring": "Izinkan sponsor publik",
         "allowPublicSponsoringDesc": "Kunci ini dapat digunakan untuk mensponsori gim bagi semua pengguna.",
         "filterByPlatform": "Filter berdasarkan platform",
@@ -844,6 +1050,7 @@
         "owner": "Pemilik",
         "platform": "Platform",
         "publicSponsoring": "Sponsor Publik",
+        "removeShare": "Hapus dari organisasi",
         "searchPlaceholder": "Cari berdasarkan nama atau pemilik...",
         "selectKey": "Pilih Kunci API",
         "selectKeyPlaceholder": "Pilih kunci untuk dibagikan...",
@@ -858,6 +1065,14 @@
         "confirmTitle": "Bagikan Kunci dengan Organisasi",
         "orgKeyGroup": "Grup Kunci Organisasi",
         "personalKeyGroup": "Grup Kunci Pribadi"
+      },
+      "declaration": {
+        "consented": "Organisasi Anda menyetujui versi {{version}} pada {{date}}.",
+        "title": "Deklarasi persetujuan",
+        "withdraw": "Tarik persetujuan",
+        "withdrawConfirm": "Tanpa persetujuan, organisasi Anda ditangguhkan: tidak ada anggota yang dapat menggunakan ChatGameLab sampai seorang pimpinan menyetujui kembali. Data organisasi tetap disimpan.",
+        "withdrawFailed": "Tindakan tersebut gagal. Silakan coba lagi.",
+        "withdrawTitle": "Tarik persetujuan?"
       },
       "demoteConfirm": "Apakah Anda yakin ingin menurunkan \"{{name}}\" ({{email}}) menjadi Guru?",
       "demoteTitle": "Turunkan menjadi Guru",
@@ -879,6 +1094,7 @@
       "leaveOrganization": "Tinggalkan Organisasi",
       "leaveTitle": "Tinggalkan Organisasi",
       "leaveWarning": "Anda akan kehilangan akses ke semua sumber daya dan anggota organisasi.",
+      "loadError": "Anggota gagal dimuat.",
       "me": "Saya",
       "name": "Nama",
       "noEmail": "Tidak ada email",
@@ -891,13 +1107,13 @@
       "promoteToHead": "Promosikan menjadi Kepala",
       "promoteWarning": "Pengguna ini akan mendapatkan kemampuan untuk mengelola anggota organisasi dan mengundang guru.",
       "promptConstraintsFallbackEmpty": "(tidak dikonfigurasi)",
-      "promptConstraintsFallbackHint": "Tidak ada batasan organisasi yang dikonfigurasi. Bawaan seluruh situs untuk kelompok usia pemain akan diterapkan:",
+      "promptConstraintsFallbackHint": "Tidak ada pembatasan organisasi yang dikonfigurasi. Default situs untuk kelompok usia pemain akan diterapkan:",
       "promptConstraintsFallbackTitle": "Cadangan aktif seluruh situs",
       "promptConstraintsFallbackU13": "Di bawah 13 tahun",
       "promptConstraintsFallbackU13p": "13–17 (dengan persetujuan orang tua)",
       "promptConstraintsFallbackU18": "18 tahun ke atas",
       "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di organisasi ini. Berlaku ketika tidak ada batasan tingkat lokakarya yang ditetapkan, dan untuk gim yang dibagikan melalui tautan.",
-      "promptConstraintsLabel": "Batasan prompt organisasi",
+      "promptConstraintsLabel": "Pembatasan prompt perlindungan anak untuk organisasi",
       "promptConstraintsPlaceholder": "mis. Jaga cerita tetap sesuai usia dan hindari konten kekerasan.",
       "publicPage": {
         "changeLinkMessage": "Halaman tersebut nantinya akan berada di {{url}}.",
@@ -979,6 +1195,8 @@
         "empty": "Belum ada lokakarya.",
         "enterWorkshop": "Masuk Mode Lokakarya",
         "games": "Gim",
+        "guestLinkTitle": "Tautan masuk kembali",
+        "guestLinkTitleNamed": "Tautan masuk kembali untuk {{name}}",
         "hideInactive": "Sembunyikan tidak aktif",
         "inactive": "Tidak aktif",
         "inviteByEmail": "Undang via Email",
@@ -1004,9 +1222,11 @@
         "noActiveInvite": "Tidak ada tautan undangan aktif yang tersedia.",
         "noDefaultApiKey": "Tidak ada kunci API default",
         "noDefaultModel": "Gunakan bawaan platform",
+        "noGuestToken": "Anggota ini tidak memiliki tautan masuk kembali. Hanya tamu yang memilikinya.",
         "noIndividuals": "Tidak ada pengguna individu di organisasi ini.",
         "noParticipantToken": "Peserta ini tidak memiliki tautan undangan. Hanya peserta anonim (tamu) yang memiliki tautan undangan yang dapat digunakan ulang.",
         "noParticipants": "Belum ada peserta",
+        "noResults": "Tidak ada lokakarya yang cocok dengan pencarian atau filter Anda.",
         "notAuthorized": "Anda tidak memiliki izin untuk mengelola lokakarya. Hanya kepala dan guru yang dapat mengakses halaman ini.",
         "participantGames": "{{count}} gim",
         "participantJoined": "Bergabung {{date}}",
@@ -1014,10 +1234,10 @@
         "participantLinkTitleNamed": "Tautan login ulang untuk {{name}}",
         "participantName": "Nama peserta",
         "participants": "Peserta",
-        "promptConstraintsFallbackOrg": "Menggunakan batasan organisasi sebagai bawaan: {{constraint}}",
-        "promptConstraintsFallbackSite": "Menggunakan batasan situs sebagai bawaan",
+        "promptConstraintsFallbackOrg": "Menggunakan pembatasan organisasi sebagai default: {{constraint}}",
+        "promptConstraintsFallbackSite": "Menggunakan pembatasan situs sebagai default",
         "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di lokakarya ini.",
-        "promptConstraintsLabel": "Keterbatasan prompt",
+        "promptConstraintsLabel": "Pembatasan prompt perlindungan anak",
         "promptConstraintsPlaceholder": "mis. Pastikan cerita sesuai usia dan hindari konten kekerasan.",
         "removeParticipant": "Hapus peserta",
         "removeParticipantConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari lokakarya ini?",
@@ -1030,10 +1250,11 @@
         "resetAccessError": "Akses tidak dapat diatur ulang. Silakan coba lagi.",
         "resetAccessMessage": "Tautan baru dengan kode baru akan dibuat.",
         "resetAccessTitle": "Atur ulang akses?",
-        "resetAccessWarning": "Tautan dan kode sebelumnya akan berhenti berfungsi – termasuk pada perangkat tempat peserta sedang login.",
+        "resetAccessWarning": "Tautan dan kode sebelumnya tidak akan berfungsi lagi, termasuk pada perangkat tempat tamu sedang masuk.",
         "revokeInvite": "Cabut Tautan Undangan",
         "selectApiKey": "Pilih kunci API",
         "settings": "Pengaturan",
+        "shareGuestLink": "Tampilkan tautan masuk kembali",
         "shareParticipantLink": "Tampilkan tautan login ulang",
         "showOtherParticipantsGames": "Tampilkan gim peserta lain",
         "showOtherParticipantsGamesHint": "Kepala dan staf selalu dapat melihat semua gim peserta untuk keperluan moderasi",
@@ -1047,8 +1268,10 @@
           "participantsAsc": "Peserta paling sedikit",
           "participantsDesc": "Peserta paling banyak"
         },
+        "status": "Status",
         "subtitle": "Kelola lokakarya dan undang peserta untuk berkolaborasi membuat gim.",
         "title": "Lokakarya",
+        "unnamedParticipant": "Peserta tanpa nama",
         "unpause": "Lanjutkan lokakarya",
         "usedCount": "{{count}} kali",
         "viewInviteLink": "Lihat Tautan Undangan"
@@ -1071,6 +1294,13 @@
       "title": "Notifikasi",
       "workshopInvite": "Undangan Lokakarya",
       "workshopInviteDescription": "Anda telah diundang untuk bergabung dengan lokakarya ini."
+    },
+    "organisationSuspended": {
+      "byAdmin": "Pengelola telah menangguhkan akses organisasi Anda ke ChatGameLab. Data Anda tetap disimpan.",
+      "consentWanted": "Akses organisasi Anda ke ChatGameLab ditangguhkan sampai salah satu pimpinannya menyetujui deklarasi persetujuan terbaru. Data Anda tetap disimpan.",
+      "contact": "Jika memiliki pertanyaan, silakan hubungi",
+      "logout": "Keluar",
+      "title": "Organisasi ditangguhkan"
     },
     "play": {
       "cloneGame": "Klon ke gim saya",
@@ -1139,16 +1369,16 @@
     "searchPlaceholder": "Cari anggota...",
     "serverSettings": {
       "constraints": {
-        "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Batasan ini disisipkan ke setiap respons AI. Berlaku untuk semua pengguna masuk di luar mode lokakarya.",
-        "title": "Prompt Batasan Berdasarkan Usia",
+        "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Pembatasan ini disisipkan ke dalam setiap respons AI. Aturan ini berlaku bagi semua pengguna yang masuk, di luar mode lokakarya.",
+        "title": "Prompt Pembatasan Berdasarkan Usia",
         "u13Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13–17 tanpa persetujuan orang tua yang tercatat.",
-        "u13Label": "Batasan untuk pengguna berusia 13–17, tanpa persetujuan orang tua (U13)",
+        "u13Label": "Pembatasan untuk pengguna berusia 13–17 tahun, tanpa persetujuan orang tua (U13)",
         "u13Placeholder": "mis. Pastikan semua konten benar-benar sesuai usia remaja. Tidak ada kekerasan, konten romantis, atau tema horor.",
         "u13pHint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13–17 dengan persetujuan orang tua yang tercatat.",
-        "u13pLabel": "Batasan untuk pengguna berusia 13–17, dengan persetujuan orang tua (U13p)",
+        "u13pLabel": "Pembatasan untuk pengguna berusia 13–17 tahun, dengan persetujuan orang tua (U13p)",
         "u13pPlaceholder": "mis. Konten sesuai usia untuk remaja yang orang tuanya telah menyetujui. Beberapa tema dewasa diperbolehkan, tanpa konten eksplisit.",
         "u18Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 18 tahun ke atas.",
-        "u18Label": "Batasan untuk pengguna berusia 18+ (U18)",
+        "u18Label": "Pembatasan untuk pengguna berusia 18 tahun ke atas (U18)",
         "u18Placeholder": "mis. Jaga konten tetap pantas. Hindari kekerasan eksplisit atau konten seksual."
       },
       "defaultTier": {
@@ -1273,6 +1503,7 @@
     "duplicateName": "Nama gim ini sudah digunakan. Silakan pilih nama lain.",
     "forbidden": "Anda tidak memiliki izin untuk melakukan tindakan ini.",
     "generic": "Terjadi kesalahan. Silakan coba lagi.",
+    "guestStays": "Sebagai tamu, Anda tetap berada di tempat Anda bergabung. Untuk mengikuti lokakarya lain, buka tautan undangannya tanpa masuk: Anda akan bergabung sebagai tamu baru.",
     "insufficientQuota": "Kunci API Anda kehabisan kredit. Silakan tambahkan kredit atau gunakan kunci API lain.",
     "invalidApiKey": "Kunci API Anda tidak valid atau kedaluwarsa. Silakan periksa kunci API Anda di Pengaturan.",
     "invalidJsonSchema": "Konfigurasi gim menghasilkan skema yang tidak valid untuk AI. Ini masalah pengaturan gim, bukan masalah kunci API. Periksa kolom status gim dan coba lagi.",
@@ -1284,6 +1515,7 @@
     "noApiKey": "Tidak ada kunci API yang tersedia untuk gim ini. Sponsor gim mungkin telah menghapus kunci mereka, atau Anda perlu mengonfigurasi kunci API sendiri.",
     "notFound": "Sumber daya yang diminta tidak ditemukan.",
     "orgVerificationRequired": "Organisasi OpenAI Anda memerlukan verifikasi untuk menggunakan fitur pembuatan gambar. Silakan verifikasi di https://platform.openai.com/settings/organization/general.",
+    "organisationSuspended": "Organisasi Anda ditangguhkan. Data Anda tetap disimpan.",
     "previousResponseNotFound": "AI kehilangan jejak percakapan ini. Ini dapat terjadi saat sesi tidak aktif cukup lama. Silakan mulai sesi baru untuk melanjutkan bermain.",
     "publicDescriptionTooLong": "Deskripsi maksimal 2000 karakter.",
     "publicSlugInvalid": "Gunakan a–z, 0–9, dan tanda hubung tunggal, 3 hingga 60 karakter.",
@@ -1296,9 +1528,11 @@
       "billing": "Kesalahan Penagihan",
       "error": "Kesalahan",
       "gameConfig": "Kesalahan Konfigurasi Gim",
+      "guestStays": "Anda tetap di tempat Anda berada",
       "network": "Kesalahan Jaringan",
       "noApiKey": "Tidak Ada Kunci API",
       "notFound": "Tidak Ditemukan",
+      "organisationSuspended": "Organisasi ditangguhkan",
       "permission": "Izin Ditolak",
       "server": "Kesalahan Server",
       "tokenLocked": "Dikunci sementara",
@@ -1311,6 +1545,28 @@
     "userNotRegistered": "Anda perlu menyelesaikan pendaftaran sebelum melanjutkan.",
     "validation": "Harap periksa input Anda dan coba lagi.",
     "workshopInactive": "Lokakarya ini telah dinonaktifkan. Silakan hubungi guru atau penyelenggara lokakarya Anda."
+  },
+  "mail": {
+    "consent": {
+      "address": "Alamat",
+      "agreed": "Atas nama organisasi Anda, Anda menyetujui deklarasi persetujuan berikut.",
+      "bindingInGerman": "Deklarasi ini mengikat dalam bahasa Jerman, sehingga teksnya ditampilkan dalam bahasa Jerman.",
+      "checksum": "Checksum",
+      "copySubject": "Salinan: {{subject}}",
+      "date": "Tanggal",
+      "dateValue": "{{date}} (waktu Berlin)",
+      "declaredBy": "Dinyatakan oleh",
+      "greeting": "Halo {{name}},",
+      "operator": "Pengelola",
+      "organisation": "Organisasi",
+      "registered": "organisasi “{{organisation}}” kini aktif di ChatGameLab. Anda adalah pimpinannya dan kini dapat membuat lokakarya.",
+      "renewed": "terima kasih! ChatGameLab kini memiliki persetujuan organisasi “{{organisation}}” terhadap deklarasi persetujuan terbaru.",
+      "signature": "Tim ChatGameLab Anda\nJFF – Jugend Film Fernsehen e.V.",
+      "subjectRegistered": "ChatGameLab: organisasi “{{organisation}}” aktif – deklarasi persetujuan",
+      "subjectRenewed": "ChatGameLab: deklarasi persetujuan untuk “{{organisation}}” dikonfirmasi (versi {{version}})",
+      "version": "Versi",
+      "versionValue": "{{version}} (per {{date}})"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1353,7 +1609,7 @@
   },
   "navigation": {
     "adminPanel": "Panel Admin",
-    "allGames": "Semua Gim",
+    "allGames": "Permainan",
     "create": "Buat Gim Anda Sendiri",
     "createGame": "Buat Gim",
     "dashboard": "Dasbor",
@@ -1365,7 +1621,7 @@
     "myOrganization": "Organisasi Saya",
     "myWorkshop": "Lokakarya Saya",
     "orgApiKeys": "Kunci API",
-    "orgConstraints": "Batasan",
+    "orgConstraints": "Pembatasan prompt perlindungan anak",
     "orgMembers": "Anggota",
     "orgWorkshops": "Lokakarya",
     "play": "Mainkan Gim",
@@ -1374,6 +1630,24 @@
     "workshopSettings": "Pengaturan Lokakarya"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "Gaya",
+      "condense-scenario": "Persingkat skenario",
+      "condensed-scenario": "Skenario",
+      "expand": "Narasi",
+      "image": "Buat gambar",
+      "image-prompt": "Deskripsikan gambar",
+      "image-style": "Sesuaikan gaya",
+      "live-session": "Karakter",
+      "observer": "Pengamat",
+      "outline": "Rencanakan adegan",
+      "portrait": "Buat potret",
+      "portrait-prompt": "Deskripsikan potret",
+      "props-store": "Status permainan",
+      "rephrase": "Ceritakan ulang aksi",
+      "rephrase-audio": "Pahami ucapan",
+      "start-game": "Mulai"
+    },
     "errors": {
       "connectionLost": "Koneksi ke permainan terputus. Muat ulang untuk mencoba lagi.",
       "imageFailed": "Gambar untuk adegan ini tidak dapat dibuat. Cerita terus berlanjut.",
@@ -1395,6 +1669,11 @@
       "starting": "Memulai permainan…",
       "tryAgain": "Coba lagi"
     },
+    "pipeline": {
+      "copied": "Tata letak disalin",
+      "copyFailed": "Tidak ada clipboard: tata letak dicatat di konsol",
+      "copyLayout": "Salin tata letak"
+    },
     "problems": {
       "denied": "Kamu tidak dapat memainkan permainan ini.",
       "failed": "Terjadi kesalahan, dan permainan tidak dapat dilanjutkan.",
@@ -1402,6 +1681,7 @@
       "keyRejected": "Penyedia AI menolak kunci permainan ini, sehingga permainan tidak dapat dilanjutkan. Orang yang menyiapkan permainan perlu memeriksa kuncinya.",
       "noKey": "Tidak ada kunci AI yang tersedia untuk memainkan permainan ini.",
       "noPlays": "Permainan bersama ini sudah tidak memiliki sesi permainan tersisa.",
+      "paused": "Lokakarya dijeda. Permainan akan berlanjut saat lokakarya dilanjutkan.",
       "stale": "Permainan ini tidak dapat dilanjutkan lagi.",
       "unknown": "Sesi permainan ini tidak ada.",
       "unreachable": "Penyedia AI sedang tidak merespons, sehingga permainan tidak dapat dilanjutkan. Coba lagi dalam beberapa menit."
@@ -1418,6 +1698,32 @@
       "hearing": "Mendengarkan ucapanmu…",
       "hold": "Tekan dan tahan untuk berbicara",
       "recording": "Sedang mendengarkan… lepaskan untuk mengirim"
+    },
+    "wires": {
+      "adapted-style\u001eimage-prompt": "gaya",
+      "adapted-style\u001eimage-style": "permintaan",
+      "adapted-style\u001estart-game": "siap",
+      "condense-scenario\u001econdensed-scenario": "jawaban",
+      "condensed-scenario\u001econdense-scenario": "permintaan",
+      "condensed-scenario\u001eimage-prompt": "skenario",
+      "condensed-scenario\u001estart-game": "siap",
+      "image-prompt\u001eimage": "prompt",
+      "image-style\u001eadapted-style": "jawaban",
+      "live-session\u001eobserver": "transkrip",
+      "observer\u001elive-session": "petunjuk",
+      "outline\u001eexpand": "rencana",
+      "outline\u001eimage-prompt": "adegan",
+      "outline\u001eprops-store": "perubahan",
+      "player-input-audio\u001elive-session": "ucapan",
+      "player-input-audio\u001erephrase-audio": "ucapan",
+      "player-input-text\u001erephrase": "aksi",
+      "portrait\u001estart-game": "siap",
+      "portrait-prompt\u001eportrait": "prompt",
+      "props-store\u001eoutline": "status",
+      "rephrase\u001eoutline": "aksi",
+      "rephrase-audio\u001eoutline": "aksi",
+      "start-game\u001elive-session": "isyarat",
+      "start-game\u001eoutline": "prompt"
     }
   }
 }

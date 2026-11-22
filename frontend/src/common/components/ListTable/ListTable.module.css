@@ -55,3 +55,13 @@
 .gridCell > * {
   flex: 1;
 }
+
+/* An opened row's content: set off from the rows around it. */
+.expandedRow > td {
+  background-color: var(--mantine-color-gray-0);
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-lg);
+}
+
+.cardExpanded {
+  margin-top: var(--mantine-spacing-xs);
+}

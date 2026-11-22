@@ -3,8 +3,8 @@
  * registering, or a registered account. Also completes registration.
  */
 import { useCallback, useRef, useState } from "react";
-import { api } from "@/api/client/api";
-import type { GetCurrentUserResp, OrganisationSignUpReq, UserView } from "@/api/generated/api.gen";
+import { fetchCaller as fetchCallerFromServer, registerAccount } from "@/api/hooks/authentication";
+import type { GetCurrentUserResp, OrganisationSignUpReq, UserView } from "@/api/types";
 import { authLogger } from "@/config/logger";
 import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
 import i18n from "@/i18n";
@@ -60,7 +60,7 @@ export function useCaller() {
   const fetchCaller = useCallback(async (): Promise<CallerState> => {
     setError(null);
     try {
-      const { data } = await api.getApiUsersMe();
+      const data = await fetchCallerFromServer();
       if (data.state === "registered" && data.user) {
         setStanding({
           institutionSuspension: data.institutionSuspension,
@@ -95,7 +95,7 @@ export function useCaller() {
     async ({ name, email, ageGroup, organisation, acceptTerms }: Registration) => {
       // The language the user registers in becomes their stored preference,
       // and game sessions are locked to it at launch.
-      const { data } = await api.postApiAuthRegister({
+      const data = await registerAccount({
         name,
         email: email || undefined,
         ageGroup,

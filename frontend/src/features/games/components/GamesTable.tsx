@@ -2,11 +2,11 @@ import { useRef, type ReactNode } from "react";
 import { Tooltip } from "@mantine/core";
 import { IconArrowBigUpLineFilled, IconTools } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import { ListTable } from "@components/ListTable";
 import { ActionButton, GenericIconButton } from "@components/buttons";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import { GAME_LIST_PRESETS, presetFilterNamespace } from "../lib/gameListPresets";
+import { GAME_LIST_PRESETS } from "../lib/gameListPresets";
 import { emptyListDescription, getGameDateLabel } from "../lib";
 import { useGamesTable, type UseGamesTableOptions } from "../hooks/useGamesTable";
 import { useGameActions, useGameColumns } from "./useGameColumns";
@@ -25,20 +25,19 @@ export type GamesTableProps = UseGamesTableOptions;
  */
 export function GamesTable(props: GamesTableProps) {
   const { t, i18n } = useTranslation("common");
-  const { t: tFilters } = useTranslation(presetFilterNamespace(props.preset));
   const { t: tEmpty } = useTranslation(GAME_LIST_PRESETS[props.preset].empty.ns ?? "common");
   const { isMobile } = useResponsiveDesign();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const state = useGamesTable(props, { fileInputRef });
   const columns = useGameColumns(state);
   const actionsFor = useGameActions(state);
-  const { config, controls } = state;
+  const { config, list } = state;
 
   // An empty list says what narrowed it, when anything did; otherwise there
   // simply are no games.
   const narrowed =
-    config.toggles.length > 0
-      ? emptyListDescription(t, i18n.language, controls.query.only, controls.query.search)
+    (config.list.toggles?.length ?? 0) > 0
+      ? emptyListDescription(t, i18n.language, list.query.only, list.query.search)
       : null;
   const empty = narrowed
     ? { title: narrowed }
@@ -68,7 +67,7 @@ export function GamesTable(props: GamesTableProps) {
         favoriteLabel={t("allGames.favorite")}
         unfavoriteLabel={t("allGames.unfavorite")}
         actions={actionsFor(game)}
-        dateLabel={getGameDateLabel(game, controls.query.sortBy)}
+        dateLabel={getGameDateLabel(game, list.query.sortBy)}
         isWorkshopGame={state.isWorkshopGame(game)}
         extra={
           game.workshopId && config.columns.includes("workshop") ? (
@@ -127,16 +126,12 @@ export function GamesTable(props: GamesTableProps) {
       )}
 
       <ListTable
-        list={state.list}
-        controls={controls}
+        list={list}
         columns={columns}
         getRowKey={(game) => game.id}
         renderCard={renderCard}
         layout="grid"
         onRowClick={state.view}
-        filters={config.filters.map((f) => ({ value: f.value, label: tFilters(f.labelKey) }))}
-        toggles={config.toggles.map((o) => ({ value: o.value, label: tFilters(o.labelKey) }))}
-        sorts={config.sorts.map((s) => ({ ...s, label: t(`games.sort.${s.by}-${s.dir}`) }))}
         actions={createActions}
         empty={empty}
         errorMessage={t("games.errors.loadFailed")}

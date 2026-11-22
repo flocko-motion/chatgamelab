@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { getBaseUrl } from "@/common/lib/url";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { apiLogger } from "./logger";
-import type { Error as ApiError } from "../api/generated/api.gen";
+import type { ApiError } from "@/api/types";
 
 export const queryClient = new QueryClient({
   defaultOptions: {

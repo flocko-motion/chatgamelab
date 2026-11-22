@@ -61,7 +61,11 @@ func (c caller) LiftSuspension(institutionID string) (OrganisationSuspension, er
 // by filters ("recentlyRegistered": those that registered themselves in the
 // last two weeks).
 func (c caller) ListInstitutionsFiltered(filters ...string) ([]Institution, error) {
-	return decode[[]Institution](c.api.GetApiInstitutionsWithResponse(ctx(), &apiclient.GetApiInstitutionsParams{Filter: &filters}))
+	f := make([]apiclient.OrganisationFilter, len(filters))
+	for i, x := range filters {
+		f[i] = apiclient.OrganisationFilter(x)
+	}
+	return decodeItems[Institution](c.api.GetApiInstitutionsWithResponse(ctx(), &apiclient.GetApiInstitutionsParams{Filter: &f}))
 }
 
 // SetAgeGroup sets the user's own age group.

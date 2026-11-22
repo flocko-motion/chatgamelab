@@ -63,6 +63,7 @@ export const queryKeys = {
   // Institutions/Organizations
   institutions: ["institutions"] as const,
   institution: (id: string) => ["institution", id] as const,
+  institutionMembersBase: ["institution-members"] as const,
   institutionMembers: (institutionId: string) =>
     ["institution-members", institutionId] as const,
 
@@ -85,10 +86,13 @@ export const queryKeys = {
   workshopsByInstitution: (institutionId: string) =>
     ["workshops", institutionId] as const,
   workshop: (id: string) => ["workshop", id] as const,
+  guestToken: (guestId: string) => ["guestToken", guestId] as const,
+  publicWorkshop: (slug: string) => ["publicWorkshop", slug] as const,
 
   // System
   version: ["version"] as const,
   systemSettings: ["systemSettings"] as const,
+  systemConstraints: ["systemConstraints"] as const,
 
   // Translations
   translations: (language: string, namespace: string) =>

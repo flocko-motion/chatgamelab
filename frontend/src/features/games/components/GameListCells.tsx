@@ -7,7 +7,7 @@ import {
   IconWorld,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { GameView } from "@/api/generated/api.gen";
+import type { GameView } from "@/api/types";
 import { GameCover } from "@components/GameCover";
 import {
   DeleteIconButton,

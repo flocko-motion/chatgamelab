@@ -14,6 +14,17 @@
       "under13Blocker": "まだ自分のアカウントを作成できません。13歳未満の場合は、青少年団体を通じてのみ ChatGameLab を利用できます。",
       "under13Description": "まだ自分のアカウントを作成できません。13歳未満の場合は、青少年団体を通じてのみ ChatGameLab を利用できます。"
     },
+    "guest": {
+      "leaveConfirm": {
+        "confirm": "ログアウト",
+        "message": "このワークショップには残ります。コードを使えば、ホームページの「コードを入力」から、いつでもどの端末でも再度ログインできます。",
+        "title": "ログアウトしますか？"
+      },
+      "leaveWorkshop": "ログアウト",
+      "organization": "組織",
+      "role": "ゲスト",
+      "workshop": "ワークショップ"
+    },
     "login": {
       "auth0Button": "Auth0でログイン",
       "devMode": "開発モード",
@@ -22,6 +33,8 @@
         "title": "開発モード"
       },
       "devModeDescription": "開発・テスト用の高速ログイン",
+      "devNewOrganisation": "新しいユーザー（組織を登録）",
+      "devNewPerson": "新しいユーザー（登録後のように、まだ選択なし）",
       "redirecting": {
         "message": "ログインページへリダイレクト中です。しばらくお待ちください。",
         "title": "Auth0へリダイレクト中..."
@@ -33,8 +46,81 @@
         "teacher": "教師としてログイン"
       },
       "unavailable": {
-        "message": "このインスタンスではサインインを利用できません。ワークショップの参加者は代わりにコードを入力できます。",
+        "message": "このインスタンスではログインを利用できません。ワークショップのゲストは代わりにコードを入力できます。",
         "title": "サインインを利用できません"
+      }
+    },
+    "organizationRegistration": {
+      "accountNameDescription": "ChatGameLabで表示される名前です（最大24文字）。",
+      "accountNameLabel": "表示名",
+      "cityLabel": "市区町村",
+      "confirmAdult": "私は18歳以上です。",
+      "consentPage": {
+        "constraintIntro": "この宣言により、所属機関は対象グループに適した青少年保護プロンプト制限を設定することを約束します。以下は、現在組織で使用している設定です。確認し、必要に応じて調整してください。",
+        "emailDescription": "宣言の本文を含む確認メールをこのアドレスに送信します。",
+        "introExisting": "組織「{{name}}」には、オンラインで確認する同意宣言が用意されています。これは、以前に署名した利用規約に代わるものです。内容を読み、所属機関を代表して同意してください。",
+        "introNewVersion": "同意宣言が更新されました（バージョン{{version}}）。新しい内容を読み、組織「{{name}}」を代表して同意してください。",
+        "introWithdrawn": "組織「{{name}}」による同意宣言への同意が撤回されたため、組織は停止されています。宣言を読み、所属機関を代表して同意すると、ChatGameLabを再び利用できます。",
+        "logout": "ログアウト",
+        "oneHeadIsEnough": "組織の責任者のうち1人が同意すれば十分です。それまでは組織が停止され、メンバーはChatGameLabを利用できません。",
+        "submit": "同意する",
+        "title": "宣言を確認"
+      },
+      "consentSection": "確認事項",
+      "declarationGermanOnly": "宣言はドイツ語でのみ提供されています。法的に有効なのはドイツ語の本文です。",
+      "declarationVersion": "バージョン{{version}}（{{date}}現在）",
+      "emailConfirmHint": "フォームを送信すると、組織はすぐに作成されます。宣言の本文を含む確認メールがメールアドレスに届きます。",
+      "emailDescription": "宣言の確認メールをこのアドレスに送信します。",
+      "emailFromLogin": "これはログインに使用しているアドレスです。",
+      "emailLabel": "勤務先メールアドレス",
+      "errors": {
+        "conflict": "このログインにはすでにアカウントがあります。ログインして、設定からアップグレードを利用してください。",
+        "declaration_version_outdated": "宣言が更新されました。ページを再読み込みし、現在のバージョンを読んでください。",
+        "duplicate_name": "この表示名はすでに使用されています。",
+        "emailInvalid": "有効なメールアドレスを入力してください。",
+        "email_belongs_to_other_account": "このメールアドレスにはすでにアカウントがあります。そのアカウントでログインし、設定から「組織にアップグレード」を選択してください。",
+        "formIncomplete": "必須項目をすべて入力し、すべての項目を確認してください。",
+        "generic": "問題が発生しました。もう一度お試しください。",
+        "institution_age_not_allowed": "組織を登録できるのは、成人用アカウント（18歳以上）のみです。",
+        "institution_consents_required": "すべての項目を確認してください。",
+        "institution_name_taken": "この名前の組織はすでに存在します。市区町村などを名前に追加してください。",
+        "loadFailed": "宣言を読み込めませんでした。ページを再読み込みしてください。",
+        "name_too_long": "表示名は最大24文字です。",
+        "profane_name": "この表示名は使用できません。",
+        "required": "必須",
+        "validation_error": "入力内容を確認してください。"
+      },
+      "institutionNameLabel": "所属機関名",
+      "institutionSection": "所属機関について",
+      "operatorDescription": "例：市、協会、教区",
+      "operatorLabel": "運営者",
+      "personFunctionLabel": "所属機関での役職",
+      "personFunctionPlaceholder": "例：責任者、青少年指導員",
+      "personNameLabel": "氏名",
+      "personSection": "あなたについて",
+      "postalCodeLabel": "郵便番号",
+      "registered": {
+        "text": "組織が有効化されました。あなたは組織の責任者として、ワークショップを作成できます。",
+        "title": "組織を登録しました"
+      },
+      "streetLabel": "住所・番地",
+      "submit": "組織を登録",
+      "subtitle": "フォームを送信すると、組織はすぐに有効化され、あなたがその責任者になります。",
+      "switchToPersonal": "選択に戻る",
+      "titleRegister": "組織を登録",
+      "toMyOrganization": "自分の組織へ",
+      "youthProtection": {
+        "changeHint": "この設定はいつでも変更でき、ワークショップごとに異なる設定にすることもできます。",
+        "defaultOption": "13歳からのデフォルト",
+        "fieldLabel": "組織の青少年保護プロンプト制限",
+        "intro": "この指示は、組織のすべてのゲームでAIに送られます。対象グループの年齢に合うように設定してください。",
+        "responsibilityHint": "候補は公式の年齢区分ではありません。設定は所属機関が決定し、その責任を負います。",
+        "suggestionAdults": "{{age}}歳以上の成人向け",
+        "suggestionChildren": "およそ{{age}}歳以上の子ども向け",
+        "suggestionTeens": "およそ{{age}}歳以上の青少年向け",
+        "suggestionsLabel": "候補（クリックするとテキストが置き換わります）：",
+        "title": "青少年保護プロンプト制限",
+        "tooLong": "最大{{max}}文字です。短くするか、候補を選択してください。"
       }
     },
     "participant": {
@@ -56,6 +142,12 @@
       "ageGroupU18": "18歳以上",
       "gamesCreated": "作成したゲーム",
       "gamesPlayed": "プレイしたゲーム数",
+      "guestCode": {
+        "error": "アクセスコードを読み込めませんでした。",
+        "hint": "このコードを写真に撮るか書き留め、他人に教えないでください。このコードがあれば、ホームページの「コードを入力」で単語を入力するか、QRコードをスキャンして、いつでもどの端末からでもアカウントに戻れます。",
+        "longTokenHint": "QRコードを写真に撮るかリンクを保存し、他人に教えないでください。これを使えばいつでもアカウントに戻れます。アクセスをリセットすると、ワークショップの責任者から4単語の短いコードを受け取れます。",
+        "title": "アクセスコード"
+      },
       "memberSince": "登録日",
       "messagesSent": "送信したメッセージ数",
       "noOrganization": "組織なし",
@@ -71,6 +163,7 @@
       "role": "役割",
       "roles": {
         "admin": "管理者",
+        "guest": "ゲスト",
         "head": "組織代表",
         "individual": "個人",
         "participant": "参加者",
@@ -140,6 +233,12 @@
       "individualDescription": "AI搭載のテキストアドベンチャーを作成してプレイする",
       "individualTitle": "個人アカウント",
       "loginLink": "ログイン",
+      "organizationExistingAccount": "組織は新しいログインで登録します。すでにアカウントをお持ちですか？",
+      "organizationIntro": "ワークショップでChatGameLabを利用したい青少年施設、学校、その他の機関向けです。",
+      "organizationStep1": "Auth0でログイン情報（メールアドレスとパスワード）を作成します。",
+      "organizationStep2": "あなたと所属機関の情報を入力し、青少年保護プロンプト制限を設定して、宣言に同意します。",
+      "organizationStep3": "フォームを送信すると組織がすぐに有効化され、ワークショップを作成できます。",
+      "organizationTitle": "組織として登録",
       "privacyPolicy": "プライバシーポリシー",
       "termsOfService": "利用規約",
       "title": "アカウントを作成する"
@@ -174,6 +273,7 @@
         "actions": "操作",
         "empty": "保留中の招待はありません。",
         "invitedEmail": "招待メール",
+        "loadError": "招待を読み込めませんでした。",
         "modifiedAt": "更新日",
         "noResults": "検索条件に一致する招待はありません。",
         "organization": "組織",
@@ -207,30 +307,75 @@
       },
       "organizations": {
         "actions": "操作",
+        "city": "市区町村",
+        "consentGiven": "宣言 v{{version}} · {{date}}",
+        "consentMissing": "宣言の確認待ち",
+        "consentOutdated": "宣言が古いバージョンです（v{{version}}）",
+        "consentWithdrawn": "宣言への同意が撤回されました",
         "create": "組織を作成",
         "createTitle": "新しい組織を作成",
-        "deleteConfirm": "「{{name}}」を削除してもよろしいですか？この操作は取り消せません。",
+        "deleteConfirm": "「{{name}}」を完全に削除しますか？組織のすべてのワークショップと参加者が削除されます。責任者とワークショップ責任者のアカウントは保持されます。この操作は元に戻せません。アクセスだけを失わせる場合は、代わりに組織を停止してください。",
         "deleteTitle": "組織を削除",
+        "detailsOptional": "任意：運営者と住所",
         "editTitle": "組織を編集",
         "email": "メールアドレス",
         "emailPlaceholder": "メールアドレスを入力",
         "empty": "まだ組織がありません。まずは作成しましょう。",
+        "heads": "責任者",
         "inviteDescription": "{{name}}に組織代表として参加する招待を送信します。",
         "inviteTitle": "組織に招待",
+        "lift": "停止を解除",
+        "liftConfirm": "「{{name}}」の停止を解除しますか？現在の宣言に同意済みであれば、すべてのメンバーが再び以前と同じように組織を利用できます。",
+        "liftTitle": "停止を解除",
+        "loadError": "組織を読み込めませんでした。",
         "memberEmail": "メール",
         "memberName": "名前",
         "memberRole": "役割",
         "members": "メンバー",
         "membersCount": "名のメンバー",
         "membersList": "メンバー",
+        "membersLoadError": "メンバーを読み込めませんでした。",
         "name": "名前",
         "namePlaceholder": "組織名を入力",
         "noMembers": "この組織にはメンバーがいません。",
+        "operator": "運営者",
+        "postalCode": "郵便番号",
         "removeMember": "メンバーを削除",
         "removeMemberConfirm": "{{name}}をこの組織から削除してもよろしいですか？",
         "searchPlaceholder": "組織を検索...",
         "sendInvite": "招待を送信",
+        "status": "ステータスと同意",
+        "statusActive": "有効",
+        "statusSuspended": "停止中",
+        "statusSuspendedConsent": "停止中：宣言の確認待ち",
+        "street": "住所・番地",
+        "suspend": "停止",
+        "suspendConfirm": "「{{name}}」を停止しますか？責任者、ワークショップ責任者、参加者は組織を利用できなくなります。共有されたゲームリンクと公開ワークショップページも機能しなくなります。データは削除されず、停止はいつでも解除できます。",
+        "suspendError": "処理に失敗しました。もう一度お試しください。",
+        "suspendReason": "理由（任意）",
+        "suspendReasonDescription": "管理者にのみ表示されます。",
+        "suspendTitle": "組織を停止",
+        "suspendedNoReason": "理由なしで停止",
         "title": "組織を管理"
+      },
+      "registrations": {
+        "bell": {
+          "empty": "過去2週間に登録した組織はありません。",
+          "intro_one": "この組織は過去2週間に登録され、すでに有効化されています。",
+          "intro_other": "これら{{count}}組織は過去2週間に登録され、すでに有効化されています。",
+          "label": "新しい組織",
+          "later": "後で",
+          "open": "概要へ",
+          "suspendHint": "現在、メールアドレスは確認されていません。新しい組織を簡単に確認し、問題があれば概要から停止してください。",
+          "title": "新しい組織"
+        },
+        "date": "登録日",
+        "description": "過去2週間に自ら登録した組織です。メールアドレスを確認しなくてもすぐに有効化されます。内容を確認し、問題があれば停止してください。",
+        "empty": "過去2週間に自ら登録した組織はありません。",
+        "institution": "所属機関",
+        "loadError": "登録を読み込めませんでした。",
+        "person": "登録者",
+        "title": "新しい登録"
       },
       "users": {
         "actions": "操作",
@@ -242,6 +387,10 @@
         "email": "メール",
         "emailPlaceholder": "メールアドレスを入力",
         "empty": "ユーザーが見つかりません。",
+        "filters": {
+          "all": "すべてのユーザー",
+          "noGuests": "ゲストを除く"
+        },
         "hideGuests": "ゲストを非表示（{{count}}）",
         "hideGuestsShort": "ゲスト（{{count}}）",
         "joined": "参加日",
@@ -297,7 +446,16 @@
       },
       "copyGame": "ゲームをコピー",
       "empty": {
+        "conditions": {
+          "favorites": "お気に入りの1つ",
+          "own": "自分が作成したもの",
+          "public": "公開",
+          "sponsored": "スポンサー提供"
+        },
         "description": "フィルターを調整するか、新しいゲームが追加されるまでお待ちください。",
+        "is": "{{conditions}}ゲームはありません。",
+        "isAndNamed": "{{conditions}}ゲームで、名前に「{{search}}」を含むものはありません。",
+        "named": "名前に「{{search}}」を含むゲームはありません。",
         "title": "ゲームが見つかりません"
       },
       "favorite": "お気に入りに追加",
@@ -308,10 +466,11 @@
         "public": "公開",
         "sponsored": "スポンサー付き"
       },
+      "onlyFavorites": "お気に入りのみ表示",
       "play": "プレイ",
       "reportGame": "ゲームを報告",
       "restart": "リスタート",
-      "title": "すべてのゲーム",
+      "title": "ゲーム",
       "unfavorite": "お気に入りから削除",
       "workshop": "ワークショップ／組織"
     },
@@ -346,6 +505,7 @@
         "title": "APIキーを削除",
         "warning": "この操作は取り消せません。キーは完全に削除されます。"
       },
+      "empty": "APIキーはまだありません。追加して始めましょう。",
       "errors": {
         "invalidPlatform": "無効なプラットフォームが選択されました。有効なAIプラットフォームを選択してください。",
         "keyRequired": "APIキーは必須です",
@@ -355,6 +515,7 @@
       },
       "key": "キー",
       "keys": "キー",
+      "noResults": "検索またはフィルターに一致するキーはありません。",
       "platform": "プラットフォーム",
       "setDefault": "デフォルトに設定",
       "shares": {
@@ -381,11 +542,20 @@
         "unknownWorkshop": "不明なワークショップ",
         "unlimited": "無制限の利用"
       },
+      "sort": {
+        "createdAt-asc": "古い順",
+        "createdAt-desc": "新しい順",
+        "name-asc": "名前順 A–Z",
+        "name-desc": "名前順 Z–A",
+        "platform-asc": "プラットフォーム順 A–Z",
+        "status-asc": "動作するキーを優先"
+      },
       "status": {
         "failed": "キーが機能していません",
         "unknown": "キーはまだ使用されていません",
         "working": "キーは動作しています"
       },
+      "statusColumn": "ステータス",
       "subtitle": "AIプラットフォーム用のAPIキーを管理します。",
       "title": "APIキー管理",
       "unnamed": "名前なしのキー",
@@ -441,6 +611,23 @@
         "myGame": "自分のゲーム",
         "public": "公開",
         "workshop": "ワークショップゲーム"
+      },
+      "byCreator": "作成者：{{name}}",
+      "cover": {
+        "alt": "{{name}}のカバー画像",
+        "draw": "カバー画像を描く",
+        "drawAgain": "もう一度描く",
+        "drawnOnSave": "ゲームを保存するとカバー画像が描画されます。",
+        "errors": {
+          "failed": "カバー画像を描画できませんでした。もう一度お試しください。",
+          "keyRejected": "AIプロバイダーがキーを拒否したため、カバー画像を描画できませんでした。",
+          "noKey": "利用可能なAIキーのいずれも画像を生成できないため、現在このゲームにはカバー画像がありません。"
+        },
+        "hint": "カバー画像には何を表示しますか？",
+        "hintDescription": "任意です。空欄の場合、カバー画像にはゲームの内容が表示されます。",
+        "hintPlaceholder": "例：夜の灯台",
+        "none": "カバー画像はまだありません",
+        "title": "カバー画像"
       },
       "createButton": "ゲームを作成",
       "createModal": {
@@ -759,11 +946,15 @@
       "errors": {
         "acceptFailed": "招待を承諾できませんでした。もう一度お試しください。",
         "expired": "この招待リンクは期限切れです。",
+        "guestStays": "ゲストは参加した場所に留まります。別のワークショップに参加するには、ログインせずに招待リンクを開いてください。新しいゲストとして参加できます。",
         "loadFailed": "招待の詳細を読み込めませんでした。もう一度お試しください。",
         "notFound": "この招待リンクは無効か取り消されています。",
         "tokenLocked": "失敗した試行が多すぎます。しばらくしてからもう一度お試しください。"
       },
       "goHome": "ホームへ",
+      "guest": {
+        "loggingIn": "ログインしています…"
+      },
       "participant": {
         "loggingIn": "ログインしています..."
       },
@@ -791,6 +982,20 @@
     "leaveOrganization": "組織を退出",
     "leaveTitle": "組織を退出",
     "leaveWarning": "組織のすべてのリソースとメンバーへのアクセスを失います。",
+    "list": {
+      "clearSearch": "検索をクリア",
+      "filter": "フィルター",
+      "hideDetails": "詳細を隠す",
+      "pagination": {
+        "first": "最初のページ",
+        "last": "最後のページ",
+        "next": "次のページ",
+        "previous": "前のページ"
+      },
+      "perPage": "1ページあたり",
+      "range": "{{from}}–{{to}} / {{total}}",
+      "showDetails": "詳細を表示"
+    },
     "loading": "読み込み中...",
     "logout": "ログアウト",
     "me": "自分",
@@ -826,6 +1031,7 @@
       "apiKeys": {
         "aboutDescription": "ここで共有されたAPIキーは、組織の全メンバーがゲームをプレイする際に利用できます。",
         "aboutTitle": "組織のAPIキー",
+        "allPlatforms": "すべてのプラットフォーム",
         "allowPublicSponsoring": "公開スポンサーを許可",
         "allowPublicSponsoringDesc": "すべてのユーザーがゲームのスポンサーにこのキーを使用できます。",
         "filterByPlatform": "プラットフォームで絞り込み",
@@ -844,6 +1050,7 @@
         "owner": "所有者",
         "platform": "プラットフォーム",
         "publicSponsoring": "公開スポンサー",
+        "removeShare": "組織から削除",
         "searchPlaceholder": "名前または所有者で検索...",
         "selectKey": "APIキーを選択",
         "selectKeyPlaceholder": "共有するキーを選択...",
@@ -858,6 +1065,14 @@
         "confirmTitle": "組織とキーを共有",
         "orgKeyGroup": "組織キー",
         "personalKeyGroup": "個人キー"
+      },
+      "declaration": {
+        "consented": "組織は{{date}}にバージョン{{version}}に同意しました。",
+        "title": "同意宣言",
+        "withdraw": "同意を撤回",
+        "withdrawConfirm": "同意がない場合、組織は停止されます。責任者が再び同意するまで、メンバーはChatGameLabを利用できません。データは保持されます。",
+        "withdrawFailed": "処理に失敗しました。もう一度お試しください。",
+        "withdrawTitle": "同意を撤回しますか？"
       },
       "demoteConfirm": "「{{name}}」（{{email}}）を教師に降格してもよろしいですか？",
       "demoteTitle": "教師に降格",
@@ -879,6 +1094,7 @@
       "leaveOrganization": "組織を退出",
       "leaveTitle": "組織を退出",
       "leaveWarning": "組織のすべてのリソースとメンバーへのアクセスを失います。",
+      "loadError": "メンバーを読み込めませんでした。",
       "me": "自分",
       "name": "名前",
       "noEmail": "メールなし",
@@ -891,13 +1107,13 @@
       "promoteToHead": "代表に昇格",
       "promoteWarning": "このユーザーは組織メンバーの管理と教師の招待ができるようになります。",
       "promptConstraintsFallbackEmpty": "(未設定)",
-      "promptConstraintsFallbackHint": "組織の制約は設定されていません。サイト全体の既定値（プレイヤーの年齢層）を適用します:",
+      "promptConstraintsFallbackHint": "組織の制限が設定されていません。プレイヤーの年齢グループには、サイト全体のデフォルト設定が適用されます：",
       "promptConstraintsFallbackTitle": "サイト全体のアクティブなフォールバック",
       "promptConstraintsFallbackU13": "13歳未満",
       "promptConstraintsFallbackU13p": "13～17歳（保護者の同意あり）",
       "promptConstraintsFallbackU18": "18歳以上",
       "promptConstraintsHint": "この組織内のすべてのセッションに適用される追加のAI指示。ワークショップレベルの制約が設定されていない場合、およびリンク共有されたゲームに適用されます。",
-      "promptConstraintsLabel": "組織プロンプト制約",
+      "promptConstraintsLabel": "組織の青少年保護プロンプト制限",
       "promptConstraintsPlaceholder": "例：物語を年齢相応に保ち、暴力的な内容を避けてください。",
       "publicPage": {
         "changeLinkMessage": "変更後のページのURLは{{url}}になります。",
@@ -983,6 +1199,8 @@
         "empty": "ワークショップがありません。",
         "enterWorkshop": "ワークショップモードに入る",
         "games": "ゲーム",
+        "guestLinkTitle": "再ログインリンク",
+        "guestLinkTitleNamed": "{{name}}の再ログインリンク",
         "hideInactive": "非アクティブを隠す",
         "inactive": "非アクティブ",
         "inviteByEmail": "メールで招待",
@@ -1008,9 +1226,11 @@
         "noActiveInvite": "有効な招待リンクがありません。",
         "noDefaultApiKey": "デフォルトAPIキーなし",
         "noDefaultModel": "プラットフォームのデフォルトを使用",
+        "noGuestToken": "このメンバーには再ログインリンクがありません。再ログインリンクを持つのはゲストだけです。",
         "noIndividuals": "この組織には個人ユーザーがいません。",
         "noParticipantToken": "この参加者には招待リンクがありません。匿名参加者（ゲスト）のみが再利用可能な招待リンクを持っています。",
         "noParticipants": "参加者がいません",
+        "noResults": "検索またはフィルターに一致するワークショップはありません。",
         "notAuthorized": "ワークショップを管理する権限がありません。代表と教師のみがアクセスできます。",
         "participantGames": "{{count}}ゲーム",
         "participantJoined": "{{date}}に参加",
@@ -1018,10 +1238,10 @@
         "participantLinkTitleNamed": "{{name}}の再ログインリンク",
         "participantName": "参加者名",
         "participants": "参加者",
-        "promptConstraintsFallbackOrg": "組織の制約をデフォルトとして使用：{{constraint}}",
-        "promptConstraintsFallbackSite": "サイトの制約をデフォルトとして使用",
+        "promptConstraintsFallbackOrg": "組織の制限をデフォルトとして使用中：{{constraint}}",
+        "promptConstraintsFallbackSite": "サイトの制限をデフォルトとして使用中",
         "promptConstraintsHint": "このワークショップ内のすべてのセッションに対する追加のAI指示。",
-        "promptConstraintsLabel": "プロンプト制約",
+        "promptConstraintsLabel": "青少年保護プロンプト制限",
         "promptConstraintsPlaceholder": "例: 物語を年齢に適した内容にし、暴力的なコンテンツを避けてください。",
         "removeParticipant": "参加者を削除",
         "removeParticipantConfirm": "「{{name}}」をこのワークショップから削除してもよろしいですか？",
@@ -1034,11 +1254,12 @@
         "resetAccessError": "アクセスをリセットできませんでした。もう一度お試しください。",
         "resetAccessMessage": "新しいコードが設定された新しいリンクを作成します。",
         "resetAccessTitle": "アクセスをリセットしますか？",
-        "resetAccessWarning": "以前のリンクとコードは、参加者が現在ログインしているデバイスを含め、使用できなくなります。",
+        "resetAccessWarning": "以前のリンクとコードは使用できなくなります。ゲストが現在ログインしている端末でも同様です。",
         "revokeInvite": "招待リンクを無効化",
         "selectApiKey": "APIキーを選択",
         "serverDefault": "Server Default",
         "settings": "設定",
+        "shareGuestLink": "再ログインリンクを表示",
         "shareParticipantLink": "再ログインリンクを表示",
         "showOtherParticipantsGames": "他の参加者のゲームを表示",
         "showOtherParticipantsGamesHint": "責任者とスタッフは常に全参加者のゲームを閲覧でき、モデレーションに利用できます",
@@ -1052,8 +1273,10 @@
           "participantsAsc": "参加者が少ない順",
           "participantsDesc": "参加者が多い順"
         },
+        "status": "ステータス",
         "subtitle": "ワークショップを管理し、参加者を招待してゲーム制作を共同で行いましょう。",
         "title": "ワークショップ",
+        "unnamedParticipant": "名前未設定の参加者",
         "unpause": "ワークショップを再開",
         "usedCount": "{{count}}回使用",
         "viewInviteLink": "招待リンクを見る"
@@ -1076,6 +1299,13 @@
       "title": "通知",
       "workshopInvite": "ワークショップ招待",
       "workshopInviteDescription": "このワークショップへの参加招待が届いています。"
+    },
+    "organisationSuspended": {
+      "byAdmin": "運営者により、組織のChatGameLabへのアクセスが停止されています。データは保持されます。",
+      "consentWanted": "組織のChatGameLabへのアクセスは、責任者の1人が現在の同意宣言に同意するまで停止されています。データは保持されます。",
+      "contact": "ご質問がある場合は、こちらにお問い合わせください：",
+      "logout": "ログアウト",
+      "title": "組織は停止中です"
     },
     "play": {
       "cloneGame": "自分のゲームにコピー",
@@ -1144,16 +1374,16 @@
     "searchPlaceholder": "メンバーを検索...",
     "serverSettings": {
       "constraints": {
-        "description": "プレイヤーの年齢層に基づいた必須AIルールを定義します。これらの制約はすべてのAI応答に挿入され、ワークショップモード外のログインユーザー全員に適用されます。",
-        "title": "年齢別制約プロンプト",
+        "description": "プレイヤーの年齢グループに基づく、AIに必須のルールを定義します。これらの制限はすべてのAI応答に挿入されます。ワークショップモード以外の、ログインしているすべてのユーザーに適用されます。",
+        "title": "年齢に基づく制限プロンプト",
         "u13Hint": "保護者の同意が登録されていない13～17歳のログインユーザーに対するすべてのAIプロンプトへ挿入されます。",
-        "u13Label": "13～17歳（保護者の同意なし）ユーザー向けの制約（U13）",
+        "u13Label": "13～17歳のユーザー向け制限（保護者の同意なし、U13）",
         "u13Placeholder": "例：すべてのコンテンツを厳密にティーン向けに保ち、暴力・恋愛・ホラーを含めないでください。",
         "u13pHint": "保護者の同意が登録されている13～17歳のログインユーザーに対するすべてのAIプロンプトへ挿入されます。",
-        "u13pLabel": "13～17歳（保護者の同意あり）ユーザー向けの制約（U13p）",
+        "u13pLabel": "13～17歳のユーザー向け制限（保護者の同意あり、U13p）",
         "u13pPlaceholder": "例: 保護者が同意したティーン向けの年齢相応なコンテンツ。成熟したテーマを一部許可、露骨な表現は不可。",
         "u18Hint": "18歳以上のログインユーザー向けに、すべてのAIプロンプトへ挿入されます。",
-        "u18Label": "18歳以上（U18）向けの制約",
+        "u18Label": "18歳以上のユーザー向け制限（U18）",
         "u18Placeholder": "例：コンテンツを適切に保ち、露骨な暴力や性的表現は避けてください。"
       },
       "defaultTier": {
@@ -1279,6 +1509,7 @@
     "duplicateName": "このゲーム名はすでに使用されています。別の名前を選んでください。",
     "forbidden": "この操作を行う権限がありません。",
     "generic": "問題が発生しました。もう一度お試しください。",
+    "guestStays": "ゲストは参加した場所に留まります。別のワークショップに参加するには、ログインせずに招待リンクを開いてください。新しいゲストとして参加できます。",
     "insufficientQuota": "APIキーのクレジットが不足しています。クレジットを追加するか別のAPIキーを使用してください。",
     "invalidApiKey": "APIキーが無効または期限切れです。設定でAPIキーを確認してください。",
     "invalidJsonSchema": "ゲーム設定でAI用の無効なスキーマが生成されました。これはAPIキーではなくゲーム設定の問題です。ゲームのステータス項目を確認して再試行してください。",
@@ -1290,6 +1521,7 @@
     "noApiKey": "このゲームで使用できるAPIキーがありません。スポンサーがキーを削除したか、自分でAPIキーを設定する必要があります。",
     "notFound": "要求されたリソースが見つかりません。",
     "orgVerificationRequired": "画像生成機能を使用するにはOpenAI組織の認証が必要です。https://platform.openai.com/settings/organization/general で認証してください。",
+    "organisationSuspended": "組織は停止されています。データは保持されます。",
     "previousResponseNotFound": "AIが会話を追跡できなくなりました。しばらくセッションが空いた場合に発生します。新しいセッションを開始してください。",
     "publicDescriptionTooLong": "説明は最大2000文字までです。",
     "publicSlugInvalid": "a～z、0～9、単独のハイフンを使用し、3～60文字で入力してください。",
@@ -1302,9 +1534,11 @@
       "billing": "請求エラー",
       "error": "エラー",
       "gameConfig": "ゲーム設定エラー",
+      "guestStays": "現在の場所に留まります",
       "network": "ネットワークエラー",
       "noApiKey": "APIキーなし",
       "notFound": "見つかりません",
+      "organisationSuspended": "組織は停止中です",
       "permission": "権限がありません",
       "server": "サーバーエラー",
       "tokenLocked": "一時的にロックされています",
@@ -1317,6 +1551,28 @@
     "userNotRegistered": "続行する前に登録を完了してください。",
     "validation": "入力内容を確認して再試行してください。",
     "workshopInactive": "このワークショップは無効化されています。教師または主催者に連絡してください。"
+  },
+  "mail": {
+    "consent": {
+      "address": "住所",
+      "agreed": "所属機関を代表して、以下の同意宣言に同意しました。",
+      "bindingInGerman": "宣言はドイツ語で法的拘束力を持つため、ドイツ語で記載されています。",
+      "checksum": "チェックサム",
+      "copySubject": "コピー：{{subject}}",
+      "date": "日付",
+      "dateValue": "{{date}}（ベルリン時間）",
+      "declaredBy": "宣言者",
+      "greeting": "{{name}}さん、こんにちは。",
+      "operator": "運営者",
+      "organisation": "組織",
+      "registered": "組織「{{organisation}}」がChatGameLabで有効化されました。あなたは組織の責任者として、ワークショップを作成できます。",
+      "renewed": "ありがとうございます！ChatGameLabの組織「{{organisation}}」について、現在の同意宣言への同意が確認されました。",
+      "signature": "ChatGameLabチーム一同\nJFF – 青少年映画・テレビ・メディア協会",
+      "subjectRegistered": "ChatGameLab：組織「{{organisation}}」が有効化されました – 同意宣言",
+      "subjectRenewed": "ChatGameLab：「{{organisation}}」の同意宣言を確認しました（バージョン{{version}}）",
+      "version": "バージョン",
+      "versionValue": "{{version}}（{{date}}現在）"
+    }
   },
   "myWorkshop": {
     "empty": {
@@ -1359,7 +1615,7 @@
   },
   "navigation": {
     "adminPanel": "管理パネル",
-    "allGames": "すべてのゲーム",
+    "allGames": "ゲーム",
     "create": "自分のゲームを作る",
     "createGame": "ゲームを作成",
     "dashboard": "ダッシュボード",
@@ -1371,7 +1627,7 @@
     "myOrganization": "私の組織",
     "myWorkshop": "私のワークショップ",
     "orgApiKeys": "APIキー",
-    "orgConstraints": "制約",
+    "orgConstraints": "青少年保護プロンプト制限",
     "orgMembers": "メンバー",
     "orgWorkshops": "ワークショップ",
     "play": "ゲームをプレイ",
@@ -1380,6 +1636,24 @@
     "workshopSettings": "ワークショップ設定"
   },
   "playbackEngine": {
+    "blocks": {
+      "adapted-style": "スタイル",
+      "condense-scenario": "シナリオを短縮",
+      "condensed-scenario": "シナリオ",
+      "expand": "ナレーション",
+      "image": "画像を描く",
+      "image-prompt": "画像を説明",
+      "image-style": "スタイルを調整",
+      "live-session": "キャラクター",
+      "observer": "オブザーバー",
+      "outline": "シーンを計画",
+      "portrait": "肖像画を描く",
+      "portrait-prompt": "肖像画を説明",
+      "props-store": "ゲーム状態",
+      "rephrase": "アクションを言い換え",
+      "rephrase-audio": "音声を理解",
+      "start-game": "開始"
+    },
     "errors": {
       "connectionLost": "ゲームとの接続が失われました。再試行するには再読み込みしてください。",
       "imageFailed": "このシーンの画像を生成できませんでした。物語は続きます。",
@@ -1401,6 +1675,11 @@
       "starting": "ゲームを開始しています…",
       "tryAgain": "もう一度試す"
     },
+    "pipeline": {
+      "copied": "レイアウトをコピーしました",
+      "copyFailed": "クリップボードがありません。レイアウトをコンソールに出力しました",
+      "copyLayout": "レイアウトをコピー"
+    },
     "problems": {
       "denied": "このゲームをプレイすることはできません。",
       "failed": "問題が発生したため、ゲームを続けられません。",
@@ -1408,6 +1687,7 @@
       "keyRejected": "AIプロバイダーがこのゲームのキーを拒否したため、ゲームを続けられません。ゲームを設定した人がキーを確認する必要があります。",
       "noKey": "このゲームをプレイするためのAIキーがありません。",
       "noPlays": "この共有ゲームのプレイ回数が残っていません。",
+      "paused": "ワークショップは一時停止中です。再開するとゲームが続行されます。",
       "stale": "このゲームはもう続行できません。",
       "unknown": "このゲームセッションは存在しません。",
       "unreachable": "現在、AIプロバイダーから応答がないため、ゲームを続けられません。数分後にもう一度試してください。"
@@ -1424,6 +1704,32 @@
       "hearing": "話した内容を聞き取っています…",
       "hold": "長押しして話す",
       "recording": "聞き取り中…送信するには指を離してください"
+    },
+    "wires": {
+      "adapted-style\u0003eimage-prompt": "スタイル",
+      "adapted-style\u0003eimage-style": "リクエスト",
+      "adapted-style\u0003estart-game": "準備完了",
+      "condense-scenario\u0003econdensed-scenario": "回答",
+      "condensed-scenario\u0003econdense-scenario": "リクエスト",
+      "condensed-scenario\u0003eimage-prompt": "シナリオ",
+      "condensed-scenario\u0003estart-game": "準備完了",
+      "image-prompt\u0003eimage": "プロンプト",
+      "image-style\u0003eadapted-style": "回答",
+      "live-session\u0003eobserver": "文字起こし",
+      "observer\u0003elive-session": "ヒント",
+      "outline\u0003eexpand": "計画",
+      "outline\u0003eimage-prompt": "シーン",
+      "outline\u0003eprops-store": "変更",
+      "player-input-audio\u0003elive-session": "音声",
+      "player-input-audio\u0003erephrase-audio": "音声",
+      "player-input-text\u0003erephrase": "アクション",
+      "portrait\u0003estart-game": "準備完了",
+      "portrait-prompt\u0003eportrait": "プロンプト",
+      "props-store\u0003eoutline": "状態",
+      "rephrase\u0003eoutline": "アクション",
+      "rephrase-audio\u0003eoutline": "アクション",
+      "start-game\u0003elive-session": "導入",
+      "start-game\u0003eoutline": "プロンプト"
     }
   }
 }

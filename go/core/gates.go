@@ -230,11 +230,17 @@ func maySuspendOrganisations(ctx context.Context) bool {
 
 // mayRemoveMember says whether the caller may remove user from their
 // organisation: {Delete, Membership}. The user's role and organisation come
-// from their loaded row; a membership has no query of its own.
+// from their loaded row; a membership has no query of its own. A member is
+// head or staff of the organisation; a guest is of it through its workshop.
+// An individual taking part in one of its workshops is neither.
 func mayRemoveMember(ctx context.Context, user *UserCard) bool {
 	own := from(ctx).Organisation()
-	inOwn := own != nil && user.row.organisationID != nil && *user.row.organisationID == *own
 	isGuest := user.row.role == "guest"
+	of := user.row.memberOf
+	if isGuest {
+		of = user.row.organisationID
+	}
+	inOwn := own != nil && of != nil && *of == *own
 	isSelf := account(ctx).Valid && account(ctx).UUID == user.row.id
 	return granted(ctx, rules.Delete, rules.Membership, rules.Everywhere) ||
 		(granted(ctx, rules.Delete, rules.Membership, rules.MemberOfOwnOrganisation) && inOwn && !isGuest) ||
@@ -381,7 +387,7 @@ func mayCreateInvite(ctx context.Context, org uuid.UUID, asHead bool) bool {
 // Everywhere (any role, the admin's) or MemberOfOwnOrganisation.
 func mayChangeRole(ctx context.Context, user *UserCard) (any, withinOwn bool) {
 	own := from(ctx).Organisation()
-	inOwn := own != nil && user.row.organisationID != nil && *user.row.organisationID == *own && user.row.role != "guest"
+	inOwn := own != nil && user.row.memberOf != nil && *user.row.memberOf == *own
 	return granted(ctx, rules.Edit, rules.Membership, rules.Everywhere),
 		granted(ctx, rules.Edit, rules.Membership, rules.MemberOfOwnOrganisation) && inOwn
 }
