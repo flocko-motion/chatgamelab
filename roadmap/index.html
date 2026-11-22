@@ -92,7 +92,9 @@
   #details h4 { font-size: 14px; margin: 12px 0 4px; color: var(--muted); }
   #details ul { padding-left: 0; list-style: none; }
   #details li { margin: 4px 0; }
-  #details .open { display: inline-block; margin-top: 6px; padding: 6px 12px; border-radius: 6px; font-weight: 600;
+  #details .actions { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  #details .reload { padding: 6px 12px; font-weight: 600; }
+  #details .open { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600;
                    background: var(--accent); color: #fff; text-decoration: none; }
   .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 13px; border: 1px solid; }
   .badge.ready { background: var(--ready); border-color: var(--ready-line); }
@@ -173,8 +175,36 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // are checked; this page then watches roadmap.json and reloads once a newer
   // one is published.
   const generated = document.getElementById("generated");
-  document.getElementById("update").addEventListener("click", () => {
-    window.open(`https://github.com/${data.repo}/actions/workflows/roadmap.yml`, "_blank", "noopener");
+  // Served by roadmap/serve.py (make roadmap-local), the page reloads its data
+  // through that server instead: all issues from the top bar, one issue from
+  // the side pane. The view, the selection and the zoom survive the reload.
+  let local = false;
+  fetch("api/local", { cache: "no-store" }).then(r => r.ok && r.json()).then(j => {
+    local = !!(j && j.local);
+    if (local && selected) showDetails(selected.kind, selected.n);  // add the pane's Update button
+  }).catch(() => {});
+  const STATE = "roadmap-restore";
+  let restore = null;
+  try { restore = JSON.parse(sessionStorage.getItem(STATE)); sessionStorage.removeItem(STATE); } catch (e) {}
+  function reloadData(issue, button, label) {
+    const before = button.textContent;
+    button.disabled = true;
+    button.textContent = label;
+    fetch(issue ? `api/reload?issue=${issue}` : "api/reload", { method: "POST" })
+      .then(r => r.json().then(j => { if (!r.ok) throw new Error(j.error || r.statusText); }))
+      .then(() => {
+        try {
+          sessionStorage.setItem(STATE, JSON.stringify({ zoom: cy.zoom(), pan: cy.pan(), sel: selected }));
+        } catch (e) {}
+        location.reload();
+      })
+      .catch(err => { button.disabled = false; button.textContent = before; generated.textContent = `reload failed: ${err.message}`; });
+  }
+  document.getElementById("update").addEventListener("click", ev => {
+    if (local) return reloadData(null, ev.currentTarget, "Reading all issues… (~1 min)");
+    // A link click rather than window.open, which some browsers turn into an empty window.
+    Object.assign(document.createElement("a"), {
+      href: `https://github.com/${data.repo}/actions/workflows/roadmap.yml`, target: "_blank", rel: "noopener" }).click();
     generated.textContent = "waiting for the update… (click Run workflow on GitHub)";
     const until = Date.now() + 10 * 60 * 1000;
     const timer = setInterval(() => {
@@ -530,7 +560,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       (e.data("kind") === "issueEdge" && e.source().parent().same(e.target().parent()));
     const eles = cy.elements().filter(e => inside(e) && (e.isNode() ? shown(e) : shown(e) && shown(e.source()) && shown(e.target())));
     const l = eles.not(backwards).layout(layout);
-    l.one("layoutstop", () => { arrangeBands(); home(); placeCovers(); });
+    l.one("layoutstop", () => {
+      arrangeBands();
+      if (restore && restore.zoom) { cy.zoom(restore.zoom); cy.pan(restore.pan); } else home();
+      placeCovers();
+      if (restore && restore.sel) showDetails(restore.sel.kind, restore.sel.n);
+      restore = null;
+    });
     l.run();
   };
   run();
@@ -693,13 +729,18 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     if (!d) return;
     selected = { kind, n };
     details.innerHTML = `<button class="close" title="Close (Esc)" aria-label="Close">×</button>${d.html}` +
-      `<a class="open" href="${d.url}" target="_blank" rel="noopener">Open on GitHub ↗</a>`;
+      `<div class="actions"><a class="open" href="${d.url}" target="_blank" rel="noopener">Open on GitHub ↗</a>` +
+      (local && kind !== "milestone" ? `<button class="reload" title="Read this ${kind} fresh from GitHub">Update ↻</button>` : "") + `</div>`;
     details.hidden = false;
     aside.scrollTop = 0;
     mark(kind, n, focus);
   }
   function hideDetails() { details.hidden = true; selected = null; mark(null); }
-  details.addEventListener("click", ev => { if (ev.target.closest(".close")) hideDetails(); });
+  details.addEventListener("click", ev => {
+    if (ev.target.closest(".close")) hideDetails();
+    const b = ev.target.closest(".reload");
+    if (b && selected) reloadData(selected.n, b, "Updating…");
+  });
   document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !details.hidden) hideDetails(); });
   // Links marked data-show (in the side pane) show details on a plain click and
   // open GitHub on cmd-, ctrl- or middle click, as links do.

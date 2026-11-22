@@ -314,25 +314,21 @@ roadmap:
 	done
 
 # The interactive roadmap on this machine: the data comes from the issues
-# through gh (your login), the page is the current roadmap/index.html.
-# Reading the issues takes the better part of a minute, so when issues from an
-# earlier run are there it asks; Enter keeps them, for quick work on the page.
-# A read goes to a temporary file first: an interrupted one keeps the old data.
+# through gh (your login), the page is the current roadmap/index.html, served
+# by roadmap/serve.py, which also reloads the data from the page's buttons
+# (one issue in seconds, all in about a minute). When issues from an earlier
+# run are there it asks whether to read them all fresh; Enter keeps them.
 # Ctrl-C stops it.
 ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
 roadmap-local:
 	@mkdir -p "$(ROADMAP_LOCAL)"
-	@json="$(ROADMAP_LOCAL)/roadmap.json"; fetch=y; \
+	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
+	@json="$(ROADMAP_LOCAL)/roadmap.json"; fresh=; \
 	if [ -s "$$json" ]; then \
 		age=$$(( ($$(date +%s) - $$(date -r "$$json" +%s)) / 60 )); \
 		printf "Issues from %s min ago are there. Read them fresh from GitHub (~1 min)? [y/N] " "$$age"; \
-		read answer || answer=; case "$$answer" in [yY]*) fetch=y;; *) fetch=n;; esac; \
+		read answer || answer=; case "$$answer" in [yY]*) fresh=--fresh;; esac; \
 	fi; \
-	if [ $$fetch = y ]; then \
-		echo "reading the issues…"; \
-		python3 roadmap/roadmap.py > "$$json.tmp" && mv "$$json.tmp" "$$json" || { rm -f "$$json.tmp"; exit 1; }; \
-	fi
-	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
-	@echo "→ http://localhost:8765"
-	@(sleep 1 && (open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true)) &
-	python3 -m http.server 8765 --bind 127.0.0.1 --directory "$(ROADMAP_LOCAL)"
+	(sleep 1 && while ! curl -sf -o /dev/null http://localhost:8765/api/local; do sleep 1; done; \
+	 open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true) & \
+	python3 roadmap/serve.py "$(ROADMAP_LOCAL)" 8765 $$fresh

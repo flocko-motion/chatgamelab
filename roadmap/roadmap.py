@@ -6,21 +6,81 @@ Epics are issues with sub-issues; milestones (GitHub's field) group them into
 phases; the order comes from "blocked by" relations, priority from the labels
 P1/P2/P3. Everything is read live through gh.
 
-Usage: roadmap/roadmap.py [owner/repo] > roadmap.json
+Usage: roadmap/roadmap.py [owner/repo] [--cache DIR [--fresh | --drop N ...]] > roadmap.json
+
+With --cache, every answer from GitHub is kept in DIR and read from there
+the next time; --fresh empties it first, --drop N forgets what concerns
+issue N (roadmap/serve.py uses these for its reload buttons).
 """
+import argparse
+import glob
 import json
+import os
+import re
+import shutil
 import subprocess
 import sys
 from collections import defaultdict
 
-REPO = sys.argv[1] if len(sys.argv) > 1 else "flocko-motion/chatgamelab"
+_args = argparse.ArgumentParser()
+_args.add_argument("repo", nargs="?", default="flocko-motion/chatgamelab")
+_args.add_argument("--cache", help="keep GitHub's answers in this directory")
+_args.add_argument("--fresh", action="store_true", help="empty the cache first")
+_args.add_argument("--drop", type=int, action="append", default=[], help="forget what concerns this issue")
+ARGS = _args.parse_args()
+REPO = ARGS.repo
+CACHE = ARGS.cache
 
 
-def gh(path):
+def fetch(path):
     out = subprocess.run(["gh", "api", "--paginate", f"repos/{REPO}/{path}"],
                          check=True, capture_output=True, text=True).stdout
     # --paginate concatenates JSON arrays; normalise.
     return json.loads(out.replace("][", ","))
+
+
+def cached(path):
+    return os.path.join(CACHE, re.sub(r"[^A-Za-z0-9]+", "_", path) + ".json")
+
+
+def gh(path):
+    if not CACHE:
+        return fetch(path)
+    f = cached(path)
+    if os.path.exists(f):
+        with open(f) as fh:
+            return json.load(fh)
+    data = fetch(path)
+    with open(f + ".tmp", "w") as fh:
+        json.dump(data, fh)
+    os.replace(f + ".tmp", f)
+    return data
+
+
+def forget(n):
+    """Drops what concerns issue n from the cache: the issue, its relations,
+    the lists it appears in, and the blocked-by lists of the issues it blocks
+    (as cached, and as GitHub has them now)."""
+    paths = [f"issues/{n}", f"issues/{n}/dependencies/blocked_by", f"issues/{n}/sub_issues",
+             "issues?state=open&per_page=100", "milestones?state=open&per_page=100"]
+    files = [cached(p) for p in paths] + glob.glob(os.path.join(CACHE, "issues_*_sub_issues.json"))
+    for f in glob.glob(os.path.join(CACHE, "issues_*_dependencies_blocked_by.json")):
+        with open(f) as fh:
+            if any(b.get("number") == n for b in json.load(fh)):
+                files.append(f)
+    files += [cached(f"issues/{b['number']}/dependencies/blocked_by")
+              for b in fetch(f"issues/{n}/dependencies/blocking")]
+    for f in files:
+        if os.path.exists(f):
+            os.remove(f)
+
+
+if CACHE:
+    if ARGS.fresh:
+        shutil.rmtree(CACHE, ignore_errors=True)
+    os.makedirs(CACHE, exist_ok=True)
+    for n in ARGS.drop:
+        forget(n)
 
 
 def priority(issue):
