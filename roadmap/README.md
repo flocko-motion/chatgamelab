@@ -1,7 +1,7 @@
 # Roadmap
 
 The project's roadmap, generated from the GitHub issues and never edited by hand:
-**https://flocko-motion.github.io/chatgamelab/** (zoom, drag, filter by epic, search, click for details; *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
+**https://flocko-motion.github.io/chatgamelab/** (zoom, drag, filter by epic, search the titles (several hits open a list), click for details (they replace the side pane until closed); *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
 
 To change the roadmap, change the issues: put them under an epic (sub-issues), give them a milestone (the phases, ordered by due date), set *blocked by* relations, priority labels `P1`–`P3`, assignees.
 

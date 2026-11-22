@@ -32,7 +32,19 @@
   header .meta { color: var(--muted); font-size: 12px; }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
   input[type=search] { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px;
-                       background: var(--bg); color: var(--fg); width: 180px; }
+                       background: var(--bg); color: var(--fg); width: 240px; }
+  /* The search: every word of the query in a title; several hits open a list. */
+  .search { position: relative; }
+  #results { position: absolute; top: calc(100% + 4px); right: 0; width: 420px; max-width: 90vw; z-index: 20;
+             margin: 0; padding: 4px 0; list-style: none; background: var(--bg); border: 1px solid var(--line);
+             border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.18); }
+  #results[hidden] { display: none; }
+  #results li { padding: 6px 12px; cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+  #results li[aria-selected=true] { background: var(--panel); }
+  #results .k { color: var(--muted); font-size: 12px; text-transform: uppercase; flex: none; width: 58px; }
+  #results .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #results mark { background: var(--milestone); color: inherit; border-radius: 2px; }
+  #results .more { color: var(--muted); font-size: 13px; cursor: default; }
   button, select { padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px;
                    background: var(--panel); color: var(--fg); cursor: pointer; font: inherit; }
   label { color: var(--muted); font-size: 14px; }
@@ -80,7 +92,7 @@
   /* The details of what was clicked, at the top of the side pane. */
   #details { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
              margin-bottom: 18px; position: relative; }
-  #details[hidden] { display: none; }
+  #details[hidden], #overview[hidden] { display: none; }
   #details .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px;
                     line-height: 1; padding: 2px 6px; color: var(--muted); }
   #details .kind { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
@@ -119,7 +131,11 @@
       <button id="viewIssues" aria-pressed="true" title="Every issue, inside its epic">Issues</button>
       <button id="viewEpics" aria-pressed="false" title="Epics only: the same roadmap with the issues hidden, each epic box labelled, for the overview">Epics only</button>
     </div>
-    <input type="search" id="search" placeholder="Search issues…">
+    <div class="search">
+      <input type="search" id="search" placeholder="Search titles…" autocomplete="off"
+             role="combobox" aria-expanded="false" aria-controls="results">
+      <ul id="results" role="listbox" hidden></ul>
+    </div>
     <select id="epic"><option value="">All epics</option></select>
     <label><input type="checkbox" id="showDone"> show done</label>
     <button id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
@@ -131,6 +147,7 @@
   <div id="graphs"><div id="graph"></div><div id="covers"><div class="world"></div></div></div>
   <aside>
     <section id="details" hidden></section>
+    <div id="overview">
     <h2>Next up</h2><ul id="next"></ul>
     <h2>How to read it</h2>
     <div class="legend">
@@ -143,6 +160,7 @@
       <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move, Fit to see it all; click an issue, epic or milestone for its details (cmd-click opens it on GitHub).</div>
     </div>
     <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
+    </div>
   </aside>
 </main>
 <div id="tip"></div>
@@ -648,23 +666,14 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   }
   select.addEventListener("change", applyFilter);
 
-  const search = document.getElementById("search");
-  function applySearch() {
-    const q = search.value.trim().toLowerCase();
-    cy.nodes().removeClass("hit");
-    const hits = q ? cy.nodes("[kind='issue']").filter(n => n.data("search").includes(q) && n.visible()) : cy.collection();
-    hits.addClass("hit");
-    placeCovers();
-    if (hits.length) cy.fit(hits, 80);
-  }
-  search.addEventListener("input", applySearch);
-
   // A click (not a drag) shows the details in the side pane; cmd- or
   // ctrl-click opens the issue, epic or milestone on GitHub right away.
   const issueBy = Object.fromEntries([...data.issues, ...data.backlog].map(i => [i.number, i]));
   const msBy = Object.fromEntries(milestones.map(m => [m.number, m]));
   const details = document.getElementById("details");
   const aside = document.querySelector("aside");
+  // While something is selected, the side pane shows only its details.
+  const overview = document.getElementById("overview");
   let selected = null;
   // The title in the side pane is the link to GitHub.
   const gh = (url, text) => `<a class="gh" href="${url}" target="_blank" rel="noopener" title="Open on GitHub">${text} ↗</a>`;
@@ -740,10 +749,11 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       `<div class="actions"><a class="open" href="${d.url}" target="_blank" rel="noopener">Open on GitHub ↗</a>` +
       (local && kind !== "milestone" ? `<button class="reload" title="Read this ${kind} fresh from GitHub">Update ↻</button>` : "") + `</div>`;
     details.hidden = false;
+    overview.hidden = true;
     aside.scrollTop = 0;
     mark(kind, n, focus);
   }
-  function hideDetails() { details.hidden = true; selected = null; mark(null); }
+  function hideDetails() { details.hidden = true; overview.hidden = false; selected = null; mark(null); }
   details.addEventListener("click", ev => {
     if (ev.target.closest(".close")) hideDetails();
     const b = ev.target.closest(".reload");
@@ -759,6 +769,89 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const [kind, n] = a.dataset.show.split(":");
     showDetails(kind, Number(n), true);
   });
+  // The search: every word of the query must appear in the title (or be the
+  // number) of an issue, backlog issue, epic or milestone. The issues it finds
+  // are marked in the graph; one hit is shown right away, several open a list
+  // of at most MAX_RESULTS to pick from (arrows and Enter, or a click).
+  const MAX_RESULTS = 10;
+  const search = document.getElementById("search");
+  const results = document.getElementById("results");
+  const KIND_ORDER = { milestone: 0, epic: 1, issue: 2 };
+  const entries = [
+    ...milestones.map(m => ({ kind: "milestone", n: m.number, title: m.title, done: m.open === 0 && m.closed > 0 })),
+    ...data.epics.map(e => ({ kind: "epic", n: e.number, title: e.title, state: e.state, done: e.state === "done" })),
+    ...Object.values(issueBy).map(i => ({ kind: "issue", n: i.number, title: i.title, state: i.state, done: i.state === "done" })),
+  ].map(e => ({ ...e, hay: `${e.kind === "milestone" ? "" : "#" + e.n} ${e.title}`.toLowerCase() }));
+  let found = [], active = -1;
+  function matches(q) {
+    const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    const starts = (e, w) => e.hay.includes(" " + w) || e.hay.startsWith(w);
+    return entries.filter(e => words.every(w => e.hay.includes(w) || (/^\d+$/.test(w) && e.n === Number(w))))
+      .map(e => ({ e, score: (words.length === 1 && e.n === Number(words[0].replace("#", "")) ? -100 : 0) -
+                             words.filter(w => starts(e, w)).length * 10 + (e.done ? 5 : 0) }))
+      .sort((a, b) => a.score - b.score || KIND_ORDER[a.e.kind] - KIND_ORDER[b.e.kind] || b.e.n - a.e.n)
+      .map(x => x.e);
+  }
+  function highlight(text, q) {
+    const words = q.toLowerCase().split(/\s+/).filter(Boolean).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const html = escapeHtml(text);
+    return words.length ? html.replace(new RegExp(`(${words.join("|")})`, "gi"), "<mark>$1</mark>") : html;
+  }
+  function closeResults() {
+    results.hidden = true; search.setAttribute("aria-expanded", "false"); active = -1;
+  }
+  function setActive(k) {
+    active = k;
+    [...results.querySelectorAll("li[data-k]")].forEach(li => li.setAttribute("aria-selected", String(Number(li.dataset.k) === k)));
+  }
+  function pick(k) {
+    const e = found[k];
+    if (!e) return;
+    closeResults();
+    showDetails(e.kind, e.n, true);
+  }
+  function applySearch() {
+    const q = search.value.trim();
+    found = matches(q);
+    const ids = new Set(found.filter(e => e.kind === "issue").map(e => `i${e.n}`));
+    cy.nodes().removeClass("hit");
+    cy.nodes("[kind='issue']").filter(n => ids.has(n.id())).addClass("hit");
+    placeCovers();
+    if (found.length === 1) {
+      closeResults();
+      const e = found[0];
+      if (!selected || selected.kind !== e.kind || selected.n !== e.n) showDetails(e.kind, e.n, true);
+      return;
+    }
+    if (found.length < 2) return closeResults();
+    const label = { issue: "Issue", epic: "Epic", milestone: "Milestone" };
+    results.innerHTML = found.slice(0, MAX_RESULTS).map((e, k) =>
+      `<li role="option" data-k="${k}" aria-selected="false"><span class="k">${label[e.kind]}</span>` +
+      `<span class="t">${e.kind === "milestone" ? "◆" : "#" + e.n} ${highlight(e.title, q)}</span>` +
+      (e.state ? badge(e.state) : "") + `</li>`).join("") +
+      (found.length > MAX_RESULTS ? `<li class="more">${found.length - MAX_RESULTS} more — type more words</li>` : "");
+    results.hidden = false;
+    search.setAttribute("aria-expanded", "true");
+    setActive(0);
+  }
+  search.addEventListener("input", applySearch);
+  search.addEventListener("focus", () => { if (found.length > 1 && search.value.trim()) { results.hidden = false; setActive(0); } });
+  search.addEventListener("keydown", ev => {
+    const shown = Math.min(found.length, MAX_RESULTS);
+    if (ev.key === "ArrowDown" && !results.hidden) { ev.preventDefault(); setActive((active + 1) % shown); }
+    else if (ev.key === "ArrowUp" && !results.hidden) { ev.preventDefault(); setActive((active - 1 + shown) % shown); }
+    else if (ev.key === "Enter") { ev.preventDefault(); if (!results.hidden) pick(Math.max(active, 0)); else if (found.length === 1) showDetails(found[0].kind, found[0].n, true); }
+    else if (ev.key === "Escape") { ev.stopPropagation(); if (!results.hidden) closeResults(); else { search.value = ""; applySearch(); } }
+  });
+  // mousedown, so the pick lands before the field loses focus.
+  results.addEventListener("mousedown", ev => {
+    const li = ev.target.closest("li[data-k]");
+    ev.preventDefault();
+    if (li) pick(Number(li.dataset.k));
+  });
+  search.addEventListener("blur", closeResults);
+
   cy.on("tap", "node", ev => {
     const d = ev.target.data(), o = ev.originalEvent || {};
     if (o.metaKey || o.ctrlKey) { if (d.url) window.open(d.url, "_blank", "noopener"); return; }
