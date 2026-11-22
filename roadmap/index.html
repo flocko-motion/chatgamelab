@@ -274,12 +274,15 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
 
   // The bars, in milestone order, and invisible edges holding each piece
   // between its bar and the next.
-  const ranks = [...new Set([...pieces.values()].map(p => p.rank))].sort((a, b) => a - b);
+  // Every open milestone gets its bar, also one without issues; "No milestone"
+  // only when issues lack one.
+  const ranks = [...new Set([...milestones.keys(), ...[...pieces.values()].map(p => p.rank)])].sort((a, b) => a - b);
   const bars = ranks.map(r => {
     const m = milestones[r];
     if (!m) return { id: "m-none", rank: r, url: null, done: false, label: "No milestone" };
     const due = m.due ? `due ${new Date(m.due).toLocaleDateString()}` : "no due date";
-    return { id: `m${m.number}`, number: m.number, rank: r, url: m.url, done: m.open === 0,
+    // Done once its issues are closed; an empty milestone is not done yet.
+    return { id: `m${m.number}`, number: m.number, rank: r, url: m.url, done: m.open === 0 && m.closed > 0,
              label: `◆ ${m.title} — ${due} — ${m.closed}/${m.open + m.closed} done` };
   });
   // The helper edges attach to the issues, not to the epic boxes: ELK holds a
@@ -348,9 +351,10 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // A bar shows only while its band holds a visible epic box.
   function applyDone() {
     showDone.checked ? done.style("display", "element") : done.style("display", "none");
+    // A bar always shows, but "No milestone" only while it holds a visible box.
     cy.nodes("[kind='milestone']").forEach(bar => {
       const rank = bar.data("rank");
-      const shown = cy.nodes("[kind='epic']").some(p => p.data("rank") === rank && p.visible());
+      const shown = bar.id() !== "m-none" || cy.nodes("[kind='epic']").some(p => p.data("rank") === rank && p.visible());
       bar.style("display", shown ? "element" : "none");
     });
   }
@@ -447,7 +451,6 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   }
   function arrangeBands() {
     const boxes = cy.nodes("[kind='epic']").filter(n => n.visible());
-    if (!boxes.length) return;
     const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
     const byEpic = new Map();
     boxes.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
@@ -513,8 +516,11 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     boxes.forEach(b => { const s = slotOf(b); slotWidth[s] = Math.max(slotWidth[s] || 0, size.get(b.id()).w); });
     const slotX = []; let x = 0;
     for (let s = 0; s < slotWidth.length; s++) { slotX[s] = x; x += (slotWidth[s] || 0) + GAP_X; }
-    const width = x - GAP_X;
-    const ranks = [...new Set(boxes.map(b => b.data("rank")))].sort((a, b) => a - b);
+    const width = Math.max(x - GAP_X, 900);
+    // Bands in milestone order, empty milestones included: their bar stands
+    // alone, followed by the next one.
+    const barRanks = cy.nodes("[kind='milestone']").filter(n => n.visible()).map(n => n.data("rank"));
+    const ranks = [...new Set([...boxes.map(b => b.data("rank")), ...barRanks])].sort((a, b) => a - b);
     let y = 0;
     for (const r of ranks) {
       const bar = cy.nodes(`[kind='milestone'][rank = ${r}]`).filter(n => n.visible());
@@ -523,6 +529,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       if (bar.length) { bar.style({ width, "text-margin-x": Math.min(0, -width / 2 + bar.data("label").length * 8.4 + 30) });
                         bar.position({ x: width / 2, y }); y += BAR_GAP; }
       const inBand = boxes.filter(b => b.data("rank") === r);
+      if (!inBand.length) y += GAP_Y / 2;
       const subs = [...new Set(inBand.map(subOf))].sort((a, b) => a - b);
       for (const sub of subs) {
         const row = inBand.filter(b => subOf(b) === sub);
