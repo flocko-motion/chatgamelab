@@ -310,6 +310,13 @@ people = lambda n: [u["login"] for u in issues[n].get("assignees") or []]
 tags = lambda n: [l["name"] for l in issues[n].get("labels") or []]
 ready = sorted((n for n in open_nums if state(n) == "ready"), key=tiebreak)
 
+
+def past_milestone(n):
+    """Whether issue n's milestone was due before today: such issues stay on
+    the roadmap but leave "next up"."""
+    due = (issues[n].get("milestone") or {}).get("due_on")
+    return bool(due) and due[:10] < date.today().isoformat()
+
 # Backlog: open issues outside every open epic, the epics themselves aside.
 backlog = [i for i in OPEN if i["number"] not in issues and i["number"] not in EPICS]
 backlog.sort(key=lambda i: (priority(i), i["number"]))
@@ -318,7 +325,7 @@ for i in backlog:
 
 # The roadmap as data, for the interactive page.
 import re
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 
 def summary(body, limit=600):
@@ -375,7 +382,7 @@ data = {
         "closed": m["closed_issues"],
     } for k, m in enumerate(MILESTONES)],
     "order": order,
-    "next": ready[:5],
+    "next": [n for n in ready if not past_milestone(n)][:5],
     "backlog": [item(i["number"]) for i in backlog],
 }
 json.dump(data, sys.stdout, indent=1)
