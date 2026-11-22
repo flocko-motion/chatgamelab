@@ -1405,7 +1405,27 @@
         "title": "Nivel IA pentru utilizare liberă"
       },
       "notAuthorized": "Nu ai permisiunea de a accesa setările serverului. Este necesar acces de administrator.",
-      "title": "Setările serverului"
+      "title": "Setările serverului",
+      "updates": {
+        "checked": "Ultima verificare a versiunilor noi: {{time}}",
+        "installState": {
+          "failed": "Eșuat",
+          "installed": "Instalat",
+          "installing": "Actualizare în curs",
+          "rollback-failed": "Revenirea a eșuat: site-ul este oprit",
+          "rolled-back": "Revenit la versiunea anterioară"
+        },
+        "lastInstall": "Ultima actualizare: {{version}} (de la {{from}})",
+        "noVersion": "niciuna (dezvoltare)",
+        "notEnabled": "Acest server nu instalează actualizări din aplicație: programul său de actualizare nu este configurat.",
+        "rejected": "Serverul a refuzat actualizarea la {{version}}.",
+        "running": "Versiunea curentă:",
+        "title": "Actualizări",
+        "upToDate": "Site-ul rulează cea mai recentă versiune.",
+        "upgrade": "Actualizare",
+        "upgradeConfirm": "Site-ul își salvează baza de date, trece la {{version}} și nu va fi accesibil timp de unul sau două minute. Dacă noua versiune nu pornește, revine la versiunea curentă.",
+        "upgradeTo": "Actualizare la {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Joc fără titlu"
@@ -1507,6 +1527,7 @@
     "forbidden": "Nu ai permisiunea de a efectua această acțiune.",
     "generic": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
     "guestStays": "Ca invitat, rămâi în locul în care te-ai alăturat. Pentru a participa la un alt atelier, deschide linkul de invitație fără să te conectezi: te vei alătura ca invitat nou.",
+    "installRunning": "O actualizare este deja în curs.",
     "insufficientQuota": "Cheia ta API a rămas fără credite. Încarcă fonduri sau folosește o altă cheie.",
     "invalidApiKey": "Cheia ta API este invalidă sau expirată. Verifică cheia în setări.",
     "invalidJsonSchema": "Configurația jocului a generat o schemă invalidă pentru IA. Este o problemă de configurare a jocului, nu a cheii API. Verifică câmpurile de stare ale jocului și încearcă din nou.",
@@ -1539,14 +1560,17 @@
       "permission": "Acces refuzat",
       "server": "Eroare de server",
       "tokenLocked": "Blocat temporar",
+      "updates": "Actualizări",
       "validation": "Eroare de validare",
       "workshopInactive": "Atelier inactiv"
     },
     "tokenLocked": "Prea multe încercări eșuate – încearcă din nou mai târziu.",
     "unauthorized": "Autentifică-te pentru a continua.",
     "unexpected": "A apărut o eroare neașteptată.",
+    "updaterNotEnabled": "Acest server nu instalează actualizări din aplicație.",
     "userNotRegistered": "Trebuie să finalizezi înregistrarea înainte de a continua.",
     "validation": "Verifică datele introduse și încearcă din nou.",
+    "versionNotAvailable": "Această versiune nu poate fi instalată pe acest server.",
     "workshopInactive": "Acest atelier a fost dezactivat. Contactează profesorul sau organizatorul atelierului."
   },
   "mail": {
@@ -1673,6 +1697,9 @@
       "tryAgain": "Încearcă din nou"
     },
     "pipeline": {
+      "compact": "Compactează firul",
+      "compactFailed": "Compactarea a eșuat",
+      "compacting": "Se compactează…",
       "copied": "Configurație copiată",
       "copyFailed": "Fără clipboard: configurația a fost înregistrată în consolă",
       "copyLayout": "Copiază configurația"

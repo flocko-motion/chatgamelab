@@ -1402,7 +1402,27 @@
         "title": "Gratis AI-kwaliteitsniveau"
       },
       "notAuthorized": "Je hebt geen toegang tot serverinstellingen. Admin-toegang vereist.",
-      "title": "Serverinstellingen"
+      "title": "Serverinstellingen",
+      "updates": {
+        "checked": "Laatst gecontroleerd op nieuwe versies: {{time}}",
+        "installState": {
+          "failed": "Mislukt",
+          "installed": "Geïnstalleerd",
+          "installing": "Upgrade wordt uitgevoerd",
+          "rollback-failed": "Terugdraaien mislukt: de site is gestopt",
+          "rolled-back": "Teruggedraaid"
+        },
+        "lastInstall": "Laatste upgrade: {{version}} (van {{from}})",
+        "noVersion": "geen (ontwikkeling)",
+        "notEnabled": "Deze server installeert geen updates vanuit de app: de updater is niet ingesteld.",
+        "rejected": "De server heeft de upgrade naar {{version}} geweigerd.",
+        "running": "Actieve versie:",
+        "title": "Updates",
+        "upToDate": "De site gebruikt de nieuwste versie.",
+        "upgrade": "Upgrade",
+        "upgradeConfirm": "De site maakt een back-up van de database, schakelt over naar {{version}} en is één tot twee minuten niet bereikbaar. Als de nieuwe versie niet start, keert de site terug naar de actieve versie.",
+        "upgradeTo": "Upgraden naar {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Naamloos spel"
@@ -1504,6 +1524,7 @@
     "forbidden": "Je hebt geen toestemming voor deze actie.",
     "generic": "Er ging iets mis. Probeer het opnieuw.",
     "guestStays": "Als gast blijf je op de plek waar je bent toegetreden. Als je aan een andere workshop wilt deelnemen, open je de uitnodigingslink zonder je aan te melden: je neemt als nieuwe gast deel.",
+    "installRunning": "Er wordt al een upgrade uitgevoerd.",
     "insufficientQuota": "Je API-sleutel heeft geen tegoed meer. Voeg meer tegoed toe of gebruik een andere sleutel.",
     "invalidApiKey": "Je API-sleutel is ongeldig of verlopen. Controleer je API-sleutel in Instellingen.",
     "invalidJsonSchema": "De gameconfiguratie leverde een ongeldig schema voor de AI op. Dit is een game-setup-probleem, geen API-sleutelmankement. Controleer de statusvelden van de game en probeer het opnieuw.",
@@ -1536,14 +1557,17 @@
       "permission": "Toestemming geweigerd",
       "server": "Serverfout",
       "tokenLocked": "Tijdelijk vergrendeld",
+      "updates": "Updates",
       "validation": "Validatiefout",
       "workshopInactive": "Workshop niet actief"
     },
     "tokenLocked": "Te veel mislukte pogingen – probeer het later opnieuw.",
     "unauthorized": "Log in om door te gaan.",
     "unexpected": "Er trad een onverwachte fout op.",
+    "updaterNotEnabled": "Deze server installeert geen updates vanuit de app.",
     "userNotRegistered": "Je moet eerst de registratie voltooien.",
     "validation": "Controleer je invoer en probeer het opnieuw.",
+    "versionNotAvailable": "Deze versie kan niet op deze server worden geïnstalleerd.",
     "workshopInactive": "Deze workshop is gedeactiveerd. Neem contact op met je docent of organisator."
   },
   "mail": {
@@ -1670,6 +1694,9 @@
       "tryAgain": "Opnieuw proberen"
     },
     "pipeline": {
+      "compact": "Thread comprimeren",
+      "compactFailed": "Comprimeren mislukt",
+      "compacting": "Bezig met comprimeren…",
       "copied": "Lay-out gekopieerd",
       "copyFailed": "Geen klembord: lay-out in de console gelogd",
       "copyLayout": "Lay-out kopiëren"

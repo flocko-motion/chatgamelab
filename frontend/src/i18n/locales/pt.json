@@ -1402,7 +1402,27 @@
         "title": "Nível de Qualidade da IA para Uso Livre"
       },
       "notAuthorized": "Você não tem permissão para acessar as configurações do servidor. Acesso de admin necessário.",
-      "title": "Configurações do Servidor"
+      "title": "Configurações do Servidor",
+      "updates": {
+        "checked": "Última verificação de novas versões: {{time}}",
+        "installState": {
+          "failed": "Falhou",
+          "installed": "Instalado",
+          "installing": "Atualizando",
+          "rollback-failed": "Falha ao reverter: o site está parado",
+          "rolled-back": "Revertido"
+        },
+        "lastInstall": "Última atualização: {{version}} (de {{from}})",
+        "noVersion": "nenhuma (desenvolvimento)",
+        "notEnabled": "Este servidor não instala atualizações pelo aplicativo: o atualizador não está configurado.",
+        "rejected": "O servidor recusou a atualização para {{version}}.",
+        "running": "Versão em execução:",
+        "title": "Atualizações",
+        "upToDate": "O site está executando a versão mais recente.",
+        "upgrade": "Atualizar",
+        "upgradeConfirm": "O site fará um backup do banco de dados, mudará para {{version}} e ficará inacessível por um ou dois minutos. Se a nova versão não iniciar, ele retornará à versão em execução.",
+        "upgradeTo": "Atualizar para {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Jogo sem título"
@@ -1504,6 +1524,7 @@
     "forbidden": "Você não tem permissão para executar esta ação.",
     "generic": "Algo deu errado. Tente novamente.",
     "guestStays": "Como convidado, você permanece onde entrou. Para participar de outro workshop, abra o link de convite sem fazer login: você entrará nele como um novo convidado.",
+    "installRunning": "Já há uma atualização em andamento.",
     "insufficientQuota": "Sua chave de API ficou sem créditos. Adicione mais créditos ou use outra chave de API.",
     "invalidApiKey": "Sua chave de API é inválida ou expirou. Verifique sua chave de API em Configurações.",
     "invalidJsonSchema": "A configuração do jogo produziu um esquema inválido para a IA. Trata-se de um problema de configuração do jogo, não da chave de API. Verifique os campos de status do jogo e tente novamente.",
@@ -1536,14 +1557,17 @@
       "permission": "Permissão Negada",
       "server": "Erro do Servidor",
       "tokenLocked": "Temporariamente bloqueado",
+      "updates": "Atualizações",
       "validation": "Erro de Validação",
       "workshopInactive": "Workshop Inativo"
     },
     "tokenLocked": "Demasiadas tentativas falhadas – tente novamente mais tarde.",
     "unauthorized": "Faça login para continuar.",
     "unexpected": "Ocorreu um erro inesperado.",
+    "updaterNotEnabled": "Este servidor não instala atualizações pelo aplicativo.",
     "userNotRegistered": "Você precisa concluir o cadastro antes de continuar.",
     "validation": "Verifique sua entrada e tente novamente.",
+    "versionNotAvailable": "Esta versão não pode ser instalada neste servidor.",
     "workshopInactive": "Este workshop foi desativado. Contate seu professor ou organizador do workshop."
   },
   "mail": {
@@ -1670,6 +1694,9 @@
       "tryAgain": "Tentar novamente"
     },
     "pipeline": {
+      "compact": "Compactar tópico",
+      "compactFailed": "Falha ao compactar",
+      "compacting": "Compactando…",
       "copied": "Layout copiado",
       "copyFailed": "Sem área de transferência: layout registrado no console",
       "copyLayout": "Copiar layout"

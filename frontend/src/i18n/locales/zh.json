@@ -1402,7 +1402,27 @@
         "title": "免费使用 AI 质量等级"
       },
       "notAuthorized": "你无权访问服务器设置，需要管理员权限。",
-      "title": "服务器设置"
+      "title": "服务器设置",
+      "updates": {
+        "checked": "上次检查新版本：{{time}}",
+        "installState": {
+          "failed": "失败",
+          "installed": "已安装",
+          "installing": "正在升级",
+          "rollback-failed": "回滚失败：站点已停止",
+          "rolled-back": "已回滚"
+        },
+        "lastInstall": "上次升级：{{version}}（从 {{from}} 升级）",
+        "noVersion": "无（开发版）",
+        "notEnabled": "此服务器不会从应用安装更新：其更新程序尚未设置。",
+        "rejected": "服务器拒绝升级到 {{version}}。",
+        "running": "当前版本：",
+        "title": "更新",
+        "upToDate": "站点正在运行最新版本。",
+        "upgrade": "升级",
+        "upgradeConfirm": "站点会备份数据库，切换到 {{version}}，并且一到两分钟内无法访问。如果新版本无法启动，站点会恢复到当前运行的版本。",
+        "upgradeTo": "升级到 {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "未命名游戏"
@@ -1504,6 +1524,7 @@
     "forbidden": "你没有执行此操作的权限。",
     "generic": "出现问题，请重试。",
     "guestStays": "作为访客，你会留在加入的地方。要参加其他工作坊，请在未登录的情况下打开其邀请链接：你会作为新访客加入。",
+    "installRunning": "升级已在进行中。",
     "insufficientQuota": "你的 API 密钥余额不足，请充值或使用其他密钥。",
     "invalidApiKey": "你的 API 密钥无效或已过期，请在设置中检查。",
     "invalidJsonSchema": "游戏配置生成了无效的 AI 模式，这属于游戏设置问题，请检查状态字段后重试。",
@@ -1536,14 +1557,17 @@
       "permission": "权限不足",
       "server": "服务器错误",
       "tokenLocked": "暂时锁定",
+      "updates": "更新",
       "validation": "校验错误",
       "workshopInactive": "工作坊未启用"
     },
     "tokenLocked": "失败次数过多——请稍后再试。",
     "unauthorized": "请先登录。",
     "unexpected": "发生意外错误。",
+    "updaterNotEnabled": "此服务器不会从应用安装更新。",
     "userNotRegistered": "继续之前需要完成注册。",
     "validation": "请检查输入后重试。",
+    "versionNotAvailable": "此版本无法安装到此服务器。",
     "workshopInactive": "该工作坊已停用，请联系教师或组织者。"
   },
   "mail": {
@@ -1670,6 +1694,9 @@
       "tryAgain": "重试"
     },
     "pipeline": {
+      "compact": "压缩主题串",
+      "compactFailed": "压缩失败",
+      "compacting": "正在压缩…",
       "copied": "布局已复制",
       "copyFailed": "没有剪贴板：布局已记录到控制台",
       "copyLayout": "复制布局"
