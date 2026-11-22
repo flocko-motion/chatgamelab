@@ -1,0 +1,22 @@
+# The seal: what decides who may do what, and what checks it.
+#
+# A pull request touching these paths needs the owner's approval
+# (ruleset "core-seal" on v2/development). Every other path merges as before.
+# The core-seal workflow labels such pull requests "core".
+
+# the secure core: rules, gates, and the only code that reaches the database
+/go/core/                              @flocko-motion
+# the database: migrations (constraints, triggers), queries, generated code
+/go/db/                                @flocko-motion
+# the composition root, the one file outside the core that may import cgl/db
+/go/app/app.go                         @flocko-motion
+
+# the tests that pin the rules down
+/testing/permission_matrix_test.go     @flocko-motion
+/testing/guest_place_test.go           @flocko-motion
+/scripts/test.sh                       @flocko-motion
+
+# the seal itself
+/.github/CODEOWNERS                    @flocko-motion
+/.github/workflows/                    @flocko-motion
+/.claude/settings.json                 @flocko-motion
