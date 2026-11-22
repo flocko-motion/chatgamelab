@@ -101,17 +101,22 @@ func (s *ListsTestSuite) TestMembersComeWithWhatTheCallerMayDoWithThem() {
 	s.NoError(head.RemoveMember(id, bert.ID), "the head removes staff")
 }
 
-func (s *ListsTestSuite) TestTheOrganisationSaysWhoMayInvite() {
+func (s *ListsTestSuite) TestTheOrganisationSaysWhatTheCallerMayDoInIt() {
 	inst, head, anna, _ := s.organisation("invites")
 	id := inst.Id.String()
 
 	asHead := Must(head.GetInstitution(id))
 	s.True(asHead.MayInviteHead)
 	s.True(asHead.MayInviteStaff)
+	s.True(asHead.MayCreateWorkshop)
+	s.True(asHead.MayListApiKeys)
 
 	asStaff := Must(anna.GetInstitution(id))
 	s.False(asStaff.MayInviteHead, "staff invite no heads")
 	s.True(asStaff.MayInviteStaff)
+	s.True(asStaff.MayCreateWorkshop)
+	s.True(asStaff.MayListApiKeys)
+
 }
 
 func (s *ListsTestSuite) TestParticipantsAreAListOfTheirOwn() {
@@ -128,4 +133,29 @@ func (s *ListsTestSuite) TestParticipantsAreAListOfTheirOwn() {
 
 	_, err := head.ListParticipantsPage(workshop.Id.String(), testutil.ListQuery{SortBy: "age"})
 	s.Invalid(err)
+}
+
+// An individual is in no organisation, also while they work in one of its
+// workshops: no head makes them head or staff without an invite, and they
+// are no member to remove.
+func (s *ListsTestSuite) TestAnIndividualInAWorkshopIsNoMember() {
+	inst, head, _, _ := s.organisation("visit")
+	id := inst.Id.String()
+	workshop := Must(head.CreateWorkshop(id, "Visited"))
+	invite := Must(head.CreateWorkshopInvite(workshop.Id.String()))
+
+	visitor := s.CreateUser("visit-individual")
+	s.Equal("individual", visitor.GetRole())
+	s.NoError(visitor.AcceptWorkshopInviteByToken(*invite.InviteToken), "the individual takes part")
+
+	_, err := head.SetUserRoleIn(visitor.ID, "staff", id)
+	s.Error(err, "a head makes a visiting individual no staff")
+	_, err = head.SetUserRoleIn(visitor.ID, "head", id)
+	s.Error(err, "nor head")
+	s.Error(head.RemoveMember(id, visitor.ID), "a visiting individual is no member to remove")
+	s.Equal("individual", Must(s.DevUser().GetUser(visitor.ID)).Role.Role, "still an individual")
+
+	for _, m := range Must(head.ListMembersPage(id, testutil.ListQuery{})).Items {
+		s.NotEqual(visitor.ID, m.Id.String(), "and no member")
+	}
 }

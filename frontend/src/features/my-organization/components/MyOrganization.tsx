@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { BodyText, HelperText, Label, PageTitle } from '@components/typography';
 import { useOrganisation, useSystemConstraints, useUpdateOrganisation } from '@/api/hooks';
 import { useAuth } from '@/providers/AuthProvider';
-import { getUserInstitutionId, isAtLeastStaff } from '@/common/lib/roles';
+import { getUserInstitutionId } from '@/common/lib/roles';
 import { useOrganisationTabs, type OrganisationTab } from '../hooks/useOrganisationTabs';
 import { MembersTab } from './MembersTab';
 import { WorkshopsTab } from './WorkshopsTab';
@@ -31,14 +31,16 @@ export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizati
   const { backendUser } = useAuth();
 
   const institutionId = getUserInstitutionId(backendUser);
-  const canManage = isAtLeastStaff(backendUser);
   const { data: institution } = useOrganisation(institutionId);
-  // Whether the caller may change the organisation's settings: the server's flag.
+  // What the caller may do in the organisation: the server's flags.
   const canEditSettings = !!institution?.mayEditSettings;
+  const mayWorkshops = !!institution?.mayCreateWorkshop;
+  const mayApiKeys = !!institution?.mayListApiKeys;
   const { tab, setTab } = useOrganisationTabs({
     tab: urlTab,
     autoCreateWorkshop,
-    canManage,
+    mayWorkshops,
+    mayApiKeys,
     canEditSettings,
   });
 
@@ -77,12 +79,12 @@ export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizati
             <Tabs.Tab value="members" leftSection={<IconUsers size={16} />}>
               {t('navigation:orgMembers')}
             </Tabs.Tab>
-            {canManage && (
+            {mayWorkshops && (
               <Tabs.Tab value="workshops" leftSection={<IconSchool size={16} />}>
                 {t('navigation:orgWorkshops')}
               </Tabs.Tab>
             )}
-            {canManage && (
+            {mayApiKeys && (
               <Tabs.Tab value="apikeys" leftSection={<IconKey size={16} />}>
                 {t('navigation:orgApiKeys')}
               </Tabs.Tab>
@@ -98,7 +100,7 @@ export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizati
             <MembersTab institution={institution} />
           </Tabs.Panel>
 
-          {canManage && (
+          {mayWorkshops && (
             <Tabs.Panel value="workshops" pt="md">
               <WorkshopsTab
                 institutionId={institutionId}
@@ -108,7 +110,7 @@ export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizati
             </Tabs.Panel>
           )}
 
-          {canManage && (
+          {mayApiKeys && (
             <Tabs.Panel value="apikeys" pt="md">
               <ApiKeysTab
                 institutionId={institutionId}

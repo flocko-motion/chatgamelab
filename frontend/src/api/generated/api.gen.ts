@@ -799,12 +799,14 @@ export interface OrganisationView {
   hasSettings: boolean;
   /** @format uuid */
   id: string;
+  mayCreateWorkshop: boolean;
   mayDelete: boolean;
   mayEditCard: boolean;
   mayEditDetails: boolean;
   mayEditSettings: boolean;
   mayInviteHead: boolean;
   mayInviteStaff: boolean;
+  mayListApiKeys: boolean;
   maySuspend: boolean;
   members: UserView[];
   meta: OrganisationMeta;

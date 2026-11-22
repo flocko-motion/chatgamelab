@@ -15,8 +15,10 @@ interface UseOrganisationTabsOptions {
   tab?: OrganisationTab;
   /** The page was opened to create a workshop: the workshops tab opens. */
   autoCreateWorkshop?: boolean;
-  /** Staff and heads see the workshops and keys. */
-  canManage: boolean;
+  /** Who may create the organisation's workshops sees them. */
+  mayWorkshops: boolean;
+  /** Who may list the keys given to the organisation sees them. */
+  mayApiKeys: boolean;
   /** Heads see the organisation's constraints. */
   canEditSettings: boolean;
 }
@@ -30,7 +32,8 @@ interface UseOrganisationTabsOptions {
 export function useOrganisationTabs({
   tab,
   autoCreateWorkshop,
-  canManage,
+  mayWorkshops,
+  mayApiKeys,
   canEditSettings,
 }: UseOrganisationTabsOptions) {
   const navigate = useNavigate();
@@ -40,10 +43,11 @@ export function useOrganisationTabs({
       ORGANISATION_TABS.filter(
         (t) =>
           t === "members" ||
-          ((t === "workshops" || t === "apikeys") && canManage) ||
+          (t === "workshops" && mayWorkshops) ||
+          (t === "apikeys" && mayApiKeys) ||
           (t === "constraints" && canEditSettings),
       ),
-    [canManage, canEditSettings],
+    [mayWorkshops, mayApiKeys, canEditSettings],
   );
   const wanted = tab ?? (autoCreateWorkshop ? "workshops" : undefined);
   const current = wanted && visible.includes(wanted) ? wanted : visible[0];

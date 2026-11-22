@@ -784,6 +784,7 @@ SELECT u.id, u.name, u.email, u.language, u.age_group, u.ai_quality_tier,
   r.role,
   o.id   AS organisation_id,
   o.name AS organisation_name,
+  r.institution_id AS member_of,
   w.id   AS workshop_id,
   w.name AS workshop_name,
   -- the sections: NULL (no caller, no organisation) is false
@@ -828,7 +829,7 @@ LEFT JOIN workshop w    ON w.id = CASE WHEN r.role = 'guest' THEN r.workshop_id 
 LEFT JOIN institution o ON o.id = COALESCE(r.institution_id, w.institution_id)
 WHERE u.deleted_at IS NULL
   AND ($21::uuid IS NULL OR u.id = $21::uuid)
-  -- a wish: the members of one organisation (individual, staff, head)
+  -- a wish: the members of one organisation (head and staff)
   AND ($22::uuid IS NULL
        OR (r.institution_id = $22::uuid AND r.role IN ('staff', 'head')))
   -- gate
@@ -883,6 +884,7 @@ type V2UsersRow struct {
 	Role                 sql.NullString `json:"role"`
 	OrganisationID       uuid.NullUUID  `json:"organisation_id"`
 	OrganisationName     sql.NullString `json:"organisation_name"`
+	MemberOf             uuid.NullUUID  `json:"member_of"`
 	WorkshopID           uuid.NullUUID  `json:"workshop_id"`
 	WorkshopName         sql.NullString `json:"workshop_name"`
 	MayReadAccount       bool           `json:"may_read_account"`
@@ -905,7 +907,9 @@ type V2UsersRow struct {
 // are in: a guest's own, or the one entered in workshop mode. A user is "of
 // own organisation" when their role belongs to the caller's organisation or
 // they are in one of its workshops (v1); a guest of it is in one of its
-// workshops. The organisation shown is their role's, or their workshop's.
+// workshops. The organisation shown is their role's, or their workshop's;
+// the one they are a member of is their role's only (head and staff): taking
+// part in a workshop is no membership.
 // The users the caller may see, for a list or for one user (id set): the
 // List grants on UserCard for a list, the Read grants for one user.
 func (q *Queries) V2Users(ctx context.Context, arg V2UsersParams) ([]V2UsersRow, error) {
@@ -958,6 +962,7 @@ func (q *Queries) V2Users(ctx context.Context, arg V2UsersParams) ([]V2UsersRow,
 			&i.Role,
 			&i.OrganisationID,
 			&i.OrganisationName,
+			&i.MemberOf,
 			&i.WorkshopID,
 			&i.WorkshopName,
 			&i.MayReadAccount,

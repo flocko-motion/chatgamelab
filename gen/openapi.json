@@ -2216,6 +2216,9 @@
             "format": "uuid",
             "type": "string"
           },
+          "mayCreateWorkshop": {
+            "type": "boolean"
+          },
           "mayDelete": {
             "type": "boolean"
           },
@@ -2232,6 +2235,9 @@
             "type": "boolean"
           },
           "mayInviteStaff": {
+            "type": "boolean"
+          },
+          "mayListApiKeys": {
             "type": "boolean"
           },
           "maySuspend": {
@@ -2287,6 +2293,8 @@
           "maySuspend",
           "mayInviteStaff",
           "mayInviteHead",
+          "mayCreateWorkshop",
+          "mayListApiKeys",
           "hasSettings",
           "hasDetails",
           "hasRecord",

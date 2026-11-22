@@ -101,7 +101,7 @@ var Rules = map[Role]Grants{
 			{Edit, WorkshopSettings, OfOwnOrganisation},
 			{List, WorkshopParticipants, OfOwnOrganisation},
 			{Manage, WorkshopParticipants, OfOwnOrganisation}, // taking people out
-			{Create, Invite, OfOwnOrganisation},               // staff invite staff and individuals too
+			{Create, Invite, OfOwnOrganisation},               // staff invite staff, and anyone into a workshop
 			{List, Invite, OfOwnOrganisation},
 			{Read, Invite, OfOwnOrganisation},
 			{Delete, Invite, OfOwnOrganisation}, // whoever made it: the organisation is cooperative
@@ -182,7 +182,7 @@ var Rules = map[Role]Grants{
 			{Edit, WorkshopSettings, OfOwnOrganisation},
 			{List, WorkshopParticipants, OfOwnOrganisation},
 			{Manage, WorkshopParticipants, OfOwnOrganisation}, // taking people out
-			{Create, Invite, OfOwnOrganisation},               // staff invite staff and individuals too
+			{Create, Invite, OfOwnOrganisation},               // staff invite staff, and anyone into a workshop
 			{List, Invite, OfOwnOrganisation},
 			{Read, Invite, OfOwnOrganisation},
 			{Delete, Invite, OfOwnOrganisation}, // whoever made it: the organisation is cooperative

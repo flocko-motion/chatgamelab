@@ -3,9 +3,9 @@ import { bothWays } from "@/api/lists";
 import type { ListPreset } from "@/api/types";
 
 /**
- * The member lists of the organisation page. Whoever sees the members' roles
- * (everyone with a role in the organisation) gets the full list; someone
- * without one sees the names only.
+ * The member lists of the organisation page: its head and staff. Whoever the
+ * server shows the members' roles gets the full list; anyone else the names
+ * only.
  */
 export type MemberListPresetName = "full" | "names";
 

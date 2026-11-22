@@ -111,6 +111,11 @@ func organisationCardOf(ctx context.Context, r db.V2OrganisationsRow) (*Organisa
 	// lists the invites too (the grant table grants both together)
 	org.mayInviteStaff = mayCreateInvite(ctx, r.ID, false)
 	org.mayInviteHead = mayCreateInvite(ctx, r.ID, true)
+	// creating its workshops, from the gate CreateWorkshop checks; listing
+	// the keys given to it, from the gate its key list opens
+	org.mayCreateWorkshop = mayCreateWorkshop(ctx, r.ID)
+	own := ownOrganisation(ctx)
+	org.mayListKeys = keyShareGates(ctx).CardOrganisation && own.Valid && own.UUID == r.ID
 	if org.mayReadRecord {
 		if err := org.loadConsentLog(ctx, r.CreatedBy); err != nil {
 			return nil, err
@@ -198,8 +203,10 @@ type OrganisationCard struct {
 	mayDelete       bool
 	maySuspend      bool
 
-	mayInviteStaff bool
-	mayInviteHead  bool
+	mayInviteStaff    bool
+	mayInviteHead     bool
+	mayCreateWorkshop bool
+	mayListKeys       bool
 }
 
 func (o *OrganisationCard) ID() uuid.UUID         { return o.row.id }
@@ -207,7 +214,7 @@ func (o *OrganisationCard) Name() string          { return o.row.name }
 func (o *OrganisationCard) CreatedAt() time.Time  { return o.row.createdAt }
 func (o *OrganisationCard) ModifiedAt() time.Time { return o.row.modifiedAt }
 
-// Members are the organisation's members (individual, staff, head) the
+// Members are the organisation's members (head and staff) the
 // caller may list: {List, UserCard}. None for a caller who may list none.
 func (o *OrganisationCard) Members() []*UserCard { return o.members }
 
@@ -239,6 +246,14 @@ func (o *OrganisationCard) MayInviteStaff() bool { return o.mayInviteStaff }
 // MayInviteHead says whether the caller may invite someone to head the
 // organisation: {Create, HeadInvite}, in their own organisation or anywhere.
 func (o *OrganisationCard) MayInviteHead() bool { return o.mayInviteHead }
+
+// MayCreateWorkshop says whether the caller may create a workshop in the
+// organisation: {Create, WorkshopCard}, in their own organisation or anywhere.
+func (o *OrganisationCard) MayCreateWorkshop() bool { return o.mayCreateWorkshop }
+
+// MayListKeys says whether the caller may list the keys given to the
+// organisation: {List, ApiKeyShare, SharedWithOwnOrganisation}, in their own.
+func (o *OrganisationCard) MayListKeys() bool { return o.mayListKeys }
 
 // AsOrganisationSettings unlocks how the organisation runs: a flag check, no
 // query.

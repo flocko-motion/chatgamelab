@@ -237,10 +237,11 @@ export function useResetGuestToken() {
 }
 
 /**
- * Hook to remove a member from a workshop.
- * Permanent members (Guests) are HARD-deleted: db.DeleteUser removes the
+ * Takes a participant out of a workshop.
+ * Permanent participants (Guests) are HARD-deleted: db.DeleteUser removes the
  * account row and every game they created, with its sessions and shared links.
- * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
+ * Others taking part (head, staff, individuals) have their active workshop
+ * cleared; taking part made no one part of the organisation.
  */
 export function useRemoveParticipant() {
   const queryClient = useQueryClient();

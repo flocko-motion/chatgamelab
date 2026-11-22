@@ -77,7 +77,7 @@ type OrganisationView struct {
 	Name string           `json:"name"`
 	Meta OrganisationMeta `json:"meta"`
 
-	// Members are its members (individual, staff, head) as far as the
+	// Members are its members (head and staff) as far as the
 	// caller may list them; empty for one who may list none.
 	Members []UserView `json:"members"`
 
@@ -92,6 +92,9 @@ type OrganisationView struct {
 	// Who may invite into it; who may, sees its invites too.
 	MayInviteStaff bool `json:"mayInviteStaff"`
 	MayInviteHead  bool `json:"mayInviteHead"`
+	// Whether the caller may create its workshops, and list the keys given to it.
+	MayCreateWorkshop bool `json:"mayCreateWorkshop"`
+	MayListApiKeys    bool `json:"mayListApiKeys"`
 
 	// HasSettings: the caller sees how the organisation runs.
 	HasSettings          bool       `json:"hasSettings"`
@@ -159,17 +162,19 @@ func OrganisationViewsOf(orgs []*core.OrganisationCard, err error) ([]Organisati
 func organisationView(org *core.OrganisationCard) OrganisationView {
 	members, _ := UserViewsOf(org.Members(), nil)
 	v := OrganisationView{
-		ID:              org.ID(),
-		Name:            org.Name(),
-		Meta:            OrganisationMeta{CreatedAt: org.CreatedAt(), ModifiedAt: org.ModifiedAt()},
-		Members:         members,
-		MayEditCard:     org.MayEditCard(),
-		MayEditSettings: org.MayEditSettings(),
-		MayEditDetails:  org.MayEditDetails(),
-		MayDelete:       org.MayDelete(),
-		MaySuspend:      org.MaySuspend(),
-		MayInviteStaff:  org.MayInviteStaff(),
-		MayInviteHead:   org.MayInviteHead(),
+		ID:                org.ID(),
+		Name:              org.Name(),
+		Meta:              OrganisationMeta{CreatedAt: org.CreatedAt(), ModifiedAt: org.ModifiedAt()},
+		Members:           members,
+		MayEditCard:       org.MayEditCard(),
+		MayEditSettings:   org.MayEditSettings(),
+		MayEditDetails:    org.MayEditDetails(),
+		MayDelete:         org.MayDelete(),
+		MaySuspend:        org.MaySuspend(),
+		MayInviteStaff:    org.MayInviteStaff(),
+		MayInviteHead:     org.MayInviteHead(),
+		MayCreateWorkshop: org.MayCreateWorkshop(),
+		MayListApiKeys:    org.MayListKeys(),
 	}
 	if s, err := org.AsOrganisationSettings(); err == nil {
 		v.HasSettings = true

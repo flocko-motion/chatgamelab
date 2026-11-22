@@ -89,6 +89,7 @@ func userCardOf(ctx context.Context, r db.V2UsersRow) *UserCard {
 			defaultKeyShare:  ptrUUID(r.DefaultApiKeyShareID),
 			role:             r.Role.String,
 			organisationID:   ptrUUID(r.OrganisationID),
+			memberOf:         ptrUUID(r.MemberOf),
 			organisationName: nullString(r.OrganisationName),
 			workshopID:       ptrUUID(r.WorkshopID),
 			workshopName:     nullString(r.WorkshopName),
@@ -127,7 +128,8 @@ type userRow struct {
 	aiQualityTier    *string
 	defaultKeyShare  *uuid.UUID
 	role             string
-	organisationID   *uuid.UUID
+	organisationID   *uuid.UUID // their role's, or their workshop's: shown
+	memberOf         *uuid.UUID // their role's only: head and staff are members, no one else
 	organisationName *string
 	workshopID       *uuid.UUID
 	workshopName     *string

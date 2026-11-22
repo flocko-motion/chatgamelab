@@ -95,7 +95,7 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	if !user.MayDelete() {
 		return forbidden("you may not delete this user")
 	}
-	if org := user.row.organisationID; user.row.role == "head" && org != nil {
+	if org := user.row.memberOf; user.row.role == "head" && org != nil {
 		heads, err := store.Queries().V2CountHeadsByInstitution(ctx, uuid.NullUUID{UUID: *org, Valid: true})
 		if err != nil {
 			return err

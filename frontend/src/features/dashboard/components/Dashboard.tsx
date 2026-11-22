@@ -13,6 +13,7 @@ import {
   useUserSessions,
   useGameSessionMap,
   useCurrentUser,
+  useOrganisation,
   useWorkshopList,
 } from "@/api/hooks";
 import { RECENT_WORKSHOPS_PRESET } from "../lib/recentWorkshops";
@@ -27,7 +28,6 @@ import {
   IconDeviceGamepad2,
   IconDownload,
 } from "@tabler/icons-react";
-import { hasRole, Role } from "@/common/lib/roles";
 import { useAdmin } from "@/common/hooks/useAdmin";
 import { InformationalCard, type ListItem } from "./InformationalCard";
 import { QuickActionCard } from "./QuickActionCard";
@@ -270,8 +270,9 @@ function QuickActionsCard() {
   const navigate = useNavigate();
   const { data: currentUser } = useCurrentUser();
 
-  const canManageWorkshops =
-    hasRole(currentUser, Role.Head) || hasRole(currentUser, Role.Staff);
+  // Whether the caller may create workshops in their organisation: the server's flag.
+  const { data: organisation } = useOrganisation(currentUser?.role?.institution?.id);
+  const canManageWorkshops = !!organisation?.mayCreateWorkshop;
 
   const actions = [
     {

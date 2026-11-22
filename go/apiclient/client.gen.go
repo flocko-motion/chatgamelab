@@ -1264,12 +1264,14 @@ type OrganisationView struct {
 	HasRecord            bool                          `json:"hasRecord"`
 	HasSettings          bool                          `json:"hasSettings"`
 	Id                   openapi_types.UUID            `json:"id"`
+	MayCreateWorkshop    bool                          `json:"mayCreateWorkshop"`
 	MayDelete            bool                          `json:"mayDelete"`
 	MayEditCard          bool                          `json:"mayEditCard"`
 	MayEditDetails       bool                          `json:"mayEditDetails"`
 	MayEditSettings      bool                          `json:"mayEditSettings"`
 	MayInviteHead        bool                          `json:"mayInviteHead"`
 	MayInviteStaff       bool                          `json:"mayInviteStaff"`
+	MayListApiKeys       bool                          `json:"mayListApiKeys"`
 	MaySuspend           bool                          `json:"maySuspend"`
 	Members              []UserView                    `json:"members"`
 	Meta                 OrganisationMeta              `json:"meta"`

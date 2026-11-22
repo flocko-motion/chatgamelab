@@ -11,9 +11,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// A membership is a user's role in an organisation: individual, staff or
-// head, or guest in one of its workshops. Its members are the users holding
-// one of the first three; guests are not listed among them. Removing a
+// A membership is a user's role in an organisation: head or staff. An
+// individual is in no organisation, also while taking part in one of its
+// workshops; who joins an organisation becomes head or staff. A guest is of
+// an organisation through its workshop and not listed among its members. Removing a
 // membership leaves the user their account, as an individual of no
 // organisation.
 
@@ -56,7 +57,11 @@ func RemoveMember(ctx context.Context, id, user uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	if member.row.organisationID == nil || *member.row.organisationID != id {
+	of := member.row.memberOf
+	if member.row.role == string(obj.RoleGuest) {
+		of = member.row.organisationID // a guest is of it through its workshop
+	}
+	if of == nil || *of != id {
 		return ErrNotFound
 	}
 	if !mayRemoveMember(ctx, member) {

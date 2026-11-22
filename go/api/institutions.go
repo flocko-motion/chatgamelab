@@ -152,7 +152,7 @@ func (DeleteInstitutionEndpoint) Handle(ctx context.Context, req InstitutionIDRe
 }
 
 // GetInstitutionMembersEndpoint lists a page of an organisation's members
-// (individual, staff, head), and the total: for its members and the admin.
+// (head and staff), and the total: for its members and the admin.
 // Anyone else gets an empty list; an organisation the caller may not read,
 // 404.
 type GetInstitutionMembersEndpoint struct{}
