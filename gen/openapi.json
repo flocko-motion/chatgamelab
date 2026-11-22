@@ -1793,6 +1793,15 @@
           },
           "source": {
             "type": "string"
+          },
+          "window": {
+            "type": "integer"
+          },
+          "windowRead": {
+            "type": "string"
+          },
+          "windowSource": {
+            "type": "string"
           }
         },
         "required": [
@@ -1862,6 +1871,9 @@
           },
           "role": {
             "type": "string"
+          },
+          "thread": {
+            "$ref": "#/components/schemas/ThreadFill"
           },
           "type": {
             "type": "string"
@@ -2908,6 +2920,21 @@
         },
         "required": [
           "id"
+        ],
+        "type": "object"
+      },
+      "ThreadFill": {
+        "properties": {
+          "tokens": {
+            "type": "integer"
+          },
+          "window": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tokens",
+          "window"
         ],
         "type": "object"
       },
@@ -5523,6 +5550,55 @@
           }
         ],
         "summary": "Answers what one block of a session is and has been doing."
+      }
+    },
+    "/api/engine/sessions/{id}/nodes/{node}/compact": {
+      "post": {
+        "description": "The thread summarises whatever its fill, the block working meanwhile and\npaying for the summary; for testing how well compaction keeps a story. A\nblock on no thread is refused.",
+        "operationId": "postApiEngineSessionsIdNodesNodeCompact",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Asks a block's thread to compact now."
       }
     },
     "/api/engine/sessions/{id}/options": {

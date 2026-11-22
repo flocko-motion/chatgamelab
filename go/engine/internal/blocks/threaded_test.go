@@ -185,7 +185,7 @@ func TestThreadedRetryDiscardsSpokenAudio(t *testing.T) {
 
 	adapter := &scriptedThread{breaks: 1}
 	b := startThreaded(t, newThread(adapter), "expand")
-	b.Narration().SetActive(true)
+	b.Spoken().SetActive(true)
 	audio := b.AudioOutPort()
 	b.Start(ctx)
 
@@ -200,10 +200,10 @@ func TestThreadedRetryDiscardsSpokenAudio(t *testing.T) {
 	}
 }
 
-// Narration on, Expand's turn on the shared thread is spoken: the transcript
-// streams as text, the audio beside it, and the transcript is the reply the
-// thread keeps. Off, the same turn is silent.
-func TestThreadedSpeaksWhileNarrationIsOn(t *testing.T) {
+// Its Spoken switch on, a block's call on the shared thread is spoken: the
+// transcript streams as text, the audio beside it, and the transcript is the
+// reply the thread keeps. Off, the same call is silent.
+func TestThreadedSpeaksWhileSpokenIsOn(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -215,7 +215,7 @@ func TestThreadedSpeaksWhileNarrationIsOn(t *testing.T) {
 	outline.Start(ctx)
 	expand.Start(ctx)
 
-	expand.Narration().SetActive(true)
+	expand.Spoken().SetActive(true)
 	outline.TextInPort() <- "plot"
 	receive(t, outline.whole, "the outline")
 	expand.TextInPort() <- "NARRATE"
@@ -233,7 +233,7 @@ func TestThreadedSpeaksWhileNarrationIsOn(t *testing.T) {
 		t.Errorf("the thread kept %s, want the transcript", state)
 	}
 
-	expand.Narration().SetActive(false)
+	expand.Spoken().SetActive(false)
 	outline.TextInPort() <- "plot"
 	receive(t, outline.whole, "the outline")
 	for len(audio) > 0 {
@@ -243,12 +243,12 @@ func TestThreadedSpeaksWhileNarrationIsOn(t *testing.T) {
 	receive(t, expand.whole, "the silent prose")
 	select {
 	case chunk := <-audio:
-		t.Errorf("narration off, the turn still spoke %d bytes", len(chunk))
+		t.Errorf("spoken off, the call still spoke %d bytes", len(chunk))
 	case <-time.After(20 * time.Millisecond):
 	}
 }
 
-// The session switches the thread's model when narration goes on: the next
+// The session switches the thread's model when its calls go spoken: the next
 // call opens a fresh provider thread on the other model, seeded with the
 // transcript, so the story goes on where it was.
 func TestThreadSwitchesModelMidGame(t *testing.T) {
@@ -271,13 +271,14 @@ func TestThreadSwitchesModelMidGame(t *testing.T) {
 	}
 
 	slot.Set(mock.Thread{Name: "mock-realtime"}, "offer")
-	expand.Narration().SetActive(true)
+	expand.Spoken().SetActive(true)
 	expand.TextInPort() <- "two"
 	if got := receive(t, expand.whole, "the reply on mock-realtime"); !strings.HasPrefix(got, "[story turn 4]") {
 		t.Errorf("said %q, want a fresh thread seeded with the three exchanges", got)
 	}
 	state := thread.ExportState()
-	if !strings.Contains(state, `"id":"mock-thread-4","offer":"offer","model":"mock-realtime"`) {
+	// The mock marks the spoken reply its thread holds after the turn.
+	if !strings.Contains(state, `"id":"mock-thread-4:1","offer":"offer","model":"mock-realtime"`) {
 		t.Errorf("exported state %s, want a continuation made on mock-realtime", state)
 	}
 }

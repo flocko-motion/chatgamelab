@@ -2,7 +2,9 @@ package genre
 
 import (
 	"context"
+	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -367,4 +369,75 @@ func TestAdventureResumesItsThread(t *testing.T) {
 		t.Fatal(err)
 	}
 	play(resumed, "I keep walking", "[story turn 6] NARRATE the outline")
+}
+
+// threadLog passes each story-thread call on to the mock and keeps it.
+type threadLog struct {
+	mock.Thread
+	mu    sync.Mutex
+	turns []adapters.ThreadTurn
+}
+
+func (l *threadLog) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapters.ThreadReply, error) {
+	l.mu.Lock()
+	l.turns = append(l.turns, turn)
+	l.mu.Unlock()
+	return l.Thread.Continue(ctx, turn)
+}
+
+func (l *threadLog) seen() []adapters.ThreadTurn {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return slices.Clone(l.turns)
+}
+
+// A long game on the mock platform nears the story model's window: the story
+// thread compacts after a turn and the game plays on, its thread seeded fresh
+// with the System Message, the summary and the last six exchanges.
+func TestLongAdventureCompactsItsThread(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	story := &threadLog{}
+	w := adventure(t, AdventureConfig{Thread: story, Window: mock.Models.Window})
+	text := utterances(streamOf(w, "text"))
+	w.Graph.Start(ctx)
+	receiveLine(t, text, "the opening's prose")
+
+	summarised := func() int {
+		for i, turn := range story.seen() {
+			if turn.Input == w.Prompts[PromptSummary] {
+				return i
+			}
+		}
+		return -1
+	}
+	for turn := 0; summarised() < 0; turn++ {
+		if turn == 20 {
+			t.Fatalf("no compaction after %d turns", turn)
+		}
+		w.Say("I walk on")
+		receiveLine(t, text, "a turn's prose")
+	}
+
+	// The summary was asked for after a turn; the next one plays on.
+	w.Say("I walk on")
+	if got := receiveLine(t, text, "the prose after compaction"); !strings.HasPrefix(got, "[story turn") {
+		t.Errorf("the turn after compaction said %q", got)
+	}
+	turns := story.seen()
+	request := summarised()
+	fresh := turns[request+1]
+	if fresh.Continuation.ID != "" {
+		t.Errorf("the call after the summary went on from %q, want a fresh provider thread", fresh.Continuation.ID)
+	}
+	if !strings.HasPrefix(fresh.System, w.Prompts[PromptGameMaster][:40]) {
+		t.Errorf("seeded with system %q, want the System Message", fresh.System)
+	}
+	if !strings.HasPrefix(fresh.Summary, "[story turn") || len(fresh.Transcript) != 6 {
+		t.Errorf("seeded with summary %q and %d exchanges, want the summary and six", fresh.Summary, len(fresh.Transcript))
+	}
+	if last := fresh.Transcript[5]; last.Input != turns[request-1].Input {
+		t.Errorf("the last seeded exchange sent %q, want the call before the summary, %q", last.Input, turns[request-1].Input)
+	}
 }

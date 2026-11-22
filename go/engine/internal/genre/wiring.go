@@ -43,6 +43,10 @@ type Wiring struct {
 	// so their frequency can change while the game runs.
 	Constrained map[string]blocks.Constrained
 
+	// OnThread are the blocks that take part in a thread, by name, so a
+	// session can read how full their thread is and compact it on demand.
+	OnThread map[string]blocks.OnThread
+
 	// Switches are the blocks each toggle turns off and on during play. A toggle
 	// with no entry has no block in this genre.
 	Switches map[adapters.Toggle][]ports.Switchable
@@ -75,6 +79,16 @@ func (w *Wiring) SetConstraintFrequency(block string, n int) error {
 		return err
 	}
 	w.Constrained[block].SetConstraintFrequency(n)
+	return nil
+}
+
+// Compact asks a block's thread to compact now.
+func (w *Wiring) Compact(block string) error {
+	b, ok := w.OnThread[block]
+	if !ok {
+		return fmt.Errorf("no block %q on a thread (this genre has %s)", block, strings.Join(slices.Sorted(maps.Keys(w.OnThread)), ", "))
+	}
+	b.Compact()
 	return nil
 }
 

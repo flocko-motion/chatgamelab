@@ -293,6 +293,7 @@ func (a *API) SchemafRoutes() []schemafapi.Route {
 		schemafapi.NewRoute(TopologyEndpoint{a}, "", ""),
 		schemafapi.NewRoute(OptionsEndpoint{a}, "", ""),
 		schemafapi.NewRoute(NodeEndpoint{a}, "", ""),
+		schemafapi.NewRoute(CompactEndpoint{a}, "", ""),
 		schemafapi.NewRoute(EdgeEndpoint{a}, "", ""),
 		schemafapi.NewRoute(PromptsEndpoint{a}, "", ""),
 		schemafapi.NewRoute(GraphEndpoint{a}, "", ""),

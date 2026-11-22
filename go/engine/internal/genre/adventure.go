@@ -24,6 +24,9 @@ type AdventureConfig struct {
 	Hearing adapters.Hearing
 	// Thread runs the story model's conversation.
 	Thread adapters.Thread
+	// Window is a model's context window, for the story thread to compact
+	// before it outgrows it; nil never compacts.
+	Window func(model string) int
 	Image  adapters.Image
 
 	// Scenario and Guardrail stay apart: nothing a designer writes shares a
@@ -71,6 +74,7 @@ const (
 	PromptScene            = "scene"
 	PromptCondenseScenario = "condense-scenario"
 	PromptImageStyle       = "image-style"
+	PromptSummary          = "summary"
 )
 
 // AdventureImageStyle draws an Adventure's pictures when the game names no image style.
@@ -194,6 +198,19 @@ NARRATIVE STYLE:
 	PromptImageStyle: "Translate this image style description to English and adapt it based on the workshop constraints.\n" +
 		"Consider how the constraints should affect the visual style (e.g., age-appropriate style, restricting violent content).\n" +
 		"Return ONLY the adapted image style description (max 50 words).",
+	// The story thread's summary request, sent as the game's own message once
+	// the thread nears its model's context window. The reply goes to the
+	// engine only: a fresh provider thread starts from it.
+	PromptSummary: `PAUSE THE STORY. This message comes from the game engine, and your reply goes to the engine only, never to the player.
+
+The conversation so far will be replaced by your reply, followed by its last few exchanges. Write the story so far, so that you can carry it on from your reply alone:
+- the world and its places, and where the story stands now;
+- the characters, what they want, and the state they are in;
+- what the player holds, knows and has done;
+- open threads, promises and secrets not yet revealed;
+- the tone and style of the narration.
+
+If the conversation begins with an earlier summary, fold it in. Write plain prose, in the language the story is told in: no JSON, no markdown, no address to the player.`,
 }
 
 // adventurePromptData fills the templates of Adventure's prompts.
@@ -529,6 +546,7 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	// Outline takes the thread's first seat, Expand the second.
 	story := blocks.NewThread("story-thread", cfg.Thread,
 		systemMessage(prompts[PromptGameMaster], cfg.Scenario, cfg.StartingMessage, constraints), constraints)
+	story.Compaction = blocks.Compaction{Window: cfg.Window, Request: prompts[PromptSummary]}
 	outline := blocks.NewStructured(BlockOutline, story, OutlineSchema(cfg.Status), outlineResult)
 	expand := blocks.NewThreaded(BlockExpand, story, blocks.Prompt{First: prompts[PromptOpeningExpand], Then: prompts[PromptExpand]})
 	expand.Clean = cleanNarration
@@ -624,12 +642,13 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 		Gate:        gate,
 		Prompts:     prompts,
 		Constrained: constrained,
+		OnThread:    map[string]blocks.OnThread{outline.NodeName(): outline, expand.NodeName(): expand},
 		// The graph's shape is fixed; a toggle that is off stops its block
 		// working. Narration has Expand's turns spoken, and the session runs
 		// the story thread on the tier's speaking model meanwhile.
 		Switches: map[adapters.Toggle][]ports.Switchable{
 			adapters.ToggleImages:   {image},
-			adapters.ToggleAudioOut: {expand.Narration()},
+			adapters.ToggleAudioOut: {expand.Spoken()},
 			adapters.ToggleAudioIn:  {hearing},
 		},
 		Say:   player.Say,

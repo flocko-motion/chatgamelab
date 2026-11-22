@@ -57,8 +57,14 @@ type ThreadTurn struct {
 	// spoken turn as a plain one.
 	Speak        bool
 	Continuation Continuation
+	// Summary is the story before the transcript, condensed once the thread
+	// neared its model's context window; empty when the transcript holds the
+	// whole story. It seeds a fresh provider thread after the System Message,
+	// as the game's own message, before the transcript.
+	Summary string
 	// Transcript seeds a fresh provider thread when the continuation cannot be
-	// used, so a session never ends because a provider forgot its thread.
+	// used, so a session never ends because a provider forgot its thread: the
+	// exchanges after the summary, or all of them when there is none.
 	Transcript []Exchange
 	// Piece hears each piece of the reply as it arrives; nil hears nothing.
 	Piece func(string)

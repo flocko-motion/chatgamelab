@@ -5,11 +5,18 @@
  * is selected, in the same place — so reading a stage costs a click rather than
  * a dialog, and the graph stays visible while you read.
  */
-import type { EdgeDetail, NodeDetail, Sample, SessionRef, UsageRecord } from "../client.js";
+import type { EdgeDetail, NodeDetail, Sample, SessionRef, ThreadFill, UsageRecord } from "../client.js";
 import type { PlaybackEngineState } from "../state.js";
+import { text as said } from "../texts.js";
 
 export class Details {
   #selected: string | null = null;
+  /**
+   * The block whose thread is compacting at the reader's request, and whether
+   * it has reported working since; its details are fetched again once it is
+   * ready, so the new fill shows.
+   */
+  #compacting: { name: string; worked: boolean } | null = null;
 
   constructor(
     private readonly title: HTMLElement,
@@ -79,6 +86,15 @@ export class Details {
    * than a live reading.
    */
   refresh(state: PlaybackEngineState): void {
+    const compacting = this.#compacting;
+    if (compacting && compacting.name === this.#selected) {
+      const phase = state.phases[compacting.name];
+      if (phase === "working") compacting.worked = true;
+      if (compacting.worked && phase === "ready") {
+        this.#compacting = null;
+        void this.show(compacting.name);
+      }
+    }
     if (this.#selected) return;
     this.#renderSession(state);
   }
@@ -126,8 +142,30 @@ export class Details {
     // A sink has no outputs and a source has no inputs, so neither is assumed.
     if (detail.outputs?.length) parts.push(samples("last outputs", detail.outputs));
     if (detail.inputs?.length) parts.push(samples("last inputs", detail.inputs));
+    // A block on a thread can have it compacted now, to see how well a
+    // summary keeps the story.
+    if (detail.thread) parts.push(this.#compactButton(name));
 
     this.body.replaceChildren(...parts);
+  }
+
+  #compactButton(name: string): HTMLElement {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "compact";
+    button.textContent = said("pipeline.compact");
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      button.textContent = said("pipeline.compacting");
+      try {
+        await this.session.client.postApiEngineSessionsIdNodesNodeCompact(this.session.id, encodeURIComponent(name));
+        this.#compacting = { name, worked: false };
+      } catch {
+        button.disabled = false;
+        button.textContent = said("pipeline.compactFailed");
+      }
+    });
+    return button;
   }
 }
 
@@ -138,6 +176,7 @@ function facts(detail: NodeDetail): HTMLElement {
     ["state", detail.phase],
   ];
   if (detail.usage?.model) rows.push(["model", detail.usage.model]);
+  if (detail.thread) rows.push(["context", fill(detail.thread)]);
   if (detail.usage) rows.push(["spent", `${amount(detail.usage)} · ${money(detail.usage.cost)}`]);
 
   const list = document.createElement("div");
@@ -178,6 +217,18 @@ function clock(at: string): string {
   if (Number.isNaN(when.getTime())) return "";
   return when.toLocaleTimeString(undefined, { hour12: false }) +
     "." + String(when.getMilliseconds()).padStart(3, "0");
+}
+
+/**
+ * How full a thread is, as a share of its model's window: "42% · 2,520 of
+ * 6,000 tok". Nothing before a call, or after a compaction until the next.
+ */
+function fill(thread: ThreadFill): string {
+  if (!thread.tokens) return "—";
+  const tokens = thread.tokens.toLocaleString();
+  if (!thread.window) return `${tokens} tok`;
+  const share = Math.round((thread.tokens / thread.window) * 100);
+  return `${share}% · ${tokens} of ${thread.window.toLocaleString()} tok`;
 }
 
 function amount(record: UsageRecord): string {

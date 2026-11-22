@@ -20,9 +20,9 @@ type Result struct {
 }
 
 // Structured is a threaded call whose reply is JSON of its schema, its fields
-// going out as its Result names them. A player's action goes as JSON with the
-// current props, which the thread's memory is not trusted for. The opening
-// cue goes as it is, as the game's own message, only on a thread without a
+// going out as its Result names them. Its input goes as JSON with the current
+// props, which the thread's memory is not trusted for. The cue on its opening
+// input goes as it is, as the game's own message, only on a thread without a
 // call of the block's, so a resumed session never opens twice.
 //
 // A reply is tidied of a fence and the text around its JSON. One that still
@@ -47,6 +47,7 @@ type Structured struct {
 
 	in        ports.TextInput
 	opening   ports.TextInput
+	compacts  chan struct{}
 	propsIn   ports.PropsInput
 	out       ports.TextBroadcast
 	secondary ports.TextBroadcast
@@ -71,13 +72,22 @@ func NewStructured(name string, thread *Thread, schema adapters.Schema, result R
 		Attempts: 3,
 		in:       make(ports.TextInput, 16),
 		opening:  make(ports.TextInput, 1),
+		compacts: make(chan struct{}, 1),
 		propsIn:  make(ports.PropsInput, 16),
 		meter:    meter{name: name},
 		current:  ports.PropMap{},
 	}
 }
 
-func (b *Structured) NodeName() string                  { return b.name }
+func (b *Structured) NodeName() string { return b.name }
+
+// Thread is the thread the block takes part in.
+func (b *Structured) Thread() *Thread { return b.thread }
+
+// Compact asks the block's thread to compact now, between calls; the block
+// shows working meanwhile and pays for the summary. A request while one waits
+// is the same request.
+func (b *Structured) Compact()                          { request(b.compacts) }
 func (b *Structured) TextInPort() chan<- string         { return b.in }
 func (b *Structured) OpeningInPort() chan<- string      { return b.opening }
 func (b *Structured) PropsInPort() chan<- ports.PropMap { return b.propsIn }
@@ -138,6 +148,8 @@ func (b *Structured) Start(ctx context.Context) {
 					return
 				}
 				maps.Copy(b.current, update)
+			case <-b.compacts:
+				compactNow(ctx, b.thread, b.name, &b.state, &b.meter, b.Backoff)
 			case cue, open := <-b.opening:
 				if !open {
 					return
@@ -181,7 +193,6 @@ func (b *Structured) turn(ctx context.Context, text string, opening bool) bool {
 		return true
 	}
 
-	b.thread.pass(b.seat)
 	b.out.Send(got.text)
 	b.secondary.Send(got.secondary)
 	if got.props != nil {
@@ -190,6 +201,7 @@ func (b *Structured) turn(ctx context.Context, text string, opening bool) bool {
 		maps.Copy(b.current, got.props)
 		b.props.Send(got.props)
 	}
+	b.thread.pass(ctx, b.seat, &b.meter, b.Backoff)
 	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 	return true
 }

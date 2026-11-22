@@ -625,11 +625,14 @@ type Model struct {
 
 // ModelFacts defines model for ModelFacts.
 type ModelFacts struct {
-	In     []string `json:"in"`
-	Out    []string `json:"out"`
-	Price  Price    `json:"price"`
-	Read   string   `json:"read"`
-	Source string   `json:"source"`
+	In           []string `json:"in"`
+	Out          []string `json:"out"`
+	Price        Price    `json:"price"`
+	Read         string   `json:"read"`
+	Source       string   `json:"source"`
+	Window       *int     `json:"window,omitempty"`
+	WindowRead   *string  `json:"windowRead,omitempty"`
+	WindowSource *string  `json:"windowSource,omitempty"`
 }
 
 // NamedRef defines model for NamedRef.
@@ -652,6 +655,7 @@ type NodeDetail struct {
 	Outputs []Sample     `json:"outputs"`
 	Phase   string       `json:"phase"`
 	Role    string       `json:"role"`
+	Thread  *ThreadFill  `json:"thread,omitempty"`
 	Type    string       `json:"type"`
 	Usage   *UsageRecord `json:"usage,omitempty"`
 }
@@ -1011,6 +1015,12 @@ type SystemSettings struct {
 // ThemeInfo defines model for ThemeInfo.
 type ThemeInfo struct {
 	Id string `json:"id"`
+}
+
+// ThreadFill defines model for ThreadFill.
+type ThreadFill struct {
+	Tokens int `json:"tokens"`
+	Window int `json:"window"`
 }
 
 // TierModels defines model for TierModels.
@@ -2055,6 +2065,15 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
 	GetApiEngineSessionsIdNodesNode(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdNodesNodeCompact Asks a block's thread to compact now.
+	//
+	// The thread summarises whatever its fill, the block working meanwhile and
+	// paying for the summary; for testing how well compaction keeps a story. A
+	// block on no thread is refused.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/compact (the `PostApiEngineSessionsIdNodesNodeCompact` operationId).
+	PostApiEngineSessionsIdNodesNodeCompact(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiEngineSessionsIdOptions Answers what the player of a session may choose from.
 	//
@@ -4133,6 +4152,25 @@ func (c *Client) GetApiEngineSessionsIdLive(ctx context.Context, id string, reqE
 // Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
 func (c *Client) GetApiEngineSessionsIdNodesNode(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiEngineSessionsIdNodesNodeRequest(c.Server, id, node)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdNodesNodeCompact Asks a block's thread to compact now.
+//
+// The thread summarises whatever its fill, the block working meanwhile and
+// paying for the summary; for testing how well compaction keeps a story. A
+// block on no thread is refused.
+//
+// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/compact (the `PostApiEngineSessionsIdNodesNodeCompact` operationId).
+func (c *Client) PostApiEngineSessionsIdNodesNodeCompact(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdNodesNodeCompactRequest(c.Server, id, node)
 	if err != nil {
 		return nil, err
 	}
@@ -7878,6 +7916,47 @@ func NewGetApiEngineSessionsIdNodesNodeRequest(server string, id string, node st
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdNodesNodeCompactRequest constructs an http.Request for the PostApiEngineSessionsIdNodesNodeCompact method
+func NewPostApiEngineSessionsIdNodesNodeCompactRequest(server string, id string, node string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "node", node, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/nodes/%s/compact", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12138,6 +12217,17 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
 	GetApiEngineSessionsIdNodesNodeWithResponse(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdNodesNodeResponse, error)
 
+	// PostApiEngineSessionsIdNodesNodeCompactWithResponse Asks a block's thread to compact now.
+	//
+	// The thread summarises whatever its fill, the block working meanwhile and
+	// paying for the summary; for testing how well compaction keeps a story. A
+	// block on no thread is refused.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/compact (the `PostApiEngineSessionsIdNodesNodeCompact` operationId).
+	PostApiEngineSessionsIdNodesNodeCompactWithResponse(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdNodesNodeCompactResponse, error)
+
 	// GetApiEngineSessionsIdOptionsWithResponse Answers what the player of a session may choose from.
 	//
 	// And what the session settled on.
@@ -14974,6 +15064,47 @@ func (r GetApiEngineSessionsIdNodesNodeResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiEngineSessionsIdNodesNodeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdNodesNodeCompactResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdNodesNodeCompactResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdNodesNodeCompactResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdNodesNodeCompactResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdNodesNodeCompactResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdNodesNodeCompactResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -20480,6 +20611,23 @@ func (c *ClientWithResponses) GetApiEngineSessionsIdNodesNodeWithResponse(ctx co
 	return ParseGetApiEngineSessionsIdNodesNodeResponse(rsp)
 }
 
+// PostApiEngineSessionsIdNodesNodeCompactWithResponse Asks a block's thread to compact now.
+//
+// The thread summarises whatever its fill, the block working meanwhile and
+// paying for the summary; for testing how well compaction keeps a story. A
+// block on no thread is refused.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/compact (the `PostApiEngineSessionsIdNodesNodeCompact` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdNodesNodeCompactWithResponse(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdNodesNodeCompactResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdNodesNodeCompact(ctx, id, node, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdNodesNodeCompactResponse(rsp)
+}
+
 // GetApiEngineSessionsIdOptionsWithResponse Answers what the player of a session may choose from.
 //
 // And what the session settled on.
@@ -23587,6 +23735,35 @@ func ParseGetApiEngineSessionsIdNodesNodeResponse(rsp *http.Response) (*GetApiEn
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdNodesNodeCompactResponse parses an HTTP response from a PostApiEngineSessionsIdNodesNodeCompactWithResponse call
+func ParsePostApiEngineSessionsIdNodesNodeCompactResponse(rsp *http.Response) (*PostApiEngineSessionsIdNodesNodeCompactResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdNodesNodeCompactResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

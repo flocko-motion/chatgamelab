@@ -283,6 +283,26 @@ func (EngineNodeEndpoint) Handle(ctx context.Context, req EngineNodeReq) (Engine
 	return engineapi.NodeEndpoint{API: Engine}.Handle(ctx, req)
 }
 
+// EngineCompactEndpoint asks a block's thread to compact now.
+//
+// The thread summarises whatever its fill, the block working meanwhile and
+// paying for the summary; for testing how well compaction keeps a story. A
+// block on no thread is refused.
+type EngineCompactEndpoint struct{}
+
+func (EngineCompactEndpoint) Method() string { return "POST" }
+func (EngineCompactEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/compact"
+}
+func (EngineCompactEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineCompactEndpoint) Handle(ctx context.Context, req EngineNodeReq) (EngineAccepted, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
+	if err != nil {
+		return EngineAccepted{}, err
+	}
+	return engineapi.CompactEndpoint{API: Engine}.Handle(ctx, req)
+}
+
 // EngineEdgeEndpoint answers what one wire of a session has carried.
 //
 // The wire is named by its ends and its kind.

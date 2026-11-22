@@ -14,7 +14,8 @@ import (
 )
 
 // threadPrefix starts every continuation the mock makes; the number after it
-// is the turn the thread has reached.
+// is the turn the thread has reached, and a number after a colon the spoken
+// replies the provider thread holds as audio.
 const threadPrefix = "mock-thread-"
 
 // Thread answers each call with its turn number, which a continuation or a
@@ -25,6 +26,13 @@ const threadPrefix = "mock-thread-"
 // each object field its value carried on, marked "[turn N]". A cue that is no
 // JSON stands in for the action. A spoken turn follows each word with a PCM16
 // tone, billed as audio tokens.
+//
+// Its input grows with the thread, as a provider's does: it bills the System
+// Message, the summary and the call's own text, and each turn the thread
+// holds bills turnTokens of input, and each spoken reply a continued thread
+// holds bills spokenTokens more, as audio input, as a Realtime session keeps
+// a spoken reply as audio. A fresh thread is seeded from text, so it holds no
+// audio; a summary it is seeded with counts as a turn.
 type Thread struct {
 	Pace Pace
 	// Name is the model the thread runs on; empty is mock-story.
@@ -44,13 +52,24 @@ const (
 	audioTokensPerSecond = 20
 )
 
+// What a held turn takes of the input: its text, and a spoken reply's audio
+// on top, which takes more than its transcript. Text sent is billed at about
+// four characters a token, as English runs.
+const (
+	turnTokens    = 200
+	spokenTokens  = 300
+	charsPerToken = 4
+)
+
 func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapters.ThreadReply, error) {
-	n := len(turn.Transcript) + 1
-	if before, ok := strings.CutPrefix(turn.Continuation.ID, threadPrefix); ok {
-		if reached, err := strconv.Atoi(before); err == nil {
-			n = reached + 1
+	held, heldSpoken, continued := reached(turn.Continuation.ID)
+	if !continued {
+		held = len(turn.Transcript)
+		if turn.Summary != "" {
+			held++
 		}
 	}
+	n := held + 1
 
 	text := fmt.Sprintf("[story turn %d] %s", n, echo(turn.Input))
 	if turn.Schema != nil {
@@ -75,27 +94,47 @@ func (t Thread) Continue(ctx context.Context, turn adapters.ThreadTurn) (adapter
 		}
 	}
 
-	seen := len(turn.Input) + len(turn.Constraints)
-	if turn.Continuation.ID == "" {
-		seen += len(turn.System)
-	}
+	// The thread holds the System Message and the summary throughout.
+	sent := len(turn.System) + len(turn.Summary) + len(turn.Input) + len(turn.Constraints)
 	used := adapters.Usage{
-		Model:        t.Model(),
-		InputTokens:  int64(400 + seen),
-		OutputTokens: int64(len(text)),
+		Model:            t.Model(),
+		InputTokens:      int64(400 + sent/charsPerToken + turnTokens*held),
+		AudioInputTokens: int64(spokenTokens * heldSpoken),
+		OutputTokens:     int64(len(text)),
 	}
 	if spoken {
 		used.AudioOutputTokens = int64(float64(len(words)) * wordSeconds * audioTokensPerSecond)
+		heldSpoken++
+	}
+	id := threadPrefix + strconv.Itoa(n)
+	if heldSpoken > 0 {
+		id += ":" + strconv.Itoa(heldSpoken)
 	}
 	return adapters.ThreadReply{
 		Text:  text,
 		Usage: used,
 		Continuation: adapters.Continuation{
-			ID:    threadPrefix + strconv.Itoa(n),
+			ID:    id,
 			Model: t.Model(),
 			Made:  time.Now().UTC(),
 		},
 	}, nil
+}
+
+// reached reads a continuation the mock made: the turns its thread holds,
+// the spoken replies among them, and whether it is one at all.
+func reached(id string) (held, spoken int, ok bool) {
+	rest, ok := strings.CutPrefix(id, threadPrefix)
+	if !ok {
+		return 0, 0, false
+	}
+	turns, audio, _ := strings.Cut(rest, ":")
+	held, err := strconv.Atoi(turns)
+	if err != nil {
+		return 0, 0, false
+	}
+	spoken, _ = strconv.Atoi(audio)
+	return held, spoken, true
 }
 
 // echoWords bounds a plain turn's echo, so a long prompt makes a reply, and a
