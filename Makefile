@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local
+.PHONY: help rebase pr release prerelease sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -10,7 +10,8 @@ MAIN := v2/main
 help:
 	@echo "make rebase           rebase onto origin/$(DEV) and force-push (own feature branch only)"
 	@echo "make pr [MERGE=1]     merge $(DEV) in, push, open the pull request; MERGE=1 waits for checks and merges"
-	@echo "make release [YES=1]  $(DEV) -> $(MAIN), then $(MAIN) back into $(DEV); YES=1 skips the prompt"
+	@echo "make release [YES=1]  $(DEV) -> $(MAIN), back into $(DEV), then cut the release from $(MAIN); YES=1 skips the prompt"
+	@echo "make prerelease       cut a prerelease (x.y.z-dev.N) from $(DEV)"
 	@echo "make sync             merge $(MAIN) back into $(DEV) through a pull request"
 	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
 	@echo "make translate        translate changed UI texts into every language (before pushing)"
@@ -231,8 +232,8 @@ release:
 			origin/$(MAIN)..origin/$(DEV))"; \
 		echo ">> these commits enter $(MAIN):"; \
 		echo "$$notes" | sed 's/^/     /'; \
-		echo ">> the 2.X line publishes nothing yet: no release tag, no images, no"; \
-		echo "   deploy. Merging only moves $(MAIN)."; \
+		echo ">> then $(MAIN) is released: a tag, its signed artifact, and every"; \
+		echo "   instance on the stable channel offers it to its admins."; \
 		if [ -z "$(YES)" ]; then \
 			printf ">> really release to $(MAIN)? [y/N] "; \
 			read -r reply < /dev/tty || reply=""; \
@@ -252,7 +253,13 @@ release:
 		wait_and_merge $(DEV) || exit 1; \
 	fi
 	@$(MAKE) --no-print-directory sync
+	scripts/release.sh $(MAIN)
 	@echo "✅ released — $(MAIN) is up to date"
+
+# A prerelease of $(DEV) as origin has it, for instances on the prerelease
+# channel (docs/workflows/releasing.md).
+prerelease:
+	scripts/release.sh $(DEV)
 
 # The back-merge on its own: for a release whose pull request someone else
 # merged, or which was merged in the browser. Safe to run at any time, and a

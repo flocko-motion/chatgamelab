@@ -45,11 +45,13 @@ that concludes it was the wrong thing.
 ## The Process 
 
 ```
-your branch  →  pull request  →  checks  →  review  →  development  →  dev server (automatic)
+your branch  →  pull request  →  checks  →  review  →  v2/development
+                                                            ↓
+                                                 prerelease, by the lead  →  dev server (its admin upgrades)
                                                             ↓
                                                    release, by the lead
                                                             ↓
-                                                     main  →  production (automatic)
+                                                         v2/main  →  every instance (its admin upgrades)
 ```
 
 
@@ -164,25 +166,22 @@ and want to merge your contribution.
 
 Once he confirmes, your changes are merged and are now in the *Development Branch*
 
-### The Development Branch 
+### The Development Branch
 
-**`development`** is where your changework lands once our PR was accepted and merged. 
-After merging it gets automatically deployed to the development server at 
-*dev.cgl.fmnoel.de* where you can try out that version in a real environment. 
+**`v2/development`** is where your change lands once your pull request is
+merged. The lead cuts prereleases from it (`make prerelease`); the development
+server at *dev.cgl.fmnoel.de* follows the prerelease channel, and its admin
+upgrades it from the app, under Server settings › Updates. There you try out
+your change in a real environment.
 
-The development server exists, so that stakeholders can try out that version 
-and assess, if it's ready for production. 
+The development server exists so that stakeholders can try out a version and
+judge whether it is ready for a release.
 
-### The Main Branch - Releasing 
+### Releasing
 
-If the `development` branch seems to be good and the stakeholders signal, that it 
-should be released, a PR (Pull Request) from `development` to `main` is created. This 
-can be done with a browser in github.com or with the command 
-
-`make release` 
-
-Once merged, the updated *main* branch is automatically deployed to the production 
-server. The new version is online within a vew minutes. You can tell from the 
-changed version number on the website. 
+When `v2/development` is ready and the stakeholders agree, the lead releases
+it with `make release`: `v2/development` goes into `v2/main`, which is
+released (`docs/workflows/releasing.md`). Every instance offers the release to
+its admins, who upgrade with a click. The version shows on the website.
 
 

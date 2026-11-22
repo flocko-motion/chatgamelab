@@ -1,0 +1,151 @@
+---
+# The instance's env file, ~/.chatgamelab/etc/env of the run user, which
+# schemaf's run side loads and hands to the backend container. One block holds
+# the instance file's values and is rewritten on every run; the secrets around
+# it (DB_PASS, ADMIN_EMAILS) are written once and kept.
+- name: Create the app's config directory
+  ansible.builtin.file:
+    path: "{{ run_home }}/.chatgamelab/etc"
+    state: directory
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0700"
+
+- name: Ensure the env file exists, readable to the run user only
+  ansible.builtin.copy:
+    dest: "{{ env_file }}"
+    content: ""
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0600"
+    force: false
+
+- name: Read the env file
+  ansible.builtin.slurp:
+    src: "{{ env_file }}"
+  register: env_content
+  no_log: true
+
+# Postgres reads the password only when it creates the database, so it is
+# generated once and kept.
+- name: Generate the database password
+  ansible.builtin.lineinfile:
+    path: "{{ env_file }}"
+    line: "DB_PASS={{ lookup('ansible.builtin.password', '/dev/null', length=32, chars=['ascii_letters', 'digits']) }}"
+    insertbefore: BOF
+  when: "'\nDB_PASS=' not in ('\n' ~ (env_content.content | b64decode))"
+  no_log: true
+
+# Grants admin at the first sign-in of this address, while no admin exists.
+- name: Set the first admin's address
+  ansible.builtin.lineinfile:
+    path: "{{ env_file }}"
+    regexp: "^ADMIN_EMAILS="
+    line: "ADMIN_EMAILS={{ admin_email }}"
+  when: admin_email | default('') | length > 0
+  no_log: true
+
+- name: Copy the backup key
+  ansible.builtin.copy:
+    src: "{{ backup_key_src }}"
+    dest: "{{ backup_key_path }}"
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0600"
+  when: backup_key_src | default('') | length > 0
+  no_log: true
+
+- name: Look for the backup key on the box
+  ansible.builtin.stat:
+    path: "{{ backup_key_path }}"
+  register: backup_key_stat
+
+- name: Refuse backups without a key
+  ansible.builtin.assert:
+    that: backup_key_stat.stat.exists
+    fail_msg: >-
+      backup_ssh_host is set, and the box holds no backup key. Pass
+      --backup-key <file> once.
+  when: backup_ssh_host | default('') | length > 0
+
+- name: Write the instance's values
+  ansible.builtin.blockinfile:
+    path: "{{ env_file }}"
+    marker: "# {mark} managed by deploy/setup.sh from {{ inventory_hostname }}.yml"
+    block: |
+      PUBLIC_URL=https://{{ inventory_hostname }}
+      PUBLIC_AUTH0_DOMAIN={{ auth0_domain }}
+      PUBLIC_AUTH0_CLIENT_ID={{ auth0_client_id }}
+      PUBLIC_SENTRY_DSN={{ sentry_dsn_frontend | default('') }}
+      PUBLIC_HOMEPAGE_URL={{ homepage_url | default('') }}
+      SENTRY_DSN_BACKEND={{ sentry_dsn_backend | default('') }}
+      ENVIRONMENT={{ sentry_environment | default('production') }}
+      SCHEMAF_RELEASES=https://github.com/{{ release_repo }}/releases/download/schemaf-index/releases.json
+      SCHEMAF_SIGNER={{ release_repo }}
+      SCHEMAF_CHANNEL={{ release_channel }}
+      {% if backup_ssh_host | default('') | length > 0 %}
+      BACKUP_SSH_HOST={{ backup_ssh_host }}
+      BACKUP_SSH_PORT={{ backup_ssh_port | default(22) }}
+      BACKUP_SSH_USER={{ backup_ssh_user }}
+      BACKUP_SSH_KEY_PATH={{ backup_key_path }}
+      BACKUP_PATH={{ backup_path | default('/backups') }}
+      BACKUP_RETAIN={{ backup_retain | default(30) }}
+      BACKUP_HOUR={{ backup_hour | default(3) }}
+      {% endif %}
+
+# The run-side schemaf.sh, from the release this setup was checked out at.
+# It is the one file on the box that is not verified, so it comes from the
+# repository over https; every artifact's load keeps it current afterwards.
+- name: Create the run-side bin directory
+  ansible.builtin.file:
+    path: "{{ run_home }}/.chatgamelab/bin"
+    state: directory
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0755"
+
+- name: Install the run-side schemaf.sh
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/{{ release_repo }}/{{ setup_ref }}/schemaf.sh"
+    dest: "{{ schemaf_sh }}"
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0755"
+    force: false
+
+- name: Read what runs
+  ansible.builtin.slurp:
+    src: "{{ run_home }}/.chatgamelab/updates/status.json"
+  register: update_status
+  failed_when: false
+
+- name: Hold the running version
+  ansible.builtin.set_fact:
+    running_version: "{{ (update_status.content | b64decode | from_json).running | default('') if update_status.content is defined else '' }}"
+
+# A new box installs the newest release on its channel; a box that runs a
+# version is upgraded only by its admin, from the app.
+- name: Fetch and verify the newest release
+  ansible.builtin.command: "{{ schemaf_sh }} releases"
+  become: true
+  become_user: "{{ run_user }}"
+  environment: &run_env
+    XDG_RUNTIME_DIR: "/run/user/{{ run_uid }}"
+  register: fetched
+  when: running_version | length == 0
+  changed_when: true
+
+- name: Install it
+  ansible.builtin.command: "{{ schemaf_sh }} install {{ fetched.stdout_lines | last }}"
+  become: true
+  become_user: "{{ run_user }}"
+  environment: *run_env
+  when: running_version | length == 0
+  changed_when: true
+
+- name: Enable the updater
+  ansible.builtin.command: "{{ schemaf_sh }} updater enable"
+  become: true
+  become_user: "{{ run_user }}"
+  environment: *run_env
+  changed_when: true

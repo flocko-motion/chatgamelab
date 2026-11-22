@@ -1,0 +1,4 @@
+---
+env_file: "{{ run_home }}/.chatgamelab/etc/env"
+backup_key_path: "{{ run_home }}/.chatgamelab/etc/backup_key"
+schemaf_sh: "{{ run_home }}/.chatgamelab/bin/schemaf.sh"

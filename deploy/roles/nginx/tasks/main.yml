@@ -1,0 +1,50 @@
+---
+- name: Install nginx and certbot
+  ansible.builtin.apt:
+    name:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+    state: present
+
+- name: Template the vhost
+  ansible.builtin.template:
+    src: site.conf.j2
+    dest: "/etc/nginx/sites-available/{{ inventory_hostname }}.conf"
+    mode: "0644"
+  notify: reload nginx
+
+- name: Enable the vhost
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ inventory_hostname }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ inventory_hostname }}.conf"
+    state: link
+  notify: reload nginx
+
+- name: Remove the default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: reload nginx
+
+- name: Run nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    enabled: true
+    state: started
+
+# nginx serves plain HTTP before certbot asks for the certificate.
+- name: Apply the vhost
+  ansible.builtin.meta: flush_handlers
+
+# certbot adds the TLS directives to the templated vhost on every run and
+# skips issuance while the certificate is valid.
+- name: Issue or renew the certificate
+  ansible.builtin.command:
+    cmd: >
+      certbot --nginx
+      -d {{ inventory_hostname }}
+      --non-interactive --agree-tos -m {{ certbot_email }}
+      --redirect
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
