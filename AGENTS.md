@@ -43,11 +43,19 @@ what every user may see and do. `.github/CODEOWNERS` lists the sealed paths.
 
 ## New issues
 
-- Every issue gets a milestone (GitHub's milestone field: `1.1` v1 legacy,
-  `2.0` v2 infrastructure, `2.1` v2 features). Before creating an issue, ask
-  the owner which milestone it gets, unless they named it, and set it with
-  `--milestone`.
+- Every issue gets a milestone. The v2 milestones are phases, in order of
+  their due date: `2.X - Fundamentals`, `2.X - Add Features`,
+  `2.X - Evaluation Demonstrator`, `2.X - Finalize Demonstrator`,
+  `2.X - Support And Fixes`; `Future` holds what is not scheduled yet.
+  `1.1` is v1 legacy and takes no new issues. Before creating an issue,
+  ask the owner which milestone it gets, unless they named it, and set it
+  with `--milestone`.
 - Put the issue under its epic, as a sub-issue, where one fits.
+- The `AJ` epics (`Epic: AJ<n> …`) mirror the positions of the Aktion
+  Jugendschutz contract. Only issues that directly deliver a position go
+  under them, and they carry the label `AJ`; work they depend on stays in
+  its own epic and is linked with *blocked by*. Evidence that a position is
+  delivered goes into the AJ epic's comments.
 - The roadmap (`roadmap/`) groups issues by milestone and epic; an issue
   without a milestone lands under "No milestone".
 
