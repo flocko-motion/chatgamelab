@@ -34,6 +34,10 @@ export const ErrorCodes = {
   INSTITUTION_CONSENTS_REQUIRED: "institution_consents_required",
   // The caller's organisation is suspended: by an admin, or for want of a consent
   ORGANISATION_SUSPENDED: "organisation_suspended",
+  // The site's updates (server: schemaf's /api/updates)
+  UPDATER_NOT_ENABLED: "updater_not_enabled",
+  VERSION_NOT_AVAILABLE: "version_not_available",
+  INSTALL_RUNNING: "install_running",
   // AI-related error codes
   INVALID_API_KEY: "invalid_api_key",
   NO_API_KEY: "no_api_key",

@@ -11,6 +11,7 @@ import type {
   GetVersionResp,
   UpdateSystemSettingsReq,
   SystemConstraintsResp,
+  SchemafUpdateState,
 } from "../generated/api.gen";
 
 // Platforms hook (requires authentication)
@@ -107,5 +108,56 @@ export function useSystemConstraints(enabled = true) {
     queryKey: queryKeys.systemConstraints,
     queryFn: () => api.getApiSystemConstraints().then((r) => r.data),
     enabled,
+  });
+}
+
+const UPDATES_POLL_MS = 5000;
+
+/** Whether an upgrade runs on the site. */
+export function upgradeRunning(state: SchemafUpdateState | undefined): boolean {
+  return state?.status === "installing" || state?.install?.state === "installing";
+}
+
+/**
+ * Whether the run host has handled a request for `version`: installed it (or
+ * rolled back), or rejected the request.
+ */
+export function upgradeHandled(state: SchemafUpdateState | undefined, version: string): boolean {
+  if (!state || upgradeRunning(state)) return false;
+  return (
+    state.install?.version === version ||
+    (state.request?.version === version && state.request.state === "rejected")
+  );
+}
+
+/**
+ * The site's running version, the versions it may upgrade to and the state of
+ * the last upgrade. Polled while an upgrade runs, and while the request for
+ * `awaiting` is not handled yet: the server restarts during an upgrade, so
+ * failed polls are expected then.
+ */
+export function useUpdates(awaiting: string | null = null) {
+  return useQuery<SchemafUpdateState, ApiError>({
+    queryKey: queryKeys.updates,
+    queryFn: () => api.getApiUpdates().then((r) => r.data),
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      const waiting = awaiting !== null && !upgradeHandled(data, awaiting);
+      return waiting || upgradeRunning(data) ? UPDATES_POLL_MS : false;
+    },
+    retry: awaiting !== null ? true : 3,
+  });
+}
+
+/** Asks the run host to install `version`; it checks the version again. */
+export function useRequestUpgrade() {
+  const queryClient = useQueryClient();
+  return useMutation<{ version: string }, ApiError, string>({
+    mutationFn: (version) =>
+      api.postApiUpdatesRequest({ version }).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.updates });
+    },
+    onError: handleApiError,
   });
 }

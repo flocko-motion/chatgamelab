@@ -13,13 +13,14 @@ import (
 )
 
 // Wire registers the app's database, API endpoints, sign-in, the secure
-// core's caller (resolved once per request), background services and the
-// embedded frontend.
+// core's caller (resolved once per request), who may manage the site's
+// updates, background services and the embedded frontend.
 func Wire(app *schemaf.App) {
 	app.AddDb(db.Provider)
 	app.AddApi(api.Provider)
 	app.OnLogin(core.OnLogin)
 	app.OnRequest(core.Resolve)
+	app.SetUpdatesAuth(core.MayManageUpdates)
 	app.AddService(api.Startup)
 	app.AddService(core.Bootstrap)
 	app.AddService(core.Janitor(func(id string) { api.Engine.Forget(id) }))

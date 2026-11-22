@@ -35,6 +35,7 @@ type (
 	ApiKeyInfo          = apiclient.ApiKeyInfoResp
 	ApiKeyGameShare     = apiclient.ShareLinkView
 	SystemSettings      = apiclient.SystemSettings
+	UpdateState         = apiclient.SchemafUpdateState
 	Genre               = apiclient.GenreInfo
 	Theme               = apiclient.ThemeInfo
 	Snapshot            = apiclient.Snapshot

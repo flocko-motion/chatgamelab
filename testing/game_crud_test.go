@@ -101,6 +101,22 @@ func (s *GameCrudTestSuite) TestNonOwnerCannotUpdateGame() {
 	s.NotEqual("Hacked Name", Must(alice.GetGameByID(game.Id.String())).Name)
 }
 
+// TestNonOwnerCannotUpdatePublicGame verifies that a non-owner who can read
+// another user's public game still may not change it.
+func (s *GameCrudTestSuite) TestNonOwnerCannotUpdatePublicGame() {
+	alice := s.CreateUser("crud-notown-pub-a")
+	bob := s.CreateUser("crud-notown-pub-b")
+
+	game := Must(alice.UploadGame("alien-first-contact"))
+	Must(alice.SetGamePublic(game.Id.String(), true))
+
+	// Bob can see alice's public game, so he learns he may not change it
+	Must(bob.GetGameByID(game.Id.String()))
+	_, err := bob.RenameGame(game.Id.String(), "Hacked Name")
+	s.Forbidden(err, "non-owner should not be able to update a public game")
+	s.Equal(game.Name, Must(alice.GetGameByID(game.Id.String())).Name)
+}
+
 // TestNameLengthValidation verifies that game names over 70 chars are rejected.
 func (s *GameCrudTestSuite) TestNameLengthValidation() {
 	alice := s.CreateUser("crud-namelen")

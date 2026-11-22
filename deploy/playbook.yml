@@ -1,0 +1,44 @@
+# One chatgamelab instance per box: Debian 13 or newer, one run user `cgl`
+# holding rootless podman and the stack, native nginx in front with TLS.
+# Run through deploy/setup.sh, which supplies the inventory and the instance's
+# configuration.
+- name: Set up a chatgamelab box
+  hosts: chatgamelab
+  become: true
+
+  vars:
+    run_user: cgl
+    run_home: /var/lib/cgl
+    # The app's port (schemaf.toml), which nginx proxies to.
+    app_port: 7100
+
+  pre_tasks:
+    - name: Refuse anything older than Debian 13
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Debian'
+          - ansible_facts['distribution_major_version'] | int >= 13
+        fail_msg: >-
+          Needs Debian 13 (trixie) or newer, for podman 5; found
+          {{ ansible_facts['distribution'] }}
+          {{ ansible_facts['distribution_major_version'] }}.
+
+    - name: Refuse a configuration without SSH keys or Auth0 client
+      ansible.builtin.assert:
+        that:
+          - ssh_keys | default([]) | length > 0
+          - auth0_domain | default('') | length > 0
+          - auth0_client_id | default('') | length > 0
+          - certbot_email | default('') | length > 0
+        fail_msg: >-
+          The instance file needs ssh_keys, auth0_domain, auth0_client_id and
+          certbot_email (see deploy/example.yml).
+
+  roles:
+    - base
+    # Before the app: a box that ran chatgamelab 1.x holds containers with
+    # the names the app's stack uses.
+    - v1_cleanup
+    - podman
+    - nginx
+    - app

@@ -1,0 +1,110 @@
+---
+# A box set up for chatgamelab 1.x (by the 1.x deploy repository) carries its
+# deploy clone in /opt/chatgamelab. Converting it removes the 1.x stack with
+# its database, its units, the build user and the 1.x files; the directory
+# goes last, so a run that fails halfway converts again next time and a
+# converted box skips all of this.
+- name: Look for a chatgamelab 1.x setup
+  ansible.builtin.stat:
+    path: /opt/chatgamelab
+  register: v1_setup
+
+- name: Convert a chatgamelab 1.x box
+  when: v1_setup.stat.exists
+  block:
+    - name: Stop and disable the 1.x units
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      loop: &v1_units
+        - cgl-stack.service
+        - cgl-backup.timer
+        - cgl-backup.service
+        - cgl-update.timer
+        - cgl-update.path
+        - cgl-update.service
+        - cgl-hook.service
+        - cgl-build-prune.timer
+        - cgl-build-prune.service
+      failed_when: false
+
+    - name: Remove the 1.x unit files
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ item }}"
+        state: absent
+      loop: *v1_units
+
+    - name: Remove the 1.x helpers
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/tmpfiles.d/cgl-deploy.conf
+        - /usr/local/bin/cgl-deploy-hook
+        - /etc/sudoers.d/50-cgl-build
+        - /run/cgl-deploy
+        - /var/tmp/cgl-handoff
+
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    # The 1.x containers carry the names the app's stack uses.
+    - name: Remove the 1.x containers
+      ansible.builtin.command: podman rm --force --ignore chatgamelab-db chatgamelab-backend chatgamelab-web
+      become: true
+      become_user: "{{ run_user }}"
+      environment: &run_env
+        XDG_RUNTIME_DIR: "/run/user/{{ run_uid }}"
+      changed_when: true
+
+    # The 1.x compose project is named after its directory, "deploy".
+    - name: Find the 1.x volumes
+      ansible.builtin.command: podman volume ls --quiet --filter label=com.docker.compose.project=deploy
+      become: true
+      become_user: "{{ run_user }}"
+      environment: *run_env
+      register: v1_volumes
+      changed_when: false
+
+    - name: Remove the 1.x volumes, the 1.x database with them
+      ansible.builtin.command: "podman volume rm {{ v1_volumes.stdout_lines | join(' ') }}"
+      become: true
+      become_user: "{{ run_user }}"
+      environment: *run_env
+      when: v1_volumes.stdout_lines | length > 0
+      changed_when: true
+
+    - name: Remove the 1.x images and networks
+      ansible.builtin.command: "{{ item }}"
+      become: true
+      become_user: "{{ run_user }}"
+      environment: *run_env
+      loop:
+        - podman image prune --all --force
+        - podman network prune --force
+      changed_when: true
+
+    - name: Remove the 1.x build user and its home
+      ansible.builtin.user:
+        name: cgl-build
+        state: absent
+        remove: true
+
+    - name: Remove the run user's 1.x files
+      ansible.builtin.file:
+        path: "{{ run_home }}/{{ item }}"
+        state: absent
+      loop:
+        - env.config
+        - env.secret
+        - backup_key
+        - hook-secret
+        - deployed-ref
+        - .ground-hash
+
+    - name: Remove the 1.x deploy clone, last
+      ansible.builtin.file:
+        path: /opt/chatgamelab
+        state: absent

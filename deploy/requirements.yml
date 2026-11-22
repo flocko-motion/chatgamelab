@@ -1,0 +1,7 @@
+# A floor makes ansible-galaxy install the collection even when the
+# distribution ships an older copy.
+collections:
+  - name: ansible.posix # authorized_key, sysctl
+    version: ">=2.2.2"
+  - name: community.general # ufw
+    version: ">=12.1.0"

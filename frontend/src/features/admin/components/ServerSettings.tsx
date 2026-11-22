@@ -29,6 +29,7 @@ import {
   useSetSystemFreeUseKey,
   useApiKeys,
 } from "@/api/hooks";
+import { SiteUpdates } from "./SiteUpdates";
 import {
   getAiQualityTierOptions,
   normalizeAiQualityTier,
@@ -81,6 +82,8 @@ export function ServerSettings() {
     <Container size="xl" py="xl">
       <Stack gap="lg">
         <Title order={2}>{t("serverSettings.title")}</Title>
+
+        <SiteUpdates />
 
         {/* Default AI Quality Tier */}
         <Card shadow="sm" padding="lg" radius="md" withBorder>

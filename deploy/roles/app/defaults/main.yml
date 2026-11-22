@@ -1,0 +1,6 @@
+---
+# The repository whose releases the box installs and whose release workflow
+# must have signed them. A fork sets its own.
+release_repo: flocko-motion/chatgamelab
+# stable: releases only; prerelease: releases and prereleases.
+release_channel: stable

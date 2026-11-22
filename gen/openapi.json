@@ -2764,6 +2764,125 @@
         ],
         "type": "object"
       },
+      "SchemafUpdateRequest": {
+        "properties": {
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "type": "object"
+      },
+      "SchemafUpdateState": {
+        "properties": {
+          "available": {
+            "items": {
+              "properties": {
+                "notes": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "version",
+                "notes"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "checked": {
+            "type": "string"
+          },
+          "install": {
+            "properties": {
+              "finished": {
+                "type": "string"
+              },
+              "from": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "started": {
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "installing",
+                  "installed",
+                  "rolled-back",
+                  "failed",
+                  "rollback-failed"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version",
+              "from",
+              "state",
+              "started",
+              "finished",
+              "message"
+            ],
+            "type": "object"
+          },
+          "request": {
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "type": "string"
+              },
+              "time": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version",
+              "state",
+              "message",
+              "time"
+            ],
+            "type": "object"
+          },
+          "running": {
+            "description": "The running version; empty in development.",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "updater not enabled",
+              "idle",
+              "installing"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "running",
+          "status",
+          "available"
+        ],
+        "type": "object"
+      },
       "SchemafUser": {
         "properties": {
           "id": {
@@ -9696,6 +9815,90 @@
           }
         ],
         "summary": "Lists every look the playback-engine can wear."
+      }
+    },
+    "/api/updates": {
+      "get": {
+        "description": "The running version, the verified versions the app may request (with their release notes), and the last install and request. Status \"updater not enabled\" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).",
+        "operationId": "getApiUpdates",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemafUpdateState"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "The instance's updates"
+      }
+    },
+    "/api/updates/request": {
+      "post": {
+        "description": "Asks the run host's updater to install one of the available versions; the updater checks it again and decides. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled or install_running; 422 version_not_available.",
+        "operationId": "postApiUpdatesRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchemafUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemafUpdateRequest"
+                }
+              }
+            },
+            "description": "Requested"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Request the install of a version"
       }
     },
     "/api/user/me": {

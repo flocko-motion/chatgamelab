@@ -1,6 +1,10 @@
 {
     "branches": [
-        "main"
+        "v2/main",
+        {
+            "name": "v2/development",
+            "prerelease": "dev"
+        }
     ],
     "plugins": [
         "@semantic-release/commit-analyzer",
@@ -8,19 +12,8 @@
         [
             "@semantic-release/github",
             {
-                "assets": [
-                    {
-                        "path": "CHANGELOG.md",
-                        "label": "Changelog"
-                    }
-                ]
-            }
-        ],
-        [
-            "@semantic-release/exec",
-            {
-                "successCmd": "echo \"RELEASE_VERSION=${nextRelease.version}\"",
-                "failCmd": "echo \"RELEASE_VERSION=failed\""
+                "successCommentCondition": "<% if (!branch.prerelease) { %>release<% } %>",
+                "failCommentCondition": false
             }
         ]
     ]

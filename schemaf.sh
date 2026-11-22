@@ -25,9 +25,10 @@ set -euo pipefail
 trap 'rc=$?; echo "ERROR: schemaf.sh failed at line ${LINENO}: \"${BASH_COMMAND}\" (exit ${rc})" >&2; exit ${rc}' ERR
 
 PROJECT_NAME="chatgamelab"
+PROJECT_PORT="7100"
 # load reads the installed run-side script's version from this exact line
 # (_schemaf_script_version), so it never replaces a newer script with an older one.
-SCHEMAF_VER="v1.21.1"
+SCHEMAF_VER="v1.22.0"
 ORIG_PWD="$PWD"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 USER_DIR="$HOME/.${PROJECT_NAME}"
@@ -44,15 +45,21 @@ _O='{{' _C='}}'
 
 # Temporary directories, removed on exit.
 _SCHEMAF_TMP=""
+# Temporary directories carry this process's PID in their name, so clean-up
+# finds the ones made in subshells too ($(_schemaf_mktemp) can't register
+# them; $$ is the script's PID in every subshell).
 _schemaf_cleanup() {
   local d
-  for d in $_SCHEMAF_TMP; do rm -rf "$d"; done
+  for d in $_SCHEMAF_TMP "${TMPDIR:-/tmp}"/schemaf.$$.*; do
+    [ -e "$d" ] || continue
+    rm -rf "${d:?}"
+  done
   _SCHEMAF_TMP=""
 }
 trap _schemaf_cleanup EXIT
 _schemaf_mktemp() {
   local d
-  d=$(mktemp -d "${TMPDIR:-/tmp}/schemaf.XXXXXX")
+  d=$(mktemp -d "${TMPDIR:-/tmp}/schemaf.$$.XXXXXX")
   _SCHEMAF_TMP="$_SCHEMAF_TMP $d"
   echo "$d"
 }
@@ -541,6 +548,7 @@ _schemaf_build() {
     ctx=$(_schemaf_mktemp)
     git archive HEAD | tar -x -C "$ctx"
   fi
+  _schemaf_check_lockfiles "$ctx" "$dirty" "$short"
   _schemaf_container build -f "$ctx/Dockerfile.gen" -t "$BUILT_IMAGE" \
     --label "schemaf.project=$PROJECT_NAME" \
     --label "schemaf.commit=$commit" \
@@ -550,6 +558,27 @@ _schemaf_build() {
     "$ctx"
   echo "Built $BUILT_IMAGE" >&2
   [ -z "$output" ] || _schemaf_write_artifact "$output" "$tag" "$commit" "$describe"
+}
+
+# _schemaf_check_lockfiles <ctx> <dirty> <short>
+# The image gets exactly what the lockfiles pin (npm ci, go build
+# -mod=readonly), so a missing one stops the build before the image build.
+# ctx is what the image is built from: the commit, or the working tree when dirty.
+# See INSTALL.md › Lockfiles.
+_schemaf_check_lockfiles() {
+  local ctx="$1" dirty="$2" short="$3" where="" hint
+  [ "$dirty" = true ] || where=" in commit $short"
+  _schemaf_lockfile_missing() {
+    hint=""
+    if [ "$dirty" = false ] && [ -e "$PROJECT_ROOT/$1" ]; then hint=" (is it gitignored?)"; fi
+    _die "$1 is missing$where$hint — build $2. Run $3 and commit $4"
+  }
+  [ -f "$ctx/go/go.sum" ] || _schemaf_lockfile_missing go/go.sum \
+    "compiles exactly what it pins (go build -mod=readonly)" "go mod tidy in go/" "go/go.mod and go/go.sum"
+  if [ -f "$ctx/frontend/package.json" ] && [ ! -f "$ctx/frontend/package-lock.json" ]; then
+    _schemaf_lockfile_missing frontend/package-lock.json \
+      "installs exactly what it pins (npm ci)" "npm install in frontend/" "frontend/package-lock.json"
+  fi
 }
 
 # The self-extracting header of a deployment artifact. Everything after the
@@ -605,6 +634,7 @@ _schemaf_write_artifact() {
     echo "describe=$describe"
     echo "schemaf_version=$SCHEMAF_VER"
     echo "platform=$platform"
+    echo "port=$PROJECT_PORT"
   } > "$stage/manifest"
   partial=$(mktemp "${output}.XXXXXX")
   { _schemaf_artifact_header "$output"; tar -cz -C "$stage" .; } > "$partial"
@@ -756,6 +786,9 @@ usage: ~/.${PROJECT_NAME}/bin/schemaf.sh <command>   (run side: no checkout on t
   logs [flags]                show the stack's logs (flags go to compose logs, e.g. -f backend)
   image ls                    loaded tags
   image rm <tag>              remove a loaded tag (not the running one)
+  releases                    download and verify the releases newer than the running one (Linux)
+  install <version>           install a verified release, with backup and rollback (Linux)
+  updater enable|disable|status   the units that let the app request an upgrade (Linux)
   <app subcommand> ...        run in the backend container, e.g. db backup
 See INSTALL.md › Deployment.
 EOF
@@ -773,7 +806,12 @@ _schemaf_compose_current() {
   _schemaf_container --exec compose -f "$DEPLOY_DIR/$tag/compose.gen.yml" "$@"
 }
 
-_schemaf_run_image() {
+# _schemaf_run_image <tag> [compose up flags] — start a loaded tag; replaces
+# this process with compose (run --image). _schemaf_start_image does the same
+# and returns (install).
+_schemaf_run_image() { _SCHEMAF_START_EXEC=--exec _schemaf_start_image "$@"; }
+
+_schemaf_start_image() {
   local tag="$1" img dest labelled deployed
   shift
   _schemaf_check_tag "$tag"
@@ -781,13 +819,14 @@ _schemaf_run_image() {
   _schemaf_check_volume
   img="${PROJECT_NAME}:${tag}"
   dest="$DEPLOY_DIR/$tag"
+  _schemaf_updates_files || _die "could not create $UPDATES_DIR (the backend mounts it)"
   _schemaf_image_exists "$img" || _die "$img is not loaded — load its artifact first (./${PROJECT_NAME}-${tag}.run load); loaded tags: schemaf.sh image ls"
   [ -f "$dest/compose.gen.yml" ] && [ -f "$dest/manifest" ] || _die "$dest/ is missing — load the artifact again (./${PROJECT_NAME}-${tag}.run load)"
   labelled=$(_schemaf_image_label "$img" schemaf.commit)
   deployed=$(_schemaf_manifest_get "$dest/manifest" commit)
   [ "$labelled" = "$deployed" ] || _die "$img is commit ${labelled:0:7}, but $dest/ is commit ${deployed:0:7} — remove the tag (schemaf.sh image rm $tag) and load it again"
   export SCHEMAF_IMAGE="$img"
-  _schemaf_container --exec compose -f "$dest/compose.gen.yml" up "$@"
+  _schemaf_container ${_SCHEMAF_START_EXEC:-} compose -f "$dest/compose.gen.yml" up "$@"
 }
 
 _schemaf_image_ls() {
@@ -872,6 +911,16 @@ _schemaf_runside() {
       _schemaf_check_runtime compose
       _schemaf_compose_current logs "$@" || { [ $? = 3 ] && _die "no logs: there is no ${PROJECT_NAME}-backend container (start it: schemaf.sh run --image <tag>)"; }
       ;;
+    releases)
+      [ $# -eq 0 ] || _die "usage: schemaf.sh releases"
+      _schemaf_releases
+      ;;
+    install)
+      _schemaf_install "$@"
+      ;;
+    updater)
+      _schemaf_updater "$@"
+      ;;
     image)
       _schemaf_check_runtime
       case "${1:-}" in
@@ -897,6 +946,689 @@ _schemaf_runside() {
       if [ -t 0 ] && [ -t 1 ]; then tty="-it"; fi
       _schemaf_container --exec exec "$tty" "${PROJECT_NAME}-backend" /app "$cmd" "$@"
       ;;
+  esac
+}
+
+# --- pull: releases and install (run side, Linux) ----------------------------
+# See INSTALL.md › Pulling releases. The tools run in containers pinned by
+# digest, so the run host needs nothing but the container runtime.
+
+SCHEMAF_IMG_CURL="docker.io/curlimages/curl:8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93"
+SCHEMAF_IMG_JQ="ghcr.io/jqlang/jq:1.8.2@sha256:b9c68867e5766576263a222e91db3de422d802069c7af70440e667a95344e486"
+SCHEMAF_IMG_COSIGN="ghcr.io/sigstore/cosign/cosign:v3.1.4@sha256:0f06154836d2de34f887a5c273506d52ca43edaa1d9e53e6510fa78a48f69c2d"
+SCHEMAF_GITHUB_ISSUER="https://token.actions.githubusercontent.com"
+# 120 seconds; _SCHEMAF_TEST_HEALTH_TIMEOUT exists for schemaf's own tests only.
+SCHEMAF_HEALTH_TIMEOUT="${_SCHEMAF_TEST_HEALTH_TIMEOUT:-120}"
+RELEASES_DIR="$USER_DIR/releases"
+UPDATES_DIR="$USER_DIR/updates"
+VAR_DIR="$USER_DIR/var"
+
+# _schemaf_try <command...> — runs it in a subshell and returns its status, so
+# a _die inside ends only the subshell and install can always roll back. It is
+# called in conditions, where errexit is off, so every step it runs returns its
+# failures explicitly (|| return 1).
+_schemaf_try() {
+  ( "$@" )
+}
+
+_schemaf_pull_linux_only() {
+  [ "$(uname)" = Linux ] || _die "the pull flow (releases, install) runs on Linux only — on macOS use build --output, load and run --image (INSTALL.md › Deployment)"
+}
+
+# _schemaf_is_version <v> — X.Y.Z or X.Y.Z-<pre> (dot-separated, non-empty
+# identifiers), as release tags without the v.
+_schemaf_is_version() {
+  local num='(0|[1-9][0-9]*)' id='[0-9A-Za-z-]+'
+  [[ "$1" =~ ^$num\.$num\.$num(-$id(\.$id)*)?$ ]]
+}
+
+# _schemaf_newer <a> <b> — version a is newer than b (semver precedence).
+_schemaf_newer() { [ "$(_schemaf_version_cmp "v$1" "v$2")" = 1 ]; }
+
+# _schemaf_pull_config — checks the pull settings from ~/.<name>/etc/env and
+# sets SIGNER_REPO or SIGNER_IDENTITY, and SIGNER_ISSUER.
+_schemaf_pull_config() {
+  local env="$USER_DIR/etc/env"
+  [ -n "${SCHEMAF_RELEASES:-}" ] || _die "SCHEMAF_RELEASES is not set — set it in $env to the URL of the app's releases.json (INSTALL.md › Pulling releases)"
+  [[ "$SCHEMAF_RELEASES" =~ ^https?://[^[:space:]]+$ ]] || _die "SCHEMAF_RELEASES=\"$SCHEMAF_RELEASES\" is not an http(s) URL"
+  [ -n "${SCHEMAF_SIGNER:-}" ] || _die "SCHEMAF_SIGNER is not set — set it in $env to <owner>/<repo> of the app's repository, or a full certificate identity (INSTALL.md › Pulling releases)"
+  SIGNER_ISSUER="${SCHEMAF_SIGNER_ISSUER:-$SCHEMAF_GITHUB_ISSUER}"
+  SIGNER_REPO="" SIGNER_IDENTITY=""
+  if [[ "$SCHEMAF_SIGNER" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+    [ -z "${SCHEMAF_SIGNER_ISSUER:-}" ] || _die "SCHEMAF_SIGNER_ISSUER goes with a full certificate identity in SCHEMAF_SIGNER; with <owner>/<repo> the issuer is always GitHub Actions"
+    SIGNER_REPO="$SCHEMAF_SIGNER"
+  elif [[ "$SCHEMAF_SIGNER" =~ ^https://[^[:space:]]+$ ]]; then
+    SIGNER_IDENTITY="$SCHEMAF_SIGNER"
+  else
+    _die "SCHEMAF_SIGNER=\"$SCHEMAF_SIGNER\" is neither <owner>/<repo> nor a full certificate identity (https://...)"
+  fi
+  case "${SCHEMAF_CHANNEL:-}" in
+    stable|prerelease) ;;
+    "") _die "SCHEMAF_CHANNEL is not set — set it in $env to stable or prerelease" ;;
+    *) _die "SCHEMAF_CHANNEL=\"$SCHEMAF_CHANNEL\" is not a channel — use stable or prerelease" ;;
+  esac
+}
+
+# _schemaf_on_channel <version>
+_schemaf_on_channel() {
+  [ "$SCHEMAF_CHANNEL" = prerelease ] || [[ "$1" != *-* ]]
+}
+
+# _schemaf_running_version — the running tag, which must be a version; empty
+# when nothing runs.
+_schemaf_running_version() {
+  local tag
+  tag=$(_schemaf_running_tag)
+  [ -z "$tag" ] || _schemaf_is_version "$tag" || _die "the running tag $tag is not a release version — the pull flow compares versions; start a release first (run --image <version>), or stop the stack for a first install"
+  echo "$tag"
+}
+
+_schemaf_fetch() { # <url> <file>
+  _schemaf_container run --rm --network host "$SCHEMAF_IMG_CURL" -fsSL --proto '=https,http' "$1" > "$2"
+}
+
+_schemaf_jq() { # <jq args...>, stdin → stdout
+  _schemaf_container run --rm -i "$SCHEMAF_IMG_JQ" "$@"
+}
+
+# _schemaf_verify <dir> <artifact file> <bundle file> <version> — the bundle
+# attests the artifact, signed by the configured signer (INSTALL.md › The settings).
+_schemaf_verify() {
+  local dir="$1" art="$2" bundle="$3" version="$4" identity out
+  identity="$SIGNER_IDENTITY"
+  [ -n "$identity" ] || identity="https://github.com/$SIGNER_REPO/.github/workflows/release.gen.yml@refs/tags/v$version"
+  chmod 755 "$dir" || return 1
+  chmod 644 "$dir/$art" "$dir/$bundle" || return 1
+  if ! out=$(_schemaf_container run --rm --network host --user 0:0 -v "$dir:/w:ro" "$SCHEMAF_IMG_COSIGN" \
+      verify-blob-attestation --bundle "/w/$bundle" --type slsaprovenance1 \
+      --certificate-identity "$identity" --certificate-oidc-issuer "$SIGNER_ISSUER" "/w/$art" 2>&1); then
+    echo "$out" | sed 's/^/    /' >&2
+    return 1
+  fi
+}
+
+# _schemaf_artifact_manifest <artifact> — prints the artifact's manifest.
+_schemaf_artifact_manifest() {
+  local line
+  line=$(awk '/^__SCHEMAF_ARCHIVE__$/ { print NR + 1; exit }' "$1")
+  [ -n "$line" ] || return 1
+  tail -n +"$line" "$1" | tar -xzO ./manifest
+}
+
+# _schemaf_index <file> — validates releases.json and prints one line per
+# entry: <version> <artifact url> <attestation url>.
+_schemaf_index() {
+  local out v art att err="$1.err"
+  out=$(_schemaf_jq -r '
+    if type != "array" then error("not a list") else . end
+    | map(if type == "object" and (.version | type) == "string" and (.artifact | type) == "string" and (.attestation | type) == "string"
+          then . else error("an entry without string version, artifact and attestation: \(tojson)") end)
+    | if (map(.version) | length) != (map(.version) | unique | length) then error("a version is listed twice") else . end
+    | .[] | "\(.version) \(.artifact) \(.attestation)"' < "$1" 2>"$err") \
+    || _die "$SCHEMAF_RELEASES is not a valid release index: $(tail -n 3 "$err")"
+  while read -r v art att; do
+    [ -n "$v" ] || continue
+    _schemaf_is_version "$v" || _die "$SCHEMAF_RELEASES lists \"$v\", which is not a version (X.Y.Z or X.Y.Z-<pre>)"
+    [[ "$art" =~ ^https?://[^[:space:]]+$ ]] && [[ "$att" =~ ^https?://[^[:space:]]+$ ]] || _die "$SCHEMAF_RELEASES: version $v has no http(s) URLs for artifact and attestation"
+    echo "$v $art $att"
+  done <<< "$out"
+}
+
+# _schemaf_sort_versions — reads versions (one per line), prints them oldest first.
+_schemaf_sort_versions() {
+  local sorted="" v w out inserted
+  while read -r v; do
+    [ -n "$v" ] || continue
+    out="" inserted=0
+    for w in $sorted; do
+      if [ "$inserted" = 0 ] && _schemaf_newer "$w" "$v"; then out="$out $v"; inserted=1; fi
+      out="$out $w"
+    done
+    [ "$inserted" = 1 ] || out="$out $v"
+    sorted="$out"
+  done
+  for v in $sorted; do echo "$v"; done
+}
+
+# _schemaf_download <tmp> <version> <artifact url> <attestation url> — downloads,
+# verifies and checks the manifest; keeps the files only if all of it passes.
+_schemaf_download() {
+  local tmp="$1" v="$2" art_url="$3" att_url="$4" art bundle m name tag
+  art="${PROJECT_NAME}-${v}.run" bundle="${PROJECT_NAME}-${v}.run.sigstore.json"
+  echo "  $v: downloading" >&2
+  _schemaf_fetch "$art_url" "$tmp/$art" || { echo "ERROR: $v: could not download $art_url" >&2; return 1; }
+  _schemaf_fetch "$att_url" "$tmp/$bundle" || { echo "ERROR: $v: could not download $att_url" >&2; return 1; }
+  if ! _schemaf_verify "$tmp" "$art" "$bundle" "$v"; then
+    echo "ERROR: $v: the attestation does not verify for signer $SCHEMAF_SIGNER — deleted, not kept" >&2
+    return 1
+  fi
+  if ! m=$(_schemaf_artifact_manifest "$tmp/$art"); then
+    echo "ERROR: $v: $art is not a schemaf artifact — deleted, not kept" >&2
+    return 1
+  fi
+  name=$(_schemaf_manifest_get <(echo "$m") name) || return 1
+  tag=$(_schemaf_manifest_get <(echo "$m") tag) || return 1
+  if [ "$name" != "$PROJECT_NAME" ] || [ "$tag" != "$v" ]; then
+    echo "ERROR: $v: the artifact's manifest names $name $tag, the index says $PROJECT_NAME $v — deleted, not kept" >&2
+    return 1
+  fi
+  mkdir -p "$RELEASES_DIR" "$tmp/keep" || return 1
+  rm -rf "${RELEASES_DIR:?}/${v:?}" || return 1
+  mv "$tmp/$art" "$tmp/$bundle" "$tmp/keep/" || return 1
+  mv "$tmp/keep" "$RELEASES_DIR/$v" || return 1
+  echo "  $v: verified" >&2
+}
+
+_schemaf_releases() {
+  local running index entries newest="" v art att failed=0 wanted=""
+  _schemaf_pull_linux_only
+  _schemaf_pull_config
+  _schemaf_check_runtime
+  _schemaf_clear_stale_install
+  running=$(_schemaf_running_version) || exit 1
+  index="$(_schemaf_mktemp)/releases.json"
+  echo "Fetching $SCHEMAF_RELEASES (channel $SCHEMAF_CHANNEL, running ${running:-nothing})" >&2
+  _schemaf_fetch "$SCHEMAF_RELEASES" "$index" || _die "could not download $SCHEMAF_RELEASES"
+  entries=$(_schemaf_index "$index") || exit 1
+  if [ -z "$running" ]; then
+    # A first install takes the newest version on the channel, nothing older.
+    newest=$(while read -r v _; do [ -z "$v" ] || ! _schemaf_on_channel "$v" || echo "$v"; done <<< "$entries" | _schemaf_sort_versions | tail -n 1)
+  fi
+  while read -r v art att; do
+    [ -n "$v" ] || continue
+    _schemaf_on_channel "$v" || continue
+    if [ -n "$running" ]; then _schemaf_newer "$v" "$running" || continue; else [ "$v" = "$newest" ] || continue; fi
+    if [ ! -f "$RELEASES_DIR/$v/${PROJECT_NAME}-${v}.run" ]; then
+      _schemaf_try _schemaf_download "$(_schemaf_mktemp)" "$v" "$art" "$att" || { failed=1; continue; }
+    fi
+    wanted="$wanted$v"$'\n'
+  done <<< "$entries"
+  wanted=$(printf '%s' "$wanted" | _schemaf_sort_versions)
+  _schemaf_write_available "$index" "$wanted" || _die "could not write $UPDATES_DIR/available.json"
+  [ -z "$wanted" ] || echo "$wanted"
+  [ "$failed" = 0 ] || _die "some releases failed their checks (see above)"
+}
+
+# --- install state: ~/.<name>/var/state, ~/.<name>/updates/status.json --------
+
+# _schemaf_json_str <string> — as a JSON string literal.
+_schemaf_json_str() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '"%s"' "$(printf '%s' "$s" | LC_ALL=C tr -d '\000-\010\013\014\016-\037')"
+}
+
+_schemaf_state_get() { # <key>
+  [ -f "$VAR_DIR/state" ] || return 0
+  _schemaf_manifest_get "$VAR_DIR/state" "$1"
+}
+
+# _schemaf_record <running> <previous> <version> <from> <state> <started>
+#   <finished> <message> <backup> <log> — records the versions and the
+#   install, and rewrites status.json.
+_schemaf_record() {
+  local a i=0
+  # One line per value in the state files: no newlines inside.
+  for a in "$@"; do i=$((i + 1)); set -- "$@" "${a//$'\n'/ }"; done
+  shift "$i"
+  mkdir -p "$VAR_DIR"
+  printf 'running=%s\nprevious=%s\n' "$1" "$2" > "$VAR_DIR/state.tmp"
+  mv "$VAR_DIR/state.tmp" "$VAR_DIR/state"
+  printf 'version=%s\nfrom=%s\nstate=%s\nstarted=%s\nfinished=%s\nmessage=%s\nbackup=%s\nlog=%s\n' \
+    "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" > "$VAR_DIR/install.tmp"
+  mv "$VAR_DIR/install.tmp" "$VAR_DIR/install"
+  _schemaf_write_status
+  if [ "$5" != installing ]; then
+    echo "$7 $3 from=${4:--} $5 $8" >> "$VAR_DIR/installs.log"
+  fi
+}
+
+# _schemaf_status_field <file> <key> — a JSON member of a state file's value.
+_schemaf_status_field() {
+  local v=""
+  [ ! -f "$VAR_DIR/$1" ] || v=$(_schemaf_manifest_get "$VAR_DIR/$1" "$2")
+  printf '"%s": %s' "$2" "$(_schemaf_json_str "$v")"
+}
+
+# _schemaf_write_status — ~/.<name>/updates/status.json from the state files
+# (var/state, var/install, var/request), atomically.
+_schemaf_write_status() {
+  local tmp="$UPDATES_DIR/.status.json.tmp" k sep
+  mkdir -p "$UPDATES_DIR"
+  {
+    echo "{"
+    echo "  $(_schemaf_status_field state running),"
+    echo "  $(_schemaf_status_field state previous),"
+    echo "  \"install\": {"
+    sep=""
+    for k in version from state started finished message backup log; do
+      printf '%s    %s' "$sep" "$(_schemaf_status_field install "$k")"; sep=$',\n'
+    done
+    printf '\n  },\n  "request": {\n'
+    sep=""
+    for k in version state message time; do
+      printf '%s    %s' "$sep" "$(_schemaf_status_field request "$k")"; sep=$',\n'
+    done
+    printf '\n  }\n}\n'
+  } > "$tmp"
+  chmod 644 "$tmp"
+  mv "$tmp" "$UPDATES_DIR/status.json"
+}
+
+_schemaf_now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+# --- install --------------------------------------------------------------------
+
+# _schemaf_compose_tag <tag> <compose args...> — compose on that tag's deployment.
+_schemaf_compose_tag() {
+  local tag="$1"
+  shift
+  SCHEMAF_IMAGE="${PROJECT_NAME}:${tag}" _schemaf_container compose -f "$DEPLOY_DIR/$tag/compose.gen.yml" "$@"
+}
+
+# _schemaf_healthy <tag> — waits for GET /api/health to answer "status": "ok",
+# on the port that tag's manifest names (a release may change it).
+_schemaf_healthy() {
+  local deadline=$((SECONDS + SCHEMAF_HEALTH_TIMEOUT)) out port
+  port=$(_schemaf_manifest_get "$DEPLOY_DIR/$1/manifest" port)
+  port="${port:-$PROJECT_PORT}" # artifacts from before the port entry
+  while :; do
+    if out=$(_schemaf_container run --rm --network host "$SCHEMAF_IMG_CURL" -fsS --max-time 5 "http://127.0.0.1:${port}/api/health" 2>/dev/null) \
+      && [[ "$out" =~ \"status\"[[:space:]]*:[[:space:]]*\"ok\" ]]; then
+      return 0
+    fi
+    [ "$SECONDS" -lt "$deadline" ] || break
+    sleep 2
+  done
+  echo "ERROR: no healthy answer from http://127.0.0.1:${port}/api/health within ${SCHEMAF_HEALTH_TIMEOUT}s" >&2
+  return 1
+}
+
+_schemaf_backup() { # <file>
+  _schemaf_container exec "${PROJECT_NAME}-postgres" pg_dump -U schemaf -d "$PROJECT_NAME" -Fc > "$1" || return 1
+  [ -s "$1" ]
+}
+
+# _schemaf_restore <file> — recreates the database from the backup, so nothing
+# the failed version created survives.
+_schemaf_restore() {
+  _schemaf_container exec "${PROJECT_NAME}-postgres" psql -U schemaf -d postgres -v ON_ERROR_STOP=1 -q \
+    -c "DROP DATABASE IF EXISTS \"$PROJECT_NAME\" WITH (FORCE)" \
+    -c "CREATE DATABASE \"$PROJECT_NAME\" OWNER schemaf" || return 1
+  _schemaf_container exec -i "${PROJECT_NAME}-postgres" pg_restore -U schemaf -d "$PROJECT_NAME" --exit-on-error < "$1"
+}
+
+_schemaf_load_artifact() { # <artifact>
+  bash "$1" load >/dev/null
+}
+
+# _schemaf_prune <running> <previous> — retention after a successful install:
+# keeps running, previous and downloaded versions newer than running.
+_schemaf_prune() {
+  local running="$1" previous="$2" d v
+  for d in "$DEPLOY_DIR"/*/ "$RELEASES_DIR"/*/; do
+    [ -d "$d" ] || continue
+    v=$(basename "$d")
+    _schemaf_is_version "$v" || continue # tags loaded by hand are never removed
+    [ "$v" != "$running" ] && [ "$v" != "$previous" ] || continue
+    case "$d" in
+      "$RELEASES_DIR"/*) if _schemaf_newer "$v" "$running"; then continue; fi ;;
+      *)
+        if _schemaf_image_exists "${PROJECT_NAME}:${v}"; then
+          _schemaf_container image rm "${PROJECT_NAME}:${v}" >/dev/null || echo "  could not remove the image ${PROJECT_NAME}:${v}" >&2
+        fi
+        ;;
+    esac
+    rm -rf "${d:?}"
+    echo "  pruned $d" >&2
+  done
+}
+
+# _schemaf_prune_backups <keep> — removes the backups other than <keep>.
+_schemaf_prune_backups() {
+  local f
+  for f in "$VAR_DIR/backups"/*; do
+    [ -f "$f" ] && [ "$f" != "$1" ] || continue
+    rm -f "${f:?}"
+  done
+}
+
+# _schemaf_install_lock — one install at a time: a lock directory holding the
+# owner's PID, removed on exit (it joins the temporary directories). A lock
+# whose owner is gone is stale and taken over. (Not flock: its file descriptor
+# would be inherited by the long-lived processes podman starts.)
+_schemaf_install_lock() {
+  local lock="$VAR_DIR/install.lock" pid
+  mkdir -p "$VAR_DIR"
+  if ! mkdir "$lock" 2>/dev/null; then
+    pid=$(cat "$lock/pid" 2>/dev/null || true)
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+      _die "another install is running (PID $pid) — try again when it has finished (status: $UPDATES_DIR/status.json)"
+    fi
+    echo "  taking over a stale install lock (PID ${pid:-unknown} is gone)" >&2
+    rm -rf "${lock:?}"
+    mkdir "$lock" 2>/dev/null || _die "another install took the lock just now — try again when it has finished"
+  fi
+  echo "$$" > "$lock/pid"
+  _SCHEMAF_TMP="$_SCHEMAF_TMP $lock"
+}
+
+_schemaf_install() {
+  local v="${1:-}" running previous dir art bundle started backup="" log="" msg
+  [ $# -eq 1 ] || _die "usage: schemaf.sh install <version>"
+  _schemaf_pull_linux_only
+  _schemaf_pull_config
+  _schemaf_is_version "$v" || _die "\"$v\" is not a version (X.Y.Z or X.Y.Z-<pre>)"
+  _schemaf_check_runtime compose
+  _schemaf_check_volume
+  _schemaf_install_lock
+
+  running=$(_schemaf_running_version) || exit 1
+  _schemaf_on_channel "$v" || _die "$v is a prerelease, and this host's channel is stable (SCHEMAF_CHANNEL)"
+  [ -z "$running" ] || _schemaf_newer "$v" "$running" || _die "$v is not newer than the running $running — install only goes forward (a manual rollback: schemaf.sh run --image <older tag>)"
+  dir="$RELEASES_DIR/$v" art="${PROJECT_NAME}-${v}.run" bundle="${PROJECT_NAME}-${v}.run.sigstore.json"
+  [ -f "$dir/$art" ] && [ -f "$dir/$bundle" ] || _die "$v is not downloaded — run schemaf.sh releases first (it downloads and verifies the versions newer than the running one)"
+  _schemaf_verify "$dir" "$art" "$bundle" "$v" || _die "$v: the attestation of $dir/$art does not verify for signer $SCHEMAF_SIGNER — remove $dir and run schemaf.sh releases again"
+  previous=$(_schemaf_state_get previous)
+  [ -n "$running" ] || previous=""
+  started=$(_schemaf_now)
+  _schemaf_record "$running" "$previous" "$v" "$running" installing "$started" "" "installing $v" "" ""
+
+  echo "Installing $v (running: ${running:-nothing})" >&2
+  echo "  load $art" >&2
+  if ! _schemaf_try _schemaf_load_artifact "$dir/$art"; then
+    msg="loading $art failed; nothing changed"
+    _schemaf_record "$running" "$previous" "$v" "$running" failed "$started" "$(_schemaf_now)" "$msg" "" ""
+    _die "$msg"
+  fi
+
+  if [ -n "$running" ]; then
+    echo "  stop the backend, back up the database" >&2
+    mkdir -p "$VAR_DIR/backups"
+    backup="$VAR_DIR/backups/${running}-$(date -u +%Y%m%dT%H%M%SZ).dump"
+    if ! _schemaf_try _schemaf_compose_tag "$running" stop backend || ! _schemaf_try _schemaf_backup "$backup"; then
+      rm -f "${backup:?}" # a partial dump is no backup
+      if _schemaf_try _schemaf_start_image "$running" -d; then
+        msg="the database backup failed; $running was started again, nothing changed"
+        _schemaf_record "$running" "$previous" "$v" "$running" failed "$started" "$(_schemaf_now)" "$msg" "" ""
+      else
+        msg="the database backup failed, and starting $running again failed too — the stack is stopped; start it with: schemaf.sh run --image $running -d"
+        _schemaf_record "" "$running" "$v" "$running" failed "$started" "$(_schemaf_now)" "$msg" "" ""
+      fi
+      _die "$msg"
+    fi
+  fi
+
+  echo "  start $v, wait for its health check" >&2
+  if _schemaf_try _schemaf_start_image "$v" -d && _schemaf_healthy "$v"; then
+    _schemaf_record "$v" "$running" "$v" "$running" installed "$started" "$(_schemaf_now)" "installed $v" "$backup" ""
+    _schemaf_prune "$v" "$running"
+    _schemaf_prune_backups "$backup"
+    echo "Installed $v" >&2
+    return 0
+  fi
+
+  mkdir -p "$VAR_DIR/installs"
+  log="$VAR_DIR/installs/$(date -u +%Y%m%dT%H%M%SZ)-${v}.log"
+  _schemaf_container logs "${PROJECT_NAME}-backend" > "$log" 2>&1 || true
+  if [ -z "$running" ]; then
+    _schemaf_try _schemaf_compose_tag "$v" down || true
+    msg="$v failed its health check; nothing to roll back to, so it is stopped (the database volume is kept); logs: $log"
+    _schemaf_record "" "" "$v" "" failed "$started" "$(_schemaf_now)" "$msg" "" "$log"
+    _die "$msg"
+  fi
+  echo "  $v failed its health check — rolling back to $running" >&2
+  if _schemaf_try _schemaf_compose_tag "$v" stop backend \
+    && _schemaf_try _schemaf_restore "$backup" \
+    && _schemaf_try _schemaf_start_image "$running" -d \
+    && _schemaf_healthy "$running"; then
+    msg="$v failed its health check; rolled back to $running, the database restored from the backup; logs: $log"
+    _schemaf_record "$running" "$previous" "$v" "$running" rolled-back "$started" "$(_schemaf_now)" "$msg" "$backup" "$log"
+    _die "$msg"
+  fi
+  _schemaf_try _schemaf_compose_tag "$running" down || true
+  msg="$v failed its health check, and the rollback to $running failed too — the stack is stopped. Backup: $backup; logs of $v: $log"
+  _schemaf_record "" "$running" "$v" "$running" rollback-failed "$started" "$(_schemaf_now)" "$msg" "$backup" "$log"
+  _die "$msg"
+}
+
+# --- updater (run side, Linux): systemd user units, the app's request --------
+# See INSTALL.md › The updater.
+
+_schemaf_unit_dir() { echo "${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"; }
+_schemaf_unit_prefix() { echo "schemaf-${PROJECT_NAME}"; }
+
+# _schemaf_updates_files — what the backend container mounts must exist before
+# the stack starts: a missing bind-mount source would become a directory.
+_schemaf_updates_files() {
+  mkdir -p "$UPDATES_DIR" || return 1
+  [ -f "$UPDATES_DIR/request" ] || : > "$UPDATES_DIR/request" || return 1
+  chmod 755 "$UPDATES_DIR" && chmod 644 "$UPDATES_DIR/request"
+}
+
+# _schemaf_write_available <index file> <versions, oldest first, one per line>
+# — ~/.<name>/updates/available.json: the versions with their release notes.
+_schemaf_write_available() {
+  local index="$1" keep="[" v sep="" tmp="$UPDATES_DIR/.available.json.tmp"
+  while read -r v; do
+    [ -n "$v" ] || continue
+    keep="$keep$sep\"$v\"" sep="," # versions are checked: no quotes inside
+  done <<< "$2"
+  keep="$keep]"
+  mkdir -p "$UPDATES_DIR"
+  _schemaf_jq --argjson keep "$keep" --arg checked "$(_schemaf_now)" '. as $all
+    | {checked: $checked, versions: [$keep[] as $v | ($all[] | select(.version == $v))
+        | {version, notes: ((.notes // "") | if type == "string" then . else tojson end)}]}' \
+    < "$index" > "$tmp" 2>"$tmp.err" || { cat "$tmp.err" >&2; rm -f "$tmp" "$tmp.err"; return 1; }
+  rm -f "$tmp.err"
+  chmod 644 "$tmp"
+  mv "$tmp" "$UPDATES_DIR/available.json"
+}
+
+# _schemaf_record_request <version> <state> <message> — the last request the
+# updater handled, in status.json.
+_schemaf_record_request() {
+  mkdir -p "$VAR_DIR"
+  printf 'version=%s\nstate=%s\nmessage=%s\ntime=%s\n' "${1//$'\n'/ }" "$2" "${3//$'\n'/ }" "$(_schemaf_now)" > "$VAR_DIR/request.tmp"
+  mv "$VAR_DIR/request.tmp" "$VAR_DIR/request"
+  _schemaf_write_status
+  echo "request $1: $2 — $3" >&2
+}
+
+# _schemaf_clear_stale_install — an install recorded as installing whose
+# process is gone (a reboot, a kill) is recorded as failed, so the app's
+# update API doesn't report "installing" forever.
+_schemaf_clear_stale_install() {
+  local v
+  [ "$(_schemaf_state_get_file install state)" = installing ] || return 0
+  ! _schemaf_install_running || return 0
+  v=$(_schemaf_state_get_file install version)
+  _schemaf_record "$(_schemaf_running_tag)" "$(_schemaf_state_get previous)" "$v" \
+    "$(_schemaf_state_get_file install from)" failed "$(_schemaf_state_get_file install started)" "$(_schemaf_now)" \
+    "the install of $v was interrupted (its process is gone) — check the stack: schemaf.sh status" \
+    "$(_schemaf_state_get_file install backup)" ""
+  echo "  recorded the interrupted install of $v as failed" >&2
+}
+
+_schemaf_state_get_file() { # <file> <key>
+  [ -f "$VAR_DIR/$1" ] || return 0
+  _schemaf_manifest_get "$VAR_DIR/$1" "$2"
+}
+
+# _schemaf_install_running — an install holds the lock (a live PID).
+_schemaf_install_running() {
+  local pid
+  pid=$(cat "$VAR_DIR/install.lock/pid" 2>/dev/null || true)
+  [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null
+}
+
+# _schemaf_take_request — prints the request file's content and empties it.
+_schemaf_take_request() {
+  local req
+  [ -f "$UPDATES_DIR/request" ] || return 0
+  req=$(head -c 256 "$UPDATES_DIR/request" | tr -d '\r') || true
+  : > "$UPDATES_DIR/request" # in place: it is a bind mount
+  printf '%s' "$req" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | sed '/^$/d'
+}
+
+# _schemaf_updater_request — run by the path unit when the app writes the
+# request: untrusted input, one version string. Rejections are recorded and
+# exit 0 (a failing path-triggered service would hit systemd's start limit).
+_schemaf_updater_request() {
+  local req running
+  _schemaf_pull_linux_only
+  _schemaf_pull_config
+  _schemaf_clear_stale_install
+  req=$(_schemaf_take_request)
+  [ -n "$req" ] || return 0 # the empty file after a read: nothing asked
+  if [[ "$req" == *$'\n'* ]] || ! _schemaf_is_version "$req"; then
+    _schemaf_record_request "$(printf '%s' "$req" | head -n 1 | cut -c1-40)" rejected "not a version (X.Y.Z or X.Y.Z-<pre>)"
+    return 0
+  fi
+  if _schemaf_install_running; then
+    _schemaf_record_request "$req" rejected "an install is running; request again when it has finished"
+    return 0
+  fi
+  if ! _schemaf_on_channel "$req"; then
+    _schemaf_record_request "$req" rejected "a prerelease, and this host's channel is stable"
+    return 0
+  fi
+  if ! running=$(_schemaf_running_version 2>/dev/null); then
+    _schemaf_record_request "$req" rejected "the running tag is not a release version"
+    return 0
+  fi
+  if [ -n "$running" ] && ! _schemaf_newer "$req" "$running"; then
+    _schemaf_record_request "$req" rejected "not newer than the running $running"
+    return 0
+  fi
+  if [ ! -f "$RELEASES_DIR/$req/${PROJECT_NAME}-${req}.run" ] || [ ! -f "$RELEASES_DIR/$req/${PROJECT_NAME}-${req}.run.sigstore.json" ]; then
+    _schemaf_record_request "$req" rejected "not downloaded and verified on this host"
+    return 0
+  fi
+  _schemaf_record_request "$req" accepted "installing $req"
+  # Its own process: install's lock and clean-up belong to it. Its outcome is
+  # in status.json either way.
+  bash "$0" install "$req" || true
+  # A request that arrived meanwhile is rejected, not queued.
+  req=$(_schemaf_take_request)
+  if [ -n "$req" ]; then
+    _schemaf_record_request "$(printf '%s' "$req" | head -n 1 | cut -c1-40)" rejected "arrived while an install was running; request again"
+  fi
+  return 0
+}
+
+_schemaf_updater_enable() {
+  local dir prefix script="$USER_DIR/bin/schemaf.sh" user linger
+  _schemaf_pull_linux_only
+  _schemaf_pull_config
+  user=$(id -un)
+  command -v systemctl >/dev/null 2>&1 || _die "the updater needs systemd (systemctl), and this host has none — run releases and install from cron instead"
+  systemctl --user show-environment >/dev/null 2>&1 || _die "systemctl --user does not answer for $user — the updater needs the user's systemd instance (is XDG_RUNTIME_DIR set? log in as $user, or enable lingering: loginctl enable-linger $user)"
+  linger=$(loginctl show-user "$user" --property=Linger --value 2>/dev/null || true)
+  [ "$linger" = yes ] || _die "lingering is off for $user, so the updater would stop when $user logs out — as root: loginctl enable-linger $user"
+  [ -x "$script" ] || _die "$script is missing — the units call it (install a release first, or copy the repository's schemaf.sh there)"
+  # The units run in the user's systemd manager, which keeps the groups and
+  # environment it started with: the runtime must answer there, not only here.
+  if ! systemd-run --user --wait --quiet --collect --setenv=SCHEMAF_RUNTIME="${SCHEMAF_RUNTIME:-podman}" \
+      "${SCHEMAF_RUNTIME:-podman}" info >/dev/null 2>&1; then
+    _die "${SCHEMAF_RUNTIME:-podman} doesn't answer inside $user's systemd, where the updater's units run$([ "${SCHEMAF_RUNTIME:-podman}" = docker ] && echo " — if $user joined the docker group after its systemd started, restart it (as root): systemctl restart user@$(id -u).service") (try: systemd-run --user --wait ${SCHEMAF_RUNTIME:-podman} info)"
+  fi
+  dir=$(_schemaf_unit_dir) prefix=$(_schemaf_unit_prefix)
+  mkdir -p "$dir"
+  _schemaf_updates_files || _die "could not create $UPDATES_DIR"
+  cat > "$dir/$prefix-releases.service" <<EOF
+# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+[Unit]
+Description=schemaf: fetch and verify ${PROJECT_NAME}'s releases
+
+[Service]
+Type=oneshot
+ExecStart=$script releases
+EOF
+  cat > "$dir/$prefix-releases.timer" <<EOF
+# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+[Unit]
+Description=schemaf: fetch and verify ${PROJECT_NAME}'s releases, hourly
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target
+EOF
+  cat > "$dir/$prefix-request.service" <<EOF
+# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+[Unit]
+Description=schemaf: handle ${PROJECT_NAME}'s update request
+# No start limit: a burst of requests must never stop the path unit for good.
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=$script updater request
+EOF
+  cat > "$dir/$prefix-request.path" <<EOF
+# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+[Unit]
+Description=schemaf: watch ${PROJECT_NAME}'s update request
+
+[Path]
+PathModified=$UPDATES_DIR/request
+
+[Install]
+WantedBy=default.target
+EOF
+  systemctl --user daemon-reload
+  systemctl --user enable --now "$prefix-releases.timer" "$prefix-request.path" >/dev/null 2>&1 \
+    || _die "systemctl --user enable --now $prefix-releases.timer $prefix-request.path failed — see: systemctl --user status $prefix-releases.timer $prefix-request.path"
+  echo "enabled $(_schemaf_now)" > "$UPDATES_DIR/updater"
+  chmod 644 "$UPDATES_DIR/updater"
+  systemctl --user start --no-block "$prefix-releases.service"
+  echo "Updater enabled: $prefix-releases.timer (hourly releases), $prefix-request.path (the app's requests). Units in $dir" >&2
+}
+
+_schemaf_updater_disable() {
+  local dir prefix u
+  _schemaf_pull_linux_only
+  dir=$(_schemaf_unit_dir) prefix=$(_schemaf_unit_prefix)
+  rm -f "$UPDATES_DIR/updater"
+  if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user disable --now "$prefix-releases.timer" "$prefix-request.path" >/dev/null 2>&1 || true
+    systemctl --user stop "$prefix-releases.service" "$prefix-request.service" >/dev/null 2>&1 || true
+  fi
+  for u in releases.service releases.timer request.service request.path; do
+    rm -f "${dir:?}/$prefix-$u"
+  done
+  if command -v systemctl >/dev/null 2>&1; then systemctl --user daemon-reload || true; fi
+  echo "Updater disabled; the app's update API answers \"updater not enabled\"" >&2
+}
+
+_schemaf_updater_status() {
+  local prefix
+  _schemaf_pull_linux_only
+  prefix=$(_schemaf_unit_prefix)
+  if [ -f "$UPDATES_DIR/updater" ]; then echo "updater: $(cat "$UPDATES_DIR/updater")"; else echo "updater: not enabled"; fi
+  if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user status "$prefix-releases.timer" "$prefix-request.path" --no-pager 2>&1 || true
+    if systemctl --user is-failed --quiet "$prefix-request.path" 2>/dev/null; then
+      echo "ERROR: $prefix-request.path has failed: the app's requests are not handled — run: schemaf.sh updater enable" >&2
+      return 1
+    fi
+  fi
+}
+
+_schemaf_updater() {
+  case "${1:-}" in
+    enable) _schemaf_updater_enable ;;
+    disable) _schemaf_updater_disable ;;
+    status) _schemaf_updater_status ;;
+    request) _schemaf_updater_request ;; # run by the path unit
+    *) _die "usage: schemaf.sh updater enable | disable | status" ;;
   esac
 }
 
@@ -977,6 +1709,7 @@ case "$CMD" in
       echo "Stopping dev services before production start..." >&2
       _schemaf_container compose -f compose.gen.yml -f compose.dev.gen.yml down
     fi
+    _schemaf_updates_files || _die "could not create $UPDATES_DIR (the backend mounts it)"
     _schemaf_container --exec compose -f compose.gen.yml up "$@"
     ;;
   dev)
@@ -1022,7 +1755,13 @@ case "$CMD" in
       echo "Synced framework docs → docs/schemaf/"
     fi
     echo "Running codegen..."
-    exec go run github.com/flocko-motion/schemaf/cmd/schemaf codegen
+    go run github.com/flocko-motion/schemaf/cmd/schemaf codegen
+    # go.mod and go.sum complete for what the code imports: build compiles
+    # with -mod=readonly from go/ alone (INSTALL.md › Lockfiles). Module mode,
+    # so go.work.sum can't stand in for go.sum.
+    echo "Tidying the Go module..."
+    (cd go && GOWORK=off go mod tidy)
+    echo "Commit go/go.mod and go/go.sum with the generated files."
     ;;
   *)
     SCHEMAF_CWD="$ORIG_PWD" exec go run "${PROJECT_ROOT}/go" "$CMD" "$@"
