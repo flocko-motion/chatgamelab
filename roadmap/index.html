@@ -50,10 +50,10 @@
   .ov th small { display: block; font-weight: normal; color: var(--muted); font-size: 14px; }
   .ov th.corner { background: var(--bg); border-color: transparent; }
   .ov td { vertical-align: middle; }
-  .ov .name { min-width: 260px; max-width: 420px; padding: 6px 4px; }
-  .ov .name a { font-weight: 600; text-decoration: none; }
+  .ov .name { min-width: 320px; max-width: 520px; padding: 6px 4px; }
+  .ov .name a { font-size: 24px; line-height: 1.25; font-weight: 700; text-decoration: none; }
   .ov .name a:hover { text-decoration: underline; }
-  .ov .name .sub { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .ov .name .sub { color: var(--muted); font-size: 15px; margin-top: 4px; }
   .ov .cell { display: block; min-width: 170px; padding: 10px 14px; border-radius: 8px; border: 2px solid;
               text-decoration: none; color: var(--fg); font-weight: 600; background: var(--epic); }
   .ov .cell .bar { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
@@ -247,9 +247,9 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     style: [
       { selector: "node[kind='epic']", style: {
           "background-color": css("--epic"), "border-color": css("--line"), "border-width": 1,
-          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -8,
+          label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -10,
           "text-background-color": css("--bg"), "text-background-opacity": 1, "text-background-padding": 3,
-          "font-size": 20, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 560,
+          "font-size": 28, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 600,
           shape: "round-rectangle", padding: 24 } },
       { selector: "node[kind='issue']", style: {
           width: 280, height: 84, shape: "round-rectangle", label: "data(label)",
