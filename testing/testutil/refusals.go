@@ -53,7 +53,12 @@ const (
 	CodeNoPlays     = "no_plays"
 	CodeStale       = "stale"
 	CodeKeyRejected = "key_rejected"
+	CodeGenre       = "genre"
 )
+
+// Playable is a game's playability when the caller can start it; otherwise
+// it is the code a start refuses with (CodeNoKey, CodeNoPlays, …).
+const Playable = "playable"
 
 // Refused asserts that the API refused the call with the code.
 func (s *BaseSuite) Refused(err error, code string, msgAndArgs ...any) bool {

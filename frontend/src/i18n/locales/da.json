@@ -1316,12 +1316,39 @@
         "own": "Mine spil",
         "public": "Offentlige"
       },
+      "launch": {
+        "backToGames": "Tilbage til spillene",
+        "cannotOpen": "Dette spil kan ikke fortsætte",
+        "cannotStart": "Dette spil kan ikke starte",
+        "continue": "Fortsæt",
+        "inProgress": "Du har et igangværende spil",
+        "inProgressHint": "Fortsæt, hvor du slap, eller begynd forfra.",
+        "noPlaysLeft": "Dette link har ingen spil tilbage, så spillet kan ikke begynde på ny.",
+        "offline": "Kan ikke få forbindelse til spilserveren.",
+        "opening": "Åbner spillet…",
+        "startAnew": "Begynd forfra",
+        "startAnewUsesPlay": "Hvis du begynder forfra, bruger du et af dette links spil.",
+        "starting": "Starter spillet…",
+        "tryAgain": "Prøv igen"
+      },
       "owner": "Mine",
       "playGame": "Spil dette spil",
       "playNow": "Spil nu",
       "selectGameTitle": "Vælg et spil",
       "title": "Vælg et spil",
-      "unfavorite": "Fjern fra favoritter"
+      "unfavorite": "Fjern fra favoritter",
+      "unplayable": {
+        "denied": "Du må ikke spille dette spil",
+        "failed": "Kan ikke spilles lige nu",
+        "genre": "AI-nøglen kan ikke køre denne type spil",
+        "key_rejected": "AI-nøglen blev afvist",
+        "no_key": "Ingen AI-nøgle tilgængelig",
+        "no_plays": "Ingen spil tilbage",
+        "paused": "Værkstedet er sat på pause",
+        "stale": "Kan ikke længere spilles",
+        "unknown": "Ikke tilgængelig",
+        "unreachable": "AI-udbyderen svarer ikke"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Er du sikker på, at du vil forfremme \"{{name}}\" ({{email}}) til leder?",
@@ -1661,15 +1688,22 @@
       "turnFailed": "Historien kunne ikke fortsætte derfra. Send det igen, eller prøv noget andet.",
       "voiceFailed": "Der kunne ikke oprettes forbindelse til din stemme."
     },
+    "insights": {
+      "close": "Luk",
+      "empty": "Der er ikke kørt noget endnu.",
+      "feed": "Hvad der skete",
+      "hide": "Skjul indblik",
+      "label": "Indblik",
+      "show": "Vis indblik"
+    },
     "launch": {
-      "continue": "Fortsæt",
-      "inProgress": "Du har et spil i gang.",
       "noGame": "Denne side skal bruge et spil for at kunne spilles: Åbn den fra et spils side.",
-      "startAnew": "Start forfra",
-      "starting": "Starter spillet…",
-      "tryAgain": "Prøv igen"
+      "starting": "Starter spillet…"
     },
     "pipeline": {
+      "compact": "Komprimér tråden",
+      "compactFailed": "Kunne ikke komprimere",
+      "compacting": "Komprimerer…",
       "copied": "Layout kopieret",
       "copyFailed": "Ingen udklipsholder: Layout logget i konsollen",
       "copyLayout": "Kopiér layout"

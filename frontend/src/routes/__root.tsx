@@ -279,10 +279,10 @@ function RootComponent() {
         }
     : undefined;
 
-  // Play routes: one layout and one host for all of them, so the frame stays
-  // mounted when the address becomes the session's. Guests get the header with
-  // logo, Contact and Language. Checked before auth loading; the host waits
-  // for it before mounting the frame.
+  // Play routes: one layout and one host for all of them, which comes to a
+  // session on the platform's launch panel before the frame mounts. Guests
+  // get the header with logo, Contact and Language. Checked before auth
+  // loading; the host waits for it before launching.
   if (playback && !shouldRedirect && !shouldRedirectGuest) {
     return (
       <AppLayout

@@ -48,6 +48,8 @@ export const queryKeys = {
   userSessions: ["userSessions"] as const,
   userSessionsWithParams: (params: { search?: string; sortBy?: string }) =>
     ["userSessions", params] as const,
+  /** What a share link offers now: its game and plays left. */
+  shareInfo: (token: string) => ["shareInfo", token] as const,
 
   // Users
   users: ["users"] as const,

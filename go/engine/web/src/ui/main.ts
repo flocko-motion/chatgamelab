@@ -4,16 +4,7 @@
  */
 import { engineClient, liveURL, refusalOf, type SessionRef } from "../client.js";
 import { PlaybackEngine } from "../playback-engine.js";
-import {
-  create,
-  forget,
-  opening,
-  remembered,
-  transientMemory,
-  type Memory,
-  type Opening,
-  type Selector,
-} from "../launch.js";
+import { create, opening, transientMemory, type Memory, type Opening, type Selector } from "../launch.js";
 import { explain, holdsToTalk } from "../state.js";
 import { notice, text, useLanguage, type Notice } from "../texts.js";
 import { WebSocketTransport } from "../transport.js";
@@ -24,6 +15,7 @@ import { HoldToTalk } from "./talk.js";
 import { mountSplit } from "./split.js";
 import { View } from "./view.js";
 import { Details } from "./details.js";
+import { Insights } from "./insights.js";
 import { OptionsDialog } from "./options.js";
 import { mountBackground } from "./theme/backgrounds/index.js";
 import { PRESETS } from "./theme/presets/index.js";
@@ -39,7 +31,9 @@ function required<T extends Element>(selector: string): T {
 // The engine is served from the page's origin, in the platform and in the dev server alike.
 const client = engineClient(location.origin);
 const params = new URLSearchParams(location.search);
-const memories = { sessions: browserMemory(() => localStorage), pending: browserMemory(() => sessionStorage) };
+// Only the one-time key of a creation under way, for this tab: sessions are
+// remembered by whoever opens the page, the platform or the address.
+const pending = browserMemory(() => sessionStorage);
 const launch = new LaunchPanel({
   panel: required<HTMLElement>("#launch"),
   text: required<HTMLElement>("#launch-text"),
@@ -50,16 +44,12 @@ const launch = new LaunchPanel({
 // Before anything is said, so the first words are already in the player's language.
 await useLanguage(params.get("lang") ?? navigator.language, location.href);
 
-const opened = opening(params, memories);
+const opened = opening(params);
 const sessionID = await resolve(opened);
 launch.hide();
 if (params.get("session") !== sessionID) {
   // The address is now the session's, so a reload resumes it.
   history.replaceState(null, "", `?session=${encodeURIComponent(sessionID)}`);
-}
-if (opened.kind === "new" && window.parent !== window) {
-  // Same origin only: the ID plays the session, so it goes to no other site.
-  window.parent.postMessage({ type: "session", id: sessionID }, location.origin);
 }
 const session: SessionRef = { client, id: sessionID };
 
@@ -121,8 +111,21 @@ const view = new View({
   onEdgeClick: (from, to, kind) => void details.showEdge(from, to, kind),
 });
 
-// The game's theme applies once the session says which; the header offers the
-// rest, where a teacher can try them.
+const insights = new Insights({
+  toggle: required<HTMLButtonElement>("#insights-toggle"),
+  label: required<HTMLElement>("#insights-label"),
+  panel: required<HTMLElement>("#insights"),
+  runsTitle: required<HTMLElement>("#runs-title"),
+  runs: required<HTMLOListElement>("#runs"),
+  close: required<HTMLButtonElement>("#details-close"),
+}, {
+  onRun: (name) => void details.show(name),
+  onClose: () => details.clear(playback.state),
+});
+
+// The game's theme applies once the session says which. Trying the others is
+// for developers: the select shows on a dev server only, as a game's theme
+// comes from the game.
 const themes = required<HTMLSelectElement>("#theme");
 themes.append(...Object.keys(PRESETS).sort().map((name) => new Option(name, name)));
 
@@ -167,6 +170,7 @@ playback.subscribe((state) => {
   if (!holdsToTalk(state) || hold.disabled) talk.cancel();
   options.render(state);
   details.refresh(state);
+  insights.render(state);
   if (state.redo !== givenBack) {
     givenBack = state.redo;
     if (givenBack !== null && !typed.value) typed.value = givenBack;
@@ -185,11 +189,13 @@ recover = () => {
 void playback.restore(session).then(async () => {
   const topology = playback.state.topology;
   if (topology?.theme && topology.theme in PRESETS) useTheme(topology.theme);
+  themes.hidden = !topology?.dev;
   if (topology?.language) {
     // The session's language is fixed at creation, and wins over the page's.
     document.documentElement.lang = topology.language;
     await useLanguage(topology.language, location.href);
     talk.refresh();
+    insights.relabel();
     view.render(playback.state);
   }
   playback.connect();
@@ -220,9 +226,10 @@ compose.addEventListener("submit", (event) => {
 });
 
 /**
- * Comes to a session: resumes the one named, or creates one for a game or a
- * share, offering first to continue the one this browser played last. Every
- * reason a game cannot start is said on the launch panel.
+ * Comes to a session: plays the one named, or creates one for a game or a
+ * share, as the standalone server opens the page. On the platform the web
+ * app has opened the session already; a refusal here is said plainly on the
+ * launch panel, as the page has nothing else to offer.
  */
 async function resolve(open: Opening): Promise<string> {
   switch (open.kind) {
@@ -231,31 +238,20 @@ async function resolve(open: Opening): Promise<string> {
     case "resume": {
       const refused = await probe(open.id);
       if (!refused) return open.id;
-      if (!open.selector) return launch.ask(text(refused.key), []);
-      await launch.ask(text(refused.key), [text("launch.startAnew")]);
-      forget(memories.sessions, open.selector);
-      return start(open.selector);
+      return launch.ask(text(refused.key), []);
     }
-    case "new": {
-      const prior = remembered(memories.sessions, open.selector);
-      if (!prior) return start(open.selector);
-      const answer = await launch.ask(text("launch.inProgress"), [text("launch.continue"), text("launch.startAnew")]);
-      if (answer === text("launch.continue")) return resolve({ kind: "resume", id: prior, selector: open.selector });
-      forget(memories.sessions, open.selector);
+    case "new":
       return start(open.selector);
-    }
   }
 }
 
-/** Creates a session, as often as the player tries again. */
+/** Creates a session, or says why it cannot be had. */
 async function start(selector: Selector): Promise<string> {
   const language = params.get("lang") ?? navigator.language;
-  for (;;) {
-    launch.wait(text("launch.starting"));
-    const created = await create(client, selector, language, memories);
-    if ("id" in created) return created.id;
-    await launch.ask(text(created.notice.key), [text("launch.tryAgain")]);
-  }
+  launch.wait(text("launch.starting"));
+  const created = await create(client, selector, language, pending);
+  if ("id" in created) return created.id;
+  return launch.ask(text(created.notice.key), []);
 }
 
 /** Whether a session can be had, and if not, why; reaching it restores it. */

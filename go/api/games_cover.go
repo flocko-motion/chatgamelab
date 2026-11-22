@@ -44,7 +44,7 @@ func (MakeGameCoverEndpoint) Handle(ctx context.Context, req MakeGameCoverReq) (
 	if utf8.RuneCountInString(hint) > maxCoverHint {
 		return GameViewResp{}, errBadRequest("the hint is longer than " + strconv.Itoa(maxCoverHint) + " characters")
 	}
-	return wire.GameViewOf(session.MakeGameCover(ctx, gameID, hint))
+	return wire.GameViewOf(ctx)(session.MakeGameCover(ctx, gameID, hint))
 }
 
 // MakeGameCoverReq is the game from the path and the designer's hint.

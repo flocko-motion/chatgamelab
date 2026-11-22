@@ -1321,12 +1321,39 @@
         "own": "ጨዋታይ",
         "public": "ህቡራዊ"
       },
+      "launch": {
+        "backToGames": "ናብ ጸወታታት ተመለስ",
+        "cannotOpen": "እዚ ጸወታ ክቕጽል ኣይኽእልን",
+        "cannotStart": "እዚ ጸወታ ክጅምር ኣይኽእልን",
+        "continue": "ቀጽል",
+        "inProgress": "ኣብ ሂደት ዘሎ ጸወታ ኣለካ",
+        "inProgressHint": "ካብ ዝተወንካሉ ቦታ ቀጽል፣ ወይ ካብ መጀመርታ እንደገና ጀምር።",
+        "noPlaysLeft": "እዚ ሊንክ ዝተረፉ ጸወታታት የብሉን፣ ስለዚ እቲ ጸወታ እንደገና ክጅምር ኣይኽእልን።",
+        "offline": "ናብ ሰርቨር ጸወታ ምብጻሕ ኣይከኣልን።",
+        "opening": "እቲ ጸወታ ይኽፈት ኣሎ…",
+        "startAnew": "ካብ መጀመርታ ጀምር",
+        "startAnewUsesPlay": "ካብ መጀመርታ ምጅማር ካብ ጸወታታት እዚ ሊንክ ሓደ ይጥቀም።",
+        "starting": "እቲ ጸወታ ይጅምር ኣሎ…",
+        "tryAgain": "እንደገና ፈትን"
+      },
       "owner": "የኔ",
       "playGame": "ዚ ጨዋታ ጫውታ",
       "playNow": "ሕጂ ጫውታ",
       "selectGameTitle": "ጨዋታ ምረፅ",
       "title": "ጨዋታ ምረፅ",
-      "unfavorite": "ካብ ወደፍቲ ኣውጽእ"
+      "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
+      "unplayable": {
+        "denied": "ነዚ ጸወታ ክትጻወቶ ኣይተፈቕደልካን",
+        "failed": "ሕጂ ክጻወት ኣይከኣልን",
+        "genre": "መፍትሕ AI ነዚ ዓይነት ጸወታ ከስርሖ ኣይኽእልን",
+        "key_rejected": "መፍትሕ AI ተነጺጉ",
+        "no_key": "ዝርከብ መፍትሕ AI የለን",
+        "no_plays": "ዝተረፈ ጸወታ የለን",
+        "paused": "እቲ ዎርክሾፕ ተደውሱ ኣሎ",
+        "stale": "ደጊም ክጻወት ኣይከኣልን",
+        "unknown": "ኣይርከብን",
+        "unreachable": "ኣቕራቢ AI ኣይምልስን ኣሎ"
+      }
     },
     "profile": "ፕሮፋይል",
     "promoteConfirm": "\"{{name}}\" ({{email}}) ናብ ሓላፊ ክትመሃሩ ትደሊ ዶ?",
@@ -1667,15 +1694,22 @@
       "turnFailed": "ዛንታ ካብኡ ክቕጽል ኣይከኣለን። እንደገና ልኣኾ፣ ወይ ካልእ ነገር ፈትን።",
       "voiceFailed": "ድምጽኻ ክተሓሓዝ ኣይከኣለን።"
     },
+    "insights": {
+      "close": "ዕጸው",
+      "empty": "ክሳብ ሕጂ ሓደ ነገር እውን ኣይተካየደን።",
+      "feed": "እንታይ ኣጋጢሙ",
+      "hide": "ሓበሬታታት ሓብእ",
+      "label": "ሓበሬታታት",
+      "show": "ሓበሬታታት ኣርኢ"
+    },
     "launch": {
-      "continue": "ጸወታ ቀጽል",
-      "inProgress": "ኣብ ሂደት ዘሎ ጸወታ ኣለካ።",
       "noGame": "እዛ ገጽ ንምጽዋት ጸወታ ትደሊ፦ ካብ ገጽ ሓደ ጸወታ ክፈታ።",
-      "startAnew": "ሓድሽ ጀምር",
-      "starting": "ጸወታ ይጅምር ኣሎ…",
-      "tryAgain": "እንደገና ፈትን"
+      "starting": "ጸወታ ይጅምር ኣሎ…"
     },
     "pipeline": {
+      "compact": "ውይይት ኣሕጽር",
+      "compactFailed": "ምሕጻር ኣይተኻእለን",
+      "compacting": "ይሕጸር ኣሎ…",
       "copied": "ኣቀማምጣ ተቐዲሑ",
       "copyFailed": "ሰሌዳ ቅዳሕ የለን፦ ኣቀማምጣ ኣብ ኮንሶል ተመዝጊቡ",
       "copyLayout": "ኣቀማምጣ ቅዳሕ"

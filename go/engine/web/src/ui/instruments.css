@@ -1,4 +1,4 @@
-/* ── Instrumentation ──────────────────────────────────────────────────── */
+/* ── Insights ─────────────────────────────────────────────────────────── */
 
 aside {
   display: flex;
@@ -30,7 +30,7 @@ aside > section {
 /* The graph fills its card edge to edge, so the card's border is the only edge
    it is clipped at. A clip inside the card would cut nodes off at a line
    nobody can see. */
-aside > section:first-child {
+aside > .insights-graph {
   position: relative;
   flex: 1 1 55%;
   min-height: 12rem;
@@ -38,17 +38,96 @@ aside > section:first-child {
   overflow: hidden;
 }
 
-aside > section:first-child h2 {
+aside > .insights-graph h2 {
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
   z-index: 1;
   pointer-events: none;
 }
-aside > section:last-child { flex: 1 1 45%; }
+aside > .insights-details { flex: 1 1 45%; }
 
-@media (max-width: 60rem) {
-  aside { border-left: none; border-top: 1px solid var(--gray-2); max-height: 45vh; }
+/* The feed and the close button are the phone's; a wide screen has the graph. */
+aside > .insights-feed,
+.details-close { display: none; }
+
+.details-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+
+/* On a phone: a small pane below the game with the feed of what happened;
+   a run picked in it opens its details over the whole screen. The graph
+   needs more room than a phone has. */
+@media (max-width: 47.99rem) {
+  aside {
+    padding: 0.5rem;
+    border-left: none;
+    border-top: 1px solid var(--gray-2);
+    height: 33dvh;
+    min-height: 9rem;
+  }
+  aside > .insights-graph { display: none; }
+  aside > .insights-feed { display: flex; flex: 1; min-height: 0; padding: 0.5rem 0.75rem; }
+  aside > .insights-details { display: none; }
+  aside[data-detail] > .insights-details {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    border: 0;
+    border-radius: 0;
+    padding: 1rem;
+  }
+  aside[data-detail] .details-close { display: inline-flex; }
+}
+
+.details-close {
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: -0.5rem -0.5rem 0 0;
+  padding: 0;
+  color: var(--gray-7);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.details-close svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+/* What happened: one line per block that ran, the newest at the bottom. */
+.runs {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.runs-empty { color: var(--dim); padding: 0.25rem 0; }
+.run {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.25rem;
+  font: inherit;
+  text-align: left;
+  color: var(--gray-9);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--gray-1);
+  cursor: pointer;
+}
+.run-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Working: a pulsing dot in the block colour; done: a quiet one. */
+.run-mark { flex-shrink: 0; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--node-block); }
+li[data-done="false"] .run-mark { animation: run-pulse 1s ease-in-out infinite alternate; }
+li[data-done="true"] .run-mark { background: var(--gray-3); }
+@keyframes run-pulse { from { opacity: 1; } to { opacity: 0.3; } }
+@media (prefers-reduced-motion: reduce) {
+  li[data-done="false"] .run-mark { animation: none; }
 }
 
 aside h2 {

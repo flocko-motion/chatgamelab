@@ -1316,12 +1316,39 @@
         "own": "Moje hry",
         "public": "Verejné"
       },
+      "launch": {
+        "backToGames": "Späť na hry",
+        "cannotOpen": "Táto hra nemôže pokračovať",
+        "cannotStart": "Túto hru nemožno spustiť",
+        "continue": "Pokračovať",
+        "inProgress": "Máš rozrozohranú hru",
+        "inProgressHint": "Pokračuj tam, kde si skončil, alebo začni od začiatku.",
+        "noPlaysLeft": "Tento odkaz už nemá žiadne zostávajúce hrania, takže hru nemožno začať odznova.",
+        "offline": "Nedá sa pripojiť k hernému serveru.",
+        "opening": "Hra sa otvára…",
+        "startAnew": "Začať odznova",
+        "startAnewUsesPlay": "Začatie odznova spotrebuje jedno hranie z tohto odkazu.",
+        "starting": "Hra sa spúšťa…",
+        "tryAgain": "Skúsiť znova"
+      },
       "owner": "Moje",
       "playGame": "Hrať túto hru",
       "playNow": "Hrať teraz",
       "selectGameTitle": "Vyberte hru",
       "title": "Vyberte hru",
-      "unfavorite": "Odstrániť z obľúbených"
+      "unfavorite": "Odstrániť z obľúbených",
+      "unplayable": {
+        "denied": "Túto hru nemôžeš hrať",
+        "failed": "Momentálne ju nemožno hrať",
+        "genre": "Kľúč AI nedokáže spustiť tento typ hry",
+        "key_rejected": "Kľúč AI bol odmietnutý",
+        "no_key": "Nie je k dispozícii žiadny kľúč AI",
+        "no_plays": "Žiadne zostávajúce hrania",
+        "paused": "Dielňa je pozastavená",
+        "stale": "Už ju nemožno hrať",
+        "unknown": "Nie je k dispozícii",
+        "unreachable": "Poskytovateľ AI neodpovedá"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Naozaj chcete povýšiť „{{name}}“ ({{email}}) na vedúceho?",
@@ -1661,15 +1688,22 @@
       "turnFailed": "Príbeh na to nedokázal nadviazať. Pošli to znova alebo skús niečo iné.",
       "voiceFailed": "Tvoj hlas sa nepodarilo pripojiť."
     },
+    "insights": {
+      "close": "Zavrieť",
+      "empty": "Zatiaľ nič neprebehlo.",
+      "feed": "Čo sa stalo",
+      "hide": "Skryť prehľady",
+      "label": "Prehľady",
+      "show": "Zobraziť prehľady"
+    },
     "launch": {
-      "continue": "Pokračovať v hraní",
-      "inProgress": "Máš rozhranú hru.",
       "noGame": "Táto stránka potrebuje hru: otvor ju zo stránky hry.",
-      "startAnew": "Začať odznova",
-      "starting": "Hra sa spúšťa…",
-      "tryAgain": "Skúsiť znova"
+      "starting": "Hra sa spúšťa…"
     },
     "pipeline": {
+      "compact": "Skomprimovať vlákno",
+      "compactFailed": "Kompresia zlyhala",
+      "compacting": "Komprimuje sa…",
       "copied": "Postavitev kopirana",
       "copyFailed": "Odložišča ni: postavitev je zapisana v konzoli",
       "copyLayout": "Kopiraj postavitev"

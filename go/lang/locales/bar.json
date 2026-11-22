@@ -1321,12 +1321,39 @@
         "own": "Meine Spiele",
         "public": "Öffentlich"
       },
+      "launch": {
+        "backToGames": "Zruck zu de Spui",
+        "cannotOpen": "Des Spui ko ned weitergeh",
+        "cannotStart": "Des Spui ko ned o'fangen",
+        "continue": "Weiterspui",
+        "inProgress": "Du host a angefangenes Spui",
+        "inProgressHint": "Spui dort weiter, wo'd aufghört host, oder fang von vorn o.",
+        "noPlaysLeft": "Bei dem Link san koa Spui mehr übrig, drum ko des Spui ned neu o'fangen.",
+        "offline": "Der Spuiserver is ned erreichbar.",
+        "opening": "Des Spui wird aufgmacht…",
+        "startAnew": "Neu o'fangen",
+        "startAnewUsesPlay": "Neu o'z'fangen braucht oans vo de Spui bei dem Link.",
+        "starting": "Des Spui fangt o…",
+        "tryAgain": "No amoi probieren"
+      },
       "owner": "Mei",
       "playGame": "Des Spui spuin",
       "playNow": "Glei spuin",
       "selectGameTitle": "Spui auswähln",
       "title": "Spui auswähln",
-      "unfavorite": "Aus Favoriten entferna"
+      "unfavorite": "Aus Favoriten entferna",
+      "unplayable": {
+        "denied": "Du derfst des Spui ned spuin",
+        "failed": "Ko grad ned gspuit werdn",
+        "genre": "Der KI-Schlüssl ko diese Spuiart ned ausführen",
+        "key_rejected": "Der KI-Schlüssl is abglehnt worn",
+        "no_key": "Koan KI-Schlüssl verfügbar",
+        "no_plays": "Koa Spui mehr übrig",
+        "paused": "Die Werkstatt is pausiert",
+        "stale": "Ko nimmer gspuit werdn",
+        "unknown": "Ned verfügbar",
+        "unreachable": "Der KI-Anbieter antwortet ned"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zur Leitn machst?",
@@ -1667,15 +1694,22 @@
       "turnFailed": "De Gschicht hod do ned weitermacha kenna. Schick's no amoi oder probier wos Anders.",
       "voiceFailed": "Dei Stimm hod ned verbunden wern kenna."
     },
+    "insights": {
+      "close": "Zua",
+      "empty": "Bis jetzt is no nix glaufen.",
+      "feed": "Wos passiert is",
+      "hide": "Einblicke ausblenden",
+      "label": "Einblicke",
+      "show": "Einblicke o'zeigen"
+    },
     "launch": {
-      "continue": "Weiterspuiln",
-      "inProgress": "Du host a angefangenes Spui.",
       "noGame": "De Seitn braucht a Spui: Mach's über de Seitn von am Spui auf.",
-      "startAnew": "Neu anfangen",
-      "starting": "Des Spui startet …",
-      "tryAgain": "No amoi probiern"
+      "starting": "Des Spui startet …"
     },
     "pipeline": {
+      "compact": "Thread zammkürzen",
+      "compactFailed": "Zammkürzen is ned ganga",
+      "compacting": "Wird zammkürzt…",
       "copied": "Layout kopiert",
       "copyFailed": "Koa Zwischenablage: Layout in da Konsole ausgegeben",
       "copyLayout": "Layout kopieren"

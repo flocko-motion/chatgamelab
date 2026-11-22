@@ -1321,12 +1321,39 @@
         "own": "Lojërat e mia",
         "public": "Publike"
       },
+      "launch": {
+        "backToGames": "Kthehu te lojërat",
+        "cannotOpen": "Kjo lojë nuk mund të vazhdojë",
+        "cannotStart": "Kjo lojë nuk mund të nisë",
+        "continue": "Vazhdo",
+        "inProgress": "Ke një lojë në vazhdim",
+        "inProgressHint": "Vazhdo aty ku e le, ose nis nga fillimi.",
+        "noPlaysLeft": "Ky link nuk ka më lojëra të disponueshme, ndaj loja nuk mund të nisë nga e para.",
+        "offline": "Nuk mund të lidhet me serverin e lojës.",
+        "opening": "Po hapet loja…",
+        "startAnew": "Nis nga e para",
+        "startAnewUsesPlay": "Nisja nga e para përdor një nga lojërat e këtij linku.",
+        "starting": "Po nis loja…",
+        "tryAgain": "Provo përsëri"
+      },
       "owner": "Të miat",
       "playGame": "Luaj këtë lojë",
       "playNow": "Luaj tani",
       "selectGameTitle": "Zgjidh një lojë",
       "title": "Zgjidh një lojë",
-      "unfavorite": "Hiq nga të preferuarat"
+      "unfavorite": "Hiq nga të preferuarat",
+      "unplayable": {
+        "denied": "Nuk lejohet ta luash këtë lojë",
+        "failed": "Nuk mund të luhet për momentin",
+        "genre": "Çelësi i IA-së nuk mund të ekzekutojë këtë lloj loje",
+        "key_rejected": "Çelësi i IA-së u refuzua",
+        "no_key": "Nuk ka çelës IA-je të disponueshëm",
+        "no_plays": "Nuk ka më lojëra të disponueshme",
+        "paused": "Punishtja është në pauzë",
+        "stale": "Nuk mund të luhet më",
+        "unknown": "Nuk është i disponueshëm",
+        "unreachable": "Ofruesi i IA-së nuk po përgjigjet"
+      }
     },
     "profile": "Profili",
     "promoteConfirm": "A jeni i sigurt që doni ta promovoni \"{{name}}\" ({{email}}) si Kreu?",
@@ -1667,15 +1694,22 @@
       "turnFailed": "Historia nuk mund të vazhdonte nga ajo pikë. Dërgoje sërish ose provo diçka tjetër.",
       "voiceFailed": "Zëri yt nuk mund të lidhej."
     },
+    "insights": {
+      "close": "Mbyll",
+      "empty": "Ende nuk është ekzekutuar asgjë.",
+      "feed": "Çfarë ndodhi",
+      "hide": "Fshih informacionet",
+      "label": "Informacione",
+      "show": "Shfaq informacionet"
+    },
     "launch": {
-      "continue": "Vazhdo lojën",
-      "inProgress": "Ke një lojë në vazhdim.",
       "noGame": "Kjo faqe ka nevojë për një lojë për t'u luajtur: hape nga faqja e një loje.",
-      "startAnew": "Fillo nga e para",
-      "starting": "Po nis loja…",
-      "tryAgain": "Provo sërish"
+      "starting": "Po nis loja…"
     },
     "pipeline": {
+      "compact": "Përmblidh bisedën",
+      "compactFailed": "Përmbledhja dështoi",
+      "compacting": "Po përmblidhet…",
       "copied": "Paraqitja u kopjua",
       "copyFailed": "Pa kujtesë të fragmenteve: paraqitja u regjistrua në konsolë",
       "copyLayout": "Kopjo paraqitjen"

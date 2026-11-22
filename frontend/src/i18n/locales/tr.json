@@ -1318,12 +1318,39 @@
         "own": "Oyunlarım",
         "public": "Herkese Açık"
       },
+      "launch": {
+        "backToGames": "Oyunlara dön",
+        "cannotOpen": "Bu oyun devam edemez",
+        "cannotStart": "Bu oyun başlatılamaz",
+        "continue": "Devam et",
+        "inProgress": "Devam eden bir oyunun var",
+        "inProgressHint": "Kaldığın yerden devam et veya baştan başla.",
+        "noPlaysLeft": "Bu bağlantının oyun hakkı kalmadı, bu nedenle oyun yeniden başlatılamaz.",
+        "offline": "Oyun sunucusuna ulaşılamıyor.",
+        "opening": "Oyun açılıyor…",
+        "startAnew": "Baştan başla",
+        "startAnewUsesPlay": "Baştan başlamak, bu bağlantının oyun haklarından birini kullanır.",
+        "starting": "Oyun başlatılıyor…",
+        "tryAgain": "Tekrar dene"
+      },
       "owner": "Benim",
       "playGame": "Bu oyunu oyna",
       "playNow": "Hemen oyna",
       "selectGameTitle": "Bir Oyun Seç",
       "title": "Oyun Seç",
-      "unfavorite": "Favorilerden çıkar"
+      "unfavorite": "Favorilerden çıkar",
+      "unplayable": {
+        "denied": "Bu oyunu oynamana izin verilmiyor",
+        "failed": "Şu anda oynanamıyor",
+        "genre": "Yapay zekâ anahtarı bu tür bir oyunu çalıştıramıyor",
+        "key_rejected": "Yapay zekâ anahtarı reddedildi",
+        "no_key": "Kullanılabilir yapay zekâ anahtarı yok",
+        "no_plays": "Oyun hakkı kalmadı",
+        "paused": "Atölye duraklatıldı",
+        "stale": "Artık oynanamıyor",
+        "unknown": "Kullanılamıyor",
+        "unreachable": "Yapay zekâ sağlayıcısı yanıt vermiyor"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "\"{{name}}\" ({{email}}) kullanıcısını Başkan yapmak istediğinizden emin misiniz?",
@@ -1663,15 +1690,22 @@
       "turnFailed": "Hikâye buradan devam edemedi. Tekrar gönder veya başka bir şey dene.",
       "voiceFailed": "Ses bağlantısı kurulamadı."
     },
+    "insights": {
+      "close": "Kapat",
+      "empty": "Henüz hiçbir şey çalıştırılmadı.",
+      "feed": "Ne oldu",
+      "hide": "İçgörüleri gizle",
+      "label": "İçgörüler",
+      "show": "İçgörüleri göster"
+    },
     "launch": {
-      "continue": "Devam et",
-      "inProgress": "Devam eden bir oyunun var.",
       "noGame": "Bu sayfada oynanacak bir oyun gerekiyor: Bir oyunun sayfasından aç.",
-      "startAnew": "Baştan başla",
-      "starting": "Oyun başlatılıyor…",
-      "tryAgain": "Tekrar dene"
+      "starting": "Oyun başlatılıyor…"
     },
     "pipeline": {
+      "compact": "Konuşma dizisini sıkıştır",
+      "compactFailed": "Sıkıştırma başarısız oldu",
+      "compacting": "Sıkıştırılıyor…",
       "copied": "Düzen kopyalandı",
       "copyFailed": "Pano yok: düzen konsola kaydedildi",
       "copyLayout": "Düzeni kopyala"

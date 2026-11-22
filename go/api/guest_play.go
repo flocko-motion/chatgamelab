@@ -7,6 +7,7 @@ package api
 import (
 	"context"
 
+	"cgl/api/wire"
 	"cgl/core"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -28,6 +29,11 @@ type GuestGameInfoResp struct {
 	Description string    `json:"description,omitempty"`
 	// Remaining is null for unlimited and 0 when exhausted.
 	Remaining *int `json:"remaining"`
+	// Playability is whether a new session can start through the link now:
+	// "playable", or the refusal a start would answer (no_plays, paused,
+	// genre, key_rejected, …), as a game view says it. Continuing a session
+	// the link started takes no play.
+	Playability string `json:"playability"`
 }
 
 // GetGuestGameInfoEndpoint returns the game a share token plays, for the
@@ -48,6 +54,7 @@ func (GetGuestGameInfoEndpoint) Handle(ctx context.Context, req GuestGameInfoReq
 	if err != nil {
 		return GuestGameInfoResp{}, err
 	}
+	refusal := core.SharePlayability(ctx, play)
 	var remaining *int
 	if play.Remaining != nil {
 		r := int(*play.Remaining)
@@ -59,5 +66,6 @@ func (GetGuestGameInfoEndpoint) Handle(ctx context.Context, req GuestGameInfoReq
 		Name:        play.Game.Name(),
 		Description: play.Game.Description(),
 		Remaining:   remaining,
+		Playability: wire.Playability(refusal),
 	}, nil
 }

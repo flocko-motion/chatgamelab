@@ -31,7 +31,6 @@ export function UserActions({
   isGuest = false,
   isSignedOut = false,
   isInWorkshopMode = false,
-  workshopName: _workshopName,
   onExitWorkshopMode,
 }: Pick<
   AppHeaderProps,

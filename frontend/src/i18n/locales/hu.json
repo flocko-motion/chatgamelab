@@ -1316,12 +1316,39 @@
         "own": "Saját játékaim",
         "public": "Nyilvános"
       },
+      "launch": {
+        "backToGames": "Vissza a játékokhoz",
+        "cannotOpen": "Ez a játék nem folytatható",
+        "cannotStart": "Ez a játék nem indítható el",
+        "continue": "Folytatás",
+        "inProgress": "Van egy folyamatban lévő játékod",
+        "inProgressHint": "Folytasd ott, ahol abbahagytad, vagy kezdd újra az elejétől.",
+        "noPlaysLeft": "Ezen a linken már nincs több játékalkalom, ezért a játék nem indítható újra.",
+        "offline": "A játékszerver nem érhető el.",
+        "opening": "A játék megnyitása…",
+        "startAnew": "Kezdés elölről",
+        "startAnewUsesPlay": "Az újrakezdés felhasznál egyet a linken elérhető játékalkalmak közül.",
+        "starting": "A játék indítása…",
+        "tryAgain": "Próbáld újra"
+      },
       "owner": "Saját",
       "playGame": "Játék indítása",
       "playNow": "Játssz most",
       "selectGameTitle": "Válassz játékot",
       "title": "Válassz játékot",
-      "unfavorite": "Eltávolítás a kedvencekből"
+      "unfavorite": "Eltávolítás a kedvencekből",
+      "unplayable": {
+        "denied": "Nem játszhatsz ezzel a játékkal",
+        "failed": "Jelenleg nem játszható",
+        "genre": "Az MI-kulcs nem tudja futtatni ezt a játéktípust",
+        "key_rejected": "Az MI-kulcsot elutasították",
+        "no_key": "Nem áll rendelkezésre MI-kulcs",
+        "no_plays": "Nincs több játékalkalom",
+        "paused": "A műhely szünetel",
+        "stale": "Már nem játszható",
+        "unknown": "Nem érhető el",
+        "unreachable": "Az MI-szolgáltató nem válaszol"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Biztosan előlépteted „{{name}}” ({{email}}) felhasználót vezetővé?",
@@ -1661,15 +1688,22 @@
       "turnFailed": "A történet nem tudott erre épülni. Küldd el újra, vagy próbálj valami mást.",
       "voiceFailed": "Nem sikerült csatlakoztatni a hangodat."
     },
+    "insights": {
+      "close": "Bezárás",
+      "empty": "Eddig még semmi sem futott le.",
+      "feed": "Mi történt",
+      "hide": "Betekintések elrejtése",
+      "label": "Betekintések",
+      "show": "Betekintések megjelenítése"
+    },
     "launch": {
-      "continue": "Játék folytatása",
-      "inProgress": "Van egy megkezdett játékod.",
       "noGame": "Ennek az oldalnak szüksége van egy játékra: nyisd meg egy játék oldaláról.",
-      "startAnew": "Újrakezdés",
-      "starting": "A játék indítása…",
-      "tryAgain": "Újrapróbálkozás"
+      "starting": "A játék indítása…"
     },
     "pipeline": {
+      "compact": "Szál tömörítése",
+      "compactFailed": "A tömörítés sikertelen",
+      "compacting": "Tömörítés…",
       "copied": "Elrendezés másolva",
       "copyFailed": "Nincs vágólap: az elrendezés a konzolban naplózva",
       "copyLayout": "Elrendezés másolása"

@@ -1316,12 +1316,39 @@
         "own": "Mijn games",
         "public": "Openbaar"
       },
+      "launch": {
+        "backToGames": "Terug naar de spellen",
+        "cannotOpen": "Dit spel kan niet doorgaan",
+        "cannotStart": "Dit spel kan niet starten",
+        "continue": "Doorgaan",
+        "inProgress": "Je hebt een spel dat nog bezig is",
+        "inProgressHint": "Ga verder waar je was gebleven, of begin opnieuw vanaf het begin.",
+        "noPlaysLeft": "Deze link heeft geen speelbeurten meer over, dus het spel kan niet opnieuw beginnen.",
+        "offline": "Kan de spelserver niet bereiken.",
+        "opening": "Het spel wordt geopend…",
+        "startAnew": "Opnieuw beginnen",
+        "startAnewUsesPlay": "Opnieuw beginnen gebruikt een van de speelbeurten van deze link.",
+        "starting": "Het spel wordt gestart…",
+        "tryAgain": "Opnieuw proberen"
+      },
       "owner": "Mijn",
       "playGame": "Deze game spelen",
       "playNow": "Nu spelen",
       "selectGameTitle": "Kies een game",
       "title": "Kies een game",
-      "unfavorite": "Verwijderen uit favorieten"
+      "unfavorite": "Verwijderen uit favorieten",
+      "unplayable": {
+        "denied": "Je mag dit spel niet spelen",
+        "failed": "Kan momenteel niet worden gespeeld",
+        "genre": "De AI-sleutel kan dit soort spel niet uitvoeren",
+        "key_rejected": "De AI-sleutel is geweigerd",
+        "no_key": "Geen AI-sleutel beschikbaar",
+        "no_plays": "Geen speelbeurten meer over",
+        "paused": "De workshop is gepauzeerd",
+        "stale": "Kan niet meer worden gespeeld",
+        "unknown": "Niet beschikbaar",
+        "unreachable": "De AI-aanbieder antwoordt niet"
+      }
     },
     "profile": "Profiel",
     "promoteConfirm": "Weet je zeker dat je \"{{name}}\" ({{email}}) wilt promoveren tot hoofd?",
@@ -1661,15 +1688,22 @@
       "turnFailed": "Het verhaal kon hier niet op voortbouwen. Stuur het nogmaals of probeer iets anders.",
       "voiceFailed": "Er kon geen verbinding met je stem worden gemaakt."
     },
+    "insights": {
+      "close": "Sluiten",
+      "empty": "Er is nog niets uitgevoerd.",
+      "feed": "Wat er is gebeurd",
+      "hide": "Inzichten verbergen",
+      "label": "Inzichten",
+      "show": "Inzichten tonen"
+    },
     "launch": {
-      "continue": "Verder spelen",
-      "inProgress": "Je hebt een spel dat al bezig is.",
       "noGame": "Deze pagina heeft een spel nodig om te kunnen spelen: open de pagina via de pagina van een spel.",
-      "startAnew": "Opnieuw beginnen",
-      "starting": "Het spel wordt gestart…",
-      "tryAgain": "Opnieuw proberen"
+      "starting": "Het spel wordt gestart…"
     },
     "pipeline": {
+      "compact": "Thread samenvatten",
+      "compactFailed": "Samenvatten mislukt",
+      "compacting": "Bezig met samenvatten…",
       "copied": "Lay-out gekopieerd",
       "copyFailed": "Geen klembord: lay-out in de console gelogd",
       "copyLayout": "Lay-out kopiëren"

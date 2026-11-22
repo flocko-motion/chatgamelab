@@ -1319,12 +1319,39 @@
         "own": "Jocurile mele",
         "public": "Publice"
       },
+      "launch": {
+        "backToGames": "Înapoi la jocuri",
+        "cannotOpen": "Acest joc nu poate continua",
+        "cannotStart": "Acest joc nu poate începe",
+        "continue": "Continuă",
+        "inProgress": "Ai un joc în desfășurare",
+        "inProgressHint": "Continuă de unde ai rămas sau începe din nou de la început.",
+        "noPlaysLeft": "Acest link nu mai are jocuri disponibile, așa că jocul nu poate începe din nou.",
+        "offline": "Serverul jocului nu poate fi accesat.",
+        "opening": "Se deschide jocul…",
+        "startAnew": "Începe din nou",
+        "startAnewUsesPlay": "Începerea din nou consumă unul dintre jocurile disponibile prin acest link.",
+        "starting": "Se începe jocul…",
+        "tryAgain": "Încearcă din nou"
+      },
       "owner": "Ale mele",
       "playGame": "Joacă acest joc",
       "playNow": "Joacă acum",
       "selectGameTitle": "Selectează un joc",
       "title": "Selectează un joc",
-      "unfavorite": "Elimină din favorite"
+      "unfavorite": "Elimină din favorite",
+      "unplayable": {
+        "denied": "Nu ai voie să joci acest joc",
+        "failed": "Jocul nu poate fi jucat momentan",
+        "genre": "Cheia AI nu poate rula acest tip de joc",
+        "key_rejected": "Cheia AI a fost refuzată",
+        "no_key": "Nu este disponibilă nicio cheie AI",
+        "no_plays": "Nu mai sunt jocuri disponibile",
+        "paused": "Atelierul este pus pe pauză",
+        "stale": "Nu mai poate fi jucat",
+        "unknown": "Indisponibil",
+        "unreachable": "Furnizorul AI nu răspunde"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Sigur vrei să îl promovezi pe „{{name}}” ({{email}}) la conducător?",
@@ -1664,15 +1691,22 @@
       "turnFailed": "Povestea nu a putut continua de aici. Trimite din nou sau încearcă altceva.",
       "voiceFailed": "Vocea ta nu a putut fi conectată."
     },
+    "insights": {
+      "close": "Închide",
+      "empty": "Încă nu s-a executat nimic.",
+      "feed": "Ce s-a întâmplat",
+      "hide": "Ascunde informațiile",
+      "label": "Informații",
+      "show": "Afișează informațiile"
+    },
     "launch": {
-      "continue": "Continuă",
-      "inProgress": "Ai un joc în desfășurare.",
       "noGame": "Această pagină are nevoie de un joc: deschide-o din pagina unui joc.",
-      "startAnew": "Începe din nou",
-      "starting": "Jocul pornește…",
-      "tryAgain": "Încearcă din nou"
+      "starting": "Jocul pornește…"
     },
     "pipeline": {
+      "compact": "Compactează firul conversației",
+      "compactFailed": "Compactarea a eșuat",
+      "compacting": "Se compactează…",
       "copied": "Configurație copiată",
       "copyFailed": "Fără clipboard: configurația a fost înregistrată în consolă",
       "copyLayout": "Copiază configurația"

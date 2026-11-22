@@ -1316,12 +1316,39 @@
         "own": "Gim Saya",
         "public": "Publik"
       },
+      "launch": {
+        "backToGames": "Kembali ke permainan",
+        "cannotOpen": "Permainan ini tidak dapat dilanjutkan",
+        "cannotStart": "Permainan ini tidak dapat dimulai",
+        "continue": "Lanjutkan",
+        "inProgress": "Anda memiliki permainan yang sedang berlangsung",
+        "inProgressHint": "Lanjutkan dari bagian terakhir, atau mulai lagi dari awal.",
+        "noPlaysLeft": "Tautan ini tidak memiliki kesempatan bermain tersisa, jadi permainan tidak dapat dimulai dari awal.",
+        "offline": "Tidak dapat terhubung ke server permainan.",
+        "opening": "Membuka permainan…",
+        "startAnew": "Mulai dari awal",
+        "startAnewUsesPlay": "Memulai dari awal akan menggunakan satu kesempatan bermain dari tautan ini.",
+        "starting": "Memulai permainan…",
+        "tryAgain": "Coba lagi"
+      },
       "owner": "Milik Saya",
       "playGame": "Mainkan gim ini",
       "playNow": "Mainkan sekarang",
       "selectGameTitle": "Pilih Gim",
       "title": "Pilih Gim",
-      "unfavorite": "Hapus dari favorit"
+      "unfavorite": "Hapus dari favorit",
+      "unplayable": {
+        "denied": "Anda tidak diizinkan memainkan permainan ini",
+        "failed": "Saat ini permainan tidak dapat dimainkan",
+        "genre": "Kunci AI tidak dapat menjalankan jenis permainan ini",
+        "key_rejected": "Kunci AI ditolak",
+        "no_key": "Tidak ada kunci AI yang tersedia",
+        "no_plays": "Tidak ada kesempatan bermain tersisa",
+        "paused": "Lokakarya sedang dijeda",
+        "stale": "Tidak dapat dimainkan lagi",
+        "unknown": "Tidak tersedia",
+        "unreachable": "Penyedia AI tidak merespons"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Apakah Anda yakin ingin mempromosikan \"{{name}}\" ({{email}}) menjadi Kepala?",
@@ -1661,15 +1688,22 @@
       "turnFailed": "Cerita tidak dapat dilanjutkan dari situ. Kirim lagi, atau coba sesuatu yang lain.",
       "voiceFailed": "Suaramu tidak dapat tersambung."
     },
+    "insights": {
+      "close": "Tutup",
+      "empty": "Belum ada yang berjalan.",
+      "feed": "Apa yang terjadi",
+      "hide": "Sembunyikan Wawasan",
+      "label": "Wawasan",
+      "show": "Tampilkan Wawasan"
+    },
     "launch": {
-      "continue": "Lanjutkan",
-      "inProgress": "Kamu memiliki permainan yang sedang berlangsung.",
       "noGame": "Halaman ini memerlukan permainan untuk dimainkan: buka halaman ini dari halaman sebuah permainan.",
-      "startAnew": "Mulai baru",
-      "starting": "Memulai permainan…",
-      "tryAgain": "Coba lagi"
+      "starting": "Memulai permainan…"
     },
     "pipeline": {
+      "compact": "Ringkas utas",
+      "compactFailed": "Gagal meringkas",
+      "compacting": "Sedang meringkas…",
       "copied": "Tata letak disalin",
       "copyFailed": "Tidak ada clipboard: tata letak dicatat di konsol",
       "copyLayout": "Salin tata letak"

@@ -1321,12 +1321,39 @@
         "own": "Omat pelit",
         "public": "Julkiset"
       },
+      "launch": {
+        "backToGames": "Takaisin peleihin",
+        "cannotOpen": "Tämä peli ei voi jatkua",
+        "cannotStart": "Tätä peliä ei voi aloittaa",
+        "continue": "Jatka",
+        "inProgress": "Sinulla on peli kesken",
+        "inProgressHint": "Jatka siitä, mihin jäit, tai aloita alusta.",
+        "noPlaysLeft": "Tällä linkillä ei ole pelikertoja jäljellä, joten peliä ei voi aloittaa uudelleen.",
+        "offline": "Pelipalvelimeen ei saada yhteyttä.",
+        "opening": "Peliä avataan…",
+        "startAnew": "Aloita alusta",
+        "startAnewUsesPlay": "Alusta aloittaminen käyttää yhden tämän linkin pelikerroista.",
+        "starting": "Peliä käynnistetään…",
+        "tryAgain": "Yritä uudelleen"
+      },
       "owner": "Omat",
       "playGame": "Pelaa tätä peliä",
       "playNow": "Pelaa nyt",
       "selectGameTitle": "Valitse peli",
       "title": "Valitse peli",
-      "unfavorite": "Poista suosikeista"
+      "unfavorite": "Poista suosikeista",
+      "unplayable": {
+        "denied": "Et voi pelata tätä peliä",
+        "failed": "Peliä ei voi pelata tällä hetkellä",
+        "genre": "Tekoälyavain ei voi suorittaa tämän tyyppistä peliä",
+        "key_rejected": "Tekoälyavain hylättiin",
+        "no_key": "Tekoälyavainta ei ole saatavilla",
+        "no_plays": "Pelikerroja ei ole jäljellä",
+        "paused": "Työpaja on keskeytetty",
+        "stale": "Peliä ei voi enää pelata",
+        "unknown": "Ei saatavilla",
+        "unreachable": "Tekoälypalveluntarjoaja ei vastaa"
+      }
     },
     "profile": "Profiili",
     "promoteConfirm": "Haluatko varmasti ylentää käyttäjän \"{{name}}\" ({{email}}) johtajaksi?",
@@ -1667,15 +1694,22 @@
       "turnFailed": "Tarina ei voinut jatkua siitä. Lähetä se uudelleen tai kokeile jotain muuta.",
       "voiceFailed": "Ääntäsi ei voitu yhdistää."
     },
+    "insights": {
+      "close": "Sulje",
+      "empty": "Mitään ei ole vielä suoritettu.",
+      "feed": "Mitä tapahtui",
+      "hide": "Piilota tiedot",
+      "label": "Tiedot",
+      "show": "Näytä tiedot"
+    },
     "launch": {
-      "continue": "Jatka",
-      "inProgress": "Sinulla on keskeneräinen peli.",
       "noGame": "Tämä sivu tarvitsee pelin: avaa se pelin sivulta.",
-      "startAnew": "Aloita alusta",
-      "starting": "Peliä käynnistetään…",
-      "tryAgain": "Yritä uudelleen"
+      "starting": "Peliä käynnistetään…"
     },
     "pipeline": {
+      "compact": "Tiivistä keskustelu",
+      "compactFailed": "Tiivistäminen epäonnistui",
+      "compacting": "Tiivistetään…",
       "copied": "Asettelu kopioitu",
       "copyFailed": "Leikepöytää ei ole: asettelu tulostettiin konsoliin",
       "copyLayout": "Kopioi asettelu"

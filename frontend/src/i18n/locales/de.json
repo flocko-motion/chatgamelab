@@ -1184,7 +1184,34 @@
       "playNow": "Jetzt spielen",
       "selectGameTitle": "Spiel auswählen",
       "title": "Spiel auswählen",
-      "unfavorite": "Aus Favoriten entfernen"
+      "unfavorite": "Aus Favoriten entfernen",
+      "launch": {
+        "starting": "Das Spiel startet…",
+        "opening": "Das Spiel wird geöffnet…",
+        "cannotStart": "Dieses Spiel kann nicht starten",
+        "cannotOpen": "Dieses Spiel kann nicht weitergehen",
+        "offline": "Der Spielserver ist nicht erreichbar.",
+        "inProgress": "Du hast ein angefangenes Spiel",
+        "inProgressHint": "Spiel dort weiter, wo du aufgehört hast, oder fang von vorne an.",
+        "continue": "Weiterspielen",
+        "startAnew": "Neu beginnen",
+        "startAnewUsesPlay": "Neu zu beginnen verbraucht eines der Spiele dieses Links.",
+        "noPlaysLeft": "Dieser Link hat keine Spiele mehr übrig, darum kann das Spiel nicht neu beginnen.",
+        "tryAgain": "Erneut versuchen",
+        "backToGames": "Zurück zu den Spielen"
+      },
+      "unplayable": {
+        "no_key": "Kein KI-Schlüssel verfügbar",
+        "genre": "Der KI-Schlüssel kann diese Art Spiel nicht spielen",
+        "no_plays": "Keine Spiele mehr übrig",
+        "key_rejected": "Der KI-Schlüssel wurde abgelehnt",
+        "unreachable": "Der KI-Anbieter antwortet nicht",
+        "stale": "Kann nicht mehr gespielt werden",
+        "unknown": "Nicht verfügbar",
+        "denied": "Du darfst dieses Spiel nicht spielen",
+        "paused": "Der Workshop ist pausiert",
+        "failed": "Kann gerade nicht gespielt werden"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Leiter befördern möchten?",
@@ -1502,10 +1529,6 @@
     },
     "launch": {
       "noGame": "Diese Seite braucht ein Spiel: Öffne sie über die Seite eines Spiels.",
-      "inProgress": "Du hast ein angefangenes Spiel.",
-      "continue": "Weiterspielen",
-      "startAnew": "Neu beginnen",
-      "tryAgain": "Erneut versuchen",
       "starting": "Das Spiel startet…"
     },
     "status": {
@@ -1528,6 +1551,14 @@
       "compact": "Thread verdichten",
       "compacting": "Wird verdichtet…",
       "compactFailed": "Verdichten fehlgeschlagen"
+    },
+    "insights": {
+      "label": "Einblicke",
+      "show": "Einblicke zeigen",
+      "hide": "Einblicke ausblenden",
+      "feed": "Was passiert ist",
+      "empty": "Bisher ist noch nichts gelaufen.",
+      "close": "Schließen"
     },
     "blocks": {
       "image-style": "Stil anpassen",

@@ -1184,7 +1184,34 @@
       "playNow": "Play now",
       "selectGameTitle": "Select a Game",
       "title": "Select a Game",
-      "unfavorite": "Remove from favorites"
+      "unfavorite": "Remove from favorites",
+      "launch": {
+        "starting": "Starting the game…",
+        "opening": "Opening the game…",
+        "cannotStart": "This game cannot start",
+        "cannotOpen": "This game cannot go on",
+        "offline": "Cannot reach the game server.",
+        "inProgress": "You have a game in progress",
+        "inProgressHint": "Carry on where you left off, or start again from the beginning.",
+        "continue": "Continue",
+        "startAnew": "Start anew",
+        "startAnewUsesPlay": "Starting anew uses one of this link's plays.",
+        "noPlaysLeft": "This link has no plays left, so the game cannot start anew.",
+        "tryAgain": "Try again",
+        "backToGames": "Back to games"
+      },
+      "unplayable": {
+        "no_key": "No AI key available",
+        "genre": "The AI key cannot run this kind of game",
+        "no_plays": "No plays left",
+        "key_rejected": "The AI key was refused",
+        "unreachable": "The AI provider is not answering",
+        "stale": "Can no longer be played",
+        "unknown": "Not available",
+        "denied": "You may not play this game",
+        "paused": "The workshop is paused",
+        "failed": "Cannot be played right now"
+      }
     },
     "profile": "Profile",
     "promoteConfirm": "Are you sure you want to promote \"{{name}}\" ({{email}}) to Head?",
@@ -1502,10 +1529,6 @@
     },
     "launch": {
       "noGame": "This page needs a game to play: open it from a game's page.",
-      "inProgress": "You have a game in progress.",
-      "continue": "Continue",
-      "startAnew": "Start anew",
-      "tryAgain": "Try again",
       "starting": "Starting the game…"
     },
     "status": {
@@ -1524,7 +1547,18 @@
     "pipeline": {
       "copyLayout": "Copy layout",
       "copied": "Layout copied",
-      "copyFailed": "No clipboard: layout logged to the console"
+      "copyFailed": "No clipboard: layout logged to the console",
+      "compact": "Compact thread",
+      "compacting": "Compacting…",
+      "compactFailed": "Could not compact"
+    },
+    "insights": {
+      "label": "Insights",
+      "show": "Show Insights",
+      "hide": "Hide Insights",
+      "feed": "What happened",
+      "empty": "Nothing has run yet.",
+      "close": "Close"
     },
     "blocks": {
       "image-style": "Adapt style",

@@ -1316,12 +1316,39 @@
         "own": "Mine spill",
         "public": "Offentlige"
       },
+      "launch": {
+        "backToGames": "Tilbake til spillene",
+        "cannotOpen": "Dette spillet kan ikke fortsette",
+        "cannotStart": "Dette spillet kan ikke startes",
+        "continue": "Fortsett",
+        "inProgress": "Du har et påbegynt spill",
+        "inProgressHint": "Fortsett der du slapp, eller start på nytt fra begynnelsen.",
+        "noPlaysLeft": "Denne lenken har ingen spill igjen, så spillet kan ikke startes på nytt.",
+        "offline": "Får ikke kontakt med spillserveren.",
+        "opening": "Åpner spillet…",
+        "startAnew": "Start på nytt",
+        "startAnewUsesPlay": "Å starte på nytt bruker ett av spillene på denne lenken.",
+        "starting": "Starter spillet…",
+        "tryAgain": "Prøv igjen"
+      },
       "owner": "Mine",
       "playGame": "Spill dette spillet",
       "playNow": "Spill nå",
       "selectGameTitle": "Velg et spill",
       "title": "Velg et spill",
-      "unfavorite": "Fjern fra favoritter"
+      "unfavorite": "Fjern fra favoritter",
+      "unplayable": {
+        "denied": "Du kan ikke spille dette spillet",
+        "failed": "Kan ikke spilles akkurat nå",
+        "genre": "KI-nøkkelen kan ikke kjøre denne typen spill",
+        "key_rejected": "KI-nøkkelen ble avvist",
+        "no_key": "Ingen KI-nøkkel tilgjengelig",
+        "no_plays": "Ingen spill igjen",
+        "paused": "Verkstedet er satt på pause",
+        "stale": "Kan ikke spilles lenger",
+        "unknown": "Ikke tilgjengelig",
+        "unreachable": "KI-leverandøren svarer ikke"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Er du sikker på at du vil forfremme \"{{name}}\" ({{email}}) til leder?",
@@ -1661,15 +1688,22 @@
       "turnFailed": "Historien kunne ikke fortsette derfra. Send det på nytt, eller prøv noe annet.",
       "voiceFailed": "Kunne ikke koble til stemmen din."
     },
+    "insights": {
+      "close": "Lukk",
+      "empty": "Ingenting har blitt kjørt ennå.",
+      "feed": "Dette skjedde",
+      "hide": "Skjul innsikt",
+      "label": "Innsikt",
+      "show": "Vis innsikt"
+    },
     "launch": {
-      "continue": "Fortsett",
-      "inProgress": "Du har et pågående spill.",
       "noGame": "Denne siden trenger et spill for å kunne spilles: Åpne den fra siden til et spill.",
-      "startAnew": "Start på nytt",
-      "starting": "Starter spillet…",
-      "tryAgain": "Prøv igjen"
+      "starting": "Starter spillet…"
     },
     "pipeline": {
+      "compact": "Komprimer tråden",
+      "compactFailed": "Kunne ikke komprimere",
+      "compacting": "Komprimerer…",
       "copied": "Oppsett kopiert",
       "copyFailed": "Ingen utklippstavle: Oppsettet er logget i konsollen",
       "copyLayout": "Kopier oppsett"

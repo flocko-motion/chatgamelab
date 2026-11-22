@@ -18,6 +18,15 @@
   box-shadow: var(--mantine-shadow-md);
 }
 
+/* A game the caller cannot start: nothing to press, no play hint. */
+.card[data-unplayable] {
+  cursor: default;
+}
+
+.card[data-unplayable] .playHint {
+  display: none;
+}
+
 .card[data-sponsored] {
   border-color: var(--mantine-color-pink-3);
 }

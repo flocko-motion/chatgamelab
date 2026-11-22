@@ -1321,12 +1321,39 @@
         "own": "自分のゲーム",
         "public": "公開"
       },
+      "launch": {
+        "backToGames": "ゲームに戻る",
+        "cannotOpen": "このゲームは続行できません",
+        "cannotStart": "このゲームを開始できません",
+        "continue": "続ける",
+        "inProgress": "進行中のゲームがあります",
+        "inProgressHint": "中断したところから続けるか、最初からやり直してください。",
+        "noPlaysLeft": "このリンクのプレイ回数が残っていないため、ゲームを新しく開始できません。",
+        "offline": "ゲームサーバーに接続できません。",
+        "opening": "ゲームを開いています…",
+        "startAnew": "最初から始める",
+        "startAnewUsesPlay": "最初から始めると、このリンクのプレイ回数を1回使用します。",
+        "starting": "ゲームを開始しています…",
+        "tryAgain": "もう一度試す"
+      },
       "owner": "自分",
       "playGame": "このゲームをプレイ",
       "playNow": "今すぐプレイ",
       "selectGameTitle": "ゲームを選択",
       "title": "ゲームを選択",
-      "unfavorite": "お気に入りから削除"
+      "unfavorite": "お気に入りから削除",
+      "unplayable": {
+        "denied": "このゲームをプレイする権限がありません",
+        "failed": "現在プレイできません",
+        "genre": "AIキーではこの種類のゲームを実行できません",
+        "key_rejected": "AIキーが拒否されました",
+        "no_key": "利用可能なAIキーがありません",
+        "no_plays": "プレイ回数が残っていません",
+        "paused": "ワークショップは一時停止中です",
+        "stale": "もうプレイできません",
+        "unknown": "利用できません",
+        "unreachable": "AIプロバイダーから応答がありません"
+      }
     },
     "profile": "プロフィール",
     "promoteConfirm": "「{{name}}」（{{email}}）を代表に昇格してもよろしいですか？",
@@ -1667,15 +1694,22 @@
       "turnFailed": "そこから物語を続けられませんでした。もう一度送信するか、別のことを試してください。",
       "voiceFailed": "音声を接続できませんでした。"
     },
+    "insights": {
+      "close": "閉じる",
+      "empty": "まだ何も実行されていません。",
+      "feed": "起きたこと",
+      "hide": "インサイトを隠す",
+      "label": "インサイト",
+      "show": "インサイトを表示"
+    },
     "launch": {
-      "continue": "続ける",
-      "inProgress": "進行中のゲームがあります。",
       "noGame": "このページで遊ぶにはゲームが必要です。ゲームのページから開いてください。",
-      "startAnew": "最初から始める",
-      "starting": "ゲームを開始しています…",
-      "tryAgain": "もう一度試す"
+      "starting": "ゲームを開始しています…"
     },
     "pipeline": {
+      "compact": "スレッドを圧縮",
+      "compactFailed": "圧縮できませんでした",
+      "compacting": "圧縮しています…",
       "copied": "レイアウトをコピーしました",
       "copyFailed": "クリップボードがありません。レイアウトをコンソールに出力しました",
       "copyLayout": "レイアウトをコピー"

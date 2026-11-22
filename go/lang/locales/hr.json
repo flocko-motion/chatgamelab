@@ -1316,12 +1316,39 @@
         "own": "Moje igre",
         "public": "Javne"
       },
+      "launch": {
+        "backToGames": "Natrag na igre",
+        "cannotOpen": "Igra se ne može nastaviti",
+        "cannotStart": "Ova se igra ne može pokrenuti",
+        "continue": "Nastavi",
+        "inProgress": "Imaš igru u tijeku",
+        "inProgressHint": "Nastavi tamo gdje si stao ili počni ispočetka.",
+        "noPlaysLeft": "Ova poveznica više nema dostupnih igranja pa se igra ne može ponovno pokrenuti.",
+        "offline": "Nije moguće povezati se s poslužiteljem igre.",
+        "opening": "Otvaranje igre…",
+        "startAnew": "Započni ispočetka",
+        "startAnewUsesPlay": "Započinjanje ispočetka troši jedno igranje ove poveznice.",
+        "starting": "Pokretanje igre…",
+        "tryAgain": "Pokušaj ponovno"
+      },
       "owner": "Moje",
       "playGame": "Igraj ovu igru",
       "playNow": "Igraj sada",
       "selectGameTitle": "Odaberi igru",
       "title": "Odaberi igru",
-      "unfavorite": "Ukloni iz favorita"
+      "unfavorite": "Ukloni iz favorita",
+      "unplayable": {
+        "denied": "Ne smiješ igrati ovu igru",
+        "failed": "Trenutačno se ne može igrati",
+        "genre": "AI ključ ne može pokretati ovu vrstu igre",
+        "key_rejected": "AI ključ je odbijen",
+        "no_key": "Nijedan AI ključ nije dostupan",
+        "no_plays": "Nema preostalih igranja",
+        "paused": "Radionica je pauzirana",
+        "stale": "Više se ne može igrati",
+        "unknown": "Nije dostupno",
+        "unreachable": "Pružatelj AI usluge ne odgovara"
+      }
     },
     "profile": "Profil",
     "promoteConfirm": "Jeste li sigurni da želite unaprijediti \"{{name}}\" ({{email}}) u voditelja?",
@@ -1661,15 +1688,22 @@
       "turnFailed": "Priča se nije mogla nastaviti na temelju toga. Pošalji ponovno ili pokušaj nešto drugo.",
       "voiceFailed": "Tvoj se glas nije mogao povezati."
     },
+    "insights": {
+      "close": "Zatvori",
+      "empty": "Još ništa nije pokrenuto.",
+      "feed": "Što se dogodilo",
+      "hide": "Sakrij uvide",
+      "label": "Uvidi",
+      "show": "Prikaži uvide"
+    },
     "launch": {
-      "continue": "Nastavi igrati",
-      "inProgress": "Imaš započetu igru.",
       "noGame": "Ovoj je stranici potrebna igra: otvori je sa stranice neke igre.",
-      "startAnew": "Započni ispočetka",
-      "starting": "Igra se pokreće…",
-      "tryAgain": "Pokušaj ponovno"
+      "starting": "Igra se pokreće…"
     },
     "pipeline": {
+      "compact": "Sažmi nit",
+      "compactFailed": "Sažimanje nije uspjelo",
+      "compacting": "Sažimanje…",
       "copied": "Raspored kopiran",
       "copyFailed": "Nema međuspremnika: raspored je zapisan u konzolu",
       "copyLayout": "Kopiraj raspored"

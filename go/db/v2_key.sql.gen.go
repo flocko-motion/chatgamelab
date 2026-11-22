@@ -518,35 +518,44 @@ func (q *Queries) V2OwnKeyPlatforms(ctx context.Context, userID uuid.UUID) ([]V2
 }
 
 const v2PayerKey = `-- name: V2PayerKey :one
-SELECT id, name, platform FROM api_key WHERE id = $1
+SELECT id, name, platform, last_usage_success, last_error_code FROM api_key WHERE id = $1
 `
 
 type V2PayerKeyRow struct {
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-	Platform string    `json:"platform"`
+	ID               uuid.UUID      `json:"id"`
+	Name             string         `json:"name"`
+	Platform         string         `json:"platform"`
+	LastUsageSuccess sql.NullBool   `json:"last_usage_success"`
+	LastErrorCode    sql.NullString `json:"last_error_code"`
 }
 
 // A key as a session pays with it without a share: the site's free use.
 func (q *Queries) V2PayerKey(ctx context.Context, id uuid.UUID) (V2PayerKeyRow, error) {
 	row := q.db.QueryRowContext(ctx, v2PayerKey, id)
 	var i V2PayerKeyRow
-	err := row.Scan(&i.ID, &i.Name, &i.Platform)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Platform,
+		&i.LastUsageSuccess,
+		&i.LastErrorCode,
+	)
 	return i, err
 }
 
 const v2PayerShare = `-- name: V2PayerShare :one
-SELECT s.id, k.id AS key_id, k.name, k.platform, k.last_usage_success
+SELECT s.id, k.id AS key_id, k.name, k.platform, k.last_usage_success, k.last_error_code
 FROM api_key_share s JOIN api_key k ON k.id = s.api_key_id
 WHERE s.id = $1
 `
 
 type V2PayerShareRow struct {
-	ID               uuid.UUID    `json:"id"`
-	KeyID            uuid.UUID    `json:"key_id"`
-	Name             string       `json:"name"`
-	Platform         string       `json:"platform"`
-	LastUsageSuccess sql.NullBool `json:"last_usage_success"`
+	ID               uuid.UUID      `json:"id"`
+	KeyID            uuid.UUID      `json:"key_id"`
+	Name             string         `json:"name"`
+	Platform         string         `json:"platform"`
+	LastUsageSuccess sql.NullBool   `json:"last_usage_success"`
+	LastErrorCode    sql.NullString `json:"last_error_code"`
 }
 
 // The key behind a share, as a session or a share link pays with it.
@@ -559,6 +568,7 @@ func (q *Queries) V2PayerShare(ctx context.Context, id uuid.UUID) (V2PayerShareR
 		&i.Name,
 		&i.Platform,
 		&i.LastUsageSuccess,
+		&i.LastErrorCode,
 	)
 	return i, err
 }
