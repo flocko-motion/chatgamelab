@@ -1429,7 +1429,27 @@
         "title": "AI nivo kvaliteta za besplatno korištenje"
       },
       "notAuthorized": "Nemate dozvolu za pristup postavkama servera. Potreban je administratorski pristup.",
-      "title": "Postavke servera"
+      "title": "Postavke servera",
+      "updates": {
+        "checked": "Posljednja provjera novih verzija: {{time}}",
+        "installState": {
+          "failed": "Neuspješno",
+          "installed": "Instalirano",
+          "installing": "Nadogradnja u toku",
+          "rollback-failed": "Vraćanje nije uspjelo: stranica je zaustavljena",
+          "rolled-back": "Vraćeno"
+        },
+        "lastInstall": "Posljednja nadogradnja: {{version}} (od {{from}})",
+        "noVersion": "nijedna (razvojna)",
+        "notEnabled": "Ovaj server ne instalira ažuriranja iz aplikacije: njegov program za ažuriranje nije podešen.",
+        "rejected": "Server je odbio nadogradnju na {{version}}.",
+        "running": "Trenutna verzija:",
+        "title": "Ažuriranja",
+        "upToDate": "Stranica koristi najnoviju verziju.",
+        "upgrade": "Nadogradi",
+        "upgradeConfirm": "Stranica pravi sigurnosnu kopiju svoje baze podataka, prelazi na {{version}} i bit će nedostupna jednu do dvije minute. Ako se nova verzija ne pokrene, vraća se na trenutnu verziju.",
+        "upgradeTo": "Nadogradi na {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Igra bez naslova"
@@ -1531,6 +1551,7 @@
     "forbidden": "Nemate dozvolu za ovu radnju.",
     "generic": "Nešto je pošlo po zlu. Pokušajte ponovo.",
     "guestStays": "Kao gost ostaješ tamo gdje si se pridružio. Da bi učestvovao u drugoj radionici, otvori njenu poveznicu za poziv bez prijavljivanja: pridružit ćeš joj se kao novi gost.",
+    "installRunning": "Nadogradnja je već u toku.",
     "insufficientQuota": "Vašem API ključu su istekli krediti. Dodajte kredite ili koristite drugi API ključ.",
     "invalidApiKey": "Vaš API ključ je nevažeći ili istekao. Provjerite API ključ u Postavkama.",
     "invalidJsonSchema": "Konfiguracija igre je proizvela nevažeću šemu za AI. Ovo je problem postavki igre, a ne API ključa. Provjerite status polja igre i pokušajte ponovo.",
@@ -1563,14 +1584,17 @@
       "permission": "Pristup odbijen",
       "server": "Greška servera",
       "tokenLocked": "Privremeno zaključano",
+      "updates": "Ažuriranja",
       "validation": "Greška validacije",
       "workshopInactive": "Radionica neaktivna"
     },
     "tokenLocked": "Previše neuspješnih pokušaja – pokušajte ponovo kasnije.",
     "unauthorized": "Molimo prijavite se da nastavite.",
     "unexpected": "Dogodila se neočekivana greška.",
+    "updaterNotEnabled": "Ovaj server ne instalira ažuriranja iz aplikacije.",
     "userNotRegistered": "Morate dovršiti registraciju prije nego nastavite.",
     "validation": "Provjerite unos i pokušajte ponovo.",
+    "versionNotAvailable": "Ova verzija se ne može instalirati na ovaj server.",
     "workshopInactive": "Ova radionica je deaktivirana. Kontaktirajte nastavnika ili organizatora radionice."
   },
   "mail": {

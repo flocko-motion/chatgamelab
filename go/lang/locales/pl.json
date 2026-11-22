@@ -1321,6 +1321,12 @@
         "own": "Moje gry",
         "public": "Publiczne"
       },
+      "owner": "Moje",
+      "playGame": "Zagraj w tę grę",
+      "playNow": "Zagraj teraz",
+      "selectGameTitle": "Wybierz grę",
+      "title": "Wybierz grę",
+      "unfavorite": "Usuń z ulubionych",
       "launch": {
         "backToGames": "Wróć do gier",
         "cannotOpen": "Nie można kontynuować tej gry",
@@ -1336,12 +1342,6 @@
         "starting": "Rozpoczynanie gry…",
         "tryAgain": "Spróbuj ponownie"
       },
-      "owner": "Moje",
-      "playGame": "Zagraj w tę grę",
-      "playNow": "Zagraj teraz",
-      "selectGameTitle": "Wybierz grę",
-      "title": "Wybierz grę",
-      "unfavorite": "Usuń z ulubionych",
       "unplayable": {
         "denied": "Nie możesz grać w tę grę",
         "failed": "Nie można teraz rozpocząć gry",
@@ -1434,7 +1434,27 @@
         "title": "Poziom jakości AI dla klucza darmowego"
       },
       "notAuthorized": "Nie masz uprawnień do ustawień serwera. Wymagany dostęp administratora.",
-      "title": "Ustawienia serwera"
+      "title": "Ustawienia serwera",
+      "updates": {
+        "checked": "Ostatnio sprawdzono dostępność nowych wersji: {{time}}",
+        "installState": {
+          "failed": "Niepowodzenie",
+          "installed": "Zainstalowano",
+          "installing": "Aktualizowanie",
+          "rollback-failed": "Nie udało się cofnąć zmian: strona jest zatrzymana",
+          "rolled-back": "Cofnięto zmiany"
+        },
+        "lastInstall": "Ostatnia aktualizacja: {{version}} (z {{from}})",
+        "noVersion": "brak (wersja deweloperska)",
+        "notEnabled": "Ten serwer nie instaluje aktualizacji z aplikacji: jego mechanizm aktualizacji nie jest skonfigurowany.",
+        "rejected": "Serwer odrzucił aktualizację do wersji {{version}}.",
+        "running": "Uruchomiona wersja:",
+        "title": "Aktualizacje",
+        "upToDate": "Strona działa w najnowszej wersji.",
+        "upgrade": "Aktualizuj",
+        "upgradeConfirm": "Strona utworzy kopię zapasową swojej bazy danych, przełączy się na wersję {{version}} i będzie niedostępna przez minutę lub dwie. Jeśli nowa wersja nie uruchomi się prawidłowo, strona powróci do używanej wersji.",
+        "upgradeTo": "Aktualizuj do wersji {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Gra bez tytułu"
@@ -1537,6 +1557,7 @@
     "forbidden": "Nie masz uprawnień do wykonania tej akcji.",
     "generic": "Coś poszło nie tak. Spróbuj ponownie.",
     "guestStays": "Jako gość pozostajesz w miejscu, do którego dołączyłeś. Aby wziąć udział w innych warsztatach, otwórz ich link z zaproszeniem bez logowania: dołączysz do nich jako nowy gość.",
+    "installRunning": "Aktualizacja jest już w toku.",
     "insufficientQuota": "Twój klucz API wyczerpał środki. Dodaj kredyty lub użyj innego klucza.",
     "invalidApiKey": "Twój klucz API jest nieprawidłowy lub wygasł. Sprawdź klucz w ustawieniach.",
     "invalidJsonSchema": "Konfiguracja gry wygenerowała nieprawidłowy schemat dla AI. To problem z ustawieniami gry, a nie z kluczem API. Sprawdź pola statusu gry i spróbuj ponownie.",
@@ -1569,14 +1590,17 @@
       "permission": "Odmowa dostępu",
       "server": "Błąd serwera",
       "tokenLocked": "Tymczasowo zablokowano",
+      "updates": "Aktualizacje",
       "validation": "Błąd walidacji",
       "workshopInactive": "Warsztat nieaktywny"
     },
     "tokenLocked": "Zbyt wiele nieudanych prób – spróbuj ponownie później.",
     "unauthorized": "Zaloguj się, aby kontynuować.",
     "unexpected": "Wystąpił nieoczekiwany błąd.",
+    "updaterNotEnabled": "Ten serwer nie instaluje aktualizacji z aplikacji.",
     "userNotRegistered": "Musisz dokończyć rejestrację, zanim przejdziesz dalej.",
     "validation": "Sprawdź dane i spróbuj ponownie.",
+    "versionNotAvailable": "Tej wersji nie można zainstalować na tym serwerze.",
     "workshopInactive": "Ten warsztat został dezaktywowany. Skontaktuj się z nauczycielem lub organizatorem."
   },
   "mail": {
@@ -1694,22 +1718,14 @@
       "turnFailed": "Historia nie mogła potoczyć się dalej na tej podstawie. Wyślij to ponownie albo spróbuj czegoś innego.",
       "voiceFailed": "Nie udało się połączyć z twoim głosem."
     },
-    "insights": {
-      "close": "Zamknij",
-      "empty": "Nic jeszcze nie zostało uruchomione.",
-      "feed": "Co się wydarzyło",
-      "hide": "Ukryj informacje",
-      "label": "Informacje",
-      "show": "Pokaż informacje"
-    },
     "launch": {
       "noGame": "Ta strona wymaga gry: otwórz ją ze strony gry.",
       "starting": "Uruchamianie gry…"
     },
     "pipeline": {
-      "compact": "Skróć wątek",
-      "compactFailed": "Nie udało się skrócić wątku",
-      "compacting": "Skracanie…",
+      "compact": "Kompaktuj wątek",
+      "compactFailed": "Nie udało się skompaktować",
+      "compacting": "Kompaktowanie…",
       "copied": "Układ skopiowany",
       "copyFailed": "Brak schowka: układ zapisano w konsoli",
       "copyLayout": "Kopiuj układ"
@@ -1764,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "działanie",
       "start-game\u0003elive-session": "wprowadzenie",
       "start-game\u0003eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Zamknij",
+      "empty": "Nic jeszcze nie zostało uruchomione.",
+      "feed": "Co się wydarzyło",
+      "hide": "Ukryj informacje",
+      "label": "Informacje",
+      "show": "Pokaż informacje"
     }
   }
 }

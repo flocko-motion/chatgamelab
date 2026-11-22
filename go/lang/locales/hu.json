@@ -1429,7 +1429,27 @@
         "title": "Szabadon használható MI minőségi szint"
       },
       "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
-      "title": "Szerver beállítások"
+      "title": "Szerver beállítások",
+      "updates": {
+        "checked": "Legutóbb új verziók keresése: {{time}}",
+        "installState": {
+          "failed": "Sikertelen",
+          "installed": "Telepítve",
+          "installing": "Frissítés folyamatban",
+          "rollback-failed": "A visszaállítás sikertelen: a webhely leállt",
+          "rolled-back": "Visszaállítva"
+        },
+        "lastInstall": "Legutóbbi frissítés: {{version}} (erről: {{from}})",
+        "noVersion": "nincs (fejlesztői)",
+        "notEnabled": "Ez a szerver nem telepít frissítéseket az alkalmazásból: a frissítő nincs beállítva.",
+        "rejected": "A szerver elutasította a(z) {{version}} verzióra történő frissítést.",
+        "running": "Jelenleg futó verzió:",
+        "title": "Frissítések",
+        "upToDate": "A webhelyen a legújabb verzió fut.",
+        "upgrade": "Frissítés",
+        "upgradeConfirm": "A webhely biztonsági mentést készít az adatbázisáról, átvált a(z) {{version}} verzióra, és egy-két percig nem lesz elérhető. Ha az új verzió nem indul el, visszatér a jelenleg futó verzióhoz.",
+        "upgradeTo": "Frissítés a(z) {{version}} verzióra"
+      }
     },
     "sessions": {
       "untitledGame": "Névtelen játék"
@@ -1531,6 +1551,7 @@
     "forbidden": "Nincs jogosultságod a művelet végrehajtásához.",
     "generic": "Valami hiba történt. Próbáld újra.",
     "guestStays": "Vendégként ott maradsz, ahová csatlakoztál. Ha egy másik műhelyben szeretnél részt venni, nyisd meg a meghívólinkjét bejelentkezés nélkül: új vendégként csatlakozol hozzá.",
+    "installRunning": "Már folyamatban van egy frissítés.",
     "insufficientQuota": "Az API-kulcsod kerete elfogyott. Töltsd fel vagy használj másik kulcsot.",
     "invalidApiKey": "Az API-kulcsod érvénytelen vagy lejárt. Ellenőrizd a Beállításokban.",
     "invalidJsonSchema": "A játékbeállítás érvénytelen sémát hozott létre az MI számára. Ez játékbeállítási probléma, nem API-kulcs hiba. Ellenőrizd a játék állapotmezőit, majd próbáld újra.",
@@ -1563,14 +1584,17 @@
       "permission": "Hozzáférés megtagadva",
       "server": "Szerverhiba",
       "tokenLocked": "Ideiglenesen zárolva",
+      "updates": "Frissítések",
       "validation": "Érvényesítési hiba",
       "workshopInactive": "Inaktív műhely"
     },
     "tokenLocked": "Túl sok sikertelen próbálkozás – próbáld újra később.",
     "unauthorized": "Folytatáshoz jelentkezz be.",
     "unexpected": "Váratlan hiba történt.",
+    "updaterNotEnabled": "Ez a szerver nem telepít frissítéseket az alkalmazásból.",
     "userNotRegistered": "A folytatás előtt be kell fejezned a regisztrációt.",
     "validation": "Ellenőrizd a bevitt adatokat, majd próbáld újra.",
+    "versionNotAvailable": "Ez a verzió nem telepíthető ezen a szerveren.",
     "workshopInactive": "Ez a műhely deaktiválva lett. Vedd fel a kapcsolatot a tanároddal vagy szerveződdel."
   },
   "mail": {

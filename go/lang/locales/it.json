@@ -1316,6 +1316,12 @@
         "own": "I miei giochi",
         "public": "Pubblici"
       },
+      "owner": "Miei",
+      "playGame": "Gioca a questo gioco",
+      "playNow": "Gioca ora",
+      "selectGameTitle": "Seleziona un gioco",
+      "title": "Seleziona un gioco",
+      "unfavorite": "Rimuovi dai preferiti",
       "launch": {
         "backToGames": "Torna ai giochi",
         "cannotOpen": "Questo gioco non può continuare",
@@ -1331,12 +1337,6 @@
         "starting": "Avvio del gioco…",
         "tryAgain": "Riprova"
       },
-      "owner": "Miei",
-      "playGame": "Gioca a questo gioco",
-      "playNow": "Gioca ora",
-      "selectGameTitle": "Seleziona un gioco",
-      "title": "Seleziona un gioco",
-      "unfavorite": "Rimuovi dai preferiti",
       "unplayable": {
         "denied": "Non puoi giocare a questo gioco",
         "failed": "Al momento non è possibile giocare",
@@ -1429,7 +1429,27 @@
         "title": "Livello qualità IA per uso gratuito"
       },
       "notAuthorized": "Non hai il permesso di accedere alle impostazioni del server. È richiesto l'accesso amministratore.",
-      "title": "Impostazioni server"
+      "title": "Impostazioni server",
+      "updates": {
+        "checked": "Ultimo controllo delle nuove versioni: {{time}}",
+        "installState": {
+          "failed": "Non riuscito",
+          "installed": "Installato",
+          "installing": "Aggiornamento in corso",
+          "rollback-failed": "Ripristino non riuscito: il sito è fermo",
+          "rolled-back": "Ripristinato"
+        },
+        "lastInstall": "Ultimo aggiornamento: {{version}} (da {{from}})",
+        "noVersion": "nessuna (sviluppo)",
+        "notEnabled": "Questo server non installa aggiornamenti dall'app: il suo programma di aggiornamento non è configurato.",
+        "rejected": "Il server ha rifiutato l'aggiornamento a {{version}}.",
+        "running": "Versione in esecuzione:",
+        "title": "Aggiornamenti",
+        "upToDate": "Il sito usa la versione più recente.",
+        "upgrade": "Aggiorna",
+        "upgradeConfirm": "Il sito eseguirà il backup del database, passerà a {{version}} e non sarà raggiungibile per uno o due minuti. Se la nuova versione non si avvia, tornerà alla versione in esecuzione.",
+        "upgradeTo": "Aggiorna a {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Partita senza titolo"
@@ -1531,6 +1551,7 @@
     "forbidden": "Non hai il permesso di eseguire questa azione.",
     "generic": "Qualcosa è andato storto. Riprova.",
     "guestStays": "In quanto ospite, rimani nel workshop a cui hai partecipato. Per partecipare a un altro workshop, apri il relativo link d'invito senza accedere: vi entrerai come nuovo ospite.",
+    "installRunning": "È già in corso un aggiornamento.",
     "insufficientQuota": "La tua chiave API ha esaurito i crediti. Aggiungi altri crediti o usa un'altra chiave API.",
     "invalidApiKey": "La tua chiave API non è valida o è scaduta. Controlla la chiave nelle impostazioni.",
     "invalidJsonSchema": "La configurazione del gioco ha prodotto uno schema non valido per l'IA. È un problema di configurazione del gioco, non della chiave API. Controlla i valori di stato del gioco e riprova.",
@@ -1563,14 +1584,17 @@
       "permission": "Permesso negato",
       "server": "Errore del server",
       "tokenLocked": "Bloccato temporaneamente",
+      "updates": "Aggiornamenti",
       "validation": "Errore di validazione",
       "workshopInactive": "Workshop inattivo"
     },
     "tokenLocked": "Troppi tentativi non riusciti: riprova più tardi.",
     "unauthorized": "Accedi per continuare.",
     "unexpected": "Si è verificato un errore imprevisto.",
+    "updaterNotEnabled": "Questo server non installa aggiornamenti dall'app.",
     "userNotRegistered": "Devi completare la registrazione prima di proseguire.",
     "validation": "Controlla i dati inseriti e riprova.",
+    "versionNotAvailable": "Questa versione non può essere installata su questo server.",
     "workshopInactive": "Questo workshop è stato disattivato. Contatta il tuo insegnante o l'organizzatore del workshop."
   },
   "mail": {
@@ -1688,20 +1712,12 @@
       "turnFailed": "La storia non ha potuto proseguire da lì. Invia di nuovo il messaggio o prova qualcos'altro.",
       "voiceFailed": "Non è stato possibile collegare la tua voce."
     },
-    "insights": {
-      "close": "Chiudi",
-      "empty": "Non è ancora stato eseguito nulla.",
-      "feed": "Cosa è successo",
-      "hide": "Nascondi approfondimenti",
-      "label": "Approfondimenti",
-      "show": "Mostra approfondimenti"
-    },
     "launch": {
       "noGame": "Questa pagina richiede un gioco: aprila dalla pagina di un gioco.",
       "starting": "Avvio del gioco…"
     },
     "pipeline": {
-      "compact": "Compatta il thread",
+      "compact": "Compatta thread",
       "compactFailed": "Impossibile compattare",
       "compacting": "Compattazione in corso…",
       "copied": "Layout copiato",
@@ -1758,6 +1774,14 @@
       "rephrase-audio\u001eoutline": "azione",
       "start-game\u001elive-session": "spunto",
       "start-game\u001eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Chiudi",
+      "empty": "Non è ancora stato eseguito nulla.",
+      "feed": "Cosa è successo",
+      "hide": "Nascondi approfondimenti",
+      "label": "Approfondimenti",
+      "show": "Mostra approfondimenti"
     }
   }
 }

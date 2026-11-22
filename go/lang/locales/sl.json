@@ -1429,7 +1429,27 @@
         "title": "Kakovostni razred AI za brezplačno uporabo"
       },
       "notAuthorized": "Nimate dovoljenja za dostop do strežniških nastavitev. Potreben je adminsitratorski dostop.",
-      "title": "Nastavitve strežnika"
+      "title": "Nastavitve strežnika",
+      "updates": {
+        "checked": "Nazadnje preverjeno za nove različice: {{time}}",
+        "installState": {
+          "failed": "Neuspešno",
+          "installed": "Nameščeno",
+          "installing": "Nadgradnja v teku",
+          "rollback-failed": "Razveljavitev ni uspela: stran je ustavljena",
+          "rolled-back": "Razveljavljeno"
+        },
+        "lastInstall": "Zadnja nadgradnja: {{version}} (iz {{from}})",
+        "noVersion": "nobena (razvojna)",
+        "notEnabled": "Ta strežnik iz aplikacije ne namešča posodobitev: njegov program za posodabljanje ni nastavljen.",
+        "rejected": "Strežnik je zavrnil nadgradnjo na {{version}}.",
+        "running": "Trenutno izvajana različica:",
+        "title": "Posodobitve",
+        "upToDate": "Stran uporablja najnovejšo različico.",
+        "upgrade": "Nadgradi",
+        "upgradeConfirm": "Stran varnostno kopira svojo zbirko podatkov, preklopi na {{version}} in bo minuto ali dve nedosegljiva. Če se nova različica ne zažene, se vrne na trenutno izvajano različico.",
+        "upgradeTo": "Nadgradi na {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Neimenovana igra"
@@ -1531,6 +1551,7 @@
     "forbidden": "Nimate dovoljenja za izvedbo tega dejanja.",
     "generic": "Nekaj je šlo narobe. Poskusite znova.",
     "guestStays": "Kot gost ostanete tam, kjer ste se pridružili. Če želite sodelovati v drugi delavnici, odprite njeno povezavo do vabila, ne da bi se prijavili: pridružite se ji kot nov gost.",
+    "installRunning": "Nadgradnja že poteka.",
     "insufficientQuota": "Vaš ključ API je porabil kredite. Dodajte več kreditov ali uporabite drug ključ API.",
     "invalidApiKey": "Vaš ključ API je neveljaven ali potekel. Preverite ga v nastavitvah.",
     "invalidJsonSchema": "Konfiguracija igre je ustvarila neveljavno shemo za AI. To je težava nastavitve igre, ne ključa API. Preverite vrednosti stanja igre in poskusite znova.",
@@ -1563,14 +1584,17 @@
       "permission": "Dovoljenje zavrnjeno",
       "server": "Napaka strežnika",
       "tokenLocked": "Začasno zaklenjeno",
+      "updates": "Posodobitve",
       "validation": "Napaka validacije",
       "workshopInactive": "Delavnica ni aktivna"
     },
     "tokenLocked": "Preveč neuspešnih poskusov – poskusite znova pozneje.",
     "unauthorized": "Za nadaljevanje se prijavite.",
     "unexpected": "Prišlo je do nepričakovane napake.",
+    "updaterNotEnabled": "Ta strežnik iz aplikacije ne namešča posodobitev.",
     "userNotRegistered": "Pred nadaljevanjem morate dokončati registracijo.",
     "validation": "Preverite svoje vnose in poskusite znova.",
+    "versionNotAvailable": "Te različice na tem strežniku ni mogoče namestiti.",
     "workshopInactive": "Ta delavnica je deaktivirana. Obrnite se na učitelja ali organizatorja delavnice."
   },
   "mail": {

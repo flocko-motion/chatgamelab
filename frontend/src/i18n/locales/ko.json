@@ -1321,6 +1321,12 @@
         "own": "내 게임",
         "public": "공개"
       },
+      "owner": "내 것",
+      "playGame": "이 게임 플레이",
+      "playNow": "지금 플레이",
+      "selectGameTitle": "게임 선택",
+      "title": "게임 선택",
+      "unfavorite": "즐겨찾기 해제",
       "launch": {
         "backToGames": "게임으로 돌아가기",
         "cannotOpen": "이 게임을 계속 진행할 수 없습니다",
@@ -1336,12 +1342,6 @@
         "starting": "게임을 시작하는 중…",
         "tryAgain": "다시 시도"
       },
-      "owner": "내 것",
-      "playGame": "이 게임 플레이",
-      "playNow": "지금 플레이",
-      "selectGameTitle": "게임 선택",
-      "title": "게임 선택",
-      "unfavorite": "즐겨찾기 해제",
       "unplayable": {
         "denied": "이 게임을 플레이할 수 없습니다",
         "failed": "지금은 플레이할 수 없습니다",
@@ -1434,7 +1434,27 @@
         "title": "무료 사용 AI 품질 등급"
       },
       "notAuthorized": "서버 설정에 접근할 권한이 없습니다. 관리자 권한이 필요합니다.",
-      "title": "서버 설정"
+      "title": "서버 설정",
+      "updates": {
+        "checked": "새 버전을 마지막으로 확인한 시간: {{time}}",
+        "installState": {
+          "failed": "실패",
+          "installed": "설치됨",
+          "installing": "업그레이드 중",
+          "rollback-failed": "롤백 실패: 사이트가 중지됨",
+          "rolled-back": "롤백됨"
+        },
+        "lastInstall": "마지막 업그레이드: {{version}} ({{from}}에서)",
+        "noVersion": "없음 (개발 버전)",
+        "notEnabled": "이 서버는 앱에서 업데이트를 설치하지 않습니다. 업데이터가 설정되지 않았습니다.",
+        "rejected": "서버가 {{version}}으로의 업그레이드를 거부했습니다.",
+        "running": "실행 중인 버전:",
+        "title": "업데이트",
+        "upToDate": "사이트가 최신 버전으로 실행되고 있습니다.",
+        "upgrade": "업그레이드",
+        "upgradeConfirm": "사이트가 데이터베이스를 백업하고 {{version}}으로 전환하며 1~2분 동안 접속할 수 없습니다. 새 버전이 시작되지 않으면 현재 실행 중인 버전으로 돌아갑니다.",
+        "upgradeTo": "{{version}}으로 업그레이드"
+      }
     },
     "sessions": {
       "untitledGame": "제목 없는 게임"
@@ -1537,6 +1557,7 @@
     "forbidden": "이 작업을 수행할 권한이 없습니다.",
     "generic": "문제가 발생했습니다. 다시 시도해 주세요.",
     "guestStays": "게스트는 참가한 곳에 계속 남습니다. 다른 워크숍에 참여하려면 로그인하지 않은 상태로 초대 링크를 여세요. 새 게스트로 참여하게 됩니다.",
+    "installRunning": "이미 업그레이드가 진행 중입니다.",
     "insufficientQuota": "API 키의 크레딧이 부족합니다. 크레딧을 추가하거나 다른 API 키를 사용하세요.",
     "invalidApiKey": "API 키가 유효하지 않거나 만료되었습니다. 설정에서 API 키를 확인하세요.",
     "invalidJsonSchema": "게임 구성에서 AI를 위한 잘못된 스키마가 생성되었습니다. 이는 API 키 문제가 아니라 게임 설정 문제입니다. 게임의 상태 필드를 확인한 뒤 다시 시도하세요.",
@@ -1569,14 +1590,17 @@
       "permission": "권한 거부",
       "server": "서버 오류",
       "tokenLocked": "일시적으로 잠김",
+      "updates": "업데이트",
       "validation": "검증 오류",
       "workshopInactive": "워크숍 비활성"
     },
     "tokenLocked": "실패한 시도가 너무 많습니다. 나중에 다시 시도해 주세요.",
     "unauthorized": "계속하려면 로그인하세요.",
     "unexpected": "예상치 못한 오류가 발생했습니다.",
+    "updaterNotEnabled": "이 서버는 앱에서 업데이트를 설치하지 않습니다.",
     "userNotRegistered": "계속하기 전에 등록을 완료해야 합니다.",
     "validation": "입력을 확인하고 다시 시도하세요.",
+    "versionNotAvailable": "이 버전은 이 서버에 설치할 수 없습니다.",
     "workshopInactive": "이 워크숍은 비활성화되었습니다. 교사 또는 워크숍 주최자에게 문의하세요."
   },
   "mail": {
@@ -1694,22 +1718,14 @@
       "turnFailed": "이야기를 그 내용에서 이어 갈 수 없습니다. 다시 보내거나 다른 내용을 시도해 보세요.",
       "voiceFailed": "음성을 연결할 수 없습니다."
     },
-    "insights": {
-      "close": "닫기",
-      "empty": "아직 실행된 항목이 없습니다.",
-      "feed": "발생한 일",
-      "hide": "인사이트 숨기기",
-      "label": "인사이트",
-      "show": "인사이트 표시"
-    },
     "launch": {
       "noGame": "이 페이지에서 플레이하려면 게임이 필요합니다. 게임 페이지에서 열어 주세요.",
       "starting": "게임을 시작하는 중…"
     },
     "pipeline": {
-      "compact": "스레드 축약",
-      "compactFailed": "축약하지 못했습니다",
-      "compacting": "축약하는 중…",
+      "compact": "스레드 압축",
+      "compactFailed": "압축하지 못했습니다",
+      "compacting": "압축 중…",
       "copied": "레이아웃이 복사되었습니다",
       "copyFailed": "클립보드 없음: 레이아웃이 콘솔에 기록되었습니다",
       "copyLayout": "레이아웃 복사"
@@ -1764,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "행동",
       "start-game\u0003elive-session": "시작 신호",
       "start-game\u0003eoutline": "프롬프트"
+    },
+    "insights": {
+      "close": "닫기",
+      "empty": "아직 실행된 항목이 없습니다.",
+      "feed": "발생한 일",
+      "hide": "인사이트 숨기기",
+      "label": "인사이트",
+      "show": "인사이트 표시"
     }
   }
 }

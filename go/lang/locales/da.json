@@ -1316,6 +1316,12 @@
         "own": "Mine spil",
         "public": "Offentlige"
       },
+      "owner": "Mine",
+      "playGame": "Spil dette spil",
+      "playNow": "Spil nu",
+      "selectGameTitle": "Vælg et spil",
+      "title": "Vælg et spil",
+      "unfavorite": "Fjern fra favoritter",
       "launch": {
         "backToGames": "Tilbage til spillene",
         "cannotOpen": "Dette spil kan ikke fortsætte",
@@ -1331,12 +1337,6 @@
         "starting": "Starter spillet…",
         "tryAgain": "Prøv igen"
       },
-      "owner": "Mine",
-      "playGame": "Spil dette spil",
-      "playNow": "Spil nu",
-      "selectGameTitle": "Vælg et spil",
-      "title": "Vælg et spil",
-      "unfavorite": "Fjern fra favoritter",
       "unplayable": {
         "denied": "Du må ikke spille dette spil",
         "failed": "Kan ikke spilles lige nu",
@@ -1429,7 +1429,27 @@
         "title": "Frit-brugs AI-kvalitetsniveau"
       },
       "notAuthorized": "Du har ikke tilladelse til at få adgang til serverindstillinger. Adminadgang påkrævet.",
-      "title": "Serverindstillinger"
+      "title": "Serverindstillinger",
+      "updates": {
+        "checked": "Senest søgt efter nye versioner: {{time}}",
+        "installState": {
+          "failed": "Mislykkedes",
+          "installed": "Installeret",
+          "installing": "Opgradering i gang",
+          "rollback-failed": "Tilbagerulning mislykkedes: webstedet er stoppet",
+          "rolled-back": "Rullet tilbage"
+        },
+        "lastInstall": "Seneste opgradering: {{version}} (fra {{from}})",
+        "noVersion": "ingen (udvikling)",
+        "notEnabled": "Denne server installerer ikke opdateringer fra appen: dens opdateringsfunktion er ikke konfigureret.",
+        "rejected": "Serveren afviste opgraderingen til {{version}}.",
+        "running": "Kørende version:",
+        "title": "Opdateringer",
+        "upToDate": "Webstedet kører den nyeste version.",
+        "upgrade": "Opgrader",
+        "upgradeConfirm": "Webstedet sikkerhedskopierer sin database, skifter til {{version}} og vil være utilgængeligt i et til to minutter. Hvis den nye version ikke starter, vender det tilbage til den kørende version.",
+        "upgradeTo": "Opgrader til {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Unavngivet spil"
@@ -1531,6 +1551,7 @@
     "forbidden": "Du har ikke tilladelse til at udføre denne handling.",
     "generic": "Noget gik galt. Prøv igen.",
     "guestStays": "Som gæst bliver du dér, hvor du deltog. Hvis du vil deltage i en anden workshop, skal du åbne dens invitationslink uden at logge ind: Du deltager som en ny gæst.",
+    "installRunning": "Der kører allerede en opgradering.",
     "insufficientQuota": "Din API-nøgle er løbet tør for credits. Tilføj flere credits eller brug en anden API-nøgle.",
     "invalidApiKey": "Din API-nøgle er ugyldig eller udløbet. Kontrollér din API-nøgle i indstillinger.",
     "invalidJsonSchema": "Spilkonfigurationen genererede et ugyldigt skema til AI'en. Dette er et spilopsætningsproblem, ikke et API-nøgleproblem. Kontrollér spillets statusfelter og prøv igen.",
@@ -1563,14 +1584,17 @@
       "permission": "Tilladelse nægtet",
       "server": "Serverfejl",
       "tokenLocked": "Midlertidigt låst",
+      "updates": "Opdateringer",
       "validation": "Valideringsfejl",
       "workshopInactive": "Workshop inaktiv"
     },
     "tokenLocked": "For mange mislykkede forsøg – prøv igen senere.",
     "unauthorized": "Log venligst ind for at fortsætte.",
     "unexpected": "Der opstod en uventet fejl.",
+    "updaterNotEnabled": "Denne server installerer ikke opdateringer fra appen.",
     "userNotRegistered": "Du skal færdiggøre registreringen, før du fortsætter.",
     "validation": "Kontrollér din indtastning og prøv igen.",
+    "versionNotAvailable": "Denne version kan ikke installeres på denne server.",
     "workshopInactive": "Denne workshop er deaktiveret. Kontakt din lærer eller workshoparrangør."
   },
   "mail": {
@@ -1688,20 +1712,12 @@
       "turnFailed": "Historien kunne ikke fortsætte derfra. Send det igen, eller prøv noget andet.",
       "voiceFailed": "Der kunne ikke oprettes forbindelse til din stemme."
     },
-    "insights": {
-      "close": "Luk",
-      "empty": "Der er ikke kørt noget endnu.",
-      "feed": "Hvad der skete",
-      "hide": "Skjul indblik",
-      "label": "Indblik",
-      "show": "Vis indblik"
-    },
     "launch": {
       "noGame": "Denne side skal bruge et spil for at kunne spilles: Åbn den fra et spils side.",
       "starting": "Starter spillet…"
     },
     "pipeline": {
-      "compact": "Komprimér tråden",
+      "compact": "Komprimér tråd",
       "compactFailed": "Kunne ikke komprimere",
       "compacting": "Komprimerer…",
       "copied": "Layout kopieret",
@@ -1758,6 +1774,14 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "signal",
       "start-game\u0003eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Luk",
+      "empty": "Der er ikke kørt noget endnu.",
+      "feed": "Hvad der skete",
+      "hide": "Skjul indblik",
+      "label": "Indblik",
+      "show": "Vis indblik"
     }
   }
 }

@@ -1316,6 +1316,12 @@
         "own": "Moje igre",
         "public": "Javne"
       },
+      "owner": "Moje",
+      "playGame": "Igraj ovu igru",
+      "playNow": "Igraj sada",
+      "selectGameTitle": "Odaberi igru",
+      "title": "Odaberi igru",
+      "unfavorite": "Ukloni iz favorita",
       "launch": {
         "backToGames": "Natrag na igre",
         "cannotOpen": "Igra se ne može nastaviti",
@@ -1331,12 +1337,6 @@
         "starting": "Pokretanje igre…",
         "tryAgain": "Pokušaj ponovno"
       },
-      "owner": "Moje",
-      "playGame": "Igraj ovu igru",
-      "playNow": "Igraj sada",
-      "selectGameTitle": "Odaberi igru",
-      "title": "Odaberi igru",
-      "unfavorite": "Ukloni iz favorita",
       "unplayable": {
         "denied": "Ne smiješ igrati ovu igru",
         "failed": "Trenutačno se ne može igrati",
@@ -1429,7 +1429,27 @@
         "title": "Razina kvalitete AI-ja za besplatnu upotrebu"
       },
       "notAuthorized": "Nemaš dopuštenje za pristup postavkama poslužitelja. Potreban je administratorski pristup.",
-      "title": "Postavke poslužitelja"
+      "title": "Postavke poslužitelja",
+      "updates": {
+        "checked": "Zadnja provjera novih verzija: {{time}}",
+        "installState": {
+          "failed": "Neuspješno",
+          "installed": "Instalirano",
+          "installing": "Nadogradnja u tijeku",
+          "rollback-failed": "Vraćanje nije uspjelo: stranica je zaustavljena",
+          "rolled-back": "Vraćeno"
+        },
+        "lastInstall": "Zadnja nadogradnja: {{version}} (s verzije {{from}})",
+        "noVersion": "nema (razvojna verzija)",
+        "notEnabled": "Ovaj poslužitelj ne instalira ažuriranja iz aplikacije: njegov program za ažuriranje nije postavljen.",
+        "rejected": "Poslužitelj je odbio nadogradnju na {{version}}.",
+        "running": "Trenutna verzija:",
+        "title": "Ažuriranja",
+        "upToDate": "Stranica koristi najnoviju verziju.",
+        "upgrade": "Nadogradi",
+        "upgradeConfirm": "Stranica izrađuje sigurnosnu kopiju svoje baze podataka, prebacuje se na {{version}} i neće biti dostupna minutu ili dvije. Ako se nova verzija ne uspije pokrenuti, vraća se na trenutno pokrenutu verziju.",
+        "upgradeTo": "Nadogradi na {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Igra bez naslova"
@@ -1531,6 +1551,7 @@
     "forbidden": "Nemate dopuštenje za izvođenje ove radnje.",
     "generic": "Nešto je pošlo po zlu. Pokušajte ponovno.",
     "guestStays": "Kao gost ostajete tamo gdje ste se pridružili. Da biste sudjelovali u drugoj radionici, otvorite njezinu poveznicu s pozivom bez prijave: pridružit ćete joj se kao novi gost.",
+    "installRunning": "Nadogradnja je već u tijeku.",
     "insufficientQuota": "Vašem API ključu su ponestali krediti. Dodajte više kredita ili upotrijebite drugi API ključ.",
     "invalidApiKey": "Vaš API ključ je nevažeći ili istekao. Provjerite ga u Postavkama.",
     "invalidJsonSchema": "Konfiguracija igre proizvela je nevaljanu shemu za AI. To je problem postavki igre, a ne API ključa. Provjerite vrijednosti statusa igre i pokušajte ponovno.",
@@ -1563,14 +1584,17 @@
       "permission": "Pristup odbijen",
       "server": "Pogreška poslužitelja",
       "tokenLocked": "Privremeno zaključano",
+      "updates": "Ažuriranja",
       "validation": "Pogreška validacije",
       "workshopInactive": "Radionica nije aktivna"
     },
     "tokenLocked": "Previše neuspješnih pokušaja – pokušajte ponovno kasnije.",
     "unauthorized": "Prijavite se za nastavak.",
     "unexpected": "Dogodila se neočekivana pogreška.",
+    "updaterNotEnabled": "Ovaj poslužitelj ne instalira ažuriranja iz aplikacije.",
     "userNotRegistered": "Morate dovršiti registraciju prije nastavka.",
     "validation": "Provjerite svoj unos i pokušajte ponovno.",
+    "versionNotAvailable": "Ovu verziju nije moguće instalirati na ovom poslužitelju.",
     "workshopInactive": "Ova radionica je deaktivirana. Obratite se svom učitelju ili organizatoru radionice."
   },
   "mail": {
@@ -1688,14 +1712,6 @@
       "turnFailed": "Priča se nije mogla nastaviti na temelju toga. Pošalji ponovno ili pokušaj nešto drugo.",
       "voiceFailed": "Tvoj se glas nije mogao povezati."
     },
-    "insights": {
-      "close": "Zatvori",
-      "empty": "Još ništa nije pokrenuto.",
-      "feed": "Što se dogodilo",
-      "hide": "Sakrij uvide",
-      "label": "Uvidi",
-      "show": "Prikaži uvide"
-    },
     "launch": {
       "noGame": "Ovoj je stranici potrebna igra: otvori je sa stranice neke igre.",
       "starting": "Igra se pokreće…"
@@ -1703,7 +1719,7 @@
     "pipeline": {
       "compact": "Sažmi nit",
       "compactFailed": "Sažimanje nije uspjelo",
-      "compacting": "Sažimanje…",
+      "compacting": "Sažimanje u tijeku…",
       "copied": "Raspored kopiran",
       "copyFailed": "Nema međuspremnika: raspored je zapisan u konzolu",
       "copyLayout": "Kopiraj raspored"
@@ -1758,6 +1774,14 @@
       "rephrase-audio\u0003eoutline": "radnja",
       "start-game\u0003elive-session": "uvod",
       "start-game\u0003eoutline": "upit"
+    },
+    "insights": {
+      "close": "Zatvori",
+      "empty": "Još ništa nije pokrenuto.",
+      "feed": "Što se dogodilo",
+      "hide": "Sakrij uvide",
+      "label": "Uvidi",
+      "show": "Prikaži uvide"
     }
   }
 }

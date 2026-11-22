@@ -1321,6 +1321,12 @@
         "own": "Omat pelit",
         "public": "Julkiset"
       },
+      "owner": "Omat",
+      "playGame": "Pelaa tätä peliä",
+      "playNow": "Pelaa nyt",
+      "selectGameTitle": "Valitse peli",
+      "title": "Valitse peli",
+      "unfavorite": "Poista suosikeista",
       "launch": {
         "backToGames": "Takaisin peleihin",
         "cannotOpen": "Tämä peli ei voi jatkua",
@@ -1336,12 +1342,6 @@
         "starting": "Peliä käynnistetään…",
         "tryAgain": "Yritä uudelleen"
       },
-      "owner": "Omat",
-      "playGame": "Pelaa tätä peliä",
-      "playNow": "Pelaa nyt",
-      "selectGameTitle": "Valitse peli",
-      "title": "Valitse peli",
-      "unfavorite": "Poista suosikeista",
       "unplayable": {
         "denied": "Et voi pelata tätä peliä",
         "failed": "Peliä ei voi pelata tällä hetkellä",
@@ -1434,7 +1434,27 @@
         "title": "Vapaaseen käyttöön tarkoitettu AI-laatutaso"
       },
       "notAuthorized": "Sinulla ei ole oikeutta käyttää palvelinasetuksia. Ylläpitäjätaso vaaditaan.",
-      "title": "Palvelinasetukset"
+      "title": "Palvelinasetukset",
+      "updates": {
+        "checked": "Uusien versioiden viimeisin tarkistus: {{time}}",
+        "installState": {
+          "failed": "Epäonnistui",
+          "installed": "Asennettu",
+          "installing": "Päivitetään",
+          "rollback-failed": "Palautus epäonnistui: sivusto on pysäytetty",
+          "rolled-back": "Palautettu"
+        },
+        "lastInstall": "Viimeisin päivitys: {{version}} (versiosta {{from}})",
+        "noVersion": "ei mitään (kehitysversio)",
+        "notEnabled": "Tämä palvelin ei asenna päivityksiä sovelluksesta: sen päivitysohjelmaa ei ole määritetty.",
+        "rejected": "Palvelin hylkäsi päivityksen versioon {{version}}.",
+        "running": "Käytössä oleva versio:",
+        "title": "Päivitykset",
+        "upToDate": "Sivustossa on uusin versio.",
+        "upgrade": "Päivitä",
+        "upgradeConfirm": "Sivusto varmuuskopioi tietokantansa, vaihtaa versioon {{version}} ja on tavoittamattomissa minuutin tai kaksi. Jos uusi versio ei käynnisty, sivusto palaa käytössä olevaan versioon.",
+        "upgradeTo": "Päivitä versioon {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Nimeämätön peli"
@@ -1537,6 +1557,7 @@
     "forbidden": "Sinulla ei ole lupaa tehdä tätä toimintoa.",
     "generic": "Jotain meni pieleen. Yritä uudelleen.",
     "guestStays": "Vieraana pysyt siellä, missä liityit mukaan. Jos haluat osallistua toiseen työpajaan, avaa sen kutsulinkki kirjautumatta: liityt siihen uutena vieraana.",
+    "installRunning": "Päivitys on jo käynnissä.",
     "insufficientQuota": "API-avaimeltasi on loppunut saldo. Lisää saldoa tai käytä toista avainta.",
     "invalidApiKey": "API-avaimesi on virheellinen tai vanhentunut. Tarkista avain asetuksista.",
     "invalidJsonSchema": "Peliasetukset tuottivat AI:lle virheellisen skeeman. Tämä on pelin määritysvirhe, ei API-avaimen ongelma. Tarkista pelin tilakentät ja yritä uudelleen.",
@@ -1569,14 +1590,17 @@
       "permission": "Lupa evätty",
       "server": "Palvelinvirhe",
       "tokenLocked": "Tilapäisesti lukittu",
+      "updates": "Päivitykset",
       "validation": "Validointivirhe",
       "workshopInactive": "Työpaja ei ole aktiivinen"
     },
     "tokenLocked": "Liian monta epäonnistunutta yritystä – yritä myöhemmin uudelleen.",
     "unauthorized": "Jatkaaksesi kirjaudu sisään.",
     "unexpected": "Tapahtui odottamaton virhe.",
+    "updaterNotEnabled": "Tämä palvelin ei asenna päivityksiä sovelluksesta.",
     "userNotRegistered": "Sinun on viimeisteltävä rekisteröinti ennen jatkamista.",
     "validation": "Tarkista syötteesi ja yritä uudelleen.",
+    "versionNotAvailable": "Tätä versiota ei voi asentaa tälle palvelimelle.",
     "workshopInactive": "Tämä työpaja on poistettu käytöstä. Ota yhteyttä opettajaasi tai työpajan järjestäjään."
   },
   "mail": {
@@ -1694,20 +1718,12 @@
       "turnFailed": "Tarina ei voinut jatkua siitä. Lähetä se uudelleen tai kokeile jotain muuta.",
       "voiceFailed": "Ääntäsi ei voitu yhdistää."
     },
-    "insights": {
-      "close": "Sulje",
-      "empty": "Mitään ei ole vielä suoritettu.",
-      "feed": "Mitä tapahtui",
-      "hide": "Piilota tiedot",
-      "label": "Tiedot",
-      "show": "Näytä tiedot"
-    },
     "launch": {
       "noGame": "Tämä sivu tarvitsee pelin: avaa se pelin sivulta.",
       "starting": "Peliä käynnistetään…"
     },
     "pipeline": {
-      "compact": "Tiivistä keskustelu",
+      "compact": "Tiivistä ketju",
       "compactFailed": "Tiivistäminen epäonnistui",
       "compacting": "Tiivistetään…",
       "copied": "Asettelu kopioitu",
@@ -1764,6 +1780,14 @@
       "rephrase-audio\u001eoutline": "toiminta",
       "start-game\u001elive-session": "alkusysäys",
       "start-game\u001eoutline": "kehote"
+    },
+    "insights": {
+      "close": "Sulje",
+      "empty": "Mitään ei ole vielä suoritettu.",
+      "feed": "Mitä tapahtui",
+      "hide": "Piilota tiedot",
+      "label": "Tiedot",
+      "show": "Näytä tiedot"
     }
   }
 }

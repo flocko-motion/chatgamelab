@@ -1321,6 +1321,12 @@
         "own": "Mina spel",
         "public": "Publika"
       },
+      "owner": "Mina",
+      "playGame": "Spela detta spel",
+      "playNow": "Spela nu",
+      "selectGameTitle": "Välj ett spel",
+      "title": "Välj ett spel",
+      "unfavorite": "Ta bort från favoriter",
       "launch": {
         "backToGames": "Tillbaka till spelen",
         "cannotOpen": "Det här spelet kan inte fortsätta",
@@ -1336,12 +1342,6 @@
         "starting": "Startar spelet…",
         "tryAgain": "Försök igen"
       },
-      "owner": "Mina",
-      "playGame": "Spela detta spel",
-      "playNow": "Spela nu",
-      "selectGameTitle": "Välj ett spel",
-      "title": "Välj ett spel",
-      "unfavorite": "Ta bort från favoriter",
       "unplayable": {
         "denied": "Du får inte spela det här spelet",
         "failed": "Kan inte spelas just nu",
@@ -1434,7 +1434,27 @@
         "title": "AI-kvalitetsnivå för fri nyckel"
       },
       "notAuthorized": "Du har inte behörighet att öppna serverinställningarna. Adminåtkomst krävs.",
-      "title": "Serverinställningar"
+      "title": "Serverinställningar",
+      "updates": {
+        "checked": "Senast sökt efter nya versioner: {{time}}",
+        "installState": {
+          "failed": "Misslyckades",
+          "installed": "Installerad",
+          "installing": "Uppgradering pågår",
+          "rollback-failed": "Återställningen misslyckades: webbplatsen är stoppad",
+          "rolled-back": "Återställd"
+        },
+        "lastInstall": "Senaste uppgradering: {{version}} (från {{from}})",
+        "noVersion": "ingen (utveckling)",
+        "notEnabled": "Den här servern installerar inga uppdateringar från appen: dess uppdaterare är inte konfigurerad.",
+        "rejected": "Servern nekade uppgraderingen till {{version}}.",
+        "running": "Version som körs:",
+        "title": "Uppdateringar",
+        "upToDate": "Webbplatsen kör den senaste versionen.",
+        "upgrade": "Uppgradera",
+        "upgradeConfirm": "Webbplatsen säkerhetskopierar sin databas, byter till {{version}} och är inte tillgänglig i en eller två minuter. Om den nya versionen inte startar återgår den till versionen som körs.",
+        "upgradeTo": "Uppgradera till {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Namnlöst spel"
@@ -1537,6 +1557,7 @@
     "forbidden": "Du har inte behörighet att utföra denna åtgärd.",
     "generic": "Något gick fel. Försök igen.",
     "guestStays": "Som gäst stannar du där du gick med. Om du vill delta i en annan workshop öppnar du dess inbjudningslänk utan att logga in: du går med som en ny gäst.",
+    "installRunning": "En uppgradering pågår redan.",
     "insufficientQuota": "Din API-nyckel har slut på krediter. Lägg till fler krediter eller använd en annan API-nyckel.",
     "invalidApiKey": "Din API-nyckel är ogiltig eller har löpt ut. Kontrollera din API-nyckel i inställningarna.",
     "invalidJsonSchema": "Spelkonfigurationen skapade ett ogiltigt schema för AI:n. Detta är ett speluppläggsproblem, inte en API-nyckelfråga. Kontrollera spelets statusfält och försök igen.",
@@ -1569,14 +1590,17 @@
       "permission": "Åtkomst nekad",
       "server": "Serverfel",
       "tokenLocked": "Tillfälligt låst",
+      "updates": "Uppdateringar",
       "validation": "Valideringsfel",
       "workshopInactive": "Workshop inaktiv"
     },
     "tokenLocked": "För många misslyckade försök – försök igen senare.",
     "unauthorized": "Logga in för att fortsätta.",
     "unexpected": "Ett oväntat fel inträffade.",
+    "updaterNotEnabled": "Den här servern installerar inga uppdateringar från appen.",
     "userNotRegistered": "Du måste slutföra registreringen innan du fortsätter.",
     "validation": "Kontrollera din inmatning och försök igen.",
+    "versionNotAvailable": "Den här versionen kan inte installeras på den här servern.",
     "workshopInactive": "Denna workshop har inaktiverats. Kontakta din lärare eller workshopledare."
   },
   "mail": {
@@ -1694,21 +1718,13 @@
       "turnFailed": "Berättelsen kunde inte fortsätta därifrån. Skicka det igen eller försök med något annat.",
       "voiceFailed": "Det gick inte att ansluta din röst."
     },
-    "insights": {
-      "close": "Stäng",
-      "empty": "Inget har körts ännu.",
-      "feed": "Vad som hände",
-      "hide": "Dölj insikter",
-      "label": "Insikter",
-      "show": "Visa insikter"
-    },
     "launch": {
       "noGame": "Den här sidan behöver ett spel för att kunna spelas: öppna den från ett spels sida.",
       "starting": "Startar spelet…"
     },
     "pipeline": {
       "compact": "Komprimera tråd",
-      "compactFailed": "Det gick inte att komprimera",
+      "compactFailed": "Komprimeringen misslyckades",
       "compacting": "Komprimerar…",
       "copied": "Layout kopierad",
       "copyFailed": "Urklipp saknas: layouten loggades i konsolen",
@@ -1764,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "signal",
       "start-game\u0003eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Stäng",
+      "empty": "Inget har körts ännu.",
+      "feed": "Vad som hände",
+      "hide": "Dölj insikter",
+      "label": "Insikter",
+      "show": "Visa insikter"
     }
   }
 }

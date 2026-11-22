@@ -1316,6 +1316,12 @@
         "own": "Moje hry",
         "public": "Verejné"
       },
+      "owner": "Moje",
+      "playGame": "Hrať túto hru",
+      "playNow": "Hrať teraz",
+      "selectGameTitle": "Vyberte hru",
+      "title": "Vyberte hru",
+      "unfavorite": "Odstrániť z obľúbených",
       "launch": {
         "backToGames": "Späť na hry",
         "cannotOpen": "Táto hra nemôže pokračovať",
@@ -1331,12 +1337,6 @@
         "starting": "Hra sa spúšťa…",
         "tryAgain": "Skúsiť znova"
       },
-      "owner": "Moje",
-      "playGame": "Hrať túto hru",
-      "playNow": "Hrať teraz",
-      "selectGameTitle": "Vyberte hru",
-      "title": "Vyberte hru",
-      "unfavorite": "Odstrániť z obľúbených",
       "unplayable": {
         "denied": "Túto hru nemôžeš hrať",
         "failed": "Momentálne ju nemožno hrať",
@@ -1429,7 +1429,27 @@
         "title": "Úroveň kvality AI pre voľné používanie"
       },
       "notAuthorized": "Nemáte oprávnenie pristupovať k nastaveniam servera. Vyžaduje sa prístup administrátora.",
-      "title": "Nastavenia servera"
+      "title": "Nastavenia servera",
+      "updates": {
+        "checked": "Zadnje preverjanje novih različic: {{time}}",
+        "installState": {
+          "failed": "Neuspešno",
+          "installed": "Nameščeno",
+          "installing": "Nadgradnja poteka",
+          "rollback-failed": "Povrnitev ni uspela: spletno mesto je ustavljeno",
+          "rolled-back": "Povrnjeno"
+        },
+        "lastInstall": "Zadnja nadgradnja: {{version}} (iz {{from}})",
+        "noVersion": "brez (razvojna različica)",
+        "notEnabled": "Ta strežnik ne namešča posodobitev iz aplikacije: njegov program za posodabljanje ni nastavljen.",
+        "rejected": "Strežnik je zavrnil nadgradnjo na {{version}}.",
+        "running": "Različica v uporabi:",
+        "title": "Posodobitve",
+        "upToDate": "Spletno mesto uporablja najnovejšo različico.",
+        "upgrade": "Nadgradi",
+        "upgradeConfirm": "Spletno mesto bo varnostno kopiralo svojo zbirko podatkov, preklopilo na {{version}} in bo nedosegljivo minuto ali dve. Če se nova različica ne zažene, se bo vrnilo na trenutno različico.",
+        "upgradeTo": "Nadgradi na {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Hra bez názvu"
@@ -1531,6 +1551,7 @@
     "forbidden": "Nemáte oprávnenie vykonať túto akciu.",
     "generic": "Niečo sa pokazilo. Skúste to znova.",
     "guestStays": "Kot gost ostanete tam, kjer ste se pridružili. Če želite sodelovati v drugi delavnici, odprite njeno povezavo za povabilo brez prijave: pridružili se ji boste kot nov gost.",
+    "installRunning": "Nadgradnja že poteka.",
     "insufficientQuota": "Váš API kľúč nemá dostatok kreditov. Pridajte ďalšie kredity alebo použite iný API kľúč.",
     "invalidApiKey": "Váš API kľúč je neplatný alebo expiroval. Skontrolujte ho v nastaveniach.",
     "invalidJsonSchema": "Konfigurácia hry vytvorila neplatnú schému pre AI. Ide o problém s nastavením hry, nie s API kľúčom. Skontrolujte stavové polia hry a skúste znova.",
@@ -1563,14 +1584,17 @@
       "permission": "Prístup zamietnutý",
       "server": "Chyba servera",
       "tokenLocked": "Dočasne uzamknuté",
+      "updates": "Posodobitve",
       "validation": "Chyba validácie",
       "workshopInactive": "Workshop je neaktívny"
     },
     "tokenLocked": "Príliš veľa neúspešných pokusov – skúste to znova neskôr.",
     "unauthorized": "Pokračujte prihlásením.",
     "unexpected": "Vyskytla sa neočakávaná chyba.",
+    "updaterNotEnabled": "Ta strežnik ne namešča posodobitev iz aplikacije.",
     "userNotRegistered": "Pred pokračovaním musíte dokončiť registráciu.",
     "validation": "Skontrolujte svoj vstup a skúste to znova.",
+    "versionNotAvailable": "Te različice ni mogoče namestiti na ta strežnik.",
     "workshopInactive": "Tento workshop bol deaktivovaný. Kontaktujte svojho učiteľa alebo organizátora workshopu."
   },
   "mail": {
@@ -1688,22 +1712,14 @@
       "turnFailed": "Príbeh na to nedokázal nadviazať. Pošli to znova alebo skús niečo iné.",
       "voiceFailed": "Tvoj hlas sa nepodarilo pripojiť."
     },
-    "insights": {
-      "close": "Zavrieť",
-      "empty": "Zatiaľ nič neprebehlo.",
-      "feed": "Čo sa stalo",
-      "hide": "Skryť prehľady",
-      "label": "Prehľady",
-      "show": "Zobraziť prehľady"
-    },
     "launch": {
       "noGame": "Táto stránka potrebuje hru: otvor ju zo stránky hry.",
       "starting": "Hra sa spúšťa…"
     },
     "pipeline": {
-      "compact": "Skomprimovať vlákno",
-      "compactFailed": "Kompresia zlyhala",
-      "compacting": "Komprimuje sa…",
+      "compact": "Strni nit",
+      "compactFailed": "Strnjevanje ni uspelo",
+      "compacting": "Strnjevanje …",
       "copied": "Postavitev kopirana",
       "copyFailed": "Odložišča ni: postavitev je zapisana v konzoli",
       "copyLayout": "Kopiraj postavitev"
@@ -1758,6 +1774,14 @@
       "rephrase-audio\u0003eoutline": "dejanje",
       "start-game\u0003elive-session": "uvod",
       "start-game\u0003eoutline": "poziv"
+    },
+    "insights": {
+      "close": "Zavrieť",
+      "empty": "Zatiaľ nič neprebehlo.",
+      "feed": "Čo sa stalo",
+      "hide": "Skryť prehľady",
+      "label": "Prehľady",
+      "show": "Zobraziť prehľady"
     }
   }
 }

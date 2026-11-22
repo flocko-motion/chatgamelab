@@ -1321,6 +1321,12 @@
         "own": "Lojërat e mia",
         "public": "Publike"
       },
+      "owner": "Të miat",
+      "playGame": "Luaj këtë lojë",
+      "playNow": "Luaj tani",
+      "selectGameTitle": "Zgjidh një lojë",
+      "title": "Zgjidh një lojë",
+      "unfavorite": "Hiq nga të preferuarat",
       "launch": {
         "backToGames": "Kthehu te lojërat",
         "cannotOpen": "Kjo lojë nuk mund të vazhdojë",
@@ -1336,12 +1342,6 @@
         "starting": "Po nis loja…",
         "tryAgain": "Provo përsëri"
       },
-      "owner": "Të miat",
-      "playGame": "Luaj këtë lojë",
-      "playNow": "Luaj tani",
-      "selectGameTitle": "Zgjidh një lojë",
-      "title": "Zgjidh një lojë",
-      "unfavorite": "Hiq nga të preferuarat",
       "unplayable": {
         "denied": "Nuk lejohet ta luash këtë lojë",
         "failed": "Nuk mund të luhet për momentin",
@@ -1434,7 +1434,27 @@
         "title": "Niveli i cilësisë së AI për përdorim falas"
       },
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
-      "title": "Cilësimet e serverit"
+      "title": "Cilësimet e serverit",
+      "updates": {
+        "checked": "Kontrolli i fundit për versione të reja: {{time}}",
+        "installState": {
+          "failed": "Dështoi",
+          "installed": "U instalua",
+          "installing": "Po përditësohet",
+          "rollback-failed": "Kthimi pas dështoi: faqja është ndalur",
+          "rolled-back": "U kthye pas"
+        },
+        "lastInstall": "Përditësimi i fundit: {{version}} (nga {{from}})",
+        "noVersion": "asnjë (zhvillim)",
+        "notEnabled": "Ky server nuk instalon përditësime nga aplikacioni: përditësuesi i tij nuk është konfiguruar.",
+        "rejected": "Serveri refuzoi përditësimin në {{version}}.",
+        "running": "Versioni në përdorim:",
+        "title": "Përditësimet",
+        "upToDate": "Faqja përdor versionin më të fundit.",
+        "upgrade": "Përditëso",
+        "upgradeConfirm": "Faqja krijon një kopje rezervë të bazës së të dhënave, kalon në {{version}} dhe nuk do të jetë e aksesueshme për një ose dy minuta. Nëse versioni i ri nuk arrin të nisë, kthehet te versioni në përdorim.",
+        "upgradeTo": "Përditëso në {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Lojë pa titull"
@@ -1537,6 +1557,7 @@
     "forbidden": "Nuk keni leje ta kryeni këtë veprim.",
     "generic": "Diçka shkoi keq. Ju lutemi provoni përsëri.",
     "guestStays": "Si i ftuar, qëndron aty ku u bashkove. Për të marrë pjesë në një workshop tjetër, hapni lidhjen e ftesës pa u identifikuar: do t'i bashkoheni si i ftuar i ri.",
+    "installRunning": "Një përditësim është tashmë në proces.",
     "insufficientQuota": "Çelësi juaj API ka mbetur pa kredite. Shtoni më shumë kredi ose përdorni një çelës tjetër API.",
     "invalidApiKey": "Çelësi juaj API është i pavlefshëm ose ka skaduar. Ju lutemi kontrolloni çelësin në Cilësime.",
     "invalidJsonSchema": "Konfigurimi i lojës prodhoi një skemë të pavlefshme për AI-në. Kjo është çështje konfigurimi loje, jo çelësi API. Ju lutemi kontrolloni fushat e statusit të lojës dhe provoni përsëri.",
@@ -1569,14 +1590,17 @@
       "permission": "Leja u refuzua",
       "server": "Gabim serveri",
       "tokenLocked": "Bllokuar përkohësisht",
+      "updates": "Përditësimet",
       "validation": "Gabim validimi",
       "workshopInactive": "Punëtoria joaktive"
     },
     "tokenLocked": "Shumë përpjekje të pasuksesshme – provo përsëri më vonë.",
     "unauthorized": "Ju lutemi hyni për të vazhduar.",
     "unexpected": "Ndodhi një gabim i papritur.",
+    "updaterNotEnabled": "Ky server nuk instalon përditësime nga aplikacioni.",
     "userNotRegistered": "Duhet të plotësoni regjistrimin përpara se të vazhdoni.",
     "validation": "Ju lutemi kontrolloni të dhënat tuaja dhe provoni përsëri.",
+    "versionNotAvailable": "Ky version nuk mund të instalohet në këtë server.",
     "workshopInactive": "Kjo punëtori është çaktivizuar. Ju lutemi kontaktoni mësuesin ose organizatorin e punëtorisë."
   },
   "mail": {
@@ -1694,22 +1718,14 @@
       "turnFailed": "Historia nuk mund të vazhdonte nga ajo pikë. Dërgoje sërish ose provo diçka tjetër.",
       "voiceFailed": "Zëri yt nuk mund të lidhej."
     },
-    "insights": {
-      "close": "Mbyll",
-      "empty": "Ende nuk është ekzekutuar asgjë.",
-      "feed": "Çfarë ndodhi",
-      "hide": "Fshih informacionet",
-      "label": "Informacione",
-      "show": "Shfaq informacionet"
-    },
     "launch": {
       "noGame": "Kjo faqe ka nevojë për një lojë për t'u luajtur: hape nga faqja e një loje.",
       "starting": "Po nis loja…"
     },
     "pipeline": {
-      "compact": "Përmblidh bisedën",
-      "compactFailed": "Përmbledhja dështoi",
-      "compacting": "Po përmblidhet…",
+      "compact": "Ngjesh temën",
+      "compactFailed": "Ngjeshja dështoi",
+      "compacting": "Po ngjeshet…",
       "copied": "Paraqitja u kopjua",
       "copyFailed": "Pa kujtesë të fragmenteve: paraqitja u regjistrua në konsolë",
       "copyLayout": "Kopjo paraqitjen"
@@ -1764,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "veprim",
       "start-game\u0003elive-session": "hyrje",
       "start-game\u0003eoutline": "udhëzim"
+    },
+    "insights": {
+      "close": "Mbyll",
+      "empty": "Ende nuk është ekzekutuar asgjë.",
+      "feed": "Çfarë ndodhi",
+      "hide": "Fshih informacionet",
+      "label": "Informacione",
+      "show": "Shfaq informacionet"
     }
   }
 }

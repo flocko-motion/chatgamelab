@@ -1321,6 +1321,12 @@
         "own": "ጨዋታይ",
         "public": "ህቡራዊ"
       },
+      "owner": "የኔ",
+      "playGame": "ዚ ጨዋታ ጫውታ",
+      "playNow": "ሕጂ ጫውታ",
+      "selectGameTitle": "ጨዋታ ምረፅ",
+      "title": "ጨዋታ ምረፅ",
+      "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
       "launch": {
         "backToGames": "ናብ ጸወታታት ተመለስ",
         "cannotOpen": "እዚ ጸወታ ክቕጽል ኣይኽእልን",
@@ -1336,12 +1342,6 @@
         "starting": "እቲ ጸወታ ይጅምር ኣሎ…",
         "tryAgain": "እንደገና ፈትን"
       },
-      "owner": "የኔ",
-      "playGame": "ዚ ጨዋታ ጫውታ",
-      "playNow": "ሕጂ ጫውታ",
-      "selectGameTitle": "ጨዋታ ምረፅ",
-      "title": "ጨዋታ ምረፅ",
-      "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
       "unplayable": {
         "denied": "ነዚ ጸወታ ክትጻወቶ ኣይተፈቕደልካን",
         "failed": "ሕጂ ክጻወት ኣይከኣልን",
@@ -1434,7 +1434,27 @@
         "title": "ነጻ ጥቕም AI ደረጃ ጥራይ"
       },
       "notAuthorized": "ናይ ሰርቨር ቅንብሮም ምድላይ ፍቓድ የብልካን። ፈቃድ ኣስመራን ይደሊ።",
-      "title": "ቅንብሮም ሰርቨር"
+      "title": "ቅንብሮም ሰርቨር",
+      "updates": {
+        "checked": "ንሓደሽቲ ስሪታት ዝተገብረ ናይ መወዳእታ ምርመራ: {{time}}",
+        "installState": {
+          "failed": "ፈሺሉ",
+          "installed": "ተተኺሉ",
+          "installing": "ምምሕያሽ ይካየድ ኣሎ",
+          "rollback-failed": "ምምላስ ፈሺሉ፡ እቲ ሳይት ተዓጽዩ ኣሎ",
+          "rolled-back": "ተመሊሱ"
+        },
+        "lastInstall": "ናይ መወዳእታ ምምሕያሽ: {{version}} (ካብ {{from}})",
+        "noVersion": "የለን (ምዕባለ)",
+        "notEnabled": "እዚ ሰርቨር ካብቲ ኣፕ ምንም ምዕባለታት ኣይገብርን፡ እቲ ኣዘማምን ኣይተዳለወን።",
+        "rejected": "እቲ ሰርቨር ናብ {{version}} ዝግበር ምምሕያሽ ነጺጉዎ።",
+        "running": "ኣብ ስራሕ ዘሎ ስሪት:",
+        "title": "ምዕባለታት",
+        "upToDate": "እቲ ሳይት ነቲ ዝሓደሰ ስሪት ይጥቀም ኣሎ።",
+        "upgrade": "ምምሕያሽ",
+        "upgradeConfirm": "እቲ ሳይት ናይ ዳታቤዙ መቐመጢ ቅዳሕ ይገብር፣ ናብ {{version}} ይቕየር፣ ንሓደ ወይ ክልተ ደቓይቕ ድማ ክበጽሕ ኣይክከኣልን። እቲ ሓድሽ ስሪት ክጅምር እንተዘይክኢሉ፣ ናብቲ ኣብ ስራሕ ዝነበረ ስሪት ይምለስ።",
+        "upgradeTo": "ናብ {{version}} ኣምሕይሽ"
+      }
     },
     "sessions": {
       "untitledGame": "ዘይተሰየመ ጸወታ"
@@ -1537,6 +1557,7 @@
     "forbidden": "እዚ ተግባር ዝገብር ፍቓድ የብልካን።",
     "generic": "ምንም ጌጋ ተፈጥሮ። ንደገና ፈትኑ።",
     "guestStays": "ከም በጻሒ ኣብቲ ዝተጸንበርካሉ ቦታ ትተርፍ። ኣብ ካልእ ዎርክሾፕ ንምስታፍ፣ ከይኣተኻ መላግቦ ዕድመኡ ክፈት፦ ከም ሓድሽ በጻሒ ኢኻ እትጽንበር።",
+    "installRunning": "ሓደ ምምሕያሽ ድሮ ይካየድ ኣሎ።",
     "insufficientQuota": "API ቁልፊኻ ኣድላይ ክፍሊ የለን። ናይት ቀሪት ክትዎስክ ወይ ካልእ ቁልፊ ተጠቀም።",
     "invalidApiKey": "API ቁልፊኻ ዘይተረጋገጸ ወይ ግዜ ውሑስ እዩ። ናብ ቅንብሮም ኣረግጹ።",
     "invalidJsonSchema": "ቅንብር ጨዋታ ንAI ዘይተረጋገጸ ስኩማ ፈጠረ። እዚ ጌጋ ኣብ ቁልፊ ኣይምበርን፣ ኣብ ቅንብር ጨዋታ እዩ። ናይ ሁነታ መስኮትታት ተመርምሩ ንደገና ፈትኑ።",
@@ -1569,14 +1590,17 @@
       "permission": "ፍቓድ ተኣንግዶ",
       "server": "ሰርቨር ጌጋ",
       "tokenLocked": "ብግዜያዊ ተዓጽዩ",
+      "updates": "ምዕባለታት",
       "validation": "ምርመራ ጌጋ",
       "workshopInactive": "ወርክሾፕ ዘይንብሩ"
     },
     "tokenLocked": "ብዙሓት ዘይተዓወቱ ፈተነታት – እባክኻ ድሕሪ ገለ ግዜ እንደገና ፈትን።",
     "unauthorized": "ቀጽል ንምግባር ግባ።",
     "unexpected": "ድንገታዊ ጌጋ ተፈጥሮ።",
+    "updaterNotEnabled": "እዚ ሰርቨር ካብቲ ኣፕ ምንም ምዕባለታት ኣይገብርን።",
     "userNotRegistered": "ቀጸሉ ምእታው ቅድሚ መመዝገብ ሙሉእ ክትጨርስ ይደሊ።",
     "validation": "መዝገብ ይመርምሩ ንደገና ፈትኑ።",
+    "versionNotAvailable": "እዚ ስሪት ኣብዚ ሰርቨር ክተከል ኣይክእልን።",
     "workshopInactive": "ይእቲ ወርክሾፕ ተቆርጸ። መምህርካ ወይ ኣስተዳዳሪ ወርክሾፕ መርዳእ።"
   },
   "mail": {
@@ -1694,22 +1718,14 @@
       "turnFailed": "ዛንታ ካብኡ ክቕጽል ኣይከኣለን። እንደገና ልኣኾ፣ ወይ ካልእ ነገር ፈትን።",
       "voiceFailed": "ድምጽኻ ክተሓሓዝ ኣይከኣለን።"
     },
-    "insights": {
-      "close": "ዕጸው",
-      "empty": "ክሳብ ሕጂ ሓደ ነገር እውን ኣይተካየደን።",
-      "feed": "እንታይ ኣጋጢሙ",
-      "hide": "ሓበሬታታት ሓብእ",
-      "label": "ሓበሬታታት",
-      "show": "ሓበሬታታት ኣርኢ"
-    },
     "launch": {
       "noGame": "እዛ ገጽ ንምጽዋት ጸወታ ትደሊ፦ ካብ ገጽ ሓደ ጸወታ ክፈታ።",
       "starting": "ጸወታ ይጅምር ኣሎ…"
     },
     "pipeline": {
-      "compact": "ውይይት ኣሕጽር",
-      "compactFailed": "ምሕጻር ኣይተኻእለን",
-      "compacting": "ይሕጸር ኣሎ…",
+      "compact": "ክር ኣጽብብ",
+      "compactFailed": "ምጽባብ ኣይተዓወተን",
+      "compacting": "ይጽበብ ኣሎ…",
       "copied": "ኣቀማምጣ ተቐዲሑ",
       "copyFailed": "ሰሌዳ ቅዳሕ የለን፦ ኣቀማምጣ ኣብ ኮንሶል ተመዝጊቡ",
       "copyLayout": "ኣቀማምጣ ቅዳሕ"
@@ -1764,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "ተግባር",
       "start-game\u0003elive-session": "መእተዊ",
       "start-game\u0003eoutline": "መምርሒ"
+    },
+    "insights": {
+      "close": "ዕጸው",
+      "empty": "ክሳብ ሕጂ ሓደ ነገር እውን ኣይተካየደን።",
+      "feed": "እንታይ ኣጋጢሙ",
+      "hide": "ሓበሬታታት ሓብእ",
+      "label": "ሓበሬታታት",
+      "show": "ሓበሬታታት ኣርኢ"
     }
   }
 }

@@ -1316,6 +1316,12 @@
         "own": "Moje hry",
         "public": "Veřejné"
       },
+      "owner": "Moje",
+      "playGame": "Hrát tuto hru",
+      "playNow": "Hrát nyní",
+      "selectGameTitle": "Vyberte hru",
+      "title": "Vyberte hru",
+      "unfavorite": "Odebrat z oblíbených",
       "launch": {
         "backToGames": "Zpět ke hrám",
         "cannotOpen": "Tuto hru nelze spustit",
@@ -1331,12 +1337,6 @@
         "starting": "Hra se spouští…",
         "tryAgain": "Zkusit znovu"
       },
-      "owner": "Moje",
-      "playGame": "Hrát tuto hru",
-      "playNow": "Hrát nyní",
-      "selectGameTitle": "Vyberte hru",
-      "title": "Vyberte hru",
-      "unfavorite": "Odebrat z oblíbených",
       "unplayable": {
         "denied": "Tuto hru nesmíte hrát",
         "failed": "Momentálně ji nelze hrát",
@@ -1429,7 +1429,27 @@
         "title": "Úroveň kvality AI pro volné používání"
       },
       "notAuthorized": "Nemáte oprávnění k přístupu do nastavení serveru. Je vyžadován přístup administrátora.",
-      "title": "Nastavení serveru"
+      "title": "Nastavení serveru",
+      "updates": {
+        "checked": "Naposledy kontrolováno na nové verze: {{time}}",
+        "installState": {
+          "failed": "Selhalo",
+          "installed": "Nainstalováno",
+          "installing": "Probíhá upgrade",
+          "rollback-failed": "Vrácení změn selhalo: stránka je zastavena",
+          "rolled-back": "Vráceno zpět"
+        },
+        "lastInstall": "Poslední upgrade: {{version}} (z {{from}})",
+        "noVersion": "žádná (vývojová)",
+        "notEnabled": "Tento server neinstaluje aktualizace z aplikace: jeho aktualizační nástroj není nastaven.",
+        "rejected": "Server odmítl upgrade na {{version}}.",
+        "running": "Používaná verze:",
+        "title": "Aktualizace",
+        "upToDate": "Stránka používá nejnovější verzi.",
+        "upgrade": "Upgrade",
+        "upgradeConfirm": "Stránka zálohuje svou databázi, přepne se na {{version}} a jednu až dvě minuty nebude dostupná. Pokud se nová verze nespustí, vrátí se k používané verzi.",
+        "upgradeTo": "Upgradovat na {{version}}"
+      }
     },
     "sessions": {
       "untitledGame": "Nepojmenovaná hra"
@@ -1531,6 +1551,7 @@
     "forbidden": "Nemáte oprávnění provést tuto akci.",
     "generic": "Něco se pokazilo. Zkuste to prosím znovu.",
     "guestStays": "Jako host zůstanete tam, kde jste se připojili. Chcete-li se účastnit jiného workshopu, otevřete jeho odkaz s pozvánkou bez přihlášení: připojíte se k němu jako nový host.",
+    "installRunning": "Upgrade již probíhá.",
     "insufficientQuota": "Vašemu API klíči došly kredity. Přidejte další kredity nebo použijte jiný API klíč.",
     "invalidApiKey": "Váš API klíč je neplatný nebo mu vypršela platnost. Zkontrolujte svůj API klíč v Nastavení.",
     "invalidJsonSchema": "Konfigurace hry vytvořila neplatné schéma pro AI. Jedná se o problém nastavení hry, nikoli API klíče. Zkontrolujte stavová pole hry a zkuste to znovu.",
@@ -1563,14 +1584,17 @@
       "permission": "Přístup zamítnut",
       "server": "Chyba serveru",
       "tokenLocked": "Dočasně uzamčeno",
+      "updates": "Aktualizace",
       "validation": "Chyba validace",
       "workshopInactive": "Workshop je neaktivní"
     },
     "tokenLocked": "Příliš mnoho neúspěšných pokusů – zkuste to prosím později.",
     "unauthorized": "Pokračujte prosím po přihlášení.",
     "unexpected": "Došlo k neočekávané chybě.",
+    "updaterNotEnabled": "Tento server neinstaluje aktualizace z aplikace.",
     "userNotRegistered": "Musíte dokončit registraci, než budete pokračovat.",
     "validation": "Zkontrolujte prosím svůj vstup a zkuste to znovu.",
+    "versionNotAvailable": "Tuto verzi nelze na tomto serveru nainstalovat.",
     "workshopInactive": "Tento workshop byl deaktivován. Kontaktujte svého učitele nebo organizátora workshopu."
   },
   "mail": {
@@ -1688,22 +1712,14 @@
       "turnFailed": "Příběh na to nemohl navázat. Pošli to znovu nebo zkus něco jiného.",
       "voiceFailed": "Nepodařilo se připojit tvůj hlas."
     },
-    "insights": {
-      "close": "Zavřít",
-      "empty": "Zatím nic neproběhlo.",
-      "feed": "Co se stalo",
-      "hide": "Skrýt přehled",
-      "label": "Přehled",
-      "show": "Zobrazit přehled"
-    },
     "launch": {
       "noGame": "Tato stránka potřebuje hru: otevři ji ze stránky hry.",
       "starting": "Hra se spouští…"
     },
     "pipeline": {
-      "compact": "Zestručnit vlákno",
-      "compactFailed": "Zestručnění se nezdařilo",
-      "compacting": "Zestručňování…",
+      "compact": "Zkomprimovat vlákno",
+      "compactFailed": "Komprimace se nezdařila",
+      "compacting": "Probíhá komprimace…",
       "copied": "Rozvržení zkopírováno",
       "copyFailed": "Schránka není k dispozici: rozvržení bylo zaznamenáno do konzole",
       "copyLayout": "Kopírovat rozvržení"
@@ -1758,6 +1774,14 @@
       "rephrase-audio\u001eoutline": "akce",
       "start-game\u001elive-session": "podnět",
       "start-game\u001eoutline": "prompt"
+    },
+    "insights": {
+      "close": "Zavřít",
+      "empty": "Zatím nic neproběhlo.",
+      "feed": "Co se stalo",
+      "hide": "Skrýt přehled",
+      "label": "Přehled",
+      "show": "Zobrazit přehled"
     }
   }
 }

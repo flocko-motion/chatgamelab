@@ -1321,6 +1321,12 @@
         "own": "自分のゲーム",
         "public": "公開"
       },
+      "owner": "自分",
+      "playGame": "このゲームをプレイ",
+      "playNow": "今すぐプレイ",
+      "selectGameTitle": "ゲームを選択",
+      "title": "ゲームを選択",
+      "unfavorite": "お気に入りから削除",
       "launch": {
         "backToGames": "ゲームに戻る",
         "cannotOpen": "このゲームは続行できません",
@@ -1336,12 +1342,6 @@
         "starting": "ゲームを開始しています…",
         "tryAgain": "もう一度試す"
       },
-      "owner": "自分",
-      "playGame": "このゲームをプレイ",
-      "playNow": "今すぐプレイ",
-      "selectGameTitle": "ゲームを選択",
-      "title": "ゲームを選択",
-      "unfavorite": "お気に入りから削除",
       "unplayable": {
         "denied": "このゲームをプレイする権限がありません",
         "failed": "現在プレイできません",
@@ -1434,7 +1434,27 @@
         "title": "フリー利用AI品質ティア"
       },
       "notAuthorized": "サーバー設定にアクセスする権限がありません。管理者アクセスが必要です。",
-      "title": "サーバー設定"
+      "title": "サーバー設定",
+      "updates": {
+        "checked": "新しいバージョンを最後に確認した日時：{{time}}",
+        "installState": {
+          "failed": "失敗",
+          "installed": "インストール済み",
+          "installing": "アップグレード中",
+          "rollback-failed": "ロールバックに失敗しました：サイトは停止しています",
+          "rolled-back": "ロールバック済み"
+        },
+        "lastInstall": "最後のアップグレード：{{version}}（{{from}}から）",
+        "noVersion": "なし（開発版）",
+        "notEnabled": "このサーバーはアプリからのアップデートをインストールしません：アップデーターが設定されていません。",
+        "rejected": "サーバーが{{version}}へのアップグレードを拒否しました。",
+        "running": "実行中のバージョン：",
+        "title": "アップデート",
+        "upToDate": "サイトは最新バージョンで実行されています。",
+        "upgrade": "アップグレード",
+        "upgradeConfirm": "サイトはデータベースをバックアップして{{version}}に切り替えるため、1～2分ほどアクセスできなくなります。新しいバージョンの起動に失敗した場合は、現在のバージョンに戻ります。",
+        "upgradeTo": "{{version}}にアップグレード"
+      }
     },
     "sessions": {
       "untitledGame": "無題のゲーム"
@@ -1537,6 +1557,7 @@
     "forbidden": "この操作を行う権限がありません。",
     "generic": "問題が発生しました。もう一度お試しください。",
     "guestStays": "ゲストは参加した場所に留まります。別のワークショップに参加するには、ログインせずに招待リンクを開いてください。新しいゲストとして参加できます。",
+    "installRunning": "すでにアップグレードを実行中です。",
     "insufficientQuota": "APIキーのクレジットが不足しています。クレジットを追加するか別のAPIキーを使用してください。",
     "invalidApiKey": "APIキーが無効または期限切れです。設定でAPIキーを確認してください。",
     "invalidJsonSchema": "ゲーム設定でAI用の無効なスキーマが生成されました。これはAPIキーではなくゲーム設定の問題です。ゲームのステータス項目を確認して再試行してください。",
@@ -1569,14 +1590,17 @@
       "permission": "権限がありません",
       "server": "サーバーエラー",
       "tokenLocked": "一時的にロックされています",
+      "updates": "アップデート",
       "validation": "入力エラー",
       "workshopInactive": "ワークショップ停止中"
     },
     "tokenLocked": "失敗した試行が多すぎます。しばらくしてからもう一度お試しください。",
     "unauthorized": "続行するにはログインしてください。",
     "unexpected": "予期しないエラーが発生しました。",
+    "updaterNotEnabled": "このサーバーはアプリからのアップデートをインストールしません。",
     "userNotRegistered": "続行する前に登録を完了してください。",
     "validation": "入力内容を確認して再試行してください。",
+    "versionNotAvailable": "このバージョンはこのサーバーにインストールできません。",
     "workshopInactive": "このワークショップは無効化されています。教師または主催者に連絡してください。"
   },
   "mail": {
@@ -1694,22 +1718,14 @@
       "turnFailed": "そこから物語を続けられませんでした。もう一度送信するか、別のことを試してください。",
       "voiceFailed": "音声を接続できませんでした。"
     },
-    "insights": {
-      "close": "閉じる",
-      "empty": "まだ何も実行されていません。",
-      "feed": "起きたこと",
-      "hide": "インサイトを隠す",
-      "label": "インサイト",
-      "show": "インサイトを表示"
-    },
     "launch": {
       "noGame": "このページで遊ぶにはゲームが必要です。ゲームのページから開いてください。",
       "starting": "ゲームを開始しています…"
     },
     "pipeline": {
       "compact": "スレッドを圧縮",
-      "compactFailed": "圧縮できませんでした",
-      "compacting": "圧縮しています…",
+      "compactFailed": "圧縮に失敗しました",
+      "compacting": "圧縮中…",
       "copied": "レイアウトをコピーしました",
       "copyFailed": "クリップボードがありません。レイアウトをコンソールに出力しました",
       "copyLayout": "レイアウトをコピー"
@@ -1764,6 +1780,14 @@
       "rephrase-audio\u0003eoutline": "アクション",
       "start-game\u0003elive-session": "導入",
       "start-game\u0003eoutline": "プロンプト"
+    },
+    "insights": {
+      "close": "閉じる",
+      "empty": "まだ何も実行されていません。",
+      "feed": "起きたこと",
+      "hide": "インサイトを隠す",
+      "label": "インサイト",
+      "show": "インサイトを表示"
     }
   }
 }

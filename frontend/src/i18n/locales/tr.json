@@ -1318,6 +1318,12 @@
         "own": "Oyunlarım",
         "public": "Herkese Açık"
       },
+      "owner": "Benim",
+      "playGame": "Bu oyunu oyna",
+      "playNow": "Hemen oyna",
+      "selectGameTitle": "Bir Oyun Seç",
+      "title": "Oyun Seç",
+      "unfavorite": "Favorilerden çıkar",
       "launch": {
         "backToGames": "Oyunlara dön",
         "cannotOpen": "Bu oyun devam edemez",
@@ -1333,12 +1339,6 @@
         "starting": "Oyun başlatılıyor…",
         "tryAgain": "Tekrar dene"
       },
-      "owner": "Benim",
-      "playGame": "Bu oyunu oyna",
-      "playNow": "Hemen oyna",
-      "selectGameTitle": "Bir Oyun Seç",
-      "title": "Oyun Seç",
-      "unfavorite": "Favorilerden çıkar",
       "unplayable": {
         "denied": "Bu oyunu oynamana izin verilmiyor",
         "failed": "Şu anda oynanamıyor",
@@ -1431,7 +1431,27 @@
         "title": "Ücretsiz Kullanım Yapay Zekâ Kalite Seviyesi"
       },
       "notAuthorized": "Sunucu ayarlarına erişim izniniz yok. Yönetici erişimi gerekir.",
-      "title": "Sunucu Ayarları"
+      "title": "Sunucu Ayarları",
+      "updates": {
+        "checked": "Yeni sürümler için son kontrol: {{time}}",
+        "installState": {
+          "failed": "Başarısız",
+          "installed": "Yüklendi",
+          "installing": "Yükseltiliyor",
+          "rollback-failed": "Geri alma başarısız: site durduruldu",
+          "rolled-back": "Geri alındı"
+        },
+        "lastInstall": "Son yükseltme: {{version}} ({{from}} sürümünden)",
+        "noVersion": "yok (geliştirme)",
+        "notEnabled": "Bu sunucu uygulamadan güncelleme yüklemiyor: güncelleyicisi ayarlanmamış.",
+        "rejected": "Sunucu {{version}} sürümüne yükseltmeyi reddetti.",
+        "running": "Çalışan sürüm:",
+        "title": "Güncellemeler",
+        "upToDate": "Site en yeni sürümü çalıştırıyor.",
+        "upgrade": "Yükselt",
+        "upgradeConfirm": "Site veritabanını yedekler, {{version}} sürümüne geçer ve bir veya iki dakika erişilemez olur. Yeni sürüm başlatılamazsa çalışan sürüme geri döner.",
+        "upgradeTo": "{{version}} sürümüne yükselt"
+      }
     },
     "sessions": {
       "untitledGame": "Adsız Oyun"
@@ -1533,6 +1553,7 @@
     "forbidden": "Bu işlemi gerçekleştirmek için izniniz yok.",
     "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
     "guestStays": "Misafir olarak katıldığınız yerde kalırsınız. Başka bir atölyeye katılmak için davet bağlantısını giriş yapmadan açın: yeni bir misafir olarak katılırsınız.",
+    "installRunning": "Zaten devam eden bir yükseltme var.",
     "insufficientQuota": "API anahtarınızın kredisi bitti. Lütfen kredi ekleyin veya başka bir API anahtarı kullanın.",
     "invalidApiKey": "API anahtarınız geçersiz veya süresi dolmuş. Lütfen Ayarlar'dan kontrol edin.",
     "invalidJsonSchema": "Oyun yapılandırması yapay zekâ için geçersiz bir şema üretti. Bu bir oyun ayarı sorunudur, API anahtarı değil. Lütfen oyun değerlerini kontrol edip tekrar deneyin.",
@@ -1565,14 +1586,17 @@
       "permission": "İzin Reddedildi",
       "server": "Sunucu Hatası",
       "tokenLocked": "Geçici olarak kilitlendi",
+      "updates": "Güncellemeler",
       "validation": "Doğrulama Hatası",
       "workshopInactive": "Atölye Pasif"
     },
     "tokenLocked": "Çok fazla başarısız deneme yapıldı – lütfen daha sonra tekrar deneyin.",
     "unauthorized": "Devam etmek için lütfen giriş yapın.",
     "unexpected": "Beklenmeyen bir hata oluştu.",
+    "updaterNotEnabled": "Bu sunucu uygulamadan güncelleme yüklemiyor.",
     "userNotRegistered": "Devam etmeden önce kaydı tamamlamanız gerekir.",
     "validation": "Lütfen girdinizi kontrol edip tekrar deneyin.",
+    "versionNotAvailable": "Bu sürüm bu sunucuya yüklenemez.",
     "workshopInactive": "Bu atölye devre dışı bırakıldı. Lütfen öğretmeniniz veya atölye organizatörünüzle iletişime geçin."
   },
   "mail": {
@@ -1690,21 +1714,13 @@
       "turnFailed": "Hikâye buradan devam edemedi. Tekrar gönder veya başka bir şey dene.",
       "voiceFailed": "Ses bağlantısı kurulamadı."
     },
-    "insights": {
-      "close": "Kapat",
-      "empty": "Henüz hiçbir şey çalıştırılmadı.",
-      "feed": "Ne oldu",
-      "hide": "İçgörüleri gizle",
-      "label": "İçgörüler",
-      "show": "İçgörüleri göster"
-    },
     "launch": {
       "noGame": "Bu sayfada oynanacak bir oyun gerekiyor: Bir oyunun sayfasından aç.",
       "starting": "Oyun başlatılıyor…"
     },
     "pipeline": {
-      "compact": "Konuşma dizisini sıkıştır",
-      "compactFailed": "Sıkıştırma başarısız oldu",
+      "compact": "Konuyu sıkıştır",
+      "compactFailed": "Sıkıştırma başarısız",
       "compacting": "Sıkıştırılıyor…",
       "copied": "Düzen kopyalandı",
       "copyFailed": "Pano yok: düzen konsola kaydedildi",
@@ -1760,6 +1776,14 @@
       "rephrase-audio\u0003eoutline": "eylem",
       "start-game\u0003elive-session": "ipucu",
       "start-game\u0003eoutline": "istem"
+    },
+    "insights": {
+      "close": "Kapat",
+      "empty": "Henüz hiçbir şey çalıştırılmadı.",
+      "feed": "Ne oldu",
+      "hide": "İçgörüleri gizle",
+      "label": "İçgörüler",
+      "show": "İçgörüleri göster"
     }
   }
 }
