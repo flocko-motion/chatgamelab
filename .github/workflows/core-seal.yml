@@ -40,6 +40,8 @@ jobs:
           gh pr edit "$PR" --add-label core
           {
             echo "## Touches the seal"
-            echo "Needs the owner's approval (bypass merge):"
+            echo "Merges only by the owner's bypass (docs/workflows/opening-the-seal.md):"
             echo '```'; echo "$touched"; echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::This pull request touches the sealed core; only the owner's bypass merge lets it in."
+          exit 1
