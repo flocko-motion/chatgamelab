@@ -13,6 +13,16 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2ClearCoverCreator = `-- name: V2ClearCoverCreator :exec
+UPDATE game_cover SET created_by = NULL WHERE created_by = $1
+`
+
+// Covers someone drew stay with their games when the account goes.
+func (q *Queries) V2ClearCoverCreator(ctx context.Context, userID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2ClearCoverCreator, userID)
+	return err
+}
+
 const v2CreateGame = `-- name: V2CreateGame :exec
 INSERT INTO game (
   id, created_by, created_at, modified_by, modified_at, workshop_id,
@@ -73,6 +83,36 @@ func (q *Queries) V2CreateGame(ctx context.Context, arg V2CreateGameParams) erro
 		arg.FirstImage,
 		arg.OriginallyCreatedBy,
 	)
+	return err
+}
+
+const v2DeleteFavoritesByGameID = `-- name: V2DeleteFavoritesByGameID :exec
+
+DELETE FROM user_favourite_game WHERE game_id = $1
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2DeleteFavoritesByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteFavoritesByGameID, gameID)
+	return err
+}
+
+const v2DeleteGameCover = `-- name: V2DeleteGameCover :exec
+DELETE FROM game_cover WHERE game_id = $1
+`
+
+// A game's cover goes with the game, when it goes for good.
+func (q *Queries) V2DeleteGameCover(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameCover, gameID)
+	return err
+}
+
+const v2DeleteGameTagsByGameID = `-- name: V2DeleteGameTagsByGameID :exec
+DELETE FROM game_tag WHERE game_id = $1
+`
+
+func (q *Queries) V2DeleteGameTagsByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteGameTagsByGameID, gameID)
 	return err
 }
 
@@ -441,6 +481,58 @@ func (q *Queries) V2GameCover(ctx context.Context, gameID uuid.UUID) (V2GameCove
 	return i, err
 }
 
+const v2GameNamesCreatedBy = `-- name: V2GameNamesCreatedBy :many
+SELECT id, name FROM game WHERE created_by = $1 AND deleted_at IS NULL
+`
+
+type V2GameNamesCreatedByRow struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
+// A user's games by name (the dev preseed matches demo covers to them).
+func (q *Queries) V2GameNamesCreatedBy(ctx context.Context, userID uuid.NullUUID) ([]V2GameNamesCreatedByRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2GameNamesCreatedBy, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2GameNamesCreatedByRow
+	for rows.Next() {
+		var i V2GameNamesCreatedByRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2HardDeleteGame = `-- name: V2HardDeleteGame :exec
+DELETE FROM game WHERE id = $1
+`
+
+// A game gone for good, with its deleted creator's account.
+func (q *Queries) V2HardDeleteGame(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2HardDeleteGame, id)
+	return err
+}
+
+const v2IncrementGameCloneCount = `-- name: V2IncrementGameCloneCount :exec
+UPDATE game SET clone_count = clone_count + 1 WHERE id = $1
+`
+
+func (q *Queries) V2IncrementGameCloneCount(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2IncrementGameCloneCount, id)
+	return err
+}
+
 const v2MarkFavorite = `-- name: V2MarkFavorite :exec
 INSERT INTO user_favourite_game (id, created_by, created_at, modified_by, modified_at, user_id, game_id)
 VALUES (gen_random_uuid(), $1::uuid, now(), $1::uuid, now(), $1::uuid, $2::uuid)
@@ -456,6 +548,31 @@ type V2MarkFavoriteParams struct {
 // checked that they may read it. Marking it twice changes nothing.
 func (q *Queries) V2MarkFavorite(ctx context.Context, arg V2MarkFavoriteParams) error {
 	_, err := q.db.ExecContext(ctx, v2MarkFavorite, arg.Caller, arg.GameID)
+	return err
+}
+
+const v2SeedGameHistory = `-- name: V2SeedGameHistory :exec
+
+UPDATE game SET created_at = $2, modified_at = $3, play_count = $4 WHERE id = $1
+`
+
+type V2SeedGameHistoryParams struct {
+	ID         uuid.UUID `json:"id"`
+	CreatedAt  time.Time `json:"created_at"`
+	ModifiedAt time.Time `json:"modified_at"`
+	PlayCount  int32     `json:"play_count"`
+}
+
+// Carried over from v1 for the core's system jobs (#344).
+// Development seeding only: gives a demo game a past, so lists have
+// something to sort by.
+func (q *Queries) V2SeedGameHistory(ctx context.Context, arg V2SeedGameHistoryParams) error {
+	_, err := q.db.ExecContext(ctx, v2SeedGameHistory,
+		arg.ID,
+		arg.CreatedAt,
+		arg.ModifiedAt,
+		arg.PlayCount,
+	)
 	return err
 }
 
@@ -476,6 +593,15 @@ type V2SetGameCoverParams struct {
 // checked that the caller may edit the game's card.
 func (q *Queries) V2SetGameCover(ctx context.Context, arg V2SetGameCoverParams) error {
 	_, err := q.db.ExecContext(ctx, v2SetGameCover, arg.GameID, arg.Image, arg.CreatedBy)
+	return err
+}
+
+const v2SoftDeleteGame = `-- name: V2SoftDeleteGame :exec
+UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1
+`
+
+func (q *Queries) V2SoftDeleteGame(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2SoftDeleteGame, id)
 	return err
 }
 

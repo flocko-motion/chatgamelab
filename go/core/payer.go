@@ -51,7 +51,7 @@ func (p Payer) Secret(ctx context.Context) (string, error) {
 	if !p.chosen {
 		return "", forbidden("this key is not yours to use")
 	}
-	key, err := store.Queries().GetApiKeyByID(ctx, p.KeyID)
+	key, err := store.Queries().V2GetApiKeyByID(ctx, p.KeyID)
 	if err != nil {
 		return "", fmt.Errorf("the API key is gone: %w", err)
 	}
@@ -65,7 +65,7 @@ func (p Payer) RecordCheck(ctx context.Context, worked bool, problem string) {
 		return
 	}
 	code := sql.NullString{String: problem, Valid: !worked && problem != ""}
-	_ = store.Queries().UpdateApiKeyLastUsageSuccess(ctx, db.UpdateApiKeyLastUsageSuccessParams{
+	_ = store.Queries().V2UpdateApiKeyLastUsageSuccess(ctx, db.V2UpdateApiKeyLastUsageSuccessParams{
 		ID: p.KeyID, LastUsageSuccess: sql.NullBool{Bool: worked, Valid: true}, LastErrorCode: code,
 	})
 }
@@ -83,7 +83,7 @@ type PayerStep struct {
 // say why each source did or did not count.
 func Payers(ctx context.Context, game uuid.UUID, platform string) ([]Payer, []PayerStep, error) {
 	q := store.Queries()
-	settings, err := q.GetSystemSettings(ctx)
+	settings, err := q.V2GetSystemSettings(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -140,7 +140,7 @@ func Payers(ctx context.Context, game uuid.UUID, platform string) ([]Payer, []Pa
 
 	// 1. the workshop's key
 	if w := c.CurrentWorkshop(); w != nil && inWorkshop {
-		ws, err := q.GetWorkshopByID(ctx, *w)
+		ws, err := q.V2GetWorkshopByID(ctx, *w)
 		if err == nil {
 			byShare(obj.ApiKeyTypeWorkshop, ws.DefaultApiKeyShareID, tierOf(ws.AiQualityTier))
 		} else {
@@ -159,7 +159,7 @@ func Payers(ctx context.Context, game uuid.UUID, platform string) ([]Payer, []Pa
 
 	// 3. the organisation's free use
 	if org := c.Organisation(); org != nil && freeUse {
-		inst, err := q.GetInstitutionByID(ctx, *org)
+		inst, err := q.V2GetInstitutionByID(ctx, *org)
 		if err == nil {
 			byShare(obj.ApiKeyTypeInstitutionFreeUse, inst.FreeUseApiKeyShareID, tierOf(inst.FreeUseAiQualityTier))
 		} else {
@@ -175,7 +175,7 @@ func Payers(ctx context.Context, game uuid.UUID, platform string) ([]Payer, []Pa
 		if err != nil {
 			return nil, nil, err
 		}
-		user, err := q.GetUserByID(ctx, *me)
+		user, err := q.V2GetUserByID(ctx, *me)
 		if err != nil {
 			return nil, nil, err
 		}

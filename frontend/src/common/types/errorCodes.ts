@@ -24,6 +24,8 @@ export const ErrorCodes = {
   AUTH_WORKSHOP_INACTIVE: "auth_workshop_inactive",
   // Site-wide lock after too many guessed invite/re-login codes (server: tokenlock)
   TOKEN_LOCKED: "token_locked",
+  // A guest's place is fixed: a guest accepts no invite (server: core.AcceptInvite)
+  GUEST_STAYS: "guest_stays",
   // Organisations registering themselves
   INSTITUTION_AGE_NOT_ALLOWED: "institution_age_not_allowed",
   INSTITUTION_NAME_TAKEN: "institution_name_taken",

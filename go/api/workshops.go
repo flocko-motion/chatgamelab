@@ -167,35 +167,6 @@ func (DeleteWorkshopEndpoint) Handle(ctx context.Context, req WorkshopIDReq) (Me
 	return MessageResp{Message: "Workshop deleted"}, nil
 }
 
-// AddWorkshopMemberEndpoint puts an individual of the workshop's organisation
-// into it: it becomes the workshop they work in.
-type AddWorkshopMemberEndpoint struct{}
-
-func (AddWorkshopMemberEndpoint) Method() string             { return "POST" }
-func (AddWorkshopMemberEndpoint) Path() string               { return "/api/workshops/{id}/members" }
-func (AddWorkshopMemberEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (AddWorkshopMemberEndpoint) Handle(ctx context.Context, req AddWorkshopMemberReq) (MessageResp, error) {
-	id, err := parseID(req.WorkshopID, "Invalid workshop ID")
-	if err != nil {
-		return MessageResp{}, err
-	}
-	user, err := parseID(req.UserID, "Invalid user ID")
-	if err != nil {
-		return MessageResp{}, err
-	}
-	if err := core.AddToWorkshop(ctx, id, user); err != nil {
-		return MessageResp{}, err
-	}
-	return MessageResp{Message: "Member added to workshop"}, nil
-}
-
-// AddWorkshopMemberReq is the workshop from the path and the user to add from
-// the body.
-type AddWorkshopMemberReq struct {
-	WorkshopID string `path:"id"`
-	UserID     string `json:"userId"`
-}
-
 // RemoveWorkshopMemberEndpoint takes someone out of a workshop: a guest of it
 // loses their place, a member working in it leaves it.
 type RemoveWorkshopMemberEndpoint struct{}

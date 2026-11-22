@@ -95,7 +95,6 @@ export {
   useRemoveParticipant,
   useResetGuestToken,
   useCreateWorkshopEmailInvite,
-  useAddMemberToWorkshop,
 } from "./useWorkshops";
 
 // Workshop Events (SSE)

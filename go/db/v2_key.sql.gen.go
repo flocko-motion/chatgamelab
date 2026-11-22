@@ -95,6 +95,51 @@ func (q *Queries) V2CreateKeyShare(ctx context.Context, arg V2CreateKeySharePara
 	return id, err
 }
 
+const v2DeleteApiKeySharesByGameID = `-- name: V2DeleteApiKeySharesByGameID :exec
+
+DELETE FROM api_key_share WHERE game_id = $1
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2DeleteApiKeySharesByGameID(ctx context.Context, gameID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteApiKeySharesByGameID, gameID)
+	return err
+}
+
+const v2DeleteApiKeySharesByOwnerForInstitution = `-- name: V2DeleteApiKeySharesByOwnerForInstitution :exec
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.institution_id = $2
+`
+
+type V2DeleteApiKeySharesByOwnerForInstitutionParams struct {
+	UserID        uuid.UUID     `json:"user_id"`
+	InstitutionID uuid.NullUUID `json:"institution_id"`
+}
+
+// Delete all API key shares owned by a user that target a specific institution
+func (q *Queries) V2DeleteApiKeySharesByOwnerForInstitution(ctx context.Context, arg V2DeleteApiKeySharesByOwnerForInstitutionParams) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteApiKeySharesByOwnerForInstitution, arg.UserID, arg.InstitutionID)
+	return err
+}
+
+const v2DeleteApiKeySharesByOwnerForInstitutionWorkshops = `-- name: V2DeleteApiKeySharesByOwnerForInstitutionWorkshops :exec
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $2)
+`
+
+type V2DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams struct {
+	UserID        uuid.UUID `json:"user_id"`
+	InstitutionID uuid.UUID `json:"institution_id"`
+}
+
+// Delete all API key shares owned by a user that target any workshop in a specific institution
+func (q *Queries) V2DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx context.Context, arg V2DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteApiKeySharesByOwnerForInstitutionWorkshops, arg.UserID, arg.InstitutionID)
+	return err
+}
+
 const v2DeleteKey = `-- name: V2DeleteKey :exec
 WITH cleared_site AS (
   UPDATE system_settings SET free_use_api_key_id = NULL WHERE free_use_api_key_id = $1::uuid
@@ -123,6 +168,30 @@ DELETE FROM api_key_share WHERE id = ANY($1::uuid[])
 func (q *Queries) V2DeleteKeyShares(ctx context.Context, ids []uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, v2DeleteKeyShares, pq.Array(ids))
 	return err
+}
+
+const v2GetApiKeyByID = `-- name: V2GetApiKeyByID :one
+SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success, last_error_code FROM api_key WHERE id = $1
+`
+
+func (q *Queries) V2GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, error) {
+	row := q.db.QueryRowContext(ctx, v2GetApiKeyByID, id)
+	var i ApiKey
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.UserID,
+		&i.Name,
+		&i.Platform,
+		&i.Key,
+		&i.IsDefault,
+		&i.LastUsageSuccess,
+		&i.LastErrorCode,
+	)
+	return i, err
 }
 
 const v2KeyShareFacts = `-- name: V2KeyShareFacts :one
@@ -415,6 +484,39 @@ func (q *Queries) V2OwnDefaultKeyShare(ctx context.Context, owner uuid.UUID) ([]
 	return items, nil
 }
 
+const v2OwnKeyPlatforms = `-- name: V2OwnKeyPlatforms :many
+SELECT id, platform FROM api_key WHERE user_id = $1
+`
+
+type V2OwnKeyPlatformsRow struct {
+	ID       uuid.UUID `json:"id"`
+	Platform string    `json:"platform"`
+}
+
+// The platforms of a user's own keys (the dev preseed).
+func (q *Queries) V2OwnKeyPlatforms(ctx context.Context, userID uuid.UUID) ([]V2OwnKeyPlatformsRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2OwnKeyPlatforms, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2OwnKeyPlatformsRow
+	for rows.Next() {
+		var i V2OwnKeyPlatformsRow
+		if err := rows.Scan(&i.ID, &i.Platform); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2PayerKey = `-- name: V2PayerKey :one
 SELECT id, name, platform FROM api_key WHERE id = $1
 `
@@ -605,4 +707,20 @@ func (q *Queries) V2SharesOfKey(ctx context.Context, keyID uuid.UUID) ([]V2Share
 		return nil, err
 	}
 	return items, nil
+}
+
+const v2UpdateApiKeyLastUsageSuccess = `-- name: V2UpdateApiKeyLastUsageSuccess :exec
+UPDATE api_key SET last_usage_success = $2, last_error_code = $3, modified_at = now()
+WHERE id = $1
+`
+
+type V2UpdateApiKeyLastUsageSuccessParams struct {
+	ID               uuid.UUID      `json:"id"`
+	LastUsageSuccess sql.NullBool   `json:"last_usage_success"`
+	LastErrorCode    sql.NullString `json:"last_error_code"`
+}
+
+func (q *Queries) V2UpdateApiKeyLastUsageSuccess(ctx context.Context, arg V2UpdateApiKeyLastUsageSuccessParams) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateApiKeyLastUsageSuccess, arg.ID, arg.LastUsageSuccess, arg.LastErrorCode)
+	return err
 }

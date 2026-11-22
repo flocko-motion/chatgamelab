@@ -71,7 +71,7 @@ func ReadCoverFacts(ctx context.Context, id uuid.UUID) (*CoverFacts, error) {
 	if err != nil {
 		return nil, err
 	}
-	settings, err := store.Queries().GetSystemSettings(ctx)
+	settings, err := store.Queries().V2GetSystemSettings(ctx)
 	if err != nil {
 		return nil, err
 	}

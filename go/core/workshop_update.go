@@ -8,6 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/events"
@@ -56,7 +57,7 @@ func CreateWorkshop(ctx context.Context, d WorkshopDraft) (*WorkshopCard, error)
 	if err := checkWorkshopNameFree(ctx, *org, id, d.Name); err != nil {
 		return nil, err
 	}
-	slug, err := db.NewPublicSlug(ctx, d.Name)
+	slug, err := newPublicSlug(ctx, d.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +137,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, ch WorkshopChanges) (*Wor
 			return nil, err
 		}
 	}
-	links, err := db.MarshalPublicLinks(next.publicLinks)
+	links, err := marshalPublicLinks(next.publicLinks)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +161,9 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, ch WorkshopChanges) (*Wor
 		return nil, err
 	}
 	if w.row.public && !next.public {
-		db.DeleteWorkshopPublicPageShares(ctx, id)
+		if err := endPublicPageLinks(ctx, &id, nil); err != nil {
+			log.Warn("failed to end a workshop's public page links", "workshop_id", id, "error", err)
+		}
 	}
 	events.GetBroker().PublishWorkshopUpdated(id)
 	return ReadWorkshop(ctx, id)
@@ -188,9 +191,9 @@ func (ch WorkshopChanges) applyCard(row *workshopRow) (bool, error) {
 	}
 	setOptional(&row.aiQualityTier, ch.AiQualityTier, &changed)
 	if ch.PublicSlug != nil {
-		slug := db.NormalizePublicSlug(*ch.PublicSlug)
+		slug := normalizePublicSlug(*ch.PublicSlug)
 		if row.publicSlug == nil || slug != *row.publicSlug {
-			if err := db.ValidatePublicSlug(slug); err != nil {
+			if err := validatePublicSlug(slug); err != nil {
 				return false, fromV1(err)
 			}
 			row.publicSlug, changed = &slug, true
@@ -212,13 +215,13 @@ func (ch WorkshopChanges) applySettings(row *workshopRow) (bool, error) {
 	}
 	if ch.PublicDescription != nil {
 		description := strings.TrimSpace(*ch.PublicDescription)
-		if utf8.RuneCountInString(description) > db.PublicDescriptionMaxLength {
-			return false, badRequest(obj.ErrCodePublicDescriptionTooLong, "the description has at most %d characters", db.PublicDescriptionMaxLength)
+		if utf8.RuneCountInString(description) > PublicDescriptionMaxLength {
+			return false, badRequest(obj.ErrCodePublicDescriptionTooLong, "the description has at most %d characters", PublicDescriptionMaxLength)
 		}
 		setOptional(&row.publicDescription, &description, &changed)
 	}
 	if ch.PublicLinks != nil {
-		links, err := db.ValidatePublicLinks(*ch.PublicLinks)
+		links, err := validatePublicLinks(*ch.PublicLinks)
 		if err != nil {
 			return false, fromV1(err)
 		}
@@ -240,36 +243,10 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID) error {
 	if !w.MayDelete() {
 		return forbidden("you may not delete this workshop")
 	}
-	// v1's cascade over guests and share links; it moves into the core as
-	// those are ported.
-	if err := db.DeleteWorkshopCascade(ctx, id); err != nil {
+	if err := deleteWorkshop(ctx, id); err != nil {
 		return err
 	}
 	log.Info("workshop deleted", "workshop_id", id, "by", account(ctx).UUID)
-	return nil
-}
-
-// AddToWorkshop puts an individual of the workshop's organisation into it:
-// it becomes the workshop they work in. It takes {Manage,
-// WorkshopParticipants}; a workshop or user the caller may not read does not
-// exist for them (ErrNotFound).
-func AddToWorkshop(ctx context.Context, id, user uuid.UUID) error {
-	w, member, err := workshopAndUser(ctx, id, user)
-	if err != nil {
-		return err
-	}
-	if member.row.role != string(obj.RoleIndividual) {
-		return refuse("only an individual of the organisation is put into a workshop this way")
-	}
-	if member.row.organisationID == nil || *member.row.organisationID != w.row.organisationID {
-		return forbidden("the user is not of the workshop's organisation")
-	}
-	if err := store.Queries().SetUserActiveWorkshop(ctx, db.SetUserActiveWorkshopParams{
-		UserID: user, ActiveWorkshopID: uuid.NullUUID{UUID: id, Valid: true},
-	}); err != nil {
-		return err
-	}
-	events.GetBroker().PublishMembersUpdated(id)
 	return nil
 }
 
@@ -286,10 +263,10 @@ func RemoveFromWorkshop(ctx context.Context, id, user uuid.UUID) error {
 		return refuse("the user is not in this workshop")
 	}
 	q := store.Queries()
-	if err := q.ClearUserActiveWorkshop(ctx, user); err != nil {
+	if err := q.V2ClearUserActiveWorkshop(ctx, user); err != nil {
 		return err
 	}
-	if err := q.DeleteUserGuestRole(ctx, db.DeleteUserGuestRoleParams{
+	if err := q.V2DeleteUserGuestRole(ctx, db.V2DeleteUserGuestRoleParams{
 		UserID: user, WorkshopID: uuid.NullUUID{UUID: id, Valid: true},
 	}); err != nil {
 		return err
@@ -315,26 +292,51 @@ func workshopAndUser(ctx context.Context, id, user uuid.UUID) (*WorkshopCard, *U
 	return w, member, nil
 }
 
-// EnterWorkshop makes workshop id the one the caller works in: {Enter,
-// WorkshopCard}, for a head or staff any running workshop of their
-// organisation, for an individual any running one.
+// EnterWorkshop makes workshop id the one the caller works in, by its id:
+// {Enter, WorkshopCard, OfOwnOrganisation}, for a head or staff any running
+// workshop of their organisation. Anyone else takes part through the
+// workshop's invite (AcceptInvite).
 func EnterWorkshop(ctx context.Context, id uuid.UUID) error {
-	w, err := store.Queries().GetWorkshopByID(ctx, id)
+	return enterWorkshop(ctx, id, false)
+}
+
+// enterWorkshop enters workshop id, through an invite the caller accepts or
+// by its id: through an invite, {Enter, WorkshopCard, ViaInvite} holds too.
+func enterWorkshop(ctx context.Context, id uuid.UUID, viaInvite bool) error {
+	w, err := store.Queries().V2GetWorkshopByID(ctx, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if !mayEnterWorkshop(ctx, w.InstitutionID, w.Active) {
+	if !mayEnterWorkshop(ctx, w.InstitutionID, w.Active, viaInvite) {
 		return forbidden("you may not enter this workshop")
 	}
-	if err := store.Queries().SetUserActiveWorkshop(ctx, db.SetUserActiveWorkshopParams{
+	if err := store.Queries().V2SetUserActiveWorkshop(ctx, db.V2SetUserActiveWorkshopParams{
 		UserID: account(ctx).UUID, ActiveWorkshopID: uuid.NullUUID{UUID: id, Valid: true},
 	}); err != nil {
 		return err
 	}
 	events.GetBroker().PublishMembersUpdated(id)
+	return nil
+}
+
+// LeaveWorkshop takes the caller out of workshop mode: {Leave,
+// WorkshopCard, Current}, head, staff and individual. A guest never leaves
+// their workshop: the model relies on it.
+func LeaveWorkshop(ctx context.Context) error {
+	current := from(ctx).CurrentWorkshop()
+	if current == nil {
+		return nil // nowhere to leave
+	}
+	if !granted(ctx, rules.Leave, rules.WorkshopCard, rules.Current) {
+		return forbidden("a guest stays in their workshop")
+	}
+	if err := store.Queries().V2ClearUserActiveWorkshop(ctx, account(ctx).UUID); err != nil {
+		return err
+	}
+	events.GetBroker().PublishMembersUpdated(*current)
 	return nil
 }
 
@@ -354,11 +356,11 @@ func ResetLoginCode(ctx context.Context, user uuid.UUID) (string, error) {
 	if !mayResetLoginCode(ctx, guest) {
 		return "", forbidden("you may not give this user a new login code")
 	}
-	code, err := db.NewGuestToken(ctx)
+	code, err := newGuestToken(ctx)
 	if err != nil {
 		return "", err
 	}
-	n, err := store.Queries().UpdateGuestToken(ctx, db.UpdateGuestTokenParams{
+	n, err := store.Queries().V2UpdateGuestToken(ctx, db.V2UpdateGuestTokenParams{
 		ID: user, GuestToken: sqlString(&code), ModifiedBy: account(ctx),
 	})
 	if err != nil {
@@ -391,7 +393,7 @@ func checkWorkshopNameFree(ctx context.Context, org, id uuid.UUID, name string) 
 
 // checkPublicSlugFree refuses a public page address another workshop has.
 func checkPublicSlugFree(ctx context.Context, slug string) error {
-	taken, err := db.PublicSlugExists(ctx, slug)
+	taken, err := publicSlugExists(ctx, slug)
 	if err != nil {
 		return err
 	}

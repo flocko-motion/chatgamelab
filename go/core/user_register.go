@@ -78,9 +78,11 @@ func Register(ctx context.Context, r Registration) (*UserCard, error) {
 		if err := completeRegistration(ctx, store.Queries(), id, r); err != nil {
 			return nil, err
 		}
-		// v1's first role: individual, or admin for an admin email while no
-		// admin exists yet (moving to sign-in with #452).
-		db.AssignInitialRole(ctx, id, r.Email)
+		// the first role: individual, or admin for an admin email while no
+		// admin exists yet
+		if err := assignInitialRole(ctx, id, r.Email); err != nil {
+			return nil, err
+		}
 		return ReadUser(ctx, id)
 	}
 	return registerWithOrganisation(ctx, id, r)
@@ -112,7 +114,7 @@ func registerWithOrganisation(ctx context.Context, id uuid.UUID, r Registration)
 // completeRegistration stores r on account id, refusing a name or email a
 // concurrent registration took first, and an account registered already.
 func completeRegistration(ctx context.Context, q *db.Queries, id uuid.UUID, r Registration) error {
-	n, err := q.CompleteRegistration(ctx, db.CompleteRegistrationParams{
+	n, err := q.V2CompleteRegistration(ctx, db.V2CompleteRegistrationParams{
 		ID:       id,
 		Name:     sql.NullString{String: r.Name, Valid: true},
 		Email:    sqlString(r.Email),
@@ -134,7 +136,7 @@ func completeRegistration(ctx context.Context, q *db.Queries, id uuid.UUID, r Re
 // checkFree refuses a name or email another account has.
 func (r Registration) checkFree(ctx context.Context, id uuid.UUID) error {
 	q := store.Queries()
-	taken, err := q.IsNameTakenByOther(ctx, db.IsNameTakenByOtherParams{
+	taken, err := q.V2IsNameTakenByOther(ctx, db.V2IsNameTakenByOtherParams{
 		Name: sql.NullString{String: r.Name, Valid: true}, ID: id,
 	})
 	if err != nil {

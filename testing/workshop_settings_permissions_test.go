@@ -73,17 +73,18 @@ func (s *WorkshopSettingsPermissionsTestSuite) TestGuestCannotUpdateWorkshopSett
 	s.Forbidden(err, "guest should not be able to update workshop settings")
 }
 
-// TestIndividualCannotUpdateWorkshopSettings verifies that an individual user
-// who has entered the workshop via workshop mode still cannot update settings.
+// TestIndividualCannotUpdateWorkshopSettings verifies that an individual
+// who takes part in a workshop through its invite cannot update its
+// settings: taking part makes no one part of the organisation. By the
+// workshop's id alone an individual enters none.
 func (s *WorkshopSettingsPermissionsTestSuite) TestIndividualCannotUpdateWorkshopSettings() {
-	_, _, wsIDStr := s.setupWorkshop("perm-ind")
+	head, _, wsIDStr := s.setupWorkshop("perm-ind")
 
-	// Create an individual user (default role for new users)
 	individual := s.CreateUser("perm-individual")
-
-	// Individual enters the workshop via workshop mode
 	_, err := individual.SetActiveWorkshop(&wsIDStr)
-	s.NoError(err, "individual should be able to enter workshop mode")
+	s.Forbidden(err, "an individual enters a workshop through its invite only")
+
+	MustSucceed(individual.AcceptWorkshopInviteByToken(*Must(head.CreateWorkshopInvite(wsIDStr)).InviteToken))
 
 	// Verify they are in workshop mode
 	me := Must(individual.GetMe())

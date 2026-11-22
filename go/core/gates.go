@@ -163,6 +163,7 @@ func readOrganisationGates(ctx context.Context, id uuid.UUID) db.V2Organisations
 	p := organisationGates(ctx)
 	p.ID = uuid.NullUUID{UUID: id, Valid: true}
 	p.CardOrganisation = granted(ctx, rules.Read, rules.OrganisationCard, rules.OfOwnOrganisation)
+	p.CardCurrentWorkshop = granted(ctx, rules.Read, rules.OrganisationCard, rules.OfCurrentWorkshop)
 	p.CardEverywhere = granted(ctx, rules.Read, rules.OrganisationCard, rules.Everywhere)
 	return p
 }
@@ -177,6 +178,7 @@ func organisationGates(ctx context.Context) db.V2OrganisationsParams {
 		DeclarationVersion: declaration.Version,
 		DeclarationHash:    declaration.Hash,
 		OwnOrganisation:    ownOrganisation(ctx),
+		CurrentWorkshop:    nullUUID(from(ctx).CurrentWorkshop()),
 
 		SettingsOrganisation: granted(ctx, rules.Read, rules.OrganisationSettings, rules.OfOwnOrganisation),
 		SettingsEverywhere:   granted(ctx, rules.Read, rules.OrganisationSettings, rules.Everywhere),
@@ -384,12 +386,13 @@ func mayChangeRole(ctx context.Context, user *UserCard) (any, withinOwn bool) {
 		granted(ctx, rules.Edit, rules.Membership, rules.MemberOfOwnOrganisation) && inOwn
 }
 
-// mayEnterWorkshop says whether the caller may work in a workshop of
-// organisation org: {Enter, WorkshopCard}, OfOwnOrganisation for one of
-// theirs, Active for any; either way only while it runs.
-func mayEnterWorkshop(ctx context.Context, org uuid.UUID, active bool) bool {
+// mayEnterWorkshop says whether the caller may work in a running workshop
+// of organisation org: {Enter, WorkshopCard, OfOwnOrganisation}, head and
+// staff in their organisation's; through an invite, {Enter, WorkshopCard,
+// ViaInvite}, an individual in any.
+func mayEnterWorkshop(ctx context.Context, org uuid.UUID, active, viaInvite bool) bool {
 	own := from(ctx).Organisation()
-	return active && (granted(ctx, rules.Enter, rules.WorkshopCard, rules.Active) ||
+	return active && ((viaInvite && granted(ctx, rules.Enter, rules.WorkshopCard, rules.ViaInvite)) ||
 		(granted(ctx, rules.Enter, rules.WorkshopCard, rules.OfOwnOrganisation) && own != nil && *own == org))
 }
 

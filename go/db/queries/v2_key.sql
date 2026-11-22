@@ -162,3 +162,31 @@ SELECT s.id FROM api_key k
 JOIN api_key_share s ON s.api_key_id = k.id AND s.user_id = k.user_id AND s.institution_id IS NULL AND s.game_id IS NULL
 WHERE k.user_id = @owner AND k.is_default
 LIMIT 1;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2DeleteApiKeySharesByGameID :exec
+DELETE FROM api_key_share WHERE game_id = $1;
+
+-- name: V2DeleteApiKeySharesByOwnerForInstitution :exec
+-- Delete all API key shares owned by a user that target a specific institution
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.institution_id = $2;
+
+-- name: V2DeleteApiKeySharesByOwnerForInstitutionWorkshops :exec
+-- Delete all API key shares owned by a user that target any workshop in a specific institution
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $2);
+
+-- name: V2GetApiKeyByID :one
+SELECT * FROM api_key WHERE id = $1;
+
+-- name: V2UpdateApiKeyLastUsageSuccess :exec
+UPDATE api_key SET last_usage_success = $2, last_error_code = $3, modified_at = now()
+WHERE id = $1;
+
+-- name: V2OwnKeyPlatforms :many
+-- The platforms of a user's own keys (the dev preseed).
+SELECT id, platform FROM api_key WHERE user_id = @user_id;

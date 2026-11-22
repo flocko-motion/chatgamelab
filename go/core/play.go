@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"cgl/core/internal/sessionstore"
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/functional"
@@ -119,7 +120,7 @@ func linkPlay(ctx context.Context, token sql.NullString, id uuid.NullUUID) (*lin
 		tier = r.WorkshopTier
 	}
 	if !tier.Valid || tier.String == "" {
-		settings, err := store.Queries().GetSystemSettings(ctx)
+		settings, err := store.Queries().V2GetSystemSettings(ctx)
 		tier = sql.NullString{String: string(engine.TierMedium), Valid: true}
 		if err == nil && settings.DefaultAiQualityTier != "" {
 			tier.String = settings.DefaultAiQualityTier
@@ -152,8 +153,8 @@ type RuleSource struct {
 // PlayerRules are the facts the rule reads about a player.
 type PlayerRules struct {
 	AgeGroup     *string
-	Workshop     *RuleSource // the workshop they are in
-	Organisation *RuleSource // their organisation
+	Workshop     *RuleSource // the current workshop: the one they take part in
+	Organisation *RuleSource // their own (head, staff), else the current workshop's
 }
 
 // PlayRuleFacts are the facts the youth-protection rule of a play reads
@@ -192,7 +193,7 @@ func ReadPlayRuleFacts(ctx context.Context, link *LinkPlay) (PlayRuleFacts, erro
 			}
 		}
 		if link.OrganisationID != nil {
-			o, err := q.GetInstitutionByID(ctx, *link.OrganisationID)
+			o, err := q.V2GetInstitutionByID(ctx, *link.OrganisationID)
 			if err == nil {
 				facts.LinkOrganisation = &RuleSource{Name: o.Name, Rule: nullString(o.PromptConstraints)}
 			}
@@ -203,7 +204,7 @@ func ReadPlayRuleFacts(ctx context.Context, link *LinkPlay) (PlayRuleFacts, erro
 			}
 		}
 	}
-	settings, err := q.GetSystemSettings(ctx)
+	settings, err := q.V2GetSystemSettings(ctx)
 	if err != nil {
 		return facts, err
 	}
@@ -261,7 +262,7 @@ type NewPlay struct {
 // plays. A game the caller may not start is refused (MayStartPlaying,
 // MayStartPlayingByLink).
 func LaunchStore(ctx context.Context, p NewPlay) (engine.Persist, uuid.UUID, error) {
-	meta := db.NewSession{
+	meta := sessionstore.NewSession{
 		GameID: p.Game, ApiKeyShareID: p.Payer.ShareID, Platform: p.Platform, Language: p.Language,
 		ReplaceEarlier: p.ReplaceEarlier,
 	}
@@ -282,18 +283,18 @@ func LaunchStore(ctx context.Context, p NewPlay) (engine.Persist, uuid.UUID, err
 		meta.UserID = *me
 	case p.Link != nil:
 		meta.UserID = uuid.New()
-		meta.Guest = &db.NewGuest{Name: guestName(), ShareID: p.Link.LinkID}
+		meta.Guest = &sessionstore.NewGuest{Name: guestName(), ShareID: p.Link.LinkID}
 	default:
 		return nil, uuid.Nil, engine.Refuse(engine.ProblemDenied, "sign in to play this game")
 	}
-	return db.Launching(meta), meta.UserID, nil
+	return sessionstore.Launching(meta), meta.UserID, nil
 }
 
 // Replaced are the earlier sessions a launch through store replaced.
-func Replaced(store engine.Persist) []uuid.UUID { return db.Replaced(store) }
+func Replaced(store engine.Persist) []uuid.UUID { return sessionstore.Replaced(store) }
 
 // ErrNoPlaysLeft: the share link ran out of plays as the session started.
-var ErrNoPlaysLeft = db.ErrNoPlaysLeft
+var ErrNoPlaysLeft = sessionstore.ErrNoPlaysLeft
 
 // Resuming is a stored session as its resume needs it: its game and
 // platform, the share link it was played through, if that still pays, and
@@ -311,11 +312,11 @@ func ResumeSession(ctx context.Context, id uuid.UUID) (*Resuming, error) {
 	if err := OpenSession(ctx, id, PlaySession); err != nil {
 		return nil, err
 	}
-	row, err := store.Queries().GetGameSessionByID(ctx, id)
+	row, err := store.Queries().V2GetGameSessionByID(ctx, id)
 	if err != nil {
 		return nil, engine.Refuse(engine.ProblemUnknown, "there is no session "+id.String())
 	}
-	r := &Resuming{GameID: row.GameID, Platform: row.Platform, Store: db.SessionStore{}}
+	r := &Resuming{GameID: row.GameID, Platform: row.Platform, Store: sessionstore.SessionStore{}}
 	if row.GameShareID.Valid {
 		if link, err := linkPlay(ctx, sql.NullString{}, row.GameShareID); err == nil && link.Payer.Platform == row.Platform {
 			r.LinkPays = &link.Payer

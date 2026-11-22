@@ -262,24 +262,19 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCanRejoinWorkshopAfterLeavin
 	s.T().Logf("Individual successfully rejoined workshop")
 }
 
-// TestTargetedInviteWithIndividualRoleWorks verifies that creating a targeted
-// institution invite with role 'individual' succeeds — the user joins the org
-// but keeps their individual role (not promoted to staff/head).
-func (s *WorkshopIndividualTestSuite) TestTargetedInviteWithIndividualRoleWorks() {
+// TestNoInviteAsIndividual: an organisation invites as head or staff only.
+// An individual is in no organisation (spec, Roles); one an organisation
+// invites becomes head or staff by accepting.
+func (s *WorkshopIndividualTestSuite) TestNoInviteAsIndividual() {
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution("Individual Invite Org"))
 	target := s.CreateUser("ind-target")
 
-	// Create targeted invite with 'individual' role — should succeed
-	invite, err := admin.InviteToInstitution(inst.Id.String(), "individual", target.ID)
-	s.NoError(err, "targeted invite with 'individual' role should succeed")
-	s.NotEmpty(invite.Id)
-
-	// Accept and verify role stays individual
-	Must(target.AcceptInvite(invite.Id.String()))
+	_, err := admin.InviteToInstitution(inst.Id.String(), "individual", target.ID)
+	s.Invalid(err, "nobody is invited into an organisation as individual")
 	me := Must(target.GetMe())
-	s.Equal("individual", me.Role.Role, "user should keep individual role")
-	s.T().Logf("Individual invite accepted, role: %s", me.Role.Role)
+	s.Equal("individual", me.Role.Role)
+	s.Nil(me.Role.Institution, "an individual is in no organisation")
 }
 
 // TestTargetedInviteWithHeadStaffStillWorks verifies that targeted institution

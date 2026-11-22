@@ -11,7 +11,6 @@ import (
 	"cgl/api/auth"
 	"cgl/api/wire"
 	"cgl/core"
-	"cgl/db"
 	"cgl/mail"
 	"cgl/obj"
 
@@ -151,7 +150,7 @@ func (GuestLoginEndpoint) Handle(ctx context.Context, req GuestLoginReq) (GuestL
 	if err := tokenLocked(); err != nil {
 		return GuestLoginResp{}, err
 	}
-	userID, err := auth.RedeemGuestToken(ctx, req.Token)
+	userID, err := core.RedeemGuestToken(ctx, req.Token)
 	if errors.Is(err, auth.ErrInvalidGuestToken) {
 		return GuestLoginResp{}, errUnauthorized(err.Error())
 	}
@@ -206,15 +205,15 @@ func (DevLoginEndpoint) Handle(ctx context.Context, req DevLoginReq) (DevLoginRe
 
 // devLoginAccounts are the seeded development accounts by preset role.
 var devLoginAccounts = map[string]uuid.UUID{
-	"admin-1":      db.DevAdmin1UserID,
-	"admin-2":      db.DevAdmin2UserID,
-	"head-1":       db.DevHead1UserID,
-	"head-2":       db.DevHead2UserID,
-	"staff-1":      db.DevStaff1UserID,
-	"staff-2":      db.DevStaff2UserID,
-	"individual-1": db.DevIndividual1UserID,
-	"individual-2": db.DevIndividual2UserID,
-	"guest":        db.DevGuestUserID,
+	"admin-1":      core.DevAdmin1UserID,
+	"admin-2":      core.DevAdmin2UserID,
+	"head-1":       core.DevHead1UserID,
+	"head-2":       core.DevHead2UserID,
+	"staff-1":      core.DevStaff1UserID,
+	"staff-2":      core.DevStaff2UserID,
+	"individual-1": core.DevIndividual1UserID,
+	"individual-2": core.DevIndividual2UserID,
+	"guest":        core.DevGuestUserID,
 }
 
 // devNewPerson is the dev login's preset for a fresh account still
@@ -224,7 +223,7 @@ const devNewPerson = "new-person"
 // devLoginAccount is the account a dev login's preset signs in.
 func devLoginAccount(ctx context.Context, role string) (uuid.UUID, error) {
 	if role == devNewPerson {
-		return db.AccountForAuth0(ctx, "dev|"+uuid.NewString())
+		return core.DevSignInAccount(ctx, uuid.Nil)
 	}
 	userID, ok := devLoginAccounts[role]
 	if !ok {

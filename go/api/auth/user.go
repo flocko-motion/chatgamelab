@@ -1,10 +1,11 @@
 // package: auth / who is calling
 // type:    logic
-// job:     the errors that refuse a request's caller; resolving the caller is the secure core's (core.Resolve)
+// job:     the errors that refuse a sign-in or a request's caller; signing in and resolving the caller are the secure core's (core.OnLogin, core.Resolve)
 // limits:  schemaf authenticates the request and owns sessions; permissions are the core's
 package auth
 
 import (
+	"errors"
 	"fmt"
 
 	"cgl/obj"
@@ -26,6 +27,10 @@ var (
 	ErrOrganisationSuspended = schemafapi.Error(schemafapi.ErrForbidden, obj.ErrCodeOrganisationSuspended, "your organisation is suspended")
 	// ErrWorkshopInactive: the participant's workshop is inactive.
 	ErrWorkshopInactive = schemafapi.Error(schemafapi.ErrForbidden, "auth_workshop_inactive", "workshop is inactive")
+	// ErrInvalidGuestToken: no guest signs in with this code.
+	ErrInvalidGuestToken = errors.New("invalid or expired token")
+	// ErrNoGuestToken: the request names no token.
+	ErrNoGuestToken = fmt.Errorf("a token is required: %w", schemafapi.ErrBadRequest)
 	// ErrNoAccount: the subject names no usable account: unknown, deleted, or
 	// a participant who left their workshop.
 	ErrNoAccount = fmt.Errorf("no such account: %w", schemafapi.ErrForbidden)

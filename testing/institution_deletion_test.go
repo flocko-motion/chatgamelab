@@ -348,3 +348,32 @@ func (s *InstitutionDeletionTestSuite) TestIndividualCannotDeleteInstitution() {
 	s.NotFound(err, "individual should not be able to delete institution")
 	s.T().Logf("Individual correctly rejected: %v", err)
 }
+
+// Deleting an organisation ends every share link of its workshops with the
+// guests who played through them, as taking the shares back does; the head
+// keeps their key and is an individual again, in no organisation.
+func (s *InstitutionDeletionTestSuite) TestDeletingEndsLinksAndTheirGuests() {
+	admin := s.DevUser()
+	inst := Must(admin.CreateInstitution("Link Del Org"))
+	org := inst.Id.String()
+	head := s.CreateUser("ld-head")
+	Must(head.AcceptInvite(Must(admin.InviteToInstitution(org, "head", head.ID)).Id.String()))
+
+	key := Must(head.AddApiKey("mock-ld-head", "Head Key", "mock"))
+	share := Must(head.ShareApiKeyWithInstitution(key.Id.String(), org)).Id.String()
+	ws := Must(head.CreateWorkshop(org, "Link Del Workshop")).Id.String()
+	Must(head.SetWorkshopApiKey(ws, &share))
+	Must(head.SetActiveWorkshop(&ws))
+	game := Must(head.UploadGame("alien-first-contact")).Id.String()
+	link := Must(head.CreateWorkshopGameShare(game, ws, nil))
+	Must(s.Public().CreateSession(testutil.ForShare(link.Token)))
+
+	s.NoError(admin.DeleteInstitution(org), "an organisation with a played share link is deleted")
+
+	_, err := s.Public().CreateSession(testutil.ForShare(link.Token))
+	s.Refused(err, testutil.CodeDenied, "its share link plays no more")
+	me := Must(head.GetMe())
+	s.Equal("individual", me.Role.Role, "its head is an individual again")
+	s.Nil(me.Role.Institution, "in no organisation")
+	s.NotEmpty(Must(head.GetApiKeys()).ApiKeys, "the head keeps their key")
+}

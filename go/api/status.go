@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"cgl/db"
+	"cgl/core"
 	"cgl/functional"
 	"cgl/obj"
 
@@ -49,7 +49,7 @@ func backupHealthStatus() any {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), backupHealthLookup)
 	defer cancel()
-	latest, err := db.GetLatestBackup(ctx)
+	latest, err := core.LatestBackup(ctx)
 	if err != nil {
 		return BackupHealth{Status: backupUnknown}
 	}

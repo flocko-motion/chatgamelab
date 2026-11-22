@@ -36,6 +36,7 @@ const (
 	ErrCodeDeclarationVersionOutdated  = "declaration_version_outdated"   // the declaration changed since it was shown
 	ErrCodeInstitutionConsentsRequired = "institution_consents_required"  // a consent the form asks for is missing
 	ErrCodeOrganisationSuspended       = "organisation_suspended"         // the caller's organisation is suspended
+	ErrCodeGuestStays                  = "guest_stays"                    // a guest's place is fixed: they accept no invite
 
 	// AI-specific error codes
 	ErrCodeAiError                  = "ai_error"

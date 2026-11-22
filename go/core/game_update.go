@@ -9,6 +9,7 @@ import (
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/events"
+	"cgl/log"
 	"engine"
 
 	"github.com/google/uuid"
@@ -90,12 +91,18 @@ func UpdateGame(ctx context.Context, id uuid.UUID, ch GameChanges) (*GameCard, e
 		FirstStatus:  sqlString(next.firstStatus),
 		FirstImage:   next.firstImage,
 	})
+	if isDuplicateGameName(err) {
+		return nil, errDuplicateGameName
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	if game.row.public && !next.public {
-		db.DeleteGamePublicPageShares(ctx, id) // a private game leaves the workshops' public pages
+		// a private game leaves the workshops' public pages
+		if err := endPublicPageLinks(ctx, nil, &id); err != nil {
+			log.Warn("failed to end a game's public page links", "game_id", id, "error", err)
+		}
 	}
 	if w := game.row.workshopID; w != nil {
 		events.GetBroker().PublishGameUpdated(*w, id, by) // the workshop hears of it

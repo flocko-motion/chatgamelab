@@ -7,6 +7,7 @@ package api
 import (
 	"context"
 
+	"cgl/core"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -19,7 +20,7 @@ func (ListRolesEndpoint) Method() string             { return "GET" }
 func (ListRolesEndpoint) Path() string               { return "/api/roles" }
 func (ListRolesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
 func (ListRolesEndpoint) Handle(ctx context.Context, _ ListRolesReq) (RolesResp, error) {
-	if _, err := caller(ctx); err != nil {
+	if err := core.RequireSignedIn(ctx); err != nil {
 		return RolesResp{}, err
 	}
 	return RolesResp{Roles: []obj.Role{obj.RoleAdmin, obj.RoleHead, obj.RoleStaff}}, nil

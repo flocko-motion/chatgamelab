@@ -1,18 +1,15 @@
 // package: api / schemaf endpoints
 // type:    logic
 // job:     lists, reads, updates and deletes users, their stats and login code; /me is a shortcut to the caller's own user
-// limits:  decides nothing: the core does (core.ReadUser and its siblings); roles (-> user_role.go); workshop mode is still v1 here (SetActiveWorkshopEndpoint)
+// limits:  decides nothing: the core does (core.ReadUser and its siblings); roles (-> user_role.go); workshop mode too (SetActiveWorkshopEndpoint)
 package api
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"cgl/api/wire"
 	"cgl/core"
-	"cgl/db"
-	"cgl/events"
 	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
@@ -230,50 +227,27 @@ type UpdateMyLanguageReq struct {
 }
 
 // SetActiveWorkshopEndpoint enters or leaves workshop mode and answers with
-// the caller's account.
+// the caller as GET /api/users/me does.
 //
 // Heads, staff and individuals enter a workshop by its id; a null workshopId
-// leaves workshop mode.
+// leaves workshop mode. A guest's place is fixed: a guest neither enters nor
+// leaves one.
 type SetActiveWorkshopEndpoint struct{}
 
 func (SetActiveWorkshopEndpoint) Method() string             { return "PUT" }
 func (SetActiveWorkshopEndpoint) Path() string               { return "/api/users/me/active-workshop" }
 func (SetActiveWorkshopEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (SetActiveWorkshopEndpoint) Handle(ctx context.Context, req SetActiveWorkshopReq) (UserResp, error) {
-	user, err := caller(ctx)
-	if err != nil {
-		return obj.User{}, err
-	}
-
-	// The workshop being left, for its members' live update.
-	var oldWorkshopID *uuid.UUID
-	if user.Role != nil && user.Role.Workshop != nil {
-		oldWorkshopID = &user.Role.Workshop.ID
-	}
-
+func (SetActiveWorkshopEndpoint) Handle(ctx context.Context, req SetActiveWorkshopReq) (GetCurrentUserResp, error) {
+	var err error
 	if req.WorkshopID == nil {
-		if oldWorkshopID != nil {
-			if err := db.ClearActiveWorkshop(ctx, user.ID, *oldWorkshopID); err != nil {
-				return obj.User{}, fmt.Errorf("failed to leave workshop: %w", err)
-			}
-			events.GetBroker().PublishMembersUpdated(*oldWorkshopID)
-		} else {
-			if err := db.ClearActiveWorkshop(ctx, user.ID); err != nil {
-				return obj.User{}, fmt.Errorf("failed to leave workshop: %w", err)
-			}
-		}
+		err = core.LeaveWorkshop(ctx)
 	} else {
-		if err := db.SetActiveWorkshop(ctx, user.ID, *req.WorkshopID); err != nil {
-			return obj.User{}, appError(err)
-		}
-		events.GetBroker().PublishMembersUpdated(*req.WorkshopID)
+		err = core.EnterWorkshop(ctx, *req.WorkshopID)
 	}
-
-	updated, err := db.GetUserByID(ctx, user.ID)
 	if err != nil {
-		return obj.User{}, fmt.Errorf("failed to get updated user: %w", err)
+		return GetCurrentUserResp{}, err
 	}
-	return *updated, nil
+	return GetCurrentUserEndpoint{}.Handle(ctx, GetCurrentUserReq{})
 }
 
 // SetActiveWorkshopReq is the workshop to enter, or null to leave.
@@ -298,19 +272,9 @@ func (CreateUserEndpoint) Method() string             { return "POST" }
 func (CreateUserEndpoint) Path() string               { return "/api/users/new" }
 func (CreateUserEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
 func (CreateUserEndpoint) Handle(ctx context.Context, req CreateUserReq) (UserResp, error) {
-	if !schemafapi.DevMode() {
-		return obj.User{}, errNotFound("Not found")
-	}
-	if strings.TrimSpace(req.Name) == "" {
-		id, err := db.AccountForAuth0(ctx, "dev|"+uuid.NewString())
-		if err != nil {
-			return obj.User{}, fmt.Errorf("failed to create account: %w", err)
-		}
-		return obj.User{ID: id}, nil
-	}
-	user, err := db.CreateUser(ctx, req.Name, req.Email, "", nil, preferredLanguage(ctx))
+	user, err := core.DevCreateUser(ctx, req.Name, req.Email, preferredLanguage(ctx))
 	if err != nil {
-		return obj.User{}, fmt.Errorf("failed to create user: %w", err)
+		return obj.User{}, err
 	}
 	return *user, nil
 }

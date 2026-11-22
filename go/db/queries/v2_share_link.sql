@@ -66,3 +66,37 @@ UPDATE game SET public_sponsored_api_key_share_id = sqlc.narg(share_id)::uuid WH
 -- name: V2GameSponsor :one
 -- The share a game's public plays draw from, if any.
 SELECT public_sponsored_api_key_share_id FROM game WHERE id = @id::uuid;
+
+-- name: V2PublicPageLinks :many
+-- The share links of a workshop's public page, or of one game's on every
+-- page; one per game and page.
+SELECT gs.id, gs.game_id, gs.token, gs.remaining, gs.api_key_share_id
+FROM game_share gs
+WHERE gs.public_page
+  AND (sqlc.narg(workshop_id)::uuid IS NULL OR gs.workshop_id = sqlc.narg(workshop_id)::uuid)
+  AND (sqlc.narg(game_id)::uuid IS NULL OR gs.game_id = sqlc.narg(game_id)::uuid);
+
+-- name: V2CreatePublicPageLink :one
+-- A public page's link for one game, paid by @api_key_share_id (drawn from
+-- the workshop's key); the unique index game_share_public_page_uniq keeps
+-- it one per game and page.
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, public_page)
+VALUES (@game_id, @token, @api_key_share_id, @institution_id, @workshop_id, @remaining, @created_by::uuid, true)
+RETURNING id;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2DeleteGameShare :exec
+DELETE FROM game_share WHERE id = $1;
+
+-- name: V2DeleteGameSharesByGameID :exec
+DELETE FROM game_share WHERE game_id = $1;
+
+-- name: V2DeleteLinkGuests :exec
+-- Deletes the guests who came through share link @link_id (their sessions
+-- go with them), so the link can end.
+DELETE FROM app_user WHERE private_share_id = @link_id;
+
+-- name: V2DeleteGameLinkGuests :exec
+-- Deletes the guests who came through any share link of game @game_id.
+DELETE FROM app_user WHERE private_share_id IN (SELECT id FROM game_share WHERE game_id = @game_id);

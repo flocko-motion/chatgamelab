@@ -169,9 +169,7 @@ func DeleteOrganisation(ctx context.Context, id uuid.UUID) error {
 	if !org.MayDelete() {
 		return forbidden("you may not delete this organisation")
 	}
-	// v1's cascade over workshops, guests, invites, key shares and roles; it
-	// moves into the core as those entities are ported.
-	if err := db.DeleteInstitutionCascade(ctx, id, account(ctx).UUID); err != nil {
+	if err := deleteOrganisation(ctx, id); err != nil {
 		return err
 	}
 	log.Info("organisation deleted", "institution_id", id, "admin_id", account(ctx).UUID)

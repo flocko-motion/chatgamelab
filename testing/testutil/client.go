@@ -173,3 +173,7 @@ func done(r response, err error) error {
 	}
 	return refused(r)
 }
+
+// AsUser is the visitor as a UserClient without an account, for tables of
+// cases over every kind of caller (the permission matrix).
+func (p *PublicClient) AsUser() *UserClient { return &UserClient{caller: p.caller, Name: "visitor"} }

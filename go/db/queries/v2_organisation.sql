@@ -66,6 +66,8 @@ WHERE o.deleted_at IS NULL
   AND (sqlc.narg(id)::uuid IS NULL OR o.id = sqlc.narg(id)::uuid)
   -- gate
   AND (  (@card_organisation::bool AND o.id = sqlc.narg(own_organisation)::uuid)
+      -- the organisation of the workshop the caller takes part in
+      OR (@card_current_workshop::bool AND o.id = (SELECT w.institution_id FROM workshop w WHERE w.id = sqlc.narg(current_workshop)::uuid))
       OR  @card_everywhere::bool )
 ORDER BY o.name, o.id;
 
@@ -149,3 +151,64 @@ FROM institution_consent
 WHERE institution_id = @institution_id AND kind = 'consent'
 ORDER BY created_at
 LIMIT 1;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2GetInstitutionByID :one
+SELECT * FROM institution WHERE id = $1 AND deleted_at IS NULL;
+
+-- Deleting an organisation (core/delete.go): for good, with its workshops
+-- and their guests; its head and staff become individuals.
+
+-- name: V2OrganisationWorkshops :many
+-- All of them, deleted ones too: they go for good.
+SELECT id FROM workshop WHERE institution_id = @organisation_id;
+
+-- name: V2OrganisationMembers :many
+SELECT DISTINCT user_id FROM user_role WHERE institution_id = @organisation_id AND role IN ('head', 'staff');
+
+-- name: V2OrganisationSharesAndLinks :many
+-- What ends with the organisation, as taking shares back ends it: the
+-- shares given to it, the shares drawn from them, and every share link of
+-- it or its workshops, with the share each draws.
+WITH org_share AS (
+  SELECT k.id FROM api_key_share k WHERE k.institution_id = @organisation_id AND k.game_id IS NULL
+), share AS (
+  SELECT id FROM org_share
+  UNION SELECT s.id FROM api_key_share s WHERE s.source_share_id IN (SELECT id FROM org_share)
+  UNION SELECT gs.api_key_share_id FROM game_share gs
+        LEFT JOIN workshop w ON w.id = gs.workshop_id
+        WHERE gs.institution_id = @organisation_id OR w.institution_id = @organisation_id
+)
+SELECT s.id, gs.id AS link_id
+FROM share s LEFT JOIN game_share gs ON gs.api_key_share_id = s.id;
+
+-- name: V2DeleteOrganisationInvites :exec
+-- After its workshops, shares and links have ended: its invites, to it or
+-- to its workshops.
+DELETE FROM user_role_invite i
+WHERE i.institution_id = @organisation_id
+   OR i.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = @organisation_id);
+
+-- name: V2DeleteOrganisationRoles :exec
+DELETE FROM user_role WHERE institution_id = @organisation_id;
+
+-- name: V2HardDeleteOrganisationWorkshops :exec
+DELETE FROM workshop WHERE institution_id = @organisation_id;
+
+-- name: V2HardDeleteOrganisation :exec
+DELETE FROM institution WHERE id = @organisation_id;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2SeedOrganisation :one
+INSERT INTO institution (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6
+)
+RETURNING *;

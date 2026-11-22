@@ -18,17 +18,6 @@
         ],
         "type": "object"
       },
-      "AddWorkshopMemberReq": {
-        "properties": {
-          "userId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "userId"
-        ],
-        "type": "object"
-      },
       "ApiKey": {
         "properties": {
           "id": {
@@ -8904,7 +8893,7 @@
     },
     "/api/system/settings/free-use-key": {
       "patch": {
-        "description": "key; admins only.\n\nThe admin's own API key is used directly. A null apiKeyId clears it.",
+        "description": "key; admins only.\n\nOnly a key of the admin's own; someone else's is not found. A null\napiKeyId clears it.",
         "operationId": "patchApiSystemSettingsFree-use-key",
         "requestBody": {
           "content": {
@@ -9106,7 +9095,7 @@
     },
     "/api/users/me/active-workshop": {
       "put": {
-        "description": "the caller's account.\n\nHeads, staff and individuals enter a workshop by its id; a null workshopId\nleaves workshop mode.",
+        "description": "the caller as GET /api/users/me does.\n\nHeads, staff and individuals enter a workshop by its id; a null workshopId\nleaves workshop mode. A guest's place is fixed: a guest neither enters nor\nleaves one.",
         "operationId": "putApiUsersMeActive-workshop",
         "requestBody": {
           "content": {
@@ -9123,7 +9112,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/GetCurrentUserResp"
                 }
               }
             },
@@ -10146,63 +10135,6 @@
           }
         ],
         "summary": "Streams a workshop's updates as Server-Sent Events."
-      }
-    },
-    "/api/workshops/{id}/members": {
-      "post": {
-        "description": "into it: it becomes the workshop they work in.",
-        "operationId": "postApiWorkshopsIdMembers",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddWorkshopMemberReq"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResp"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "Error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Puts an individual of the workshop's organisation"
       }
     },
     "/api/workshops/{id}/members/{userId}": {

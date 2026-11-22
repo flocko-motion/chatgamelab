@@ -14,7 +14,6 @@ import (
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/legal"
-	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
@@ -36,8 +35,6 @@ type Caller struct {
 	workshopShowsPublic   bool
 	workshopShowsOthers   bool
 	workshopAllowsSharing bool
-
-	legacy *obj.User // v1's view of the caller, loaded by Legacy on first use
 }
 
 // guest is the caller nobody signed in: a guest without an account yet,
@@ -178,22 +175,6 @@ func suspensionOf(byAdmin, consentMissing bool) Suspension {
 		return SuspendedNoConsent
 	}
 	return NotSuspended
-}
-
-// Legacy is v1's view of the caller, for the legacy bridge only; nil for
-// a guest nobody signed in. It loads on first use, so only code not yet ported pays for it.
-func (c *Caller) Legacy(ctx context.Context) (*obj.User, error) {
-	if c.account == nil {
-		return nil, nil
-	}
-	if c.legacy == nil {
-		user, err := db.GetUserByID(ctx, *c.account)
-		if err != nil {
-			return nil, err
-		}
-		c.legacy = user
-	}
-	return c.legacy, nil
 }
 
 func nullable(id uuid.NullUUID) *uuid.UUID {

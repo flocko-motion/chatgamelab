@@ -51,6 +51,28 @@ func (q *Queries) V2CreateOrganisation(ctx context.Context, arg V2CreateOrganisa
 	return err
 }
 
+const v2DeleteOrganisationInvites = `-- name: V2DeleteOrganisationInvites :exec
+DELETE FROM user_role_invite i
+WHERE i.institution_id = $1
+   OR i.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $1)
+`
+
+// After its workshops, shares and links have ended: its invites, to it or
+// to its workshops.
+func (q *Queries) V2DeleteOrganisationInvites(ctx context.Context, organisationID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteOrganisationInvites, organisationID)
+	return err
+}
+
+const v2DeleteOrganisationRoles = `-- name: V2DeleteOrganisationRoles :exec
+DELETE FROM user_role WHERE institution_id = $1
+`
+
+func (q *Queries) V2DeleteOrganisationRoles(ctx context.Context, organisationID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteOrganisationRoles, organisationID)
+	return err
+}
+
 const v2EmailOfOtherAccount = `-- name: V2EmailOfOtherAccount :one
 SELECT EXISTS (
   SELECT 1 FROM app_user
@@ -118,6 +140,54 @@ func (q *Queries) V2FirstConsent(ctx context.Context, institutionID uuid.UUID) (
 	return items, nil
 }
 
+const v2GetInstitutionByID = `-- name: V2GetInstitutionByID :one
+
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, suspended_at, suspended_reason FROM institution WHERE id = $1 AND deleted_at IS NULL
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
+	row := q.db.QueryRowContext(ctx, v2GetInstitutionByID, id)
+	var i Institution
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
+		&i.FreeUseAiQualityTier,
+		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.SuspendedAt,
+		&i.SuspendedReason,
+	)
+	return i, err
+}
+
+const v2HardDeleteOrganisation = `-- name: V2HardDeleteOrganisation :exec
+DELETE FROM institution WHERE id = $1
+`
+
+func (q *Queries) V2HardDeleteOrganisation(ctx context.Context, organisationID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2HardDeleteOrganisation, organisationID)
+	return err
+}
+
+const v2HardDeleteOrganisationWorkshops = `-- name: V2HardDeleteOrganisationWorkshops :exec
+DELETE FROM workshop WHERE institution_id = $1
+`
+
+func (q *Queries) V2HardDeleteOrganisationWorkshops(ctx context.Context, organisationID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2HardDeleteOrganisationWorkshops, organisationID)
+	return err
+}
+
 const v2LatestConsent = `-- name: V2LatestConsent :many
 SELECT kind, declaration_version, declaration_hash, created_at
 FROM institution_consent
@@ -179,6 +249,33 @@ func (q *Queries) V2MakeHead(ctx context.Context, arg V2MakeHeadParams) error {
 	return err
 }
 
+const v2OrganisationMembers = `-- name: V2OrganisationMembers :many
+SELECT DISTINCT user_id FROM user_role WHERE institution_id = $1 AND role IN ('head', 'staff')
+`
+
+func (q *Queries) V2OrganisationMembers(ctx context.Context, organisationID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2OrganisationMembers, organisationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var user_id uuid.UUID
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2OrganisationNameTaken = `-- name: V2OrganisationNameTaken :one
 
 SELECT EXISTS (SELECT 1 FROM institution WHERE lower(name) = lower($1::text))::bool AS taken
@@ -194,6 +291,82 @@ func (q *Queries) V2OrganisationNameTaken(ctx context.Context, name string) (boo
 	var taken bool
 	err := row.Scan(&taken)
 	return taken, err
+}
+
+const v2OrganisationSharesAndLinks = `-- name: V2OrganisationSharesAndLinks :many
+WITH org_share AS (
+  SELECT k.id FROM api_key_share k WHERE k.institution_id = $1 AND k.game_id IS NULL
+), share AS (
+  SELECT id FROM org_share
+  UNION SELECT s.id FROM api_key_share s WHERE s.source_share_id IN (SELECT id FROM org_share)
+  UNION SELECT gs.api_key_share_id FROM game_share gs
+        LEFT JOIN workshop w ON w.id = gs.workshop_id
+        WHERE gs.institution_id = $1 OR w.institution_id = $1
+)
+SELECT s.id, gs.id AS link_id
+FROM share s LEFT JOIN game_share gs ON gs.api_key_share_id = s.id
+`
+
+type V2OrganisationSharesAndLinksRow struct {
+	ID     uuid.UUID     `json:"id"`
+	LinkID uuid.NullUUID `json:"link_id"`
+}
+
+// What ends with the organisation, as taking shares back ends it: the
+// shares given to it, the shares drawn from them, and every share link of
+// it or its workshops, with the share each draws.
+func (q *Queries) V2OrganisationSharesAndLinks(ctx context.Context, organisationID uuid.NullUUID) ([]V2OrganisationSharesAndLinksRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2OrganisationSharesAndLinks, organisationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2OrganisationSharesAndLinksRow
+	for rows.Next() {
+		var i V2OrganisationSharesAndLinksRow
+		if err := rows.Scan(&i.ID, &i.LinkID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2OrganisationWorkshops = `-- name: V2OrganisationWorkshops :many
+
+SELECT id FROM workshop WHERE institution_id = $1
+`
+
+// Deleting an organisation (core/delete.go): for good, with its workshops
+// and their guests; its head and staff become individuals.
+// All of them, deleted ones too: they go for good.
+func (q *Queries) V2OrganisationWorkshops(ctx context.Context, organisationID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2OrganisationWorkshops, organisationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const v2Organisations = `-- name: V2Organisations :many
@@ -232,7 +405,9 @@ WHERE o.deleted_at IS NULL
   AND ($17::uuid IS NULL OR o.id = $17::uuid)
   -- gate
   AND (  ($18::bool AND o.id = $4::uuid)
-      OR  $19::bool )
+      -- the organisation of the workshop the caller takes part in
+      OR ($19::bool AND o.id = (SELECT w.institution_id FROM workshop w WHERE w.id = $20::uuid))
+      OR  $21::bool )
 ORDER BY o.name, o.id
 `
 
@@ -255,6 +430,8 @@ type V2OrganisationsParams struct {
 	SuspendEverywhere        bool          `json:"suspend_everywhere"`
 	ID                       uuid.NullUUID `json:"id"`
 	CardOrganisation         bool          `json:"card_organisation"`
+	CardCurrentWorkshop      bool          `json:"card_current_workshop"`
+	CurrentWorkshop          uuid.NullUUID `json:"current_workshop"`
 	CardEverywhere           bool          `json:"card_everywhere"`
 }
 
@@ -308,6 +485,8 @@ func (q *Queries) V2Organisations(ctx context.Context, arg V2OrganisationsParams
 		arg.SuspendEverywhere,
 		arg.ID,
 		arg.CardOrganisation,
+		arg.CardCurrentWorkshop,
+		arg.CurrentWorkshop,
 		arg.CardEverywhere,
 	)
 	if err != nil {
@@ -436,6 +615,61 @@ func (q *Queries) V2RecordWithdrawal(ctx context.Context, arg V2RecordWithdrawal
 	var created_at time.Time
 	err := row.Scan(&created_at)
 	return created_at, err
+}
+
+const v2SeedOrganisation = `-- name: V2SeedOrganisation :one
+
+INSERT INTO institution (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, suspended_at, suspended_reason
+`
+
+type V2SeedOrganisationParams struct {
+	ID         uuid.UUID     `json:"id"`
+	CreatedBy  uuid.NullUUID `json:"created_by"`
+	CreatedAt  time.Time     `json:"created_at"`
+	ModifiedBy uuid.NullUUID `json:"modified_by"`
+	ModifiedAt time.Time     `json:"modified_at"`
+	Name       string        `json:"name"`
+}
+
+// Carried over from v1 for the core's system jobs (#344).
+func (q *Queries) V2SeedOrganisation(ctx context.Context, arg V2SeedOrganisationParams) (Institution, error) {
+	row := q.db.QueryRowContext(ctx, v2SeedOrganisation,
+		arg.ID,
+		arg.CreatedBy,
+		arg.CreatedAt,
+		arg.ModifiedBy,
+		arg.ModifiedAt,
+		arg.Name,
+	)
+	var i Institution
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
+		&i.FreeUseAiQualityTier,
+		&i.PromptConstraints,
+		&i.Operator,
+		&i.Street,
+		&i.PostalCode,
+		&i.City,
+		&i.SuspendedAt,
+		&i.SuspendedReason,
+	)
+	return i, err
 }
 
 const v2SetOrganisationSuspension = `-- name: V2SetOrganisationSuspension :execrows

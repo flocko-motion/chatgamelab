@@ -34,8 +34,9 @@ type Rule struct {
 //     cascade: the link's workshop, the link's organisation, the link
 //     author's own rule;
 //   - a known player: the "Angemeldete Nutzer" cascade: the link's workshop,
-//     the link's organisation, their workshop, their organisation, the site's
-//     rule for their age group.
+//     the link's organisation, the current workshop (the one they take part
+//     in), the organisation (their own, else the current workshop's), the
+//     site's rule for their age group.
 func resolveRule(f core.PlayRuleFacts) Rule {
 	if !f.LinkGuest && f.Player != nil {
 		r := knownPlayerRule(f, f.Player, true)
@@ -65,7 +66,7 @@ func knownPlayerRule(f core.PlayRuleFacts, p *core.PlayerRules, withLink bool) R
 			return r
 		}
 	}
-	if r, ok := fromSource(p.Workshop, obj.ConstraintSourceWorkshop, "the player's workshop", &skipped); ok {
+	if r, ok := fromSource(p.Workshop, obj.ConstraintSourceWorkshop, "the current workshop", &skipped); ok {
 		return r
 	}
 	if r, ok := fromSource(p.Organisation, obj.ConstraintSourceOrganisation, "the player's organisation", &skipped); ok {

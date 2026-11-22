@@ -49,6 +49,277 @@ func (q *Queries) V2CreateWorkshop(ctx context.Context, arg V2CreateWorkshopPara
 	return err
 }
 
+const v2GetWorkshopByID = `-- name: V2GetWorkshopByID :one
+
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, is_paused, allow_game_sharing, public_slug, public_description, public_links FROM workshop WHERE id = $1 AND deleted_at IS NULL
+`
+
+// Carried over from v1 unchanged (#344); the core uses these.
+func (q *Queries) V2GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, error) {
+	row := q.db.QueryRowContext(ctx, v2GetWorkshopByID, id)
+	var i Workshop
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.InstitutionID,
+		&i.Active,
+		&i.Public,
+		&i.DeletedAt,
+		&i.DefaultApiKeyShareID,
+		&i.AiQualityTier,
+		&i.PromptConstraints,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
+		&i.IsPaused,
+		&i.AllowGameSharing,
+		&i.PublicSlug,
+		&i.PublicDescription,
+		&i.PublicLinks,
+	)
+	return i, err
+}
+
+const v2LeaveDeletedWorkshop = `-- name: V2LeaveDeletedWorkshop :exec
+UPDATE user_role SET active_workshop_id = NULL, modified_at = now() WHERE active_workshop_id = $1
+`
+
+// Whoever works in the workshop (head, staff, an individual taking part)
+// leaves it.
+func (q *Queries) V2LeaveDeletedWorkshop(ctx context.Context, workshopID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2LeaveDeletedWorkshop, workshopID)
+	return err
+}
+
+const v2PublicSlugExists = `-- name: V2PublicSlugExists :one
+SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1)::bool
+`
+
+// Deleted workshops keep their slug, so an old link never points at a new workshop.
+func (q *Queries) V2PublicSlugExists(ctx context.Context, slug sql.NullString) (bool, error) {
+	row := q.db.QueryRowContext(ctx, v2PublicSlugExists, slug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const v2PublicWorkshop = `-- name: V2PublicWorkshop :many
+SELECT w.id, w.name, w.public_description, w.public_links, w.default_api_key_share_id,
+  w.institution_id, w.created_by, ks.created_by AS key_share_created_by
+FROM workshop w
+JOIN institution i ON i.id = w.institution_id
+LEFT JOIN api_key_share ks ON ks.id = w.default_api_key_share_id
+WHERE w.public_slug = $1 AND w.deleted_at IS NULL AND w.public
+  AND i.suspended_at IS NULL
+  AND NOT institution_consent_missing(i.id, $2::text, $3::text)
+`
+
+type V2PublicWorkshopParams struct {
+	Slug               sql.NullString `json:"slug"`
+	DeclarationVersion string         `json:"declaration_version"`
+	DeclarationHash    string         `json:"declaration_hash"`
+}
+
+type V2PublicWorkshopRow struct {
+	ID                   uuid.UUID             `json:"id"`
+	Name                 string                `json:"name"`
+	PublicDescription    sql.NullString        `json:"public_description"`
+	PublicLinks          pqtype.NullRawMessage `json:"public_links"`
+	DefaultApiKeyShareID uuid.NullUUID         `json:"default_api_key_share_id"`
+	InstitutionID        uuid.UUID             `json:"institution_id"`
+	CreatedBy            uuid.NullUUID         `json:"created_by"`
+	KeyShareCreatedBy    uuid.NullUUID         `json:"key_share_created_by"`
+}
+
+// The workshop behind a public page's slug, while its page is switched on
+// and its organisation is not suspended (by an admin, or for want of a
+// consent to @declaration_*).
+func (q *Queries) V2PublicWorkshop(ctx context.Context, arg V2PublicWorkshopParams) ([]V2PublicWorkshopRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2PublicWorkshop, arg.Slug, arg.DeclarationVersion, arg.DeclarationHash)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2PublicWorkshopRow
+	for rows.Next() {
+		var i V2PublicWorkshopRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.PublicDescription,
+			&i.PublicLinks,
+			&i.DefaultApiKeyShareID,
+			&i.InstitutionID,
+			&i.CreatedBy,
+			&i.KeyShareCreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2PublicWorkshopGames = `-- name: V2PublicWorkshopGames :many
+SELECT g.id, g.name, g.description,
+  (g.system_message_scenario <> '' AND g.system_message_game_start <> '')::bool AS playable
+FROM game g
+WHERE g.workshop_id = $1 AND g.public AND g.deleted_at IS NULL
+ORDER BY LOWER(g.name), g.id
+`
+
+type V2PublicWorkshopGamesRow struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Playable    bool      `json:"playable"`
+}
+
+// The games on a workshop's public page: its public ones; playable when
+// their scenario and opening are written.
+func (q *Queries) V2PublicWorkshopGames(ctx context.Context, workshopID uuid.NullUUID) ([]V2PublicWorkshopGamesRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2PublicWorkshopGames, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2PublicWorkshopGamesRow
+	for rows.Next() {
+		var i V2PublicWorkshopGamesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Playable,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2SeedWorkshop = `-- name: V2SeedWorkshop :one
+
+INSERT INTO workshop (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name, institution_id, active, public, default_api_key_share_id,
+  ai_quality_tier, prompt_constraints, show_public_games,
+  show_other_participants_games, is_paused,
+  allow_game_sharing, public_slug
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6, $7, $8, $9, $10,
+  $11, $12, $13,
+  $14, $15,
+  $16, $17
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, is_paused, allow_game_sharing, public_slug, public_description, public_links
+`
+
+type V2SeedWorkshopParams struct {
+	ID                         uuid.UUID      `json:"id"`
+	CreatedBy                  uuid.NullUUID  `json:"created_by"`
+	CreatedAt                  time.Time      `json:"created_at"`
+	ModifiedBy                 uuid.NullUUID  `json:"modified_by"`
+	ModifiedAt                 time.Time      `json:"modified_at"`
+	Name                       string         `json:"name"`
+	InstitutionID              uuid.UUID      `json:"institution_id"`
+	Active                     bool           `json:"active"`
+	Public                     bool           `json:"public"`
+	DefaultApiKeyShareID       uuid.NullUUID  `json:"default_api_key_share_id"`
+	AiQualityTier              sql.NullString `json:"ai_quality_tier"`
+	PromptConstraints          sql.NullString `json:"prompt_constraints"`
+	ShowPublicGames            bool           `json:"show_public_games"`
+	ShowOtherParticipantsGames bool           `json:"show_other_participants_games"`
+	IsPaused                   bool           `json:"is_paused"`
+	AllowGameSharing           bool           `json:"allow_game_sharing"`
+	PublicSlug                 sql.NullString `json:"public_slug"`
+}
+
+// Carried over from v1 for the core's system jobs (#344).
+func (q *Queries) V2SeedWorkshop(ctx context.Context, arg V2SeedWorkshopParams) (Workshop, error) {
+	row := q.db.QueryRowContext(ctx, v2SeedWorkshop,
+		arg.ID,
+		arg.CreatedBy,
+		arg.CreatedAt,
+		arg.ModifiedBy,
+		arg.ModifiedAt,
+		arg.Name,
+		arg.InstitutionID,
+		arg.Active,
+		arg.Public,
+		arg.DefaultApiKeyShareID,
+		arg.AiQualityTier,
+		arg.PromptConstraints,
+		arg.ShowPublicGames,
+		arg.ShowOtherParticipantsGames,
+		arg.IsPaused,
+		arg.AllowGameSharing,
+		arg.PublicSlug,
+	)
+	var i Workshop
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.InstitutionID,
+		&i.Active,
+		&i.Public,
+		&i.DeletedAt,
+		&i.DefaultApiKeyShareID,
+		&i.AiQualityTier,
+		&i.PromptConstraints,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
+		&i.IsPaused,
+		&i.AllowGameSharing,
+		&i.PublicSlug,
+		&i.PublicDescription,
+		&i.PublicLinks,
+	)
+	return i, err
+}
+
+const v2SoftDeleteWorkshop = `-- name: V2SoftDeleteWorkshop :exec
+UPDATE workshop SET deleted_at = now() WHERE id = $1
+`
+
+func (q *Queries) V2SoftDeleteWorkshop(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, v2SoftDeleteWorkshop, id)
+	return err
+}
+
+const v2UnlinkWorkshopGames = `-- name: V2UnlinkWorkshopGames :exec
+UPDATE game SET workshop_id = NULL WHERE workshop_id = $1
+`
+
+// Its games stay with their creators.
+func (q *Queries) V2UnlinkWorkshopGames(ctx context.Context, workshopID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, v2UnlinkWorkshopGames, workshopID)
+	return err
+}
+
 const v2UpdateWorkshop = `-- name: V2UpdateWorkshop :exec
 UPDATE workshop SET
   -- card
@@ -108,6 +379,35 @@ func (q *Queries) V2UpdateWorkshop(ctx context.Context, arg V2UpdateWorkshopPara
 		arg.ID,
 	)
 	return err
+}
+
+const v2WorkshopGuests = `-- name: V2WorkshopGuests :many
+
+SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'guest'
+`
+
+// Deleting a workshop (core/delete.go).
+func (q *Queries) V2WorkshopGuests(ctx context.Context, workshopID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, v2WorkshopGuests, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var user_id uuid.UUID
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const v2WorkshopNameTaken = `-- name: V2WorkshopNameTaken :one

@@ -41,7 +41,6 @@ import {
   IconPencil,
   IconX,
   IconMail,
-  IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
@@ -79,7 +78,6 @@ import { GuestLinkModal } from "./GuestLinkModal";
 import { PublicPageSettings } from "./PublicPageSettings";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
-import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import {
   type WorkshopView,
@@ -135,10 +133,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
   const [
     emailInviteModalOpened,
     { open: openEmailInviteModal, close: closeEmailInviteModal },
-  ] = useDisclosure(false);
-  const [
-    addIndividualModalOpened,
-    { open: openAddIndividualModal, close: closeAddIndividualModal },
   ] = useDisclosure(false);
   const [emailInviteError, setEmailInviteError] = useState<string | null>(null);
 
@@ -281,11 +275,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
     } catch {
       setEmailInviteError(t("myOrganization.workshops.addIndividualError"));
     }
-  };
-
-  const handleOpenAddIndividualModal = (workshop: WorkshopView) => {
-    setSelectedWorkshop(workshop);
-    openAddIndividualModal();
   };
 
   const handleSetApiKey = async (
@@ -650,19 +639,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                             </ActionIcon>
                           </Tooltip>
                           <Tooltip
-                            label={t("myOrganization.workshops.addIndividual")}
-                          >
-                            <ActionIcon
-                              variant="subtle"
-                              color="gray"
-                              onClick={() =>
-                                handleOpenAddIndividualModal(workshop)
-                              }
-                            >
-                              <IconUserPlus size={16} />
-                            </ActionIcon>
-                          </Tooltip>
-                          <Tooltip
                             label={
                               workshop.active
                                 ? t("myOrganization.workshops.deactivate")
@@ -785,19 +761,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
                             onClick={() => handleOpenEmailInviteModal(workshop)}
                           >
                             <IconMail size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                        <Tooltip
-                          label={t("myOrganization.workshops.addIndividual")}
-                        >
-                          <ActionIcon
-                            variant="subtle"
-                            color="gray"
-                            onClick={() =>
-                              handleOpenAddIndividualModal(workshop)
-                            }
-                          >
-                            <IconUserPlus size={16} />
                           </ActionIcon>
                         </Tooltip>
                         <Tooltip
@@ -1591,16 +1554,6 @@ export function WorkshopsTab({ institutionId, institutionName, institutionPrompt
         isLoading={createEmailInvite.isPending}
         error={emailInviteError}
       />
-
-      {/* Add Individual Modal */}
-      {selectedWorkshop?.id && (
-        <AddIndividualModal
-          opened={addIndividualModalOpened}
-          onClose={closeAddIndividualModal}
-          workshopId={selectedWorkshop.id}
-          institutionId={institutionId}
-        />
-      )}
 
       {/* Auto-share personal key confirmation */}
       <AutoShareConfirmModal

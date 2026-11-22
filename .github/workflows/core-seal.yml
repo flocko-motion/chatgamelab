@@ -1,0 +1,45 @@
+name: Core seal
+
+# Labels pull requests that touch the seal (the paths in .github/CODEOWNERS)
+# "core", so they stand out in the list. Whether one may merge is the
+# ruleset's question: it needs the owner's approval, given as a bypass merge
+# (see docs/workflows/opening-the-seal.md). The tests that guard the rules run
+# in Tests, for every pull request.
+#
+# pull_request_target runs the copy on the default branch, so a pull request
+# cannot change what labels it. Nothing here checks out or runs its code.
+on:
+  pull_request_target:
+    branches:
+      - v2/development
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  issues: write # labels belong to issues
+
+jobs:
+  label:
+    name: core-seal
+    runs-on: ubuntu-latest
+    steps:
+      - name: label pull requests touching the seal
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          sealed='^(go/core/|go/db/|go/app/app\.go$|testing/permission_matrix_test\.go$|testing/guest_place_test\.go$|scripts/test\.sh$|\.github/CODEOWNERS$|\.github/workflows/|\.claude/settings\.json$)'
+          touched=$(gh api --paginate "repos/$GH_REPO/pulls/$PR/files" -q '.[].filename' | grep -E "$sealed" || true)
+          if [ -z "$touched" ]; then
+            echo "The seal is untouched."
+            exit 0
+          fi
+          echo "Touches the seal:"; echo "$touched"
+          gh label create core --color B60205 --description "touches the secure core: needs the owner's approval" 2>/dev/null || true
+          gh pr edit "$PR" --add-label core
+          {
+            echo "## Touches the seal"
+            echo "Needs the owner's approval (bypass merge):"
+            echo '```'; echo "$touched"; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

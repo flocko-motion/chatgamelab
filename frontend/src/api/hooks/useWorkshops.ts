@@ -314,27 +314,3 @@ export function useCreateWorkshopEmailInvite() {
   });
 }
 
-/**
- * Hook to directly add an org individual to a workshop
- */
-export function useAddMemberToWorkshop() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: { workshopId: string; userId: string }) => {
-      const response = await api.postApiWorkshopsIdMembers(data.workshopId, {
-        userId: data.userId,
-      });
-      return response.data;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["workshops"] });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.workshop(variables.workshopId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["institution-members"],
-      });
-    },
-  });
-}

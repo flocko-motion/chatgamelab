@@ -90,3 +90,71 @@ SELECT EXISTS (
   SELECT 1 FROM workshop
   WHERE institution_id = @institution_id AND name = @name::text AND id <> @id::uuid
 )::bool AS taken;
+
+-- name: V2PublicWorkshop :many
+-- The workshop behind a public page's slug, while its page is switched on
+-- and its organisation is not suspended (by an admin, or for want of a
+-- consent to @declaration_*).
+SELECT w.id, w.name, w.public_description, w.public_links, w.default_api_key_share_id,
+  w.institution_id, w.created_by, ks.created_by AS key_share_created_by
+FROM workshop w
+JOIN institution i ON i.id = w.institution_id
+LEFT JOIN api_key_share ks ON ks.id = w.default_api_key_share_id
+WHERE w.public_slug = @slug AND w.deleted_at IS NULL AND w.public
+  AND i.suspended_at IS NULL
+  AND NOT institution_consent_missing(i.id, @declaration_version::text, @declaration_hash::text);
+
+-- name: V2PublicSlugExists :one
+-- Deleted workshops keep their slug, so an old link never points at a new workshop.
+SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = @slug)::bool;
+
+-- name: V2PublicWorkshopGames :many
+-- The games on a workshop's public page: its public ones; playable when
+-- their scenario and opening are written.
+SELECT g.id, g.name, g.description,
+  (g.system_message_scenario <> '' AND g.system_message_game_start <> '')::bool AS playable
+FROM game g
+WHERE g.workshop_id = @workshop_id AND g.public AND g.deleted_at IS NULL
+ORDER BY LOWER(g.name), g.id;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2GetWorkshopByID :one
+SELECT * FROM workshop WHERE id = $1 AND deleted_at IS NULL;
+
+-- Deleting a workshop (core/delete.go).
+
+-- name: V2WorkshopGuests :many
+SELECT user_id FROM user_role WHERE workshop_id = @workshop_id AND role = 'guest';
+
+-- name: V2LeaveDeletedWorkshop :exec
+-- Whoever works in the workshop (head, staff, an individual taking part)
+-- leaves it.
+UPDATE user_role SET active_workshop_id = NULL, modified_at = now() WHERE active_workshop_id = @workshop_id;
+
+-- name: V2UnlinkWorkshopGames :exec
+-- Its games stay with their creators.
+UPDATE game SET workshop_id = NULL WHERE workshop_id = @workshop_id;
+
+-- name: V2SoftDeleteWorkshop :exec
+UPDATE workshop SET deleted_at = now() WHERE id = @id;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2SeedWorkshop :one
+INSERT INTO workshop (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  name, institution_id, active, public, default_api_key_share_id,
+  ai_quality_tier, prompt_constraints, show_public_games,
+  show_other_participants_games, is_paused,
+  allow_game_sharing, public_slug
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6, $7, $8, $9, $10,
+  $11, $12, $13,
+  $14, $15,
+  $16, $17
+)
+RETURNING *;

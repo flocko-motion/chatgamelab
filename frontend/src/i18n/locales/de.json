@@ -34,11 +34,11 @@
     },
     "guest": {
       "leaveConfirm": {
-        "confirm": "Workshop verlassen",
-        "message": "Bist du sicher, dass du diesen Workshop verlassen möchtest? Du benötigst einen neuen Einladungslink, um erneut beizutreten.",
-        "title": "Workshop verlassen?"
+        "confirm": "Abmelden",
+        "message": "Du bleibst in diesem Workshop. Mit deinem Code meldest du dich jederzeit wieder an, auf jedem Gerät: unter „Code eingeben“ auf der Startseite.",
+        "title": "Abmelden?"
       },
-      "leaveWorkshop": "Workshop verlassen",
+      "leaveWorkshop": "Abmelden",
       "organization": "Organisation",
       "role": "Gast",
       "workshop": "Workshop"
@@ -844,6 +844,7 @@
         "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut.",
         "expired": "Dieser Einladungslink ist abgelaufen.",
         "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
+        "guestStays": "Als Gast bleibst du dort, wo du beigetreten bist. Um bei einem anderen Workshop mitzumachen, öffne seinen Einladungslink, ohne dich anzumelden: Du trittst ihm als neuer Gast bei.",
         "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
         "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen."
       },
@@ -854,13 +855,6 @@
       "success": {
         "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung...",
         "title": "Willkommen!"
-      },
-      "switchWorkshop": {
-        "message": "Deine Spiele und Fortschritte im aktuellen Workshop bleiben erhalten, aber du kannst nicht mehr darauf zugreifen, bis du wieder beitrittst.",
-        "stayButton": "Im aktuellen Workshop bleiben",
-        "switchButton": "Workshop wechseln",
-        "title": "Workshop wechseln?",
-        "warning": "Du bist derzeit im Workshop \"{{currentWorkshop}}\". Wenn du \"{{newWorkshop}}\" beitrittst, wirst du deinen aktuellen Workshop verlassen."
       }
     },
     "labels": {
@@ -961,9 +955,6 @@
       "inviteTeacher": "Lehrer einladen",
       "inviteTeacherDescription": "Senden Sie eine Einladung an einen Lehrer, Ihrer Organisation beizutreten.",
       "inviteTeacherTitle": "Lehrer einladen",
-      "inviteUser": "Benutzer einladen",
-      "inviteUserDescription": "Senden Sie eine Einladung an einen Benutzer, Ihrer Organisation ohne spezifische Rolle beizutreten.",
-      "inviteUserTitle": "Benutzer einladen",
       "lastHeadError": "Sie sind der letzte Leiter dieser Organisation. Bitte kontaktieren Sie die Seitenadministratoren, wenn Sie die Organisation verlassen möchten.",
       "leaveConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" verlassen möchten?",
       "leaveError": "Die Organisation konnte nicht verlassen werden. Bitte versuchen Sie es erneut.",
@@ -1010,13 +1001,7 @@
         "active": "Aktiv",
         "activeDescription": "Aktive Workshops ermöglichen es Teilnehmern beizutreten und Spiele zu erstellen.",
         "activeLabel": "Aktiv",
-        "addIndividual": "Organisationsmitglied hinzufügen",
         "addIndividualError": "Mitglied konnte nicht zum Workshop hinzugefügt werden.",
-        "addIndividualHint": "Das Hinzufügen eines Benutzers versetzt ihn automatisch in den Workshop-Modus. Er sieht die Workshop-Ansicht anstelle seines regulären Dashboards. Nur verwenden, wenn beabsichtigt.",
-        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten - sie werden hier nicht aufgeführt.",
-        "addIndividualSuccess": "Mitglied hinzugefügt",
-        "addIndividualSuccessMessage": "{{name}} wurde zum Workshop hinzugefügt.",
-        "addIndividualTitle": "Person zum Workshop hinzufügen",
         "addToWorkshop": "Zum Workshop hinzufügen",
         "aiQualityTierHint": "Qualitätsstufe für KI-Antworten. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer verwendet die Servereinstellung.",
         "allowGameSharing": "Spielfreigabe erlauben",
@@ -1405,7 +1390,8 @@
       "tokenLocked": "Vorübergehend gesperrt",
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv",
-      "organisationSuspended": "Organisation ausgesetzt"
+      "organisationSuspended": "Organisation ausgesetzt",
+      "guestStays": "Du bleibst, wo du bist"
     },
     "tokenLocked": "Zu viele Fehlversuche – bitte später erneut versuchen.",
     "unauthorized": "Bitte melde dich an, um fortzufahren.",
@@ -1416,7 +1402,8 @@
     "publicSlugTaken": "Dieser Link ist schon vergeben.",
     "publicSlugInvalid": "Erlaubt sind a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
     "publicDescriptionTooLong": "Die Beschreibung darf höchstens 2000 Zeichen lang sein.",
-    "organisationSuspended": "Deine Organisation ist ausgesetzt. Deine Daten bleiben erhalten."
+    "organisationSuspended": "Deine Organisation ist ausgesetzt. Deine Daten bleiben erhalten.",
+    "guestStays": "Als Gast bleibst du dort, wo du beigetreten bist. Um bei einem anderen Workshop mitzumachen, öffne seinen Einladungslink, ohne dich anzumelden: Du trittst ihm als neuer Gast bei."
   },
   "myWorkshop": {
     "empty": {

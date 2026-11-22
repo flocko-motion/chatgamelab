@@ -95,15 +95,13 @@ func (s *WorkshopInviteMethodsTestSuite) TestStaffCanInviteByEmailToWorkshop() {
 	_ = head // used in setup
 }
 
+// An individual (in no organisation) takes part in a workshop through an
+// email invite and keeps their role: taking part makes no one part of the
+// organisation.
 func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteIndividualEntersWorkshopMode() {
 	head, instID, wsID := s.workshopSetup("email-ind")
-	admin := s.DevUser()
 
-	// Create an individual in the org
 	individual := s.CreateUser("email-ind-user")
-	indInvite := Must(admin.InviteToInstitution(instID, "individual", individual.ID))
-	Must(individual.AcceptInvite(indInvite.Id.String()))
-
 	me := Must(individual.GetMe())
 	s.Equal("individual", me.Role.Role, "should be individual")
 
@@ -116,9 +114,11 @@ func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteIndividualEntersWorkshop
 	// Should enter workshop mode without role change
 	me = Must(individual.GetMe())
 	s.Equal("individual", me.Role.Role, "role should stay individual")
+	for _, m := range Must(head.GetInstitutionMembers(instID)) {
+		s.NotEqual(individual.ID, m.Id.String(), "taking part makes no one part of the organisation")
+	}
 	s.Require().NotNil(me.Role.Workshop, "should have active workshop")
 	s.Equal(wsID, me.Role.Workshop.Id.String(), "should be in the right workshop")
-	s.T().Logf("Individual entered workshop mode via email invite")
 }
 
 func (s *WorkshopInviteMethodsTestSuite) TestEmailInviteNewUserKeepsIndividualRole() {
@@ -211,115 +211,3 @@ func (s *WorkshopInviteMethodsTestSuite) TestGuestCannotInviteByEmail() {
 }
 
 // --- Add org individual tests ---
-
-func (s *WorkshopInviteMethodsTestSuite) TestHeadCanAddIndividualToWorkshop() {
-	head, instID, wsID := s.workshopSetup("add-head")
-	admin := s.DevUser()
-
-	// Create an individual in the org
-	individual := s.CreateUser("add-ind-user")
-	indInvite := Must(admin.InviteToInstitution(instID, "individual", individual.ID))
-	Must(individual.AcceptInvite(indInvite.Id.String()))
-
-	// Head adds individual directly
-	err := head.AddMemberToWorkshop(wsID, individual.ID)
-	s.NoError(err, "head should be able to add individual to workshop")
-
-	// Individual should now be in workshop mode
-	me := Must(individual.GetMe())
-	s.Equal("individual", me.Role.Role, "role should stay individual")
-	s.Require().NotNil(me.Role.Workshop, "should have active workshop")
-	s.Equal(wsID, me.Role.Workshop.Id.String(), "should be in the right workshop")
-	s.T().Logf("Head added individual to workshop directly")
-}
-
-func (s *WorkshopInviteMethodsTestSuite) TestStaffCanAddIndividualToWorkshop() {
-	_, instID, wsID := s.workshopSetup("add-staff")
-	admin := s.DevUser()
-
-	// Create a staff user
-	staff := s.CreateUser("add-staff-user")
-	staffInvite := Must(admin.InviteToInstitution(instID, "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.Id.String()))
-
-	// Create an individual in the org
-	individual := s.CreateUser("add-staff-ind")
-	indInvite := Must(admin.InviteToInstitution(instID, "individual", individual.ID))
-	Must(individual.AcceptInvite(indInvite.Id.String()))
-
-	// Staff adds individual
-	err := staff.AddMemberToWorkshop(wsID, individual.ID)
-	s.NoError(err, "staff should be able to add individual to workshop")
-
-	me := Must(individual.GetMe())
-	s.Require().NotNil(me.Role.Workshop, "should have active workshop")
-	s.Equal(wsID, me.Role.Workshop.Id.String())
-	s.T().Logf("Staff added individual to workshop")
-}
-
-func (s *WorkshopInviteMethodsTestSuite) TestCannotAddNonIndividual() {
-	head, instID, wsID := s.workshopSetup("add-nonind")
-	admin := s.DevUser()
-
-	// Create a staff user in the org
-	staff := s.CreateUser("add-nonind-staff")
-	staffInvite := Must(admin.InviteToInstitution(instID, "staff", staff.ID))
-	Must(staff.AcceptInvite(staffInvite.Id.String()))
-
-	// Head tries to add staff via AddMemberToWorkshop — should fail
-	err := head.AddMemberToWorkshop(wsID, staff.ID)
-	s.Invalid(err, "should not be able to add non-individual to workshop")
-}
-
-func (s *WorkshopInviteMethodsTestSuite) TestCannotAddUserFromDifferentOrg() {
-	head, _, wsID := s.workshopSetup("add-difforg")
-	admin := s.DevUser()
-
-	// Create a different org with an individual
-	otherInst := Must(admin.CreateInstitution("Other Org"))
-	otherInd := s.CreateUser("add-other-ind")
-	otherInvite := Must(admin.InviteToInstitution(otherInst.Id.String(), "individual", otherInd.ID))
-	Must(otherInd.AcceptInvite(otherInvite.Id.String()))
-
-	// Head tries to add individual from different org — should fail
-	err := head.AddMemberToWorkshop(wsID, otherInd.ID)
-	s.NotFound(err, "should not be able to add user from different org: for the head, they do not exist")
-}
-
-func (s *WorkshopInviteMethodsTestSuite) TestGuestCannotAddMember() {
-	head, _, wsID := s.workshopSetup("add-perm")
-
-	// Create a workshop invite link and have someone join as guest
-	invite := Must(head.CreateWorkshopInvite(wsID))
-	s.Require().NotNil(invite.InviteToken)
-
-	guest := Must(s.JoinWorkshop(*invite.InviteToken))
-
-	// Guest tries to add a member — should fail
-	target := s.CreateUser("add-perm-target")
-	err := guest.AddMemberToWorkshop(wsID, target.ID)
-	s.Forbidden(err, "guest should not be able to add members")
-}
-
-func (s *WorkshopInviteMethodsTestSuite) TestAddedIndividualCanLeaveWorkshop() {
-	head, instID, wsID := s.workshopSetup("add-leave")
-	admin := s.DevUser()
-
-	// Create an individual in the org
-	individual := s.CreateUser("add-leave-ind")
-	indInvite := Must(admin.InviteToInstitution(instID, "individual", individual.ID))
-	Must(individual.AcceptInvite(indInvite.Id.String()))
-
-	// Head adds individual
-	MustSucceed(head.AddMemberToWorkshop(wsID, individual.ID))
-
-	me := Must(individual.GetMe())
-	s.Require().NotNil(me.Role.Workshop, "should be in workshop after being added")
-
-	// Individual leaves workshop
-	Must(individual.SetActiveWorkshop(nil))
-	me = Must(individual.GetMe())
-	s.Nil(me.Role.Workshop, "should have no workshop after leaving")
-	s.Equal("individual", me.Role.Role, "role should still be individual")
-	s.T().Logf("Individual left workshop after being directly added")
-}

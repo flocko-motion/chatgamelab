@@ -34,11 +34,11 @@
     },
     "guest": {
       "leaveConfirm": {
-        "confirm": "Leave Workshop",
-        "message": "Are you sure you want to leave this workshop? You will need a new invite link to rejoin.",
-        "title": "Leave Workshop?"
+        "confirm": "Sign out",
+        "message": "You stay in this workshop. With your code you sign in again at any time, on any device: under “Enter code” on the home page.",
+        "title": "Sign out?"
       },
-      "leaveWorkshop": "Leave Workshop",
+      "leaveWorkshop": "Sign out",
       "organization": "Organization",
       "role": "Guest",
       "workshop": "Workshop"
@@ -844,6 +844,7 @@
         "acceptFailed": "Failed to accept invite. Please try again.",
         "expired": "This invite link has expired.",
         "loadFailed": "Failed to load invite details. Please try again.",
+        "guestStays": "As a guest, you stay where you joined. To take part in another workshop, open its invite link without signing in: you join it as a new guest.",
         "notFound": "This invite link is invalid or has been revoked.",
         "tokenLocked": "Too many failed attempts – please try again later."
       },
@@ -854,13 +855,6 @@
       "success": {
         "message": "You've successfully joined the workshop. Redirecting...",
         "title": "Welcome!"
-      },
-      "switchWorkshop": {
-        "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",
-        "stayButton": "Stay in Current Workshop",
-        "switchButton": "Switch Workshop",
-        "title": "Switch Workshop?",
-        "warning": "You are currently in workshop \"{{currentWorkshop}}\". Joining \"{{newWorkshop}}\" will remove you from your current workshop."
       }
     },
     "labels": {
@@ -961,9 +955,6 @@
       "inviteTeacher": "Invite Teacher",
       "inviteTeacherDescription": "Send an invitation to a teacher to join your organization.",
       "inviteTeacherTitle": "Invite Teacher",
-      "inviteUser": "Invite User",
-      "inviteUserDescription": "Send an invitation to a user to join your organization without a specific role.",
-      "inviteUserTitle": "Invite User",
       "lastHeadError": "You are the last head of this organization. Please contact the site administrators if you need to leave.",
       "leaveConfirm": "Are you sure you want to leave \"{{name}}\"?",
       "leaveError": "Failed to leave the organization. Please try again.",
@@ -1010,13 +1001,7 @@
         "active": "Active",
         "activeDescription": "Active workshops allow participants to join and create games.",
         "activeLabel": "Active",
-        "addIndividual": "Add Organization Member",
         "addIndividualError": "Failed to add member to workshop.",
-        "addIndividualHint": "Adding a user will put them into workshop mode automatically. They will see the workshop view instead of their regular dashboard. Only do this if intended.",
-        "addIndividualStaffNote": "Heads and teachers should join workshops via the workshop list on their own - they are not listed here.",
-        "addIndividualSuccess": "Member Added",
-        "addIndividualSuccessMessage": "{{name}} has been added to the workshop.",
-        "addIndividualTitle": "Add Individual to Workshop",
         "addToWorkshop": "Add to workshop",
         "aiQualityTierHint": "Quality level for AI responses. Higher tiers cost more but may have higher quality. Empty uses server default.",
         "allowGameSharing": "Allow game sharing",
@@ -1405,7 +1390,8 @@
       "tokenLocked": "Temporarily locked",
       "validation": "Validation Error",
       "workshopInactive": "Workshop Inactive",
-      "organisationSuspended": "Organisation suspended"
+      "organisationSuspended": "Organisation suspended",
+      "guestStays": "You stay where you are"
     },
     "tokenLocked": "Too many failed attempts – please try again later.",
     "unauthorized": "Please log in to continue.",
@@ -1416,7 +1402,8 @@
     "publicSlugTaken": "This link is already taken.",
     "publicSlugInvalid": "Use a–z, 0–9 and single hyphens, 3 to 60 characters.",
     "publicDescriptionTooLong": "The description may be at most 2000 characters long.",
-    "organisationSuspended": "Your organisation is suspended. Your data is kept."
+    "organisationSuspended": "Your organisation is suspended. Your data is kept.",
+    "guestStays": "As a guest, you stay where you joined. To take part in another workshop, open its invite link without signing in: you join it as a new guest."
   },
   "myWorkshop": {
     "empty": {

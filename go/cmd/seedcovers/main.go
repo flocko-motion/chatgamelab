@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"cgl/db"
+	"cgl/core"
 	"cgl/picture"
 	"engine"
 )
@@ -41,7 +41,7 @@ func main() {
 	if err != nil {
 		fail(err)
 	}
-	paths, err := db.DevGameFiles()
+	paths, err := core.DevGameFiles()
 	if err != nil {
 		fail(err)
 	}
@@ -63,7 +63,7 @@ func main() {
 		if flag.NArg() > 0 && !slices.Contains(flag.Args(), name) {
 			continue
 		}
-		out := db.DevCoverPath(path)
+		out := core.DevCoverPath(path)
 		if _, err := os.Stat(out); err == nil && !*force {
 			continue
 		}
@@ -86,7 +86,7 @@ func main() {
 // draw draws the cover of the game file at path and writes it to out;
 // it returns what it cost.
 func draw(path, out string, offer engine.Offer) (float64, error) {
-	file, err := db.ReadGameFile(path)
+	file, err := core.ReadGameFile(path)
 	if err != nil {
 		return 0, err
 	}
@@ -94,7 +94,7 @@ func draw(path, out string, offer engine.Offer) (float64, error) {
 	defer cancel()
 	cover, err := engine.MakeCover(ctx, engine.CoverSpec{
 		Title: file.Name, Description: file.Description, Scenario: file.SystemMessageScenario,
-		ImageStyle: file.ImageStyle, Guardrail: db.DevSiteConstraintU13,
+		ImageStyle: file.ImageStyle, Guardrail: core.DevSiteConstraintU13,
 	}, offer)
 	cost := cover.Usage.TotalCost
 	if err != nil {
@@ -108,12 +108,12 @@ func draw(path, out string, offer engine.Offer) (float64, error) {
 }
 
 // openAIKey is the key from OPENAI_API_KEY, else the one in the developer's
-// config, ~/.chatgamelab/config.yaml (db.DevPlatformKey).
+// config, ~/.chatgamelab/config.yaml (core.DevPlatformKey).
 func openAIKey() (string, error) {
 	if key := os.Getenv("OPENAI_API_KEY"); key != "" {
 		return key, nil
 	}
-	key, err := db.DevPlatformKey("openai")
+	key, err := core.DevPlatformKey("openai")
 	if err != nil {
 		return "", err
 	}

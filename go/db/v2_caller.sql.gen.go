@@ -76,8 +76,8 @@ type V2ReadCallerRow struct {
 // account, a guest's last, newest first.
 // the workshop the caller is in: a guest's own, or the one entered in workshop mode
 // the organisation that may be suspended for the caller: a head's or staff's
-// own, a guest's through their workshop; an individual of it keeps working
-// (v1). It is suspended by an admin, or while its newest entry in the
+// own, a guest's through their workshop. An individual taking part in a
+// workshop is in no organisation and keeps working. It is suspended by an admin, or while its newest entry in the
 // consent log is no consent to the current declaration (@declaration_*).
 func (q *Queries) V2ReadCaller(ctx context.Context, arg V2ReadCallerParams) (V2ReadCallerRow, error) {
 	row := q.db.QueryRowContext(ctx, v2ReadCaller, arg.DeclarationVersion, arg.DeclarationHash, arg.ID)

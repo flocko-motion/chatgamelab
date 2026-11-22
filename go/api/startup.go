@@ -1,14 +1,13 @@
 // package: api / background services
 // type:    wiring
-// job:     prepares the platform once schemaf has the database up: telemetry, dev logging and preseed, admin promotions; flushes telemetry at shutdown
-// limits:  schemaf opens the database and serves HTTP; the preseed and promotions live in db
+// job:     prepares the platform once schemaf has the database up: telemetry and dev logging; ends the engine's sessions and flushes telemetry at shutdown
+// limits:  schemaf opens the database and serves HTTP; the data jobs (preseed, first admin, purge) are the core's services (core/system.go)
 package api
 
 import (
 	"context"
 	"time"
 
-	"cgl/db"
 	"cgl/log"
 	"cgl/mail"
 	"cgl/telemetry"
@@ -25,9 +24,7 @@ func Startup(ctx context.Context) {
 		log.SetDebug(true)
 		log.Info("development mode enabled", "debug_logging", true)
 		mail.KeepSent()
-		db.Preseed(ctx)
 	}
-	db.PromoteAdminEmails(ctx)
 
 	<-ctx.Done()
 	// The server is stopping; the database stays open until the services

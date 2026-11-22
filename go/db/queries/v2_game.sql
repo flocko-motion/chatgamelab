@@ -182,3 +182,40 @@ INSERT INTO game_cover (game_id, image, created_by, created_at)
 VALUES (@game_id::uuid, @image::bytea, @created_by::uuid, now())
 ON CONFLICT (game_id) DO UPDATE SET
   image = EXCLUDED.image, created_by = EXCLUDED.created_by, created_at = now();
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2DeleteFavoritesByGameID :exec
+DELETE FROM user_favourite_game WHERE game_id = $1;
+
+-- name: V2DeleteGameTagsByGameID :exec
+DELETE FROM game_tag WHERE game_id = $1;
+
+-- name: V2IncrementGameCloneCount :exec
+UPDATE game SET clone_count = clone_count + 1 WHERE id = $1;
+
+-- name: V2SoftDeleteGame :exec
+UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1;
+
+-- name: V2HardDeleteGame :exec
+-- A game gone for good, with its deleted creator's account.
+DELETE FROM game WHERE id = @id;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2SeedGameHistory :exec
+-- Development seeding only: gives a demo game a past, so lists have
+-- something to sort by.
+UPDATE game SET created_at = $2, modified_at = $3, play_count = $4 WHERE id = $1;
+
+-- name: V2GameNamesCreatedBy :many
+-- A user's games by name (the dev preseed matches demo covers to them).
+SELECT id, name FROM game WHERE created_by = @user_id AND deleted_at IS NULL;
+
+-- name: V2DeleteGameCover :exec
+-- A game's cover goes with the game, when it goes for good.
+DELETE FROM game_cover WHERE game_id = @game_id;
+
+-- name: V2ClearCoverCreator :exec
+-- Covers someone drew stay with their games when the account goes.
+UPDATE game_cover SET created_by = NULL WHERE created_by = @user_id;

@@ -104,7 +104,7 @@ func ReadInviteByLink(ctx context.Context, token string) (*InviteCard, error) {
 // word form. A token found in neither form counts as a guess (tokenlock).
 func resolveInviteToken(ctx context.Context, token string) (string, error) {
 	for _, candidate := range []string{token, wordtoken.Normalize(token)} {
-		ok, err := store.Queries().InviteTokenExists(ctx, sql.NullString{String: candidate, Valid: true})
+		ok, err := store.Queries().V2InviteTokenExists(ctx, sql.NullString{String: candidate, Valid: true})
 		if err != nil {
 			return "", err
 		}
@@ -158,7 +158,10 @@ func loadInvites(ctx context.Context, p db.V2InvitesParams) ([]*InviteCard, erro
 }
 
 // The roles an organisation invites as.
-var organisationRoles = []string{string(obj.RoleHead), string(obj.RoleStaff), string(obj.RoleIndividual)}
+// organisationRoles are what an organisation invites as: head and staff are
+// in an organisation, an individual is in none. An individual who accepts
+// becomes head or staff.
+var organisationRoles = []string{string(obj.RoleHead), string(obj.RoleStaff)}
 
 // OrganisationInvite is an invite into an organisation: the role, and the
 // account it is for, by id or email.
@@ -175,7 +178,7 @@ type OrganisationInvite struct {
 // The account must exist; one with a pending invite there is refused (409).
 func InviteToOrganisation(ctx context.Context, in OrganisationInvite) (*InviteCard, error) {
 	if !contains(organisationRoles, in.Role) {
-		return nil, refuse("an organisation invites as head, staff or individual, not %q", in.Role)
+		return nil, refuse("an organisation invites as head or staff, not %q", in.Role)
 	}
 	if !mayCreateInvite(ctx, in.Organisation, in.Role == string(obj.RoleHead)) {
 		return nil, forbidden("you may not invite into this organisation as %s", in.Role)
@@ -187,7 +190,7 @@ func InviteToOrganisation(ctx context.Context, in OrganisationInvite) (*InviteCa
 	if err := checkNoPendingInvite(ctx, in.Organisation, user, in.Email, nil); err != nil {
 		return nil, err
 	}
-	created, err := store.Queries().CreateTargetedInvite(ctx, db.CreateTargetedInviteParams{
+	created, err := store.Queries().V2CreateTargetedInvite(ctx, db.V2CreateTargetedInviteParams{
 		CreatedBy:     account(ctx),
 		InstitutionID: in.Organisation,
 		Role:          in.Role,
@@ -221,7 +224,7 @@ func InviteToWorkshop(ctx context.Context, l WorkshopLink) (*InviteCard, error) 
 		return nil, forbidden("you may not invite into this workshop")
 	}
 	q := store.Queries()
-	existing, err := q.GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: l.Workshop, Valid: true})
+	existing, err := q.V2GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: l.Workshop, Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -237,12 +240,12 @@ func InviteToWorkshop(ctx context.Context, l WorkshopLink) (*InviteCard, error) 
 	}
 	// 3 words = 33 bits; guessing is bounded by the token lock
 	token, err := wordtoken.GenerateUnique(ctx, 3, func(ctx context.Context, t string) (bool, error) {
-		return q.InviteTokenExists(ctx, sql.NullString{String: t, Valid: true})
+		return q.V2InviteTokenExists(ctx, sql.NullString{String: t, Valid: true})
 	})
 	if err != nil {
 		return nil, err
 	}
-	params := db.CreateOpenInviteParams{
+	params := db.V2CreateOpenInviteParams{
 		CreatedBy:     account(ctx),
 		InstitutionID: w.row.organisationID,
 		Role:          string(obj.RoleGuest),
@@ -255,7 +258,7 @@ func InviteToWorkshop(ctx context.Context, l WorkshopLink) (*InviteCard, error) 
 	if l.Expires != nil {
 		params.ExpiresAt = sql.NullTime{Time: *l.Expires, Valid: true}
 	}
-	created, err := q.CreateOpenInvite(ctx, params)
+	created, err := q.V2CreateOpenInvite(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +294,7 @@ func InviteToWorkshopByEmail(ctx context.Context, workshop uuid.UUID, email stri
 	if err := checkNoPendingInvite(ctx, w.row.organisationID, user, &email, &workshop); err != nil {
 		return nil, err
 	}
-	created, err := store.Queries().CreateTargetedInvite(ctx, db.CreateTargetedInviteParams{
+	created, err := store.Queries().V2CreateTargetedInvite(ctx, db.V2CreateTargetedInviteParams{
 		CreatedBy:     account(ctx),
 		InstitutionID: w.row.organisationID,
 		Role:          string(obj.RoleGuest),
@@ -309,7 +312,7 @@ func InviteToWorkshopByEmail(ctx context.Context, workshop uuid.UUID, email stri
 // email, which must exist.
 func inviteeOf(ctx context.Context, id *uuid.UUID, email *string) (uuid.UUID, error) {
 	if email != nil {
-		u, err := store.Queries().GetUserByEmail(ctx, sql.NullString{String: *email, Valid: true})
+		u, err := store.Queries().V2GetUserByEmail(ctx, sql.NullString{String: *email, Valid: true})
 		if errors.Is(err, sql.ErrNoRows) {
 			return uuid.Nil, ErrNotFound
 		}
@@ -325,7 +328,7 @@ func inviteeOf(ctx context.Context, id *uuid.UUID, email *string) (uuid.UUID, er
 // pending one into the organisation; with workshop, only one into that
 // workshop.
 func checkNoPendingInvite(ctx context.Context, org, user uuid.UUID, email *string, workshop *uuid.UUID) error {
-	existing, err := store.Queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
+	existing, err := store.Queries().V2GetPendingInviteByTarget(ctx, db.V2GetPendingInviteByTargetParams{
 		InstitutionID: org,
 		InvitedUserID: uuid.NullUUID{UUID: user, Valid: true},
 		InvitedEmail:  sqlString(email),
@@ -373,9 +376,12 @@ type NewGuest struct {
 //     signed in at once.
 //   - An email invite to a workshop gives no role: it enters the workshop
 //     (EnterWorkshop), which takes the right to.
-//   - Following a link, a member of an organisation (head, staff,
-//     individual) keeps their role and works in the workshop; anyone else
-//     takes its role: a guest of another workshop moves.
+//   - Following a workshop's link, head, staff and individuals keep their
+//     role and work in the workshop: taking part makes no one part of its
+//     organisation. Anyone else takes its role.
+//   - A guest accepts none: a guest's place is fixed. A guest of a share
+//     link is in no workshop, a workshop's guest in theirs, and neither
+//     enters or leaves one; that is what tells the two apart.
 //   - Any other targeted invite gives its role, which replaces the
 //     account's.
 func AcceptInvite(ctx context.Context, idOrToken string, language string) (AcceptedInvite, error) {
@@ -390,17 +396,22 @@ func AcceptInvite(ctx context.Context, idOrToken string, language string) (Accep
 	switch {
 	case c.Account() == nil:
 		return joinAsGuest(ctx, inv, language)
+	case c.Role() == rules.Guest:
+		if inv.WorkshopID != nil && c.CurrentWorkshop() != nil && *c.CurrentWorkshop() == *inv.WorkshopID {
+			return AcceptedInvite{}, conflict(obj.ErrCodeConflict, "you are in this workshop already")
+		}
+		return AcceptedInvite{}, forbiddenWith(obj.ErrCodeGuestStays, "a guest stays where they are")
 	case inv.WorkshopID != nil && !inv.open():
 		// an email invite to a workshop gives no role: it enters it
-		if err := EnterWorkshop(ctx, *inv.WorkshopID); err != nil {
+		if err := enterWorkshop(ctx, *inv.WorkshopID, true); err != nil {
 			return AcceptedInvite{}, err
 		}
-		if err := store.Queries().AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)}); err != nil {
+		if err := store.Queries().V2AcceptTargetedInvite(ctx, db.V2AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)}); err != nil {
 			return AcceptedInvite{}, err
 		}
 		return AcceptedInvite{Message: "Workshop entered"}, nil
 	case keepsRole(ctx) && inv.WorkshopID != nil:
-		if err := EnterWorkshop(ctx, *inv.WorkshopID); err != nil {
+		if err := enterWorkshop(ctx, *inv.WorkshopID, true); err != nil {
 			return AcceptedInvite{}, err
 		}
 		return AcceptedInvite{Message: "Workshop entered"}, nil
@@ -410,8 +421,8 @@ func AcceptInvite(ctx context.Context, idOrToken string, language string) (Accep
 	return AcceptedInvite{Message: "Invite accepted"}, takeTargetedInvite(ctx, inv)
 }
 
-// keepsRole says whether the caller is a member of an organisation, who
-// works in a workshop instead of becoming its guest. It is how accepting
+// keepsRole says whether the caller keeps their role in a workshop instead
+// of becoming its guest: head, staff and individuals. It is how accepting
 // behaves, not who may: that is the invite's grants.
 func keepsRole(ctx context.Context) bool {
 	switch from(ctx).Role() {
@@ -450,7 +461,7 @@ func RevokeInvite(ctx context.Context, id uuid.UUID) error {
 	if inv.Status != string(obj.InviteStatusPending) {
 		return conflict(obj.ErrCodeConflict, "only a pending invite is revoked; this one is %s", inv.Status)
 	}
-	return store.Queries().DeleteInvite(ctx, id)
+	return store.Queries().V2DeleteInvite(ctx, id)
 }
 
 // ReadInviteRef reads an invite by its id or, otherwise, its link's token
@@ -490,13 +501,13 @@ func joinAsGuest(ctx context.Context, inv *InviteCard, language string) (Accepte
 		ung.WithSeparator("-"),
 	)
 	name := names.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
-	code, err := db.NewGuestToken(ctx)
+	code, err := newGuestToken(ctx)
 	if err != nil {
 		return AcceptedInvite{}, err
 	}
 	id := uuid.New()
 	err = store.InTx(ctx, func(q *db.Queries) error {
-		if _, err := q.CreateUserWithGuestToken(ctx, db.CreateUserWithGuestTokenParams{
+		if _, err := q.V2CreateUserWithGuestToken(ctx, db.V2CreateUserWithGuestTokenParams{
 			ID:         id,
 			Name:       sql.NullString{String: name, Valid: true},
 			GuestToken: sql.NullString{String: code, Valid: true},
@@ -504,15 +515,14 @@ func joinAsGuest(ctx context.Context, inv *InviteCard, language string) (Accepte
 		}); err != nil {
 			return err
 		}
-		if _, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{
-			UserID:        id,
-			Role:          string(obj.RoleGuest),
-			InstitutionID: uuid.NullUUID{UUID: inv.OrganisationID, Valid: true},
-			WorkshopID:    uuid.NullUUID{UUID: *inv.WorkshopID, Valid: true},
+		if _, err := q.V2CreateUserRole(ctx, db.V2CreateUserRoleParams{
+			UserID:     id,
+			Role:       string(obj.RoleGuest),
+			WorkshopID: uuid.NullUUID{UUID: *inv.WorkshopID, Valid: true}, // a guest's organisation is their workshop's
 		}); err != nil {
 			return err
 		}
-		return q.IncrementInviteUses(ctx, inv.ID)
+		return q.V2IncrementInviteUses(ctx, inv.ID)
 	})
 	if err != nil {
 		return AcceptedInvite{}, err
@@ -544,7 +554,7 @@ func takeOpenInvite(ctx context.Context, inv *InviteCard) error {
 		if err := replaceRole(ctx, q, me.row.id, inv); err != nil {
 			return err
 		}
-		if err := q.IncrementInviteUses(ctx, inv.ID); err != nil {
+		if err := q.V2IncrementInviteUses(ctx, inv.ID); err != nil {
 			return err
 		}
 		if inv.MaxUses != nil && inv.UsesCount+1 >= *inv.MaxUses {
@@ -572,19 +582,21 @@ func takeTargetedInvite(ctx context.Context, inv *InviteCard) error {
 		if err := replaceRole(ctx, q, me, inv); err != nil {
 			return err
 		}
-		return q.AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)})
+		return q.V2AcceptTargetedInvite(ctx, db.V2AcceptTargetedInviteParams{ID: inv.ID, AcceptedBy: account(ctx)})
 	})
 }
 
-// replaceRole makes inv's role the account's only one.
+// replaceRole makes inv's role the account's only one. Only head and staff
+// are in the organisation; a guest is in its workshop.
 func replaceRole(ctx context.Context, q *db.Queries, user uuid.UUID, inv *InviteCard) error {
-	if err := q.DeleteUserRoles(ctx, user); err != nil {
+	if err := q.V2DeleteUserRoles(ctx, user); err != nil {
 		return err
 	}
-	_, err := q.CreateUserRole(ctx, db.CreateUserRoleParams{
+	inOrganisation := inv.Role == string(obj.RoleHead) || inv.Role == string(obj.RoleStaff)
+	_, err := q.V2CreateUserRole(ctx, db.V2CreateUserRoleParams{
 		UserID:        user,
 		Role:          inv.Role,
-		InstitutionID: uuid.NullUUID{UUID: inv.OrganisationID, Valid: true},
+		InstitutionID: uuid.NullUUID{UUID: inv.OrganisationID, Valid: inOrganisation},
 		WorkshopID:    nullUUID(inv.WorkshopID),
 	})
 	return err
@@ -592,7 +604,7 @@ func replaceRole(ctx context.Context, q *db.Queries, user uuid.UUID, inv *Invite
 
 // setInviteStatus records an invite's new status.
 func setInviteStatus(ctx context.Context, q *db.Queries, id uuid.UUID, status obj.InviteStatus) error {
-	return q.UpdateInviteStatus(ctx, db.UpdateInviteStatusParams{ID: id, Status: string(status)})
+	return q.V2UpdateInviteStatus(ctx, db.V2UpdateInviteStatusParams{ID: id, Status: string(status)})
 }
 
 func contains(list []string, s string) bool {

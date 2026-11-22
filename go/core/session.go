@@ -53,7 +53,7 @@ func MySessions(ctx context.Context, search, sortBy string) ([]SessionCard, erro
 	if !me.Valid || !granted(ctx, rules.List, rules.Session, rules.Own) {
 		return []SessionCard{}, nil
 	}
-	rows, err := store.Queries().GetUserGameSessions(ctx, db.GetUserGameSessionsParams{
+	rows, err := store.Queries().V2GetUserGameSessions(ctx, db.V2GetUserGameSessionsParams{
 		UserID: me.UUID, Search: search, SortBy: sortBy,
 	})
 	if err != nil {
@@ -217,11 +217,10 @@ func checkNotPaused(ctx context.Context, workshop *uuid.UUID) error {
 // CountMessage counts a player's message in a session the guard let them
 // play (OpenSession).
 func CountMessage(ctx context.Context, id uuid.UUID) {
-	if err := store.Queries().CountGameSessionMessage(ctx, id); err != nil {
+	if err := store.Queries().V2CountGameSessionMessage(ctx, id); err != nil {
 		log.Warn("failed to count a message", "session_id", id, "error", err)
 	}
 }
-
 
 // MayTuneRuleFrequency is a flag for the playback-engine: whether the caller
 // may change, while playing, how often a session repeats the

@@ -16,10 +16,6 @@ export interface AcceptInviteResp {
   user?: NewGuestView;
 }
 
-export interface AddWorkshopMemberReq {
-  userId: string;
-}
-
 export interface ApiKey {
   /** @format uuid */
   id: string;
@@ -3594,7 +3590,7 @@ export class Api<
       }),
 
     /**
-     * @description key; admins only. The admin's own API key is used directly. A null apiKeyId clears it.
+     * @description key; admins only. Only a key of the admin's own; someone else's is not found. A null apiKeyId clears it.
      *
      * @name PatchApiSystemSettingsFreeUseKey
      * @summary Sets or clears the site-wide free-use API
@@ -3684,7 +3680,7 @@ export class Api<
       }),
 
     /**
-     * @description the caller's account. Heads, staff and individuals enter a workshop by its id; a null workshopId leaves workshop mode.
+     * @description the caller as GET /api/users/me does. Heads, staff and individuals enter a workshop by its id; a null workshopId leaves workshop mode. A guest's place is fixed: a guest neither enters nor leaves one.
      *
      * @name PutApiUsersMeActiveWorkshop
      * @summary Enters or leaves workshop mode and answers with
@@ -3695,7 +3691,7 @@ export class Api<
       data: SetActiveWorkshopReq,
       params: RequestParams = {},
     ) =>
-      this.request<User, Error>({
+      this.request<GetCurrentUserResp, Error>({
         path: `/api/users/me/active-workshop`,
         method: "PUT",
         body: data,
@@ -4102,29 +4098,6 @@ export class Api<
         path: `/api/workshops/${id}/events`,
         method: "GET",
         secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description into it: it becomes the workshop they work in.
-     *
-     * @name PostApiWorkshopsIdMembers
-     * @summary Puts an individual of the workshop's organisation
-     * @request POST:/api/workshops/{id}/members
-     * @secure
-     */
-    postApiWorkshopsIdMembers: (
-      id: string,
-      data: AddWorkshopMemberReq,
-      params: RequestParams = {},
-    ) =>
-      this.request<MessageResp, Error>({
-        path: `/api/workshops/${id}/members`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
         ...params,
       }),
 

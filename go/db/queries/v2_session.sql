@@ -49,7 +49,8 @@ LEFT JOIN user_role r ON r.id = (
 )
 LEFT JOIN workshop w    ON w.id = CASE WHEN r.role = 'guest' THEN r.workshop_id ELSE r.active_workshop_id END
 LEFT JOIN institution wo ON wo.id = w.institution_id
-LEFT JOIN institution o ON o.id = r.institution_id
+-- their organisation (head, staff), or the one of the workshop they take part in
+LEFT JOIN institution o ON o.id = COALESCE(r.institution_id, w.institution_id)
 WHERE u.id = @id;
 
 -- name: V2ShareLinkPlay :many
@@ -71,3 +72,104 @@ WHERE (sqlc.narg(token)::text IS NULL OR gs.token = sqlc.narg(token)::text)
 SELECT w.name AS workshop_name, w.prompt_constraints AS workshop_rule, wo.name AS workshop_organisation_name
 FROM workshop w LEFT JOIN institution wo ON wo.id = w.institution_id
 WHERE w.id = @id;
+
+-- Carried over from v1 unchanged (#344); the core uses these.
+
+-- name: V2CountGameSessionMessage :exec
+UPDATE game_session SET messages_sent = messages_sent + 1, modified_at = now() WHERE id = $1;
+
+-- name: V2CountUserGameSessions :one
+SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1;
+
+-- name: V2DeleteGameSessionsByGameID :many
+DELETE FROM game_session WHERE game_id = $1 RETURNING id;
+
+-- name: V2GetGameSessionByID :one
+SELECT * FROM game_session WHERE id = $1;
+
+-- name: V2GetUserGameSessions :many
+-- A player's sessions, newest activity first, each with its game's name.
+SELECT gs.id, gs.game_id, gs.user_id, gs.workshop_id, gs.platform, gs.language,
+       gs.messages_sent, gs.created_at, gs.modified_at, g.name AS game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1
+  AND g.deleted_at IS NULL
+  AND (sqlc.arg(search)::text = '' OR LOWER(g.name) LIKE LOWER('%' || sqlc.arg(search)::text || '%'))
+ORDER BY
+  CASE WHEN sqlc.arg(sort_by)::text = 'game' THEN LOWER(g.name) END ASC,
+  CASE WHEN sqlc.arg(sort_by)::text = 'model' THEN gs.platform END ASC,
+  gs.modified_at DESC
+LIMIT 20;
+
+-- name: V2SumUserGameSessionMessages :one
+SELECT COALESCE(SUM(messages_sent), 0)::int AS total FROM game_session WHERE user_id = $1;
+
+-- The engine's session store (core/internal/sessionstore), carried over from v1.
+
+-- name: V2CreateGameSession :exec
+-- The first state the engine saves creates the row.
+INSERT INTO game_session (
+  id, game_id, user_id, workshop_id, game_share_id, api_key_share_id,
+  platform, language, schema_version, spec, state
+) VALUES (
+  $1, $2, $3, $4, $5, $6,
+  $7, $8, $9, $10, $11
+);
+
+-- name: V2CreateGuestUser :one
+INSERT INTO app_user (id, name, email, auth0_id, guest_token, private_share_id)
+VALUES ($1, $2, NULL, NULL, NULL, $3)
+ON CONFLICT (id) DO NOTHING
+RETURNING id;
+
+-- User Statistics queries
+
+-- name: V2DecrementGameShareRemaining :one
+-- Atomically decrements the remaining counter. Returns the share if successful.
+-- Succeeds when: remaining is NULL (unlimited) or remaining > 0.
+UPDATE game_share SET remaining = CASE
+  WHEN remaining IS NULL THEN NULL
+  ELSE remaining - 1
+END
+WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING *;
+
+-- name: V2DeleteGameSession :exec
+DELETE FROM game_session WHERE id = $1;
+
+-- name: V2GetUserGameSessionIDsForGame :many
+SELECT id FROM game_session WHERE user_id = $1 AND game_id = $2;
+
+-- name: V2IncrementGamePlayCount :exec
+UPDATE game SET play_count = play_count + 1 WHERE id = $1;
+
+-- name: V2AppendGameSessionEvent :exec
+INSERT INTO game_session_event (session_id, seq, stream, value)
+VALUES (
+  $1,
+  (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_event WHERE session_id = $1),
+  $2, $3
+);
+
+-- name: V2GetGameSessionEvents :many
+SELECT stream, value FROM game_session_event WHERE session_id = $1 ORDER BY seq ASC;
+
+-- name: V2SaveGameSessionState :execrows
+UPDATE game_session SET
+  schema_version = $2,
+  spec = $3,
+  state = $4,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: V2TouchGameSession :exec
+UPDATE game_session SET modified_at = now() WHERE id = $1;
+
+-- Carried over from v1 for the core's system jobs (#344).
+
+-- name: V2PurgeExpiredSessions :many
+-- At most a batch of the sessions idle since the cutoff, so one statement
+-- holds its locks briefly.
+DELETE FROM game_session gs WHERE gs.id IN (
+  SELECT old.id FROM game_session old WHERE old.modified_at < $1 ORDER BY old.modified_at LIMIT $2
+) RETURNING gs.id;

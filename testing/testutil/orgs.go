@@ -235,11 +235,6 @@ func (c caller) SetWorkshopApiKey(workshopID string, apiKeyShareID *string) (Wor
 	return decode[Workshop](c.api.PutApiWorkshopsIdApiKeyWithResponse(ctx(), workshopID, apiclient.SetWorkshopApiKeyReq{ApiKeyShareId: apiKeyShareID}))
 }
 
-// AddMemberToWorkshop adds an institution member to a workshop.
-func (c caller) AddMemberToWorkshop(workshopID, userID string) error {
-	return done(c.api.PostApiWorkshopsIdMembersWithResponse(ctx(), workshopID, apiclient.AddWorkshopMemberReq{UserId: userID}))
-}
-
 // RemoveMemberFromWorkshop removes a member from a workshop.
 func (c caller) RemoveMemberFromWorkshop(workshopID, userID string) error {
 	return done(c.api.DeleteApiWorkshopsIdMembersUserIdWithResponse(ctx(), workshopID, userID))
