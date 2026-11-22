@@ -129,15 +129,12 @@ func (s *GameCrudTestSuite) TestNameLengthValidation() {
 
 // --- Clone ---
 
-// TestOwnerCanCloneOwnGame verifies cloning your own game.
-// The game is made public first: the clone endpoint loads the game without
-// the caller, so it finds only public games.
+// TestOwnerCanCloneOwnGame verifies that the owner can clone their own
+// private game.
 func (s *GameCrudTestSuite) TestOwnerCanCloneOwnGame() {
 	alice := s.CreateUser("crud-clone")
 	game := Must(alice.UploadGame("alien-first-contact"))
-
-	// Make game public so clone endpoint can find it
-	Must(alice.SetGamePublic(game.Id.String(), true))
+	s.False(game.Public, "the uploaded game should start as private")
 
 	cloned := Must(alice.CloneGame(game.Id.String()))
 	s.NotEqual(game.Id, cloned.Id, "cloned game should have different ID")
