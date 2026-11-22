@@ -16,7 +16,7 @@ help:
 	@echo "make translate        translate changed UI texts into every language (before pushing)"
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
 	@echo "make roadmap          rebuild the interactive roadmap from the issues now"
-	@echo "make roadmap-local    the interactive roadmap, from the live issues, on http://localhost:8765"
+	@echo "make roadmap-local    the interactive roadmap on http://localhost:8765, from the live issues or the last ones read"
 
 # The spec is Typst; the PDFs are build output.
 docs:
@@ -313,12 +313,25 @@ roadmap:
 		[ "$$result" = success ]; exit $$?; \
 	done
 
-# The interactive roadmap on this machine: the data comes from the live issues
-# through gh (your login), the page is the one Pages serves. Ctrl-C stops it.
+# The interactive roadmap on this machine: the data comes from the issues
+# through gh (your login), the page is the current roadmap/index.html.
+# Reading the issues takes the better part of a minute, so when issues from an
+# earlier run are there it asks; Enter keeps them, for quick work on the page.
+# A read goes to a temporary file first: an interrupted one keeps the old data.
+# Ctrl-C stops it.
 ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
 roadmap-local:
 	@mkdir -p "$(ROADMAP_LOCAL)"
-	python3 roadmap/roadmap.py > "$(ROADMAP_LOCAL)/roadmap.json"
+	@json="$(ROADMAP_LOCAL)/roadmap.json"; fetch=y; \
+	if [ -s "$$json" ]; then \
+		age=$$(( ($$(date +%s) - $$(date -r "$$json" +%s)) / 60 )); \
+		printf "Issues from %s min ago are there. Read them fresh from GitHub (~1 min)? [y/N] " "$$age"; \
+		read answer || answer=; case "$$answer" in [yY]*) fetch=y;; *) fetch=n;; esac; \
+	fi; \
+	if [ $$fetch = y ]; then \
+		echo "reading the issues…"; \
+		python3 roadmap/roadmap.py > "$$json.tmp" && mv "$$json.tmp" "$$json" || { rm -f "$$json.tmp"; exit 1; }; \
+	fi
 	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
 	@echo "→ http://localhost:8765"
 	@(sleep 1 && (open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true)) &
