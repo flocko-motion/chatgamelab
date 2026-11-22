@@ -17,7 +17,7 @@ import (
 const chatURL = "https://api.openai.com/v1/chat/completions"
 
 // Hearing hears a clip of the player's speech on an audio model, such as
-// gpt-audio-mini, through Chat Completions: one plain HTTP call per clip, the
+// gpt-audio-1.5, through Chat Completions: one plain HTTP call per clip, the
 // clip sent as WAV. The model answers in text only.
 //
 // The reply is a forced function call, named after the schema with the

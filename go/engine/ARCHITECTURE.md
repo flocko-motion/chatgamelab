@@ -586,7 +586,7 @@ session end to end with the headless playback-engine.
   failure edges on every block that calls a model.
 - Voice input on Adventure: push-to-talk in the playback-engine, one clip per
   press over the session's connection, heard and rephrased in one call on
-  OpenAI's gpt-audio-mini or Mistral's Voxtral, the player's line on `said`.
+  OpenAI's gpt-audio-1.5 or Mistral's Voxtral, the player's line on `said`.
 
 ### Missing
 

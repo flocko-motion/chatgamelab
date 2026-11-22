@@ -95,7 +95,7 @@ func platforms() []platform {
 			prices: openai.Models,
 			tiers:  openai.Platform().Tiers,
 			hearing: map[string]func(adapters.KeyFunc) adapters.Hearing{
-				"gpt-audio-mini": func(k adapters.KeyFunc) adapters.Hearing { return openai.NewHearing(k, "gpt-audio-mini") },
+				"gpt-audio-1.5": func(k adapters.KeyFunc) adapters.Hearing { return openai.NewHearing(k, "gpt-audio-1.5") },
 			},
 		},
 		{
