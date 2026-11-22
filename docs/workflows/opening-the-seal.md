@@ -16,18 +16,18 @@ itself (CODEOWNERS, the workflows, `.claude/settings.json`).
 1. **Tests**, for every pull request (`Tests`, required as `Run Tests`): the
    core's boundary test (only the core reaches the database), its gate
    coverage, the permission matrix and the guest-place constraints.
-2. **The ruleset** `core-seal` on `v2/development`: a pull request touching a
-   sealed path needs the code owner's approval. The workflow `core-seal`
-   labels it `core`.
+2. **The ruleset** `core-seal` on `v2/development` requires the check
+   `core-seal`. The workflow of that name fails for every pull request that
+   touches a sealed path, labels it `core` and lists the sealed files in its
+   job summary; for every other pull request it passes.
 3. **Agents**: `.claude/settings.json` denies agents edits to the sealed paths
    and the commands that would open the seal (admin merges, ruleset changes).
    This layer is a guardrail; the ruleset is the seal.
 
 ## How to open it
 
-Agents push with the owner's account, so the owner is the author of their pull
-requests, and GitHub lets no one approve their own. The approval is therefore
-given as a **bypass merge**: on the pull request, the owner ticks "Merge
+A pull request touching the seal never turns green on its own. The owner's
+approval is a **bypass merge**: on the pull request, the owner ticks "Merge
 without waiting for requirements to be met (bypass rules)" and merges. GitHub
 logs every bypass (Settings → Rules → Insights). The bypass is allowed only
 through a pull request, never as a direct push. It skips every ruleset the
@@ -37,8 +37,10 @@ owner ticks it only once `Run Tests` is green.
 Before ticking it, the owner reads the sealed part of the diff; the `core`
 label and the job summary of `core-seal` list the sealed files touched.
 
-A pull request by someone else (a second account, a contributor) is approved
-the ordinary way: the owner reviews and approves it.
+A review cannot be the approval: agents push with the owner's account, so the
+owner is the author of their pull requests, and GitHub asks no author to
+review files they own. CODEOWNERS still marks the sealed paths and asks the
+owner to review pull requests by others; those, too, merge by bypass.
 
 ### When an agent works on the core
 
@@ -64,13 +66,10 @@ gh api -X POST repos/flocko-motion/chatgamelab/rulesets --input - <<'EOF'
   ],
   "rules": [
     {
-      "type": "pull_request",
+      "type": "required_status_checks",
       "parameters": {
-        "required_approving_review_count": 0,
-        "require_code_owner_review": true,
-        "dismiss_stale_reviews_on_push": true,
-        "require_last_push_approval": false,
-        "required_review_thread_resolution": false
+        "strict_required_status_checks_policy": false,
+        "required_status_checks": [{ "context": "core-seal", "integration_id": 15368 }]
       }
     }
   ]
@@ -79,4 +78,5 @@ EOF
 ```
 
 Actor 5 is the repository's admin role; `bypass_mode: pull_request` allows
-the bypass on a pull request's merge only.
+the bypass on a pull request's merge only. Integration 15368 is GitHub
+Actions, which reports the check.

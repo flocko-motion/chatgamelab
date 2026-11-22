@@ -12,6 +12,27 @@
   (`applies_to`); before changing such a file, read the rules that match it.
 - `docs/workflows/`: recipes for reaching a goal.
 
+## The sealed core
+
+The secure core (`go/core/`) decides who may do what, and it is the only code
+that reaches the database (`go/db/`). A change there is a change to an access
+rule or to what a core entity holds (a new field, a new table): it changes
+what every user may see and do. `.github/CODEOWNERS` lists the sealed paths.
+
+- **Most work needs no core change.** Call the core functions that exist; a
+  feature that seems to need a new rule or field usually needs a closer look
+  at the spec first.
+- **A core change is thought through before it is written.** Name the rule or
+  entity that changes and why, against the spec (Roles, the grant table);
+  find the smallest change, and check what else it opens up.
+- **Agree on it with the owner in the issue first.** Agents may not edit the
+  sealed paths: `.claude/settings.json` denies it. Never work around that
+  denial (no shell edits, no admin merges, no ruleset changes); stop and
+  ask, and the owner opens the seal for that issue's worktree.
+- **Every core change gets the owner's review.** A pull request touching the
+  seal is labelled `core` and merges only with the owner's approval
+  (`docs/workflows/opening-the-seal.md`).
+
 ## Git
 
 - **Commit only what the owner has staged.** Staging is how a change is

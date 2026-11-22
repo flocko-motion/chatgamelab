@@ -27,6 +27,28 @@
     ],
     "additionalDirectories": [
       "/home/flo/.claude/projects/-r-priv-chatgamelab/memory"
+    ],
+    "deny": [
+      "Edit(/go/core/**)",
+      "Write(/go/core/**)",
+      "Edit(/go/db/**)",
+      "Write(/go/db/**)",
+      "Edit(/go/app/app.go)",
+      "Write(/go/app/app.go)",
+      "Edit(/testing/permission_matrix_test.go)",
+      "Write(/testing/permission_matrix_test.go)",
+      "Edit(/testing/guest_place_test.go)",
+      "Write(/testing/guest_place_test.go)",
+      "Edit(/scripts/test.sh)",
+      "Write(/scripts/test.sh)",
+      "Edit(/.github/**)",
+      "Write(/.github/**)",
+      "Edit(/.claude/settings.json)",
+      "Write(/.claude/settings.json)",
+      "Bash(gh pr merge * --admin*)",
+      "Bash(gh pr merge --admin*)",
+      "Bash(gh api *rulesets*)",
+      "Bash(gh ruleset *)"
     ]
   }
 }
