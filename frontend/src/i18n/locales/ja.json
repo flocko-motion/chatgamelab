@@ -250,7 +250,12 @@
       "ageGroupU13": "13～17歳",
       "ageGroupU18": "18歳以上",
       "emailChangeNote": "メールアドレスを変更する場合は、サイト管理者にお問い合わせください。",
+      "emailDescription": "任意。組織はこのアドレスであなたを招待します。他のアカウントは使用できません。",
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "you@example.org",
       "errors": {
+        "emailInvalid": "有効なメールアドレスではありません",
+        "emailTaken": "このメールアドレスは別のアカウントに使用されています",
         "nameRequired": "名前は必須です",
         "nameTaken": "この名前はすでに使用されています",
         "nameTooLong": "名前は24文字以内で入力してください",
@@ -1321,12 +1326,6 @@
         "own": "自分のゲーム",
         "public": "公開"
       },
-      "owner": "自分",
-      "playGame": "このゲームをプレイ",
-      "playNow": "今すぐプレイ",
-      "selectGameTitle": "ゲームを選択",
-      "title": "ゲームを選択",
-      "unfavorite": "お気に入りから削除",
       "launch": {
         "backToGames": "ゲームに戻る",
         "cannotOpen": "このゲームは続行できません",
@@ -1342,6 +1341,12 @@
         "starting": "ゲームを開始しています…",
         "tryAgain": "もう一度試す"
       },
+      "owner": "自分",
+      "playGame": "このゲームをプレイ",
+      "playNow": "今すぐプレイ",
+      "selectGameTitle": "ゲームを選択",
+      "title": "ゲームを選択",
+      "unfavorite": "お気に入りから削除",
       "unplayable": {
         "denied": "このゲームをプレイする権限がありません",
         "failed": "現在プレイできません",
@@ -1718,6 +1723,14 @@
       "turnFailed": "そこから物語を続けられませんでした。もう一度送信するか、別のことを試してください。",
       "voiceFailed": "音声を接続できませんでした。"
     },
+    "insights": {
+      "close": "閉じる",
+      "empty": "まだ何も実行されていません。",
+      "feed": "起きたこと",
+      "hide": "インサイトを隠す",
+      "label": "インサイト",
+      "show": "インサイトを表示"
+    },
     "launch": {
       "noGame": "このページで遊ぶにはゲームが必要です。ゲームのページから開いてください。",
       "starting": "ゲームを開始しています…"
@@ -1780,14 +1793,6 @@
       "rephrase-audio\u0003eoutline": "アクション",
       "start-game\u0003elive-session": "導入",
       "start-game\u0003eoutline": "プロンプト"
-    },
-    "insights": {
-      "close": "閉じる",
-      "empty": "まだ何も実行されていません。",
-      "feed": "起きたこと",
-      "hide": "インサイトを隠す",
-      "label": "インサイト",
-      "show": "インサイトを表示"
     }
   }
 }

@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 tahun",
       "ageGroupU18": "18 tahun ke atas",
       "emailChangeNote": "Untuk mengubah alamat email Anda, silakan hubungi administrator situs.",
+      "emailDescription": "Opsional. Organisasi mengundangmu melalui alamat ini; tidak ada akun lain yang boleh menggunakannya.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "anda@contoh.org",
       "errors": {
+        "emailInvalid": "Ini bukan alamat email yang valid",
+        "emailTaken": "Email ini milik akun lain",
         "nameRequired": "Nama wajib diisi",
         "nameTaken": "Nama ini sudah digunakan",
         "nameTooLong": "Nama maksimal 24 karakter",
@@ -1316,12 +1321,6 @@
         "own": "Gim Saya",
         "public": "Publik"
       },
-      "owner": "Milik Saya",
-      "playGame": "Mainkan gim ini",
-      "playNow": "Mainkan sekarang",
-      "selectGameTitle": "Pilih Gim",
-      "title": "Pilih Gim",
-      "unfavorite": "Hapus dari favorit",
       "launch": {
         "backToGames": "Kembali ke permainan",
         "cannotOpen": "Permainan ini tidak dapat dilanjutkan",
@@ -1337,6 +1336,12 @@
         "starting": "Memulai permainan…",
         "tryAgain": "Coba lagi"
       },
+      "owner": "Milik Saya",
+      "playGame": "Mainkan gim ini",
+      "playNow": "Mainkan sekarang",
+      "selectGameTitle": "Pilih Gim",
+      "title": "Pilih Gim",
+      "unfavorite": "Hapus dari favorit",
       "unplayable": {
         "denied": "Anda tidak diizinkan memainkan permainan ini",
         "failed": "Saat ini permainan tidak dapat dimainkan",
@@ -1712,6 +1717,14 @@
       "turnFailed": "Cerita tidak dapat dilanjutkan dari situ. Kirim lagi, atau coba sesuatu yang lain.",
       "voiceFailed": "Suaramu tidak dapat tersambung."
     },
+    "insights": {
+      "close": "Tutup",
+      "empty": "Belum ada yang berjalan.",
+      "feed": "Apa yang terjadi",
+      "hide": "Sembunyikan Wawasan",
+      "label": "Wawasan",
+      "show": "Tampilkan Wawasan"
+    },
     "launch": {
       "noGame": "Halaman ini memerlukan permainan untuk dimainkan: buka halaman ini dari halaman sebuah permainan.",
       "starting": "Memulai permainan…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u001eoutline": "aksi",
       "start-game\u001elive-session": "isyarat",
       "start-game\u001eoutline": "prompt"
-    },
-    "insights": {
-      "close": "Tutup",
-      "empty": "Belum ada yang berjalan.",
-      "feed": "Apa yang terjadi",
-      "hide": "Sembunyikan Wawasan",
-      "label": "Wawasan",
-      "show": "Tampilkan Wawasan"
     }
   }
 }

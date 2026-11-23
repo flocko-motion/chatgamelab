@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 vuotta",
       "ageGroupU18": "18-vuotias tai vanhempi",
       "emailChangeNote": "Ota yhteyttä sivuston ylläpitäjään, jos haluat vaihtaa sähköpostiosoitteesi.",
+      "emailDescription": "Valinnainen. Organisaatiot kutsuvat sinut sen avulla; mikään muu tili ei saa käyttää sitä.",
+      "emailLabel": "Sähköposti",
+      "emailPlaceholder": "sinä@esimerkki.fi",
       "errors": {
+        "emailInvalid": "Tämä ei ole kelvollinen sähköpostiosoite",
+        "emailTaken": "Tämä sähköpostiosoite kuuluu toiselle tilille",
         "nameRequired": "Nimi on pakollinen",
         "nameTaken": "Tämä nimi on jo käytössä",
         "nameTooLong": "Nimen pituus saa olla enintään 24 merkkiä",
@@ -1321,12 +1326,6 @@
         "own": "Omat pelit",
         "public": "Julkiset"
       },
-      "owner": "Omat",
-      "playGame": "Pelaa tätä peliä",
-      "playNow": "Pelaa nyt",
-      "selectGameTitle": "Valitse peli",
-      "title": "Valitse peli",
-      "unfavorite": "Poista suosikeista",
       "launch": {
         "backToGames": "Takaisin peleihin",
         "cannotOpen": "Tämä peli ei voi jatkua",
@@ -1342,6 +1341,12 @@
         "starting": "Peliä käynnistetään…",
         "tryAgain": "Yritä uudelleen"
       },
+      "owner": "Omat",
+      "playGame": "Pelaa tätä peliä",
+      "playNow": "Pelaa nyt",
+      "selectGameTitle": "Valitse peli",
+      "title": "Valitse peli",
+      "unfavorite": "Poista suosikeista",
       "unplayable": {
         "denied": "Et voi pelata tätä peliä",
         "failed": "Peliä ei voi pelata tällä hetkellä",
@@ -1718,6 +1723,14 @@
       "turnFailed": "Tarina ei voinut jatkua siitä. Lähetä se uudelleen tai kokeile jotain muuta.",
       "voiceFailed": "Ääntäsi ei voitu yhdistää."
     },
+    "insights": {
+      "close": "Sulje",
+      "empty": "Mitään ei ole vielä suoritettu.",
+      "feed": "Mitä tapahtui",
+      "hide": "Piilota tiedot",
+      "label": "Tiedot",
+      "show": "Näytä tiedot"
+    },
     "launch": {
       "noGame": "Tämä sivu tarvitsee pelin: avaa se pelin sivulta.",
       "starting": "Peliä käynnistetään…"
@@ -1780,14 +1793,6 @@
       "rephrase-audio\u001eoutline": "toiminta",
       "start-game\u001elive-session": "alkusysäys",
       "start-game\u001eoutline": "kehote"
-    },
-    "insights": {
-      "close": "Sulje",
-      "empty": "Mitään ei ole vielä suoritettu.",
-      "feed": "Mitä tapahtui",
-      "hide": "Piilota tiedot",
-      "label": "Tiedot",
-      "show": "Näytä tiedot"
     }
   }
 }

@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 Joa",
       "ageGroupU18": "18 oder oida",
       "emailChangeNote": "Wennst dei E-Mail ändern wui, meld di bitte beim Seiten-Admin.",
+      "emailDescription": "Optional. Organisationen laden di darüber ei; koa anderes Konto derf's verwenden.",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "du@beispui.de",
       "errors": {
+        "emailInvalid": "Des is koa gültige E-Mail-Adress",
+        "emailTaken": "De E-Mail ghört am andern Konto",
         "nameRequired": "Nam is Pflicht",
         "nameTaken": "Diesen Nam gibt's scho",
         "nameTooLong": "Nam derf höchstens 24 Zeichn ham",
@@ -1321,12 +1326,6 @@
         "own": "Meine Spiele",
         "public": "Öffentlich"
       },
-      "owner": "Mei",
-      "playGame": "Des Spui spuin",
-      "playNow": "Glei spuin",
-      "selectGameTitle": "Spui auswähln",
-      "title": "Spui auswähln",
-      "unfavorite": "Aus Favoriten entferna",
       "launch": {
         "backToGames": "Zruck zu de Spui",
         "cannotOpen": "Des Spui ko ned weitergeh",
@@ -1342,6 +1341,12 @@
         "starting": "Des Spui fangt o…",
         "tryAgain": "No amoi probieren"
       },
+      "owner": "Mei",
+      "playGame": "Des Spui spuin",
+      "playNow": "Glei spuin",
+      "selectGameTitle": "Spui auswähln",
+      "title": "Spui auswähln",
+      "unfavorite": "Aus Favoriten entferna",
       "unplayable": {
         "denied": "Du derfst des Spui ned spuin",
         "failed": "Ko grad ned gspuit werdn",
@@ -1718,6 +1723,14 @@
       "turnFailed": "De Gschicht hod do ned weitermacha kenna. Schick's no amoi oder probier wos Anders.",
       "voiceFailed": "Dei Stimm hod ned verbunden wern kenna."
     },
+    "insights": {
+      "close": "Zua",
+      "empty": "Bis jetzt is no nix glaufen.",
+      "feed": "Wos passiert is",
+      "hide": "Einblicke ausblenden",
+      "label": "Einblicke",
+      "show": "Einblicke o'zeigen"
+    },
     "launch": {
       "noGame": "De Seitn braucht a Spui: Mach's über de Seitn von am Spui auf.",
       "starting": "Des Spui startet …"
@@ -1780,14 +1793,6 @@
       "rephrase-audio\u0003eoutline": "Aktion",
       "start-game\u0003elive-session": "Einstieg",
       "start-game\u0003eoutline": "Prompt"
-    },
-    "insights": {
-      "close": "Zua",
-      "empty": "Bis jetzt is no nix glaufen.",
-      "feed": "Wos passiert is",
-      "hide": "Einblicke ausblenden",
-      "label": "Einblicke",
-      "show": "Einblicke o'zeigen"
     }
   }
 }

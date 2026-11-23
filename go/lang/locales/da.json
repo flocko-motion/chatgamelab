@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 år",
       "ageGroupU18": "18 år eller ældre",
       "emailChangeNote": "Kontakt venligst webstedets administrator for at ændre din e-mailadresse.",
+      "emailDescription": "Valgfrit. Organisationer inviterer dig via den; ingen anden konto må bruge den.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "dig@eksempel.org",
       "errors": {
+        "emailInvalid": "Dette er ikke en gyldig e-mailadresse",
+        "emailTaken": "Denne e-mail tilhører en anden konto",
         "nameRequired": "Navn er påkrævet",
         "nameTaken": "Dette navn er allerede taget",
         "nameTooLong": "Navnet må højst være 24 tegn",
@@ -1316,12 +1321,6 @@
         "own": "Mine spil",
         "public": "Offentlige"
       },
-      "owner": "Mine",
-      "playGame": "Spil dette spil",
-      "playNow": "Spil nu",
-      "selectGameTitle": "Vælg et spil",
-      "title": "Vælg et spil",
-      "unfavorite": "Fjern fra favoritter",
       "launch": {
         "backToGames": "Tilbage til spillene",
         "cannotOpen": "Dette spil kan ikke fortsætte",
@@ -1337,6 +1336,12 @@
         "starting": "Starter spillet…",
         "tryAgain": "Prøv igen"
       },
+      "owner": "Mine",
+      "playGame": "Spil dette spil",
+      "playNow": "Spil nu",
+      "selectGameTitle": "Vælg et spil",
+      "title": "Vælg et spil",
+      "unfavorite": "Fjern fra favoritter",
       "unplayable": {
         "denied": "Du må ikke spille dette spil",
         "failed": "Kan ikke spilles lige nu",
@@ -1712,6 +1717,14 @@
       "turnFailed": "Historien kunne ikke fortsætte derfra. Send det igen, eller prøv noget andet.",
       "voiceFailed": "Der kunne ikke oprettes forbindelse til din stemme."
     },
+    "insights": {
+      "close": "Luk",
+      "empty": "Der er ikke kørt noget endnu.",
+      "feed": "Hvad der skete",
+      "hide": "Skjul indblik",
+      "label": "Indblik",
+      "show": "Vis indblik"
+    },
     "launch": {
       "noGame": "Denne side skal bruge et spil for at kunne spilles: Åbn den fra et spils side.",
       "starting": "Starter spillet…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "signal",
       "start-game\u0003eoutline": "prompt"
-    },
-    "insights": {
-      "close": "Luk",
-      "empty": "Der er ikke kørt noget endnu.",
-      "feed": "Hvad der skete",
-      "hide": "Skjul indblik",
-      "label": "Indblik",
-      "show": "Vis indblik"
     }
   }
 }

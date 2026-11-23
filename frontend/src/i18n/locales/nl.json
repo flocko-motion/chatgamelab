@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 jaar",
       "ageGroupU18": "18 jaar of ouder",
       "emailChangeNote": "Neem contact op met de sitebeheerder om je e-mailadres te wijzigen.",
+      "emailDescription": "Optioneel. Organisaties nodigen je hiermee uit; geen ander account mag het gebruiken.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "jij@voorbeeld.org",
       "errors": {
+        "emailInvalid": "Dit is geen geldig e-mailadres",
+        "emailTaken": "Dit e-mailadres hoort bij een ander account",
         "nameRequired": "Naam is verplicht",
         "nameTaken": "Deze naam is al in gebruik",
         "nameTooLong": "Naam mag maximaal 24 tekens bevatten",
@@ -1316,12 +1321,6 @@
         "own": "Mijn games",
         "public": "Openbaar"
       },
-      "owner": "Mijn",
-      "playGame": "Deze game spelen",
-      "playNow": "Nu spelen",
-      "selectGameTitle": "Kies een game",
-      "title": "Kies een game",
-      "unfavorite": "Verwijderen uit favorieten",
       "launch": {
         "backToGames": "Terug naar de spellen",
         "cannotOpen": "Dit spel kan niet doorgaan",
@@ -1337,6 +1336,12 @@
         "starting": "Het spel wordt gestart…",
         "tryAgain": "Opnieuw proberen"
       },
+      "owner": "Mijn",
+      "playGame": "Deze game spelen",
+      "playNow": "Nu spelen",
+      "selectGameTitle": "Kies een game",
+      "title": "Kies een game",
+      "unfavorite": "Verwijderen uit favorieten",
       "unplayable": {
         "denied": "Je mag dit spel niet spelen",
         "failed": "Kan momenteel niet worden gespeeld",
@@ -1712,6 +1717,14 @@
       "turnFailed": "Het verhaal kon hier niet op voortbouwen. Stuur het nogmaals of probeer iets anders.",
       "voiceFailed": "Er kon geen verbinding met je stem worden gemaakt."
     },
+    "insights": {
+      "close": "Sluiten",
+      "empty": "Er is nog niets uitgevoerd.",
+      "feed": "Wat er is gebeurd",
+      "hide": "Inzichten verbergen",
+      "label": "Inzichten",
+      "show": "Inzichten tonen"
+    },
     "launch": {
       "noGame": "Deze pagina heeft een spel nodig om te kunnen spelen: open de pagina via de pagina van een spel.",
       "starting": "Het spel wordt gestart…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u0003eoutline": "actie",
       "start-game\u0003elive-session": "aanwijzing",
       "start-game\u0003eoutline": "prompt"
-    },
-    "insights": {
-      "close": "Sluiten",
-      "empty": "Er is nog niets uitgevoerd.",
-      "feed": "Wat er is gebeurd",
-      "hide": "Inzichten verbergen",
-      "label": "Inzichten",
-      "show": "Inzichten tonen"
     }
   }
 }

@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 éves",
       "ageGroupU18": "18 éves vagy idősebb",
       "emailChangeNote": "Az e-mail-cím módosításához vedd fel a kapcsolatot az oldal adminisztrátorával.",
+      "emailDescription": "Opcionális. A szervezetek ezen keresztül hívhatják meg; másik fiók nem használhatja.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "te@pelda.hu",
       "errors": {
+        "emailInvalid": "Ez nem érvényes e-mail-cím",
+        "emailTaken": "Ez az e-mail-cím egy másik fiókhoz tartozik",
         "nameRequired": "Név megadása kötelező",
         "nameTaken": "Ezt a nevet már használják",
         "nameTooLong": "A név legfeljebb 24 karakter lehet",

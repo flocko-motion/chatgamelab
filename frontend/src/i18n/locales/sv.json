@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 år",
       "ageGroupU18": "18 år eller äldre",
       "emailChangeNote": "Kontakta webbplatsadministratören om du vill ändra din e-postadress.",
+      "emailDescription": "Valfritt. Organisationer kan bjuda in dig via den; inget annat konto får använda den.",
+      "emailLabel": "E-post",
+      "emailPlaceholder": "du@exempel.se",
       "errors": {
+        "emailInvalid": "Det här är inte en giltig e-postadress",
+        "emailTaken": "Den här e-postadressen tillhör ett annat konto",
         "nameRequired": "Namn krävs",
         "nameTaken": "Detta namn är redan upptaget",
         "nameTooLong": "Namnet får vara högst 24 tecken",
@@ -1321,12 +1326,6 @@
         "own": "Mina spel",
         "public": "Publika"
       },
-      "owner": "Mina",
-      "playGame": "Spela detta spel",
-      "playNow": "Spela nu",
-      "selectGameTitle": "Välj ett spel",
-      "title": "Välj ett spel",
-      "unfavorite": "Ta bort från favoriter",
       "launch": {
         "backToGames": "Tillbaka till spelen",
         "cannotOpen": "Det här spelet kan inte fortsätta",
@@ -1342,6 +1341,12 @@
         "starting": "Startar spelet…",
         "tryAgain": "Försök igen"
       },
+      "owner": "Mina",
+      "playGame": "Spela detta spel",
+      "playNow": "Spela nu",
+      "selectGameTitle": "Välj ett spel",
+      "title": "Välj ett spel",
+      "unfavorite": "Ta bort från favoriter",
       "unplayable": {
         "denied": "Du får inte spela det här spelet",
         "failed": "Kan inte spelas just nu",
@@ -1718,6 +1723,14 @@
       "turnFailed": "Berättelsen kunde inte fortsätta därifrån. Skicka det igen eller försök med något annat.",
       "voiceFailed": "Det gick inte att ansluta din röst."
     },
+    "insights": {
+      "close": "Stäng",
+      "empty": "Inget har körts ännu.",
+      "feed": "Vad som hände",
+      "hide": "Dölj insikter",
+      "label": "Insikter",
+      "show": "Visa insikter"
+    },
     "launch": {
       "noGame": "Den här sidan behöver ett spel för att kunna spelas: öppna den från ett spels sida.",
       "starting": "Startar spelet…"
@@ -1780,14 +1793,6 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "signal",
       "start-game\u0003eoutline": "prompt"
-    },
-    "insights": {
-      "close": "Stäng",
-      "empty": "Inget har körts ännu.",
-      "feed": "Vad som hände",
-      "hide": "Dölj insikter",
-      "label": "Insikter",
-      "show": "Visa insikter"
     }
   }
 }

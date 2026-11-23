@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 ans",
       "ageGroupU18": "18 ans ou plus",
       "emailChangeNote": "Pour modifier votre adresse e-mail, veuillez contacter l’administrateur du site.",
+      "emailDescription": "Facultatif. Les organisations vous invitent via cette adresse ; aucun autre compte ne peut l'utiliser.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vous@exemple.org",
       "errors": {
+        "emailInvalid": "Cette adresse e-mail n'est pas valide",
+        "emailTaken": "Cette adresse e-mail appartient à un autre compte",
         "nameRequired": "Le nom est requis",
         "nameTaken": "Ce nom est déjà pris",
         "nameTooLong": "Le nom doit comporter au maximum 24 caractères",
@@ -1316,12 +1321,6 @@
         "own": "Mes jeux",
         "public": "Public"
       },
-      "owner": "À moi",
-      "playGame": "Jouer à ce jeu",
-      "playNow": "Jouer maintenant",
-      "selectGameTitle": "Choisissez un jeu",
-      "title": "Choisissez un jeu",
-      "unfavorite": "Retirer des favoris",
       "launch": {
         "backToGames": "Retour aux jeux",
         "cannotOpen": "Ce jeu ne peut pas continuer",
@@ -1337,6 +1336,12 @@
         "starting": "Démarrage du jeu…",
         "tryAgain": "Réessayer"
       },
+      "owner": "À moi",
+      "playGame": "Jouer à ce jeu",
+      "playNow": "Jouer maintenant",
+      "selectGameTitle": "Choisissez un jeu",
+      "title": "Choisissez un jeu",
+      "unfavorite": "Retirer des favoris",
       "unplayable": {
         "denied": "Vous ne pouvez pas jouer à ce jeu",
         "failed": "Impossible d'y jouer pour le moment",
@@ -1712,6 +1717,14 @@
       "turnFailed": "L'histoire n'a pas pu continuer à partir de là. Envoie à nouveau ton message ou essaie autre chose.",
       "voiceFailed": "Impossible de connecter ta voix."
     },
+    "insights": {
+      "close": "Fermer",
+      "empty": "Rien ne s'est encore exécuté.",
+      "feed": "Ce qui s'est passé",
+      "hide": "Masquer les informations",
+      "label": "Informations",
+      "show": "Afficher les informations"
+    },
     "launch": {
       "noGame": "Cette page nécessite un jeu : ouvre-la depuis la page d'un jeu.",
       "starting": "Démarrage du jeu…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u0000outline": "action",
       "start-game\u0000live-session": "indication",
       "start-game\u0000outline": "prompt"
-    },
-    "insights": {
-      "close": "Fermer",
-      "empty": "Rien ne s'est encore exécuté.",
-      "feed": "Ce qui s'est passé",
-      "hide": "Masquer les informations",
-      "label": "Informations",
-      "show": "Afficher les informations"
     }
   }
 }

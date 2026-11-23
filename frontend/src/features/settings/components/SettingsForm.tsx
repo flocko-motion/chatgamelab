@@ -6,12 +6,7 @@ import { Card, Stack, TextInput, Radio, Alert, Loader } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle } from "@components/typography";
-import {
-  IconUser,
-  IconCheck,
-  IconX,
-  IconInfoCircle,
-} from "@tabler/icons-react";
+import { IconUser, IconCheck, IconX, IconMail } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/providers/AuthProvider";
@@ -31,6 +26,12 @@ export function SettingsForm() {
       .string()
       .min(1, t("settings.errors.nameRequired"))
       .max(24, t("settings.errors.nameTooLong")),
+    // optional; empty removes it
+    email: z
+      .string()
+      .trim()
+      .email(t("settings.errors.emailInvalid"))
+      .or(z.literal("")),
   });
 
   type FormData = z.infer<typeof schema>;
@@ -47,6 +48,7 @@ export function SettingsForm() {
     resolver: zodResolver(schema),
     defaultValues: {
       name: backendUser?.name || "",
+      email: backendUser?.email || "",
     },
   });
 
@@ -116,6 +118,7 @@ export function SettingsForm() {
     if (backendUser) {
       reset({
         name: backendUser.name || "",
+        email: backendUser.email || "",
       });
     }
   }, [backendUser, reset]);
@@ -127,11 +130,15 @@ export function SettingsForm() {
     setSubmitError(null);
     setSubmitSuccess(false);
 
+    const email = data.email.trim();
+    const emailChanged = email !== (backendUser.email || "");
+
     updateUser.mutate(
       {
         id: backendUser.id!,
         request: {
           name: data.name.trim(),
+          ...(emailChanged ? { email } : {}),
         },
       },
       {
@@ -155,6 +162,9 @@ export function SettingsForm() {
 
             if (code === "profane_name") {
               setSubmitError(t("errors:nameProfane"));
+            } else if (code === "conflict" && emailChanged) {
+              // the name was checked before submitting, so a conflict is the email
+              setError("email", { type: "manual", message: t("settings.errors.emailTaken") });
             } else if (message.includes("Name is already taken")) {
               setSubmitError(t("settings.errors.nameTaken"));
             } else {
@@ -193,13 +203,18 @@ export function SettingsForm() {
                 disabled={isSubmitting}
               />
 
-              <Alert
-                variant="light"
-                color="gray"
-                icon={<IconInfoCircle size={16} />}
-              >
-                {t("settings.emailChangeNote")}
-              </Alert>
+              {backendUser.mayEditContact && (
+                <TextInput
+                  type="email"
+                  label={t("settings.emailLabel")}
+                  placeholder={t("settings.emailPlaceholder")}
+                  description={t("settings.emailDescription")}
+                  leftSection={<IconMail size={16} />}
+                  error={errors.email?.message}
+                  {...register("email")}
+                  disabled={isSubmitting}
+                />
+              )}
 
               <Radio.Group
                 label={t("ageGroup.label")}

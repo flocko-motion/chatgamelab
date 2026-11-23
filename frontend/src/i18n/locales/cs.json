@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 let",
       "ageGroupU18": "18 nebo více",
       "emailChangeNote": "Pro změnu e-mailové adresy kontaktujte administrátora webu.",
+      "emailDescription": "Volitelné. Organizace vás prostřednictvím této adresy zvou; žádný jiný účet ji nesmí používat.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vy@example.org",
       "errors": {
+        "emailInvalid": "Toto není platná e-mailová adresa",
+        "emailTaken": "Tato e-mailová adresa patří jinému účtu",
         "nameRequired": "Jméno je povinné",
         "nameTaken": "Toto jméno je již zabrané",
         "nameTooLong": "Jméno smí mít maximálně 24 znaků",
@@ -1316,12 +1321,6 @@
         "own": "Moje hry",
         "public": "Veřejné"
       },
-      "owner": "Moje",
-      "playGame": "Hrát tuto hru",
-      "playNow": "Hrát nyní",
-      "selectGameTitle": "Vyberte hru",
-      "title": "Vyberte hru",
-      "unfavorite": "Odebrat z oblíbených",
       "launch": {
         "backToGames": "Zpět ke hrám",
         "cannotOpen": "Tuto hru nelze spustit",
@@ -1337,6 +1336,12 @@
         "starting": "Hra se spouští…",
         "tryAgain": "Zkusit znovu"
       },
+      "owner": "Moje",
+      "playGame": "Hrát tuto hru",
+      "playNow": "Hrát nyní",
+      "selectGameTitle": "Vyberte hru",
+      "title": "Vyberte hru",
+      "unfavorite": "Odebrat z oblíbených",
       "unplayable": {
         "denied": "Tuto hru nesmíte hrát",
         "failed": "Momentálně ji nelze hrát",
@@ -1712,6 +1717,14 @@
       "turnFailed": "Příběh na to nemohl navázat. Pošli to znovu nebo zkus něco jiného.",
       "voiceFailed": "Nepodařilo se připojit tvůj hlas."
     },
+    "insights": {
+      "close": "Zavřít",
+      "empty": "Zatím nic neproběhlo.",
+      "feed": "Co se stalo",
+      "hide": "Skrýt přehled",
+      "label": "Přehled",
+      "show": "Zobrazit přehled"
+    },
     "launch": {
       "noGame": "Tato stránka potřebuje hru: otevři ji ze stránky hry.",
       "starting": "Hra se spouští…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u001eoutline": "akce",
       "start-game\u001elive-session": "podnět",
       "start-game\u001eoutline": "prompt"
-    },
-    "insights": {
-      "close": "Zavřít",
-      "empty": "Zatím nic neproběhlo.",
-      "feed": "Co se stalo",
-      "hide": "Skrýt přehled",
-      "label": "Přehled",
-      "show": "Zobrazit přehled"
     }
   }
 }

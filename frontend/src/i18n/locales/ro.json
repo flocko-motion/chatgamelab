@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 ani",
       "ageGroupU18": "18 sau mai mult",
       "emailChangeNote": "Pentru a-ți schimba adresa de email, te rugăm să contactezi administratorul site-ului.",
+      "emailDescription": "Opțional. Organizațiile vă invită prin intermediul acesteia; niciun alt cont nu o poate folosi.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "tu@exemplu.ro",
       "errors": {
+        "emailInvalid": "Aceasta nu este o adresă de e-mail validă",
+        "emailTaken": "Această adresă de e-mail aparține altui cont",
         "nameRequired": "Numele este obligatoriu",
         "nameTaken": "Acest nume este deja folosit",
         "nameTooLong": "Numele trebuie să aibă cel mult 24 de caractere",
@@ -1319,12 +1324,6 @@
         "own": "Jocurile mele",
         "public": "Publice"
       },
-      "owner": "Ale mele",
-      "playGame": "Joacă acest joc",
-      "playNow": "Joacă acum",
-      "selectGameTitle": "Selectează un joc",
-      "title": "Selectează un joc",
-      "unfavorite": "Elimină din favorite",
       "launch": {
         "backToGames": "Înapoi la jocuri",
         "cannotOpen": "Acest joc nu poate continua",
@@ -1340,6 +1339,12 @@
         "starting": "Se începe jocul…",
         "tryAgain": "Încearcă din nou"
       },
+      "owner": "Ale mele",
+      "playGame": "Joacă acest joc",
+      "playNow": "Joacă acum",
+      "selectGameTitle": "Selectează un joc",
+      "title": "Selectează un joc",
+      "unfavorite": "Elimină din favorite",
       "unplayable": {
         "denied": "Nu ai voie să joci acest joc",
         "failed": "Jocul nu poate fi jucat momentan",
@@ -1715,6 +1720,14 @@
       "turnFailed": "Povestea nu a putut continua de aici. Trimite din nou sau încearcă altceva.",
       "voiceFailed": "Vocea ta nu a putut fi conectată."
     },
+    "insights": {
+      "close": "Închide",
+      "empty": "Încă nu s-a executat nimic.",
+      "feed": "Ce s-a întâmplat",
+      "hide": "Ascunde informațiile",
+      "label": "Informații",
+      "show": "Afișează informațiile"
+    },
     "launch": {
       "noGame": "Această pagină are nevoie de un joc: deschide-o din pagina unui joc.",
       "starting": "Jocul pornește…"
@@ -1777,14 +1790,6 @@
       "rephrase-audio\u0003eoutline": "acțiune",
       "start-game\u0003elive-session": "indicație",
       "start-game\u0003eoutline": "instrucțiune"
-    },
-    "insights": {
-      "close": "Închide",
-      "empty": "Încă nu s-a executat nimic.",
-      "feed": "Ce s-a întâmplat",
-      "hide": "Ascunde informațiile",
-      "label": "Informații",
-      "show": "Afișează informațiile"
     }
   }
 }

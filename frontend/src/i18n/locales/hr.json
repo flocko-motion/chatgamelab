@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 godina",
       "ageGroupU18": "18 ili više",
       "emailChangeNote": "Za promjenu adrese e-pošte obratite se administratoru stranice.",
+      "emailDescription": "Neobavezno. Organizacije će vas putem njega pozivati; nijedan drugi račun ne smije ga koristiti.",
+      "emailLabel": "E-pošta",
+      "emailPlaceholder": "vi@primjer.org",
       "errors": {
+        "emailInvalid": "Ovo nije valjana adresa e-pošte",
+        "emailTaken": "Ova adresa e-pošte pripada drugom računu",
         "nameRequired": "Ime je obavezno",
         "nameTaken": "Ovo ime je već zauzeto",
         "nameTooLong": "Ime može imati najviše 24 znaka",
@@ -1316,12 +1321,6 @@
         "own": "Moje igre",
         "public": "Javne"
       },
-      "owner": "Moje",
-      "playGame": "Igraj ovu igru",
-      "playNow": "Igraj sada",
-      "selectGameTitle": "Odaberi igru",
-      "title": "Odaberi igru",
-      "unfavorite": "Ukloni iz favorita",
       "launch": {
         "backToGames": "Natrag na igre",
         "cannotOpen": "Igra se ne može nastaviti",
@@ -1337,6 +1336,12 @@
         "starting": "Pokretanje igre…",
         "tryAgain": "Pokušaj ponovno"
       },
+      "owner": "Moje",
+      "playGame": "Igraj ovu igru",
+      "playNow": "Igraj sada",
+      "selectGameTitle": "Odaberi igru",
+      "title": "Odaberi igru",
+      "unfavorite": "Ukloni iz favorita",
       "unplayable": {
         "denied": "Ne smiješ igrati ovu igru",
         "failed": "Trenutačno se ne može igrati",
@@ -1712,6 +1717,14 @@
       "turnFailed": "Priča se nije mogla nastaviti na temelju toga. Pošalji ponovno ili pokušaj nešto drugo.",
       "voiceFailed": "Tvoj se glas nije mogao povezati."
     },
+    "insights": {
+      "close": "Zatvori",
+      "empty": "Još ništa nije pokrenuto.",
+      "feed": "Što se dogodilo",
+      "hide": "Sakrij uvide",
+      "label": "Uvidi",
+      "show": "Prikaži uvide"
+    },
     "launch": {
       "noGame": "Ovoj je stranici potrebna igra: otvori je sa stranice neke igre.",
       "starting": "Igra se pokreće…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u0003eoutline": "radnja",
       "start-game\u0003elive-session": "uvod",
       "start-game\u0003eoutline": "upit"
-    },
-    "insights": {
-      "close": "Zatvori",
-      "empty": "Još ništa nije pokrenuto.",
-      "feed": "Što se dogodilo",
-      "hide": "Sakrij uvide",
-      "label": "Uvidi",
-      "show": "Prikaži uvide"
     }
   }
 }

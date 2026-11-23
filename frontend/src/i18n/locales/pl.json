@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 lat",
       "ageGroupU18": "18 lat lub więcej",
       "emailChangeNote": "Aby zmienić adres e-mail, skontaktuj się z administratorem strony.",
+      "emailDescription": "Opcjonalne. Organizacje zapraszają Cię za jego pomocą; żadne inne konto nie może go używać.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "ty@przyklad.pl",
       "errors": {
+        "emailInvalid": "To nie jest prawidłowy adres e-mail",
+        "emailTaken": "Ten adres e-mail należy do innego konta",
         "nameRequired": "Nazwa jest wymagana",
         "nameTaken": "Ta nazwa jest już zajęta",
         "nameTooLong": "Nazwa może mieć maksymalnie 24 znaki",
@@ -1321,12 +1326,6 @@
         "own": "Moje gry",
         "public": "Publiczne"
       },
-      "owner": "Moje",
-      "playGame": "Zagraj w tę grę",
-      "playNow": "Zagraj teraz",
-      "selectGameTitle": "Wybierz grę",
-      "title": "Wybierz grę",
-      "unfavorite": "Usuń z ulubionych",
       "launch": {
         "backToGames": "Wróć do gier",
         "cannotOpen": "Nie można kontynuować tej gry",
@@ -1342,6 +1341,12 @@
         "starting": "Rozpoczynanie gry…",
         "tryAgain": "Spróbuj ponownie"
       },
+      "owner": "Moje",
+      "playGame": "Zagraj w tę grę",
+      "playNow": "Zagraj teraz",
+      "selectGameTitle": "Wybierz grę",
+      "title": "Wybierz grę",
+      "unfavorite": "Usuń z ulubionych",
       "unplayable": {
         "denied": "Nie możesz grać w tę grę",
         "failed": "Nie można teraz rozpocząć gry",
@@ -1718,6 +1723,14 @@
       "turnFailed": "Historia nie mogła potoczyć się dalej na tej podstawie. Wyślij to ponownie albo spróbuj czegoś innego.",
       "voiceFailed": "Nie udało się połączyć z twoim głosem."
     },
+    "insights": {
+      "close": "Zamknij",
+      "empty": "Nic jeszcze nie zostało uruchomione.",
+      "feed": "Co się wydarzyło",
+      "hide": "Ukryj informacje",
+      "label": "Informacje",
+      "show": "Pokaż informacje"
+    },
     "launch": {
       "noGame": "Ta strona wymaga gry: otwórz ją ze strony gry.",
       "starting": "Uruchamianie gry…"
@@ -1780,14 +1793,6 @@
       "rephrase-audio\u0003eoutline": "działanie",
       "start-game\u0003elive-session": "wprowadzenie",
       "start-game\u0003eoutline": "prompt"
-    },
-    "insights": {
-      "close": "Zamknij",
-      "empty": "Nic jeszcze nie zostało uruchomione.",
-      "feed": "Co się wydarzyło",
-      "hide": "Ukryj informacje",
-      "label": "Informacje",
-      "show": "Pokaż informacje"
     }
   }
 }

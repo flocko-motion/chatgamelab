@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 godina",
       "ageGroupU18": "18 ili više",
       "emailChangeNote": "Za promjenu email adrese kontaktirajte administratora stranice.",
+      "emailDescription": "Opcionalno. Organizacije vas putem nje pozivaju; nijedan drugi nalog je ne smije koristiti.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vi@primjer.org",
       "errors": {
+        "emailInvalid": "Ovo nije važeća e-mail adresa",
+        "emailTaken": "Ova e-mail adresa pripada drugom nalogu",
         "nameRequired": "Ime je obavezno",
         "nameTaken": "Ovo ime je već zauzeto",
         "nameTooLong": "Ime može imati najviše 24 znaka",

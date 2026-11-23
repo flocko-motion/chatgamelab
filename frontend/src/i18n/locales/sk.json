@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 rokov",
       "ageGroupU18": "18 alebo viac",
       "emailChangeNote": "Ak chcete zmeniť svoju emailovú adresu, kontaktujte administrátora stránky.",
+      "emailDescription": "Voliteľné. Organizácie vás prostredníctvom nej pozývajú; žiadny iný účet ju nesmie používať.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vy@priklad.sk",
       "errors": {
+        "emailInvalid": "Toto nie je platná e-mailová adresa",
+        "emailTaken": "Tento e-mail patrí inému účtu",
         "nameRequired": "Meno je povinné",
         "nameTaken": "Toto meno je už obsadené",
         "nameTooLong": "Meno môže mať najviac 24 znakov",
@@ -1316,12 +1321,6 @@
         "own": "Moje hry",
         "public": "Verejné"
       },
-      "owner": "Moje",
-      "playGame": "Hrať túto hru",
-      "playNow": "Hrať teraz",
-      "selectGameTitle": "Vyberte hru",
-      "title": "Vyberte hru",
-      "unfavorite": "Odstrániť z obľúbených",
       "launch": {
         "backToGames": "Späť na hry",
         "cannotOpen": "Táto hra nemôže pokračovať",
@@ -1337,6 +1336,12 @@
         "starting": "Hra sa spúšťa…",
         "tryAgain": "Skúsiť znova"
       },
+      "owner": "Moje",
+      "playGame": "Hrať túto hru",
+      "playNow": "Hrať teraz",
+      "selectGameTitle": "Vyberte hru",
+      "title": "Vyberte hru",
+      "unfavorite": "Odstrániť z obľúbených",
       "unplayable": {
         "denied": "Túto hru nemôžeš hrať",
         "failed": "Momentálne ju nemožno hrať",
@@ -1712,6 +1717,14 @@
       "turnFailed": "Príbeh na to nedokázal nadviazať. Pošli to znova alebo skús niečo iné.",
       "voiceFailed": "Tvoj hlas sa nepodarilo pripojiť."
     },
+    "insights": {
+      "close": "Zavrieť",
+      "empty": "Zatiaľ nič neprebehlo.",
+      "feed": "Čo sa stalo",
+      "hide": "Skryť prehľady",
+      "label": "Prehľady",
+      "show": "Zobraziť prehľady"
+    },
     "launch": {
       "noGame": "Táto stránka potrebuje hru: otvor ju zo stránky hry.",
       "starting": "Hra sa spúšťa…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u0003eoutline": "dejanje",
       "start-game\u0003elive-session": "uvod",
       "start-game\u0003eoutline": "poziv"
-    },
-    "insights": {
-      "close": "Zavrieť",
-      "empty": "Zatiaľ nič neprebehlo.",
-      "feed": "Čo sa stalo",
-      "hide": "Skryť prehľady",
-      "label": "Prehľady",
-      "show": "Zobraziť prehľady"
     }
   }
 }
