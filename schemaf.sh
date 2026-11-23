@@ -28,7 +28,7 @@ PROJECT_NAME="chatgamelab"
 PROJECT_PORT="7100"
 # load reads the installed run-side script's version from this exact line
 # (_schemaf_script_version), so it never replaces a newer script with an older one.
-SCHEMAF_VER="v1.22.0"
+SCHEMAF_VER="v1.23.0"
 ORIG_PWD="$PWD"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 USER_DIR="$HOME/.${PROJECT_NAME}"
