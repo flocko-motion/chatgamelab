@@ -30,6 +30,16 @@ provider's console) and DNS for the domain pointing at the box.
 | nginx | the one public entry point: TLS, proxying to the app's port 7100 on localhost |
 | `chatgamelab-boot.service` (user unit of `cgl`) | starts the stack's containers after a reboot |
 
+An instance can put a shared password in front of the whole site, e.g. a
+development instance: `basic_auth_user` in its file, the password given once
+with `--basic-auth` (asked for, kept on the box as a hash in
+`/etc/nginx/htpasswd-<domain>`). `/api/health` and certificate renewal stay
+open. An empty `basic_auth_user` removes the protection.
+
+A provider that assigns an IPv6 address without announcing it gets
+`ipv6_address` in the instance file; `setup.sh` adds it to the box's netplan
+configuration.
+
 The first admin is the address given with `--admin`: it becomes admin at its
 first sign-in, while the instance has no admin.
 

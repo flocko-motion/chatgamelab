@@ -12,6 +12,9 @@
       # is podman 5's rootless network.
       - uidmap
       - passt
+      # The per-user D-Bus: systemd-run --user and the updater's user units
+      # need the run user's session bus, which minimal images leave out.
+      - dbus-user-session
     state: present
     update_cache: true
     cache_valid_time: 3600
@@ -24,6 +27,15 @@
     shell: /bin/bash
     create_home: true
     system: true
+
+# Ansible's working directory when it acts as the run user.
+- name: Create the run user's ansible directory
+  ansible.builtin.file:
+    path: "{{ run_home }}/.ansible/tmp"
+    state: directory
+    owner: "{{ run_user }}"
+    group: "{{ run_user }}"
+    mode: "0700"
 
 - name: Ensure the subordinate id files exist
   ansible.builtin.copy:
@@ -64,19 +76,28 @@
   ansible.builtin.command: "loginctl enable-linger {{ run_user }}"
   changed_when: false
 
-# A user manager started by an SSH login before lingering existed comes up
-# without its session bus; podman then falls back and warns on every command.
-# Restarted only while the bus is missing, so a running stack stays up.
-- name: Check for the run user's session bus
-  ansible.builtin.stat:
-    path: "/run/user/{{ run_uid }}/bus"
-  register: user_bus
+# The run user's manager starts with lingering. Its session bus comes from
+# dbus-user-session; a manager that started before the package was there gets
+# the bus by starting its socket, so a running stack stays up.
+- name: Wait for the run user's manager
+  ansible.builtin.wait_for:
+    path: "/run/user/{{ run_uid }}/systemd/private"
+    timeout: 60
 
-- name: Restart the run user's manager when its bus is missing
+- name: Start the run user's session bus
   ansible.builtin.systemd_service:
-    name: "user@{{ run_uid }}.service"
-    state: restarted
-  when: not user_bus.stat.exists
+    name: dbus.socket
+    scope: user
+    state: started
+  become: true
+  become_user: "{{ run_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ run_uid }}"
+
+- name: Check the run user's session bus
+  ansible.builtin.wait_for:
+    path: "/run/user/{{ run_uid }}/bus"
+    timeout: 30
 
 - name: Authorize the instance's SSH keys for the run user
   ansible.posix.authorized_key:
@@ -151,3 +172,59 @@
       Unattended-Upgrade::Automatic-Reboot "true";
       Unattended-Upgrade::Automatic-Reboot-Time "03:00";
     mode: "0644"
+
+# The box's IPv6 address, for providers that assign one and announce it
+# neither by DHCPv6 nor by router advertisement. A netplan drop-in under the
+# id of the interface's existing definition adds address and route to it.
+- name: Read the netplan definitions
+  ansible.builtin.command: netplan get ethernets
+  register: netplan_ethernets
+  changed_when: false
+  failed_when: false
+  when: ipv6_address | default('') | length > 0
+
+- name: Pick the definition the IPv6 address joins
+  ansible.builtin.set_fact:
+    ipv6_netplan_id: >-
+      {{ ipv6_netplan_id | default((netplan_ethernets.stdout | from_yaml | default({}, true)).keys() | list | first
+         if (netplan_ethernets.stdout | from_yaml | default({}, true)) | length == 1 else '') }}
+  when: ipv6_address | default('') | length > 0
+
+- name: Refuse an IPv6 address without one netplan definition to join
+  ansible.builtin.assert:
+    that:
+      - netplan_ethernets.rc == 0
+      - ipv6_netplan_id | length > 0
+    fail_msg: >-
+      ipv6_address is set, and the box has {{ 'no netplan' if netplan_ethernets.rc != 0
+      else 'more than one netplan definition' }}. With netplan, name the
+      definition of the public interface as ipv6_netplan_id (see `netplan get
+      ethernets` on the box); without netplan, configure IPv6 on the box by hand.
+  when: ipv6_address | default('') | length > 0
+
+- name: Add the IPv6 address
+  ansible.builtin.copy:
+    dest: /etc/netplan/60-ipv6.yaml
+    content: |
+      # Managed by deploy/roles/base (ipv6_address in the instance file).
+      network:
+        version: 2
+        ethernets:
+          {{ ipv6_netplan_id }}:
+            addresses:
+              - "{{ ipv6_address if '/' in ipv6_address else ipv6_address ~ '/128' }}"
+            routes:
+              - to: "::/0"
+                via: "{{ ipv6_gateway | default('fe80::1') }}"
+                on-link: true
+    owner: root
+    group: root
+    mode: "0600"
+  register: ipv6_netplan
+  when: ipv6_address | default('') | length > 0
+
+- name: Apply it
+  ansible.builtin.command: netplan apply
+  when:
+    - ipv6_address | default('') | length > 0
+    - ipv6_netplan is changed

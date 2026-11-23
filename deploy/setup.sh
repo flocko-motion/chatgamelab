@@ -3,7 +3,7 @@
 # configuration: packages, the run user `cgl`, rootless podman, nginx with TLS,
 # and the instance's env file. Safe to run again.
 #
-#   deploy/setup.sh <dir>/<domain>.yml [--admin <email>] [--backup-key <file>]
+#   deploy/setup.sh <dir>/<domain>.yml [--admin <email>] [--backup-key <file>] [--basic-auth]
 #
 # <domain>.yml   the instance's configuration (see deploy/example.yml); its
 #                file name is the domain the box serves and SSH reaches.
@@ -11,6 +11,8 @@
 #                admin exists (ADMIN_EMAILS). Kept on the box.
 # --backup-key   the private SSH key for the SFTP backup target. Copied to
 #                the box.
+# --basic-auth   ask for the password of basic_auth_user (the instance file's
+#                shared password in front of the site); its hash goes to the box.
 #
 # Needs ansible and ssh on this machine, and root SSH access to the box.
 # Written for bash 3.2 (macOS).
@@ -19,17 +21,19 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 
 usage() {
-  sed -n '6,13p' "$0" | sed 's/^# \{0,1\}//' >&2
+  sed -n '6,15p' "$0" | sed 's/^# \{0,1\}//' >&2
   exit 2
 }
 
 config=""
 admin=""
 backup_key=""
+basic_auth=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --admin) [ $# -ge 2 ] || usage; admin="$2"; shift 2 ;;
     --backup-key) [ $# -ge 2 ] || usage; backup_key="$2"; shift 2 ;;
+    --basic-auth) basic_auth=1; shift ;;
     -h|--help) usage ;;
     -*) echo "unknown option: $1" >&2; usage ;;
     *) [ -z "$config" ] || usage; config="$1"; shift ;;
@@ -64,11 +68,21 @@ case "$setup_ref" in
   *) echo "check out a release tag first (git checkout v<version>): the box's schemaf.sh comes from it" >&2; exit 1 ;;
 esac
 
+basic_auth_password=""
+if [ -n "$basic_auth" ]; then
+  printf 'Password for the site (basic_auth_user): ' >&2
+  read -rs basic_auth_password; echo >&2
+  printf 'Again: ' >&2
+  read -rs again; echo >&2
+  [ "$basic_auth_password" = "$again" ] || { echo "the two passwords differ" >&2; exit 1; }
+  [ -n "$basic_auth_password" ] || { echo "an empty password protects nothing" >&2; exit 1; }
+fi
+
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 chmod 700 "$work"
 
-printf '[chatgamelab]\n%s ansible_user=root\n' "$domain" > "$work/inventory.ini"
+printf '[chatgamelab]\n%s ansible_user=root ansible_python_interpreter=/usr/bin/python3\n' "$domain" > "$work/inventory.ini"
 
 # The admin address and the key path travel in a file rather than on the
 # command line, where every process on this machine could read them.
@@ -76,6 +90,7 @@ printf '[chatgamelab]\n%s ansible_user=root\n' "$domain" > "$work/inventory.ini"
   printf 'admin_email: "%s"\n' "$admin"
   printf 'backup_key_src: "%s"\n' "$backup_key"
   printf 'setup_ref: "%s"\n' "$setup_ref"
+  printf 'basic_auth_password: %s\n' "$(printf '%s' "$basic_auth_password" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')"
 } > "$work/given.yml"
 
 cd "$here"
