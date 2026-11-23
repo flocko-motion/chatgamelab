@@ -1438,7 +1438,13 @@
       "notAuthorized": "Nemáte oprávnenie pristupovať k nastaveniam servera. Vyžaduje sa prístup administrátora.",
       "title": "Nastavenia servera",
       "updates": {
+        "checkNow": "Skontrolovať aktualizácie",
+        "checkState": {
+          "failed": "Posledná kontrola nových verzií zlyhala; server sa o to pokúsi znova každý deň.",
+          "rejected": "Server kontrolu odmietol: jedna už prebieha alebo od poslednej neuplynula ani minúta."
+        },
         "checked": "Zadnje preverjanje novih različic: {{time}}",
+        "checking": "Kontrolujú sa nové verzie …",
         "installState": {
           "failed": "Neuspešno",
           "installed": "Nameščeno",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Povrnjeno"
         },
         "lastInstall": "Zadnja nadgradnja: {{version}} (iz {{from}})",
+        "neverChecked": "Nové verzie zatiaľ neboli skontrolované",
         "noVersion": "brez (razvojna različica)",
         "notEnabled": "Ta strežnik ne namešča posodobitev iz aplikacije: njegov program za posodabljanje ni nastavljen.",
         "rejected": "Strežnik je zavrnil nadgradnjo na {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "AI služba narazila na chybu. Skúste to znova.",
     "backendUserFetch": "Nepodarilo sa načítať údaje používateľa zo servera. Skúste to znova.",
     "billingNotActive": "Váš účet OpenAI nie je aktívny. Skontrolujte fakturačné údaje na https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Kontrola nových verzií už prebieha.",
+    "checkTooSoon": "Od poslednej kontroly neuplynula ani minúta. Skúste to znova o chvíľu.",
     "conflict": "Táto akcia je v konflikte s existujúcimi údajmi. Skúste to znova.",
     "contentFiltered": "Vašu požiadavku odfiltrovala obsahová politika AI. Skúste to preformulovať.",
     "duplicateName": "Názov tejto hry sa už používa. Vyberte iný názov.",

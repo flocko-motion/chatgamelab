@@ -1438,7 +1438,13 @@
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
       "title": "Pengaturan Server",
       "updates": {
+        "checkNow": "Periksa pembaruan",
+        "checkState": {
+          "failed": "Pemeriksaan terakhir untuk versi baru gagal; server akan mencoba lagi setiap hari.",
+          "rejected": "Server menolak pemeriksaan: pemeriksaan sudah berlangsung, atau pemeriksaan terakhir dilakukan kurang dari satu menit yang lalu."
+        },
         "checked": "Terakhir memeriksa versi baru: {{time}}",
+        "checking": "Memeriksa versi baru …",
         "installState": {
           "failed": "Gagal",
           "installed": "Terinstal",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Perubahan dibatalkan"
         },
         "lastInstall": "Peningkatan terakhir: {{version}} (dari {{from}})",
+        "neverChecked": "Belum pernah memeriksa versi baru",
         "noVersion": "tidak ada (pengembangan)",
         "notEnabled": "Server ini tidak menginstal pembaruan dari aplikasi: pemutakhirnya belum disiapkan.",
         "rejected": "Server menolak peningkatan ke {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "Layanan AI mengalami kesalahan. Silakan coba lagi.",
     "backendUserFetch": "Gagal memuat data pengguna dari server. Silakan coba lagi.",
     "billingNotActive": "Akun OpenAI Anda tidak aktif. Silakan periksa detail penagihan Anda di https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Pemeriksaan untuk versi baru sedang berlangsung.",
+    "checkTooSoon": "Pemeriksaan terakhir dilakukan kurang dari satu menit yang lalu. Coba lagi sebentar.",
     "conflict": "Tindakan ini bertentangan dengan data yang ada. Silakan coba lagi.",
     "contentFiltered": "Permintaan Anda difilter oleh kebijakan konten AI. Silakan coba ubah kalimatnya.",
     "duplicateName": "Nama gim ini sudah digunakan. Silakan pilih nama lain.",

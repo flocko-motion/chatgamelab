@@ -1,8 +1,8 @@
 import { Badge, Box, Card, Group, Loader, Stack } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconRefresh } from "@tabler/icons-react";
+import { IconRefresh, IconSearch } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { ActionButton } from "@components/buttons";
+import { ActionButton, GenericButtonWithText } from "@components/buttons";
 import { BodyText, CardTitle, HelperText, Label } from "@components/typography";
 import { useSiteUpdates } from "../hooks/useSiteUpdates";
 
@@ -95,13 +95,35 @@ export function SiteUpdates() {
               </Card>
             ))}
 
-            {updates.checked && (
-              <HelperText>
-                {t("serverSettings.updates.checked", {
-                  time: new Date(updates.checked).toLocaleString(),
-                })}
-              </HelperText>
+            {updates.updaterEnabled && (
+              <Group gap="sm" justify="space-between">
+                <HelperText>
+                  {updates.checking
+                    ? t("serverSettings.updates.checking")
+                    : updates.checked
+                      ? t("serverSettings.updates.checked", {
+                          time: new Date(updates.checked).toLocaleString(),
+                        })
+                      : t("serverSettings.updates.neverChecked")}
+                </HelperText>
+                <GenericButtonWithText
+                  icon={updates.checking ? <Loader size={14} /> : <IconSearch size={14} />}
+                  onClick={updates.checkNow}
+                  disabled={updates.checking || updates.busy}
+                  size="xs"
+                  variant="light"
+                >
+                  {t("serverSettings.updates.checkNow")}
+                </GenericButtonWithText>
+              </Group>
             )}
+
+            {!updates.checking &&
+              (updates.lastCheck?.state === "failed" || updates.lastCheck?.state === "rejected") && (
+                <HelperText c="red">
+                  {t(`serverSettings.updates.checkState.${updates.lastCheck.state}`)}
+                </HelperText>
+              )}
           </>
         )}
       </Stack>

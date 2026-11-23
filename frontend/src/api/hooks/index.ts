@@ -93,7 +93,12 @@ export {
   useRequestUpgrade,
   upgradeRunning,
   upgradeHandled,
+  checkRunning,
+  checkHandled,
+  checkMark,
+  useCheckForUpdates,
 } from "./useSystem";
+export type { CheckMark } from "./useSystem";
 
 // Invites
 export {

@@ -28,7 +28,7 @@ PROJECT_NAME="chatgamelab"
 PROJECT_PORT="7100"
 # load reads the installed run-side script's version from this exact line
 # (_schemaf_script_version), so it never replaces a newer script with an older one.
-SCHEMAF_VER="v1.23.0"
+SCHEMAF_VER="v1.24.0"
 ORIG_PWD="$PWD"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 USER_DIR="$HOME/.${PROJECT_NAME}"
@@ -66,6 +66,8 @@ _schemaf_mktemp() {
 
 _die() {
   echo "ERROR: $*" >&2
+  # releases records its error as the check's message (_schemaf_releases).
+  [ -z "${_SCHEMAF_DIE_FILE:-}" ] || printf '%s\n' "$*" >> "$_SCHEMAF_DIE_FILE" || true
   exit 1
 }
 
@@ -770,6 +772,14 @@ _schemaf_load() {
     cp "$dir/schemaf.sh" "$old/schemaf.sh"
     chmod 755 "$old/schemaf.sh"
     mv "$old/schemaf.sh" "$script"
+    # This script is the one just installed: its units go with it.
+    if [ -f "$USER_DIR/updates/updater" ]; then
+      if _schemaf_updater_write_units && systemctl --user daemon-reload >/dev/null 2>&1; then
+        echo "rewrote the updater's units for schemaf $ver" >&2
+      else
+        echo "WARNING: could not rewrite and reload the updater's units in $(_schemaf_unit_dir) — run: ~/.${PROJECT_NAME}/bin/schemaf.sh updater enable" >&2
+      fi
+    fi
   fi
   echo "Loaded $img; start it with: ~/.${PROJECT_NAME}/bin/schemaf.sh run --image $tag" >&2
   echo "$tag"
@@ -1119,9 +1129,41 @@ _schemaf_download() {
   echo "  $v: verified" >&2
 }
 
+# _schemaf_releases — one releases run, recorded as the check in status.json:
+# checking, then checked or failed with the error. The trigger comes from
+# _SCHEMAF_CHECK_TRIGGER (the timer unit: timer, a check the app asked for:
+# app), by hand it is operator. The caller holds no lock; this takes it.
 _schemaf_releases() {
-  local running index entries newest="" v art att failed=0 wanted=""
+  local trigger="${_SCHEMAF_CHECK_TRIGGER:-operator}" started rc found msg tmp
   _schemaf_pull_linux_only
+  _schemaf_releases_lock
+  started=$(_schemaf_now)
+  _schemaf_record_check checking "$trigger" "$started" "" "checking for new releases"
+  tmp=$(_schemaf_mktemp)
+  # The body in a subshell with errexit on (not in a condition, where bash
+  # turns it off), so any failure ends it and is recorded here.
+  set +e
+  (
+    set -e
+    _SCHEMAF_DIE_FILE="$tmp/error"
+    _schemaf_releases_run "$tmp/found"
+  )
+  rc=$?
+  set -e
+  if [ "$rc" = 0 ]; then
+    found=$(tr '\n' ' ' < "$tmp/found" 2>/dev/null | sed 's/ *$//' | sed 's/ /, /g') || found=""
+    _schemaf_record_check checked "$trigger" "$started" "$(_schemaf_now)" "$([ -n "$found" ] && echo "new releases: $found" || echo "no new releases")"
+    return 0
+  fi
+  msg=$(tail -n 1 "$tmp/error" 2>/dev/null) || msg=""
+  _schemaf_record_check failed "$trigger" "$started" "$(_schemaf_now)" "${msg:-releases failed (exit $rc) — see its output: journalctl --user -u $(_schemaf_unit_prefix)-releases.service}"
+  exit 1
+}
+
+# _schemaf_releases_run <found file> — the releases run itself; writes the
+# versions it kept to the found file.
+_schemaf_releases_run() {
+  local running index entries newest="" v art att failed=0 wanted=""
   _schemaf_pull_config
   _schemaf_check_runtime
   _schemaf_clear_stale_install
@@ -1145,6 +1187,7 @@ _schemaf_releases() {
   done <<< "$entries"
   wanted=$(printf '%s' "$wanted" | _schemaf_sort_versions)
   _schemaf_write_available "$index" "$wanted" || _die "could not write $UPDATES_DIR/available.json"
+  printf '%s' "$wanted" > "$1"
   [ -z "$wanted" ] || echo "$wanted"
   [ "$failed" = 0 ] || _die "some releases failed their checks (see above)"
 }
@@ -1195,7 +1238,7 @@ _schemaf_status_field() {
 }
 
 # _schemaf_write_status — ~/.<name>/updates/status.json from the state files
-# (var/state, var/install, var/request), atomically.
+# (var/state, var/install, var/request, var/check), atomically.
 _schemaf_write_status() {
   local tmp="$UPDATES_DIR/.status.json.tmp" k sep
   mkdir -p "$UPDATES_DIR"
@@ -1212,6 +1255,11 @@ _schemaf_write_status() {
     sep=""
     for k in version state message time; do
       printf '%s    %s' "$sep" "$(_schemaf_status_field request "$k")"; sep=$',\n'
+    done
+    printf '\n  },\n  "check": {\n'
+    sep=""
+    for k in state trigger started finished message; do
+      printf '%s    %s' "$sep" "$(_schemaf_status_field check "$k")"; sep=$',\n'
     done
     printf '\n  }\n}\n'
   } > "$tmp"
@@ -1439,6 +1487,110 @@ _schemaf_record_request() {
   echo "request $1: $2 — $3" >&2
 }
 
+# _schemaf_record_check <state> <trigger> <started> <finished> <message> — the
+# last or current check for new releases, in status.json. A check that ended
+# (checked, failed, with a finished time) also sets last, its end in seconds
+# since the epoch, which the limit between two checks counts from; a rejected
+# or an interrupted one (failed without a finished time) keeps it.
+_schemaf_record_check() {
+  local last
+  last=$(_schemaf_state_get_file check last)
+  case "$1" in checked|failed) [ -z "$4" ] || last=$(date +%s) ;; esac
+  mkdir -p "$VAR_DIR"
+  printf 'state=%s\ntrigger=%s\nstarted=%s\nfinished=%s\nmessage=%s\nlast=%s\n' \
+    "$1" "$2" "$3" "$4" "${5//$'\n'/ }" "$last" > "$VAR_DIR/check.tmp"
+  mv "$VAR_DIR/check.tmp" "$VAR_DIR/check"
+  _schemaf_write_status
+  [ "$1" != rejected ] || echo "check: rejected — $5" >&2
+}
+
+# _schemaf_releases_lock — one releases run at a time, as _schemaf_install_lock.
+# A check recorded as checking whose run is gone is recorded as failed first.
+_schemaf_releases_lock() {
+  local lock="$VAR_DIR/releases.lock" pid
+  mkdir -p "$VAR_DIR"
+  if ! mkdir "$lock" 2>/dev/null; then
+    pid=$(cat "$lock/pid" 2>/dev/null || true)
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+      _die "another releases run is going on (PID $pid) — try again when it has finished (status: $UPDATES_DIR/status.json)"
+    fi
+    echo "  taking over a stale releases lock (PID ${pid:-unknown} is gone)" >&2
+    rm -rf "${lock:?}"
+    mkdir "$lock" 2>/dev/null || _die "another releases run took the lock just now — try again when it has finished"
+  fi
+  echo "$$" > "$lock/pid"
+  _SCHEMAF_TMP="$_SCHEMAF_TMP $lock"
+  _schemaf_clear_stale_check
+}
+
+# _schemaf_releases_running — a releases run holds the lock (a live PID).
+_schemaf_releases_running() {
+  local pid
+  pid=$(cat "$VAR_DIR/releases.lock/pid" 2>/dev/null || true)
+  [ -n "$pid" ] && [ "$pid" != "$$" ] && kill -0 "$pid" 2>/dev/null
+}
+
+# _schemaf_clear_stale_check — a check recorded as checking whose run is gone
+# (a reboot, a kill) is recorded as failed, as _schemaf_clear_stale_install.
+_schemaf_clear_stale_check() {
+  [ "$(_schemaf_state_get_file check state)" = checking ] || return 0
+  ! _schemaf_releases_running || return 0
+  _schemaf_record_check failed "$(_schemaf_state_get_file check trigger)" "$(_schemaf_state_get_file check started)" \
+    "" "the check was interrupted (its process is gone)"
+  echo "  recorded the interrupted check as failed" >&2
+}
+
+# _SCHEMAF_CHECK_INTERVAL — the least seconds between two checks, the app's
+# limit too (EXTEND.md › Updates). Not a setting.
+_SCHEMAF_CHECK_INTERVAL=60
+
+# _schemaf_updater_check — the app asked for a check (the request "check"):
+# runs releases now unless an install or a releases run is going on or the
+# last check ended less than _SCHEMAF_CHECK_INTERVAL seconds ago. Rejections
+# are recorded and return 0; one while a check runs only goes to the journal,
+# so the running check's record stays (its outcome answers the request).
+_schemaf_updater_check() {
+  local last now since wait
+  _schemaf_clear_stale_check
+  if _schemaf_install_running; then
+    _schemaf_record_check rejected app "$(_schemaf_now)" "$(_schemaf_now)" "an install is running; check again when it has finished"
+    return 0
+  fi
+  if _schemaf_releases_running; then
+    echo "check: rejected — a check is running; its outcome answers this one" >&2
+    return 0
+  fi
+  last=$(_schemaf_state_get_file check last) now=$(date +%s)
+  if [[ "$last" =~ ^[0-9]+$ ]] && [ $((now - last)) -lt "$_SCHEMAF_CHECK_INTERVAL" ]; then
+    since=$((now - last)) wait=$((_SCHEMAF_CHECK_INTERVAL - (now - last)))
+    if [ "$since" -lt 0 ]; then since=0 wait=$_SCHEMAF_CHECK_INTERVAL; fi # a clock set back
+    _schemaf_record_check rejected app "$(_schemaf_now)" "$(_schemaf_now)" "the last check finished ${since}s ago; check again in ${wait}s"
+    return 0
+  fi
+  # Its own process, as an install: its lock and clean-up belong to it, its
+  # outcome is in status.json either way.
+  _SCHEMAF_CHECK_TRIGGER=app bash "$0" releases >/dev/null || true
+  _schemaf_reject_meanwhile "a check"
+  return 0
+}
+
+# _schemaf_reject_meanwhile <what ran> — a request that arrived while an
+# install or a check ran is rejected, not queued. A check that arrived during a
+# check only goes to the journal: the check that just ended answers it, and its
+# record stays.
+_schemaf_reject_meanwhile() {
+  local req
+  req=$(_schemaf_take_request)
+  [ -n "$req" ] || return 0
+  if [ "$req" = check ] && [ "$1" = "a check" ]; then
+    echo "check: rejected — arrived while a check was running; its outcome answers this one" >&2
+  elif [ "$req" = check ]; then
+    _schemaf_record_check rejected app "$(_schemaf_now)" "$(_schemaf_now)" "arrived while $1 was running; check again"
+  else
+    _schemaf_record_request "$(printf '%s' "$req" | head -n 1 | cut -c1-40)" rejected "arrived while $1 was running; request again"
+  fi
+}
+
 # _schemaf_clear_stale_install — an install recorded as installing whose
 # process is gone (a reboot, a kill) is recorded as failed, so the app's
 # update API doesn't report "installing" forever.
@@ -1476,7 +1628,7 @@ _schemaf_take_request() {
 }
 
 # _schemaf_updater_request — run by the path unit when the app writes the
-# request: untrusted input, one version string. Rejections are recorded and
+# request: untrusted input, one version string or the word check. Rejections are recorded and
 # exit 0 (a failing path-triggered service would hit systemd's start limit).
 _schemaf_updater_request() {
   local req running
@@ -1485,6 +1637,10 @@ _schemaf_updater_request() {
   _schemaf_clear_stale_install
   req=$(_schemaf_take_request)
   [ -n "$req" ] || return 0 # the empty file after a read: nothing asked
+  if [ "$req" = check ]; then
+    _schemaf_updater_check
+    return 0
+  fi
   if [[ "$req" == *$'\n'* ]] || ! _schemaf_is_version "$req"; then
     _schemaf_record_request "$(printf '%s' "$req" | head -n 1 | cut -c1-40)" rejected "not a version (X.Y.Z or X.Y.Z-<pre>)"
     return 0
@@ -1513,11 +1669,7 @@ _schemaf_updater_request() {
   # Its own process: install's lock and clean-up belong to it. Its outcome is
   # in status.json either way.
   bash "$0" install "$req" || true
-  # A request that arrived meanwhile is rejected, not queued.
-  req=$(_schemaf_take_request)
-  if [ -n "$req" ]; then
-    _schemaf_record_request "$(printf '%s' "$req" | head -n 1 | cut -c1-40)" rejected "arrived while an install was running; request again"
-  fi
+  _schemaf_reject_meanwhile "an install"
   return 0
 }
 
@@ -1537,32 +1689,50 @@ _schemaf_updater_enable() {
       "${SCHEMAF_RUNTIME:-podman}" info >/dev/null 2>&1; then
     _die "${SCHEMAF_RUNTIME:-podman} doesn't answer inside $user's systemd, where the updater's units run$([ "${SCHEMAF_RUNTIME:-podman}" = docker ] && echo " — if $user joined the docker group after its systemd started, restart it (as root): systemctl restart user@$(id -u).service") (try: systemd-run --user --wait ${SCHEMAF_RUNTIME:-podman} info)"
   fi
-  dir=$(_schemaf_unit_dir) prefix=$(_schemaf_unit_prefix)
-  mkdir -p "$dir"
   _schemaf_updates_files || _die "could not create $UPDATES_DIR"
-  cat > "$dir/$prefix-releases.service" <<EOF
-# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+  _schemaf_updater_write_units || _die "could not write the updater's units to $(_schemaf_unit_dir)"
+  dir=$(_schemaf_unit_dir) prefix=$(_schemaf_unit_prefix)
+  systemctl --user daemon-reload
+  systemctl --user enable --now "$prefix-releases.timer" "$prefix-request.path" >/dev/null 2>&1 \
+    || _die "systemctl --user enable --now $prefix-releases.timer $prefix-request.path failed — see: systemctl --user status $prefix-releases.timer $prefix-request.path"
+  echo "enabled $(_schemaf_now)" > "$UPDATES_DIR/updater"
+  chmod 644 "$UPDATES_DIR/updater"
+  systemctl --user start --no-block "$prefix-releases.service"
+  echo "Updater enabled: $prefix-releases.timer (daily releases), $prefix-request.path (the app's requests). Units in $dir" >&2
+}
+
+# _schemaf_updater_write_units — the updater's systemd user units, written by
+# enable and rewritten by load when it replaces this script (INSTALL.md › The
+# updater), so they always match the installed script.
+_schemaf_updater_write_units() {
+  local dir prefix script="$USER_DIR/bin/schemaf.sh"
+  dir=$(_schemaf_unit_dir) prefix=$(_schemaf_unit_prefix)
+  mkdir -p "$dir" || return 1
+  cat > "$dir/$prefix-releases.service" <<EOF || return 1
+# Written by schemaf.sh updater enable and load (INSTALL.md › The updater).
 [Unit]
 Description=schemaf: fetch and verify ${PROJECT_NAME}'s releases
 
 [Service]
 Type=oneshot
+Environment=_SCHEMAF_CHECK_TRIGGER=timer
 ExecStart=$script releases
 EOF
-  cat > "$dir/$prefix-releases.timer" <<EOF
-# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+  cat > "$dir/$prefix-releases.timer" <<EOF || return 1
+# Written by schemaf.sh updater enable and load (INSTALL.md › The updater).
 [Unit]
-Description=schemaf: fetch and verify ${PROJECT_NAME}'s releases, hourly
+Description=schemaf: fetch and verify ${PROJECT_NAME}'s releases, daily
 
 [Timer]
 OnBootSec=5min
-OnUnitActiveSec=1h
+OnUnitActiveSec=1d
+RandomizedDelaySec=1h
 
 [Install]
 WantedBy=timers.target
 EOF
-  cat > "$dir/$prefix-request.service" <<EOF
-# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+  cat > "$dir/$prefix-request.service" <<EOF || return 1
+# Written by schemaf.sh updater enable and load (INSTALL.md › The updater).
 [Unit]
 Description=schemaf: handle ${PROJECT_NAME}'s update request
 # No start limit: a burst of requests must never stop the path unit for good.
@@ -1572,8 +1742,8 @@ StartLimitIntervalSec=0
 Type=oneshot
 ExecStart=$script updater request
 EOF
-  cat > "$dir/$prefix-request.path" <<EOF
-# Written by schemaf.sh updater enable (INSTALL.md › The updater).
+  cat > "$dir/$prefix-request.path" <<EOF || return 1
+# Written by schemaf.sh updater enable and load (INSTALL.md › The updater).
 [Unit]
 Description=schemaf: watch ${PROJECT_NAME}'s update request
 
@@ -1583,13 +1753,6 @@ PathModified=$UPDATES_DIR/request
 [Install]
 WantedBy=default.target
 EOF
-  systemctl --user daemon-reload
-  systemctl --user enable --now "$prefix-releases.timer" "$prefix-request.path" >/dev/null 2>&1 \
-    || _die "systemctl --user enable --now $prefix-releases.timer $prefix-request.path failed — see: systemctl --user status $prefix-releases.timer $prefix-request.path"
-  echo "enabled $(_schemaf_now)" > "$UPDATES_DIR/updater"
-  chmod 644 "$UPDATES_DIR/updater"
-  systemctl --user start --no-block "$prefix-releases.service"
-  echo "Updater enabled: $prefix-releases.timer (hourly releases), $prefix-request.path (the app's requests). Units in $dir" >&2
 }
 
 _schemaf_updater_disable() {

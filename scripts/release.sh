@@ -92,7 +92,8 @@ for _ in $(seq 1 30); do
   if gh release download schemaf-index -R "$repo" -p releases.json -O - 2>/dev/null \
       | grep -q "\"version\": *\"$version\""; then
     echo "✅ $version is released: artifact signed and attached, in the release index."
-    echo "   Instances on its channel offer it after their next check (hourly)."
+    echo "   Instances on its channel offer it after their next check: daily, or at once"
+    echo "   when an admin clicks \"Check for updates\"."
     exit 0
   fi
   sleep 5

@@ -1438,7 +1438,13 @@
       "notAuthorized": "Você não tem permissão para acessar as configurações do servidor. Acesso de admin necessário.",
       "title": "Configurações do Servidor",
       "updates": {
+        "checkNow": "Verificar atualizações",
+        "checkState": {
+          "failed": "A última verificação de novas versões falhou; o servidor tentará novamente diariamente.",
+          "rejected": "O servidor recusou a verificação: já há uma em andamento ou a última ocorreu há menos de um minuto."
+        },
         "checked": "Última verificação de novas versões: {{time}}",
+        "checking": "Verificando novas versões …",
         "installState": {
           "failed": "Falhou",
           "installed": "Instalado",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Revertido"
         },
         "lastInstall": "Última atualização: {{version}} (de {{from}})",
+        "neverChecked": "Ainda não foram verificadas novas versões",
         "noVersion": "nenhuma (desenvolvimento)",
         "notEnabled": "Este servidor não instala atualizações pelo aplicativo: o atualizador não está configurado.",
         "rejected": "O servidor recusou a atualização para {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "O serviço de IA encontrou um erro. Tente novamente.",
     "backendUserFetch": "Falha ao carregar os dados do usuário do servidor. Tente novamente.",
     "billingNotActive": "Sua conta OpenAI não está ativa. Verifique seus detalhes de cobrança em https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Já há uma verificação de novas versões em andamento.",
+    "checkTooSoon": "A última verificação ocorreu há menos de um minuto. Tente novamente em instantes.",
     "conflict": "Esta ação conflita com dados existentes. Tente novamente.",
     "contentFiltered": "Seu pedido foi filtrado pela política de conteúdo da IA. Tente reformular.",
     "duplicateName": "O nome deste jogo já está em uso. Escolha um nome diferente.",

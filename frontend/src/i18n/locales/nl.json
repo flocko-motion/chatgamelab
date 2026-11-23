@@ -1438,7 +1438,13 @@
       "notAuthorized": "Je hebt geen toegang tot serverinstellingen. Admin-toegang vereist.",
       "title": "Serverinstellingen",
       "updates": {
+        "checkNow": "Op updates controleren",
+        "checkState": {
+          "failed": "De laatste controle op nieuwe versies is mislukt; de server probeert het dagelijks opnieuw.",
+          "rejected": "De server heeft de controle geweigerd: er wordt al een controle uitgevoerd of de vorige vond minder dan een minuut geleden plaats."
+        },
         "checked": "Laatst gecontroleerd op nieuwe versies: {{time}}",
+        "checking": "Controleren op nieuwe versies …",
         "installState": {
           "failed": "Mislukt",
           "installed": "Geïnstalleerd",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Teruggedraaid"
         },
         "lastInstall": "Laatste upgrade: {{version}} (van {{from}})",
+        "neverChecked": "Nog niet gecontroleerd op nieuwe versies",
         "noVersion": "geen (ontwikkeling)",
         "notEnabled": "Deze server installeert geen updates vanuit de app: de updater is niet ingesteld.",
         "rejected": "De server heeft de upgrade naar {{version}} geweigerd.",
@@ -1552,6 +1559,8 @@
     "aiError": "De AI-service gaf een fout. Probeer het opnieuw.",
     "backendUserFetch": "Gebruikersgegevens laden vanaf de server is mislukt. Probeer het opnieuw.",
     "billingNotActive": "Je OpenAI-account is niet actief. Controleer je facturatiegegevens op https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Er wordt al gecontroleerd op nieuwe versies.",
+    "checkTooSoon": "De vorige controle vond minder dan een minuut geleden plaats. Probeer het zo opnieuw.",
     "conflict": "Deze actie botst met bestaande gegevens. Probeer het opnieuw.",
     "contentFiltered": "Je verzoek is gefilterd door het AI-inhoudsbeleid. Probeer het anders te formuleren.",
     "duplicateName": "De naam voor deze game is al in gebruik. Kies een andere naam.",

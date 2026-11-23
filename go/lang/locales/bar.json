@@ -1443,7 +1443,13 @@
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
       "title": "Server-Einstellungen",
       "updates": {
+        "checkNow": "Nach Updates suacha",
+        "checkState": {
+          "failed": "De letzte Suach nach neia Versionen is fehlgschlagn; da Server probiert's jeden Dog wieda.",
+          "rejected": "Da Server hod de Suach abglehnt: Entweda lafft scho oane, oder de letzte is no koa Minut her."
+        },
         "checked": "Zuletzt nach neien Versionen gsuacht: {{time}}",
+        "checking": "Suach nach neia Versionen …",
         "installState": {
           "failed": "Fehlgschlogn",
           "installed": "Installiert",
@@ -1452,6 +1458,7 @@
           "rolled-back": "Zurückgsetzt"
         },
         "lastInstall": "Letzts Upgrade: {{version}} (von {{from}})",
+        "neverChecked": "No ned nach neia Versionen gsucht",
         "noVersion": "koane (Entwicklung)",
         "notEnabled": "Der Server installiert koa Updates aus da App: Sein Updater is ned eingerichtet.",
         "rejected": "Der Server hod s Upgrade auf {{version}} abglehnt.",
@@ -1558,6 +1565,8 @@
     "aiError": "Da KI-Dienst hod a Fehler ghabt. Probier's no amoi.",
     "backendUserFetch": "Nutzerdaten ham si ned vom Server laden lassn. Probier's no amoi.",
     "billingNotActive": "Dei OpenAI-Konto is ned aktiv. Schau dei Rechnungsinfos auf https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Es lafft scho a Suach nach neia Versionen.",
+    "checkTooSoon": "De letzte Suach is no koa Minut her. Probier's glei no amoi.",
     "conflict": "Die Aktion beißt si mit bestehende Daten. Probier's no amoi.",
     "contentFiltered": "Dei Anfrage is von da KI-Inhaltsrichtlinie blockiert wor'n. Formulier's anders.",
     "duplicateName": "Diesen Spuinam is scho vergeban. Bitte andern auswählen.",

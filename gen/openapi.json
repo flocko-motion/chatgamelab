@@ -2795,6 +2795,44 @@
             },
             "type": "array"
           },
+          "check": {
+            "properties": {
+              "finished": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "started": {
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "checking",
+                  "checked",
+                  "failed",
+                  "rejected"
+                ],
+                "type": "string"
+              },
+              "trigger": {
+                "enum": [
+                  "timer",
+                  "app",
+                  "operator"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "state",
+              "trigger",
+              "started",
+              "finished",
+              "message"
+            ],
+            "type": "object"
+          },
           "checked": {
             "type": "string"
           },
@@ -2871,7 +2909,8 @@
             "enum": [
               "updater not enabled",
               "idle",
-              "installing"
+              "installing",
+              "checking"
             ],
             "type": "string"
           }
@@ -9822,7 +9861,7 @@
     },
     "/api/updates": {
       "get": {
-        "description": "The running version, the verified versions the app may request (with their release notes), and the last install and request. Status \"updater not enabled\" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).",
+        "description": "The running version, the verified versions the app may request (with their release notes), and the last install, install request and check for new releases. Status \"updater not enabled\" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).",
         "operationId": "getApiUpdates",
         "responses": {
           "200": {
@@ -9855,6 +9894,36 @@
           }
         ],
         "summary": "The instance's updates"
+      }
+    },
+    "/api/updates/check": {
+      "post": {
+        "description": "Asks the run host's updater to look for new releases now (fetch and verify, never install); poll GET /api/updates for the outcome. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled, install_running or check_running; 429 check_too_soon (the last check finished less than a minute ago, with Retry-After).",
+        "operationId": "postApiUpdatesCheck",
+        "responses": {
+          "202": {
+            "description": "Requested"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Check for new releases now"
       }
     },
     "/api/updates/request": {

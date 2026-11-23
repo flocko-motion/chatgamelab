@@ -38,6 +38,8 @@ export const ErrorCodes = {
   UPDATER_NOT_ENABLED: "updater_not_enabled",
   VERSION_NOT_AVAILABLE: "version_not_available",
   INSTALL_RUNNING: "install_running",
+  CHECK_RUNNING: "check_running",
+  CHECK_TOO_SOON: "check_too_soon",
   // AI-related error codes
   INVALID_API_KEY: "invalid_api_key",
   NO_API_KEY: "no_api_key",

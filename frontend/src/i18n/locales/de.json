@@ -1286,7 +1286,14 @@
         "upgrade": "Upgrade",
         "upgradeTo": "Upgrade auf {{version}}",
         "upgradeConfirm": "Die Seite sichert ihre Datenbank, wechselt auf {{version}} und ist ein bis zwei Minuten nicht erreichbar. Startet die neue Version nicht, kehrt sie zur laufenden Version zurück.",
-        "checked": "Zuletzt nach neuen Versionen gesucht: {{time}}"
+        "checked": "Zuletzt nach neuen Versionen gesucht: {{time}}",
+        "checkNow": "Nach Updates suchen",
+        "checking": "Suche nach neuen Versionen …",
+        "neverChecked": "Noch nicht nach neuen Versionen gesucht",
+        "checkState": {
+          "failed": "Die letzte Suche nach neuen Versionen ist fehlgeschlagen; der Server versucht es täglich erneut.",
+          "rejected": "Der Server hat die Suche abgelehnt: Es läuft schon eine, oder die letzte ist keine Minute her."
+        }
       }
     },
     "settings": "Einstellungen",
@@ -1471,7 +1478,9 @@
     "guestStays": "Als Gast bleibst du dort, wo du beigetreten bist. Um bei einem anderen Workshop mitzumachen, öffne seinen Einladungslink, ohne dich anzumelden: Du trittst ihm als neuer Gast bei.",
     "updaterNotEnabled": "Dieser Server installiert keine Updates aus der App.",
     "versionNotAvailable": "Diese Version kann auf diesem Server nicht installiert werden.",
-    "installRunning": "Es läuft bereits ein Upgrade."
+    "installRunning": "Es läuft bereits ein Upgrade.",
+    "checkRunning": "Es läuft bereits eine Suche nach neuen Versionen.",
+    "checkTooSoon": "Die letzte Suche ist keine Minute her. Versuch es gleich noch einmal."
   },
   "myWorkshop": {
     "empty": {

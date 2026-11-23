@@ -2122,7 +2122,13 @@
         "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."
       },
       "updates": {
+        "checkNow": "Hubi cusboonaysiinnada",
+        "checkState": {
+          "failed": "Hubintii ugu dambaysay ee noocyo cusub waa fashilantay; server-ku wuxuu isku dayayaa mar kale maalin kasta.",
+          "rejected": "Server-ku wuu diiday hubinta: mid ayaa hore u socota, ama tii ugu dambaysay waxay dhacday wax ka yar hal daqiiqo ka hor."
+        },
         "checked": "Markii ugu dambaysay ee la hubiyay noocyo cusub: {{time}}",
+        "checking": "Waxaa la hubinayaa noocyo cusub …",
         "installState": {
           "failed": "Fashilmay",
           "installed": "La rakibay",
@@ -2131,6 +2137,7 @@
           "rolled-back": "Dib ayaa loo celiyay"
         },
         "lastInstall": "Casriyeyntii ugu dambaysay: {{version}} (laga soo bilaabo {{from}})",
+        "neverChecked": "Weli lama hubin noocyo cusub",
         "noVersion": "midna (horumarineed)",
         "notEnabled": "Server-kan wax cusboonaysiin ah kama rakibo app-ka: cusboonaysiiyehiisa lama diyaarin.",
         "rejected": "Server-ku wuu diiday casriyeynta loo samaynayo {{version}}.",
@@ -2227,6 +2234,8 @@
     "aiError": "Adeega AI-ga ayaa la kulmay khalad. Fadlan isku day mar kale.",
     "backendUserFetch": "Xogta isticmaalaha lagama soo qaadi karin server-ka. Fadlan isku day mar kale.",
     "billingNotActive": "Akoonkaaga OpenAI ma firfircoon. Fadlan hubi faahfaahinta lacag-bixintaada: https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Hubinta noocyo cusub ayaa horey u socota.",
+    "checkTooSoon": "Hubintii ugu dambaysay waxay dhacday wax ka yar hal daqiiqo ka hor. Wax yar kadib isku day mar kale.",
     "conflict": "Ficilkan wuxuu khilaafsan yahay xog horay u jirtay. Fadlan isku day mar kale.",
     "contentFiltered": "Codsigaaga waxaa shaandheeyay siyaasadda nuxurka ee AI. Fadlan dib u habee codsigaaga.",
     "forbidden": "Ma haysid oggolaansho aad ficilkan ku fuliso.",

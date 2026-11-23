@@ -1438,7 +1438,13 @@
       "notAuthorized": "Nemate dozvolu za pristup postavkama servera. Potreban je administratorski pristup.",
       "title": "Postavke servera",
       "updates": {
+        "checkNow": "Provjeri ima li ažuriranja",
+        "checkState": {
+          "failed": "Posljednja provjera novih verzija nije uspjela; server će pokušati ponovo svakog dana.",
+          "rejected": "Server je odbio provjeru: jedna već traje ili je posljednja provjera obavljena prije manje od minute."
+        },
         "checked": "Posljednja provjera novih verzija: {{time}}",
+        "checking": "Provjera novih verzija u toku …",
         "installState": {
           "failed": "Neuspješno",
           "installed": "Instalirano",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Vraćeno"
         },
         "lastInstall": "Posljednja nadogradnja: {{version}} (od {{from}})",
+        "neverChecked": "Još nije provjereno ima li novih verzija",
         "noVersion": "nijedna (razvojna)",
         "notEnabled": "Ovaj server ne instalira ažuriranja iz aplikacije: njegov program za ažuriranje nije podešen.",
         "rejected": "Server je odbio nadogradnju na {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "AI servis je naišao na grešku. Pokušajte ponovo.",
     "backendUserFetch": "Neuspješno učitavanje podataka korisnika sa servera. Pokušajte ponovo.",
     "billingNotActive": "Vaš OpenAI nalog nije aktivan. Provjerite podatke o naplati na https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Provjera novih verzija je već u toku.",
+    "checkTooSoon": "Posljednja provjera je obavljena prije manje od minute. Pokušajte ponovo uskoro.",
     "conflict": "Ova radnja je u sukobu s postojećim podacima. Pokušajte ponovo.",
     "contentFiltered": "Vaš zahtjev je filtriran prema AI pravilima sadržaja. Pokušajte drugačije formulisati.",
     "duplicateName": "Naziv ove igre je već u upotrebi. Molimo odaberite drugačiji naziv.",
