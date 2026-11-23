@@ -31,17 +31,19 @@ provider's console) and DNS for the domain pointing at the box.
 | `chatgamelab-boot.service` (user unit of `cgl`) | starts the stack's containers after a reboot |
 
 An instance can put a shared password in front of the whole site, e.g. a
-development instance: `basic_auth_user` in its file, the password given once
-with `--basic-auth` (asked for, kept on the box as a hash in
-`/etc/nginx/htpasswd-<domain>`). `/api/health` and certificate renewal stay
+development instance: `basic_auth_user` in its file, the password given with
+`--basic-auth` (asked for) or `--basic-auth-file` (read from a file, e.g. a
+keychain), kept on the box as a hash in `/etc/nginx/htpasswd-<domain>`; the
+same password again leaves the hash as it is. `/api/health` and certificate renewal stay
 open. An empty `basic_auth_user` removes the protection.
 
 A provider that assigns an IPv6 address without announcing it gets
 `ipv6_address` in the instance file; `setup.sh` adds it to the box's netplan
 configuration.
 
-The first admin is the address given with `--admin`: it becomes admin at its
-first sign-in, while the instance has no admin.
+The first admin is `admin_email` in the instance file, or the address given
+with `--admin`: it becomes admin at its first sign-in, while the instance has
+no admin.
 
 Backups are schemaf's built-in SFTP backup, nightly at `backup_hour`. An empty
 `backup_ssh_host` switches them off.
