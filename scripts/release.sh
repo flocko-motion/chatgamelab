@@ -57,6 +57,45 @@ else
 fi
 
 cd "$dir"
+tags_before="$(git tag -l 'v*' | sort)"
 GITHUB_TOKEN="$(gh auth token)" npx --yes \
   -p semantic-release@24 -p @semantic-release/github@11 \
   semantic-release --no-ci "$@"
+
+case " $* " in *" --dry-run "*|*" -d "*) exit 0 ;; esac
+
+# The release is installable once release.gen.yml has attached its artifact
+# and rebuilt the release index; wait for that and say so.
+git fetch --quiet --tags origin
+tag="$(comm -13 <(printf '%s\n' "$tags_before") <(git tag -l 'v*' | sort) | tail -1)"
+if [ -z "$tag" ]; then
+  echo ">> no release cut: nothing to wait for"
+  exit 0
+fi
+version="${tag#v}"
+repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+
+echo ">> waiting for release.gen.yml to build $tag …"
+run=""
+for _ in $(seq 1 60); do
+  run="$(gh run list -R "$repo" --workflow release.gen.yml --branch "$tag" -L 1 --json databaseId -q '.[0].databaseId' 2>/dev/null || true)"
+  [ -n "$run" ] && break
+  sleep 5
+done
+[ -n "$run" ] || { echo "release.gen.yml did not start for $tag; see the Actions tab" >&2; exit 1; }
+if ! gh run watch "$run" -R "$repo" --exit-status --interval 10 >/dev/null; then
+  echo "release.gen.yml failed for $tag: gh run view $run -R $repo --log-failed" >&2
+  exit 1
+fi
+
+for _ in $(seq 1 30); do
+  if gh release download schemaf-index -R "$repo" -p releases.json -O - 2>/dev/null \
+      | grep -q "\"version\": *\"$version\""; then
+    echo "✅ $version is released: artifact signed and attached, in the release index."
+    echo "   Instances on its channel offer it after their next check (hourly)."
+    exit 0
+  fi
+  sleep 5
+done
+echo "the release index does not list $version yet; see the release run" >&2
+exit 1
