@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	engine v0.0.0-00010101000000-000000000000
 	github.com/dillonstreator/go-unique-name-generator v1.0.2
-	github.com/flocko-motion/schemaf v1.22.0
+	github.com/flocko-motion/schemaf v1.23.0
 	github.com/getsentry/sentry-go v0.42.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1

@@ -46,9 +46,25 @@ owner to review pull requests by others; those, too, merge by bypass.
 
 The deny rules hold in every worktree that has them, and an agent cannot lift
 them: deny wins over every allow, and `.claude/settings.json` is itself
-denied. For an issue that changes the core, the owner removes the deny rules
-by hand from that worktree's `.claude/settings.json` and does not commit that
-change; the worktree is removed after the merge.
+denied. For an issue that changes the core, the owner opens the seal in that
+issue's worktree:
+
+```sh
+scripts/seal.sh open     # agents may edit the sealed paths here
+scripts/seal.sh close    # back to the committed seal
+scripts/seal.sh status
+```
+
+`open` drops the Edit and Write deny rules from the worktree's
+`.claude/settings.json`; the Bash denials (admin merges, rulesets) stay. It
+marks the file skip-worktree in that worktree's index, so git sees no change
+to it: no `git add` or `git commit -a` picks the open seal up, and it stays in
+the one worktree. `close` lifts the mark and restores the committed file;
+removing the worktree after the merge closes it too. The script opens no seal
+in the main checkout, and an agent can close the seal but never open it.
+
+While the seal is open, a pull or rebase that brings a change to
+`.claude/settings.json` stops; `close` first, then `open` again.
 
 ## Setting it up
 

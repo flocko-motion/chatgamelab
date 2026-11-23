@@ -5,6 +5,8 @@
 package app
 
 import (
+	"context"
+
 	"github.com/flocko-motion/schemaf/schemaf"
 
 	"cgl/api"
@@ -14,15 +16,17 @@ import (
 
 // Wire registers the app's database, API endpoints, sign-in, the secure
 // core's caller (resolved once per request), who may manage the site's
-// updates, background services and the embedded frontend.
+// updates, the work done before it serves, background services and the
+// embedded frontend.
 func Wire(app *schemaf.App) {
 	app.AddDb(db.Provider)
 	app.AddApi(api.Provider)
 	app.OnLogin(core.OnLogin)
 	app.OnRequest(core.Resolve)
 	app.SetUpdatesAuth(core.MayManageUpdates)
-	app.AddService(api.Startup)
-	app.AddService(core.Bootstrap)
+	app.OnBeforeServe(api.Prepare)
+	app.OnBeforeServe(func(ctx context.Context) error { core.Bootstrap(ctx); return nil })
+	app.AddService(api.Shutdown)
 	app.AddService(core.Janitor(func(id string) { api.Engine.Forget(id) }))
 	app.SetFrontend(FrontendFS())
 }
