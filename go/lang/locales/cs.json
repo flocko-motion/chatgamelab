@@ -1459,6 +1459,7 @@
         "noVersion": "žádná (vývojová)",
         "notEnabled": "Tento server neinstaluje aktualizace z aplikace: jeho aktualizační nástroj není nastaven.",
         "rejected": "Server odmítl upgrade na {{version}}.",
+        "reloading": "Verze {{version}} je nainstalována. Stránka se znovu načte s touto verzí.",
         "running": "Používaná verze:",
         "title": "Aktualizace",
         "upToDate": "Stránka používá nejnovější verzi.",

@@ -1459,6 +1459,7 @@
         "noVersion": "aucune (développement)",
         "notEnabled": "Ce serveur n’installe aucune mise à jour depuis l’application : son programme de mise à jour n’est pas configuré.",
         "rejected": "Le serveur a refusé la mise à niveau vers {{version}}.",
+        "reloading": "{{version}} est installée. La page se recharge avec cette version.",
         "running": "Version en cours d’exécution :",
         "title": "Mises à jour",
         "upToDate": "Le site utilise la dernière version.",

@@ -34,6 +34,19 @@ export function useSiteUpdates() {
 
   const installing = upgradeRunning(state);
   const waiting = awaiting !== null && !upgradeHandled(state, awaiting);
+
+  // The upgrade asked for here is installed: the server runs the new
+  // release, this page still the old frontend. It loads the new one.
+  const upgraded =
+    awaiting !== null &&
+    state?.install?.version === awaiting &&
+    state.install.state === "installed" &&
+    state.running === awaiting;
+  useEffect(() => {
+    if (!upgraded) return;
+    const timer = setTimeout(() => window.location.reload(), 2000);
+    return () => clearTimeout(timer);
+  }, [upgraded]);
   const checking =
     checkRunning(state) || check.isPending || (checkAwaited !== null && !checkHandled(state, checkAwaited));
 
@@ -86,6 +99,7 @@ export function useSiteUpdates() {
     lastCheck: state?.check,
     checking,
     checkInSeconds,
+    upgradedTo: upgraded ? awaiting : null,
     checkRefused: waitingForNextCheck ? refused : null,
     busy: installing || waiting || upgrade.isPending,
     requestUpgrade,

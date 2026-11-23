@@ -1311,20 +1311,12 @@
       },
       "GetVersionResp": {
         "properties": {
-          "buildTime": {
-            "type": "string"
-          },
-          "gitCommit": {
-            "type": "string"
-          },
           "version": {
             "type": "string"
           }
         },
         "required": [
-          "version",
-          "gitCommit",
-          "buildTime"
+          "version"
         ],
         "type": "object"
       },
@@ -10685,7 +10677,7 @@
     },
     "/api/version": {
       "get": {
-        "description": "Returns the version, git commit and build time the server was built with.",
+        "description": "Returns the version of the running release (\"dev\" where none runs, as in\ndevelopment). Frontend and server ship together, so a page compares it\nwith the version it was loaded with to see that the server was upgraded.",
         "operationId": "getApiVersion",
         "responses": {
           "200": {
@@ -10709,7 +10701,7 @@
             "description": "Error"
           }
         },
-        "summary": "Reports the server's build."
+        "summary": "Reports the release the server runs."
       }
     },
     "/api/workshops": {

@@ -1459,6 +1459,7 @@
         "noVersion": "nobena (razvojna)",
         "notEnabled": "Ta strežnik iz aplikacije ne namešča posodobitev: njegov program za posodabljanje ni nastavljen.",
         "rejected": "Strežnik je zavrnil nadgradnjo na {{version}}.",
+        "reloading": "Različica {{version}} je nameščena. Stran se znova naloži z njo.",
         "running": "Trenutno izvajana različica:",
         "title": "Posodobitve",
         "upToDate": "Stran uporablja najnovejšo različico.",

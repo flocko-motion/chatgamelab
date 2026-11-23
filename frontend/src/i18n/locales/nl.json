@@ -1459,6 +1459,7 @@
         "noVersion": "geen (ontwikkeling)",
         "notEnabled": "Deze server installeert geen updates vanuit de app: de updater is niet ingesteld.",
         "rejected": "De server heeft de upgrade naar {{version}} geweigerd.",
+        "reloading": "{{version}} is geïnstalleerd. De pagina wordt ermee opnieuw geladen.",
         "running": "Actieve versie:",
         "title": "Updates",
         "upToDate": "De site gebruikt de nieuwste versie.",

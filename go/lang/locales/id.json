@@ -1459,6 +1459,7 @@
         "noVersion": "tidak ada (pengembangan)",
         "notEnabled": "Server ini tidak menginstal pembaruan dari aplikasi: pemutakhirnya belum disiapkan.",
         "rejected": "Server menolak peningkatan ke {{version}}.",
+        "reloading": "{{version}} telah terinstal. Halaman akan dimuat ulang dengan versi tersebut.",
         "running": "Versi yang berjalan:",
         "title": "Pembaruan",
         "upToDate": "Situs menjalankan versi terbaru.",

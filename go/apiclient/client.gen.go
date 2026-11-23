@@ -1076,9 +1076,7 @@ type GetCurrentUserResp struct {
 
 // GetVersionResp defines model for GetVersionResp.
 type GetVersionResp struct {
-	BuildTime string `json:"buildTime"`
-	GitCommit string `json:"gitCommit"`
-	Version   string `json:"version"`
+	Version string `json:"version"`
 }
 
 // GraphResponse defines model for GraphResponse.
@@ -4009,9 +4007,11 @@ type ClientInterface interface {
 	// Corresponds with GET /api/users/{id}/stats (the `GetApiUsersIdStats` operationId).
 	GetApiUsersIdStats(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetApiVersion Reports the server's build.
+	// GetApiVersion Reports the release the server runs.
 	//
-	// Returns the version, git commit and build time the server was built with.
+	// Returns the version of the running release ("dev" where none runs, as in
+	// development). Frontend and server ship together, so a page compares it
+	// with the version it was loaded with to see that the server was upgraded.
 	//
 	// Corresponds with GET /api/version (the `GetApiVersion` operationId).
 	GetApiVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -7299,9 +7299,11 @@ func (c *Client) GetApiUsersIdStats(ctx context.Context, id string, reqEditors .
 	return c.Client.Do(req)
 }
 
-// GetApiVersion Reports the server's build.
+// GetApiVersion Reports the release the server runs.
 //
-// Returns the version, git commit and build time the server was built with.
+// Returns the version of the running release ("dev" where none runs, as in
+// development). Frontend and server ship together, so a page compares it
+// with the version it was loaded with to see that the server was upgraded.
 //
 // Corresponds with GET /api/version (the `GetApiVersion` operationId).
 func (c *Client) GetApiVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -15235,9 +15237,11 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/users/{id}/stats (the `GetApiUsersIdStats` operationId).
 	GetApiUsersIdStatsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiUsersIdStatsResponse, error)
 
-	// GetApiVersionWithResponse Reports the server's build.
+	// GetApiVersionWithResponse Reports the release the server runs.
 	//
-	// Returns the version, git commit and build time the server was built with.
+	// Returns the version of the running release ("dev" where none runs, as in
+	// development). Frontend and server ship together, so a page compares it
+	// with the version it was loaded with to see that the server was upgraded.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
@@ -24550,9 +24554,11 @@ func (c *ClientWithResponses) GetApiUsersIdStatsWithResponse(ctx context.Context
 	return ParseGetApiUsersIdStatsResponse(rsp)
 }
 
-// GetApiVersionWithResponse Reports the server's build.
+// GetApiVersionWithResponse Reports the release the server runs.
 //
-// Returns the version, git commit and build time the server was built with.
+// Returns the version of the running release ("dev" where none runs, as in
+// development). Frontend and server ship together, so a page compares it
+// with the version it was loaded with to see that the server was upgraded.
 //
 // Returns a wrapper object for the known response body format(s).
 //

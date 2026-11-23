@@ -1459,6 +1459,7 @@
         "noVersion": "nincs (fejlesztői)",
         "notEnabled": "Ez a szerver nem telepít frissítéseket az alkalmazásból: a frissítő nincs beállítva.",
         "rejected": "A szerver elutasította a(z) {{version}} verzióra történő frissítést.",
+        "reloading": "{{version}} telepítve. Az oldal ezzel újratöltődik.",
         "running": "Jelenleg futó verzió:",
         "title": "Frissítések",
         "upToDate": "A webhelyen a legújabb verzió fut.",

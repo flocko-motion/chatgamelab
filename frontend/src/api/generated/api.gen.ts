@@ -507,8 +507,6 @@ export interface GetCurrentUserResp {
 }
 
 export interface GetVersionResp {
-  buildTime: string;
-  gitCommit: string;
   version: string;
 }
 
@@ -4217,10 +4215,10 @@ export class Api<
       }),
 
     /**
-     * @description Returns the version, git commit and build time the server was built with.
+     * @description Returns the version of the running release ("dev" where none runs, as in development). Frontend and server ship together, so a page compares it with the version it was loaded with to see that the server was upgraded.
      *
      * @name GetApiVersion
-     * @summary Reports the server's build.
+     * @summary Reports the release the server runs.
      * @request GET:/api/version
      */
     getApiVersion: (params: RequestParams = {}) =>

@@ -1464,6 +1464,7 @@
         "noVersion": "brak (wersja deweloperska)",
         "notEnabled": "Ten serwer nie instaluje aktualizacji z aplikacji: jego mechanizm aktualizacji nie jest skonfigurowany.",
         "rejected": "Serwer odrzucił aktualizację do wersji {{version}}.",
+        "reloading": "Zainstalowano {{version}}. Strona zostanie załadowana ponownie z tą wersją.",
         "running": "Uruchomiona wersja:",
         "title": "Aktualizacje",
         "upToDate": "Strona działa w najnowszej wersji.",

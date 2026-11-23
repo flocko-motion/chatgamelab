@@ -1459,6 +1459,7 @@
         "noVersion": "nijedna (razvojna)",
         "notEnabled": "Ovaj server ne instalira ažuriranja iz aplikacije: njegov program za ažuriranje nije podešen.",
         "rejected": "Server je odbio nadogradnju na {{version}}.",
+        "reloading": "{{version}} je instalirana. Stranica se ponovo učitava s njom.",
         "running": "Trenutna verzija:",
         "title": "Ažuriranja",
         "upToDate": "Stranica koristi najnoviju verziju.",
