@@ -1464,6 +1464,7 @@
         "noVersion": "koane (Entwicklung)",
         "notEnabled": "Der Server installiert koa Updates aus da App: Sein Updater is ned eingerichtet.",
         "rejected": "Der Server hod s Upgrade auf {{version}} abglehnt.",
+        "reloading": "{{version}} is installiert. De Seitn lad’t damit nei.",
         "running": "Laufende Version:",
         "title": "Updates",
         "upToDate": "D Seit lafft mit da neiestn Version.",

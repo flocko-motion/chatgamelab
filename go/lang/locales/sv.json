@@ -1464,6 +1464,7 @@
         "noVersion": "ingen (utveckling)",
         "notEnabled": "Den här servern installerar inga uppdateringar från appen: dess uppdaterare är inte konfigurerad.",
         "rejected": "Servern nekade uppgraderingen till {{version}}.",
+        "reloading": "{{version}} är installerad. Sidan laddas om med den.",
         "running": "Version som körs:",
         "title": "Uppdateringar",
         "upToDate": "Webbplatsen kör den senaste versionen.",

@@ -19,7 +19,7 @@ import (
 // kept mail; a schemaf before-serve hook, so it is done before the first
 // request.
 func Prepare(ctx context.Context) error {
-	telemetry.Init(Version)
+	telemetry.Init(RunningVersion())
 
 	if schemafapi.DevMode() {
 		log.SetDebug(true)

@@ -1073,6 +1073,7 @@
   "common.serverSettings.updates.noVersion": "144ebec16b0884e0",
   "common.serverSettings.updates.notEnabled": "bd7e829751d43bb6",
   "common.serverSettings.updates.rejected": "570eb69aa6878d34",
+  "common.serverSettings.updates.reloading": "ff060378721d620c",
   "common.serverSettings.updates.running": "1f5e70275d103525",
   "common.serverSettings.updates.title": "a4335323a4319a3f",
   "common.serverSettings.updates.upToDate": "3bb0e6f5996b0268",

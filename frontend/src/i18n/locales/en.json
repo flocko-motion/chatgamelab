@@ -1295,7 +1295,8 @@
           "rejected": "The server refused the check: one runs already, or the last one was less than a minute ago."
         },
         "nextCheckIn": "The next check is possible in {{seconds}} s.",
-        "checkRunningElsewhere": "A check is already running; its result shows here."
+        "checkRunningElsewhere": "A check is already running; its result shows here.",
+        "reloading": "{{version}} is installed. The page reloads with it."
       }
     },
     "settings": "Settings",

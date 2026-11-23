@@ -1464,6 +1464,7 @@
         "noVersion": "asnjë (zhvillim)",
         "notEnabled": "Ky server nuk instalon përditësime nga aplikacioni: përditësuesi i tij nuk është konfiguruar.",
         "rejected": "Serveri refuzoi përditësimin në {{version}}.",
+        "reloading": "{{version}} është instaluar. Faqja ringarkohet me të.",
         "running": "Versioni në përdorim:",
         "title": "Përditësimet",
         "upToDate": "Faqja përdor versionin më të fundit.",

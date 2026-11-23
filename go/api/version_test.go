@@ -5,16 +5,18 @@ import (
 	"testing"
 )
 
-func TestGetVersionReportsTheBuild(t *testing.T) {
-	Version, GitCommit, BuildTime = "2.0.0", "abc123", "2026-11-08T12:00:00Z"
-
-	got, err := GetVersionEndpoint{}.Handle(context.Background(), GetVersionReq{})
-	if err != nil {
-		t.Fatalf("Handle: %v", err)
-	}
-
-	want := GetVersionResp{Version: "2.0.0", GitCommit: "abc123", BuildTime: "2026-11-08T12:00:00Z"}
-	if got != want {
-		t.Errorf("got %+v, want %+v", got, want)
+func TestGetVersionReportsTheRunningRelease(t *testing.T) {
+	for _, c := range []struct{ image, want string }{
+		{"chatgamelab:2.0.0-dev.7", "2.0.0-dev.7"},
+		{"", "dev"}, // development: no release runs
+	} {
+		t.Setenv("SCHEMAF_IMAGE", c.image)
+		got, err := GetVersionEndpoint{}.Handle(context.Background(), GetVersionReq{})
+		if err != nil {
+			t.Fatalf("Handle: %v", err)
+		}
+		if got.Version != c.want {
+			t.Errorf("image %q: got %q, want %q", c.image, got.Version, c.want)
+		}
 	}
 }

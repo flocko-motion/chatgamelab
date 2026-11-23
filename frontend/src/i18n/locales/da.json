@@ -1459,6 +1459,7 @@
         "noVersion": "ingen (udvikling)",
         "notEnabled": "Denne server installerer ikke opdateringer fra appen: dens opdateringsfunktion er ikke konfigureret.",
         "rejected": "Serveren afviste opgraderingen til {{version}}.",
+        "reloading": "{{version}} er installeret. Siden genindlæses med den.",
         "running": "Kørende version:",
         "title": "Opdateringer",
         "upToDate": "Webstedet kører den nyeste version.",

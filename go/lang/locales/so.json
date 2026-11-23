@@ -2143,6 +2143,7 @@
         "noVersion": "midna (horumarineed)",
         "notEnabled": "Server-kan wax cusboonaysiin ah kama rakibo app-ka: cusboonaysiiyehiisa lama diyaarin.",
         "rejected": "Server-ku wuu diiday casriyeynta loo samaynayo {{version}}.",
+        "reloading": "{{version}} waa la rakibay. Boggu wuxuu dib ugu soo shubanayaa noocaas.",
         "running": "Nooca socda:",
         "title": "Cusboonaysiinnada",
         "upToDate": "Boggu wuxuu ku shaqeeyaa nooca ugu dambeeya.",

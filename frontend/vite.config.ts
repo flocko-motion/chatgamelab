@@ -32,7 +32,6 @@ export default defineConfig({
       '@hooks': path.resolve(__dirname, './src/common/hooks'),
       '@lib': path.resolve(__dirname, './src/common/lib'),
       '@types': path.resolve(__dirname, './src/common/types'),
-      '@version': path.resolve(__dirname, './src/version.js'),
     },
   },
   build: {

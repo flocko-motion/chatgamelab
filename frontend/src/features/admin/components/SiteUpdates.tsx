@@ -49,6 +49,12 @@ export function SiteUpdates() {
               <HelperText>{t("serverSettings.updates.notEnabled")}</HelperText>
             )}
 
+            {updates.upgradedTo && (
+              <HelperText c="green">
+                {t("serverSettings.updates.reloading", { version: updates.upgradedTo })}
+              </HelperText>
+            )}
+
             {updates.install && (
               <Group gap="xs">
                 <Badge color={INSTALL_COLOR[updates.install.state]} variant="light">

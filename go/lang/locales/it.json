@@ -1459,6 +1459,7 @@
         "noVersion": "nessuna (sviluppo)",
         "notEnabled": "Questo server non installa aggiornamenti dall'app: il suo programma di aggiornamento non è configurato.",
         "rejected": "Il server ha rifiutato l'aggiornamento a {{version}}.",
+        "reloading": "{{version}} è installata. La pagina si ricarica con questa versione.",
         "running": "Versione in esecuzione:",
         "title": "Aggiornamenti",
         "upToDate": "Il sito usa la versione più recente.",

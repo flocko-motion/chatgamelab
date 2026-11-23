@@ -1462,6 +1462,7 @@
         "noVersion": "niciuna (dezvoltare)",
         "notEnabled": "Acest server nu instalează actualizări din aplicație: programul său de actualizare nu este configurat.",
         "rejected": "Serverul a refuzat actualizarea la {{version}}.",
+        "reloading": "{{version}} este instalată. Pagina se reîncarcă cu aceasta.",
         "running": "Versiunea curentă:",
         "title": "Actualizări",
         "upToDate": "Site-ul rulează cea mai recentă versiune.",

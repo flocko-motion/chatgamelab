@@ -1464,6 +1464,7 @@
         "noVersion": "ei mitään (kehitysversio)",
         "notEnabled": "Tämä palvelin ei asenna päivityksiä sovelluksesta: sen päivitysohjelmaa ei ole määritetty.",
         "rejected": "Palvelin hylkäsi päivityksen versioon {{version}}.",
+        "reloading": "{{version}} on asennettu. Sivu latautuu uudelleen kyseisellä versiolla.",
         "running": "Käytössä oleva versio:",
         "title": "Päivitykset",
         "upToDate": "Sivustossa on uusin versio.",
