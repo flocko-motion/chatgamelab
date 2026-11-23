@@ -1444,6 +1444,7 @@
       "title": "서버 설정",
       "updates": {
         "checkNow": "업데이트 확인",
+        "checkRunningElsewhere": "이미 검사가 실행 중이며, 결과가 여기에 표시됩니다.",
         "checkState": {
           "failed": "새 버전 확인에 실패했습니다. 서버가 매일 다시 시도합니다.",
           "rejected": "서버가 확인을 거부했습니다. 이미 확인 중이거나 마지막 확인 후 1분이 지나지 않았습니다."
@@ -1459,6 +1460,7 @@
         },
         "lastInstall": "마지막 업그레이드: {{version}} ({{from}}에서)",
         "neverChecked": "아직 새 버전을 확인하지 않았습니다",
+        "nextCheckIn": "다음 검사는 {{seconds}}초 후에 가능합니다.",
         "noVersion": "없음 (개발 버전)",
         "notEnabled": "이 서버는 앱에서 업데이트를 설치하지 않습니다. 업데이터가 설정되지 않았습니다.",
         "rejected": "서버가 {{version}}으로의 업그레이드를 거부했습니다.",

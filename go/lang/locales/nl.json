@@ -1439,6 +1439,7 @@
       "title": "Serverinstellingen",
       "updates": {
         "checkNow": "Op updates controleren",
+        "checkRunningElsewhere": "Er wordt al een controle uitgevoerd; het resultaat verschijnt hier.",
         "checkState": {
           "failed": "De laatste controle op nieuwe versies is mislukt; de server probeert het dagelijks opnieuw.",
           "rejected": "De server heeft de controle geweigerd: er wordt al een controle uitgevoerd of de vorige vond minder dan een minuut geleden plaats."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Laatste upgrade: {{version}} (van {{from}})",
         "neverChecked": "Nog niet gecontroleerd op nieuwe versies",
+        "nextCheckIn": "De volgende controle is mogelijk over {{seconds}} s.",
         "noVersion": "geen (ontwikkeling)",
         "notEnabled": "Deze server installeert geen updates vanuit de app: de updater is niet ingesteld.",
         "rejected": "De server heeft de upgrade naar {{version}} geweigerd.",

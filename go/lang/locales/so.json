@@ -2123,6 +2123,7 @@
       },
       "updates": {
         "checkNow": "Hubi cusboonaysiinnada",
+        "checkRunningElsewhere": "Hubin ayaa horey u socota; natiijadeedu halkan ayay ka muuqanaysaa.",
         "checkState": {
           "failed": "Hubintii ugu dambaysay ee noocyo cusub waa fashilantay; server-ku wuxuu isku dayayaa mar kale maalin kasta.",
           "rejected": "Server-ku wuu diiday hubinta: mid ayaa hore u socota, ama tii ugu dambaysay waxay dhacday wax ka yar hal daqiiqo ka hor."
@@ -2138,6 +2139,7 @@
         },
         "lastInstall": "Casriyeyntii ugu dambaysay: {{version}} (laga soo bilaabo {{from}})",
         "neverChecked": "Weli lama hubin noocyo cusub",
+        "nextCheckIn": "Hubinta xigta waxaa la samayn karaa {{seconds}} ilbiriqsi gudahood.",
         "noVersion": "midna (horumarineed)",
         "notEnabled": "Server-kan wax cusboonaysiin ah kama rakibo app-ka: cusboonaysiiyehiisa lama diyaarin.",
         "rejected": "Server-ku wuu diiday casriyeynta loo samaynayo {{version}}.",

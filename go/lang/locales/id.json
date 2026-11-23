@@ -1439,6 +1439,7 @@
       "title": "Pengaturan Server",
       "updates": {
         "checkNow": "Periksa pembaruan",
+        "checkRunningElsewhere": "Pemeriksaan sedang berjalan; hasilnya akan ditampilkan di sini.",
         "checkState": {
           "failed": "Pemeriksaan terakhir untuk versi baru gagal; server akan mencoba lagi setiap hari.",
           "rejected": "Server menolak pemeriksaan: pemeriksaan sudah berlangsung, atau pemeriksaan terakhir dilakukan kurang dari satu menit yang lalu."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Peningkatan terakhir: {{version}} (dari {{from}})",
         "neverChecked": "Belum pernah memeriksa versi baru",
+        "nextCheckIn": "Pemeriksaan berikutnya dapat dilakukan dalam {{seconds}} dtk.",
         "noVersion": "tidak ada (pengembangan)",
         "notEnabled": "Server ini tidak menginstal pembaruan dari aplikasi: pemutakhirnya belum disiapkan.",
         "rejected": "Server menolak peningkatan ke {{version}}.",

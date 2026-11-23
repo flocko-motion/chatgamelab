@@ -1293,7 +1293,9 @@
         "checkState": {
           "failed": "Die letzte Suche nach neuen Versionen ist fehlgeschlagen; der Server versucht es täglich erneut.",
           "rejected": "Der Server hat die Suche abgelehnt: Es läuft schon eine, oder die letzte ist keine Minute her."
-        }
+        },
+        "nextCheckIn": "Die nächste Suche ist in {{seconds}} s möglich.",
+        "checkRunningElsewhere": "Es läuft schon eine Suche; ihr Ergebnis erscheint hier."
       }
     },
     "settings": "Einstellungen",

@@ -177,7 +177,28 @@ export function useUpdates(awaiting: string | null = null, checkAwaited: CheckMa
   });
 }
 
-/** Asks the run host to look for new releases now; it fetches and verifies, never installs. */
+/** The run host refused a check for now: one runs, or the last is too recent. */
+export interface CheckRefused {
+  code: "check_running" | "check_too_soon";
+  /** Seconds until a check is taken again, from the answer's Retry-After. */
+  retryAfter?: number;
+}
+
+/** A refused check, out of the error a check request failed with; null for any other error. */
+export function checkRefused(error: unknown): CheckRefused | null {
+  if (!error || typeof error !== "object") return null;
+  const r = error as { error?: { code?: string }; headers?: Headers };
+  const code = r.error?.code;
+  if (code !== "check_running" && code !== "check_too_soon") return null;
+  const seconds = Number(r.headers?.get?.("Retry-After"));
+  return { code, retryAfter: Number.isFinite(seconds) && seconds > 0 ? seconds : undefined };
+}
+
+/**
+ * Asks the run host to look for new releases now; it fetches and verifies,
+ * never installs. A refusal for now (checkRefused) is the caller's to show;
+ * any other error goes to the error modal.
+ */
 export function useCheckForUpdates() {
   const queryClient = useQueryClient();
   return useMutation<void, ApiError, void>({
@@ -185,7 +206,9 @@ export function useCheckForUpdates() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.updates });
     },
-    onError: handleApiError,
+    onError: (error) => {
+      if (!checkRefused(error)) handleApiError(error);
+    },
   });
 }
 

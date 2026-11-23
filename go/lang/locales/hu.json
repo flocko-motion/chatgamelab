@@ -1439,6 +1439,7 @@
       "title": "Szerver beállítások",
       "updates": {
         "checkNow": "Frissítések keresése",
+        "checkRunningElsewhere": "Már folyamatban van egy ellenőrzés; annak eredménye itt jelenik meg.",
         "checkState": {
           "failed": "Az új verziók legutóbbi keresése sikertelen volt; a szerver naponta újra próbálkozik.",
           "rejected": "A szerver elutasította a keresést: már folyamatban van egy, vagy az előző kevesebb mint egy perce történt."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Legutóbbi frissítés: {{version}} (erről: {{from}})",
         "neverChecked": "Még nem történt keresés új verziókra",
+        "nextCheckIn": "A következő ellenőrzés {{seconds}} másodperc múlva lehetséges.",
         "noVersion": "nincs (fejlesztői)",
         "notEnabled": "Ez a szerver nem telepít frissítéseket az alkalmazásból: a frissítő nincs beállítva.",
         "rejected": "A szerver elutasította a(z) {{version}} verzióra történő frissítést.",

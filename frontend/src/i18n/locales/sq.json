@@ -1444,6 +1444,7 @@
       "title": "Cilësimet e serverit",
       "updates": {
         "checkNow": "Kontrollo për përditësime",
+        "checkRunningElsewhere": "Një kontroll po kryhet tashmë; rezultati i tij shfaqet këtu.",
         "checkState": {
           "failed": "Kontrolli i fundit për versione të reja dështoi; serveri do të provojë përsëri çdo ditë.",
           "rejected": "Serveri e refuzoi kontrollin: një kontroll po kryhet tashmë, ose i fundit u krye më pak se një minutë më parë."
@@ -1459,6 +1460,7 @@
         },
         "lastInstall": "Përditësimi i fundit: {{version}} (nga {{from}})",
         "neverChecked": "Ende nuk është kryer kontroll për versione të reja",
+        "nextCheckIn": "Kontrolli i radhës është i mundur pas {{seconds}} s.",
         "noVersion": "asnjë (zhvillim)",
         "notEnabled": "Ky server nuk instalon përditësime nga aplikacioni: përditësuesi i tij nuk është konfiguruar.",
         "rejected": "Serveri refuzoi përditësimin në {{version}}.",

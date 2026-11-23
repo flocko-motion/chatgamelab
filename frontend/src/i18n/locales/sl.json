@@ -1439,6 +1439,7 @@
       "title": "Nastavitve strežnika",
       "updates": {
         "checkNow": "Preveri posodobitve",
+        "checkRunningElsewhere": "Preverjanje že poteka; njegov rezultat bo prikazan tukaj.",
         "checkState": {
           "failed": "Zadnje preverjanje novih različic ni uspelo; strežnik bo poskusil znova vsak dan.",
           "rejected": "Strežnik je zavrnil preverjanje: eno že poteka ali pa je od zadnjega minilo manj kot minuto."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Zadnja nadgradnja: {{version}} (iz {{from}})",
         "neverChecked": "Nove različice še niso bile preverjene",
+        "nextCheckIn": "Naslednje preverjanje bo mogoče čez {{seconds}} s.",
         "noVersion": "nobena (razvojna)",
         "notEnabled": "Ta strežnik iz aplikacije ne namešča posodobitev: njegov program za posodabljanje ni nastavljen.",
         "rejected": "Strežnik je zavrnil nadgradnjo na {{version}}.",

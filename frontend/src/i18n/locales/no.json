@@ -1439,6 +1439,7 @@
       "title": "Serverinnstillinger",
       "updates": {
         "checkNow": "Søk etter oppdateringer",
+        "checkRunningElsewhere": "En sjekk kjører allerede; resultatet vises her.",
         "checkState": {
           "failed": "Det siste søket etter nye versjoner mislyktes; serveren prøver igjen daglig.",
           "rejected": "Serveren avviste søket: et søk pågår allerede, eller det forrige ble utført for mindre enn ett minutt siden."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Siste oppgradering: {{version}} (fra {{from}})",
         "neverChecked": "Har ikke søkt etter nye versjoner ennå",
+        "nextCheckIn": "Neste sjekk er mulig om {{seconds}} s.",
         "noVersion": "ingen (utvikling)",
         "notEnabled": "Denne serveren installerer ingen oppdateringer fra appen: oppdateringsprogrammet er ikke konfigurert.",
         "rejected": "Serveren avviste oppgraderingen til {{version}}.",

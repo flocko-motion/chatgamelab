@@ -1439,6 +1439,7 @@
       "title": "Nastavenia servera",
       "updates": {
         "checkNow": "Skontrolovať aktualizácie",
+        "checkRunningElsewhere": "Kontrola už prebieha; jej výsledok sa zobrazí tu.",
         "checkState": {
           "failed": "Posledná kontrola nových verzií zlyhala; server sa o to pokúsi znova každý deň.",
           "rejected": "Server kontrolu odmietol: jedna už prebieha alebo od poslednej neuplynula ani minúta."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Zadnja nadgradnja: {{version}} (iz {{from}})",
         "neverChecked": "Nové verzie zatiaľ neboli skontrolované",
+        "nextCheckIn": "Ďalšiu kontrolu je možné vykonať o {{seconds}} s.",
         "noVersion": "brez (razvojna različica)",
         "notEnabled": "Ta strežnik ne namešča posodobitev iz aplikacije: njegov program za posodabljanje ni nastavljen.",
         "rejected": "Strežnik je zavrnil nadgradnjo na {{version}}.",
