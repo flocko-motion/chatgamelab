@@ -7,7 +7,6 @@ package testutil
 import (
 	"os"
 	"strings"
-	"time"
 
 	"cgl/apiclient"
 	"cgl/app"
@@ -29,25 +28,14 @@ type BaseSuite struct {
 	devUser   *UserClient
 }
 
-// preseedTimeout bounds the wait for the development preseed.
-const preseedTimeout = 30 * time.Second
-
 // SetupSuite starts the suite's instance, in development mode, and signs in
-// the preseeded dev admin. The preseed runs as a background service, so it
-// waits until the admin exists.
+// the preseeded dev admin. The preseed is done before the server takes
+// requests, so the admin is there from the first one.
 func (s *BaseSuite) SetupSuite() {
 	s.inst = schemaftest.Start(s.T(), app.Wire)
 	s.devUser = s.signedIn(devAdminID, "dev", "dev@chatgamelab.local")
-	deadline := time.Now().Add(preseedTimeout)
-	for {
-		_, err := s.devUser.GetMe()
-		if err == nil {
-			return
-		}
-		if time.Now().After(deadline) {
-			s.T().Fatalf("the preseeded dev admin isn't there after %s: %v", preseedTimeout, err)
-		}
-		time.Sleep(50 * time.Millisecond)
+	if _, err := s.devUser.GetMe(); err != nil {
+		s.T().Fatalf("the preseeded dev admin isn't there at start: %v", err)
 	}
 }
 

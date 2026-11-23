@@ -2,7 +2,6 @@ package testing
 
 import (
 	"testing"
-	"time"
 
 	"cgl/testing/testutil"
 
@@ -21,14 +20,9 @@ func (s *MultiUserTestSuite) SetupSuite() {
 	// Call parent SetupSuite to initialize base suite
 	s.BaseSuite.SetupSuite()
 
-	// Verify initial state: the 9 preseeded dev users. Preseeding runs in the
-	// background and the base suite waits only for the admin, so wait until
-	// all of them are there.
-	var initialUsers []testutil.User
-	s.Eventually(func() bool {
-		initialUsers = Must(s.DevUser().GetUsers())
-		return len(initialUsers) >= 9
-	}, 10*time.Second, 100*time.Millisecond, "the preseeded dev users appear")
+	// Verify initial state: the 9 preseeded dev users, all there from the
+	// first request.
+	initialUsers := Must(s.DevUser().GetUsers())
 	s.Equal(9, len(initialUsers), "should have 9 users (preseeded dev users)")
 	s.T().Logf("Initial users: %d", len(initialUsers))
 

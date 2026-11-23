@@ -1,7 +1,7 @@
-// package: api / background services
+// package: api / startup and shutdown
 // type:    wiring
-// job:     prepares the platform once schemaf has the database up: telemetry and dev logging; ends the engine's sessions and flushes telemetry at shutdown
-// limits:  schemaf opens the database and serves HTTP; the data jobs (preseed, first admin, purge) are the core's services (core/system.go)
+// job:     prepares the platform before schemaf serves (telemetry, dev logging); ends the engine's sessions and flushes telemetry at shutdown
+// limits:  schemaf opens the database and serves HTTP; the data jobs (preseed, first admin, purge) are the core's (core/system.go)
 package api
 
 import (
@@ -15,9 +15,10 @@ import (
 	schemafapi "github.com/flocko-motion/schemaf/api"
 )
 
-// Startup prepares the platform and then waits for shutdown to end the
-// engine's sessions and flush telemetry; a schemaf service.
-func Startup(ctx context.Context) {
+// Prepare sets up telemetry and, in development mode, debug logging and the
+// kept mail; a schemaf before-serve hook, so it is done before the first
+// request.
+func Prepare(ctx context.Context) error {
 	telemetry.Init(Version)
 
 	if schemafapi.DevMode() {
@@ -25,7 +26,12 @@ func Startup(ctx context.Context) {
 		log.Info("development mode enabled", "debug_logging", true)
 		mail.KeepSent()
 	}
+	return nil
+}
 
+// Shutdown waits for the server to stop, then ends the engine's sessions and
+// flushes telemetry; a schemaf service.
+func Shutdown(ctx context.Context) {
 	<-ctx.Done()
 	// The server is stopping; the database stays open until the services
 	// return, so every session writes its last checkpoint now.

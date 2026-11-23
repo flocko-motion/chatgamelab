@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/coder/websocket v1.8.15
-	github.com/flocko-motion/schemaf v1.21.1
+	github.com/flocko-motion/schemaf v1.23.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

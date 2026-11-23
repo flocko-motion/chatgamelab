@@ -18,14 +18,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// The core's own jobs, without a user: the services app.Wire registers.
+// The core's own jobs, without a user: the hooks and services app.Wire registers.
 // They act on the store directly, inside the core. No caller exists for
 // them, and nothing exported hands one out: the system's rights never leave
 // the core.
 
 // Bootstrap prepares the data once the database is up: in dev mode the dev
 // accounts, games and site rules, then the first admin from ADMIN_EMAILS. A
-// schemaf service; it returns when done.
+// schemaf before-serve hook: it is done before the first request.
 func Bootstrap(ctx context.Context) {
 	if schemafapi.DevMode() {
 		preseed(ctx)
