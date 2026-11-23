@@ -1768,6 +1768,11 @@
       "unknown": "Ta sesja gry nie istnieje.",
       "unreachable": "Dostawca AI obecnie nie odpowiada, więc nie można kontynuować gry. Spróbuj ponownie za kilka minut."
     },
+    "relay": {
+      "busy": "Relay: używany przez inną kartę",
+      "connected": "Relay: połączony",
+      "connecting": "Relay: nie działa"
+    },
     "status": {
       "choose": "Wybierz sposób gry, aby rozpocząć.",
       "connecting": "Łączenie…",

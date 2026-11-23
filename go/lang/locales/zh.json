@@ -1762,6 +1762,11 @@
       "unknown": "此游戏会话不存在。",
       "unreachable": "AI 服务商目前没有响应，因此游戏无法继续。请几分钟后再试。"
     },
+    "relay": {
+      "busy": "中继：正被另一个标签页使用",
+      "connected": "中继：已连接",
+      "connecting": "中继：未运行"
+    },
     "status": {
       "choose": "选择游玩方式以开始游戏。",
       "connecting": "正在连接……",

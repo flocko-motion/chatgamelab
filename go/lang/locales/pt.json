@@ -1762,6 +1762,11 @@
       "unknown": "Esta sessão de jogo não existe.",
       "unreachable": "O provedor de IA não está respondendo no momento, portanto o jogo não pode continuar. Tente novamente daqui a alguns minutos."
     },
+    "relay": {
+      "busy": "Relay: em uso por outra aba",
+      "connected": "Relay: conectado",
+      "connecting": "Relay: não está em execução"
+    },
     "status": {
       "choose": "Escolha como jogar para começar.",
       "connecting": "Conectando…",

@@ -1768,6 +1768,11 @@
       "unknown": "De Spuisitzung gibt's ned.",
       "unreachable": "Da KI-Anbieter antwortet grad ned, drum geht's ned weida. Probier's in a paar Minuten no amoi."
     },
+    "relay": {
+      "busy": "Relay: vo am andern Tab belegt",
+      "connected": "Relay: verbundn",
+      "connecting": "Relay: lafft ned"
+    },
     "status": {
       "choose": "Wähl aus, wia'd spuiln mechtst, damit's losgehn kann.",
       "connecting": "Verbinden …",

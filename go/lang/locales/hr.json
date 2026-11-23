@@ -1762,6 +1762,11 @@
       "unknown": "Ova sesija igre ne postoji.",
       "unreachable": "Pružatelj usluge umjetne inteligencije trenutačno ne odgovara, pa se igra ne može nastaviti. Pokušaj ponovno za nekoliko minuta."
     },
+    "relay": {
+      "busy": "Relej: koristi ga druga kartica",
+      "connected": "Relej: povezan",
+      "connecting": "Relej: nije pokrenut"
+    },
     "status": {
       "choose": "Odaberi način igranja za početak.",
       "connecting": "Povezivanje…",

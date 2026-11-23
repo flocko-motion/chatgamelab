@@ -1768,6 +1768,11 @@
       "unknown": "このゲームセッションは存在しません。",
       "unreachable": "現在、AIプロバイダーから応答がないため、ゲームを続けられません。数分後にもう一度試してください。"
     },
+    "relay": {
+      "busy": "Relay: 別のタブで使用中",
+      "connected": "Relay: 接続済み",
+      "connecting": "Relay: 実行されていません"
+    },
     "status": {
       "choose": "遊び方を選ぶと開始できます。",
       "connecting": "接続中…",

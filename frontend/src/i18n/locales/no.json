@@ -1762,6 +1762,11 @@
       "unknown": "Denne spilløkten finnes ikke.",
       "unreachable": "AI-leverandøren svarer ikke akkurat nå, så spillet kan ikke fortsette. Prøv igjen om noen minutter."
     },
+    "relay": {
+      "busy": "Relay: i bruk av en annen fane",
+      "connected": "Relay: tilkoblet",
+      "connecting": "Relay: kjører ikke"
+    },
     "status": {
       "choose": "Velg hvordan du vil spille for å begynne.",
       "connecting": "Kobler til…",

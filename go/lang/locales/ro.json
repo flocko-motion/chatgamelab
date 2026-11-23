@@ -1765,6 +1765,11 @@
       "unknown": "Această sesiune de joc nu există.",
       "unreachable": "Furnizorul AI nu răspunde momentan, așa că jocul nu poate continua. Încearcă din nou peste câteva minute."
     },
+    "relay": {
+      "busy": "Relay: utilizat de o altă filă",
+      "connected": "Relay: conectat",
+      "connecting": "Relay: nu rulează"
+    },
     "status": {
       "choose": "Alege cum vrei să joci pentru a începe.",
       "connecting": "Se conectează…",

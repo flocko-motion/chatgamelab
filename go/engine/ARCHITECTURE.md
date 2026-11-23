@@ -105,6 +105,12 @@ block can fail, and drawing every failure buries the flow of a turn. Outputs (ro
 are drawn as small symbols hanging off the block that feeds them, the way a
 circuit diagram draws ground, so they need no place in the layout.
 
+A dev server's page also records its session from before the live
+connection opens, the last frames both ways and every change of phase,
+connection and notice, and keeps trying to reach the debug relay
+(`cmd/debug-relay`) on this machine, through which Claude reads a stuck
+session as it stands and runs code in the page.
+
 ## Genres
 
 ### Adventure

@@ -1762,6 +1762,11 @@
       "unknown": "Táto herná relácia neexistuje.",
       "unreachable": "Poskytovateľ AI momentálne neodpovedá, takže hra nemôže pokračovať. Skús to znova o niekoľko minút."
     },
+    "relay": {
+      "busy": "Relé: používa ho iná karta",
+      "connected": "Relé: pripojené",
+      "connecting": "Relé: nie je spustené"
+    },
     "status": {
       "choose": "Na začiatok si vyber spôsob hrania.",
       "connecting": "Pripája sa…",

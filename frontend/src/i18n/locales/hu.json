@@ -1762,6 +1762,11 @@
       "unknown": "Ez a játékmenet nem létezik.",
       "unreachable": "A mesterségesintelligencia-szolgáltató jelenleg nem válaszol, ezért a játék nem folytatódhat. Próbáld meg újra néhány perc múlva."
     },
+    "relay": {
+      "busy": "Relay: egy másik lap használja",
+      "connected": "Relay: csatlakoztatva",
+      "connecting": "Relay: nem fut"
+    },
     "status": {
       "choose": "A kezdéshez válaszd ki, hogyan szeretnél játszani.",
       "connecting": "Kapcsolódás…",

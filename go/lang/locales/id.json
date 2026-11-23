@@ -1762,6 +1762,11 @@
       "unknown": "Sesi permainan ini tidak ada.",
       "unreachable": "Penyedia AI sedang tidak merespons, sehingga permainan tidak dapat dilanjutkan. Coba lagi dalam beberapa menit."
     },
+    "relay": {
+      "busy": "Relay: sedang digunakan oleh tab lain",
+      "connected": "Relay: terhubung",
+      "connecting": "Relay: tidak berjalan"
+    },
     "status": {
       "choose": "Pilih cara bermain untuk memulai.",
       "connecting": "Menghubungkan…",

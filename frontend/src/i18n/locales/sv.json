@@ -1768,6 +1768,11 @@
       "unknown": "Den här spelsessionen finns inte.",
       "unreachable": "AI-leverantören svarar inte just nu, så spelet kan inte fortsätta. Försök igen om några minuter."
     },
+    "relay": {
+      "busy": "Relay: används av en annan flik",
+      "connected": "Relay: ansluten",
+      "connecting": "Relay: körs inte"
+    },
     "status": {
       "choose": "Välj hur du vill spela för att börja.",
       "connecting": "Ansluter…",

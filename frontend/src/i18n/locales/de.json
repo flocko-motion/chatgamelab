@@ -1601,6 +1601,11 @@
       "empty": "Bisher ist noch nichts gelaufen.",
       "close": "Schließen"
     },
+    "relay": {
+      "connecting": "Relay: läuft nicht",
+      "busy": "Relay: von einem anderen Tab belegt",
+      "connected": "Relay: verbunden"
+    },
     "blocks": {
       "image-style": "Stil anpassen",
       "adapted-style": "Stil",
