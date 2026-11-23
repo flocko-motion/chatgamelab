@@ -419,6 +419,8 @@
         "role": "Rol",
         "searchPlaceholder": "İsim, e-posta, rol veya organizasyona göre ara...",
         "showing": "{{total}} kullanıcıdan {{count}} gösteriliyor",
+        "signUpInProgress": "Kayıt olma işlemi devam ediyor",
+        "signingUp": "Kayıt oluyor",
         "sort": {
           "email-asc": "E-posta (A-Z)",
           "email-desc": "E-posta (Z-A)",

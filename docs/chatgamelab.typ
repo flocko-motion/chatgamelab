@@ -278,7 +278,10 @@ U13p or U18 — and the rule the session plays under.
 === Registration
 
 The first sign-in creates an account; the account is usable once registration
-is complete. Registration asks for:
+is complete. Until then the account is in sign-up and holds no role:
+registration gives it its role, individual or the head of the organisation it
+registers. Every registered account holds a role. An account left in sign-up
+for a day is removed; signing in again starts a new one. Registration asks for:
 
 1. *Nutzertyp.* "Anmeldung als Nutzer" leads on to the Altersabfrage.
    "Als Organisation registrieren" leads on to the organisation's

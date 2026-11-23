@@ -417,6 +417,8 @@
         "role": "Szerepkör",
         "searchPlaceholder": "Keresés név, e-mail, szerepkör vagy szervezet alapján...",
         "showing": "{{count}} / {{total}} felhasználó megjelenítve",
+        "signUpInProgress": "Regisztráció folyamatban",
+        "signingUp": "Regisztrálás",
         "sort": {
           "email-asc": "E-mail (A–Z)",
           "email-desc": "E-mail (Z–A)",

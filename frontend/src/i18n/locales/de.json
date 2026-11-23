@@ -332,6 +332,8 @@
         "removeAdminTitle": "Admin-Rolle entfernen",
         "removeAdminWarning": "Dieser Benutzer verliert alle administrativen Rechte.",
         "role": "Rolle",
+        "signUpInProgress": "Registrierung läuft",
+        "signingUp": "Registriert sich",
         "sort": {
           "email-asc": "E-Mail (A-Z)",
           "email-desc": "E-Mail (Z-A)",

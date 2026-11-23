@@ -417,6 +417,8 @@
         "role": "Роля",
         "searchPlaceholder": "Търсене по име, имейл, роля или организация...",
         "showing": "Показани {{count}} от {{total}} потребители",
+        "signUpInProgress": "Регистрацията е в ход",
+        "signingUp": "Регистриране",
         "sort": {
           "email-asc": "Имейл (А-Я)",
           "email-desc": "Имейл (Я-А)",

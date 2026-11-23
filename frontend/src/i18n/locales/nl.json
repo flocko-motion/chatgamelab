@@ -417,6 +417,8 @@
         "role": "Rol",
         "searchPlaceholder": "Zoek op naam, e-mail, rol of organisatie...",
         "showing": "{{count}} van {{total}} gebruikers",
+        "signUpInProgress": "Registratie wordt uitgevoerd",
+        "signingUp": "Bezig met registreren",
         "sort": {
           "email-asc": "E-mail (A-Z)",
           "email-desc": "E-mail (Z-A)",

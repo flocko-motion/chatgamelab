@@ -417,6 +417,8 @@
         "role": "Улога",
         "searchPlaceholder": "Претражите по имену, имејлу, улози или организацији...",
         "showing": "Приказано {{count}} од {{total}} корисника",
+        "signUpInProgress": "Регистрација је у току",
+        "signingUp": "Регистровање",
         "sort": {
           "email-asc": "Имејл (A-Š)",
           "email-desc": "Имејл (Š-A)",

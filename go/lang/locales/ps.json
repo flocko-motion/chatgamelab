@@ -417,6 +417,8 @@
         "role": "ونډه",
         "searchPlaceholder": "د نوم، برېښنالیک، ونډې یا سازمان له مخې پلټنه...",
         "showing": "{{count}} له {{total}} کارنان ښودل شوي",
+        "signUpInProgress": "د نوم‌لیکنې بهیر روان دی",
+        "signingUp": "نوم‌لیکنه کېږي",
         "sort": {
           "email-asc": "برېښنالیک (A-Z)",
           "email-desc": "برېښنالیک (Z-A)",

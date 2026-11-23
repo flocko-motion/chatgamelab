@@ -417,6 +417,8 @@
         "role": "Peran",
         "searchPlaceholder": "Cari berdasarkan nama, email, peran, atau organisasi...",
         "showing": "Menampilkan {{count}} dari {{total}} pengguna",
+        "signUpInProgress": "Pendaftaran sedang berlangsung",
+        "signingUp": "Sedang mendaftar",
         "sort": {
           "email-asc": "Email (A-Z)",
           "email-desc": "Email (Z-A)",

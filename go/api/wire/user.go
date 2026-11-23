@@ -33,13 +33,16 @@ type UserView struct {
 
 	// HasAccount: the caller sees how the account is set up; the fields
 	// below are set.
-	HasAccount           bool         `json:"hasAccount"`
-	Meta                 *UserMeta    `json:"meta,omitempty"`
-	Language             *string      `json:"language,omitempty"`
-	AgeGroup             *string      `json:"ageGroup,omitempty"`
-	AiQualityTier        *string      `json:"aiQualityTier,omitempty"`
-	DefaultApiKeyShareID *uuid.UUID   `json:"defaultApiKeyShareId,omitempty"`
-	Role                 *UserRoleRef `json:"role,omitempty"`
+	HasAccount           bool       `json:"hasAccount"`
+	Meta                 *UserMeta  `json:"meta,omitempty"`
+	Language             *string    `json:"language,omitempty"`
+	AgeGroup             *string    `json:"ageGroup,omitempty"`
+	AiQualityTier        *string    `json:"aiQualityTier,omitempty"`
+	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
+	// Registered: registration completed the account; false while it is in
+	// sign-up, which holds no role yet.
+	Registered *bool        `json:"registered,omitempty"`
+	Role       *UserRoleRef `json:"role,omitempty"`
 
 	// HasContact: the caller sees how to reach the user; email is set when
 	// they have one.
@@ -111,6 +114,7 @@ func userView(user *core.UserCard) UserView {
 		v.AgeGroup = a.AgeGroup()
 		v.AiQualityTier = a.AiQualityTier()
 		v.DefaultApiKeyShareID = a.DefaultApiKeyShareID()
+		v.Registered = ptr(a.Registered())
 		if a.Role() != "" {
 			v.Role = &UserRoleRef{
 				Role:        a.Role(),

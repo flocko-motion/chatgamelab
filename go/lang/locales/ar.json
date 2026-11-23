@@ -417,6 +417,8 @@
         "role": "الدور",
         "searchPlaceholder": "ابحث حسب الاسم أو البريد أو الدور أو الجهة...",
         "showing": "عرض {{count}} من {{total}} مستخدم",
+        "signUpInProgress": "جارٍ التسجيل",
+        "signingUp": "يتم التسجيل",
         "sort": {
           "email-asc": "البريد الإلكتروني (أ-ي)",
           "email-desc": "البريد الإلكتروني (ي-أ)",

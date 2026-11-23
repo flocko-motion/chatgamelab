@@ -417,6 +417,8 @@
         "role": "Door",
         "searchPlaceholder": "Ka raadi magac, iimayl, door ama urur...",
         "showing": "Waxaa la soo bandhigay {{count}} oo ka mid ah {{total}} isticmaaleyaal",
+        "signUpInProgress": "Isdiiwaangelintu way socotaa",
+        "signingUp": "Isdiiwaangelinaya",
         "sort": {
           "email-asc": "Iimayl (A-Z)",
           "email-desc": "Iimayl (Z-A)",

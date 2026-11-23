@@ -35,3 +35,13 @@ var unique atomic.Int64
 
 // Unique is prefix with a number no other call gets: a name no case shares.
 func Unique(prefix string) string { return fmt.Sprintf("%s %d", prefix, unique.Add(1)) }
+
+// DatabaseCount is the count a counting query answers, past the core.
+func (s *BaseSuite) DatabaseCount(query string) int {
+	s.T().Helper()
+	var n int
+	if err := s.inst.DB().QueryRow(query).Scan(&n); err != nil {
+		s.T().Fatalf("counting with %q: %v", query, err)
+	}
+	return n
+}

@@ -1394,6 +1394,7 @@ export interface UserView {
   mayRemoveMember: boolean;
   meta?: UserMeta;
   name: string;
+  registered?: boolean;
   role?: UserRoleRef;
 }
 

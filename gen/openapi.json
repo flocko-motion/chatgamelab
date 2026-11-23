@@ -4066,6 +4066,9 @@
           "name": {
             "type": "string"
           },
+          "registered": {
+            "type": "boolean"
+          },
           "role": {
             "$ref": "#/components/schemas/UserRoleRef"
           }

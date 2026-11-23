@@ -417,6 +417,8 @@
         "role": "भूमिका",
         "searchPlaceholder": "नाम, ईमेल, भूमिका या संगठन से खोजें...",
         "showing": "{{count}} / {{total}} उपयोगकर्ता दिखाए जा रहे हैं",
+        "signUpInProgress": "पंजीकरण जारी है",
+        "signingUp": "पंजीकरण हो रहा है",
         "sort": {
           "email-asc": "ईमेल (A-Z)",
           "email-desc": "ईमेल (Z-A)",

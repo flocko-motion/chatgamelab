@@ -95,6 +95,7 @@ func userCardOf(ctx context.Context, r db.V2UsersRow) *UserCard {
 			workshopName:     nullString(r.WorkshopName),
 			createdAt:        r.CreatedAt,
 			modifiedAt:       r.ModifiedAt,
+			registered:       r.Registered,
 
 			email: nullString(r.Email),
 
@@ -135,6 +136,7 @@ type userRow struct {
 	workshopName     *string
 	createdAt        time.Time
 	modifiedAt       time.Time
+	registered       bool // registration completed it; false: in sign-up
 
 	// contact
 	email *string
@@ -239,6 +241,10 @@ func (a *UserAccount) DefaultApiKeyShareID() *uuid.UUID { return a.card.row.defa
 
 // Role is the user's role as the database stores it; empty for none.
 func (a *UserAccount) Role() string { return a.card.row.role }
+
+// Registered says whether registration completed the account; false while
+// it is in sign-up (spec, Registration), which also holds no role.
+func (a *UserAccount) Registered() bool { return a.card.row.registered }
 
 // Organisation is the user's organisation: their role's, or their
 // workshop's. Nil for none.

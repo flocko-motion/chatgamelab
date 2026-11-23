@@ -37,10 +37,17 @@ export function UserManagement() {
   const translateRole = useTranslateRole(t("admin.users.noRole"));
   const { list } = state;
 
+  // registration completes an account; until then it is in sign-up and holds no role
+  const inSignUp = (user: UserView) => user.registered === false;
+
   const roleBadge = (user: UserView, size?: "sm") =>
-    user.role?.role ? (
+    !inSignUp(user) && user.role?.role ? (
       <Badge variant="light" color={getRoleColor(user.role.role)} size={size}>
         {translateRole(user.role.role)}
+      </Badge>
+    ) : inSignUp(user) ? (
+      <Badge variant="outline" color="gray" size={size}>
+        {t("admin.users.signingUp")}
       </Badge>
     ) : (
       <HelperText>{t("admin.users.noRole")}</HelperText>
@@ -48,9 +55,13 @@ export function UserManagement() {
 
   const nameWithMe = (user: UserView) => (
     <Group gap="xs" wrap="nowrap">
-      <BodyText size="sm" fw={500}>
-        {user.name}
-      </BodyText>
+      {inSignUp(user) ? (
+        <HelperText>{t("admin.users.signUpInProgress")}</HelperText>
+      ) : (
+        <BodyText size="sm" fw={500}>
+          {user.name}
+        </BodyText>
+      )}
       {state.isCurrentUser(user) && (
         <Badge size="xs" variant="filled" color="violet">
           {t("admin.users.me")}

@@ -417,6 +417,8 @@
         "role": "Roli",
         "searchPlaceholder": "Kërko sipas emrit, emailit, rolit ose organizatës...",
         "showing": "Duke shfaqur {{count}} nga {{total}} përdorues",
+        "signUpInProgress": "Regjistrimi është në proces",
+        "signingUp": "Duke u regjistruar",
         "sort": {
           "email-asc": "Email (A-Z)",
           "email-desc": "Email (Z-A)",

@@ -417,6 +417,8 @@
         "role": "Roll",
         "searchPlaceholder": "Sök efter namn, e-post, roll eller organisation...",
         "showing": "Visar {{count}} av {{total}} användare",
+        "signUpInProgress": "Registrering pågår",
+        "signingUp": "Registrerar sig",
         "sort": {
           "email-asc": "E-post (A-Ö)",
           "email-desc": "E-post (Ö-A)",

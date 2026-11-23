@@ -417,6 +417,8 @@
         "role": "Ρόλος",
         "searchPlaceholder": "Αναζήτηση με όνομα, email, ρόλο ή οργανισμό...",
         "showing": "Εμφανίζονται {{count}} από {{total}} χρήστες",
+        "signUpInProgress": "Η εγγραφή βρίσκεται σε εξέλιξη",
+        "signingUp": "Γίνεται εγγραφή",
         "sort": {
           "email-asc": "Email (A-Ω)",
           "email-desc": "Email (Ω-A)",

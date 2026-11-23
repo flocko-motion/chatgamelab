@@ -417,6 +417,8 @@
         "role": "角色",
         "searchPlaceholder": "按姓名、邮箱、角色或组织搜索...",
         "showing": "显示 {{count}} / {{total}} 位用户",
+        "signUpInProgress": "注册进行中",
+        "signingUp": "正在注册",
         "sort": {
           "email-asc": "邮箱（A-Z）",
           "email-desc": "邮箱（Z-A）",

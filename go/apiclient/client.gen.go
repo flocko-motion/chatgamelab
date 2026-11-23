@@ -1974,6 +1974,7 @@ type UserView struct {
 	MayRemoveMember      bool                `json:"mayRemoveMember"`
 	Meta                 *UserMeta           `json:"meta,omitempty"`
 	Name                 string              `json:"name"`
+	Registered           *bool               `json:"registered,omitempty"`
 	Role                 *UserRoleRef        `json:"role,omitempty"`
 }
 

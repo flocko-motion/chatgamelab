@@ -18,6 +18,7 @@
 -- List grants on UserCard for a list, the Read grants for one user.
 SELECT u.id, u.name, u.email, u.language, u.age_group, u.ai_quality_tier,
   u.default_api_key_share_id, u.guest_token, u.created_at, u.modified_at,
+  (u.registered_at IS NOT NULL)::bool AS registered,
   r.role,
   o.id   AS organisation_id,
   o.name AS organisation_name,
@@ -101,13 +102,15 @@ UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
 WHERE user_id = $1 AND role != 'guest';
 
 -- name: V2CompleteRegistration :execrows
+-- Registration completes the account, once: registered_at ends its sign-up.
 UPDATE app_user SET
   name = $2,
   email = $3,
   age_group = $4,
   language = COALESCE(NULLIF(sqlc.arg(language)::text, ''), language),
+  registered_at = now(),
   modified_at = now()
-WHERE id = $1 AND name IS NULL;
+WHERE id = $1 AND name IS NULL AND registered_at IS NULL;
 
 -- name: V2CountHeadsByInstitution :one
 -- Count how many heads an institution has (for last-head protection)
@@ -270,9 +273,9 @@ SELECT role FROM user_role WHERE user_id = @user_id;
 SELECT id FROM app_user WHERE auth0_id = @subject;
 
 -- name: V2CreateAuth0Account :many
--- An account from its first sign-in: no name yet, so registration is
--- incomplete. A concurrent first sign-in made it already: no row.
-INSERT INTO app_user (id, auth0_id) VALUES (gen_random_uuid(), @subject)
+-- An account from its first sign-in, in sign-up until registration
+-- completes it. A concurrent first sign-in made it already: no row.
+INSERT INTO app_user (id, auth0_id, registered_at) VALUES (gen_random_uuid(), @subject, NULL)
 ON CONFLICT (auth0_id) DO NOTHING
 RETURNING id;
 
@@ -287,3 +290,25 @@ WHERE u.guest_token = @token AND u.deleted_at IS NULL;
 
 -- name: V2AccountEmail :one
 SELECT email FROM app_user WHERE id = @id;
+
+-- name: V2StaleSignUps :many
+-- Accounts in sign-up whose first sign-in is older than the cutoff, with
+-- what speaks against removing them: a name, a role, a session (sessions
+-- go with an account; every other reference refuses its deletion).
+SELECT u.id,
+  (COALESCE(u.name, '') <> '')::bool AS has_name,
+  EXISTS (SELECT 1 FROM user_role r WHERE r.user_id = u.id)::bool AS has_role,
+  EXISTS (SELECT 1 FROM game_session s WHERE s.user_id = u.id)::bool AS has_session
+FROM app_user u
+WHERE u.registered_at IS NULL AND u.created_at < @cutoff
+ORDER BY u.created_at
+LIMIT @max_rows;
+
+-- name: V2DeleteSignUp :execrows
+-- Removes an account still in sign-up, for good: a sign-up holds no data,
+-- and its Auth0 subject signs in to a fresh account.
+DELETE FROM app_user u
+WHERE u.id = $1 AND u.registered_at IS NULL
+  AND COALESCE(u.name, '') = ''
+  AND NOT EXISTS (SELECT 1 FROM user_role r WHERE r.user_id = u.id)
+  AND NOT EXISTS (SELECT 1 FROM game_session s WHERE s.user_id = u.id);

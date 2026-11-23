@@ -127,8 +127,9 @@ UPDATE app_user SET
   email = $3,
   age_group = $4,
   language = COALESCE(NULLIF($5::text, ''), language),
+  registered_at = now(),
   modified_at = now()
-WHERE id = $1 AND name IS NULL
+WHERE id = $1 AND name IS NULL AND registered_at IS NULL
 `
 
 type V2CompleteRegistrationParams struct {
@@ -139,6 +140,7 @@ type V2CompleteRegistrationParams struct {
 	Language string         `json:"language"`
 }
 
+// Registration completes the account, once: registered_at ends its sign-up.
 func (q *Queries) V2CompleteRegistration(ctx context.Context, arg V2CompleteRegistrationParams) (int64, error) {
 	result, err := q.db.ExecContext(ctx, v2CompleteRegistration,
 		arg.ID,
@@ -223,13 +225,13 @@ func (q *Queries) V2CreateAccount(ctx context.Context, arg V2CreateAccountParams
 }
 
 const v2CreateAuth0Account = `-- name: V2CreateAuth0Account :many
-INSERT INTO app_user (id, auth0_id) VALUES (gen_random_uuid(), $1)
+INSERT INTO app_user (id, auth0_id, registered_at) VALUES (gen_random_uuid(), $1, NULL)
 ON CONFLICT (auth0_id) DO NOTHING
 RETURNING id
 `
 
-// An account from its first sign-in: no name yet, so registration is
-// incomplete. A concurrent first sign-in made it already: no row.
+// An account from its first sign-in, in sign-up until registration
+// completes it. A concurrent first sign-in made it already: no row.
 func (q *Queries) V2CreateAuth0Account(ctx context.Context, subject sql.NullString) ([]uuid.UUID, error) {
 	rows, err := q.db.QueryContext(ctx, v2CreateAuth0Account, subject)
 	if err != nil {
@@ -337,6 +339,24 @@ func (q *Queries) V2DeleteInvitesFor(ctx context.Context, userID uuid.NullUUID) 
 	return err
 }
 
+const v2DeleteSignUp = `-- name: V2DeleteSignUp :execrows
+DELETE FROM app_user u
+WHERE u.id = $1 AND u.registered_at IS NULL
+  AND COALESCE(u.name, '') = ''
+  AND NOT EXISTS (SELECT 1 FROM user_role r WHERE r.user_id = u.id)
+  AND NOT EXISTS (SELECT 1 FROM game_session s WHERE s.user_id = u.id)
+`
+
+// Removes an account still in sign-up, for good: a sign-up holds no data,
+// and its Auth0 subject signs in to a fresh account.
+func (q *Queries) V2DeleteSignUp(ctx context.Context, id uuid.UUID) (int64, error) {
+	result, err := q.db.ExecContext(ctx, v2DeleteSignUp, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const v2DeleteUserGuestRole = `-- name: V2DeleteUserGuestRole :exec
 DELETE FROM user_role WHERE user_id = $1 AND workshop_id = $2 AND role = 'guest'
 `
@@ -391,7 +411,7 @@ func (q *Queries) V2GamesCreatedBy(ctx context.Context, userID uuid.NullUUID) ([
 }
 
 const v2GetUserByEmail = `-- name: V2GetUserByEmail :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group FROM app_user WHERE email = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group, registered_at FROM app_user WHERE email = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) V2GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
@@ -413,12 +433,13 @@ func (q *Queries) V2GetUserByEmail(ctx context.Context, email sql.NullString) (A
 		&i.Language,
 		&i.PrivateShareID,
 		&i.AgeGroup,
+		&i.RegisteredAt,
 	)
 	return i, err
 }
 
 const v2GetUserByID = `-- name: V2GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group, registered_at FROM app_user WHERE id = $1
 `
 
 func (q *Queries) V2GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -440,6 +461,7 @@ func (q *Queries) V2GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, err
 		&i.Language,
 		&i.PrivateShareID,
 		&i.AgeGroup,
+		&i.RegisteredAt,
 	)
 	return i, err
 }
@@ -699,6 +721,60 @@ func (q *Queries) V2SetUserActiveWorkshop(ctx context.Context, arg V2SetUserActi
 	return err
 }
 
+const v2StaleSignUps = `-- name: V2StaleSignUps :many
+SELECT u.id,
+  (COALESCE(u.name, '') <> '')::bool AS has_name,
+  EXISTS (SELECT 1 FROM user_role r WHERE r.user_id = u.id)::bool AS has_role,
+  EXISTS (SELECT 1 FROM game_session s WHERE s.user_id = u.id)::bool AS has_session
+FROM app_user u
+WHERE u.registered_at IS NULL AND u.created_at < $1
+ORDER BY u.created_at
+LIMIT $2
+`
+
+type V2StaleSignUpsParams struct {
+	Cutoff  time.Time `json:"cutoff"`
+	MaxRows int32     `json:"max_rows"`
+}
+
+type V2StaleSignUpsRow struct {
+	ID         uuid.UUID `json:"id"`
+	HasName    bool      `json:"has_name"`
+	HasRole    bool      `json:"has_role"`
+	HasSession bool      `json:"has_session"`
+}
+
+// Accounts in sign-up whose first sign-in is older than the cutoff, with
+// what speaks against removing them: a name, a role, a session (sessions
+// go with an account; every other reference refuses its deletion).
+func (q *Queries) V2StaleSignUps(ctx context.Context, arg V2StaleSignUpsParams) ([]V2StaleSignUpsRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2StaleSignUps, arg.Cutoff, arg.MaxRows)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2StaleSignUpsRow
+	for rows.Next() {
+		var i V2StaleSignUpsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.HasName,
+			&i.HasRole,
+			&i.HasSession,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2SumPlayCountOfUserGames = `-- name: V2SumPlayCountOfUserGames :one
 SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1
 `
@@ -781,6 +857,7 @@ const v2Users = `-- name: V2Users :many
 
 SELECT u.id, u.name, u.email, u.language, u.age_group, u.ai_quality_tier,
   u.default_api_key_share_id, u.guest_token, u.created_at, u.modified_at,
+  (u.registered_at IS NOT NULL)::bool AS registered,
   r.role,
   o.id   AS organisation_id,
   o.name AS organisation_name,
@@ -881,6 +958,7 @@ type V2UsersRow struct {
 	GuestToken           sql.NullString `json:"guest_token"`
 	CreatedAt            time.Time      `json:"created_at"`
 	ModifiedAt           time.Time      `json:"modified_at"`
+	Registered           bool           `json:"registered"`
 	Role                 sql.NullString `json:"role"`
 	OrganisationID       uuid.NullUUID  `json:"organisation_id"`
 	OrganisationName     sql.NullString `json:"organisation_name"`
@@ -959,6 +1037,7 @@ func (q *Queries) V2Users(ctx context.Context, arg V2UsersParams) ([]V2UsersRow,
 			&i.GuestToken,
 			&i.CreatedAt,
 			&i.ModifiedAt,
+			&i.Registered,
 			&i.Role,
 			&i.OrganisationID,
 			&i.OrganisationName,

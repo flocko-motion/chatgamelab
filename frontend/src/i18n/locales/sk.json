@@ -417,6 +417,8 @@
         "role": "Rola",
         "searchPlaceholder": "Hľadať podľa mena, emailu, roly alebo organizácie...",
         "showing": "Zobrazených {{count}} z {{total}} používateľov",
+        "signUpInProgress": "Registrácia prebieha",
+        "signingUp": "Registruje sa",
         "sort": {
           "email-asc": "Email (A-Z)",
           "email-desc": "Email (Z-A)",
