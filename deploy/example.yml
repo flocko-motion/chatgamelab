@@ -46,8 +46,14 @@ ipv6_address: ""
 
 # A shared password in front of the whole site (nginx basic auth), e.g. for a
 # development instance; empty: none. The password is asked for by
-# --basic-auth and kept on the box as a hash. /api/health stays open.
+# --basic-auth (or read from a file with --basic-auth-file) and kept on the
+# box as a hash; a later run with the same password leaves it as it is.
+# /api/health stays open.
 basic_auth_user: ""
+
+# The first admin: this address becomes admin at its first sign-in, while the
+# instance has no admin. --admin overrides it.
+admin_email: ""
 
 # Nightly database backups over SFTP (schemaf's built-in backup). An empty
 # host switches backups off. The private key comes from --backup-key.

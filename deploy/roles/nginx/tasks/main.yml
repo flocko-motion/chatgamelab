@@ -24,10 +24,29 @@
       with --basic-auth, which asks for the password.
   when: basic_auth_user | default('') | length > 0
 
+- name: Read the stored password hash
+  ansible.builtin.slurp:
+    src: "/etc/nginx/htpasswd-{{ inventory_hostname }}"
+  register: htpasswd_current
+  no_log: true
+  when:
+    - basic_auth_user | default('') | length > 0
+    - basic_auth_password | default('') | length > 0
+    - htpasswd_file.stat.exists
+
+# With the stored hash's salt, an unchanged password gives the same hash, so
+# the file stays as it is and nginx is not reloaded.
 - name: Hash the password
   ansible.builtin.command:
-    cmd: openssl passwd -6 -stdin
+    cmd: >-
+      openssl passwd -6 -stdin
+      {{ '-salt ' ~ stored_salt if stored_salt | length > 0 else '' }}
     stdin: "{{ basic_auth_password }}"
+  vars:
+    stored_line: "{{ (htpasswd_current.content | default('') | b64decode).strip() }}"
+    stored_salt: >-
+      {{ stored_line.split(':', 1)[1].split('$')[2]
+         if stored_line.startswith(basic_auth_user ~ ':$6$') else '' }}
   register: basic_auth_hash
   changed_when: false
   no_log: true

@@ -3,16 +3,18 @@
 # configuration: packages, the run user `cgl`, rootless podman, nginx with TLS,
 # and the instance's env file. Safe to run again.
 #
-#   deploy/setup.sh <dir>/<domain>.yml [--admin <email>] [--backup-key <file>] [--basic-auth]
+#   deploy/setup.sh <dir>/<domain>.yml [--admin <email>] [--backup-key <file>]
+#                   [--basic-auth | --basic-auth-file <file>]
 #
 # <domain>.yml   the instance's configuration (see deploy/example.yml); its
 #                file name is the domain the box serves and SSH reaches.
 # --admin        the address that becomes admin at its first sign-in, while no
-#                admin exists (ADMIN_EMAILS). Kept on the box.
+#                admin exists (ADMIN_EMAILS); overrides admin_email in the file.
 # --backup-key   the private SSH key for the SFTP backup target. Copied to
 #                the box.
 # --basic-auth   ask for the password of basic_auth_user (the instance file's
 #                shared password in front of the site); its hash goes to the box.
+# --basic-auth-file  the same password, read from a file (e.g. from a keychain).
 #
 # Needs ansible and ssh on this machine, and root SSH access to the box.
 # Written for bash 3.2 (macOS).
@@ -21,7 +23,7 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 
 usage() {
-  sed -n '6,15p' "$0" | sed 's/^# \{0,1\}//' >&2
+  sed -n '6,17p' "$0" | sed 's/^# \{0,1\}//' >&2
   exit 2
 }
 
@@ -29,11 +31,16 @@ config=""
 admin=""
 backup_key=""
 basic_auth=""
+basic_auth_file=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --admin) [ $# -ge 2 ] || usage; admin="$2"; shift 2 ;;
     --backup-key) [ $# -ge 2 ] || usage; backup_key="$2"; shift 2 ;;
     --basic-auth) basic_auth=1; shift ;;
+    --basic-auth-file)
+      [ $# -ge 2 ] || usage
+      [ -f "$2" ] || { echo "no such file: $2" >&2; exit 1; }
+      basic_auth_file="$2"; shift 2 ;;
     -h|--help) usage ;;
     -*) echo "unknown option: $1" >&2; usage ;;
     *) [ -z "$config" ] || usage; config="$1"; shift ;;
@@ -69,7 +76,10 @@ case "$setup_ref" in
 esac
 
 basic_auth_password=""
-if [ -n "$basic_auth" ]; then
+if [ -n "$basic_auth_file" ]; then
+  basic_auth_password="$(cat "$basic_auth_file")"
+  [ -n "$basic_auth_password" ] || { echo "$basic_auth_file is empty" >&2; exit 1; }
+elif [ -n "$basic_auth" ]; then
   printf 'Password for the site (basic_auth_user): ' >&2
   read -rs basic_auth_password; echo >&2
   printf 'Again: ' >&2
@@ -84,13 +94,15 @@ chmod 700 "$work"
 
 printf '[chatgamelab]\n%s ansible_user=root ansible_python_interpreter=/usr/bin/python3\n' "$domain" > "$work/inventory.ini"
 
-# The admin address and the key path travel in a file rather than on the
-# command line, where every process on this machine could read them.
+# What the flags give travels in a file rather than on the command line,
+# where every process on this machine could read it. A flag left out leaves
+# the instance file's value standing (admin_email).
+yaml_str() { printf '%s' "$1" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'; }
 {
-  printf 'admin_email: "%s"\n' "$admin"
-  printf 'backup_key_src: "%s"\n' "$backup_key"
-  printf 'setup_ref: "%s"\n' "$setup_ref"
-  printf 'basic_auth_password: %s\n' "$(printf '%s' "$basic_auth_password" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')"
+  printf 'setup_ref: %s\n' "$(yaml_str "$setup_ref")"
+  [ -z "$admin" ] || printf 'admin_email: %s\n' "$(yaml_str "$admin")"
+  [ -z "$backup_key" ] || printf 'backup_key_src: %s\n' "$(yaml_str "$backup_key")"
+  [ -z "$basic_auth_password" ] || printf 'basic_auth_password: %s\n' "$(yaml_str "$basic_auth_password")"
 } > "$work/given.yml"
 
 cd "$here"
