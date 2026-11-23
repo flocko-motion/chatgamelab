@@ -1438,7 +1438,13 @@
       "notAuthorized": "Nimate dovoljenja za dostop do strežniških nastavitev. Potreben je adminsitratorski dostop.",
       "title": "Nastavitve strežnika",
       "updates": {
+        "checkNow": "Preveri posodobitve",
+        "checkState": {
+          "failed": "Zadnje preverjanje novih različic ni uspelo; strežnik bo poskusil znova vsak dan.",
+          "rejected": "Strežnik je zavrnil preverjanje: eno že poteka ali pa je od zadnjega minilo manj kot minuto."
+        },
         "checked": "Nazadnje preverjeno za nove različice: {{time}}",
+        "checking": "Preverjanje novih različic …",
         "installState": {
           "failed": "Neuspešno",
           "installed": "Nameščeno",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Razveljavljeno"
         },
         "lastInstall": "Zadnja nadgradnja: {{version}} (iz {{from}})",
+        "neverChecked": "Nove različice še niso bile preverjene",
         "noVersion": "nobena (razvojna)",
         "notEnabled": "Ta strežnik iz aplikacije ne namešča posodobitev: njegov program za posodabljanje ni nastavljen.",
         "rejected": "Strežnik je zavrnil nadgradnjo na {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "Storitev AI je naletela na napako. Poskusite znova.",
     "backendUserFetch": "Podatkov o uporabniku ni bilo mogoče naložiti s strežnika. Poskusite znova.",
     "billingNotActive": "Vaš račun OpenAI ni aktiven. Preverite podatke o zaračunavanju na https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Preverjanje novih različic že poteka.",
+    "checkTooSoon": "Od zadnjega preverjanja je minilo manj kot minuto. Poskusite znova čez trenutek.",
     "conflict": "To dejanje je v konfliktu z obstoječimi podatki. Poskusite znova.",
     "contentFiltered": "Vašo zahtevo je filtrirala vsebinska politika AI. Poskusite preoblikovati zahtevo.",
     "duplicateName": "Ime te igre je že v uporabi. Izberite drugo ime.",

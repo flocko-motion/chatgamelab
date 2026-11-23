@@ -1438,7 +1438,13 @@
       "notAuthorized": "No tienes permiso para acceder a la configuración del servidor. Se requiere acceso de administrador.",
       "title": "Configuración del servidor",
       "updates": {
+        "checkNow": "Buscar actualizaciones",
+        "checkState": {
+          "failed": "La última búsqueda de nuevas versiones ha fallado; el servidor lo intentará de nuevo a diario.",
+          "rejected": "El servidor rechazó la búsqueda: ya hay una en curso o la última se realizó hace menos de un minuto."
+        },
         "checked": "Última comprobación de nuevas versiones: {{time}}",
+        "checking": "Buscando nuevas versiones …",
         "installState": {
           "failed": "Fallido",
           "installed": "Instalado",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Revertido"
         },
         "lastInstall": "Última actualización: {{version}} (desde {{from}})",
+        "neverChecked": "Aún no se han buscado nuevas versiones",
         "noVersion": "ninguna (desarrollo)",
         "notEnabled": "Este servidor no instala actualizaciones desde la aplicación: su actualizador no está configurado.",
         "rejected": "El servidor rechazó la actualización a {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "El servicio de IA encontró un error. Inténtalo de nuevo.",
     "backendUserFetch": "No se pudieron cargar los datos del usuario desde el servidor. Inténtalo de nuevo.",
     "billingNotActive": "Tu cuenta de OpenAI no está activa. Revisa tus datos de facturación en https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Ya hay una búsqueda de nuevas versiones en curso.",
+    "checkTooSoon": "La última búsqueda se realizó hace menos de un minuto. Inténtalo de nuevo en breve.",
     "conflict": "Esta acción entra en conflicto con datos existentes. Inténtalo de nuevo.",
     "contentFiltered": "Tu solicitud fue filtrada por la política de contenido de la IA. Intenta reformularla.",
     "duplicateName": "El nombre de este juego ya está en uso. Elige uno diferente.",

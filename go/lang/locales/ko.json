@@ -1443,7 +1443,13 @@
       "notAuthorized": "서버 설정에 접근할 권한이 없습니다. 관리자 권한이 필요합니다.",
       "title": "서버 설정",
       "updates": {
+        "checkNow": "업데이트 확인",
+        "checkState": {
+          "failed": "새 버전 확인에 실패했습니다. 서버가 매일 다시 시도합니다.",
+          "rejected": "서버가 확인을 거부했습니다. 이미 확인 중이거나 마지막 확인 후 1분이 지나지 않았습니다."
+        },
         "checked": "새 버전을 마지막으로 확인한 시간: {{time}}",
+        "checking": "새 버전 확인 중 …",
         "installState": {
           "failed": "실패",
           "installed": "설치됨",
@@ -1452,6 +1458,7 @@
           "rolled-back": "롤백됨"
         },
         "lastInstall": "마지막 업그레이드: {{version}} ({{from}}에서)",
+        "neverChecked": "아직 새 버전을 확인하지 않았습니다",
         "noVersion": "없음 (개발 버전)",
         "notEnabled": "이 서버는 앱에서 업데이트를 설치하지 않습니다. 업데이터가 설정되지 않았습니다.",
         "rejected": "서버가 {{version}}으로의 업그레이드를 거부했습니다.",
@@ -1558,6 +1565,8 @@
     "aiError": "AI 서비스에서 오류가 발생했습니다. 다시 시도해 주세요.",
     "backendUserFetch": "서버에서 사용자 데이터를 불러오지 못했습니다. 다시 시도해 주세요.",
     "billingNotActive": "OpenAI 계정이 활성화되어 있지 않습니다. https://platform.openai.com/settings/organization/billing 에서 결제 정보를 확인하세요.",
+    "checkRunning": "새 버전을 이미 확인하고 있습니다.",
+    "checkTooSoon": "마지막 확인 후 1분이 지나지 않았습니다. 잠시 후 다시 시도하세요.",
     "conflict": "이 동작이 기존 데이터와 충돌합니다. 다시 시도해 주세요.",
     "contentFiltered": "요청이 AI의 콘텐츠 정책에 의해 필터링되었습니다. 다른 표현으로 시도하세요.",
     "duplicateName": "이 게임 이름은 이미 사용 중입니다. 다른 이름을 선택하세요.",

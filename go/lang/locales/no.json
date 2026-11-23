@@ -1438,7 +1438,13 @@
       "notAuthorized": "Du har ikke tillatelse til å få tilgang til serverinnstillinger. Krever admin-tilgang.",
       "title": "Serverinnstillinger",
       "updates": {
+        "checkNow": "Søk etter oppdateringer",
+        "checkState": {
+          "failed": "Det siste søket etter nye versjoner mislyktes; serveren prøver igjen daglig.",
+          "rejected": "Serveren avviste søket: et søk pågår allerede, eller det forrige ble utført for mindre enn ett minutt siden."
+        },
         "checked": "Sist sjekket etter nye versjoner: {{time}}",
+        "checking": "Søker etter nye versjoner …",
         "installState": {
           "failed": "Mislyktes",
           "installed": "Installert",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Tilbakestilt"
         },
         "lastInstall": "Siste oppgradering: {{version}} (fra {{from}})",
+        "neverChecked": "Har ikke søkt etter nye versjoner ennå",
         "noVersion": "ingen (utvikling)",
         "notEnabled": "Denne serveren installerer ingen oppdateringer fra appen: oppdateringsprogrammet er ikke konfigurert.",
         "rejected": "Serveren avviste oppgraderingen til {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "AI-tjenesten støtte på en feil. Prøv igjen.",
     "backendUserFetch": "Kunne ikke laste brukerdata fra serveren. Prøv igjen.",
     "billingNotActive": "OpenAI-kontoen din er ikke aktiv. Sjekk faktureringsdetaljene på https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Et søk etter nye versjoner pågår allerede.",
+    "checkTooSoon": "Det forrige søket ble utført for mindre enn ett minutt siden. Prøv igjen om litt.",
     "conflict": "Denne handlingen kommer i konflikt med eksisterende data. Prøv igjen.",
     "contentFiltered": "Forespørselen din ble filtrert av AI-ens innholdspolicy. Prøv å formulere på nytt.",
     "duplicateName": "Navnet for dette spillet er allerede i bruk. Velg et annet navn.",

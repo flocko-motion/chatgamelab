@@ -59,7 +59,7 @@ database first and rolls back when the new version fails its health check.
 `setup.sh` runs from a checkout of a release tag (`git checkout v<version>`);
 the box's run-side `schemaf.sh` comes from that tag. On a new box it installs
 the newest release on the channel and enables schemaf's updater, which checks
-for releases hourly.
+for releases daily, and at once when an admin clicks "Check for updates".
 
 By hand, as `cgl`:
 

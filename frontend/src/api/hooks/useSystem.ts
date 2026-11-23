@@ -130,22 +130,62 @@ export function upgradeHandled(state: SchemafUpdateState | undefined, version: s
   );
 }
 
+/** Whether the run host is looking for new releases. */
+export function checkRunning(state: SchemafUpdateState | undefined): boolean {
+  return state?.status === "checking";
+}
+
+/** What a check asked for is compared against: the state when it was asked. */
+export interface CheckMark {
+  checked?: string;
+  finished?: string;
+}
+
+/** The mark of `state`, taken when a check is asked for. */
+export function checkMark(state: SchemafUpdateState | undefined): CheckMark {
+  return { checked: state?.checked, finished: state?.check?.finished };
+}
+
+/**
+ * Whether the run host has handled a check asked for at `mark`: it finished a
+ * check since (found releases or none, failed, or refused it).
+ */
+export function checkHandled(state: SchemafUpdateState | undefined, mark: CheckMark): boolean {
+  if (!state || checkRunning(state)) return false;
+  return state.checked !== mark.checked || state.check?.finished !== mark.finished;
+}
+
 /**
  * The site's running version, the versions it may upgrade to and the state of
- * the last upgrade. Polled while an upgrade runs, and while the request for
- * `awaiting` is not handled yet: the server restarts during an upgrade, so
- * failed polls are expected then.
+ * the last upgrade and check. Polled while an upgrade or a check runs, and
+ * while the upgrade to `awaiting` or the check asked for at `checkAwaited` is
+ * not handled yet: the server restarts during an upgrade, so failed polls are
+ * expected then.
  */
-export function useUpdates(awaiting: string | null = null) {
+export function useUpdates(awaiting: string | null = null, checkAwaited: CheckMark | null = null) {
   return useQuery<SchemafUpdateState, ApiError>({
     queryKey: queryKeys.updates,
     queryFn: () => api.getApiUpdates().then((r) => r.data),
     refetchInterval: (query) => {
       const data = query.state.data;
-      const waiting = awaiting !== null && !upgradeHandled(data, awaiting);
-      return waiting || upgradeRunning(data) ? UPDATES_POLL_MS : false;
+      const waiting =
+        (awaiting !== null && !upgradeHandled(data, awaiting)) ||
+        (checkAwaited !== null && !checkHandled(data, checkAwaited));
+      return waiting || upgradeRunning(data) || checkRunning(data) ? UPDATES_POLL_MS : false;
     },
     retry: awaiting !== null ? true : 3,
+  });
+}
+
+/** Asks the run host to look for new releases now; it fetches and verifies, never installs. */
+export function useCheckForUpdates() {
+  const queryClient = useQueryClient();
+  return useMutation<void, ApiError, void>({
+    mutationFn: () => api.postApiUpdatesCheck().then(() => undefined),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.updates });
+    },
+    onError: handleApiError,
   });
 }
 

@@ -964,6 +964,13 @@ export interface SchemafUpdateState {
     notes: string;
     version: string;
   }[];
+  check?: {
+    finished: string;
+    message: string;
+    started: string;
+    state: "checking" | "checked" | "failed" | "rejected";
+    trigger: "timer" | "app" | "operator";
+  };
   checked?: string;
   install?: {
     finished: string;
@@ -986,7 +993,7 @@ export interface SchemafUpdateState {
   };
   /** The running version; empty in development. */
   running: string;
-  status: "updater not enabled" | "idle" | "installing";
+  status: "updater not enabled" | "idle" | "installing" | "checking";
 }
 
 export interface SchemafUser {
@@ -3868,7 +3875,7 @@ export class Api<
       }),
 
     /**
-     * @description The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+     * @description The running version, the verified versions the app may request (with their release notes), and the last install, install request and check for new releases. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
      *
      * @name GetApiUpdates
      * @summary The instance's updates
@@ -3881,6 +3888,22 @@ export class Api<
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Asks the run host's updater to look for new releases now (fetch and verify, never install); poll GET /api/updates for the outcome. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled, install_running or check_running; 429 check_too_soon (the last check finished less than a minute ago, with Retry-After).
+     *
+     * @name PostApiUpdatesCheck
+     * @summary Check for new releases now
+     * @request POST:/api/updates/check
+     * @secure
+     */
+    postApiUpdatesCheck: (params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/updates/check`,
+        method: "POST",
+        secure: true,
         ...params,
       }),
 

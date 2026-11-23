@@ -1438,7 +1438,13 @@
       "notAuthorized": "Vous n’avez pas l’autorisation d’accéder aux paramètres du serveur. Accès administrateur requis.",
       "title": "Paramètres du serveur",
       "updates": {
+        "checkNow": "Rechercher des mises à jour",
+        "checkState": {
+          "failed": "La dernière recherche de nouvelles versions a échoué ; le serveur réessaiera chaque jour.",
+          "rejected": "Le serveur a refusé la recherche : une recherche est déjà en cours ou la dernière date de moins d’une minute."
+        },
         "checked": "Dernière recherche de nouvelles versions : {{time}}",
+        "checking": "Recherche de nouvelles versions …",
         "installState": {
           "failed": "Échec",
           "installed": "Installée",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Version précédente restaurée"
         },
         "lastInstall": "Dernière mise à niveau : {{version}} (depuis {{from}})",
+        "neverChecked": "Aucune recherche de nouvelles versions effectuée pour le moment",
         "noVersion": "aucune (développement)",
         "notEnabled": "Ce serveur n’installe aucune mise à jour depuis l’application : son programme de mise à jour n’est pas configuré.",
         "rejected": "Le serveur a refusé la mise à niveau vers {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "Le service IA a rencontré une erreur. Veuillez réessayer.",
     "backendUserFetch": "Échec du chargement des données utilisateur depuis le serveur. Veuillez réessayer.",
     "billingNotActive": "Votre compte OpenAI n’est pas actif. Veuillez vérifier vos informations de facturation sur https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Une recherche de nouvelles versions est déjà en cours.",
+    "checkTooSoon": "La dernière recherche date de moins d’une minute. Réessayez dans quelques instants.",
     "conflict": "Cette action est en conflit avec des données existantes. Veuillez réessayer.",
     "contentFiltered": "Votre requête a été filtrée par la politique de contenu de l’IA. Essayez de reformuler.",
     "duplicateName": "Le nom de ce jeu est déjà utilisé. Veuillez en choisir un autre.",

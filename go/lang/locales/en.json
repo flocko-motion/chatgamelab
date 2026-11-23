@@ -1286,7 +1286,14 @@
         "upgrade": "Upgrade",
         "upgradeTo": "Upgrade to {{version}}",
         "upgradeConfirm": "The site backs up its database, switches to {{version}} and is unreachable for a minute or two. If the new version fails to start, it returns to the running version.",
-        "checked": "Last checked for new versions: {{time}}"
+        "checked": "Last checked for new versions: {{time}}",
+        "checkNow": "Check for updates",
+        "checking": "Checking for new versions …",
+        "neverChecked": "Not checked for new versions yet",
+        "checkState": {
+          "failed": "The last check for new versions failed; the server tries again daily.",
+          "rejected": "The server refused the check: one runs already, or the last one was less than a minute ago."
+        }
       }
     },
     "settings": "Settings",
@@ -1471,7 +1478,9 @@
     "guestStays": "As a guest, you stay where you joined. To take part in another workshop, open its invite link without signing in: you join it as a new guest.",
     "updaterNotEnabled": "This server installs no updates from the app.",
     "versionNotAvailable": "This version cannot be installed on this server.",
-    "installRunning": "An upgrade is already running."
+    "installRunning": "An upgrade is already running.",
+    "checkRunning": "A check for new versions is already running.",
+    "checkTooSoon": "The last check was less than a minute ago. Try again shortly."
   },
   "myWorkshop": {
     "empty": {

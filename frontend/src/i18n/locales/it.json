@@ -1438,7 +1438,13 @@
       "notAuthorized": "Non hai il permesso di accedere alle impostazioni del server. È richiesto l'accesso amministratore.",
       "title": "Impostazioni server",
       "updates": {
+        "checkNow": "Cerca aggiornamenti",
+        "checkState": {
+          "failed": "L'ultima ricerca di nuove versioni non è riuscita; il server ci riproverà ogni giorno.",
+          "rejected": "Il server ha rifiutato la ricerca: ne è già in corso una oppure l'ultima è stata eseguita meno di un minuto fa."
+        },
         "checked": "Ultimo controllo delle nuove versioni: {{time}}",
+        "checking": "Ricerca di nuove versioni in corso …",
         "installState": {
           "failed": "Non riuscito",
           "installed": "Installato",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Ripristinato"
         },
         "lastInstall": "Ultimo aggiornamento: {{version}} (da {{from}})",
+        "neverChecked": "Non è stata ancora effettuata alcuna ricerca di nuove versioni",
         "noVersion": "nessuna (sviluppo)",
         "notEnabled": "Questo server non installa aggiornamenti dall'app: il suo programma di aggiornamento non è configurato.",
         "rejected": "Il server ha rifiutato l'aggiornamento a {{version}}.",
@@ -1552,6 +1559,8 @@
     "aiError": "Il servizio IA ha riscontrato un errore. Riprova.",
     "backendUserFetch": "Impossibile caricare i dati utente dal server. Riprova.",
     "billingNotActive": "Il tuo account OpenAI non è attivo. Controlla i dettagli di fatturazione su https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "È già in corso una ricerca di nuove versioni.",
+    "checkTooSoon": "L'ultima ricerca è stata eseguita meno di un minuto fa. Riprova tra poco.",
     "conflict": "Questa azione è in conflitto con dati esistenti. Riprova.",
     "contentFiltered": "La tua richiesta è stata filtrata dalla policy sui contenuti dell'IA. Prova a riformularla.",
     "duplicateName": "Il nome di questo gioco è già in uso. Scegline uno diverso.",

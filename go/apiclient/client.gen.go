@@ -371,6 +371,51 @@ func (e Role) Valid() bool {
 	}
 }
 
+// Defines values for SchemafUpdateStateCheckState.
+const (
+	SchemafUpdateStateCheckStateChecked  SchemafUpdateStateCheckState = "checked"
+	SchemafUpdateStateCheckStateChecking SchemafUpdateStateCheckState = "checking"
+	SchemafUpdateStateCheckStateFailed   SchemafUpdateStateCheckState = "failed"
+	SchemafUpdateStateCheckStateRejected SchemafUpdateStateCheckState = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the SchemafUpdateStateCheckState enum.
+func (e SchemafUpdateStateCheckState) Valid() bool {
+	switch e {
+	case SchemafUpdateStateCheckStateChecked:
+		return true
+	case SchemafUpdateStateCheckStateChecking:
+		return true
+	case SchemafUpdateStateCheckStateFailed:
+		return true
+	case SchemafUpdateStateCheckStateRejected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SchemafUpdateStateCheckTrigger.
+const (
+	SchemafUpdateStateCheckTriggerApp      SchemafUpdateStateCheckTrigger = "app"
+	SchemafUpdateStateCheckTriggerOperator SchemafUpdateStateCheckTrigger = "operator"
+	SchemafUpdateStateCheckTriggerTimer    SchemafUpdateStateCheckTrigger = "timer"
+)
+
+// Valid indicates whether the value is a known member of the SchemafUpdateStateCheckTrigger enum.
+func (e SchemafUpdateStateCheckTrigger) Valid() bool {
+	switch e {
+	case SchemafUpdateStateCheckTriggerApp:
+		return true
+	case SchemafUpdateStateCheckTriggerOperator:
+		return true
+	case SchemafUpdateStateCheckTriggerTimer:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SchemafUpdateStateInstallState.
 const (
 	SchemafUpdateStateInstallStateFailed         SchemafUpdateStateInstallState = "failed"
@@ -418,6 +463,7 @@ func (e SchemafUpdateStateRequestState) Valid() bool {
 
 // Defines values for SchemafUpdateStateStatus.
 const (
+	SchemafUpdateStateStatusChecking          SchemafUpdateStateStatus = "checking"
 	SchemafUpdateStateStatusIdle              SchemafUpdateStateStatus = "idle"
 	SchemafUpdateStateStatusInstalling        SchemafUpdateStateStatus = "installing"
 	SchemafUpdateStateStatusUpdaterNotEnabled SchemafUpdateStateStatus = "updater not enabled"
@@ -426,6 +472,8 @@ const (
 // Valid indicates whether the value is a known member of the SchemafUpdateStateStatus enum.
 func (e SchemafUpdateStateStatus) Valid() bool {
 	switch e {
+	case SchemafUpdateStateStatusChecking:
+		return true
 	case SchemafUpdateStateStatusIdle:
 		return true
 	case SchemafUpdateStateStatusInstalling:
@@ -1526,6 +1574,13 @@ type SchemafUpdateState struct {
 		Notes   string `json:"notes"`
 		Version string `json:"version"`
 	} `json:"available"`
+	Check *struct {
+		Finished string                         `json:"finished"`
+		Message  string                         `json:"message"`
+		Started  string                         `json:"started"`
+		State    SchemafUpdateStateCheckState   `json:"state"`
+		Trigger  SchemafUpdateStateCheckTrigger `json:"trigger"`
+	} `json:"check,omitempty"`
 	Checked *string `json:"checked,omitempty"`
 	Install *struct {
 		Finished string                         `json:"finished"`
@@ -1546,6 +1601,12 @@ type SchemafUpdateState struct {
 	Running string                   `json:"running"`
 	Status  SchemafUpdateStateStatus `json:"status"`
 }
+
+// SchemafUpdateStateCheckState defines model for SchemafUpdateState.Check.State.
+type SchemafUpdateStateCheckState string
+
+// SchemafUpdateStateCheckTrigger defines model for SchemafUpdateState.Check.Trigger.
+type SchemafUpdateStateCheckTrigger string
 
 // SchemafUpdateStateInstallState defines model for SchemafUpdateState.Install.State.
 type SchemafUpdateStateInstallState string
@@ -3718,10 +3779,17 @@ type ClientInterface interface {
 
 	// GetApiUpdates The instance's updates
 	//
-	// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+	// The running version, the verified versions the app may request (with their release notes), and the last install, install request and check for new releases. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
 	//
 	// Corresponds with GET /api/updates (the `GetApiUpdates` operationId).
 	GetApiUpdates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiUpdatesCheck Check for new releases now
+	//
+	// Asks the run host's updater to look for new releases now (fetch and verify, never install); poll GET /api/updates for the outcome. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled, install_running or check_running; 429 check_too_soon (the last check finished less than a minute ago, with Retry-After).
+	//
+	// Corresponds with POST /api/updates/check (the `PostApiUpdatesCheck` operationId).
+	PostApiUpdatesCheck(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiUpdatesRequestWithBody Request the install of a version
 	//
@@ -6761,11 +6829,28 @@ func (c *Client) GetApiThemes(ctx context.Context, reqEditors ...RequestEditorFn
 
 // GetApiUpdates The instance's updates
 //
-// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+// The running version, the verified versions the app may request (with their release notes), and the last install, install request and check for new releases. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
 //
 // Corresponds with GET /api/updates (the `GetApiUpdates` operationId).
 func (c *Client) GetApiUpdates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiUpdatesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiUpdatesCheck Check for new releases now
+//
+// Asks the run host's updater to look for new releases now (fetch and verify, never install); poll GET /api/updates for the outcome. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled, install_running or check_running; 429 check_too_soon (the last check finished less than a minute ago, with Retry-After).
+//
+// Corresponds with POST /api/updates/check (the `PostApiUpdatesCheck` operationId).
+func (c *Client) PostApiUpdatesCheck(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiUpdatesCheckRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -12110,6 +12195,33 @@ func NewGetApiUpdatesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewPostApiUpdatesCheckRequest constructs an http.Request for the PostApiUpdatesCheck method
+func NewPostApiUpdatesCheckRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/updates/check")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostApiUpdatesRequestRequest calls the generic PostApiUpdatesRequest builder with application/json body
 func NewPostApiUpdatesRequestRequest(server string, body PostApiUpdatesRequestJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -14869,12 +14981,21 @@ type ClientWithResponsesInterface interface {
 
 	// GetApiUpdatesWithResponse The instance's updates
 	//
-	// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+	// The running version, the verified versions the app may request (with their release notes), and the last install, install request and check for new releases. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /api/updates (the `GetApiUpdates` operationId).
 	GetApiUpdatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUpdatesResponse, error)
+
+	// PostApiUpdatesCheckWithResponse Check for new releases now
+	//
+	// Asks the run host's updater to look for new releases now (fetch and verify, never install); poll GET /api/updates for the outcome. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled, install_running or check_running; 429 check_too_soon (the last check finished less than a minute ago, with Retry-After).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/updates/check (the `PostApiUpdatesCheck` operationId).
+	PostApiUpdatesCheckWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiUpdatesCheckResponse, error)
 
 	// PostApiUpdatesRequestWithBodyWithResponse Request the install of a version
 	//
@@ -20376,6 +20497,47 @@ func (r GetApiUpdatesResponse) ContentType() string {
 	return ""
 }
 
+type PostApiUpdatesCheckResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiUpdatesCheckResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiUpdatesCheckResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiUpdatesCheckResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiUpdatesCheckResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiUpdatesCheckResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type PostApiUpdatesRequestResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -23990,7 +24152,7 @@ func (c *ClientWithResponses) GetApiThemesWithResponse(ctx context.Context, reqE
 
 // GetApiUpdatesWithResponse The instance's updates
 //
-// The running version, the verified versions the app may request (with their release notes), and the last install and request. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
+// The running version, the verified versions the app may request (with their release notes), and the last install, install request and check for new releases. Status "updater not enabled" without an updater on the run host. 403 until the app authorizes callers (app.SetUpdatesAuth).
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -24001,6 +24163,21 @@ func (c *ClientWithResponses) GetApiUpdatesWithResponse(ctx context.Context, req
 		return nil, err
 	}
 	return ParseGetApiUpdatesResponse(rsp)
+}
+
+// PostApiUpdatesCheckWithResponse Check for new releases now
+//
+// Asks the run host's updater to look for new releases now (fetch and verify, never install); poll GET /api/updates for the outcome. 403 until the app authorizes callers (app.SetUpdatesAuth); 409 updater_not_enabled, install_running or check_running; 429 check_too_soon (the last check finished less than a minute ago, with Retry-After).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/updates/check (the `PostApiUpdatesCheck` operationId).
+func (c *ClientWithResponses) PostApiUpdatesCheckWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiUpdatesCheckResponse, error) {
+	rsp, err := c.PostApiUpdatesCheck(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiUpdatesCheckResponse(rsp)
 }
 
 // PostApiUpdatesRequestWithBodyWithResponse Request the install of a version
@@ -28127,6 +28304,35 @@ func ParseGetApiUpdatesResponse(rsp *http.Response) (*GetApiUpdatesResponse, err
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiUpdatesCheckResponse parses an HTTP response from a PostApiUpdatesCheckWithResponse call
+func ParsePostApiUpdatesCheckResponse(rsp *http.Response) (*PostApiUpdatesCheckResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiUpdatesCheckResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 202:
+		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

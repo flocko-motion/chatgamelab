@@ -1443,7 +1443,13 @@
       "notAuthorized": "Nie masz uprawnień do ustawień serwera. Wymagany dostęp administratora.",
       "title": "Ustawienia serwera",
       "updates": {
+        "checkNow": "Sprawdź dostępność aktualizacji",
+        "checkState": {
+          "failed": "Ostatnie sprawdzanie dostępności nowych wersji nie powiodło się; serwer spróbuje ponownie za dzień.",
+          "rejected": "Serwer odrzucił sprawdzanie: jedno już trwa albo od ostatniego minęła mniej niż minuta."
+        },
         "checked": "Ostatnio sprawdzono dostępność nowych wersji: {{time}}",
+        "checking": "Sprawdzanie dostępności nowych wersji …",
         "installState": {
           "failed": "Niepowodzenie",
           "installed": "Zainstalowano",
@@ -1452,6 +1458,7 @@
           "rolled-back": "Cofnięto zmiany"
         },
         "lastInstall": "Ostatnia aktualizacja: {{version}} (z {{from}})",
+        "neverChecked": "Nie sprawdzano jeszcze dostępności nowych wersji",
         "noVersion": "brak (wersja deweloperska)",
         "notEnabled": "Ten serwer nie instaluje aktualizacji z aplikacji: jego mechanizm aktualizacji nie jest skonfigurowany.",
         "rejected": "Serwer odrzucił aktualizację do wersji {{version}}.",
@@ -1558,6 +1565,8 @@
     "aiError": "Usługa AI napotkała błąd. Spróbuj ponownie.",
     "backendUserFetch": "Nie udało się pobrać danych użytkownika z serwera. Spróbuj ponownie.",
     "billingNotActive": "Twoje konto OpenAI nie jest aktywne. Sprawdź dane rozliczeniowe pod adresem https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Sprawdzanie dostępności nowych wersji już trwa.",
+    "checkTooSoon": "Od ostatniego sprawdzania minęła mniej niż minuta. Spróbuj ponownie za chwilę.",
     "conflict": "Ta operacja koliduje z istniejącymi danymi. Spróbuj ponownie.",
     "contentFiltered": "Twoja prośba została odfiltrowana przez politykę treści AI. Spróbuj sformułować ją inaczej.",
     "duplicateName": "Nazwa tej gry jest już używana. Wybierz inną nazwę.",

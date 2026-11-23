@@ -1438,7 +1438,13 @@
       "notAuthorized": "你无权访问服务器设置，需要管理员权限。",
       "title": "服务器设置",
       "updates": {
+        "checkNow": "检查更新",
+        "checkState": {
+          "failed": "上次检查新版本失败；服务器每天会重试。",
+          "rejected": "服务器拒绝了此次检查：已有检查正在进行，或距离上次检查还不到一分钟。"
+        },
         "checked": "上次检查新版本：{{time}}",
+        "checking": "正在检查新版本……",
         "installState": {
           "failed": "失败",
           "installed": "已安装",
@@ -1447,6 +1453,7 @@
           "rolled-back": "已回滚"
         },
         "lastInstall": "上次升级：{{version}}（从 {{from}} 升级）",
+        "neverChecked": "尚未检查新版本",
         "noVersion": "无（开发版）",
         "notEnabled": "此服务器不会从应用安装更新：其更新程序尚未设置。",
         "rejected": "服务器拒绝升级到 {{version}}。",
@@ -1552,6 +1559,8 @@
     "aiError": "AI 服务出现错误，请重试。",
     "backendUserFetch": "从服务器加载用户数据失败，请重试。",
     "billingNotActive": "你的 OpenAI 账户未激活。请在 https://platform.openai.com/settings/organization/billing 查看账单信息。",
+    "checkRunning": "检查新版本的操作已在进行中。",
+    "checkTooSoon": "距离上次检查还不到一分钟，请稍后再试。",
     "conflict": "该操作与现有数据冲突，请重试。",
     "contentFiltered": "你的请求被 AI 的内容政策过滤，请尝试换种说法。",
     "duplicateName": "该游戏名称已被使用，请选择其他名称。",

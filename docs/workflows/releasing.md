@@ -28,9 +28,9 @@ instance; releases reach every instance. `scripts/release.sh <branch>
    `releases.json`, the index every instance reads.
    `scripts/release.sh` waits for that run and for the index, and says when
    the release is installable (or why not).
-3. Within the hour, each instance on the release's channel fetches and
-   verifies it, and its admins see it under Server settings › Updates, with
-   its notes.
+3. At its daily check, or at once when an admin clicks "Check for updates",
+   each instance on the release's channel fetches and verifies it, and its
+   admins see it under Server settings › Updates, with its notes.
 
 A range with no releasable commit (only `docs:`, `chore:`, …) gives no
 release. A failed `release.gen.yml` run leaves a release without artifact,

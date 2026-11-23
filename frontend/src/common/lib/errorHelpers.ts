@@ -114,6 +114,14 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.updates",
     messageKey: "errors:installRunning",
   },
+  [ErrorCodes.CHECK_RUNNING]: {
+    titleKey: "errors:titles.updates",
+    messageKey: "errors:checkRunning",
+  },
+  [ErrorCodes.CHECK_TOO_SOON]: {
+    titleKey: "errors:titles.updates",
+    messageKey: "errors:checkTooSoon",
+  },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:rateLimitExceeded",

@@ -1438,7 +1438,13 @@
       "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
       "title": "Szerver beállítások",
       "updates": {
+        "checkNow": "Frissítések keresése",
+        "checkState": {
+          "failed": "Az új verziók legutóbbi keresése sikertelen volt; a szerver naponta újra próbálkozik.",
+          "rejected": "A szerver elutasította a keresést: már folyamatban van egy, vagy az előző kevesebb mint egy perce történt."
+        },
         "checked": "Legutóbb új verziók keresése: {{time}}",
+        "checking": "Új verziók keresése …",
         "installState": {
           "failed": "Sikertelen",
           "installed": "Telepítve",
@@ -1447,6 +1453,7 @@
           "rolled-back": "Visszaállítva"
         },
         "lastInstall": "Legutóbbi frissítés: {{version}} (erről: {{from}})",
+        "neverChecked": "Még nem történt keresés új verziókra",
         "noVersion": "nincs (fejlesztői)",
         "notEnabled": "Ez a szerver nem telepít frissítéseket az alkalmazásból: a frissítő nincs beállítva.",
         "rejected": "A szerver elutasította a(z) {{version}} verzióra történő frissítést.",
@@ -1552,6 +1559,8 @@
     "aiError": "Az MI szolgáltatás hibát észlelt. Próbáld újra.",
     "backendUserFetch": "Nem sikerült betölteni a felhasználói adatokat a szerverről. Próbáld újra.",
     "billingNotActive": "Az OpenAI-fiókod nem aktív. Ellenőrizd a számlázási adataidat: https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Már folyamatban van egy új verziók keresése.",
+    "checkTooSoon": "Az előző keresés kevesebb mint egy perce történt. Próbáld meg újra egy kis idő múlva.",
     "conflict": "Ez a művelet ütközik a meglévő adatokkal. Próbáld újra.",
     "contentFiltered": "A kérésedet az MI tartalomszűrője blokkolta. Próbáld másként megfogalmazni.",
     "duplicateName": "Ezt a játéknevet már használják. Válassz másikat.",

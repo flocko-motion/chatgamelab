@@ -1441,7 +1441,13 @@
       "notAuthorized": "Nu ai permisiunea de a accesa setările serverului. Este necesar acces de administrator.",
       "title": "Setările serverului",
       "updates": {
+        "checkNow": "Caută actualizări",
+        "checkState": {
+          "failed": "Ultima verificare pentru versiuni noi a eșuat; serverul va încerca din nou zilnic.",
+          "rejected": "Serverul a refuzat verificarea: fie rulează deja una, fie ultima a avut loc acum mai puțin de un minut."
+        },
         "checked": "Ultima verificare a versiunilor noi: {{time}}",
+        "checking": "Se verifică versiunile noi …",
         "installState": {
           "failed": "Eșuat",
           "installed": "Instalat",
@@ -1450,6 +1456,7 @@
           "rolled-back": "Revenit la versiunea anterioară"
         },
         "lastInstall": "Ultima actualizare: {{version}} (de la {{from}})",
+        "neverChecked": "Versiunile noi nu au fost încă verificate",
         "noVersion": "niciuna (dezvoltare)",
         "notEnabled": "Acest server nu instalează actualizări din aplicație: programul său de actualizare nu este configurat.",
         "rejected": "Serverul a refuzat actualizarea la {{version}}.",
@@ -1555,6 +1562,8 @@
     "aiError": "Serviciul IA a întâmpinat o eroare. Te rugăm să încerci din nou.",
     "backendUserFetch": "Datele utilizatorului nu au putut fi încărcate de pe server. Te rugăm să încerci din nou.",
     "billingNotActive": "Contul tău OpenAI nu este activ. Verifică detaliile de facturare la https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "O verificare pentru versiuni noi rulează deja.",
+    "checkTooSoon": "Ultima verificare a avut loc acum mai puțin de un minut. Încearcă din nou în scurt timp.",
     "conflict": "Această acțiune intră în conflict cu date existente. Te rugăm să încerci din nou.",
     "contentFiltered": "Cererea ta a fost filtrată de politica de conținut a IA. Încearcă să reformulezi.",
     "duplicateName": "Numele acestui joc este deja folosit. Te rugăm să alegi altul.",

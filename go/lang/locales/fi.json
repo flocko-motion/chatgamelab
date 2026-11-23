@@ -1443,7 +1443,13 @@
       "notAuthorized": "Sinulla ei ole oikeutta käyttää palvelinasetuksia. Ylläpitäjätaso vaaditaan.",
       "title": "Palvelinasetukset",
       "updates": {
+        "checkNow": "Tarkista päivitykset",
+        "checkState": {
+          "failed": "Viimeisin uusien versioiden tarkistus epäonnistui; palvelin yrittää uudelleen päivittäin.",
+          "rejected": "Palvelin hylkäsi tarkistuksen: toinen tarkistus on jo käynnissä tai edellisestä on kulunut alle minuutti."
+        },
         "checked": "Uusien versioiden viimeisin tarkistus: {{time}}",
+        "checking": "Tarkistetaan uusia versioita …",
         "installState": {
           "failed": "Epäonnistui",
           "installed": "Asennettu",
@@ -1452,6 +1458,7 @@
           "rolled-back": "Palautettu"
         },
         "lastInstall": "Viimeisin päivitys: {{version}} (versiosta {{from}})",
+        "neverChecked": "Uusia versioita ei ole vielä tarkistettu",
         "noVersion": "ei mitään (kehitysversio)",
         "notEnabled": "Tämä palvelin ei asenna päivityksiä sovelluksesta: sen päivitysohjelmaa ei ole määritetty.",
         "rejected": "Palvelin hylkäsi päivityksen versioon {{version}}.",
@@ -1558,6 +1565,8 @@
     "aiError": "AI-palvelussa tapahtui virhe. Yritä uudelleen.",
     "backendUserFetch": "Käyttäjätietojen nouto palvelimelta epäonnistui. Yritä uudelleen.",
     "billingNotActive": "OpenAI-tilisi ei ole aktiivinen. Tarkista laskutustietosi osoitteessa https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Uusien versioiden tarkistus on jo käynnissä.",
+    "checkTooSoon": "Edellisestä tarkistuksesta on kulunut alle minuutti. Yritä hetken kuluttua uudelleen.",
     "conflict": "Tämä toiminto on ristiriidassa olemassa olevien tietojen kanssa. Yritä uudelleen.",
     "contentFiltered": "AI:n sisältöpolitiikka suodatti pyyntösi. Yritä muotoilla se uudelleen.",
     "duplicateName": "Tämän pelin nimi on jo käytössä. Valitse toinen nimi.",

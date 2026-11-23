@@ -1443,7 +1443,13 @@
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
       "title": "Cilësimet e serverit",
       "updates": {
+        "checkNow": "Kontrollo për përditësime",
+        "checkState": {
+          "failed": "Kontrolli i fundit për versione të reja dështoi; serveri do të provojë përsëri çdo ditë.",
+          "rejected": "Serveri e refuzoi kontrollin: një kontroll po kryhet tashmë, ose i fundit u krye më pak se një minutë më parë."
+        },
         "checked": "Kontrolli i fundit për versione të reja: {{time}}",
+        "checking": "Po kontrollohen versionet e reja …",
         "installState": {
           "failed": "Dështoi",
           "installed": "U instalua",
@@ -1452,6 +1458,7 @@
           "rolled-back": "U kthye pas"
         },
         "lastInstall": "Përditësimi i fundit: {{version}} (nga {{from}})",
+        "neverChecked": "Ende nuk është kryer kontroll për versione të reja",
         "noVersion": "asnjë (zhvillim)",
         "notEnabled": "Ky server nuk instalon përditësime nga aplikacioni: përditësuesi i tij nuk është konfiguruar.",
         "rejected": "Serveri refuzoi përditësimin në {{version}}.",
@@ -1558,6 +1565,8 @@
     "aiError": "Shërbimi AI hasi një gabim. Ju lutemi provoni përsëri.",
     "backendUserFetch": "Dështoi ngarkimi i të dhënave të përdoruesit nga serveri. Ju lutemi provoni përsëri.",
     "billingNotActive": "Llogaria juaj OpenAI nuk është aktive. Ju lutemi kontrolloni detajet e faturimit në https://platform.openai.com/settings/organization/billing.",
+    "checkRunning": "Një kontroll për versione të reja po kryhet tashmë.",
+    "checkTooSoon": "Kontrolli i fundit u krye më pak se një minutë më parë. Provo përsëri pas pak.",
     "conflict": "Ky veprim bie ndesh me të dhënat ekzistuese. Ju lutemi provoni përsëri.",
     "contentFiltered": "Kërkesa juaj u filtrua nga politika e përmbajtjes së AI. Ju lutemi provoni ta riformuloni.",
     "duplicateName": "Emri për këtë lojë është tashmë në përdorim. Ju lutemi zgjidhni një emër tjetër.",
