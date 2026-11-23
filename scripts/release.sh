@@ -23,7 +23,9 @@ esac
 for tool in gh npx git; do
   command -v "$tool" >/dev/null 2>&1 || { echo "$tool is missing" >&2; exit 1; }
 done
-gh auth status >/dev/null 2>&1 || { echo "sign in first: gh auth login" >&2; exit 1; }
+# github.com only: another host's broken login must not stop a release
+gh auth status --hostname github.com >/dev/null 2>&1 \
+  || { echo "sign in to github.com first: gh auth login --hostname github.com" >&2; exit 1; }
 
 cd "$(git rev-parse --show-toplevel)"
 git fetch --quiet --tags origin "$branch"
@@ -58,7 +60,7 @@ fi
 
 cd "$dir"
 tags_before="$(git tag -l 'v*' | sort)"
-GITHUB_TOKEN="$(gh auth token)" npx --yes \
+GITHUB_TOKEN="$(gh auth token --hostname github.com)" npx --yes \
   -p semantic-release@24 -p @semantic-release/github@11 \
   semantic-release --no-ci "$@"
 
