@@ -417,6 +417,8 @@
         "role": "Роль",
         "searchPlaceholder": "Пошук за ім’ям, email, роллю або організацією...",
         "showing": "Показано {{count}} з {{total}} користувачів",
+        "signUpInProgress": "Реєстрація триває",
+        "signingUp": "Реєстрація",
         "sort": {
           "email-asc": "Email (А-Я)",
           "email-desc": "Email (Я-А)",

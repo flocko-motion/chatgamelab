@@ -417,6 +417,8 @@
         "role": "Roll",
         "searchPlaceholder": "Suach nach Nam, E-Mail, Roll oder Organisation...",
         "showing": "{{count}} von {{total}} Nutzer/innen",
+        "signUpInProgress": "Registrierung lafft",
+        "signingUp": "Registriert si",
         "sort": {
           "email-asc": "E-Mail (A-Z)",
           "email-desc": "E-Mail (Z-A)",

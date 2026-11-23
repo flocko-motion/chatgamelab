@@ -417,6 +417,8 @@
         "role": "ሚና",
         "searchPlaceholder": "ብስም፣ ኢ-መይል፣ ሚና ወይ ማሕበር ፈልጥ...",
         "showing": "{{count}} ካብ {{total}} ተጠቃሚታት እየ ምርኣይ",
+        "signUpInProgress": "ምዝገባ ኣብ ሂደት ኣሎ",
+        "signingUp": "ይምዝገብ ኣሎ",
         "sort": {
           "email-asc": "ኢ-መይል (A-Z)",
           "email-desc": "ኢ-መይል (Z-A)",

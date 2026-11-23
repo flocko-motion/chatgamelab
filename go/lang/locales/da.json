@@ -417,6 +417,8 @@
         "role": "Rolle",
         "searchPlaceholder": "Søg efter navn, e-mail, rolle eller organisation...",
         "showing": "Viser {{count}} af {{total}} brugere",
+        "signUpInProgress": "Tilmelding i gang",
+        "signingUp": "Tilmelder sig",
         "sort": {
           "email-asc": "E-mail (A-Å)",
           "email-desc": "E-mail (Å-A)",

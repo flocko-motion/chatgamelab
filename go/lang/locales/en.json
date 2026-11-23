@@ -332,6 +332,8 @@
         "removeAdminTitle": "Remove Admin Role",
         "removeAdminWarning": "This user will lose all administrative privileges.",
         "role": "Role",
+        "signUpInProgress": "Sign-up in progress",
+        "signingUp": "Signing up",
         "sort": {
           "email-asc": "Email (A-Z)",
           "email-desc": "Email (Z-A)",

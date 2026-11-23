@@ -417,6 +417,8 @@
         "role": "役割",
         "searchPlaceholder": "名前・メール・役割・組織で検索...",
         "showing": "{{count}} / {{total}} ユーザー表示",
+        "signUpInProgress": "登録処理中",
+        "signingUp": "登録中",
         "sort": {
           "email-asc": "メール（A-Z）",
           "email-desc": "メール（Z-A）",

@@ -58,6 +58,7 @@ type AppUser struct {
 	Language             string         `json:"language"`
 	PrivateShareID       uuid.NullUUID  `json:"private_share_id"`
 	AgeGroup             sql.NullString `json:"age_group"`
+	RegisteredAt         sql.NullTime   `json:"registered_at"`
 }
 
 type BackupLog struct {

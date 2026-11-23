@@ -417,6 +417,8 @@
         "role": "Rooli",
         "searchPlaceholder": "Hae nimen, sähköpostin, roolin tai organisaation perusteella...",
         "showing": "Näytetään {{count}} / {{total}} käyttäjää",
+        "signUpInProgress": "Rekisteröityminen käynnissä",
+        "signingUp": "Rekisteröidytään",
         "sort": {
           "email-asc": "Sähköposti (A-Ö)",
           "email-desc": "Sähköposti (Ö-A)",

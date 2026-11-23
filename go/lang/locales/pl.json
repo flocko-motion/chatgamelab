@@ -417,6 +417,8 @@
         "role": "Rola",
         "searchPlaceholder": "Szukaj po imieniu, e-mailu, roli lub organizacji...",
         "showing": "Wyświetlono {{count}} z {{total}} użytkowników",
+        "signUpInProgress": "Rejestracja w toku",
+        "signingUp": "Rejestrowanie",
         "sort": {
           "email-asc": "E-mail (A-Z)",
           "email-desc": "E-mail (Z-A)",

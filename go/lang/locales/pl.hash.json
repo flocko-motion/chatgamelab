@@ -290,6 +290,8 @@
   "common.admin.users.removeAdminTitle": "7dc08ad5994eaca9",
   "common.admin.users.removeAdminWarning": "56bfd1829989db7b",
   "common.admin.users.role": "e27800a5fe8caa47",
+  "common.admin.users.signUpInProgress": "7768f354c150f983",
+  "common.admin.users.signingUp": "b901d1f767629daa",
   "common.admin.users.sort.email-asc": "9fa85a063fdcd83c",
   "common.admin.users.sort.email-desc": "7ab5c96aeee2e769",
   "common.admin.users.sort.joined-asc": "391451eea93916b6",

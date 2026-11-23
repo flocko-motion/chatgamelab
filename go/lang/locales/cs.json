@@ -417,6 +417,8 @@
         "role": "Role",
         "searchPlaceholder": "Hledejte podle jména, e-mailu, role nebo organizace...",
         "showing": "Zobrazuje se {{count}} z {{total}} uživatelů",
+        "signUpInProgress": "Registrace probíhá",
+        "signingUp": "Registruje se",
         "sort": {
           "email-asc": "E-mail (A–Z)",
           "email-desc": "E-mail (Z–A)",

@@ -417,6 +417,8 @@
         "role": "نقش",
         "searchPlaceholder": "جستجو بر اساس نام، ایمیل، نقش یا سازمان...",
         "showing": "نمایش {{count}} نفر از {{total}} کاربر",
+        "signUpInProgress": "ثبت‌نام در حال انجام است",
+        "signingUp": "در حال ثبت‌نام",
         "sort": {
           "email-asc": "ایمیل (الف-ی)",
           "email-desc": "ایمیل (ی-الف)",

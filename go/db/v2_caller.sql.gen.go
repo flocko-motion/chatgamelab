@@ -17,7 +17,7 @@ const v2ReadCaller = `-- name: V2ReadCaller :one
 SELECT
   u.id,
   (u.deleted_at IS NOT NULL)::bool                              AS deleted,
-  (COALESCE(u.name, '') = '')::bool                             AS registering,
+  (u.registered_at IS NULL)::bool                               AS registering,
   (u.guest_token IS NOT NULL)::bool                             AS guest_account,
   r.role,
   r.institution_id,

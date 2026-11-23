@@ -417,6 +417,8 @@
         "role": "역할",
         "searchPlaceholder": "이름, 이메일, 역할 또는 기관으로 검색...",
         "showing": "총 {{total}}명 중 {{count}}명 표시",
+        "signUpInProgress": "가입 진행 중",
+        "signingUp": "가입 중",
         "sort": {
           "email-asc": "이메일 (A-Z)",
           "email-desc": "이메일 (Z-A)",

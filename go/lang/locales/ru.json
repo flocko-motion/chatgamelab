@@ -417,6 +417,8 @@
         "role": "Роль",
         "searchPlaceholder": "Поиск по имени, email, роли или организации...",
         "showing": "Показано {{count}} из {{total}} пользователей",
+        "signUpInProgress": "Регистрация выполняется",
+        "signingUp": "Регистрируется",
         "sort": {
           "email-asc": "Email (А-Я)",
           "email-desc": "Email (Я-А)",

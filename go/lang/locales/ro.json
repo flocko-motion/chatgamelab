@@ -417,6 +417,8 @@
         "role": "Rol",
         "searchPlaceholder": "Caută după nume, email, rol sau organizație...",
         "showing": "Se afișează {{count}} din {{total}} utilizatori",
+        "signUpInProgress": "Înregistrare în curs",
+        "signingUp": "Se înregistrează",
         "sort": {
           "email-asc": "Email (A-Z)",
           "email-desc": "Email (Z-A)",

@@ -42,24 +42,34 @@ const (
 	sessionPurgeInterval = time.Hour
 	// purgeBatchSize is how many sessions one purge statement deletes.
 	purgeBatchSize = 500
+	// defaultSignUpRetentionHours is how long an account may stay in sign-up
+	// (spec, Registration): an unfinished sign-up is removed after a day.
+	defaultSignUpRetentionHours = 24
 )
 
-// Janitor is the service that purges sessions idle beyond the retention
-// window, at start and then hourly; forget drops a purged session the
-// engine still holds. SESSION_RETENTION_HOURS sets the window; 0 switches
-// the purge off.
+// Janitor is the service that cleans up at start and then hourly: it purges
+// sessions idle beyond their retention window (forget drops a purged session
+// the engine still holds) and removes accounts left in sign-up beyond theirs.
+// SESSION_RETENTION_HOURS and SIGNUP_RETENTION_HOURS set the windows; 0
+// switches that purge off.
 func Janitor(forget func(sessionID string)) func(context.Context) {
 	return func(ctx context.Context) {
-		retention := sessionRetention()
-		if retention <= 0 {
-			log.Info("session purge disabled", "env", "SESSION_RETENTION_HOURS=0")
+		sessions := retentionHours("SESSION_RETENTION_HOURS", defaultSessionRetentionHours)
+		signUps := retentionHours("SIGNUP_RETENTION_HOURS", defaultSignUpRetentionHours)
+		if sessions <= 0 && signUps <= 0 {
+			log.Info("janitor disabled", "env", "SESSION_RETENTION_HOURS=0, SIGNUP_RETENTION_HOURS=0")
 			return
 		}
-		log.Info("session purge enabled", "retention", retention, "interval", sessionPurgeInterval)
+		log.Info("janitor enabled", "session_retention", sessions, "signup_retention", signUps, "interval", sessionPurgeInterval)
 		ticker := time.NewTicker(sessionPurgeInterval)
 		defer ticker.Stop()
 		for {
-			purgeExpiredSessions(ctx, retention, forget)
+			if sessions > 0 {
+				purgeExpiredSessions(ctx, sessions, forget)
+			}
+			if signUps > 0 {
+				purgeStaleSignUps(ctx, signUps)
+			}
 			select {
 			case <-ticker.C:
 			case <-ctx.Done():
@@ -94,17 +104,49 @@ func purgeExpiredSessions(ctx context.Context, retention time.Duration, forget f
 	log.Info("session purge completed", "purged", total, "cutoff", cutoff)
 }
 
-// sessionRetention reads the retention window from the environment; an
-// unreadable value falls back to the default rather than letting sessions
-// pile up.
-func sessionRetention() time.Duration {
-	raw := functional.EnvOrDefault("SESSION_RETENTION_HOURS", strconv.Itoa(defaultSessionRetentionHours))
+// retentionHours reads a retention window from the environment; an
+// unreadable value falls back to the default rather than letting rows pile
+// up.
+func retentionHours(env string, defaultHours int) time.Duration {
+	raw := functional.EnvOrDefault(env, strconv.Itoa(defaultHours))
 	hours, err := strconv.Atoi(raw)
 	if err != nil || hours < 0 {
-		log.Warn("invalid SESSION_RETENTION_HOURS, using default", "value", raw, "default_hours", defaultSessionRetentionHours)
-		return defaultSessionRetentionHours * time.Hour
+		log.Warn("invalid retention, using default", "env", env, "value", raw, "default_hours", defaultHours)
+		return time.Duration(defaultHours) * time.Hour
 	}
 	return time.Duration(hours) * time.Hour
+}
+
+// purgeStaleSignUps removes the accounts left in sign-up beyond the
+// retention window. An account in sign-up with a name, a role or a session
+// is no unfinished sign-up: it stays, with a warning.
+func purgeStaleSignUps(ctx context.Context, retention time.Duration) {
+	cutoff := time.Now().Add(-retention)
+	stale, err := store.Queries().V2StaleSignUps(ctx, db.V2StaleSignUpsParams{Cutoff: cutoff, MaxRows: purgeBatchSize})
+	if err != nil {
+		log.Error("sign-up purge failed", "error", err, "cutoff", cutoff)
+		return
+	}
+	removed := 0
+	for _, a := range stale {
+		if a.HasName || a.HasRole || a.HasSession {
+			log.Warn("sign-up purge keeps an account in sign-up that holds data",
+				"user_id", a.ID, "name", a.HasName, "role", a.HasRole, "session", a.HasSession)
+			continue
+		}
+		n, err := store.Queries().V2DeleteSignUp(ctx, a.ID)
+		if err != nil {
+			// another table still refers to the account: it holds data
+			log.Warn("sign-up purge keeps an account another record refers to", "user_id", a.ID, "error", err)
+			continue
+		}
+		removed += int(n)
+	}
+	if removed == 0 {
+		log.Debug("sign-up purge found nothing to remove", "cutoff", cutoff)
+		return
+	}
+	log.Info("sign-up purge completed", "removed", removed, "cutoff", cutoff)
 }
 
 // The first admin of an empty deployment comes from ADMIN_EMAILS: an
