@@ -9,7 +9,8 @@ deliberate act of the owner, and it is visible.
 The paths in `.github/CODEOWNERS`: the core (`go/core/`), the database
 (`go/db/`), the composition root (`go/app/app.go`), the tests that pin the
 rules down (permission matrix, guest place, `scripts/test.sh`) and the seal
-itself (CODEOWNERS, the workflows, `.claude/settings.json`).
+itself (CODEOWNERS, the workflows, `.claude/settings.json`, and
+`scripts/seal.sh`, which opens it in a worktree).
 
 ## Three layers
 
