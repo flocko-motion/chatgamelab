@@ -1599,6 +1599,11 @@
       "empty": "Nothing has run yet.",
       "close": "Close"
     },
+    "relay": {
+      "connecting": "Relay: not running",
+      "busy": "Relay: in use by another tab",
+      "connected": "Relay: connected"
+    },
     "blocks": {
       "image-style": "Adapt style",
       "adapted-style": "Style",

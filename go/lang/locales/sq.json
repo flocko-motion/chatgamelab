@@ -1766,6 +1766,11 @@
       "unknown": "Kjo seancë loje nuk ekziston.",
       "unreachable": "Ofruesi i IA-së nuk po përgjigjet për momentin, ndaj loja nuk mund të vazhdojë. Provo sërish pas disa minutash."
     },
+    "relay": {
+      "busy": "Relay: në përdorim nga një skedë tjetër",
+      "connected": "Relay: i lidhur",
+      "connecting": "Relay: nuk po ekzekutohet"
+    },
     "status": {
       "choose": "Zgjidh mënyrën si dëshiron të luash për të filluar.",
       "connecting": "Po lidhet…",

@@ -95,3 +95,43 @@ export class WebSocketTransport implements Transport {
     else this.#handlers?.onClose();
   }
 }
+
+/** Which way a frame went: from the engine, or to it. */
+export type Direction = "received" | "sent";
+
+export type FrameListener = (direction: Direction, data: TransportMessage) => void;
+
+/**
+ * A transport that shows every frame, both ways, to whoever listens, so a
+ * developer's recorder can be attached once the page knows it runs on a dev
+ * server. With nobody listening it only passes the frames on.
+ */
+export class TappedTransport implements Transport {
+  #listener: FrameListener | null = null;
+
+  constructor(private readonly inner: Transport) {}
+
+  /** Shows every frame from now on to one listener. */
+  listen(listener: FrameListener): void {
+    this.#listener = listener;
+  }
+
+  open(handlers: TransportHandlers): void {
+    this.inner.open({
+      ...handlers,
+      onMessage: (data) => {
+        this.#listener?.("received", data);
+        handlers.onMessage(data);
+      },
+    });
+  }
+
+  send(data: ArrayBuffer | string): void {
+    this.#listener?.("sent", data);
+    this.inner.send(data);
+  }
+
+  close(): void {
+    this.inner.close();
+  }
+}

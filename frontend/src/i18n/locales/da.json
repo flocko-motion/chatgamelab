@@ -1760,6 +1760,11 @@
       "unknown": "Denne spilsession findes ikke.",
       "unreachable": "AI-udbyderen svarer ikke lige nu, så spillet kan ikke fortsætte. Prøv igen om et par minutter."
     },
+    "relay": {
+      "busy": "Relay: optaget af en anden fane",
+      "connected": "Relay: tilsluttet",
+      "connecting": "Relay: kører ikke"
+    },
     "status": {
       "choose": "Vælg, hvordan du vil spille, for at begynde.",
       "connecting": "Opretter forbindelse…",

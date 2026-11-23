@@ -1766,6 +1766,11 @@
       "unknown": "Tätä pelisessiota ei ole olemassa.",
       "unreachable": "Tekoälypalveluntarjoaja ei vastaa juuri nyt, joten peli ei voi jatkua. Yritä uudelleen muutaman minuutin kuluttua."
     },
+    "relay": {
+      "busy": "Relay: toisen välilehden käytössä",
+      "connected": "Relay: yhdistetty",
+      "connecting": "Relay: ei käynnissä"
+    },
     "status": {
       "choose": "Valitse pelitapa aloittaaksesi.",
       "connecting": "Yhdistetään…",

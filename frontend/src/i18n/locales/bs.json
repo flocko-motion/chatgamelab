@@ -1760,6 +1760,11 @@
       "unknown": "Ova sesija igre ne postoji.",
       "unreachable": "AI provajder trenutno ne odgovara, pa igra ne može nastaviti. Pokušaj ponovo za nekoliko minuta."
     },
+    "relay": {
+      "busy": "Relay: koristi ga druga kartica",
+      "connected": "Relay: povezan",
+      "connecting": "Relay: nije pokrenut"
+    },
     "status": {
       "choose": "Odaberi kako želiš igrati da bi počeo.",
       "connecting": "Povezivanje…",

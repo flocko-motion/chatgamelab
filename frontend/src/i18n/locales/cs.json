@@ -1760,6 +1760,11 @@
       "unknown": "Tato herní relace neexistuje.",
       "unreachable": "Poskytovatel AI právě neodpovídá, takže hra nemůže pokračovat. Zkus to znovu za několik minut."
     },
+    "relay": {
+      "busy": "Relay: používá ho jiná karta",
+      "connected": "Relay: připojeno",
+      "connecting": "Relay: není spuštěn"
+    },
     "status": {
       "choose": "Pro začátek si vyber, jak chceš hrát.",
       "connecting": "Připojování…",

@@ -1760,6 +1760,11 @@
       "unknown": "Ta igralna seja ne obstaja.",
       "unreachable": "Ponudnik AI trenutno ne odgovarja, zato se igra ne more nadaljevati. Poskusi znova čez nekaj minut."
     },
+    "relay": {
+      "busy": "Relay: uporablja ga drug zavihek",
+      "connected": "Relay: povezan",
+      "connecting": "Relay: ne deluje"
+    },
     "status": {
       "choose": "Izberi način igranja za začetek.",
       "connecting": "Povezovanje…",

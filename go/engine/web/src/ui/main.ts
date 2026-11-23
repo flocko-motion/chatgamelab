@@ -7,7 +7,7 @@ import { PlaybackEngine } from "../playback-engine.js";
 import { create, opening, transientMemory, type Memory, type Opening, type Selector } from "../launch.js";
 import { explain, holdsToTalk } from "../state.js";
 import { notice, text, useLanguage, type Notice } from "../texts.js";
-import { WebSocketTransport } from "../transport.js";
+import { TappedTransport, WebSocketTransport } from "../transport.js";
 import { LaunchPanel } from "./launch.js";
 import { AudioIO } from "./audio.js";
 import { WebRTCVoice } from "./voice.js";
@@ -15,6 +15,7 @@ import { HoldToTalk } from "./talk.js";
 import { mountSplit } from "./split.js";
 import { View } from "./view.js";
 import { Details } from "./details.js";
+import { startDebugging, type Debugging } from "./debug.js";
 import { Insights } from "./insights.js";
 import { OptionsDialog } from "./options.js";
 import { mountBackground } from "./theme/backgrounds/index.js";
@@ -64,8 +65,12 @@ let recover = (): void => {};
 // The speaker plays a spoken reply's audio as it arrives over the session's
 // connection, as an Adventure's narration does; it also records push-to-talk.
 const audio = new AudioIO(new URL("./mic-worklet.js", import.meta.url).href);
+// Tapped, so a dev server's debug recorder sees every frame; on any other
+// server nobody listens.
+const transport = new TappedTransport(new WebSocketTransport(liveURL(session, location.origin), () => recover()));
+const openedAt = new Date().toISOString();
 const playback = new PlaybackEngine(
-  new WebSocketTransport(liveURL(session, location.origin), () => recover()),
+  transport,
   new WebRTCVoice(session),
   audio,
 );
@@ -190,12 +195,24 @@ void playback.restore(session).then(async () => {
   const topology = playback.state.topology;
   if (topology?.theme && topology.theme in PRESETS) useTheme(topology.theme);
   themes.hidden = !topology?.dev;
+  // A developer can let Claude look into this session through the debug
+  // relay; it records from here, before the live connection opens.
+  let debugging: Debugging | null = null;
+  if (topology?.dev) {
+    debugging = startDebugging(
+      playback,
+      transport,
+      { game: topology.title ?? topology.name, session: sessionID, started: openedAt },
+      required<HTMLElement>(".insights-graph"),
+    );
+  }
   if (topology?.language) {
     // The session's language is fixed at creation, and wins over the page's.
     document.documentElement.lang = topology.language;
     await useLanguage(topology.language, location.href);
     talk.refresh();
     insights.relabel();
+    debugging?.relabel();
     view.render(playback.state);
   }
   playback.connect();

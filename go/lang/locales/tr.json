@@ -1762,6 +1762,11 @@
       "unknown": "Bu oyun oturumu mevcut değil.",
       "unreachable": "Yapay zekâ sağlayıcısı şu anda yanıt vermiyor, bu nedenle oyun devam edemiyor. Birkaç dakika sonra tekrar dene."
     },
+    "relay": {
+      "busy": "Relay: başka bir sekme tarafından kullanılıyor",
+      "connected": "Relay: bağlı",
+      "connecting": "Relay: çalışmıyor"
+    },
     "status": {
       "choose": "Başlamak için nasıl oynamak istediğini seç.",
       "connecting": "Bağlanıyor…",
