@@ -97,8 +97,9 @@ export {
   checkHandled,
   checkMark,
   useCheckForUpdates,
+  checkRefused,
 } from "./useSystem";
-export type { CheckMark } from "./useSystem";
+export type { CheckMark, CheckRefused } from "./useSystem";
 
 // Invites
 export {

@@ -1444,6 +1444,7 @@
       "title": "Palvelinasetukset",
       "updates": {
         "checkNow": "Tarkista päivitykset",
+        "checkRunningElsewhere": "Tarkistus on jo käynnissä; sen tulos näkyy tässä.",
         "checkState": {
           "failed": "Viimeisin uusien versioiden tarkistus epäonnistui; palvelin yrittää uudelleen päivittäin.",
           "rejected": "Palvelin hylkäsi tarkistuksen: toinen tarkistus on jo käynnissä tai edellisestä on kulunut alle minuutti."
@@ -1459,6 +1460,7 @@
         },
         "lastInstall": "Viimeisin päivitys: {{version}} (versiosta {{from}})",
         "neverChecked": "Uusia versioita ei ole vielä tarkistettu",
+        "nextCheckIn": "Seuraava tarkistus on mahdollinen {{seconds}} s kuluttua.",
         "noVersion": "ei mitään (kehitysversio)",
         "notEnabled": "Tämä palvelin ei asenna päivityksiä sovelluksesta: sen päivitysohjelmaa ei ole määritetty.",
         "rejected": "Palvelin hylkäsi päivityksen versioon {{version}}.",

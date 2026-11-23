@@ -1439,6 +1439,7 @@
       "title": "Postavke servera",
       "updates": {
         "checkNow": "Provjeri ima li ažuriranja",
+        "checkRunningElsewhere": "Provjera je već pokrenuta; njen rezultat će se prikazati ovdje.",
         "checkState": {
           "failed": "Posljednja provjera novih verzija nije uspjela; server će pokušati ponovo svakog dana.",
           "rejected": "Server je odbio provjeru: jedna već traje ili je posljednja provjera obavljena prije manje od minute."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Posljednja nadogradnja: {{version}} (od {{from}})",
         "neverChecked": "Još nije provjereno ima li novih verzija",
+        "nextCheckIn": "Sljedeća provjera je moguća za {{seconds}} s.",
         "noVersion": "nijedna (razvojna)",
         "notEnabled": "Ovaj server ne instalira ažuriranja iz aplikacije: njegov program za ažuriranje nije podešen.",
         "rejected": "Server je odbio nadogradnju na {{version}}.",

@@ -1439,6 +1439,7 @@
       "title": "Nastavení serveru",
       "updates": {
         "checkNow": "Zkontrolovat aktualizace",
+        "checkRunningElsewhere": "Kontrola již probíhá; její výsledek se zobrazí zde.",
         "checkState": {
           "failed": "Poslední kontrola nových verzí selhala; server to zkusí znovu každý den.",
           "rejected": "Server kontrolu odmítl: jedna již probíhá, nebo od poslední kontroly ještě neuplynula minuta."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Poslední upgrade: {{version}} (z {{from}})",
         "neverChecked": "Nové verze zatím nebyly kontrolovány",
+        "nextCheckIn": "Další kontrola je možná za {{seconds}} s.",
         "noVersion": "žádná (vývojová)",
         "notEnabled": "Tento server neinstaluje aktualizace z aplikace: jeho aktualizační nástroj není nastaven.",
         "rejected": "Server odmítl upgrade na {{version}}.",

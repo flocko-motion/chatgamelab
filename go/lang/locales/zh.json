@@ -1439,6 +1439,7 @@
       "title": "服务器设置",
       "updates": {
         "checkNow": "检查更新",
+        "checkRunningElsewhere": "检查已在其他位置运行；其结果将在此处显示。",
         "checkState": {
           "failed": "上次检查新版本失败；服务器每天会重试。",
           "rejected": "服务器拒绝了此次检查：已有检查正在进行，或距离上次检查还不到一分钟。"
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "上次升级：{{version}}（从 {{from}} 升级）",
         "neverChecked": "尚未检查新版本",
+        "nextCheckIn": "下一次检查将在 {{seconds}} 秒后进行。",
         "noVersion": "无（开发版）",
         "notEnabled": "此服务器不会从应用安装更新：其更新程序尚未设置。",
         "rejected": "服务器拒绝升级到 {{version}}。",

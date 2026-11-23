@@ -1439,6 +1439,7 @@
       "title": "Configurações do Servidor",
       "updates": {
         "checkNow": "Verificar atualizações",
+        "checkRunningElsewhere": "Já está a decorrer uma verificação; o resultado será apresentado aqui.",
         "checkState": {
           "failed": "A última verificação de novas versões falhou; o servidor tentará novamente diariamente.",
           "rejected": "O servidor recusou a verificação: já há uma em andamento ou a última ocorreu há menos de um minuto."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Última atualização: {{version}} (de {{from}})",
         "neverChecked": "Ainda não foram verificadas novas versões",
+        "nextCheckIn": "A próxima verificação será possível daqui a {{seconds}} s.",
         "noVersion": "nenhuma (desenvolvimento)",
         "notEnabled": "Este servidor não instala atualizações pelo aplicativo: o atualizador não está configurado.",
         "rejected": "O servidor recusou a atualização para {{version}}.",

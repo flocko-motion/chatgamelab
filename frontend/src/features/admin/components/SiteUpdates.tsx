@@ -109,13 +109,21 @@ export function SiteUpdates() {
                 <GenericButtonWithText
                   icon={updates.checking ? <Loader size={14} /> : <IconSearch size={14} />}
                   onClick={updates.checkNow}
-                  disabled={updates.checking || updates.busy}
+                  disabled={updates.checking || updates.busy || updates.checkInSeconds > 0}
                   size="xs"
                   variant="light"
                 >
                   {t("serverSettings.updates.checkNow")}
                 </GenericButtonWithText>
               </Group>
+            )}
+
+            {updates.checkInSeconds > 0 && (
+              <HelperText>
+                {updates.checkRefused === "check_running"
+                  ? t("serverSettings.updates.checkRunningElsewhere")
+                  : t("serverSettings.updates.nextCheckIn", { seconds: updates.checkInSeconds })}
+              </HelperText>
             )}
 
             {!updates.checking &&

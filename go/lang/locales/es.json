@@ -1439,6 +1439,7 @@
       "title": "Configuración del servidor",
       "updates": {
         "checkNow": "Buscar actualizaciones",
+        "checkRunningElsewhere": "Ya hay una comprobación en curso; su resultado aparecerá aquí.",
         "checkState": {
           "failed": "La última búsqueda de nuevas versiones ha fallado; el servidor lo intentará de nuevo a diario.",
           "rejected": "El servidor rechazó la búsqueda: ya hay una en curso o la última se realizó hace menos de un minuto."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Última actualización: {{version}} (desde {{from}})",
         "neverChecked": "Aún no se han buscado nuevas versiones",
+        "nextCheckIn": "La próxima comprobación será posible en {{seconds}} s.",
         "noVersion": "ninguna (desarrollo)",
         "notEnabled": "Este servidor no instala actualizaciones desde la aplicación: su actualizador no está configurado.",
         "rejected": "El servidor rechazó la actualización a {{version}}.",

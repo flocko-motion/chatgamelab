@@ -1439,6 +1439,7 @@
       "title": "Paramètres du serveur",
       "updates": {
         "checkNow": "Rechercher des mises à jour",
+        "checkRunningElsewhere": "Une recherche est déjà en cours ; son résultat s'affichera ici.",
         "checkState": {
           "failed": "La dernière recherche de nouvelles versions a échoué ; le serveur réessaiera chaque jour.",
           "rejected": "Le serveur a refusé la recherche : une recherche est déjà en cours ou la dernière date de moins d’une minute."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Dernière mise à niveau : {{version}} (depuis {{from}})",
         "neverChecked": "Aucune recherche de nouvelles versions effectuée pour le moment",
+        "nextCheckIn": "La prochaine recherche sera possible dans {{seconds}} s.",
         "noVersion": "aucune (développement)",
         "notEnabled": "Ce serveur n’installe aucune mise à jour depuis l’application : son programme de mise à jour n’est pas configuré.",
         "rejected": "Le serveur a refusé la mise à niveau vers {{version}}.",

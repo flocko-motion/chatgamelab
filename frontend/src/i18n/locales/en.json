@@ -1293,7 +1293,9 @@
         "checkState": {
           "failed": "The last check for new versions failed; the server tries again daily.",
           "rejected": "The server refused the check: one runs already, or the last one was less than a minute ago."
-        }
+        },
+        "nextCheckIn": "The next check is possible in {{seconds}} s.",
+        "checkRunningElsewhere": "A check is already running; its result shows here."
       }
     },
     "settings": "Settings",

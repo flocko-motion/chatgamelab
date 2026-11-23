@@ -1444,6 +1444,7 @@
       "title": "Server-Einstellungen",
       "updates": {
         "checkNow": "Nach Updates suacha",
+        "checkRunningElsewhere": "Es lafft scho a Suche; s Ergebnis davon wird do ozeigt.",
         "checkState": {
           "failed": "De letzte Suach nach neia Versionen is fehlgschlagn; da Server probiert's jeden Dog wieda.",
           "rejected": "Da Server hod de Suach abglehnt: Entweda lafft scho oane, oder de letzte is no koa Minut her."
@@ -1459,6 +1460,7 @@
         },
         "lastInstall": "Letzts Upgrade: {{version}} (von {{from}})",
         "neverChecked": "No ned nach neia Versionen gsucht",
+        "nextCheckIn": "D nächste Suche is in {{seconds}} s möglich.",
         "noVersion": "koane (Entwicklung)",
         "notEnabled": "Der Server installiert koa Updates aus da App: Sein Updater is ned eingerichtet.",
         "rejected": "Der Server hod s Upgrade auf {{version}} abglehnt.",

@@ -1442,6 +1442,7 @@
       "title": "Setările serverului",
       "updates": {
         "checkNow": "Caută actualizări",
+        "checkRunningElsewhere": "O verificare este deja în desfășurare; rezultatul ei va apărea aici.",
         "checkState": {
           "failed": "Ultima verificare pentru versiuni noi a eșuat; serverul va încerca din nou zilnic.",
           "rejected": "Serverul a refuzat verificarea: fie rulează deja una, fie ultima a avut loc acum mai puțin de un minut."
@@ -1457,6 +1458,7 @@
         },
         "lastInstall": "Ultima actualizare: {{version}} (de la {{from}})",
         "neverChecked": "Versiunile noi nu au fost încă verificate",
+        "nextCheckIn": "Următoarea verificare este posibilă în {{seconds}} s.",
         "noVersion": "niciuna (dezvoltare)",
         "notEnabled": "Acest server nu instalează actualizări din aplicație: programul său de actualizare nu este configurat.",
         "rejected": "Serverul a refuzat actualizarea la {{version}}.",

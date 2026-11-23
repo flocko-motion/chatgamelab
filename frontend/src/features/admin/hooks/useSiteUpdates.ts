@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   checkHandled,
   checkMark,
+  checkRefused,
   checkRunning,
   upgradeHandled,
   upgradeRunning,
@@ -10,6 +11,9 @@ import {
   useUpdates,
   type CheckMark,
 } from "@/api/hooks";
+
+// The run host takes one check a minute.
+const CHECK_INTERVAL_MS = 60_000;
 
 /**
  * The site's updates for the admin page: what runs, what it may upgrade to,
@@ -33,9 +37,39 @@ export function useSiteUpdates() {
   const checking =
     checkRunning(state) || check.isPending || (checkAwaited !== null && !checkHandled(state, checkAwaited));
 
+  // When a check is taken again: a minute after the last one finished, or
+  // when the run host's Retry-After says.
+  const [retryAt, setRetryAt] = useState<number | null>(null);
+  const [refused, setRefused] = useState<"check_running" | "check_too_soon" | null>(null);
+  const lastFinished = state?.check?.finished ? Date.parse(state.check.finished) : NaN;
+  const nextCheckAt = Math.max(
+    Number.isFinite(lastFinished) ? lastFinished + CHECK_INTERVAL_MS : 0,
+    retryAt ?? 0,
+  );
+
+  // A ticking clock while a check is not taken yet, for the countdown.
+  const [now, setNow] = useState(() => Date.now());
+  const waitingForNextCheck = nextCheckAt > now;
+  useEffect(() => {
+    if (!waitingForNextCheck) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [waitingForNextCheck]);
+  const checkInSeconds = waitingForNextCheck ? Math.ceil((nextCheckAt - now) / 1000) : 0;
+
   const checkNow = () => {
     const mark = checkMark(state);
-    check.mutate(undefined, { onSuccess: () => setCheckAwaited(mark) });
+    setRefused(null);
+    check.mutate(undefined, {
+      onSuccess: () => setCheckAwaited(mark),
+      onError: (error) => {
+        const r = checkRefused(error);
+        if (!r) return;
+        setRefused(r.code);
+        setNow(Date.now());
+        setRetryAt(Date.now() + (r.retryAfter ?? CHECK_INTERVAL_MS / 1000) * 1000);
+      },
+    });
   };
 
   const requestUpgrade = (version: string) =>
@@ -51,6 +85,8 @@ export function useSiteUpdates() {
     request: state?.request,
     lastCheck: state?.check,
     checking,
+    checkInSeconds,
+    checkRefused: waitingForNextCheck ? refused : null,
     busy: installing || waiting || upgrade.isPending,
     requestUpgrade,
     checkNow,

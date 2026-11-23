@@ -1441,6 +1441,7 @@
       "title": "Sunucu Ayarları",
       "updates": {
         "checkNow": "Güncellemeleri kontrol et",
+        "checkRunningElsewhere": "Zaten bir kontrol çalışıyor; sonucu burada görünecek.",
         "checkState": {
           "failed": "Yeni sürümler için yapılan son kontrol başarısız oldu; sunucu her gün yeniden deneyecek.",
           "rejected": "Sunucu kontrolü reddetti: Zaten devam eden bir kontrol var veya son kontrolün üzerinden bir dakika geçmedi."
@@ -1456,6 +1457,7 @@
         },
         "lastInstall": "Son yükseltme: {{version}} ({{from}} sürümünden)",
         "neverChecked": "Yeni sürümler henüz kontrol edilmedi",
+        "nextCheckIn": "Bir sonraki kontrol {{seconds}} sn. içinde yapılabilir.",
         "noVersion": "yok (geliştirme)",
         "notEnabled": "Bu sunucu uygulamadan güncelleme yüklemiyor: güncelleyicisi ayarlanmamış.",
         "rejected": "Sunucu {{version}} sürümüne yükseltmeyi reddetti.",

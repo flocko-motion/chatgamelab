@@ -1444,6 +1444,7 @@
       "title": "Ustawienia serwera",
       "updates": {
         "checkNow": "Sprawdź dostępność aktualizacji",
+        "checkRunningElsewhere": "Sprawdzanie już trwa; jego wynik pojawi się tutaj.",
         "checkState": {
           "failed": "Ostatnie sprawdzanie dostępności nowych wersji nie powiodło się; serwer spróbuje ponownie za dzień.",
           "rejected": "Serwer odrzucił sprawdzanie: jedno już trwa albo od ostatniego minęła mniej niż minuta."
@@ -1459,6 +1460,7 @@
         },
         "lastInstall": "Ostatnia aktualizacja: {{version}} (z {{from}})",
         "neverChecked": "Nie sprawdzano jeszcze dostępności nowych wersji",
+        "nextCheckIn": "Następne sprawdzanie będzie możliwe za {{seconds}} s.",
         "noVersion": "brak (wersja deweloperska)",
         "notEnabled": "Ten serwer nie instaluje aktualizacji z aplikacji: jego mechanizm aktualizacji nie jest skonfigurowany.",
         "rejected": "Serwer odrzucił aktualizację do wersji {{version}}.",

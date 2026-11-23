@@ -1439,6 +1439,7 @@
       "title": "Postavke poslužitelja",
       "updates": {
         "checkNow": "Provjeri ima li ažuriranja",
+        "checkRunningElsewhere": "Provjera je već pokrenuta; njezin rezultat prikazat će se ovdje.",
         "checkState": {
           "failed": "Posljednja provjera novih verzija nije uspjela; poslužitelj će pokušati ponovno svaki dan.",
           "rejected": "Poslužitelj je odbio provjeru: jedna je već u tijeku ili je posljednja provjera bila prije manje od minute."
@@ -1454,6 +1455,7 @@
         },
         "lastInstall": "Zadnja nadogradnja: {{version}} (s verzije {{from}})",
         "neverChecked": "Još nije provjereno ima li novih verzija",
+        "nextCheckIn": "Sljedeća provjera moguća je za {{seconds}} s.",
         "noVersion": "nema (razvojna verzija)",
         "notEnabled": "Ovaj poslužitelj ne instalira ažuriranja iz aplikacije: njegov program za ažuriranje nije postavljen.",
         "rejected": "Poslužitelj je odbio nadogradnju na {{version}}.",
