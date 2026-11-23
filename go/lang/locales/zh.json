@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 岁",
       "ageGroupU18": "18 岁或以上",
       "emailChangeNote": "如需修改邮箱地址，请联系站点管理员。",
+      "emailDescription": "可选。组织可通过此邮箱邀请你；其他账户不得使用该邮箱。",
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "you@example.org",
       "errors": {
+        "emailInvalid": "这不是有效的电子邮件地址",
+        "emailTaken": "此邮箱属于其他账户",
         "nameRequired": "名称是必填项",
         "nameTaken": "该名称已被占用",
         "nameTooLong": "名称最多 24 个字符",
@@ -1316,12 +1321,6 @@
         "own": "我的游戏",
         "public": "公开"
       },
-      "owner": "我的",
-      "playGame": "试玩本游戏",
-      "playNow": "立即游玩",
-      "selectGameTitle": "选择一个游戏",
-      "title": "选择游戏",
-      "unfavorite": "移出收藏",
       "launch": {
         "backToGames": "返回游戏列表",
         "cannotOpen": "此游戏无法继续",
@@ -1337,6 +1336,12 @@
         "starting": "正在开始游戏…",
         "tryAgain": "重试"
       },
+      "owner": "我的",
+      "playGame": "试玩本游戏",
+      "playNow": "立即游玩",
+      "selectGameTitle": "选择一个游戏",
+      "title": "选择游戏",
+      "unfavorite": "移出收藏",
       "unplayable": {
         "denied": "你无法玩此游戏",
         "failed": "当前无法进行游戏",
@@ -1712,6 +1717,14 @@
       "turnFailed": "故事无法从那里继续。请重新发送，或尝试其他内容。",
       "voiceFailed": "无法连接你的语音。"
     },
+    "insights": {
+      "close": "关闭",
+      "empty": "尚未运行任何内容。",
+      "feed": "发生了什么",
+      "hide": "隐藏洞察",
+      "label": "洞察",
+      "show": "显示洞察"
+    },
     "launch": {
       "noGame": "此页面需要一个游戏才能游玩：请从游戏页面打开它。",
       "starting": "正在开始游戏……"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u001eoutline": "行动",
       "start-game\u001elive-session": "引导",
       "start-game\u001eoutline": "提示"
-    },
-    "insights": {
-      "close": "关闭",
-      "empty": "尚未运行任何内容。",
-      "feed": "发生了什么",
-      "hide": "隐藏洞察",
-      "label": "洞察",
-      "show": "显示洞察"
     }
   }
 }

@@ -36,6 +36,19 @@ sentry_environment: production
 # Where the "home" link of the app points. Empty: the app's own start page.
 homepage_url: ""
 
+# The box's IPv6 address, when the provider assigns one without announcing it
+# (DHCPv6 or router advertisement); empty: none set up. A prefix length may
+# follow (default /128); the gateway defaults to fe80::1. A box whose netplan
+# has several interface definitions also names the public one:
+# ipv6_netplan_id.
+ipv6_address: ""
+# ipv6_gateway: fe80::1
+
+# A shared password in front of the whole site (nginx basic auth), e.g. for a
+# development instance; empty: none. The password is asked for by
+# --basic-auth and kept on the box as a hash. /api/health stays open.
+basic_auth_user: ""
+
 # Nightly database backups over SFTP (schemaf's built-in backup). An empty
 # host switches backups off. The private key comes from --backup-key.
 backup_ssh_host: ""

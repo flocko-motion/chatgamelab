@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 ኣመት",
       "ageGroupU18": "18 ወይ ካብቲ ልዕሊ",
       "emailChangeNote": "ኢ-መይልካ ዝትቀይር እንተደለኻ ኣስተዳዳሪ ሳይቱ ኣሕቱት።",
+      "emailDescription": "ኣማራጺ እዩ። ትካላት ብእኡ ዕድመ ይገብሩልካ፤ ካልእ ሕሳብ ድማ ክጥቀመሉ ኣይፍቀድን።",
+      "emailLabel": "ኢ-መይል",
+      "emailPlaceholder": "you@example.org",
       "errors": {
+        "emailInvalid": "እዚ ቅኑዕ ኣድራሻ ኢ-መይል ኣይኮነን",
+        "emailTaken": "እዚ ኢ-መይል ናይ ካልእ ሕሳብ እዩ",
         "nameRequired": "ስም ኣስፈላጊ እዩ",
         "nameTaken": "ይእቲ ስም ኣብዚ ይጠቐም ኣሎ",
         "nameTooLong": "ስም ብዝተፈተነ 24 ፊደላት ይኹን",
@@ -1321,12 +1326,6 @@
         "own": "ጨዋታይ",
         "public": "ህቡራዊ"
       },
-      "owner": "የኔ",
-      "playGame": "ዚ ጨዋታ ጫውታ",
-      "playNow": "ሕጂ ጫውታ",
-      "selectGameTitle": "ጨዋታ ምረፅ",
-      "title": "ጨዋታ ምረፅ",
-      "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
       "launch": {
         "backToGames": "ናብ ጸወታታት ተመለስ",
         "cannotOpen": "እዚ ጸወታ ክቕጽል ኣይኽእልን",
@@ -1342,6 +1341,12 @@
         "starting": "እቲ ጸወታ ይጅምር ኣሎ…",
         "tryAgain": "እንደገና ፈትን"
       },
+      "owner": "የኔ",
+      "playGame": "ዚ ጨዋታ ጫውታ",
+      "playNow": "ሕጂ ጫውታ",
+      "selectGameTitle": "ጨዋታ ምረፅ",
+      "title": "ጨዋታ ምረፅ",
+      "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
       "unplayable": {
         "denied": "ነዚ ጸወታ ክትጻወቶ ኣይተፈቕደልካን",
         "failed": "ሕጂ ክጻወት ኣይከኣልን",
@@ -1718,6 +1723,14 @@
       "turnFailed": "ዛንታ ካብኡ ክቕጽል ኣይከኣለን። እንደገና ልኣኾ፣ ወይ ካልእ ነገር ፈትን።",
       "voiceFailed": "ድምጽኻ ክተሓሓዝ ኣይከኣለን።"
     },
+    "insights": {
+      "close": "ዕጸው",
+      "empty": "ክሳብ ሕጂ ሓደ ነገር እውን ኣይተካየደን።",
+      "feed": "እንታይ ኣጋጢሙ",
+      "hide": "ሓበሬታታት ሓብእ",
+      "label": "ሓበሬታታት",
+      "show": "ሓበሬታታት ኣርኢ"
+    },
     "launch": {
       "noGame": "እዛ ገጽ ንምጽዋት ጸወታ ትደሊ፦ ካብ ገጽ ሓደ ጸወታ ክፈታ።",
       "starting": "ጸወታ ይጅምር ኣሎ…"
@@ -1780,14 +1793,6 @@
       "rephrase-audio\u0003eoutline": "ተግባር",
       "start-game\u0003elive-session": "መእተዊ",
       "start-game\u0003eoutline": "መምርሒ"
-    },
-    "insights": {
-      "close": "ዕጸው",
-      "empty": "ክሳብ ሕጂ ሓደ ነገር እውን ኣይተካየደን።",
-      "feed": "እንታይ ኣጋጢሙ",
-      "hide": "ሓበሬታታት ሓብእ",
-      "label": "ሓበሬታታት",
-      "show": "ሓበሬታታት ኣርኢ"
     }
   }
 }

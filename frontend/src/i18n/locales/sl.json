@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 let",
       "ageGroupU18": "18 ali več",
       "emailChangeNote": "Za spremembo e-poštnega naslova kontaktirajte skrbnika strani.",
+      "emailDescription": "Izbirno. Organizacije vas prek njega povabijo; noben drug račun ga ne sme uporabljati.",
+      "emailLabel": "E-pošta",
+      "emailPlaceholder": "vi@primer.si",
       "errors": {
+        "emailInvalid": "To ni veljaven e-poštni naslov",
+        "emailTaken": "Ta e-poštni naslov pripada drugemu računu",
         "nameRequired": "Ime je obvezno",
         "nameTaken": "To ime je že zasedeno",
         "nameTooLong": "Ime je lahko dolgo največ 24 znakov",

@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 vjeç",
       "ageGroupU18": "18 vjeç ose më shumë",
       "emailChangeNote": "Për të ndryshuar adresën e emailit, ju lutemi kontaktoni administratorin e faqes.",
+      "emailDescription": "Opsionale. Organizatat ju ftojnë përmes saj; asnjë llogari tjetër nuk mund ta përdorë.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ti@shembull.org",
       "errors": {
+        "emailInvalid": "Kjo nuk është një adresë emaili e vlefshme",
+        "emailTaken": "Kjo adresë emaili i përket një llogarie tjetër",
         "nameRequired": "Emri është i detyrueshëm",
         "nameTaken": "Ky emër është i zënë",
         "nameTooLong": "Emri duhet të ketë maksimum 24 karaktere",
@@ -1321,12 +1326,6 @@
         "own": "Lojërat e mia",
         "public": "Publike"
       },
-      "owner": "Të miat",
-      "playGame": "Luaj këtë lojë",
-      "playNow": "Luaj tani",
-      "selectGameTitle": "Zgjidh një lojë",
-      "title": "Zgjidh një lojë",
-      "unfavorite": "Hiq nga të preferuarat",
       "launch": {
         "backToGames": "Kthehu te lojërat",
         "cannotOpen": "Kjo lojë nuk mund të vazhdojë",
@@ -1342,6 +1341,12 @@
         "starting": "Po nis loja…",
         "tryAgain": "Provo përsëri"
       },
+      "owner": "Të miat",
+      "playGame": "Luaj këtë lojë",
+      "playNow": "Luaj tani",
+      "selectGameTitle": "Zgjidh një lojë",
+      "title": "Zgjidh një lojë",
+      "unfavorite": "Hiq nga të preferuarat",
       "unplayable": {
         "denied": "Nuk lejohet ta luash këtë lojë",
         "failed": "Nuk mund të luhet për momentin",
@@ -1718,6 +1723,14 @@
       "turnFailed": "Historia nuk mund të vazhdonte nga ajo pikë. Dërgoje sërish ose provo diçka tjetër.",
       "voiceFailed": "Zëri yt nuk mund të lidhej."
     },
+    "insights": {
+      "close": "Mbyll",
+      "empty": "Ende nuk është ekzekutuar asgjë.",
+      "feed": "Çfarë ndodhi",
+      "hide": "Fshih informacionet",
+      "label": "Informacione",
+      "show": "Shfaq informacionet"
+    },
     "launch": {
       "noGame": "Kjo faqe ka nevojë për një lojë për t'u luajtur: hape nga faqja e një loje.",
       "starting": "Po nis loja…"
@@ -1780,14 +1793,6 @@
       "rephrase-audio\u0003eoutline": "veprim",
       "start-game\u0003elive-session": "hyrje",
       "start-game\u0003eoutline": "udhëzim"
-    },
-    "insights": {
-      "close": "Mbyll",
-      "empty": "Ende nuk është ekzekutuar asgjë.",
-      "feed": "Çfarë ndodhi",
-      "hide": "Fshih informacionet",
-      "label": "Informacione",
-      "show": "Shfaq informacionet"
     }
   }
 }

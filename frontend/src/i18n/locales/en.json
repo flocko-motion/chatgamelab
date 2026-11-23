@@ -118,8 +118,12 @@
     },
     "settings": {
       "accountSection": "Account",
-      "emailChangeNote": "To change your email address, please contact the site administrator.",
+      "emailDescription": "Optional. Organisations invite you by it; no other account may use it.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.org",
       "errors": {
+        "emailInvalid": "This is not a valid email address",
+        "emailTaken": "This email belongs to another account",
         "nameRequired": "Name is required",
         "nameTaken": "This name is already taken",
         "nameTooLong": "Name must be at most 24 characters",

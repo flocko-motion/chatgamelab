@@ -14,7 +14,21 @@ server {
     listen [::]:80;
     server_name {{ inventory_hostname }};
 
+{% if basic_auth_user | default('') | length > 0 %}
+    # The instance's shared password (basic_auth_user, hash in
+    # /etc/nginx/htpasswd-{{ inventory_hostname }}). Set per location, not on
+    # the server, so certbot's challenge locations stay open.
+    location = /api/health {
+        proxy_pass http://127.0.0.1:{{ app_port }};
+        proxy_set_header Host $host;
+    }
+
+{% endif %}
     location / {
+{% if basic_auth_user | default('') | length > 0 %}
+        auth_basic "{{ inventory_hostname }}";
+        auth_basic_user_file /etc/nginx/htpasswd-{{ inventory_hostname }};
+{% endif %}
         proxy_pass http://127.0.0.1:{{ app_port }};
         proxy_http_version 1.1;
         proxy_set_header Host $host;

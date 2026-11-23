@@ -250,7 +250,12 @@
       "ageGroupU13": "13–17 år",
       "ageGroupU18": "18 år eller eldre",
       "emailChangeNote": "For å endre e-postadressen må du kontakte nettstedsadministratoren.",
+      "emailDescription": "Valgfritt. Organisasjoner inviterer deg via denne; ingen annen konto kan bruke den.",
+      "emailLabel": "E-post",
+      "emailPlaceholder": "deg@eksempel.no",
       "errors": {
+        "emailInvalid": "Dette er ikke en gyldig e-postadresse",
+        "emailTaken": "Denne e-postadressen tilhører en annen konto",
         "nameRequired": "Navn er påkrevd",
         "nameTaken": "Dette navnet er allerede i bruk",
         "nameTooLong": "Navnet kan være maks 24 tegn",
@@ -1316,12 +1321,6 @@
         "own": "Mine spill",
         "public": "Offentlige"
       },
-      "owner": "Mine",
-      "playGame": "Spill dette spillet",
-      "playNow": "Spill nå",
-      "selectGameTitle": "Velg et spill",
-      "title": "Velg et spill",
-      "unfavorite": "Fjern fra favoritter",
       "launch": {
         "backToGames": "Tilbake til spillene",
         "cannotOpen": "Dette spillet kan ikke fortsette",
@@ -1337,6 +1336,12 @@
         "starting": "Starter spillet…",
         "tryAgain": "Prøv igjen"
       },
+      "owner": "Mine",
+      "playGame": "Spill dette spillet",
+      "playNow": "Spill nå",
+      "selectGameTitle": "Velg et spill",
+      "title": "Velg et spill",
+      "unfavorite": "Fjern fra favoritter",
       "unplayable": {
         "denied": "Du kan ikke spille dette spillet",
         "failed": "Kan ikke spilles akkurat nå",
@@ -1712,6 +1717,14 @@
       "turnFailed": "Historien kunne ikke fortsette derfra. Send det på nytt, eller prøv noe annet.",
       "voiceFailed": "Kunne ikke koble til stemmen din."
     },
+    "insights": {
+      "close": "Lukk",
+      "empty": "Ingenting har blitt kjørt ennå.",
+      "feed": "Dette skjedde",
+      "hide": "Skjul innsikt",
+      "label": "Innsikt",
+      "show": "Vis innsikt"
+    },
     "launch": {
       "noGame": "Denne siden trenger et spill for å kunne spilles: Åpne den fra siden til et spill.",
       "starting": "Starter spillet…"
@@ -1774,14 +1787,6 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "innledning",
       "start-game\u0003eoutline": "prompt"
-    },
-    "insights": {
-      "close": "Lukk",
-      "empty": "Ingenting har blitt kjørt ennå.",
-      "feed": "Dette skjedde",
-      "hide": "Skjul innsikt",
-      "label": "Innsikt",
-      "show": "Vis innsikt"
     }
   }
 }

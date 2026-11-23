@@ -250,7 +250,12 @@
       "ageGroupU13": "13-17 sano",
       "ageGroupU18": "18 ama ka weyn",
       "emailChangeNote": "Si aad u beddesho cinwaankaaga iimaylka, fadlan la xiriir maamulaha goobta.",
+      "emailDescription": "Ikhtiyaari. Ururradu waxay kugu casuumi doonaan cinwaankan; akoon kale looma isticmaali karo.",
+      "emailLabel": "Iimayl",
+      "emailPlaceholder": "adiga@tusaale.org",
       "errors": {
+        "emailInvalid": "Kani ma aha cinwaan iimayl oo sax ah",
+        "emailTaken": "Iimaylkan waxa uu la xiriiraa akoon kale",
         "nameRequired": "Magac waa lagama maarmaan",
         "nameTaken": "Magacan hore ayaa loo isticmaalay",
         "nameTooLong": "Magacu ugu badnaan waa 24 xaraf",
@@ -2032,12 +2037,6 @@
         "own": "Ciyaarayga",
         "public": "Guud"
       },
-      "owner": "Aniga",
-      "playGame": "Ciyaar ciyaartan",
-      "playNow": "Hadda Ciyaar",
-      "selectGameTitle": "Dooro Ciyaar",
-      "title": "Dooro Ciyaar",
-      "unfavorite": "Ka saar kuwa la jecel yahay",
       "launch": {
         "backToGames": "Ku noqo ciyaaraha",
         "cannotOpen": "Ciyaartan lama sii wadi karo",
@@ -2053,6 +2052,12 @@
         "starting": "Ciyaarta ayaa bilaabanaysa…",
         "tryAgain": "Mar kale isku day"
       },
+      "owner": "Aniga",
+      "playGame": "Ciyaar ciyaartan",
+      "playNow": "Hadda Ciyaar",
+      "selectGameTitle": "Dooro Ciyaar",
+      "title": "Dooro Ciyaar",
+      "unfavorite": "Ka saar kuwa la jecel yahay",
       "unplayable": {
         "denied": "Looma oggola inaad ciyaartan ciyaarto",
         "failed": "Hadda lama ciyaari karo",
@@ -2368,6 +2373,14 @@
       "turnFailed": "Sheekadu halkaas kama sii socon karin. Mar kale dir, ama wax kale isku day.",
       "voiceFailed": "Codkaaga lama xidhiidhin karin."
     },
+    "insights": {
+      "close": "Xir",
+      "empty": "Weli waxba ma socon.",
+      "feed": "Wixii dhacay",
+      "hide": "Qari aragtiyada",
+      "label": "Aragtiyo",
+      "show": "Muuji aragtiyada"
+    },
     "launch": {
       "noGame": "Boggan wuxuu u baahan yahay ciyaar lagu ciyaaro: ka fur bogga ciyaar.",
       "starting": "Ciyaarta ayaa bilaabanaysa…"
@@ -2430,14 +2443,6 @@
       "rephrase-audio\u0003eoutline": "fal",
       "start-game\u0003elive-session": "bilow",
       "start-game\u0003eoutline": "tilmaan"
-    },
-    "insights": {
-      "close": "Xir",
-      "empty": "Weli waxba ma socon.",
-      "feed": "Wixii dhacay",
-      "hide": "Qari aragtiyada",
-      "label": "Aragtiyo",
-      "show": "Muuji aragtiyada"
     }
   }
 }

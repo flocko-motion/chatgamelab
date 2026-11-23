@@ -251,7 +251,12 @@
       "ageGroupU13": "13-17 yaş",
       "ageGroupU18": "18 veya daha büyük",
       "emailChangeNote": "E-posta adresinizi değiştirmek için lütfen site yöneticisiyle iletişime geçin.",
+      "emailDescription": "İsteğe bağlı. Kuruluşlar sizi bu adres üzerinden davet eder; başka hiçbir hesap bunu kullanamaz.",
+      "emailLabel": "E-posta",
+      "emailPlaceholder": "siz@ornek.org",
       "errors": {
+        "emailInvalid": "Bu geçerli bir e-posta adresi değil",
+        "emailTaken": "Bu e-posta başka bir hesaba ait",
         "nameRequired": "İsim zorunludur",
         "nameTaken": "Bu isim zaten kullanılıyor",
         "nameTooLong": "İsim en fazla 24 karakter olmalıdır",
@@ -1318,12 +1323,6 @@
         "own": "Oyunlarım",
         "public": "Herkese Açık"
       },
-      "owner": "Benim",
-      "playGame": "Bu oyunu oyna",
-      "playNow": "Hemen oyna",
-      "selectGameTitle": "Bir Oyun Seç",
-      "title": "Oyun Seç",
-      "unfavorite": "Favorilerden çıkar",
       "launch": {
         "backToGames": "Oyunlara dön",
         "cannotOpen": "Bu oyun devam edemez",
@@ -1339,6 +1338,12 @@
         "starting": "Oyun başlatılıyor…",
         "tryAgain": "Tekrar dene"
       },
+      "owner": "Benim",
+      "playGame": "Bu oyunu oyna",
+      "playNow": "Hemen oyna",
+      "selectGameTitle": "Bir Oyun Seç",
+      "title": "Oyun Seç",
+      "unfavorite": "Favorilerden çıkar",
       "unplayable": {
         "denied": "Bu oyunu oynamana izin verilmiyor",
         "failed": "Şu anda oynanamıyor",
@@ -1714,6 +1719,14 @@
       "turnFailed": "Hikâye buradan devam edemedi. Tekrar gönder veya başka bir şey dene.",
       "voiceFailed": "Ses bağlantısı kurulamadı."
     },
+    "insights": {
+      "close": "Kapat",
+      "empty": "Henüz hiçbir şey çalıştırılmadı.",
+      "feed": "Ne oldu",
+      "hide": "İçgörüleri gizle",
+      "label": "İçgörüler",
+      "show": "İçgörüleri göster"
+    },
     "launch": {
       "noGame": "Bu sayfada oynanacak bir oyun gerekiyor: Bir oyunun sayfasından aç.",
       "starting": "Oyun başlatılıyor…"
@@ -1776,14 +1789,6 @@
       "rephrase-audio\u0003eoutline": "eylem",
       "start-game\u0003elive-session": "ipucu",
       "start-game\u0003eoutline": "istem"
-    },
-    "insights": {
-      "close": "Kapat",
-      "empty": "Henüz hiçbir şey çalıştırılmadı.",
-      "feed": "Ne oldu",
-      "hide": "İçgörüleri gizle",
-      "label": "İçgörüler",
-      "show": "İçgörüleri göster"
     }
   }
 }

@@ -118,8 +118,12 @@
     },
     "settings": {
       "accountSection": "Konto",
-      "emailChangeNote": "Um Ihre E-Mail-Adresse zu ändern, wenden Sie sich bitte an den Administrator.",
+      "emailDescription": "Optional. Organisationen laden dich darüber ein; kein anderes Konto darf sie verwenden.",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "du@beispiel.de",
       "errors": {
+        "emailInvalid": "Das ist keine gültige E-Mail-Adresse",
+        "emailTaken": "Diese E-Mail gehört zu einem anderen Konto",
         "nameRequired": "Name ist erforderlich",
         "nameTaken": "Dieser Name ist bereits vergeben",
         "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
