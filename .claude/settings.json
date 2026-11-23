@@ -45,6 +45,8 @@
       "Write(/.github/**)",
       "Edit(/.claude/settings.json)",
       "Write(/.claude/settings.json)",
+      "Edit(/scripts/seal.sh)",
+      "Write(/scripts/seal.sh)",
       "Bash(gh pr merge * --admin*)",
       "Bash(gh pr merge --admin*)",
       "Bash(gh api *rulesets*)",

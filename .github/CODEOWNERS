@@ -16,7 +16,8 @@
 /testing/guest_place_test.go           @flocko-motion
 /scripts/test.sh                       @flocko-motion
 
-# the seal itself
+# the seal itself, and the script that opens it in a worktree
 /.github/CODEOWNERS                    @flocko-motion
 /.github/workflows/                    @flocko-motion
 /.claude/settings.json                 @flocko-motion
+/scripts/seal.sh                       @flocko-motion

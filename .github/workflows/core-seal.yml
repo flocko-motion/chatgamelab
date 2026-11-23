@@ -29,7 +29,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          sealed='^(go/core/|go/db/|go/app/app\.go$|testing/permission_matrix_test\.go$|testing/guest_place_test\.go$|scripts/test\.sh$|\.github/CODEOWNERS$|\.github/workflows/|\.claude/settings\.json$)'
+          sealed='^(go/core/|go/db/|go/app/app\.go$|testing/permission_matrix_test\.go$|testing/guest_place_test\.go$|scripts/test\.sh$|\.github/CODEOWNERS$|\.github/workflows/|\.claude/settings\.json$|scripts/seal\.sh$)'
           touched=$(gh api --paginate "repos/$GH_REPO/pulls/$PR/files" -q '.[].filename' | grep -E "$sealed" || true)
           if [ -z "$touched" ]; then
             echo "The seal is untouched."
