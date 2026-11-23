@@ -26,6 +26,8 @@ instance; releases reach every instance. `scripts/release.sh <branch>
    codegen). It builds the artifact `chatgamelab-<version>.run`, signs it with
    a keyless Sigstore attestation, attaches both to the release and rebuilds
    `releases.json`, the index every instance reads.
+   `scripts/release.sh` waits for that run and for the index, and says when
+   the release is installable (or why not).
 3. Within the hour, each instance on the release's channel fetches and
    verifies it, and its admins see it under Server settings › Updates, with
    its notes.
