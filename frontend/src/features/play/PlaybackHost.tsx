@@ -40,6 +40,7 @@ export function PlaybackHost({ target }: { target: PlaybackTarget }) {
       onContinue={launch.continueSession}
       onStartAnew={launch.startAnew}
       onTryAgain={launch.tryAgain}
+      onChoose={launch.choose}
       onBack={back}
     />
   );

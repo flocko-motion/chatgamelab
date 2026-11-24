@@ -22,9 +22,9 @@ func TestAdventureThroughPublicAPI(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:   engine.GenreAdventure,
-		ID:      "test-adventure",
-		Persist: store,
+		Subgenre: engine.SubgenreAdventureRounds,
+		ID:       "test-adventure",
+		Persist:  store,
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -82,8 +82,8 @@ func TestAdventureWithoutImages(t *testing.T) {
 		Default: engine.Choice{Tier: engine.TierLow},
 	}
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreAdventure,
-		ID:    "adventure-without-images",
+		Subgenre: engine.SubgenreAdventureRounds,
+		ID:       "adventure-without-images",
 	}, []engine.Offer{offer})
 	if err != nil {
 		t.Fatal(err)
@@ -131,7 +131,7 @@ func TestLiveGenreIsSpokenOnly(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:     engine.GenreNPCLive,
+		Subgenre:  engine.SubgenreNPCLive,
 		Guardrail: "refuse passage",
 	}, mockOffers())
 	if err != nil {
@@ -155,7 +155,7 @@ func TestConnectionIsInvitedOnlyOnceTheGameBegins(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
 	if err != nil {
@@ -197,7 +197,7 @@ func TestConnectIsRefusedByATurnBasedGenre(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure}, mockOffers())
+	s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -216,7 +216,7 @@ func TestUnsupportedInputKindIsRejected(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure}, mockOffers())
+	s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -237,7 +237,7 @@ func TestUnsupportedInputKindIsRejected(t *testing.T) {
 }
 
 func TestUnknownGenreRefused(t *testing.T) {
-	_, err := engine.Launch(context.Background(), engine.SessionSpec{Genre: "quiz"}, mockOffers())
+	_, err := engine.Launch(context.Background(), engine.SessionSpec{Subgenre: "quiz"}, mockOffers())
 	if err == nil {
 		t.Fatal("expected an error for an unknown genre")
 	}
@@ -257,7 +257,7 @@ func remaining(m map[string]bool) int {
 // rather than discovering the problem on the first model call.
 func TestRealPlatformNeedsKeyFunc(t *testing.T) {
 	_, err := engine.Launch(context.Background(), engine.SessionSpec{
-		Genre: engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 	}, []engine.Offer{openaiOffer(nil)})
 	if err == nil {
 		t.Fatal("expected a launch error when no Keys function is injected")
@@ -271,13 +271,13 @@ func TestSpecMarshalsWithoutOffers(t *testing.T) {
 	defer cancel()
 
 	offer := openaiOffer(func(context.Context) (string, error) { return "sk-should-not-appear", nil })
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreNPCLive, ID: "stored"}, []engine.Offer{offer})
+	s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreNPCLive, ID: "stored"}, []engine.Offer{offer})
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
 
-	spec := engine.SessionSpec{Genre: engine.GenreNPCLive, ID: "stored", Preference: s.Preference()}
+	spec := engine.SessionSpec{Subgenre: engine.SubgenreNPCLive, ID: "stored", Preference: s.Preference()}
 	blob, err := json.Marshal(spec)
 	if err != nil {
 		t.Fatal(err)
@@ -300,7 +300,7 @@ func TestPortraitFailureDoesNotStopTheSession(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "no-portrait",
 		Scenario: "a bridge keeper",
 	}, []engine.Offer{
@@ -329,7 +329,7 @@ func TestPortraitArrivesWithoutBeingTriggered(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:        engine.GenreNPCLive,
+		Subgenre:     engine.SubgenreNPCLive,
 		ID:           "portrait",
 		Scenario:     "You are the keeper of a bridge.",
 		GalleryImage: mock.GalleryImage("bridge"),
@@ -365,7 +365,7 @@ func TestBlocksReportTheirPhases(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "phases",
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
@@ -416,7 +416,7 @@ func TestGateOpeningIsVisibleOnTheStream(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "gated",
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
@@ -454,7 +454,7 @@ func TestOpeningCueSurvivesTheWaitForAPlayer(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "early",
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
@@ -501,7 +501,7 @@ func awaitConnection(ctx context.Context, s *engine.Session) error {
 // rather than fail once a player connects.
 func TestNPCLiveRefusesMistral(t *testing.T) {
 	_, err := engine.Launch(context.Background(), engine.SessionSpec{
-		Genre: engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 	}, []engine.Offer{{
 		Platform: engine.PlatformMistral,
 		ID:       "mistral",
@@ -544,7 +544,7 @@ func TestJournalRecordsTheLiveConversation(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
 	if err != nil {
@@ -603,11 +603,11 @@ func journalHas(entries []engine.JournalEntry, source, kind string) bool {
 func TestTheTopologyNamesTheTogglesItSwitches(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	for genre, want := range map[engine.Genre][]string{
-		engine.GenreAdventure: {"audio-in", "audio-out", "images"},
-		engine.GenreNPCLive:   {},
+	for genre, want := range map[engine.Subgenre][]string{
+		engine.SubgenreAdventureRounds: {"audio-in", "audio-out", "images"},
+		engine.SubgenreNPCLive:         {},
 	} {
-		s, err := engine.Launch(ctx, engine.SessionSpec{Genre: genre, Scenario: "A bridge."}, mockOffers())
+		s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: genre, Scenario: "A bridge."}, mockOffers())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -622,7 +622,7 @@ func TestTheTopologyNamesTheTogglesItSwitches(t *testing.T) {
 func TestTheLiveBlockShowsItsTranscript(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreNPCLive, Scenario: "You keep a bridge."}, mockOffers())
+	s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreNPCLive, Scenario: "You keep a bridge."}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}

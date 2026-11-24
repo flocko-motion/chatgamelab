@@ -1,8 +1,10 @@
 package engine
 
 import (
+	"fmt"
 	"maps"
 	"slices"
+	"strings"
 
 	"engine/internal/adapters"
 	"engine/internal/adapters/mistral"
@@ -82,16 +84,88 @@ func AcceptsKeys(id Platform) bool {
 	return slices.ContainsFunc(Platforms(), func(p PlatformInfo) bool { return p.ID == id && p.UserKeys })
 }
 
-// Genres is every genre the engine runs.
-func Genres() []Genre { return []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo} }
+// GenreNamed is the genre a name stands for: a half's name or a former
+// genre's, as a game file may hold it, stands for its genre ("npc-live" an
+// NPC, "npc-duo" a Discussion). Any other name is taken as it is.
+func GenreNamed(name string) Genre {
+	switch name {
+	case "npc-live":
+		return GenreNPC
+	case "npc-duo":
+		return GenreDiscussion
+	}
+	return Genre(name)
+}
 
-// Needs is the toggles a genre cannot run without.
-func (g Genre) Needs() []Toggle {
-	switch g {
-	case GenreNPCLive, GenreNPCDuo:
+// Genres is every genre a game can be.
+func Genres() []Genre { return []Genre{GenreAdventure, GenreNPC, GenreDiscussion} }
+
+// Subgenres is every half of every genre the engine runs.
+func Subgenres() []Subgenre {
+	return []Subgenre{SubgenreAdventureRounds, SubgenreNPCLive, SubgenreNPCRounds, SubgenreDiscussionLive}
+}
+
+// Subgenres are the genre's halves the engine runs, live first.
+func (g Genre) Subgenres() []Subgenre {
+	var out []Subgenre
+	for _, s := range Subgenres() {
+		if s.Genre() == g {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+// Subgenre is the genre's half of a mode, if the engine runs it.
+func (g Genre) Subgenre(mode Mode) (Subgenre, bool) {
+	s := Subgenre(string(g) + "-" + string(mode))
+	return s, slices.Contains(g.Subgenres(), s)
+}
+
+// Genre is the genre the half belongs to.
+func (s Subgenre) Genre() Genre {
+	name, _ := s.split()
+	return Genre(name)
+}
+
+// Mode is which half it is.
+func (s Subgenre) Mode() Mode {
+	_, mode := s.split()
+	return mode
+}
+
+func (s Subgenre) split() (string, Mode) {
+	for _, mode := range []Mode{ModeLive, ModeRounds} {
+		if name, ok := strings.CutSuffix(string(s), "-"+string(mode)); ok {
+			return name, mode
+		}
+	}
+	return string(s), ""
+}
+
+// Needs is the toggles a half cannot run without.
+func (s Subgenre) Needs() []Toggle {
+	if s.Mode() == ModeLive {
 		return []Toggle{ToggleAudioLive}
 	}
 	return nil
+}
+
+// Needs is the toggles a genre cannot run without at all: those every one
+// of its halves needs.
+func (g Genre) Needs() []Toggle {
+	var out []Toggle
+	halves := g.Subgenres()
+	for _, toggle := range adapters.AllToggles() {
+		all := len(halves) > 0
+		for _, s := range halves {
+			all = all && slices.Contains(s.Needs(), toggle)
+		}
+		if all {
+			out = append(out, toggle)
+		}
+	}
+	return out
 }
 
 // GameField is a field of a game that a genre reads, by the name a client
@@ -106,15 +180,15 @@ const (
 	FieldStatusFields GameField = "statusFields"
 )
 
-// Fields is the game's fields the genre reads, so an editor offers those
-// and no others: an Adventure tells a world in pictures and status, and may
-// be narrated; NPC-Live is one character's voice. Every genre has the image
-// style, as every game's cover is drawn in it.
+// Fields is the game's fields the genre reads, the same for both halves, so
+// an editor offers those and no others: an Adventure tells a world in
+// pictures and status, and may be narrated; an NPC is one character's voice.
+// Every genre has the image style, as every game's cover is drawn in it.
 func (g Genre) Fields() []GameField {
 	switch g {
-	case GenreNPCLive:
+	case GenreNPC:
 		return []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldVoiceStyle}
-	case GenreNPCDuo:
+	case GenreDiscussion:
 		// Both characters share the scenario field; their voices are cast
 		// from who they are.
 		return []GameField{FieldScenario, FieldGameStart, FieldImageStyle}
@@ -130,16 +204,10 @@ type GenrePrompt struct {
 	Text string `json:"text"`
 }
 
-// Prompts are the genre's own prompts, by name, sorted: what a session runs
+// Prompts are the half's own prompts, by name, sorted: what a session runs
 // on unless its spec replaces one.
-func (g Genre) Prompts() []GenrePrompt {
-	defaults := genre.AdventurePrompts
-	switch g {
-	case GenreNPCLive:
-		defaults = genre.NPCLivePrompts
-	case GenreNPCDuo:
-		defaults = genre.NPCDuoPrompts
-	}
+func (s Subgenre) Prompts() []GenrePrompt {
+	defaults := s.defaultPrompts()
 	out := []GenrePrompt{}
 	for _, name := range slices.Sorted(maps.Keys(defaults)) {
 		out = append(out, GenrePrompt{Name: name, Text: defaults[name]})
@@ -147,14 +215,18 @@ func (g Genre) Prompts() []GenrePrompt {
 	return out
 }
 
-// MakesVoices reports whether the genre makes a voice of its own for a game,
-// kept per key and voice style: whether its wiring holds a block that makes
-// one. A genre that does not speaks in a provider's built-in voice, which the
-// voice style only steers, so there is no voice to remake.
-func (g Genre) MakesVoices() bool {
-	s := &Session{usage: newUsageLedger()}
-	w, err := s.wire(SessionSpec{Genre: g}, PlatformOpenAI)
-	return err == nil && w.Graph.MakesVoices()
+func (s Subgenre) defaultPrompts() genre.Prompts {
+	switch s {
+	case SubgenreAdventureRounds:
+		return genre.AdventurePrompts
+	case SubgenreNPCLive:
+		return genre.NPCLivePrompts
+	case SubgenreNPCRounds:
+		return genre.NPCRoundsPrompts
+	case SubgenreDiscussionLive:
+		return genre.NPCDuoPrompts
+	}
+	return nil
 }
 
 // VoiceChoice is what a game chooses for one of a genre's voices.
@@ -174,12 +246,12 @@ type VoiceSlot struct {
 	Choices []VoiceChoice `json:"choices"`
 }
 
-// VoiceSlots are the voices the genre speaks in, read off its wiring: every
+// VoiceSlots are the voices the half speaks in, read off its wiring: every
 // voice is cast from the built-in voices, so a game may ask for a gender or
 // any; a voice of its own only where a block that makes one feeds it.
-func (g Genre) VoiceSlots() []VoiceSlot {
-	s := &Session{usage: newUsageLedger()}
-	w, err := s.wire(SessionSpec{Genre: g}, PlatformOpenAI)
+func (s Subgenre) VoiceSlots() []VoiceSlot {
+	session := &Session{usage: newUsageLedger()}
+	w, err := session.wire(SessionSpec{Subgenre: s}, PlatformOpenAI)
 	if err != nil {
 		return []VoiceSlot{}
 	}
@@ -194,20 +266,92 @@ func (g Genre) VoiceSlots() []VoiceSlot {
 	return out
 }
 
-// PlayableGenres is every genre whose needs the toggles meet.
+// VoiceSlots are the voices the genre speaks in, those of both halves: a
+// voice both speak in, by one name, is one slot, which a game chooses for
+// once, with every choice either half offers.
+func (g Genre) VoiceSlots() []VoiceSlot {
+	out := []VoiceSlot{}
+	for _, half := range g.Subgenres() {
+		for _, slot := range half.VoiceSlots() {
+			i := slices.IndexFunc(out, func(v VoiceSlot) bool { return v.Name == slot.Name })
+			if i < 0 {
+				out = append(out, slot)
+				continue
+			}
+			for _, c := range slot.Choices {
+				if !slices.Contains(out[i].Choices, c) {
+					out[i].Choices = append(out[i].Choices, c)
+				}
+			}
+		}
+	}
+	return out
+}
+
+// MakesVoices reports whether a half of the genre makes a voice of its own
+// for a game, kept per key and voice style: whether a voice of it offers
+// custom.
+func (g Genre) MakesVoices() bool {
+	return slices.ContainsFunc(g.VoiceSlots(), func(v VoiceSlot) bool { return slices.Contains(v.Choices, VoiceCustom) })
+}
+
+// PlayableSubgenres is every half whose needs the toggles meet.
+func PlayableSubgenres(toggles Toggles) []Subgenre {
+	var out []Subgenre
+	for _, s := range Subgenres() {
+		if missing(s, toggles) == nil {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+// PlayableGenres is every genre with a half the toggles run: a game plays
+// where one of its halves does.
 func PlayableGenres(toggles Toggles) []Genre {
+	playable := PlayableSubgenres(toggles)
 	var out []Genre
 	for _, g := range Genres() {
-		if missing(g, toggles) == nil {
+		if slices.ContainsFunc(g.Subgenres(), func(s Subgenre) bool { return slices.Contains(playable, s) }) {
 			out = append(out, g)
 		}
 	}
 	return out
 }
 
-func missing(g Genre, toggles Toggles) []Toggle {
+// PickSubgenre is the half of a genre a session plays on the offers: the one
+// that fits, where only one does; the mode asked for, where both do. A mode
+// is a wish, never a lock, so a mode that does not fit gives way to the half
+// that does. Both fitting and no mode asked is refused with
+// ProblemChooseMode, for the player to choose; none fitting with
+// ProblemGenre.
+func PickSubgenre(g Genre, mode Mode, offers []Offer) (Subgenre, error) {
+	halves := g.Subgenres()
+	if len(halves) == 0 {
+		return "", fmt.Errorf("unknown genre %q", g)
+	}
+	sound := soundOffers(offers)
+	var fitting []Subgenre
+	for _, s := range halves {
+		if len(runnableOffers(s, offers, sound)) > 0 {
+			fitting = append(fitting, s)
+		}
+	}
+	switch {
+	case len(fitting) == 0:
+		return "", Refuse(ProblemGenre, fmt.Sprintf("no offer can run %s", g))
+	case len(fitting) == 1:
+		return fitting[0], nil
+	}
+	if s, ok := g.Subgenre(mode); ok && slices.Contains(fitting, s) {
+		return s, nil
+	}
+	return "", Refuse(ProblemChooseMode, fmt.Sprintf("%s plays live or in rounds: choose one", g))
+}
+
+func missing(s Subgenre, toggles Toggles) []Toggle {
 	var out []Toggle
-	for _, need := range g.Needs() {
+	for _, need := range s.Needs() {
 		if !toggles.Has(need) {
 			out = append(out, need)
 		}

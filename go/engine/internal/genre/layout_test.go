@@ -16,6 +16,7 @@ func TestGenreLayoutsPlaceEveryBlock(t *testing.T) {
 	}{
 		{"adventure", adventure(t, AdventureConfig{}), adventureLayout},
 		{"npc-live", mustNPCLive(t, mockNPCConfig("Suitable for a 13-year-old.")), npcLiveLayout},
+		{"npc-rounds", npcRounds(t, NPCRoundsConfig{}), npcRoundsLayout},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

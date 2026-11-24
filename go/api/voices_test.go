@@ -14,10 +14,10 @@ import (
 // would misrepresent, and no voice is made for it.
 func TestVoicesAreHeardAndMadeOnlyForCustom(t *testing.T) {
 	for _, form := range []VoiceSampleReq{
-		{Genre: "npc-live", VoiceStyle: "deep"},
-		{Genre: "npc-live", VoiceStyle: "deep", Voice: "male"},
-		{Genre: "npc-live", VoiceStyle: "deep", Voice: "female"},
-		{Genre: "npc-live", VoiceStyle: "deep", Voice: "any"},
+		{Genre: "npc", VoiceStyle: "deep"},
+		{Genre: "npc", VoiceStyle: "deep", Voice: "male"},
+		{Genre: "npc", VoiceStyle: "deep", Voice: "female"},
+		{Genre: "npc", VoiceStyle: "deep", Voice: "any"},
 		// An Adventure's narrator is always cast: it offers no custom.
 		{Genre: "adventure", VoiceStyle: "deep", Voice: "custom"},
 	} {

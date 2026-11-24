@@ -10,7 +10,7 @@ func TestGameSpec(t *testing.T) {
 	theme := "noir"
 	rule := "Keep it gentle."
 	game := &gameFacts{
-		Genre:        "npc-live",
+		Genre:        "npc",
 		Name:         "Bridge",
 		Description:  "Talk your way past a troll.",
 		Scenario:     "A troll guards a bridge.",
@@ -22,7 +22,7 @@ func TestGameSpec(t *testing.T) {
 	}
 	spec := gameSpec(game, "de", Rule{Text: &rule})
 	want := engine.SessionSpec{
-		Genre: engine.GenreNPCLive, Title: "Bridge", Scenario: "A troll guards a bridge.",
+		Genre: engine.GenreNPC, Title: "Bridge", Scenario: "A troll guards a bridge.",
 		InitPrompt: "Greet the traveller.", ImageStyle: "woodcut", Theme: "noir", Language: "de",
 		Guardrail: rule, Status: map[string]string{"Mood": "grumpy"},
 	}

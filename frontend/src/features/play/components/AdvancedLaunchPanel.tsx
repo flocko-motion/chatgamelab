@@ -1,19 +1,20 @@
-import { Accordion, Badge, Center, Group, Loader, Paper, Stack, Textarea } from "@mantine/core";
+import { Accordion, Badge, Center, Group, Loader, Paper, SegmentedControl, Stack, Textarea } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { PlayGameButton, TextButton } from "@components/buttons";
 import { BodyText, CardTitle, HelperText } from "@components/typography";
+import type { Mode } from "@/api/types";
 import { useLaunchPrompts } from "../hooks/useLaunchPrompts";
 
 interface AdvancedLaunchPanelProps {
   game: string;
-  onStart: (prompts: Record<string, string>) => void;
+  onStart: (prompts: Record<string, string>, mode?: Mode) => void;
   onBack?: () => void;
 }
 
 /**
  * The advanced settings before a session starts, for those who may adapt a
- * session's prompts: the genre's prompts, each open to a change, then the
- * start.
+ * session's prompts: live or rounds, for a genre that has both, then that
+ * half's prompts, each open to a change, then the start.
  */
 export function AdvancedLaunchPanel({ game, onStart, onBack }: AdvancedLaunchPanelProps) {
   const { t } = useTranslation(["common", "playbackEngine"]);
@@ -25,6 +26,14 @@ export function AdvancedLaunchPanel({ game, onStart, onBack }: AdvancedLaunchPan
         <Stack gap="md">
           <CardTitle>{t("play.advanced.title")}</CardTitle>
           <HelperText>{t("play.advanced.hint")}</HelperText>
+          {launch.modes.length > 1 && (
+            <SegmentedControl
+              value={launch.mode}
+              onChange={(value) => launch.setMode(value as Mode)}
+              data={launch.modes.map((mode) => ({ value: mode, label: t(`play.launch.${mode}`) }))}
+              aria-label={t("play.launch.chooseMode")}
+            />
+          )}
           {launch.loading ? (
             <Group gap="sm" role="status">
               <Loader size="sm" />
@@ -70,7 +79,7 @@ export function AdvancedLaunchPanel({ game, onStart, onBack }: AdvancedLaunchPan
           )}
           <Group justify="space-between" wrap="wrap">
             {onBack ? <TextButton onClick={onBack}>{t("play.launch.backToGames")}</TextButton> : <span />}
-            <PlayGameButton size="md" disabled={launch.loading} onClick={() => onStart(launch.overrides())}>
+            <PlayGameButton size="md" disabled={launch.loading} onClick={() => onStart(launch.overrides(), launch.startMode)}>
               {t("play.advanced.start")}
             </PlayGameButton>
           </Group>

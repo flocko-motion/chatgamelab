@@ -19,7 +19,7 @@ func TestTheSafetyFilterEndsTheGame(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "filtered", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "filtered", Persist: store,
 		Scenario: "You keep a bridge.", GalleryImage: mock.GalleryImage("bridge"),
 	}, mockOffers())
 	if err != nil {

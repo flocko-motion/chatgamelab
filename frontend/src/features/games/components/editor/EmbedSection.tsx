@@ -1,4 +1,4 @@
-import { Anchor, Code, CopyButton, Select, Stack, Switch } from "@mantine/core";
+import { Anchor, Code, CopyButton, SegmentedControl, Select, Stack, Switch } from "@mantine/core";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,7 @@ import { GenericButtonWithText } from "@components/buttons";
 import { BodyText, HelperText, Label } from "@components/typography";
 import { EMBED_STYLING_DOCS_URL } from "../../lib/embedSnippet";
 import type { EmbedPanel } from "../../hooks/useEmbedPanel";
+import type { Mode } from "@/api/types";
 import { SharingBlock } from "./SharingBlock";
 
 /**
@@ -80,6 +81,20 @@ export function EmbedSection({ panel }: { panel: EmbedPanel }) {
               <Label>{t("games.editor.embed.snippet")}</Label>
               <HelperText>{t("games.editor.embed.snippetHint")}</HelperText>
               <HelperText>{t("games.editor.embed.snippetVerifiedHint")}</HelperText>
+              {panel.modes.length > 0 && (
+                <Stack gap={4}>
+                  <Label>{t("games.editor.embed.mode")}</Label>
+                  <SegmentedControl
+                    value={panel.mode ?? "choose"}
+                    onChange={(value) => panel.setMode(value === "choose" ? null : (value as Mode))}
+                    data={[
+                      { value: "choose", label: t("games.editor.embed.modeChoose") },
+                      ...panel.modes.map((mode) => ({ value: mode, label: t(`play.launch.${mode}`) })),
+                    ]}
+                  />
+                  <HelperText>{t("games.editor.embed.modeHint")}</HelperText>
+                </Stack>
+              )}
               <Code block>{panel.snippet}</Code>
               <CopyButton value={panel.snippet}>
                 {({ copied, copy }) => (

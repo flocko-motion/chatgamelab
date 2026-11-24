@@ -44,7 +44,7 @@ func TestHistoryIsStoredBesideTheJournal(t *testing.T) {
 
 	store := &seqStore{}
 	first, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "both", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "both", Persist: store,
 		Scenario: "You keep a bridge.", GalleryImage: mock.GalleryImage("bridge"),
 	}, mockOffers())
 	if err != nil {

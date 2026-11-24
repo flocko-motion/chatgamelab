@@ -2,13 +2,16 @@ import { useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client/api";
 import { queryKeys } from "../queryKeys";
-import type { CreateRequest, GuestGameInfoResp } from "../generated/api.gen";
+import type { CreateRequest, GuestGameInfoResp, Mode } from "../generated/api.gen";
 
-/** What a new session is for: a game, or a share link's token. */
-/** A session to create: a game's, its prompts adapted where prompts says, or a share link's. */
+/**
+ * A session to create: a game's, its prompts adapted where prompts says, or a
+ * share link's. A mode, live or rounds, is the player's wish for a game that
+ * plays both.
+ */
 export type NewSession =
-  | { readonly game: string; readonly prompts?: Record<string, string> }
-  | { readonly share: string };
+  | { readonly game: string; readonly prompts?: Record<string, string>; readonly mode?: Mode }
+  | { readonly share: string; readonly mode?: Mode };
 
 const ONCE_PREFIX = "cgl.once.";
 
@@ -31,8 +34,8 @@ export function useCreateSession() {
       try {
         const request: CreateRequest =
           "game" in what
-            ? { game: what.game, promptOverride: what.prompts, language, once }
-            : { share: what.share, language, once };
+            ? { game: what.game, promptOverride: what.prompts, language, once, mode: what.mode }
+            : { share: what.share, language, once, mode: what.mode };
         const { data } = await api.postApiEngineSessions(request);
         tabStorage.remove(slot);
         return data.id;

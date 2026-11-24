@@ -61,7 +61,7 @@ func (s *Session) Options() Options {
 
 	out := Options{Choosing: s.settled == nil, Offers: []OfferOption{}, Settled: s.settledView()}
 	offers := s.offers
-	for _, i := range runnableOffers(s.spec.Genre, offers, soundOffers(offers)) {
+	for _, i := range runnableOffers(s.spec.Subgenre, offers, soundOffers(offers)) {
 		offer := offers[i]
 		entry, _ := catalogueEntry(offer.Platform)
 		option := OfferOption{
@@ -98,7 +98,7 @@ func (s *Session) Choose(offer string, choice *Choice) error {
 	if s.settled != nil {
 		return errors.New("the session has already settled")
 	}
-	settled, err := chosen(s.spec.Genre, s.offers, offer, choice)
+	settled, err := chosen(s.spec.Subgenre, s.offers, offer, choice)
 	if err != nil {
 		return err
 	}
@@ -215,7 +215,7 @@ func (s *Session) adapt(offers []Offer) error {
 		return nil
 	}
 
-	settled, changes, fail := fit(*s.spec.Preference, offers, soundOffers(offers), s.spec.Genre)
+	settled, changes, fail := fit(*s.spec.Preference, offers, soundOffers(offers), s.spec.Subgenre)
 	if fail != "" {
 		s.post(SessionEvent{Stream: "error", Value: "the game cannot continue: " + fail})
 		return errors.New(fail)

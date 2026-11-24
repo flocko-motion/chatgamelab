@@ -8,8 +8,8 @@ import classes from "./GameEditor.module.css";
 
 const GENRE_ICON: Record<string, React.ReactNode> = {
   adventure: <IconCompass size={36} />,
-  "npc-live": <IconMessageCircle size={36} />,
-  "npc-duo": <IconUsersGroup size={36} />,
+  npc: <IconMessageCircle size={36} />,
+  discussion: <IconUsersGroup size={36} />,
 };
 
 /**

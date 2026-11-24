@@ -31,6 +31,7 @@ script, which hands your CSS over and sizes the frame:
 | `data-css` | An `https` address of a stylesheet, loaded as well. |
 | `data-lang` | The player's language, such as `de`; the browser's otherwise. |
 | `data-player`, `data-request` | For a verified page: your ID of the visitor and of this page view. |
+| `data-mode` | `live` or `rounds`, for a game that can be played both ways: the player is not asked. Where only one way works, that one plays. |
 | `data-title` | The frame's title for screen readers; "Game" otherwise. |
 
 Without the loader, use the frame directly and give it a height:

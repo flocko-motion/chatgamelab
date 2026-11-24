@@ -508,9 +508,11 @@ func (p Prompt) message(cued bool) string {
 }
 
 // Threaded is one block's part in a thread: the text it receives makes the
-// call, and its message is its prompt, the game's own message on the thread.
-// Its outputs are the reply streamed piece by piece, each reply
-// closed with PieceClose, and the whole reply once finished.
+// call, and its message is its prompt, the game's own message; when it
+// Answers, the text itself is the message, the player's input. A cue on its
+// cue input goes once, on a thread without a call of the block's, as the
+// game's own message. Its outputs are the reply streamed piece by piece, each
+// reply closed with PieceClose, and the whole reply once finished.
 //
 // While its Spoken switch is on, its calls are spoken: the model says the
 // reply, the transcript streams and is the reply, and the audio goes out on a
@@ -544,8 +546,11 @@ type Threaded struct {
 	// Clean tidies a finished reply; nil keeps every reply as it came. Set
 	// before Start.
 	Clean func(string) string
+	// Answers sends the text received as the player's message. Set before Start.
+	Answers bool
 
 	in       ports.TextInput
+	cue      ports.TextInput
 	compacts chan struct{}
 	// voiceIn takes the voice its thread's spoken turns speak in; once
 	// wired, the first call waits a while for it (VoiceWait).
@@ -582,6 +587,7 @@ func NewThreaded(name string, thread *Thread, prompt Prompt) *Threaded {
 		Backoff:   []time.Duration{time.Second, 2 * time.Second, 4 * time.Second, 8 * time.Second},
 		Attempts:  3,
 		in:        make(ports.TextInput, 16),
+		cue:       make(ports.TextInput, 1),
 		compacts:  make(chan struct{}, 1),
 		voiceIn:   make(ports.TextInput, 1),
 		voiced:    make(chan struct{}),
@@ -644,8 +650,11 @@ func (b *Threaded) awaitVoice(ctx context.Context) {
 	}
 }
 
-func (b *Threaded) NodeName() string             { return b.name }
-func (b *Threaded) TextInPort() chan<- string    { return b.in }
+func (b *Threaded) NodeName() string          { return b.name }
+func (b *Threaded) TextInPort() chan<- string { return b.in }
+
+// OpeningInPort takes the cue.
+func (b *Threaded) OpeningInPort() chan<- string { return b.cue }
 func (b *Threaded) RequiredInputs() []ports.Kind { return []ports.Kind{ports.KindText} }
 
 // StreamOutPort is the reply as it arrives.
@@ -697,39 +706,63 @@ func (b *Threaded) Start(ctx context.Context) {
 				return
 			case <-b.compacts:
 				compactNow(ctx, b.thread, b.name, &b.state, &b.meter, b.Backoff)
+			case cue, open := <-b.cue:
+				if !open {
+					return
+				}
+				if b.thread.calls(b.name) > 0 {
+					// Opened before a resume; Start owed its cycle already.
+					continue
+				}
+				if !b.respond(ctx, cue, true) {
+					return
+				}
 			case text, open := <-b.in:
 				if !open {
 					return
 				}
-				if !b.thread.take(ctx, b.seat) {
+				if !b.respond(ctx, text, false) {
 					return
 				}
-
-				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-				b.awaitVoice(ctx)
-				reply, err := b.call(ctx)
-				if ctx.Err() != nil {
-					return
-				}
-				if err != nil {
-					b.thread.endRound()
-					b.fail(&b.state, b.name, text, err)
-					continue
-				}
-				b.stream.Send(ports.PieceClose)
-				b.whole.Send(reply)
-				b.thread.pass(ctx, b.seat, &b.meter, b.Backoff)
-				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 			}
 		}
 	}()
 }
 
+// respond makes one call in the block's seat; false means the session ended.
+func (b *Threaded) respond(ctx context.Context, text string, cued bool) bool {
+	if !b.thread.take(ctx, b.seat) {
+		return false
+	}
+	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
+	b.awaitVoice(ctx)
+	reply, err := b.call(ctx, text, cued)
+	if ctx.Err() != nil {
+		return false
+	}
+	if err != nil {
+		b.thread.endRound()
+		b.fail(&b.state, b.name, text, err)
+		return true
+	}
+	b.stream.Send(ports.PieceClose)
+	b.whole.Send(reply)
+	b.thread.pass(ctx, b.seat, &b.meter, b.Backoff)
+	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+	return true
+}
+
 // call continues the thread with the block's message until a reply is kept,
 // retrying a failure that may pass after each backoff and a bad reply at once.
-func (b *Threaded) call(ctx context.Context) (string, error) {
-	calls := b.thread.calls(b.name)
-	message, constrain := b.prompt.get().message(b.thread.cued()), b.due(calls)
+// A cue's call always carries the constraints.
+func (b *Threaded) call(ctx context.Context, text string, cued bool) (string, error) {
+	message, directive, constrain := b.prompt.get().message(b.thread.cued()), true, b.due(b.thread.calls(b.name))
+	switch {
+	case cued:
+		message, constrain = text, true
+	case b.Answers:
+		message, directive = text, false
+	}
 	speak := b.spoken.on.Load()
 	bad, retries := 0, 0
 	for {
@@ -738,7 +771,7 @@ func (b *Threaded) call(ctx context.Context) (string, error) {
 		reply, err := b.thread.call(ctx, threadCall{
 			block:     b.name,
 			input:     message,
-			directive: true,
+			directive: directive,
 			constrain: constrain,
 			speak:     speak,
 			piece: func(piece string) {

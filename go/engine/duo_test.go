@@ -18,7 +18,7 @@ func TestDuoOpensTwoConversations(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:      engine.GenreNPCDuo,
+		Subgenre:   engine.SubgenreDiscussionLive,
 		Scenario:   "A grumpy lighthouse keeper." + genre.DuoSeparator + "A cheerful tax inspector.",
 		InitPrompt: "A stormy night in the lighthouse.",
 	}, mockOffers())
@@ -71,7 +71,7 @@ func TestDuoPausesAsOne(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCDuo,
+		Subgenre: engine.SubgenreDiscussionLive,
 		Scenario: "A knight." + genre.DuoSeparator + "A dragon.",
 	}, mockOffers())
 	if err != nil {
@@ -144,7 +144,7 @@ func TestDuoIsCastFromThePlatformsVoices(t *testing.T) {
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCDuo,
+		Subgenre: engine.SubgenreDiscussionLive,
 		Scenario: "A knight." + genre.DuoSeparator + "A dragon.",
 		Language: "de",
 		Voices:   map[string]engine.VoiceChoice{"a": engine.VoiceFemale, "b": engine.VoiceMale},

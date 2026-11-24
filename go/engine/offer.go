@@ -110,20 +110,31 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 		issues = append(issues, Issue{Severity: severity, Field: field, Message: fmt.Sprintf(format, args...)})
 	}
 
-	knownGenre := slices.Contains(Genres(), spec.Genre)
+	spec, pickErr := spec.resolved(offers)
+	if pickErr != nil {
+		field, problem := "mode", RefusalOf(pickErr).Problem
+		if problem != ProblemChooseMode {
+			field = "genre"
+		}
+		issues = append(issues, Issue{Severity: SeverityError, Field: field, Message: pickErr.Error(), Problem: problem})
+		return issues
+	}
+	knownGenre := slices.Contains(Subgenres(), spec.Subgenre)
 	if !knownGenre {
-		report(SeverityError, "genre", "unknown genre %q", spec.Genre)
+		report(SeverityError, "genre", "unknown genre %q", spec.Subgenre)
+	} else if spec.Subgenre.Genre() != spec.Genre {
+		report(SeverityError, "subgenre", "%s is no half of %s", spec.Subgenre, spec.Genre)
 	}
 
 	for _, name := range slices.Sorted(maps.Keys(spec.PromptOverride)) {
-		if !slices.Contains(genrePrompts(spec.Genre), name) {
+		if !slices.Contains(genrePrompts(spec.Subgenre), name) {
 			report(SeverityError, "promptOverride."+name, "no such prompt %q (%s has %s)",
-				name, spec.Genre, strings.Join(genrePrompts(spec.Genre), ", "))
+				name, spec.Subgenre, strings.Join(genrePrompts(spec.Subgenre), ", "))
 		}
 	}
 
 	for _, name := range slices.Sorted(maps.Keys(spec.ConstraintFrequency)) {
-		if err := genre.CheckConstraintFrequency(genreConstrained(spec.Genre), name, spec.ConstraintFrequency[name]); err != nil {
+		if err := genre.CheckConstraintFrequency(genreConstrained(spec.Subgenre), name, spec.ConstraintFrequency[name]); err != nil {
 			report(SeverityError, "constraintFrequency."+name, "%v", err)
 		}
 	}
@@ -168,10 +179,10 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 		return issues
 	}
 
-	runnable := runnableOffers(spec.Genre, offers, sound)
+	runnable := runnableOffers(spec.Subgenre, offers, sound)
 	switch {
 	case spec.Preference != nil:
-		_, changes, fail := fit(*spec.Preference, offers, sound, spec.Genre)
+		_, changes, fail := fit(*spec.Preference, offers, sound, spec.Subgenre)
 		if fail != "" {
 			report(SeverityError, "preference", "%s", fail)
 			issues[len(issues)-1].Problem = ProblemGenre
@@ -180,7 +191,7 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 			report(SeverityWarning, "preference", "%s", change)
 		}
 	case len(runnable) == 0:
-		report(SeverityError, "offers", "no offer can run %s, which needs %v", spec.Genre, spec.Genre.Needs())
+		report(SeverityError, "offers", "no offer can run %s, which needs %v", spec.Subgenre, spec.Subgenre.Needs())
 		issues[len(issues)-1].Problem = ProblemGenre
 	}
 
@@ -277,7 +288,7 @@ func (c Caveats) tiers() []Tier {
 
 // runnable reports whether an offer can run a genre: at its default when the
 // player may not choose, otherwise at some allowed tier.
-func runnable(g Genre, offer Offer) bool {
+func runnable(g Subgenre, offer Offer) bool {
 	if !offer.Caveats.Customizable {
 		return missing(g, offer.Caveats.Default.Toggles) == nil
 	}
@@ -292,7 +303,7 @@ func runnable(g Genre, offer Offer) bool {
 
 // runnableOffers indexes the sound offers that can run the genre: the ones a
 // player is shown.
-func runnableOffers(g Genre, offers []Offer, sound []bool) []int {
+func runnableOffers(g Subgenre, offers []Offer, sound []bool) []int {
 	var out []int
 	for i, offer := range offers {
 		if sound[i] && runnable(g, offer) {
@@ -317,10 +328,10 @@ func allowsImages(offer Offer) bool {
 func (spec SessionSpec) opening(offers []Offer) (settled settlement, changes []string, choosing bool) {
 	sound := soundOffers(offers)
 	if spec.Preference != nil {
-		settled, changes, _ = fit(*spec.Preference, offers, sound, spec.Genre)
+		settled, changes, _ = fit(*spec.Preference, offers, sound, spec.Subgenre)
 		return settled, changes, false
 	}
-	runnable := runnableOffers(spec.Genre, offers, sound)
+	runnable := runnableOffers(spec.Subgenre, offers, sound)
 	if len(runnable) == 1 && !offers[runnable[0]].Caveats.Customizable {
 		offer := offers[runnable[0]]
 		return settlement{offer: offer, Choice: normal(offer.Caveats.Default)}, nil, false
@@ -334,7 +345,7 @@ func (spec SessionSpec) opening(offers []Offer) (settled settlement, changes []s
 // and says what changed. It fails only when no offer runs on the preference's
 // platform, as a session never changes platform, or when what remains no
 // longer meets the genre's needs.
-func fit(pref Preference, offers []Offer, sound []bool, g Genre) (settlement, []string, string) {
+func fit(pref Preference, offers []Offer, sound []bool, g Subgenre) (settlement, []string, string) {
 	index := -1
 	for i, offer := range offers {
 		if !sound[i] || offer.Platform != pref.Platform {
@@ -395,7 +406,7 @@ func closestTier(allowed []Tier, wanted Tier) Tier {
 // chosen checks a choice sent from the dialog, naming an offer by its ID.
 // Unlike a stored preference it is refused outside the caveats: the player was
 // shown what is allowed.
-func chosen(g Genre, offers []Offer, id string, choice *Choice) (settlement, error) {
+func chosen(g Subgenre, offers []Offer, id string, choice *Choice) (settlement, error) {
 	sound := soundOffers(offers)
 	index := slices.IndexFunc(offers, func(o Offer) bool { return o.ID == id })
 	if id == "" || index < 0 || !sound[index] || !runnable(g, offers[index]) {
@@ -459,22 +470,27 @@ func soundOffers(offers []Offer) []bool {
 }
 
 // genrePrompts is every prompt a genre lets a spec replace.
-func genrePrompts(g Genre) []string {
+func genrePrompts(g Subgenre) []string {
 	switch g {
-	case GenreAdventure:
+	case SubgenreAdventureRounds:
 		return slices.Sorted(maps.Keys(genre.AdventurePrompts))
-	case GenreNPCLive:
+	case SubgenreNPCLive:
 		return slices.Sorted(maps.Keys(genre.NPCLivePrompts))
-	case GenreNPCDuo:
+	case SubgenreNPCRounds:
+		return slices.Sorted(maps.Keys(genre.NPCRoundsPrompts))
+	case SubgenreDiscussionLive:
 		return slices.Sorted(maps.Keys(genre.NPCDuoPrompts))
 	}
 	return nil
 }
 
 // genreConstrained is every block whose constraint frequency a spec may set.
-func genreConstrained(g Genre) []string {
-	if g == GenreAdventure {
+func genreConstrained(g Subgenre) []string {
+	switch g {
+	case SubgenreAdventureRounds:
 		return genre.AdventureConstrained()
+	case SubgenreNPCRounds:
+		return genre.NPCRoundsConstrained()
 	}
 	return nil
 }

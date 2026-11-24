@@ -606,8 +606,9 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	// The narrator, cast once in a voice of the gender the game chose, kept
 	// across a restart. Until the cast comes, or without one, the first voice
 	// of that gender speaks, and left to any, the speaking model's own.
-	narrator := narratorCast{
-		voices: cfg.SpeechVoices, language: cfg.Language, choice: choiceOf(cfg.VoiceChoices, VoiceNarrator),
+	narrator := speakerCast{
+		slot: VoiceNarrator, role: "narrator", voices: cfg.SpeechVoices,
+		language: cfg.Language, choice: choiceOf(cfg.VoiceChoices, VoiceNarrator),
 	}
 	story.Voice = narrator.fallback()
 	castBrief := blocks.NewOnceText("cast-brief", narrator.brief(cfg.Scenario, cfg.VoiceStyle)).SendAgain()
@@ -792,55 +793,4 @@ func statusNames(status map[string]string) string {
 	}
 	slices.Sort(names)
 	return strings.Join(names, ", ")
-}
-
-// narratorCast is what the narrator is cast from: the speaking model's
-// built-in voices, the game's language, and the gender the game chose.
-type narratorCast struct {
-	voices   []adapters.BuiltinVoice
-	language string
-	choice   VoiceChoice
-}
-
-// fallback is the voice the narrator speaks in without a cast: the first of
-// its gender; for any, "", the speaking model's own.
-func (n narratorCast) fallback() string {
-	if presentation(n.choice) == "" {
-		return ""
-	}
-	return fallbackVoice(n.voices, n.choice, n.language)
-}
-
-// brief is what the cast reads: the scenario and the author's note.
-func (n narratorCast) brief(scenario, style string) string {
-	return "Scenario:\n" + scenario + "\n\nThe author's note on the narrator's voice:\n" + voiceNote(style)
-}
-
-// tail says the game's language and the gender asked for, and lists the
-// voices, those of the game's language first.
-func (n narratorCast) tail() string {
-	var b strings.Builder
-	if n.language != "" {
-		b.WriteString("\nThe game is told in " + languageName(n.language) + ": pick a voice that speaks it natively, if any does.")
-	}
-	if gender := presentation(n.choice); gender != "" {
-		b.WriteString("\nThe game asks for a " + gender + " voice.")
-	}
-	b.WriteString("\nThe built-in voices:\n")
-	b.WriteString(voiceList(castable(n.voices, VoiceAny, n.language)))
-	return b.String()
-}
-
-// schema is the cast's reply: the narrator's voice, one of the gender asked.
-func (n narratorCast) schema() *adapters.Schema {
-	voice := map[string]any{"type": "string", "description": "the built-in voice the narrator speaks in"}
-	if names := voiceEnum(castable(n.voices, n.choice, n.language)); len(names) > 0 {
-		voice["enum"] = names
-	}
-	return &adapters.Schema{Name: "cast", Body: map[string]any{
-		"type":                 "object",
-		"properties":           map[string]any{VoiceNarrator: voice},
-		"required":             []any{VoiceNarrator},
-		"additionalProperties": false,
-	}}
 }

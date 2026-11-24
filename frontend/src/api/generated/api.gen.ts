@@ -32,6 +32,12 @@ export type Toggle = "images" | "audio-out" | "audio-in" | "audio-live";
 
 export type Tier = "low" | "medium" | "high";
 
+export type Subgenre =
+  | "adventure-rounds"
+  | "npc-live"
+  | "npc-rounds"
+  | "discussion-live";
+
 export type SortDir = "asc" | "desc";
 
 export type Role = "admin" | "head" | "staff" | "guest" | "individual";
@@ -56,6 +62,8 @@ export type NotificationType =
   | "pageApproved"
   | "pageTurnedDown";
 
+export type Mode = "live" | "rounds";
+
 export type MemberSort = "name" | "email" | "role";
 
 export type Medium = "text" | "audio" | "image";
@@ -71,7 +79,7 @@ export type InviteStatus =
 
 export type InviteSort = "role" | "organisation" | "status" | "modifiedAt";
 
-export type Genre = "adventure" | "npc-live" | "npc-duo";
+export type Genre = "adventure" | "npc" | "discussion";
 
 export type GameSort =
   | "createdAt"
@@ -315,6 +323,7 @@ export interface CreateInstitutionReq {
 export interface CreateRequest {
   game?: string;
   language?: string;
+  mode?: Mode;
   once: string;
   player?: string;
   promptOverride?: Record<string, string>;
@@ -591,7 +600,7 @@ export interface GenreInfo {
   fields: GameField[];
   id: Genre;
   needs: Toggle[];
-  prompts: GenrePrompt[];
+  subgenres: SubgenreInfo[];
   voiceSlots: VoiceSlot[];
 }
 
@@ -1350,6 +1359,14 @@ export interface Snapshot {
   settled?: Settled;
   started: boolean;
   usage: UsageReport;
+}
+
+export interface SubgenreInfo {
+  id: Subgenre;
+  mode: Mode;
+  needs: Toggle[];
+  prompts: GenrePrompt[];
+  voiceSlots: VoiceSlot[];
 }
 
 export interface SuspendOrganisationReq {

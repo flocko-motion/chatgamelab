@@ -130,11 +130,14 @@ try {
 async function createSession(wanted: string): Promise<string> {
   const [kind, ...rest] = wanted.split(":");
   if (kind !== "game" && kind !== "share") throw new Error(`--new=${wanted}: name game:<id> or share:<token>`);
-  const selector: Selector = { kind, id: rest.join(":") };
+  const mode = flag("mode");
+  if (mode !== undefined && mode !== "live" && mode !== "rounds") throw new Error(`--mode=${mode}: name live or rounds`);
+  const selector: Selector = { kind, id: rest.join(":"), ...(mode ? { mode } : {}) };
   const pending = transientMemory();
   const once = flag("once");
 
   const created = await create(client, selector, "en", pending, once);
+  if ("choose" in created) throw new Error("the game plays live and in rounds: name one with --mode=live or --mode=rounds");
   if ("notice" in created) {
     console.log(`refused:    ${describe(created.notice)}`);
     throw new NoticeError(created.notice);

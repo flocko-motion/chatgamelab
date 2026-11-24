@@ -14,9 +14,10 @@ import (
 // shown with its block and edited during play.
 func TestEveryPromptHasItsBlock(t *testing.T) {
 	for name, w := range map[string]*Wiring{
-		"adventure": mustAdventure(t, nil),
-		"npc-live":  mustNPCLive(t, mockNPCConfig("")),
-		"npc-duo":   mustNPCDuo(t, mockDuoConfig("")),
+		"adventure":  mustAdventure(t, nil),
+		"npc-live":   mustNPCLive(t, mockNPCConfig("")),
+		"npc-rounds": npcRounds(t, NPCRoundsConfig{}),
+		"npc-duo":    mustNPCDuo(t, mockDuoConfig("")),
 	} {
 		t.Run(name, func(t *testing.T) {
 			if got, want := slices.Sorted(maps.Keys(w.PromptUses)), slices.Sorted(maps.Keys(w.Prompts)); !slices.Equal(got, want) {
@@ -124,9 +125,10 @@ func TestEditedGuardrailReachesTheNextCall(t *testing.T) {
 // Every block that keeps to the guardrail is a block of the graph.
 func TestGuardrailHasItsBlocks(t *testing.T) {
 	for name, w := range map[string]*Wiring{
-		"adventure": mustAdventure(t, nil),
-		"npc-live":  mustNPCLive(t, mockNPCConfig("No violence.")),
-		"npc-duo":   mustNPCDuo(t, mockDuoConfig("No violence.")),
+		"adventure":  mustAdventure(t, nil),
+		"npc-live":   mustNPCLive(t, mockNPCConfig("No violence.")),
+		"npc-rounds": npcRounds(t, NPCRoundsConfig{Guardrail: "No violence."}),
+		"npc-duo":    mustNPCDuo(t, mockDuoConfig("No violence.")),
 	} {
 		t.Run(name, func(t *testing.T) {
 			if len(w.GuardrailUse.Blocks) == 0 || w.GuardrailUse.Apply == nil {

@@ -41,6 +41,10 @@ const (
 	// ProblemHostRefused: the website the game is embedded in did not let
 	// it start: it said no, or did not answer.
 	ProblemHostRefused Problem = "host_refused"
+	// ProblemChooseMode: the game's genre plays live or in rounds on the
+	// offers at hand, and the player is to choose; asked again with a mode,
+	// it starts.
+	ProblemChooseMode Problem = "choose_mode"
 )
 
 // Problems is every problem, the source of the generated TypeScript union.
@@ -48,7 +52,7 @@ func Problems() []Problem {
 	return []Problem{
 		ProblemNoKey, ProblemGenre, ProblemNoPlays, ProblemKeyRejected, ProblemUnreachable,
 		ProblemNoCredit, ProblemStale, ProblemUnknown, ProblemDenied, ProblemPaused, ProblemFailed,
-		ProblemOver, ProblemHostRefused,
+		ProblemOver, ProblemHostRefused, ProblemChooseMode,
 	}
 }
 

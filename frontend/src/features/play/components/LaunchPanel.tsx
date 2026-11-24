@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ActionButton, PlayGameButton, TextButton } from "@components/buttons";
 import { BodyText, CardTitle, HelperText } from "@components/typography";
 import { problemText, type Problem } from "@/common/lib/playability";
+import type { Mode } from "@/api/types";
 import type { LaunchView } from "../hooks/usePlaybackLaunch";
 
 interface LaunchPanelProps {
@@ -10,6 +11,8 @@ interface LaunchPanelProps {
   onContinue: (id: string) => void;
   onStartAnew: () => void;
   onTryAgain: () => void;
+  /** Starts the game live or in rounds, as the player chose. */
+  onChoose: (mode: Mode) => void;
   /** Absent for a guest, who has no game list to go back to. */
   onBack?: () => void;
 }
@@ -31,6 +34,7 @@ export function LaunchPanel({
   onContinue,
   onStartAnew,
   onTryAgain,
+  onChoose,
   onBack,
 }: LaunchPanelProps) {
   const { t } = useTranslation(["common", "playbackEngine"]);
@@ -49,6 +53,23 @@ export function LaunchPanel({
   const back = onBack && (
     <TextButton onClick={onBack}>{t("play.launch.backToGames")}</TextButton>
   );
+
+  if (view.kind === "choose") {
+    return (
+      <Panel title={t("play.launch.chooseMode")}>
+        <BodyText>{t("play.launch.chooseModeHint")}</BodyText>
+        <Stack gap="xs" align="stretch">
+          <PlayGameButton size="md" onClick={() => onChoose("live")}>
+            {t("play.launch.live")}
+          </PlayGameButton>
+          <PlayGameButton size="md" onClick={() => onChoose("rounds")}>
+            {t("play.launch.rounds")}
+          </PlayGameButton>
+        </Stack>
+        {back}
+      </Panel>
+    );
+  }
 
   if (view.kind === "resumable") {
     return (

@@ -101,6 +101,7 @@ func main() {
 			spec := spec
 			spec.ID = newID()
 			spec.Language = req.Language
+			spec.Mode = req.Mode
 			spec.Persist = store
 			if len(req.PromptOverride) > 0 {
 				spec.PromptOverride = req.PromptOverride

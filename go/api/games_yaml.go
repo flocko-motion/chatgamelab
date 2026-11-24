@@ -10,6 +10,7 @@ import (
 	"cgl/api/wire"
 	"cgl/core"
 	"cgl/obj"
+	"engine"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 )
@@ -60,5 +61,7 @@ func (UpdateGameYAMLEndpoint) Handle(ctx context.Context, req UpdateGameYAMLReq)
 	if err != nil {
 		return GameViewResp{}, err
 	}
+	// A file may name its genre by a half's or a former genre's name.
+	req.GameFile.Genre = string(engine.GenreNamed(req.GameFile.Genre))
 	return wire.GameViewOf(ctx)(core.ImportGameFile(ctx, gameID, req.GameFile))
 }

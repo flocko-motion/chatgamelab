@@ -19,6 +19,7 @@ const PROBLEM_TEXT = {
   denied: "problems.denied",
   paused: "problems.paused",
   failed: "problems.failed",
+  choose_mode: "problems.chooseMode",
 } as const;
 
 export type Problem = keyof typeof PROBLEM_TEXT;

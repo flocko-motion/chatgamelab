@@ -1,6 +1,6 @@
 {
   "spec": {
-    "genre": "npc-live",
+    "genre": "npc",
     "id": "bowser-interview",
     "title": "Bowser Explains Himself",
     "voices": { "character": "male" },

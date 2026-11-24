@@ -29,8 +29,10 @@ type Created struct {
 // CreateGameSession launches a session of a game for the caller. As starting
 // a game anew, it replaces their earlier sessions of that game. Prompts adapt
 // the genre's prompts by name, for a caller who may (core.MayPresetPrompts).
-// The context outlives the request, as the session's lifetime.
-func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string, prompts map[string]string) (*Created, error) {
+// The context outlives the request, as the session's lifetime. Mode is the
+// player's wish, live or rounds, where the game's genre plays both
+// (engine.PickSubgenre); prompts then adapt the chosen half's.
+func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string, mode engine.Mode, prompts map[string]string) (*Created, error) {
 	start, err := core.StartGame(ctx, gameID)
 	if err != nil {
 		return nil, core.PlayRefusal(err)
@@ -44,14 +46,15 @@ func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string, p
 	if err != nil {
 		return nil, err
 	}
-	return launch(ctx, game, chosen.Offer, chosen.Payer, nil, language, prompts, true)
+	return launch(ctx, game, chosen.Offer, chosen.Payer, nil, language, mode, prompts, true)
 }
 
 // CreateShareSession launches a session from a share link, for a guest or a
 // signed-in player playing it. The link's key pays, and the play counts
 // against the link's limit with the launch. An embed link of the verified
-// mode starts only on its host's yes, asked with host's IDs.
-func CreateShareSession(ctx context.Context, token string, host core.HostIDs, language string, prompts map[string]string) (*Created, error) {
+// mode starts only on its host's yes, asked with host's IDs. Mode is the
+// player's wish, live or rounds, as for CreateGameSession.
+func CreateShareSession(ctx context.Context, token string, host core.HostIDs, language string, mode engine.Mode, prompts map[string]string) (*Created, error) {
 	link, err := core.EmbedPlay(ctx, token, host)
 	if err != nil {
 		return nil, core.PlayRefusal(err)
@@ -68,13 +71,13 @@ func CreateShareSession(ctx context.Context, token string, host core.HostIDs, la
 	if err != nil {
 		return nil, err
 	}
-	return launch(ctx, game, chosen.Offer, chosen.Payer, link, language, prompts, false)
+	return launch(ctx, game, chosen.Offer, chosen.Payer, link, language, mode, prompts, false)
 }
 
 // launch starts the session under a fresh id, in the store the core hands
 // out for it: its first save creates the session and does what the start
 // takes, all in one transaction, so a refused launch leaves nothing behind.
-func launch(ctx context.Context, game *gameFacts, offer engine.Offer, payer core.Payer, link *core.LinkPlay, language string, prompts map[string]string, replace bool) (*Created, error) {
+func launch(ctx context.Context, game *gameFacts, offer engine.Offer, payer core.Payer, link *core.LinkPlay, language string, mode engine.Mode, prompts map[string]string, replace bool) (*Created, error) {
 	if len(prompts) > 0 && !core.MayPresetPrompts(ctx) {
 		return nil, engine.Refuse(engine.ProblemDenied, "only admins, heads and staff adapt a session's prompts")
 	}
@@ -85,6 +88,13 @@ func launch(ctx context.Context, game *gameFacts, offer engine.Offer, payer core
 	spec := gameSpec(game, playerLanguage(core.PlayerLanguage(ctx), language), resolveRule(facts))
 	spec.GalleryImage = galleryImage(ctx, game.card)
 	spec.PromptOverride = prompts
+	// Which half plays is settled before anything is stored: a game whose
+	// halves both fit and no mode asked is refused for the player to choose,
+	// and leaves nothing behind.
+	spec.Mode = mode
+	if spec.Subgenre, err = engine.PickSubgenre(spec.Genre, mode, []engine.Offer{offer}); err != nil {
+		return nil, err
+	}
 	store, player, err := core.LaunchStore(ctx, core.NewPlay{
 		Game: game.ID, Link: link, Payer: payer, Platform: string(offer.Platform),
 		Language: spec.Language, ReplaceEarlier: replace,
@@ -213,7 +223,7 @@ func voiceChoices(voices map[string]string) map[string]engine.VoiceChoice {
 // the youth-protection rule resolved for this play.
 func gameSpec(game *gameFacts, language string, rule Rule) engine.SessionSpec {
 	spec := engine.SessionSpec{
-		Genre:       engine.Genre(game.Genre),
+		Genre:       engine.GenreNamed(game.Genre),
 		Title:       game.Name,
 		Description: game.Description,
 		Scenario:    game.Scenario,

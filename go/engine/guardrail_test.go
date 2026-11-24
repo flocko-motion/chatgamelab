@@ -14,7 +14,7 @@ import (
 func TestGuardrailEditedDuringPlay(t *testing.T) {
 	store := &engine.MemoryPersist{}
 	s := launchStored(t, store, engine.SessionSpec{
-		Genre: engine.GenreAdventure, ID: "guard", Guardrail: "No violence.",
+		Subgenre: engine.SubgenreAdventureRounds, ID: "guard", Guardrail: "No violence.",
 		GuardrailSource: &engine.GuardrailSource{Level: "workshop", Name: "Klasse 7b"},
 	})
 	waitForTurn(t, s, "[story turn 2]")

@@ -5,13 +5,13 @@ import classes from "./GenreChip.module.css";
 
 const ICONS: Record<string, typeof IconCompass> = {
   adventure: IconCompass,
-  "npc-live": IconMessages,
-  "npc-duo": IconUsersGroup,
+  npc: IconMessages,
+  discussion: IconUsersGroup,
   chatbot: IconRobot,
 };
 
 export interface GenreChipProps {
-  /** The game's genre key (e.g. "adventure", "npc-live"). */
+  /** The game's genre key (e.g. "adventure", "npc"). */
   genre: string;
   size?: "sm" | "md";
 }

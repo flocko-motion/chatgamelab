@@ -139,9 +139,9 @@ func (e GameSort) Valid() bool {
 
 // Defines values for Genre.
 const (
-	GenreAdventure Genre = "adventure"
-	GenreNpcDuo    Genre = "npc-duo"
-	GenreNpcLive   Genre = "npc-live"
+	GenreAdventure  Genre = "adventure"
+	GenreDiscussion Genre = "discussion"
+	GenreNpc        Genre = "npc"
 )
 
 // Valid indicates whether the value is a known member of the Genre enum.
@@ -149,9 +149,9 @@ func (e Genre) Valid() bool {
 	switch e {
 	case GenreAdventure:
 		return true
-	case GenreNpcDuo:
+	case GenreDiscussion:
 		return true
-	case GenreNpcLive:
+	case GenreNpc:
 		return true
 	default:
 		return false
@@ -266,6 +266,24 @@ func (e MemberSort) Valid() bool {
 	case MemberSortName:
 		return true
 	case MemberSortRole:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Mode.
+const (
+	ModeLive   Mode = "live"
+	ModeRounds Mode = "rounds"
+)
+
+// Valid indicates whether the value is a known member of the Mode enum.
+func (e Mode) Valid() bool {
+	switch e {
+	case ModeLive:
+		return true
+	case ModeRounds:
 		return true
 	default:
 		return false
@@ -590,6 +608,30 @@ func (e SortDir) Valid() bool {
 	case SortDirAsc:
 		return true
 	case SortDirDesc:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Subgenre.
+const (
+	SubgenreAdventureRounds Subgenre = "adventure-rounds"
+	SubgenreDiscussionLive  Subgenre = "discussion-live"
+	SubgenreNpcLive         Subgenre = "npc-live"
+	SubgenreNpcRounds       Subgenre = "npc-rounds"
+)
+
+// Valid indicates whether the value is a known member of the Subgenre enum.
+func (e Subgenre) Valid() bool {
+	switch e {
+	case SubgenreAdventureRounds:
+		return true
+	case SubgenreDiscussionLive:
+		return true
+	case SubgenreNpcLive:
+		return true
+	case SubgenreNpcRounds:
 		return true
 	default:
 		return false
@@ -1006,6 +1048,7 @@ type CreateInstitutionReq struct {
 type CreateRequest struct {
 	Game           *string            `json:"game,omitempty"`
 	Language       *string            `json:"language,omitempty"`
+	Mode           *Mode              `json:"mode,omitempty"`
 	Once           string             `json:"once"`
 	Player         *string            `json:"player,omitempty"`
 	PromptOverride *map[string]string `json:"promptOverride,omitempty"`
@@ -1292,11 +1335,11 @@ type Genre string
 
 // GenreInfo defines model for GenreInfo.
 type GenreInfo struct {
-	Fields     []GameField   `json:"fields"`
-	Id         Genre         `json:"id"`
-	Needs      []Toggle      `json:"needs"`
-	Prompts    []GenrePrompt `json:"prompts"`
-	VoiceSlots []VoiceSlot   `json:"voiceSlots"`
+	Fields     []GameField    `json:"fields"`
+	Id         Genre          `json:"id"`
+	Needs      []Toggle       `json:"needs"`
+	Subgenres  []SubgenreInfo `json:"subgenres"`
+	VoiceSlots []VoiceSlot    `json:"voiceSlots"`
 }
 
 // GenrePrompt defines model for GenrePrompt.
@@ -1535,6 +1578,9 @@ type Meta struct {
 	ModifiedAt *time.Time          `json:"modifiedAt,omitempty"`
 	ModifiedBy *openapi_types.UUID `json:"modifiedBy"`
 }
+
+// Mode defines model for Mode.
+type Mode string
 
 // Model defines model for Model.
 type Model struct {
@@ -2119,6 +2165,18 @@ type Snapshot struct {
 
 // SortDir defines model for SortDir.
 type SortDir string
+
+// Subgenre defines model for Subgenre.
+type Subgenre string
+
+// SubgenreInfo defines model for SubgenreInfo.
+type SubgenreInfo struct {
+	Id         Subgenre      `json:"id"`
+	Mode       Mode          `json:"mode"`
+	Needs      []Toggle      `json:"needs"`
+	Prompts    []GenrePrompt `json:"prompts"`
+	VoiceSlots []VoiceSlot   `json:"voiceSlots"`
+}
 
 // SuspendOrganisationReq defines model for SuspendOrganisationReq.
 type SuspendOrganisationReq struct {

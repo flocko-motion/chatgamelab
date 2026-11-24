@@ -85,8 +85,8 @@ export const STATUS_FIELDS_MAX = 5;
  * own) of a world.
  */
 export function genreWording(genre: string): "adventure" | "encounter" | "duo" {
-  if (genre === "npc-live") return "encounter";
-  if (genre === "npc-duo") return "duo";
+  if (genre === "npc") return "encounter";
+  if (genre === "discussion") return "duo";
   return "adventure";
 }
 
@@ -127,7 +127,7 @@ export function pageSummary(page: EditorPage, values: GameFormFields): { text: s
     case "story": {
       // A Duo's two characters, side by side.
       const scenario =
-        values.genre === "npc-duo"
+        values.genre === "discussion"
           ? splitDuo(values.systemMessageScenario).filter((c) => c.trim()).join(" — ")
           : values.systemMessageScenario;
       return written(scenario) ?? { key: "games.editor.pages.story.intro" };

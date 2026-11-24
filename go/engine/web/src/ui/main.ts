@@ -319,12 +319,20 @@ async function resolve(open: Opening): Promise<string> {
   }
 }
 
-/** Creates a session, or says why it cannot be had. */
+/**
+ * Creates a session, or says why it cannot be had. A game that plays live
+ * and in turns has the player choose, unless the page named a mode.
+ */
 async function start(selector: Selector): Promise<string> {
   const language = params.get("lang") ?? navigator.language;
   launch.wait(text("launch.starting"));
   const created = await create(client, selector, language, pending);
   if ("id" in created) return created.id;
+  if ("choose" in created) {
+    const live = text("launch.live");
+    const chosen = await launch.ask(text("launch.chooseMode"), [live, text("launch.rounds")]);
+    return start({ ...selector, mode: chosen === live ? "live" : "rounds" });
+  }
   return launch.ask(text(created.notice.key), []);
 }
 

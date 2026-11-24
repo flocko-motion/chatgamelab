@@ -8,23 +8,104 @@ import (
 	"engine/internal/adapters"
 )
 
+// A genre holds a live and a rounds half, which play the same game; a genre
+// may offer one of them for now.
+func TestGenresComeInPairs(t *testing.T) {
+	if got, want := Genres(), []Genre{GenreAdventure, GenreNPC, GenreDiscussion}; !slices.Equal(got, want) {
+		t.Errorf("Genres() = %v, want %v", got, want)
+	}
+	pairs := map[Genre][]Subgenre{
+		GenreAdventure:  {SubgenreAdventureRounds},
+		GenreNPC:        {SubgenreNPCLive, SubgenreNPCRounds},
+		GenreDiscussion: {SubgenreDiscussionLive},
+	}
+	for g, want := range pairs {
+		if got := g.Subgenres(); !slices.Equal(got, want) {
+			t.Errorf("%s.Subgenres() = %v, want %v", g, got, want)
+		}
+		for _, sub := range want {
+			if sub.Genre() != g {
+				t.Errorf("%s.Genre() = %q, want %q", sub, sub.Genre(), g)
+			}
+		}
+	}
+	modes := map[Subgenre]Mode{
+		SubgenreAdventureRounds: ModeRounds, SubgenreNPCLive: ModeLive,
+		SubgenreNPCRounds: ModeRounds, SubgenreDiscussionLive: ModeLive,
+	}
+	for sub, want := range modes {
+		if sub.Mode() != want {
+			t.Errorf("%s.Mode() = %q, want %q", sub, sub.Mode(), want)
+		}
+	}
+}
+
 func TestGenresFollowFromToggles(t *testing.T) {
+	everything := Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true}
 	cases := []struct {
-		name    string
-		toggles Toggles
-		want    []Genre
+		name      string
+		toggles   Toggles
+		genres    []Genre
+		subgenres []Subgenre
 	}{
-		{"nothing on", Toggles{}, []Genre{GenreAdventure}},
-		{"images only", Toggles{Images: true}, []Genre{GenreAdventure}},
+		{"nothing on", Toggles{}, []Genre{GenreAdventure, GenreNPC}, []Subgenre{SubgenreAdventureRounds, SubgenreNPCRounds}},
+		{"images only", Toggles{Images: true}, []Genre{GenreAdventure, GenreNPC}, []Subgenre{SubgenreAdventureRounds, SubgenreNPCRounds}},
 		// The live genre's picture comes from the gallery, so it needs no image model.
-		{"live only", Toggles{AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo}},
-		{"live and images", Toggles{AudioLive: true, Images: true}, []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo}},
-		{"everything", Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo}},
+		{"live only", Toggles{AudioLive: true}, []Genre{GenreAdventure, GenreNPC, GenreDiscussion},
+			[]Subgenre{SubgenreAdventureRounds, SubgenreNPCLive, SubgenreNPCRounds, SubgenreDiscussionLive}},
+		{"everything", everything, []Genre{GenreAdventure, GenreNPC, GenreDiscussion},
+			[]Subgenre{SubgenreAdventureRounds, SubgenreNPCLive, SubgenreNPCRounds, SubgenreDiscussionLive}},
 	}
 	for _, c := range cases {
-		if got := PlayableGenres(c.toggles); !slices.Equal(got, c.want) {
-			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		if got := PlayableGenres(c.toggles); !slices.Equal(got, c.genres) {
+			t.Errorf("%s: genres %v, want %v", c.name, got, c.genres)
 		}
+		if got := PlayableSubgenres(c.toggles); !slices.Equal(got, c.subgenres) {
+			t.Errorf("%s: subgenres %v, want %v", c.name, got, c.subgenres)
+		}
+	}
+}
+
+// The player picks live or rounds where both fit the offers; where one
+// fits, it plays, whatever was asked, as a mode is a wish and never a lock.
+func TestPickSubgenre(t *testing.T) {
+	live := MockOffer()
+	plain := Offer{Platform: PlatformMock, ID: "plain", Caveats: Caveats{
+		Allow:   map[Tier]Toggles{TierMedium: {Images: true}},
+		Default: Choice{Tier: TierMedium, Toggles: Toggles{Images: true}},
+	}}
+	cases := []struct {
+		name    string
+		genre   Genre
+		mode    Mode
+		offers  []Offer
+		want    Subgenre
+		problem Problem
+	}{
+		{"both fit, none asked", GenreNPC, "", []Offer{live}, "", ProblemChooseMode},
+		{"both fit, live asked", GenreNPC, ModeLive, []Offer{live}, SubgenreNPCLive, ""},
+		{"both fit, rounds asked", GenreNPC, ModeRounds, []Offer{live}, SubgenreNPCRounds, ""},
+		{"only rounds fits", GenreNPC, "", []Offer{plain}, SubgenreNPCRounds, ""},
+		{"live asked, only rounds fits", GenreNPC, ModeLive, []Offer{plain}, SubgenreNPCRounds, ""},
+		{"one half", GenreAdventure, "", []Offer{live}, SubgenreAdventureRounds, ""},
+		{"the missing half asked", GenreAdventure, ModeLive, []Offer{live}, SubgenreAdventureRounds, ""},
+		{"no half fits", GenreDiscussion, "", []Offer{plain}, "", ProblemGenre},
+		{"either offer", GenreNPC, "", []Offer{plain, live}, "", ProblemChooseMode},
+	}
+	for _, c := range cases {
+		got, err := PickSubgenre(c.genre, c.mode, c.offers)
+		if c.problem != "" {
+			if err == nil || RefusalOf(err).Problem != c.problem {
+				t.Errorf("%s: err %v, want problem %q", c.name, err, c.problem)
+			}
+			continue
+		}
+		if err != nil || got != c.want {
+			t.Errorf("%s: got %q, %v; want %q", c.name, got, err, c.want)
+		}
+	}
+	if _, err := PickSubgenre("chess", "", []Offer{live}); err == nil {
+		t.Error("an unknown genre was picked from")
 	}
 }
 
@@ -198,17 +279,17 @@ func TestThreadModelsHaveAContextWindow(t *testing.T) {
 	}
 }
 
-// An editor offers a genre's own fields: NPC-Live is one character's voice,
-// with no status, and the image style its cover is drawn in; an Adventure
-// has all of them, and its narrator a voice.
+// An editor offers a genre's own fields, the same for both halves: an NPC
+// is one character's voice, with no status, and the image style its cover is
+// drawn in; an Adventure has all of them, and its narrator a voice.
 func TestGenresNameTheirFields(t *testing.T) {
 	fields := map[Genre][]GameField{}
 	for _, g := range GenreList() {
 		fields[g.ID] = g.Fields
 	}
-	npc := fields[GenreNPCLive]
+	npc := fields[GenreNPC]
 	if !slices.Contains(npc, FieldVoiceStyle) || !slices.Contains(npc, FieldImageStyle) || slices.Contains(npc, FieldStatusFields) {
-		t.Errorf("npc-live fields: %v", npc)
+		t.Errorf("npc fields: %v", npc)
 	}
 	adventure := fields[GenreAdventure]
 	for _, want := range []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldStatusFields, FieldVoiceStyle} {
@@ -218,33 +299,99 @@ func TestGenresNameTheirFields(t *testing.T) {
 	}
 }
 
-// A genre makes voices of its own when its wiring holds a block that makes
-// one: NPC-Live's character has one, an Adventure narrates in a built-in
-// voice. The editor offers making a new voice only where one is made.
-func TestGenreSaysWhetherItMakesVoices(t *testing.T) {
-	want := map[Genre]bool{GenreAdventure: false, GenreNPCLive: true, GenreNPCDuo: false}
-	for g, makes := range want {
-		if got := g.MakesVoices(); got != makes {
-			t.Errorf("%s.MakesVoices() = %v, want %v", g, got, makes)
+// GET genres lists each genre with its halves, the toggles each needs and
+// its prompts; a genre needs what all its halves need.
+func TestGenreListShowsThePairs(t *testing.T) {
+	list := GenreList()
+	var npc *GenreInfo
+	for i := range list {
+		if list[i].ID == GenreNPC {
+			npc = &list[i]
+		}
+	}
+	if npc == nil {
+		t.Fatalf("GenreList has no npc: %v", list)
+	}
+	if len(npc.Needs) != 0 {
+		t.Errorf("npc needs %v, want none: npc-rounds runs without a toggle", npc.Needs)
+	}
+	if len(npc.Subgenres) != 2 {
+		t.Fatalf("npc subgenres: %+v", npc.Subgenres)
+	}
+	liveHalf, rounds := npc.Subgenres[0], npc.Subgenres[1]
+	if liveHalf.ID != SubgenreNPCLive || liveHalf.Mode != ModeLive || !slices.Equal(liveHalf.Needs, []Toggle{ToggleAudioLive}) {
+		t.Errorf("live half: %+v", liveHalf)
+	}
+	if rounds.ID != SubgenreNPCRounds || rounds.Mode != ModeRounds || rounds.Needs == nil || len(rounds.Needs) != 0 {
+		t.Errorf("rounds half: %+v", rounds)
+	}
+	if len(liveHalf.Prompts) == 0 || len(rounds.Prompts) == 0 {
+		t.Error("a half lists no prompts")
+	}
+	for _, info := range list {
+		if info.ID == GenreDiscussion && !slices.Equal(info.Needs, []Toggle{ToggleAudioLive}) {
+			t.Errorf("discussion needs %v, want audio-live", info.Needs)
 		}
 	}
 }
 
-// Each speaking genre names the voices it speaks in, its voice slots, and
-// what a game may choose for each: a built-in voice of a gender, or any the
-// cast finds fitting; and a voice of its own only where the graph makes one.
-// An editor offers exactly these.
+// Each half names the voices it speaks in, its voice slots, and what a game
+// may choose for each: a built-in voice of a gender, or any the cast finds
+// fitting; and a voice of its own only where the graph makes one. A genre's
+// slots are its halves', a voice of one name being one slot: an NPC's
+// character may have a voice of its own, which NPC-Live speaks in. An editor
+// offers exactly these.
 func TestGenresNameTheirVoiceSlots(t *testing.T) {
 	builtin := []VoiceChoice{VoiceMale, VoiceFemale, VoiceAny}
 	own := []VoiceChoice{VoiceMale, VoiceFemale, VoiceAny, VoiceCustom}
 	want := map[Genre][]VoiceSlot{
-		GenreAdventure: {{Name: "narrator", Choices: builtin}},
-		GenreNPCLive:   {{Name: "character", Choices: own}},
-		GenreNPCDuo:    {{Name: "a", Choices: builtin}, {Name: "b", Choices: builtin}},
+		GenreAdventure:  {{Name: "narrator", Choices: builtin}},
+		GenreNPC:        {{Name: "character", Choices: own}},
+		GenreDiscussion: {{Name: "a", Choices: builtin}, {Name: "b", Choices: builtin}},
 	}
 	for _, info := range GenreList() {
 		if !reflect.DeepEqual(info.VoiceSlots, want[info.ID]) {
 			t.Errorf("%s voice slots = %+v, want %+v", info.ID, info.VoiceSlots, want[info.ID])
 		}
+	}
+	halves := map[Subgenre][]VoiceSlot{
+		SubgenreNPCLive:   {{Name: "character", Choices: own}},
+		SubgenreNPCRounds: {{Name: "character", Choices: builtin}},
+	}
+	for half, slots := range halves {
+		if got := half.VoiceSlots(); !reflect.DeepEqual(got, slots) {
+			t.Errorf("%s voice slots = %+v, want %+v", half, got, slots)
+		}
+	}
+}
+
+// A spec names its game's genre and the player's wish; the launch picks
+// the half. A session stored before genres came in pairs named its half as
+// its genre, and resumes as that half.
+func TestSpecResolvesItsHalf(t *testing.T) {
+	cases := []struct {
+		spec  SessionSpec
+		genre Genre
+		half  Subgenre
+	}{
+		{SessionSpec{Genre: GenreNPC, Mode: ModeRounds}, GenreNPC, SubgenreNPCRounds},
+		{SessionSpec{Subgenre: SubgenreNPCLive}, GenreNPC, SubgenreNPCLive},
+		{SessionSpec{Genre: "npc-live"}, GenreNPC, SubgenreNPCLive},
+		{SessionSpec{Genre: GenreAdventure}, GenreAdventure, SubgenreAdventureRounds},
+		{SessionSpec{Genre: GenreDiscussion}, GenreDiscussion, SubgenreDiscussionLive},
+	}
+	for _, c := range cases {
+		got, err := c.spec.resolved([]Offer{MockOffer()})
+		if err != nil || got.Genre != c.genre || got.Subgenre != c.half {
+			t.Errorf("%+v resolved to %s/%s, %v; want %s/%s", c.spec, got.Genre, got.Subgenre, err, c.genre, c.half)
+		}
+	}
+	_, err := SessionSpec{Genre: GenreNPC}.resolved([]Offer{MockOffer()})
+	if err == nil || RefusalOf(err).Problem != ProblemChooseMode {
+		t.Errorf("both halves fitting and no wish: %v, want choose_mode", err)
+	}
+	issues := Validate(SessionSpec{Genre: GenreAdventure, Subgenre: SubgenreNPCLive}, []Offer{MockOffer()})
+	if !hasError(issues) {
+		t.Error("a half of another genre passed")
 	}
 }

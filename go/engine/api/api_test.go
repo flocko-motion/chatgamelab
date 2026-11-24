@@ -21,7 +21,7 @@ func TestInputAndStream(t *testing.T) {
 	defer cancel()
 
 	a := api.New(api.Options{Dev: func() bool { return true }})
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"}, mockOffers())
+	s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "s1"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestInputKindRefusedOverHTTP(t *testing.T) {
 	defer cancel()
 
 	a := api.New(api.Options{Dev: func() bool { return true }})
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typed"}, mockOffers())
+	s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "typed"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestEveryNodeIsInspectable(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "inspect",
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
@@ -165,7 +165,7 @@ func TestNodeDetailCarriesNoSecret(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "secretless",
 		Scenario: "You are the keeper of a bridge.",
 	}, []engine.Offer{{
@@ -207,7 +207,7 @@ func TestNodeDetailListsAreNeverNull(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "lists",
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
@@ -238,7 +238,7 @@ func TestEdgeInspection(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "edges",
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
@@ -280,7 +280,7 @@ func TestConnectBrokersTheOfferAndKeepsTheSessionID(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
+		Subgenre: engine.SubgenreNPCLive,
 		ID:       "brokered",
 		Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
@@ -323,7 +323,7 @@ func TestConnectRejectsAnEmptyOffer(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "empty", Scenario: "A bridge.",
+		Subgenre: engine.SubgenreNPCLive, ID: "empty", Scenario: "A bridge.",
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -350,7 +350,7 @@ func TestPromptsAreReadable(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:          engine.GenreNPCLive,
+		Subgenre:       engine.SubgenreNPCLive,
 		ID:             "prompts",
 		Scenario:       "You are the keeper of a bridge.",
 		PromptOverride: map[string]string{"conversation-policy": "Speak in rhymes."},
@@ -383,7 +383,7 @@ func TestPromptIsEditable(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "edit", Scenario: "You are the keeper of a bridge.",
+		Subgenre: engine.SubgenreNPCLive, ID: "edit", Scenario: "You are the keeper of a bridge.",
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -420,7 +420,7 @@ func TestGuardrailIsEditable(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreAdventure, ID: "guard", Guardrail: "No violence.",
+		Subgenre: engine.SubgenreAdventureRounds, ID: "guard", Guardrail: "No violence.",
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -462,7 +462,7 @@ func TestUnknownPromptOverrideIsRefused(t *testing.T) {
 	defer cancel()
 
 	_, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:          engine.GenreNPCLive,
+		Subgenre:       engine.SubgenreNPCLive,
 		Scenario:       "A bridge.",
 		PromptOverride: map[string]string{"portraitt": "typo"},
 	}, mockOffers())
@@ -499,7 +499,7 @@ func TestEmptyHistoryIsAnEmptyList(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "fresh", Scenario: "A bridge.",
+		Subgenre: engine.SubgenreNPCLive, ID: "fresh", Scenario: "A bridge.",
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -531,7 +531,7 @@ func TestAnUnknownSessionIsUnknown(t *testing.T) {
 	a := api.New(api.Options{Dev: func() bool { return true }})
 	for _, id := range []string{"one", "two"} {
 		s, err := engine.Launch(ctx, engine.SessionSpec{
-			Genre: engine.GenreNPCLive, ID: id, Scenario: "A tower.",
+			Subgenre: engine.SubgenreNPCLive, ID: id, Scenario: "A tower.",
 		}, mockOffers())
 		if err != nil {
 			t.Fatal(err)
@@ -569,7 +569,7 @@ func TestInjectionOverHTTP(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "directed", Scenario: "A bridge.",
+		Subgenre: engine.SubgenreNPCLive, ID: "directed", Scenario: "A bridge.",
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)

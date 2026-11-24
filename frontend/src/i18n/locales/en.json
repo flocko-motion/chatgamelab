@@ -820,8 +820,8 @@
       },
       "genres": {
         "adventure": "Adventure",
-        "npc-live": "Character",
-        "npc-duo": "Discussion"
+        "npc": "Character",
+        "discussion": "Discussion"
       },
       "features": {
         "images": "pictures",
@@ -1057,6 +1057,9 @@
           "snippetCss": "your CSS",
           "snippetPlayer": "YOUR-VISITOR-ID",
           "snippetRequest": "YOUR-REQUEST-ID",
+          "mode": "How the game plays",
+          "modeChoose": "Player chooses",
+          "modeHint": "This game can be played live or in turns. Preselect one to skip the question; where the key runs only one, that one plays.",
           "copy": "Copy snippet",
           "offNote": "Turned off, the snippet shows nothing. Turned on again, the same snippet works.",
           "styleLink": "Style it with your own CSS →",
@@ -1522,7 +1525,11 @@
         "startAnewUsesPlay": "Starting anew uses one of this link's plays.",
         "noPlaysLeft": "This link has no plays left, so the game cannot start anew.",
         "tryAgain": "Try again",
-        "backToGames": "Back to games"
+        "backToGames": "Back to games",
+        "chooseMode": "How do you want to play?",
+        "chooseModeHint": "Talk with the character live, or take turns, typing or speaking.",
+        "live": "Talk live",
+        "rounds": "Take turns"
       },
       "unplayable": {
         "no_key": "No AI key available",
@@ -1880,7 +1887,8 @@
       "paused": "The workshop is paused. The game goes on when it resumes.",
       "failed": "Something went wrong, and the game cannot go on.",
       "over": "This game is over, so it cannot go on.",
-      "hostRefused": "The website this game is embedded in did not let it start."
+      "hostRefused": "The website this game is embedded in did not let it start.",
+      "chooseMode": "This game can be played live or in turns: choose one."
     },
     "errors": {
       "serverUnreachable": "Cannot reach the game server.",
@@ -1897,7 +1905,10 @@
     },
     "launch": {
       "noGame": "This page needs a game to play: open it from a game's page.",
-      "starting": "Starting the game…"
+      "starting": "Starting the game…",
+      "chooseMode": "How do you want to play?",
+      "live": "Talk live",
+      "rounds": "Take turns, typed or spoken"
     },
     "status": {
       "connecting": "Connecting…",
@@ -2058,7 +2069,10 @@
       "conversation-policy": "How the character talks",
       "director": "Director",
       "greeting": "First words",
-      "voice-brief": "Describe voice"
+      "voice-brief": "Describe voice",
+      "character": "The character (System Message)",
+      "hold-the-line": "Hold the line",
+      "hear-player": "Understand speech"
     },
     "blocks": {
       "image-style": "Adapt style",
@@ -2084,7 +2098,9 @@
       "live-b": "Second character",
       "director": "Director",
       "cast": "Cast voices",
-      "cast-brief": "Characters"
+      "cast-brief": "Characters",
+      "character": "Character",
+      "hearing": "Understand speech"
     },
     "settings": {
       "scenario": "Scenario",

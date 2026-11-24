@@ -44,7 +44,7 @@ func TestHeadlessPlaybackEngineFollowsASession(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:        engine.GenreNPCLive,
+		Subgenre:     engine.SubgenreNPCLive,
 		ID:           "integration",
 		Scenario:     "You are the keeper of a bridge. You never concede passage.",
 		Guardrail:    "Suitable for a 13-year-old.",
@@ -99,7 +99,7 @@ func TestHeadlessPlaybackEngineSpeaksATurn(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:     engine.GenreAdventure,
+		Subgenre:  engine.SubgenreAdventureRounds,
 		ID:        "spoken",
 		Scenario:  "A troll guards a bridge.",
 		Guardrail: "Suitable for a 13-year-old.",
@@ -157,7 +157,7 @@ func TestHeadlessPlaybackEngineChooses(t *testing.T) {
 		Customizable: true,
 	}
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:        engine.GenreNPCLive,
+		Subgenre:     engine.SubgenreNPCLive,
 		ID:           "choosing",
 		Scenario:     "You are the keeper of a bridge.",
 		Guardrail:    "Suitable for a 13-year-old.",
@@ -215,7 +215,7 @@ func TestHeadlessPlaybackEngineCreates(t *testing.T) {
 		Create: func(ctx context.Context, req api.CreateRequest) (*engine.Session, error) {
 			n := launches.Add(1)
 			return engine.Launch(context.WithoutCancel(ctx), engine.SessionSpec{
-				Genre:        engine.GenreNPCLive,
+				Subgenre:     engine.SubgenreNPCLive,
 				ID:           fmt.Sprintf("%s-%d", req.Game, n),
 				Scenario:     "You are the keeper of a bridge.",
 				GalleryImage: mock.GalleryImage("bridge"),

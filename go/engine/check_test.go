@@ -104,7 +104,7 @@ func TestLaunchNamesTheGenreProblem(t *testing.T) {
 	noLive := MockOffer()
 	noLive.Caveats.Allow = map[Tier]Toggles{TierMedium: {Images: true}}
 	noLive.Caveats.Default = Choice{Tier: TierMedium, Toggles: Toggles{Images: true}}
-	_, err := Launch(context.Background(), SessionSpec{Genre: GenreNPCLive}, []Offer{noLive})
+	_, err := Launch(context.Background(), SessionSpec{Subgenre: SubgenreNPCLive}, []Offer{noLive})
 	if r := RefusalOf(err); r.Problem != ProblemGenre {
 		t.Errorf("got %v (%s), want the genre problem", err, r.Problem)
 	}

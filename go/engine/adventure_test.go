@@ -12,7 +12,7 @@ import (
 // resumed opening is the same one.
 func TestDiceAreRolledOnceAndStored(t *testing.T) {
 	store := &engine.MemoryPersist{}
-	first := launchStored(t, store, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "dice"})
+	first := launchStored(t, store, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "dice"})
 	first.Close()
 
 	stored, err := store.LoadState(context.Background(), "dice")
@@ -42,7 +42,7 @@ func TestDiceAreRolledOnceAndStored(t *testing.T) {
 // refused.
 func TestConstraintFrequencyChangesDuringPlay(t *testing.T) {
 	store := &engine.MemoryPersist{}
-	s := launchStored(t, store, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "freq"})
+	s := launchStored(t, store, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "freq"})
 	if err := s.SetConstraintFrequency("expand", 4); err != nil {
 		t.Fatal(err)
 	}
@@ -66,10 +66,10 @@ func TestConstraintFrequencyChangesDuringPlay(t *testing.T) {
 // A spec's constraint frequencies and dice are checked before a launch.
 func TestValidateChecksFrequenciesAndDice(t *testing.T) {
 	for name, spec := range map[string]engine.SessionSpec{
-		"unknown block":   {Genre: engine.GenreAdventure, ConstraintFrequency: map[string]int{"rephrase": 2}},
-		"out of range":    {Genre: engine.GenreAdventure, ConstraintFrequency: map[string]int{"expand": 11}},
-		"npc-live has no": {Genre: engine.GenreNPCLive, ConstraintFrequency: map[string]int{"expand": 2}},
-		"a die past 100":  {Genre: engine.GenreAdventure, Dice: []int{7, 101}},
+		"unknown block":   {Subgenre: engine.SubgenreAdventureRounds, ConstraintFrequency: map[string]int{"rephrase": 2}},
+		"out of range":    {Subgenre: engine.SubgenreAdventureRounds, ConstraintFrequency: map[string]int{"expand": 11}},
+		"npc-live has no": {Subgenre: engine.SubgenreNPCLive, ConstraintFrequency: map[string]int{"expand": 2}},
+		"a die past 100":  {Subgenre: engine.SubgenreAdventureRounds, Dice: []int{7, 101}},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if _, err := engine.Launch(context.Background(), spec, mockOffers()); err == nil {
@@ -77,7 +77,7 @@ func TestValidateChecksFrequenciesAndDice(t *testing.T) {
 			}
 		})
 	}
-	ok := engine.SessionSpec{Genre: engine.GenreAdventure, ConstraintFrequency: map[string]int{"expand": 3, "outline": 1}, Dice: []int{1, 100}}
+	ok := engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ConstraintFrequency: map[string]int{"expand": 3, "outline": 1}, Dice: []int{1, 100}}
 	s, err := engine.Launch(context.Background(), ok, mockOffers())
 	if err != nil {
 		t.Fatal(err)

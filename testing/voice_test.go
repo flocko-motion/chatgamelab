@@ -56,23 +56,23 @@ func (s *VoiceTestSuite) TestAVoiceIsMadeOncePerKeyAndStyle() {
 	game.Voices = custom
 	Must(alice.UpdateGame(game.Id.String(), game))
 
-	first := Must(alice.CreateSession(testutil.ForGame(game.Id.String())))
+	first := Must(alice.CreateSession(testutil.ForGame(game.Id.String()).InMode("live")))
 	s.Equal("created", s.voiceOutcome(alice, first), "the first session makes the voice")
 
-	again := Must(alice.CreateSession(testutil.ForGame(game.Id.String())))
+	again := Must(alice.CreateSession(testutil.ForGame(game.Id.String()).InMode("live")))
 	s.Equal("reused", s.voiceOutcome(alice, again), "a later session reuses it")
 
 	copied := Must(alice.UploadGame("bridge-troll"))
 	copied.VoiceStyle = game.VoiceStyle
 	copied.Voices = custom
 	Must(alice.UpdateGame(copied.Id.String(), copied))
-	other := Must(alice.CreateSession(testutil.ForGame(copied.Id.String())))
+	other := Must(alice.CreateSession(testutil.ForGame(copied.Id.String()).InMode("live")))
 	s.Equal("reused", s.voiceOutcome(alice, other), "another game with the same voice style reuses it")
 
 	bob := s.CreateUser("voice-bob")
 	Must(bob.AddApiKey("mock-voice-bob", "Bob's key", "mock"))
 	public := Must(alice.SetGamePublic(game.Id.String(), true))
-	bobs := Must(bob.CreateSession(testutil.ForGame(public.Id.String())))
+	bobs := Must(bob.CreateSession(testutil.ForGame(public.Id.String()).InMode("live")))
 	s.Equal("created", s.voiceOutcome(bob, bobs), "another key makes its own")
 }
 
@@ -86,7 +86,7 @@ func (s *VoiceTestSuite) TestABuiltInChoiceMakesNoVoice() {
 	game.Voices = &map[string]string{"character": "female"}
 	Must(frank.UpdateGame(game.Id.String(), game))
 
-	id := Must(frank.CreateSession(testutil.ForGame(game.Id.String())))
+	id := Must(frank.CreateSession(testutil.ForGame(game.Id.String()).InMode("live")))
 	s.Equal("built-in", s.voiceOutcome(frank, id))
 }
 
@@ -98,7 +98,7 @@ func (s *VoiceTestSuite) TestNoVoiceStyleKeepsTheBuiltInVoice() {
 	game.VoiceStyle = ""
 	Must(carol.UpdateGame(game.Id.String(), game))
 
-	id := Must(carol.CreateSession(testutil.ForGame(game.Id.String())))
+	id := Must(carol.CreateSession(testutil.ForGame(game.Id.String()).InMode("live")))
 	s.True(strings.HasPrefix(s.voiceOutcome(carol, id), "built-in"))
 }
 
@@ -110,26 +110,26 @@ func (s *VoiceTestSuite) TestAPreviewKeepsItsSampleUntilANewVoiceIsMade() {
 	Must(dana.AddApiKey("mock-voice-dana", "Dana's key", "mock"))
 	style := "warm, low and unhurried"
 
-	first := Must(dana.VoiceSample("npc-live", style, "A lighthouse keeper."))
+	first := Must(dana.VoiceSample("npc", style, "A lighthouse keeper."))
 	s.False(first.Stored, "the first sample is spoken")
 	s.True(first.OwnVoice, "a voice of its own speaks")
 	s.Equal("audio/wav", first.ContentType)
 	s.True(strings.HasPrefix(string(first.Audio), "RIFF"), "the sample is a WAV")
 
-	again := Must(dana.VoiceSample("npc-live", style, "A lighthouse keeper."))
+	again := Must(dana.VoiceSample("npc", style, "A lighthouse keeper."))
 	s.True(again.Stored, "the second sample comes from the store, without the provider")
 	s.Equal(first.Audio, again.Audio)
 
-	renewed := Must(dana.NewVoice("npc-live", style, "A lighthouse keeper."))
+	renewed := Must(dana.NewVoice("npc", style, "A lighthouse keeper."))
 	s.False(renewed.Stored, "a new voice drops the old sample")
-	s.True(Must(dana.VoiceSample("npc-live", style, "")).Stored, "the new voice's sample is kept")
+	s.True(Must(dana.VoiceSample("npc", style, "")).Stored, "the new voice's sample is kept")
 
 	game := Must(dana.UploadGame("bridge-troll"))
-	game.Genre = "npc-live"
+	game.Genre = "npc"
 	game.VoiceStyle = style
 	game.Voices = &map[string]string{"character": "custom"}
 	Must(dana.UpdateGame(game.Id.String(), game))
-	id := Must(dana.CreateSession(testutil.ForGame(game.Id.String())))
+	id := Must(dana.CreateSession(testutil.ForGame(game.Id.String()).InMode("live")))
 	s.Equal("reused", s.voiceOutcome(dana, id), "a game with the style speaks in the voice the preview made")
 }
 
@@ -144,7 +144,22 @@ func (s *VoiceTestSuite) TestOnlyACustomVoiceIsHeard() {
 		_, err := erin.VoiceSampleFor(voice, "adventure", "a warm narrator", "")
 		s.Refused(err, testutil.CodeVoiceNotCustom, "no sample for a voice set to "+voice)
 	}
-	builtin := Must(erin.VoiceSample("npc-live", "", ""))
+	builtin := Must(erin.VoiceSample("npc", "", ""))
 	s.False(builtin.OwnVoice, "no voice style, no voice of its own")
 	s.False(builtin.Stored, "a built-in voice's sample is not kept")
+}
+
+// An NPC game plays live or in rounds on a key that runs both: starting it
+// asks which, and the player's choice starts it.
+func (s *VoiceTestSuite) TestAnNPCGameAsksLiveOrRounds() {
+	fay := s.CreateUser("voice-fay")
+	Must(fay.AddApiKey("mock-voice-fay", "Fay's key", "mock"))
+	game := Must(fay.UploadGame("bridge-troll"))
+
+	_, err := fay.CreateSession(testutil.ForGame(game.Id.String()))
+	s.Refused(err, testutil.CodeChooseMode)
+
+	id := Must(fay.CreateSession(testutil.ForGame(game.Id.String()).InMode("rounds")))
+	topology := Must(fay.SessionTopology(id))
+	s.NotEmpty(topology.Nodes, "the session plays in rounds")
 }

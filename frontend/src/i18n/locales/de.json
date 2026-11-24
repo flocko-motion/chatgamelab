@@ -820,8 +820,8 @@
       },
       "genres": {
         "adventure": "Abenteuer",
-        "npc-live": "Charakter",
-        "npc-duo": "Diskussion"
+        "npc": "Charakter",
+        "discussion": "Diskussion"
       },
       "features": {
         "images": "Bildern",
@@ -1057,6 +1057,9 @@
           "snippetCss": "dein CSS",
           "snippetPlayer": "DEINE-BESUCHER-ID",
           "snippetRequest": "DEINE-AUFRUF-ID",
+          "mode": "Wie das Spiel gespielt wird",
+          "modeChoose": "Spieler*in wählt",
+          "modeHint": "Dieses Spiel kann live oder abwechselnd gespielt werden. Wähle eins vor, um die Frage zu überspringen; kann der Schlüssel nur eins, wird das gespielt.",
           "copy": "Snippet kopieren",
           "offNote": "Ausgeschaltet zeigt das Snippet nichts. Wieder eingeschaltet funktioniert dasselbe Snippet.",
           "styleLink": "Mit eigenem CSS gestalten →",
@@ -1522,7 +1525,11 @@
         "startAnewUsesPlay": "Neu zu beginnen verbraucht eines der Spiele dieses Links.",
         "noPlaysLeft": "Dieser Link hat keine Spiele mehr übrig, darum kann das Spiel nicht neu beginnen.",
         "tryAgain": "Erneut versuchen",
-        "backToGames": "Zurück zu den Spielen"
+        "backToGames": "Zurück zu den Spielen",
+        "chooseMode": "Wie möchtest du spielen?",
+        "chooseModeHint": "Sprich live mit der Figur, oder abwechselnd, geschrieben oder gesprochen.",
+        "live": "Live sprechen",
+        "rounds": "Abwechselnd"
       },
       "unplayable": {
         "no_key": "Kein KI-Schlüssel verfügbar",
@@ -1880,7 +1887,8 @@
       "paused": "Der Workshop ist pausiert. Das Spiel geht weiter, sobald er fortgesetzt wird.",
       "failed": "Etwas ist schiefgelaufen, das Spiel kann nicht weitergehen.",
       "over": "Dieses Spiel ist zu Ende und kann nicht weitergehen.",
-      "hostRefused": "Die Website, in die dieses Spiel eingebettet ist, hat den Start nicht erlaubt."
+      "hostRefused": "Die Website, in die dieses Spiel eingebettet ist, hat den Start nicht erlaubt.",
+      "chooseMode": "Dieses Spiel kann live oder abwechselnd gespielt werden: Wähle eins."
     },
     "errors": {
       "serverUnreachable": "Der Spielserver ist nicht erreichbar.",
@@ -1897,7 +1905,10 @@
     },
     "launch": {
       "noGame": "Diese Seite braucht ein Spiel: Öffne sie über die Seite eines Spiels.",
-      "starting": "Das Spiel startet…"
+      "starting": "Das Spiel startet…",
+      "chooseMode": "Wie möchtest du spielen?",
+      "live": "Live sprechen",
+      "rounds": "Abwechselnd, geschrieben oder gesprochen"
     },
     "status": {
       "connecting": "Verbinden…",
@@ -2058,7 +2069,10 @@
       "conversation-policy": "Wie die Figur spricht",
       "director": "Regie",
       "greeting": "Erste Worte",
-      "voice-brief": "Stimme beschreiben"
+      "voice-brief": "Stimme beschreiben",
+      "character": "Die Figur (System Message)",
+      "hold-the-line": "Standhaft bleiben",
+      "hear-player": "Sprache verstehen"
     },
     "blocks": {
       "image-style": "Stil anpassen",
@@ -2084,7 +2098,9 @@
       "live-b": "Zweite Figur",
       "director": "Regie",
       "cast": "Stimmen besetzen",
-      "cast-brief": "Figuren"
+      "cast-brief": "Figuren",
+      "character": "Figur",
+      "hearing": "Sprache verstehen"
     },
     "settings": {
       "scenario": "Szenario",
