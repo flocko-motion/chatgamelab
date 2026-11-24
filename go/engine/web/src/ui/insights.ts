@@ -6,7 +6,8 @@
  * Which of the two shows is the stylesheet's business, by the screen's width;
  * this only keeps the state both read.
  */
-import type { PlaybackEngineState, Run } from "../state.js";
+import type { JournalEntry } from "../client.js";
+import type { PlaybackEngineState } from "../state.js";
 import { blockLabel, text } from "../texts.js";
 
 export interface InsightsElements {
@@ -19,8 +20,10 @@ export interface InsightsElements {
 }
 
 export interface InsightsHandlers {
-  /** A run in the feed was picked: its block's details are wanted. */
+  /** An entry from a block was picked in the feed: its block's details are wanted. */
   onRun(node: string): void;
+  /** Whether a journal source names a block of the pipeline, which can be opened. */
+  isBlock(source: string): boolean;
   /** The full-screen details were closed. */
   onClose(): void;
 }
@@ -31,7 +34,13 @@ const REMEMBERED = "engine.insights";
 const PHONE = "(max-width: 47.99rem)";
 
 export class Insights {
-  #shown = new Map<number, HTMLLIElement>();
+  /** The journal entries drawn so far, in order: the journal only grows at its end. */
+  #drawn: JournalEntry[] = [];
+  /**
+   * The last row drawn, for the next entry of the same source and kind to
+   * join it: a conversation arrives in fragments, and one row reads better.
+   */
+  #last: { source: string; kind: string; item: HTMLElement; what: HTMLElement; detail: string } | null = null;
 
   constructor(
     private readonly elements: InsightsElements,
@@ -54,58 +63,90 @@ export class Insights {
     runsTitle.textContent = text("insights.feed");
     close.setAttribute("aria-label", text("insights.close"));
     close.title = text("insights.close");
-    this.#shown.clear();
+    this.#drawn = [];
     this.elements.runs.replaceChildren();
   }
 
-  /** Adds the runs not yet in the feed, and marks the finished ones. */
+  /**
+   * Draws what happened: the session's journal, oldest first, newest at the
+   * bottom. New entries are added at the end; a journal that was replaced
+   * (a reload) or cut at its front is drawn anew.
+   */
   render(state: PlaybackEngineState): void {
     const list = this.elements.runs;
-    const kept = new Set(state.runs.map((r) => r.id));
-    for (const [id, item] of this.#shown) {
-      if (!kept.has(id)) {
-        item.remove();
-        this.#shown.delete(id);
-      }
+    const journal = state.journal;
+    const drawn = this.#drawn;
+    const continues = drawn.length <= journal.length && drawn.every((entry, i) => journal[i] === entry);
+    if (!continues) {
+      list.replaceChildren();
+      this.#drawn = [];
+      this.#last = null;
     }
-    for (const run of state.runs) {
-      const item = this.#shown.get(run.id) ?? this.#add(run);
-      item.dataset["done"] = String(run.done);
+    for (const entry of journal.slice(this.#drawn.length)) {
+      // Phases change with every call; the pipeline shows them, and the
+      // history keeps to what happened.
+      if (entry.kind !== "phase") this.#add(entry);
+      this.#drawn.push(entry);
     }
-    if (state.runs.length === 0 && !list.querySelector(".runs-empty")) {
+    if (journal.length === 0 && !list.querySelector(".runs-empty")) {
       const empty = document.createElement("li");
       empty.className = "runs-empty";
       empty.textContent = text("insights.empty");
       list.append(empty);
-    } else if (state.runs.length > 0) {
+    } else if (journal.length > 0) {
       list.querySelector(".runs-empty")?.remove();
     }
   }
 
-  #add(run: Run): HTMLLIElement {
+  #add(entry: JournalEntry): void {
+    const last = this.#last;
+    if (last && last.source === entry.source && last.kind === entry.kind && last.item.isConnected) {
+      // Follow-ups of the same kind join the row: fragments of one line run
+      // on, other notes each start a line of their own within it.
+      const piece = entry.detail ?? "";
+      const flowing = CONVERSATION_KINDS.has(entry.kind);
+      last.detail = flowing ? joinSpeech(last.detail, piece) : `${last.detail}\n${piece}`;
+      last.what.textContent = last.detail ? `${entry.kind} · ${last.detail}` : entry.kind;
+      if (rank(entry.level) > rank(last.item.dataset["level"] ?? "info")) last.item.dataset["level"] = entry.level;
+      return;
+    }
     const item = document.createElement("li");
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "run";
+    item.dataset["level"] = entry.level;
+    // An entry from a block opens that block; the session's own do not.
+    const opens = this.handlers.isBlock(entry.source);
+    const row = document.createElement(opens ? "button" : "div");
+    if (row instanceof HTMLButtonElement) row.type = "button";
+    row.className = "run";
     const mark = document.createElement("span");
     mark.className = "run-mark";
     mark.setAttribute("aria-hidden", "true");
+    // When, in the reader's own time, to the second; the millisecond is a hover away.
+    const when = new Date(entry.time);
+    const time = document.createElement("time");
+    time.className = "run-time";
+    time.dateTime = entry.time;
+    time.textContent = when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    time.title = `${time.textContent}.${String(when.getMilliseconds()).padStart(3, "0")}`;
     const name = document.createElement("span");
     name.className = "run-name";
-    name.textContent = blockLabel(run.node);
-    button.append(mark, name);
-    button.addEventListener("click", () => {
-      this.#setDetail(true);
-      this.handlers.onRun(run.node);
-    });
-    item.append(button);
+    name.textContent = blockLabel(entry.source);
+    const what = document.createElement("span");
+    what.className = "run-what";
+    what.textContent = entry.detail ? `${entry.kind} · ${entry.detail}` : entry.kind;
+    row.append(mark, time, name, what);
+    if (opens) {
+      row.addEventListener("click", () => {
+        this.#setDetail(true);
+        this.handlers.onRun(entry.source);
+      });
+    }
+    item.append(row);
+    this.#last = { source: entry.source, kind: entry.kind, item, what, detail: entry.detail ?? "" };
     const list = this.elements.runs;
     // Newest at the bottom, kept in view while the reader is there.
     const atEnd = list.scrollTop + list.clientHeight >= list.scrollHeight - 4;
     list.append(item);
     if (atEnd) list.scrollTop = list.scrollHeight;
-    this.#shown.set(run.id, item);
-    return item;
   }
 
   #open(): boolean {
@@ -148,4 +189,19 @@ function remembered(): boolean | null {
   } catch {
     return null;
   }
+}
+
+/** The kinds that carry speech, whose fragments run on into one line. */
+const CONVERSATION_KINDS = new Set(["player-said", "text", "said"]);
+
+/** Speech fragments joined as spoken: a space only where neither side has one. */
+function joinSpeech(before: string, after: string): string {
+  if (!before) return after;
+  if (!after) return before;
+  return /\s$/.test(before) || /^\s/.test(after) ? before + after : `${before} ${after}`;
+}
+
+/** A level's weight, so a joined row shows the worst of its entries. */
+function rank(level: string): number {
+  return level === "error" ? 2 : level === "warning" ? 1 : 0;
 }

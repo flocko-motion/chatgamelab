@@ -92,8 +92,13 @@ type LiveConn interface {
 	ID() string
 	// Answer is the SDP answer the browser needs to complete its connection.
 	Answer() string
-	// Instruct appends, so re-injecting the guardrail keeps the character.
+	// Instruct appends an instruction the model follows, which may interrupt
+	// its speech; re-injecting the guardrail keeps the character.
 	Instruct(ctx context.Context, text string) error
+	// Inform appends knowledge the model may use, without saying it now.
+	Inform(ctx context.Context, text string) error
+	// SayAloud appends something for the model to say, in its own words.
+	SayAloud(ctx context.Context, text string) error
 	Events() <-chan LiveEvent
 	Close() error
 }
@@ -190,4 +195,16 @@ type KeyFunc func(ctx context.Context) (string, error)
 // Tool is a single-shot text transformation; the role is config.
 type Tool interface {
 	Query(ctx context.Context, system, user string) (string, Usage, error)
+}
+
+// SchemaTool is a Tool that also answers in JSON of a schema, which the
+// provider holds it to in strict mode. A call with a schema needs one.
+type SchemaTool interface {
+	QuerySchema(ctx context.Context, system, user string, schema Schema) (string, Usage, error)
+}
+
+// ImageTool is a Tool that also looks at a picture: the user's words, then
+// the picture, answered in JSON of a schema.
+type ImageTool interface {
+	QueryImage(ctx context.Context, system, user string, image []byte, schema Schema) (string, Usage, error)
 }

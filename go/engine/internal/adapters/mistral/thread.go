@@ -33,7 +33,7 @@ func NewThread(keys adapters.KeyFunc, model string) *Thread {
 		keys:  keys,
 		model: model,
 		// A story reply streams for a while; this bounds a call that hangs.
-		api: client{base: baseURL, http: &http.Client{Timeout: 3 * time.Minute}},
+		api: client{base: BaseURL, http: &http.Client{Timeout: 3 * time.Minute}},
 	}
 }
 

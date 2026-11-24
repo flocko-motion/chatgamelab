@@ -97,3 +97,14 @@ func shade(hue, value float64) color.RGBA {
 		return color.RGBA{high, low, dim, 255}
 	}
 }
+
+// GalleryImage stands in for a game's picture from the gallery where there is
+// no platform to read one from: tests and the standalone dev server. The same
+// seed gives the same picture.
+func GalleryImage(seed string) []byte {
+	drawn, err := paint("gallery: " + seed)
+	if err != nil {
+		return nil
+	}
+	return drawn
+}

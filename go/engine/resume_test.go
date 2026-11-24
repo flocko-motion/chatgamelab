@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"engine"
+	"engine/internal/adapters/mock"
 )
 
 // launchStored launches on a memory store, as a platform launches on its tables.
@@ -23,7 +25,7 @@ func launchStored(t *testing.T, store engine.Persist, spec engine.SessionSpec) *
 
 func resume(t *testing.T, store engine.Persist, id string) *engine.Session {
 	t.Helper()
-	s, err := engine.Resume(context.Background(), id, store, mockOffers())
+	s, err := engine.Resume(context.Background(), id, store, mockOffers(), mock.GalleryImage("bridge"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +102,7 @@ func TestResumeRefusesAnotherVersion(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = engine.Resume(context.Background(), "s6", store, mockOffers())
+	_, err = engine.Resume(context.Background(), "s6", store, mockOffers(), nil)
 	if !errors.Is(err, engine.ErrStale) {
 		t.Fatalf("got %v, want ErrStale", err)
 	}
@@ -117,7 +119,7 @@ func TestResumeRefusesUnknownBlock(t *testing.T) {
 	}); err != nil {
 		t.Fatal(err)
 	}
-	_, err := engine.Resume(context.Background(), "s3", store, mockOffers())
+	_, err := engine.Resume(context.Background(), "s3", store, mockOffers(), nil)
 	if !errors.Is(err, engine.ErrStale) {
 		t.Fatalf("got %v, want ErrStale", err)
 	}
@@ -127,7 +129,7 @@ func TestResumeRefusesUnknownBlock(t *testing.T) {
 }
 
 func TestResumeOfNothingIsUnknown(t *testing.T) {
-	_, err := engine.Resume(context.Background(), "never", &engine.MemoryPersist{}, mockOffers())
+	_, err := engine.Resume(context.Background(), "never", &engine.MemoryPersist{}, mockOffers(), nil)
 	if !errors.Is(err, engine.ErrUnknown) {
 		t.Fatalf("got %v, want ErrUnknown", err)
 	}
@@ -178,6 +180,7 @@ func TestResumedConversationWaitsPaused(t *testing.T) {
 	spec := engine.SessionSpec{
 		Genre: engine.GenreNPCLive, ID: "live", Persist: store,
 		Scenario: "You keep a bridge.", Guardrail: "Suitable for a 13-year-old.",
+		GalleryImage: mock.GalleryImage("bridge"),
 	}
 	first, err := engine.Launch(ctx, spec, mockOffers())
 	if err != nil {
@@ -195,6 +198,96 @@ func TestResumedConversationWaitsPaused(t *testing.T) {
 	}
 	if countStream(resumed.History(), "image") == 0 {
 		t.Error("the portrait was not kept")
+	}
+}
+
+// A session stored before the gate kept its own state still starts again on a
+// resume: what was said shows the game had begun.
+func TestResumeOfAnOlderStoredLiveGameStarts(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &engine.MemoryPersist{}
+	spec := engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "older", Persist: store,
+		Scenario: "You keep a bridge.", Guardrail: "Suitable for a 13-year-old.",
+	}
+	first, err := engine.Launch(ctx, spec, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := awaitConnection(ctx, first); err != nil {
+		t.Fatal(err)
+	}
+	waitFor(t, first, "text", "")
+	first.Close()
+
+	// As stored before the gate kept its state.
+	stored, err := store.LoadState(ctx, "older")
+	if err != nil {
+		t.Fatal(err)
+	}
+	delete(stored.State.Blocks, "start-game")
+	if err := store.SaveState(ctx, "older", stored); err != nil {
+		t.Fatal(err)
+	}
+
+	resumed := resume(t, store, "older")
+	select {
+	case <-resumed.Ready():
+	case <-time.After(3 * time.Second):
+		t.Fatalf("the older session never started again: %+v", resumed.Journal())
+	}
+}
+
+// A resumed live game starts again without showing its portrait again: the
+// gate that waited for the portrait opens at once, and the player can connect
+// and talk on.
+func TestResumedLiveGameOpensWithoutANewPortrait(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &engine.MemoryPersist{}
+	spec := engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "live", Persist: store,
+		Scenario: "You keep a bridge.", Guardrail: "Suitable for a 13-year-old.",
+		GalleryImage: mock.GalleryImage("bridge"),
+	}
+	first, err := engine.Launch(ctx, spec, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := awaitConnection(ctx, first); err != nil {
+		t.Fatal(err)
+	}
+	waitFor(t, first, "text", "")
+	first.Close()
+
+	resumed := resume(t, store, "live")
+	select {
+	case <-resumed.Ready():
+	case <-time.After(3 * time.Second):
+		t.Fatalf("the resumed game never started: %+v", resumed.Journal())
+	}
+	if !resumed.Snapshot().Started {
+		t.Error("the snapshot says the resumed game has not started")
+	}
+	// The player presses resume: the conversation opens again.
+	connected := make(chan error, 1)
+	go func() {
+		_, err := resumed.Connect(ctx, "v=0 mock offer")
+		connected <- err
+	}()
+	select {
+	case err := <-connected:
+		if err != nil {
+			t.Fatalf("connect after the resume: %v", err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatalf("the resumed conversation never answered the offer: %+v", resumed.Journal())
+	}
+	if countStream(resumed.History(), "image") != 1 {
+		t.Error("the resume showed the portrait again")
 	}
 }
 
@@ -241,5 +334,166 @@ func waitFor(t *testing.T, s *engine.Session, stream, prefix string) {
 		case <-deadline:
 			t.Fatalf("never saw %s event starting %q", stream, prefix)
 		}
+	}
+}
+
+// A session resumed before its gallery image was shown shows it then: the
+// picture is handed in again on resume, never stored.
+func TestResumeShowsAGalleryImageNotYetShown(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &engine.MemoryPersist{}
+	first, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "late", Persist: store,
+		Scenario: "You keep a bridge.",
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-first.Ready():
+	case <-time.After(3 * time.Second):
+		t.Fatal("the first session never started")
+	}
+	first.Close()
+
+	resumed := resume(t, store, "late")
+	for deadline := time.Now().Add(3 * time.Second); countStream(resumed.History(), "image") == 0; {
+		if time.Now().After(deadline) {
+			t.Fatalf("the resumed session never showed its gallery image: %+v", resumed.Journal())
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+}
+
+// The journal is stored with the session, so a resumed session still shows
+// what happened before: a session reported broken can be read back whole.
+func TestResumeKeepsTheJournal(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &engine.MemoryPersist{}
+	first, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "journalled", Persist: store,
+		Scenario: "You keep a bridge.", GalleryImage: mock.GalleryImage("bridge"),
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := awaitConnection(ctx, first); err != nil {
+		t.Fatal(err)
+	}
+	first.Close()
+
+	resumed := resume(t, store, "journalled")
+	entries := resumed.Journal()
+	kinds := make([]string, len(entries))
+	for i, e := range entries {
+		kinds[i] = e.Source + " " + e.Kind
+	}
+	joined := strings.Join(kinds, ", ")
+	for _, want := range []string{"session launched", "live-session opened", "session closed", "session resumed"} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("the resumed journal lacks %q: %s", want, joined)
+		}
+	}
+	if strings.Index(joined, "session launched") > strings.Index(joined, "session resumed") {
+		t.Error("the stored journal does not come before what happened after the resume")
+	}
+	if hasStream(resumed.History(), "journal") {
+		t.Error("the journal leaked into the story's history")
+	}
+}
+
+func hasStream(events []engine.SessionEvent, stream string) bool {
+	return countStream(events, stream) > 0
+}
+
+// A restart while the game is still preparing, before its gate opened, does
+// not leave it waiting: resumed, the first words are written, once, and the
+// gate opens.
+func TestResumeBeforeTheGateOpenedStillStarts(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &engine.MemoryPersist{}
+	first, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "early", Persist: store,
+		Scenario: "You keep a bridge.",
+		// Slow enough that the first words are not written yet when it closes.
+		MockPaceMs: 400,
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(50 * time.Millisecond)
+	if gateOpened(first.Journal()) {
+		t.Fatal("the gate opened before the test could close the session")
+	}
+	first.Close()
+
+	resumed := resume(t, store, "early")
+	for deadline := time.Now().Add(5 * time.Second); !gateOpened(resumed.Journal()); {
+		if time.Now().After(deadline) {
+			t.Fatalf("the resumed session never opened its gate: %+v", resumed.Journal())
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+// gateOpened reports whether the conversation has heard the gate's cue.
+func gateOpened(journal []engine.JournalEntry) bool {
+	for _, e := range journal {
+		if e.Source == "live-session" && e.Kind == "cued" {
+			return true
+		}
+	}
+	return false
+}
+
+// overlapWatch is a store that notes when two saves of a session overlap, as
+// a store that numbers events in order cannot take.
+type overlapWatch struct {
+	engine.MemoryPersist
+	busy    atomic.Int32
+	overlap atomic.Bool
+}
+
+func (w *overlapWatch) SaveEvent(ctx context.Context, id string, e engine.SessionEvent) error {
+	if w.busy.Add(1) > 1 {
+		w.overlap.Store(true)
+	}
+	defer w.busy.Add(-1)
+	time.Sleep(time.Millisecond) // a store's round trip, so overlaps show
+	return w.MemoryPersist.SaveEvent(ctx, id, e)
+}
+
+// A session's saves never overlap: the history and the journal go to the
+// store one at a time, so a store numbering them in order loses nothing,
+// the gallery image saved at launch included.
+func TestSavesOfASessionNeverOverlap(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &overlapWatch{}
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "ordered", Persist: store,
+		Scenario: "You keep a bridge.", GalleryImage: mock.GalleryImage("bridge"),
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := awaitConnection(ctx, s); err != nil {
+		t.Fatal(err)
+	}
+	waitFor(t, s, "text", "")
+	s.Close()
+
+	if store.overlap.Load() {
+		t.Error("two saves of the session overlapped")
+	}
+	if countStream(store.Events("ordered"), "image") != 1 {
+		t.Error("the gallery image was not stored")
 	}
 }

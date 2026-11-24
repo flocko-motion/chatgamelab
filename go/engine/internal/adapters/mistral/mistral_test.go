@@ -74,3 +74,29 @@ func TestToolReadsChunkedContent(t *testing.T) {
 		t.Errorf("text = %q", text)
 	}
 }
+
+// A look at a picture sends the words, then the picture inline.
+func TestToolShowsAPicture(t *testing.T) {
+	var seen start
+	srv := fake(t, `{"outputs":[{"role":"assistant","content":"{\"ok\":true}"}],"usage":{}}`, &seen)
+	tool := NewTool(key, "mistral-small-latest")
+	tool.api.base = srv.URL
+
+	png := []byte("\x89PNG\r\n\x1a\nrest")
+	text, _, err := tool.QueryImage(context.Background(), "judge", "the picture:", png, adapters.Schema{Name: "v", Body: map[string]any{"type": "object"}})
+	if err != nil || text != `{"ok":true}` {
+		t.Fatalf("text %q, err %v", text, err)
+	}
+	chunks, _ := seen.Inputs[0].Content.([]any)
+	if len(chunks) != 2 {
+		t.Fatalf("content = %#v", seen.Inputs[0].Content)
+	}
+	first, _ := chunks[0].(map[string]any)
+	second, _ := chunks[1].(map[string]any)
+	if first["type"] != "text" || first["text"] != "the picture:" || second["type"] != "image_url" || second["image_url"] != adapters.DataURL(png) {
+		t.Errorf("content = %#v", chunks)
+	}
+	if seen.CompletionArgs["response_format"] == nil {
+		t.Error("no response format asked for")
+	}
+}

@@ -469,6 +469,7 @@
       "filters": {
         "all": "Alle spill",
         "favorites": "Favoritter",
+        "genre": "Sjanger",
         "own": "Mine spill",
         "public": "Offentlige",
         "sponsored": "Sponset"
@@ -477,6 +478,12 @@
       "play": "Spill",
       "reportGame": "Rapporter spill",
       "restart": "Start på nytt",
+      "resumeChoice": {
+        "continue": "Fortsett",
+        "message": "Du har allerede begynt på «{{game}}». Vil du fortsette der du slapp, eller begynne på nytt? En ny start erstatter den tidligere økten din.",
+        "startNew": "Begynn på nytt",
+        "title": "Fortsette eller begynne på nytt?"
+      },
       "title": "Spill",
       "unfavorite": "Fjern fra favoritter",
       "workshop": "Workshop / org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Velg AI-kvalitetsnivå for spillene dine når du bruker din egen API-nøkkel. Høyere nivåer koster mer, men kan ha høyere kvalitet. La stå tomt for å bruke serverstandarden."
       },
+      "check": "Sjekk nøkkel",
       "createModal": {
         "keyDescription": "Nøkkelen din blir kryptert og lagret sikkert.",
         "keyLabel": "API-nøkkel",
@@ -521,6 +529,7 @@
         "platformRequired": "Plattform er påkrevd"
       },
       "key": "nøkkel",
+      "keyEndsWith": "Nøkkelen slutter med disse tegnene",
       "keys": "nøkler",
       "noResults": "Ingen nøkler samsvarer med søket eller filteret ditt.",
       "platform": "Plattform",
@@ -558,8 +567,15 @@
         "status-asc": "Fungerende nøkler først"
       },
       "status": {
+        "checking": "Sjekker…",
         "failed": "Nøkkelen fungerer ikke",
-        "unknown": "Nøkkelen er ikke brukt ennå",
+        "reasons": {
+          "key_rejected": "Leverandøren avviser denne nøkkelen. Sjekk at den ble kopiert i sin helhet, og at den fortsatt er aktiv.",
+          "no_credit": "Kontoen som er knyttet til denne nøkkelen, har ikke mer kreditt. Fyll på hos leverandøren.",
+          "no_key": "Nøkkelen kunne ikke leses.",
+          "unreachable": "Leverandøren svarte ikke. Prøv igjen om et øyeblikk."
+        },
+        "unknown": "Ikke sjekket ennå",
         "working": "Nøkkelen fungerer"
       },
       "statusColumn": "Status",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Hva skal spillet holde styr på? For eksempel liv, poeng eller ammunisjon. Spillet husker disse verdiene og oppdaterer dem under spillingen.",
         "theme": "Tema",
         "themeDefault": "Standardutseende",
-        "themeHint": "Utseendet spillet spilles med."
+        "themeHint": "Utseendet spillet spilles med.",
+        "voiceStyle": "Stemmekarakter",
+        "voiceStyleHint": "Hvordan stemmen høres ut: figurens stemme eller fortellerstemmen når historien leses høyt.",
+        "voiceStylePlaceholder": "f.eks. dyp, langsom og litt hes, en gammel mann"
       },
       "editModal": {
         "adminActionTitle": "Administratorhandling",
         "adminActionWarning": "Du redigerer et spill du ikke eier. Dette er en administratorhandling og skal kun brukes til moderering.",
         "gameDesignSection": "Spilldesign",
+        "othersGameNotice": "Dette spillet er laget av noen andre. Du kan endre hva som helst: Når du lagrer, blir det ditt eget spill, mens originalen forblir som den er.",
+        "saveAsOwn": "Lagre som mitt spill",
+        "savedAsOwn": "Lagret som ditt spill",
         "title": "Rediger spill",
         "unsavedChanges": {
           "discard": "Forkast endringer",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-direkte"
       },
       "importExport": {
+        "coverFailed": "Spillet ble importert, men galleribildet kunne ikke kontrolleres. Du kan tegne et nytt i redigeringsverktøyet.",
+        "coverNoKey": "Spillet ble importert uten galleribildet: Det kreves en API-nøkkel for å kontrollere et bilde.",
+        "coverRefused": "Spillet ble importert uten galleribildet: Bildet følger ikke reglene for ungdomsvern.",
+        "coverUnsigned": "Spillet ble importert uten galleribildet: Bildet ble ikke eksportert av ChatGameLab, eller har blitt endret siden.",
+        "errors": {
+          "noGame": "Denne .cgl-filen inneholder ikke noe spill.",
+          "tooLarge": "Denne filen er større enn 1 MB og for stor til å være en spillfil.",
+          "unreadable": "Denne filen kunne ikke leses som et spill."
+        },
         "exportButton": "Eksporter spill",
         "importButton": "Importer spill"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Forlat organisasjon",
     "leaveWarning": "Du mister tilgang til alle organisasjonsressurser og -medlemmer.",
     "list": {
+      "clearPicks": "Vis alle",
       "clearSearch": "Tøm søket",
       "filter": "Filter",
       "hideDetails": "Skjul detaljer",
@@ -1349,6 +1381,7 @@
         "failed": "Kan ikke spilles akkurat nå",
         "genre": "KI-nøkkelen kan ikke kjøre denne typen spill",
         "key_rejected": "KI-nøkkelen ble avvist",
+        "no_credit": "Ingen AI-kreditt igjen",
         "no_key": "Ingen KI-nøkkel tilgjengelig",
         "no_plays": "Ingen spill igjen",
         "paused": "Verkstedet er satt på pause",
@@ -1705,18 +1738,74 @@
       "condense-scenario": "Forkort scenario",
       "condensed-scenario": "Scenario",
       "expand": "Fortell",
+      "gallery-image": "Galleribilde",
+      "greeting": "Generer tekst",
       "image": "Tegn bilde",
       "image-prompt": "Beskriv bilde",
       "image-style": "Tilpass stil",
       "live-session": "Karakter",
-      "observer": "Observatør",
+      "observer": "Regi",
+      "opening-brief": "Slik begynner det",
       "outline": "Planlegg scene",
       "portrait": "Tegn portrett",
       "portrait-prompt": "Beskriv portrett",
       "props-store": "Spillstatus",
       "rephrase": "Fortell handlingen på nytt",
       "rephrase-audio": "Forstå tale",
-      "start-game": "Start"
+      "start-game": "Start",
+      "voice": "Generer stemme",
+      "voice-brief": "Beskriv stemmen"
+    },
+    "director": {
+      "ago": "for {{s}} siden",
+      "beatRefused": "avvist",
+      "beatSet": "satt",
+      "beats": "taktslag med replikker",
+      "beatsValue": "{{n}} · {{lines}} replikker",
+      "calls": "modellkall",
+      "callsValue": "{{n}} · sist {{s}}",
+      "character": "figur",
+      "characterSpoke": "figuren snakket",
+      "counted": "telt",
+      "doing": "gjør",
+      "dropped": "forkastet",
+      "droppedValue": "{{n}} (for mange på rad)",
+      "empty": "ingenting ennå",
+      "entryBackground": "bakgrunn sendt",
+      "entryConversation": "samtale",
+      "entryDirection": "instruks sendt",
+      "entryDropped": "forkastet",
+      "entryError": "feil",
+      "entryInjection": "sendt inn",
+      "entryLine": "sa",
+      "entrySilence": "stillhet",
+      "entryThought": "tenker",
+      "failed": "{{n}} mislyktes",
+      "fragments": "fragmenter",
+      "gap": "kall høyst hvert",
+      "inARow": "instrukser på rad",
+      "injected": "sendt inn manuelt",
+      "late": "sene fragmenter",
+      "lateMark": "sent",
+      "lateValue": "{{n}} · opptil {{ms}} ms",
+      "lines": "{{n}} replikker",
+      "listening": "lytter",
+      "log": "regiloggen",
+      "notYet": "ikke ennå",
+      "notices": "stillhetsvarsler",
+      "now": "regi nå",
+      "ofLimit": "{{n}} av {{limit}}",
+      "player": "spiller",
+      "playerSpoke": "spilleren snakket",
+      "pool": "i samlingen",
+      "poolValue": "{{n}} fragmenter · taktslag {{ms}} ms",
+      "quietFor": "stille i",
+      "quietReplies": "ingenting å gjøre",
+      "sent": "sendt",
+      "sentValue": "{{d}} instrukser · {{b}} bakgrunn",
+      "setBeat": "angi taktslag (ms)",
+      "thinking": "tenker · {{s}}",
+      "waiting": "venter på det"
     },
     "errors": {
       "connectionLost": "Forbindelsen til spillet gikk tapt. Last inn siden på nytt for å prøve igjen.",
@@ -1733,11 +1822,19 @@
     },
     "insights": {
       "close": "Lukk",
+      "collapse": "Skjul",
       "empty": "Ingenting har blitt kjørt ennå.",
-      "feed": "Dette skjedde",
+      "expand": "Vis",
+      "feed": "Historikk",
       "hide": "Skjul innsikt",
       "label": "Innsikt",
-      "show": "Vis innsikt"
+      "noProblems": "Ingen problemer så langt.",
+      "pickBlock": "Klikk på en blokk eller en forbindelse i arbeidsflyten for å lese hva den gjorde.",
+      "settingEmpty": "Spillet lar dette stå tomt.",
+      "show": "Vis innsikt",
+      "tabProblems": "Problemer",
+      "tabSelected": "Valgt",
+      "tabUsage": "Bruk"
     },
     "launch": {
       "noGame": "Denne siden trenger et spill for å kunne spilles: Åpne den fra siden til et spill.",
@@ -1749,13 +1846,25 @@
       "compacting": "Komprimerer…",
       "copied": "Oppsett kopiert",
       "copyFailed": "Ingen utklippstavle: Oppsettet er logget i konsollen",
-      "copyLayout": "Kopier oppsett"
+      "copyLayout": "Kopier oppsett",
+      "injectBackground": "vite",
+      "injectBackgroundHint": "Hva figuren tenker for seg selv, med sine egne ord, uten å si det nå, f.eks. «Jeg er en varulv, og jeg vil at hun skal oppdage det litt etter litt.»",
+      "injectDirection": "gjøre",
+      "injectDirectionHint": "Hva figuren skal gjøre, f.eks. «Vær gretten, du stoler ikke på spilleren.»",
+      "injectSpeech": "si",
+      "injectSpeechHint": "Hva figuren skal si, med sine egne ord, f.eks. «Stopp! Hvem der?»",
+      "injection": "Be figuren om å …",
+      "injectionFailed": "Kunne ikke sende",
+      "injectionSend": "Send",
+      "injectionSending": "Sender…",
+      "injectionSent": "Sendt til samtalen"
     },
     "problems": {
       "denied": "Du har ikke lov til å spille dette spillet.",
       "failed": "Noe gikk galt, og spillet kan ikke fortsette.",
       "genre": "Den tilgjengelige AI-nøkkelen kan ikke kjøre denne typen spill.",
       "keyRejected": "AI-leverandøren avviste nøkkelen til dette spillet, så spillet kan ikke fortsette. Den som satte opp spillet, må kontrollere nøkkelen.",
+      "noCredit": "Beklager, AI-kreditten er brukt opp, så spillet kan ikke fortsette akkurat nå.",
       "noKey": "Det finnes ingen tilgjengelig AI-nøkkel for å spille dette spillet.",
       "noPlays": "Dette delte spillet har ingen spill igjen.",
       "paused": "Workshopen er satt på pause. Spillet fortsetter når den startes igjen.",
@@ -1767,6 +1876,15 @@
       "busy": "Relay: i bruk av en annen fane",
       "connected": "Relay: tilkoblet",
       "connecting": "Relay: kjører ikke"
+    },
+    "settings": {
+      "cover": "Galleribilde",
+      "description": "Beskrivelse",
+      "gameStart": "Spillstart",
+      "imageStyle": "Bildestil",
+      "scenario": "Scenario",
+      "statusFields": "Statusfelt",
+      "voiceStyle": "Stemmekarakter"
     },
     "status": {
       "choose": "Velg hvordan du vil spille for å begynne.",
@@ -1789,10 +1907,14 @@
       "condensed-scenario\u0003econdense-scenario": "forespørsel",
       "condensed-scenario\u0003eimage-prompt": "scenario",
       "condensed-scenario\u0003estart-game": "klar",
+      "gallery-image\u0003estart-game": "klar",
+      "greeting\u0003elive-session": "første ord",
+      "greeting\u0003estart-game": "klar",
       "image-prompt\u0003eimage": "prompt",
       "image-style\u0003eadapted-style": "svar",
       "live-session\u0003eobserver": "utskrift",
-      "observer\u0003elive-session": "tips",
+      "observer\u0003elive-session": "innspill",
+      "opening-brief\u0003egreeting": "brief",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "scene",
       "outline\u0003eprops-store": "endringer",
@@ -1805,7 +1927,12 @@
       "rephrase\u0003eoutline": "handling",
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "innledning",
-      "start-game\u0003eoutline": "prompt"
+      "start-game\u0003eoutline": "prompt",
+      "voice\u0003elive-session:secondary": "stemmekarakter",
+      "voice\u0003elive-session:voice": "stemme",
+      "voice\u0003estart-game": "klar",
+      "voice-brief\u0003evoice:description": "beskrivelse",
+      "voice-brief\u0003evoice:voice": "reservestemme"
     }
   }
 }

@@ -51,17 +51,13 @@ export function GamesTable(props: GamesTableProps) {
       <GameCard
         game={game}
         onEdit={() => state.view(game)}
-        editLabel={p.canEdit ? t("editGame") : t("viewGame")}
-        onPlay={() => state.playGame(game)}
+        editLabel={t("editGame")}
+        onOpen={(canStartNew) => state.openGame(game, session, canStartNew)}
         playLabel={t("allGames.play")}
         hasSession={hasSession}
-        onContinue={session ? () => state.continueGame(session) : undefined}
         continueLabel={t("allGames.continue")}
-        onRestart={session ? () => state.restartGame(game, session) : undefined}
-        restartLabel={t("allGames.restart")}
         showVisibility={config.columns.includes("visibility")}
         isOwner={p.isOwner}
-        showCreator={config.columns.includes("creator")}
         isFavorite={favorites && state.isFavorite(game)}
         onToggleFavorite={favorites ? () => state.toggleFavorite(game) : undefined}
         favoriteLabel={t("allGames.favorite")}
@@ -120,7 +116,7 @@ export function GamesTable(props: GamesTableProps) {
           type="file"
           ref={fileInputRef}
           onChange={state.importFile}
-          accept=".yaml,.yml"
+          accept=".cgl,.yaml,.yml"
           style={{ display: "none" }}
         />
       )}
@@ -143,6 +139,7 @@ export function GamesTable(props: GamesTableProps) {
         onCreate={state.createModal.submit}
         createLoading={state.createModal.loading}
         initialData={state.createModal.initialData}
+        saveAsOwn={state.createModal.saveAsOwn}
       />
 
       <GameEditModal
@@ -150,7 +147,6 @@ export function GamesTable(props: GamesTableProps) {
         opened={state.viewModal.opened}
         onClose={state.viewModal.close}
         isOwner={state.viewModal.isOwner}
-        onCopy={state.viewModal.onCopy}
         onSponsor={state.viewModal.onSponsor}
         showShareSection
         workshopId={state.viewModal.workshopId}

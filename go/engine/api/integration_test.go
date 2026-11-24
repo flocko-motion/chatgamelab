@@ -13,6 +13,7 @@ import (
 
 	"engine"
 	"engine/api"
+	"engine/internal/adapters/mock"
 )
 
 // The headless playback-engine follows a real session against a real engine, with no
@@ -23,7 +24,7 @@ import (
 // the harness: a live genre's audio runs over WebRTC between a browser and the
 // model, and node has neither a microphone nor a peer connection. What it does
 // prove is everything up to the moment a player would join — the wiring is
-// served, the portrait is made, the gate opens, and somebody is invited to
+// served, the portrait is shown, the gate opens, and somebody is invited to
 // connect — which is the whole init stem running with nobody acting.
 //
 // Skipped when node is absent, because the Go build never requires a JavaScript
@@ -43,10 +44,11 @@ func TestHeadlessPlaybackEngineFollowsASession(t *testing.T) {
 	defer cancel()
 
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:     engine.GenreNPCLive,
-		ID:        "integration",
-		Scenario:  "You are the keeper of a bridge. You never concede passage.",
-		Guardrail: "Suitable for a 13-year-old.",
+		Genre:        engine.GenreNPCLive,
+		ID:           "integration",
+		Scenario:     "You are the keeper of a bridge. You never concede passage.",
+		Guardrail:    "Suitable for a 13-year-old.",
+		GalleryImage: mock.GalleryImage("bridge"),
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -155,10 +157,11 @@ func TestHeadlessPlaybackEngineChooses(t *testing.T) {
 		Customizable: true,
 	}
 	session, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:     engine.GenreNPCLive,
-		ID:        "choosing",
-		Scenario:  "You are the keeper of a bridge.",
-		Guardrail: "Suitable for a 13-year-old.",
+		Genre:        engine.GenreNPCLive,
+		ID:           "choosing",
+		Scenario:     "You are the keeper of a bridge.",
+		Guardrail:    "Suitable for a 13-year-old.",
+		GalleryImage: mock.GalleryImage("bridge"),
 	}, []engine.Offer{engine.MockOffer(), custom})
 	if err != nil {
 		t.Fatal(err)
@@ -212,16 +215,17 @@ func TestHeadlessPlaybackEngineCreates(t *testing.T) {
 		Create: func(ctx context.Context, req api.CreateRequest) (*engine.Session, error) {
 			n := launches.Add(1)
 			return engine.Launch(context.WithoutCancel(ctx), engine.SessionSpec{
-				Genre:     engine.GenreNPCLive,
-				ID:        fmt.Sprintf("%s-%d", req.Game, n),
-				Scenario:  "You are the keeper of a bridge.",
-				Guardrail: "Suitable for a 13-year-old.",
-				Language:  req.Language,
-				Persist:   store,
+				Genre:        engine.GenreNPCLive,
+				ID:           fmt.Sprintf("%s-%d", req.Game, n),
+				Scenario:     "You are the keeper of a bridge.",
+				GalleryImage: mock.GalleryImage("bridge"),
+				Guardrail:    "Suitable for a 13-year-old.",
+				Language:     req.Language,
+				Persist:      store,
 			}, mockOffers())
 		},
 		Resume: func(ctx context.Context, id string) (*engine.Session, error) {
-			return engine.Resume(context.WithoutCancel(ctx), id, store, mockOffers())
+			return engine.Resume(context.WithoutCancel(ctx), id, store, mockOffers(), nil)
 		},
 	})
 	srv := httptest.NewServer(serve(a))

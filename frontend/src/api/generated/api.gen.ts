@@ -46,6 +46,8 @@ export type MemberSort = "name" | "email" | "role";
 
 export type Medium = "text" | "audio" | "image";
 
+export type Level = "info" | "warning" | "error";
+
 export type InviteStatus =
   | "pending"
   | "accepted"
@@ -71,6 +73,13 @@ export type GameFilter =
   | "public"
   | "favorites"
   | "sponsored";
+
+export type GameField =
+  | "scenario"
+  | "gameStart"
+  | "imageStyle"
+  | "voiceStyle"
+  | "statusFields";
 
 export type EventType =
   | "workshop_updated"
@@ -146,6 +155,10 @@ export interface AvailableKey {
   /** @format uuid */
   shareId: string;
   source: string;
+}
+
+export interface BeatRequest {
+  ms: number;
 }
 
 export interface CheckNameResp {
@@ -231,6 +244,7 @@ export interface CreateGameReq {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
 }
 
 export interface CreateGameShareReq {
@@ -374,6 +388,7 @@ export interface Game {
   systemMessageScenario: string;
   tags: GameTag[];
   theme?: string;
+  voiceStyle: string;
   /** @format uuid */
   workshopId?: string;
 }
@@ -394,6 +409,7 @@ export interface GameFile {
   system_message_game_start: string;
   system_message_scenario: string;
   theme?: string;
+  voice_style?: string;
 }
 
 export interface GameMeta {
@@ -440,6 +456,7 @@ export interface GameTemplate {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
 }
 
 export interface GameView {
@@ -484,6 +501,7 @@ export interface GameView {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
   /** @format uuid */
   workshopId?: string;
 }
@@ -494,6 +512,7 @@ export interface GameViewPage {
 }
 
 export interface GenreInfo {
+  fields: GameField[];
   id: Genre;
   needs: Toggle[];
 }
@@ -536,6 +555,11 @@ export interface GuestLoginResp {
 
 export interface GuestTokenResp {
   token: string;
+}
+
+export interface InjectionRequest {
+  kind: string;
+  text: string;
 }
 
 export interface InputRequest {
@@ -616,6 +640,15 @@ export interface InviteView {
   usesCount: number;
   /** @format uuid */
   workshopId?: string;
+}
+
+export interface JournalEntry {
+  detail?: string;
+  kind: string;
+  level: Level;
+  source: string;
+  /** @format date-time */
+  time: string;
 }
 
 export interface KeyMeta {
@@ -719,14 +752,63 @@ export interface NewGuestView {
 }
 
 export interface NodeDetail {
+  injectable?: boolean;
+  injections?: string[];
   inputs: Sample[];
   name: string;
+  observer?: ObserverState;
   outputs: Sample[];
   phase: string;
   role: string;
   thread?: ThreadFill;
+  transcript?: TranscriptLine[];
   type: string;
   usage?: UsageRecord;
+}
+
+export interface ObserverEntry {
+  /** @format date-time */
+  at: string;
+  kind: string;
+  late?: boolean;
+  speaker?: string;
+  text: string;
+}
+
+export interface ObserverFigures {
+  backgrounds: number;
+  calls: number;
+  directions: number;
+  dropped: number;
+  errors: number;
+  flushes: number;
+  fragments: number;
+  injected: number;
+  largestLateMs: number;
+  lastCallMs: number;
+  late: number;
+  lines: number;
+  quiet: number;
+  silenceNotices: number;
+}
+
+export interface ObserverState {
+  awaiting: boolean;
+  beatMs: number;
+  characterAgoMs: number;
+  figures: ObserverFigures;
+  gapMs: number;
+  held?: string;
+  inARow: number;
+  inARowLimit: number;
+  log: ObserverEntry[];
+  pending: number;
+  playerAgoMs: number;
+  pool: number;
+  quietForMs: number;
+  quietMs: number;
+  thinking: boolean;
+  thinkingForMs: number;
 }
 
 export interface OfferOption {
@@ -1181,6 +1263,7 @@ export interface Topology {
   language?: string;
   name: string;
   nodes: TopologyNode[];
+  switches: string[];
   theme?: string;
   title?: string;
 }
@@ -1188,13 +1271,20 @@ export interface Topology {
 export interface TopologyEdge {
   from: string;
   kind: string;
+  port?: string;
   to: string;
 }
 
 export interface TopologyNode {
+  field?: string;
   name: string;
   place?: Place;
   role: string;
+}
+
+export interface TranscriptLine {
+  speaker: string;
+  text: string;
 }
 
 export interface UpdateApiKeyReq {
@@ -1218,6 +1308,7 @@ export interface UpdateGameReq {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
 }
 
 export interface UpdateGameShareReq {
@@ -1237,6 +1328,7 @@ export interface UpdateGameYAMLReq {
   system_message_game_start: string;
   system_message_scenario: string;
   theme?: string;
+  voice_style?: string;
 }
 
 export interface UpdateInstitutionReq {
@@ -1916,6 +2008,23 @@ export class Api<
       }),
 
     /**
+     * @description answers the share as the check left it. The check is the smallest call the provider bills, a fraction of a cent on the key: it finds a key the provider rejects (lastErrorCode key_rejected) and an account with no credit left (no_credit) alike, and records the outcome as the key's last usage. A provider that does not answer records nothing: 503 ai_error.
+     *
+     * @name PostApiApikeysIdCheck
+     * @summary Checks a key with its provider, for its owner, and
+     * @request POST:/api/apikeys/{id}/check
+     * @secure
+     */
+    postApiApikeysIdCheck: (id: string, params: RequestParams = {}) =>
+      this.request<KeyShareView, Error>({
+        path: `/api/apikeys/${id}/check`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description play with themselves.
      *
      * @name PutApiApikeysIdDefault
@@ -2396,6 +2505,23 @@ export class Api<
       }),
 
     /**
+     * @description engine saw it: phases, problems, the live conversation's life, pages attaching and leaving. Kept in memory, the latest entries only.
+     *
+     * @name GetApiEngineSessionsIdJournal
+     * @summary Answers what happened in a session so far, as the
+     * @request GET:/api/engine/sessions/{id}/journal
+     * @secure
+     */
+    getApiEngineSessionsIdJournal: (id: string, params: RequestParams = {}) =>
+      this.request<JournalEntry[], Error>({
+        path: `/api/engine/sessions/${id}/journal`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description The browser sends binary frames of microphone audio and text frames of typed input, a JSON LiveInput; it receives the session's events back, binary frames for audio and text frames of JSON SessionEvent for everything else. A rejected input comes back as an `error` event.
      *
      * @name GetApiEngineSessionsIdLive
@@ -2433,6 +2559,29 @@ export class Api<
       }),
 
     /**
+     * @description before they go to its model, during play: a tuning knob, on dev servers only.
+     *
+     * @name PostApiEngineSessionsIdNodesNodeBeat
+     * @summary Sets how long an observer's transcript fragments wait
+     * @request POST:/api/engine/sessions/{id}/nodes/{node}/beat
+     * @secure
+     */
+    postApiEngineSessionsIdNodesNodeBeat: (
+      id: string,
+      node: string,
+      data: BeatRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/nodes/${node}/beat`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
+        ...params,
+      }),
+
+    /**
      * @description The thread summarises whatever its fill, the block working meanwhile and paying for the summary; for testing how well compaction keeps a story. A block on no thread is refused.
      *
      * @name PostApiEngineSessionsIdNodesNodeCompact
@@ -2449,6 +2598,29 @@ export class Api<
         path: `/api/engine/sessions/${id}/nodes/${node}/compact`,
         method: "POST",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description The block, such as an observer, puts it in as a direction the model follows, background it may use, or a line it says. Anyone playing the session may inject. A block that takes none is refused, and so are an unknown kind and blank text.
+     *
+     * @name PostApiEngineSessionsIdNodesNodeInject
+     * @summary Puts text into a session's live conversation through a block.
+     * @request POST:/api/engine/sessions/{id}/nodes/{node}/inject
+     * @secure
+     */
+    postApiEngineSessionsIdNodesNodeInject: (
+      id: string,
+      node: string,
+      data: InjectionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/nodes/${node}/inject`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
         ...params,
       }),
 
@@ -2747,6 +2919,22 @@ export class Api<
       }),
 
     /**
+     * @description A .cgl file is a zip. It holds game.yaml, the game file as the YAML export writes it, and, when the game has a cover, cover.jpg and cover.sig, the signature an import asks for. It takes seeing the game's content (hasContent; 403 otherwise).
+     *
+     * @name GetApiGamesIdCgl
+     * @summary Exports a game as a .cgl file with its cover.
+     * @request GET:/api/games/{id}/cgl
+     * @secure
+     */
+    getApiGamesIdCgl: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/games/${id}/cgl`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description and answers with the copy. It takes mayCopy (403 otherwise); the copy has the game's card and content, not its images.
      *
      * @name PostApiGamesIdClone
@@ -2799,6 +2987,22 @@ export class Api<
         secure: true,
         type: "application/json",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large otherwise), and the X-Cover-Signature header the file's cover.sig; one without a fitting signature is 422 cover_unsigned, one that is no picture 400 not_a_picture. It takes mayEditCard (403 otherwise). The picture is checked against the youth-protection rule for the youngest players, as a drawn cover keeps to it, and the caller pays for the check as for drawing a cover: no key, 400 no_api_key; a key its provider rejects, 400 invalid_api_key; a provider that fails, 503 ai_error. A picture that does not keep to the rule is 422 cover_refused, and the game keeps the cover it had.
+     *
+     * @name PutApiGamesIdCover
+     * @summary Takes a game's cover from its .cgl file.
+     * @request PUT:/api/games/{id}/cover
+     * @secure
+     */
+    putApiGamesIdCover: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/games/${id}/cover`,
+        method: "PUT",
+        secure: true,
         ...params,
       }),
 
@@ -3665,6 +3869,24 @@ export class Api<
         path: `/api/public/workshops/${slug}`,
         method: "GET",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The file is the one GetGameCglEndpoint answers, for a game listed on a public workshop page.
+     *
+     * @name GetApiPublicWorkshopsSlugGamesIdCgl
+     * @summary Exports a public workshop's game as a .cgl file.
+     * @request GET:/api/public/workshops/{slug}/games/{id}/cgl
+     */
+    getApiPublicWorkshopsSlugGamesIdCgl: (
+      slug: string,
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/public/workshops/${slug}/games/${id}/cgl`,
+        method: "GET",
         ...params,
       }),
 

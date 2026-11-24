@@ -1,5 +1,5 @@
 /** Everything the UI could draw, so a test can play a full game and assert on it without a DOM. */
-import type { Options, Settled, Toggles, Topology, UsageReport } from "./client.js";
+import type { JournalEntry, Options, Settled, Toggles, Topology, UsageReport } from "./client.js";
 import type { Phase, Problem, Refusal } from "./protocol.js";
 import type { Notice, TextKey } from "./texts.js";
 import type { VoiceState } from "./voice.js";
@@ -50,6 +50,12 @@ export interface PlaybackEngineState {
   audioDiscards: number;
   /** Anything the client did not recognise, kept rather than dropped. */
   notes: string[];
+  /**
+   * What happened in the session as the engine saw it, oldest first: loaded
+   * whole when the page opens, then one entry per "journal" event. Problems
+   * are the entries at level warning or error.
+   */
+  journal: JournalEntry[];
   /** What has gone wrong, said so a player can act on it. */
   problem: Notice | null;
   /** Why the session could not be reached, when the engine refused it. */
@@ -97,6 +103,7 @@ export function emptyState(): PlaybackEngineState {
     audioChunks: 0,
     audioDiscards: 0,
     notes: [],
+    journal: [],
     problem: null,
     refusal: null,
     fault: null,
@@ -124,6 +131,7 @@ const PROBLEM_TEXT: Record<Problem, TextKey> = {
   genre: "problems.genre",
   no_plays: "problems.noPlays",
   key_rejected: "problems.keyRejected",
+  no_credit: "problems.noCredit",
   unreachable: "problems.unreachable",
   stale: "problems.stale",
   unknown: "problems.unknown",
@@ -161,6 +169,11 @@ export function allows(state: PlaybackEngineState, toggle: ToggleName): boolean 
 /** Whether this genre makes pictures at all, which is when a pictures switch means something. */
 export function makesPictures(state: PlaybackEngineState): boolean {
   return (state.topology?.imagery ?? "") !== "";
+}
+
+/** Whether a toggle turns a block of this wiring off and on, so it is worth offering. */
+export function switches(state: PlaybackEngineState, toggle: ToggleName): boolean {
+  return state.topology?.switches?.includes(toggle) ?? false;
 }
 
 /** Whether this genre has anywhere to type, as its wiring declares. */

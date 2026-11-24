@@ -11,8 +11,8 @@ import (
 //
 // It is held until the gate releases it, so nothing the player does reaches the
 // game before preparation has finished. Words typed during the wait are kept
-// and sent on release rather than discarded, because someone who typed while a
-// portrait rendered meant to say it.
+// and sent on release rather than discarded, because someone who typed while
+// preparation ran meant to say it.
 type PlayerInputText struct {
 	name string
 	out  ports.TextBroadcast
@@ -25,7 +25,10 @@ func NewPlayerInputText(name string) *PlayerInputText {
 	return &PlayerInputText{name: name, release: make(ports.StateInput, 4)}
 }
 
-func (b *PlayerInputText) NodeName() string                { return b.name }
+func (b *PlayerInputText) NodeName() string { return b.name }
+
+// PlayerInput marks it as where the player's words come in.
+func (b *PlayerInputText) PlayerInput()                    {}
 func (b *PlayerInputText) TextOutPort() <-chan string      { return b.out.Subscribe() }
 func (b *PlayerInputText) StateInPort() chan<- ports.State { return b.release }
 func (b *PlayerInputText) Say(s string)                    { b.held.submit(s, b.out.Send) }
@@ -63,7 +66,10 @@ func NewPlayerInputClips(name string) *PlayerInputAudio {
 	return &PlayerInputAudio{name: name, release: make(ports.StateInput, 4)}
 }
 
-func (b *PlayerInputAudio) NodeName() string                      { return b.name }
+func (b *PlayerInputAudio) NodeName() string { return b.name }
+
+// PlayerInput marks it as where the player's voice comes in.
+func (b *PlayerInputAudio) PlayerInput()                          {}
 func (b *PlayerInputAudio) AudioOutPort() <-chan ports.AudioChunk { return b.out.Subscribe() }
 func (b *PlayerInputAudio) StateInPort() chan<- ports.State       { return b.release }
 func (b *PlayerInputAudio) Speak(a ports.AudioChunk)              { b.held.submit(a, b.out.Send) }

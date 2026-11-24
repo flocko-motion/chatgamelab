@@ -222,6 +222,7 @@ func preseedDevGame(ctx context.Context, owner uuid.UUID, path string, public bo
 	g := gameRow{
 		name: strings.TrimSpace(file.Name), description: file.Description, genre: file.Genre, theme: file.Theme, public: public,
 		scenario: file.SystemMessageScenario, gameStart: file.SystemMessageGameStart, imageStyle: file.ImageStyle,
+		voiceStyle:   file.VoiceStyle,
 		css:          functional.NormalizeJson(file.CSS, &obj.CSS{}),
 		statusFields: functional.NormalizeJson(file.StatusFields, &[]obj.StatusField{}),
 	}
@@ -235,7 +236,7 @@ func preseedDevGame(ctx context.Context, owner uuid.UUID, path string, public bo
 	return store.InTx(ctx, func(q *db.Queries) error {
 		if err := q.V2CreateGame(ctx, db.V2CreateGameParams{
 			ID: id, CreatedBy: owner, Name: g.name, Description: g.description, Genre: g.genre, Theme: sqlString(g.theme),
-			Public: g.public, Scenario: g.scenario, GameStart: g.gameStart, ImageStyle: g.imageStyle, Css: g.css, StatusFields: g.statusFields,
+			Public: g.public, Scenario: g.scenario, GameStart: g.gameStart, ImageStyle: g.imageStyle, VoiceStyle: g.voiceStyle, Css: g.css, StatusFields: g.statusFields,
 		}); err != nil {
 			return err
 		}

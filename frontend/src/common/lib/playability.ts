@@ -12,6 +12,7 @@ const PROBLEM_TEXT = {
   genre: "problems.genre",
   no_plays: "problems.noPlays",
   key_rejected: "problems.keyRejected",
+  no_credit: "problems.noCredit",
   unreachable: "problems.unreachable",
   stale: "problems.stale",
   unknown: "problems.unknown",

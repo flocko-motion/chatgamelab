@@ -54,22 +54,26 @@ func (b *Broadcast[T]) Close() {
 // field typed `chan string` next to one typed TextBroadcast reads as two
 // unrelated things.
 type (
-	AudioInput   = chan AudioChunk
-	TextInput    = chan string
-	ImageInput   = chan ImageData
-	PropsInput   = chan PropMap
-	StateInput   = chan State
-	StreamInput  = chan Piece
-	FailureInput = chan Failure
+	AudioInput     = chan AudioChunk
+	TextInput      = chan string
+	ImageInput     = chan ImageData
+	PropsInput     = chan PropMap
+	StateInput     = chan State
+	StreamInput    = chan Piece
+	FailureInput   = chan Failure
+	InjectionInput = chan Injection
+	FragmentInput  = chan Fragment
 )
 
 type (
-	AudioBroadcast   = Broadcast[AudioChunk]
-	TextBroadcast    = Broadcast[string]
-	ImageBroadcast   = Broadcast[ImageData]
-	PropsBroadcast   = Broadcast[PropMap]
-	StateBroadcast   = Broadcast[State]
-	UsageBroadcast   = Broadcast[Usage]
-	StreamBroadcast  = Broadcast[Piece]
-	FailureBroadcast = Broadcast[Failure]
+	AudioBroadcast     = Broadcast[AudioChunk]
+	TextBroadcast      = Broadcast[string]
+	ImageBroadcast     = Broadcast[ImageData]
+	PropsBroadcast     = Broadcast[PropMap]
+	StateBroadcast     = Broadcast[State]
+	UsageBroadcast     = Broadcast[Usage]
+	StreamBroadcast    = Broadcast[Piece]
+	FailureBroadcast   = Broadcast[Failure]
+	InjectionBroadcast = Broadcast[Injection]
+	FragmentBroadcast  = Broadcast[Fragment]
 )

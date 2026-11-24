@@ -323,3 +323,22 @@ func (s *GameCrudTestSuite) TestSearchByName() {
 	}
 	s.True(found, "game should be found by name search")
 }
+
+// A game's voice style is kept like its image style, and travels in the game
+// file, so a downloaded game sounds the same once uploaded again.
+func (s *GameCrudTestSuite) TestVoiceStyleIsKeptAndTravelsInTheFile() {
+	alice := s.CreateUser("crud-voice")
+	game := Must(alice.UploadGame("bridge-troll"))
+
+	game.VoiceStyle = "deep, slow and a little hoarse"
+	updated := Must(alice.UpdateGame(game.Id.String(), game))
+	s.Equal("deep, slow and a little hoarse", updated.VoiceStyle)
+
+	file := Must(alice.GetGameYAML(game.Id.String()))
+	s.Contains(file, "voice_style: deep, slow and a little hoarse")
+
+	copied := Must(alice.CreateGame("Voice copy " + game.Id.String()[:8]))
+	s.Require().NoError(alice.PutGameYAML(copied.Id.String(), strings.Replace(file, "name: "+game.Name, "name: Voice copy "+game.Id.String()[:8], 1)))
+	again := Must(alice.GetGameByID(copied.Id.String()))
+	s.Equal("deep, slow and a little hoarse", again.VoiceStyle)
+}

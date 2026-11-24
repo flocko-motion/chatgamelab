@@ -14,6 +14,8 @@ export interface UseListQueryOptions<F extends string, S extends string, O exten
   filters: readonly F[];
   /** The toggles the list knows, each off by default. */
   only?: readonly O[];
+  /** The multi-filter's options, none picked by default. */
+  picks?: readonly O[];
   /** The orders the list knows. */
   sorts: readonly S[];
   defaultSort: { by: S; dir: SortDir };
@@ -36,6 +38,10 @@ export interface ListQueryControls<
   setFilter: (filter: F) => void;
   /** Switches a toggle on or off. */
   toggleOnly(only: O): void;
+  /** Picks a multi-filter option, or unpicks it. */
+  togglePick(pick: O): void;
+  /** Unpicks every multi-filter option. */
+  clearPicks(): void;
   setSort: (by: S, dir: SortDir) => void;
   /** Sorts by a column, or flips the direction if it is sorted by it already. */
   toggleSort: (by: S) => void;
@@ -48,15 +54,23 @@ const SEARCH_DEBOUNCE_MS = 300;
 const NO_TOGGLES: readonly never[] = [];
 
 /**
- * Holds a server-side list's query: filter, toggles, search, order and page. Changing
- * the filter, a toggle, search, order or page size goes back to the first page. Values
+ * Holds a server-side list's query: filter, toggles, picks, search, order and page.
+ * Changing the filter, a toggle, a pick, search, order or page size goes back to
+ * the first page. Values
  * the list doesn't know (an old link, a hand-edited URL) fall back to the
  * defaults, so the server is never asked for them.
  */
 export function useListQuery<F extends string, S extends string, O extends string = never>(
   options: UseListQueryOptions<F, S, O>,
 ): ListQueryControls<F, S, O> {
-  const { filters, only: toggles = NO_TOGGLES, sorts, defaultSort, inUrl = true } = options;
+  const {
+    filters,
+    only: toggles = NO_TOGGLES,
+    picks = NO_TOGGLES,
+    sorts,
+    defaultSort,
+    inUrl = true,
+  } = options;
   const defaultPageSize = options.defaultPageSize ?? DEFAULT_PAGE_SIZE;
 
   const [local, setLocal] = useState<ListSearch>({});
@@ -84,6 +98,11 @@ export function useListQuery<F extends string, S extends string, O extends strin
   const only = useMemo(
     () => toggles.filter((o) => onlyKey.split(",").includes(o)),
     [toggles, onlyKey],
+  );
+  const pickKey = raw.pick ?? "";
+  const picked = useMemo(
+    () => picks.filter((p) => pickKey.split(",").includes(p)),
+    [picks, pickKey],
   );
   const sortBy = sorts.includes(raw.sort as S) ? (raw.sort as S) : defaultSort.by;
   const sortDir = raw.dir ?? (raw.sort ? "asc" : defaultSort.dir);
@@ -114,8 +133,8 @@ export function useListQuery<F extends string, S extends string, O extends strin
   );
 
   const query = useMemo(
-    () => ({ filter, only, search, sortBy, sortDir, page, pageSize }),
-    [filter, only, search, sortBy, sortDir, page, pageSize],
+    () => ({ filter, only, picked, search, sortBy, sortDir, page, pageSize }),
+    [filter, only, picked, search, sortBy, sortDir, page, pageSize],
   );
 
   // Defaults stay out of the URL, so a plain URL is the default list.
@@ -129,6 +148,17 @@ export function useListQuery<F extends string, S extends string, O extends strin
       update({ only: next.length > 0 ? next.join(",") : undefined, page: undefined });
     },
     [only, update],
+  );
+  const togglePick = useCallback(
+    (p: O) => {
+      const next = picked.includes(p) ? picked.filter((x) => x !== p) : [...picked, p];
+      update({ pick: next.length > 0 ? next.join(",") : undefined, page: undefined });
+    },
+    [picked, update],
+  );
+  const clearPicks = useCallback(
+    () => update({ pick: undefined, page: undefined }),
+    [update],
   );
   const setSort = useCallback(
     (by: S, dir: SortDir) => {
@@ -164,6 +194,8 @@ export function useListQuery<F extends string, S extends string, O extends strin
     setSearch,
     setFilter,
     toggleOnly,
+    togglePick,
+    clearPicks,
     setSort,
     toggleSort,
     setPage,

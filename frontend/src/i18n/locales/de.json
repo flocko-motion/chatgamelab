@@ -401,7 +401,8 @@
         "favorites": "Favoriten",
         "own": "Meine Spiele",
         "public": "Öffentlich",
-        "sponsored": "Gesponsert"
+        "sponsored": "Gesponsert",
+        "genre": "Genre"
       },
       "play": "Spielen",
       "reportGame": "Spiel melden",
@@ -410,7 +411,13 @@
       "onlyFavorites": "Nur Favoriten anzeigen",
       "workshop": "Workshop / Org",
       "continue": "Spielen",
-      "restart": "Neu starten"
+      "restart": "Neu starten",
+      "resumeChoice": {
+        "title": "Weiterspielen oder neu starten?",
+        "message": "Du hast „{{game}}“ schon angefangen. Machst du dort weiter, wo du aufgehört hast, oder startest du neu? Ein Neustart ersetzt deine bisherige Sitzung.",
+        "continue": "Weiterspielen",
+        "startNew": "Neu starten"
+      }
     },
     "apiKeys": {
       "aboutSection": {
@@ -478,8 +485,15 @@
       },
       "status": {
         "failed": "Schlüssel funktioniert nicht",
-        "unknown": "Schlüssel noch nicht verwendet",
-        "working": "Schlüssel funktioniert"
+        "unknown": "Noch nicht geprüft",
+        "working": "Schlüssel funktioniert",
+        "checking": "Wird geprüft…",
+        "reasons": {
+          "key_rejected": "Der Anbieter lehnt diesen Schlüssel ab. Prüfe, ob er vollständig kopiert wurde und noch gültig ist.",
+          "no_credit": "Auf dem Konto zu diesem Schlüssel ist kein Guthaben mehr. Lade es beim Anbieter auf.",
+          "unreachable": "Der Anbieter hat nicht geantwortet. Prüfe gleich noch einmal.",
+          "no_key": "Der Schlüssel konnte nicht gelesen werden."
+        }
       },
       "subtitle": "Verwalte deine API-Schlüssel für KI-Plattformen.",
       "title": "API-Schlüssel verwalten",
@@ -498,7 +512,9 @@
       "unsupportedPlatform": {
         "badge": "noch nicht unterstützt",
         "hint": "Diese Plattform wird noch nicht unterstützt. Ihre Schlüssel bleiben gespeichert, werden aber nicht verwendet. Du kannst sie entfernen."
-      }
+      },
+      "check": "Schlüssel prüfen",
+      "keyEndsWith": "Der Schlüssel endet mit diesen Zeichen"
     },
     "back": "Zurück",
     "cancel": "Abbrechen",
@@ -571,12 +587,18 @@
         "genreNeeds": "Braucht einen KI-Schlüssel mit {{features}}.",
         "theme": "Design",
         "themeHint": "Das Aussehen, in dem das Spiel gespielt wird.",
-        "themeDefault": "Standard-Aussehen"
+        "themeDefault": "Standard-Aussehen",
+        "voiceStyle": "Stimme",
+        "voiceStyleHint": "Wie die Stimme klingt: die der Figur oder die der Erzählstimme, wenn die Geschichte vorgelesen wird.",
+        "voiceStylePlaceholder": "z. B. tief, langsam und etwas heiser, ein alter Mann"
       },
       "editModal": {
         "adminActionTitle": "Admin-Aktion",
         "adminActionWarning": "Du bearbeitest ein Spiel, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
         "gameDesignSection": "Spieldesign",
+        "othersGameNotice": "Dieses Spiel ist von jemand anderem. Du kannst alles ändern: Beim Speichern wird daraus dein eigenes Spiel, das Original bleibt, wie es ist.",
+        "saveAsOwn": "Als mein Spiel speichern",
+        "savedAsOwn": "Als dein Spiel gespeichert",
         "title": "Spiel bearbeiten",
         "unsavedChanges": {
           "discard": "Änderungen verwerfen",
@@ -599,6 +621,15 @@
         "visibility": "Sichtbarkeit"
       },
       "importExport": {
+        "coverFailed": "Das Spiel wurde importiert, aber sein Titelbild konnte nicht geprüft werden. Im Editor kannst du ein neues zeichnen lassen.",
+        "coverNoKey": "Das Spiel wurde ohne Titelbild importiert: Zum Prüfen eines Titelbilds braucht es einen API-Schlüssel.",
+        "coverRefused": "Das Spiel wurde ohne Titelbild importiert: Das Bild hält die Jugendschutzregel nicht ein.",
+        "coverUnsigned": "Das Spiel wurde ohne Titelbild importiert: Das Bild wurde nicht von ChatGameLab exportiert oder seitdem verändert.",
+        "errors": {
+          "noGame": "Diese .cgl-Datei enthält kein Spiel.",
+          "tooLarge": "Diese Datei ist größer als 1 MB, zu groß für eine Spieldatei.",
+          "unreadable": "Diese Datei konnte nicht als Spiel gelesen werden."
+        },
         "exportButton": "Spiel exportieren",
         "importButton": "Spiel importieren"
       },
@@ -897,7 +928,8 @@
         "next": "Nächste Seite",
         "first": "Erste Seite",
         "last": "Letzte Seite"
-      }
+      },
+      "clearPicks": "Alle zeigen"
     },
     "loading": "Laden...",
     "logout": "Abmelden",
@@ -1211,6 +1243,7 @@
         "genre": "Der KI-Schlüssel kann diese Art Spiel nicht spielen",
         "no_plays": "Keine Spiele mehr übrig",
         "key_rejected": "Der KI-Schlüssel wurde abgelehnt",
+        "no_credit": "Kein KI-Guthaben mehr",
         "unreachable": "Der KI-Anbieter antwortet nicht",
         "stale": "Kann nicht mehr gespielt werden",
         "unknown": "Nicht verfügbar",
@@ -1549,6 +1582,7 @@
       "genre": "Der verfügbare API-Schlüssel kann diese Art von Spiel nicht ausführen.",
       "noPlays": "Für dieses geteilte Spiel sind keine Spielrunden mehr übrig.",
       "keyRejected": "Der KI-Anbieter hat den Schlüssel dieses Spiels abgelehnt, deshalb geht es nicht weiter. Wer das Spiel eingerichtet hat, muss den Schlüssel prüfen.",
+      "noCredit": "Leider ist das KI-Guthaben aufgebraucht, deshalb geht das Spiel gerade nicht weiter.",
       "unreachable": "Der KI-Anbieter antwortet gerade nicht, deshalb geht es nicht weiter. Versuch es in ein paar Minuten noch einmal.",
       "stale": "Dieses Spiel kann nicht mehr fortgesetzt werden.",
       "unknown": "Diese Spielsitzung gibt es nicht.",
@@ -1592,15 +1626,85 @@
       "copyFailed": "Keine Zwischenablage: Layout in der Konsole ausgegeben",
       "compact": "Thread verdichten",
       "compacting": "Wird verdichtet…",
-      "compactFailed": "Verdichten fehlgeschlagen"
+      "compactFailed": "Verdichten fehlgeschlagen",
+      "injection": "Die Figur soll …",
+      "injectDirection": "tun",
+      "injectDirectionHint": "Was die Figur tun soll, z. B. „Sei mürrisch, du traust der Spieler*in nicht.“",
+      "injectBackground": "wissen",
+      "injectBackgroundHint": "Was die Figur still für sich denkt, in ihren eigenen Worten, ohne es gleich zu sagen, z. B. „Ich bin ein Werwolf und will, dass sie es langsam herausfindet.“",
+      "injectSpeech": "sagen",
+      "injectSpeechHint": "Was die Figur sagen soll, in eigenen Worten, z. B. „Halt! Wer da?“",
+      "injectionSend": "Senden",
+      "injectionSending": "Wird gesendet…",
+      "injectionSent": "An das Gespräch gesendet",
+      "injectionFailed": "Konnte nicht gesendet werden"
     },
     "insights": {
       "label": "Einblicke",
       "show": "Einblicke zeigen",
       "hide": "Einblicke ausblenden",
-      "feed": "Was passiert ist",
+      "feed": "Verlauf",
       "empty": "Bisher ist noch nichts gelaufen.",
-      "close": "Schließen"
+      "close": "Schließen",
+      "collapse": "Einklappen",
+      "expand": "Ausklappen",
+      "tabSelected": "Ausgewählt",
+      "tabUsage": "Verbrauch",
+      "tabProblems": "Probleme",
+      "pickBlock": "Klick im Ablauf auf einen Baustein oder eine Verbindung, um zu sehen, was dort passiert ist.",
+      "noProblems": "Bisher keine Probleme.",
+      "settingEmpty": "Das Spiel lässt das leer."
+    },
+    "director": {
+      "now": "Regie jetzt",
+      "counted": "Gezählt",
+      "log": "Regie-Protokoll",
+      "doing": "tut gerade",
+      "listening": "hört zu",
+      "thinking": "denkt nach · {{s}}",
+      "characterSpoke": "Figur sprach",
+      "playerSpoke": "Spieler:in sprach",
+      "ago": "vor {{s}}",
+      "notYet": "noch nicht",
+      "quietFor": "still seit",
+      "pool": "im Pool",
+      "poolValue": "{{n}} Fragmente · Takt {{ms}} ms",
+      "waiting": "wartet auf die Regie",
+      "lines": "{{n}} Zeilen",
+      "inARow": "Anweisungen in Folge",
+      "ofLimit": "{{n}} von {{limit}}",
+      "fragments": "Fragmente",
+      "beats": "Takte mit Zeilen",
+      "beatsValue": "{{n}} · {{lines}} Zeilen",
+      "late": "verspätete Fragmente",
+      "lateValue": "{{n}} · bis {{ms}} ms",
+      "notices": "Stille-Hinweise",
+      "calls": "Modellaufrufe",
+      "callsValue": "{{n}} · zuletzt {{s}}",
+      "failed": "{{n}} fehlgeschlagen",
+      "sent": "gesendet",
+      "sentValue": "{{d}} Anweisungen · {{b}} Hintergrund",
+      "dropped": "verworfen",
+      "droppedValue": "{{n}} (zu viele in Folge)",
+      "injected": "von Hand eingegeben",
+      "empty": "noch nichts",
+      "setBeat": "Takt setzen (ms)",
+      "beatSet": "gesetzt",
+      "beatRefused": "abgelehnt",
+      "character": "Figur",
+      "player": "Spieler:in",
+      "lateMark": "verspätet",
+      "entryLine": "gesagt",
+      "entrySilence": "Stille",
+      "entryInjection": "eingegeben",
+      "entryThought": "denkt",
+      "entryDirection": "Anweisung gesendet",
+      "entryBackground": "Hintergrund gesendet",
+      "entryDropped": "verworfen",
+      "entryError": "Fehler",
+      "entryConversation": "Gespräch",
+      "quietReplies": "nichts zu tun",
+      "gap": "Aufrufe höchstens alle"
     },
     "relay": {
       "connecting": "Relay: läuft nicht",
@@ -1620,10 +1724,22 @@
       "image-prompt": "Bild beschreiben",
       "image": "Bild malen",
       "props-store": "Spielstand",
-      "portrait-prompt": "Porträt beschreiben",
-      "portrait": "Porträt malen",
+      "gallery-image": "Galeriebild",
+      "opening-brief": "Spielbeginn",
+      "greeting": "Text generieren",
       "live-session": "Figur",
-      "observer": "Beobachter"
+      "observer": "Regie",
+      "voice": "Stimme generieren",
+      "voice-brief": "Stimme beschreiben"
+    },
+    "settings": {
+      "scenario": "Szenario",
+      "gameStart": "Spielbeginn",
+      "voiceStyle": "Stimmbeschreibung",
+      "imageStyle": "Bildstil",
+      "statusFields": "Statusfelder",
+      "description": "Beschreibung",
+      "cover": "Galeriebild"
     },
     "wires": {
       "adapted-style\u003eimage-style": "Anfrage",
@@ -1644,12 +1760,19 @@
       "outline\u003eprops-store": "Änderungen",
       "props-store\u003eoutline": "Stand",
       "image-prompt\u003eimage": "Prompt",
-      "portrait-prompt\u003eportrait": "Prompt",
-      "portrait\u003estart-game": "fertig",
+      "gallery-image\u003estart-game": "fertig",
+      "opening-brief\u003egreeting": "Vorgabe",
+      "greeting\u003estart-game": "fertig",
+      "greeting\u003elive-session": "erste Worte",
       "start-game\u003elive-session": "Einstieg",
       "player-input-audio\u003elive-session": "Sprache",
       "live-session\u003eobserver": "Mitschrift",
-      "observer\u003elive-session": "Hinweis"
+      "observer\u003elive-session": "Einspeisung",
+      "voice\u003estart-game": "fertig",
+      "voice\u003elive-session:voice": "Stimme",
+      "voice\u003elive-session:secondary": "Stimmbeschreibung",
+      "voice-brief\u003evoice:description": "Beschreibung",
+      "voice-brief\u003evoice:voice": "Ersatzstimme"
     }
   },
   "mail": {

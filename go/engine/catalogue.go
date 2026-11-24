@@ -87,9 +87,33 @@ func Genres() []Genre { return []Genre{GenreAdventure, GenreNPCLive} }
 func (g Genre) Needs() []Toggle {
 	switch g {
 	case GenreNPCLive:
-		return []Toggle{ToggleAudioLive, ToggleImages}
+		return []Toggle{ToggleAudioLive}
 	}
 	return nil
+}
+
+// GameField is a field of a game that a genre reads, by the name a client
+// edits it under.
+type GameField string
+
+const (
+	FieldScenario     GameField = "scenario"
+	FieldGameStart    GameField = "gameStart"
+	FieldImageStyle   GameField = "imageStyle"
+	FieldVoiceStyle   GameField = "voiceStyle"
+	FieldStatusFields GameField = "statusFields"
+)
+
+// Fields is the game's fields the genre reads, so an editor offers those
+// and no others: an Adventure tells a world in pictures and status, and may
+// be narrated; NPC-Live is one character's voice. Every genre has the image
+// style, as every game's cover is drawn in it.
+func (g Genre) Fields() []GameField {
+	switch g {
+	case GenreNPCLive:
+		return []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldVoiceStyle}
+	}
+	return []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldStatusFields, FieldVoiceStyle}
 }
 
 // PlayableGenres is every genre whose needs the toggles meet.

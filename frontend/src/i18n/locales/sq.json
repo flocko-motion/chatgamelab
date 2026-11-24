@@ -469,6 +469,7 @@
       "filters": {
         "all": "Të gjitha lojërat",
         "favorites": "Të preferuarat",
+        "genre": "Zhanri",
         "own": "Lojërat e mia",
         "public": "Publike",
         "sponsored": "Të sponsorizuara"
@@ -477,6 +478,12 @@
       "play": "Luaj",
       "reportGame": "Raporto lojën",
       "restart": "Rinis",
+      "resumeChoice": {
+        "continue": "Vazhdo",
+        "message": "E ke filluar tashmë \"{{game}}\". Do të vazhdosh aty ku e le, apo do të nisësh nga e para? Nisja nga e para zëvendëson sesionin e mëparshëm.",
+        "startNew": "Nis nga e para",
+        "title": "Të vazhdosh apo të nisësh nga e para?"
+      },
       "title": "Lojërat",
       "unfavorite": "Hiq nga të preferuarat",
       "workshop": "Punëtori / Org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Zgjidhni nivelin e cilësisë së AI për lojërat tuaja kur përdorni çelësin tuaj API. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë. Lëreni bosh për të përdorur parazgjedhjen e serverit."
       },
+      "check": "Kontrollo çelësin",
       "createModal": {
         "keyDescription": "Çelësi juaj do të enkriptohet dhe do të ruhet në mënyrë të sigurt.",
         "keyLabel": "Çelësi API",
@@ -521,6 +529,7 @@
         "platformRequired": "Platforma është e detyrueshme"
       },
       "key": "çelës",
+      "keyEndsWith": "Çelësi përfundon me këto karaktere",
       "keys": "çelësa",
       "noResults": "Asnjë çelës nuk përputhet me kërkimin ose filtrin tuaj.",
       "platform": "Platforma",
@@ -558,8 +567,15 @@
         "status-asc": "Çelësat funksionalë në fillim"
       },
       "status": {
+        "checking": "Po kontrollohet…",
         "failed": "Çelësi nuk funksionon",
-        "unknown": "Çelësi nuk është përdorur ende",
+        "reasons": {
+          "key_rejected": "Ofruesi e refuzon këtë çelës. Kontrollo nëse është kopjuar i plotë dhe nëse është ende aktiv.",
+          "no_credit": "Llogaria pas këtij çelësi nuk ka më kredi. Rimbushja bëhet te ofruesi.",
+          "no_key": "Çelësi nuk mund të lexohej.",
+          "unreachable": "Ofruesi nuk u përgjigj. Provo përsëri pas pak."
+        },
+        "unknown": "Ende i pakontrolluar",
         "working": "Çelësi funksionon"
       },
       "statusColumn": "Statusi",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Çfarë duhet të mbajë shënim loja? Për shembull shëndeti, pikët ose municioni. Loja i mban mend këto vlera dhe i përditëson gjatë lojës.",
         "theme": "Tema",
         "themeDefault": "Pamja e parazgjedhur",
-        "themeHint": "Pamja me të cilën luhet loja."
+        "themeHint": "Pamja me të cilën luhet loja.",
+        "voiceStyle": "Stili i zërit",
+        "voiceStyleHint": "Si tingëllon zëri: zëri i personazhit ose i rrëfimtarit kur historia lexohet me zë.",
+        "voiceStylePlaceholder": "p.sh. i thellë, i ngadaltë dhe pak i ngjirur, një burrë i moshuar"
       },
       "editModal": {
         "adminActionTitle": "Veprim administrativ",
         "adminActionWarning": "Po modifikoni një lojë që nuk ju përket. Ky është një veprim administrativ dhe duhet përdorur vetëm për qëllime moderimi.",
         "gameDesignSection": "Dizajni i lojës",
+        "othersGameNotice": "Kjo lojë është krijuar nga dikush tjetër. Mund të ndryshosh gjithçka: ruajtja e bën lojën tënden, ndërsa origjinali mbetet i pandryshuar.",
+        "saveAsOwn": "Ruaje si lojën time",
+        "savedAsOwn": "U ruajt si loja jote",
         "title": "Përpuno lojën",
         "unsavedChanges": {
           "discard": "Hidh poshtë ndryshimet",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-Live"
       },
       "importExport": {
+        "coverFailed": "Loja u importua, por kopertina e saj nuk mund të kontrollohej. Mund të vizatosh një të re në redaktues.",
+        "coverNoKey": "Loja u importua pa kopertinë: kontrollimi i kopertinës kërkon një çelës API.",
+        "coverRefused": "Loja u importua pa kopertinë: imazhi nuk respekton rregullin e mbrojtjes së të miturve.",
+        "coverUnsigned": "Loja u importua pa kopertinë: imazhi nuk ishte eksportuar nga ChatGameLab ose është ndryshuar që atëherë.",
+        "errors": {
+          "noGame": "Kjo skedë .cgl nuk përmban asnjë lojë.",
+          "tooLarge": "Kjo skedë është më e madhe se 1 MB, pra shumë e madhe për një skedë loje.",
+          "unreadable": "Kjo skedë nuk mund të lexohej si lojë."
+        },
         "exportButton": "Eksporto lojën",
         "importButton": "Importo lojën"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Lër organizatën",
     "leaveWarning": "Do të humbni aksesin në të gjitha burimet dhe anëtarët e organizatës.",
     "list": {
+      "clearPicks": "Shfaq të gjitha",
       "clearSearch": "Pastro kërkimin",
       "filter": "Filtro",
       "hideDetails": "Fshih hollësitë",
@@ -1354,6 +1386,7 @@
         "failed": "Nuk mund të luhet për momentin",
         "genre": "Çelësi i IA-së nuk mund të ekzekutojë këtë lloj loje",
         "key_rejected": "Çelësi i IA-së u refuzua",
+        "no_credit": "Nuk ka më kredi për IA",
         "no_key": "Nuk ka çelës IA-je të disponueshëm",
         "no_plays": "Nuk ka më lojëra të disponueshme",
         "paused": "Punishtja është në pauzë",
@@ -1711,18 +1744,74 @@
       "condense-scenario": "Shkurto skenarin",
       "condensed-scenario": "Skenari",
       "expand": "Trego",
+      "gallery-image": "Imazhi i galerisë",
+      "greeting": "Gjenero tekst",
       "image": "Vizato figurë",
       "image-prompt": "Përshkruaj figurën",
       "image-style": "Përshtat stilin",
       "live-session": "Personazhi",
-      "observer": "Vëzhguesi",
+      "observer": "Regjisori",
+      "opening-brief": "Si fillon",
       "outline": "Planifiko skenën",
       "portrait": "Vizato portret",
       "portrait-prompt": "Përshkruaj portretin",
       "props-store": "Gjendja e lojës",
       "rephrase": "Riformulo veprimin",
       "rephrase-audio": "Kupto të folurën",
-      "start-game": "Fillo"
+      "start-game": "Fillo",
+      "voice": "Gjenero zë",
+      "voice-brief": "Përshkruaj zërin"
+    },
+    "director": {
+      "ago": "para {{s}}",
+      "beatRefused": "u refuzua",
+      "beatSet": "u caktua",
+      "beats": "ritme me rreshta",
+      "beatsValue": "{{n}} · {{lines}} rreshta",
+      "calls": "thirrje të modelit",
+      "callsValue": "{{n}} · e fundit {{s}}",
+      "character": "personazh",
+      "characterSpoke": "personazhi foli",
+      "counted": "u numërua",
+      "doing": "po bën",
+      "dropped": "u hoq",
+      "droppedValue": "{{n}} (shumë njëra pas tjetrës)",
+      "empty": "ende asgjë",
+      "entryBackground": "sfondi u dërgua",
+      "entryConversation": "bisedë",
+      "entryDirection": "udhëzimi u dërgua",
+      "entryDropped": "u hoq",
+      "entryError": "gabim",
+      "entryInjection": "u fut",
+      "entryLine": "tha",
+      "entrySilence": "heshtje",
+      "entryThought": "mendon",
+      "failed": "{{n}} dështuan",
+      "fragments": "fragmente",
+      "gap": "thirrje më së shumti çdo",
+      "inARow": "udhëzime njëra pas tjetrës",
+      "injected": "u fut me dorë",
+      "late": "fragmente të vonuara",
+      "lateMark": "vonë",
+      "lateValue": "{{n}} · deri në {{ms}} ms",
+      "lines": "{{n}} rreshta",
+      "listening": "po dëgjon",
+      "log": "regjistri i regjisorit",
+      "notYet": "ende jo",
+      "notices": "njoftime heshtjeje",
+      "now": "regjisori tani",
+      "ofLimit": "{{n}} nga {{limit}}",
+      "player": "lojtari",
+      "playerSpoke": "lojtari foli",
+      "pool": "në grumbull",
+      "poolValue": "{{n}} fragmente · ritmi {{ms}} ms",
+      "quietFor": "i heshtur prej",
+      "quietReplies": "asgjë për të bërë",
+      "sent": "u dërgua",
+      "sentValue": "{{d}} udhëzime · {{b}} sfond",
+      "setBeat": "cakto ritmin (ms)",
+      "thinking": "po mendon · {{s}}",
+      "waiting": "po pret për të"
     },
     "errors": {
       "connectionLost": "Lidhja me lojën u ndërpre. Ringarko faqen për të provuar sërish.",
@@ -1739,11 +1828,19 @@
     },
     "insights": {
       "close": "Mbyll",
+      "collapse": "Palos",
       "empty": "Ende nuk është ekzekutuar asgjë.",
-      "feed": "Çfarë ndodhi",
+      "expand": "Zgjero",
+      "feed": "Historiku",
       "hide": "Fshih informacionet",
       "label": "Informacione",
-      "show": "Shfaq informacionet"
+      "noProblems": "Nuk ka probleme deri tani.",
+      "pickBlock": "Kliko një bllok ose një lidhje në rrjedhën e procesit për të parë se çfarë bëri.",
+      "settingEmpty": "Loja e lë bosh këtë fushë.",
+      "show": "Shfaq informacionet",
+      "tabProblems": "Probleme",
+      "tabSelected": "Të zgjedhura",
+      "tabUsage": "Përdorimi"
     },
     "launch": {
       "noGame": "Kjo faqe ka nevojë për një lojë për t'u luajtur: hape nga faqja e një loje.",
@@ -1755,13 +1852,25 @@
       "compacting": "Po ngjeshet…",
       "copied": "Paraqitja u kopjua",
       "copyFailed": "Pa kujtesë të fragmenteve: paraqitja u regjistrua në konsolë",
-      "copyLayout": "Kopjo paraqitjen"
+      "copyLayout": "Kopjo paraqitjen",
+      "injectBackground": "Dije",
+      "injectBackgroundHint": "Çfarë mendon personazhi me vete, me fjalët e veta, pa e thënë tani, p.sh. \"Jam një ujk, dhe dua që ajo ta zbulojë ngadalë.\"",
+      "injectDirection": "Bëj",
+      "injectDirectionHint": "Çfarë duhet të bëjë personazhi, p.sh. \"Ji i sertë, nuk i beson lojtarit.\"",
+      "injectSpeech": "Thuaj",
+      "injectSpeechHint": "Çfarë duhet të thotë personazhi, me fjalët e veta, p.sh. \"Ndal! Kush është atje?\"",
+      "injection": "Thuaji personazhit të …",
+      "injectionFailed": "Nuk mund të dërgohej",
+      "injectionSend": "Dërgo",
+      "injectionSending": "Po dërgohet…",
+      "injectionSent": "U dërgua në bisedë"
     },
     "problems": {
       "denied": "Nuk ke leje ta luash këtë lojë.",
       "failed": "Diçka shkoi keq dhe loja nuk mund të vazhdojë.",
       "genre": "Çelësi i disponueshëm i IA-së nuk mund të ekzekutojë këtë lloj loje.",
       "keyRejected": "Ofruesi i IA-së refuzoi çelësin e kësaj loje, ndaj loja nuk mund të vazhdojë. Personi që e konfiguroi lojën duhet të kontrollojë çelësin.",
+      "noCredit": "Na vjen keq, kredia e IA-së ka mbaruar, ndaj loja nuk mund të vazhdojë tani për tani.",
       "noKey": "Nuk ka asnjë çelës të IA-së të disponueshëm për të luajtur këtë lojë.",
       "noPlays": "Kjo lojë e ndarë nuk ka më raunde për të luajtur.",
       "paused": "Workshopi është vendosur në pauzë. Loja vazhdon kur të rifillojë.",
@@ -1773,6 +1882,15 @@
       "busy": "Relay: në përdorim nga një skedë tjetër",
       "connected": "Relay: i lidhur",
       "connecting": "Relay: nuk po ekzekutohet"
+    },
+    "settings": {
+      "cover": "Imazhi i galerisë",
+      "description": "Përshkrimi",
+      "gameStart": "Fillimi i lojës",
+      "imageStyle": "Stili i imazhit",
+      "scenario": "Skenari",
+      "statusFields": "Fushat e statusit",
+      "voiceStyle": "Stili i zërit"
     },
     "status": {
       "choose": "Zgjidh mënyrën si dëshiron të luash për të filluar.",
@@ -1795,10 +1913,14 @@
       "condensed-scenario\u0003econdense-scenario": "kërkesë",
       "condensed-scenario\u0003eimage-prompt": "skenar",
       "condensed-scenario\u0003estart-game": "gati",
+      "gallery-image\u0003estart-game": "gati",
+      "greeting\u0003elive-session": "fjalët e para",
+      "greeting\u0003estart-game": "gati",
       "image-prompt\u0003eimage": "udhëzim",
       "image-style\u0003eadapted-style": "përgjigje",
       "live-session\u0003eobserver": "transkript",
-      "observer\u0003elive-session": "ndihmë",
+      "observer\u0003elive-session": "futje",
+      "opening-brief\u0003egreeting": "udhëzim",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "skenë",
       "outline\u0003eprops-store": "ndryshime",
@@ -1811,7 +1933,12 @@
       "rephrase\u0003eoutline": "veprim",
       "rephrase-audio\u0003eoutline": "veprim",
       "start-game\u0003elive-session": "hyrje",
-      "start-game\u0003eoutline": "udhëzim"
+      "start-game\u0003eoutline": "udhëzim",
+      "voice\u0003elive-session:secondary": "stili i zërit",
+      "voice\u0003elive-session:voice": "zëri",
+      "voice\u0003estart-game": "gati",
+      "voice-brief\u0003evoice:description": "përshkrim",
+      "voice-brief\u0003evoice:voice": "zë rezervë"
     }
   }
 }

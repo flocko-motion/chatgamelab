@@ -31,6 +31,7 @@ import (
 
 	"engine"
 	"engine/api"
+	"engine/internal/adapters/mock"
 	"engine/internal/devconfig"
 )
 
@@ -58,6 +59,11 @@ func main() {
 	// A dev launcher, so a game that makes no offer runs on the mock.
 	if len(offers) == 0 {
 		offers = []engine.Offer{engine.MockOffer()}
+	}
+	// The dev server keeps made voices while it runs: one store per offer, as
+	// a platform keeps one per key.
+	for i := range offers {
+		offers[i].Voices = &engine.MemoryVoices{}
 	}
 	for i, offer := range offers {
 		if offer.Platform == engine.PlatformMock {
@@ -96,6 +102,8 @@ func main() {
 			spec.ID = newID()
 			spec.Language = req.Language
 			spec.Persist = store
+			// No gallery here: a drawn stand-in, the same for the same game.
+			spec.GalleryImage = mock.GalleryImage(spec.Scenario)
 			s, err := engine.Launch(context.WithoutCancel(ctx), spec, usable)
 			if err == nil {
 				log.Printf("session %s created", spec.ID)
@@ -103,7 +111,11 @@ func main() {
 			return s, err
 		},
 		Resume: func(ctx context.Context, id string) (*engine.Session, error) {
-			return engine.Resume(context.WithoutCancel(ctx), id, store, offers)
+			stored, err := store.LoadState(ctx, id)
+			if err != nil {
+				return nil, err
+			}
+			return engine.Resume(context.WithoutCancel(ctx), id, store, offers, mock.GalleryImage(stored.Spec.Scenario))
 		},
 	})
 

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"engine/internal/adapters"
+	"engine/internal/adapters/mock"
 	"engine/internal/blocks"
 	"engine/internal/ports"
 )
@@ -179,4 +180,132 @@ func (s *scriptedTool) seen() [][2]string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return append([][2]string(nil), s.calls...)
+}
+
+// A kept call answers once and remembers: restored, it gives its reply again
+// without asking the tool, and asked anew it answers the same.
+func TestKeptToolCallAnswersFromMemoryAfterARestart(t *testing.T) {
+	tool := &countingTool{}
+	first := blocks.NewToolCall("greeting", tool, "write")
+	first.Keep = true
+	ctx, cancel := context.WithCancel(context.Background())
+	out := first.TextOutPort()
+	first.Start(ctx)
+	first.TextInPort() <- "brief"
+	reply := <-out
+	cancel()
+	saved := first.ExportState()
+	if saved != reply || tool.calls != 1 {
+		t.Fatalf("kept %q after %d calls, want the reply %q after 1", saved, tool.calls, reply)
+	}
+
+	again := blocks.NewToolCall("greeting", tool, "write")
+	again.Keep = true
+	again.RestoreState(saved)
+	ctx2, cancel2 := context.WithCancel(context.Background())
+	defer cancel2()
+	out2 := again.TextOutPort()
+	again.Start(ctx2)
+	if got := <-out2; got != reply {
+		t.Errorf("restored, it gave %q, want %q", got, reply)
+	}
+	again.TextInPort() <- "brief"
+	if got := <-out2; got != reply {
+		t.Errorf("asked anew, it gave %q, want %q", got, reply)
+	}
+	if tool.calls != 1 {
+		t.Errorf("the tool was asked %d times, want once", tool.calls)
+	}
+}
+
+// Without Keep a call keeps nothing, so a resumed session answers only what
+// it is sent anew.
+func TestToolCallKeepsNothingUnlessAsked(t *testing.T) {
+	b := blocks.NewToolCall("rephrase", &countingTool{}, "write")
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	out := b.TextOutPort()
+	b.Start(ctx)
+	b.TextInPort() <- "an action"
+	<-out
+	if s := b.ExportState(); s != "" {
+		t.Errorf("an unkept call exported %q", s)
+	}
+}
+
+type countingTool struct {
+	mu    sync.Mutex
+	calls int
+}
+
+func (c *countingTool) Query(_ context.Context, _, user string) (string, adapters.Usage, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.calls++
+	return "reply to " + user, adapters.Usage{}, nil
+}
+
+// textSink takes text, for a test to read what a wire brought.
+type textSink struct {
+	name string
+	in   chan string
+}
+
+func (s *textSink) NodeName() string          { return s.name }
+func (s *textSink) TextInPort() chan<- string { return s.in }
+
+// A call with a schema answers JSON, and each wire takes the field it names:
+// a text as it is, a tree as JSON.
+func TestStructuredToolCallFeedsEachWireItsField(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	call := blocks.NewToolCall("brief", mock.Tool{}, "describe")
+	call.Schema = &adapters.Schema{Name: "brief", Body: map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"description": map[string]any{"type": "string"},
+			"voice":       map[string]any{"type": "string", "enum": []any{"stone", "marin"}},
+		},
+		"required":             []any{"description", "voice"},
+		"additionalProperties": false,
+	}}
+	description := &textSink{name: "description", in: make(chan string, 1)}
+	voice := &textSink{name: "voice", in: make(chan string, 1)}
+
+	g := ports.NewGraph("test")
+	g.ConnectField(call, "description", description)
+	g.ConnectField(call, "voice", voice)
+	g.Start(ctx)
+	call.TextInPort() <- "a troll"
+
+	for _, tc := range []struct {
+		sink *textSink
+		want string
+	}{{description, "[mock-tool] a troll"}, {voice, "stone"}} {
+		select {
+		case got := <-tc.sink.in:
+			if got != tc.want {
+				t.Errorf("%s got %q, want %q", tc.sink.name, got, tc.want)
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatalf("%s got nothing", tc.sink.name)
+		}
+	}
+}
+
+// A wire naming a field the schema lacks is a wiring mistake, caught where
+// the graph is built.
+func TestAWireToAFieldTheSchemaLacksIsRefused(t *testing.T) {
+	call := blocks.NewToolCall("brief", mock.Tool{}, "describe")
+	call.Schema = &adapters.Schema{Name: "brief", Body: map[string]any{
+		"type": "object", "properties": map[string]any{"description": map[string]any{"type": "string"}},
+		"required": []any{"description"}, "additionalProperties": false,
+	}}
+	defer func() {
+		if recover() == nil {
+			t.Error("a wire to a missing field was taken")
+		}
+	}()
+	ports.NewGraph("test").ConnectField(call, "voices", &textSink{name: "x", in: make(chan string, 1)})
 }

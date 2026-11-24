@@ -58,6 +58,7 @@ type GameView struct {
 	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
 	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
 	ImageStyle             *string `json:"imageStyle,omitempty"`
+	VoiceStyle             *string `json:"voiceStyle,omitempty"`
 	CSS                    *string `json:"css,omitempty"`
 	StatusFields           *string `json:"statusFields,omitempty"`
 	FirstMessage           *string `json:"firstMessage,omitempty"`
@@ -135,6 +136,7 @@ func gameView(card *core.GameCard, refusal error) GameView {
 		v.SystemMessageScenario = ptr(c.Scenario())
 		v.SystemMessageGameStart = ptr(c.GameStart())
 		v.ImageStyle = ptr(c.ImageStyle())
+		v.VoiceStyle = ptr(c.VoiceStyle())
 		v.CSS = ptr(c.CSS())
 		v.StatusFields = ptr(c.StatusFields())
 		v.FirstMessage = c.FirstMessage()
@@ -188,6 +190,7 @@ type GameTemplate struct {
 	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
 	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
 	ImageStyle             *string `json:"imageStyle,omitempty"`
+	VoiceStyle             *string `json:"voiceStyle,omitempty"`
 	CSS                    *string `json:"css,omitempty"`
 	StatusFields           *string `json:"statusFields,omitempty"`
 	FirstMessage           *string `json:"firstMessage,omitempty"`
@@ -216,6 +219,7 @@ func GameTemplateOf(t *core.GameTemplate, err error) (GameTemplate, error) {
 		SystemMessageScenario:  ptr(t.Scenario()),
 		SystemMessageGameStart: ptr(t.GameStart()),
 		ImageStyle:             ptr(t.ImageStyle()),
+		VoiceStyle:             ptr(t.VoiceStyle()),
 		CSS:                    ptr(t.CSS()),
 		StatusFields:           ptr(t.StatusFields()),
 		FirstMessage:           t.FirstMessage(),
@@ -246,6 +250,7 @@ func GameFileOf(card *core.GameCard, err error) (obj.GameFile, error) {
 		SystemMessageScenario:  content.Scenario(),
 		SystemMessageGameStart: content.GameStart(),
 		ImageStyle:             content.ImageStyle(),
+		VoiceStyle:             content.VoiceStyle(),
 		CSS:                    content.CSS(),
 		StatusFields:           content.StatusFields(),
 	}, nil

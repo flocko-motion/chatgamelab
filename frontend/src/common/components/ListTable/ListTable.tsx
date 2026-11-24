@@ -29,6 +29,7 @@ import { DimmedLoader } from "@components/LoadingAnimation";
 import { HelperText } from "@components/typography";
 import { TextButton, ToggleIconButton } from "@components/buttons";
 import {
+  FilterMultiSelect,
   FilterSegmentedControl,
   FilterToggles,
   SearchInput,
@@ -127,6 +128,8 @@ export function ListTable<T, F extends string, S extends string>({
     option.text ?? (option.label ? t(option.label) : "");
   const filters = (preset.filters ?? []).map((f) => ({ value: f.value, label: label(f) }));
   const toggles = (preset.toggles ?? []).map((o) => ({ value: o.value, label: label(o) }));
+  const multi = preset.multiFilter;
+  const multiOptions = (multi?.options ?? []).map((o) => ({ value: o.value, label: label(o) }));
   const sorts = preset.sorts
     .filter((s) => s.label)
     .map((s) => ({ by: s.by, dir: s.dir, label: label(s) }));
@@ -210,6 +213,16 @@ export function ListTable<T, F extends string, S extends string>({
               onToggle={list.toggleOnly}
               options={toggles}
               menuLabel={t("list.filter")}
+            />
+          )}
+          {multi && multiOptions.length > 0 && (
+            <FilterMultiSelect
+              picked={query.picked}
+              onToggle={list.togglePick}
+              onClear={list.clearPicks}
+              options={multiOptions}
+              label={t(multi.label)}
+              clearLabel={t("list.clearPicks")}
             />
           )}
           {filters.length > 1 && (
@@ -534,6 +547,8 @@ function presetNamespaces(preset: List<unknown>["preset"]): string[] {
   const keys = [
     ...(preset.filters ?? []).map((f) => f.label),
     ...(preset.toggles ?? []).map((o) => o.label),
+    preset.multiFilter?.label,
+    ...(preset.multiFilter?.options ?? []).map((o) => o.label),
     ...preset.sorts.map((s) => s.label),
   ];
   const namespaces = keys.flatMap((k) => (k && k.includes(":") ? [k.split(":")[0]] : []));

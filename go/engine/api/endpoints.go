@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"time"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 
@@ -243,6 +244,26 @@ func (e HistoryEndpoint) Handle(ctx context.Context, req SessionRequest) (Histor
 	return s.History(), nil
 }
 
+// Journal is what happened in a session so far, oldest first.
+type Journal = []engine.JournalEntry
+
+// JournalEndpoint is the engine's record of what happened in a session: the
+// blocks' phases and problems, the live conversation's life, the clients
+// attaching and leaving. It is kept in memory, the latest entries only, and
+// each new entry also arrives as a "journal" event.
+type JournalEndpoint struct{ API *API }
+
+func (JournalEndpoint) Method() string             { return "GET" }
+func (JournalEndpoint) Path() string               { return "/api/engine/sessions/{id}/journal" }
+func (JournalEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e JournalEndpoint) Handle(ctx context.Context, req SessionRequest) (Journal, error) {
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+	return s.Journal(), nil
+}
+
 // TopologyEndpoint is the session's wiring as data, for a view that draws it.
 type TopologyEndpoint struct{ API *API }
 
@@ -314,6 +335,70 @@ func (e CompactEndpoint) Handle(ctx context.Context, req NodeRequest) (Accepted,
 		return Accepted{}, err
 	}
 	if err := s.Compact(req.Node); err != nil {
+		return Accepted{}, rejected(err)
+	}
+	return Accepted{}, nil
+}
+
+// InjectionRequest is an injection for a block that takes one.
+type InjectionRequest struct {
+	ID   string `path:"id"`
+	Node string `path:"node"`
+	// Kind is how the model takes it: "direction", an instruction it
+	// follows; "background", knowledge it may use without saying it now;
+	// "speech", a line it says in its own words.
+	Kind string `json:"kind"`
+	// Text is put in as it is written, up to 2,000 characters.
+	Text string `json:"text"`
+}
+
+// InjectEndpoint passes an injection to a block that takes one, such as an
+// observer, which puts it into the conversation it watches. A block that
+// takes none is refused, and so are an unknown kind and blank text.
+type InjectEndpoint struct{ API *API }
+
+func (InjectEndpoint) Method() string { return "POST" }
+func (InjectEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/inject"
+}
+func (InjectEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e InjectEndpoint) Handle(ctx context.Context, req InjectionRequest) (Accepted, error) {
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return Accepted{}, err
+	}
+	if err := s.Inject(req.Node, req.Kind, req.Text); err != nil {
+		return Accepted{}, rejected(err)
+	}
+	return Accepted{}, nil
+}
+
+// BeatRequest sets an observer's beat.
+type BeatRequest struct {
+	ID   string `path:"id"`
+	Node string `path:"node"`
+	// Ms is how long a fragment waits in the pool, 100 to 10,000.
+	Ms int `json:"ms"`
+}
+
+// BeatEndpoint sets how long an observer's transcript fragments wait before
+// they go to its model, during play: a tuning knob, on dev servers only.
+type BeatEndpoint struct{ API *API }
+
+func (BeatEndpoint) Method() string { return "POST" }
+func (BeatEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/beat"
+}
+func (BeatEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e BeatEndpoint) Handle(ctx context.Context, req BeatRequest) (Accepted, error) {
+	if e.API.opts.Dev == nil || !e.API.opts.Dev() {
+		return Accepted{}, badRequest("the beat is set on dev servers only")
+	}
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return Accepted{}, err
+	}
+	if err := s.SetBeat(req.Node, time.Duration(req.Ms)*time.Millisecond); err != nil {
 		return Accepted{}, rejected(err)
 	}
 	return Accepted{}, nil
@@ -413,14 +498,16 @@ func (e StreamEndpoint) Stream(ctx context.Context, req SessionRequest) (<-chan 
 	if err != nil {
 		return nil, err
 	}
+	events, unsubscribe := s.Subscribe()
 	out := make(chan engine.SessionEvent)
 	go func() {
 		defer close(out)
+		defer unsubscribe()
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case ev, open := <-s.Events():
+			case ev, open := <-events:
 				if !open {
 					return
 				}

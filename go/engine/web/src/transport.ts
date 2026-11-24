@@ -19,8 +19,20 @@ export interface Transport {
 }
 
 /**
+ * How long the page waits without hearing from the engine before it takes the
+ * socket for dead. The engine sends a heartbeat every 20 s, so this is two
+ * missed beats and a margin.
+ */
+export const SILENCE_LIMIT = 45_000;
+
+/** How long without a frame makes a page coming back check its socket at once. */
+const STALE_AFTER = 25_000;
+
+/**
  * A session outlives its socket, so a drop is retried with backoff; `onClose`
- * fires once, when retrying stops.
+ * fires once, when retrying stops. A socket the engine has gone quiet on, as
+ * after a laptop slept or a network changed, is closed and opened again, and
+ * whoever listens catches up through `onReopen`.
  */
 export class WebSocketTransport implements Transport {
   #socket: WebSocket | null = null;
@@ -29,6 +41,9 @@ export class WebSocketTransport implements Transport {
   #attempt = 0;
   /** Set by close(), so a deliberate hang-up is not treated as a fault. */
   #done = false;
+  /** When the engine was last heard from, on the socket now open. */
+  #heard = 0;
+  #watchdog: ReturnType<typeof setInterval> | null = null;
 
   /** @param onReopen called when a dropped connection returns, so a listener can catch up. */
   constructor(
@@ -40,6 +55,27 @@ export class WebSocketTransport implements Transport {
     this.#handlers = handlers;
     this.#done = false;
     this.#connect(false);
+    this.#watch();
+  }
+
+  /** Closes a socket gone silent, so it reopens; a page coming back checks at once. */
+  #watch(): void {
+    this.#watchdog = setInterval(() => this.#check(SILENCE_LIMIT), 5_000);
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", this.#onReturn);
+    }
+    if (typeof window !== "undefined") window.addEventListener("online", this.#onReturn);
+  }
+
+  #onReturn = (): void => {
+    if (typeof document === "undefined" || document.visibilityState === "visible") this.#check(STALE_AFTER);
+  };
+
+  #check(limit: number): void {
+    const socket = this.#socket;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    // Closing hands over to the retry, which reopens and catches up.
+    if (Date.now() - this.#heard > limit) socket.close();
   }
 
   #connect(reopening: boolean): void {
@@ -51,12 +87,15 @@ export class WebSocketTransport implements Transport {
 
     socket.onopen = () => {
       this.#attempt = 0;
+      this.#heard = Date.now();
       this.#handlers?.onOpen();
       // After the open, so catching up runs against a live connection.
       if (reopening) this.onReopen?.();
     };
-    socket.onmessage = (message: MessageEvent<TransportMessage>) =>
+    socket.onmessage = (message: MessageEvent<TransportMessage>) => {
+      this.#heard = Date.now();
       this.#handlers?.onMessage(message.data);
+    };
     // A failed socket also closes, so the retry is driven from one place.
     socket.onerror = () => {};
     socket.onclose = () => {
@@ -85,6 +124,12 @@ export class WebSocketTransport implements Transport {
 
   close(): void {
     this.#done = true;
+    if (this.#watchdog) {
+      clearInterval(this.#watchdog);
+      this.#watchdog = null;
+    }
+    if (typeof document !== "undefined") document.removeEventListener("visibilitychange", this.#onReturn);
+    if (typeof window !== "undefined") window.removeEventListener("online", this.#onReturn);
     if (this.#retry) {
       clearTimeout(this.#retry);
       this.#retry = null;

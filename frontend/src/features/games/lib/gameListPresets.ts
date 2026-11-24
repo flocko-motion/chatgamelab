@@ -1,4 +1,4 @@
-import type { GameListFilter, GameListSort } from "@/api/hooks";
+import { genreFilter, type GameListFilter, type GameListSort } from "@/api/hooks";
 import { bothWays } from "@/api/lists";
 import type { ListPreset } from "@/api/types";
 
@@ -32,6 +32,25 @@ export interface GameListPresetConfig {
   /** A created game (new, copied, imported) opens afterwards. */
   openCreatedGame: boolean;
   empty: { titleKey: string; descriptionKey: string; ns?: string };
+}
+
+/**
+ * A game list that can be narrowed to genres, picked together: one option per
+ * genre the engine plays. Built from the genres, so the caller keeps it
+ * stable (useMemo).
+ */
+export function withGenreFilter(
+  list: GameListPresetConfig["list"],
+  genres: readonly string[],
+): GameListPresetConfig["list"] {
+  if (genres.length < 2) return list;
+  return {
+    ...list,
+    multiFilter: {
+      label: "allGames.filters.genre",
+      options: genres.map((genre) => ({ value: genreFilter(genre), label: `games.genres.${genre}` })),
+    },
+  };
 }
 
 const both = (by: GameListSort) => bothWays(by, (dir) => `games.sort.${by}-${dir}`);

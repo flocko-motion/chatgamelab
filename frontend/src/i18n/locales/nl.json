@@ -469,6 +469,7 @@
       "filters": {
         "all": "Alle games",
         "favorites": "Favorieten",
+        "genre": "Genre",
         "own": "Mijn games",
         "public": "Openbaar",
         "sponsored": "Gesponsord"
@@ -477,6 +478,12 @@
       "play": "Spelen",
       "reportGame": "Game rapporteren",
       "restart": "Opnieuw starten",
+      "resumeChoice": {
+        "continue": "Doorgaan",
+        "message": "Je bent al begonnen met \"{{game}}\". Ga je verder waar je gebleven was, of begin je opnieuw? Opnieuw beginnen vervangt je eerdere sessie.",
+        "startNew": "Opnieuw beginnen",
+        "title": "Doorgaan of opnieuw beginnen?"
+      },
       "title": "Spellen",
       "unfavorite": "Verwijderen uit favorieten",
       "workshop": "Workshop / Organisatie"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Kies het AI-kwaliteitsniveau voor je games bij gebruik van je eigen API-sleutel. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Laat leeg om de serverstandaard te gebruiken."
       },
+      "check": "Sleutel controleren",
       "createModal": {
         "keyDescription": "Je sleutel wordt versleuteld en veilig opgeslagen.",
         "keyLabel": "API-sleutel",
@@ -521,6 +529,7 @@
         "platformRequired": "Platform is verplicht"
       },
       "key": "sleutel",
+      "keyEndsWith": "De sleutel eindigt op deze tekens",
       "keys": "sleutels",
       "noResults": "Geen sleutels komen overeen met je zoekopdracht of filter.",
       "platform": "Platform",
@@ -558,8 +567,15 @@
         "status-asc": "Werkende sleutels eerst"
       },
       "status": {
+        "checking": "Wordt gecontroleerd…",
         "failed": "Sleutel werkt niet",
-        "unknown": "Sleutel nog niet gebruikt",
+        "reasons": {
+          "key_rejected": "De aanbieder weigert deze sleutel. Controleer of hij volledig is gekopieerd en nog actief is.",
+          "no_credit": "Het account achter deze sleutel heeft geen tegoed meer. Waardeer het op bij de aanbieder.",
+          "no_key": "De sleutel kon niet worden gelezen.",
+          "unreachable": "De aanbieder heeft niet geantwoord. Probeer het over een moment opnieuw."
+        },
+        "unknown": "Nog niet gecontroleerd",
         "working": "Sleutel werkt"
       },
       "statusColumn": "Status",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Wat moet de game bijhouden? Bijvoorbeeld gezondheid, punten of munitie. De game onthoudt deze waarden en werkt ze bij tijdens het spelen.",
         "theme": "Thema",
         "themeDefault": "Standaarduiterlijk",
-        "themeHint": "Het uiterlijk waarin het spel wordt gespeeld."
+        "themeHint": "Het uiterlijk waarin het spel wordt gespeeld.",
+        "voiceStyle": "Stemstijl",
+        "voiceStyleHint": "Hoe de stem klinkt: die van het personage, of die van de verteller wanneer het verhaal wordt voorgelezen.",
+        "voiceStylePlaceholder": "bijv. diep, langzaam en een beetje schor, een oude man"
       },
       "editModal": {
         "adminActionTitle": "Beheeractie",
         "adminActionWarning": "Je bewerkt een game die niet van jou is. Dit is een beheeractie en mag alleen voor moderatiedoeleinden worden gebruikt.",
         "gameDesignSection": "Gamedesign",
+        "othersGameNotice": "Dit spel is van iemand anders. Je kunt alles veranderen: als je het opslaat, wordt het jouw eigen spel en blijft het origineel ongewijzigd.",
+        "saveAsOwn": "Opslaan als mijn spel",
+        "savedAsOwn": "Opgeslagen als jouw spel",
         "title": "Game bewerken",
         "unsavedChanges": {
           "discard": "Wijzigingen verwerpen",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-Live"
       },
       "importExport": {
+        "coverFailed": "Het spel is geïmporteerd, maar de omslag kon niet worden gecontroleerd. Je kunt in de editor een nieuwe laten tekenen.",
+        "coverNoKey": "Het spel is zonder omslag geïmporteerd: voor het controleren van een omslag is een API-sleutel nodig.",
+        "coverRefused": "Het spel is zonder omslag geïmporteerd: de afbeelding voldoet niet aan de regel voor jeugdbescherming.",
+        "coverUnsigned": "Het spel is zonder omslag geïmporteerd: de afbeelding is niet door ChatGameLab geëxporteerd of is sindsdien gewijzigd.",
+        "errors": {
+          "noGame": "Dit .cgl-bestand bevat geen spel.",
+          "tooLarge": "Dit bestand is groter dan 1 MB en te groot voor een spelbestand.",
+          "unreadable": "Dit bestand kon niet als spel worden gelezen."
+        },
         "exportButton": "Game exporteren",
         "importButton": "Game importeren"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Organisatie verlaten",
     "leaveWarning": "Je verliest toegang tot alle middelen en leden van de organisatie.",
     "list": {
+      "clearPicks": "Alles tonen",
       "clearSearch": "Zoekopdracht wissen",
       "filter": "Filter",
       "hideDetails": "Details verbergen",
@@ -1349,6 +1381,7 @@
         "failed": "Kan momenteel niet worden gespeeld",
         "genre": "De AI-sleutel kan dit soort spel niet uitvoeren",
         "key_rejected": "De AI-sleutel is geweigerd",
+        "no_credit": "Geen AI-tegoed meer",
         "no_key": "Geen AI-sleutel beschikbaar",
         "no_plays": "Geen speelbeurten meer over",
         "paused": "De workshop is gepauzeerd",
@@ -1705,18 +1738,74 @@
       "condense-scenario": "Scenario inkorten",
       "condensed-scenario": "Scenario",
       "expand": "Vertellen",
+      "gallery-image": "Galerijafbeelding",
+      "greeting": "Tekst genereren",
       "image": "Afbeelding tekenen",
       "image-prompt": "Afbeelding beschrijven",
       "image-style": "Stijl aanpassen",
       "live-session": "Personage",
-      "observer": "Observator",
+      "observer": "Regie",
+      "opening-brief": "Hoe het begint",
       "outline": "Scène plannen",
       "portrait": "Portret tekenen",
       "portrait-prompt": "Portret beschrijven",
       "props-store": "Spelstatus",
       "rephrase": "Actie herformuleren",
       "rephrase-audio": "Spraak begrijpen",
-      "start-game": "Start"
+      "start-game": "Start",
+      "voice": "Stem genereren",
+      "voice-brief": "Stem beschrijven"
+    },
+    "director": {
+      "ago": "{{s}} geleden",
+      "beatRefused": "geweigerd",
+      "beatSet": "ingesteld",
+      "beats": "scènes met regels",
+      "beatsValue": "{{n}} · {{lines}} regels",
+      "calls": "modelaanroepen",
+      "callsValue": "{{n}} · laatste {{s}}",
+      "character": "personage",
+      "characterSpoke": "personage sprak",
+      "counted": "geteld",
+      "doing": "bezig",
+      "dropped": "verwijderd",
+      "droppedValue": "{{n}} (te veel achter elkaar)",
+      "empty": "nog niets",
+      "entryBackground": "achtergrond verzonden",
+      "entryConversation": "gesprek",
+      "entryDirection": "instructie verzonden",
+      "entryDropped": "verwijderd",
+      "entryError": "fout",
+      "entryInjection": "ingevoegd",
+      "entryLine": "zei",
+      "entrySilence": "stilte",
+      "entryThought": "denkt",
+      "failed": "{{n}} mislukt",
+      "fragments": "fragmenten",
+      "gap": "aanroepen maximaal elke",
+      "inARow": "instructies achter elkaar",
+      "injected": "handmatig ingevoegd",
+      "late": "late fragmenten",
+      "lateMark": "laat",
+      "lateValue": "{{n}} · tot {{ms}} ms",
+      "lines": "{{n}} regels",
+      "listening": "luistert",
+      "log": "regielogboek",
+      "notYet": "nog niet",
+      "notices": "stiltemeldingen",
+      "now": "regie nu",
+      "ofLimit": "{{n}} van {{limit}}",
+      "player": "speler",
+      "playerSpoke": "speler sprak",
+      "pool": "in de wachtrij",
+      "poolValue": "{{n}} fragmenten · scène {{ms}} ms",
+      "quietFor": "stil gedurende",
+      "quietReplies": "niets te doen",
+      "sent": "verzonden",
+      "sentValue": "{{d}} instructies · {{b}} achtergrond",
+      "setBeat": "scène instellen (ms)",
+      "thinking": "denkt na · {{s}}",
+      "waiting": "wacht erop"
     },
     "errors": {
       "connectionLost": "De verbinding met het spel is verbroken. Laad de pagina opnieuw om het nog eens te proberen.",
@@ -1733,11 +1822,19 @@
     },
     "insights": {
       "close": "Sluiten",
+      "collapse": "Inklappen",
       "empty": "Er is nog niets uitgevoerd.",
-      "feed": "Wat er is gebeurd",
+      "expand": "Uitklappen",
+      "feed": "Geschiedenis",
       "hide": "Inzichten verbergen",
       "label": "Inzichten",
-      "show": "Inzichten tonen"
+      "noProblems": "Tot nu toe geen problemen.",
+      "pickBlock": "Klik op een blok of verbinding in de pijplijn om te lezen wat het heeft gedaan.",
+      "settingEmpty": "Het spel laat dit leeg.",
+      "show": "Inzichten tonen",
+      "tabProblems": "Problemen",
+      "tabSelected": "Geselecteerd",
+      "tabUsage": "Gebruik"
     },
     "launch": {
       "noGame": "Deze pagina heeft een spel nodig om te kunnen spelen: open de pagina via de pagina van een spel.",
@@ -1749,13 +1846,25 @@
       "compacting": "Bezig met comprimeren…",
       "copied": "Lay-out gekopieerd",
       "copyFailed": "Geen klembord: lay-out in de console gelogd",
-      "copyLayout": "Lay-out kopiëren"
+      "copyLayout": "Lay-out kopiëren",
+      "injectBackground": "Weten",
+      "injectBackgroundHint": "Wat het personage in zijn eigen woorden bij zichzelf denkt, zonder het nu te zeggen, bijvoorbeeld: \"Ik ben een weerwolf en ik wil dat ze daar langzaam achter komt.\"",
+      "injectDirection": "Doen",
+      "injectDirectionHint": "Wat het personage moet doen, bijvoorbeeld: \"Wees humeurig, je vertrouwt de speler niet.\"",
+      "injectSpeech": "Zeggen",
+      "injectSpeechHint": "Wat het personage moet zeggen, in zijn eigen woorden, bijvoorbeeld: \"Halt! Wie is daar?\"",
+      "injection": "Zeg het personage dat het …",
+      "injectionFailed": "Kon niet worden verzonden",
+      "injectionSend": "Verzenden",
+      "injectionSending": "Wordt verzonden…",
+      "injectionSent": "Naar het gesprek verzonden"
     },
     "problems": {
       "denied": "Je mag dit spel niet spelen.",
       "failed": "Er is iets misgegaan en het spel kan niet verdergaan.",
       "genre": "De beschikbare AI-sleutel kan dit soort spel niet uitvoeren.",
       "keyRejected": "De AI-aanbieder heeft de sleutel van dit spel geweigerd, dus het spel kan niet verdergaan. Degene die het spel heeft ingesteld, moet de sleutel controleren.",
+      "noCredit": "Sorry, het AI-tegoed is op, dus het spel kan voorlopig niet verdergaan.",
       "noKey": "Er is geen AI-sleutel beschikbaar om dit spel te spelen.",
       "noPlays": "Er zijn geen speelbeurten meer over voor dit gedeelde spel.",
       "paused": "De workshop is gepauzeerd. Het spel gaat verder zodra de workshop wordt hervat.",
@@ -1767,6 +1876,15 @@
       "busy": "Relay: in gebruik door een ander tabblad",
       "connected": "Relay: verbonden",
       "connecting": "Relay: niet actief"
+    },
+    "settings": {
+      "cover": "Galerijafbeelding",
+      "description": "Beschrijving",
+      "gameStart": "Begin van het spel",
+      "imageStyle": "Afbeeldingsstijl",
+      "scenario": "Scenario",
+      "statusFields": "Statusvelden",
+      "voiceStyle": "Stemstijl"
     },
     "status": {
       "choose": "Kies hoe je wilt spelen om te beginnen.",
@@ -1789,10 +1907,15 @@
       "condensed-scenario\u0003econdense-scenario": "verzoek",
       "condensed-scenario\u0003eimage-prompt": "scenario",
       "condensed-scenario\u0003estart-game": "klaar",
+      "gallery-image\u00003estart-game": "klaar",
+      "greeting\u00003elive-session": "eerste woorden",
+      "greeting\u00003estart-game": "klaar",
       "image-prompt\u0003eimage": "prompt",
       "image-style\u0003eadapted-style": "antwoord",
       "live-session\u0003eobserver": "transcript",
+      "observer\u00003elive-session": "invoeging",
       "observer\u0003elive-session": "hint",
+      "opening-brief\u00003egreeting": "instructie",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "scène",
       "outline\u0003eprops-store": "wijzigingen",
@@ -1805,7 +1928,12 @@
       "rephrase\u0003eoutline": "actie",
       "rephrase-audio\u0003eoutline": "actie",
       "start-game\u0003elive-session": "aanwijzing",
-      "start-game\u0003eoutline": "prompt"
+      "start-game\u0003eoutline": "prompt",
+      "voice\u00003elive-session:secondary": "stemstijl",
+      "voice\u00003elive-session:voice": "stem",
+      "voice\u00003estart-game": "klaar",
+      "voice-brief\u00003evoice:description": "beschrijving",
+      "voice-brief\u00003evoice:voice": "reserve-stem"
     }
   }
 }

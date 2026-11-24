@@ -2,6 +2,8 @@ package blocks
 
 import (
 	"context"
+	"sort"
+	"strings"
 	"sync"
 
 	"engine/internal/ports"
@@ -12,7 +14,7 @@ import (
 // player may act.
 //
 // What gates is a wiring decision, not a policy: a block whose result the first
-// turn needs is wired here, and one that can land late — a portrait, say — is
+// turn needs is wired here, and one that can land late — a picture, say — is
 // not, so a slow picture never holds up a conversation.
 type Gate struct {
 	name string
@@ -33,6 +35,63 @@ type Gate struct {
 	finished map[string]bool
 	open     bool
 	ready    chan struct{}
+	// reopen is a gate taken back from a stored session where it had opened:
+	// the game had begun, so it opens again at once. What it waited for may
+	// never work again on a resume: a picture already shown is not shown
+	// twice.
+	reopen bool
+}
+
+// openedMarker is what a gate that has opened exports; doneMarker leads the
+// names of the blocks that have reported done while it still waits.
+const (
+	openedMarker = "open"
+	doneMarker   = "done:"
+)
+
+// ExportState records that the game has begun, or, while it waits, which
+// blocks have already reported done: a resumed gate waits only for the rest.
+func (b *Gate) ExportState() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.open {
+		return openedMarker
+	}
+	if len(b.finished) == 0 {
+		return ""
+	}
+	names := make([]string, 0, len(b.finished))
+	for name := range b.finished {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return doneMarker + strings.Join(names, ",")
+}
+
+// RestoreState takes back a gate that had opened, which opens again once the
+// graph starts, or one still waiting, which remembers who reported done.
+func (b *Gate) RestoreState(s string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if s == openedMarker {
+		b.reopen = true
+		return
+	}
+	if done, ok := strings.CutPrefix(s, doneMarker); ok {
+		for _, name := range strings.Split(done, ",") {
+			if name != "" {
+				b.finished[name] = true
+			}
+		}
+	}
+}
+
+// Reopen says the game had begun in a session stored before the gate kept
+// its own state; it opens once the graph starts. Call before Start.
+func (b *Gate) Reopen() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.reopen = true
 }
 
 // NewGate builds the join between the init stem and the turn loop. The init
@@ -67,7 +126,8 @@ func (b *Gate) ExpectReporters(n int) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.expected = n
-	if n == 0 {
+	// Restored with every block done, it has nothing left to wait for.
+	if n == 0 || b.reopen || len(b.finished) >= n {
 		b.openLocked()
 	}
 }
@@ -121,10 +181,10 @@ func (b *Gate) Start(ctx context.Context) {
 				case ports.PhaseWorking:
 					b.worked[state.Node] = true
 				case ports.PhaseReady:
-					// Ready only counts once the block has actually worked;
-					// every block reports ready at startup, before it has done
-					// anything.
-					if b.worked[state.Node] {
+					// Ready only counts once the block has actually worked,
+					// or says its work was done before; every block reports
+					// ready at startup, before it has done anything.
+					if b.worked[state.Node] || state.Done {
 						b.finished[state.Node] = true
 					}
 				}

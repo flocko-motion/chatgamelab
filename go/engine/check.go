@@ -12,11 +12,13 @@ import (
 	"engine/internal/ports"
 )
 
-// CheckOffer asks the offer's provider whether it accepts the key, with a
-// request that costs nothing. It blocks, and answers nil, or a refusal:
-// ErrKeyRejected for a key the provider refuses, ErrUnreachable for a provider
-// that does not answer, ProblemNoKey for a key that cannot be had. The mock
-// always passes.
+// CheckOffer asks the offer's provider whether the key works and the account
+// behind it can pay, with the smallest call that is billed: a question
+// answered in a word, on the platform's cheapest tooling model, a fraction of
+// a cent. It blocks, and answers nil, or a refusal: ErrKeyRejected for a key
+// the provider refuses, ErrNoCredit for an account with no credit left,
+// ErrUnreachable for a provider that does not answer or is busy for now,
+// ProblemNoKey for a key that cannot be had. The mock always passes.
 func CheckOffer(ctx context.Context, offer Offer) error {
 	if offer.Platform == PlatformMock {
 		return nil
@@ -39,21 +41,26 @@ func CheckOffer(ctx context.Context, offer Offer) error {
 		return nil
 	case errors.Is(err, adapters.ErrKeyRejected):
 		return &Refusal{Problem: ProblemKeyRejected, Message: fmt.Sprintf("%s rejected the key: %v", offer.Platform, err)}
-	case errors.Is(err, adapters.ErrUnreachable):
+	case errors.Is(err, adapters.ErrNoCredit):
+		return &Refusal{Problem: ProblemNoCredit, Message: fmt.Sprintf("%s: the account has no credit left: %v", offer.Platform, err)}
+	case errors.Is(err, adapters.ErrUnreachable), errors.Is(err, adapters.ErrTransient):
 		return &Refusal{Problem: ProblemUnreachable, Message: fmt.Sprintf("%s did not answer: %v", offer.Platform, err)}
 	default:
 		return &Refusal{Problem: ProblemNoKey, Message: err.Error()}
 	}
 }
 
-// watchKeys tells the player when the provider rejects the key during play,
-// which says something other than a lost connection.
+// watchKeys tells the player when the provider rejects the key, or the
+// account has no credit left, during play: each says something other than a
+// lost connection.
 func (s *Session) watchKeys() {
 	report := func(err error) {
-		if !errors.Is(err, adapters.ErrKeyRejected) {
-			return
+		switch {
+		case errors.Is(err, adapters.ErrKeyRejected):
+			s.problem(&Refusal{Problem: ProblemKeyRejected, Message: err.Error()})
+		case errors.Is(err, adapters.ErrNoCredit):
+			s.problem(&Refusal{Problem: ProblemNoCredit, Message: err.Error()})
 		}
-		s.problem(&Refusal{Problem: ProblemKeyRejected, Message: err.Error()})
 	}
 	s.slots.live.Report = report
 	s.slots.tool.Report = report

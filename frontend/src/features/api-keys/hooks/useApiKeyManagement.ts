@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   useApiKeys,
+  useCheckApiKey,
   useCreateApiKey,
   useDeleteApiKey,
   useOwnApiKeys,
@@ -32,8 +33,8 @@ function defaultKeyName(platformName: string, userName: string | undefined): str
 
 /**
  * Everything the key page does, for ApiKeyManagement to render: the caller's
- * keys as one list, the default key and quality tier, and adding, deleting
- * and choosing the default key.
+ * keys as one list, the default key and quality tier, and adding, checking,
+ * deleting and choosing the default key. A key added is checked at once.
  */
 export function useApiKeyManagement(t: (key: string) => string) {
   const { backendUser, retryBackendFetch } = useAuth();
@@ -85,6 +86,34 @@ export function useApiKeyManagement(t: (key: string) => string) {
     if (item.selfShare) setDefaultApiKey.mutate({ id: item.selfShare.id });
   };
 
+  // ── Checking ────────────────────────────────────────────────────────────
+  // A check runs per key; when it is done the key's status shows again, with
+  // a flash, so a check that found the same status is seen to have run.
+  const checkApiKey = useCheckApiKey();
+  const [checking, setChecking] = useState<ReadonlySet<string>>(() => new Set());
+  const [checkedAt, setCheckedAt] = useState<Readonly<Record<string, number>>>({});
+  const runCheck = useCallback(
+    async (shareId: string, keyId: string) => {
+      setChecking((prev) => new Set(prev).add(keyId));
+      try {
+        await checkApiKey.mutateAsync({ id: shareId });
+      } catch {
+        // shown by the mutation's error handler; the status stays as it was
+      } finally {
+        setChecking((prev) => {
+          const next = new Set(prev);
+          next.delete(keyId);
+          return next;
+        });
+        setCheckedAt((prev) => ({ ...prev, [keyId]: Date.now() }));
+      }
+    },
+    [checkApiKey],
+  );
+  const checkKey = (item: OwnApiKey) => {
+    if (item.selfShare) void runCheck(item.selfShare.id, item.key.id);
+  };
+
   // ── Adding ──────────────────────────────────────────────────────────────
   const createApiKey = useCreateApiKey();
   const [creating, setCreating] = useState(false);
@@ -114,8 +143,10 @@ export function useApiKeyManagement(t: (key: string) => string) {
     setCreateErrors(errors);
     if (Object.keys(errors).length > 0) return;
     try {
-      await createApiKey.mutateAsync({ name: createName, platform: createPlatform, key: createKey });
+      const created = await createApiKey.mutateAsync({ name: createName, platform: createPlatform, key: createKey });
       setCreating(false);
+      // A new key is checked at once, so its owner learns now whether it works.
+      void runCheck(created.id, created.apiKeyId);
     } catch {
       // shown by the mutation's error handler
     }
@@ -148,6 +179,11 @@ export function useApiKeyManagement(t: (key: string) => string) {
     },
     makeDefault,
     makingDefault: setDefaultApiKey.isPending,
+    checkKey,
+    /** Whether a key is being checked, by its id. */
+    isChecking: (item: OwnApiKey) => checking.has(item.key.id),
+    /** When a key's last check here finished, by its id: a new value flashes its status. */
+    checkedAt: (item: OwnApiKey) => checkedAt[item.key.id],
     openCreate,
     canCreate: keyPlatforms.some((p) => p.supported),
     createModal: {

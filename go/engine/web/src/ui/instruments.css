@@ -32,18 +32,74 @@ aside > section {
    nobody can see. */
 aside > .insights-graph {
   position: relative;
-  flex: 1 1 55%;
-  min-height: 12rem;
+  /* --graph-height is set by dragging the divider below the graph. */
+  flex: 0 0 var(--graph-height, 55%);
+  min-height: 10rem;
+  /* A height dragged on a taller window still leaves the details some room. */
+  max-height: calc(100% - 10rem);
   padding: 0;
   overflow: hidden;
 }
 
-aside > .insights-graph h2 {
+/* The graph's title floats over its canvas, so the drawing keeps the card's
+   full height; only the fold button takes pointer events. */
+aside > .insights-graph .pane-head {
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
+  right: 0.75rem;
   z-index: 1;
   pointer-events: none;
+}
+aside > .insights-graph .pane-head .pane-fold { pointer-events: auto; }
+
+/* The fold button sits left of the title, so it stays in one place whatever
+   the title says. */
+.pane-head { display: flex; align-items: center; gap: 0.4rem; }
+.pane-head h2 { margin-bottom: 0; }
+
+/* Folds a pane down to its title bar. */
+.pane-fold {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--gray-6);
+  background: var(--panel);
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.pane-fold:hover { color: var(--gray-9); border-color: var(--gray-6); }
+
+/* A folded pane is its title bar; the other pane takes the room, and the
+   divider between them has nothing left to divide. On a phone the graph is
+   not shown and the details open full screen, so nothing folds there. */
+@media (min-width: 48rem) {
+  aside[data-collapsed~="graph"] > .insights-graph {
+    flex: none;
+    min-height: 0;
+    max-height: none;
+    padding: 0.75rem;
+  }
+  aside[data-collapsed~="graph"] > .insights-graph .pane-head { position: static; }
+  /* Everything the graph pane holds goes with it, its corners included. */
+  aside[data-collapsed~="graph"] #graph,
+  aside[data-collapsed~="graph"] .relay-mark,
+  aside[data-collapsed~="graph"] .copy-layout,
+  aside[data-collapsed~="details"] #insights-panels { display: none; }
+  aside[data-collapsed~="details"] > .insights-details { flex: none; }
+  aside[data-collapsed~="details"]:not([data-collapsed~="graph"]) > .insights-graph {
+    flex: 1 1 auto;
+    max-height: none;
+  }
+  aside[data-collapsed] > #insights-split { display: none; }
+}
+@media (max-width: 47.99rem) {
+  .pane-fold { display: none; }
 }
 /* The debug relay's mark, on a dev server only, in the corner below the title. */
 .relay-mark {
@@ -67,17 +123,65 @@ aside > .insights-graph h2 {
 }
 .relay-mark[data-state="busy"]::before { background: #dc2626; }
 .relay-mark[data-state="connected"]::before { background: #16a34a; }
-aside > .insights-details { flex: 1 1 45%; }
+aside > .insights-details { flex: 1 1 0; }
 
-/* The feed and the close button are the phone's; a wide screen has the graph. */
-aside > .insights-feed,
+/* The close button is the phone's: there the details cover the screen. */
 .details-close { display: none; }
 
-.details-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.details-head { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+.details-head h2 { margin-bottom: 0; }
+.details-head .details-close { margin-left: auto; }
+
+/* The tabs of the lower pane: what is selected, usage, what happened,
+   problems. One panel shows at a time, by the pane's data-tab. */
+.insights-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.insights-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gray-6);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+.insights-tab:hover { color: var(--gray-9); }
+.insights-tab[aria-selected="true"] { color: var(--gray-9); border-bottom-color: var(--accent); }
+.tab-count {
+  min-width: 1.1rem;
+  padding: 0 0.3rem;
+  font-size: 0.625rem;
+  line-height: 1.1rem;
+  text-align: center;
+  color: #ffffff;
+  background: #dc2626;
+  border-radius: 999px;
+}
+
+.insights-panels { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+.tab-panel { display: none; flex: 1; min-height: 0; flex-direction: column; overflow-y: auto; scrollbar-width: thin; }
+.insights-details[data-tab="block"] #panel-block,
+.insights-details[data-tab="usage"] #panel-usage,
+.insights-details[data-tab="feed"] #panel-feed,
+.insights-details[data-tab="problems"] #panel-problems { display: flex; }
+/* The tab already names the feed on a wide screen. */
+#runs-title { display: none; }
+#details-title:empty { display: none; }
 
 /* On a phone: a small pane below the game with the feed of what happened;
    a run picked in it opens its details over the whole screen. The graph
-   needs more room than a phone has. */
+   and the tabs need more room than a phone has. */
 @media (max-width: 47.99rem) {
   aside {
     padding: 0.5rem;
@@ -86,11 +190,20 @@ aside > .insights-feed,
     height: 33dvh;
     min-height: 9rem;
   }
-  aside > .insights-graph { display: none; }
-  aside > .insights-feed { display: flex; flex: 1; min-height: 0; padding: 0.5rem 0.75rem; }
-  aside > .insights-details { display: none; }
+  aside > .insights-graph,
+  #insights-split,
+  .insights-tabs { display: none; }
+  aside > .insights-details { padding: 0.5rem 0.75rem; }
+  .details-head { margin-bottom: 0; }
+  #runs-title { display: block; }
+  /* Whatever tab a wide screen left open, the phone shows the feed… (as
+     specific as the tab rules above, and later, so these win) */
+  .insights-details[data-tab] #panel-usage,
+  .insights-details[data-tab] #panel-block,
+  .insights-details[data-tab] #panel-problems { display: none; }
+  .insights-details[data-tab] #panel-feed { display: flex; }
+  /* …and a picked run's details over the whole screen. */
   aside[data-detail] > .insights-details {
-    display: flex;
     position: fixed;
     inset: 0;
     z-index: 50;
@@ -98,6 +211,8 @@ aside > .insights-feed,
     border-radius: 0;
     padding: 1rem;
   }
+  aside[data-detail] .insights-details[data-tab] #panel-feed { display: none; }
+  aside[data-detail] .insights-details[data-tab] #panel-block { display: flex; }
   aside[data-detail] .details-close { display: inline-flex; }
 }
 
@@ -129,28 +244,35 @@ aside > .insights-feed,
 .runs-empty { color: var(--dim); padding: 0.25rem 0; }
 .run {
   display: flex;
-  align-items: center;
+  /* A long entry wraps; its time, mark and name stay on its first line. */
+  align-items: baseline;
   gap: 0.5rem;
   width: 100%;
-  min-height: 2.25rem;
-  padding: 0.25rem 0.25rem;
+  min-height: 2rem;
+  padding: 0.2rem 0.25rem;
   font: inherit;
   text-align: left;
   color: var(--gray-9);
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--gray-1);
-  cursor: pointer;
 }
-.run-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Working: a pulsing dot in the block colour; done: a quiet one. */
-.run-mark { flex-shrink: 0; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--node-block); }
-li[data-done="false"] .run-mark { animation: run-pulse 1s ease-in-out infinite alternate; }
-li[data-done="true"] .run-mark { background: var(--gray-3); }
-@keyframes run-pulse { from { opacity: 1; } to { opacity: 0.3; } }
-@media (prefers-reduced-motion: reduce) {
-  li[data-done="false"] .run-mark { animation: none; }
+button.run { cursor: pointer; }
+button.run:hover { background: var(--gray-0); }
+.run-name { flex-shrink: 0; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.run-what {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--dim);
+  font-size: 0.75rem;
 }
+/* The entry's level: quiet for what just happened, amber and red for problems. */
+.run-time { flex-shrink: 0; color: var(--dim); font-variant-numeric: tabular-nums; font-size: 0.6875rem; }
+.run-mark { flex-shrink: 0; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--gray-3); }
+li[data-level="warning"] .run-mark { background: #d97706; }
+li[data-level="error"] .run-mark { background: #dc2626; }
 
 aside h2 {
   margin: 0 0 0.5rem;
@@ -181,15 +303,14 @@ aside h2 {
 
 /* Fixed width comes from the column, so switching between the session's
    figures and one block's never reflows the graph above it. */
-#details {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+#details,
+#usage,
+#problems {
   padding-top: 0.35rem;
-  scrollbar-width: thin;
 }
 
-#details h4 {
+#details h4,
+.problem-group h4 {
   margin: 0.9rem 0 0.35rem;
   color: var(--gray-6);
   font-size: 0.6875rem;
@@ -198,7 +319,39 @@ aside h2 {
   text-transform: uppercase;
 }
 
-#details .meta { margin: 0.6rem 0 0; }
+#details .meta,
+#usage .meta,
+#problems .meta { margin: 0.6rem 0 0; }
+
+/* Problems: grouped by who reported them, the newest first. */
+.problem-group h4 { display: flex; align-items: center; gap: 0.4rem; }
+.problem-source {
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--gray-7);
+  background: transparent;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.problem-source:hover { color: var(--gray-9); }
+.problem-count { color: var(--dim); font-weight: 400; }
+.problem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--gray-0);
+  border-left: 3px solid #d97706;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+.problem[data-level="error"] { border-left-color: #dc2626; }
+.problem-meta { color: var(--dim); font-size: 0.6875rem; }
+.problem-detail { white-space: pre-wrap; word-break: break-word; color: var(--gray-9); }
 
 .meta { color: var(--dim); font-size: 0.8125rem; }
 
@@ -216,20 +369,33 @@ aside h2 {
 .sample-kind { color: var(--dim); font-size: 0.6875rem; }
 .sample-value { white-space: pre-wrap; word-break: break-word; color: var(--gray-9); }
 
-/* Only on a dev server: hands the rearranged drawing back as Go source. */
+/* Only on a dev server: hands the rearranged drawing back as Go source. An
+   icon in the corner opposite the relay's mark. */
 .copy-layout {
   position: absolute;
-  top: 0.5rem;
+  bottom: 0.5rem;
   right: 0.5rem;
   z-index: 1;
-  padding: 0.2rem 0.5rem;
-  font: inherit;
-  font-size: 0.6875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
   color: var(--gray-7);
   background: var(--panel);
   border: 1px solid var(--gray-2);
   border-radius: var(--radius-md);
   cursor: pointer;
+}
+.copy-layout svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .copy-layout:hover { color: var(--gray-9); border-color: var(--gray-6); }
 
@@ -245,3 +411,105 @@ aside h2 {
   cursor: pointer;
 }
 .compact:hover:not([disabled]) { color: var(--gray-9); border-color: var(--gray-6); }
+
+/* Puts text into the conversation an observer watches, of a chosen kind. */
+.injection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+.injection-title { color: var(--dim); font-size: 0.75rem; }
+.injection-kinds {
+  display: inline-flex;
+  align-self: flex-start;
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.injection-kinds button {
+  padding: 0.2rem 0.6rem;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--gray-7);
+  background: var(--panel);
+  border: 0;
+  cursor: pointer;
+}
+.injection-kinds button + button { border-left: 1px solid var(--gray-2); }
+.injection-kinds button:hover { color: var(--gray-9); }
+.injection-kinds button[aria-checked="true"] {
+  color: #ffffff;
+  background: var(--accent);
+}
+.injection textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--gray-9);
+  background: var(--gray-0);
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md);
+  resize: vertical;
+}
+.injection textarea:focus { outline: none; border-color: var(--accent); }
+.injection-send {
+  align-self: flex-start;
+  padding: 0.2rem 0.75rem;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--gray-9);
+  background: var(--panel);
+  border: 1px solid var(--gray-6);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.injection-send:hover:not([disabled]) { border-color: var(--accent); }
+.injection .meta { margin: 0; min-height: 1em; }
+
+/* A conversation in a block's details: newest at the bottom, the player's
+   lines set apart from the character's. */
+.transcript {
+  max-height: 22rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+.transcript-line {
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 0.5rem;
+  border-left: 2px solid var(--gray-5);
+}
+.transcript-line.player {
+  border-left-color: var(--accent, var(--gray-7));
+  background: color-mix(in srgb, var(--gray-5) 12%, transparent);
+}
+
+/* A director's state: its log reads like a chat, its own thinking and what
+   it sent set apart from the conversation it follows. */
+.observer-log {
+  max-height: 24rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.observer-entry {
+  display: flex;
+  flex-direction: column;
+  padding: 0.2rem 0.5rem;
+  border-left: 2px solid var(--gray-3);
+}
+.observer-entry.thought { border-left-color: var(--gray-6); font-style: italic; }
+.observer-entry.direction,
+.observer-entry.background { border-left-color: var(--accent, var(--gray-7)); background: color-mix(in srgb, var(--gray-5) 12%, transparent); }
+.observer-entry.silence { border-left-color: var(--gray-5); color: var(--dim); }
+.observer-entry.injection { border-left-color: #0891b2; }
+.observer-entry.dropped,
+.observer-entry.error { border-left-color: #d97706; }
+.observer-beat { display: flex; gap: 0.5rem; align-items: center; }
+.observer-beat input { width: 6rem; }

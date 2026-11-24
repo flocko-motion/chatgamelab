@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -19,11 +20,38 @@ type Graph struct {
 	pumps  []func(context.Context)
 	// layout is where each block is drawn, by name.
 	layout Layout
+	// journal is handed to every node that notes into it, at Start.
+	journal *Journal
 }
+
+// setting is a field of the game as a block reads it, for the drawing: the
+// block holds the value from the start, so nothing flows.
+type setting struct {
+	name, field string
+}
+
+func (s *setting) NodeName() string     { return s.name }
+func (s *setting) SettingField() string { return s.field }
+
+// Setting draws a field of the game, as its author set it, reaching the block
+// that reads it, and keeps its value for the reader to inspect. The block has
+// the value already, from its configuration; this only shows where it goes.
+func (g *Graph) Setting(dst any, field, value string) {
+	src := &setting{name: field + ">" + NodeName(dst), field: field}
+	g.connect(src, dst, KindSetting, func(context.Context) {})
+	g.inspector.observe(src, dst, KindSetting, value)
+}
+
+// UseJournal is where the graph's nodes note what happened; set before Start.
+func (g *Graph) UseJournal(j *Journal) { g.journal = j }
 
 type Edge struct {
 	From, To any
 	Kind     Kind
+	// Port names the input it reaches where a block takes two of one kind
+	// from the same source, so the drawing keeps them apart; empty: the
+	// kind says it.
+	Port string
 }
 
 func NewGraph(name string) *Graph { return &Graph{Name: name, inspector: newInspector()} }
@@ -96,6 +124,81 @@ func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 	})
 }
 
+// ConnectField wires one field of a structured reply into a block's text
+// input: the wire takes the field, so a reply with several feeds several
+// blocks, each the part it reads. A field the reply's schema lacks is a
+// wiring mistake, caught where the graph is built.
+func (g *Graph) ConnectField(src StructuredOut, field string, dst TextIn) {
+	g.connectField(src, field, dst, dst.TextInPort())
+}
+
+// ConnectFieldToSecondary wires one field of a structured reply into a
+// block's second text input.
+func (g *Graph) ConnectFieldToSecondary(src StructuredOut, field string, dst SecondaryTextIn) {
+	g.connectField(src, field, dst, dst.SecondaryTextInPort())
+}
+
+func (g *Graph) connectField(src StructuredOut, field string, dst any, in chan<- string) {
+	if !src.HasField(field) {
+		panic(fmt.Sprintf("ports: %s has no field %q to wire to %s", NodeName(src), field, NodeName(dst)))
+	}
+	stream := src.StructuredOutPort()
+	fields := make(chan string)
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go func() {
+			defer close(fields)
+			for reply := range stream {
+				if value, ok := fieldOf(reply, field); ok {
+					select {
+					case fields <- value:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}()
+		go pumpChan(ctx, fields, in, g.watch(src, dst, KindText))
+	})
+	g.edges[len(g.edges)-1].Port = field
+}
+
+// fieldOf is one field of a JSON object as text: a string as it is, any
+// other value as JSON; false when the reply has no such field.
+func fieldOf(reply, field string) (string, bool) {
+	var object map[string]json.RawMessage
+	if json.Unmarshal([]byte(reply), &object) != nil {
+		return "", false
+	}
+	raw, ok := object[field]
+	if !ok {
+		return "", false
+	}
+	var text string
+	if json.Unmarshal(raw, &text) == nil {
+		return text, true
+	}
+	return string(raw), true
+}
+
+// ConnectVoiceOut wires a voice, by id, into the conversation that speaks in it.
+func (g *Graph) ConnectVoiceOut(src TextOut, dst VoiceIn) {
+	stream := src.TextOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.VoiceInPort(), g.watch(src, dst, KindText))
+	})
+	g.edges[len(g.edges)-1].Port = "voice"
+}
+
+// ConnectSecondaryToSecondary wires a block's second text output into
+// another's second text input.
+func (g *Graph) ConnectSecondaryToSecondary(src SecondaryTextOut, dst SecondaryTextIn) {
+	stream := src.SecondaryTextOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.SecondaryTextInPort(), g.watch(src, dst, KindText))
+	})
+	g.edges[len(g.edges)-1].Port = "secondary"
+}
+
 // ConnectTextOutToSecondary wires text into a block's second text input.
 func (g *Graph) ConnectTextOutToSecondary(src TextOut, dst SecondaryTextIn) {
 	stream := src.TextOutPort()
@@ -165,6 +268,22 @@ func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	})
 }
 
+// ConnectTranscript wires a live conversation's transcript, both speakers.
+func (g *Graph) ConnectTranscript(src TranscriptOut, dst TranscriptIn) {
+	stream := src.TranscriptOutPort()
+	g.connect(src, dst, KindTranscript, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.TranscriptInPort(), g.watch(src, dst, KindTranscript))
+	})
+}
+
+// ConnectInjectionOut wires text put into a live conversation from the side.
+func (g *Graph) ConnectInjectionOut(src InjectionOut, dst InjectionIn) {
+	stream := src.InjectionOutPort()
+	g.connect(src, dst, KindInjection, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.InjectionInPort(), g.watch(src, dst, KindInjection))
+	})
+}
+
 // ConnectState wires a block's report on itself, which is how the init stem reaches the gate.
 func (g *Graph) ConnectState(src StateOut, dst StateIn) {
 	stream := src.StateOutPort()
@@ -198,6 +317,11 @@ func (g *Graph) Start(ctx context.Context) {
 		}
 	}
 
+	for _, n := range g.nodes {
+		if j, ok := n.(Journaling); ok {
+			j.UseJournal(g.journal)
+		}
+	}
 	for _, n := range g.nodes {
 		if s, ok := n.(Starter); ok {
 			s.Start(ctx)
@@ -422,6 +546,10 @@ type Topology struct {
 	// Inputs and Imagery are stated by the genre; a client picks its controls and layout from them.
 	Inputs  []string `json:"inputs"`
 	Imagery string   `json:"imagery"`
+	// Switches are the toggles that turn a block of this wiring off and on
+	// during play, such as images where a block makes pictures; a client
+	// offers only these.
+	Switches []string `json:"switches"`
 	// Theme and Language come from the session's spec, for the playback-engine to apply.
 	Theme    string `json:"theme,omitempty"`
 	Language string `json:"language,omitempty"`
@@ -432,6 +560,8 @@ type Topology struct {
 type TopologyNode struct {
 	Name string `json:"name"`
 	Role string `json:"role"`
+	// Field is the game field a setting stands for, such as "voiceStyle".
+	Field string `json:"field,omitempty"`
 	// Place is where the block is drawn; a block the layout misses has none.
 	Place *Place `json:"place,omitempty"`
 }
@@ -454,6 +584,8 @@ type TopologyEdge struct {
 	From string `json:"from"`
 	To   string `json:"to"`
 	Kind string `json:"kind"`
+	// Port tells two wires of one kind between the same blocks apart.
+	Port string `json:"port,omitempty"`
 }
 
 func (g *Graph) Topology() Topology {
@@ -461,6 +593,9 @@ func (g *Graph) Topology() Topology {
 	t := Topology{Name: g.Name, Inputs: []string{}}
 	for _, n := range g.nodes {
 		node := TopologyNode{Name: NodeName(n), Role: g.role(n)}
+		if s, ok := n.(GameSetting); ok {
+			node.Field = s.SettingField()
+		}
 		if place, ok := g.layout[node.Name]; ok {
 			node.Place = &place
 		}
@@ -471,6 +606,7 @@ func (g *Graph) Topology() Topology {
 			From: NodeName(e.From),
 			To:   NodeName(e.To),
 			Kind: e.Kind.String(),
+			Port: e.Port,
 		})
 	}
 	return t
@@ -481,6 +617,10 @@ func (g *Graph) role(n any) string {
 	// A gate is drawn as such, whatever its edges: it is where the init stem joins the turn loop.
 	if _, isGate := n.(Gatekeeper); isGate {
 		return "gate"
+	}
+	// A field of the game is an input, whatever reads it.
+	if _, isSetting := n.(GameSetting); isSetting {
+		return "setting"
 	}
 
 	in, out, onlyFailures := false, false, true
@@ -497,8 +637,11 @@ func (g *Graph) role(n any) string {
 		}
 	}
 
+	_, player := n.(PlayerInput)
 	switch {
-	case !in && out:
+	// Only the player's inputs are sources; a block without inputs that
+	// makes something itself is drawn as a block.
+	case !in && out && player:
 		return "source"
 	// A sink that only failures reach: where a block's failed call goes.
 	case in && !out && onlyFailures:

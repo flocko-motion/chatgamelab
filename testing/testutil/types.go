@@ -14,6 +14,7 @@ type (
 	CurrentUser         = apiclient.GetCurrentUserResp
 	GuestCode           = apiclient.UserSecretsView
 	Game                = apiclient.Game
+	JournalEntry        = apiclient.JournalEntry
 	GameView            = apiclient.GameView
 	GameFile            = apiclient.GameFile
 	GameShare           = apiclient.ShareLinkView

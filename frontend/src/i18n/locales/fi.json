@@ -469,6 +469,7 @@
       "filters": {
         "all": "Kaikki pelit",
         "favorites": "Suosikit",
+        "genre": "Lajityyppi",
         "own": "Omat pelit",
         "public": "Julkiset",
         "sponsored": "Sponsoroidut"
@@ -477,6 +478,12 @@
       "play": "Pelaa",
       "reportGame": "Ilmoita peli",
       "restart": "Käynnistä uudelleen",
+      "resumeChoice": {
+        "continue": "Jatka",
+        "message": "Olet jo aloittanut pelin ”{{game}}”. Jatketaanko siitä, mihin jäit, vai aloitetaanko alusta? Alusta aloittaminen korvaa aiemman istuntosi.",
+        "startNew": "Aloita alusta",
+        "title": "Jatketaanko vai aloitetaanko alusta?"
+      },
       "title": "Pelit",
       "unfavorite": "Poista suosikeista",
       "workshop": "Työpaja / Org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Valitse AI-laatutaso peleillesi käyttäessäsi omaa API-avaintasi. Korkeammat tasot maksavat enemmän, mutta voivat tuottaa parempaa laatua. Jätä tyhjäksi käyttääksesi palvelimen oletusta."
       },
+      "check": "Tarkista avain",
       "createModal": {
         "keyDescription": "Avaimesi salataan ja tallennetaan turvallisesti.",
         "keyLabel": "API-avain",
@@ -521,6 +529,7 @@
         "platformRequired": "Alusta on pakollinen"
       },
       "key": "avain",
+      "keyEndsWith": "Avain päättyy näihin merkkeihin",
       "keys": "avaimet",
       "noResults": "Hakusi tai suodattimesi mukaisia avaimia ei löytynyt.",
       "platform": "Alusta",
@@ -558,8 +567,15 @@
         "status-asc": "Toimivat avaimet ensin"
       },
       "status": {
+        "checking": "Tarkistetaan…",
         "failed": "Avain ei toimi",
-        "unknown": "Avainta ei ole vielä käytetty",
+        "reasons": {
+          "key_rejected": "Palveluntarjoaja hylkää tämän avaimen. Tarkista, että se on kopioitu kokonaan ja on yhä aktiivinen.",
+          "no_credit": "Tähän avaimeen liittyvän tilin saldo on loppu. Lisää saldoa palveluntarjoajan kautta.",
+          "no_key": "Avainta ei voitu lukea.",
+          "unreachable": "Palveluntarjoaja ei vastannut. Yritä hetken kuluttua uudelleen."
+        },
+        "unknown": "Ei vielä tarkistettu",
         "working": "Avain toimii"
       },
       "statusColumn": "Tila",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Mitä asioita pelin pitäisi seurata? Esimerkiksi terveys, pisteet tai ammukset. Peli muistaa nämä arvot ja päivittää niitä pelin aikana.",
         "theme": "Teema",
         "themeDefault": "Oletusulkoasu",
-        "themeHint": "Ulkoasu, jossa peliä pelataan."
+        "themeHint": "Ulkoasu, jossa peliä pelataan.",
+        "voiceStyle": "Äänityyli",
+        "voiceStyleHint": "Miltä ääni kuulostaa: hahmon ääni tai kertojan ääni, kun tarina luetaan ääneen.",
+        "voiceStylePlaceholder": "esim. syvä, hidas ja hieman käheä, vanha mies"
       },
       "editModal": {
         "adminActionTitle": "Ylläpidon toimenpide",
         "adminActionWarning": "Olet muokkaamassa peliä, jota et omista. Tämä on ylläpidollinen toimenpide ja sitä tulisi käyttää vain valvontatarkoituksiin.",
         "gameDesignSection": "Pelisuunnittelu",
+        "othersGameNotice": "Tämä peli on jonkun muun tekemä. Voit muuttaa mitä tahansa: tallentamalla siitä tulee oma pelisi, ja alkuperäinen säilyy ennallaan.",
+        "saveAsOwn": "Tallenna omana pelinä",
+        "savedAsOwn": "Tallennettu omana pelinäsi",
         "title": "Muokkaa peliä",
         "unsavedChanges": {
           "discard": "Hylkää muutokset",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-Live"
       },
       "importExport": {
+        "coverFailed": "Peli tuotiin, mutta sen kansikuvaa ei voitu tarkistaa. Voit piirrättää uuden editorissa.",
+        "coverNoKey": "Peli tuotiin ilman kansikuvaa: kansikuvan tarkistamiseen tarvitaan API-avain.",
+        "coverRefused": "Peli tuotiin ilman kansikuvaa: kuva ei noudata nuoriso­suojaa koskevaa sääntöä.",
+        "coverUnsigned": "Peli tuotiin ilman kansikuvaa: ChatGameLab ei ole vienyt kuvaa tai sitä on muutettu sen jälkeen.",
+        "errors": {
+          "noGame": "Tämä .cgl-tiedosto ei sisällä peliä.",
+          "tooLarge": "Tiedosto on suurempi kuin 1 Mt, joten se on liian suuri pelitiedostoksi.",
+          "unreadable": "Tiedostoa ei voitu lukea pelinä."
+        },
         "exportButton": "Vie peli",
         "importButton": "Tuo peli"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Poistu organisaatiosta",
     "leaveWarning": "Menetät pääsyn kaikkiin organisaation resursseihin ja jäseniin.",
     "list": {
+      "clearPicks": "Näytä kaikki",
       "clearSearch": "Tyhjennä haku",
       "filter": "Suodatin",
       "hideDetails": "Piilota tiedot",
@@ -1354,6 +1386,7 @@
         "failed": "Peliä ei voi pelata tällä hetkellä",
         "genre": "Tekoälyavain ei voi suorittaa tämän tyyppistä peliä",
         "key_rejected": "Tekoälyavain hylättiin",
+        "no_credit": "AI-saldo on loppu",
         "no_key": "Tekoälyavainta ei ole saatavilla",
         "no_plays": "Pelikerroja ei ole jäljellä",
         "paused": "Työpaja on keskeytetty",
@@ -1711,18 +1744,74 @@
       "condense-scenario": "Lyhennä skenaariota",
       "condensed-scenario": "Skenaario",
       "expand": "Kerro",
+      "gallery-image": "Gallerian kuva",
+      "greeting": "Luo tekstiä",
       "image": "Piirrä kuva",
       "image-prompt": "Kuvaile kuvaa",
       "image-style": "Muokkaa tyyliä",
       "live-session": "Hahmo",
-      "observer": "Tarkkailija",
+      "observer": "Ohjaaja",
+      "opening-brief": "Miten peli alkaa",
       "outline": "Suunnittele kohtaus",
       "portrait": "Piirrä muotokuva",
       "portrait-prompt": "Kuvaile muotokuvaa",
       "props-store": "Pelitilanne",
       "rephrase": "Muotoile toiminta uudelleen",
       "rephrase-audio": "Ymmärrä puhe",
-      "start-game": "Aloita"
+      "start-game": "Aloita",
+      "voice": "Luo ääni",
+      "voice-brief": "Kuvaile ääntä"
+    },
+    "director": {
+      "ago": "{{s}} sitten",
+      "beatRefused": "hylätty",
+      "beatSet": "asetettu",
+      "beats": "tahtia, joissa on repliikkejä",
+      "beatsValue": "{{n}} · {{lines}} repliikkiä",
+      "calls": "mallikutsua",
+      "callsValue": "{{n}} · viimeisin {{s}}",
+      "character": "hahmo",
+      "characterSpoke": "hahmo puhui",
+      "counted": "laskettu",
+      "doing": "tekee parhaillaan",
+      "dropped": "hylätty",
+      "droppedValue": "{{n}} (liian monta peräkkäin)",
+      "empty": "ei vielä mitään",
+      "entryBackground": "taustatieto lähetetty",
+      "entryConversation": "keskustelu",
+      "entryDirection": "ohje lähetetty",
+      "entryDropped": "hylätty",
+      "entryError": "virhe",
+      "entryInjection": "syötetty",
+      "entryLine": "sanoi",
+      "entrySilence": "hiljaisuus",
+      "entryThought": "ajattelee",
+      "failed": "{{n}} epäonnistui",
+      "fragments": "fragmenttia",
+      "gap": "kutsuja korkeintaan joka",
+      "inARow": "ohjetta peräkkäin",
+      "injected": "syötetty käsin",
+      "late": "myöhästyneitä fragmentteja",
+      "lateMark": "myöhässä",
+      "lateValue": "{{n}} · enintään {{ms}} ms",
+      "lines": "{{n}} repliikkiä",
+      "listening": "kuuntelee",
+      "log": "ohjaajan loki",
+      "notYet": "ei vielä",
+      "notices": "hiljaisuusilmoituksia",
+      "now": "ohjaaja nyt",
+      "ofLimit": "{{n}} / {{limit}}",
+      "player": "pelaaja",
+      "playerSpoke": "pelaaja puhui",
+      "pool": "poolissa",
+      "poolValue": "{{n}} fragmenttia · tahti {{ms}} ms",
+      "quietFor": "hiljaisuutta kestänyt",
+      "quietReplies": "ei mitään tehtävää",
+      "sent": "lähetetty",
+      "sentValue": "{{d}} ohjetta · {{b}} taustatietoa",
+      "setBeat": "aseta tahti (ms)",
+      "thinking": "ajattelee · {{s}}",
+      "waiting": "odottaa ohjausta"
     },
     "errors": {
       "connectionLost": "Yhteys peliin katkesi. Lataa sivu uudelleen yrittääksesi uudelleen.",
@@ -1739,11 +1828,19 @@
     },
     "insights": {
       "close": "Sulje",
+      "collapse": "Kutista",
       "empty": "Mitään ei ole vielä suoritettu.",
-      "feed": "Mitä tapahtui",
+      "expand": "Laajenna",
+      "feed": "Historia",
       "hide": "Piilota tiedot",
       "label": "Tiedot",
-      "show": "Näytä tiedot"
+      "noProblems": "Ongelmatilanteita ei ole toistaiseksi.",
+      "pickBlock": "Napsauta työnkulun lohkoa tai yhteyttä nähdäksesi, mitä se teki.",
+      "settingEmpty": "Peli jättää tämän tyhjäksi.",
+      "show": "Näytä tiedot",
+      "tabProblems": "Ongelmat",
+      "tabSelected": "Valittu",
+      "tabUsage": "Käyttö"
     },
     "launch": {
       "noGame": "Tämä sivu tarvitsee pelin: avaa se pelin sivulta.",
@@ -1755,13 +1852,25 @@
       "compacting": "Tiivistetään…",
       "copied": "Asettelu kopioitu",
       "copyFailed": "Leikepöytää ei ole: asettelu tulostettiin konsoliin",
-      "copyLayout": "Kopioi asettelu"
+      "copyLayout": "Kopioi asettelu",
+      "injectBackground": "Tiedä",
+      "injectBackgroundHint": "Mitä hahmo ajattelee itsekseen omin sanoin sanomatta sitä vielä ääneen, esim. ”Olen ihmissusi ja haluan hänen saavan sen selville hitaasti.”",
+      "injectDirection": "Tee",
+      "injectDirectionHint": "Mitä hahmon pitäisi tehdä, esim. ”Ole äreä, et luota pelaajaan.”",
+      "injectSpeech": "Sano",
+      "injectSpeechHint": "Mitä hahmon pitäisi sanoa omin sanoin, esim. ”Seis! Kuka siellä?”",
+      "injection": "Käske hahmoa …",
+      "injectionFailed": "Lähetys epäonnistui",
+      "injectionSend": "Lähetä",
+      "injectionSending": "Lähetetään…",
+      "injectionSent": "Lähetetty keskusteluun"
     },
     "problems": {
       "denied": "Et voi pelata tätä peliä.",
       "failed": "Jokin meni pieleen, eikä peli voi jatkua.",
       "genre": "Käytettävissä oleva tekoälyavain ei voi suorittaa tämän tyyppistä peliä.",
       "keyRejected": "Tekoälypalveluntarjoaja hylkäsi tämän pelin avaimen, joten peli ei voi jatkua. Pelin määrittäjän on tarkistettava avain.",
+      "noCredit": "Valitettavasti AI-saldo on käytetty loppuun, joten peli ei voi jatkua juuri nyt.",
       "noKey": "Tämän pelin pelaamiseen ei ole käytettävissä tekoälyavainta.",
       "noPlays": "Tätä jaettua peliä ei voi enää pelata.",
       "paused": "Työpaja on tauolla. Peli jatkuu, kun työpajaa jatketaan.",
@@ -1773,6 +1882,15 @@
       "busy": "Relay: toisen välilehden käytössä",
       "connected": "Relay: yhdistetty",
       "connecting": "Relay: ei käynnissä"
+    },
+    "settings": {
+      "cover": "Gallerian kuva",
+      "description": "Kuvaus",
+      "gameStart": "Pelin alku",
+      "imageStyle": "Kuvatyyli",
+      "scenario": "Skenaario",
+      "statusFields": "Tilakentät",
+      "voiceStyle": "Äänityyli"
     },
     "status": {
       "choose": "Valitse pelitapa aloittaaksesi.",
@@ -1795,10 +1913,15 @@
       "condensed-scenario\u001econdense-scenario": "pyyntö",
       "condensed-scenario\u001eimage-prompt": "skenaario",
       "condensed-scenario\u001estart-game": "valmis",
+      "gallery-image\u0003estart-game": "valmis",
+      "greeting\u0003elive-session": "ensimmäiset sanat",
+      "greeting\u0003estart-game": "valmis",
       "image-prompt\u001eimage": "kehote",
       "image-style\u001eadapted-style": "vastaus",
       "live-session\u001eobserver": "litterointi",
+      "observer\u0003elive-session": "syöte",
       "observer\u001elive-session": "vihje",
+      "opening-brief\u0003egreeting": "ohje",
       "outline\u001eexpand": "suunnitelma",
       "outline\u001eimage-prompt": "kohtaus",
       "outline\u001eprops-store": "muutokset",
@@ -1811,7 +1934,12 @@
       "rephrase\u001eoutline": "toiminta",
       "rephrase-audio\u001eoutline": "toiminta",
       "start-game\u001elive-session": "alkusysäys",
-      "start-game\u001eoutline": "kehote"
+      "start-game\u001eoutline": "kehote",
+      "voice\u0003elive-session:secondary": "äänityyli",
+      "voice\u0003elive-session:voice": "ääni",
+      "voice\u0003estart-game": "valmis",
+      "voice-brief\u0003evoice:description": "kuvaus",
+      "voice-brief\u0003evoice:voice": "varapuheääni"
     }
   }
 }

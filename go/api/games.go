@@ -43,7 +43,9 @@ func (ListGamesEndpoint) Handle(ctx context.Context, req ListGamesReq) (GameView
 	return wire.GameViewPageOf(ctx)(core.List(ctx, core.GameCards, req.query()))
 }
 
-// GameFilter narrows the game list; several combine.
+// GameFilter narrows the game list; several combine. Besides these, the list
+// takes "genre:<id>", one per genre: several genres are one filter, met by a
+// game of any of them.
 type GameFilter string
 
 const (
@@ -163,6 +165,7 @@ type GameFields struct {
 	SystemMessageScenario  *string `json:"systemMessageScenario"`
 	SystemMessageGameStart *string `json:"systemMessageGameStart"`
 	ImageStyle             *string `json:"imageStyle"`
+	VoiceStyle             *string `json:"voiceStyle"`
 	CSS                    *string `json:"css"`
 	StatusFields           *string `json:"statusFields"`
 	FirstMessage           *string `json:"firstMessage"`
@@ -192,6 +195,7 @@ func (r GameFields) changes() core.GameChanges {
 		Scenario:     r.SystemMessageScenario,
 		GameStart:    r.SystemMessageGameStart,
 		ImageStyle:   r.ImageStyle,
+		VoiceStyle:   r.VoiceStyle,
 		CSS:          r.CSS,
 		StatusFields: r.StatusFields,
 		FirstMessage: r.FirstMessage,

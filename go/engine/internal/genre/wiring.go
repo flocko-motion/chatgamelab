@@ -30,8 +30,12 @@ type Wiring struct {
 	// Imagery is one picture per session or per turn, which decides client placement.
 	Imagery ports.Imagery
 
-	// Observer is set only by genres that run one, so tests can read its flags.
-	Observer *blocks.Observer
+	// Injectable are the blocks that take an injection during play, by name.
+	Injectable map[string]blocks.Injectable
+
+	// Observers are the blocks that follow a conversation from the side, by
+	// name, so a reader can see where each stands and a developer can tune it.
+	Observers map[string]*blocks.Observer
 
 	// Gate opens once every block the first turn depends on reports done.
 	Gate *blocks.Gate
@@ -90,6 +94,15 @@ func (w *Wiring) Compact(block string) error {
 	}
 	b.Compact()
 	return nil
+}
+
+// Inject passes an injection to a block that takes one.
+func (w *Wiring) Inject(block string, kind ports.InjectionKind, text string) error {
+	b, ok := w.Injectable[block]
+	if !ok {
+		return fmt.Errorf("no block %q takes injections (this genre has %s)", block, strings.Join(slices.Sorted(maps.Keys(w.Injectable)), ", "))
+	}
+	return b.Inject(kind, text)
 }
 
 // Sinks is the event schema, read off the graph so outputs follow their edges.

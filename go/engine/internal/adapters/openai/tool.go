@@ -30,6 +30,30 @@ func NewTool(keys adapters.KeyFunc, model string) *Tool {
 }
 
 func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters.Usage, error) {
+	return t.query(ctx, system, user, nil)
+}
+
+// QueryImage shows the model a picture after the user's words, and asks for
+// JSON of the schema.
+func (t *Tool) QueryImage(ctx context.Context, system, user string, image []byte, schema adapters.Schema) (string, adapters.Usage, error) {
+	input := []map[string]any{{
+		"role": "user",
+		"content": []map[string]any{
+			{"type": "input_text", "text": user},
+			{"type": "input_image", "image_url": adapters.DataURL(image)},
+		},
+	}}
+	return t.query(ctx, system, input, &schema)
+}
+
+// QuerySchema asks for JSON of the schema, which the Responses API holds the
+// model to in strict mode.
+func (t *Tool) QuerySchema(ctx context.Context, system, user string, schema adapters.Schema) (string, adapters.Usage, error) {
+	return t.query(ctx, system, user, &schema)
+}
+
+// query sends one input: plain words, or a list of messages with parts.
+func (t *Tool) query(ctx context.Context, system string, user any, schema *adapters.Schema) (string, adapters.Usage, error) {
 	var used adapters.Usage
 
 	key, err := t.keys(ctx)
@@ -37,16 +61,20 @@ func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters
 		return "", used, fmt.Errorf("resolve api key: %w", err)
 	}
 
-	body, err := json.Marshal(map[string]any{
+	request := map[string]any{
 		"model":        t.model,
 		"instructions": system,
 		"input":        user,
-	})
+	}
+	if schema != nil {
+		request["text"] = map[string]any{"format": format(schema)}
+	}
+	body, err := json.Marshal(request)
 	if err != nil {
 		return "", used, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, responsesURL, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, ResponsesURL, bytes.NewReader(body))
 	if err != nil {
 		return "", used, err
 	}

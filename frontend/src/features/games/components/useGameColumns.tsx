@@ -1,5 +1,5 @@
 import { Group, Text, Tooltip } from "@mantine/core";
-import { IconCopy, IconDownload, IconStar, IconStarFilled } from "@tabler/icons-react";
+import { IconDownload, IconStar, IconStarFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { GameView } from "@/api/types";
 import type { GameListSort } from "@/api/hooks";
@@ -165,21 +165,14 @@ export function useGameColumns(state: GamesTableState): GameColumn[] {
 
 /**
  * The actions on a game the caller may take, beside the button that opens it
- * (to edit, or to look at it): copy, export, delete.
+ * in the editor: export, delete. Copying needs no action of its own: a game
+ * the caller may not edit opens as their own copy.
  */
 export function useGameActions(state: GamesTableState) {
   const { t } = useTranslation("common");
   return (game: GameView): GameCardAction[] => {
     const p = state.permissions(game);
     const actions: GameCardAction[] = [];
-    if (p.canCopy) {
-      actions.push({
-        key: "copy",
-        icon: <IconCopy size={16} />,
-        label: t("copyGame"),
-        onClick: () => state.copy(game.id),
-      });
-    }
     actions.push({
       key: "export",
       icon: <IconDownload size={16} />,

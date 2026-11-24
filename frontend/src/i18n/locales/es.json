@@ -469,6 +469,7 @@
       "filters": {
         "all": "Todos los juegos",
         "favorites": "Favoritos",
+        "genre": "Género",
         "own": "Mis juegos",
         "public": "Públicos",
         "sponsored": "Patrocinados"
@@ -477,6 +478,12 @@
       "play": "Jugar",
       "reportGame": "Denunciar juego",
       "restart": "Reiniciar",
+      "resumeChoice": {
+        "continue": "Continuar",
+        "message": "Ya has empezado «{{game}}». ¿Quieres continuar donde lo dejaste o empezar de nuevo? Empezar de nuevo sustituirá tu sesión anterior.",
+        "startNew": "Empezar de nuevo",
+        "title": "¿Continuar o empezar de nuevo?"
+      },
       "title": "Juegos",
       "unfavorite": "Quitar de favoritos",
       "workshop": "Taller / Organización"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Elige el nivel de calidad de IA para tus juegos al usar tu propia clave API. Los niveles más altos cuestan más, pero pueden ofrecer mayor calidad. Déjalo vacío para usar el predeterminado del servidor."
       },
+      "check": "Comprobar clave",
       "createModal": {
         "keyDescription": "Tu clave se cifrará y almacenará de forma segura.",
         "keyLabel": "Clave API",
@@ -521,6 +529,7 @@
         "platformRequired": "La plataforma es obligatoria"
       },
       "key": "clave",
+      "keyEndsWith": "La clave termina con estos caracteres",
       "keys": "claves",
       "noResults": "Ninguna clave coincide con tu búsqueda o filtro.",
       "platform": "Plataforma",
@@ -558,8 +567,15 @@
         "status-asc": "Claves que funcionan primero"
       },
       "status": {
+        "checking": "Comprobando…",
         "failed": "La clave no funciona",
-        "unknown": "La clave aún no se ha usado",
+        "reasons": {
+          "key_rejected": "El proveedor rechaza esta clave. Comprueba que se haya copiado completa y que siga activa.",
+          "no_credit": "La cuenta asociada a esta clave ya no tiene crédito. Recárgala con el proveedor.",
+          "no_key": "No se ha podido leer la clave.",
+          "unreachable": "El proveedor no ha respondido. Vuelve a intentarlo dentro de un momento."
+        },
+        "unknown": "Aún no se ha comprobado",
         "working": "La clave funciona"
       },
       "statusColumn": "Estado",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "¿Qué debería registrar el juego? Por ejemplo salud, puntos o munición. El juego recuerda estos valores y los actualiza mientras juegas.",
         "theme": "Tema",
         "themeDefault": "Aspecto predeterminado",
-        "themeHint": "El aspecto con el que se juega al juego."
+        "themeHint": "El aspecto con el que se juega al juego.",
+        "voiceStyle": "Estilo de voz",
+        "voiceStyleHint": "Cómo suena la voz: la del personaje o la de la narración cuando se lee la historia en voz alta.",
+        "voiceStylePlaceholder": "p. ej., grave, lenta y un poco ronca, un hombre mayor"
       },
       "editModal": {
         "adminActionTitle": "Acción de administrador",
         "adminActionWarning": "Estás editando un juego que no te pertenece. Esta es una acción administrativa y solo debe usarse con fines de moderación.",
         "gameDesignSection": "Diseño del juego",
+        "othersGameNotice": "Este juego es de otra persona. Puedes cambiarlo todo: al guardarlo se convertirá en tu propio juego y el original seguirá igual.",
+        "saveAsOwn": "Guardar como mi juego",
+        "savedAsOwn": "Guardado como tu juego",
         "title": "Editar juego",
         "unsavedChanges": {
           "discard": "Descartar cambios",
@@ -716,6 +738,15 @@
         "npc-live": "NPC en directo"
       },
       "importExport": {
+        "coverFailed": "El juego se ha importado, pero no se ha podido comprobar su portada. Puedes hacer que se genere una nueva en el editor.",
+        "coverNoKey": "El juego se ha importado sin portada: para comprobar una portada se necesita una clave de API.",
+        "coverRefused": "El juego se ha importado sin portada: la imagen no cumple la norma de protección de menores.",
+        "coverUnsigned": "El juego se ha importado sin portada: la imagen no fue exportada por ChatGameLab o se modificó después.",
+        "errors": {
+          "noGame": "Este archivo .cgl no contiene ningún juego.",
+          "tooLarge": "Este archivo ocupa más de 1 MB, demasiado para un archivo de juego.",
+          "unreadable": "No se ha podido leer este archivo como un juego."
+        },
         "exportButton": "Exportar juego",
         "importButton": "Importar juego"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Salir de la organización",
     "leaveWarning": "Perderás acceso a todos los recursos y miembros de la organización.",
     "list": {
+      "clearPicks": "Mostrar todos",
       "clearSearch": "Borrar búsqueda",
       "filter": "Filtrar",
       "hideDetails": "Ocultar detalles",
@@ -1349,6 +1381,7 @@
         "failed": "No se puede jugar en este momento",
         "genre": "La clave de IA no puede ejecutar este tipo de juego",
         "key_rejected": "La clave de IA fue rechazada",
+        "no_credit": "No queda crédito de IA",
         "no_key": "No hay ninguna clave de IA disponible",
         "no_plays": "No quedan partidas",
         "paused": "El taller está en pausa",
@@ -1705,18 +1738,74 @@
       "condense-scenario": "Acortar escenario",
       "condensed-scenario": "Escenario",
       "expand": "Narrar",
+      "gallery-image": "Imagen de galería",
+      "greeting": "Generar texto",
       "image": "Dibujar imagen",
       "image-prompt": "Describir imagen",
       "image-style": "Adaptar estilo",
       "live-session": "Personaje",
-      "observer": "Observador",
+      "observer": "Dirección",
+      "opening-brief": "Cómo empieza",
       "outline": "Planificar escena",
       "portrait": "Dibujar retrato",
       "portrait-prompt": "Describir retrato",
       "props-store": "Estado del juego",
       "rephrase": "Reformular acción",
       "rephrase-audio": "Entender el habla",
-      "start-game": "Inicio"
+      "start-game": "Inicio",
+      "voice": "Generar voz",
+      "voice-brief": "Describir voz"
+    },
+    "director": {
+      "ago": "hace {{s}}",
+      "beatRefused": "rechazado",
+      "beatSet": "establecido",
+      "beats": "compases con líneas",
+      "beatsValue": "{{n}} · {{lines}} líneas",
+      "calls": "llamadas al modelo",
+      "callsValue": "{{n}} · última hace {{s}}",
+      "character": "personaje",
+      "characterSpoke": "el personaje habló",
+      "counted": "contado",
+      "doing": "haciendo",
+      "dropped": "descartado",
+      "droppedValue": "{{n}} (demasiados seguidos)",
+      "empty": "nada todavía",
+      "entryBackground": "trasfondo enviado",
+      "entryConversation": "conversación",
+      "entryDirection": "indicación enviada",
+      "entryDropped": "descartado",
+      "entryError": "error",
+      "entryInjection": "inyectado",
+      "entryLine": "dijo",
+      "entrySilence": "silencio",
+      "entryThought": "piensa",
+      "failed": "{{n}} fallidos",
+      "fragments": "fragmentos",
+      "gap": "llamadas como máximo cada",
+      "inARow": "indicaciones seguidas",
+      "injected": "inyectado manualmente",
+      "late": "fragmentos tardíos",
+      "lateMark": "tardío",
+      "lateValue": "{{n}} · hasta {{ms}} ms",
+      "lines": "{{n}} líneas",
+      "listening": "escuchando",
+      "log": "registro de dirección",
+      "notYet": "todavía no",
+      "notices": "avisos de silencio",
+      "now": "dirección actual",
+      "ofLimit": "{{n}} de {{limit}}",
+      "player": "jugador/a",
+      "playerSpoke": "el jugador/a habló",
+      "pool": "en la cola",
+      "poolValue": "{{n}} fragmentos · compás de {{ms}} ms",
+      "quietFor": "en silencio desde hace",
+      "quietReplies": "nada que hacer",
+      "sent": "enviado",
+      "sentValue": "{{d}} indicaciones · {{b}} de trasfondo",
+      "setBeat": "establecer compás (ms)",
+      "thinking": "pensando · {{s}}",
+      "waiting": "esperando que continúe"
     },
     "errors": {
       "connectionLost": "Se perdió la conexión con el juego. Recarga la página para intentarlo de nuevo.",
@@ -1733,11 +1822,19 @@
     },
     "insights": {
       "close": "Cerrar",
+      "collapse": "Contraer",
       "empty": "Todavía no se ha ejecutado nada.",
-      "feed": "Lo que ha ocurrido",
+      "expand": "Expandir",
+      "feed": "Historial",
       "hide": "Ocultar información",
       "label": "Información",
-      "show": "Mostrar información"
+      "noProblems": "No hay problemas por ahora.",
+      "pickBlock": "Haz clic en un bloque o una conexión del flujo para ver qué ha hecho.",
+      "settingEmpty": "El juego deja esto vacío.",
+      "show": "Mostrar información",
+      "tabProblems": "Problemas",
+      "tabSelected": "Seleccionado",
+      "tabUsage": "Uso"
     },
     "launch": {
       "noGame": "Esta página necesita un juego para poder jugar: ábrela desde la página de un juego.",
@@ -1749,13 +1846,25 @@
       "compacting": "Compactando…",
       "copied": "Diseño copiado",
       "copyFailed": "Sin portapapeles: el diseño se ha registrado en la consola",
-      "copyLayout": "Copiar diseño"
+      "copyLayout": "Copiar diseño",
+      "injectBackground": "Saber",
+      "injectBackgroundHint": "Lo que el personaje piensa para sí, con sus propias palabras, sin decirlo ahora, p. ej., «Soy un hombre lobo y quiero que ella lo descubra poco a poco».",
+      "injectDirection": "Hacer",
+      "injectDirectionHint": "Lo que debería hacer el personaje, p. ej., «Ponte de mal humor, no te fías del jugador/a».",
+      "injectSpeech": "Decir",
+      "injectSpeechHint": "Lo que debería decir el personaje, con sus propias palabras, p. ej., «¡Alto! ¿Quién anda ahí?»",
+      "injection": "Dile al personaje que…",
+      "injectionFailed": "No se ha podido enviar",
+      "injectionSend": "Enviar",
+      "injectionSending": "Enviando…",
+      "injectionSent": "Enviado a la conversación"
     },
     "problems": {
       "denied": "No tienes permiso para jugar a este juego.",
       "failed": "Algo salió mal y el juego no puede continuar.",
       "genre": "La clave de IA disponible no puede ejecutar este tipo de juego.",
       "keyRejected": "El proveedor de IA rechazó la clave de este juego, por lo que no puede continuar. La persona que configuró el juego debe comprobar la clave.",
+      "noCredit": "Lo sentimos, se ha agotado el crédito de IA, así que el juego no puede continuar por ahora.",
       "noKey": "No hay ninguna clave de IA disponible para jugar a este juego.",
       "noPlays": "Este juego compartido no tiene más partidas disponibles.",
       "paused": "El taller está en pausa. El juego continuará cuando se reanude.",
@@ -1767,6 +1876,15 @@
       "busy": "Relay: en uso por otra pestaña",
       "connected": "Relay: conectado",
       "connecting": "Relay: no está en ejecución"
+    },
+    "settings": {
+      "cover": "Imagen de galería",
+      "description": "Descripción",
+      "gameStart": "Inicio del juego",
+      "imageStyle": "Estilo de imagen",
+      "scenario": "Escenario",
+      "statusFields": "Campos de estado",
+      "voiceStyle": "Estilo de voz"
     },
     "status": {
       "choose": "Elige cómo quieres jugar para comenzar.",
@@ -1789,10 +1907,14 @@
       "condensed-scenario\u0003econdense-scenario": "solicitud",
       "condensed-scenario\u0003eimage-prompt": "escenario",
       "condensed-scenario\u0003estart-game": "listo",
+      "gallery-image\u0003estart-game": "listo",
+      "greeting\u0003elive-session": "primeras palabras",
+      "greeting\u0003estart-game": "listo",
       "image-prompt\u0003eimage": "indicación",
       "image-style\u0003eadapted-style": "respuesta",
       "live-session\u0003eobserver": "transcripción",
-      "observer\u0003elive-session": "pista",
+      "observer\u0003elive-session": "inyección",
+      "opening-brief\u0003egreeting": "indicación",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "escena",
       "outline\u0003eprops-store": "cambios",
@@ -1805,7 +1927,12 @@
       "rephrase\u0003eoutline": "acción",
       "rephrase-audio\u0003eoutline": "acción",
       "start-game\u0003elive-session": "entrada",
-      "start-game\u0003eoutline": "indicación"
+      "start-game\u0003eoutline": "indicación",
+      "voice\u0003elive-session:secondary": "estilo de voz",
+      "voice\u0003elive-session:voice": "voz",
+      "voice\u0003estart-game": "listo",
+      "voice-brief\u0003evoice:description": "descripción",
+      "voice-brief\u0003evoice:voice": "voz alternativa"
     }
   }
 }

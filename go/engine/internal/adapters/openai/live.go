@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -36,21 +37,31 @@ func NewLive(keys adapters.KeyFunc, model string) *Live {
 	}
 }
 
-// builtinVoices catches a bad name before a session, whose voice is fixed, exists.
-// TODO: support custom voices, which are referenced by an object carrying their id.
-var builtinVoices = map[string]bool{
-	"alloy": true, "ash": true, "ballad": true, "beacon": true, "bossa": true,
-	"cedar": true, "cinder": true, "coral": true, "delta": true, "echo": true,
-	"gleam": true, "marin": true, "meridian": true, "quartz": true, "ripple": true,
-	"sage": true, "shimmer": true, "stone": true, "tempo": true, "verse": true,
-	"vesper": true, "willow": true,
-}
+// builtinVoices catches a bad name before a session, whose voice is fixed,
+// exists: GPT-Live's own (LiveVoices), and the classic voices a spec may still
+// name, which GPT-Live's guide does not list.
+var builtinVoices = func() map[string]bool {
+	known := map[string]bool{
+		"alloy": true, "ash": true, "ballad": true, "cedar": true, "coral": true,
+		"echo": true, "sage": true, "shimmer": true, "verse": true,
+	}
+	for _, v := range LiveVoices {
+		known[v.Name] = true
+	}
+	return known
+}()
 
 // DefaultVoice is GPT-Live's own default, and gpt-realtime speaks it too; it
 // is used when a spec names none.
 const DefaultVoice = "marin"
 
-// ValidLiveVoice reports whether a name is one GPT-Live knows.
+// voiceRefused reports whether a refusal was for the voice asked for.
+func voiceRefused(err error) bool {
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "voice") && !errors.Is(err, adapters.ErrKeyRejected) && !errors.Is(err, adapters.ErrNoCredit)
+}
+
+// ValidLiveVoice reports whether a name is one GPT-Live's catalogue knows.
 func ValidLiveVoice(name string) bool { return builtinVoices[name] }
 
 func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.LiveConn, error) {
@@ -61,9 +72,8 @@ func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.Live
 	if voice == "" {
 		voice = DefaultVoice
 	}
-	if !ValidLiveVoice(voice) {
-		return nil, fmt.Errorf("gpt-live: unknown voice %q", voice)
-	}
+	// Whether a voice exists is the provider's to say: the catalogue is kept by
+	// hand and may lag behind it.
 
 	key, err := l.keys(ctx)
 	if err != nil {
@@ -71,6 +81,11 @@ func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.Live
 	}
 
 	id, answer, err := l.create(ctx, key, cfg, voice)
+	// A voice the provider no longer has, or a made one deleted since, costs
+	// the voice, not the conversation: it opens in the default voice.
+	if err != nil && voice != DefaultVoice && voiceRefused(err) {
+		id, answer, err = l.create(ctx, key, cfg, DefaultVoice)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +130,17 @@ type audioCfg struct {
 }
 
 type audioOutCfg struct {
-	Voice string `json:"voice"`
+	// Voice is a built-in voice's name, or {"id": …} for one made from a
+	// description.
+	Voice any `json:"voice"`
+}
+
+// voiceField is a voice as a session takes it: a name, or an object by id.
+func voiceField(voice string) any {
+	if CustomVoice(voice) {
+		return map[string]string{"id": voice}
+	}
+	return voice
 }
 
 // create bills fifteen seconds up front, so it runs only once a player has arrived.
@@ -141,7 +166,7 @@ func (l *Live) create(ctx context.Context, key string, cfg adapters.LiveConfig, 
 			Model:        l.model,
 			Instructions: cfg.Scenario,
 			Input:        append(guardrailMessage(cfg.Guardrail), history(cfg.History)...),
-			Audio:        audioCfg{Output: audioOutCfg{Voice: voice}},
+			Audio:        audioCfg{Output: audioOutCfg{Voice: voiceField(voice)}},
 			Store:        true,
 		},
 	})
@@ -321,6 +346,22 @@ func (c *liveConn) write(ctx context.Context, msg map[string]any) error {
 
 // Instruct appends, so re-injecting the guardrail keeps the character.
 func (c *liveConn) Instruct(ctx context.Context, text string) error {
+	return c.append(ctx, "session.instructions.append", text)
+}
+
+// Inform appends as thinking: context the model uses without saying it now.
+func (c *liveConn) Inform(ctx context.Context, text string) error {
+	return c.append(ctx, "session.thinking.append", text)
+}
+
+// SayAloud appends as commentary, which the model says, paraphrased.
+func (c *liveConn) SayAloud(ctx context.Context, text string) error {
+	return c.append(ctx, "session.commentary.append", text)
+}
+
+// append puts text into the running session; each kind has its own event,
+// and each is acknowledged by its own "…appended".
+func (c *liveConn) append(ctx context.Context, kind, text string) error {
 	c.mu.Lock()
 	id := fmt.Sprintf("steer-%d", c.nextID)
 	c.nextID++
@@ -328,7 +369,7 @@ func (c *liveConn) Instruct(ctx context.Context, text string) error {
 	c.mu.Unlock()
 
 	return c.write(ctx, map[string]any{
-		"type":     "session.instructions.append",
+		"type":     kind,
 		"event_id": id,
 		// Null addresses the session as a whole rather than one delegated task.
 		"delegation_id": nil,
@@ -459,7 +500,7 @@ func (c *liveConn) read(ctx context.Context) {
 				Usage: adapters.Usage{Model: c.modelID, AudioSeconds: ev.Usage.Seconds},
 			})
 
-		case "session.instructions.appended":
+		case "session.instructions.appended", "session.thinking.appended", "session.commentary.appended":
 			c.settle(ev.ClientEventID)
 
 		case "session.closed":
@@ -473,7 +514,7 @@ func (c *liveConn) read(ctx context.Context) {
 			c.settle(ev.ClientEventID)
 			c.emit(adapters.LiveEvent{
 				Kind: adapters.EventError,
-				Err:  fmt.Errorf("gpt-live: %s: %s", ev.Error.Code, ev.Error.Message),
+				Err:  conversationError(ev.Error.Code, ev.Error.Message),
 			})
 		}
 	}
@@ -512,17 +553,36 @@ func (c *liveConn) emit(e adapters.LiveEvent) {
 	}
 }
 
+// readError reads a refusal's message and leaves the body readable again,
+// for StatusError to tell why it was refused.
 func readError(resp *http.Response) (string, error) {
+	raw, err := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
+	resp.Body = io.NopCloser(bytes.NewReader(raw))
+	if err != nil {
+		return "", err
+	}
 	var body struct {
 		Error struct {
 			Message string `json:"message"`
 		} `json:"error"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+	if err := json.Unmarshal(raw, &body); err != nil {
 		return "", err
 	}
 	if body.Error.Message == "" {
 		return "", nil
 	}
 	return ": " + body.Error.Message, nil
+}
+
+// conversationError names an error the conversation sent, wrapping what a
+// session tells the player about: a key refused, or no credit left.
+func conversationError(code, message string) error {
+	switch code {
+	case "insufficient_quota", "credit_balance_exhausted":
+		return fmt.Errorf("gpt-live: %s: %s: %w", code, message, adapters.ErrNoCredit)
+	case "invalid_api_key":
+		return fmt.Errorf("gpt-live: %s: %s: %w", code, message, adapters.ErrKeyRejected)
+	}
+	return fmt.Errorf("gpt-live: %s: %s", code, message)
 }

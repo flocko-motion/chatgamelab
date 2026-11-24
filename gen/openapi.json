@@ -207,6 +207,17 @@
         ],
         "type": "object"
       },
+      "BeatRequest": {
+        "properties": {
+          "ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ms"
+        ],
+        "type": "object"
+      },
       "CheckNameResp": {
         "properties": {
           "available": {
@@ -450,6 +461,9 @@
             "type": "string"
           },
           "theme": {
+            "type": "string"
+          },
+          "voiceStyle": {
             "type": "string"
           }
         },
@@ -867,6 +881,9 @@
           "theme": {
             "type": "string"
           },
+          "voiceStyle": {
+            "type": "string"
+          },
           "workshopId": {
             "format": "uuid",
             "type": "string"
@@ -882,6 +899,7 @@
           "systemMessageScenario",
           "systemMessageGameStart",
           "imageStyle",
+          "voiceStyle",
           "css",
           "statusFields",
           "genre",
@@ -902,6 +920,16 @@
           "available"
         ],
         "type": "object"
+      },
+      "GameField": {
+        "enum": [
+          "scenario",
+          "gameStart",
+          "imageStyle",
+          "voiceStyle",
+          "statusFields"
+        ],
+        "type": "string"
       },
       "GameFile": {
         "properties": {
@@ -934,6 +962,9 @@
             "type": "string"
           },
           "theme": {
+            "type": "string"
+          },
+          "voice_style": {
             "type": "string"
           }
         },
@@ -1086,6 +1117,9 @@
           },
           "theme": {
             "type": "string"
+          },
+          "voiceStyle": {
+            "type": "string"
           }
         },
         "required": [
@@ -1212,6 +1246,9 @@
           "theme": {
             "type": "string"
           },
+          "voiceStyle": {
+            "type": "string"
+          },
           "workshopId": {
             "format": "uuid",
             "type": "string"
@@ -1268,6 +1305,12 @@
       },
       "GenreInfo": {
         "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/GameField"
+            },
+            "type": "array"
+          },
           "id": {
             "$ref": "#/components/schemas/Genre"
           },
@@ -1280,7 +1323,8 @@
         },
         "required": [
           "id",
-          "needs"
+          "needs",
+          "fields"
         ],
         "type": "object"
       },
@@ -1396,6 +1440,21 @@
         },
         "required": [
           "token"
+        ],
+        "type": "object"
+      },
+      "InjectionRequest": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text"
         ],
         "type": "object"
       },
@@ -1631,6 +1690,33 @@
         ],
         "type": "object"
       },
+      "JournalEntry": {
+        "properties": {
+          "detail": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "source": {
+            "type": "string"
+          },
+          "time": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "time",
+          "source",
+          "level",
+          "kind"
+        ],
+        "type": "object"
+      },
       "KeyMeta": {
         "properties": {
           "createdAt": {
@@ -1753,6 +1839,14 @@
           "iso"
         ],
         "type": "object"
+      },
+      "Level": {
+        "enum": [
+          "info",
+          "warning",
+          "error"
+        ],
+        "type": "string"
       },
       "MakeGameCoverReq": {
         "properties": {
@@ -1940,6 +2034,15 @@
       },
       "NodeDetail": {
         "properties": {
+          "injectable": {
+            "type": "boolean"
+          },
+          "injections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "inputs": {
             "items": {
               "$ref": "#/components/schemas/Sample"
@@ -1948,6 +2051,9 @@
           },
           "name": {
             "type": "string"
+          },
+          "observer": {
+            "$ref": "#/components/schemas/ObserverState"
           },
           "outputs": {
             "items": {
@@ -1964,6 +2070,12 @@
           "thread": {
             "$ref": "#/components/schemas/ThreadFill"
           },
+          "transcript": {
+            "items": {
+              "$ref": "#/components/schemas/TranscriptLine"
+            },
+            "type": "array"
+          },
           "type": {
             "type": "string"
           },
@@ -1978,6 +2090,168 @@
           "inputs",
           "outputs",
           "phase"
+        ],
+        "type": "object"
+      },
+      "ObserverEntry": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "late": {
+            "type": "boolean"
+          },
+          "speaker": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "kind",
+          "text"
+        ],
+        "type": "object"
+      },
+      "ObserverFigures": {
+        "properties": {
+          "backgrounds": {
+            "type": "integer"
+          },
+          "calls": {
+            "type": "integer"
+          },
+          "directions": {
+            "type": "integer"
+          },
+          "dropped": {
+            "type": "integer"
+          },
+          "errors": {
+            "type": "integer"
+          },
+          "flushes": {
+            "type": "integer"
+          },
+          "fragments": {
+            "type": "integer"
+          },
+          "injected": {
+            "type": "integer"
+          },
+          "largestLateMs": {
+            "type": "integer"
+          },
+          "lastCallMs": {
+            "type": "integer"
+          },
+          "late": {
+            "type": "integer"
+          },
+          "lines": {
+            "type": "integer"
+          },
+          "quiet": {
+            "type": "integer"
+          },
+          "silenceNotices": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "fragments",
+          "flushes",
+          "lines",
+          "late",
+          "largestLateMs",
+          "silenceNotices",
+          "calls",
+          "errors",
+          "lastCallMs",
+          "directions",
+          "backgrounds",
+          "dropped",
+          "injected",
+          "quiet"
+        ],
+        "type": "object"
+      },
+      "ObserverState": {
+        "properties": {
+          "awaiting": {
+            "type": "boolean"
+          },
+          "beatMs": {
+            "type": "integer"
+          },
+          "characterAgoMs": {
+            "type": "integer"
+          },
+          "figures": {
+            "$ref": "#/components/schemas/ObserverFigures"
+          },
+          "gapMs": {
+            "type": "integer"
+          },
+          "held": {
+            "type": "string"
+          },
+          "inARow": {
+            "type": "integer"
+          },
+          "inARowLimit": {
+            "type": "integer"
+          },
+          "log": {
+            "items": {
+              "$ref": "#/components/schemas/ObserverEntry"
+            },
+            "type": "array"
+          },
+          "pending": {
+            "type": "integer"
+          },
+          "playerAgoMs": {
+            "type": "integer"
+          },
+          "pool": {
+            "type": "integer"
+          },
+          "quietForMs": {
+            "type": "integer"
+          },
+          "quietMs": {
+            "type": "integer"
+          },
+          "thinking": {
+            "type": "boolean"
+          },
+          "thinkingForMs": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "thinking",
+          "beatMs",
+          "gapMs",
+          "quietMs",
+          "thinkingForMs",
+          "pool",
+          "pending",
+          "characterAgoMs",
+          "playerAgoMs",
+          "quietForMs",
+          "inARow",
+          "awaiting",
+          "inARowLimit",
+          "figures",
+          "log"
         ],
         "type": "object"
       },
@@ -3459,6 +3733,12 @@
             },
             "type": "array"
           },
+          "switches": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "theme": {
             "type": "string"
           },
@@ -3471,7 +3751,8 @@
           "nodes",
           "edges",
           "inputs",
-          "imagery"
+          "imagery",
+          "switches"
         ],
         "type": "object"
       },
@@ -3481,6 +3762,9 @@
             "type": "string"
           },
           "kind": {
+            "type": "string"
+          },
+          "port": {
             "type": "string"
           },
           "to": {
@@ -3496,6 +3780,9 @@
       },
       "TopologyNode": {
         "properties": {
+          "field": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -3509,6 +3796,21 @@
         "required": [
           "name",
           "role"
+        ],
+        "type": "object"
+      },
+      "TranscriptLine": {
+        "properties": {
+          "speaker": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "speaker",
+          "text"
         ],
         "type": "object"
       },
@@ -3568,6 +3870,9 @@
           },
           "theme": {
             "type": "string"
+          },
+          "voiceStyle": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -3614,6 +3919,9 @@
             "type": "string"
           },
           "theme": {
+            "type": "string"
+          },
+          "voice_style": {
             "type": "string"
           }
         },
@@ -4881,6 +5189,53 @@
         "summary": "Is ShareApiKeyEndpoint at v1's path."
       }
     },
+    "/api/apikeys/{id}/check": {
+      "post": {
+        "description": "answers the share as the check left it.\n\nThe check is the smallest call the provider bills, a fraction of a cent on\nthe key: it finds a key the provider rejects (lastErrorCode key_rejected)\nand an account with no credit left (no_credit) alike, and records the\noutcome as the key's last usage. A provider that does not answer records\nnothing: 503 ai_error.",
+        "operationId": "postApiApikeysIdCheck",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyShareView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Checks a key with its provider, for its owner, and"
+      }
+    },
     "/api/apikeys/{id}/default": {
       "put": {
         "description": "play with themselves.",
@@ -6014,6 +6369,57 @@
         "summary": "Submits one player action to a session, typed or spoken."
       }
     },
+    "/api/engine/sessions/{id}/journal": {
+      "get": {
+        "description": "engine saw it: phases, problems, the live conversation's life, pages\nattaching and leaving. Kept in memory, the latest entries only.",
+        "operationId": "getApiEngineSessionsIdJournal",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JournalEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers what happened in a session so far, as the"
+      }
+    },
     "/api/engine/sessions/{id}/live": {
       "get": {
         "description": "The browser sends binary frames of microphone audio and text frames of\ntyped input, a JSON LiveInput; it receives the session's events back,\nbinary frames for audio and text frames of JSON SessionEvent for everything\nelse. A rejected input comes back as an `error` event.",
@@ -6110,6 +6516,65 @@
         "summary": "Answers what one block of a session is and has been doing."
       }
     },
+    "/api/engine/sessions/{id}/nodes/{node}/beat": {
+      "post": {
+        "description": "before they go to its model, during play: a tuning knob, on dev servers only.",
+        "operationId": "postApiEngineSessionsIdNodesNodeBeat",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets how long an observer's transcript fragments wait"
+      }
+    },
     "/api/engine/sessions/{id}/nodes/{node}/compact": {
       "post": {
         "description": "The thread summarises whatever its fill, the block working meanwhile and\npaying for the summary; for testing how well compaction keeps a story. A\nblock on no thread is refused.",
@@ -6157,6 +6622,65 @@
           }
         ],
         "summary": "Asks a block's thread to compact now."
+      }
+    },
+    "/api/engine/sessions/{id}/nodes/{node}/inject": {
+      "post": {
+        "description": "The block, such as an observer, puts it in as a direction the model\nfollows, background it may use, or a line it says. Anyone playing the\nsession may inject. A block that takes none is refused, and so are an\nunknown kind and blank text.",
+        "operationId": "postApiEngineSessionsIdNodesNodeInject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InjectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Puts text into a session's live conversation through a block."
       }
     },
     "/api/engine/sessions/{id}/options": {
@@ -6957,6 +7481,46 @@
         "summary": "Lists the keys that would pay for the"
       }
     },
+    "/api/games/{id}/cgl": {
+      "get": {
+        "description": "A .cgl file is a zip. It holds game.yaml, the game file as the YAML export\nwrites it, and,\nwhen the game has a cover, cover.jpg and cover.sig, the signature an import\nasks for. It takes seeing the game's content (hasContent; 403 otherwise).",
+        "operationId": "getApiGamesIdCgl",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Exports a game as a .cgl file with its cover."
+      }
+    },
     "/api/games/{id}/clone": {
       "post": {
         "description": "and answers with the copy. It takes mayCopy (403 otherwise); the copy has\nthe game's card and content, not its images.",
@@ -7097,6 +7661,44 @@
           }
         ],
         "summary": "Draws a new cover for a game, replacing the one it"
+      },
+      "put": {
+        "description": "It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large\notherwise), and the X-Cover-Signature header the file's cover.sig; one\nwithout a fitting signature is 422 cover_unsigned, one that is no picture\n400 not_a_picture.\n\nIt takes mayEditCard (403 otherwise). The picture is checked against the\nyouth-protection rule for the youngest players, as a drawn cover keeps to\nit, and the caller pays for the check as for drawing a cover: no key, 400\nno_api_key; a key its provider rejects, 400 invalid_api_key; a provider\nthat fails, 503 ai_error. A picture that does not keep to the rule is 422\ncover_refused, and the game keeps the cover it had.",
+        "operationId": "putApiGamesIdCover",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Takes a game's cover from its .cgl file."
       }
     },
     "/api/games/{id}/favourite": {
@@ -9385,6 +9987,46 @@
           }
         },
         "summary": "Returns a public workshop's name, description"
+      }
+    },
+    "/api/public/workshops/{slug}/games/{id}/cgl": {
+      "get": {
+        "description": "The file is the one GetGameCglEndpoint answers, for a game listed on a\npublic workshop page.",
+        "operationId": "getApiPublicWorkshopsSlugGamesIdCgl",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Exports a public workshop's game as a .cgl file."
       }
     },
     "/api/public/workshops/{slug}/games/{id}/yaml": {

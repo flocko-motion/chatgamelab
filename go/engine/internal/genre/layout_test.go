@@ -23,7 +23,8 @@ func TestGenreLayoutsPlaceEveryBlock(t *testing.T) {
 			for _, node := range c.wiring.Graph.Topology().Nodes {
 				// Failures are not drawn, since something can always go
 				// wrong, and outputs hang off the block that feeds them.
-				if node.Role == "failure" || node.Role == "sink" {
+				// Outputs and settings hang off their blocks; failures are not drawn.
+				if node.Role == "failure" || node.Role == "sink" || node.Role == "setting" {
 					continue
 				}
 				nodes[node.Name] = true

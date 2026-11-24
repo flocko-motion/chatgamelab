@@ -110,7 +110,7 @@ func TestAdventureSystemMessage(t *testing.T) {
 	}
 
 	w = adventure(t, AdventureConfig{Thread: &recordingThread{}, Scenario: testScenario})
-	if system := systemMessage(w.Prompts[PromptGameMaster], testScenario, "", ""); strings.Contains(system, "How to start") ||
+	if system := systemMessage(w.Prompts[PromptGameMaster], testScenario, "", "", ""); strings.Contains(system, "How to start") ||
 		strings.Contains(system, "NARRATION RULES") {
 		t.Errorf("without a starting message or constraints, the System Message reads:\n%s", system)
 	}
@@ -519,5 +519,18 @@ func TestAdventureRefusesSpeechItCannotTake(t *testing.T) {
 	}
 	if err := w.Speak(mock.SpokenClip(1)); !errors.Is(err, ErrVoiceOff) {
 		t.Errorf("voice off, Speak answered %v", err)
+	}
+}
+
+// The narrator's voice style is part of the System Message when the designer
+// set one, for a spoken turn to follow, and absent when not.
+func TestAdventureSystemMessageCarriesTheVoiceStyle(t *testing.T) {
+	with := systemMessage("Be the game master.", testScenario, "", "warm, unhurried, a storyteller by the fire", "")
+	if !strings.Contains(with, "When you narrate aloud, speak like this (set by the game author): warm, unhurried") {
+		t.Errorf("the voice style is missing from the System Message:\n%s", with)
+	}
+	without := systemMessage("Be the game master.", testScenario, "", "  ", "")
+	if strings.Contains(without, "narrate aloud") {
+		t.Errorf("an empty voice style still left a line:\n%s", without)
 	}
 }

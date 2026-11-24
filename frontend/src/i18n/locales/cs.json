@@ -469,6 +469,7 @@
       "filters": {
         "all": "Všechny hry",
         "favorites": "Oblíbené",
+        "genre": "Žánr",
         "own": "Moje hry",
         "public": "Veřejné",
         "sponsored": "Sponzorované"
@@ -477,6 +478,12 @@
       "play": "Hrát",
       "reportGame": "Nahlásit hru",
       "restart": "Restartovat",
+      "resumeChoice": {
+        "continue": "Pokračovat",
+        "message": "Hru „{{game}}“ už jsi začal(a). Chceš pokračovat tam, kde jsi skončil(a), nebo začít znovu? Začátek nové hry nahradí předchozí relaci.",
+        "startNew": "Začít znovu",
+        "title": "Pokračovat, nebo začít znovu?"
+      },
       "title": "Hry",
       "unfavorite": "Odebrat z oblíbených",
       "workshop": "Workshop / org."
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Zvolte úroveň kvality AI pro své hry při použití vlastního API klíče. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu. Nechte prázdné pro použití výchozí hodnoty serveru."
       },
+      "check": "Ověřit klíč",
       "createModal": {
         "keyDescription": "Váš klíč bude zašifrován a bezpečně uložen.",
         "keyLabel": "API klíč",
@@ -521,6 +529,7 @@
         "platformRequired": "Platforma je povinná"
       },
       "key": "klíč",
+      "keyEndsWith": "Klíč končí těmito znaky",
       "keys": "klíče",
       "noResults": "Vyhledávání ani filtr neodpovídá žádným klíčům.",
       "platform": "Platforma",
@@ -558,8 +567,15 @@
         "status-asc": "Nejprve funkční klíče"
       },
       "status": {
+        "checking": "Ověřování…",
         "failed": "Klíč nefunguje",
-        "unknown": "Klíč ještě nebyl použit",
+        "reasons": {
+          "key_rejected": "Poskytovatel tento klíč odmítá. Zkontroluj, zda byl zkopírován celý a zda je stále aktivní.",
+          "no_credit": "Na účtu spojeném s tímto klíčem už není žádný kredit. Dobij ho u poskytovatele.",
+          "no_key": "Klíč se nepodařilo načíst.",
+          "unreachable": "Poskytovatel neodpověděl. Zkus to znovu za chvíli."
+        },
+        "unknown": "Zatím neověřeno",
         "working": "Klíč funguje"
       },
       "statusColumn": "Stav",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Co má hra sledovat? Například zdraví, body nebo munici. Hra si tyto hodnoty pamatuje a během hraní je aktualizuje.",
         "theme": "Vzhled",
         "themeDefault": "Výchozí vzhled",
-        "themeHint": "Vzhled, ve kterém se hra hraje."
+        "themeHint": "Vzhled, ve kterém se hra hraje.",
+        "voiceStyle": "Styl hlasu",
+        "voiceStyleHint": "Jak hlas zní: hlas postavy nebo vypravěče při předčítání příběhu.",
+        "voiceStylePlaceholder": "např. hluboký, pomalý a trochu chraplavý, starý muž"
       },
       "editModal": {
         "adminActionTitle": "Akce správce",
         "adminActionWarning": "Upravujete hru, která vám nepatří. Jde o administrátorský zásah a měl by být použit pouze pro účely moderování.",
         "gameDesignSection": "Design hry",
+        "othersGameNotice": "Tato hra patří někomu jinému. Můžeš změnit cokoli: uložením z ní vytvoříš vlastní hru a originál zůstane beze změny.",
+        "saveAsOwn": "Uložit jako vlastní hru",
+        "savedAsOwn": "Uloženo jako tvoje hra",
         "title": "Upravit hru",
         "unsavedChanges": {
           "discard": "Zahodit změny",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-Live"
       },
       "importExport": {
+        "coverFailed": "Hra byla importována, ale její titulní obrázek se nepodařilo ověřit. V editoru můžeš vytvořit nový.",
+        "coverNoKey": "Hra byla importována bez titulního obrázku: k jeho ověření je potřeba API klíč.",
+        "coverRefused": "Hra byla importována bez titulního obrázku: obrázek nesplňuje pravidla ochrany mládeže.",
+        "coverUnsigned": "Hra byla importována bez titulního obrázku: obrázek nebyl exportován z ChatGameLab nebo byl od té doby změněn.",
+        "errors": {
+          "noGame": "Tento soubor .cgl neobsahuje žádnou hru.",
+          "tooLarge": "Tento soubor je větší než 1 MB, což je na soubor hry příliš.",
+          "unreadable": "Tento soubor se nepodařilo načíst jako hru."
+        },
         "exportButton": "Exportovat hru",
         "importButton": "Importovat hru"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Opustit organizaci",
     "leaveWarning": "Ztratíte přístup ke všem zdrojům organizace a jejím členům.",
     "list": {
+      "clearPicks": "Zobrazit vše",
       "clearSearch": "Vymazat vyhledávání",
       "filter": "Filtrovat",
       "hideDetails": "Skrýt podrobnosti",
@@ -1349,6 +1381,7 @@
         "failed": "Momentálně ji nelze hrát",
         "genre": "Klíč AI nemůže spustit tento typ hry",
         "key_rejected": "Klíč AI byl odmítnut",
+        "no_credit": "Došel kredit AI",
         "no_key": "Není k dispozici žádný klíč AI",
         "no_plays": "Žádná hraní nezbývají",
         "paused": "Dílna je pozastavena",
@@ -1705,18 +1738,74 @@
       "condense-scenario": "Zkrátit scénář",
       "condensed-scenario": "Scénář",
       "expand": "Vyprávět",
+      "gallery-image": "Galerijní obrázek",
+      "greeting": "Generovat text",
       "image": "Nakreslit obrázek",
       "image-prompt": "Popsat obrázek",
       "image-style": "Upravit styl",
       "live-session": "Postava",
-      "observer": "Pozorovatel",
+      "observer": "Režie",
+      "opening-brief": "Jak začít",
       "outline": "Naplánovat scénu",
       "portrait": "Nakreslit portrét",
       "portrait-prompt": "Popsat portrét",
       "props-store": "Stav hry",
       "rephrase": "Přeformulovat akci",
       "rephrase-audio": "Porozumět řeči",
-      "start-game": "Spustit"
+      "start-game": "Spustit",
+      "voice": "Generovat hlas",
+      "voice-brief": "Popsat hlas"
+    },
+    "director": {
+      "ago": "před {{s}}",
+      "beatRefused": "odmítnuto",
+      "beatSet": "nastaveno",
+      "beats": "taktů s řádky",
+      "beatsValue": "{{n}} · {{lines}} řádků",
+      "calls": "volání modelu",
+      "callsValue": "{{n}} · naposledy {{s}}",
+      "character": "postava",
+      "characterSpoke": "postava promluvila",
+      "counted": "započítáno",
+      "doing": "provádí",
+      "dropped": "zahozeno",
+      "droppedValue": "{{n}} (příliš mnoho za sebou)",
+      "empty": "zatím nic",
+      "entryBackground": "pozadí odesláno",
+      "entryConversation": "konverzace",
+      "entryDirection": "pokyn odeslán",
+      "entryDropped": "zahozeno",
+      "entryError": "chyba",
+      "entryInjection": "ručně vloženo",
+      "entryLine": "řekl(a)",
+      "entrySilence": "ticho",
+      "entryThought": "myslí si",
+      "failed": "{{n}} selhalo",
+      "fragments": "fragmenty",
+      "gap": "volání nejvýše každých",
+      "inARow": "pokynů za sebou",
+      "injected": "ručně vloženo",
+      "late": "opožděné fragmenty",
+      "lateMark": "opožděné",
+      "lateValue": "{{n}} · až {{ms}} ms",
+      "lines": "{{n}} řádků",
+      "listening": "naslouchá",
+      "log": "protokol režie",
+      "notYet": "zatím ne",
+      "notices": "upozornění na ticho",
+      "now": "režie nyní",
+      "ofLimit": "{{n}} z {{limit}}",
+      "player": "hráč",
+      "playerSpoke": "hráč promluvil",
+      "pool": "ve frontě",
+      "poolValue": "{{n}} fragmentů · takt {{ms}} ms",
+      "quietFor": "v klidu po dobu",
+      "quietReplies": "není co dělat",
+      "sent": "odesláno",
+      "sentValue": "{{d}} pokynů · {{b}} pozadí",
+      "setBeat": "nastavit takt (ms)",
+      "thinking": "přemýšlí · {{s}}",
+      "waiting": "čeká na režii"
     },
     "errors": {
       "connectionLost": "Spojení se hrou bylo přerušeno. Načti stránku znovu a zkus to znovu.",
@@ -1733,11 +1822,19 @@
     },
     "insights": {
       "close": "Zavřít",
+      "collapse": "Sbalit",
       "empty": "Zatím nic neproběhlo.",
-      "feed": "Co se stalo",
+      "expand": "Rozbalit",
+      "feed": "Historie",
       "hide": "Skrýt přehled",
       "label": "Přehled",
-      "show": "Zobrazit přehled"
+      "noProblems": "Zatím žádné problémy.",
+      "pickBlock": "Kliknutím na blok nebo spojení v procesu si přečteš, co udělalo.",
+      "settingEmpty": "Hra toto pole ponechává prázdné.",
+      "show": "Zobrazit přehled",
+      "tabProblems": "Problémy",
+      "tabSelected": "Vybrané",
+      "tabUsage": "Využití"
     },
     "launch": {
       "noGame": "Tato stránka potřebuje hru: otevři ji ze stránky hry.",
@@ -1749,13 +1846,25 @@
       "compacting": "Probíhá komprimace…",
       "copied": "Rozvržení zkopírováno",
       "copyFailed": "Schránka není k dispozici: rozvržení bylo zaznamenáno do konzole",
-      "copyLayout": "Kopírovat rozvržení"
+      "copyLayout": "Kopírovat rozvržení",
+      "injectBackground": "Vědět",
+      "injectBackgroundHint": "Co si postava myslí sama pro sebe, vlastními slovy, aniž by to teď řekla, např. „Jsem vlkodlak a chci, aby na to přišla pomalu.“",
+      "injectDirection": "Dělat",
+      "injectDirectionHint": "Co má postava udělat, např. „Buď mrzutý, hráči nevěříš.“",
+      "injectSpeech": "Říct",
+      "injectSpeechHint": "Co má postava říct, vlastními slovy, např. „Stůj! Kdo tam?“",
+      "injection": "Řekni postavě, aby …",
+      "injectionFailed": "Odeslání se nezdařilo",
+      "injectionSend": "Odeslat",
+      "injectionSending": "Odesílání…",
+      "injectionSent": "Odesláno do konverzace"
     },
     "problems": {
       "denied": "Tuto hru nesmíš hrát.",
       "failed": "Něco se pokazilo a hra nemůže pokračovat.",
       "genre": "Dostupný klíč AI nemůže spustit tento typ hry.",
       "keyRejected": "Poskytovatel AI odmítl klíč této hry, takže hra nemůže pokračovat. Ten, kdo hru nastavil, musí klíč zkontrolovat.",
+      "noCredit": "Je nám líto, kredit AI byl vyčerpán, takže hra nyní nemůže pokračovat.",
       "noKey": "Pro hraní této hry není k dispozici žádný klíč AI.",
       "noPlays": "V této sdílené hře už nezbývá žádné hraní.",
       "paused": "Workshop je pozastaven. Hra bude pokračovat, jakmile bude obnoven.",
@@ -1767,6 +1876,15 @@
       "busy": "Relay: používá ho jiná karta",
       "connected": "Relay: připojeno",
       "connecting": "Relay: není spuštěn"
+    },
+    "settings": {
+      "cover": "Galerijní obrázek",
+      "description": "Popis",
+      "gameStart": "Začátek hry",
+      "imageStyle": "Styl obrázku",
+      "scenario": "Scénář",
+      "statusFields": "Stavová pole",
+      "voiceStyle": "Styl hlasu"
     },
     "status": {
       "choose": "Pro začátek si vyber, jak chceš hrát.",
@@ -1789,10 +1907,15 @@
       "condensed-scenario\u001econdense-scenario": "požadavek",
       "condensed-scenario\u001eimage-prompt": "scénář",
       "condensed-scenario\u001estart-game": "připraveno",
+      "gallery-image\u0003estart-game": "připraveno",
+      "greeting\u0003elive-session": "první slova",
+      "greeting\u0003estart-game": "připraveno",
       "image-prompt\u001eimage": "prompt",
       "image-style\u001eadapted-style": "odpověď",
       "live-session\u001eobserver": "přepis",
+      "observer\u0003elive-session": "vložení",
       "observer\u001elive-session": "nápověda",
+      "opening-brief\u0003egreeting": "zadání",
       "outline\u001eexpand": "plán",
       "outline\u001eimage-prompt": "scéna",
       "outline\u001eprops-store": "změny",
@@ -1805,7 +1928,12 @@
       "rephrase\u001eoutline": "akce",
       "rephrase-audio\u001eoutline": "akce",
       "start-game\u001elive-session": "podnět",
-      "start-game\u001eoutline": "prompt"
+      "start-game\u001eoutline": "prompt",
+      "voice\u0003elive-session:secondary": "styl hlasu",
+      "voice\u0003elive-session:voice": "hlas",
+      "voice\u0003estart-game": "připraveno",
+      "voice-brief\u0003evoice:description": "popis",
+      "voice-brief\u0003evoice:voice": "náhradní hlas"
     }
   }
 }

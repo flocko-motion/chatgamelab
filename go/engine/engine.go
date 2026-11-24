@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
+	"slices"
 	"sync"
 	"time"
 
@@ -67,6 +68,15 @@ type SessionSpec struct {
 	// ImageStyle is how pictures are painted; empty takes the genre's default so the style stays stable.
 	ImageStyle string `json:"imageStyle,omitempty"`
 
+	// VoiceStyle is how the game's voice sounds, in the designer's words: the
+	// narrator's when an Adventure is spoken, the character's in NPC-Live.
+	// Empty leaves it to the voice.
+	VoiceStyle string `json:"voiceStyle,omitempty"`
+
+	// GalleryImage is the game's picture from the gallery, for a genre that
+	// shows it. Never stored: a resumed session already holds it in its history.
+	GalleryImage []byte `json:"-"`
+
 	// Theme names the playback-engine's look, one of Themes(); empty is the default look.
 	Theme string `json:"theme,omitempty"`
 
@@ -105,9 +115,6 @@ type SessionSpec struct {
 	// PromptOverride replaces a genre prompt by name; an unknown name errors so a typo cannot pass silently.
 	PromptOverride map[string]string `json:"promptOverride,omitempty"`
 
-	// MuteObserver keeps the observer node but has it judge nothing.
-	MuteObserver bool `json:"muteObserver,omitempty"`
-
 	// Status seeds the property values a genre tracks.
 	Status map[string]string `json:"status,omitempty"`
 
@@ -135,9 +142,13 @@ type BlockState struct {
 	Phase string `json:"phase"`
 }
 
+// StreamHeartbeat is what a page's socket sends now and then, so the page
+// can tell a quiet session from a dead socket. It carries nothing.
+const StreamHeartbeat = "heartbeat"
+
 // StreamNames is every stream a genre can wire, and the source of the generated TypeScript union.
 func StreamNames() []string {
-	return []string{"text", "said", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem"}
+	return []string{"text", "said", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem", "journal", StreamHeartbeat}
 }
 
 type Session struct {
@@ -167,13 +178,24 @@ type Session struct {
 	wiring   *genre.Wiring
 	usage    *usageLedger
 	recorder *recorder
-	events   chan SessionEvent
-	ctx      context.Context
-	cancel   context.CancelFunc
-	once     sync.Once
+	// journal is the engine's record of what happened, for debugging and Insights.
+	journal *ports.Journal
+	// journalKeep holds entries until keepJournal stores them; journalKept
+	// closes once the last is stored.
+	journalKeep chan SessionEvent
+	journalKept chan struct{}
+	// hub hands the session's events to whoever subscribes; see Subscribe.
+	hub    *hub
+	ctx    context.Context
+	cancel context.CancelFunc
+	once   sync.Once
 
 	// logMu keeps the stored history in the order the recorder holds it.
 	logMu sync.Mutex
+	// saveMu lets one event at a time into the store: a platform numbers a
+	// session's events by reading the last number, so two writes at once would
+	// take the same one and lose an event.
+	saveMu sync.Mutex
 	// dirty asks the keeper for a checkpoint; kept closes once its last one is written.
 	dirty chan struct{}
 	kept  chan struct{}
@@ -182,6 +204,7 @@ type Session struct {
 // slots hold the adapters the blocks call, filled when the session settles
 // and replaced when it adapts.
 type slots struct {
+	voices  adapters.VoicesSlot
 	live    adapters.LiveSlot
 	tool    adapters.ToolSlot
 	image   adapters.ImageSlot
@@ -202,7 +225,10 @@ type SessionState struct {
 // ErrUnknown one the store does not hold.
 //
 // The context is the session's lifetime, as for Launch.
-func Resume(ctx context.Context, id string, persist Persist, offers []Offer) (*Session, error) {
+//
+// The gallery image is handed in again, like the offers: it is never stored,
+// and a session resumed before it was shown shows it then.
+func Resume(ctx context.Context, id string, persist Persist, offers []Offer, galleryImage []byte) (*Session, error) {
 	stored, err := persist.LoadState(ctx, id)
 	if err != nil {
 		return nil, err
@@ -218,6 +244,7 @@ func Resume(ctx context.Context, id string, persist Persist, offers []Offer) (*S
 	spec := stored.Spec
 	spec.ID = id
 	spec.Persist = persist
+	spec.GalleryImage = galleryImage
 	return launch(ctx, spec, offers, &resumption{state: stored.State, history: history})
 }
 
@@ -264,9 +291,10 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 
 	s := &Session{
 		recorder: newRecorder(),
-		events:   make(chan SessionEvent, 256),
+		hub:      newHub(time.Now()),
 		usage:    newUsageLedger(),
 	}
+	s.openJournal()
 
 	var w *genre.Wiring
 	switch spec.Genre {
@@ -282,6 +310,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 			Guardrail:           spec.Guardrail,
 			Description:         spec.Description,
 			ImageStyle:          spec.ImageStyle,
+			VoiceStyle:          spec.VoiceStyle,
 			StartingMessage:     spec.InitPrompt,
 			Status:              spec.Status,
 			Language:            spec.Language,
@@ -296,14 +325,17 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		var err error
 		w, err = genre.NewNPCLive(genre.NPCLiveConfig{
 			Live:           &s.slots.live,
+			GalleryImage:   spec.GalleryImage,
 			Tool:           &s.slots.tool,
-			Image:          &s.slots.image,
+			GameStart:      spec.InitPrompt,
+			Language:       spec.Language,
 			Voice:          spec.Voice,
+			VoiceStyle:     spec.VoiceStyle,
+			Voices:         &s.slots.voices,
+			BuiltinVoices:  openai.LiveVoices,
 			Guardrail:      spec.Guardrail,
 			Scenario:       spec.Scenario,
-			ImageStyle:     spec.ImageStyle,
 			InitPrompt:     spec.initPrompt(),
-			MuteObserver:   spec.MuteObserver,
 			PromptOverride: spec.PromptOverride,
 			IdleAfter:      spec.idleAfter(),
 		})
@@ -317,6 +349,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	if err := w.Graph.Validate(); err != nil {
 		return nil, err
 	}
+	w.Graph.UseJournal(s.journal)
 	s.watchKeys()
 
 	// Restored before anything starts, so the first turn runs on the continued thread.
@@ -326,6 +359,10 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		}
 		s.usage.restore(from.state.Usage)
 		s.recorder.restore(from.history)
+		s.restoreJournal(from.history)
+		if conversed(from.history) || (w.Live != nil && w.Live.Conversed()) {
+			w.Gate.Reopen()
+		}
 	}
 
 	if spec.Persist == nil {
@@ -348,7 +385,13 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		s.cancel()
 		return nil, fmt.Errorf("store the session: %w", err)
 	}
+	if from != nil {
+		s.journal.Note(JournalSession, "resumed", fmt.Sprintf("genre %s, %d history events", spec.Genre, len(s.recorder.replay())))
+	} else {
+		s.journal.Note(JournalSession, "launched", "genre "+string(spec.Genre))
+	}
 	go s.keep()
+	go s.keepJournal()
 	go s.deliver()
 	go s.release()
 
@@ -382,6 +425,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 func (s *Session) merge(ctx context.Context) {
 	for _, sink := range s.wiring.Sinks() {
 		go func(name string, ch chan string) {
+			noted := &sinkJournal{s: s, stream: name}
 			for {
 				select {
 				case <-ctx.Done():
@@ -391,9 +435,11 @@ func (s *Session) merge(ctx context.Context) {
 						return
 					}
 					if name == "problem" {
+						s.journal.Fail(JournalSession, "problem", v)
 						s.failed(v)
 						continue
 					}
+					noted.note(v)
 					ev := SessionEvent{Stream: name, Value: v}
 					s.log(ev)
 					if name == "props" {
@@ -401,11 +447,7 @@ func (s *Session) merge(ctx context.Context) {
 							s.recorder.recordProps(props)
 						}
 					}
-					select {
-					case s.events <- ev:
-					case <-ctx.Done():
-						return
-					}
+					s.hub.publish(ev)
 				}
 			}
 		}(sink.Stream(), sink.Arrivals())
@@ -424,6 +466,10 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 					return
 				}
 				s.recorder.recordPhase(state.Node, string(state.Phase))
+				if state.Failed() {
+					s.journal.Fail(state.Node, "call-failed", state.Reason+": "+state.Message)
+				}
+				s.journal.Note(state.Node, "phase", string(state.Phase))
 
 				blob, err := json.Marshal(BlockState{Node: state.Node, Phase: string(state.Phase)})
 				if err != nil {
@@ -433,11 +479,7 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 				if state.Phase == ports.PhaseReady {
 					s.checkpoint()
 				}
-				select {
-				case s.events <- ev:
-				case <-ctx.Done():
-					return
-				}
+				s.hub.publish(ev)
 			}
 		}
 	}()
@@ -462,19 +504,33 @@ func (s *Session) forwardUsage(ctx context.Context, usage <-chan ports.Usage) {
 				}
 				ev := SessionEvent{Stream: "usage", Value: string(blob)}
 				s.checkpoint()
-				select {
-				case s.events <- ev:
-				case <-ctx.Done():
-					return
-				}
+				s.hub.publish(ev)
 			}
 		}
 	}()
 }
 
 // forwardInvitations says a player may connect now, so the game has begun before anyone is asked to speak.
+// Its value is the invitation's reason: empty to connect at once, "press" to
+// wait for the player.
 func (s *Session) forwardInvitations(ctx context.Context, invitations <-chan ports.State) {
-	s.forwardSignal(ctx, invitations, "connect")
+	if invitations == nil {
+		return
+	}
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case invitation, alive := <-invitations:
+				if !alive {
+					return
+				}
+				s.journal.Note(JournalSession, "connect", invitation.Reason)
+				s.hub.publish(SessionEvent{Stream: "connect", Value: invitation.Reason})
+			}
+		}
+	}()
 }
 
 // forwardSignal puts an empty lifecycle event on the stream; the moment is the whole message.
@@ -491,11 +547,8 @@ func (s *Session) forwardSignal(ctx context.Context, signal <-chan ports.State, 
 				if !alive {
 					return
 				}
-				select {
-				case s.events <- SessionEvent{Stream: stream}:
-				case <-ctx.Done():
-					return
-				}
+				s.journal.Note(JournalSession, stream, "")
+				s.hub.publish(SessionEvent{Stream: stream})
 			}
 		}
 	}()
@@ -515,7 +568,12 @@ func (s *Session) Connect(ctx context.Context, offer string) (string, error) {
 	if s.wiring.Live == nil {
 		return "", fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
 	}
-	return s.wiring.Live.Connect(ctx, offer)
+	s.journal.Note(JournalClient, "connect", "the browser offers to open the audio connection")
+	answer, err := s.wiring.Live.Connect(ctx, offer)
+	if err != nil {
+		s.journal.Fail(JournalClient, "connect-failed", err.Error())
+	}
+	return answer, err
 }
 
 // Snapshot is where the session stands now, for a reloaded or late-opened page.
@@ -560,7 +618,23 @@ type NodeDetail struct {
 	// Thread is how full the block's thread is, for a block on a thread; such
 	// a block can compact it on demand.
 	Thread *ThreadFill `json:"thread,omitempty"`
+	// Injectable says the block takes an injection during play; Injections
+	// are the kinds it takes.
+	Injectable bool     `json:"injectable,omitempty"`
+	Injections []string `json:"injections,omitempty"`
+	// Transcript is a conversation's so far, both speakers, oldest first, for
+	// the block that holds one.
+	Transcript []TranscriptLine `json:"transcript,omitempty"`
+	// Observer is where a block following a conversation from the side
+	// stands: its pool, its timers, its figures and its log.
+	Observer *ObserverState `json:"observer,omitempty"`
 }
+
+// ObserverState is where an observer stands, for a reader.
+type ObserverState = blocks.ObserverState
+
+// TranscriptLine is one turn of a conversation: who spoke, and what.
+type TranscriptLine = blocks.TranscriptLine
 
 // ThreadFill is how full a thread is: the input of its last call, in tokens,
 // and the context window of the model it ran on, zero when unknown. Both are
@@ -590,7 +664,34 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 		fill := b.Thread().Fill()
 		detail.Thread = &fill
 	}
+	if live := s.wiring.Live; live != nil && live.NodeName() == name {
+		detail.Transcript = live.Transcript()
+	}
+	if observer, ok := s.wiring.Observers[name]; ok {
+		state := observer.State()
+		detail.Observer = &state
+	}
+	if _, ok := s.wiring.Injectable[name]; ok {
+		detail.Injectable = true
+		for _, kind := range ports.InjectionKinds {
+			detail.Injections = append(detail.Injections, string(kind))
+		}
+	}
 	return detail, true
+}
+
+// SetBeat changes how long an observer's fragments wait before they go to
+// its model, during play. A block that is no observer is refused.
+func (s *Session) SetBeat(block string, beat time.Duration) error {
+	observer, ok := s.wiring.Observers[block]
+	if !ok {
+		return fmt.Errorf("no observer named %q", block)
+	}
+	if err := observer.SetBeat(beat); err != nil {
+		return err
+	}
+	s.journal.Note(block, "beat", beat.String())
+	return nil
 }
 
 // Compact asks a block's thread to compact now, between calls: it summarises
@@ -603,6 +704,17 @@ func (s *Session) Compact(block string) error {
 	return s.wiring.Compact(block)
 }
 
+// Inject passes an injection to a block that takes one, such as an observer,
+// which puts it into the conversation it watches: a direction the model
+// follows, background it may use, or a line it says. A block that takes none
+// is refused, and so are an unknown kind and blank text.
+func (s *Session) Inject(block, kind, text string) error {
+	if err := s.playing(); err != nil {
+		return err
+	}
+	return s.wiring.Inject(block, ports.InjectionKind(kind), text)
+}
+
 // InspectEdge reports what one wire has carried.
 func (s *Session) InspectEdge(from, to, kind string) (ports.EdgeDetail, bool) {
 	return s.wiring.Graph.InspectEdge(from, to, kind)
@@ -611,8 +723,18 @@ func (s *Session) InspectEdge(from, to, kind string) (ports.EdgeDetail, bool) {
 // History is the conversation so far, applied by a client through the same path as live events.
 func (s *Session) History() []SessionEvent { return s.recorder.replay() }
 
-// Events is the session-scoped stream the transport serialises.
-func (s *Session) Events() <-chan SessionEvent { return s.events }
+// Events is the subscription opened with the session, so a caller in the
+// same process sees every event from the start. The first page to subscribe
+// ends it, as does falling a whole buffer behind.
+func (s *Session) Events() <-chan SessionEvent { return s.hub.firstEvents() }
+
+// Subscribe opens a page's own copy of the session's events, from now on;
+// cancel ends it. A subscriber that falls a whole buffer behind is cut off,
+// its channel closed, and rebuilds from the history once it reconnects.
+func (s *Session) Subscribe() (<-chan SessionEvent, func()) { return s.hub.subscribe() }
+
+// AloneSince is when the last page left the session; false while one is subscribed.
+func (s *Session) AloneSince() (time.Time, bool) { return s.hub.aloneSince() }
 
 // Say submits typed player input, erroring on a genre that takes none.
 func (s *Session) Say(text string) error {
@@ -636,7 +758,12 @@ func (s *Session) Speak(audio []byte) error {
 	if s.wiring.Speak == nil {
 		return fmt.Errorf("genre %q takes no audio input", s.spec.Genre)
 	}
-	return s.wiring.Speak(audio)
+	s.journal.Note(JournalClient, "speak", fmt.Sprintf("a clip of %d bytes", len(audio)))
+	err := s.wiring.Speak(audio)
+	if err != nil {
+		s.journal.Warn(JournalClient, "speak-refused", err.Error())
+	}
+	return err
 }
 
 // Pause closes the per-second-billed live conversation; the session stays and a resume continues it.
@@ -668,6 +795,13 @@ func (s *Session) Topology() ports.Topology {
 	for _, mode := range s.wiring.Inputs {
 		t.Inputs = append(t.Inputs, string(mode))
 	}
+	t.Switches = make([]string, 0, len(s.wiring.Switches))
+	for toggle, blocks := range s.wiring.Switches {
+		if len(blocks) > 0 {
+			t.Switches = append(t.Switches, string(toggle))
+		}
+	}
+	slices.Sort(t.Switches)
 	return t
 }
 
@@ -680,6 +814,7 @@ func (s *Session) ID() string { return s.spec.ID }
 // release closes the adapters once the session has ended.
 func (s *Session) release() {
 	<-s.ctx.Done()
+	s.hub.close()
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.kit.close()
@@ -688,8 +823,10 @@ func (s *Session) release() {
 
 // Close ends the session once its last checkpoint is written.
 func (s *Session) Close() {
+	s.journal.Note(JournalSession, "closed", "")
 	s.once.Do(s.cancel)
 	<-s.kept
+	<-s.journalKept
 }
 
 // readProps reads a props event's value, the status values as a JSON object;
@@ -737,6 +874,7 @@ func (spec SessionSpec) voice(model adapters.Model) string {
 // one, which it runs on while narration is on; speech is nil on a platform
 // without narration.
 type equipment struct {
+	voices  adapters.Voices
 	live    adapters.Live
 	tool    adapters.Tool
 	image   adapters.Image
@@ -778,6 +916,7 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 	case PlatformMock:
 		pace := time.Duration(spec.MockPaceMs) * time.Millisecond
 		kit = equipment{
+			voices:  &mock.Voices{Pace: pace},
 			live:    mock.Live{Pace: pace},
 			tool:    mock.Tool{Pace: pace},
 			image:   mock.Image{Pace: pace},
@@ -789,6 +928,7 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 		keys := adapters.KeyFunc(settled.offer.Keys)
 		picture := models[adapters.ModelImage]
 		kit = equipment{
+			voices:  openai.NewVoices(keys),
 			live:    openai.NewLive(keys, models[adapters.ModelLive].Name),
 			tool:    openai.NewTool(keys, models[adapters.ModelTooling].Name),
 			image:   openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize]),

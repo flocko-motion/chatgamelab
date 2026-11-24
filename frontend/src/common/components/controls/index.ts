@@ -7,6 +7,7 @@
  * - SortSelector: Configurable sort dropdown for lists
  * - FilterSegmentedControl: Configurable segmented control for filters
  * - FilterToggles: Filters that are each on or off and combine
+ * - FilterMultiSelect: Options picked together, met by any of them
  * - SearchInput: An always-open search field with the magnifier inside
  */
 
@@ -14,4 +15,9 @@ export { SortSelector, type SortSelectorProps, type SortOption } from './SortSel
 export { FilterSegmentedControl, type FilterSegmentedControlProps, type FilterOption } from './FilterSegmentedControl';
 export { ExpandableSearch, type ExpandableSearchProps } from './ExpandableSearch';
 export { FilterToggles, type FilterTogglesProps, type FilterToggleOption } from './FilterToggles';
+export {
+  FilterMultiSelect,
+  type FilterMultiSelectProps,
+  type FilterMultiSelectOption,
+} from './FilterMultiSelect';
 export { SearchInput, type SearchInputProps } from './SearchInput';

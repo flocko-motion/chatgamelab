@@ -304,6 +304,9 @@ type Resuming struct {
 	Platform string
 	LinkPays *Payer // the link's key, while the link exists and its key is on the session's platform
 	Store    engine.Persist
+	// Cover is the game's cover, nil for a game without one. It is part of
+	// the game's card, so whoever may play the session sees it.
+	Cover []byte
 }
 
 // ResumeSession opens a stored session to resume it, for a caller the
@@ -317,6 +320,11 @@ func ResumeSession(ctx context.Context, id uuid.UUID) (*Resuming, error) {
 		return nil, engine.Refuse(engine.ProblemUnknown, "there is no session "+id.String())
 	}
 	r := &Resuming{GameID: row.GameID, Platform: row.Platform, Store: sessionstore.SessionStore{}}
+	if cover, err := store.Queries().V2GameCover(ctx, row.GameID); err == nil {
+		r.Cover = cover.Image
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
 	if row.GameShareID.Valid {
 		if link, err := linkPlay(ctx, sql.NullString{}, row.GameShareID); err == nil && link.Payer.Platform == row.Platform {
 			r.LinkPays = &link.Payer

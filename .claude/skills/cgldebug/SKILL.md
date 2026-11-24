@@ -43,7 +43,17 @@ It holds:
 - `state`: the playback engine's whole state (`src/state.ts`,
   `PlaybackEngineState`): `connection`, `phases` per block, `runs`,
   `started`, `invited`, `voice`, `paused`, `pausing`, `resuming`,
-  `choosing`, `problem`, `fault`, `refusal`, `utterances`, `topology`.
+  `choosing`, `problem`, `fault`, `refusal`, `utterances`, `topology`,
+  `journal`. The picture is given by its size only.
+- `state.journal`: **the engine's own record of the session, read it
+  first.** It lives on the server, so it covers what happened before this
+  page loaded, across every reload. Each entry has `time`, `source` (a block's
+  name, `session`, or `client`), `level` (`info`/`warning`/`error`), `kind`
+  and `detail`. It shows pages attaching and detaching (a reload is a
+  `detached`/`attached` pair), offers, the live conversation's `standing`
+  (idle → awaiting → open → paused), `opened`/`started`/`closed` with the
+  provider's reason, how each conversation `ended`, every block's `phase`,
+  failed calls, and each finished utterance.
 - `buffer`: the last 500 entries, oldest first, each with an ISO `time` and a
   `kind`: `received` / `sent` (a text frame in full in `text`, an audio frame
   by its `bytes`), `phase` (`node`, `from`, `to`), `run` (`node`, `to`:
@@ -51,6 +61,10 @@ It holds:
   and its key, or cleared), `error` (`text`: an error the page ran into).
 
 Read it with `jq`. Useful first questions:
+
+- What do the journal's warnings and errors say, and when?
+  `jq -r '.state.journal[] | select(.level != "info") | [.time,.source,.kind,.detail] | @tsv'`
+- How does the journal end? `jq -r '.state.journal[-30:][] | [.time,.source,.level,.kind,.detail] | @tsv'`
 
 - Which blocks are `working` and since when (their last `phase` entry)?
 - What was the last frame received, and how long ago? Did the player's last
@@ -80,9 +94,11 @@ changes the session under investigation. Ask the user before doing that.
 
 Compare with the engine's view of the same session and the same minutes:
 
-- The engine's own snapshot: `GET /api/engine/sessions/<id>/state` and
-  `/history` (through `eval` with `fetch`, as above, so it reaches the same
-  origin).
+- The engine's own snapshot: `GET /api/engine/sessions/<id>/state`,
+  `/history` and `/journal` (through `eval` with `fetch`, as above, so it
+  reaches the same origin). The journal is stored with the session and
+  survives restarts; the store holds every entry (`game_session_event`, stream
+  `journal`), the endpoint the latest 2000.
 - The logs: on the dev stack, find the backend container with `docker ps`
   and read `docker logs --since <time> <container>`, from a little before the
   buffer's first suspicious entry. The standalone engine server (`make dev`)

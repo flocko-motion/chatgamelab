@@ -2,12 +2,31 @@
 // Ports are keyed to a data type, so one block type can serve many roles.
 package ports
 
+import "time"
+
 import "context"
 
 type (
 	AudioChunk []byte
 	ImageData  []byte
 	PropMap    map[string]string
+	// Injection is text put into a live conversation from the side. Its kind
+	// says how the model takes it.
+	Injection struct {
+		Kind InjectionKind
+		Text string
+	}
+	InjectionKind string
+	// Fragment is a piece of a live conversation's transcript: who said it,
+	// what, and when. StartMs and EndMs are the provider's, from the
+	// conversation's start, zero where it gives none; At is when it arrived.
+	Fragment struct {
+		Speaker string
+		Text    string
+		StartMs int64
+		EndMs   int64
+		At      time.Time
+	}
 	// Piece is streamed text: a reply arriving piece by piece. A type of its
 	// own, so a block taking whole text is never wired to a stream.
 	Piece string
@@ -24,6 +43,19 @@ const (
 	// PieceReplace is ASCII SUB, "substitute", which no model writes.
 	PieceReplace Piece = "\x1a"
 )
+
+// The kinds of injection, after what a live model does with each.
+const (
+	// InjectDirection is an instruction the model follows; it may interrupt.
+	InjectDirection InjectionKind = "direction"
+	// InjectBackground is knowledge the model may use, without saying it now.
+	InjectBackground InjectionKind = "background"
+	// InjectSpeech is something the model says aloud, in its own words.
+	InjectSpeech InjectionKind = "speech"
+)
+
+// InjectionKinds lists every kind, in the order a client offers them.
+var InjectionKinds = []InjectionKind{InjectDirection, InjectBackground, InjectSpeech}
 
 // AudioDiscard is the audio stream's one marker, an empty chunk: it drops the
 // spoken reply still playing and queued, as when a broken stream is retried.
@@ -44,6 +76,14 @@ type (
 	ImageOut         interface{ ImageOutPort() <-chan ImageData }
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
 	StreamOut        interface{ StreamOutPort() <-chan Piece }
+	InjectionOut     interface{ InjectionOutPort() <-chan Injection }
+	TranscriptOut    interface{ TranscriptOutPort() <-chan Fragment }
+	// StructuredOut is a reply as JSON of a schema; a wire takes one of its
+	// fields (Graph.ConnectField), which HasField says the schema has.
+	StructuredOut interface {
+		StructuredOutPort() <-chan string
+		HasField(name string) bool
+	}
 	// FailureOut carries a block's call that failed for good; its normal
 	// outputs then carry nothing.
 	FailureOut interface{ FailureOutPort() <-chan Failure }
@@ -77,6 +117,10 @@ type State struct {
 	// failed for good: the provider's reason, kept for the graph view.
 	Reason  string `json:"reason,omitempty"`
 	Message string `json:"message,omitempty"`
+	// Done, with PhaseReady, is a block whose work was done before, as a
+	// resumed session finds it: it counts to a gate as a finished cycle, and
+	// nothing shows it working, as nothing ran.
+	Done bool `json:"done,omitempty"`
 }
 
 // Failure is a block's call that failed for good: the input it was given,
@@ -118,8 +162,14 @@ type (
 	ImageIn  interface{ ImageInPort() chan<- ImageData }
 	PropsIn  interface{ PropsInPort() chan<- PropMap }
 	StreamIn interface{ StreamInPort() chan<- Piece }
+	// InjectionIn takes text put into a live conversation from the side.
+	InjectionIn interface{ InjectionInPort() chan<- Injection }
+	// TranscriptIn takes a live conversation's transcript, both speakers.
+	TranscriptIn interface{ TranscriptInPort() chan<- Fragment }
 	// SecondaryTextIn is a block's second text input, apart from its first.
 	SecondaryTextIn interface{ SecondaryTextInPort() chan<- string }
+	// VoiceIn takes the voice a conversation speaks in, by id.
+	VoiceIn interface{ VoiceInPort() chan<- string }
 	// OpeningIn takes the cue that opens the game, apart from the turns.
 	OpeningIn interface{ OpeningInPort() chan<- string }
 	// FailureIn takes failures whole, as a sink that reports them does.
@@ -137,6 +187,11 @@ const (
 	KindStream
 	// KindFailure is a failure edge, drawn apart from the normal flow.
 	KindFailure
+	KindInjection
+	// KindSetting is a game setting reaching the block that reads it: drawn,
+	// not carried, as the block holds the value from the start.
+	KindSetting
+	KindTranscript
 )
 
 func (k Kind) String() string {
@@ -155,6 +210,12 @@ func (k Kind) String() string {
 		return "stream"
 	case KindFailure:
 		return "failure"
+	case KindInjection:
+		return "injection"
+	case KindSetting:
+		return "setting"
+	case KindTranscript:
+		return "transcript"
 	}
 	return "unknown"
 }
@@ -196,6 +257,17 @@ type RequiresInputs interface{ RequiredInputs() []Kind }
 
 // RequiresOutputs lists the kinds something must consume, so a character nobody can hear fails validation.
 type RequiresOutputs interface{ RequiredOutputs() []Kind }
+
+// GameSetting is a node that stands for a field of the game, as its author
+// set it in the editor: drawn as an input above the block that reads it, never
+// as a block, as it processes nothing. Field names the field; empty: the
+// node's name says what it holds.
+type GameSetting interface{ SettingField() string }
+
+// PlayerInput is a node the player feeds, such as the microphone: drawn as
+// where the story starts. A node with no input that is no PlayerInput is a
+// block like any other, such as one showing a picture that already exists.
+type PlayerInput interface{ PlayerInput() }
 
 // Origin is a block that starts its work itself, as a source does, though
 // answers flow back into it; the completeness check walks from it.

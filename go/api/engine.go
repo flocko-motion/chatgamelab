@@ -44,10 +44,13 @@ type (
 	EngineSessionReq    = engineapi.SessionRequest
 	EngineSnapshot      = engine.Snapshot
 	EngineHistory       = engineapi.History
+	EngineJournal       = engineapi.Journal
 	EngineTopology      = engine.Topology
 	EngineOptions       = engine.Options
 	EngineNodeReq       = engineapi.NodeRequest
 	EngineNodeDetail    = engine.NodeDetail
+	EngineInjectionReq  = engineapi.InjectionRequest
+	EngineBeatReq       = engineapi.BeatRequest
 	EngineEdgeReq       = engineapi.EdgeRequest
 	EngineEdgeDetail    = engine.EdgeDetail
 	EnginePrompts       = engineapi.Prompts
@@ -239,6 +242,22 @@ func (EngineHistoryEndpoint) Handle(ctx context.Context, req EngineSessionReq) (
 	return engineapi.HistoryEndpoint{API: Engine}.Handle(ctx, req)
 }
 
+// EngineJournalEndpoint answers what happened in a session so far, as the
+// engine saw it: phases, problems, the live conversation's life, pages
+// attaching and leaving. Kept in memory, the latest entries only.
+type EngineJournalEndpoint struct{}
+
+func (EngineJournalEndpoint) Method() string             { return "GET" }
+func (EngineJournalEndpoint) Path() string               { return "/api/engine/sessions/{id}/journal" }
+func (EngineJournalEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineJournalEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineJournal, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
+	if err != nil {
+		return nil, err
+	}
+	return engineapi.JournalEndpoint{API: Engine}.Handle(ctx, req)
+}
+
 // EngineTopologyEndpoint answers a session's wiring as data, for a view that draws it.
 type EngineTopologyEndpoint struct{}
 
@@ -301,6 +320,44 @@ func (EngineCompactEndpoint) Handle(ctx context.Context, req EngineNodeReq) (Eng
 		return EngineAccepted{}, err
 	}
 	return engineapi.CompactEndpoint{API: Engine}.Handle(ctx, req)
+}
+
+// EngineInjectEndpoint puts text into a session's live conversation through a block.
+//
+// The block, such as an observer, puts it in as a direction the model
+// follows, background it may use, or a line it says. Anyone playing the
+// session may inject. A block that takes none is refused, and so are an
+// unknown kind and blank text.
+type EngineInjectEndpoint struct{}
+
+func (EngineInjectEndpoint) Method() string { return "POST" }
+func (EngineInjectEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/inject"
+}
+func (EngineInjectEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineInjectEndpoint) Handle(ctx context.Context, req EngineInjectionReq) (EngineAccepted, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
+	if err != nil {
+		return EngineAccepted{}, err
+	}
+	return engineapi.InjectEndpoint{API: Engine}.Handle(ctx, req)
+}
+
+// EngineBeatEndpoint sets how long an observer's transcript fragments wait
+// before they go to its model, during play: a tuning knob, on dev servers only.
+type EngineBeatEndpoint struct{}
+
+func (EngineBeatEndpoint) Method() string { return "POST" }
+func (EngineBeatEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/beat"
+}
+func (EngineBeatEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineBeatEndpoint) Handle(ctx context.Context, req EngineBeatReq) (EngineAccepted, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
+	if err != nil {
+		return EngineAccepted{}, err
+	}
+	return engineapi.BeatEndpoint{API: Engine}.Handle(ctx, req)
 }
 
 // EngineEdgeEndpoint answers what one wire of a session has carried.

@@ -10,6 +10,7 @@ export type {
   DeclarationView,
   Error as ApiError,
   Game,
+  GameField,
   GameTemplate,
   GameView,
   GetCurrentUserResp,

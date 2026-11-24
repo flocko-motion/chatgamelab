@@ -35,6 +35,9 @@ const (
 	CodeTokenLocked              = "token_locked"
 	CodeWorkshopInactive         = "auth_workshop_inactive"
 	CodeNoApiKey                 = "no_api_key"
+	CodeNotAPicture              = "not_a_picture"
+	CodeFileTooLarge             = "file_too_large"
+	CodeCoverUnsigned            = "cover_unsigned"
 
 	// organisations registering themselves
 	CodeInstitutionAgeNotAllowed    = "institution_age_not_allowed"

@@ -24,7 +24,7 @@ import {
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { usePublicWorkshop, usePublicWorkshopGameYaml } from "@/api/hooks";
+import { usePublicWorkshop, usePublicWorkshopGameFile } from "@/api/hooks";
 import type {
   PublicWorkshopGame,
   PublicWorkshopLink,
@@ -37,7 +37,7 @@ import { publicWorkshopPath } from "@/common/lib/publicWorkshop";
 import { buildShareUrl } from "@/common/lib/url";
 import { takeReturnTo } from "@/common/lib/returnTo";
 import { GameEditModal } from "@/features/games/components/GameEditModal";
-import { downloadYamlFile } from "@/features/games/lib";
+import { downloadGameFile } from "@/features/games/lib";
 
 interface PublicWorkshopPageProps {
   slug: string;
@@ -66,12 +66,12 @@ export function PublicWorkshopPage({
   }, [backendUser]);
 
   const { data: page, isLoading, isError } = usePublicWorkshop(slug);
-  const gameYaml = usePublicWorkshopGameYaml();
+  const gameFile = usePublicWorkshopGameFile();
 
   const handleDownload = async (game: PublicWorkshopGame) => {
     if (!game.id) return;
     try {
-      downloadYamlFile(await gameYaml.mutateAsync({ slug, gameId: game.id }), game.name);
+      downloadGameFile(await gameFile.mutateAsync({ slug, gameId: game.id }), game.name);
     } catch {
       // Nothing to download.
     }

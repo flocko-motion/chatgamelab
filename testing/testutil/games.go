@@ -6,7 +6,13 @@ package testutil
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -186,6 +192,7 @@ func (c caller) UpdateGame(gameID string, game Game) (Game, error) {
 		SystemMessageScenario:  &game.SystemMessageScenario,
 		SystemMessageGameStart: &game.SystemMessageGameStart,
 		ImageStyle:             &game.ImageStyle,
+		VoiceStyle:             &game.VoiceStyle,
 		Css:                    &game.Css,
 		StatusFields:           &game.StatusFields,
 		FirstMessage:           game.FirstMessage,
@@ -319,6 +326,47 @@ func (c caller) GetCover(gameID string) ([]byte, error) {
 		return nil, err
 	}
 	return r.Body, nil
+}
+
+// SetCover makes a picture, as a game's .cgl file brings it, a game's cover, with
+// the signature the file's cover.sig holds, and answers with the game as it
+// now is.
+func (c caller) SetCover(gameID string, picture []byte, signature string) (GameView, error) {
+	return decode[GameView](c.api.PutApiGamesIdCoverWithResponse(ctx(), gameID,
+		body("image/png", picture), header("X-Cover-Signature", signature)))
+}
+
+// GetGameCgl exports a game as a .cgl file, a zip of its game file and its cover.
+func (c caller) GetGameCgl(gameID string) ([]byte, error) {
+	r, err := c.api.GetApiGamesIdCglWithResponse(ctx(), gameID)
+	if err := done(r, err); err != nil {
+		return nil, err
+	}
+	return r.Body, nil
+}
+
+// body sends a raw request body, which a raw endpoint's generated method has
+// no argument for.
+func body(contentType string, data []byte) apiclient.RequestEditorFn {
+	return func(_ context.Context, req *http.Request) error {
+		req.Header.Set("Content-Type", contentType)
+		req.Body = io.NopCloser(bytes.NewReader(data))
+		req.ContentLength = int64(len(data))
+		return nil
+	}
+}
+
+// PNG is a picture of w×h pixels, as a game's .cgl file may bring one.
+func PNG(w, h int) []byte {
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			img.Set(x, y, color.RGBA{R: uint8(x), G: uint8(y), B: 128, A: 255})
+		}
+	}
+	var buf bytes.Buffer
+	_ = png.Encode(&buf, img)
+	return buf.Bytes()
 }
 
 // IsJPEG says whether a picture is a JPEG file.

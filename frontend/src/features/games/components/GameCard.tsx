@@ -22,7 +22,6 @@ import { blocksContinue, unplayable } from "@/common/lib/playability";
 import { UnplayableNote } from "@components/UnplayableNote";
 import {
   EditButtonWithText,
-  TextButton,
   GenericIconButton,
 } from "@components/buttons";
 import type { GameView } from "@/api/types";
@@ -56,24 +55,23 @@ export interface GameCardProps {
   onEdit: () => void;
   editLabel: string;
 
-  // Play actions: a click on the tile plays (or continues)
-  onPlay: () => void;
+  /**
+   * A click on the tile opens the game: it starts, or, with a session of it,
+   * asks whether to continue or start anew. `canStartNew` false: only
+   * continuing is possible.
+   */
+  onOpen: (canStartNew: boolean) => void;
   playLabel: string;
 
-  // Continue session (optional)
+  // The caller's session of it (optional)
   hasSession?: boolean;
-  onContinue?: () => void;
   continueLabel?: string;
-  onRestart?: () => void;
-  restartLabel?: string;
 
   /** Public or private on the cover; otherwise only public games say so. */
   showVisibility?: boolean;
 
   // Owner badge
   isOwner?: boolean;
-  // Who made the game, for games that aren't the caller's
-  showCreator?: boolean;
 
   // Favorite
   isFavorite?: boolean;
@@ -97,8 +95,8 @@ export interface GameCardProps {
 /**
  * GameCard - a game as a tile in a game list
  *
- * A click on the tile plays the game, or continues the caller's session of
- * it. The cover on top carries where the game is seen (public, private,
+ * A click on the tile opens the game: it starts, or, with a session of it,
+ * asks whether to continue or start anew. The cover on top carries where the game is seen (public, private,
  * sponsored) and the favourite star; below it the name, the facts (who
  * made it, how often it was played, when it changed) and the description;
  * at the foot the button that opens the game and the actions, which line up
@@ -108,16 +106,12 @@ export function GameCard({
   game,
   onEdit,
   editLabel,
-  onPlay,
+  onOpen,
   playLabel,
   hasSession = false,
-  onContinue,
   continueLabel,
-  onRestart,
-  restartLabel,
   showVisibility = false,
   isOwner = false,
-  showCreator = false,
   isFavorite = false,
   onToggleFavorite,
   favoriteLabel,
@@ -130,11 +124,11 @@ export function GameCard({
   const { t } = useTranslation("common");
   const sponsored = !!game.publicSponsoredApiKeyShareId;
   const favoriteText = isFavorite ? unfavoriteLabel : favoriteLabel;
-  const continues = hasSession && !!onContinue;
+  const continues = hasSession;
   // A game the caller cannot start says why, and a click on it plays nothing.
   const problem = unplayable(game);
   const held = problem !== null && (!continues || blocksContinue(problem));
-  const play = held ? undefined : continues ? onContinue : onPlay;
+  const play = held ? undefined : () => onOpen(problem === null);
   const playText = continues ? continueLabel : playLabel;
 
   const visibility = game.public ? (
@@ -158,8 +152,6 @@ export function GameCard({
       {t("games.visibility.private")}
     </Badge>
   ) : null;
-
-  const creator = showCreator && !isOwner && game.creatorName;
 
   return (
     <Card
@@ -244,12 +236,23 @@ export function GameCard({
           {game.name}
         </Text>
 
-        {/* The facts: who made it, how often played, when changed. */}
+        {/* Who made it, always: games of the same name differ by their maker;
+            one's own is marked, for whoever does not know their own name. */}
+        {game.creatorName && (
+          <Group gap={6} wrap="nowrap">
+            <Text size="sm" fw={500} lineClamp={1}>
+              {game.creatorName}
+            </Text>
+            {isOwner && (
+              <Badge size="xs" color="violet" variant="light" style={{ flexShrink: 0 }}>
+                {t("games.badges.myGame")}
+              </Badge>
+            )}
+          </Group>
+        )}
+
+        {/* The facts: how often played, when changed. */}
         <Group gap={6} wrap="wrap" className={classes.facts}>
-          {creator && (
-            <span>{t("games.byCreator", { name: game.creatorName })}</span>
-          )}
-          {creator && <span aria-hidden>·</span>}
           <Tooltip label={t("games.fields.playCount")} withArrow>
             <Group gap={2} wrap="nowrap" component="span">
               <IconPlayerPlay size={12} aria-hidden />
@@ -265,11 +268,6 @@ export function GameCard({
           <Badge size="xs" color="gray" variant="light">
             {t(`games.genres.${game.genre}`, { defaultValue: game.genre })}
           </Badge>
-          {isOwner && (
-            <Badge size="xs" color="violet" variant="light">
-              {t("games.badges.myGame")}
-            </Badge>
-          )}
           {isWorkshopGame && (
             <Badge
               size="xs"
@@ -301,14 +299,7 @@ export function GameCard({
         gap="xs"
         onClick={(e) => e.stopPropagation()}
       >
-        <Group gap="xs" wrap="nowrap">
-          <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
-          {continues && onRestart && !problem && (
-            <TextButton onClick={onRestart} size="xs">
-              {restartLabel}
-            </TextButton>
-          )}
-        </Group>
+        <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
         <Group gap={2} wrap="nowrap">
           {actions.map((action) => (
             <GameActionIcon key={action.key} action={action} />

@@ -30,7 +30,35 @@ func (s *LiveSlot) Open(ctx context.Context, cfg LiveConfig) (LiveConn, error) {
 	}
 	conn, err := (*held).Open(ctx, cfg)
 	report(s.Report, err)
-	return conn, err
+	if err != nil || s.Report == nil {
+		return conn, err
+	}
+	return reportingConn{LiveConn: conn, events: reportEvents(conn.Events(), s.Report)}, nil
+}
+
+// reportingConn is a conversation whose errors are reported as they arrive,
+// as every other call's are: a key refused mid-conversation is told the same.
+type reportingConn struct {
+	LiveConn
+	events <-chan LiveEvent
+}
+
+func (c reportingConn) Events() <-chan LiveEvent { return c.events }
+
+// reportEvents passes every event on, reporting each error's on the way, and
+// closes when the conversation's events do.
+func reportEvents(in <-chan LiveEvent, to func(error)) <-chan LiveEvent {
+	out := make(chan LiveEvent, 64)
+	go func() {
+		defer close(out)
+		for e := range in {
+			if e.Kind == EventError {
+				report(to, e.Err)
+			}
+			out <- e
+		}
+	}()
+	return out
 }
 
 // ToolSlot is a Tool whose implementation can be replaced.
@@ -49,6 +77,22 @@ func (s *ToolSlot) Query(ctx context.Context, system, user string) (string, Usag
 		return "", Usage{}, ErrUnset
 	}
 	text, used, err := (*held).Query(ctx, system, user)
+	report(s.Report, err)
+	return text, used, err
+}
+
+// QuerySchema asks the held tool for JSON of a schema; a tool that answers
+// only in text cannot.
+func (s *ToolSlot) QuerySchema(ctx context.Context, system, user string, schema Schema) (string, Usage, error) {
+	held := s.held.Load()
+	if held == nil || *held == nil {
+		return "", Usage{}, ErrUnset
+	}
+	structured, ok := (*held).(SchemaTool)
+	if !ok {
+		return "", Usage{}, errors.New("adapters: this platform's tool answers only in text")
+	}
+	text, used, err := structured.QuerySchema(ctx, system, user, schema)
 	report(s.Report, err)
 	return text, used, err
 }

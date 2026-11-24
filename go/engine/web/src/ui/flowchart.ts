@@ -10,7 +10,7 @@ import type { Place } from "../client.js";
 import type { Phase } from "../protocol.js";
 import type { Topology, TopologyEdge } from "../client.js";
 import { layoutCode, parked } from "../layout.js";
-import { blockLabel, text, wireLabel } from "../texts.js";
+import { blockLabel, settingLabel, text, wireLabel } from "../texts.js";
 
 /** Reads a CSS custom property, so the diagram follows the page's theme. */
 function token(name: string, fallback: string): string {
@@ -77,7 +77,11 @@ export class Flowchart {
     const outputs = new Set(
       topology.nodes.filter((node) => node.role === "sink").map((node) => node.name),
     );
-    const blocks = topology.nodes.filter((node) => !outputs.has(node.name));
+    // The game's settings are no blocks either: each is a gear hanging above
+    // the block that reads it, as inputs come in from above.
+    const settings = topology.nodes.filter((node) => node.role === "setting");
+    const settingNames = new Set(settings.map((node) => node.name));
+    const blocks = topology.nodes.filter((node) => !outputs.has(node.name) && !settingNames.has(node.name));
     const inputs = new Set(
       topology.nodes.filter((node) => node.role === "source").map((node) => node.name),
     );
@@ -90,7 +94,10 @@ export class Flowchart {
     const seen = new Set<string>();
     const wires = topology.edges.filter((edge) => {
       if (outputs.has(edge.to) || (edge.kind === "state" && inputs.has(edge.to))) return false;
-      const key = `${edge.from}>${edge.to}:${edge.kind}`;
+      // A setting's lead is drawn with its gear.
+      if (settingNames.has(edge.from)) return false;
+      // Unless a port tells them apart, as a voice and its description are.
+      const key = `${edge.from}>${edge.to}:${edge.kind}:${edge.port ?? ""}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -138,13 +145,34 @@ export class Flowchart {
             classes: [kind ? "input" : "", node.place ? "" : "unplaced"].join(" ").trim(),
           };
         }),
+        ...settings.flatMap((node) => {
+          const target = topology.edges.find((edge) => edge.from === node.name)?.to;
+          return [
+            {
+              data: {
+                id: node.name,
+                label: settingLabel(node.field, node.name),
+                role: node.role,
+                icon: icon("setting", symbol),
+                hue: symbol,
+                soft: bg,
+                glow: bg,
+              },
+              classes: "setting",
+              grabbable: false,
+            },
+            ...(target
+              ? [{ data: { id: `${node.name}:stub`, source: node.name, target }, classes: "stub" }]
+              : []),
+          ];
+        }),
         ...wires.map((edge, index) => ({
           data: {
             id: `e${index}`,
             source: edge.from,
             target: edge.to,
             kind: edge.kind,
-            label: wireLabel(edge.from, edge.to, edge.kind),
+            label: wireLabel(edge.from, edge.to, edge.kind, edge.port),
           },
         })),
         ...feeds.flatMap((edge) => {
@@ -216,6 +244,25 @@ export class Flowchart {
           },
         },
         { selector: "node.input", style: { width: 34, height: 34 } },
+        {
+          // A game setting: a gear, named above it, as small as an output.
+          selector: "node.setting",
+          style: {
+            label: "data(label)",
+            shape: "ellipse",
+            width: 20,
+            height: 20,
+            padding: "0px",
+            "font-size": 7,
+            color: symbol,
+            "text-valign": "top",
+            "text-margin-y": -2,
+            "border-width": 0,
+            "background-opacity": 0,
+            "background-image": "data(icon)",
+            "background-fit": "contain",
+          },
+        },
         {
           // A block the genre's layout misses: findable, so it gets placed.
           selector: "node.unplaced",
@@ -308,9 +355,12 @@ export class Flowchart {
     });
 
     this.#hangOutputs();
+    this.#hangSettings();
     // A block moved by a developer takes its symbols along.
     this.#cy.on("position", "node", (event) => {
-      if (!event.target.hasClass("output")) this.#hangOutputs(event.target);
+      if (event.target.hasClass("output") || event.target.hasClass("setting")) return;
+      this.#hangOutputs(event.target);
+      this.#hangSettings(event.target);
     });
 
     if (topology.dev) this.#rearrangeable(topology.name);
@@ -373,6 +423,33 @@ export class Flowchart {
     });
   }
 
+  /** How far above its block a setting's gear stands, and how far apart. */
+  static readonly settingRise = 34;
+  static readonly settingStep = 44;
+
+  /**
+   * Hangs each block's settings in a row above it, centred, or only those of
+   * one block: inputs come in from above, as the story runs top down.
+   */
+  #hangSettings(only?: cytoscape.NodeSingular): void {
+    const cy = this.#cy;
+    if (!cy) return;
+    const owners = only ? cy.collection(only) : blocksOf(cy);
+    cy.batch(() => {
+      owners.forEach((owner) => {
+        const gears = owner.incomers("node.setting");
+        const { x, y } = owner.position();
+        const above = y - owner.outerHeight() / 2 - Flowchart.settingRise + 10;
+        gears.forEach((gear, i) => {
+          gear.position({
+            x: x + (i - (gears.length - 1) / 2) * Flowchart.settingStep,
+            y: above,
+          });
+        });
+      });
+    });
+  }
+
   /**
    * Lets a developer drag blocks anywhere and copy the layout as Go source:
    * where the blocks stand when the button is pressed is the layout.
@@ -384,10 +461,16 @@ export class Flowchart {
     // A parked block that has been moved has a place now.
     cy.on("free", "node", (event) => event.target.removeClass("unplaced"));
 
+    // An icon, named by its tooltip; the tooltip and the icon say how a copy went.
     const button = document.createElement("button");
     button.type = "button";
     button.className = "copy-layout";
-    button.textContent = text("pipeline.copyLayout");
+    const say = (key: "pipeline.copyLayout" | "pipeline.copied" | "pipeline.copyFailed", glyph: string): void => {
+      button.title = text(key);
+      button.setAttribute("aria-label", text(key));
+      button.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${glyph}</svg>`;
+    };
+    say("pipeline.copyLayout", COPY_GLYPH);
     button.addEventListener("click", async () => {
       const layout = new Map(
         blocksOf(cy).map((node) => [node.id(), node.position()] as const),
@@ -395,13 +478,13 @@ export class Flowchart {
       const code = layoutCode(genre, layout);
       try {
         await navigator.clipboard.writeText(code);
-        button.textContent = text("pipeline.copied");
+        say("pipeline.copied", CHECK_GLYPH);
       } catch {
         // A page without clipboard access still hands the layout over.
         console.log(code);
-        button.textContent = text("pipeline.copyFailed");
+        say("pipeline.copyFailed", COPY_GLYPH);
       }
-      setTimeout(() => (button.textContent = text("pipeline.copyLayout")), 1500);
+      setTimeout(() => say("pipeline.copyLayout", COPY_GLYPH), 1500);
     });
     this.container.parentElement?.append(button);
   }
@@ -564,7 +647,7 @@ function preparationOf(topology: Topology): Set<string> {
 
 /** The drawing's blocks, without the output symbols hanging off them. */
 function blocksOf(cy: cytoscape.Core): cytoscape.NodeCollection {
-  return cy.nodes().filter((node) => !node.hasClass("output"));
+  return cy.nodes().filter((node) => !node.hasClass("output") && !node.hasClass("setting"));
 }
 
 /** One symbol per feeding block, so an output fed twice hangs under both. */
@@ -572,11 +655,22 @@ function symbolId(edge: TopologyEdge): string {
   return `${edge.from}>${edge.to}`;
 }
 
+/** Two sheets, one over the other: copy. */
+const COPY_GLYPH = '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>';
+/** A tick: copied. */
+const CHECK_GLYPH = '<path d="M5 12.5l4.5 4.5L19 7.5"/>';
+
 /** Line-art glyphs in a 24-unit box, one per kind of input and output. */
 const GLYPHS: Record<string, string> = {
   // The player speaks: a microphone.
   "in-audio":
     '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
+  // A picture there from the start, such as the gallery image: a framed picture.
+  "in-image":
+    '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/>',
+  // A game setting, as its author set it in the editor: a gear.
+  setting:
+    '<path d="M10.3 4.3c.4-1.8 2.9-1.8 3.4 0a1.7 1.7 0 0 0 2.6 1.1c1.5-.9 3.3.8 2.4 2.4a1.7 1.7 0 0 0 1 2.5c1.8.4 1.8 2.9 0 3.4a1.7 1.7 0 0 0-1 2.6c.9 1.5-.8 3.3-2.4 2.4a1.7 1.7 0 0 0-2.6 1c-.4 1.8-2.9 1.8-3.4 0a1.7 1.7 0 0 0-2.5-1c-1.6.9-3.3-.9-2.4-2.4a1.7 1.7 0 0 0-1.1-2.6c-1.8-.4-1.8-2.9 0-3.4a1.7 1.7 0 0 0 1.1-2.5c-.9-1.6.8-3.3 2.4-2.4a1.7 1.7 0 0 0 2.5-1.1z"/><circle cx="12" cy="12" r="3"/>',
   // The player types: a keyboard.
   "in-text":
     '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 14h8"/>',
@@ -596,9 +690,12 @@ const GLYPHS: Record<string, string> = {
  * What a player's input takes in, read off the wires leaving it: audio for a
  * microphone, text for typing.
  */
-function inputKind(name: string, edges: readonly TopologyEdge[]): "audio" | "text" {
+function inputKind(name: string, edges: readonly TopologyEdge[]): "audio" | "image" | "text" {
   const kinds = edges.filter((edge) => edge.from === name).map((edge) => edge.kind);
-  return kinds.includes("audio") ? "audio" : "text";
+  if (kinds.includes("audio")) return "audio";
+  // A picture that is there from the start, such as the game's gallery image.
+  if (kinds.includes("image")) return "image";
+  return "text";
 }
 
 /** A symbol for a kind of wire or input, as an image cytoscape can paint. */

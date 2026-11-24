@@ -18,8 +18,10 @@ import (
 )
 
 // A game's cover is part of its card: whoever may read the card sees it, and
-// whoever may edit the card has it made. It is generated, never uploaded,
-// so the youth-protection rule binds every picture (session/cover.go).
+// whoever may edit the card sets it. It is drawn under the youth-protection
+// rule, or brought in from a game's .cgl file, signed by a ChatGameLab server and
+// checked against that rule before it is kept, so the rule binds every
+// picture (session/cover.go). SetGameCover stores what those two hand it.
 
 // GameCover is a game's cover picture and when it was made.
 type GameCover struct {
@@ -30,10 +32,19 @@ type GameCover struct {
 // ReadGameCover is a game's cover, if the caller may read its card: {Read, GameCard}. A game they may not read, or
 // one without a cover, is ErrNotFound.
 func ReadGameCover(ctx context.Context, id uuid.UUID) (*GameCover, error) {
-	if _, err := ReadGameCard(ctx, id); err != nil {
+	card, err := ReadGameCard(ctx, id)
+	if err != nil {
 		return nil, err
 	}
-	row, err := store.Queries().V2GameCover(ctx, id)
+	return card.Cover(ctx)
+}
+
+// Cover is the cover of a card the caller holds. Holding the card is reading
+// it, by whichever grant opened it, a share link's included, and the cover is
+// part of the card; so whoever may play a game sees its cover. A game without
+// a cover is ErrNotFound.
+func (g *GameCard) Cover(ctx context.Context) (*GameCover, error) {
+	row, err := store.Queries().V2GameCover(ctx, g.ID())
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}

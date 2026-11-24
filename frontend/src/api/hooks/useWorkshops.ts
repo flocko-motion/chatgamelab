@@ -1,4 +1,5 @@
 import { api } from "../client/api";
+import { rawRequest } from "../client/raw";
 import {
   useQuery,
   useMutation,
@@ -371,16 +372,11 @@ export function usePublicWorkshop(slug: string) {
   });
 }
 
-/** A game on a public workshop page as a YAML file; errors are the caller's. */
-export function usePublicWorkshopGameYaml() {
-  return useMutation<string, ApiError, { slug: string; gameId: string }>({
+/** A game on a public workshop page as a .cgl file, its YAML and cover; errors are the caller's. */
+export function usePublicWorkshopGameFile() {
+  return useMutation<Blob, ApiError, { slug: string; gameId: string }>({
     mutationFn: ({ slug, gameId }) =>
-      api
-        .getApiPublicWorkshopsSlugGamesIdYaml(slug, gameId, {
-          headers: { Accept: "application/x-yaml" },
-          format: "text",
-        })
-        .then((r) => r.data as unknown as string),
+      rawRequest(`/api/public/workshops/${encodeURIComponent(slug)}/games/${gameId}/cgl`).then((r) => r.blob()),
     retry: false,
   });
 }

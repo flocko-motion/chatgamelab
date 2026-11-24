@@ -24,6 +24,10 @@ type Offer struct {
 	// Keys is a function so the persisted spec holds no secret and a rotated key applies on the next call.
 	Keys KeyFunc `json:"-"`
 
+	// Voices keeps the game's custom voices on this offer's key, so each is
+	// made once and reused; nil keeps none, and no voice is made.
+	Voices VoiceStore `json:"-"`
+
 	Caveats Caveats `json:"caveats"`
 }
 

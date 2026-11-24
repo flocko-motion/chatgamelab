@@ -2,7 +2,21 @@
  * The headless playback-engine: holds all session state with no DOM or audio device, so
  * a full game plays from node.
  */
-import { detailOf, refusalOf, type Choice, type SessionRef, type Settled, type UsageReport } from "./client.js";
+import {
+  detailOf,
+  refusalOf,
+  type Choice,
+  type JournalEntry,
+  type SessionRef,
+  type Settled,
+  type UsageReport,
+} from "./client.js";
+
+/** The reason on an invitation that waits for the player's press. */
+const INVITE_PRESS = "press";
+
+/** How many journal entries the page keeps, as many as the engine does. */
+const JOURNAL_KEPT = 2000;
 import {
   AUDIO_DISCARD_BYTES,
   ERROR_CODES,
@@ -291,14 +305,25 @@ export class PlaybackEngine {
         this.#applyUsage(event.Value);
         break;
       case "connect":
-        // Only the first invitation is acted on: every later one follows a pause, and answering
-        // it would resume and re-bill a conversation nobody asked to resume. The press offers.
-        if (!this.state.invited) void this.#openVoice();
+        // An invitation that waits for the press follows a pause, or a conversation that could
+        // not go on by itself: answering it would re-bill one nobody asked to resume. Any other
+        // is answered at once, the first and one after the provider dropped the conversation.
+        if (event.Value === INVITE_PRESS) {
+          this.state.paused = true;
+        } else {
+          void this.#openVoice();
+        }
         this.state.invited = true;
         break;
       case "settled":
         this.#applySettled(event.Value);
         break;
+      case "journal":
+        this.#applyJournal(event.Value);
+        break;
+      case "heartbeat":
+        // Only proof the socket lives, which the transport has already taken.
+        return;
       case "pause":
         // Let go for silence or on request; the session itself stays.
         this.state.paused = true;
@@ -319,6 +344,8 @@ export class PlaybackEngine {
       this.state.resuming = false;
       return;
     }
+    // A conversation the provider dropped leaves its audio connection behind; a new one replaces it.
+    if (this.state.voice === "live") this.voice.close();
     this.state.voice = "connecting";
     this.state.problem = null;
     this.#notify();
@@ -346,6 +373,7 @@ export class PlaybackEngine {
     await this.#loadSnapshot(session);
     await this.loadOptions(session);
     await this.#loadHistory(session);
+    await this.#loadJournal(session);
 
     // Audio opens here from where the session stands, so replay never resumes a pause.
     if (this.state.invited && !this.state.paused && this.state.voice === "idle") {
@@ -379,6 +407,30 @@ export class PlaybackEngine {
         break;
     }
     this.#notify();
+  }
+
+  /** The journal so far replaces what the page held; later entries arrive as events. */
+  async #loadJournal(session: SessionRef): Promise<void> {
+    let journal: unknown;
+    try {
+      ({ data: journal } = await session.client.getApiEngineSessionsIdJournal(session.id));
+    } catch {
+      return;
+    }
+    if (!Array.isArray(journal)) return;
+    this.state.journal = (journal as JournalEntry[]).slice(-JOURNAL_KEPT);
+    this.#notify();
+  }
+
+  #applyJournal(value: string): void {
+    let entry: JournalEntry;
+    try {
+      entry = JSON.parse(value) as JournalEntry;
+    } catch {
+      return;
+    }
+    this.state.journal.push(entry);
+    if (this.state.journal.length > JOURNAL_KEPT) this.state.journal.splice(0, this.state.journal.length - JOURNAL_KEPT);
   }
 
   /** Replayed history goes through the same path as live events. */

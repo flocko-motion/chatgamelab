@@ -203,6 +203,7 @@ func (s *Session) start(settled settlement, changes []string) {
 	s.equip()
 	s.applySwitches()
 	s.announce(changes)
+	s.journal.Note(JournalSession, "settled", fmt.Sprintf("%s, tier %s", settled.offer.Platform, settled.Choice.Tier))
 	s.wiring.Graph.Start(s.ctx)
 }
 
@@ -216,6 +217,7 @@ func (s *Session) equip() {
 	}
 	s.kit.close()
 	s.kit = kit
+	s.slots.voices.Set(kit.voices, s.settled.offer.Voices)
 	s.slots.live.Set(kit.live)
 	s.slots.tool.Set(kit.tool)
 	s.slots.image.Set(kit.image)
@@ -341,10 +343,7 @@ func (s *Session) deliver() {
 // emit puts one event on the stream and in the history. Only the sender calls it.
 func (s *Session) emit(ev SessionEvent) {
 	s.log(ev)
-	select {
-	case s.events <- ev:
-	case <-s.ctx.Done():
-	}
+	s.hub.publish(ev)
 }
 
 // playing refuses play before the player has chosen.

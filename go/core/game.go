@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"slices"
+	"strings"
 	"time"
 
 	"cgl/core/internal/identity"
@@ -25,15 +26,20 @@ var GameCards Lister[*GameCard] = gameCards{}
 
 type gameCards struct{}
 
-// Spec: the filters own, others, public, favorites and sponsored; the
-// orders createdAt (default, newest first), modifiedAt, name, playCount,
-// visibility and creator.
+// genreFamily names the filters that keep one genre's games, genre:<id>.
+// Several of them are one filter, met by a game of any of the genres.
+const genreFamily = "genre:"
+
+// Spec: the filters own, others, public, favorites and sponsored, and
+// genre:<id>; the orders createdAt (default, newest first), modifiedAt,
+// name, playCount, visibility and creator.
 func (gameCards) Spec() ListSpec {
 	return ListSpec{
-		Filters:     []string{"own", "others", "public", "favorites", "sponsored"},
-		Sorts:       []string{"createdAt", "modifiedAt", "name", "playCount", "visibility", "creator"},
-		DefaultSort: "createdAt",
-		DefaultDir:  "desc",
+		Filters:        []string{"own", "others", "public", "favorites", "sponsored"},
+		FilterFamilies: []string{genreFamily},
+		Sorts:          []string{"createdAt", "modifiedAt", "name", "playCount", "visibility", "creator"},
+		DefaultSort:    "createdAt",
+		DefaultDir:     "desc",
 	}
 }
 
@@ -47,6 +53,11 @@ func (gameCards) Query(ctx context.Context, q ListQuery) (Page[*GameCard], error
 	p.OnlyPublic = slices.Contains(q.Filter, "public")
 	p.OnlyFavorites = slices.Contains(q.Filter, "favorites")
 	p.OnlySponsored = slices.Contains(q.Filter, "sponsored")
+	for _, f := range q.Filter {
+		if genre, ok := strings.CutPrefix(f, genreFamily); ok {
+			p.Genres = append(p.Genres, genre)
+		}
+	}
 	p.Search = q.Search
 	p.SortBy = q.SortBy
 	p.SortDesc = q.SortDir == "desc"
@@ -153,6 +164,7 @@ type gameRow struct {
 	scenario     string
 	gameStart    string
 	imageStyle   string
+	voiceStyle   string
 	css          string
 	statusFields string
 	firstMessage *string
@@ -185,6 +197,7 @@ func gameRowFrom(r db.V2GameCardsRow) gameRow {
 		scenario:     r.SystemMessageScenario,
 		gameStart:    r.SystemMessageGameStart,
 		imageStyle:   r.ImageStyle,
+		voiceStyle:   r.VoiceStyle,
 		css:          r.Css,
 		statusFields: r.StatusFields,
 		firstMessage: nullString(r.FirstMessage),
@@ -292,9 +305,13 @@ func (g *GameCard) AsGameSettings() (*GameSettings, error) {
 // GameContent is how a game works: open in the spirit of ChatGameLab.
 type GameContent struct{ card *GameCard }
 
-func (c *GameContent) Scenario() string      { return c.card.row.scenario }
-func (c *GameContent) GameStart() string     { return c.card.row.gameStart }
-func (c *GameContent) ImageStyle() string    { return c.card.row.imageStyle }
+func (c *GameContent) Scenario() string   { return c.card.row.scenario }
+func (c *GameContent) GameStart() string  { return c.card.row.gameStart }
+func (c *GameContent) ImageStyle() string { return c.card.row.imageStyle }
+
+// VoiceStyle is how the game's voice sounds, in the designer's words; empty
+// leaves the voice to the engine.
+func (c *GameContent) VoiceStyle() string    { return c.card.row.voiceStyle }
 func (c *GameContent) CSS() string           { return c.card.row.css }
 func (c *GameContent) StatusFields() string  { return c.card.row.statusFields }
 func (c *GameContent) FirstMessage() *string { return c.card.row.firstMessage }

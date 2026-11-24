@@ -10,9 +10,9 @@ import (
 )
 
 // Image turns a prompt into a picture. It is the whole mechanism and nothing
-// else: how often it runs is settled by whatever feeds it, so the same block is
-// NPC-Live's one portrait when the init stem hands it a single prompt, and
-// Adventure's per-turn illustration when the loop does.
+// else: how often it runs is settled by whatever feeds it, so the same block
+// makes one picture when a source hands it a single prompt, and one per prompt
+// when a loop feeds it.
 //
 // A failure that may pass is retried after each Backoff; a call that fails
 // for good sends its prompt on the failure output.
@@ -58,7 +58,7 @@ func (b *Image) RequiredInputs() []ports.Kind         { return []ports.Kind{port
 func (b *Image) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe() }
 
 // StateOutPort reports what this block is doing. Wire it to the gate only if the
-// game should wait for the picture; a portrait usually should not.
+// game should wait for the picture.
 func (b *Image) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 func (b *Image) Start(ctx context.Context) {

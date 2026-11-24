@@ -97,6 +97,7 @@ func CopyGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 		scenario:     content.Scenario(),
 		gameStart:    content.GameStart(),
 		imageStyle:   content.ImageStyle(),
+		voiceStyle:   content.VoiceStyle(),
 		css:          content.CSS(),
 		statusFields: content.StatusFields(),
 		firstMessage: content.FirstMessage(),
@@ -162,6 +163,7 @@ func insertGame(ctx context.Context, next gameRow, originallyCreatedBy *uuid.UUI
 		Scenario:            next.scenario,
 		GameStart:           next.gameStart,
 		ImageStyle:          next.imageStyle,
+		VoiceStyle:          next.voiceStyle,
 		Css:                 next.css,
 		StatusFields:        next.statusFields,
 		FirstMessage:        sqlString(next.firstMessage),
@@ -190,6 +192,7 @@ func (t *GameTemplate) Public() bool        { return t.row.public }
 func (t *GameTemplate) Scenario() string      { return t.row.scenario }
 func (t *GameTemplate) GameStart() string     { return t.row.gameStart }
 func (t *GameTemplate) ImageStyle() string    { return t.row.imageStyle }
+func (t *GameTemplate) VoiceStyle() string    { return t.row.voiceStyle }
 func (t *GameTemplate) CSS() string           { return t.row.css }
 func (t *GameTemplate) StatusFields() string  { return t.row.statusFields }
 func (t *GameTemplate) FirstMessage() *string { return t.row.firstMessage }

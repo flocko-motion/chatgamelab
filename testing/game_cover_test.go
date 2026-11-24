@@ -1,9 +1,13 @@
 package testing
 
 import (
+	"archive/zip"
+	"bytes"
+	"io"
 	"strings"
 	"testing"
 
+	coverpic "cgl/picture"
 	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
@@ -103,4 +107,106 @@ func (s *GameCoverTestSuite) TestDeletingAnAccountTakesItsCovers() {
 	Must(designer.MakeCover(game, ""))
 
 	s.NoError(s.DevUser().DeleteUser(designer.ID), "an account with a covered game is deleted")
+}
+
+// A picture brought in from a game's .cgl file becomes the cover once it passes
+// the youth-protection check, stored at cover size as a JPEG.
+func (s *GameCoverTestSuite) TestABroughtInPictureBecomesTheCover() {
+	user, gameID := s.designer("cover-upload")
+
+	picture := testutil.PNG(1200, 900)
+	game := Must(user.SetCover(gameID, picture, coverpic.Sign(picture)))
+	s.NotNil(game.CoverAt)
+	stored := Must(user.GetCover(gameID))
+	s.True(testutil.IsJPEG(stored), "the cover is stored as a JPEG")
+	s.Less(len(stored), 200_000, "the cover is stored at cover size")
+}
+
+// What is no picture, or too large for a game file, is refused, and the
+// game keeps its cover.
+func (s *GameCoverTestSuite) TestABadUploadIsRefused() {
+	user, gameID := s.designer("cover-bad")
+
+	notAPicture := []byte("no picture at all")
+	_, err := user.SetCover(gameID, notAPicture, coverpic.Sign(notAPicture))
+	s.Refused(err, testutil.CodeNotAPicture)
+	_, err = user.SetCover(gameID, make([]byte, 1<<20+1), "")
+	s.Refused(err, testutil.CodeFileTooLarge)
+	s.Nil(Must(user.ReadGame(gameID)).CoverAt)
+}
+
+// Checking a picture is paid like drawing one: without a key, no cover.
+func (s *GameCoverTestSuite) TestNoKeyNoBroughtInCover() {
+	user := s.CreateUser("cover-upload-nokey")
+	gameID := Must(user.UploadGame("alien-first-contact")).Id.String()
+
+	picture := testutil.PNG(60, 40)
+	_, err := user.SetCover(gameID, picture, coverpic.Sign(picture))
+	s.Refused(err, testutil.CodeNoApiKey)
+	s.Nil(Must(user.ReadGame(gameID)).CoverAt)
+}
+
+// Someone who may not edit the game cannot bring in its cover.
+func (s *GameCoverTestSuite) TestOthersCannotBringInACover() {
+	_, gameID := s.designer("cover-upload-owner")
+	stranger, _ := s.designer("cover-upload-stranger")
+
+	picture := testutil.PNG(60, 40)
+	_, err := stranger.SetCover(gameID, picture, coverpic.Sign(picture))
+	s.NotFound(err)
+}
+
+// A picture no ChatGameLab server signed, or one changed since, is turned
+// away before anything is paid for checking it.
+func (s *GameCoverTestSuite) TestAnUnsignedPictureIsRefused() {
+	user, gameID := s.designer("cover-unsigned")
+	picture := testutil.PNG(60, 40)
+
+	_, err := user.SetCover(gameID, picture, "")
+	s.Refused(err, testutil.CodeCoverUnsigned)
+	_, err = user.SetCover(gameID, picture, coverpic.Sign(testutil.PNG(61, 40)))
+	s.Refused(err, testutil.CodeCoverUnsigned)
+	s.Nil(Must(user.ReadGame(gameID)).CoverAt)
+}
+
+// A cover exported in a game's .cgl file is taken back by its signature.
+func (s *GameCoverTestSuite) TestAnExportedCoverComesBack() {
+	user, gameID := s.designer("cover-roundtrip")
+	Must(user.MakeCover(gameID, ""))
+	files := zipFiles(Must(user.GetGameCgl(gameID)))
+
+	game := Must(user.SetCover(gameID, files["cover.jpg"], string(files["cover.sig"])))
+	s.NotNil(game.CoverAt)
+}
+
+// A game's .cgl file holds its game file and its cover; without a cover, the
+// file alone.
+func (s *GameCoverTestSuite) TestTheCglFileHoldsTheGameAndItsCover() {
+	user, gameID := s.designer("cover-zip")
+
+	s.Equal([]string{"game.yaml"}, zipNames(Must(user.GetGameCgl(gameID))))
+	Must(user.MakeCover(gameID, ""))
+	s.Equal([]string{"game.yaml", "cover.jpg", "cover.sig"}, zipNames(Must(user.GetGameCgl(gameID))))
+}
+
+// zipFiles reads a zip's files by name.
+func zipFiles(body []byte) map[string][]byte {
+	zr := Must(zip.NewReader(bytes.NewReader(body), int64(len(body))))
+	files := map[string][]byte{}
+	for _, f := range zr.File {
+		rc := Must(f.Open())
+		files[f.Name] = Must(io.ReadAll(rc))
+		rc.Close()
+	}
+	return files
+}
+
+// zipNames lists a zip's files in order.
+func zipNames(body []byte) []string {
+	zr := Must(zip.NewReader(bytes.NewReader(body), int64(len(body))))
+	var names []string
+	for _, f := range zr.File {
+		names = append(names, f.Name)
+	}
+	return names
 }

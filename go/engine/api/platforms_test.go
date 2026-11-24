@@ -115,7 +115,7 @@ func TestListsJSON(t *testing.T) {
 		Needs []string `json:"needs"`
 	}
 	remarshal(t, engine.GenreList(), &genres)
-	want := map[string][]string{"adventure": {}, "npc-live": {"audio-live", "images"}}
+	want := map[string][]string{"adventure": {}, "npc-live": {"audio-live"}}
 	if len(genres) != len(want) {
 		t.Fatalf("genres = %+v", genres)
 	}

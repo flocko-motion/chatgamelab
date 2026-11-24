@@ -25,8 +25,9 @@ type client struct {
 }
 
 type input struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role string `json:"role"`
+	// Content is plain words, or a list of chunks, a picture among them.
+	Content any `json:"content"`
 }
 
 // start is a new conversation. Store is always false: every call is one-shot,
@@ -36,6 +37,8 @@ type start struct {
 	Instructions string  `json:"instructions,omitempty"`
 	Inputs       []input `json:"inputs"`
 	Store        bool    `json:"store"`
+	// CompletionArgs carries a response format, for a reply of a schema.
+	CompletionArgs map[string]any `json:"completion_args,omitempty"`
 }
 
 type reply struct {

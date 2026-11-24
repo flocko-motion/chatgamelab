@@ -17,6 +17,7 @@ export type GameFormFields = Required<
     | "systemMessageScenario"
     | "systemMessageGameStart"
     | "imageStyle"
+    | "voiceStyle"
     | "statusFields"
     | "genre"
     | "theme"

@@ -41,6 +41,10 @@ type AdventureConfig struct {
 	// ImageStyle is the designer's look; empty takes AdventureImageStyle.
 	ImageStyle string
 
+	// VoiceStyle is how the narrator sounds while narration is on, in the
+	// designer's words: part of the System Message, left out when empty.
+	VoiceStyle string
+
 	// StartingMessage is how the game starts, in the designer's words: part
 	// of the System Message, left out when empty.
 	StartingMessage string
@@ -424,10 +428,14 @@ func worded(guardrail string) string {
 // systemMessage is the story thread's System Message: the game engine prompt,
 // the scenario, how the game starts when the designer says so, and the
 // constraints.
-func systemMessage(gameMaster, scenario, start, constraints string) string {
+func systemMessage(gameMaster, scenario, start, voiceStyle, constraints string) string {
 	parts := []string{gameMaster, "The scenario:\n" + scenario}
 	if strings.TrimSpace(start) != "" {
 		parts = append(parts, "How to start the game:\n"+start)
+	}
+	// Only a spoken turn hears it; a written one goes on as before.
+	if clause := voiceClause(voiceStyle, "When you narrate aloud, speak like this"); clause != "" {
+		parts = append(parts, clause)
 	}
 	if constraints != "" {
 		parts = append(parts, constraints)
@@ -545,7 +553,7 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	hearing := blocks.NewHearingCall("rephrase-audio", cfg.Hearing, prompts[PromptRephraseAudio], SpokenSchema(), spokenResult)
 	// Outline takes the thread's first seat, Expand the second.
 	story := blocks.NewThread("story-thread", cfg.Thread,
-		systemMessage(prompts[PromptGameMaster], cfg.Scenario, cfg.StartingMessage, constraints), constraints)
+		systemMessage(prompts[PromptGameMaster], cfg.Scenario, cfg.StartingMessage, cfg.VoiceStyle, constraints), constraints)
 	story.Compaction = blocks.Compaction{Window: cfg.Window, Request: prompts[PromptSummary]}
 	outline := blocks.NewStructured(BlockOutline, story, OutlineSchema(cfg.Status), outlineResult)
 	expand := blocks.NewThreaded(BlockExpand, story, blocks.Prompt{First: prompts[PromptOpeningExpand], Then: prompts[PromptExpand]})
@@ -590,6 +598,18 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	g.ConnectTextOut(condenser, condensed)
 	g.ConnectTextOut(adapted, adapter)
 	g.ConnectTextOut(adapter, adapted)
+
+	// What the game's author set, shown where it goes: the story thread's
+	// System Message carries the scenario, how the game starts and, for its
+	// spoken turns, the voice style; Outline tracks the status fields; the
+	// pictures take the image style, the game's description and its scenario.
+	g.Setting(outline, "scenario", cfg.Scenario)
+	g.Setting(outline, "gameStart", cfg.StartingMessage)
+	g.Setting(outline, "statusFields", statusNames(cfg.Status))
+	g.Setting(expand, "voiceStyle", cfg.VoiceStyle)
+	g.Setting(adapted, "imageStyle", cfg.ImageStyle)
+	g.Setting(condensed, "scenario", cfg.Scenario)
+	g.Setting(picturePrompt, "description", cfg.Description)
 	// Both are tool calls before the game, so the game cannot start without them.
 	g.ConnectFailure(condenser, problem)
 	g.ConnectFailure(adapter, problem)
@@ -681,4 +701,14 @@ func speak(hearing *blocks.HearingCall, speaker *blocks.PlayerInputAudio) func([
 		speaker.Speak(clip)
 		return nil
 	}
+}
+
+// statusNames lists the status fields by name, in order, for the reader.
+func statusNames(status map[string]string) string {
+	names := make([]string, 0, len(status))
+	for name := range status {
+		names = append(names, name)
+	}
+	slices.Sort(names)
+	return strings.Join(names, ", ")
 }

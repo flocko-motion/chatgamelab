@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const v2ClearCoverCreator = `-- name: V2ClearCoverCreator :exec
@@ -27,14 +28,14 @@ const v2CreateGame = `-- name: V2CreateGame :exec
 INSERT INTO game (
   id, created_by, created_at, modified_by, modified_at, workshop_id,
   name, description, icon, genre, theme, public,
-  system_message_scenario, system_message_game_start, image_style, css,
+  system_message_scenario, system_message_game_start, image_style, voice_style, css,
   status_fields, first_message, first_status, first_image, originally_created_by
 ) VALUES (
   $1::uuid, $2::uuid, now(), $2::uuid, now(), $3::uuid,
   $4::text, $5::text, $6::bytea, $7::text, $8::text, $9::bool,
-  $10::text, $11::text, $12::text, $13::text,
-  $14::text, $15::text, $16::text, $17::bytea,
-  $18::uuid
+  $10::text, $11::text, $12::text, $13::text, $14::text,
+  $15::text, $16::text, $17::text, $18::bytea,
+  $19::uuid
 )
 `
 
@@ -51,6 +52,7 @@ type V2CreateGameParams struct {
 	Scenario            string         `json:"scenario"`
 	GameStart           string         `json:"game_start"`
 	ImageStyle          string         `json:"image_style"`
+	VoiceStyle          string         `json:"voice_style"`
 	Css                 string         `json:"css"`
 	StatusFields        string         `json:"status_fields"`
 	FirstMessage        sql.NullString `json:"first_message"`
@@ -76,6 +78,7 @@ func (q *Queries) V2CreateGame(ctx context.Context, arg V2CreateGameParams) erro
 		arg.Scenario,
 		arg.GameStart,
 		arg.ImageStyle,
+		arg.VoiceStyle,
 		arg.Css,
 		arg.StatusFields,
 		arg.FirstMessage,
@@ -118,7 +121,7 @@ func (q *Queries) V2DeleteGameTagsByGameID(ctx context.Context, gameID uuid.UUID
 
 const v2GameCards = `-- name: V2GameCards :many
 
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at,
+SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at, g.voice_style,
   -- the sections: NULL (no caller, no workshop, no organisation) is false
   COALESCE(
      ($1::bool        AND g.public)
@@ -201,22 +204,23 @@ WHERE g.deleted_at IS NULL
         SELECT 1 FROM user_favourite_game f
         WHERE f.game_id = g.id AND f.user_id = $3::uuid))
   AND (NOT $54::bool OR g.public_sponsored_api_key_share_id IS NOT NULL)
-  AND ($55::text = ''        OR lower(g.name) LIKE '%' || lower($55::text) || '%')
+  AND (COALESCE(cardinality($55::text[]), 0) = 0 OR g.genre = ANY($55::text[]))
+  AND ($56::text = ''        OR lower(g.name) LIKE '%' || lower($56::text) || '%')
 ORDER BY
-  CASE WHEN $56::text = 'name'       AND $57::bool     THEN lower(g.name) END DESC,
-  CASE WHEN $56::text = 'name'       AND NOT $57::bool THEN lower(g.name) END ASC,
-  CASE WHEN $56::text = 'modifiedAt' AND $57::bool     THEN g.modified_at END DESC,
-  CASE WHEN $56::text = 'modifiedAt' AND NOT $57::bool THEN g.modified_at END ASC,
-  CASE WHEN $56::text = 'playCount'  AND $57::bool     THEN g.play_count END DESC,
-  CASE WHEN $56::text = 'playCount'  AND NOT $57::bool THEN g.play_count END ASC,
-  CASE WHEN $56::text = 'visibility' AND $57::bool     THEN g.public END DESC,
-  CASE WHEN $56::text = 'visibility' AND NOT $57::bool THEN g.public END ASC,
-  CASE WHEN $56::text = 'creator'    AND $57::bool     THEN lower(cu.name) END DESC,
-  CASE WHEN $56::text = 'creator'    AND NOT $57::bool THEN lower(cu.name) END ASC,
-  CASE WHEN $56::text = 'createdAt'  AND NOT $57::bool THEN g.created_at END ASC,
+  CASE WHEN $57::text = 'name'       AND $58::bool     THEN lower(g.name) END DESC,
+  CASE WHEN $57::text = 'name'       AND NOT $58::bool THEN lower(g.name) END ASC,
+  CASE WHEN $57::text = 'modifiedAt' AND $58::bool     THEN g.modified_at END DESC,
+  CASE WHEN $57::text = 'modifiedAt' AND NOT $58::bool THEN g.modified_at END ASC,
+  CASE WHEN $57::text = 'playCount'  AND $58::bool     THEN g.play_count END DESC,
+  CASE WHEN $57::text = 'playCount'  AND NOT $58::bool THEN g.play_count END ASC,
+  CASE WHEN $57::text = 'visibility' AND $58::bool     THEN g.public END DESC,
+  CASE WHEN $57::text = 'visibility' AND NOT $58::bool THEN g.public END ASC,
+  CASE WHEN $57::text = 'creator'    AND $58::bool     THEN lower(cu.name) END DESC,
+  CASE WHEN $57::text = 'creator'    AND NOT $58::bool THEN lower(cu.name) END ASC,
+  CASE WHEN $57::text = 'createdAt'  AND NOT $58::bool THEN g.created_at END ASC,
   g.created_at DESC,
   g.id
-LIMIT $59::int OFFSET $58::int
+LIMIT $60::int OFFSET $59::int
 `
 
 type V2GameCardsParams struct {
@@ -274,6 +278,7 @@ type V2GameCardsParams struct {
 	OnlyPublic               bool           `json:"only_public"`
 	OnlyFavorites            bool           `json:"only_favorites"`
 	OnlySponsored            bool           `json:"only_sponsored"`
+	Genres                   []string       `json:"genres"`
 	Search                   string         `json:"search"`
 	SortBy                   string         `json:"sort_by"`
 	SortDesc                 bool           `json:"sort_desc"`
@@ -307,6 +312,7 @@ type V2GameCardsRow struct {
 	PlayCount                    int32          `json:"play_count"`
 	CloneCount                   int32          `json:"clone_count"`
 	DeletedAt                    sql.NullTime   `json:"deleted_at"`
+	VoiceStyle                   string         `json:"voice_style"`
 	MayReadContent               bool           `json:"may_read_content"`
 	MayReadSettings              bool           `json:"may_read_settings"`
 	MayEditCard                  bool           `json:"may_edit_card"`
@@ -335,7 +341,8 @@ type V2GameCardsRow struct {
 //	gate     the List grants on GameCard for a list, the Read grants for one
 //	         game (core/gates.go); the caller's context (in a workshop, what it
 //	         shows) is resolved before the query
-//	wishes   what the caller asks for: filters (combined), search (core/game.go)
+//	wishes   what the caller asks for: filters (combined), search (core/game.go);
+//	         the genres asked for are one filter, met by any of them
 //	paging   sort order (the id breaks ties, so pages never overlap), page
 //
 // total counts every match across pages, after gate and wishes.
@@ -396,6 +403,7 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		arg.OnlyPublic,
 		arg.OnlyFavorites,
 		arg.OnlySponsored,
+		pq.Array(arg.Genres),
 		arg.Search,
 		arg.SortBy,
 		arg.SortDesc,
@@ -435,6 +443,7 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 			&i.PlayCount,
 			&i.CloneCount,
 			&i.DeletedAt,
+			&i.VoiceStyle,
 			&i.MayReadContent,
 			&i.MayReadSettings,
 			&i.MayEditCard,
@@ -637,12 +646,13 @@ UPDATE game SET
   system_message_scenario   = $8::text,
   system_message_game_start = $9::text,
   image_style               = $10::text,
-  css                       = $11::text,
-  status_fields             = $12::text,
-  first_message             = $13::text,
-  first_status              = $14::text,
-  first_image               = $15::bytea
-WHERE id = $16::uuid AND deleted_at IS NULL
+  voice_style               = $11::text,
+  css                       = $12::text,
+  status_fields             = $13::text,
+  first_message             = $14::text,
+  first_status              = $15::text,
+  first_image               = $16::bytea
+WHERE id = $17::uuid AND deleted_at IS NULL
 `
 
 type V2UpdateGameParams struct {
@@ -656,6 +666,7 @@ type V2UpdateGameParams struct {
 	Scenario     string         `json:"scenario"`
 	GameStart    string         `json:"game_start"`
 	ImageStyle   string         `json:"image_style"`
+	VoiceStyle   string         `json:"voice_style"`
 	Css          string         `json:"css"`
 	StatusFields string         `json:"status_fields"`
 	FirstMessage sql.NullString `json:"first_message"`
@@ -678,6 +689,7 @@ func (q *Queries) V2UpdateGame(ctx context.Context, arg V2UpdateGameParams) erro
 		arg.Scenario,
 		arg.GameStart,
 		arg.ImageStyle,
+		arg.VoiceStyle,
 		arg.Css,
 		arg.StatusFields,
 		arg.FirstMessage,

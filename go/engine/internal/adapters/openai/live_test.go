@@ -3,6 +3,7 @@ package openai
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -150,4 +151,43 @@ type createRequest struct {
 	Session struct {
 		Input []message `json:"input"`
 	} `json:"session"`
+}
+
+// An account with no credit left is told as such, not as a failure that may
+// pass: the body names it, and reading the message must not hide it.
+func TestOpeningWithoutCreditIsNoCredit(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusTooManyRequests)
+		_, _ = w.Write([]byte(`{"error":{"message":"You have no credits remaining.","type":"insufficient_quota","code":"credit_balance_exhausted"}}`))
+	}))
+	defer server.Close()
+
+	live := NewLive(func(context.Context) (string, error) { return "sk-test", nil }, "gpt-live-1")
+	live.sessions = server.URL
+
+	_, _, err := live.create(context.Background(), "sk-test", adapters.LiveConfig{Offer: "v=0 offer"}, "verse")
+	if !errors.Is(err, adapters.ErrNoCredit) {
+		t.Fatalf("err = %v, want no credit", err)
+	}
+	if errors.Is(err, adapters.ErrTransient) {
+		t.Error("no credit was taken for a failure that may pass")
+	}
+	if !strings.Contains(err.Error(), "no credits remaining") {
+		t.Errorf("the provider's message is lost: %v", err)
+	}
+}
+
+func TestConversationErrorsNameWhatTheSessionTells(t *testing.T) {
+	for code, want := range map[string]error{
+		"insufficient_quota":       adapters.ErrNoCredit,
+		"credit_balance_exhausted": adapters.ErrNoCredit,
+		"invalid_api_key":          adapters.ErrKeyRejected,
+	} {
+		if err := conversationError(code, "…"); !errors.Is(err, want) {
+			t.Errorf("%s: %v, want %v", code, err, want)
+		}
+	}
+	if err := conversationError("server_error", "…"); errors.Is(err, adapters.ErrNoCredit) || errors.Is(err, adapters.ErrKeyRejected) {
+		t.Errorf("an ordinary error is taken for one the session tells: %v", err)
+	}
 }

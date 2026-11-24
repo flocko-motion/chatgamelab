@@ -127,3 +127,24 @@ func (s *GameListTestSuite) TestCreatorNameAndSort() {
 	}
 	s.True(found, "alice's game is in her list")
 }
+
+// The genre filters narrow the list to games of the genres asked for; several
+// genres are one filter, met by a game of any of them.
+func (s *GameListTestSuite) TestGenreFilter() {
+	alice := s.CreateUser("list-genre")
+	adventure := Must(alice.UploadGame("alien-first-contact"))
+	troll := Must(alice.UploadGame("bridge-troll"))
+
+	live := Must(alice.ListGamesPage(0, 0, "own", "genre:npc-live"))
+	s.Equal(1, live.Total, "own and npc-live: only the troll")
+	s.Require().Len(live.Items, 1)
+	s.Equal(troll.Id, live.Items[0].Id)
+
+	both := Must(alice.ListGamesPage(0, 0, "own", "genre:npc-live", "genre:adventure"))
+	s.Equal(2, both.Total, "two genres: games of either")
+	s.ElementsMatch([]string{adventure.Id.String(), troll.Id.String()},
+		[]string{both.Items[0].Id.String(), both.Items[1].Id.String()})
+
+	none := Must(alice.ListGamesPage(0, 0, "own", "genre:no-such-genre"))
+	s.Equal(0, none.Total, "a genre no game has lists nothing")
+}

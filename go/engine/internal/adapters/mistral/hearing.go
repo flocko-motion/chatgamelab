@@ -26,7 +26,7 @@ type Hearing struct {
 }
 
 func NewHearing(keys adapters.KeyFunc, model string) *Hearing {
-	return &Hearing{keys: keys, model: model, api: client{base: baseURL, http: &http.Client{Timeout: 30 * time.Second}}}
+	return &Hearing{keys: keys, model: model, api: client{base: BaseURL, http: &http.Client{Timeout: 30 * time.Second}}}
 }
 
 func (h *Hearing) Hear(ctx context.Context, system string, clip adapters.Clip, schema adapters.Schema) (string, adapters.Usage, error) {

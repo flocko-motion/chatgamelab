@@ -31,6 +31,7 @@ var openEndpoints = map[string]schemafapi.AuthLevel{
 	"GET /api/play/{token}/info":                       schemafapi.AuthNone,
 	"GET /api/public/workshops/{slug}":                 schemafapi.AuthNone,
 	"GET /api/public/workshops/{slug}/games/{id}/yaml": schemafapi.AuthNone,
+	"GET /api/public/workshops/{slug}/games/{id}/cgl":  schemafapi.AuthNone,
 
 	// the engine: guests play too
 	"POST /api/engine/sessions":                              schemafapi.AuthOptional,
@@ -41,6 +42,9 @@ var openEndpoints = map[string]schemafapi.AuthLevel{
 	"POST /api/engine/sessions/{id}/toggles":                 schemafapi.AuthOptional,
 	"POST /api/engine/sessions/{id}/constraint-frequency":    schemafapi.AuthOptional,
 	"POST /api/engine/sessions/{id}/nodes/{node}/compact":    schemafapi.AuthOptional,
+	"POST /api/engine/sessions/{id}/nodes/{node}/inject":     schemafapi.AuthOptional,
+	"POST /api/engine/sessions/{id}/nodes/{node}/beat":       schemafapi.AuthOptional,
+	"GET /api/engine/sessions/{id}/journal":                  schemafapi.AuthOptional,
 	"GET /api/engine/sessions/{id}/edges/{from}/{to}/{kind}": schemafapi.AuthOptional,
 	"GET /api/engine/sessions/{id}/flowchart":                schemafapi.AuthOptional,
 	"GET /api/engine/sessions/{id}/graph":                    schemafapi.AuthOptional,
