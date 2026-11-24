@@ -157,6 +157,10 @@ export interface AvailableKey {
   source: string;
 }
 
+export interface BeatRequest {
+  ms: number;
+}
+
 export interface CheckNameResp {
   available: boolean;
   profane?: boolean;
@@ -752,6 +756,7 @@ export interface NodeDetail {
   injections?: string[];
   inputs: Sample[];
   name: string;
+  observer?: ObserverState;
   outputs: Sample[];
   phase: string;
   role: string;
@@ -759,6 +764,51 @@ export interface NodeDetail {
   transcript?: TranscriptLine[];
   type: string;
   usage?: UsageRecord;
+}
+
+export interface ObserverEntry {
+  /** @format date-time */
+  at: string;
+  kind: string;
+  late?: boolean;
+  speaker?: string;
+  text: string;
+}
+
+export interface ObserverFigures {
+  backgrounds: number;
+  calls: number;
+  directions: number;
+  dropped: number;
+  errors: number;
+  flushes: number;
+  fragments: number;
+  injected: number;
+  largestLateMs: number;
+  lastCallMs: number;
+  late: number;
+  lines: number;
+  quiet: number;
+  silenceNotices: number;
+}
+
+export interface ObserverState {
+  awaiting: boolean;
+  beatMs: number;
+  characterAgoMs: number;
+  figures: ObserverFigures;
+  gapMs: number;
+  held?: string;
+  inARow: number;
+  inARowLimit: number;
+  log: ObserverEntry[];
+  pending: number;
+  playerAgoMs: number;
+  pool: number;
+  quietForMs: number;
+  quietMs: number;
+  thinking: boolean;
+  thinkingForMs: number;
 }
 
 export interface OfferOption {
@@ -2505,6 +2555,29 @@ export class Api<
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description before they go to its model, during play: a tuning knob, on dev servers only.
+     *
+     * @name PostApiEngineSessionsIdNodesNodeBeat
+     * @summary Sets how long an observer's transcript fragments wait
+     * @request POST:/api/engine/sessions/{id}/nodes/{node}/beat
+     * @secure
+     */
+    postApiEngineSessionsIdNodesNodeBeat: (
+      id: string,
+      node: string,
+      data: BeatRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/nodes/${node}/beat`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
         ...params,
       }),
 

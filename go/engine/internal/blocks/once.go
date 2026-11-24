@@ -21,6 +21,8 @@ type OnceText struct {
 	once
 	// again sends on a resumed start too (SendAgain).
 	again bool
+	// field is the game field it holds, when it holds one as it is (AsSetting).
+	field string
 }
 
 // SendAgain makes it send once on every start, a resumed one too: for a reader
@@ -28,6 +30,10 @@ type OnceText struct {
 // memory and spends nothing. Off, a resumed session stays silent. Set before
 // Start.
 func (b *OnceText) SendAgain() *OnceText { b.again = true; return b }
+
+// AsSetting names the game field it holds as its author wrote it, such as
+// "voiceStyle", so the drawing names it as that setting.
+func (b *OnceText) AsSetting(field string) *OnceText { b.field = field; return b }
 
 func NewOnceText(name, text string) *OnceText {
 	return &OnceText{name: name, text: text}
@@ -37,7 +43,7 @@ func (b *OnceText) NodeName() string { return b.name }
 
 // SettingField marks it as drawn like a game setting: a text fixed before
 // play, made from what the game's author wrote. Its name says which.
-func (b *OnceText) SettingField() string       { return "" }
+func (b *OnceText) SettingField() string       { return b.field }
 func (b *OnceText) TextOutPort() <-chan string { return b.out.Subscribe() }
 
 // StateOutPort reports the one piece of work this block has. A genre that must
@@ -58,7 +64,7 @@ func (b *OnceText) Start(ctx context.Context) {
 		// already been paid for and persisted, unless it sends again for a
 		// reader that answers from memory.
 		if already {
-			if b.again {
+			if b.again && b.text != "" {
 				b.out.Send(b.text)
 			}
 			b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady, Done: true})
@@ -70,7 +76,10 @@ func (b *OnceText) Start(ctx context.Context) {
 			return
 		default:
 		}
-		b.out.Send(b.text)
+		// An empty text has nothing to say: whatever reads it is not asked.
+		if b.text != "" {
+			b.out.Send(b.text)
+		}
 		b.mark()
 
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})

@@ -9,8 +9,9 @@ import (
 // JournalCapacity is how many entries a session's journal keeps; older ones fall off.
 const JournalCapacity = 2000
 
-// journalText is the longest detail an entry keeps; a picture or a long reply is cut.
-const journalText = 400
+// journalText is the longest detail an entry keeps: whole lines of a
+// conversation fit, a picture or a runaway reply is cut.
+const journalText = 2000
 
 // JournalEntry is one thing that happened in a session, as the engine saw it.
 type JournalEntry struct {

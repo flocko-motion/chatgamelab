@@ -207,6 +207,17 @@
         ],
         "type": "object"
       },
+      "BeatRequest": {
+        "properties": {
+          "ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ms"
+        ],
+        "type": "object"
+      },
       "CheckNameResp": {
         "properties": {
           "available": {
@@ -2041,6 +2052,9 @@
           "name": {
             "type": "string"
           },
+          "observer": {
+            "$ref": "#/components/schemas/ObserverState"
+          },
           "outputs": {
             "items": {
               "$ref": "#/components/schemas/Sample"
@@ -2076,6 +2090,168 @@
           "inputs",
           "outputs",
           "phase"
+        ],
+        "type": "object"
+      },
+      "ObserverEntry": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "late": {
+            "type": "boolean"
+          },
+          "speaker": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "kind",
+          "text"
+        ],
+        "type": "object"
+      },
+      "ObserverFigures": {
+        "properties": {
+          "backgrounds": {
+            "type": "integer"
+          },
+          "calls": {
+            "type": "integer"
+          },
+          "directions": {
+            "type": "integer"
+          },
+          "dropped": {
+            "type": "integer"
+          },
+          "errors": {
+            "type": "integer"
+          },
+          "flushes": {
+            "type": "integer"
+          },
+          "fragments": {
+            "type": "integer"
+          },
+          "injected": {
+            "type": "integer"
+          },
+          "largestLateMs": {
+            "type": "integer"
+          },
+          "lastCallMs": {
+            "type": "integer"
+          },
+          "late": {
+            "type": "integer"
+          },
+          "lines": {
+            "type": "integer"
+          },
+          "quiet": {
+            "type": "integer"
+          },
+          "silenceNotices": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "fragments",
+          "flushes",
+          "lines",
+          "late",
+          "largestLateMs",
+          "silenceNotices",
+          "calls",
+          "errors",
+          "lastCallMs",
+          "directions",
+          "backgrounds",
+          "dropped",
+          "injected",
+          "quiet"
+        ],
+        "type": "object"
+      },
+      "ObserverState": {
+        "properties": {
+          "awaiting": {
+            "type": "boolean"
+          },
+          "beatMs": {
+            "type": "integer"
+          },
+          "characterAgoMs": {
+            "type": "integer"
+          },
+          "figures": {
+            "$ref": "#/components/schemas/ObserverFigures"
+          },
+          "gapMs": {
+            "type": "integer"
+          },
+          "held": {
+            "type": "string"
+          },
+          "inARow": {
+            "type": "integer"
+          },
+          "inARowLimit": {
+            "type": "integer"
+          },
+          "log": {
+            "items": {
+              "$ref": "#/components/schemas/ObserverEntry"
+            },
+            "type": "array"
+          },
+          "pending": {
+            "type": "integer"
+          },
+          "playerAgoMs": {
+            "type": "integer"
+          },
+          "pool": {
+            "type": "integer"
+          },
+          "quietForMs": {
+            "type": "integer"
+          },
+          "quietMs": {
+            "type": "integer"
+          },
+          "thinking": {
+            "type": "boolean"
+          },
+          "thinkingForMs": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "thinking",
+          "beatMs",
+          "gapMs",
+          "quietMs",
+          "thinkingForMs",
+          "pool",
+          "pending",
+          "characterAgoMs",
+          "playerAgoMs",
+          "quietForMs",
+          "inARow",
+          "awaiting",
+          "inARowLimit",
+          "figures",
+          "log"
         ],
         "type": "object"
       },
@@ -6338,6 +6514,65 @@
           }
         ],
         "summary": "Answers what one block of a session is and has been doing."
+      }
+    },
+    "/api/engine/sessions/{id}/nodes/{node}/beat": {
+      "post": {
+        "description": "before they go to its model, during play: a tuning knob, on dev servers only.",
+        "operationId": "postApiEngineSessionsIdNodesNodeBeat",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets how long an observer's transcript fragments wait"
       }
     },
     "/api/engine/sessions/{id}/nodes/{node}/compact": {

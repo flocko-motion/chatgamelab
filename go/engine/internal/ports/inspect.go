@@ -101,6 +101,8 @@ func describe(value any) string {
 		return truncate(string(typed))
 	case Injection:
 		return truncate(string(typed.Kind) + ": " + typed.Text)
+	case Fragment:
+		return truncate(typed.Speaker + ": " + typed.Text)
 	case AudioChunk:
 		return fmt.Sprintf("audio, %d bytes", len(typed))
 	case ImageData:

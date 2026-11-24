@@ -27,6 +27,16 @@ type VoiceInfo struct {
 	CreatedAt time.Time
 }
 
+// BuiltinVoice is a provider's own voice, by name, as its catalogue presents
+// it: the language it speaks natively (a BCP 47 primary tag), its accent, and
+// its presentation, "feminine" or "masculine", empty when not stated.
+type BuiltinVoice struct {
+	Name     string
+	Language string
+	Accent   string
+	Gender   string
+}
+
 // VoiceNamePrefix names the voices the engine makes, so they are told from
 // voices the account's owner made elsewhere, which the engine never deletes.
 const VoiceNamePrefix = "cgl:"

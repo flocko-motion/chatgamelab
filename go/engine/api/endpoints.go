@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"time"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 
@@ -367,6 +368,37 @@ func (e InjectEndpoint) Handle(ctx context.Context, req InjectionRequest) (Accep
 		return Accepted{}, err
 	}
 	if err := s.Inject(req.Node, req.Kind, req.Text); err != nil {
+		return Accepted{}, rejected(err)
+	}
+	return Accepted{}, nil
+}
+
+// BeatRequest sets an observer's beat.
+type BeatRequest struct {
+	ID   string `path:"id"`
+	Node string `path:"node"`
+	// Ms is how long a fragment waits in the pool, 100 to 10,000.
+	Ms int `json:"ms"`
+}
+
+// BeatEndpoint sets how long an observer's transcript fragments wait before
+// they go to its model, during play: a tuning knob, on dev servers only.
+type BeatEndpoint struct{ API *API }
+
+func (BeatEndpoint) Method() string { return "POST" }
+func (BeatEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/beat"
+}
+func (BeatEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e BeatEndpoint) Handle(ctx context.Context, req BeatRequest) (Accepted, error) {
+	if e.API.opts.Dev == nil || !e.API.opts.Dev() {
+		return Accepted{}, badRequest("the beat is set on dev servers only")
+	}
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return Accepted{}, err
+	}
+	if err := s.SetBeat(req.Node, time.Duration(req.Ms)*time.Millisecond); err != nil {
 		return Accepted{}, rejected(err)
 	}
 	return Accepted{}, nil

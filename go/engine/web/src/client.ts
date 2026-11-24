@@ -12,6 +12,7 @@ export type {
   EdgeDetail,
   JournalEntry,
   NodeDetail,
+  ObserverState,
   OfferOption,
   Options,
   Place,

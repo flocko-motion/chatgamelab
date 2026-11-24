@@ -27,6 +27,16 @@ func NewTool(keys adapters.KeyFunc, model string) *Tool {
 }
 
 func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters.Usage, error) {
+	return t.query(ctx, system, user, nil)
+}
+
+// QuerySchema asks for JSON of the schema, which the Conversations API holds
+// the model to in strict mode.
+func (t *Tool) QuerySchema(ctx context.Context, system, user string, schema adapters.Schema) (string, adapters.Usage, error) {
+	return t.query(ctx, system, user, &schema)
+}
+
+func (t *Tool) query(ctx context.Context, system, user string, schema *adapters.Schema) (string, adapters.Usage, error) {
 	used := adapters.Usage{Model: t.model}
 
 	key, err := t.keys(ctx)
@@ -38,6 +48,12 @@ func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters
 		Model:        t.model,
 		Instructions: system,
 		Inputs:       []input{{Role: "user", Content: user}},
+		CompletionArgs: func() map[string]any {
+			if schema == nil {
+				return nil
+			}
+			return map[string]any{"response_format": responseFormat(schema)}
+		}(),
 	})
 	if err != nil {
 		return "", used, err

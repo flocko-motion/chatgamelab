@@ -50,6 +50,7 @@ type (
 	EngineNodeReq       = engineapi.NodeRequest
 	EngineNodeDetail    = engine.NodeDetail
 	EngineInjectionReq  = engineapi.InjectionRequest
+	EngineBeatReq       = engineapi.BeatRequest
 	EngineEdgeReq       = engineapi.EdgeRequest
 	EngineEdgeDetail    = engine.EdgeDetail
 	EnginePrompts       = engineapi.Prompts
@@ -340,6 +341,23 @@ func (EngineInjectEndpoint) Handle(ctx context.Context, req EngineInjectionReq) 
 		return EngineAccepted{}, err
 	}
 	return engineapi.InjectEndpoint{API: Engine}.Handle(ctx, req)
+}
+
+// EngineBeatEndpoint sets how long an observer's transcript fragments wait
+// before they go to its model, during play: a tuning knob, on dev servers only.
+type EngineBeatEndpoint struct{}
+
+func (EngineBeatEndpoint) Method() string { return "POST" }
+func (EngineBeatEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/nodes/{node}/beat"
+}
+func (EngineBeatEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineBeatEndpoint) Handle(ctx context.Context, req EngineBeatReq) (EngineAccepted, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
+	if err != nil {
+		return EngineAccepted{}, err
+	}
+	return engineapi.BeatEndpoint{API: Engine}.Handle(ctx, req)
 }
 
 // EngineEdgeEndpoint answers what one wire of a session has carried.

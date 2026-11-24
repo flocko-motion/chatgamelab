@@ -743,6 +743,11 @@ type AvailableKey struct {
 	Source    string             `json:"source"`
 }
 
+// BeatRequest defines model for BeatRequest.
+type BeatRequest struct {
+	Ms int `json:"ms"`
+}
+
 // CheckNameResp defines model for CheckNameResp.
 type CheckNameResp struct {
 	Available bool  `json:"available"`
@@ -1368,6 +1373,7 @@ type NodeDetail struct {
 	Injections *[]string         `json:"injections,omitempty"`
 	Inputs     []Sample          `json:"inputs"`
 	Name       string            `json:"name"`
+	Observer   *ObserverState    `json:"observer,omitempty"`
 	Outputs    []Sample          `json:"outputs"`
 	Phase      string            `json:"phase"`
 	Role       string            `json:"role"`
@@ -1375,6 +1381,53 @@ type NodeDetail struct {
 	Transcript *[]TranscriptLine `json:"transcript,omitempty"`
 	Type       string            `json:"type"`
 	Usage      *UsageRecord      `json:"usage,omitempty"`
+}
+
+// ObserverEntry defines model for ObserverEntry.
+type ObserverEntry struct {
+	At      time.Time `json:"at"`
+	Kind    string    `json:"kind"`
+	Late    *bool     `json:"late,omitempty"`
+	Speaker *string   `json:"speaker,omitempty"`
+	Text    string    `json:"text"`
+}
+
+// ObserverFigures defines model for ObserverFigures.
+type ObserverFigures struct {
+	Backgrounds    int `json:"backgrounds"`
+	Calls          int `json:"calls"`
+	Directions     int `json:"directions"`
+	Dropped        int `json:"dropped"`
+	Errors         int `json:"errors"`
+	Flushes        int `json:"flushes"`
+	Fragments      int `json:"fragments"`
+	Injected       int `json:"injected"`
+	LargestLateMs  int `json:"largestLateMs"`
+	LastCallMs     int `json:"lastCallMs"`
+	Late           int `json:"late"`
+	Lines          int `json:"lines"`
+	Quiet          int `json:"quiet"`
+	SilenceNotices int `json:"silenceNotices"`
+}
+
+// ObserverState defines model for ObserverState.
+type ObserverState struct {
+	Awaiting       bool            `json:"awaiting"`
+	BeatMs         int             `json:"beatMs"`
+	CharacterAgoMs int             `json:"characterAgoMs"`
+	Figures        ObserverFigures `json:"figures"`
+	GapMs          int             `json:"gapMs"`
+	Held           *string         `json:"held,omitempty"`
+	InARow         int             `json:"inARow"`
+	InARowLimit    int             `json:"inARowLimit"`
+	Log            []ObserverEntry `json:"log"`
+	Pending        int             `json:"pending"`
+	PlayerAgoMs    int             `json:"playerAgoMs"`
+	Pool           int             `json:"pool"`
+	QuietForMs     int             `json:"quietForMs"`
+	QuietMs        int             `json:"quietMs"`
+	Thinking       bool            `json:"thinking"`
+	ThinkingForMs  int             `json:"thinkingForMs"`
 }
 
 // OfferOption defines model for OfferOption.
@@ -2411,6 +2464,9 @@ type PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody = ConstraintFrequ
 // PostApiEngineSessionsIdInputJSONRequestBody defines body for PostApiEngineSessionsIdInput for application/json ContentType.
 type PostApiEngineSessionsIdInputJSONRequestBody = InputRequest
 
+// PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody defines body for PostApiEngineSessionsIdNodesNodeBeat for application/json ContentType.
+type PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody = BeatRequest
+
 // PostApiEngineSessionsIdNodesNodeInjectJSONRequestBody defines body for PostApiEngineSessionsIdNodesNodeInject for application/json ContentType.
 type PostApiEngineSessionsIdNodesNodeInjectJSONRequestBody = InjectionRequest
 
@@ -3038,6 +3094,24 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
 	GetApiEngineSessionsIdNodesNode(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdNodesNodeBeatWithBody Sets how long an observer's transcript fragments wait
+	//
+	// before they go to its model, during play: a tuning knob, on dev servers only.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+	PostApiEngineSessionsIdNodesNodeBeatWithBody(ctx context.Context, id string, node string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiEngineSessionsIdNodesNodeBeat Sets how long an observer's transcript fragments wait
+	//
+	// before they go to its model, during play: a tuning knob, on dev servers only.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+	PostApiEngineSessionsIdNodesNodeBeat(ctx context.Context, id string, node string, body PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiEngineSessionsIdNodesNodeCompact Asks a block's thread to compact now.
 	//
@@ -5226,6 +5300,44 @@ func (c *Client) GetApiEngineSessionsIdLive(ctx context.Context, id string, reqE
 // Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
 func (c *Client) GetApiEngineSessionsIdNodesNode(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiEngineSessionsIdNodesNodeRequest(c.Server, id, node)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdNodesNodeBeatWithBody Sets how long an observer's transcript fragments wait
+//
+// before they go to its model, during play: a tuning knob, on dev servers only.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+func (c *Client) PostApiEngineSessionsIdNodesNodeBeatWithBody(ctx context.Context, id string, node string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdNodesNodeBeatRequestWithBody(c.Server, id, node, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiEngineSessionsIdNodesNodeBeat Sets how long an observer's transcript fragments wait
+//
+// before they go to its model, during play: a tuning knob, on dev servers only.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+func (c *Client) PostApiEngineSessionsIdNodesNodeBeat(ctx context.Context, id string, node string, body PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiEngineSessionsIdNodesNodeBeatRequest(c.Server, id, node, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9278,6 +9390,60 @@ func NewGetApiEngineSessionsIdNodesNodeRequest(server string, id string, node st
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewPostApiEngineSessionsIdNodesNodeBeatRequest calls the generic PostApiEngineSessionsIdNodesNodeBeat builder with application/json body
+func NewPostApiEngineSessionsIdNodesNodeBeatRequest(server string, id string, node string, body PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiEngineSessionsIdNodesNodeBeatRequestWithBody(server, id, node, "application/json", bodyReader)
+}
+
+// NewPostApiEngineSessionsIdNodesNodeBeatRequestWithBody constructs an http.Request for the PostApiEngineSessionsIdNodesNodeBeat method, with any body, and a specified content type
+func NewPostApiEngineSessionsIdNodesNodeBeatRequestWithBody(server string, id string, node string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "node", node, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/nodes/%s/beat", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -14389,6 +14555,24 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/engine/sessions/{id}/nodes/{node} (the `GetApiEngineSessionsIdNodesNode` operationId).
 	GetApiEngineSessionsIdNodesNodeWithResponse(ctx context.Context, id string, node string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdNodesNodeResponse, error)
 
+	// PostApiEngineSessionsIdNodesNodeBeatWithBodyWithResponse Sets how long an observer's transcript fragments wait
+	//
+	// before they go to its model, during play: a tuning knob, on dev servers only.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+	PostApiEngineSessionsIdNodesNodeBeatWithBodyWithResponse(ctx context.Context, id string, node string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdNodesNodeBeatResponse, error)
+
+	// PostApiEngineSessionsIdNodesNodeBeatWithResponse Sets how long an observer's transcript fragments wait
+	//
+	// before they go to its model, during play: a tuning knob, on dev servers only.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+	PostApiEngineSessionsIdNodesNodeBeatWithResponse(ctx context.Context, id string, node string, body PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdNodesNodeBeatResponse, error)
+
 	// PostApiEngineSessionsIdNodesNodeCompactWithResponse Asks a block's thread to compact now.
 	//
 	// The thread summarises whatever its fill, the block working meanwhile and
@@ -17398,6 +17582,47 @@ func (r GetApiEngineSessionsIdNodesNodeResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiEngineSessionsIdNodesNodeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiEngineSessionsIdNodesNodeBeatResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiEngineSessionsIdNodesNodeBeatResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiEngineSessionsIdNodesNodeBeatResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiEngineSessionsIdNodesNodeBeatResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiEngineSessionsIdNodesNodeBeatResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiEngineSessionsIdNodesNodeBeatResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -23208,6 +23433,36 @@ func (c *ClientWithResponses) GetApiEngineSessionsIdNodesNodeWithResponse(ctx co
 	return ParseGetApiEngineSessionsIdNodesNodeResponse(rsp)
 }
 
+// PostApiEngineSessionsIdNodesNodeBeatWithBodyWithResponse Sets how long an observer's transcript fragments wait
+//
+// before they go to its model, during play: a tuning knob, on dev servers only.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdNodesNodeBeatWithBodyWithResponse(ctx context.Context, id string, node string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdNodesNodeBeatResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdNodesNodeBeatWithBody(ctx, id, node, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdNodesNodeBeatResponse(rsp)
+}
+
+// PostApiEngineSessionsIdNodesNodeBeatWithResponse Sets how long an observer's transcript fragments wait
+//
+// before they go to its model, during play: a tuning knob, on dev servers only.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/engine/sessions/{id}/nodes/{node}/beat (the `PostApiEngineSessionsIdNodesNodeBeat` operationId).
+func (c *ClientWithResponses) PostApiEngineSessionsIdNodesNodeBeatWithResponse(ctx context.Context, id string, node string, body PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiEngineSessionsIdNodesNodeBeatResponse, error) {
+	rsp, err := c.PostApiEngineSessionsIdNodesNodeBeat(ctx, id, node, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiEngineSessionsIdNodesNodeBeatResponse(rsp)
+}
+
 // PostApiEngineSessionsIdNodesNodeCompactWithResponse Asks a block's thread to compact now.
 //
 // The thread summarises whatever its fill, the block working meanwhile and
@@ -26506,6 +26761,35 @@ func ParseGetApiEngineSessionsIdNodesNodeResponse(rsp *http.Response) (*GetApiEn
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiEngineSessionsIdNodesNodeBeatResponse parses an HTTP response from a PostApiEngineSessionsIdNodesNodeBeatWithResponse call
+func ParsePostApiEngineSessionsIdNodesNodeBeatResponse(rsp *http.Response) (*PostApiEngineSessionsIdNodesNodeBeatResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiEngineSessionsIdNodesNodeBeatResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

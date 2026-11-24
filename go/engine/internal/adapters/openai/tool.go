@@ -30,6 +30,16 @@ func NewTool(keys adapters.KeyFunc, model string) *Tool {
 }
 
 func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters.Usage, error) {
+	return t.query(ctx, system, user, nil)
+}
+
+// QuerySchema asks for JSON of the schema, which the Responses API holds the
+// model to in strict mode.
+func (t *Tool) QuerySchema(ctx context.Context, system, user string, schema adapters.Schema) (string, adapters.Usage, error) {
+	return t.query(ctx, system, user, &schema)
+}
+
+func (t *Tool) query(ctx context.Context, system, user string, schema *adapters.Schema) (string, adapters.Usage, error) {
 	var used adapters.Usage
 
 	key, err := t.keys(ctx)
@@ -37,11 +47,15 @@ func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters
 		return "", used, fmt.Errorf("resolve api key: %w", err)
 	}
 
-	body, err := json.Marshal(map[string]any{
+	request := map[string]any{
 		"model":        t.model,
 		"instructions": system,
 		"input":        user,
-	})
+	}
+	if schema != nil {
+		request["text"] = map[string]any{"format": format(schema)}
+	}
+	body, err := json.Marshal(request)
 	if err != nil {
 		return "", used, err
 	}

@@ -29,6 +29,10 @@ type greetingTool struct {
 }
 
 func (g *greetingTool) Query(_ context.Context, system, user string) (string, adapters.Usage, error) {
+	// The voice is described on the same tool; only the first words are asked here.
+	if !strings.Contains(system, "first words a character says") {
+		return "DESCRIPTION: a calm adult voice\nVOICE: marin", adapters.Usage{}, nil
+	}
 	g.asked <- system + "\n---\n" + user
 	if g.err != nil {
 		return "", adapters.Usage{}, g.err
@@ -114,4 +118,59 @@ func TestAGameStartsWithoutItsFirstWords(t *testing.T) {
 		t.Errorf("the player was told of the failed first words: %q", e)
 	case <-time.After(200 * time.Millisecond):
 	}
+}
+
+// The director follows the whole conversation, both speakers, and judges by
+// the character's scenario and the rules every reply keeps to.
+func TestTheDirectorFollowsBothSidesAndKnowsTheScenario(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	live := newScriptedLive()
+	asked := make(chan string, 16)
+	w, err := NewNPCLive(NPCLiveConfig{
+		Live:         live,
+		Tool:         askingTool{asked: asked},
+		GalleryImage: mock.GalleryImage("office"),
+		Scenario:     "You are a trainer who is secretly a werewolf.",
+		Guardrail:    "Suitable for a 13-year-old.",
+		InitPrompt:   "Begin.",
+		IdleAfter:    time.Hour,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	invites := w.Live.Invitations()
+	w.Graph.Start(ctx)
+	nextInvitation(t, invites)
+	connect(t, ctx, w)
+	conn := nextConversation(t, live)
+	conn.events <- adapters.LiveEvent{Kind: adapters.EventText, Speaker: adapters.SpeakerPlayer, Text: "Sind Sie ein Werwolf?", StartMs: 1000}
+	conn.events <- adapters.LiveEvent{Kind: adapters.EventText, Speaker: adapters.SpeakerCharacter, Text: "Hmm.", StartMs: 2000}
+
+	deadline := time.After(10 * time.Second)
+	for {
+		select {
+		case a := <-asked:
+			if !strings.Contains(a, "You are the director") {
+				continue // the greeting's call
+			}
+			for _, want := range []string{"secretly a werewolf", "Suitable for a 13-year-old.", "player: Sind Sie ein Werwolf?", "character: Hmm."} {
+				if !strings.Contains(a, want) {
+					t.Errorf("the director's call lacks %q:\n%s", want, a)
+				}
+			}
+			return
+		case <-deadline:
+			t.Fatal("the director never called its model")
+		}
+	}
+}
+
+// askingTool answers nothing to act on and keeps the system prompt and input it was given.
+type askingTool struct{ asked chan string }
+
+func (a askingTool) Query(_ context.Context, system, user string) (string, adapters.Usage, error) {
+	a.asked <- system + "\n---\n" + user
+	return "Nothing to do.", adapters.Usage{}, nil
 }

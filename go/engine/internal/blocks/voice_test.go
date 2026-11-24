@@ -27,6 +27,10 @@ func runVoiceCapped(t *testing.T, style string, maker adapters.Voices, store ada
 	slot.Set(maker, store)
 	b := NewVoice("voice", style, slot)
 	b.Wait, b.Poll, b.Cap = 2*time.Second, 10*time.Millisecond, capped
+	b.Builtin = []string{"marin", "stone"}
+	// The brief's two fields, as their wires bring them.
+	b.SecondaryTextInPort() <- "stone"
+	b.TextInPort() <- style + ", as a voice"
 	journal := ports.NewJournal(100, nil)
 	b.UseJournal(journal)
 	out, state := b.TextOutPort(), b.StateOutPort()
@@ -118,17 +122,17 @@ func TestVoiceStartedTwiceAtOnceIsMadeOnce(t *testing.T) {
 // voice that cannot be made leaves it too, and the claim goes, so the next
 // session tries again.
 func TestVoiceFallsBackToTheBuiltInVoice(t *testing.T) {
-	if v, j := runVoice(t, "  ", &mock.Voices{}, &adapters.MemoryVoices{}); v != "" || kinds(j) != "built-in" {
-		t.Errorf("no style: %q, %s", v, kinds(j))
+	if v, j := runVoice(t, "  ", &mock.Voices{}, &adapters.MemoryVoices{}); v != "stone" || !strings.Contains(kinds(j), "built-in") {
+		t.Errorf("no style: %q, %s, want the built-in voice the brief proposed", v, kinds(j))
 	}
-	if v, j := runVoice(t, "deep", nil, nil); v != "" || kinds(j) != "built-in" {
-		t.Errorf("no maker: %q, %s", v, kinds(j))
+	if v, j := runVoice(t, "deep", nil, nil); v != "stone" || !strings.Contains(kinds(j), "built-in") {
+		t.Errorf("no maker: %q, %s, want the built-in voice the brief chose", v, kinds(j))
 	}
 
 	store := &adapters.MemoryVoices{}
 	broken := &mock.Voices{Fail: errors.New("voices api: 400 Bad Request: refused")}
 	v, j := runVoice(t, "deep", broken, store)
-	if v != "" || !strings.Contains(kinds(j), "create-failed") {
+	if v != "stone" || !strings.Contains(kinds(j), "create-failed") {
 		t.Errorf("a failed voice: %q, %s", v, kinds(j))
 	}
 	if again, _ := runVoice(t, "deep", &mock.Voices{}, store); again == "" {
@@ -215,7 +219,7 @@ func TestVoiceNeverDeletesForeignVoicesAtTheLimit(t *testing.T) {
 	maker.Hold("voice_foreign", "My own narrator")
 
 	v, j := runVoice(t, "deep", maker, &adapters.MemoryVoices{})
-	if v != "" || !strings.Contains(kinds(j), "create-failed") {
+	if v != "stone" || !strings.Contains(kinds(j), "create-failed") {
 		t.Errorf("got %q, %s", v, kinds(j))
 	}
 	said := ""
@@ -238,6 +242,7 @@ func TestVoiceIsKeptWhenItsSessionEnds(t *testing.T) {
 	slot.Set(maker, store)
 	b := NewVoice("voice", "deep and slow", slot)
 	b.UseJournal(ports.NewJournal(100, nil))
+	b.TextInPort() <- "a deep, slow voice"
 	ctx, cancel := context.WithCancel(context.Background())
 	b.Start(ctx)
 	time.Sleep(50 * time.Millisecond)
@@ -251,4 +256,28 @@ func TestVoiceIsKeptWhenItsSessionEnds(t *testing.T) {
 		time.Sleep(20 * time.Millisecond)
 	}
 	t.Fatal("the voice begun was not kept after its session ended")
+}
+
+// The voice is made from the brief, not from the author's words, and kept
+// under the author's words, so the same note reuses it.
+func TestVoiceIsMadeFromTheBrief(t *testing.T) {
+	maker := &recordingMaker{}
+	store := &adapters.MemoryVoices{}
+	v, _ := runVoice(t, "ein Fantasy Troll", maker, store)
+	if v == "" || maker.description != "ein Fantasy Troll, as a voice" {
+		t.Errorf("made %q from %q, want it made from the brief", v, maker.description)
+	}
+	if id, _, _ := store.Lookup(context.Background(), StyleHash("ein Fantasy Troll")); id != v {
+		t.Errorf("kept under the author's words as %q, want %q", id, v)
+	}
+}
+
+type recordingMaker struct {
+	mock.Voices
+	description string
+}
+
+func (r *recordingMaker) Create(ctx context.Context, name, description string) (string, error) {
+	r.description = description
+	return r.Voices.Create(ctx, name, description)
 }

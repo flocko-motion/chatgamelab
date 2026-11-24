@@ -36,6 +36,8 @@ type start struct {
 	Instructions string  `json:"instructions,omitempty"`
 	Inputs       []input `json:"inputs"`
 	Store        bool    `json:"store"`
+	// CompletionArgs carries a response format, for a reply of a schema.
+	CompletionArgs map[string]any `json:"completion_args,omitempty"`
 }
 
 type reply struct {

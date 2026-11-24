@@ -2,6 +2,8 @@
 // Ports are keyed to a data type, so one block type can serve many roles.
 package ports
 
+import "time"
+
 import "context"
 
 type (
@@ -15,6 +17,16 @@ type (
 		Text string
 	}
 	InjectionKind string
+	// Fragment is a piece of a live conversation's transcript: who said it,
+	// what, and when. StartMs and EndMs are the provider's, from the
+	// conversation's start, zero where it gives none; At is when it arrived.
+	Fragment struct {
+		Speaker string
+		Text    string
+		StartMs int64
+		EndMs   int64
+		At      time.Time
+	}
 	// Piece is streamed text: a reply arriving piece by piece. A type of its
 	// own, so a block taking whole text is never wired to a stream.
 	Piece string
@@ -65,6 +77,13 @@ type (
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
 	StreamOut        interface{ StreamOutPort() <-chan Piece }
 	InjectionOut     interface{ InjectionOutPort() <-chan Injection }
+	TranscriptOut    interface{ TranscriptOutPort() <-chan Fragment }
+	// StructuredOut is a reply as JSON of a schema; a wire takes one of its
+	// fields (Graph.ConnectField), which HasField says the schema has.
+	StructuredOut interface {
+		StructuredOutPort() <-chan string
+		HasField(name string) bool
+	}
 	// FailureOut carries a block's call that failed for good; its normal
 	// outputs then carry nothing.
 	FailureOut interface{ FailureOutPort() <-chan Failure }
@@ -145,6 +164,8 @@ type (
 	StreamIn interface{ StreamInPort() chan<- Piece }
 	// InjectionIn takes text put into a live conversation from the side.
 	InjectionIn interface{ InjectionInPort() chan<- Injection }
+	// TranscriptIn takes a live conversation's transcript, both speakers.
+	TranscriptIn interface{ TranscriptInPort() chan<- Fragment }
 	// SecondaryTextIn is a block's second text input, apart from its first.
 	SecondaryTextIn interface{ SecondaryTextInPort() chan<- string }
 	// VoiceIn takes the voice a conversation speaks in, by id.
@@ -170,6 +191,7 @@ const (
 	// KindSetting is a game setting reaching the block that reads it: drawn,
 	// not carried, as the block holds the value from the start.
 	KindSetting
+	KindTranscript
 )
 
 func (k Kind) String() string {
@@ -192,6 +214,8 @@ func (k Kind) String() string {
 		return "injection"
 	case KindSetting:
 		return "setting"
+	case KindTranscript:
+		return "transcript"
 	}
 	return "unknown"
 }

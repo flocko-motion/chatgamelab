@@ -33,6 +33,10 @@ type Wiring struct {
 	// Injectable are the blocks that take an injection during play, by name.
 	Injectable map[string]blocks.Injectable
 
+	// Observers are the blocks that follow a conversation from the side, by
+	// name, so a reader can see where each stands and a developer can tune it.
+	Observers map[string]*blocks.Observer
+
 	// Gate opens once every block the first turn depends on reports done.
 	Gate *blocks.Gate
 

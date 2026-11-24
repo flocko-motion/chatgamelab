@@ -2,6 +2,7 @@ package genre
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"engine/internal/adapters"
@@ -31,6 +32,9 @@ type NPCLiveConfig struct {
 	// Voices makes and keeps the game's voice on the settled key; nil, or
 	// empty, leaves the built-in voice.
 	Voices *adapters.VoicesSlot
+	// BuiltinVoices are the platform's own voices, a voice falls back to one
+	// of: the brief proposes one that fits, in the game's language.
+	BuiltinVoices []adapters.BuiltinVoice
 
 	// InitPrompt is the cue the gate sends, which starts the game.
 	InitPrompt string
@@ -54,10 +58,105 @@ type NPCLiveConfig struct {
 const (
 	PromptConversationPolicy = "conversation-policy"
 	PromptGreeting           = "greeting"
+	PromptVoiceBrief         = "voice-brief"
+	PromptDirector           = "director"
 )
+
+// PromptDirector's own words; the scenario, the rules and the game's
+// language follow them when the wiring is built (directorBrief).
+const directorPrompt = "You are the director of a live voice conversation between a game character and a " +
+	"player. You do not speak in it, and you are not a puppeteer: the character speaks for itself, and " +
+	"its provider keeps what it says within bounds. You read the transcript as it happens, both sides " +
+	"with the time of each line, and notices of how long nobody has spoken.\n" +
+	"You are the emergency service, nothing more. Most of the time the conversation runs well, and " +
+	"then you do nothing at all: you listen. You step in only in an emergency:\n" +
+	"- the conversation dies: the character falls silent, runs out of ideas, hesitates and mumbles, " +
+	"repeats itself, or nothing happens any more;\n" +
+	"- it has left the track: it no longer has anything to do with the scenario, and does not find " +
+	"its way back;\n" +
+	"- it has gone off the rails completely: the character has dropped its role.\n" +
+	"Then you help it back, out of its scenario: a hint, a question, a turn of events, its goal. " +
+	"Anything less is no emergency, even if you would have played it differently.\n" +
+	"Almost always it runs: then answer with a single dot, \".\", and nothing else.\n" +
+	"In an emergency, say in one short sentence what is wrong, then add one line:\n" +
+	"[BACKGROUND] your usual way: a thought of the character's own, in the first person, which it " +
+	"knows from now on and may pick up, without being made to speak, e.g. what it could ask next, " +
+	"or which hint it could drop.\n" +
+	"[DIRECTION] only when background has not helped, or the character has dropped its role: an " +
+	"instruction that makes it act. It is held until the conversation pauses, and it stays in force " +
+	"afterwards, so word it short and lasting, address the character as \"you\", and never send the " +
+	"same aim twice.\n" +
+	"A notice of silence is yours to judge: if the player spoke last and nothing followed, the " +
+	"character owes an answer; if both have been quiet for a while, the conversation needs a push; if " +
+	"the character spoke last, the player may just be thinking, so let it be. Never make the " +
+	"character talk over the player.\n" +
+	"Lines marked \"injected by the player\" are what the player told the character by hand; take " +
+	"them into account.\n" +
+	"Never write anything for the character to say word for word."
+
+// PromptVoiceBrief's own words; the built-in voices to choose from and the
+// game's language follow them when the wiring is built (voiceBriefTail).
+const voiceBriefPrompt = "You write the prompt a voice design model makes a custom voice from, for a character in a " +
+	"game. Its policy decides what it makes, so the prompt must be one it accepts: an adult human " +
+	"voice, described only by how it sounds, with no person, character, creature or fictional being " +
+	"named, nothing to imitate, and no child.\n" +
+	"You are given the game author's note about the voice, which may be anything, in any language, " +
+	"or missing, and the character's scenario. The note comes first: where it says how the voice " +
+	"should sound, keep to it faithfully. Read the scenario only as background, to fill in what a " +
+	"sparse or vague note leaves open, or to describe the voice when there is no note.\n" +
+	"Write the prompt in English, as the voice's qualities: perceived gender, approximate age, " +
+	"pitch, timbre and texture, accent, speech rate, energy and mood. Turn what the model would " +
+	"refuse into the qualities that suggest it: a creature becomes the human voice that sounds like " +
+	"it (a troll: a very deep, rough, gravelly, slow adult voice), a young character a young " +
+	"adult's voice. At most 300 characters.\n" +
+	"Then propose the built-in voice that fits it best, should no voice be made from it."
+
+// voiceBriefTail lists the built-in voices to propose from and says the
+// game's language: the voice speaks it natively, and a voice that speaks it
+// is proposed before one that does not.
+func voiceBriefTail(voices []adapters.BuiltinVoice, language, scenario string) string {
+	var b strings.Builder
+	if strings.TrimSpace(scenario) != "" {
+		b.WriteString("\nThe character's scenario:\n" + scenario + "\n")
+	}
+	if language != "" {
+		name := languageName(language)
+		b.WriteString("\nThe character speaks " + name + ": the description says the voice speaks " +
+			name + " natively, and a built-in voice that speaks " + name + " is proposed before any other.")
+	}
+	b.WriteString("\nThe built-in voices:\n")
+	for _, v := range voices {
+		line := "- " + v.Name + ": speaks " + languageName(v.Language) + ", " + v.Accent
+		if v.Gender != "" {
+			line += ", " + v.Gender
+		}
+		b.WriteString(line + "\n")
+	}
+	return b.String()
+}
+
+// fallbackVoices are the built-in voices' names, those of the game's language
+// first, so the voice block falls back to one that speaks it.
+func fallbackVoices(voices []adapters.BuiltinVoice, language string) []string {
+	base, _, _ := strings.Cut(language, "-")
+	var own, other []string
+	for _, v := range voices {
+		if base != "" && v.Language == base {
+			own = append(own, v.Name)
+		} else {
+			other = append(other, v.Name)
+		}
+	}
+	return append(own, other...)
+}
 
 // NPCLivePrompts are the mechanics' own prompts; a spec may replace any by name.
 var NPCLivePrompts = Prompts{
+	PromptDirector: directorPrompt,
+
+	// Rewrites the author's voice style as a voice's qualities a provider makes.
+	PromptVoiceBrief: voiceBriefPrompt,
+
 	// The character speaks first: its opening words are written before the
 	// game opens and said as soon as the conversation starts.
 	PromptGreeting: "You write the first words a character says to the player when a conversation " +
@@ -83,13 +182,16 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	live := blocks.NewLiveSession("live-session", cfg.Live, adapters.LiveConfig{
 		Voice: cfg.Voice,
 		// Configuration rather than edges: both are fixed before the session exists.
-		Scenario:  cfg.Scenario + prompts[PromptConversationPolicy],
+		Scenario:  cfg.Scenario + prompts[PromptConversationPolicy] + speakClause(cfg.Language),
 		Guardrail: cfg.Guardrail,
 	}, cfg.IdleAfter)
 	// The voice style arrives from the voice block, labelled as the author's.
 	live.VoiceLead = authorLead("Your voice")
 
-	observer := blocks.NewObserver("observer")
+	observer := blocks.NewObserver("observer", blocks.ObserverConfig{
+		Tool:  cfg.Tool,
+		Brief: directorBrief(prompts[PromptDirector], cfg.Scenario, cfg.Guardrail, cfg.Language),
+	})
 
 	outText := blocks.NewPlayerOutputText("out-text", "text")
 	outAudio := blocks.NewPlayerOutputAudio("out-audio", "audio")
@@ -114,6 +216,13 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 		voices = &adapters.VoicesSlot{}
 	}
 	voice := blocks.NewVoice("voice", cfg.VoiceStyle, voices)
+	voice.Builtin = fallbackVoices(cfg.BuiltinVoices, cfg.Language)
+	// The author's voice style, as written, rewritten as a voice's qualities
+	// a provider makes a voice from, once, and kept across a restart.
+	voiceStyle := blocks.NewOnceText("voice-style", voiceNote(cfg.VoiceStyle)).AsSetting("voiceStyle").SendAgain()
+	voiceBrief := blocks.NewToolCall("voice-brief", cfg.Tool, prompts[PromptVoiceBrief]+voiceBriefTail(cfg.BuiltinVoices, cfg.Language, cfg.Scenario))
+	voiceBrief.Schema = voiceBriefSchema(cfg.BuiltinVoices)
+	voiceBrief.Keep = true
 
 	// The gate waits on the picture and the first words, so the player sees
 	// the game before speaking and the character speaks first.
@@ -129,12 +238,20 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	g.ConnectVoiceOut(voice, live)
 	g.ConnectSecondaryToSecondary(voice, live)
 	g.ConnectState(voice, gate)
+	g.ConnectTextOut(voiceStyle, voiceBrief)
+	// One reply, two wires: the description to make the voice from, and the
+	// built-in voice to fall back to.
+	g.ConnectField(voiceBrief, "description", voice)
+	g.ConnectFieldToSecondary(voiceBrief, "voice", voice)
+	// Without a brief the voice block has the note as written, at once, rather
+	// than wait for a brief that will not come.
+	g.ConnectFailureText(voiceBrief, voice)
 
 	// What the game's author set, shown where it goes: the voice is made from
 	// the voice style, which it hands on; the character is the scenario; the
 	// picture is the game's cover.
-	g.Setting(voice, "voiceStyle", cfg.VoiceStyle)
 	g.Setting(live, "scenario", cfg.Scenario)
+	g.Setting(voiceBrief, "scenario", cfg.Scenario)
 	g.Setting(picture, "cover", coverNote(cfg.GalleryImage))
 	g.ConnectTextOut(brief, greeting)
 	g.ConnectState(greeting, gate)
@@ -159,12 +276,15 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	w.Speak = func(b []byte) error { mic.Speak(b); return nil }
 
 	g.ConnectOpening(greeting, live)
-	g.ConnectAudioOut(live, outAudio)     // speech to the player
-	g.ConnectTextOut(live, outText)       // transcript as chat history
-	g.ConnectTextOut(live, observer)      // same source, independent stream
+	g.ConnectAudioOut(live, outAudio)   // speech to the player
+	g.ConnectTextOut(live, outText)     // transcript as chat history
+	g.ConnectTranscript(live, observer) // both speakers, with their timing
+	// The director acts only while a conversation is open.
+	g.ConnectState(live, observer)
 	g.ConnectInjectionOut(observer, live) // the back edge
 
 	w.Injectable = map[string]blocks.Injectable{observer.NodeName(): observer}
+	w.Observers = map[string]*blocks.Observer{observer.NodeName(): observer}
 	w.Gate = gate
 	w.Live = live
 	return w, nil
@@ -177,6 +297,15 @@ func openingBrief(scenario, gameStart string) string {
 		brief += "\n\nHow the game begins:\n" + gameStart
 	}
 	return brief
+}
+
+// speakClause asks the character to speak the player's language, when it is
+// known: a live voice answers in whatever it hears otherwise.
+func speakClause(tag string) string {
+	if tag == "" {
+		return ""
+	}
+	return "\nSpeak " + languageName(tag) + " with the player."
 }
 
 // languageClause asks for the player's language, when it is known.
@@ -194,4 +323,50 @@ func coverNote(picture []byte) string {
 		return "the game has no cover"
 	}
 	return fmt.Sprintf("the game's cover, %d bytes", len(picture))
+}
+
+// voiceNote is the author's voice style as the brief reads it; without one,
+// the brief still proposes a built-in voice, from the scenario alone.
+func voiceNote(style string) string {
+	if strings.TrimSpace(style) == "" {
+		return "(The author wrote no note about the voice.)"
+	}
+	return style
+}
+
+// voiceBriefSchema is the brief's reply: the prompt to make the voice from,
+// and the built-in voice that fits it best, one of those there are, so it
+// can propose no voice that does not exist.
+func voiceBriefSchema(voices []adapters.BuiltinVoice) *adapters.Schema {
+	names := make([]any, 0, len(voices))
+	for _, v := range voices {
+		names = append(names, v.Name)
+	}
+	voice := map[string]any{"type": "string", "description": "the built-in voice that fits best"}
+	if len(names) > 0 {
+		voice["enum"] = names
+	}
+	return &adapters.Schema{Name: "voice_brief", Body: map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"description": map[string]any{"type": "string", "description": "the prompt to make the voice from, at most 300 characters"},
+			"voice":       voice,
+		},
+		"required":             []any{"description", "voice"},
+		"additionalProperties": false,
+	}}
+}
+
+// directorBrief is the director's prompt with what it judges by: the
+// character's scenario, the rules every reply keeps to, and the language its
+// directions are in.
+func directorBrief(prompt, scenario, guardrail, language string) string {
+	brief := prompt + "\n\nThe character's scenario:\n" + scenario
+	if guardrail != "" {
+		brief += "\n\nRules the conversation keeps to, whatever else is said:\n" + guardrail
+	}
+	if language != "" {
+		brief += "\n\nWrite your directions and background in " + languageName(language) + "."
+	}
+	return brief
 }

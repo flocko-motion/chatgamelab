@@ -4,6 +4,7 @@ package mock
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"sync"
 	"time"
@@ -227,6 +228,36 @@ func (i Image) Generate(ctx context.Context, req adapters.ImageRequest) ([]byte,
 
 // Tool echoes its input, so a test can tell what reached it.
 type Tool struct{ Pace Pace }
+
+// QuerySchema answers JSON that fits the schema: an enum takes its first
+// value, a text the echoed input, so a test can tell what reached it.
+func (t Tool) QuerySchema(ctx context.Context, system, user string, schema adapters.Schema) (string, adapters.Usage, error) {
+	wait(ctx, t.Pace)
+	reply := map[string]any{}
+	props, _ := schema.Body["properties"].(map[string]any)
+	for name, raw := range props {
+		prop, _ := raw.(map[string]any)
+		switch {
+		case prop["enum"] != nil:
+			if values, ok := prop["enum"].([]string); ok && len(values) > 0 {
+				reply[name] = values[0]
+			} else if values, ok := prop["enum"].([]any); ok && len(values) > 0 {
+				reply[name] = values[0]
+			}
+		case prop["type"] == "string":
+			reply[name] = "[mock-tool] " + user
+		case prop["type"] == "integer" || prop["type"] == "number":
+			reply[name] = 0
+		case prop["type"] == "boolean":
+			reply[name] = false
+		default:
+			reply[name] = ""
+		}
+	}
+	body, err := json.Marshal(reply)
+	used := adapters.Usage{Model: "mock-tool", InputTokens: int64(len(system) + len(user)), OutputTokens: int64(len(body))}
+	return string(body), used, err
+}
 
 func (t Tool) Query(ctx context.Context, system, user string) (string, adapters.Usage, error) {
 	wait(ctx, t.Pace)

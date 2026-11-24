@@ -42,6 +42,8 @@ type LiveSession struct {
 
 	audio ports.AudioBroadcast
 	text  ports.TextBroadcast
+	// heard is the transcript as it comes, both speakers, with timing.
+	heard ports.FragmentBroadcast
 	state ports.StateBroadcast
 	usage ports.UsageBroadcast
 
@@ -200,7 +202,11 @@ func (b *LiveSession) SecondaryTextInPort() chan<- string { return b.styleIn }
 func (b *LiveSession) InjectionInPort() chan<- ports.Injection { return b.injected }
 
 func (b *LiveSession) AudioOutPort() <-chan ports.AudioChunk { return b.audio.Subscribe() }
-func (b *LiveSession) TextOutPort() <-chan string            { return b.text.Subscribe() }
+
+// TranscriptOutPort is the conversation as it is heard, both speakers, each
+// fragment with its timing: for a block that follows the whole exchange.
+func (b *LiveSession) TranscriptOutPort() <-chan ports.Fragment { return b.heard.Subscribe() }
+func (b *LiveSession) TextOutPort() <-chan string               { return b.text.Subscribe() }
 
 // RequiredInputs names audio so the wiring shows where the player's voice goes.
 func (b *LiveSession) RequiredInputs() []ports.Kind {
@@ -394,6 +400,9 @@ func (b *LiveSession) run(ctx context.Context) {
 		b.mu.Unlock()
 		b.converse(true)
 
+		// What was queued while there was no conversation belongs to none: it
+		// would reach the new one all at once.
+		b.dropQueued()
 		// The forwarding ends with its conversation, or a later one would
 		// lose instructions and injections to a conversation already closed.
 		conversation, endConversation := context.WithCancel(ctx)
@@ -595,7 +604,6 @@ func (b *LiveSession) greet(ctx context.Context, conn adapters.LiveConn) {
 		b.journal.Note(b.name, "cue", cue)
 		if err := conn.Instruct(ctx, cue); err != nil {
 			b.journal.Warn(b.name, "cue-rejected", err.Error())
-			b.notice("[engine] the opening cue was rejected: " + err.Error())
 		}
 	}
 	// Said rather than instructed: an instruction waits for the model's turn,
@@ -628,18 +636,16 @@ func (b *LiveSession) instruct(ctx context.Context, conn adapters.LiveConn) {
 			if !open {
 				return
 			}
+			// Refused, it is the journal's: the transcript stays the conversation.
 			if err := conn.Instruct(ctx, text); err != nil {
 				b.journal.Warn(b.name, "instruction-rejected", err.Error())
-				b.notice("[engine] instruction rejected: " + err.Error())
 			}
 		case in, open := <-b.injected:
 			if !open {
 				return
 			}
-			b.journal.Note(b.name, "injected", string(in.Kind)+": "+in.Text)
 			if err := inject(ctx, conn, in); err != nil {
 				b.journal.Warn(b.name, "injection-rejected", string(in.Kind)+": "+err.Error())
-				b.notice("[engine] " + string(in.Kind) + " rejected: " + err.Error())
 			}
 		}
 	}
@@ -762,6 +768,11 @@ func (b *LiveSession) handle(e adapters.LiveEvent) {
 		b.stir()
 		b.firstWords(e.Speaker)
 		b.remember(e.Speaker, e.Text)
+		speaker := SpeakerCharacter
+		if e.Speaker == adapters.SpeakerPlayer {
+			speaker = SpeakerPlayer
+		}
+		b.heard.Send(ports.Fragment{Speaker: speaker, Text: e.Text, StartMs: e.StartMs, EndMs: e.EndMs, At: time.Now()})
 		if e.Speaker == adapters.SpeakerPlayer {
 			// The player's own words are remembered but shown to nobody.
 			return
@@ -929,6 +940,7 @@ func (b *LiveSession) closeAll() {
 	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 	b.audio.Close()
 	b.text.Close()
+	b.heard.Close()
 	b.state.Close()
 	b.usage.Close()
 	b.invite.Close()
@@ -968,5 +980,24 @@ func (b *LiveSession) firstWords(who adapters.Speaker) {
 			speaker = "the player"
 		}
 		b.journal.Note(b.name, "first-words", speaker)
+	}
+}
+
+// dropQueued lets go of instructions and injections that waited while no
+// conversation was open, and notes how many.
+func (b *LiveSession) dropQueued() {
+	dropped := 0
+	for {
+		select {
+		case <-b.steer:
+			dropped++
+		case <-b.injected:
+			dropped++
+		default:
+			if dropped > 0 {
+				b.journal.Note(b.name, "dropped-queued", fmt.Sprintf("%d instructions and injections sent while no conversation was open", dropped))
+			}
+			return
+		}
 	}
 }

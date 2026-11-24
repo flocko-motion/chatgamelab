@@ -9,7 +9,8 @@ import "engine/internal/ports"
 var npcLiveLayout = ports.Layout{
 	"gallery-image":      {X: 111, Y: 68},
 	"greeting":           {X: 210, Y: 68},
-	"voice":              {X: 0, Y: 69},
+	"voice-brief":        {X: 0, Y: 30},
+	"voice":              {X: 0, Y: 100},
 	"start-game":         {X: 110, Y: 151},
 	"player-input-audio": {X: 5, Y: 279},
 	"live-session":       {X: 110, Y: 279},

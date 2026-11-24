@@ -346,6 +346,7 @@ func (a *API) SchemafRoutes() []schemafapi.Route {
 		schemafapi.NewRoute(NodeEndpoint{a}, "", ""),
 		schemafapi.NewRoute(CompactEndpoint{a}, "", ""),
 		schemafapi.NewRoute(InjectEndpoint{a}, "", ""),
+		schemafapi.NewRoute(BeatEndpoint{a}, "", ""),
 		schemafapi.NewRoute(EdgeEndpoint{a}, "", ""),
 		schemafapi.NewRoute(PromptsEndpoint{a}, "", ""),
 		schemafapi.NewRoute(GraphEndpoint{a}, "", ""),

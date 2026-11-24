@@ -39,14 +39,14 @@ and configured by prompt into whatever role a genre needs:
 
 | Block | Mechanism | Roles |
 | --- | --- | --- |
-| **Tool call** | one single-shot text-in/text-out call | rephrase, condense, translate |
+| **Tool call** | one single-shot call, text in; text out, or with a schema JSON whose fields wires take | rephrase, condense, translate, describe a voice |
 | **Tool call that takes audio** | one clip of speech in, a structured result out | rephrase of a spoken action |
 | **Threaded call** | a call on a continuing conversation, spoken while narration is on | Expand, sharing Outline's thread, and narration |
 | **Threaded call with a structured result** | a threaded call whose reply is JSON of a schema | Outline: its outline, image prompt and status |
 | **Image generation** | prompt in, image out | scene illustration |
 | **Gallery image** | a picture it is given, out once; the image generation's output and gate cycle, with no call | NPC-Live's picture |
 | **Live session** | a long-lived, full-duplex speech-to-speech connection | NPC-Live's conversation |
-| **Observer** | reads a live conversation's transcript and directs it, on a continuing conversation of its own | NPC-Live's observer |
+| **Observer** | reads a live conversation's transcript, both sides with their timing, and directs it, on a log of its own | NPC-Live's director |
 
 A new short transformation is a prompt on an existing block, which keeps the
 library small. Player inputs are source nodes and outputs are sink blocks
@@ -66,6 +66,11 @@ set, written by hand.
   player's text, so the prose appears as it is written; while narration is on
   its turns are spoken, and the audio reaches the player beside the text, as
   it comes.
+- **A wire can take one field of a structured reply** (`ConnectField`): a
+  tool call with a schema answers JSON, and each wire from it names the field
+  it carries, a text as it is, a tree as JSON, so one reply feeds several
+  blocks, each its part. A field the schema lacks fails where the graph is
+  built; the drawing labels the wire with its field.
 - **Fan-out** gives each consumer its own stream; **a cycle is a back edge**
   like any other. NPC-Live's observer loop is one.
 - **A per-genre test checks completeness**: every required input and output is
@@ -235,25 +240,40 @@ first. Without its first words the game starts on the instruction alone. The loo
 single live session, keeping the player's voice and the reply directly
 connected.
 
-Control comes from the side: an **observer** reads the conversation and
-directs the character back into the live session. It fits any live pipeline.
+Control comes from the side: an **observer**, shown as the director, reads
+the conversation and steps in only in an emergency: the conversation dies,
+leaves its track, or the character drops its role. While it runs, the
+director listens and does nothing. It fits any live pipeline.
 
 - **It reads both sides.** The live session hands it the transcript of the
   player and the character, each fragment with the provider's timestamps.
-- **It reads in flushes.** Fragments collect in a pool. On a fixed beat, one
-  second by default, everything that arrived more than one beat ago leaves the
+- **It reads in flushes.** Fragments collect in a pool. On a fixed beat, three
+  seconds by default, so it reads exchanges rather than scraps, everything that arrived more than one beat ago leaves the
   pool, sorted by the provider's timestamps, with neighbouring fragments of one
   speaker joined into a line. While the observer is busy, lines collect; when
   it is free, it reads all of them at once. A flush may end mid-sentence: the
   next one carries on, and the observer can act before a sentence ends. A
   fragment that arrives after later ones have left is sent with the next
   flush, marked as belonging earlier, and counted.
-- **It thinks aloud and directs by prefix.** It runs on a fast model without
-  reasoning, on a thread of its own, because a character softens across
-  several exchanges. What it writes is its monologue, kept on its thread and
-  shown in insights. A line starting `[DIRECTION]` is a direction, passed to
-  the live session as an instruction; a reply holds at most one, and a limit
-  bounds directions in a row, since each one makes more speech to read.
+- **It notices silence.** While nobody speaks, once the conversation has
+  begun, a notice joins the lines after two seconds: how long nobody has
+  spoken, and how long ago each side last did. Each further notice waits
+  twice as long, until someone speaks. The observer judges from it: the
+  player spoke last and nothing followed, or both are quiet, or the
+  character spoke last and the player is thinking.
+- **It thinks aloud and directs by prefix.** It runs on the tier's tooling
+  model, fast and without reasoning, one call at a time, on a log of its own:
+  the transcript, the notices, what the player injected and its own earlier
+  replies, the newest kept when the log grows long, because a character
+  softens across several exchanges. What it writes is its monologue, kept on
+  the log and shown in insights. A line starting `[DIRECTION]` is a
+  direction, passed to the live session as an instruction; `[BACKGROUND]` is
+  a thought of the character's own. Background is its usual means: it never
+  interrupts. A direction interrupts and stays in force, so it is rare: held
+  until both sides have paused (1.5 s by default), never sent again with the
+  same aim, the next one waiting until the character has answered, and at
+  most two in a row. A player's unfinished sentence is held back until it
+  ends or they pause.
 - **It injects three kinds**, on an edge of their own: a *direction*, an
   instruction the character follows, which may interrupt it; *background*,
   knowledge the character may use without saying it now; and *speech*, a line
@@ -266,8 +286,12 @@ directs the character back into the live session. It fits any live pipeline.
   and into the observer's pool, marked as the player's, so the observer sees
   it. The guardrail keeps its own channel, so an injection adds to it and
   never replaces it.
-- **Its figures** show in insights: late fragments and how late, flushes, lines
-  per flush. The beat can be changed during play on a dev server.
+- **Insights shows where it stands**, read again every second while it is
+  selected: whether it is thinking and for how long, how long ago each side
+  spoke, what waits in the pool and for the model, directions in a row, its
+  figures (fragments, beats, lines, late fragments and how late, notices,
+  calls and their time, what it sent and dropped), and its log. The beat can
+  be changed during play on a dev server.
 
 The scenario and the guardrail reach the model through separate channels of the
 live session, so designer text and the platform's constraint stay apart.
@@ -283,8 +307,8 @@ written into the engine.
   `audio-out` (narration), `audio-in` (voice input) and `audio-live`
   (full-duplex speech).
 - **A genre declares the toggles it needs**, so the genres a platform can run
-  follow from its toggles. NPC-Live needs `audio-live` and `images`; a launch
-  on a platform that lacks one is refused.
+  follow from its toggles. NPC-Live needs `audio-live`; a launch on a
+  platform that lacks it is refused.
 - **A tier decides quality, never whether a feature exists.** The tiers are
   `low`, `medium` and `high`, labelled Economy, Balanced and High; `max` is
   read as `high`.
@@ -348,9 +372,14 @@ game start, the image style its cover is drawn in, and the voice style.
   labelled as theirs. NPC-Live gives it to the character with the scenario;
   an Adventure puts it in the System Message for its spoken turns, where the
   narrator follows it.
-- **NPC-Live speaks in a voice made from it.** Its `voice` block, before the
-  gate, gives the conversation a custom GPT-Live voice made from the voice
-  style (prompt-to-voice), once per key and voice style: a voice belongs to
+- **NPC-Live speaks in a voice made from it.** The author's voice style may
+  say anything ("a fantasy troll"), which a provider's safety system refuses
+  to make a voice of; a tool call (`voice-brief`) first rewrites it as an
+  adult human voice's qualities, with no character, creature or person
+  named, and chooses the built-in voice that fits it best. Its `voice` block,
+  before the gate, gives the conversation a custom GPT-Live voice made from
+  that description (prompt-to-voice), once per key and voice style, kept
+  under the author's words: a voice belongs to
   the provider account behind the key, and any game with the same voice
   style on that key reuses it, a copy included. The platform keeps the
   voices (an `engine.VoiceStore` on each offer); the engine asks it first,
@@ -361,8 +390,9 @@ game start, the image style its cover is drawn in, and the voice style.
   provider's 100 to an organisation), the one unused longest. A voice the
   account's owner made elsewhere is never deleted; an account full of them
   speaks in the built-in voice. Without a
-  voice style, a store or a voice it can make, the built-in voice speaks,
-  the voice style still in the instructions; the journal says which.
+  voice style, a store or a voice it can make, the built-in voice the brief
+  chose speaks, the voice style still in the instructions; the journal says
+  which.
 - **Only the player's inputs are sources.** A node with no input that the
   player does not feed, such as the gallery image or the voice, is a block
   like any other, and is drawn as one.
@@ -747,8 +777,10 @@ session end to end with the headless playback-engine.
   tests.
 - NPC-Live end to end on real adapters: gallery image, live session with sideband,
   idle close and resume, cost reporting.
-- The observer, taking the transcript and injections typed by the player,
-  of the three kinds, which it passes to the live session.
+- The observer: both sides of the transcript with their timing, the pool on
+  its beat, silence notices, its log and model calls on the tooling model,
+  directions and background by prefix within their limit, injections typed
+  by the player passed on and logged, its state in insights.
 - The HTTP transport, the standalone launcher, and the headless playback-engine with its
   insights view.
 - The mock platform.
@@ -779,9 +811,6 @@ session end to end with the headless playback-engine.
 
 ### Missing
 
-- **The observer's own reading** — the live session's transcript of both
-  sides, the pool, the observer's thread, its directions and its figures. The
-  observer reads the character's transcript and lets it go.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the playback-engine needs.
 - **A veto block**, once the spec settles whether a turn can be rejected.

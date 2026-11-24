@@ -244,7 +244,8 @@ aside > .insights-details { flex: 1 1 0; }
 .runs-empty { color: var(--dim); padding: 0.25rem 0; }
 .run {
   display: flex;
-  align-items: center;
+  /* A long entry wraps; its time, mark and name stay on its first line. */
+  align-items: baseline;
   gap: 0.5rem;
   width: 100%;
   min-height: 2rem;
@@ -260,10 +261,10 @@ button.run { cursor: pointer; }
 button.run:hover { background: var(--gray-0); }
 .run-name { flex-shrink: 0; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .run-what {
+  flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   color: var(--dim);
   font-size: 0.75rem;
 }
@@ -487,3 +488,28 @@ aside h2 {
   border-left-color: var(--accent, var(--gray-7));
   background: color-mix(in srgb, var(--gray-5) 12%, transparent);
 }
+
+/* A director's state: its log reads like a chat, its own thinking and what
+   it sent set apart from the conversation it follows. */
+.observer-log {
+  max-height: 24rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.observer-entry {
+  display: flex;
+  flex-direction: column;
+  padding: 0.2rem 0.5rem;
+  border-left: 2px solid var(--gray-3);
+}
+.observer-entry.thought { border-left-color: var(--gray-6); font-style: italic; }
+.observer-entry.direction,
+.observer-entry.background { border-left-color: var(--accent, var(--gray-7)); background: color-mix(in srgb, var(--gray-5) 12%, transparent); }
+.observer-entry.silence { border-left-color: var(--gray-5); color: var(--dim); }
+.observer-entry.injection { border-left-color: #0891b2; }
+.observer-entry.dropped,
+.observer-entry.error { border-left-color: #d97706; }
+.observer-beat { display: flex; gap: 0.5rem; align-items: center; }
+.observer-beat input { width: 6rem; }

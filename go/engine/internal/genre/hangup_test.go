@@ -218,3 +218,32 @@ func TestInjectionsReachTheConversationAfterAHangUp(t *testing.T) {
 		t.Fatal("the injection reached no conversation")
 	}
 }
+
+// What was put in while no conversation was open does not reach the next one
+// all at once: it is let go, and the journal says so.
+func TestInjectionsQueuedWithoutAConversationAreLetGo(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	live := newScriptedLive()
+	w := hangupWiring(t, live)
+	invites := w.Live.Invitations()
+	w.Graph.Start(ctx)
+	nextInvitation(t, invites)
+	connect(t, ctx, w)
+	nextConversation(t, live).hangUp("remote_hangup")
+	nextInvitation(t, invites)
+
+	// No conversation now: this waits, and must not go into the next one.
+	if err := w.Inject("observer", ports.InjectDirection, "Sag etwas."); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(100 * time.Millisecond)
+	connect(t, ctx, w)
+	second := nextConversation(t, live)
+	select {
+	case call := <-second.calls:
+		t.Errorf("the new conversation got what was queued without one: %q", call)
+	case <-time.After(300 * time.Millisecond):
+	}
+}

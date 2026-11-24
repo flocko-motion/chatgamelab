@@ -196,3 +196,9 @@ type KeyFunc func(ctx context.Context) (string, error)
 type Tool interface {
 	Query(ctx context.Context, system, user string) (string, Usage, error)
 }
+
+// SchemaTool is a Tool that also answers in JSON of a schema, which the
+// provider holds it to in strict mode. A call with a schema needs one.
+type SchemaTool interface {
+	QuerySchema(ctx context.Context, system, user string, schema Schema) (string, Usage, error)
+}

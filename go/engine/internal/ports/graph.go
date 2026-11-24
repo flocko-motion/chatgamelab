@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -123,6 +124,62 @@ func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 	})
 }
 
+// ConnectField wires one field of a structured reply into a block's text
+// input: the wire takes the field, so a reply with several feeds several
+// blocks, each the part it reads. A field the reply's schema lacks is a
+// wiring mistake, caught where the graph is built.
+func (g *Graph) ConnectField(src StructuredOut, field string, dst TextIn) {
+	g.connectField(src, field, dst, dst.TextInPort())
+}
+
+// ConnectFieldToSecondary wires one field of a structured reply into a
+// block's second text input.
+func (g *Graph) ConnectFieldToSecondary(src StructuredOut, field string, dst SecondaryTextIn) {
+	g.connectField(src, field, dst, dst.SecondaryTextInPort())
+}
+
+func (g *Graph) connectField(src StructuredOut, field string, dst any, in chan<- string) {
+	if !src.HasField(field) {
+		panic(fmt.Sprintf("ports: %s has no field %q to wire to %s", NodeName(src), field, NodeName(dst)))
+	}
+	stream := src.StructuredOutPort()
+	fields := make(chan string)
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go func() {
+			defer close(fields)
+			for reply := range stream {
+				if value, ok := fieldOf(reply, field); ok {
+					select {
+					case fields <- value:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}()
+		go pumpChan(ctx, fields, in, g.watch(src, dst, KindText))
+	})
+	g.edges[len(g.edges)-1].Port = field
+}
+
+// fieldOf is one field of a JSON object as text: a string as it is, any
+// other value as JSON; false when the reply has no such field.
+func fieldOf(reply, field string) (string, bool) {
+	var object map[string]json.RawMessage
+	if json.Unmarshal([]byte(reply), &object) != nil {
+		return "", false
+	}
+	raw, ok := object[field]
+	if !ok {
+		return "", false
+	}
+	var text string
+	if json.Unmarshal(raw, &text) == nil {
+		return text, true
+	}
+	return string(raw), true
+}
+
 // ConnectVoiceOut wires a voice, by id, into the conversation that speaks in it.
 func (g *Graph) ConnectVoiceOut(src TextOut, dst VoiceIn) {
 	stream := src.TextOutPort()
@@ -208,6 +265,14 @@ func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	stream := src.ImageOutPort()
 	g.connect(src, dst, KindImage, func(ctx context.Context) {
 		go pumpChan(ctx, stream, dst.ImageInPort(), g.watch(src, dst, KindImage))
+	})
+}
+
+// ConnectTranscript wires a live conversation's transcript, both speakers.
+func (g *Graph) ConnectTranscript(src TranscriptOut, dst TranscriptIn) {
+	stream := src.TranscriptOutPort()
+	g.connect(src, dst, KindTranscript, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.TranscriptInPort(), g.watch(src, dst, KindTranscript))
 	})
 }
 

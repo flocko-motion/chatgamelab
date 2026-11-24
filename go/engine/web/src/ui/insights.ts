@@ -77,7 +77,9 @@ export class Insights {
       this.#drawn = [];
     }
     for (const entry of journal.slice(this.#drawn.length)) {
-      this.#add(entry);
+      // Phases change with every call; the pipeline shows them, and the
+      // history keeps to what happened.
+      if (entry.kind !== "phase") this.#add(entry);
       this.#drawn.push(entry);
     }
     if (journal.length === 0 && !list.querySelector(".runs-empty")) {
@@ -114,7 +116,6 @@ export class Insights {
     const what = document.createElement("span");
     what.className = "run-what";
     what.textContent = entry.detail ? `${entry.kind} · ${entry.detail}` : entry.kind;
-    what.title = what.textContent;
     row.append(mark, time, name, what);
     if (opens) {
       row.addEventListener("click", () => {

@@ -81,6 +81,22 @@ func (s *ToolSlot) Query(ctx context.Context, system, user string) (string, Usag
 	return text, used, err
 }
 
+// QuerySchema asks the held tool for JSON of a schema; a tool that answers
+// only in text cannot.
+func (s *ToolSlot) QuerySchema(ctx context.Context, system, user string, schema Schema) (string, Usage, error) {
+	held := s.held.Load()
+	if held == nil || *held == nil {
+		return "", Usage{}, ErrUnset
+	}
+	structured, ok := (*held).(SchemaTool)
+	if !ok {
+		return "", Usage{}, errors.New("adapters: this platform's tool answers only in text")
+	}
+	text, used, err := structured.QuerySchema(ctx, system, user, schema)
+	report(s.Report, err)
+	return text, used, err
+}
+
 // ImageSlot is an Image whose implementation can be replaced.
 type ImageSlot struct {
 	held atomic.Pointer[Image]

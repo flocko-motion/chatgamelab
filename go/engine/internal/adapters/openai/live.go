@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -36,21 +37,31 @@ func NewLive(keys adapters.KeyFunc, model string) *Live {
 	}
 }
 
-// builtinVoices catches a bad name before a session, whose voice is fixed, exists.
-// TODO: support custom voices, which are referenced by an object carrying their id.
-var builtinVoices = map[string]bool{
-	"alloy": true, "ash": true, "ballad": true, "beacon": true, "bossa": true,
-	"cedar": true, "cinder": true, "coral": true, "delta": true, "echo": true,
-	"gleam": true, "marin": true, "meridian": true, "quartz": true, "ripple": true,
-	"sage": true, "shimmer": true, "stone": true, "tempo": true, "verse": true,
-	"vesper": true, "willow": true,
-}
+// builtinVoices catches a bad name before a session, whose voice is fixed,
+// exists: GPT-Live's own (LiveVoices), and the classic voices a spec may still
+// name, which GPT-Live's guide does not list.
+var builtinVoices = func() map[string]bool {
+	known := map[string]bool{
+		"alloy": true, "ash": true, "ballad": true, "cedar": true, "coral": true,
+		"echo": true, "sage": true, "shimmer": true, "verse": true,
+	}
+	for _, v := range LiveVoices {
+		known[v.Name] = true
+	}
+	return known
+}()
 
 // DefaultVoice is GPT-Live's own default, and gpt-realtime speaks it too; it
 // is used when a spec names none.
 const DefaultVoice = "marin"
 
-// ValidLiveVoice reports whether a name is one GPT-Live knows.
+// voiceRefused reports whether a refusal was for the voice asked for.
+func voiceRefused(err error) bool {
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "voice") && !errors.Is(err, adapters.ErrKeyRejected) && !errors.Is(err, adapters.ErrNoCredit)
+}
+
+// ValidLiveVoice reports whether a name is one GPT-Live's catalogue knows.
 func ValidLiveVoice(name string) bool { return builtinVoices[name] }
 
 func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.LiveConn, error) {
@@ -61,10 +72,8 @@ func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.Live
 	if voice == "" {
 		voice = DefaultVoice
 	}
-	// A voice made from a description goes by its id, which the provider checks.
-	if !CustomVoice(voice) && !ValidLiveVoice(voice) {
-		return nil, fmt.Errorf("gpt-live: unknown voice %q", voice)
-	}
+	// Whether a voice exists is the provider's to say: the catalogue is kept by
+	// hand and may lag behind it.
 
 	key, err := l.keys(ctx)
 	if err != nil {
@@ -72,6 +81,11 @@ func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.Live
 	}
 
 	id, answer, err := l.create(ctx, key, cfg, voice)
+	// A voice the provider no longer has, or a made one deleted since, costs
+	// the voice, not the conversation: it opens in the default voice.
+	if err != nil && voice != DefaultVoice && voiceRefused(err) {
+		id, answer, err = l.create(ctx, key, cfg, DefaultVoice)
+	}
 	if err != nil {
 		return nil, err
 	}

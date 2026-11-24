@@ -31,6 +31,15 @@ type Voice struct {
 	style string
 	slot  *adapters.VoicesSlot
 
+	// Builtin are the built-in voices a brief may choose as the fallback, by
+	// name; the first is the one taken when it chooses none. Set before Start.
+	Builtin []string
+
+	// in takes the description to make the voice from: the voice style
+	// rewritten as a voice's qualities, or, should that fail, as written.
+	// fallbackIn takes the built-in voice to speak in should none be made.
+	in, fallbackIn ports.TextInput
+
 	// Wait is how long it waits for another session's voice, Poll how often
 	// it looks; set before Start.
 	Wait, Poll time.Duration
@@ -46,10 +55,19 @@ type Voice struct {
 
 // NewVoice makes the block for a voice style; an empty one makes no voice.
 func NewVoice(name, style string, slot *adapters.VoicesSlot) *Voice {
-	return &Voice{name: name, style: strings.TrimSpace(style), slot: slot, Wait: 30 * time.Second, Poll: 500 * time.Millisecond, Cap: 90}
+	return &Voice{
+		name: name, style: strings.TrimSpace(style), slot: slot,
+		Wait: 30 * time.Second, Poll: 500 * time.Millisecond, Cap: 90,
+		in: make(ports.TextInput, 4), fallbackIn: make(ports.TextInput, 4),
+	}
 }
 
 func (b *Voice) NodeName() string { return b.name }
+
+// TextInPort takes the description to make the voice from;
+// SecondaryTextInPort the built-in voice to fall back to, by name.
+func (b *Voice) TextInPort() chan<- string          { return b.in }
+func (b *Voice) SecondaryTextInPort() chan<- string { return b.fallbackIn }
 
 // TextOutPort is the voice, by id; SecondaryTextOutPort the voice style.
 func (b *Voice) TextOutPort() <-chan string          { return b.out.Subscribe() }
@@ -110,33 +128,34 @@ func (b *Voice) madeBefore(ctx context.Context) string {
 	return id
 }
 
-// voice is the id to speak in, or "" for the built-in voice; the journal
-// says which and why.
+// voice is the voice to speak in: a voice made from the brief, by id; else
+// the built-in voice the brief chose, by name; "" for the conversation's own.
+// The journal says which and why.
 func (b *Voice) voice(ctx context.Context) string {
+	description, fallback := b.awaitBrief(ctx)
+	// No voice is made without the author's own words: the built-in voice the
+	// brief proposed from the scenario speaks.
 	if b.style == "" {
-		b.journal.Note(b.name, "built-in", "the game has no voice style: the built-in voice speaks")
-		return ""
+		b.journal.Note(b.name, "built-in", "the game has no voice style: "+b.builtinSaying(fallback))
+		return fallback
 	}
 	maker, store := b.slot.Get()
 	if maker == nil || store == nil {
-		b.journal.Note(b.name, "built-in", "this platform makes no voices: the built-in voice speaks, as the voice style says")
-		return ""
+		b.journal.Note(b.name, "built-in", "this platform makes no voices: "+b.builtinSaying(fallback))
+		return fallback
 	}
 	hash := StyleHash(b.style)
 
-	if id, _, err := store.Lookup(ctx, hash); err == nil && id != "" {
-		_ = store.Touch(ctx, hash)
-		b.journal.Note(b.name, "reused", "the voice made before for this voice style on this key: "+id)
-		return id
-	}
-
 	claimed, err := store.Claim(ctx, hash)
 	if err != nil {
-		b.journal.Warn(b.name, "store-failed", "the voices could not be read: "+err.Error()+"; the built-in voice speaks")
-		return ""
+		b.journal.Warn(b.name, "store-failed", "the voices could not be read: "+err.Error()+"; "+b.builtinSaying(fallback))
+		return fallback
 	}
 	if !claimed {
-		return b.awaitOther(ctx, store, hash)
+		if id := b.awaitOther(ctx, store, hash); id != "" {
+			return id
+		}
+		return fallback
 	}
 
 	// A voice once begun is finished and kept, even when this session ends
@@ -144,11 +163,11 @@ func (b *Voice) voice(ctx context.Context) string {
 	making, cancel := context.WithTimeout(context.WithoutCancel(ctx), voiceMaking)
 	defer cancel()
 	started := time.Now()
-	id, err := b.create(making, maker, store, hash)
+	id, err := b.create(making, maker, store, hash, description)
 	if err != nil {
 		_ = store.Release(making, hash)
-		b.journal.Warn(b.name, "create-failed", "no voice could be made: "+err.Error()+"; the built-in voice speaks, as the voice style says")
-		return ""
+		b.journal.Warn(b.name, "create-failed", "no voice could be made: "+err.Error()+"; "+b.builtinSaying(fallback))
+		return fallback
 	}
 	if err := store.Record(making, hash, id); err != nil {
 		b.journal.Warn(b.name, "store-failed", "the new voice "+id+" could not be kept: "+err.Error())
@@ -157,20 +176,95 @@ func (b *Voice) voice(ctx context.Context) string {
 	return id
 }
 
+// awaitBrief waits for the description to make the voice from, and takes the
+// built-in voice to fall back to when one comes with it. Without a
+// description in time the voice style itself is the description; without a
+// fitting fallback, the first built-in voice.
+func (b *Voice) awaitBrief(ctx context.Context) (description, fallback string) {
+	fallback = b.firstBuiltin()
+	deadline := time.After(b.Wait)
+	for description == "" {
+		select {
+		case <-ctx.Done():
+			return firstNonEmpty(description, b.style), fallback
+		case <-deadline:
+			b.journal.Warn(b.name, "no-brief", "the voice style was not described in time; it goes to the provider as written")
+			return b.style, fallback
+		case chosen := <-b.fallbackIn:
+			if b.builtinKnown(chosen) {
+				fallback = chosen
+			}
+		case got, open := <-b.in:
+			if !open {
+				return b.style, fallback
+			}
+			description = strings.TrimSpace(got)
+			if description == "" {
+				description = b.style
+			}
+		}
+	}
+	// The fallback comes from the same reply as the description: a moment's
+	// grace, so it is not missed for arriving second.
+	select {
+	case chosen := <-b.fallbackIn:
+		if b.builtinKnown(chosen) {
+			fallback = chosen
+		}
+	case <-time.After(50 * time.Millisecond):
+	}
+	if b.style == "" {
+		description = ""
+	}
+	b.journal.Note(b.name, "described", "the voice to make: "+firstNonEmpty(description, "(none, no voice style)")+" (built-in voice if none can be made: "+fallback+")")
+	return firstNonEmpty(description, b.style), fallback
+}
+
+func firstNonEmpty(a, b string) string {
+	if a != "" {
+		return a
+	}
+	return b
+}
+
+func (b *Voice) firstBuiltin() string {
+	if len(b.Builtin) == 0 {
+		return ""
+	}
+	return b.Builtin[0]
+}
+
+func (b *Voice) builtinKnown(name string) bool {
+	for _, v := range b.Builtin {
+		if v == name {
+			return true
+		}
+	}
+	return false
+}
+
+// builtinSaying says which voice speaks instead, for the journal.
+func (b *Voice) builtinSaying(fallback string) string {
+	if fallback == "" {
+		return "the built-in voice speaks, as the voice style says"
+	}
+	return "the built-in voice " + fallback + " speaks, as the voice style says"
+}
+
 // create makes the voice, clearing room first; if the provider still
 // refuses for its limit, it clears away one more voice of ours and tries
 // once more.
-func (b *Voice) create(ctx context.Context, maker adapters.Voices, store adapters.VoiceStore, hash string) (string, error) {
+func (b *Voice) create(ctx context.Context, maker adapters.Voices, store adapters.VoiceStore, hash, description string) (string, error) {
 	b.clearRoom(ctx, maker, store)
 	name := adapters.VoiceNamePrefix + hash[:12]
-	id, err := maker.Create(ctx, name, b.style)
+	id, err := maker.Create(ctx, name, description)
 	if err == nil || !atLimit(err) {
 		return id, err
 	}
 	if !b.evictOne(ctx, maker, store) {
 		return "", fmt.Errorf("%w; the account's voices were made outside ChatGameLab, and none of them is deleted", err)
 	}
-	return maker.Create(ctx, name, b.style)
+	return maker.Create(ctx, name, description)
 }
 
 // clearRoom deletes voices of ours nothing can use, those the store no

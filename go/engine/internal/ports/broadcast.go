@@ -62,6 +62,7 @@ type (
 	StreamInput    = chan Piece
 	FailureInput   = chan Failure
 	InjectionInput = chan Injection
+	FragmentInput  = chan Fragment
 )
 
 type (
@@ -74,4 +75,5 @@ type (
 	StreamBroadcast    = Broadcast[Piece]
 	FailureBroadcast   = Broadcast[Failure]
 	InjectionBroadcast = Broadcast[Injection]
+	FragmentBroadcast  = Broadcast[Fragment]
 )

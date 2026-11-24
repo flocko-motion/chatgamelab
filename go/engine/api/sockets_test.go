@@ -162,3 +162,35 @@ func TestASessionWithAPageOpenStays(t *testing.T) {
 		t.Error("a session with a page open was unloaded")
 	}
 }
+
+// An observer's beat is a tuning knob: set on a dev server, refused elsewhere,
+// and its state shows in the block's details.
+func TestTheBeatIsSetOnDevServersOnly(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	session, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreNPCLive, ID: "beat", Scenario: "A bridge."}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	dev := newServer(t, "beat", session)
+	resp := post(t, dev.URL+"/api/engine/sessions/beat/nodes/observer/beat", map[string]int{"ms": 2500})
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("a dev server refused the beat: %d", resp.StatusCode)
+	}
+	if detail, _ := session.Inspect("observer"); detail.Observer == nil || detail.Observer.BeatMs != 2500 {
+		t.Errorf("the observer's details do not show the new beat: %+v", detail.Observer)
+	}
+
+	a := api.New(api.Options{})
+	a.Register("beat", session)
+	plain := httptest.NewServer(serve(a))
+	defer plain.Close()
+	resp = post(t, plain.URL+"/api/engine/sessions/beat/nodes/observer/beat", map[string]int{"ms": 1000})
+	resp.Body.Close()
+	if resp.StatusCode == http.StatusOK {
+		t.Error("a server that is no dev server set the beat")
+	}
+}

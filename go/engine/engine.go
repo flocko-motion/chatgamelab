@@ -328,6 +328,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 			Voice:          spec.Voice,
 			VoiceStyle:     spec.VoiceStyle,
 			Voices:         &s.slots.voices,
+			BuiltinVoices:  openai.LiveVoices,
 			Guardrail:      spec.Guardrail,
 			Scenario:       spec.Scenario,
 			InitPrompt:     spec.initPrompt(),
@@ -620,7 +621,13 @@ type NodeDetail struct {
 	// Transcript is a conversation's so far, both speakers, oldest first, for
 	// the block that holds one.
 	Transcript []TranscriptLine `json:"transcript,omitempty"`
+	// Observer is where a block following a conversation from the side
+	// stands: its pool, its timers, its figures and its log.
+	Observer *ObserverState `json:"observer,omitempty"`
 }
+
+// ObserverState is where an observer stands, for a reader.
+type ObserverState = blocks.ObserverState
 
 // TranscriptLine is one turn of a conversation: who spoke, and what.
 type TranscriptLine = blocks.TranscriptLine
@@ -656,6 +663,10 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 	if live := s.wiring.Live; live != nil && live.NodeName() == name {
 		detail.Transcript = live.Transcript()
 	}
+	if observer, ok := s.wiring.Observers[name]; ok {
+		state := observer.State()
+		detail.Observer = &state
+	}
 	if _, ok := s.wiring.Injectable[name]; ok {
 		detail.Injectable = true
 		for _, kind := range ports.InjectionKinds {
@@ -663,6 +674,20 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 		}
 	}
 	return detail, true
+}
+
+// SetBeat changes how long an observer's fragments wait before they go to
+// its model, during play. A block that is no observer is refused.
+func (s *Session) SetBeat(block string, beat time.Duration) error {
+	observer, ok := s.wiring.Observers[block]
+	if !ok {
+		return fmt.Errorf("no observer named %q", block)
+	}
+	if err := observer.SetBeat(beat); err != nil {
+		return err
+	}
+	s.journal.Note(block, "beat", beat.String())
+	return nil
 }
 
 // Compact asks a block's thread to compact now, between calls: it summarises

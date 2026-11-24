@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"engine/internal/adapters"
+	"engine/internal/adapters/mock"
 	"engine/internal/blocks"
 	"engine/internal/ports"
 )
@@ -242,4 +243,69 @@ func (c *countingTool) Query(_ context.Context, _, user string) (string, adapter
 	defer c.mu.Unlock()
 	c.calls++
 	return "reply to " + user, adapters.Usage{}, nil
+}
+
+// textSink takes text, for a test to read what a wire brought.
+type textSink struct {
+	name string
+	in   chan string
+}
+
+func (s *textSink) NodeName() string          { return s.name }
+func (s *textSink) TextInPort() chan<- string { return s.in }
+
+// A call with a schema answers JSON, and each wire takes the field it names:
+// a text as it is, a tree as JSON.
+func TestStructuredToolCallFeedsEachWireItsField(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	call := blocks.NewToolCall("brief", mock.Tool{}, "describe")
+	call.Schema = &adapters.Schema{Name: "brief", Body: map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"description": map[string]any{"type": "string"},
+			"voice":       map[string]any{"type": "string", "enum": []any{"stone", "marin"}},
+		},
+		"required":             []any{"description", "voice"},
+		"additionalProperties": false,
+	}}
+	description := &textSink{name: "description", in: make(chan string, 1)}
+	voice := &textSink{name: "voice", in: make(chan string, 1)}
+
+	g := ports.NewGraph("test")
+	g.ConnectField(call, "description", description)
+	g.ConnectField(call, "voice", voice)
+	g.Start(ctx)
+	call.TextInPort() <- "a troll"
+
+	for _, tc := range []struct {
+		sink *textSink
+		want string
+	}{{description, "[mock-tool] a troll"}, {voice, "stone"}} {
+		select {
+		case got := <-tc.sink.in:
+			if got != tc.want {
+				t.Errorf("%s got %q, want %q", tc.sink.name, got, tc.want)
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatalf("%s got nothing", tc.sink.name)
+		}
+	}
+}
+
+// A wire naming a field the schema lacks is a wiring mistake, caught where
+// the graph is built.
+func TestAWireToAFieldTheSchemaLacksIsRefused(t *testing.T) {
+	call := blocks.NewToolCall("brief", mock.Tool{}, "describe")
+	call.Schema = &adapters.Schema{Name: "brief", Body: map[string]any{
+		"type": "object", "properties": map[string]any{"description": map[string]any{"type": "string"}},
+		"required": []any{"description"}, "additionalProperties": false,
+	}}
+	defer func() {
+		if recover() == nil {
+			t.Error("a wire to a missing field was taken")
+		}
+	}()
+	ports.NewGraph("test").ConnectField(call, "voices", &textSink{name: "x", in: make(chan string, 1)})
 }
