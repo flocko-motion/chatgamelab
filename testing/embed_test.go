@@ -2,8 +2,6 @@ package testing
 
 import (
 	"fmt"
-	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -89,7 +87,7 @@ func (s *EmbedTestSuite) TestAVerifiedPagePlaysOnlyOnceApproved() {
 	MustSucceed(start("b"))
 
 	// The admin approved the site: another path or port on it keeps the approval.
-	moved := Must(w.head.UpdateVerifiedPage(page.Id.String(), otherPort(h.URL)+"/elsewhere", h.URL+"/callback"))
+	moved := Must(w.head.UpdateVerifiedPage(page.Id.String(), h.OnAnotherPort()+"/elsewhere", h.URL+"/callback"))
 	s.NotNil(moved.ApprovedAt, "a new path and port on the same site stay approved")
 	MustSucceed(start("c"))
 
@@ -109,16 +107,8 @@ func (s *EmbedTestSuite) TestAVerifiedPagesCallbackIsOnItsSite() {
 
 	_, err := w.head.CreateVerifiedPage(w.org, h.URL+"/play", elsewhere+"/callback")
 	s.Invalid(err, "a callback on another host")
-	page := Must(w.head.CreateVerifiedPage(w.org, otherPort(h.URL)+"/play", h.URL+"/hooks/start"))
+	page := Must(w.head.CreateVerifiedPage(w.org, h.OnAnotherPort()+"/play", h.URL+"/hooks/start"))
 	s.Equal("http://127.0.0.1", page.Site, "the site has no port")
-}
-
-// otherPort is address with another port, on the same scheme and host.
-func otherPort(address string) string {
-	u := Must(url.Parse(address))
-	port := Must(strconv.Atoi(u.Port()))
-	u.Host = u.Hostname() + ":" + strconv.Itoa(port%60000+1)
-	return u.String()
 }
 
 // A game its designer, head or staff, wrote outside any workshop is the
@@ -224,25 +214,58 @@ func (s *EmbedTestSuite) TestAVerifiedPageStartsAGameOnlyOnItsHostsYes() {
 	s.Contains(policy, "img-src 'self' data: blob: http://127.0.0.1:*")
 }
 
-// A returning visitor of a verified page is the same guest; another
-// visitor is another guest.
-func (s *EmbedTestSuite) TestAReturningVisitorIsTheSameGuest() {
+// embedToken is the token of a game embedded on an approved verified page.
+func (s *EmbedTestSuite) embedToken() string {
 	w := s.world()
-	h := s.StartHost()
-	page := s.approvedPage(w, h)
-	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{
+	page := s.approvedPage(w, s.StartHost())
+	return Must(w.head.SetGameEmbed(w.game, testutil.Embedding{
 		Enabled: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
-	}))
+	})).Token
+}
 
-	first := Must(s.Public().CreateSession(testutil.ForShare(embed.Token).FromHost("visitor-9", "a")))
-	again := Must(s.Public().CreateSession(testutil.ForShare(embed.Token).FromHost("visitor-9", "b")))
-	other := Must(s.Public().CreateSession(testutil.ForShare(embed.Token).FromHost("visitor-10", "c")))
+// visit starts the embedded game for the host's visitor and answers the
+// session.
+func (s *EmbedTestSuite) visit(token, visitor, request string) string {
+	return Must(s.Public().CreateSession(testutil.ForShare(token).FromHost(visitor, request)))
+}
 
-	guests := func(ids ...string) int {
-		return s.DatabaseCount(fmt.Sprintf("SELECT COUNT(DISTINCT user_id) FROM game_session WHERE id IN ('%s')", strings.Join(ids, "','")))
-	}
-	s.Equal(1, guests(first, again), "the same visitor")
-	s.Equal(2, guests(first, other), "another visitor")
+// guests is how many guests play the sessions.
+func (s *EmbedTestSuite) guests(sessions ...string) int {
+	return s.DatabaseCount(fmt.Sprintf("SELECT COUNT(DISTINCT user_id) FROM game_session WHERE id IN ('%s')", strings.Join(sessions, "','")))
+}
+
+// Every start on a verified page is a new game: a returning visitor is the
+// same guest, playing a new session.
+func (s *EmbedTestSuite) TestEveryStartOnAVerifiedPageIsANewGame() {
+	token := s.embedToken()
+
+	first := s.visit(token, "visitor-9", "a")
+	again := s.visit(token, "visitor-9", "b")
+
+	s.NotEqual(first, again, "a returning visitor starts a new game")
+	s.Equal(1, s.guests(first, again), "a returning visitor is the same guest")
+}
+
+// Another visitor of a verified page is another guest.
+func (s *EmbedTestSuite) TestAnotherVisitorIsAnotherGuest() {
+	token := s.embedToken()
+
+	first := s.visit(token, "visitor-9", "a")
+	other := s.visit(token, "visitor-10", "b")
+
+	s.Equal(2, s.guests(first, other), "another visitor is another guest")
+}
+
+// A visitor's guest exists only for embedded play: it holds no login code,
+// email or login of its own to sign in with, and starting a game hands out
+// nothing but the session's id.
+func (s *EmbedTestSuite) TestAnEmbedGuestHasNoWayIntoThePlatform() {
+	session := s.visit(s.embedToken(), "visitor-9", "a")
+
+	guest := fmt.Sprintf("SELECT COUNT(*) FROM app_user u JOIN game_session g ON g.user_id = u.id WHERE g.id = '%s'", session)
+	s.Require().Equal(1, s.DatabaseCount(guest+" AND u.outside_id IS NOT NULL"), "the visitor's guest")
+	s.Equal(1, s.DatabaseCount(guest+" AND u.guest_token IS NULL AND u.email IS NULL AND u.auth0_id IS NULL"),
+		"no login code, email or login")
 }
 
 // A game embeds only for a verified page of its own organisation.
